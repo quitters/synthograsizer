@@ -1,0 +1,145 @@
+/* Theme CSS Variables */
+
+/* Dark Theme (Default) */
+.dark-theme {
+  /* Color Palette */
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #242424;
+  --bg-tertiary: #2a2a2a;
+  --bg-quaternary: #333333;
+  
+  --text-primary: #f0f0f0;
+  --text-secondary: #c0c0c0;
+  --text-tertiary: #909090;
+  --text-on-accent: #ffffff;
+  
+  --accent-primary: #6a5acd;    /* Slate Blue */
+  --accent-secondary: #9370db;  /* Medium Purple */
+  --accent-tertiary: #b19cd9;   /* Light Purple */
+  
+  --success: #4caf50;
+  --warning: #ff9800;
+  --error: #f44336;
+  --info: #2196f3;
+  
+  --border-color: #444444;
+  --shadow-color: rgba(0, 0, 0, 0.3);
+  
+  /* UI Elements */
+  --shadow-sm: 0 2px 4px var(--shadow-color);
+  --shadow-md: 0 4px 8px var(--shadow-color);
+  --shadow-lg: 0 8px 16px var(--shadow-color);
+  
+  --border-radius-sm: 4px;
+  --border-radius-md: 8px;
+  --border-radius-lg: 12px;
+  
+  /* Typography */
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.25rem;
+  --font-size-xl: 1.5rem;
+  --font-size-2xl: 2rem;
+  
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  
+  /* Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.3s ease;
+  --transition-slow: 0.5s ease;
+  
+  /* Node Editor Specific */
+  --node-bg: #2d2d2d;
+  --node-border: #444444;
+  --node-selected: var(--accent-primary);
+  --node-header: #333333;
+  --node-title: #ffffff;
+  --connection-line: var(--accent-secondary);
+  --grid-color: rgba(255, 255, 255, 0.05);
+  --grid-size: 20px;
+  
+  /* Knob Specific */
+  --knob-bg: #333333;
+  --knob-track: #444444;
+  --knob-indicator: var(--accent-primary);
+  --knob-value: #ffffff;
+}
+
+/* Light Theme */
+.light-theme {
+  /* Color Palette */
+  --bg-primary: #f5f5f5;
+  --bg-secondary: #e8e8e8;
+  --bg-tertiary: #dddddd;
+  --bg-quaternary: #d0d0d0;
+  
+  --text-primary: #333333;
+  --text-secondary: #555555;
+  --text-tertiary: #777777;
+  --text-on-accent: #ffffff;
+  
+  --accent-primary: #6a5acd;    /* Slate Blue */
+  --accent-secondary: #9370db;  /* Medium Purple */
+  --accent-tertiary: #b19cd9;   /* Light Purple */
+  
+  --success: #4caf50;
+  --warning: #ff9800;
+  --error: #f44336;
+  --info: #2196f3;
+  
+  --border-color: #cccccc;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  
+  /* UI Elements */
+  --shadow-sm: 0 2px 4px var(--shadow-color);
+  --shadow-md: 0 4px 8px var(--shadow-color);
+  --shadow-lg: 0 8px 16px var(--shadow-color);
+  
+  --border-radius-sm: 4px;
+  --border-radius-md: 8px;
+  --border-radius-lg: 12px;
+  
+  /* Typography */
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.25rem;
+  --font-size-xl: 1.5rem;
+  --font-size-2xl: 2rem;
+  
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  
+  /* Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.3s ease;
+  --transition-slow: 0.5s ease;
+  
+  /* Node Editor Specific */
+  --node-bg: #ffffff;
+  --node-border: #dddddd;
+  --node-selected: var(--accent-primary);
+  --node-header: #f0f0f0;
+  --node-title: #333333;
+  --connection-line: var(--accent-secondary);
+  --grid-color: rgba(0, 0, 0, 0.05);
+  --grid-size: 20px;
+  
+  /* Knob Specific */
+  --knob-bg: #f0f0f0;
+  --knob-track: #dddddd;
+  --knob-indicator: var(--accent-primary);
+  --knob-value: #333333;
+}

@@ -1,0 +1,424 @@
+/* Prompt Section Styles */
+.prompt-section {
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    padding: var(--spacing-lg);
+    margin: 0 var(--spacing-md);
+    box-shadow: var(--shadow-md);
+    position: relative;
+}
+
+.prompt-input {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.prompt-input label {
+    color: var(--text-secondary);
+    font-size: 0.9em;
+    font-weight: 500;
+}
+
+.prompt-input input {
+    width: 100%;
+    padding: var(--spacing-md);
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    color: var(--text-primary);
+    font-size: 1.1em;
+    transition: all var(--transition-fast);
+}
+
+.prompt-input input:focus {
+    border-color: var(--accent-primary);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+}
+
+.prompt-output {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: var(--spacing-md);
+    min-height: 60px;
+    margin-top: var(--spacing-sm);
+    font-family: monospace;
+    white-space: pre-wrap;
+    word-break: break-word;
+    color: var(--text-secondary);
+}
+
+.prompt-toggle {
+    position: absolute;
+    top: var(--spacing-md);
+    right: var(--spacing-md);
+}
+
+.toggle-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+}
+
+.toggle-btn:hover {
+    background: var(--accent-primary);
+    border-color: var(--accent-primary);
+}
+
+.negative-prompt {
+    margin-top: var(--spacing-lg);
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid var(--border-color);
+    animation: slideDown var(--transition-normal);
+}
+
+/* Variable Tokens */
+.token {
+    display: inline-flex;
+    align-items: center;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 2px 8px;
+    margin: 0 2px;
+    font-size: 0.9em;
+    color: var(--accent-primary);
+}
+
+.token.midi-mapped {
+    border-color: var(--accent-secondary);
+    color: var(--accent-secondary);
+}
+
+.token .value {
+    color: var(--text-secondary);
+    margin-left: 4px;
+}
+
+/* Animations */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 900px) {
+    .prompt-section {
+        margin: 0;
+        border-radius: 0;
+    }
+}
+
+/* Dark Theme Enhancements */
+.dark-theme .prompt-input input {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.dark-theme .prompt-output {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+/* Token Highlighting */
+.token-highlight {
+    position: absolute;
+    pointer-events: none;
+    background: rgba(76, 175, 80, 0.1);
+    border: 1px solid var(--accent-primary);
+    border-radius: 4px;
+    transition: all var(--transition-fast);
+}
+
+/* Prompt Manager Layout */
+.prompt-manager {
+    display: flex;
+    height: 100%;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+/* Sidebar Styles */
+.prompt-sidebar {
+    width: 300px;
+    background: var(--bg-secondary);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    transition: width var(--transition-normal);
+}
+
+.prompt-sidebar.collapsed {
+    width: 48px;
+}
+
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.sidebar-header h3 {
+    margin: 0;
+    font-size: 1.1em;
+    font-weight: 500;
+}
+
+.collapse-btn {
+    width: 24px;
+    height: 24px;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform var(--transition-normal);
+}
+
+.collapsed .collapse-btn {
+    transform: rotate(180deg);
+}
+
+.sidebar-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--spacing-md);
+}
+
+.collapsed .sidebar-content {
+    display: none;
+}
+
+/* Property Groups */
+.property-group {
+    margin-bottom: var(--spacing-lg);
+}
+
+.property-group h4 {
+    margin: 0 0 var(--spacing-md);
+    color: var(--text-secondary);
+    font-size: 0.9em;
+    font-weight: 500;
+}
+
+.property-item {
+    margin-bottom: var(--spacing-md);
+}
+
+.property-item label {
+    display: block;
+    margin-bottom: var(--spacing-sm);
+    color: var(--text-secondary);
+    font-size: 0.9em;
+}
+
+.property-item input[type="range"] {
+    width: 100%;
+    margin: var(--spacing-sm) 0;
+}
+
+/* Workspace Styles */
+.prompt-workspace {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0; /* Fix for flexbox text overflow */
+}
+
+.workspace-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-md);
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.prompt-tabs {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.tab-btn {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 0.9em;
+    border-radius: 4px;
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.tab-btn.active {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+
+.token-count {
+    font-size: 0.8em;
+    color: var(--text-tertiary);
+    padding: 2px 6px;
+    background: var(--bg-tertiary);
+    border-radius: 12px;
+}
+
+.workspace-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.action-btn {
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+}
+
+.action-btn:hover {
+    background: var(--accent-primary);
+    color: white;
+    border-color: var(--accent-primary);
+}
+
+/* Editors Container */
+.editors-container {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+    position: relative;
+}
+
+.editor-wrapper {
+    flex: 1;
+    display: none;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.editor-wrapper.active {
+    display: flex;
+}
+
+.editors-container.split .editor-wrapper {
+    display: flex;
+    width: 50%;
+    border-right: 1px solid var(--border-color);
+}
+
+.editors-container.split .editor-wrapper:last-child {
+    border-right: none;
+}
+
+.prompt-editor {
+    flex: 1;
+    padding: var(--spacing-md);
+    background: var(--bg-primary);
+    position: relative;
+}
+
+.editor-footer {
+    padding: var(--spacing-md);
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border-color);
+}
+
+/* Token Suggestions */
+.token-suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+}
+
+.token-suggestion {
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.token-suggestion:hover {
+    background: var(--accent-primary);
+    color: white;
+    border-color: var(--accent-primary);
+}
+
+.token-name {
+    font-weight: 500;
+}
+
+.token-description {
+    color: var(--text-tertiary);
+    font-size: 0.9em;
+}
+
+/* Editor Stats */
+.editor-stats {
+    display: flex;
+    justify-content: flex-end;
+    color: var(--text-tertiary);
+    font-size: 0.9em;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .prompt-sidebar {
+        position: absolute;
+        height: 100%;
+        z-index: 100;
+        transform: translateX(-100%);
+    }
+    
+    .prompt-sidebar:not(.collapsed) {
+        transform: translateX(0);
+    }
+    
+    .editors-container.split {
+        flex-direction: column;
+    }
+    
+    .editors-container.split .editor-wrapper {
+        width: 100%;
+        height: 50%;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .editors-container.split .editor-wrapper:last-child {
+        border-bottom: none;
+    }
+}

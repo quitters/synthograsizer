@@ -1,0 +1,372 @@
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f0f0f0;
+    margin: 0;
+  }
+  
+  .frame {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    width: 90%;
+    height: 90%;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    position: relative;
+  }
+  
+  button#importJsonButton, button#modeToggleButton, button#randomizeButton, button#saveButton, button#loadButton {
+    padding: 10px 20px;
+    font-size: 1em;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-right: 10px;
+  }
+  
+  button#importJsonButton, button#saveButton, button#loadButton {
+    position: absolute;
+    top: 20px;
+  }
+  
+  button#importJsonButton {
+    left: 20px;
+  }
+  
+  button#saveButton {
+    left: 175px;
+  }
+  
+  button#loadButton {
+    left: 280px;
+  }
+  
+  button#modeToggleButton {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+  }
+  
+  button#randomizeButton {
+    position: absolute;
+    top: 20px;
+    right: 150px;
+  }
+  
+  button:hover {
+    background-color: #45a049;
+  }
+  
+  .text-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 80px;
+    width: 100%;
+  }
+  
+  input[type="text"] {
+    width: 80%;
+    padding: 10px;
+    font-size: 1.2em;
+    text-align: center;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  .output-box {
+    width: 80%;
+    padding: 10px;
+    font-size: 1.2em;
+    text-align: center;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    min-height: 40px;
+    margin-bottom: 15px;
+  }
+  
+  .add-variable-button {
+    position: absolute;
+    right: 20px;
+    bottom: 20px;
+    padding: 10px 20px;
+    font-size: 1em;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .add-variable-button:hover {
+    background-color: #45a049;
+  }
+  
+  #knobRowsContainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 20px;
+    margin-top: auto;
+    padding-bottom: 70px; /* Make room for the Add Variable button */
+  }
+  
+  .knob-container {
+    flex: 0 0 auto;
+    margin: 0 10px;
+  }
+  
+  .knob-row {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+  }
+  
+  .knob-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0 37.5px;
+  }
+  
+  .knob {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    cursor: pointer;
+    position: relative;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .knob-dot {
+    width: 6px;
+    height: 6px;
+    background-color: black;
+    border-radius: 50%;
+    position: absolute;
+    top: 2px;
+    transform-origin: center 23px;
+    transform: rotate(0deg);
+  }
+  
+  .knob-value {
+    width: 50px;
+    text-align: center;
+    margin-top: 10px;
+  }
+  
+  
+  .show-variable-button {
+      padding: 5px 10px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      margin-top: 5px;
+  }
+  
+  .show-variable-button:hover {
+      background-color: #45a049;
+  }
+  
+  .variable-group-name {
+    margin-top: 5px;
+    text-align: center;
+  }
+  
+  .negative-prompt-toggle {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #ccc;
+    border-radius: 50%;
+    cursor: pointer;
+    margin: 10px 0;
+    font-size: 24px;
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  
+  .negative-prompt-container {
+    width: 100%;
+    display: none;
+    margin-top: 10px;
+    position: absolute;
+    top: 400px;
+  }
+  
+  .additional-settings {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+  }
+  
+  .additional-settings label {
+    margin-top: 10px;
+    font-weight: bold;
+  }
+  
+  .additional-settings input[type="text"] {
+    width: 80%;
+    padding: 8px;
+    font-size: 1em;
+    text-align: center;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 10px;
+  }
+  
+  .variable-list-container {
+    width: 80%;
+    margin: 20px auto;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  
+  .variable-list-header {
+    display: flex;
+    justify-content: space-between;
+    background-color: #f7f7f7;
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+    position: sticky;
+    top: 0;
+  }
+  
+  .variable-column,
+  .value-column {
+    flex: 1;
+    text-align: center;
+    font-weight: bold;
+  }
+  
+  .variable-list-content {
+    max-height: 300px;
+    overflow-y: auto;
+  }
+  
+  .variable-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+  }
+  
+  
+  .variable-row input[type="text"] {
+      width: 100%;
+      padding: 5px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+  }
+  
+  .new-value-row input[type="text"] {
+      font-style: italic;
+      color: #888;
+  }
+  
+  .new-value-row input[type="text"]:focus {
+      font-style: normal;
+      color: #000;
+  }
+  
+  .variable-row:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+  
+  .variable-row:hover {
+    background-color: #f1f1f1;
+  }
+  
+  .variable-column,
+  .value-column {
+    flex: 1;
+    text-align: center;
+  }
+  
+  .value-column input {
+    width: 60px;
+    text-align: center;
+  }
+  
+  .new-variable-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+  }
+  
+  
+  
+  .new-variable-input,
+  .new-weight-input {
+    flex: 1;
+    text-align: center;
+    padding: 5px;
+    margin: 0 5px;
+  }
+  
+  .knob-button {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 5px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+  }
+  
+  #p5-editor, #p5-output {
+    width: 100%;
+    margin-top: 20px;
+  }
+  
+  #p5-code {
+    width: 100%;
+    height: 200px;
+    resize: vertical;
+  }
+  
+  .subtle-tooltip {
+    position: fixed;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 14px;
+    z-index: 1000;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    max-width: 250px;
+    word-wrap: break-word;
+  }
+  
+  .subtle-tooltip.visible {
+    opacity: 1;
+  }

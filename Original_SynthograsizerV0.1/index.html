@@ -1,0 +1,71 @@
+<div class="frame">
+    <button id="importJsonButton">Import JSON</button>
+    <button id="saveButton">Save</button>
+    <button id="loadButton">Load</button>
+    <button id="modeToggleButton">Mode A</button>
+    <button id="randomizeButton">Randomize</button>
+    <div class="text-container">
+      <label for="inputText">Prompt</label>
+      <input type="text" id="inputText" placeholder="Enter your text here">
+      <label for="outputText">Output</label>
+      <div class="output-box" id="outputText"></div>  
+    </div>
+    <div class="negative-prompt-toggle" id="negativePromptToggle">...</div>
+    <div class="negative-prompt-container" id="negative-prompt-container" style="display: none;">
+      <div class="text-container">
+        <label for="negativeInputText">Negative Prompt</label>
+        <input type="text" id="negativeInputText" placeholder="Enter negative prompt here">
+        <label for="negativeOutputText">Negative Output</label>
+        <div class="output-box" id="negativeOutputText"></div>
+      </div>
+    </div>
+    <div class="dimension-pair" id="dimension-pair" style="display: none;">
+      <div class="setting-container">
+        <label for="heightInput">Height</label>
+        <input type="text" id="heightInput" placeholder="Height">
+      </div>
+      <div class="setting-container">
+        <label for="widthInput">Width</label>
+        <input type="text" id="widthInput" placeholder="Width">
+      </div>
+    </div>
+    <div class="additional-settings">
+      <div class="setting-container" style="display: none;" id="cfgScaleContainer">
+        <label for="cfgScaleInput">CFG Scale</label>
+        <input type="text" id="cfgScaleInput" placeholder="CFG Scale">
+      </div>
+      <div class="setting-container" style="display: none;" id="samplingStepsContainer">
+        <label for="samplingStepsInput">Sampling Steps</label>
+        <input type="text" id="samplingStepsInput" placeholder="Sampling Steps">
+      </div>
+      <div class="setting-container" style="display: none;" id="denoisingStrengthContainer">
+        <label for="denoisingStrengthInput">Denoising Strength</label>
+        <input type="text" id="denoisingStrengthInput" placeholder="Denoising Strength">
+      </div>
+      <div class="setting-container" style="display: none;" id="img2imgSourceContainer">
+        <label for="img2imgSourceInput">Img2img Source</label>
+        <input type="text" id="img2imgSourceInput" placeholder="Img2img Source">
+      </div>
+    </div>
+    <div id="knobRowsContainer">
+      <div class="knob-row" id="knobRowA">
+        <!-- Knobs will be dynamically added here -->
+      </div>
+    </div>
+     <button id="addVariableButton" class="add-variable-button">Add Variable</button>
+    <div id="variableListContainer" class="variable-list-container" style="display: none;">
+      <div class="variable-list-header">
+        <div class="variable-column">Variable #</div>
+        <div class="value-column">Value</div>
+      </div>
+      <div class="variable-list-content">
+        <!-- Variable rows will be dynamically added here -->
+      </div>
+    </div>
+    <div id="p5-editor" style="display: none;">
+      <textarea id="p5-code" placeholder="Type your p5.js code here..."></textarea>
+      <button onclick="runP5Code()">Run Code</button>
+    </div>
+    <div id="p5-output" style="display: none;"></div>
+  </div>
+  <script src="script.js"></script>

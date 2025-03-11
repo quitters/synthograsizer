@@ -1,0 +1,115 @@
+{
+  "name": "Test1",
+  "description": "Test1",
+  "knobs": {
+    "0": {
+      "value": 3,
+      "mode": "A",
+      "label": "Color",
+      "min": 0,
+      "max": 100,
+      "type": "text",
+      "textValues": "red, yellow, green, blue, orange, purple"
+    },
+    "1": {
+      "value": 68,
+      "mode": "A",
+      "label": "Game",
+      "min": 0,
+      "max": 100,
+      "type": "text",
+      "textValues": "Monopoly, Pac-Man, Animal Crossing"
+    },
+    "2": {
+      "value": 50,
+      "mode": "A",
+      "label": "Mood",
+      "min": 0,
+      "max": 100,
+      "type": "text",
+      "textValues": "happy, melancholy, excited, calm, anxious"
+    },
+    "3": {
+      "value": 50,
+      "mode": "A",
+      "label": "Weather",
+      "min": 0,
+      "max": 100,
+      "type": "text",
+      "textValues": "sunny, rainy, foggy, snowy, stormy"
+    },
+    "4": {
+      "value": 50,
+      "mode": "A",
+      "label": "Pet",
+      "min": 0,
+      "max": 100,
+      "type": "text",
+      "textValues": "cat, dog, goldfish, parrot, hamster, turtle"
+    },
+    "5": {
+      "value": 73,
+      "mode": "A",
+      "label": "Era",
+      "min": 0,
+      "max": 100,
+      "type": "text",
+      "textValues": "80s, medieval, future, prehistoric, renaissance"
+    },
+    "6": {
+      "value": 50,
+      "mode": "A",
+      "label": "Superpower",
+      "min": 0,
+      "max": 100,
+      "type": "text",
+      "textValues": "flight, invisibility, telepathy, time travel, super strength"
+    },
+    "7": {
+      "value": 50,
+      "mode": "A",
+      "label": "Cuisine",
+      "min": 0,
+      "max": 100,
+      "type": "text",
+      "textValues": "Italian, Thai, Mexican, French, Japanese, Indian"
+    }
+  },
+  "variables": {
+    "Color": {
+      "type": "text",
+      "value": 3
+    },
+    "Game": {
+      "type": "text",
+      "value": "Monopoly, Pac-Man, Animal Crossing"
+    },
+    "Mood": {
+      "type": "text",
+      "value": "happy, melancholy, excited, calm, anxious"
+    },
+    "Weather": {
+      "type": "text",
+      "value": "sunny, rainy, foggy, snowy, stormy"
+    },
+    "Pet": {
+      "type": "text",
+      "value": "cat, dog, goldfish, parrot, hamster, turtle"
+    },
+    "Era": {
+      "type": "text",
+      "value": 73
+    },
+    "Superpower": {
+      "type": "text",
+      "value": "flight, invisibility, telepathy, time travel, super strength"
+    },
+    "Cuisine": {
+      "type": "text",
+      "value": "Italian, Thai, Mexican, French, Japanese, Indian"
+    }
+  },
+  "prompt": "{Color} {Game} {Mood} {Weather} {Pet} {Era} {Superpower} {Cuisine}",
+  "created_at": "2025-03-10T17:45:12.270363",
+  "updated_at": "2025-03-10T17:45:12.270363"
+}

@@ -1,0 +1,311 @@
+{
+    "steps": [
+      {
+        "id": 7483,
+        "alias": "Prompt1",
+        "nodeName": "prompt",
+        "nodePayload": {
+          "prompt": "[{\"type\":\"paragraph\",\"children\":[{\"text\":\"This is a prompt\"}]}]",
+          "llmEnable": true,
+          "llmPrompt": "[{\"type\":\"paragraph\",\"children\":[{\"text\":\"This is a System Prompt\"}]}]",
+          "llmTemperature": 0.5
+        }
+      },
+      {
+        "id": 7484,
+        "alias": "TextToImage1",
+        "nodeName": "txt2img-comfy",
+        "nodePayload": {
+          "cfg": 7,
+          "model": "sd_xl_base_1.0_0.9vae.safetensors",
+          "steps": 20,
+          "width": 1024,
+          "height": 1024,
+          "prompt": "[{\"type\":\"paragraph\",\"children\":[{\"text\":\"This is an image Prompt with the previous prompt also added. \"},{\"type\":\"component\",\"component\":{\"id\":7483,\"nodeName\":\"prompt\",\"nodePayload\":{\"prompt\":\"[{\\\"type\\\":\\\"paragraph\\\",\\\"children\\\":[{\\\"text\\\":\\\"This is a prompt\\\"}]}]\",\"llmEnable\":true,\"llmPrompt\":\"[{\\\"type\\\":\\\"paragraph\\\",\\\"children\\\":[{\\\"text\\\":\\\"This is a System Prompt\\\"}]}]\",\"llmTemperature\":0.5},\"alias\":\"Prompt1\"},\"children\":[{\"text\":\"\"}]},{\"text\":\" \"}]}]",
+          "sampler": "euler_ancestral",
+          "scheduler": "normal",
+          "negative_prompt": "[{\"type\":\"paragraph\",\"children\":[{\"text\":\"\"}]}]"
+        }
+      },
+      {
+        "id": 7485,
+        "alias": "ImageToImage1",
+        "nodeName": "img2img-comfy",
+        "nodePayload": {
+          "cfg": 7,
+          "image": {
+            "$ref": 7484,
+            "path": ".src"
+          },
+          "model": "sd_xl_base_1.0_0.9vae.safetensors",
+          "steps": 20,
+          "width": 1024,
+          "height": 1024,
+          "prompt": "[{\"type\":\"paragraph\",\"children\":[{\"text\":\"Here we are using img2img on the previously-generated image. This is the prompt to modify the image.\"}]}]",
+          "sampler": "dpmpp_2m",
+          "denoising": 0.66,
+          "scheduler": "beta",
+          "negative_prompt": "[{\"type\":\"paragraph\",\"children\":[{\"text\":\"\"}]}]"
+        }
+      },
+      {
+        "id": 7486,
+        "alias": "SDXLControlnet1",
+        "nodeName": "controlnet-diffusion",
+        "nodePayload": {
+          "prompt": "[{\"type\":\"paragraph\",\"children\":[{\"text\":\"Here's the ControlNet prompt\"}]}]",
+          "denoising": 0.66,
+          "style_image": {
+            "$ref": 7485,
+            "path": ".src"
+          },
+          "controlnet_type": "depth",
+          "negative_prompt": "[{\"type\":\"paragraph\",\"children\":[{\"text\":\"\"}]}]",
+          "use_style_image": false,
+          "controlnet_image": {
+            "$ref": 7484,
+            "path": ".src"
+          }
+        }
+      },
+      {
+        "id": 7487,
+        "alias": "DescribeImage1",
+        "nodeName": "describe-image",
+        "nodePayload": {
+          "image": {
+            "$ref": 7484,
+            "path": ".src"
+          }
+        }
+      },
+      {
+        "id": 7488,
+        "alias": "TextToImageFlux1",
+        "nodeName": "txt2img-flux",
+        "nodePayload": {
+          "steps": 10,
+          "width": 1024,
+          "height": 1024,
+          "prompt": "[{\"type\":\"paragraph\",\"children\":[{\"text\":\"Here I will use the previous DescribeImage prompt in the TextToImageFlux1 prompt - \"},{\"type\":\"component\",\"component\":{\"id\":7487,\"nodeName\":\"describe-image\",\"nodePayload\":{\"image\":{\"$ref\":7484,\"path\":\".src\"}},\"alias\":\"DescribeImage1\"},\"children\":[{\"text\":\"\"}]},{\"text\":\" \"}]}]",
+          "sampler": "dpm_2",
+          "scheduler": "ddim_uniform"
+        }
+      },
+      {
+        "id": 7489,
+        "alias": "MergeImages1",
+        "nodeName": "image-merge",
+        "nodePayload": {
+          "width": 1024,
+          "height": 1024,
+          "image_1": {
+            "$ref": 7484,
+            "path": ".src"
+          },
+          "image_2": {
+            "$ref": 7488,
+            "path": ".src"
+          },
+          "strength_1": 1,
+          "strength_2": 1
+        }
+      },
+      {
+        "id": 7490,
+        "alias": "P5.js1",
+        "nodeName": "p5",
+        "nodePayload": {
+          "code": "//here I will use p5.js code to modify the image from TextToImage1 with a warping effect\n\nlet img;\n\nfunction preload() {\n  const image1 = getComponentOutput('TextToImage1');\n  img = loadImage(image1);// Load the image\n}\n\nfunction setup() {\n  createCanvas(img.width, img.height);\n  img.loadPixels();\n  \n  let warpedImg = createImage(img.width, img.height);\n  warpedImg.loadPixels();\n\n  for (let x = 0; x < img.width; x++) {\n    for (let y = 0; y < img.height; y++) {\n      let angle = noise(x * 0.01, y * 0.01) * TWO_PI;\n      let newX = x + 20 * cos(angle);\n      let newY = y + 20 * sin(angle);\n\n      newX = constrain(newX, 0, img.width - 1);\n      newY = constrain(newY, 0, img.height - 1);\n\n      let srcIndex = (floor(newX) + floor(newY) * img.width) * 4;\n      let dstIndex = (x + y * img.width) * 4;\n\n      warpedImg.pixels[dstIndex] = img.pixels[srcIndex];\n      warpedImg.pixels[dstIndex + 1] = img.pixels[srcIndex + 1];\n      warpedImg.pixels[dstIndex + 2] = img.pixels[srcIndex + 2];\n      warpedImg.pixels[dstIndex + 3] = img.pixels[srcIndex + 3];\n    }\n  }\n\n  warpedImg.updatePixels();\n  image(warpedImg, 0, 0);\n}\n",
+          "duration": 15
+        }
+      },
+      {
+        "id": 7491,
+        "alias": "MochiVideo1",
+        "nodeName": "mochi-video",
+        "nodePayload": {
+          "cfg": 4.5,
+          "steps": 30,
+          "width": 848,
+          "height": 480,
+          "length": 37,
+          "prompt": "[{\"type\":\"paragraph\",\"children\":[{\"text\":\"This is the prompt for the MochiVideo component which generates videos. The settings for width, height, and length shouldn't be modified. \"}]}]",
+          "sampler": "euler",
+          "scheduler": "ddim_uniform",
+          "frame_rate": 24,
+          "is_ping_pong": false,
+          "negative_prompt": "[{\"type\":\"paragraph\",\"children\":[{\"text\":\"\"}]}]"
+        }
+      },
+      {
+        "id": 7492,
+        "alias": "VideoToVideo1",
+        "nodeName": "vid2vid",
+        "nodePayload": {
+          "image": {
+            "$ref": 7484,
+            "path": ".src"
+          },
+          "video": {
+            "$ref": 7491,
+            "path": ".src"
+          },
+          "prompt": "[{\"type\":\"paragraph\",\"children\":[{\"text\":\"This prompt guides the VideoToVideo1 component, adding texture and style to the video according to both the prompt and the image input.\"}]}]",
+          "negative_prompt": "[{\"type\":\"paragraph\",\"children\":[{\"text\":\"\"}]}]"
+        }
+      },
+      {
+        "id": 7493,
+        "alias": "Prompt2",
+        "nodeName": "prompt",
+        "nodePayload": {
+          "prompt": "[{\"type\":\"paragraph\",\"children\":[{\"text\":\"This is another Prompt component. By itself, it can be useful to move text from one component to others. With 'Use LLM' selected, it becomes an AI tool to generate text according to the prompt and system prompt.\"}]},{\"type\":\"paragraph\",\"children\":[{\"text\":\"\"}]},{\"type\":\"paragraph\",\"children\":[{\"text\":\"\"}]},{\"type\":\"paragraph\",\"children\":[{\"text\":\"The project also contains variables as you may have noticed, such as for color. I can add the variable to the prompt like this, \"},{\"type\":\"variable\",\"variable\":{\"name\":\"color1\",\"type\":\"pick\",\"value_type\":\"strings\",\"value\":{\"values\":[\"black\",\"white\",\"red\",\"orange\",\"yellow\",\"green\",\"blue\",\"indigo\",\"violet\",\"rainbow\",\"pink\",\"cyan\",\"beige\",\"brown\"],\"weights\":[1,10,10,10,10,10,10,10,10,10,10,10,10,10,10],\"display_names\":[\"black\",\"white\",\"red\",\"orange\",\"yellow\",\"green\",\"blue\",\"indigo\",\"violet\",\"rainbow\",\"pink\",\"cyan\",\"beige\",\"brown\"]},\"is_feature\":false,\"feature_name\":null,\"use_display_name\":false,\"test_value\":null,\"lock_value\":false},\"children\":[{\"text\":\"\"}],\"isDeleted\":false},{\"text\":\" \"}]},{\"type\":\"paragraph\",\"children\":[{\"text\":\"\"}]},{\"type\":\"paragraph\",\"children\":[{\"text\":\"(the LockedVariable and imageVariable variables are not currently being used in this project)\"}]}]",
+          "llmEnable": false,
+          "llmPrompt": "[{\"type\":\"paragraph\",\"children\":[{\"text\":\"\"}]}]",
+          "llmTemperature": 1
+        }
+      },
+      {
+        "id": 7494,
+        "alias": "TextToImage2",
+        "nodeName": "txt2img-comfy",
+        "nodePayload": {
+          "cfg": 7,
+          "model": "sd_xl_base_1.0_0.9vae.safetensors",
+          "steps": 20,
+          "width": 1024,
+          "height": 1024,
+          "prompt": "[{\"type\":\"paragraph\",\"children\":[{\"text\":\"As the last component in the workflow, when you run a full test, the output from this component will be shown. But you can still see the outputs from all the other components in the workflow by looking for more details. This concludes the component template gallery workflow.\"}]}]",
+          "sampler": "euler_ancestral",
+          "scheduler": "normal",
+          "negative_prompt": "[{\"type\":\"paragraph\",\"children\":[{\"text\":\"\"}]}]"
+        }
+      }
+    ],
+    "version": "v2",
+    "variables": [
+      {
+        "name": "color1",
+        "type": "pick",
+        "value": {
+          "values": [
+            "black",
+            "white",
+            "red",
+            "orange",
+            "yellow",
+            "green",
+            "blue",
+            "indigo",
+            "violet",
+            "rainbow",
+            "pink",
+            "cyan",
+            "beige",
+            "brown"
+          ],
+          "weights": [
+            1,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10
+          ],
+          "display_names": [
+            "black",
+            "white",
+            "red",
+            "orange",
+            "yellow",
+            "green",
+            "blue",
+            "indigo",
+            "violet",
+            "rainbow",
+            "pink",
+            "cyan",
+            "beige",
+            "brown"
+          ]
+        },
+        "is_feature": false,
+        "lock_value": false,
+        "test_value": null,
+        "value_type": "strings",
+        "feature_name": null,
+        "use_display_name": false
+      },
+      {
+        "name": "LockedVariable",
+        "type": "pick",
+        "value": {
+          "values": [
+            "this variable is not locked",
+            "this variable is not locked",
+            "this variable is locked",
+            "this variable is not locked"
+          ],
+          "weights": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "display_names": [
+            "",
+            "",
+            "",
+            ""
+          ]
+        },
+        "is_feature": false,
+        "lock_value": true,
+        "test_value": "this variable is locked",
+        "value_type": "strings",
+        "feature_name": "LockedVariable",
+        "use_display_name": false
+      },
+      {
+        "name": "imageVariable",
+        "type": "weighted_pick",
+        "value": {
+          "values": [
+            "https://cdn.emprops.ai/generations/aabfc7cd-4fe5-406a-b1e9-b425d9f55e36/cc3f5b4b-d5d5-4c80-a38d-0b5a646379c7/0/7433/meme-generator.png",
+            "https://cdn.emprops.ai/generations/1407efc7-55d0-4b2d-8895-0a1177bf0bab/5f3af02c-ceb2-4ea9-a3c4-60be26942893/0/7433/meme-generator.png"
+          ],
+          "weights": [
+            4,
+            3
+          ],
+          "display_names": [
+            "",
+            ""
+          ]
+        },
+        "is_feature": false,
+        "lock_value": false,
+        "test_value": null,
+        "value_type": "images",
+        "feature_name": "imageVariable",
+        "use_display_name": false
+      }
+    ],
+    "generations": {
+      "hashes": [
+        "NqTLevoBEjCegnHqXxvHJJgRO9ZpdT6YveNk9Q2c2NCIBzhJRc6"
+      ],
+      "generations": 1,
+      "use_custom_hashes": false
+    }
+  }

@@ -1,0 +1,51 @@
+.draggable {
+  cursor: grab;
+  transition: transform 0.2s;
+  background: #2d2d2d;
+  border: 1px solid #404040;
+  padding: 1rem;
+  margin: 0.5rem;
+  border-radius: 4px;
+}
+
+.draggable:active {
+  cursor: grabbing;
+  transform: scale(0.98);
+}
+
+.droppable {
+  transition: background 0.2s;
+  position: relative;
+  overflow: visible;
+}
+
+.droppable.drag-over {
+  background: rgba(76, 175, 80, 0.1);
+  box-shadow: 0 0 0 2px #4CAF50;
+}
+
+.connection-preview {
+  position: absolute;
+  width: 100px;
+  height: 2px;
+  background: #4CAF50;
+  transform-origin: left center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.param-connections::after {
+  content: '';
+  position: absolute;
+  right: -10px;
+  height: 2px;
+  background: currentColor;
+  animation: connection-pulse 1.5s infinite;
+}
+
+@keyframes connection-pulse {
+  0% { width: 0; opacity: 0; }
+  50% { width: 20px; opacity: 1; }
+  100% { width: 0; opacity: 0; }
+}

@@ -1,0 +1,227 @@
+/* Context Tooltip */
+.context-tooltip {
+    position: fixed;
+    display: none;
+    min-width: 200px;
+    max-width: 400px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: var(--spacing-md);
+    box-shadow: var(--shadow-lg);
+    z-index: 9999;
+    pointer-events: none;
+    animation: tooltipFadeIn var(--transition-fast);
+}
+
+/* Tooltip Header */
+.tooltip-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+}
+
+.tooltip-title {
+    font-weight: 600;
+    color: var(--text-primary);
+    flex: 1;
+}
+
+.tooltip-type {
+    font-size: 0.8em;
+    color: var(--text-secondary);
+    background: var(--bg-secondary);
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.tooltip-icon {
+    font-size: 1.2em;
+    line-height: 1;
+}
+
+.tooltip-icon.midi {
+    color: var(--accent-secondary);
+}
+
+/* Tooltip Value */
+.tooltip-value {
+    font-family: monospace;
+    color: var(--accent-primary);
+    background: var(--bg-secondary);
+    padding: var(--spacing-sm);
+    border-radius: 4px;
+    margin-bottom: var(--spacing-md);
+}
+
+/* Tooltip Details */
+.tooltip-details {
+    border-top: 1px solid var(--border-color);
+    padding-top: var(--spacing-md);
+    margin-top: var(--spacing-md);
+}
+
+.tooltip-section {
+    margin-bottom: var(--spacing-md);
+}
+
+.tooltip-section:last-child {
+    margin-bottom: 0;
+}
+
+.tooltip-section h4 {
+    color: var(--text-secondary);
+    font-size: 0.9em;
+    margin-bottom: var(--spacing-sm);
+}
+
+/* Connection Styling */
+.tooltip-connection {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin: var(--spacing-sm) 0;
+}
+
+.connections-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.connection-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: 4px 0;
+}
+
+.source {
+    color: var(--accent-primary);
+}
+
+.arrow {
+    color: var(--text-secondary);
+}
+
+.target {
+    color: var(--accent-secondary);
+}
+
+/* Ports List */
+.ports-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.port-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 2px 0;
+}
+
+.port-name {
+    color: var(--text-primary);
+}
+
+.port-type {
+    color: var(--text-secondary);
+    font-size: 0.9em;
+}
+
+/* History List */
+.history-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.history-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 2px 0;
+}
+
+.history-value {
+    color: var(--text-primary);
+    font-family: monospace;
+}
+
+.history-time {
+    color: var(--text-secondary);
+    font-size: 0.8em;
+}
+
+/* Status Indicators */
+.tooltip-status {
+    font-size: 0.8em;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.tooltip-status.active {
+    background: var(--success-color);
+    color: var(--text-primary);
+}
+
+.tooltip-status.inactive {
+    background: var(--warning-color);
+    color: var(--text-primary);
+}
+
+/* Animations */
+@keyframes tooltipFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Dark Theme Enhancements */
+.dark-theme .context-tooltip {
+    background: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(10px);
+}
+
+/* Connection Lines */
+.connection-line {
+    position: absolute;
+    pointer-events: none;
+    z-index: 100;
+}
+
+.connection-line path {
+    fill: none;
+    stroke: var(--accent-primary);
+    stroke-width: 2;
+    stroke-linecap: round;
+    filter: drop-shadow(0 0 2px var(--accent-primary));
+    transition: all var(--transition-fast);
+}
+
+.connection-line.active path {
+    stroke: var(--accent-secondary);
+    filter: drop-shadow(0 0 4px var(--accent-secondary));
+}
+
+.connection-line.preview path {
+    stroke-dasharray: 4 4;
+    animation: flowLine 1s linear infinite;
+}
+
+@keyframes flowLine {
+    from {
+        stroke-dashoffset: 8;
+    }
+    to {
+        stroke-dashoffset: 0;
+    }
+}

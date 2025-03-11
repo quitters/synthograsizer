@@ -1,0 +1,109 @@
+:root {
+  /* Base colors */
+  --bg-primary: #1e1e1e;
+  --bg-secondary: #252526;
+  --bg-tertiary: #2d2d2d;
+  --text-primary: #e1e1e1;
+  --text-secondary: #a1a1a1;
+  --border-color: #404040;
+  
+  /* Accent colors */
+  --accent-primary: #4CAF50;
+  --accent-secondary: #2196F3;
+  --accent-warning: #FFC107;
+  --accent-error: #F44336;
+  
+  /* Connection colors */
+  --connection-default: #666666;
+  --connection-active: #4CAF50;
+  --connection-selected: #2196F3;
+  --connection-text: #9C27B0;
+  --connection-number: #FFC107;
+  --connection-boolean: #F44336;
+  --connection-audio: #FF9800;
+  --connection-midi: #E91E63;
+  --connection-control: #00BCD4;
+  
+  /* Node colors */
+  --node-bg: var(--bg-secondary);
+  --node-header: var(--bg-tertiary);
+  --node-selected: var(--accent-primary);
+  
+  /* Editor colors */
+  --editor-bg: var(--bg-primary);
+  --editor-grid: rgba(255, 255, 255, 0.05);
+  
+  /* Control colors */
+  --knob-bg: var(--bg-tertiary);
+  --knob-ring: var(--text-secondary);
+  --knob-indicator: var(--accent-primary);
+  
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  
+  /* Typography */
+  --font-primary: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'Fira Code', 'Consolas', 'Monaco', monospace;
+  --font-size-xs: 10px;
+  --font-size-sm: 12px;
+  --font-size-md: 14px;
+  --font-size-lg: 16px;
+  --font-size-xl: 20px;
+  
+  /* Animation */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.25s ease;
+  --transition-slow: 0.35s ease;
+  
+  /* Shadows */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.3);
+  
+  /* Z-indices */
+  --z-node: 1;
+  --z-connection: 2;
+  --z-dragging: 1000;
+  --z-modal: 2000;
+  --z-tooltip: 3000;
+}
+
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-primary);
+}
+
+.knob-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 1.5rem;
+  padding: 2rem;
+}
+
+.knob-container {
+  display: grid;
+  place-items: center;
+}
+
+.knob {
+  width: var(--spacing-md);
+  height: var(--spacing-md);
+  border-radius: 50%;
+  background: var(--knob-bg);
+  position: relative;
+}
+
+.knob-dial {
+  width: 2px;
+  height: 30%;
+  background: var(--knob-indicator);
+  position: absolute;
+  left: 50%;
+  bottom: 50%;
+  transform-origin: bottom center;
+}
