@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Synthograsizer v2.6.1 (UI + p5)</title>
+    <!-- Load p5.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.js"></script>
+    <!-- Link Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Link Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="frame">
+
+    <!-- === TOP BAR === -->
+    <div class="top-bar">
+        <div class="button-group left">
+    <button id="importJsonButton">Import JSON</button>
+    <button id="exportJsonButton">Export JSON</button>
+    <button id="syncMidiButton">Sync MIDI</button>
+</div>
+        <div class="button-group right">
+            <button id="randomizeButton">Randomize</button>
+            <div class="mode-control">
+                <button id="modeToggleButton">Mode A</button>
+                <span id="modeDescription">Discrete Selection</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- === MAIN CONTENT AREA === -->
+    <div class="main-content-area">
+        <div class="text-container main-prompt">
+            <label for="inputText">Prompt Template</label>
+            <input type="text" id="inputText" placeholder="Enter prompt template, e.g., A cat with {{style}} fur">
+            <label for="outputText">Generated Output</label>
+            <div class="output-box" id="outputText"></div>
+        </div>
+
+        <!-- Settings Toggle Button -->
+        <button id="settingsToggle" class="settings-toggle-button" aria-expanded="false" aria-controls="settingsArea">
+            Show Settings ▼
+        </button>
+
+        <!-- Collapsible Settings Area -->
+        <div id="settingsArea" class="settings-area collapsed">
+            <div class="negative-prompt-container" id="negative-prompt-container">
+                <div class="text-container">
+                    <label for="negativeInputText">Negative Prompt Template</label>
+                    <input type="text" id="negativeInputText" placeholder="Enter negative prompt template">
+                    <label for="negativeOutputText">Generated Negative Output</label>
+                    <div class="output-box" id="negativeOutputText"></div>
+                </div>
+            </div>
+            <div class="dimension-pair" id="dimension-pair">
+                <div class="setting-container">
+                    <label for="heightInput">Height</label>
+                    <input type="text" id="heightInput" placeholder="e.g., 512">
+                </div>
+                <div class="setting-container">
+                    <label for="widthInput">Width</label>
+                    <input type="text" id="widthInput" placeholder="e.g., 512">
+                </div>
+            </div>
+            <div class="additional-settings">
+                <div class="setting-container" id="cfgScaleContainer">
+                    <label for="cfgScaleInput">CFG Scale</label>
+                    <input type="text" id="cfgScaleInput" placeholder="e.g., 7.0">
+                </div>
+                <div class="setting-container" id="samplingStepsContainer">
+                    <label for="samplingStepsInput">Sampling Steps</label>
+                    <input type="text" id="samplingStepsInput" placeholder="e.g., 20">
+                </div>
+                <div class="setting-container" id="denoisingStrengthContainer">
+                    <label for="denoisingStrengthInput">Denoising Strength</label>
+                    <input type="text" id="denoisingStrengthInput" placeholder="e.g., 0.7">
+                </div>
+                <div class="setting-container" id="img2imgSourceContainer">
+                    <label for="img2imgSourceInput">Img2img Source</label>
+                    <input type="text" id="img2imgSourceInput" placeholder="Optional image path/URL">
+                </div>
+            </div>
+        </div>
+         <!-- End Settings Area -->
+
+    </div>
+    <!-- End Main Content Area -->
+
+
+    <!-- === DYNAMIC CONTENT AREA (Knobs / Mode C / Mode D) === -->
+    <div class="dynamic-content">
+        <!-- Knob Container (Horizontal Layout) -->
+        <div id="knobRowsContainer" class="knob-rows-container">
+            <!-- Knobs added dynamically by script.js -->
+        </div>
+
+        <!-- Variable List Editor (Mode C) -->
+        <div id="variableListContainer" class="variable-list-container" style="display: none;">
+            <!-- Header and content will be created dynamically -->
+        </div>
+
+        <!-- P5.js Editor/Output (Mode D) -->
+        <div id="p5-editor" style="display: none;">
+            <label for="p5-code" class="p5-label">p5.js Sketch Editor</label>
+            <textarea id="p5-code" placeholder="let angle = 0;
+let bgColor = 0;
+
+// Variables to store MIDI-updated values
+let currentColor = 'white';
+let currentSize = 50;
+let currentSpeed = 1;
+
+p.setup = function() {
+  p.createCanvas(400, 200).parent(p5Output); // Ensure canvas is child of p5-output
+  p.rectMode(p.CENTER);
+  p.angleMode(p.DEGREES); // Use degrees for easier rotation
+  console.log('p5 Sketch Setup Complete');
+  
+  // Set up MIDI variable change listener - this is the proper place to do it
+  p.onVariableChange((name, value) => {
+    console.log(`MIDI variable changed: ${name} = ${value}`);
+    // Store updated values in our global variables which draw() will use
+    switch(name) {
+      case 'color':
+        currentColor = value;
+        break;
+      case 'size':
+        currentSize = value;
+        break;
+      case 'speed':
+        currentSpeed = value;
+        break;
+      // Add more cases for other variables you might use
+      default:
+        // For any other parameters, maybe store them in an object?
+        console.log(`Received update for unhandled variable: ${name}`);
+    }
+  });
+};
+
+p.draw = function() {
+  // Get Synthograsizer variables (use Template Names from Mode C)
+  // These will override our stored values when directly available
+  let shapeSize = p.getSynthVar('size') || currentSize; // Use currentSize as backup
+  let rotationSpeed = p.getSynthVar('speed') || currentSpeed; // Use currentSpeed as backup
+  let colorName = p.getSynthVar('color') || currentColor; // Use currentColor as backup
+
+  // Map values (example: Mode B float to number, Mode A text to color)
+  let size = 50;
+  if (typeof shapeSize === 'number') { // Likely Mode B
+    size = p.map(shapeSize, -1, 2, 10, 150); // Map -1..2 range to 10..150 pixels
+  } else if (typeof shapeSize === 'string') {
+    // Try to parse as number if it looks like one
+    size = isNaN(parseFloat(shapeSize)) ? 50 : parseFloat(shapeSize);
+  }
+
+  let speed = 1;
+   if (typeof rotationSpeed === 'number') { // Likely Mode B
+     speed = p.map(rotationSpeed, -1, 2, -5, 5); // Map -1..2 range to -5..5 degrees/frame
+   } else if (typeof rotationSpeed === 'string') {
+     speed = isNaN(parseFloat(rotationSpeed)) ? 1 : parseFloat(rotationSpeed);
+   }
+
+  // Use text value directly
+  p.background(bgColor);
+  p.fill(colorName);
+  p.stroke(255);
+
+  // Draw something
+  p.push(); // Isolate transformations
+  p.translate(p.width / 2, p.height / 2);
+  p.rotate(angle);
+  p.rect(0, 0, size, size);
+  p.pop(); // Restore previous state
+
+  angle += speed;
+
+  // Example: Make background flash based on mode
+  if (p.getSynthMode() === 'B') {
+      bgColor = p.frameCount % 2 === 0 ? 20 : 0;
+  } else {
+      bgColor = 0;
+  }
+};
+
+// Add this function if you want the sketch to stop/restart when mode changes
+// p.remove = function() {
+//  console.log('p5 Sketch Removed');
+// }
+"></textarea>
+            <div class="p5-controls">
+                <button id="runP5Button">Run Code</button>
+                <button id="stopP5Button">Stop Sketch</button>
+                <select id="p5ExamplesSelect">
+                    <option value="">Load Example...</option>
+                    <option value="basic_shapes">Basic Shapes</option>
+                    <option value="particle_system">Particle System</option>
+                    <option value="audio_visualizer">Audio Visualizer</option>
+                    <option value="fractal_tree">Fractal Tree</option>
+                    <option value="game_of_life">Game of Life</option>
+                </select>
+                <button id="createRequiredVarsButton" title="Creates the variables needed for the selected example">Create Variables</button>
+            </div>
+            <div id="midi-status-panel" class="midi-status-panel" style="display: none;">
+                <div class="midi-status-header">
+                <h3>MIDI Control Status <button id="refreshMidiButton" title="Refresh MIDI connection if devices aren't detected">Refresh MIDI</button></h3>
+                <span class="midi-status-description">Variables are being updated in the background even though knobs are hidden</span>
+                </div>
+                <div id="midi-mappings-container" class="midi-mappings-container">
+                    <!-- Mappings will be displayed here -->
+                    <div class="no-mappings-message">No MIDI mappings yet. Move a MIDI controller to establish mappings.</div>
+                </div>
+            </div>
+            <div id="p5-output" style="display: none;">
+                <!-- p5.js canvas or error messages will appear here -->
+            </div>
+            <div id="p5-console-container" style="display: none;">
+                <div class="p5-console-header">
+                    <span>Console Output</span>
+                    <button id="clearConsoleButton" title="Clear console output">Clear</button>
+                </div>
+                <div id="p5-console" class="p5-console"></div>
+            </div>
+        </div>
+    </div>
+    <!-- End Dynamic Content Area -->
+
+
+    <!-- === FOOTER / ACTIONS === -->
+    <!-- Add Variable Button -->
+    <button id="addVariableButton" class="add-variable-button" title="Add New Variable">+</button>
+
+  </div> <!-- End of frame -->
+
+  <script src="script.js"></script>
+</body>
+</html>
