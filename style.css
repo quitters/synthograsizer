@@ -109,6 +109,9 @@ body {
 
 /* About page retro font (inlined for about.html as well) */
 .about-header {
+  font-size: 2.1em;
+  font-weight: bold;
+  margin-bottom: 32px;
   font-family: 'Press Start 2P', 'Roboto Mono', monospace, cursive;
 }
 

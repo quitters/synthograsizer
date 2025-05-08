@@ -3203,8 +3203,10 @@ function createRequiredVariables() {
         return;
     }
     
-    // Switch to Mode C to show the variables editor
-    initializeModeC();
+    // Do NOT switch modes; just create variables and update UI
+    // Only rebuild the variable editor if already in Mode C
+    const wasModeC = (typeof mode !== 'undefined' && mode === 'C');
+    const wasModeD = (typeof mode !== 'undefined' && mode === 'D');
     
     // Clear current variables and set the prompt to the example's prompt
     variables = [];
@@ -3225,9 +3227,10 @@ function createRequiredVariables() {
     
     // Rebuild UI with new variables
     updateKnobRowsAndUI();
-    buildVariableListEditor();
+    if (wasModeC) buildVariableListEditor();
+    if (wasModeD) initializeModeD();
     updateAllOutputs();
     
     // Show success message
-    alert(`Created ${requiredVars.length} variables for '${selectedValue}' example.\n\nNow you can switch to Mode A or B to use these variables with the sketch.`);
+    alert(`Created ${requiredVars.length} variables for '${selectedValue}' example.`);
 }

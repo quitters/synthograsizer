@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prompt Metadata Manager</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="about-navbar" style="max-width:700px;margin:32px auto 0 auto;display:flex;justify-content:center;gap:32px;font-family:'Inter','Roboto Mono',monospace;font-size:1.07em;position:relative;z-index:10;">
+      <div class="dropdown" style="position:relative;">
+        <a href="index.html" class="dropbtn" style="color:#5e60ce;text-decoration:none;font-weight:600;">Projects &#x25BC;</a>
+        <div class="dropdown-content" style="display:none;position:absolute;left:0;top:100%;background:#fff;border-radius:0 0 10px 10px;box-shadow:0 4px 16px rgba(94,96,206,0.10);min-width:230px;padding:8px 0;">
+          <a href="index.html" style="color:#5e60ce;text-decoration:none;display:block;padding:10px 24px;font-weight:500;">Synthograsizer (main)</a>
+          <a href="SynthograsizerDAW.html" style="color:#5e60ce;text-decoration:none;display:block;padding:10px 24px;font-weight:500;">SynthograsizerDAW</a>
+          <a href="PromptMetadataManager.html" style="color:#5e60ce;text-decoration:none;display:block;padding:10px 24px;font-weight:500;">Prompt Metadata Manager</a>
+          <a href="FunStuff.html" style="color:#5e60ce;text-decoration:none;display:block;padding:10px 24px;font-weight:500;">Fun Stuff</a>
+        </div>
+      </div>
+      <a href="https://linktr.ee/quittersarts" target="_blank" rel="noopener" style="color:#5e60ce;text-decoration:none;font-weight:600;">Art</a>
+      <a href="about.html" style="color:#5e60ce;text-decoration:none;font-weight:600;">About/Contact</a>
+    </nav>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        var dropdown = document.querySelector('.dropdown');
+        var btn = dropdown.querySelector('.dropbtn');
+        var content = dropdown.querySelector('.dropdown-content');
+        btn.addEventListener('mouseenter', function() { content.style.display = 'block'; });
+        btn.addEventListener('focus', function() { content.style.display = 'block'; });
+        dropdown.addEventListener('mouseleave', function() { content.style.display = 'none'; });
+        document.body.addEventListener('click', function(e) { if (!dropdown.contains(e.target)) { content.style.display = 'none'; } });
+      });
+    </script>
+    <div class="about-header">Prompt Metadata Manager</div>
+    <div class="about-content">
+      <p>This page will host tools for managing, annotating, and organizing prompt metadata for generative AI workflows.</p>
+    </div>
+    <div class="about-footer">
+      &copy; 2025 Synthograsizer. Licensed under <a href="https://creativecommons.org/licenses/by-nc/4.0/">CC BY-NC 4.0</a>. Attribution required. Commercial use prohibited.<br>
+      <a href="index.html">Back to Home</a>
+    </div>
+  </body>
+</html>
