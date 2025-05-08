@@ -230,6 +230,9 @@ function getVariableColor(index) {
   return VARIABLE_COLORS[index % VARIABLE_COLORS.length];
 }
 
+// --- Constants ---
+const MAX_VARIABLES = 16;
+
 // --- Default State Injection ---
 const DEFAULT_SYNTHOGRASIZER_STATE = {
   promptTemplate: "The {{adjective1}} {{color1}} {{animal1}} {{verbphrase}} the {{adjective2}} {{color2}} {{animal2}} {{adverb}}",
@@ -273,16 +276,95 @@ let importJsonButton, exportJsonButton, syncMidiButton, modeToggleButton, modeDe
     p5Editor, p5Code, runP5Button, stopP5Button, // Added stop button ref
     p5Output, p5ExamplesSelect, createRequiredVarsButton,
     p5ConsoleContainer, p5Console, clearConsoleButton,
-    midiStatusPanel, midiMappingsContainer, refreshMidiButton;
+    midiStatusPanel, midiMappingsContainer, refreshMidiButton,
+    templateDropdown; // Added templateDropdown ref
 
 // ... (rest of the code remains the same)
 
-document.addEventListener('DOMContentLoaded', () => {
-    console.log("DOM Loaded. Initializing Synthograsizer v2.2.0 (UI + p5)...");
-    assignElementReferences();
-    initializeDefaultStateIfNeeded(); // Ensure prompt and variables are set before UI/event listeners
-    addEventListeners();
-    addTooltips();
+document.addEventListener('DOMContentLoaded', function() {
+  // --- Project Template Dropdown Logic ---
+  // --- Project Template Dropdown Button Logic ---
+  const templateDropdownButton = document.getElementById('templateDropdownButton');
+  const templateDropdownMenu = document.getElementById('templateDropdownMenu');
+  let templateList = [];
+  if (templateDropdownButton && templateDropdownMenu) {
+    fetch('project-templates/templates.json')
+      .then(resp => resp.json())
+      .then(templates => {
+        templateList = templates;
+        templateDropdownMenu.innerHTML = '';
+        templates.forEach((tpl, idx) => {
+          const btn = document.createElement('button');
+          btn.className = 'template-option';
+          btn.textContent = tpl.name;
+          btn.tabIndex = 0;
+          btn.addEventListener('click', () => {
+            fetch('project-templates/' + tpl.file)
+              .then(resp => {
+                if (!resp.ok) throw new Error('Failed to fetch template: ' + tpl.file);
+                return resp.json();
+              })
+              .then(json => {
+                handleLoadState(json, true);
+                templateDropdownMenu.style.display = 'none';
+              })
+              .catch(err => {
+                alert('Error loading template: ' + err.message);
+              });
+          });
+          templateDropdownMenu.appendChild(btn);
+        });
+      }).catch(err => {
+        templateDropdownMenu.innerHTML = '<div style="padding:10px 20px;color:#c00;">No templates found</div>';
+      });
+
+    // Toggle menu visibility
+    templateDropdownButton.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = templateDropdownMenu.style.display === 'block';
+      templateDropdownMenu.style.display = isOpen ? 'none' : 'block';
+    });
+    // Close menu on outside click
+    document.addEventListener('click', (e) => {
+      if (!templateDropdownMenu.contains(e.target) && e.target !== templateDropdownButton) {
+        templateDropdownMenu.style.display = 'none';
+      }
+    });
+    // Keyboard accessibility
+    templateDropdownButton.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown') {
+        const first = templateDropdownMenu.querySelector('.template-option');
+        if (first) first.focus();
+        templateDropdownMenu.style.display = 'block';
+        e.preventDefault();
+      }
+    });
+    templateDropdownMenu.addEventListener('keydown', (e) => {
+      const options = Array.from(templateDropdownMenu.querySelectorAll('.template-option'));
+      const idx = options.indexOf(document.activeElement);
+      if (e.key === 'ArrowDown') {
+        if (idx >= 0 && idx < options.length - 1) options[idx + 1].focus();
+        e.preventDefault();
+      } else if (e.key === 'ArrowUp') {
+        if (idx > 0) options[idx - 1].focus();
+        e.preventDefault();
+      } else if (e.key === 'Escape') {
+        templateDropdownMenu.style.display = 'none';
+        templateDropdownButton.focus();
+      }
+    });
+  }
+
+
+  console.log("DOM Loaded. Initializing Synthograsizer v2.2.0 (UI + p5)...");
+  assignElementReferences();
+  initializeDefaultStateIfNeeded(); // Ensure prompt and variables are set before UI/event listeners
+  addEventListeners();
+  addTooltips();
+  initializeModeA(); // Start in Mode A
+  updateKnobRowsAndUI(); // Initial draw
+  collapseSettingsArea(); // Start with settings collapsed
+  console.log("Ready. Use 'Import JSON', 'Export JSON', 'Sync MIDI', or 'Add Variable'.");
     initializeModeA(); // Start in Mode A
     updateKnobRowsAndUI(); // Initial draw
     collapseSettingsArea(); // Start with settings collapsed
@@ -348,7 +430,10 @@ function addEventListeners() {
                 name: v.name,
                 feature_name: v.feature_name,
                 values: v.value.values.slice()
-            }))
+            })),
+            p5_input: {
+                code: p5Code && p5Code.value ? p5Code.value : ''
+            }
         };
         const blob = new Blob([JSON.stringify(state, null, 2)], {type: 'application/json'});
         const url = URL.createObjectURL(blob);
@@ -656,6 +741,7 @@ function handleLoadClick() {
 // ---
 
 function handleLoadState(state, isImport = false) {
+    let importFeedback = [];
     console.log("Loading state:", state);
      if (!state || !state.variables || !Array.isArray(state.variables)) {
          console.error('Invalid state/import file: Missing or invalid `variables` array.');
@@ -667,21 +753,64 @@ function handleLoadState(state, isImport = false) {
      stopP5Sketch();
 
     // Restore Core Data
-    variables = state.variables;
-     if (variables.length > MAX_VARIABLES) {
-        console.warn(`Loaded state exceeds MAX_VARIABLES (${MAX_VARIABLES}). Truncating.`);
-        variables = variables.slice(0, MAX_VARIABLES);
+    // Normalize variables to internal format if needed
+    variables = state.variables.map((v, idx) => {
+        if (v.value && v.value.values) {
+            // Already in internal format
+            // Check for missing fields
+            if (!v.name) importFeedback.push(`Variable #${idx+1} missing 'name', auto-filled as 'Var${idx+1}'.`);
+            if (!v.feature_name) importFeedback.push(`Variable '${v.name || 'Var'+(idx+1)}' missing 'feature_name', auto-filled.`);
+            if (!Array.isArray(v.value.values)) importFeedback.push(`Variable '${v.name || 'Var'+(idx+1)}' has invalid 'values', auto-filled as empty array.`);
+            return {
+                ...v,
+                name: v.name || `Var${idx+1}`,
+                feature_name: v.feature_name || (v.name || `Var${idx+1}`),
+                value: {
+                    values: Array.isArray(v.value.values) ? v.value.values : [],
+                    weights: Array.isArray(v.value.weights) ? v.value.weights : (Array.isArray(v.value.values) ? v.value.values.map(() => 1) : [])
+                }
+            };
+        } else {
+            // Legacy/simple format: wrap values and add default weights
+            if (!v.name) importFeedback.push(`Variable #${idx+1} missing 'name', auto-filled as 'Var${idx+1}'.`);
+            if (!Array.isArray(v.values)) importFeedback.push(`Variable '${v.name || 'Var'+(idx+1)}' has invalid 'values', auto-filled as empty array.`);
+            return {
+                name: v.name || `Var${idx+1}`,
+                feature_name: v.feature_name || v.name || `Var${idx+1}`,
+                value: {
+                    values: Array.isArray(v.values) ? v.values.slice() : [],
+                    weights: Array.isArray(v.values) ? v.values.map(() => 1) : []
+                }
+            };
+        }
+    });
+    if (variables.length > MAX_VARIABLES) {
+       console.warn(`Loaded state exceeds MAX_VARIABLES (${MAX_VARIABLES}). Truncating.`);
+       variables = variables.slice(0, MAX_VARIABLES);
     }
 
     // Restore Settings Inputs
-    const sdInput = state.stable_diffusion_input || {};
-    inputText.value = sdInput.prompt || '';
-    negativeInputText.value = sdInput.negative_prompt || '';
-    heightInput.value = sdInput.height || ''; widthInput.value = sdInput.width || '';
-    cfgScaleInput.value = sdInput.cfg_scale || ''; samplingStepsInput.value = sdInput.steps || '';
-    denoisingStrengthInput.value = sdInput.denoising_strength || ''; img2imgSourceInput.value = sdInput.img2img_source || '';
+    // Support both new and legacy prompt template fields
+    if (typeof state.promptTemplate === 'string' && state.promptTemplate.length > 0) {
+        inputText.value = state.promptTemplate;
+    } else {
+        const sdInput = state.stable_diffusion_input || {};
+        if (!sdInput.prompt) importFeedback.push("Prompt template missing, set to blank.");
+        inputText.value = sdInput.prompt || '';
+    }
+    // Other settings (legacy only)
+    negativeInputText.value = (state.stable_diffusion_input && state.stable_diffusion_input.negative_prompt) || '';
+    heightInput.value = (state.stable_diffusion_input && state.stable_diffusion_input.height) || '';
+    widthInput.value = (state.stable_diffusion_input && state.stable_diffusion_input.width) || '';
+    cfgScaleInput.value = (state.stable_diffusion_input && state.stable_diffusion_input.cfg_scale) || '';
+    samplingStepsInput.value = (state.stable_diffusion_input && state.stable_diffusion_input.steps) || '';
+    denoisingStrengthInput.value = (state.stable_diffusion_input && state.stable_diffusion_input.denoising_strength) || '';
+    img2imgSourceInput.value = (state.stable_diffusion_input && state.stable_diffusion_input.img2img_source) || '';
     const p5Input = state.p5_input || {};
-    p5Code.value = p5Input.code || ''; // Load p5 code but don't run it
+    if (p5Code) {
+        if (!p5Input.code) importFeedback.push("p5.js code missing, left blank.");
+        p5Code.value = p5Input.code || '';
+    }
 
     // Restore Synth UI State
     let synthState = state.synth_state;
@@ -771,7 +900,11 @@ function handleLoadState(state, isImport = false) {
 
     updateAllOutputs(); // Update text outputs based on restored state
     console.log("State loaded successfully.");
-    alert(isImport ? "JSON imported successfully." : "State loaded successfully.");
+    if (importFeedback.length > 0) {
+        alert((isImport ? "Imported with warnings:\n" : "Loaded with warnings:\n") + importFeedback.join("\n"));
+    } else {
+        alert(isImport ? "JSON imported successfully." : "State loaded successfully.");
+    }
 }
 
 

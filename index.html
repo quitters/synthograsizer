@@ -42,9 +42,13 @@
     <!-- === TOP BAR === -->
     <div class="top-bar">
         <div class="button-group left">
-    <button id="importJsonButton">Import JSON</button>
-    <button id="exportJsonButton">Export JSON</button>
-    <button id="syncMidiButton">Sync MIDI</button>
+  <div class="template-dropdown-container">
+    <button id="templateDropdownButton" class="gray-pill-button">Project Template ▼</button>
+    <div id="templateDropdownMenu"></div>
+  </div>
+  <button id="importJsonButton">Import JSON</button>
+  <button id="exportJsonButton">Export JSON</button>
+  <button id="syncMidiButton">Sync MIDI</button>
 </div>
         <div class="button-group right">
             <button id="randomizeButton">Randomize</button>
@@ -218,13 +222,6 @@ p.draw = function() {
             <div class="p5-controls">
                 <button id="runP5Button">Run Code</button>
                 <button id="stopP5Button">Stop Sketch</button>
-                <select id="p5ExamplesSelect">
-                    <option value="">Load Example...</option>
-                    <option value="basic_shapes">Basic Shapes</option>
-                    <option value="particle_system">Particle System</option>
-                    <option value="audio_visualizer">Audio Visualizer</option>
-                    <option value="fractal_tree">Fractal Tree</option>
-                    <option value="game_of_life">Game of Life</option>
                 </select>
                 <button id="createRequiredVarsButton" title="Creates the variables needed for the selected example">Create Variables</button>
             </div>

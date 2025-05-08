@@ -1,0 +1,48 @@
+{
+  "promptTemplate": "A particle system with {{count}} particles, speed {{speed}}, size {{size}}, color {{color}}",
+  "variables": [
+    {
+      "name": "Count",
+      "feature_name": "count",
+      "values": [
+        "20",
+        "50",
+        "100",
+        "150"
+      ]
+    },
+    {
+      "name": "Speed",
+      "feature_name": "speed",
+      "values": [
+        "0.5",
+        "1",
+        "2",
+        "3"
+      ]
+    },
+    {
+      "name": "Size",
+      "feature_name": "size",
+      "values": [
+        "2",
+        "5",
+        "8",
+        "12"
+      ]
+    },
+    {
+      "name": "Color",
+      "feature_name": "color",
+      "values": [
+        "rainbow",
+        "fire",
+        "ocean",
+        "grayscale"
+      ]
+    }
+  ],
+  "p5_input": {
+    "code": "// SYNTHOGRASIZER P5.JS EXAMPLE: Particle System\n// \n// This example simulates an animated particle system\n// controlled by Synthograsizer variables. It demonstrates:\n// - Maintaining and updating a collection of objects\n// - Mapping variable values to multiple parameters\n// - Responding to both Mode A and Mode B values\n//\n// REQUIRED VARIABLES:\n// - \"count\" for controlling number of particles\n// - \"speed\" for controlling particle movement speed\n// - \"size\" for controlling particle size\n// - \"color\" for particle color theme (e.g., \"fire\", \"ocean\", \"rainbow\")\n\n// Particle class\nclass Particle {\n  constructor(x, y, size, speed, colorScheme) {\n    this.pos = p.createVector(x, y);\n    this.vel = p.createVector(p.random(-1, 1), p.random(-1, 1));\n    this.vel.normalize().mult(speed);\n    this.size = size;\n    this.colorScheme = colorScheme;\n    this.lifespan = 255;\n    this.decay = p.random(1, 3);\n  }\n  \n  update() {\n    this.pos.add(this.vel);\n    this.lifespan -= this.decay;\n    \n    // Bounce off edges\n    if (this.pos.x < 0 || this.pos.x > p.width) {\n      this.vel.x *= -1;\n    }\n    if (this.pos.y < 0 || this.pos.y > p.height) {\n      this.vel.y *= -1;\n    }\n  }\n  \n  display() {\n    p.noStroke();\n    \n    // Choose color based on scheme\n    let particleColor;\n    \n    switch(this.colorScheme.toLowerCase()) {\n      case 'fire':\n        particleColor = p.color(\n          p.random(200, 255),\n          p.random(50, 150),\n          p.random(0, 50),\n          this.lifespan\n        );\n        break;\n      case 'ocean':\n        particleColor = p.color(\n          p.random(0, 50),\n          p.random(100, 150),\n          p.random(200, 255),\n          this.lifespan\n        );\n        break;\n      case 'rainbow':\n        const hue = (p.frameCount + this.pos.x) % 360;\n        particleColor = p.color(\n          p.colorMode(p.HSB, 360, 100, 100, 255),\n          hue,\n          80,\n          90,\n          this.lifespan\n        );\n        p.colorMode(p.RGB, 255, 255, 255, 255); // Reset color mode\n        break;\n      default:\n        particleColor = p.color(200, 200, 200, this.lifespan);\n    }\n    \n    p.fill(particleColor);\n    p.ellipse(this.pos.x, this.pos.y, this.size);\n  }\n  \n  isDead() {\n    return this.lifespan <= 0;\n  }\n}\n\n// Main sketch variables\nlet particles = [];\n\np.setup = function() {\n  p.createCanvas(400, 300).parent(p5Output);\n};\n\np.draw = function() {\n  p.background(10, 20, 30, 40); // Semi-transparent background for trails\n  \n  // Get Synthograsizer variables\n  const colorTheme = p.getSynthVar('color') || 'rainbow';\n  \n  // Handle count based on type (Mode A or B)\n  let count;\n  const countVar = p.getSynthVar('count');\n  if (typeof countVar === 'number') {\n    // Mode B: Map from -1..2 range to realistic particle count\n    count = p.map(countVar, -1, 2, 1, 200);\n  } else if (typeof countVar === 'string') {\n    // Mode A: Parse value or use default\n    count = parseInt(countVar) || 50;\n  } else {\n    count = 50; // Default\n  }\n  count = p.constrain(Math.floor(count), 1, 200);\n  \n  // Handle particle size\n  let size;\n  const sizeVar = p.getSynthVar('size');\n  if (typeof sizeVar === 'number') {\n    size = p.map(sizeVar, -1, 2, 1, 15);\n  } else if (typeof sizeVar === 'string') {\n    size = parseFloat(sizeVar) || 5;\n  } else {\n    size = 5;\n  }\n  \n  // Handle speed\n  let speed;\n  const speedVar = p.getSynthVar('speed');\n  if (typeof speedVar === 'number') {\n    speed = p.map(speedVar, -1, 2, 0.5, 5);\n  } else if (typeof speedVar === 'string') {\n    speed = parseFloat(speedVar) || 2;\n  } else {\n    speed = 2;\n  }\n  \n  // Create new particles to maintain the count\n  while (particles.length < count) {\n    particles.push(new Particle(\n      p.random(p.width),\n      p.random(p.height),\n      size,\n      speed,\n      colorTheme\n    ));\n  }\n  \n  // If we have too many particles, remove some\n  if (particles.length > count) {\n    particles.splice(count);\n  }\n  \n  // Update and display particles\n  for (let i = particles.length - 1; i >= 0; i--) {\n    particles[i].update();\n    particles[i].display();\n    \n    // Remove dead particles\n    if (particles[i].isDead()) {\n      particles.splice(i, 1);\n    }\n  }\n  \n  // Show info\n  p.fill(255);\n  p.noStroke();\n  p.textSize(12);\n  p.textAlign(p.LEFT, p.TOP);\n  p.text(`Mode: ${p.getSynthMode()}`, 10, 10);\n  p.text(`Particles: ${particles.length}`, 10, 30);\n  p.text(`Theme: ${colorTheme}`, 10, 50);\n  p.text(`Size: ${size.toFixed(1)}`, 10, 70);\n  p.text(`Speed: ${speed.toFixed(1)}`, 10, 90);\n};"
+  }
+}
