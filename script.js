@@ -524,12 +524,10 @@ function checkForAutoSave() {
 
 function addTooltips() {
     addTooltip(importJsonButton, "Import variables and settings from a JSON file.");
-    addTooltip(saveButton, "Save the current variables, settings, and knob states to a JSON file.");
-    addTooltip(loadButton, "Load a previously saved state file.");
     addTooltip(randomizeButton, "Randomize knob values (Mode A: discrete index, Mode B: continuous value).");
     addTooltip(modeToggleButton, `Current: Mode ${mode} (${modeDescription.textContent})\nClick to cycle modes.`);
     addTooltip(settingsToggle, "Show/Hide additional settings like Negative Prompt, Dimensions, CFG Scale, etc.");
-    addTooltip(addVariableButton, `Add a new variable knob (Max: ${MAX_VARIABLES}).`);
+    addTooltip(addVariableButton, "Add a new variable knob.");
     addTooltip(runP5Button, "Execute the p5.js code in the editor below."); // Added
     addTooltip(stopP5Button, "Stop the currently running p5.js sketch."); // Added
     addTooltip(p5ExamplesSelect, "Load a pre-made p5.js example.");
