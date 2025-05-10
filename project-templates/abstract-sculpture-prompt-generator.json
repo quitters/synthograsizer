@@ -1,0 +1,137 @@
+{
+  "promptTemplate": "A {{scale}} {{material}} sculpture with {{formal_quality}}, exploring {{conceptual_theme}} through {{technique}} with {{interactive_element}}.",
+  "variables": [
+    {
+      "name": "scale",
+      "feature_name": "scale",
+      "values": [
+        "human-scaled",
+        "monumental",
+        "intimate",
+        "site-specific",
+        "variable",
+        "architectural",
+        "miniature",
+        "environmental",
+        "body-related",
+        "landscape-integrated",
+        "portable",
+        "expansive",
+        "room-defining",
+        "hand-held",
+        "suspended",
+        "underground"
+      ]
+    },
+    {
+      "name": "material",
+      "feature_name": "material",
+      "values": [
+        "cast glass and weathered steel",
+        "woven fiber and polished stone",
+        "reclaimed wood and transparent resin",
+        "folded metal and dichroic film",
+        "paper pulp and embedded electronics",
+        "living plants and geometric armature",
+        "light projection and suspended particles",
+        "magnetic fluid and precision mechanisms",
+        "ceramic modules and tensile elements",
+        "mycelium growth and digital fabrication",
+        "kinetic components and natural materials",
+        "sound-generating metal and textile dampening",
+        "water integration and temporal recording",
+        "biodegradable composite and traditional craft",
+        "reflective surfaces and shadow manipulation",
+        "phase-changing matter and preservation techniques"
+      ]
+    },
+    {
+      "name": "formal_quality",
+      "feature_name": "formal_quality",
+      "values": [
+        "organic flow contrasting geometric precision",
+        "negative space defining positive form",
+        "rhythmic repetition with intentional variation",
+        "balanced asymmetry and weighted tension",
+        "perceptual ambiguity between dimensions",
+        "linear elements creating volumetric implication",
+        "mathematical progression expressed physically",
+        "material transformation revealing process",
+        "controlled chaos within structural order",
+        "temporal recording through physical means",
+        "scale shifts challenging perspective",
+        "harmonic proportional relationships",
+        "boundary conditions between states",
+        "cumulative emergence from simple elements",
+        "calibrated imperfection and precision",
+        "physical manifestation of invisible systems"
+      ]
+    },
+    {
+      "name": "conceptual_theme",
+      "feature_name": "conceptual_theme",
+      "values": [
+        "memory preservation and erosion",
+        "collective versus individual experience",
+        "technological mediation of natural systems",
+        "embodied knowledge and tacit understanding",
+        "perceptual thresholds and sensory calibration",
+        "temporal cycles and human intervention",
+        "cultural inheritance and contemporary response",
+        "material intelligence and agency",
+        "cognitive mapping of physical space",
+        "environmental adaptation and resilience",
+        "emergent complexity from simple rules",
+        "boundary dissolution between categories",
+        "translation between sensory modes",
+        "preservation of threatened knowledge",
+        "algorithmic nature and organic computation",
+        "relational connections across difference"
+      ]
+    },
+    {
+      "name": "technique",
+      "feature_name": "technique",
+      "values": [
+        "hand-fabrication with digital precision",
+        "material investigation through experimental process",
+        "traditional craft reinterpreted through technology",
+        "collaborative making across disciplines",
+        "time-based documentation of natural forces",
+        "iterative development through prototyping",
+        "parametric design with intuitive intervention",
+        "scientific method applied to artistic inquiry",
+        "sensor-based environmental response",
+        "code-driven fabrication with material feedback",
+        "historical techniques with contemporary application",
+        "biomimetic principles and engineering",
+        "kinetic systems with calibrated balance",
+        "acoustic properties as form determinants",
+        "interdisciplinary methodology crossing boundaries",
+        "community engagement in creation process"
+      ]
+    },
+    {
+      "name": "interactive_element",
+      "feature_name": "interactive_element",
+      "values": [
+        "viewer movement revealing changing perspectives",
+        "touch-responsive material transformation",
+        "sound generation through physical engagement",
+        "environmental factors altering appearance",
+        "temporal documentation of interaction history",
+        "collective participation building complexity",
+        "bodily presence completing the work",
+        "sensory engagement beyond visual",
+        "augmented perception through technological mediation",
+        "physical manipulation changing configuration",
+        "subtle responsive elements rewarding attention",
+        "participant contribution to evolving form",
+        "interaction revealing hidden aspects",
+        "multi-sensory feedback systems",
+        "viewer-determined narrative pathways",
+        "environmental dialogue recording changes"
+      ]
+    }
+  ]
+}

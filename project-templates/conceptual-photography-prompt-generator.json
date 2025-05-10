@@ -1,0 +1,137 @@
+{
+  "promptTemplate": "A {{composition}} photograph of {{subject}} with {{lighting_technique}}, using {{technical_approach}} to explore themes of {{concept}} with {{visual_treatment}}.",
+  "variables": [
+    {
+      "name": "composition",
+      "feature_name": "composition",
+      "values": [
+        "intimate portrait",
+        "abstract macro",
+        "environmental narrative",
+        "surreal juxtaposition",
+        "geometric study",
+        "minimal still life",
+        "dynamic motion",
+        "layered composite",
+        "architectural perspective",
+        "conceptual tableau",
+        "documentary moment",
+        "deconstructed landscape",
+        "symmetrical typology",
+        "fragmented sequential",
+        "atmospheric scene",
+        "dimensional portrait"
+      ]
+    },
+    {
+      "name": "subject",
+      "feature_name": "subject",
+      "values": [
+        "weathered hands and antique tools",
+        "botanical specimens in transformation",
+        "architectural forms against negative space",
+        "cultural artifacts in new contexts",
+        "human figure and geometric shadows",
+        "natural elements and industrial materials",
+        "movement captured through time",
+        "emotional states externalized",
+        "boundaries between natural and artificial",
+        "overlooked everyday objects",
+        "historical process and modern intervention",
+        "physical manifestation of digital concepts",
+        "rituals of connection and separation",
+        "invisible systems made visible",
+        "identity expressed through absence",
+        "memory translated into material"
+      ]
+    },
+    {
+      "name": "lighting_technique",
+      "feature_name": "lighting_technique",
+      "values": [
+        "dramatic chiaroscuro",
+        "diffused naturalistic",
+        "colored gel orchestration",
+        "light painting",
+        "projection mapping",
+        "environmental reflections",
+        "fiber optic manipulation",
+        "practical practical effects",
+        "spectral separation",
+        "silhouette and glow",
+        "electromagnetic visualization",
+        "time-varied exposure",
+        "refracted translucency",
+        "atmospheric particle",
+        "dimensional shadowing",
+        "bioluminescent source"
+      ]
+    },
+    {
+      "name": "technical_approach",
+      "feature_name": "technical_approach",
+      "values": [
+        "multiple exposure layering",
+        "alternative process printing",
+        "selective focus techniques",
+        "lens distortion",
+        "experimental developing",
+        "digital/analog hybrid",
+        "custom optical apparatus",
+        "specialized filtration",
+        "compositional mathematics",
+        "microscopic extension",
+        "motion control sequencing",
+        "chemical intervention",
+        "folded plane photography",
+        "camera-less technique",
+        "constructed viewing devices",
+        "computational processing"
+      ]
+    },
+    {
+      "name": "concept",
+      "feature_name": "concept",
+      "values": [
+        "memory and documentation",
+        "perception versus reality",
+        "temporal experience",
+        "identity construction",
+        "environmental relationship",
+        "technological mediation",
+        "cultural preservation",
+        "invisible structures",
+        "embodied knowledge",
+        "liminal transitions",
+        "collective versus individual",
+        "material transformation",
+        "sensory translation",
+        "constructed narrative",
+        "emotional archaeology",
+        "systematic observation"
+      ]
+    },
+    {
+      "name": "visual_treatment",
+      "feature_name": "visual_treatment",
+      "values": [
+        "monochromatic tonal gradient",
+        "hyper-saturated color theory",
+        "textural materiality",
+        "geometric composition",
+        "negative space emphasis",
+        "pattern recognition",
+        "scale manipulation",
+        "temporal suggestion",
+        "material juxtaposition",
+        "symbolic visual language",
+        "minimalist reduction",
+        "maximalist layering",
+        "archival reference",
+        "ephemeral impermanence",
+        "documentary intervention",
+        "perceptual illusion"
+      ]
+    }
+  ]
+}

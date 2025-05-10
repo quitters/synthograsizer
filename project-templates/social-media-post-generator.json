@@ -1,0 +1,159 @@
+{
+  "promptTemplate": "{{emoji}} | {{attention_grabber}}: How I {{achievement}} in just {{timeframe}} using this {{adjective}} {{method}}. #{{hashtag}}",
+  "variables": [
+    {
+      "name": "emoji",
+      "feature_name": "emoji",
+      "values": [
+        "🚀",
+        "💡",
+        "🔥",
+        "✨",
+        "👀",
+        "🎯",
+        "💪",
+        "🧠",
+        "🌱",
+        "⚡",
+        "🔑",
+        "💯",
+        "🏆",
+        "📈",
+        "🤯",
+        "🎨"
+      ]
+    },
+    {
+      "name": "attention_grabber",
+      "feature_name": "attention_grabber",
+      "values": [
+        "GAME CHANGER",
+        "FINALLY REVEALED",
+        "UNPOPULAR OPINION",
+        "MIND BLOWN",
+        "PLOT TWIST",
+        "HERE'S THE TRUTH",
+        "STOP SCROLLING",
+        "NO ONE TELLS YOU THIS",
+        "MY SECRET WEAPON",
+        "LIFE HACK ALERT",
+        "I CAN'T BELIEVE IT",
+        "BREAKTHROUGH MOMENT",
+        "INDUSTRY SECRET",
+        "THEY DIDN'T WANT YOU TO KNOW",
+        "HONEST CONFESSION",
+        "THIS CHANGED EVERYTHING"
+      ]
+    },
+    {
+      "name": "achievement",
+      "feature_name": "achievement",
+      "values": [
+        "doubled my productivity",
+        "grew my audience to 10K",
+        "mastered a new skill",
+        "transformed my mindset",
+        "automated my business",
+        "overcame my biggest fear",
+        "created passive income",
+        "redesigned my lifestyle",
+        "optimized my workflow",
+        "eliminated burnout",
+        "decluttered my space",
+        "built a personal brand",
+        "created viral content",
+        "became location independent",
+        "found work-life balance",
+        "achieved inbox zero"
+      ]
+    },
+    {
+      "name": "timeframe",
+      "feature_name": "timeframe",
+      "values": [
+        "30 days",
+        "one weekend",
+        "3 weeks",
+        "less than an hour",
+        "my lunch break",
+        "5 minutes daily",
+        "a single quarter",
+        "the past month",
+        "a 7-day challenge",
+        "two focused sessions",
+        "under 48 hours",
+        "21 days straight",
+        "a single afternoon",
+        "the time most people waste",
+        "my morning routine",
+        "the first 90 days"
+      ]
+    },
+    {
+      "name": "adjective",
+      "feature_name": "adjective",
+      "values": [
+        "counter-intuitive",
+        "science-backed",
+        "little-known",
+        "simple",
+        "powerful",
+        "unconventional",
+        "proven",
+        "underrated",
+        "minimalist",
+        "holistic",
+        "forgotten",
+        "ancient",
+        "cutting-edge",
+        "ethical",
+        "sustainable",
+        "revolutionary"
+      ]
+    },
+    {
+      "name": "method",
+      "feature_name": "method",
+      "values": [
+        "framework",
+        "habit stack",
+        "mindset shift",
+        "system",
+        "technique",
+        "approach",
+        "strategy",
+        "routine",
+        "principle",
+        "formula",
+        "process",
+        "workflow",
+        "ritual",
+        "blueprint",
+        "protocol",
+        "methodology"
+      ]
+    },
+    {
+      "name": "hashtag",
+      "feature_name": "hashtag",
+      "values": [
+        "ProductivityHack",
+        "LifestyleDesign",
+        "MindsetMatters",
+        "DigitalNomad",
+        "PersonalGrowth",
+        "WorkSmarter",
+        "TimeManagement",
+        "BusinessTips",
+        "CreatorEconomy",
+        "PassiveIncome",
+        "BuildInPublic",
+        "FutureOfWork",
+        "SelfCare",
+        "EnergyManagement",
+        "DeepWork",
+        "GoalSetting"
+      ]
+    }
+  ]
+}

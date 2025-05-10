@@ -293,6 +293,7 @@ document.addEventListener('DOMContentLoaded', function() {
       .then(templates => {
         templateList = templates;
         templateDropdownMenu.innerHTML = '';
+        templateDropdownMenu.style.display = 'none'; // Ensure hidden on load
         templates.forEach((tpl, idx) => {
           const btn = document.createElement('button');
           btn.className = 'template-option';
@@ -305,7 +306,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 return resp.json();
               })
               .then(json => {
+                window.__suppressImportFeedback = true;
                 handleLoadState(json, true);
+                setTimeout(() => { window.__suppressImportFeedback = false; }, 100);
                 templateDropdownMenu.style.display = 'none';
               })
               .catch(err => {
@@ -358,6 +361,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
   console.log("DOM Loaded. Initializing Synthograsizer v2.2.0 (UI + p5)...");
   assignElementReferences();
+  // Add event listener for Copy Output button
+  const copyOutputButton = document.getElementById('copyOutputButton');
+  if (copyOutputButton) {
+    copyOutputButton.addEventListener('click', function() {
+      const outputDiv = document.getElementById('outputText');
+      if (outputDiv) {
+        const text = outputDiv.textContent || '';
+        if (text.length > 0) {
+          navigator.clipboard.writeText(text).then(() => {
+            const oldText = copyOutputButton.textContent;
+            copyOutputButton.textContent = 'Copied!';
+            setTimeout(() => { copyOutputButton.textContent = oldText; }, 1000);
+          });
+        }
+      }
+    });
+  }
   initializeDefaultStateIfNeeded(); // Ensure prompt and variables are set before UI/event listeners
   addEventListeners();
   addTooltips();
@@ -789,6 +809,20 @@ function handleLoadState(state, isImport = false) {
        variables = variables.slice(0, MAX_VARIABLES);
     }
 
+    // Only show import feedback if this is a true file import (not template dropdown)
+    if (!window.__suppressImportFeedback && isImport === true) {
+        if (importFeedback.length > 0) {
+            alert('Import completed with the following notes:\n\n' + importFeedback.join('\n'));
+        } else {
+            alert('JSON imported successfully.');
+        }
+    }
+    // If suppression is active, clear feedback so no alert is shown
+    if (window.__suppressImportFeedback) importFeedback = [];
+    // Always reset the flag after use
+    if (window.__suppressImportFeedback) window.__suppressImportFeedback = false;
+
+
     // Restore Settings Inputs
     // Support both new and legacy prompt template fields
     if (typeof state.promptTemplate === 'string' && state.promptTemplate.length > 0) {
@@ -903,7 +937,10 @@ function handleLoadState(state, isImport = false) {
     if (importFeedback.length > 0) {
         alert((isImport ? "Imported with warnings:\n" : "Loaded with warnings:\n") + importFeedback.join("\n"));
     } else {
-        alert(isImport ? "JSON imported successfully." : "State loaded successfully.");
+        if (!(window.__suppressImportFeedback)) {
+            alert(isImport ? "JSON imported successfully." : "State loaded successfully.");
+        }
+        window.__suppressImportFeedback = false;
     }
 }
 

@@ -1,6 +1,25 @@
 [
   { "name": "Default", "file": "default.json" },
+  { "name": "Abstract Sculpture Prompt Generator", "file": "abstract-sculpture-prompt-generator.json" },
+  { "name": "AI Art Prompt Generator", "file": "ai-art-prompt-generator.json" },
+  { "name": "Animation Scene Generator", "file": "animation-scene-generator.json" },
+  { "name": "Architecture Prompt Generator", "file": "architecture-prompt-generator.json" },
+  { "name": "Business Pitch Generator", "file": "business-pitch-generator.json" },
+  { "name": "Character Design Generator", "file": "character-design-generator.json" },
+  { "name": "Character Generator", "file": "character_generator.json" },
+  { "name": "Conceptual Photography Prompt Generator", "file": "conceptual-photography-prompt-generator.json" },
+  { "name": "Experimental Music Concept Generator", "file": "experimental-music-concept-generator.json" },
+  { "name": "Fantasy Scene Generator", "file": "fantasy-scene-generator.json" },
+  { "name": "Music Track Concept Generator", "file": "music-track-concept-generator.json" },
+  { "name": "Novel Plot Generator", "file": "novel-plot-generator.json" },
+  { "name": "Product Design Brief Generator", "file": "product-design-brief-generator.json" },
+  { "name": "Recipie Generator", "file": "recipie-generator.json" },
+  { "name": "Social Media Post Generator", "file": "social-media-post-generator.json" },
+  { "name": "Travel Itiniery Generator", "file": "travel-itiniery-generator.json" },
+
   { "name": "Basic Particles", "file": "basic_particles.json" },
   { "name": "Color Shapes", "file": "color_shapes.json" },
-  { "name": "Character Generator", "file": "character_generator.json" }
+  { "name": "Fractal Tree", "file": "fractal_tree.json" },
+  { "name": "Game Of Life", "file": "game_of_life.json" },
+  { "name": "Audio Visualizer", "file": "audio_visualizer.json" }
 ]

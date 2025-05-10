@@ -1,0 +1,115 @@
+{
+  "promptTemplate": "A {{industry}} platform that helps {{audience}} to {{action}} by using {{technology}} to solve {{problem}}.",
+  "variables": [
+    {
+      "name": "industry",
+      "feature_name": "industry",
+      "values": [
+        "healthcare",
+        "fintech",
+        "edtech",
+        "e-commerce",
+        "sustainability",
+        "logistics",
+        "entertainment",
+        "real estate",
+        "agriculture",
+        "cybersecurity",
+        "wellness",
+        "manufacturing",
+        "hospitality",
+        "transportation",
+        "energy",
+        "retail"
+      ]
+    },
+    {
+      "name": "audience",
+      "feature_name": "audience",
+      "values": [
+        "small businesses",
+        "students",
+        "remote workers",
+        "parents",
+        "healthcare providers",
+        "creators",
+        "travelers",
+        "researchers",
+        "urban residents",
+        "retailers",
+        "entrepreneurs",
+        "elderly people",
+        "teachers",
+        "athletes",
+        "job seekers",
+        "investors"
+      ]
+    },
+    {
+      "name": "action",
+      "feature_name": "action",
+      "values": [
+        "streamline workflows",
+        "reduce costs",
+        "increase productivity",
+        "build communities",
+        "make informed decisions",
+        "manage resources",
+        "automate tasks",
+        "access specialized services",
+        "protect personal data",
+        "improve customer engagement",
+        "scale operations",
+        "learn new skills",
+        "monitor performance",
+        "collaborate seamlessly",
+        "track progress",
+        "simplify compliance"
+      ]
+    },
+    {
+      "name": "technology",
+      "feature_name": "technology",
+      "values": [
+        "artificial intelligence",
+        "blockchain",
+        "IoT sensors",
+        "augmented reality",
+        "machine learning",
+        "biometrics",
+        "cloud computing",
+        "big data analytics",
+        "natural language processing",
+        "predictive algorithms",
+        "computer vision",
+        "robotics",
+        "voice recognition",
+        "digital twins",
+        "edge computing",
+        "quantum computing"
+      ]
+    },
+    {
+      "name": "problem",
+      "feature_name": "problem",
+      "values": [
+        "inefficient processes",
+        "information overload",
+        "supply chain disruptions",
+        "high overhead costs",
+        "security vulnerabilities",
+        "limited accessibility",
+        "communication barriers",
+        "sustainability challenges",
+        "data fragmentation",
+        "skill gaps",
+        "market volatility",
+        "regulatory complexity",
+        "resource scarcity",
+        "quality inconsistencies",
+        "outdated infrastructure",
+        "decision paralysis"
+      ]
+    }
+  ]
+}
