@@ -64,7 +64,10 @@
         <div class="text-container main-prompt">
             <label for="inputText">Prompt Template</label>
             <input type="text" id="inputText" placeholder="Enter prompt template, e.g., A cat with {{style}} fur">
-            <label for="outputText">Generated Output</label>
+            <div style="display: flex; align-items: center; width: 90%; max-width: 800px; margin-left: auto; margin-right: auto; margin-bottom: 4px;">
+                <label for="outputText" class="output-label" style="margin-bottom: 0;">Generated Output</label>
+                <button id="copyOutputButton" style="margin-left: auto;">Copy</button>
+            </div>
             <div class="output-box" id="outputText"></div>
         </div>
 

@@ -255,8 +255,16 @@ button:active {
 
 /* Move about-navbar higher to avoid overlap with buttons */
 .about-navbar {
-  margin-top: 8px !important;
+  margin-top: 0 !important;
   margin-bottom: 0 !important;
+}
+
+.top-bar {
+  margin-top: 0;
+}
+
+.text-container.main-prompt .output-label {
+  margin-top: 18px;
 }
 
 /* Reduce gap between left group buttons */
@@ -273,17 +281,29 @@ button:active {
 
 /* Dropdown Menu Styling */
 #templateDropdownMenu {
-  display: none;
   position: absolute;
-  top: 110%;
+  top: 100%;
   left: 0;
-  min-width: 180px;
   background: #fff;
-  border-radius: 10px;
+  border-radius: 0 0 10px 10px;
   box-shadow: 0 4px 16px rgba(94,96,206,0.10);
-  z-index: 1000;
-  overflow: hidden;
-  padding: 6px 0;
+  min-width: 230px;
+  padding: 8px 0;
+  z-index: 100;
+  max-height: 50vh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+
+#templateDropdownMenu::-webkit-scrollbar {
+  width: 10px;
+  background: #f4f7f6;
+  border-radius: 8px;
+}
+#templateDropdownMenu::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 8px;
 }
 #templateDropdownMenu .template-option {
   padding: 10px 22px;
@@ -334,6 +354,54 @@ button:active {
     max-width: 800px;
     margin-left: auto; /* Center the label above the centered input */
     margin-right: auto;
+}
+
+.text-container label[for="outputText"] {
+  font-weight: 500;
+  margin-bottom: 4px;
+  display: block;
+}
+
+#copyOutputButton {
+  font-size: 0.95em;
+  padding: 3px 12px;
+  border-radius: 6px;
+  border: none;
+  background: #f3f3f3;
+  color: #333;
+  cursor: pointer;
+  transition: background 0.2s;
+  align-self: flex-end;
+}
+
+.output-label-row {
+  width: 90%;
+  max-width: 800px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+  margin-top: 18px;
+}
+
+.output-label-row label.output-label {
+  font-weight: 500;
+  font-family: inherit;
+  margin: 0;
+  font-size: 1em;
+}
+
+.output-label-row label.output-label {
+  font-weight: 500;
+  font-family: inherit;
+  margin: 0;
+  font-size: 1em;
+}
+
+#copyOutputButton:hover, #copyOutputButton:focus {
+  background: #ececec;
+  color: #111;
+  outline: none;
 }
 
 input[type="text"], .output-box {
