@@ -17,9 +17,10 @@
   { "name": "Social Media Post Generator", "file": "social-media-post-generator.json" },
   { "name": "Travel Itiniery Generator", "file": "travel-itiniery-generator.json" },
 
-  { "name": "Basic Particles", "file": "basic_particles.json" },
-  { "name": "Color Shapes", "file": "color_shapes.json" },
-  { "name": "Fractal Tree", "file": "fractal_tree.json" },
-  { "name": "Game Of Life", "file": "game_of_life.json" },
-  { "name": "Audio Visualizer", "file": "audio_visualizer.json" }
+  { "name": "⭐ Basic Particles", "file": "basic_particles.json" },
+  { "name": "⭐ P5 Face Generator", "file": "p5-face-generator.json" },
+  { "name": "⭐ Color Shapes", "file": "color_shapes.json" },
+  { "name": "⭐ Fractal Tree", "file": "fractal_tree.json" },
+  { "name": "⭐ Game Of Life", "file": "game_of_life.json" },
+  { "name": "⭐ Audio Visualizer", "file": "audio_visualizer.json" }
 ]

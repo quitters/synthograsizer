@@ -118,36 +118,48 @@ function handleMidiInModeD(controlNumber, midiValue) {
     notifyVariableChanged(variable.feature_name, discreteValue);
 }// --- Variable Change Notification System ---
 function notifyVariableChanged(featureName, value) {
-    // Always log at base level for debugging
-    console.log(`[MIDI_EVENT] ${featureName} = ${value}`);
+    // Only log in debug mode or first few notifications
+    const shouldLog = midiNotificationCount < 10;
+    midiNotificationCount++;
     
-    // Check if any sketch is running
-    if (p5Instance && mode === 'D') {
-        console.log(`Broadcasting to p5: ${featureName} = ${value}`);
-        
-        // Show in p5 console
-        addToP5Console(`MIDI update: ${featureName} = ${value}`, 'info');
+    if (shouldLog) {
+        console.log(`[MIDI_EVENT] ${featureName} = ${value}`);
     }
     
-    // Check if we have any listeners at all
+    // Minimize DOM operations during MIDI updates
+    const isRunningSketch = p5Instance && mode === 'D';
+    
+    // Only add to console occasionally to reduce DOM operations
+    if (isRunningSketch && midiNotificationCount % 5 === 0) {
+        // Batch console updates to improve performance
+        if (!pendingConsoleUpdate) {
+            pendingConsoleUpdate = true;
+            setTimeout(() => {
+                addToP5Console(`MIDI update: ${featureName} = ${value}`, 'info');
+                pendingConsoleUpdate = false;
+            }, 50);
+        }
+    }
+    
+    // Fast path: no listeners
     if (variableChangeListeners.length === 0) {
-        console.warn('No variable change listeners registered - changes will not affect sketch');
-        return; // No need to proceed if no listeners
+        if (shouldLog) console.warn('No variable change listeners registered');
+        return;
     }
     
-    console.log(`Notifying ${variableChangeListeners.length} listeners`);
+    if (shouldLog) {
+        console.log(`Notifying ${variableChangeListeners.length} listeners`);
+    }
     
-    // Create a copy of the listeners array to avoid issues if callbacks modify the array
-    const listeners = [...variableChangeListeners];
-    
-    // Notify all registered listeners
-    for (let i = 0; i < listeners.length; i++) {
+    // Optimized listener notification - avoid excessive array copying
+    // and only log errors, not regular notifications
+    for (let i = 0; i < variableChangeListeners.length; i++) {
         try {
-            console.log(`Calling listener ${i+1}/${listeners.length}`);
-            listeners[i](featureName, value);
+            variableChangeListeners[i](featureName, value);
         } catch (error) {
-            console.error(`Error in listener ${i} for ${featureName}:`, error);
-            addToP5Console(`Error in MIDI handler for ${featureName}: ${error.message}`, 'error');
+            console.error(`Error in listener for ${featureName}:`, error);
+            // Throttle error message updates to console
+            setTimeout(() => addToP5Console(`Error in MIDI handler: ${error.message}`, 'error'), 100);
         }
     }
 }
@@ -204,6 +216,12 @@ let mode = 'A'; // Current operating mode: 'A', 'B', 'C', 'D'
 // --- Global Declarations for Robustness ---
 let knobMidiMappings = new Map();
 let midiInputs = [];
+
+// MIDI optimization flags
+let pendingOutputUpdate = false;
+let pendingMidiPanelUpdate = false;
+let pendingConsoleUpdate = false;
+let midiNotificationCount = 0;
 let variableChangeListeners = [];
 let tooltipTimer = null;
 let activeTooltipElement = null;
@@ -1029,7 +1047,7 @@ function addEventListenersToKnobs() {
         // --- MOUSE DOWN ---
         newKnob.addEventListener('mousedown', (e) => {
             if (newKnob.dataset.locked === "true" || mode === 'C') return; // No interaction in C
-// Allow interaction in Mode D just like Mode A
+            // Allow interaction in Mode D just like Mode A
             e.preventDefault(); // Prevent text selection
 
             // Double click detection
@@ -1045,6 +1063,7 @@ function addEventListenersToKnobs() {
 
             isDragging = true;
             dragStartY = e.clientY;
+            dragStartX = e.clientX; // Store X position too for horizontal dragging
             const valueInput = newKnob.nextElementSibling;
             if ((mode === 'A' || mode === 'D') && index < variables.length) {
                  dragStartValueA = parseInt(valueInput.value) || 0;
@@ -1073,10 +1092,16 @@ function addEventListenersToKnobs() {
                  return;
             }
 
-            // Calculate change based on vertical movement
+            // Calculate change based on both vertical and horizontal movement
             const deltaY = dragStartY - e.clientY; // Positive delta = mouse moved up
+            const deltaX = e.clientX - dragStartX; // Positive delta = mouse moved right
+            
+            // Use the larger of the two deltas to determine direction
+            // This gives the user the ability to use whichever direction feels more natural
+            const netDelta = Math.abs(deltaY) > Math.abs(deltaX) ? deltaY : deltaX;
+            
             const sensitivity = (mode === 'A') ? 0.04 : 0.015; // Adjust sensitivity per mode
-            const change = deltaY * sensitivity;
+            const change = netDelta * sensitivity;
 
             if ((mode === 'A' || mode === 'D') && index < variables.length) {
                 const variable = variables[index];
@@ -2366,7 +2391,7 @@ function updateKnobFromMIDI(knob, midiValue) {
             
             // Update visual knob and display (only in Mode A)
             if (mode === 'A') {
-                valueInput.value = valueIndex; // Display the index
+                valueInput.value = discreteValue; // Display the actual text value, not the index
                 updateKnobVisualDiscrete(knob, valueIndex, numValues);
             }
             
@@ -2401,7 +2426,11 @@ function findCCTorKnob(knobElement) {
     return null;
 }
 
-// This function now handles the THROTTLED update logic
+// MIDI throttle timers and configuration
+const midiThrottleTimers = {};
+const MIDI_THROTTLE_DELAY = 5; // Faster response time (was likely much higher before)
+
+// This function handles the optimized MIDI update logic
 function updateKnobFromMIDI(knob, midiValue) {
     const index = parseInt(knob.dataset.index);
     if (index >= variables.length) {
@@ -2416,8 +2445,11 @@ function updateKnobFromMIDI(knob, midiValue) {
         clearTimeout(midiThrottleTimers[index]);
     }
  
-    // Schedule the actual update after a delay
-    // Pass the current midiValue to the scheduled function
+    // For immediate response, start the visual feedback now
+    knob.classList.add('knob-active');
+    setTimeout(() => knob.classList.remove('knob-active'), 100); // Shorter flash
+    
+    // Schedule the actual update after minimal delay to batch updates
     midiThrottleTimers[index] = setTimeout(() => {
         // --- Actual Update Logic (moved inside timeout) ---
         const currentVariable = variables[index]; // Re-fetch in case state changed
@@ -2459,7 +2491,7 @@ function updateKnobFromMIDI(knob, midiValue) {
                     
                     // Update visual knob/display only in Mode A
                     if (mode === 'A') {
-                        valueInput.value = valueIndex; // Display the index
+                        valueInput.value = discreteValue; // Display the actual text value, not the index
                         updateKnobVisualDiscrete(knob, valueIndex, numValues);
                     }
                     // Update display in Mode D too
@@ -2487,9 +2519,7 @@ function updateKnobFromMIDI(knob, midiValue) {
         
         // If the value actually changed, perform updates
         if (valueChanged) {
-            // Add visual MIDI activity indicator
-            knob.classList.add('knob-active');
-            setTimeout(() => knob.classList.remove('knob-active'), 300);
+            // Visual feedback already handled at the start for immediate response
             
             // Notify listeners / Update outputs
             if (mode === 'D') {
@@ -2497,15 +2527,31 @@ function updateKnobFromMIDI(knob, midiValue) {
                 console.log(`Mode D throttled notify: ${currentVariable.feature_name} = ${newValueForNotification}`);
                 notifyVariableChanged(currentVariable.feature_name, newValueForNotification);
             } else {
-                // Mode A/B: Update main text outputs
-                updateAllOutputs();
+                // Mode A/B: Update main text outputs only when needed
+                // Use requestAnimationFrame for better performance
+                if (!pendingOutputUpdate) {
+                    pendingOutputUpdate = true;
+                    requestAnimationFrame(() => {
+                        updateAllOutputs();
+                        pendingOutputUpdate = false;
+                    });
+                }
             }
             
-            // Update MIDI panel and highlight
-            updateMidiStatusPanel();
+            // Throttle MIDI status panel updates
             const cc = findCCTorKnob(knob); // Find the CC# for highlighting
             if (cc !== null) {
+                // Update visuals for immediate feedback
                 highlightMidiMapping(cc);
+                
+                // Throttle full panel updates for better performance
+                if (!pendingMidiPanelUpdate) {
+                    pendingMidiPanelUpdate = true;
+                    setTimeout(() => {
+                        updateMidiStatusPanel();
+                        pendingMidiPanelUpdate = false;
+                    }, 150); // Batch panel updates
+                }
             }
         }
         

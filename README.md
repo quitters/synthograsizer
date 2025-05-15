@@ -65,6 +65,8 @@ This version runs entirely in your web browser (client-side) with no backend ser
 
 ## Latest Updates (v2.6.1)
 
+*   **UI/UX Improvements:** Modernized header and footer layout, improved alignment, and updated About/Contact sections for a more polished user experience. The interface now uses a responsive flexbox structure for better layout on all devices.
+
 *   **Enhanced MIDI Reliability:** 
     *   Improved MIDI device detection and connection handling
     *   Added "Refresh MIDI" button in Mode D for manually reconnecting devices
@@ -113,6 +115,19 @@ This version runs entirely in your web browser (client-side) with no backend ser
 *   **Auto-Save Function:** The application now auto-saves your work to localStorage every 60 seconds, preventing work loss from accidental page refreshes.
 *   **p5.js Example Library:** A dropdown menu lets you quickly load pre-built example sketches that demonstrate different ways to use Synthograsizer variables in p5.js.
 
+## Project Templates
+
+- Synthograsizer now supports reusable project templates for common creative tasks.
+- Includes built-in templates such as the Character Generator, accessible via the Project Template button in the UI.
+- Enhanced template system allows for quick setup and consistent formatting across projects.
+
+## Prompt Metadata Manager
+
+- Extracts and displays metadata from PNG images, including prompt and parameter information.
+- Supports prompt/parameter splitting for easy organization.
+- Includes a convenient copy-to-clipboard button for exporting metadata.
+- Access via `PromptMetadataManager.html` in the project files.
+
 ## Core Concept
 
 The central idea is to combine the tactile, immediate feedback of synthesizer controls with the flexibility of text generation. You define:
@@ -124,6 +139,8 @@ The central idea is to combine the tactile, immediate feedback of synthesizer co
 The interactive knobs allow you to select or blend between these values, instantly updating the generated output text in real-time. Mode D extends this by allowing p5.js sketches to react to these knob values.
 
 ## Key Features
+
+- **Fun Stuff Embed:** Explore interactive and experimental features in the “Fun Stuff” section, accessible from the main navigation.
 
 *   **Interactive Knobs:** Control variable values using clickable and draggable knobs (up to 32). Supports locking individual knobs to prevent accidental changes.
 *   **Multiple Modes:**
@@ -270,6 +287,9 @@ The interactive knobs allow you to select or blend between these values, instant
 *   **MIDI Control:** If a MIDI controller sending CC messages is connected, unlocked knobs in Mode A/B will automatically respond. Mapping prioritizes lower-indexed knobs first. Check the console for mapping info. Disconnecting/reconnecting devices should update the available inputs.
 
 ## Technical Details
+
+- **Static Hosting:** All application files are now served from the repository root for improved static hosting compatibility.
+- **Codebase Cleanup:** Removed non-original code (fidenza.js) for clarity and licensing compliance.
 
 *   **Libraries:** Uses the p5.js library (loaded via CDN) for Mode D graphics rendering and sketch execution.
 *   **State:** The application state is managed in JavaScript variables and directly reflected in the DOM. Saving state serializes the core `variables` array, input field values, and knob data attributes (`value`, `data-locked`, `data-variable-value-a`, `data-variable-value-b`) into a JSON structure.
