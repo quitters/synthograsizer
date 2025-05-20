@@ -1,4 +1,59 @@
-## P5.js Integration Guide
+# Synthograsizer
+
+A creative tool for generating and manipulating prompts and parameters through an intuitive interface.
+
+## Project Structure
+
+```
+synthograsizer_repo/
+├── core/                   # Core Synthograsizer application
+│   ├── css/               # Stylesheets
+│   ├── js/                # JavaScript files
+│   │   ├── app/           # Core application logic
+│   │   ├── ui/            # UI components
+│   │   └── utils/         # Utility functions
+│   ├── lib/               # Third-party libraries
+│   ├── project-templates/  # Template files
+│   ├── index.html         # Main application entry point
+│   └── README.md          # Core documentation
+├── pages/                 # Additional site pages
+│   ├── fun-stuff/         # Fun Stuff page
+│   ├── about/             # About page
+│   └── ...                # Other pages
+├── assets/                # Global assets (images, fonts)
+├── docs/                  # Documentation
+├── .gitignore
+├── package.json           # Development dependencies
+└── README.md              # Main project README
+```
+
+## Getting Started
+
+1. Open `index.html` in your web browser to launch the Synthograsizer.
+2. Or navigate directly to specific pages in the `pages/` directory.
+
+## Development
+
+### Prerequisites
+
+- Modern web browser (Chrome, Firefox, Safari, or Edge)
+- (Optional) MIDI controller for hardware integration
+
+### Running Locally
+
+1. Clone the repository
+2. Open `index.html` in your browser or use a local development server
+
+## Documentation
+
+- [Core Documentation](/core/README.md)
+- [Project Roadmap](/docs/ROADMAP.md)
+- [Writing Synthograsizer Templates](/docs/guide_writingSynthograsizerJSON.md)
+- [P5.js Integration Guide](/docs/P5_INTEGRATION.md)
+
+## License
+
+Licensed under [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/). Attribution required. Commercial use prohibited.
 
 ### Using MIDI Controllers with P5.js Sketches
 

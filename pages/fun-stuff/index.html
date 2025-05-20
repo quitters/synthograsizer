@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fun Stuff - Synthograsizer</title>
+  <link rel="stylesheet" href="../core/css/style.css">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/png" href="../../assets/favicon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Mono:wght@300;400;500;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="page-container">
+    <!-- Navigation -->
+    <nav class="about-navbar">
+      <div class="dropdown">
+        <a href="../../core/" class="dropbtn">Projects</a>
+        <div class="dropdown-content">
+          <a href="../../core/">Synthograsizer (main)</a>
+          <a href="../synthograsizer-daw.html">SynthograsizerDAW</a>
+          <a href="../prompt-metadata-manager.html">Prompt Metadata Manager</a>
+          <a href="index.html" class="active">Fun Stuff</a>
+        </div>
+      </div>
+      <a href="https://linktr.ee/quittersarts" target="_blank" rel="noopener">Art</a>
+      <a href="../about.html">About/Contact</a>
+    </nav>
+
+    <header>
+      <h1 class="about-header">Fun Stuff</h1>
+    </header>
+
+    <main class="about-content">
+      <p>This page features playful and experimental generative art projects unrelated to the Synthograsizer.</p>
+      
+      <section class="art-container">
+        <h2>Generative Art: Li'l Dudes</h2>
+        <p>Here's a silly little generative art thing I made. Have fun messing with the canvas below:</p>
+        <ul class="controls-list">
+          <li>Press <b>'D'</b> to toggle the settings panel</li>
+          <li>Use number keys <b>1-9</b> to change the subject's expression</li>
+          <li>Press <b>'R'</b> to regenerate</li>
+          <li>Press <b>'S'</b> to save the canvas</li>
+          <li>Press <b>'B'</b> to toggle the background showcase</li>
+        </ul>
+        <div class="art-iframe-container">
+          <iframe 
+            src="https://lildudes-inky.vercel.app/" 
+            title="Lil Dudes Inky Generative Art" 
+            class="art-iframe"
+            allowfullscreen 
+            loading="lazy">
+          </iframe>
+        </div>
+      </section>
+
+      <section class="art-container">
+        <h2>Generative Art: GenArt Gallery</h2>
+        <p>Explore this immersive generative art gallery showcasing various creative visual experiments:</p>
+        <div class="art-iframe-container">
+          <iframe 
+            src="https://genart-gallery-nu.vercel.app/" 
+            title="GenArt Gallery" 
+            class="art-iframe"
+            allowfullscreen 
+            loading="lazy">
+          </iframe>
+        </div>
+      </section>
+    </main>
+
+    <footer class="about-footer">
+      <p>&copy; 2025 Synthograsizer. Licensed under <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener">CC BY-NC 4.0</a>. Attribution required. Commercial use prohibited.</p>
+      <p><a href="../">Back to Home</a></p>
+    </footer>
+  </div>
+
+  <script>
+    // Dropdown menu functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      const dropdown = document.querySelector('.dropdown');
+      const btn = dropdown.querySelector('.dropbtn');
+      const content = dropdown.querySelector('.dropdown-content');
+      let isHovering = false;
+      let isClicking = false;
+      let clickTimer;
+      
+      // Show dropdown on hover
+      dropdown.addEventListener('mouseenter', function() {
+        isHovering = true;
+        content.style.display = 'block';
+      });
+      
+      // Hide dropdown when mouse leaves
+      dropdown.addEventListener('mouseleave', function() {
+        isHovering = false;
+        if (!isClicking) {
+          content.style.display = 'none';
+        }
+      });
+      
+      // Handle click on Projects link
+      btn.addEventListener('click', function(e) {
+        // If dropdown is hidden, show it and prevent default
+        if (content.style.display !== 'block') {
+          e.preventDefault();
+          content.style.display = 'block';
+          isClicking = true;
+        }
+        // If dropdown is visible, allow default (follow link)
+      });
+      
+      // Handle click on dropdown items
+      content.addEventListener('click', function(e) {
+        // Let the link work normally
+        isClicking = false;
+        content.style.display = 'none';
+      });
+      
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!dropdown.contains(e.target)) {
+          content.style.display = 'none';
+          isClicking = false;
+        }
+      });
+      
+      // Close dropdown when pressing Escape
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+          content.style.display = 'none';
+          isClicking = false;
+        }
+      });
+      
+      // Hide dropdown initially
+      content.style.display = 'none';
+    });
+  </script>
+</body>
+</html>

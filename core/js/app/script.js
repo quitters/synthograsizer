@@ -2077,8 +2077,9 @@ function showVariableDetails(index) {
 function handleRandomize() {
     if (mode === 'A') { randomizeModeA(); }
     else if (mode === 'B') { randomizeModeB(); }
+    else if (mode === 'D') { randomizeModeD(); }
     else { console.log("Randomize button inactive in current mode."); return; }
-     updateAllOutputs(); // Update text outputs after randomization
+    updateAllOutputs(); // Update text outputs after randomization
 }
 function randomizeModeA() {
     console.log("Randomizing Mode A");
@@ -2106,6 +2107,49 @@ function randomizeModeB() {
             updateKnobValue(knob, randomValue, 'B'); // Update using the standard function
         }
     });
+}
+
+function randomizeModeD() {
+    console.log("Randomizing Mode D");
+    // In Mode D, we'll use the same behavior as Mode A for randomization
+    // but ensure the visual updates are properly handled for Mode D
+    document.querySelectorAll('.knob').forEach(knob => {
+        if (knob.dataset.locked === "true") return; // Skip locked knobs
+        
+        const index = parseInt(knob.dataset.index);
+        if (index >= variables.length) return;
+        
+        const variable = variables[index];
+        const numValues = variable?.value?.values?.length || 0;
+        if (numValues === 0) return;
+        
+        // Get a random index
+        const randomIndex = Math.floor(Math.random() * numValues);
+        const valueText = variable.value.values[randomIndex];
+        
+        // Update the knob's visual state directly
+        const valueInput = knob.nextElementSibling;
+        if (valueInput) {
+            valueInput.value = valueText;
+            valueInput.dataset.variableValueA = valueText;
+            
+            // Update the knob's visual indicator
+            updateKnobVisualDiscrete(knob, randomIndex, numValues);
+            
+            // Trigger any Mode D specific updates
+            if (mode === 'D') {
+                notifyVariableChanged(variable.feature_name, valueText);
+                updateMidiStatusPanel();
+            }
+            
+            // Add visual feedback
+            knob.classList.add('knob-active');
+            setTimeout(() => knob.classList.remove('knob-active'), 300);
+        }
+    });
+    
+    // Update all outputs to reflect the changes
+    updateAllOutputs();
 }
 
 // --- MIDI Handling ---

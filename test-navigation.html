@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Synthograsizer - Navigation Test</title>
+  <style>
+    body {
+      font-family: 'Inter', 'Roboto Mono', monospace;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    h1, h2 {
+      color: #5e60ce;
+    }
+    .test-section {
+      margin: 30px 0;
+      padding: 20px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+    }
+    .success {
+      color: #10b981;
+      font-weight: bold;
+    }
+    .error {
+      color: #ef4444;
+      font-weight: bold;
+    }
+    .test-result {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 4px;
+      background-color: #f8fafc;
+    }
+  </style>
+</head>
+<body>
+  <h1>Synthograsizer Navigation Test</h1>
+  <p>This page tests all navigation links and resource paths in the Synthograsizer project.</p>
+  
+  <div class="test-section">
+    <h2>Core Application</h2>
+    <div>
+      <a href="core/" id="core-link">Core Application</a>
+      <div id="core-result" class="test-result">Click to test</div>
+    </div>
+  </div>
+
+  <div class="test-section">
+    <h2>Pages</h2>
+    <div>
+      <a href="pages/synthograsizer-daw.html" id="daw-link">Synthograsizer DAW</a>
+      <div id="daw-result" class="test-result">Click to test</div>
+    </div>
+    <div style="margin-top: 10px;">
+      <a href="pages/prompt-metadata-manager.html" id="metadata-link">Prompt Metadata Manager</a>
+      <div id="metadata-result" class="test-result">Click to test</div>
+    </div>
+    <div style="margin-top: 10px;">
+      <a href="pages/fun-stuff/" id="funstuff-link">Fun Stuff</a>
+      <div id="funstuff-result" class="test-result">Click to test</div>
+    </div>
+    <div style="margin-top: 10px;">
+      <a href="pages/about.html" id="about-link">About/Contact</a>
+      <div id="about-result" class="test-result">Click to test</div>
+    </div>
+  </div>
+
+  <div class="test-section">
+    <h2>Resources</h2>
+    <div>
+      <a href="assets/favicon.png" id="favicon-link">Favicon</a>
+      <div id="favicon-result" class="test-result">Click to test</div>
+    </div>
+    <div style="margin-top: 10px;">
+      <a href="assets/images/placeholder.png" id="image-link">Placeholder Image</a>
+      <div id="image-result" class="test-result">Click to test</div>
+    </div>
+  </div>
+
+  <script>
+    // Function to test if a link works
+    async function testLink(linkId, resultId) {
+      const link = document.getElementById(linkId);
+      const result = document.getElementById(resultId);
+      
+      try {
+        const response = await fetch(link.href, { method: 'HEAD' });
+        if (response.ok) {
+          result.innerHTML = '<span class="success">✓ Link works!</span>';
+        } else {
+          result.innerHTML = `<span class="error">✗ Error: ${response.status} ${response.statusText}</span>`;
+        }
+      } catch (error) {
+        result.innerHTML = `<span class="error">✗ Error: ${error.message}</span>`;
+      }
+    }
+
+    // Add click event listeners to all test links
+    document.getElementById('core-link').addEventListener('click', (e) => {
+      e.preventDefault();
+      testLink('core-link', 'core-result');
+    });
+
+    document.getElementById('daw-link').addEventListener('click', (e) => {
+      e.preventDefault();
+      testLink('daw-link', 'daw-result');
+    });
+
+    document.getElementById('metadata-link').addEventListener('click', (e) => {
+      e.preventDefault();
+      testLink('metadata-link', 'metadata-result');
+    });
+
+    document.getElementById('funstuff-link').addEventListener('click', (e) => {
+      e.preventDefault();
+      testLink('funstuff-link', 'funstuff-result');
+    });
+
+    document.getElementById('about-link').addEventListener('click', (e) => {
+      e.preventDefault();
+      testLink('about-link', 'about-result');
+    });
+
+    document.getElementById('favicon-link').addEventListener('click', (e) => {
+      e.preventDefault();
+      testLink('favicon-link', 'favicon-result');
+    });
+
+    document.getElementById('image-link').addEventListener('click', (e) => {
+      e.preventDefault();
+      testLink('image-link', 'image-result');
+    });
+  </script>
+</body>
+</html>
