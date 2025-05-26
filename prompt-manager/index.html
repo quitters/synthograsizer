@@ -3,11 +3,316 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="refresh" content="0; url=pages/prompt-metadata-manager.html">
-  <link rel="icon" type="image/png" href="assets/favicon.png">
   <title>Prompt Metadata Manager</title>
+  <link rel="stylesheet" href="../synthograsizer/css/style.css">
+  <link rel="icon" type="image/png" href="../assets/favicon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    /* For better mobile experience */
+    @media (max-width: 600px) {
+      #dropZone {
+        padding: 20px 15px;
+      }
+    }
+  </style>
 </head>
 <body>
-  <p>Redirecting to <a href="pages/prompt-metadata-manager.html">Prompt Metadata Manager</a>...</p>
+    <nav class="about-navbar" style="max-width:700px;margin:32px auto 0 auto;display:flex;justify-content:center;gap:32px;font-family:'Inter','Roboto Mono',monospace;font-size:1.07em;position:relative;z-index:10;">
+      <div class="dropdown" style="position:relative;">
+        <a href="../" class="dropbtn" style="color:#5e60ce;text-decoration:none;font-weight:600;">Projects &#x25BC;</a>
+        <div class="dropdown-content" style="display:none;position:absolute;left:0;top:100%;background:#fff;border-radius:0 0 10px 10px;box-shadow:0 4px 16px rgba(94,96,206,0.10);min-width:230px;padding:8px 0;">
+          <a href="../synthograsizer/" style="color:#5e60ce;text-decoration:none;display:block;padding:10px 24px;font-weight:500;">Synthograsizer (main)</a>
+          <a href="../daw/" style="color:#5e60ce;text-decoration:none;display:block;padding:10px 24px;font-weight:500;">SynthograsizerDAW</a>
+          <a href="./" style="color:#5e60ce;text-decoration:underline;display:block;padding:10px 24px;font-weight:500;">Prompt Metadata Manager</a>
+          <a href="../fun-stuff/" style="color:#5e60ce;text-decoration:none;display:block;padding:10px 24px;font-weight:500;">Fun Stuff</a>
+        </div>
+      </div>
+      <a href="https://linktr.ee/quittersarts" target="_blank" rel="noopener" style="color:#5e60ce;text-decoration:none;font-weight:600;">Art</a>
+      <a href="../about/" style="color:#5e60ce;text-decoration:none;font-weight:600;">About/Contact</a>
+    </nav>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Dropdown menu functionality
+        var dropdown = document.querySelector('.dropdown');
+        var btn = dropdown.querySelector('.dropbtn');
+        var content = dropdown.querySelector('.dropdown-content');
+        btn.addEventListener('mouseenter', function() { content.style.display = 'block'; });
+        btn.addEventListener('focus', function() { content.style.display = 'block'; });
+        dropdown.addEventListener('mouseleave', function() { content.style.display = 'none'; });
+        document.body.addEventListener('click', function(e) { if (!dropdown.contains(e.target)) { content.style.display = 'none'; } });
+        // Info tooltip functionality
+        var infoIcon = document.getElementById('info-icon');
+        var infoTooltip = document.getElementById('info-tooltip');
+        if (infoIcon && infoTooltip) {
+          infoIcon.addEventListener('click', function(e) {
+            e.stopPropagation();
+            infoTooltip.style.display = infoTooltip.style.display === 'block' ? 'none' : 'block';
+          });
+          document.addEventListener('click', function() {
+            infoTooltip.style.display = 'none';
+          });
+          infoTooltip.addEventListener('click', function(e) {
+            e.stopPropagation();
+          });
+        }
+      });
+    </script>
+    <div style="text-align:center;">
+      <div class="about-header" style="position:relative;display:inline-block;">
+        Prompt Metadata Manager
+        <span id="info-icon" style="display:inline-block;margin-left:8px;width:20px;height:20px;border-radius:50%;background:#e9eafc;color:#5e60ce;font-size:0.75em;line-height:20px;text-align:center;cursor:pointer;vertical-align:top;font-weight:bold;">?</span>
+        <div id="info-tooltip" style="display:none;position:absolute;top:calc(100% + 10px);left:50%;transform:translateX(-50%);width:400px;background:white;border:1px solid #e2e8f0;border-radius:8px;padding:12px 16px;box-shadow:0 4px 12px rgba(0,0,0,0.1);z-index:100;font-size:0.9em;color:#333;line-height:1.5;text-align:center;font-weight:normal;">
+          This tool helps you extract, manage, and organize prompt metadata from AI-generated images. It provides a comprehensive way to analyze, archive, and reuse the creative prompts behind your favorite AI artworks.
+        </div>
+      </div>
+    </div>
+    <div class="about-content">
+      <section style="margin: 36px 0 48px 0;max-width:700px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5em;">
+          <h2 id="section-heading" style="font-size:1.15em;margin:0;">AI Image Metadata Extractor</h2>
+          <div class="mode-toggle" style="font-size:0.85em;">
+            <span>Mode:</span>
+            <button id="simpleMode" class="mode-btn active" style="padding:3px 10px;border-radius:4px 0 0 4px;background:#e9eafc;border:1px solid #bfc4f6;color:#5e60ce;cursor:pointer;margin-left:6px;">Simple</button>
+            <button id="advancedMode" class="mode-btn" style="padding:3px 10px;border-radius:0 4px 4px 0;background:#f8f9fa;border:1px solid #e2e8f0;border-left:none;color:#666;cursor:pointer;">Advanced</button>
+          </div>
+        </div>
+        <div id="tab-descriptions">
+          <p id="extractor-desc" class="tab-desc" style="margin-bottom:1em;">Upload a PNG image generated by an AI art tool to view its embedded prompt and metadata.</p>
+          <p id="batch-desc" class="tab-desc" style="margin-bottom:1em;display:none;">Process multiple AI-generated images at once to extract and compare prompts in batch mode.</p>
+          <p id="history-desc" class="tab-desc" style="margin-bottom:1em;display:none;">View, sort, and export your previously extracted prompts from your local history.</p>
+        </div>
+        <div id="tabNav" style="display:none;margin-bottom:1em;border-bottom:1px solid #e2e8f0;">
+          <div style="display:flex;gap:2px;">
+            <button class="tab-btn active" data-tab="extractor" style="padding:8px 16px;background:transparent;border:none;border-bottom:2px solid #5e60ce;color:#5e60ce;font-weight:500;cursor:pointer;">Extractor</button>
+            <button class="tab-btn" data-tab="batch" style="padding:8px 16px;background:transparent;border:none;border-bottom:2px solid transparent;color:#64748b;cursor:pointer;">Batch Process</button>
+            <button class="tab-btn" data-tab="history" style="padding:8px 16px;background:transparent;border:none;border-bottom:2px solid transparent;color:#64748b;cursor:pointer;">History</button>
+          </div>
+        </div>
+        <div id="dropZone" style="border:2px dashed #d0d5dd;border-radius:10px;padding:30px 20px;text-align:center;background:#f8fafc;margin-bottom:1.5em;cursor:pointer;transition:all 0.2s ease;">
+          <div style="margin-bottom:12px;font-size:24px;">📄</div>
+          <div style="font-weight:500;margin-bottom:4px;color:#444;">Drag & drop PNG files here</div>
+          <div style="color:#666;font-size:0.9em;margin-bottom:12px;">or click to select a file</div>
+          <input type="file" id="pngInput" accept="image/png" style="display:none;" />
+        </div>
+        <div id="extractorTab" class="tab-content" style="display:block;">
+          <div id="metadataResult" style="background:#f8f9fa;border:1.5px solid #e2e8f0;border-radius:10px;padding:18px 22px;min-height:60px;font-size:1.04em;">
+            <div style="color:#666;font-style:italic;">No image selected. Upload a PNG file to view its metadata.</div>
+          </div>
+        </div>
+        <div id="batchTab" class="tab-content" style="display:none;">
+          <div style="background:#f8f9fa;border:1.5px solid #e2e8f0;border-radius:10px;padding:22px;min-height:60px;font-size:1.04em;">
+            <div style="margin-bottom:16px;">
+              <div style="font-weight:500;margin-bottom:8px;">Process multiple PNG files</div>
+              <div id="batchDropZone" style="border:2px dashed #d0d5dd;border-radius:10px;padding:24px 20px;text-align:center;background:#f8fafc;margin-bottom:1.5em;cursor:pointer;transition:all 0.2s ease;">
+                <div style="margin-bottom:12px;font-size:24px;">📁</div>
+                <div style="font-weight:500;margin-bottom:4px;color:#444;">Drag & drop multiple PNG files here</div>
+                <div style="color:#666;font-size:0.9em;margin-bottom:12px;">or click to select files</div>
+                <input type="file" id="batchInput" accept="image/png" multiple style="display:none;" />
+              </div>
+            </div>
+            <div id="batchResults" style="font-style:italic;color:#666;">No files selected for batch processing.</div>
+          </div>
+        </div>
+        <div id="historyTab" class="tab-content" style="display:none;">
+          <div style="background:#f8f9fa;border:1.5px solid #e2e8f0;border-radius:10px;padding:22px;min-height:60px;font-size:1.04em;">
+            <div id="promptHistory" style="min-height:200px;">
+              <div id="emptyHistory" style="display:block;text-align:center;padding:40px 20px;color:#64748b;">
+                <div style="font-size:3em;margin-bottom:10px;">📜</div>
+                <div style="font-weight:500;margin-bottom:4px;">No prompt history yet</div>
+                <div style="font-size:0.9em;">Processed prompts will appear here</div>
+              </div>
+              <div id="historyEntries" style="display:none;">
+                <!-- History entries will be added here -->
+              </div>
+            </div>
+            <div style="margin-top:16px;padding-top:16px;border-top:1px solid #e2e8f0;display:flex;justify-content:space-between;">
+              <button id="clearHistory" style="padding:6px 12px;border:1px solid #e2e8f0;background:#f8f9fa;color:#64748b;border-radius:4px;cursor:pointer;">Clear History</button>
+              <div class="export-dropdown" style="position:relative;">
+                <button id="exportHistory" style="padding:6px 12px;border:1px solid #bfc4f6;background:#e9eafc;color:#5e60ce;border-radius:4px;cursor:pointer;">Export History ▾</button>
+                <div id="exportOptions" style="display:none;position:absolute;right:0;top:100%;margin-top:4px;background:white;border:1px solid #e2e8f0;border-radius:4px;box-shadow:0 2px 8px rgba(0,0,0,0.1);z-index:100;width:180px;">
+                  <div class="export-option" data-type="complete" style="padding:8px 12px;cursor:pointer;">
+                    <div style="font-weight:500;font-size:0.9em;">Complete Export</div>
+                    <div style="font-size:0.8em;color:#64748b;">Full metadata in JSON</div>
+                  </div>
+                  <div class="export-option" data-type="prompts-only" style="padding:8px 12px;cursor:pointer;border-top:1px solid #e2e8f0;">
+                    <div style="font-weight:500;font-size:0.9em;">Prompts Only</div>
+                    <div style="font-size:0.8em;color:#64748b;">List of prompts in TXT</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+    <script src="./js/utils/metadata_extractor.js"></script>
+    <script>
+      // UI Elements
+      const input = document.getElementById('pngInput');
+      const dropZone = document.getElementById('dropZone');
+      const result = document.getElementById('metadataResult');
+      const simpleMode = document.getElementById('simpleMode');
+      const advancedMode = document.getElementById('advancedMode');
+      const tabNav = document.getElementById('tabNav');
+      const tabButtons = document.querySelectorAll('.tab-btn');
+      const tabContents = document.querySelectorAll('.tab-content');
+      const batchInput = document.getElementById('batchInput');
+      const clearHistoryBtn = document.getElementById('clearHistory');
+      const exportHistoryBtn = document.getElementById('exportHistory');
+      // History management
+      let promptHistory = [];
+      // Load history from localStorage
+      function loadHistory() {
+        const savedHistory = localStorage.getItem('promptMetadataHistory');
+        if (savedHistory) {
+          try {
+            promptHistory = JSON.parse(savedHistory);
+            updateHistoryUI();
+          } catch (e) {
+            console.error('Error loading history:', e);
+            promptHistory = [];
+          }
+        }
+      }
+      // Save history to localStorage
+      function saveHistory() {
+        try {
+          localStorage.setItem('promptMetadataHistory', JSON.stringify(promptHistory));
+        } catch (e) {
+          console.error('Error saving history:', e);
+        }
+      }
+      // Tab switching logic
+      function showTab(tabId) {
+        tabButtons.forEach(btn => {
+          if (btn.dataset.tab === tabId) {
+            btn.classList.add('active');
+            btn.style.borderBottom = '2px solid #5e60ce';
+            btn.style.color = '#5e60ce';
+          } else {
+            btn.classList.remove('active');
+            btn.style.borderBottom = '2px solid transparent';
+            btn.style.color = '#64748b';
+          }
+        });
+        tabContents.forEach(tab => {
+          tab.style.display = tab.id.toLowerCase().includes(tabId) ? 'block' : 'none';
+        });
+        // Show/hide tab descriptions
+        document.querySelectorAll('.tab-desc').forEach(desc => {
+          desc.style.display = desc.id.startsWith(tabId) ? '' : 'none';
+        });
+      }
+      // Mode switching (Simple/Advanced)
+      function setMode(mode) {
+        if (mode === 'simple') {
+          simpleMode.classList.add('active');
+          advancedMode.classList.remove('active');
+          simpleMode.style.background = '#e9eafc';
+          simpleMode.style.color = '#5e60ce';
+          advancedMode.style.background = '#f8f9fa';
+          advancedMode.style.color = '#666';
+          tabNav.style.display = 'none';
+          showTab('extractor');
+          // Hide any analysis sections
+          document.querySelectorAll('.analysis-section').forEach(el => {
+            el.style.display = 'none';
+          });
+        } else {
+          simpleMode.classList.remove('active');
+          advancedMode.classList.add('active');
+          simpleMode.style.background = '#f8f9fa';
+          simpleMode.style.color = '#666';
+          advancedMode.style.background = '#e9eafc';
+          advancedMode.style.color = '#5e60ce';
+          tabNav.style.display = 'block';
+          // Show any analysis sections
+          document.querySelectorAll('.analysis-section').forEach(el => {
+            el.style.display = 'block';
+          });
+        }
+      }
+      // Tab button listeners
+      tabButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          showTab(btn.dataset.tab);
+        });
+      });
+      // Mode toggle listeners
+      simpleMode.addEventListener('click', () => setMode('simple'));
+      advancedMode.addEventListener('click', () => setMode('advanced'));
+      // Initialize
+      setMode('simple');
+      loadHistory();
+      // Handle file selection from input
+      input.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        if (!file.name.endsWith('.png')) {
+          result.innerHTML = '<span style="color:#c00;">Please upload a PNG file.</span>';
+          return;
+        }
+        const arrayBuffer = await file.arrayBuffer();
+        try {
+          const meta = window.extractAIMetadataFromPNG(arrayBuffer);
+          let html = '';
+          if (meta.source === 'comfyui') {
+            html += `<div><b>Prompt:</b> ${meta.prompt || '<i>none</i>'}</div>`;
+            html += `<div><b>Model:</b> ${meta.model || '<i>unknown</i>'}</div>`;
+          } else if (meta.source === 'midjourney') {
+            html += `<div><b>Prompt:</b> ${meta.prompt || '<i>none</i>'}</div>`;
+            html += `<div><b>Params:</b> ${meta.parameters || '<i>none</i>'}</div>`;
+          } else {
+            html += '<div style="color:#c00;padding:12px;background:#fff0f0;border-radius:6px;border:1px solid #ffd6d6;">No recognizable metadata found in this image.</div>';
+          }
+          result.innerHTML = html;
+        } catch (err) {
+          result.innerHTML = `<div style='color:#c00;padding:12px;background:#fff0f0;border-radius:6px;border:1px solid #ffd6d6;'>Error reading metadata: ${err.message}</div>`;
+        }
+      });
+      // Setup drag & drop handling
+      dropZone.addEventListener('click', () => {
+        input.click();
+      });
+      dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.style.background = '#e3e7fd';
+      });
+      dropZone.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        dropZone.style.background = '#f8fafc';
+      });
+      dropZone.addEventListener('drop', async (e) => {
+        e.preventDefault();
+        dropZone.style.background = '#f8fafc';
+        const file = e.dataTransfer.files[0];
+        if (!file) return;
+        if (!file.name.endsWith('.png')) {
+          result.innerHTML = '<span style="color:#c00;">Please upload a PNG file.</span>';
+          return;
+        }
+        const arrayBuffer = await file.arrayBuffer();
+        try {
+          const meta = window.extractAIMetadataFromPNG(arrayBuffer);
+          let html = '';
+          if (meta.source === 'comfyui') {
+            html += `<div><b>Prompt:</b> ${meta.prompt || '<i>none</i>'}</div>`;
+            html += `<div><b>Model:</b> ${meta.model || '<i>unknown</i>'}</div>`;
+          } else if (meta.source === 'midjourney') {
+            html += `<div><b>Prompt:</b> ${meta.prompt || '<i>none</i>'}</div>`;
+            html += `<div><b>Params:</b> ${meta.parameters || '<i>none</i>'}</div>`;
+          } else {
+            html += '<div style="color:#c00;padding:12px;background:#fff0f0;border-radius:6px;border:1px solid #ffd6d6;">No recognizable metadata found in this image.</div>';
+          }
+          result.innerHTML = html;
+        } catch (err) {
+          result.innerHTML = `<div style='color:#c00;padding:12px;background:#fff0f0;border-radius:6px;border:1px solid #ffd6d6;'>Error reading metadata: ${err.message}</div>`;
+        }
+      });
+    </script>
 </body>
 </html>
