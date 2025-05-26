@@ -163,6 +163,88 @@
       const batchInput = document.getElementById('batchInput');
       const clearHistoryBtn = document.getElementById('clearHistory');
       const exportHistoryBtn = document.getElementById('exportHistory');
+      const batchDropZone = document.getElementById('batchDropZone');
+      const batchResults = document.getElementById('batchResults');
+
+      // Batch Process: click opens file picker
+      if (batchDropZone && batchInput) {
+        batchDropZone.addEventListener('click', () => {
+          batchInput.click();
+        });
+        // Drag over highlight
+        batchDropZone.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          batchDropZone.style.background = '#e3e7fd';
+        });
+        batchDropZone.addEventListener('dragleave', (e) => {
+          e.preventDefault();
+          batchDropZone.style.background = '#f8fafc';
+        });
+        batchDropZone.addEventListener('drop', async (e) => {
+          e.preventDefault();
+          batchDropZone.style.background = '#f8fafc';
+          const files = Array.from(e.dataTransfer.files).filter(f => f.name.endsWith('.png'));
+          if (files.length === 0) {
+            batchResults.innerHTML = '<span style="color:#c00;">Please drop PNG files only.</span>';
+            return;
+          }
+          await processBatchFiles(files);
+        });
+        // Handle file input
+        batchInput.addEventListener('change', async (e) => {
+          const files = Array.from(batchInput.files).filter(f => f.name.endsWith('.png'));
+          if (files.length === 0) {
+            batchResults.innerHTML = '<span style="color:#c00;">Please select PNG files only.</span>';
+            return;
+          }
+          await processBatchFiles(files);
+        });
+      }
+      // Batch processing logic
+      async function processBatchFiles(files) {
+        batchResults.innerHTML = '<span style="color:#888;">Processing ' + files.length + ' file(s)...</span>';
+        const results = [];
+        for (const file of files) {
+          try {
+            const arrayBuffer = await file.arrayBuffer();
+            const meta = window.extractAIMetadataFromPNG(arrayBuffer);
+            results.push({
+              name: file.name,
+              meta
+            });
+          } catch (err) {
+            results.push({
+              name: file.name,
+              error: err.message
+            });
+          }
+        }
+        // Display results
+        let html = '';
+        results.forEach(r => {
+          html += `<div style='margin-bottom:16px;'>`;
+          html += `<div style='font-weight:500;'>${r.name}</div>`;
+          if (r.error) {
+            html += `<div style='color:#c00;'>Error: ${r.error}</div>`;
+          } else if (r.meta) {
+            if (r.meta.source === 'comfyui') {
+              html += `<div><b>Prompt:</b> ${r.meta.prompt || '<i>none</i>'}</div>`;
+              html += `<div><b>Model:</b> ${r.meta.model || '<i>unknown</i>'}</div>`;
+              // Add to history if it has a prompt
+              if (r.meta.prompt) addToHistory(r.meta);
+            } else if (r.meta.source === 'midjourney') {
+              html += `<div><b>Prompt:</b> ${r.meta.prompt || '<i>none</i>'}</div>`;
+              html += `<div><b>Params:</b> ${r.meta.parameters || '<i>none</i>'}</div>`;
+              // Add to history if it has a prompt
+              if (r.meta.prompt) addToHistory(r.meta);
+            } else {
+              html += '<div style="color:#c00;">No recognizable metadata found in this image.</div>';
+            }
+          }
+          html += `</div>`;
+        });
+        batchResults.innerHTML = html || '<span style="color:#888;">No results.</span>';
+      }
       // History management
       let promptHistory = [];
       // Load history from localStorage
@@ -186,6 +268,184 @@
           console.error('Error saving history:', e);
         }
       }
+      
+      // Add a prompt to history
+      function addToHistory(meta) {
+        if (!meta || !meta.prompt) return;
+        
+        // Create history entry
+        const entry = {
+          id: Date.now(),
+          timestamp: new Date().toISOString(),
+          prompt: meta.prompt,
+          source: meta.source || 'unknown',
+          model: meta.model || '',
+          favorite: false
+        };
+        
+        // Add to history and save
+        promptHistory.unshift(entry);
+        if (promptHistory.length > 50) { // Limit history size
+          promptHistory = promptHistory.slice(0, 50);
+        }
+        saveHistory();
+        updateHistoryUI();
+      }
+      
+      // Update history UI
+      function updateHistoryUI() {
+        const historyEntries = document.getElementById('historyEntries');
+        const emptyHistory = document.getElementById('emptyHistory');
+        
+        if (promptHistory.length === 0) {
+          emptyHistory.style.display = 'block';
+          historyEntries.style.display = 'none';
+          return;
+        }
+        
+        emptyHistory.style.display = 'none';
+        historyEntries.style.display = 'block';
+        
+        // Clear and rebuild history entries
+        historyEntries.innerHTML = '';
+        
+        promptHistory.forEach(entry => {
+          const date = new Date(entry.timestamp);
+          const formattedDate = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+          
+          const entryElement = document.createElement('div');
+          entryElement.style.padding = '12px';
+          entryElement.style.borderBottom = '1px solid #e2e8f0';
+          entryElement.style.cursor = 'pointer';
+          
+          // Add hover effect
+          entryElement.addEventListener('mouseenter', () => {
+            entryElement.style.background = '#f1f5f9';
+          });
+          entryElement.addEventListener('mouseleave', () => {
+            entryElement.style.background = 'transparent';
+          });
+          
+          // History entry content
+          entryElement.innerHTML = `
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+              <span style="font-size:0.85em;background:${entry.source === 'comfyui' ? '#5e60ce' : '#3a3'};color:white;padding:1px 6px;border-radius:10px;">${entry.source === 'comfyui' ? 'ComfyUI' : entry.source === 'midjourney' ? 'Midjourney' : 'AI'}</span>
+              <span style="font-size:0.85em;color:#64748b;">${formattedDate}</span>
+              <button class="favorite-btn" data-id="${entry.id}" style="margin-left:auto;background:transparent;border:none;cursor:pointer;color:${entry.favorite ? '#f59e0b' : '#cbd5e1'};font-size:1.2em;line-height:1;">${entry.favorite ? '★' : '☆'}</button>
+            </div>
+            <div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#334155;">${entry.prompt}</div>
+          `;
+          
+          // Add click handler to view this prompt
+          entryElement.addEventListener('click', (e) => {
+            // Don't trigger if clicking the favorite button
+            if (!e.target.classList.contains('favorite-btn')) {
+              showHistoryPrompt(entry);
+            }
+          });
+          
+          historyEntries.appendChild(entryElement);
+        });
+        
+        // Add favorite toggle handlers
+        document.querySelectorAll('.favorite-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const id = parseInt(btn.getAttribute('data-id'));
+            const entry = promptHistory.find(e => e.id === id);
+            if (entry) {
+              entry.favorite = !entry.favorite;
+              btn.textContent = entry.favorite ? '★' : '☆';
+              btn.style.color = entry.favorite ? '#f59e0b' : '#cbd5e1';
+              saveHistory();
+            }
+          });
+        });
+      }
+      
+      // Display a history prompt in the main view
+      function showHistoryPrompt(entry) {
+        // Switch to extractor tab
+        showTab('extractor');
+        
+        // Create a display that looks like a processed prompt
+        let html = '';
+        
+        // Source indicator
+        if (entry.source === 'comfyui') {
+          html += `<div style='margin-bottom:12px;'><span style='background:#5e60ce;color:white;font-size:0.85em;padding:2px 8px;border-radius:12px;font-weight:500;'>ComfyUI</span></div>`;
+        } else if (entry.source === 'midjourney') {
+          html += `<div style='margin-bottom:12px;'><span style='background:#3a3;color:white;font-size:0.85em;padding:2px 8px;border-radius:12px;font-weight:500;'>Midjourney</span></div>`;
+        }
+        
+        // Timestamp
+        const date = new Date(entry.timestamp);
+        const formattedDate = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+        html += `<div style='margin-bottom:12px;font-size:0.9em;color:#64748b;'><span>From history • ${formattedDate}</span></div>`;
+        
+        // Prompt
+        html += `
+          <div style='margin-bottom:16px;'>
+            <div style='font-weight:600;margin-bottom:6px;color:#444;'>Prompt:</div>
+            <div style='display:flex;gap:8px;background:white;border:1px solid #e2e8f0;border-radius:6px;padding:12px;margin-bottom:8px;'>
+              <div id='promptText' style='flex:1;color:#333;white-space:pre-wrap;line-height:1.5;'>${entry.prompt}</div>
+              <div style='display:flex;flex-direction:column;gap:8px;'>
+                <button id='copyPromptBtn' style='flex-shrink:0;align-self:flex-start;padding:4px 12px;font-size:0.95em;background:#e9eafc;color:#5e60ce;border:1px solid #bfc4f6;border-radius:6px;cursor:pointer;transition:all 0.15s;'>Copy</button>
+              </div>
+            </div>
+          </div>`;
+        
+        // Display model if available
+        if (entry.model) {
+          html += `<div style='margin:20px 0 16px 0;'><div style='font-weight:600;margin-bottom:8px;color:#444;'>Details</div><div style='display:grid;grid-template-columns:auto 1fr;gap:12px 24px;font-size:0.95em;'><div style='color:#666;'>Model</div><div style='color:#333;font-weight:500;'>${entry.model}</div></div></div>`;
+        }
+        
+        result.innerHTML = html;
+        
+        // Set up copy button
+        const copyBtn = document.getElementById('copyPromptBtn');
+        if (copyBtn) {
+          copyBtn.addEventListener('click', () => {
+            const promptText = document.getElementById('promptText').innerText;
+            navigator.clipboard.writeText(promptText).then(() => {
+              copyBtn.textContent = 'Copied!';
+              copyBtn.style.background = '#d2f8d2';
+              setTimeout(() => {
+                copyBtn.textContent = 'Copy';
+                copyBtn.style.background = '#e9eafc';
+              }, 1200);
+            });
+          });
+        }
+      }
+      
+      // Export history function
+      function exportHistory(type) {
+        if (promptHistory.length === 0) return;
+        
+        let content, filename, mimeType;
+        
+        if (type === 'complete') {
+          content = JSON.stringify(promptHistory, null, 2);
+          filename = 'prompt_history.json';
+          mimeType = 'application/json';
+        } else if (type === 'prompts-only') {
+          content = promptHistory.map(entry => entry.prompt).join('\n\n---\n\n');
+          filename = 'prompts.txt';
+          mimeType = 'text/plain';
+        }
+        
+        // Create download link
+        const blob = new Blob([content], { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
       // Tab switching logic
       function showTab(tabId) {
         tabButtons.forEach(btn => {
@@ -206,6 +466,11 @@
         document.querySelectorAll('.tab-desc').forEach(desc => {
           desc.style.display = desc.id.startsWith(tabId) ? '' : 'none';
         });
+        // Show dropZone only for Extractor tab
+        const dropZone = document.getElementById('dropZone');
+        if (dropZone) {
+          dropZone.style.display = (tabId === 'extractor') ? 'block' : 'none';
+        }
       }
       // Mode switching (Simple/Advanced)
       function setMode(mode) {
@@ -245,6 +510,47 @@
       // Mode toggle listeners
       simpleMode.addEventListener('click', () => setMode('simple'));
       advancedMode.addEventListener('click', () => setMode('advanced'));
+      // Clear History button
+      if (clearHistoryBtn) {
+        clearHistoryBtn.addEventListener('click', () => {
+          if (confirm('Are you sure you want to clear your prompt history?')) {
+            promptHistory = [];
+            saveHistory();
+            updateHistoryUI();
+          }
+        });
+      }
+      
+      // Export History dropdown
+      if (exportHistoryBtn) {
+        const exportOptions = document.getElementById('exportOptions');
+        
+        // Toggle export options dropdown
+        exportHistoryBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          exportOptions.style.display = exportOptions.style.display === 'block' ? 'none' : 'block';
+        });
+        
+        // Hide dropdown when clicking elsewhere
+        document.addEventListener('click', () => {
+          exportOptions.style.display = 'none';
+        });
+        
+        // Prevent dropdown from closing when clicking inside it
+        exportOptions.addEventListener('click', (e) => {
+          e.stopPropagation();
+        });
+        
+        // Export options click handlers
+        document.querySelectorAll('.export-option').forEach(option => {
+          option.addEventListener('click', () => {
+            const type = option.getAttribute('data-type');
+            exportHistory(type);
+            exportOptions.style.display = 'none';
+          });
+        });
+      }
+      
       // Initialize
       setMode('simple');
       loadHistory();
@@ -263,9 +569,13 @@
           if (meta.source === 'comfyui') {
             html += `<div><b>Prompt:</b> ${meta.prompt || '<i>none</i>'}</div>`;
             html += `<div><b>Model:</b> ${meta.model || '<i>unknown</i>'}</div>`;
+            // Add to history if it has a prompt
+            if (meta.prompt) addToHistory(meta);
           } else if (meta.source === 'midjourney') {
             html += `<div><b>Prompt:</b> ${meta.prompt || '<i>none</i>'}</div>`;
             html += `<div><b>Params:</b> ${meta.parameters || '<i>none</i>'}</div>`;
+            // Add to history if it has a prompt
+            if (meta.prompt) addToHistory(meta);
           } else {
             html += '<div style="color:#c00;padding:12px;background:#fff0f0;border-radius:6px;border:1px solid #ffd6d6;">No recognizable metadata found in this image.</div>';
           }
