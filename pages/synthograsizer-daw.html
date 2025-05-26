@@ -7,6 +7,7 @@
   <title>SynthograsizerDAW</title>
   <link rel="stylesheet" href="../core/css/style.css">
   <link rel="stylesheet" href="../core/css/daw_styles.css">
+  <link rel="stylesheet" href="../core/css/sequencer_styles.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -35,7 +36,6 @@
       });
     </script>
     <div class="about-header">SynthograsizerDAW</div>
-    <link rel="stylesheet" href="daw_styles.css">
     <div class="app-container">
       <header>
         <div class="header-controls">
@@ -48,21 +48,118 @@
         </div>
       </header>
       <div class="main-content">
-        <section class="sequencer-section">
+        <!-- Melody Sequencer with dedicated pattern controls -->
+        <section class="sequencer-section" id="melodySection">
           <div class="section-header">
             <h2>Melody Sequencer</h2>
             <button id="clearMelodyButton" class="small-button">Clear</button>
           </div>
-          <div class="note-labels" id="melodyLabels"></div>
-          <div id="melodySequencer" class="sequencer"></div>
+          <div class="sequencer-controls">
+            <div class="control-group">
+              <label for="keySelect">Key:</label>
+              <select id="keySelect" class="sequencer-select">
+                <option value="C">C</option>
+                <option value="C#">C#</option>
+                <option value="D">D</option>
+                <option value="D#">D#</option>
+                <option value="E">E</option>
+                <option value="F">F</option>
+                <option value="F#">F#</option>
+                <option value="G">G</option>
+                <option value="G#">G#</option>
+                <option value="A">A</option>
+                <option value="A#">A#</option>
+                <option value="B">B</option>
+              </select>
+            </div>
+            
+            <div class="control-group">
+              <label for="scaleSelect">Scale:</label>
+              <select id="scaleSelect" class="sequencer-select">
+                <option value="major">Major</option>
+                <option value="minor">Minor</option>
+                <option value="pentatonic">Pentatonic</option>
+                <option value="blues">Blues</option>
+                <option value="chromatic">Chromatic</option>
+              </select>
+            </div>
+            
+            <div class="transpose-controls">
+              <label>Octave:</label>
+              <button id="transposeDown" class="transpose-button">-</button>
+              <span id="transposeValue">0</span>
+              <button id="transposeUp" class="transpose-button">+</button>
+            </div>
+
+            <div class="control-group">
+              <label for="melodyPatternLengthSelect">Pattern Length:</label>
+              <select id="melodyPatternLengthSelect" class="patternLengthSelect">
+                <option value="8">8 Steps</option>
+                <option value="16" selected>16 Steps</option>
+                <option value="24">24 Steps</option>
+                <option value="32">32 Steps</option>
+              </select>
+            </div>
+          </div>
+          <div class="sequencer-wrapper">
+            <div id="melodyLabels" class="sequencer-labels"></div>
+            <div class="sequencer-container">
+              <div id="melodyStepNumbers" class="step-numbers"></div>
+              <div id="melodySequencer" class="sequencer-grid"></div>
+            </div>
+          </div>
+          <div class="sequencer-pattern-controls">
+            <div class="pattern-controls">
+              <button id="saveMelodyButton" class="control-button">Save Pattern</button>
+              <button id="randomizeMelodyButton" class="control-button">Randomize</button>
+              <button id="variationMelodyButton" class="control-button">Create Variation</button>
+            </div>
+          </div>
         </section>
-        <section class="sequencer-section">
+        
+        <!-- Drum Sequencer with dedicated pattern controls -->
+        <section class="sequencer-section" id="drumSection">
           <div class="section-header">
             <h2>Drum Sequencer</h2>
             <button id="clearDrumButton" class="small-button">Clear</button>
           </div>
-          <div class="note-labels" id="drumLabels"></div>
-          <div id="drumSequencer" class="sequencer"></div>
+          <div class="sequencer-controls">
+            <div class="control-group">
+              <label for="drumKitSelect">Drum Kit:</label>
+              <select id="drumKitSelect" class="sequencer-select">
+                <option value="acoustic">Acoustic</option>
+                <option value="electronic">Electronic</option>
+                <option value="808">808</option>
+              </select>
+            </div>
+            
+            <div class="control-group">
+              <label for="drumPatternLengthSelect">Pattern Length:</label>
+              <select id="drumPatternLengthSelect" class="patternLengthSelect">
+                <option value="8">8 Steps</option>
+                <option value="16" selected>16 Steps</option>
+                <option value="24">24 Steps</option>
+                <option value="32">32 Steps</option>
+              </select>
+            </div>
+          </div>
+          <div class="sequencer-wrapper" id="drumWrapper">
+            <div id="drumLabels" class="sequencer-labels">
+              <div class="key-scale-label" id="drumKeyScale">Drum Kit</div>
+              <!-- Drum labels will be added dynamically -->
+            </div>
+            <div class="sequencer-container">
+              <div id="drumStepNumbers" class="step-numbers"></div>
+              <div id="drumSequencer" class="sequencer-grid"></div>
+            </div>
+          </div>
+          <div class="sequencer-pattern-controls">
+            <div class="pattern-controls">
+              <button id="saveDrumButton" class="control-button">Save Pattern</button>
+              <button id="randomizeDrumButton" class="control-button">Randomize</button>
+              <button id="variationDrumButton" class="control-button">Create Variation</button>
+            </div>
+          </div>
         </section>
         <section class="visualizer-section">
           <h2>Visualizer</h2>
@@ -98,19 +195,7 @@
                     <label for="fmSynthToggle" class="toggle-label">FM Synthesis</label>
                   </div>
                 </div>
-                <div class="control-group">
-                  <label for="scaleSelect">Scale:</label>
-                  <select id="scaleSelect">
-                    <option value="major">Major</option>
-                    <option value="minor">Minor</option>
-                    <option value="pentatonic">Pentatonic</option>
-                    <option value="blues">Blues</option>
-                  </select>
-                </div>
-                <div class="control-group">
-                  <label for="keySelect">Key:</label>
-                  <select id="keySelect"></select>
-                </div>
+                <!-- Scale and Key controls moved to melody sequencer -->
                 <div class="volume-controls">
                   <label for="melodyVolumeSlider">Melody Volume: <span id="melodyVolumeValue">100</span>%</label>
                   <input type="range" id="melodyVolumeSlider" class="slider" min="0" max="100" value="100">
@@ -322,21 +407,6 @@
               <button class="toggle-panel" data-target="patternPanelContent">▼</button>
             </div>
             <div class="panel-content" id="patternPanelContent">
-              <div class="control-group">
-                <label for="patternLengthSelect">Pattern Length:</label>
-                <select id="patternLengthSelect">
-                  <option value="8">8 Steps</option>
-                  <option value="16" selected>16 Steps</option>
-                  <option value="24">24 Steps</option>
-                  <option value="32">32 Steps</option>
-                </select>
-              </div>
-              <div class="pattern-controls">
-                <button id="saveButton" class="control-button">Save Pattern</button>
-                <button id="clearAllButton" class="control-button">Clear All</button>
-                <button id="randomizeButton" class="control-button">Randomize</button>
-                <button id="variationButton" class="control-button">Create Variation</button>
-              </div>
               <div class="quantize-controls">
                 <label for="quantizeSelect">Quantize:</label>
                 <select id="quantizeSelect">
@@ -350,6 +420,10 @@
               <div class="swing-controls">
                 <label for="swingSlider">Swing: <span id="swingValue">0</span>%</label>
                 <input type="range" id="swingSlider" class="slider" min="0" max="75" value="0">
+              </div>
+              <div class="global-pattern-controls">
+                <button id="clearAllButton" class="control-button">Clear All</button>
+                <button id="syncPatternsButton" class="control-button">Sync Pattern Lengths</button>
               </div>
             </div>
           </section>
@@ -425,6 +499,21 @@
         <div class="pattern-management">
           <h3>Saved Patterns</h3>
           <div class="saved-sequences" id="savedSequences"></div>
+          
+          <!-- Export/Import Section -->
+          <div class="export-import-section">
+            <h4>Export/Import</h4>
+            <div class="export-controls">
+              <button id="exportCurrentButton" class="control-button">Export Current Pattern</button>
+              <button id="exportChainButton" class="control-button">Export Pattern Chain</button>
+            </div>
+            <div class="import-controls">
+              <label for="importFileInput" class="file-input-label">Import Pattern/Chain</label>
+              <input type="file" id="importFileInput" accept=".json" style="display: none;">
+              <button id="importButton" class="control-button">Choose File...</button>
+            </div>
+          </div>
+          
           <div class="chain-controls">
             <button id="playChainButton" class="control-button">Play Chain</button>
             <button id="clearChainButton" class="control-button">Clear Chain</button>
@@ -433,7 +522,11 @@
         </div>
         <!-- End DAW Control Panels and Pattern Management -->
     </div>
-    <script src="../core/js/app/daw_script.js"></script>
+    <!-- Application Scripts -->
+  <script src="../core/js/app/daw_script.js"></script>
+  <script src="../core/js/app/fixed_playback.js"></script>
+  <script src="../core/js/app/integrated_sequencer.js"></script>
+  <script src="../core/js/app/sequencer_enhancer.js"></script>
     <div class="about-footer">
       &copy; 2025 Synthograsizer. Licensed under <a href="https://creativecommons.org/licenses/by-nc/4.0/">CC BY-NC 4.0</a>. Attribution required. Commercial use prohibited.<br>
       <a href="../">Back to Home</a>

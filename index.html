@@ -2,14 +2,92 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="0; url=core/">
-    <title>Synthograsizer - Redirecting...</title>
-    <script>
-        // Redirect to the core application
-        window.location.href = 'core/';
-    </script>
+    <title>Synthograsizer Projects</title>
+    <link rel="icon" type="image/png" href="assets/favicon.png">
+    <style>
+        body {
+            font-family: 'Inter', 'Roboto Mono', monospace;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 16px rgba(94, 96, 206, 0.1);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+        h1 {
+            color: #5e60ce;
+            margin-top: 0;
+            text-align: center;
+        }
+        .project-links {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .project-link {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            background-color: #f0f1ff;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #5e60ce;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        .project-link:hover {
+            background-color: #e0e1ff;
+            transform: translateY(-2px);
+        }
+        .project-description {
+            margin-top: 8px;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 0.8em;
+            color: #888;
+        }
+    </style>
 </head>
 <body>
-    <p>If you are not redirected automatically, please <a href="core/">click here</a>.</p>
+    <div class="container">
+        <h1>Synthograsizer Projects</h1>
+        <div class="project-links">
+            <a href="synthograsizer/" class="project-link">
+                <div>
+                    <div>Synthograsizer (Main)</div>
+                    <div class="project-description">The original synthesizer with basic sequencer functionality</div>
+                </div>
+            </a>
+            <a href="daw/" class="project-link">
+                <div>
+                    <div>SynthograsizerDAW</div>
+                    <div class="project-description">Advanced digital audio workstation with enhanced sequencer</div>
+                </div>
+            </a>
+            <a href="prompt-manager/" class="project-link">
+                <div>
+                    <div>Prompt Metadata Manager</div>
+                    <div class="project-description">Tool for managing and organizing prompt metadata</div>
+                </div>
+            </a>
+        </div>
+        <div class="footer">
+            &copy; 2025 Synthograsizer. Licensed under <a href="https://creativecommons.org/licenses/by-nc/4.0/">CC BY-NC 4.0</a>.
+        </div>
+    </div>
 </body>
 </html>

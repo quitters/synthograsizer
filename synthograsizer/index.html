@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/png" href="../assets/favicon.png">
+    <link rel="icon" type="image/png" href="assets/favicon.png">
     <title>Synthograsizer v2.6.1 (UI + p5)</title>
     <!-- Load p5.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.js"></script>
@@ -12,6 +12,8 @@
     <link rel="stylesheet" href="css/style.css">
     <!-- Link Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Application Scripts -->
+    <script src="js/app/script.js"></script>
 </head>
 <body>
   <div class="frame">
@@ -20,13 +22,14 @@
   <div class="dropdown" style="position:relative;">
     <a href="../" class="dropbtn" style="color:#5e60ce;text-decoration:none;font-weight:600;">Projects &#x25BC;</a>
     <div class="dropdown-content" style="display:none;position:absolute;left:0;top:100%;background:#fff;border-radius:0 0 10px 10px;box-shadow:0 4px 16px rgba(94,96,206,0.10);min-width:230px;padding:8px 0;">
-      <a href="../" style="color:#5e60ce;text-decoration:none;display:block;padding:10px 24px;font-weight:500;">Synthograsizer (main)</a>
-      <a href="../pages/prompt-metadata-manager.html" style="color:#5e60ce;text-decoration:none;display:block;padding:10px 24px;font-weight:500;">Prompt Metadata Manager</a>
-      <a href="../pages/fun-stuff/" style="color:#5e60ce;text-decoration:none;display:block;padding:10px 24px;font-weight:500;">Fun Stuff</a>
+      <a href="../synthograsizer/" style="color:#5e60ce;text-decoration:underline;display:block;padding:10px 24px;font-weight:500;">Synthograsizer (main)</a>
+      <a href="../daw/" style="color:#5e60ce;text-decoration:none;display:block;padding:10px 24px;font-weight:500;">SynthograsizerDAW</a>
+      <a href="../prompt-manager/" style="color:#5e60ce;text-decoration:none;display:block;padding:10px 24px;font-weight:500;">Prompt Metadata Manager</a>
+      <a href="pages/fun-stuff/" style="color:#5e60ce;text-decoration:none;display:block;padding:10px 24px;font-weight:500;">Fun Stuff</a>
     </div>
   </div>
   <a href="https://linktr.ee/quittersarts" target="_blank" rel="noopener" style="color:#5e60ce;text-decoration:none;font-weight:600;">Art</a>
-  <a href="../pages/about.html" style="color:#5e60ce;text-decoration:none;font-weight:600;">About/Contact</a>
+  <a href="pages/about.html" style="color:#5e60ce;text-decoration:none;font-weight:600;">About/Contact</a>
 </nav>
 <script>
   document.addEventListener('DOMContentLoaded', function() {

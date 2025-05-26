@@ -914,7 +914,7 @@ function handleLoadState(state, isImport = false) {
                  // Fallback to saved numeric index if text doesn't match
                  if (valueIndex === -1) valueIndex = parseInt(knobState.value) || 0;
                  valueIndex = Math.max(0, Math.min(numValues - 1, valueIndex)); // Clamp index
-                 valueInput.value = variable.value.values[valueIndex] || ''; // Display the actual value, not the index
+                 valueInput.value = valueIndex;
                  // Visual update will happen during initializeModeX
              } else if (loadedMode === 'B') {
                  const continuousValue = parseFloat(valueInput.dataset.variableValueB);
@@ -1066,11 +1066,7 @@ function addEventListenersToKnobs() {
             dragStartX = e.clientX; // Store X position too for horizontal dragging
             const valueInput = newKnob.nextElementSibling;
             if ((mode === 'A' || mode === 'D') && index < variables.length) {
-                // FIXED: Find the actual index of the current value instead of parsing it
-                const currentValue = valueInput.value;
-                const variable = variables[index];
-                dragStartValueA = variable.value.values.findIndex(v => v === currentValue);
-                if (dragStartValueA === -1) dragStartValueA = 0; // Fallback to first item if not found
+                 dragStartValueA = parseInt(valueInput.value) || 0;
              } else if (mode === 'B' && index < variables.length) {
                  dragStartValueB = parseFloat(valueInput.dataset.variableValueB) || 0;
              }
@@ -1133,21 +1129,19 @@ function addEventListenersToKnobs() {
                  // Use timeout to handle single click vs double click
                  if (clickTimeout === null) { // Only set timeout if one isn't already running
                     clickTimeout = setTimeout(() => {
-                        if (!isDragging && newKnob.dataset.locked !== "true" && (mode === 'A' || mode === 'D')) {
-                            const variable = variables[index];
-                            if (variable && variable.value.values.length > 0) {
-                                const numValues = variable.value.values.length;
-                                                                // FIXED: Find the actual index of the current value instead of parsing it
-                                 const currentValue = newKnob.nextElementSibling.dataset.variableValueA;
-                                 let currentValueIndex = variable.value.values.findIndex(v => v === currentValue);
-                                 if (currentValueIndex === -1) currentValueIndex = 0; // Fallback to first item if not found
-                                
-                                currentValueIndex = (currentValueIndex + 1) % numValues; // Increment and wrap
-                                updateKnobValue(newKnob, currentValueIndex, 'A');
-                            }
-                        }
-                        clickTimeout = null;
-                    }, DOUBLE_CLICK_THRESHOLD - 50);
+                         if (!isDragging && newKnob.dataset.locked !== "true" && (mode === 'A' || mode === 'D')) { // Check state again inside timeout
+                             const variable = variables[index];
+                             if (variable && variable.value.values.length > 0) {
+                                 const numValues = variable.value.values.length;
+                                  const currentValue = newKnob.nextElementSibling.dataset.variableValueA;
+                                  let currentValueIndex = variable.value.values.findIndex(v => v === currentValue);
+                                  if (currentValueIndex === -1) currentValueIndex = 0; // Fallback to first item if not found
+                                  currentValueIndex = (currentValueIndex + 1) % numValues; // Increment and wrap
+                                 updateKnobValue(newKnob, currentValueIndex, 'A');
+                             }
+                         }
+                         clickTimeout = null; // Clear the timeout reference
+                     }, DOUBLE_CLICK_THRESHOLD - 50); // Timeout slightly less than double click threshold
                  }
              }
 

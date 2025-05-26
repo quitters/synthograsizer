@@ -1,4 +1,10 @@
-/**
+// Copied from SynthograsizerDAW/script.js
+        // Drum kit selection
+        document.getElementById('drumKitSelect').addEventListener('change', (e) => {
+            this.config.drumKit = e.target.value;
+            // Re-render drum labels to show kit name
+            this.renderSequencers();
+        });/**
  * Synthograsizer - Advanced Grid Sequencer
  * A modular Web Audio API based sequencer
  */
@@ -12,489 +18,13 @@ class Synthograsizer {
         this.currentStep = 0;
         this.stepInterval = null;
         
-        // Initialize configuration, render UI, and setup event listeners
-        this.initializeModules(); 
-        this.renderUI(); 
-        this.setupEventListeners();
-        
-        // Render the sequencers using the new implementation
-        if (typeof renderSequencers === 'function') {
-            renderSequencers();
-        }
+        this.initializeModules(); // Initialize configuration
+        this.renderUI(); // Render UI first
+        this.setupEventListeners(); // Setup event listeners
         
         // Add a start button overlay to initialize audio context with user interaction
         this.createStartButton();
     }
-    
-    // Initialize all modules and configuration settings
-    initializeModules() {
-        // Sound configuration object
-        this.config = {
-            totalSteps: 16,
-            melodySteps: 16,
-            drumSteps: 16,
-            bpm: 120,
-            sequencerRows: {
-                melody: 16,
-                drum: 8
-            },
-            drumKit: 'acoustic',
-            scales: {
-                'major': [0, 2, 4, 5, 7, 9, 11],
-                'minor': [0, 2, 3, 5, 7, 8, 10],
-                'pentatonic': [0, 2, 4, 7, 9],
-                'blues': [0, 3, 5, 6, 7, 10],
-                'chromatic': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
-            },
-            synthesis: {
-                voice: {
-                    polyphony: false,
-                    unison: 1,
-                    detune: 0,
-                    portamento: 0
-                },
-                fm: {
-                    enabled: false,
-                    carrierWaveform: 'sine',
-                    modulatorWaveform: 'sine',
-                    modulationIndex: 10,
-                    harmonicity: 1
-                },
-                lfo: {
-                    enabled: false,
-                    rate: 1,
-                    amount: 0,
-                    waveform: 'sine',
-                    destination: 'none'
-                }
-            },
-            effects: {
-                delay: {
-                    enabled: false,
-                    time: 0.3,
-                    feedback: 0.4,
-                    mix: 0.3
-                },
-                distortion: {
-                    enabled: false,
-                    amount: 10,
-                    mix: 0.3
-                },
-                reverb: {
-                    enabled: false,
-                    size: 0.8,
-                    mix: 0.3
-                },
-                compressor: {
-                    enabled: false,
-                    threshold: -24,
-                    ratio: 4,
-                    attack: 0.003,
-                    release: 0.25
-                }
-            },
-            arpeggiator: {
-                enabled: false,
-                pattern: 'up',
-                rate: 16,
-                octave: 1
-            }
-        };
-        
-        // Create empty grids for the sequencers
-        this.melodyGrid = Array(this.config.sequencerRows.melody).fill().map(() => Array(this.config.totalSteps).fill(false));
-        this.drumGrid = Array(this.config.sequencerRows.drum).fill().map(() => Array(this.config.totalSteps).fill(false));
-        
-        // Initialize pattern storage
-        this.savedPatterns = [];
-        this.currentPatternIndex = -1;
-        this.patternChain = [];
-        
-        // Set initial quantize value
-        this.quantizeValue = 16;
-    }
-    
-    // Setup all event listeners for the application
-    setupEventListeners() {
-        // Setup standard controls (play, stop, etc.)
-        this.setupStandardControls();
-        
-        // Setup pattern management controls
-        this.setupPatternControls();
-        
-        // Setup chain controls
-        this.setupChainControls();
-        
-        // Setup export/import functionality
-        this.setupExportImportControls();
-        
-        // Setup audio parameter controls
-        this.setupParameterControls();
-        
-        // Setup drum kit selection
-        this.setupDrumKitSelection();
-        
-        // Setup panel toggles for UI sections
-        this.setupPanelToggles();
-        
-        // Setup synthesis tabs
-        this.setupSynthesisTabs();
-        
-        // Setup visualization canvas
-        this.setupVisualization();
-    }
-    
-    // Setup standard playback controls
-    setupStandardControls() {
-        // Play button
-        const playButton = document.getElementById('playButton');
-        if (playButton) {
-            playButton.addEventListener('click', () => {
-                if (!this.isPlaying) this.play();
-                else this.stop();
-            });
-        }
-        
-        // Stop button
-        const stopButton = document.getElementById('stopButton');
-        if (stopButton) {
-            stopButton.addEventListener('click', () => {
-                this.stop();
-            });
-        }
-        
-        // BPM input
-        const bpmInput = document.getElementById('bpmInput');
-        if (bpmInput) {
-            bpmInput.addEventListener('change', (e) => {
-                this.config.bpm = parseFloat(e.target.value);
-                if (this.isPlaying) {
-                    this.stop();
-                    this.play();
-                }
-            });
-        }
-        
-        // Drum kit selection
-        const drumKitSelect = document.getElementById('drumKitSelect');
-        if (drumKitSelect) {
-            drumKitSelect.addEventListener('change', (e) => {
-                this.config.drumKit = e.target.value;
-                // Re-render drum labels to show kit name
-                this.renderSequencers();
-            });
-        }
-    }
-    
-    // Setup pattern management controls
-    setupPatternControls() {
-        // Setup melody pattern controls
-        this.setupSequencerPatternControls('melody');
-        
-        // Setup drum pattern controls
-        this.setupSequencerPatternControls('drum');
-        
-        // Clear All button in Pattern Controls panel
-        const clearAllButton = document.getElementById('clearAllButton');
-        if (clearAllButton) {
-            clearAllButton.addEventListener('click', () => {
-                // Call clear functions for both sequencers
-                this.clearGrid(this.melodyGrid, document.getElementById('melodySequencer'));
-                this.clearGrid(this.drumGrid, document.getElementById('drumSequencer'));
-            });
-        }
-        
-        // Sync patterns button
-        const syncPatternsButton = document.getElementById('syncPatternsButton');
-        if (syncPatternsButton) {
-            syncPatternsButton.addEventListener('click', () => {
-                this.syncPatternLengths();
-            });
-        }
-        
-        // Quantize controls
-        const quantizeSelect = document.getElementById('quantizeSelect');
-        if (quantizeSelect) {
-            quantizeSelect.addEventListener('change', (e) => {
-                this.quantizeValue = parseInt(e.target.value);
-            });
-        }
-        
-        const quantizeButton = document.getElementById('quantizeButton');
-        if (quantizeButton) {
-            quantizeButton.addEventListener('click', () => {
-                this.quantizeNotes();
-            });
-        }
-    }
-    
-    // Setup chain controls for pattern sequencing
-    setupChainControls() {
-        // Chain controls
-        const playChainButton = document.getElementById('playChainButton');
-        if (playChainButton) {
-            playChainButton.addEventListener('click', () => {
-                this.playChain();
-            });
-        }
-        
-        const clearChainButton = document.getElementById('clearChainButton');
-        if (clearChainButton) {
-            clearChainButton.addEventListener('click', () => {
-                this.clearChain();
-            });
-        }
-    }
-    
-    // Setup the controls for a specific sequencer (melody or drum)
-    setupSequencerPatternControls(type) {
-        // Clear button
-        const clearButton = document.getElementById(`clear${type.charAt(0).toUpperCase() + type.slice(1)}Button`);
-        if (clearButton) {
-            clearButton.addEventListener('click', () => {
-                const grid = type === 'melody' ? this.melodyGrid : this.drumGrid;
-                const sequencer = document.getElementById(`${type}Sequencer`);
-                this.clearGrid(grid, sequencer);
-            });
-        }
-        
-        // Save pattern button
-        const saveButton = document.getElementById(`save${type.charAt(0).toUpperCase() + type.slice(1)}Button`);
-        if (saveButton) {
-            saveButton.addEventListener('click', () => {
-                this.savePattern(type);
-            });
-        }
-        
-        // Randomize button
-        const randomizeButton = document.getElementById(`randomize${type.charAt(0).toUpperCase() + type.slice(1)}Button`);
-        if (randomizeButton) {
-            randomizeButton.addEventListener('click', () => {
-                this.randomizePattern(type);
-            });
-        }
-        
-        // Variation button
-        const variationButton = document.getElementById(`variation${type.charAt(0).toUpperCase() + type.slice(1)}Button`);
-        if (variationButton) {
-            variationButton.addEventListener('click', () => {
-                this.createPatternVariation(type);
-            });
-        }
-        
-        // Pattern length select
-        const patternLengthSelect = document.getElementById(`${type}PatternLengthSelect`);
-        if (patternLengthSelect) {
-            patternLengthSelect.addEventListener('change', (e) => {
-                const steps = parseInt(e.target.value);
-                if (type === 'melody') {
-                    this.config.melodySteps = steps;
-                } else {
-                    this.config.drumSteps = steps;
-                }
-                this.renderSequencers();
-            });
-        }
-    }
-    
-    // Setup panel toggles
-    setupPanelToggles() {
-        // Panel toggle listeners
-        document.querySelectorAll('.toggle-panel').forEach(button => {
-            button.addEventListener('click', (e) => {
-                const targetId = e.target.getAttribute('data-target');
-                const targetPanel = document.getElementById(targetId);
-                
-                if (targetPanel) {
-                    targetPanel.classList.toggle('collapsed');
-                    button.classList.toggle('collapsed');
-                }
-            });
-        });
-    }
-    
-    // Setup synthesis tabs event handlers
-    setupSynthesisTabs() {
-        // Synthesis tabs - Enhanced to ensure proper tab switching
-        const tabButtons = document.querySelectorAll('.tab-button');
-        
-        // Make sure we have tab buttons
-        if (tabButtons.length > 0) {
-            tabButtons.forEach(button => {
-                button.addEventListener('click', (e) => {
-                    e.preventDefault(); // Prevent default button action
-                    
-                    // Remove active class from all buttons and content panels
-                    document.querySelectorAll('.tab-button').forEach(btn => {
-                        btn.classList.remove('active');
-                    });
-                    
-                    document.querySelectorAll('.tab-content').forEach(content => {
-                        content.classList.remove('active');
-                    });
-                    
-                    // Add active class to clicked button and its target content
-                    button.classList.add('active');
-                    
-                    const target = button.getAttribute('data-tab');
-                    document.getElementById(target).classList.add('active');
-                });
-            });
-            
-            // Activate first tab by default if none is active
-            if (!document.querySelector('.tab-button.active')) {
-                tabButtons[0].click();
-            }
-        }
-    }
-    
-    // Setup export/import functionality for patterns
-    setupExportImportControls() {
-        // Export pattern button
-        const exportPatternButton = document.getElementById('exportPatternButton');
-        if (exportPatternButton) {
-            exportPatternButton.addEventListener('click', () => {
-                const pattern = this.createPatternFromCurrentState();
-                this.exportToJson(pattern, 'synthograsizer-pattern.json');
-            });
-        }
-        
-        // Export chain button
-        const exportChainButton = document.getElementById('exportChainButton');
-        if (exportChainButton) {
-            exportChainButton.addEventListener('click', () => {
-                const chain = {
-                    type: 'chain',
-                    version: '1.0.0',
-                    created: new Date().toISOString(),
-                    patterns: this.patternChain.map(index => this.savedPatterns[index])
-                };
-                this.exportToJson(chain, 'synthograsizer-chain.json');
-            });
-        }
-        
-        // Import pattern or chain
-        const importFileInput = document.getElementById('importFileInput');
-        if (importFileInput) {
-            importFileInput.addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if (file) {
-                    this.importFromFile(file);
-                }
-            });
-        }
-        
-        const importButton = document.getElementById('importButton');
-        if (importButton) {
-            importButton.addEventListener('click', () => {
-                document.getElementById('importFileInput').click();
-            });
-        }
-    }
-    
-    // Setup audio parameter controls including synthesis and effects
-    setupParameterControls() {
-        // FM Synthesis toggle
-        const fmSynthToggle = document.getElementById('fmSynthToggle');
-        if (fmSynthToggle) {
-            fmSynthToggle.addEventListener('change', (e) => {
-                this.config.synthesis.fm.enabled = e.target.checked;
-            });
-        }
-        
-        // Effect toggles
-        const delayToggle = document.getElementById('delayToggle');
-        if (delayToggle) {
-            delayToggle.addEventListener('change', (e) => {
-                this.config.effects.delay.enabled = e.target.checked;
-                this.updateEffects();
-            });
-        }
-        
-        const distortionToggle = document.getElementById('distortionToggle');
-        if (distortionToggle) {
-            distortionToggle.addEventListener('change', (e) => {
-                this.config.effects.distortion.enabled = e.target.checked;
-                this.updateEffects();
-            });
-        }
-        
-        const reverbToggle = document.getElementById('reverbToggle');
-        if (reverbToggle) {
-            reverbToggle.addEventListener('change', (e) => {
-                this.config.effects.reverb.enabled = e.target.checked;
-                this.updateEffects();
-            });
-        }
-        
-        // Voice settings
-        const polyphonyToggle = document.getElementById('polyphonyToggle');
-        if (polyphonyToggle) {
-            polyphonyToggle.addEventListener('change', (e) => {
-                this.config.synthesis.voice.polyphony = e.target.checked;
-            });
-        }
-        
-        const unisonSlider = document.getElementById('unisonSlider');
-        if (unisonSlider) {
-            unisonSlider.addEventListener('input', (e) => {
-                this.config.synthesis.voice.unison = parseInt(e.target.value);
-                document.getElementById('unisonValue').textContent = e.target.value;
-            });
-        }
-        
-        const detuneSlider = document.getElementById('detuneSlider');
-        if (detuneSlider) {
-            detuneSlider.addEventListener('input', (e) => {
-                this.config.synthesis.voice.detune = parseInt(e.target.value);
-                document.getElementById('detuneValue').textContent = e.target.value;
-            });
-        }
-        
-        const portamentoSlider = document.getElementById('portamentoSlider');
-        if (portamentoSlider) {
-            portamentoSlider.addEventListener('input', (e) => {
-                this.config.synthesis.voice.portamento = parseInt(e.target.value);
-                document.getElementById('portamentoValue').textContent = e.target.value;
-            });
-        }
-        
-        // Arpeggiator controls
-        const arpToggle = document.getElementById('arpToggle');
-        if (arpToggle) {
-            arpToggle.addEventListener('change', (e) => {
-                this.config.arpeggiator.enabled = e.target.checked;
-            });
-        }
-        
-        const arpPatternSelect = document.getElementById('arpPatternSelect');
-        if (arpPatternSelect) {
-            arpPatternSelect.addEventListener('change', (e) => {
-                this.config.arpeggiator.pattern = e.target.value;
-            });
-        }
-        
-        const arpRateSelect = document.getElementById('arpRateSelect');
-        if (arpRateSelect) {
-            arpRateSelect.addEventListener('change', (e) => {
-                this.config.arpeggiator.rate = parseInt(e.target.value);
-            });
-        }
-        
-        const arpOctaveSlider = document.getElementById('arpOctaveSlider');
-        if (arpOctaveSlider) {
-            arpOctaveSlider.addEventListener('input', (e) => {
-                this.config.arpeggiator.octave = parseInt(e.target.value);
-                document.getElementById('arpOctaveValue').textContent = e.target.value;
-            });
-        }
-        
-        // Setup other parameter sliders
-        this.setupEffectSliders();
-        this.setupVolumeSliders();
-    }
-
-    // Additional methods continue below
     
     // Setup all event listeners for the application
     setupEventListeners() {
@@ -1088,29 +618,20 @@ class Synthograsizer {
 
     // Setup audio processing nodes
     setupAudioNodes() {
-        try {
-            // Master gain
-            this.masterGainNode = this.audioContext.createGain();
-            
-            // Create analyzer for visualization
-            this.analyser = this.audioContext.createAnalyser();
-            this.analyser.fftSize = 2048;
-            
-            // Setup effects (this will create the compressor)
-            this.setupEffects();
-            
-            // Connect main audio path - after all nodes are created
-            if (this.masterGainNode && this.compressor && this.analyser) {
-                this.masterGainNode.connect(this.compressor);
-                this.compressor.connect(this.analyser);
-                this.analyser.connect(this.audioContext.destination);
-                console.log('Audio nodes connected successfully');
-            } else {
-                console.warn('Some audio nodes are not initialized properly');
-            }
-        } catch (e) {
-            console.error('Error setting up audio nodes:', e);
-        }
+        // Master gain
+        this.masterGainNode = this.audioContext.createGain();
+        
+        // Effects
+        this.setupEffects();
+        
+        // Create analyzer for visualization
+        this.analyser = this.audioContext.createAnalyser();
+        this.analyser.fftSize = 2048;
+        
+        // Connect main audio path
+        this.masterGainNode.connect(this.compressor);
+        this.compressor.connect(this.analyser);
+        this.analyser.connect(this.audioContext.destination);
     }
 
     // Setup audio effects
@@ -1129,39 +650,6 @@ class Synthograsizer {
         this.delayFilter.connect(this.delayNode);
         this.delayNode.connect(this.delayGain);
         this.delayGain.connect(this.masterGainNode);
-        
-        // Initialize LFO (Low Frequency Oscillator)
-        try {
-            // Ensure LFO config exists
-            if (!this.config.synthesis.lfo) {
-                this.config.synthesis.lfo = {
-                    rate: 1,
-                    amount: 0,
-                    waveform: 'sine',
-                    destination: 'none',
-                    enabled: false
-                };
-            }
-            
-            // Create LFO nodes
-            this.lfo = this.audioContext.createOscillator();
-            this.lfoGain = this.audioContext.createGain();
-            
-            // Set initial properties
-            this.lfo.frequency.value = this.config.synthesis.lfo.rate || 1;
-            this.lfo.type = this.config.synthesis.lfo.waveform || 'sine';
-            this.lfoGain.gain.value = (this.config.synthesis.lfo.amount || 0) / 100;
-            
-            // Connect LFO
-            this.lfo.connect(this.lfoGain);
-            
-            // Start LFO
-            this.lfo.start();
-            
-            console.log('LFO initialized successfully');
-        } catch (e) {
-            console.warn('Error initializing LFO:', e);
-        }
         
         // Initial delay settings
         this.delayGain.gain.value = this.config.effects.delay.mix / 100;
@@ -1654,18 +1142,32 @@ setupChainControls() {
     }
 }
 
-    // Setup drum kit selection
-    setupDrumKitSelection() {
-        const drumKitSelect = document.getElementById('drumKitSelect');
-        if (drumKitSelect) {
-            drumKitSelect.addEventListener('change', (e) => {
-                this.config.drumKit = e.target.value;
-                // Re-render drum labels to show kit name
-                this.renderSequencers();
-            });
-        }
-    }
+// Drum kit selection
+const drumKitSelect = document.getElementById('drumKitSelect');
+if (drumKitSelect) {
+    drumKitSelect.addEventListener('change', (e) => {
+        this.config.drumKit = e.target.value;
+        // Re-render drum labels to show kit name
+        this.renderSequencers();
+    });
+}
 
+// Setup panel toggles
+setupPanelToggles() {
+    // Panel toggle listeners
+    document.querySelectorAll('.toggle-panel').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const targetId = e.target.getAttribute('data-target');
+            const targetPanel = document.getElementById(targetId);
+            
+            if (targetPanel) {
+                targetPanel.classList.toggle('collapsed');
+                button.classList.toggle('collapsed');
+            }
+            this.renderSequencers();
+        });
+    }
+    
     // Setup panel toggles
     setupPanelToggles() {
         // Panel toggle listeners
@@ -1678,13 +1180,11 @@ setupChainControls() {
                     targetPanel.classList.toggle('collapsed');
                     button.classList.toggle('collapsed');
                 }
-                this.renderSequencers();
             });
         });
     }
-    
-    // Setup synthesis tabs event handlers
-    setupSynthesisTabs() {
+}
+
         // Synthesis tabs - Enhanced to ensure proper tab switching
         const tabButtons = document.querySelectorAll('.tab-button');
         
@@ -3703,139 +3203,60 @@ setupChainControls() {
 
     // Update all slider values and effect parameters
     updateSliderValues() {
-        try {
-            // Ensure config objects exist
-            if (!this.config) {
-                console.warn('Config object not initialized');
-                return;
-            }
-            
-            if (!this.config.effects) {
-                this.config.effects = {};
-            }
-            
-            // Ensure delay effect config exists
-            if (!this.config.effects.delay) {
-                this.config.effects.delay = {
-                    enabled: false,
-                    time: 0.3,
-                    feedback: 0.4,
-                    mix: 0.3
-                };
-            }
-            
-            // Ensure distortion effect config exists
-            if (!this.config.effects.distortion) {
-                this.config.effects.distortion = {
-                    enabled: false,
-                    amount: 10,
-                    mix: 0.3
-                };
-            }
-            
-            // Update config with current values directly
-            // Delay effect parameters
-            if (document.getElementById('delayTimeSlider')) {
-                this.config.effects.delay.time = parseFloat(document.getElementById('delayTimeSlider').value || '0');
-            }
-            if (document.getElementById('delayFeedbackSlider')) {
-                this.config.effects.delay.feedback = parseFloat(document.getElementById('delayFeedbackSlider').value || '0');
-            }
-            if (document.getElementById('delayMixSlider')) {
-                this.config.effects.delay.mix = parseFloat(document.getElementById('delayMixSlider').value || '0');
-            }
-            
-            // Distortion
-            if (document.getElementById('distortionAmountSlider')) {
-                this.config.effects.distortion.amount = parseFloat(document.getElementById('distortionAmountSlider').value || '0');
-            }
-            
-            // Compressor - ensure compressor object exists
-            if (!this.config.effects.compressor) {
-                this.config.effects.compressor = {
-                    enabled: false,
-                    threshold: -24,
-                    ratio: 4,
-                    attack: 0.003,
-                    release: 0.25
-                };
-            }
-            
-            if (document.getElementById('compressorThresholdSlider')) {
-                this.config.effects.compressor.threshold = parseFloat(document.getElementById('compressorThresholdSlider').value || '-24');
-            }
-            if (document.getElementById('compressorRatioSlider')) {
-                this.config.effects.compressor.ratio = parseFloat(document.getElementById('compressorRatioSlider').value || '4');
-            }
-            if (document.getElementById('compressorAttackSlider')) {
-                this.config.effects.compressor.attack = parseFloat(document.getElementById('compressorAttackSlider').value || '0.003');
-            }
-            if (document.getElementById('compressorReleaseSlider')) {
-                this.config.effects.compressor.release = parseFloat(document.getElementById('compressorReleaseSlider').value || '0.25');
-            }
-            
-            // Ensure reverb effect config exists
-            if (!this.config.effects.reverb) {
-                this.config.effects.reverb = {
-                    enabled: false,
-                    size: 0.8,
-                    mix: 30
-                };
-            }
-            
-            // Reverb
-            if (document.getElementById('reverbSizeSlider')) {
-                this.config.effects.reverb.size = parseFloat(document.getElementById('reverbSizeSlider').value || '0.8');
-            }
-            if (document.getElementById('reverbMixSlider')) {
-                this.config.effects.reverb.mix = parseFloat(document.getElementById('reverbMixSlider').value || '30');
-            }
-            
-            // Ensure synthesis config exists
-            if (!this.config.synthesis) {
-                this.config.synthesis = {};
-            }
-            
-            // Ensure LFO config exists
-            if (!this.config.synthesis.lfo) {
-                this.config.synthesis.lfo = {
-                    enabled: false,
-                    rate: 1,
-                    amount: 0,
-                    waveform: 'sine',
-                    destination: 'none'
-                };
-            }
-            
-            // LFO
-            if (document.getElementById('lfoRateSlider')) {
-                this.config.synthesis.lfo.rate = parseFloat(document.getElementById('lfoRateSlider').value || '1');
-            }
-            if (document.getElementById('lfoAmountSlider')) {
-                this.config.synthesis.lfo.amount = parseFloat(document.getElementById('lfoAmountSlider').value || '0');
-            }
-            if (document.getElementById('lfoWaveformSelect')) {
-                this.config.synthesis.lfo.waveform = document.getElementById('lfoWaveformSelect').value || 'sine';
-            }
-            if (document.getElementById('lfoDestinationSelect')) {
-                this.config.synthesis.lfo.destination = document.getElementById('lfoDestinationSelect').value || 'none';
-            }
-            
-            // Update audio effect parameters
-            try {
-                this.updateEffects();
-            } catch (e) {
-                console.warn('Error updating effects:', e);
-            }
-            
-            try {
-                this.updateLfoParameters();
-            } catch (e) {
-                console.warn('Error updating LFO parameters:', e);
-            }
-        } catch (e) {
-            console.warn('Error in updateSliderValues:', e);
-        }
+        // Update UI values - Sequencer controls
+        document.getElementById('swingValue').textContent = document.getElementById('swingSlider').value;
+        document.getElementById('melodyVolumeValue').textContent = document.getElementById('melodyVolumeSlider').value;
+        document.getElementById('kickVolumeValue').textContent = document.getElementById('kickVolumeSlider').value;
+        document.getElementById('snareVolumeValue').textContent = document.getElementById('snareVolumeSlider').value;
+        document.getElementById('hihatVolumeValue').textContent = document.getElementById('hihatVolumeSlider').value;
+        
+        // Update UI values - Delay effect
+        document.getElementById('delayTimeValue').textContent = document.getElementById('delayTimeSlider').value;
+        document.getElementById('delayFeedbackValue').textContent = document.getElementById('delayFeedbackSlider').value;
+        document.getElementById('delayMixValue').textContent = document.getElementById('delayMixSlider').value;
+        
+        // Update UI values - Compressor
+        document.getElementById('compressorThresholdValue').textContent = document.getElementById('compressorThresholdSlider').value;
+        document.getElementById('compressorRatioValue').textContent = document.getElementById('compressorRatioSlider').value;
+        document.getElementById('compressorAttackValue').textContent = document.getElementById('compressorAttackSlider').value;
+        document.getElementById('compressorReleaseValue').textContent = document.getElementById('compressorReleaseSlider').value;
+        
+        // Update UI values - Distortion
+        document.getElementById('distortionAmountValue').textContent = document.getElementById('distortionAmountSlider').value;
+        
+        // Update UI values - Reverb
+        document.getElementById('reverbSizeValue').textContent = document.getElementById('reverbSizeSlider').value;
+        document.getElementById('reverbMixValue').textContent = document.getElementById('reverbMixSlider').value;
+        
+        // Update UI values - LFO
+        document.getElementById('lfoRateValue').textContent = document.getElementById('lfoRateSlider').value;
+        document.getElementById('lfoAmountValue').textContent = document.getElementById('lfoAmountSlider').value;
+        
+        // Update config with current values
+        this.updateConfigFromUI();
+        
+        // Update audio parameters
+        this.updateEffects();
+        this.updateLfoParameters();
+    }
+    
+    // Update config object from UI controls
+    updateConfigFromUI() {
+        // Delay effect
+        this.config.effects.delay.time = parseFloat(document.getElementById('delayTimeSlider').value);
+        this.config.effects.delay.feedback = parseFloat(document.getElementById('delayFeedbackSlider').value);
+        this.config.effects.delay.mix = parseFloat(document.getElementById('delayMixSlider').value);
+        
+        // Distortion
+        this.config.effects.distortion.amount = parseFloat(document.getElementById('distortionAmountSlider').value);
+        
+        // Reverb
+        this.config.effects.reverb.size = parseFloat(document.getElementById('reverbSizeSlider').value);
+        this.config.effects.reverb.mix = parseFloat(document.getElementById('reverbMixSlider').value);
+        
+        // LFO
+        this.config.synthesis.lfo.rate = parseFloat(document.getElementById('lfoRateSlider').value);
+        this.config.synthesis.lfo.amount = parseFloat(document.getElementById('lfoAmountSlider').value);
     }
     
     // Update all effects parameters
@@ -3845,168 +3266,66 @@ setupChainControls() {
         
         const now = this.audioContext.currentTime;
         
-        // Update delay parameters if they exist
-        if (this.delayNode && this.delayFeedback && this.delayGain) {
-            try {
-                this.delayNode.delayTime.setValueAtTime(this.config.effects.delay.time / 1000, now);
-                this.delayFeedback.gain.setValueAtTime(this.config.effects.delay.feedback / 100, now);
-                this.delayGain.gain.setValueAtTime(
-                    this.config.effects.delay.enabled ? this.config.effects.delay.mix / 100 : 0, 
-                    now
-                );
-            } catch (e) {
-                console.warn('Error updating delay parameters:', e);
-            }
+        // Update delay parameters
+        this.delayNode.delayTime.setValueAtTime(this.config.effects.delay.time / 1000, now);
+        this.delayFeedback.gain.setValueAtTime(this.config.effects.delay.feedback / 100, now);
+        this.delayGain.gain.setValueAtTime(
+            this.config.effects.delay.enabled ? this.config.effects.delay.mix / 100 : 0, 
+            now
+        );
+        
+        // Update compressor parameters
+        this.compressor.threshold.setValueAtTime(
+            parseFloat(document.getElementById('compressorThresholdSlider').value), now
+        );
+        this.compressor.ratio.setValueAtTime(
+            parseFloat(document.getElementById('compressorRatioSlider').value), now
+        );
+        this.compressor.attack.setValueAtTime(
+            parseFloat(document.getElementById('compressorAttackSlider').value) / 1000, now
+        );
+        this.compressor.release.setValueAtTime(
+            parseFloat(document.getElementById('compressorReleaseSlider').value) / 1000, now
+        );
+        
+        // Update distortion
+        if (this.config.effects.distortion.enabled) {
+            this.createDistortionCurve(this.config.effects.distortion.amount);
+            this.distortionGain.gain.setValueAtTime(0.5, now);
+        } else {
+            this.distortionGain.gain.setValueAtTime(0, now);
         }
         
-        // Update compressor parameters if it exists
-        if (this.compressor) {
-            try {
-                const thresholdValue = parseFloat(document.getElementById('compressorThresholdSlider')?.value || '-24');
-                const ratioValue = parseFloat(document.getElementById('compressorRatioSlider')?.value || '12');
-                const attackValue = parseFloat(document.getElementById('compressorAttackSlider')?.value || '3') / 1000;
-                
-                this.compressor.threshold.setValueAtTime(thresholdValue, now);
-                this.compressor.ratio.setValueAtTime(ratioValue, now);
-                this.compressor.attack.setValueAtTime(attackValue, now);
-            } catch (e) {
-                console.warn('Error updating compressor parameters:', e);
-            }
-        }
-        
-        // Continue with release parameter if compressor exists
-        if (this.compressor) {
-            try {
-                const releaseValue = parseFloat(document.getElementById('compressorReleaseSlider')?.value || '250') / 1000;
-                this.compressor.release.setValueAtTime(releaseValue, now);
-            } catch (e) {
-                console.warn('Error updating compressor release parameter:', e);
-            }
-        }
-        
-        // Update distortion if it exists
-        if (this.distortionGain && typeof this.createDistortionCurve === 'function') {
-            try {
-                if (this.config.effects.distortion.enabled) {
-                    this.createDistortionCurve(this.config.effects.distortion.amount);
-                    this.distortionGain.gain.setValueAtTime(0.5, now);
-                } else {
-                    this.distortionGain.gain.setValueAtTime(0, now);
-                }
-            } catch (e) {
-                console.warn('Error updating distortion parameters:', e);
-            }
-        }
-        
-        // Update reverb if it exists
-        if (this.reverbGain && typeof this.createReverbImpulseResponse === 'function') {
-            try {
-                if (this.config.effects.reverb.enabled) {
-                    this.createReverbImpulseResponse(this.config.effects.reverb.size);
-                    this.reverbGain.gain.setValueAtTime(this.config.effects.reverb.mix / 100, now);
-                } else {
-                    this.reverbGain.gain.setValueAtTime(0, now);
-                }
-            } catch (e) {
-                console.warn('Error updating reverb parameters:', e);
-            }
+        // Update reverb
+        if (this.config.effects.reverb.enabled) {
+            this.createReverbImpulseResponse(this.config.effects.reverb.size);
+            this.reverbGain.gain.setValueAtTime(this.config.effects.reverb.mix / 100, now);
+        } else {
+            this.reverbGain.gain.setValueAtTime(0, now);
         }
     }
     
     // Update LFO parameters
     updateLfoParameters() {
         // Only proceed if audioContext is initialized
-        if (!this.audioContext) {
-            console.warn('Audio context not initialized');
-            return;
-        }
+        if (!this.audioContext) return;
         
-        try {
-            // Check if LFO nodes exist, if not, try to initialize them
-            if (!this.lfo || !this.lfoGain) {
-                console.warn('LFO nodes not initialized yet, attempting to initialize...');
-                
-                try {
-                    // Ensure LFO config exists
-                    if (!this.config.synthesis.lfo) {
-                        this.config.synthesis.lfo = {
-                            rate: 1,
-                            amount: 0,
-                            waveform: 'sine',
-                            destination: 'none',
-                            enabled: false
-                        };
-                    }
-                    
-                    // Create LFO nodes
-                    this.lfo = this.audioContext.createOscillator();
-                    this.lfoGain = this.audioContext.createGain();
-                    
-                    // Set initial properties
-                    this.lfo.frequency.value = this.config.synthesis.lfo.rate || 1;
-                    this.lfo.type = this.config.synthesis.lfo.waveform || 'sine';
-                    this.lfoGain.gain.value = (this.config.synthesis.lfo.amount || 0) / 100;
-                    
-                    // Connect LFO
-                    this.lfo.connect(this.lfoGain);
-                    
-                    // Start LFO
-                    this.lfo.start();
-                    
-                    console.log('LFO initialized successfully in updateLfoParameters');
-                } catch (initError) {
-                    console.error('Failed to initialize LFO nodes:', initError);
-                    return;
-                }
-            }
-            
-            const now = this.audioContext.currentTime;
-            
-            // Ensure LFO config exists
-            if (!this.config.synthesis.lfo) {
-                this.config.synthesis.lfo = {
-                    rate: 1,
-                    amount: 0,
-                    waveform: 'sine',
-                    destination: 'none',
-                    enabled: false
-                };
-            }
-            
-            // Update LFO rate and type
-            this.lfo.frequency.setValueAtTime(this.config.synthesis.lfo.rate || 1, now);
-            this.lfo.type = this.config.synthesis.lfo.waveform || 'sine';
-            
-            // Update LFO amount/depth
-            const lfoAmount = (this.config.synthesis.lfo.amount || 0) / 100;
-            this.lfoGain.gain.setValueAtTime(lfoAmount, now);
-            
-            // Update LFO routing
-            this.updateLfoRouting();
-            
-            console.log('LFO parameters updated successfully');
-        } catch (e) {
-            console.warn('Error updating LFO parameters:', e);
-        }
+        const now = this.audioContext.currentTime;
+        
+        // Update LFO rate and type
+        this.lfo.frequency.setValueAtTime(this.config.synthesis.lfo.rate, now);
+        this.lfo.type = this.config.synthesis.lfo.waveform;
+        
+        // Update LFO amount/depth
+        const lfoAmount = this.config.synthesis.lfo.amount / 100;
+        this.lfoGain.gain.setValueAtTime(lfoAmount, now);
+        
+        // Update LFO routing
+        this.updateLfoRouting();
     }
     
     // Update LFO routing
     updateLfoRouting() {
-        // Check if LFO gain node exists
-        if (!this.lfoGain) {
-            console.warn('LFO gain node not initialized');
-            return;
-        }
-        
-        // Ensure LFO config exists
-        if (!this.config.synthesis.lfo) {
-            this.config.synthesis.lfo = {
-                enabled: false,
-                destination: 'none'
-            };
-            return;
-        }
-        
         // Disconnect LFO from all destinations
         try {
             this.lfoGain.disconnect();
@@ -4014,40 +3333,25 @@ setupChainControls() {
             // Already disconnected, ignore
         }
         
-        try {
-            // Connect to the appropriate destination based on user selection
-            switch (this.config.synthesis.lfo.destination) {
-                case 'pitch':
-                    // We'll connect to oscillator frequency during sound creation
-                    this.config.synthesis.lfo.enabled = true;
-                    break;
-                case 'filter':
-                    // Connect to filter frequency if it exists
-                    if (this.delayFilter && this.delayFilter.frequency) {
-                        this.lfoGain.connect(this.delayFilter.frequency);
-                        this.config.synthesis.lfo.enabled = true;
-                    } else {
-                        console.warn('Filter frequency not available for LFO routing');
-                        this.config.synthesis.lfo.enabled = false;
-                    }
-                    break;
-                case 'amplitude':
-                    // Connect to master gain if it exists
-                    if (this.masterGainNode && this.masterGainNode.gain) {
-                        this.lfoGain.connect(this.masterGainNode.gain);
-                        this.config.synthesis.lfo.enabled = true;
-                    } else {
-                        console.warn('Master gain not available for LFO routing');
-                        this.config.synthesis.lfo.enabled = false;
-                    }
-                    break;
-                default:
-                    // None - disable LFO
-                    this.config.synthesis.lfo.enabled = false;
-            }
-        } catch (e) {
-            console.warn('Error in LFO routing:', e);
-            this.config.synthesis.lfo.enabled = false;
+        // Connect to the appropriate destination based on user selection
+        switch (this.config.synthesis.lfo.destination) {
+            case 'pitch':
+                // We'll connect to oscillator frequency during sound creation
+                this.config.synthesis.lfo.enabled = true;
+                break;
+            case 'filter':
+                // Connect to filter frequency
+                this.lfoGain.connect(this.delayFilter.frequency);
+                this.config.synthesis.lfo.enabled = true;
+                break;
+            case 'amplitude':
+                // Connect to master gain
+                this.lfoGain.connect(this.masterGainNode.gain);
+                this.config.synthesis.lfo.enabled = true;
+                break;
+            default:
+                // None - disable LFO
+                this.config.synthesis.lfo.enabled = false;
         }
     }
 

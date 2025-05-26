@@ -1,0 +1,12 @@
+{
+  "promptTemplate": "A {{alignment}} {{personality_trait}} {{race}} {{class}} from a {{background}} background, skilled in {{skill}}, who carries a {{starting_gear}}.",
+  "variables": [
+    { "name": "alignment", "feature_name": "alignment", "values": ["Lawful-Good", "Neutral-Good", "Chaotic-Good", "Lawful-Neutral", "True-Neutral", "Chaotic-Neutral", "Lawful-Evil", "Neutral-Evil", "Chaotic-Evil"] },
+    { "name": "personality_trait", "feature_name": "personality_trait", "values": ["Brave", "Cautious", "Curious", "Loyal", "Generous", "Suspicious", "Honest", "Reckless", "Ambitious", "Reserved", "Cheerful", "Stubborn", "Vengeful", "Honorable", "Sarcastic", "Optimistic"] },
+    { "name": "race", "feature_name": "race", "values": ["Human", "Elf", "Dwarf", "Halfling", "Gnome", "Dragonborn", "Tiefling", "Half-Elf", "Half-Orc", "Goliath", "Genasi", "Aasimar", "Tabaxi", "Firbolg", "Kenku", "Warforged"] },
+    { "name": "class", "feature_name": "class", "values": ["Fighter", "Wizard", "Rogue", "Cleric", "Bard", "Barbarian", "Druid", "Monk", "Paladin", "Ranger", "Sorcerer", "Warlock", "Artificer", "Bloodhunter", "Alchemist", "Gunslinger"] },
+    { "name": "background", "feature_name": "background", "values": ["Noble", "Acolyte", "Criminal", "Sailor", "Soldier", "Sage", "Hermit", "Outlander", "Entertainer", "Artisan", "Merchant", "Knight", "Pirate", "Urchin", "Charlatan", "Farmer"] },
+    { "name": "skill", "feature_name": "skill", "values": ["Acrobatics", "Athletics", "Stealth", "Arcana", "History", "Religion", "Nature", "Medicine", "Perception", "Insight", "Survival", "Investigation", "Persuasion", "Intimidation", "Deception", "Performance"] },
+    { "name": "starting_gear", "feature_name": "starting_gear", "values": ["Sword", "Bow", "Dagger", "Staff", "Shield", "Spellbook", "Bedroll", "Rope", "Lantern", "Backpack", "Waterskin", "Lute", "Crowbar", "Wand", "Crossbow", "Herbalism"] }
+  ]
+}

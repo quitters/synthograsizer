@@ -1,0 +1,137 @@
+{
+  "promptTemplate": "{{cooking_method}} {{protein}} with {{herb}} and {{vegetable}} in a {{sauce}} sauce, served with {{side}}.",
+  "variables": [
+    {
+      "name": "cooking_method",
+      "feature_name": "cooking_method",
+      "values": [
+        "Pan-seared",
+        "Grilled",
+        "Roasted",
+        "Slow-cooked",
+        "Braised",
+        "Stir-fried",
+        "Smoked",
+        "Poached",
+        "Steamed",
+        "Air-fried",
+        "Baked",
+        "Sous-vide",
+        "Broiled",
+        "Sautéed",
+        "Pressure-cooked",
+        "Charred"
+      ]
+    },
+    {
+      "name": "protein",
+      "feature_name": "protein",
+      "values": [
+        "salmon",
+        "chicken thighs",
+        "tofu",
+        "beef short ribs",
+        "shrimp",
+        "pork belly",
+        "tempeh",
+        "lamb chops",
+        "scallops",
+        "duck breast",
+        "chickpeas",
+        "tuna steak",
+        "portobello mushrooms",
+        "lentils",
+        "seitan",
+        "venison"
+      ]
+    },
+    {
+      "name": "herb",
+      "feature_name": "herb",
+      "values": [
+        "rosemary",
+        "basil",
+        "cilantro",
+        "thyme",
+        "mint",
+        "sage",
+        "dill",
+        "tarragon",
+        "parsley",
+        "oregano",
+        "chives",
+        "lemongrass",
+        "bay leaves",
+        "marjoram",
+        "chervil",
+        "lavender"
+      ]
+    },
+    {
+      "name": "vegetable",
+      "feature_name": "vegetable",
+      "values": [
+        "asparagus",
+        "cherry tomatoes",
+        "butternut squash",
+        "Brussels sprouts",
+        "wild mushrooms",
+        "bell peppers",
+        "zucchini",
+        "eggplant",
+        "baby bok choy",
+        "roasted carrots",
+        "caramelized onions",
+        "artichoke hearts",
+        "broccolini",
+        "sugar snap peas",
+        "fennel",
+        "rainbow chard"
+      ]
+    },
+    {
+      "name": "sauce",
+      "feature_name": "sauce",
+      "values": [
+        "red wine reduction",
+        "lemon butter",
+        "coconut curry",
+        "garlic cream",
+        "balsamic glaze",
+        "chimichurri",
+        "miso ginger",
+        "honey mustard",
+        "romesco",
+        "tahini",
+        "teriyaki",
+        "béarnaise",
+        "peanut",
+        "harissa",
+        "tomatillo",
+        "maple bourbon"
+      ]
+    },
+    {
+      "name": "side",
+      "feature_name": "side",
+      "values": [
+        "truffle mashed potatoes",
+        "saffron rice",
+        "ancient grain pilaf",
+        "creamy polenta",
+        "roasted root vegetables",
+        "garlic bread",
+        "cucumber salad",
+        "crispy noodles",
+        "sweet potato fries",
+        "herbed couscous",
+        "charred corn",
+        "kimchi",
+        "wild rice",
+        "grilled pineapple",
+        "cauliflower puree",
+        "olive tapenade"
+      ]
+    }
+  ]
+}

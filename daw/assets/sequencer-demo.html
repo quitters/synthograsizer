@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sequencer Layout Demo</title>
+    <style>
+        :root {
+            /* Color scheme */
+            --primary-color: #2196F3;
+            --secondary-color: #4CAF50;
+            --accent-color: #FF5722;
+            --dark-color: #333;
+            --light-color: #f0f0f0;
+            --text-color: #333;
+            --text-light: #fff;
+            --panel-bg: #ffffff;
+            --sequencer-bg: #f5f5f5;
+            
+            /* Spacing */
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            
+            /* Border radius */
+            --border-radius-sm: 4px;
+            --border-radius-md: 8px;
+            --border-radius-lg: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-color);
+            background-color: var(--light-color);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #2c2c2c;
+            padding: 20px;
+            border-radius: var(--border-radius-md);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+            background-image: linear-gradient(to bottom, #3a3a3a, #2c2c2c);
+            border: 1px solid #444;
+        }
+
+        h1 {
+            color: #e0e0e0;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            padding-bottom: 10px;
+            border-bottom: 1px solid #444;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        .controls {
+            background: linear-gradient(to bottom, #2a2a2a, #222);
+            padding: 15px;
+            border-radius: var(--border-radius-sm);
+            margin-bottom: 25px;
+            border: 1px solid #3a3a3a;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+        
+        .controls label {
+            color: #ddd;
+            margin-right: 10px;
+        }
+        
+        select {
+            background: #383838;
+            color: #eee;
+            border: 1px solid #555;
+            border-radius: 3px;
+            padding: 8px 10px;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+        
+        select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        /* Sequencer Styles */
+        /* Sequencer section styling */
+        .sequencer-section {
+            margin-bottom: var(--spacing-lg);
+        }
+        
+        .sequencer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(to bottom, #3d3d3d, #2d2d2d);
+            padding: 10px 15px;
+            border: 1px solid #444;
+            border-radius: var(--border-radius-sm) var(--border-radius-sm) 0 0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+        
+        .sequencer-title {
+            font-weight: bold;
+            color: #e0e0e0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+        }
+        
+        .minimize-button {
+            background: linear-gradient(to bottom, #4a4a4a, #333);
+            border: 1px solid #222;
+            border-radius: 3px;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            transition: all 0.2s ease;
+            color: #e0e0e0;
+            font-weight: bold;
+            text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+        }
+        
+        .minimize-button:hover {
+            background: linear-gradient(to bottom, #555, #3a3a3a);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+        }
+        
+        .minimize-button:active {
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4);
+            transform: translateY(1px);
+            background: linear-gradient(to bottom, #333, #444);
+        }
+        
+        .sequencer-wrapper {
+            display: flex;
+            width: 100%;
+            position: relative;
+            margin-bottom: var(--spacing-md);
+            border: 1px solid #444;
+            border-top: none;
+            border-radius: 0 0 var(--border-radius-sm) var(--border-radius-sm);
+            transition: all 0.3s ease;
+        }
+        
+        /* Properly position the labels and sequencer grid */
+        .sequencer-wrapper {
+            flex-direction: row; /* Make sure the flex direction is set explicitly */
+            background-color: #292929;
+        }
+        
+        .sequencer-labels {
+            order: 1;
+            flex-basis: 50px;
+            flex-shrink: 0;
+            margin-right: 0;
+        }
+        
+        .sequencer-container {
+            order: 2;
+            flex-grow: 1;
+        }
+        
+        /* Styles for minimized view */
+        .sequencer-wrapper.minimized {
+            padding: 0;
+            max-height: 40px;
+            overflow: hidden;
+        }
+        
+        .sequencer-wrapper.minimized .sequencer-grid {
+            grid-template-rows: repeat(8, 5px);
+        }
+
+        .sequencer-labels {
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(to right, #333, #2a2a2a);
+            border-radius: var(--border-radius-sm) 0 0 var(--border-radius-sm);
+            min-width: 50px;
+            flex-shrink: 0;
+            z-index: 1;
+            border-right: 1px solid #444;
+            box-shadow: 2px 0 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .note-label {
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: var(--spacing-sm);
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #d0d0d0;
+            text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+            border-bottom: 1px solid #3a3a3a;
+        }
+
+        .sequencer-container {
+            overflow-x: auto;
+            flex-grow: 1;
+            max-width: calc(100% - 50px);
+            scrollbar-width: thin;
+            border-radius: 0 var(--border-radius-sm) var(--border-radius-sm) 0;
+            background: #222;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.5);
+        }
+
+        .sequencer-grid {
+            display: grid;
+            grid-template-columns: repeat(var(--step-count, 16), 30px); /* Fixed 30px width cells */
+            background: linear-gradient(to bottom, #222, #1a1a1a);
+            grid-auto-rows: 30px; /* Fixed height to match rows */
+            border-top: 1px solid #333;
+            padding: 2px;
+        }
+
+        .cell {
+            width: 28px; /* Slightly smaller to create gaps */
+            height: 28px;
+            margin: 1px;
+            background-color: #f8f8f8;
+            border: 1px solid #e0e0e0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-radius: 2px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+        }
+        
+        /* Beat marker - every 4th column */
+        .cell[data-col="0"],
+        .cell[data-col="4"],
+        .cell[data-col="8"],
+        .cell[data-col="12"] {
+            background-color: #e8e8e8;
+            border-color: #d0d0d0;
+        }
+        
+        /* Step numbers row */
+        .step-numbers {
+            display: grid;
+            grid-template-columns: repeat(var(--step-count, 16), 30px);
+            height: 20px;
+            background-color: #1a1a1a;
+            border-top: 1px solid #333;
+            padding: 0 2px;
+        }
+        
+        .step-number {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: #888;
+            font-weight: bold;
+        }
+        
+        /* Highlight every 4th step number */
+        .step-number[data-beat="true"] {
+            color: #bbb;
+            font-weight: bold;
+        }
+
+        .cell:hover {
+            background-color: #e6e6e6;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            transform: translateY(-1px);
+        }
+
+        .cell.active {
+            background-color: var(--secondary-color);
+            border-color: #388E3C;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+        }
+        
+        /* Minimized cell style */
+        .sequencer-wrapper.minimized .cell {
+            height: 6px;
+            margin: 1px;
+            border-width: 0;
+            box-shadow: none;
+        }
+        
+        .sequencer-wrapper.minimized .cell:hover {
+            transform: none;
+        }
+        
+        .sequencer-wrapper.minimized .sequencer-grid {
+            grid-auto-rows: 8px;
+        }
+        
+        /* Key-scale label styling */
+        .key-scale-label {
+            display: none;
+            color: #d0d0d0;
+            font-weight: bold;
+            padding: 10px 4px;
+            text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            font-size: 14px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #292929;
+            z-index: 10;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Hide individual note labels in minimized view */
+        .sequencer-wrapper.minimized .sequencer-labels .note-label {
+            display: none;
+        }
+        
+        /* Show key-scale label in minimized view */
+        .sequencer-wrapper.minimized .sequencer-labels .key-scale-label {
+            display: flex;
+        }
+
+        .cell.current {
+            opacity: 0.7;
+            border-color: #000;
+        }
+
+        /* Transpose Controls */
+        .sequencer-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 10px;
+            margin: var(--spacing-sm) 0;
+            background: linear-gradient(to bottom, #333, #222);
+            border-radius: 4px;
+            border: 1px solid #444;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+        
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .control-group label {
+            color: #d0d0d0;
+            font-size: 0.9rem;
+            text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+        }
+        
+        .sequencer-select {
+            background: linear-gradient(to bottom, #2a2a2a, #222);
+            color: #e0e0e0;
+            border: 1px solid #444;
+            border-radius: 3px;
+            padding: 4px 8px;
+            min-width: 80px;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+        
+        .sequencer-select:focus {
+            outline: none;
+            border-color: #4a90e2;
+        }
+        
+        .transpose-controls {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: 0;
+            background: none;
+            border: none;
+            box-shadow: none;
+        }
+        
+        .transpose-controls label {
+            color: #d0d0d0;
+            font-size: 0.9rem;
+            text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+        }
+
+        .transpose-button {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 1px solid #111;
+            background: linear-gradient(to bottom, #4a4a4a, #333);
+            color: #e0e0e0;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+            text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+        }
+
+        .transpose-button:hover {
+            background: linear-gradient(to bottom, #555, #3a3a3a);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+        }
+
+        .transpose-button:active {
+            transform: scale(0.95);
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4);
+            background: linear-gradient(to bottom, #333, #444);
+        }
+
+        #transposeValue {
+            font-weight: bold;
+            min-width: 30px;
+            text-align: center;
+            font-size: 1rem;
+            color: #e0e0e0;
+            text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+            background: #222;
+            padding: 4px 8px;
+            border-radius: 3px;
+            border: 1px solid #444;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .controls {
+            margin-bottom: 20px;
+        }
+
+        select {
+            padding: 8px;
+            margin-right: 10px;
+        }
+
+        .clear-button {
+            background: linear-gradient(to bottom, #4a4a4a, #333);
+            color: #e0e0e0;
+            border: 1px solid #222;
+            padding: 8px 16px;
+            border-radius: var(--border-radius-sm);
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+            transition: all 0.2s ease;
+            text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+            font-weight: bold;
+        }
+        
+        .clear-button:hover {
+            background: linear-gradient(to bottom, #555, #3a3a3a);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+        }
+        
+        .clear-button:active {
+            transform: translateY(1px);
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4);
+            background: linear-gradient(to bottom, #333, #444);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Sequencer Layout Demo</h1>
+        
+        <div class="controls">
+            <label for="patternLength">Pattern Length:</label>
+            <select id="patternLength">
+                <option value="8">8 Steps</option>
+                <option value="16" selected>16 Steps</option>
+                <option value="32">32 Steps</option>
+                <option value="64">64 Steps</option>
+            </select>
+            <button id="clearGrid" class="clear-button">Clear</button>
+        </div>
+        
+        <div class="sequencer-section" id="melodySection">
+            <div class="sequencer-header">
+                <div class="sequencer-title">
+                    <span>Melody Sequencer</span>
+                </div>
+                <button id="minimizeMelody" class="minimize-button" title="Minimize/Maximize">
+                    -
+                </button>
+            </div>
+            
+            <div class="sequencer-controls">
+                <div class="control-group">
+                    <label for="keySelect">Key:</label>
+                    <select id="keySelect" class="sequencer-select">
+                        <option value="C">C</option>
+                        <option value="C#">C#</option>
+                        <option value="D">D</option>
+                        <option value="D#">D#</option>
+                        <option value="E">E</option>
+                        <option value="F">F</option>
+                        <option value="F#">F#</option>
+                        <option value="G">G</option>
+                        <option value="G#">G#</option>
+                        <option value="A">A</option>
+                        <option value="A#">A#</option>
+                        <option value="B">B</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="scaleSelect">Scale:</label>
+                    <select id="scaleSelect" class="sequencer-select">
+                        <option value="major">Major</option>
+                        <option value="minor">Minor</option>
+                        <option value="pentatonic">Pentatonic</option>
+                        <option value="blues">Blues</option>
+                        <option value="chromatic">Chromatic</option>
+                    </select>
+                </div>
+                
+                <div class="transpose-controls">
+                    <label>Octave:</label>
+                    <button id="transposeDown" class="transpose-button">-</button>
+                    <span id="transposeValue">0</span>
+                    <button id="transposeUp" class="transpose-button">+</button>
+                </div>
+            </div>
+            
+            <div class="sequencer-wrapper" id="melodyWrapper">
+                <div id="melodyLabels" class="sequencer-labels">
+                    <div class="key-scale-label" id="melodyKeyScale">C-Maj</div>
+                    <!-- Note labels will be added dynamically -->
+                </div>
+                <div class="sequencer-container">
+                    <div id="melodySequencer" class="sequencer-grid"></div>
+                    <div class="step-numbers" id="melodyStepNumbers"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="sequencer-section" id="drumSection">
+            <div class="sequencer-header">
+                <div class="sequencer-title">
+                    <span>Drum Sequencer</span>
+                </div>
+                <button id="minimizeDrum" class="minimize-button" title="Minimize/Maximize">
+                    -
+                </button>
+            </div>
+            
+            <div class="sequencer-wrapper" id="drumWrapper">
+                <div id="drumLabels" class="sequencer-labels">
+                    <div class="key-scale-label" id="drumKeyScale">Drum Kit</div>
+                    <!-- Drum labels will be added dynamically -->
+                </div>
+                <div class="sequencer-container">
+                    <div id="drumSequencer" class="sequencer-grid"></div>
+                    <div class="step-numbers" id="drumStepNumbers"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const config = {
+            melodySteps: 16,
+            drumSteps: 16,
+            sequencerRows: {
+                melody: 8,
+                drum: 8
+            },
+            keys: ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'],
+            key: 'C',
+            scale: 'major',
+            drumKit: 'acoustic'
+        };
+        
+        // Grids
+        const melodyGrid = Array(config.sequencerRows.melody).fill().map(() => Array(config.melodySteps).fill(false));
+        const drumGrid = Array(config.sequencerRows.drum).fill().map(() => Array(config.drumSteps).fill(false));
+        
+        // Transposition
+        let melodyTranspose = 0;
+        
+        // DOM Elements
+        const melodySequencer = document.getElementById('melodySequencer');
+        const drumSequencer = document.getElementById('drumSequencer');
+        const melodyLabels = document.getElementById('melodyLabels');
+        const drumLabels = document.getElementById('drumLabels');
+        const patternLengthSelect = document.getElementById('patternLength');
+        const transposeUp = document.getElementById('transposeUp');
+        const transposeDown = document.getElementById('transposeDown');
+        const transposeValue = document.getElementById('transposeValue');
+        const clearButton = document.getElementById('clearGrid');
+        const keySelect = document.getElementById('keySelect');
+        const scaleSelect = document.getElementById('scaleSelect');
+        const melodyKeyScale = document.getElementById('melodyKeyScale');
+        const drumKeyScale = document.getElementById('drumKeyScale');
+        
+        // Event Listeners
+        patternLengthSelect.addEventListener('change', (e) => {
+            changePatternLength(parseInt(e.target.value));
+        });
+        
+        transposeUp.addEventListener('click', () => {
+            transposeMelody(1);
+        });
+        
+        transposeDown.addEventListener('click', () => {
+            transposeMelody(-1);
+        });
+        
+        clearButton.addEventListener('click', () => {
+            clearGrid();
+        });
+        
+        // Key and scale selection listeners
+        keySelect.addEventListener('change', (e) => {
+            config.key = e.target.value;
+            updateKeyScaleLabel();
+            renderSequencers();
+        });
+        
+        scaleSelect.addEventListener('change', (e) => {
+            config.scale = e.target.value;
+            updateKeyScaleLabel();
+            renderSequencers();
+        });
+        
+        // Minimize/Maximize functionality
+        const minimizeMelodyBtn = document.getElementById('minimizeMelody');
+        const minimizeDrumBtn = document.getElementById('minimizeDrum');
+        const melodyWrapper = document.getElementById('melodyWrapper');
+        const drumWrapper = document.getElementById('drumWrapper');
+        
+        minimizeMelodyBtn.addEventListener('click', () => {
+            melodyWrapper.classList.toggle('minimized');
+            minimizeMelodyBtn.textContent = melodyWrapper.classList.contains('minimized') ? '+' : '-';
+            
+            // When minimized, disable click events on cells
+            const melodyCells = melodySequencer.querySelectorAll('.cell');
+            melodyCells.forEach(cell => {
+                if (melodyWrapper.classList.contains('minimized')) {
+                    cell.style.pointerEvents = 'none';
+                } else {
+                    cell.style.pointerEvents = 'auto';
+                }
+            });
+        });
+        
+        minimizeDrumBtn.addEventListener('click', () => {
+            drumWrapper.classList.toggle('minimized');
+            minimizeDrumBtn.textContent = drumWrapper.classList.contains('minimized') ? '+' : '-';
+            
+            // When minimized, disable click events on cells
+            const drumCells = drumSequencer.querySelectorAll('.cell');
+            drumCells.forEach(cell => {
+                if (drumWrapper.classList.contains('minimized')) {
+                    cell.style.pointerEvents = 'none';
+                } else {
+                    cell.style.pointerEvents = 'auto';
+                }
+            });
+        });
+        
+        // Functions
+        function renderSequencers() {
+            // Clear existing content
+            melodySequencer.innerHTML = '';
+            drumSequencer.innerHTML = '';
+            melodyLabels.innerHTML = '';
+            drumLabels.innerHTML = '';
+            document.getElementById('melodyStepNumbers').innerHTML = '';
+            document.getElementById('drumStepNumbers').innerHTML = '';
+            
+            // Set CSS variables for step count
+            melodySequencer.style.setProperty('--step-count', config.melodySteps);
+            drumSequencer.style.setProperty('--step-count', config.drumSteps);
+            document.getElementById('melodyStepNumbers').style.setProperty('--step-count', config.melodySteps);
+            document.getElementById('drumStepNumbers').style.setProperty('--step-count', config.drumSteps);
+            
+            // Create melody grid - render in reverse order (highest to lowest)
+            const totalMelodyRows = config.sequencerRows.melody;
+            for (let displayRow = 0; displayRow < totalMelodyRows; displayRow++) {
+                // Calculate the actual row index (reverse order)
+                const actualRow = totalMelodyRows - 1 - displayRow;
+                
+                // Add label
+                const label = document.createElement('div');
+                label.className = 'note-label';
+                label.textContent = getNoteLabel(actualRow);
+                melodyLabels.appendChild(label);
+                
+                for (let j = 0; j < config.melodySteps; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    // Store actual row in data attribute for click handling
+                    cell.dataset.row = actualRow;
+                    cell.dataset.col = j;
+                    
+                    if (melodyGrid[actualRow] && melodyGrid[actualRow][j]) {
+                        cell.classList.add('active');
+                    }
+                    
+                    cell.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const row = parseInt(cell.dataset.row);
+                        const col = parseInt(cell.dataset.col);
+                        melodyGrid[row][col] = !melodyGrid[row][col];
+                        cell.classList.toggle('active');
+                    });
+                    
+                    melodySequencer.appendChild(cell);
+                }
+            }
+            
+            // Create drum grid (keep original order for drums)
+            for (let i = 0; i < config.sequencerRows.drum; i++) {
+                // Add label
+                const label = document.createElement('div');
+                label.className = 'note-label';
+                label.textContent = getDrumLabel(i);
+                drumLabels.appendChild(label);
+                
+                for (let j = 0; j < config.drumSteps; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.dataset.row = i;
+                    cell.dataset.col = j;
+                    
+                    if (drumGrid[i] && drumGrid[i][j]) {
+                        cell.classList.add('active');
+                    }
+                    
+                    cell.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const row = parseInt(cell.dataset.row);
+                        const col = parseInt(cell.dataset.col);
+                        drumGrid[row][col] = !drumGrid[row][col];
+                        cell.classList.toggle('active');
+                    });
+                    
+                    drumSequencer.appendChild(cell);
+                }
+            }
+            
+            // Create step numbers for both sequencers
+            createStepNumbers('melody', config.melodySteps);
+            createStepNumbers('drum', config.drumSteps);
+        }
+        
+        // Create step numbers row
+        function createStepNumbers(type, steps) {
+            const stepNumbersContainer = document.getElementById(`${type}StepNumbers`);
+            stepNumbersContainer.innerHTML = '';
+            
+            for (let i = 0; i < steps; i++) {
+                const stepNumber = document.createElement('div');
+                stepNumber.className = 'step-number';
+                stepNumber.textContent = i + 1;
+                
+                // Mark every 4th step (beat markers)
+                if (i % 4 === 0) {
+                    stepNumber.dataset.beat = 'true';
+                }
+                
+                stepNumbersContainer.appendChild(stepNumber);
+            }
+        }
+        
+        function updateKeyScaleLabel() {
+            // Format the key-scale label based on the current configuration
+            let scaleDisplay = '';
+            
+            switch(config.scale) {
+                case 'major':
+                    scaleDisplay = 'Maj';
+                    break;
+                case 'minor':
+                    scaleDisplay = 'Min';
+                    break;
+                case 'pentatonic':
+                    scaleDisplay = 'Penta';
+                    break;
+                case 'blues':
+                    scaleDisplay = 'Blues';
+                    break;
+                case 'chromatic':
+                    scaleDisplay = 'Chrom';
+                    break;
+                default:
+                    scaleDisplay = config.scale;
+            }
+            
+            // Update the labels
+            melodyKeyScale.textContent = `${config.key}-${scaleDisplay}`;
+            drumKeyScale.textContent = `${config.drumKit.charAt(0).toUpperCase() + config.drumKit.slice(1)} Kit`;
+        }
+        
+        function getNoteLabel(rowIndex) {
+            // Define scale patterns for different scales
+            const scalePatterns = {
+                'major': [0, 2, 4, 5, 7, 9, 11],
+                'minor': [0, 2, 3, 5, 7, 8, 10],
+                'pentatonic': [0, 2, 4, 7, 9],
+                'blues': [0, 3, 5, 6, 7, 10],
+                'chromatic': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+            };
+            
+            // Get the pattern for the current scale
+            const pattern = scalePatterns[config.scale] || scalePatterns['major'];
+            
+            // Find the root note index based on the selected key
+            const rootIndex = config.keys.indexOf(config.key);
+            
+            // Apply transposition logic
+            const patternIndex = rowIndex % pattern.length;
+            const noteIndex = (rootIndex + pattern[patternIndex]) % 12;
+            let adjustedOctave = Math.floor(rowIndex / pattern.length) + 4;
+            
+            // Apply octave transposition
+            adjustedOctave += melodyTranspose;
+            
+            const noteName = config.keys[noteIndex];
+            return `${noteName}${adjustedOctave}`;
+        }
+        
+        function getDrumLabel(rowIndex) {
+            const drumTypes = {
+                'acoustic': ['Kick', 'Snare', 'ClosedHH', 'OpenHH', 'LowTom', 'HighTom', 'Crash', 'Ride']
+            };
+            
+            const kit = config.drumKit || 'acoustic';
+            return drumTypes[kit] ? drumTypes[kit][rowIndex] || `Drum ${rowIndex+1}` : `Drum ${rowIndex+1}`;
+        }
+        
+        function changePatternLength(steps) {
+            if (!steps || steps < 1) return;
+            
+            config.melodySteps = steps;
+            config.drumSteps = steps;
+            
+            // Resize grids while preserving existing data
+            for (let i = 0; i < config.sequencerRows.melody; i++) {
+                const newMelodyRow = Array(steps).fill(false);
+                for (let j = 0; j < Math.min(steps, melodyGrid[i].length); j++) {
+                    newMelodyRow[j] = melodyGrid[i][j];
+                }
+                melodyGrid[i] = newMelodyRow;
+            }
+            
+            for (let i = 0; i < config.sequencerRows.drum; i++) {
+                const newDrumRow = Array(steps).fill(false);
+                for (let j = 0; j < Math.min(steps, drumGrid[i].length); j++) {
+                    newDrumRow[j] = drumGrid[i][j];
+                }
+                drumGrid[i] = newDrumRow;
+            }
+            
+            renderSequencers();
+        }
+        
+        function transposeMelody(octaves) {
+            if (!octaves) return;
+            
+            // Update transposition (limit to +/- 2 octaves)
+            melodyTranspose = Math.max(-2, Math.min(2, melodyTranspose + octaves));
+            
+            // Update display
+            transposeValue.textContent = melodyTranspose > 0 ? `+${melodyTranspose}` : melodyTranspose;
+            
+            // Re-render to update note labels
+            renderSequencers();
+        }
+        
+        function clearGrid() {
+            for (let i = 0; i < config.sequencerRows.melody; i++) {
+                melodyGrid[i].fill(false);
+            }
+            
+            for (let i = 0; i < config.sequencerRows.drum; i++) {
+                drumGrid[i].fill(false);
+            }
+            
+            renderSequencers();
+        }
+        
+        // Initialize
+        updateKeyScaleLabel();
+        renderSequencers();
+    </script>
+</body>
+</html>

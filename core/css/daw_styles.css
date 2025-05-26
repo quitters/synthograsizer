@@ -136,9 +136,27 @@ header h1 {
 .sequencer-section {
     background-color: var(--panel-bg);
     border-radius: var(--border-radius-md);
-    padding: var(--spacing-md);
+    padding: var(--spacing-md) var(--spacing-md) 0 var(--spacing-md);
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     display: flex;
+    flex-direction: column;
+    margin-bottom: var(--spacing-md);
+}
+
+.sequencer-container {
+    display: flex;
+    width: 100%;
+    overflow-x: auto;
+}
+
+.sequencer-pattern-controls {
+    padding: var(--spacing-md);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+    border-top: 1px solid #eee;
+    background-color: var(--sequencer-bg);
+    margin-top: var(--spacing-md);
 }
 
 .section-header {
@@ -148,23 +166,74 @@ header h1 {
     margin-bottom: var(--spacing-sm);
 }
 
-.note-labels {
+.sequencer-labels {
     display: flex;
     flex-direction: column;
-    justify-content: space-around;
-    margin-right: var(--spacing-md);
-    font-size: 0.9rem;
-    width: 50px;
+    background: linear-gradient(to right, #333, #2a2a2a);
+    border-radius: var(--border-radius-sm) 0 0 var(--border-radius-sm);
+    min-width: 50px;
+    flex-shrink: 0;
+    z-index: 1;
+    border-right: 1px solid #444;
+    box-shadow: 2px 0 4px rgba(0, 0, 0, 0.2);
+    order: 1;
+    flex-basis: 50px;
+    margin-right: 0;
 }
 
-.sequencer {
+.note-label {
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: var(--spacing-sm);
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: #d0d0d0;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+    border-bottom: 1px solid #3a3a3a;
+}
+
+.key-scale-label {
+    display: none;
+    color: #d0d0d0;
+    font-weight: bold;
+    padding: 10px 4px;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    font-size: 14px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #292929;
+    z-index: 10;
+    align-items: center;
+    justify-content: center;
+}
+
+.sequencer-grid {
     display: grid;
-    grid-template-columns: repeat(16, 30px);
+    grid-template-columns: repeat(var(--step-count, 16), 30px);
     grid-auto-rows: 30px;
     gap: 2px;
     width: max-content;
     min-width: 100%;
-    overflow-x: auto;
+    background: linear-gradient(to bottom, #222, #1a1a1a);
+    padding: 2px;
+}
+
+.sequencer-wrapper {
+    display: flex;
+    width: 100%;
+    position: relative;
+    margin-bottom: var(--spacing-md);
+    border: 1px solid #444;
+    border-radius: var(--border-radius-sm);
+    transition: all 0.3s ease;
+    flex-direction: row;
+    background-color: #292929;
 }
 
 .cell {
@@ -179,6 +248,147 @@ header h1 {
 
 .cell:hover {
     background-color: #e0e0e0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    transform: translateY(-1px);
+}
+
+.cell.active {
+    background-color: var(--secondary-color);
+    border-color: #388E3C;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.cell.current {
+    opacity: 0.7;
+    border-color: #000;
+}
+
+/* Beat marker - every 4th column */
+.cell[data-col="0"],
+.cell[data-col="4"],
+.cell[data-col="8"],
+.cell[data-col="12"] {
+    background-color: #e8e8e8;
+    border-color: #d0d0d0;
+}
+
+/* Step numbers row */
+.step-numbers {
+    display: grid;
+    grid-template-columns: repeat(var(--step-count, 16), 30px);
+    height: 20px;
+    background-color: #1a1a1a;
+    border-top: 1px solid #333;
+    padding: 0 2px;
+}
+
+.step-number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: #888;
+    font-weight: bold;
+}
+
+/* Highlight every 4th step number */
+.step-number[data-beat="true"] {
+    color: #bbb;
+    font-weight: bold;
+}
+
+/* Sequencer controls */
+.sequencer-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 10px;
+    margin: var(--spacing-sm) 0;
+    background: linear-gradient(to bottom, #333, #222);
+    border-radius: 4px;
+    border: 1px solid #444;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.control-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.control-group label {
+    color: #d0d0d0;
+    font-size: 0.9rem;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+}
+
+.sequencer-select {
+    background: linear-gradient(to bottom, #2a2a2a, #222);
+    color: #e0e0e0;
+    border: 1px solid #444;
+    border-radius: 3px;
+    padding: 4px 8px;
+    min-width: 80px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.sequencer-select:focus {
+    outline: none;
+    border-color: #4a90e2;
+}
+
+/* Transpose controls */
+.transpose-controls {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: 0;
+    background: none;
+    border: none;
+    box-shadow: none;
+}
+
+.transpose-button {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 1px solid #111;
+    background: linear-gradient(to bottom, #4a4a4a, #333);
+    color: #e0e0e0;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+}
+
+.transpose-button:hover {
+    background: linear-gradient(to bottom, #555, #3a3a3a);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+.transpose-button:active {
+    transform: scale(0.95);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4);
+    background: linear-gradient(to bottom, #333, #444);
+}
+
+#transposeValue {
+    font-weight: bold;
+    min-width: 30px;
+    text-align: center;
+    font-size: 1rem;
+    color: #e0e0e0;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+    background: #222;
+    padding: 4px 8px;
+    border-radius: 3px;
+    border: 1px solid #444;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 .cell.active {
@@ -304,10 +514,27 @@ header h1 {
 }
 
 /* ADSR Envelope Controls */
-.envelope-controls {
-    margin-bottom: var(--spacing-lg);
-    padding: var(--spacing-sm);
-    border-radius: var(--border-radius-sm);
+.sequencer-section {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: var(--spacing-md);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    border-radius: var(--border-radius-md);
+    background-color: var(--panel-bg);
+}
+
+.sequencer-container {
+    display: flex;
+    width: 100%;
+    overflow-x: auto;
+}
+
+.sequencer-pattern-controls {
+    padding: var(--spacing-md);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+    border-top: 1px solid #eee;
     background-color: var(--sequencer-bg);
 }
 
@@ -503,6 +730,35 @@ select, input[type="number"] {
     background-color: var(--sequencer-bg);
     border-radius: var(--border-radius-sm);
     min-height: 40px;
+}
+
+/* Export/Import Section Styles */
+.export-import-section {
+    margin-bottom: var(--spacing-md);
+    padding: var(--spacing-md);
+    background-color: var(--sequencer-bg);
+    border-radius: var(--border-radius-sm);
+}
+
+.export-import-section h4 {
+    margin-bottom: var(--spacing-sm);
+    font-size: 1rem;
+    color: var(--dark-color);
+}
+
+.export-controls, .import-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+}
+
+.import-controls {
+    margin-bottom: 0;
+}
+
+.file-input-label {
+    display: none;
 }
 
 /* Responsive Design */

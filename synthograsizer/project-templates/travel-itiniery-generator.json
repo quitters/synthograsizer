@@ -1,0 +1,115 @@
+{
+  "promptTemplate": "A {{duration}} trip to {{destination}} focusing on {{activity}}, {{accommodation}} stays, and {{cuisine}} dining experiences.",
+  "variables": [
+    {
+      "name": "duration",
+      "feature_name": "duration",
+      "values": [
+        "weekend",
+        "week-long",
+        "10-day",
+        "two-week",
+        "month-long",
+        "summer",
+        "spring break",
+        "winter",
+        "72-hour",
+        "extended",
+        "sabbatical",
+        "holiday",
+        "seasonal",
+        "annual",
+        "spontaneous",
+        "planned"
+      ]
+    },
+    {
+      "name": "destination",
+      "feature_name": "destination",
+      "values": [
+        "coastal Portugal",
+        "rural Japan",
+        "the Swiss Alps",
+        "Moroccan desert",
+        "Icelandic fjords",
+        "Colombian coffee region",
+        "Greek islands",
+        "Vietnamese highlands",
+        "New Zealand wilderness",
+        "Croatian coastline",
+        "Peruvian Andes",
+        "Finnish Lapland",
+        "South African savanna",
+        "Balinese villages",
+        "Canadian Rockies",
+        "Scottish Highlands"
+      ]
+    },
+    {
+      "name": "activity",
+      "feature_name": "activity",
+      "values": [
+        "cultural immersion",
+        "adventure sports",
+        "wildlife photography",
+        "historical exploration",
+        "culinary workshops",
+        "wellness retreats",
+        "artisan crafts",
+        "architectural tours",
+        "wine tasting",
+        "hiking expeditions",
+        "festival celebrations",
+        "volunteer opportunities",
+        "literary pilgrimages",
+        "stargazing",
+        "surfing",
+        "archaeological digs"
+      ]
+    },
+    {
+      "name": "accommodation",
+      "feature_name": "accommodation",
+      "values": [
+        "boutique hotel",
+        "remote cabin",
+        "luxury glamping",
+        "historic mansion",
+        "eco-lodge",
+        "family homestay",
+        "beachfront villa",
+        "traditional ryokan",
+        "converted monastery",
+        "urban apartment",
+        "treehouse",
+        "houseboat",
+        "desert camp",
+        "mountain chalet",
+        "organic farm",
+        "lighthouse keeper's cottage"
+      ]
+    },
+    {
+      "name": "cuisine",
+      "feature_name": "cuisine",
+      "values": [
+        "farm-to-table",
+        "street food",
+        "michelin-starred",
+        "traditional family-style",
+        "plant-based",
+        "seafood-focused",
+        "fusion",
+        "fermentation-focused",
+        "regional specialties",
+        "chef's table",
+        "ancient recipes",
+        "spice trail",
+        "indigenous",
+        "slow food",
+        "market-fresh",
+        "artisanal"
+      ]
+    }
+  ]
+}

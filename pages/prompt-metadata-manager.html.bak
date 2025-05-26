@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="../core/css/style.css">
   <link rel="icon" type="image/png" href="../assets/favicon.png">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="../core/js/utils/prompt_templating.js"></script>
   <style>
     @keyframes spin {
       0% { transform: rotate(0deg); }
@@ -18,6 +19,30 @@
       #dropZone {
         padding: 20px 15px;
       }
+    }
+    
+    /* Templating interface styles */
+    #templatingContainer {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    
+    #templatingInterface {
+      width: 90%;
+      max-width: 800px;
+      max-height: 90vh;
+      overflow-y: auto;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
     }
   </style>
 </head>
@@ -167,19 +192,27 @@
       </section>
     </div>
     <script src="../core/js/utils/metadata_extractor.js"></script>
+    <script src="../core/js/utils/prompt_templating.js"></script>
     <script>
-      // UI Elements
-      const input = document.getElementById('pngInput');
-      const dropZone = document.getElementById('dropZone');
-      const result = document.getElementById('metadataResult');
-      const simpleMode = document.getElementById('simpleMode');
-      const advancedMode = document.getElementById('advancedMode');
-      const tabNav = document.getElementById('tabNav');
-      const tabButtons = document.querySelectorAll('.tab-btn');
-      const tabContents = document.querySelectorAll('.tab-content');
-      const batchInput = document.getElementById('batchInput');
-      const clearHistoryBtn = document.getElementById('clearHistory');
-      const exportHistoryBtn = document.getElementById('exportHistory');
+      // Wait for the DOM to be fully loaded before running script
+      document.addEventListener('DOMContentLoaded', function() {
+        // UI Elements
+        const input = document.getElementById('pngInput');
+        const dropZone = document.getElementById('dropZone');
+        const result = document.getElementById('metadataResult');
+        const simpleMode = document.getElementById('simpleMode');
+        const advancedMode = document.getElementById('advancedMode');
+        const tabNav = document.getElementById('tabNav');
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const batchInput = document.getElementById('batchInput');
+        const clearHistoryBtn = document.getElementById('clearHistory');
+        const exportHistoryBtn = document.getElementById('exportHistory');
+        const templatingContainer = document.getElementById('templatingContainer');
+        const templatingInterface = document.getElementById('templatingInterface');
+        
+        // Initialize the prompt templater
+        const promptTemplater = new PromptTemplater();
       
       // History management
       let promptHistory = [];
@@ -326,10 +359,10 @@
           <div style='margin-bottom:16px;'>
             <div style='font-weight:600;margin-bottom:6px;color:#444;'>Prompt:</div>
             <div style='display:flex;gap:8px;background:white;border:1px solid #e2e8f0;border-radius:6px;padding:12px;margin-bottom:8px;'>
-              <div id='promptText' style='flex:1;color:#333;white-space:pre-wrap;line-height:1.5;'>${entry.prompt}</div>
+              <div class='promptText' style='flex:1;color:#333;white-space:pre-wrap;line-height:1.5;'>${entry.prompt}</div>
               <div style='display:flex;flex-direction:column;gap:8px;'>
-                <button id='copyPromptBtn' style='flex-shrink:0;align-self:flex-start;padding:4px 12px;font-size:0.95em;background:#e9eafc;color:#5e60ce;border:1px solid #bfc4f6;border-radius:6px;cursor:pointer;transition:all 0.15s;'>Copy</button>
-                <button id='sendToSynthBtn' title='Send to Synthograsizer' style='flex-shrink:0;align-self:flex-start;padding:4px 12px;font-size:0.95em;background:#e1faec;color:#10b981;border:1px solid #a7f3d0;border-radius:6px;cursor:pointer;transition:all 0.15s;'>➡️</button>
+                <button class='copyPromptBtn' style='flex-shrink:0;align-self:flex-start;padding:4px 12px;font-size:0.95em;background:#e9eafc;color:#5e60ce;border:1px solid #bfc4f6;border-radius:6px;cursor:pointer;transition:all 0.15s;'>Copy</button>
+                <button class='sendToSynthBtn' title='Send to Synthograsizer' style='flex-shrink:0;align-self:flex-start;padding:4px 12px;font-size:0.95em;background:#e1faec;color:#10b981;border:1px solid #a7f3d0;border-radius:6px;cursor:pointer;transition:all 0.15s;'>➡️</button>
               </div>
             </div>
           </div>`;
@@ -670,13 +703,6 @@
                   copyBtn.style.background = '#e9eafc';
                 }, 1200);
               });
-            });
-          }
-          const sendToSynthBtn = document.getElementById('sendToSynthBtn');
-          if (sendToSynthBtn) {
-            sendToSynthBtn.addEventListener('click', () => {
-              const promptText = document.getElementById('promptText').innerText;
-              // Add logic to send prompt to Synthograsizer
             });
           }
         } catch (err) {
@@ -1051,65 +1077,79 @@
       
       // Initialize
       loadHistory();
+      updateHistoryUI();
+      
+      // Initialize templating system
+      const promptTemplater = new PromptTemplater();
+      const templatingContainer = document.getElementById('templatingContainer');
+      const templatingInterface = document.getElementById('templatingInterface');
+      
+      // Handler for sendToSynthBtn click
+      function handleSendToSynthButtonClick() {
+        const promptText = document.getElementById('promptText');
+        if (promptText && promptText.textContent) {
+          // Show the templating interface
+          templatingContainer.style.display = 'flex';
+          // Initialize the templater with the current prompt text
+          promptTemplater.initialize(promptText.textContent, templatingInterface);
+        }
+      }
+      
+      // Close templating interface when clicking outside
+      templatingContainer.addEventListener('click', (e) => {
+        if (e.target === templatingContainer) {
+          templatingContainer.style.display = 'none';
+        }
+      });
+      
+      // Function to handle Send to Synthograsizer button click
+      function handleSendToSynthButtonClick(e) {
+        // Find the prompt text from the closest container
+        const promptContainer = e.target.closest('div').parentElement;
+        const promptTextElement = promptContainer.querySelector('.promptText');
+        
+        if (promptTextElement && promptTextElement.textContent) {
+          // Show the templating interface
+          templatingContainer.style.display = 'flex';
+          
+          // Initialize the templater with the current prompt text
+          promptTemplater.initialize(promptTextElement.textContent, templatingInterface);
+        }
+      }
+      
+      // Event delegation for dynamically created buttons
+      // This attaches a single listener to the result container
+      // and handles events from buttons inside it
+      result.addEventListener('click', function(e) {
+        // Handle copy button clicks
+        if (e.target.classList.contains('copyPromptBtn')) {
+          const promptTextElement = e.target.closest('div').parentElement.querySelector('.promptText');
+          if (promptTextElement) {
+            const promptText = promptTextElement.innerText;
+            navigator.clipboard.writeText(promptText).then(() => {
+              e.target.textContent = 'Copied!';
+              e.target.style.background = '#d2f8d2';
+              setTimeout(() => {
+                e.target.textContent = 'Copy';
+                e.target.style.background = '#e9eafc';
+              }, 1200);
+            });
+          }
+        }
+        
+        // Handle send to Synthograsizer button clicks
+        if (e.target.classList.contains('sendToSynthBtn')) {
+          handleSendToSynthButtonClick(e);
+        }
+      });
     </script>
     <div class="about-footer">
       &copy; 2025 Synthograsizer. Licensed under <a href="https://creativecommons.org/licenses/by-nc/4.0/">CC BY-NC 4.0</a>. Attribution required. Commercial use prohibited.<br>
       <a href="../">Back to Home</a>
     </div>
-
-  <!-- Templating interface container -->
-  <div id="templateContainer" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.85); z-index:9999; overflow-y:auto; padding:20px;">
-    <div style="background:white; max-width:800px; margin:20px auto; border-radius:8px; box-shadow:0 10px 25px rgba(0,0,0,0.2); overflow:hidden;">
-      <!-- Header -->
-      <div style="background:#f8fafc; border-bottom:1px solid #e2e8f0; padding:16px; display:flex; justify-content:space-between; align-items:center;">
-        <h3 style="margin:0; font-size:1.2em; color:#333;">Create Template for Synthograsizer</h3>
-        <button id="closeTemplateBtn" style="background:none; border:none; font-size:1.5em; cursor:pointer; color:#64748b;">&times;</button>
-      </div>
-      <!-- Content -->
-      <div style="padding:20px;">
-        <div id="templatePromptContainer" style="margin-bottom:20px; border:1px solid #e2e8f0; border-radius:6px; padding:16px; line-height:1.5; white-space:pre-wrap;"></div>
-        
-        <div style="margin-bottom:24px;">
-          <label style="font-weight:500; display:block; margin-bottom:8px;">Template Name:</label>
-          <input id="templateName" type="text" placeholder="SynthograsizerTemplate.json" style="width:100%; padding:8px 12px; border:1px solid #e2e8f0; border-radius:6px;">
-        </div>
-        
-        <div id="variablesContainer" style="margin-bottom:24px; display:none;">
-          <div style="font-weight:500; margin-bottom:12px;">Variables:</div>
-          <!-- Variables will be inserted here -->
-        </div>
-        
-        <div style="display:flex; justify-content:space-between;">
-          <button id="cancelTemplateBtn" style="padding:8px 16px; background:#e53e3e; color:white; border:none; border-radius:6px; cursor:pointer;">Close</button>
-          <div>
-            <!-- Removed duplicate buttons as they exist in the templater UI -->
-          </div>
-        </div>
-      </div>
+    <!-- Templating Interface Container -->
+    <div id="templatingContainer" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:1000;justify-content:center;align-items:center;">
+      <div id="templatingInterface" style="background:white;border-radius:10px;width:90%;max-width:800px;max-height:90vh;overflow-y:auto;padding:20px;"></div>
     </div>
-  </div>
-
-  <!-- Link to prompt templating script -->
-  <script src="../core/js/utils/prompt_templating.js"></script>
-  <script>
-    // Event delegation for dynamically created Send to Synthograsizer buttons
-    document.addEventListener('click', function(e) {
-      if (e.target && e.target.id === 'sendToSynthBtn') {
-        const promptText = document.getElementById('promptText').innerText;
-        const templater = new PromptTemplater();
-        templater.initialize(promptText, document.getElementById('templatePromptContainer'));
-        document.getElementById('templateContainer').style.display = 'block';
-      }
-    });
-    
-    // Close template modal buttons
-    document.getElementById('closeTemplateBtn').addEventListener('click', function() {
-      document.getElementById('templateContainer').style.display = 'none';
-    });
-    
-    document.getElementById('cancelTemplateBtn').addEventListener('click', function() {
-      document.getElementById('templateContainer').style.display = 'none';
-    });
-  </script>
-  </body>
+</body>
 </html>
