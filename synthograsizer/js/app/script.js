@@ -1134,7 +1134,7 @@ function addEventListenersToKnobs() {
                              if (variable && variable.value.values.length > 0) {
                                  const numValues = variable.value.values.length;
                                   const currentValue = newKnob.nextElementSibling.dataset.variableValueA;
-                                  let currentValueIndex = variable.value.values.findIndex(v => v === currentValue);
+                                  let currentValueIndex = variable.value.values.findIndex(v => String(v) === String(currentValue));
                                   if (currentValueIndex === -1) currentValueIndex = 0; // Fallback to first item if not found
                                   currentValueIndex = (currentValueIndex + 1) % numValues; // Increment and wrap
                                  updateKnobValue(newKnob, currentValueIndex, 'A');

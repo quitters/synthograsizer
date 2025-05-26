@@ -10,30 +10,19 @@
 </head>
 <body>
     <nav class="about-navbar">
-  <div class="dropdown" style="position:relative;">
-    <a href="../" class="dropbtn" style="color:#5e60ce;text-decoration:none;font-weight:600;">Projects &#x25BC;</a>
-    <div class="dropdown-content" style="display:none;position:absolute;left:0;top:100%;background:#fff;border-radius:0 0 10px 10px;box-shadow:0 4px 16px rgba(94,96,206,0.10);min-width:230px;padding:8px 0;">
-      <a href="../" style="color:#5e60ce;text-decoration:none;display:block;padding:10px 24px;font-weight:500;">Synthograsizer (main)</a>
-      <a href="synthograsizer-daw.html" style="color:#5e60ce;text-decoration:underline;display:block;padding:10px 24px;font-weight:500;">SynthograsizerDAW</a>
-      <a href="prompt-metadata-manager.html" style="color:#5e60ce;text-decoration:none;display:block;padding:10px 24px;font-weight:500;">Prompt Metadata Manager</a>
-      <a href="fun-stuff/" style="color:#5e60ce;text-decoration:none;display:block;padding:10px 24px;font-weight:500;">Fun Stuff</a>
-    </div>
-  </div>
-  <a href="https://linktr.ee/quittersarts" target="_blank" rel="noopener" style="color:#5e60ce;text-decoration:none;font-weight:600;">Art</a>
-  <a href="../pages/about.html" style="color:#5e60ce;text-decoration:none;font-weight:600;">About/Contact</a>
-</nav>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  var dropdown = document.querySelector('.dropdown');
-  var btn = dropdown.querySelector('.dropbtn');
-  var content = dropdown.querySelector('.dropdown-content');
-  btn.addEventListener('mouseenter', function() { content.style.display = 'block'; });
-  btn.addEventListener('focus', function() { content.style.display = 'block'; });
-  dropdown.addEventListener('mouseleave', function() { content.style.display = 'none'; });
-  document.body.addEventListener('click', function(e) { if (!dropdown.contains(e.target)) { content.style.display = 'none'; } });
-});
-</script>
-<script src="js/script.js"></script>
+      <div class="dropdown" style="position:relative;">
+        <a href="../" class="dropbtn" style="color:#5e60ce;text-decoration:none;font-weight:600;">Projects &#x25BC;</a>
+        <div class="dropdown-content" style="display:none;position:absolute;left:0;top:100%;background:#fff;border-radius:0 0 10px 10px;box-shadow:0 4px 16px rgba(94,96,206,0.10);min-width:230px;padding:8px 0;">
+          <a href="../" style="color:#5e60ce;text-decoration:none;display:block;padding:10px 24px;font-weight:500;">Synthograsizer (main)</a>
+          <a href="synthograsizer-daw.html" style="color:#5e60ce;text-decoration:underline;display:block;padding:10px 24px;font-weight:500;">SynthograsizerDAW</a>
+          <a href="prompt-metadata-manager.html" style="color:#5e60ce;text-decoration:none;display:block;padding:10px 24px;font-weight:500;">Prompt Metadata Manager</a>
+          <a href="fun-stuff/" style="color:#5e60ce;text-decoration:none;display:block;padding:10px 24px;font-weight:500;">Fun Stuff</a>
+        </div>
+      </div>
+      <a href="https://linktr.ee/quittersarts" target="_blank" rel="noopener" style="color:#5e60ce;text-decoration:none;font-weight:600;">Art</a>
+      <a href="about.html" style="color:#5e60ce;text-decoration:none;font-weight:600;">About/Contact</a>
+    </nav>
+    <script src="js/script.js"></script>
     <div class="about-header">SynthograsizerDAW</div>
     
     <div class="app-container">
@@ -2174,12 +2163,11 @@ class Synthograsizer {
 document.addEventListener('DOMContentLoaded', () => {
     window.app = new Synthograsizer();
 });
-</script>
+    </script>
 
     <div class="about-footer">
       &copy; 2025 Synthograsizer. Licensed under <a href="https://creativecommons.org/licenses/by-nc/4.0/">CC BY-NC 4.0</a>. Attribution required. Commercial use prohibited.<br>
-      <a href="../">Back to Home</a> |
-      <a href="../pages/about.html">About</a>
+      <a href="../">Back to Home</a>
     </div>
   </body>
 </html>
