@@ -1019,7 +1019,7 @@ function createKnobContainer(index) {
     container.appendChild(groupName);
 
     // Add initial tooltip
-    addTooltip(knob, `Control: ${variable?.name || 'N/A'}\nMode A: Click/Drag Index\nMode B: Drag Value\nDouble-Click: Lock/Unlock`);
+    addTooltip(knob, `Control: ${variable?.name || 'N/A'}\nMode A: Click/Drag (mouse) or finger-drag (touch) to change value\nMode B: Drag (mouse) or finger-drag (touch) for continuous\nDouble-click (mouse) or double-tap (touch): Lock/Unlock\n\nTip: On mobile, use your finger to drag the knob. On desktop, use mouse drag or double-click.`);
 
     return container;
 }
@@ -1079,11 +1079,46 @@ function addEventListenersToKnobs() {
             newKnob.classList.add('active'); // Optional styling for active drag
             document.addEventListener('mousemove', onMouseMove);
             document.addEventListener('mouseup', onMouseUp);
+            document.addEventListener('touchmove', onTouchMove);
+            document.addEventListener('touchend', onTouchEnd);
         });
 
-        // --- CLICK (handled within mousedown for double-click logic) ---
-        // We use a timeout to differentiate single click from double click start
-        // Actual single click action happens *after* timeout in mousedown logic (if not cleared)
+        // --- TOUCH START ---
+        newKnob.addEventListener('touchstart', (e) => {
+            if (newKnob.dataset.locked === "true" || mode === 'C') return; // No interaction in C
+            // Allow interaction in Mode D just like Mode A
+            e.preventDefault(); // Prevent text selection
+
+            // Double click detection
+            const now = Date.now();
+            if (now - lastClickTime < DOUBLE_CLICK_THRESHOLD) {
+                 clearTimeout(clickTimeout); // Prevent single click fire
+                 clickTimeout = null;
+                 toggleLock(newKnob);
+                 lastClickTime = 0; // Reset timer
+                 return; // Don't start drag on double click
+             }
+             lastClickTime = now;
+
+            isDragging = true;
+            dragStartY = e.touches[0].clientY;
+            dragStartX = e.touches[0].clientX; // Store X position too for horizontal dragging
+            const valueInput = newKnob.nextElementSibling;
+            if ((mode === 'A' || mode === 'D') && index < variables.length) {
+                // FIXED: Find the actual index of the current value instead of parsing it
+                const currentValue = valueInput.value;
+                const variable = variables[index];
+                dragStartValueA = variable.value.values.findIndex(v => v === currentValue);
+                if (dragStartValueA === -1) dragStartValueA = 0; // Fallback to first item if not found
+             } else if (mode === 'B' && index < variables.length) {
+                 dragStartValueB = parseFloat(valueInput.dataset.variableValueB) || 0;
+             }
+
+            newKnob.style.cursor = 'grabbing';
+            newKnob.classList.add('active'); // Optional styling for active drag
+            document.addEventListener('touchmove', onTouchMove);
+            document.addEventListener('touchend', onTouchEnd);
+        });
 
         // --- MOUSE MOVE ---
         const onMouseMove = (e) => {
@@ -1099,6 +1134,44 @@ function addEventListenersToKnobs() {
             // Calculate change based on both vertical and horizontal movement
             const deltaY = dragStartY - e.clientY; // Positive delta = mouse moved up
             const deltaX = e.clientX - dragStartX; // Positive delta = mouse moved right
+            
+            // Use the larger of the two deltas to determine direction
+            // This gives the user the ability to use whichever direction feels more natural
+            const netDelta = Math.abs(deltaY) > Math.abs(deltaX) ? deltaY : deltaX;
+            
+            const sensitivity = (mode === 'A') ? 0.04 : 0.015; // Adjust sensitivity per mode
+            const change = netDelta * sensitivity;
+
+            if ((mode === 'A' || mode === 'D') && index < variables.length) {
+                const variable = variables[index];
+                const numValues = variable?.value?.values?.length || 0;
+                if (numValues <= 1) return; // No change if 0 or 1 value
+
+                 let newValueIndex = Math.round(dragStartValueA + change);
+                 newValueIndex = Math.max(0, Math.min(numValues - 1, newValueIndex)); // Clamp index
+                 updateKnobValue(newKnob, newValueIndex, 'A');
+
+            } else if (mode === 'B' && index < variables.length) {
+                 let newValue = dragStartValueB + change;
+                 newValue = Math.max(-1, Math.min(2, newValue)); // Clamp value between -1 and 2
+                 updateKnobValue(newKnob, newValue, 'B');
+            }
+        };
+
+        // --- TOUCH MOVE ---
+        const onTouchMove = (e) => {
+            if (!isDragging) return; // Exit if touchend happened between events
+            if (newKnob.dataset.locked === "true" || mode === 'C') {
+                // Should not happen if started correctly, but safety check
+                 isDragging = false; // Stop drag if mode changed or locked during drag
+                 document.removeEventListener('touchmove', onTouchMove);
+                 document.removeEventListener('touchend', onTouchEnd);
+                 return;
+            }
+
+            // Calculate change based on both vertical and horizontal movement
+            const deltaY = dragStartY - e.touches[0].clientY; // Positive delta = touch moved up
+            const deltaX = e.touches[0].clientX - dragStartX; // Positive delta = touch moved right
             
             // Use the larger of the two deltas to determine direction
             // This gives the user the ability to use whichever direction feels more natural
@@ -1171,7 +1244,7 @@ function toggleLock(knob) {
 
     // Update tooltip to reflect lock state
     const variable = variables[index];
-    addTooltip(knob, `Control: ${variable?.name || 'N/A'} ${!isLocked ? '(Locked)' : ''}\nMode A: Click/Drag Index\nMode B: Drag Value\nDouble-Click: Lock/Unlock`);
+    addTooltip(knob, `Control: ${variable?.name || 'N/A'} ${!isLocked ? '(Locked)' : ''}\nMode A: Click/Drag (mouse) or finger-drag (touch) to change value\nMode B: Drag (mouse) or finger-drag (touch) for continuous\nDouble-click (mouse) or double-tap (touch): Lock/Unlock\n\nTip: On mobile, use your finger to drag the knob. On desktop, use mouse drag or double-click.`);
 
     // Potentially remap MIDI if a knob becomes unlocked
     if (isLocked) { // If it just became locked, remove any mapping TO it
