@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Prompt Metadata Manager</title>
-  <link rel="stylesheet" href="../synthograsizer/css/style.css">
+  <link rel="stylesheet" href="../../synthograsizer/css/style.css">
   <link rel="icon" type="image/png" href="../assets/favicon.png">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -12,6 +12,7 @@
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
+    
     /* For better mobile experience */
     @media (max-width: 600px) {
       #dropZone {
@@ -23,16 +24,16 @@
 <body>
     <nav class="about-navbar" style="max-width:700px;margin:32px auto 0 auto;display:flex;justify-content:center;gap:32px;font-family:'Inter','Roboto Mono',monospace;font-size:1.07em;position:relative;z-index:10;">
       <div class="dropdown" style="position:relative;">
-        <a href="../" class="dropbtn" style="color:#5e60ce;text-decoration:none;font-weight:600;">Projects &#x25BC;</a>
+        <a href="../../" class="dropbtn" style="color:#5e60ce;text-decoration:none;font-weight:600;">Projects &#x25BC;</a>
         <div class="dropdown-content" style="display:none;position:absolute;left:0;top:100%;background:#fff;border-radius:0 0 10px 10px;box-shadow:0 4px 16px rgba(94,96,206,0.10);min-width:230px;padding:8px 0;">
-          <a href="../synthograsizer/" style="color:#5e60ce;text-decoration:none;display:block;padding:10px 24px;font-weight:500;">Synthograsizer (main)</a>
-          <a href="../daw/" style="color:#5e60ce;text-decoration:none;display:block;padding:10px 24px;font-weight:500;">SynthograsizerDAW</a>
+          <a href="../../synthograsizer/" style="color:#5e60ce;text-decoration:none;display:block;padding:10px 24px;font-weight:500;">Synthograsizer (main)</a>
+          <a href="../../daw/" style="color:#5e60ce;text-decoration:none;display:block;padding:10px 24px;font-weight:500;">SynthograsizerDAW</a>
           <a href="./" style="color:#5e60ce;text-decoration:underline;display:block;padding:10px 24px;font-weight:500;">Prompt Metadata Manager</a>
-          <a href="../fun-stuff/" style="color:#5e60ce;text-decoration:none;display:block;padding:10px 24px;font-weight:500;">Fun Stuff</a>
+          <a href="../../fun-stuff/" style="color:#5e60ce;text-decoration:none;display:block;padding:10px 24px;font-weight:500;">Fun Stuff</a>
         </div>
       </div>
       <a href="https://linktr.ee/quittersarts" target="_blank" rel="noopener" style="color:#5e60ce;text-decoration:none;font-weight:600;">Art</a>
-      <a href="../about/" style="color:#5e60ce;text-decoration:none;font-weight:600;">About/Contact</a>
+      <a href="../../about/" style="color:#5e60ce;text-decoration:none;font-weight:600;">About/Contact</a>
     </nav>
     <script>
       document.addEventListener('DOMContentLoaded', function() {
@@ -44,17 +45,24 @@
         btn.addEventListener('focus', function() { content.style.display = 'block'; });
         dropdown.addEventListener('mouseleave', function() { content.style.display = 'none'; });
         document.body.addEventListener('click', function(e) { if (!dropdown.contains(e.target)) { content.style.display = 'none'; } });
+        
         // Info tooltip functionality
         var infoIcon = document.getElementById('info-icon');
         var infoTooltip = document.getElementById('info-tooltip');
+        
         if (infoIcon && infoTooltip) {
+          // Show tooltip when clicking the info icon
           infoIcon.addEventListener('click', function(e) {
-            e.stopPropagation();
+            e.stopPropagation(); // Prevent the document click handler from firing
             infoTooltip.style.display = infoTooltip.style.display === 'block' ? 'none' : 'block';
           });
+          
+          // Hide tooltip when clicking anywhere else
           document.addEventListener('click', function() {
             infoTooltip.style.display = 'none';
           });
+          
+          // Prevent tooltip from closing when clicking inside it
           infoTooltip.addEventListener('click', function(e) {
             e.stopPropagation();
           });
@@ -85,6 +93,8 @@
           <p id="batch-desc" class="tab-desc" style="margin-bottom:1em;display:none;">Process multiple AI-generated images at once to extract and compare prompts in batch mode.</p>
           <p id="history-desc" class="tab-desc" style="margin-bottom:1em;display:none;">View, sort, and export your previously extracted prompts from your local history.</p>
         </div>
+        
+        <!-- Tab navigation (hidden in simple mode) -->
         <div id="tabNav" style="display:none;margin-bottom:1em;border-bottom:1px solid #e2e8f0;">
           <div style="display:flex;gap:2px;">
             <button class="tab-btn active" data-tab="extractor" style="padding:8px 16px;background:transparent;border:none;border-bottom:2px solid #5e60ce;color:#5e60ce;font-weight:500;cursor:pointer;">Extractor</button>
@@ -92,31 +102,38 @@
             <button class="tab-btn" data-tab="history" style="padding:8px 16px;background:transparent;border:none;border-bottom:2px solid transparent;color:#64748b;cursor:pointer;">History</button>
           </div>
         </div>
+        
         <div id="dropZone" style="border:2px dashed #d0d5dd;border-radius:10px;padding:30px 20px;text-align:center;background:#f8fafc;margin-bottom:1.5em;cursor:pointer;transition:all 0.2s ease;">
           <div style="margin-bottom:12px;font-size:24px;">📄</div>
           <div style="font-weight:500;margin-bottom:4px;color:#444;">Drag & drop PNG files here</div>
           <div style="color:#666;font-size:0.9em;margin-bottom:12px;">or click to select a file</div>
           <input type="file" id="pngInput" accept="image/png" style="display:none;" />
         </div>
+        
+        <!-- Tab content containers -->
         <div id="extractorTab" class="tab-content" style="display:block;">
           <div id="metadataResult" style="background:#f8f9fa;border:1.5px solid #e2e8f0;border-radius:10px;padding:18px 22px;min-height:60px;font-size:1.04em;">
             <div style="color:#666;font-style:italic;">No image selected. Upload a PNG file to view its metadata.</div>
           </div>
         </div>
+        
         <div id="batchTab" class="tab-content" style="display:none;">
           <div style="background:#f8f9fa;border:1.5px solid #e2e8f0;border-radius:10px;padding:22px;min-height:60px;font-size:1.04em;">
             <div style="margin-bottom:16px;">
               <div style="font-weight:500;margin-bottom:8px;">Process multiple PNG files</div>
+              
               <div id="batchDropZone" style="border:2px dashed #d0d5dd;border-radius:10px;padding:24px 20px;text-align:center;background:#f8fafc;margin-bottom:1.5em;cursor:pointer;transition:all 0.2s ease;">
                 <div style="margin-bottom:12px;font-size:24px;">📁</div>
                 <div style="font-weight:500;margin-bottom:4px;color:#444;">Drag & drop multiple PNG files here</div>
                 <div style="color:#666;font-size:0.9em;margin-bottom:12px;">or click to select files</div>
                 <input type="file" id="batchInput" accept="image/png" multiple style="display:none;" />
               </div>
+              
             </div>
             <div id="batchResults" style="font-style:italic;color:#666;">No files selected for batch processing.</div>
           </div>
         </div>
+        
         <div id="historyTab" class="tab-content" style="display:none;">
           <div style="background:#f8f9fa;border:1.5px solid #e2e8f0;border-radius:10px;padding:22px;min-height:60px;font-size:1.04em;">
             <div id="promptHistory" style="min-height:200px;">
@@ -149,7 +166,8 @@
         </div>
       </section>
     </div>
-    <script src="./js/utils/metadata_extractor.js"></script>
+    <script src="js/utils/metadata_extractor.js"></script>
+    <script src="js/utils/prompt_templating.js"></script>
     <script>
       // UI Elements
       const input = document.getElementById('pngInput');
@@ -163,90 +181,10 @@
       const batchInput = document.getElementById('batchInput');
       const clearHistoryBtn = document.getElementById('clearHistory');
       const exportHistoryBtn = document.getElementById('exportHistory');
-      const batchDropZone = document.getElementById('batchDropZone');
-      const batchResults = document.getElementById('batchResults');
-
-      // Batch Process: click opens file picker
-      if (batchDropZone && batchInput) {
-        batchDropZone.addEventListener('click', () => {
-          batchInput.click();
-        });
-        // Drag over highlight
-        batchDropZone.addEventListener('dragover', (e) => {
-          e.preventDefault();
-          batchDropZone.style.background = '#e3e7fd';
-        });
-        batchDropZone.addEventListener('dragleave', (e) => {
-          e.preventDefault();
-          batchDropZone.style.background = '#f8fafc';
-        });
-        batchDropZone.addEventListener('drop', async (e) => {
-          e.preventDefault();
-          batchDropZone.style.background = '#f8fafc';
-          const files = Array.from(e.dataTransfer.files).filter(f => f.name.endsWith('.png'));
-          if (files.length === 0) {
-            batchResults.innerHTML = '<span style="color:#c00;">Please drop PNG files only.</span>';
-            return;
-          }
-          await processBatchFiles(files);
-        });
-        // Handle file input
-        batchInput.addEventListener('change', async (e) => {
-          const files = Array.from(batchInput.files).filter(f => f.name.endsWith('.png'));
-          if (files.length === 0) {
-            batchResults.innerHTML = '<span style="color:#c00;">Please select PNG files only.</span>';
-            return;
-          }
-          await processBatchFiles(files);
-        });
-      }
-      // Batch processing logic
-      async function processBatchFiles(files) {
-        batchResults.innerHTML = '<span style="color:#888;">Processing ' + files.length + ' file(s)...</span>';
-        const results = [];
-        for (const file of files) {
-          try {
-            const arrayBuffer = await file.arrayBuffer();
-            const meta = window.extractAIMetadataFromPNG(arrayBuffer);
-            results.push({
-              name: file.name,
-              meta
-            });
-          } catch (err) {
-            results.push({
-              name: file.name,
-              error: err.message
-            });
-          }
-        }
-        // Display results
-        let html = '';
-        results.forEach(r => {
-          html += `<div style='margin-bottom:16px;'>`;
-          html += `<div style='font-weight:500;'>${r.name}</div>`;
-          if (r.error) {
-            html += `<div style='color:#c00;'>Error: ${r.error}</div>`;
-          } else if (r.meta) {
-            if (r.meta.source === 'comfyui') {
-              html += `<div><b>Prompt:</b> ${r.meta.prompt || '<i>none</i>'}</div>`;
-              html += `<div><b>Model:</b> ${r.meta.model || '<i>unknown</i>'}</div>`;
-              // Add to history if it has a prompt
-              if (r.meta.prompt) addToHistory(r.meta);
-            } else if (r.meta.source === 'midjourney') {
-              html += `<div><b>Prompt:</b> ${r.meta.prompt || '<i>none</i>'}</div>`;
-              html += `<div><b>Params:</b> ${r.meta.parameters || '<i>none</i>'}</div>`;
-              // Add to history if it has a prompt
-              if (r.meta.prompt) addToHistory(r.meta);
-            } else {
-              html += '<div style="color:#c00;">No recognizable metadata found in this image.</div>';
-            }
-          }
-          html += `</div>`;
-        });
-        batchResults.innerHTML = html || '<span style="color:#888;">No results.</span>';
-      }
+      
       // History management
       let promptHistory = [];
+      
       // Load history from localStorage
       function loadHistory() {
         const savedHistory = localStorage.getItem('promptMetadataHistory');
@@ -260,6 +198,7 @@
           }
         }
       }
+      
       // Save history to localStorage
       function saveHistory() {
         try {
@@ -391,9 +330,16 @@
               <div id='promptText' style='flex:1;color:#333;white-space:pre-wrap;line-height:1.5;'>${entry.prompt}</div>
               <div style='display:flex;flex-direction:column;gap:8px;'>
                 <button id='copyPromptBtn' style='flex-shrink:0;align-self:flex-start;padding:4px 12px;font-size:0.95em;background:#e9eafc;color:#5e60ce;border:1px solid #bfc4f6;border-radius:6px;cursor:pointer;transition:all 0.15s;'>Copy</button>
+                <button id='sendToSynthBtn' title='Send to Synthograsizer' style='flex-shrink:0;align-self:flex-start;padding:4px 12px;font-size:0.95em;background:#e1faec;color:#10b981;border:1px solid #a7f3d0;border-radius:6px;cursor:pointer;transition:all 0.15s;'>➡️</button>
               </div>
             </div>
           </div>`;
+        
+        // Analysis - only create if in advanced mode
+        const analysis = analyzePrompt(entry.prompt);
+        if (analysis) {
+          html += createPromptAnalysisHTML(analysis); // This will automatically check current mode
+        }
         
         // Display model if available
         if (entry.model) {
@@ -419,59 +365,11 @@
         }
       }
       
-      // Export history function
-      function exportHistory(type) {
-        if (promptHistory.length === 0) return;
-        
-        let content, filename, mimeType;
-        
-        if (type === 'complete') {
-          content = JSON.stringify(promptHistory, null, 2);
-          filename = 'prompt_history.json';
-          mimeType = 'application/json';
-        } else if (type === 'prompts-only') {
-          content = promptHistory.map(entry => entry.prompt).join('\n\n---\n\n');
-          filename = 'prompts.txt';
-          mimeType = 'text/plain';
-        }
-        
-        // Create download link
-        const blob = new Blob([content], { type: mimeType });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+      // Get current mode (simple or advanced)
+      function getCurrentMode() {
+        return simpleMode.classList.contains('active') ? 'simple' : 'advanced';
       }
-      // Tab switching logic
-      function showTab(tabId) {
-        tabButtons.forEach(btn => {
-          if (btn.dataset.tab === tabId) {
-            btn.classList.add('active');
-            btn.style.borderBottom = '2px solid #5e60ce';
-            btn.style.color = '#5e60ce';
-          } else {
-            btn.classList.remove('active');
-            btn.style.borderBottom = '2px solid transparent';
-            btn.style.color = '#64748b';
-          }
-        });
-        tabContents.forEach(tab => {
-          tab.style.display = tab.id.toLowerCase().includes(tabId) ? 'block' : 'none';
-        });
-        // Show/hide tab descriptions
-        document.querySelectorAll('.tab-desc').forEach(desc => {
-          desc.style.display = desc.id.startsWith(tabId) ? '' : 'none';
-        });
-        // Show dropZone only for Extractor tab
-        const dropZone = document.getElementById('dropZone');
-        if (dropZone) {
-          dropZone.style.display = (tabId === 'extractor') ? 'block' : 'none';
-        }
-      }
+      
       // Mode switching (Simple/Advanced)
       function setMode(mode) {
         if (mode === 'simple') {
@@ -483,7 +381,8 @@
           advancedMode.style.color = '#666';
           tabNav.style.display = 'none';
           showTab('extractor');
-          // Hide any analysis sections
+          
+          // Hide any analysis sections that might be showing
           document.querySelectorAll('.analysis-section').forEach(el => {
             el.style.display = 'none';
           });
@@ -495,65 +394,182 @@
           advancedMode.style.background = '#e9eafc';
           advancedMode.style.color = '#5e60ce';
           tabNav.style.display = 'block';
+          
           // Show any analysis sections
           document.querySelectorAll('.analysis-section').forEach(el => {
             el.style.display = 'block';
           });
         }
       }
-      // Tab button listeners
-      tabButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-          showTab(btn.dataset.tab);
-        });
-      });
-      // Mode toggle listeners
-      simpleMode.addEventListener('click', () => setMode('simple'));
-      advancedMode.addEventListener('click', () => setMode('advanced'));
-      // Clear History button
-      if (clearHistoryBtn) {
-        clearHistoryBtn.addEventListener('click', () => {
-          if (confirm('Are you sure you want to clear your prompt history?')) {
-            promptHistory = [];
-            saveHistory();
-            updateHistoryUI();
+      
+      // Tab switching
+      function showTab(tabId) {
+        // Update tab buttons
+        tabButtons.forEach(btn => {
+          if (btn.getAttribute('data-tab') === tabId) {
+            btn.classList.add('active');
+            btn.style.borderBottomColor = '#5e60ce';
+            btn.style.color = '#5e60ce';
+            btn.style.fontWeight = '500';
+          } else {
+            btn.classList.remove('active');
+            btn.style.borderBottomColor = 'transparent';
+            btn.style.color = '#64748b';
+            btn.style.fontWeight = 'normal';
           }
         });
+        
+        // Show selected tab content
+        tabContents.forEach(content => {
+          if (content.id === tabId + 'Tab') {
+            content.style.display = 'block';
+          } else {
+            content.style.display = 'none';
+          }
+        });
+        
+        // Update the tab description
+        const descriptions = document.querySelectorAll('.tab-desc');
+        descriptions.forEach(desc => {
+          if (desc.id === tabId + '-desc') {
+            desc.style.display = 'block';
+          } else {
+            desc.style.display = 'none';
+          }
+        });
+        
+        // Update the section heading based on active tab
+        const sectionHeading = document.getElementById('section-heading');
+        if (sectionHeading) {
+          if (tabId === 'extractor') {
+            sectionHeading.textContent = 'AI Image Metadata Extractor';
+          } else if (tabId === 'batch') {
+            sectionHeading.textContent = 'Batch AI Image Metadata Extractor';
+          } else if (tabId === 'history') {
+            sectionHeading.textContent = 'History Viewer';
+          }
+        }
+        
+        // Show/hide the main drop zone based on tab
+        if (getCurrentMode() === 'advanced') {
+          if (tabId === 'extractor') {
+            dropZone.style.display = 'block';
+          } else {
+            dropZone.style.display = 'none';
+          }
+        } else {
+          dropZone.style.display = 'block'; // Always show in simple mode
+        }
       }
       
-      // Export History dropdown
-      if (exportHistoryBtn) {
-        const exportOptions = document.getElementById('exportOptions');
+      // Analyze prompt and provide metrics
+      function analyzePrompt(prompt) {
+        if (!prompt) return null;
         
-        // Toggle export options dropdown
-        exportHistoryBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          exportOptions.style.display = exportOptions.style.display === 'block' ? 'none' : 'block';
-        });
+        // Count words and estimate tokens
+        const words = prompt.split(/\s+/).filter(Boolean).length;
+        const tokens = Math.ceil(words * 1.3); // Rough estimate for English text
         
-        // Hide dropdown when clicking elsewhere
-        document.addEventListener('click', () => {
-          exportOptions.style.display = 'none';
-        });
+        // Detect common patterns in AI art prompts
+        const patterns = [
+          { name: 'Photorealistic', regex: /photo\s*realistic|hyper\s*realistic|ultra\s*detailed|high\s*detail/i },
+          { name: 'Art Style', regex: /watercolor|oil painting|digital art|concept art|illustration|anime|manga|3d render/i },
+          { name: 'Quality Terms', regex: /hd|4k|8k|high quality|masterpiece|best quality/i },
+          { name: 'Lighting', regex: /cinematic lighting|dramatic lighting|soft lighting|golden hour|sunset|sunrise/i },
+          { name: 'Camera', regex: /dslr|bokeh|shallow depth of field|dof|wide angle|telephoto|lens/i },
+          { name: 'Artist Reference', regex: /style of|inspired by|like|similar to|by artist|by /i }
+        ];
         
-        // Prevent dropdown from closing when clicking inside it
-        exportOptions.addEventListener('click', (e) => {
-          e.stopPropagation();
-        });
+        const detectedPatterns = patterns.filter(pattern => 
+          pattern.regex.test(prompt)
+        );
         
-        // Export options click handlers
-        document.querySelectorAll('.export-option').forEach(option => {
-          option.addEventListener('click', () => {
-            const type = option.getAttribute('data-type');
-            exportHistory(type);
-            exportOptions.style.display = 'none';
-          });
-        });
+        // Estimate token usage for different models
+        const charCount = prompt.length;
+        
+        return {
+          wordCount: words,
+          tokenEstimate: tokens,
+          patterns: detectedPatterns,
+          charCount,
+          modelEstimates: {
+            sdxl: Math.ceil(charCount / 3.5),
+            midjourney: Math.ceil(charCount / 4),
+            dalle: Math.ceil(charCount / 4.5)
+          }
+        };
       }
       
-      // Initialize
-      setMode('simple');
-      loadHistory();
+      // Create HTML for prompt analysis
+      function createPromptAnalysisHTML(analysis) {
+        if (!analysis) return '';
+        
+        // Check if we're in simple mode - if so, we'll add a CSS class to control visibility
+        const displayStyle = getCurrentMode() === 'simple' ? 'none' : 'block';
+        
+        return `
+          <div class="analysis-section" style='margin:20px 0 16px 0;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;display:${displayStyle};'>
+            <div style='background:#f1f5f9;padding:10px 16px;border-bottom:1px solid #e2e8f0;'>
+              <div style='font-weight:600;color:#444;'>Prompt Analysis</div>
+            </div>
+            <div style='padding:16px;'>
+              <!-- Metrics -->
+              <div style='display:grid;grid-template-columns:repeat(auto-fit, minmax(120px, 1fr));gap:16px;margin-bottom:16px;'>
+                <div>
+                  <div style='font-size:0.85em;color:#666;margin-bottom:4px;'>Word Count</div>
+                  <div style='font-size:1.2em;font-weight:600;color:#5e60ce;'>${analysis.wordCount}</div>
+                </div>
+                <div>
+                  <div style='font-size:0.85em;color:#666;margin-bottom:4px;'>Est. Tokens</div>
+                  <div style='font-size:1.2em;font-weight:600;color:#5e60ce;'>${analysis.tokenEstimate}</div>
+                </div>
+                <div>
+                  <div style='font-size:0.85em;color:#666;margin-bottom:4px;'>Characters</div>
+                  <div style='font-size:1.2em;font-weight:600;color:#5e60ce;'>${analysis.charCount}</div>
+                </div>
+              </div>
+              
+              <!-- Detected patterns -->
+              <div style='margin-bottom:16px;'>
+                <div style='font-size:0.9em;color:#666;margin-bottom:8px;'>Detected Patterns</div>
+                <div style='display:flex;flex-wrap:wrap;gap:6px;'>
+                  ${analysis.patterns.length > 0 ? 
+                    analysis.patterns.map(p => `<span style='background:#eef2ff;color:#5e60ce;padding:4px 10px;border-radius:12px;font-size:0.85em;'>${p.name}</span>`).join('') : 
+                    '<span style="color:#666;font-style:italic;font-size:0.9em;">No common patterns detected</span>'}
+                </div>
+              </div>
+              
+              <!-- Model token estimates -->
+              <div>
+                <div style='font-size:0.9em;color:#666;margin-bottom:8px;'>Estimated Token Usage by Model</div>
+                <div style='display:grid;grid-template-columns:auto 1fr;gap:8px 24px;font-size:0.9em;'>
+                  <div style='color:#666;'>SDXL</div>
+                  <div style='display:flex;align-items:center;gap:8px;'>
+                    <div style='height:8px;background:#e9eafc;border-radius:4px;width:100%;'>
+                      <div style='height:100%;background:#5e60ce;border-radius:4px;width:${Math.min(100, analysis.modelEstimates.sdxl / 75 * 100)}%;'></div>
+                    </div>
+                    <div style='color:#333;min-width:40px;text-align:right;'>${analysis.modelEstimates.sdxl}</div>
+                  </div>
+                  <div style='color:#666;'>Midjourney</div>
+                  <div style='display:flex;align-items:center;gap:8px;'>
+                    <div style='height:8px;background:#e9eafc;border-radius:4px;width:100%;'>
+                      <div style='height:100%;background:#3a3;border-radius:4px;width:${Math.min(100, analysis.modelEstimates.midjourney / 75 * 100)}%;'></div>
+                    </div>
+                    <div style='color:#333;min-width:40px;text-align:right;'>${analysis.modelEstimates.midjourney}</div>
+                  </div>
+                  <div style='color:#666;'>DALL-E</div>
+                  <div style='display:flex;align-items:center;gap:8px;'>
+                    <div style='height:8px;background:#e9eafc;border-radius:4px;width:100%;'>
+                      <div style='height:100%;background:#f59e0b;border-radius:4px;width:${Math.min(100, analysis.modelEstimates.dalle / 75 * 100)}%;'></div>
+                    </div>
+                    <div style='color:#333;min-width:40px;text-align:right;'>${analysis.modelEstimates.dalle}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>`;
+      }
+      
       // Handle file selection from input
       input.addEventListener('change', async (e) => {
         const file = e.target.files[0];
@@ -566,63 +582,534 @@
         try {
           const meta = window.extractAIMetadataFromPNG(arrayBuffer);
           let html = '';
+          // Source indicator
           if (meta.source === 'comfyui') {
-            html += `<div><b>Prompt:</b> ${meta.prompt || '<i>none</i>'}</div>`;
-            html += `<div><b>Model:</b> ${meta.model || '<i>unknown</i>'}</div>`;
-            // Add to history if it has a prompt
-            if (meta.prompt) addToHistory(meta);
+            html += `<div style='margin-bottom:12px;'><span style='background:#5e60ce;color:white;font-size:0.85em;padding:2px 8px;border-radius:12px;font-weight:500;'>ComfyUI</span></div>`;
           } else if (meta.source === 'midjourney') {
-            html += `<div><b>Prompt:</b> ${meta.prompt || '<i>none</i>'}</div>`;
-            html += `<div><b>Params:</b> ${meta.parameters || '<i>none</i>'}</div>`;
-            // Add to history if it has a prompt
-            if (meta.prompt) addToHistory(meta);
-          } else {
-            html += '<div style="color:#c00;padding:12px;background:#fff0f0;border-radius:6px;border:1px solid #ffd6d6;">No recognizable metadata found in this image.</div>';
+            html += `<div style='margin-bottom:12px;'><span style='background:#3a3;color:white;font-size:0.85em;padding:2px 8px;border-radius:12px;font-weight:500;'>Midjourney</span></div>`;
           }
+          
+          // Prompt section with copy button
+          if (meta.prompt) {
+            html += `
+              <div style='margin-bottom:16px;'>
+                <div style='font-weight:600;margin-bottom:6px;color:#444;'>Prompt:</div>
+                <div style='display:flex;gap:8px;background:white;border:1px solid #e2e8f0;border-radius:6px;padding:12px;margin-bottom:8px;'>
+                  <div id='promptText' style='flex:1;color:#333;white-space:pre-wrap;line-height:1.5;'>${meta.prompt}</div>
+                  <div style='display:flex;flex-direction:column;gap:8px;'>
+                    <button id='copyPromptBtn' style='flex-shrink:0;align-self:flex-start;padding:4px 12px;font-size:0.95em;background:#e9eafc;color:#5e60ce;border:1px solid #bfc4f6;border-radius:6px;cursor:pointer;transition:all 0.15s;'>Copy</button>
+                    <button id='sendToSynthBtn' title='Send to Synthograsizer' style='flex-shrink:0;align-self:flex-start;padding:4px 12px;font-size:0.95em;background:#e1faec;color:#10b981;border:1px solid #a7f3d0;border-radius:6px;cursor:pointer;transition:all 0.15s;'>➡️</button>
+                  </div>
+                </div>
+              </div>`;
+              
+            // Add prompt analysis section
+            const analysis = analyzePrompt(meta.prompt);
+            if (analysis) {
+              html += createPromptAnalysisHTML(analysis);
+            }
+          }
+          
+          // Parameters in a grid layout
+          if (meta.parameters && meta.parameters.length > 0) {
+            html += `
+              <div style='margin:20px 0 16px 0;'>
+                <div style='font-weight:600;margin-bottom:8px;color:#444;'>Parameters:</div>
+                <div style='display:grid;grid-template-columns:repeat(auto-fill, minmax(200px, 1fr));gap:8px;'>`;
+            
+            for (const param of meta.parameters) {
+              // Check if parameter is an object (new format) or string (legacy format)
+              if (typeof param === 'object' && param.name) {
+                html += `
+                  <div style='background:white;border:1px solid #e2e8f0;border-radius:6px;padding:8px 12px;font-size:0.95em;'>
+                    <div style='color:#5e60ce;font-weight:500;'>${param.name}</div>
+                    <div style='color:#333;'>${param.value || '—'}</div>
+                  </div>`;
+              } else {
+                // Legacy string format - fallback
+                html += `
+                  <div style='background:white;border:1px solid #e2e8f0;border-radius:6px;padding:8px 12px;font-size:0.95em;'>
+                    <div style='color:#5e60ce;font-weight:500;'>${param.split(':')[0]}</div>
+                    <div style='color:#333;'>${param.split(':').slice(1).join(':').trim() || '—'}</div>
+                  </div>`;
+              }
+            }
+            
+            html += `
+                </div>
+              </div>`;
+          }
+          
+          // Model and other metadata
+          if (meta.model || meta.author || (meta.width && meta.height)) {
+            html += `<div style='margin:20px 0 16px 0;'><div style='font-weight:600;margin-bottom:8px;color:#444;'>Details</div><div style='display:grid;grid-template-columns:auto 1fr;gap:12px 24px;font-size:0.95em;'>`;
+            if (meta.model) html += `<div style='color:#666;'>Model</div><div style='color:#333;font-weight:500;'>${meta.model}</div>`;
+            if (meta.author) html += `<div style='color:#666;'>Author</div><div>${meta.author}</div>`;
+            if (meta.width && meta.height) html += `<div style='color:#666;'>Dimensions</div><div>${meta.width} × ${meta.height}</div>`;
+            html += `</div></div>`;
+          }
+          
+          // Raw metadata toggle
+          html += `
+            <details style='margin-top:20px;border-top:1px solid #e2e8f0;padding-top:12px;'>
+              <summary style='cursor:pointer;color:#5e60ce;font-weight:500;font-size:0.95em;'>Show raw metadata</summary>
+              <pre style='font-size:0.85em;background:#f0f2f8;border-radius:6px;padding:12px;margin-top:8px;max-height:300px;overflow:auto;'>${JSON.stringify(meta.raw, null, 2)}</pre>
+            </details>`;
+            
+          if (!html) html = '<div style="color:#c00;padding:12px;background:#fff0f0;border-radius:6px;border:1px solid #ffd6d6;">No recognizable metadata found in this image.</div>';
           result.innerHTML = html;
+          // Copy button logic
+          const copyBtn = document.getElementById('copyPromptBtn');
+          if (copyBtn) {
+            copyBtn.addEventListener('click', () => {
+              const promptText = document.getElementById('promptText').innerText;
+              navigator.clipboard.writeText(promptText).then(() => {
+                copyBtn.textContent = 'Copied!';
+                copyBtn.style.background = '#d2f8d2';
+                setTimeout(() => {
+                  copyBtn.textContent = 'Copy';
+                  copyBtn.style.background = '#e9eafc';
+                }, 1200);
+              });
+            });
+          }
+          const sendToSynthBtn = document.getElementById('sendToSynthBtn');
+          if (sendToSynthBtn) {
+            sendToSynthBtn.addEventListener('click', () => {
+              const promptText = document.getElementById('promptText').innerText;
+              // Add logic to send prompt to Synthograsizer
+            });
+          }
         } catch (err) {
           result.innerHTML = `<div style='color:#c00;padding:12px;background:#fff0f0;border-radius:6px;border:1px solid #ffd6d6;'>Error reading metadata: ${err.message}</div>`;
         }
       });
+      
       // Setup drag & drop handling
       dropZone.addEventListener('click', () => {
         input.click();
       });
-      dropZone.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        dropZone.style.background = '#e3e7fd';
+      
+      // Prevent default behavior to allow drop
+      ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, preventDefaults, false);
+        document.body.addEventListener(eventName, preventDefaults, false);
       });
-      dropZone.addEventListener('dragleave', (e) => {
+      
+      function preventDefaults(e) {
         e.preventDefault();
-        dropZone.style.background = '#f8fafc';
+        e.stopPropagation();
+      }
+      
+      // Visual feedback during drag operations
+      ['dragenter', 'dragover'].forEach(eventName => {
+        dropZone.addEventListener(eventName, highlight, false);
       });
-      dropZone.addEventListener('drop', async (e) => {
-        e.preventDefault();
-        dropZone.style.background = '#f8fafc';
-        const file = e.dataTransfer.files[0];
+      
+      ['dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, unhighlight, false);
+      });
+      
+      function highlight() {
+        dropZone.style.borderColor = '#5e60ce';
+        dropZone.style.backgroundColor = '#eef2ff';
+        dropZone.style.boxShadow = '0 0 0 2px rgba(94,96,206,0.2)';
+      }
+      
+      function unhighlight() {
+        dropZone.style.borderColor = '#d0d5dd';
+        dropZone.style.backgroundColor = '#f8fafc';
+        dropZone.style.boxShadow = 'none';
+      }
+      
+      // Handle the dropped files
+      dropZone.addEventListener('drop', handleDrop, false);
+      
+      function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        handleFiles(files);
+      }
+      
+      function handleFiles(files) {
+        if (files.length > 0) {
+          processFile(files[0]);
+        }
+      }
+      
+      async function processFile(file) {
         if (!file) return;
+        
         if (!file.name.endsWith('.png')) {
-          result.innerHTML = '<span style="color:#c00;">Please upload a PNG file.</span>';
+          result.innerHTML = '<div style="color:#c00;padding:12px;background:#fff0f0;border-radius:6px;border:1px solid #ffd6d6;">Please upload a PNG file.</div>';
           return;
         }
-        const arrayBuffer = await file.arrayBuffer();
+        
         try {
+          // Show loading indicator
+          result.innerHTML = '<div style="text-align:center;padding:20px;"><div style="color:#5e60ce;font-weight:500;margin-bottom:10px;">Processing image...</div><div style="display:inline-block;width:30px;height:30px;border:3px solid #e9eafc;border-radius:50%;border-top-color:#5e60ce;animation:spin 1s linear infinite;"></div></div>';
+          
+          const arrayBuffer = await file.arrayBuffer();
           const meta = window.extractAIMetadataFromPNG(arrayBuffer);
-          let html = '';
-          if (meta.source === 'comfyui') {
-            html += `<div><b>Prompt:</b> ${meta.prompt || '<i>none</i>'}</div>`;
-            html += `<div><b>Model:</b> ${meta.model || '<i>unknown</i>'}</div>`;
-          } else if (meta.source === 'midjourney') {
-            html += `<div><b>Prompt:</b> ${meta.prompt || '<i>none</i>'}</div>`;
-            html += `<div><b>Params:</b> ${meta.parameters || '<i>none</i>'}</div>`;
-          } else {
-            html += '<div style="color:#c00;padding:12px;background:#fff0f0;border-radius:6px;border:1px solid #ffd6d6;">No recognizable metadata found in this image.</div>';
+          
+          // Add to history if prompt was found
+          if (meta.prompt) {
+            addToHistory(meta);
           }
+          let html = '';
+          // Source indicator
+          if (meta.source === 'comfyui') {
+            html += `<div style='margin-bottom:12px;'><span style='background:#5e60ce;color:white;font-size:0.85em;padding:2px 8px;border-radius:12px;font-weight:500;'>ComfyUI</span></div>`;
+          } else if (meta.source === 'midjourney') {
+            html += `<div style='margin-bottom:12px;'><span style='background:#3a3;color:white;font-size:0.85em;padding:2px 8px;border-radius:12px;font-weight:500;'>Midjourney</span></div>`;
+          }
+          
+          // Prompt section with copy button
+          if (meta.prompt) {
+            html += `
+              <div style='margin-bottom:16px;'>
+                <div style='font-weight:600;margin-bottom:6px;color:#444;'>Prompt:</div>
+                <div style='display:flex;gap:8px;background:white;border:1px solid #e2e8f0;border-radius:6px;padding:12px;margin-bottom:8px;'>
+                  <div id='promptText' style='flex:1;color:#333;white-space:pre-wrap;line-height:1.5;'>${meta.prompt}</div>
+                  <div style='display:flex;flex-direction:column;gap:8px;'>
+                    <button id='copyPromptBtn' style='flex-shrink:0;align-self:flex-start;padding:4px 12px;font-size:0.95em;background:#e9eafc;color:#5e60ce;border:1px solid #bfc4f6;border-radius:6px;cursor:pointer;transition:all 0.15s;'>Copy</button>
+                    <button id='sendToSynthBtn' title='Send to Synthograsizer' style='flex-shrink:0;align-self:flex-start;padding:4px 12px;font-size:0.95em;background:#e1faec;color:#10b981;border:1px solid #a7f3d0;border-radius:6px;cursor:pointer;transition:all 0.15s;'>➡️</button>
+                  </div>
+                </div>
+              </div>`;
+            
+            // Add prompt analysis section
+            const analysis = analyzePrompt(meta.prompt);
+            if (analysis) {
+              html += createPromptAnalysisHTML(analysis);
+            }
+          }
+          
+          // Parameters in a grid layout
+          if (meta.parameters && meta.parameters.length > 0) {
+            html += `
+              <div style='margin:20px 0 16px 0;'>
+                <div style='font-weight:600;margin-bottom:8px;color:#444;'>Parameters:</div>
+                <div style='display:grid;grid-template-columns:repeat(auto-fill, minmax(200px, 1fr));gap:8px;'>`;
+            
+            for (const param of meta.parameters) {
+              // Check if parameter is an object (new format) or string (legacy format)
+              if (typeof param === 'object' && param.name) {
+                html += `
+                  <div style='background:white;border:1px solid #e2e8f0;border-radius:6px;padding:8px 12px;font-size:0.95em;'>
+                    <div style='color:#5e60ce;font-weight:500;'>${param.name}</div>
+                    <div style='color:#333;'>${param.value || '—'}</div>
+                  </div>`;
+              } else {
+                // Legacy string format - fallback
+                html += `
+                  <div style='background:white;border:1px solid #e2e8f0;border-radius:6px;padding:8px 12px;font-size:0.95em;'>
+                    <div style='color:#5e60ce;font-weight:500;'>${param.split(':')[0]}</div>
+                    <div style='color:#333;'>${param.split(':').slice(1).join(':').trim() || '—'}</div>
+                  </div>`;
+              }
+            }
+            
+            html += `
+                </div>
+              </div>`;
+          }
+          
+          // Model and other metadata
+          if (meta.model || meta.author || (meta.width && meta.height)) {
+            html += `<div style='margin:20px 0 16px 0;'><div style='font-weight:600;margin-bottom:8px;color:#444;'>Details</div><div style='display:grid;grid-template-columns:auto 1fr;gap:12px 24px;font-size:0.95em;'>`;
+            if (meta.model) html += `<div style='color:#666;'>Model</div><div style='color:#333;font-weight:500;'>${meta.model}</div>`;
+            if (meta.author) html += `<div style='color:#666;'>Author</div><div>${meta.author}</div>`;
+            if (meta.width && meta.height) html += `<div style='color:#666;'>Dimensions</div><div>${meta.width} × ${meta.height}</div>`;
+            html += `</div></div>`;
+          }
+          
+          // Raw metadata toggle
+          html += `
+            <details style='margin-top:20px;border-top:1px solid #e2e8f0;padding-top:12px;'>
+              <summary style='cursor:pointer;color:#5e60ce;font-weight:500;font-size:0.95em;'>Show raw metadata</summary>
+              <pre style='font-size:0.85em;background:#f0f2f8;border-radius:6px;padding:12px;margin-top:8px;max-height:300px;overflow:auto;'>${JSON.stringify(meta.raw, null, 2)}</pre>
+            </details>`;
+            
+          if (!html) html = '<div style="color:#c00;padding:12px;background:#fff0f0;border-radius:6px;border:1px solid #ffd6d6;">No recognizable metadata found in this image.</div>';
           result.innerHTML = html;
+          // Copy button logic
+          const copyBtn = document.getElementById('copyPromptBtn');
+          if (copyBtn) {
+            copyBtn.addEventListener('click', () => {
+              const promptText = document.getElementById('promptText').innerText;
+              navigator.clipboard.writeText(promptText).then(() => {
+                copyBtn.textContent = 'Copied!';
+                copyBtn.style.background = '#d2f8d2';
+                setTimeout(() => {
+                  copyBtn.textContent = 'Copy';
+                  copyBtn.style.background = '#e9eafc';
+                }, 1200);
+              });
+            });
+          }
         } catch (err) {
           result.innerHTML = `<div style='color:#c00;padding:12px;background:#fff0f0;border-radius:6px;border:1px solid #ffd6d6;'>Error reading metadata: ${err.message}</div>`;
         }
+      }
+      // Setup batch processing drag & drop
+      const batchDropZone = document.getElementById('batchDropZone');
+      
+      // Make batch drop zone work
+      batchDropZone.addEventListener('click', () => {
+        batchInput.click();
       });
+      
+      // Prevent default behavior to allow drop on batch zone
+      ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        batchDropZone.addEventListener(eventName, preventDefaults, false);
+      });
+      
+      // Visual feedback during drag operations for batch
+      ['dragenter', 'dragover'].forEach(eventName => {
+        batchDropZone.addEventListener(eventName, () => {
+          batchDropZone.style.borderColor = '#5e60ce';
+          batchDropZone.style.backgroundColor = '#eef2ff';
+          batchDropZone.style.boxShadow = '0 0 0 2px rgba(94,96,206,0.2)';
+        }, false);
+      });
+      
+      ['dragleave', 'drop'].forEach(eventName => {
+        batchDropZone.addEventListener(eventName, () => {
+          batchDropZone.style.borderColor = '#d0d5dd';
+          batchDropZone.style.backgroundColor = '#f8fafc';
+          batchDropZone.style.boxShadow = 'none';
+        }, false);
+      });
+      
+      // Handle the dropped files for batch processing
+      batchDropZone.addEventListener('drop', (e) => {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        processBatchFiles(files);
+      }, false);
+      
+      // Handle batch file input changes
+      batchInput.addEventListener('change', (e) => {
+        processBatchFiles(e.target.files);
+      });
+      
+      // Process multiple files
+      async function processBatchFiles(files) {
+        if (!files || files.length === 0) return;
+        
+        const batchResults = document.getElementById('batchResults');
+        batchResults.innerHTML = `<div style="text-align:center;padding:20px;"><div style="color:#5e60ce;font-weight:500;margin-bottom:10px;">Processing ${files.length} files...</div><div style="display:inline-block;width:30px;height:30px;border:3px solid #e9eafc;border-radius:50%;border-top-color:#5e60ce;animation:spin 1s linear infinite;"></div></div>`;
+        
+        // Process files sequentially
+        let html = `<div style="margin-bottom:16px;font-weight:500;">Processed ${files.length} file${files.length > 1 ? 's' : ''}</div><div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(300px, 1fr));gap:16px;">`;
+        
+        for (let i = 0; i < files.length; i++) {
+          try {
+            const file = files[i];
+            if (!file.name.endsWith('.png')) continue;
+            
+            const arrayBuffer = await file.arrayBuffer();
+            const meta = window.extractAIMetadataFromPNG(arrayBuffer);
+            
+            // Add to history if prompt found
+            if (meta.prompt) {
+              addToHistory(meta);
+            }
+            
+            // Add batch result card
+            html += `
+              <div style="border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;background:white;">
+                <div style="padding:12px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;">
+                  <div style="font-weight:500;font-size:0.9em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;">${file.name}</div>
+                  ${meta.source ? `<span style="font-size:0.75em;background:${meta.source === 'comfyui' ? '#5e60ce' : '#3a3'};color:white;padding:1px 6px;border-radius:10px;">${meta.source === 'comfyui' ? 'ComfyUI' : 'Midjourney'}</span>` : ''}
+                </div>
+                <div style="padding:12px;">
+                  ${meta.prompt ? 
+                    `<div style="font-size:0.9em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:8px;">${meta.prompt}</div>
+                     <button class="view-details-btn" data-index="${i}" style="font-size:0.85em;padding:4px 10px;background:#e9eafc;color:#5e60ce;border:1px solid #bfc4f6;border-radius:4px;cursor:pointer;width:100%;">View Details</button>` : 
+                    '<div style="color:#c00;font-size:0.9em;">No prompt found</div>'}
+                </div>
+              </div>`;
+          } catch (e) {
+            console.error(`Error processing file ${i}:`, e);
+          }
+        }
+        
+        html += '</div>';
+        batchResults.innerHTML = html;
+        
+        // Add click handlers for detail buttons
+        document.querySelectorAll('.view-details-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const fileIndex = parseInt(btn.getAttribute('data-index'));
+            const file = files[fileIndex];
+            showTab('extractor');
+            processFile(file);
+          });
+        });
+      }
+      
+      // Event listeners for mode toggle
+      simpleMode.addEventListener('click', () => setMode('simple'));
+      advancedMode.addEventListener('click', () => {
+        setMode('advanced');
+        // When switching to advanced mode, check if we should hide the main drop zone
+        // based on which tab is active
+        const activeTab = document.querySelector('.tab-btn.active');
+        if (activeTab && activeTab.getAttribute('data-tab') !== 'extractor') {
+          dropZone.style.display = 'none';
+        }
+      });
+      
+      // Event listeners for tab switching
+      tabButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          showTab(btn.getAttribute('data-tab'));
+        });
+      });
+      
+      // History management event listeners
+      clearHistoryBtn.addEventListener('click', () => {
+        if (confirm('Are you sure you want to clear your prompt history?')) {
+          promptHistory = [];
+          saveHistory();
+          updateHistoryUI();
+        }
+      });
+      
+      // Export dropdown functionality
+      const exportBtn = document.getElementById('exportHistory');
+      const exportOptions = document.getElementById('exportOptions');
+      const exportOptionItems = document.querySelectorAll('.export-option');
+      
+      // Toggle export options dropdown
+      exportBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isVisible = exportOptions.style.display === 'block';
+        exportOptions.style.display = isVisible ? 'none' : 'block';
+      });
+      
+      // Close dropdown when clicking elsewhere
+      document.addEventListener('click', () => {
+        exportOptions.style.display = 'none';
+      });
+      
+      // Prevent dropdown from closing when clicking inside it
+      exportOptions.addEventListener('click', (e) => {
+        e.stopPropagation();
+      });
+      
+      // Handle export option selection
+      exportOptionItems.forEach(option => {
+        option.addEventListener('click', () => {
+          const exportType = option.getAttribute('data-type');
+          exportHistory(exportType);
+          exportOptions.style.display = 'none';
+        });
+        
+        // Add hover effect
+        option.addEventListener('mouseenter', () => {
+          option.style.background = '#f8fafc';
+        });
+        option.addEventListener('mouseleave', () => {
+          option.style.background = 'transparent';
+        });
+      });
+      
+      // Export history function with type parameter
+      function exportHistory(type) {
+        let exportData, mimeType, filename;
+        
+        if (type === 'prompts-only') {
+          // For prompts-only, create a simple text file with one prompt per line
+          const promptsText = promptHistory
+            .map(entry => entry.prompt.trim())
+            .join('\n\n---\n\n'); // Add separator between prompts
+          
+          exportData = promptsText;
+          mimeType = 'text/plain';
+          filename = 'prompts_only.txt';
+        } else {
+          // Default export - full JSON with all metadata
+          exportData = JSON.stringify(promptHistory, null, 2);
+          mimeType = 'application/json';
+          filename = 'prompt_history.json';
+        }
+        
+        // Create and trigger download
+        const blob = new Blob([exportData], {type: mimeType});
+        const url = URL.createObjectURL(blob);
+        
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+      
+      // Initialize
+      loadHistory();
     </script>
-</body>
+    <div class="about-footer">
+      &copy; 2025 Synthograsizer. Licensed under <a href="https://creativecommons.org/licenses/by-nc/4.0/">CC BY-NC 4.0</a>. Attribution required. Commercial use prohibited.<br>
+      <a href="../../">Back to Home</a>
+    </div>
+
+  <!-- Templating interface container -->
+  <div id="templateContainer" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.85); z-index:9999; overflow-y:auto; padding:20px;">
+    <div style="background:white; max-width:800px; margin:20px auto; border-radius:8px; box-shadow:0 10px 25px rgba(0,0,0,0.2); overflow:hidden;">
+      <!-- Header -->
+      <div style="background:#f8fafc; border-bottom:1px solid #e2e8f0; padding:16px; display:flex; justify-content:space-between; align-items:center;">
+        <h3 style="margin:0; font-size:1.2em; color:#333;">Create Template for Synthograsizer</h3>
+        <button id="closeTemplateBtn" style="background:none; border:none; font-size:1.5em; cursor:pointer; color:#64748b;">&times;</button>
+      </div>
+      <!-- Content -->
+      <div style="padding:20px;">
+        <div id="templatePromptContainer" style="margin-bottom:20px; border:1px solid #e2e8f0; border-radius:6px; padding:16px; line-height:1.5; white-space:pre-wrap;"></div>
+        
+        <div style="margin-bottom:24px;">
+          <label style="font-weight:500; display:block; margin-bottom:8px;">Template Name:</label>
+          <input id="templateName" type="text" placeholder="SynthograsizerTemplate.json" style="width:100%; padding:8px 12px; border:1px solid #e2e8f0; border-radius:6px;">
+        </div>
+        
+        <div id="variablesContainer" style="margin-bottom:24px; display:none;">
+          <div style="font-weight:500; margin-bottom:12px;">Variables:</div>
+          <!-- Variables will be inserted here -->
+        </div>
+        
+        <div style="display:flex; justify-content:space-between;">
+          <button id="cancelTemplateBtn" style="padding:8px 16px; background:#e53e3e; color:white; border:none; border-radius:6px; cursor:pointer;">Close</button>
+          <div>
+            <!-- Removed duplicate buttons as they exist in the templater UI -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Link to prompt templating script -->
+    <script>
+    // Event delegation for dynamically created Send to Synthograsizer buttons
+    document.addEventListener('click', function(e) {
+      if (e.target && e.target.id === 'sendToSynthBtn') {
+        const promptText = document.getElementById('promptText').innerText;
+        const templater = new PromptTemplater();
+        templater.initialize(promptText, document.getElementById('templatePromptContainer'));
+        document.getElementById('templateContainer').style.display = 'block';
+      }
+    });
+    
+    // Close template modal buttons
+    document.getElementById('closeTemplateBtn').addEventListener('click', function() {
+      document.getElementById('templateContainer').style.display = 'none';
+    });
+    
+    document.getElementById('cancelTemplateBtn').addEventListener('click', function() {
+      document.getElementById('templateContainer').style.display = 'none';
+    });
+  </script>
+  </body>
 </html>
