@@ -1228,12 +1228,9 @@ class Synthograsizer {
         const keyIndex = this.config.keys.indexOf(this.config.currentKey);
         const scale = this.config.scales[this.config.currentScale];
         
-        // Use actual grid length as source of truth
-        const totalRows = this.melodyGrid.length;
-        const reversedRow = totalRows - 1 - note;
-        
-        const octave = Math.floor(reversedRow / scale.length);
-        const noteIndex = scale[reversedRow % scale.length];
+        // Calculate directly from row index (no reversal) to match getNoteLabel logic
+        const octave = Math.floor(note / scale.length);
+        const noteIndex = scale[note % scale.length];
         
         // Calculate MIDI note with octave transpose
         const baseOctave = 4;
