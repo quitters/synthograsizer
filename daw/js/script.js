@@ -530,6 +530,9 @@ class Synthograsizer {
             this.melodyGrid = this.melodyGrid.slice(0, newSize);
         }
         
+        // Keep config in sync with actual grid size
+        this.config.sequencerRows.melody = this.melodyGrid.length;
+        
         // Re-render the sequencer
         this.renderSequencers();
     }
@@ -653,22 +656,22 @@ class Synthograsizer {
         const scale = this.config.scales[this.config.currentScale];
         // Use actual grid length as source of truth
         const totalRows = this.melodyGrid.length;
-        const reversedRow = totalRows - 1 - rowIndex;
-        
-        const octave = Math.floor(reversedRow / scale.length);
-        const noteIndex = reversedRow % scale.length;
-        
+
+        // Always keep the top note fixed; add lower notes as rows increase
+        const octave = Math.floor(rowIndex / scale.length);
+        const noteIndex = rowIndex % scale.length;
+
         // Get the base key index
         const keyIndex = this.config.keys.indexOf(this.config.currentKey);
-        
+
         // Calculate the note within the chromatic scale
         const chromaticNote = (keyIndex + scale[noteIndex]) % 12;
         const noteName = this.config.keys[chromaticNote];
-        
+
         // Calculate the final octave with transpose
         const baseOctave = 4; // C4 is our reference
         const finalOctave = baseOctave + octave + this.config.melodyOctaveTranspose;
-        
+
         return `${noteName}${finalOctave}`;
     }
 
@@ -725,7 +728,8 @@ class Synthograsizer {
         const swingDelay = isSwingStep ? (60000 / parseInt(document.getElementById('bpmInput').value) / 4) * swingAmount : 0;
 
         setTimeout(() => {
-            for (let i = 0; i < this.config.sequencerRows.melody; i++) {
+            // Use the actual melody grid length instead of the fixed sequencerRows.melody value
+            for (let i = 0; i < this.melodyGrid.length; i++) {
                 if (this.melodyGrid[i][this.currentStep]) {
                     const frequency = this.noteToFrequency(i);
                     
