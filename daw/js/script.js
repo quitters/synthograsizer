@@ -136,6 +136,7 @@ class Synthograsizer {
             },
             melodyScaleSize: 8, // New: configurable melody sequencer rows
             melodyOctaveTranspose: 0, // New: octave transpose -3 to +3
+            isScaleInverted: false, // Flag for scale direction (bottom-to-top vs. top-to-bottom)
             scales: {
                 major: [0, 2, 4, 5, 7, 9, 11],
                 minor: [0, 2, 3, 5, 7, 8, 10],
@@ -217,6 +218,13 @@ class Synthograsizer {
     }
 
     setupEventListeners() {
+        // Invert scale button
+        document.getElementById('invertScaleBtn').addEventListener('click', () => {
+            this.config.isScaleInverted = !this.config.isScaleInverted;
+            this.renderSequencers(); // Redraw sequencers with inverted notes
+            document.getElementById('invertScaleBtn').classList.toggle('active', this.config.isScaleInverted);
+        });
+
         document.getElementById('playButton').addEventListener('click', () => this.play());
         document.getElementById('stopButton').addEventListener('click', () => this.stop());
         document.getElementById('bpmInput').addEventListener('change', () => {
@@ -657,15 +665,25 @@ class Synthograsizer {
         // Use actual grid length as source of truth
         const totalRows = this.melodyGrid.length;
 
-        // Always keep the top note fixed; add lower notes as rows increase
-        const octave = Math.floor(rowIndex / scale.length);
-        const noteIndex = rowIndex % scale.length;
+        // Calculate note index based on scale direction
+        let noteIndex, octave;
+        if (this.config.isScaleInverted) {
+            // When inverted, first row is the highest note
+            const totalNotes = scale.length * Math.ceil(totalRows / scale.length);
+            const invertedIndex = totalNotes - 1 - rowIndex;
+            octave = Math.floor(invertedIndex / scale.length);
+            noteIndex = scale[invertedIndex % scale.length];
+        } else {
+            // Original direction: first row is the lowest note
+            octave = Math.floor(rowIndex / scale.length);
+            noteIndex = scale[rowIndex % scale.length];
+        }
 
         // Get the base key index
         const keyIndex = this.config.keys.indexOf(this.config.currentKey);
 
         // Calculate the note within the chromatic scale
-        const chromaticNote = (keyIndex + scale[noteIndex]) % 12;
+        const chromaticNote = (keyIndex + noteIndex) % 12;
         const noteName = this.config.keys[chromaticNote];
 
         // Calculate the final octave with transpose
@@ -1228,9 +1246,19 @@ class Synthograsizer {
         const keyIndex = this.config.keys.indexOf(this.config.currentKey);
         const scale = this.config.scales[this.config.currentScale];
         
-        // Calculate directly from row index (no reversal) to match getNoteLabel logic
-        const octave = Math.floor(note / scale.length);
-        const noteIndex = scale[note % scale.length];
+        // Calculate note index based on scale direction to match getNoteLabel logic
+        let octave, noteIndex;
+        if (this.config.isScaleInverted) {
+            // When inverted, first row is the highest note
+            const totalNotes = scale.length * Math.ceil(this.melodyGrid.length / scale.length);
+            const invertedIndex = totalNotes - 1 - note;
+            octave = Math.floor(invertedIndex / scale.length);
+            noteIndex = scale[invertedIndex % scale.length];
+        } else {
+            // Original direction: first row is the lowest note
+            octave = Math.floor(note / scale.length);
+            noteIndex = scale[note % scale.length];
+        }
         
         // Calculate MIDI note with octave transpose
         const baseOctave = 4;

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Synthograsizer-ComfyUI Integration Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #fff;
+        }
+        .container {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #4a90e2;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #bbb;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            background: #1a1a1a;
+            color: #fff;
+            border: 1px solid #555;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            padding: 10px 20px;
+            background: #4a90e2;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background: #357abd;
+        }
+        button:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+            background: #333;
+        }
+        .status.connected {
+            background: #2e7d32;
+        }
+        .status.error {
+            background: #c62828;
+        }
+        .log {
+            background: #1a1a1a;
+            padding: 10px;
+            border-radius: 4px;
+            height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .log-entry {
+            margin: 2px 0;
+        }
+        .log-entry.error {
+            color: #ff6b6b;
+        }
+        .log-entry.success {
+            color: #51cf66;
+        }
+    </style>
+</head>
+<body>
+    <h1>Synthograsizer-ComfyUI Integration Test</h1>
+    
+    <div class="container">
+        <h2>Connection Settings</h2>
+        <label for="comfyUrl">ComfyUI URL:</label>
+        <input type="text" id="comfyUrl" value="http://localhost:8188" placeholder="http://localhost:8188">
+        
+        <label for="nodeId">Text Node ID:</label>
+        <input type="text" id="nodeId" placeholder="e.g., 6">
+        
+        <button id="connectBtn">Connect</button>
+        <button id="disconnectBtn" disabled>Disconnect</button>
+        
+        <div id="status" class="status">Not connected</div>
+    </div>
+    
+    <div class="container">
+        <h2>Text Update Test</h2>
+        <label for="testText">Text to send:</label>
+        <textarea id="testText" rows="4">A beautiful {{style}} landscape with {{color}} mountains and {{weather}} weather</textarea>
+        
+        <button id="sendBtn" disabled>Send Text</button>
+        <button id="clearBtn">Clear Log</button>
+        
+        <h3>Log:</h3>
+        <div id="log" class="log"></div>
+    </div>
+    
+    <div class="container">
+        <h2>Instructions</h2>
+        <ol>
+            <li>Start ComfyUI with <code>--enable-cors-header</code> flag</li>
+            <li>Load the example workflow or add a "Synthograsizer Text Receiver" node</li>
+            <li>Note the node ID (shown in the title bar)</li>
+            <li>Enter the URL and node ID above</li>
+            <li>Click Connect</li>
+            <li>Send test text and watch it update in ComfyUI</li>
+        </ol>
+    </div>
+
+    <script src="comfyui-text-bridge.js"></script>
+    <script>
+        let bridge = null;
+        
+        const connectBtn = document.getElementById('connectBtn');
+        const disconnectBtn = document.getElementById('disconnectBtn');
+        const sendBtn = document.getElementById('sendBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const status = document.getElementById('status');
+        const logDiv = document.getElementById('log');
+        const comfyUrlInput = document.getElementById('comfyUrl');
+        const nodeIdInput = document.getElementById('nodeId');
+        const testTextInput = document.getElementById('testText');
+        
+        function log(message, type = 'info') {
+            const entry = document.createElement('div');
+            entry.className = 'log-entry ' + type;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logDiv.appendChild(entry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+        
+        function updateStatus(connected, error = false) {
+            status.classList.remove('connected', 'error');
+            if (connected) {
+                status.classList.add('connected');
+                status.textContent = 'Connected to ComfyUI';
+                connectBtn.disabled = true;
+                disconnectBtn.disabled = false;
+                sendBtn.disabled = false;
+            } else {
+                if (error) {
+                    status.classList.add('error');
+                    status.textContent = 'Connection error';
+                } else {
+                    status.textContent = 'Not connected';
+                }
+                connectBtn.disabled = false;
+                disconnectBtn.disabled = true;
+                sendBtn.disabled = true;
+            }
+        }
+        
+        connectBtn.addEventListener('click', () => {
+            const url = comfyUrlInput.value.trim();
+            const nodeId = nodeIdInput.value.trim();
+            
+            if (!url || !nodeId) {
+                log('Please enter both URL and node ID', 'error');
+                return;
+            }
+            
+            log('Connecting to ' + url + '...');
+            
+            bridge = new ComfyUITextBridge({
+                baseUrl: url,
+                textNodeId: nodeId,
+                throttle: 100,
+                autoConnect: true,
+                onConnect: (connected) => {
+                    updateStatus(connected);
+                    if (connected) {
+                        log('Connected successfully!', 'success');
+                    } else {
+                        log('Disconnected');
+                    }
+                },
+                onError: (error) => {
+                    log('Error: ' + error, 'error');
+                    updateStatus(false, true);
+                },
+                onUpdate: (text) => {
+                    log('Text updated (' + text.length + ' characters)', 'success');
+                }
+            });
+        });
+        
+        disconnectBtn.addEventListener('click', () => {
+            if (bridge) {
+                bridge.disconnect();
+                bridge = null;
+            }
+            updateStatus(false);
+            log('Disconnected');
+        });
+        
+        sendBtn.addEventListener('click', () => {
+            if (bridge) {
+                const text = testTextInput.value;
+                log('Sending text: ' + text.substring(0, 50) + '...');
+                bridge.updateText(text);
+            }
+        });
+        
+        clearBtn.addEventListener('click', () => {
+            logDiv.innerHTML = '';
+        });
+        
+        // Test with keyboard shortcut
+        testTextInput.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'Enter') {
+                sendBtn.click();
+            }
+        });
+        
+        // Initial log
+        log('Test page loaded. Enter ComfyUI details and click Connect.');
+    </script>
+</body>
+</html>
