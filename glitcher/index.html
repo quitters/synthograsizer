@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Professional Glitch Art Studio - Enhanced with Filter Effects & Selection System</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      min-height: 100vh;
+      color: #ffffff;
+      overflow-x: auto;
+    }
+
+    .studio-container {
+      display: grid;
+      grid-template-columns: 400px 1fr;
+      min-height: 100vh;
+      gap: 20px;
+      padding: 20px;
+    }
+
+    /* Control Panel Styling */
+    .control-panel {
+      background: linear-gradient(145deg, #2a2a40, #1f1f35);
+      border-radius: 20px;
+      padding: 25px;
+      box-shadow: 
+        inset -5px -5px 10px rgba(0,0,0,0.3),
+        inset 5px 5px 10px rgba(255,255,255,0.1),
+        0 20px 40px rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.1);
+      overflow-y: auto;
+      max-height: calc(100vh - 40px);
+    }
+
+    .panel-header {
+      text-align: center;
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 2px solid rgba(255,255,255,0.1);
+    }
+
+    .panel-title {
+      font-size: 24px;
+      font-weight: bold;
+      background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+    }
+
+    .panel-subtitle {
+      font-size: 14px;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: 15px;
+      color: #4ecdc4;
+      text-decoration: none;
+      font-weight: bold;
+      transition: color 0.2s ease;
+    }
+    .back-link:hover {
+      color: #ffffff;
+    }
+
+    /* Control Groups */
+    .control-group {
+      background: linear-gradient(145deg, #1f1f35, #2a2a40);
+      border-radius: 15px;
+      padding: 20px;
+      margin-bottom: 20px;
+      border: 1px solid rgba(255,255,255,0.05);
+      box-shadow: 
+        inset 2px 2px 5px rgba(0,0,0,0.3),
+        inset -2px -2px 5px rgba(255,255,255,0.05);
+    }
+
+    .group-title {
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 15px;
+      color: #ff6b6b;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* NEW: Filter effects styling */
+    .filter-group {
+      background: linear-gradient(145deg, #2a4028, #1f351d);
+      border: 1px solid rgba(78, 205, 196, 0.2);
+    }
+
+    .filter-group .group-title {
+      color: #4ecdc4;
+    }
+
+    /* Filter-specific controls */
+    .filter-controls {
+      margin-top: 15px;
+      padding: 15px;
+      background: rgba(0,0,0,0.2);
+      border-radius: 8px;
+      border: 1px solid rgba(78, 205, 196, 0.1);
+    }
+
+    /* Control row styling for enhanced controls */
+    .control-row {
+      margin-bottom: 15px;
+    }
+
+    .control-row label {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 14px;
+      font-weight: bold;
+      color: #ffffff;
+    }
+
+    /* Selection-specific styling */
+    .selection-group {
+      background: linear-gradient(145deg, #403028, #351f1d);
+      border: 1px solid rgba(255, 196, 78, 0.2);
+    }
+
+    .selection-group .group-title {
+      color: #ffc44e;
+    }
+
+    /* File Upload, Button, Select, Slider, Canvas styling... (same as before) */
+    .file-upload-area {
+      border: 2px dashed rgba(255,255,255,0.3);
+      border-radius: 12px;
+      padding: 30px 20px;
+      text-align: center;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      background: linear-gradient(145deg, #1a1a30, #252540);
+    }
+
+    .file-upload-area:hover {
+      border-color: #4ecdc4;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(78, 205, 196, 0.2);
+    }
+
+    .upload-icon { font-size: 48px; margin-bottom: 15px; color: #4ecdc4; }
+    .upload-text { font-size: 16px; margin-bottom: 8px; font-weight: bold; }
+    .upload-hint { font-size: 12px; color: #888; }
+    #image-input { display: none; }
+
+    .control-button {
+      background: linear-gradient(145deg, #4ecdc4, #45b7d1);
+      border: none; border-radius: 12px; padding: 12px 20px; color: white;
+      font-weight: bold; cursor: pointer; transition: all 0.3s ease;
+      box-shadow: 0 6px 15px rgba(78, 205, 196, 0.3);
+      text-transform: uppercase; letter-spacing: 1px; font-size: 12px; margin: 5px;
+    }
+
+    .control-button:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(78, 205, 196, 0.4); transition: all 0.3s ease; }
+    .control-button.active { 
+      background: linear-gradient(145deg, #4ecdc4, #45b7d1); 
+      box-shadow: 0 0 15px rgba(78, 205, 196, 0.5), inset 0 2px 5px rgba(255,255,255,0.2);
+      transform: translateY(-1px);
+    }
+    .danger-button { background: linear-gradient(145deg, #ff6b6b, #ff5252); }
+    .success-button { background: linear-gradient(145deg, #66bb6a, #4caf50); }
+    .toggle-button { background: linear-gradient(145deg, #ffa726, #ff9800); min-width: 60px; }
+
+    .control-select {
+      background: linear-gradient(145deg, #2a2a40, #1f1f35);
+      border: 1px solid rgba(255,255,255,0.2); border-radius: 8px;
+      padding: 10px 15px; color: white; font-size: 14px; cursor: pointer; width: 100%; margin-bottom: 10px;
+    }
+    .control-select:focus { outline: none; border-color: #4ecdc4; box-shadow: 0 0 10px rgba(78, 205, 196, 0.3); }
+    .control-select option { background: #2a2a40; color: white; }
+    .control-select optgroup { 
+      background: #4a5568; 
+      color: white; 
+      font-weight: bold; 
+      font-size: 13px;
+    }
+    .control-select optgroup option {
+      background: #2a2a40;
+      color: white;
+      font-weight: normal;
+      padding-left: 15px;
+    }
+
+    .slider-container { margin-bottom: 15px; }
+    .slider-label { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 14px; font-weight: bold; }
+    .slider-value { background: linear-gradient(45deg, #4ecdc4, #45b7d1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-size: 16px; min-width: 50px; text-align: right; }
+    .control-slider { width: 100%; height: 8px; border-radius: 5px; background: linear-gradient(to right, #1f1f35, #2a2a40); outline: none; cursor: pointer; -webkit-appearance: none; appearance: none; }
+    .control-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 20px; height: 20px; border-radius: 50%; background: linear-gradient(145deg, #4ecdc4, #45b7d1); cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
+    .control-slider::-moz-range-thumb { width: 20px; height: 20px; border-radius: 50%; background: linear-gradient(145deg, #4ecdc4, #45b7d1); cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.3); border: none; }
+
+    /* Checkbox styling */
+    .checkbox-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .control-checkbox {
+      width: 20px;
+      height: 20px;
+      background: linear-gradient(145deg, #2a2a40, #1f1f35);
+      border: 2px solid rgba(255,255,255,0.2);
+      border-radius: 4px;
+      cursor: pointer;
+      position: relative;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+    }
+
+    .control-checkbox:checked {
+      background: linear-gradient(145deg, #4ecdc4, #45b7d1);
+      border-color: #4ecdc4;
+    }
+
+    .control-checkbox:checked::after {
+      content: '✓';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-weight: bold;
+      font-size: 14px;
+    }
+    
+    /* Preset buttons styling */
+    .preset-group {
+      background: linear-gradient(145deg, #2a3640, #1f2b35);
+      border: 1px solid rgba(255, 215, 0, 0.2);
+    }
+    
+    .preset-group .group-title {
+      color: #ffd700;
+    }
+    
+    .preset-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    
+    .preset-button {
+      background: linear-gradient(145deg, #3a3a50, #2f2f45);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      padding: 10px 8px;
+      color: white;
+      font-size: 11px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .preset-button:hover {
+      background: linear-gradient(145deg, #4a4a60, #3f3f55);
+      border-color: rgba(255, 215, 0, 0.3);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(255, 215, 0, 0.2);
+    }
+    
+    .preset-button.active {
+      background: linear-gradient(145deg, #ffd700, #ffed4e);
+      color: #1a1a2e;
+      border-color: #ffd700;
+      box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+    }
+    
+    .preset-info {
+      text-align: center;
+      margin-top: 8px;
+    }
+
+    .canvas-area {
+      background: linear-gradient(145deg, #2a2a40, #1f1f35); border-radius: 20px; padding: 30px;
+      box-shadow: inset -5px -5px 10px rgba(0,0,0,0.3), inset 5px 5px 10px rgba(255,255,255,0.1), 0 20px 40px rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 600px;
+    }
+    .canvas-placeholder { text-align: center; color: #666; font-size: 18px; }
+    .canvas-placeholder-icon { font-size: 64px; margin-bottom: 20px; color: #444; }
+    #canvas { max-width: 100%; max-height: 70vh; border-radius: 15px; box-shadow: 0 15px 35px rgba(0,0,0,0.3); border: 2px solid rgba(255,255,255,0.1); }
+
+    /* Canvas cursor styles */
+    #canvas.select-cursor { cursor: crosshair; }
+    #canvas.brush-cursor { cursor: none; }
+    #canvas.wand-cursor { cursor: crosshair; }
+    #canvas.lasso-cursor { cursor: crosshair; }
+
+    .button-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+    .button-grid-full { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 10px; }
+    .status-indicator { width: 12px; height: 12px; border-radius: 50%; background: #66bb6a; box-shadow: 0 0 10px rgba(102, 187, 106, 0.5); animation: pulse 2s infinite; }
+    @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.2); opacity: 0.7; } 100% { transform: scale(1); opacity: 1; } }
+    .status-indicator.paused { background: #ffa726; box-shadow: 0 0 10px rgba(255, 167, 38, 0.5); }
+
+    .flex-row { display: flex; align-items: center; gap: 10px; }
+    .text-small { font-size: 12px; color: #888; margin-top: 5px; }
+
+    .module-status { background: rgba(78, 205, 196, 0.1); border: 1px solid rgba(78, 205, 196, 0.3); border-radius: 8px; padding: 10px; margin-bottom: 20px; font-size: 12px; }
+    .module-status.enhanced { background: rgba(255, 215, 0, 0.1); border-color: rgba(255, 215, 0, 0.3); }
+
+    /* Enhanced selection feedback */
+    .selection-ripple {
+      position: absolute;
+      border: 2px solid rgba(78, 205, 196, 0.6);
+      border-radius: 50%;
+      pointer-events: none;
+      animation: ripple-expand 0.6s ease-out forwards;
+    }
+    
+    @keyframes ripple-expand {
+      0% { transform: scale(0.5); opacity: 1; }
+      100% { transform: scale(2); opacity: 0; }
+    }
+    
+    /* Notification styling */
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      color: white;
+      font-family: 'Segoe UI', sans-serif;
+      font-size: 14px;
+      max-width: 300px;
+      z-index: 10000;
+      cursor: pointer;
+      opacity: 0;
+      transform: translateX(100%);
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+    
+    .notification-info {
+      background: rgba(78, 205, 196, 0.9);
+      border-left: 4px solid #4ecdc4;
+    }
+    
+    .notification-success {
+      background: rgba(102, 187, 106, 0.9);
+      border-left: 4px solid #66bb6a;
+    }
+    
+    .notification-warning {
+      background: rgba(255, 167, 38, 0.9);
+      border-left: 4px solid #ffa726;
+    }
+    
+    .notification-error {
+      background: rgba(255, 107, 107, 0.9);
+      border-left: 4px solid #ff6b6b;
+    }
+    
+    /* Context menu styling */
+    .context-menu {
+      position: fixed;
+      background: linear-gradient(145deg, #2a2a40, #1f1f35);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 8px;
+      padding: 8px 0;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+      z-index: 10000;
+      min-width: 150px;
+      color: white;
+      font-family: 'Segoe UI', sans-serif;
+      font-size: 14px;
+    }
+    
+    .context-menu-item {
+      padding: 8px 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s ease;
+    }
+    
+    .context-menu-item:hover {
+      background: rgba(78, 205, 196, 0.2);
+    }
+    
+    /* Tooltip styling */
+    .selection-tooltip {
+      position: fixed;
+      background: linear-gradient(145deg, #2a2a40, #1f1f35);
+      color: white;
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid rgba(255,255,255,0.2);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      z-index: 10001;
+      font-family: 'Segoe UI', sans-serif;
+      font-size: 12px;
+      max-width: 250px;
+      opacity: 0;
+      transition: all 0.2s ease;
+      pointer-events: none;
+    }
+    
+    /* Color picker styling */
+    .control-color-picker {
+      background: linear-gradient(145deg, #2a2a40, #1f1f35);
+      border: 2px solid rgba(255,255,255,0.2);
+      border-radius: 8px;
+      padding: 5px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .control-color-picker:hover {
+      border-color: #4ecdc4;
+      box-shadow: 0 0 10px rgba(78, 205, 196, 0.3);
+    }
+    
+    .control-color-picker:focus {
+      outline: none;
+      border-color: #4ecdc4;
+      box-shadow: 0 0 15px rgba(78, 205, 196, 0.5);
+    }
+    
+    /* Dynamic control styling */
+    #artistic-style-controls-container {
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    #artistic-style-controls-container .control-row {
+      animation: fadeIn 0.3s ease;
+    }
+
+    /* Method-specific controls styling */
+    #random-controls, #color-range-controls, #brightness-controls, 
+    #edge-detection-controls, #organic-shape-controls, #combined-controls {
+      margin-top: 15px;
+      padding: 15px;
+      background: rgba(0,0,0,0.2);
+      border-radius: 8px;
+      border: 1px solid rgba(255, 196, 78, 0.1);
+      animation: fadeIn 0.3s ease;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    #color-preview-container {
+      animation: colorPulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes colorPulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(78, 205, 196, 0); }
+      50% { box-shadow: 0 0 10px 2px rgba(78, 205, 196, 0.3); }
+    }
+    
+    @media (max-width: 900px) {
+      .studio-container { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+      .control-panel { max-height: none; order: 2; }
+      .canvas-area { order: 1; min-height: 400px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="studio-container">
+    <!-- Control Panel -->
+    <div class="control-panel">
+      <div class="panel-header">
+        <h1 class="panel-title">Glitch Art Studio</h1>
+        <p class="panel-subtitle">Enhanced Effects & Selection</p>
+        <a href="../index.html" class="back-link">Back to Projects</a>
+      </div>
+
+      <!-- Module Status -->
+      <div class="module-status enhanced">
+        <div class="flex-row">
+          <span>✨</span>
+          <span><strong>ENHANCED:</strong> Advanced Selection System + Filter Effects + Smart UX!</span>
+        </div>
+        <div class="text-small">Professional-grade tools with intelligent feedback and keyboard shortcuts</div>
+      </div>
+
+      <!-- Image Upload -->
+      <div class="control-group">
+        <div class="group-title">📁 Image Source</div>
+        <div class="file-upload-area" onclick="document.getElementById('image-input').click()">
+          <div class="upload-icon">🖼️</div>
+          <div class="upload-text">Drop Image Here</div>
+          <div class="upload-hint">or click to browse</div>
+          <input type="file" id="image-input" accept="image/*">
+        </div>
+      </div>
+
+  <!-- Control Buttons -->
+  <div class="control-group">
+    <div class="group-title">🎮 Controls</div>
+    <div class="button-grid">
+      <button id="play-pause-btn" class="control-button success-button">
+        <div class="flex-row">
+          <div class="status-indicator" id="status-indicator"></div>
+          <span>⏸️ Pause</span>
+        </div>
+      </button>
+      <button id="reset-btn" class="control-button danger-button">🔄 Reset</button>
+    </div>
+  </div>
+
+      <!-- Selection Method -->
+      <div class="control-group selection-group">
+        <div class="group-title">🎯 Selection Method</div>
+        
+        <!-- Selection Mode Toggle -->
+        <div class="checkbox-container" style="margin-bottom: 10px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 8px;">
+          <input type="checkbox" id="manual-selection-mode" class="control-checkbox">
+          <label for="manual-selection-mode">✋ Manual Selection Mode</label>
+        </div>
+        
+        <select id="selection-method" class="control-select">
+          <option value="random">🎲 Random (Classic)</option>
+          <option value="colorRange">🎨 Color Range</option>
+          <option value="brightness">💡 Brightness Zones</option>
+          <option value="edgeDetection">📐 Edge Detection</option>
+          <option value="organicShapes">🫧 Organic Shapes</option>
+          <option value="contentAware">🧠 Content Aware</option>
+          <option value="combined">🌀 Combined Methods</option>
+        </select>
+        
+        <!-- Random (Classic) Controls -->
+        <div id="random-controls" style="display: none;">
+          <div class="slider-container">
+            <div class="slider-label">
+              <span>⚡ Intensity</span>
+              <span id="intensity-display" class="slider-value">Medium</span>
+            </div>
+            <select id="intensity-select" class="control-select">
+              <option value="medium">🟡 Medium</option>
+              <option value="large">🟠 Large</option>
+              <option value="extraLarge">🔴 Extra Large</option>
+            </select>
+          </div>
+          
+          <div class="slider-container">
+            <div class="slider-label">
+              <span>🔢 Concurrent Selections</span>
+              <span id="concurrent-selections-value" class="slider-value">3</span>
+            </div>
+            <input type="range" id="concurrent-selections" class="control-slider" 
+                   min="1" max="10" value="3">
+          </div>
+        </div>
+
+        <!-- Color Range Controls -->
+        <div id="color-range-controls" style="display: none;">
+          <div class="slider-container">
+            <div class="slider-label">
+              <span>🌈 Target Hue</span>
+              <span id="target-hue-value" class="slider-value">180</span>
+            </div>
+            <input type="range" id="target-hue" class="control-slider" 
+                   min="0" max="360" value="180">
+            <!-- Interactive Color Preview -->
+            <div id="color-preview-container" style="margin-top: 10px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 8px;">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div id="color-preview" style="width: 40px; height: 40px; border-radius: 8px; border: 2px solid rgba(255,255,255,0.3); background: hsl(180, 70%, 50%);"></div>
+                <div style="flex: 1;">
+                  <div style="font-size: 12px; color: #888;">Selected Color Range</div>
+                  <div id="color-range-display" style="display: flex; height: 20px; border-radius: 4px; overflow: hidden; margin-top: 4px;"></div>
+                </div>
+              </div>
+            </div>
+            
+
+          </div>
+          
+          <div class="slider-container">
+            <div class="slider-label">
+              <span>🎯 Color Tolerance</span>
+              <span id="color-tolerance-value" class="slider-value">30</span>
+            </div>
+            <input type="range" id="color-tolerance" class="control-slider" 
+                   min="5" max="60" value="30">
+          </div>
+          
+          <div class="slider-container">
+            <div class="slider-label">
+              <span>📏 Min Region Size</span>
+              <span id="min-region-size-value" class="slider-value">100</span>
+            </div>
+            <input type="range" id="min-region-size" class="control-slider" 
+                   min="50" max="500" value="100">
+          </div>
+        </div>
+
+        <!-- Brightness Controls -->
+        <div id="brightness-controls" style="display: none;">
+          <select id="brightness-zone" class="control-select">
+            <option value="shadows">🌑 Shadows</option>
+            <option value="midtones">🌓 Midtones</option>
+            <option value="highlights">🌕 Highlights</option>
+          </select>
+        </div>
+
+        <!-- Edge Detection Controls -->
+        <div id="edge-detection-controls" style="display: none;">
+          <div class="slider-container">
+            <div class="slider-label">
+              <span>🔍 Edge Sensitivity</span>
+              <span id="edge-threshold-value" class="slider-value">30</span>
+            </div>
+            <input type="range" id="edge-threshold" class="control-slider" 
+                   min="10" max="100" value="30">
+          </div>
+        </div>
+
+        <!-- Organic Shape Controls -->
+        <div id="organic-shape-controls" style="display: none;">
+          <div class="slider-container">
+            <div class="slider-label">
+              <span>⚡ Intensity</span>
+              <span id="organic-intensity-display" class="slider-value">Medium</span>
+            </div>
+            <select id="organic-intensity-select" class="control-select">
+              <option value="medium">🟡 Medium</option>
+              <option value="large">🟠 Large</option>
+              <option value="extraLarge">🔴 Extra Large</option>
+            </select>
+          </div>
+          <div class="slider-container">
+            <div class="slider-label">
+              <span>🌊 Shape Randomness</span>
+              <span id="shape-randomness-value" class="slider-value">0.3</span>
+            </div>
+            <input type="range" id="shape-randomness" class="control-slider" 
+                   min="0" max="1" step="0.1" value="0.3">
+          </div>
+          
+          <div class="slider-container">
+            <div class="slider-label">
+              <span>✨ Shape Count</span>
+              <span id="shape-count-value" class="slider-value">3</span>
+            </div>
+            <input type="range" id="shape-count" class="control-slider" 
+                   min="1" max="10" value="3">
+          </div>
+        </div>
+        
+        <!-- Combined Method Controls -->
+        <div id="combined-controls" style="display: none;">
+          <div class="checkbox-container">
+            <input type="checkbox" id="combine-color" class="control-checkbox" checked>
+            <label for="combine-color">🎨 Use Color Range</label>
+          </div>
+          <div class="checkbox-container">
+            <input type="checkbox" id="combine-brightness" class="control-checkbox">
+            <label for="combine-brightness">💡 Use Brightness</label>
+          </div>
+          <div class="checkbox-container">
+            <input type="checkbox" id="combine-edges" class="control-checkbox" checked>
+            <label for="combine-edges">📐 Use Edges</label>
+          </div>
+        </div>
+        
+        <!-- Preview Toggle -->
+        <div class="checkbox-container" style="margin-top: 15px;">
+          <input type="checkbox" id="selection-preview-checkbox" class="control-checkbox">
+          <label for="selection-preview-checkbox">👁️ Show Selection Preview</label>
+        </div>
+        
+        <!-- Selection Sensitivity -->
+        <div class="slider-container" style="margin-top: 15px;">
+          <div class="slider-label">
+            <span>🎯 Selection Sensitivity</span>
+            <span id="selection-sensitivity-value" class="slider-value">1.0</span>
+          </div>
+          <input type="range" id="selection-sensitivity" class="control-slider" 
+                 min="0.5" max="2.0" step="0.1" value="1.0">
+        </div>
+        
+        <!-- Interactive Tools -->
+        <div class="control-group" style="margin-top: 15px; background: rgba(78, 205, 196, 0.1); border: 1px solid rgba(78, 205, 196, 0.3);">
+          <div class="group-title">✏️ Interactive Tools</div>
+          <div class="button-grid">
+            <button id="select-tool" class="control-button toggle-button" data-tool="select">🔲 Select</button>
+            <button id="brush-tool" class="control-button toggle-button" data-tool="brush">🖌️ Brush</button>
+            <button id="wand-tool" class="control-button toggle-button" data-tool="wand">✨ Wand</button>
+            <button id="lasso-tool" class="control-button toggle-button" data-tool="lasso">🔗 Lasso</button>
+          </div>
+          <div class="slider-container" style="margin-top: 10px;">
+            <div class="slider-label">
+              <span>🎨 Brush Size</span>
+              <span id="brush-size-value" class="slider-value">30</span>
+            </div>
+            <input type="range" id="brush-size" class="control-slider" 
+                   min="10" max="100" value="30">
+          </div>
+          <div class="button-grid-full" style="margin-top: 10px;">
+            <button id="clear-selections" class="control-button danger-button">🗑️ Clear All</button>
+            <button id="invert-selection" class="control-button">🔄 Invert</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Effect Duration -->
+      <div class="control-group">
+        <div class="group-title">⏱️ Effect Duration</div>
+        <div class="slider-container">
+          <div class="slider-label">
+            <span>Min Lifetime</span>
+            <span id="min-lifetime-value" class="slider-value">90</span>
+          </div>
+          <input type="range" id="min-lifetime" class="control-slider" min="1" max="300" step="1" value="90">
+        </div>
+        <div class="slider-container">
+          <div class="slider-label">
+            <span>Max Lifetime</span>
+            <span id="max-lifetime-value" class="slider-value">150</span>
+          </div>
+          <input type="range" id="max-lifetime" class="control-slider" min="1" max="300" step="1" value="150">
+        </div>
+      </div>
+
+      <!-- Direction Controls (Testing) -->
+      <div class="control-group">
+        <div class="group-title">🧭 Movement Direction (Destructive)</div>
+        <select id="direction-select" class="control-select">
+          <option value="off" selected>Off</option>
+          <option value="down">⬇️ Down</option>
+          <option value="up">⬆️ Up</option>
+          <option value="right">➡️ Right</option>
+          <option value="left">⬅️ Left</option>
+          <option value="random">🎲 Random</option>
+          <option value="jitter">⚡ Jitter</option>
+        </select>
+        <div class="slider-container">
+          <div class="slider-label">
+            <span>⚡ Shift Speed</span>
+            <span id="speed-value" class="slider-value">2</span>
+          </div>
+          <input type="range" id="speed-range" class="control-slider" min="1" max="5" step="1" value="2">
+        </div>
+      </div>
+
+      <!-- Spiral Controls (Testing) -->
+      <div class="control-group">
+        <div class="group-title">🌀 Spiral Effects (Destructive)</div>
+        <select id="spiral-select" class="control-select">
+          <option value="off" selected>Off</option>
+          <option value="spiral">🌀 Spiral</option>
+          <option value="insideOut">📤 Inside-Out</option>
+          <option value="outsideIn">📥 Outside-In</option>
+          <option value="random">🎲 Random</option>
+          <option value="cw">⟳ Clockwise</option>
+          <option value="ccw">⟲ Counter-Clockwise</option>
+        </select>
+        <div class="flex-row">
+          <button id="spiral-direction-btn" class="control-button toggle-button">CW</button>
+          <div class="text-small">Global Spiral Direction</div>
+        </div>
+        <div class="slider-container">
+          <div class="slider-label">
+            <span>💫 Swirl Strength</span>
+            <span id="swirl-value" class="slider-value">0.06</span>
+          </div>
+          <input type="range" id="swirl-range" class="control-slider" min="0.01" max="0.15" step="0.01" value="0.06">
+        </div>
+      </div>
+
+      <!-- Slice Effects -->
+      <div class="control-group">
+        <div class="group-title">✂️ Slice Glitch (Destructive)</div>
+        <select id="slice-select" class="control-select">
+          <option value="off" selected>Off</option>
+          <option value="horizontal">↔️ Horizontal</option>
+          <option value="vertical">↕️ Vertical</option>
+          <option value="both">⚡ Both</option>
+        </select>
+        <div class="slider-container">
+          <div class="slider-label">
+            <span>🎨 Color Offset</span>
+            <span id="color-offset-value" class="slider-value">0</span>
+          </div>
+          <input type="range" id="color-offset-range" class="control-slider" min="0" max="50" step="1" value="0">
+        </div>
+      </div>
+
+      <!-- Pixel Sort Effects -->
+      <div class="control-group">
+        <div class="group-title">🔀 Pixel Sort (Destructive)</div>
+        <select id="pixel-sort-select" class="control-select">
+          <option value="off" selected>Off</option>
+          <option value="columnBrightness">🔆 Columns by Brightness</option>
+          <option value="rowBrightness">🔅 Rows by Brightness</option>
+          <option value="columnHue">🌈 Columns by Hue</option>
+          <option value="rowHue">🎨 Rows by Hue</option>
+          <option value="randomLines">🎲 Random Lines</option>
+          <option value="diagonal">📠 Diagonal Sort</option>
+          <option value="circular">⭕ Circular Sort</option>
+          <option value="wave">🌊 Wave Sort</option>
+        </select>
+      </div>
+
+      <!-- Color Effects -->
+      <div class="control-group">
+        <div class="group-title">🎨 Color Effects (Destructive)</div>
+        <select id="color-effect-select" class="control-select">
+          <option value="off" selected>Off</option>
+          <option value="chromaticAberration">📺 Chromatic Aberration</option>
+          <option value="hueShift">🌈 Hue Shift</option>
+          <option value="saturation">💎 Saturation Boost</option>
+          <option value="invert">🔄 Color Invert</option>
+          <option value="vintage">📸 Vintage</option>
+          <option value="colorNoise">🎆 Color Noise</option>
+        </select>
+        <div class="slider-container">
+          <div class="slider-label">
+            <span>🎴 Effect Intensity</span>
+            <span id="color-intensity-value" class="slider-value">50</span>
+          </div>
+          <input type="range" id="color-intensity-range" class="control-slider" min="0" max="100" step="1" value="50">
+        </div>
+      </div>
+
+          <!-- NEW: Filter Effects Section -->
+          <div class="control-group filter-group">
+            <div class="group-title">🎨 Filter Effects (Non-Destructive)</div>
+            <select id="filter-effect-select" class="control-select">
+              <option value="off" selected>Off</option>
+              <optgroup label="🎨 Classic Filters">
+                <option value="popArt">🎭 Pop Art</option>
+                <option value="vintage">📽️ Vintage Film</option>
+                <option value="emboss">🔨 Emboss</option>
+                <option value="edgeDetect">📐 Edge Detection</option>
+                <option value="motionBlur">💨 Motion Blur</option>
+                <option value="vignette">🌑 Vignette</option>
+                <option value="halftone">🔵 Halftone</option>
+              </optgroup>
+              <optgroup label="🔧 Advanced Filters">
+                <option value="liquify">🌊 Liquify/Warp</option>
+                <option value="colorGrading">🎨 Color Grading</option>
+                <option value="noise">📺 Noise & Texture</option>
+              </optgroup>
+              <optgroup label="🤖 Cyberpunk">
+                <option value="cyberpunk-neon">⚡ Neon Glow</option>
+                <option value="cyberpunk-matrix">⚡ Matrix Code</option>
+                <option value="cyberpunk-synthwave">⚡ Synthwave</option>
+                <option value="cyberpunk-digital_rain">⚡ Digital Rain</option>
+                <option value="cyberpunk-hologram">⚡ Hologram</option>
+                <option value="cyberpunk-glitch_scan">⚡ Glitch Scan</option>
+              </optgroup>
+              <optgroup label="🎨 Artistic">
+                <option value="artistic-oil_painting">🖌️ Oil Painting</option>
+                <option value="artistic-watercolor">🖌️ Watercolor</option>
+                <option value="artistic-pencil_sketch">🖌️ Pencil Sketch</option>
+                <option value="artistic-mosaic">🖌️ Mosaic</option>
+                <option value="artistic-stained_glass">🖌️ Stained Glass</option>
+                <option value="artistic-comic_book">🖌️ Comic Book</option>
+                <option value="artistic-crosshatch">🖌️ Crosshatch</option>
+                <option value="artistic-pointillism">🖌️ Pointillism</option>
+              </optgroup>
+              <optgroup label="🌪️ Atmospheric">
+                <option value="atmospheric-fog">🌫️ Fog</option>
+                <option value="atmospheric-rain">🌫️ Rain</option>
+                <option value="atmospheric-snow">🌫️ Snow</option>
+                <option value="atmospheric-dust">🌫️ Dust Storm</option>
+                <option value="atmospheric-heat_haze">🌫️ Heat Haze</option>
+                <option value="atmospheric-underwater">🌫️ Underwater</option>
+                <option value="atmospheric-aurora">🌫️ Aurora</option>
+                <option value="atmospheric-lightning">🌫️ Lightning</option>
+              </optgroup>
+              <optgroup label="🔬 Experimental">
+                <option value="experimental-kaleidoscope">🧪 Kaleidoscope</option>
+                <option value="experimental-fractal">🧪 Fractal</option>
+                <option value="experimental-tunnel">🧪 Tunnel</option>
+                <option value="experimental-warp">🧪 Warp Field</option>
+                <option value="experimental-chromatic_shift">🧪 Chromatic Shift</option>
+                <option value="experimental-data_bend">🧪 Data Bend</option>
+                <option value="experimental-mirror_world">🧪 Mirror World</option>
+                <option value="experimental-reality_glitch">🧪 Reality Glitch</option>
+              </optgroup>
+            </select>
+            
+            <div class="slider-container">
+              <div class="slider-label">
+                <span>🎚️ Filter Intensity</span>
+                <span id="filter-intensity-value" class="slider-value">50</span>
+              </div>
+              <input type="range" id="filter-intensity-range" class="control-slider" 
+                     min="0" max="100" step="1" value="50">
+            </div>
+            
+            <!-- Pop Art Controls -->
+            <div id="pop-art-controls" class="filter-controls" style="display: none;">
+              <div class="slider-label">
+                <span>🎨 Style</span>
+              </div>
+              <select id="pop-art-style" class="control-select">
+                <option value="warhol" selected>Andy Warhol</option>
+                <option value="lichtenstein">Roy Lichtenstein</option>
+                <option value="neon">Neon Pop</option>
+                <option value="psychedelic">Psychedelic</option>
+              </select>
+            </div>
+            
+            <!-- Vintage Film Controls -->
+            <div id="vintage-controls" class="filter-controls" style="display: none;">
+              <div class="slider-label">
+                <span>📽️ Film Type</span>
+              </div>
+              <select id="vintage-film-type" class="control-select">
+                <option value="polaroid" selected>Polaroid</option>
+                <option value="kodachrome">Kodachrome</option>
+                <option value="faded">Faded Photo</option>
+                <option value="sepia">Sepia</option>
+              </select>
+              <div class="slider-container">
+                <div class="slider-label">
+                  <span>🌾 Film Grain</span>
+                  <span id="film-grain-value" class="slider-value">30</span>
+                </div>
+                <input type="range" id="film-grain-range" class="control-slider" 
+                       min="0" max="100" step="1" value="30">
+              </div>
+            </div>
+            
+            <!-- Motion Blur Controls -->
+            <div id="motion-blur-controls" class="filter-controls" style="display: none;">
+              <div class="slider-label">
+                <span>📐 Direction</span>
+              </div>
+              <select id="motion-blur-direction" class="control-select">
+                <option value="horizontal" selected>Horizontal</option>
+                <option value="vertical">Vertical</option>
+                <option value="diagonal">Diagonal</option>
+              </select>
+            </div>
+            
+            <!-- Enhanced Halftone Controls -->
+            <div id="halftone-controls" class="filter-controls" style="display: none;">
+              <!-- Existing pattern control -->
+              <div class="control-row">
+                <label>Pattern:</label>
+                <select id="halftone-pattern" class="control-select">
+                  <option value="circle">Circle</option>
+                  <option value="square">Square</option>
+                  <option value="diamond">Diamond</option>
+                  <option value="lines">Lines</option>
+                  <option value="crosshatch">Cross-hatch</option>
+                </select>
+              </div>
+              
+              <!-- NEW: Enhanced controls -->
+              <div class="control-row">
+                <label>Dot Size: <span id="halftone-dot-size-value">4</span>px</label>
+                <input type="range" id="halftone-dot-size" class="control-slider" min="2" max="20" value="4">
+              </div>
+              
+              <div class="control-row">
+                <label>Angle: <span id="halftone-angle-value">0</span>°</label>
+                <input type="range" id="halftone-angle" class="control-slider" min="0" max="360" value="0">
+              </div>
+              
+              <div class="control-row">
+                <label>Threshold: <span id="halftone-threshold-value">128</span></label>
+                <input type="range" id="halftone-threshold" class="control-slider" min="0" max="255" value="128">
+              </div>
+              
+              <div class="control-row">
+                <label>Color Mode:</label>
+                <select id="halftone-color-mode" class="control-select">
+                  <option value="bw">Black & White</option>
+                  <option value="duotone">Duotone</option>
+                  <option value="color">Full Color</option>
+                </select>
+              </div>
+            </div>
+            
+            <!-- Liquify Controls -->
+            <div id="liquify-controls" class="filter-controls" style="display: none;">
+              <!-- Container for dynamically generated liquify controls -->
+              <div id="liquify-controls-container">
+                <!-- Static controls are commented out below, JS will populate this container -->
+                <!-- 
+                <div class="control-row">
+                  <label>Coverage: <span id="liquify-radius-value">100%</span></label>
+                  <input type="range" id="liquify-radius" class="control-slider" min="25" max="150" value="100">
+                  <div class="text-small">25% = Small Area, 100% = Whole Canvas, 150% = Extended</div>
+                </div>
+                
+                <div class="control-row">
+                  <label>Strength: <span id="liquify-strength-value">50</span>%</label>
+                  <input type="range" id="liquify-strength" class="control-slider" min="0" max="100" value="50">
+                </div>
+                -->
+              </div>
+            </div>
+    
+            <!-- Color Grading Controls -->
+            <div id="color-grading-controls" class="filter-controls" style="display: none;">
+              <div class="control-row">
+                <label>Temperature: <span id="color-grading-temperature-value">0</span></label>
+                <input type="range" id="color-grading-temperature" class="control-slider" min="-100" max="100" value="0">
+              </div>
+              
+              <div class="control-row">
+                <label>Tint: <span id="color-grading-tint-value">0</span></label>
+                <input type="range" id="color-grading-tint" class="control-slider" min="-100" max="100" value="0">
+              </div>
+              
+              <div class="control-row">
+                <label>Vibrance: <span id="color-grading-vibrance-value">0</span></label>
+                <input type="range" id="color-grading-vibrance" class="control-slider" min="-100" max="100" value="0">
+              </div>
+              
+              <div class="control-row">
+                <label>Saturation: <span id="color-grading-saturation-value">0</span></label>
+                <input type="range" id="color-grading-saturation" class="control-slider" min="-100" max="100" value="0">
+              </div>
+            </div>
+    
+            <!-- Noise Controls -->
+            <div id="noise-controls" class="filter-controls" style="display: none;">
+              <div class="control-row">
+                <label>Noise Type:</label>
+                <select id="noise-type" class="control-select">
+                  <option value="film">Film Grain</option>
+                  <option value="digital">Digital</option>
+                  <option value="perlin">Perlin</option>
+                  <option value="cellular">Cellular</option>
+                </select>
+              </div>
+              
+              <div class="control-row">
+                <label>Amount: <span id="noise-amount-value">50</span>%</label>
+                <input type="range" id="noise-amount" class="control-slider" min="0" max="100" value="50">
+              </div>
+              
+              <div class="control-row">
+                <label>Size: <span id="noise-size-value">1</span></label>
+                <input type="range" id="noise-size" class="control-slider" min="1" max="10" value="1">
+              </div>
+              
+              <div class="control-row">
+                <label>
+                  <input type="checkbox" id="noise-color" class="control-checkbox" checked> Color Noise
+                </label>
+              </div>
+            </div>
+            
+            <!-- Artistic Controls -->
+            <div id="artistic-controls" class="filter-controls" style="display: none;">
+              <!-- Dynamic controls will be inserted here -->
+              <div id="artistic-style-controls-container"></div>
+            </div>
+    
+            <!-- Emboss Controls -->
+            <div id="emboss-controls" class="filter-controls" style="display: none;">
+              <!-- Dynamic controls will be inserted here -->
+              <div id="emboss-controls-container"></div>
+            </div>
+            
+            <!-- Edge Detection Controls -->
+            <div id="edge-detect-controls" class="filter-controls" style="display: none;">
+              <!-- Dynamic controls will be inserted here -->
+              <div id="edge-detect-controls-container"></div>
+            </div>
+            
+            <!-- Vignette Controls -->
+            <div id="vignette-controls" class="filter-controls" style="display: none;">
+              <!-- Dynamic controls will be inserted here -->
+              <div id="vignette-controls-container"></div>
+            </div>
+            
+            <!-- Cyberpunk Controls -->
+            <div id="cyberpunk-controls" class="filter-controls" style="display: none;">
+              <!-- Dynamic controls will be inserted here -->
+              <div id="cyberpunk-style-controls-container"></div>
+            </div>
+            
+            <!-- Atmospheric Controls -->
+            <div id="atmospheric-controls" class="filter-controls" style="display: none;">
+              <!-- Dynamic controls will be inserted here -->
+              <div id="atmospheric-style-controls-container"></div>
+            </div>
+            
+            <!-- Experimental Controls -->
+            <div id="experimental-controls" class="filter-controls" style="display: none;">
+              <!-- Dynamic controls will be inserted here -->
+              <div id="experimental-style-controls-container"></div>
+            </div>
+    
+            <div class="text-small">Applied as final pass - preserves original destructive effects</div>
+          </div>
+
+      <!-- Recording -->
+      <div class="control-group">
+        <div class="group-title">🎬 Recording</div>
+        <div class="slider-container">
+          <div class="slider-label">
+            <span>🖼️ Number of Frames</span>
+            <span id="record-frames-value" class="slider-value">150</span>
+          </div>
+          <input type="range" id="record-frames-range" class="control-slider" min="30" max="600" step="15" value="150">
+        </div>
+        <div class="select-container" style="margin-top: 10px;">
+          <div class="select-label" style="display: flex; justify-content: space-between; align-items: center;">
+            <span>🎯 Target FPS</span>
+          </div>
+          <select id="record-fps-select" class="control-select" style="width: 100%;">
+            <option value="15">15 FPS</option>
+            <option value="24">24 FPS</option>
+            <option value="30" selected>30 FPS</option>
+            <option value="60">60 FPS</option>
+          </select>
+        </div>
+        <div class="checkbox-container">
+          <input type="checkbox" id="reverse-checkbox" class="control-checkbox">
+          <label for="reverse-checkbox">🔄 Reverse Video</label>
+        </div>
+        <div class="button-grid">
+          <button id="record-btn" class="control-button">🎥 Record</button>
+          <button id="snapshot-btn" class="control-button">📷 Snapshot</button>
+        </div>
+        <button id="batch-export-btn" class="control-button" style="width: 100%; margin-top: 10px;">📦 Batch Export (10 variations)</button>
+      </div>
+
+      <!-- Development Info -->
+      <div class="control-group">
+        <div class="group-title">🛠️ Development Status</div>
+        <div style="font-size: 12px; line-height: 1.5;">
+          <div class="flex-row">
+            <span>✅</span>
+            <span>All destructive effects modularized</span>
+          </div>
+          <div class="flex-row">
+            <span>✅</span>
+            <span>Filter effects pipeline integrated</span>
+          </div>
+          <div class="flex-row">
+            <span>✅</span>
+            <span>Enhanced selection system with advanced UX</span>
+          </div>
+          <div class="flex-row">
+            <span>✅</span>
+            <span>Keyboard shortcuts and gesture recognition</span>
+          </div>
+          <div class="flex-row">
+            <span>✅</span>
+            <span>Smart notifications and contextual tooltips</span>
+          </div>
+          <div class="flex-row">
+            <span>✅</span>
+            <span>Real-time selection statistics and feedback</span>
+          </div>
+          <div class="flex-row">
+            <span>✅</span>
+            <span>Enhanced touch support with multi-gesture</span>
+          </div>
+          <div class="flex-row">
+            <span>✅</span>
+            <span>Context menus and visual tool feedback</span>
+          </div>
+          <div class="flex-row">
+            <span>✅</span>
+            <span>Manual & automatic selection modes</span>
+          </div>
+          <div class="flex-row">
+            <span>✅</span>
+            <span>Interactive selection tools (Select, Brush, Wand, Lasso)</span>
+          </div>
+          <div class="flex-row">
+            <span>✅</span>
+            <span>Smart selection algorithms (Color, Brightness, Edges)</span>
+          </div>
+          <div class="flex-row">
+            <span>✅</span>
+            <span>Pop Art & Vintage Film filters</span>
+          </div>
+          <div class="flex-row">
+            <span>✅</span>
+            <span>Emboss, Edge Detection, Motion Blur</span>
+          </div>
+          <div class="flex-row">
+            <span>✅</span>
+            <span>Vignette & Halftone filters</span>
+          </div>
+          <div class="flex-row">
+            <span>✅</span>
+            <span>NEW: Cyberpunk effects (Neon, Matrix, Synthwave)</span>
+          </div>
+          <div class="flex-row">
+            <span>✅</span>
+            <span>NEW: Artistic effects (Oil Paint, Watercolor, Sketch)</span>
+          </div>
+          <div class="flex-row">
+            <span>✅</span>
+            <span>NEW: Atmospheric effects (Fog, Rain, Snow, Aurora)</span>
+          </div>
+          <div class="flex-row">
+            <span>✅</span>
+            <span>NEW: Experimental effects (Kaleidoscope, Fractal, Warp)</span>
+          </div>
+          <div class="flex-row">
+            <span>🔄</span>
+            <span>35+ unique filter effects with customizable parameters</span>
+          </div>
+        </div>
+        <div class="text-small" style="margin-top: 10px;">
+          <strong>Enhanced Pipeline:</strong> Smart Selection → Destructive effects → Filter effects → Real-time feedback
+        </div>
+      </div>
+    </div>
+
+    <!-- Canvas Area -->
+    <div class="canvas-area">
+      <canvas id="canvas" style="display: none;"></canvas>
+      <div id="canvas-placeholder" class="canvas-placeholder">
+        <div class="canvas-placeholder-icon">🎨</div>
+        <div>Upload an image to test the complete effects pipeline!</div>
+        <div class="text-small">Advanced Selection System + Destructive Effects + Non-Destructive Filter Effects</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Load the enhanced modular application -->
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

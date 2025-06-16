@@ -1,0 +1,6 @@
+{
+  "name": "synthograsizer-repo",
+  "version": "1.0.0",
+  "description": "A collection of web-based audio and visual synthesis tools.",
+  "type": "module"
+}

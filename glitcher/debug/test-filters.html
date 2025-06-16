@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Filter Debug Test</title>
+    <style>
+        body {
+            font-family: monospace;
+            background: #222;
+            color: #fff;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 10px;
+            border: 1px solid #555;
+        }
+        button {
+            margin: 5px;
+            padding: 10px;
+            background: #444;
+            color: #fff;
+            border: 1px solid #666;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #555;
+        }
+        #output {
+            white-space: pre-wrap;
+            background: #111;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #333;
+        }
+    </style>
+</head>
+<body>
+    <h1>Filter Options Debug Test</h1>
+    
+    <div class="test-section">
+        <h2>Test Filter Options Structure</h2>
+        <button onclick="testFilterOptions()">Test Filter Options</button>
+        <button onclick="clearOutput()">Clear Output</button>
+    </div>
+    
+    <div id="output"></div>
+    
+    <script type="module">
+        // Make functions global for onclick handlers
+        window.output = document.getElementById('output');
+        
+        window.log = function(message) {
+            window.output.textContent += message + '\n';
+        };
+        
+        window.clearOutput = function() {
+            window.output.textContent = '';
+        };
+        
+        window.testFilterOptions = function() {
+            // Access the global app instance
+            const app = window.glitcherApp;
+            if (!app) {
+                log('❌ App not found!');
+                return;
+            }
+            
+            log('✅ App found');
+            log('\n📊 Filter Options Structure:');
+            log(JSON.stringify(app.filterOptions, null, 2));
+            
+            log('\n🎯 Testing specific values:');
+            log(`Edge Threshold (flat): ${app.filterOptions.edgeThreshold}`);
+            log(`Edge Method (flat): ${app.filterOptions.edgeMethod}`);
+            log(`Edge Color (flat): ${JSON.stringify(app.filterOptions.edgeColor)}`);
+            log(`Edge Background (flat): ${app.filterOptions.edgeBackground}`);
+            
+            log(`\nGlow Radius (flat): ${app.filterOptions.glowRadius}`);
+            log(`Digital Noise (flat): ${app.filterOptions.digitalNoise}`);
+            
+            log(`\nColor Grading Temperature (flat): ${app.filterOptions.temperature}`);
+            log(`Color Grading Temperature (nested): ${app.filterOptions.colorGrading?.temperature}`);
+            
+            log(`\nNoise Amount (flat): ${app.filterOptions.noiseAmount}`);
+            log(`Noise Amount (nested): ${app.filterOptions.noise?.noiseAmount}`);
+            
+            // Test setting values
+            log('\n🔧 Testing value updates:');
+            
+            // Simulate edge threshold change
+            if (typeof app.handleFilterControlChange === 'function') {
+                app.handleFilterControlChange('edgeDetect', 'edge-threshold', 100);
+                log(`After edge-threshold update: ${app.filterOptions.edgeThreshold}`);
+            } else {
+                log('❌ handleFilterControlChange not found');
+            }
+        };
+        
+        // Auto-run test when app is ready
+        setTimeout(() => {
+            if (window.glitcherApp) {
+                log('🚀 App detected, running initial test...\n');
+                testFilterOptions();
+            } else {
+                log('⏳ Waiting for app to initialize...');
+            }
+        }, 1000);
+    </script>
+</body>
+</html>
