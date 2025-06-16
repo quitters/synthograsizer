@@ -306,7 +306,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const templateDropdownMenu = document.getElementById('templateDropdownMenu');
   let templateList = [];
   if (templateDropdownButton && templateDropdownMenu) {
-    fetch('project-templates/templates.json')
+    fetch('synthograsizer/project-templates/templates.json')
       .then(resp => resp.json())
       .then(templates => {
         templateList = templates;
@@ -318,7 +318,7 @@ document.addEventListener('DOMContentLoaded', function() {
           btn.textContent = tpl.name;
           btn.tabIndex = 0;
           btn.addEventListener('click', () => {
-            fetch('project-templates/' + tpl.file)
+            fetch('synthograsizer/project-templates/' + tpl.file)
               .then(resp => {
                 if (!resp.ok) throw new Error('Failed to fetch template: ' + tpl.file);
                 return resp.json();
