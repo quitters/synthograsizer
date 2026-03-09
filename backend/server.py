@@ -629,7 +629,10 @@ async def proxy_chatroom(request: Request, path: str):
 if not STATIC_DIR.exists():
     print(f"WARNING: Static directory not found at {STATIC_DIR}")
 
-app.mount("/", StaticFiles(directory=str(STATIC_DIR), html=True), name="static")
+# On Vercel, static files are served by the CDN via vercel.json rewrites —
+# mounting them through FastAPI would conflict and is unnecessary.
+if not os.environ.get("VERCEL") and STATIC_DIR.exists():
+    app.mount("/", StaticFiles(directory=str(STATIC_DIR), html=True), name="static")
 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8000)

@@ -1,8 +1,10 @@
 {
+  "version": 2,
+  "builds": [
+    { "src": "backend/server.py", "use": "@vercel/python" }
+  ],
   "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "/backend/server.py"
-    }
+    { "source": "/api/(.*)", "destination": "/backend/server.py" },
+    { "source": "/(.*)",     "destination": "/static/$1" }
   ]
 }

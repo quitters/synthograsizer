@@ -284,34 +284,49 @@ class AIManager:
         return closest[0]
 
     def load_config(self):
-        """Load API key from config file if it exists."""
+        """Load API key — checks env vars first, then local config file.
+
+        Priority:
+          1. GOOGLE_API_KEY env var  (Vercel / CI / production)
+          2. GEMINI_API_KEY env var  (alternative name)
+          3. ai_studio_config.json  (local development)
+        """
+        env_key = os.environ.get("GOOGLE_API_KEY") or os.environ.get("GEMINI_API_KEY")
+        if env_key:
+            self.configure_api(env_key, save=False)
+            return
+
         if self.config_path.exists():
             try:
                 with open(self.config_path, 'r') as f:
                     saved = json.load(f)
                     if "api_key" in saved:
-                        self.configure_api(saved["api_key"])
+                        self.configure_api(saved["api_key"], save=False)
             except Exception as e:
                 print(f"Failed to load config: {e}")
 
     def save_config(self, api_key: str):
-        """Save API key to config file."""
+        """Save API key to local config file (skipped on Vercel — read-only filesystem)."""
+        if os.environ.get("VERCEL"):
+            return
         try:
             with open(self.config_path, 'w') as f:
                 json.dump({"api_key": api_key}, f)
         except Exception as e:
             print(f"Failed to save config: {e}")
 
-    def configure_api(self, api_key: str):
+    def configure_api(self, api_key: str, save: bool = True):
         """Configure both GenAI clients."""
         self.api_key = api_key
-        
+
         # Configure legacy client (for Text/Gemini)
         genai.configure(api_key=api_key)
-        
+
         # Configure new client (for Video/Veo and Imagen 3)
         self.genai_client = genai_client.Client(api_key=api_key)
-        self.save_config(api_key)
+
+        if save:
+            self.save_config(api_key)
 
     def chat(self, message: str, history: List[Dict[str, str]] = None, model_name: str = "gemini-3-flash-preview"):
         """Send a message to the chat model."""
