@@ -1,10 +1,11 @@
 {
   "version": 2,
   "builds": [
-    { "src": "backend/server.py", "use": "@vercel/python" }
+    { "src": "backend/server.py", "use": "@vercel/python" },
+    { "src": "static/**",        "use": "@vercel/static" }
   ],
-  "rewrites": [
-    { "source": "/api/(.*)", "destination": "/backend/server.py" },
-    { "source": "/(.*)",     "destination": "/static/$1" }
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/backend/server.py" },
+    { "src": "/(.*)",     "dest": "/static/$1" }
   ]
 }
