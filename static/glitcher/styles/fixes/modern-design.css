@@ -1,0 +1,613 @@
+/* Modern Design Enhancements for Glitcher Studio
+   Premium visual improvements and modern UI touches
+   Author: Your talented web designer
+   Date: June 2025
+*/
+
+/* ========================================
+   GLASSMORPHISM & MODERN BACKGROUNDS
+   ======================================== */
+
+/* Add glassmorphism to panels */
+.effect-chain-container {
+  background: linear-gradient(
+    145deg,
+    rgba(37, 37, 64, 0.8),
+    rgba(42, 42, 64, 0.6)
+  );
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.37),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Enhanced effect modules with glass effect */
+.effect-module {
+  background: linear-gradient(
+    145deg,
+    rgba(42, 42, 64, 0.7),
+    rgba(31, 31, 53, 0.7)
+  );
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 
+    0 4px 24px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Animated gradient border on hover */
+.effect-module::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 1px;
+  border-radius: 12px;
+  background: linear-gradient(
+    45deg,
+    #4ecdc4,
+    #45b7d1,
+    #7b68ee,
+    #ff6b6b,
+    #4ecdc4
+  );
+  -webkit-mask: 
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  background-size: 300% 300%;
+  animation: gradientShift 8s ease infinite;
+}
+
+.effect-module:hover::before {
+  opacity: 0.8;
+}
+
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* ========================================
+   NEON GLOW EFFECTS
+   ======================================== */
+
+/* Neon glow for active elements */
+.mode-toggle.destructive {
+  background: linear-gradient(145deg, #ff6b6b, #ff5252);
+  box-shadow: 
+    0 0 20px rgba(255, 107, 107, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  text-shadow: 0 0 8px rgba(255, 107, 107, 0.8);
+}
+
+.mode-toggle.non-destructive {
+  background: linear-gradient(145deg, #4ecdc4, #45b7d1);
+  box-shadow: 
+    0 0 20px rgba(78, 205, 196, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  text-shadow: 0 0 8px rgba(78, 205, 196, 0.8);
+}
+
+/* Pulsing glow for power button */
+.power-toggle.active {
+  background: linear-gradient(145deg, #66bb6a, #4caf50);
+  color: white;
+  box-shadow: 0 0 15px rgba(102, 187, 106, 0.6);
+  animation: powerPulse 2s ease-in-out infinite;
+}
+
+@keyframes powerPulse {
+  0%, 100% { 
+    box-shadow: 0 0 15px rgba(102, 187, 106, 0.6);
+    transform: scale(1);
+  }
+  50% { 
+    box-shadow: 0 0 25px rgba(102, 187, 106, 0.8);
+    transform: scale(1.05);
+  }
+}
+
+/* ========================================
+   MICRO-ANIMATIONS
+   ======================================== */
+
+/* Smooth hover effects */
+.effect-module {
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+.effect-module:hover {
+  transform: translateY(-2px) scale(1.01);
+}
+
+/* Button press effect */
+button {
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+button::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.3s, height 0.3s;
+}
+
+button:active::after {
+  width: 100%;
+  height: 100%;
+}
+
+/* ========================================
+   MODERN TYPOGRAPHY
+   ======================================== */
+
+/* Import modern font */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+.effect-chain-container {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.effect-name {
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.effect-type {
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  opacity: 0.7;
+}
+
+/* ========================================
+   ENHANCED COLOR SCHEME
+   ======================================== */
+
+/* Modern color palette */
+:root {
+  --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --success-gradient: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+  --danger-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+  --info-gradient: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+}
+
+/* Apply gradients to buttons */
+.add-effect-btn {
+  background: var(--primary-gradient);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.save-preset-btn {
+  background: var(--success-gradient);
+}
+
+.clear-chain-btn {
+  background: var(--danger-gradient);
+}
+
+/* ========================================
+   SMOOTH SCROLLBARS
+   ======================================== */
+
+.effect-chain-list {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(78, 205, 196, 0.3) transparent;
+}
+
+.effect-chain-list::-webkit-scrollbar {
+  width: 6px;
+  background: transparent;
+}
+
+.effect-chain-list::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 3px;
+  margin: 8px 0;
+}
+
+.effect-chain-list::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    180deg,
+    rgba(78, 205, 196, 0.5),
+    rgba(69, 183, 209, 0.5)
+  );
+  border-radius: 3px;
+  transition: all 0.3s ease;
+}
+
+.effect-chain-list::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(
+    180deg,
+    rgba(78, 205, 196, 0.8),
+    rgba(69, 183, 209, 0.8)
+  );
+}
+
+/* ========================================
+   LOADING STATES
+   ======================================== */
+
+/* Skeleton loading animation */
+.effect-module.loading {
+  background: linear-gradient(
+    90deg,
+    rgba(42, 42, 64, 0.7) 25%,
+    rgba(52, 52, 74, 0.7) 50%,
+    rgba(42, 42, 64, 0.7) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* ========================================
+   DRAG & DROP ENHANCEMENTS
+   ======================================== */
+
+.effect-module.dragging {
+  cursor: grabbing;
+  opacity: 0.9;
+  transform: rotate(2deg) scale(1.05);
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.4),
+    0 0 40px rgba(78, 205, 196, 0.4);
+  z-index: 1000;
+}
+
+/* Drop zone highlight */
+.effect-chain-list.drag-over {
+  background: radial-gradient(
+    ellipse at center,
+    rgba(78, 205, 196, 0.1) 0%,
+    transparent 70%
+  );
+}
+
+/* ========================================
+   EMPTY STATE IMPROVEMENTS
+   ======================================== */
+
+.empty-chain-message {
+  background: radial-gradient(
+    ellipse at center,
+    rgba(78, 205, 196, 0.05) 0%,
+    transparent 70%
+  );
+  border-radius: 16px;
+  padding: 40px;
+}
+
+.empty-icon {
+  background: linear-gradient(135deg, #4ecdc4, #45b7d1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 2px 4px rgba(78, 205, 196, 0.3));
+}
+
+/* ========================================
+   NOTIFICATION IMPROVEMENTS
+   ======================================== */
+
+.effect-notification {
+  backdrop-filter: blur(20px);
+  border-radius: 12px;
+  box-shadow: 
+    0 10px 30px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-weight: 500;
+}
+
+.effect-notification.success {
+  background: linear-gradient(
+    135deg,
+    rgba(102, 187, 106, 0.9),
+    rgba(129, 199, 132, 0.9)
+  );
+}
+
+/* ========================================
+   PERFORMANCE INDICATOR ENHANCEMENT
+   ======================================== */
+
+.performance-indicator {
+  position: relative;
+}
+
+.performance-indicator::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: inherit;
+  border-radius: 50%;
+  filter: blur(4px);
+  opacity: 0.6;
+  z-index: -1;
+}
+
+/* ========================================
+   FOOTER ENHANCEMENT
+   ======================================== */
+
+.effect-chain-footer {
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.2) 0%,
+    rgba(0, 0, 0, 0.4) 100%
+  );
+  backdrop-filter: blur(10px);
+}
+
+.effect-chain-footer button {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.effect-chain-footer button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(78, 205, 196, 0.2);
+}
+
+/* ========================================
+   QUICK ACTION CARDS
+   ======================================== */
+
+.quick-action-btn {
+  background: linear-gradient(
+    135deg,
+    rgba(78, 205, 196, 0.1),
+    rgba(69, 183, 209, 0.1)
+  );
+  border: 1px solid rgba(78, 205, 196, 0.2);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.quick-action-btn:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(78, 205, 196, 0.3),
+    rgba(69, 183, 209, 0.3)
+  );
+  border-color: rgba(78, 205, 196, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(78, 205, 196, 0.3);
+}
+
+/* ========================================
+   CONTEXT MENU ENHANCEMENT
+   ======================================== */
+
+.effect-context-menu {
+  background: rgba(42, 42, 64, 0.95);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 
+    0 20px 50px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.context-menu-item {
+  transition: all 0.2s ease;
+}
+
+.context-menu-item:hover {
+  background: linear-gradient(
+    90deg,
+    rgba(78, 205, 196, 0.2) 0%,
+    rgba(78, 205, 196, 0.1) 100%
+  );
+  padding-left: 20px;
+}
+
+/* ========================================
+   STAT BADGES
+   ======================================== */
+
+.stat-item {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.05),
+    rgba(255, 255, 255, 0.02)
+  );
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.stat-item:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(78, 205, 196, 0.2),
+    rgba(78, 205, 196, 0.1)
+  );
+  transform: translateY(-2px);
+}
+
+.stat-value {
+  font-weight: 700;
+  background: linear-gradient(135deg, #4ecdc4, #45b7d1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ========================================
+   MODAL ENHANCEMENTS
+   ======================================== */
+
+.modal-content {
+  background: linear-gradient(
+    145deg,
+    rgba(42, 42, 64, 0.95),
+    rgba(31, 31, 53, 0.95)
+  );
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 
+    0 30px 80px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.template-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.template-card:hover {
+  background: rgba(78, 205, 196, 0.1);
+  border-color: rgba(78, 205, 196, 0.3);
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 12px 30px rgba(78, 205, 196, 0.3);
+}
+
+/* ========================================
+   RESPONSIVE DESIGN TOUCHES
+   ======================================== */
+
+@media (max-width: 1400px) {
+  .effect-module {
+    padding: 10px;
+  }
+  
+  .effect-header {
+    gap: 6px;
+  }
+  
+  .effect-icon {
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+  }
+}
+
+/* ========================================
+   DARK MODE OPTIMIZATION
+   ======================================== */
+
+@media (prefers-color-scheme: dark) {
+  .effect-chain-container {
+    background: linear-gradient(
+      145deg,
+      rgba(20, 20, 35, 0.9),
+      rgba(25, 25, 40, 0.8)
+    );
+  }
+}
+
+/* ========================================
+   ACCESSIBILITY FOCUS STATES
+   ======================================== */
+
+*:focus-visible {
+  outline: 2px solid #4ecdc4;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+button:focus-visible {
+  outline-offset: 4px;
+}
+
+.effect-module:focus-within {
+  box-shadow: 
+    0 0 0 2px #4ecdc4,
+    0 8px 25px rgba(78, 205, 196, 0.3);
+}
+
+/* ========================================
+   PERFORMANCE OPTIMIZATIONS
+   ======================================== */
+
+/* Use GPU acceleration for animations */
+.effect-module,
+.effect-module::before,
+button,
+.notification {
+  will-change: transform, opacity;
+}
+
+/* Reduce animation complexity on low-end devices */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ========================================
+   FINAL POLISH
+   ======================================== */
+
+/* Ensure crisp text rendering */
+.effect-chain-container {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Add subtle texture overlay */
+.effect-chain-container::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 35px,
+      rgba(255, 255, 255, 0.01) 35px,
+      rgba(255, 255, 255, 0.01) 70px
+    );
+  pointer-events: none;
+  mix-blend-mode: overlay;
+}
+
+/* Ensure all interactive elements are reachable */
+.effect-chain-container * {
+  max-width: 100%;
+  overflow-wrap: break-word;
+}
+
+/* Final touch: subtle shadow for depth */
+.glitcher-studio {
+  box-shadow: 
+    0 0 100px rgba(0, 0, 0, 0.5),
+    inset 0 0 120px rgba(78, 205, 196, 0.05);
+}

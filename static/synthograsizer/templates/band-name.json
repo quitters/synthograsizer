@@ -1,0 +1,49 @@
+{
+  "promptTemplate": "{{adjective}} {{noun}}",
+  "variables": [
+    {
+      "name": "adjective",
+      "feature_name": "adjective",
+      "values": [
+        "Velvet",
+        "Electric",
+        "Cosmic",
+        "Silent",
+        "Neon",
+        "Crystal",
+        "Broken",
+        "Digital",
+        "Phantom",
+        "Crimson",
+        "Ancient",
+        "Lunar",
+        "Faded",
+        "Shattered",
+        "Infinite",
+        "Golden"
+      ]
+    },
+    {
+      "name": "noun",
+      "feature_name": "noun",
+      "values": [
+        "Thunder",
+        "Echoes",
+        "Architects",
+        "Prophets",
+        "Shadows",
+        "Ritual",
+        "Algorithm",
+        "Serpents",
+        "Cathedral",
+        "Frequencies",
+        "Ghosts",
+        "Machinery",
+        "Pilots",
+        "Horizon",
+        "Transmission",
+        "Sanctuary"
+      ]
+    }
+  ]
+}

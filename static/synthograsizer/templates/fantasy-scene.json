@@ -1,0 +1,159 @@
+{
+  "promptTemplate": "A {{scope}} view of a {{terrain}} with {{feature}} and {{vegetation}}, under a {{sky}}, with {{inhabitants}} in the {{artistic_style}} style.",
+  "variables": [
+    {
+      "name": "scope",
+      "feature_name": "scope",
+      "values": [
+        "panoramic",
+        "intimate",
+        "aerial",
+        "immersive",
+        "cross-section",
+        "bird's-eye",
+        "fisheye",
+        "atmospheric",
+        "macro",
+        "forced perspective",
+        "isometric",
+        "time-lapse",
+        "parallel reality",
+        "diorama",
+        "nested",
+        "infinite zoom"
+      ]
+    },
+    {
+      "name": "terrain",
+      "feature_name": "terrain",
+      "values": [
+        "floating archipelago",
+        "geometric canyon",
+        "recursive valley",
+        "inverted mountain range",
+        "crystalline plateau",
+        "harmonic dunes",
+        "vertically striated cliffs",
+        "mirrored basin",
+        "adaptive labyrinth",
+        "kaleidoscopic badlands",
+        "interlocking plateaus",
+        "impossible waterfall network",
+        "fractal coastline",
+        "temporal reef",
+        "nested caldera",
+        "perspectival plains"
+      ]
+    },
+    {
+      "name": "feature",
+      "feature_name": "feature",
+      "values": [
+        "levitating monoliths",
+        "bioluminescent ruins",
+        "reality-anchoring chains",
+        "memory crystal formations",
+        "dimensional portals",
+        "ancestral statuary",
+        "geometric puzzle bridges",
+        "weather-harvesting towers",
+        "essence-storing geodes",
+        "living architecture",
+        "perception-altering mist",
+        "chronological strata",
+        "resonance spires",
+        "suspended habitations",
+        "symbiotic structures",
+        "paradoxical reflections"
+      ]
+    },
+    {
+      "name": "vegetation",
+      "feature_name": "vegetation",
+      "values": [
+        "sentient crystalline growths",
+        "architectonic fungi",
+        "prismatic canopy",
+        "mathematically perfect spirals",
+        "memory-storing foliage",
+        "light-weaving trees",
+        "geometric succulents",
+        "atmospheric orchids",
+        "chronicle vines",
+        "time-dilating blossoms",
+        "harmonic grass patterns",
+        "adaptive colorshifting moss",
+        "signal-transmitting reeds",
+        "perspective-altering groves",
+        "dimensional-phasing roots",
+        "consciousness mycelium"
+      ]
+    },
+    {
+      "name": "sky",
+      "feature_name": "sky",
+      "values": [
+        "perpetual aurora",
+        "nested celestial bodies",
+        "stratified time-cycles",
+        "conscious weather patterns",
+        "zodiacal tapestry",
+        "dimensional fractures",
+        "memory-recording clouds",
+        "crystalline atmosphere",
+        "multiple horizons",
+        "storytelling constellations",
+        "spectral light phenomena",
+        "visible song currents",
+        "ancestral projection",
+        "realm-connecting bridges",
+        "perception-filtered sunlight",
+        "atmospheric narration"
+      ]
+    },
+    {
+      "name": "inhabitants",
+      "feature_name": "inhabitants",
+      "values": [
+        "windshaping nomads",
+        "architectural symbiotes",
+        "light harvesters",
+        "memory weavers",
+        "gravity dancers",
+        "dimensional interpreters",
+        "perspective shifters",
+        "elemental collaborators",
+        "harmonic resonators",
+        "pattern archivists",
+        "conscious constructs",
+        "seasonal metamorphs",
+        "essence cultivators",
+        "boundary walkers",
+        "chronological witnesses",
+        "perception translators"
+      ]
+    },
+    {
+      "name": "artistic_style",
+      "feature_name": "artistic_style",
+      "values": [
+        "cosmological impressionism",
+        "dimensional pointillism",
+        "metaphysical ukiyo-e",
+        "conscious architecture",
+        "narrative surrealism",
+        "crystalline art nouveau",
+        "quantum baroque",
+        "harmonic minimalism",
+        "temporal expressionism",
+        "symbolic biomechanical",
+        "vibrational abstract",
+        "perceptual realism",
+        "ancestral futurism",
+        "resonance romanticism",
+        "polyphonic illustration",
+        "biomathematical composition"
+      ]
+    }
+  ]
+}

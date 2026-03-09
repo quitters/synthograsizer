@@ -1,0 +1,616 @@
+/* UI Improvements and Fixes for Glitcher Studio
+   Created to fix layout issues and improve overall UI/UX
+   Author: Your talented web designer
+   Date: June 2025
+*/
+
+/* ========================================
+   CRITICAL FIXES - Prevent Right Side Cutoff
+   ======================================== */
+
+/* Fix right panel overflow issues */
+.right-panel {
+  width: 350px;
+  max-width: 350px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Ensure effect chain section doesn't overflow */
+.effect-chain-section {
+  width: 100%;
+  overflow: hidden;
+}
+
+.effect-chain-container {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Fix header content overflow */
+.effect-chain-header {
+  padding: 12px 16px;
+  overflow: hidden;
+  flex-wrap: nowrap;
+  gap: 8px;
+}
+
+.effect-chain-header h3 {
+  flex-shrink: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Optimize chain info display */
+.chain-info {
+  display: none; /* Hide on smaller panels */
+}
+
+/* Show chain info only on hover/focus */
+.effect-chain-header:hover .chain-info {
+  display: flex;
+  position: absolute;
+  right: 50px;
+  top: 12px;
+  background: rgba(37, 37, 64, 0.95);
+  padding: 4px 8px;
+  border-radius: 8px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  z-index: 100;
+}
+
+/* ========================================
+   EFFECT MODULE LAYOUT IMPROVEMENTS
+   ======================================== */
+
+/* Optimize effect module layout */
+.effect-module {
+  padding: 12px;
+  margin-bottom: 8px;
+  width: calc(100% - 8px);
+  margin-left: 4px;
+  margin-right: 4px;
+}
+
+.effect-header {
+  flex-wrap: nowrap;
+  gap: 8px;
+}
+
+/* Smaller drag handle */
+.drag-handle {
+  width: 16px;
+  flex-shrink: 0;
+  font-size: 12px;
+}
+
+/* Optimize effect icon */
+.effect-icon {
+  width: 28px;
+  height: 28px;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+/* Make effect info responsive */
+.effect-info {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.effect-name {
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.effect-type {
+  font-size: 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Compact effect controls */
+.effect-controls {
+  flex-shrink: 0;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.effect-controls button {
+  width: 24px;
+  height: 24px;
+  font-size: 11px;
+}
+
+.mode-toggle {
+  width: 32px !important;
+  height: 20px !important;
+  font-size: 9px !important;
+  line-height: 18px !important;
+}
+
+/* ========================================
+   CHAIN CONTROLS OPTIMIZATION
+   ======================================== */
+
+.chain-controls {
+  padding: 8px 12px;
+  gap: 4px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  flex-wrap: nowrap;
+}
+
+.chain-controls::-webkit-scrollbar {
+  height: 4px;
+}
+
+.chain-controls::-webkit-scrollbar-thumb {
+  background: rgba(78, 205, 196, 0.3);
+  border-radius: 2px;
+}
+
+.chain-btn {
+  padding: 6px 10px;
+  font-size: 11px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.chain-btn span:last-child {
+  display: none; /* Hide text labels on small screens */
+}
+
+.chain-btn:hover span:last-child {
+  display: inline; /* Show on hover */
+}
+
+/* ========================================
+   EFFECT PARAMETERS PREVIEW
+   ======================================== */
+
+.effect-params-preview {
+  padding: 8px;
+  margin-top: 6px;
+  font-size: 11px;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.effect-params-preview strong {
+  color: #4ecdc4;
+}
+
+/* ========================================
+   FOOTER OPTIMIZATION
+   ======================================== */
+
+.effect-chain-footer {
+  padding: 10px 12px;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.effect-chain-footer button {
+  min-width: 0;
+  flex: 1 1 auto;
+  padding: 8px 12px;
+  font-size: 11px;
+}
+
+.effect-chain-footer button span:first-child {
+  margin-right: 4px;
+}
+
+/* ========================================
+   PROPERTIES PANEL IMPROVEMENTS
+   ======================================== */
+
+.properties-section {
+  overflow: hidden;
+}
+
+.properties-content {
+  padding: 12px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.property-group {
+  margin-bottom: 16px;
+}
+
+.property-label {
+  font-size: 11px;
+  margin-bottom: 4px;
+}
+
+.property-control {
+  padding: 6px 10px;
+  font-size: 13px;
+}
+
+/* Mode indicator optimization */
+.mode-indicator {
+  margin-bottom: 16px;
+}
+
+.mode-status {
+  padding: 12px;
+  gap: 8px;
+}
+
+.mode-status .mode-icon {
+  font-size: 20px;
+  width: 28px;
+}
+
+.mode-status .mode-name {
+  font-size: 14px;
+}
+
+.mode-status .mode-description {
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.mode-change-hint {
+  display: none; /* Hide by default */
+}
+
+.mode-status:hover .mode-change-hint {
+  display: block;
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.mode-change-hint .hint-text {
+  font-size: 10px;
+  padding: 2px 6px;
+}
+
+/* ========================================
+   SCROLLBAR STYLING
+   ======================================== */
+
+.effect-chain-list,
+.properties-content {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(78, 205, 196, 0.3) rgba(0,0,0,0.2);
+}
+
+.effect-chain-list::-webkit-scrollbar,
+.properties-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.effect-chain-list::-webkit-scrollbar-track,
+.properties-content::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0.2);
+  border-radius: 3px;
+}
+
+.effect-chain-list::-webkit-scrollbar-thumb,
+.properties-content::-webkit-scrollbar-thumb {
+  background: rgba(78, 205, 196, 0.3);
+  border-radius: 3px;
+}
+
+.effect-chain-list::-webkit-scrollbar-thumb:hover,
+.properties-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(78, 205, 196, 0.5);
+}
+
+/* ========================================
+   PERFORMANCE OPTIMIZATION
+   ======================================== */
+
+/* Hide performance stats by default */
+.performance-stats {
+  display: none;
+}
+
+.effect-module:hover .performance-stats {
+  display: flex;
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  gap: 4px;
+  background: rgba(0,0,0,0.7);
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-size: 10px;
+}
+
+/* Simplify performance indicator */
+.performance-indicator {
+  width: 6px;
+  height: 6px;
+  top: 6px;
+  right: 6px;
+}
+
+/* ========================================
+   RESPONSIVE IMPROVEMENTS
+   ======================================== */
+
+/* For panels less than 300px wide */
+@media (max-width: 300px), (max-width: 1400px) {
+  .right-panel {
+    width: 300px;
+    max-width: 300px;
+  }
+  
+  .effect-module {
+    padding: 10px;
+  }
+  
+  .effect-icon {
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+  }
+  
+  .effect-controls button {
+    width: 22px;
+    height: 22px;
+    font-size: 10px;
+  }
+  
+  .mode-toggle {
+    width: 28px !important;
+    height: 18px !important;
+    font-size: 8px !important;
+  }
+  
+  .effect-chain-footer {
+    padding: 8px;
+  }
+  
+  .effect-chain-footer button {
+    padding: 6px 8px;
+    font-size: 10px;
+  }
+}
+
+/* ========================================
+   ENHANCED EMPTY STATE
+   ======================================== */
+
+.empty-chain-message {
+  padding: 20px;
+  animation: fadeIn 0.5s ease;
+}
+
+.empty-icon {
+  font-size: 36px;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.quick-actions {
+  animation: slideUp 0.5s ease 0.2s both;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ========================================
+   TOOLTIP IMPROVEMENTS
+   ======================================== */
+
+[title] {
+  position: relative;
+}
+
+[title]:hover::after {
+  content: attr(title);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4px 8px;
+  background: rgba(0,0,0,0.9);
+  color: white;
+  font-size: 11px;
+  border-radius: 4px;
+  white-space: nowrap;
+  z-index: 1000;
+  pointer-events: none;
+  margin-bottom: 4px;
+  opacity: 0;
+  animation: tooltipFadeIn 0.2s ease 0.5s forwards;
+}
+
+@keyframes tooltipFadeIn {
+  to { opacity: 1; }
+}
+
+/* ========================================
+   NOTIFICATION POSITIONING FIX
+   ======================================== */
+
+.effect-notification {
+  right: 370px !important; /* Account for right panel width */
+}
+
+@media (max-width: 1400px) {
+  .effect-notification {
+    right: 320px !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .effect-notification {
+    right: 20px !important; /* Reset for mobile */
+  }
+}
+
+/* ========================================
+   STUDIO MAIN GRID OPTIMIZATION
+   ======================================== */
+
+.studio-main {
+  grid-template-columns: 250px 1fr minmax(300px, 350px);
+  gap: 0;
+  overflow: hidden;
+}
+
+/* Ensure center content doesn't push right panel */
+.center-panel {
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* ========================================
+   CONTEXT MENU POSITIONING
+   ======================================== */
+
+.effect-context-menu {
+  max-width: 180px;
+  font-size: 12px;
+}
+
+.context-menu-item {
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+/* ========================================
+   HOVER STATES AND TRANSITIONS
+   ======================================== */
+
+/* Smooth all transitions */
+* {
+  transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+/* Enhance button hover states */
+button:hover {
+  transform: translateY(-1px);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+/* ========================================
+   ACCESSIBILITY IMPROVEMENTS
+   ======================================== */
+
+/* Focus styles */
+*:focus {
+  outline: 2px solid #4ecdc4;
+  outline-offset: 2px;
+}
+
+button:focus,
+.effect-module:focus {
+  outline: 2px solid #4ecdc4;
+  outline-offset: -2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .effect-module {
+    border-width: 2px;
+  }
+  
+  .mode-toggle {
+    border: 1px solid currentColor;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ========================================
+   FINAL TOUCHES
+   ======================================== */
+
+/* Ensure all text is readable */
+.effect-chain-container {
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+/* Add subtle shadows for depth */
+.effect-module {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.effect-module:hover {
+  box-shadow: 0 4px 16px rgba(78, 205, 196, 0.2);
+}
+
+/* Improve button feedback */
+button:active {
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Ensure proper z-index stacking */
+.effect-chain-header {
+  z-index: 10;
+}
+
+.effect-chain-footer {
+  z-index: 10;
+}
+
+.effect-chain-list {
+  z-index: 1;
+}
+
+/* Add loading state */
+.effect-module.loading {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.effect-module.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(78, 205, 196, 0.3);
+  border-top-color: #4ecdc4;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}

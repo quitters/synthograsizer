@@ -1,0 +1,697 @@
+/* ========================================
+   UI TIDYING & SPACE OPTIMIZATION
+   Cleaner, more compact interface
+   ======================================== */
+
+/* ========================================
+   DEFAULT MODE - CLEAN UP HEADER
+   ======================================== */
+
+/* Compact panel header - less wasted space */
+.panel-header {
+  margin-bottom: 25px !important;
+  padding: 15px 20px 20px !important;
+}
+
+/* Remove decorative accent line - cleaner look */
+.panel-header::before {
+  display: none !important;
+}
+
+/* More compact title */
+.panel-title {
+  font-size: 24px !important;
+  margin-bottom: 4px !important;
+  letter-spacing: 0.5px !important;
+}
+
+/* Compact subtitle */
+.panel-subtitle {
+  font-size: 10px !important;
+  letter-spacing: 2px !important;
+  margin-bottom: 15px !important;
+}
+
+/* Compact studio toggle button */
+.header-studio-toggle {
+  padding: 12px 24px !important;
+  font-size: 14px !important;
+  max-width: 260px !important;
+}
+
+.header-studio-toggle span {
+  font-size: 14px !important;
+}
+
+/* ========================================
+   CONTROL GROUPS - REDUCE PADDING
+   ======================================== */
+
+.control-group {
+  padding: 15px !important;
+  margin-bottom: 15px !important;
+}
+
+.group-title {
+  font-size: 14px !important;
+  margin-bottom: 12px !important;
+}
+
+/* ========================================
+   SLIDERS - MORE COMPACT
+   ======================================== */
+
+.slider-container {
+  margin-bottom: 12px !important;
+}
+
+.slider-label {
+  margin-bottom: 6px !important;
+  font-size: 13px !important;
+}
+
+.slider-value {
+  font-size: 16px !important;
+}
+
+/* ========================================
+   BUTTONS - SLIGHTLY SMALLER
+   ======================================== */
+
+.control-button {
+  padding: 10px 16px !important;
+  font-size: 11px !important;
+  margin: 4px !important;
+}
+
+/* ========================================
+   CONTROL PANEL - BETTER SPACING
+   ======================================== */
+
+.control-panel {
+  padding: 20px !important;
+}
+
+/* ========================================
+   STUDIO MODE - ICON-BASED MODE TOGGLE
+   ======================================== */
+
+/* Position mode toggle button in top-right */
+.mode-toggle-icon-button {
+  position: fixed !important;
+  top: 20px !important;
+  right: 80px !important; /* Next to close button */
+  width: 40px !important;
+  height: 40px !important;
+  background: linear-gradient(145deg, #4ecdc4, #45b7d1) !important;
+  color: #fff !important;
+  font-size: 24px !important;
+  text-align: center !important;
+  line-height: 36px !important;
+  border-radius: 6px !important;
+  border: 2px solid rgba(0,0,0,0.3) !important;
+  box-shadow: 
+    inset 1px 1px 2px rgba(255,255,255,0.3),
+    inset -1px -1px 2px rgba(0,0,0,0.3),
+    0 4px 12px rgba(0,0,0,0.5) !important;
+  transition: all 0.2s ease !important;
+  cursor: pointer !important;
+  z-index: 10000 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-decoration: none !important;
+}
+
+.mode-toggle-icon-button:hover {
+  background: linear-gradient(145deg, #45b7d1, #3bc9be) !important;
+  transform: scale(1.1) !important;
+  box-shadow: 
+    inset 1px 1px 2px rgba(255,255,255,0.4),
+    inset -1px -1px 2px rgba(0,0,0,0.4),
+    0 6px 16px rgba(78, 205, 196, 0.5) !important;
+}
+
+.mode-toggle-icon-button:active {
+  transform: scale(1.0) !important;
+  box-shadow: 
+    inset 2px 2px 4px rgba(0,0,0,0.4),
+    0 2px 8px rgba(0,0,0,0.4) !important;
+}
+
+/* Hide the old text-based Studio/Classic buttons */
+.header-controls .view-mode-btn {
+  display: none !important;
+}
+
+/* ========================================
+   STUDIO MODE - COMPACT HEADER
+   ======================================== */
+
+.studio-header {
+  padding: 0 15px !important;
+  height: 45px !important;
+}
+
+.logo {
+  font-size: 18px !important;
+}
+
+/* ========================================
+   STUDIO MODE - COMPACT PANELS
+   ======================================== */
+
+.panel-header {
+  padding: 10px 15px !important;
+}
+
+.panel-title {
+  font-size: 13px !important;
+}
+
+/* ========================================
+   STUDIO MODE - LESS PADDING EVERYWHERE
+   ======================================== */
+
+.effects-categories {
+  padding: 8px !important;
+}
+
+.library-effect {
+  padding: 6px 10px !important;
+}
+
+.effect-module {
+  padding: 8px !important;
+  margin: 3px 0 !important;
+}
+
+.properties-content {
+  padding: 12px !important;
+}
+
+.canvas-toolbar {
+  padding: 8px 12px !important;
+}
+
+.canvas-wrapper {
+  padding: 15px !important;
+}
+
+.studio-footer {
+  padding: 0 15px !important;
+  height: 28px !important;
+  font-size: 11px !important;
+}
+
+/* ========================================
+   EFFECT CHAIN - COMPACT
+   ======================================== */
+
+.effect-chain-content {
+  padding: 8px !important;
+}
+
+/* ========================================
+   CONTROL ROWS - TIGHTER SPACING
+   ======================================== */
+
+.control-row {
+  margin-bottom: 12px !important;
+}
+
+.control-row label {
+  margin-bottom: 4px !important;
+  font-size: 13px !important;
+}
+
+/* ========================================
+   CHECKBOX CONTAINERS - COMPACT
+   ======================================== */
+
+.checkbox-container {
+  margin-bottom: 12px !important;
+}
+
+/* ========================================
+   FILE UPLOAD - LESS PADDING
+   ======================================== */
+
+.file-upload-area {
+  padding: 25px 15px !important;
+}
+
+.upload-icon {
+  font-size: 42px !important;
+  margin-bottom: 12px !important;
+}
+
+.upload-text {
+  font-size: 15px !important;
+  margin-bottom: 6px !important;
+}
+
+.upload-hint {
+  font-size: 11px !important;
+}
+
+/* ========================================
+   DROP ZONES - MORE COMPACT
+   ======================================== */
+
+.canvas-drop-zone,
+.studio-drop-zone {
+  padding: 30px 25px !important;
+  min-width: 350px !important;
+}
+
+.drop-zone-title,
+.studio-drop-title {
+  font-size: 20px !important;
+  margin-bottom: 6px !important;
+}
+
+.drop-zone-subtitle,
+.studio-drop-subtitle {
+  font-size: 14px !important;
+  margin-bottom: 12px !important;
+}
+
+.studio-drop-icon,
+.canvas-placeholder-icon {
+  font-size: 54px !important;
+  margin-bottom: 15px !important;
+}
+
+/* ========================================
+   MEDIA INFO - COMPACT
+   ======================================== */
+
+.media-info {
+  padding: 8px !important;
+  font-size: 13px !important;
+}
+
+/* ========================================
+   FILTER CONTROLS - LESS PADDING
+   ======================================== */
+
+.filter-controls {
+  padding: 12px !important;
+}
+
+/* ========================================
+   BUTTON GRIDS - TIGHTER
+   ======================================== */
+
+.button-grid {
+  gap: 8px !important;
+}
+
+.button-grid-full {
+  gap: 8px !important;
+}
+
+/* ========================================
+   PRESET GRID - COMPACT
+   ======================================== */
+
+.preset-grid {
+  gap: 6px !important;
+}
+
+.preset-button {
+  padding: 8px 6px !important;
+  font-size: 10px !important;
+}
+
+/* ========================================
+   STUDIO CONTAINER - BETTER USE OF SPACE
+   ======================================== */
+
+.studio-container {
+  grid-template-columns: 360px 1fr !important;
+  gap: 15px !important;
+  padding: 15px !important;
+}
+
+/* ========================================
+   GLITCHER STUDIO GRID - COMPACT
+   ======================================== */
+
+.glitcher-studio {
+  grid-template-rows: 45px 1fr 28px !important;
+}
+
+.studio-main {
+  grid-template-columns: 220px 1fr 320px !important;
+}
+
+/* ========================================
+   SEARCH BOX - COMPACT
+   ======================================== */
+
+.search-box,
+.effect-search {
+  padding: 6px 10px !important;
+  font-size: 13px !important;
+}
+
+/* ========================================
+   CATEGORY HEADERS - LESS PADDING
+   ======================================== */
+
+.category-header {
+  padding: 6px 10px !important;
+}
+
+.category-name {
+  font-size: 12px !important;
+}
+
+.category-count {
+  font-size: 10px !important;
+  padding: 1px 5px !important;
+}
+
+/* ========================================
+   MODAL CONTENT - LESS PADDING
+   ======================================== */
+
+.modal-content {
+  padding: 20px !important;
+}
+
+.modal-header {
+  padding: 15px !important;
+}
+
+.modal-header h2 {
+  font-size: 18px !important;
+}
+
+.modal-body {
+  padding: 15px !important;
+}
+
+/* ========================================
+   PROPERTY CONTROLS - COMPACT
+   ======================================== */
+
+.property-group {
+  margin-bottom: 15px !important;
+}
+
+.property-label {
+  margin-bottom: 4px !important;
+  font-size: 11px !important;
+}
+
+.property-control {
+  padding: 6px 10px !important;
+  font-size: 13px !important;
+}
+
+/* ========================================
+   TRANSPORT CONTROLS - COMPACT
+   ======================================== */
+
+.transport-controls {
+  gap: 4px !important;
+}
+
+.transport-btn {
+  padding: 5px 8px !important;
+  font-size: 14px !important;
+}
+
+.comparison-btn {
+  padding: 3px 10px !important;
+  font-size: 11px !important;
+}
+
+/* ========================================
+   CHAIN CONTROLS - COMPACT
+   ======================================== */
+
+.chain-controls {
+  gap: 4px !important;
+}
+
+.chain-btn {
+  padding: 3px 6px !important;
+  font-size: 11px !important;
+}
+
+/* ========================================
+   EFFECT CONTROLS - SMALLER BUTTONS
+   ======================================== */
+
+.effect-controls {
+  gap: 4px !important;
+}
+
+.effect-btn {
+  width: 22px !important;
+  height: 22px !important;
+  font-size: 14px !important;
+}
+
+.mode-toggle {
+  padding: 2px 5px !important;
+  font-size: 10px !important;
+}
+
+/* ========================================
+   DRAG HANDLE - SMALLER
+   ======================================== */
+
+.drag-handle {
+  font-size: 14px !important;
+  margin-right: 8px !important;
+}
+
+/* ========================================
+   EFFECT NAME & PARAMS - SMALLER FONT
+   ======================================== */
+
+.effect-name {
+  font-size: 13px !important;
+}
+
+.effect-params {
+  font-size: 11px !important;
+}
+
+/* ========================================
+   LIBRARY HEADER - COMPACT
+   ======================================== */
+
+.library-header {
+  padding: 12px !important;
+}
+
+.library-header h3 {
+  margin: 0 0 8px 0 !important;
+  font-size: 15px !important;
+}
+
+/* ========================================
+   LIBRARY FOOTER - COMPACT
+   ======================================== */
+
+.library-footer {
+  padding: 8px 12px !important;
+}
+
+.library-info {
+  font-size: 11px !important;
+}
+
+/* ========================================
+   EMPTY STATES - LESS SPACE
+   ======================================== */
+
+.empty-chain,
+.empty-state,
+.no-results {
+  height: 150px !important;
+}
+
+.empty-icon,
+.no-results-icon {
+  font-size: 28px !important;
+  margin-bottom: 8px !important;
+}
+
+.empty-text,
+.no-results-text {
+  font-size: 13px !important;
+}
+
+.no-results-hint {
+  font-size: 11px !important;
+}
+
+/* ========================================
+   FEATURE TAGS - SMALLER
+   ======================================== */
+
+.feature-tag,
+.studio-feature-tag {
+  padding: 4px 10px !important;
+  font-size: 11px !important;
+}
+
+.drop-zone-features,
+.studio-drop-features {
+  gap: 8px !important;
+  margin-top: 15px !important;
+}
+
+/* ========================================
+   CONTEXT MENU - COMPACT
+   ======================================== */
+
+.context-menu-item {
+  padding: 6px 14px !important;
+  font-size: 13px !important;
+}
+
+.effect-context-menu {
+  padding: 6px 0 !important;
+  min-width: 160px !important;
+}
+
+/* ========================================
+   NOTIFICATIONS - SMALLER
+   ======================================== */
+
+.notification,
+.effect-notification {
+  padding: 10px 14px !important;
+  font-size: 13px !important;
+  max-width: 280px !important;
+}
+
+/* ========================================
+   MODE INDICATOR - COMPACT
+   ======================================== */
+
+.mode-status {
+  padding: 12px !important;
+  gap: 10px !important;
+}
+
+.mode-status .mode-icon {
+  font-size: 20px !important;
+  width: 28px !important;
+}
+
+.mode-status .mode-name {
+  font-size: 14px !important;
+  margin-bottom: 3px !important;
+}
+
+.mode-status .mode-description {
+  font-size: 12px !important;
+}
+
+.mode-change-hint .hint-text {
+  font-size: 11px !important;
+  padding: 3px 6px !important;
+}
+
+/* ========================================
+   TEMPLATES GRID - COMPACT
+   ======================================== */
+
+.templates-grid,
+.preset-grid {
+  gap: 12px !important;
+}
+
+.template-card,
+.preset-card {
+  padding: 12px !important;
+}
+
+.template-card h4,
+.preset-card h3 {
+  font-size: 14px !important;
+  margin: 0 0 6px 0 !important;
+}
+
+.template-card p,
+.preset-card p {
+  font-size: 11px !important;
+}
+
+.apply-template-btn,
+.load-preset-btn {
+  padding: 6px 10px !important;
+  font-size: 11px !important;
+  margin-top: 8px !important;
+}
+
+/* ========================================
+   SHORTCUTS TABLE - COMPACT
+   ======================================== */
+
+.shortcuts-table td {
+  padding: 8px !important;
+}
+
+.shortcut-key {
+  padding: 3px 6px !important;
+  font-size: 12px !important;
+}
+
+/* ========================================
+   FPS COUNTER - SMALLER
+   ======================================== */
+
+.fps-counter {
+  font-size: 11px !important;
+}
+
+/* ========================================
+   STATUS INFO - COMPACT
+   ======================================== */
+
+.status-info {
+  gap: 8px !important;
+}
+
+/* ========================================
+   RESPONSIVE ADJUSTMENTS
+   ======================================== */
+
+@media (max-width: 900px) {
+  .studio-container {
+    grid-template-columns: 1fr !important;
+    padding: 10px !important;
+  }
+  
+  .control-panel {
+    padding: 15px !important;
+  }
+  
+  .panel-header {
+    padding: 12px 15px 15px !important;
+  }
+  
+  .panel-title {
+    font-size: 20px !important;
+  }
+}
+
+/* ========================================
+   PERFORMANCE - REDUCED MOTION
+   ======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition-duration: 0.05s !important;
+  }
+}

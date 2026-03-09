@@ -1,0 +1,112 @@
+{
+  "promptTemplate": "{{medium}} of {{subject}} with {{distortion}} effect, {{color_treatment}} color treatment, {{era}} aesthetic, {{output_format}}",
+  "variables": [
+    {
+      "name": "medium",
+      "feature_name": "Medium",
+      "values": [
+        {"text": "corrupted VHS capture", "weight": 3},
+        {"text": "datamoshed video still", "weight": 3},
+        {"text": "circuit-bent photograph", "weight": 2},
+        {"text": "deep-fried JPEG", "weight": 2},
+        {"text": "broken LCD screen capture", "weight": 2},
+        {"text": "CRT television screenshot", "weight": 3},
+        {"text": "thermal imaging scan", "weight": 1},
+        {"text": "corrupted RAW file", "weight": 2},
+        {"text": "misaligned CMYK print", "weight": 1},
+        {"text": "hex-edited bitmap", "weight": 1}
+      ]
+    },
+    {
+      "name": "subject",
+      "feature_name": "Subject",
+      "values": [
+        {"text": "human face dissolving into static", "weight": 3},
+        {"text": "classical sculpture fragmenting", "weight": 3},
+        {"text": "botanical specimen decaying", "weight": 2},
+        {"text": "urban skyline melting", "weight": 2},
+        {"text": "cathedral interior collapsing", "weight": 2},
+        {"text": "ocean wave frozen mid-crash", "weight": 3},
+        {"text": "satellite view of Earth corrupting", "weight": 1},
+        {"text": "DNA helix unraveling", "weight": 1},
+        {"text": "vintage car being pixel-sorted", "weight": 2},
+        {"text": "nebula photograph decompressing", "weight": 1}
+      ]
+    },
+    {
+      "name": "distortion",
+      "feature_name": "Distortion",
+      "values": [
+        {"text": "pixel sorting vertical", "weight": 3},
+        {"text": "channel shift RGB separation", "weight": 3},
+        {"text": "data bending warp", "weight": 2},
+        {"text": "scan line displacement", "weight": 3},
+        {"text": "mosaic block corruption", "weight": 2},
+        {"text": "sine wave displacement", "weight": 2},
+        {"text": "feedback loop recursion", "weight": 1},
+        {"text": "bit-depth reduction", "weight": 2},
+        {"text": "dithering cascade", "weight": 1},
+        {"text": "perlin noise erosion", "weight": 3}
+      ]
+    },
+    {
+      "name": "color_treatment",
+      "feature_name": "Color Treatment",
+      "values": [
+        {"text": "inverted negative", "weight": 3},
+        {"text": "posterized 4-color", "weight": 2},
+        {"text": "thermal false-color", "weight": 2},
+        {"text": "oversaturated bleeding", "weight": 3},
+        {"text": "desaturated with single color pop", "weight": 3},
+        {"text": "solarized Sabattier", "weight": 1},
+        {"text": "VHS color bleed", "weight": 3},
+        {"text": "CGA 4-color palette", "weight": 1},
+        {"text": "cross-processed film", "weight": 2},
+        {"text": "halftone CMYK separation", "weight": 2}
+      ]
+    },
+    {
+      "name": "era",
+      "feature_name": "Era",
+      "values": [
+        {"text": "1980s analog video", "weight": 3},
+        {"text": "early internet web 1.0", "weight": 3},
+        {"text": "Y2K millennium bug", "weight": 2},
+        {"text": "2000s MySpace", "weight": 2},
+        {"text": "vaporwave 2014", "weight": 3},
+        {"text": "Windows 95 error screen", "weight": 2},
+        {"text": "Commodore 64 loading screen", "weight": 1},
+        {"text": "2020s AI artifact", "weight": 2},
+        {"text": "1990s rave flyer", "weight": 1},
+        {"text": "dial-up modem era", "weight": 1}
+      ]
+    },
+    {
+      "name": "output_format",
+      "feature_name": "Output Format",
+      "values": [
+        {"text": "16:9 widescreen", "weight": 3},
+        {"text": "square 1:1 Instagram", "weight": 3},
+        {"text": "vertical 9:16 phone", "weight": 2},
+        {"text": "4:3 vintage TV ratio", "weight": 2},
+        {"text": "ultrawide 21:9 cinematic", "weight": 2},
+        {"text": "triptych three-panel", "weight": 1}
+      ]
+    }
+  ],
+  "_promptcraft": {
+    "steps": 16,
+    "bpm": 140,
+    "seqData": {
+      "medium":          [0,5,1,0,2,5,3,0,4,5,6,7,8,9,0,1],
+      "subject":         [0,0,0,1,1,1,2,2,3,3,4,4,5,5,0,0],
+      "distortion":      [0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5],
+      "color_treatment":  [0,0,3,3,6,6,1,1,4,4,7,7,2,2,8,8],
+      "era":             [0,0,0,0,4,4,4,4,1,1,1,1,7,7,7,7],
+      "output_format":   [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    },
+    "weightData": [1.0,0.5,1.0,0.5,1.0,0.5,1.0,0.5,1.0,0.5,1.0,0.5,1.0,0.5,1.0,0.5],
+    "denoiseData": [0.4,0.8,0.4,0.8,0.4,0.8,0.4,0.8,0.4,0.8,0.4,0.8,0.4,0.8,0.4,0.8],
+    "adsr": {"a": 5, "d": 10, "s": 100, "r": 5}
+  }
+}

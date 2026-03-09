@@ -1,0 +1,464 @@
+/* Tooltip and Sizing Fixes for Effects Chain
+   Fixes tooltip overlap and effect module sizing issues
+   Author: Your talented web designer
+   Date: June 2025
+*/
+
+/* ========================================
+   TOOLTIP OVERLAP FIXES
+   ======================================== */
+
+/* Disable native browser tooltips that interfere */
+.effect-module *[title] {
+  position: relative;
+}
+
+/* Remove the CSS-based tooltip implementation that's causing overlap */
+[title]::after {
+  display: none !important;
+}
+
+/* Use a better tooltip solution */
+.effect-module .mode-toggle,
+.effect-module .power-toggle,
+.effect-module .solo-toggle,
+.effect-module .delete-btn {
+  position: relative;
+}
+
+/* Custom tooltip that appears above and doesn't interfere */
+.effect-module button[title]:hover::before {
+  content: attr(title);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 6px 10px;
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  font-size: 11px;
+  font-weight: normal;
+  white-space: nowrap;
+  border-radius: 4px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 9999;
+  margin-bottom: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.effect-module button[title]:hover::before {
+  opacity: 1;
+  animation: tooltipSlideIn 0.2s ease;
+}
+
+@keyframes tooltipSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* Ensure tooltips don't show during drag */
+.effect-module.dragging button[title]::before {
+  display: none !important;
+}
+
+/* ========================================
+   EFFECT MODULE SIZING FIXES
+   ======================================== */
+
+/* Fix effect module sizing and spacing */
+.effect-module {
+  padding: 10px 12px;
+  margin: 6px 8px;
+  width: calc(100% - 16px);
+  min-height: 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Ensure effect header has proper spacing */
+.effect-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  width: 100%;
+}
+
+/* Fix drag handle sizing */
+.drag-handle {
+  width: 20px;
+  min-width: 20px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: grab;
+  color: #666;
+  font-size: 14px;
+  user-select: none;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+/* Fix effect icon sizing */
+.effect-icon {
+  width: 32px;
+  min-width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+  border-radius: 6px;
+  background: linear-gradient(145deg, #4ecdc4, #45b7d1);
+}
+
+/* Fix effect info layout */
+.effect-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+}
+
+.effect-name {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #fff;
+}
+
+.effect-type {
+  font-size: 10px;
+  line-height: 1.2;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Fix effect controls spacing */
+.effect-controls {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.effect-controls button {
+  width: 26px;
+  height: 26px;
+  min-width: 26px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  border: none;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #888;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* Special sizing for mode toggle */
+.mode-toggle {
+  width: 34px !important;
+  min-width: 34px !important;
+  height: 22px !important;
+  font-size: 10px !important;
+  font-weight: bold !important;
+  padding: 0 !important;
+  line-height: 20px !important;
+  border-radius: 11px !important;
+}
+
+/* ========================================
+   EFFECT PARAMETERS PREVIEW
+   ======================================== */
+
+/* Fix parameters preview layout */
+.effect-params-preview {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  padding: 6px 10px;
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.4;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  width: 100%;
+  overflow: hidden;
+}
+
+/* ========================================
+   CHAIN LIST SCROLLING
+   ======================================== */
+
+/* Ensure proper scrolling behavior */
+.effect-chain-list {
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 8px 4px;
+  flex: 1;
+  min-height: 0;
+  scroll-behavior: smooth;
+}
+
+/* Add padding at bottom for better scrolling */
+.effect-chain-list::after {
+  content: '';
+  display: block;
+  height: 20px;
+}
+
+/* ========================================
+   PERFORMANCE INDICATOR POSITIONING
+   ======================================== */
+
+/* Fix performance indicator position */
+.performance-indicator {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 6px;
+  height: 6px;
+  pointer-events: none;
+}
+
+/* ========================================
+   FOOTER BUTTON SIZING
+   ======================================== */
+
+/* Fix footer button layout */
+.effect-chain-footer {
+  padding: 10px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.3);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.effect-chain-footer button {
+  padding: 8px 12px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 36px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.effect-chain-footer button span:first-child {
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.effect-chain-footer button span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Make Templates and Clear buttons full width */
+.templates-btn,
+.clear-chain-btn {
+  grid-column: span 2;
+}
+
+/* ========================================
+   OPACITY SLIDER FIXES
+   ======================================== */
+
+/* Fix opacity slider for non-destructive effects */
+.effect-opacity {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.opacity-slider {
+  flex: 1;
+  height: 4px;
+  min-width: 0;
+}
+
+.opacity-value {
+  font-size: 11px;
+  color: #4ecdc4;
+  font-weight: bold;
+  min-width: 35px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* ========================================
+   HOVER STATES REFINEMENT
+   ======================================== */
+
+/* Improve hover states to prevent layout shift */
+.effect-module {
+  transition: all 0.2s ease;
+}
+
+.effect-module:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(78, 205, 196, 0.2);
+}
+
+/* Prevent hover effects during drag */
+.effect-module.dragging:hover {
+  transform: rotate(2deg) scale(1.05);
+}
+
+/* ========================================
+   Z-INDEX MANAGEMENT
+   ======================================== */
+
+/* Ensure proper stacking order */
+.effect-chain-header {
+  z-index: 100;
+  position: relative;
+}
+
+.effect-chain-footer {
+  z-index: 100;
+  position: relative;
+}
+
+.effect-module {
+  z-index: 10;
+  position: relative;
+}
+
+.effect-module.dragging {
+  z-index: 1000;
+}
+
+/* Tooltips should be on top */
+.effect-module button[title]:hover::before {
+  z-index: 10000;
+}
+
+/* ========================================
+   RESPONSIVE ADJUSTMENTS
+   ======================================== */
+
+/* For very narrow panels */
+@media (max-width: 320px) {
+  .effect-module {
+    padding: 8px;
+    margin: 4px;
+    width: calc(100% - 8px);
+  }
+  
+  .effect-header {
+    gap: 6px;
+  }
+  
+  .drag-handle {
+    width: 16px;
+    min-width: 16px;
+    font-size: 12px;
+  }
+  
+  .effect-icon {
+    width: 28px;
+    min-width: 28px;
+    height: 28px;
+    font-size: 14px;
+  }
+  
+  .effect-controls button {
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    font-size: 11px;
+  }
+  
+  .mode-toggle {
+    width: 30px !important;
+    min-width: 30px !important;
+    height: 20px !important;
+    font-size: 9px !important;
+  }
+}
+
+/* ========================================
+   FINAL POLISH
+   ======================================== */
+
+/* Ensure smooth scrolling */
+* {
+  scroll-behavior: smooth;
+}
+
+/* Prevent text selection during drag */
+.effect-module.dragging * {
+  user-select: none;
+}
+
+/* Add subtle animation to new effects */
+.effect-module.newly-added {
+  animation: effectSlideIn 0.3s ease-out;
+}
+
+@keyframes effectSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Ensure all interactive elements have proper cursor */
+button {
+  cursor: pointer;
+}
+
+.drag-handle {
+  cursor: grab;
+}
+
+.effect-module.dragging .drag-handle {
+  cursor: grabbing;
+}
+
+/* Fix any potential overflow issues */
+.effect-chain-container {
+  overflow: hidden;
+}
+
+.effect-chain-container > * {
+  max-width: 100%;
+}

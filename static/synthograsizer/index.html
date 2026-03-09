@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- CSP removed for development - add back in production if needed -->
+    <title>Synthograsizer</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/code-overlay.css?v=2">
+    <link rel="icon" type="image/png" href="assets/favicon.png">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Mono:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        /* Navigation styling to match other pages */
+        body {
+            margin: 0;
+            padding: 0;
+            display: block !important;
+            /* Override flex layout */
+            background: #f5f5f5;
+        }
+
+        .page-wrapper {
+            width: 100%;
+            max-width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding-top: 0;
+        }
+
+        .about-navbar {
+            background: transparent;
+            width: 100%;
+        }
+
+        .synthograsizer-small {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <link rel="stylesheet" href="/shared/css/base.css">
+        <div id="navbar-mount"></div>
+        <script src="/shared/js/navbar.js"></script>
+
+        <div class="synthograsizer-small">
+            <!-- Header -->
+            <header class="app-header">
+                <h1 class="app-title">Synthograsizer</h1>
+                <p class="app-tagline">Generate structured, remixable AI prompts with variable-based templates and batch
+                    export.</p>
+            </header>
+
+            <!-- Error Display -->
+            <div id="error-message" class="error-message" role="alert"></div>
+
+            <!-- Generated Output Section -->
+            <section class="output-section">
+                <div class="output-header">
+                    <label class="output-label" for="output-container">Generated Output</label>
+                    <div class="output-controls">
+                        <button id="copy-button" class="icon-btn copy-btn">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                <path
+                                    d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" />
+                            </svg>
+                            <span class="label">Copy</span>
+                        </button>
+                        <button id="code-button" class="icon-btn code-btn">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                <path
+                                    d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z" />
+                            </svg>
+                            <span class="label">Code</span>
+                        </button>
+                        <button id="favorite-button" class="icon-btn favorite-btn"
+                            title="Add this prompt to your liked list">
+                            <span class="label">❤️ Add</span>
+                        </button>
+                        <button id="send-button" class="icon-btn" title="Send to chat">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" />
+                            </svg>
+                            <span class="label">Send to chat</span>
+                        </button>
+                    </div>
+                </div>
+                <div id="output-container" class="output-container" role="textbox" aria-readonly="true"
+                    aria-label="Generated prompt output">
+                </div>
+                <div id="tag-badges-container" class="tag-badges-container"></div>
+            </section>
+
+            <!-- Primary Action Buttons -->
+            <section class="primary-actions-section">
+                <button id="randomize-button" class="primary-btn randomize-btn">
+                    <span class="label">RANDOMIZE</span>
+                </button>
+                <button id="generate-button" class="primary-btn generate-btn">
+                    <span class="label">GENERATE</span>
+                </button>
+            </section>
+
+            <!-- Single Variable Control Section -->
+            <section class="variable-control-section">
+                <div class="variable-control-container">
+                    <!-- D-Pad Container with 3D Base -->
+                    <div id="center-control" class="center-control">
+                        <div class="control-box">
+                            <!-- Up Arrow - Previous Variable -->
+                            <button id="prev-variable" class="nav-arrow nav-arrow-up" aria-label="Previous variable">
+                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M7 14l5-5 5 5z" />
+                                </svg>
+                            </button>
+
+                            <!-- Left Arrow - Previous Value -->
+                            <button class="control-arrow control-arrow-left" aria-label="Previous value">
+                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M14 7l-5 5 5 5z" />
+                                </svg>
+                            </button>
+
+                            <!-- Center Display with Variable Name and Value -->
+                            <div class="control-variable-name" id="control-variable-name" data-variable-name="SUBJECT">
+                                <div class="control-value-row">
+                                    <div class="control-value" id="control-value">a mountain landscape</div>
+                                </div>
+                            </div>
+
+                            <!-- Right Arrow - Next Value -->
+                            <button class="control-arrow control-arrow-right" aria-label="Next value">
+                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M10 7l5 5-5 5z" />
+                                </svg>
+                            </button>
+
+                            <!-- Down Arrow - Next Variable -->
+                            <button id="next-variable" class="nav-arrow nav-arrow-down" aria-label="Next variable">
+                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M7 10l5 5 5-5z" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Variable indicator dots -->
+                <div class="variable-indicators" id="variable-indicators">
+                    <!-- Dots will be dynamically inserted here -->
+                </div>
+
+                <!-- Keyboard hint -->
+                <div class="keyboard-hint">
+                    <span>Use </span>
+                    <kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd>
+                    <span> arrow keys to navigate</span>
+                </div>
+            </section>
+
+            <!-- Action Buttons -->
+            <section class="actions-section">
+                <button id="batch-button" class="action-btn batch-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z" />
+                    </svg>
+                    <span class="label">Prompt Batch</span>
+                </button>
+                <button id="favorites-button" class="action-btn favorites-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                    </svg>
+                    <span class="label">Liked Prompts</span>
+                </button>
+                <div class="template-dropdown">
+                    <button id="template-button" class="action-btn template-btn">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                            <path
+                                d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" />
+                        </svg>
+                        <span class="label">Templates</span>
+                        <svg class="dropdown-arrow" width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M7 10l5 5 5-5z" />
+                        </svg>
+                    </button>
+                    <div class="template-dropdown-menu" id="template-dropdown-menu">
+                        <div class="template-search-container">
+                            <input type="text" id="template-search-input" class="template-search-input"
+                                placeholder="Search templates..." aria-label="Search templates">
+                        </div>
+                        <div class="template-section-label">Built-in templates</div>
+                        <button class="template-option" data-template="empty">📄 Empty Template</button>
+                        <button class="template-option" data-template="face-generator-full">😊 Face Generator
+                            (P5.js)</button>
+                        <button class="template-option" data-template="synthograsizer-prompt">🎨 Art Prompt</button>
+                        <button class="template-option" data-template="character-design">👤 Character Design</button>
+                        <button class="template-option" data-template="fantasy-scene">🏔️ Fantasy Scene</button>
+                        <button class="template-option" data-template="band-name">🎸 Band Name</button>
+                        <button class="template-option" data-template="startup-slogan">💡 Startup Slogan</button>
+                        <button class="template-option" data-template="movie-logline">🎬 Movie Logline</button>
+                        <button class="template-option" data-template="tattoo-concept">🖤 Tattoo Concept</button>
+                        <button class="template-option" data-template="villain-motivation">😈 Villain
+                            Motivation</button>
+                        <div class="template-dropdown-divider"></div>
+                        <div class="template-section-label">Custom / imported</div>
+                        <button class="template-option template-import-option" id="template-import-option">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+                            </svg>
+                            Import Template...
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Hidden file input for import -->
+            <input type="file" id="import-file-input" accept=".json,application/json"
+                aria-label="Select JSON file to import">
+        </div>
+
+        <!-- Batch Generation Modal -->
+        <div class="batch-modal-overlay" id="batch-modal-overlay">
+            <div class="batch-modal">
+                <div class="batch-modal-header">
+                    <h2 class="batch-modal-title">Batch Prompt Generation</h2>
+                    <button class="batch-close-btn" id="batch-close-btn"
+                        aria-label="Close batch generator">&times;</button>
+                </div>
+
+                <div class="batch-modal-body" id="batch-modal-body">
+                    <!-- Variables will be dynamically inserted here -->
+                </div>
+
+                <div class="batch-modal-footer">
+                    <button class="batch-cancel-btn" id="batch-cancel-btn">Cancel</button>
+                    <button class="batch-generate-btn" id="batch-generate-btn">Generate Batch</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Batch Output Modal -->
+        <div class="batch-output-overlay" id="batch-output-overlay">
+            <div class="batch-output-modal">
+                <div class="batch-output-header">
+                    <h2 class="batch-output-title">Generated Prompts</h2>
+                    <button class="batch-output-close" id="batch-output-close"
+                        aria-label="Close output">&times;</button>
+                </div>
+
+                <div class="batch-output-body">
+                    <div class="batch-output-controls">
+                        <button id="batch-copy-btn" class="batch-output-btn">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path
+                                    d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" />
+                            </svg>
+                            Copy All
+                        </button>
+                        <button id="batch-download-btn" class="batch-output-btn">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+                            </svg>
+                            Download
+                        </button>
+                    </div>
+                    <textarea id="batch-output-text" class="batch-output-textarea" readonly></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Liked Prompts Output Modal -->
+        <div class="batch-output-overlay" id="favorites-output-overlay">
+            <div class="batch-output-modal">
+                <div class="batch-output-header">
+                    <h2 class="batch-output-title">Liked Prompts</h2>
+                    <button class="batch-output-close" id="favorites-output-close"
+                        aria-label="Close liked prompts">&times;</button>
+                </div>
+                <div class="batch-output-body">
+                    <div class="batch-output-controls">
+                        <button id="favorites-copy-btn" class="batch-output-btn">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path
+                                    d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" />
+                            </svg>
+                            Copy All
+                        </button>
+                        <button id="favorites-download-btn" class="batch-output-btn">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+                            </svg>
+                            Download
+                        </button>
+                        <button id="favorites-clear-btn" class="batch-output-btn">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path
+                                    d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+                            </svg>
+                            Clear
+                        </button>
+                    </div>
+                    <textarea id="favorites-output-text" class="batch-output-textarea" readonly></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Variable Template Picker Modal -->
+        <div class="variable-picker-overlay" id="variable-picker-overlay">
+            <div class="variable-picker-modal">
+                <div class="variable-picker-header">
+                    <h2 class="variable-picker-title">Add Variable from Template</h2>
+                    <button class="variable-picker-close" id="variable-picker-close" aria-label="Close">&times;</button>
+                </div>
+
+                <div class="variable-picker-body">
+                    <p class="variable-picker-description">Select a pre-defined variable to add to your template:</p>
+
+                    <div class="variable-template-list">
+                        <!-- Color Variable Template -->
+                        <button class="variable-template-card" data-template="color">
+                            <div class="variable-template-icon">🎨</div>
+                            <div class="variable-template-info">
+                                <h3 class="variable-template-name">Color</h3>
+                                <p class="variable-template-desc">6 color options: red, orange, yellow, green, blue,
+                                    purple</p>
+                            </div>
+                        </button>
+
+                        <!-- Size Variable Template -->
+                        <button class="variable-template-card" data-template="size">
+                            <div class="variable-template-icon">📏</div>
+                            <div class="variable-template-info">
+                                <h3 class="variable-template-name">Size</h3>
+                                <p class="variable-template-desc">5 size options: tiny, small, medium, large, huge</p>
+                            </div>
+                        </button>
+
+                        <!-- Mood Variable Template -->
+                        <button class="variable-template-card" data-template="mood">
+                            <div class="variable-template-icon">😊</div>
+                            <div class="variable-template-info">
+                                <h3 class="variable-template-name">Mood</h3>
+                                <p class="variable-template-desc">6 mood options: happy, sad, angry, calm, excited,
+                                    mysterious</p>
+                            </div>
+                        </button>
+
+                        <!-- Time of Day Variable Template -->
+                        <button class="variable-template-card" data-template="time">
+                            <div class="variable-template-icon">🕐</div>
+                            <div class="variable-template-info">
+                                <h3 class="variable-template-name">Time of Day</h3>
+                                <p class="variable-template-desc">6 time options: dawn, morning, noon, afternoon, dusk,
+                                    night</p>
+                            </div>
+                        </button>
+
+                        <!-- Weather Variable Template -->
+                        <button class="variable-template-card" data-template="weather">
+                            <div class="variable-template-icon">🌤️</div>
+                            <div class="variable-template-info">
+                                <h3 class="variable-template-name">Weather</h3>
+                                <p class="variable-template-desc">7 weather options: sunny, cloudy, rainy, stormy,
+                                    snowy, foggy, windy</p>
+                            </div>
+                        </button>
+
+                        <!-- Style Variable Template -->
+                        <button class="variable-template-card" data-template="style">
+                            <div class="variable-template-icon">✨</div>
+                            <div class="variable-template-info">
+                                <h3 class="variable-template-name">Style</h3>
+                                <p class="variable-template-desc">8 style options: modern, vintage, futuristic, rustic,
+                                    minimalist, ornate, abstract, realistic</p>
+                            </div>
+                        </button>
+
+                        <!-- Material Variable Template -->
+                        <button class="variable-template-card" data-template="material">
+                            <div class="variable-template-icon">🪨</div>
+                            <div class="variable-template-info">
+                                <h3 class="variable-template-name">Material</h3>
+                                <p class="variable-template-desc">8 material options: wood, metal, glass, stone, fabric,
+                                    plastic, ceramic, paper</p>
+                            </div>
+                        </button>
+
+                        <!-- Lighting Variable Template -->
+                        <button class="variable-template-card" data-template="lighting">
+                            <div class="variable-template-icon">💡</div>
+                            <div class="variable-template-info">
+                                <h3 class="variable-template-name">Lighting</h3>
+                                <p class="variable-template-desc">6 lighting options: bright, dim, dramatic, soft,
+                                    harsh, ambient</p>
+                            </div>
+                        </button>
+
+                        <!-- Import Custom Variable -->
+                        <button class="variable-template-card variable-import-card" id="import-variable-card">
+                            <div class="variable-template-icon">📁</div>
+                            <div class="variable-template-info">
+                                <h3 class="variable-template-name">Import Custom Variable</h3>
+                                <p class="variable-template-desc">Import from CSV or JSON file</p>
+                            </div>
+                        </button>
+                    </div>
+
+                    <!-- Hidden file input for variable import -->
+                    <input type="file" id="variable-import-input" accept=".csv,.json,text/csv,application/json"
+                        style="display: none;" aria-label="Select CSV or JSON file to import variable">
+                </div>
+            </div>
+        </div>
+
+        <!-- Code Overlay Backdrop -->
+        <div id="code-overlay-backdrop" class="code-overlay-backdrop"></div>
+
+        <!-- Code Overlay Panel -->
+        <div id="code-overlay" class="code-overlay">
+            <div class="code-panel">
+                <button id="close-code-overlay" class="close-code-overlay" aria-label="Close code panel">×</button>
+
+                <h2 class="code-panel-title">Advanced Controls</h2>
+
+                <!-- Template Editor Section -->
+                <div class="code-editor-section">
+                    <h3>Prompt Template Editor</h3>
+                    <p class="code-section-subtitle">Edit the underlying template and variables that drive the knob UI.
+                    </p>
+                    <textarea id="template-editor" class="code-textarea" spellcheck="false" aria-label="Template editor"
+                        placeholder="Enter your prompt template here..."></textarea>
+                    <div class="editor-controls">
+                        <button id="apply-template" class="editor-btn apply-btn">
+                            <span class="icon">✓</span> Apply Template
+                        </button>
+                        <button id="reset-template" class="editor-btn reset-btn">
+                            <span class="icon">↺</span> Reset
+                        </button>
+                        <button id="create-variable-from-selection" class="editor-btn selection-variable-btn">
+                            <span class="icon">✨</span> Make Variable from Selection
+                        </button>
+                        <button id="add-variable-btn" class="editor-btn add-variable-btn">
+                            <span class="icon">➕</span> Add Variable from Template
+                        </button>
+                    </div>
+                </div>
+
+                <div class="code-editor-section">
+                    <h3>Variable List Editor</h3>
+                    <div id="variable-list-editor" class="variable-list-editor"></div>
+                </div>
+
+                <!-- Variables JSON Section -->
+                <div class="code-editor-section">
+                    <h3>Variables (JSON View)</h3>
+                    <textarea id="variables-json" class="code-textarea" spellcheck="false" readonly
+                        aria-label="Variables JSON view"></textarea>
+                    <div id="json-status" class="json-status" aria-live="polite" aria-atomic="true"></div>
+                    <div class="json-controls">
+                        <div class="json-view-controls">
+                            <button id="copy-json" class="editor-btn copy-json-btn">
+                                <span class="icon">📋</span> Copy JSON
+                            </button>
+                            <button id="edit-json" class="editor-btn edit-json-btn">
+                                <span class="icon">✏️</span> Edit JSON
+                            </button>
+                        </div>
+                        <div class="json-edit-controls" style="display: none;">
+                            <button id="save-json" class="editor-btn save-json-btn">
+                                <span class="icon">✓</span> Save Changes
+                            </button>
+                            <button id="cancel-json" class="editor-btn cancel-json-btn">
+                                <span class="icon">✕</span> Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tags & Provenance Section (Collapsible) -->
+                <div class="code-editor-section tags-section">
+                    <div class="section-header" id="tags-section-header">
+                        <h3>Tags & Provenance</h3>
+                        <button class="collapse-toggle" id="tags-collapse-toggle" aria-label="Toggle tags section">
+                            <span class="collapse-icon">▼</span>
+                        </button>
+                    </div>
+                    <div class="section-content collapsed" id="tags-section-content">
+                        <p class="code-section-subtitle">Track sources, collections, remix lineage, and attribution for this template.</p>
+                        <div id="tags-list-container"></div>
+                        <button id="add-tag-btn" class="editor-btn add-variable-btn">
+                            <span class="icon">🏷️</span> Add Tag
+                        </button>
+                        <div id="tag-add-form" style="display:none;">
+                            <div class="tag-form-inner">
+                                <div class="tag-form-row">
+                                    <label>Type</label>
+                                    <select id="tag-type-select">
+                                        <option value="source">Source (Reference Material)</option>
+                                        <option value="collection">Collection (NFT/Blockchain)</option>
+                                        <option value="event">Event (Historical/Cultural)</option>
+                                        <option value="creator">Creator (Attribution)</option>
+                                        <option value="custom">Custom</option>
+                                    </select>
+                                </div>
+                                <div class="tag-form-row">
+                                    <label>Label *</label>
+                                    <input type="text" id="tag-label-input" placeholder="e.g. 2024 Climate Protests">
+                                </div>
+                                <div class="tag-form-row">
+                                    <label>URL</label>
+                                    <input type="text" id="tag-url-input" placeholder="https://...">
+                                </div>
+                                <div class="tag-form-row" id="tag-description-row">
+                                    <label>Description</label>
+                                    <input type="text" id="tag-description-input" placeholder="Why is this relevant?">
+                                </div>
+                                <div class="tag-form-row" id="tag-chain-row" style="display:none;">
+                                    <label>Blockchain</label>
+                                    <select id="tag-chain-select">
+                                        <option value="">None</option>
+                                        <option value="tezos">Tezos</option>
+                                        <option value="ethereum">Ethereum</option>
+                                        <option value="base">Base</option>
+                                    </select>
+                                </div>
+                                <div class="tag-form-row" id="tag-date-row">
+                                    <label>Date</label>
+                                    <input type="date" id="tag-date-input">
+                                </div>
+                                <div class="tag-form-actions">
+                                    <button id="tag-save-btn" class="editor-btn apply-btn"><span class="icon">✓</span> Save Tag</button>
+                                    <button id="tag-cancel-btn" class="editor-btn reset-btn"><span class="icon">✕</span> Cancel</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- P5.js Code Section (Collapsible) -->
+                <div class="code-editor-section p5-section">
+                    <div class="section-header" id="p5-section-header">
+                        <h3>P5.js Code (Optional)</h3>
+                        <button class="collapse-toggle" id="p5-collapse-toggle" aria-label="Toggle P5.js section">
+                            <span class="collapse-icon">▼</span>
+                        </button>
+                    </div>
+                    <div class="section-content collapsed" id="p5-section-content">
+                        <textarea id="p5-code-editor" class="code-textarea p5-editor" spellcheck="false" readonly
+                            aria-label="P5.js code editor" placeholder="No P5.js code for this template"></textarea>
+                        <div class="p5-controls">
+                            <div class="p5-view-controls">
+                                <button id="copy-p5" class="editor-btn copy-p5-btn">
+                                    <span class="icon">📋</span> Copy Code
+                                </button>
+                                <button id="edit-p5" class="editor-btn edit-p5-btn">
+                                    <span class="icon">✏️</span> Edit Code
+                                </button>
+                                <button id="run-p5" class="editor-btn run-p5-btn">
+                                    <span class="icon">▶</span> Run Code
+                                </button>
+                            </div>
+                            <div class="p5-edit-controls" style="display: none;">
+                                <button id="save-p5" class="editor-btn save-p5-btn">
+                                    <span class="icon">✓</span> Save Changes
+                                </button>
+                                <button id="cancel-p5" class="editor-btn cancel-p5-btn">
+                                    <span class="icon">✕</span> Cancel
+                                </button>
+                            </div>
+                        </div>
+                        <!-- P5.js Canvas Container -->
+                        <div id="p5-canvas-container" class="p5-canvas-container" style="display: none;">
+                            <div class="canvas-header">
+                                <span class="canvas-title">P5.js Sketch Output</span>
+                            </div>
+                            <div id="p5-sketch-mount"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Import/Export Section -->
+                <div class="code-editor-section">
+                    <h3>Import / Export</h3>
+                    <div class="import-export-controls">
+                        <button id="code-import-button" class="editor-btn import-template-btn">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+                            </svg>
+                            <span class="label">Import Template</span>
+                        </button>
+                        <button id="code-export-button" class="editor-btn export-template-btn">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z" />
+                            </svg>
+                            <span class="label">Export Template</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Current State Section -->
+                <div class="code-state-section">
+                    <h3>Current State</h3>
+                    <div id="current-state-display" class="state-display">
+                        <!-- State info will be dynamically inserted here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen reader announcements -->
+        <div id="knob-announcer" role="status" aria-live="polite" aria-atomic="true" class="sr-only">
+        </div>
+
+        <!-- Load P5.js library -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+
+        <!-- Load app as ES6 module -->
+        <script type="module" src="js/app.js?v=6"></script>
+        <script src="js/studio-integration.js?v=27"></script>
+</body>
+
+</html>

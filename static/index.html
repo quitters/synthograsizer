@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Synthograsizer Suite</title>
+  <link rel="stylesheet" href="/shared/css/base.css">
+  <link rel="icon" type="image/png" href="/shared/assets/favicon.png">
+  <style>
+    .hub-header {
+      text-align: center;
+      padding: 60px 20px 30px;
+    }
+
+    .hub-header h1 {
+      font-family: 'Press Start 2P', 'Roboto Mono', monospace;
+      font-size: 2.2em;
+      color: #232946;
+      text-shadow: 1px 1px 0 #fff;
+      margin-bottom: 12px;
+    }
+
+    .hub-header p {
+      color: #4a5568;
+      font-size: 1.15em;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 24px;
+      max-width: 1000px;
+      margin: 20px auto 60px;
+      padding: 0 24px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 28px 24px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+      border: 1px solid #e2e8f0;
+      transition: transform 0.2s, box-shadow 0.2s;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(94, 96, 206, 0.15);
+      border-color: #5e60ce;
+    }
+
+    .card h2 {
+      font-family: 'Inter', sans-serif;
+      font-size: 1.25em;
+      font-weight: 700;
+      color: #5e60ce;
+      margin: 0 0 8px 0;
+    }
+
+    .card p {
+      color: #4a5568;
+      font-size: 0.95em;
+      line-height: 1.5;
+      margin: 0;
+    }
+
+    .card .tag {
+      display: inline-block;
+      background: #f0f0ff;
+      color: #5e60ce;
+      font-size: 0.75em;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 20px;
+      margin-top: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .hub-footer {
+      text-align: center;
+      padding: 30px 20px;
+      color: #4a5568;
+      font-size: 0.9em;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    .hub-footer a {
+      color: #5e60ce;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .hub-footer a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 480px) {
+      .hub-header h1 {
+        font-size: 1.5em;
+      }
+      .card-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="navbar-mount"></div>
+  <script src="/shared/js/navbar.js"></script>
+
+  <div class="hub-header">
+    <h1>Synthograsizer Suite</h1>
+    <p>A collection of creative tools for prompt engineering, generative art, glitch effects, and audio synthesis.</p>
+  </div>
+
+  <div class="card-grid">
+    <a href="/synthograsizer/" class="card">
+      <h2>Synthograsizer</h2>
+      <p>AI-powered prompt engineering with template variables, batch generation, image/video creation via Gemini and Imagen, and a built-in story engine.</p>
+      <span class="tag">Main</span>
+    </a>
+
+    <a href="/legacy/" class="card">
+      <h2>Synthograsizer (Legacy)</h2>
+      <p>The original Synthograsizer with four operating modes, MIDI controller support, p5.js sketch editor, and ComfyUI integration.</p>
+      <span class="tag">Legacy</span>
+    </a>
+
+    <a href="/glitcher/" class="card">
+      <h2>Glitcher</h2>
+      <p>Professional glitch art studio with destructive and non-destructive effects, selection system, video recording, and MIDI control.</p>
+      <span class="tag">Visual</span>
+    </a>
+
+    <a href="/daw/" class="card">
+      <h2>DAW</h2>
+      <p>Web-based digital audio workstation with FM synthesis, sequencers, arpeggiator, and real-time effects processing.</p>
+      <span class="tag">Audio</span>
+    </a>
+
+    <a href="/metadata-manager/" class="card">
+      <h2>Metadata Manager</h2>
+      <p>Extract prompts and metadata from PNG files, convert them to reusable Synthograsizer templates, and manage prompt history.</p>
+      <span class="tag">Utility</span>
+    </a>
+
+    <a href="/fun-stuff/" class="card">
+      <h2>Fun Stuff</h2>
+      <p>Playful generative art experiments including the Li'l Dudes character generator and an immersive generative art gallery.</p>
+      <span class="tag">Art</span>
+    </a>
+
+    <a href="/chatroom/" class="card">
+      <h2>Agent Chat Room</h2>
+      <p>Autonomous multi-agent chat room powered by Gemini. Create AI agents with unique personalities and watch them converse in real-time.</p>
+      <span class="tag">AI Agents</span>
+    </a>
+  </div>
+
+  <div class="hub-footer">
+    <p>&copy; 2025 Synthograsizer Suite. Licensed under <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener">CC BY-NC 4.0</a>.</p>
+    <p><a href="/about/">About/Contact</a></p>
+  </div>
+</body>
+</html>

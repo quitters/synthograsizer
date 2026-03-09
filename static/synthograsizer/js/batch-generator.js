@@ -1,0 +1,718 @@
+// Batch Generator Module for Synthograsizer Mini
+import { getValueText, getWeightsArray } from './template-normalizer.js';
+import { StoryEngine, isStoryTemplate } from './story-engine.js';
+
+export class BatchGenerator {
+  constructor(app) {
+    this.app = app;
+    this.variableModes = {}; // Store mode for each variable
+    this.batchSize = 24;
+    this.outputFormat = 'plain';
+    this.storyMode = false; // Whether to use story engine
+    this.selectedCharacterId = null; // For story mode character selection
+    this.init();
+  }
+
+  init() {
+    // Get DOM elements
+    this.elements = {
+      batchButton: document.getElementById('batch-button'),
+      batchModalOverlay: document.getElementById('batch-modal-overlay'),
+      batchModalBody: document.getElementById('batch-modal-body'),
+      batchCloseBtn: document.getElementById('batch-close-btn'),
+      batchCancelBtn: document.getElementById('batch-cancel-btn'),
+      batchGenerateBtn: document.getElementById('batch-generate-btn'),
+      batchOutputOverlay: document.getElementById('batch-output-overlay'),
+      batchOutputClose: document.getElementById('batch-output-close'),
+      batchOutputText: document.getElementById('batch-output-text'),
+      batchCopyBtn: document.getElementById('batch-copy-btn'),
+      batchDownloadBtn: document.getElementById('batch-download-btn')
+    };
+
+    this.setupEventListeners();
+  }
+
+  setupEventListeners() {
+    // Open modal
+    this.elements.batchButton?.addEventListener('click', () => this.openModal());
+
+    // Close modal
+    this.elements.batchCloseBtn?.addEventListener('click', () => this.closeModal());
+    this.elements.batchCancelBtn?.addEventListener('click', () => this.closeModal());
+
+    // Close on overlay click (with drag protection)
+    let isModalMouseDown = false;
+    this.elements.batchModalOverlay?.addEventListener('mousedown', (e) => {
+      isModalMouseDown = (e.target === this.elements.batchModalOverlay);
+    });
+    this.elements.batchModalOverlay?.addEventListener('click', (e) => {
+      if (isModalMouseDown && e.target === this.elements.batchModalOverlay) {
+        this.closeModal();
+      }
+      isModalMouseDown = false;
+    });
+
+    // Generate batch
+    this.elements.batchGenerateBtn?.addEventListener('click', () => this.generateBatch());
+
+    // Output modal
+    this.elements.batchOutputClose?.addEventListener('click', () => this.closeOutputModal());
+
+    let isOutputMouseDown = false;
+    this.elements.batchOutputOverlay?.addEventListener('mousedown', (e) => {
+      isOutputMouseDown = (e.target === this.elements.batchOutputOverlay);
+    });
+    this.elements.batchOutputOverlay?.addEventListener('click', (e) => {
+      if (isOutputMouseDown && e.target === this.elements.batchOutputOverlay) {
+        this.closeOutputModal();
+      }
+      isOutputMouseDown = false;
+    });
+
+    // Copy and download
+    this.elements.batchCopyBtn?.addEventListener('click', () => this.copyOutput());
+    this.elements.batchDownloadBtn?.addEventListener('click', () => this.downloadOutput());
+  }
+
+  openModal() {
+    if (!this.app.variables || this.app.variables.length === 0) {
+      showToast('Please load a template first!', 'warning');
+      return;
+    }
+
+    // Auto-detect story mode
+    const hasStory = isStoryTemplate(this.app.currentTemplate);
+    this.storyMode = hasStory;
+
+    // Initialize variable modes if not already set
+    this.app.variables.forEach(variable => {
+      if (!this.variableModes[variable.name]) {
+        this.variableModes[variable.name] = {
+          mode: 'sequential',
+          repeatCount: 3,
+          repeatSubmode: 'sequential'
+        };
+      }
+    });
+
+    this.renderModalContent();
+    this.elements.batchModalOverlay.classList.add('active');
+  }
+
+  closeModal() {
+    this.elements.batchModalOverlay.classList.remove('active');
+  }
+
+  closeOutputModal() {
+    this.elements.batchOutputOverlay.classList.remove('active');
+  }
+
+  renderModalContent() {
+    const hasStory = isStoryTemplate(this.app.currentTemplate);
+
+    let html = '';
+
+    // Story mode toggle (only shown when template has a story block)
+    if (hasStory) {
+      html += this.renderStoryModeToggle();
+    }
+
+    if (this.storyMode && hasStory) {
+      html += this.renderStoryPanel();
+    } else {
+      html += this.app.variables.map((variable, index) => this.renderVariableItem(variable, index)).join('');
+    }
+
+    html += this.renderBatchSettings();
+
+    this.elements.batchModalBody.innerHTML = html;
+    this.attachModalEventListeners();
+  }
+
+  // ─── Story Mode UI ───────────────────────────────────────────
+
+  renderStoryModeToggle() {
+    return `
+      <div class="batch-story-toggle">
+        <label class="story-toggle-label">
+          <input type="checkbox" id="story-mode-toggle" ${this.storyMode ? 'checked' : ''}>
+          <span class="story-toggle-text">Story Mode</span>
+          <span class="story-toggle-hint">Generate sequential narrative prompts from act structure</span>
+        </label>
+      </div>
+    `;
+  }
+
+  renderStoryPanel() {
+    const story = this.app.currentTemplate.story;
+    const engine = new StoryEngine(this.app.currentTemplate);
+    const summary = engine.getSummary();
+    const validation = engine.validate();
+
+    // Character selector
+    let characterHtml = '';
+    if (summary.characters.length > 0) {
+      characterHtml = `
+        <div class="story-section">
+          <h4>Characters</h4>
+          <div class="story-characters">
+            ${summary.characters.map((c, i) => `
+              <label class="story-character-option">
+                <input type="radio" name="story-character" value="${c.id}"
+                  ${(this.selectedCharacterId === c.id || (!this.selectedCharacterId && i === 0)) ? 'checked' : ''}>
+                <span class="story-character-name">${c.name}</span>
+                <span class="story-character-id">${c.id}</span>
+              </label>
+            `).join('')}
+            ${summary.characters.length > 1 ? `
+              <label class="story-character-option">
+                <input type="radio" name="story-character" value="__rotate__"
+                  ${this.selectedCharacterId === '__rotate__' ? 'checked' : ''}>
+                <span class="story-character-name">Rotate (per act lock)</span>
+                <span class="story-character-id">Uses act locks to determine character</span>
+              </label>
+            ` : ''}
+          </div>
+        </div>
+      `;
+    }
+
+    // Act timeline
+    const actTimelineHtml = `
+      <div class="story-section">
+        <h4>Act Structure — ${summary.totalBeats} total beats</h4>
+        <div class="story-act-timeline">
+          ${summary.acts.map((act, i) => {
+            const beatPercent = (act.beats / summary.totalBeats) * 100;
+            const colors = ['#3b82f6', '#f59e0b', '#ef4444', '#10b981', '#8b5cf6'];
+            const color = colors[i % colors.length];
+            return `
+              <div class="story-act-block" style="flex: ${act.beats}; background: ${color}20; border-left: 3px solid ${color};">
+                <div class="story-act-name">${act.name}</div>
+                <div class="story-act-beats">${act.beats} beat${act.beats !== 1 ? 's' : ''}</div>
+                ${act.locks.length > 0 ? `<div class="story-act-locks">Locks: ${act.locks.join(', ')}</div>` : ''}
+                ${act.biases.length > 0 ? `<div class="story-act-biases">Biases: ${act.biases.join(', ')}</div>` : ''}
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+    `;
+
+    // Progressions
+    let progressionHtml = '';
+    if (summary.progressions.length > 0) {
+      progressionHtml = `
+        <div class="story-section">
+          <h4>Progressions</h4>
+          <div class="story-progressions">
+            ${summary.progressions.map(p => `
+              <div class="story-progression-item">
+                <span class="story-prog-var">${p.variable}</span>
+                <span class="story-prog-arrow">${p.steps} steps</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    // Validation warnings
+    let warningHtml = '';
+    if (validation.warnings.length > 0) {
+      warningHtml = `
+        <div class="story-warnings">
+          ${validation.warnings.map(w => `<div class="story-warning-item">${w}</div>`).join('')}
+        </div>
+      `;
+    }
+
+    return `
+      <div class="story-panel">
+        <div class="story-title">${summary.title}</div>
+        ${warningHtml}
+        ${characterHtml}
+        ${actTimelineHtml}
+        ${progressionHtml}
+      </div>
+    `;
+  }
+
+  renderVariableItem(variable, index) {
+    const color = this.app.config.colorPalette[index % this.app.config.colorPalette.length];
+    const mode = this.variableModes[variable.name];
+    const valueIndex = this.app.currentValues[variable.name] || 0;
+    const currentValue = getValueText(variable.values[valueIndex]);
+    const isLocked = mode.mode === 'lock';
+
+    return `
+      <div class="batch-variable-item" data-variable="${variable.name}">
+        <div class="batch-variable-header">
+          <span class="batch-variable-name ${isLocked ? 'locked' : ''}" style="background: ${isLocked ? '#9ca3af' : color};">
+            ${variable.name.toUpperCase()}
+          </span>
+          <div class="batch-mode-selector">
+            <button
+              class="batch-mode-btn ${mode.mode === 'lock' ? 'active' : ''}"
+              data-mode="lock"
+              title="Keep this value fixed across all prompts."
+            >
+              Lock
+            </button>
+            <button
+              class="batch-mode-btn ${mode.mode === 'random' ? 'active' : ''}"
+              data-mode="random"
+              title="Pick a random value for each prompt."
+            >
+              Random
+            </button>
+            <button
+              class="batch-mode-btn ${mode.mode === 'sequential' ? 'active' : ''}"
+              data-mode="sequential"
+              title="Step through values in order for each prompt."
+            >
+              Sequential
+            </button>
+            <button
+              class="batch-mode-btn ${mode.mode === 'repeat' ? 'active' : ''}"
+              data-mode="repeat"
+              title="Repeat the same sequence pattern across prompts."
+            >
+              Repeat
+            </button>
+          </div>
+        </div>
+        <div class="batch-current-value ${isLocked ? 'locked' : ''}">${currentValue}</div>
+        <div class="batch-repeat-input ${mode.mode === 'repeat' ? 'active' : ''}">
+          <label>Repeat each value:</label>
+          <input type="number" class="repeat-count-input" value="${mode.repeatCount}" min="1" max="100">
+          <div class="batch-repeat-submode">
+            <button class="batch-submode-btn ${mode.repeatSubmode === 'sequential' ? 'active' : ''}" data-submode="sequential">Sequential</button>
+            <button class="batch-submode-btn ${mode.repeatSubmode === 'random' ? 'active' : ''}" data-submode="random">Random</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  renderBatchSettings() {
+    const hasStory = isStoryTemplate(this.app.currentTemplate);
+    const storyBeats = hasStory ? new StoryEngine(this.app.currentTemplate).totalBeats : 0;
+
+    // In story mode, batch size is determined by the story structure
+    const showBatchSize = !this.storyMode;
+    const promptCount = this.storyMode ? storyBeats : this.batchSize;
+
+    return `
+      <div class="batch-settings">
+        <h3>Settings</h3>
+        <div class="batch-setting-row">
+          ${showBatchSize ? `
+            <div class="batch-setting-item">
+              <label>Number of Prompts</label>
+              <input type="number" id="batch-size-input" value="${this.batchSize}" min="1" max="1000">
+            </div>
+          ` : ''}
+          <div class="batch-setting-item">
+            <label for="batch-format-select">Output Format</label>
+            <select
+              id="batch-format-select"
+              title="Choose how to export this batch. Use 'AI Studio Batch JSON' to save a .json file you can import into the AI Studio Batch Image Generation window."
+            >
+              <option value="plain" ${this.outputFormat === 'plain' ? 'selected' : ''}>Plain Text (line breaks)</option>
+              <option value="numbered" ${this.outputFormat === 'numbered' ? 'selected' : ''}>Numbered List</option>
+              <option value="json" ${this.outputFormat === 'json' ? 'selected' : ''}>JSON Export</option>
+              <option
+                value="ai-studio-json"
+                ${this.outputFormat === 'ai-studio-json' ? 'selected' : ''}
+                title="Export a .json batch file for AI Studio's Batch Image Generation (Import from JSON)."
+              >AI Studio Batch JSON</option>
+              ${this.storyMode ? `
+                <option value="story-json" ${this.outputFormat === 'story-json' ? 'selected' : ''}>Story JSON (acts + beats)</option>
+              ` : ''}
+            </select>
+          </div>
+        </div>
+        <div class="batch-prompt-count" id="batch-prompt-count">
+          ${this.storyMode
+            ? `This will generate ${promptCount} beats across ${this.app.currentTemplate.story.acts.length} acts`
+            : `This will generate ${promptCount} prompts`
+          }
+        </div>
+      </div>
+    `;
+  }
+
+  attachModalEventListeners() {
+    // Story mode toggle
+    const storyToggle = document.getElementById('story-mode-toggle');
+    if (storyToggle) {
+      storyToggle.addEventListener('change', (e) => {
+        this.storyMode = e.target.checked;
+        this.renderModalContent();
+      });
+    }
+
+    // Character selection (story mode)
+    document.querySelectorAll('input[name="story-character"]').forEach(radio => {
+      radio.addEventListener('change', (e) => {
+        this.selectedCharacterId = e.target.value === '__rotate__' ? null : e.target.value;
+      });
+    });
+
+    // Mode buttons
+    document.querySelectorAll('.batch-mode-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const variableItem = e.target.closest('.batch-variable-item');
+        const variableName = variableItem.dataset.variable;
+        const mode = e.target.dataset.mode;
+
+        this.setVariableMode(variableName, mode);
+        this.updateVariableUI(variableItem, variableName);
+      });
+    });
+
+    // Submode buttons
+    document.querySelectorAll('.batch-submode-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const variableItem = e.target.closest('.batch-variable-item');
+        const variableName = variableItem.dataset.variable;
+        const submode = e.target.dataset.submode;
+
+        this.variableModes[variableName].repeatSubmode = submode;
+
+        // Update UI
+        const parent = e.target.parentElement;
+        parent.querySelectorAll('.batch-submode-btn').forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+      });
+    });
+
+    // Repeat count inputs
+    document.querySelectorAll('.repeat-count-input').forEach(input => {
+      input.addEventListener('change', (e) => {
+        const variableItem = e.target.closest('.batch-variable-item');
+        const variableName = variableItem.dataset.variable;
+        this.variableModes[variableName].repeatCount = parseInt(e.target.value) || 3;
+        this.updatePromptCount();
+      });
+    });
+
+    // Batch size input
+    const batchSizeInput = document.getElementById('batch-size-input');
+    if (batchSizeInput) {
+      batchSizeInput.addEventListener('change', (e) => {
+        this.batchSize = parseInt(e.target.value) || 24;
+        this.updatePromptCount();
+      });
+    }
+
+    // Format select
+    const formatSelect = document.getElementById('batch-format-select');
+    if (formatSelect) {
+      formatSelect.addEventListener('change', (e) => {
+        this.outputFormat = e.target.value;
+      });
+    }
+  }
+
+  setVariableMode(variableName, mode) {
+    this.variableModes[variableName].mode = mode;
+  }
+
+  updateVariableUI(variableItem, variableName) {
+    const mode = this.variableModes[variableName].mode;
+    const isLocked = mode === 'lock';
+
+    // Update active button
+    variableItem.querySelectorAll('.batch-mode-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.mode === mode);
+    });
+
+    // Update variable name styling
+    const varName = variableItem.querySelector('.batch-variable-name');
+    const currentValue = variableItem.querySelector('.batch-current-value');
+
+    if (isLocked) {
+      varName.classList.add('locked');
+      currentValue.classList.add('locked');
+      varName.style.background = '#9ca3af';
+    } else {
+      varName.classList.remove('locked');
+      currentValue.classList.remove('locked');
+      // Restore original color
+      const index = this.app.variables.findIndex(v => v.name === variableName);
+      const color = this.app.config.colorPalette[index % this.app.config.colorPalette.length];
+      varName.style.background = color;
+    }
+
+    // Show/hide repeat input
+    const repeatInput = variableItem.querySelector('.batch-repeat-input');
+    if (mode === 'repeat') {
+      repeatInput.classList.add('active');
+    } else {
+      repeatInput.classList.remove('active');
+    }
+
+    this.updatePromptCount();
+  }
+
+  updatePromptCount() {
+    const countEl = document.getElementById('batch-prompt-count');
+    if (!countEl) return;
+
+    if (this.storyMode && isStoryTemplate(this.app.currentTemplate)) {
+      const engine = new StoryEngine(this.app.currentTemplate);
+      const acts = this.app.currentTemplate.story.acts.length;
+      countEl.textContent = `This will generate ${engine.totalBeats} beats across ${acts} acts`;
+    } else {
+      countEl.textContent = `This will generate ${this.batchSize} prompts`;
+    }
+  }
+
+  // ─── Generation ──────────────────────────────────────────────
+
+  generateBatch() {
+    if (this.storyMode && isStoryTemplate(this.app.currentTemplate)) {
+      this.generateStoryBatch();
+    } else {
+      this.generateStandardBatch();
+    }
+  }
+
+  generateStoryBatch() {
+    const engine = new StoryEngine(this.app.currentTemplate);
+
+    // Determine character
+    let characterId = this.selectedCharacterId;
+    if (!characterId) {
+      const chars = this.app.currentTemplate.story.characters || [];
+      if (chars.length > 0) characterId = chars[0].id;
+    }
+
+    const sequence = engine.generateSequence({
+      characterId,
+      getWeightedRandomIndex: (weights) => this.app.getWeightedRandomIndex(weights)
+    });
+
+    const entries = sequence.map(beat => ({
+      text: beat.text,
+      variables: beat.variables,
+      beat: beat.beat,
+      act: beat.act
+    }));
+
+    this.displayOutput(entries);
+  }
+
+  generateStandardBatch() {
+    const entries = [];
+
+    for (let i = 0; i < this.batchSize; i++) {
+      const values = {};
+
+      // For each variable, determine the value based on its mode
+      this.app.variables.forEach((variable, varIndex) => {
+        const mode = this.variableModes[variable.name];
+        const valueCount = variable.values.length;
+
+        switch (mode.mode) {
+          case 'lock':
+            // Use current value
+            values[variable.name] = getValueText(variable.values[this.app.currentValues[variable.name]]);
+            break;
+
+          case 'random': {
+            // Random value (weighted)
+            const weights = getWeightsArray(variable);
+            const idx = this.app.getWeightedRandomIndex(weights);
+            values[variable.name] = getValueText(variable.values[idx]);
+            break;
+          }
+
+          case 'sequential': {
+            // Cycle through values
+            const seqIndex = i % valueCount;
+            values[variable.name] = getValueText(variable.values[seqIndex]);
+            break;
+          }
+
+          case 'repeat': {
+            // Repeat each value N times
+            const repeatCount = mode.repeatCount;
+            const repeatCycles = Math.floor(i / repeatCount);
+
+            if (mode.repeatSubmode === 'sequential') {
+              // Sequential after repeat
+              const repeatSeqIndex = repeatCycles % valueCount;
+              values[variable.name] = getValueText(variable.values[repeatSeqIndex]);
+            } else {
+              // Random after repeat - use cycle number as seed for consistency within repeat
+              const randomSeed = repeatCycles;
+              const randomIndex = this.seededRandom(randomSeed, varIndex) % valueCount;
+              values[variable.name] = getValueText(variable.values[randomIndex]);
+            }
+            break;
+          }
+        }
+      });
+
+      let prompt = this.app.currentTemplate.promptTemplate;
+      this.app.variables.forEach(variable => {
+        // Fix: prioritize variable.name to match template {{variable_name}} format
+        const varName = variable.name || variable.feature_name;
+        const regex = new RegExp(`{{${varName}}}`, 'g');
+        prompt = prompt.replace(regex, values[variable.name]);
+      });
+
+      entries.push({
+        text: prompt,
+        variables: values
+      });
+    }
+
+    this.displayOutput(entries);
+  }
+
+  seededRandom(seed, salt) {
+    // Mulberry32-based PRNG — deterministic, well-distributed output for a given seed+salt pair.
+    // Returns a non-negative integer. Consistent across calls with the same inputs.
+    let h = (seed + salt * 2654435761) | 0;  // mix seed and salt via golden-ratio hash
+    h = Math.imul(h ^ (h >>> 16), 0x45d9f3b);
+    h = Math.imul(h ^ (h >>> 13), 0x45d9f3b);
+    h = (h ^ (h >>> 16)) >>> 0;  // unsigned 32-bit
+    return h;
+  }
+
+  displayOutput(entries) {
+    let output = '';
+    const promptTexts = entries.map(entry => entry.text);
+
+    switch (this.outputFormat) {
+      case 'numbered':
+        output = promptTexts.map((p, i) => `${i + 1}. ${p}`).join('\n');
+        break;
+      case 'json':
+        output = JSON.stringify({ prompts: promptTexts }, null, 2);
+        break;
+      case 'ai-studio-json': {
+        const batchSpec = this.buildAISBatch(entries);
+        output = JSON.stringify(batchSpec, null, 2);
+        break;
+      }
+      case 'story-json': {
+        const storySpec = this.buildStoryJSON(entries);
+        output = JSON.stringify(storySpec, null, 2);
+        break;
+      }
+      default: // plain
+        output = promptTexts.join('\n');
+    }
+
+    this.elements.batchOutputText.value = output;
+    this.closeModal();
+    this.elements.batchOutputOverlay.classList.add('active');
+  }
+
+  buildAISBatch(entries) {
+    const template = this.app.currentTemplate || {};
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const batchName = `synthograsizer_batch_${timestamp}`;
+
+    const exportObj = {
+      batch_name: batchName,
+      source: 'synthograsizer-mini',
+      description: 'Exported from Synthograsizer Mini for AI Studio batch generation',
+      template: {
+        promptTemplate: template.promptTemplate || '',
+        variables: Array.isArray(template.variables) ? template.variables : []
+      },
+      prompts: entries.map((entry, index) => ({
+        id: `prompt_${index + 1}`,
+        text: entry.text,
+        variables: entry.variables
+      }))
+    };
+    // Include provenance tags if any exist
+    const tags = template.tags;
+    if (Array.isArray(tags) && tags.length > 0) {
+      exportObj.tags = tags;
+    }
+    return exportObj;
+  }
+
+  buildStoryJSON(entries) {
+    const template = this.app.currentTemplate || {};
+    const story = template.story || {};
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+
+    // Group entries by act
+    const actGroups = {};
+    for (const entry of entries) {
+      const actName = entry.act || 'Unknown Act';
+      if (!actGroups[actName]) actGroups[actName] = [];
+      actGroups[actName].push(entry);
+    }
+
+    const storyObj = {
+      story_name: story.title || `story_${timestamp}`,
+      source: 'synthograsizer-story-engine',
+      description: `Story sequence: ${story.title || 'Untitled'}`,
+      total_beats: entries.length,
+      characters: story.characters || [],
+      acts: Object.entries(actGroups).map(([actName, beats]) => ({
+        name: actName,
+        beats: beats.map(b => ({
+          beat: b.beat,
+          prompt: b.text,
+          variables: b.variables
+        }))
+      })),
+      flat_prompts: entries.map(e => e.text)
+    };
+    // Include provenance tags if any exist
+    const tags = template.tags;
+    if (Array.isArray(tags) && tags.length > 0) {
+      storyObj.tags = tags;
+    }
+    return storyObj;
+  }
+
+  copyOutput() {
+    this.elements.batchOutputText.select();
+    document.execCommand('copy');
+
+    // Visual feedback
+    const btn = this.elements.batchCopyBtn;
+    btn.classList.add('copied');
+    btn.textContent = '✓ Copied!';
+
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+        </svg>
+        Copy All
+      `;
+    }, 2000);
+  }
+
+  downloadOutput() {
+    const content = this.elements.batchOutputText.value;
+    const isJsonFormat = this.outputFormat === 'json' || this.outputFormat === 'ai-studio-json' || this.outputFormat === 'story-json';
+    const extension = isJsonFormat ? 'json' : 'txt';
+    const filename = `synthograsizer-batch-${Date.now()}.${extension}`;
+
+    const mimeType = isJsonFormat ? 'application/json' : 'text/plain';
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+}

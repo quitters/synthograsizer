@@ -1,0 +1,59 @@
+{
+  "promptTemplate": "A {{protagonist}} must {{conflict}} in a world where {{premise}}.",
+  "variables": [
+    {
+      "name": "protagonist",
+      "feature_name": "protagonist",
+      "values": [
+        "time-traveling chef",
+        "amnesiac detective",
+        "sentient AI",
+        "retired assassin",
+        "psychic librarian",
+        "teenage hacker",
+        "disgraced astronaut",
+        "ghost whisperer",
+        "quantum physicist",
+        "reformed con artist",
+        "robot therapist",
+        "dimension-hopping musician"
+      ]
+    },
+    {
+      "name": "conflict",
+      "feature_name": "conflict",
+      "values": [
+        "prevent their own birth",
+        "solve their own murder",
+        "save humanity from extinction",
+        "stop an impending war",
+        "find their missing memories",
+        "escape a time loop",
+        "prove their innocence",
+        "break an ancient curse",
+        "choose between two realities",
+        "redeem their greatest mistake",
+        "unite fractured worlds",
+        "destroy their own creation"
+      ]
+    },
+    {
+      "name": "premise",
+      "feature_name": "premise",
+      "values": [
+        "dreams are illegal",
+        "death is reversible",
+        "emotions are currency",
+        "memories can be stolen",
+        "lies become reality",
+        "time flows backwards",
+        "everyone has a clone",
+        "magic is dying",
+        "the dead outnumber the living",
+        "thoughts are visible",
+        "gravity is optional",
+        "reality is glitching"
+      ]
+    }
+  ]
+}

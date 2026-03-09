@@ -1,0 +1,225 @@
+/* Quick Fix Reference for Glitcher Studio
+   Use these classes to quickly apply fixes to specific issues
+   Author: Your talented web designer
+   Date: June 2025
+*/
+
+/* ========================================
+   QUICK FIX CLASSES
+   ======================================== */
+
+/* Apply to right panel if still having issues */
+.fix-right-panel-overflow {
+  max-width: 320px !important;
+  overflow: hidden !important;
+}
+
+/* Apply to effect modules if text is overflowing */
+.fix-text-overflow {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+/* Apply to tooltips if they're still problematic */
+.disable-tooltips [title]::before,
+.disable-tooltips [title]::after {
+  display: none !important;
+}
+
+/* Force compact mode */
+.force-compact .effect-module {
+  padding: 6px !important;
+  margin: 4px !important;
+}
+
+.force-compact .effect-controls button {
+  width: 20px !important;
+  height: 20px !important;
+  font-size: 9px !important;
+}
+
+/* ========================================
+   DEBUG HELPERS
+   ======================================== */
+
+/* Show element boundaries for debugging */
+.debug-borders * {
+  border: 1px solid rgba(255, 0, 0, 0.3) !important;
+}
+
+/* Show overflow areas */
+.debug-overflow {
+  overflow: visible !important;
+  background: rgba(255, 0, 0, 0.1) !important;
+}
+
+/* ========================================
+   SPECIFIC ISSUE FIXES
+   ======================================== */
+
+/* Fix for Dithering effect specifically */
+.effect-module[data-effect-id*="dithering"] {
+  min-height: 80px;
+}
+
+/* Fix for long effect names */
+.effect-module[data-effect-id*="experimental"],
+.effect-module[data-effect-id*="atmospheric"] {
+  .effect-name {
+    font-size: 12px;
+  }
+}
+
+/* ========================================
+   RESPONSIVE HELPERS
+   ======================================== */
+
+/* Force mobile layout on desktop for testing */
+.force-mobile-layout .studio-main {
+  grid-template-columns: 1fr !important;
+}
+
+/* Force desktop layout on mobile */
+.force-desktop-layout .studio-main {
+  grid-template-columns: 200px 1fr 280px !important;
+}
+
+/* ========================================
+   PERFORMANCE HELPERS
+   ======================================== */
+
+/* Disable all animations for performance */
+.no-animations *,
+.no-animations *::before,
+.no-animations *::after {
+  animation: none !important;
+  transition: none !important;
+}
+
+/* Simplify shadows for performance */
+.simple-shadows .effect-module {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* ========================================
+   ACCESSIBILITY HELPERS
+   ======================================== */
+
+/* High contrast mode */
+.high-contrast .effect-module {
+  border: 2px solid white !important;
+  background: black !important;
+}
+
+.high-contrast .effect-name {
+  color: white !important;
+  font-weight: bold !important;
+}
+
+/* Large text mode */
+.large-text {
+  font-size: 16px !important;
+}
+
+.large-text .effect-name {
+  font-size: 16px !important;
+}
+
+.large-text .effect-type {
+  font-size: 14px !important;
+}
+
+/* ========================================
+   CUSTOM SCROLLBAR STYLES
+   ======================================== */
+
+/* Thin scrollbar */
+.thin-scrollbar {
+  scrollbar-width: thin !important;
+}
+
+.thin-scrollbar::-webkit-scrollbar {
+  width: 4px !important;
+}
+
+/* Hidden scrollbar (but still scrollable) */
+.hidden-scrollbar {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.hidden-scrollbar::-webkit-scrollbar {
+  display: none !important;
+}
+
+/* ========================================
+   LAYOUT UTILITIES
+   ======================================== */
+
+/* Force minimum heights */
+.min-height-panel {
+  min-height: 400px !important;
+}
+
+/* Force maximum widths */
+.max-width-constrained {
+  max-width: 100% !important;
+  overflow: hidden !important;
+}
+
+/* Center all content */
+.center-content {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* ========================================
+   EMERGENCY FIXES
+   ======================================== */
+
+/* Nuclear option - hide all overflow */
+.no-overflow,
+.no-overflow * {
+  overflow: hidden !important;
+}
+
+/* Reset all transforms */
+.reset-transforms,
+.reset-transforms * {
+  transform: none !important;
+}
+
+/* Reset all positioning */
+.reset-positioning {
+  position: static !important;
+}
+
+.reset-positioning * {
+  position: relative !important;
+}
+
+/* ========================================
+   HOW TO USE
+   ======================================== */
+
+/*
+To apply any of these fixes:
+
+1. Add the class to the specific element having issues:
+   element.classList.add('fix-text-overflow');
+
+2. Add to parent container for broader fixes:
+   document.querySelector('.right-panel').classList.add('fix-right-panel-overflow');
+
+3. Add to body for global fixes:
+   document.body.classList.add('no-animations');
+
+4. Combine multiple fixes:
+   element.classList.add('force-compact', 'thin-scrollbar');
+
+5. Use debug helpers to identify issues:
+   document.body.classList.add('debug-borders');
+*/

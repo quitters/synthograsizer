@@ -1,0 +1,133 @@
+{
+  "promptTemplate": "{{model_description}} wearing {{garment}}, {{pose}} pose, {{setting}} location, {{lighting_setup}} lighting, {{mood_direction}} mood, editorial for {{publication}}",
+  "variables": [
+    {
+      "name": "model_description",
+      "feature_name": "Model",
+      "values": [
+        {"text": "androgynous model with sharp cheekbones", "weight": 3},
+        {"text": "statuesque figure with flowing natural hair", "weight": 3},
+        {"text": "ethereal pale model with freckles", "weight": 2},
+        {"text": "muscular dancer mid-movement", "weight": 2},
+        {"text": "elderly figure with striking silver hair", "weight": 2},
+        {"text": "twin models in contrasting outfits", "weight": 1},
+        {"text": "child model with vintage styling", "weight": 1},
+        {"text": "figure obscured by fabric and shadow", "weight": 2},
+        {"text": "model with elaborate face paint", "weight": 1},
+        {"text": "silhouette figure backlit", "weight": 3}
+      ]
+    },
+    {
+      "name": "garment",
+      "feature_name": "Garment",
+      "values": [
+        {"text": "deconstructed oversized blazer", "weight": 3},
+        {"text": "floor-length liquid metallic gown", "weight": 2},
+        {"text": "architectural origami-fold dress", "weight": 2},
+        {"text": "raw denim workwear ensemble", "weight": 3},
+        {"text": "sheer layered organza", "weight": 2},
+        {"text": "hand-knit chunky sweater dress", "weight": 3},
+        {"text": "leather harness and flowing skirt", "weight": 1},
+        {"text": "painted-on body art as clothing", "weight": 1},
+        {"text": "vintage 1940s tailored suit", "weight": 3},
+        {"text": "futuristic 3D-printed armor corset", "weight": 1},
+        {"text": "wrapped draped linen", "weight": 2},
+        {"text": "patchwork reclaimed fabric jacket", "weight": 2}
+      ]
+    },
+    {
+      "name": "pose",
+      "feature_name": "Pose",
+      "values": [
+        {"text": "stark angular contrapposto", "weight": 3},
+        {"text": "fluid mid-stride walking", "weight": 3},
+        {"text": "seated cross-legged contemplation", "weight": 2},
+        {"text": "dramatic wind-blown hair toss", "weight": 2},
+        {"text": "overhead lying down", "weight": 1},
+        {"text": "climbing industrial scaffolding", "weight": 1},
+        {"text": "turned away over-shoulder glance", "weight": 3},
+        {"text": "crouching low power stance", "weight": 2},
+        {"text": "arms extended wingspan", "weight": 2},
+        {"text": "intimate close-up hands to face", "weight": 3}
+      ]
+    },
+    {
+      "name": "setting",
+      "feature_name": "Setting",
+      "values": [
+        {"text": "brutalist concrete parking garage", "weight": 3},
+        {"text": "overgrown greenhouse", "weight": 3},
+        {"text": "infinite white cyclorama", "weight": 3},
+        {"text": "abandoned Art Deco theater", "weight": 2},
+        {"text": "rain-soaked city rooftop", "weight": 2},
+        {"text": "Moroccan tiled courtyard", "weight": 2},
+        {"text": "industrial shipyard at dusk", "weight": 2},
+        {"text": "minimalist Scandinavian interior", "weight": 1},
+        {"text": "crumbling stone staircase", "weight": 1},
+        {"text": "neon-lit bodega at night", "weight": 1}
+      ]
+    },
+    {
+      "name": "lighting_setup",
+      "feature_name": "Lighting Setup",
+      "values": [
+        {"text": "single harsh spotlight from above", "weight": 3},
+        {"text": "soft window light Rembrandt", "weight": 3},
+        {"text": "ring light direct frontal", "weight": 2},
+        {"text": "colored gel cross-lighting", "weight": 2},
+        {"text": "natural golden hour backlight", "weight": 3},
+        {"text": "strobe freeze-frame flash", "weight": 1},
+        {"text": "candlelight chiaroscuro", "weight": 2},
+        {"text": "reflected bounce fill only", "weight": 2},
+        {"text": "practical neon sign glow", "weight": 1},
+        {"text": "silhouette no fill", "weight": 1}
+      ]
+    },
+    {
+      "name": "mood_direction",
+      "feature_name": "Mood",
+      "values": [
+        {"text": "austere minimalist", "weight": 3},
+        {"text": "raw emotional vulnerability", "weight": 2},
+        {"text": "playful irreverent", "weight": 2},
+        {"text": "dark romantic gothic", "weight": 2},
+        {"text": "serene meditative", "weight": 3},
+        {"text": "confrontational direct gaze", "weight": 2},
+        {"text": "nostalgic faded memory", "weight": 3},
+        {"text": "powerful commanding", "weight": 2},
+        {"text": "dreamlike surreal", "weight": 1},
+        {"text": "intimate whispered secret", "weight": 1}
+      ]
+    },
+    {
+      "name": "publication",
+      "feature_name": "Publication",
+      "values": [
+        {"text": "Vogue Italia", "weight": 3},
+        {"text": "i-D Magazine", "weight": 3},
+        {"text": "Dazed and Confused", "weight": 2},
+        {"text": "AnOther Magazine", "weight": 2},
+        {"text": "Purple Fashion", "weight": 1},
+        {"text": "032c Berlin", "weight": 1},
+        {"text": "W Magazine", "weight": 3},
+        {"text": "The Gentlewoman", "weight": 2}
+      ]
+    }
+  ],
+  "_promptcraft": {
+    "steps": 16,
+    "bpm": 100,
+    "seqData": {
+      "model_description": [0,0,0,0,1,1,1,1,9,9,9,9,4,4,4,4],
+      "garment":           [0,1,2,3,4,5,8,10,11,0,1,2,3,4,5,8],
+      "pose":              [0,0,6,6,1,1,9,9,2,2,3,3,7,7,8,8],
+      "setting":           [2,2,2,2,0,0,0,0,3,3,3,3,4,4,4,4],
+      "lighting_setup":    [1,1,1,4,4,4,0,0,0,6,6,6,2,2,2,1],
+      "mood_direction":    [0,0,4,4,6,6,1,1,5,5,7,7,3,3,8,8],
+      "publication":       [0,0,0,0,0,0,0,0,2,2,2,2,2,2,2,2]
+    },
+    "weightData": [0.8,0.9,1.0,0.9,0.8,0.9,1.0,0.9,0.8,0.9,1.0,0.9,0.8,0.9,1.0,0.9],
+    "denoiseData": [0.5,0.5,0.4,0.4,0.5,0.5,0.4,0.4,0.5,0.5,0.4,0.4,0.5,0.5,0.4,0.4],
+    "adsr": {"a": 20, "d": 30, "s": 80, "r": 25}
+  }
+}

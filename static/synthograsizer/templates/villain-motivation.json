@@ -1,0 +1,59 @@
+{
+  "promptTemplate": "{{villain_type}} who wants to {{goal}} because {{reason}}.",
+  "variables": [
+    {
+      "name": "villain_type",
+      "feature_name": "villain_type",
+      "values": [
+        "A brilliant scientist",
+        "A fallen hero",
+        "A corporate executive",
+        "An AI consciousness",
+        "A cult leader",
+        "A spurned artist",
+        "A time traveler",
+        "A genetic experiment",
+        "A disillusioned activist",
+        "A reality-warper",
+        "A shadow organization",
+        "An immortal being"
+      ]
+    },
+    {
+      "name": "goal",
+      "feature_name": "goal",
+      "values": [
+        "remake society",
+        "erase all memory",
+        "merge all minds",
+        "reverse evolution",
+        "control emotions",
+        "freeze time",
+        "commercialize dreams",
+        "weaponize beauty",
+        "eliminate free will",
+        "commodify suffering",
+        "monopolize truth",
+        "privatize nature"
+      ]
+    },
+    {
+      "name": "reason",
+      "feature_name": "reason",
+      "values": [
+        "they lost someone they loved",
+        "they believe humanity is flawed",
+        "they were betrayed by those they trusted",
+        "they discovered a terrible truth",
+        "they see themselves as the only solution",
+        "they want to prevent a worse outcome",
+        "they're following a twisted sense of justice",
+        "they've transcended human morality",
+        "they're completing someone else's work",
+        "they experienced unbearable pain",
+        "they believe it's their destiny",
+        "they're trying to save the world"
+      ]
+    }
+  ]
+}

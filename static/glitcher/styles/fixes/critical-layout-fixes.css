@@ -1,0 +1,413 @@
+/* Critical Layout Fixes for Right Panel
+   Ensures the effects chain panel never gets cut off
+   Author: Your talented web designer
+   Date: June 2025
+*/
+
+/* ========================================
+   CRITICAL: PREVENT RIGHT PANEL CUTOFF
+   ======================================== */
+
+/* Main studio grid - ensure right panel has space */
+.studio-main {
+  display: grid;
+  grid-template-columns: 250px 1fr minmax(280px, 320px);
+  gap: 0;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+}
+
+/* Right panel must never overflow */
+.right-panel {
+  width: 100%;
+  max-width: 320px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  background: #252540;
+}
+
+/* Effect chain section container */
+.effect-chain-section {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: transparent;
+}
+
+/* Effect chain container must fit */
+.effect-chain-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 0;
+  border: none;
+  box-shadow: none;
+  background: transparent;
+}
+
+/* ========================================
+   SCROLLABLE CONTENT AREA
+   ======================================== */
+
+/* Make the chain list properly scrollable */
+.effect-chain-list {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 8px;
+  min-height: 0;
+  width: 100%;
+  
+  /* Custom scrollbar that doesn't add width */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(78, 205, 196, 0.3) transparent;
+}
+
+.effect-chain-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.effect-chain-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.effect-chain-list::-webkit-scrollbar-thumb {
+  background: rgba(78, 205, 196, 0.3);
+  border-radius: 3px;
+}
+
+/* ========================================
+   EFFECT MODULE WIDTH CONSTRAINTS
+   ======================================== */
+
+/* Ensure effect modules fit within available width */
+.effect-module {
+  width: calc(100% - 16px);
+  max-width: 100%;
+  margin: 6px 8px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* Prevent any content from overflowing */
+.effect-module * {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ========================================
+   HEADER AND FOOTER CONSTRAINTS
+   ======================================== */
+
+/* Header must not overflow */
+.effect-chain-header {
+  width: 100%;
+  padding: 10px 12px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+/* Footer must fit within panel */
+.effect-chain-footer {
+  width: 100%;
+  padding: 8px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+/* Footer buttons grid adjustment */
+.effect-chain-footer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.effect-chain-footer button {
+  min-width: 0;
+  padding: 6px 8px;
+  font-size: 11px;
+  overflow: hidden;
+}
+
+/* ========================================
+   RESPONSIVE BREAKPOINTS
+   ======================================== */
+
+/* For screens between 1200-1400px */
+@media (min-width: 1200px) and (max-width: 1400px) {
+  .studio-main {
+    grid-template-columns: 220px 1fr minmax(260px, 300px);
+  }
+  
+  .right-panel {
+    max-width: 300px;
+  }
+}
+
+/* For screens less than 1200px */
+@media (max-width: 1199px) {
+  .studio-main {
+    grid-template-columns: 200px 1fr minmax(240px, 280px);
+  }
+  
+  .right-panel {
+    max-width: 280px;
+  }
+  
+  .effect-module {
+    padding: 8px;
+    margin: 4px 6px;
+    width: calc(100% - 12px);
+  }
+  
+  .effect-controls button {
+    width: 24px;
+    height: 24px;
+    font-size: 11px;
+  }
+  
+  .mode-toggle {
+    width: 28px !important;
+    height: 20px !important;
+    font-size: 8px !important;
+  }
+}
+
+/* For screens less than 1000px - stack vertically */
+@media (max-width: 999px) {
+  .studio-main {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr auto;
+  }
+  
+  .right-panel {
+    max-width: 100%;
+    height: 300px;
+    border-left: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* ========================================
+   VISIBILITY ASSURANCE
+   ======================================== */
+
+/* Ensure nothing is hidden by overflow */
+.effect-chain-section,
+.properties-section {
+  overflow: visible;
+}
+
+.effect-chain-section > *,
+.properties-section > * {
+  overflow: hidden;
+}
+
+/* Only the scrollable areas should have overflow */
+.effect-chain-list,
+.properties-content {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* ========================================
+   Z-INDEX HIERARCHY
+   ======================================== */
+
+/* Ensure proper layering */
+.right-panel {
+  z-index: 50;
+  position: relative;
+}
+
+.effect-chain-section {
+  z-index: 51;
+  position: relative;
+}
+
+.properties-section {
+  z-index: 51;
+  position: relative;
+}
+
+/* Tooltips must be on top */
+.effect-module button[title]:hover::before,
+.effect-notification,
+.effect-context-menu,
+.modal-backdrop,
+.modal-content {
+  z-index: 10000;
+}
+
+/* ========================================
+   TOOLTIP POSITIONING FIX
+   ======================================== */
+
+/* Move tooltips to the left to prevent cutoff */
+.effect-module:last-child button[title]:hover::before,
+.effect-module:nth-last-child(2) button[title]:hover::before {
+  left: auto;
+  right: 100%;
+  transform: translateX(0);
+  margin-right: 8px;
+  margin-bottom: 0;
+}
+
+/* For delete button tooltip specifically */
+.effect-module .delete-btn[title]:hover::before {
+  left: auto;
+  right: 0;
+  transform: translateX(25%);
+}
+
+/* ========================================
+   PREVENT HORIZONTAL SCROLL
+   ======================================== */
+
+/* Ensure no horizontal scrolling */
+.effect-chain-container,
+.effect-chain-list,
+.effect-module,
+.effect-header,
+.effect-controls {
+  overflow-x: hidden;
+}
+
+/* Force text to wrap or truncate */
+.effect-name,
+.effect-type,
+.effect-params-preview {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* ========================================
+   BUTTON VISIBILITY FIXES
+   ======================================== */
+
+/* Ensure all buttons are always visible */
+.effect-controls {
+  flex-shrink: 0;
+  min-width: fit-content;
+  gap: 2px;
+}
+
+/* Make buttons slightly smaller if needed */
+@media (max-width: 320px) {
+  .effect-controls button {
+    width: 22px;
+    height: 22px;
+    font-size: 10px;
+  }
+  
+  .mode-toggle {
+    width: 26px !important;
+    height: 18px !important;
+    font-size: 8px !important;
+  }
+}
+
+/* ========================================
+   FINAL SAFETY MEASURES
+   ======================================== */
+
+/* Global box-sizing to prevent overflow */
+.right-panel *,
+.right-panel *::before,
+.right-panel *::after {
+  box-sizing: border-box;
+}
+
+/* Prevent any absolute positioned elements from escaping */
+.effect-chain-container {
+  position: relative;
+  contain: layout style;
+}
+
+/* Ensure performance indicators don't cause overflow */
+.performance-indicator {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 4px;
+  height: 4px;
+}
+
+/* Hide performance stats on very small panels */
+@media (max-width: 280px) {
+  .performance-stats {
+    display: none !important;
+  }
+}
+
+/* ========================================
+   EMERGENCY OVERFLOW PREVENTION
+   ======================================== */
+
+/* Last resort - hide overflow on the entire panel */
+.glitcher-studio {
+  overflow: hidden;
+}
+
+.studio-main {
+  overflow: hidden;
+}
+
+/* But ensure tooltips can still escape */
+.effect-module {
+  position: relative;
+}
+
+.effect-module button[title] {
+  position: static;
+}
+
+/* ========================================
+   TOUCH DEVICE OPTIMIZATIONS
+   ======================================== */
+
+@media (hover: none) and (pointer: coarse) {
+  /* Larger touch targets */
+  .effect-controls button {
+    width: 32px;
+    height: 32px;
+  }
+  
+  /* Hide tooltips on touch devices */
+  .effect-module button[title]:hover::before {
+    display: none;
+  }
+  
+  /* Increase spacing */
+  .effect-module {
+    padding: 12px;
+    margin: 8px;
+  }
+}
+
+/* ========================================
+   PRINT STYLES
+   ======================================== */
+
+@media print {
+  .right-panel {
+    max-width: 100%;
+    page-break-inside: avoid;
+  }
+  
+  .effect-module {
+    page-break-inside: avoid;
+  }
+}

@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+google-generativeai
+google-genai
+pillow
+python-multipart
+requests
+httpx

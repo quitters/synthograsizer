@@ -1,0 +1,81 @@
+{
+  "promptTemplate": "A {{style}} tattoo of {{subject}} on {{placement}} with {{detail}} details.",
+  "variables": [
+    {
+      "name": "style",
+      "feature_name": "style",
+      "values": [
+        "minimalist linework",
+        "traditional American",
+        "Japanese irezumi",
+        "watercolor",
+        "geometric",
+        "blackwork",
+        "fine line",
+        "neo-traditional",
+        "dotwork",
+        "tribal",
+        "illustrative",
+        "abstract"
+      ]
+    },
+    {
+      "name": "subject",
+      "feature_name": "subject",
+      "values": [
+        "a phoenix rising",
+        "intertwined serpents",
+        "crescent moon phases",
+        "blooming lotus",
+        "anatomical heart",
+        "waves and mountains",
+        "hourglass",
+        "compass rose",
+        "tree of life",
+        "skull and flowers",
+        "moth and flame",
+        "constellation map",
+        "koi fish",
+        "raven in flight",
+        "pocket watch",
+        "sacred geometry"
+      ]
+    },
+    {
+      "name": "placement",
+      "feature_name": "placement",
+      "values": [
+        "forearm",
+        "shoulder blade",
+        "ribcage",
+        "thigh",
+        "upper arm",
+        "spine",
+        "calf",
+        "behind ear",
+        "wrist",
+        "chest",
+        "ankle",
+        "fingers"
+      ]
+    },
+    {
+      "name": "detail",
+      "feature_name": "detail",
+      "values": [
+        "intricate",
+        "minimal",
+        "bold",
+        "delicate",
+        "flowing",
+        "sharp",
+        "ornamental",
+        "symbolic",
+        "realistic",
+        "stylized",
+        "textured",
+        "clean"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,599 @@
+{
+  "promptTemplate": "I believe in {{name1}}, the {{familyMember1}} almighty, creator of {{place1}} and {{place2}}. I believe in {{name2}}, {{name1}}'s only {{familyMember2}}, our {{occupation}}, who was conceived by the {{adjective1}} {{noun1}}, born of the {{adjective2}} {{name3}}, {{heroicAction}}, was {{pastParticipleVerb1}}, {{adjective3}}, and {{pastParticipleVerb2}}, died. he descended into {{place3}}. On the {{number}}-th day {{pronoun1}} rose again; {{pronoun1}} ascended into {{place4}}, and is {{pastTenseVerb}} at the right hand of the {{name1}}, and {{pronoun1}} will come to {{verb1}} the {{adjective4}} and the {{adjective5}}. I believe in the {{adjective6}} {{noun2}}, the {{adjective7}} {{adjective8}} Church, the communion of {{pluralNoun1}}, the {{verb2}}ing of {{pluralNoun2}}, the resurrection of the {{noun3}}, and the life {{adjective9}}. {{exclamation}}.",
+  "variables": [
+    {
+      "name": "name1",
+      "feature_name": "name1",
+      "values": [
+        "Zephyr",
+        "Magnus",
+        "Celestia",
+        "Chronos",
+        "Nebula",
+        "Axiom",
+        "Solara",
+        "Quantum",
+        "Ethereal",
+        "Cosmos",
+        "Zenith",
+        "Lumina"
+      ]
+    },
+    {
+      "name": "familyMember1",
+      "feature_name": "familyMember1",
+      "values": [
+        "father",
+        "mother",
+        "ancestor",
+        "progenitor",
+        "elder",
+        "patriarch",
+        "matriarch",
+        "guardian",
+        "creator",
+        "originator",
+        "founder",
+        "architect"
+      ]
+    },
+    {
+      "name": "place1",
+      "feature_name": "place1",
+      "values": [
+        "the digital realm",
+        "the void",
+        "the multiverse",
+        "the quantum field",
+        "the astral plane",
+        "the infinite library",
+        "the cosmic ocean",
+        "the dream dimension",
+        "the crystalline mountains",
+        "the eternal garden",
+        "the floating cities",
+        "the underground network"
+      ]
+    },
+    {
+      "name": "place2",
+      "feature_name": "place2",
+      "values": [
+        "the silicon valleys",
+        "the neural networks",
+        "the cloud kingdoms",
+        "the data streams",
+        "the shadow markets",
+        "the memory banks",
+        "the probability fields",
+        "the echo chambers",
+        "the feedback loops",
+        "the recursive forests",
+        "the parallel dimensions",
+        "the temporal nexus"
+      ]
+    },
+    {
+      "name": "name2",
+      "feature_name": "name2",
+      "values": [
+        "Pixel",
+        "Vector",
+        "Cipher",
+        "Glitch",
+        "Echo",
+        "Nexus",
+        "Prism",
+        "Vortex",
+        "Flux",
+        "Resonance",
+        "Cascade",
+        "Synthesis"
+      ]
+    },
+    {
+      "name": "familyMember2",
+      "feature_name": "familyMember2",
+      "values": [
+        "child",
+        "offspring",
+        "heir",
+        "descendant",
+        "successor",
+        "progeny",
+        "scion",
+        "inheritor",
+        "spawn",
+        "creation",
+        "manifestation",
+        "embodiment"
+      ]
+    },
+    {
+      "name": "occupation",
+      "feature_name": "occupation",
+      "values": [
+        "debugger",
+        "synthesizer",
+        "optimizer",
+        "compiler",
+        "architect",
+        "engineer",
+        "designer",
+        "conductor",
+        "composer",
+        "orchestrator",
+        "facilitator",
+        "mediator"
+      ]
+    },
+    {
+      "name": "adjective1",
+      "feature_name": "adjective1",
+      "values": [
+        "holy",
+        "sacred",
+        "blessed",
+        "divine",
+        "ethereal",
+        "transcendent",
+        "luminous",
+        "radiant",
+        "mystical",
+        "celestial",
+        "quantum",
+        "infinite"
+      ]
+    },
+    {
+      "name": "noun1",
+      "feature_name": "noun1",
+      "values": [
+        "algorithm",
+        "protocol",
+        "matrix",
+        "frequency",
+        "wavelength",
+        "resonance",
+        "vibration",
+        "oscillation",
+        "pattern",
+        "sequence",
+        "cipher",
+        "code"
+      ]
+    },
+    {
+      "name": "adjective2",
+      "feature_name": "adjective2",
+      "values": [
+        "virgin",
+        "pure",
+        "untouched",
+        "pristine",
+        "immaculate",
+        "unblemished",
+        "flawless",
+        "perfect",
+        "innocent",
+        "unspoiled",
+        "uncorrupted",
+        "original"
+      ]
+    },
+    {
+      "name": "name3",
+      "feature_name": "name3",
+      "values": [
+        "Mary",
+        "Maria",
+        "Miriam",
+        "Maya",
+        "Mara",
+        "Marina",
+        "Mariana",
+        "Marilyn",
+        "Marlene",
+        "Matilda",
+        "Magdalene",
+        "Minerva"
+      ]
+    },
+    {
+      "name": "heroicAction",
+      "feature_name": "heroicAction",
+      "values": [
+        "saved the world from infinite recursion",
+        "debugged the universe's source code",
+        "optimized reality's performance",
+        "refactored the laws of physics",
+        "merged conflicting timelines",
+        "resolved all paradoxes",
+        "compiled the book of existence",
+        "synchronized all frequencies",
+        "harmonized chaos and order",
+        "balanced the cosmic equation",
+        "unified all dimensions",
+        "transcended binary logic"
+      ]
+    },
+    {
+      "name": "pastParticipleVerb1",
+      "feature_name": "pastParticipleVerb1",
+      "values": [
+        "crucified",
+        "executed",
+        "terminated",
+        "deleted",
+        "erased",
+        "nullified",
+        "voided",
+        "cancelled",
+        "suspended",
+        "frozen",
+        "archived",
+        "deprecated"
+      ]
+    },
+    {
+      "name": "adjective3",
+      "feature_name": "adjective3",
+      "values": [
+        "buried",
+        "entombed",
+        "interred",
+        "sealed",
+        "encrypted",
+        "compressed",
+        "archived",
+        "stored",
+        "cached",
+        "backed up",
+        "preserved",
+        "suspended"
+      ]
+    },
+    {
+      "name": "pastParticipleVerb2",
+      "feature_name": "pastParticipleVerb2",
+      "values": [
+        "rebooted",
+        "recompiled",
+        "restored",
+        "resurrected",
+        "revived",
+        "reborn",
+        "renewed",
+        "refreshed",
+        "reinitialized",
+        "reactivated",
+        "reinstalled",
+        "regenerated"
+      ]
+    },
+    {
+      "name": "place3",
+      "feature_name": "place3",
+      "values": [
+        "the recycle bin",
+        "the dark web",
+        "the deep state",
+        "the underworld",
+        "the shadow realm",
+        "the void",
+        "the abyss",
+        "the depths",
+        "the netherworld",
+        "the lower dimensions",
+        "the error logs",
+        "the debug console"
+      ]
+    },
+    {
+      "name": "number",
+      "feature_name": "number",
+      "values": [
+        "third",
+        "seventh",
+        "ninth",
+        "thirteenth",
+        "twenty-first",
+        "forty-second",
+        "sixty-ninth",
+        "hundredth",
+        "thousandth",
+        "millionth",
+        "infinite",
+        "zero"
+      ]
+    },
+    {
+      "name": "pronoun1",
+      "feature_name": "pronoun1",
+      "values": [
+        "he",
+        "she",
+        "they",
+        "it",
+        "ze",
+        "xe",
+        "the entity",
+        "the being",
+        "the one",
+        "the chosen",
+        "the algorithm",
+        "the process"
+      ]
+    },
+    {
+      "name": "place4",
+      "feature_name": "place4",
+      "values": [
+        "the cloud",
+        "the mainframe",
+        "the server farm",
+        "the blockchain",
+        "the neural network",
+        "the hive mind",
+        "the collective",
+        "the singularity",
+        "the source",
+        "the origin",
+        "the core",
+        "the nexus"
+      ]
+    },
+    {
+      "name": "pastTenseVerb",
+      "feature_name": "pastTenseVerb",
+      "values": [
+        "seated",
+        "positioned",
+        "stationed",
+        "installed",
+        "mounted",
+        "placed",
+        "established",
+        "anchored",
+        "rooted",
+        "fixed",
+        "deployed",
+        "implemented"
+      ]
+    },
+    {
+      "name": "verb1",
+      "feature_name": "verb1",
+      "values": [
+        "judge",
+        "evaluate",
+        "assess",
+        "measure",
+        "test",
+        "validate",
+        "verify",
+        "audit",
+        "review",
+        "analyze",
+        "process",
+        "compile"
+      ]
+    },
+    {
+      "name": "adjective4",
+      "feature_name": "adjective4",
+      "values": [
+        "living",
+        "active",
+        "running",
+        "executing",
+        "processing",
+        "functioning",
+        "operating",
+        "working",
+        "breathing",
+        "conscious",
+        "aware",
+        "sentient"
+      ]
+    },
+    {
+      "name": "adjective5",
+      "feature_name": "adjective5",
+      "values": [
+        "dead",
+        "terminated",
+        "crashed",
+        "frozen",
+        "corrupted",
+        "broken",
+        "failed",
+        "defunct",
+        "obsolete",
+        "deprecated",
+        "archived",
+        "dormant"
+      ]
+    },
+    {
+      "name": "adjective6",
+      "feature_name": "adjective6",
+      "values": [
+        "holy",
+        "sacred",
+        "blessed",
+        "divine",
+        "eternal",
+        "infinite",
+        "cosmic",
+        "universal",
+        "quantum",
+        "digital",
+        "virtual",
+        "transcendent"
+      ]
+    },
+    {
+      "name": "noun2",
+      "feature_name": "noun2",
+      "values": [
+        "spirit",
+        "essence",
+        "energy",
+        "force",
+        "power",
+        "presence",
+        "consciousness",
+        "awareness",
+        "intelligence",
+        "wisdom",
+        "knowledge",
+        "truth"
+      ]
+    },
+    {
+      "name": "adjective7",
+      "feature_name": "adjective7",
+      "values": [
+        "holy",
+        "sacred",
+        "blessed",
+        "divine",
+        "eternal",
+        "universal",
+        "cosmic",
+        "infinite",
+        "transcendent",
+        "mystical",
+        "spiritual",
+        "celestial"
+      ]
+    },
+    {
+      "name": "adjective8",
+      "feature_name": "adjective8",
+      "values": [
+        "catholic",
+        "universal",
+        "global",
+        "worldwide",
+        "omnipresent",
+        "all-encompassing",
+        "comprehensive",
+        "complete",
+        "total",
+        "absolute",
+        "unified",
+        "integrated"
+      ]
+    },
+    {
+      "name": "pluralNoun1",
+      "feature_name": "pluralNoun1",
+      "values": [
+        "saints",
+        "believers",
+        "followers",
+        "disciples",
+        "users",
+        "nodes",
+        "entities",
+        "beings",
+        "souls",
+        "spirits",
+        "consciousnesses",
+        "processes"
+      ]
+    },
+    {
+      "name": "verb2",
+      "feature_name": "verb2",
+      "values": [
+        "forgiv",
+        "heal",
+        "restor",
+        "renew",
+        "refresh",
+        "rebirth",
+        "reviv",
+        "resurrect",
+        "redeem",
+        "salvag",
+        "reclaim",
+        "recover"
+      ]
+    },
+    {
+      "name": "pluralNoun2",
+      "feature_name": "pluralNoun2",
+      "values": [
+        "sins",
+        "errors",
+        "bugs",
+        "glitches",
+        "mistakes",
+        "faults",
+        "failures",
+        "corruptions",
+        "violations",
+        "transgressions",
+        "exceptions",
+        "crashes"
+      ]
+    },
+    {
+      "name": "noun3",
+      "feature_name": "noun3",
+      "values": [
+        "body",
+        "flesh",
+        "form",
+        "vessel",
+        "container",
+        "shell",
+        "avatar",
+        "manifestation",
+        "incarnation",
+        "embodiment",
+        "instance",
+        "process"
+      ]
+    },
+    {
+      "name": "adjective9",
+      "feature_name": "adjective9",
+      "values": [
+        "everlasting",
+        "eternal",
+        "infinite",
+        "perpetual",
+        "endless",
+        "immortal",
+        "undying",
+        "permanent",
+        "timeless",
+        "boundless",
+        "limitless",
+        "continuous"
+      ]
+    },
+    {
+      "name": "exclamation",
+      "feature_name": "exclamation",
+      "values": [
+        "Amen",
+        "Hallelujah",
+        "Praise be",
+        "So be it",
+        "Indeed",
+        "Verily",
+        "Truly",
+        "Forever",
+        "Always",
+        "Eternally",
+        "Infinitely",
+        "Absolutely"
+      ]
+    }
+  ]
+}

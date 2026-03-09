@@ -1,0 +1,134 @@
+# Example User Prompts for Template Generation
+
+Copy any of these into your LLM (with the system prompt set) to generate templates:
+
+## Creative Writing
+
+Create a template for generating mystery story ideas
+
+Generate a template for character backstories in a cyberpunk setting
+
+Make a template for romance novel plot hooks
+
+Build a template for horror story opening scenes
+
+
+## Visual Arts & Design
+
+Create a template for AI image generation prompts focused on fantasy landscapes
+
+Generate a template for logo design concepts
+
+Make a template for tattoo ideas with different styles and subjects
+
+Build a template for interior design room descriptions
+
+
+## Marketing & Content
+
+Create a template for social media post ideas about technology
+
+Generate a template for blog post titles in the wellness niche
+
+Make a template for product taglines
+
+Build a template for YouTube video concepts about cooking
+
+
+## Business & Productivity
+
+Create a template for startup pitch ideas
+
+Generate a template for meeting agenda topics
+
+Make a template for team building activity suggestions
+
+Build a template for productivity app concepts
+
+
+## Gaming & Entertainment
+
+Create a template for indie game names and concepts
+
+Generate a template for D&D quest ideas
+
+Make a template for Minecraft build concepts
+
+Build a template for podcast episode ideas about true crime
+
+
+## Education & Learning
+
+Create a template for lesson plan topics for elementary science
+
+Generate a template for educational YouTube video ideas
+
+Make a template for study guide section headers
+
+Build a template for quiz question prompts
+
+
+## Food & Drink
+
+Create a template for fusion recipe ideas
+
+Generate a template for cocktail names and flavor profiles
+
+Make a template for food blog post titles
+
+Build a template for restaurant concept ideas
+
+
+## Music & Audio
+
+Create a template for song title and theme ideas
+
+Generate a template for playlist names and moods
+
+Make a template for podcast intro descriptions
+
+Build a template for album concept ideas
+
+
+## Fashion & Style
+
+Create a template for outfit combination descriptions
+
+Generate a template for fashion collection themes
+
+Make a template for accessory design concepts
+
+Build a template for personal style archetypes
+
+
+## Tech & Innovation
+
+Create a template for AI tool use cases
+
+Generate a template for mobile app feature ideas
+
+Make a template for SaaS product concepts
+
+Build a template for tech startup pivots
+
+
+## ADVANCED EXAMPLES
+
+Create a template for generating tarot card reading interpretations with card position, card name, and life aspect
+
+Generate a 4-variable template for worldbuilding civilizations including government type, primary resource, cultural value, and geographical feature
+
+Make a template for generating therapy journaling prompts with emotion, situation, and reflection angle
+
+Build a template for LinkedIn post hooks about career development
+
+
+## SPECIFIC CONSTRAINTS
+
+Create a 2-variable template for quick brainstorming (keep it super simple)
+
+Generate a 4-variable template for maximum creative control (use all 4 variables)
+
+Make a template where all values are single words (no phrases)
+
+Build a template where the output is a complete paragraph (3-4 sentences)

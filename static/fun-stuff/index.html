@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fun Stuff - Synthograsizer</title>
+  <link rel="stylesheet" href="/shared/css/base.css">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/png" href="/shared/assets/favicon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Mono:wght@300;400;500;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="page-container">
+    <!-- Navigation -->
+    <div id="navbar-mount"></div>
+    <script src="/shared/js/navbar.js"></script>
+
+    <header>
+      <h1 class="about-header">Fun Stuff</h1>
+    </header>
+
+    <main class="about-content">
+      <p>This page features playful and experimental generative art projects unrelated to the Synthograsizer.</p>
+      
+      <section class="art-container">
+        <h2>Generative Art: Li'l Dudes</h2>
+        <p>Here's a silly little generative art thing I made. Have fun messing with the canvas below:</p>
+        <ul class="controls-list">
+          <li>Press <b>'D'</b> to toggle the settings panel</li>
+          <li>Use number keys <b>1-9</b> to change the subject's expression</li>
+          <li>Press <b>'R'</b> to regenerate</li>
+          <li>Press <b>'S'</b> to save the canvas</li>
+          <li>Press <b>'B'</b> to toggle the background showcase</li>
+        </ul>
+        <div class="art-iframe-container">
+          <iframe 
+            src="https://lildudes-inky.vercel.app/" 
+            title="Lil Dudes Inky Generative Art" 
+            class="art-iframe"
+            allowfullscreen 
+            loading="lazy">
+          </iframe>
+        </div>
+      </section>
+
+      <section class="art-container">
+        <h2>Generative Art: GenArt Gallery</h2>
+        <p>Explore this immersive generative art gallery showcasing various creative visual experiments:</p>
+        <div class="art-iframe-container">
+          <iframe 
+            src="https://genart-gallery-nu.vercel.app/" 
+            title="GenArt Gallery" 
+            class="art-iframe"
+            allowfullscreen 
+            loading="lazy">
+          </iframe>
+        </div>
+      </section>
+    </main>
+
+    <footer class="about-footer">
+      <p>&copy; 2025 Synthograsizer. Licensed under <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener">CC BY-NC 4.0</a>. Attribution required. Commercial use prohibited.</p>
+      <p><a href="/">Back to Home</a></p>
+    </footer>
+  </div>
+</body>
+</html>

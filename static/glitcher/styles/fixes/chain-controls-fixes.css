@@ -1,0 +1,334 @@
+/* Chain Controls and Header Fixes
+   Ensures chain control buttons are properly styled and accessible
+   Author: Your talented web designer
+   Date: June 2025
+*/
+
+/* ========================================
+   CHAIN HEADER FIXES
+   ======================================== */
+
+/* Fix the main chain header layout */
+.effect-chain-header {
+  padding: 12px 16px;
+  background: linear-gradient(145deg, #2a2a40, #1f1f35);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 48px;
+  position: relative;
+  z-index: 100;
+}
+
+.effect-chain-header h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: #4ecdc4;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+/* Hide chain info by default to save space */
+.chain-info {
+  display: none;
+}
+
+/* ========================================
+   CHAIN CONTROLS SECTION
+   ======================================== */
+
+/* Fix chain controls layout */
+.chain-controls {
+  display: flex;
+  gap: 6px;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(78, 205, 196, 0.3) transparent;
+}
+
+/* Style chain control buttons */
+.chain-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+  min-height: 32px;
+}
+
+.chain-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(78, 205, 196, 0.3);
+  transform: translateY(-1px);
+}
+
+.chain-btn:active {
+  transform: translateY(0);
+}
+
+/* Primary button style */
+.chain-btn.primary {
+  background: linear-gradient(145deg, #4ecdc4, #45b7d1);
+  border-color: #4ecdc4;
+  color: #1a1a2e;
+}
+
+.chain-btn.primary:hover {
+  background: linear-gradient(145deg, #45b7d1, #3ea8b9);
+  box-shadow: 0 4px 12px rgba(78, 205, 196, 0.3);
+}
+
+/* Active state for toggle buttons */
+.chain-btn.active {
+  background: rgba(78, 205, 196, 0.2);
+  border-color: #4ecdc4;
+  color: #4ecdc4;
+}
+
+/* Button icons */
+.chain-btn span:first-child {
+  font-size: 14px;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+/* Button text */
+.chain-btn span:last-child {
+  font-size: 11px;
+  letter-spacing: 0.02em;
+}
+
+/* Hide text on small screens, show only icons */
+@media (max-width: 350px) {
+  .chain-btn span:last-child {
+    display: none;
+  }
+  
+  .chain-btn {
+    padding: 6px 8px;
+    min-width: 32px;
+    justify-content: center;
+  }
+}
+
+/* ========================================
+   ADD EFFECT BUTTON (HEADER)
+   ======================================== */
+
+/* Style the add effect button in header */
+.add-effect-btn {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(145deg, #4ecdc4, #45b7d1);
+  color: #1a1a2e;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.add-effect-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(78, 205, 196, 0.4);
+}
+
+.add-effect-btn:active {
+  transform: scale(1.05);
+}
+
+.add-effect-btn svg {
+  width: 16px;
+  height: 16px;
+  stroke-width: 2;
+}
+
+/* Alternative add button in controls */
+.add-effect-btn-alt {
+  background: linear-gradient(145deg, #4ecdc4, #45b7d1);
+  border-color: #4ecdc4;
+  color: #1a1a2e;
+}
+
+/* ========================================
+   SCROLLBAR STYLING
+   ======================================== */
+
+.chain-controls::-webkit-scrollbar {
+  height: 4px;
+}
+
+.chain-controls::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 2px;
+}
+
+.chain-controls::-webkit-scrollbar-thumb {
+  background: rgba(78, 205, 196, 0.3);
+  border-radius: 2px;
+}
+
+.chain-controls::-webkit-scrollbar-thumb:hover {
+  background: rgba(78, 205, 196, 0.5);
+}
+
+/* ========================================
+   RESPONSIVE IMPROVEMENTS
+   ======================================== */
+
+/* Show chain info on hover for larger screens */
+@media (min-width: 400px) {
+  .effect-chain-header:hover .chain-info {
+    display: flex;
+    position: absolute;
+    right: 52px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(37, 37, 64, 0.95);
+    padding: 6px 12px;
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 200;
+    animation: fadeIn 0.2s ease;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-50%) translateX(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+  }
+}
+
+/* ========================================
+   BUTTON FEEDBACK
+   ======================================== */
+
+/* Add ripple effect on click */
+.chain-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.chain-btn::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.3s, height 0.3s;
+  pointer-events: none;
+}
+
+.chain-btn:active::after {
+  width: 100px;
+  height: 100px;
+}
+
+/* ========================================
+   ACCESSIBILITY
+   ======================================== */
+
+/* Focus states */
+.chain-btn:focus,
+.add-effect-btn:focus {
+  outline: 2px solid #4ecdc4;
+  outline-offset: 2px;
+}
+
+/* Keyboard navigation indicator */
+.chain-btn:focus-visible,
+.add-effect-btn:focus-visible {
+  outline: 2px solid #4ecdc4;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(78, 205, 196, 0.2);
+}
+
+/* ========================================
+   LOADING STATES
+   ======================================== */
+
+/* Loading state for buttons */
+.chain-btn.loading {
+  pointer-events: none;
+  opacity: 0.7;
+  position: relative;
+}
+
+.chain-btn.loading::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 14px;
+  height: 14px;
+  margin: -7px 0 0 -7px;
+  border: 2px solid rgba(78, 205, 196, 0.3);
+  border-top-color: #4ecdc4;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ========================================
+   FINAL TOUCHES
+   ======================================== */
+
+/* Ensure proper stacking */
+.effect-chain-header,
+.chain-controls {
+  position: relative;
+  z-index: 100;
+}
+
+/* Smooth all transitions */
+.chain-btn,
+.add-effect-btn {
+  transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+/* Prevent layout shift on hover */
+.chain-controls {
+  min-height: 48px;
+}
+
+/* Ensure buttons are always clickable */
+.chain-btn,
+.add-effect-btn {
+  min-width: fit-content;
+  touch-action: manipulation;
+}

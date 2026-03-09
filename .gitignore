@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+venv/
+.venv/
+*.egg-info/
+
+# Node
+node_modules/
+
+# Environment & secrets
+.env
+*.env
+ai_studio_config.json
+backend/ai_studio_config.json
+
+# Claude local config
+.claude/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+
+# ChatRoom
+chatroom/node_modules/
+chatroom/client/node_modules/
+chatroom/.env
+
+# Output
+Synthograsizer_Output/

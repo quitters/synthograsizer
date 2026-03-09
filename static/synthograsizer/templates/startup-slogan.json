@@ -1,0 +1,59 @@
+{
+  "promptTemplate": "{{action}} {{outcome}}. {{tagline}}",
+  "variables": [
+    {
+      "name": "action",
+      "feature_name": "action",
+      "values": [
+        "Redefine",
+        "Transform",
+        "Unlock",
+        "Accelerate",
+        "Simplify",
+        "Revolutionize",
+        "Elevate",
+        "Amplify",
+        "Reimagine",
+        "Optimize",
+        "Streamline",
+        "Empower"
+      ]
+    },
+    {
+      "name": "outcome",
+      "feature_name": "outcome",
+      "values": [
+        "your workflow",
+        "tomorrow",
+        "what's possible",
+        "your potential",
+        "the experience",
+        "collaboration",
+        "innovation",
+        "productivity",
+        "connection",
+        "growth",
+        "creativity",
+        "success"
+      ]
+    },
+    {
+      "name": "tagline",
+      "feature_name": "tagline",
+      "values": [
+        "Built for the future.",
+        "Where ideas become reality.",
+        "Because time matters.",
+        "Human-centered technology.",
+        "Complexity made simple.",
+        "Progress, perfected.",
+        "Intelligence meets intuition.",
+        "The smarter way forward.",
+        "Designed for you.",
+        "Innovation you can trust.",
+        "Power meets simplicity.",
+        "Your vision, our mission."
+      ]
+    }
+  ]
+}

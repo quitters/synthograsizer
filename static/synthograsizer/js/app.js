@@ -1,0 +1,1086 @@
+// Synthograsizer Mini - Single-Variable Control Interface
+
+import { DEFAULT_CONFIG, ERROR_MESSAGES } from './config.js';
+import { TextRenderer } from './text-renderer.js';
+import { BatchGenerator } from './batch-generator.js';
+import { TemplateLoader } from './template-loader.js';
+import { CodeOverlayManager } from './code-overlay-manager.js?v=2';
+import { normalizeTemplate, getValueText, getValueWeight, getWeightsArray, computeTemplateFingerprint, generateTagId } from './template-normalizer.js?v=2';
+
+// Expose fingerprint + tag utilities globally for non-module scripts (e.g. studio-integration.js)
+window.__computeTemplateFingerprint = computeTemplateFingerprint;
+window.__generateTagId = generateTagId;
+
+const STATE_STORAGE_KEY = 'synthograsizerMiniStateV1';
+
+export class SynthograsizerSmall {
+  constructor(customConfig = {}) {
+    this.config = { ...DEFAULT_CONFIG, ...customConfig };
+    this.currentTemplate = null;
+    this.variables = [];
+    this.currentVariableIndex = 0;
+    this.currentValues = {}; // Stores current value for each variable
+    this.textRenderer = null;
+    this.elements = {};
+    this.likedPrompts = [];
+
+    // Setup error handling
+    this.setupErrorHandling();
+
+    // Initialize when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => this.init());
+    } else {
+      this.init();
+    }
+  }
+
+  setupErrorHandling() {
+    window.addEventListener('error', (event) => {
+      this.handleCriticalError(event.error);
+    });
+
+    window.addEventListener('unhandledrejection', (event) => {
+      this.handleCriticalError(event.reason);
+    });
+  }
+
+  handleCriticalError(error) {
+    console.error('Critical error:', error);
+    this.showError(`Something went wrong: ${error.message}`);
+  }
+
+  init() {
+    try {
+      // Get DOM elements
+      this.elements = {
+        outputContainer: document.getElementById('output-container'),
+        errorDisplay: document.getElementById('error-message'),
+        copyButton: document.getElementById('copy-button'),
+        sendButton: document.getElementById('send-button'),
+        randomizeButton: document.getElementById('randomize-button'),
+        generateButton: document.getElementById('generate-button'),
+        importFileInput: document.getElementById('import-file-input'),
+        centerControl: document.getElementById('center-control'),
+        controlValue: document.getElementById('control-value'),
+        controlVariableName: document.getElementById('control-variable-name'),
+        controlArrowLeft: document.querySelector('.control-arrow-left'),
+        controlArrowRight: document.querySelector('.control-arrow-right'),
+        prevVariable: document.getElementById('prev-variable'),
+        nextVariable: document.getElementById('next-variable'),
+        variableIndicators: document.getElementById('variable-indicators'),
+        announcer: document.getElementById('knob-announcer'),
+        favoriteButton: document.getElementById('favorite-button'),
+        favoritesButton: document.getElementById('favorites-button'),
+        favoritesOverlay: document.getElementById('favorites-output-overlay'),
+        favoritesClose: document.getElementById('favorites-output-close'),
+        favoritesTextarea: document.getElementById('favorites-output-text'),
+        favoritesCopyBtn: document.getElementById('favorites-copy-btn'),
+        favoritesDownloadBtn: document.getElementById('favorites-download-btn'),
+        favoritesClearBtn: document.getElementById('favorites-clear-btn')
+      };
+
+      // Initialize text renderer
+      this.textRenderer = new TextRenderer(this.elements.outputContainer);
+
+      // Setup event listeners
+      this.setupEventListeners();
+
+      // Initialize batch generator
+      this.batchGenerator = new BatchGenerator(this);
+
+      // Initialize template loader
+      this.templateLoader = new TemplateLoader(this);
+
+      // Initialize code overlay manager
+      this.codeOverlayManager = new CodeOverlayManager(this);
+
+      // Try to restore previous session; fall back to default template
+      const restored = this.loadStateFromStorage();
+      if (!restored) {
+        this.loadTemplate(this.config.fallbackTemplate);
+      }
+    } catch (error) {
+      console.error('SynthograsizerSmall: Initialization failed:', error);
+      document.body.innerHTML += `<div style="padding: 20px; color: red;">Initialization Error: ${error.message}</div>`;
+    }
+  }
+
+  setupEventListeners() {
+    // Copy button
+    this.elements.copyButton.addEventListener('click', () => this.handleCopy());
+
+    // Favorite / liked prompts
+    if (this.elements.favoriteButton) {
+      this.elements.favoriteButton.addEventListener('click', () => this.addCurrentPromptToFavorites());
+    }
+    if (this.elements.favoritesButton) {
+      this.elements.favoritesButton.addEventListener('click', () => this.openFavoritesOverlay());
+    }
+
+    // Send button (placeholder for future functionality)
+    this.elements.sendButton?.addEventListener('click', () => {
+      console.log('Send to chat functionality coming soon');
+    });
+
+    // Randomize button
+    this.elements.randomizeButton.addEventListener('click', () => this.randomizeAllVariables());
+
+    // Generate button - Auto-generate image with Gemini 3 Pro 
+    this.elements.generateButton.addEventListener('click', () => this.handleGenerateImage());
+
+    // File input change (triggered from dropdown or code overlay)
+    this.elements.importFileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        this.handleImportFile(file);
+      }
+    });
+
+    // Variable navigation arrows
+    this.elements.prevVariable.addEventListener('click', () => this.prevVariable());
+    this.elements.nextVariable.addEventListener('click', () => this.nextVariable());
+
+    // Value control arrows
+    this.elements.controlArrowLeft.addEventListener('click', () => this.cycleValue(-1));
+    this.elements.controlArrowRight.addEventListener('click', () => this.cycleValue(1));
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => this.handleKeyboard(e));
+
+    // Favorites overlay controls
+    if (this.elements.favoritesClose) {
+      this.elements.favoritesClose.addEventListener('click', () => this.closeFavoritesOverlay());
+    }
+    if (this.elements.favoritesOverlay) {
+      this.elements.favoritesOverlay.addEventListener('click', (e) => {
+        if (e.target === this.elements.favoritesOverlay) {
+          this.closeFavoritesOverlay();
+        }
+      });
+    }
+    if (this.elements.favoritesCopyBtn) {
+      this.elements.favoritesCopyBtn.addEventListener('click', () => this.copyFavorites());
+    }
+    if (this.elements.favoritesDownloadBtn) {
+      this.elements.favoritesDownloadBtn.addEventListener('click', () => this.downloadFavorites());
+    }
+    if (this.elements.favoritesClearBtn) {
+      this.elements.favoritesClearBtn.addEventListener('click', () => this.clearFavorites());
+    }
+
+    // Window resize handler for responsive text sizing
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        if (this.elements.controlValue && this.elements.controlValue.textContent) {
+          this.resizeControlValueText();
+        }
+      }, 100);
+    });
+  }
+
+  /**
+   * Validates template structure
+   * @param {Object} template - Template object to validate
+   * @returns {Object} Validation result { valid: boolean, error: string }
+   */
+  validateTemplate(template) {
+    if (!template) {
+      return { valid: false, error: 'Template is null or undefined' };
+    }
+
+    if (!('promptTemplate' in template)) {
+      return { valid: false, error: 'Missing promptTemplate field' };
+    }
+
+    if (!template.variables || !Array.isArray(template.variables)) {
+      return { valid: false, error: 'Missing or invalid variables array' };
+    }
+
+    // Allow empty templates (0 variables) for starting from scratch
+    // if (template.variables.length === 0) {
+    //   return { valid: false, error: 'Template must have at least 1 variable' };
+    // }
+
+    if (template.variables.length > this.config.maxKnobs) {
+      return {
+        valid: false,
+        error: `Template has ${template.variables.length} variables. Maximum is ${this.config.maxKnobs}.`
+      };
+    }
+
+    // Validate each variable
+    const warnings = [];
+    const seenNames = new Set();
+
+    for (let i = 0; i < template.variables.length; i++) {
+      const variable = template.variables[i];
+
+      if (!variable.name) {
+        return { valid: false, error: `Variable ${i} is missing name field` };
+      }
+
+      // Check for duplicate variable names
+      const normName = variable.name.trim().toLowerCase();
+      if (seenNames.has(normName)) {
+        return { valid: false, error: `Duplicate variable name: "${variable.name}"` };
+      }
+      seenNames.add(normName);
+
+      if (!variable.values || !Array.isArray(variable.values)) {
+        return { valid: false, error: `Variable "${variable.name}" is missing values array` };
+      }
+
+      if (variable.values.length === 0) {
+        return { valid: false, error: `Variable "${variable.name}" has no values` };
+      }
+
+      // Filter out empty values (handles both string and object formats)
+      const emptyCount = variable.values.filter(v => {
+        const text = (typeof v === 'string') ? v : (v && v.text || '');
+        return text.trim() === '';
+      }).length;
+      if (emptyCount > 0) {
+        variable.values = variable.values.filter(v => {
+          const text = (typeof v === 'string') ? v : (v && v.text || '');
+          return text.trim() !== '';
+        });
+        if (variable.values.length === 0) {
+          return { valid: false, error: `Variable "${variable.name}" has only empty values` };
+        }
+        warnings.push(`Removed ${emptyCount} empty value(s) from "${variable.name}"`);
+      }
+    }
+
+    // Check for mismatched placeholders vs variables
+    if (template.promptTemplate && template.variables.length > 0) {
+      const placeholderRegex = /\{\{([^}]+)\}\}/g;
+      const placeholders = new Set();
+      let match;
+      while ((match = placeholderRegex.exec(template.promptTemplate)) !== null) {
+        placeholders.add(match[1].trim());
+      }
+      const varNames = new Set(template.variables.map(v => v.name));
+
+      for (const ph of placeholders) {
+        if (!varNames.has(ph)) {
+          warnings.push(`Placeholder "{{${ph}}}" has no matching variable`);
+        }
+      }
+      for (const vn of varNames) {
+        if (!placeholders.has(vn)) {
+          warnings.push(`Variable "${vn}" has no matching placeholder in template`);
+        }
+      }
+    }
+
+    return { valid: true, warnings };
+  }
+
+  /**
+   * Loads a template
+   * @param {Object} template - Template object
+   * @returns {boolean} Success status
+   */
+  loadTemplate(template) {
+    try {
+      // Normalize template to nested value-weight format (handles old + new formats)
+      template = normalizeTemplate(template);
+
+      // Validate template
+      const validation = this.validateTemplate(template);
+      if (!validation.valid) {
+        throw new Error(validation.error);
+      }
+
+      // Show validation warnings (non-blocking)
+      if (validation.warnings && validation.warnings.length > 0) {
+        const warnMsg = validation.warnings.join('; ');
+        if (typeof showToast === 'function') {
+          showToast(warnMsg, 'warning', 5000);
+        } else {
+          console.warn('Template warnings:', warnMsg);
+        }
+      }
+
+      // Store template and variables
+      this.currentTemplate = template;
+      this.variables = template.variables;
+
+      // Reset current variable index
+      this.currentVariableIndex = 0;
+
+      // Initialize variables and UI
+      this.initializeVariables();
+
+      // Generate initial output
+      this.generateOutput();
+
+      // Clear any error messages
+      this.hideError();
+
+      return true;
+
+    } catch (error) {
+      console.error('Failed to load template:', error);
+      this.showError(error.message);
+
+      // Try fallback if this wasn't already the fallback
+      if (template !== this.config.fallbackTemplate) {
+        console.log('Loading fallback template...');
+        return this.loadTemplate(this.config.fallbackTemplate);
+      }
+
+      return false;
+    }
+  }
+
+  /**
+   * Initialize variables with random values
+   */
+  initializeVariables() {
+    // Set random initial values for all variables
+    this.variables.forEach(variable => {
+      const weights = getWeightsArray(variable);
+      const randomIndex = this.getWeightedRandomIndex(weights);
+      this.currentValues[variable.name] = randomIndex;
+    });
+
+    // Create indicator dots
+    this.createIndicatorDots();
+
+    // Update display
+    this.updateCenterControl();
+  }
+
+  /**
+   * Create indicator dots for all variables
+   */
+  createIndicatorDots() {
+    this.elements.variableIndicators.innerHTML = '';
+
+    this.variables.forEach((variable, index) => {
+      const dot = document.createElement('div');
+      dot.className = 'indicator-dot';
+      if (index === this.currentVariableIndex) {
+        dot.classList.add('active');
+      }
+      dot.addEventListener('click', () => this.jumpToVariable(index));
+      dot.title = variable.name;
+      this.elements.variableIndicators.appendChild(dot);
+    });
+  }
+
+  /**
+   * Update the center control to show current variable
+   */
+  updateCenterControl() {
+    if (this.variables.length === 0) {
+      // Show empty state message
+      this.elements.controlVariableName.setAttribute('data-variable-name', 'NO VARIABLES');
+      this.elements.controlValue.textContent = 'Use "Add Variable from Template" in Code mode';
+      this.elements.controlValue.style.fontSize = '14px';
+      return;
+    }
+
+    const variable = this.variables[this.currentVariableIndex];
+    const color = this.config.colorPalette[this.currentVariableIndex % this.config.colorPalette.length];
+    const valueIndex = this.currentValues[variable.name];
+    const value = getValueText(variable.values[valueIndex]);
+
+    // Update variable name using data attribute for CSS ::before
+    this.elements.controlVariableName.setAttribute('data-variable-name', variable.name.toUpperCase());
+
+    // Update value (clear any cached original text first)
+    this.elements.controlValue.removeAttribute('data-original-text');
+    this.elements.controlValue.textContent = value;
+
+    // Dynamically resize text to fit
+    this.resizeControlValueText();
+
+    // Update colors
+    document.documentElement.style.setProperty('--current-color', color);
+
+    // Darken color for gradient
+    const darkColor = this.darkenColor(color, 20);
+    document.documentElement.style.setProperty('--current-color-dark', darkColor);
+
+    // Update indicator dots
+    const dots = this.elements.variableIndicators.querySelectorAll('.indicator-dot');
+    dots.forEach((dot, index) => {
+      dot.classList.toggle('active', index === this.currentVariableIndex);
+    });
+
+    // Announce change for screen readers
+    if (this.elements.announcer) {
+      this.elements.announcer.textContent = `${variable.name}: ${value}`;
+    }
+  }
+
+  /**
+   * Format text with line breaks (max 12 characters per line)
+   */
+  resizeControlValueText() {
+    const element = this.elements.controlValue;
+
+    if (!element) return;
+
+    // Get original text
+    const originalText = element.getAttribute('data-original-text') || element.textContent;
+    element.setAttribute('data-original-text', originalText);
+
+    // Break text into lines with max 18 characters per line (wider control)
+    const maxCharsPerLine = 18;
+    const words = originalText.split(' ');
+    const lines = [];
+    let currentLine = '';
+
+    words.forEach((word, index) => {
+      const testLine = currentLine ? `${currentLine} ${word}` : word;
+
+      if (testLine.length <= maxCharsPerLine) {
+        currentLine = testLine;
+      } else {
+        // If current line has content, push it and start new line
+        if (currentLine) {
+          lines.push(currentLine);
+          currentLine = word;
+        } else {
+          // Single word is too long, break it
+          lines.push(word.substring(0, maxCharsPerLine));
+          currentLine = word.substring(maxCharsPerLine);
+        }
+      }
+
+      // Push last line if this is the last word
+      if (index === words.length - 1 && currentLine) {
+        lines.push(currentLine);
+      }
+    });
+
+    // Update element with line breaks (use textContent per-line to avoid XSS)
+    element.textContent = '';
+    lines.forEach((line, i) => {
+      if (i > 0) element.appendChild(document.createElement('br'));
+      element.appendChild(document.createTextNode(line));
+    });
+
+    // Adjust font size based on number of lines
+    let fontSize;
+    if (lines.length === 1) {
+      fontSize = 42;
+    } else if (lines.length === 2) {
+      fontSize = 36;
+    } else if (lines.length === 3) {
+      fontSize = 30;
+    } else {
+      fontSize = 24;
+    }
+
+    element.style.fontSize = `${fontSize}px`;
+  }
+
+  /**
+   * Navigate to previous variable
+   */
+  prevVariable() {
+    if (this.variables.length === 0) return;
+    this.currentVariableIndex = (this.currentVariableIndex - 1 + this.variables.length) % this.variables.length;
+    this.updateCenterControl();
+    this.generateOutput(); // Update highlight in output
+    this.flashButton(this.elements.prevVariable);
+  }
+
+  /**
+   * Navigate to next variable
+   */
+  nextVariable() {
+    if (this.variables.length === 0) return;
+    this.currentVariableIndex = (this.currentVariableIndex + 1) % this.variables.length;
+    this.updateCenterControl();
+    this.generateOutput(); // Update highlight in output
+    this.flashButton(this.elements.nextVariable);
+  }
+
+  /**
+   * Jump to specific variable by index
+   */
+  jumpToVariable(index) {
+    if (index >= 0 && index < this.variables.length) {
+      this.currentVariableIndex = index;
+      this.updateCenterControl();
+      this.generateOutput(); // Update highlight in output
+    }
+  }
+
+  /**
+   * Cycle value of current variable
+   * @param {number} direction - 1 for next, -1 for previous
+   */
+  cycleValue(direction) {
+    if (this.variables.length === 0) return;
+
+    const variable = this.variables[this.currentVariableIndex];
+    const currentIndex = this.currentValues[variable.name];
+    const newIndex = (currentIndex + direction + variable.values.length) % variable.values.length;
+
+    this.currentValues[variable.name] = newIndex;
+    this.updateCenterControl();
+    this.generateOutput();
+
+    // Flash the appropriate arrow
+    if (direction > 0) {
+      this.flashButton(this.elements.controlArrowRight);
+    } else {
+      this.flashButton(this.elements.controlArrowLeft);
+    }
+  }
+
+  /**
+   * Randomize all variables
+   */
+  randomizeAllVariables() {
+    this.variables.forEach(variable => {
+      const weights = getWeightsArray(variable);
+      const randomIndex = this.getWeightedRandomIndex(weights);
+      this.currentValues[variable.name] = randomIndex;
+    });
+
+    this.updateCenterControl();
+    this.generateOutput();
+  }
+
+  /**
+   * Helper: Get random index based on weights
+   * @param {number[]} weights - Array of weights (integers or floats)
+   * @returns {number} Selected index
+   */
+  getWeightedRandomIndex(weights) {
+    const totalWeight = weights.reduce((sum, w) => sum + w, 0);
+    let random = Math.random() * totalWeight;
+
+    for (let i = 0; i < weights.length; i++) {
+      random -= weights[i];
+      if (random < 0) {
+        return i;
+      }
+    }
+    return weights.length - 1; // Fallback
+  }
+
+  /**
+   * Handle keyboard navigation
+   */
+  handleKeyboard(e) {
+    // Check if user is typing in an input or textarea
+    const activeTag = document.activeElement.tagName.toLowerCase();
+    if (activeTag === 'input' || activeTag === 'textarea' || document.activeElement.isContentEditable) {
+      return;
+    }
+
+    // Check if any modal is open
+    const isModalOpen = document.querySelector('.studio-modal.active') ||
+      document.querySelector('.batch-modal-overlay.active') || // Assuming this class for batch modal
+      document.querySelector('.batch-output-overlay.active') || // Assuming this class for output modal
+      document.querySelector('.variable-picker-overlay.active') ||
+      document.querySelector('.code-overlay.active') ||
+      document.querySelector('.studio-lightbox.active');
+
+    if (isModalOpen) {
+      return;
+    }
+
+    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+      e.preventDefault();
+
+      switch (e.key) {
+        case 'ArrowUp':
+          this.prevVariable();
+          break;
+        case 'ArrowDown':
+          this.nextVariable();
+          break;
+        case 'ArrowLeft':
+          this.cycleValue(-1);
+          break;
+        case 'ArrowRight':
+          this.cycleValue(1);
+          break;
+      }
+    }
+  }
+
+  /**
+   * Flash button for visual feedback
+   */
+  flashButton(button) {
+    if (!button) return;
+    button.classList.add('keyboard-flash');
+    setTimeout(() => button.classList.remove('keyboard-flash'), 200);
+  }
+
+  /**
+   * Darken a hex color by a percentage
+   */
+  darkenColor(hex, percent) {
+    const num = parseInt(hex.replace('#', ''), 16);
+    const amt = Math.round(2.55 * percent);
+    const R = Math.max(0, Math.min(255, (num >> 16) - amt));
+    const G = Math.max(0, Math.min(255, (num >> 8 & 0xFF) - amt));
+    const B = Math.max(0, Math.min(255, (num & 0xFF) - amt));
+    return '#' + (0x1000000 + R * 0x10000 + G * 0x100 + B).toString(16).slice(1);
+  }
+
+  generateOutput() {
+    if (!this.currentTemplate) {
+      return;
+    }
+
+    // Build variable map and color map
+    const variableMap = {};
+    const colorMap = {};
+
+    this.variables.forEach((variable, index) => {
+      // Use 'name' as the Token ID for matching {{placeholders}} in the template
+      const varName = variable.name || variable.feature_name;
+      const valueIndex = this.currentValues[variable.name];
+      variableMap[varName] = getValueText(variable.values[valueIndex]);
+      colorMap[varName] = this.config.colorPalette[index % this.config.colorPalette.length];
+    });
+
+    // Get current variable's name for highlighting
+    const currentVariable = this.variables[this.currentVariableIndex];
+    const currentVariableName = currentVariable ? (currentVariable.name || currentVariable.feature_name) : null;
+
+    // Render colored text with current variable highlighted
+    const html = this.textRenderer.renderColoredText(
+      this.currentTemplate.promptTemplate,
+      variableMap,
+      colorMap,
+      currentVariableName
+    );
+
+    this.textRenderer.updateDisplay(html);
+    this.renderTagBadges();
+    this.saveStateToStorage();
+  }
+
+  /**
+   * Render small tag pill badges below the output area.
+   * Clicking a badge opens the Code Overlay panel to the Tags section.
+   */
+  renderTagBadges() {
+    const container = document.getElementById('tag-badges-container');
+    if (!container) return;
+
+    const tags = this.currentTemplate?.tags;
+    if (!tags || !Array.isArray(tags) || tags.length === 0) {
+      container.innerHTML = '';
+      return;
+    }
+
+    container.innerHTML = tags.map(tag => {
+      const type = tag.type || 'custom';
+      const label = tag.label || 'Untitled';
+      const shortLabel = label.length > 30 ? label.slice(0, 27) + '...' : label;
+      return `<button class="tag-badge-pill badge-${type}" title="${type.toUpperCase()}: ${label}">${shortLabel}</button>`;
+    }).join('');
+
+    // Click any badge → open Code Overlay to Tags section
+    container.querySelectorAll('.tag-badge-pill').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (this.codeOverlayManager) {
+          this.codeOverlayManager.open();
+          // Expand tags section if collapsed
+          const tagsContent = document.getElementById('tags-section-content');
+          if (tagsContent?.classList.contains('collapsed')) {
+            this.codeOverlayManager.toggleTagsSection();
+          }
+        }
+      });
+    });
+  }
+
+  async handleCopy() {
+    const success = await this.textRenderer.copyToClipboard();
+
+    if (success) {
+      // Visual feedback
+      this.elements.copyButton.textContent = 'Copied!';
+      this.elements.copyButton.classList.add('copied');
+
+      setTimeout(() => {
+        this.elements.copyButton.textContent = 'Copy';
+        this.elements.copyButton.classList.remove('copied');
+      }, 1500);
+    } else {
+      this.showError('Failed to copy to clipboard');
+    }
+  }
+
+  getCurrentPromptText() {
+    return this.textRenderer.getPlainText().trim();
+  }
+
+  /**
+   * Handle Generate Image button - Auto-generate with Gemini 3 Pro
+   */
+  async handleGenerateImage() {
+    const promptText = this.getCurrentPromptText();
+
+    if (!promptText) {
+      this.showError('No prompt available. Generate a prompt first.');
+      return;
+    }
+
+    // Check if AI Studio integration is available
+    if (!window.studioIntegrationInstance || typeof window.studioIntegrationInstance.generateImage !== 'function') {
+      this.showError('AI Studio not initialized. Please refresh the page.');
+      return;
+    }
+
+    // Update button state
+    const btn = this.elements.generateButton;
+    const labelSpan = btn.querySelector('.label');
+    const originalText = labelSpan ? labelSpan.textContent : btn.textContent;
+
+    if (labelSpan) {
+      labelSpan.textContent = '⏳ Generating...';
+    }
+    btn.disabled = true;
+    btn.style.opacity = '0.6';
+
+    try {
+      // Call AI Studio integration to generate image
+      // Set up the Image Studio with Gemini 3 Pro and 1:1 aspect ratio
+      await window.studioIntegrationInstance.openModal('image-studio-modal');
+
+      // Pre-fill the prompt
+      const promptInput = document.getElementById('image-prompt-input');
+      if (promptInput) {
+        promptInput.value = promptText;
+      }
+
+      // Set model to Gemini 3 Pro
+      const modelSelect = document.getElementById('image-model-select');
+      if (modelSelect) {
+        modelSelect.value = 'gemini-3-pro-image-preview';
+      }
+
+      // Set aspect ratio to 1:1
+      const aspectSelect = document.getElementById('image-aspect-select');
+      if (aspectSelect) {
+        aspectSelect.value = '1:1';
+      }
+
+      // Trigger the generation
+      const runButton = document.getElementById('run-image-gen');
+      if (runButton) {
+        runButton.click();
+      }
+
+      // Reset button after a delay
+      setTimeout(() => {
+        if (labelSpan) {
+          labelSpan.textContent = originalText;
+        }
+        btn.disabled = false;
+        btn.style.opacity = '1';
+      }, 1000);
+
+    } catch (error) {
+      console.error('Image generation failed:', error);
+      this.showError(`Generation failed: ${error.message}`);
+
+      // Reset button
+      if (labelSpan) {
+        labelSpan.textContent = originalText;
+      }
+      btn.disabled = false;
+      btn.style.opacity = '1';
+    }
+  }
+
+  addCurrentPromptToFavorites() {
+    const promptText = this.getCurrentPromptText();
+    if (!promptText) {
+      this.showError('No prompt to add. Generate a prompt first.');
+      return;
+    }
+
+    this.addPromptToFavorites(promptText);
+
+    const btn = this.elements.favoriteButton;
+    if (btn) {
+      const labelSpan = btn.querySelector('.label');
+      const originalLabel = btn.getAttribute('data-original-label') || (labelSpan ? labelSpan.textContent : btn.textContent);
+      btn.setAttribute('data-original-label', originalLabel);
+
+      btn.classList.add('favorited');
+      if (labelSpan) {
+        labelSpan.textContent = 'Added';
+      }
+
+      setTimeout(() => {
+        btn.classList.remove('favorited');
+        if (labelSpan) {
+          labelSpan.textContent = originalLabel;
+        }
+      }, 1000);
+    }
+  }
+
+  /**
+   * Adds a specific prompt text to favorites
+   * @param {string} promptText - The prompt to add
+   * @returns {boolean} Success
+   */
+  addPromptToFavorites(promptText) {
+    if (!promptText) return false;
+    this.likedPrompts.push(promptText);
+    this.saveStateToStorage();
+    return true;
+  }
+
+  openFavoritesOverlay() {
+    if (!this.elements.favoritesOverlay || !this.elements.favoritesTextarea) return;
+
+    if (!this.likedPrompts.length) {
+      this.elements.favoritesTextarea.value = 'No liked prompts yet. Use the ❤️ Add button to collect prompts.';
+    } else {
+      this.elements.favoritesTextarea.value = this.likedPrompts.join('\n');
+    }
+
+    this.elements.favoritesOverlay.classList.add('active');
+  }
+
+  closeFavoritesOverlay() {
+    if (this.elements.favoritesOverlay) {
+      this.elements.favoritesOverlay.classList.remove('active');
+    }
+  }
+
+  copyFavorites() {
+    if (!this.elements.favoritesTextarea) return;
+    const text = this.elements.favoritesTextarea.value;
+    navigator.clipboard.writeText(text).catch(() => {
+      // Fallback for older browsers / insecure contexts
+      this.elements.favoritesTextarea.select();
+      document.execCommand('copy');
+    });
+  }
+
+  downloadFavorites() {
+    if (!this.elements.favoritesTextarea) return;
+    const content = this.elements.favoritesTextarea.value;
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `synthograsizer-liked-prompts-${Date.now()}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  clearFavorites() {
+    this.likedPrompts = [];
+    if (this.elements.favoritesTextarea) {
+      this.elements.favoritesTextarea.value = '';
+    }
+    this.saveStateToStorage();
+  }
+
+  saveStateToStorage() {
+    try {
+      if (!this.currentTemplate || typeof window === 'undefined' || !window.localStorage) {
+        return;
+      }
+
+      const state = {
+        template: this.currentTemplate,
+        currentValues: this.currentValues,
+        currentVariableIndex: this.currentVariableIndex,
+        likedPrompts: this.likedPrompts,
+      };
+
+      window.localStorage.setItem(STATE_STORAGE_KEY, JSON.stringify(state));
+    } catch (error) {
+      // Non-fatal; ignore storage errors
+      console.warn('Failed to save Synthograsizer Mini state:', error);
+    }
+  }
+
+  loadStateFromStorage() {
+    try {
+      if (typeof window === 'undefined' || !window.localStorage) {
+        return false;
+      }
+
+      const raw = window.localStorage.getItem(STATE_STORAGE_KEY);
+      if (!raw) return false;
+
+      const state = JSON.parse(raw);
+      if (!state || typeof state !== 'object' || !state.template) {
+        return false;
+      }
+
+      const validation = this.validateTemplate(state.template);
+      if (!validation.valid) {
+        console.warn('Saved template invalid, ignoring persisted state:', validation.error);
+        return false;
+      }
+
+      const loaded = this.loadTemplate(state.template);
+      if (!loaded) {
+        return false;
+      }
+
+      // Restore currentValues within bounds
+      if (state.currentValues && typeof state.currentValues === 'object') {
+        this.variables.forEach((variable) => {
+          const savedIndex = state.currentValues[variable.name];
+          if (typeof savedIndex === 'number' && variable.values && variable.values.length) {
+            const clampedIndex = Math.max(0, Math.min(savedIndex, variable.values.length - 1));
+            this.currentValues[variable.name] = clampedIndex;
+          }
+        });
+      }
+
+      if (typeof state.currentVariableIndex === 'number' && this.variables.length) {
+        this.currentVariableIndex = Math.max(0, Math.min(state.currentVariableIndex, this.variables.length - 1));
+      }
+
+      if (Array.isArray(state.likedPrompts)) {
+        this.likedPrompts = state.likedPrompts;
+      }
+
+      this.updateCenterControl();
+      this.generateOutput();
+      return true;
+    } catch (error) {
+      console.warn('Failed to load Synthograsizer Mini state:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Handles importing template from JSON file
+   * @param {File} file - File object
+   */
+  async handleImportFile(file) {
+    if (!file) return;
+
+    try {
+      const text = await file.text();
+      const template = JSON.parse(text);
+
+      // Validate first before attempting to load
+      const validation = this.validateTemplate(template);
+      if (!validation.valid) {
+        this.showError(validation.error);
+        this.elements.importFileInput.value = '';
+        return;
+      }
+
+      const success = this.loadTemplate(template);
+
+      if (success) {
+        this.showSuccess('Template imported successfully!');
+      }
+
+      // Reset file input
+      this.elements.importFileInput.value = '';
+
+    } catch (error) {
+      console.error('Import failed:', error);
+      this.showError(ERROR_MESSAGES.IMPORT_FAILED);
+    }
+  }
+
+  /**
+   * Exports current prompt as JSON
+   */
+  exportTemplate() {
+    try {
+      const exportData = {
+        template: this.currentTemplate ? this.currentTemplate.promptTemplate : '',
+        variables: {},
+        generatedText: this.textRenderer.getPlainText(),
+        timestamp: new Date().toISOString()
+      };
+
+      // Add current variable values
+      this.variables.forEach(variable => {
+        const valueIndex = this.currentValues[variable.name];
+        exportData.variables[variable.name] = {
+          value: getValueText(variable.values[valueIndex]),
+          index: valueIndex
+        };
+      });
+
+      // Include provenance tags if any exist
+      if (this.currentTemplate?.tags?.length > 0) {
+        exportData.tags = this.currentTemplate.tags;
+      }
+
+      // Create and download JSON file
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], {
+        type: 'application/json'
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `synthograsizer-mini-export-${Date.now()}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      this.showSuccess('Prompt exported successfully!');
+
+    } catch (error) {
+      console.error('Export failed:', error);
+      this.showError(ERROR_MESSAGES.EXPORT_FAILED);
+    }
+  }
+
+  showError(message) {
+    if (this.elements.errorDisplay) {
+      this.elements.errorDisplay.textContent = message;
+      this.elements.errorDisplay.classList.add('show');
+    }
+  }
+
+  hideError() {
+    if (this.elements.errorDisplay) {
+      this.elements.errorDisplay.classList.remove('show');
+    }
+  }
+
+  showSuccess(message) {
+    // Temporarily use error display for success messages
+    // Could be enhanced with a dedicated success element
+    this.showError(message);
+    setTimeout(() => this.hideError(), 3000);
+  }
+}
+
+// Auto-initialize when module loads
+try {
+  const app = new SynthograsizerSmall();
+
+  // Expose for debugging
+  window.synthSmall = app;
+} catch (error) {
+  console.error('Failed to create SynthograsizerSmall:', error);
+  document.body.innerHTML += `<div style="padding: 20px; background: #fee; color: #c33; border: 2px solid #c33; margin: 20px;">
+    <h2>Failed to Initialize</h2>
+    <p><strong>Error:</strong> ${error.message}</p>
+    <p><strong>Stack:</strong></p>
+    <pre>${error.stack}</pre>
+  </div>`;
+}

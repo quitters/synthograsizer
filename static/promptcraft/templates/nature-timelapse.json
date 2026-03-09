@@ -1,0 +1,116 @@
+{
+  "promptTemplate": "{{biome}} landscape at {{time_of_day}}, {{weather_condition}}, {{season}} season, viewed from {{perspective}}, {{photographic_style}} photography",
+  "variables": [
+    {
+      "name": "biome",
+      "feature_name": "Biome",
+      "values": [
+        {"text": "misty temperate rainforest", "weight": 3},
+        {"text": "vast Saharan sand dunes", "weight": 2},
+        {"text": "Norwegian fjord coast", "weight": 3},
+        {"text": "Icelandic volcanic highlands", "weight": 2},
+        {"text": "Japanese bamboo grove", "weight": 3},
+        {"text": "Patagonian steppe", "weight": 1},
+        {"text": "mangrove swamp estuary", "weight": 2},
+        {"text": "alpine meadow above treeline", "weight": 3},
+        {"text": "Pacific coral reef shallows", "weight": 1},
+        {"text": "ancient redwood cathedral grove", "weight": 2}
+      ]
+    },
+    {
+      "name": "time_of_day",
+      "feature_name": "Time",
+      "values": [
+        {"text": "nautical dawn", "weight": 2},
+        {"text": "golden sunrise", "weight": 3},
+        {"text": "mid-morning clarity", "weight": 3},
+        {"text": "high noon overhead", "weight": 2},
+        {"text": "lazy afternoon haze", "weight": 3},
+        {"text": "golden hour warmth", "weight": 3},
+        {"text": "blue hour transition", "weight": 2},
+        {"text": "deep twilight", "weight": 2},
+        {"text": "starlit night sky", "weight": 1},
+        {"text": "aurora borealis midnight", "weight": 1}
+      ]
+    },
+    {
+      "name": "weather_condition",
+      "feature_name": "Weather",
+      "values": [
+        {"text": "clear crisp air", "weight": 3},
+        {"text": "rolling fog banks", "weight": 3},
+        {"text": "dramatic thunderstorm approaching", "weight": 2},
+        {"text": "gentle steady rainfall", "weight": 3},
+        {"text": "heavy snowfall", "weight": 2},
+        {"text": "scattered cumulus clouds", "weight": 3},
+        {"text": "post-rain rainbow", "weight": 1},
+        {"text": "dust storm on horizon", "weight": 1},
+        {"text": "ice crystal diamond dust", "weight": 1},
+        {"text": "heat shimmer mirage", "weight": 2}
+      ]
+    },
+    {
+      "name": "season",
+      "feature_name": "Season",
+      "values": [
+        {"text": "early spring thaw", "weight": 3},
+        {"text": "peak spring bloom", "weight": 3},
+        {"text": "lush summer", "weight": 3},
+        {"text": "late summer drought", "weight": 2},
+        {"text": "early autumn color change", "weight": 3},
+        {"text": "peak fall foliage", "weight": 3},
+        {"text": "first frost", "weight": 2},
+        {"text": "deep winter blanket", "weight": 2},
+        {"text": "winter solstice", "weight": 1},
+        {"text": "monsoon wet season", "weight": 1}
+      ]
+    },
+    {
+      "name": "perspective",
+      "feature_name": "Perspective",
+      "values": [
+        {"text": "ground level eye-height", "weight": 3},
+        {"text": "drone 200ft altitude", "weight": 3},
+        {"text": "satellite orbital view", "weight": 1},
+        {"text": "underwater looking up", "weight": 1},
+        {"text": "mountain summit lookout", "weight": 2},
+        {"text": "forest floor macro", "weight": 2},
+        {"text": "canoe on still water", "weight": 3},
+        {"text": "treeline canopy level", "weight": 2},
+        {"text": "cave mouth looking out", "weight": 1},
+        {"text": "reflection in tide pool", "weight": 1}
+      ]
+    },
+    {
+      "name": "photographic_style",
+      "feature_name": "Photo Style",
+      "values": [
+        {"text": "Ansel Adams large-format", "weight": 3},
+        {"text": "National Geographic editorial", "weight": 3},
+        {"text": "long exposure silk water", "weight": 2},
+        {"text": "infrared false-color", "weight": 1},
+        {"text": "tilt-shift miniature", "weight": 1},
+        {"text": "HDR high dynamic range", "weight": 2},
+        {"text": "Fujifilm Velvia saturated", "weight": 2},
+        {"text": "Kodak Portra warm film", "weight": 3},
+        {"text": "pinhole camera soft focus", "weight": 1},
+        {"text": "hyperreal focus-stacked", "weight": 2}
+      ]
+    }
+  ],
+  "_promptcraft": {
+    "steps": 16,
+    "bpm": 60,
+    "seqData": {
+      "biome":              [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+      "time_of_day":        [0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8],
+      "weather_condition":  [0,0,0,1,1,1,5,5,5,3,3,3,0,0,2,2],
+      "season":             [0,0,0,0,2,2,2,2,4,4,4,4,7,7,7,7],
+      "perspective":        [0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1],
+      "photographic_style": [7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7]
+    },
+    "weightData": [0.5,0.6,0.7,0.8,0.9,1.0,1.0,0.9,0.9,1.0,1.0,0.9,0.8,0.7,0.6,0.5],
+    "denoiseData": [0.6,0.6,0.6,0.6,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.6,0.6,0.6,0.6],
+    "adsr": {"a": 30, "d": 50, "s": 60, "r": 50}
+  }
+}
