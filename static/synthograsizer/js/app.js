@@ -4,7 +4,7 @@ import { DEFAULT_CONFIG, ERROR_MESSAGES } from './config.js';
 import { TextRenderer } from './text-renderer.js';
 import { BatchGenerator } from './batch-generator.js';
 import { TemplateLoader } from './template-loader.js';
-import { CodeOverlayManager } from './code-overlay-manager.js?v=3';
+import { CodeOverlayManager } from './code-overlay-manager.js?v=4';
 import { normalizeTemplate, getValueText, getValueWeight, getWeightsArray, computeTemplateFingerprint, generateTagId } from './template-normalizer.js?v=2';
 import { MIDIController } from './midi-controller.js';
 
@@ -1303,6 +1303,42 @@ export class SynthograsizerSmall {
 
     } catch (error) {
       console.error('Export failed:', error);
+      this.showError(ERROR_MESSAGES.EXPORT_FAILED);
+    }
+  }
+
+  /**
+   * Exports the full current template workflow JSON (all variables + values + p5Code etc.)
+   */
+  exportFullTemplate() {
+    try {
+      if (!this.currentTemplate) {
+        this.showError('No template loaded to export.');
+        return;
+      }
+
+      const json = JSON.stringify(this.currentTemplate, null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+
+      // Derive a filename from the template name field, or fall back to a timestamp
+      const safeName = (this.currentTemplate.name || 'template')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+      a.download = `synthograsizer-${safeName}-${Date.now()}.json`;
+
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      this.showSuccess('Template exported successfully!');
+
+    } catch (error) {
+      console.error('Full template export failed:', error);
       this.showError(ERROR_MESSAGES.EXPORT_FAILED);
     }
   }

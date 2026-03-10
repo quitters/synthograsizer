@@ -63,6 +63,7 @@ export class CodeOverlayManager {
       codeImportButton: document.getElementById('code-import-button'),
       codeExportButton: document.getElementById('code-export-button'),
       templateImportOption: document.getElementById('template-import-option'),
+      templateExportOption: document.getElementById('template-export-option'),
       // Tags & Provenance
       tagsSectionHeader: document.getElementById('tags-section-header'),
       tagsCollapseToggle: document.getElementById('tags-collapse-toggle'),
@@ -190,6 +191,12 @@ export class CodeOverlayManager {
     this.elements.templateImportOption?.addEventListener('click', (e) => {
       e.stopPropagation(); // Prevent dropdown from closing
       this.app.elements.importFileInput?.click();
+    });
+
+    // Template Export Option in dropdown
+    this.elements.templateExportOption?.addEventListener('click', (e) => {
+      e.stopPropagation(); // Prevent dropdown from closing
+      this.app.exportFullTemplate();
     });
 
     // ── Tags & Provenance listeners ──
