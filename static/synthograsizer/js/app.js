@@ -4,7 +4,7 @@ import { DEFAULT_CONFIG, ERROR_MESSAGES } from './config.js';
 import { TextRenderer } from './text-renderer.js';
 import { BatchGenerator } from './batch-generator.js';
 import { TemplateLoader } from './template-loader.js';
-import { CodeOverlayManager } from './code-overlay-manager.js?v=2';
+import { CodeOverlayManager } from './code-overlay-manager.js?v=3';
 import { normalizeTemplate, getValueText, getValueWeight, getWeightsArray, computeTemplateFingerprint, generateTagId } from './template-normalizer.js?v=2';
 import { MIDIController } from './midi-controller.js';
 
@@ -342,6 +342,9 @@ export class SynthograsizerSmall {
 
       // Refresh MIDI panel for new variable set
       this._onTemplateLoadedMidi();
+
+      // Update Run Code button visibility (show only when template has p5Code)
+      this.codeOverlayManager?.updateP5CodeEditor();
 
       return true;
 

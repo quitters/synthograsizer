@@ -49,6 +49,9 @@ export class CodeOverlayManager {
       p5EditControls: document.querySelector('.p5-edit-controls'),
       p5CanvasContainer: document.getElementById('p5-canvas-container'),
       p5SketchMount: document.getElementById('p5-sketch-mount'),
+      p5RunMainBtn: document.getElementById('p5-run-main-btn'),
+      p5LiveSection: document.getElementById('p5-live-section'),
+      p5LiveMount: document.getElementById('p5-live-mount'),
       stateDisplay: document.getElementById('current-state-display'),
       addVariableBtn: document.getElementById('add-variable-btn'),
       variableListEditor: document.getElementById('variable-list-editor'),
@@ -134,8 +137,11 @@ export class CodeOverlayManager {
     // Cancel P5 button
     this.elements.cancelP5Btn?.addEventListener('click', () => this.cancelP5Edit());
 
-    // Run P5 button
+    // Run P5 button (code overlay)
     this.elements.runP5Btn?.addEventListener('click', () => this.toggleP5Sketch());
+
+    // Run P5 button (main page)
+    this.elements.p5RunMainBtn?.addEventListener('click', () => this.toggleP5Sketch());
 
     // Add Variable button
     this.elements.addVariableBtn?.addEventListener('click', () => this.openVariablePicker());
@@ -1029,6 +1035,17 @@ export class CodeOverlayManager {
         this.toggleP5Section();
       }
     }
+
+    // Show/hide main Run Code button based on whether p5Code is populated
+    const hasP5Code = !!(this.app.currentTemplate?.p5Code?.trim());
+    if (this.elements.p5RunMainBtn) {
+      this.elements.p5RunMainBtn.style.display = hasP5Code ? '' : 'none';
+    }
+
+    // If switching to a template with no p5Code, stop any running sketch
+    if (!hasP5Code && this.p5Running) {
+      this.stopP5Sketch();
+    }
   }
 
   /**
@@ -1159,8 +1176,15 @@ export class CodeOverlayManager {
       return;
     }
 
-    // Show canvas container
-    if (this.elements.p5CanvasContainer) {
+    // Determine mount target — prefer the main-page live panel
+    const mountEl = this.elements.p5LiveMount || this.elements.p5SketchMount;
+
+    // Show the live output panel (main page)
+    if (this.elements.p5LiveSection) {
+      this.elements.p5LiveSection.style.display = 'block';
+    }
+    // Also show overlay canvas container if no live panel
+    if (!this.elements.p5LiveMount && this.elements.p5CanvasContainer) {
       this.elements.p5CanvasContainer.style.display = 'block';
     }
 
@@ -1171,8 +1195,8 @@ export class CodeOverlayManager {
     }
 
     // Clear mount point
-    if (this.elements.p5SketchMount) {
-      this.elements.p5SketchMount.innerHTML = '';
+    if (mountEl) {
+      mountEl.innerHTML = '';
     }
 
     try {
@@ -1182,7 +1206,7 @@ export class CodeOverlayManager {
         p.getSynthVar = (featureName) => {
           if (!this.app.currentValues) return null;
 
-          // Find the variable by feature_name
+          // Find the variable by feature_name or name
           const variable = this.app.variables.find(v =>
             (v.feature_name || v.name) === featureName
           );
@@ -1202,8 +1226,8 @@ export class CodeOverlayManager {
         sketchFunc(p);
       };
 
-      // Create new p5 instance with injected functions
-      this.p5Instance = new p5(sketch, this.elements.p5SketchMount);
+      // Create new p5 instance mounted into the live panel
+      this.p5Instance = new p5(sketch, mountEl);
 
       // Update button state
       this.p5Running = true;
@@ -1225,12 +1249,19 @@ export class CodeOverlayManager {
       this.p5Instance = null;
     }
 
-    // Clear mount point
+    // Clear mount points
+    if (this.elements.p5LiveMount) {
+      this.elements.p5LiveMount.innerHTML = '';
+    }
     if (this.elements.p5SketchMount) {
       this.elements.p5SketchMount.innerHTML = '';
     }
 
-    // Hide canvas container
+    // Hide live output panel
+    if (this.elements.p5LiveSection) {
+      this.elements.p5LiveSection.style.display = 'none';
+    }
+    // Hide overlay canvas container
     if (this.elements.p5CanvasContainer) {
       this.elements.p5CanvasContainer.style.display = 'none';
     }
@@ -1244,15 +1275,30 @@ export class CodeOverlayManager {
    * Update run button state (Run/Stop)
    */
   updateRunButtonState() {
-    const btn = this.elements.runP5Btn;
-    if (!btn) return;
+    const running = this.p5Running;
 
-    if (this.p5Running) {
-      btn.classList.add('running');
-      btn.innerHTML = '<span class="icon">⏹</span> Stop';
-    } else {
-      btn.classList.remove('running');
-      btn.innerHTML = '<span class="icon">▶</span> Run Code';
+    // Overlay run button
+    const overlayBtn = this.elements.runP5Btn;
+    if (overlayBtn) {
+      if (running) {
+        overlayBtn.classList.add('running');
+        overlayBtn.innerHTML = '<span class="icon">⏹</span> Stop';
+      } else {
+        overlayBtn.classList.remove('running');
+        overlayBtn.innerHTML = '<span class="icon">▶</span> Run Code';
+      }
+    }
+
+    // Main page run button
+    const mainBtn = this.elements.p5RunMainBtn;
+    if (mainBtn) {
+      if (running) {
+        mainBtn.classList.add('running');
+        mainBtn.innerHTML = '<span class="p5-run-icon">⏹</span><span class="label">Stop</span>';
+      } else {
+        mainBtn.classList.remove('running');
+        mainBtn.innerHTML = '<span class="p5-run-icon">▶</span><span class="label">Run Code</span>';
+      }
     }
   }
 
