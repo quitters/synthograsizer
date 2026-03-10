@@ -3,58 +3,53 @@
   "variables": [
     {
       "name": "style",
-      "feature_name": "style",
       "values": [
-        "rococo",
-        "narrative collage art",
-        "vaporwave citypop",
-        "baroque",
-        "surrealism",
-        "modernist"
+        { "text": "rococo" },
+        { "text": "narrative collage art" },
+        { "text": "vaporwave citypop" },
+        { "text": "baroque" },
+        { "text": "surrealism" },
+        { "text": "modernist" }
       ]
     },
     {
       "name": "framing_and_composition",
-      "feature_name": "framing_and_composition",
       "values": [
-        "original framing and composition",
-        "dynamic angles",
-        "symmetrical layout",
-        "cinematic perspective",
-        "minimalist framing"
+        { "text": "original framing and composition" },
+        { "text": "dynamic angles" },
+        { "text": "symmetrical layout" },
+        { "text": "cinematic perspective" },
+        { "text": "minimalist framing" }
       ]
     },
     {
       "name": "subject",
-      "feature_name": "subject",
       "values": [
-        "figure",
-        "character",
-        "object",
-        "animal",
-        "landscape element"
+        { "text": "figure" },
+        { "text": "character" },
+        { "text": "object" },
+        { "text": "animal" },
+        { "text": "landscape element" }
       ]
     },
     {
       "name": "imbues",
-      "feature_name": "imbues",
       "values": [
-        "imbues",
-        "radiates",
-        "expresses",
-        "embodies",
-        "channels"
+        { "text": "imbues" },
+        { "text": "radiates" },
+        { "text": "expresses" },
+        { "text": "embodies" },
+        { "text": "channels" }
       ]
     },
     {
       "name": "fashion",
-      "feature_name": "fashion",
       "values": [
-        "avant-garde fashion",
-        "retro streetwear",
-        "futuristic armor",
-        "traditional costume",
-        "casual attire"
+        { "text": "avant-garde fashion" },
+        { "text": "retro streetwear" },
+        { "text": "futuristic armor" },
+        { "text": "traditional costume" },
+        { "text": "casual attire" }
       ]
     }
   ]

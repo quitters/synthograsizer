@@ -3,158 +3,145 @@
   "variables": [
     {
       "name": "head_shape",
-      "feature_name": "head_shape",
       "values": [
-        "oval",
-        "round",
-        "square",
-        "heart",
-        "diamond",
-        "rectangular"
+        { "text": "oval" },
+        { "text": "round" },
+        { "text": "square" },
+        { "text": "heart" },
+        { "text": "diamond" },
+        { "text": "rectangular" }
       ]
     },
     {
       "name": "skin_tone",
-      "feature_name": "skin_tone",
       "values": [
-        "pale",
-        "light",
-        "medium",
-        "tan",
-        "brown",
-        "dark"
+        { "text": "pale" },
+        { "text": "light" },
+        { "text": "medium" },
+        { "text": "tan" },
+        { "text": "brown" },
+        { "text": "dark" }
       ]
     },
     {
       "name": "eye_color",
-      "feature_name": "eye_color",
       "values": [
-        "brown",
-        "hazel",
-        "green",
-        "blue",
-        "gray",
-        "amber"
+        { "text": "brown" },
+        { "text": "hazel" },
+        { "text": "green" },
+        { "text": "blue" },
+        { "text": "gray" },
+        { "text": "amber" }
       ]
     },
     {
       "name": "eye_shape",
-      "feature_name": "eye_shape",
       "values": [
-        "almond",
-        "round",
-        "hooded",
-        "narrow",
-        "wide",
-        "upturned"
+        { "text": "almond" },
+        { "text": "round" },
+        { "text": "hooded" },
+        { "text": "narrow" },
+        { "text": "wide" },
+        { "text": "upturned" }
       ]
     },
     {
       "name": "eyebrow_style",
-      "feature_name": "eyebrow_style",
       "values": [
-        "arched",
-        "straight",
-        "thick",
-        "thin",
-        "bushy",
-        "angled"
+        { "text": "arched" },
+        { "text": "straight" },
+        { "text": "thick" },
+        { "text": "thin" },
+        { "text": "bushy" },
+        { "text": "angled" }
       ]
     },
     {
       "name": "hair_style",
-      "feature_name": "hair_style",
       "values": [
-        "short",
-        "long",
-        "wavy",
-        "curly",
-        "bald",
-        "straight"
+        { "text": "short" },
+        { "text": "long" },
+        { "text": "wavy" },
+        { "text": "curly" },
+        { "text": "bald" },
+        { "text": "straight" }
       ]
     },
     {
       "name": "hair_color",
-      "feature_name": "hair_color",
       "values": [
-        "black",
-        "brown",
-        "blonde",
-        "red",
-        "gray",
-        "white"
+        { "text": "black" },
+        { "text": "brown" },
+        { "text": "blonde" },
+        { "text": "red" },
+        { "text": "gray" },
+        { "text": "white" }
       ]
     },
     {
       "name": "nose_shape",
-      "feature_name": "nose_shape",
       "values": [
-        "straight",
-        "button",
-        "upturned",
-        "broad",
-        "narrow",
-        "long"
+        { "text": "straight" },
+        { "text": "button" },
+        { "text": "upturned" },
+        { "text": "broad" },
+        { "text": "narrow" },
+        { "text": "long" }
       ]
     },
     {
       "name": "mouth_shape",
-      "feature_name": "mouth_shape",
       "values": [
-        "full",
-        "thin",
-        "wide",
-        "small",
-        "heart",
-        "curved"
+        { "text": "full" },
+        { "text": "thin" },
+        { "text": "wide" },
+        { "text": "small" },
+        { "text": "heart" },
+        { "text": "curved" }
       ]
     },
     {
       "name": "ear_size",
-      "feature_name": "ear_size",
       "values": [
-        "tiny",
-        "small",
-        "medium",
-        "large",
-        "prominent",
-        "hidden"
+        { "text": "tiny" },
+        { "text": "small" },
+        { "text": "medium" },
+        { "text": "large" },
+        { "text": "prominent" },
+        { "text": "hidden" }
       ]
     },
     {
       "name": "neck_width",
-      "feature_name": "neck_width",
       "values": [
-        "very-thin",
-        "thin",
-        "average",
-        "thick",
-        "wide",
-        "muscular"
+        { "text": "very-thin" },
+        { "text": "thin" },
+        { "text": "average" },
+        { "text": "thick" },
+        { "text": "wide" },
+        { "text": "muscular" }
       ]
     },
     {
       "name": "facial_hair",
-      "feature_name": "facial_hair",
       "values": [
-        "none",
-        "mustache",
-        "goatee",
-        "full-beard",
-        "stubble",
-        "sideburns"
+        { "text": "none" },
+        { "text": "mustache" },
+        { "text": "goatee" },
+        { "text": "full-beard" },
+        { "text": "stubble" },
+        { "text": "sideburns" }
       ]
     },
     {
       "name": "accessories",
-      "feature_name": "accessories",
       "values": [
-        "none",
-        "glasses",
-        "sunglasses",
-        "earrings",
-        "hat",
-        "both-glasses-earrings"
+        { "text": "none" },
+        { "text": "glasses" },
+        { "text": "sunglasses" },
+        { "text": "earrings" },
+        { "text": "hat" },
+        { "text": "both-glasses-earrings" }
       ]
     }
   ],
