@@ -109,6 +109,38 @@
 
             <!-- Single Variable Control Section -->
             <section class="variable-control-section">
+                <!-- MIDI Status Bar -->
+                <div class="midi-bar" id="midi-bar">
+                    <button id="midi-toggle-btn" class="midi-toggle-btn" title="MIDI settings">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 3c-1.2 5.4-2 8.2-2 11a2 2 0 0 0 4 0c0-2.8-.8-5.6-2-11z"/>
+                            <circle cx="9" cy="7" r="1.5"/><circle cx="15" cy="7" r="1.5"/>
+                            <circle cx="7" cy="11" r="1.5"/><circle cx="17" cy="11" r="1.5"/>
+                            <path d="M3 16h4v3a1 1 0 0 0 2 0v-3h6v3a1 1 0 0 0 2 0v-3h4"/>
+                        </svg>
+                        <span id="midi-status-text">MIDI</span>
+                        <span class="midi-dot" id="midi-dot"></span>
+                    </button>
+                </div>
+
+                <!-- MIDI Panel (collapsible) -->
+                <div class="midi-panel" id="midi-panel" style="display:none;">
+                    <div class="midi-panel-header">
+                        <span class="midi-panel-title">MIDI Controller</span>
+                        <span id="midi-device-name" class="midi-device-name"></span>
+                        <button id="midi-learn-cancel" class="midi-learn-cancel-btn" style="display:none;">✕ Cancel Learn</button>
+                    </div>
+                    <div class="midi-learn-hint" id="midi-learn-hint" style="display:none;">
+                        Move a <strong>knob/fader</strong> or press a <strong>key</strong> on your controller…
+                    </div>
+                    <div class="midi-mappings-grid" id="midi-mappings-grid">
+                        <!-- Populated by JS -->
+                    </div>
+                    <div class="midi-panel-footer">
+                        <button id="midi-clear-btn" class="midi-clear-btn">Clear all mappings</button>
+                    </div>
+                </div>
+
                 <!-- Mode Toggle -->
                 <div class="control-mode-toggle">
                     <button id="mode-dpad" class="mode-toggle-btn active" title="D-Pad mode">

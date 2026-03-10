@@ -6,6 +6,7 @@ import { BatchGenerator } from './batch-generator.js';
 import { TemplateLoader } from './template-loader.js';
 import { CodeOverlayManager } from './code-overlay-manager.js?v=2';
 import { normalizeTemplate, getValueText, getValueWeight, getWeightsArray, computeTemplateFingerprint, generateTagId } from './template-normalizer.js?v=2';
+import { MIDIController } from './midi-controller.js';
 
 // Expose fingerprint + tag utilities globally for non-module scripts (e.g. studio-integration.js)
 window.__computeTemplateFingerprint = computeTemplateFingerprint;
@@ -25,6 +26,8 @@ export class SynthograsizerSmall {
     this.likedPrompts = [];
     this.controlMode = 'dpad'; // 'dpad' or 'knobs'
     this._knobDragState = null; // Track active knob drag
+    this.midi = null;   // MIDIController instance
+    this.midiUI = null; // MIDIPanelUI instance
 
     // Setup error handling
     this.setupErrorHandling();
@@ -105,6 +108,9 @@ export class SynthograsizerSmall {
       if (!restored) {
         this.loadTemplate(this.config.fallbackTemplate);
       }
+
+      // Initialize MIDI
+      this._initMIDI();
     } catch (error) {
       console.error('SynthograsizerSmall: Initialization failed:', error);
       document.body.innerHTML += `<div style="padding: 20px; color: red;">Initialization Error: ${error.message}</div>`;
@@ -333,6 +339,9 @@ export class SynthograsizerSmall {
 
       // Clear any error messages
       this.hideError();
+
+      // Refresh MIDI panel for new variable set
+      this._onTemplateLoadedMidi();
 
       return true;
 
@@ -743,6 +752,9 @@ export class SynthograsizerSmall {
 
       container.appendChild(item);
     });
+
+    // Show MIDI badges on newly rendered knobs
+    this.midiUI?._updateKnobBadges();
   }
 
   /**
@@ -1310,6 +1322,253 @@ export class SynthograsizerSmall {
     // Could be enhanced with a dedicated success element
     this.showError(message);
     setTimeout(() => this.hideError(), 3000);
+  }
+
+  // ─────────────────────────────────────────────
+  //  MIDI integration
+  // ─────────────────────────────────────────────
+
+  _initMIDI() {
+    this.midi = new MIDIController(this, {
+      onStatusChange: (status, deviceName) => {
+        this.midiUI?.onStatusChange(status, deviceName);
+      },
+      onLearnCapture: (type, varIndex, number, channel) => {
+        this.midiUI?.onLearnCapture(type, varIndex, number, channel);
+      },
+      onValueChange: (varIndex, newValueIndex) => {
+        // Flash the knob ring briefly if in knobs mode
+        if (this.controlMode === 'knobs') {
+          const item = this.elements.knobsContainer?.children[varIndex];
+          if (item) {
+            item.classList.add('midi-flash');
+            setTimeout(() => item.classList.remove('midi-flash'), 150);
+          }
+        }
+      },
+    });
+
+    this.midiUI = new MIDIPanelUI(this, this.midi);
+
+    // Kick off MIDI access request (non-blocking)
+    this.midi.init();
+  }
+
+  /** Called after a template loads — prune dead mappings & refresh UI */
+  _onTemplateLoadedMidi() {
+    if (!this.midi) return;
+    this.midi.pruneStaleMappings();
+    this.midiUI?.refresh();
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  MIDIPanelUI — manages the MIDI bar + collapsible panel DOM
+// ─────────────────────────────────────────────────────────────────────────────
+
+class MIDIPanelUI {
+  constructor(app, midi) {
+    this.app = app;
+    this.midi = midi;
+
+    this._el = {
+      bar:         document.getElementById('midi-bar'),
+      toggleBtn:   document.getElementById('midi-toggle-btn'),
+      statusText:  document.getElementById('midi-status-text'),
+      dot:         document.getElementById('midi-dot'),
+      panel:       document.getElementById('midi-panel'),
+      deviceName:  document.getElementById('midi-device-name'),
+      learnHint:   document.getElementById('midi-learn-hint'),
+      learnCancel: document.getElementById('midi-learn-cancel'),
+      mappingsGrid:document.getElementById('midi-mappings-grid'),
+      clearBtn:    document.getElementById('midi-clear-btn'),
+    };
+
+    this._panelOpen = false;
+    this._setupListeners();
+    this.refresh();
+  }
+
+  _setupListeners() {
+    const { toggleBtn, learnCancel, clearBtn } = this._el;
+
+    toggleBtn?.addEventListener('click', () => this._togglePanel());
+    learnCancel?.addEventListener('click', () => {
+      this.midi.cancelLearn();
+      this._setLearnHint(false);
+      this.refresh();
+    });
+    clearBtn?.addEventListener('click', () => {
+      this.midi.clearAllMappings();
+      this.refresh();
+    });
+  }
+
+  _togglePanel() {
+    this._panelOpen = !this._panelOpen;
+    this._el.panel.style.display = this._panelOpen ? 'block' : 'none';
+    this._el.toggleBtn.classList.toggle('active', this._panelOpen);
+    if (this._panelOpen) this.refresh();
+  }
+
+  // ── Status callbacks ──────────────────────────────────────────────────────
+
+  onStatusChange(status, deviceName) {
+    const { dot, statusText, deviceName: devEl } = this._el;
+    if (status === 'connected') {
+      dot?.classList.add('connected');
+      dot?.classList.remove('learning');
+      if (statusText) statusText.textContent = 'MIDI';
+      if (devEl) devEl.textContent = deviceName || '';
+    } else if (status === 'disconnected') {
+      dot?.classList.remove('connected', 'learning');
+      if (devEl) devEl.textContent = '';
+    } else if (status === 'unsupported') {
+      if (statusText) statusText.textContent = 'No MIDI';
+    } else if (status === 'denied') {
+      if (statusText) statusText.textContent = 'MIDI denied';
+    }
+    this.refresh();
+  }
+
+  onLearnCapture(type, varIndex, number, channel) {
+    this._setLearnHint(false);
+    this._el.dot?.classList.remove('learning');
+    this.refresh();
+  }
+
+  _setLearnHint(visible) {
+    const { learnHint, learnCancel, dot } = this._el;
+    if (learnHint) learnHint.style.display = visible ? 'block' : 'none';
+    if (learnCancel) learnCancel.style.display = visible ? '' : 'none';
+    if (visible) {
+      dot?.classList.add('learning');
+      dot?.classList.remove('connected');
+    } else {
+      dot?.classList.remove('learning');
+      if (this.midi.deviceCount > 0) dot?.classList.add('connected');
+    }
+  }
+
+  // ── Panel rendering ───────────────────────────────────────────────────────
+
+  refresh() {
+    if (!this._panelOpen) {
+      // Still update knob badges even when panel is closed
+      this._updateKnobBadges();
+      return;
+    }
+    this._renderMappingsGrid();
+    this._updateKnobBadges();
+  }
+
+  _renderMappingsGrid() {
+    const grid = this._el.mappingsGrid;
+    if (!grid) return;
+    grid.innerHTML = '';
+
+    const vars = this.app.variables;
+    if (!vars || vars.length === 0) {
+      grid.innerHTML = '<div style="color:#9ca3af;font-size:12px;padding:6px">No variables loaded.</div>';
+      return;
+    }
+
+    vars.forEach((variable, varIndex) => {
+      const ccMap   = this.midi.getCCForVar(varIndex);
+      const noteMap = this.midi.getNoteForVar(varIndex);
+      const color   = this.app.config.colorPalette[varIndex % this.app.config.colorPalette.length];
+      const isLearning = this.midi.learnMode?.varIndex === varIndex;
+
+      const row = document.createElement('div');
+      row.className = 'midi-mapping-row' +
+        (isLearning ? ' learning' : '') +
+        (ccMap || noteMap ? ' has-mapping' : '');
+
+      // Variable name
+      const nameEl = document.createElement('div');
+      nameEl.className = 'midi-var-label';
+      nameEl.style.color = color;
+      nameEl.textContent = variable.name;
+      row.appendChild(nameEl);
+
+      // CC badge or learn button
+      const ccEl = document.createElement('div');
+      if (ccMap) {
+        ccEl.className = 'midi-cc-badge';
+        ccEl.title = `Channel ${ccMap.channel + 1}`;
+        ccEl.textContent = `CC ${ccMap.number}`;
+        ccEl.style.cursor = 'pointer';
+        ccEl.addEventListener('click', () => {
+          this.midi.removeCCMapping(varIndex);
+          this.refresh();
+        });
+        ccEl.title = `CC ${ccMap.number} ch${ccMap.channel + 1} — click to remove`;
+      } else {
+        ccEl.innerHTML = `<button class="midi-learn-cc-btn">CC</button>`;
+        ccEl.querySelector('button').addEventListener('click', () => this._startLearn('cc', varIndex));
+      }
+      row.appendChild(ccEl);
+
+      // Note badge or learn button
+      const noteEl = document.createElement('div');
+      if (noteMap) {
+        noteEl.className = 'midi-note-badge';
+        noteEl.textContent = MIDIController.noteNumberToName(noteMap.number);
+        noteEl.style.cursor = 'pointer';
+        noteEl.title = `Note ${noteMap.number} ch${noteMap.channel + 1} — click to remove`;
+        noteEl.addEventListener('click', () => {
+          this.midi.removeNoteMapping(varIndex);
+          this.refresh();
+        });
+      } else {
+        noteEl.innerHTML = `<button class="midi-learn-note-btn">Note</button>`;
+        noteEl.querySelector('button').addEventListener('click', () => this._startLearn('note', varIndex));
+      }
+      row.appendChild(noteEl);
+
+      grid.appendChild(row);
+    });
+  }
+
+  _startLearn(type, varIndex) {
+    const started = type === 'cc'
+      ? this.midi.startLearnCC(varIndex)
+      : this.midi.startLearnNote(varIndex);
+
+    if (!started) {
+      alert('No MIDI device connected. Connect a controller and try again.');
+      return;
+    }
+
+    this._setLearnHint(true);
+    this.refresh(); // re-render to show .learning row
+  }
+
+  // ── Knob badge overlays ───────────────────────────────────────────────────
+
+  _updateKnobBadges() {
+    if (this.app.controlMode !== 'knobs') return;
+    const container = this.app.elements.knobsContainer;
+    if (!container) return;
+
+    Array.from(container.children).forEach((item, i) => {
+      // Remove old badge
+      item.querySelector('.knob-midi-badge')?.remove();
+
+      const ccMap   = this.midi.getCCForVar(i);
+      const noteMap = this.midi.getNoteForVar(i);
+
+      if (ccMap || noteMap) {
+        const badge = document.createElement('div');
+        badge.className = 'knob-midi-badge';
+        badge.title = ccMap
+          ? `MIDI CC ${ccMap.number}`
+          : `MIDI Note ${MIDIController.noteNumberToName(noteMap.number)}`;
+        badge.textContent = ccMap ? '♪' : '♩';
+        // Insert into the knob-dial-wrapper so position:absolute works
+        item.querySelector('.knob-dial-wrapper')?.appendChild(badge);
+      }
+    });
   }
 }
 
