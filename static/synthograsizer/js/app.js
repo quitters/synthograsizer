@@ -23,6 +23,8 @@ export class SynthograsizerSmall {
     this.textRenderer = null;
     this.elements = {};
     this.likedPrompts = [];
+    this.controlMode = 'dpad'; // 'dpad' or 'knobs'
+    this._knobDragState = null; // Track active knob drag
 
     // Setup error handling
     this.setupErrorHandling();
@@ -77,7 +79,10 @@ export class SynthograsizerSmall {
         favoritesTextarea: document.getElementById('favorites-output-text'),
         favoritesCopyBtn: document.getElementById('favorites-copy-btn'),
         favoritesDownloadBtn: document.getElementById('favorites-download-btn'),
-        favoritesClearBtn: document.getElementById('favorites-clear-btn')
+        favoritesClearBtn: document.getElementById('favorites-clear-btn'),
+        knobsContainer: document.getElementById('knobs-container'),
+        modeDpad: document.getElementById('mode-dpad'),
+        modeKnobs: document.getElementById('mode-knobs')
       };
 
       // Initialize text renderer
@@ -167,6 +172,14 @@ export class SynthograsizerSmall {
     }
     if (this.elements.favoritesClearBtn) {
       this.elements.favoritesClearBtn.addEventListener('click', () => this.clearFavorites());
+    }
+
+    // Mode toggle buttons
+    if (this.elements.modeDpad) {
+      this.elements.modeDpad.addEventListener('click', () => this.setControlMode('dpad'));
+    }
+    if (this.elements.modeKnobs) {
+      this.elements.modeKnobs.addEventListener('click', () => this.setControlMode('knobs'));
     }
 
     // Window resize handler for responsive text sizing
@@ -353,6 +366,11 @@ export class SynthograsizerSmall {
 
     // Update display
     this.updateCenterControl();
+
+    // Re-render knobs if in knob mode
+    if (this.controlMode === 'knobs') {
+      this.renderKnobs();
+    }
   }
 
   /**
@@ -416,6 +434,12 @@ export class SynthograsizerSmall {
     // Announce change for screen readers
     if (this.elements.announcer) {
       this.elements.announcer.textContent = `${variable.name}: ${value}`;
+    }
+
+    // Keep knobs in sync if in knob mode
+    if (this.controlMode === 'knobs') {
+      this.highlightActiveKnob(this.currentVariableIndex);
+      this.variables.forEach((_, i) => this.updateKnobDisplay(i));
     }
   }
 
@@ -595,19 +619,41 @@ export class SynthograsizerSmall {
     if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
       e.preventDefault();
 
-      switch (e.key) {
-        case 'ArrowUp':
-          this.prevVariable();
-          break;
-        case 'ArrowDown':
-          this.nextVariable();
-          break;
-        case 'ArrowLeft':
-          this.cycleValue(-1);
-          break;
-        case 'ArrowRight':
-          this.cycleValue(1);
-          break;
+      if (this.controlMode === 'knobs') {
+        // In knobs mode: left/right cycle active knob value, up/down switch active knob
+        switch (e.key) {
+          case 'ArrowLeft':
+            this.cycleValue(-1);
+            this.updateKnobDisplay(this.currentVariableIndex);
+            break;
+          case 'ArrowRight':
+            this.cycleValue(1);
+            this.updateKnobDisplay(this.currentVariableIndex);
+            break;
+          case 'ArrowUp':
+            this.prevVariable();
+            this.highlightActiveKnob(this.currentVariableIndex);
+            break;
+          case 'ArrowDown':
+            this.nextVariable();
+            this.highlightActiveKnob(this.currentVariableIndex);
+            break;
+        }
+      } else {
+        switch (e.key) {
+          case 'ArrowUp':
+            this.prevVariable();
+            break;
+          case 'ArrowDown':
+            this.nextVariable();
+            break;
+          case 'ArrowLeft':
+            this.cycleValue(-1);
+            break;
+          case 'ArrowRight':
+            this.cycleValue(1);
+            break;
+        }
       }
     }
   }
@@ -619,6 +665,197 @@ export class SynthograsizerSmall {
     if (!button) return;
     button.classList.add('keyboard-flash');
     setTimeout(() => button.classList.remove('keyboard-flash'), 200);
+  }
+
+  // ───────────── Control Mode (D-Pad / Knobs) ─────────────
+
+  /**
+   * Switch between 'dpad' and 'knobs' control modes
+   */
+  setControlMode(mode) {
+    if (mode === this.controlMode) return;
+    this.controlMode = mode;
+
+    const section = document.querySelector('.variable-control-section');
+
+    // Toggle active button
+    this.elements.modeDpad?.classList.toggle('active', mode === 'dpad');
+    this.elements.modeKnobs?.classList.toggle('active', mode === 'knobs');
+
+    if (mode === 'knobs') {
+      section?.classList.add('knob-mode');
+      this.elements.centerControl.style.display = 'none';
+      this.elements.knobsContainer.style.display = 'flex';
+      this.renderKnobs();
+    } else {
+      section?.classList.remove('knob-mode');
+      this.elements.centerControl.style.display = '';
+      this.elements.knobsContainer.style.display = 'none';
+      this.updateCenterControl();
+    }
+
+    this.saveStateToStorage();
+  }
+
+  /**
+   * Render all knob controls into the knobs container
+   */
+  renderKnobs() {
+    const container = this.elements.knobsContainer;
+    if (!container) return;
+    container.innerHTML = '';
+
+    this.variables.forEach((variable, index) => {
+      const color = this.config.colorPalette[index % this.config.colorPalette.length];
+      const valueIndex = this.currentValues[variable.name];
+      const valueText = getValueText(variable.values[valueIndex]);
+      const totalValues = variable.values.length;
+      const rotation = totalValues > 1
+        ? (valueIndex / (totalValues - 1)) * 270
+        : 0;
+
+      const item = document.createElement('div');
+      item.className = 'knob-item' + (index === this.currentVariableIndex ? ' active' : '');
+      item.style.setProperty('--knob-color', color);
+      item.dataset.index = index;
+
+      item.innerHTML = `
+        <div class="knob-dial-wrapper">
+          <div class="knob-ring"></div>
+          <div class="knob-dial">
+            <div class="knob-indicator" style="transform: translateX(-50%) rotate(${rotation - 135}deg)"></div>
+          </div>
+        </div>
+        <div class="knob-value-label" title="${valueText}">${this.truncateKnobValue(valueText)}</div>
+        <div class="knob-var-name">${variable.name}</div>
+      `;
+
+      // Click to select this variable
+      item.addEventListener('click', (e) => {
+        if (this._knobDragState?.dragged) return; // ignore if we just finished a drag
+        this.jumpToVariable(index);
+        this.highlightActiveKnob(index);
+      });
+
+      // Drag to rotate (change value)
+      const dial = item.querySelector('.knob-dial-wrapper');
+      dial.addEventListener('pointerdown', (e) => this.onKnobPointerDown(e, index));
+
+      container.appendChild(item);
+    });
+  }
+
+  /**
+   * Truncate value text for knob display
+   */
+  truncateKnobValue(text) {
+    return text.length > 12 ? text.substring(0, 10) + '\u2026' : text;
+  }
+
+  /**
+   * Highlight the active knob and deactivate others
+   */
+  highlightActiveKnob(activeIndex) {
+    const items = this.elements.knobsContainer?.querySelectorAll('.knob-item');
+    items?.forEach((item, i) => {
+      item.classList.toggle('active', i === activeIndex);
+    });
+  }
+
+  /**
+   * Update a single knob's display (value label + indicator rotation)
+   */
+  updateKnobDisplay(index) {
+    const container = this.elements.knobsContainer;
+    if (!container) return;
+    const item = container.children[index];
+    if (!item) return;
+
+    const variable = this.variables[index];
+    const valueIndex = this.currentValues[variable.name];
+    const valueText = getValueText(variable.values[valueIndex]);
+    const totalValues = variable.values.length;
+    const rotation = totalValues > 1
+      ? (valueIndex / (totalValues - 1)) * 270
+      : 0;
+
+    const indicator = item.querySelector('.knob-indicator');
+    if (indicator) {
+      indicator.style.transform = `translateX(-50%) rotate(${rotation - 135}deg)`;
+    }
+
+    const label = item.querySelector('.knob-value-label');
+    if (label) {
+      label.textContent = this.truncateKnobValue(valueText);
+      label.title = valueText;
+    }
+  }
+
+  // ──── Knob Drag Interaction ────
+
+  onKnobPointerDown(e, varIndex) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const dial = e.currentTarget;
+    const rect = dial.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    const startAngle = Math.atan2(e.clientY - centerY, e.clientX - centerX);
+
+    this._knobDragState = {
+      varIndex,
+      centerX,
+      centerY,
+      startAngle,
+      startValueIndex: this.currentValues[this.variables[varIndex].name],
+      dragged: false
+    };
+
+    dial.setPointerCapture(e.pointerId);
+    dial.addEventListener('pointermove', this._onKnobPointerMove);
+    dial.addEventListener('pointerup', this._onKnobPointerUp);
+  }
+
+  _onKnobPointerMove = (e) => {
+    const state = this._knobDragState;
+    if (!state) return;
+
+    const angle = Math.atan2(e.clientY - state.centerY, e.clientX - state.centerX);
+    let delta = angle - state.startAngle;
+    // Normalize to [-PI, PI]
+    if (delta > Math.PI) delta -= 2 * Math.PI;
+    if (delta < -Math.PI) delta += 2 * Math.PI;
+
+    const variable = this.variables[state.varIndex];
+    const totalValues = variable.values.length;
+    if (totalValues <= 1) return;
+
+    // Map angular delta to value steps (full rotation = all values)
+    const sensitivity = totalValues / (2 * Math.PI);
+    const stepDelta = Math.round(delta * sensitivity);
+
+    if (stepDelta !== 0) {
+      state.dragged = true;
+      const newIndex = ((state.startValueIndex + stepDelta) % totalValues + totalValues) % totalValues;
+
+      if (newIndex !== this.currentValues[variable.name]) {
+        this.currentValues[variable.name] = newIndex;
+        this.updateKnobDisplay(state.varIndex);
+        this.generateOutput();
+      }
+    }
+  }
+
+  _onKnobPointerUp = (e) => {
+    const dial = e.currentTarget;
+    dial.releasePointerCapture(e.pointerId);
+    dial.removeEventListener('pointermove', this._onKnobPointerMove);
+    dial.removeEventListener('pointerup', this._onKnobPointerUp);
+
+    // Reset drag state after a tick (so click handler can check .dragged)
+    const wasDragged = this._knobDragState?.dragged;
+    setTimeout(() => { this._knobDragState = null; }, 0);
   }
 
   /**
@@ -905,6 +1142,7 @@ export class SynthograsizerSmall {
         currentValues: this.currentValues,
         currentVariableIndex: this.currentVariableIndex,
         likedPrompts: this.likedPrompts,
+        controlMode: this.controlMode,
       };
 
       window.localStorage.setItem(STATE_STORAGE_KEY, JSON.stringify(state));
@@ -960,6 +1198,12 @@ export class SynthograsizerSmall {
 
       this.updateCenterControl();
       this.generateOutput();
+
+      // Restore control mode
+      if (state.controlMode === 'knobs') {
+        this.setControlMode('knobs');
+      }
+
       return true;
     } catch (error) {
       console.warn('Failed to load Synthograsizer Mini state:', error);

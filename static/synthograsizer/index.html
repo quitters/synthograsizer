@@ -109,6 +109,23 @@
 
             <!-- Single Variable Control Section -->
             <section class="variable-control-section">
+                <!-- Mode Toggle -->
+                <div class="control-mode-toggle">
+                    <button id="mode-dpad" class="mode-toggle-btn active" title="D-Pad mode">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M15 7.5V2H9v5.5l3 3 3-3zM7.5 9H2v6h5.5l3-3-3-3zM9 16.5V22h6v-5.5l-3-3-3 3zM16.5 9l-3 3 3 3H22V9h-5.5z"/>
+                        </svg>
+                        <span>D-Pad</span>
+                    </button>
+                    <button id="mode-knobs" class="mode-toggle-btn" title="Knobs mode">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/>
+                            <circle cx="12" cy="5" r="2.5"/>
+                        </svg>
+                        <span>Knobs</span>
+                    </button>
+                </div>
+
                 <div class="variable-control-container">
                     <!-- D-Pad Container with 3D Base -->
                     <div id="center-control" class="center-control">
@@ -148,6 +165,11 @@
                                 </svg>
                             </button>
                         </div>
+                    </div>
+
+                    <!-- Knobs Container (hidden by default) -->
+                    <div id="knobs-container" class="knobs-container" style="display: none;">
+                        <!-- Knob elements will be dynamically inserted here -->
                     </div>
                 </div>
 
