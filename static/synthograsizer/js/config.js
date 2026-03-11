@@ -21,44 +21,97 @@ export const DEFAULT_CONFIG = {
     snapThreshold: 5 // degrees
   },
   
-  // Fallback template if import fails
+  // Default template loaded on first visit (svg-flow-particles)
   fallbackTemplate: {
-    promptTemplate: "A {{style}} illustration of {{subject}} in {{mood}} lighting.",
+    promptTemplate: "A generative flow field artwork with {{particle_density}} particle density flowing with {{flow_energy}} energy. Particles leave {{trail_length}} {{trail_style}} trails at {{trail_opacity}} opacity, guided by {{noise_texture}} noise patterns. Rendered in a {{color_palette}} color palette with {{color_shift}} color shifting. {{wave_pattern}} wave patterns are layered beneath the particles. The composition features {{grain_texture}} film grain, {{symmetry_mode}} symmetry, and {{distortion}} distortion effects, presented in a {{frame_style}} frame.",
     variables: [
       {
-        name: "style",
-        feature_name: "Style",
+        name: "particle_density",
         values: [
-          { text: "minimalist", weight: 3 },
-          { text: "detailed", weight: 3 },
-          { text: "abstract", weight: 2 },
-          { text: "photorealistic", weight: 3 },
-          { text: "watercolor", weight: 2 },
-          { text: "digital", weight: 3 }
+          { text: "sparse" }, { text: "light" }, { text: "moderate" },
+          { text: "dense" }, { text: "swarm" }, { text: "overwhelming" }
         ]
       },
       {
-        name: "subject",
-        feature_name: "Subject",
+        name: "flow_energy",
         values: [
-          { text: "a mountain landscape", weight: 3 },
-          { text: "a city skyline", weight: 3 },
-          { text: "an ocean sunset", weight: 3 },
-          { text: "a forest path", weight: 2 },
-          { text: "a desert canyon", weight: 2 },
-          { text: "a winter scene", weight: 1 }
+          { text: "still" }, { text: "gentle" }, { text: "moderate" },
+          { text: "energetic" }, { text: "turbulent" }, { text: "chaotic" }
         ]
       },
       {
-        name: "mood",
-        feature_name: "Mood",
+        name: "trail_length",
         values: [
-          { text: "warm golden hour", weight: 3 },
-          { text: "cool twilight", weight: 3 },
-          { text: "dramatic stormy", weight: 2 },
-          { text: "soft morning", weight: 3 },
-          { text: "vibrant midday", weight: 2 },
-          { text: "moody evening", weight: 1 }
+          { text: "dots" }, { text: "short" }, { text: "medium" },
+          { text: "flowing" }, { text: "ribbons" }, { text: "streams" }
+        ]
+      },
+      {
+        name: "trail_style",
+        values: [
+          { text: "linear" }, { text: "smooth" }, { text: "mixed" }
+        ]
+      },
+      {
+        name: "trail_opacity",
+        values: [
+          { text: "faint" }, { text: "subtle" }, { text: "medium" },
+          { text: "visible" }, { text: "bright" }, { text: "vivid" }
+        ]
+      },
+      {
+        name: "noise_texture",
+        values: [
+          { text: "smooth" }, { text: "rolling" }, { text: "organic" },
+          { text: "complex" }, { text: "turbulent" }, { text: "fractured" }
+        ]
+      },
+      {
+        name: "color_palette",
+        values: [
+          { text: "warm sunset" }, { text: "cool ocean" }, { text: "earth tones" },
+          { text: "neon vivid" }, { text: "pastels" }, { text: "monochrome" }
+        ]
+      },
+      {
+        name: "color_shift",
+        values: [
+          { text: "none" }, { text: "subtle" }, { text: "moderate" }, { text: "dramatic" }
+        ]
+      },
+      {
+        name: "wave_pattern",
+        values: [
+          { text: "none" }, { text: "subtle" }, { text: "gentle" },
+          { text: "rhythmic" }, { text: "bold" }, { text: "intense" }
+        ]
+      },
+      {
+        name: "grain_texture",
+        values: [
+          { text: "none" }, { text: "whisper" }, { text: "light" },
+          { text: "medium" }, { text: "heavy" }, { text: "gritty" }
+        ]
+      },
+      {
+        name: "symmetry_mode",
+        values: [
+          { text: "none" }, { text: "bilateral" }, { text: "quadrilateral" },
+          { text: "radial" }, { text: "kaleidoscope" }, { text: "snowflake" }
+        ]
+      },
+      {
+        name: "distortion",
+        values: [
+          { text: "none" }, { text: "subtle" }, { text: "gentle" },
+          { text: "warped" }, { text: "melting" }, { text: "liquid" }
+        ]
+      },
+      {
+        name: "frame_style",
+        values: [
+          { text: "none" }, { text: "thin" }, { text: "classic" },
+          { text: "matted" }, { text: "ornate" }, { text: "gallery" }
         ]
       }
     ]

@@ -1279,6 +1279,79 @@ export class CodeOverlayManager {
   }
 
   /**
+   * Capture the current P5 canvas frame and load it into Image Studio as a reference image
+   */
+  captureToImageStudio() {
+    if (!this.p5Instance || !this.p5Instance.canvas) {
+      showToast('No active canvas to capture', 'warning');
+      return;
+    }
+
+    // Grab the canvas as a base64 PNG data URL
+    // For WEBGL canvases that may not have preserveDrawingBuffer, use p5's get()
+    let dataUrl;
+    try {
+      dataUrl = this.p5Instance.canvas.toDataURL('image/png');
+      // Check if toDataURL returned a blank image (common with WEBGL without preserveDrawingBuffer)
+      if (dataUrl.length < 100) throw new Error('blank');
+    } catch (e) {
+      // Fallback: use p5's get() which works even without preserveDrawingBuffer
+      try {
+        const img = this.p5Instance.get();
+        dataUrl = img.canvas.toDataURL('image/png');
+      } catch (e2) {
+        showToast('Failed to capture canvas: ' + e2.message, 'error');
+        return;
+      }
+    }
+
+    // Access the Studio Integration instance
+    const studio = window.studioIntegrationInstance;
+    if (!studio) {
+      showToast('Image Studio not available', 'error');
+      return;
+    }
+
+    // Add as a reference image (same format as handleRefImageSelect)
+    if (!studio.selectedRefImages) studio.selectedRefImages = [];
+
+    // Create a synthetic File object for consistency with the ref image pipeline
+    const blob = this._dataURLtoBlob(dataUrl);
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(11, 19);
+    const file = new File([blob], `canvas-capture-${timestamp}.png`, { type: 'image/png' });
+
+    studio.selectedRefImages.push({ file: file, base64: dataUrl });
+
+    // Open the Image Studio modal with the capture loaded
+    studio.openModal('image-studio-modal');
+    studio.renderRefImages();
+
+    // Pre-fill prompt from current generated output text
+    const promptInput = document.getElementById('image-prompt-input');
+    const outputContainer = document.getElementById('output-container');
+    if (promptInput && outputContainer) {
+      const outputText = outputContainer.textContent?.trim();
+      if (outputText) {
+        promptInput.value = outputText;
+      }
+    }
+
+    showToast('Canvas captured as reference image!', 'success');
+  }
+
+  /**
+   * Convert a data URL to a Blob
+   */
+  _dataURLtoBlob(dataUrl) {
+    const parts = dataUrl.split(',');
+    const mime = parts[0].match(/:(.*?);/)[1];
+    const raw = atob(parts[1]);
+    const arr = new Uint8Array(raw.length);
+    for (let i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
+    return new Blob([arr], { type: mime });
+  }
+
+  /**
    * Update run button state (Run/Stop)
    */
   updateRunButtonState() {

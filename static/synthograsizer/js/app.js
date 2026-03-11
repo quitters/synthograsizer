@@ -55,7 +55,7 @@ export class SynthograsizerSmall {
     this.showError(`Something went wrong: ${error.message}`);
   }
 
-  init() {
+  async init() {
     try {
       // Get DOM elements
       this.elements = {
@@ -103,10 +103,19 @@ export class SynthograsizerSmall {
       // Initialize code overlay manager
       this.codeOverlayManager = new CodeOverlayManager(this);
 
-      // Try to restore previous session; fall back to default template
+      // Try to restore previous session; on first visit, load the default template
       const restored = this.loadStateFromStorage();
       if (!restored) {
-        this.loadTemplate(this.config.fallbackTemplate);
+        // Fetch the full svg-flow-particles template (includes p5Code for the code overlay)
+        try {
+          const res = await fetch('templates/svg-flow-particles.json');
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const defaultTemplate = await res.json();
+          this.loadTemplate(defaultTemplate);
+        } catch (fetchErr) {
+          console.warn('Could not fetch default template, using built-in fallback:', fetchErr);
+          this.loadTemplate(this.config.fallbackTemplate);
+        }
       }
 
       // Initialize MIDI
@@ -137,8 +146,16 @@ export class SynthograsizerSmall {
     // Randomize button
     this.elements.randomizeButton.addEventListener('click', () => this.randomizeAllVariables());
 
-    // Generate button - Auto-generate image with Gemini 3 Pro 
+    // Generate button - Auto-generate image with Gemini 3 Pro
     this.elements.generateButton.addEventListener('click', () => this.handleGenerateImage());
+
+    // Capture button - Screenshot p5 canvas to Image Studio
+    const captureBtn = document.getElementById('p5-capture-btn');
+    if (captureBtn) {
+      captureBtn.addEventListener('click', () => {
+        this.codeOverlayManager?.captureToImageStudio();
+      });
+    }
 
     // File input change (triggered from dropdown or code overlay)
     this.elements.importFileInput.addEventListener('change', (e) => {
