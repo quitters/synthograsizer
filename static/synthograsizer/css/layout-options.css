@@ -1,0 +1,216 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   layout-options.css
+   Experimental layout switcher for Synthograsizer.
+
+   Classes applied to .synthograsizer-small:
+     (none)      — Default: single centered column, current behaviour
+     .layout-a   — Two-Column: left = output/actions, right = D-Pad + connections
+     .layout-b   — Docked Sidebar: single column, connections panel beside D-Pad
+
+   All rules here are scoped to min-width: 900px so mobile is never affected.
+───────────────────────────────────────────────────────────────────────────── */
+
+/* ── Layout Switcher UI ─────────────────────────────────────────────────── */
+
+.layout-switcher {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  margin-bottom: 20px;
+}
+
+.layout-btn {
+  padding: 4px 13px;
+  border: 1.5px solid #d1d5db;
+  border-radius: 7px;
+  background: white;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #9ca3af;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  user-select: none;
+}
+
+.layout-btn:hover {
+  border-color: #8b5cf6;
+  color: #8b5cf6;
+}
+
+.layout-btn.active {
+  background: #8b5cf6;
+  border-color: #8b5cf6;
+  color: white;
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════
+   OPTION A — Two-Column Layout
+   Left  (~55%): Output + Actions + AI Studio + Bottom bar
+   Right (400px): D-Pad / Knobs + Connections (sticky)
+══════════════════════════════════════════════════════════════════════════ */
+
+@media (min-width: 900px) {
+
+  /* ── Grid container ── */
+  .layout-a.synthograsizer-small {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    column-gap: 36px;
+    align-items: start;
+  }
+
+  /* Full-width: header + error banner */
+  .layout-a .app-header,
+  .layout-a #error-message {
+    grid-column: 1 / -1;
+  }
+
+  /* Left column: all content sections */
+  .layout-a .output-section,
+  .layout-a .primary-actions-section,
+  .layout-a .studio-controls-section,
+  .layout-a #p5-live-section,
+  .layout-a .actions-section {
+    grid-column: 1;
+  }
+
+  /* Tighter bottom margins in two-col — less vertical breathing room needed */
+  .layout-a .output-section        { margin-bottom: 20px; }
+  .layout-a .primary-actions-section { margin-bottom: 20px; }
+  .layout-a .studio-controls-section { margin-bottom: 20px; }
+
+  /* Right column: D-Pad + connections — sticky so it stays in view while
+     the user scrolls through the left column */
+  .layout-a .variable-control-section {
+    grid-column: 2;
+    grid-row: 2 / span 20;  /* span enough rows to cover the left column */
+    position: sticky;
+    top: 20px;
+    align-self: start;
+    margin-bottom: 0;
+  }
+
+  /* Connections pills left-align naturally in the narrow right column */
+  .layout-a .connections-group .midi-bar,
+  .layout-a .connections-group .osc-bar {
+    justify-content: flex-start;
+  }
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════
+   OPTION B — Docked Sidebar
+   Single column, but the D-Pad and Connections panel sit side-by-side
+   within the variable-control-section instead of stacking vertically.
+══════════════════════════════════════════════════════════════════════════ */
+
+@media (min-width: 900px) {
+
+  /* ── Side-by-side inside variable-control-section ── */
+  .layout-b .variable-control-section {
+    display: flex;
+    gap: 28px;
+    align-items: flex-start;
+  }
+
+  /* D-Pad group takes all remaining width */
+  .layout-b .dpad-group {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* Connections group: fixed-width card, sticky */
+  .layout-b .connections-group {
+    width: 192px;
+    flex-shrink: 0;
+    background: white;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 12px 14px;
+    position: sticky;
+    top: 20px;
+  }
+
+  /* "Connections" section label */
+  .layout-b .connections-group::before {
+    content: 'Connections';
+    display: block;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #9ca3af;
+    padding-bottom: 9px;
+    margin-bottom: 6px;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  /* Pills left-align inside the card */
+  .layout-b .connections-group .midi-bar,
+  .layout-b .connections-group .osc-bar {
+    justify-content: flex-start;
+    margin-top: 6px;
+  }
+
+  .layout-b .connections-group .midi-bar:first-of-type,
+  .layout-b .connections-group .osc-bar:first-of-type {
+    margin-top: 0;
+  }
+
+  /* Panels expand inside the card, full-width */
+  .layout-b .connections-group .osc-panel,
+  .layout-b .connections-group .midi-panel {
+    width: 100%;
+    border-radius: 8px;
+    font-size: 11px;
+  }
+
+  /* Tighter row labels inside the docked card */
+  .layout-b .connections-group .osc-row {
+    gap: 6px;
+  }
+
+  .layout-b .connections-group .osc-input {
+    max-width: 90px;
+  }
+}
+
+
+/* ── Shared tweaks that apply in both A and B ─────────────────────────── */
+
+/* In either layout, variable-control-section top margin can be tighter */
+.layout-a .variable-control-section,
+.layout-b .variable-control-section {
+  margin-bottom: 24px;
+}
+
+
+/* ── Knobs grid (Two Column + Docked) ─────────────────────────────────── */
+/*
+   Scoped to .knob-mode so the rule only fires when JS is actually showing
+   the knobs container.  Without this scope, display:grid !important would
+   override the display:none that setControlMode() sets for D-Pad mode.
+*/
+@media (min-width: 900px) {
+  .layout-a .variable-control-section.knob-mode .knobs-container,
+  .layout-b .variable-control-section.knob-mode .knobs-container {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+    gap: 12px;
+    overflow-x: visible;
+    overflow-y: visible;
+    padding: 16px 8px;
+    scrollbar-width: auto;
+  }
+
+  /* Items no longer need to resist shrinking — the grid handles sizing */
+  .layout-a .variable-control-section.knob-mode .knob-item,
+  .layout-b .variable-control-section.knob-mode .knob-item {
+    flex-shrink: unset;
+    min-width: unset;
+    width: 100%;
+  }
+}
