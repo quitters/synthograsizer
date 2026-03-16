@@ -3,6 +3,8 @@ export class TemplateLoader {
   constructor(app) {
     this.app = app;
     this.templates = {};
+    this.builtInTemplates = [];
+    this.currentTemplateIndex = -1;
     this.init();
   }
 
@@ -12,9 +14,12 @@ export class TemplateLoader {
       templateButton: document.getElementById('template-button'),
       templateDropdown: document.querySelector('.template-dropdown'),
       templateDropdownMenu: document.getElementById('template-dropdown-menu'),
-      templateOptions: document.querySelectorAll('.template-option')
+      templateOptions: document.querySelectorAll('.template-option'),
+      templatePrevBtn: document.getElementById('template-prev-btn'),
+      templateNextBtn: document.getElementById('template-next-btn')
     };
 
+    this.extractBuiltInTemplates();
     this.setupEventListeners();
   }
 
@@ -41,6 +46,15 @@ export class TemplateLoader {
         this.closeDropdown();
       });
     });
+
+    // Template navigation arrow buttons
+    this.elements.templatePrevBtn?.addEventListener('click', async () => {
+      await this.cycleToPreviousTemplate();
+    });
+
+    this.elements.templateNextBtn?.addEventListener('click', async () => {
+      await this.cycleToNextTemplate();
+    });
   }
 
   toggleDropdown() {
@@ -56,6 +70,7 @@ export class TemplateLoader {
       // Check if template is already cached
       if (this.templates[templateName]) {
         this.app.loadTemplate(this.templates[templateName]);
+        this.updateCurrentTemplateIndex(templateName);
         return;
       }
 
@@ -73,6 +88,9 @@ export class TemplateLoader {
       
       // Load template into app
       this.app.loadTemplate(templateData);
+      
+      // Update current template index for cycling
+      this.updateCurrentTemplateIndex(templateName);
       
       // Show success message briefly
       this.showLoadSuccess(templateName);
@@ -129,5 +147,63 @@ export class TemplateLoader {
     }, 2000);
 
     console.error('Template load error:', message);
+  }
+
+  extractBuiltInTemplates() {
+    // Extract built-in template names from the dropdown menu
+    const builtInOptions = document.querySelectorAll('.template-option[data-template]:not(.template-import-option):not(.template-export-option)');
+    this.builtInTemplates = Array.from(builtInOptions).map(option => option.dataset.template).filter(name => name);
+    console.log('Extracted built-in templates:', this.builtInTemplates);
+  }
+
+  updateCurrentTemplateIndex(templateName) {
+    const index = this.builtInTemplates.indexOf(templateName);
+    if (index !== -1) {
+      this.currentTemplateIndex = index;
+    }
+  }
+
+  async cycleToPreviousTemplate() {
+    if (this.builtInTemplates.length === 0) {
+      console.log('No built-in templates available');
+      return;
+    }
+    
+    // If no template is currently selected, start from the last one
+    if (this.currentTemplateIndex === -1) {
+      this.currentTemplateIndex = this.builtInTemplates.length - 1;
+    } else {
+      this.currentTemplateIndex = (this.currentTemplateIndex - 1 + this.builtInTemplates.length) % this.builtInTemplates.length;
+    }
+    
+    const templateName = this.builtInTemplates[this.currentTemplateIndex];
+    console.log('Cycling to previous template:', templateName, 'at index', this.currentTemplateIndex);
+    await this.loadTemplate(templateName);
+    this.flashArrowButton(this.elements.templatePrevBtn);
+  }
+
+  async cycleToNextTemplate() {
+    if (this.builtInTemplates.length === 0) {
+      console.log('No built-in templates available');
+      return;
+    }
+    
+    // If no template is currently selected, start from the first one
+    if (this.currentTemplateIndex === -1) {
+      this.currentTemplateIndex = 0;
+    } else {
+      this.currentTemplateIndex = (this.currentTemplateIndex + 1) % this.builtInTemplates.length;
+    }
+    
+    const templateName = this.builtInTemplates[this.currentTemplateIndex];
+    console.log('Cycling to next template:', templateName, 'at index', this.currentTemplateIndex);
+    await this.loadTemplate(templateName);
+    this.flashArrowButton(this.elements.templateNextBtn);
+  }
+
+  flashArrowButton(button) {
+    if (!button) return;
+    button.classList.add('keyboard-flash');
+    setTimeout(() => button.classList.remove('keyboard-flash'), 200);
   }
 }

@@ -1,0 +1,301 @@
+{
+  "promptTemplate": "A cinematic {{genre}} scene set in {{setting}} during {{time_of_day}} with {{weather}} weather. The shot is a {{camera_shot_type}} at a {{camera_angle}} with {{lens_effect}}, capturing {{protagonist}} and their {{sidekick}} as they confront {{antagonist}}. {{protagonist}} is {{protagonist_action}} with {{key_prop}} amidst {{environment_detail}}. The atmosphere is {{atmosphere}}, emphasized by {{lighting_style}} lighting and a {{color_palette}} color palette. Suddenly, the plot twist occurs: {{twist_trigger}} reveals {{reveal_visual}}, exposing {{hidden_truth}}. The scene undergoes a {{sudden_shift}} in tone, accompanied by {{sonic_element}}, finished with {{cinematic_filter}} and {{special_effect}}, ending on a {{final_frame_composition}}.",
+  "variables": [
+    {
+      "name": "genre",
+      "feature_name": "Genre",
+      "values": [
+        {"text": "film noir", "weight": 3}, {"text": "cyberpunk", "weight": 3}, {"text": "gothic horror", "weight": 3}, {"text": "space opera", "weight": 3},
+        {"text": "western", "weight": 2}, {"text": "steampunk", "weight": 2}, {"text": "period drama", "weight": 2}, {"text": "surrealist dream", "weight": 2},
+        {"text": "techno-thriller", "weight": 2}, {"text": "dark fantasy", "weight": 3}, {"text": "psychological thriller", "weight": 3}, {"text": "superhero epic", "weight": 2},
+        {"text": "apocalyptic wasteland", "weight": 3}, {"text": "neo-tokyo anime", "weight": 2}, {"text": "mythological epic", "weight": 2}, {"text": "underwater odyssey", "weight": 1},
+        {"text": "slasher horror", "weight": 1}, {"text": "spy espionage", "weight": 2}, {"text": "samurai cinema", "weight": 2}, {"text": "interdimensional travel", "weight": 1},
+        {"text": "high-stakes heist", "weight": 2}, {"text": "biopunk", "weight": 1}, {"text": "dieselpunk", "weight": 1}, {"text": "cosmic horror", "weight": 3}
+      ]
+    },
+    {
+      "name": "setting",
+      "feature_name": "Setting",
+      "values": [
+        {"text": "a rainy alleyway", "weight": 3}, {"text": "a neon-lit rooftop", "weight": 3}, {"text": "a crumbling cathedral", "weight": 3}, {"text": "a bridge of a starship", "weight": 3},
+        {"text": "a dusty saloon", "weight": 2}, {"text": "a Victorian lab", "weight": 2}, {"text": "a palatial ballroom", "weight": 2}, {"text": "a shifting labyrinth", "weight": 2},
+        {"text": "a high-security server room", "weight": 2}, {"text": "a twisted forest", "weight": 3}, {"text": "a sterile interrogation room", "weight": 3}, {"text": "a skyscraper rooftop", "weight": 2},
+        {"text": "a rusted industrial zone", "weight": 3}, {"text": "a crowded market square", "weight": 2}, {"text": "a temple in the clouds", "weight": 2}, {"text": "a submerged coral city", "weight": 1},
+        {"text": "a foggy campsite", "weight": 1}, {"text": "a luxury yacht deck", "weight": 2}, {"text": "a bamboo grove", "weight": 2}, {"text": "a white void", "weight": 1},
+        {"text": "a vault deep underground", "weight": 2}, {"text": "a laboratory of flesh", "weight": 1}, {"text": "a zeppelin hangar", "weight": 1}, {"text": "an alien library", "weight": 3}
+      ]
+    },
+    {
+      "name": "time_of_day",
+      "feature_name": "Time of Day",
+      "values": [
+        {"text": "midnight", "weight": 3}, {"text": "golden hour", "weight": 3}, {"text": "pre-dawn twilight", "weight": 3}, {"text": "high noon", "weight": 2},
+        {"text": "perpetual eclipse", "weight": 2}, {"text": "the blue hour", "weight": 3}, {"text": "gloaming", "weight": 2}, {"text": "a synthetic sunset", "weight": 2},
+        {"text": "strobe-lit night", "weight": 2}, {"text": "a cold winter morning", "weight": 1}, {"text": "dead of night", "weight": 3}, {"text": "a blood-red dusk", "weight": 3},
+        {"text": "pitch black", "weight": 2}, {"text": "a blinding laser noon", "weight": 1}, {"text": "eternal autumn afternoon", "weight": 2}, {"text": "dream-state timelessness", "weight": 1},
+        {"text": "shifting bioluminescence", "weight": 2}, {"text": "a flickering streetlamp night", "weight": 2}, {"text": "misty daybreak", "weight": 3}, {"text": "a supernova-lit day", "weight": 1},
+        {"text": "candlelit darkness", "weight": 2}, {"text": "a neon-drenched 3am", "weight": 3}, {"text": "the moment before static", "weight": 1}, {"text": "a fractured timeline", "weight": 1}
+      ]
+    },
+    {
+      "name": "weather",
+      "feature_name": "Weather",
+      "values": [
+        {"text": "torrential downpour", "weight": 3}, {"text": "heavy snowfall", "weight": 3}, {"text": "an oppressive heatwave", "weight": 2}, {"text": "a raging sandstorm", "weight": 3},
+        {"text": "thick rolling fog", "weight": 3}, {"text": "acid rain", "weight": 2}, {"text": "a thunderstorm with green lightning", "weight": 2}, {"text": "a gentle breeze carrying petals", "weight": 2},
+        {"text": "a volcanic ash fall", "weight": 2}, {"text": "a static-charged air", "weight": 2}, {"text": "misty drizzle", "weight": 3}, {"text": "a howling gale", "weight": 2},
+        {"text": "falling embers", "weight": 3}, {"text": "a strange iridescent haze", "weight": 1}, {"text": "a freezing sleet", "weight": 2}, {"text": "a rain of digital artifacts", "weight": 1},
+        {"text": "a blood-rain", "weight": 1}, {"text": "a serene calm before the storm", "weight": 2}, {"text": "a swirling leaf-storm", "weight": 2}, {"text": "a vacuum-tight stillness", "weight": 1},
+        {"text": "a blizzard of black paper", "weight": 1}, {"text": "a humid swamp-vapor", "weight": 2}, {"text": "a solar flare glare", "weight": 1}, {"text": "a psychic miasma", "weight": 3}
+      ]
+    },
+    {
+      "name": "camera_shot_type",
+      "feature_name": "Camera Shot Type",
+      "values": [
+        {"text": "wide establishing shot", "weight": 3}, {"text": "extreme close-up", "weight": 3}, {"text": "medium tracking shot", "weight": 3}, {"text": "point-of-view (POV)", "weight": 3},
+        {"text": "over-the-shoulder shot", "weight": 2}, {"text": "bird's eye view", "weight": 2}, {"text": "worm's eye view", "weight": 2}, {"text": "dutch angle", "weight": 3},
+        {"text": "panoramic sweep", "weight": 2}, {"text": "long take", "weight": 2}, {"text": "handheld shaky cam", "weight": 2}, {"text": "steadycam follow", "weight": 2},
+        {"text": "cowboy shot", "weight": 2}, {"text": "dolly zoom (Vertigo effect)", "weight": 3}, {"text": "macro detail shot", "weight": 1}, {"text": "full body hero shot", "weight": 3},
+        {"text": "two-shot profile", "weight": 2}, {"text": "crane shot", "weight": 1}, {"text": "split-diopter shot", "weight": 1}, {"text": "whip pan", "weight": 1},
+        {"text": "static master shot", "weight": 1}, {"text": "oblique framing", "weight": 2}, {"text": "multi-camera split screen", "weight": 1}, {"text": "glitchy surveillance feed", "weight": 3}
+      ]
+    },
+    {
+      "name": "camera_angle",
+      "feature_name": "Camera Angle",
+      "values": [
+        {"text": "low angle looking up", "weight": 3}, {"text": "high angle looking down", "weight": 3}, {"text": "eye level", "weight": 3}, {"text": "tilted horizon", "weight": 3},
+        {"text": "top-down vertical", "weight": 2}, {"text": "ground-level crawl", "weight": 2}, {"text": "ceiling-mounted perspective", "weight": 2}, {"text": "45-degree isometric", "weight": 2},
+        {"text": "wraparound circular path", "weight": 2}, {"text": "diagonal tilt", "weight": 2}, {"text": "underside view", "weight": 1}, {"text": "spiraling movement", "weight": 3},
+        {"text": "extreme side profile", "weight": 2}, {"text": "front-facing confrontation", "weight": 3}, {"text": "revealing pan up", "weight": 2}, {"text": "descending crane arc", "weight": 1},
+        {"text": "jarring jump cut", "weight": 1}, {"text": "slow zoom in", "weight": 3}, {"text": "rapid pull back", "weight": 2}, {"text": "stationary but vibrating", "weight": 1},
+        {"text": "behind-the-head follow", "weight": 2}, {"text": "floor-bound wide angle", "weight": 2}, {"text": "intermittent blinking frame", "weight": 1}, {"text": "distorted fish-eye curve", "weight": 3}
+      ]
+    },
+    {
+      "name": "lens_effect",
+      "feature_name": "Lens Effect",
+      "values": [
+        {"text": "anamorphic flare", "weight": 3}, {"text": "bokeh background blur", "weight": 3}, {"text": "heavy lens dirt", "weight": 2}, {"text": "chromatic aberration", "weight": 3},
+        {"text": "vignetting", "weight": 3}, {"text": "film grain", "weight": 3}, {"text": "soft focus glow", "weight": 2}, {"text": "sharp high contrast", "weight": 2},
+        {"text": "infrared heat map", "weight": 1}, {"text": "motion blur streaks", "weight": 2}, {"text": "digital static noise", "weight": 3}, {"text": "halcyon sun drench", "weight": 2},
+        {"text": "glitch artifacts", "weight": 3}, {"text": "prismatic refraction", "weight": 1}, {"text": "deep depth of field", "weight": 2}, {"text": "shallow razor-thin focus", "weight": 2},
+        {"text": "mirrored reflections", "weight": 1}, {"text": "double exposure", "weight": 1}, {"text": "halftone pattern overlay", "weight": 1}, {"text": "dreamy vaseline lens", "weight": 1},
+        {"text": "strobe lighting freeze", "weight": 2}, {"text": "kaleidoscope distortion", "weight": 1}, {"text": "scanline overlay", "weight": 2}, {"text": "warped spatial ripple", "weight": 3}
+      ]
+    },
+    {
+      "name": "protagonist",
+      "feature_name": "Protagonist",
+      "values": [
+        {"text": "a grizzled detective", "weight": 3}, {"text": "a cybernetic rogue", "weight": 3}, {"text": "a pale gothic heroine", "weight": 3}, {"text": "a stoic star-pilot", "weight": 3},
+        {"text": "a scarred gunslinger", "weight": 2}, {"text": "a masked inventor", "weight": 2}, {"text": "a vengeful debutante", "weight": 2}, {"text": "a faceless dreamer", "weight": 2},
+        {"text": "a hacker in a hoodie", "weight": 2}, {"text": "a knight in tarnished armor", "weight": 3}, {"text": "a nervous researcher", "weight": 3}, {"text": "a vigilante in spandex", "weight": 2},
+        {"text": "a scavenger in rags", "weight": 3}, {"text": "a ronin with a neon katana", "weight": 2}, {"text": "a high priestess of light", "weight": 2}, {"text": "a biological experiment", "weight": 1},
+        {"text": "a terrified final girl", "weight": 1}, {"text": "a billionaire spy", "weight": 2}, {"text": "a monk in digital robes", "weight": 2}, {"text": "a traveler between worlds", "weight": 1},
+        {"text": "a bank robber with a secret", "weight": 2}, {"text": "a sentient machine", "weight": 1}, {"text": "a sky-captain", "weight": 1}, {"text": "an occult investigator", "weight": 3}
+      ]
+    },
+    {
+      "name": "sidekick",
+      "feature_name": "Sidekick",
+      "values": [
+        {"text": "a cynical drone", "weight": 3}, {"text": "a loyal wolfhound", "weight": 3}, {"text": "a ghost of a child", "weight": 3}, {"text": "a glitching AI projection", "weight": 3},
+        {"text": "a talkative bartender", "weight": 2}, {"text": "a clockwork owl", "weight": 2}, {"text": "a stoic bodyguard", "weight": 2}, {"text": "a shadowy twin", "weight": 2},
+        {"text": "a street urchin kid", "weight": 2}, {"text": "a magical familiar", "weight": 3}, {"text": "a skeptical scientist", "weight": 3}, {"text": "a fanboy apprentice", "weight": 2},
+        {"text": "a mutant companion", "weight": 3}, {"text": "a veteran mentor", "weight": 2}, {"text": "a holographic guide", "weight": 2}, {"text": "a sentient sword", "weight": 1},
+        {"text": "a crying baby", "weight": 1}, {"text": "a glamorous femme fatale", "weight": 2}, {"text": "a silent ninja ally", "weight": 2}, {"text": "a talking black cat", "weight": 1},
+        {"text": "a nervous getaway driver", "weight": 2}, {"text": "a rusted robot unit", "weight": 1}, {"text": "a pilot with a drinking habit", "weight": 1}, {"text": "a eldritch parasite", "weight": 3}
+      ]
+    },
+    {
+      "name": "antagonist",
+      "feature_name": "Antagonist",
+      "values": [
+        {"text": "a shadowy mastermind", "weight": 3}, {"text": "a corporate CEO in a sleek suit", "weight": 3}, {"text": "a monstrous eldritch entity", "weight": 3}, {"text": "a rouge military general", "weight": 3},
+        {"text": "a sadistic outlaw king", "weight": 2}, {"text": "a mad industrialist", "weight": 2}, {"text": "a cold-eyed monarch", "weight": 2}, {"text": "a manifestation of fear", "weight": 2},
+        {"text": "a rogue program", "weight": 2}, {"text": "a dark sorcerer", "weight": 3}, {"text": "a cold serial killer", "weight": 3}, {"text": "a god-complex supervillain", "weight": 2},
+        {"text": "a warlord of the wastes", "weight": 3}, {"text": "a traitorous friend", "weight": 2}, {"text": "a fallen angel", "weight": 2}, {"text": "a collective hive-mind", "weight": 1},
+        {"text": "a masked slasher", "weight": 1}, {"text": "a triple agent", "weight": 2}, {"text": "a rival warlord", "weight": 2}, {"text": "a void-dweller", "weight": 1},
+        {"text": "a corrupt police captain", "weight": 2}, {"text": "a literal devil", "weight": 1}, {"text": "a pirate of the sky", "weight": 1}, {"text": "the mirror image of the hero", "weight": 3}
+      ]
+    },
+    {
+      "name": "protagonist_action",
+      "feature_name": "Protagonist's Action",
+      "values": [
+        {"text": "standing defiantly", "weight": 3}, {"text": "slowly backing away", "weight": 3}, {"text": "clutching their chest", "weight": 3}, {"text": "screaming into the void", "weight": 3},
+        {"text": "aiming a weapon with a shaking hand", "weight": 2}, {"text": "kneeling in defeat", "weight": 2}, {"text": "laughing hysterically", "weight": 2}, {"text": "staring in shock", "weight": 2},
+        {"text": "typing furiously on a terminal", "weight": 2}, {"text": "casting a final spell", "weight": 3}, {"text": "holding a dying companion", "weight": 3}, {"text": "leaping through a window", "weight": 2},
+        {"text": "rummaging through debris", "weight": 3}, {"text": "unsheathing a blade", "weight": 2}, {"text": "lighting a cigarette", "weight": 2}, {"text": "merging with the machine", "weight": 1},
+        {"text": "hiding under a table", "weight": 1}, {"text": "adjusting their glasses", "weight": 2}, {"text": "performing a ritual", "weight": 2}, {"text": "opening a portal", "weight": 1},
+        {"text": "cracking a safe", "weight": 2}, {"text": "dissolving into light", "weight": 1}, {"text": "saluting a falling flag", "weight": 1}, {"text": "pulling the final lever", "weight": 3}
+      ]
+    },
+    {
+      "name": "key_prop",
+      "feature_name": "Key Prop",
+      "values": [
+        {"text": "a smoking pistol", "weight": 3}, {"text": "a glowing data-cube", "weight": 3}, {"text": "a shattered locket", "weight": 3}, {"text": "a vibrating beacon", "weight": 3},
+        {"text": "a rusted key", "weight": 2}, {"text": "a pocket watch that has stopped", "weight": 2}, {"text": "a blood-stained letter", "weight": 3}, {"text": "a mask made of bone", "weight": 2},
+        {"text": "a burning umbrella", "weight": 1}, {"text": "a leather-bound grimoire", "weight": 3}, {"text": "a syringe filled with neon liquid", "weight": 2}, {"text": "a malfunctioning jetpack", "weight": 1},
+        {"text": "a dirty map", "weight": 2}, {"text": "a cracked crystal ball", "weight": 2}, {"text": "a crown of thorns", "weight": 2}, {"text": "a mechanical heart", "weight": 1},
+        {"text": "a butcher's knife", "weight": 1}, {"text": "a high-tech briefcase", "weight": 2}, {"text": "a single white rose", "weight": 2}, {"text": "a compass pointing to nowhere", "weight": 1},
+        {"text": "a bag of stolen diamonds", "weight": 2}, {"text": "a canister of toxic gas", "weight": 1}, {"text": "a telescope aimed at a black hole", "weight": 1}, {"text": "a mirror that shows the past", "weight": 3}
+      ]
+    },
+    {
+      "name": "environment_detail",
+      "feature_name": "Environment Detail",
+      "values": [
+        {"text": "puddles of oil", "weight": 3}, {"text": "hanging wires sparking", "weight": 3}, {"text": "shattered glass everywhere", "weight": 3}, {"text": "floating holographic advertisements", "weight": 3},
+        {"text": "tumbleweeds rolling by", "weight": 2}, {"text": "brass gears turning in the walls", "weight": 2}, {"text": "dust motes dancing in sunbeams", "weight": 2}, {"text": "walls that seem to breathe", "weight": 2},
+        {"text": "servers glowing blue", "weight": 2}, {"text": "vines choking the ruins", "weight": 3}, {"text": "blood dripping from the ceiling", "weight": 3}, {"text": "debris from a fallen statue", "weight": 2},
+        {"text": "radioactive waste barrels", "weight": 3}, {"text": "paper lanterns swaying", "weight": 2}, {"text": "incense smoke swirling", "weight": 2}, {"text": "bubbles rising through water", "weight": 1},
+        {"text": "rusting carcasses of cars", "weight": 1}, {"text": "magnificent tapestries", "weight": 2}, {"text": "fallen cherry blossoms", "weight": 2}, {"text": "white feathers falling from above", "weight": 1},
+        {"text": "money fluttering in the wind", "weight": 2}, {"text": "biological spores in the air", "weight": 1}, {"text": "clouds of steam", "weight": 1}, {"text": "unreadable glyphs on the floor", "weight": 3}
+      ]
+    },
+    {
+      "name": "atmosphere",
+      "feature_name": "Atmosphere",
+      "values": [
+        {"text": "oppressively heavy", "weight": 3}, {"text": "unnervingly quiet", "weight": 3}, {"text": "electrically charged", "weight": 3}, {"text": "melancholic and somber", "weight": 3},
+        {"text": "frantic and chaotic", "weight": 2}, {"text": "ethereal and dreamlike", "weight": 2}, {"text": "claustrophobic", "weight": 3}, {"text": "majestic and grand", "weight": 2},
+        {"text": "sterile and cold", "weight": 2}, {"text": "dark and foreboding", "weight": 3}, {"text": "tense and expectant", "weight": 3}, {"text": "hopeful but fragile", "weight": 2},
+        {"text": "decaying and rotten", "weight": 3}, {"text": "vibrant and pulsing", "weight": 2}, {"text": "hollow and empty", "weight": 2}, {"text": "weightless", "weight": 1},
+        {"text": "visceral and raw", "weight": 1}, {"text": "opulent and decadent", "weight": 2}, {"text": "peaceful but deceptive", "weight": 2}, {"text": "surreal and logic-defying", "weight": 1},
+        {"text": "desperate and gritty", "weight": 2}, {"text": "alien and hostile", "weight": 1}, {"text": "nostalgic and faded", "weight": 1}, {"text": "transcendental", "weight": 3}
+      ]
+    },
+    {
+      "name": "lighting_style",
+      "feature_name": "Lighting Style",
+      "values": [
+        {"text": "harsh rim lighting", "weight": 3}, {"text": "chiaroscuro shadows", "weight": 3}, {"text": "neon noir glow", "weight": 3}, {"text": "soft diffused moonlight", "weight": 3},
+        {"text": "flickering candlelight", "weight": 2}, {"text": "strobe-light flashes", "weight": 2}, {"text": "high-key clinical white", "weight": 2}, {"text": "warm fireplace embers", "weight": 2},
+        {"text": "backlit silhouette", "weight": 3}, {"text": "glow from a computer screen", "weight": 2}, {"text": "beams of light through dust", "weight": 3}, {"text": "underwater bioluminescence", "weight": 2},
+        {"text": "searchlight sweeps", "weight": 3}, {"text": "volumetric god-rays", "weight": 2}, {"text": "colored gels (cyan and magenta)", "weight": 2}, {"text": "infrared visibility", "weight": 1},
+        {"text": "harsh red emergency lights", "weight": 1}, {"text": "golden hour amber", "weight": 3}, {"text": "moonlight through bars", "weight": 2}, {"text": "blinding lens flare", "weight": 1},
+        {"text": "dimly lit single bulb", "weight": 2}, {"text": "radioactive green hum", "weight": 1}, {"text": "sepia-toned wash", "weight": 1}, {"text": "unnatural shifting spectrum", "weight": 3}
+      ]
+    },
+    {
+      "name": "color_palette",
+      "feature_name": "Color Palette",
+      "values": [
+        {"text": "monochrome black and white", "weight": 3}, {"text": "teal and orange", "weight": 3}, {"text": "muted grays and blues", "weight": 3}, {"text": "vibrant cyberpunk neon", "weight": 3},
+        {"text": "earthy browns and ochre", "weight": 2}, {"text": "royal purple and gold", "weight": 2}, {"text": "blood red and charcoal", "weight": 3}, {"text": "desaturated wasteland tan", "weight": 3},
+        {"text": "clinical white and chrome", "weight": 2}, {"text": "nauseating green and yellow", "weight": 2}, {"text": "pastel dreamscape colors", "weight": 2}, {"text": "trippy infrared palette", "weight": 1},
+        {"text": "sepia and faded ink", "weight": 2}, {"text": "electric violet and pink", "weight": 2}, {"text": "oceanic deep water blues", "weight": 2}, {"text": "burning orange and ash", "weight": 3},
+        {"text": "garish 70s technicolor", "weight": 1}, {"text": "velvet red and deep shadow", "weight": 2}, {"text": "forest greens and mist", "weight": 2}, {"text": "prismatic rainbow diffraction", "weight": 1},
+        {"text": "metallic copper and rust", "weight": 2}, {"text": "synthetic neon and black", "weight": 3}, {"text": "void-like absence of color", "weight": 1}, {"text": "shifting iridescent oil-slick", "weight": 3}
+      ]
+    },
+    {
+      "name": "twist_trigger",
+      "feature_name": "The Twist Trigger",
+      "values": [
+        {"text": "a mirror cracking", "weight": 3}, {"text": "a mask falling off", "weight": 3}, {"text": "a voice on the radio", "weight": 3}, {"text": "a timer hitting zero", "weight": 3},
+        {"text": "a single drop of blood", "weight": 2}, {"text": "a light flickering out", "weight": 2}, {"text": "a phrase whispered in an ear", "weight": 3}, {"text": "a door opening on its own", "weight": 2},
+        {"text": "a system crash", "weight": 2}, {"text": "a ritual completion", "weight": 3}, {"text": "a gun jam", "weight": 2}, {"text": "a sudden realization", "weight": 3},
+        {"text": "a signal from space", "weight": 2}, {"text": "a document found in a pocket", "weight": 2}, {"text": "a photograph coming to life", "weight": 2}, {"text": "the ground dissolving", "weight": 1},
+        {"text": "a heartbeat stopping", "weight": 1}, {"text": "a secret handshake", "weight": 2}, {"text": "a curtain being pulled back", "weight": 2}, {"text": "a glitch in the sky", "weight": 1},
+        {"text": "a safe being opened", "weight": 2}, {"text": "a mutation beginning", "weight": 1}, {"text": "a clock chiming thirteen", "weight": 1}, {"text": "the protagonist seeing their own face on the villain", "weight": 3}
+      ]
+    },
+    {
+      "name": "reveal_visual",
+      "feature_name": "The Reveal (Visual)",
+      "values": [
+        {"text": "the protagonist's hands are transparent", "weight": 3}, {"text": "the city is actually a circuit board", "weight": 3}, {"text": "the sidekick is a robot", "weight": 3}, {"text": "the antagonist is their future self", "weight": 3},
+        {"text": "the world is a stage set", "weight": 2}, {"text": "everyone else has vanished", "weight": 3}, {"text": "the hero is the monster", "weight": 3}, {"text": "the sky is a giant eye", "weight": 2},
+        {"text": "all memories are digital files", "weight": 2}, {"text": "the floor is made of bodies", "weight": 1}, {"text": "the character is already dead", "weight": 3}, {"text": "there was no antagonist", "weight": 2},
+        {"text": "the room is an endless mirror", "weight": 2}, {"text": "a hidden tattoo glow", "weight": 2}, {"text": "the stars are falling", "weight": 1}, {"text": "the character is a drawing", "weight": 1},
+        {"text": "a third arm appearing", "weight": 1}, {"text": "the gold is actually lead", "weight": 2}, {"text": "the map leads to their own heart", "weight": 2}, {"text": "the sun is a dying battery", "weight": 1},
+        {"text": "the shadows are independent beings", "weight": 2}, {"text": "the character is a clone", "weight": 2}, {"text": "the building is a living beast", "weight": 1}, {"text": "the entire scene is a loop", "weight": 3}
+      ]
+    },
+    {
+      "name": "hidden_truth",
+      "feature_name": "Hidden Truth",
+      "values": [
+        {"text": "this is all a simulation", "weight": 3}, {"text": "it was always a dream", "weight": 3}, {"text": "betrayal by the closest ally", "weight": 3}, {"text": "the mission was a lie", "weight": 3},
+        {"text": "they were the villain all along", "weight": 3}, {"text": "time has stopped completely", "weight": 2}, {"text": "humanity is extinct", "weight": 2}, {"text": "they are gods in exile", "weight": 2},
+        {"text": "the enemy is within", "weight": 3}, {"text": "death is not the end", "weight": 2}, {"text": "the universe is shrinking", "weight": 1}, {"text": "everything is pre-determined", "weight": 2},
+        {"text": "the secret was hiding in plain sight", "weight": 2}, {"text": "the war was already over", "weight": 2}, {"text": "love was the weapon", "weight": 2}, {"text": "static is the true reality", "weight": 1},
+        {"text": "the hero is the architect", "weight": 3}, {"text": "knowledge is the infection", "weight": 1}, {"text": "history was rewritten", "weight": 2}, {"text": "there is no escape", "weight": 2},
+        {"text": "everyone is the same person", "weight": 2}, {"text": "the world is a computer program", "weight": 3}, {"text": "they were dead since the first scene", "weight": 1}, {"text": "nothing is real", "weight": 3}
+      ]
+    },
+    {
+      "name": "sudden_shift",
+      "feature_name": "Sudden Shift",
+      "values": [
+        {"text": "horror-filled realization", "weight": 3}, {"text": "manic laughter and joy", "weight": 2}, {"text": "stone-cold vengeance", "weight": 3}, {"text": "crushing nihilistic despair", "weight": 3},
+        {"text": "triumphant ascending hope", "weight": 2}, {"text": "mind-bending confusion", "weight": 3}, {"text": "visceral primal rage", "weight": 3}, {"text": "serene cosmic peace", "weight": 2},
+        {"text": "clinical scientific detachment", "weight": 2}, {"text": "paranoia-fueled panic", "weight": 3}, {"text": "melancholic acceptance", "weight": 3}, {"text": "uncontrollable sobbing", "weight": 2},
+        {"text": "sudden burst of energy", "weight": 2}, {"text": "static-filled emptiness", "weight": 3}, {"text": "feverish excitement", "weight": 2}, {"text": "total loss of self", "weight": 1},
+        {"text": "bitter irony", "weight": 2}, {"text": "reverent awe", "weight": 2}, {"text": "uncomfortable silence", "weight": 2}, {"text": "shattering sanity", "weight": 1},
+        {"text": "determined resolve", "weight": 2}, {"text": "whimsical absurdity", "weight": 1}, {"text": "furious momentum", "weight": 2}, {"text": "total transformative awe", "weight": 3}
+      ]
+    },
+    {
+      "name": "sonic_element",
+      "feature_name": "Sonic Element",
+      "values": [
+        {"text": "a deafening silence", "weight": 3}, {"text": "a high-pitched ringing", "weight": 3}, {"text": "a deep sub-bass thrum", "weight": 3}, {"text": "a distant ticking clock", "weight": 3},
+        {"text": "orchestral swell to a crescendo", "weight": 2}, {"text": "glitchy electronic screech", "weight": 3}, {"text": "human-like whispering from nowhere", "weight": 3}, {"text": "the sound of glass breaking", "weight": 2},
+        {"text": "heavy rhythmic breathing", "weight": 2}, {"text": "a distorted record playing", "weight": 2}, {"text": "thunderous applause", "weight": 1}, {"text": "the wind howling a name", "weight": 2},
+        {"text": "mechanical heartbeat", "weight": 2}, {"text": "metallic scraping", "weight": 2}, {"text": "a single piano note repeating", "weight": 3}, {"text": "total audio static", "weight": 1},
+        {"text": "crying in the distance", "weight": 1}, {"text": "the sound of a film projector", "weight": 2}, {"text": "birds chirping in reverse", "weight": 1}, {"text": "a choir of angels screaming", "weight": 1},
+        {"text": "the sound of pages turning", "weight": 2}, {"text": "heartbeat acceleration", "weight": 2}, {"text": "water dripping in a cave", "weight": 2}, {"text": "a digital scream", "weight": 3}
+      ]
+    },
+    {
+      "name": "cinematic_filter",
+      "feature_name": "Cinematic Filter",
+      "values": [
+        {"text": "technicolor saturation", "weight": 3}, {"text": "gritty grindhouse film grain", "weight": 3}, {"text": "sleek anamorphically stretched image", "weight": 3}, {"text": "dreamy orton effect glow", "weight": 3},
+        {"text": "bleak bleach-bypass look", "weight": 2}, {"text": "heavy vignette", "weight": 3}, {"text": "vivid cross-processed colors", "weight": 2}, {"text": "faded vintage polaroid", "weight": 2},
+        {"text": "high-contrast infra-red", "weight": 1}, {"text": "digital datamoshing", "weight": 1}, {"text": "solarized negative look", "weight": 1}, {"text": "prismatic edge distortion", "weight": 2},
+        {"text": "VHS tracking lines", "weight": 3}, {"text": "halftone dot screen", "weight": 1}, {"text": "rough charcoal sketch overlay", "weight": 1}, {"text": "glimmer of oil on water", "weight": 2},
+        {"text": "strobe-lit freeze-frame", "weight": 2}, {"text": "fisheye lens bulge", "weight": 2}, {"text": "kaleidoscopic mirror", "weight": 1}, {"text": "scanline CRT interference", "weight": 2},
+        {"text": "depth-of-field heart bokeh", "weight": 1}, {"text": "fractured geometric overlay", "weight": 2}, {"text": "hand-painted cel-shading", "weight": 2}, {"text": "unreal 3D stereoscopic shift", "weight": 3}
+      ]
+    },
+    {
+      "name": "special_effect",
+      "feature_name": "Special Effect",
+      "values": [
+        {"text": "slow-motion debris", "weight": 3}, {"text": "particles dissolving into ash", "weight": 3}, {"text": "energy ripples in the air", "weight": 3}, {"text": "digital code rain", "weight": 3},
+        {"text": "blood blossoming in water", "weight": 2}, {"text": "glitching character movement", "weight": 3}, {"text": "smoke taking human shape", "weight": 2}, {"text": "walls melting like wax", "weight": 2},
+        {"text": "eyes glowing with inner light", "weight": 2}, {"text": "frozen in time", "weight": 2}, {"text": "dissolving into pixels", "weight": 3}, {"text": "shadows stretching unnaturally", "weight": 3},
+        {"text": "floating embers", "weight": 3}, {"text": "prismatic shockwave", "weight": 1}, {"text": "time-lapse clouds", "weight": 2}, {"text": "levitating objects", "weight": 2},
+        {"text": "fire burning underwater", "weight": 1}, {"text": "gravity-defying liquid", "weight": 1}, {"text": "electrical arcs", "weight": 2}, {"text": "petals turning into moths", "weight": 1},
+        {"text": "leaves turning into money", "weight": 1}, {"text": "flesh turning into stone", "weight": 1}, {"text": "gold turning into snakes", "weight": 1}, {"text": "reality cracking like glass", "weight": 3}
+      ]
+    },
+    {
+      "name": "final_frame_composition",
+      "feature_name": "Final Frame Composition",
+      "values": [
+        {"text": "cut to black", "weight": 3}, {"text": "slow zoom out to reveal the scale", "weight": 3}, {"text": "extreme close-up on an eye", "weight": 3}, {"text": "protagonist walking away into the distance", "weight": 3},
+        {"text": "the screen filling with static", "weight": 3}, {"text": "a freeze-frame on a scream", "weight": 2}, {"text": "a slow fade to white", "weight": 2}, {"text": "the camera falling to the ground", "weight": 2},
+        {"text": "a single object left on the floor", "weight": 2}, {"text": "the villain smiling at the camera", "weight": 3}, {"text": "a symmetrical wide shot", "weight": 2}, {"text": "a dizzying spiral shot", "weight": 2},
+        {"text": "the sidekick's abandoned mask", "weight": 2}, {"text": "a panoramic sunrise", "weight": 2}, {"text": "the words 'TO BE CONTINUED' appearing", "weight": 1}, {"text": "the film reel burning", "weight": 1},
+        {"text": "a profile of the character in shadow", "weight": 2}, {"text": "the camera zooming into a drop of blood", "weight": 1}, {"text": "water covering the lens", "weight": 1}, {"text": "a hand reaching for the viewer", "weight": 2},
+        {"text": "the character looking directly into the lens", "weight": 3}, {"text": "the scene repeated in miniature", "weight": 1}, {"text": "the camera tilting up to the empty sky", "weight": 2}, {"text": "a final, perfect, symmetrical resolution", "weight": 3}
+      ]
+    }
+  ],
+  "tags": [
+    {
+      "id": "plot_twist_gen_01",
+      "type": "creator",
+      "label": "Antigravity Cinematic Engine",
+      "description": "24x24 Plot Twist Workflow Template"
+    }
+  ]
+}

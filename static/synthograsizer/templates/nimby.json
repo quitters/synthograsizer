@@ -1,0 +1,138 @@
+{
+  "promptTemplate": "A dramatic {{Year}} scene of destruction in a {{Environment}} during {{TimeOfDay}}. The area is being engulfed by a {{DestructionType}}, with various {{Buildings}} {{stateOfDecay}}. The image should be highly detailed, capturing the chaotic and apocalyptic atmosphere. A photojournalistic image of an epic street brawl in a {{Location}} location during {{TimeOfDay}}. The weather is {{Weather}} and the scene involves {{Participants}} engaging in intense conflict. The image should capture the raw energy and chaos of the moment, with a focus on action and emotion. {{FireOrNot}}",
+  "variables": [
+    {
+      "name": "Year",
+      "feature_name": "Year",
+      "values": [
+        {"text": "1942", "weight": 1},
+        {"text": "1956", "weight": 1},
+        {"text": "1966", "weight": 1},
+        {"text": "1977", "weight": 1},
+        {"text": "1985", "weight": 1},
+        {"text": "1992", "weight": 1},
+        {"text": "1999", "weight": 1},
+        {"text": "2007", "weight": 1},
+        {"text": "2012", "weight": 1},
+        {"text": "2016", "weight": 1},
+        {"text": "2024", "weight": 1}
+      ]
+    },
+    {
+      "name": "Environment",
+      "feature_name": "Environment",
+      "values": [
+        {"text": "Urban", "weight": 1},
+        {"text": "Rural", "weight": 1},
+        {"text": "Suburban", "weight": 1},
+        {"text": "Desert", "weight": 1},
+        {"text": "Forest", "weight": 1},
+        {"text": "Mountain", "weight": 1}
+      ]
+    },
+    {
+      "name": "TimeOfDay",
+      "feature_name": "Time Of Day",
+      "values": [
+        {"text": "Morning", "weight": 1},
+        {"text": "Noon", "weight": 1},
+        {"text": "Afternoon", "weight": 1},
+        {"text": "Evening", "weight": 1},
+        {"text": "Night", "weight": 1}
+      ]
+    },
+    {
+      "name": "DestructionType",
+      "feature_name": "Destruction",
+      "values": [
+        {"text": "Explosion", "weight": 3},
+        {"text": "Fire", "weight": 2},
+        {"text": "Earthquake", "weight": 2},
+        {"text": "Flood", "weight": 1},
+        {"text": "Tornado", "weight": 1},
+        {"text": "Atomic Explosion", "weight": 1},
+        {"text": "Alien Invasion from enormous UFOs in the sky", "weight": 1},
+        {"text": "High-velocity Neon-Rainbow Rays", "weight": 1},
+        {"text": "The Effects of Climate Change", "weight": 1},
+        {"text": "the Proletariat Rioting and dragging opulent plutocrats through the streets", "weight": 1}
+      ]
+    },
+    {
+      "name": "Buildings",
+      "feature_name": "Buildings",
+      "values": [
+        {"text": "Skyscrapers", "weight": 1},
+        {"text": "Houses", "weight": 1},
+        {"text": "Commercial", "weight": 1},
+        {"text": "Historical", "weight": 1},
+        {"text": "Factories", "weight": 1},
+        {"text": "Schools", "weight": 1}
+      ]
+    },
+    {
+      "name": "stateOfDecay",
+      "feature_name": "State Of Decay",
+      "values": [
+        {"text": "pulverized, demolished, reduced to rubble", "weight": 1},
+        {"text": "crumbling and burning", "weight": 1},
+        {"text": "in tip-top perfect condition", "weight": 1}
+      ]
+    },
+    {
+      "name": "Location",
+      "feature_name": "Location",
+      "values": [
+        {"text": "Urban", "weight": 1},
+        {"text": "Suburban", "weight": 1},
+        {"text": "Rural", "weight": 1},
+        {"text": "City Center", "weight": 1},
+        {"text": "Market", "weight": 1},
+        {"text": "Alleyway", "weight": 1}
+      ]
+    },
+    {
+      "name": "Weather",
+      "feature_name": "Weather",
+      "values": [
+        {"text": "Sunny", "weight": 1},
+        {"text": "Rainy", "weight": 1},
+        {"text": "Cloudy", "weight": 1},
+        {"text": "Stormy", "weight": 1},
+        {"text": "Foggy", "weight": 1},
+        {"text": "Neon Rainbow Lasers Coming The Sky!!!", "weight": 1}
+      ]
+    },
+    {
+      "name": "Participants",
+      "feature_name": "Participants",
+      "values": [
+        {"text": "Grandmas", "weight": 1},
+        {"text": "Clowns", "weight": 1},
+        {"text": "Brownshirts", "weight": 1},
+        {"text": "Police", "weight": 1},
+        {"text": "Aliens", "weight": 1}
+      ]
+    },
+    {
+      "name": "FireOrNot",
+      "feature_name": "Fire Or Not",
+      "values": [
+        {"text": "Rewrite it to remove any references to fire or fireballs, ensuring the scene remains focused on a major catastrophe and peoples' response", "weight": 1},
+        {"text": " ", "weight": 1}
+      ]
+    }
+  ],
+  "tags": [
+    {
+      "id": "tag_nimby01",
+      "type": "source",
+      "label": "NIMBY (Fork) Glif Workflow",
+      "description": "Converted from Eden/Glif prompt+txt2img pipeline. All 10 variables and values preserved verbatim. Original title: 'Fork of NIMBY (aka game — understand the difference between reality and AI)'."
+    },
+    {
+      "id": "tag_nimby02",
+      "type": "creator",
+      "label": "bootloader: / Alexander"
+    }
+  ]
+}

@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Synthograsizer Display</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background: #000;
+      color: #fff;
+      font-family: 'Inter', system-ui, sans-serif;
+    }
+
+    /* ── Layers ── */
+    #canvas-layer,
+    #image-layer,
+    #video-layer,
+    #idle-layer {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: opacity 0.4s ease;
+    }
+
+    /* Canvas: p5 injects its own <canvas> into #canvas-layer.
+       We let JS handle the scale transform, but the layer itself is overflow-hidden
+       so no scrollbars appear. */
+    #canvas-layer {
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    #canvas-layer canvas {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      /* transform is set dynamically by fitCanvas() */
+      transform-origin: center center;
+    }
+
+    /* Image layer */
+    #image-layer {
+      z-index: 2;
+    }
+
+    #display-img {
+      max-width: 100vw;
+      max-height: 100vh;
+      object-fit: contain;
+      display: block;
+    }
+
+    /* Video layer */
+    #video-layer {
+      z-index: 3;
+      background: #000;
+    }
+
+    #display-video {
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;   /* fill screen — same default as cover mode */
+    }
+
+    /* Idle layer */
+    #idle-layer {
+      z-index: 4;
+      flex-direction: column;
+      gap: 12px;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    #idle-layer.visible {
+      opacity: 1;
+    }
+
+    .idle-logo {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      color: rgba(255,255,255,0.2);
+      text-transform: uppercase;
+    }
+
+    /* ── Status badge ── */
+    #status-badge {
+      position: fixed;
+      bottom: 16px;
+      left: 16px;
+      z-index: 100;
+      background: rgba(0,0,0,0.7);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.8);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      padding: 4px 10px;
+      border-radius: 6px;
+      backdrop-filter: blur(6px);
+      opacity: 1;
+      transition: opacity 1s ease;
+      pointer-events: none;
+    }
+
+    #status-badge.faded {
+      opacity: 0;
+    }
+
+    /* ── Fit-mode indicator ── */
+    #fit-badge {
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      z-index: 100;
+      background: rgba(0,0,0,0.6);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.4);
+      font-size: 10px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 5px;
+      pointer-events: none;
+      letter-spacing: 0.04em;
+    }
+
+    /* ── Hidden utility ── */
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+  <!-- Layer 1: p5.js generative canvas -->
+  <div id="canvas-layer" class="hidden"></div>
+
+  <!-- Layer 2: Generated image -->
+  <div id="image-layer" class="hidden">
+    <img id="display-img" src="" alt="">
+  </div>
+
+  <!-- Layer 3: Video loop -->
+  <div id="video-layer" class="hidden">
+    <video id="display-video" autoplay loop muted playsinline></video>
+  </div>
+
+  <!-- Layer 4: Idle screen (shown when nothing is playing) -->
+  <div id="idle-layer" class="visible">
+    <div class="idle-logo">Synthograsizer Display</div>
+  </div>
+
+  <!-- Status overlay -->
+  <div id="status-badge">idle</div>
+  <div id="fit-badge">cover</div>
+
+  <!-- p5.js (same version as main page) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+
+  <script>
+  (function () {
+    'use strict';
+
+    // ── State ──────────────────────────────────────────────────────────────────
+
+    const CHANNEL_NAME = 'synthograsizer-display-v1';
+    const channel = new BroadcastChannel(CHANNEL_NAME);
+
+    let p5Instance = null;
+    let displayVars = {};         // live variable map updated on every p5-vars message
+    let fitMode = 'cover';        // 'cover' | 'contain'
+    let statusFadeTimer = null;
+
+    // ── DOM refs ───────────────────────────────────────────────────────────────
+
+    const canvasLayer = document.getElementById('canvas-layer');
+    const imageLayer  = document.getElementById('image-layer');
+    const videoLayer  = document.getElementById('video-layer');
+    const idleLayer   = document.getElementById('idle-layer');
+    const displayImg  = document.getElementById('display-img');
+    const displayVideo = document.getElementById('display-video');
+    const statusBadge = document.getElementById('status-badge');
+    const fitBadge    = document.getElementById('fit-badge');
+
+    // ── Layer management ───────────────────────────────────────────────────────
+
+    function showLayer(name) {
+      canvasLayer.classList.add('hidden');
+      imageLayer.classList.add('hidden');
+      videoLayer.classList.add('hidden');
+      idleLayer.classList.remove('visible');
+
+      switch (name) {
+        case 'canvas': canvasLayer.classList.remove('hidden'); break;
+        case 'image':  imageLayer.classList.remove('hidden');  break;
+        case 'video':  videoLayer.classList.remove('hidden');  break;
+        case 'idle':
+        default:
+          idleLayer.classList.add('visible');
+          break;
+      }
+    }
+
+    function setStatus(text) {
+      statusBadge.textContent = text;
+      statusBadge.classList.remove('faded');
+      clearTimeout(statusFadeTimer);
+      statusFadeTimer = setTimeout(() => statusBadge.classList.add('faded'), 3000);
+    }
+
+    // ── Canvas fit / scaling ───────────────────────────────────────────────────
+
+    function fitCanvas() {
+      const canvas = canvasLayer.querySelector('canvas');
+      if (!canvas) return;
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const cw = canvas.width  || vw;
+      const ch = canvas.height || vh;
+      const sx = vw / cw;
+      const sy = vh / ch;
+      const scale = (fitMode === 'cover') ? Math.max(sx, sy) : Math.min(sx, sy);
+      canvas.style.transform = `translate(-50%, -50%) scale(${scale})`;
+    }
+
+    window.addEventListener('resize', fitCanvas);
+
+    function toggleFitMode() {
+      fitMode = (fitMode === 'cover') ? 'contain' : 'cover';
+      fitBadge.textContent = fitMode;
+      fitCanvas();
+      setStatus(`fit: ${fitMode}`);
+    }
+
+    // ── p5.js sketch management ────────────────────────────────────────────────
+
+    function startSketch(code) {
+      // Tear down any existing sketch
+      stopSketch();
+
+      if (!code) return;
+
+      try {
+        const sketch = (p) => {
+          // Inject getSynthVar — reads the live displayVars object each draw() call
+          p.getSynthVar = (featureName) => {
+            return (displayVars && featureName in displayVars)
+              ? displayVars[featureName]
+              : null;
+          };
+
+          // Execute the user's sketch code in the p5 instance context
+          try {
+            new Function('p', code)(p);
+          } catch (e) {
+            console.error('[Display] Sketch code error:', e);
+            setStatus('p5 error: ' + e.message);
+          }
+        };
+
+        p5Instance = new p5(sketch, canvasLayer);
+
+        // Wait for canvas to be created, then fit it
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => fitCanvas());
+        });
+
+      } catch (e) {
+        console.error('[Display] Failed to start sketch:', e);
+        setStatus('sketch error');
+      }
+    }
+
+    function stopSketch() {
+      if (p5Instance) {
+        try { p5Instance.remove(); } catch { /* ignore */ }
+        p5Instance = null;
+      }
+      // Clear any leftover canvas children
+      canvasLayer.innerHTML = '';
+    }
+
+    // ── BroadcastChannel message handler ──────────────────────────────────────
+
+    channel.addEventListener('message', (event) => {
+      const msg = event.data;
+      if (!msg || !msg.type) return;
+
+      switch (msg.type) {
+
+        case 'p5-run':
+          displayVars = msg.vars || {};
+          showLayer('canvas');
+          startSketch(msg.code);
+          setStatus('p5 • live');
+          break;
+
+        case 'p5-vars':
+          // Update variables in-place — sketch reads them on next draw() tick
+          if (msg.vars) {
+            // Replace contents without re-assigning reference (in case sketch captures the ref)
+            for (const k in displayVars) delete displayVars[k];
+            Object.assign(displayVars, msg.vars);
+          }
+          break;
+
+        case 'p5-stop':
+          stopSketch();
+          showLayer('idle');
+          setStatus('idle');
+          break;
+
+        case 'image-show':
+          if (msg.src) {
+            displayImg.src = msg.src;
+            showLayer('image');
+            setStatus('image' + (msg.filename ? ` • ${msg.filename}` : ''));
+          }
+          break;
+
+        case 'video-show':
+          if (msg.src) {
+            displayVideo.src = msg.src;
+            displayVideo.load();
+            displayVideo.play().catch(() => {});
+            showLayer('video');
+            setStatus('video');
+          }
+          break;
+
+        case 'ping':
+          channel.postMessage({ type: 'pong', ts: msg.ts });
+          break;
+
+        default:
+          break;
+      }
+    });
+
+    // ── Keyboard shortcuts ─────────────────────────────────────────────────────
+
+    document.addEventListener('keydown', (e) => {
+      switch (e.key.toLowerCase()) {
+        case 'f':
+          if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(() => {});
+          } else {
+            document.exitFullscreen().catch(() => {});
+          }
+          break;
+
+        case 'c':
+          toggleFitMode();
+          break;
+
+        case 'escape':
+          if (document.fullscreenElement) {
+            document.exitFullscreen().catch(() => {});
+          }
+          break;
+      }
+    });
+
+    // ── Refit on fullscreen change ─────────────────────────────────────────────
+
+    document.addEventListener('fullscreenchange', () => {
+      setTimeout(fitCanvas, 50); // give browser time to reflow
+    });
+
+    // ── Initial state ──────────────────────────────────────────────────────────
+
+    showLayer('idle');
+    setStatus('waiting for Synthograsizer…');
+
+    console.log('[Synthograsizer Display] ready — listening on channel:', CHANNEL_NAME);
+    console.log('Shortcuts: F = fullscreen, C = toggle cover/contain fit');
+
+  })();
+  </script>
+  
+  <!-- Glitcher Headless Integration -->
+  <script type="module" src="js/display-glitcher.js"></script>
+</body>
+</html>

@@ -114,6 +114,17 @@
             <!-- P5.js Live Output Panel -->
             <section id="p5-live-section" class="p5-live-section" style="display: none;">
                 <div id="p5-live-mount" class="p5-live-mount"></div>
+                <!-- Scope processed-video overlay (visible only while WebRTC streaming) -->
+                <div id="scope-video-section" class="scope-video-section">
+                    <video id="scope-video-output" class="scope-video-output" autoplay muted playsinline></video>
+                    <span class="scope-video-label">◉ Scope Live</span>
+                </div>
+                <button id="p5-display-btn" class="p5-capture-btn p5-display-btn" title="Open full-screen OBS display window">
+                    🖥 Display
+                </button>
+                <button id="p5-scope-btn" class="p5-capture-btn p5-scope-btn" title="Send current frame to Scope as reference image">
+                    📤 → Scope
+                </button>
                 <button id="p5-capture-btn" class="p5-capture-btn" title="Capture frame to Image Studio">
                     📸 Capture
                 </button>
@@ -228,6 +239,277 @@
                         <button id="midi-clear-btn" class="midi-clear-btn">Clear all mappings</button>
                     </div>
                 </div>
+
+                <!-- OSC Status Bar -->
+                <div class="osc-bar" id="osc-bar">
+                    <button id="osc-toggle-btn" class="osc-toggle-btn" title="OSC → Daydream Scope">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+                        </svg>
+                        <span id="osc-status-text">OSC</span>
+                        <span class="osc-dot" id="osc-dot"></span>
+                    </button>
+                </div>
+
+                <!-- OSC Panel (collapsible) -->
+                <div class="osc-panel" id="osc-panel" style="display:none;">
+                    <div class="osc-panel-header">
+                        <span class="osc-panel-title">OSC → Daydream Scope</span>
+                    </div>
+                    <div class="osc-panel-body">
+                        <label class="osc-row">
+                            <span>Enabled</span>
+                            <input type="checkbox" id="osc-enabled" />
+                        </label>
+                        <label class="osc-row">
+                            <span>Auto-send on change</span>
+                            <input type="checkbox" id="osc-auto-send" />
+                        </label>
+                        <label class="osc-row">
+                            <span>Host</span>
+                            <input type="text" id="osc-host" value="127.0.0.1" class="osc-input" />
+                        </label>
+                        <label class="osc-row">
+                            <span>Port</span>
+                            <input type="number" id="osc-port" value="8000" class="osc-input osc-input-sm" />
+                        </label>
+                        <label class="osc-row">
+                            <span>Address</span>
+                            <input type="text" id="osc-address" value="/scope/prompt" class="osc-input" />
+                        </label>
+                        <label class="osc-row">
+                            <span>Debounce (ms)</span>
+                            <input type="number" id="osc-debounce" value="80" min="10" max="1000" class="osc-input osc-input-sm" />
+                        </label>
+                    </div>
+                    <div class="osc-panel-footer">
+                        <button id="osc-send-now" class="osc-send-btn">Send Now</button>
+                        <span id="osc-last-sent" class="osc-last-sent" title=""></span>
+                    </div>
+                </div>
+
+                <!-- Scope Video Status Bar -->
+                <div class="osc-bar" id="sv-bar">
+                    <button id="sv-toggle-btn" class="osc-toggle-btn" title="Scope Video — WebRTC live stream / frame capture">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>
+                        </svg>
+                        <span id="sv-status-text">Video</span>
+                        <span class="osc-dot" id="sv-dot"></span>
+                    </button>
+                </div>
+
+                <!-- Scope Video Panel (collapsible) -->
+                <div class="osc-panel" id="sv-panel" style="display:none;">
+                    <div class="osc-panel-header">
+                        <span class="osc-panel-title">Video → Daydream Scope</span>
+                    </div>
+                    <div class="osc-panel-body">
+                        <label class="osc-row">
+                            <span>Scope URL</span>
+                            <input type="text" id="sv-scope-url" value="http://127.0.0.1:7860" class="osc-input" />
+                        </label>
+                        <label class="osc-row">
+                            <span>Stream FPS</span>
+                            <select id="sv-fps" class="osc-input osc-input-sm">
+                                <option value="5">5</option>
+                                <option value="10">10</option>
+                                <option value="15" selected>15</option>
+                                <option value="20">20</option>
+                                <option value="30">30</option>
+                            </select>
+                        </label>
+                    </div>
+                    <div class="osc-panel-footer">
+                        <button id="sv-stream-btn" class="osc-send-btn">▶ Start Stream</button>
+                        <span id="sv-status-detail" class="osc-last-sent" title=""></span>
+                    </div>
+                </div>
+
+                <!-- Glitcher Status Bar -->
+                <div class="osc-bar" id="glitch-bar">
+                    <button id="glitch-toggle-btn" class="osc-toggle-btn" title="Glitcher — Display Effects">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-9 9H3V5h9v7zm9 7H14v-7h7v7z"/>
+                        </svg>
+                        <span id="glitch-status-text">Glitcher</span>
+                        <span class="osc-dot" id="glitch-dot"></span>
+                    </button>
+                </div>
+
+                <!-- Display Window Sidebar Button -->
+                <div class="osc-bar" id="disp-bar">
+                    <button id="disp-toggle-btn" class="osc-toggle-btn" title="Open Full-Screen Display Window">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M20 3H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h3l-1 1v2h12v-2l-1-1h3c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 13H4V5h16v11z"/>
+                        </svg>
+                        <span id="disp-status-text">Display</span>
+                        <span class="osc-dot" id="disp-dot"></span>
+                    </button>
+                </div>
+
+                <!-- Glitcher Panel (collapsible) -->
+                <div class="osc-panel" id="glitch-panel" style="display:none;">
+                    <div class="osc-panel-header">
+                        <span class="osc-panel-title">Glitcher Effects (Display)</span>
+                        <div style="display: flex; gap: 6px; margin-left: auto;">
+                            <button id="glitch-pause-btn" class="osc-send-btn" style="font-size: 11px; padding: 2px 8px;">⏸ Pause</button>
+                            <button id="glitch-reset-btn" class="osc-send-btn" style="font-size: 11px; padding: 2px 8px;">↺ Reset</button>
+                        </div>
+                    </div>
+                    <div class="osc-panel-body">
+                        <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; color: rgba(0,0,0,0.6);">Destructive (Images Only)</div>
+                        <label class="osc-row">
+                            <span>Pixel Sort</span>
+                            <select id="glitch-pixel-sort" class="osc-input osc-input-sm">
+                                <option value="off">Off</option>
+                                <option value="horizontal">Horizontal</option>
+                                <option value="vertical">Vertical</option>
+                                <option value="diagonal">Diagonal</option>
+                                <option value="circular">Circular</option>
+                                <option value="wave">Wave</option>
+                            </select>
+                        </label>
+                        <label class="osc-row">
+                            <span>Slice</span>
+                            <select id="glitch-slice" class="osc-input osc-input-sm">
+                                <option value="off">Off</option>
+                                <option value="horizontal">Horizontal</option>
+                                <option value="vertical">Vertical</option>
+                                <option value="grid">Grid</option>
+                            </select>
+                        </label>
+                        <label class="osc-row">
+                            <span>Direction</span>
+                            <select id="glitch-direction" class="osc-input osc-input-sm">
+                                <option value="off">Off</option>
+                                <option value="up">Up</option>
+                                <option value="down">Down</option>
+                                <option value="left">Left</option>
+                                <option value="right">Right</option>
+                                <option value="random">Random</option>
+                                <option value="jitter">Jitter</option>
+                            </select>
+                        </label>
+                        <label class="osc-row">
+                            <span>Spiral</span>
+                            <select id="glitch-spiral" class="osc-input osc-input-sm">
+                                <option value="off">Off</option>
+                                <option value="cw">Clockwise</option>
+                                <option value="ccw">Counter-CW</option>
+                                <option value="insideOut">Inside Out</option>
+                                <option value="outsideIn">Outside In</option>
+                            </select>
+                        </label>
+                        <label class="osc-row">
+                            <span>Color</span>
+                            <select id="glitch-color" class="osc-input osc-input-sm">
+                                <option value="off">Off</option>
+                                <option value="chromatic-aberration">Chromatic Ab.</option>
+                                <option value="hue-shift">Hue Shift</option>
+                                <option value="vintage">Vintage</option>
+                                <option value="invert">Invert</option>
+                                <option value="saturation">Saturation+</option>
+                                <option value="colorNoise">Color Noise</option>
+                            </select>
+                        </label>
+
+                        <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; margin: 12px 0 8px 0; color: rgba(0,0,0,0.6); border-top: 1px solid rgba(0,0,0,0.05); padding-top: 8px;">Advanced Movement (Destructive)</div>
+                        <label class="osc-row">
+                            <span>Shift Speed</span>
+                            <input type="range" id="glitch-speed" min="1" max="10" value="2" style="width: 100px;">
+                        </label>
+                        <label class="osc-row">
+                            <span>Swirl Strength</span>
+                            <input type="range" id="glitch-swirl" min="0.01" max="0.2" step="0.01" value="0.06" style="width: 100px;">
+                        </label>
+                        <label class="osc-row">
+                            <span>Color Offset</span>
+                            <input type="range" id="glitch-offset" min="0" max="50" value="0" style="width: 100px;">
+                        </label>
+
+                        <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; margin: 12px 0 8px 0; color: rgba(0,0,0,0.6); border-top: 1px solid rgba(0,0,0,0.05); padding-top: 8px;">Clump Selection (Destructive)</div>
+                        <label class="osc-row">
+                            <span>Min Lifetime</span>
+                            <input type="range" id="glitch-min-life" min="1" max="300" value="90" style="width: 100px;">
+                        </label>
+                        <label class="osc-row">
+                            <span>Max Lifetime</span>
+                            <input type="range" id="glitch-max-life" min="1" max="300" value="150" style="width: 100px;">
+                        </label>
+                        <label class="osc-row">
+                            <span>Sensitivity</span>
+                            <input type="range" id="glitch-sensitivity" min="0.5" max="2.0" step="0.1" value="1.0" style="width: 100px;">
+                        </label>
+
+                        <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; margin-top: 16px; margin-bottom: 8px; color: rgba(0,0,0,0.6); border-top: 2px solid rgba(0,0,0,0.1); padding-top: 12px;">Non-Destructive (All Media)</div>
+                        <label class="osc-row">
+                            <span>Filter Mode</span>
+                            <select id="glitch-filter" class="osc-input osc-input-sm">
+                                <option value="off">Off</option>
+                                <optgroup label="Classic">
+                                    <option value="vintage">Vintage</option>
+                                    <option value="halftone">Halftone</option>
+                                    <option value="motionBlur">Motion Blur</option>
+                                    <option value="noise">Noise</option>
+                                    <option value="popArt">Pop Art</option>
+                                    <option value="vignette">Vignette</option>
+                                    <option value="emboss">Emboss</option>
+                                    <option value="edgeDetect">Edge Detect</option>
+                                    <option value="liquify">Liquify</option>
+                                    <option value="colorGrading">Color Grading</option>
+                                    <option value="dithering">Dithering</option>
+                                </optgroup>
+                                <optgroup label="Artistic">
+                                    <option value="artistic-oil_painting">Oil Painting</option>
+                                    <option value="artistic-watercolor">Watercolor</option>
+                                    <option value="artistic-pencil_sketch">Pencil Sketch</option>
+                                    <option value="artistic-mosaic">Mosaic</option>
+                                    <option value="artistic-stained_glass">Stained Glass</option>
+                                    <option value="artistic-comic_book">Comic Book</option>
+                                    <option value="artistic-crosshatch">Crosshatch</option>
+                                    <option value="artistic-pointillism">Pointillism</option>
+                                </optgroup>
+                                <optgroup label="Cyberpunk">
+                                    <option value="cyberpunk">Cyberpunk (Basic)</option>
+                                    <option value="cyberpunk-neon">Neon</option>
+                                    <option value="cyberpunk-matrix">Matrix</option>
+                                    <option value="cyberpunk-synthwave">Synthwave</option>
+                                    <option value="cyberpunk-digital_rain">Digital Rain</option>
+                                    <option value="cyberpunk-hologram">Hologram</option>
+                                    <option value="cyberpunk-glitch_scan">Glitch Scan</option>
+                                </optgroup>
+                                <optgroup label="Atmospheric">
+                                    <option value="atmospheric">Atmospheric (Basic)</option>
+                                    <option value="atmospheric-fog">Fog</option>
+                                    <option value="atmospheric-rain">Rain</option>
+                                    <option value="atmospheric-snow">Snow</option>
+                                    <option value="atmospheric-dust">Dust</option>
+                                    <option value="atmospheric-heat_haze">Heat Haze</option>
+                                    <option value="atmospheric-underwater">Underwater</option>
+                                    <option value="atmospheric-aurora">Aurora</option>
+                                    <option value="atmospheric-lightning">Lightning</option>
+                                </optgroup>
+                                <optgroup label="Experimental">
+                                    <option value="experimental-kaleidoscope">Kaleidoscope</option>
+                                    <option value="experimental-fractal">Fractal</option>
+                                    <option value="experimental-tunnel">Tunnel</option>
+                                    <option value="experimental-warp">Warp</option>
+                                    <option value="experimental-chromatic_shift">Chromatic Shift</option>
+                                    <option value="experimental-data_bend">Data Bend</option>
+                                    <option value="experimental-mirror_world">Mirror World</option>
+                                    <option value="experimental-reality_glitch">Reality Glitch</option>
+                                </optgroup>
+                            </select>
+                        </label>
+                        <label class="osc-row">
+                            <span>Intensity/Amount</span>
+                            <input type="range" id="glitch-intensity" min="0" max="100" value="50" style="width: 100px; margin-right: 4px;">
+                        </label>
+                        <!-- Dynamic filter sub-parameter controls (populated by JS) -->
+                        <div id="glitch-filter-params" style="margin-top: 4px;"></div>
+                    </div>
+                </div>
             </section>
 
             <!-- Action Buttons -->
@@ -235,7 +517,7 @@
                 <button id="batch-button" class="action-btn batch-btn">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                         <path
-                            d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z" />
+                            d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-9 9H3V5h9v7zm9 7H14v-7h7v7z" />
                     </svg>
                     <span class="label">Prompt Batch</span>
                 </button>
@@ -246,56 +528,83 @@
                     </svg>
                     <span class="label">Liked Prompts</span>
                 </button>
-                <div class="template-dropdown">
-                    <button id="template-button" class="action-btn template-btn">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                            <path
-                                d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" />
-                        </svg>
-                        <span class="label">Templates</span>
-                        <svg class="dropdown-arrow" width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M7 10l5 5 5-5z" />
+                <div class="template-controls">
+                    <button id="template-prev-btn" class="template-nav-btn template-prev-btn" title="Previous template">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
                         </svg>
                     </button>
-                    <div class="template-dropdown-menu" id="template-dropdown-menu">
-                        <div class="template-search-container">
-                            <input type="text" id="template-search-input" class="template-search-input"
-                                placeholder="Search templates..." aria-label="Search templates">
+                    <div class="template-dropdown">
+                        <button id="template-button" class="action-btn template-btn">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                <path
+                                    d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" />
+                            </svg>
+                            <span class="label">Templates</span>
+                            <svg class="dropdown-arrow" width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M7 10l5 5 5-5z" />
+                            </svg>
+                        </button>
+                        <div class="template-dropdown-menu" id="template-dropdown-menu">
+                            <div class="template-search-container">
+                                <input type="text" id="template-search-input" class="template-search-input"
+                                    placeholder="Search templates..." aria-label="Search templates">
+                            </div>
+                            <div class="template-section-label">Built-in templates</div>
+                            <button class="template-option" data-template="empty">📄 Empty Template</button>
+                            <button class="template-option" data-template="face-generator-full">😊 Face Generator (P5.js)</button>
+                            <button class="template-option" data-template="svg-flow-particles">🌊 SVG Flow Particles (P5.js)</button>
+                            <button class="template-option" data-template="gobstoppers">🔮 Gobstoppers (P5.js)</button>
+                            <button class="template-option" data-template="spring-physics-v2">🧬 Spring Physics v2 (P5.js)</button>
+                            <button class="template-option" data-template="recursive-subdivisions">🔲 Recursive Subdivisions (P5.js)</button>
+                            <button class="template-option" data-template="strange-attractors">✨ Strange Attractors (P5.js)</button>
+                            <button class="template-option" data-template="cellular-tapestry">🧫 Cellular Tapestry (P5.js)</button>
+                            <button class="template-option" data-template="glorpy-heads">👾 Glorpy Heads (P5.js)</button>
+                            <button class="template-option" data-template="moire-waves">〰️ Moiré Waves (P5.js)</button>
+                            <button class="template-option" data-template="lissajous-lab">📡 Lissajous Lab (P5.js)</button>
+                            <button class="template-option" data-template="smiley-mound">🌋 Smiley Mound (P5.js)</button>
+                            <button class="template-option" data-template="synthograsizer-prompt">🎨 Art Prompt</button>
+                            <button class="template-option" data-template="character-design">👤 Character Design</button>
+                            <button class="template-option" data-template="fantasy-scene">🏔️ Fantasy Scene</button>
+                            <button class="template-option" data-template="lovebombing">💣 Lovebombing</button>
+                            <button class="template-option" data-template="cinematic-plot-twist">🎬 Cinematic Plot Twist</button>
+                            <button class="template-option" data-template="img2vid-cinematographer">🎥 img2vid Cinematographer</button>
+                            <button class="template-option" data-template="hollywood_squares">📺 Hollywood Squares</button>
+                            <button class="template-option" data-template="synesthetic_singularity">🌈 Synesthetic Singularity</button>
+                            <button class="template-option" data-template="breakdance">🕺 Breakdance</button>
+                            <button class="template-option" data-template="nimby">🏗️ NIMBY</button>
+                            <button class="template-option" data-template="blooper_reel">🎭 Blooper Reel</button>
+                            <button class="template-option" data-template="glorpy_heads">👾 Glorpy Heads</button>
+                            <button class="template-option" data-template="jacket_weather_v2">🧥 Jacket Weather</button>
+                            <button class="template-option" data-template="monster_maker">👹 Monster Maker</button>
+                            <button class="template-option" data-template="the_harlequins_of_neptune">🎪 Harlequins of Neptune</button>
+                            <button class="template-option" data-template="blurred_autonomy">🌀 Blurred Autonomy</button>
+                            <button class="template-option" data-template="band-name">🎸 Band Name</button>
+                            <button class="template-option" data-template="startup-slogan">💡 Startup Slogan</button>
+                            <button class="template-option" data-template="movie-logline">🎬 Movie Logline</button>
+                            <button class="template-option" data-template="tattoo-concept">🖤 Tattoo Concept</button>
+                            <button class="template-option" data-template="villain-motivation">😈 Villain Motivation</button>
+                            <div class="template-dropdown-divider"></div>
+                            <div class="template-section-label">Custom / imported</div>
+                            <button class="template-option template-import-option" id="template-import-option">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+                                </svg>
+                                Import Template...
+                            </button>
+                            <button class="template-option template-export-option" id="template-export-option">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z" />
+                                </svg>
+                                Export Template...
+                            </button>
                         </div>
-                        <div class="template-section-label">Built-in templates</div>
-                        <button class="template-option" data-template="empty">📄 Empty Template</button>
-                        <button class="template-option" data-template="face-generator-full">😊 Face Generator
-                            (P5.js)</button>
-                        <button class="template-option" data-template="svg-flow-particles">🌊 SVG Flow Particles
-                            (P5.js)</button>
-                        <button class="template-option" data-template="gobstoppers">🔮 Gobstoppers
-                            (P5.js)</button>
-                        <button class="template-option" data-template="spring-physics-v2">🧬 Spring Physics v2
-                            (P5.js)</button>
-                        <button class="template-option" data-template="synthograsizer-prompt">🎨 Art Prompt</button>
-                        <button class="template-option" data-template="character-design">👤 Character Design</button>
-                        <button class="template-option" data-template="fantasy-scene">🏔️ Fantasy Scene</button>
-                        <button class="template-option" data-template="band-name">🎸 Band Name</button>
-                        <button class="template-option" data-template="startup-slogan">💡 Startup Slogan</button>
-                        <button class="template-option" data-template="movie-logline">🎬 Movie Logline</button>
-                        <button class="template-option" data-template="tattoo-concept">🖤 Tattoo Concept</button>
-                        <button class="template-option" data-template="villain-motivation">😈 Villain
-                            Motivation</button>
-                        <div class="template-dropdown-divider"></div>
-                        <div class="template-section-label">Custom / imported</div>
-                        <button class="template-option template-import-option" id="template-import-option">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
-                            </svg>
-                            Import Template...
-                        </button>
-                        <button class="template-option template-export-option" id="template-export-option">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z" />
-                            </svg>
-                            Export Template...
-                        </button>
                     </div>
+                    <button id="template-next-btn" class="template-nav-btn template-next-btn" title="Next template">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M8.59 16.34l1.41 1.41L17.82 9 9 1.18l1.41 1.41L8.59 7z"/>
+                        </svg>
+                    </button>
                 </div>
             </section>
 

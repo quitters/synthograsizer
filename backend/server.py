@@ -19,6 +19,8 @@ import os
 import sys
 import json
 import base64
+import re
+import time
 from pathlib import Path
 
 # Add backend directory to path for imports
@@ -27,6 +29,7 @@ if str(backend_dir) not in sys.path:
     sys.path.insert(0, str(backend_dir))
 
 from ai_manager import ai_manager, normalize_template
+from osc_bridge import osc_bridge
 
 logger = logging.getLogger(__name__)
 
@@ -131,6 +134,10 @@ class BatchAnalyzeRequest(BaseModel):
 
 class TemplateFromAnalysisRequest(BaseModel):
     analysis: str
+
+class SaveTemplateRequest(BaseModel):
+    template: dict
+    filename: Optional[str] = None
 
 class MetadataRequest(BaseModel):
     image: str # Base64 encoded image
@@ -492,6 +499,51 @@ async def generate_template_from_analysis(request: TemplateFromAnalysisRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.post("/api/save-template")
+async def save_template(request: SaveTemplateRequest):
+    """Save a JSON template to the Synthograsizer_Output/JSON/Project Templates directory."""
+    try:
+        # Define the target directory
+        output_dir = Path(r"C:\Users\Alexander\Desktop\Synthograsizer_Output\JSON\Project Templates")
+        
+        # Create directory if it doesn't exist
+        output_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Generate filename if not provided
+        if request.filename:
+            # Clean the provided filename
+            safe_filename = request.filename
+            if not safe_filename.endswith('.json'):
+                safe_filename += '.json'
+        else:
+            # Generate filename from template name or use timestamp
+            template_name = request.template.get('name', 'template')
+            safe_name = re.sub(r'[^a-z0-9]+', '-', template_name.lower())
+            safe_name = re.sub(r'^-+|-+$', '', safe_name)
+            timestamp = int(time.time() * 1000)  # milliseconds like frontend
+            safe_filename = f"synthograsizer-{safe_name}-{timestamp}.json"
+        
+        # Ensure filename is safe for filesystem
+        safe_filename = "".join(c for c in safe_filename if c.isalnum() or c in ".-_")
+        
+        # Full file path
+        file_path = output_dir / safe_filename
+        
+        # Write JSON file
+        with open(file_path, 'w', encoding='utf-8') as f:
+            json.dump(request.template, f, indent=2, ensure_ascii=False)
+        
+        return {
+            "status": "success", 
+            "message": "Template saved successfully",
+            "filepath": str(file_path),
+            "filename": safe_filename
+        }
+        
+    except Exception as e:
+        logger.error(f"Failed to save template: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to save template: {str(e)}")
+
 @app.post("/api/analyze/batch")
 async def batch_analyze(request: BatchAnalyzeRequest):
     """Process multiple images sequentially with optional auto-generation.
@@ -626,6 +678,50 @@ async def proxy_chatroom(request: Request, path: str):
         resp_headers = {k: v for k, v in resp.headers.items() if k.lower() not in excluded}
         return Response(content=resp.content, status_code=resp.status_code, headers=resp_headers)
 
+# ── OSC Bridge Endpoints ─────────────────────────────────────────────
+
+class OSCSendPromptRequest(BaseModel):
+    prompt: str
+    address: str = "/prompt"
+
+class OSCSendParamRequest(BaseModel):
+    address: str
+    value: float
+
+class OSCConfigRequest(BaseModel):
+    host: Optional[str] = None
+    port: Optional[int] = None
+
+@app.post("/api/osc/send-prompt")
+async def osc_send_prompt(req: OSCSendPromptRequest):
+    """Forward a prompt string to Scope via OSC."""
+    try:
+        osc_bridge.send_prompt(req.prompt, req.address)
+        return {"ok": True}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/osc/send-param")
+async def osc_send_param(req: OSCSendParamRequest):
+    """Forward a numeric parameter to Scope via OSC."""
+    try:
+        osc_bridge.send_float(req.address, req.value)
+        return {"ok": True}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/osc/config")
+async def osc_config(req: OSCConfigRequest):
+    """Update the OSC target host/port."""
+    osc_bridge.update_config(host=req.host, port=req.port)
+    return osc_bridge.status()
+
+@app.get("/api/osc/status")
+async def osc_status():
+    """Return current OSC target configuration."""
+    return osc_bridge.status()
+
+
 if not STATIC_DIR.exists():
     print(f"WARNING: Static directory not found at {STATIC_DIR}")
 
@@ -635,4 +731,4 @@ if not os.environ.get("VERCEL") and STATIC_DIR.exists():
     app.mount("/", StaticFiles(directory=str(STATIC_DIR), html=True), name="static")
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+    uvicorn.run(app, host="127.0.0.1", port=8001)

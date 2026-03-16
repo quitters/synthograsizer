@@ -1,0 +1,119 @@
+{
+  "promptTemplate": "A visually stunning {{cinematic_style}} sequence. The camera initiates a {{camera_movement}}, perfectly timed with a {{focal_transition}} to draw the viewer's eye. The inherent life of the scene is revealed through {{subject_dynamism}}, grounded by {{environmental_motion}} interacting with the surroundings. The atmosphere is structurally transformed by {{lighting_evolution}}, culminating in a masterful display of {{vfx_overlay}}. The entire sequence maintains a cohesive {{creative_intention}}, engineered for fluid motion and absolute visual fidelity.",
+  "variables": [
+    {
+      "name": "cinematic_style",
+      "feature_name": "Cinematic Style",
+      "values": [
+        {"text": "high-budget commercial and polished", "weight": 3},
+        {"text": "gritty documentary realism", "weight": 3},
+        {"text": "contemplative art house cinema", "weight": 2},
+        {"text": "kinetic music video pacing", "weight": 2},
+        {"text": "ethereal magical fantasy", "weight": 2},
+        {"text": "tense psychological thriller", "weight": 2},
+        {"text": "nostalgic retro vintage film", "weight": 1},
+        {"text": "hyper-stylized dynamic anime", "weight": 1}
+      ]
+    },
+    {
+      "name": "camera_movement",
+      "feature_name": "Camera Movement",
+      "values": [
+        {"text": "subtle, intimate push-in", "weight": 3},
+        {"text": "majestic, revealing crane up", "weight": 2},
+        {"text": "disorienting, dramatic dolly zoom", "weight": 1},
+        {"text": "smooth, sweeping tracking shot", "weight": 3},
+        {"text": "voyeuristic orbit around the subject", "weight": 2},
+        {"text": "visceral handheld camera shake", "weight": 2},
+        {"text": "ultra-smooth steadicam glide", "weight": 3},
+        {"text": "fast, horizontal whip pan transition", "weight": 1}
+      ]
+    },
+    {
+      "name": "focal_transition",
+      "feature_name": "Focal Transition",
+      "values": [
+        {"text": "rack focus shifting elegantly from foreground to background", "weight": 3},
+        {"text": "constant razor-sharp, deep depth of field", "weight": 3},
+        {"text": "softening of the edges into a dreamy, shallow bokeh", "weight": 2},
+        {"text": "sudden, sharp focus pull to a hidden detail", "weight": 2},
+        {"text": "subtle, breathing autofocus hunt", "weight": 1},
+        {"text": "split-diopter effect keeping two visual planes in sharp focus", "weight": 1}
+      ]
+    },
+    {
+      "name": "subject_dynamism",
+      "feature_name": "Subject Dynamism",
+      "values": [
+        {"text": "gentle, natural micro-movements and breathing", "weight": 3},
+        {"text": "moderate, deliberate scene-appropriate activity", "weight": 3},
+        {"text": "organic flowing motion of fabric and hair", "weight": 3},
+        {"text": "meditative, statue-like stillness", "weight": 2},
+        {"text": "a slow, dramatic transformation of posture", "weight": 2},
+        {"text": "dynamic, high-impact athletic motion", "weight": 1},
+        {"text": "rhythmic, mesmerizing repetitive patterns", "weight": 1}
+      ]
+    },
+    {
+      "name": "environmental_motion",
+      "feature_name": "Environmental Motion",
+      "values": [
+        {"text": "subtle wind rustling through the available elements", "weight": 3},
+        {"text": "dust motes and particles lazily drifting through the air", "weight": 3},
+        {"text": "water and liquid dynamics flowing naturally", "weight": 2},
+        {"text": "thick rolling fog or smoke slowly overtaking the frame", "weight": 2},
+        {"text": "time-lapse speed revealing rapid environmental changes", "weight": 1},
+        {"text": "explosive energy scattering the surroundings", "weight": 1},
+        {"text": "gravity-defiant floating of loose objects", "weight": 1}
+      ]
+    },
+    {
+      "name": "lighting_evolution",
+      "feature_name": "Lighting Evolution",
+      "values": [
+        {"text": "enhanced natural lighting that elevates the existing shadows", "weight": 3},
+        {"text": "a shift towards a warm, nostalgic golden hour glow", "weight": 3},
+        {"text": "volumetric light rays piercing through the atmosphere", "weight": 3},
+        {"text": "the sudden appearance of sharp, dramatic chiaroscuro shadows", "weight": 2},
+        {"text": "vibrant, pulsating neon artificial lighting", "weight": 2},
+        {"text": "a gradual desaturation into an austere, muted palette", "weight": 1},
+        {"text": "a strobe-like flickering of failing light sources", "weight": 1}
+      ]
+    },
+    {
+      "name": "vfx_overlay",
+      "feature_name": "VFX & Overlay",
+      "values": [
+        {"text": "authentic 35mm film grain and subtle halation", "weight": 3},
+        {"text": "crystalline lens flares glinting off highlights", "weight": 3},
+        {"text": "subtle chromatic aberration strictly on the edges", "weight": 2},
+        {"text": "a dreamy, soft-focus orton effect", "weight": 2},
+        {"text": "brief, jarring digital glitch artifacts", "weight": 1},
+        {"text": "semi-transparent holographic elements overlaying the view", "weight": 1},
+        {"text": "mathematical geometric fractals subtly shifting", "weight": 1}
+      ]
+    },
+    {
+      "name": "creative_intention",
+      "feature_name": "Creative Intention",
+      "values": [
+        {"text": "sense of profound, peaceful isolation", "weight": 3},
+        {"text": "mood of melancholic, wistful nostalgia", "weight": 3},
+        {"text": "tone of romantic, intimate warmth", "weight": 3},
+        {"text": "feeling of impending, unstoppable dread", "weight": 2},
+        {"text": "burst of joyous, unbridled energy", "weight": 2},
+        {"text": "atmosphere of cold, clinical detachment", "weight": 2},
+        {"text": "vibe of awe-inspiring, cosmic insignificance", "weight": 1},
+        {"text": "state of hallucinatory, logic-defying surrealism", "weight": 1}
+      ]
+    }
+  ],
+  "tags": [
+    {
+      "id": "img2vid_director_01",
+      "type": "custom",
+      "label": "Universal Img2Vid Cinematographer",
+      "description": "A template specifically designed to animate ANY uploaded image by abstracting away the subject matter and injecting powerful directorial and camera/lighting instructions."
+    }
+  ]
+}

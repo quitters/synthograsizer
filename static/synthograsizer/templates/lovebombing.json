@@ -1,0 +1,100 @@
+{
+  "promptTemplate": "A vintage film-photograph that triggers a sense of {{emotion}} and leaves an impactful memory, soaked in the heights of mystical allure strongly influenced by Vaporwave aesthetics. \nThe image should spotlight a soft pastel (({{color}}) ((({{material}}))) mushroom cloud), slowly billowing towards the heavens, embodying the delicate and transient nature of a dream. The {{material}} cloud, shaped in an ambiguous resemblance to organic entities, synthesizes the cusp of reality and surreality, imitating the fascinating interface of nature and the supernatural. \nThrough this, evoke feelings of intense beauty merged with sublime peace, a euphoria born out of chaos and tranquility. Surrender to the aesthetics and nuances of the Vaporwave aesthetics, its bold and otherworldly colors, funky and glitchy elements, and vintage nostalgia, while crafting this image.\nConcentrate on the minutiae - the richness of the colors, the nostalgic atmosphere, and the futuristic appeal - to generate a hypnotic image that flawlessly exemplifies the essence of mystical grace, beguiling beauty, and supreme splendor.",
+  "variables": [
+    {
+      "name": "emotion",
+      "feature_name": "Emotion",
+      "values": [
+        {"text": "frisson", "weight": 3},
+        {"text": "awe", "weight": 2},
+        {"text": "incomprehensible-joy", "weight": 1},
+        {"text": "goofy-feeling", "weight": 1},
+        {"text": "glory", "weight": 1},
+        {"text": "existential-angst", "weight": 1},
+        {"text": "sublimity", "weight": 1},
+        {"text": "dread", "weight": 1},
+        {"text": "astonishment", "weight": 1},
+        {"text": "bewilderment", "weight": 1},
+        {"text": "fascination", "weight": 1},
+        {"text": "thrill", "weight": 1},
+        {"text": "ecstasy", "weight": 1},
+        {"text": "rapture", "weight": 1},
+        {"text": "exhilaration", "weight": 1},
+        {"text": "elation", "weight": 1},
+        {"text": "shock", "weight": 1},
+        {"text": "horror", "weight": 1},
+        {"text": "jubilation", "weight": 1},
+        {"text": "delirium", "weight": 1},
+        {"text": "mesmerization", "weight": 1},
+        {"text": "consternation", "weight": 1},
+        {"text": "trepidation", "weight": 1},
+        {"text": "stupefaction", "weight": 1},
+        {"text": "mania", "weight": 1},
+        {"text": "fear", "weight": 1},
+        {"text": "terror", "weight": 1},
+        {"text": "panic", "weight": 1},
+        {"text": "disbelief", "weight": 1},
+        {"text": "chaotic-evil", "weight": 1}
+      ]
+    },
+    {
+      "name": "color",
+      "feature_name": "Color",
+      "values": [
+        {"text": "black", "weight": 1},
+        {"text": "white", "weight": 1},
+        {"text": "red", "weight": 1},
+        {"text": "orange", "weight": 1},
+        {"text": "yellow", "weight": 1},
+        {"text": "green", "weight": 1},
+        {"text": "blue", "weight": 1},
+        {"text": "indigo", "weight": 1},
+        {"text": "violet", "weight": 1},
+        {"text": "rainbow", "weight": 1},
+        {"text": "pink", "weight": 1},
+        {"text": "cyan", "weight": 1},
+        {"text": "beige", "weight": 1},
+        {"text": "brown", "weight": 1}
+      ]
+    },
+    {
+      "name": "material",
+      "feature_name": "Material",
+      "values": [
+        {"text": "Cottony", "weight": 3},
+        {"text": "Woolen", "weight": 3},
+        {"text": "Felted", "weight": 3},
+        {"text": "Gilded Gold-leaf", "weight": 2},
+        {"text": "Silver", "weight": 2},
+        {"text": "Silky Polyester", "weight": 2},
+        {"text": "Plasticy", "weight": 2},
+        {"text": "nylon", "weight": 2},
+        {"text": "Soft Velvet", "weight": 2},
+        {"text": "holographic foil", "weight": 2},
+        {"text": "Papercraft", "weight": 1},
+        {"text": "Wooden", "weight": 1},
+        {"text": "Glassy and glossy", "weight": 1},
+        {"text": "Bronzen", "weight": 1},
+        {"text": "Cardboard", "weight": 1},
+        {"text": "Enamel-Ceramic", "weight": 1},
+        {"text": "Concrete", "weight": 1},
+        {"text": "Waxy", "weight": 2},
+        {"text": "fire and brimstone, weeping and gnashing of teeth", "weight": 1},
+        {"text": "jellyfish", "weight": 1}
+      ]
+    }
+  ],
+  "tags": [
+    {
+      "id": "tag_lovebombing01",
+      "type": "source",
+      "label": "Lovebombing v2 Glif Workflow",
+      "description": "Converted from Eden/Glif multi-step pipeline (prompt → txt2img-comfy → describe-image → mochi-video → vid2vid). Variables and prompt template preserved verbatim. Original weights remapped to Synthograsizer 1/2/3 tier system."
+    },
+    {
+      "id": "tag_lovebombing02",
+      "type": "creator",
+      "label": "bootloader: / Alexander"
+    }
+  ]
+}

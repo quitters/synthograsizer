@@ -363,6 +363,61 @@ body {
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
 }
 
+/* "OBS Display" button — leftmost of the three p5 section buttons */
+.p5-display-btn {
+  right: 240px;
+  border-color: rgba(139, 92, 246, 0.5);  /* purple */
+}
+
+.p5-display-btn:hover {
+  border-color: rgba(139, 92, 246, 0.9);
+  box-shadow: 0 2px 12px rgba(139, 92, 246, 0.35);
+}
+
+/* "Send to Scope" button sits to the left of the Capture button */
+.p5-scope-btn {
+  right: 120px;
+  border-color: rgba(59, 130, 246, 0.5);
+}
+
+.p5-scope-btn:hover {
+  border-color: rgba(59, 130, 246, 0.9);
+  box-shadow: 0 2px 12px rgba(59, 130, 246, 0.35);
+}
+
+/* Scope video output overlay — shown inside p5-live-section when streaming */
+.scope-video-section {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  z-index: 5;
+  background: rgba(0, 0, 0, 0.1);
+  border-right: 1px solid rgba(59, 130, 246, 0.4);
+}
+
+.scope-video-output {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.scope-video-label {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #3b82f6;
+  background: rgba(0, 0, 0, 0.65);
+  padding: 2px 7px;
+  border-radius: 4px;
+  pointer-events: none;
+}
+
 .primary-btn:active {
   transform: translateY(0);
 }
@@ -823,6 +878,152 @@ body {
   background: #fef2f2;
 }
 
+/* ── OSC Panel ──────────────────────────────────────────── */
+
+.osc-bar {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.osc-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border: 1.5px solid #d1d5db;
+  border-radius: 8px;
+  background: white;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.osc-toggle-btn:hover {
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
+
+.osc-toggle-btn.active {
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
+
+.osc-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #d1d5db;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+.osc-dot.osc-on {
+  background: #3b82f6;
+  box-shadow: 0 0 6px rgba(59, 130, 246, 0.5);
+}
+
+.osc-dot.osc-sent {
+  background: #10b981;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+}
+
+.osc-dot.osc-error {
+  background: #ef4444;
+  box-shadow: 0 0 6px rgba(239, 68, 68, 0.5);
+}
+
+.osc-panel {
+  background: white;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 14px;
+  margin-top: 8px;
+}
+
+.osc-panel-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.osc-panel-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #374151;
+}
+
+.osc-panel-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.osc-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #4b5563;
+}
+
+.osc-row span {
+  font-weight: 600;
+}
+
+.osc-input {
+  width: 140px;
+  padding: 3px 8px;
+  border: 1.5px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: monospace;
+  text-align: right;
+}
+
+.osc-input-sm {
+  width: 80px;
+}
+
+.osc-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+.osc-panel-footer {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.osc-send-btn {
+  padding: 5px 14px;
+  border: 1.5px solid #3b82f6;
+  background: white;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #3b82f6;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.osc-send-btn:hover {
+  background: #eff6ff;
+}
+
+.osc-last-sent {
+  font-size: 11px;
+  color: #9ca3af;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
 .variable-control-container {
   display: flex;
   justify-content: center;
@@ -980,7 +1181,8 @@ body {
 }
 
 .nav-arrow.keyboard-flash,
-.control-arrow.keyboard-flash {
+.control-arrow.keyboard-flash,
+.template-nav-btn.keyboard-flash {
   background: linear-gradient(145deg, #f0f0f0, #e8e8e8);
   border-color: var(--primary-purple);
   box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
@@ -1101,6 +1303,63 @@ body {
   border-color: transparent;
   background: linear-gradient(135deg, #7c3aed, #2563eb);
   box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+}
+
+/* Template Controls Container */
+.template-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Template Navigation Buttons */
+.template-nav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 48px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0;
+  padding: 0;
+}
+
+.template-nav-btn:hover {
+  background: #f3f4f6;
+  color: var(--text-primary);
+  border-color: #d1d5db;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.template-nav-btn:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.template-nav-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.template-nav-btn:disabled:hover {
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  border-color: var(--border-color);
+  transform: none;
+  box-shadow: none;
+}
+
+.template-nav-btn svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
 }
 
 /* Template Dropdown */

@@ -7,6 +7,11 @@ import { TemplateLoader } from './template-loader.js';
 import { CodeOverlayManager } from './code-overlay-manager.js?v=4';
 import { normalizeTemplate, getValueText, getValueWeight, getWeightsArray, computeTemplateFingerprint, generateTagId } from './template-normalizer.js?v=2';
 import { MIDIController } from './midi-controller.js';
+import { OSCController } from './osc-controller.js';
+import { OSCPanelUI } from './osc-panel-ui.js';
+import { ScopeVideoClient } from './scope-video-client.js';
+import { DisplayBroadcaster } from './display-broadcaster.js';
+import { GlitcherControls } from './glitcher-controls.js';
 
 // Expose fingerprint + tag utilities globally for non-module scripts (e.g. studio-integration.js)
 window.__computeTemplateFingerprint = computeTemplateFingerprint;
@@ -26,8 +31,14 @@ export class SynthograsizerSmall {
     this.likedPrompts = [];
     this.controlMode = 'dpad'; // 'dpad' or 'knobs'
     this._knobDragState = null; // Track active knob drag
-    this.midi = null;   // MIDIController instance
-    this.midiUI = null; // MIDIPanelUI instance
+    this.midi = null;        // MIDIController instance
+    this.midiUI = null;      // MIDIPanelUI instance
+    this.osc = null;         // OSCController instance
+    this.oscUI = null;       // OSCPanelUI instance
+    this.scopeVideo = null;       // ScopeVideoClient instance
+    this.scopeVideoUI = null;     // ScopeVideoPanelUI instance
+    this.displayBroadcaster = null; // DisplayBroadcaster instance
+    this.glitcherControls = null; // GlitcherControls instance
 
     // Setup error handling
     this.setupErrorHandling();
@@ -120,6 +131,18 @@ export class SynthograsizerSmall {
 
       // Initialize MIDI
       this._initMIDI();
+
+      // Initialize OSC → Daydream Scope bridge
+      this._initOSC();
+
+      // Initialize Scope Video (WebRTC / frame capture)
+      this._initScopeVideo();
+
+      // Initialize OBS Display broadcaster
+      this._initDisplayBroadcaster();
+
+      // Initialize Glitcher Controls
+      this._initGlitcherControls();
     } catch (error) {
       console.error('SynthograsizerSmall: Initialization failed:', error);
       document.body.innerHTML += `<div style="padding: 20px; color: red;">Initialization Error: ${error.message}</div>`;
@@ -138,9 +161,12 @@ export class SynthograsizerSmall {
       this.elements.favoritesButton.addEventListener('click', () => this.openFavoritesOverlay());
     }
 
-    // Send button (placeholder for future functionality)
+    // Send button → OSC
     this.elements.sendButton?.addEventListener('click', () => {
-      console.log('Send to chat functionality coming soon');
+      if (this.osc) {
+        const prompt = this.getCurrentPromptText();
+        if (prompt) this.osc.sendPrompt(prompt);
+      }
     });
 
     // Randomize button
@@ -154,6 +180,31 @@ export class SynthograsizerSmall {
     if (captureBtn) {
       captureBtn.addEventListener('click', () => {
         this.codeOverlayManager?.captureToImageStudio();
+      });
+    }
+
+    // Scope button - Send current p5 frame to Scope as VACE reference image
+    const scopeBtn = document.getElementById('p5-scope-btn');
+    if (scopeBtn) {
+      scopeBtn.addEventListener('click', () => {
+        const canvas = this.codeOverlayManager?.getActiveCanvas();
+        this.scopeVideo?.sendFrame(canvas);
+      });
+    }
+
+    // Display button (p5 panel) - Open full-screen OBS display window
+    const p5DisplayBtn = document.getElementById('p5-display-btn');
+    if (p5DisplayBtn) {
+      p5DisplayBtn.addEventListener('click', () => {
+        this.displayBroadcaster?.openDisplay();
+      });
+    }
+
+    // Display button (Sidebar Status Bar) - Open full-screen OBS display window
+    const dispToggleBtn = document.getElementById('disp-toggle-btn');
+    if (dispToggleBtn) {
+      dispToggleBtn.addEventListener('click', () => {
+        this.displayBroadcaster?.openDisplay();
       });
     }
 
@@ -362,6 +413,9 @@ export class SynthograsizerSmall {
 
       // Update Run Code button visibility (show only when template has p5Code)
       this.codeOverlayManager?.updateP5CodeEditor();
+
+      // Auto-save template to JSON directory (fire and forget - don't block UI)
+      this.autoSaveTemplate(template);
 
       return true;
 
@@ -627,9 +681,9 @@ export class SynthograsizerSmall {
    * Handle keyboard navigation
    */
   handleKeyboard(e) {
-    // Check if user is typing in an input or textarea
+    // Check if user is typing in an input, textarea, or navigating a select dropdown
     const activeTag = document.activeElement.tagName.toLowerCase();
-    if (activeTag === 'input' || activeTag === 'textarea' || document.activeElement.isContentEditable) {
+    if (activeTag === 'input' || activeTag === 'textarea' || activeTag === 'select' || document.activeElement.isContentEditable) {
       return;
     }
 
@@ -934,6 +988,21 @@ export class SynthograsizerSmall {
     this.textRenderer.updateDisplay(html);
     this.renderTagBadges();
     this.saveStateToStorage();
+
+    // Auto-send prompt to Daydream Scope via OSC (debounced)
+    if (this.osc) {
+      this.osc.debouncedSendPrompt(this.getCurrentPromptText());
+    }
+
+    // Also push prompt through WebRTC data channel when streaming (lower latency)
+    if (this.scopeVideo?.isStreaming) {
+      this.scopeVideo.sendPromptUpdate(this.getCurrentPromptText());
+    }
+
+    // Sync variable values to the OBS display page in real-time
+    if (this.displayBroadcaster) {
+      this.displayBroadcaster.sendVarsUpdate(this.displayBroadcaster._buildVars());
+    }
   }
 
   /**
@@ -1325,15 +1394,73 @@ export class SynthograsizerSmall {
   }
 
   /**
-   * Exports the full current template workflow JSON (all variables + values + p5Code etc.)
+   * Automatically saves a template to the JSON directory.
+   * This is called whenever a template is loaded (from generation, import, etc.)
+   * Fire-and-forget: doesn't block UI or show errors to user.
+   * @param {Object} template - Template object to save
    */
-  exportFullTemplate() {
+  async autoSaveTemplate(template) {
+    try {
+      if (!template) return;
+
+      const response = await fetch('/api/save-template', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          template: template
+        })
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('Auto-saved template to:', result.filepath);
+      } else {
+        console.warn('Auto-save failed:', response.status, response.statusText);
+      }
+    } catch (error) {
+      // Silently fail - don't disrupt user experience
+      console.warn('Auto-save template failed (backend may be unavailable):', error);
+    }
+  }
+
+  /**
+   * Exports the full current template workflow JSON (all variables + values + p5Code etc.)
+   * Saves to C:\Users\Alexander\Desktop\Synthograsizer_Output\JSON\Project Templates
+   */
+  async exportFullTemplate() {
     try {
       if (!this.currentTemplate) {
         this.showError('No template loaded to export.');
         return;
       }
 
+      // Try to save to the backend first
+      try {
+        const response = await fetch('/api/save-template', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            template: this.currentTemplate
+          })
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          this.showSuccess(`Template saved to: ${result.filename}`);
+          return;
+        } else {
+          // If backend fails, fall back to download
+          console.warn('Backend save failed, falling back to download');
+        }
+      } catch (backendError) {
+        console.warn('Backend not available, falling back to download:', backendError);
+      }
+
+      // Fallback to original download behavior
       const json = JSON.stringify(this.currentTemplate, null, 2);
       const blob = new Blob([json], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
@@ -1352,7 +1479,7 @@ export class SynthograsizerSmall {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
 
-      this.showSuccess('Template exported successfully!');
+      this.showSuccess('Template exported successfully! (Note: Saved to Downloads folder - backend not available)');
 
     } catch (error) {
       console.error('Full template export failed:', error);
@@ -1408,6 +1535,28 @@ export class SynthograsizerSmall {
 
     // Kick off MIDI access request (non-blocking)
     this.midi.init();
+  }
+
+  _initOSC() {
+    this.osc = new OSCController();
+    this.oscUI = new OSCPanelUI(this.osc);
+  }
+
+  _initScopeVideo() {
+    this.scopeVideo = new ScopeVideoClient({
+      onStatusChange: (status, detail) => {
+        this.scopeVideoUI?.onStatusChange(status, detail);
+      },
+    });
+    this.scopeVideoUI = new ScopeVideoPanelUI(this, this.scopeVideo);
+  }
+
+  _initDisplayBroadcaster() {
+    this.displayBroadcaster = new DisplayBroadcaster(this);
+  }
+
+  _initGlitcherControls() {
+    this.glitcherControls = new GlitcherControls(this);
   }
 
   /** Called after a template loads — prune dead mappings & refresh UI */
@@ -1625,6 +1774,104 @@ class MIDIPanelUI {
         item.querySelector('.knob-dial-wrapper')?.appendChild(badge);
       }
     });
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  ScopeVideoPanelUI — toggle bar + collapsible panel for Scope Video
+// ─────────────────────────────────────────────────────────────────────────────
+
+class ScopeVideoPanelUI {
+  constructor(app, scopeVideo) {
+    this.app = app;
+    this.sv = scopeVideo;
+
+    this.toggleBtn   = document.getElementById('sv-toggle-btn');
+    this.panel       = document.getElementById('sv-panel');
+    this.dot         = document.getElementById('sv-dot');
+    this.statusText  = document.getElementById('sv-status-text');
+    this.statusDetail = document.getElementById('sv-status-detail');
+    this.scopeUrlInput = document.getElementById('sv-scope-url');
+    this.fpsSelect   = document.getElementById('sv-fps');
+    this.streamBtn   = document.getElementById('sv-stream-btn');
+
+    if (!this.toggleBtn || !this.panel) return;
+
+    this._initValues();
+    this._bindEvents();
+    this._updateDot();
+  }
+
+  _initValues() {
+    if (this.scopeUrlInput) this.scopeUrlInput.value = this.sv.scopeUrl;
+    if (this.fpsSelect)     this.fpsSelect.value = String(this.sv.fps);
+  }
+
+  _bindEvents() {
+    // Toggle panel
+    this.toggleBtn.addEventListener('click', () => {
+      const open = this.panel.style.display !== 'none';
+      this.panel.style.display = open ? 'none' : 'block';
+      this.toggleBtn.classList.toggle('active', !open);
+    });
+
+    // Scope URL
+    this.scopeUrlInput?.addEventListener('change', () => {
+      this.sv.setScopeUrl(this.scopeUrlInput.value);
+    });
+
+    // FPS
+    this.fpsSelect?.addEventListener('change', () => {
+      this.sv.setFps(parseInt(this.fpsSelect.value, 10));
+    });
+
+    // Start / Stop stream button
+    this.streamBtn?.addEventListener('click', async () => {
+      if (this.sv.isStreaming) {
+        await this.sv.stopStream();
+      } else {
+        const canvas = this.app.codeOverlayManager?.getActiveCanvas();
+        const prompt = this.app.getCurrentPromptText?.() || '';
+        await this.sv.startStream(canvas, prompt);
+      }
+    });
+  }
+
+  onStatusChange(status, detail) {
+    this._updateDot(status);
+    if (this.statusDetail) {
+      this.statusDetail.textContent = detail || '';
+      this.statusDetail.title = detail || '';
+    }
+    if (this.streamBtn) {
+      const isLive = (status === 'streaming');
+      this.streamBtn.textContent = isLive ? '⏹ Stop Stream' : '▶ Start Stream';
+    }
+    if (this.statusText) {
+      if (status === 'streaming') this.statusText.textContent = 'Live';
+      else if (status === 'connecting') this.statusText.textContent = 'Connecting';
+      else if (status === 'error') this.statusText.textContent = 'Err';
+      else this.statusText.textContent = 'Video';
+    }
+
+    // Show / hide the Scope video output element
+    const videoSection = document.getElementById('scope-video-section');
+    if (videoSection) {
+      videoSection.style.display = (status === 'streaming') ? 'block' : 'none';
+    }
+  }
+
+  _updateDot(status) {
+    if (!this.dot) return;
+    this.dot.classList.remove('osc-on', 'osc-sent', 'osc-error');
+    if (status === 'streaming') {
+      this.dot.classList.add('osc-on');
+    } else if (status === 'frame-sent') {
+      this.dot.classList.add('osc-sent');
+      setTimeout(() => this.dot.classList.remove('osc-sent'), 400);
+    } else if (status === 'error' || status === 'disconnected') {
+      this.dot.classList.add('osc-error');
+    }
   }
 }
 

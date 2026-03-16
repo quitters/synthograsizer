@@ -1206,6 +1206,36 @@ export class CodeOverlayManager {
       mountEl.innerHTML = '';
     }
 
+    // Update button state visually immediately
+    this.p5Running = true;
+    this.updateRunButtonState();
+
+    // Broadcast sketch to OBS display page (non-blocking)
+    const broadcaster = this.app.displayBroadcaster;
+    let isDisplayActive = false;
+    
+    if (broadcaster) {
+      broadcaster.sendP5Run(code, broadcaster._buildVars());
+      // Check if display window is open and active
+      isDisplayActive = broadcaster._displayWindow && !broadcaster._displayWindow.closed;
+    }
+
+    if (isDisplayActive) {
+      // ── COMPUTE OPTIMIZATION ──
+      // If the display window is active, don't spin up a second p5 instance locally.
+      if (mountEl) {
+        mountEl.innerHTML = `
+          <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; width:100%; min-height:300px; background:#f0f4f8; border-radius:8px; border:2px dashed #bcccdc; color:#486581; font-family:'Inter', sans-serif;">
+            <span style="font-size:32px; margin-bottom:12px;">🖥️</span>
+            <div style="font-weight:600; font-size:16px;">Running in Display Window</div>
+            <div style="font-size:12px; margin-top:8px; max-width:250px; text-align:center; opacity:0.8;">Local compute disabled to save resources while broadcast is active.</div>
+          </div>
+        `;
+      }
+      return;
+    }
+
+    // ── LOCAL EXECUTION ──
     try {
       // Create wrapper sketch that injects getSynthVar
       const sketch = (p) => {
@@ -1215,7 +1245,7 @@ export class CodeOverlayManager {
 
           // Find the variable by feature_name or name
           const variable = this.app.variables.find(v =>
-            (v.feature_name || v.name) === featureName
+            v.name === featureName || v.feature_name === featureName
           );
 
           if (!variable) return null;
@@ -1235,10 +1265,6 @@ export class CodeOverlayManager {
 
       // Create new p5 instance mounted into the live panel
       this.p5Instance = new p5(sketch, mountEl);
-
-      // Update button state
-      this.p5Running = true;
-      this.updateRunButtonState();
 
     } catch (error) {
       showToast(`P5.js Error: ${error.message}. Please check your code and try again.`, 'error');
@@ -1276,6 +1302,25 @@ export class CodeOverlayManager {
     // Update button state
     this.p5Running = false;
     this.updateRunButtonState();
+
+    // Notify OBS display page
+    this.app.displayBroadcaster?.sendP5Stop();
+  }
+
+  /**
+   * Return the current p5 sketch code string (from the editor),
+   * so DisplayBroadcaster can replay it when the display window opens late.
+   */
+  getCurrentCode() {
+    return this.elements.p5CodeEditor?.value?.trim() || null;
+  }
+
+  /**
+   * Return the active p5.js canvas element, or null if the sketch isn't running.
+   * Used by ScopeVideoClient to obtain the stream source for captureStream() / sendFrame().
+   */
+  getActiveCanvas() {
+    return this.p5Instance?.canvas || null;
   }
 
   /**

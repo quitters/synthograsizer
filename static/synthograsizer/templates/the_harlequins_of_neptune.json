@@ -1,0 +1,144 @@
+{
+  "promptTemplate": "A classical oil painting of {{subject}} rendered in {{primary_color}} and {{accent_color}}, merging the detailed painting styles of old masters including Cornelis Biltius, Donato Bramante, Petrus Christus, Antonio da Correggio, Carlo Crivelli, Luca Giordano, Andrea Mantegna, Masaccio, Giovanni Battista Tiepolo, and Charles Willson Peale. Masterfully blend their distinct artistic signatures with {{composition_style}} composition and {{surface_quality}} surface quality. The painting has {{emotional_register}} emotional register, with {{light_source}} as the primary light source and {{painterly_technique}} painterly technique throughout.",
+  "variables": [
+    {
+      "name": "subject",
+      "feature_name": "Subject",
+      "values": [
+        {"text": "Portrait of a Noble Before His Death", "weight": 3},
+        {"text": "Portrait of a Bored Girl", "weight": 3},
+        {"text": "Young Boy In Plate Armour", "weight": 3},
+        {"text": "Charismatic Clown", "weight": 2},
+        {"text": "Ruffled Noblewoman", "weight": 2},
+        {"text": "Full Body Depiction of a Tiefling", "weight": 2},
+        {"text": "Sinister Painting", "weight": 2},
+        {"text": "Grand Infernal Painting", "weight": 2},
+        {"text": "Hellish Landscape", "weight": 2},
+        {"text": "Beach at Dusk", "weight": 2},
+        {"text": "Butterfly on Skull", "weight": 2},
+        {"text": "Tableau of Ibex and Rose", "weight": 2},
+        {"text": "Elegant Blush-Filled Portrait", "weight": 2},
+        {"text": "Forgotten Temple", "weight": 2},
+        {"text": "Sororal Dance", "weight": 2},
+        {"text": "Valley with Brook", "weight": 2},
+        {"text": "Harrowing Painting", "weight": 2},
+        {"text": "Landscape", "weight": 2},
+        {"text": "Nobleman Regards Us", "weight": 2},
+        {"text": "Graveyard Coiler", "weight": 2},
+        {"text": "Blank Canvas", "weight": 1},
+        {"text": "Tigermist", "weight": 1}
+      ]
+    },
+    {
+      "name": "primary_color",
+      "feature_name": "Primary Color",
+      "values": [
+        {"text": "mint", "weight": 3},
+        {"text": "pink", "weight": 3},
+        {"text": "iridescent", "weight": 2},
+        {"text": "rainbow", "weight": 2},
+        {"text": "purple", "weight": 2},
+        {"text": "green", "weight": 2},
+        {"text": "orange", "weight": 1},
+        {"text": "red", "weight": 1}
+      ]
+    },
+    {
+      "name": "accent_color",
+      "feature_name": "Accent Color",
+      "values": [
+        {"text": "white", "weight": 3},
+        {"text": "black", "weight": 3},
+        {"text": "gold", "weight": 2},
+        {"text": "cyan", "weight": 2},
+        {"text": "yellow", "weight": 2},
+        {"text": "aquamarine", "weight": 2},
+        {"text": "super-pink", "weight": 2},
+        {"text": "silver", "weight": 1}
+      ]
+    },
+    {
+      "name": "composition_style",
+      "feature_name": "Composition Style",
+      "values": [
+        {"text": "tightly framed trompe l'oeil", "weight": 3},
+        {"text": "sweeping baroque diagonal", "weight": 3},
+        {"text": "symmetrical frontal", "weight": 2},
+        {"text": "atmospheric receding perspective", "weight": 2},
+        {"text": "figura serpentinata spiral", "weight": 2},
+        {"text": "dutch cabinet-painting intimate", "weight": 2},
+        {"text": "monumental vertical", "weight": 2},
+        {"text": "shallow-depth still life", "weight": 1}
+      ]
+    },
+    {
+      "name": "surface_quality",
+      "feature_name": "Surface Quality",
+      "values": [
+        {"text": "lustrous varnished glaze", "weight": 3},
+        {"text": "thick impasto with visible brush strokes", "weight": 3},
+        {"text": "silky smooth sfumato", "weight": 2},
+        {"text": "cracked aged varnish", "weight": 2},
+        {"text": "scumbled semi-opaque layers", "weight": 2},
+        {"text": "raw canvas showing through", "weight": 1},
+        {"text": "jewel-like enamel finish", "weight": 2},
+        {"text": "fresco-like matte texture", "weight": 2}
+      ]
+    },
+    {
+      "name": "emotional_register",
+      "feature_name": "Emotional Register",
+      "values": [
+        {"text": "melancholic and elegiac", "weight": 3},
+        {"text": "theatrical and grandiose", "weight": 3},
+        {"text": "tenderly intimate", "weight": 2},
+        {"text": "sinister and foreboding", "weight": 2},
+        {"text": "serene and devotional", "weight": 2},
+        {"text": "carnivalesque and uncanny", "weight": 2},
+        {"text": "proud and imperious", "weight": 2},
+        {"text": "whimsical and surreal", "weight": 1}
+      ]
+    },
+    {
+      "name": "light_source",
+      "feature_name": "Light Source",
+      "values": [
+        {"text": "a single candle from below", "weight": 3},
+        {"text": "dramatic chiaroscuro window light", "weight": 3},
+        {"text": "warm golden afternoon sun", "weight": 2},
+        {"text": "cold grey overcast", "weight": 2},
+        {"text": "phosphorescent supernatural glow", "weight": 2},
+        {"text": "firelight from off-screen", "weight": 2},
+        {"text": "diffuse and sourceless divine radiance", "weight": 2},
+        {"text": "lurid artificial footlights", "weight": 1}
+      ]
+    },
+    {
+      "name": "painterly_technique",
+      "feature_name": "Painterly Technique",
+      "values": [
+        {"text": "meticulous Flemish layering", "weight": 3},
+        {"text": "gestural Venetian bravura", "weight": 3},
+        {"text": "classical Roman precision", "weight": 2},
+        {"text": "loose Northern baroque brushwork", "weight": 2},
+        {"text": "Spanish tenebrism", "weight": 2},
+        {"text": "Neapolitan dramatic realism", "weight": 2},
+        {"text": "fresco-inspired flat areas of tone", "weight": 1},
+        {"text": "Rococo delicate pastel handling", "weight": 2}
+      ]
+    }
+  ],
+  "tags": [
+    {
+      "id": "tag_harlequins_01",
+      "type": "source",
+      "label": "The Harlequins of Neptune — Eden Pipeline",
+      "description": "Converted from Eden txt2img-comfy pipeline. Original used SD weight syntax (:1, :2.5 etc.) as variables — these are not meaningful in a Synthograsizer context and were dropped. negprompt variable dropped (handled at pipeline level). subject list curated from 52-item original. Color variables preserved with original weight distribution. New compositional/technique variables synthesized from prompt intent."
+    },
+    {
+      "id": "tag_harlequins_02",
+      "type": "creator",
+      "label": "bootloader: / Alexander"
+    }
+  ]
+}

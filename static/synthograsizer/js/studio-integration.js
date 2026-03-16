@@ -3280,6 +3280,11 @@ class StudioIntegration {
                 this.currentBatchResults = [data.image];
                 this.currentLightboxIndex = 0;
 
+                // Auto-push to OBS display page
+                window.synthSmall?.displayBroadcaster?.sendImage(
+                    `data:image/png;base64,${data.image}`, 'generated'
+                );
+
                 let html = `<img src="data:image/png;base64,${data.image}" class="studio-result-image" style="cursor:pointer;" onclick="window.studioIntegrationInstance.openLightbox(0)">`;
                 html += `<div style="margin-top:10px; display:flex; justify-content:center; gap:10px;">`;
                 html += `<button onclick="window.studioIntegrationInstance.openVideoOptionsFromResult(0)" style="background:rgba(156,39,176,0.15); border:1px solid rgba(156,39,176,0.4); color:#7b1fa2; padding:6px 14px; border-radius:6px; cursor:pointer; font-size:13px;">🎬 Smart Video Options</button>`;
@@ -3293,6 +3298,11 @@ class StudioIntegration {
                 <video controls autoplay loop class="studio-result-video">
                     <source src="data:video/mp4;base64,${data.video}" type="video/mp4">
                     </video>`;
+
+                // Auto-push video to OBS display page
+                window.synthSmall?.displayBroadcaster?.sendVideo(
+                    `data:video/mp4;base64,${data.video}`
+                );
             }
         } catch (e) {
             this.showError(e.message);
@@ -3408,11 +3418,21 @@ class StudioIntegration {
                     img.style.cursor = 'pointer';
                     img.onclick = () => this.openLightbox(resultIndex);
                     imgDiv.appendChild(img);
+
+                    // Auto-push latest batch image to OBS display page
+                    window.synthSmall?.displayBroadcaster?.sendImage(
+                        `data:image/png;base64,${data.image}`, `batch-${resultIndex + 1}`
+                    );
                 } else {
                     item.querySelector('div').innerHTML = `
                 <video controls autoplay loop muted>
                     <source src="data:video/mp4;base64,${data.video}" type="video/mp4">
                     </video>`;
+
+                    // Auto-push video to OBS display page
+                    window.synthSmall?.displayBroadcaster?.sendVideo(
+                        `data:video/mp4;base64,${data.video}`
+                    );
                 }
             } catch (e) {
                 item.querySelector('div').innerHTML = `<span style="color:red; font-size:10px; padding:5px;">Error</span>`;
@@ -3888,6 +3908,7 @@ class StudioIntegration {
     async runBatchAnalysis() {
         const folderInput = document.getElementById('analysis-batch-folder');
         const autoGenerate = document.getElementById('analysis-auto-generate')?.checked;
+        const autoTemplate = document.getElementById('analysis-auto-template')?.checked;
 
         if (!folderInput.files.length) {
             this.showToast("Please select a folder of images.", 'warning');
@@ -3921,17 +3942,23 @@ class StudioIntegration {
 
             if (!res.ok) throw new Error((await res.json()).detail);
 
-            const data = await res.json();
+            // Backend streams NDJSON (one JSON object per line) — parse line by line
+            const text = await res.text();
+            const results = text
+                .split('\n')
+                .filter(line => line.trim())
+                .map(line => JSON.parse(line))
+                .sort((a, b) => a.index - b.index);
 
             // Display results in grid
             const content = document.getElementById('studio-content');
             content.innerHTML = `
                 <div style="margin-bottom:20px;">
                     <h3>Batch Analysis Complete</h3>
-                    <p>${data.total} images processed</p>
+                    <p>${results.length} images processed</p>
                 </div>
                 <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:20px;">
-                    ${data.results.map((result, idx) => `
+                    ${results.map((result, idx) => `
                         <div style="border:1px solid #ddd; border-radius:8px; padding:15px; background:white;">
                             <div style="font-weight:600; margin-bottom:10px;">Image ${idx + 1}</div>
                             ${result.status === 'success' ? `
@@ -3944,7 +3971,7 @@ class StudioIntegration {
                                 ${result.generated_image ? `
                                     <div>
                                         <strong>Generated (${result.aspect_ratio}):</strong>
-                                        <img src="data:image/png;base64,${result.generated_image}" 
+                                        <img src="data:image/png;base64,${result.generated_image}"
                                              style="width:100%; border-radius:4px; margin-top:8px; cursor:pointer;"
                                              onclick="window.studioIntegration.openLightbox(${idx})"
                                              data-lightbox-src="data:image/png;base64,${result.generated_image}">
@@ -3959,11 +3986,60 @@ class StudioIntegration {
             `;
 
             // Setup lightbox for batch results
-            this.currentBatchResults = data.results
+            this.currentBatchResults = results
                 .filter(r => r.status === 'success' && r.generated_image)
                 .map(r => r.generated_image);
 
             document.getElementById('studio-result').classList.add('active');
+
+            // Auto-generate one template per successful analysis
+            if (autoTemplate) {
+                const successes = results.filter(r => r.status === 'success');
+                if (successes.length > 0) {
+                    const savedGrid = content.innerHTML;
+                    let generated = 0;
+                    let lastTemplate = null;
+
+                    for (let i = 0; i < successes.length; i++) {
+                        this.showLoading(`Generating Template ${i + 1}/${successes.length}...`);
+                        try {
+                            const tmplRes = await fetch('/api/generate/template-from-analysis', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ analysis: successes[i].analysis })
+                            });
+
+                            if (!tmplRes.ok) throw new Error((await tmplRes.json()).detail);
+
+                            const tmplData = await tmplRes.json();
+                            lastTemplate = tmplData.template;
+
+                            // Save every template to Project Templates folder
+                            await fetch('/api/save-template', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ template: lastTemplate })
+                            });
+
+                            generated++;
+                        } catch (e) {
+                            console.warn(`Template gen failed for image ${i + 1}:`, e.message);
+                        }
+                    }
+
+                    content.innerHTML = savedGrid;
+
+                    // Load the last template into the app UI
+                    if (lastTemplate && this.app && this.app.loadTemplate) {
+                        this.app.loadTemplate(lastTemplate);
+                    }
+
+                    this.showToast(
+                        `${generated}/${successes.length} templates generated and saved.`,
+                        generated > 0 ? 'success' : 'error'
+                    );
+                }
+            }
 
         } catch (e) {
             this.showError("Batch analysis failed: " + e.message);
