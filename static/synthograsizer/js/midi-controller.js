@@ -210,8 +210,12 @@ export class MIDIController {
     if (this.app.controlMode === 'knobs') {
       this.app.updateKnobDisplay(varIndex);
     }
-    // Always update the D-pad display if this is the active variable
-    if (this.app.currentVariableIndex === varIndex) {
+    // In D-pad mode, auto-follow the most recently MIDI-updated variable
+    // so the card always shows what MIDI is currently controlling.
+    // We set currentVariableIndex directly (not jumpToVariable) because
+    // the caller (_applyCC / _applyNote) already calls generateOutput().
+    if (this.app.controlMode === 'dpad') {
+      this.app.currentVariableIndex = varIndex;
       this.app.updateCenterControl();
     }
   }

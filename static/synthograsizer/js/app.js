@@ -6,10 +6,10 @@ import { BatchGenerator } from './batch-generator.js';
 import { TemplateLoader } from './template-loader.js';
 import { CodeOverlayManager } from './code-overlay-manager.js?v=4';
 import { normalizeTemplate, getValueText, getValueWeight, getWeightsArray, computeTemplateFingerprint, generateTagId } from './template-normalizer.js?v=2';
-import { MIDIController } from './midi-controller.js';
+import { MIDIController } from './midi-controller.js?v=2';
 import { OSCController } from './osc-controller.js';
 import { OSCPanelUI } from './osc-panel-ui.js';
-import { ScopeVideoClient } from './scope-video-client.js';
+import { ScopeVideoClient } from './scope-video-client.js?v=3';
 import { DisplayBroadcaster } from './display-broadcaster.js';
 import { GlitcherControls } from './glitcher-controls.js';
 
@@ -820,9 +820,25 @@ export class SynthograsizerSmall {
         this.highlightActiveKnob(index);
       });
 
-      // Drag to rotate (change value)
+      // Drag to change value (vertical — up = increase, down = decrease)
       const dial = item.querySelector('.knob-dial-wrapper');
       dial.addEventListener('pointerdown', (e) => this.onKnobPointerDown(e, index));
+
+      // Scroll wheel to nudge value (scroll up = increase)
+      item.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        const variable = this.variables[index];
+        const totalValues = variable.values.length;
+        if (totalValues <= 1) return;
+        const step = e.deltaY < 0 ? 1 : -1;
+        const current = this.currentValues[variable.name];
+        const newIndex = Math.max(0, Math.min(totalValues - 1, current + step));
+        if (newIndex !== current) {
+          this.currentValues[variable.name] = newIndex;
+          this.updateKnobDisplay(index);
+          this.generateOutput();
+        }
+      }, { passive: false });
 
       container.appendChild(item);
     });
@@ -884,20 +900,16 @@ export class SynthograsizerSmall {
     e.stopPropagation();
 
     const dial = e.currentTarget;
-    const rect = dial.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-    const startAngle = Math.atan2(e.clientY - centerY, e.clientX - centerX);
 
     this._knobDragState = {
       varIndex,
-      centerX,
-      centerY,
-      startAngle,
+      startY: e.clientY,
       startValueIndex: this.currentValues[this.variables[varIndex].name],
       dragged: false
     };
 
+    // Show a vertical-drag cursor globally so it persists while dragging outside the knob
+    document.body.style.cursor = 'ns-resize';
     dial.setPointerCapture(e.pointerId);
     dial.addEventListener('pointermove', this._onKnobPointerMove);
     dial.addEventListener('pointerup', this._onKnobPointerUp);
@@ -907,29 +919,25 @@ export class SynthograsizerSmall {
     const state = this._knobDragState;
     if (!state) return;
 
-    const angle = Math.atan2(e.clientY - state.centerY, e.clientX - state.centerX);
-    let delta = angle - state.startAngle;
-    // Normalize to [-PI, PI]
-    if (delta > Math.PI) delta -= 2 * Math.PI;
-    if (delta < -Math.PI) delta += 2 * Math.PI;
-
     const variable = this.variables[state.varIndex];
     const totalValues = variable.values.length;
     if (totalValues <= 1) return;
 
-    // Map angular delta to value steps (full rotation = all values)
-    const sensitivity = totalValues / (2 * Math.PI);
-    const stepDelta = Math.round(delta * sensitivity);
+    // Drag UP = higher index (more), drag DOWN = lower index (less).
+    // Shift key engages fine-control mode (more pixels required per step).
+    const pixelsPerStep = e.shiftKey ? 12 : 3;
+    const dy = state.startY - e.clientY;   // positive when dragged upward
 
-    if (stepDelta !== 0) {
-      state.dragged = true;
-      const newIndex = ((state.startValueIndex + stepDelta) % totalValues + totalValues) % totalValues;
+    // Mark as a real drag once the pointer has moved more than 2 px
+    if (Math.abs(e.clientY - state.startY) > 2) state.dragged = true;
 
-      if (newIndex !== this.currentValues[variable.name]) {
-        this.currentValues[variable.name] = newIndex;
-        this.updateKnobDisplay(state.varIndex);
-        this.generateOutput();
-      }
+    const stepDelta = Math.round(dy / pixelsPerStep);
+    const newIndex  = Math.max(0, Math.min(totalValues - 1, state.startValueIndex + stepDelta));
+
+    if (newIndex !== this.currentValues[variable.name]) {
+      this.currentValues[variable.name] = newIndex;
+      this.updateKnobDisplay(state.varIndex);
+      this.generateOutput();
     }
   }
 
@@ -938,9 +946,9 @@ export class SynthograsizerSmall {
     dial.releasePointerCapture(e.pointerId);
     dial.removeEventListener('pointermove', this._onKnobPointerMove);
     dial.removeEventListener('pointerup', this._onKnobPointerUp);
+    document.body.style.cursor = '';
 
     // Reset drag state after a tick (so click handler can check .dragged)
-    const wasDragged = this._knobDragState?.dragged;
     setTimeout(() => { this._knobDragState = null; }, 0);
   }
 
@@ -1786,14 +1794,18 @@ class ScopeVideoPanelUI {
     this.app = app;
     this.sv = scopeVideo;
 
-    this.toggleBtn   = document.getElementById('sv-toggle-btn');
-    this.panel       = document.getElementById('sv-panel');
-    this.dot         = document.getElementById('sv-dot');
-    this.statusText  = document.getElementById('sv-status-text');
+    this.toggleBtn    = document.getElementById('sv-toggle-btn');
+    this.panel        = document.getElementById('sv-panel');
+    this.dot          = document.getElementById('sv-dot');
+    this.statusText   = document.getElementById('sv-status-text');
     this.statusDetail = document.getElementById('sv-status-detail');
     this.scopeUrlInput = document.getElementById('sv-scope-url');
-    this.fpsSelect   = document.getElementById('sv-fps');
-    this.streamBtn   = document.getElementById('sv-stream-btn');
+    this.fpsSelect    = document.getElementById('sv-fps');
+    this.streamBtn    = document.getElementById('sv-stream-btn');
+    this.pauseBtn     = document.getElementById('sv-pause-btn');
+    this.resetCacheBtn = document.getElementById('sv-reset-cache-btn');
+
+    this._paused = false;
 
     if (!this.toggleBtn || !this.panel) return;
 
@@ -1835,29 +1847,77 @@ class ScopeVideoPanelUI {
         await this.sv.startStream(canvas, prompt);
       }
     });
+
+    // Pause / Resume button — toggles on each click
+    this.pauseBtn?.addEventListener('click', () => {
+      if (this._paused) {
+        this.sv.resume();
+        this._paused = false;
+        this.pauseBtn.textContent = '⏸ Pause';
+      } else {
+        this.sv.pause();
+        this._paused = true;
+        this.pauseBtn.textContent = '▶ Resume';
+      }
+    });
+
+    // Reset Cache button
+    this.resetCacheBtn?.addEventListener('click', () => {
+      this.sv.resetCache();
+      // Brief visual feedback
+      this.resetCacheBtn.textContent = '✓ Cleared';
+      setTimeout(() => { this.resetCacheBtn.textContent = '🔄 Reset Cache'; }, 1200);
+    });
   }
 
   onStatusChange(status, detail) {
     this._updateDot(status);
+
     if (this.statusDetail) {
       this.statusDetail.textContent = detail || '';
       this.statusDetail.title = detail || '';
     }
+
+    const isLive = (status === 'streaming' || status === 'paused');
+
+    // Stream button label
     if (this.streamBtn) {
-      const isLive = (status === 'streaming');
-      this.streamBtn.textContent = isLive ? '⏹ Stop Stream' : '▶ Start Stream';
+      if (status === 'connecting' || status === 'reconnecting') {
+        this.streamBtn.textContent = '⏳ Connecting…';
+        this.streamBtn.disabled = true;
+      } else if (isLive) {
+        this.streamBtn.textContent = '⏹ Stop Stream';
+        this.streamBtn.disabled = false;
+      } else {
+        this.streamBtn.textContent = '▶ Start Stream';
+        this.streamBtn.disabled = false;
+      }
     }
+
+    // Pause / Reset Cache — only enabled while streaming
+    if (this.pauseBtn)     this.pauseBtn.disabled     = !isLive;
+    if (this.resetCacheBtn) this.resetCacheBtn.disabled = !isLive;
+
+    // Reset pause state when stream ends
+    if (!isLive && status !== 'connecting' && status !== 'reconnecting') {
+      this._paused = false;
+      if (this.pauseBtn) this.pauseBtn.textContent = '⏸ Pause';
+    }
+
+    // Status label
     if (this.statusText) {
-      if (status === 'streaming') this.statusText.textContent = 'Live';
-      else if (status === 'connecting') this.statusText.textContent = 'Connecting';
-      else if (status === 'error') this.statusText.textContent = 'Err';
+      if (status === 'streaming')    this.statusText.textContent = 'Live';
+      else if (status === 'paused')  this.statusText.textContent = 'Paused';
+      else if (status === 'reconnecting') this.statusText.textContent = 'Reconnecting';
+      else if (status === 'connecting')   this.statusText.textContent = 'Connecting';
+      else if (status === 'error')        this.statusText.textContent = 'Err';
       else this.statusText.textContent = 'Video';
     }
 
     // Show / hide the Scope video output element
     const videoSection = document.getElementById('scope-video-section');
     if (videoSection) {
-      videoSection.style.display = (status === 'streaming') ? 'block' : 'none';
+      videoSection.style.display = isLive ? 'block' : 'none';
     }
   }
 
@@ -1866,7 +1926,11 @@ class ScopeVideoPanelUI {
     this.dot.classList.remove('osc-on', 'osc-sent', 'osc-error');
     if (status === 'streaming') {
       this.dot.classList.add('osc-on');
-    } else if (status === 'frame-sent') {
+    } else if (status === 'paused') {
+      this.dot.classList.add('osc-sent');  // amber — active but frozen
+    } else if (status === 'reconnecting') {
+      this.dot.classList.add('osc-sent');
+    } else if (status === 'frame-sent' || status === 'ref-sent' || status === 'cache-reset') {
       this.dot.classList.add('osc-sent');
       setTimeout(() => this.dot.classList.remove('osc-sent'), 400);
     } else if (status === 'error' || status === 'disconnected') {

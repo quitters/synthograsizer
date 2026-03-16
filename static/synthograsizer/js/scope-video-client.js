@@ -12,14 +12,23 @@
  *                                   pipeline from the p5.js canvas to Scope's
  *                                   diffusion pipeline.
  *
- * Once streaming, sendPromptUpdate(text) pushes live prompt changes through
- * the WebRTC data channel (Scope's native, lower-latency path for in-session
- * prompt updates — replaces/supplements the OSC path).
+ * Once streaming, the following data-channel controls are available:
+ *  - sendPromptUpdate(text, transition)  push live prompt changes
+ *  - pause()                             freeze generation without disconnecting
+ *  - resume()                            unfreeze generation
+ *  - resetCache()                        clear frame cache to fix visual drift
+ *  - pushImageToScope(base64)            upload image as VACE reference
+ *
+ * Reliability features:
+ *  - checkHealth()      verify Scope is reachable before streaming
+ *  - auto-reconnect     on unexpected stream_stopped, retries up to MAX_RECONNECT_ATTEMPTS
  *
  * Configuration is persisted in localStorage under STORAGE_KEY.
  */
 
 const STORAGE_KEY = 'synthograsizerScopeVideoV1';
+const MAX_RECONNECT_ATTEMPTS = 3;
+const RECONNECT_DELAY_MS = 2000;
 
 export class ScopeVideoClient {
   /**
@@ -39,10 +48,33 @@ export class ScopeVideoClient {
     this._sessionId = null;    // Scope session ID from offer response
     this._mediaStream = null;  // canvas.captureStream() MediaStream
 
+    // Reconnect state
+    this._reconnectCanvas = null;
+    this._reconnectPrompt = '';
+    this._reconnectAttempts = 0;
+    this._reconnectTimer = null;
+    this._userStopped = false;  // true when user explicitly calls stopStream()
+
     this._loadConfig();
   }
 
   // ── Public API ──────────────────────────────────────────────────────────────
+
+  /**
+   * Check whether Scope is reachable by hitting its /health endpoint.
+   * Returns true if healthy, false otherwise.
+   */
+  async checkHealth() {
+    try {
+      const res = await fetch(`${this.scopeUrl}/health`, {
+        method: 'GET',
+        signal: AbortSignal.timeout(3000),
+      });
+      return res.ok;
+    } catch {
+      return false;
+    }
+  }
 
   /**
    * Capture one PNG frame from `canvas` and POST it to Scope's asset endpoint.
@@ -89,9 +121,75 @@ export class ScopeVideoClient {
   }
 
   /**
+   * Upload a base64-encoded image (PNG/JPEG, with or without data-URL prefix) to
+   * Scope's asset endpoint and push it as the active VACE reference image.
+   * If a WebRTC session is currently streaming the update is also sent through the
+   * data channel for immediate effect.
+   *
+   * @param {string} base64  — raw base64 or full data-URL (e.g. "data:image/png;base64,...")
+   * @returns {Promise<string|null>}  — the asset path returned by Scope, or null on failure
+   */
+  async pushImageToScope(base64) {
+    // Strip optional data-URL header
+    const b64 = base64.replace(/^data:[^;]+;base64,/, '');
+
+    // Decode to binary and wrap in a Blob
+    let blob;
+    try {
+      const binary = atob(b64);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+      blob = new Blob([bytes], { type: 'image/png' });
+    } catch (e) {
+      this.onStatusChange('error', `Encode failed: ${e.message}`);
+      return null;
+    }
+
+    const ts = new Date().toISOString().replace(/[:.]/g, '-').slice(11, 19);
+    const filename = `synth-ref-${ts}.png`;
+
+    let path = null;
+    try {
+      const url = `${this.scopeUrl}/api/v1/assets?filename=${encodeURIComponent(filename)}`;
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'image/png' },
+        body: blob,
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      path = data.path;
+      console.log('[ScopeVideo] reference image uploaded', path);
+    } catch (e) {
+      this.onStatusChange('error', `Upload failed: ${e.message}`);
+      console.warn('[ScopeVideo] pushImageToScope upload error', e);
+      return null;
+    }
+
+    // Push to active stream via data channel if open
+    if (this.isStreaming && path) {
+      try {
+        this._dataChannel.send(JSON.stringify({
+          vace_ref_images: [path],
+          vace_context_scale: 1.0,
+        }));
+        console.log('[ScopeVideo] vace_ref_images pushed via data channel');
+      } catch (e) {
+        console.warn('[ScopeVideo] data channel send failed', e);
+      }
+    }
+
+    this.onStatusChange('ref-sent', filename);
+    return path;
+  }
+
+  /**
    * Start a live WebRTC video-to-video session, streaming `canvas` frames into
    * Scope's diffusion pipeline.  If a session is already active it is stopped
    * first.
+   *
+   * Performs a /health check before attempting connection. Stores canvas and
+   * prompt references for auto-reconnect on unexpected disconnection.
    *
    * @param {HTMLCanvasElement} canvas
    * @param {string}            initialPrompt  — Scope prompt at connect time
@@ -102,6 +200,19 @@ export class ScopeVideoClient {
       this.onStatusChange('error', 'No canvas to stream');
       return;
     }
+
+    // Health check — confirm Scope is reachable before committing to WebRTC
+    this.onStatusChange('connecting', 'Checking Scope…');
+    const healthy = await this.checkHealth();
+    if (!healthy) {
+      this.onStatusChange('error', `Scope unreachable at ${this.scopeUrl}`);
+      return;
+    }
+
+    // Store for auto-reconnect
+    this._reconnectCanvas = canvas;
+    this._reconnectPrompt = initialPrompt;
+    this._userStopped = false;
 
     this.onStatusChange('connecting');
 
@@ -121,6 +232,7 @@ export class ScopeVideoClient {
       this._dataChannel = this._pc.createDataChannel('parameters', { ordered: true });
 
       this._dataChannel.onopen = () => {
+        this._reconnectAttempts = 0;  // successful connection resets counter
         this.onStatusChange('streaming');
         console.log('[ScopeVideo] data channel open');
       };
@@ -129,9 +241,14 @@ export class ScopeVideoClient {
         try {
           const msg = JSON.parse(e.data);
           if (msg.type === 'stream_stopped') {
-            console.warn('[ScopeVideo] stream stopped by Scope:', msg.error_message);
+            const reason = msg.error_message || '';
+            console.warn('[ScopeVideo] stream stopped by Scope:', reason);
             this._cleanup();
-            this.onStatusChange('stopped', msg.error_message || '');
+            if (this._userStopped) {
+              this.onStatusChange('stopped', reason);
+            } else {
+              this._scheduleReconnect(reason);
+            }
           }
         } catch { /* ignore non-JSON messages */ }
       };
@@ -153,11 +270,16 @@ export class ScopeVideoClient {
         }
       };
 
-      // 6. Connection monitoring
+      // 6. Connection monitoring — trigger reconnect on unexpected drop
       this._pc.onconnectionstatechange = () => {
         const state = this._pc?.connectionState;
         if (state === 'failed' || state === 'disconnected') {
-          this.onStatusChange('disconnected');
+          if (!this._userStopped) {
+            this._cleanup();
+            this._scheduleReconnect(`Connection ${state}`);
+          } else {
+            this.onStatusChange('disconnected');
+          }
         }
       };
 
@@ -207,8 +329,10 @@ export class ScopeVideoClient {
     }
   }
 
-  /** Gracefully disconnect the live WebRTC stream. */
+  /** Gracefully disconnect the live WebRTC stream (cancels any pending reconnect). */
   async stopStream() {
+    this._userStopped = true;
+    this._cancelReconnect();
     this._cleanup();
     this.onStatusChange('stopped');
   }
@@ -222,18 +346,45 @@ export class ScopeVideoClient {
    * @param {boolean} transition — use Scope's smooth N-step transition (default false)
    */
   sendPromptUpdate(prompt, transition = false) {
-    if (!this._dataChannel || this._dataChannel.readyState !== 'open') return;
     if (!prompt) return;
 
     const msg = transition
       ? { transition: { target_prompts: [{ text: prompt, weight: 1.0 }], num_steps: 8 } }
       : { prompts: [{ text: prompt, weight: 1.0 }] };
 
-    try {
-      this._dataChannel.send(JSON.stringify(msg));
-    } catch (e) {
-      console.warn('[ScopeVideo] sendPromptUpdate failed', e);
-    }
+    this._sendDataChannelMsg(msg);
+  }
+
+  /**
+   * Freeze Scope's generation without disconnecting the WebRTC session.
+   * Call resume() to unfreeze.
+   */
+  pause() {
+    if (!this.isStreaming) return;
+    this._sendDataChannelMsg({ paused: true });
+    this.onStatusChange('paused');
+    console.log('[ScopeVideo] paused');
+  }
+
+  /**
+   * Unfreeze Scope's generation after a pause() call.
+   */
+  resume() {
+    if (!this.isStreaming) return;
+    this._sendDataChannelMsg({ paused: false });
+    this.onStatusChange('streaming');
+    console.log('[ScopeVideo] resumed');
+  }
+
+  /**
+   * Clear Scope's frame cache for one cycle.  Use this when you notice
+   * visual drift or artifacts accumulating in the output stream.
+   */
+  resetCache() {
+    if (!this.isStreaming) return;
+    this._sendDataChannelMsg({ reset_cache: true });
+    this.onStatusChange('cache-reset');
+    console.log('[ScopeVideo] cache reset sent');
   }
 
   /** True if the WebRTC data channel is open (streaming is live). */
@@ -259,6 +410,50 @@ export class ScopeVideoClient {
   }
 
   // ── Private helpers ─────────────────────────────────────────────────────────
+
+  /**
+   * Send a JSON message on the data channel if it is open.
+   * @param {object} obj
+   */
+  _sendDataChannelMsg(obj) {
+    if (!this._dataChannel || this._dataChannel.readyState !== 'open') return;
+    try {
+      this._dataChannel.send(JSON.stringify(obj));
+    } catch (e) {
+      console.warn('[ScopeVideo] data channel send failed', e);
+    }
+  }
+
+  /**
+   * Schedule an auto-reconnect attempt after RECONNECT_DELAY_MS.
+   * Gives up after MAX_RECONNECT_ATTEMPTS and emits 'error'.
+   * @param {string} reason
+   */
+  _scheduleReconnect(reason) {
+    if (this._reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
+      console.warn('[ScopeVideo] max reconnect attempts reached, giving up');
+      this.onStatusChange('error', `Disconnected: ${reason}`);
+      return;
+    }
+    this._reconnectAttempts++;
+    const attempt = this._reconnectAttempts;
+    this.onStatusChange('reconnecting', `Reconnecting (${attempt}/${MAX_RECONNECT_ATTEMPTS})…`);
+    console.log(`[ScopeVideo] scheduling reconnect attempt ${attempt} in ${RECONNECT_DELAY_MS}ms`);
+
+    this._reconnectTimer = setTimeout(async () => {
+      if (this._userStopped) return;
+      console.log(`[ScopeVideo] reconnect attempt ${attempt}`);
+      await this.startStream(this._reconnectCanvas, this._reconnectPrompt);
+    }, RECONNECT_DELAY_MS);
+  }
+
+  _cancelReconnect() {
+    if (this._reconnectTimer !== null) {
+      clearTimeout(this._reconnectTimer);
+      this._reconnectTimer = null;
+    }
+    this._reconnectAttempts = 0;
+  }
 
   async _sendIceCandidate(sessionId, candidate) {
     try {
