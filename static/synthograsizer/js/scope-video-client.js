@@ -56,6 +56,7 @@ export class ScopeVideoClient {
     this._userStopped = false;  // true when user explicitly calls stopStream()
 
     this._loadConfig();
+    this._autoDetectScopeUrl();
   }
 
   // ── Public API ──────────────────────────────────────────────────────────────
@@ -515,5 +516,24 @@ export class ScopeVideoClient {
       if (cfg.fps) this.fps = cfg.fps;
       if (cfg.streamEnabled !== undefined) this.streamEnabled = cfg.streamEnabled;
     } catch { /* ignore corrupt config */ }
+  }
+
+  /**
+   * When running as a Scope companion, the companion web server exposes
+   * /api/scope-config with the correct Scope URL.  This fetches that
+   * endpoint and applies the URL if the user hasn't manually overridden it.
+   * Falls back gracefully when the endpoint doesn't exist (standalone mode).
+   */
+  async _autoDetectScopeUrl() {
+    try {
+      const res = await fetch('/api/scope-config', {
+        signal: AbortSignal.timeout(2000),
+      });
+      if (!res.ok) return;
+      const cfg = await res.json();
+      if (cfg.scopeUrl && this.scopeUrl === 'http://127.0.0.1:7860') {
+        this.scopeUrl = cfg.scopeUrl;
+      }
+    } catch { /* not running as companion — ignore */ }
   }
 }
