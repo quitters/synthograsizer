@@ -20,8 +20,8 @@ export class OSCController {
     this.enabled = false;
     this.autoSend = false;
     this.host = '127.0.0.1';
-    this.port = 8000;
-    this.address = '/scope/prompt';
+    this.port = 9000;
+    this.address = '/prompts';
 
     this._debounceTimer = null;
     this._debounceMs = 80;          // ms to wait before sending
@@ -79,6 +79,32 @@ export class OSCController {
     }
   }
 
+  /**
+   * Send a template variable update as a normalized float (0-1).
+   * Address: /synthograsizer/var/{index}
+   * Also sends the variable name + value text for debugging/routing.
+   */
+  async sendVarUpdate(index, normalizedValue, varName, valueText) {
+    if (!this.enabled) return;
+
+    // Float value for MIDI-like mapping
+    this.sendParam(`/synthograsizer/var/${index}`, normalizedValue);
+
+    // Optional: send the text value for downstream consumers
+    if (varName && valueText) {
+      try {
+        await fetch('/api/osc/send-prompt', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            prompt: valueText,
+            address: `/synthograsizer/var/${index}/text`,
+          }),
+        });
+      } catch {}
+    }
+  }
+
   // ── configuration ──────────────────────────────────────
 
   setEnabled(enabled) {
@@ -100,7 +126,7 @@ export class OSCController {
   }
 
   setAddress(address) {
-    this.address = address || '/prompt';
+    this.address = address || '/prompts';
     this._saveConfig();
   }
 

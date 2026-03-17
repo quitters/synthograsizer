@@ -1024,6 +1024,82 @@ body {
   max-width: 200px;
 }
 
+/* ── Scope Unified Panel Sections ────────────────────── */
+
+.scope-section {
+  border-top: 1px solid #e5e7eb;
+  margin-top: 8px;
+  padding-top: 6px;
+}
+
+.scope-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  padding: 4px 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+  user-select: none;
+}
+
+.scope-section-header:hover {
+  color: #3b82f6;
+}
+
+.scope-section-dot {
+  width: 7px;
+  height: 7px;
+}
+
+.scope-section-body {
+  padding: 4px 0 2px;
+}
+
+.scope-health-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 8px;
+  border-radius: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.scope-health-badge.online {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.scope-health-badge.offline {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.scope-help-text {
+  font-size: 11px;
+  color: #6b7280;
+  margin: 0 0 6px;
+  line-height: 1.4;
+}
+
+.scope-help-list {
+  font-size: 11px;
+  color: #6b7280;
+  margin: 0 0 8px;
+  padding-left: 18px;
+  line-height: 1.6;
+}
+
+.scope-help-list a {
+  color: #3b82f6;
+  text-decoration: none;
+}
+
+.scope-help-list a:hover {
+  text-decoration: underline;
+}
+
 .variable-control-container {
   display: flex;
   justify-content: center;

@@ -1,14 +1,11 @@
 [project]
 name = "scope-synthograsizer"
 version = "0.1.0"
-description = "Synthograsizer node for Daydream Scope — mad-libs prompt crafting, glitcher preprocessor, and p5.js video input"
+description = "Synthograsizer glitch-art preprocessor for Daydream Scope"
 requires-python = ">=3.12"
 dependencies = [
     "numpy>=1.24",
     "opencv-python-headless>=4.8",
-    "fastapi>=0.100",
-    "uvicorn>=0.20",
-    "python-osc>=1.8",
 ]
 
 [project.entry-points."scope"]

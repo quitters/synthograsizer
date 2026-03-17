@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Literal
+
 from pydantic import Field
 
 from scope.core.pipelines.base_schema import (
@@ -10,6 +12,25 @@ from scope.core.pipelines.base_schema import (
     UsageType,
     ui_field_config,
 )
+
+# ── Literal types for dropdown rendering ─────────────────────────────────
+
+PixelSortMode = Literal[
+    "off", "columnBrightness", "rowBrightness",
+    "columnHue", "rowHue", "randomLines",
+    "diagonal", "circular", "wave",
+]
+
+SliceMode = Literal["off", "horizontal", "vertical", "both"]
+
+ColorEffect = Literal[
+    "off", "chromaticAberration", "hueShift", "vintage",
+    "invert", "channelShift", "colorNoise",
+]
+
+SpiralType = Literal["off", "spiral", "insideOut", "outsideIn", "cw", "ccw"]
+
+DirectionMode = Literal["off", "down", "up", "left", "right", "random", "jitter"]
 
 
 class GlitcherPreprocessorConfig(BasePipelineConfig):
@@ -33,47 +54,41 @@ class GlitcherPreprocessorConfig(BasePipelineConfig):
 
     # ── Effect selectors (runtime dropdowns) ──────────────────────────────
 
-    pixel_sort: str = Field(
+    pixel_sort: PixelSortMode = Field(
         default="off",
-        description=(
-            "Pixel-sort algorithm: columnBrightness, rowBrightness, "
-            "columnHue, rowHue, randomLines, diagonal, circular, wave"
-        ),
+        description="Pixel-sort algorithm",
         json_schema_extra=ui_field_config(
             order=1, label="Pixel Sort", category="input",
         ),
     )
 
-    slice_mode: str = Field(
+    slice_mode: SliceMode = Field(
         default="off",
-        description="Slice glitch: horizontal, vertical, both",
+        description="Slice glitch direction",
         json_schema_extra=ui_field_config(
             order=2, label="Slice", category="input",
         ),
     )
 
-    color_effect: str = Field(
+    color_effect: ColorEffect = Field(
         default="off",
-        description=(
-            "Colour effect: chromaticAberration, hueShift, vintage, "
-            "invert, channelShift, colorNoise"
-        ),
+        description="Colour effect",
         json_schema_extra=ui_field_config(
             order=3, label="Colour", category="input",
         ),
     )
 
-    spiral_type: str = Field(
+    spiral_type: SpiralType = Field(
         default="off",
-        description="Spiral/swirl: spiral, insideOut, outsideIn, cw, ccw",
+        description="Spiral/swirl distortion",
         json_schema_extra=ui_field_config(
             order=4, label="Spiral", category="input",
         ),
     )
 
-    direction_mode: str = Field(
+    direction_mode: DirectionMode = Field(
         default="off",
-        description="Direction shift: down, up, left, right, random, jitter",
+        description="Directional displacement",
         json_schema_extra=ui_field_config(
             order=5, label="Direction", category="input",
         ),

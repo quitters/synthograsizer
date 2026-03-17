@@ -62,7 +62,6 @@
             <div class="layout-switcher" id="layout-switcher">
                 <button class="layout-btn" data-layout="default" title="Default single-column layout">⊟ Default</button>
                 <button class="layout-btn" data-layout="a" title="Two-column: output left, D-Pad right">⊞ Two Column</button>
-                <button class="layout-btn" data-layout="b" title="Docked sidebar: connections panel beside D-Pad">⊡ Docked</button>
             </div>
 
             <!-- Error Display -->
@@ -254,93 +253,131 @@
                     </div>
                 </div>
 
-                <!-- OSC Status Bar -->
-                <div class="osc-bar" id="osc-bar">
-                    <button id="osc-toggle-btn" class="osc-toggle-btn" title="OSC → Daydream Scope">
+                <!-- Scope Connection Status Bar -->
+                <div class="osc-bar" id="scope-bar">
+                    <button id="scope-toggle-btn" class="osc-toggle-btn" title="Scope Connection — OSC, Video, Spout">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
                         </svg>
-                        <span id="osc-status-text">OSC</span>
-                        <span class="osc-dot" id="osc-dot"></span>
+                        <span id="scope-status-text">Scope</span>
+                        <span class="osc-dot" id="scope-dot"></span>
                     </button>
                 </div>
 
-                <!-- OSC Panel (collapsible) -->
-                <div class="osc-panel" id="osc-panel" style="display:none;">
+                <!-- Scope Unified Panel (collapsible) -->
+                <div class="osc-panel" id="scope-panel" style="display:none;">
                     <div class="osc-panel-header">
-                        <span class="osc-panel-title">OSC → Daydream Scope</span>
+                        <span class="osc-panel-title">Scope Connection</span>
+                        <span id="scope-health-badge" class="scope-health-badge" title=""></span>
                     </div>
                     <div class="osc-panel-body">
-                        <label class="osc-row">
-                            <span>Enabled</span>
-                            <input type="checkbox" id="osc-enabled" />
-                        </label>
-                        <label class="osc-row">
-                            <span>Auto-send on change</span>
-                            <input type="checkbox" id="osc-auto-send" />
-                        </label>
-                        <label class="osc-row">
-                            <span>Host</span>
-                            <input type="text" id="osc-host" value="127.0.0.1" class="osc-input" />
-                        </label>
-                        <label class="osc-row">
-                            <span>Port</span>
-                            <input type="number" id="osc-port" value="8000" class="osc-input osc-input-sm" />
-                        </label>
-                        <label class="osc-row">
-                            <span>Address</span>
-                            <input type="text" id="osc-address" value="/scope/prompt" class="osc-input" />
-                        </label>
-                        <label class="osc-row">
-                            <span>Debounce (ms)</span>
-                            <input type="number" id="osc-debounce" value="80" min="10" max="1000" class="osc-input osc-input-sm" />
-                        </label>
-                    </div>
-                    <div class="osc-panel-footer">
-                        <button id="osc-send-now" class="osc-send-btn">Send Now</button>
-                        <span id="osc-last-sent" class="osc-last-sent" title=""></span>
-                    </div>
-                </div>
 
-                <!-- Scope Video Status Bar -->
-                <div class="osc-bar" id="sv-bar">
-                    <button id="sv-toggle-btn" class="osc-toggle-btn" title="Scope Video — WebRTC live stream / frame capture">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>
-                        </svg>
-                        <span id="sv-status-text">Video</span>
-                        <span class="osc-dot" id="sv-dot"></span>
-                    </button>
-                </div>
-
-                <!-- Scope Video Panel (collapsible) -->
-                <div class="osc-panel" id="sv-panel" style="display:none;">
-                    <div class="osc-panel-header">
-                        <span class="osc-panel-title">Video → Daydream Scope</span>
-                    </div>
-                    <div class="osc-panel-body">
+                        <!-- Connection -->
                         <label class="osc-row">
                             <span>Scope URL</span>
-                            <input type="text" id="sv-scope-url" value="http://127.0.0.1:7860" class="osc-input" />
+                            <input type="text" id="scope-url" value="http://127.0.0.1:7860" class="osc-input" />
                         </label>
-                        <label class="osc-row">
-                            <span>Stream FPS</span>
-                            <select id="sv-fps" class="osc-input osc-input-sm">
-                                <option value="5">5</option>
-                                <option value="10">10</option>
-                                <option value="15" selected>15</option>
-                                <option value="20">20</option>
-                                <option value="30">30</option>
-                            </select>
-                        </label>
-                    </div>
-                    <div class="osc-panel-footer">
-                        <button id="sv-stream-btn" class="osc-send-btn">▶ Start Stream</button>
-                        <button id="sv-pause-btn" class="osc-send-btn" disabled title="Freeze generation without disconnecting">⏸ Pause</button>
-                        <button id="sv-reset-cache-btn" class="osc-send-btn" disabled title="Clear frame cache to fix visual drift/artifacts">🔄 Reset Cache</button>
-                        <span id="sv-status-detail" class="osc-last-sent" title=""></span>
+
+                        <!-- OSC Section -->
+                        <div class="scope-section">
+                            <div class="scope-section-header" data-toggle="scope-osc-body">
+                                <span>▸ Prompt (OSC)</span>
+                                <span class="osc-dot scope-section-dot" id="osc-dot"></span>
+                            </div>
+                            <div class="scope-section-body" id="scope-osc-body">
+                                <label class="osc-row">
+                                    <span>Enabled</span>
+                                    <input type="checkbox" id="osc-enabled" />
+                                </label>
+                                <label class="osc-row">
+                                    <span>Auto-send on change</span>
+                                    <input type="checkbox" id="osc-auto-send" />
+                                </label>
+                                <label class="osc-row">
+                                    <span>OSC Port</span>
+                                    <input type="number" id="osc-port" value="9000" class="osc-input osc-input-sm" />
+                                </label>
+                                <label class="osc-row">
+                                    <span>Address</span>
+                                    <input type="text" id="osc-address" value="/prompts" class="osc-input" />
+                                </label>
+                                <label class="osc-row">
+                                    <span>Debounce (ms)</span>
+                                    <input type="number" id="osc-debounce" value="80" min="10" max="1000" class="osc-input osc-input-sm" />
+                                </label>
+                                <div class="osc-row" style="gap: 6px;">
+                                    <button id="osc-send-now" class="osc-send-btn" style="flex:1;">Send Now</button>
+                                </div>
+                                <span id="osc-last-sent" class="osc-last-sent" title=""></span>
+                            </div>
+                        </div>
+
+                        <!-- Video Section -->
+                        <div class="scope-section">
+                            <div class="scope-section-header" data-toggle="scope-video-body">
+                                <span>▸ Video Stream (WebRTC)</span>
+                                <span class="osc-dot scope-section-dot" id="sv-dot"></span>
+                            </div>
+                            <div class="scope-section-body" id="scope-video-body">
+                                <label class="osc-row">
+                                    <span>Stream FPS</span>
+                                    <select id="sv-fps" class="osc-input osc-input-sm">
+                                        <option value="5">5</option>
+                                        <option value="10">10</option>
+                                        <option value="15" selected>15</option>
+                                        <option value="20">20</option>
+                                        <option value="30">30</option>
+                                    </select>
+                                </label>
+                                <div class="osc-row" style="gap: 6px; flex-wrap: wrap;">
+                                    <button id="sv-stream-btn" class="osc-send-btn" style="flex:1;">▶ Start Stream</button>
+                                    <button id="sv-pause-btn" class="osc-send-btn" disabled title="Freeze generation without disconnecting">⏸</button>
+                                    <button id="sv-reset-cache-btn" class="osc-send-btn" disabled title="Clear frame cache">🔄</button>
+                                </div>
+                                <span id="sv-status-detail" class="osc-last-sent" title=""></span>
+                            </div>
+                        </div>
+
+                        <!-- Spout Section -->
+                        <div class="scope-section">
+                            <div class="scope-section-header" data-toggle="scope-spout-body">
+                                <span>▸ Display → Spout (via OBS)</span>
+                            </div>
+                            <div class="scope-section-body" id="scope-spout-body" style="display:none;">
+                                <p class="scope-help-text">
+                                    To send the display window to Scope via Spout:
+                                </p>
+                                <ol class="scope-help-list">
+                                    <li>Install <a href="https://github.com/Off-World-Live/obs-spout2-plugin" target="_blank">obs-spout2-plugin</a></li>
+                                    <li>Add a <b>Browser Source</b> in OBS with the URL below</li>
+                                    <li>Enable <b>Spout Output</b> in OBS (Tools → Spout Output)</li>
+                                    <li>In Scope, enable <b>Spout Receiver</b> as video input</li>
+                                </ol>
+                                <div class="osc-row" style="gap: 6px;">
+                                    <input type="text" id="scope-display-url" class="osc-input" readonly />
+                                    <button id="scope-copy-url" class="osc-send-btn" title="Copy display URL">📋</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Image Push Section -->
+                        <div class="scope-section">
+                            <div class="scope-section-header" data-toggle="scope-image-body">
+                                <span>▸ Image Push</span>
+                            </div>
+                            <div class="scope-section-body" id="scope-image-body" style="display:none;">
+                                <p class="scope-help-text">
+                                    Send a canvas snapshot to Scope as a VACE reference image for conditioning.
+                                </p>
+                                <button id="scope-send-frame" class="osc-send-btn" style="width:100%;">📸 Send Current Frame</button>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
+
+                <!-- Hidden fields for backward compat with OSCPanelUI -->
+                <input type="hidden" id="osc-host" value="127.0.0.1" />
 
                 <!-- Glitcher Status Bar -->
                 <div class="osc-bar" id="glitch-bar">
@@ -1027,7 +1064,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
 
         <!-- Load app as ES6 module -->
-        <script type="module" src="js/app.js?v=12"></script>
+        <script type="module" src="js/app.js?v=13"></script>
         <script src="js/studio-integration.js?v=28"></script>
 
         <!-- Layout switcher -->
@@ -1037,18 +1074,18 @@
             var btns = document.querySelectorAll('.layout-btn');
 
             function applyLayout(layout) {
-                root.classList.remove('layout-a', 'layout-b');
+                root.classList.remove('layout-a');
                 if (layout === 'a') root.classList.add('layout-a');
-                if (layout === 'b') root.classList.add('layout-b');
                 btns.forEach(function (btn) {
                     btn.classList.toggle('active', btn.dataset.layout === layout);
                 });
                 try { localStorage.setItem('synthograsizerLayout', layout); } catch (e) {}
             }
 
-            // Restore persisted choice
+            // Restore persisted choice — 'b' (docked) is removed, fall back to default
             var saved = 'default';
             try { saved = localStorage.getItem('synthograsizerLayout') || 'default'; } catch (e) {}
+            if (saved === 'b') saved = 'default';
             applyLayout(saved);
 
             btns.forEach(function (btn) {

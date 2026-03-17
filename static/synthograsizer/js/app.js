@@ -7,9 +7,10 @@ import { TemplateLoader } from './template-loader.js';
 import { CodeOverlayManager } from './code-overlay-manager.js?v=4';
 import { normalizeTemplate, getValueText, getValueWeight, getWeightsArray, computeTemplateFingerprint, generateTagId } from './template-normalizer.js?v=2';
 import { MIDIController } from './midi-controller.js?v=2';
-import { OSCController } from './osc-controller.js';
+import { OSCController } from './osc-controller.js?v=2';
 import { OSCPanelUI } from './osc-panel-ui.js';
-import { ScopeVideoClient } from './scope-video-client.js?v=4';
+import { ScopeVideoClient } from './scope-video-client.js?v=5';
+import { ScopeConnector } from './scope-connector.js';
 import { DisplayBroadcaster } from './display-broadcaster.js';
 import { GlitcherControls } from './glitcher-controls.js';
 
@@ -33,10 +34,11 @@ export class SynthograsizerSmall {
     this._knobDragState = null; // Track active knob drag
     this.midi = null;        // MIDIController instance
     this.midiUI = null;      // MIDIPanelUI instance
-    this.osc = null;         // OSCController instance
-    this.oscUI = null;       // OSCPanelUI instance
+    this.osc = null;              // OSCController instance
+    this.oscUI = null;            // OSCPanelUI instance
     this.scopeVideo = null;       // ScopeVideoClient instance
     this.scopeVideoUI = null;     // ScopeVideoPanelUI instance
+    this.scopeConnector = null;   // ScopeConnector instance
     this.displayBroadcaster = null; // DisplayBroadcaster instance
     this.glitcherControls = null; // GlitcherControls instance
 
@@ -137,6 +139,9 @@ export class SynthograsizerSmall {
 
       // Initialize Scope Video (WebRTC / frame capture)
       this._initScopeVideo();
+
+      // Initialize unified Scope connector (auto-discovery, health polling)
+      this._initScopeConnector();
 
       // Initialize OBS Display broadcaster
       this._initDisplayBroadcaster();
@@ -1557,6 +1562,231 @@ export class SynthograsizerSmall {
       },
     });
     this.scopeVideoUI = new ScopeVideoPanelUI(this, this.scopeVideo);
+  }
+
+  _initScopeConnector() {
+    if (!this.osc || !this.scopeVideo) return;
+
+    this.scopeConnector = new ScopeConnector({
+      osc: this.osc,
+      video: this.scopeVideo,
+      onStatusChange: (status, detail) => {
+        this._updateScopePanel(status, detail);
+      },
+    });
+
+    // Wire up unified panel UI
+    this._bindScopePanelEvents();
+
+    // Start auto-discovery
+    this.scopeConnector.start();
+  }
+
+  _bindScopePanelEvents() {
+    const panel = document.getElementById('scope-panel');
+    const toggleBtn = document.getElementById('scope-toggle-btn');
+    if (!panel || !toggleBtn) return;
+
+    // Toggle panel
+    toggleBtn.addEventListener('click', () => {
+      const open = panel.style.display !== 'none';
+      panel.style.display = open ? 'none' : 'block';
+      toggleBtn.classList.toggle('active', !open);
+    });
+
+    // Scope URL change
+    const urlInput = document.getElementById('scope-url');
+    urlInput?.addEventListener('change', () => {
+      this.scopeConnector.setScopeUrl(urlInput.value);
+    });
+
+    // ── OSC controls (replaces OSCPanelUI bindings) ──
+    const oscEnabled = document.getElementById('osc-enabled');
+    const oscAutoSend = document.getElementById('osc-auto-send');
+    const oscPort = document.getElementById('osc-port');
+    const oscAddress = document.getElementById('osc-address');
+    const oscDebounce = document.getElementById('osc-debounce');
+    const oscSendNow = document.getElementById('osc-send-now');
+    const oscLastSent = document.getElementById('osc-last-sent');
+    const oscDot = document.getElementById('osc-dot');
+
+    // Sync initial values from controller
+    if (oscEnabled) oscEnabled.checked = this.osc.enabled;
+    if (oscAutoSend) oscAutoSend.checked = this.osc.autoSend;
+    if (oscPort) oscPort.value = this.osc.port;
+    if (oscAddress) oscAddress.value = this.osc.address;
+    if (oscDebounce) oscDebounce.value = this.osc._debounceMs;
+
+    oscEnabled?.addEventListener('change', () => {
+      this.osc.setEnabled(oscEnabled.checked);
+      if (oscDot) {
+        oscDot.classList.toggle('osc-on', oscEnabled.checked);
+      }
+    });
+    oscAutoSend?.addEventListener('change', () => this.osc.setAutoSend(oscAutoSend.checked));
+    oscPort?.addEventListener('change', () => {
+      this.osc.updateTarget(null, oscPort.value);
+    });
+    oscAddress?.addEventListener('change', () => this.osc.setAddress(oscAddress.value));
+    oscDebounce?.addEventListener('change', () => {
+      this.osc.setDebounce(parseInt(oscDebounce.value, 10));
+    });
+    oscSendNow?.addEventListener('click', () => {
+      const prompt = this.getCurrentPromptText();
+      this.osc.sendPrompt(prompt);
+    });
+
+    // OSC status callbacks
+    this.osc.onStatusChange = (status) => {
+      if (oscDot) {
+        oscDot.classList.remove('osc-sent', 'osc-error');
+        if (status === 'sent') {
+          oscDot.classList.add('osc-sent');
+          setTimeout(() => oscDot.classList.remove('osc-sent'), 400);
+          oscDot.classList.add('osc-on');
+        } else if (status === 'error') {
+          oscDot.classList.add('osc-error');
+        } else if (status === 'enabled') {
+          oscDot.classList.add('osc-on');
+        }
+      }
+    };
+    this.osc.onSend = (prompt) => {
+      if (oscLastSent) {
+        const short = prompt.length > 60 ? prompt.slice(0, 57) + '...' : prompt;
+        oscLastSent.textContent = short;
+        oscLastSent.title = prompt;
+      }
+    };
+
+    // ── Video controls (replaces ScopeVideoPanelUI bindings for buttons) ──
+    const svStreamBtn = document.getElementById('sv-stream-btn');
+    const svPauseBtn = document.getElementById('sv-pause-btn');
+    const svResetBtn = document.getElementById('sv-reset-cache-btn');
+    const svFps = document.getElementById('sv-fps');
+    const svDot = document.getElementById('sv-dot');
+    const svDetail = document.getElementById('sv-status-detail');
+
+    if (svFps) svFps.value = this.scopeVideo.fps;
+
+    svFps?.addEventListener('change', () => {
+      this.scopeVideo.setFps(parseInt(svFps.value, 10));
+    });
+
+    svStreamBtn?.addEventListener('click', async () => {
+      if (this.scopeVideo.isStreaming) {
+        await this.scopeVideo.stopStream();
+      } else {
+        const canvas = this.codeOverlay?.getActiveCanvas();
+        const prompt = this.getCurrentPromptText();
+        await this.scopeVideo.startStream(canvas, prompt);
+      }
+    });
+
+    svPauseBtn?.addEventListener('click', () => {
+      if (this.scopeVideo._dataChannel?.readyState === 'open') {
+        // Toggle pause state
+        if (svPauseBtn.textContent.includes('Pause') || svPauseBtn.textContent.includes('⏸')) {
+          this.scopeVideo.pause();
+        } else {
+          this.scopeVideo.resume();
+        }
+      }
+    });
+
+    svResetBtn?.addEventListener('click', () => this.scopeVideo.resetCache());
+
+    // Override the video status callback to update our unified panel
+    this.scopeVideo.onStatusChange = (status, detail) => {
+      if (svDot) {
+        svDot.classList.remove('osc-on', 'osc-sent', 'osc-error');
+        if (status === 'streaming') svDot.classList.add('osc-on');
+        else if (status === 'paused' || status === 'reconnecting') svDot.classList.add('osc-sent');
+        else if (status === 'error') svDot.classList.add('osc-error');
+      }
+      if (svDetail) svDetail.textContent = detail || '';
+
+      if (svStreamBtn) {
+        if (status === 'streaming' || status === 'paused') {
+          svStreamBtn.textContent = '⏹ Stop';
+        } else if (status === 'connecting') {
+          svStreamBtn.textContent = '⏳...';
+          svStreamBtn.disabled = true;
+        } else {
+          svStreamBtn.textContent = '▶ Start Stream';
+          svStreamBtn.disabled = false;
+        }
+      }
+      if (svPauseBtn) {
+        svPauseBtn.disabled = !(status === 'streaming' || status === 'paused');
+        svPauseBtn.textContent = status === 'paused' ? '▶' : '⏸';
+      }
+      if (svResetBtn) {
+        svResetBtn.disabled = !(status === 'streaming' || status === 'paused');
+      }
+    };
+
+    // Section collapsible toggles
+    panel.querySelectorAll('.scope-section-header[data-toggle]').forEach(header => {
+      header.addEventListener('click', () => {
+        const targetId = header.getAttribute('data-toggle');
+        const body = document.getElementById(targetId);
+        if (!body) return;
+        const visible = body.style.display !== 'none';
+        body.style.display = visible ? 'none' : 'block';
+        // Update arrow
+        const span = header.querySelector('span');
+        if (span) {
+          span.textContent = span.textContent.replace(/^[▸▾]/, visible ? '▸' : '▾');
+        }
+      });
+    });
+
+    // Copy display URL
+    const copyBtn = document.getElementById('scope-copy-url');
+    const displayUrlInput = document.getElementById('scope-display-url');
+    if (displayUrlInput) {
+      displayUrlInput.value = this.scopeConnector.getDisplayUrl();
+    }
+    copyBtn?.addEventListener('click', async () => {
+      const ok = await this.scopeConnector.copyDisplayUrl();
+      copyBtn.textContent = ok ? '✓' : '✗';
+      setTimeout(() => { copyBtn.textContent = '📋'; }, 1500);
+    });
+
+    // Send frame button
+    const sendFrameBtn = document.getElementById('scope-send-frame');
+    sendFrameBtn?.addEventListener('click', async () => {
+      const canvas = this.codeOverlay?.getActiveCanvas();
+      if (canvas && this.scopeVideo) {
+        sendFrameBtn.disabled = true;
+        sendFrameBtn.textContent = '⏳ Sending...';
+        await this.scopeVideo.sendFrame(canvas);
+        sendFrameBtn.disabled = false;
+        sendFrameBtn.textContent = '📸 Send Current Frame';
+      }
+    });
+  }
+
+  _updateScopePanel(status, detail) {
+    const dot = document.getElementById('scope-dot');
+    const badge = document.getElementById('scope-health-badge');
+    const statusText = document.getElementById('scope-status-text');
+
+    if (!dot || !badge) return;
+
+    dot.classList.remove('osc-on', 'osc-sent', 'osc-error');
+
+    if (status === 'connected') {
+      dot.classList.add('osc-on');
+      badge.className = 'scope-health-badge online';
+      badge.textContent = 'Online';
+      if (statusText) statusText.textContent = 'Scope';
+    } else if (status === 'disconnected') {
+      badge.className = 'scope-health-badge offline';
+      badge.textContent = 'Offline';
+      if (statusText) statusText.textContent = 'Scope';
+    }
   }
 
   _initDisplayBroadcaster() {

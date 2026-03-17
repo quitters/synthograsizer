@@ -29,6 +29,7 @@
 const STORAGE_KEY = 'synthograsizerScopeVideoV1';
 const MAX_RECONNECT_ATTEMPTS = 3;
 const RECONNECT_DELAY_MS = 2000;
+const CONNECTION_TIMEOUT_MS = 10_000;
 
 export class ScopeVideoClient {
   /**
@@ -310,6 +311,7 @@ export class ScopeVideoClient {
             denoising_step_list: [700, 500],
           },
         }),
+        signal: AbortSignal.timeout(CONNECTION_TIMEOUT_MS),
       });
       if (!offerRes.ok) throw new Error(`Offer: HTTP ${offerRes.status}`);
 
@@ -345,15 +347,16 @@ export class ScopeVideoClient {
    *
    * @param {string}  prompt
    * @param {boolean} transition — use Scope's smooth N-step transition (default false)
+   * @returns {boolean} true if sent via data channel
    */
   sendPromptUpdate(prompt, transition = false) {
-    if (!prompt) return;
+    if (!prompt) return false;
 
     const msg = transition
       ? { transition: { target_prompts: [{ text: prompt, weight: 1.0 }], num_steps: 8 } }
       : { prompts: [{ text: prompt, weight: 1.0 }] };
 
-    this._sendDataChannelMsg(msg);
+    return this._sendDataChannelMsg(msg);
   }
 
   /**
@@ -417,11 +420,13 @@ export class ScopeVideoClient {
    * @param {object} obj
    */
   _sendDataChannelMsg(obj) {
-    if (!this._dataChannel || this._dataChannel.readyState !== 'open') return;
+    if (!this._dataChannel || this._dataChannel.readyState !== 'open') return false;
     try {
       this._dataChannel.send(JSON.stringify(obj));
+      return true;
     } catch (e) {
       console.warn('[ScopeVideo] data channel send failed', e);
+      return false;
     }
   }
 

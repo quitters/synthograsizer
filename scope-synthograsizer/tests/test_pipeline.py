@@ -1,8 +1,7 @@
 """Integration-level tests for the Glitcher preprocessor pipeline.
 
-These tests instantiate the pipeline and call __call__ with synthetic tensors,
-verifying the full flow from Scope tensor format through NumPy effects and
-back to Scope tensor format.
+These tests simulate the full effect chain with synthetic tensors,
+verifying the flow from NumPy uint8 through effects and back to float [0,1].
 
 Note: These tests do NOT import scope.core — they test the effect chain
 directly to avoid requiring Scope as a dependency in CI.

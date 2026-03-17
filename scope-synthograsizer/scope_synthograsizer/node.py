@@ -6,7 +6,5 @@ from scope.core.plugins.hookspecs import hookimpl
 @hookimpl
 def register_pipelines(register):
     from .pipelines.glitcher.pipeline import GlitcherPreprocessorPipeline
-    from .pipelines.companion.pipeline import CompanionPipeline
 
     register(GlitcherPreprocessorPipeline)
-    register(CompanionPipeline)

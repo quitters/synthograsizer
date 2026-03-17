@@ -722,6 +722,22 @@ async def osc_status():
     return osc_bridge.status()
 
 
+# ── Scope Discovery Endpoints ────────────────────────────────────────
+
+class ScopeDiscoverRequest(BaseModel):
+    scopeUrl: Optional[str] = None
+
+@app.post("/api/scope/discover")
+async def scope_discover(req: ScopeDiscoverRequest):
+    """Probe Scope's health endpoint and return connection info."""
+    return osc_bridge.discover_scope(req.scopeUrl)
+
+@app.get("/api/scope/discover")
+async def scope_discover_get():
+    """Quick health check of Scope at the current configured URL."""
+    return osc_bridge.discover_scope()
+
+
 if not STATIC_DIR.exists():
     print(f"WARNING: Static directory not found at {STATIC_DIR}")
 
