@@ -50,13 +50,14 @@ Open `display.html` as a dedicated fullscreen output for OBS, a projector, or an
 
 The display window also runs Glitcher effects independently, controlled from the main app.
 
+**Unified Scope Panel**
+A single "Scope" button in the sidebar manages all integration with [Daydream Scope](https://scope.daydream.fm) from one place. The panel auto-detects a running Scope instance on startup (green ONLINE badge) and provides four collapsible sections: Prompt via OSC, Video Stream via WebRTC, Display → Spout setup guide, and Image Push. Layout options are Default (single column) and Two Column.
+
 **OSC Bridge**
-Send the current prompt and variable state to [Daydream Scope](https://scope.daydream.fm) (or any OSC-compatible tool) over UDP. Configure host, port, and OSC address via the OSC panel. Supports auto-send on variable change or manual send-now. The Python backend includes `osc_bridge.py` — a FastAPI endpoint that forwards JSON payloads to OSC UDP.
+Send the current prompt and per-variable values to Scope (or any OSC-compatible tool) over UDP. Supports auto-send on every variable change or manual send-now. See [Scope Integration](#scope-integration) below for the full architecture.
 
 **Scope Video Client**
-Two WebRTC-based integration modes with Daydream Scope:
-- **Frame capture** — POST the current canvas as a PNG to Scope's asset API for use as a reference image
-- **Live stream** — Establish a WebRTC peer connection to stream the canvas at a configurable FPS with a data channel for real-time prompt updates
+Stream the p5.js canvas to Scope as a live video input via WebRTC, or push individual canvas snapshots as VACE reference images. Includes 10-second connection timeout and automatic reconnection. See [Scope Integration](#scope-integration) below.
 
 ### Templates
 
@@ -92,7 +93,87 @@ The Python backend (`backend/server.py`) provides:
 - **Video generation** via Veo 2 (local only — requires FFmpeg)
 - **Template generation** — LLM-powered JSON template creation from a description
 - **OSC forwarding** (`osc_bridge.py`) — UDP relay to Daydream Scope or any OSC target
+- **Scope discovery** — probes Scope's health endpoint to auto-configure OSC
 - **ChatRoom API** — SSE streaming for multi-agent conversations
+
+---
+
+## Scope Integration
+
+The Synthograsizer connects to [Daydream Scope](https://scope.daydream.fm) through three independent channels, all managed from the unified **Scope** sidebar panel.
+
+```
+┌─────────────────────────────────────┐     ┌──────────────────────────┐
+│   SYNTHOGRASIZER (browser :8001)    │     │   SCOPE (:7860)          │
+│                                     │     │                          │
+│  Prompts + variable values ─────────┼─OSC─▶  OSC listener (:9000)   │
+│  osc-controller.js → /api/osc/*     │ UDP │  /prompts, /synth/var/n  │
+│  → osc_bridge.py                    │     │                          │
+│                                     │     │                          │
+│  p5.js canvas stream ───────────────┼─────▶  WebRTC video input      │
+│  scope-video-client.js              │ WRT │  (canvas.captureStream)  │
+│                                     │  C  │                          │
+│  Canvas snapshots ──────────────────┼─────▶  /api/v1/assets          │
+│  (Image Push)                       │HTTP │  VACE reference images   │
+│                                     │     │                          │
+│  display.html ──────────────────────┼─OBS─▶  Spout Receiver          │
+│  → OBS Browser Source               │ SPT │  (GPU texture share)     │
+│  → obs-spout2-plugin                │     │                          │
+└─────────────────────────────────────┘     └──────────────────────────┘
+```
+
+### Channel 1 — OSC (Prompt + Variables)
+
+**Architecture:** The browser cannot send UDP directly. Every OSC message goes through the Python backend:
+
+```
+osc-controller.js  →  POST /api/osc/send-prompt   →  osc_bridge.py  →  UDP  →  Scope
+                       POST /api/osc/send-param
+```
+
+`osc_bridge.py` is a singleton `OSCBridge` instance created at import time using `python-osc`'s `SimpleUDPClient`. It holds the current target host and port and is reconfigured via `POST /api/osc/config`.
+
+**Default addresses:**
+
+| OSC Address | Type | Content |
+|---|---|---|
+| `/prompts` | string | Full resolved prompt text |
+| `/synthograsizer/var/{n}` | float (0–1) | Per-variable normalised value |
+| `/synthograsizer/var/{n}/text` | string | Variable name + current value text |
+
+**Default ports:** OSC target `127.0.0.1:9000` (Scope's default OSC port).
+
+**Auto-discovery:** On startup, `ScopeConnector` (`scope-connector.js`) calls `POST /api/scope/discover`, which probes `http://127.0.0.1:7860/health`. If Scope is found, OSC is automatically enabled and the target is configured. The connector polls every 10 seconds to detect Scope going online or offline.
+
+**Configuring in the UI:** Open the Scope panel → **Prompt (OSC)** section. Toggle *Enabled*, set *Auto-send on change* for live knob-to-Scope updates, and adjust port/address if needed.
+
+### Channel 2 — WebRTC (Live Canvas Stream)
+
+`scope-video-client.js` captures the p5.js canvas via `canvas.captureStream()` and establishes a WebRTC peer connection to Scope:
+
+1. POST offer to `{scopeUrl}/api/v1/webrtc/offer` with `initialParameters` (input mode, initial prompt)
+2. Scope returns an SDP answer and a session ID
+3. ICE candidates are exchanged via PATCH to `{scopeUrl}/api/v1/webrtc/offer/{sessionId}`
+4. A `parameters` data channel carries real-time prompt updates in both directions
+
+Prompt changes while streaming are sent through **both** the WebRTC data channel (sub-frame latency) and OSC (so other tools can receive them too).
+
+Connection timeout: 10 seconds. Auto-reconnects up to 3 times on unexpected disconnect.
+
+### Channel 3 — Spout (via OBS)
+
+Browsers can't send Spout (GPU texture sharing) directly. The path is:
+
+1. Open the **Display Window** (`display.html`) — fullscreen canvas output
+2. Add it as an **OBS Browser Source**: `http://127.0.0.1:8001/synthograsizer/display.html`
+3. In OBS: **Tools → Spout Output**, set sender name `Synthograsizer`
+4. In Scope: enable **Spout Receiver** as video input, select `Synthograsizer`
+
+The Scope panel's **Display → Spout** section shows these steps and provides a copy-URL button for the OBS Browser Source field.
+
+### Channel 4 — Image Push
+
+The **Image Push** section sends the current p5.js canvas frame as a PNG to Scope's asset API (`/api/v1/assets`), where it can be used as a VACE reference image for video conditioning. Also accessible via the **→ Scope** button in the p5.js live panel.
 
 ---
 
@@ -217,12 +298,12 @@ synthograsizer-suite/
 │   │   │   ├── template-loader.js        # Template import, export, normalization
 │   │   │   ├── batch-generator.js        # Batch prompt generation with streaming
 │   │   │   ├── midi-controller.js        # Web MIDI API (CC knobs + note triggers)
-│   │   │   ├── osc-controller.js         # OSC bridge client (calls osc_bridge.py)
-│   │   │   ├── osc-panel-ui.js           # OSC settings panel UI
+│   │   │   ├── osc-controller.js         # OSC bridge client → POST /api/osc/* → osc_bridge.py
+│   │   │   ├── scope-connector.js        # Unified Scope manager (auto-discovery, health polling)
+│   │   │   ├── scope-video-client.js     # WebRTC canvas stream + image push to Scope
 │   │   │   ├── display-broadcaster.js    # BroadcastChannel relay to display.html
 │   │   │   ├── display-glitcher.js       # Glitcher effects engine for display window
-│   │   │   ├── glitcher-controls.js      # Glitcher panel UI (integrated sidebar)
-│   │   │   └── scope-video-client.js     # WebRTC frame capture + stream to Scope
+│   │   │   └── glitcher-controls.js      # Glitcher panel UI (integrated sidebar)
 │   │   └── templates/          #     30+ JSON templates
 │   │       ├── strange-attractors.json
 │   │       ├── cellular-tapestry.json
@@ -240,6 +321,16 @@ synthograsizer-suite/
 ├── chatroom/                   # ChatRoom Node.js backend + React frontend source
 │   ├── server/                 #   Express + SSE + Gemini multi-agent orchestration
 │   └── client/                 #   React frontend (Vite)
+│
+├── scope-synthograsizer/       # Daydream Scope plugin package (pip install)
+│   ├── pyproject.toml          #   Package definition + entry point
+│   └── scope_synthograsizer/
+│       ├── node.py             #   Registers GlitcherPreprocessorPipeline with Scope
+│       ├── template_engine.py  #   Template loading + prompt resolution utility
+│       └── pipelines/glitcher/ #   NumPy/OpenCV glitch-art preprocessor pipeline
+│           ├── pipeline.py     #   Pipeline class (frame in → effects → frame out)
+│           ├── schema.py       #   Pydantic config (Literal dropdowns, float sliders)
+│           └── effects/        #   pixel_sort, slice_fx, color_fx, direction_fx, spiral_fx
 │
 ├── docs/                       # Reference documentation
 │   └── scope/                  #   Daydream Scope API reference mirror
