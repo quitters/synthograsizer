@@ -1,0 +1,137 @@
+{
+  "promptTemplate": "{{genre}} with {{mood}} energy, featuring {{lead_instrument}}, {{texture}} production, {{rhythm}} groove, {{atmosphere}} soundscape",
+  "variables": [
+    {
+      "name": "genre",
+      "feature_name": "Genre",
+      "values": [
+        {"text": "minimal techno", "weight": 3},
+        {"text": "ambient electronic", "weight": 3},
+        {"text": "lo-fi hip hop", "weight": 3},
+        {"text": "deep house", "weight": 2},
+        {"text": "synthpop", "weight": 2},
+        {"text": "jazz fusion", "weight": 2},
+        {"text": "drum and bass", "weight": 2},
+        {"text": "trip hop", "weight": 2},
+        {"text": "afrobeat", "weight": 1},
+        {"text": "post-punk", "weight": 1},
+        {"text": "psytrance", "weight": 1},
+        {"text": "bossa nova", "weight": 1},
+        {"text": "glitch hop", "weight": 1},
+        {"text": "electro swing", "weight": 1},
+        {"text": "shoegaze", "weight": 1},
+        {"text": "vaporwave", "weight": 1}
+      ]
+    },
+    {
+      "name": "mood",
+      "feature_name": "Mood",
+      "values": [
+        {"text": "dreamy and ethereal", "weight": 3},
+        {"text": "dark and brooding", "weight": 3},
+        {"text": "uplifting and euphoric", "weight": 2},
+        {"text": "melancholic and nostalgic", "weight": 2},
+        {"text": "hypnotic and meditative", "weight": 2},
+        {"text": "tense and suspenseful", "weight": 2},
+        {"text": "playful and quirky", "weight": 1},
+        {"text": "aggressive and driving", "weight": 1},
+        {"text": "warm and intimate", "weight": 2},
+        {"text": "cinematic and epic", "weight": 1},
+        {"text": "psychedelic", "weight": 1},
+        {"text": "unsettling", "weight": 1},
+        {"text": "chill", "weight": 3},
+        {"text": "funky", "weight": 2},
+        {"text": "experimental", "weight": 1},
+        {"text": "subdued melody", "weight": 2}
+      ]
+    },
+    {
+      "name": "lead_instrument",
+      "feature_name": "Lead Instrument",
+      "values": [
+        {"text": "spacey synths", "weight": 3},
+        {"text": "smooth pianos", "weight": 3},
+        {"text": "Rhodes piano", "weight": 2},
+        {"text": "Moog oscillations", "weight": 2},
+        {"text": "Buchla synths", "weight": 1},
+        {"text": "sitar", "weight": 1},
+        {"text": "harmonica", "weight": 1},
+        {"text": "cello", "weight": 2},
+        {"text": "slide guitar", "weight": 1},
+        {"text": "kalimba", "weight": 2},
+        {"text": "hang drum", "weight": 2},
+        {"text": "flamenco guitar", "weight": 1},
+        {"text": "303 acid bass", "weight": 2},
+        {"text": "mellotron", "weight": 1},
+        {"text": "vibraphone", "weight": 1},
+        {"text": "synth pads", "weight": 3}
+      ]
+    },
+    {
+      "name": "texture",
+      "feature_name": "Production Texture",
+      "values": [
+        {"text": "lo-fi", "weight": 3},
+        {"text": "saturated tones", "weight": 2},
+        {"text": "crunchy distortion", "weight": 2},
+        {"text": "bright tones", "weight": 2},
+        {"text": "glitchy effects", "weight": 2},
+        {"text": "echo", "weight": 3},
+        {"text": "swirling phasers", "weight": 1},
+        {"text": "sustained chords", "weight": 2},
+        {"text": "fat beats", "weight": 2},
+        {"text": "rich orchestration", "weight": 1},
+        {"text": "acoustic instruments", "weight": 2},
+        {"text": "dirty synths", "weight": 2},
+        {"text": "metallic twang", "weight": 1},
+        {"text": "boomy bass", "weight": 2},
+        {"text": "warm acoustic guitar", "weight": 2},
+        {"text": "ominous drone", "weight": 1}
+      ]
+    },
+    {
+      "name": "rhythm",
+      "feature_name": "Rhythm Pattern",
+      "values": [
+        {"text": "tight groove", "weight": 3},
+        {"text": "808 hip hop beat", "weight": 3},
+        {"text": "TR-909 drum machine", "weight": 2},
+        {"text": "funk drums", "weight": 2},
+        {"text": "bongos", "weight": 1},
+        {"text": "tabla", "weight": 1},
+        {"text": "conga drums", "weight": 1},
+        {"text": "djembe", "weight": 1},
+        {"text": "maracas", "weight": 1},
+        {"text": "danceable", "weight": 3},
+        {"text": "drumline", "weight": 1},
+        {"text": "breakbeat", "weight": 2},
+        {"text": "virtuoso", "weight": 1},
+        {"text": "sparse percussion", "weight": 2},
+        {"text": "live performance", "weight": 2},
+        {"text": "huge drop", "weight": 1}
+      ]
+    },
+    {
+      "name": "atmosphere",
+      "feature_name": "Atmosphere",
+      "values": [
+        {"text": "ethereal ambience", "weight": 3},
+        {"text": "psychedelic", "weight": 2},
+        {"text": "ambient", "weight": 3},
+        {"text": "weird noises", "weight": 1},
+        {"text": "upbeat", "weight": 2},
+        {"text": "emotional", "weight": 2},
+        {"text": "dreamy", "weight": 3},
+        {"text": "cinematic", "weight": 2},
+        {"text": "experimental", "weight": 1},
+        {"text": "cosmic", "weight": 2},
+        {"text": "industrial", "weight": 1},
+        {"text": "tropical", "weight": 1},
+        {"text": "nocturnal", "weight": 2},
+        {"text": "underwater", "weight": 1},
+        {"text": "desert", "weight": 1},
+        {"text": "forest", "weight": 1}
+      ]
+    }
+  ]
+}

@@ -9,7 +9,7 @@ import { normalizeTemplate, getValueText, getValueWeight, getWeightsArray, compu
 import { MIDIController } from './midi-controller.js?v=2';
 import { OSCController } from './osc-controller.js?v=2';
 import { OSCPanelUI } from './osc-panel-ui.js';
-import { ScopeVideoClient } from './scope-video-client.js?v=5';
+import { ScopeVideoClient } from './scope-video-client.js?v=6';
 import { ScopeConnector } from './scope-connector.js';
 import { DisplayBroadcaster } from './display-broadcaster.js';
 import { GlitcherControls } from './glitcher-controls.js';

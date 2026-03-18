@@ -162,6 +162,41 @@ class StudioIntegration {
             .btn-metadata-large { background: linear-gradient(to bottom right, #ffffff, #fbe9e7); border-bottom: 3px solid #ff5722; }
             .btn-metadata-large:hover { background: #fbe9e7; }
 
+            .btn-music-large { background: linear-gradient(to bottom right, #ffffff, #ede7f6); border-bottom: 3px solid #7c4dff; }
+            .btn-music-large:hover { background: #ede7f6; }
+
+            /* Music Studio specific */
+            .music-playback-controls { display: flex; gap: 8px; margin: 12px 0; justify-content: center; }
+            .music-playback-controls button {
+                padding: 10px 24px; border: none; border-radius: 8px; font-size: 16px;
+                cursor: pointer; font-weight: 600; transition: all 0.15s;
+            }
+            .music-btn-play { background: #4caf50; color: white; }
+            .music-btn-play:hover { background: #43a047; }
+            .music-btn-pause { background: #ff9800; color: white; }
+            .music-btn-pause:hover { background: #f57c00; }
+            .music-btn-stop { background: #f44336; color: white; }
+            .music-btn-stop:hover { background: #d32f2f; }
+            .music-status-dot {
+                display: inline-block; width: 10px; height: 10px; border-radius: 50%;
+                background: #999; margin-right: 6px; vertical-align: middle;
+            }
+            .music-status-dot.connected { background: #4caf50; }
+            .music-status-dot.playing { background: #4caf50; animation: pulse-dot 1s infinite; }
+            .music-status-dot.paused { background: #ff9800; }
+            .music-status-dot.error { background: #f44336; }
+            @keyframes pulse-dot { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+            .music-meter-canvas { width: 100%; height: 40px; border-radius: 6px; background: #1a1a2e; margin: 8px 0; }
+            .music-slider-row { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
+            .music-slider-row label { min-width: 90px; font-size: 13px; font-weight: 600; color: #555; }
+            .music-slider-row input[type="range"] { flex: 1; }
+            .music-slider-row .music-slider-value { min-width: 40px; text-align: right; font-size: 13px; color: #333; font-weight: 500; }
+            .music-toggle-row { display: flex; align-items: center; gap: 8px; margin: 4px 0; }
+            .music-prompt-row { display: flex; gap: 8px; align-items: flex-end; margin: 4px 0; }
+            .music-prompt-row textarea { flex: 1; min-height: 60px; resize: vertical; border: 1px solid #ddd; border-radius: 6px; padding: 8px; font-size: 13px; }
+            .music-prompt-weight { width: 60px; }
+            .music-prompts-list { display: flex; flex-direction: column; gap: 6px; }
+
             .file-preview {
                 margin-top: 8px;
                 display: none;
@@ -703,6 +738,10 @@ class StudioIntegration {
                 <button class="studio-btn-large btn-metadata-large" id="studio-metadata-btn">
                     <span class="icon">📋</span>
                     <span class="label">Metadata</span>
+                </button>
+                <button class="studio-btn-large btn-music-large" id="studio-music-btn">
+                    <span class="icon">🎵</span>
+                    <span class="label">Music<br>Studio</span>
                 </button>
             </div>
         `;
@@ -1382,6 +1421,119 @@ class StudioIntegration {
                 <textarea id="metadata-output" readonly style="width:100%; height:200px; padding:8px; border:1px solid #ddd; border-radius:6px; font-family:'Inter'; font-size:13px; background:#f9f9f9;"></textarea>
             </div>
         `);
+
+        // Music Studio Modal (Lyria RealTime)
+        this.createModal('music-studio-modal', 'Music Studio (Lyria RealTime)', `
+            <div style="margin-bottom:10px;">
+                <span class="music-status-dot" id="music-status-dot"></span>
+                <span id="music-status-text" style="font-size:13px; color:#666;">Disconnected</span>
+            </div>
+
+            <canvas id="music-level-meter" class="music-meter-canvas" width="400" height="40"></canvas>
+
+            <div class="music-playback-controls">
+                <button class="music-btn-play" id="music-play-btn">▶ Play</button>
+                <button class="music-btn-pause" id="music-pause-btn">⏸ Pause</button>
+                <button class="music-btn-stop" id="music-stop-btn">⏹ Stop</button>
+            </div>
+
+            <div class="studio-input-group">
+                <label>Prompts <button id="music-add-prompt-btn" style="font-size:11px; padding:2px 8px; cursor:pointer; border:1px solid #ccc; border-radius:4px; background:white;">+ Add Prompt</button></label>
+                <div class="music-prompts-list" id="music-prompts-list">
+                    <div class="music-prompt-row" data-idx="0">
+                        <textarea id="music-prompt-0" placeholder="e.g. minimal techno with deep bass, sparse percussion, atmospheric synths"></textarea>
+                        <div style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+                            <label style="font-size:11px; min-width:auto;">Wt</label>
+                            <input type="number" class="music-prompt-weight" id="music-weight-0" value="1.0" min="0.1" max="3.0" step="0.1" style="width:55px; padding:4px; border:1px solid #ddd; border-radius:4px; font-size:12px;">
+                        </div>
+                    </div>
+                </div>
+                <button class="studio-btn-primary" id="music-send-prompts-btn" style="margin-top:8px;">Send Prompts</button>
+            </div>
+
+            <div class="studio-input-group" style="margin-top:12px;">
+                <label>Generation Config</label>
+
+                <div class="music-slider-row">
+                    <label>BPM</label>
+                    <input type="range" id="music-bpm" min="60" max="200" value="120" step="1">
+                    <span class="music-slider-value" id="music-bpm-val">120</span>
+                </div>
+                <div class="music-slider-row">
+                    <label>Density</label>
+                    <input type="range" id="music-density" min="0" max="100" value="50" step="1">
+                    <span class="music-slider-value" id="music-density-val">0.50</span>
+                </div>
+                <div class="music-slider-row">
+                    <label>Brightness</label>
+                    <input type="range" id="music-brightness" min="0" max="100" value="50" step="1">
+                    <span class="music-slider-value" id="music-brightness-val">0.50</span>
+                </div>
+                <div class="music-slider-row">
+                    <label>Guidance</label>
+                    <input type="range" id="music-guidance" min="0" max="60" value="40" step="1">
+                    <span class="music-slider-value" id="music-guidance-val">4.0</span>
+                </div>
+                <div class="music-slider-row">
+                    <label>Temperature</label>
+                    <input type="range" id="music-temperature" min="0" max="30" value="11" step="1">
+                    <span class="music-slider-value" id="music-temperature-val">1.1</span>
+                </div>
+                <div class="music-slider-row">
+                    <label>Volume</label>
+                    <input type="range" id="music-volume" min="0" max="100" value="80" step="1">
+                    <span class="music-slider-value" id="music-volume-val">80%</span>
+                </div>
+
+                <div class="music-slider-row">
+                    <label>Scale</label>
+                    <select id="music-scale" style="flex:1; padding:6px; border:1px solid #ddd; border-radius:4px; font-size:13px;">
+                        <option value="SCALE_UNSPECIFIED" selected>Auto (Model decides)</option>
+                        <option value="C_MAJOR_A_MINOR">C Major / A Minor</option>
+                        <option value="D_FLAT_MAJOR_B_FLAT_MINOR">D♭ Major / B♭ Minor</option>
+                        <option value="D_MAJOR_B_MINOR">D Major / B Minor</option>
+                        <option value="E_FLAT_MAJOR_C_MINOR">E♭ Major / C Minor</option>
+                        <option value="E_MAJOR_D_FLAT_MINOR">E Major / C♯ Minor</option>
+                        <option value="F_MAJOR_D_MINOR">F Major / D Minor</option>
+                        <option value="G_FLAT_MAJOR_E_FLAT_MINOR">G♭ Major / E♭ Minor</option>
+                        <option value="G_MAJOR_E_MINOR">G Major / E Minor</option>
+                        <option value="A_FLAT_MAJOR_F_MINOR">A♭ Major / F Minor</option>
+                        <option value="A_MAJOR_G_FLAT_MINOR">A Major / F♯ Minor</option>
+                        <option value="B_FLAT_MAJOR_G_MINOR">B♭ Major / G Minor</option>
+                        <option value="B_MAJOR_A_FLAT_MINOR">B Major / G♯ Minor</option>
+                    </select>
+                </div>
+
+                <div class="music-slider-row">
+                    <label>Mode</label>
+                    <select id="music-mode" style="flex:1; padding:6px; border:1px solid #ddd; border-radius:4px; font-size:13px;">
+                        <option value="QUALITY" selected>Quality</option>
+                        <option value="DIVERSITY">Diversity</option>
+                        <option value="VOCALIZATION">Vocalization</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="display:flex; gap:16px; flex-wrap:wrap; margin-top:8px;">
+                <div class="music-toggle-row">
+                    <input type="checkbox" id="music-mute-bass"> <label for="music-mute-bass" style="font-size:13px;">Mute Bass</label>
+                </div>
+                <div class="music-toggle-row">
+                    <input type="checkbox" id="music-mute-drums"> <label for="music-mute-drums" style="font-size:13px;">Mute Drums</label>
+                </div>
+                <div class="music-toggle-row">
+                    <input type="checkbox" id="music-only-bass-drums"> <label for="music-only-bass-drums" style="font-size:13px;">Only Bass & Drums</label>
+                </div>
+            </div>
+
+            <div style="margin-top:12px; padding:10px; background:#f5f0ff; border-radius:8px; border:1px solid #d1c4e9;">
+                <div class="music-toggle-row">
+                    <input type="checkbox" id="music-auto-sync">
+                    <label for="music-auto-sync" style="font-size:13px; font-weight:600; color:#5e35b1;">Auto-Sync with Synthograsizer</label>
+                </div>
+                <small style="color:#666; display:block; margin-top:4px;">When enabled, changing variables in the main UI will smoothly transition the music to match the new prompt.</small>
+            </div>
+        `);
     }
 
     setupFileClearButtons() {
@@ -1514,6 +1666,119 @@ class StudioIntegration {
         this.bindSafe('studio-analysis-btn', 'onclick', () => this.openModal('image-analysis-modal'));
         this.bindSafe('studio-metadata-btn', 'onclick', () => this.openModal('metadata-reader-modal'));
         this.bindSafe('enhance-prompt-btn', 'onclick', () => this.enhancePrompt());
+
+        // ── Music Studio ──────────────────────────────────────────
+        this.musicClient = new MusicStudioClient(this.app);
+
+        this.bindSafe('studio-music-btn', 'onclick', () => {
+            // Auto-fill prompt from current Synthograsizer output
+            const prompt0 = document.getElementById('music-prompt-0');
+            if (prompt0 && this.getCurrentPrompt) {
+                prompt0.value = this.getCurrentPrompt();
+            }
+            this.openModal('music-studio-modal');
+        });
+
+        this.bindSafe('music-play-btn', 'onclick', () => {
+            this.musicClient.connect();
+            // Small delay to let WS connect, then send prompts + config + play
+            setTimeout(() => {
+                this._musicSendPrompts();
+                this._musicSendConfig();
+                this.musicClient.play();
+                const meter = document.getElementById('music-level-meter');
+                if (meter) this.musicClient.attachMeter(meter);
+            }, 500);
+        });
+
+        this.bindSafe('music-pause-btn', 'onclick', () => this.musicClient.pause());
+        this.bindSafe('music-stop-btn', 'onclick', () => {
+            this.musicClient.stop();
+            this.musicClient.disconnect();
+        });
+
+        this.bindSafe('music-send-prompts-btn', 'onclick', () => this._musicSendPrompts());
+
+        // Add Prompt button
+        this.bindSafe('music-add-prompt-btn', 'onclick', () => {
+            const list = document.getElementById('music-prompts-list');
+            if (!list) return;
+            const idx = list.children.length;
+            const row = document.createElement('div');
+            row.className = 'music-prompt-row';
+            row.dataset.idx = idx;
+            row.innerHTML = `
+                <textarea id="music-prompt-${idx}" placeholder="Additional prompt to blend..."></textarea>
+                <div style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+                    <label style="font-size:11px; min-width:auto;">Wt</label>
+                    <input type="number" class="music-prompt-weight" id="music-weight-${idx}" value="1.0" min="0.1" max="3.0" step="0.1" style="width:55px; padding:4px; border:1px solid #ddd; border-radius:4px; font-size:12px;">
+                </div>
+                <button onclick="this.parentElement.remove()" style="background:none; border:none; cursor:pointer; font-size:18px; color:#999;" title="Remove">×</button>
+            `;
+            list.appendChild(row);
+        });
+
+        // Slider value displays
+        const musicSliders = [
+            { id: 'music-bpm', valId: 'music-bpm-val', fmt: v => v },
+            { id: 'music-density', valId: 'music-density-val', fmt: v => (v / 100).toFixed(2) },
+            { id: 'music-brightness', valId: 'music-brightness-val', fmt: v => (v / 100).toFixed(2) },
+            { id: 'music-guidance', valId: 'music-guidance-val', fmt: v => (v / 10).toFixed(1) },
+            { id: 'music-temperature', valId: 'music-temperature-val', fmt: v => (v / 10).toFixed(1) },
+            { id: 'music-volume', valId: 'music-volume-val', fmt: v => v + '%' },
+        ];
+        musicSliders.forEach(({ id, valId, fmt }) => {
+            const slider = document.getElementById(id);
+            const display = document.getElementById(valId);
+            if (slider && display) {
+                slider.addEventListener('input', () => {
+                    display.textContent = fmt(parseInt(slider.value));
+                    // Live config update for non-context-reset params
+                    if (id === 'music-volume') {
+                        this.musicClient.setVolume(parseInt(slider.value) / 100);
+                    } else if (this.musicClient.status === 'playing') {
+                        this._musicSendConfig();
+                    }
+                });
+            }
+        });
+
+        // BPM and Scale need context reset — warn user
+        ['music-bpm', 'music-scale'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('change', () => {
+                    if (this.musicClient.status === 'playing') {
+                        this.showToast('BPM/Scale change requires context reset — brief interruption', 'info');
+                        this._musicSendConfig();
+                        this.musicClient.resetContext();
+                    }
+                });
+            }
+        });
+
+        // Auto-sync toggle
+        const autoSyncCheck = document.getElementById('music-auto-sync');
+        if (autoSyncCheck) {
+            autoSyncCheck.addEventListener('change', () => {
+                this.musicClient.enableAutoSync(autoSyncCheck.checked);
+            });
+        }
+
+        // Status listener
+        window.addEventListener('music-status', (e) => {
+            const dot = document.getElementById('music-status-dot');
+            const text = document.getElementById('music-status-text');
+            if (!dot || !text) return;
+            const s = e.detail.status;
+            dot.className = 'music-status-dot ' + s;
+            text.textContent = s.charAt(0).toUpperCase() + s.slice(1);
+        });
+
+        // Error listener
+        window.addEventListener('music-error', (e) => {
+            this.showToast(e.detail.error, 'error');
+        });
 
         // Aspect Ratio Description Logic
         const aspectSelect = document.getElementById('image-aspect-select');
@@ -4066,6 +4331,56 @@ class StudioIntegration {
         } catch (e) {
             this.showError("Batch analysis failed: " + e.message);
         }
+    }
+
+    // ── Music Studio Helpers ──────────────────────────────────────────
+
+    _musicSendPrompts() {
+        const list = document.getElementById('music-prompts-list');
+        if (!list) return;
+        const prompts = [];
+        list.querySelectorAll('.music-prompt-row').forEach(row => {
+            const idx = row.dataset.idx;
+            const textarea = document.getElementById(`music-prompt-${idx}`);
+            const weightInput = document.getElementById(`music-weight-${idx}`);
+            const text = textarea?.value?.trim();
+            if (text) {
+                prompts.push({
+                    text,
+                    weight: parseFloat(weightInput?.value || '1.0'),
+                });
+            }
+        });
+        if (prompts.length > 0) {
+            this.musicClient.setPrompts(prompts);
+        }
+    }
+
+    _musicSendConfig() {
+        const cfg = {};
+        const bpm = document.getElementById('music-bpm');
+        const density = document.getElementById('music-density');
+        const brightness = document.getElementById('music-brightness');
+        const guidance = document.getElementById('music-guidance');
+        const temperature = document.getElementById('music-temperature');
+        const scale = document.getElementById('music-scale');
+        const mode = document.getElementById('music-mode');
+        const muteBass = document.getElementById('music-mute-bass');
+        const muteDrums = document.getElementById('music-mute-drums');
+        const onlyBD = document.getElementById('music-only-bass-drums');
+
+        if (bpm) cfg.bpm = parseInt(bpm.value);
+        if (density) cfg.density = parseInt(density.value) / 100;
+        if (brightness) cfg.brightness = parseInt(brightness.value) / 100;
+        if (guidance) cfg.guidance = parseInt(guidance.value) / 10;
+        if (temperature) cfg.temperature = parseInt(temperature.value) / 10;
+        if (scale) cfg.scale = scale.value;
+        if (mode) cfg.music_generation_mode = mode.value;
+        if (muteBass) cfg.mute_bass = muteBass.checked;
+        if (muteDrums) cfg.mute_drums = muteDrums.checked;
+        if (onlyBD) cfg.only_bass_and_drums = onlyBD.checked;
+
+        this.musicClient.setConfig(cfg);
     }
 
     async runMetadataExtraction() {

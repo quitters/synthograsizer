@@ -50,8 +50,23 @@ Open `display.html` as a dedicated fullscreen output for OBS, a projector, or an
 
 The display window also runs Glitcher effects independently, controlled from the main app.
 
+**Studio / Performance Modes**
+The layout switcher now offers two named modes instead of generic columns:
+- **Studio** — single-column layout with the full AI Studio Tools panel visible (Image Studio, Video Studio, Transform, AI Chat, Template Gen, Image Analysis, Metadata, Music Studio)
+- **Performance** — two-column layout (output + D-pad side by side) with the AI Studio Tools panel hidden — a clean performance surface for live use
+
+**Hardware Synth Theme**
+A drop-in CSS override (`css/synth-hardware-theme.css`) applies a cohesive hardware synthesizer aesthetic to the entire UI:
+- Cream/parchment chassis inspired by the Roland Juno-106 and Casio PT-1
+- Teal/mint accent color (`#3dbdad`) on the title, nav links, section labels, and active states
+- NeoBrutalism design language: bold 2px borders, offset box-shadows, physical press animations
+- No external CSS framework — all creative coding; Google Fonts CDN is the only external dependency (Orbitron, VT323, Share Tech Mono)
+
+**Music Studio**
+A new Music Studio panel is available in the AI Studio Tools grid. Generates music via the backend `music_manager.py` module with play/pause/stop transport controls.
+
 **Unified Scope Panel**
-A single "Scope" button in the sidebar manages all integration with [Daydream Scope](https://scope.daydream.fm) from one place. The panel auto-detects a running Scope instance on startup (green ONLINE badge) and provides four collapsible sections: Prompt via OSC, Video Stream via WebRTC, Display → Spout setup guide, and Image Push. Layout options are Default (single column) and Two Column.
+A single "Scope" button in the sidebar manages all integration with [Daydream Scope](https://scope.daydream.fm) from one place. The panel auto-detects a running Scope instance on startup (green ONLINE badge) and provides four collapsible sections: Prompt via OSC, Video Stream via WebRTC, Display → Spout setup guide, and Image Push.
 
 **OSC Bridge**
 Send the current prompt and per-variable values to Scope (or any OSC-compatible tool) over UDP. Supports auto-send on every variable change or manual send-now. See [Scope Integration](#scope-integration) below for the full architecture.
@@ -173,7 +188,16 @@ The Scope panel's **Display → Spout** section shows these steps and provides a
 
 ### Channel 4 — Image Push
 
-The **Image Push** section sends the current p5.js canvas frame as a PNG to Scope's asset API (`/api/v1/assets`), where it can be used as a VACE reference image for video conditioning. Also accessible via the **→ Scope** button in the p5.js live panel.
+The **Image Push** section sends the current p5.js canvas frame as a PNG to Scope for use as a VACE reference image. Also accessible via the **→ Scope** button in the p5.js live panel.
+
+**Architecture (local Scope):** Rather than calling Scope's `/api/v1/assets` endpoint directly (which requires CDN auth tokens in cloud mode), image push routes through the Synthograsizer Python backend:
+
+```
+browser  →  POST /api/scope/save-asset  →  backend writes PNG to ~/.daydream-scope/assets/
+         →  data channel / WebRTC offer carries vace_ref_images: [filename]  →  Scope
+```
+
+When a WebRTC stream is active, `vace_ref_images` is delivered via the existing data channel. When not streaming, a minimal text-mode WebRTC offer is created with `initialParameters: { vace_ref_images: [path] }` to set the reference image in Scope without starting a full video stream.
 
 ---
 
@@ -279,8 +303,9 @@ launch-all.bat
 synthograsizer-suite/
 │
 ├── backend/                    # Python FastAPI server + AI integration
-│   ├── server.py               #   API endpoints (image, video, template gen, chat)
+│   ├── server.py               #   API endpoints (image, video, template gen, chat, scope asset proxy)
 │   ├── ai_manager.py           #   Google GenAI client (Gemini, Imagen, Veo)
+│   ├── music_manager.py        #   Music generation backend
 │   ├── osc_bridge.py           #   OSC UDP relay to Daydream Scope / any OSC target
 │   └── config.py               #   Model names and app settings
 │
@@ -291,16 +316,20 @@ synthograsizer-suite/
 │   │   ├── index.html          #     Main app page
 │   │   ├── display.html        #     Fullscreen display window (OBS / projector output)
 │   │   ├── css/
+│   │   │   ├── style.css                 #   Base styles
+│   │   │   ├── layout-options.css        #   Studio / Performance layout rules
+│   │   │   └── synth-hardware-theme.css  #   Hardware synth theme (Casio PT-1 / Roland Juno aesthetic)
 │   │   ├── js/
 │   │   │   ├── app.js                    # D-pad UI, variable navigation, p5 panel
 │   │   │   ├── studio-integration.js     # AI backend integration (image, video, batch)
+│   │   │   ├── music-studio.js           # Music Studio panel (generation + transport)
 │   │   │   ├── code-overlay-manager.js   # Template / p5.js code editor overlay
 │   │   │   ├── template-loader.js        # Template import, export, normalization
 │   │   │   ├── batch-generator.js        # Batch prompt generation with streaming
 │   │   │   ├── midi-controller.js        # Web MIDI API (CC knobs + note triggers)
 │   │   │   ├── osc-controller.js         # OSC bridge client → POST /api/osc/* → osc_bridge.py
 │   │   │   ├── scope-connector.js        # Unified Scope manager (auto-discovery, health polling)
-│   │   │   ├── scope-video-client.js     # WebRTC canvas stream + image push to Scope
+│   │   │   ├── scope-video-client.js     # WebRTC canvas stream + image push via backend proxy
 │   │   │   ├── display-broadcaster.js    # BroadcastChannel relay to display.html
 │   │   │   ├── display-glitcher.js       # Glitcher effects engine for display window
 │   │   │   └── glitcher-controls.js      # Glitcher panel UI (integrated sidebar)

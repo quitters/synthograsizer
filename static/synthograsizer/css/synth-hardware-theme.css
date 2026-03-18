@@ -1,0 +1,957 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   SYNTHOGRASIZER — HARDWARE SYNTH THEME
+   Roland Juno / Korg Polysix aesthetic — cream chassis, pastel accents
+   NeoBrutalism design language (warm brown shadows)
+   Drop-in override — linked after base stylesheets
+   ═══════════════════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap');
+
+/* ── Design Tokens ────────────────────────────────────────────────────── */
+:root {
+  /* Cream chassis surfaces */
+  --hw-chassis:     #ede6d8;
+  --hw-panel:       #e4dccf;
+  --hw-surface:     #d8d0c2;
+  --hw-recessed:    #c8c0b0;
+
+  /* Warm brown borders & NeoBrutalism shadows */
+  --hw-border:      2px solid #7a6e5e;
+  --hw-border-soft: 1px solid #c0b8a8;
+  --hw-shadow:      3px 3px 0 #7a6e5e;
+  --hw-shadow-sm:   2px 2px 0 #7a6e5e;
+  --hw-inset:       inset 2px 2px 4px rgba(90,80,60,.18),
+                    inset -1px -1px 2px rgba(255,255,255,.6);
+
+  /* Warm metal accents */
+  --hw-chrome:      #b0a898;
+  --hw-chrome-hi:   #ccc4b4;
+
+  /* Text */
+  --hw-text:        #2e2418;
+  --hw-text-dim:    #8a7e6e;
+  --hw-text-label:  #a09080;
+
+  /* Display panel — warm parchment with dark ink */
+  --hw-lcd-bg:      #f0e8d0;
+  --hw-lcd-text:    #1e180e;
+  --hw-lcd-dim:     #b0a888;
+
+  /* Variable accent colors — muted pastels, warm-shifted */
+  --color-blue:     #5a8ab8;
+  --color-yellow:   #c8962a;
+  --color-orange:   #c07040;
+  --color-pink:     #c06880;
+  --color-purple:   #8868a8;
+  --color-cyan:     #4898a8;
+  --color-green:    #5a9870;
+  --color-red:      #b85050;
+
+  /* Override global tokens */
+  --bg-main:        #ede6d8;
+  --bg-card:        #e4dccf;
+  --border-color:   #c0b8a8;
+  --text-primary:   #2e2418;
+  --text-secondary: #8a7e6e;
+  --radius-sm:      3px;
+  --radius-md:      4px;
+  --radius-lg:      6px;
+  --shadow-sm:      var(--hw-shadow-sm);
+  --shadow-md:      var(--hw-shadow);
+  --shadow-lg:      4px 4px 0 #7a6e5e;
+
+  /* Typography */
+  --font-display: 'VT323', 'Courier New', monospace;
+  --font-label:   'Share Tech Mono', 'Courier New', monospace;
+  --font-brand:   'Orbitron', sans-serif;
+}
+
+/* ── Base ─────────────────────────────────────────────────────────────── */
+body,
+.page-wrapper {
+  font-family: var(--font-label) !important;
+  background: var(--hw-chassis) !important;
+  /* Very subtle linen-like grain */
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent, transparent 3px,
+      rgba(100,80,40,.025) 3px, rgba(100,80,40,.025) 4px
+    ) !important;
+  color: var(--hw-text);
+}
+
+/* ── App Header ───────────────────────────────────────────────────────── */
+.app-title {
+  font-family: var(--font-brand);
+  font-weight: 900;
+  font-size: 26px;
+  letter-spacing: 5px;
+  color: var(--hw-text);
+  text-transform: uppercase;
+}
+
+.app-tagline {
+  font-family: var(--font-label);
+  color: var(--hw-text-dim);
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-top: 6px;
+}
+
+/* ── Layout Switcher ──────────────────────────────────────────────────── */
+.layout-btn {
+  background: var(--hw-surface);
+  border: var(--hw-border);
+  box-shadow: var(--hw-shadow-sm);
+  color: var(--hw-text-label);
+  font-family: var(--font-label);
+  font-size: 11px;
+  letter-spacing: 1px;
+  border-radius: 3px;
+  transition: none;
+}
+
+.layout-btn:hover {
+  filter: brightness(.96);
+  transform: none;
+  box-shadow: var(--hw-shadow-sm);
+}
+
+.layout-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+.layout-btn.active {
+  background: var(--hw-recessed);
+  color: var(--hw-text);
+  border-color: var(--hw-text);
+  box-shadow: var(--hw-inset);
+  font-weight: 600;
+}
+
+/* ── Output / Display Panel ───────────────────────────────────────────── */
+.output-section {
+  background: var(--hw-panel);
+  border: var(--hw-border);
+  box-shadow: var(--hw-shadow);
+  border-radius: 4px;
+  padding: 16px 20px;
+}
+
+.output-label {
+  font-family: var(--font-label);
+  font-size: 10px;
+  letter-spacing: 2.5px;
+  color: var(--hw-text-label);
+  text-transform: uppercase;
+}
+
+/* Warm parchment display */
+.output-container {
+  background: var(--hw-lcd-bg);
+  border: var(--hw-border);
+  border-radius: 2px;
+  box-shadow: var(--hw-inset);
+  font-family: var(--font-display);
+  font-size: 19px;
+  line-height: 1.55;
+  color: var(--hw-lcd-text);
+}
+
+.output-container:empty::before {
+  color: var(--hw-lcd-dim);
+  font-style: normal;
+  font-family: var(--font-display);
+}
+
+/* Variable value chips — pastel on warm parchment */
+.output-container .variable-value.var-blue   { color: var(--color-blue);   background: rgba(90,138,184,.1);  border-radius: 2px; }
+.output-container .variable-value.var-yellow { color: var(--color-yellow); background: rgba(200,150,42,.1);  border-radius: 2px; }
+.output-container .variable-value.var-orange { color: var(--color-orange); background: rgba(192,112,64,.1);  border-radius: 2px; }
+.output-container .variable-value.var-pink   { color: var(--color-pink);   background: rgba(192,104,128,.1); border-radius: 2px; }
+.output-container .variable-value.var-purple { color: var(--color-purple); background: rgba(136,104,168,.1); border-radius: 2px; }
+.output-container .variable-value.var-cyan   { color: var(--color-cyan);   background: rgba(72,152,168,.1);  border-radius: 2px; }
+.output-container .variable-value.var-green  { color: var(--color-green);  background: rgba(90,152,112,.1);  border-radius: 2px; }
+.output-container .variable-value.var-red    { color: var(--color-red);    background: rgba(184,80,80,.1);   border-radius: 2px; }
+
+.output-container .variable-highlighted {
+  background: rgba(90,80,60,.08) !important;
+  box-shadow: inset 0 1px 3px rgba(90,80,60,.15), 0 0 0 1px rgba(90,80,60,.12);
+  border-radius: 2px;
+}
+
+/* ── Icon Buttons (Copy / Code / Fave / Send) ─────────────────────────── */
+.icon-btn {
+  background: var(--hw-surface);
+  border: var(--hw-border);
+  box-shadow: var(--hw-shadow-sm);
+  border-radius: 3px;
+  color: var(--hw-text-label);
+  font-family: var(--font-label);
+  font-size: 11px;
+  transition: none;
+}
+
+.icon-btn:hover {
+  filter: brightness(.95);
+  transform: none;
+  box-shadow: var(--hw-shadow-sm);
+}
+
+.icon-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+.icon-btn.copied {
+  background: rgba(90,152,112,.15);
+  color: var(--color-green);
+  border-color: var(--color-green);
+  box-shadow: 2px 2px 0 var(--color-green);
+}
+
+.icon-btn.favorite-btn.favorited {
+  background: rgba(184,80,80,.12);
+  color: var(--color-red);
+  border-color: var(--color-red);
+  box-shadow: 2px 2px 0 var(--color-red);
+}
+
+/* ── Primary Buttons ──────────────────────────────────────────────────── */
+.primary-btn {
+  border: var(--hw-border);
+  box-shadow: var(--hw-shadow);
+  border-radius: 4px;
+  font-family: var(--font-brand);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  transition: none;
+  overflow: hidden;
+}
+
+.primary-btn::before { display: none; }
+
+.primary-btn:hover {
+  filter: brightness(.95);
+  transform: none;
+  box-shadow: var(--hw-shadow);
+}
+
+.primary-btn:active {
+  transform: translate(3px, 3px);
+  box-shadow: none;
+  filter: brightness(.9);
+}
+
+.randomize-btn {
+  background: #e8d0d4;
+  color: #7a3048;
+  border-color: #c06880;
+  box-shadow: 3px 3px 0 #c06880;
+}
+
+.generate-btn {
+  background: #d0d4e8;
+  color: #2a3068;
+  border-color: #5a8ab8;
+  box-shadow: 3px 3px 0 #5a8ab8;
+}
+
+.p5-run-main-btn {
+  background: #d0e8d8;
+  color: #1e4830;
+  border-color: #5a9870;
+  box-shadow: 3px 3px 0 #5a9870;
+}
+
+.p5-run-main-btn.running {
+  background: #e8d0d0;
+  color: #5a1818;
+  border-color: #b85050;
+  box-shadow: 3px 3px 0 #b85050;
+}
+
+/* ── Mode Toggle (D-Pad / Knobs) ──────────────────────────────────────── */
+.mode-toggle-btn {
+  background: var(--hw-surface);
+  border: var(--hw-border);
+  box-shadow: var(--hw-shadow-sm);
+  color: var(--hw-text-dim);
+  font-family: var(--font-label);
+  font-size: 11px;
+  letter-spacing: .5px;
+  border-radius: 3px;
+  transition: none;
+}
+
+.mode-toggle-btn:hover {
+  filter: brightness(.95);
+  color: var(--hw-text);
+  transform: none;
+  box-shadow: var(--hw-shadow-sm);
+}
+
+.mode-toggle-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+.mode-toggle-btn.active {
+  background: var(--hw-recessed);
+  color: var(--hw-text);
+  border-color: #7a6e5e;
+  box-shadow: var(--hw-inset);
+  font-weight: 600;
+}
+
+/* ── Control Box (D-Pad Unit) ─────────────────────────────────────────── */
+.control-box {
+  background: var(--hw-panel);
+  border: var(--hw-border);
+  border-radius: 6px;
+  box-shadow:
+    var(--hw-shadow),
+    inset 0 1px 0 rgba(255,255,255,.5),
+    inset 0 -2px 0 rgba(90,80,60,.1);
+}
+
+/* Center Display — warm parchment */
+.control-variable-name {
+  background: var(--hw-lcd-bg) !important;
+  border: var(--hw-border) !important;
+  border-color: var(--current-color, #7a6e5e) !important;
+  border-radius: 3px !important;
+  box-shadow: var(--hw-inset) !important;
+}
+
+/* Variable name header strip */
+.control-variable-name::before {
+  background: #e8dfca;
+  color: var(--current-color, var(--hw-text-dim));
+  font-family: var(--font-label);
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  padding: 7px 12px;
+  border-bottom: 1px solid var(--current-color, #c0b8a8);
+}
+
+/* Value readout */
+.control-value {
+  font-family: var(--font-display);
+  font-size: 38px;
+  font-weight: 400;
+  color: var(--current-color, var(--hw-text));
+  letter-spacing: 1px;
+  transition: font-size .15s ease, color .2s ease;
+}
+
+/* ── D-Pad Arrow Buttons ──────────────────────────────────────────────── */
+.nav-arrow,
+.control-arrow {
+  background: var(--hw-surface);
+  border: var(--hw-border);
+  box-shadow: var(--hw-shadow-sm);
+  border-radius: 4px;
+  transition: none;
+}
+
+.nav-arrow:hover,
+.control-arrow:hover {
+  filter: brightness(.95);
+  background: var(--hw-surface);
+  transform: none;
+  box-shadow: var(--hw-shadow-sm);
+}
+
+.nav-arrow:active,
+.control-arrow:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+  background: var(--hw-recessed);
+}
+
+.nav-arrow svg,
+.control-arrow svg {
+  fill: var(--hw-text-dim);
+}
+
+.nav-arrow:hover svg,
+.control-arrow:hover svg {
+  fill: var(--hw-text);
+}
+
+.nav-arrow.keyboard-flash,
+.control-arrow.keyboard-flash,
+.template-nav-btn.keyboard-flash {
+  background: var(--hw-recessed);
+  border-color: var(--hw-text);
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+/* ── Variable Indicator Dots → square LEDs ────────────────────────────── */
+.indicator-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 1px;
+  background: var(--hw-recessed);
+  border: 1px solid var(--hw-chrome);
+  transition: background .2s, box-shadow .2s;
+}
+
+.indicator-dot:hover {
+  background: var(--hw-chrome);
+  transform: none;
+}
+
+.indicator-dot.active {
+  background: var(--current-color, #7a6e5e);
+  border-color: var(--current-color, #7a6e5e);
+  box-shadow: 0 0 5px var(--current-color, rgba(90,80,60,.4));
+  transform: none;
+}
+
+/* ── Knobs ────────────────────────────────────────────────────────────── */
+.knobs-container {
+  background: var(--hw-panel);
+  border: var(--hw-border);
+  border-radius: 4px;
+  box-shadow: var(--hw-inset);
+  padding: 20px 16px;
+  scrollbar-color: var(--hw-chrome) var(--hw-recessed);
+}
+
+/* Cream-ivory knob dial */
+.knob-dial {
+  background: radial-gradient(circle at 38% 32%, #f0ead8, #d4cbb8);
+  box-shadow:
+    0 3px 8px rgba(90,80,60,.2),
+    inset 0 1px 0 rgba(255,255,255,.7),
+    inset 0 -1px 3px rgba(90,80,60,.12);
+}
+
+.knob-ring {
+  border-color: var(--knob-color, #8a7e6e);
+  opacity: .35;
+  border-width: 2px;
+}
+
+.knob-item.active .knob-ring,
+.knob-item:hover  .knob-ring {
+  opacity: .85;
+  box-shadow: 0 0 7px color-mix(in srgb, var(--knob-color, #8a7e6e) 40%, transparent);
+}
+
+.knob-indicator {
+  background: #5a5040;
+  width: 6px;
+  height: 6px;
+}
+
+.knob-item.active .knob-indicator {
+  background: var(--knob-color, #5a5040);
+}
+
+.knob-value-label {
+  background: var(--hw-lcd-bg);
+  border: 1px solid var(--hw-chrome);
+  border-radius: 2px;
+  color: var(--knob-color, var(--hw-text));
+  font-family: var(--font-label);
+  font-size: 11px;
+  font-weight: 400;
+  box-shadow: var(--hw-inset);
+}
+
+.knob-item.active .knob-value-label {
+  border-color: var(--knob-color, #8a7e6e);
+}
+
+.knob-var-name {
+  color: var(--knob-color, var(--hw-text-dim));
+  font-family: var(--font-label);
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* ── Bottom Action Buttons ────────────────────────────────────────────── */
+.action-btn {
+  background: var(--hw-surface);
+  border: var(--hw-border);
+  box-shadow: var(--hw-shadow);
+  border-radius: 4px;
+  color: var(--hw-text);
+  font-family: var(--font-label);
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  transition: none;
+}
+
+.action-btn:hover {
+  filter: brightness(.95);
+  transform: none;
+  box-shadow: var(--hw-shadow);
+}
+
+.action-btn:active {
+  transform: translate(3px, 3px);
+  box-shadow: none;
+}
+
+.batch-btn {
+  background: #dcd0e8;
+  color: #3a1858;
+  border-color: #8868a8;
+  box-shadow: 3px 3px 0 #8868a8;
+  text-shadow: none;
+}
+
+.batch-btn:hover {
+  filter: brightness(.95);
+  background: #dcd0e8;
+  box-shadow: 3px 3px 0 #8868a8;
+  border-color: #8868a8;
+}
+
+/* ── Template Controls ────────────────────────────────────────────────── */
+.template-nav-btn {
+  background: var(--hw-surface);
+  border: var(--hw-border);
+  box-shadow: var(--hw-shadow-sm);
+  color: var(--hw-text-dim);
+  border-radius: 3px;
+  height: 42px;
+  transition: none;
+}
+
+.template-nav-btn:hover {
+  filter: brightness(.95);
+  color: var(--hw-text);
+  transform: none;
+  box-shadow: var(--hw-shadow-sm);
+}
+
+.template-nav-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+.template-nav-btn svg { fill: currentColor; }
+
+.action-btn.template-btn,
+.template-btn {
+  background: var(--hw-surface) !important;
+  border: var(--hw-border) !important;
+  box-shadow: var(--hw-shadow) !important;
+  color: var(--hw-text) !important;
+  font-family: var(--font-label) !important;
+  font-size: 12px !important;
+  letter-spacing: 1px !important;
+  text-transform: uppercase !important;
+  border-radius: 4px !important;
+  transition: none !important;
+  text-shadow: none !important;
+}
+
+.action-btn.template-btn:hover,
+.template-btn:hover {
+  filter: brightness(.95) !important;
+  transform: none !important;
+  box-shadow: var(--hw-shadow) !important;
+}
+
+.action-btn.template-btn:active,
+.template-btn:active {
+  transform: translate(3px, 3px) !important;
+  box-shadow: none !important;
+}
+
+.template-dropdown-menu {
+  background: var(--hw-panel);
+  border: var(--hw-border);
+  box-shadow: var(--hw-shadow);
+  border-radius: 4px;
+}
+
+.template-option {
+  color: var(--hw-text);
+  font-family: var(--font-label);
+  font-size: 12px;
+  letter-spacing: .5px;
+}
+
+.template-option:hover {
+  background: var(--hw-recessed);
+  color: var(--hw-text);
+}
+
+/* ── MIDI / OSC / Scope Panels ────────────────────────────────────────── */
+.midi-toggle-btn,
+.osc-toggle-btn {
+  background: var(--hw-surface);
+  border: 1px solid var(--hw-chrome);
+  border-radius: 3px;
+  color: var(--hw-text-label);
+  font-family: var(--font-label);
+  font-size: 11px;
+  letter-spacing: 1px;
+  transition: none;
+}
+
+.midi-toggle-btn:hover,
+.osc-toggle-btn:hover {
+  filter: brightness(.95);
+  border-color: var(--hw-text-dim);
+  color: var(--hw-text);
+}
+
+.midi-toggle-btn.active,
+.osc-toggle-btn.active {
+  border-color: var(--color-green);
+  color: var(--color-green);
+}
+
+/* LED status dots → square */
+.midi-dot,
+.osc-dot { border-radius: 1px; }
+
+.midi-dot.connected      { box-shadow: 0 0 4px var(--color-green); }
+.osc-dot.osc-on    { box-shadow: 0 0 4px var(--color-cyan);  }
+.osc-dot.osc-sent  { box-shadow: 0 0 4px var(--color-green); }
+.osc-dot.osc-error { box-shadow: 0 0 4px var(--color-red);   }
+
+.midi-panel,
+.osc-panel {
+  background: var(--hw-panel);
+  border: var(--hw-border);
+  box-shadow: var(--hw-shadow);
+  border-radius: 4px;
+}
+
+.midi-panel-title,
+.osc-panel-title {
+  color: var(--hw-text);
+  font-family: var(--font-label);
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.midi-device-name {
+  color: var(--color-green);
+  font-family: var(--font-label);
+}
+
+.midi-mapping-row {
+  background: var(--hw-recessed);
+  border: 1px solid var(--hw-chrome);
+  border-radius: 2px;
+}
+
+.midi-mapping-row.has-mapping {
+  background: rgba(90,152,112,.08);
+  border-color: rgba(90,152,112,.3);
+}
+
+.midi-mapping-row.learning {
+  border-color: var(--color-yellow);
+  background: rgba(200,150,42,.06);
+}
+
+.midi-var-label       { color: var(--hw-text);     font-family: var(--font-label); font-size: 11px; }
+.midi-cc-badge        { background: rgba(136,104,168,.12); color: var(--color-purple); font-family: var(--font-label); }
+.midi-note-badge      { background: rgba(90,138,184,.12);  color: var(--color-blue);   font-family: var(--font-label); }
+.midi-unassigned      { color: var(--hw-text-dim);   font-family: var(--font-label); }
+
+.midi-learn-cc-btn   { background: transparent; border-color: var(--color-purple); color: var(--color-purple); font-family: var(--font-label); border-radius: 2px; transition: none; }
+.midi-learn-cc-btn:hover   { background: rgba(136,104,168,.1); }
+
+.midi-learn-note-btn { background: transparent; border-color: var(--color-blue); color: var(--color-blue); font-family: var(--font-label); border-radius: 2px; transition: none; }
+.midi-learn-note-btn:hover { background: rgba(90,138,184,.1); }
+
+.midi-unmap-btn      { background: transparent; border-color: var(--hw-chrome); color: var(--hw-text-dim); font-family: var(--font-label); border-radius: 2px; transition: none; }
+.midi-unmap-btn:hover { border-color: var(--color-red); color: var(--color-red); }
+
+.midi-learn-cancel-btn { background: rgba(200,150,42,.1); border-color: var(--color-yellow); color: var(--color-yellow); font-family: var(--font-label); border-radius: 2px; }
+.midi-learn-hint       { background: rgba(200,150,42,.07); border-color: rgba(200,150,42,.3); color: var(--color-yellow); font-family: var(--font-label); border-radius: 2px; }
+.midi-clear-btn        { background: transparent; border-color: rgba(184,80,80,.4); color: var(--color-red); font-family: var(--font-label); border-radius: 2px; }
+.midi-clear-btn:hover  { background: rgba(184,80,80,.08); }
+
+.osc-input { background: var(--hw-lcd-bg); border: 1px solid var(--hw-chrome); color: var(--hw-text); font-family: var(--font-label); border-radius: 2px; box-shadow: var(--hw-inset); }
+.osc-input:focus { border-color: var(--color-blue); outline: none; }
+
+.osc-row,
+.osc-last-sent { color: var(--hw-text-label); font-family: var(--font-label); font-size: 11px; }
+
+.osc-send-btn { background: transparent; border: 1px solid var(--color-blue); color: var(--color-blue); font-family: var(--font-label); border-radius: 2px; transition: none; }
+.osc-send-btn:hover  { background: rgba(90,138,184,.1); }
+.osc-send-btn:active { transform: translate(1px, 1px); }
+
+/* Scope */
+.scope-section { border-top: 1px solid var(--hw-chrome); }
+.scope-section-header { color: var(--hw-text-label); font-family: var(--font-label); font-size: 11px; letter-spacing: 1px; }
+.scope-section-header:hover { color: var(--hw-text); }
+
+.scope-health-badge.online  { background: rgba(90,152,112,.12); color: var(--color-green); }
+.scope-health-badge.offline { background: rgba(184,80,80,.1);   color: var(--color-red);   }
+
+.scope-help-text,
+.scope-help-list { color: var(--hw-text-dim); font-family: var(--font-label); }
+.scope-help-list a { color: var(--color-blue); }
+
+/* ── P5 Canvas Section ────────────────────────────────────────────────── */
+.p5-live-section {
+  border: var(--hw-border);
+  box-shadow: var(--hw-shadow);
+  border-radius: 4px;
+  background: #1a1610;
+}
+
+.p5-capture-btn,
+.p5-scope-btn,
+.p5-display-btn {
+  background: rgba(20,16,8,.7);
+  border: 1px solid rgba(200,190,160,.3);
+  color: rgba(200,190,160,.7);
+  font-family: var(--font-label);
+  font-size: 11px;
+  border-radius: 2px;
+  transition: none;
+}
+
+.p5-capture-btn:hover,
+.p5-scope-btn:hover,
+.p5-display-btn:hover { border-color: rgba(200,190,160,.7); color: rgba(200,190,160,1); }
+
+.p5-capture-btn:active,
+.p5-scope-btn:active,
+.p5-display-btn:active { transform: translate(1px, 1px); }
+
+.scope-video-label { color: var(--color-blue); font-family: var(--font-label); }
+
+/* ── AI Studio Tools (overrides JS-injected styles) ───────────────────── */
+.studio-controls-section {
+  background: var(--hw-panel) !important;
+  border: var(--hw-border) !important;
+  box-shadow: var(--hw-shadow) !important;
+  border-radius: 4px !important;
+}
+
+.studio-controls-header {
+  color: var(--hw-text-label) !important;
+  font-family: var(--font-label) !important;
+  font-size: 11px !important;
+  letter-spacing: 2px !important;
+  text-transform: uppercase !important;
+}
+
+.studio-btn-large {
+  background: var(--hw-surface) !important;
+  border: var(--hw-border) !important;
+  box-shadow: var(--hw-shadow-sm) !important;
+  border-radius: 3px !important;
+  transition: none !important;
+}
+
+.studio-btn-large:hover {
+  transform: none !important;
+  filter: brightness(.95) !important;
+  box-shadow: var(--hw-shadow-sm) !important;
+}
+
+.studio-btn-large:active {
+  transform: translate(2px, 2px) !important;
+  box-shadow: none !important;
+}
+
+.studio-btn-large span.label {
+  color: var(--hw-text-label) !important;
+  font-family: var(--font-label) !important;
+  font-size: 10px !important;
+  letter-spacing: 1px !important;
+  text-transform: uppercase !important;
+}
+
+/* Per-tool pastel accent */
+.btn-image-large     { background: #f0d8dc !important; border-color: var(--color-pink)   !important; box-shadow: 2px 2px 0 var(--color-pink)   !important; }
+.btn-video-large     { background: #dcd8f0 !important; border-color: var(--color-purple) !important; box-shadow: 2px 2px 0 var(--color-purple) !important; }
+.btn-transform-large { background: #f0ecd0 !important; border-color: var(--color-yellow) !important; box-shadow: 2px 2px 0 var(--color-yellow) !important; }
+.btn-chat-large      { background: #d8e0f0 !important; border-color: var(--color-blue)   !important; box-shadow: 2px 2px 0 var(--color-blue)   !important; }
+.btn-template-large  { background: #d4ece0 !important; border-color: var(--color-green)  !important; box-shadow: 2px 2px 0 var(--color-green)  !important; }
+.btn-analysis-large  { background: #d0e8ec !important; border-color: var(--color-cyan)   !important; box-shadow: 2px 2px 0 var(--color-cyan)   !important; }
+.btn-metadata-large  { background: #f0e4d4 !important; border-color: var(--color-orange) !important; box-shadow: 2px 2px 0 var(--color-orange) !important; }
+.btn-music-large     { background: #dcd8f0 !important; border-color: var(--color-purple) !important; box-shadow: 2px 2px 0 var(--color-purple) !important; }
+
+.btn-image-large:hover,
+.btn-video-large:hover,
+.btn-transform-large:hover,
+.btn-chat-large:hover,
+.btn-template-large:hover,
+.btn-analysis-large:hover,
+.btn-metadata-large:hover,
+.btn-music-large:hover { filter: brightness(.95) !important; transform: none !important; }
+
+/* Music studio */
+.music-btn-play  { background: #d4ece0 !important; color: #1e4830 !important; border: var(--hw-border) !important; box-shadow: var(--hw-shadow-sm) !important; border-color: var(--color-green) !important; border-radius: 3px !important; }
+.music-btn-pause { background: #f0ecd0 !important; color: #4a3800 !important; border: var(--hw-border) !important; box-shadow: var(--hw-shadow-sm) !important; border-color: var(--color-yellow) !important; border-radius: 3px !important; }
+.music-btn-stop  { background: #f0d8d8 !important; color: #5a1818 !important; border: var(--hw-border) !important; box-shadow: var(--hw-shadow-sm) !important; border-color: var(--color-red) !important; border-radius: 3px !important; }
+
+.music-btn-play:hover,
+.music-btn-pause:hover,
+.music-btn-stop:hover  { filter: brightness(.95) !important; transform: none !important; }
+
+.music-btn-play:active,
+.music-btn-pause:active,
+.music-btn-stop:active { transform: translate(2px,2px) !important; box-shadow: none !important; }
+
+.music-status-dot { border-radius: 1px !important; }
+
+/* Studio modal */
+.studio-modal {
+  background: var(--hw-panel) !important;
+  border: var(--hw-border) !important;
+  box-shadow: var(--hw-shadow), 0 0 40px rgba(60,40,20,.25) !important;
+  border-radius: 4px !important;
+  color: var(--hw-text) !important;
+}
+
+.studio-result-container {
+  background: var(--hw-panel) !important;
+  border: var(--hw-border) !important;
+  box-shadow: var(--hw-shadow) !important;
+  border-radius: 4px !important;
+}
+
+/* ── Scrollbars ───────────────────────────────────────────────────────── */
+::-webkit-scrollbar       { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--hw-recessed); }
+::-webkit-scrollbar-thumb { background: var(--hw-chrome); border-radius: 1px; }
+::-webkit-scrollbar-thumb:hover { background: var(--hw-text-dim); }
+
+/* ── Focus rings ──────────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 1px solid var(--hw-accent, #3dbdad);
+  outline-offset: 2px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   CASIO PT-1 / ROLAND TR-727 ACCENT REFINEMENTS
+   Teal/mint as the primary function accent — same as Casio's label color
+   Cooler chassis to match Casio's "fresh plastic" white
+   ═══════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Casio teal — the mint accent used on all function text & labels */
+  --hw-accent:      #3dbdad;
+  --hw-accent-dk:   #2a9487;
+  --hw-accent-pale: rgba(61,189,173,.12);
+
+  /* Slightly cooler, cleaner chassis — less amber, more Casio-white */
+  --hw-chassis:     #edeae2;
+  --hw-panel:       #e5e1d8;
+  --hw-surface:     #d9d5cc;
+  --hw-recessed:    #cac6bc;
+
+  /* Override cyan to match the new accent */
+  --color-cyan: #3dbdad;
+}
+
+/* ── Brand / Wordmark — teal Orbitron ────────────────────────────────── */
+.app-title {
+  color: var(--hw-accent);
+  text-shadow: 1px 1px 0 rgba(42,148,135,.25);
+}
+
+/* ── Nav links ───────────────────────────────────────────────────────── */
+nav a,
+.nav-link,
+.site-nav a,
+header nav a {
+  color: var(--hw-accent) !important;
+}
+
+nav a:hover,
+.nav-link:hover,
+.site-nav a:hover,
+header nav a:hover {
+  color: var(--hw-accent-dk) !important;
+  text-decoration: underline;
+}
+
+/* ── Section labels — teal function text like Casio groupings ────────── */
+.output-label,
+.studio-controls-header {
+  color: var(--hw-accent) !important;
+  border-bottom: 1px solid rgba(61,189,173,.25) !important;
+  padding-bottom: 4px !important;
+}
+
+.midi-panel-title,
+.osc-panel-title {
+  color: var(--hw-accent);
+}
+
+/* ── Output section — teal top-stripe (Casio label bar) ─────────────── */
+.output-section {
+  border-top: 3px solid var(--hw-accent) !important;
+}
+
+/* ── Active / selected states → teal instead of brown ───────────────── */
+.layout-btn.active {
+  background: var(--hw-accent-pale);
+  color: var(--hw-accent);
+  border-color: var(--hw-accent);
+  box-shadow: 2px 2px 0 var(--hw-accent);
+}
+
+.mode-toggle-btn.active {
+  background: var(--hw-accent-pale);
+  color: var(--hw-accent);
+  border-color: var(--hw-accent);
+  box-shadow: var(--hw-inset);
+}
+
+/* ── Display panel — teal border when variable display is active ─────── */
+.control-variable-name {
+  border-color: var(--current-color, var(--hw-accent)) !important;
+}
+
+/* ── OSC "on" dot — teal ─────────────────────────────────────────────── */
+.osc-dot.osc-on {
+  background: var(--hw-accent);
+  box-shadow: 0 0 5px var(--hw-accent);
+}
+
+/* ── Scope health badge ──────────────────────────────────────────────── */
+.scope-health-badge.online {
+  background: rgba(61,189,173,.12);
+  color: var(--hw-accent);
+}
+
+/* ── Tagline — slightly teal-shifted dim ─────────────────────────────── */
+.app-tagline {
+  color: #7a9e9a;
+}
+
+/* ── Performance mode — hide AI Studio tools panel ──────────────────── */
+.layout-a .studio-controls-section {
+  display: none !important;
+}
+
+/* ── Template nav section label ──────────────────────────────────────── */
+.loaded-template-label,
+.template-section-label {
+  color: var(--hw-accent);
+  font-family: var(--font-label);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}

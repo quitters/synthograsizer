@@ -2,9 +2,9 @@
    layout-options.css
    Layout switcher for Synthograsizer.
 
-   Classes applied to .synthograsizer-small:
-     (none)      — Default: single centered column
-     .layout-a   — Two-Column: left = output/actions, right = D-Pad + connections
+   Modes (button labels → data-layout value → class on .synthograsizer-small):
+     ⊟ Studio  (default)  — single centered column, full AI Studio Tools panel
+     ▶ Perform (layout-a) — two-column, D-Pad sticky right, no AI Studio Tools
 
    All rules here are scoped to min-width: 900px so mobile is never affected.
 ───────────────────────────────────────────────────────────────────────────── */
@@ -46,10 +46,16 @@
 
 
 /* ══════════════════════════════════════════════════════════════════════════
-   OPTION A — Two-Column Layout
-   Left  (~55%): Output + Actions + AI Studio + Bottom bar
+   PERFORM MODE (layout-a) — Two-Column, no AI Studio Tools
+   Left  (~55%): Output + Actions + Bottom bar
    Right (400px): D-Pad / Knobs + Connections (sticky)
+   AI Studio Tools panel is hidden — not needed during live performance
 ══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Performance mode: hide AI Studio Tools (any viewport) ────────────── */
+.layout-a .studio-controls-section {
+  display: none !important;
+}
 
 @media (min-width: 900px) {
 
@@ -70,16 +76,14 @@
   /* Left column: all content sections */
   .layout-a .output-section,
   .layout-a .primary-actions-section,
-  .layout-a .studio-controls-section,
   .layout-a #p5-live-section,
   .layout-a .actions-section {
     grid-column: 1;
   }
 
   /* Tighter bottom margins in two-col — less vertical breathing room needed */
-  .layout-a .output-section        { margin-bottom: 20px; }
+  .layout-a .output-section          { margin-bottom: 20px; }
   .layout-a .primary-actions-section { margin-bottom: 20px; }
-  .layout-a .studio-controls-section { margin-bottom: 20px; }
 
   /* Right column: D-Pad + connections — sticky so it stays in view while
      the user scrolls through the left column */

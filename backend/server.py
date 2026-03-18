@@ -6,8 +6,9 @@ LLM JSON responses are parsed via `parse_llm_json()` to keep endpoint
 handlers concise and consistent.
 """
 
+import asyncio
 import logging
-from fastapi import FastAPI, HTTPException, BackgroundTasks, Request
+from fastapi import FastAPI, HTTPException, BackgroundTasks, Request, WebSocket, WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, StreamingResponse, Response
 import httpx
@@ -30,6 +31,7 @@ if str(backend_dir) not in sys.path:
 
 from ai_manager import ai_manager, normalize_template
 from osc_bridge import osc_bridge
+from music_manager import get_music_manager
 
 logger = logging.getLogger(__name__)
 
@@ -148,7 +150,7 @@ class BulkMetadataRequest(BaseModel):
 @app.post("/api/chat")
 async def chat(request: ChatRequest):
     try:
-        response = ai_manager.chat(request.message, request.history, request.model)
+        response = await asyncio.to_thread(ai_manager.chat, request.message, request.history, request.model)
         return {"status": "success", "response": response}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -161,7 +163,7 @@ class NarrativeRequest(BaseModel):
 @app.post("/api/generate/narrative")
 async def generate_narrative(request: NarrativeRequest):
     try:
-        prompts = ai_manager.generate_narrative(request.descriptions, request.user_prompt, request.mode)
+        prompts = await asyncio.to_thread(ai_manager.generate_narrative, request.descriptions, request.user_prompt, request.mode)
         return {"status": "success", "prompts": prompts}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -173,7 +175,7 @@ class VideoVariationsRequest(BaseModel):
 @app.post("/api/generate/video-variations")
 async def generate_video_variations(request: VideoVariationsRequest):
     try:
-        variations = ai_manager.generate_video_variations(request.description, request.mode)
+        variations = await asyncio.to_thread(ai_manager.generate_video_variations, request.description, request.mode)
         return {"status": "success", "variations": variations}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -185,7 +187,8 @@ class ImageVariationPromptsRequest(BaseModel):
 @app.post("/api/generate/image-variation-prompts")
 async def generate_image_variation_prompts(request: ImageVariationPromptsRequest):
     try:
-        prompts = ai_manager.generate_image_variation_prompts(
+        prompts = await asyncio.to_thread(
+            ai_manager.generate_image_variation_prompts,
             request.user_direction, request.image_analysis
         )
         return {"status": "success", "prompts": prompts}
@@ -276,7 +279,8 @@ async def generate_smart_transform(request: SmartTransformRequest):
         if request.reference_image:
             ref_bytes = decode_base64_image(request.reference_image)
         
-        transform_result = ai_manager.smart_transform(
+        transform_result = await asyncio.to_thread(
+            ai_manager.smart_transform,
             input_image_bytes=input_bytes,
             user_intent=request.user_intent,
             ref_image_bytes=ref_bytes,
@@ -297,7 +301,7 @@ async def generate_smart_transform(request: SmartTransformRequest):
 @app.post("/api/generate/text")
 async def generate_text(request: TextRequest):
     try:
-        text = ai_manager.generate_text(request.prompt, request.model)
+        text = await asyncio.to_thread(ai_manager.generate_text, request.prompt, request.model)
         return {"status": "success", "text": text}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -319,7 +323,8 @@ async def generate_image(request: ImageRequest):
         if model_name == "gemini-2.0-flash-exp":
             model_name = "gemini-3-flash-preview"
 
-        result = ai_manager.generate_image(
+        result = await asyncio.to_thread(
+            ai_manager.generate_image,
             prompt=request.prompt,
             model_name=model_name,
             aspect_ratio=request.aspect_ratio,
@@ -375,7 +380,7 @@ async def batch_text(request: BatchTextRequest):
     results = []
     for prompt in request.prompts:
         try:
-            text = ai_manager.generate_text(prompt, request.model)
+            text = await asyncio.to_thread(ai_manager.generate_text, prompt, request.model)
             results.append({"prompt": prompt, "result": text, "status": "success"})
         except Exception as e:
             results.append({"prompt": prompt, "error": str(e), "status": "error"})
@@ -387,14 +392,14 @@ async def generate_template(request: TemplateRequest):
         mode = request.mode
 
         if mode == "text":
-            json_str = ai_manager.generate_template(request.prompt)
+            json_str = await asyncio.to_thread(ai_manager.generate_template, request.prompt)
 
         elif mode == "image":
             if not request.images or len(request.images) < 1:
                 raise ValueError("Image mode requires at least one image.")
             image_bytes = decode_base64_image(request.images[0])
-            analysis = ai_manager.analyze_image_to_prompt(image_bytes)
-            json_str = ai_manager.generate_template_from_analysis(analysis)
+            analysis = await asyncio.to_thread(ai_manager.analyze_image_to_prompt, image_bytes)
+            json_str = await asyncio.to_thread(ai_manager.generate_template_from_analysis, analysis)
 
         elif mode == "hybrid":
             if not request.images or len(request.images) < 1:
@@ -402,13 +407,13 @@ async def generate_template(request: TemplateRequest):
             if not request.prompt.strip():
                 raise ValueError("Hybrid mode requires a text direction.")
             image_bytes = decode_base64_image(request.images[0])
-            json_str = ai_manager.generate_template_hybrid(image_bytes, request.prompt)
+            json_str = await asyncio.to_thread(ai_manager.generate_template_hybrid, image_bytes, request.prompt)
 
         elif mode == "multi-image":
             if not request.images or len(request.images) < 2:
                 raise ValueError("Multi-Image mode requires at least 2 images.")
             decoded = [decode_base64_image(img) for img in request.images]
-            json_str = ai_manager.generate_template_from_images(decoded)
+            json_str = await asyncio.to_thread(ai_manager.generate_template_from_images, decoded)
 
         elif mode == "remix":
             # Current template + instructions → evolved template
@@ -416,13 +421,13 @@ async def generate_template(request: TemplateRequest):
                 raise ValueError("Remix mode requires a current template.")
             if not request.prompt.strip():
                 raise ValueError("Remix mode requires instructions.")
-            json_str = ai_manager.remix_template(request.current_template, request.prompt)
+            json_str = await asyncio.to_thread(ai_manager.remix_template, request.current_template, request.prompt)
 
         elif mode == "story":
             # Text prompt → Story template with acts, characters, progressions
             if not request.prompt.strip():
                 raise ValueError("Story mode requires a text description of the story concept.")
-            json_str = ai_manager.generate_story_template(request.prompt)
+            json_str = await asyncio.to_thread(ai_manager.generate_story_template, request.prompt)
 
         elif mode == "workflow":
             # Workflow JSON + Image(s) → Curated workflow(s) with one value per variable
@@ -438,7 +443,8 @@ async def generate_template(request: TemplateRequest):
             results = []
             for img_b64 in request.images:
                 image_bytes = decode_base64_image(img_b64)
-                result = ai_manager.curate_workflow(
+                result = await asyncio.to_thread(
+                    ai_manager.curate_workflow,
                     request.workflow,
                     image_bytes,
                     guidance=guidance,
@@ -462,21 +468,22 @@ async def generate_template(request: TemplateRequest):
 async def analyze_image_to_prompt(request: AnalyzeRequest):
     try:
         image_bytes = decode_base64_image(request.image)
-        analysis_text = ai_manager.analyze_image_to_prompt(image_bytes)
-        
+        analysis_text = await asyncio.to_thread(ai_manager.analyze_image_to_prompt, image_bytes)
+
         result = {
             "status": "success",
             "analysis": analysis_text
         }
-        
+
         # Auto-generate if requested
         if request.auto_generate:
             # Detect aspect ratio
             width, height = ai_manager.get_image_dimensions(image_bytes)
             aspect_ratio = ai_manager.map_to_closest_aspect_ratio(width, height)
-            
+
             # Generate image using analysis as prompt
-            generated = ai_manager.generate_image(
+            generated = await asyncio.to_thread(
+                ai_manager.generate_image,
                 prompt=analysis_text,
                 model_name=config.MODEL_IMAGE_GEN_HQ,
                 aspect_ratio=aspect_ratio
@@ -493,7 +500,7 @@ async def analyze_image_to_prompt(request: AnalyzeRequest):
 @app.post("/api/generate/template-from-analysis")
 async def generate_template_from_analysis(request: TemplateFromAnalysisRequest):
     try:
-        json_str = ai_manager.generate_template_from_analysis(request.analysis)
+        json_str = await asyncio.to_thread(ai_manager.generate_template_from_analysis, request.analysis)
         json_obj = normalize_template(parse_llm_json(json_str))
         return {"status": "success", "template": json_obj}
     except Exception as e:
@@ -554,20 +561,21 @@ async def batch_analyze(request: BatchAnalyzeRequest):
         for idx, img_b64 in enumerate(request.images):
             try:
                 image_bytes = decode_base64_image(img_b64)
-                analysis = ai_manager.analyze_image_to_prompt(image_bytes)
-                
+                analysis = await asyncio.to_thread(ai_manager.analyze_image_to_prompt, image_bytes)
+
                 result = {
                     "index": idx,
                     "status": "success",
                     "analysis": analysis
                 }
-                
+
                 # Auto-generate if requested
                 if request.auto_generate:
                     width, height = ai_manager.get_image_dimensions(image_bytes)
                     aspect_ratio = ai_manager.map_to_closest_aspect_ratio(width, height)
-                    
-                    generated = ai_manager.generate_image(
+
+                    generated = await asyncio.to_thread(
+                        ai_manager.generate_image,
                         prompt=analysis,
                         model_name=config.MODEL_IMAGE_GEN_HQ,
                         aspect_ratio=aspect_ratio
@@ -587,6 +595,37 @@ async def batch_analyze(request: BatchAnalyzeRequest):
                 }) + "\n"
 
     return StreamingResponse(generate_batch_stream(), media_type="application/x-ndjson")
+
+@app.post("/api/scope/save-asset")
+async def scope_save_asset(request: Request):
+    """Write an image directly to Scope's local assets directory.
+
+    Bypasses Scope's cloud-mode CDN token requirement by writing the file
+    locally rather than calling Scope's /api/v1/assets endpoint.
+    Returns the filename (relative to the assets dir) for use in vace_ref_images.
+    """
+    try:
+        body = await request.json()
+        image_b64 = body.get("image", "")
+        filename = body.get("filename", "synth-ref.png")
+
+        # Strip data-URL prefix
+        if "," in image_b64:
+            image_b64 = image_b64.split(",", 1)[1]
+        image_bytes = base64.b64decode(image_b64)
+
+        scope_assets = Path.home() / ".daydream-scope" / "assets"
+        scope_assets.mkdir(parents=True, exist_ok=True)
+
+        file_path = scope_assets / filename
+        file_path.write_bytes(image_bytes)
+        logger.info("Saved Scope reference asset: %s (%d bytes)", file_path, len(image_bytes))
+
+        return {"path": filename, "full_path": str(file_path)}
+    except Exception as e:
+        logger.error("scope_save_asset failed: %s", e)
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 @app.post("/api/extract-metadata")
 async def extract_metadata(request: MetadataRequest):
@@ -738,6 +777,74 @@ async def scope_discover_get():
     return osc_bridge.discover_scope()
 
 
+# ── Music Studio (Lyria RealTime) ───────────────────────────────────
+
+@app.get("/api/music/status")
+async def music_status():
+    """Return current Lyria session status."""
+    from music_manager import music_manager
+    if music_manager is None:
+        return {"connected": False, "playing": False, "prompts": [], "config": {}}
+    return music_manager.get_status()
+
+
+@app.websocket("/ws/music")
+async def ws_music(websocket: WebSocket):
+    """WebSocket endpoint for Lyria RealTime music streaming.
+
+    Protocol:
+      Client → Server (JSON text): control messages (play, pause, stop, set_prompts, set_config, reset_context)
+      Server → Client (binary): raw 16-bit PCM audio chunks (48kHz stereo)
+      Server → Client (JSON text): status updates and errors
+    """
+    await websocket.accept()
+
+    if not ai_manager.genai_client:
+        await websocket.send_json({"error": "API key not configured"})
+        await websocket.close()
+        return
+
+    mm = get_music_manager(ai_manager.genai_client)
+
+    try:
+        # Callback that forwards data to the browser WebSocket
+        async def send_to_browser(data):
+            if isinstance(data, bytes):
+                await websocket.send_bytes(data)
+            elif isinstance(data, str):
+                await websocket.send_text(data)
+            else:
+                await websocket.send_text(data.decode())
+
+        # Start the Lyria session (runs in background task with async context manager)
+        await mm.start(send_to_browser)
+
+        # Listen for control messages from the browser and queue them
+        try:
+            while True:
+                raw = await websocket.receive_text()
+                try:
+                    msg = json.loads(raw)
+                except json.JSONDecodeError:
+                    await websocket.send_json({"error": "Invalid JSON"})
+                    continue
+
+                await mm.send_command(msg)
+
+        except WebSocketDisconnect:
+            logger.info("Music WebSocket client disconnected")
+
+    except Exception as e:
+        logger.error("Music WebSocket error: %s", e)
+        try:
+            await websocket.send_json({"error": str(e)})
+        except Exception:
+            pass
+
+    finally:
+        await mm.shutdown()
+
+
 if not STATIC_DIR.exists():
     print(f"WARNING: Static directory not found at {STATIC_DIR}")
 
@@ -745,6 +852,21 @@ if not STATIC_DIR.exists():
 # mounting them through FastAPI would conflict and is unnecessary.
 if not os.environ.get("VERCEL") and STATIC_DIR.exists():
     app.mount("/", StaticFiles(directory=str(STATIC_DIR), html=True), name="static")
+
+class _SuppressNoiseFilter(logging.Filter):
+    """Drop repetitive polling endpoints from uvicorn's access log."""
+    _MUTED = ("/api/scope/discover",)
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        msg = record.getMessage()
+        return not any(path in msg for path in self._MUTED)
+
+_noise_filter = _SuppressNoiseFilter()
+
+@app.on_event("startup")
+async def _install_log_filter():
+    """Install after uvicorn has configured its loggers."""
+    logging.getLogger("uvicorn.access").addFilter(_noise_filter)
 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8001)

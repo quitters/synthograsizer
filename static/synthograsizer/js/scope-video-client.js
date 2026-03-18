@@ -123,53 +123,44 @@ export class ScopeVideoClient {
   }
 
   /**
-   * Upload a base64-encoded image (PNG/JPEG, with or without data-URL prefix) to
-   * Scope's asset endpoint and push it as the active VACE reference image.
-   * If a WebRTC session is currently streaming the update is also sent through the
-   * data channel for immediate effect.
+   * Save a base64-encoded image to Scope's local assets directory and push it
+   * as the active VACE reference image.
    *
-   * @param {string} base64  — raw base64 or full data-URL (e.g. "data:image/png;base64,...")
-   * @returns {Promise<string|null>}  — the asset path returned by Scope, or null on failure
+   * Routes the file write through the Synthograsizer backend to bypass Scope's
+   * cloud-mode CDN token requirement. After saving:
+   *  - If streaming via WebRTC: sends vace_ref_images via the data channel.
+   *  - If not streaming: starts a minimal text-mode WebRTC offer so Scope
+   *    immediately uses the reference image in its generation pipeline.
+   *
+   * @param {string} base64  — raw base64 or full data-URL
+   * @returns {Promise<string|null>}  — asset filename on success, null on failure
    */
   async pushImageToScope(base64) {
-    // Strip optional data-URL header
     const b64 = base64.replace(/^data:[^;]+;base64,/, '');
-
-    // Decode to binary and wrap in a Blob
-    let blob;
-    try {
-      const binary = atob(b64);
-      const bytes = new Uint8Array(binary.length);
-      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-      blob = new Blob([bytes], { type: 'image/png' });
-    } catch (e) {
-      this.onStatusChange('error', `Encode failed: ${e.message}`);
-      return null;
-    }
-
     const ts = new Date().toISOString().replace(/[:.]/g, '-').slice(11, 19);
     const filename = `synth-ref-${ts}.png`;
 
+    // Save via Synthograsizer backend — avoids Scope's cloud CDN auth requirement
     let path = null;
     try {
-      const url = `${this.scopeUrl}/api/v1/assets?filename=${encodeURIComponent(filename)}`;
-      const res = await fetch(url, {
+      const res = await fetch('/api/scope/save-asset', {
         method: 'POST',
-        headers: { 'Content-Type': 'image/png' },
-        body: blob,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: b64, filename }),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
-      path = data.path;
-      console.log('[ScopeVideo] reference image uploaded', path);
+      path = data.path || filename;
+      console.log('[ScopeVideo] reference image saved to Scope assets:', path);
     } catch (e) {
-      this.onStatusChange('error', `Upload failed: ${e.message}`);
-      console.warn('[ScopeVideo] pushImageToScope upload error', e);
+      this.onStatusChange('error', `Save failed: ${e.message}`);
+      console.warn('[ScopeVideo] pushImageToScope save error', e);
       return null;
     }
 
-    // Push to active stream via data channel if open
-    if (this.isStreaming && path) {
+    // Deliver the reference image to Scope's active pipeline
+    if (this.isStreaming && this._dataChannel?.readyState === 'open') {
+      // Fast path: push via open data channel
       try {
         this._dataChannel.send(JSON.stringify({
           vace_ref_images: [path],
@@ -179,10 +170,75 @@ export class ScopeVideoClient {
       } catch (e) {
         console.warn('[ScopeVideo] data channel send failed', e);
       }
+    } else {
+      // No active stream — open a text-mode WebRTC offer with the reference image
+      // as initialParameters so Scope's pipeline picks it up immediately.
+      await this._pushRefViaOffer(path);
     }
 
     this.onStatusChange('ref-sent', filename);
     return path;
+  }
+
+  /**
+   * Open a minimal WebRTC connection to Scope in text-input mode, supplying
+   * vace_ref_images as initialParameters.  Keeps the connection alive so Scope
+   * continues using the reference image; replaces any previous ref-only session.
+   *
+   * @param {string} path  — asset filename returned by /api/scope/save-asset
+   */
+  async _pushRefViaOffer(path) {
+    // Close any stale reference-only session
+    if (this._refPc) {
+      try { this._refPc.close(); } catch (_) {}
+      this._refPc = null;
+    }
+
+    try {
+      const iceRes = await fetch(`${this.scopeUrl}/api/v1/webrtc/ice-servers`,
+        { signal: AbortSignal.timeout(5000) });
+      if (!iceRes.ok) throw new Error(`ICE servers: HTTP ${iceRes.status}`);
+      const { iceServers } = await iceRes.json();
+
+      const pc = new RTCPeerConnection({ iceServers });
+      const dc = pc.createDataChannel('parameters', { ordered: true });
+
+      dc.onopen = () => {
+        try {
+          dc.send(JSON.stringify({ vace_ref_images: [path], vace_context_scale: 1.0 }));
+          console.log('[ScopeVideo] ref-only session: vace_ref_images sent via data channel');
+        } catch (e) {
+          console.warn('[ScopeVideo] ref-only data channel send failed', e);
+        }
+      };
+
+      const offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
+
+      const offerRes = await fetch(`${this.scopeUrl}/api/v1/webrtc/offer`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sdp: pc.localDescription.sdp,
+          type: pc.localDescription.type,
+          initialParameters: {
+            input_mode: 'text',
+            vace_ref_images: [path],
+            vace_context_scale: 1.0,
+          },
+        }),
+        signal: AbortSignal.timeout(10000),
+      });
+      if (!offerRes.ok) throw new Error(`Offer: HTTP ${offerRes.status}`);
+
+      const answer = await offerRes.json();
+      await pc.setRemoteDescription({ type: answer.type, sdp: answer.sdp });
+
+      this._refPc = pc;
+      console.log('[ScopeVideo] ref-only text-mode session established');
+    } catch (e) {
+      console.warn('[ScopeVideo] _pushRefViaOffer failed:', e.message);
+    }
   }
 
   /**
