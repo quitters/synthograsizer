@@ -3571,6 +3571,15 @@ class StudioIntegration {
                     `data:image/png;base64,${data.image}`, 'generated'
                 );
 
+                // Notify history strip
+                window.dispatchEvent(new CustomEvent('synthograsizer:media-generated', {
+                    detail: {
+                        text: window.synthSmall?.getCurrentPromptText() || params.prompt || '',
+                        mediaSrc: `data:image/png;base64,${data.image}`,
+                        mediaType: 'image'
+                    }
+                }));
+
                 let html = `<img src="data:image/png;base64,${data.image}" class="studio-result-image" style="cursor:pointer;" onclick="window.studioIntegrationInstance.openLightbox(0)">`;
                 html += `<div style="margin-top:10px; display:flex; justify-content:center; gap:10px;">`;
                 html += `<button onclick="window.studioIntegrationInstance.openVideoOptionsFromResult(0)" style="background:rgba(156,39,176,0.15); border:1px solid rgba(156,39,176,0.4); color:#7b1fa2; padding:6px 14px; border-radius:6px; cursor:pointer; font-size:13px;">🎬 Smart Video Options</button>`;
@@ -3590,6 +3599,15 @@ class StudioIntegration {
                 window.synthSmall?.displayBroadcaster?.sendVideo(
                     `data:video/mp4;base64,${data.video}`
                 );
+
+                // Notify history strip
+                window.dispatchEvent(new CustomEvent('synthograsizer:media-generated', {
+                    detail: {
+                        text: window.synthSmall?.getCurrentPromptText() || params.prompt || '',
+                        mediaSrc: `data:video/mp4;base64,${data.video}`,
+                        mediaType: 'video'
+                    }
+                }));
             }
         } catch (e) {
             this.showError(e.message);

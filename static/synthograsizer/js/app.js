@@ -6,8 +6,8 @@ import { BatchGenerator } from './batch-generator.js';
 import { TemplateLoader } from './template-loader.js';
 import { CodeOverlayManager } from './code-overlay-manager.js?v=4';
 import { normalizeTemplate, getValueText, getValueWeight, getWeightsArray, computeTemplateFingerprint, generateTagId } from './template-normalizer.js?v=2';
-import { MIDIController } from './midi-controller.js?v=2';
-import { OSCController } from './osc-controller.js?v=2';
+import { MIDIController } from './midi-controller.js?v=3';
+import { OSCController } from './osc-controller.js?v=3';
 import { OSCPanelUI } from './osc-panel-ui.js';
 import { ScopeVideoClient } from './scope-video-client.js?v=6';
 import { ScopeConnector } from './scope-connector.js';
@@ -41,6 +41,8 @@ export class SynthograsizerSmall {
     this.scopeConnector = null;   // ScopeConnector instance
     this.displayBroadcaster = null; // DisplayBroadcaster instance
     this.glitcherControls = null; // GlitcherControls instance
+    this.outputHistory = []; // [{text, values, mediaSrc, mediaType, time}] — last 10 generated
+    this._historyThumbsVisible = false;
 
     // Setup error handling
     this.setupErrorHandling();
@@ -148,6 +150,12 @@ export class SynthograsizerSmall {
 
       // Initialize Glitcher Controls
       this._initGlitcherControls();
+
+      // Initialize hide-inactive connections toggle
+      this._initHideInactiveToggle();
+
+      // Initialize output history strip
+      this._initHistoryStrip();
     } catch (error) {
       console.error('SynthograsizerSmall: Initialization failed:', error);
       document.body.innerHTML += `<div style="padding: 20px; color: red;">Initialization Error: ${error.message}</div>`;
@@ -702,6 +710,20 @@ export class SynthograsizerSmall {
 
     if (isModalOpen) {
       return;
+    }
+
+    // R = Randomize, G = Generate
+    switch (e.key.toLowerCase()) {
+      case 'r':
+        e.preventDefault();
+        this.randomizeAllVariables();
+        this.flashButton(this.elements.randomizeButton);
+        return;
+      case 'g':
+        e.preventDefault();
+        this.handleGenerateImage();
+        this.flashButton(this.elements.generateButton);
+        return;
     }
 
     if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
@@ -1542,6 +1564,9 @@ export class SynthograsizerSmall {
           }
         }
       },
+      onAutoMapComplete: (type, startNumber, channel) => {
+        this.midiUI?.onAutoMapComplete(type, startNumber, channel);
+      },
     });
 
     this.midiUI = new MIDIPanelUI(this, this.midi);
@@ -1772,6 +1797,7 @@ export class SynthograsizerSmall {
     const dot = document.getElementById('scope-dot');
     const badge = document.getElementById('scope-health-badge');
     const statusText = document.getElementById('scope-status-text');
+    const toggleBtn = document.getElementById('scope-toggle-btn');
 
     if (!dot || !badge) return;
 
@@ -1782,10 +1808,12 @@ export class SynthograsizerSmall {
       badge.className = 'scope-health-badge online';
       badge.textContent = 'Online';
       if (statusText) statusText.textContent = 'Scope';
+      if (toggleBtn) toggleBtn.dataset.tooltip = 'Scope — online';
     } else if (status === 'disconnected') {
       badge.className = 'scope-health-badge offline';
       badge.textContent = 'Offline';
       if (statusText) statusText.textContent = 'Scope';
+      if (toggleBtn) toggleBtn.dataset.tooltip = 'Scope — not connected';
     }
   }
 
@@ -1797,11 +1825,159 @@ export class SynthograsizerSmall {
     this.glitcherControls = new GlitcherControls(this);
   }
 
+  _initHistoryStrip() {
+    const clearBtn = document.getElementById('output-history-clear');
+    clearBtn?.addEventListener('click', () => {
+      this.outputHistory = [];
+      this._renderHistoryStrip();
+    });
+
+    const thumbsBtn = document.getElementById('output-history-thumbs-btn');
+    thumbsBtn?.addEventListener('click', () => {
+      this._historyThumbsVisible = !this._historyThumbsVisible;
+      thumbsBtn.classList.toggle('active', this._historyThumbsVisible);
+      thumbsBtn.title = this._historyThumbsVisible ? 'Hide thumbnails' : 'Show thumbnails';
+      this._renderHistoryStrip();
+    });
+
+    // Capture an entry whenever an image or video is generated
+    window.addEventListener('synthograsizer:media-generated', (e) => {
+      this._captureHistory(e.detail);
+    });
+  }
+
+  _captureHistory({ text, mediaSrc, mediaType }) {
+    if (!text || !mediaSrc) return;
+    this.outputHistory.unshift({ text, values: { ...this.currentValues }, mediaSrc, mediaType, time: Date.now() });
+    if (this.outputHistory.length > 10) this.outputHistory.pop();
+    this._renderHistoryStrip();
+  }
+
+  _renderHistoryStrip() {
+    const strip = document.getElementById('output-history-strip');
+    const list = document.getElementById('output-history-list');
+    if (!strip || !list) return;
+
+    if (this.outputHistory.length === 0) {
+      strip.style.display = 'none';
+      return;
+    }
+
+    strip.style.display = 'block';
+    list.innerHTML = '';
+    list.classList.toggle('show-thumbs', this._historyThumbsVisible);
+
+    this.outputHistory.forEach((entry) => {
+      const age = Date.now() - entry.time;
+      const timeLabel = age < 60000
+        ? `${Math.round(age / 1000)}s ago`
+        : `${Math.round(age / 60000)}m ago`;
+
+      const btn = document.createElement('button');
+      btn.className = 'output-history-entry';
+      btn.title = entry.text;
+
+      const thumb = entry.mediaType === 'video'
+        ? `<video class="output-history-thumb" src="${entry.mediaSrc}" muted preload="metadata"></video>`
+        : `<img class="output-history-thumb" src="${entry.mediaSrc}" alt="">`;
+
+      btn.innerHTML = `
+        ${thumb}
+        <span class="output-history-entry-text">${entry.text.replace(/</g, '&lt;')}</span>
+        <span class="output-history-entry-time">${timeLabel}</span>
+      `;
+      btn.addEventListener('click', () => {
+        // Restore variable state
+        this.currentValues = { ...entry.values };
+        this.generateOutput();
+        // Show the generated media
+        this._showHistoryPreview(entry);
+      });
+      list.appendChild(btn);
+    });
+  }
+
+  _showHistoryPreview(entry) {
+    const resultContainer = document.getElementById('studio-result');
+    const content = document.getElementById('studio-content');
+    if (!resultContainer || !content) return;
+
+    if (entry.mediaType === 'video') {
+      content.innerHTML = `
+        <video controls autoplay loop class="studio-result-video">
+          <source src="${entry.mediaSrc}" type="video/mp4">
+        </video>`;
+    } else {
+      content.innerHTML = `<img src="${entry.mediaSrc}" class="studio-result-image" alt="">`;
+    }
+
+    resultContainer.classList.add('active');
+  }
+
+  _initHideInactiveToggle() {
+    const btn = document.getElementById('hide-inactive-btn');
+    if (!btn) return;
+
+    // Restore persisted state
+    if (localStorage.getItem('synthHideInactive') === 'true') {
+      btn.classList.add('active');
+      this._applyConnectionVisibility(true);
+    }
+
+    btn.addEventListener('click', () => {
+      const isActive = btn.classList.toggle('active');
+      localStorage.setItem('synthHideInactive', isActive);
+      this._applyConnectionVisibility(isActive);
+    });
+
+    // Re-evaluate whenever a dot's classes change
+    ['#midi-dot', '#scope-dot', '#glitch-dot', '#disp-dot'].forEach(id => {
+      const dotEl = document.querySelector(id);
+      if (!dotEl) return;
+      new MutationObserver(() => {
+        if (document.getElementById('hide-inactive-btn')?.classList.contains('active')) {
+          this._applyConnectionVisibility(true);
+        }
+      }).observe(dotEl, { attributes: true, attributeFilter: ['class'] });
+    });
+  }
+
+  _applyConnectionVisibility(filterActive) {
+    const connections = [
+      { bar: '#midi-bar',   panel: '#midi-panel',   dot: '#midi-dot',   activeClasses: ['connected', 'learning'] },
+      { bar: '#scope-bar',  panel: '#scope-panel',  dot: '#scope-dot',  activeClasses: ['osc-on'] },
+      { bar: '#glitch-bar', panel: '#glitch-panel', dot: '#glitch-dot', activeClasses: ['osc-on'] },
+      { bar: '#disp-bar',   panel: null,            dot: '#disp-dot',   activeClasses: ['osc-on'] },
+    ];
+
+    connections.forEach(({ bar, panel, dot, activeClasses }) => {
+      const dotEl = document.querySelector(dot);
+      const isActive = activeClasses.some(c => dotEl?.classList.contains(c));
+      const barEl = document.querySelector(bar);
+      const panelEl = panel ? document.querySelector(panel) : null;
+
+      if (filterActive && !isActive) {
+        if (barEl) barEl.style.display = 'none';
+        if (panelEl) panelEl.style.display = 'none'; // close panel when bar is hidden
+      } else {
+        if (barEl) barEl.style.display = '';
+        // don't force-open the panel — preserve its toggle state
+      }
+    });
+  }
+
   /** Called after a template loads — prune dead mappings & refresh UI */
   _onTemplateLoadedMidi() {
     if (!this.midi) return;
+    const varCount = this.variables.length;
+    // Extend sequential patterns BEFORE pruning, so new vars get mappings
+    const extended = this.midi.extendMappings(varCount);
+    // Prune any mappings that exceed the new variable count
     this.midi.pruneStaleMappings();
     this.midiUI?.refresh();
+    if (extended) {
+      console.log(`[MIDI] Auto-extended mappings to cover ${varCount} variables`);
+    }
   }
 }
 
@@ -1825,6 +2001,8 @@ class MIDIPanelUI {
       learnCancel: document.getElementById('midi-learn-cancel'),
       mappingsGrid:document.getElementById('midi-mappings-grid'),
       clearBtn:    document.getElementById('midi-clear-btn'),
+      autoMapCCBtn:   document.getElementById('midi-automap-cc-btn'),
+      autoMapNoteBtn: document.getElementById('midi-automap-note-btn'),
     };
 
     this._panelOpen = false;
@@ -1833,7 +2011,7 @@ class MIDIPanelUI {
   }
 
   _setupListeners() {
-    const { toggleBtn, learnCancel, clearBtn } = this._el;
+    const { toggleBtn, learnCancel, clearBtn, autoMapCCBtn, autoMapNoteBtn } = this._el;
 
     toggleBtn?.addEventListener('click', () => this._togglePanel());
     learnCancel?.addEventListener('click', () => {
@@ -1843,6 +2021,24 @@ class MIDIPanelUI {
     });
     clearBtn?.addEventListener('click', () => {
       this.midi.clearAllMappings();
+      this.refresh();
+    });
+
+    autoMapCCBtn?.addEventListener('click', () => {
+      if (!this.midi.startAutoMapCCs()) {
+        alert('No MIDI device connected. Connect a controller and try again.');
+        return;
+      }
+      this._setLearnHint(true, 'Touch <strong>one knob or fader</strong> — all variables will be mapped sequentially from that CC…');
+      this.refresh();
+    });
+
+    autoMapNoteBtn?.addEventListener('click', () => {
+      if (!this.midi.startAutoMapNotes()) {
+        alert('No MIDI device connected. Connect a controller and try again.');
+        return;
+      }
+      this._setLearnHint(true, 'Press <strong>one key or pad</strong> — all variables will be mapped sequentially from that note…');
       this.refresh();
     });
   }
@@ -1857,19 +2053,23 @@ class MIDIPanelUI {
   // ── Status callbacks ──────────────────────────────────────────────────────
 
   onStatusChange(status, deviceName) {
-    const { dot, statusText, deviceName: devEl } = this._el;
+    const { dot, statusText, deviceName: devEl, toggleBtn } = this._el;
     if (status === 'connected') {
       dot?.classList.add('connected');
       dot?.classList.remove('learning');
       if (statusText) statusText.textContent = 'MIDI';
       if (devEl) devEl.textContent = deviceName || '';
+      if (toggleBtn) toggleBtn.dataset.tooltip = `MIDI — ${deviceName || 'controller connected'}`;
     } else if (status === 'disconnected') {
       dot?.classList.remove('connected', 'learning');
       if (devEl) devEl.textContent = '';
+      if (toggleBtn) toggleBtn.dataset.tooltip = 'MIDI — no controller detected';
     } else if (status === 'unsupported') {
       if (statusText) statusText.textContent = 'No MIDI';
+      if (toggleBtn) toggleBtn.dataset.tooltip = 'MIDI — not supported in this browser';
     } else if (status === 'denied') {
       if (statusText) statusText.textContent = 'MIDI denied';
+      if (toggleBtn) toggleBtn.dataset.tooltip = 'MIDI — access denied';
     }
     this.refresh();
   }
@@ -1880,9 +2080,12 @@ class MIDIPanelUI {
     this.refresh();
   }
 
-  _setLearnHint(visible) {
+  _setLearnHint(visible, customHTML = null) {
     const { learnHint, learnCancel, dot } = this._el;
-    if (learnHint) learnHint.style.display = visible ? 'block' : 'none';
+    if (learnHint) {
+      learnHint.style.display = visible ? 'block' : 'none';
+      if (customHTML) learnHint.innerHTML = customHTML;
+    }
     if (learnCancel) learnCancel.style.display = visible ? '' : 'none';
     if (visible) {
       dot?.classList.add('learning');
@@ -1891,6 +2094,13 @@ class MIDIPanelUI {
       dot?.classList.remove('learning');
       if (this.midi.deviceCount > 0) dot?.classList.add('connected');
     }
+  }
+
+  /** Called when auto-map completes (all vars mapped from a single input). */
+  onAutoMapComplete(type, startNumber, channel) {
+    this._setLearnHint(false);
+    this._el.dot?.classList.remove('learning');
+    this.refresh();
   }
 
   // ── Panel rendering ───────────────────────────────────────────────────────

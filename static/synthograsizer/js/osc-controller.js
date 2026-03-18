@@ -20,8 +20,8 @@ export class OSCController {
     this.enabled = false;
     this.autoSend = false;
     this.host = '127.0.0.1';
-    this.port = 9000;
-    this.address = '/prompts';
+    this.port = 8000;
+    this.address = '/scope/prompt';
 
     this._debounceTimer = null;
     this._debounceMs = 80;          // ms to wait before sending
@@ -126,7 +126,7 @@ export class OSCController {
   }
 
   setAddress(address) {
-    this.address = address || '/prompts';
+    this.address = address || '/scope/prompt';
     this._saveConfig();
   }
 

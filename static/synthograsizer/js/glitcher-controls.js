@@ -350,8 +350,13 @@ export class GlitcherControls {
     if (!this.dot) return;
     if (this.state.enabled) {
       this.dot.classList.add('osc-on');
+      if (this.toggleBtn) {
+        const filter = this.state.filter && this.state.filter !== 'off' ? ` · filter: ${this.state.filter}` : '';
+        this.toggleBtn.dataset.tooltip = `Glitcher — active${filter}`;
+      }
     } else {
       this.dot.classList.remove('osc-on');
+      if (this.toggleBtn) this.toggleBtn.dataset.tooltip = 'Glitcher — no effects active';
     }
   }
 }

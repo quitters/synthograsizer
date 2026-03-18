@@ -39,7 +39,7 @@ export class ScopeVideoClient {
     this.onStatusChange = callbacks.onStatusChange || (() => {});
 
     // Config (persisted)
-    this.scopeUrl = 'http://127.0.0.1:7860';
+    this.scopeUrl = 'http://127.0.0.1:8000';
     this.fps = 15;
     this.streamEnabled = false;
 
@@ -114,8 +114,18 @@ export class ScopeVideoClient {
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
-      this.onStatusChange('frame-sent', filename);
+      const path = data.path || filename;
       console.log('[ScopeVideo] frame uploaded', data);
+
+      // Dispatch the saved asset as the active VACE reference image
+      if (this.isStreaming && this._dataChannel?.readyState === 'open') {
+        this._dataChannel.send(JSON.stringify({ vace_ref_images: [path], vace_context_scale: 1.0 }));
+        console.log('[ScopeVideo] vace_ref_images dispatched via data channel');
+      } else {
+        await this._pushRefViaOffer(path);
+      }
+
+      this.onStatusChange('frame-sent', filename);
     } catch (e) {
       this.onStatusChange('error', `Upload failed: ${e.message}`);
       console.warn('[ScopeVideo] sendFrame error', e);
@@ -205,6 +215,8 @@ export class ScopeVideoClient {
 
       dc.onopen = () => {
         try {
+          // Only send the reference image params — do not change input_mode,
+          // as overriding it mid-session forces a pipeline mode-switch and freezes generation.
           dc.send(JSON.stringify({ vace_ref_images: [path], vace_context_scale: 1.0 }));
           console.log('[ScopeVideo] ref-only session: vace_ref_images sent via data channel');
         } catch (e) {
@@ -222,7 +234,7 @@ export class ScopeVideoClient {
           sdp: pc.localDescription.sdp,
           type: pc.localDescription.type,
           initialParameters: {
-            input_mode: 'text',
+            // Deliberately omit input_mode — don't override the pipeline's current mode
             vace_ref_images: [path],
             vace_context_scale: 1.0,
           },
@@ -455,7 +467,7 @@ export class ScopeVideoClient {
   // ── Configuration ──────────────────────────────────────────────────────────
 
   setScopeUrl(url) {
-    this.scopeUrl = (url || 'http://127.0.0.1:7860').replace(/\/$/, '');
+    this.scopeUrl = (url || 'http://127.0.0.1:8000').replace(/\/$/, '');
     this._saveConfig();
   }
 
@@ -592,7 +604,7 @@ export class ScopeVideoClient {
       });
       if (!res.ok) return;
       const cfg = await res.json();
-      if (cfg.scopeUrl && this.scopeUrl === 'http://127.0.0.1:7860') {
+      if (cfg.scopeUrl && this.scopeUrl === 'http://127.0.0.1:8000') {
         this.scopeUrl = cfg.scopeUrl;
       }
     } catch { /* not running as companion — ignore */ }

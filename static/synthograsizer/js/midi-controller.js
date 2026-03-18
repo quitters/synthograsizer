@@ -10,6 +10,11 @@
  *   - startLearnNote(varIndex) — next Note-On message maps to that variable
  *   - cancelLearn()            — abort pending learn
  *
+ * Auto-map:
+ *   - startAutoMapCCs()   — next CC captured → map ALL variables sequentially
+ *   - startAutoMapNotes() — next Note captured → map ALL variables sequentially
+ *   - extendMappings(n)   — detect sequential pattern, extend to n variables
+ *
  * Mappings persist in localStorage.
  */
 
@@ -25,9 +30,10 @@ export class MIDIController {
    */
   constructor(app, callbacks = {}) {
     this.app = app;
-    this.onStatusChange = callbacks.onStatusChange || (() => {});
-    this.onLearnCapture = callbacks.onLearnCapture || (() => {});
-    this.onValueChange = callbacks.onValueChange || (() => {});
+    this.onStatusChange  = callbacks.onStatusChange  || (() => {});
+    this.onLearnCapture  = callbacks.onLearnCapture  || (() => {});
+    this.onValueChange   = callbacks.onValueChange   || (() => {});
+    this.onAutoMapComplete = callbacks.onAutoMapComplete || null;
 
     /** @type {Map<string, number>} key: "ch-cc" → varIndex */
     this.ccMappings = new Map();
@@ -35,6 +41,7 @@ export class MIDIController {
     this.noteMappings = new Map();
 
     this._learnMode = null;  // null | { type: 'cc'|'note', varIndex }
+    this._autoMapMode = null; // null | 'cc' | 'note'
     this._midiAccess = null;
     this._devices = new Map(); // id → MIDIInput
 
@@ -124,6 +131,16 @@ export class MIDIController {
   }
 
   _handleCC(channel, cc, value) {
+    // Auto-map mode: first CC captured → fill ALL variables sequentially
+    if (this._autoMapMode === 'cc') {
+      this._autoMapMode = null;
+      this._learnMode = null;
+      this.autoMapCCs(channel, cc);
+      this._applyCC(0, value);
+      this.onAutoMapComplete?.('cc', cc, channel);
+      return;
+    }
+
     if (this._learnMode?.type === 'cc') {
       const { varIndex } = this._learnMode;
       this._learnMode = null;
@@ -148,6 +165,15 @@ export class MIDIController {
   }
 
   _handleNoteOn(channel, note, _velocity) {
+    // Auto-map mode: first Note captured → fill ALL variables sequentially
+    if (this._autoMapMode === 'note') {
+      this._autoMapMode = null;
+      this._learnMode = null;
+      this.autoMapNotes(channel, note);
+      this.onAutoMapComplete?.('note', note, channel);
+      return;
+    }
+
     if (this._learnMode?.type === 'note') {
       const { varIndex } = this._learnMode;
       this._learnMode = null;
@@ -238,13 +264,143 @@ export class MIDIController {
     return true;
   }
 
-  /** Cancel any pending learn. */
+  /** Cancel any pending learn (including auto-map). */
   cancelLearn() {
     this._learnMode = null;
+    this._autoMapMode = null;
   }
 
   get learnMode() {
     return this._learnMode; // null | { type, varIndex }
+  }
+
+  get autoMapMode() {
+    return this._autoMapMode; // null | 'cc' | 'note'
+  }
+
+  // ─────────────────────────────────────────────
+  //  Auto-Map
+  // ─────────────────────────────────────────────
+
+  /** Enter auto-map learn for CCs. The next CC captured maps ALL variables. */
+  startAutoMapCCs() {
+    if (!this._midiAccess) return false;
+    this._learnMode = null;
+    this._autoMapMode = 'cc';
+    return true;
+  }
+
+  /** Enter auto-map learn for Notes. The next Note captured maps ALL variables. */
+  startAutoMapNotes() {
+    if (!this._midiAccess) return false;
+    this._learnMode = null;
+    this._autoMapMode = 'note';
+    return true;
+  }
+
+  /**
+   * Map all variables to sequential CCs starting from startCC.
+   * Clears any existing CC mappings first.
+   */
+  autoMapCCs(channel, startCC, count = null) {
+    const n = count ?? (this.app.variables?.length ?? 0);
+    this.ccMappings.clear();
+    for (let i = 0; i < n && (startCC + i) <= 127; i++) {
+      this.ccMappings.set(this._ccKey(channel, startCC + i), i);
+    }
+    this._saveMappings();
+  }
+
+  /**
+   * Map all variables to sequential Notes starting from startNote.
+   * Clears any existing Note mappings first.
+   */
+  autoMapNotes(channel, startNote, count = null) {
+    const n = count ?? (this.app.variables?.length ?? 0);
+    this.noteMappings.clear();
+    for (let i = 0; i < n && (startNote + i) <= 127; i++) {
+      this.noteMappings.set(this._noteKey(channel, startNote + i), i);
+    }
+    this._saveMappings();
+  }
+
+  /**
+   * Detect if CC mappings follow a sequential pattern.
+   * @returns {{ channel: number, start: number, step: number, count: number } | null}
+   */
+  detectCCPattern() {
+    if (this.ccMappings.size < 1) return null;
+    const entries = [...this.ccMappings.entries()]
+      .map(([key, varIndex]) => ({ ...this._parseKey(key), varIndex }))
+      .sort((a, b) => a.varIndex - b.varIndex);
+
+    const channel = entries[0].channel;
+    if (!entries.every(e => e.channel === channel)) return null;
+    // Must start at varIndex 0 with no gaps
+    if (entries[0].varIndex !== 0) return null;
+
+    const start = entries[0].number;
+    const step  = entries.length > 1 ? entries[1].number - entries[0].number : 1;
+    if (step <= 0) return null;
+
+    for (let i = 0; i < entries.length; i++) {
+      if (entries[i].varIndex !== i) return null;
+      if (entries[i].number !== start + i * step) return null;
+    }
+    return { channel, start, step, count: entries.length };
+  }
+
+  /**
+   * Detect if Note mappings follow a sequential pattern.
+   * @returns {{ channel: number, start: number, step: number, count: number } | null}
+   */
+  detectNotePattern() {
+    if (this.noteMappings.size < 1) return null;
+    const entries = [...this.noteMappings.entries()]
+      .map(([key, varIndex]) => ({ ...this._parseKey(key), varIndex }))
+      .sort((a, b) => a.varIndex - b.varIndex);
+
+    const channel = entries[0].channel;
+    if (!entries.every(e => e.channel === channel)) return null;
+    if (entries[0].varIndex !== 0) return null;
+
+    const start = entries[0].number;
+    const step  = entries.length > 1 ? entries[1].number - entries[0].number : 1;
+    if (step <= 0) return null;
+
+    for (let i = 0; i < entries.length; i++) {
+      if (entries[i].varIndex !== i) return null;
+      if (entries[i].number !== start + i * step) return null;
+    }
+    return { channel, start, step, count: entries.length };
+  }
+
+  /**
+   * After a template change, extend existing sequential mappings to cover
+   * any new variables beyond the previous count.
+   * Returns true if mappings were extended.
+   */
+  extendMappings(newVarCount) {
+    let extended = false;
+
+    const ccP = this.detectCCPattern();
+    if (ccP && ccP.count < newVarCount) {
+      for (let i = ccP.count; i < newVarCount && (ccP.start + i * ccP.step) <= 127; i++) {
+        this.ccMappings.set(this._ccKey(ccP.channel, ccP.start + i * ccP.step), i);
+      }
+      extended = true;
+    }
+
+    const noteP = this.detectNotePattern();
+    if (noteP && noteP.count < newVarCount) {
+      for (let i = noteP.count; i < newVarCount && (noteP.start + i * noteP.step) <= 127; i++) {
+        this.noteMappings.set(this._noteKey(noteP.channel, noteP.start + i * noteP.step), i);
+      }
+      extended = true;
+    }
+
+    if (extended) this._saveMappings();
+    return extended;
   }
 
   // ─────────────────────────────────────────────

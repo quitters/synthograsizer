@@ -27,7 +27,7 @@ export class ScopeConnector {
     this.onStatusChange = onStatusChange || (() => {});
 
     // State
-    this.scopeUrl = 'http://127.0.0.1:7860';
+    this.scopeUrl = 'http://127.0.0.1:8000';
     this.healthy = false;
     this.autoConnect = true;     // auto-enable OSC when Scope is found
     this._pollTimer = null;
@@ -94,7 +94,7 @@ export class ScopeConnector {
 
   /** Update the Scope URL and re-discover. */
   async setScopeUrl(url) {
-    this.scopeUrl = (url || 'http://127.0.0.1:7860').replace(/\/$/, '');
+    this.scopeUrl = (url || 'http://127.0.0.1:8000').replace(/\/$/, '');
     this.video.setScopeUrl(this.scopeUrl);
     this._saveConfig();
     return this.discover(this.scopeUrl);

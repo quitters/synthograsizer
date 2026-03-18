@@ -103,15 +103,24 @@
                     aria-label="Generated prompt output">
                 </div>
                 <div id="tag-badges-container" class="tag-badges-container"></div>
+                <!-- Output history strip -->
+                <div id="output-history-strip" class="output-history-strip" style="display:none;">
+                    <div class="output-history-header">
+                        <span class="output-history-label">Recent</span>
+                        <button id="output-history-thumbs-btn" class="output-history-thumbs-btn" title="Show thumbnails">Img</button>
+                        <button id="output-history-clear" class="output-history-clear-btn" title="Clear history">✕</button>
+                    </div>
+                    <div id="output-history-list" class="output-history-list"></div>
+                </div>
             </section>
 
             <!-- Primary Action Buttons -->
             <section class="primary-actions-section">
-                <button id="randomize-button" class="primary-btn randomize-btn">
-                    <span class="label">RANDOMIZE</span>
+                <button id="randomize-button" class="primary-btn randomize-btn" title="Randomize all variables  [R]">
+                    <span class="label">RANDOMIZE</span><kbd class="keybind-badge">R</kbd>
                 </button>
-                <button id="generate-button" class="primary-btn generate-btn">
-                    <span class="label">GENERATE</span>
+                <button id="generate-button" class="primary-btn generate-btn" title="Generate image via AI  [G]">
+                    <span class="label">GENERATE</span><kbd class="keybind-badge">G</kbd>
                 </button>
                 <button id="p5-run-main-btn" class="primary-btn p5-run-main-btn" style="display: none;">
                     <span class="p5-run-icon">▶</span>
@@ -222,9 +231,14 @@
                 <!-- Connections group: MIDI · OSC · Scope Video · Glitcher · Display -->
                 <div class="connections-group">
 
+                <div class="connections-header">
+                    <span class="connections-label">Connections</span>
+                    <button id="hide-inactive-btn" class="connections-filter-btn" title="Hide inactive connections">Hide inactive</button>
+                </div>
+
                 <!-- MIDI Status Bar -->
                 <div class="midi-bar" id="midi-bar">
-                    <button id="midi-toggle-btn" class="midi-toggle-btn" title="MIDI settings">
+                    <button id="midi-toggle-btn" class="midi-toggle-btn" title="MIDI settings" data-tooltip="MIDI — no controller detected">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M12 3c-1.2 5.4-2 8.2-2 11a2 2 0 0 0 4 0c0-2.8-.8-5.6-2-11z"/>
                             <circle cx="9" cy="7" r="1.5"/><circle cx="15" cy="7" r="1.5"/>
@@ -243,6 +257,10 @@
                         <span id="midi-device-name" class="midi-device-name"></span>
                         <button id="midi-learn-cancel" class="midi-learn-cancel-btn" style="display:none;">✕ Cancel Learn</button>
                     </div>
+                    <div class="midi-automap-bar">
+                        <button id="midi-automap-cc-btn" class="midi-automap-btn midi-automap-cc" title="Touch one knob/fader → all variables get sequential CCs">Auto CCs ▸</button>
+                        <button id="midi-automap-note-btn" class="midi-automap-btn midi-automap-note" title="Press one key/pad → all variables get sequential notes">Auto Notes ▸</button>
+                    </div>
                     <div class="midi-learn-hint" id="midi-learn-hint" style="display:none;">
                         Move a <strong>knob/fader</strong> or press a <strong>key</strong> on your controller…
                     </div>
@@ -256,7 +274,7 @@
 
                 <!-- Scope Connection Status Bar -->
                 <div class="osc-bar" id="scope-bar">
-                    <button id="scope-toggle-btn" class="osc-toggle-btn" title="Scope Connection — OSC, Video, Spout">
+                    <button id="scope-toggle-btn" class="osc-toggle-btn" title="Scope Connection — OSC, Video, Spout" data-tooltip="Scope — not connected">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
                         </svg>
@@ -276,7 +294,7 @@
                         <!-- Connection -->
                         <label class="osc-row">
                             <span>Scope URL</span>
-                            <input type="text" id="scope-url" value="http://127.0.0.1:7860" class="osc-input" />
+                            <input type="text" id="scope-url" value="http://127.0.0.1:8000" class="osc-input" />
                         </label>
 
                         <!-- OSC Section -->
@@ -296,11 +314,11 @@
                                 </label>
                                 <label class="osc-row">
                                     <span>OSC Port</span>
-                                    <input type="number" id="osc-port" value="9000" class="osc-input osc-input-sm" />
+                                    <input type="number" id="osc-port" value="8000" class="osc-input osc-input-sm" />
                                 </label>
                                 <label class="osc-row">
                                     <span>Address</span>
-                                    <input type="text" id="osc-address" value="/prompts" class="osc-input" />
+                                    <input type="text" id="osc-address" value="/scope/prompt" class="osc-input" />
                                 </label>
                                 <label class="osc-row">
                                     <span>Debounce (ms)</span>
@@ -382,7 +400,7 @@
 
                 <!-- Glitcher Status Bar -->
                 <div class="osc-bar" id="glitch-bar">
-                    <button id="glitch-toggle-btn" class="osc-toggle-btn" title="Glitcher — Display Effects">
+                    <button id="glitch-toggle-btn" class="osc-toggle-btn" title="Glitcher — Display Effects" data-tooltip="Glitcher — no effects active">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-9 9H3V5h9v7zm9 7H14v-7h7v7z"/>
                         </svg>
@@ -393,7 +411,7 @@
 
                 <!-- Display Window Sidebar Button -->
                 <div class="osc-bar" id="disp-bar">
-                    <button id="disp-toggle-btn" class="osc-toggle-btn" title="Open Full-Screen Display Window">
+                    <button id="disp-toggle-btn" class="osc-toggle-btn" title="Open Full-Screen Display Window" data-tooltip="Display — window closed">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M20 3H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h3l-1 1v2h12v-2l-1-1h3c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 13H4V5h16v11z"/>
                         </svg>
@@ -583,6 +601,12 @@
                     </svg>
                     <span class="label">Liked Prompts</span>
                 </button>
+                <button id="perf-template-gen-btn" class="action-btn perf-template-gen-btn" title="AI Template Generator" onclick="window.studioIntegrationInstance?.openModal('template-gen-modal')">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/>
+                    </svg>
+                    <span class="label">Template Gen</span>
+                </button>
                 <div class="template-controls">
                     <button id="template-prev-btn" class="template-nav-btn template-prev-btn" title="Previous template">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -751,6 +775,22 @@
                         </button>
                     </div>
                     <textarea id="favorites-output-text" class="batch-output-textarea" readonly></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Template Card Picker Modal -->
+        <div class="batch-modal-overlay" id="template-picker-overlay">
+            <div class="batch-modal template-picker-modal">
+                <div class="batch-modal-header">
+                    <h2 class="batch-modal-title">Templates</h2>
+                    <button class="batch-close-btn" id="template-picker-close" aria-label="Close template picker">&times;</button>
+                </div>
+                <div class="template-picker-search-bar">
+                    <input type="text" id="template-picker-search" placeholder="Search templates…" autocomplete="off" aria-label="Search templates">
+                </div>
+                <div class="batch-modal-body" id="template-picker-body">
+                    <!-- Cards injected by template-loader.js -->
                 </div>
             </div>
         </div>

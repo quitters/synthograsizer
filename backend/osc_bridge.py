@@ -1,7 +1,8 @@
 """OSC Bridge — forwards messages to Daydream Scope (or any OSC server) via UDP.
 
 Uses python-osc's SimpleUDPClient.  The bridge is a singleton created at
-import time with sensible defaults (localhost:9000 — Scope's default OSC port).
+import time with sensible defaults (localhost:8000 — Scope's OSC port mirrors
+its HTTP port, default 8000).
 FastAPI endpoints call its methods; the browser never talks UDP directly.
 """
 
@@ -14,11 +15,11 @@ from pythonosc.udp_client import SimpleUDPClient
 logger = logging.getLogger(__name__)
 
 # Default Scope URL for auto-discovery
-DEFAULT_SCOPE_URL = "http://127.0.0.1:7860"
+DEFAULT_SCOPE_URL = "http://127.0.0.1:8000"
 
 
 class OSCBridge:
-    def __init__(self, host: str = "127.0.0.1", port: int = 9000):
+    def __init__(self, host: str = "127.0.0.1", port: int = 8000):
         self.host = host
         self.port = port
         self._client = SimpleUDPClient(host, port)
@@ -27,7 +28,7 @@ class OSCBridge:
 
     # ── send helpers ──────────────────────────────────────────
 
-    def send_prompt(self, prompt: str, address: str = "/prompts") -> None:
+    def send_prompt(self, prompt: str, address: str = "/scope/prompt") -> None:
         """Send a prompt string to the target OSC address."""
         logger.debug("OSC → %s:%d %s  %r", self.host, self.port, address, prompt[:80])
         self._client.send_message(address, prompt)
@@ -80,7 +81,15 @@ class OSCBridge:
                     result["healthy"] = True
                     self._scope_healthy = True
                     self.scope_url = url
-                    logger.info("Scope discovered at %s", url)
+                    # Scope's OSC listener uses the same port as its HTTP server.
+                    # Auto-align OSC port to the discovered HTTP port.
+                    from urllib.parse import urlparse
+                    parsed = urlparse(url)
+                    inferred_osc_port = parsed.port or 8000
+                    self.update_config(host=parsed.hostname or self.host, port=inferred_osc_port)
+                    result["oscHost"] = self.host
+                    result["oscPort"] = self.port
+                    logger.info("Scope discovered at %s — OSC aligned to %s:%d", url, self.host, self.port)
         except Exception as e:
             logger.debug("Scope not found at %s: %s", url, e)
             self._scope_healthy = False

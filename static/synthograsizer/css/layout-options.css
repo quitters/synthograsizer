@@ -57,6 +57,21 @@
   display: none !important;
 }
 
+/* ── Performance mode: hide studio-only bottom-bar actions ─────────────── */
+.layout-a #batch-button,
+.layout-a #favorites-button {
+  display: none;
+}
+
+/* ── Performance-mode Template Gen shortcut — hidden in Studio (Template Gen
+      is already in the AI Studio Tools panel there) ─────────────────────── */
+#perf-template-gen-btn {
+  display: none;
+}
+.layout-a #perf-template-gen-btn {
+  display: flex;
+}
+
 @media (min-width: 900px) {
 
   /* ── Grid container ── */
@@ -79,11 +94,36 @@
   .layout-a #p5-live-section,
   .layout-a .actions-section {
     grid-column: 1;
+    min-width: 0; /* prevent content from blowing out the 1fr column */
   }
 
   /* Tighter bottom margins in two-col — less vertical breathing room needed */
   .layout-a .output-section          { margin-bottom: 20px; }
   .layout-a .primary-actions-section { margin-bottom: 20px; }
+
+  /* Keep Recent list compact so the left column doesn't balloon */
+  .layout-a .output-history-strip {
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .layout-a .output-history-list {
+    max-height: 148px;
+    overflow-y: auto;
+  }
+
+  .layout-a .output-history-entry {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .layout-a .output-history-entry-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+  }
 
   /* Right column: D-Pad + connections — sticky so it stays in view while
      the user scrolls through the left column */

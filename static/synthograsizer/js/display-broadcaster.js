@@ -42,6 +42,7 @@ export class DisplayBroadcaster {
     // Sidebar UI Elements
     this.dispDot = document.getElementById('disp-dot');
     this.dispStatus = document.getElementById('disp-status-text');
+    this.dispToggleBtn = document.getElementById('disp-toggle-btn');
 
     // Start periodic check
     setTimeout(() => this._startStatusCheck(), 2000);
@@ -68,6 +69,9 @@ export class DisplayBroadcaster {
     }
     if (this.dispStatus) {
       this.dispStatus.textContent = isActive ? 'Display ACTIVE' : 'Display';
+    }
+    if (this.dispToggleBtn) {
+      this.dispToggleBtn.dataset.tooltip = isActive ? 'Display — window open' : 'Display — window closed';
     }
   }
 
