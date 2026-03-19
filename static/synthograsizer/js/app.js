@@ -4,7 +4,7 @@ import { DEFAULT_CONFIG, ERROR_MESSAGES } from './config.js';
 import { TextRenderer } from './text-renderer.js';
 import { BatchGenerator } from './batch-generator.js';
 import { TemplateLoader } from './template-loader.js';
-import { CodeOverlayManager } from './code-overlay-manager.js?v=4';
+import { CodeOverlayManager } from './code-overlay-manager.js?v=5';
 import { normalizeTemplate, getValueText, getValueWeight, getWeightsArray, computeTemplateFingerprint, generateTagId } from './template-normalizer.js?v=2';
 import { MIDIController } from './midi-controller.js?v=3';
 import { OSCController } from './osc-controller.js?v=3';
