@@ -3,47 +3,156 @@
   "variables": [
     {
       "name": "adjective",
-      "feature_name": "adjective",
+      "feature_name": "Adjective",
       "values": [
-        "Velvet",
-        "Electric",
-        "Cosmic",
-        "Silent",
-        "Neon",
-        "Crystal",
-        "Broken",
-        "Digital",
-        "Phantom",
-        "Crimson",
-        "Ancient",
-        "Lunar",
-        "Faded",
-        "Shattered",
-        "Infinite",
-        "Golden"
+        {
+          "text": "Velvet",
+          "weight": 1
+        },
+        {
+          "text": "Electric",
+          "weight": 1
+        },
+        {
+          "text": "Cosmic",
+          "weight": 1
+        },
+        {
+          "text": "Silent",
+          "weight": 1
+        },
+        {
+          "text": "Neon",
+          "weight": 1
+        },
+        {
+          "text": "Crystal",
+          "weight": 1
+        },
+        {
+          "text": "Broken",
+          "weight": 1
+        },
+        {
+          "text": "Digital",
+          "weight": 1
+        },
+        {
+          "text": "Phantom",
+          "weight": 1
+        },
+        {
+          "text": "Crimson",
+          "weight": 1
+        },
+        {
+          "text": "Ancient",
+          "weight": 1
+        },
+        {
+          "text": "Lunar",
+          "weight": 1
+        },
+        {
+          "text": "Faded",
+          "weight": 1
+        },
+        {
+          "text": "Shattered",
+          "weight": 1
+        },
+        {
+          "text": "Infinite",
+          "weight": 1
+        },
+        {
+          "text": "Golden",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "noun",
-      "feature_name": "noun",
+      "feature_name": "Noun",
       "values": [
-        "Thunder",
-        "Echoes",
-        "Architects",
-        "Prophets",
-        "Shadows",
-        "Ritual",
-        "Algorithm",
-        "Serpents",
-        "Cathedral",
-        "Frequencies",
-        "Ghosts",
-        "Machinery",
-        "Pilots",
-        "Horizon",
-        "Transmission",
-        "Sanctuary"
+        {
+          "text": "Thunder",
+          "weight": 1
+        },
+        {
+          "text": "Echoes",
+          "weight": 1
+        },
+        {
+          "text": "Architects",
+          "weight": 1
+        },
+        {
+          "text": "Prophets",
+          "weight": 1
+        },
+        {
+          "text": "Shadows",
+          "weight": 1
+        },
+        {
+          "text": "Ritual",
+          "weight": 1
+        },
+        {
+          "text": "Algorithm",
+          "weight": 1
+        },
+        {
+          "text": "Serpents",
+          "weight": 1
+        },
+        {
+          "text": "Cathedral",
+          "weight": 1
+        },
+        {
+          "text": "Frequencies",
+          "weight": 1
+        },
+        {
+          "text": "Ghosts",
+          "weight": 1
+        },
+        {
+          "text": "Machinery",
+          "weight": 1
+        },
+        {
+          "text": "Pilots",
+          "weight": 1
+        },
+        {
+          "text": "Horizon",
+          "weight": 1
+        },
+        {
+          "text": "Transmission",
+          "weight": 1
+        },
+        {
+          "text": "Sanctuary",
+          "weight": 1
+        }
       ]
+    }
+  ],
+  "tags": [
+    {
+      "id": "tag_band_name_01",
+      "type": "source",
+      "label": "Band Name Generator",
+      "description": "Simple two-word band name generator combining adjective and noun columns. Schema updated from plain strings to weighted value objects."
+    },
+    {
+      "id": "tag_band_name_02",
+      "type": "creator",
+      "label": "Synthograsizer"
     }
   ]
 }

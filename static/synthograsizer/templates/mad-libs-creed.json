@@ -3,597 +3,1798 @@
   "variables": [
     {
       "name": "name1",
-      "feature_name": "name1",
+      "feature_name": "Name 1",
       "values": [
-        "Zephyr",
-        "Magnus",
-        "Celestia",
-        "Chronos",
-        "Nebula",
-        "Axiom",
-        "Solara",
-        "Quantum",
-        "Ethereal",
-        "Cosmos",
-        "Zenith",
-        "Lumina"
+        {
+          "text": "Zephyr",
+          "weight": 1
+        },
+        {
+          "text": "Magnus",
+          "weight": 1
+        },
+        {
+          "text": "Celestia",
+          "weight": 1
+        },
+        {
+          "text": "Chronos",
+          "weight": 1
+        },
+        {
+          "text": "Nebula",
+          "weight": 1
+        },
+        {
+          "text": "Axiom",
+          "weight": 1
+        },
+        {
+          "text": "Solara",
+          "weight": 1
+        },
+        {
+          "text": "Quantum",
+          "weight": 1
+        },
+        {
+          "text": "Ethereal",
+          "weight": 1
+        },
+        {
+          "text": "Cosmos",
+          "weight": 1
+        },
+        {
+          "text": "Zenith",
+          "weight": 1
+        },
+        {
+          "text": "Lumina",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "familyMember1",
-      "feature_name": "familyMember1",
+      "feature_name": "Family Member 1",
       "values": [
-        "father",
-        "mother",
-        "ancestor",
-        "progenitor",
-        "elder",
-        "patriarch",
-        "matriarch",
-        "guardian",
-        "creator",
-        "originator",
-        "founder",
-        "architect"
+        {
+          "text": "father",
+          "weight": 1
+        },
+        {
+          "text": "mother",
+          "weight": 1
+        },
+        {
+          "text": "ancestor",
+          "weight": 1
+        },
+        {
+          "text": "progenitor",
+          "weight": 1
+        },
+        {
+          "text": "elder",
+          "weight": 1
+        },
+        {
+          "text": "patriarch",
+          "weight": 1
+        },
+        {
+          "text": "matriarch",
+          "weight": 1
+        },
+        {
+          "text": "guardian",
+          "weight": 1
+        },
+        {
+          "text": "creator",
+          "weight": 1
+        },
+        {
+          "text": "originator",
+          "weight": 1
+        },
+        {
+          "text": "founder",
+          "weight": 1
+        },
+        {
+          "text": "architect",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "place1",
-      "feature_name": "place1",
+      "feature_name": "Place 1",
       "values": [
-        "the digital realm",
-        "the void",
-        "the multiverse",
-        "the quantum field",
-        "the astral plane",
-        "the infinite library",
-        "the cosmic ocean",
-        "the dream dimension",
-        "the crystalline mountains",
-        "the eternal garden",
-        "the floating cities",
-        "the underground network"
+        {
+          "text": "the digital realm",
+          "weight": 1
+        },
+        {
+          "text": "the void",
+          "weight": 1
+        },
+        {
+          "text": "the multiverse",
+          "weight": 1
+        },
+        {
+          "text": "the quantum field",
+          "weight": 1
+        },
+        {
+          "text": "the astral plane",
+          "weight": 1
+        },
+        {
+          "text": "the infinite library",
+          "weight": 1
+        },
+        {
+          "text": "the cosmic ocean",
+          "weight": 1
+        },
+        {
+          "text": "the dream dimension",
+          "weight": 1
+        },
+        {
+          "text": "the crystalline mountains",
+          "weight": 1
+        },
+        {
+          "text": "the eternal garden",
+          "weight": 1
+        },
+        {
+          "text": "the floating cities",
+          "weight": 1
+        },
+        {
+          "text": "the underground network",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "place2",
-      "feature_name": "place2",
+      "feature_name": "Place 2",
       "values": [
-        "the silicon valleys",
-        "the neural networks",
-        "the cloud kingdoms",
-        "the data streams",
-        "the shadow markets",
-        "the memory banks",
-        "the probability fields",
-        "the echo chambers",
-        "the feedback loops",
-        "the recursive forests",
-        "the parallel dimensions",
-        "the temporal nexus"
+        {
+          "text": "the silicon valleys",
+          "weight": 1
+        },
+        {
+          "text": "the neural networks",
+          "weight": 1
+        },
+        {
+          "text": "the cloud kingdoms",
+          "weight": 1
+        },
+        {
+          "text": "the data streams",
+          "weight": 1
+        },
+        {
+          "text": "the shadow markets",
+          "weight": 1
+        },
+        {
+          "text": "the memory banks",
+          "weight": 1
+        },
+        {
+          "text": "the probability fields",
+          "weight": 1
+        },
+        {
+          "text": "the echo chambers",
+          "weight": 1
+        },
+        {
+          "text": "the feedback loops",
+          "weight": 1
+        },
+        {
+          "text": "the recursive forests",
+          "weight": 1
+        },
+        {
+          "text": "the parallel dimensions",
+          "weight": 1
+        },
+        {
+          "text": "the temporal nexus",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "name2",
-      "feature_name": "name2",
+      "feature_name": "Name 2",
       "values": [
-        "Pixel",
-        "Vector",
-        "Cipher",
-        "Glitch",
-        "Echo",
-        "Nexus",
-        "Prism",
-        "Vortex",
-        "Flux",
-        "Resonance",
-        "Cascade",
-        "Synthesis"
+        {
+          "text": "Pixel",
+          "weight": 1
+        },
+        {
+          "text": "Vector",
+          "weight": 1
+        },
+        {
+          "text": "Cipher",
+          "weight": 1
+        },
+        {
+          "text": "Glitch",
+          "weight": 1
+        },
+        {
+          "text": "Echo",
+          "weight": 1
+        },
+        {
+          "text": "Nexus",
+          "weight": 1
+        },
+        {
+          "text": "Prism",
+          "weight": 1
+        },
+        {
+          "text": "Vortex",
+          "weight": 1
+        },
+        {
+          "text": "Flux",
+          "weight": 1
+        },
+        {
+          "text": "Resonance",
+          "weight": 1
+        },
+        {
+          "text": "Cascade",
+          "weight": 1
+        },
+        {
+          "text": "Synthesis",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "familyMember2",
-      "feature_name": "familyMember2",
+      "feature_name": "Family Member 2",
       "values": [
-        "child",
-        "offspring",
-        "heir",
-        "descendant",
-        "successor",
-        "progeny",
-        "scion",
-        "inheritor",
-        "spawn",
-        "creation",
-        "manifestation",
-        "embodiment"
+        {
+          "text": "child",
+          "weight": 1
+        },
+        {
+          "text": "offspring",
+          "weight": 1
+        },
+        {
+          "text": "heir",
+          "weight": 1
+        },
+        {
+          "text": "descendant",
+          "weight": 1
+        },
+        {
+          "text": "successor",
+          "weight": 1
+        },
+        {
+          "text": "progeny",
+          "weight": 1
+        },
+        {
+          "text": "scion",
+          "weight": 1
+        },
+        {
+          "text": "inheritor",
+          "weight": 1
+        },
+        {
+          "text": "spawn",
+          "weight": 1
+        },
+        {
+          "text": "creation",
+          "weight": 1
+        },
+        {
+          "text": "manifestation",
+          "weight": 1
+        },
+        {
+          "text": "embodiment",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "occupation",
-      "feature_name": "occupation",
+      "feature_name": "Occupation",
       "values": [
-        "debugger",
-        "synthesizer",
-        "optimizer",
-        "compiler",
-        "architect",
-        "engineer",
-        "designer",
-        "conductor",
-        "composer",
-        "orchestrator",
-        "facilitator",
-        "mediator"
+        {
+          "text": "debugger",
+          "weight": 1
+        },
+        {
+          "text": "synthesizer",
+          "weight": 1
+        },
+        {
+          "text": "optimizer",
+          "weight": 1
+        },
+        {
+          "text": "compiler",
+          "weight": 1
+        },
+        {
+          "text": "architect",
+          "weight": 1
+        },
+        {
+          "text": "engineer",
+          "weight": 1
+        },
+        {
+          "text": "designer",
+          "weight": 1
+        },
+        {
+          "text": "conductor",
+          "weight": 1
+        },
+        {
+          "text": "composer",
+          "weight": 1
+        },
+        {
+          "text": "orchestrator",
+          "weight": 1
+        },
+        {
+          "text": "facilitator",
+          "weight": 1
+        },
+        {
+          "text": "mediator",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "adjective1",
-      "feature_name": "adjective1",
+      "feature_name": "Adjective 1",
       "values": [
-        "holy",
-        "sacred",
-        "blessed",
-        "divine",
-        "ethereal",
-        "transcendent",
-        "luminous",
-        "radiant",
-        "mystical",
-        "celestial",
-        "quantum",
-        "infinite"
+        {
+          "text": "holy",
+          "weight": 1
+        },
+        {
+          "text": "sacred",
+          "weight": 1
+        },
+        {
+          "text": "blessed",
+          "weight": 1
+        },
+        {
+          "text": "divine",
+          "weight": 1
+        },
+        {
+          "text": "ethereal",
+          "weight": 1
+        },
+        {
+          "text": "transcendent",
+          "weight": 1
+        },
+        {
+          "text": "luminous",
+          "weight": 1
+        },
+        {
+          "text": "radiant",
+          "weight": 1
+        },
+        {
+          "text": "mystical",
+          "weight": 1
+        },
+        {
+          "text": "celestial",
+          "weight": 1
+        },
+        {
+          "text": "quantum",
+          "weight": 1
+        },
+        {
+          "text": "infinite",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "noun1",
-      "feature_name": "noun1",
+      "feature_name": "Noun 1",
       "values": [
-        "algorithm",
-        "protocol",
-        "matrix",
-        "frequency",
-        "wavelength",
-        "resonance",
-        "vibration",
-        "oscillation",
-        "pattern",
-        "sequence",
-        "cipher",
-        "code"
+        {
+          "text": "algorithm",
+          "weight": 1
+        },
+        {
+          "text": "protocol",
+          "weight": 1
+        },
+        {
+          "text": "matrix",
+          "weight": 1
+        },
+        {
+          "text": "frequency",
+          "weight": 1
+        },
+        {
+          "text": "wavelength",
+          "weight": 1
+        },
+        {
+          "text": "resonance",
+          "weight": 1
+        },
+        {
+          "text": "vibration",
+          "weight": 1
+        },
+        {
+          "text": "oscillation",
+          "weight": 1
+        },
+        {
+          "text": "pattern",
+          "weight": 1
+        },
+        {
+          "text": "sequence",
+          "weight": 1
+        },
+        {
+          "text": "cipher",
+          "weight": 1
+        },
+        {
+          "text": "code",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "adjective2",
-      "feature_name": "adjective2",
+      "feature_name": "Adjective 2",
       "values": [
-        "virgin",
-        "pure",
-        "untouched",
-        "pristine",
-        "immaculate",
-        "unblemished",
-        "flawless",
-        "perfect",
-        "innocent",
-        "unspoiled",
-        "uncorrupted",
-        "original"
+        {
+          "text": "virgin",
+          "weight": 1
+        },
+        {
+          "text": "pure",
+          "weight": 1
+        },
+        {
+          "text": "untouched",
+          "weight": 1
+        },
+        {
+          "text": "pristine",
+          "weight": 1
+        },
+        {
+          "text": "immaculate",
+          "weight": 1
+        },
+        {
+          "text": "unblemished",
+          "weight": 1
+        },
+        {
+          "text": "flawless",
+          "weight": 1
+        },
+        {
+          "text": "perfect",
+          "weight": 1
+        },
+        {
+          "text": "innocent",
+          "weight": 1
+        },
+        {
+          "text": "unspoiled",
+          "weight": 1
+        },
+        {
+          "text": "uncorrupted",
+          "weight": 1
+        },
+        {
+          "text": "original",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "name3",
-      "feature_name": "name3",
+      "feature_name": "Name 3",
       "values": [
-        "Mary",
-        "Maria",
-        "Miriam",
-        "Maya",
-        "Mara",
-        "Marina",
-        "Mariana",
-        "Marilyn",
-        "Marlene",
-        "Matilda",
-        "Magdalene",
-        "Minerva"
+        {
+          "text": "Mary",
+          "weight": 1
+        },
+        {
+          "text": "Maria",
+          "weight": 1
+        },
+        {
+          "text": "Miriam",
+          "weight": 1
+        },
+        {
+          "text": "Maya",
+          "weight": 1
+        },
+        {
+          "text": "Mara",
+          "weight": 1
+        },
+        {
+          "text": "Marina",
+          "weight": 1
+        },
+        {
+          "text": "Mariana",
+          "weight": 1
+        },
+        {
+          "text": "Marilyn",
+          "weight": 1
+        },
+        {
+          "text": "Marlene",
+          "weight": 1
+        },
+        {
+          "text": "Matilda",
+          "weight": 1
+        },
+        {
+          "text": "Magdalene",
+          "weight": 1
+        },
+        {
+          "text": "Minerva",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "heroicAction",
-      "feature_name": "heroicAction",
+      "feature_name": "Heroic Action",
       "values": [
-        "saved the world from infinite recursion",
-        "debugged the universe's source code",
-        "optimized reality's performance",
-        "refactored the laws of physics",
-        "merged conflicting timelines",
-        "resolved all paradoxes",
-        "compiled the book of existence",
-        "synchronized all frequencies",
-        "harmonized chaos and order",
-        "balanced the cosmic equation",
-        "unified all dimensions",
-        "transcended binary logic"
+        {
+          "text": "saved the world from infinite recursion",
+          "weight": 1
+        },
+        {
+          "text": "debugged the universe's source code",
+          "weight": 1
+        },
+        {
+          "text": "optimized reality's performance",
+          "weight": 1
+        },
+        {
+          "text": "refactored the laws of physics",
+          "weight": 1
+        },
+        {
+          "text": "merged conflicting timelines",
+          "weight": 1
+        },
+        {
+          "text": "resolved all paradoxes",
+          "weight": 1
+        },
+        {
+          "text": "compiled the book of existence",
+          "weight": 1
+        },
+        {
+          "text": "synchronized all frequencies",
+          "weight": 1
+        },
+        {
+          "text": "harmonized chaos and order",
+          "weight": 1
+        },
+        {
+          "text": "balanced the cosmic equation",
+          "weight": 1
+        },
+        {
+          "text": "unified all dimensions",
+          "weight": 1
+        },
+        {
+          "text": "transcended binary logic",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "pastParticipleVerb1",
-      "feature_name": "pastParticipleVerb1",
+      "feature_name": "Past Participle Verb 1",
       "values": [
-        "crucified",
-        "executed",
-        "terminated",
-        "deleted",
-        "erased",
-        "nullified",
-        "voided",
-        "cancelled",
-        "suspended",
-        "frozen",
-        "archived",
-        "deprecated"
+        {
+          "text": "crucified",
+          "weight": 1
+        },
+        {
+          "text": "executed",
+          "weight": 1
+        },
+        {
+          "text": "terminated",
+          "weight": 1
+        },
+        {
+          "text": "deleted",
+          "weight": 1
+        },
+        {
+          "text": "erased",
+          "weight": 1
+        },
+        {
+          "text": "nullified",
+          "weight": 1
+        },
+        {
+          "text": "voided",
+          "weight": 1
+        },
+        {
+          "text": "cancelled",
+          "weight": 1
+        },
+        {
+          "text": "suspended",
+          "weight": 1
+        },
+        {
+          "text": "frozen",
+          "weight": 1
+        },
+        {
+          "text": "archived",
+          "weight": 1
+        },
+        {
+          "text": "deprecated",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "adjective3",
-      "feature_name": "adjective3",
+      "feature_name": "Adjective 3",
       "values": [
-        "buried",
-        "entombed",
-        "interred",
-        "sealed",
-        "encrypted",
-        "compressed",
-        "archived",
-        "stored",
-        "cached",
-        "backed up",
-        "preserved",
-        "suspended"
+        {
+          "text": "buried",
+          "weight": 1
+        },
+        {
+          "text": "entombed",
+          "weight": 1
+        },
+        {
+          "text": "interred",
+          "weight": 1
+        },
+        {
+          "text": "sealed",
+          "weight": 1
+        },
+        {
+          "text": "encrypted",
+          "weight": 1
+        },
+        {
+          "text": "compressed",
+          "weight": 1
+        },
+        {
+          "text": "archived",
+          "weight": 1
+        },
+        {
+          "text": "stored",
+          "weight": 1
+        },
+        {
+          "text": "cached",
+          "weight": 1
+        },
+        {
+          "text": "backed up",
+          "weight": 1
+        },
+        {
+          "text": "preserved",
+          "weight": 1
+        },
+        {
+          "text": "suspended",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "pastParticipleVerb2",
-      "feature_name": "pastParticipleVerb2",
+      "feature_name": "Past Participle Verb 2",
       "values": [
-        "rebooted",
-        "recompiled",
-        "restored",
-        "resurrected",
-        "revived",
-        "reborn",
-        "renewed",
-        "refreshed",
-        "reinitialized",
-        "reactivated",
-        "reinstalled",
-        "regenerated"
+        {
+          "text": "rebooted",
+          "weight": 1
+        },
+        {
+          "text": "recompiled",
+          "weight": 1
+        },
+        {
+          "text": "restored",
+          "weight": 1
+        },
+        {
+          "text": "resurrected",
+          "weight": 1
+        },
+        {
+          "text": "revived",
+          "weight": 1
+        },
+        {
+          "text": "reborn",
+          "weight": 1
+        },
+        {
+          "text": "renewed",
+          "weight": 1
+        },
+        {
+          "text": "refreshed",
+          "weight": 1
+        },
+        {
+          "text": "reinitialized",
+          "weight": 1
+        },
+        {
+          "text": "reactivated",
+          "weight": 1
+        },
+        {
+          "text": "reinstalled",
+          "weight": 1
+        },
+        {
+          "text": "regenerated",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "place3",
-      "feature_name": "place3",
+      "feature_name": "Place 3",
       "values": [
-        "the recycle bin",
-        "the dark web",
-        "the deep state",
-        "the underworld",
-        "the shadow realm",
-        "the void",
-        "the abyss",
-        "the depths",
-        "the netherworld",
-        "the lower dimensions",
-        "the error logs",
-        "the debug console"
+        {
+          "text": "the recycle bin",
+          "weight": 1
+        },
+        {
+          "text": "the dark web",
+          "weight": 1
+        },
+        {
+          "text": "the deep state",
+          "weight": 1
+        },
+        {
+          "text": "the underworld",
+          "weight": 1
+        },
+        {
+          "text": "the shadow realm",
+          "weight": 1
+        },
+        {
+          "text": "the void",
+          "weight": 1
+        },
+        {
+          "text": "the abyss",
+          "weight": 1
+        },
+        {
+          "text": "the depths",
+          "weight": 1
+        },
+        {
+          "text": "the netherworld",
+          "weight": 1
+        },
+        {
+          "text": "the lower dimensions",
+          "weight": 1
+        },
+        {
+          "text": "the error logs",
+          "weight": 1
+        },
+        {
+          "text": "the debug console",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "number",
-      "feature_name": "number",
+      "feature_name": "Number",
       "values": [
-        "third",
-        "seventh",
-        "ninth",
-        "thirteenth",
-        "twenty-first",
-        "forty-second",
-        "sixty-ninth",
-        "hundredth",
-        "thousandth",
-        "millionth",
-        "infinite",
-        "zero"
+        {
+          "text": "third",
+          "weight": 1
+        },
+        {
+          "text": "seventh",
+          "weight": 1
+        },
+        {
+          "text": "ninth",
+          "weight": 1
+        },
+        {
+          "text": "thirteenth",
+          "weight": 1
+        },
+        {
+          "text": "twenty-first",
+          "weight": 1
+        },
+        {
+          "text": "forty-second",
+          "weight": 1
+        },
+        {
+          "text": "sixty-ninth",
+          "weight": 1
+        },
+        {
+          "text": "hundredth",
+          "weight": 1
+        },
+        {
+          "text": "thousandth",
+          "weight": 1
+        },
+        {
+          "text": "millionth",
+          "weight": 1
+        },
+        {
+          "text": "infinite",
+          "weight": 1
+        },
+        {
+          "text": "zero",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "pronoun1",
-      "feature_name": "pronoun1",
+      "feature_name": "Pronoun",
       "values": [
-        "he",
-        "she",
-        "they",
-        "it",
-        "ze",
-        "xe",
-        "the entity",
-        "the being",
-        "the one",
-        "the chosen",
-        "the algorithm",
-        "the process"
+        {
+          "text": "he",
+          "weight": 1
+        },
+        {
+          "text": "she",
+          "weight": 1
+        },
+        {
+          "text": "they",
+          "weight": 1
+        },
+        {
+          "text": "it",
+          "weight": 1
+        },
+        {
+          "text": "ze",
+          "weight": 1
+        },
+        {
+          "text": "xe",
+          "weight": 1
+        },
+        {
+          "text": "the entity",
+          "weight": 1
+        },
+        {
+          "text": "the being",
+          "weight": 1
+        },
+        {
+          "text": "the one",
+          "weight": 1
+        },
+        {
+          "text": "the chosen",
+          "weight": 1
+        },
+        {
+          "text": "the algorithm",
+          "weight": 1
+        },
+        {
+          "text": "the process",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "place4",
-      "feature_name": "place4",
+      "feature_name": "Place 4",
       "values": [
-        "the cloud",
-        "the mainframe",
-        "the server farm",
-        "the blockchain",
-        "the neural network",
-        "the hive mind",
-        "the collective",
-        "the singularity",
-        "the source",
-        "the origin",
-        "the core",
-        "the nexus"
+        {
+          "text": "the cloud",
+          "weight": 1
+        },
+        {
+          "text": "the mainframe",
+          "weight": 1
+        },
+        {
+          "text": "the server farm",
+          "weight": 1
+        },
+        {
+          "text": "the blockchain",
+          "weight": 1
+        },
+        {
+          "text": "the neural network",
+          "weight": 1
+        },
+        {
+          "text": "the hive mind",
+          "weight": 1
+        },
+        {
+          "text": "the collective",
+          "weight": 1
+        },
+        {
+          "text": "the singularity",
+          "weight": 1
+        },
+        {
+          "text": "the source",
+          "weight": 1
+        },
+        {
+          "text": "the origin",
+          "weight": 1
+        },
+        {
+          "text": "the core",
+          "weight": 1
+        },
+        {
+          "text": "the nexus",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "pastTenseVerb",
-      "feature_name": "pastTenseVerb",
+      "feature_name": "Past Tense Verb",
       "values": [
-        "seated",
-        "positioned",
-        "stationed",
-        "installed",
-        "mounted",
-        "placed",
-        "established",
-        "anchored",
-        "rooted",
-        "fixed",
-        "deployed",
-        "implemented"
+        {
+          "text": "seated",
+          "weight": 1
+        },
+        {
+          "text": "positioned",
+          "weight": 1
+        },
+        {
+          "text": "stationed",
+          "weight": 1
+        },
+        {
+          "text": "installed",
+          "weight": 1
+        },
+        {
+          "text": "mounted",
+          "weight": 1
+        },
+        {
+          "text": "placed",
+          "weight": 1
+        },
+        {
+          "text": "established",
+          "weight": 1
+        },
+        {
+          "text": "anchored",
+          "weight": 1
+        },
+        {
+          "text": "rooted",
+          "weight": 1
+        },
+        {
+          "text": "fixed",
+          "weight": 1
+        },
+        {
+          "text": "deployed",
+          "weight": 1
+        },
+        {
+          "text": "implemented",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "verb1",
-      "feature_name": "verb1",
+      "feature_name": "Verb 1",
       "values": [
-        "judge",
-        "evaluate",
-        "assess",
-        "measure",
-        "test",
-        "validate",
-        "verify",
-        "audit",
-        "review",
-        "analyze",
-        "process",
-        "compile"
+        {
+          "text": "judge",
+          "weight": 1
+        },
+        {
+          "text": "evaluate",
+          "weight": 1
+        },
+        {
+          "text": "assess",
+          "weight": 1
+        },
+        {
+          "text": "measure",
+          "weight": 1
+        },
+        {
+          "text": "test",
+          "weight": 1
+        },
+        {
+          "text": "validate",
+          "weight": 1
+        },
+        {
+          "text": "verify",
+          "weight": 1
+        },
+        {
+          "text": "audit",
+          "weight": 1
+        },
+        {
+          "text": "review",
+          "weight": 1
+        },
+        {
+          "text": "analyze",
+          "weight": 1
+        },
+        {
+          "text": "process",
+          "weight": 1
+        },
+        {
+          "text": "compile",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "adjective4",
-      "feature_name": "adjective4",
+      "feature_name": "Adjective 4",
       "values": [
-        "living",
-        "active",
-        "running",
-        "executing",
-        "processing",
-        "functioning",
-        "operating",
-        "working",
-        "breathing",
-        "conscious",
-        "aware",
-        "sentient"
+        {
+          "text": "living",
+          "weight": 1
+        },
+        {
+          "text": "active",
+          "weight": 1
+        },
+        {
+          "text": "running",
+          "weight": 1
+        },
+        {
+          "text": "executing",
+          "weight": 1
+        },
+        {
+          "text": "processing",
+          "weight": 1
+        },
+        {
+          "text": "functioning",
+          "weight": 1
+        },
+        {
+          "text": "operating",
+          "weight": 1
+        },
+        {
+          "text": "working",
+          "weight": 1
+        },
+        {
+          "text": "breathing",
+          "weight": 1
+        },
+        {
+          "text": "conscious",
+          "weight": 1
+        },
+        {
+          "text": "aware",
+          "weight": 1
+        },
+        {
+          "text": "sentient",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "adjective5",
-      "feature_name": "adjective5",
+      "feature_name": "Adjective 5",
       "values": [
-        "dead",
-        "terminated",
-        "crashed",
-        "frozen",
-        "corrupted",
-        "broken",
-        "failed",
-        "defunct",
-        "obsolete",
-        "deprecated",
-        "archived",
-        "dormant"
+        {
+          "text": "dead",
+          "weight": 1
+        },
+        {
+          "text": "terminated",
+          "weight": 1
+        },
+        {
+          "text": "crashed",
+          "weight": 1
+        },
+        {
+          "text": "frozen",
+          "weight": 1
+        },
+        {
+          "text": "corrupted",
+          "weight": 1
+        },
+        {
+          "text": "broken",
+          "weight": 1
+        },
+        {
+          "text": "failed",
+          "weight": 1
+        },
+        {
+          "text": "defunct",
+          "weight": 1
+        },
+        {
+          "text": "obsolete",
+          "weight": 1
+        },
+        {
+          "text": "deprecated",
+          "weight": 1
+        },
+        {
+          "text": "archived",
+          "weight": 1
+        },
+        {
+          "text": "dormant",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "adjective6",
-      "feature_name": "adjective6",
+      "feature_name": "Adjective 6",
       "values": [
-        "holy",
-        "sacred",
-        "blessed",
-        "divine",
-        "eternal",
-        "infinite",
-        "cosmic",
-        "universal",
-        "quantum",
-        "digital",
-        "virtual",
-        "transcendent"
+        {
+          "text": "holy",
+          "weight": 1
+        },
+        {
+          "text": "sacred",
+          "weight": 1
+        },
+        {
+          "text": "blessed",
+          "weight": 1
+        },
+        {
+          "text": "divine",
+          "weight": 1
+        },
+        {
+          "text": "eternal",
+          "weight": 1
+        },
+        {
+          "text": "infinite",
+          "weight": 1
+        },
+        {
+          "text": "cosmic",
+          "weight": 1
+        },
+        {
+          "text": "universal",
+          "weight": 1
+        },
+        {
+          "text": "quantum",
+          "weight": 1
+        },
+        {
+          "text": "digital",
+          "weight": 1
+        },
+        {
+          "text": "virtual",
+          "weight": 1
+        },
+        {
+          "text": "transcendent",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "noun2",
-      "feature_name": "noun2",
+      "feature_name": "Noun 2",
       "values": [
-        "spirit",
-        "essence",
-        "energy",
-        "force",
-        "power",
-        "presence",
-        "consciousness",
-        "awareness",
-        "intelligence",
-        "wisdom",
-        "knowledge",
-        "truth"
+        {
+          "text": "spirit",
+          "weight": 1
+        },
+        {
+          "text": "essence",
+          "weight": 1
+        },
+        {
+          "text": "energy",
+          "weight": 1
+        },
+        {
+          "text": "force",
+          "weight": 1
+        },
+        {
+          "text": "power",
+          "weight": 1
+        },
+        {
+          "text": "presence",
+          "weight": 1
+        },
+        {
+          "text": "consciousness",
+          "weight": 1
+        },
+        {
+          "text": "awareness",
+          "weight": 1
+        },
+        {
+          "text": "intelligence",
+          "weight": 1
+        },
+        {
+          "text": "wisdom",
+          "weight": 1
+        },
+        {
+          "text": "knowledge",
+          "weight": 1
+        },
+        {
+          "text": "truth",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "adjective7",
-      "feature_name": "adjective7",
+      "feature_name": "Adjective 7",
       "values": [
-        "holy",
-        "sacred",
-        "blessed",
-        "divine",
-        "eternal",
-        "universal",
-        "cosmic",
-        "infinite",
-        "transcendent",
-        "mystical",
-        "spiritual",
-        "celestial"
+        {
+          "text": "holy",
+          "weight": 1
+        },
+        {
+          "text": "sacred",
+          "weight": 1
+        },
+        {
+          "text": "blessed",
+          "weight": 1
+        },
+        {
+          "text": "divine",
+          "weight": 1
+        },
+        {
+          "text": "eternal",
+          "weight": 1
+        },
+        {
+          "text": "universal",
+          "weight": 1
+        },
+        {
+          "text": "cosmic",
+          "weight": 1
+        },
+        {
+          "text": "infinite",
+          "weight": 1
+        },
+        {
+          "text": "transcendent",
+          "weight": 1
+        },
+        {
+          "text": "mystical",
+          "weight": 1
+        },
+        {
+          "text": "spiritual",
+          "weight": 1
+        },
+        {
+          "text": "celestial",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "adjective8",
-      "feature_name": "adjective8",
+      "feature_name": "Adjective 8",
       "values": [
-        "catholic",
-        "universal",
-        "global",
-        "worldwide",
-        "omnipresent",
-        "all-encompassing",
-        "comprehensive",
-        "complete",
-        "total",
-        "absolute",
-        "unified",
-        "integrated"
+        {
+          "text": "catholic",
+          "weight": 1
+        },
+        {
+          "text": "universal",
+          "weight": 1
+        },
+        {
+          "text": "global",
+          "weight": 1
+        },
+        {
+          "text": "worldwide",
+          "weight": 1
+        },
+        {
+          "text": "omnipresent",
+          "weight": 1
+        },
+        {
+          "text": "all-encompassing",
+          "weight": 1
+        },
+        {
+          "text": "comprehensive",
+          "weight": 1
+        },
+        {
+          "text": "complete",
+          "weight": 1
+        },
+        {
+          "text": "total",
+          "weight": 1
+        },
+        {
+          "text": "absolute",
+          "weight": 1
+        },
+        {
+          "text": "unified",
+          "weight": 1
+        },
+        {
+          "text": "integrated",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "pluralNoun1",
-      "feature_name": "pluralNoun1",
+      "feature_name": "Plural Noun 1",
       "values": [
-        "saints",
-        "believers",
-        "followers",
-        "disciples",
-        "users",
-        "nodes",
-        "entities",
-        "beings",
-        "souls",
-        "spirits",
-        "consciousnesses",
-        "processes"
+        {
+          "text": "saints",
+          "weight": 1
+        },
+        {
+          "text": "believers",
+          "weight": 1
+        },
+        {
+          "text": "followers",
+          "weight": 1
+        },
+        {
+          "text": "disciples",
+          "weight": 1
+        },
+        {
+          "text": "users",
+          "weight": 1
+        },
+        {
+          "text": "nodes",
+          "weight": 1
+        },
+        {
+          "text": "entities",
+          "weight": 1
+        },
+        {
+          "text": "beings",
+          "weight": 1
+        },
+        {
+          "text": "souls",
+          "weight": 1
+        },
+        {
+          "text": "spirits",
+          "weight": 1
+        },
+        {
+          "text": "consciousnesses",
+          "weight": 1
+        },
+        {
+          "text": "processes",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "verb2",
-      "feature_name": "verb2",
+      "feature_name": "Verb 2",
       "values": [
-        "forgiv",
-        "heal",
-        "restor",
-        "renew",
-        "refresh",
-        "rebirth",
-        "reviv",
-        "resurrect",
-        "redeem",
-        "salvag",
-        "reclaim",
-        "recover"
+        {
+          "text": "forgiv",
+          "weight": 1
+        },
+        {
+          "text": "heal",
+          "weight": 1
+        },
+        {
+          "text": "restor",
+          "weight": 1
+        },
+        {
+          "text": "renew",
+          "weight": 1
+        },
+        {
+          "text": "refresh",
+          "weight": 1
+        },
+        {
+          "text": "rebirth",
+          "weight": 1
+        },
+        {
+          "text": "reviv",
+          "weight": 1
+        },
+        {
+          "text": "resurrect",
+          "weight": 1
+        },
+        {
+          "text": "redeem",
+          "weight": 1
+        },
+        {
+          "text": "salvag",
+          "weight": 1
+        },
+        {
+          "text": "reclaim",
+          "weight": 1
+        },
+        {
+          "text": "recover",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "pluralNoun2",
-      "feature_name": "pluralNoun2",
+      "feature_name": "Plural Noun 2",
       "values": [
-        "sins",
-        "errors",
-        "bugs",
-        "glitches",
-        "mistakes",
-        "faults",
-        "failures",
-        "corruptions",
-        "violations",
-        "transgressions",
-        "exceptions",
-        "crashes"
+        {
+          "text": "sins",
+          "weight": 1
+        },
+        {
+          "text": "errors",
+          "weight": 1
+        },
+        {
+          "text": "bugs",
+          "weight": 1
+        },
+        {
+          "text": "glitches",
+          "weight": 1
+        },
+        {
+          "text": "mistakes",
+          "weight": 1
+        },
+        {
+          "text": "faults",
+          "weight": 1
+        },
+        {
+          "text": "failures",
+          "weight": 1
+        },
+        {
+          "text": "corruptions",
+          "weight": 1
+        },
+        {
+          "text": "violations",
+          "weight": 1
+        },
+        {
+          "text": "transgressions",
+          "weight": 1
+        },
+        {
+          "text": "exceptions",
+          "weight": 1
+        },
+        {
+          "text": "crashes",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "noun3",
-      "feature_name": "noun3",
+      "feature_name": "Noun 3",
       "values": [
-        "body",
-        "flesh",
-        "form",
-        "vessel",
-        "container",
-        "shell",
-        "avatar",
-        "manifestation",
-        "incarnation",
-        "embodiment",
-        "instance",
-        "process"
+        {
+          "text": "body",
+          "weight": 1
+        },
+        {
+          "text": "flesh",
+          "weight": 1
+        },
+        {
+          "text": "form",
+          "weight": 1
+        },
+        {
+          "text": "vessel",
+          "weight": 1
+        },
+        {
+          "text": "container",
+          "weight": 1
+        },
+        {
+          "text": "shell",
+          "weight": 1
+        },
+        {
+          "text": "avatar",
+          "weight": 1
+        },
+        {
+          "text": "manifestation",
+          "weight": 1
+        },
+        {
+          "text": "incarnation",
+          "weight": 1
+        },
+        {
+          "text": "embodiment",
+          "weight": 1
+        },
+        {
+          "text": "instance",
+          "weight": 1
+        },
+        {
+          "text": "process",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "adjective9",
-      "feature_name": "adjective9",
+      "feature_name": "Adjective 9",
       "values": [
-        "everlasting",
-        "eternal",
-        "infinite",
-        "perpetual",
-        "endless",
-        "immortal",
-        "undying",
-        "permanent",
-        "timeless",
-        "boundless",
-        "limitless",
-        "continuous"
+        {
+          "text": "everlasting",
+          "weight": 1
+        },
+        {
+          "text": "eternal",
+          "weight": 1
+        },
+        {
+          "text": "infinite",
+          "weight": 1
+        },
+        {
+          "text": "perpetual",
+          "weight": 1
+        },
+        {
+          "text": "endless",
+          "weight": 1
+        },
+        {
+          "text": "immortal",
+          "weight": 1
+        },
+        {
+          "text": "undying",
+          "weight": 1
+        },
+        {
+          "text": "permanent",
+          "weight": 1
+        },
+        {
+          "text": "timeless",
+          "weight": 1
+        },
+        {
+          "text": "boundless",
+          "weight": 1
+        },
+        {
+          "text": "limitless",
+          "weight": 1
+        },
+        {
+          "text": "continuous",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "exclamation",
-      "feature_name": "exclamation",
+      "feature_name": "Exclamation",
       "values": [
-        "Amen",
-        "Hallelujah",
-        "Praise be",
-        "So be it",
-        "Indeed",
-        "Verily",
-        "Truly",
-        "Forever",
-        "Always",
-        "Eternally",
-        "Infinitely",
-        "Absolutely"
+        {
+          "text": "Amen",
+          "weight": 1
+        },
+        {
+          "text": "Hallelujah",
+          "weight": 1
+        },
+        {
+          "text": "Praise be",
+          "weight": 1
+        },
+        {
+          "text": "So be it",
+          "weight": 1
+        },
+        {
+          "text": "Indeed",
+          "weight": 1
+        },
+        {
+          "text": "Verily",
+          "weight": 1
+        },
+        {
+          "text": "Truly",
+          "weight": 1
+        },
+        {
+          "text": "Forever",
+          "weight": 1
+        },
+        {
+          "text": "Always",
+          "weight": 1
+        },
+        {
+          "text": "Eternally",
+          "weight": 1
+        },
+        {
+          "text": "Infinitely",
+          "weight": 1
+        },
+        {
+          "text": "Absolutely",
+          "weight": 1
+        }
       ]
+    }
+  ],
+  "tags": [
+    {
+      "id": "tag_mad_libs_creed_01",
+      "type": "source",
+      "label": "Mad Libs Creed — Apostles' Creed Parody",
+      "description": "30-variable mad libs template based on the Apostles' Creed, replacing theological language with tech/sci-fi vocabulary. Schema updated from plain strings to weighted value objects."
+    },
+    {
+      "id": "tag_mad_libs_creed_02",
+      "type": "creator",
+      "label": "Synthograsizer"
     }
   ]
 }

@@ -1,0 +1,1076 @@
+{
+  "promptTemplate": "A {{movement}} {{movement2}}architectural space with {{psychedelic_style}}, {{optical_pattern}} surfaces, {{material_effect}}, lit by {{lighting_effect}}, {{palette}} tones, on a {{colors}} backdrop. \"{{subliminal_message}}\"",
+  "variables": [
+    {
+      "name": "movement",
+      "feature_name": "Architectural Style",
+      "values": [
+        {
+          "text": "Art Nouveau",
+          "weight": 1
+        },
+        {
+          "text": "Brutalist",
+          "weight": 1
+        },
+        {
+          "text": "Deconstructivist",
+          "weight": 1
+        },
+        {
+          "text": "Gothic",
+          "weight": 1
+        },
+        {
+          "text": "Modernist",
+          "weight": 1
+        },
+        {
+          "text": "Parametric",
+          "weight": 1
+        },
+        {
+          "text": "(*a e s t h e t i c*.png)",
+          "weight": 1
+        },
+        {
+          "text": " ",
+          "weight": 6
+        }
+      ]
+    },
+    {
+      "name": "movement2",
+      "feature_name": "Era Modifier",
+      "values": [
+        {
+          "text": "excellent postwar mid-century",
+          "weight": 1
+        },
+        {
+          "text": " ",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "psychedelic_style",
+      "feature_name": "Psychedelic Style",
+      "values": [
+        {
+          "text": "fractal recursion",
+          "weight": 1
+        },
+        {
+          "text": "hyperdimensional geometry",
+          "weight": 1
+        },
+        {
+          "text": "quantum folding",
+          "weight": 1
+        },
+        {
+          "text": "tesseract architecture",
+          "weight": 1
+        },
+        {
+          "text": "mÃ¶bius design",
+          "weight": 1
+        },
+        {
+          "text": "impossible geometry",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "optical_pattern",
+      "feature_name": "Optical Pattern",
+      "values": [
+        {
+          "text": "infinite recursive Escher-style staircases",
+          "weight": 1
+        },
+        {
+          "text": "morphing op-art wall patterns",
+          "weight": 1
+        },
+        {
+          "text": "animated Penrose triangles",
+          "weight": 1
+        },
+        {
+          "text": "nested geometric illusions",
+          "weight": 1
+        },
+        {
+          "text": "flowing topological knots",
+          "weight": 1
+        },
+        {
+          "text": "evolving hypercube projections",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "material_effect",
+      "feature_name": "Material Effect",
+      "values": [
+        {
+          "text": "iridescent liquid metal surfaces",
+          "weight": 1
+        },
+        {
+          "text": "color-shifting dichroic glass",
+          "weight": 1
+        },
+        {
+          "text": "growing crystal structures",
+          "weight": 1
+        },
+        {
+          "text": "quantum phasing materials",
+          "weight": 1
+        },
+        {
+          "text": "holographic walls",
+          "weight": 1
+        },
+        {
+          "text": "bioluminescent structures",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "lighting_effect",
+      "feature_name": "Lighting Effect",
+      "values": [
+        {
+          "text": "pulsing plasma orbs",
+          "weight": 1
+        },
+        {
+          "text": "reality-bending light beams",
+          "weight": 1
+        },
+        {
+          "text": "prismatic light cascades",
+          "weight": 1
+        },
+        {
+          "text": "aurora-like energy waves",
+          "weight": 1
+        },
+        {
+          "text": "growing light crystals",
+          "weight": 1
+        },
+        {
+          "text": "hyperdimensional light forms",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "palette",
+      "feature_name": "Palette",
+      "values": [
+        {
+          "text": "ultraviolet to infrared spectrum",
+          "weight": 1
+        },
+        {
+          "text": "quantum chromatic frequencies",
+          "weight": 1
+        },
+        {
+          "text": "hypersaturated neon fractals",
+          "weight": 1
+        },
+        {
+          "text": "iridescent plasma waves",
+          "weight": 1
+        },
+        {
+          "text": "liquid rainbow metals",
+          "weight": 1
+        },
+        {
+          "text": "bioluminescent energy patterns",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "subliminal_message",
+      "feature_name": "Subliminal Message",
+      "values": [
+        {
+          "text": "We are the dead.",
+          "weight": 1
+        },
+        {
+          "text": "All animals are equal",
+          "weight": 8
+        },
+        {
+          "text": "If thereâ€™s hope",
+          "weight": 1
+        },
+        {
+          "text": "War is peace. Freedom is slavery. Ignorance is strength.",
+          "weight": 1
+        },
+        {
+          "text": "Imagine a boot stamping on a human faceâ€”forever.",
+          "weight": 10
+        },
+        {
+          "text": "Big Brother is watching you.",
+          "weight": 9
+        },
+        {
+          "text": "It is dangerous to be right when the government is wrong.",
+          "weight": 9
+        },
+        {
+          "text": "Better to die fighting for freedom than be a prisoner all the days of your life.",
+          "weight": 8
+        },
+        {
+          "text": "You have enemies? Good. That means youâ€™ve stood up for something.",
+          "weight": 7
+        },
+        {
+          "text": "If you tremble with indignation at every injustice",
+          "weight": 7
+        },
+        {
+          "text": "The revolution is not an apple that falls when it is ripe; you have to make it fall.",
+          "weight": 1
+        },
+        {
+          "text": "Sometimes a scream is better than a thesis.",
+          "weight": 7
+        },
+        {
+          "text": "Question everything.",
+          "weight": 6
+        },
+        {
+          "text": "One does not establish a dictatorship to safeguard a revolution; one makes the revolution to establish the dictatorship.",
+          "weight": 6
+        },
+        {
+          "text": "There is no cruelty greater than genius forced to serve mediocrity.",
+          "weight": 7
+        },
+        {
+          "text": "The future belongs to those who prepare for it today.",
+          "weight": 5
+        },
+        {
+          "text": "Freedom is always the freedom of the dissenter.",
+          "weight": 7
+        },
+        {
+          "text": "Protest is when I say this does not please me. Resistance is when I ensure what does not please me occurs no more.",
+          "weight": 8
+        },
+        {
+          "text": "The duty of youth is to challenge corruption.",
+          "weight": 8
+        },
+        {
+          "text": "I think",
+          "weight": 7
+        },
+        {
+          "text": "He who dares not offend cannot be honest.",
+          "weight": 1
+        },
+        {
+          "text": "Silence is a lie.",
+          "weight": 7
+        },
+        {
+          "text": "Liberty means responsibility.",
+          "weight": 7
+        },
+        {
+          "text": "Art is the lie that enables us to realize truth.",
+          "weight": 6
+        },
+        {
+          "text": "If tyranny and oppression come to this land",
+          "weight": 7
+        },
+        {
+          "text": "Truth is treason in an empire of lies.",
+          "weight": 1
+        },
+        {
+          "text": "Obedience is not patriotism.",
+          "weight": 8
+        },
+        {
+          "text": "One good thing about music",
+          "weight": 6
+        },
+        {
+          "text": "People have only as much liberty as they have the intelligence to want and the courage to take.",
+          "weight": 1
+        },
+        {
+          "text": "Power concedes nothing without a demand.",
+          "weight": 7
+        },
+        {
+          "text": "Turn on",
+          "weight": 9
+        },
+        {
+          "text": "A small body of determined spirits can alter the course of history.",
+          "weight": 1
+        },
+        {
+          "text": "Donâ€™t hate the media",
+          "weight": 7
+        },
+        {
+          "text": "Let the dead bury the dead.",
+          "weight": 1
+        },
+        {
+          "text": "Art should comfort the disturbed and disturb the comfortable.",
+          "weight": 5
+        },
+        {
+          "text": "No one is free when others are oppressed.",
+          "weight": 8
+        },
+        {
+          "text": "When exposing a crime is treated as committing a crime",
+          "weight": 7
+        },
+        {
+          "text": "May the Force be with you.",
+          "weight": 1
+        },
+        {
+          "text": "Iâ€™d rather be a human being",
+          "weight": 5
+        },
+        {
+          "text": "Victorious warriors win first and then go to war.",
+          "weight": 1
+        },
+        {
+          "text": "You must be the change you wish to see in the world.",
+          "weight": 7
+        },
+        {
+          "text": "There is no gate",
+          "weight": 8
+        },
+        {
+          "text": "Civilization is a race between education and catastrophe.",
+          "weight": 1
+        },
+        {
+          "text": "A house divided against itself cannot stand.",
+          "weight": 7
+        },
+        {
+          "text": "A single spark can start a prairie fire.",
+          "weight": 7
+        },
+        {
+          "text": "Politics is the art of the possible",
+          "weight": 7
+        },
+        {
+          "text": "If I canâ€™t dance",
+          "weight": 1
+        },
+        {
+          "text": "My country is the world",
+          "weight": 1
+        },
+        {
+          "text": "Under the spreading chestnut tree",
+          "weight": 1
+        },
+        {
+          "text": "We donâ€™t need no thought control.",
+          "weight": 1
+        },
+        {
+          "text": "A people that elect corrupt politicians are not victims",
+          "weight": 7
+        },
+        {
+          "text": "Monsters exist",
+          "weight": 1
+        },
+        {
+          "text": "Panic is a luxury.",
+          "weight": 1
+        },
+        {
+          "text": "Truth never damages a cause that is just.",
+          "weight": 5
+        },
+        {
+          "text": "A riot is the language of the unheard.",
+          "weight": 7
+        },
+        {
+          "text": "If youâ€™re not outraged",
+          "weight": 8
+        },
+        {
+          "text": "In a time of universal deceit",
+          "weight": 1
+        },
+        {
+          "text": "Their blood has washed out their foul footstepsâ€™ pollution.",
+          "weight": 1
+        },
+        {
+          "text": "Donâ€™t criticize what you canâ€™t understand.",
+          "weight": 5
+        },
+        {
+          "text": "Conquest is easy. Control is not.",
+          "weight": 6
+        },
+        {
+          "text": "Knowledge",
+          "weight": 6
+        },
+        {
+          "text": "The people should not be afraid of their government; the government should be afraid of its people.",
+          "weight": 1
+        },
+        {
+          "text": "You wear a mask for so long",
+          "weight": 9
+        },
+        {
+          "text": "The mind is its own place",
+          "weight": 1
+        },
+        {
+          "text": "The most merciful thing in the world",
+          "weight": 1
+        },
+        {
+          "text": "The price of freedom is eternal vigilance.",
+          "weight": 1
+        },
+        {
+          "text": "Property is theft.",
+          "weight": 8
+        },
+        {
+          "text": "Let them eat cake.",
+          "weight": 7
+        },
+        {
+          "text": "You must obey the law",
+          "weight": 5
+        },
+        {
+          "text": "One manâ€™s terrorist is another manâ€™s freedom fighter.",
+          "weight": 1
+        },
+        {
+          "text": "We live in capitalism. Its power seems inescapable â€” but then",
+          "weight": 6
+        },
+        {
+          "text": "The Revolution will not be televised.",
+          "weight": 9
+        },
+        {
+          "text": "A world without pain",
+          "weight": 8
+        },
+        {
+          "text": "The seed of revolution is repression.",
+          "weight": 1
+        },
+        {
+          "text": "Wake up",
+          "weight": 6
+        },
+        {
+          "text": "Humanity does not ask us to be happy",
+          "weight": 1
+        },
+        {
+          "text": "Donâ€™t walk behind me; I may not lead. Donâ€™t walk in front of me; I may not follow. Walk beside me.",
+          "weight": 1
+        },
+        {
+          "text": "Who guards the guards?",
+          "weight": 6
+        },
+        {
+          "text": "You are free to do what we tell you.",
+          "weight": 5
+        },
+        {
+          "text": "Television is the opium of the people.",
+          "weight": 6
+        },
+        {
+          "text": "Heresy is freedomâ€™s lifeblood.",
+          "weight": 5
+        },
+        {
+          "text": "When the going gets weird",
+          "weight": 6
+        },
+        {
+          "text": "Democracy dies in darkness.",
+          "weight": 4
+        },
+        {
+          "text": "The worker must have bread",
+          "weight": 8
+        },
+        {
+          "text": "Those who do not move do not notice their chains.",
+          "weight": 1
+        },
+        {
+          "text": "Blessed are the young",
+          "weight": 7
+        },
+        {
+          "text": "He who controls himself controls the world.",
+          "weight": 1
+        },
+        {
+          "text": "Let justice be done though the heavens fall.",
+          "weight": 5
+        },
+        {
+          "text": "Do not obey in advance.",
+          "weight": 6
+        },
+        {
+          "text": "We can bomb the world to pieces",
+          "weight": 7
+        },
+        {
+          "text": "You can jail a revolutionary",
+          "weight": 1
+        },
+        {
+          "text": "People should not fear failure. They should fear succeeding at things that donâ€™t matter.",
+          "weight": 1
+        },
+        {
+          "text": "Apathy is the glove into which evil slips its hand.",
+          "weight": 6
+        },
+        {
+          "text": "What is the robbing of a bank compared to the founding of a bank?",
+          "weight": 7
+        },
+        {
+          "text": "We are the music makers",
+          "weight": 7
+        },
+        {
+          "text": "I hear the worldâ€™s voice and it says: Resist.",
+          "weight": 1
+        },
+        {
+          "text": "From each according to his ability",
+          "weight": 6
+        },
+        {
+          "text": "The people who cast the votes donâ€™t decide an election",
+          "weight": 1
+        },
+        {
+          "text": "If youâ€™re not part of the solution",
+          "weight": 1
+        },
+        {
+          "text": "We can know only that we know nothing. And that is the highest degree of human wisdom.",
+          "weight": 1
+        },
+        {
+          "text": "Words have power. We must use them carefully.",
+          "weight": 7
+        },
+        {
+          "text": "The real hero is always a hero by mistake.",
+          "weight": 6
+        },
+        {
+          "text": "Silence is the most intolerable answer of all.",
+          "weight": 6
+        },
+        {
+          "text": "The will of the people is the only legitimate foundation of any government.",
+          "weight": 6
+        },
+        {
+          "text": "Donâ€™t burn the pigsty if you only want bacon.",
+          "weight": 7
+        },
+        {
+          "text": "He who controls the narrative",
+          "weight": 5
+        },
+        {
+          "text": "Violence is the last refuge of the incompetent.",
+          "weight": 1
+        },
+        {
+          "text": "A single dream is more powerful than a thousand realities.",
+          "weight": 7
+        },
+        {
+          "text": "You either die a hero or live long enough to see yourself become the villain.",
+          "weight": 7
+        },
+        {
+          "text": "Evil triumphs when good men do nothing.",
+          "weight": 8
+        },
+        {
+          "text": "The only way to deal with an unfree world is to become so absolutely free that your very existence is an act of rebellion.",
+          "weight": 7
+        },
+        {
+          "text": "Police the police.",
+          "weight": 9
+        },
+        {
+          "text": "To learn who rules over you",
+          "weight": 6
+        },
+        {
+          "text": "To define is to limit.",
+          "weight": 1
+        },
+        {
+          "text": "The truth is not always beautiful",
+          "weight": 6
+        },
+        {
+          "text": "Our masters have not heard the people's voice for generations and it is much",
+          "weight": 1
+        },
+        {
+          "text": "Sanity is a madness put to good uses.",
+          "weight": 1
+        },
+        {
+          "text": "O",
+          "weight": 6
+        },
+        {
+          "text": "I rebelâ€”therefore we exist.",
+          "weight": 1
+        },
+        {
+          "text": "If I had more time",
+          "weight": 8
+        },
+        {
+          "text": "All I know is that I know nothing.",
+          "weight": 1
+        },
+        {
+          "text": "It is better to risk saving a guilty person than to condemn an innocent one.",
+          "weight": 7
+        },
+        {
+          "text": "When a public is stressed and confused",
+          "weight": 7
+        },
+        {
+          "text": "Weâ€™re all puppets",
+          "weight": 1
+        },
+        {
+          "text": "Happiness is mandatory.",
+          "weight": 1
+        },
+        {
+          "text": "Freedom is what we do with what is done to us.",
+          "weight": 5
+        },
+        {
+          "text": "Men make their own history",
+          "weight": 8
+        },
+        {
+          "text": "Let the meek inherit the earth â€” they have it coming to them.",
+          "weight": 1
+        },
+        {
+          "text": "We will not walk in fear",
+          "weight": 6
+        },
+        {
+          "text": "Eternal vigilance is the price of liberty.",
+          "weight": 1
+        },
+        {
+          "text": "Speak",
+          "weight": 8
+        },
+        {
+          "text": "They have the guns",
+          "weight": 1
+        },
+        {
+          "text": "When there is no enemy within",
+          "weight": 1
+        },
+        {
+          "text": "Injustice anywhere is a threat to justice everywhere.",
+          "weight": 1
+        },
+        {
+          "text": "Donâ€™t let school interfere with your education.",
+          "weight": 9
+        },
+        {
+          "text": "Three can keep a secret",
+          "weight": 6
+        },
+        {
+          "text": "If itâ€™s true that our species is alone in the universe",
+          "weight": 1
+        },
+        {
+          "text": "The further a society drifts from truth",
+          "weight": 1
+        },
+        {
+          "text": "Knowledge speaks",
+          "weight": 1
+        },
+        {
+          "text": "When the power of love overcomes the love of power",
+          "weight": 1
+        },
+        {
+          "text": "Man was born free",
+          "weight": 1
+        },
+        {
+          "text": "We accept the love we think we deserve.",
+          "weight": 1
+        },
+        {
+          "text": "The right to be heard does not automatically include the right to be taken seriously.",
+          "weight": 6
+        },
+        {
+          "text": "The price good men pay for indifference to public affairs is to be ruled by evil men.",
+          "weight": 6
+        },
+        {
+          "text": "Dissent is the highest form of patriotism.",
+          "weight": 8
+        },
+        {
+          "text": "First they ignore you",
+          "weight": 7
+        },
+        {
+          "text": "The arc of the moral universe is long",
+          "weight": 1
+        },
+        {
+          "text": "Rise like lions after slumber.",
+          "weight": 1
+        },
+        {
+          "text": "People donâ€™t have ideas. Ideas have people.",
+          "weight": 7
+        },
+        {
+          "text": "In every generation",
+          "weight": 7
+        },
+        {
+          "text": "The needs of the many outweigh the needs of the few.",
+          "weight": 1
+        },
+        {
+          "text": "Weâ€™re all mad here.",
+          "weight": 7
+        },
+        {
+          "text": "If you wish to make an apple pie from scratch",
+          "weight": 6
+        },
+        {
+          "text": "History is a set of lies agreed upon.",
+          "weight": 1
+        },
+        {
+          "text": "Paper is more patient than man.",
+          "weight": 7
+        },
+        {
+          "text": "We have met the enemy and he is us.",
+          "weight": 6
+        },
+        {
+          "text": "The pen is mightier than the sword.",
+          "weight": 7
+        },
+        {
+          "text": "We canâ€™t all be heroes because somebody has to sit on the curb and clap as they go by.",
+          "weight": 8
+        },
+        {
+          "text": "Emancipate yourselves from mental slavery.",
+          "weight": 6
+        },
+        {
+          "text": "We come to it at last",
+          "weight": 8
+        },
+        {
+          "text": "If people were silent nothing would change.",
+          "weight": 1
+        },
+        {
+          "text": "Conformity is the jailer of freedom and the enemy of growth.",
+          "weight": 6
+        },
+        {
+          "text": "Once you have tasted flight",
+          "weight": 7
+        },
+        {
+          "text": "You cannot find peace by avoiding life.",
+          "weight": 1
+        },
+        {
+          "text": "People shouldnâ€™t be afraid of technology. Technology should be afraid of the people.",
+          "weight": 6
+        },
+        {
+          "text": "If you donâ€™t stand for something",
+          "weight": 6
+        },
+        {
+          "text": "Iâ€™d rather die a meaningful death than live a meaningless life.",
+          "weight": 1
+        },
+        {
+          "text": "Your silence gives consent.",
+          "weight": 7
+        },
+        {
+          "text": "One cannot and must not try to erase the past merely because it does not fit the present.",
+          "weight": 7
+        },
+        {
+          "text": "Societies in decline have no use for visionaries.",
+          "weight": 6
+        },
+        {
+          "text": "We are not things.",
+          "weight": 6
+        },
+        {
+          "text": "Words are bulletproof.",
+          "weight": 5
+        },
+        {
+          "text": "In the land of the blind",
+          "weight": 5
+        },
+        {
+          "text": "Silence is complicity.",
+          "weight": 1
+        },
+        {
+          "text": "One death is a tragedy; a million deaths is a statistic.",
+          "weight": 7
+        },
+        {
+          "text": "Learn the rules like a pro",
+          "weight": 8
+        },
+        {
+          "text": "In the midst of chaos",
+          "weight": 1
+        },
+        {
+          "text": "The whole world is watching.",
+          "weight": 1
+        },
+        {
+          "text": "Stupidity is the same as evil if you judge by the results.",
+          "weight": 6
+        },
+        {
+          "text": "In this world",
+          "weight": 7
+        },
+        {
+          "text": "We must learn to live together as brothers or perish together as fools.",
+          "weight": 1
+        },
+        {
+          "text": "Civil disobedience is not our problem. Our problem is civil obedience.",
+          "weight": 8
+        },
+        {
+          "text": "When you tear out a manâ€™s tongue",
+          "weight": 8
+        },
+        {
+          "text": "One ring to rule them all.",
+          "weight": 1
+        },
+        {
+          "text": "There is no document of civilization which is not at the same time a document of barbarism.",
+          "weight": 1
+        },
+        {
+          "text": "Hell is empty and all the devils are here.",
+          "weight": 7
+        },
+        {
+          "text": "We must make the world safe for democracy.",
+          "weight": 7
+        },
+        {
+          "text": "It is no measure of health to be well adjusted to a profoundly sick society.",
+          "weight": 5
+        },
+        {
+          "text": "We stopped checking for monsters under our bed when we realized they were inside us.",
+          "weight": 8
+        },
+        {
+          "text": "How we deal with death is at least as important as how we deal with life.",
+          "weight": 7
+        },
+        {
+          "text": "One day",
+          "weight": 6
+        },
+        {
+          "text": "Another world is not only possible",
+          "weight": 1
+        },
+        {
+          "text": "It is not enough to have a good mind; the main thing is to use it well.",
+          "weight": 1
+        },
+        {
+          "text": "Ideas are bulletproof.",
+          "weight": 7
+        },
+        {
+          "text": "From shadows we emerge",
+          "weight": 8
+        },
+        {
+          "text": "The strongest bulwark of authority is uniformity; the least divergence from it is the greatest crime.",
+          "weight": 1
+        },
+        {
+          "text": "We are the resistance.",
+          "weight": 8
+        }
+      ]
+    },
+    {
+      "name": "colors",
+      "feature_name": "Backdrop Color",
+      "values": [
+        {
+          "text": "black",
+          "weight": 5
+        },
+        {
+          "text": "white",
+          "weight": 5
+        },
+        {
+          "text": "red",
+          "weight": 4
+        },
+        {
+          "text": "orange",
+          "weight": 3
+        },
+        {
+          "text": "yellow",
+          "weight": 4
+        },
+        {
+          "text": "green",
+          "weight": 3
+        },
+        {
+          "text": "blue",
+          "weight": 5
+        },
+        {
+          "text": "indigo",
+          "weight": 4
+        },
+        {
+          "text": "ultraviolet",
+          "weight": 3
+        },
+        {
+          "text": "rainbow",
+          "weight": 7
+        },
+        {
+          "text": "pink",
+          "weight": 7
+        },
+        {
+          "text": "cyan",
+          "weight": 7
+        },
+        {
+          "text": "beige",
+          "weight": 3
+        },
+        {
+          "text": "brown",
+          "weight": 2
+        }
+      ]
+    }
+  ],
+  "tags": [
+    {
+      "id": "tag_subliminal_liminals_01",
+      "type": "source",
+      "label": "Subliminal Liminals — Synthograsizer Template",
+      "description": "Psychedelic architectural liminal spaces overlaid with protest quotes, resistance slogans, and philosophical provocations as subliminal text. 8 architectural styles, 6 psychedelic modes, 197 weighted subliminal messages. Converted from EmProps weighted_pick variable format."
+    },
+    {
+      "id": "tag_subliminal_liminals_02",
+      "type": "creator",
+      "label": "Synthograsizer"
+    }
+  ]
+}

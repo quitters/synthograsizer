@@ -5,198 +5,558 @@
       "name": "special_mode",
       "feature_name": "Special Mode",
       "values": [
-        {"text": "", "weight": 3},
-        {"text": "(the image has several globs floating in the clouds, in the style of detailed drapery, colorful layered forms, golden light, soft sculpture, hyper-realistic details, crumpled, sci-fi baroque:1.15)", "weight": 2},
-        {"text": "(needlefelted muppet streetwear fashion photography in the style of jim henson:2.5)", "weight": 2},
-        {"text": "(Something reminiscent of fluffy needle-felted pastel cotton-candy explosions, soft and gently pulsating, soothing and serene. Hyper-realistic imagery of a peak paragon of delight, a dazzling tapestry of calming organic elements:2)", "weight": 2},
-        {"text": "(headless person with multi-colored flowers and nebulous clouds instead of a head, baroque-inspired, rococo decadence, photorealistic still life detailing:2)", "weight": 2},
-        {"text": "(toile scene textile pattern animated with resplendent pastel-rainbow flowers, cerulean-blue and golden yellow cloudscapes, Baroque portraiture meets floral surrealism:1.3)", "weight": 2},
-        {"text": "(Everything is made of corn! The person is corn-textured and there is corn in the photo and corn textures in the background, CORN CORN CORN CORN CORN CORN CORN:3.5)", "weight": 1}
+        {
+          "text": "",
+          "weight": 3
+        },
+        {
+          "text": "(the image has several globs floating in the clouds, in the style of detailed drapery, colorful layered forms, golden light, soft sculpture, hyper-realistic details, crumpled, sci-fi baroque:1.15)",
+          "weight": 2
+        },
+        {
+          "text": "(needlefelted muppet streetwear fashion photography in the style of jim henson:2.5)",
+          "weight": 2
+        },
+        {
+          "text": "(Something reminiscent of fluffy needle-felted pastel cotton-candy explosions, soft and gently pulsating, soothing and serene. Hyper-realistic imagery of a peak paragon of delight, a dazzling tapestry of calming organic elements:2)",
+          "weight": 2
+        },
+        {
+          "text": "(headless person with multi-colored flowers and nebulous clouds instead of a head, baroque-inspired, rococo decadence, photorealistic still life detailing:2)",
+          "weight": 2
+        },
+        {
+          "text": "(toile scene textile pattern animated with resplendent pastel-rainbow flowers, cerulean-blue and golden yellow cloudscapes, Baroque portraiture meets floral surrealism:1.3)",
+          "weight": 2
+        },
+        {
+          "text": "(Everything is made of corn! The person is corn-textured and there is corn in the photo and corn textures in the background, CORN CORN CORN CORN CORN CORN CORN:3.5)",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "year",
       "feature_name": "Year",
       "values": [
-        {"text": "1989", "weight": 3},
-        {"text": "1995", "weight": 3},
-        {"text": "1999", "weight": 3},
-        {"text": "1985", "weight": 2},
-        {"text": "2004", "weight": 2},
-        {"text": "2011", "weight": 2},
-        {"text": "2019", "weight": 2},
-        {"text": "2036", "weight": 1}
+        {
+          "text": "1989",
+          "weight": 3
+        },
+        {
+          "text": "1995",
+          "weight": 3
+        },
+        {
+          "text": "1999",
+          "weight": 3
+        },
+        {
+          "text": "1985",
+          "weight": 2
+        },
+        {
+          "text": "2004",
+          "weight": 2
+        },
+        {
+          "text": "2011",
+          "weight": 2
+        },
+        {
+          "text": "2019",
+          "weight": 2
+        },
+        {
+          "text": "2036",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "nationality",
       "feature_name": "Nationality",
       "values": [
-        {"text": "Japanese", "weight": 3},
-        {"text": "Nigerian", "weight": 3},
-        {"text": "Brazilian", "weight": 3},
-        {"text": "Korean", "weight": 2},
-        {"text": "French", "weight": 2},
-        {"text": "Mexican", "weight": 2},
-        {"text": "Iranian", "weight": 2},
-        {"text": "Mongolian", "weight": 1},
-        {"text": "Icelandic", "weight": 1},
-        {"text": "Congolese", "weight": 2},
-        {"text": "Filipino", "weight": 2},
-        {"text": "Jordanian", "weight": 1}
+        {
+          "text": "Japanese",
+          "weight": 3
+        },
+        {
+          "text": "Nigerian",
+          "weight": 3
+        },
+        {
+          "text": "Brazilian",
+          "weight": 3
+        },
+        {
+          "text": "Korean",
+          "weight": 2
+        },
+        {
+          "text": "French",
+          "weight": 2
+        },
+        {
+          "text": "Mexican",
+          "weight": 2
+        },
+        {
+          "text": "Iranian",
+          "weight": 2
+        },
+        {
+          "text": "Mongolian",
+          "weight": 1
+        },
+        {
+          "text": "Icelandic",
+          "weight": 1
+        },
+        {
+          "text": "Congolese",
+          "weight": 2
+        },
+        {
+          "text": "Filipino",
+          "weight": 2
+        },
+        {
+          "text": "Jordanian",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "movement",
       "feature_name": "Art Movement",
       "values": [
-        {"text": "Surrealism", "weight": 3},
-        {"text": "Outsider art", "weight": 3},
-        {"text": "Neo-expressionism", "weight": 3},
-        {"text": "Art Nouveau", "weight": 2},
-        {"text": "Pop art", "weight": 2},
-        {"text": "Magical Realism", "weight": 2},
-        {"text": "Hyperrealism", "weight": 2},
-        {"text": "Constructivism", "weight": 2},
-        {"text": "Baroque", "weight": 2},
-        {"text": "Ukiyo-e", "weight": 1},
-        {"text": "Fluxus", "weight": 1},
-        {"text": "Arte Povera", "weight": 1}
+        {
+          "text": "Surrealism",
+          "weight": 3
+        },
+        {
+          "text": "Outsider art",
+          "weight": 3
+        },
+        {
+          "text": "Neo-expressionism",
+          "weight": 3
+        },
+        {
+          "text": "Art Nouveau",
+          "weight": 2
+        },
+        {
+          "text": "Pop art",
+          "weight": 2
+        },
+        {
+          "text": "Magical Realism",
+          "weight": 2
+        },
+        {
+          "text": "Hyperrealism",
+          "weight": 2
+        },
+        {
+          "text": "Constructivism",
+          "weight": 2
+        },
+        {
+          "text": "Baroque",
+          "weight": 2
+        },
+        {
+          "text": "Ukiyo-e",
+          "weight": 1
+        },
+        {
+          "text": "Fluxus",
+          "weight": 1
+        },
+        {
+          "text": "Arte Povera",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "location",
       "feature_name": "Location",
       "values": [
-        {"text": "urban", "weight": 3},
-        {"text": "neon-lit urban", "weight": 3},
-        {"text": "bustling metropolitan", "weight": 3},
-        {"text": "suburban", "weight": 2},
-        {"text": "rural", "weight": 2},
-        {"text": "coastal", "weight": 2},
-        {"text": "industrial", "weight": 2},
-        {"text": "market district", "weight": 1}
+        {
+          "text": "urban",
+          "weight": 3
+        },
+        {
+          "text": "neon-lit urban",
+          "weight": 3
+        },
+        {
+          "text": "bustling metropolitan",
+          "weight": 3
+        },
+        {
+          "text": "suburban",
+          "weight": 2
+        },
+        {
+          "text": "rural",
+          "weight": 2
+        },
+        {
+          "text": "coastal",
+          "weight": 2
+        },
+        {
+          "text": "industrial",
+          "weight": 2
+        },
+        {
+          "text": "market district",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "gender",
       "feature_name": "Gender Expression",
       "values": [
-        {"text": "androgynous", "weight": 3},
-        {"text": "masculine", "weight": 2},
-        {"text": "feminine", "weight": 2},
-        {"text": "non-binary", "weight": 3},
-        {"text": "genderfluid", "weight": 2},
-        {"text": "theatrically gender-ambiguous", "weight": 2},
-        {"text": "sharply tailored", "weight": 2},
-        {"text": "defiantly ungendered", "weight": 1}
+        {
+          "text": "androgynous",
+          "weight": 3
+        },
+        {
+          "text": "masculine",
+          "weight": 2
+        },
+        {
+          "text": "feminine",
+          "weight": 2
+        },
+        {
+          "text": "non-binary",
+          "weight": 3
+        },
+        {
+          "text": "genderfluid",
+          "weight": 2
+        },
+        {
+          "text": "theatrically gender-ambiguous",
+          "weight": 2
+        },
+        {
+          "text": "sharply tailored",
+          "weight": 2
+        },
+        {
+          "text": "defiantly ungendered",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "material",
       "feature_name": "Jacket Material",
       "values": [
-        {"text": "Velvet", "weight": 3},
-        {"text": "Felt", "weight": 3},
-        {"text": "Silk", "weight": 2},
-        {"text": "Gold leaf", "weight": 2},
-        {"text": "Ceramic", "weight": 2},
-        {"text": "Foil", "weight": 2},
-        {"text": "Lace", "weight": 2},
-        {"text": "Wax", "weight": 1},
-        {"text": "Cardboard", "weight": 1},
-        {"text": "Porcelain", "weight": 1}
+        {
+          "text": "Velvet",
+          "weight": 3
+        },
+        {
+          "text": "Felt",
+          "weight": 3
+        },
+        {
+          "text": "Silk",
+          "weight": 2
+        },
+        {
+          "text": "Gold leaf",
+          "weight": 2
+        },
+        {
+          "text": "Ceramic",
+          "weight": 2
+        },
+        {
+          "text": "Foil",
+          "weight": 2
+        },
+        {
+          "text": "Lace",
+          "weight": 2
+        },
+        {
+          "text": "Wax",
+          "weight": 1
+        },
+        {
+          "text": "Cardboard",
+          "weight": 1
+        },
+        {
+          "text": "Porcelain",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "material2",
       "feature_name": "Hoodie Material",
       "values": [
-        {"text": "cotton", "weight": 3},
-        {"text": "wool", "weight": 3},
-        {"text": "polyester", "weight": 2},
-        {"text": "nylon", "weight": 2},
-        {"text": "silk", "weight": 2},
-        {"text": "felt", "weight": 2},
-        {"text": "paper", "weight": 1},
-        {"text": "clay", "weight": 1},
-        {"text": "foil", "weight": 1},
-        {"text": "enamel", "weight": 2}
+        {
+          "text": "cotton",
+          "weight": 3
+        },
+        {
+          "text": "wool",
+          "weight": 3
+        },
+        {
+          "text": "polyester",
+          "weight": 2
+        },
+        {
+          "text": "nylon",
+          "weight": 2
+        },
+        {
+          "text": "silk",
+          "weight": 2
+        },
+        {
+          "text": "felt",
+          "weight": 2
+        },
+        {
+          "text": "paper",
+          "weight": 1
+        },
+        {
+          "text": "clay",
+          "weight": 1
+        },
+        {
+          "text": "foil",
+          "weight": 1
+        },
+        {
+          "text": "enamel",
+          "weight": 2
+        }
       ]
     },
     {
       "name": "color",
       "feature_name": "Jacket Color",
       "values": [
-        {"text": "rainbow", "weight": 3},
-        {"text": "cyan", "weight": 3},
-        {"text": "violet", "weight": 2},
-        {"text": "orange", "weight": 2},
-        {"text": "pink", "weight": 2},
-        {"text": "yellow", "weight": 2},
-        {"text": "red", "weight": 2},
-        {"text": "indigo", "weight": 2},
-        {"text": "black", "weight": 2},
-        {"text": "white", "weight": 1}
+        {
+          "text": "rainbow",
+          "weight": 3
+        },
+        {
+          "text": "cyan",
+          "weight": 3
+        },
+        {
+          "text": "violet",
+          "weight": 2
+        },
+        {
+          "text": "orange",
+          "weight": 2
+        },
+        {
+          "text": "pink",
+          "weight": 2
+        },
+        {
+          "text": "yellow",
+          "weight": 2
+        },
+        {
+          "text": "red",
+          "weight": 2
+        },
+        {
+          "text": "indigo",
+          "weight": 2
+        },
+        {
+          "text": "black",
+          "weight": 2
+        },
+        {
+          "text": "white",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "season",
       "feature_name": "Season",
       "values": [
-        {"text": "autumn", "weight": 3},
-        {"text": "winter", "weight": 2},
-        {"text": "spring", "weight": 2},
-        {"text": "summer", "weight": 1},
-        {"text": "perpetual overcast", "weight": 2},
-        {"text": "unseasonably warm", "weight": 2}
+        {
+          "text": "autumn",
+          "weight": 3
+        },
+        {
+          "text": "winter",
+          "weight": 2
+        },
+        {
+          "text": "spring",
+          "weight": 2
+        },
+        {
+          "text": "summer",
+          "weight": 1
+        },
+        {
+          "text": "perpetual overcast",
+          "weight": 2
+        },
+        {
+          "text": "unseasonably warm",
+          "weight": 2
+        }
       ]
     },
     {
       "name": "time_of_day",
       "feature_name": "Time Of Day",
       "values": [
-        {"text": "in the evening", "weight": 3},
-        {"text": "in the morning", "weight": 2},
-        {"text": "at midday", "weight": 2},
-        {"text": "in the afternoon", "weight": 2},
-        {"text": "at early dawn", "weight": 2},
-        {"text": "during golden-hour", "weight": 1},
-        {"text": "at dusk", "weight": 1}
+        {
+          "text": "in the evening",
+          "weight": 3
+        },
+        {
+          "text": "in the morning",
+          "weight": 2
+        },
+        {
+          "text": "at midday",
+          "weight": 2
+        },
+        {
+          "text": "in the afternoon",
+          "weight": 2
+        },
+        {
+          "text": "at early dawn",
+          "weight": 2
+        },
+        {
+          "text": "during golden-hour",
+          "weight": 1
+        },
+        {
+          "text": "at dusk",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "brand",
       "feature_name": "Brand",
       "values": [
-        {"text": "Balenciaga", "weight": 3},
-        {"text": "Gucci", "weight": 3},
-        {"text": "Louis Vuitton", "weight": 3},
-        {"text": "Prada", "weight": 2},
-        {"text": "Versace", "weight": 2},
-        {"text": "Chanel", "weight": 2},
-        {"text": "Dolce & Gabbana", "weight": 2},
-        {"text": "Burberry", "weight": 2},
-        {"text": "Urban Outfitters", "weight": 1},
-        {"text": "Uniqlo", "weight": 1}
+        {
+          "text": "Balenciaga",
+          "weight": 3
+        },
+        {
+          "text": "Gucci",
+          "weight": 3
+        },
+        {
+          "text": "Louis Vuitton",
+          "weight": 3
+        },
+        {
+          "text": "Prada",
+          "weight": 2
+        },
+        {
+          "text": "Versace",
+          "weight": 2
+        },
+        {
+          "text": "Chanel",
+          "weight": 2
+        },
+        {
+          "text": "Dolce & Gabbana",
+          "weight": 2
+        },
+        {
+          "text": "Burberry",
+          "weight": 2
+        },
+        {
+          "text": "Urban Outfitters",
+          "weight": 1
+        },
+        {
+          "text": "Uniqlo",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "artisanal_vibe",
       "feature_name": "Artisanal Vibe",
       "values": [
-        {"text": "Basquiatesque", "weight": 3},
-        {"text": "Kahloesque", "weight": 3},
-        {"text": "Kandinskyan", "weight": 3},
-        {"text": "Daliesque", "weight": 2},
-        {"text": "Warholian", "weight": 2},
-        {"text": "Miroesque", "weight": 2},
-        {"text": "VanGoghesque", "weight": 2},
-        {"text": "Klimtian", "weight": 2},
-        {"text": "Hockneyesque", "weight": 2},
-        {"text": "Seussical", "weight": 2},
-        {"text": "Pollockian", "weight": 1},
-        {"text": "Boschian", "weight": 1}
+        {
+          "text": "Basquiatesque",
+          "weight": 3
+        },
+        {
+          "text": "Kahloesque",
+          "weight": 3
+        },
+        {
+          "text": "Kandinskyan",
+          "weight": 3
+        },
+        {
+          "text": "Daliesque",
+          "weight": 2
+        },
+        {
+          "text": "Warholian",
+          "weight": 2
+        },
+        {
+          "text": "Miroesque",
+          "weight": 2
+        },
+        {
+          "text": "VanGoghesque",
+          "weight": 2
+        },
+        {
+          "text": "Klimtian",
+          "weight": 2
+        },
+        {
+          "text": "Hockneyesque",
+          "weight": 2
+        },
+        {
+          "text": "Seussical",
+          "weight": 2
+        },
+        {
+          "text": "Pollockian",
+          "weight": 1
+        },
+        {
+          "text": "Boschian",
+          "weight": 1
+        }
       ]
     }
   ],
@@ -204,13 +564,13 @@
     {
       "id": "tag_jacket_weather_01",
       "type": "source",
-      "label": "Jacket Weather v2 — Eden txt2img Pipeline",
-      "description": "Converted from Eden txt2img-comfy pipeline (juggernautXL). Original had 13 variables including a massive 225-value nationality list, 78-value movement list, and a special_prompt variable containing full paragraph-length style injections. nationality curated to 12 culturally diverse, generative-useful values. movement curated from 78 to 12 most distinct. special_prompt preserved as special_mode with empty-string option weighted high. negprompt dropped. Weight distribution for season and time_of_day preserved from source."
+      "label": "Jacket Weather v2 — Synthograsizer Template",
+      "description": "Converted from Synthograsizer txt2img-comfy pipeline (juggernautXL). Original had 13 variables including a massive 225-value nationality list, 78-value movement list, and a special_prompt variable containing full paragraph-length style injections. nationality curated to 12 culturally diverse, generative-useful values. movement curated from 78 to 12 most distinct. special_prompt preserved as special_mode with empty-string option weighted high. negprompt dropped. Weight distribution for season and time_of_day preserved from source."
     },
     {
       "id": "tag_jacket_weather_02",
       "type": "creator",
-      "label": "bootloader: / Alexander"
+      "label": "Synthograsizer"
     }
   ]
 }

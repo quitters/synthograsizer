@@ -3,57 +3,178 @@
   "variables": [
     {
       "name": "action",
-      "feature_name": "action",
+      "feature_name": "Action",
       "values": [
-        "Redefine",
-        "Transform",
-        "Unlock",
-        "Accelerate",
-        "Simplify",
-        "Revolutionize",
-        "Elevate",
-        "Amplify",
-        "Reimagine",
-        "Optimize",
-        "Streamline",
-        "Empower"
+        {
+          "text": "Redefine",
+          "weight": 1
+        },
+        {
+          "text": "Transform",
+          "weight": 1
+        },
+        {
+          "text": "Unlock",
+          "weight": 1
+        },
+        {
+          "text": "Accelerate",
+          "weight": 1
+        },
+        {
+          "text": "Simplify",
+          "weight": 1
+        },
+        {
+          "text": "Revolutionize",
+          "weight": 1
+        },
+        {
+          "text": "Elevate",
+          "weight": 1
+        },
+        {
+          "text": "Amplify",
+          "weight": 1
+        },
+        {
+          "text": "Reimagine",
+          "weight": 1
+        },
+        {
+          "text": "Optimize",
+          "weight": 1
+        },
+        {
+          "text": "Streamline",
+          "weight": 1
+        },
+        {
+          "text": "Empower",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "outcome",
-      "feature_name": "outcome",
+      "feature_name": "Outcome",
       "values": [
-        "your workflow",
-        "tomorrow",
-        "what's possible",
-        "your potential",
-        "the experience",
-        "collaboration",
-        "innovation",
-        "productivity",
-        "connection",
-        "growth",
-        "creativity",
-        "success"
+        {
+          "text": "your workflow",
+          "weight": 1
+        },
+        {
+          "text": "tomorrow",
+          "weight": 1
+        },
+        {
+          "text": "what's possible",
+          "weight": 1
+        },
+        {
+          "text": "your potential",
+          "weight": 1
+        },
+        {
+          "text": "the experience",
+          "weight": 1
+        },
+        {
+          "text": "collaboration",
+          "weight": 1
+        },
+        {
+          "text": "innovation",
+          "weight": 1
+        },
+        {
+          "text": "productivity",
+          "weight": 1
+        },
+        {
+          "text": "connection",
+          "weight": 1
+        },
+        {
+          "text": "growth",
+          "weight": 1
+        },
+        {
+          "text": "creativity",
+          "weight": 1
+        },
+        {
+          "text": "success",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "tagline",
-      "feature_name": "tagline",
+      "feature_name": "Tagline",
       "values": [
-        "Built for the future.",
-        "Where ideas become reality.",
-        "Because time matters.",
-        "Human-centered technology.",
-        "Complexity made simple.",
-        "Progress, perfected.",
-        "Intelligence meets intuition.",
-        "The smarter way forward.",
-        "Designed for you.",
-        "Innovation you can trust.",
-        "Power meets simplicity.",
-        "Your vision, our mission."
+        {
+          "text": "Built for the future.",
+          "weight": 1
+        },
+        {
+          "text": "Where ideas become reality.",
+          "weight": 1
+        },
+        {
+          "text": "Because time matters.",
+          "weight": 1
+        },
+        {
+          "text": "Human-centered technology.",
+          "weight": 1
+        },
+        {
+          "text": "Complexity made simple.",
+          "weight": 1
+        },
+        {
+          "text": "Progress, perfected.",
+          "weight": 1
+        },
+        {
+          "text": "Intelligence meets intuition.",
+          "weight": 1
+        },
+        {
+          "text": "The smarter way forward.",
+          "weight": 1
+        },
+        {
+          "text": "Designed for you.",
+          "weight": 1
+        },
+        {
+          "text": "Innovation you can trust.",
+          "weight": 1
+        },
+        {
+          "text": "Power meets simplicity.",
+          "weight": 1
+        },
+        {
+          "text": "Your vision, our mission.",
+          "weight": 1
+        }
       ]
+    }
+  ],
+  "tags": [
+    {
+      "id": "tag_startup_slogan_01",
+      "type": "source",
+      "label": "Startup Slogan Generator",
+      "description": "Generates generic startup slogans by combining action verb, outcome noun, and tagline sentence. Schema updated from plain strings to weighted value objects."
+    },
+    {
+      "id": "tag_startup_slogan_02",
+      "type": "creator",
+      "label": "Synthograsizer"
     }
   ]
 }

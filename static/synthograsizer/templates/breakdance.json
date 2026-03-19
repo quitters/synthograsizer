@@ -5,98 +5,266 @@
       "name": "energy",
       "feature_name": "Energy",
       "values": [
-        {"text": "passionate", "weight": 3},
-        {"text": "frenzied", "weight": 3},
-        {"text": "exuberant", "weight": 2},
-        {"text": "serene yet electric", "weight": 2},
-        {"text": "hypnotic", "weight": 2},
-        {"text": "primal", "weight": 1},
-        {"text": "transcendent", "weight": 1},
-        {"text": "chaotic", "weight": 1}
+        {
+          "text": "passionate",
+          "weight": 3
+        },
+        {
+          "text": "frenzied",
+          "weight": 3
+        },
+        {
+          "text": "exuberant",
+          "weight": 2
+        },
+        {
+          "text": "serene yet electric",
+          "weight": 2
+        },
+        {
+          "text": "hypnotic",
+          "weight": 2
+        },
+        {
+          "text": "primal",
+          "weight": 1
+        },
+        {
+          "text": "transcendent",
+          "weight": 1
+        },
+        {
+          "text": "chaotic",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "setting",
       "feature_name": "Setting",
       "values": [
-        {"text": "a sun-kissed backyard", "weight": 3},
-        {"text": "a rooftop under the open sky", "weight": 3},
-        {"text": "a floodlit urban warehouse", "weight": 2},
-        {"text": "an overgrown parking lot at dusk", "weight": 2},
-        {"text": "a chalk-dusted gymnasium floor", "weight": 2},
-        {"text": "a beachside boardwalk", "weight": 1},
-        {"text": "a crumbling baroque ballroom", "weight": 1},
-        {"text": "a gleaming nightclub stage", "weight": 1}
+        {
+          "text": "a sun-kissed backyard",
+          "weight": 3
+        },
+        {
+          "text": "a rooftop under the open sky",
+          "weight": 3
+        },
+        {
+          "text": "a floodlit urban warehouse",
+          "weight": 2
+        },
+        {
+          "text": "an overgrown parking lot at dusk",
+          "weight": 2
+        },
+        {
+          "text": "a chalk-dusted gymnasium floor",
+          "weight": 2
+        },
+        {
+          "text": "a beachside boardwalk",
+          "weight": 1
+        },
+        {
+          "text": "a crumbling baroque ballroom",
+          "weight": 1
+        },
+        {
+          "text": "a gleaming nightclub stage",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "event_type",
       "feature_name": "Event Type",
       "values": [
-        {"text": "Extreme Pro Wrestling", "weight": 3},
-        {"text": "underground breakdance battle", "weight": 3},
-        {"text": "avant-garde contortion showcase", "weight": 2},
-        {"text": "capoeira and street performance festival", "weight": 2},
-        {"text": "outsider athletics exhibition", "weight": 2},
-        {"text": "gelatin wrestling spectacular", "weight": 1},
-        {"text": "parkour and freerunning tournament", "weight": 1},
-        {"text": "aerial acrobatics revue", "weight": 1}
+        {
+          "text": "Extreme Pro Wrestling",
+          "weight": 3
+        },
+        {
+          "text": "underground breakdance battle",
+          "weight": 3
+        },
+        {
+          "text": "avant-garde contortion showcase",
+          "weight": 2
+        },
+        {
+          "text": "capoeira and street performance festival",
+          "weight": 2
+        },
+        {
+          "text": "outsider athletics exhibition",
+          "weight": 2
+        },
+        {
+          "text": "gelatin wrestling spectacular",
+          "weight": 1
+        },
+        {
+          "text": "parkour and freerunning tournament",
+          "weight": 1
+        },
+        {
+          "text": "aerial acrobatics revue",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "featured_act",
       "feature_name": "Featured Act",
       "values": [
-        {"text": "an awe-inspiring contortionist striking an unprecedented pose against a pro wrestling backdrop", "weight": 3},
-        {"text": "a breakdancer frozen mid-windmill in impossible geometry", "weight": 3},
-        {"text": "wrestlers whose bodies intertwine in a provocative dance of gelatinous limbs and rippling muscles", "weight": 2},
-        {"text": "a headspinning b-boy haloed by a corona of chalk dust", "weight": 2},
-        {"text": "an aerial silk performer coiled in suspension above the crowd", "weight": 2},
-        {"text": "a contortionist folded into a perfect impossible knot", "weight": 1},
-        {"text": "a capoeirista mid-ginga suspended in golden slow motion", "weight": 1},
-        {"text": "a wrestler launching from the ropes into a spectacular backflip", "weight": 1}
+        {
+          "text": "an awe-inspiring contortionist striking an unprecedented pose against a pro wrestling backdrop",
+          "weight": 3
+        },
+        {
+          "text": "a breakdancer frozen mid-windmill in impossible geometry",
+          "weight": 3
+        },
+        {
+          "text": "wrestlers whose bodies intertwine in a provocative dance of gelatinous limbs and rippling muscles",
+          "weight": 2
+        },
+        {
+          "text": "a headspinning b-boy haloed by a corona of chalk dust",
+          "weight": 2
+        },
+        {
+          "text": "an aerial silk performer coiled in suspension above the crowd",
+          "weight": 2
+        },
+        {
+          "text": "a contortionist folded into a perfect impossible knot",
+          "weight": 1
+        },
+        {
+          "text": "a capoeirista mid-ginga suspended in golden slow motion",
+          "weight": 1
+        },
+        {
+          "text": "a wrestler launching from the ropes into a spectacular backflip",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "backdrop",
       "feature_name": "Backdrop",
       "values": [
-        {"text": "a gaping black void", "weight": 3},
-        {"text": "a sun-blazed sky", "weight": 3},
-        {"text": "a pulsing neon cityscape", "weight": 2},
-        {"text": "a white cyclorama", "weight": 2},
-        {"text": "a vaporwave gradient of pink and cyan", "weight": 2},
-        {"text": "a baroque gilded wallpaper", "weight": 1},
-        {"text": "a field of cascading confetti", "weight": 1},
-        {"text": "dense theatrical fog", "weight": 1}
+        {
+          "text": "a gaping black void",
+          "weight": 3
+        },
+        {
+          "text": "a sun-blazed sky",
+          "weight": 3
+        },
+        {
+          "text": "a pulsing neon cityscape",
+          "weight": 2
+        },
+        {
+          "text": "a white cyclorama",
+          "weight": 2
+        },
+        {
+          "text": "a vaporwave gradient of pink and cyan",
+          "weight": 2
+        },
+        {
+          "text": "a baroque gilded wallpaper",
+          "weight": 1
+        },
+        {
+          "text": "a field of cascading confetti",
+          "weight": 1
+        },
+        {
+          "text": "dense theatrical fog",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "mood",
       "feature_name": "Mood",
       "values": [
-        {"text": "sultry", "weight": 3},
-        {"text": "euphoric", "weight": 3},
-        {"text": "uncanny", "weight": 2},
-        {"text": "melancholic", "weight": 2},
-        {"text": "fever-dream", "weight": 2},
-        {"text": "serene", "weight": 1},
-        {"text": "grotesquely beautiful", "weight": 1},
-        {"text": "triumphant", "weight": 1}
+        {
+          "text": "sultry",
+          "weight": 3
+        },
+        {
+          "text": "euphoric",
+          "weight": 3
+        },
+        {
+          "text": "uncanny",
+          "weight": 2
+        },
+        {
+          "text": "melancholic",
+          "weight": 2
+        },
+        {
+          "text": "fever-dream",
+          "weight": 2
+        },
+        {
+          "text": "serene",
+          "weight": 1
+        },
+        {
+          "text": "grotesquely beautiful",
+          "weight": 1
+        },
+        {
+          "text": "triumphant",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "lighting_style",
       "feature_name": "Lighting",
       "values": [
-        {"text": "boudoir photography", "weight": 3},
-        {"text": "cinematic chiaroscuro", "weight": 3},
-        {"text": "harsh bleached flash photography", "weight": 2},
-        {"text": "warm golden-hour documentary light", "weight": 2},
-        {"text": "neon-soaked nightclub lighting", "weight": 2},
-        {"text": "diffused overcast softbox", "weight": 1},
-        {"text": "expressionist high-contrast footlighting", "weight": 1},
-        {"text": "stroboscopic freeze-frame flash", "weight": 1}
+        {
+          "text": "boudoir photography",
+          "weight": 3
+        },
+        {
+          "text": "cinematic chiaroscuro",
+          "weight": 3
+        },
+        {
+          "text": "harsh bleached flash photography",
+          "weight": 2
+        },
+        {
+          "text": "warm golden-hour documentary light",
+          "weight": 2
+        },
+        {
+          "text": "neon-soaked nightclub lighting",
+          "weight": 2
+        },
+        {
+          "text": "diffused overcast softbox",
+          "weight": 1
+        },
+        {
+          "text": "expressionist high-contrast footlighting",
+          "weight": 1
+        },
+        {
+          "text": "stroboscopic freeze-frame flash",
+          "weight": 1
+        }
       ]
     }
   ],
@@ -104,13 +272,13 @@
     {
       "id": "tag_breakdance01",
       "type": "source",
-      "label": "Breakdance Glif Workflow",
-      "description": "Converted from Eden/Glif single-step txt2img pipeline with no variables. Static monolithic prompt decomposed into 7 Synthograsizer variables: energy, setting, event_type, featured_act, backdrop, mood, lighting_style. Core prompt text and aesthetic intent preserved verbatim where possible."
+      "label": "Breakdance — Synthograsizer Template",
+      "description": "Converted from Synthograsizer single-step txt2img pipeline with no variables. Static monolithic prompt decomposed into 7 Synthograsizer variables: energy, setting, event_type, featured_act, backdrop, mood, lighting_style. Core prompt text and aesthetic intent preserved verbatim where possible."
     },
     {
       "id": "tag_breakdance02",
       "type": "creator",
-      "label": "bootloader: / Alexander"
+      "label": "Synthograsizer"
     }
   ]
 }

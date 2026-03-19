@@ -5,90 +5,252 @@
       "name": "nationality",
       "feature_name": "Nationality",
       "values": [
-        {"text": "Japanese", "weight": 3},
-        {"text": "Nigerian", "weight": 3},
-        {"text": "Brazilian", "weight": 3},
-        {"text": "Korean", "weight": 2},
-        {"text": "Congolese", "weight": 2},
-        {"text": "Mexican", "weight": 2},
-        {"text": "Iranian", "weight": 2},
-        {"text": "Filipino", "weight": 2},
-        {"text": "Icelandic", "weight": 2},
-        {"text": "Mongolian", "weight": 2},
-        {"text": "Martian", "weight": 1},
-        {"text": "Stateless", "weight": 1}
+        {
+          "text": "Japanese",
+          "weight": 3
+        },
+        {
+          "text": "Nigerian",
+          "weight": 3
+        },
+        {
+          "text": "Brazilian",
+          "weight": 3
+        },
+        {
+          "text": "Korean",
+          "weight": 2
+        },
+        {
+          "text": "Congolese",
+          "weight": 2
+        },
+        {
+          "text": "Mexican",
+          "weight": 2
+        },
+        {
+          "text": "Iranian",
+          "weight": 2
+        },
+        {
+          "text": "Filipino",
+          "weight": 2
+        },
+        {
+          "text": "Icelandic",
+          "weight": 2
+        },
+        {
+          "text": "Mongolian",
+          "weight": 2
+        },
+        {
+          "text": "Martian",
+          "weight": 1
+        },
+        {
+          "text": "Stateless",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "year",
       "feature_name": "Year",
       "values": [
-        {"text": "1990", "weight": 3},
-        {"text": "1992", "weight": 3},
-        {"text": "1995", "weight": 3},
-        {"text": "1988", "weight": 2},
-        {"text": "1993", "weight": 2},
-        {"text": "1996", "weight": 2},
-        {"text": "1997", "weight": 2},
-        {"text": "1998", "weight": 1}
+        {
+          "text": "1990",
+          "weight": 3
+        },
+        {
+          "text": "1992",
+          "weight": 3
+        },
+        {
+          "text": "1995",
+          "weight": 3
+        },
+        {
+          "text": "1988",
+          "weight": 2
+        },
+        {
+          "text": "1993",
+          "weight": 2
+        },
+        {
+          "text": "1996",
+          "weight": 2
+        },
+        {
+          "text": "1997",
+          "weight": 2
+        },
+        {
+          "text": "1998",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "influence",
       "feature_name": "Art Influence",
       "values": [
-        {"text": "by Klimt, Munch, Monet, Van Gogh, Cézanne, Manet, Renoir, Gauguin, Seurat, Toulouse-Lautrec, Modigliani, Malevich, Kandinsky, Egon Schiele, Rivera, Dalí, Magritte", "weight": 3},
-        {"text": "by Hockney, Banksy, Damien Hirst, Tracey Emin, Jeff Koons, Abramović, Kusama, Ai Weiwei, Cindy Sherman, Basquiat, Keith Haring, Lichtenstein, Andy Warhol, Rauschenberg, Chuck Close, Gerhard Richter, Lucian Freud, Bridget Riley", "weight": 3},
-        {"text": "by Stieglitz, Ansel Adams, Dorothea Lange, Edward Weston, Cartier-Bresson, Man Ray, Margaret Bourke-White, Robert Capa, Walker Evans, Yousuf Karsh, Diane Arbus, Richard Avedon, Annie Leibovitz, Helmut Newton, Irving Penn, Gordon Parks, Sebastião Salgado", "weight": 2},
-        {"text": "by Gainsborough, Jacques-Louis David, Vigée Le Brun, Gilbert Stuart, George Romney, Greuze, Angelica Kauffman, Anne Vallayer-Coster, Pietro Longhi, Chardin, La Tour, Canaletto, Tiepolo, Watteau", "weight": 2},
-        {"text": "by Fedor Alekseev, Bernardo Bellotto, François Boucher, Copley, Canaletto, de Goya, Hogarth, Andrey Martynov, Mosnier, Pesne, Allan Ramsay, Sir Joshua Reynolds, Stefano Torelli", "weight": 1},
-        {"text": "by Michelangelo, Raphael, Titian, Caravaggio, Rembrandt, Velázquez, Rubens, Vermeer, Tintoretto, El Greco, Poussin, Lorrain, Zurbarán, Murillo, Artemisia Gentileschi", "weight": 2}
+        {
+          "text": "by Klimt, Munch, Monet, Van Gogh, Cézanne, Manet, Renoir, Gauguin, Seurat, Toulouse-Lautrec, Modigliani, Malevich, Kandinsky, Egon Schiele, Rivera, Dalí, Magritte",
+          "weight": 3
+        },
+        {
+          "text": "by Hockney, Banksy, Damien Hirst, Tracey Emin, Jeff Koons, Abramović, Kusama, Ai Weiwei, Cindy Sherman, Basquiat, Keith Haring, Lichtenstein, Andy Warhol, Rauschenberg, Chuck Close, Gerhard Richter, Lucian Freud, Bridget Riley",
+          "weight": 3
+        },
+        {
+          "text": "by Stieglitz, Ansel Adams, Dorothea Lange, Edward Weston, Cartier-Bresson, Man Ray, Margaret Bourke-White, Robert Capa, Walker Evans, Yousuf Karsh, Diane Arbus, Richard Avedon, Annie Leibovitz, Helmut Newton, Irving Penn, Gordon Parks, Sebastião Salgado",
+          "weight": 2
+        },
+        {
+          "text": "by Gainsborough, Jacques-Louis David, Vigée Le Brun, Gilbert Stuart, George Romney, Greuze, Angelica Kauffman, Anne Vallayer-Coster, Pietro Longhi, Chardin, La Tour, Canaletto, Tiepolo, Watteau",
+          "weight": 2
+        },
+        {
+          "text": "by Fedor Alekseev, Bernardo Bellotto, François Boucher, Copley, Canaletto, de Goya, Hogarth, Andrey Martynov, Mosnier, Pesne, Allan Ramsay, Sir Joshua Reynolds, Stefano Torelli",
+          "weight": 1
+        },
+        {
+          "text": "by Michelangelo, Raphael, Titian, Caravaggio, Rembrandt, Velázquez, Rubens, Vermeer, Tintoretto, El Greco, Poussin, Lorrain, Zurbarán, Murillo, Artemisia Gentileschi",
+          "weight": 2
+        }
       ]
     },
     {
       "name": "director_influence",
       "feature_name": "Director Influence",
       "values": [
-        {"text": "directed by Wes Anderson and Spike Jonze", "weight": 3},
-        {"text": "directed by Quentin Tarantino and David Lynch", "weight": 3},
-        {"text": "directed by Christopher Nolan and Terry Gilliam", "weight": 3},
-        {"text": "directed by Jean-Pierre Jeunet and Michel Gondry", "weight": 2},
-        {"text": "directed by Bong Joon-ho and Edgar Wright", "weight": 2},
-        {"text": "directed by Stanley Kubrick and Jordan Peele", "weight": 2},
-        {"text": "directed by Pedro Almodóvar and Sofia Coppola", "weight": 2},
-        {"text": "directed by Paul Thomas Anderson and Charlie Kaufman", "weight": 2},
-        {"text": "directed by Federico Fellini and Luca Guadagnino", "weight": 2},
-        {"text": "directed by Akira Kurosawa and Denis Villeneuve", "weight": 2},
-        {"text": "directed by Ingmar Bergman and Lars von Trier", "weight": 1},
-        {"text": "directed by Martin Scorsese and Wong Kar-wai", "weight": 1}
+        {
+          "text": "directed by Wes Anderson and Spike Jonze",
+          "weight": 3
+        },
+        {
+          "text": "directed by Quentin Tarantino and David Lynch",
+          "weight": 3
+        },
+        {
+          "text": "directed by Christopher Nolan and Terry Gilliam",
+          "weight": 3
+        },
+        {
+          "text": "directed by Jean-Pierre Jeunet and Michel Gondry",
+          "weight": 2
+        },
+        {
+          "text": "directed by Bong Joon-ho and Edgar Wright",
+          "weight": 2
+        },
+        {
+          "text": "directed by Stanley Kubrick and Jordan Peele",
+          "weight": 2
+        },
+        {
+          "text": "directed by Pedro Almodóvar and Sofia Coppola",
+          "weight": 2
+        },
+        {
+          "text": "directed by Paul Thomas Anderson and Charlie Kaufman",
+          "weight": 2
+        },
+        {
+          "text": "directed by Federico Fellini and Luca Guadagnino",
+          "weight": 2
+        },
+        {
+          "text": "directed by Akira Kurosawa and Denis Villeneuve",
+          "weight": 2
+        },
+        {
+          "text": "directed by Ingmar Bergman and Lars von Trier",
+          "weight": 1
+        },
+        {
+          "text": "directed by Martin Scorsese and Wong Kar-wai",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "fashion_chaos",
       "feature_name": "Fashion Chaos",
       "values": [
-        {"text": "an exploding-rainbow-playdoh Mandelbrot Set wearing the outfit", "weight": 3},
-        {"text": "biomorphic still life objects draped in white cloaks", "weight": 3},
-        {"text": "a Peripheral Drift Illusion optical illusion textile pattern", "weight": 2},
-        {"text": "resin figure scene and figures in pop style with solid colour background", "weight": 2},
-        {"text": "FRP cartoon figures with intricate detail", "weight": 2},
-        {"text": "an outsider art illustration collage of putrid splendour", "weight": 2},
-        {"text": "a Kandinsky composition sculpted out of pastel gelatin", "weight": 2},
-        {"text": "a seamless symmetrical pattern of surreal life vivid colors", "weight": 1}
+        {
+          "text": "an exploding-rainbow-playdoh Mandelbrot Set wearing the outfit",
+          "weight": 3
+        },
+        {
+          "text": "biomorphic still life objects draped in white cloaks",
+          "weight": 3
+        },
+        {
+          "text": "a Peripheral Drift Illusion optical illusion textile pattern",
+          "weight": 2
+        },
+        {
+          "text": "resin figure scene and figures in pop style with solid colour background",
+          "weight": 2
+        },
+        {
+          "text": "FRP cartoon figures with intricate detail",
+          "weight": 2
+        },
+        {
+          "text": "an outsider art illustration collage of putrid splendour",
+          "weight": 2
+        },
+        {
+          "text": "a Kandinsky composition sculpted out of pastel gelatin",
+          "weight": 2
+        },
+        {
+          "text": "a seamless symmetrical pattern of surreal life vivid colors",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "film_chaos",
       "feature_name": "Film Chaos",
       "values": [
-        {"text": "a distorted screen capture from an unrated TV comedy", "weight": 3},
-        {"text": "a hidden-camera blooper reel outtake", "weight": 3},
-        {"text": "a leaked VHS tape of an obscure cable access show", "weight": 3},
-        {"text": "a surveillance camera freeze-frame", "weight": 2},
-        {"text": "a film festival entry that got badly corrupted", "weight": 2},
-        {"text": "an accidental double-exposure on Kodak disposable", "weight": 2},
-        {"text": "an over-the-top convoluted stunt triggering a humorous mishap", "weight": 2},
-        {"text": "a too-many-limbs technicolor nightmare", "weight": 1}
+        {
+          "text": "a distorted screen capture from an unrated TV comedy",
+          "weight": 3
+        },
+        {
+          "text": "a hidden-camera blooper reel outtake",
+          "weight": 3
+        },
+        {
+          "text": "a leaked VHS tape of an obscure cable access show",
+          "weight": 3
+        },
+        {
+          "text": "a surveillance camera freeze-frame",
+          "weight": 2
+        },
+        {
+          "text": "a film festival entry that got badly corrupted",
+          "weight": 2
+        },
+        {
+          "text": "an accidental double-exposure on Kodak disposable",
+          "weight": 2
+        },
+        {
+          "text": "an over-the-top convoluted stunt triggering a humorous mishap",
+          "weight": 2
+        },
+        {
+          "text": "a too-many-limbs technicolor nightmare",
+          "weight": 1
+        }
       ]
     }
   ],
@@ -96,13 +258,13 @@
     {
       "id": "tag_blurred_autonomy_01",
       "type": "source",
-      "label": "Blurred Autonomy / Synthetic Existence — Eden txt2img Pipeline",
-      "description": "Converted from Eden txt2img-comfy pipeline (juggernautXL v8, cfg 6, 40 steps). Original had 5 variables: influence (5 large artist-list blocks), directorinfluence (21 vals), nationality (225 vals), year (11 vals), negprompt (4 vals). Nationality curated to 12 values; year curated to 8 canonical years. negprompt dropped. Two new variables synthesized from the rich prompt body: fashion_chaos and film_chaos, capturing the dual identity of the prompt (fashion portrait + found-footage chaos). Artist lists condensed to readable form, preserving the curatorial groupings."
+      "label": "Blurred Autonomy / Synthetic Existence — Synthograsizer Template",
+      "description": "Converted from Synthograsizer txt2img-comfy pipeline (juggernautXL v8, cfg 6, 40 steps). Original had 5 variables: influence (5 large artist-list blocks), directorinfluence (21 vals), nationality (225 vals), year (11 vals), negprompt (4 vals). Nationality curated to 12 values; year curated to 8 canonical years. negprompt dropped. Two new variables synthesized from the rich prompt body: fashion_chaos and film_chaos, capturing the dual identity of the prompt (fashion portrait + found-footage chaos). Artist lists condensed to readable form, preserving the curatorial groupings."
     },
     {
       "id": "tag_blurred_autonomy_02",
       "type": "creator",
-      "label": "bootloader: / Alexander"
+      "label": "Synthograsizer"
     }
   ]
 }

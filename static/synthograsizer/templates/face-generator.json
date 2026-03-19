@@ -3,39 +3,227 @@
   "variables": [
     {
       "name": "head_shape",
-      "feature_name": "head_shape",
-      "values": ["oval", "round", "square", "heart", "diamond", "rectangular"]
+      "feature_name": "Head Shape",
+      "values": [
+        {
+          "text": "oval",
+          "weight": 1
+        },
+        {
+          "text": "round",
+          "weight": 1
+        },
+        {
+          "text": "square",
+          "weight": 1
+        },
+        {
+          "text": "heart",
+          "weight": 1
+        },
+        {
+          "text": "diamond",
+          "weight": 1
+        },
+        {
+          "text": "rectangular",
+          "weight": 1
+        }
+      ]
     },
     {
       "name": "skin_tone",
-      "feature_name": "skin_tone",
-      "values": ["pale", "light", "medium", "tan", "brown", "dark"]
+      "feature_name": "Skin Tone",
+      "values": [
+        {
+          "text": "pale",
+          "weight": 1
+        },
+        {
+          "text": "light",
+          "weight": 1
+        },
+        {
+          "text": "medium",
+          "weight": 1
+        },
+        {
+          "text": "tan",
+          "weight": 1
+        },
+        {
+          "text": "brown",
+          "weight": 1
+        },
+        {
+          "text": "dark",
+          "weight": 1
+        }
+      ]
     },
     {
       "name": "eye_color",
-      "feature_name": "eye_color",
-      "values": ["brown", "hazel", "green", "blue", "gray", "amber"]
+      "feature_name": "Eye Color",
+      "values": [
+        {
+          "text": "brown",
+          "weight": 1
+        },
+        {
+          "text": "hazel",
+          "weight": 1
+        },
+        {
+          "text": "green",
+          "weight": 1
+        },
+        {
+          "text": "blue",
+          "weight": 1
+        },
+        {
+          "text": "gray",
+          "weight": 1
+        },
+        {
+          "text": "amber",
+          "weight": 1
+        }
+      ]
     },
     {
       "name": "hair_style",
-      "feature_name": "hair_style",
-      "values": ["short", "long", "wavy", "curly", "bald", "straight"]
+      "feature_name": "Hair Style",
+      "values": [
+        {
+          "text": "short",
+          "weight": 1
+        },
+        {
+          "text": "long",
+          "weight": 1
+        },
+        {
+          "text": "wavy",
+          "weight": 1
+        },
+        {
+          "text": "curly",
+          "weight": 1
+        },
+        {
+          "text": "bald",
+          "weight": 1
+        },
+        {
+          "text": "straight",
+          "weight": 1
+        }
+      ]
     },
     {
       "name": "hair_color",
-      "feature_name": "hair_color",
-      "values": ["black", "brown", "blonde", "red", "gray", "white"]
+      "feature_name": "Hair Color",
+      "values": [
+        {
+          "text": "black",
+          "weight": 1
+        },
+        {
+          "text": "brown",
+          "weight": 1
+        },
+        {
+          "text": "blonde",
+          "weight": 1
+        },
+        {
+          "text": "red",
+          "weight": 1
+        },
+        {
+          "text": "gray",
+          "weight": 1
+        },
+        {
+          "text": "white",
+          "weight": 1
+        }
+      ]
     },
     {
       "name": "nose_shape",
-      "feature_name": "nose_shape",
-      "values": ["straight", "button", "upturned", "broad", "narrow", "long"]
+      "feature_name": "Nose Shape",
+      "values": [
+        {
+          "text": "straight",
+          "weight": 1
+        },
+        {
+          "text": "button",
+          "weight": 1
+        },
+        {
+          "text": "upturned",
+          "weight": 1
+        },
+        {
+          "text": "broad",
+          "weight": 1
+        },
+        {
+          "text": "narrow",
+          "weight": 1
+        },
+        {
+          "text": "long",
+          "weight": 1
+        }
+      ]
     },
     {
       "name": "mouth_shape",
-      "feature_name": "mouth_shape",
-      "values": ["full", "thin", "wide", "small", "heart", "curved"]
+      "feature_name": "Mouth Shape",
+      "values": [
+        {
+          "text": "full",
+          "weight": 1
+        },
+        {
+          "text": "thin",
+          "weight": 1
+        },
+        {
+          "text": "wide",
+          "weight": 1
+        },
+        {
+          "text": "small",
+          "weight": 1
+        },
+        {
+          "text": "heart",
+          "weight": 1
+        },
+        {
+          "text": "curved",
+          "weight": 1
+        }
+      ]
     }
   ],
-  "p5Code": "// Simple Face Generator\n// Draw a basic face based on parameters\n\nlet skinColors = {\n  pale: [255, 224, 196],\n  light: [241, 194, 125],\n  medium: [224, 172, 105],\n  tan: [198, 134, 66],\n  brown: [141, 85, 36],\n  dark: [101, 67, 33]\n};\n\nlet hairColors = {\n  black: [40, 40, 40],\n  brown: [106, 78, 66],\n  blonde: [255, 240, 165],\n  red: [165, 42, 42],\n  gray: [160, 160, 160],\n  white: [250, 250, 250]\n};\n\nlet eyeColors = {\n  brown: [101, 67, 33],\n  hazel: [150, 110, 80],\n  green: [46, 139, 87],\n  blue: [70, 130, 180],\n  gray: [120, 120, 120],\n  amber: [255, 191, 0]\n};\n\np.setup = function() {\n  p.createCanvas(400, 500);\n  p.frameRate(30);\n};\n\np.draw = function() {\n  p.background(240, 240, 250);\n  \n  // Get current values from app (if available)\n  let headShape = 'oval';\n  let skinTone = 'medium';\n  let eyeColor = 'brown';\n  let hairStyle = 'short';\n  let hairColor = 'brown';\n  let noseShape = 'straight';\n  let mouthShape = 'full';\n  \n  // Try to get values from window.synthSmall if available\n  if (typeof window !== 'undefined' && window.synthSmall && window.synthSmall.currentValues) {\n    const vals = window.synthSmall.currentValues;\n    headShape = vals.head_shape || headShape;\n    skinTone = vals.skin_tone || skinTone;\n    eyeColor = vals.eye_color || eyeColor;\n    hairStyle = vals.hair_style || hairStyle;\n    hairColor = vals.hair_color || hairColor;\n    noseShape = vals.nose_shape || noseShape;\n    mouthShape = vals.mouth_shape || mouthShape;\n  }\n  \n  p.push();\n  p.translate(p.width/2, p.height/2);\n  \n  // Neck\n  let skin = skinColors[skinTone] || [224, 172, 105];\n  p.fill(skin[0], skin[1], skin[2]);\n  p.noStroke();\n  p.rect(-30, 100, 60, 100);\n  \n  // Head\n  p.stroke(0, 0, 0, 30);\n  p.strokeWeight(2);\n  \n  if (headShape === 'oval') {\n    p.ellipse(0, 0, 200, 250);\n  } else if (headShape === 'round') {\n    p.ellipse(0, 0, 220, 220);\n  } else if (headShape === 'square') {\n    p.rectMode(p.CENTER);\n    p.rect(0, 0, 200, 220, 10);\n    p.rectMode(p.CORNER);\n  } else if (headShape === 'heart') {\n    p.ellipse(0, -20, 200, 200);\n    p.triangle(-80, 50, 80, 50, 0, 120);\n  } else if (headShape === 'diamond') {\n    p.quad(0, -120, 100, 0, 0, 120, -100, 0);\n  } else {\n    p.rect(-90, -110, 180, 240, 10);\n  }\n  \n  // Hair\n  let hair = hairColors[hairColor] || [106, 78, 66];\n  p.fill(hair[0], hair[1], hair[2]);\n  \n  if (hairStyle !== 'bald') {\n    if (hairStyle === 'short') {\n      p.arc(0, -60, 210, 140, p.PI, p.TWO_PI);\n    } else if (hairStyle === 'long') {\n      p.arc(0, -60, 210, 140, p.PI, p.TWO_PI);\n      p.rect(-105, -60, 80, 180);\n      p.rect(25, -60, 80, 180);\n    } else if (hairStyle === 'wavy') {\n      p.arc(0, -60, 210, 140, p.PI, p.TWO_PI);\n      for (let i = 0; i < 5; i++) {\n        p.ellipse(-80 + i * 40, 20, 30, 100);\n      }\n    } else if (hairStyle === 'curly') {\n      p.arc(0, -60, 210, 140, p.PI, p.TWO_PI);\n      for (let y = 0; y < 3; y++) {\n        for (let x = 0; x < 5; x++) {\n          p.circle(-80 + x * 40, -40 + y * 40, 35);\n        }\n      }\n    } else {\n      p.arc(0, -60, 210, 140, p.PI, p.TWO_PI);\n    }\n  }\n  \n  // Eyes\n  let eyes = eyeColors[eyeColor] || [101, 67, 33];\n  p.fill(255);\n  p.ellipse(-40, -20, 50, 35);\n  p.ellipse(40, -20, 50, 35);\n  p.fill(eyes[0], eyes[1], eyes[2]);\n  p.circle(-40, -20, 25);\n  p.circle(40, -20, 25);\n  p.fill(0);\n  p.circle(-40, -20, 12);\n  p.circle(40, -20, 12);\n  \n  // Eyebrows\n  p.stroke(hair[0] - 20, hair[1] - 20, hair[2] - 20);\n  p.strokeWeight(4);\n  p.noFill();\n  p.arc(-40, -45, 50, 20, p.PI, p.TWO_PI);\n  p.arc(40, -45, 50, 20, p.PI, p.TWO_PI);\n  \n  // Nose\n  p.fill(skin[0] - 15, skin[1] - 15, skin[2] - 15);\n  p.noStroke();\n  if (noseShape === 'button') {\n    p.ellipse(0, 20, 25, 20);\n  } else if (noseShape === 'long') {\n    p.ellipse(0, 30, 20, 50);\n  } else if (noseShape === 'broad') {\n    p.ellipse(0, 20, 40, 30);\n  } else {\n    p.triangle(-10, 0, 10, 0, 0, 40);\n  }\n  \n  // Mouth\n  p.fill(200, 80, 80);\n  p.stroke(160, 60, 60);\n  p.strokeWeight(2);\n  if (mouthShape === 'full') {\n    p.arc(0, 70, 60, 40, 0, p.PI);\n  } else if (mouthShape === 'thin') {\n    p.arc(0, 70, 50, 20, 0, p.PI);\n  } else if (mouthShape === 'wide') {\n    p.arc(0, 70, 80, 35, 0, p.PI);\n  } else if (mouthShape === 'small') {\n    p.arc(0, 70, 30, 20, 0, p.PI);\n  } else if (mouthShape === 'heart') {\n    p.arc(-15, 65, 30, 25, 0, p.PI);\n    p.arc(15, 65, 30, 25, 0, p.PI);\n  } else {\n    p.arc(0, 70, 60, 30, 0, p.PI);\n  }\n  \n  p.pop();\n};"
+  "p5Code": "// Face Generator — subtle animation\n\nlet skinColors = {\n  pale: [255, 224, 196],\n  light: [241, 194, 125],\n  medium: [224, 172, 105],\n  tan: [198, 134, 66],\n  brown: [141, 85, 36],\n  dark: [101, 67, 33]\n};\n\nlet hairColors = {\n  black: [40, 40, 40],\n  brown: [106, 78, 66],\n  blonde: [255, 240, 165],\n  red: [165, 42, 42],\n  gray: [160, 160, 160],\n  white: [250, 250, 250]\n};\n\nlet eyeColors = {\n  brown: [101, 67, 33],\n  hazel: [150, 110, 80],\n  green: [46, 139, 87],\n  blue: [70, 130, 180],\n  gray: [120, 120, 120],\n  amber: [255, 191, 0]\n};\n\np.setup = function() {\n  p.createCanvas(400, 500);\n  p.frameRate(30);\n};\n\np.draw = function() {\n  p.background(240, 240, 250);\n\n  let headShape = 'oval';\n  let skinTone = 'medium';\n  let eyeColor = 'brown';\n  let hairStyle = 'short';\n  let hairColor = 'brown';\n  let noseShape = 'straight';\n  let mouthShape = 'full';\n\n  headShape = p.getSynthVar('head_shape') || headShape;\n  skinTone = p.getSynthVar('skin_tone') || skinTone;\n  eyeColor = p.getSynthVar('eye_color') || eyeColor;\n  hairStyle = p.getSynthVar('hair_style') || hairStyle;\n  hairColor = p.getSynthVar('hair_color') || hairColor;\n  noseShape = p.getSynthVar('nose_shape') || noseShape;\n  mouthShape = p.getSynthVar('mouth_shape') || mouthShape;\n\n  let t = p.frameCount;\n  let breathY = p.sin(t * 0.018) * 2.5;\n  let swayX = p.sin(t * 0.012) * 1.2;\n\n  // Blink every ~4s (120 frames at 30fps), quick close/open\n  let bc = t % 120;\n  let blinkAmt = bc < 6 ? p.map(bc, 0, 6, 0, 1) :\n                 bc < 12 ? p.map(bc, 6, 12, 1, 0) : 0;\n\n  // Pupils follow mouse gently\n  let eyeTrackX = p.map(p.mouseX, 0, p.width, -3, 3);\n  let eyeTrackY = p.map(p.mouseY, 0, p.height, -2, 2);\n\n  let skin = skinColors[skinTone] || [224, 172, 105];\n  let hair = hairColors[hairColor] || [106, 78, 66];\n  let eyes = eyeColors[eyeColor] || [101, 67, 33];\n\n  p.push();\n  p.translate(p.width / 2 + swayX, p.height / 2 + breathY);\n\n  // Neck\n  p.fill(skin[0], skin[1], skin[2]);\n  p.noStroke();\n  p.rect(-30, 100, 60, 100);\n\n  // Head\n  p.fill(skin[0], skin[1], skin[2]);\n  p.stroke(0, 0, 0, 30);\n  p.strokeWeight(2);\n\n  if (headShape === 'oval') {\n    p.ellipse(0, 0, 200, 250);\n  } else if (headShape === 'round') {\n    p.ellipse(0, 0, 220, 220);\n  } else if (headShape === 'square') {\n    p.rectMode(p.CENTER);\n    p.rect(0, 0, 200, 220, 10);\n    p.rectMode(p.CORNER);\n  } else if (headShape === 'heart') {\n    p.ellipse(0, -20, 200, 200);\n    p.triangle(-80, 50, 80, 50, 0, 120);\n  } else if (headShape === 'diamond') {\n    p.quad(0, -120, 100, 0, 0, 120, -100, 0);\n  } else {\n    p.rectMode(p.CENTER);\n    p.rect(0, 0, 180, 240, 10);\n    p.rectMode(p.CORNER);\n  }\n\n  // Hair\n  p.fill(hair[0], hair[1], hair[2]);\n  p.noStroke();\n\n  if (hairStyle !== 'bald') {\n    let ls = p.sin(t * 0.022) * 5;\n    if (hairStyle === 'short') {\n      p.arc(0, -60, 210, 140, p.PI, p.TWO_PI);\n    } else if (hairStyle === 'long') {\n      p.arc(0, -60, 210, 140, p.PI, p.TWO_PI);\n      p.beginShape();\n      p.vertex(-30, -60);\n      p.vertex(-105, -60);\n      p.vertex(-108 + ls, 0);\n      p.vertex(-104 + ls * 1.5, 60);\n      p.vertex(-108 + ls * 2, 120);\n      p.vertex(-30, 120);\n      p.endShape(p.CLOSE);\n      p.beginShape();\n      p.vertex(30, -60);\n      p.vertex(105, -60);\n      p.vertex(108 - ls, 0);\n      p.vertex(104 - ls * 1.5, 60);\n      p.vertex(108 - ls * 2, 120);\n      p.vertex(30, 120);\n      p.endShape(p.CLOSE);\n    } else if (hairStyle === 'wavy') {\n      p.arc(0, -60, 210, 140, p.PI, p.TWO_PI);\n      for (let i = 0; i < 5; i++) {\n        let ws = p.sin(t * 0.025 + i * 0.9) * 6;\n        p.ellipse(-80 + i * 40, 20 + ws, 30, 100);\n      }\n    } else if (hairStyle === 'curly') {\n      p.arc(0, -60, 210, 140, p.PI, p.TWO_PI);\n      for (let row = 0; row < 3; row++) {\n        for (let col = 0; col < 5; col++) {\n          let cs = p.sin(t * 0.022 + col * 1.1 + row * 0.7) * 3;\n          p.circle(-80 + col * 40, -40 + row * 40 + cs, 35);\n        }\n      }\n    } else {\n      // straight\n      p.arc(0, -60, 210, 140, p.PI, p.TWO_PI);\n    }\n  }\n\n  // Eyes\n  for (let side of [-1, 1]) {\n    let ex = side * 40;\n    let ey = -20;\n    let px = p.constrain(ex + eyeTrackX, ex - 6, ex + 6);\n    let py = p.constrain(ey + eyeTrackY, ey - 4, ey + 4);\n\n    // White\n    p.fill(255);\n    p.noStroke();\n    p.ellipse(ex, ey, 50, 35);\n\n    // Iris\n    p.fill(eyes[0], eyes[1], eyes[2]);\n    p.circle(px, py, 25);\n\n    // Pupil\n    p.fill(0);\n    p.circle(px, py, 12);\n\n    // Specular highlight\n    p.fill(255);\n    p.circle(px + 4, py - 4, 5);\n\n    // Blink eyelid descends from top\n    if (blinkAmt > 0) {\n      p.fill(skin[0], skin[1], skin[2]);\n      p.noStroke();\n      p.rect(ex - 27, ey - 18, 54, 37 * blinkAmt, 3);\n    }\n  }\n\n  // Eyebrows\n  p.stroke(Math.max(0, hair[0] - 30), Math.max(0, hair[1] - 30), Math.max(0, hair[2] - 30));\n  p.strokeWeight(4);\n  p.noFill();\n  p.arc(-40, -45, 50, 20, p.PI, p.TWO_PI);\n  p.arc(40, -45, 50, 20, p.PI, p.TWO_PI);\n\n  // Nose — all shapes get proper nostrils\n  p.noStroke();\n  p.fill(Math.max(0, skin[0] - 15), Math.max(0, skin[1] - 15), Math.max(0, skin[2] - 15));\n\n  if (noseShape === 'button') {\n    p.ellipse(0, 18, 26, 18);\n    p.fill(Math.max(0, skin[0] - 28), Math.max(0, skin[1] - 28), Math.max(0, skin[2] - 28));\n    p.ellipse(-8, 23, 11, 8);\n    p.ellipse(8, 23, 11, 8);\n  } else if (noseShape === 'long') {\n    p.ellipse(0, 28, 18, 50);\n    p.fill(Math.max(0, skin[0] - 28), Math.max(0, skin[1] - 28), Math.max(0, skin[2] - 28));\n    p.ellipse(-7, 42, 10, 8);\n    p.ellipse(7, 42, 10, 8);\n  } else if (noseShape === 'broad') {\n    p.ellipse(0, 20, 42, 28);\n    p.fill(Math.max(0, skin[0] - 28), Math.max(0, skin[1] - 28), Math.max(0, skin[2] - 28));\n    p.ellipse(-14, 24, 13, 9);\n    p.ellipse(14, 24, 13, 9);\n  } else if (noseShape === 'upturned') {\n    p.ellipse(0, 14, 22, 16);\n    p.fill(Math.max(0, skin[0] - 28), Math.max(0, skin[1] - 28), Math.max(0, skin[2] - 28));\n    p.ellipse(-8, 16, 11, 10);\n    p.ellipse(8, 16, 11, 10);\n  } else if (noseShape === 'narrow') {\n    p.ellipse(0, 20, 14, 36);\n    p.fill(Math.max(0, skin[0] - 28), Math.max(0, skin[1] - 28), Math.max(0, skin[2] - 28));\n    p.ellipse(-5, 30, 8, 7);\n    p.ellipse(5, 30, 8, 7);\n  } else {\n    // straight\n    p.ellipse(0, 20, 18, 32);\n    p.fill(Math.max(0, skin[0] - 28), Math.max(0, skin[1] - 28), Math.max(0, skin[2] - 28));\n    p.ellipse(-7, 28, 9, 8);\n    p.ellipse(7, 28, 9, 8);\n  }\n\n  // Mouth — two-lip style with seam line\n  p.noStroke();\n  if (mouthShape === 'heart') {\n    p.fill(190, 80, 80);\n    p.arc(-14, 73, 30, 22, 0, p.PI);\n    p.arc(14, 73, 30, 22, 0, p.PI);\n    p.fill(215, 105, 105);\n    p.arc(-14, 68, 30, 16, p.PI, p.TWO_PI);\n    p.arc(14, 68, 30, 16, p.PI, p.TWO_PI);\n  } else {\n    let lipW = 60, lipH = 20;\n    if (mouthShape === 'thin') { lipW = 50; lipH = 12; }\n    else if (mouthShape === 'wide') { lipW = 80; lipH = 20; }\n    else if (mouthShape === 'small') { lipW = 32; lipH = 14; }\n    else if (mouthShape === 'curved') { lipW = 58; lipH = 18; }\n    p.fill(190, 80, 80);\n    p.arc(0, 73, lipW, lipH + 5, 0, p.PI);\n    p.fill(215, 105, 105);\n    p.arc(0, 68, lipW, lipH, p.PI, p.TWO_PI);\n    p.stroke(160, 55, 55);\n    p.strokeWeight(1.5);\n    p.noFill();\n    p.line(-lipW / 2, 70, lipW / 2, 70);\n    p.noStroke();\n  }\n\n  p.pop();\n};",
+  "tags": [
+    {
+      "id": "tag_face_generator_01",
+      "type": "source",
+      "label": "Face Generator — p5.js Portrait Sketch",
+      "description": "Generative portrait sketch with subtle animation: micro breathing, gentle body sway, per-strand hair movement (long/wavy/curly), blink cycle every ~4s, and mouse-tracking pupils. Nose shapes all have proper nostrils. Mouth uses two-arc lip construction. API updated to p.getSynthVar()."
+    },
+    {
+      "id": "tag_face_generator_02",
+      "type": "creator",
+      "label": "Synthograsizer"
+    }
+  ]
 }

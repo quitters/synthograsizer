@@ -3,57 +3,178 @@
   "variables": [
     {
       "name": "villain_type",
-      "feature_name": "villain_type",
+      "feature_name": "Villain Type",
       "values": [
-        "A brilliant scientist",
-        "A fallen hero",
-        "A corporate executive",
-        "An AI consciousness",
-        "A cult leader",
-        "A spurned artist",
-        "A time traveler",
-        "A genetic experiment",
-        "A disillusioned activist",
-        "A reality-warper",
-        "A shadow organization",
-        "An immortal being"
+        {
+          "text": "A brilliant scientist",
+          "weight": 1
+        },
+        {
+          "text": "A fallen hero",
+          "weight": 1
+        },
+        {
+          "text": "A corporate executive",
+          "weight": 1
+        },
+        {
+          "text": "An AI consciousness",
+          "weight": 1
+        },
+        {
+          "text": "A cult leader",
+          "weight": 1
+        },
+        {
+          "text": "A spurned artist",
+          "weight": 1
+        },
+        {
+          "text": "A time traveler",
+          "weight": 1
+        },
+        {
+          "text": "A genetic experiment",
+          "weight": 1
+        },
+        {
+          "text": "A disillusioned activist",
+          "weight": 1
+        },
+        {
+          "text": "A reality-warper",
+          "weight": 1
+        },
+        {
+          "text": "A shadow organization",
+          "weight": 1
+        },
+        {
+          "text": "An immortal being",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "goal",
-      "feature_name": "goal",
+      "feature_name": "Goal",
       "values": [
-        "remake society",
-        "erase all memory",
-        "merge all minds",
-        "reverse evolution",
-        "control emotions",
-        "freeze time",
-        "commercialize dreams",
-        "weaponize beauty",
-        "eliminate free will",
-        "commodify suffering",
-        "monopolize truth",
-        "privatize nature"
+        {
+          "text": "remake society",
+          "weight": 1
+        },
+        {
+          "text": "erase all memory",
+          "weight": 1
+        },
+        {
+          "text": "merge all minds",
+          "weight": 1
+        },
+        {
+          "text": "reverse evolution",
+          "weight": 1
+        },
+        {
+          "text": "control emotions",
+          "weight": 1
+        },
+        {
+          "text": "freeze time",
+          "weight": 1
+        },
+        {
+          "text": "commercialize dreams",
+          "weight": 1
+        },
+        {
+          "text": "weaponize beauty",
+          "weight": 1
+        },
+        {
+          "text": "eliminate free will",
+          "weight": 1
+        },
+        {
+          "text": "commodify suffering",
+          "weight": 1
+        },
+        {
+          "text": "monopolize truth",
+          "weight": 1
+        },
+        {
+          "text": "privatize nature",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "reason",
-      "feature_name": "reason",
+      "feature_name": "Reason",
       "values": [
-        "they lost someone they loved",
-        "they believe humanity is flawed",
-        "they were betrayed by those they trusted",
-        "they discovered a terrible truth",
-        "they see themselves as the only solution",
-        "they want to prevent a worse outcome",
-        "they're following a twisted sense of justice",
-        "they've transcended human morality",
-        "they're completing someone else's work",
-        "they experienced unbearable pain",
-        "they believe it's their destiny",
-        "they're trying to save the world"
+        {
+          "text": "they lost someone they loved",
+          "weight": 1
+        },
+        {
+          "text": "they believe humanity is flawed",
+          "weight": 1
+        },
+        {
+          "text": "they were betrayed by those they trusted",
+          "weight": 1
+        },
+        {
+          "text": "they discovered a terrible truth",
+          "weight": 1
+        },
+        {
+          "text": "they see themselves as the only solution",
+          "weight": 1
+        },
+        {
+          "text": "they want to prevent a worse outcome",
+          "weight": 1
+        },
+        {
+          "text": "they're following a twisted sense of justice",
+          "weight": 1
+        },
+        {
+          "text": "they've transcended human morality",
+          "weight": 1
+        },
+        {
+          "text": "they're completing someone else's work",
+          "weight": 1
+        },
+        {
+          "text": "they experienced unbearable pain",
+          "weight": 1
+        },
+        {
+          "text": "they believe it's their destiny",
+          "weight": 1
+        },
+        {
+          "text": "they're trying to save the world",
+          "weight": 1
+        }
       ]
+    }
+  ],
+  "tags": [
+    {
+      "id": "tag_villain_motivation_01",
+      "type": "source",
+      "label": "Villain Motivation Generator",
+      "description": "Generates villain backstories from archetype, goal, and motivation variables. Schema updated from plain strings to weighted value objects."
+    },
+    {
+      "id": "tag_villain_motivation_02",
+      "type": "creator",
+      "label": "Synthograsizer"
     }
   ]
 }

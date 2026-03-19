@@ -5,155 +5,404 @@
       "name": "texture",
       "feature_name": "Texture",
       "values": [
-        {"text": "fuzzy needlefelted", "weight": 3},
-        {"text": "slimy gelatinous", "weight": 3},
-        {"text": "smooth rubbery", "weight": 3},
-        {"text": "rough scaly", "weight": 2},
-        {"text": "crystalline", "weight": 2},
-        {"text": "fibrous organic", "weight": 2},
-        {"text": "metallic", "weight": 1}
+        {
+          "text": "fuzzy needlefelted",
+          "weight": 3
+        },
+        {
+          "text": "slimy gelatinous",
+          "weight": 3
+        },
+        {
+          "text": "smooth rubbery",
+          "weight": 3
+        },
+        {
+          "text": "rough scaly",
+          "weight": 2
+        },
+        {
+          "text": "crystalline",
+          "weight": 2
+        },
+        {
+          "text": "fibrous organic",
+          "weight": 2
+        },
+        {
+          "text": "metallic",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "creature_type",
       "feature_name": "Creature Type",
       "values": [
-        {"text": "biblically accurate celestial being", "weight": 3},
-        {"text": "eldritch horror", "weight": 3},
-        {"text": "fuzzy beast", "weight": 3},
-        {"text": "blob creature", "weight": 2},
-        {"text": "cosmic horror", "weight": 2},
-        {"text": "dimensional entity", "weight": 2},
-        {"text": "monster", "weight": 1}
+        {
+          "text": "biblically accurate celestial being",
+          "weight": 3
+        },
+        {
+          "text": "eldritch horror",
+          "weight": 3
+        },
+        {
+          "text": "fuzzy beast",
+          "weight": 3
+        },
+        {
+          "text": "blob creature",
+          "weight": 2
+        },
+        {
+          "text": "cosmic horror",
+          "weight": 2
+        },
+        {
+          "text": "dimensional entity",
+          "weight": 2
+        },
+        {
+          "text": "monster",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "size",
       "feature_name": "Size",
       "values": [
-        {"text": "massive", "weight": 3},
-        {"text": "colossal", "weight": 3},
-        {"text": "human-sized", "weight": 2},
-        {"text": "tiny", "weight": 2},
-        {"text": "planet-sized", "weight": 2},
-        {"text": "microscopic", "weight": 1}
+        {
+          "text": "massive",
+          "weight": 3
+        },
+        {
+          "text": "colossal",
+          "weight": 3
+        },
+        {
+          "text": "human-sized",
+          "weight": 2
+        },
+        {
+          "text": "tiny",
+          "weight": 2
+        },
+        {
+          "text": "planet-sized",
+          "weight": 2
+        },
+        {
+          "text": "microscopic",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "primary_feature",
       "feature_name": "Primary Feature",
       "values": [
-        {"text": "flowing tentacles", "weight": 3},
-        {"text": "sparse ethereal feathers", "weight": 3},
-        {"text": "pulsating organs", "weight": 3},
-        {"text": "glowing teeth", "weight": 2},
-        {"text": "translucent membranes", "weight": 2},
-        {"text": "geometric patterns", "weight": 2},
-        {"text": "shifting forms", "weight": 1}
+        {
+          "text": "flowing tentacles",
+          "weight": 3
+        },
+        {
+          "text": "sparse ethereal feathers",
+          "weight": 3
+        },
+        {
+          "text": "pulsating organs",
+          "weight": 3
+        },
+        {
+          "text": "glowing teeth",
+          "weight": 2
+        },
+        {
+          "text": "translucent membranes",
+          "weight": 2
+        },
+        {
+          "text": "geometric patterns",
+          "weight": 2
+        },
+        {
+          "text": "shifting forms",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "eye_count",
       "feature_name": "Eye Count",
       "values": [
-        {"text": "countless", "weight": 3},
-        {"text": "a thousand", "weight": 3},
-        {"text": "an infinite number of", "weight": 2},
-        {"text": "twelve", "weight": 2},
-        {"text": "seven", "weight": 2},
-        {"text": "two", "weight": 2},
-        {"text": "no", "weight": 1}
+        {
+          "text": "countless",
+          "weight": 3
+        },
+        {
+          "text": "a thousand",
+          "weight": 3
+        },
+        {
+          "text": "an infinite number of",
+          "weight": 2
+        },
+        {
+          "text": "twelve",
+          "weight": 2
+        },
+        {
+          "text": "seven",
+          "weight": 2
+        },
+        {
+          "text": "two",
+          "weight": 2
+        },
+        {
+          "text": "no",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "eye_type",
       "feature_name": "Eye Type",
       "values": [
-        {"text": "vast cosmic eyes", "weight": 3},
-        {"text": "beady endearing eyes", "weight": 3},
-        {"text": "glowing orbs", "weight": 3},
-        {"text": "interdimensional portals for eyes", "weight": 2},
-        {"text": "rotating mechanical eyes", "weight": 2},
-        {"text": "crystalline eyes", "weight": 2},
-        {"text": "morphing eyes", "weight": 1}
+        {
+          "text": "vast cosmic eyes",
+          "weight": 3
+        },
+        {
+          "text": "beady endearing eyes",
+          "weight": 3
+        },
+        {
+          "text": "glowing orbs",
+          "weight": 3
+        },
+        {
+          "text": "interdimensional portals for eyes",
+          "weight": 2
+        },
+        {
+          "text": "rotating mechanical eyes",
+          "weight": 2
+        },
+        {
+          "text": "crystalline eyes",
+          "weight": 2
+        },
+        {
+          "text": "morphing eyes",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "mouth_type",
       "feature_name": "Mouth Type",
       "values": [
-        {"text": "prominent smiling mouth", "weight": 3},
-        {"text": "multiple smiling mouths", "weight": 3},
-        {"text": "innocent playful smile", "weight": 3},
-        {"text": "toothless maw", "weight": 2},
-        {"text": "beak-like mouth", "weight": 2},
-        {"text": "geometric portal mouth", "weight": 2},
-        {"text": "ethereal void mouth", "weight": 1}
+        {
+          "text": "prominent smiling mouth",
+          "weight": 3
+        },
+        {
+          "text": "multiple smiling mouths",
+          "weight": 3
+        },
+        {
+          "text": "innocent playful smile",
+          "weight": 3
+        },
+        {
+          "text": "toothless maw",
+          "weight": 2
+        },
+        {
+          "text": "beak-like mouth",
+          "weight": 2
+        },
+        {
+          "text": "geometric portal mouth",
+          "weight": 2
+        },
+        {
+          "text": "ethereal void mouth",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "skin_texture",
       "feature_name": "Skin Texture",
       "values": [
-        {"text": "jiggly fat tissue", "weight": 3},
-        {"text": "wet slimy membrane", "weight": 3},
-        {"text": "deep wrinkly flesh", "weight": 3},
-        {"text": "porous surface", "weight": 2},
-        {"text": "matted greasy folds", "weight": 2},
-        {"text": "crystalline fragments", "weight": 2},
-        {"text": "metallic scales", "weight": 1}
+        {
+          "text": "jiggly fat tissue",
+          "weight": 3
+        },
+        {
+          "text": "wet slimy membrane",
+          "weight": 3
+        },
+        {
+          "text": "deep wrinkly flesh",
+          "weight": 3
+        },
+        {
+          "text": "porous surface",
+          "weight": 2
+        },
+        {
+          "text": "matted greasy folds",
+          "weight": 2
+        },
+        {
+          "text": "crystalline fragments",
+          "weight": 2
+        },
+        {
+          "text": "metallic scales",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "surface_detail",
       "feature_name": "Surface Detail",
       "values": [
-        {"text": "bioluminescent spots", "weight": 3},
-        {"text": "glowing patterns", "weight": 3},
-        {"text": "intricate veins", "weight": 3},
-        {"text": "pulsating organs", "weight": 2},
-        {"text": "shifting colors", "weight": 2},
-        {"text": "otherworldly symbols", "weight": 2},
-        {"text": "living geometry", "weight": 1}
+        {
+          "text": "bioluminescent spots",
+          "weight": 3
+        },
+        {
+          "text": "glowing patterns",
+          "weight": 3
+        },
+        {
+          "text": "intricate veins",
+          "weight": 3
+        },
+        {
+          "text": "pulsating organs",
+          "weight": 2
+        },
+        {
+          "text": "shifting colors",
+          "weight": 2
+        },
+        {
+          "text": "otherworldly symbols",
+          "weight": 2
+        },
+        {
+          "text": "living geometry",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "aura",
       "feature_name": "Aura",
       "values": [
-        {"text": "divine light", "weight": 3},
-        {"text": "rainbow aureole", "weight": 3},
-        {"text": "ethereal glow", "weight": 3},
-        {"text": "holy radiance", "weight": 2},
-        {"text": "cosmic energy", "weight": 2},
-        {"text": "dimensional distortion", "weight": 2},
-        {"text": "eldritch darkness", "weight": 1}
+        {
+          "text": "divine light",
+          "weight": 3
+        },
+        {
+          "text": "rainbow aureole",
+          "weight": 3
+        },
+        {
+          "text": "ethereal glow",
+          "weight": 3
+        },
+        {
+          "text": "holy radiance",
+          "weight": 2
+        },
+        {
+          "text": "cosmic energy",
+          "weight": 2
+        },
+        {
+          "text": "dimensional distortion",
+          "weight": 2
+        },
+        {
+          "text": "eldritch darkness",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "lighting",
       "feature_name": "Lighting",
       "values": [
-        {"text": "dramatic god rays", "weight": 3},
-        {"text": "celestial illumination", "weight": 3},
-        {"text": "soft ethereal lighting", "weight": 3},
-        {"text": "cosmic backlight", "weight": 2},
-        {"text": "otherworldly glow", "weight": 2},
-        {"text": "harsh contrast", "weight": 2},
-        {"text": "dimensional rifts", "weight": 1}
+        {
+          "text": "dramatic god rays",
+          "weight": 3
+        },
+        {
+          "text": "celestial illumination",
+          "weight": 3
+        },
+        {
+          "text": "soft ethereal lighting",
+          "weight": 3
+        },
+        {
+          "text": "cosmic backlight",
+          "weight": 2
+        },
+        {
+          "text": "otherworldly glow",
+          "weight": 2
+        },
+        {
+          "text": "harsh contrast",
+          "weight": 2
+        },
+        {
+          "text": "dimensional rifts",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "photo_style",
       "feature_name": "Photo Style",
       "values": [
-        {"text": "Golden Age documentary photography", "weight": 3},
-        {"text": "modern hyperrealistic macro", "weight": 3},
-        {"text": "Leica M6 with Kodak Aero Ektar 178mm", "weight": 2},
-        {"text": "surreal multiple exposure", "weight": 2},
-        {"text": "abstract long exposure", "weight": 2},
-        {"text": "vintage sheet film", "weight": 2},
-        {"text": "experimental double exposure", "weight": 1}
+        {
+          "text": "Golden Age documentary photography",
+          "weight": 3
+        },
+        {
+          "text": "modern hyperrealistic macro",
+          "weight": 3
+        },
+        {
+          "text": "Leica M6 with Kodak Aero Ektar 178mm",
+          "weight": 2
+        },
+        {
+          "text": "surreal multiple exposure",
+          "weight": 2
+        },
+        {
+          "text": "abstract long exposure",
+          "weight": 2
+        },
+        {
+          "text": "vintage sheet film",
+          "weight": 2
+        },
+        {
+          "text": "experimental double exposure",
+          "weight": 1
+        }
       ]
     }
   ],
@@ -161,13 +410,13 @@
     {
       "id": "tag_monster_maker_01",
       "type": "source",
-      "label": "Monster Maker — Eden txt2img Pipeline",
-      "description": "Converted from Eden txt2img-comfy pipeline. Source variables were already well-structured with consistent 7-value lists. Weights assigned per canonical distribution guidelines (3/2/1 tiers). Prompt template preserved verbatim."
+      "label": "Monster Maker — Synthograsizer Template",
+      "description": "Converted from Synthograsizer txt2img-comfy pipeline. Source variables were already well-structured with consistent 7-value lists. Weights assigned per canonical distribution guidelines (3/2/1 tiers). Prompt template preserved verbatim."
     },
     {
       "id": "tag_monster_maker_02",
       "type": "creator",
-      "label": "bootloader: / Alexander"
+      "label": "Synthograsizer"
     }
   ]
 }

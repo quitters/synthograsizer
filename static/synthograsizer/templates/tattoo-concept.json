@@ -3,79 +3,248 @@
   "variables": [
     {
       "name": "style",
-      "feature_name": "style",
+      "feature_name": "Style",
       "values": [
-        "minimalist linework",
-        "traditional American",
-        "Japanese irezumi",
-        "watercolor",
-        "geometric",
-        "blackwork",
-        "fine line",
-        "neo-traditional",
-        "dotwork",
-        "tribal",
-        "illustrative",
-        "abstract"
+        {
+          "text": "minimalist linework",
+          "weight": 1
+        },
+        {
+          "text": "traditional American",
+          "weight": 1
+        },
+        {
+          "text": "Japanese irezumi",
+          "weight": 1
+        },
+        {
+          "text": "watercolor",
+          "weight": 1
+        },
+        {
+          "text": "geometric",
+          "weight": 1
+        },
+        {
+          "text": "blackwork",
+          "weight": 1
+        },
+        {
+          "text": "fine line",
+          "weight": 1
+        },
+        {
+          "text": "neo-traditional",
+          "weight": 1
+        },
+        {
+          "text": "dotwork",
+          "weight": 1
+        },
+        {
+          "text": "tribal",
+          "weight": 1
+        },
+        {
+          "text": "illustrative",
+          "weight": 1
+        },
+        {
+          "text": "abstract",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "subject",
-      "feature_name": "subject",
+      "feature_name": "Subject",
       "values": [
-        "a phoenix rising",
-        "intertwined serpents",
-        "crescent moon phases",
-        "blooming lotus",
-        "anatomical heart",
-        "waves and mountains",
-        "hourglass",
-        "compass rose",
-        "tree of life",
-        "skull and flowers",
-        "moth and flame",
-        "constellation map",
-        "koi fish",
-        "raven in flight",
-        "pocket watch",
-        "sacred geometry"
+        {
+          "text": "a phoenix rising",
+          "weight": 1
+        },
+        {
+          "text": "intertwined serpents",
+          "weight": 1
+        },
+        {
+          "text": "crescent moon phases",
+          "weight": 1
+        },
+        {
+          "text": "blooming lotus",
+          "weight": 1
+        },
+        {
+          "text": "anatomical heart",
+          "weight": 1
+        },
+        {
+          "text": "waves and mountains",
+          "weight": 1
+        },
+        {
+          "text": "hourglass",
+          "weight": 1
+        },
+        {
+          "text": "compass rose",
+          "weight": 1
+        },
+        {
+          "text": "tree of life",
+          "weight": 1
+        },
+        {
+          "text": "skull and flowers",
+          "weight": 1
+        },
+        {
+          "text": "moth and flame",
+          "weight": 1
+        },
+        {
+          "text": "constellation map",
+          "weight": 1
+        },
+        {
+          "text": "koi fish",
+          "weight": 1
+        },
+        {
+          "text": "raven in flight",
+          "weight": 1
+        },
+        {
+          "text": "pocket watch",
+          "weight": 1
+        },
+        {
+          "text": "sacred geometry",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "placement",
-      "feature_name": "placement",
+      "feature_name": "Placement",
       "values": [
-        "forearm",
-        "shoulder blade",
-        "ribcage",
-        "thigh",
-        "upper arm",
-        "spine",
-        "calf",
-        "behind ear",
-        "wrist",
-        "chest",
-        "ankle",
-        "fingers"
+        {
+          "text": "forearm",
+          "weight": 1
+        },
+        {
+          "text": "shoulder blade",
+          "weight": 1
+        },
+        {
+          "text": "ribcage",
+          "weight": 1
+        },
+        {
+          "text": "thigh",
+          "weight": 1
+        },
+        {
+          "text": "upper arm",
+          "weight": 1
+        },
+        {
+          "text": "spine",
+          "weight": 1
+        },
+        {
+          "text": "calf",
+          "weight": 1
+        },
+        {
+          "text": "behind ear",
+          "weight": 1
+        },
+        {
+          "text": "wrist",
+          "weight": 1
+        },
+        {
+          "text": "chest",
+          "weight": 1
+        },
+        {
+          "text": "ankle",
+          "weight": 1
+        },
+        {
+          "text": "fingers",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "detail",
-      "feature_name": "detail",
+      "feature_name": "Detail",
       "values": [
-        "intricate",
-        "minimal",
-        "bold",
-        "delicate",
-        "flowing",
-        "sharp",
-        "ornamental",
-        "symbolic",
-        "realistic",
-        "stylized",
-        "textured",
-        "clean"
+        {
+          "text": "intricate",
+          "weight": 1
+        },
+        {
+          "text": "minimal",
+          "weight": 1
+        },
+        {
+          "text": "bold",
+          "weight": 1
+        },
+        {
+          "text": "delicate",
+          "weight": 1
+        },
+        {
+          "text": "flowing",
+          "weight": 1
+        },
+        {
+          "text": "sharp",
+          "weight": 1
+        },
+        {
+          "text": "ornamental",
+          "weight": 1
+        },
+        {
+          "text": "symbolic",
+          "weight": 1
+        },
+        {
+          "text": "realistic",
+          "weight": 1
+        },
+        {
+          "text": "stylized",
+          "weight": 1
+        },
+        {
+          "text": "textured",
+          "weight": 1
+        },
+        {
+          "text": "clean",
+          "weight": 1
+        }
       ]
+    }
+  ],
+  "tags": [
+    {
+      "id": "tag_tattoo_concept_01",
+      "type": "source",
+      "label": "Tattoo Concept Generator",
+      "description": "Generates tattoo design concepts combining style, subject matter, body placement, and detail level. Schema updated from plain strings to weighted value objects."
+    },
+    {
+      "id": "tag_tattoo_concept_02",
+      "type": "creator",
+      "label": "Synthograsizer"
     }
   ]
 }

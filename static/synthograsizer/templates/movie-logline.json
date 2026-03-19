@@ -3,57 +3,178 @@
   "variables": [
     {
       "name": "protagonist",
-      "feature_name": "protagonist",
+      "feature_name": "Protagonist",
       "values": [
-        "time-traveling chef",
-        "amnesiac detective",
-        "sentient AI",
-        "retired assassin",
-        "psychic librarian",
-        "teenage hacker",
-        "disgraced astronaut",
-        "ghost whisperer",
-        "quantum physicist",
-        "reformed con artist",
-        "robot therapist",
-        "dimension-hopping musician"
+        {
+          "text": "time-traveling chef",
+          "weight": 1
+        },
+        {
+          "text": "amnesiac detective",
+          "weight": 1
+        },
+        {
+          "text": "sentient AI",
+          "weight": 1
+        },
+        {
+          "text": "retired assassin",
+          "weight": 1
+        },
+        {
+          "text": "psychic librarian",
+          "weight": 1
+        },
+        {
+          "text": "teenage hacker",
+          "weight": 1
+        },
+        {
+          "text": "disgraced astronaut",
+          "weight": 1
+        },
+        {
+          "text": "ghost whisperer",
+          "weight": 1
+        },
+        {
+          "text": "quantum physicist",
+          "weight": 1
+        },
+        {
+          "text": "reformed con artist",
+          "weight": 1
+        },
+        {
+          "text": "robot therapist",
+          "weight": 1
+        },
+        {
+          "text": "dimension-hopping musician",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "conflict",
-      "feature_name": "conflict",
+      "feature_name": "Conflict",
       "values": [
-        "prevent their own birth",
-        "solve their own murder",
-        "save humanity from extinction",
-        "stop an impending war",
-        "find their missing memories",
-        "escape a time loop",
-        "prove their innocence",
-        "break an ancient curse",
-        "choose between two realities",
-        "redeem their greatest mistake",
-        "unite fractured worlds",
-        "destroy their own creation"
+        {
+          "text": "prevent their own birth",
+          "weight": 1
+        },
+        {
+          "text": "solve their own murder",
+          "weight": 1
+        },
+        {
+          "text": "save humanity from extinction",
+          "weight": 1
+        },
+        {
+          "text": "stop an impending war",
+          "weight": 1
+        },
+        {
+          "text": "find their missing memories",
+          "weight": 1
+        },
+        {
+          "text": "escape a time loop",
+          "weight": 1
+        },
+        {
+          "text": "prove their innocence",
+          "weight": 1
+        },
+        {
+          "text": "break an ancient curse",
+          "weight": 1
+        },
+        {
+          "text": "choose between two realities",
+          "weight": 1
+        },
+        {
+          "text": "redeem their greatest mistake",
+          "weight": 1
+        },
+        {
+          "text": "unite fractured worlds",
+          "weight": 1
+        },
+        {
+          "text": "destroy their own creation",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "premise",
-      "feature_name": "premise",
+      "feature_name": "Premise",
       "values": [
-        "dreams are illegal",
-        "death is reversible",
-        "emotions are currency",
-        "memories can be stolen",
-        "lies become reality",
-        "time flows backwards",
-        "everyone has a clone",
-        "magic is dying",
-        "the dead outnumber the living",
-        "thoughts are visible",
-        "gravity is optional",
-        "reality is glitching"
+        {
+          "text": "dreams are illegal",
+          "weight": 1
+        },
+        {
+          "text": "death is reversible",
+          "weight": 1
+        },
+        {
+          "text": "emotions are currency",
+          "weight": 1
+        },
+        {
+          "text": "memories can be stolen",
+          "weight": 1
+        },
+        {
+          "text": "lies become reality",
+          "weight": 1
+        },
+        {
+          "text": "time flows backwards",
+          "weight": 1
+        },
+        {
+          "text": "everyone has a clone",
+          "weight": 1
+        },
+        {
+          "text": "magic is dying",
+          "weight": 1
+        },
+        {
+          "text": "the dead outnumber the living",
+          "weight": 1
+        },
+        {
+          "text": "thoughts are visible",
+          "weight": 1
+        },
+        {
+          "text": "gravity is optional",
+          "weight": 1
+        },
+        {
+          "text": "reality is glitching",
+          "weight": 1
+        }
       ]
+    }
+  ],
+  "tags": [
+    {
+      "id": "tag_movie_logline_01",
+      "type": "source",
+      "label": "Movie Logline Generator",
+      "description": "Generates high-concept movie loglines from protagonist, conflict, and premise variables. Schema updated from plain strings to weighted value objects."
+    },
+    {
+      "id": "tag_movie_logline_02",
+      "type": "creator",
+      "label": "Synthograsizer"
     }
   ]
 }

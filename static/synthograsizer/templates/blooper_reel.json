@@ -5,61 +5,190 @@
       "name": "emotion",
       "feature_name": "Emotional State",
       "values": [
-        {"text": "giddily anxious", "weight": 2},
-        {"text": "uncontrollably giggly", "weight": 3},
-        {"text": "sarcastically thrilled", "weight": 2},
-        {"text": "suspiciously cheerful", "weight": 3},
-        {"text": "hilariously horrified", "weight": 3},
-        {"text": "bafflingly ecstatic", "weight": 2},
-        {"text": "nostalgically euphoric", "weight": 2},
-        {"text": "blissfully alarmed", "weight": 3},
-        {"text": "comically enraged", "weight": 2},
-        {"text": "wildly ambivalent", "weight": 2},
-        {"text": "alarmingly serene", "weight": 2},
-        {"text": "overwhelmed with existential dread", "weight": 1}
+        {
+          "text": "giddily anxious",
+          "weight": 2
+        },
+        {
+          "text": "uncontrollably giggly",
+          "weight": 3
+        },
+        {
+          "text": "sarcastically thrilled",
+          "weight": 2
+        },
+        {
+          "text": "suspiciously cheerful",
+          "weight": 3
+        },
+        {
+          "text": "hilariously horrified",
+          "weight": 3
+        },
+        {
+          "text": "bafflingly ecstatic",
+          "weight": 2
+        },
+        {
+          "text": "nostalgically euphoric",
+          "weight": 2
+        },
+        {
+          "text": "blissfully alarmed",
+          "weight": 3
+        },
+        {
+          "text": "comically enraged",
+          "weight": 2
+        },
+        {
+          "text": "wildly ambivalent",
+          "weight": 2
+        },
+        {
+          "text": "alarmingly serene",
+          "weight": 2
+        },
+        {
+          "text": "overwhelmed with existential dread",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "persons",
       "feature_name": "Group",
       "values": [
-        {"text": "posse of circus clowns", "weight": 3},
-        {"text": "colony of sentient penguins", "weight": 3},
-        {"text": "team of breakdancing grandmas", "weight": 3},
-        {"text": "squad of rollerblading firefighters", "weight": 2},
-        {"text": "guild of amateur magicians", "weight": 2},
-        {"text": "gathering of sci-fi cosplayers", "weight": 2},
-        {"text": "crew of pirate impersonators", "weight": 2},
-        {"text": "posse of moonwalking astronauts", "weight": 2},
-        {"text": "group of wannabe superheroes", "weight": 2},
-        {"text": "congregation of rebellious cultists", "weight": 2},
-        {"text": "caucus of disgruntled politicians", "weight": 1},
-        {"text": "NFL football team", "weight": 1},
-        {"text": "assembly of yoga instructors", "weight": 2},
-        {"text": "band of runaway garden gnomes", "weight": 3},
-        {"text": "kindergarten class", "weight": 1},
-        {"text": "couple of old men", "weight": 2},
-        {"text": "sweet old woman", "weight": 1},
-        {"text": "pack of enthusiastic dog groomers", "weight": 2},
-        {"text": "group of undercover spies", "weight": 2},
-        {"text": "team of competitive speed eaters", "weight": 1}
+        {
+          "text": "posse of circus clowns",
+          "weight": 3
+        },
+        {
+          "text": "colony of sentient penguins",
+          "weight": 3
+        },
+        {
+          "text": "team of breakdancing grandmas",
+          "weight": 3
+        },
+        {
+          "text": "squad of rollerblading firefighters",
+          "weight": 2
+        },
+        {
+          "text": "guild of amateur magicians",
+          "weight": 2
+        },
+        {
+          "text": "gathering of sci-fi cosplayers",
+          "weight": 2
+        },
+        {
+          "text": "crew of pirate impersonators",
+          "weight": 2
+        },
+        {
+          "text": "posse of moonwalking astronauts",
+          "weight": 2
+        },
+        {
+          "text": "group of wannabe superheroes",
+          "weight": 2
+        },
+        {
+          "text": "congregation of rebellious cultists",
+          "weight": 2
+        },
+        {
+          "text": "caucus of disgruntled politicians",
+          "weight": 1
+        },
+        {
+          "text": "NFL football team",
+          "weight": 1
+        },
+        {
+          "text": "assembly of yoga instructors",
+          "weight": 2
+        },
+        {
+          "text": "band of runaway garden gnomes",
+          "weight": 3
+        },
+        {
+          "text": "kindergarten class",
+          "weight": 1
+        },
+        {
+          "text": "couple of old men",
+          "weight": 2
+        },
+        {
+          "text": "sweet old woman",
+          "weight": 1
+        },
+        {
+          "text": "pack of enthusiastic dog groomers",
+          "weight": 2
+        },
+        {
+          "text": "group of undercover spies",
+          "weight": 2
+        },
+        {
+          "text": "team of competitive speed eaters",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "activity",
       "feature_name": "Activity",
       "values": [
-        {"text": "juggling flaming torches", "weight": 3},
-        {"text": "breakdancing on one hand", "weight": 3},
-        {"text": "synchronized swimming in the air", "weight": 3},
-        {"text": "playing air guitar solos", "weight": 2},
-        {"text": "tap dancing on bubble wrap", "weight": 3},
-        {"text": "hula hooping with abandon", "weight": 2},
-        {"text": "performing amateur parkour", "weight": 2},
-        {"text": "conducting an invisible orchestra", "weight": 2},
-        {"text": "attempting interpretive dance", "weight": 2},
-        {"text": "practicing their ventriloquism", "weight": 1},
-        {"text": "square dancing", "weight": 1}
+        {
+          "text": "juggling flaming torches",
+          "weight": 3
+        },
+        {
+          "text": "breakdancing on one hand",
+          "weight": 3
+        },
+        {
+          "text": "synchronized swimming in the air",
+          "weight": 3
+        },
+        {
+          "text": "playing air guitar solos",
+          "weight": 2
+        },
+        {
+          "text": "tap dancing on bubble wrap",
+          "weight": 3
+        },
+        {
+          "text": "hula hooping with abandon",
+          "weight": 2
+        },
+        {
+          "text": "performing amateur parkour",
+          "weight": 2
+        },
+        {
+          "text": "conducting an invisible orchestra",
+          "weight": 2
+        },
+        {
+          "text": "attempting interpretive dance",
+          "weight": 2
+        },
+        {
+          "text": "practicing their ventriloquism",
+          "weight": 1
+        },
+        {
+          "text": "square dancing",
+          "weight": 1
+        }
       ]
     }
   ],
@@ -67,13 +196,13 @@
     {
       "id": "tag_blooper_reel_01",
       "type": "source",
-      "label": "Blooper Reel — Eden/Glif Pipeline",
-      "description": "Converted from Eden txt2img-comfy pipeline. Variables restructured from parallel weights arrays to canonical format. `persons` variable used 3x in original prompt; collapsed to single variable reused across template. SDXL model: sd_xl_base_1.0_0.9vae."
+      "label": "Blooper Reel — Synthograsizer Template",
+      "description": "Converted from Synthograsizer txt2img-comfy pipeline. Variables restructured from parallel weights arrays to canonical format. `persons` variable used 3x in original prompt; collapsed to single variable reused across template. SDXL model: sd_xl_base_1.0_0.9vae."
     },
     {
       "id": "tag_blooper_reel_02",
       "type": "creator",
-      "label": "bootloader: / Alexander"
+      "label": "Synthograsizer"
     }
   ]
 }

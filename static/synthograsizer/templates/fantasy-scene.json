@@ -3,157 +3,506 @@
   "variables": [
     {
       "name": "scope",
-      "feature_name": "scope",
+      "feature_name": "Scope",
       "values": [
-        "panoramic",
-        "intimate",
-        "aerial",
-        "immersive",
-        "cross-section",
-        "bird's-eye",
-        "fisheye",
-        "atmospheric",
-        "macro",
-        "forced perspective",
-        "isometric",
-        "time-lapse",
-        "parallel reality",
-        "diorama",
-        "nested",
-        "infinite zoom"
+        {
+          "text": "panoramic",
+          "weight": 1
+        },
+        {
+          "text": "intimate",
+          "weight": 1
+        },
+        {
+          "text": "aerial",
+          "weight": 1
+        },
+        {
+          "text": "immersive",
+          "weight": 1
+        },
+        {
+          "text": "cross-section",
+          "weight": 1
+        },
+        {
+          "text": "bird's-eye",
+          "weight": 1
+        },
+        {
+          "text": "fisheye",
+          "weight": 1
+        },
+        {
+          "text": "atmospheric",
+          "weight": 1
+        },
+        {
+          "text": "macro",
+          "weight": 1
+        },
+        {
+          "text": "forced perspective",
+          "weight": 1
+        },
+        {
+          "text": "isometric",
+          "weight": 1
+        },
+        {
+          "text": "time-lapse",
+          "weight": 1
+        },
+        {
+          "text": "parallel reality",
+          "weight": 1
+        },
+        {
+          "text": "diorama",
+          "weight": 1
+        },
+        {
+          "text": "nested",
+          "weight": 1
+        },
+        {
+          "text": "infinite zoom",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "terrain",
-      "feature_name": "terrain",
+      "feature_name": "Terrain",
       "values": [
-        "floating archipelago",
-        "geometric canyon",
-        "recursive valley",
-        "inverted mountain range",
-        "crystalline plateau",
-        "harmonic dunes",
-        "vertically striated cliffs",
-        "mirrored basin",
-        "adaptive labyrinth",
-        "kaleidoscopic badlands",
-        "interlocking plateaus",
-        "impossible waterfall network",
-        "fractal coastline",
-        "temporal reef",
-        "nested caldera",
-        "perspectival plains"
+        {
+          "text": "floating archipelago",
+          "weight": 1
+        },
+        {
+          "text": "geometric canyon",
+          "weight": 1
+        },
+        {
+          "text": "recursive valley",
+          "weight": 1
+        },
+        {
+          "text": "inverted mountain range",
+          "weight": 1
+        },
+        {
+          "text": "crystalline plateau",
+          "weight": 1
+        },
+        {
+          "text": "harmonic dunes",
+          "weight": 1
+        },
+        {
+          "text": "vertically striated cliffs",
+          "weight": 1
+        },
+        {
+          "text": "mirrored basin",
+          "weight": 1
+        },
+        {
+          "text": "adaptive labyrinth",
+          "weight": 1
+        },
+        {
+          "text": "kaleidoscopic badlands",
+          "weight": 1
+        },
+        {
+          "text": "interlocking plateaus",
+          "weight": 1
+        },
+        {
+          "text": "impossible waterfall network",
+          "weight": 1
+        },
+        {
+          "text": "fractal coastline",
+          "weight": 1
+        },
+        {
+          "text": "temporal reef",
+          "weight": 1
+        },
+        {
+          "text": "nested caldera",
+          "weight": 1
+        },
+        {
+          "text": "perspectival plains",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "feature",
-      "feature_name": "feature",
+      "feature_name": "Feature",
       "values": [
-        "levitating monoliths",
-        "bioluminescent ruins",
-        "reality-anchoring chains",
-        "memory crystal formations",
-        "dimensional portals",
-        "ancestral statuary",
-        "geometric puzzle bridges",
-        "weather-harvesting towers",
-        "essence-storing geodes",
-        "living architecture",
-        "perception-altering mist",
-        "chronological strata",
-        "resonance spires",
-        "suspended habitations",
-        "symbiotic structures",
-        "paradoxical reflections"
+        {
+          "text": "levitating monoliths",
+          "weight": 1
+        },
+        {
+          "text": "bioluminescent ruins",
+          "weight": 1
+        },
+        {
+          "text": "reality-anchoring chains",
+          "weight": 1
+        },
+        {
+          "text": "memory crystal formations",
+          "weight": 1
+        },
+        {
+          "text": "dimensional portals",
+          "weight": 1
+        },
+        {
+          "text": "ancestral statuary",
+          "weight": 1
+        },
+        {
+          "text": "geometric puzzle bridges",
+          "weight": 1
+        },
+        {
+          "text": "weather-harvesting towers",
+          "weight": 1
+        },
+        {
+          "text": "essence-storing geodes",
+          "weight": 1
+        },
+        {
+          "text": "living architecture",
+          "weight": 1
+        },
+        {
+          "text": "perception-altering mist",
+          "weight": 1
+        },
+        {
+          "text": "chronological strata",
+          "weight": 1
+        },
+        {
+          "text": "resonance spires",
+          "weight": 1
+        },
+        {
+          "text": "suspended habitations",
+          "weight": 1
+        },
+        {
+          "text": "symbiotic structures",
+          "weight": 1
+        },
+        {
+          "text": "paradoxical reflections",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "vegetation",
-      "feature_name": "vegetation",
+      "feature_name": "Vegetation",
       "values": [
-        "sentient crystalline growths",
-        "architectonic fungi",
-        "prismatic canopy",
-        "mathematically perfect spirals",
-        "memory-storing foliage",
-        "light-weaving trees",
-        "geometric succulents",
-        "atmospheric orchids",
-        "chronicle vines",
-        "time-dilating blossoms",
-        "harmonic grass patterns",
-        "adaptive colorshifting moss",
-        "signal-transmitting reeds",
-        "perspective-altering groves",
-        "dimensional-phasing roots",
-        "consciousness mycelium"
+        {
+          "text": "sentient crystalline growths",
+          "weight": 1
+        },
+        {
+          "text": "architectonic fungi",
+          "weight": 1
+        },
+        {
+          "text": "prismatic canopy",
+          "weight": 1
+        },
+        {
+          "text": "mathematically perfect spirals",
+          "weight": 1
+        },
+        {
+          "text": "memory-storing foliage",
+          "weight": 1
+        },
+        {
+          "text": "light-weaving trees",
+          "weight": 1
+        },
+        {
+          "text": "geometric succulents",
+          "weight": 1
+        },
+        {
+          "text": "atmospheric orchids",
+          "weight": 1
+        },
+        {
+          "text": "chronicle vines",
+          "weight": 1
+        },
+        {
+          "text": "time-dilating blossoms",
+          "weight": 1
+        },
+        {
+          "text": "harmonic grass patterns",
+          "weight": 1
+        },
+        {
+          "text": "adaptive colorshifting moss",
+          "weight": 1
+        },
+        {
+          "text": "signal-transmitting reeds",
+          "weight": 1
+        },
+        {
+          "text": "perspective-altering groves",
+          "weight": 1
+        },
+        {
+          "text": "dimensional-phasing roots",
+          "weight": 1
+        },
+        {
+          "text": "consciousness mycelium",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "sky",
-      "feature_name": "sky",
+      "feature_name": "Sky",
       "values": [
-        "perpetual aurora",
-        "nested celestial bodies",
-        "stratified time-cycles",
-        "conscious weather patterns",
-        "zodiacal tapestry",
-        "dimensional fractures",
-        "memory-recording clouds",
-        "crystalline atmosphere",
-        "multiple horizons",
-        "storytelling constellations",
-        "spectral light phenomena",
-        "visible song currents",
-        "ancestral projection",
-        "realm-connecting bridges",
-        "perception-filtered sunlight",
-        "atmospheric narration"
+        {
+          "text": "perpetual aurora",
+          "weight": 1
+        },
+        {
+          "text": "nested celestial bodies",
+          "weight": 1
+        },
+        {
+          "text": "stratified time-cycles",
+          "weight": 1
+        },
+        {
+          "text": "conscious weather patterns",
+          "weight": 1
+        },
+        {
+          "text": "zodiacal tapestry",
+          "weight": 1
+        },
+        {
+          "text": "dimensional fractures",
+          "weight": 1
+        },
+        {
+          "text": "memory-recording clouds",
+          "weight": 1
+        },
+        {
+          "text": "crystalline atmosphere",
+          "weight": 1
+        },
+        {
+          "text": "multiple horizons",
+          "weight": 1
+        },
+        {
+          "text": "storytelling constellations",
+          "weight": 1
+        },
+        {
+          "text": "spectral light phenomena",
+          "weight": 1
+        },
+        {
+          "text": "visible song currents",
+          "weight": 1
+        },
+        {
+          "text": "ancestral projection",
+          "weight": 1
+        },
+        {
+          "text": "realm-connecting bridges",
+          "weight": 1
+        },
+        {
+          "text": "perception-filtered sunlight",
+          "weight": 1
+        },
+        {
+          "text": "atmospheric narration",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "inhabitants",
-      "feature_name": "inhabitants",
+      "feature_name": "Inhabitants",
       "values": [
-        "windshaping nomads",
-        "architectural symbiotes",
-        "light harvesters",
-        "memory weavers",
-        "gravity dancers",
-        "dimensional interpreters",
-        "perspective shifters",
-        "elemental collaborators",
-        "harmonic resonators",
-        "pattern archivists",
-        "conscious constructs",
-        "seasonal metamorphs",
-        "essence cultivators",
-        "boundary walkers",
-        "chronological witnesses",
-        "perception translators"
+        {
+          "text": "windshaping nomads",
+          "weight": 1
+        },
+        {
+          "text": "architectural symbiotes",
+          "weight": 1
+        },
+        {
+          "text": "light harvesters",
+          "weight": 1
+        },
+        {
+          "text": "memory weavers",
+          "weight": 1
+        },
+        {
+          "text": "gravity dancers",
+          "weight": 1
+        },
+        {
+          "text": "dimensional interpreters",
+          "weight": 1
+        },
+        {
+          "text": "perspective shifters",
+          "weight": 1
+        },
+        {
+          "text": "elemental collaborators",
+          "weight": 1
+        },
+        {
+          "text": "harmonic resonators",
+          "weight": 1
+        },
+        {
+          "text": "pattern archivists",
+          "weight": 1
+        },
+        {
+          "text": "conscious constructs",
+          "weight": 1
+        },
+        {
+          "text": "seasonal metamorphs",
+          "weight": 1
+        },
+        {
+          "text": "essence cultivators",
+          "weight": 1
+        },
+        {
+          "text": "boundary walkers",
+          "weight": 1
+        },
+        {
+          "text": "chronological witnesses",
+          "weight": 1
+        },
+        {
+          "text": "perception translators",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "artistic_style",
-      "feature_name": "artistic_style",
+      "feature_name": "Artistic Style",
       "values": [
-        "cosmological impressionism",
-        "dimensional pointillism",
-        "metaphysical ukiyo-e",
-        "conscious architecture",
-        "narrative surrealism",
-        "crystalline art nouveau",
-        "quantum baroque",
-        "harmonic minimalism",
-        "temporal expressionism",
-        "symbolic biomechanical",
-        "vibrational abstract",
-        "perceptual realism",
-        "ancestral futurism",
-        "resonance romanticism",
-        "polyphonic illustration",
-        "biomathematical composition"
+        {
+          "text": "cosmological impressionism",
+          "weight": 1
+        },
+        {
+          "text": "dimensional pointillism",
+          "weight": 1
+        },
+        {
+          "text": "metaphysical ukiyo-e",
+          "weight": 1
+        },
+        {
+          "text": "conscious architecture",
+          "weight": 1
+        },
+        {
+          "text": "narrative surrealism",
+          "weight": 1
+        },
+        {
+          "text": "crystalline art nouveau",
+          "weight": 1
+        },
+        {
+          "text": "quantum baroque",
+          "weight": 1
+        },
+        {
+          "text": "harmonic minimalism",
+          "weight": 1
+        },
+        {
+          "text": "temporal expressionism",
+          "weight": 1
+        },
+        {
+          "text": "symbolic biomechanical",
+          "weight": 1
+        },
+        {
+          "text": "vibrational abstract",
+          "weight": 1
+        },
+        {
+          "text": "perceptual realism",
+          "weight": 1
+        },
+        {
+          "text": "ancestral futurism",
+          "weight": 1
+        },
+        {
+          "text": "resonance romanticism",
+          "weight": 1
+        },
+        {
+          "text": "polyphonic illustration",
+          "weight": 1
+        },
+        {
+          "text": "biomathematical composition",
+          "weight": 1
+        }
       ]
+    }
+  ],
+  "tags": [
+    {
+      "id": "tag_fantasy_scene_01",
+      "type": "source",
+      "label": "Fantasy Scene Generator",
+      "description": "Generates surreal/speculative landscape compositions combining viewpoint scope, terrain type, architectural feature, vegetation, sky condition, inhabitants, and artistic style. Schema updated from plain strings to weighted value objects."
+    },
+    {
+      "id": "tag_fantasy_scene_02",
+      "type": "creator",
+      "label": "Synthograsizer"
     }
   ]
 }

@@ -3,135 +3,436 @@
   "variables": [
     {
       "name": "profession",
-      "feature_name": "profession",
+      "feature_name": "Profession",
       "values": [
-        "enigmatic alchemist",
-        "wandering bard",
-        "master blacksmith",
-        "nocturnal detective",
-        "botanical illustrator",
-        "astral cartographer",
-        "dimensional architect",
-        "relic hunter",
-        "memory weaver",
-        "storm chaser",
-        "beast tamer",
-        "shadow puppeteer",
-        "dream interpreter",
-        "time mechanic",
-        "fortune teller",
-        "plague doctor"
+        {
+          "text": "enigmatic alchemist",
+          "weight": 1
+        },
+        {
+          "text": "wandering bard",
+          "weight": 1
+        },
+        {
+          "text": "master blacksmith",
+          "weight": 1
+        },
+        {
+          "text": "nocturnal detective",
+          "weight": 1
+        },
+        {
+          "text": "botanical illustrator",
+          "weight": 1
+        },
+        {
+          "text": "astral cartographer",
+          "weight": 1
+        },
+        {
+          "text": "dimensional architect",
+          "weight": 1
+        },
+        {
+          "text": "relic hunter",
+          "weight": 1
+        },
+        {
+          "text": "memory weaver",
+          "weight": 1
+        },
+        {
+          "text": "storm chaser",
+          "weight": 1
+        },
+        {
+          "text": "beast tamer",
+          "weight": 1
+        },
+        {
+          "text": "shadow puppeteer",
+          "weight": 1
+        },
+        {
+          "text": "dream interpreter",
+          "weight": 1
+        },
+        {
+          "text": "time mechanic",
+          "weight": 1
+        },
+        {
+          "text": "fortune teller",
+          "weight": 1
+        },
+        {
+          "text": "plague doctor",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "origin",
-      "feature_name": "origin",
+      "feature_name": "Origin",
       "values": [
-        "floating archipelago",
-        "subterranean city",
-        "nomadic caravan",
-        "forgotten library",
-        "mechanical forest",
-        "crystalline caverns",
-        "shifting desert",
-        "perpetual aurora",
-        "coastal monastery",
-        "vertical metropolis",
-        "fungal kingdom",
-        "prismatic oasis",
-        "orbital sanctuary",
-        "volcanic bazaar",
-        "mist-shrouded valley",
-        "thundercloud citadel"
+        {
+          "text": "floating archipelago",
+          "weight": 1
+        },
+        {
+          "text": "subterranean city",
+          "weight": 1
+        },
+        {
+          "text": "nomadic caravan",
+          "weight": 1
+        },
+        {
+          "text": "forgotten library",
+          "weight": 1
+        },
+        {
+          "text": "mechanical forest",
+          "weight": 1
+        },
+        {
+          "text": "crystalline caverns",
+          "weight": 1
+        },
+        {
+          "text": "shifting desert",
+          "weight": 1
+        },
+        {
+          "text": "perpetual aurora",
+          "weight": 1
+        },
+        {
+          "text": "coastal monastery",
+          "weight": 1
+        },
+        {
+          "text": "vertical metropolis",
+          "weight": 1
+        },
+        {
+          "text": "fungal kingdom",
+          "weight": 1
+        },
+        {
+          "text": "prismatic oasis",
+          "weight": 1
+        },
+        {
+          "text": "orbital sanctuary",
+          "weight": 1
+        },
+        {
+          "text": "volcanic bazaar",
+          "weight": 1
+        },
+        {
+          "text": "mist-shrouded valley",
+          "weight": 1
+        },
+        {
+          "text": "thundercloud citadel",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "physical_trait",
-      "feature_name": "physical_trait",
+      "feature_name": "Physical Trait",
       "values": [
-        "iridescent eyes",
-        "geometric markings",
-        "translucent skin",
-        "botanical implants",
-        "ancestral tattoos",
-        "antler-like growth",
-        "living shadow",
-        "scaled texture",
-        "compound eyes",
-        "bioluminescent freckles",
-        "crystalline hair",
-        "retrofitted limb",
-        "constellation birthmarks",
-        "weather-responsive features",
-        "symbiotic companion",
-        "woven feathers"
+        {
+          "text": "iridescent eyes",
+          "weight": 1
+        },
+        {
+          "text": "geometric markings",
+          "weight": 1
+        },
+        {
+          "text": "translucent skin",
+          "weight": 1
+        },
+        {
+          "text": "botanical implants",
+          "weight": 1
+        },
+        {
+          "text": "ancestral tattoos",
+          "weight": 1
+        },
+        {
+          "text": "antler-like growth",
+          "weight": 1
+        },
+        {
+          "text": "living shadow",
+          "weight": 1
+        },
+        {
+          "text": "scaled texture",
+          "weight": 1
+        },
+        {
+          "text": "compound eyes",
+          "weight": 1
+        },
+        {
+          "text": "bioluminescent freckles",
+          "weight": 1
+        },
+        {
+          "text": "crystalline hair",
+          "weight": 1
+        },
+        {
+          "text": "retrofitted limb",
+          "weight": 1
+        },
+        {
+          "text": "constellation birthmarks",
+          "weight": 1
+        },
+        {
+          "text": "weather-responsive features",
+          "weight": 1
+        },
+        {
+          "text": "symbiotic companion",
+          "weight": 1
+        },
+        {
+          "text": "woven feathers",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "accessory",
-      "feature_name": "accessory",
+      "feature_name": "Accessory",
       "values": [
-        "mechanical familiar",
-        "singing lantern",
-        "memory-storing amulet",
-        "atmospheric sextant",
-        "perspective-shifting lenses",
-        "holographic grimoire",
-        "resonance fork",
-        "time-worn compass",
-        "probability dice",
-        "sentient quill",
-        "impossible container",
-        "astral chronometer",
-        "vocal modifier",
-        "essence collector",
-        "encrypted correspondence",
-        "reality anchor"
+        {
+          "text": "mechanical familiar",
+          "weight": 1
+        },
+        {
+          "text": "singing lantern",
+          "weight": 1
+        },
+        {
+          "text": "memory-storing amulet",
+          "weight": 1
+        },
+        {
+          "text": "atmospheric sextant",
+          "weight": 1
+        },
+        {
+          "text": "perspective-shifting lenses",
+          "weight": 1
+        },
+        {
+          "text": "holographic grimoire",
+          "weight": 1
+        },
+        {
+          "text": "resonance fork",
+          "weight": 1
+        },
+        {
+          "text": "time-worn compass",
+          "weight": 1
+        },
+        {
+          "text": "probability dice",
+          "weight": 1
+        },
+        {
+          "text": "sentient quill",
+          "weight": 1
+        },
+        {
+          "text": "impossible container",
+          "weight": 1
+        },
+        {
+          "text": "astral chronometer",
+          "weight": 1
+        },
+        {
+          "text": "vocal modifier",
+          "weight": 1
+        },
+        {
+          "text": "essence collector",
+          "weight": 1
+        },
+        {
+          "text": "encrypted correspondence",
+          "weight": 1
+        },
+        {
+          "text": "reality anchor",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "clothing",
-      "feature_name": "clothing",
+      "feature_name": "Clothing",
       "values": [
-        "asymmetrical robes",
-        "adaptive armor",
-        "layered textiles",
-        "ceremonial vestments",
-        "practical workwear",
-        "transforming garments",
-        "element-reactive fabrics",
-        "reclaimed materials",
-        "concealing drapes",
-        "symbolic uniform",
-        "interlocking pieces",
-        "climate-responsive coat",
-        "inherited heirlooms",
-        "bioluminescent threads",
-        "patchwork ensemble",
-        "sensory-enhancing suit"
+        {
+          "text": "asymmetrical robes",
+          "weight": 1
+        },
+        {
+          "text": "adaptive armor",
+          "weight": 1
+        },
+        {
+          "text": "layered textiles",
+          "weight": 1
+        },
+        {
+          "text": "ceremonial vestments",
+          "weight": 1
+        },
+        {
+          "text": "practical workwear",
+          "weight": 1
+        },
+        {
+          "text": "transforming garments",
+          "weight": 1
+        },
+        {
+          "text": "element-reactive fabrics",
+          "weight": 1
+        },
+        {
+          "text": "reclaimed materials",
+          "weight": 1
+        },
+        {
+          "text": "concealing drapes",
+          "weight": 1
+        },
+        {
+          "text": "symbolic uniform",
+          "weight": 1
+        },
+        {
+          "text": "interlocking pieces",
+          "weight": 1
+        },
+        {
+          "text": "climate-responsive coat",
+          "weight": 1
+        },
+        {
+          "text": "inherited heirlooms",
+          "weight": 1
+        },
+        {
+          "text": "bioluminescent threads",
+          "weight": 1
+        },
+        {
+          "text": "patchwork ensemble",
+          "weight": 1
+        },
+        {
+          "text": "sensory-enhancing suit",
+          "weight": 1
+        }
       ]
     },
     {
       "name": "personality",
-      "feature_name": "personality",
+      "feature_name": "Personality",
       "values": [
-        "contemplative",
-        "mercurial",
-        "methodical",
-        "enigmatic",
-        "jubilant",
-        "stoic",
-        "mischievous",
-        "reverent",
-        "calculated",
-        "whimsical",
-        "introspective",
-        "theatrical",
-        "observant",
-        "dauntless",
-        "melancholic",
-        "zealous"
+        {
+          "text": "contemplative",
+          "weight": 1
+        },
+        {
+          "text": "mercurial",
+          "weight": 1
+        },
+        {
+          "text": "methodical",
+          "weight": 1
+        },
+        {
+          "text": "enigmatic",
+          "weight": 1
+        },
+        {
+          "text": "jubilant",
+          "weight": 1
+        },
+        {
+          "text": "stoic",
+          "weight": 1
+        },
+        {
+          "text": "mischievous",
+          "weight": 1
+        },
+        {
+          "text": "reverent",
+          "weight": 1
+        },
+        {
+          "text": "calculated",
+          "weight": 1
+        },
+        {
+          "text": "whimsical",
+          "weight": 1
+        },
+        {
+          "text": "introspective",
+          "weight": 1
+        },
+        {
+          "text": "theatrical",
+          "weight": 1
+        },
+        {
+          "text": "observant",
+          "weight": 1
+        },
+        {
+          "text": "dauntless",
+          "weight": 1
+        },
+        {
+          "text": "melancholic",
+          "weight": 1
+        },
+        {
+          "text": "zealous",
+          "weight": 1
+        }
       ]
+    }
+  ],
+  "tags": [
+    {
+      "id": "tag_character_design_01",
+      "type": "source",
+      "label": "Character Design Generator",
+      "description": "Generates speculative fiction character concepts across profession, origin world, physical trait, accessory, clothing, and personality. Schema updated from plain strings to weighted value objects."
+    },
+    {
+      "id": "tag_character_design_02",
+      "type": "creator",
+      "label": "Synthograsizer"
     }
   ]
 }
