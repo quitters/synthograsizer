@@ -1053,6 +1053,11 @@ export class CodeOverlayManager {
     if (!hasP5Code && this.p5Running) {
       this.stopP5Sketch();
     }
+
+    // If switching to a template WITH p5Code and a sketch is already running, restart it
+    if (hasP5Code && this.p5Running) {
+      this.runP5Sketch();
+    }
   }
 
   /**
