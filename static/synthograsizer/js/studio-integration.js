@@ -105,8 +105,8 @@ class StudioIntegration {
 
             .studio-btn-grid {
                 display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-                gap: 10px;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 12px;
             }
 
             .studio-btn-large {
@@ -114,14 +114,14 @@ class StudioIntegration {
                 flex-direction: column;
                 align-items: center;
                 justify-content: center;
-                gap: 8px;
-                padding: 12px;
+                gap: 10px;
+                padding: 16px 12px;
                 border: 1px solid #eee;
                 border-radius: 8px;
                 background: #fff;
                 cursor: pointer;
                 transition: all 0.2s ease;
-                min-height: 80px;
+                min-height: 100px;
                 text-align: center;
             }
 
@@ -132,13 +132,15 @@ class StudioIntegration {
             }
 
             .studio-btn-large span.icon {
-                font-size: 24px;
+                font-size: 28px;
             }
 
             .studio-btn-large span.label {
                 font-size: 12px;
-                font-weight: 600;
-                color: #444;
+                font-weight: 700;
+                color: #333;
+                text-shadow: 0 1px 2px rgba(0,0,0,0.12);
+                letter-spacing: 0.03em;
             }
             
             .btn-chat-large { background: linear-gradient(to bottom right, #ffffff, #f0f7ff); border-bottom: 3px solid #2196F3; }
