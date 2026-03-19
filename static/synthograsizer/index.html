@@ -90,6 +90,7 @@
                         <button id="favorite-button" class="icon-btn favorite-btn"
                             title="Add this prompt to your liked list">
                             <span class="label">❤️ Add</span>
+                            <span class="keybind-badge">F</span>
                         </button>
                         <button id="send-button" class="icon-btn" title="Send to chat">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -288,6 +289,7 @@
                     <div class="osc-panel-header">
                         <span class="osc-panel-title">Scope Connection</span>
                         <span id="scope-health-badge" class="scope-health-badge" title=""></span>
+                        <span id="scope-osc-route" class="scope-osc-route" title="Active OSC address"></span>
                     </div>
                     <div class="osc-panel-body">
 
@@ -418,6 +420,10 @@
                         <span id="disp-status-text">Display</span>
                         <span class="osc-dot" id="disp-dot"></span>
                     </button>
+                    <div class="disp-bg-row">
+                        <label for="disp-bg-color">BG</label>
+                        <input type="color" id="disp-bg-color" value="#000000" title="Display window background color" />
+                    </div>
                 </div>
 
                 <!-- Glitcher Panel (collapsible) -->
@@ -425,6 +431,11 @@
                     <div class="osc-panel-header">
                         <span class="osc-panel-title">Glitcher Effects (Display)</span>
                         <div style="display: flex; gap: 6px; margin-left: auto;">
+                            <select id="glitch-preset-select" class="osc-input osc-input-sm" title="Load glitcher preset" style="max-width:120px; font-size:11px;">
+                                <option value="">Presets…</option>
+                            </select>
+                            <button id="glitch-preset-save" class="osc-send-btn" style="font-size: 11px; padding: 2px 8px;" title="Save current settings as preset">💾</button>
+                            <button id="glitch-preset-delete" class="osc-send-btn" style="font-size: 11px; padding: 2px 8px;" title="Delete selected preset">🗑</button>
                             <button id="glitch-pause-btn" class="osc-send-btn" style="font-size: 11px; padding: 2px 8px;">⏸ Pause</button>
                             <button id="glitch-reset-btn" class="osc-send-btn" style="font-size: 11px; padding: 2px 8px;">↺ Reset</button>
                         </div>

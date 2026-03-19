@@ -712,7 +712,7 @@ export class SynthograsizerSmall {
       return;
     }
 
-    // R = Randomize, G = Generate
+    // R = Randomize, G = Generate, F = Favorite
     switch (e.key.toLowerCase()) {
       case 'r':
         e.preventDefault();
@@ -723,6 +723,11 @@ export class SynthograsizerSmall {
         e.preventDefault();
         this.handleGenerateImage();
         this.flashButton(this.elements.generateButton);
+        return;
+      case 'f':
+        e.preventDefault();
+        this.addCurrentPromptToFavorites();
+        this.flashButton(this.elements.favoriteButton);
         return;
     }
 
@@ -875,10 +880,11 @@ export class SynthograsizerSmall {
   }
 
   /**
-   * Truncate value text for knob display
+   * Truncate value text for knob display.
+   * CSS handles ellipsis; this is a lightweight fallback for very long strings.
    */
   truncateKnobValue(text) {
-    return text.length > 12 ? text.substring(0, 10) + '\u2026' : text;
+    return text.length > 24 ? text.substring(0, 22) + '\u2026' : text;
   }
 
   /**
@@ -1619,10 +1625,18 @@ export class SynthograsizerSmall {
       toggleBtn.classList.toggle('active', !open);
     });
 
-    // Scope URL change
+    // Scope URL change (with validation)
     const urlInput = document.getElementById('scope-url');
     urlInput?.addEventListener('change', () => {
-      this.scopeConnector.setScopeUrl(urlInput.value);
+      const raw = urlInput.value.trim();
+      try {
+        const u = new URL(raw);
+        if (!['http:', 'https:'].includes(u.protocol)) throw new Error('bad protocol');
+        urlInput.classList.remove('osc-input-invalid');
+        this.scopeConnector.setScopeUrl(raw);
+      } catch {
+        urlInput.classList.add('osc-input-invalid');
+      }
     });
 
     // ── OSC controls (replaces OSCPanelUI bindings) ──
@@ -1674,6 +1688,11 @@ export class SynthograsizerSmall {
         } else if (status === 'enabled') {
           oscDot.classList.add('osc-on');
         }
+      }
+      // Keep header route label in sync
+      const oscRoute = document.getElementById('scope-osc-route');
+      if (oscRoute && this.osc) {
+        oscRoute.textContent = this.osc.enabled ? `→ ${this.osc.address}` : '';
       }
     };
     this.osc.onSend = (prompt) => {
@@ -1798,6 +1817,7 @@ export class SynthograsizerSmall {
     const badge = document.getElementById('scope-health-badge');
     const statusText = document.getElementById('scope-status-text');
     const toggleBtn = document.getElementById('scope-toggle-btn');
+    const oscRoute = document.getElementById('scope-osc-route');
 
     if (!dot || !badge) return;
 
@@ -1814,6 +1834,11 @@ export class SynthograsizerSmall {
       badge.textContent = 'Offline';
       if (statusText) statusText.textContent = 'Scope';
       if (toggleBtn) toggleBtn.dataset.tooltip = 'Scope — not connected';
+    }
+
+    // Show the active OSC address in the panel header
+    if (oscRoute && this.osc) {
+      oscRoute.textContent = this.osc.enabled ? `→ ${this.osc.address}` : '';
     }
   }
 

@@ -115,6 +115,9 @@ export class TemplateLoader {
         this.closePicker();
       });
       body.appendChild(card);
+
+      // Lazy-load variable count badge
+      this._loadCardBadge(card, templateName);
     });
 
     // Custom section label + import/export
@@ -335,5 +338,28 @@ export class TemplateLoader {
     if (!button) return;
     button.classList.add('keyboard-flash');
     setTimeout(() => button.classList.remove('keyboard-flash'), 200);
+  }
+
+  /**
+   * Fetch a template in the background and append a variable-count badge to its card.
+   */
+  async _loadCardBadge(card, templateName) {
+    try {
+      let data = this.templates[templateName];
+      if (!data) {
+        const res = await fetch(`templates/${templateName}.json`);
+        if (!res.ok) return;
+        data = await res.json();
+        this.templates[templateName] = data;
+      }
+      const count = data.variables?.length ?? 0;
+      if (count > 0) {
+        const badge = document.createElement('span');
+        badge.className = 'template-card-badge';
+        badge.textContent = `${count} vars`;
+        badge.title = `${count} variable${count !== 1 ? 's' : ''}`;
+        card.appendChild(badge);
+      }
+    } catch { /* non-critical — skip badge */ }
   }
 }

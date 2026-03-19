@@ -4,17 +4,24 @@
  */
 import { FILTER_CONTROLS, getFilterControlConfig } from '../../glitcher/config/filter-controls-config.js';
 
+const GLITCH_PRESETS_KEY = 'synthograsizerGlitchPresetsV1';
+
 export class GlitcherControls {
   constructor(app) {
     this.app = app;
-    
+
     // UI Elements
     this.toggleBtn = document.getElementById('glitch-toggle-btn');
     this.panel     = document.getElementById('glitch-panel');
     this.dot       = document.getElementById('glitch-dot');
     this.statusText= document.getElementById('glitch-status-text');
     this.filterParamsContainer = document.getElementById('glitch-filter-params');
-    
+
+    // Preset elements
+    this.presetSelect = document.getElementById('glitch-preset-select');
+    this.presetSaveBtn = document.getElementById('glitch-preset-save');
+    this.presetDeleteBtn = document.getElementById('glitch-preset-delete');
+
     // Control inputs
     this.controls = {
       pixelSort:  document.getElementById('glitch-pixel-sort'),
@@ -62,6 +69,8 @@ export class GlitcherControls {
     if (!this.toggleBtn || !this.panel) return;
 
     this._bindEvents();
+    this._bindPresetEvents();
+    this._refreshPresetList();
     this._broadcastState(); // initial broadcast
   }
 
@@ -358,5 +367,82 @@ export class GlitcherControls {
       this.dot.classList.remove('osc-on');
       if (this.toggleBtn) this.toggleBtn.dataset.tooltip = 'Glitcher — no effects active';
     }
+  }
+
+  // ── Presets ──────────────────────────────────────────────────
+
+  _bindPresetEvents() {
+    this.presetSaveBtn?.addEventListener('click', () => this._savePreset());
+    this.presetDeleteBtn?.addEventListener('click', () => this._deletePreset());
+    this.presetSelect?.addEventListener('change', () => this._loadSelectedPreset());
+  }
+
+  _getPresets() {
+    try {
+      return JSON.parse(localStorage.getItem(GLITCH_PRESETS_KEY)) || {};
+    } catch { return {}; }
+  }
+
+  _savePresets(presets) {
+    try { localStorage.setItem(GLITCH_PRESETS_KEY, JSON.stringify(presets)); } catch {}
+  }
+
+  _refreshPresetList() {
+    if (!this.presetSelect) return;
+    const presets = this._getPresets();
+    // Keep the placeholder option, remove the rest
+    while (this.presetSelect.options.length > 1) this.presetSelect.remove(1);
+    Object.keys(presets).sort().forEach(name => {
+      const opt = document.createElement('option');
+      opt.value = name;
+      opt.textContent = name;
+      this.presetSelect.appendChild(opt);
+    });
+    this.presetSelect.value = '';
+  }
+
+  _savePreset() {
+    const name = prompt('Preset name:');
+    if (!name || !name.trim()) return;
+    const presets = this._getPresets();
+    // Snapshot the state (exclude transient flags)
+    const { enabled, paused, ...snapshot } = this.state;
+    presets[name.trim()] = snapshot;
+    this._savePresets(presets);
+    this._refreshPresetList();
+    this.presetSelect.value = name.trim();
+  }
+
+  _deletePreset() {
+    const name = this.presetSelect?.value;
+    if (!name) return;
+    const presets = this._getPresets();
+    delete presets[name];
+    this._savePresets(presets);
+    this._refreshPresetList();
+  }
+
+  _loadSelectedPreset() {
+    const name = this.presetSelect?.value;
+    if (!name) return;
+    const presets = this._getPresets();
+    const snapshot = presets[name];
+    if (!snapshot) return;
+
+    // Apply snapshot to state (keep enabled/paused as-is)
+    Object.assign(this.state, snapshot);
+
+    // Push values into UI controls
+    Object.entries(this.controls).forEach(([key, el]) => {
+      if (!el) return;
+      const val = this.state[key];
+      if (val !== undefined) el.value = String(val);
+    });
+
+    // Rebuild filter sub-params if filter changed
+    this._lastRenderedFilter = null;
+    this._renderFilterParams();
+
+    this._broadcastState();
   }
 }

@@ -333,6 +333,10 @@
           }
           break;
 
+        case 'bg-color':
+          if (msg.color) document.body.style.backgroundColor = msg.color;
+          break;
+
         case 'ping':
           channel.postMessage({ type: 'pong', ts: msg.ts });
           break;

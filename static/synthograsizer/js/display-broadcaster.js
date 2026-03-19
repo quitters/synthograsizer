@@ -44,6 +44,12 @@ export class DisplayBroadcaster {
     this.dispStatus = document.getElementById('disp-status-text');
     this.dispToggleBtn = document.getElementById('disp-toggle-btn');
 
+    // Background color picker
+    this._bgColorInput = document.getElementById('disp-bg-color');
+    this._bgColorInput?.addEventListener('input', () => {
+      this._post({ type: 'bg-color', color: this._bgColorInput.value });
+    });
+
     // Start periodic check
     setTimeout(() => this._startStatusCheck(), 2000);
   }

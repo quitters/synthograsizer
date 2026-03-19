@@ -600,6 +600,10 @@ body {
   color: var(--knob-color, #6b7280);
   text-transform: lowercase;
   letter-spacing: 0.3px;
+  max-width: 110px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* Knob mode: hide indicator dots and keyboard hint */
@@ -2608,6 +2612,58 @@ body {
 
 .story-warning-item::before {
   content: '⚠ ';
+}
+
+/* Invalid input highlight (e.g. bad Scope URL) */
+.osc-input-invalid {
+  border-color: var(--color-red) !important;
+  outline: 1px solid var(--color-red);
+}
+
+/* Display background color picker row */
+.disp-bg-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+.disp-bg-row input[type="color"] {
+  width: 28px;
+  height: 22px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 0;
+}
+
+/* Template Card — variable count badge */
+.template-card-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  font-size: 9px;
+  font-weight: 600;
+  background: var(--border-color);
+  color: var(--text-secondary);
+  border-radius: 6px;
+  padding: 1px 5px;
+  pointer-events: none;
+  line-height: 1.4;
+}
+
+.template-card {
+  position: relative;
+}
+
+/* Scope panel — active OSC route label */
+.scope-osc-route {
+  font-size: 10px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  color: var(--text-secondary);
+  margin-left: auto;
+  opacity: 0.7;
 }
 
 /* Accessibility: Respect prefers-reduced-motion */
