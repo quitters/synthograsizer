@@ -4690,38 +4690,62 @@ class StudioIntegration {
         }
 
         this.closeAllModals();
-        this.showLoading(`Batch Metadata Extraction (${images.length} images)`);
+        this.showLoading(`Batch Metadata Extraction (0 / ${images.length})`);
+
+        // ── Client-side extraction in sequential chunks ──
+        // Reads PNG text chunks directly — no base64, no backend round-trip.
+        const CHUNK_SIZE = 20;
+        const results = [];
 
         try {
-            // Convert all images to base64
-            const imagePromises = images.map(img => this.readFileAsBase64(img, { compress: false }));
-            const imagesB64 = await Promise.all(imagePromises);
+            for (let i = 0; i < images.length; i += CHUNK_SIZE) {
+                const chunk = images.slice(i, i + CHUNK_SIZE);
 
-            const res = await fetch('/api/extract-metadata/bulk', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ images: imagesB64 })
-            });
+                for (const file of chunk) {
+                    try {
+                        const arrayBuffer = await file.arrayBuffer();
+                        const meta = window.extractAIMetadataFromPNG(arrayBuffer);
+                        results.push({
+                            index: results.length,
+                            status: 'success',
+                            prompt: meta.prompt || '',
+                            metadata: meta,
+                            filename: file.name
+                        });
+                    } catch (err) {
+                        results.push({
+                            index: results.length,
+                            status: 'error',
+                            error: err.message,
+                            prompt: '',
+                            filename: file.name
+                        });
+                    }
+                }
 
-            if (!res.ok) throw new Error((await res.json()).detail);
+                // Update progress
+                const processed = Math.min(i + CHUNK_SIZE, images.length);
+                this.showLoading(`Batch Metadata Extraction (${processed} / ${images.length})`);
 
-            const data = await res.json();
+                // Yield to the browser so the UI stays responsive
+                await new Promise(r => setTimeout(r, 0));
+            }
 
             // Render results
             const content = document.getElementById('studio-content');
             content.innerHTML = `
                 <div style="margin-bottom:20px;">
                     <h3>Batch Metadata Extraction Complete</h3>
-                    <p>${data.results.length} images processed</p>
+                    <p>${results.length} images processed</p>
                     <div style="display:flex; gap:10px; margin-top:10px;">
                         <button class="studio-btn-primary" id="batch-add-all-fav" style="max-width:200px;">❤️ Add All to Liked</button>
                         <button class="studio-btn-secondary" id="batch-copy-all-prompts" style="max-width:200px;">📋 Copy All Prompts</button>
                     </div>
                 </div>
                 <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:20px;">
-                    ${data.results.map((r, idx) => `
+                    ${results.map((r, idx) => `
                         <div style="border:1px solid #ddd; border-radius:8px; padding:15px; background:white;">
-                            <div style="font-weight:600; margin-bottom:10px;">Image ${idx + 1}</div>
+                            <div style="font-weight:600; margin-bottom:10px; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${this.escapeHtml(r.filename || '')}">${this.escapeHtml(r.filename || `Image ${idx + 1}`)}</div>
                             ${r.status === 'success' ? `
                                 <div style="margin-bottom:10px;">
                                     <strong>Prompt:</strong>
@@ -4747,9 +4771,9 @@ class StudioIntegration {
             if (addAllBtn) {
                 addAllBtn.onclick = () => {
                     let count = 0;
-                    data.results.forEach(r => {
+                    results.forEach(r => {
                         if (r.status === 'success' && r.prompt) {
-                            this.addToFavorites(r.prompt); // No button ref for batch add
+                            this.addToFavorites(r.prompt);
                             count++;
                         }
                     });
@@ -4762,7 +4786,7 @@ class StudioIntegration {
             const copyAllBtn = document.getElementById('batch-copy-all-prompts');
             if (copyAllBtn) {
                 copyAllBtn.onclick = async () => {
-                    const allPrompts = data.results
+                    const allPrompts = results
                         .filter(r => r.status === 'success' && r.prompt)
                         .map(r => r.prompt.trim())
                         .join('\n');
@@ -4779,7 +4803,6 @@ class StudioIntegration {
                         setTimeout(() => copyAllBtn.textContent = originalText, 2000);
                     } catch (err) {
                         console.error('Failed to copy: ', err);
-                        // Fallback
                         const textArea = document.createElement("textarea");
                         textArea.value = allPrompts;
                         document.body.appendChild(textArea);
