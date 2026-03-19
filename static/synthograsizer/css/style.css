@@ -665,6 +665,19 @@ body {
 .batch-modal.template-picker-modal {
   max-width: 620px;
   max-height: 72vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.batch-modal.template-picker-modal .batch-modal-header {
+  flex-shrink: 0;
+}
+
+.batch-modal.template-picker-modal .batch-modal-body {
+  flex: 1;
+  min-height: 0;
+  max-height: none;
+  overflow-y: auto;
 }
 
 .template-picker-search-bar {
