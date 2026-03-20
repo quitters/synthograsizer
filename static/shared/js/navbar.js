@@ -17,7 +17,6 @@
     { path: '/glitcher/', label: 'Glitcher' },
     { path: '/daw/', label: 'DAW' },
     { path: '/metadata-manager/', label: 'Metadata Manager' },
-    { path: '/fun-stuff/', label: 'Fun Stuff' },
     { path: '/chatroom/', label: 'Agent Chat Room' },
   ];
 
