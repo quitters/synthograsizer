@@ -180,11 +180,6 @@ body.layout-a #navbar-mount {
     margin-bottom: 0;
   }
 
-  /* Connections pills left-align naturally in the narrow right column */
-  .layout-a .connections-group .midi-bar,
-  .layout-a .connections-group .osc-bar {
-    justify-content: flex-start;
-  }
 }
 
 
