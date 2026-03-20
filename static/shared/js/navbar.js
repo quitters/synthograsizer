@@ -21,9 +21,7 @@
     { path: '/chatroom/', label: 'Agent Chat Room' },
   ];
 
-  const externalLinks = [
-    { href: 'https://linktr.ee/quittersarts', label: 'Art' },
-  ];
+  const externalLinks = [];
 
   const aboutLink = { path: '/about/', label: 'About/Contact' };
 
