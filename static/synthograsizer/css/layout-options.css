@@ -63,6 +63,14 @@
   display: none;
 }
 
+/* ── Performance mode: hide output-header utility buttons ──────────────── */
+.layout-a #copy-button,
+.layout-a #code-button,
+.layout-a #favorite-button,
+.layout-a #send-button {
+  display: none;
+}
+
 /* ── Performance-mode Template Gen shortcut — hidden in Studio (Template Gen
       is already in the AI Studio Tools panel there) ─────────────────────── */
 #perf-template-gen-btn {
