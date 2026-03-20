@@ -15,7 +15,6 @@
     { path: '/synthograsizer/', label: 'Synthograsizer (main)' },
     { path: '/legacy/', label: 'Synthograsizer (legacy)' },
     { path: '/glitcher/', label: 'Glitcher' },
-    { path: '/daw/', label: 'DAW' },
     { path: '/metadata-manager/', label: 'Metadata Manager' },
     { path: '/chatroom/', label: 'Agent Chat Room' },
   ];
