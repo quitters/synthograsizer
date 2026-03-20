@@ -6,7 +6,7 @@ import { BatchGenerator } from './batch-generator.js';
 import { TemplateLoader } from './template-loader.js';
 import { CodeOverlayManager } from './code-overlay-manager.js?v=5';
 import { normalizeTemplate, getValueText, getValueWeight, getWeightsArray, computeTemplateFingerprint, generateTagId } from './template-normalizer.js?v=2';
-import { MIDIController } from './midi-controller.js?v=3';
+import { MIDIController } from './midi-controller.js?v=4';
 import { OSCController } from './osc-controller.js?v=3';
 import { OSCPanelUI } from './osc-panel-ui.js';
 import { ScopeVideoClient } from './scope-video-client.js?v=6';
@@ -1643,6 +1643,12 @@ export class SynthograsizerSmall {
 
     this.midiUI = new MIDIPanelUI(this, this.midi);
 
+    // Wire action mappings → template navigation
+    this.midi.onAction = (action) => {
+      if (action === 'templatePrev') this.templateLoader?.cycleToPreviousTemplate();
+      if (action === 'templateNext') this.templateLoader?.cycleToNextTemplate();
+    };
+
     // Kick off MIDI access request (non-blocking)
     this.midi.init();
   }
@@ -2272,6 +2278,77 @@ class MIDIPanelUI {
 
       grid.appendChild(row);
     });
+
+    // ── Template navigation action rows ──────────────────────────────────────
+    const divider = document.createElement('div');
+    divider.style.cssText = 'grid-column:1/-1;border-top:1px solid #e5e7eb;margin:8px 0 4px;';
+    grid.appendChild(divider);
+
+    const navLabel = document.createElement('div');
+    navLabel.style.cssText = 'grid-column:1/-1;font-size:10px;font-weight:700;letter-spacing:0.08em;color:#9ca3af;text-transform:uppercase;margin-bottom:2px;';
+    navLabel.textContent = 'Template Navigation';
+    grid.appendChild(navLabel);
+
+    [
+      { action: 'templatePrev', label: '← Prev Template' },
+      { action: 'templateNext', label: 'Next Template →' },
+    ].forEach(({ action, label: actionLabel }) => {
+      const noteMap = this.midi.getActionNoteMapping(action);
+      const ccMap   = this.midi.getActionCCMapping(action);
+      const isLearning = this.midi.learnMode?.action === action;
+
+      const row = document.createElement('div');
+      row.className = 'midi-mapping-row' +
+        (noteMap || ccMap ? ' has-mapping' : '') +
+        (isLearning ? ' learning' : '');
+
+      const nameEl = document.createElement('div');
+      nameEl.className = 'midi-var-label';
+      nameEl.style.color = '#6b7280';
+      nameEl.textContent = actionLabel;
+      row.appendChild(nameEl);
+
+      const ccEl = document.createElement('div');
+      if (ccMap) {
+        ccEl.className = 'midi-cc-badge';
+        ccEl.textContent = `CC ${ccMap.number}`;
+        ccEl.style.cursor = 'pointer';
+        ccEl.title = `CC ${ccMap.number} ch${ccMap.channel + 1} — click to remove`;
+        ccEl.addEventListener('click', () => { this.midi.removeActionCCMapping(action); this.refresh(); });
+      } else {
+        ccEl.innerHTML = `<button class="midi-learn-cc-btn">CC</button>`;
+        ccEl.querySelector('button').addEventListener('click', () => this._startLearnAction('cc', action));
+      }
+      row.appendChild(ccEl);
+
+      const noteEl = document.createElement('div');
+      if (noteMap) {
+        noteEl.className = 'midi-note-badge';
+        noteEl.textContent = MIDIController.noteNumberToName(noteMap.number);
+        noteEl.style.cursor = 'pointer';
+        noteEl.title = `Note ${noteMap.number} ch${noteMap.channel + 1} — click to remove`;
+        noteEl.addEventListener('click', () => { this.midi.removeActionNoteMapping(action); this.refresh(); });
+      } else {
+        noteEl.innerHTML = `<button class="midi-learn-note-btn">Note</button>`;
+        noteEl.querySelector('button').addEventListener('click', () => this._startLearnAction('note', action));
+      }
+      row.appendChild(noteEl);
+
+      grid.appendChild(row);
+    });
+  }
+
+  _startLearnAction(type, action) {
+    const started = type === 'cc'
+      ? this.midi.startLearnActionCC(action)
+      : this.midi.startLearnActionNote(action);
+
+    if (!started) {
+      alert('No MIDI device connected. Connect a controller and try again.');
+      return;
+    }
+    this._setLearnHint(true);
+    this.refresh();
   }
 
   _startLearn(type, varIndex) {

@@ -39,8 +39,14 @@ export class MIDIController {
     this.ccMappings = new Map();
     /** @type {Map<string, number>} key: "ch-note" → varIndex */
     this.noteMappings = new Map();
+    /** @type {Map<string, string>} key: "ch-note" → actionName */
+    this.actionNoteMappings = new Map();
+    /** @type {Map<string, string>} key: "ch-cc" → actionName */
+    this.actionCCMappings = new Map();
+    /** Called with actionName ('templatePrev'|'templateNext') when an action fires */
+    this.onAction = null;
 
-    this._learnMode = null;  // null | { type: 'cc'|'note', varIndex }
+    this._learnMode = null;  // null | { type: 'cc'|'note', varIndex } | { type: 'cc'|'note', action }
     this._autoMapMode = null; // null | 'cc' | 'note'
     this._midiAccess = null;
     this._devices = new Map(); // id → MIDIInput
@@ -142,6 +148,18 @@ export class MIDIController {
     }
 
     if (this._learnMode?.type === 'cc') {
+      if (this._learnMode.action !== undefined) {
+        // Action CC learn
+        const { action } = this._learnMode;
+        this._learnMode = null;
+        const key = this._ccKey(channel, cc);
+        this._removeActionCCByAction(action);
+        this.actionCCMappings.set(key, action);
+        this._saveMappings();
+        this.onLearnCapture('action-cc', action, cc, channel);
+        return;
+      }
+
       const { varIndex } = this._learnMode;
       this._learnMode = null;
 
@@ -158,6 +176,14 @@ export class MIDIController {
     }
 
     const key = this._ccKey(channel, cc);
+
+    // Action CC mappings take priority (value > 63 = trigger)
+    const actionCC = this.actionCCMappings.get(key);
+    if (actionCC !== undefined) {
+      if (value > 63) this.onAction?.(actionCC);
+      return;
+    }
+
     const varIndex = this.ccMappings.get(key);
     if (varIndex !== undefined) {
       this._applyCC(varIndex, value);
@@ -175,6 +201,18 @@ export class MIDIController {
     }
 
     if (this._learnMode?.type === 'note') {
+      if (this._learnMode.action !== undefined) {
+        // Action Note learn
+        const { action } = this._learnMode;
+        this._learnMode = null;
+        const key = this._noteKey(channel, note);
+        this._removeActionNoteByAction(action);
+        this.actionNoteMappings.set(key, action);
+        this._saveMappings();
+        this.onLearnCapture('action-note', action, note, channel);
+        return;
+      }
+
       const { varIndex } = this._learnMode;
       this._learnMode = null;
 
@@ -187,6 +225,14 @@ export class MIDIController {
     }
 
     const key = this._noteKey(channel, note);
+
+    // Action note mappings take priority
+    const actionNote = this.actionNoteMappings.get(key);
+    if (actionNote !== undefined) {
+      this.onAction?.(actionNote);
+      return;
+    }
+
     const varIndex = this.noteMappings.get(key);
     if (varIndex !== undefined) {
       this._applyNote(varIndex);
@@ -468,14 +514,74 @@ export class MIDIController {
   _parseKey(key)     { const [ch, n] = key.split('-'); return { channel: +ch, number: +n }; }
 
   // ─────────────────────────────────────────────
+  //  Action Mappings — public API
+  // ─────────────────────────────────────────────
+
+  startLearnActionNote(action) {
+    if (!this._midiAccess) return false;
+    this._learnMode = { type: 'note', action };
+    return true;
+  }
+
+  startLearnActionCC(action) {
+    if (!this._midiAccess) return false;
+    this._learnMode = { type: 'cc', action };
+    return true;
+  }
+
+  getActionNoteMapping(action) {
+    for (const [key, a] of this.actionNoteMappings) {
+      if (a === action) {
+        const [ch, note] = key.split('-').map(Number);
+        return { channel: ch, number: note };
+      }
+    }
+    return null;
+  }
+
+  getActionCCMapping(action) {
+    for (const [key, a] of this.actionCCMappings) {
+      if (a === action) {
+        const [ch, cc] = key.split('-').map(Number);
+        return { channel: ch, number: cc };
+      }
+    }
+    return null;
+  }
+
+  removeActionNoteMapping(action) {
+    this._removeActionNoteByAction(action);
+    this._saveMappings();
+  }
+
+  removeActionCCMapping(action) {
+    this._removeActionCCByAction(action);
+    this._saveMappings();
+  }
+
+  _removeActionNoteByAction(action) {
+    for (const [key, a] of this.actionNoteMappings) {
+      if (a === action) { this.actionNoteMappings.delete(key); return; }
+    }
+  }
+
+  _removeActionCCByAction(action) {
+    for (const [key, a] of this.actionCCMappings) {
+      if (a === action) { this.actionCCMappings.delete(key); return; }
+    }
+  }
+
+  // ─────────────────────────────────────────────
   //  Persistence
   // ─────────────────────────────────────────────
 
   _saveMappings() {
     try {
       const data = {
-        cc:   Object.fromEntries(this.ccMappings),
-        note: Object.fromEntries(this.noteMappings),
+        cc:         Object.fromEntries(this.ccMappings),
+        note:       Object.fromEntries(this.noteMappings),
+        actionNote: Object.fromEntries(this.actionNoteMappings),
+        actionCC:   Object.fromEntries(this.actionCCMappings),
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     } catch { /* non-fatal */ }
@@ -486,8 +592,10 @@ export class MIDIController {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (!raw) return;
       const data = JSON.parse(raw);
-      if (data.cc)   Object.entries(data.cc).forEach(([k, v])   => this.ccMappings.set(k, v));
-      if (data.note) Object.entries(data.note).forEach(([k, v]) => this.noteMappings.set(k, v));
+      if (data.cc)         Object.entries(data.cc).forEach(([k, v])         => this.ccMappings.set(k, v));
+      if (data.note)       Object.entries(data.note).forEach(([k, v])       => this.noteMappings.set(k, v));
+      if (data.actionNote) Object.entries(data.actionNote).forEach(([k, v]) => this.actionNoteMappings.set(k, v));
+      if (data.actionCC)   Object.entries(data.actionCC).forEach(([k, v])   => this.actionCCMappings.set(k, v));
     } catch { /* non-fatal */ }
   }
 
