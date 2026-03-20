@@ -2,6 +2,30 @@
   "promptTemplate": "A large-scale pop surrealist artwork of a chaotic conglomeration of {{face_count}} faces teetering atop one another to form an eerie human totem. Each face is fabricated from {{material}}, capturing a {{expression}} expression with exaggerated, oversized eyes and dramatically expressive features. The faces span from {{era}} aesthetics, each with {{skin_quality}} skin and {{feature_style}} facial features. The overall composition has {{visual_texture}}, presented in a {{art_register}} style. Photographed as if a {{photo_quality}} photograph, captured on a Leica C9 using Kodak 400 film.",
   "variables": [
     {
+      "name": "color_palette",
+      "feature_name": "Color Palette",
+      "values": [
+        { "text": "original",   "weight": 3 },
+        { "text": "neon",       "weight": 2 },
+        { "text": "pastels",    "weight": 2 },
+        { "text": "earth",      "weight": 2 },
+        { "text": "monochrome", "weight": 2 },
+        { "text": "warm",       "weight": 2 },
+        { "text": "cool",       "weight": 2 },
+        { "text": "acid",       "weight": 1 }
+      ]
+    },
+    {
+      "name": "complexity",
+      "feature_name": "Complexity",
+      "values": [
+        { "text": "minimal",  "weight": 1 },
+        { "text": "moderate", "weight": 3 },
+        { "text": "dense",    "weight": 2 },
+        { "text": "extreme",  "weight": 1 }
+      ]
+    },
+    {
       "name": "face_count",
       "feature_name": "Face Count",
       "values": [
@@ -128,13 +152,13 @@
       ]
     }
   ],
-  "p5Code": "let angleX = 0;\nlet angleY = 0;\nlet angleZ = 0;\nlet colors;\nlet drag = false;\nlet prevX, prevY;\nlet points = [];\nlet nPoints = 21;\nlet faces = [];\nlet faceColors = [];\nlet edgeColors = [];\nlet zoom = 0;\nlet animStartTime;\nlet animDuration = 10000;\nlet bgCol;\n\np.setup = function() {\n  p.createCanvas(800, 800, p.WEBGL);\n  colors = ['#CECECE', '#FFDC5F', '#F59097', '#EB6134', '#1D8EBF', '#07BB7E', '#ECECEC'];\n\n  for (let i = 0; i < nPoints; i++) {\n    points.push(p.createVector(\n      p.random(-p.width / 4, p.width / 4),\n      p.random(-p.height / 3, p.height / 3),\n      p.random(-p.height / 3.5, p.height / 3.5)\n    ));\n  }\n\n  for (let i = 0; i < points.length; i++) {\n    let face = [];\n    let nVertices = p.int(p.random(3, 7));\n    for (let j = 0; j < nVertices; j++) {\n      let idx = p.floor(p.random(points.length));\n      face.push(points[idx]);\n    }\n    faces.push(face);\n    faceColors.push(p.random(colors));\n    edgeColors.push(p.random(colors));\n  }\n\n  let base = p.color(p.random(colors));\n  bgCol = p.color(p.red(base) * 0.3, p.green(base) * 0.3, p.blue(base) * 0.3);\n  animStartTime = p.millis();\n};\n\np.draw = function() {\n  let t = (p.millis() - animStartTime) / animDuration;\n  if (t > 1) {\n    animStartTime = p.millis();\n    t = 0;\n  }\n\n  zoom = p.map(p.sin(p.PI * t), -1, 1, -200, 400);\n\n  angleX += p.PI * 3.14 * t / 240;\n  angleY += p.PI * 3.14 * t / 1024;\n  angleZ += p.PI * 3.14 * t / 38;\n\n  p.background(bgCol);\n  p.translate(0, 0, zoom);\n\n  if (drag) {\n    angleX += (p.mouseX - prevX) * 0.005;\n    angleY -= (p.mouseY - prevY) * 0.005;\n  }\n\n  prevX = p.mouseX;\n  prevY = p.mouseY;\n\n  p.rotateX(angleX);\n  p.rotateY(angleY);\n  p.rotateZ(angleZ);\n\n  p.rotateX(angleY);\n  p.rotateY(angleX);\n\n  p.strokeWeight(2);\n\n  for (let i = 0; i < faces.length; i++) {\n    let face = faces[i];\n    p.fill(faceColors[i]);\n    p.stroke(edgeColors[i]);\n    p.beginShape();\n    for (let pt of face) {\n      p.vertex(pt.x, pt.y, pt.z);\n    }\n    p.endShape(p.CLOSE);\n  }\n};\n\np.mousePressed = function() {\n  drag = true;\n};\n\np.mouseReleased = function() {\n  drag = false;\n};\n\np.mouseWheel = function(event) {\n  zoom += event.delta * -0.1;\n  return false;\n};\n",
+  "p5Code": "const PALETTES = {\n  'original':   ['#CECECE', '#FFDC5F', '#F59097', '#EB6134', '#1D8EBF', '#07BB7E', '#ECECEC'],\n  'neon':       ['#FF00FF', '#00FFFF', '#FF0066', '#CCFF00', '#FF6600', '#6600FF', '#00FF99'],\n  'pastels':    ['#FFB3C6', '#FFDDB3', '#FFFFB3', '#B3FFCC', '#B3D9FF', '#D9B3FF', '#FFB3E6'],\n  'earth':      ['#8B4513', '#DEB887', '#D2691E', '#8B6914', '#CD853F', '#A0522D', '#F4A460'],\n  'monochrome': ['#111111', '#444444', '#666666', '#888888', '#AAAAAA', '#CCCCCC', '#EEEEEE'],\n  'warm':       ['#FF4500', '#FF6347', '#FF7F50', '#FFA500', '#FFD700', '#FF8C00', '#DC143C'],\n  'cool':       ['#003399', '#0066CC', '#3399FF', '#00CCFF', '#6633FF', '#9933FF', '#33CCCC'],\n  'acid':       ['#CCFF00', '#FF0099', '#00FFCC', '#FF6600', '#9900FF', '#FFCC00', '#00FF33']\n};\n\nconst COMPLEXITIES = {\n  'minimal':  { nPoints: 8,  minV: 3, maxV: 4  },\n  'moderate': { nPoints: 21, minV: 3, maxV: 7  },\n  'dense':    { nPoints: 40, minV: 3, maxV: 9  },\n  'extreme':  { nPoints: 70, minV: 3, maxV: 14 }\n};\n\nlet angleX = 0, angleY = 0, angleZ = 0;\nlet colors;\nlet drag = false;\nlet prevX, prevY;\nlet points = [], faces = [], faceColors = [], edgeColors = [];\nlet zoom = 0;\nlet animStartTime;\nlet animDuration = 10000;\nlet bgCol;\nlet currentPalette = '';\nlet currentComplexity = '';\n\nfunction initGeometry() {\n  let palName  = p.getSynthVar('color_palette') || 'original';\n  let compName = p.getSynthVar('complexity')    || 'moderate';\n\n  colors = PALETTES[palName]       || PALETTES['original'];\n  let comp = COMPLEXITIES[compName] || COMPLEXITIES['moderate'];\n\n  points = []; faces = []; faceColors = []; edgeColors = [];\n\n  for (let i = 0; i < comp.nPoints; i++) {\n    points.push(p.createVector(\n      p.random(-p.width / 4,   p.width / 4),\n      p.random(-p.height / 3,  p.height / 3),\n      p.random(-p.height / 3.5, p.height / 3.5)\n    ));\n  }\n\n  for (let i = 0; i < points.length; i++) {\n    let face = [];\n    let nV = p.int(p.random(comp.minV, comp.maxV));\n    for (let j = 0; j < nV; j++) {\n      face.push(points[p.floor(p.random(points.length))]);\n    }\n    faces.push(face);\n    faceColors.push(p.random(colors));\n    edgeColors.push(p.random(colors));\n  }\n\n  let base = p.color(p.random(colors));\n  bgCol = p.color(p.red(base) * 0.3, p.green(base) * 0.3, p.blue(base) * 0.3);\n\n  currentPalette    = palName;\n  currentComplexity = compName;\n\n  angleX = 0; angleY = 0; angleZ = 0;\n  animStartTime = p.millis();\n\n  // Paint the initial background — this is the only clear; trails accumulate from here\n  p.background(bgCol);\n}\n\np.setup = function() {\n  p.setAttributes({ preserveDrawingBuffer: true, antialias: true });\n  p.createCanvas(800, 800, p.WEBGL);\n  initGeometry();\n};\n\np.draw = function() {\n  // Reinitialise if the user changes palette or complexity\n  let pal  = p.getSynthVar('color_palette') || 'original';\n  let comp = p.getSynthVar('complexity')    || 'moderate';\n  if (pal !== currentPalette || comp !== currentComplexity) {\n    initGeometry();\n    return;\n  }\n\n  let t = (p.millis() - animStartTime) / animDuration;\n  if (t > 1) { animStartTime = p.millis(); t = 0; }\n\n  zoom = p.map(p.sin(p.PI * t), -1, 1, -200, 400);\n\n  angleX += p.PI * 3.14 * t / 240;\n  angleY += p.PI * 3.14 * t / 1024;\n  angleZ += p.PI * 3.14 * t / 38;\n\n  // No background() call — frames accumulate as trails\n  p.translate(0, 0, zoom);\n\n  if (drag) {\n    angleX += (p.mouseX - prevX) * 0.005;\n    angleY -= (p.mouseY - prevY) * 0.005;\n  }\n  prevX = p.mouseX;\n  prevY = p.mouseY;\n\n  p.rotateX(angleX);\n  p.rotateY(angleY);\n  p.rotateZ(angleZ);\n  p.rotateX(angleY);\n  p.rotateY(angleX);\n\n  p.strokeWeight(2);\n  for (let i = 0; i < faces.length; i++) {\n    p.fill(faceColors[i]);\n    p.stroke(edgeColors[i]);\n    p.beginShape();\n    for (let pt of faces[i]) p.vertex(pt.x, pt.y, pt.z);\n    p.endShape(p.CLOSE);\n  }\n};\n\np.mousePressed  = function() { drag = true; };\np.mouseReleased = function() { drag = false; };\np.mouseWheel    = function(event) { zoom += event.delta * -0.1; return false; };\n",
   "tags": [
     {
       "id": "tag_glorpy_heads_01",
       "type": "source",
       "label": "Glorpy Heads — Synthograsizer Template",
-      "description": "Converted from 2-step Synthograsizer pipeline: p5.js generative geometry → img2img-comfy (epicphotogasm_v1, denoising 0.83). Original had no variables — the img2img prompt was fully fixed. Variables synthesized from the rich descriptive prompt language to make the template generative. p5 sketch preserved verbatim."
+      "description": "Converted from 2-step Synthograsizer pipeline: p5.js generative geometry → img2img-comfy (epicphotogasm_v1, denoising 0.83). p5 sketch updated to instance mode with live color_palette and complexity variables. Trail effect preserved via preserveDrawingBuffer."
     },
     {
       "id": "tag_glorpy_heads_02",

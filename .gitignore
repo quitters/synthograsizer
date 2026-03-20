@@ -34,3 +34,9 @@ chatroom/.env
 
 # Output
 Synthograsizer_Output/
+
+# Misc
+.pytest_cache/
+.tox/
+dist/
+*.log
