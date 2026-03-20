@@ -1,7 +1,7 @@
 // Synthograsizer Mini - Single-Variable Control Interface
 
 import { DEFAULT_CONFIG, ERROR_MESSAGES } from './config.js';
-import { TextRenderer } from './text-renderer.js';
+import { TextRenderer } from './text-renderer.js?v=2';
 import { BatchGenerator } from './batch-generator.js';
 import { TemplateLoader } from './template-loader.js';
 import { CodeOverlayManager } from './code-overlay-manager.js?v=5';
@@ -30,6 +30,7 @@ export class SynthograsizerSmall {
     this.textRenderer = null;
     this.elements = {};
     this.likedPrompts = [];
+    this.isEditingTemplate = false; // true while user is inline-editing the prompt template
     this.controlMode = 'dpad'; // 'dpad' or 'knobs'
     this._knobDragState = null; // Track active knob drag
     this.midi = null;        // MIDIController instance
@@ -278,6 +279,31 @@ export class SynthograsizerSmall {
           this.resizeControlValueText();
         }
       }, 100);
+    });
+
+    // ── Inline template editing ──────────────────────────────────────────
+    // Click the output area → switch to editable template view
+    this.elements.outputContainer.addEventListener('click', () => this.enterTemplateEditMode());
+
+    // Click outside → save edits and re-render resolved output
+    this.elements.outputContainer.addEventListener('blur', () => this.exitTemplateEditMode());
+
+    // Escape cancels the edit without saving
+    this.elements.outputContainer.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && this.isEditingTemplate) {
+        this.isEditingTemplate = false;
+        this.elements.outputContainer.contentEditable = 'false';
+        this.elements.outputContainer.blur();
+        this.generateOutput();
+      }
+    });
+
+    // Strip HTML on paste — keep plain text only
+    this.elements.outputContainer.addEventListener('paste', (e) => {
+      if (!this.isEditingTemplate) return;
+      e.preventDefault();
+      const text = e.clipboardData.getData('text/plain');
+      document.execCommand('insertText', false, text);
     });
   }
 
@@ -997,7 +1023,47 @@ export class SynthograsizerSmall {
     return '#' + (0x1000000 + R * 0x10000 + G * 0x100 + B).toString(16).slice(1);
   }
 
+  // ── Inline template editing ──────────────────────────────────────────────
+
+  _buildColorMap() {
+    const colorMap = {};
+    this.variables.forEach((v, i) => {
+      colorMap[v.name || v.feature_name] = this.config.colorPalette[i % this.config.colorPalette.length];
+    });
+    return colorMap;
+  }
+
+  enterTemplateEditMode() {
+    if (this.isEditingTemplate || !this.currentTemplate) return;
+    this.isEditingTemplate = true;
+    const el = this.elements.outputContainer;
+    el.contentEditable = 'true';
+    el.innerHTML = this.textRenderer.renderEditableTemplate(
+      this.currentTemplate.promptTemplate,
+      this._buildColorMap()
+    );
+    // Place cursor at end
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    range.collapse(false);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+  }
+
+  exitTemplateEditMode() {
+    if (!this.isEditingTemplate) return;
+    const newTemplate = this.textRenderer.extractTemplate();
+    this.currentTemplate.promptTemplate = newTemplate;
+    this.isEditingTemplate = false;
+    this.elements.outputContainer.contentEditable = 'false';
+    this.generateOutput();
+  }
+
+  // ────────────────────────────────────────────────────────────────────────
+
   generateOutput() {
+    if (this.isEditingTemplate) return; // don't clobber while user is typing
     if (!this.currentTemplate) {
       return;
     }

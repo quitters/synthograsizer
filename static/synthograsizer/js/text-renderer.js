@@ -51,6 +51,63 @@ export class TextRenderer {
   }
 
   /**
+   * Renders the prompt template with colored {{var}} tokens for inline editing.
+   * Static text is plain/editable; variable tokens are contenteditable=false spans.
+   */
+  renderEditableTemplate(template, colorMap) {
+    const colorToClass = {
+      '#3b82f6': 'var-blue', '#f59e0b': 'var-yellow', '#f97316': 'var-orange',
+      '#ec4899': 'var-pink', '#8b5cf6': 'var-purple', '#06b6d4': 'var-cyan',
+      '#10b981': 'var-green', '#ef4444': 'var-red'
+    };
+    const regex = /\{\{([^}]+)\}\}/g;
+    let result = '', lastIndex = 0, match;
+    while ((match = regex.exec(template)) !== null) {
+      const before = template.slice(lastIndex, match.index);
+      if (before) result += this._escapeAndBreak(before);
+      const varName = match[1];
+      const colorClass = colorToClass[colorMap[varName] || ''] || '';
+      result += `<span class="var-token variable-value ${colorClass}" contenteditable="false" data-var="${varName}">{{${varName}}}</span>`;
+      lastIndex = match.index + match[0].length;
+    }
+    const after = template.slice(lastIndex);
+    if (after) result += this._escapeAndBreak(after);
+    return result;
+  }
+
+  _escapeAndBreak(text) {
+    return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
+  }
+
+  /**
+   * Walks the contenteditable DOM and reconstructs the template string,
+   * preserving {{var}} tokens from var-token spans and converting <br>/<div> to \n.
+   */
+  extractTemplate() {
+    let template = '';
+    const walk = (nodes) => {
+      nodes.forEach(node => {
+        if (node.nodeType === Node.TEXT_NODE) {
+          template += node.textContent;
+        } else if (node.nodeType === Node.ELEMENT_NODE) {
+          if (node.classList.contains('var-token')) {
+            template += `{{${node.dataset.var}}}`;
+          } else if (node.tagName === 'BR') {
+            template += '\n';
+          } else if (node.tagName === 'DIV' || node.tagName === 'P') {
+            if (template.length > 0) template += '\n';
+            walk(Array.from(node.childNodes));
+          } else {
+            walk(Array.from(node.childNodes));
+          }
+        }
+      });
+    };
+    walk(Array.from(this.outputElement.childNodes));
+    return template;
+  }
+
+  /**
    * Updates the output display
    * @param {string} html - HTML string to display
    */

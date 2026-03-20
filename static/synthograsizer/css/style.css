@@ -158,6 +158,22 @@ body {
   font-style: italic;
 }
 
+/* ── Inline template edit mode ─────────────────────────────────────────── */
+.output-container[contenteditable="true"] {
+  cursor: text;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  outline: none;
+  max-height: 300px;
+}
+
+/* {{variable}} tokens in edit mode — italic to distinguish from resolved values */
+.output-container .var-token {
+  font-style: italic;
+  cursor: default;
+  user-select: none;
+}
+
 .output-container .variable-value {
   font-weight: 600;
   padding: 3px 8px;
