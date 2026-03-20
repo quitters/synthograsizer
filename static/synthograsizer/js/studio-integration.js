@@ -794,6 +794,13 @@ class StudioIntegration {
                 <input type="password" id="api-key-input" placeholder="AIza...">
             </div>
             <button class="studio-btn-primary" id="api-key-save">Save Configuration</button>
+            <div style="margin-top:16px; padding:12px 14px; background:#fff8e1; border:1px solid #f59e0b; border-radius:8px; font-size:12px; line-height:1.6; color:#92400e;">
+                <strong>⚠️ Local use only.</strong> This tool is designed to be run on your own machine.
+                If you are accessing this page from a shared or hosted URL, do not enter your API key here —
+                it would be stored in shared server memory with no session isolation, meaning other users
+                could inadvertently make requests charged to your account.
+                <a href="https://github.com/quitters/synthograsizer" target="_blank" style="color:#b45309; font-weight:600;">Run it locally</a> for safe key storage.
+            </div>
         `);
 
         // Image Studio Modal
