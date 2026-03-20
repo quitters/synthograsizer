@@ -1424,10 +1424,10 @@ export class CodeOverlayManager {
     if (mainBtn) {
       if (running) {
         mainBtn.classList.add('running');
-        mainBtn.innerHTML = '<span class="p5-run-icon">⏹</span><span class="label">Stop</span>';
+        mainBtn.innerHTML = '<span class="label">STOP</span><kbd class="keybind-badge">P</kbd>';
       } else {
         mainBtn.classList.remove('running');
-        mainBtn.innerHTML = '<span class="p5-run-icon">▶</span><span class="label">Run Code</span>';
+        mainBtn.innerHTML = '<span class="label">RUN CODE</span><kbd class="keybind-badge">P</kbd>';
       }
     }
   }

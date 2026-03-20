@@ -4,7 +4,7 @@ import { DEFAULT_CONFIG, ERROR_MESSAGES } from './config.js';
 import { TextRenderer } from './text-renderer.js?v=2';
 import { BatchGenerator } from './batch-generator.js';
 import { TemplateLoader } from './template-loader.js';
-import { CodeOverlayManager } from './code-overlay-manager.js?v=5';
+import { CodeOverlayManager } from './code-overlay-manager.js?v=6';
 import { normalizeTemplate, getValueText, getValueWeight, getWeightsArray, computeTemplateFingerprint, generateTagId } from './template-normalizer.js?v=2';
 import { MIDIController } from './midi-controller.js?v=4';
 import { OSCController } from './osc-controller.js?v=3';
@@ -759,6 +759,15 @@ export class SynthograsizerSmall {
         e.preventDefault();
         window.studioIntegrationInstance?.openModal('template-gen-modal');
         return;
+      case 'p': {
+        const runBtn = document.getElementById('p5-run-main-btn');
+        if (runBtn && runBtn.style.display !== 'none') {
+          e.preventDefault();
+          runBtn.click();
+          this.flashButton(runBtn);
+        }
+        return;
+      }
     }
 
     if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
