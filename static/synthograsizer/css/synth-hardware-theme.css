@@ -155,7 +155,7 @@ body,
   border: var(--hw-border);
   border-radius: 2px;
   box-shadow: var(--hw-inset);
-  font-family: var(--font-display);
+  font-family: 'Quantico', sans-serif;
   font-size: 19px;
   line-height: 1.55;
   color: var(--hw-lcd-text);
@@ -164,7 +164,7 @@ body,
 .output-container:empty::before {
   color: var(--hw-lcd-dim);
   font-style: normal;
-  font-family: var(--font-display);
+  font-family: 'Quantico', sans-serif;
 }
 
 /* Variable value chips — pastel on warm parchment */
