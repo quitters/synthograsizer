@@ -5,7 +5,7 @@
    Drop-in override — linked after base stylesheets
    ═══════════════════════════════════════════════════════════════════════ */
 
-@import url('https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&family=Bungee&display=swap');
 
 /* ── Design Tokens ────────────────────────────────────────────────────── */
 :root {
@@ -63,7 +63,7 @@
   /* Typography */
   --font-display: 'VT323', 'Courier New', monospace;
   --font-label:   'Share Tech Mono', 'Courier New', monospace;
-  --font-brand:   'Orbitron', sans-serif;
+  --font-brand:   'Bungee', sans-serif;
 }
 
 /* ── Base ─────────────────────────────────────────────────────────────── */
@@ -84,9 +84,9 @@ body,
 /* ── App Header ───────────────────────────────────────────────────────── */
 .app-title {
   font-family: var(--font-brand);
-  font-weight: 900;
-  font-size: 26px;
-  letter-spacing: 5px;
+  font-weight: 400;
+  font-size: 28px;
+  letter-spacing: 3px;
   color: var(--hw-text);
   text-transform: uppercase;
 }
@@ -94,42 +94,57 @@ body,
 .app-tagline {
   font-family: var(--font-label);
   color: var(--hw-text-dim);
-  font-size: 11px;
-  letter-spacing: 2px;
+  font-size: 12px;
+  letter-spacing: 1px;
   text-transform: uppercase;
   margin-top: 6px;
 }
 
-/* ── Layout Switcher ──────────────────────────────────────────────────── */
+/* ── Layout Switcher — folder tab style ───────────────────────────────── */
+.layout-switcher {
+  align-items: flex-end;
+  gap: 2px;
+  margin-bottom: 12px;
+}
+
 .layout-btn {
-  background: var(--hw-surface);
+  background: var(--hw-recessed);
   border: var(--hw-border);
-  box-shadow: var(--hw-shadow-sm);
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+  box-shadow: none;
   color: var(--hw-text-label);
   font-family: var(--font-label);
-  font-size: 11px;
-  letter-spacing: 1px;
-  border-radius: 3px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  height: 32px;
+  padding: 0 24px;
+  margin-top: 6px;
   transition: none;
 }
 
 .layout-btn:hover {
-  filter: brightness(.96);
+  filter: brightness(.97);
   transform: none;
-  box-shadow: var(--hw-shadow-sm);
+  box-shadow: none;
+  color: var(--hw-text);
 }
 
 .layout-btn:active {
-  transform: translate(2px, 2px);
+  transform: translateY(1px);
   box-shadow: none;
 }
 
 .layout-btn.active {
-  background: var(--hw-recessed);
+  background: var(--hw-panel);
   color: var(--hw-text);
-  border-color: var(--hw-text);
-  box-shadow: var(--hw-inset);
-  font-weight: 600;
+  border-color: #7a6e5e;
+  border-bottom: 2px solid var(--hw-panel);
+  box-shadow: none;
+  font-weight: 700;
+  height: 38px;
+  margin-top: 0;
 }
 
 /* ── Output / Display Panel ───────────────────────────────────────────── */
@@ -224,16 +239,54 @@ body,
 .primary-btn {
   border: var(--hw-border);
   box-shadow: var(--hw-shadow);
-  border-radius: 4px;
-  font-family: var(--font-brand);
+  border-radius: 6px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-size: 13px;
   font-weight: 700;
-  letter-spacing: 2.5px;
+  letter-spacing: 1.5px;
   transition: none;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
 }
 
-.primary-btn::before { display: none; }
+/* Top-highlight shine — static, physical button feel */
+.primary-btn::before {
+  display: block;
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 44%;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.32), rgba(255,255,255,0));
+  border-radius: 6px 6px 0 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.primary-btn .label {
+  position: relative;
+  z-index: 2;
+}
+
+.primary-btn .keybind-badge {
+  position: relative;
+  z-index: 2;
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0;
+  opacity: 0.6;
+  background: rgba(0,0,0,0.13);
+  border: 1px solid rgba(0,0,0,0.18);
+  padding: 1px 7px;
+  border-radius: 3px;
+  font-family: 'Inter', sans-serif;
+}
 
 .primary-btn:hover {
   filter: brightness(.95);
@@ -242,7 +295,7 @@ body,
 }
 
 .primary-btn:active {
-  transform: translate(3px, 3px);
+  transform: translate(2px, 3px);
   box-shadow: none;
   filter: brightness(.9);
 }
@@ -251,28 +304,28 @@ body,
   background: #e8d0d4;
   color: #7a3048;
   border-color: #c06880;
-  box-shadow: 3px 3px 0 #c06880;
+  box-shadow: 2px 3px 0 #c06880, 0 5px 14px rgba(192,104,128,0.28);
 }
 
 .generate-btn {
   background: #d0d4e8;
   color: #2a3068;
   border-color: #5a8ab8;
-  box-shadow: 3px 3px 0 #5a8ab8;
+  box-shadow: 2px 3px 0 #5a8ab8, 0 5px 14px rgba(90,138,184,0.28);
 }
 
 .p5-run-main-btn {
   background: #d0e8d8;
   color: #1e4830;
   border-color: #5a9870;
-  box-shadow: 3px 3px 0 #5a9870;
+  box-shadow: 2px 3px 0 #5a9870, 0 5px 14px rgba(90,152,112,0.28);
 }
 
 .p5-run-main-btn.running {
   background: #e8d0d0;
   color: #5a1818;
   border-color: #b85050;
-  box-shadow: 3px 3px 0 #b85050;
+  box-shadow: 2px 3px 0 #b85050, 0 5px 14px rgba(184,80,80,0.28);
 }
 
 /* ── Mode Toggle (D-Pad / Knobs) ──────────────────────────────────────── */
@@ -906,10 +959,13 @@ header nav a:hover {
 
 /* ── Active / selected states → teal instead of brown ───────────────── */
 .layout-btn.active {
-  background: var(--hw-accent-pale);
+  background: var(--hw-panel);
   color: var(--hw-accent);
-  border-color: var(--hw-accent);
-  box-shadow: 2px 2px 0 var(--hw-accent);
+  border-color: #7a6e5e;
+  border-bottom: 2px solid var(--hw-panel);
+  box-shadow: none;
+  height: 38px;
+  margin-top: 0;
 }
 
 .mode-toggle-btn.active {
