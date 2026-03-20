@@ -40,3 +40,7 @@ Synthograsizer_Output/
 .tox/
 dist/
 *.log
+
+# Dev References
+docs/
+scope-synthograsizer/
