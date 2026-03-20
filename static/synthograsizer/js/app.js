@@ -738,7 +738,7 @@ export class SynthograsizerSmall {
       return;
     }
 
-    // R = Randomize, G = Generate, F = Favorite
+    // R = Randomize, G = Generate, F = Favorite, T = Template Generator
     switch (e.key.toLowerCase()) {
       case 'r':
         e.preventDefault();
@@ -754,6 +754,10 @@ export class SynthograsizerSmall {
         e.preventDefault();
         this.addCurrentPromptToFavorites();
         this.flashButton(this.elements.favoriteButton);
+        return;
+      case 't':
+        e.preventDefault();
+        window.studioIntegrationInstance?.openModal('template-gen-modal');
         return;
     }
 
