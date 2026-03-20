@@ -57,6 +57,11 @@
   display: none !important;
 }
 
+/* ── Performance mode: hide app header (branding not needed on stage) ──── */
+.layout-a .app-header {
+  display: none;
+}
+
 /* ── Performance mode: hide studio-only bottom-bar actions ─────────────── */
 .layout-a #batch-button,
 .layout-a #favorites-button {
@@ -69,6 +74,36 @@
 .layout-a #favorite-button,
 .layout-a #send-button {
   display: none;
+}
+
+/* ── Performance mode: hide output-header label row entirely (no buttons
+      remain, so the label "Generated Output" is just dead weight) ─────── */
+.layout-a .output-header {
+  display: none;
+}
+
+/* ── Performance mode: larger, fully-visible output text ───────────────── */
+.layout-a #output-container {
+  font-size: 22px;
+  line-height: 1.7;
+  max-height: none;
+  padding: 20px 24px;
+}
+
+/* ── Performance mode: hide tag badges (metadata, not needed live) ─────── */
+.layout-a #tag-badges-container {
+  display: none;
+}
+
+/* ── Performance mode: hide D-pad keyboard tutorial hint ───────────────── */
+.layout-a .keyboard-hint {
+  display: none;
+}
+
+/* ── Performance mode: larger primary action buttons ───────────────────── */
+.layout-a .primary-btn {
+  height: 80px;
+  font-size: 22px;
 }
 
 /* ── Performance-mode Template Gen shortcut — hidden in Studio (Template Gen
