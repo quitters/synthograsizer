@@ -8,7 +8,7 @@
     <title>Synthograsizer</title>
     <link rel="stylesheet" href="css/style.css?v=2">
     <link rel="stylesheet" href="css/code-overlay.css?v=2">
-    <link rel="stylesheet" href="css/layout-options.css?v=6">
+    <link rel="stylesheet" href="css/layout-options.css?v=7">
     <link rel="stylesheet" href="css/synth-hardware-theme.css?v=3">
     <link rel="icon" type="image/png" href="assets/favicon.png">
     <link
@@ -1148,7 +1148,11 @@
 
             function applyLayout(layout) {
                 root.classList.remove('layout-a');
-                if (layout === 'a') root.classList.add('layout-a');
+                document.body.classList.remove('layout-a');
+                if (layout === 'a') {
+                    root.classList.add('layout-a');
+                    document.body.classList.add('layout-a');
+                }
                 btns.forEach(function (btn) {
                     btn.classList.toggle('active', btn.dataset.layout === layout);
                 });

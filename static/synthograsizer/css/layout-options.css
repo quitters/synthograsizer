@@ -58,7 +58,8 @@
 }
 
 /* ── Performance mode: hide site nav (keep app title, lose nav links) ──── */
-.layout-a #navbar-mount {
+/* #navbar-mount is a sibling of .synthograsizer-small, so scope to body   */
+body.layout-a #navbar-mount {
   display: none;
 }
 
