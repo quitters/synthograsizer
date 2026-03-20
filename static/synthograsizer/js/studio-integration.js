@@ -710,7 +710,6 @@ class StudioIntegration {
         controlsSection.innerHTML = `
             <div class="studio-controls-header">
                 <span>AI Studio Tools</span>
-                <button id="studio-settings-btn" style="background:none; border:none; cursor:pointer; font-size:16px; opacity:0.6;" title="Global Settings">⚙️</button>
             </div>
             <div class="studio-btn-grid">
                 <button class="studio-btn-large btn-image-large" id="studio-image-btn">
@@ -1648,6 +1647,7 @@ class StudioIntegration {
     bindEvents() {
         // Main Buttons
         this.bindSafe('studio-settings-btn', 'onclick', () => this.openModal('studio-settings-modal'));
+        this.bindSafe('api-key-btn', 'onclick', () => this.openModal('studio-settings-modal'));
         this.bindSafe('studio-chat-btn', 'onclick', () => this.openChat());
         this.bindSafe('studio-transform-btn', 'onclick', () => this.openModal('smart-transform-modal'));
         this.bindSafe('studio-template-btn', 'onclick', () => {
@@ -2214,6 +2214,9 @@ class StudioIntegration {
         });
 
         this.bindSafe('image-ref-input', 'change', (e) => this.handleRefImageSelect(e));
+
+        // Check API key status on startup and reflect in the Connections API button
+        this.checkApiKeyStatus();
     }
 
     async handleRefImageSelect(e) {
@@ -3384,8 +3387,30 @@ class StudioIntegration {
             if (res.ok) {
                 this.showToast('API Key Saved!', 'success');
                 this.closeAllModals();
+                this.setApiDot(true);
             }
         } catch (e) { console.error(e); }
+    }
+
+    setApiDot(configured) {
+        const btn = document.getElementById('api-key-btn');
+        const dot = document.getElementById('api-dot');
+        if (btn) btn.classList.toggle('active', configured);
+        if (dot) {
+            dot.style.background = configured ? '#10b981' : '';
+            dot.style.opacity = configured ? '1' : '0';
+        }
+    }
+
+    async checkApiKeyStatus() {
+        try {
+            const res = await fetch('/api/health');
+            if (res.ok) {
+                const data = await res.json();
+                this.apiKeyConfigured = !!data.api_key_configured;
+                this.setApiDot(this.apiKeyConfigured);
+            }
+        } catch (e) { /* server not ready yet, dot stays grey */ }
     }
 
     async generateImage() {
