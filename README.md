@@ -15,22 +15,65 @@ A collection of creative browser-based tools for prompt engineering, generative 
 | **DAW** | Web-based digital audio workstation — FM synthesis, step sequencers, effects | `/daw/` |
 | **Metadata Manager** | Extract prompts from PNG metadata, convert to reusable Synthograsizer templates | `/metadata-manager/` |
 | **Legacy Synthograsizer** | Original version — 4 operating modes, MIDI support, p5.js sketch editor, ComfyUI bridge | `/legacy/` |
-| **Fun Stuff** | Generative art gallery and character creator experiments | `/fun-stuff/` |
 
 ---
 
 ## What's New
 
-### Synthograsizer — Major Feature Additions
+### Synthograsizer — Recent Updates
+
+**Keyboard Shortcuts**
+
+| Key | Action |
+|-----|--------|
+| `R` | Randomize all variables |
+| `G` | Generate (send prompt to AI) |
+| `F` | Favorite / save current prompt |
+| `T` | Open Template Generator modal |
+
+**MIDI Template Navigation**
+
+The MIDI panel now includes **Prev Template** and **Next Template** mappings in the Template Navigation section. Assign any CC or Note to cycle backwards or forwards through the template list — useful for live performance without touching the keyboard.
+
+**API Key Button**
+
+The Google GenAI API key is now configured via a dedicated **API** button in the Connections sidebar (alongside MIDI and OSC). A green dot indicates the key is configured. Click to open the settings modal where you can enter or update your key.
+
+> ⚠️ **Security note:** If you are using the Vercel-hosted version of this app, your API key is transmitted to a shared serverless environment with no session isolation or authentication on the endpoints. For production use with real API keys, run the local server (Option B below) or add authentication middleware. The local server stores your key in `ai_studio_config.json` (gitignored) and never transmits it.
+
+**Perform Mode Improvements**
+
+Performance layout (`layout-a`) is now a cleaner live surface:
+- Navbar links hidden (title remains visible)
+- Copy, Code, Add (❤️), and Send to Chat buttons hidden
+- Output header label hidden
+- Output text enlarged to 22px / 1.7 line-height
+- Tag badges and keyboard hint hidden
+- Primary buttons (Randomize, Generate, Run Code) enlarged to 80px height / 22px font
+
+**Template Picker — Reorganized**
+
+Templates are now grouped into two sections in the picker:
+1. **P5.js Templates** — ordered from most to least complex (by p5Code character length)
+2. **Prompt Templates** — ordered from most coherent/detailed to least
+3. **Empty Template** — always last
+
+**Quantico Font**
+
+The output/prompt area now uses **Quantico** throughout (not just variable tokens). The Randomize, Generate, and Run Code buttons use **Inter** for clean legibility.
+
+---
+
+### Synthograsizer — Full Feature Reference
 
 **D-Pad / Knobs UI**
-The main interface is now a D-pad navigator. Press ↑/↓ to move between variables, ←/→ to cycle through values. Knob-style controls display the current value and weight for each variable.
+The main interface is a D-pad navigator. Press ↑/↓ to move between variables, ←/→ to cycle through values. Knob-style controls display the current value and weight for each variable.
 
 **MIDI Support**
-Connect any MIDI controller to drive the D-pad UI with hardware knobs and pads. CC messages map to variable navigation; note messages trigger discrete actions. Configured via the MIDI panel in the sidebar.
+Connect any MIDI controller to drive the D-pad UI with hardware knobs and pads. CC messages map to variable navigation; note messages trigger discrete actions. Configured via the MIDI panel in the sidebar. Supports CC and Note mappings for template navigation (Prev/Next).
 
 **p5.js Live Panel**
-Templates can embed a `p5Code` field containing a full p5.js sketch. When loaded, the sketch renders live inside the app and reads the current template variable values in real time via `p.getSynthVar("variableName")`. Changes to variables update the sketch instantly — no page reload needed.
+Templates can embed a `p5Code` field containing a full p5.js sketch written in **instance mode**. When loaded, the sketch renders live inside the app and reads the current template variable values in real time via `p.getSynthVar("variableName")`. Changes to variables update the sketch instantly — no page reload needed.
 
 **Batch Generation**
 Generate multiple prompt variations in one click using cycle or randomize modes. Results stream back progressively. Available via the batch toolbar.
@@ -51,16 +94,16 @@ Open `display.html` as a dedicated fullscreen output for OBS, a projector, or an
 The display window also runs Glitcher effects independently, controlled from the main app.
 
 **Studio / Performance Modes**
-The layout switcher now offers two named modes instead of generic columns:
+The layout switcher offers two named modes:
 - **Studio** — single-column layout with the full AI Studio Tools panel visible (Image Studio, Video Studio, Transform, AI Chat, Template Gen, Image Analysis, Metadata, Music Studio)
-- **Performance** — two-column layout (output + D-pad side by side) with the AI Studio Tools panel hidden — a clean performance surface for live use
+- **Performance** — two-column layout (output + D-pad side by side) with the AI Studio Tools panel hidden and UI chrome minimized — a clean performance surface for live use
 
 **Hardware Synth Theme**
 A drop-in CSS override (`css/synth-hardware-theme.css`) applies a cohesive hardware synthesizer aesthetic to the entire UI:
 - Cream/parchment chassis inspired by the Roland Juno-106 and Casio PT-1
 - Teal/mint accent color (`#3dbdad`) on the title, nav links, section labels, and active states
 - NeoBrutalism design language: bold 2px borders, offset box-shadows, physical press animations
-- No external CSS framework — all creative coding; Google Fonts CDN is the only external dependency (Orbitron, VT323, Share Tech Mono)
+- No external CSS framework — all creative coding; Google Fonts CDN is the only external dependency (Orbitron, VT323, Share Tech Mono, Quantico)
 
 **Music Studio**
 A new Music Studio panel is available in the AI Studio Tools grid. Generates music via the backend `music_manager.py` module with play/pause/stop transport controls.
@@ -76,12 +119,15 @@ Stream the p5.js canvas to Scope as a live video input via WebRTC, or push indiv
 
 ### Templates
 
-Templates are JSON files shared across Synthograsizer and PromptCraft. The library has grown to 30+ templates across several categories:
+Templates are JSON files shared across Synthograsizer and PromptCraft. The library has grown to 50+ templates across several categories:
 
-**Generative Art (p5.js)** — Mathematical and procedural sketches with live variable control:
+**Generative Art (p5.js)** — Mathematical and procedural sketches with live variable control, listed from most to least complex:
+- `spring-physics-v2` — Spring-chain physics simulation with WEBGL rendering
+- `boids-flocking` — Emergent flocking simulation
 - `strange-attractors` — Lorenz, Clifford, DeJong, Rössler, and other dynamical systems
 - `cellular-tapestry` — Game of Life, Brian's Brain, Cyclic CA, and other cellular automata
 - `lissajous-lab` — Parametric Lissajous curves with frequency and phase variables
+- `fractal-tree` — Recursive fractal tree generator
 - `moire-waves` — Interference pattern generation
 - `recursive-subdivisions` — Recursive geometric subdivision
 - `smiley-mound`, `breakdance`, `hollywood-squares`, `monster-maker`, and more character/figure sketches
@@ -208,7 +254,7 @@ When a WebRTC stream is active, `vace_ref_images` is delivered via the existing 
 The static tools deploy instantly to Vercel. The AI generation API also works via Vercel serverless functions.
 
 **What works on Vercel:**
-- ✅ All static tools (Synthograsizer, PromptCraft, Glitcher, DAW, Metadata Manager, Legacy, Fun Stuff)
+- ✅ All static tools (Synthograsizer, PromptCraft, Glitcher, DAW, Metadata Manager, Legacy)
 - ✅ Template generation (`TEMPLATE GEN` button)
 - ✅ AI text generation
 - ✅ Image generation (Gemini / Imagen)
@@ -219,6 +265,8 @@ The static tools deploy instantly to Vercel. The AI generation API also works vi
 - ❌ ChatRoom (needs the Node.js backend on port 3001)
 - ❌ Real-time batch streaming
 - ❌ OSC bridge
+
+> ⚠️ **API key security on Vercel:** When using the hosted Vercel deployment, API keys entered via the in-app API button are transmitted to a shared serverless environment. There is no session isolation or authentication on the API endpoints. Use the local server for any real-key usage, or add authentication middleware before deploying to a shared host.
 
 **Deploy to Vercel:**
 
@@ -255,7 +303,7 @@ start.bat
 
 Then open **http://127.0.0.1:8000** in your browser.
 
-**Configure your API key (local):**
+**Configure your API key:**
 
 Option 1 — via environment variable:
 ```bash
@@ -265,7 +313,7 @@ python -m backend.server
 ```
 
 Option 2 — via the UI:
-Open the Synthograsizer page → AI Studio settings → enter your key. It saves to `ai_studio_config.json` (gitignored).
+Open the Synthograsizer page → click the **API** button in the Connections sidebar → enter your key. It saves to `ai_studio_config.json` (gitignored, never committed).
 
 ---
 
@@ -316,27 +364,28 @@ synthograsizer-suite/
 │   │   ├── index.html          #     Main app page
 │   │   ├── display.html        #     Fullscreen display window (OBS / projector output)
 │   │   ├── css/
-│   │   │   ├── style.css                 #   Base styles
+│   │   │   ├── style.css                 #   Base styles (Quantico font for output area)
 │   │   │   ├── layout-options.css        #   Studio / Performance layout rules
 │   │   │   └── synth-hardware-theme.css  #   Hardware synth theme (Casio PT-1 / Roland Juno aesthetic)
 │   │   ├── js/
-│   │   │   ├── app.js                    # D-pad UI, variable navigation, p5 panel
-│   │   │   ├── studio-integration.js     # AI backend integration (image, video, batch)
+│   │   │   ├── app.js                    # D-pad UI, variable navigation, p5 panel, keyboard shortcuts
+│   │   │   ├── studio-integration.js     # AI backend integration (image, video, batch, API key management)
 │   │   │   ├── music-studio.js           # Music Studio panel (generation + transport)
 │   │   │   ├── code-overlay-manager.js   # Template / p5.js code editor overlay
 │   │   │   ├── template-loader.js        # Template import, export, normalization
 │   │   │   ├── batch-generator.js        # Batch prompt generation with streaming
-│   │   │   ├── midi-controller.js        # Web MIDI API (CC knobs + note triggers)
+│   │   │   ├── midi-controller.js        # Web MIDI API (CC knobs + note triggers + action mappings)
 │   │   │   ├── osc-controller.js         # OSC bridge client → POST /api/osc/* → osc_bridge.py
 │   │   │   ├── scope-connector.js        # Unified Scope manager (auto-discovery, health polling)
 │   │   │   ├── scope-video-client.js     # WebRTC canvas stream + image push via backend proxy
 │   │   │   ├── display-broadcaster.js    # BroadcastChannel relay to display.html
 │   │   │   ├── display-glitcher.js       # Glitcher effects engine for display window
 │   │   │   └── glitcher-controls.js      # Glitcher panel UI (integrated sidebar)
-│   │   └── templates/          #     30+ JSON templates
+│   │   └── templates/          #     50+ JSON templates
 │   │       ├── strange-attractors.json
 │   │       ├── cellular-tapestry.json
 │   │       ├── lissajous-lab.json
+│   │       ├── spring-physics-v2.json
 │   │       └── ...             #     (see Templates section above)
 │   ├── promptcraft/            #   PromptCraft Sequencer
 │   ├── glitcher/               #   Glitch Art Studio
@@ -344,7 +393,6 @@ synthograsizer-suite/
 │   ├── metadata-manager/       #   PNG Metadata extractor
 │   ├── legacy/                 #   Original Synthograsizer + ComfyUI bridge
 │   ├── chatroom/               #   ChatRoom frontend (built)
-│   ├── fun-stuff/              #   Character creator, generative art
 │   └── about/                  #   About page
 │
 ├── chatroom/                   # ChatRoom Node.js backend + React frontend source
@@ -392,13 +440,13 @@ Synthograsizer and PromptCraft share a common JSON template format, making templ
 }
 ```
 
-**Generative art templates** add an optional `p5Code` field containing a full p5.js sketch. The sketch reads live variable values via `p.getSynthVar("variableName")`:
+**Generative art templates** add an optional `p5Code` field containing a full p5.js sketch written in **instance mode** (the sketch receives a `p` argument — use `p.setup`, `p.draw`, `p.createCanvas`, etc.). The sketch reads live variable values via `p.getSynthVar("variableName")`:
 
 ```json
 {
   "promptTemplate": "{{attractor_type}} attractor, {{color_scheme}}",
   "variables": [...],
-  "p5Code": "function setup() { createCanvas(800, 800); } function draw() { let type = p.getSynthVar('attractor_type'); ... }"
+  "p5Code": "p.setup = function() { p.createCanvas(800, 800); }; p.draw = function() { let type = p.getSynthVar('attractor_type'); ... };"
 }
 ```
 
