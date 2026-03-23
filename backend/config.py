@@ -12,6 +12,8 @@ MODEL_ANALYSIS = "gemini-3-flash-preview"
 
 # Template generation (Pro for creative quality)
 MODEL_TEMPLATE_GEN = "gemini-3.1-pro-preview"
+# Fast alternative for template generation (lower quality, much faster)
+MODEL_TEMPLATE_GEN_FAST = "gemini-3-flash-preview"
 # Lighter tasks: narrative, video variations, chat inside ai_manager
 MODEL_FAST = "gemini-3-flash-preview"
 
@@ -23,3 +25,4 @@ PORT = 8000
 # ── Operational Limits ──
 VIDEO_POLL_TIMEOUT_SECONDS = 300  # Max wait for video generation
 MAX_BATCH_IMAGES = 200           # Safety cap for batch analysis
+TEMPLATE_GEN_TIMEOUT_SECONDS = 180  # Max wait for LLM template generation

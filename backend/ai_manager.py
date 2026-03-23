@@ -780,14 +780,14 @@ class AIManager:
                 
             return f"Analysis failed: {error_msg}"
 
-    def generate_template(self, user_prompt: str) -> str:
+    def generate_template(self, user_prompt: str, model_override: str = None) -> str:
         """
         Generates a Synthograsizer JSON template based on user prompt.
         """
         if not self.genai_client:
             raise ValueError("API Key not configured")
 
-        model = config.MODEL_TEMPLATE_GEN
+        model = model_override or config.MODEL_TEMPLATE_GEN
         
         system_prompt = """
 You are a template generator for PromptCraft Sequencer — a VST/synthesizer-inspired real-time prompt engineering tool. Templates are loaded into a 16-step sequencer where each variable can be programmed per-step, creating evolving AI image/video generation prompts. The output uses SD/Comfy-style (term:weight) syntax.
@@ -1333,14 +1333,14 @@ Combine all sections into a single flowing prompt of 50-150 words, written in a 
                 
             raise Exception(f"Image analysis failed: {error_msg}")
 
-    def generate_template_from_analysis(self, analysis_text: str) -> str:
+    def generate_template_from_analysis(self, analysis_text: str, model_override: str = None) -> str:
         """
         Generates a Synthograsizer JSON template based on an image analysis description.
         """
         if not self.genai_client:
             raise ValueError("API Key not configured")
 
-        model = config.MODEL_TEMPLATE_GEN
+        model = model_override or config.MODEL_TEMPLATE_GEN
         
         system_prompt = """
 You are a template generator for PromptCraft Sequencer — a 16-step prompt sequencer for AI image/video generation. Your task is to convert image analysis into a sequencer-ready template.
@@ -1406,7 +1406,7 @@ Each entry in "values" is: {"text": "the value string", "weight": N}
         except Exception as e:
             raise Exception(f"Template generation failed: {e}")
 
-    def generate_template_hybrid(self, image_bytes: bytes, direction: str) -> str:
+    def generate_template_hybrid(self, image_bytes: bytes, direction: str, model_override: str = None) -> str:
         """
         Generate a template from an image's aesthetic + user's structural direction.
         The image defines the style baseline; the text defines the variable structure.
@@ -1418,7 +1418,7 @@ Each entry in "values" is: {"text": "the value string", "weight": N}
         analysis = self.analyze_image_to_prompt(image_bytes)
 
         # Step 2: Generate template using both analysis + direction
-        model = config.MODEL_TEMPLATE_GEN
+        model = model_override or config.MODEL_TEMPLATE_GEN
 
         system_prompt = """You are a template generator for PromptCraft Sequencer — a VST-inspired 16-step prompt sequencer for AI image/video generation.
 You are working in HYBRID mode: you have been given an IMAGE ANALYSIS (describing an image's visual style and aesthetic) and a USER DIRECTION (describing what kind of template structure and variables the user wants).
@@ -1477,7 +1477,7 @@ Each entry in "values" is: {"text": "the value string", "weight": N}
         except Exception as e:
             raise Exception(f"Hybrid template generation failed: {e}")
 
-    def generate_template_from_images(self, images_list: list) -> str:
+    def generate_template_from_images(self, images_list: list, model_override: str = None) -> str:
         """
         Extract a common aesthetic pattern from multiple images and generate a template.
         Shared traits become fixed text; differences become variables.
@@ -1495,7 +1495,7 @@ Each entry in "values" is: {"text": "the value string", "weight": N}
                 analyses.append(f"(Analysis failed for image {i+1}: {str(e)})")
 
         # Step 2: Feed all analyses to template generator
-        model = config.MODEL_TEMPLATE_GEN
+        model = model_override or config.MODEL_TEMPLATE_GEN
 
         system_prompt = """You are a template generator for PromptCraft Sequencer — a VST-inspired 16-step prompt sequencer for AI image/video generation.
 You are working in MULTI-IMAGE PATTERN EXTRACTION mode. You have been given analyses of MULTIPLE images. Your task is to identify what is COMMON across all images (the shared aesthetic) and what VARIES between them (the template variables).
@@ -1559,7 +1559,7 @@ Each entry in "values" is: {"text": "the value string", "weight": N}
         except Exception as e:
             raise Exception(f"Multi-image template generation failed: {e}")
 
-    def remix_template(self, current_template: dict, instruction: str) -> str:
+    def remix_template(self, current_template: dict, instruction: str, model_override: str = None) -> str:
         """
         Evolve an existing template based on user instructions.
         Preserves elements the user doesn't explicitly ask to change.
@@ -1567,7 +1567,7 @@ Each entry in "values" is: {"text": "the value string", "weight": N}
         if not self.genai_client:
             raise ValueError("API Key not configured")
 
-        model = config.MODEL_TEMPLATE_GEN
+        model = model_override or config.MODEL_TEMPLATE_GEN
 
         system_prompt = """You are a template editor for PromptCraft Sequencer — a VST-inspired 16-step prompt sequencer for AI image/video generation.
 You are working in REMIX mode. You have been given an EXISTING template (JSON) and USER INSTRUCTIONS for how to modify it.
@@ -1782,7 +1782,7 @@ WORKFLOW:
         except Exception as e:
             raise Exception(f"Workflow curation failed: {e}")
 
-    def generate_story_template(self, user_prompt: str) -> str:
+    def generate_story_template(self, user_prompt: str, model_override: str = None) -> str:
         """
         W16 — Story Template Generator.
         Generates a Synthograsizer template with a 'story' block that defines
@@ -1792,7 +1792,7 @@ WORKFLOW:
         if not self.genai_client:
             raise ValueError("API Key not configured")
 
-        model = config.MODEL_TEMPLATE_GEN
+        model = model_override or config.MODEL_TEMPLATE_GEN
 
         system_prompt = """You are a Story Template Generator for a creative prompt manipulation tool that produces sequential image/video prompts with narrative continuity.
 

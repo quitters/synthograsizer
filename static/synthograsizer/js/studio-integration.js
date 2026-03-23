@@ -1146,7 +1146,15 @@ class StudioIntegration {
                 <button class="tg-mode-btn" data-mode="story">📖 Story</button>
             </div>
 
-            <!-- Text Mode (default) -->
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px; padding:8px 12px; background:rgba(0,150,136,0.06); border-radius:6px; border:1px solid rgba(0,150,136,0.15);">
+                <span style="font-size:12px; font-weight:600; color:#555;">AI Model:</span>
+                <label style="display:flex; align-items:center; gap:4px; font-size:12px; cursor:pointer; color:#009688;">
+                    <input type="radio" name="tg-model-choice" value="pro" checked style="accent-color:#009688;"> Pro <span style="color:#999; font-weight:normal;">(quality)</span>
+                </label>
+                <label style="display:flex; align-items:center; gap:4px; font-size:12px; cursor:pointer; color:#FF9800;">
+                    <input type="radio" name="tg-model-choice" value="flash" style="accent-color:#FF9800;"> Flash <span style="color:#999; font-weight:normal;">(speed)</span>
+                </label>
+            </div>
             <div class="tg-panel" id="tg-panel-text">
                 <div class="tg-hint">
                     <strong>Text Mode:</strong> Describe what kind of prompt template you want, and AI will build it for you with variables and options.
@@ -3892,19 +3900,29 @@ class StudioIntegration {
         };
 
         // Workflow mode: show progress with image count
+        const modelLabel = document.querySelector('input[name="tg-model-choice"]:checked')?.value === 'flash' ? '⚡ Flash' : '🧠 Pro';
         if (mode === 'workflow') {
             const imageCount = body.images?.length || 1;
-            this.showLoading(`Workflow Curation (${imageCount} image${imageCount > 1 ? 's' : ''})`,
+            this.showLoading(`Workflow Curation (${imageCount} image${imageCount > 1 ? 's' : ''}) — ${modelLabel}`,
                 'Analyzing image and curating variables...');
         } else {
-            this.showLoading(`Template Generator (${modeLabels[mode]})`);
+            this.showLoading(`Template Generator (${modeLabels[mode]}) — ${modelLabel}`);
         }
 
         try {
-            // Use AbortController for timeout (90 seconds for workflow, 60 for others)
+            // Use AbortController for timeout — per-mode values
             const controller = new AbortController();
-            const timeoutMs = mode === 'workflow' ? 90000 : 60000;
+            const timeoutTable = {
+                'text': 120000, 'image': 120000, 'hybrid': 120000,
+                'multi-image': 150000, 'remix': 120000,
+                'story': 150000, 'workflow': 150000
+            };
+            const timeoutMs = timeoutTable[mode] || 120000;
             const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+            // Read Pro/Flash model choice
+            const useFlash = document.querySelector('input[name="tg-model-choice"]:checked')?.value === 'flash';
+            body.use_flash = useFlash;
 
             const res = await fetch('/api/generate/template', {
                 method: 'POST',
@@ -3998,7 +4016,11 @@ class StudioIntegration {
         } catch (e) {
             // Handle timeout/abort specifically
             if (e.name === 'AbortError') {
-                this.showError('Request timed out. The AI took too long to respond. Try with a smaller image or simpler workflow.');
+                const useFlash = document.querySelector('input[name="tg-model-choice"]:checked')?.value === 'flash';
+                const suggestion = useFlash
+                    ? 'The request timed out even with Flash mode. Try a simpler prompt or smaller image.'
+                    : 'Try switching to Flash mode (faster) or simplifying your request.';
+                this.showError(`Request timed out. ${suggestion}`);
             } else {
                 this.showError(e.message || 'An unexpected error occurred');
             }

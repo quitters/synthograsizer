@@ -125,6 +125,7 @@ class TemplateRequest(BaseModel):
     workflow: Optional[dict] = None           # Workflow JSON to curate (Workflow mode)
     preview: Optional[bool] = True            # Return rationale with selections (Workflow mode)
     batch: Optional[bool] = False             # Multiple images = batch curation (Workflow mode)
+    use_flash: Optional[bool] = False         # Use Flash model for faster (lower quality) generation
 
 class AnalyzeRequest(BaseModel):
     image: str  # Base64 encoded image
@@ -388,18 +389,30 @@ async def batch_text(request: BatchTextRequest):
 
 @app.post("/api/generate/template")
 async def generate_template(request: TemplateRequest):
+    timeout = config.TEMPLATE_GEN_TIMEOUT_SECONDS
+    # Resolve model override: Flash for speed, Pro for quality
+    model_override = config.MODEL_TEMPLATE_GEN_FAST if request.use_flash else None
     try:
         mode = request.mode
 
         if mode == "text":
-            json_str = await asyncio.to_thread(ai_manager.generate_template, request.prompt)
+            json_str = await asyncio.wait_for(
+                asyncio.to_thread(ai_manager.generate_template, request.prompt, model_override=model_override),
+                timeout=timeout
+            )
 
         elif mode == "image":
             if not request.images or len(request.images) < 1:
                 raise ValueError("Image mode requires at least one image.")
             image_bytes = decode_base64_image(request.images[0])
-            analysis = await asyncio.to_thread(ai_manager.analyze_image_to_prompt, image_bytes)
-            json_str = await asyncio.to_thread(ai_manager.generate_template_from_analysis, analysis)
+            analysis = await asyncio.wait_for(
+                asyncio.to_thread(ai_manager.analyze_image_to_prompt, image_bytes),
+                timeout=timeout
+            )
+            json_str = await asyncio.wait_for(
+                asyncio.to_thread(ai_manager.generate_template_from_analysis, analysis, model_override=model_override),
+                timeout=timeout
+            )
 
         elif mode == "hybrid":
             if not request.images or len(request.images) < 1:
@@ -407,13 +420,19 @@ async def generate_template(request: TemplateRequest):
             if not request.prompt.strip():
                 raise ValueError("Hybrid mode requires a text direction.")
             image_bytes = decode_base64_image(request.images[0])
-            json_str = await asyncio.to_thread(ai_manager.generate_template_hybrid, image_bytes, request.prompt)
+            json_str = await asyncio.wait_for(
+                asyncio.to_thread(ai_manager.generate_template_hybrid, image_bytes, request.prompt, model_override=model_override),
+                timeout=timeout
+            )
 
         elif mode == "multi-image":
             if not request.images or len(request.images) < 2:
                 raise ValueError("Multi-Image mode requires at least 2 images.")
             decoded = [decode_base64_image(img) for img in request.images]
-            json_str = await asyncio.to_thread(ai_manager.generate_template_from_images, decoded)
+            json_str = await asyncio.wait_for(
+                asyncio.to_thread(ai_manager.generate_template_from_images, decoded, model_override=model_override),
+                timeout=timeout
+            )
 
         elif mode == "remix":
             # Current template + instructions → evolved template
@@ -421,13 +440,19 @@ async def generate_template(request: TemplateRequest):
                 raise ValueError("Remix mode requires a current template.")
             if not request.prompt.strip():
                 raise ValueError("Remix mode requires instructions.")
-            json_str = await asyncio.to_thread(ai_manager.remix_template, request.current_template, request.prompt)
+            json_str = await asyncio.wait_for(
+                asyncio.to_thread(ai_manager.remix_template, request.current_template, request.prompt, model_override=model_override),
+                timeout=timeout
+            )
 
         elif mode == "story":
             # Text prompt → Story template with acts, characters, progressions
             if not request.prompt.strip():
                 raise ValueError("Story mode requires a text description of the story concept.")
-            json_str = await asyncio.to_thread(ai_manager.generate_story_template, request.prompt)
+            json_str = await asyncio.wait_for(
+                asyncio.to_thread(ai_manager.generate_story_template, request.prompt, model_override=model_override),
+                timeout=timeout
+            )
 
         elif mode == "workflow":
             # Workflow JSON + Image(s) → Curated workflow(s) with one value per variable
@@ -443,12 +468,15 @@ async def generate_template(request: TemplateRequest):
             results = []
             for img_b64 in request.images:
                 image_bytes = decode_base64_image(img_b64)
-                result = await asyncio.to_thread(
-                    ai_manager.curate_workflow,
-                    request.workflow,
-                    image_bytes,
-                    guidance=guidance,
-                    include_rationale=include_rationale
+                result = await asyncio.wait_for(
+                    asyncio.to_thread(
+                        ai_manager.curate_workflow,
+                        request.workflow,
+                        image_bytes,
+                        guidance=guidance,
+                        include_rationale=include_rationale
+                    ),
+                    timeout=timeout
                 )
                 results.append(result)
 
@@ -461,6 +489,11 @@ async def generate_template(request: TemplateRequest):
         json_obj = normalize_template(parse_llm_json(json_str))
         return {"status": "success", "template": json_obj}
 
+    except asyncio.TimeoutError:
+        raise HTTPException(
+            status_code=504,
+            detail=f"Template generation timed out after {timeout}s. Try using Flash mode for faster results, or simplify your request."
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
