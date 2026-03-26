@@ -692,6 +692,10 @@ class WorkflowEngine {
       step.status = 'failed';
       step.completedAt = new Date().toISOString();
 
+      // Save checkpoint even on failure so Resume has something to load,
+      // even if zero prior steps completed (definition + failed step are recorded)
+      workflowLibrary.saveCheckpoint(state.id, state).catch(() => {});
+
       state.broadcast('workflow_step_error', {
         workflowId: state.id,
         stepId,
