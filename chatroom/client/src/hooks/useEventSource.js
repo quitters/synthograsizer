@@ -57,7 +57,23 @@ export function useEventSource(url, options = {}) {
       'chunk',
       'agent_complete',
       'message',
-      'error'
+      'error',
+      // Synth tool events
+      'synth_executing',
+      'synth_media',
+      'synth_result',
+      'synth_error',
+      // Workflow engine events
+      'workflow_submitted',
+      'workflow_start',
+      'workflow_step_start',
+      'workflow_step_complete',
+      'workflow_step_error',
+      'workflow_complete',
+      'workflow_cancelled',
+      'workflow_error',
+      'workflow_status',
+      'workflow_cancel_result',
     ];
 
     eventTypes.forEach(eventType => {

@@ -14,6 +14,7 @@ import { SettingsPanel } from './components/SettingsPanel';
 import { TemplateBrowser } from './components/TemplateBrowser';
 import { CommandPalette, useCommands } from './components/CommandPalette';
 import { MemoryViewer } from './components/MemoryViewer';
+import { WorkflowPanel } from './components/WorkflowPanel';
 import {
   exportAsMarkdown,
   exportAsJSON,
@@ -51,6 +52,8 @@ function App() {
   const [conversationSpeed, setConversationSpeed] = useState(1500); // ms between turns
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [showMemoryViewer, setShowMemoryViewer] = useState(false);
+  // workflowId → { id, name, status, startedAt, completedAt, steps: [] }
+  const [workflows, setWorkflows] = useState(new Map());
 
   const chatRoomRef = useRef(null);
   const autoSaveTimerRef = useRef(null);
@@ -292,6 +295,111 @@ function App() {
     on('speaking_order_changed', (data) => {
       console.log('Speaking order changed to:', data.mode);
     });
+
+    // ── Workflow events ──────────────────────────────────────────────────────
+
+    const updateWorkflow = (id, patch) => {
+      setWorkflows(prev => {
+        const next = new Map(prev);
+        const existing = next.get(id) ?? { id, steps: [] };
+        next.set(id, { ...existing, ...patch });
+        return next;
+      });
+    };
+
+    const updateWorkflowStep = (workflowId, stepId, stepPatch) => {
+      setWorkflows(prev => {
+        const next = new Map(prev);
+        const wf = next.get(workflowId);
+        if (!wf) return prev;
+        const steps = wf.steps.map(s =>
+          s.id === stepId ? { ...s, ...stepPatch } : s
+        );
+        // If step not yet in list, append it
+        if (!wf.steps.find(s => s.id === stepId)) {
+          steps.push({ id: stepId, ...stepPatch });
+        }
+        next.set(workflowId, { ...wf, steps });
+        return next;
+      });
+    };
+
+    on('workflow_submitted', (data) => {
+      updateWorkflow(data.workflowId, {
+        id:        data.workflowId,
+        name:      data.workflowName,
+        status:    'pending',
+        stepCount: data.stepCount,
+        steps:     [],
+        agentId:   data.agentId,
+      });
+    });
+
+    on('workflow_start', (data) => {
+      updateWorkflow(data.workflowId, {
+        status:    'running',
+        name:      data.name ?? undefined,
+        startedAt: new Date().toISOString(),
+        // Pre-populate step skeletons so the panel shows the full list
+        steps: data.stepCount
+          ? Array.from({ length: data.stepCount }, (_, i) => ({
+              id: `step_${i}`, type: '…', status: 'pending',
+            }))
+          : undefined,
+      });
+    });
+
+    on('workflow_step_start', (data) => {
+      updateWorkflowStep(data.workflowId, data.stepId, {
+        id:     data.stepId,
+        type:   data.stepType,
+        status: 'running',
+      });
+    });
+
+    on('workflow_step_complete', (data) => {
+      updateWorkflowStep(data.workflowId, data.stepId, {
+        status:  'complete',
+        summary: data.summary,
+      });
+    });
+
+    on('workflow_step_error', (data) => {
+      updateWorkflowStep(data.workflowId, data.stepId, {
+        status: 'failed',
+        error:  data.error,
+      });
+    });
+
+    on('workflow_complete', (data) => {
+      // Replace step list with authoritative summary from engine
+      const steps = (data.stepResults ?? []).map(s => ({
+        id:      s.id,
+        type:    s.type,
+        status:  s.status,
+        error:   s.error,
+        summary: Object.fromEntries(
+          Object.entries(s).filter(([k]) => !['id','type','status','error'].includes(k))
+        ),
+      }));
+      updateWorkflow(data.workflowId, {
+        status:      data.status,
+        completedAt: data.completedAt ?? new Date().toISOString(),
+        ...(steps.length > 0 ? { steps } : {}),
+      });
+    });
+
+    on('workflow_cancelled', (data) => {
+      updateWorkflow(data.workflowId, { status: 'cancelled' });
+    });
+
+    on('workflow_error', (data) => {
+      console.error('Workflow error:', data.error);
+      if (data.workflowId) {
+        updateWorkflow(data.workflowId, { status: 'failed', error: data.error });
+      }
+    });
+
   }, [on, agents, notificationsEnabled]);
 
   // Fetch conversation history
@@ -677,6 +785,17 @@ function App() {
             streamingMessage={streamingMessage}
             currentSpeaker={currentSpeaker}
             onRemixImage={(image) => setRemixImage(image)}
+          />
+
+          <WorkflowPanel
+            workflows={workflows}
+            onClearAll={() => setWorkflows(prev => {
+              const next = new Map();
+              for (const [id, wf] of prev.entries()) {
+                if (wf.status === 'running') next.set(id, wf);
+              }
+              return next;
+            })}
           />
 
           <Controls

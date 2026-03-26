@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { synthClient } from './synthClient.js';
 import { mediaStore } from './mediaStore.js';
+import { workflowLibrary } from './workflowLibrary.js';
 
 /**
  * WorkflowEngine — executes multi-step creative pipelines.
@@ -130,6 +131,55 @@ async function dispatchSynth(type, params, agentId = null, agentName = null) {
       return res;
     }
 
+    case 'synth_text': {
+      const { prompt } = params;
+      const res = await synthClient.generateText(prompt || '');
+      // Normalise: ensure result has a 'text' field for downstream interpolation
+      return { text: res.text || res.response || res.result || JSON.stringify(res), ...res };
+    }
+
+    case 'synth_fetch': {
+      // Fetch an external URL and return its content for downstream interpolation.
+      // params: { url, format? = 'text'|'json', selector? }
+      const { url, format = 'text', selector } = params;
+      if (!url) throw new Error('synth_fetch requires a url param');
+
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 15_000);
+      let raw;
+      try {
+        const res = await fetch(url, {
+          signal: controller.signal,
+          headers: { 'User-Agent': 'Synthograsizer-WorkflowEngine/1.0' },
+        });
+        clearTimeout(timer);
+        if (!res.ok) throw new Error(`HTTP ${res.status} from ${url}`);
+        raw = await res.text();
+      } finally {
+        clearTimeout(timer);
+      }
+
+      if (format === 'json') {
+        let data;
+        try { data = JSON.parse(raw); } catch { data = raw; }
+
+        // Optional dot-path selector: "current.temperature" → data.current.temperature
+        if (selector && typeof data === 'object') {
+          const val = selector.split('.').reduce((o, k) => o?.[k], data);
+          return {
+            url,
+            text: val !== undefined ? String(val) : JSON.stringify(data),
+            data: val !== undefined ? val : data,
+            raw: raw.slice(0, 2000),
+          };
+        }
+        return { url, text: raw.slice(0, 2000), data, raw: raw.slice(0, 2000) };
+      }
+
+      // Plain text — trim to a useful length
+      return { url, text: raw.slice(0, 4000) };
+    }
+
     case 'synth_template': {
       const { description, mode = 'text' } = params;
       return synthClient.generateTemplate(description || '', mode);
@@ -138,6 +188,15 @@ async function dispatchSynth(type, params, agentId = null, agentName = null) {
     case 'synth_story': {
       const { description } = params;
       return synthClient.generateTemplate(description || '', 'story');
+    }
+
+    case 'synth_remix_template': {
+      const { template, instructions } = params;
+      let templateObj = template;
+      if (typeof templateObj === 'string') {
+        try { templateObj = JSON.parse(templateObj); } catch (_) { /* keep as string */ }
+      }
+      return synthClient.remixTemplate(templateObj, instructions || '');
     }
 
     case 'synth_narrative': {
@@ -299,6 +358,130 @@ class WorkflowEngine {
     return true;
   }
 
+  /**
+   * List all tracked workflows (active + recently completed).
+   * @returns {Array}
+   */
+  listActive() {
+    return [...this._workflows.values()].map(state => ({
+      id:          state.id,
+      name:        state.name,
+      status:      state.status,
+      startedAt:   state.startedAt,
+      completedAt: state.completedAt,
+      agentId:     state.agentId,
+      stepCount:   state.steps.length,
+      doneCount:   state.steps.filter(s => s.status === 'complete').length,
+      failCount:   state.steps.filter(s => s.status === 'failed').length,
+    }));
+  }
+
+  /**
+   * Retry all failed (and pending) steps of an existing in-memory workflow.
+   * Reuses completed step results — only re-runs failed/pending steps.
+   * @param {string}   workflowId
+   * @param {object}   options   — { broadcast?, agentId?, agentName? }
+   * @returns {string} same workflowId
+   */
+  async retry(workflowId, options = {}) {
+    const state = this._workflows.get(workflowId);
+    if (!state) throw new Error(`Workflow ${workflowId} not found`);
+    if (state.status === 'running') throw new Error('Workflow is still running');
+
+    // Merge new broadcast / agent options
+    if (options.broadcast) state.broadcast = options.broadcast;
+    if (options.agentId)   state.agentId   = options.agentId;
+    if (options.agentName) state.agentName = options.agentName;
+
+    // Reset failed and pending steps only
+    for (const step of state.steps) {
+      if (step.status === 'failed' || step.status === 'pending') {
+        step.status      = 'pending';
+        step.result      = null;
+        step.error       = null;
+        step.startedAt   = null;
+        step.completedAt = null;
+      }
+    }
+
+    state.status    = 'running';
+    state.cancelled = false;
+    state.completedAt = null;
+
+    state.broadcast('workflow_start', {
+      workflowId,
+      name:      state.name,
+      stepCount: state.steps.length,
+      agentId:   state.agentId,
+      retry:     true,
+    });
+
+    this._execute(state).catch(err => {
+      state.status = 'failed';
+      state.broadcast('workflow_error', { workflowId, error: err.message });
+    });
+
+    return workflowId;
+  }
+
+  /**
+   * Resume a workflow from a persisted checkpoint.
+   * Loads the checkpoint from disk, pre-fills completed step results,
+   * and runs only the remaining steps.
+   * @param {string}   workflowId   — id of the original run
+   * @param {object}   options      — { broadcast?, agentId?, agentName? }
+   * @returns {string} new workflowId (same as original)
+   */
+  async resume(workflowId, options = {}) {
+    const checkpoint = await workflowLibrary.loadCheckpoint(workflowId);
+    if (!checkpoint) {
+      throw new Error(`No checkpoint found for workflow ${workflowId}`);
+    }
+
+    const { workflowDef, stepResults, completedSteps } = checkpoint;
+    const completedSet = new Set(completedSteps || []);
+
+    const state = {
+      id:        workflowId,
+      name:      workflowDef.name || 'Resumed Workflow',
+      steps:     (workflowDef.steps || []).map(def => ({
+        ...makeStep(def),
+        // Pre-mark completed steps
+        status:      completedSet.has(def.id) ? 'complete' : 'pending',
+        result:      completedSet.has(def.id) ? (stepResults[def.id] || {}) : null,
+        completedAt: completedSet.has(def.id) ? checkpoint.savedAt : null,
+      })),
+      status:      'running',
+      broadcast:   options.broadcast || (() => {}),
+      agentId:     options.agentId   || null,
+      agentName:   options.agentName || null,
+      cancelled:   false,
+      startedAt:   new Date().toISOString(),
+      completedAt: null,
+      results:     new Map(
+        Object.entries(stepResults || {}).map(([k, v]) => [k, v])
+      ),
+    };
+
+    this._workflows.set(workflowId, state);
+
+    state.broadcast('workflow_start', {
+      workflowId,
+      name:           state.name,
+      stepCount:      state.steps.length,
+      agentId:        state.agentId,
+      resume:         true,
+      resumedFrom:    completedSteps?.length ?? 0,
+    });
+
+    this._execute(state).catch(err => {
+      state.status = 'failed';
+      state.broadcast('workflow_error', { workflowId, error: err.message });
+    });
+
+    return workflowId;
+  }
+
   // --------------------------------------------------------------------------
   // Internal execution
   // --------------------------------------------------------------------------
@@ -326,6 +509,11 @@ class WorkflowEngine {
     }
 
     state.completedAt = new Date().toISOString();
+
+    // Clean up checkpoint on successful completion; keep on failure for resume
+    if (state.status === 'complete') {
+      workflowLibrary.deleteCheckpoint(state.id).catch(() => {});
+    }
 
     state.broadcast('workflow_complete', {
       workflowId: state.id,
@@ -376,6 +564,9 @@ class WorkflowEngine {
       step.status = 'complete';
       step.completedAt = new Date().toISOString();
       state.results.set(stepId, result);
+
+      // Persist checkpoint so this step's result survives server restarts
+      workflowLibrary.saveCheckpoint(state.id, state).catch(() => {});
 
       state.broadcast('workflow_step_complete', {
         workflowId: state.id,
