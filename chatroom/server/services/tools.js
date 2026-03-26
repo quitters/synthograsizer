@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { synthClient } from './synthClient.js';
 
 /**
  * Unified Tools Service
@@ -424,6 +425,238 @@ export function formatToolResults(results) {
 
       default:
         return result;
+    }
+  });
+}
+
+// ============================================================================
+// SYNTH_* TAG PARSING (Synthograsizer integration)
+// ============================================================================
+
+/**
+ * Parse pipe-separated options string into a key=value object.
+ * First segment is always the primary value (prompt/id/etc.).
+ * Remaining segments are parsed as key=value pairs if they contain "=",
+ * or are ignored if they don't.
+ *
+ * Example: "a forest at night | aspect_ratio=16:9 | num_images=2"
+ * → { _primary: "a forest at night", aspect_ratio: "16:9", num_images: "2" }
+ */
+function parsePipeOptions(raw) {
+  const parts = raw.split('|').map(s => s.trim());
+  const result = { _primary: parts[0] };
+  for (let i = 1; i < parts.length; i++) {
+    const eqIdx = parts[i].indexOf('=');
+    if (eqIdx !== -1) {
+      const key = parts[i].slice(0, eqIdx).trim();
+      const val = parts[i].slice(eqIdx + 1).trim();
+      result[key] = val;
+    }
+  }
+  return result;
+}
+
+/**
+ * Parse agent response text for SYNTH_* tool tags.
+ * Supported tags:
+ *   [SYNTH_IMAGE: prompt | option=value ...]
+ *   [SYNTH_VIDEO: prompt | option=value ...]
+ *   [SYNTH_TEMPLATE: description | mode=story]
+ *   [SYNTH_STORY: description]                  (shorthand for mode=story)
+ *   [SYNTH_REMIX_TEMPLATE: template_id | instructions]
+ *   [SYNTH_NARRATIVE: desc1 | desc2 | mode=dream]
+ *   [SYNTH_TRANSFORM: image_id | intent]
+ *   [SYNTH_ANALYZE: image_id]
+ *
+ * @param {string} text
+ * @returns {Array} parsed request objects
+ */
+export function parseSynthRequests(text) {
+  const requests = [];
+
+  const tagPatterns = [
+    { tag: 'SYNTH_IMAGE',          type: 'synth_image' },
+    { tag: 'SYNTH_VIDEO',          type: 'synth_video' },
+    { tag: 'SYNTH_TEMPLATE',       type: 'synth_template' },
+    { tag: 'SYNTH_STORY',          type: 'synth_story' },
+    { tag: 'SYNTH_REMIX_TEMPLATE', type: 'synth_remix_template' },
+    { tag: 'SYNTH_NARRATIVE',      type: 'synth_narrative' },
+    { tag: 'SYNTH_TRANSFORM',      type: 'synth_transform' },
+    { tag: 'SYNTH_ANALYZE',        type: 'synth_analyze' },
+  ];
+
+  for (const { tag, type } of tagPatterns) {
+    const pattern = new RegExp(`\\[${tag}:\\s*([\\s\\S]+?)\\]`, 'gi');
+    let match;
+    while ((match = pattern.exec(text)) !== null) {
+      const raw = match[1].trim().replace(/\s*\n\s*/g, ' ');
+      const parsed = parsePipeOptions(raw);
+      requests.push({ type, fullMatch: match[0], parsed });
+    }
+  }
+
+  return requests;
+}
+
+/**
+ * Strip SYNTH_* tags from text.
+ * @param {string} text
+ * @returns {string}
+ */
+export function stripSynthTags(text) {
+  const tags = [
+    'SYNTH_IMAGE', 'SYNTH_VIDEO', 'SYNTH_TEMPLATE', 'SYNTH_STORY',
+    'SYNTH_REMIX_TEMPLATE', 'SYNTH_NARRATIVE', 'SYNTH_TRANSFORM', 'SYNTH_ANALYZE',
+  ];
+  let cleaned = text;
+  for (const tag of tags) {
+    cleaned = cleaned.replace(new RegExp(`\\[${tag}:\\s*[\\s\\S]+?\\]`, 'gi'), '');
+  }
+  return cleaned.trim();
+}
+
+/**
+ * Execute parsed SYNTH_* requests against the Synthograsizer API.
+ * Returns an array of result objects with type + outcome fields.
+ * @param {Array} requests  output of parseSynthRequests()
+ * @param {Function} [getMediaById]  optional lookup fn(id) → {data, mimeType}
+ * @returns {Promise<Array>}
+ */
+export async function executeSynthRequests(requests, getMediaById = null) {
+  const results = [];
+
+  for (const req of requests) {
+    const { type, parsed } = req;
+    try {
+      let result;
+
+      switch (type) {
+        case 'synth_image': {
+          const { _primary: prompt, ...opts } = parsed;
+          result = await synthClient.generateImage(prompt, opts);
+          results.push({ type, fullMatch: req.fullMatch, prompt, ...result, mediaType: 'image' });
+          break;
+        }
+
+        case 'synth_video': {
+          const { _primary: prompt, ...opts } = parsed;
+          result = await synthClient.generateVideo(prompt, opts);
+          results.push({ type, fullMatch: req.fullMatch, prompt, ...result, mediaType: 'video' });
+          break;
+        }
+
+        case 'synth_template': {
+          const { _primary: description, mode = 'text' } = parsed;
+          result = await synthClient.generateTemplate(description, mode);
+          results.push({ type, fullMatch: req.fullMatch, description, mode, ...result });
+          break;
+        }
+
+        case 'synth_story': {
+          const { _primary: description } = parsed;
+          result = await synthClient.generateTemplate(description, 'story');
+          results.push({ type, fullMatch: req.fullMatch, description, mode: 'story', ...result });
+          break;
+        }
+
+        case 'synth_remix_template': {
+          // parsed._primary = template_id or JSON string, second segment = instructions
+          const parts = req.fullMatch
+            .replace(/^\[SYNTH_REMIX_TEMPLATE:\s*/i, '')
+            .replace(/\]$/, '')
+            .split('|');
+          const templateRef = parts[0]?.trim() || '';
+          const instructions = parts.slice(1).join('|').trim();
+          // If templateRef looks like JSON, parse it; otherwise pass as-is
+          let template = templateRef;
+          try { template = JSON.parse(templateRef); } catch (_) { /* keep as string */ }
+          result = await synthClient.remixTemplate(template, instructions);
+          results.push({ type, fullMatch: req.fullMatch, instructions, ...result });
+          break;
+        }
+
+        case 'synth_narrative': {
+          // All pipe segments except the last "mode=x" are descriptions
+          const { mode = 'story', ...rest } = parsed;
+          const descriptions = Object.entries(rest)
+            .filter(([k]) => k !== '_primary' && !k.includes('='))
+            .map(([, v]) => v);
+          descriptions.unshift(parsed._primary);
+          result = await synthClient.generateNarrative(descriptions, mode);
+          results.push({ type, fullMatch: req.fullMatch, descriptions, mode, ...result });
+          break;
+        }
+
+        case 'synth_transform': {
+          const parts = req.fullMatch
+            .replace(/^\[SYNTH_TRANSFORM:\s*/i, '')
+            .replace(/\]$/, '')
+            .split('|');
+          const imageRef = parts[0]?.trim();
+          const intent = parts.slice(1).join('|').trim();
+          // Resolve image_id → base64 via optional lookup
+          let imageBase64 = imageRef;
+          if (getMediaById) {
+            const media = getMediaById(imageRef);
+            if (media?.data) imageBase64 = media.data;
+          }
+          result = await synthClient.smartTransform(imageBase64, intent);
+          results.push({ type, fullMatch: req.fullMatch, intent, ...result, mediaType: 'image' });
+          break;
+        }
+
+        case 'synth_analyze': {
+          const imageRef = parsed._primary;
+          let imageBase64 = imageRef;
+          if (getMediaById) {
+            const media = getMediaById(imageRef);
+            if (media?.data) imageBase64 = media.data;
+          }
+          result = await synthClient.analyzeImage(imageBase64);
+          results.push({ type, fullMatch: req.fullMatch, imageRef, ...result });
+          break;
+        }
+
+        default:
+          break;
+      }
+    } catch (err) {
+      results.push({ type, fullMatch: req.fullMatch, error: err.message });
+    }
+  }
+
+  return results;
+}
+
+/**
+ * Format SYNTH_* results for display / transcript inclusion.
+ * Returns lightweight summaries — full media data is stored separately.
+ * @param {Array} results  output of executeSynthRequests()
+ * @returns {Array}
+ */
+export function formatSynthResults(results) {
+  return results.map(r => {
+    if (r.error) {
+      return { type: r.type, error: r.error };
+    }
+    switch (r.type) {
+      case 'synth_image':
+        return { type: r.type, prompt: r.prompt, hasImage: !!r.image, mediaType: 'image' };
+      case 'synth_video':
+        return { type: r.type, prompt: r.prompt, hasVideo: !!r.video, mediaType: 'video' };
+      case 'synth_template':
+      case 'synth_story':
+        return { type: r.type, description: r.description, mode: r.mode, template: r.template };
+      case 'synth_remix_template':
+        return { type: r.type, instructions: r.instructions, template: r.template };
+      case 'synth_narrative':
+        return { type: r.type, descriptions: r.descriptions, mode: r.mode, prompts: r.prompts };
+      case 'synth_transform':
+        return { type: r.type, intent: r.intent, hasImage: !!r.image, mediaType: 'image' };
+      case 'synth_analyze':
+        return { type: r.type, imageRef: r.imageRef, analysis: r.analysis };
+      default:
+        return r;
     }
   });
 }

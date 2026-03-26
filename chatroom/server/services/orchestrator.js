@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { generateAgentResponse } from './gemini.js';
 import { generateImage, generateImageWithReferences, parseImageRequests, parseRemixRequests, stripImageTags } from './imageGen.js';
-import { parseToolRequests, executeToolRequests, stripToolTags, formatToolResults } from './tools.js';
+import { parseToolRequests, executeToolRequests, stripToolTags, formatToolResults, parseSynthRequests, executeSynthRequests, stripSynthTags, formatSynthResults } from './tools.js';
 import { countTokens, countMessageTokens } from '../utils/tokenCounter.js';
 import { mediaStore } from './mediaStore.js';
 
@@ -965,12 +965,117 @@ class ChatOrchestrator {
           fullResponse = stripToolTags(fullResponse);
         }
 
-        // Skip empty responses (no text, no images, no tool results)
+        // Check for Synthograsizer tool requests (SYNTH_* tags)
+        const synthRequests = parseSynthRequests(fullResponse);
+        const synthMedia = []; // { id, type, data, mimeType, prompt }
+        let synthResults = [];
+
+        if (synthRequests.length > 0) {
+          // Broadcast generating status for each request
+          for (const req of synthRequests) {
+            this.broadcast('synth_executing', {
+              agentId: speaker.id,
+              synthType: req.type,
+              prompt: req.parsed?._primary || ''
+            });
+          }
+
+          try {
+            // mediaStore.get lets agents reference images/videos by ID
+            const rawSynthResults = await executeSynthRequests(
+              synthRequests,
+              (id) => mediaStore.get(id)
+            );
+            synthResults = formatSynthResults(rawSynthResults);
+
+            // Store any returned media and broadcast results
+            for (let i = 0; i < rawSynthResults.length; i++) {
+              const raw = rawSynthResults[i];
+              const formatted = synthResults[i];
+
+              if (raw.error) {
+                this.broadcast('synth_error', {
+                  agentId: speaker.id,
+                  synthType: raw.type,
+                  error: raw.error
+                });
+                continue;
+              }
+
+              // Handle image results (generate/transform)
+              if (raw.image) {
+                const mediaId = uuidv4();
+                const mimeType = 'image/png';
+                mediaStore.add({
+                  id: mediaId,
+                  type: 'image',
+                  data: raw.image,
+                  mimeType,
+                  prompt: raw.prompt || raw.intent || '',
+                  agentId: speaker.id,
+                  agentName: speaker.name
+                });
+                synthMedia.push({ id: mediaId, type: 'image', mimeType, prompt: raw.prompt || raw.intent || '' });
+                this.broadcast('synth_media', {
+                  agentId: speaker.id,
+                  mediaId,
+                  mediaType: 'image',
+                  synthType: raw.type,
+                  prompt: raw.prompt || raw.intent || ''
+                });
+              }
+
+              // Handle video results
+              if (raw.video) {
+                const mediaId = uuidv4();
+                const mimeType = 'video/mp4';
+                mediaStore.add({
+                  id: mediaId,
+                  type: 'video',
+                  data: raw.video,
+                  mimeType,
+                  prompt: raw.prompt || '',
+                  agentId: speaker.id,
+                  agentName: speaker.name
+                });
+                synthMedia.push({ id: mediaId, type: 'video', mimeType, prompt: raw.prompt || '' });
+                this.broadcast('synth_media', {
+                  agentId: speaker.id,
+                  mediaId,
+                  mediaType: 'video',
+                  synthType: raw.type,
+                  prompt: raw.prompt || ''
+                });
+              }
+
+              // Broadcast non-media results (template, narrative, analysis)
+              if (!raw.image && !raw.video) {
+                this.broadcast('synth_result', {
+                  agentId: speaker.id,
+                  result: formatted
+                });
+              }
+            }
+          } catch (synthError) {
+            console.error('Synth execution failed:', synthError);
+            this.broadcast('synth_error', {
+              agentId: speaker.id,
+              error: synthError.message
+            });
+          }
+
+          // Strip SYNTH_* tags from the text response
+          fullResponse = stripSynthTags(fullResponse);
+        }
+
+        // Skip empty responses (no text, no images, no tool results, no synth)
         const hasContent = fullResponse && fullResponse.trim().length > 0;
         const hasImages = images.length > 0;
         const hasToolResults = toolResults.length > 0;
+        const hasSynthMedia = synthMedia.length > 0;
+        const hasSynthResults = synthResults.length > 0;
 
-        if (!hasContent && !hasImages && !hasToolResults) {
+        if (!hasContent && !hasImages && !hasToolResults && !hasSynthMedia && !hasSynthResults) {
           console.warn(`Empty response from ${speaker.name}, skipping turn`);
           await this.delay(500);
           continue;
@@ -985,6 +1090,8 @@ class ChatOrchestrator {
           content: fullResponse || '',
           images: hasImages ? images : undefined,
           toolResults: hasToolResults ? toolResults : undefined,
+          synthMedia: hasSynthMedia ? synthMedia : undefined,
+          synthResults: hasSynthResults ? synthResults : undefined,
           timestamp: new Date().toISOString(),
           isUser: false,
           tokenCount: responseTokens

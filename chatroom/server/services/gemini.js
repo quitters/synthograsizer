@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { countTokens } from '../utils/tokenCounter.js';
+import { synthClient } from './synthClient.js';
 
 // Use Gemini 3 Pro Preview
 const MODEL_NAME = 'gemini-3-pro-preview';
@@ -45,11 +46,23 @@ function escapeRegex(string) {
 }
 
 /**
- * Build the system prompt for an agent
- * Tool instructions are only included when tools are available
+ * Build the system prompt for an agent.
+ * Tool instructions are only included when tools are available.
+ * Async: checks Synthograsizer health once to decide whether to include SYNTH_* tools.
  */
-function buildSystemPrompt(agent, allAgents, goal, options = {}) {
+async function buildSystemPrompt(agent, allAgents, goal, options = {}) {
   const { enableTools = true } = options;
+
+  // Check Synthograsizer availability (uses 30 s cache, never throws)
+  let synthAvailable = false;
+  if (enableTools) {
+    try {
+      const health = await synthClient.healthCheck();
+      synthAvailable = health?.status === 'ok';
+    } catch (_) {
+      synthAvailable = false;
+    }
+  }
 
   const otherAgents = allAgents
     .filter(a => a.id !== agent.id)
@@ -85,6 +98,21 @@ TOOLS (use sparingly, only when they add value):
 - Search: [SEARCH: query] - Search the web for current info
 - URL: [ANALYZE_URL: url] - Analyze a webpage
 - Research: [RESEARCH: topic] - Deep research combining search + analysis`;
+
+    if (synthAvailable) {
+      prompt += `
+
+SYNTHOGRASIZER TOOLS (generative AI pipeline — use when producing creative media or templates):
+- Generate image:    [SYNTH_IMAGE: prompt | aspect_ratio=16:9 | negative_prompt=blurry | num_images=1]
+- Generate video:    [SYNTH_VIDEO: prompt | aspect_ratio=16:9 | duration=5]
+- Generate template: [SYNTH_TEMPLATE: description | mode=text]  (modes: text|image|hybrid|story|workflow)
+- Story template:    [SYNTH_STORY: story concept description]
+- Remix template:    [SYNTH_REMIX_TEMPLATE: {template JSON or id} | instructions for changes]
+- Narrative prompts: [SYNTH_NARRATIVE: scene 1 | scene 2 | scene 3 | mode=story]  (modes: story|documentary|abstract|dream)
+- Transform image:   [SYNTH_TRANSFORM: imageId | intent description]
+- Analyze image:     [SYNTH_ANALYZE: imageId]
+Pipe-separate options: key=value after the primary content.`;
+    }
   }
 
   prompt += `
@@ -282,7 +310,7 @@ export async function* generateAgentResponse(agent, allAgents, messages, goal, s
     throw new Error('Gemini not initialized. Call initializeGemini first.');
   }
 
-  const systemPrompt = buildSystemPrompt(agent, allAgents, goal);
+  const systemPrompt = await buildSystemPrompt(agent, allAgents, goal);
 
   const model = genAI.getGenerativeModel({
     model: MODEL_NAME,
@@ -402,7 +430,7 @@ export async function generateAgentResponseSync(agent, allAgents, messages, goal
 
   const model = genAI.getGenerativeModel({
     model: MODEL_NAME,
-    systemInstruction: buildSystemPrompt(agent, allAgents, goal),
+    systemInstruction: await buildSystemPrompt(agent, allAgents, goal),
     generationConfig: {
       maxOutputTokens: 8192,
       temperature: 1.0, // Gemini 3 recommends 1.0
