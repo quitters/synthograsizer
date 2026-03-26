@@ -111,7 +111,31 @@ SYNTHOGRASIZER TOOLS (generative AI pipeline — use when producing creative med
 - Narrative prompts: [SYNTH_NARRATIVE: scene 1 | scene 2 | scene 3 | mode=story]  (modes: story|documentary|abstract|dream)
 - Transform image:   [SYNTH_TRANSFORM: imageId | intent description]
 - Analyze image:     [SYNTH_ANALYZE: imageId]
-Pipe-separate options: key=value after the primary content.`;
+Pipe-separate options: key=value after the primary content.
+
+WORKFLOW TOOLS (multi-step creative pipelines — use to plan and execute a full sequence of generation steps):
+- Submit workflow: [WORKFLOW: { "name": "...", "steps": [...] }]
+- Check status:   [WORKFLOW_STATUS: workflow_id]
+- Cancel:         [WORKFLOW_CANCEL: workflow_id]
+
+Workflow step types match the SYNTH_* tools above (synth_image, synth_video, synth_template, synth_story, synth_narrative, synth_analyze, synth_transform).
+Each step has: id (unique string), type, params (object), dependsOn (array of step ids, optional).
+Steps without dependsOn run in the first wave; steps in the same wave run in parallel.
+Use {{stepId.field}} in params to reference output fields from a completed dependency step.
+
+Example workflow:
+[WORKFLOW: {
+  "name": "Dreamscape Series",
+  "steps": [
+    { "id": "tpl", "type": "synth_template", "params": { "description": "ethereal dreamscape", "mode": "story" } },
+    { "id": "img1", "type": "synth_image", "params": { "prompt": "{{tpl.promptTemplate}}" }, "dependsOn": ["tpl"] },
+    { "id": "img2", "type": "synth_image", "params": { "prompt": "{{tpl.promptTemplate}} at sunset" }, "dependsOn": ["tpl"] },
+    { "id": "analyze", "type": "synth_analyze", "params": { "image_id": "{{img1.mediaId}}" }, "dependsOn": ["img1"] },
+    { "id": "narr", "type": "synth_narrative", "params": { "descriptions": ["{{analyze.description}}", "dream sequence"], "mode": "dream" }, "dependsOn": ["analyze"] }
+  ]
+}]
+
+Workflows execute in the background — the conversation continues while they run. Progress events are broadcast to the UI.`;
     }
   }
 

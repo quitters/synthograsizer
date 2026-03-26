@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { synthClient } from './synthClient.js';
+export { parseWorkflowRequests, stripWorkflowTags, workflowEngine } from './workflowEngine.js';
 
 /**
  * Unified Tools Service
