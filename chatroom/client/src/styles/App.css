@@ -4030,6 +4030,7 @@ body {
   background: var(--bg-secondary);
   border-radius: 12px;
   width: min(680px, 94vw);
+  min-height: 420px;
   max-height: 85vh;
   display: flex;
   flex-direction: column;
