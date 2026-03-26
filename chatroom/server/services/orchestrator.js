@@ -1088,6 +1088,7 @@ class ChatOrchestrator {
                 workflowId: wfId,
                 workflowName: req.definition.name || 'Unnamed Workflow',
                 stepCount: (req.definition.steps || []).length,
+                steps: (req.definition.steps || []).map(s => ({ id: s.id, type: s.type })),
               });
             } else if (req.type === 'workflow_status') {
               const status = workflowEngine.getStatus(req.workflowId);
@@ -1195,6 +1196,7 @@ class ChatOrchestrator {
               workflowName: req.definition.name,
               templateId: req.templateId,
               stepCount: (req.definition.steps || []).length,
+              steps: (req.definition.steps || []).map(s => ({ id: s.id, type: s.type })),
             });
           }
         }

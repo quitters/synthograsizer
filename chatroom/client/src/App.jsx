@@ -15,6 +15,7 @@ import { TemplateBrowser } from './components/TemplateBrowser';
 import { CommandPalette, useCommands } from './components/CommandPalette';
 import { MemoryViewer } from './components/MemoryViewer';
 import { WorkflowPanel } from './components/WorkflowPanel';
+import { WorkflowLibraryModal } from './components/WorkflowLibraryModal';
 import {
   exportAsMarkdown,
   exportAsJSON,
@@ -52,6 +53,7 @@ function App() {
   const [conversationSpeed, setConversationSpeed] = useState(1500); // ms between turns
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [showMemoryViewer, setShowMemoryViewer] = useState(false);
+  const [showWorkflowLibrary, setShowWorkflowLibrary] = useState(false);
   // workflowId → { id, name, status, startedAt, completedAt, steps: [] }
   const [workflows, setWorkflows] = useState(new Map());
 
@@ -330,8 +332,11 @@ function App() {
         name:      data.workflowName,
         status:    'pending',
         stepCount: data.stepCount,
-        steps:     [],
         agentId:   data.agentId,
+        // Use real step defs if server sent them, else empty array
+        steps: data.steps
+          ? data.steps.map(s => ({ ...s, status: 'pending' }))
+          : [],
       });
     });
 
@@ -340,12 +345,22 @@ function App() {
         status:    'running',
         name:      data.name ?? undefined,
         startedAt: new Date().toISOString(),
-        // Pre-populate step skeletons so the panel shows the full list
-        steps: data.stepCount
-          ? Array.from({ length: data.stepCount }, (_, i) => ({
-              id: `step_${i}`, type: '…', status: 'pending',
-            }))
-          : undefined,
+        // Use real step defs from server; fall back to numbered placeholders
+        steps: data.steps
+          ? data.steps.map(s => ({ ...s, status: 'pending' }))
+          : data.stepCount
+            ? Array.from({ length: data.stepCount }, (_, i) => ({
+                id: `step_${i}`, type: '…', status: 'pending',
+              }))
+            : undefined,
+      });
+    });
+
+    on('workflow_loop_iteration', (data) => {
+      // Show loop progress on the parent loop step pip
+      updateWorkflowStep(data.workflowId, data.loopStepId, {
+        status:    'running',
+        loopProgress: `${data.iteration + 1}/${data.total}`,
       });
     });
 
@@ -698,6 +713,13 @@ function App() {
           >
             {theme === 'dark' ? '☀️' : '🌙'}
           </button>
+          <button
+            className="icon-btn"
+            onClick={() => setShowWorkflowLibrary(true)}
+            title="Workflow Library"
+          >
+            ⚡
+          </button>
           {agents.length > 0 && (
             <button
               className="icon-btn"
@@ -857,6 +879,13 @@ function App() {
         onClose={() => setShowCommandPalette(false)}
         commands={commands}
         onExecute={handleCommandExecute}
+      />
+
+      {/* Workflow Library */}
+      <WorkflowLibraryModal
+        isOpen={showWorkflowLibrary}
+        onClose={() => setShowWorkflowLibrary(false)}
+        onWorkflowStarted={(id) => console.log('Workflow started from library:', id)}
       />
 
       {/* Memory Viewer */}

@@ -28,21 +28,30 @@ import { workflowLibrary } from './workflowLibrary.js';
 
 // ─── Template interpolation ──────────────────────────────────────────────────
 
-const TEMPLATE_RE = /\{\{(\w+)\.(\w+)\}\}/g;
+// Supports {{stepId.field}} and {{stepId.field.nested}} (two-level depth)
+const TEMPLATE_RE = /\{\{(\w+)\.(\w+)(?:\.(\w+))?\}\}/g;
 
 /**
- * Deep-clone an object and interpolate all {{stepId.field}} placeholders.
+ * Deep-clone an object and interpolate all {{stepId.field[.nested]}} placeholders.
  * @param {*}      value     - params value (object/array/string/other)
  * @param {Map}    results   - stepId → result object
  * @returns {*} interpolated copy
  */
 function interpolate(value, results) {
   if (typeof value === 'string') {
-    return value.replace(TEMPLATE_RE, (_match, stepId, field) => {
+    return value.replace(TEMPLATE_RE, (_match, stepId, field, nested) => {
       const res = results.get(stepId);
       if (!res) return _match; // leave unresolved placeholder as-is
-      const val = res[field];
-      return val !== undefined && val !== null ? String(val) : _match;
+      const top = res[field];
+      if (nested !== undefined) {
+        // Two-level: {{stepId.field.nested}}
+        if (top !== null && typeof top === 'object') {
+          const val = top[nested];
+          return val !== undefined && val !== null ? String(val) : _match;
+        }
+        return _match;
+      }
+      return top !== undefined && top !== null ? String(top) : _match;
     });
   }
   if (Array.isArray(value)) {
@@ -298,6 +307,7 @@ class WorkflowEngine {
       workflowId: id,
       name: state.name,
       stepCount: state.steps.length,
+      steps: state.steps.map(s => ({ id: s.id, type: s.type })),
       agentId,
     });
 
@@ -412,6 +422,7 @@ class WorkflowEngine {
       workflowId,
       name:      state.name,
       stepCount: state.steps.length,
+      steps:     state.steps.map(s => ({ id: s.id, type: s.type })),
       agentId:   state.agentId,
       retry:     true,
     });
@@ -469,6 +480,7 @@ class WorkflowEngine {
       workflowId,
       name:           state.name,
       stepCount:      state.steps.length,
+      steps:          state.steps.map(s => ({ id: s.id, type: s.type })),
       agentId:        state.agentId,
       resume:         true,
       resumedFrom:    completedSteps?.length ?? 0,
@@ -485,6 +497,99 @@ class WorkflowEngine {
   // --------------------------------------------------------------------------
   // Internal execution
   // --------------------------------------------------------------------------
+
+  /**
+   * Execute a loop step — run its inner steps N times, threading outputs
+   * between iterations via the `carry` mapping.
+   *
+   * Loop step params schema:
+   * {
+   *   iterations: number,          — how many times to run (default 3, max 10)
+   *   seed: object,                — initial values for {{_loop.*}} in iteration 0
+   *                                   (can contain {{outerStep.field}} refs)
+   *   steps: StepDef[],            — inner step definitions (same schema as top-level steps)
+   *   carry: object,               — maps keys to {{innerStepId.field}} expressions;
+   *                                   result becomes the next iteration's {{_loop.*}}
+   * }
+   *
+   * Results exposed to downstream steps:
+   *   {{loopId.count}}             — number of iterations run
+   *   {{loopId.last.KEY}}          — final value of each carry key
+   *   {{loopId.mediaIds}}          — comma-joined list of all mediaIds produced
+   *   {{loopId.last_mediaId}}      — mediaId from the last iteration (convenience)
+   */
+  async _executeLoop(state, step, resolvedParams) {
+    const {
+      iterations = 3,
+      seed = {},
+      steps: innerStepDefs = [],
+      carry = {},
+    } = resolvedParams;
+
+    const maxIter = Math.min(Math.max(Number(iterations) || 3, 1), 10);
+
+    if (innerStepDefs.length === 0) {
+      throw new Error('loop step requires at least one inner step in params.steps');
+    }
+
+    // Current loop state (starts from seed, updated each iteration via carry)
+    let loopVars = { ...seed };
+    const allIterResults = [];
+    const allMediaIds = [];
+
+    for (let i = 0; i < maxIter; i++) {
+      if (state.cancelled) break;
+
+      state.broadcast('workflow_loop_iteration', {
+        workflowId: state.id,
+        loopStepId: step.id,
+        iteration:  i,
+        total:      maxIter,
+        agentId:    state.agentId,
+      });
+
+      // Build mini results map: outer workflow results + current _loop vars
+      const miniResults = new Map(state.results);
+      miniResults.set('_loop', loopVars);
+
+      // Execute each inner step sequentially
+      const iterResult = {};
+      for (const innerDef of innerStepDefs) {
+        const innerParams = interpolate(innerDef.params || {}, miniResults);
+        const innerResult = await dispatchSynth(
+          innerDef.type, innerParams, state.agentId, state.agentName
+        );
+        iterResult[innerDef.id] = innerResult;
+        miniResults.set(innerDef.id, innerResult);
+
+        // Collect any media IDs produced
+        if (innerResult.mediaId) allMediaIds.push(innerResult.mediaId);
+      }
+
+      allIterResults.push(iterResult);
+
+      // Update loopVars for the next iteration using the carry mapping
+      const nextVars = interpolate(carry, miniResults);
+      loopVars = { ...loopVars, ...nextVars };
+    }
+
+    // Flatten carry keys onto result as last_KEY for easy single-level access
+    const lastFields = {};
+    for (const [k, v] of Object.entries(loopVars)) {
+      lastFields[`last_${k}`] = v;
+    }
+
+    // Also expose last mediaId directly
+    const lastMediaId = allMediaIds[allMediaIds.length - 1] ?? null;
+
+    return {
+      count:      allIterResults.length,
+      mediaIds:   allMediaIds.join(','),
+      last_mediaId: lastMediaId,
+      last:       loopVars,          // nested: {{loopId.last.image_id}}
+      ...lastFields,                 // flat:   {{loopId.last_image_id}}
+    };
+  }
 
   async _execute(state) {
     const waves = buildWaves(state.steps);
@@ -557,8 +662,10 @@ class WorkflowEngine {
       // Resolve {{stepId.field}} placeholders in params
       const resolvedParams = interpolate(step.params, state.results);
 
-      // Call Synthograsizer
-      const result = await dispatchSynth(step.type, resolvedParams, state.agentId, state.agentName);
+      // Loop steps are handled by a dedicated executor
+      const result = step.type === 'loop'
+        ? await this._executeLoop(state, step, resolvedParams)
+        : await dispatchSynth(step.type, resolvedParams, state.agentId, state.agentName);
 
       step.result = result;
       step.status = 'complete';

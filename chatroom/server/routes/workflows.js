@@ -23,6 +23,7 @@
 import { Router } from 'express';
 import { workflowLibrary } from '../services/workflowLibrary.js';
 import { workflowEngine } from '../services/workflowEngine.js';
+import { orchestrator } from '../services/orchestrator.js';
 
 const router = Router();
 
@@ -64,6 +65,42 @@ router.post('/active/:id/cancel', (req, res) => {
   res.json({ success: true });
 });
 
+// Run a workflow definition directly (from library UI or external caller)
+router.post('/run', async (req, res) => {
+  const { definition, savedId } = req.body || {};
+
+  let wfDef = definition;
+
+  // Allow running a saved workflow by id
+  if (!wfDef && savedId) {
+    const entry = await workflowLibrary.get(savedId);
+    if (!entry) return res.status(404).json({ error: 'Saved workflow not found' });
+    wfDef = entry.definition;
+  }
+
+  if (!wfDef || !Array.isArray(wfDef.steps)) {
+    return res.status(400).json({ error: 'definition.steps array required' });
+  }
+
+  try {
+    const broadcast = orchestrator.broadcast.bind(orchestrator);
+    const workflowId = workflowEngine.submit(wfDef, { broadcast });
+
+    // Notify all SSE clients
+    broadcast('workflow_submitted', {
+      workflowId,
+      workflowName: wfDef.name || 'Unnamed Workflow',
+      stepCount: wfDef.steps.length,
+      steps: wfDef.steps.map(s => ({ id: s.id, type: s.type })),
+      source: 'library',
+    });
+
+    res.status(201).json({ workflowId });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 router.post('/active/:id/retry', async (req, res) => {
   try {
     const id = await workflowEngine.retry(req.params.id, {
@@ -80,7 +117,8 @@ router.post('/resume', async (req, res) => {
   if (!workflowId) return res.status(400).json({ error: 'workflowId required' });
 
   try {
-    const id = await workflowEngine.resume(workflowId, { broadcast: () => {} });
+    const broadcast = orchestrator.broadcast.bind(orchestrator);
+    const id = await workflowEngine.resume(workflowId, { broadcast });
     res.json({ workflowId: id });
   } catch (err) {
     res.status(400).json({ error: err.message });

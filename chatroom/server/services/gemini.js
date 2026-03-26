@@ -118,6 +118,9 @@ Pipe-separate options: key=value after the primary content.
 Workflow step types also include:
 - synth_text: freeform LLM generation — params: { prompt }. Result: { text }
 - synth_fetch: fetch external URL data — params: { url, format=text|json, selector? }. Result: { text, data }. Use for real-world data (weather, APIs, RSS feeds) as creative input.
+- loop: repeat inner steps N times, threading outputs between iterations — params: { iterations (1-10), seed: { key: value }, steps: [inner step defs], carry: { key: "{{innerStepId.field}}" } }. Result: { count, mediaIds (comma-joined), last_mediaId, last_KEY (final carry values), last: { KEY } (nested access via {{loopId.last.KEY}} }).
+  Example — entropy degradation loop:
+  { "id": "degrade", "type": "loop", "dependsOn": ["origin"], "params": { "iterations": 4, "seed": { "image_id": "{{origin.mediaId}}" }, "steps": [{ "id": "t", "type": "synth_transform", "params": { "image_id": "{{_loop.image_id}}", "intent": "increase entropy and decay" } }], "carry": { "image_id": "{{t.mediaId}}" } } }
 
 WORKFLOW TOOLS (multi-step creative pipelines — use to plan and execute a full sequence of generation steps):
 - Submit workflow: [WORKFLOW: { "name": "...", "steps": [...] }]
