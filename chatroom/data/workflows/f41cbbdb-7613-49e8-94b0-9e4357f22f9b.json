@@ -1,0 +1,25 @@
+{
+  "id": "f41cbbdb-7613-49e8-94b0-9e4357f22f9b",
+  "name": "Style Transfer Demo",
+  "description": "Generate an image then apply oil painting style",
+  "tags": [],
+  "definition": {
+    "name": "Style Transfer Demo",
+    "steps": [
+      {
+        "id": "gen",
+        "type": "synth_image",
+        "prompt": "a misty mountain landscape at dawn"
+      },
+      {
+        "id": "style",
+        "type": "synth_image",
+        "dependsOn": [
+          "gen"
+        ],
+        "prompt": "{{gen.url}} reimagined as an oil painting by Monet, impressionist brushwork, rich warm tones"
+      }
+    ]
+  },
+  "savedAt": "2026-03-26T21:57:49.825Z"
+}

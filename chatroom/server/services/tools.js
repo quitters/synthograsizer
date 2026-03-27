@@ -1,5 +1,8 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { synthClient } from './synthClient.js';
+export { parseWorkflowRequests, stripWorkflowTags, workflowEngine } from './workflowEngine.js';
+export { getPreset, searchPresets, applyPreset, getCategories, getPresetsByCategory, listPresetsCompact } from './stylePresets.js';
+export { getTemplate, listTemplates, buildWorkflow, listTemplatesForPrompt, listStylesForPrompt } from './workflowTemplates.js';
 
 /**
  * Unified Tools Service
@@ -659,4 +662,100 @@ export function formatSynthResults(results) {
         return r;
     }
   });
+}
+
+// ============================================================================
+// SYNTH_STYLE & WORKFLOW_TEMPLATE TAG PARSING
+// ============================================================================
+
+import { getPreset, applyPreset } from './stylePresets.js';
+import { buildWorkflow } from './workflowTemplates.js';
+
+/**
+ * Parse [SYNTH_STYLE: subject | style=oil_painting] tags.
+ * Returns params suitable for image generation with a style preset applied.
+ * @param {string} text
+ * @returns {Array<{ fullMatch, subject, styleId, applied }>}
+ */
+export function parseSynthStyleRequests(text) {
+  const results = [];
+  const pattern = /\[SYNTH_STYLE:\s*([\s\S]+?)\]/gi;
+  let match;
+
+  while ((match = pattern.exec(text)) !== null) {
+    const raw = match[1].trim().replace(/\s*\n\s*/g, ' ');
+    const parsed = parsePipeOptions(raw);
+    const subject = parsed._primary;
+    const styleId = parsed.style || 'oil_painting';
+    const preset = getPreset(styleId);
+
+    if (!preset) {
+      results.push({ fullMatch: match[0], subject, styleId, error: `Unknown style: ${styleId}` });
+      continue;
+    }
+
+    const applied = applyPreset(preset, subject);
+    results.push({ fullMatch: match[0], subject, styleId, applied, presetName: preset.name });
+  }
+
+  return results;
+}
+
+/**
+ * Parse [WORKFLOW_TEMPLATE: template_id | param=value | ...] tags.
+ * Returns params to build and submit a named workflow template.
+ * @param {string} text
+ * @returns {Array<{ fullMatch, templateId, params, definition?, error? }>}
+ */
+export function parseWorkflowTemplateRequests(text) {
+  const results = [];
+  const pattern = /\[WORKFLOW_TEMPLATE:\s*([\s\S]+?)\]/gi;
+  let match;
+
+  while ((match = pattern.exec(text)) !== null) {
+    const raw = match[1].trim().replace(/\s*\n\s*/g, ' ');
+    const parsed = parsePipeOptions(raw);
+    const templateId = parsed._primary;
+    const { _primary, ...params } = parsed;
+
+    // Handle array-like params: transforms=a,b,c → transforms: ['a','b','c']
+    // and styles=a,b,c → styles: ['a','b','c']
+    for (const key of ['transforms', 'styles']) {
+      if (typeof params[key] === 'string' && params[key].includes(',')) {
+        params[key] = params[key].split(',').map(s => s.trim());
+      }
+    }
+
+    // Parse boolean-like params
+    for (const key of ['refine']) {
+      if (params[key] === 'true') params[key] = true;
+      else if (params[key] === 'false') params[key] = false;
+    }
+
+    // Parse numeric params
+    for (const key of ['image_count']) {
+      if (params[key] !== undefined) params[key] = Number(params[key]);
+    }
+
+    try {
+      const definition = buildWorkflow(templateId, params);
+      results.push({ fullMatch: match[0], templateId, params, definition });
+    } catch (err) {
+      results.push({ fullMatch: match[0], templateId, params, error: err.message });
+    }
+  }
+
+  return results;
+}
+
+/**
+ * Strip SYNTH_STYLE and WORKFLOW_TEMPLATE tags from text.
+ * @param {string} text
+ * @returns {string}
+ */
+export function stripStyleAndTemplateTags(text) {
+  return text
+    .replace(/\[SYNTH_STYLE:\s*[\s\S]+?\]/gi, '')
+    .replace(/\[WORKFLOW_TEMPLATE:\s*[\s\S]+?\]/gi, '')
+    .trim();
 }

@@ -1,9 +1,10 @@
 import { v4 as uuidv4 } from 'uuid';
 import { generateAgentResponse } from './gemini.js';
 import { generateImage, generateImageWithReferences, parseImageRequests, parseRemixRequests, stripImageTags } from './imageGen.js';
-import { parseToolRequests, executeToolRequests, stripToolTags, formatToolResults, parseSynthRequests, executeSynthRequests, stripSynthTags, formatSynthResults } from './tools.js';
+import { parseToolRequests, executeToolRequests, stripToolTags, formatToolResults, parseSynthRequests, executeSynthRequests, stripSynthTags, formatSynthResults, parseWorkflowRequests, stripWorkflowTags, workflowEngine, parseSynthStyleRequests, parseWorkflowTemplateRequests, stripStyleAndTemplateTags } from './tools.js';
 import { countTokens, countMessageTokens } from '../utils/tokenCounter.js';
 import { mediaStore } from './mediaStore.js';
+import { synthClient } from './synthClient.js';
 
 /**
  * Chat Orchestrator
@@ -1068,14 +1069,152 @@ class ChatOrchestrator {
           fullResponse = stripSynthTags(fullResponse);
         }
 
-        // Skip empty responses (no text, no images, no tool results, no synth)
+        // Check for Workflow tool requests (WORKFLOW / WORKFLOW_STATUS / WORKFLOW_CANCEL tags)
+        const workflowRequests = parseWorkflowRequests(fullResponse);
+        const workflowIds = []; // ids of newly submitted workflows
+
+        if (workflowRequests.length > 0) {
+          for (const req of workflowRequests) {
+            if (req.type === 'workflow') {
+              // Submit the workflow — execution runs in the background
+              const wfId = workflowEngine.submit(req.definition, {
+                broadcast: this.broadcast.bind(this),
+                agentId: speaker.id,
+                agentName: speaker.name,
+              });
+              workflowIds.push(wfId);
+              this.broadcast('workflow_submitted', {
+                agentId: speaker.id,
+                workflowId: wfId,
+                workflowName: req.definition.name || 'Unnamed Workflow',
+                stepCount: (req.definition.steps || []).length,
+                steps: (req.definition.steps || []).map(s => ({ id: s.id, type: s.type })),
+              });
+            } else if (req.type === 'workflow_status') {
+              const status = workflowEngine.getStatus(req.workflowId);
+              this.broadcast('workflow_status', {
+                agentId: speaker.id,
+                workflowId: req.workflowId,
+                status: status || { error: 'Workflow not found' },
+              });
+            } else if (req.type === 'workflow_cancel') {
+              const cancelled = workflowEngine.cancel(req.workflowId);
+              this.broadcast('workflow_cancel_result', {
+                agentId: speaker.id,
+                workflowId: req.workflowId,
+                success: cancelled,
+              });
+            } else if (req.type === 'workflow_parse_error') {
+              this.broadcast('workflow_error', {
+                agentId: speaker.id,
+                error: req.error,
+              });
+            }
+          }
+
+          // Strip workflow tags from the text response
+          fullResponse = stripWorkflowTags(fullResponse);
+        }
+
+        // Check for SYNTH_STYLE tags (style preset image generation)
+        const styleRequests = parseSynthStyleRequests(fullResponse);
+        if (styleRequests.length > 0) {
+          for (const req of styleRequests) {
+            if (req.error) {
+              this.broadcast('synth_error', {
+                agentId: speaker.id,
+                synthType: 'synth_style',
+                error: req.error,
+              });
+              continue;
+            }
+
+            this.broadcast('synth_executing', {
+              agentId: speaker.id,
+              synthType: 'synth_style',
+              prompt: `${req.subject} in ${req.presetName} style`,
+            });
+
+            try {
+              const result = await synthClient.generateImage(req.applied.prompt, {
+                negative_prompt: req.applied.negative_prompt,
+                aspect_ratio: req.applied.aspect_ratio,
+              });
+
+              if (result.image) {
+                const mediaId = uuidv4();
+                mediaStore.add({
+                  id: mediaId,
+                  type: 'image',
+                  data: result.image,
+                  mimeType: 'image/png',
+                  prompt: req.applied.prompt,
+                  agentId: speaker.id,
+                  agentName: speaker.name,
+                });
+                synthMedia.push({ id: mediaId, type: 'image', mimeType: 'image/png', prompt: req.applied.prompt });
+                this.broadcast('synth_media', {
+                  agentId: speaker.id,
+                  mediaId,
+                  mediaType: 'image',
+                  synthType: 'synth_style',
+                  prompt: `${req.subject} — ${req.presetName}`,
+                  stylePreset: req.styleId,
+                });
+              }
+            } catch (err) {
+              this.broadcast('synth_error', {
+                agentId: speaker.id,
+                synthType: 'synth_style',
+                error: err.message,
+              });
+            }
+          }
+        }
+
+        // Check for WORKFLOW_TEMPLATE tags (named workflow templates)
+        const templateRequests = parseWorkflowTemplateRequests(fullResponse);
+        if (templateRequests.length > 0) {
+          for (const req of templateRequests) {
+            if (req.error) {
+              this.broadcast('workflow_error', {
+                agentId: speaker.id,
+                error: `Template "${req.templateId}": ${req.error}`,
+              });
+              continue;
+            }
+
+            const wfId = workflowEngine.submit(req.definition, {
+              broadcast: this.broadcast.bind(this),
+              agentId: speaker.id,
+              agentName: speaker.name,
+            });
+            workflowIds.push(wfId);
+            this.broadcast('workflow_submitted', {
+              agentId: speaker.id,
+              workflowId: wfId,
+              workflowName: req.definition.name,
+              templateId: req.templateId,
+              stepCount: (req.definition.steps || []).length,
+              steps: (req.definition.steps || []).map(s => ({ id: s.id, type: s.type })),
+            });
+          }
+        }
+
+        // Strip style and template tags from the text response
+        if (styleRequests.length > 0 || templateRequests.length > 0) {
+          fullResponse = stripStyleAndTemplateTags(fullResponse);
+        }
+
+        // Skip empty responses (no text, no images, no tool results, no synth, no workflows)
         const hasContent = fullResponse && fullResponse.trim().length > 0;
         const hasImages = images.length > 0;
         const hasToolResults = toolResults.length > 0;
         const hasSynthMedia = synthMedia.length > 0;
         const hasSynthResults = synthResults.length > 0;
+        const hasWorkflows = workflowIds.length > 0;
 
-        if (!hasContent && !hasImages && !hasToolResults && !hasSynthMedia && !hasSynthResults) {
+        if (!hasContent && !hasImages && !hasToolResults && !hasSynthMedia && !hasSynthResults && !hasWorkflows) {
           console.warn(`Empty response from ${speaker.name}, skipping turn`);
           await this.delay(500);
           continue;
@@ -1092,6 +1231,7 @@ class ChatOrchestrator {
           toolResults: hasToolResults ? toolResults : undefined,
           synthMedia: hasSynthMedia ? synthMedia : undefined,
           synthResults: hasSynthResults ? synthResults : undefined,
+          workflowIds: hasWorkflows ? workflowIds : undefined,
           timestamp: new Date().toISOString(),
           isUser: false,
           tokenCount: responseTokens

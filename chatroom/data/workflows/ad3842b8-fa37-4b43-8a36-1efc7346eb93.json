@@ -1,0 +1,42 @@
+{
+  "id": "ad3842b8-fa37-4b43-8a36-1efc7346eb93",
+  "name": "Cinematic Short",
+  "description": "4-step story to image x2 to video pipeline",
+  "tags": [],
+  "definition": {
+    "name": "Cinematic Short",
+    "steps": [
+      {
+        "id": "concept",
+        "type": "synth_story",
+        "prompt": "A lone astronaut discovers an abandoned space station"
+      },
+      {
+        "id": "frame1",
+        "type": "synth_image",
+        "dependsOn": [
+          "concept"
+        ],
+        "prompt": "{{concept.text}} - opening shot, cinematic wide angle"
+      },
+      {
+        "id": "frame2",
+        "type": "synth_image",
+        "dependsOn": [
+          "concept"
+        ],
+        "prompt": "{{concept.text}} - close up of astronaut face, dramatic lighting"
+      },
+      {
+        "id": "montage",
+        "type": "synth_video",
+        "dependsOn": [
+          "frame1",
+          "frame2"
+        ],
+        "prompt": "combine into cinematic short film sequence"
+      }
+    ]
+  },
+  "savedAt": "2026-03-26T21:59:01.233Z"
+}

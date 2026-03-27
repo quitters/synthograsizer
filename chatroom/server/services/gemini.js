@@ -1,6 +1,8 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { countTokens } from '../utils/tokenCounter.js';
 import { synthClient } from './synthClient.js';
+import { listPresetsCompact } from './stylePresets.js';
+import { listTemplatesForPrompt } from './workflowTemplates.js';
 
 // Use Gemini 3 Pro Preview
 const MODEL_NAME = 'gemini-3-pro-preview';
@@ -111,7 +113,61 @@ SYNTHOGRASIZER TOOLS (generative AI pipeline — use when producing creative med
 - Narrative prompts: [SYNTH_NARRATIVE: scene 1 | scene 2 | scene 3 | mode=story]  (modes: story|documentary|abstract|dream)
 - Transform image:   [SYNTH_TRANSFORM: imageId | intent description]
 - Analyze image:     [SYNTH_ANALYZE: imageId]
-Pipe-separate options: key=value after the primary content.`;
+Pipe-separate options: key=value after the primary content.
+
+Workflow step types also include:
+- synth_text: freeform LLM generation — params: { prompt }. Result: { text }
+- synth_fetch: fetch external URL data — params: { url, format=text|json, selector? }. Result: { text, data }. Use for real-world data (weather, APIs, RSS feeds) as creative input.
+- loop: repeat inner steps N times, threading outputs between iterations — params: { iterations (1-10), seed: { key: value }, steps: [inner step defs], carry: { key: "{{innerStepId.field}}" } }. Result: { count, mediaIds (comma-joined), last_mediaId, last_KEY (final carry values), last: { KEY } (nested access via {{loopId.last.KEY}} }).
+  Example — entropy degradation loop:
+  { "id": "degrade", "type": "loop", "dependsOn": ["origin"], "params": { "iterations": 4, "seed": { "image_id": "{{origin.mediaId}}" }, "steps": [{ "id": "t", "type": "synth_transform", "params": { "image_id": "{{_loop.image_id}}", "intent": "increase entropy and decay" } }], "carry": { "image_id": "{{t.mediaId}}" } } }
+
+WORKFLOW TOOLS (multi-step creative pipelines — use to plan and execute a full sequence of generation steps):
+- Submit workflow: [WORKFLOW: { "name": "...", "steps": [...] }]
+- Check status:   [WORKFLOW_STATUS: workflow_id]
+- Cancel:         [WORKFLOW_CANCEL: workflow_id]
+
+Workflow step types match the SYNTH_* tools above (synth_image, synth_video, synth_template, synth_story, synth_narrative, synth_analyze, synth_transform).
+Each step has: id (unique string), type, params (object), dependsOn (array of step ids, optional).
+Steps without dependsOn run in the first wave; steps in the same wave run in parallel.
+Use {{stepId.field}} in params to reference output fields from a completed dependency step.
+
+Example workflow:
+[WORKFLOW: {
+  "name": "Dreamscape Series",
+  "steps": [
+    { "id": "tpl", "type": "synth_template", "params": { "description": "ethereal dreamscape", "mode": "story" } },
+    { "id": "img1", "type": "synth_image", "params": { "prompt": "{{tpl.promptTemplate}}" }, "dependsOn": ["tpl"] },
+    { "id": "img2", "type": "synth_image", "params": { "prompt": "{{tpl.promptTemplate}} at sunset" }, "dependsOn": ["tpl"] },
+    { "id": "analyze", "type": "synth_analyze", "params": { "image_id": "{{img1.mediaId}}" }, "dependsOn": ["img1"] },
+    { "id": "narr", "type": "synth_narrative", "params": { "descriptions": ["{{analyze.description}}", "dream sequence"], "mode": "dream" }, "dependsOn": ["analyze"] }
+  ]
+}]
+
+Workflows execute in the background — the conversation continues while they run. Progress events are broadcast to the UI.
+
+STYLE PRESETS (use with SYNTH_STYLE for one-shot styled image generation):
+- Style transfer: [SYNTH_STYLE: subject description | style=preset_id]
+  Example: [SYNTH_STYLE: a fox in deep snow | style=ukiyo_e]
+
+Available style presets by category:
+${listPresetsCompact()}
+
+WORKFLOW TEMPLATES (pre-built named workflows — shorthand for common multi-step pipelines):
+- Invoke template: [WORKFLOW_TEMPLATE: template_id | param=value | ...]
+  Example: [WORKFLOW_TEMPLATE: style_transfer | subject=a cathedral at dusk | style=oil_painting | refine=true]
+  Example: [WORKFLOW_TEMPLATE: refinement_loop | prompt=ethereal forest with bioluminescent mushrooms]
+  Example: [WORKFLOW_TEMPLATE: style_comparison | subject=a red fox | styles=oil_painting,glitch,ukiyo_e,claymation]
+  Example: [WORKFLOW_TEMPLATE: narrative_dreamscape | concept=abandoned space station | image_count=4]
+  Example: [WORKFLOW_TEMPLATE: progressive_transform | prompt=a serene lake | transforms=add storm clouds,make it night,add aurora borealis]
+  Example: [WORKFLOW_TEMPLATE: img_to_video | prompt=a lonely lighthouse at night | cinematic_style=noir | duration=8]
+  Example: [WORKFLOW_TEMPLATE: memory_visualization | memory=summer afternoons at grandmother's garden | life_stage=childhood | degradation_depth=4]
+  Example: [WORKFLOW_TEMPLATE: multi_image_composite | subjects=a samurai,a robot,a wizard | scene=playing poker in a smoky saloon]
+  Example: [WORKFLOW_TEMPLATE: branching_narrative | theme=deep sea mystery | scenario=you wake up in a submarine | endings=4]
+  Example: [WORKFLOW_TEMPLATE: cinematic_short | concept=the last robot discovers a flower | mood=melancholic | scene_count=4]
+
+Available templates:
+${listTemplatesForPrompt()}`;
     }
   }
 
