@@ -110,7 +110,7 @@ function buildWaves(steps) {
  * Given a step type and interpolated params, call the correct synthClient method.
  * Returns the raw API response, augmented with mediaId if media was stored.
  */
-async function dispatchSynth(type, params, agentId = null, agentName = null) {
+async function dispatchSynth(type, params, agentId = null, agentName = null, onChunk = null) {
   switch (type) {
     case 'synth_image': {
       const { prompt, ...opts } = params;
@@ -142,6 +142,10 @@ async function dispatchSynth(type, params, agentId = null, agentName = null) {
 
     case 'synth_text': {
       const { prompt } = params;
+      if (onChunk) {
+        const text = await synthClient.generateTextStream(prompt || '', onChunk);
+        return { text };
+      }
       const res = await synthClient.generateText(prompt || '');
       // Normalise: ensure result has a 'text' field for downstream interpolation
       return { text: res.text || res.response || res.result || JSON.stringify(res), ...res };

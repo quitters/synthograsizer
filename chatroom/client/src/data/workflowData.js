@@ -21,6 +21,7 @@ export const STATUS_COLORS = {
   pending:   'var(--text-muted)',
   running:   '#f0a500',
   complete:  '#4caf50',
+  success:   '#4caf50',
   failed:    '#e94560',
   cancelled: '#888',
 };

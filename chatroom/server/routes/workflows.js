@@ -123,7 +123,7 @@ router.post('/run', async (req, res) => {
 router.post('/active/:id/retry', async (req, res) => {
   try {
     const id = await workflowEngine.retry(req.params.id, {
-      broadcast: () => {}, // No SSE in REST response; engine broadcasts internally
+      broadcast: orchestrator.broadcast.bind(orchestrator),
     });
     res.json({ workflowId: id });
   } catch (err) {

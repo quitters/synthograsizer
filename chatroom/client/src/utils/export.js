@@ -19,9 +19,12 @@ export function exportAsMarkdown(messages, agents, goal, metadata = {}) {
   md += `## Conversation\n\n`;
 
   for (const msg of messages) {
+    // Skip non-chat messages (workflow inline cards, etc.)
+    if (msg.type === 'workflow' || !msg.agentName) continue;
+
     const time = new Date(msg.timestamp).toLocaleTimeString();
     md += `### ${msg.agentName} (${time})\n\n`;
-    md += `${msg.content}\n\n`;
+    md += `${msg.content || ''}\n\n`;
 
     if (msg.images && msg.images.length > 0) {
       md += `*[${msg.images.length} image(s) generated]*\n\n`;

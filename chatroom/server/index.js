@@ -7,6 +7,7 @@ import { dirname, join } from 'path';
 import agentsRouter from './routes/agents.js';
 import chatRouter from './routes/chat.js';
 import workflowsRouter from './routes/workflows.js';
+import artifactsRouter from './routes/artifacts.js';
 import { initializeGemini } from './services/gemini.js';
 import { initializeImageGen } from './services/imageGen.js';
 import { initializeTools } from './services/tools.js';
@@ -51,6 +52,7 @@ console.log('Gemini API initialized (text, image, search, and URL tools)');
 app.use('/api/agents', agentsRouter);
 app.use('/api/chat', chatRouter);
 app.use('/api/workflows', workflowsRouter);
+app.use('/api/artifacts', artifactsRouter);
 
 // Health check
 app.get('/api/health', (req, res) => {
