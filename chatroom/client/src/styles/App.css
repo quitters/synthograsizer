@@ -4704,3 +4704,50 @@ body {
 .wl-tpl-required { color: var(--accent); }
 
 .wl-tpl-actions { padding-top: 0.25rem; }
+
+.wl-tpl-hint {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  margin-left: 0.4rem;
+}
+
+.wl-input-number { width: 100px; }
+
+/* Select */
+.wl-select {
+  width: 100%;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--text-primary);
+  font-size: 0.8rem;
+  padding: 6px 8px;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.15s;
+  appearance: auto;
+}
+.wl-select:focus { border-color: var(--accent); }
+.wl-select option { background: var(--bg-secondary); }
+
+/* Checkbox */
+.wl-tpl-field-bool { padding: 4px 0; }
+
+.wl-tpl-label-bool {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+.wl-checkbox {
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+  accent-color: var(--accent);
+}
+
+/* Smaller textarea for memory field */
+.wl-textarea-sm { min-height: 60px; }

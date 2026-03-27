@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { PARAM_META, ASPECT_RATIOS } from '../data/workflowData';
 
 const API_BASE = '/chatroom/api';
 
@@ -220,26 +221,186 @@ function JsonViewer({ entryId, onClose }) {
 
 // ─── TemplateParamForm ───────────────────────────────────────────────────────
 
-function TemplateParamForm({ template, onRun, onCancel }) {
-  const [params, setParams] = useState({});
+function TemplateParamForm({ template, presets, onRun, onCancel }) {
+  // Build initial state from PARAM_META defaults
+  const allParams = useMemo(() => [
+    ...(template.requiredParams || []).map((p) => ({ name: p, required: true })),
+    ...(template.optionalParams || []).map((p) => ({ name: p, required: false })),
+  ], [template]);
+
+  const initialParams = useMemo(() => {
+    const init = {};
+    for (const { name } of allParams) {
+      const meta = PARAM_META[name];
+      if (meta?.defaultValue !== undefined) {
+        init[name] = meta.type === 'boolean' ? meta.defaultValue : String(meta.defaultValue);
+      }
+    }
+    return init;
+  }, [allParams]);
+
+  const [params, setParams] = useState(initialParams);
   const [running, setRunning] = useState(false);
   const [error, setError] = useState(null);
 
-  const allParams = [
-    ...(template.requiredParams || []).map((p) => ({ name: p, required: true })),
-    ...(template.optionalParams || []).map((p) => ({ name: p, required: false })),
-  ];
+  const set = (name, value) => setParams((prev) => ({ ...prev, [name]: value }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
     setRunning(true);
     try {
-      await onRun(template.id, params);
+      // Coerce booleans and numbers before sending
+      const coerced = {};
+      for (const { name } of allParams) {
+        const meta = PARAM_META[name];
+        const val = params[name];
+        if (val === undefined || val === '') continue;
+        if (meta?.type === 'boolean') coerced[name] = val === true || val === 'true';
+        else if (meta?.type === 'number') coerced[name] = Number(val);
+        else coerced[name] = val;
+      }
+      await onRun(template.id, coerced);
     } catch (err) {
       setError(err.message);
     } finally {
       setRunning(false);
+    }
+  };
+
+  const renderField = ({ name, required }) => {
+    const meta = PARAM_META[name] ?? { type: 'text', label: name };
+    const label = meta.label ?? name;
+    const val = params[name] ?? '';
+
+    switch (meta.type) {
+      case 'style_select':
+        return (
+          <div key={name} className="wl-tpl-field">
+            <label className="wl-tpl-label">
+              {label}{required && <span className="wl-tpl-required"> *</span>}
+            </label>
+            <select
+              className="wl-select"
+              value={val}
+              onChange={(e) => set(name, e.target.value)}
+              required={required}
+            >
+              {!val && <option value="">— choose a style —</option>}
+              {(presets || []).map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name} ({p.category})
+                </option>
+              ))}
+            </select>
+          </div>
+        );
+
+      case 'aspect_select':
+        return (
+          <div key={name} className="wl-tpl-field">
+            <label className="wl-tpl-label">
+              {label}{required && <span className="wl-tpl-required"> *</span>}
+            </label>
+            <select
+              className="wl-select"
+              value={val || meta.defaultValue || '1:1'}
+              onChange={(e) => set(name, e.target.value)}
+            >
+              {ASPECT_RATIOS.map((r) => (
+                <option key={r} value={r}>{r}</option>
+              ))}
+            </select>
+          </div>
+        );
+
+      case 'select':
+        return (
+          <div key={name} className="wl-tpl-field">
+            <label className="wl-tpl-label">
+              {label}{required && <span className="wl-tpl-required"> *</span>}
+            </label>
+            <select
+              className="wl-select"
+              value={val || meta.defaultValue || ''}
+              onChange={(e) => set(name, e.target.value)}
+              required={required}
+            >
+              {(meta.options || []).map((o) => (
+                <option key={o} value={o}>{o}</option>
+              ))}
+            </select>
+          </div>
+        );
+
+      case 'boolean':
+        return (
+          <div key={name} className="wl-tpl-field wl-tpl-field-bool">
+            <label className="wl-tpl-label-bool">
+              <input
+                type="checkbox"
+                className="wl-checkbox"
+                checked={val === true || val === 'true'}
+                onChange={(e) => set(name, e.target.checked)}
+              />
+              {label}
+            </label>
+          </div>
+        );
+
+      case 'number':
+        return (
+          <div key={name} className="wl-tpl-field">
+            <label className="wl-tpl-label">
+              {label}{required && <span className="wl-tpl-required"> *</span>}
+            </label>
+            <input
+              type="number"
+              className="wl-input wl-input-number"
+              min={meta.min}
+              max={meta.max}
+              value={val}
+              onChange={(e) => set(name, e.target.value)}
+              required={required}
+            />
+            {meta.min !== undefined && (
+              <span className="wl-tpl-hint">{meta.min}–{meta.max}</span>
+            )}
+          </div>
+        );
+
+      case 'textarea':
+        return (
+          <div key={name} className="wl-tpl-field">
+            <label className="wl-tpl-label">
+              {label}{required && <span className="wl-tpl-required"> *</span>}
+            </label>
+            <textarea
+              className="wl-textarea wl-textarea-sm"
+              placeholder={meta.placeholder ?? ''}
+              value={val}
+              onChange={(e) => set(name, e.target.value)}
+              rows={3}
+              required={required}
+            />
+          </div>
+        );
+
+      default: // text
+        return (
+          <div key={name} className="wl-tpl-field">
+            <label className="wl-tpl-label">
+              {label}{required && <span className="wl-tpl-required"> *</span>}
+            </label>
+            <input
+              className="wl-input"
+              placeholder={meta.placeholder ?? (required ? 'Required' : 'Optional')}
+              value={val}
+              onChange={(e) => set(name, e.target.value)}
+              required={required}
+            />
+          </div>
+        );
     }
   };
 
@@ -253,30 +414,10 @@ function TemplateParamForm({ template, onRun, onCancel }) {
       </div>
       <p className="wl-tpl-desc">{template.description}</p>
       <form onSubmit={handleSubmit}>
-        {allParams.map(({ name, required }) => (
-          <div key={name} className="wl-tpl-field">
-            <label className="wl-tpl-label">
-              {name}
-              {required && <span className="wl-tpl-required"> *</span>}
-            </label>
-            <input
-              className="wl-input"
-              placeholder={required ? `Required` : `Optional`}
-              value={params[name] ?? ''}
-              onChange={(e) =>
-                setParams((prev) => ({ ...prev, [name]: e.target.value }))
-              }
-              required={required}
-            />
-          </div>
-        ))}
+        {allParams.map(renderField)}
         {error && <div className="wl-error">{error}</div>}
         <div className="wl-tpl-actions">
-          <button
-            type="submit"
-            className="wl-btn wl-btn-primary"
-            disabled={running}
-          >
+          <button type="submit" className="wl-btn wl-btn-primary" disabled={running}>
             {running ? 'Running…' : '▶ Run Template'}
           </button>
         </div>
@@ -321,6 +462,7 @@ export function WorkflowLibraryModal({ isOpen, onClose, onWorkflowStarted, prefi
   const [entries, setEntries]       = useState([]);
   const [checkpoints, setCheckpoints] = useState([]);
   const [templates, setTemplates]   = useState([]);
+  const [presets, setPresets]       = useState([]);
   const [loading, setLoading]       = useState(false);
   const [error, setError]           = useState(null);
   const [viewingId, setViewingId]   = useState(null);
@@ -329,14 +471,16 @@ export function WorkflowLibraryModal({ isOpen, onClose, onWorkflowStarted, prefi
   const fetchLibrary = useCallback(async () => {
     setLoading(true); setError(null);
     try {
-      const [libRes, cpRes, tplRes] = await Promise.all([
+      const [libRes, cpRes, tplRes, presetsRes] = await Promise.all([
         fetch(`${API_BASE}/workflows`),
         fetch(`${API_BASE}/workflows/checkpoints`),
         fetch(`${API_BASE}/workflows/templates`),
+        fetch(`${API_BASE}/workflows/presets`),
       ]);
       setEntries(await libRes.json());
       setCheckpoints(await cpRes.json());
       setTemplates(await tplRes.json());
+      setPresets(await presetsRes.json());
     } catch (err) {
       setError(err.message);
     } finally {
@@ -470,6 +614,7 @@ export function WorkflowLibraryModal({ isOpen, onClose, onWorkflowStarted, prefi
             activeTemplate ? (
               <TemplateParamForm
                 template={activeTemplate}
+                presets={presets}
                 onRun={handleRunTemplate}
                 onCancel={() => setActiveTemplate(null)}
               />
