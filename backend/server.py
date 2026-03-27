@@ -307,6 +307,14 @@ async def generate_text(request: TextRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.post("/api/generate/text/stream")
+async def generate_text_stream(request: TextRequest):
+    """Stream text chunks as plain text. Client reads the response body incrementally."""
+    def gen():
+        for chunk in ai_manager.generate_text_stream(request.prompt, request.model):
+            yield chunk
+    return StreamingResponse(gen(), media_type="text/plain; charset=utf-8")
+
 @app.post("/api/generate/image")
 async def generate_image(request: ImageRequest):
     try:

@@ -15,7 +15,7 @@
  *   POST /api/video/combine
  */
 
-const BASE_URL = 'http://localhost:8001';
+const BASE_URL = 'http://127.0.0.1:8001';
 const DEFAULT_TIMEOUT_MS = 30_000;
 const VIDEO_TIMEOUT_MS = 120_000;
 const HEALTH_CACHE_MS = 30_000;
@@ -109,6 +109,7 @@ class SynthClient {
   async generateImage(prompt, options = {}) {
     const body = {
       prompt,
+      model: 'gemini-3.1-flash-image-preview',
       aspect_ratio: options.aspect_ratio ?? '1:1',
     };
     if (options.negative_prompt) body.negative_prompt = options.negative_prompt;

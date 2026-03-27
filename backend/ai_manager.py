@@ -363,6 +363,18 @@ class AIManager:
         except Exception as e:
             raise Exception(f"Text generation failed: {str(e)}")
 
+    def generate_text_stream(self, prompt: str, model_name: str = "gemini-3-flash-preview"):
+        """Stream text chunks from Gemini. Yields string chunks."""
+        if not self.genai_client:
+            raise ValueError("API Key not configured")
+
+        for chunk in self.genai_client.models.generate_content_stream(
+            model=model_name,
+            contents=prompt
+        ):
+            if chunk.text:
+                yield chunk.text
+
     def generate_image(self, prompt: str, model_name: str = None, aspect_ratio: str = "1:1",
                        negative_prompt: str = None, input_images: Optional[List[bytes]] = None,
                        response_modalities: Optional[List[str]] = None,
@@ -566,7 +578,7 @@ class AIManager:
                 if "RECITATION" in finish_reason:
                      raise Exception("Content blocked: Recitation of copyrighted material.")
 
-            if hasattr(candidate, 'content') and candidate.content is not None and hasattr(candidate.content, 'parts'):
+            if hasattr(candidate, 'content') and candidate.content is not None and hasattr(candidate.content, 'parts') and candidate.content.parts is not None:
                 for part in candidate.content.parts:
                     if hasattr(part, 'inline_data') and part.inline_data:
                         # Embed Metadata (with optional provenance tags)
@@ -642,16 +654,13 @@ class AIManager:
         if aspect_ratio and aspect_ratio not in ["16:9", "9:16"]:
             raise ValueError("Video aspect ratio must be '16:9' or '9:16'")
 
-        if end_frame_image:
-            if duration_seconds != 8:
-                raise ValueError("Duration must be 8 seconds when using an end frame.")
+        # end_frame_image always uses 8s duration (enforced below)
 
         try:
             config_opts = types.GenerateVideosConfig()
             
-            # Map duration if supported
-            if duration_seconds:
-                 config_opts.duration_seconds = int(duration_seconds)
+            # Veo 3.1 is finicky with durations — always use 8 seconds
+            config_opts.duration_seconds = 8
                  
             if aspect_ratio:
                 config_opts.aspect_ratio = aspect_ratio
@@ -685,13 +694,13 @@ class AIManager:
                 print(f"Using last frame for video interpolation (last_frame parameter)")
 
             print(f"Starting video generation with model {model_name}...")
-            # This call initiates the operation and is generally fast
-            operation = self.genai_client.models.generate_videos(
-                model=model_name,
-                prompt=prompt,
-                image=first_frame_obj,  # First frame for image-to-video
-                config=config_opts  # Contains last_frame for interpolation
-            )
+            print(f"  duration_seconds={config_opts.duration_seconds}, aspect_ratio={config_opts.aspect_ratio}")
+            # Only pass image kwarg when we actually have one — passing image=None
+            # causes Veo 3.1 to reject valid durationSeconds values.
+            video_kwargs = dict(model=model_name, prompt=prompt, config=config_opts)
+            if first_frame_obj is not None:
+                video_kwargs['image'] = first_frame_obj
+            operation = self.genai_client.models.generate_videos(**video_kwargs)
             
             print(f"Operation started: {operation.name}. Polling for completion...")
             
