@@ -4,6 +4,7 @@ import { generateImage, generateImageWithReferences, parseImageRequests, parseRe
 import { parseToolRequests, executeToolRequests, stripToolTags, formatToolResults, parseSynthRequests, executeSynthRequests, stripSynthTags, formatSynthResults, parseWorkflowRequests, stripWorkflowTags, workflowEngine, parseSynthStyleRequests, parseWorkflowTemplateRequests, stripStyleAndTemplateTags } from './tools.js';
 import { countTokens, countMessageTokens } from '../utils/tokenCounter.js';
 import { mediaStore } from './mediaStore.js';
+import { artifactStore } from './artifactStore.js';
 import { synthClient } from './synthClient.js';
 
 /**
@@ -1206,6 +1207,23 @@ class ChatOrchestrator {
           fullResponse = stripStyleAndTemplateTags(fullResponse);
         }
 
+        // ── Artifact tags ──────────────────────────────────────────────────
+        const artifactUpdates = parseArtifactTags(fullResponse);
+        for (const { filename, content: artContent } of artifactUpdates) {
+          const artifact = artifactStore.save(filename, artContent, speaker.id, speaker.name);
+          this.broadcast('artifact_update', {
+            filename:     artifact.filename,
+            language:     artifact.language,
+            content:      artifact.content,
+            version:      artifact.versions.length,
+            lastEditBy:   artifact.lastEditBy,
+            agentId:      speaker.id,
+          });
+        }
+        if (artifactUpdates.length > 0) {
+          fullResponse = stripArtifactTags(fullResponse);
+        }
+
         // Skip empty responses (no text, no images, no tool results, no synth, no workflows)
         const hasContent = fullResponse && fullResponse.trim().length > 0;
         const hasImages = images.length > 0;
@@ -1213,8 +1231,9 @@ class ChatOrchestrator {
         const hasSynthMedia = synthMedia.length > 0;
         const hasSynthResults = synthResults.length > 0;
         const hasWorkflows = workflowIds.length > 0;
+        const hasArtifacts = artifactUpdates.length > 0;
 
-        if (!hasContent && !hasImages && !hasToolResults && !hasSynthMedia && !hasSynthResults && !hasWorkflows) {
+        if (!hasContent && !hasImages && !hasToolResults && !hasSynthMedia && !hasSynthResults && !hasWorkflows && !hasArtifacts) {
           console.warn(`Empty response from ${speaker.name}, skipping turn`);
           await this.delay(500);
           continue;
@@ -1477,6 +1496,26 @@ class ChatOrchestrator {
       messages: this.messages
     };
   }
+}
+
+// ─── Artifact tag parsers ──────────────────────────────────────────────────
+
+const ARTIFACT_TAG_RE = /\[ARTIFACT:\s*([^\]]+)\]([\s\S]*?)\[\/ARTIFACT\]/g;
+
+function parseArtifactTags(text) {
+  const results = [];
+  let m;
+  while ((m = ARTIFACT_TAG_RE.exec(text)) !== null) {
+    results.push({ filename: m[1].trim(), content: m[2].trim() });
+  }
+  ARTIFACT_TAG_RE.lastIndex = 0;
+  return results;
+}
+
+function stripArtifactTags(text) {
+  const stripped = text.replace(ARTIFACT_TAG_RE, '').trim();
+  ARTIFACT_TAG_RE.lastIndex = 0;
+  return stripped;
 }
 
 // Export singleton instance

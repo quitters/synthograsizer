@@ -3,6 +3,7 @@ import { countTokens } from '../utils/tokenCounter.js';
 import { synthClient } from './synthClient.js';
 import { listPresetsCompact } from './stylePresets.js';
 import { listTemplatesForPrompt } from './workflowTemplates.js';
+import { artifactStore } from './artifactStore.js';
 
 // Use Gemini 3 Pro Preview
 const MODEL_NAME = 'gemini-3-pro-preview';
@@ -168,6 +169,54 @@ WORKFLOW TEMPLATES (pre-built named workflows — shorthand for common multi-ste
 
 Available templates:
 ${listTemplatesForPrompt()}`;
+    }
+  }
+
+  // ── Artifact context ───────────────────────────────────────────────────
+  const artifacts = artifactStore.getAll();
+  if (artifacts.length > 0) {
+    prompt += `
+
+SHARED ARTIFACTS (collaborative code files the team is building together):
+To create or update an artifact, wrap your FULL file content in:
+  [ARTIFACT: filename.ext]
+  ...complete file content here...
+  [/ARTIFACT]
+
+Rules:
+- Always output the COMPLETE file — no partial snippets, no "// rest stays the same".
+- You may create new files or update existing ones.
+- Supported: .js, .html, .css, .py, .json, .glsl, .md, and more.
+- For p5.js sketches, use filename "sketch.js". For HTML games, use "game.html".
+- The artifact will render live in a preview panel that all participants can see.
+
+CURRENT ARTIFACT STATE:`;
+    for (const art of artifacts) {
+      prompt += `
+--- ${art.filename} (v${art.versions.length}, last edited by ${art.lastEditBy}) ---
+\`\`\`${art.language}
+${art.content}
+\`\`\``;
+    }
+  } else if (enableTools) {
+    const goalLower = (goal ?? '').toLowerCase();
+    const goalWantsCode = /\b(build|create|make|code|sketch|game|p5|html|website|app|artifact)\b/.test(goalLower);
+    prompt += `
+
+SHARED ARTIFACTS (collaborative code files):
+You can create shared files that render live in a preview panel all participants can see:
+  [ARTIFACT: filename.ext]
+  ...complete file content...
+  [/ARTIFACT]
+For p5.js sketches use "sketch.js". For HTML games use "game.html".
+Rules: always output the COMPLETE file — no partial snippets or placeholders.`;
+    if (goalWantsCode) {
+      prompt += `
+
+IMPORTANT: The goal asks you to BUILD something. Do not just discuss ideas endlessly.
+Within the first 1-2 turns, someone MUST create an [ARTIFACT] with working code.
+Start simple and iterate — a basic working prototype is better than a perfect plan with no code.
+Skip lengthy preamble and flattery. Be direct, be constructive, and SHIP CODE.`;
     }
   }
 

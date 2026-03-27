@@ -216,7 +216,7 @@ register(
       steps.push({
         id: `img${i}`,
         type: 'synth_image',
-        params: { prompt: `{{tpl.promptTemplate}}${suffix}` },
+        params: { prompt: `{{tpl.template.promptTemplate}}${suffix}` },
         dependsOn: ['tpl'],
       });
     }
@@ -576,7 +576,7 @@ Output ONLY valid JSON.`,
           id: `scene_img_${i}`,
           type: 'synth_image',
           params: {
-            prompt: `Scene ${i + 1} from a ${theme} adventure story. {{style_tpl.promptTemplate}}. Dramatic moment, narrative illustration style.`,
+            prompt: `Scene ${i + 1} from a ${theme} adventure story. {{style_tpl.template.promptTemplate}}. Dramatic moment, narrative illustration style.`,
           },
           dependsOn: ['story', 'style_tpl'],
         })),
@@ -622,7 +622,7 @@ Output ONLY a JSON array of strings, one prompt per scene. Example: ["scene 1 pr
         type: 'synth_template',
         params: {
           description: `${mood} visual style for a short film about: ${concept}`,
-          mode: 'image',
+          mode: 'text',
         },
       },
     ];
@@ -634,7 +634,7 @@ Output ONLY a JSON array of strings, one prompt per scene. Example: ["scene 1 pr
         id: `scene${i}`,
         type: 'synth_image',
         params: {
-          prompt: `Scene ${i + 1} of ${count} from a ${mood} short film: ${concept}. {{style.promptTemplate}}`,
+          prompt: `Scene ${i + 1} of ${count} from a ${mood} short film: ${concept}. {{style.template.promptTemplate}}`,
           aspect_ratio,
         },
         dependsOn: ['plan', 'style'],

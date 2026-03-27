@@ -16,6 +16,7 @@ import { CommandPalette, useCommands } from './components/CommandPalette';
 import { MemoryViewer } from './components/MemoryViewer';
 import { WorkflowPanel } from './components/WorkflowPanel';
 import { WorkflowLibraryModal } from './components/WorkflowLibraryModal';
+import { ArtifactPreview } from './components/ArtifactPreview';
 import {
   exportAsMarkdown,
   exportAsJSON,
@@ -58,6 +59,8 @@ function App() {
   const [checkpointBanner, setCheckpointBanner]       = useState(0); // count of resumable checkpoints
   // workflowId → { id, name, status, startedAt, completedAt, steps: [] }
   const [workflows, setWorkflows] = useState(new Map());
+  // filename → { filename, language, content, versions, lastEditBy }
+  const [artifacts, setArtifacts] = useState({});
 
   const chatRoomRef = useRef(null);
   const autoSaveTimerRef = useRef(null);
@@ -388,8 +391,26 @@ function App() {
 
     on('workflow_step_complete', (data) => {
       updateWorkflowStep(data.workflowId, data.stepId, {
-        status:  'complete',
-        summary: data.summary,
+        status: 'complete',
+        result: data.summary,
+        liveText: null,
+      });
+    });
+
+    on('workflow_step_chunk', (data) => {
+      setWorkflows(prev => {
+        const next = new Map(prev);
+        const wf = next.get(data.workflowId);
+        if (!wf) return prev;
+        next.set(data.workflowId, {
+          ...wf,
+          steps: wf.steps.map(s =>
+            s.id === data.stepId
+              ? { ...s, liveText: (s.liveText ?? '') + data.text }
+              : s
+          ),
+        });
+        return next;
       });
     });
 
@@ -407,7 +428,7 @@ function App() {
         type:    s.type,
         status:  s.status,
         error:   s.error,
-        summary: Object.fromEntries(
+        result: Object.fromEntries(
           Object.entries(s).filter(([k]) => !['id','type','status','error'].includes(k))
         ),
       }));
@@ -427,6 +448,23 @@ function App() {
       if (data.workflowId) {
         updateWorkflow(data.workflowId, { status: 'failed', error: data.error });
       }
+    });
+
+    // ── Artifact events ───────────────────────────────────────────────────
+    on('artifact_update', (data) => {
+      setArtifacts(prev => ({
+        ...prev,
+        [data.filename]: {
+          filename:   data.filename,
+          language:   data.language,
+          content:    data.content,
+          lastEditBy: data.lastEditBy,
+          versions: [
+            ...(prev[data.filename]?.versions ?? []),
+            { version: data.version, agentName: data.lastEditBy, content: data.content, timestamp: new Date().toISOString() },
+          ],
+        },
+      }));
     });
 
   }, [on, agents, notificationsEnabled]);
@@ -878,6 +916,12 @@ function App() {
             hasMessages={messages.length > 0}
           />
         </main>
+
+        {Object.keys(artifacts).length > 0 && (
+          <aside className="artifact-sidebar">
+            <ArtifactPreview artifacts={artifacts} />
+          </aside>
+        )}
 
         <aside className={`right-sidebar ${rightSidebarCollapsed ? 'collapsed' : ''}`}>
           <button

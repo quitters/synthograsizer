@@ -142,6 +142,46 @@ class SynthClient {
   }
 
   /**
+   * POST /api/generate/text/stream
+   * Streams response body incrementally, calling onChunk(text) for each chunk.
+   * @param {string} prompt
+   * @param {(chunk: string) => void} onChunk
+   * @returns {Promise<string>} full accumulated text
+   */
+  async generateTextStream(prompt, onChunk) {
+    const url = `${BASE_URL}/api/generate/text/stream`;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT_MS);
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt }),
+        signal: controller.signal,
+      });
+      clearTimeout(timer);
+      if (!res.ok) throw new Error(`Text stream failed: HTTP ${res.status}`);
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let fullText = '';
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, { stream: true });
+        if (chunk) {
+          fullText += chunk;
+          onChunk(chunk);
+        }
+      }
+      return fullText;
+    } catch (err) {
+      clearTimeout(timer);
+      throw err;
+    }
+  }
+
+  /**
    * POST /api/generate/template
    * modes: text | image | hybrid | story | workflow | remix (via current_template)
    * @param {string} description

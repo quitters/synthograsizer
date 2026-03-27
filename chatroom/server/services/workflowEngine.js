@@ -110,7 +110,7 @@ function buildWaves(steps) {
  * Given a step type and interpolated params, call the correct synthClient method.
  * Returns the raw API response, augmented with mediaId if media was stored.
  */
-async function dispatchSynth(type, params, agentId = null, agentName = null) {
+async function dispatchSynth(type, params, agentId = null, agentName = null, onChunk = null) {
   switch (type) {
     case 'synth_image': {
       const { prompt, ...opts } = params;
@@ -142,6 +142,10 @@ async function dispatchSynth(type, params, agentId = null, agentName = null) {
 
     case 'synth_text': {
       const { prompt } = params;
+      if (onChunk) {
+        const text = await synthClient.generateTextStream(prompt || '', onChunk);
+        return { text };
+      }
       const res = await synthClient.generateText(prompt || '');
       // Normalise: ensure result has a 'text' field for downstream interpolation
       return { text: res.text || res.response || res.result || JSON.stringify(res), ...res };
@@ -658,52 +662,60 @@ class WorkflowEngine {
       agentId: state.agentId,
     });
 
-    try {
-      // Resolve {{stepId.field}} placeholders in params
-      const resolvedParams = interpolate(step.params, state.results);
+    const MAX_ATTEMPTS = 2;
+    let lastErr;
 
-      // Loop steps are handled by a dedicated executor
-      const result = step.type === 'loop'
-        ? await this._executeLoop(state, step, resolvedParams)
-        : await dispatchSynth(step.type, resolvedParams, state.agentId, state.agentName);
+    for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+      try {
+        const resolvedParams = interpolate(step.params, state.results);
+        const onChunk = (text) => state.broadcast('workflow_step_chunk', {
+          workflowId: state.id, stepId, text,
+        });
+        const result = step.type === 'loop'
+          ? await this._executeLoop(state, step, resolvedParams)
+          : await dispatchSynth(step.type, resolvedParams, state.agentId, state.agentName, onChunk);
 
-      step.result = result;
-      step.status = 'complete';
-      step.completedAt = new Date().toISOString();
-      state.results.set(stepId, result);
+        step.result = result;
+        step.status = 'complete';
+        step.completedAt = new Date().toISOString();
+        state.results.set(stepId, result);
+        workflowLibrary.saveCheckpoint(state.id, state).catch(() => {});
 
-      // Persist checkpoint so this step's result survives server restarts
-      workflowLibrary.saveCheckpoint(state.id, state).catch(() => {});
-
-      state.broadcast('workflow_step_complete', {
-        workflowId: state.id,
-        stepId,
-        stepType: step.type,
-        agentId: state.agentId,
-        // Lightweight result summary (skip base64 blobs)
-        summary: Object.fromEntries(
-          Object.entries(result).filter(([, v]) =>
-            typeof v !== 'string' || v.length < 500
-          )
-        ),
-      });
-    } catch (err) {
-      step.error = err.message;
-      step.status = 'failed';
-      step.completedAt = new Date().toISOString();
-
-      // Save checkpoint even on failure so Resume has something to load,
-      // even if zero prior steps completed (definition + failed step are recorded)
-      workflowLibrary.saveCheckpoint(state.id, state).catch(() => {});
-
-      state.broadcast('workflow_step_error', {
-        workflowId: state.id,
-        stepId,
-        stepType: step.type,
-        agentId: state.agentId,
-        error: err.message,
-      });
+        state.broadcast('workflow_step_complete', {
+          workflowId: state.id,
+          stepId,
+          stepType: step.type,
+          agentId: state.agentId,
+          summary: Object.fromEntries(
+            Object.entries(result).filter(([, v]) =>
+              typeof v !== 'string' || v.length < 500
+            )
+          ),
+        });
+        return;
+      } catch (err) {
+        lastErr = err;
+        if (attempt < MAX_ATTEMPTS) {
+          state.broadcast('workflow_step_retry', {
+            workflowId: state.id, stepId, stepType: step.type, attempt, error: err.message,
+          });
+          await new Promise(r => setTimeout(r, 3000));
+        }
+      }
     }
+
+    step.error = lastErr.message;
+    step.status = 'failed';
+    step.completedAt = new Date().toISOString();
+    workflowLibrary.saveCheckpoint(state.id, state).catch(() => {});
+
+    state.broadcast('workflow_step_error', {
+      workflowId: state.id,
+      stepId,
+      stepType: step.type,
+      agentId: state.agentId,
+      error: lastErr.message,
+    });
   }
 }
 
