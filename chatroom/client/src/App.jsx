@@ -54,6 +54,8 @@ function App() {
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [showMemoryViewer, setShowMemoryViewer] = useState(false);
   const [showWorkflowLibrary, setShowWorkflowLibrary] = useState(false);
+  const [workflowLibraryTab, setWorkflowLibraryTab]   = useState(undefined);
+  const [checkpointBanner, setCheckpointBanner]       = useState(0); // count of resumable checkpoints
   // workflowId → { id, name, status, startedAt, completedAt, steps: [] }
   const [workflows, setWorkflows] = useState(new Map());
 
@@ -327,13 +329,25 @@ function App() {
     };
 
     on('workflow_submitted', (data) => {
+      // Insert an inline card into the message stream
+      const pseudoId = `wf_${data.workflowId}`;
+      setMessages(prev =>
+        prev.some(m => m.id === pseudoId)
+          ? prev
+          : [...prev, {
+              id:           pseudoId,
+              type:         'workflow',
+              workflowId:   data.workflowId,
+              workflowName: data.workflowName,
+              timestamp:    new Date().toISOString(),
+            }]
+      );
       updateWorkflow(data.workflowId, {
         id:        data.workflowId,
         name:      data.workflowName,
         status:    'pending',
         stepCount: data.stepCount,
         agentId:   data.agentId,
-        // Use real step defs if server sent them, else empty array
         steps: data.steps
           ? data.steps.map(s => ({ ...s, status: 'pending' }))
           : [],
@@ -438,6 +452,14 @@ function App() {
   // Fetch initial agents on mount
   useEffect(() => {
     fetchAgents();
+  }, []);
+
+  // Check for resumable checkpoints on mount
+  useEffect(() => {
+    fetch(`${API_BASE}/workflows/checkpoints`)
+      .then(r => r.json())
+      .then(cps => { if (cps.length > 0) setCheckpointBanner(cps.length); })
+      .catch(() => {});
   }, []);
 
   // API Functions
@@ -675,8 +697,33 @@ function App() {
     }
   };
 
+  const activeWorkflowCount = [...workflows.values()].filter(
+    w => w.status === 'running'
+  ).length;
+
   return (
     <div className="app" data-theme={theme}>
+      {/* Checkpoint resume banner */}
+      {checkpointBanner > 0 && (
+        <div className="checkpoint-banner">
+          <span>
+            ↩ {checkpointBanner} workflow{checkpointBanner > 1 ? 's' : ''} can be resumed from checkpoint
+          </span>
+          <button
+            className="checkpoint-banner-btn"
+            onClick={() => { setWorkflowLibraryTab('checkpoints'); setShowWorkflowLibrary(true); }}
+          >
+            View Checkpoints
+          </button>
+          <button
+            className="checkpoint-banner-dismiss"
+            onClick={() => setCheckpointBanner(0)}
+          >
+            ×
+          </button>
+        </div>
+      )}
+
       <header className="app-header">
         <h1>Agent Chat Room</h1>
 
@@ -714,11 +761,14 @@ function App() {
             {theme === 'dark' ? '☀️' : '🌙'}
           </button>
           <button
-            className="icon-btn"
-            onClick={() => setShowWorkflowLibrary(true)}
+            className="icon-btn wf-library-btn"
+            onClick={() => { setWorkflowLibraryTab(undefined); setShowWorkflowLibrary(true); }}
             title="Workflow Library"
           >
             ⚡
+            {activeWorkflowCount > 0 && (
+              <span className="wf-active-badge">{activeWorkflowCount}</span>
+            )}
           </button>
           {agents.length > 0 && (
             <button
@@ -807,17 +857,7 @@ function App() {
             streamingMessage={streamingMessage}
             currentSpeaker={currentSpeaker}
             onRemixImage={(image) => setRemixImage(image)}
-          />
-
-          <WorkflowPanel
             workflows={workflows}
-            onClearAll={() => setWorkflows(prev => {
-              const next = new Map();
-              for (const [id, wf] of prev.entries()) {
-                if (wf.status === 'running') next.set(id, wf);
-              }
-              return next;
-            })}
           />
 
           <Controls
@@ -885,6 +925,7 @@ function App() {
       <WorkflowLibraryModal
         isOpen={showWorkflowLibrary}
         onClose={() => setShowWorkflowLibrary(false)}
+        initialTab={workflowLibraryTab}
         onWorkflowStarted={(id) => console.log('Workflow started from library:', id)}
       />
 

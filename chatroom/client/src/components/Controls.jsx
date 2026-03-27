@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { StylePicker } from './StylePicker';
 
 export function Controls({
   isRunning,
@@ -143,6 +144,9 @@ Example: Brainstorm and develop a comprehensive pitch for an innovative mobile a
       {/* Message Injection - show when running OR when there are messages (post-consensus) */}
       {(isRunning || hasMessages) && (
         <form onSubmit={handleInject} className="inject-form">
+          <StylePicker
+            onSelect={(tag) => setInjectMessage((prev) => prev + tag)}
+          />
           <input
             type="text"
             placeholder={isRunning

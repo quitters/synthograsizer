@@ -1,0 +1,36 @@
+{
+  "id": "45396f52-090e-47a3-87d4-cac4b258e882",
+  "name": "Entropy Degradation Loop",
+  "description": "Iteratively degrades an image over 5 passes",
+  "tags": [],
+  "definition": {
+    "name": "Entropy Degradation Loop",
+    "steps": [
+      {
+        "id": "seed",
+        "type": "synth_image",
+        "prompt": "a perfect crystal sphere floating in void"
+      },
+      {
+        "id": "degrade",
+        "type": "loop",
+        "dependsOn": [
+          "seed"
+        ],
+        "seed": "seed",
+        "carry": [
+          "degrade"
+        ],
+        "iterations": 5,
+        "steps": [
+          {
+            "id": "degrade",
+            "type": "synth_image",
+            "prompt": "{{_loop.degrade.url}} with more entropy, glitch artifacts, dissolving"
+          }
+        ]
+      }
+    ]
+  },
+  "savedAt": "2026-03-26T21:59:01.168Z"
+}

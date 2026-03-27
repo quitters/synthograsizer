@@ -1,0 +1,49 @@
+{
+  "workflowId": "04fc77d2-bba8-4244-a4c3-f1b61bcd936f",
+  "name": "Cinematic Short",
+  "workflowDef": {
+    "name": "Cinematic Short",
+    "steps": [
+      {
+        "id": "concept",
+        "type": "synth_story",
+        "params": {},
+        "dependsOn": []
+      },
+      {
+        "id": "frame1",
+        "type": "synth_image",
+        "params": {},
+        "dependsOn": [
+          "concept"
+        ]
+      },
+      {
+        "id": "frame2",
+        "type": "synth_image",
+        "params": {},
+        "dependsOn": [
+          "concept"
+        ]
+      },
+      {
+        "id": "montage",
+        "type": "synth_video",
+        "params": {},
+        "dependsOn": [
+          "frame1",
+          "frame2"
+        ]
+      }
+    ]
+  },
+  "completedSteps": [],
+  "failedSteps": [
+    {
+      "id": "concept",
+      "error": "fetch failed"
+    }
+  ],
+  "stepResults": {},
+  "savedAt": "2026-03-26T22:35:06.614Z"
+}

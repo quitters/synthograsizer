@@ -24,6 +24,8 @@ import { Router } from 'express';
 import { workflowLibrary } from '../services/workflowLibrary.js';
 import { workflowEngine } from '../services/workflowEngine.js';
 import { orchestrator } from '../services/orchestrator.js';
+import { listTemplates, buildWorkflow } from '../services/workflowTemplates.js';
+import { stylePresets } from '../services/stylePresets.js';
 
 const router = Router();
 
@@ -43,6 +45,14 @@ router.get('/checkpoints', async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
+});
+
+router.get('/templates', (req, res) => {
+  res.json(listTemplates());
+});
+
+router.get('/presets', (req, res) => {
+  res.json(stylePresets.map(({ id, name, category }) => ({ id, name, category })));
 });
 
 router.get('/active', (req, res) => {
@@ -67,7 +77,7 @@ router.post('/active/:id/cancel', (req, res) => {
 
 // Run a workflow definition directly (from library UI or external caller)
 router.post('/run', async (req, res) => {
-  const { definition, savedId } = req.body || {};
+  const { definition, savedId, templateId, params } = req.body || {};
 
   let wfDef = definition;
 
@@ -76,6 +86,15 @@ router.post('/run', async (req, res) => {
     const entry = await workflowLibrary.get(savedId);
     if (!entry) return res.status(404).json({ error: 'Saved workflow not found' });
     wfDef = entry.definition;
+  }
+
+  // Allow running a built-in template by id
+  if (!wfDef && templateId) {
+    try {
+      wfDef = buildWorkflow(templateId, params || {});
+    } catch (err) {
+      return res.status(400).json({ error: err.message });
+    }
   }
 
   if (!wfDef || !Array.isArray(wfDef.steps)) {

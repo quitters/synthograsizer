@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 
 const API_BASE = '/chatroom/api';
 
@@ -10,10 +10,10 @@ function formatDate(iso) {
 
 // ─── SaveForm ────────────────────────────────────────────────────────────────
 
-function SaveForm({ onSave }) {
+function SaveForm({ onSave, prefilledJson }) {
   const [name, setName]         = useState('');
   const [desc, setDesc]         = useState('');
-  const [json, setJson]         = useState('');
+  const [json, setJson]         = useState(prefilledJson ?? '');
   const [error, setError]       = useState(null);
   const [saving, setSaving]     = useState(false);
 
@@ -218,25 +218,125 @@ function JsonViewer({ entryId, onClose }) {
   );
 }
 
+// ─── TemplateParamForm ───────────────────────────────────────────────────────
+
+function TemplateParamForm({ template, onRun, onCancel }) {
+  const [params, setParams] = useState({});
+  const [running, setRunning] = useState(false);
+  const [error, setError] = useState(null);
+
+  const allParams = [
+    ...(template.requiredParams || []).map((p) => ({ name: p, required: true })),
+    ...(template.optionalParams || []).map((p) => ({ name: p, required: false })),
+  ];
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError(null);
+    setRunning(true);
+    try {
+      await onRun(template.id, params);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setRunning(false);
+    }
+  };
+
+  return (
+    <div className="wl-tpl-form">
+      <div className="wl-tpl-form-header">
+        <button className="wl-btn wl-btn-sm" onClick={onCancel} type="button">
+          ← Back
+        </button>
+        <h3>{template.name}</h3>
+      </div>
+      <p className="wl-tpl-desc">{template.description}</p>
+      <form onSubmit={handleSubmit}>
+        {allParams.map(({ name, required }) => (
+          <div key={name} className="wl-tpl-field">
+            <label className="wl-tpl-label">
+              {name}
+              {required && <span className="wl-tpl-required"> *</span>}
+            </label>
+            <input
+              className="wl-input"
+              placeholder={required ? `Required` : `Optional`}
+              value={params[name] ?? ''}
+              onChange={(e) =>
+                setParams((prev) => ({ ...prev, [name]: e.target.value }))
+              }
+              required={required}
+            />
+          </div>
+        ))}
+        {error && <div className="wl-error">{error}</div>}
+        <div className="wl-tpl-actions">
+          <button
+            type="submit"
+            className="wl-btn wl-btn-primary"
+            disabled={running}
+          >
+            {running ? 'Running…' : '▶ Run Template'}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
+
+// ─── TemplateRow ─────────────────────────────────────────────────────────────
+
+function TemplateRow({ template, onUse }) {
+  return (
+    <div className="wl-row wl-row-template">
+      <div className="wl-row-info">
+        <span className="wl-row-name">{template.name}</span>
+        <span className="wl-row-desc">{template.description}</span>
+        <span className="wl-row-meta">
+          {template.requiredParams?.length > 0 && (
+            <span>Required: {template.requiredParams.join(', ')}</span>
+          )}
+          {template.optionalParams?.length > 0 && (
+            <span> · Optional: {template.optionalParams.join(', ')}</span>
+          )}
+        </span>
+      </div>
+      <div className="wl-row-actions">
+        <button
+          className="wl-btn wl-btn-sm wl-btn-run"
+          onClick={() => onUse(template)}
+        >
+          Use
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ─── WorkflowLibraryModal ────────────────────────────────────────────────────
 
-export function WorkflowLibraryModal({ isOpen, onClose, onWorkflowStarted }) {
-  const [tab, setTab]               = useState('library'); // 'library' | 'checkpoints' | 'save'
+export function WorkflowLibraryModal({ isOpen, onClose, onWorkflowStarted, prefilledJson, initialTab }) {
+  const [tab, setTab]               = useState(initialTab ?? 'library'); // 'library' | 'templates' | 'checkpoints' | 'save'
   const [entries, setEntries]       = useState([]);
   const [checkpoints, setCheckpoints] = useState([]);
+  const [templates, setTemplates]   = useState([]);
   const [loading, setLoading]       = useState(false);
   const [error, setError]           = useState(null);
   const [viewingId, setViewingId]   = useState(null);
+  const [activeTemplate, setActiveTemplate] = useState(null); // template being parameterised
 
   const fetchLibrary = useCallback(async () => {
     setLoading(true); setError(null);
     try {
-      const [libRes, cpRes] = await Promise.all([
+      const [libRes, cpRes, tplRes] = await Promise.all([
         fetch(`${API_BASE}/workflows`),
         fetch(`${API_BASE}/workflows/checkpoints`),
+        fetch(`${API_BASE}/workflows/templates`),
       ]);
       setEntries(await libRes.json());
       setCheckpoints(await cpRes.json());
+      setTemplates(await tplRes.json());
     } catch (err) {
       setError(err.message);
     } finally {
@@ -245,8 +345,11 @@ export function WorkflowLibraryModal({ isOpen, onClose, onWorkflowStarted }) {
   }, []);
 
   useEffect(() => {
-    if (isOpen) fetchLibrary();
-  }, [isOpen, fetchLibrary]);
+    if (isOpen) {
+      fetchLibrary();
+      if (initialTab) setTab(initialTab);
+    }
+  }, [isOpen, fetchLibrary, initialTab]);
 
   const handleRun = async (savedId) => {
     const res = await fetch(`${API_BASE}/workflows/run`, {
@@ -275,6 +378,19 @@ export function WorkflowLibraryModal({ isOpen, onClose, onWorkflowStarted }) {
     if (!res.ok) throw new Error(data.error);
     await fetchLibrary();
     setTab('library');
+  };
+
+  const handleRunTemplate = async (templateId, params) => {
+    const res = await fetch(`${API_BASE}/workflows/run`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ templateId, params }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    onWorkflowStarted?.(data.workflowId);
+    setActiveTemplate(null);
+    onClose();
   };
 
   const handleResume = async (workflowId) => {
@@ -309,13 +425,14 @@ export function WorkflowLibraryModal({ isOpen, onClose, onWorkflowStarted }) {
         <div className="wl-tabs">
           {[
             { id: 'library',     label: `Library (${entries.length})` },
+            { id: 'templates',   label: `Templates (${templates.length})` },
             { id: 'checkpoints', label: `Checkpoints (${checkpoints.length})` },
             { id: 'save',        label: '+ Save New' },
           ].map(t => (
             <button
               key={t.id}
               className={`wl-tab ${tab === t.id ? 'active' : ''}`}
-              onClick={() => { setTab(t.id); setViewingId(null); }}
+              onClick={() => { setTab(t.id); setViewingId(null); setActiveTemplate(null); }}
             >
               {t.label}
             </button>
@@ -348,6 +465,27 @@ export function WorkflowLibraryModal({ isOpen, onClose, onWorkflowStarted }) {
                 ))
           )}
 
+          {/* Templates tab */}
+          {!viewingId && tab === 'templates' && !loading && (
+            activeTemplate ? (
+              <TemplateParamForm
+                template={activeTemplate}
+                onRun={handleRunTemplate}
+                onCancel={() => setActiveTemplate(null)}
+              />
+            ) : templates.length === 0 ? (
+              <div className="wl-empty">No templates available.</div>
+            ) : (
+              templates.map(tpl => (
+                <TemplateRow
+                  key={tpl.id}
+                  template={tpl}
+                  onUse={setActiveTemplate}
+                />
+              ))
+            )
+          )}
+
           {/* Checkpoints tab */}
           {!viewingId && tab === 'checkpoints' && !loading && (
             checkpoints.length === 0
@@ -364,7 +502,7 @@ export function WorkflowLibraryModal({ isOpen, onClose, onWorkflowStarted }) {
 
           {/* Save tab */}
           {!viewingId && tab === 'save' && (
-            <SaveForm onSave={handleSave} />
+            <SaveForm onSave={handleSave} prefilledJson={prefilledJson} />
           )}
         </div>
       </div>

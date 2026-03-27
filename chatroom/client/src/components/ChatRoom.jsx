@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
 import { ChatMessage } from './ChatMessage';
+import { WorkflowInlineCard } from './WorkflowInlineCard';
 
 export const ChatRoom = forwardRef(function ChatRoom(
-  { messages, streamingMessage, currentSpeaker, onRemixImage },
+  { messages, streamingMessage, currentSpeaker, onRemixImage, workflows },
   ref
 ) {
   const messagesEndRef = useRef(null);
@@ -61,11 +62,22 @@ export const ChatRoom = forwardRef(function ChatRoom(
               key={message.id}
               ref={el => messageRefs.current[index] = el}
             >
-              <ChatMessage
-                message={message}
-                isStreaming={message.isStreaming}
-                onRemixImage={onRemixImage}
-              />
+              {message.type === 'workflow' ? (
+                <WorkflowInlineCard
+                  workflow={workflows?.get(message.workflowId) ?? {
+                    id: message.workflowId,
+                    name: message.workflowName,
+                    status: 'pending',
+                    steps: [],
+                  }}
+                />
+              ) : (
+                <ChatMessage
+                  message={message}
+                  isStreaming={message.isStreaming}
+                  onRemixImage={onRemixImage}
+                />
+              )}
             </div>
           ))}
           <div ref={messagesEndRef} />
