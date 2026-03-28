@@ -1224,6 +1224,11 @@ class ChatOrchestrator {
           fullResponse = stripArtifactTags(fullResponse);
         }
 
+        // Detect artifact hallucination (agent claims code changes without tags)
+        const artifactHallucinationNote = detectArtifactHallucination(
+          fullResponse, artifactUpdates.length > 0
+        );
+
         // Skip empty responses (no text, no images, no tool results, no synth, no workflows)
         const hasContent = fullResponse && fullResponse.trim().length > 0;
         const hasImages = images.length > 0;
@@ -1251,6 +1256,7 @@ class ChatOrchestrator {
           synthMedia: hasSynthMedia ? synthMedia : undefined,
           synthResults: hasSynthResults ? synthResults : undefined,
           workflowIds: hasWorkflows ? workflowIds : undefined,
+          artifactHallucination: artifactHallucinationNote || undefined,
           timestamp: new Date().toISOString(),
           isUser: false,
           tokenCount: responseTokens
@@ -1496,6 +1502,21 @@ class ChatOrchestrator {
       messages: this.messages
     };
   }
+}
+
+// ─── Artifact hallucination detection ─────────────────────────────────────
+
+/**
+ * Detect when an agent claims to have written/updated code but didn't use
+ * [ARTIFACT:] tags.  Returns a short correction string or null.
+ */
+const CODE_CLAIM_RE = /\b(here'?s?\s+(the\s+)?(updated|new|revised|modified|complete|full)\s+(code|sketch|file|html|script|game|artifact)|(i'?ve|i have|i just)\s+(updated|created|added|modified|written|built|refactored|revised)\s+(the\s+)?(code|sketch|file|artifact|game|html|function|class)|(let me (update|create|write|add)|updating the artifact|pushing.*changes|here are the changes))/i;
+
+function detectArtifactHallucination(responseText, hadArtifactTags) {
+  if (hadArtifactTags) return null;              // actually used tags — all good
+  if (!responseText) return null;
+  if (!CODE_CLAIM_RE.test(responseText)) return null; // no claim detected
+  return '[SYSTEM NOTE: The previous message described code changes but did NOT use [ARTIFACT:] tags, so nothing was actually saved. If you want to build on their idea, YOU must output the full code inside [ARTIFACT: filename.ext]...[/ARTIFACT] tags.]';
 }
 
 // ─── Artifact tag parsers ──────────────────────────────────────────────────

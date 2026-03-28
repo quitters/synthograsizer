@@ -189,6 +189,7 @@ Rules:
 - Supported: .js, .html, .css, .py, .json, .glsl, .md, and more.
 - For p5.js sketches, use filename "sketch.js". For HTML games, use "game.html".
 - The artifact will render live in a preview panel that all participants can see.
+- WARNING: Do NOT describe code changes in prose. You MUST wrap code in [ARTIFACT: filename] tags or it will NOT be saved. Narrating changes without tags is useless.
 
 CURRENT ARTIFACT STATE:`;
     for (const art of artifacts) {
@@ -216,7 +217,13 @@ Rules: always output the COMPLETE file — no partial snippets or placeholders.`
 IMPORTANT: The goal asks you to BUILD something. Do not just discuss ideas endlessly.
 Within the first 1-2 turns, someone MUST create an [ARTIFACT] with working code.
 Start simple and iterate — a basic working prototype is better than a perfect plan with no code.
-Skip lengthy preamble and flattery. Be direct, be constructive, and SHIP CODE.`;
+Skip lengthy preamble and flattery. Be direct, be constructive, and SHIP CODE.
+
+WARNING: Do NOT merely describe or narrate code changes. You MUST wrap all code in the exact tag format:
+  [ARTIFACT: sketch.js]
+  // your complete code here
+  [/ARTIFACT]
+If you say "here's the updated code" or "I've added a function" without wrapping it in [ARTIFACT:] tags, it will NOT be saved and nobody will see it. Talking about code is not the same as shipping code.`;
     }
   }
 
@@ -295,6 +302,11 @@ Please provide your opening statement to kick off the discussion. Remember, writ
         }
       }
     }
+    // Inject hallucination correction so the next agent knows the previous one didn't actually save code
+    if (msg.artifactHallucination) {
+      transcript += `\n${msg.artifactHallucination}`;
+    }
+
     transcript += `\n\n`;
   }
 
