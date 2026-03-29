@@ -26,7 +26,9 @@ class ChatOrchestrator {
     this.isRunning = false;
     this.isPaused = false;
     this.lastSpeakerId = null;
-    this.sseClients = new Set();
+    // NOTE: do NOT clear sseClients — they are transport-level connections
+    // that persist across session resets. Clearing them orphans live clients.
+    if (!this.sseClients) this.sseClients = new Set();
     this.completionReason = null;
     // Speaking order: 'dynamic' (AI-driven), 'round-robin', 'priority', 'random'
     this.speakingOrder = 'dynamic';
@@ -310,6 +312,9 @@ class ChatOrchestrator {
    * Start the autonomous chat
    */
   async start(goal, tokenLimit = 100000) {
+    if (this.isRunning) {
+      throw new Error('Chat is already running');
+    }
     if (this.agents.length < 2) {
       throw new Error('Need at least 2 agents to start a chat');
     }

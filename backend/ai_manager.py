@@ -565,7 +565,7 @@ class AIManager:
                 finish_reason = str(candidate.finish_reason)
                 if "SAFETY" in finish_reason or finish_reason == "3":
                     safety_msg = "Content blocked for SAFETY."
-                    if hasattr(candidate, 'safety_ratings'):
+                    if hasattr(candidate, 'safety_ratings') and candidate.safety_ratings:
                         for rating in candidate.safety_ratings:
                             # Check if probability is high/medium which usually triggers block
                             # probability might be an enum or string
