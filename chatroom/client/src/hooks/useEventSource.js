@@ -75,6 +75,8 @@ export function useEventSource(url, options = {}) {
       'workflow_status',
       'workflow_cancel_result',
       'workflow_loop_iteration',
+      'workflow_step_chunk',
+      'artifact_update',
     ];
 
     eventTypes.forEach(eventType => {

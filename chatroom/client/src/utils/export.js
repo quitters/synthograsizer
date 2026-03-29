@@ -19,8 +19,10 @@ export function exportAsMarkdown(messages, agents, goal, metadata = {}) {
   md += `## Conversation\n\n`;
 
   for (const msg of messages) {
-    // Skip non-chat messages (workflow inline cards, etc.)
-    if (msg.type === 'workflow' || !msg.agentName) continue;
+    // Skip non-chat messages (workflow inline cards, streaming placeholders, etc.)
+    if (msg.type === 'workflow' || !msg.agentName || msg.isStreaming) continue;
+    // Guard against undefined-ish fields that would render as literal "undefined"
+    if (msg.agentName === 'undefined' || (!msg.content && !msg.images?.length && !msg.toolResults?.length)) continue;
 
     const time = new Date(msg.timestamp).toLocaleTimeString();
     md += `### ${msg.agentName} (${time})\n\n`;
