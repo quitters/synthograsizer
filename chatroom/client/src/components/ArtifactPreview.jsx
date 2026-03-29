@@ -9,10 +9,22 @@ const P5_CDN = 'https://cdn.jsdelivr.net/npm/p5@1.11.3/lib/p5.min.js';
  */
 function buildPreviewDoc(filename, content, allArtifacts) {
   const ext = filename.split('.').pop()?.toLowerCase();
+  // Base URL for resolving media references (e.g. /chatroom/api/chat/media/ID)
+  const baseUrl = window.location.origin;
 
   if (ext === 'html' || ext === 'htm') {
     // If there are companion .js or .css artifacts, inject them
     let doc = content;
+
+    // Inject <base> tag so relative URLs like /chatroom/api/... resolve correctly in sandboxed srcdoc
+    if (doc.includes('<head>')) {
+      doc = doc.replace('<head>', `<head><base href="${baseUrl}" />`);
+    } else if (doc.includes('<html>')) {
+      doc = doc.replace('<html>', `<html><head><base href="${baseUrl}" /></head>`);
+    } else {
+      doc = `<head><base href="${baseUrl}" /></head>` + doc;
+    }
+
     for (const [name, art] of Object.entries(allArtifacts)) {
       if (name === filename) continue;
       const artExt = name.split('.').pop()?.toLowerCase();

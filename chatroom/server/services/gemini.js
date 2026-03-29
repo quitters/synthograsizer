@@ -191,6 +191,15 @@ Rules:
 - The artifact will render live in a preview panel that all participants can see.
 - WARNING: Do NOT describe code changes in prose. You MUST wrap code in [ARTIFACT: filename] tags or it will NOT be saved. Narrating changes without tags is useless.
 
+EMBEDDING GENERATED IMAGES IN ARTIFACTS:
+When images are generated (via [IMAGE:], [SYNTH_IMAGE:], or workflows), they are stored with unique IDs shown in the conversation transcript.
+To embed a generated image in an HTML artifact, use:
+  <img src="/chatroom/api/chat/media/IMAGE_ID" alt="description" />
+Example: if the transcript shows [Image generated - ID: abc123-def456 | Prompt: "a sunset"], use:
+  <img src="/chatroom/api/chat/media/abc123-def456" alt="a sunset" />
+This lets you build galleries, storyboards, and composites that display actual generated images.
+You MUST use the exact ID from the transcript — do not make up IDs.
+
 CURRENT ARTIFACT STATE:`;
     for (const art of artifacts) {
       prompt += `
@@ -210,7 +219,11 @@ You can create shared files that render live in a preview panel all participants
   ...complete file content...
   [/ARTIFACT]
 For p5.js sketches use "sketch.js". For HTML games use "game.html".
-Rules: always output the COMPLETE file — no partial snippets or placeholders.`;
+Rules: always output the COMPLETE file — no partial snippets or placeholders.
+
+EMBEDDING GENERATED IMAGES: When images are generated, their IDs appear in the transcript.
+To embed them in HTML artifacts: <img src="/chatroom/api/chat/media/IMAGE_ID" alt="description" />
+Use exact IDs from the transcript — do not make up IDs.`;
     if (goalWantsCode) {
       prompt += `
 
@@ -278,12 +291,22 @@ Please provide your opening statement to kick off the discussion. Remember, writ
   // Full recent messages
   for (const msg of recentMessages) {
     transcript += `[${msg.agentName}]: ${msg.content}`;
-    // Note if the message included images - include IDs for remix capability
+    // Note if the message included images - include IDs for remix and artifact embedding
     if (msg.images && msg.images.length > 0) {
       for (const img of msg.images) {
         transcript += `\n  [Image generated - ID: ${img.id} | Prompt: "${img.prompt || img.caption}"]`;
+        transcript += `\n    → Embed in artifact: <img src="/chatroom/api/chat/media/${img.id}" />`;
         if (img.referenceId) {
           transcript += ` (remixed from ${img.referenceId})`;
+        }
+      }
+    }
+    // Note synth media with embedding hints
+    if (msg.synthMedia && msg.synthMedia.length > 0) {
+      for (const sm of msg.synthMedia) {
+        transcript += `\n  [Synth ${sm.type} - ID: ${sm.id} | Prompt: "${sm.prompt || ''}"]`;
+        if (sm.type === 'image') {
+          transcript += `\n    → Embed in artifact: <img src="/chatroom/api/chat/media/${sm.id}" />`;
         }
       }
     }
