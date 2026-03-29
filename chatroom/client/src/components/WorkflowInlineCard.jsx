@@ -69,6 +69,46 @@ function StepOutputPanel({ step }) {
   );
 }
 
+// ─── MediaGallery — auto-fetches and shows all media from completed steps ────
+
+function MediaGallery({ steps }) {
+  const [gallery, setGallery] = useState([]); // { stepId, src, type, prompt }
+  const mediaSteps = steps.filter(s =>
+    (s.status === 'complete' || s.status === 'success') && s.result?.mediaId
+  );
+
+  useEffect(() => {
+    if (mediaSteps.length === 0) { setGallery([]); return; }
+    let cancelled = false;
+    Promise.all(
+      mediaSteps.map(s =>
+        fetch(`${API_BASE}/chat/media/${s.result.mediaId}`)
+          .then(r => r.ok ? r.json() : null)
+          .then(d => d ? { stepId: s.id, type: d.type, prompt: d.prompt, src: `data:${d.mimeType};base64,${d.data}` } : null)
+          .catch(() => null)
+      )
+    ).then(items => { if (!cancelled) setGallery(items.filter(Boolean)); });
+    return () => { cancelled = true; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mediaSteps.map(s => s.result.mediaId).join(',')]);
+
+  if (gallery.length === 0) return null;
+
+  return (
+    <div className="wic-gallery">
+      {gallery.map(item => (
+        <div key={item.stepId} className="wic-gallery-item" title={item.prompt || item.stepId}>
+          {item.type === 'video' ? (
+            <video className="wic-gallery-thumb" controls muted><source src={item.src} /></video>
+          ) : (
+            <img className="wic-gallery-thumb" src={item.src} alt={item.stepId} />
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 // ─── WorkflowInlineCard ───────────────────────────────────────────────────────
 
 export function WorkflowInlineCard({ workflow }) {
@@ -175,6 +215,9 @@ export function WorkflowInlineCard({ workflow }) {
             })}
           </div>
         )}
+
+        {/* Media gallery — always visible once any image/video steps complete */}
+        {doneCount > 0 && <MediaGallery steps={steps} />}
 
         {expanded && (
           <div className="wic-detail">

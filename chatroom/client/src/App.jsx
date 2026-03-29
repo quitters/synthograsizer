@@ -162,7 +162,7 @@ function App() {
     onSave: () => setShowSaveModal(true),
     onExport: () => {
       if (messages.length > 0) {
-        const md = exportAsMarkdown(messages, agents, currentGoal, { tokenCount });
+        const md = exportAsMarkdown(messages, agents, currentGoal, { tokenCount, workflows, artifacts });
         downloadFile(md, `chat-${new Date().toISOString().split('T')[0]}.md`, 'text/markdown');
       }
     },
@@ -715,13 +715,13 @@ function App() {
     onToggleTheme: toggleTheme,
     onExportMarkdown: () => {
       if (messages.length > 0) {
-        const md = exportAsMarkdown(messages, agents, currentGoal, { tokenCount });
+        const md = exportAsMarkdown(messages, agents, currentGoal, { tokenCount, workflows, artifacts });
         downloadFile(md, `chat-${new Date().toISOString().split('T')[0]}.md`, 'text/markdown');
       }
     },
     onExportJSON: () => {
       if (messages.length > 0) {
-        const json = exportAsJSON(messages, agents, currentGoal, { tokenCount });
+        const json = exportAsJSON(messages, agents, currentGoal, { tokenCount, workflows, artifacts });
         downloadFile(json, `chat-${new Date().toISOString().split('T')[0]}.json`, 'application/json');
       }
     },
