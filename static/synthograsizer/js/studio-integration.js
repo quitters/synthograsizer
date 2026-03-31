@@ -105,7 +105,7 @@ class StudioIntegration {
 
             .studio-btn-grid {
                 display: grid;
-                grid-template-columns: repeat(4, 1fr);
+                grid-template-columns: repeat(3, 1fr);
                 gap: 12px;
             }
 
@@ -743,6 +743,10 @@ class StudioIntegration {
                 <button class="studio-btn-large btn-music-large" id="studio-music-btn">
                     <span class="icon">🎵</span>
                     <span class="label">Music<br>Studio</span>
+                </button>
+                <button class="studio-btn-large btn-workflow-large" id="studio-workflow-btn">
+                    <span class="icon">⚡</span>
+                    <span class="label">Workflows</span>
                 </button>
             </div>
         `;
@@ -1682,6 +1686,9 @@ class StudioIntegration {
         });
         this.bindSafe('studio-analysis-btn', 'onclick', () => this.openModal('image-analysis-modal'));
         this.bindSafe('studio-metadata-btn', 'onclick', () => this.openModal('metadata-reader-modal'));
+        this.bindSafe('studio-workflow-btn', 'onclick', () => {
+            if (window.workflowRunner) window.workflowRunner.open();
+        });
         this.bindSafe('enhance-prompt-btn', 'onclick', () => this.enhancePrompt());
 
         // ── Music Studio ──────────────────────────────────────────
@@ -5094,6 +5101,11 @@ window.addEventListener('DOMContentLoaded', () => {
                 try {
                     window.studioIntegration = new StudioIntegration(app);
                     console.log('StudioIntegration: Initialized successfully');
+                    // Init WorkflowRunner (workflows modal for Synthograsizer)
+                    if (window.WorkflowRunner) {
+                        window.workflowRunner = new WorkflowRunner(window.studioIntegration);
+                        window.workflowRunner.init();
+                    }
                 } catch (e) {
                     console.error('StudioIntegration: Critical initialization error:', e);
                 }

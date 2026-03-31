@@ -223,6 +223,10 @@ async function dispatchSynth(type, params, agentId = null, agentName = null, onC
     case 'synth_analyze': {
       // image_id may be a mediaStore id or raw base64
       const imageRef = params.image_id || params.image || '';
+      // If upstream image step was skipped, imageRef will be null/empty — return stub
+      if (!imageRef || imageRef === 'null') {
+        return { description: '[image unavailable — upstream step skipped]', skipped: true };
+      }
       const media = mediaStore.get(imageRef);
       const imageBase64 = media?.data || imageRef;
       return synthClient.analyzeImage(imageBase64);
@@ -604,7 +608,7 @@ class WorkflowEngine {
       // Execute all steps in this wave in parallel
       await Promise.all(wave.map(stepId => this._executeStep(state, stepId)));
 
-      // If any step in this wave failed, abort remaining waves
+      // If any step in this wave hard-failed (not skipped), abort remaining waves
       const waveFailed = state.steps
         .filter(s => wave.includes(s.id))
         .some(s => s.status === 'failed');
@@ -705,17 +709,35 @@ class WorkflowEngine {
     }
 
     step.error = lastErr.message;
-    step.status = 'failed';
     step.completedAt = new Date().toISOString();
-    workflowLibrary.saveCheckpoint(state.id, state).catch(() => {});
 
-    state.broadcast('workflow_step_error', {
-      workflowId: state.id,
-      stepId,
-      stepType: step.type,
-      agentId: state.agentId,
-      error: lastErr.message,
-    });
+    if (step.continueOnError) {
+      // Soft-fail: mark skipped, store stub result so downstream interpolation doesn't crash
+      step.status = 'skipped';
+      const stub = { skipped: true, error: lastErr.message, mediaId: null, image: null, description: '[image unavailable]' };
+      step.result = stub;
+      state.results.set(stepId, stub);
+      workflowLibrary.saveCheckpoint(state.id, state).catch(() => {});
+
+      state.broadcast('workflow_step_complete', {
+        workflowId: state.id,
+        stepId,
+        stepType: step.type,
+        agentId: state.agentId,
+        summary: { skipped: true, error: lastErr.message },
+      });
+    } else {
+      step.status = 'failed';
+      workflowLibrary.saveCheckpoint(state.id, state).catch(() => {});
+
+      state.broadcast('workflow_step_error', {
+        workflowId: state.id,
+        stepId,
+        stepType: step.type,
+        agentId: state.agentId,
+        error: lastErr.message,
+      });
+    }
   }
 }
 

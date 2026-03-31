@@ -579,6 +579,7 @@ Output ONLY valid JSON.`,
             prompt: `Scene ${i + 1} from a ${theme} adventure story. {{style_tpl.template.promptTemplate}}. Dramatic moment, narrative illustration style.`,
           },
           dependsOn: ['story', 'style_tpl'],
+          continueOnError: true,
         })),
       ],
     };
@@ -638,6 +639,7 @@ Output ONLY a JSON array of strings, one prompt per scene. Example: ["scene 1 pr
           aspect_ratio,
         },
         dependsOn: ['plan', 'style'],
+        continueOnError: true,
       });
     }
 

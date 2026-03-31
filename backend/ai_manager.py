@@ -401,19 +401,56 @@ class AIManager:
                 reference_images.extend(input_images)
 
             if "gemini" in model_name.lower():
-                # Use Gemini for image generation
-                return self._generate_image_gemini(
-                    prompt, model_name, aspect_ratio, reference_images,
-                    response_modalities, thinking_level, include_thoughts,
-                    media_resolution, person_generation, safety_settings,
-                    image_count, add_watermark, use_google_search,
-                    temperature, top_k, top_p, tags=tags
-                )
+                # Use Gemini for image generation — retry up to 3× on transient 500s
+                last_err = None
+                for attempt in range(3):
+                    try:
+                        return self._generate_image_gemini(
+                            prompt, model_name, aspect_ratio, reference_images,
+                            response_modalities, thinking_level, include_thoughts,
+                            media_resolution, person_generation, safety_settings,
+                            image_count, add_watermark, use_google_search,
+                            temperature, top_k, top_p, tags=tags
+                        )
+                    except Exception as e:
+                        last_err = e
+                        err_str = str(e)
+                        # Only retry on transient server errors
+                        if "500" in err_str or "503" in err_str or "INTERNAL" in err_str or "UNAVAILABLE" in err_str:
+                            wait = 5 * (attempt + 1)  # 5s, 10s, 15s
+                            print(f"Image generation transient error (attempt {attempt+1}/3), retrying in {wait}s: {err_str[:120]}")
+                            time.sleep(wait)
+                            continue
+                        raise  # Non-transient — don't retry
+                # All retries exhausted — return placeholder so workflow can continue
+                print(f"Image generation failed after 3 attempts, using placeholder: {str(last_err)[:120]}")
+                return self._placeholder_image(aspect_ratio)
             else:
                 # Use Imagen 3
                 return self._generate_image_imagen(prompt, model_name, aspect_ratio, negative_prompt, tags=tags)
         except Exception as e:
             raise Exception(f"Image generation failed: {str(e)}")
+
+    def _placeholder_image(self, aspect_ratio: str = '16:9') -> str:
+        """Return a base64-encoded dark grey placeholder PNG with an error label.
+        Sized to match the requested aspect ratio so downstream steps (e.g. img→video)
+        receive a valid image rather than crashing."""
+        ratio_map = {
+            '1:1': (512, 512), '16:9': (896, 504), '9:16': (504, 896),
+            '4:3': (640, 480), '3:4': (480, 640), '21:9': (1008, 432),
+        }
+        w, h = ratio_map.get(aspect_ratio, (896, 504))
+        img = Image.new('RGB', (w, h), color=(30, 30, 30))
+        try:
+            from PIL import ImageDraw
+            draw = ImageDraw.Draw(img)
+            msg = '⚠ Image unavailable'
+            draw.text((w // 2 - 80, h // 2 - 8), msg, fill=(140, 140, 140))
+        except Exception:
+            pass  # Text drawing is best-effort
+        buf = io.BytesIO()
+        img.save(buf, format='PNG')
+        return base64.b64encode(buf.getvalue()).decode('utf-8')
 
     def _generate_image_imagen(self, prompt: str, model_name: str, aspect_ratio: str, negative_prompt: str = None, tags: list = None):
         """Helper for Imagen 3 generation."""
