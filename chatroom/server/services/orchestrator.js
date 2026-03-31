@@ -5,7 +5,7 @@ import { parseToolRequests, executeToolRequests, stripToolTags, formatToolResult
 import { countTokens, countMessageTokens } from '../utils/tokenCounter.js';
 import { mediaStore } from './mediaStore.js';
 import { artifactStore } from './artifactStore.js';
-import { synthClient } from './synthClient.js';
+import { synthClient } from 'workflow-engine';
 
 /**
  * Chat Orchestrator

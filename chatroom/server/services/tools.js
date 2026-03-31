@@ -1,8 +1,8 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { synthClient } from './synthClient.js';
-export { parseWorkflowRequests, stripWorkflowTags, workflowEngine } from './workflowEngine.js';
-export { getPreset, searchPresets, applyPreset, getCategories, getPresetsByCategory, listPresetsCompact } from './stylePresets.js';
-export { getTemplate, listTemplates, buildWorkflow, listTemplatesForPrompt, listStylesForPrompt } from './workflowTemplates.js';
+import { synthClient } from 'workflow-engine';
+export { parseWorkflowRequests, stripWorkflowTags, workflowEngine } from 'workflow-engine';
+export { getPreset, searchPresets, applyPreset, getCategories, getPresetsByCategory, listPresetsCompact } from 'workflow-engine';
+export { getTemplate, listTemplates, buildWorkflow, listTemplatesForPrompt, listStylesForPrompt } from 'workflow-engine';
 
 /**
  * Unified Tools Service
@@ -668,8 +668,8 @@ export function formatSynthResults(results) {
 // SYNTH_STYLE & WORKFLOW_TEMPLATE TAG PARSING
 // ============================================================================
 
-import { getPreset, applyPreset } from './stylePresets.js';
-import { buildWorkflow } from './workflowTemplates.js';
+import { getPreset, applyPreset } from 'workflow-engine';
+import { buildWorkflow } from 'workflow-engine';
 
 /**
  * Parse [SYNTH_STYLE: subject | style=oil_painting] tags.

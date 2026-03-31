@@ -15,13 +15,14 @@
  *   POST /api/video/combine
  */
 
-const BASE_URL = 'http://127.0.0.1:8001';
+const DEFAULT_BASE_URL = 'http://127.0.0.1:8001';
 const DEFAULT_TIMEOUT_MS = 30_000;
 const VIDEO_TIMEOUT_MS = 120_000;
 const HEALTH_CACHE_MS = 30_000;
 
 class SynthClient {
-  constructor() {
+  constructor(baseUrl) {
+    this._baseUrl = baseUrl || process.env.SYNTH_BACKEND_URL || DEFAULT_BASE_URL;
     this._healthCache = null;       // { result, at }
   }
 
@@ -33,7 +34,7 @@ class SynthClient {
    * Fetch with timeout + optional 503 retry.
    */
   async _fetch(path, options = {}, timeoutMs = DEFAULT_TIMEOUT_MS) {
-    const url = `${BASE_URL}${path}`;
+    const url = `${this._baseUrl}${path}`;
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeoutMs);
 
@@ -150,7 +151,7 @@ class SynthClient {
    * @returns {Promise<string>} full accumulated text
    */
   async generateTextStream(prompt, onChunk) {
-    const url = `${BASE_URL}/api/generate/text/stream`;
+    const url = `${this._baseUrl}/api/generate/text/stream`;
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT_MS);
     try {

@@ -1,0 +1,14 @@
+{
+  "name": "workflow-engine",
+  "version": "1.0.0",
+  "description": "Shared workflow orchestration engine for Synthograsizer Suite",
+  "type": "module",
+  "exports": {
+    ".": "./index.js",
+    "./routes": "./routes/workflows.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "uuid": "^9.0.0"
+  }
+}

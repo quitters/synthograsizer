@@ -6,11 +6,13 @@ import { dirname, join } from 'path';
 
 import agentsRouter from './routes/agents.js';
 import chatRouter from './routes/chat.js';
-import workflowsRouter from './routes/workflows.js';
 import artifactsRouter from './routes/artifacts.js';
+import { createWorkflowRoutes, workflowEngine } from 'workflow-engine';
 import { initializeGemini } from './services/gemini.js';
 import { initializeImageGen } from './services/imageGen.js';
 import { initializeTools } from './services/tools.js';
+import { mediaStore } from './services/mediaStore.js';
+import { orchestrator } from './services/orchestrator.js';
 
 // Load environment variables from parent directory
 dotenv.config({ path: join(dirname(fileURLToPath(import.meta.url)), '../.env') });
@@ -48,10 +50,15 @@ initializeImageGen(apiKey);
 initializeTools(apiKey);
 console.log('Gemini API initialized (text, image, search, and URL tools)');
 
+// Configure shared workflow engine with chatroom's mediaStore
+workflowEngine.configure({ mediaStore });
+
 // Routes
 app.use('/api/agents', agentsRouter);
 app.use('/api/chat', chatRouter);
-app.use('/api/workflows', workflowsRouter);
+app.use('/api/workflows', createWorkflowRoutes({
+  broadcast: orchestrator.broadcast.bind(orchestrator),
+}));
 app.use('/api/artifacts', artifactsRouter);
 
 // Health check

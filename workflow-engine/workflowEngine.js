@@ -1,7 +1,9 @@
 import { v4 as uuidv4 } from 'uuid';
 import { synthClient } from './synthClient.js';
-import { mediaStore } from './mediaStore.js';
 import { workflowLibrary } from './workflowLibrary.js';
+
+// mediaStore is injected at runtime via workflowEngine.configure({ mediaStore })
+let _mediaStore = null;
 
 /**
  * WorkflowEngine — executes multi-step creative pipelines.
@@ -117,7 +119,7 @@ async function dispatchSynth(type, params, agentId = null, agentName = null, onC
       const res = await synthClient.generateImage(prompt || '', opts);
       if (res.image) {
         const mediaId = uuidv4();
-        mediaStore.add({
+        _mediaStore.add({
           id: mediaId, type: 'image', data: res.image, mimeType: 'image/png',
           prompt: prompt || '', agentId, agentName
         });
@@ -131,7 +133,7 @@ async function dispatchSynth(type, params, agentId = null, agentName = null, onC
       const res = await synthClient.generateVideo(prompt || '', opts);
       if (res.video) {
         const mediaId = uuidv4();
-        mediaStore.add({
+        _mediaStore.add({
           id: mediaId, type: 'video', data: res.video, mimeType: 'video/mp4',
           prompt: prompt || '', agentId, agentName
         });
@@ -227,20 +229,20 @@ async function dispatchSynth(type, params, agentId = null, agentName = null, onC
       if (!imageRef || imageRef === 'null') {
         return { description: '[image unavailable — upstream step skipped]', skipped: true };
       }
-      const media = mediaStore.get(imageRef);
+      const media = _mediaStore.get(imageRef);
       const imageBase64 = media?.data || imageRef;
       return synthClient.analyzeImage(imageBase64);
     }
 
     case 'synth_transform': {
       const imageRef = params.image_id || params.image || '';
-      const media = mediaStore.get(imageRef);
+      const media = _mediaStore.get(imageRef);
       const imageBase64 = media?.data || imageRef;
       const intent = params.intent || '';
       const res = await synthClient.smartTransform(imageBase64, intent);
       if (res.image) {
         const mediaId = uuidv4();
-        mediaStore.add({
+        _mediaStore.add({
           id: mediaId, type: 'image', data: res.image, mimeType: 'image/png',
           prompt: intent, agentId, agentName
         });
@@ -276,6 +278,15 @@ class WorkflowEngine {
   constructor() {
     /** @type {Map<string, object>} workflowId → state */
     this._workflows = new Map();
+  }
+
+  /**
+   * Inject external dependencies (mediaStore) that are provided by the host application.
+   * Must be called before any workflow is submitted.
+   * @param {{ mediaStore: { add: Function, get: Function } }} deps
+   */
+  configure({ mediaStore }) {
+    if (mediaStore) _mediaStore = mediaStore;
   }
 
   // --------------------------------------------------------------------------

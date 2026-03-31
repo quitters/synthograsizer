@@ -1,8 +1,6 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { countTokens } from '../utils/tokenCounter.js';
-import { synthClient } from './synthClient.js';
-import { listPresetsCompact } from './stylePresets.js';
-import { listTemplatesForPrompt } from './workflowTemplates.js';
+import { synthClient, listPresetsCompact, listTemplatesForPrompt } from 'workflow-engine';
 import { artifactStore } from './artifactStore.js';
 
 // Use Gemini 3 Pro Preview

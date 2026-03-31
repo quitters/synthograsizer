@@ -12,26 +12,23 @@
  */
 
 import { readdir, readFile, writeFile, unlink, mkdir } from 'fs/promises';
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
+import { join } from 'path';
 import { v4 as uuidv4 } from 'uuid';
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const LIBRARY_DIR  = join(__dirname, '../../data/workflows');
-const CHECKPOINT_DIR = join(LIBRARY_DIR, 'checkpoints');
-
-async function ensureDirs() {
-  await mkdir(LIBRARY_DIR,    { recursive: true });
-  await mkdir(CHECKPOINT_DIR, { recursive: true });
-}
 
 // ─── WorkflowLibrary class ────────────────────────────────────────────────────
 
 class WorkflowLibrary {
-  constructor() {
-    this._ready = ensureDirs().catch(err =>
+  constructor(dataDir) {
+    this._libraryDir = dataDir || process.env.WORKFLOW_DATA_DIR || join(process.cwd(), 'data', 'workflows');
+    this._checkpointDir = join(this._libraryDir, 'checkpoints');
+    this._ready = this._ensureDirs().catch(err =>
       console.error('[WorkflowLibrary] Failed to create data dirs:', err)
     );
+  }
+
+  async _ensureDirs() {
+    await mkdir(this._libraryDir,    { recursive: true });
+    await mkdir(this._checkpointDir, { recursive: true });
   }
 
   async _wait() { await this._ready; }
@@ -45,14 +42,14 @@ class WorkflowLibrary {
   async list() {
     await this._wait();
     let files;
-    try { files = await readdir(LIBRARY_DIR); }
+    try { files = await readdir(this._libraryDir); }
     catch { return []; }
 
     const results = [];
     for (const file of files) {
       if (!file.endsWith('.json')) continue;
       try {
-        const raw = await readFile(join(LIBRARY_DIR, file), 'utf8');
+        const raw = await readFile(join(this._libraryDir, file), 'utf8');
         const entry = JSON.parse(raw);
         results.push({
           id:        entry.id,
@@ -76,7 +73,7 @@ class WorkflowLibrary {
   async get(id) {
     await this._wait();
     try {
-      const raw = await readFile(join(LIBRARY_DIR, `${id}.json`), 'utf8');
+      const raw = await readFile(join(this._libraryDir, `${id}.json`), 'utf8');
       return JSON.parse(raw);
     } catch {
       return null;
@@ -100,7 +97,7 @@ class WorkflowLibrary {
       definition,
       savedAt:     new Date().toISOString(),
     };
-    await writeFile(join(LIBRARY_DIR, `${id}.json`), JSON.stringify(entry, null, 2), 'utf8');
+    await writeFile(join(this._libraryDir, `${id}.json`), JSON.stringify(entry, null, 2), 'utf8');
     return id;
   }
 
@@ -120,7 +117,7 @@ class WorkflowLibrary {
       tags:        meta.tags        ?? entry.tags,
       updatedAt:   new Date().toISOString(),
     });
-    await writeFile(join(LIBRARY_DIR, `${id}.json`), JSON.stringify(entry, null, 2), 'utf8');
+    await writeFile(join(this._libraryDir, `${id}.json`), JSON.stringify(entry, null, 2), 'utf8');
     return true;
   }
 
@@ -132,7 +129,7 @@ class WorkflowLibrary {
   async delete(id) {
     await this._wait();
     try {
-      await unlink(join(LIBRARY_DIR, `${id}.json`));
+      await unlink(join(this._libraryDir, `${id}.json`));
       return true;
     } catch {
       return false;
@@ -175,7 +172,7 @@ class WorkflowLibrary {
       };
 
       await writeFile(
-        join(CHECKPOINT_DIR, `${workflowId}.json`),
+        join(this._checkpointDir, `${workflowId}.json`),
         JSON.stringify(checkpoint, null, 2),
         'utf8'
       );
@@ -192,7 +189,7 @@ class WorkflowLibrary {
   async loadCheckpoint(workflowId) {
     await this._wait();
     try {
-      const raw = await readFile(join(CHECKPOINT_DIR, `${workflowId}.json`), 'utf8');
+      const raw = await readFile(join(this._checkpointDir, `${workflowId}.json`), 'utf8');
       return JSON.parse(raw);
     } catch {
       return null;
@@ -206,7 +203,7 @@ class WorkflowLibrary {
   async deleteCheckpoint(workflowId) {
     await this._wait();
     try {
-      await unlink(join(CHECKPOINT_DIR, `${workflowId}.json`));
+      await unlink(join(this._checkpointDir, `${workflowId}.json`));
     } catch { /* already gone */ }
   }
 
@@ -217,14 +214,14 @@ class WorkflowLibrary {
   async listCheckpoints() {
     await this._wait();
     let files;
-    try { files = await readdir(CHECKPOINT_DIR); }
+    try { files = await readdir(this._checkpointDir); }
     catch { return []; }
 
     const results = [];
     for (const file of files) {
       if (!file.endsWith('.json')) continue;
       try {
-        const raw = await readFile(join(CHECKPOINT_DIR, file), 'utf8');
+        const raw = await readFile(join(this._checkpointDir, file), 'utf8');
         const cp  = JSON.parse(raw);
         results.push({
           workflowId:     cp.workflowId,
