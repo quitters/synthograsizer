@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Water Balloon Soft-Body v17 — Per-Blob Properties</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #fff; font-family: system-ui, sans-serif; padding-top: 1rem; }
+  .slider-grid { padding: 0.4rem 1.5rem 1.4rem; max-width: 560px; margin: 0 auto;
+                 display: grid; grid-template-columns: 1fr 1fr; gap: 9px 28px; }
+  .slider-grid label { font-size: 12px; color: #666; display: block; margin-bottom: 2px; }
+  .slider-grid label span.val { font-weight: 500; color: #111; }
+  .slider-grid input.val-input { width: 48px; font-size: 12px; font-weight: 500; color: #111;
+    border: 1px solid #ccc; border-radius: 3px; padding: 0 3px; text-align: right;
+    font-family: system-ui, sans-serif; background: #fafafa; margin-left: 2px; }
+  .slider-grid input[type=range] { width: 100%; }
+  .toolbar { padding: 0.4rem 1.5rem 0.2rem; max-width: 560px; margin: 0 auto;
+             display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .toolbar button { font-size: 11px; padding: 3px 10px; border: 0.5px solid #aaa;
+                    border-radius: 4px; background: #fff; cursor: pointer; color: #333; }
+  .toolbar button:hover { background: #f0f0f0; }
+  .toolbar button.active { background: #333; color: #fff; border-color: #333; }
+  .color-swatch { width: 26px; height: 26px; border-radius: 50%; border: 2px solid #ccc;
+                  cursor: pointer; position: relative; overflow: hidden; flex-shrink: 0; }
+  .color-swatch input { position: absolute; inset: -6px; width: 38px; height: 38px;
+                        cursor: pointer; opacity: 0; }
+  .hint { font-size: 10px; color: #999; margin-left: auto; }
+  #selectionBar { padding: 0.3rem 1.5rem 0; max-width: 560px; margin: 0 auto;
+                  display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  #selLabel { font-size: 11px; font-weight: 600; color: #444; }
+  #selDot { width: 10px; height: 10px; border-radius: 50%; display: inline-block;
+            border: 1.5px solid rgba(0,0,0,0.15); flex-shrink: 0; }
+  #selectionBar button { font-size: 10px; padding: 2px 8px; border: 0.5px solid #bbb;
+                         border-radius: 4px; background: #fff; cursor: pointer; color: #555; }
+  #selectionBar button:hover { background: #f0f0f0; }
+  #masterBtn.active { background: #333; color: #fff; border-color: #333; }
+</style>
+</head>
+<body>
+<canvas id="c" style="display:block;margin:0 auto;background:#f4f4f4;border-radius:8px;border:0.5px solid #e0e0e0;cursor:grab;"></canvas>
+
+<div class="toolbar">
+  <button id="resetBtn">&#8634; reset</button>
+  <button id="resetAllBtn">&#8634; reset all</button>
+  <div class="color-swatch" id="swatchWrap">
+    <input type="color" id="colorPicker" value="#1a1a1a" title="Blob color">
+  </div>
+  <label style="font-size:12px;color:#666;">Blobs <span id="v-count" style="font-weight:500;color:#111;">1</span></label>
+  <input type="range" id="count" min="1" max="8" value="1" step="1" style="width:100px;accent-color:#111;">
+  <button id="snapBtn" title="Click two blobs to snap them together">&#128279; snap mode</button>
+  <button id="unsnapBtn" title="Remove all snap joints">&#10005; unsnap all</button>
+  <select id="fpsSelect" style="font-size:11px;padding:3px 6px;border:0.5px solid #aaa;border-radius:4px;background:#fff;color:#333;cursor:pointer;">
+    <option value="15">15 fps</option>
+    <option value="24">24 fps</option>
+    <option value="30" selected>30 fps</option>
+  </select>
+  <button id="exportBtn" title="Export all settings as JSON">&#128229; export</button>
+  <button id="importBtn" title="Import settings from JSON">&#128228; import</button>
+  <input type="file" id="importFile" accept=".json" style="display:none;">
+  <span class="hint" id="hintText"></span>
+</div>
+
+<div id="selectionBar">
+  <span id="selDot"></span>
+  <span id="selLabel">Blob 1 properties</span>
+  <button id="randBtn" title="Randomize this blob's properties">&#127922; randomize</button>
+  <button id="masterBtn" title="Edit all blobs at once">&#9776; master</button>
+</div>
+
+<div class="slider-grid">
+  <div><label>Size <input class="val-input" id="v-size" type="number" value="50"></label><input type="range" id="size" min="1" max="125" value="50" step="1"></div>
+  <div><label>Inflation <input class="val-input" id="v-pres" type="number" value="50"></label><input type="range" id="pres" min="0" max="125" value="50" step="1"></div>
+  <div><label>Rubber tension <input class="val-input" id="v-tens" type="number" value="35"></label><input type="range" id="tens" min="5" max="125" value="35" step="1"></div>
+  <div><label>Damping <input class="val-input" id="v-damp" type="number" value="20"></label><input type="range" id="damp" min="1" max="50" value="20" step="1"></div>
+  <div><label>Fluid mass <input class="val-input" id="v-mass" type="number" value="5"></label><input type="range" id="mass" min="1" max="15" value="5" step="1"></div>
+  <div><label>Gravity <input class="val-input" id="v-grav" type="number" value="5"></label><input type="range" id="grav" min="0" max="50" value="5" step="1"></div>
+  <div><label>Bending stiffness <input class="val-input" id="v-bend" type="number" value="8"></label><input type="range" id="bend" min="0" max="38" value="8" step="1"></div>
+</div>
+
+<script>
+/* ── Water Balloon Soft-Body v17 — Per-Blob Properties ────────────────
+   - Each blob has its own physics parameters
+   - Click a blob to select it; sliders reflect + control that blob
+   - Slider ranges expanded +25% (gravity up to 50)
+   - Master mode, randomize, color picker, snap-together
+   - Simple vertex-vertex collision (stable & lightweight)
+   ─────────────────────────────────────────────────────────────────── */
+
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+const W = 520, H = 420;
+canvas.width = W; canvas.height = H;
+
+const WALL = 14, FLOOR = H - WALL, CEIL = WALL, BL = WALL, BR = W - WALL;
+const N = 32;
+const SUBSTEPS = 10;
+const GRAB_RADIUS = 6;
+
+// ── Default physics params ───────────────────────────────────────────
+
+const DEFAULTS = { size: 50, pres: 50, tens: 35, damp: 20, mass: 5, grav: 5, bend: 8 };
+function defaultPr() { return { ...DEFAULTS }; }
+
+// ── Selected blob + master mode ──────────────────────────────────────
+
+let selectedBlobIdx = 0;
+let masterMode = false;
+const SLIDER_IDS = Object.keys(DEFAULTS);
+
+function syncSlidersToBlob(bi) {
+  if (bi < 0 || bi >= blobs.length) return;
+  const p = blobs[bi].pr;
+  for (const id of SLIDER_IDS) {
+    document.getElementById(id).value = p[id];
+    document.getElementById('v-' + id).value = p[id];
+  }
+  const col = blobs[bi].color;
+  document.querySelectorAll('.slider-grid input[type=range]').forEach(el => {
+    el.style.accentColor = col;
+  });
+  document.getElementById('selLabel').textContent = masterMode ? 'All blobs (master)' : `Blob ${bi + 1} properties`;
+  document.getElementById('selDot').style.background = masterMode ? 'transparent' : col;
+  document.getElementById('selDot').style.border = masterMode ? '1.5px dashed #888' : '1.5px solid rgba(0,0,0,0.15)';
+  currentColor = col;
+  colorPicker.value = /^#[0-9a-f]{6}$/i.test(col) ? col : '#1a1a1a';
+  swatchWrap.style.background = col;
+}
+
+function setMasterMode(on) {
+  masterMode = on;
+  document.getElementById('masterBtn').classList.toggle('active', on);
+  document.querySelectorAll('.slider-grid input[type=range]').forEach(el => {
+    el.style.accentColor = on ? '#555' : (blobs[selectedBlobIdx]?.color ?? '#111');
+  });
+  if (on) {
+    document.getElementById('selLabel').textContent = 'All blobs (master)';
+    document.getElementById('selDot').style.background = 'transparent';
+    document.getElementById('selDot').style.border = '1.5px dashed #888';
+  } else {
+    syncSlidersToBlob(selectedBlobIdx);
+  }
+}
+
+// ── Randomize ────────────────────────────────────────────────────────
+
+const RAND_RANGES = {
+  size: [10, 100], pres: [10, 110], tens: [5, 110],
+  damp: [1, 45],   mass: [1, 13],   grav: [0, 20], bend: [0, 35]
+};
+
+function randomPr() {
+  const p = {};
+  for (const [id, [lo, hi]] of Object.entries(RAND_RANGES))
+    p[id] = Math.round(lo + Math.random() * (hi - lo));
+  return p;
+}
+
+function applyPrToBlob(bi, p) {
+  const sizeChanged = blobs[bi].pr.size !== p.size;
+  blobs[bi].pr = { ...p };
+  if (sizeChanged) rebuildBlob(bi);
+}
+
+function randomizeSelected() {
+  if (blobs.length === 0) return;
+  if (masterMode) {
+    const p = randomPr();
+    for (let i = 0; i < blobs.length; i++) applyPrToBlob(i, p);
+  } else {
+    applyPrToBlob(selectedBlobIdx, randomPr());
+  }
+  syncSlidersToBlob(selectedBlobIdx);
+}
+
+document.getElementById('randBtn').addEventListener('click', randomizeSelected);
+document.getElementById('masterBtn').addEventListener('click', () => setMasterMode(!masterMode));
+
+// ── Sliders ──────────────────────────────────────────────────────────
+
+function applySliderValue(id, val) {
+  const targets = masterMode ? blobs : (selectedBlobIdx < blobs.length ? [blobs[selectedBlobIdx]] : []);
+  for (const b of targets) {
+    const sizeChanged = id === 'size' && b.pr.size !== val;
+    b.pr[id] = val;
+    if (sizeChanged) rebuildBlob(blobs.indexOf(b));
+  }
+}
+
+SLIDER_IDS.forEach(id => {
+  // Slider drives number input + physics
+  document.getElementById(id).addEventListener('input', e => {
+    const val = +e.target.value;
+    document.getElementById('v-' + id).value = val;
+    applySliderValue(id, val);
+  });
+  // Number input drives slider + physics (no min/max enforced — type anything)
+  document.getElementById('v-' + id).addEventListener('input', e => {
+    const val = +e.target.value;
+    if (isNaN(val)) return;
+    document.getElementById(id).value = val;
+    applySliderValue(id, val);
+  });
+});
+
+// ── Color picker ─────────────────────────────────────────────────────
+
+let currentColor = '#1a1a1a';
+const colorPicker = document.getElementById('colorPicker');
+const swatchWrap = document.getElementById('swatchWrap');
+swatchWrap.style.background = currentColor;
+
+colorPicker.addEventListener('input', e => {
+  currentColor = e.target.value;
+  swatchWrap.style.background = currentColor;
+  if (selectedBlobIdx >= 0 && selectedBlobIdx < blobs.length) {
+    blobs[selectedBlobIdx].color = currentColor;
+    document.getElementById('selDot').style.background = currentColor;
+    document.querySelectorAll('.slider-grid input[type=range]').forEach(el => {
+      el.style.accentColor = currentColor;
+    });
+  }
+});
+
+// ── Blob count slider ────────────────────────────────────────────────
+
+let targetCount = 1;
+document.getElementById('count').addEventListener('input', e => {
+  targetCount = +e.target.value;
+  document.getElementById('v-count').textContent = targetCount;
+  syncBlobCount();
+});
+
+// ── Snap mode ────────────────────────────────────────────────────────
+
+let snapMode = false;
+let snapFirst = -1;
+const snapBtn = document.getElementById('snapBtn');
+const hintText = document.getElementById('hintText');
+
+snapBtn.addEventListener('click', () => {
+  snapMode = !snapMode;
+  snapFirst = -1;
+  snapBtn.classList.toggle('active', snapMode);
+  hintText.textContent = snapMode ? 'Click first blob...' : '';
+});
+
+document.getElementById('unsnapBtn').addEventListener('click', () => {
+  snapJoints.length = 0;
+  hintText.textContent = 'All snap joints removed';
+  setTimeout(() => { if (!snapMode) hintText.textContent = ''; }, 1500);
+});
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+  if (masterMode) {
+    hardReset();
+  } else {
+    // Reset only the selected blob: restore default props, rebuild in place
+    const b = blobs[selectedBlobIdx];
+    if (!b) return;
+    const cen = blobCentroid(b);
+    const pr = defaultPr();
+    const r = sliderToRadius(pr.size);
+    const cx = Math.min(Math.max(cen.x, BL + r), BR - r);
+    const cy = Math.min(Math.max(cen.y, CEIL + r), FLOOR - r);
+    const rebuilt = createBlob(cx, cy, r, b.color, pr);
+    blobs[selectedBlobIdx] = rebuilt;
+    snapJoints = snapJoints.filter(j => j.a !== selectedBlobIdx && j.b !== selectedBlobIdx);
+    syncSlidersToBlob(selectedBlobIdx);
+  }
+});
+document.getElementById('resetAllBtn').addEventListener('click', hardReset);
+
+// ── Export / Import settings ────────────────────────────────────────
+
+document.getElementById('exportBtn').addEventListener('click', () => {
+  const data = {
+    version: 1,
+    targetFPS: typeof targetFPS !== 'undefined' ? targetFPS : 30,
+    blobCount: blobs.length,
+    masterMode,
+    selectedBlobIdx,
+    blobs: blobs.map(b => ({
+      color: b.color,
+      pr: { ...b.pr }
+    }))
+  };
+  const json = JSON.stringify(data, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `softbody-blobs-${new Date().toISOString().slice(0,19).replace(/:/g,'-')}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  hintText.textContent = 'Settings exported!';
+  setTimeout(() => { hintText.textContent = ''; }, 1500);
+});
+
+const importFile = document.getElementById('importFile');
+document.getElementById('importBtn').addEventListener('click', () => importFile.click());
+importFile.addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = evt => {
+    try {
+      const data = JSON.parse(evt.target.result);
+      if (!data.blobs || !Array.isArray(data.blobs)) throw new Error('Invalid format');
+      // Apply blob count
+      targetCount = data.blobCount || data.blobs.length;
+      document.getElementById('count').value = targetCount;
+      document.getElementById('v-count').textContent = targetCount;
+      // Reset and rebuild blobs with saved settings
+      blobs = [];
+      snapJoints.length = 0;
+      const positions = spawnPositions(targetCount, 50);
+      for (let i = 0; i < targetCount; i++) {
+        const saved = data.blobs[i] || data.blobs[0];
+        const pr = { ...defaultPr(), ...saved.pr };
+        const r = sliderToRadius(pr.size);
+        const pos = positions[i] || { x: W / 2, y: (CEIL + FLOOR) / 2 };
+        blobs.push(createBlob(pos.x, pos.y, r, saved.color || palette[i % palette.length], pr));
+      }
+      // Restore UI state
+      if (data.masterMode !== undefined) setMasterMode(data.masterMode);
+      selectedBlobIdx = Math.min(data.selectedBlobIdx || 0, blobs.length - 1);
+      syncSlidersToBlob(selectedBlobIdx);
+      if (data.targetFPS) {
+        targetFPS = data.targetFPS;
+        document.getElementById('fpsSelect').value = targetFPS;
+      }
+      hintText.textContent = 'Settings imported!';
+      setTimeout(() => { hintText.textContent = ''; }, 1500);
+    } catch (err) {
+      hintText.textContent = 'Import failed: ' + err.message;
+      setTimeout(() => { hintText.textContent = ''; }, 3000);
+    }
+  };
+  reader.readAsText(file);
+  importFile.value = ''; // allow re-importing same file
+});
+
+// ── Blob data structure ──────────────────────────────────────────────
+
+let blobs = [];
+let snapJoints = [];
+
+function createBlob(cx, cy, radius, color, pr) {
+  const blob = {
+    px: [], py: [], ox: [], oy: [],
+    edgeRest: [], bendRest: [],
+    restArea: 0, restR: radius,
+    color: color,
+    pr: pr ? { ...pr } : defaultPr()
+  };
+  for (let i = 0; i < N; i++) {
+    const a = -(i / N) * Math.PI * 2 + Math.PI / 2;
+    blob.px.push(cx + Math.cos(a) * radius);
+    blob.py.push(cy + Math.sin(a) * radius);
+    blob.ox.push(cx + Math.cos(a) * radius);
+    blob.oy.push(cy + Math.sin(a) * radius);
+  }
+  for (let i = 0; i < N; i++) {
+    const j = (i + 1) % N;
+    blob.edgeRest.push(dist(blob.px[i], blob.py[i], blob.px[j], blob.py[j]));
+  }
+  for (let i = 0; i < N; i++) {
+    const j = (i + 2) % N;
+    blob.bendRest.push(dist(blob.px[i], blob.py[i], blob.px[j], blob.py[j]));
+  }
+  blob.restArea = blobSignedArea(blob);
+  if (blob.restArea < 0) blob.restArea = -blob.restArea;
+  return blob;
+}
+
+function sliderToRadius(v) { return 25 + (v - 1) / 124 * 75; }
+
+function dist(x1, y1, x2, y2) {
+  const dx = x2 - x1, dy = y2 - y1;
+  return Math.sqrt(dx * dx + dy * dy);
+}
+
+function blobSignedArea(b) {
+  let a = 0;
+  for (let i = 0; i < N; i++) {
+    const j = (i + 1) % N;
+    a += b.px[i] * b.py[j] - b.px[j] * b.py[i];
+  }
+  return a * 0.5;
+}
+
+function blobCentroid(b) {
+  let cx = 0, cy = 0;
+  for (let i = 0; i < N; i++) { cx += b.px[i]; cy += b.py[i]; }
+  return { x: cx / N, y: cy / N };
+}
+
+function pointInBlob(b, mx, my) {
+  let c = 0;
+  for (let i = 0; i < N; i++) {
+    const j = (i + 1) % N;
+    if (((b.py[i] > my) !== (b.py[j] > my)) &&
+        (mx < (b.px[j] - b.px[i]) * (my - b.py[i]) / (b.py[j] - b.py[i]) + b.px[i])) c++;
+  }
+  return c % 2 === 1;
+}
+
+// ── Color utilities ──────────────────────────────────────────────────
+
+function hexToRGB(hex) {
+  const r = parseInt(hex.slice(1,3), 16);
+  const g = parseInt(hex.slice(3,5), 16);
+  const b = parseInt(hex.slice(5,7), 16);
+  return { r, g, b };
+}
+
+function lightenColor(hex, factor) {
+  const { r, g, b } = hexToRGB(hex);
+  return `rgb(${Math.min(255,Math.round(r+(255-r)*factor))},${Math.min(255,Math.round(g+(255-g)*factor))},${Math.min(255,Math.round(b+(255-b)*factor))})`;
+}
+
+function darkenColor(hex, factor) {
+  const { r, g, b } = hexToRGB(hex);
+  return `rgb(${Math.round(r*(1-factor))},${Math.round(g*(1-factor))},${Math.round(b*(1-factor))})`;
+}
+
+const palette = ['#1a1a1a','#c0392b','#2980b9','#27ae60','#f39c12','#8e44ad','#e67e22','#16a085'];
+
+// ── Blob management ──────────────────────────────────────────────────
+
+function spawnPositions(total, r) {
+  if (total === 1) return [{ x: W / 2, y: (CEIL + FLOOR) / 2 }];
+  const innerW = BR - BL, innerH = FLOOR - CEIL;
+  const aspect = innerW / innerH;
+  const cols = Math.max(1, Math.round(Math.sqrt(total * aspect)));
+  const rows = Math.ceil(total / cols);
+  const cellW = innerW / cols, cellH = innerH / rows;
+  const positions = [];
+  for (let i = 0; i < total; i++) {
+    const col = i % cols, row = Math.floor(i / cols);
+    positions.push({ x: BL + cellW * (col + 0.5), y: CEIL + cellH * (row + 0.5) });
+  }
+  return positions;
+}
+
+function syncBlobCount() {
+  while (blobs.length < targetCount) {
+    const idx = blobs.length;
+    const pr = selectedBlobIdx >= 0 && selectedBlobIdx < blobs.length
+      ? { ...blobs[selectedBlobIdx].pr } : defaultPr();
+    const r = sliderToRadius(pr.size);
+    // Spread new blobs across the top of the canvas so they fall in freely
+    // instead of spawning inside existing settled blobs
+    const slots = targetCount;
+    const x = BL + (BR - BL) * ((idx % slots) + 0.5) / slots;
+    const pos = { x, y: CEIL + r + 2 };
+    blobs.push(createBlob(pos.x, pos.y, r, palette[idx % palette.length], pr));
+  }
+  while (blobs.length > targetCount) {
+    blobs.pop();
+    snapJoints = snapJoints.filter(j => j.a < blobs.length && j.b < blobs.length);
+    if (selectedBlobIdx >= blobs.length) {
+      selectedBlobIdx = blobs.length - 1;
+      syncSlidersToBlob(selectedBlobIdx);
+    }
+  }
+}
+
+function rebuildBlob(bi) {
+  const b = blobs[bi];
+  const cen = blobCentroid(b);
+  const r = sliderToRadius(b.pr.size);
+  blobs[bi] = createBlob(cen.x, Math.min(cen.y, FLOOR - r - 4), r, b.color, b.pr);
+  snapJoints = snapJoints.filter(j => j.a !== bi && j.b !== bi);
+}
+
+function hardReset() {
+  blobs = [];
+  snapJoints.length = 0;
+  dragging = false; dragBlobIdx = -1; grabIdx = -1;
+  snapFirst = -1; snapMode = false;
+  snapBtn.classList.remove('active');
+  hintText.textContent = '';
+  const pr0 = defaultPr();
+  const r0 = sliderToRadius(pr0.size);
+  const positions = spawnPositions(targetCount, r0);
+  for (let i = 0; i < targetCount; i++) {
+    blobs.push(createBlob(positions[i].x, positions[i].y, r0, palette[i % palette.length], defaultPr()));
+  }
+  selectedBlobIdx = 0;
+  syncSlidersToBlob(0);
+}
+
+// ── Drag state ───────────────────────────────────────────────────────
+
+let dragging = false;
+let dragBlobIdx = -1;
+let grabIdx = -1;
+let mouseX = 0, mouseY = 0;
+let prevMouseX = 0, prevMouseY = 0;
+let velSamples = [];
+
+function findBlobAt(mx, my) {
+  for (let bi = 0; bi < blobs.length; bi++) {
+    if (pointInBlob(blobs[bi], mx, my)) return bi;
+  }
+  for (let bi = 0; bi < blobs.length; bi++) {
+    const cen = blobCentroid(blobs[bi]);
+    if (dist(mx, my, cen.x, cen.y) < blobs[bi].restR * 1.3) return bi;
+  }
+  return -1;
+}
+
+function nearestPt(b, mx, my) {
+  let best = -1, bestD = 1e9;
+  for (let i = 0; i < N; i++) {
+    const d = (b.px[i] - mx) ** 2 + (b.py[i] - my) ** 2;
+    if (d < bestD) { bestD = d; best = i; }
+  }
+  return best;
+}
+
+function startDrag(mx, my) {
+  if (snapMode) {
+    const bi = findBlobAt(mx, my);
+    if (bi < 0) return;
+    if (snapFirst < 0) {
+      snapFirst = bi;
+      hintText.textContent = `Blob ${bi + 1} selected — click second blob...`;
+    } else if (bi !== snapFirst) {
+      createSnapJoint(snapFirst, bi);
+      hintText.textContent = `Snapped blob ${snapFirst + 1} & ${bi + 1}!`;
+      snapFirst = -1;
+      setTimeout(() => { hintText.textContent = snapMode ? 'Click first blob...' : ''; }, 1200);
+    } else {
+      snapFirst = -1;
+      hintText.textContent = 'Cancelled — click first blob...';
+    }
+    return;
+  }
+  const bi = findBlobAt(mx, my);
+  if (bi < 0) return;
+  dragBlobIdx = bi;
+  dragging = true;
+  grabIdx = nearestPt(blobs[bi], mx, my);
+  mouseX = mx; mouseY = my;
+  prevMouseX = mx; prevMouseY = my;
+  velSamples = [];
+  canvas.style.cursor = 'grabbing';
+  if (bi !== selectedBlobIdx) {
+    selectedBlobIdx = bi;
+    syncSlidersToBlob(bi);
+  }
+}
+
+function moveDrag(mx, my) {
+  if (!dragging) return;
+  prevMouseX = mouseX; prevMouseY = mouseY;
+  mouseX = mx; mouseY = my;
+  velSamples.push({ vx: mouseX - prevMouseX, vy: mouseY - prevMouseY, t: performance.now() });
+  if (velSamples.length > 12) velSamples.shift();
+}
+
+function endDrag() {
+  if (!dragging) return;
+  dragging = false;
+  canvas.style.cursor = 'grab';
+  if (dragBlobIdx >= 0) {
+    const b = blobs[dragBlobIdx];
+    const now = performance.now();
+    const recent = velSamples.filter(v => now - v.t < 80);
+    if (recent.length > 0) {
+      let vx = 0, vy = 0;
+      for (const v of recent) { vx += v.vx; vy += v.vy; }
+      vx /= recent.length; vy /= recent.length;
+      for (let i = 0; i < N; i++) { b.ox[i] -= vx * 0.65; b.oy[i] -= vy * 0.65; }
+    }
+  }
+  dragBlobIdx = -1; grabIdx = -1; velSamples = [];
+}
+
+// ── Snap joints ──────────────────────────────────────────────────────
+
+function createSnapJoint(ai, bi) {
+  if (snapJoints.some(j => (j.a === ai && j.b === bi) || (j.a === bi && j.b === ai))) return;
+  const bA = blobs[ai], bB = blobs[bi];
+  let bestI = 0, bestJ = 0, bestD = 1e9;
+  for (let i = 0; i < N; i++) {
+    for (let j = 0; j < N; j++) {
+      const d = dist(bA.px[i], bA.py[i], bB.px[j], bB.py[j]);
+      if (d < bestD) { bestD = d; bestI = i; bestJ = j; }
+    }
+  }
+  for (let off = -4; off <= 4; off++) {
+    const vi = (bestI + off + N) % N, vj = (bestJ - off + N) % N;
+    snapJoints.push({ a: ai, ai: vi, b: bi, bi: vj,
+      rest: dist(bA.px[vi], bA.py[vi], bB.px[vj], bB.py[vj]) * 0.4 });
+  }
+}
+
+// ── Mouse / Touch events ─────────────────────────────────────────────
+
+canvas.addEventListener('mousedown', e => { const r = canvas.getBoundingClientRect(); startDrag(e.clientX - r.left, e.clientY - r.top); });
+canvas.addEventListener('mousemove', e => { const r = canvas.getBoundingClientRect(); moveDrag(e.clientX - r.left, e.clientY - r.top); });
+canvas.addEventListener('mouseup', endDrag);
+canvas.addEventListener('mouseleave', endDrag);
+canvas.addEventListener('touchstart', e => { e.preventDefault(); const r = canvas.getBoundingClientRect(); const t = e.touches[0]; startDrag(t.clientX - r.left, t.clientY - r.top); }, { passive: false });
+canvas.addEventListener('touchmove', e => { e.preventDefault(); const r = canvas.getBoundingClientRect(); const t = e.touches[0]; moveDrag(t.clientX - r.left, t.clientY - r.top); }, { passive: false });
+canvas.addEventListener('touchend', endDrag);
+canvas.addEventListener('touchcancel', endDrag);
+
+// ── Physics step ─────────────────────────────────────────────────────
+
+function rescueBlob(bi) {
+  // Rebuild blob in place, keeping color + properties
+  const b = blobs[bi];
+  const cen = blobCentroid(b);
+  const r = sliderToRadius(b.pr.size);
+  const cx = isFinite(cen.x) ? Math.min(Math.max(cen.x, BL + r + 2), BR - r - 2) : W / 2;
+  const cy = isFinite(cen.y) ? Math.min(Math.max(cen.y, CEIL + r + 2), FLOOR - r - 2) : (CEIL + FLOOR) / 2;
+  blobs[bi] = createBlob(cx, cy, r, b.color, b.pr);
+}
+
+function blobNeedsRescue(b) {
+  for (let i = 0; i < N; i++) {
+    if (!isFinite(b.px[i]) || !isFinite(b.py[i]) ||
+        !isFinite(b.ox[i]) || !isFinite(b.oy[i])) return true;
+  }
+  const area = Math.abs(blobSignedArea(b));
+  return area < b.restArea * 0.15;
+}
+
+function step() {
+  if (blobs.length === 0) return;
+
+  const subDt = (1 / 60) / SUBSTEPS;
+
+  for (let sub = 0; sub < SUBSTEPS; sub++) {
+
+    // ── Per-blob internal physics ──
+    for (let bi = 0; bi < blobs.length; bi++) {
+      const b = blobs[bi];
+      const p = b.pr;
+      const gravity   = (p.grav / 50) * 6000 * (p.mass / 15);
+      const dampFactor = 1 - (p.damp / 50) * 0.075;
+
+      // Verlet integration
+      for (let i = 0; i < N; i++) {
+        let vx = (b.px[i] - b.ox[i]) * dampFactor;
+        let vy = (b.py[i] - b.oy[i]) * dampFactor;
+        vy += gravity * subDt * subDt;
+        b.ox[i] = b.px[i]; b.oy[i] = b.py[i];
+        b.px[i] += vx; b.py[i] += vy;
+      }
+
+      // Soft drag
+      if (dragging && bi === dragBlobIdx && grabIdx >= 0) {
+        for (let offset = -GRAB_RADIUS; offset <= GRAB_RADIUS; offset++) {
+          const idx = (grabIdx + offset + N) % N;
+          const weight = 1 - Math.abs(offset) / (GRAB_RADIUS + 1);
+          const strength = weight * 0.55;
+          b.px[idx] += (mouseX - b.px[idx]) * strength;
+          b.py[idx] += (mouseY - b.py[idx]) * strength;
+          b.ox[idx] += (mouseX - b.ox[idx]) * strength * 0.9;
+          b.oy[idx] += (mouseY - b.oy[idx]) * strength * 0.9;
+        }
+      }
+
+      // Edge constraints (2 Gauss-Seidel iterations)
+      const edgeStiffness = p.tens / 100;
+      for (let iter = 0; iter < 2; iter++) {
+        for (let i = 0; i < N; i++) {
+          const j = (i + 1) % N;
+          const dx = b.px[j] - b.px[i], dy = b.py[j] - b.py[i];
+          const d = Math.sqrt(dx * dx + dy * dy) || 0.001;
+          const diff = (d - b.edgeRest[i]) / d * edgeStiffness;
+          b.px[i] += dx * diff * 0.5; b.py[i] += dy * diff * 0.5;
+          b.px[j] -= dx * diff * 0.5; b.py[j] -= dy * diff * 0.5;
+        }
+      }
+
+      // Bending constraints
+      if (p.bend > 0) {
+        const bendStiffness = (p.bend / 30) * 0.3;
+        for (let i = 0; i < N; i++) {
+          const j = (i + 2) % N;
+          const dx = b.px[j] - b.px[i], dy = b.py[j] - b.py[i];
+          const d = Math.sqrt(dx * dx + dy * dy) || 0.001;
+          const diff = (d - b.bendRest[i]) / d * bendStiffness;
+          b.px[i] += dx * diff * 0.5; b.py[i] += dy * diff * 0.5;
+          b.px[j] -= dx * diff * 0.5; b.py[j] -= dy * diff * 0.5;
+        }
+      }
+
+      // Pressure — explicit CW outward normals, clamped magnitude
+      const currentArea = Math.abs(blobSignedArea(b));
+      const targetArea = b.restArea * (0.6 + (p.pres / 100) * 0.9);
+      const pressureMag = Math.max(-0.5, Math.min(2.0,
+        (targetArea - currentArea) / (b.restArea || 1) * 1.8));
+      for (let i = 0; i < N; i++) {
+        const j = (i + 1) % N;
+        const ex = b.px[j] - b.px[i], ey = b.py[j] - b.py[i];
+        const len = Math.sqrt(ex * ex + ey * ey) || 0.001;
+        // CW polygon outward normal: (-ey, ex) / len
+        const nx = -ey / len, ny = ex / len;
+        const force = pressureMag * len * 0.5;
+        b.px[i] += nx * force; b.py[i] += ny * force;
+        b.px[j] += nx * force; b.py[j] += ny * force;
+      }
+
+      // Wall collisions with bounce + friction
+      for (let i = 0; i < N; i++) {
+        if (b.px[i] < BL)    { b.px[i] = BL;    b.ox[i] = BL    + (b.px[i] - b.ox[i]) * 0.2; b.oy[i] = b.py[i] - (b.py[i] - b.oy[i]) * 0.92; }
+        if (b.px[i] > BR)    { b.px[i] = BR;    b.ox[i] = BR    + (b.px[i] - b.ox[i]) * 0.2; b.oy[i] = b.py[i] - (b.py[i] - b.oy[i]) * 0.92; }
+        if (b.py[i] < CEIL)  { b.py[i] = CEIL;  b.oy[i] = CEIL  + (b.py[i] - b.oy[i]) * 0.2; b.ox[i] = b.px[i] - (b.px[i] - b.ox[i]) * 0.92; }
+        if (b.py[i] > FLOOR) { b.py[i] = FLOOR; b.oy[i] = FLOOR + (b.py[i] - b.oy[i]) * 0.2; b.ox[i] = b.px[i] - (b.px[i] - b.ox[i]) * 0.92; }
+      }
+
+      // Per-blob rescue check — catch collapse WITHIN the substep loop
+      if (blobNeedsRescue(b)) { rescueBlob(bi); }
+    }
+
+    // ── Blob-blob collision (two-layer: centroid safety + vertex-vertex surface) ──
+    for (let ai = 0; ai < blobs.length; ai++) {
+      for (let bi2 = ai + 1; bi2 < blobs.length; bi2++) {
+        const bA = blobs[ai], bB = blobs[bi2];
+        const cA = blobCentroid(bA), cB = blobCentroid(bB);
+        const cdx = cB.x - cA.x, cdy = cB.y - cA.y;
+        const cenDist = Math.sqrt(cdx * cdx + cdy * cdy) || 0.001;
+
+        // Early-out for distant pairs
+        if (cenDist > (bA.restR + bB.restR) * 2.5) continue;
+
+        // Compute live average radii
+        let rA = 0, rB = 0;
+        for (let i = 0; i < N; i++) {
+          rA += Math.sqrt((bA.px[i] - cA.x) ** 2 + (bA.py[i] - cA.y) ** 2);
+          rB += Math.sqrt((bB.px[i] - cB.x) ** 2 + (bB.py[i] - cB.y) ** 2);
+        }
+        rA /= N; rB /= N;
+        const sumR = rA + rB;
+
+        // Layer 1: centroid-based deep-overlap safety net
+        // Only activates when blobs are severely overlapping (centroids closer than 65% of sumR)
+        // Moves px AND ox together → pure position correction, zero velocity injection
+        const deepOverlap = sumR * 0.65 - cenDist;
+        if (deepOverlap > 0) {
+          const nx = cdx / cenDist, ny = cdy / cenDist;
+          const push = deepOverlap * 0.2;
+          for (let i = 0; i < N; i++) {
+            bA.px[i] -= nx * push * 0.5; bA.py[i] -= ny * push * 0.5;
+            bA.ox[i] -= nx * push * 0.5; bA.oy[i] -= ny * push * 0.5;
+            bB.px[i] += nx * push * 0.5; bB.py[i] += ny * push * 0.5;
+            bB.ox[i] += nx * push * 0.5; bB.oy[i] += ny * push * 0.5;
+          }
+        }
+
+        // Layer 2: vertex-vertex surface repulsion (creates squishy contact deformation)
+        // Collision distance scaled to edge length so vertices can't slip through
+        const avgEdgeLen = sumR * Math.PI / N;
+        const colDist = Math.max(4, avgEdgeLen * 1.1);
+        const colDist2 = colDist * colDist;
+        for (let i = 0; i < N; i++) {
+          for (let j = 0; j < N; j++) {
+            const dx = bB.px[j] - bA.px[i], dy = bB.py[j] - bA.py[i];
+            const d2 = dx * dx + dy * dy;
+            if (d2 < colDist2) {
+              const d = Math.sqrt(d2) || 0.001;
+              const push = (colDist - d) / d * 0.25;
+              bA.px[i] -= dx * push * 0.5; bA.py[i] -= dy * push * 0.5;
+              bB.px[j] += dx * push * 0.5; bB.py[j] += dy * push * 0.5;
+            }
+          }
+        }
+      }
+    }
+
+    // ── Snap joints ──
+    for (const j of snapJoints) {
+      if (j.a >= blobs.length || j.b >= blobs.length) continue;
+      const bA = blobs[j.a], bB = blobs[j.b];
+      const dx = bB.px[j.bi] - bA.px[j.ai], dy = bB.py[j.bi] - bA.py[j.ai];
+      const d = Math.sqrt(dx * dx + dy * dy) || 0.001;
+      const diff = (d - j.rest) / d * 0.35;
+      bA.px[j.ai] += dx * diff * 0.5; bA.py[j.ai] += dy * diff * 0.5;
+      bB.px[j.bi] -= dx * diff * 0.5; bB.py[j.bi] -= dy * diff * 0.5;
+    }
+
+    // ── Post-collision wall clamp ──
+    for (const b of blobs) {
+      for (let i = 0; i < N; i++) {
+        if (b.px[i] < BL)    { b.px[i] = BL;    b.ox[i] = BL; }
+        if (b.px[i] > BR)    { b.px[i] = BR;    b.ox[i] = BR; }
+        if (b.py[i] < CEIL)  { b.py[i] = CEIL;  b.oy[i] = CEIL; }
+        if (b.py[i] > FLOOR) { b.py[i] = FLOOR; b.oy[i] = FLOOR; }
+      }
+    }
+  }
+
+  // ── End-of-frame velocity clamp ──
+  for (const b of blobs) {
+    for (let i = 0; i < N; i++) {
+      const vx = b.px[i] - b.ox[i], vy = b.py[i] - b.oy[i];
+      const spd = Math.sqrt(vx * vx + vy * vy);
+      if (spd > 10) {
+        b.ox[i] = b.px[i] - vx / spd * 10;
+        b.oy[i] = b.py[i] - vy / spd * 10;
+      }
+    }
+  }
+}
+
+// ── Rendering ────────────────────────────────────────────────────────
+
+function drawBlob(b, isSelected) {
+  const cen = blobCentroid(b);
+  let minY = 1e9, maxY = -1e9, minX = 1e9, maxX = -1e9;
+  for (let i = 0; i < N; i++) {
+    if (b.py[i] < minY) minY = b.py[i];
+    if (b.py[i] > maxY) maxY = b.py[i];
+    if (b.px[i] < minX) minX = b.px[i];
+    if (b.px[i] > maxX) maxX = b.px[i];
+  }
+  const spanX = Math.max(maxX - minX, 1);
+  const spanY = Math.max(maxY - minY, 1);
+
+  // Drop shadow
+  const floorDist = Math.max(0, FLOOR - maxY);
+  const shadowAlpha = Math.max(0, 0.18 - floorDist * 0.0015);
+  if (shadowAlpha > 0.002) {
+    const sw = Math.max(spanX * 0.45, 10);
+    const sg = ctx.createRadialGradient(cen.x, FLOOR, 0, cen.x, FLOOR, sw);
+    sg.addColorStop(0, `rgba(0,0,0,${shadowAlpha})`);
+    sg.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.beginPath();
+    ctx.ellipse(cen.x, FLOOR, sw, 6 + shadowAlpha * 20, 0, 0, Math.PI * 2);
+    ctx.fillStyle = sg; ctx.fill();
+  }
+
+  // Smooth path
+  ctx.beginPath();
+  const midX = i => (b.px[i] + b.px[(i + 1) % N]) * 0.5;
+  const midY = i => (b.py[i] + b.py[(i + 1) % N]) * 0.5;
+  ctx.moveTo(midX(0), midY(0));
+  for (let i = 0; i < N; i++) {
+    const ni = (i + 1) % N;
+    ctx.quadraticCurveTo(b.px[ni], b.py[ni], midX(ni), midY(ni));
+  }
+  ctx.closePath();
+
+  // Selection glow
+  if (isSelected) {
+    ctx.save();
+    ctx.strokeStyle = lightenColor(b.color, 0.5);
+    ctx.lineWidth = 5;
+    ctx.globalAlpha = 0.45;
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // Gradient fill
+  const gx = cen.x - spanX * 0.15, gy = minY + spanY * 0.25;
+  const grad = ctx.createRadialGradient(gx, gy, b.restR * 0.05, cen.x, cen.y, b.restR * 1.2);
+  grad.addColorStop(0, lightenColor(b.color, 0.35));
+  grad.addColorStop(0.6, b.color);
+  grad.addColorStop(1, darkenColor(b.color, 0.3));
+  ctx.fillStyle = grad; ctx.fill();
+
+  // Outline
+  ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  // Specular highlight
+  const hlX = cen.x - spanX * 0.12, hlY = minY + spanY * 0.2;
+  const hlRx = Math.max(spanX * 0.18, 2), hlRy = Math.max(spanY * 0.09, 1);
+  ctx.save();
+  ctx.beginPath();
+  ctx.ellipse(hlX, hlY, hlRx, hlRy, -0.3, 0, Math.PI * 2);
+  const hlGrad = ctx.createRadialGradient(hlX, hlY, 0, hlX, hlY, hlRx);
+  hlGrad.addColorStop(0, 'rgba(255,255,255,0.22)');
+  hlGrad.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.fillStyle = hlGrad; ctx.fill();
+  ctx.restore();
+}
+
+function drawSnapLines() {
+  if (snapJoints.length === 0) return;
+  ctx.save();
+  ctx.strokeStyle = 'rgba(255,200,50,0.35)';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([3, 3]);
+  const drawn = new Set();
+  for (const j of snapJoints) {
+    if (j.a >= blobs.length || j.b >= blobs.length) continue;
+    const key = j.a < j.b ? `${j.a}-${j.b}` : `${j.b}-${j.a}`;
+    if (drawn.has(key)) continue;
+    drawn.add(key);
+    const cA = blobCentroid(blobs[j.a]), cB = blobCentroid(blobs[j.b]);
+    ctx.beginPath(); ctx.moveTo(cA.x, cA.y); ctx.lineTo(cB.x, cB.y); ctx.stroke();
+  }
+  ctx.restore();
+}
+
+let targetFPS = 30;
+let lastFrameTime = 0;
+document.getElementById('fpsSelect').addEventListener('change', e => {
+  targetFPS = +e.target.value;
+});
+
+function draw(timestamp) {
+  requestAnimationFrame(draw);
+  const minInterval = 1000 / targetFPS;
+  if (timestamp - lastFrameTime < minInterval) return;
+  lastFrameTime = timestamp;
+
+  step();
+  ctx.clearRect(0, 0, W, H);
+
+  ctx.fillStyle = '#222';
+  ctx.fillRect(0, 0, WALL, H);
+  ctx.fillRect(W - WALL, 0, WALL, H);
+  ctx.fillRect(0, FLOOR, W, WALL);
+  ctx.fillStyle = '#ccc';
+  ctx.fillRect(WALL, CEIL, W - WALL * 2, 1);
+
+  for (let i = 0; i < blobs.length; i++) drawBlob(blobs[i], i === selectedBlobIdx);
+  drawSnapLines();
+}
+
+// ── Go ───────────────────────────────────────────────────────────────
+hardReset();
+requestAnimationFrame(draw);
+</script>
+</body>
+</html>
