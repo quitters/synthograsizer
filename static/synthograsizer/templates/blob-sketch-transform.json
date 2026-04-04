@@ -1,0 +1,68 @@
+{
+  "name": "Blob Sketch → Image",
+  "description": "Transform a soft-body blob arrangement into a polished illustration. Capture your blob canvas first, then run this workflow to stylize it.",
+  "tags": [
+    { "type": "addon", "label": "Blob Simulator" },
+    { "type": "category", "label": "Image Transform" }
+  ],
+  "params": {
+    "concept": {
+      "label": "What are the blobs depicting?",
+      "type": "text",
+      "placeholder": "e.g. a snowman, a cat, a smiley face",
+      "required": true
+    },
+    "style": {
+      "label": "Art style",
+      "type": "select",
+      "options": [
+        "whimsical illustration",
+        "oil painting",
+        "watercolor",
+        "pixel art",
+        "neon glowing",
+        "children's book",
+        "scientific diagram",
+        "stained glass"
+      ],
+      "default": "whimsical illustration",
+      "required": false
+    },
+    "image": {
+      "label": "Blob canvas capture",
+      "type": "image",
+      "required": false
+    }
+  },
+  "steps": [
+    {
+      "id": "analyze",
+      "type": "synth_analyze",
+      "params": {
+        "image": "{{params.image}}",
+        "prompt": "Describe the composition and shape arrangement in this soft-body blob art. What shapes are present, how are they arranged, and what concept might they be depicting?"
+      },
+      "continueOnError": true
+    },
+    {
+      "id": "generate",
+      "type": "synth_image",
+      "params": {
+        "prompt": "{{params.style}} of {{params.concept}}. Inspired by the composition: {{analyze.description}}. Soft, rounded, organic shapes. Vivid colors, clean background.",
+        "aspect_ratio": "1:1"
+      },
+      "dependsOn": ["analyze"]
+    },
+    {
+      "id": "stylized",
+      "type": "synth_transform",
+      "params": {
+        "image_id": "{{generate.mediaId}}",
+        "prompt": "Reimagine this as an even more expressive {{params.style}} with bold colors and playful energy",
+        "strength": 0.55
+      },
+      "dependsOn": ["generate"],
+      "continueOnError": true
+    }
+  ]
+}

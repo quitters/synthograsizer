@@ -1,0 +1,74 @@
+{
+  "name": "Blob Pictionary Reveal",
+  "description": "Reveal the polished version of whatever the blobs were trying to depict! Capture your Pictionary arrangement, then this workflow generates the 'what it was supposed to look like' reveal image.",
+  "tags": [
+    { "type": "addon", "label": "Blob Simulator" },
+    { "type": "mode", "label": "Pictionary" },
+    { "type": "category", "label": "Game" }
+  ],
+  "params": {
+    "secret_prompt": {
+      "label": "What were the blobs depicting?",
+      "type": "text",
+      "placeholder": "e.g. a snowman, a rocket, a cat",
+      "required": true
+    },
+    "reveal_style": {
+      "label": "Reveal art style",
+      "type": "select",
+      "options": [
+        "polished vector illustration",
+        "photorealistic",
+        "oil painting",
+        "pixel art",
+        "children's book watercolor",
+        "graffiti street art",
+        "minimalist flat design",
+        "surrealist painting"
+      ],
+      "default": "polished vector illustration",
+      "required": false
+    },
+    "blob_capture": {
+      "label": "Your blob arrangement (capture from simulator)",
+      "type": "image",
+      "required": false
+    }
+  },
+  "steps": [
+    {
+      "id": "blob_analysis",
+      "type": "synth_analyze",
+      "params": {
+        "image": "{{params.blob_capture}}",
+        "prompt": "This is a blob Pictionary attempt. What shapes and arrangement do you see? How well does it suggest '{{params.secret_prompt}}'? Rate the accuracy 1-5."
+      },
+      "continueOnError": true
+    },
+    {
+      "id": "reveal_image",
+      "type": "synth_image",
+      "params": {
+        "prompt": "{{params.reveal_style}} of {{params.secret_prompt}}. Bold, clear, iconic composition. The definitive depiction of this subject. Vivid colors, clean background, immediately recognizable.",
+        "aspect_ratio": "1:1"
+      }
+    },
+    {
+      "id": "blob_version",
+      "type": "synth_image",
+      "params": {
+        "prompt": "Abstract {{params.reveal_style}} of {{params.secret_prompt}} made entirely of soft squishy gelatinous blob shapes, organic rounded forms in vibrant colors. The blob art interpretation.",
+        "aspect_ratio": "1:1"
+      }
+    },
+    {
+      "id": "verdict",
+      "type": "synth_text",
+      "params": {
+        "prompt": "A blob Pictionary player tried to draw '{{params.secret_prompt}}' using soft-body blob physics. The judge's analysis: {{blob_analysis.description}}. Write a funny, encouraging 2-sentence verdict on their attempt. Include a score out of 10.",
+        "max_tokens": 100
+      },
+      "dependsOn": ["blob_analysis"]
+    }
+  ]
+}

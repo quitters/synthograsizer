@@ -1,0 +1,98 @@
+{
+  "promptTemplate": "A terrarium with {{count}} {{physics}} {{creature}} creatures, {{color_theme}} palette",
+  "tags": [
+    { "type": "addon", "label": "Blob Simulator" },
+    { "type": "mode", "label": "Terrarium" }
+  ],
+  "variables": [
+    {
+      "name": "count",
+      "feature_name": "Creature Count",
+      "values": [
+        { "text": "2", "weight": 2 },
+        { "text": "3", "weight": 3 },
+        { "text": "4", "weight": 3 },
+        { "text": "5", "weight": 2 },
+        { "text": "6", "weight": 1 },
+        { "text": "7", "weight": 1 },
+        { "text": "8", "weight": 1 }
+      ]
+    },
+    {
+      "name": "physics",
+      "feature_name": "Physics Preset",
+      "values": [
+        { "text": "gelatin", "weight": 3 },
+        { "text": "rubber ball", "weight": 2 },
+        { "text": "mercury", "weight": 2 },
+        { "text": "soap bubble", "weight": 2 },
+        { "text": "molten lava", "weight": 1 },
+        { "text": "marshmallow", "weight": 3 },
+        { "text": "water balloon", "weight": 3 },
+        { "text": "slime", "weight": 2 },
+        { "text": "jelly", "weight": 2 },
+        { "text": "plasma", "weight": 1 },
+        { "text": "pudding", "weight": 2 },
+        { "text": "bouncy ball", "weight": 2 },
+        { "text": "tar", "weight": 1 },
+        { "text": "cloud", "weight": 1 }
+      ]
+    },
+    {
+      "name": "creature",
+      "feature_name": "Creature Type",
+      "values": [
+        { "text": "tardigrade", "weight": 2 },
+        { "text": "amoeba", "weight": 2 },
+        { "text": "jellyfish", "weight": 2 },
+        { "text": "slime mold", "weight": 2 },
+        { "text": "sea slug", "weight": 1 },
+        { "text": "blob fish", "weight": 2 },
+        { "text": "water bear", "weight": 1 },
+        { "text": "paramecium", "weight": 1 },
+        { "text": "moon jelly", "weight": 1 },
+        { "text": "axolotl", "weight": 2 },
+        { "text": "nudibranch", "weight": 1 },
+        { "text": "plankton", "weight": 1 },
+        { "text": "sea angel", "weight": 1 },
+        { "text": "moss piglet", "weight": 1 },
+        { "text": "snake with laser eyes", "weight": 1 },
+        { "text": "lightbulb UFO", "weight": 1 },
+        { "text": "sentient puddle", "weight": 1 },
+        { "text": "dancing mushroom", "weight": 1 }
+      ]
+    },
+    {
+      "name": "color_theme",
+      "feature_name": "Color Theme",
+      "values": [
+        { "text": "fire", "weight": 2 },
+        { "text": "ocean", "weight": 2 },
+        { "text": "forest", "weight": 2 },
+        { "text": "sunset", "weight": 2 },
+        { "text": "neon", "weight": 2 },
+        { "text": "pastel", "weight": 3 },
+        { "text": "midnight", "weight": 1 },
+        { "text": "candy", "weight": 2 },
+        { "text": "earth", "weight": 1 },
+        { "text": "arctic", "weight": 1 }
+      ]
+    },
+    {
+      "name": "personality",
+      "feature_name": "Personality",
+      "values": [
+        { "text": "shy and sleepy", "weight": 2 },
+        { "text": "hyperactive", "weight": 2 },
+        { "text": "stoic and calm", "weight": 2 },
+        { "text": "mischievous", "weight": 2 },
+        { "text": "majestic", "weight": 1 },
+        { "text": "grumpy but lovable", "weight": 2 },
+        { "text": "zen master", "weight": 1 },
+        { "text": "chaotic neutral", "weight": 1 },
+        { "text": "cozy homebody", "weight": 2 },
+        { "text": "dramatic", "weight": 1 }
+      ]
+    }
+  ]
+}

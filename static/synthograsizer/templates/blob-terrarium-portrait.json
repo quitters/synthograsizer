@@ -1,0 +1,83 @@
+{
+  "name": "Blob Terrarium Portrait",
+  "description": "Generate a natural history–style portrait from a labeled blob terrarium. Set up your terrarium with named creatures, capture it, then run this workflow.",
+  "tags": [
+    { "type": "addon", "label": "Blob Simulator" },
+    { "type": "mode", "label": "Terrarium" },
+    { "type": "category", "label": "Character Art" }
+  ],
+  "params": {
+    "creatures": {
+      "label": "Creature names (comma-separated)",
+      "type": "text",
+      "placeholder": "e.g. tardigrade, jellyfish, slime mold",
+      "required": true
+    },
+    "environment": {
+      "label": "Habitat / environment",
+      "type": "select",
+      "options": [
+        "deep ocean",
+        "forest floor",
+        "alien planet",
+        "magical terrarium",
+        "laboratory petri dish",
+        "volcanic hot spring",
+        "arctic tundra",
+        "enchanted pond",
+        "microscopic world"
+      ],
+      "default": "magical terrarium",
+      "required": false
+    },
+    "art_style": {
+      "label": "Illustration style",
+      "type": "select",
+      "options": [
+        "natural history engraving",
+        "kawaii chibi",
+        "Studio Ghibli",
+        "scientific illustration",
+        "fantasy RPG bestiary",
+        "vintage field guide",
+        "neon cyberpunk",
+        "watercolor"
+      ],
+      "default": "natural history engraving",
+      "required": false
+    },
+    "image": {
+      "label": "Blob terrarium capture (optional)",
+      "type": "image",
+      "required": false
+    }
+  },
+  "steps": [
+    {
+      "id": "concept",
+      "type": "synth_text",
+      "params": {
+        "prompt": "Write a short, vivid 2-sentence description of {{params.creatures}} living in a {{params.environment}}. Focus on their appearance, personality, and how they interact. Make it whimsical and imaginative.",
+        "max_tokens": 120
+      }
+    },
+    {
+      "id": "portrait",
+      "type": "synth_image",
+      "params": {
+        "prompt": "{{params.art_style}} portrait of {{params.creatures}} in a {{params.environment}}. {{concept.text}} Soft organic rounded blob-like bodies, vibrant colors, detailed background. Museum quality illustration.",
+        "aspect_ratio": "1:1"
+      },
+      "dependsOn": ["concept"]
+    },
+    {
+      "id": "wide_scene",
+      "type": "synth_image",
+      "params": {
+        "prompt": "Wide establishing shot: {{params.art_style}} scene of a {{params.environment}} habitat inhabited by blob-like {{params.creatures}}. Rich environmental storytelling, atmospheric lighting, lush detail.",
+        "aspect_ratio": "16:9"
+      },
+      "dependsOn": ["concept"]
+    }
+  ]
+}

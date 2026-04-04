@@ -1,0 +1,90 @@
+{
+  "promptTemplate": "Arrange blobs to depict: {{secret_prompt}} ({{difficulty}}, {{blob_count}} blobs, {{time_limit}}s)",
+  "tags": [
+    { "type": "addon", "label": "Blob Simulator" },
+    { "type": "mode", "label": "Pictionary" }
+  ],
+  "variables": [
+    {
+      "name": "secret_prompt",
+      "feature_name": "Secret Prompt",
+      "values": [
+        { "text": "a snowman", "weight": 3 },
+        { "text": "a cat", "weight": 3 },
+        { "text": "the letter B", "weight": 2 },
+        { "text": "a house", "weight": 3 },
+        { "text": "a tree", "weight": 3 },
+        { "text": "a flower", "weight": 2 },
+        { "text": "a smiley face", "weight": 3 },
+        { "text": "a car", "weight": 2 },
+        { "text": "a robot", "weight": 2 },
+        { "text": "a fish", "weight": 2 },
+        { "text": "a pizza", "weight": 2 },
+        { "text": "a rocket", "weight": 2 },
+        { "text": "a heart", "weight": 3 },
+        { "text": "sunglasses", "weight": 2 },
+        { "text": "an ice cream cone", "weight": 2 },
+        { "text": "a mushroom", "weight": 2 },
+        { "text": "a cactus", "weight": 1 },
+        { "text": "a ghost", "weight": 2 },
+        { "text": "a crown", "weight": 2 },
+        { "text": "a star", "weight": 3 },
+        { "text": "a UFO", "weight": 1 },
+        { "text": "a donut", "weight": 2 },
+        { "text": "a lightning bolt", "weight": 1 },
+        { "text": "a skull", "weight": 1 },
+        { "text": "a butterfly", "weight": 1 },
+        { "text": "a diamond", "weight": 2 },
+        { "text": "a sword", "weight": 1 },
+        { "text": "an alien", "weight": 1 },
+        { "text": "a palm tree", "weight": 1 },
+        { "text": "a volcano", "weight": 1 }
+      ]
+    },
+    {
+      "name": "difficulty",
+      "feature_name": "Difficulty",
+      "values": [
+        { "text": "easy", "weight": 3 },
+        { "text": "medium", "weight": 2 },
+        { "text": "hard", "weight": 1 }
+      ]
+    },
+    {
+      "name": "blob_count",
+      "feature_name": "Blob Count",
+      "values": [
+        { "text": "3", "weight": 2 },
+        { "text": "4", "weight": 3 },
+        { "text": "5", "weight": 3 },
+        { "text": "6", "weight": 2 },
+        { "text": "8", "weight": 1 }
+      ]
+    },
+    {
+      "name": "time_limit",
+      "feature_name": "Time Limit",
+      "values": [
+        { "text": "30", "weight": 1 },
+        { "text": "45", "weight": 2 },
+        { "text": "60", "weight": 3 },
+        { "text": "90", "weight": 2 },
+        { "text": "120", "weight": 1 }
+      ]
+    },
+    {
+      "name": "color_theme",
+      "feature_name": "Color Theme",
+      "values": [
+        { "text": "fire", "weight": 2 },
+        { "text": "ocean", "weight": 2 },
+        { "text": "forest", "weight": 2 },
+        { "text": "sunset", "weight": 2 },
+        { "text": "neon", "weight": 2 },
+        { "text": "pastel", "weight": 3 },
+        { "text": "midnight", "weight": 1 },
+        { "text": "candy", "weight": 2 }
+      ]
+    }
+  ]
+}
