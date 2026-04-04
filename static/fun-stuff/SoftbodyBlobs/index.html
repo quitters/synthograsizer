@@ -475,8 +475,7 @@ document.getElementById('pictNewRound').addEventListener('click', () => {
 // ── Canvas Capture → Synthograsizer Reference Image ─────────────────
 
 function captureCanvas() {
-  // Render one fresh frame so the capture is current
-  step();
+  // Re-render current state without advancing physics
   ctx.clearRect(0, 0, W, H);
   ctx.fillStyle = '#222';
   ctx.fillRect(0, 0, WALL, H);
@@ -1180,6 +1179,26 @@ function blobNeedsRescue(b) {
   return area < b.restArea * 0.15;
 }
 
+// Per-blob cached values (computed once per substep, reused in collision)
+const _cachedCen = [];  // { x, y } per blob
+const _cachedR = [];    // average radius per blob
+
+function cachePerBlobState() {
+  for (let bi = 0; bi < blobs.length; bi++) {
+    const b = blobs[bi];
+    let cx = 0, cy = 0;
+    for (let i = 0; i < N; i++) { cx += b.px[i]; cy += b.py[i]; }
+    cx /= N; cy /= N;
+    _cachedCen[bi] = { x: cx, y: cy };
+    let r = 0;
+    for (let i = 0; i < N; i++) {
+      const dx = b.px[i] - cx, dy = b.py[i] - cy;
+      r += Math.sqrt(dx * dx + dy * dy);
+    }
+    _cachedR[bi] = r / N;
+  }
+}
+
 function step() {
   if (blobs.length === 0) return;
 
@@ -1259,35 +1278,34 @@ function step() {
       }
 
       // Wall collisions with bounce + friction
+      // Capture velocity BEFORE clamping position to avoid stale-reference
       for (let i = 0; i < N; i++) {
-        if (b.px[i] < BL)    { b.px[i] = BL;    b.ox[i] = BL    + (b.px[i] - b.ox[i]) * 0.2; b.oy[i] = b.py[i] - (b.py[i] - b.oy[i]) * 0.92; }
-        if (b.px[i] > BR)    { b.px[i] = BR;    b.ox[i] = BR    + (b.px[i] - b.ox[i]) * 0.2; b.oy[i] = b.py[i] - (b.py[i] - b.oy[i]) * 0.92; }
-        if (b.py[i] < CEIL)  { b.py[i] = CEIL;  b.oy[i] = CEIL  + (b.py[i] - b.oy[i]) * 0.2; b.ox[i] = b.px[i] - (b.px[i] - b.ox[i]) * 0.92; }
-        if (b.py[i] > FLOOR) { b.py[i] = FLOOR; b.oy[i] = FLOOR + (b.py[i] - b.oy[i]) * 0.2; b.ox[i] = b.px[i] - (b.px[i] - b.ox[i]) * 0.92; }
+        const vx = b.px[i] - b.ox[i], vy = b.py[i] - b.oy[i];
+        if (b.px[i] < BL)    { b.px[i] = BL;    b.ox[i] = BL    + vx * 0.2; b.oy[i] = b.py[i] - vy * 0.92; }
+        if (b.px[i] > BR)    { b.px[i] = BR;    b.ox[i] = BR    + vx * 0.2; b.oy[i] = b.py[i] - vy * 0.92; }
+        if (b.py[i] < CEIL)  { b.py[i] = CEIL;  b.oy[i] = CEIL  + vy * 0.2; b.ox[i] = b.px[i] - vx * 0.92; }
+        if (b.py[i] > FLOOR) { b.py[i] = FLOOR; b.oy[i] = FLOOR + vy * 0.2; b.ox[i] = b.px[i] - vx * 0.92; }
       }
 
       // Per-blob rescue check — catch collapse WITHIN the substep loop
       if (blobNeedsRescue(b)) { rescueBlob(bi); }
     }
 
+    // ── Cache centroid + radius for collision ──
+    cachePerBlobState();
+
     // ── Blob-blob collision (two-layer: centroid safety + vertex-vertex surface) ──
     for (let ai = 0; ai < blobs.length; ai++) {
       for (let bi2 = ai + 1; bi2 < blobs.length; bi2++) {
         const bA = blobs[ai], bB = blobs[bi2];
-        const cA = blobCentroid(bA), cB = blobCentroid(bB);
+        const cA = _cachedCen[ai], cB = _cachedCen[bi2];
         const cdx = cB.x - cA.x, cdy = cB.y - cA.y;
         const cenDist = Math.sqrt(cdx * cdx + cdy * cdy) || 0.001;
 
         // Early-out for distant pairs
         if (cenDist > (bA.restR + bB.restR) * 2.5) continue;
 
-        // Compute live average radii
-        let rA = 0, rB = 0;
-        for (let i = 0; i < N; i++) {
-          rA += Math.sqrt((bA.px[i] - cA.x) ** 2 + (bA.py[i] - cA.y) ** 2);
-          rB += Math.sqrt((bB.px[i] - cB.x) ** 2 + (bB.py[i] - cB.y) ** 2);
-        }
-        rA /= N; rB /= N;
+        const rA = _cachedR[ai], rB = _cachedR[bi2];
         const sumR = rA + rB;
 
         // Layer 1: centroid-based deep-overlap safety net
@@ -1478,6 +1496,10 @@ function drawSnapLines() {
 
 let targetFPS = 30;
 let lastFrameTime = 0;
+let physicsAccumulator = 0;
+const PHYSICS_DT = 1000 / 60; // Physics always runs at 60Hz internally
+const MAX_ACCUMULATED = PHYSICS_DT * 4; // Cap to prevent spiral of death
+
 document.getElementById('fpsSelect').addEventListener('change', e => {
   targetFPS = +e.target.value;
 });
@@ -1486,9 +1508,18 @@ function draw(timestamp) {
   requestAnimationFrame(draw);
   const minInterval = 1000 / targetFPS;
   if (timestamp - lastFrameTime < minInterval) return;
+
+  // Accumulate real elapsed time, capped to prevent death spiral
+  const elapsed = Math.min(timestamp - lastFrameTime, MAX_ACCUMULATED);
   lastFrameTime = timestamp;
 
-  step();
+  // Step physics at fixed 60Hz regardless of render FPS
+  physicsAccumulator += elapsed;
+  while (physicsAccumulator >= PHYSICS_DT) {
+    step();
+    physicsAccumulator -= PHYSICS_DT;
+  }
+
   ctx.clearRect(0, 0, W, H);
 
   ctx.fillStyle = '#222';
