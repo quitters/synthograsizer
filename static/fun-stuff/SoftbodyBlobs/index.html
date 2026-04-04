@@ -296,6 +296,8 @@ function handleTerrariumSpawn(creatures) {
     blobs.push(blob);
   }
   selectedBlobIdx = 0;
+  selectedBlobs.clear();
+  selectedBlobs.add(0);
   syncSlidersToBlob(0);
 }
 
@@ -533,11 +535,62 @@ document.getElementById('captureBtn').addEventListener('click', captureCanvas);
 const DEFAULTS = { size: 50, pres: 50, tens: 35, damp: 20, mass: 5, grav: 5, bend: 8 };
 function defaultPr() { return { ...DEFAULTS }; }
 
-// ── Selected blob + master mode ──────────────────────────────────────
+// ── Selected blob + multi-select + master mode ─────────────────────
 
-let selectedBlobIdx = 0;
+let selectedBlobIdx = 0;       // "primary" selection — drives slider display
+let selectedBlobs = new Set([0]); // all currently selected blobs
 let masterMode = false;
 const SLIDER_IDS = Object.keys(DEFAULTS);
+
+/** Returns the array of blob objects that controls should target */
+function getTargetBlobs() {
+  if (masterMode) return blobs;
+  if (selectedBlobs.size > 1) return [...selectedBlobs].filter(i => i < blobs.length).map(i => blobs[i]);
+  if (selectedBlobIdx >= 0 && selectedBlobIdx < blobs.length) return [blobs[selectedBlobIdx]];
+  return [];
+}
+
+/** Returns the set of selected indices (for rendering glow) */
+function isSelected(bi) {
+  if (masterMode) return true;
+  return selectedBlobs.has(bi);
+}
+
+/** Set a single blob as the only selection */
+function selectSingle(bi) {
+  selectedBlobs.clear();
+  selectedBlobs.add(bi);
+  selectedBlobIdx = bi;
+  masterMode = false;
+  document.getElementById('masterBtn').classList.remove('active');
+  syncSlidersToBlob(bi);
+}
+
+/** Toggle a blob in/out of multi-selection (Ctrl-click) */
+function toggleMultiSelect(bi) {
+  if (masterMode) {
+    // Exit master mode into just this blob
+    masterMode = false;
+    document.getElementById('masterBtn').classList.remove('active');
+    selectedBlobs.clear();
+    selectedBlobs.add(bi);
+    selectedBlobIdx = bi;
+  } else if (selectedBlobs.has(bi)) {
+    // Deselect it (unless it's the only one)
+    if (selectedBlobs.size > 1) {
+      selectedBlobs.delete(bi);
+      // If we removed the primary, pick the first remaining
+      if (selectedBlobIdx === bi) {
+        selectedBlobIdx = [...selectedBlobs][0];
+      }
+    }
+  } else {
+    // Add to selection
+    selectedBlobs.add(bi);
+    selectedBlobIdx = bi; // make the newly-added one the primary
+  }
+  syncSlidersToBlob(selectedBlobIdx);
+}
 
 function syncSlidersToBlob(bi) {
   if (bi < 0 || bi >= blobs.length) return;
@@ -550,9 +603,25 @@ function syncSlidersToBlob(bi) {
   document.querySelectorAll('.slider-grid input[type=range]').forEach(el => {
     el.style.accentColor = col;
   });
-  document.getElementById('selLabel').textContent = masterMode ? 'All blobs (master)' : `Blob ${bi + 1} properties`;
-  document.getElementById('selDot').style.background = masterMode ? 'transparent' : col;
-  document.getElementById('selDot').style.border = masterMode ? '1.5px dashed #888' : '1.5px solid rgba(0,0,0,0.15)';
+  // Selection label
+  let selText, dotBg, dotBorder;
+  if (masterMode) {
+    selText = 'All blobs (master)';
+    dotBg = 'transparent';
+    dotBorder = '1.5px dashed #888';
+  } else if (selectedBlobs.size > 1) {
+    const nums = [...selectedBlobs].sort((a, b) => a - b).map(i => i + 1).join(', ');
+    selText = `Blobs ${nums} selected`;
+    dotBg = col;
+    dotBorder = '2px solid rgba(0,0,0,0.25)';
+  } else {
+    selText = `Blob ${bi + 1} properties`;
+    dotBg = col;
+    dotBorder = '1.5px solid rgba(0,0,0,0.15)';
+  }
+  document.getElementById('selLabel').textContent = selText;
+  document.getElementById('selDot').style.background = dotBg;
+  document.getElementById('selDot').style.border = dotBorder;
   currentColor = col;
   colorPicker.value = /^#[0-9a-f]{6}$/i.test(col) ? col : '#1a1a1a';
   swatchWrap.style.background = col;
@@ -562,6 +631,11 @@ function syncSlidersToBlob(bi) {
 function setMasterMode(on) {
   masterMode = on;
   document.getElementById('masterBtn').classList.toggle('active', on);
+  if (on) {
+    // Master mode: clear multi-select, show all
+    selectedBlobs.clear();
+    selectedBlobs.add(selectedBlobIdx);
+  }
   document.querySelectorAll('.slider-grid input[type=range]').forEach(el => {
     el.style.accentColor = on ? '#555' : (blobs[selectedBlobIdx]?.color ?? '#111');
   });
@@ -596,11 +670,10 @@ function applyPrToBlob(bi, p) {
 
 function randomizeSelected() {
   if (blobs.length === 0) return;
-  if (masterMode) {
-    const p = randomPr();
-    for (let i = 0; i < blobs.length; i++) applyPrToBlob(i, p);
-  } else {
-    applyPrToBlob(selectedBlobIdx, randomPr());
+  const targets = getTargetBlobs();
+  const p = randomPr();
+  for (const b of targets) {
+    applyPrToBlob(blobs.indexOf(b), masterMode ? p : randomPr());
   }
   syncSlidersToBlob(selectedBlobIdx);
 }
@@ -611,7 +684,7 @@ document.getElementById('masterBtn').addEventListener('click', () => setMasterMo
 // ── Sliders ──────────────────────────────────────────────────────────
 
 function applySliderValue(id, val) {
-  const targets = masterMode ? blobs : (selectedBlobIdx < blobs.length ? [blobs[selectedBlobIdx]] : []);
+  const targets = getTargetBlobs();
   for (const b of targets) {
     const sizeChanged = id === 'size' && b.pr.size !== val;
     b.pr[id] = val;
@@ -645,8 +718,11 @@ swatchWrap.style.background = currentColor;
 colorPicker.addEventListener('input', e => {
   currentColor = e.target.value;
   swatchWrap.style.background = currentColor;
+  const targets = getTargetBlobs();
+  for (const b of targets) {
+    b.color = currentColor;
+  }
   if (selectedBlobIdx >= 0 && selectedBlobIdx < blobs.length) {
-    blobs[selectedBlobIdx].color = currentColor;
     document.getElementById('selDot').style.background = currentColor;
     document.querySelectorAll('.slider-grid input[type=range]').forEach(el => {
       el.style.accentColor = currentColor;
@@ -687,17 +763,20 @@ document.getElementById('resetBtn').addEventListener('click', () => {
   if (masterMode) {
     hardReset();
   } else {
-    // Reset only the selected blob: restore default props, rebuild in place
-    const b = blobs[selectedBlobIdx];
-    if (!b) return;
-    const cen = blobCentroid(b);
-    const pr = defaultPr();
-    const r = sliderToRadius(pr.size);
-    const cx = Math.min(Math.max(cen.x, BL + r), BR - r);
-    const cy = Math.min(Math.max(cen.y, CEIL + r), FLOOR - r);
-    const rebuilt = createBlob(cx, cy, r, b.color, pr);
-    blobs[selectedBlobIdx] = rebuilt;
-    snapJoints = snapJoints.filter(j => j.a !== selectedBlobIdx && j.b !== selectedBlobIdx);
+    // Reset all selected blobs: restore default props, rebuild in place
+    const indices = selectedBlobs.size > 1 ? [...selectedBlobs] : [selectedBlobIdx];
+    for (const bi of indices) {
+      const b = blobs[bi];
+      if (!b) continue;
+      const cen = blobCentroid(b);
+      const pr = defaultPr();
+      const r = sliderToRadius(pr.size);
+      const cx = Math.min(Math.max(cen.x, BL + r), BR - r);
+      const cy = Math.min(Math.max(cen.y, CEIL + r), FLOOR - r);
+      const rebuilt = createBlob(cx, cy, r, b.color, pr);
+      blobs[bi] = rebuilt;
+      snapJoints = snapJoints.filter(j => j.a !== bi && j.b !== bi);
+    }
     syncSlidersToBlob(selectedBlobIdx);
   }
 });
@@ -900,10 +979,13 @@ function syncBlobCount() {
     blobs.push(createBlob(pos.x, pos.y, r, palette[idx % palette.length], pr));
   }
   while (blobs.length > targetCount) {
+    const removedIdx = blobs.length - 1;
     blobs.pop();
     snapJoints = snapJoints.filter(j => j.a < blobs.length && j.b < blobs.length);
+    selectedBlobs.delete(removedIdx);
     if (selectedBlobIdx >= blobs.length) {
       selectedBlobIdx = blobs.length - 1;
+      if (selectedBlobs.size === 0) selectedBlobs.add(selectedBlobIdx);
       syncSlidersToBlob(selectedBlobIdx);
     }
   }
@@ -933,6 +1015,8 @@ function hardReset() {
     blobs.push(createBlob(positions[i].x, positions[i].y, r0, palette[i % palette.length], defaultPr()));
   }
   selectedBlobIdx = 0;
+  selectedBlobs.clear();
+  selectedBlobs.add(0);
   syncSlidersToBlob(0);
 }
 
@@ -965,7 +1049,7 @@ function nearestPt(b, mx, my) {
   return best;
 }
 
-function startDrag(mx, my) {
+function startDrag(mx, my, evt) {
   if (snapMode) {
     const bi = findBlobAt(mx, my);
     if (bi < 0) return;
@@ -984,7 +1068,30 @@ function startDrag(mx, my) {
     return;
   }
   const bi = findBlobAt(mx, my);
-  if (bi < 0) return;
+  const isMultiKey = evt && (evt.ctrlKey || evt.metaKey);
+
+  if (bi < 0) {
+    // Clicked empty space — clear multi-select if no modifier
+    if (!isMultiKey && selectedBlobs.size > 1) {
+      selectSingle(selectedBlobIdx);
+    }
+    return;
+  }
+
+  // Selection logic
+  if (isMultiKey) {
+    // Ctrl/Cmd-click: toggle this blob in multi-selection
+    toggleMultiSelect(bi);
+  } else if (!selectedBlobs.has(bi)) {
+    // Normal click on unselected blob: single-select it
+    selectSingle(bi);
+  } else if (selectedBlobs.size === 1 || bi !== selectedBlobIdx) {
+    // Normal click on already-selected blob (or switch primary in multi): make it primary
+    selectedBlobIdx = bi;
+    syncSlidersToBlob(bi);
+  }
+
+  // Start dragging
   dragBlobIdx = bi;
   dragging = true;
   grabIdx = nearestPt(blobs[bi], mx, my);
@@ -992,10 +1099,6 @@ function startDrag(mx, my) {
   prevMouseX = mx; prevMouseY = my;
   velSamples = [];
   canvas.style.cursor = 'grabbing';
-  if (bi !== selectedBlobIdx) {
-    selectedBlobIdx = bi;
-    syncSlidersToBlob(bi);
-  }
 }
 
 function moveDrag(mx, my) {
@@ -1045,11 +1148,11 @@ function createSnapJoint(ai, bi) {
 
 // ── Mouse / Touch events ─────────────────────────────────────────────
 
-canvas.addEventListener('mousedown', e => { const r = canvas.getBoundingClientRect(); startDrag(e.clientX - r.left, e.clientY - r.top); });
+canvas.addEventListener('mousedown', e => { const r = canvas.getBoundingClientRect(); startDrag(e.clientX - r.left, e.clientY - r.top, e); });
 canvas.addEventListener('mousemove', e => { const r = canvas.getBoundingClientRect(); moveDrag(e.clientX - r.left, e.clientY - r.top); });
 canvas.addEventListener('mouseup', endDrag);
 canvas.addEventListener('mouseleave', endDrag);
-canvas.addEventListener('touchstart', e => { e.preventDefault(); const r = canvas.getBoundingClientRect(); const t = e.touches[0]; startDrag(t.clientX - r.left, t.clientY - r.top); }, { passive: false });
+canvas.addEventListener('touchstart', e => { e.preventDefault(); const r = canvas.getBoundingClientRect(); const t = e.touches[0]; startDrag(t.clientX - r.left, t.clientY - r.top, e); }, { passive: false });
 canvas.addEventListener('touchmove', e => { e.preventDefault(); const r = canvas.getBoundingClientRect(); const t = e.touches[0]; moveDrag(t.clientX - r.left, t.clientY - r.top); }, { passive: false });
 canvas.addEventListener('touchend', endDrag);
 canvas.addEventListener('touchcancel', endDrag);
@@ -1395,7 +1498,7 @@ function draw(timestamp) {
   ctx.fillStyle = '#ccc';
   ctx.fillRect(WALL, CEIL, W - WALL * 2, 1);
 
-  for (let i = 0; i < blobs.length; i++) drawBlob(blobs[i], i === selectedBlobIdx);
+  for (let i = 0; i < blobs.length; i++) drawBlob(blobs[i], isSelected(i));
   drawSnapLines();
 }
 
