@@ -123,7 +123,7 @@
                 <button id="generate-button" class="primary-btn generate-btn" title="Generate image via AI  [G]">
                     <span class="label">GENERATE</span><kbd class="keybind-badge">G</kbd>
                 </button>
-                <button id="p5-run-main-btn" class="primary-btn p5-run-main-btn" style="display: none;" title="Run / Stop p5.js sketch  [P]">
+                <button id="p5-run-main-btn" class="primary-btn p5-run-main-btn" style="display: none;" title="Run / Stop sketch in Display window  [P]">
                     <span class="label">RUN CODE</span><kbd class="keybind-badge">P</kbd>
                 </button>
             </section>
@@ -652,6 +652,7 @@
                                     placeholder="Search templates..." aria-label="Search templates">
                             </div>
                             <div class="template-section-label">Built-in templates — P5.js</div>
+                            <button class="template-option" data-template="blob-simulator">🫧 Blob Simulator (Live)</button>
                             <button class="template-option" data-template="spring-physics-v2">🧬 Spring Physics v2 (P5.js)</button>
                             <button class="template-option" data-template="face-generator-full">😊 Face Generator Full (P5.js)</button>
                             <button class="template-option" data-template="svg-flow-particles">🌊 SVG Flow Particles (P5.js)</button>
@@ -1151,7 +1152,7 @@
         <script src="../metadata-manager/js/utils/metadata_extractor.js"></script>
         <script src="js/workflow-runner.js?v=4"></script>
         <script src="js/studio-integration.js?v=34"></script>
-        <script src="js/blob-bridge.js?v=1"></script>
+        <script src="js/blob-bridge.js?v=2"></script>
 
         <!-- Layout switcher -->
         <script>

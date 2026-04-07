@@ -262,7 +262,9 @@ register(
   },
   (params) => {
     const { prompt, transforms, aspect_ratio = '1:1' } = params;
-    const transformList = Array.isArray(transforms) ? transforms : [transforms];
+    const transformList = Array.isArray(transforms)
+      ? transforms
+      : String(transforms).split(/\n|,/).map(s => s.trim()).filter(Boolean);
 
     if (transformList.length === 0) {
       throw new Error('At least one transform intent is required');
@@ -677,6 +679,52 @@ Output ONLY a JSON array of strings, one prompt per scene. Example: ["scene 1 pr
     return {
       name: `Cinematic Short: ${concept.slice(0, 50)}`,
       steps,
+    };
+  }
+);
+
+// ─── 11. Polar Opposite ──────────────────────────────────────────────────────
+
+register(
+  'polar_opposite',
+  {
+    name: 'Polar Opposite',
+    description: 'Analyzes an uploaded image to extract a detailed description, writes the polar opposite of that scene (inverted mood, subject, palette, energy), then generates a new image from the opposite prompt.',
+    requiredParams: ['image'],
+    optionalParams: ['aspect_ratio'],
+  },
+  (params) => {
+    const { image, aspect_ratio = '1:1' } = params;
+
+    return {
+      name: 'Polar Opposite',
+      steps: [
+        // Wave 1: describe the uploaded image
+        {
+          id: 'analyze',
+          type: 'synth_analyze',
+          params: { image_id: image },
+        },
+        // Wave 2: generate the opposite concept as a prompt
+        {
+          id: 'opposite',
+          type: 'synth_text',
+          params: {
+            prompt: 'IMAGE DESCRIPTION:\n{{analyze.description}}\n\nTASK: Write an image generation prompt for the POLAR OPPOSITE of the image described above. Go through each observable quality and invert it:\n- If warm colors → cold colors\n- If bright/daytime → dark/nighttime\n- If crowded/busy → empty/still\n- If joyful/energetic → melancholic/quiet\n- If natural/organic → artificial/geometric\n- If soft/gentle → harsh/stark\n- If the subject is a person → make it an absence or landscape\n- Invert the artistic style too\n\nOutput ONLY the image generation prompt. No explanation, no preamble.',
+          },
+          dependsOn: ['analyze'],
+        },
+        // Wave 3: generate the opposite image
+        {
+          id: 'result',
+          type: 'synth_image',
+          params: {
+            prompt: '{{opposite.text}}',
+            aspect_ratio,
+          },
+          dependsOn: ['opposite'],
+        },
+      ],
     };
   }
 );

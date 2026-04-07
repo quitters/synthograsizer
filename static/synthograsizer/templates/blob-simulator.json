@@ -1,0 +1,131 @@
+{
+  "name": "Blob Simulator",
+  "description": "Live soft-body blob physics simulation. Controls map directly to the blob engine in real time.",
+  "sketchType": "url",
+  "p5Code": "/fun-stuff/SoftbodyBlobs/index.html",
+  "promptTemplate": "{{blob_count}} {{blob_preset}} blob(s), {{color_theme}} palette, size {{blob_size}}, inflation {{blob_inflation}}, tension {{blob_tension}}, damping {{blob_damping}}, gravity {{blob_gravity}}, mode: {{blob_mode}}",
+  "tags": [
+    { "type": "addon", "label": "Blob Simulator" },
+    { "type": "category", "label": "Interactive" }
+  ],
+  "variables": [
+    {
+      "name": "blob_preset",
+      "feature_name": "Physics Preset",
+      "values": [
+        { "text": "gelatin" },
+        { "text": "marshmallow" },
+        { "text": "jelly" },
+        { "text": "water balloon" },
+        { "text": "rubber ball" },
+        { "text": "bouncy ball" },
+        { "text": "soap bubble" },
+        { "text": "plasma" },
+        { "text": "mercury" },
+        { "text": "slime" },
+        { "text": "molten lava" },
+        { "text": "pudding" },
+        { "text": "tar" },
+        { "text": "steel ball" },
+        { "text": "cloud" }
+      ]
+    },
+    {
+      "name": "color_theme",
+      "feature_name": "Color Theme",
+      "values": [
+        { "text": "pastel" },
+        { "text": "candy" },
+        { "text": "neon" },
+        { "text": "fire" },
+        { "text": "ocean" },
+        { "text": "forest" },
+        { "text": "sunset" },
+        { "text": "midnight" },
+        { "text": "earth" },
+        { "text": "arctic" }
+      ]
+    },
+    {
+      "name": "blob_count",
+      "feature_name": "Blob Count",
+      "values": [
+        { "text": "1" },
+        { "text": "2" },
+        { "text": "3" },
+        { "text": "4" },
+        { "text": "5" },
+        { "text": "6" },
+        { "text": "7" },
+        { "text": "8" }
+      ]
+    },
+    {
+      "name": "blob_mode",
+      "feature_name": "Mode",
+      "values": [
+        { "text": "sandbox" },
+        { "text": "terrarium" },
+        { "text": "pictionary" }
+      ]
+    },
+    {
+      "name": "blob_gravity",
+      "feature_name": "Gravity",
+      "values": [
+        { "text": "0" },
+        { "text": "5" },
+        { "text": "12" },
+        { "text": "22" },
+        { "text": "35" },
+        { "text": "50" }
+      ]
+    },
+    {
+      "name": "blob_inflation",
+      "feature_name": "Inflation",
+      "values": [
+        { "text": "10" },
+        { "text": "35" },
+        { "text": "50" },
+        { "text": "70" },
+        { "text": "100" },
+        { "text": "125" }
+      ]
+    },
+    {
+      "name": "blob_tension",
+      "feature_name": "Rubber Tension",
+      "values": [
+        { "text": "5" },
+        { "text": "20" },
+        { "text": "35" },
+        { "text": "60" },
+        { "text": "90" },
+        { "text": "125" }
+      ]
+    },
+    {
+      "name": "blob_damping",
+      "feature_name": "Damping",
+      "values": [
+        { "text": "3" },
+        { "text": "10" },
+        { "text": "20" },
+        { "text": "35" },
+        { "text": "50" }
+      ]
+    },
+    {
+      "name": "blob_size",
+      "feature_name": "Size",
+      "values": [
+        { "text": "25" },
+        { "text": "50" },
+        { "text": "75" },
+        { "text": "100" },
+        { "text": "125" }
+      ]
+    }
+  ]
+}

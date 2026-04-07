@@ -231,7 +231,9 @@ async function dispatchSynth(type, params, agentId = null, agentName = null, onC
       }
       const media = _mediaStore.get(imageRef);
       const imageBase64 = media?.data || imageRef;
-      return synthClient.analyzeImage(imageBase64);
+      const res = await synthClient.analyzeImage(imageBase64);
+      // Normalize: backend returns { status, analysis } but templates reference {{step.description}}
+      return { ...res, description: res.description || res.analysis || '' };
     }
 
     case 'synth_transform': {

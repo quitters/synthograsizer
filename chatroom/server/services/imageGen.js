@@ -1,6 +1,29 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import sharp from 'sharp';
 
 const IMAGE_MODEL = 'gemini-3-pro-image-preview';
+
+/**
+ * Ensure image data is PNG regardless of what Gemini returned.
+ * Gemini often returns image/jpeg even when PNG would be more appropriate.
+ * PNG preserves metadata, supports lossless quality, and is required by
+ * several downstream tools (smart-transform, analyze, etc).
+ *
+ * @param {string} base64Data - base64 image data (no data URI prefix)
+ * @param {string} mimeType   - MIME type from the API response
+ * @returns {Promise<{data: string, mimeType: string}>}
+ */
+async function normalizeImageToPng(base64Data, mimeType) {
+  if (mimeType === 'image/png') return { data: base64Data, mimeType: 'image/png' };
+  try {
+    const inputBuffer = Buffer.from(base64Data, 'base64');
+    const pngBuffer = await sharp(inputBuffer).png().toBuffer();
+    return { data: pngBuffer.toString('base64'), mimeType: 'image/png' };
+  } catch (err) {
+    console.warn('normalizeImageToPng: conversion failed, returning original:', err.message);
+    return { data: base64Data, mimeType };
+  }
+}
 
 let genAI = null;
 
@@ -58,7 +81,8 @@ export async function generateImage(prompt, options = {}) {
       throw new Error('No image generated');
     }
 
-    return { imageData, mimeType, text };
+    const normalized = await normalizeImageToPng(imageData, mimeType);
+    return { imageData: normalized.data, mimeType: normalized.mimeType, text };
   } catch (error) {
     console.error('Image generation error:', error);
     throw error;
@@ -166,7 +190,8 @@ export async function editImage(imageData, mimeType, editPrompt) {
       throw new Error('No image generated from edit');
     }
 
-    return { imageData: newImageData, mimeType: newMimeType, text };
+    const normalized = await normalizeImageToPng(newImageData, newMimeType);
+    return { imageData: normalized.data, mimeType: normalized.mimeType, text };
   } catch (error) {
     console.error('Image edit error:', error);
     throw error;
@@ -296,7 +321,8 @@ export async function generateImageWithReferences(prompt, referenceImages = [], 
       throw new Error('No image generated');
     }
 
-    return { imageData, mimeType, text };
+    const normalized = await normalizeImageToPng(imageData, mimeType);
+    return { imageData: normalized.data, mimeType: normalized.mimeType, text };
   } catch (error) {
     console.error('Image generation with references error:', error);
     throw error;

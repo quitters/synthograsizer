@@ -129,7 +129,7 @@ class WorkflowRunner {
       style_transfer: '🎨', refinement_loop: '🔄', style_comparison: '⚖️',
       narrative_dreamscape: '🌌', progressive_transform: '🔀', img_to_video: '🎬',
       memory_visualization: '🧠', multi_image_composite: '🖼️', branching_narrative: '📖',
-      cinematic_short: '🎞️',
+      cinematic_short: '🎞️', polar_opposite: '🔁',
     };
 
     grid.innerHTML = this.templates.map(t => `
@@ -223,6 +223,31 @@ class WorkflowRunner {
           </div>`;
       }
 
+      if (meta.type === 'image') {
+        return `
+          <div class="studio-input-group">
+            <label>${label}${isReq ? ' *' : ''}</label>
+            <div style="border:2px dashed #ddd; border-radius:8px; padding:16px; text-align:center; cursor:pointer; transition:border-color 0.15s;"
+                 onclick="document.getElementById('wfr-param-${p}').click()"
+                 id="wfr-drop-${p}">
+              <input type="file" id="wfr-param-${p}" accept="image/*" style="display:none;"
+                onchange="(function(el){
+                  const file = el.files[0];
+                  if (!file) return;
+                  const drop = document.getElementById('wfr-drop-${p}');
+                  const reader = new FileReader();
+                  reader.onload = e => {
+                    drop.innerHTML = '<img src=\\''+e.target.result+'\\' style=\\'max-height:120px; max-width:100%; border-radius:6px; pointer-events:none;\\'>';
+                    drop.style.borderColor = '#4CAF50';
+                    drop.appendChild(el);
+                  };
+                  reader.readAsDataURL(file);
+                })(this)">
+              <div style="font-size:13px; color:#999; pointer-events:none;">Click to upload image</div>
+            </div>
+          </div>`;
+      }
+
       // Default: text input
       return `
         <div class="studio-input-group">
@@ -250,6 +275,16 @@ class WorkflowRunner {
         params[p] = el.checked;
       } else if (meta.type === 'number') {
         if (el.value !== '') params[p] = Number(el.value);
+      } else if (meta.type === 'image') {
+        const file = el.files[0];
+        if (file) {
+          params[p] = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = e => resolve(e.target.result.split(',')[1]); // base64 only
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+          });
+        }
       } else {
         if (el.value.trim()) params[p] = el.value.trim();
       }
@@ -482,6 +517,7 @@ class WorkflowRunner {
 // ─── Param metadata (mirrors chatroom workflowData.js) ───────────────────────
 
 const WORKFLOW_PARAM_META = {
+  image:             { type: 'image', label: 'Source Image' },
   prompt:            { type: 'textarea', label: 'Prompt', placeholder: 'Describe what to generate…' },
   subject:           { type: 'textarea', label: 'Subject', placeholder: 'Subject to generate…' },
   concept:           { type: 'textarea', label: 'Concept', placeholder: 'Creative concept…' },
@@ -491,9 +527,39 @@ const WORKFLOW_PARAM_META = {
   memory:            { type: 'textarea', label: 'Memory', placeholder: 'A vivid memory to visualize…' },
   subjects:          { type: 'textarea', label: 'Subjects', placeholder: 'Comma-separated subjects' },
   scene:             { type: 'textarea', label: 'Scene', placeholder: 'Scene description…' },
-  style:             { type: 'text', label: 'Style Preset', placeholder: 'e.g. oil_painting, ukiyo_e' },
+  negative_prompt:   { type: 'textarea', label: 'Negative Prompt', placeholder: 'What to avoid in the image…' },
+  refinement_instruction: { type: 'textarea', label: 'Refinement Instruction', default: 'enhance detail, improve composition, increase visual coherence', placeholder: 'How to refine the image…' },
+  style:             { type: 'style_select', label: 'Style Preset', default: 'oil_painting', options: [
+    { value: 'oil_painting', label: 'Oil Painting' }, { value: 'watercolor', label: 'Watercolor' },
+    { value: 'impressionist', label: 'Impressionism' }, { value: 'ukiyo_e', label: 'Ukiyo-e' },
+    { value: 'ink_wash', label: 'Ink Wash / Sumi-e' }, { value: 'expressionist', label: 'Expressionism' },
+    { value: 'pointillism', label: 'Pointillism' }, { value: 'claymation', label: 'Claymation' },
+    { value: 'marble_sculpture', label: 'Marble Sculpture' }, { value: 'kintsugi', label: 'Kintsugi' },
+    { value: 'origami', label: 'Origami' }, { value: 'low_poly', label: 'Low Poly' },
+    { value: 'daguerreotype', label: 'Daguerreotype' }, { value: 'polaroid', label: 'Polaroid' },
+    { value: 'infrared', label: 'Infrared' }, { value: 'tilt_shift', label: 'Tilt Shift' },
+    { value: 'noir', label: 'Noir' }, { value: 'cinematic', label: 'Cinematic' },
+    { value: 'glitch', label: 'Glitch' }, { value: 'datamosh', label: 'Datamosh' },
+    { value: 'vaporwave', label: 'Vaporwave' }, { value: 'pixel_art', label: 'Pixel Art' },
+    { value: 'ascii', label: 'ASCII' }, { value: 'wireframe', label: 'Wireframe' },
+    { value: 'synesthesia', label: 'Synesthesia' }, { value: 'temporal_collapse', label: 'Temporal Collapse' },
+    { value: 'recursive', label: 'Recursive' }, { value: 'dream_logic', label: 'Dream Logic' },
+    { value: 'cosmic_horror', label: 'Cosmic Horror' }, { value: 'bioluminescent', label: 'Bioluminescent' },
+    { value: 'stained_glass', label: 'Stained Glass' }, { value: 'embroidery', label: 'Embroidery' },
+    { value: 'mosaic', label: 'Mosaic' }, { value: 'neon_sign', label: 'Neon Sign' },
+    { value: 'ice_sculpture', label: 'Ice Sculpture' }, { value: 'woodcut', label: 'Woodcut' },
+    { value: 'art_nouveau', label: 'Art Nouveau' }, { value: 'art_deco', label: 'Art Deco' },
+    { value: 'baroque', label: 'Baroque' }, { value: 'cyberpunk', label: 'Cyberpunk' },
+    { value: 'solarpunk', label: 'Solarpunk' }, { value: 'soviet_constructivism', label: 'Soviet Constructivism' },
+    { value: 'comic_book', label: 'Comic Book' }, { value: 'manga', label: 'Manga' },
+    { value: 'botanical_illustration', label: 'Botanical Illustration' }, { value: 'children_book', label: "Children's Book" },
+    { value: 'blueprint', label: 'Blueprint' }, { value: 'double_exposure', label: 'Double Exposure' },
+    { value: 'cyanotype', label: 'Cyanotype' }, { value: 'risograph', label: 'Risograph' },
+    { value: 'generative_art', label: 'Generative Art' }, { value: 'thermal_vision', label: 'Thermal Vision' },
+    { value: 'x_ray', label: 'X-Ray' },
+  ]},
   styles:            { type: 'text', label: 'Styles', placeholder: 'Comma-separated: oil_painting,glitch,ukiyo_e' },
-  transforms:        { type: 'textarea', label: 'Transforms', placeholder: 'Comma-separated transform steps' },
+  transforms:        { type: 'textarea', label: 'Transforms (one per line = one iteration)', placeholder: 'One transform per line — each applies to the previous result:\nmake it darker and moodier\nadd golden hour lighting\nconvert to oil painting style' },
   mood:              { type: 'select', label: 'Mood', default: 'cinematic', options: [
     'cinematic', 'dreamy', 'melancholic', 'eerie', 'euphoric', 'noir', 'surreal', 'intimate',
   ]},
@@ -520,11 +586,19 @@ const WORKFLOW_PARAM_META = {
     { value: 'surveillance', label: 'Surveillance' },
   ]},
   refine:            { type: 'boolean', label: 'Refine Result', default: false },
-  scene_count:       { type: 'number', label: 'Scene Count', default: 3, min: 2, max: 6 },
-  image_count:       { type: 'number', label: 'Image Count', default: 3, min: 2, max: 8 },
+  narrative_mode:    { type: 'select', label: 'Narrative Mode', default: 'dream', options: [
+    { value: 'dream', label: 'Dream' }, { value: 'story', label: 'Story' },
+    { value: 'poem', label: 'Poem' }, { value: 'monologue', label: 'Monologue' },
+  ]},
+  complexity:        { type: 'select', label: 'Complexity', default: 'medium', options: [
+    { value: 'simple', label: 'Simple' }, { value: 'medium', label: 'Medium' }, { value: 'complex', label: 'Complex' },
+  ]},
+  scene_count:       { type: 'number', label: 'Scene Count', default: 4, min: 3, max: 5 },
+  image_count:       { type: 'number', label: 'Image Count', default: 3, min: 1, max: 5 },
+  page_count:        { type: 'number', label: 'Page Count', default: 12, min: 6, max: 30 },
   endings:           { type: 'number', label: 'Endings', default: 3, min: 2, max: 6 },
-  duration:          { type: 'number', label: 'Duration (seconds)', default: 8, min: 4, max: 10 },
-  degradation_depth: { type: 'number', label: 'Degradation Depth', default: 4, min: 2, max: 8 },
+  duration:          { type: 'number', label: 'Duration (seconds)', default: 5, min: 4, max: 10 },
+  degradation_depth: { type: 'number', label: 'Degradation Depth', default: 4, min: 1, max: 5 },
   life_stage:        { type: 'select', label: 'Life Stage', default: 'childhood', options: [
     'childhood', 'adolescence', 'young_adult', 'middle_age', 'old_age',
   ]},

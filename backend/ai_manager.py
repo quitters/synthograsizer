@@ -17,6 +17,19 @@ from google.genai import types
 from PIL import Image
 from PIL.PngImagePlugin import PngInfo
 
+def sniff_mime_type(image_bytes: bytes) -> str:
+    """Detect image MIME type from magic bytes. Falls back to image/png."""
+    if image_bytes[:2] == b'\xff\xd8':
+        return 'image/jpeg'
+    if image_bytes[:8] == b'\x89PNG\r\n\x1a\n':
+        return 'image/png'
+    if image_bytes[:6] in (b'GIF87a', b'GIF89a'):
+        return 'image/gif'
+    if image_bytes[:4] == b'RIFF' and image_bytes[8:12] == b'WEBP':
+        return 'image/webp'
+    return 'image/png'  # safe default
+
+
 def normalize_template(template: dict) -> dict:
     """Normalize a template to the nested value-weight schema.
 
@@ -570,9 +583,9 @@ class AIManager:
 
         contents = [prompt]
         if reference_images:
-            # Add each reference image as a Part
+            # Add each reference image as a Part (sniff actual mime type — never assume JPEG)
             for image_bytes in reference_images:
-                image_part = types.Part.from_bytes(data=image_bytes, mime_type="image/jpeg")
+                image_part = types.Part.from_bytes(data=image_bytes, mime_type=sniff_mime_type(image_bytes))
                 contents.append(image_part)
 
         response = self.genai_client.models.generate_content(
@@ -808,7 +821,7 @@ class AIManager:
             model_name = "gemini-3-flash-preview" # Use a fast multimodal model
             
             contents = [prompt]
-            image_part = types.Part.from_bytes(data=image_bytes, mime_type="image/jpeg")
+            image_part = types.Part.from_bytes(data=image_bytes, mime_type=sniff_mime_type(image_bytes))
             contents.append(image_part)
             
             response = self.genai_client.models.generate_content(

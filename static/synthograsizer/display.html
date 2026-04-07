@@ -131,6 +131,38 @@
       letter-spacing: 0.04em;
     }
 
+    /* HTML content layer — full-screen iframe */
+    #html-layer {
+      z-index: 5;
+      overflow: hidden;
+    }
+
+    #display-iframe {
+      width: 100vw;
+      height: 100vh;
+      border: none;
+      background: #000;
+      display: block;
+    }
+
+    /* SVG content layer — centered SVG inject */
+    #svg-layer {
+      z-index: 6;
+    }
+
+    #display-svg {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #display-svg svg {
+      max-width: 100vw;
+      max-height: 100vh;
+    }
+
     /* ── Hidden utility ── */
     .hidden { display: none !important; }
   </style>
@@ -148,6 +180,16 @@
   <!-- Layer 3: Video loop -->
   <div id="video-layer" class="hidden">
     <video id="display-video" autoplay loop muted playsinline></video>
+  </div>
+
+  <!-- Layer 5: HTML / URL content (iframe) -->
+  <div id="html-layer" class="hidden">
+    <iframe id="display-iframe" src="about:blank"></iframe>
+  </div>
+
+  <!-- Layer 6: Inline SVG content -->
+  <div id="svg-layer" class="hidden">
+    <div id="display-svg"></div>
   </div>
 
   <!-- Layer 4: Idle screen (shown when nothing is playing) -->
@@ -178,14 +220,18 @@
 
     // ── DOM refs ───────────────────────────────────────────────────────────────
 
-    const canvasLayer = document.getElementById('canvas-layer');
-    const imageLayer  = document.getElementById('image-layer');
-    const videoLayer  = document.getElementById('video-layer');
-    const idleLayer   = document.getElementById('idle-layer');
-    const displayImg  = document.getElementById('display-img');
-    const displayVideo = document.getElementById('display-video');
-    const statusBadge = document.getElementById('status-badge');
-    const fitBadge    = document.getElementById('fit-badge');
+    const canvasLayer   = document.getElementById('canvas-layer');
+    const imageLayer    = document.getElementById('image-layer');
+    const videoLayer    = document.getElementById('video-layer');
+    const htmlLayer     = document.getElementById('html-layer');
+    const svgLayer      = document.getElementById('svg-layer');
+    const idleLayer     = document.getElementById('idle-layer');
+    const displayImg    = document.getElementById('display-img');
+    const displayVideo  = document.getElementById('display-video');
+    const displayIframe = document.getElementById('display-iframe');
+    const displaySvg    = document.getElementById('display-svg');
+    const statusBadge   = document.getElementById('status-badge');
+    const fitBadge      = document.getElementById('fit-badge');
 
     // ── Layer management ───────────────────────────────────────────────────────
 
@@ -193,12 +239,16 @@
       canvasLayer.classList.add('hidden');
       imageLayer.classList.add('hidden');
       videoLayer.classList.add('hidden');
+      htmlLayer.classList.add('hidden');
+      svgLayer.classList.add('hidden');
       idleLayer.classList.remove('visible');
 
       switch (name) {
         case 'canvas': canvasLayer.classList.remove('hidden'); break;
         case 'image':  imageLayer.classList.remove('hidden');  break;
         case 'video':  videoLayer.classList.remove('hidden');  break;
+        case 'html':   htmlLayer.classList.remove('hidden');   break;
+        case 'svg':    svgLayer.classList.remove('hidden');    break;
         case 'idle':
         default:
           idleLayer.classList.add('visible');
@@ -311,6 +361,43 @@
 
         case 'p5-stop':
           stopSketch();
+          showLayer('idle');
+          setStatus('idle');
+          break;
+
+        case 'html-run':
+          // msg.url  → same-origin URL (e.g. SoftbodyBlobs); no sandbox so it runs fully
+          // msg.html → inline HTML content; sandboxed to allow-scripts only
+          if (msg.url) {
+            displayIframe.removeAttribute('sandbox');
+            displayIframe.src = msg.url;
+          } else if (msg.html) {
+            displayIframe.setAttribute('sandbox', 'allow-scripts allow-modals');
+            displayIframe.removeAttribute('src');
+            displayIframe.srcdoc = msg.html;
+          }
+          showLayer('html');
+          setStatus((msg.url ? 'url' : 'html') + ' • live');
+          break;
+
+        case 'html-stop':
+          displayIframe.removeAttribute('sandbox');
+          displayIframe.src = 'about:blank';
+          displayIframe.removeAttribute('srcdoc');
+          showLayer('idle');
+          setStatus('idle');
+          break;
+
+        case 'svg-run':
+          if (msg.svg) {
+            displaySvg.innerHTML = msg.svg;
+            showLayer('svg');
+            setStatus('svg • live');
+          }
+          break;
+
+        case 'svg-stop':
+          displaySvg.innerHTML = '';
           showLayer('idle');
           setStatus('idle');
           break;

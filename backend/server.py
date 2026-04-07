@@ -114,7 +114,7 @@ class SmartTransformRequest(BaseModel):
     user_intent: str
     input_image: str
     reference_image: Optional[str] = None
-    model: Optional[str] = "gemini-3-flash-preview"
+    model: Optional[str] = config.MODEL_IMAGE_GEN_NB2  # must be an image-capable model
     aspect_ratio: Optional[str] = "1:1"
 
 class TemplateRequest(BaseModel):
@@ -297,6 +297,7 @@ async def generate_smart_transform(request: SmartTransformRequest):
 
         return {"status": "success", "image": image_b64, "prompt": prompt}
     except Exception as e:
+        print(f"[smart-transform] ERROR: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/generate/text")

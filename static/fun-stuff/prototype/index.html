@@ -1,0 +1,2211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pocket Prospector</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; overflow: hidden; background: #131010; }
+  @import url('https://fonts.googleapis.com/css2?family=Anybody:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  @keyframes goldPop { 0%{opacity:1;transform:translateY(0) translateX(0) scale(1)} 100%{opacity:0;transform:translateY(-55px) translateX(var(--dx,0)) scale(1.2)} }
+  @keyframes sparkleFade { 0%{opacity:1;transform:translate(0,0) scale(1)} 100%{opacity:0;transform:translate(var(--sx),var(--sy)) scale(0)} }
+  @keyframes revealPop { 0%{transform:scale(0.3);opacity:0} 50%{transform:scale(1.2)} 100%{transform:scale(1);opacity:1} }
+  @keyframes shimmer { 0%,100%{opacity:0.3} 50%{opacity:0.7} }
+  @keyframes slideUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes notifIn { 0%{opacity:0;transform:translate(-50%,-16px) scale(0.9)} 8%{opacity:1;transform:translate(-50%,0) scale(1)} 80%{opacity:1;transform:translate(-50%,0) scale(1)} 100%{opacity:0;transform:translate(-50%,-8px) scale(0.95)} }
+  @keyframes pulse { 0%,100%{opacity:0.4} 50%{opacity:0.9} }
+  @keyframes comboGlow { 0%,100%{text-shadow:0 0 4px currentColor} 50%{text-shadow:0 0 12px currentColor} }
+  @keyframes shake1 { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-2px)} 75%{transform:translateX(2px)} }
+  @keyframes shake2 { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-3px) rotate(-0.5deg)} 40%{transform:translateX(3px) rotate(0.5deg)} 60%{transform:translateX(-2px)} 80%{transform:translateX(2px)} }
+  @keyframes shake3 { 0%,100%{transform:translateX(0)} 10%{transform:translate(-4px,-2px) rotate(-1deg)} 30%{transform:translate(4px,1px) rotate(1deg)} 50%{transform:translate(-3px,-1px)} 70%{transform:translate(3px,1px)} 90%{transform:translate(-1px,0)} }
+  @keyframes breathe { 0%,100%{box-shadow:0 0 20px rgba(212,168,67,0.15)} 50%{box-shadow:0 0 40px rgba(212,168,67,0.3)} }
+  @keyframes modeCardIn { from{opacity:0;transform:translateY(16px) scale(0.96)} to{opacity:1;transform:translateY(0) scale(1)} }
+  @keyframes modeFadeIn { from{opacity:0} to{opacity:1} }
+
+  .upg-btn { transition: all 0.12s; border: 1px solid rgba(184,115,51,0.2); }
+  .upg-btn:hover:not(:disabled) { border-color: rgba(184,115,51,0.6); background: rgba(184,115,51,0.12) !important; transform: translateY(-1px); }
+  .upg-btn:active:not(:disabled) { transform: translateY(0) scale(0.98); }
+  .upg-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+  .cs-btn { transition: all 0.15s; }
+  .cs-btn:hover { transform: translateY(-2px); }
+  .find-row { animation: slideUp 0.3s ease-out; }
+  ::-webkit-scrollbar { width: 3px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(184,115,51,0.2); border-radius: 2px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script type="text/babel">
+const { useState, useRef, useEffect, useCallback, useReducer, useMemo } = React;
+
+/* ═══════════════════════════════════════════
+   AUDIO ENGINE
+═══════════════════════════════════════════ */
+class ScratchAudio {
+  constructor() { this.ctx = null; this.enabled = true; }
+  init() {
+    if (this.ctx) return;
+    try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) { this.enabled = false; }
+  }
+  play(type, opts = {}) {
+    if (!this.ctx || !this.enabled) return;
+    const now = this.ctx.currentTime;
+    const g = this.ctx.createGain();
+    g.connect(this.ctx.destination);
+    g.gain.setValueAtTime(opts.vol || 0.08, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now + (opts.dur || 0.1));
+    if (type === "scratch") {
+      const buf = this.ctx.createBuffer(1, this.ctx.sampleRate * 0.06, this.ctx.sampleRate);
+      const d = buf.getChannelData(0);
+      for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / d.length);
+      const s = this.ctx.createBufferSource(); s.buffer = buf;
+      const f = this.ctx.createBiquadFilter();
+      f.type = opts.filterType || "bandpass";
+      f.frequency.value = opts.freq || 3000;
+      f.Q.value = opts.Q || 0.5;
+      s.connect(f); f.connect(g); s.start(now);
+    } else if (type === "reveal") {
+      const o = this.ctx.createOscillator();
+      o.type = opts.wave || "sine";
+      o.frequency.setValueAtTime(opts.freq || 600, now);
+      o.frequency.exponentialRampToValueAtTime((opts.freq || 600) * 1.5, now + 0.08);
+      o.connect(g);
+      g.gain.setValueAtTime(opts.vol || 0.06, now);
+      g.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+      o.start(now); o.stop(now + 0.15);
+    } else if (type === "rare") {
+      const notes = opts.notes || [500, 700, 900, 1100];
+      notes.forEach((freq, i) => {
+        const t = i * 0.06;
+        const o = this.ctx.createOscillator();
+        const gn = this.ctx.createGain();
+        o.type = opts.wave || "sine";
+        o.frequency.value = freq;
+        gn.gain.setValueAtTime(0.05, now + t);
+        gn.gain.exponentialRampToValueAtTime(0.001, now + t + 0.12);
+        o.connect(gn); gn.connect(this.ctx.destination);
+        o.start(now + t); o.stop(now + t + 0.12);
+      });
+    } else if (type === "purchase") {
+      const o = this.ctx.createOscillator();
+      o.type = "triangle";
+      o.frequency.setValueAtTime(300, now);
+      o.frequency.exponentialRampToValueAtTime(800, now + 0.1);
+      o.connect(g);
+      g.gain.setValueAtTime(0.07, now);
+      g.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+      o.start(now); o.stop(now + 0.15);
+    } else if (type === "combo") {
+      const o = this.ctx.createOscillator();
+      o.type = "sine";
+      o.frequency.value = 400 + (opts.combo || 1) * 80;
+      o.connect(g);
+      g.gain.setValueAtTime(0.04, now);
+      g.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+      o.start(now); o.stop(now + 0.08);
+    }
+  }
+}
+const audio = new ScratchAudio();
+
+/* ═══════════════════════════════════════════
+   MODE DEFINITIONS
+═══════════════════════════════════════════ */
+const MODE_DEFINITIONS = {
+  prospector: {
+    id: "prospector",
+    name: "Pocket Prospector",
+    sub: "Mine through rock to find gems",
+    icon: "⛏",
+
+    // Labels
+    labels: {
+      currency: "Gold", currencyIcon: "💰",
+      verb: "Scratch", verbPast: "scratched",
+      surface: "Rock slab", workspace: "Miner's workbench",
+      collection: "Field journal", display: "Specimen jars",
+      claimNoun: "Claim", claimVerb: "Mine",
+      prestigeAction: "Descend deeper", prestigeUnit: "Prestige picks", prestigeVerb: "Descend",
+      hazardLabel: "Hazard",
+    },
+
+    // Global theme (sidebars, chrome)
+    theme: {
+      sidebarBg: "linear-gradient(180deg, #1E1A14 0%, #16130E 100%)",
+      borderAccent: "rgba(184,115,51,0.1)",
+      currencyColor: "#D4A843",
+      accentColor: "#B87333",
+      textPrimary: "#F5F0E8",
+      textMuted: "rgba(245,240,232,0.3)",
+      textFaint: "rgba(245,240,232,0.15)",
+      upgHoverBorder: "rgba(184,115,51,0.6)",
+      upgHoverBg: "rgba(184,115,51,0.12)",
+      prestigeBg: "linear-gradient(135deg, #5A1A08, #3D1F0A)",
+      prestigeBorder: "#C04020",
+      prestigeGlow: "rgba(192,64,32,0.15)",
+      scrollbarThumb: "rgba(184,115,51,0.2)",
+      cardBg: "rgba(40,32,22,0.6)",
+      cardBgLight: "rgba(40,32,22,0.4)",
+    },
+
+    // Audio profile
+    audio: {
+      scratchFilter: "bandpass", scratchQ: 0.5,
+      revealWave: "sine",
+      rareNotes: [500, 700, 900, 1100],
+      rareWave: "sine",
+    },
+
+    // Crack pattern type
+    crackStyle: "stone", // stone | fracture | dust | crystal | hex | wax
+
+    // Claim types
+    claimTypes: {
+      shallow_soil: {
+        name: "Shallow soil", catalog: "surface", stratum: 1,
+        grid: { cols: 5, rows: 4 },
+        geology: {
+          rock:    { chance: 0.30, valueMult: 0, color: "#8B7355", label: "Rock", glow: false },
+          quartz:  { chance: 0.30, valueMult: 2, color: "#E8DFD0", label: "Quartz", glow: false },
+          copper:  { chance: 0.22, valueMult: 5, color: "#CD8C52", label: "Copper", glow: false },
+          garnet:  { chance: 0.12, valueMult: 15, color: "#C23060", label: "Garnet", glow: true },
+          emerald: { chance: 0.06, valueMult: 50, color: "#2ECC71", label: "Emerald", glow: true },
+        },
+        hardness: 3,
+        theme: { bg: "#5C4A36", surface: "#8B7355", accent: "#A08060", scratchFreq: 2800, particle: "#A08060" },
+        hazard: null, claimCost: 0,
+      },
+      deep_stone: {
+        name: "Deep stone", catalog: "underground", stratum: 2,
+        grid: { cols: 6, rows: 4 },
+        geology: {
+          slate:    { chance: 0.28, valueMult: 0, color: "#6B7B8D", label: "Slate", glow: false },
+          iron:     { chance: 0.25, valueMult: 3, color: "#A0522D", label: "Iron", glow: false },
+          silver:   { chance: 0.22, valueMult: 10, color: "#C8C8D0", label: "Silver", glow: false },
+          sapphire: { chance: 0.14, valueMult: 30, color: "#3868C8", label: "Sapphire", glow: true },
+          amethyst: { chance: 0.08, valueMult: 70, color: "#9B59B6", label: "Amethyst", glow: true },
+          diamond:  { chance: 0.03, valueMult: 250, color: "#A8E8F8", label: "Diamond", glow: true },
+        },
+        hardness: 8,
+        theme: { bg: "#3A4556", surface: "#5A6A7D", accent: "#7A8A9D", scratchFreq: 4200, particle: "#8898A8" },
+        hazard: { type: "gas_pocket", chance: 0.06 },
+        claimCost: 0,
+      },
+      volcanic_core: {
+        name: "Volcanic core", catalog: "deep_earth", stratum: 3,
+        grid: { cols: 6, rows: 5 },
+        geology: {
+          basalt:    { chance: 0.35, valueMult: 0, color: "#2D2D2D", label: "Basalt", glow: false },
+          obsidian:  { chance: 0.24, valueMult: 10, color: "#1A1A3E", label: "Obsidian", glow: false },
+          ruby:      { chance: 0.20, valueMult: 40, color: "#E03030", label: "Ruby", glow: true },
+          fire_opal: { chance: 0.12, valueMult: 100, color: "#F07020", label: "Fire opal", glow: true },
+          diamond:   { chance: 0.06, valueMult: 300, color: "#B0E8F8", label: "Diamond", glow: true },
+          void_gem:  { chance: 0.03, valueMult: 1000, color: "#8040E0", label: "Void gem", glow: true },
+        },
+        hardness: 14,
+        theme: { bg: "#3D1F0A", surface: "#6B2A0A", accent: "#C04020", scratchFreq: 1800, particle: "#F06030" },
+        hazard: { type: "lava_timer", seconds: 18 },
+        claimCost: 0,
+      },
+    },
+
+    // Upgrades (mode-specific names/icons)
+    upgrades: {
+      power:  { name: "Pick power", icon: "⛏", desc: "Damage per stroke", baseCost: 8, costScale: 1.65, maxLevel: 25, effect: l => 1 + l * 0.6, label: l => `${(1+l*0.6).toFixed(1)}×` },
+      radius: { name: "Brush width", icon: "◎", desc: "Adjacent tile hits", baseCost: 20, costScale: 2.0, maxLevel: 12, effect: l => l, label: l => `${l} adj` },
+      luck:   { name: "Keen eye", icon: "✦", desc: "Rare chance boost", baseCost: 35, costScale: 2.2, maxLevel: 18, effect: l => 1 + l * 0.15, label: l => `+${(l*15).toFixed(0)}%` },
+      speed:  { name: "Quick hands", icon: "⚡", desc: "Auto-scratch speed", baseCost: 100, costScale: 2.5, maxLevel: 10, effect: l => l > 0 ? 400 - l * 30 : 0, label: l => l === 0 ? "Locked" : `${(1000/(400-l*30)).toFixed(1)}/s` },
+    },
+
+    // Prestige
+    prestige: {
+      minCurrency: 500,
+      calcPicks: totalGold => Math.floor(Math.sqrt(totalGold / 50)),
+      pickMultiplier: 0.1,
+      unlockSequence: ["deep_stone", "volcanic_core"],
+    },
+
+    // Tiers (for mode select card)
+    tiers: ["Shallow soil", "Deep stone", "Volcanic core", "Fossil beds"],
+    colors: ["#8B7355","#6B7B8D","#6B2A0A","#C2B280","#D4A843","#B87333"],
+  },
+
+  patissier: {
+    id: "patissier",
+    name: "Petit Patissier",
+    sub: "Crack through caramel to find flavors",
+    icon: "🍮",
+
+    labels: {
+      currency: "Stars", currencyIcon: "⭐",
+      verb: "Tap", verbPast: "tapped",
+      surface: "Brulee ramekin", workspace: "Pastry station",
+      collection: "Recipe book", display: "Tasting shelf",
+      claimNoun: "Ramekin", claimVerb: "Crack",
+      prestigeAction: "New kitchen", prestigeUnit: "Michelin points", prestigeVerb: "Reopen",
+      hazardLabel: "Hazard",
+    },
+
+    theme: {
+      sidebarBg: "linear-gradient(180deg, #1E1710 0%, #16120C 100%)",
+      borderAccent: "rgba(208,168,80,0.1)",
+      currencyColor: "#FFD700",
+      accentColor: "#C08040",
+      textPrimary: "#FFF8EE",
+      textMuted: "rgba(255,248,238,0.3)",
+      textFaint: "rgba(255,248,238,0.15)",
+      upgHoverBorder: "rgba(208,168,80,0.6)",
+      upgHoverBg: "rgba(208,168,80,0.12)",
+      prestigeBg: "linear-gradient(135deg, #4A2800, #2E1A00)",
+      prestigeBorder: "#F0A830",
+      prestigeGlow: "rgba(240,168,48,0.15)",
+      scrollbarThumb: "rgba(208,168,80,0.2)",
+      cardBg: "rgba(42,28,14,0.6)",
+      cardBgLight: "rgba(42,28,14,0.4)",
+    },
+
+    audio: {
+      scratchFilter: "highpass", scratchQ: 1.2,
+      revealWave: "triangle",
+      rareNotes: [600, 800, 1000, 1300],
+      rareWave: "triangle",
+    },
+
+    crackStyle: "fracture",
+
+    claimTypes: {
+      vanilla_custard: {
+        name: "Vanilla custard", catalog: "classic", stratum: 1,
+        grid: { cols: 5, rows: 4 },
+        geology: {
+          burnt:       { chance: 0.25, valueMult: 0, color: "#4A3520", label: "Burnt sugar", glow: false },
+          vanilla:     { chance: 0.30, valueMult: 2, color: "#F5E6C8", label: "Vanilla", glow: false },
+          cream:       { chance: 0.22, valueMult: 6, color: "#FFF5DC", label: "Crème", glow: false },
+          caramel:     { chance: 0.14, valueMult: 18, color: "#C08040", label: "Caramel", glow: true },
+          gold_flake:  { chance: 0.06, valueMult: 55, color: "#FFD700", label: "Gold flake", glow: true },
+          truffle:     { chance: 0.03, valueMult: 150, color: "#3D1F0A", label: "Truffle", glow: true },
+        },
+        hardness: 3,
+        theme: { bg: "#3D2E1A", surface: "#6B5030", accent: "#D4A040", scratchFreq: 4800, particle: "#F0D080" },
+        hazard: null, claimCost: 0,
+      },
+      dark_chocolate: {
+        name: "Dark chocolate", catalog: "rich", stratum: 2,
+        grid: { cols: 6, rows: 4 },
+        geology: {
+          bitter:        { chance: 0.25, valueMult: 0, color: "#1A0E05", label: "Bitter", glow: false },
+          cocoa:         { chance: 0.25, valueMult: 3, color: "#3D1F0A", label: "Cocoa", glow: false },
+          dark_ganache:  { chance: 0.22, valueMult: 12, color: "#5A2D10", label: "Ganache", glow: false },
+          praline:       { chance: 0.14, valueMult: 35, color: "#8B5E3C", label: "Praline", glow: true },
+          saffron:       { chance: 0.08, valueMult: 80, color: "#E8A020", label: "Saffron", glow: true },
+          edible_gold:   { chance: 0.06, valueMult: 200, color: "#FFD700", label: "Edible gold", glow: true },
+        },
+        hardness: 7,
+        theme: { bg: "#1E120A", surface: "#3D2010", accent: "#8B5030", scratchFreq: 3600, particle: "#A06830" },
+        hazard: { type: "gas_pocket", chance: 0.08 },
+        claimCost: 0,
+      },
+      citrus_glaze: {
+        name: "Citrus glaze", catalog: "bright", stratum: 3,
+        grid: { cols: 6, rows: 5 },
+        geology: {
+          crystallized:   { chance: 0.30, valueMult: 0, color: "#E8D8B0", label: "Crystal", glow: false },
+          lemon:          { chance: 0.24, valueMult: 8, color: "#F0E060", label: "Lemon zest", glow: false },
+          blood_orange:   { chance: 0.20, valueMult: 30, color: "#E06020", label: "Blood orange", glow: true },
+          yuzu:           { chance: 0.14, valueMult: 80, color: "#C8E030", label: "Yuzu", glow: true },
+          bergamot:       { chance: 0.08, valueMult: 200, color: "#80C040", label: "Bergamot", glow: true },
+          passion_fruit:  { chance: 0.04, valueMult: 600, color: "#E040A0", label: "Passion fruit", glow: true },
+        },
+        hardness: 12,
+        theme: { bg: "#3D3010", surface: "#6B5820", accent: "#F0A830", scratchFreq: 5400, particle: "#F0C840" },
+        hazard: { type: "lava_timer", seconds: 20 },
+        claimCost: 0,
+      },
+    },
+
+    upgrades: {
+      power:  { name: "Spoon weight", icon: "🥄", desc: "Tap force", baseCost: 8, costScale: 1.65, maxLevel: 25, effect: l => 1 + l * 0.6, label: l => `${(1+l*0.6).toFixed(1)}×` },
+      radius: { name: "Crack spread", icon: "💫", desc: "Adjacent cracks", baseCost: 20, costScale: 2.0, maxLevel: 12, effect: l => l, label: l => `${l} adj` },
+      luck:   { name: "Refined palate", icon: "👅", desc: "Premium flavor boost", baseCost: 35, costScale: 2.2, maxLevel: 18, effect: l => 1 + l * 0.15, label: l => `+${(l*15).toFixed(0)}%` },
+      speed:  { name: "Whisk speed", icon: "⚡", desc: "Auto-tap speed", baseCost: 100, costScale: 2.5, maxLevel: 10, effect: l => l > 0 ? 400 - l * 30 : 0, label: l => l === 0 ? "Locked" : `${(1000/(400-l*30)).toFixed(1)}/s` },
+    },
+
+    prestige: {
+      minCurrency: 500,
+      calcPicks: totalGold => Math.floor(Math.sqrt(totalGold / 50)),
+      pickMultiplier: 0.1,
+      unlockSequence: ["dark_chocolate", "citrus_glaze"],
+    },
+
+    tiers: ["Vanilla custard", "Dark chocolate", "Citrus glaze", "Salted caramel"],
+    colors: ["#F5E6C8","#3D1F0A","#F0A830","#C08040","#FFD700","#8B4513"],
+  },
+
+  archaeologist: {
+    id: "archaeologist",
+    name: "Lost Layers",
+    sub: "Brush away plaster to reveal mosaics",
+    icon: "🏛",
+
+    labels: {
+      currency: "Prestige", currencyIcon: "📜",
+      verb: "Brush", verbPast: "brushed",
+      surface: "Plaster wall section", workspace: "Excavation table",
+      collection: "Excavation log", display: "Restoration gallery",
+      claimNoun: "Section", claimVerb: "Excavate",
+      prestigeAction: "New dig site", prestigeUnit: "Grant funding", prestigeVerb: "Relocate",
+      hazardLabel: "Damage",
+    },
+
+    theme: {
+      sidebarBg: "linear-gradient(180deg, #1A1820 0%, #14121A 100%)",
+      borderAccent: "rgba(30,58,95,0.15)",
+      currencyColor: "#D4A843",
+      accentColor: "#1E3A5F",
+      textPrimary: "#F0EDE6",
+      textMuted: "rgba(240,237,230,0.3)",
+      textFaint: "rgba(240,237,230,0.15)",
+      upgHoverBorder: "rgba(30,58,95,0.6)",
+      upgHoverBg: "rgba(30,58,95,0.12)",
+      prestigeBg: "linear-gradient(135deg, #1E3A5F, #0E1E30)",
+      prestigeBorder: "#2E8B57",
+      prestigeGlow: "rgba(46,139,87,0.15)",
+      scrollbarThumb: "rgba(30,58,95,0.2)",
+      cardBg: "rgba(26,24,32,0.6)",
+      cardBgLight: "rgba(26,24,32,0.4)",
+    },
+
+    audio: {
+      scratchFilter: "lowpass", scratchQ: 0.3,
+      revealWave: "sine",
+      rareNotes: [400, 530, 660, 800],
+      rareWave: "sine",
+    },
+
+    crackStyle: "dust",
+
+    claimTypes: {
+      roman_villa: {
+        name: "Roman villa", catalog: "classical", stratum: 1,
+        grid: { cols: 5, rows: 4 },
+        geology: {
+          plaster:     { chance: 0.28, valueMult: 0, color: "#C4A882", label: "Plaster", glow: false },
+          terracotta:  { chance: 0.28, valueMult: 2, color: "#C07050", label: "Terracotta", glow: false },
+          marble:      { chance: 0.22, valueMult: 6, color: "#E8E0D0", label: "Marble", glow: false },
+          lapis:       { chance: 0.13, valueMult: 20, color: "#1E3A5F", label: "Lapis tile", glow: true },
+          gold_leaf:   { chance: 0.06, valueMult: 60, color: "#D4A843", label: "Gold leaf", glow: true },
+          mosaic:      { chance: 0.03, valueMult: 180, color: "#2E8B57", label: "Intact mosaic", glow: true },
+        },
+        hardness: 3,
+        theme: { bg: "#3D3428", surface: "#6B5C48", accent: "#C4A882", scratchFreq: 1600, particle: "#C4A882" },
+        hazard: null, claimCost: 0,
+      },
+      byzantine_chapel: {
+        name: "Byzantine chapel", catalog: "medieval", stratum: 2,
+        grid: { cols: 6, rows: 4 },
+        geology: {
+          rubble:      { chance: 0.25, valueMult: 0, color: "#4A4A4A", label: "Rubble", glow: false },
+          fresco:      { chance: 0.25, valueMult: 4, color: "#8B2252", label: "Fresco frag.", glow: false },
+          blue_tile:   { chance: 0.22, valueMult: 12, color: "#1E3A5F", label: "Blue tile", glow: false },
+          icon_frag:   { chance: 0.14, valueMult: 40, color: "#D4A843", label: "Icon fragment", glow: true },
+          verdigris:   { chance: 0.08, valueMult: 90, color: "#2E8B57", label: "Verdigris", glow: true },
+          saint_face:  { chance: 0.06, valueMult: 280, color: "#E8D060", label: "Saint's face", glow: true },
+        },
+        hardness: 7,
+        theme: { bg: "#1E1828", surface: "#3A3048", accent: "#5050A0", scratchFreq: 2000, particle: "#6868B8" },
+        hazard: { type: "gas_pocket", chance: 0.07 },
+        claimCost: 0,
+      },
+      moorish_palace: {
+        name: "Moorish palace", catalog: "islamic", stratum: 3,
+        grid: { cols: 6, rows: 5 },
+        geology: {
+          stucco:       { chance: 0.30, valueMult: 0, color: "#D8C8A8", label: "Stucco", glow: false },
+          zellige:      { chance: 0.24, valueMult: 8, color: "#2080A0", label: "Zellige", glow: false },
+          arabeque:     { chance: 0.20, valueMult: 35, color: "#C04040", label: "Arabesque", glow: true },
+          calligraphy:  { chance: 0.14, valueMult: 85, color: "#1E3A5F", label: "Calligraphy", glow: true },
+          star_pattern: { chance: 0.08, valueMult: 220, color: "#D4A843", label: "Star pattern", glow: true },
+          muqarnas:     { chance: 0.04, valueMult: 700, color: "#E0C060", label: "Muqarnas", glow: true },
+        },
+        hardness: 10,
+        theme: { bg: "#1A2828", surface: "#2E4A4A", accent: "#2E8B57", scratchFreq: 1400, particle: "#40A878" },
+        hazard: { type: "lava_timer", seconds: 22 },
+        claimCost: 0,
+      },
+    },
+
+    upgrades: {
+      power:  { name: "Brush fineness", icon: "🖌", desc: "Precision per pass", baseCost: 8, costScale: 1.65, maxLevel: 25, effect: l => 1 + l * 0.6, label: l => `${(1+l*0.6).toFixed(1)}×` },
+      radius: { name: "Sweep width", icon: "◎", desc: "Adjacent tiles brushed", baseCost: 20, costScale: 2.0, maxLevel: 12, effect: l => l, label: l => `${l} adj` },
+      luck:   { name: "Trained eye", icon: "🔍", desc: "Rare tessera detection", baseCost: 35, costScale: 2.2, maxLevel: 18, effect: l => 1 + l * 0.15, label: l => `+${(l*15).toFixed(0)}%` },
+      speed:  { name: "Intern team", icon: "⚡", desc: "Auto-brush speed", baseCost: 100, costScale: 2.5, maxLevel: 10, effect: l => l > 0 ? 400 - l * 30 : 0, label: l => l === 0 ? "Locked" : `${(1000/(400-l*30)).toFixed(1)}/s` },
+    },
+
+    prestige: {
+      minCurrency: 500,
+      calcPicks: total => Math.floor(Math.sqrt(total / 50)),
+      pickMultiplier: 0.1,
+      unlockSequence: ["byzantine_chapel", "moorish_palace"],
+    },
+
+    tiers: ["Roman villa", "Byzantine chapel", "Moorish palace", "Renaissance crypt"],
+    colors: ["#C4A882","#1E3A5F","#8B2252","#D4A843","#2E8B57","#4A4A4A"],
+  },
+
+  frost: {
+    id: "frost",
+    name: "Frost & Found",
+    sub: "Scrape frost from windows to see what's outside",
+    icon: "❄",
+
+    labels: {
+      currency: "Warmth", currencyIcon: "🔥",
+      verb: "Scrape", verbPast: "scraped",
+      surface: "Frosted pane", workspace: "Cabin windowsill",
+      collection: "View journal", display: "Snow globe shelf",
+      claimNoun: "Pane", claimVerb: "Clear",
+      prestigeAction: "Next winter", prestigeUnit: "Hearth stones", prestigeVerb: "Hibernate",
+      hazardLabel: "Black ice",
+    },
+
+    theme: {
+      sidebarBg: "linear-gradient(180deg, #141A20 0%, #0E1418 100%)",
+      borderAccent: "rgba(136,184,208,0.1)",
+      currencyColor: "#F0A830",
+      accentColor: "#88B8D0",
+      textPrimary: "#E8F0F4",
+      textMuted: "rgba(232,240,244,0.3)",
+      textFaint: "rgba(232,240,244,0.15)",
+      upgHoverBorder: "rgba(136,184,208,0.6)",
+      upgHoverBg: "rgba(136,184,208,0.12)",
+      prestigeBg: "linear-gradient(135deg, #3A2008, #201008)",
+      prestigeBorder: "#F0A830",
+      prestigeGlow: "rgba(240,168,48,0.15)",
+      scrollbarThumb: "rgba(136,184,208,0.2)",
+      cardBg: "rgba(20,26,32,0.6)",
+      cardBgLight: "rgba(20,26,32,0.4)",
+    },
+
+    audio: {
+      scratchFilter: "highpass", scratchQ: 1.5,
+      revealWave: "sine",
+      rareNotes: [700, 900, 1100, 1400],
+      rareWave: "sine",
+    },
+
+    crackStyle: "crystal",
+
+    claimTypes: {
+      morning_frost: {
+        name: "Morning frost", catalog: "light", stratum: 1,
+        grid: { cols: 5, rows: 4 },
+        geology: {
+          plain_ice:    { chance: 0.28, valueMult: 0, color: "#D0E8F0", label: "Plain ice", glow: false },
+          fern:         { chance: 0.28, valueMult: 2, color: "#88B8D0", label: "Frost fern", glow: false },
+          snowflake:    { chance: 0.22, valueMult: 6, color: "#FFFFFF", label: "Snowflake", glow: false },
+          robin:        { chance: 0.13, valueMult: 18, color: "#C06030", label: "Robin view", glow: true },
+          sunrise:      { chance: 0.06, valueMult: 55, color: "#F0A830", label: "Sunrise", glow: true },
+          northern:     { chance: 0.03, valueMult: 160, color: "#40E0A0", label: "Aurora", glow: true },
+        },
+        hardness: 3,
+        theme: { bg: "#1A2530", surface: "#304050", accent: "#88B8D0", scratchFreq: 5500, particle: "#A0D0E8" },
+        hazard: null, claimCost: 0,
+      },
+      deep_freeze: {
+        name: "Deep freeze", catalog: "cold", stratum: 2,
+        grid: { cols: 6, rows: 4 },
+        geology: {
+          thick_ice:   { chance: 0.26, valueMult: 0, color: "#4080A0", label: "Thick ice", glow: false },
+          crystal:     { chance: 0.25, valueMult: 4, color: "#A0D0E8", label: "Ice crystal", glow: false },
+          frozen_fern: { chance: 0.20, valueMult: 12, color: "#60B0A0", label: "Frozen fern", glow: false },
+          deer:        { chance: 0.14, valueMult: 35, color: "#8B6914", label: "Deer scene", glow: true },
+          moonlight:   { chance: 0.09, valueMult: 80, color: "#C0D8F0", label: "Moonlight", glow: true },
+          ice_palace:  { chance: 0.06, valueMult: 220, color: "#E0F0FF", label: "Ice palace", glow: true },
+        },
+        hardness: 8,
+        theme: { bg: "#0E1828", surface: "#1E3848", accent: "#4080A0", scratchFreq: 6200, particle: "#5898B8" },
+        hazard: { type: "gas_pocket", chance: 0.08 },
+        claimCost: 0,
+      },
+      blizzard_glass: {
+        name: "Blizzard glass", catalog: "extreme", stratum: 3,
+        grid: { cols: 6, rows: 5 },
+        geology: {
+          whiteout:       { chance: 0.30, valueMult: 0, color: "#E8F0F4", label: "Whiteout", glow: false },
+          ice_flower:     { chance: 0.24, valueMult: 8, color: "#88B8D0", label: "Ice flower", glow: false },
+          wolf:           { chance: 0.20, valueMult: 30, color: "#607080", label: "Wolf pack", glow: true },
+          frozen_lake:    { chance: 0.14, valueMult: 75, color: "#205070", label: "Frozen lake", glow: true },
+          northern_city:  { chance: 0.08, valueMult: 200, color: "#40E0A0", label: "Aurora city", glow: true },
+          yeti:           { chance: 0.04, valueMult: 650, color: "#FFFFFF", label: "Yeti sighting", glow: true },
+        },
+        hardness: 14,
+        theme: { bg: "#0A1020", surface: "#182838", accent: "#205070", scratchFreq: 7000, particle: "#3868A0" },
+        hazard: { type: "lava_timer", seconds: 16 },
+        claimCost: 0,
+      },
+    },
+
+    upgrades: {
+      power:  { name: "Scraper edge", icon: "🪒", desc: "Scrape power", baseCost: 8, costScale: 1.65, maxLevel: 25, effect: l => 1 + l * 0.6, label: l => `${(1+l*0.6).toFixed(1)}×` },
+      radius: { name: "Melt radius", icon: "☀", desc: "Adjacent tiles warmed", baseCost: 20, costScale: 2.0, maxLevel: 12, effect: l => l, label: l => `${l} adj` },
+      luck:   { name: "Winter sight", icon: "👁", desc: "Magical view boost", baseCost: 35, costScale: 2.2, maxLevel: 18, effect: l => 1 + l * 0.15, label: l => `+${(l*15).toFixed(0)}%` },
+      speed:  { name: "Warm breath", icon: "💨", desc: "Auto-melt speed", baseCost: 100, costScale: 2.5, maxLevel: 10, effect: l => l > 0 ? 400 - l * 30 : 0, label: l => l === 0 ? "Locked" : `${(1000/(400-l*30)).toFixed(1)}/s` },
+    },
+
+    prestige: {
+      minCurrency: 500,
+      calcPicks: total => Math.floor(Math.sqrt(total / 50)),
+      pickMultiplier: 0.1,
+      unlockSequence: ["deep_freeze", "blizzard_glass"],
+    },
+
+    tiers: ["Morning frost", "Deep freeze", "Blizzard glass", "Permafrost"],
+    colors: ["#D0E8F0","#88B8D0","#4080A0","#205070","#F0A830","#FFFFFF"],
+  },
+
+  beekeeper: {
+    id: "beekeeper",
+    name: "Hexharvest",
+    sub: "Uncap honeycomb cells to harvest what's inside",
+    icon: "🍯",
+
+    labels: {
+      currency: "Nectar", currencyIcon: "💧",
+      verb: "Uncap", verbPast: "uncapped",
+      surface: "Honeycomb frame", workspace: "Extraction bench",
+      collection: "Hive ledger", display: "Honey jars",
+      claimNoun: "Frame", claimVerb: "Harvest",
+      prestigeAction: "New season", prestigeUnit: "Queen's favor", prestigeVerb: "Swarm",
+      hazardLabel: "Mite damage",
+    },
+
+    theme: {
+      sidebarBg: "linear-gradient(180deg, #1E1A10 0%, #16140A 100%)",
+      borderAccent: "rgba(240,200,96,0.1)",
+      currencyColor: "#F0C860",
+      accentColor: "#D4A020",
+      textPrimary: "#FFF8E0",
+      textMuted: "rgba(255,248,224,0.3)",
+      textFaint: "rgba(255,248,224,0.15)",
+      upgHoverBorder: "rgba(240,200,96,0.6)",
+      upgHoverBg: "rgba(240,200,96,0.12)",
+      prestigeBg: "linear-gradient(135deg, #5A3E0A, #3A2806)",
+      prestigeBorder: "#D4A020",
+      prestigeGlow: "rgba(212,160,32,0.15)",
+      scrollbarThumb: "rgba(240,200,96,0.2)",
+      cardBg: "rgba(30,26,16,0.6)",
+      cardBgLight: "rgba(30,26,16,0.4)",
+    },
+
+    audio: {
+      scratchFilter: "lowpass", scratchQ: 0.8,
+      revealWave: "triangle",
+      rareNotes: [440, 550, 660, 880],
+      rareWave: "triangle",
+    },
+
+    crackStyle: "hex",
+
+    claimTypes: {
+      clover_field: {
+        name: "Clover field", catalog: "common", stratum: 1,
+        grid: { cols: 5, rows: 4 },
+        geology: {
+          empty:     { chance: 0.25, valueMult: 0, color: "#F5E6C8", label: "Empty cell", glow: false },
+          pollen:    { chance: 0.28, valueMult: 2, color: "#C08040", label: "Pollen", glow: false },
+          clover:    { chance: 0.24, valueMult: 6, color: "#F0C860", label: "Clover honey", glow: false },
+          wildflower:{ chance: 0.13, valueMult: 18, color: "#D4A020", label: "Wildflower", glow: true },
+          propolis:  { chance: 0.07, valueMult: 50, color: "#5A3E0A", label: "Propolis", glow: true },
+          royal:     { chance: 0.03, valueMult: 150, color: "#F0E8C0", label: "Royal jelly", glow: true },
+        },
+        hardness: 2,
+        theme: { bg: "#3A3010", surface: "#5A4820", accent: "#D4A020", scratchFreq: 2200, particle: "#F0C860" },
+        hazard: null, claimCost: 0,
+      },
+      wildflower_meadow: {
+        name: "Wildflower meadow", catalog: "diverse", stratum: 2,
+        grid: { cols: 6, rows: 4 },
+        geology: {
+          drone_cell: { chance: 0.22, valueMult: 0, color: "#C8B890", label: "Drone cell", glow: false },
+          lavender:   { chance: 0.25, valueMult: 4, color: "#9070B0", label: "Lavender", glow: false },
+          buckwheat:  { chance: 0.22, valueMult: 12, color: "#8B6914", label: "Buckwheat", glow: false },
+          orange_bl:  { chance: 0.14, valueMult: 35, color: "#F0A020", label: "Orange blossom", glow: true },
+          manuka:     { chance: 0.10, valueMult: 80, color: "#A08040", label: "Manuka", glow: true },
+          royal_comb: { chance: 0.07, valueMult: 200, color: "#F0E0A0", label: "Royal comb", glow: true },
+        },
+        hardness: 5,
+        theme: { bg: "#2A2008", surface: "#4A3818", accent: "#8B6914", scratchFreq: 2600, particle: "#A08040" },
+        hazard: { type: "gas_pocket", chance: 0.09 },
+        claimCost: 0,
+      },
+      manuka_grove: {
+        name: "Manuka grove", catalog: "premium", stratum: 3,
+        grid: { cols: 6, rows: 5 },
+        geology: {
+          mite_cell:     { chance: 0.28, valueMult: 0, color: "#A09070", label: "Mite damage", glow: false },
+          acacia:        { chance: 0.24, valueMult: 8, color: "#E0C060", label: "Acacia", glow: false },
+          chestnut:      { chance: 0.20, valueMult: 30, color: "#6B4A20", label: "Chestnut", glow: true },
+          manuka_pure:   { chance: 0.14, valueMult: 75, color: "#C09030", label: "Pure manuka", glow: true },
+          comb_gold:     { chance: 0.09, valueMult: 200, color: "#FFD700", label: "Comb gold", glow: true },
+          queen_cell:    { chance: 0.05, valueMult: 600, color: "#FFF0C0", label: "Queen cell", glow: true },
+        },
+        hardness: 8,
+        theme: { bg: "#201808", surface: "#3A2E14", accent: "#8B6914", scratchFreq: 1800, particle: "#C09030" },
+        hazard: { type: "lava_timer", seconds: 20 },
+        claimCost: 0,
+      },
+    },
+
+    upgrades: {
+      power:  { name: "Blade sharpness", icon: "🔪", desc: "Uncap force", baseCost: 8, costScale: 1.65, maxLevel: 25, effect: l => 1 + l * 0.6, label: l => `${(1+l*0.6).toFixed(1)}×` },
+      radius: { name: "Heat spread", icon: "🌡", desc: "Adjacent cells softened", baseCost: 20, costScale: 2.0, maxLevel: 12, effect: l => l, label: l => `${l} adj` },
+      luck:   { name: "Bee sense", icon: "🐝", desc: "Rare honey detection", baseCost: 35, costScale: 2.2, maxLevel: 18, effect: l => 1 + l * 0.15, label: l => `+${(l*15).toFixed(0)}%` },
+      speed:  { name: "Extractor spin", icon: "⚡", desc: "Auto-uncap speed", baseCost: 100, costScale: 2.5, maxLevel: 10, effect: l => l > 0 ? 400 - l * 30 : 0, label: l => l === 0 ? "Locked" : `${(1000/(400-l*30)).toFixed(1)}/s` },
+    },
+
+    prestige: {
+      minCurrency: 500,
+      calcPicks: total => Math.floor(Math.sqrt(total / 50)),
+      pickMultiplier: 0.1,
+      unlockSequence: ["wildflower_meadow", "manuka_grove"],
+    },
+
+    tiers: ["Clover field", "Wildflower meadow", "Manuka grove", "Royal jelly chamber"],
+    colors: ["#F0C860","#D4A020","#8B6914","#5A3E0A","#F5E6C8","#C08040"],
+  },
+
+  letterbreaker: {
+    id: "letterbreaker",
+    name: "Sealed Secrets",
+    sub: "Break wax seals and decode hidden letters",
+    icon: "✉",
+
+    labels: {
+      currency: "Ink", currencyIcon: "🪶",
+      verb: "Break", verbPast: "broke",
+      surface: "Sealed envelope", workspace: "Candlelit desk",
+      collection: "Correspondence archive", display: "Wax impression case",
+      claimNoun: "Seal", claimVerb: "Decode",
+      prestigeAction: "New era", prestigeUnit: "Seal fragments", prestigeVerb: "Turn the page",
+      hazardLabel: "Forgery",
+    },
+
+    theme: {
+      sidebarBg: "linear-gradient(180deg, #1A1014 0%, #140E10 100%)",
+      borderAccent: "rgba(139,32,32,0.12)",
+      currencyColor: "#D4A843",
+      accentColor: "#8B2020",
+      textPrimary: "#F5E6C8",
+      textMuted: "rgba(245,230,200,0.3)",
+      textFaint: "rgba(245,230,200,0.15)",
+      upgHoverBorder: "rgba(139,32,32,0.6)",
+      upgHoverBg: "rgba(139,32,32,0.12)",
+      prestigeBg: "linear-gradient(135deg, #4A0020, #2D1810)",
+      prestigeBorder: "#8B2020",
+      prestigeGlow: "rgba(139,32,32,0.2)",
+      scrollbarThumb: "rgba(139,32,32,0.2)",
+      cardBg: "rgba(26,16,20,0.6)",
+      cardBgLight: "rgba(26,16,20,0.4)",
+    },
+
+    audio: {
+      scratchFilter: "bandpass", scratchQ: 1.0,
+      revealWave: "sawtooth",
+      rareNotes: [350, 470, 590, 700],
+      rareWave: "sine",
+    },
+
+    crackStyle: "wax",
+
+    claimTypes: {
+      personal_letters: {
+        name: "Personal letters", catalog: "common", stratum: 1,
+        grid: { cols: 5, rows: 4 },
+        geology: {
+          blank:       { chance: 0.25, valueMult: 0, color: "#F5E6C8", label: "Blank page", glow: false },
+          gossip:      { chance: 0.30, valueMult: 2, color: "#C8B098", label: "Gossip", glow: false },
+          love_note:   { chance: 0.22, valueMult: 7, color: "#C06080", label: "Love note", glow: false },
+          confession:  { chance: 0.13, valueMult: 20, color: "#8B2020", label: "Confession", glow: true },
+          secret_map:  { chance: 0.07, valueMult: 55, color: "#D4A843", label: "Secret map", glow: true },
+          royal_seal:  { chance: 0.03, valueMult: 160, color: "#1E3A5F", label: "Royal seal", glow: true },
+        },
+        hardness: 4,
+        theme: { bg: "#2D1810", surface: "#4A2820", accent: "#8B2020", scratchFreq: 3200, particle: "#C04040" },
+        hazard: null, claimCost: 0,
+      },
+      royal_decrees: {
+        name: "Royal decrees", catalog: "noble", stratum: 2,
+        grid: { cols: 6, rows: 4 },
+        geology: {
+          forgery:       { chance: 0.22, valueMult: 0, color: "#6B5840", label: "Forgery", glow: false },
+          tax_record:    { chance: 0.25, valueMult: 4, color: "#A09070", label: "Tax record", glow: false },
+          decree:        { chance: 0.22, valueMult: 14, color: "#D4A843", label: "Decree", glow: false },
+          treaty:        { chance: 0.14, valueMult: 40, color: "#1E3A5F", label: "Treaty", glow: true },
+          assassination: { chance: 0.10, valueMult: 90, color: "#4A0020", label: "Plot letter", glow: true },
+          crown_seal:    { chance: 0.07, valueMult: 250, color: "#FFD700", label: "Crown seal", glow: true },
+        },
+        hardness: 9,
+        theme: { bg: "#1A1020", surface: "#302040", accent: "#6040A0", scratchFreq: 2800, particle: "#8060C0" },
+        hazard: { type: "gas_pocket", chance: 0.08 },
+        claimCost: 0,
+      },
+      spy_dispatches: {
+        name: "Spy dispatches", catalog: "classified", stratum: 3,
+        grid: { cols: 6, rows: 5 },
+        geology: {
+          burned:         { chance: 0.28, valueMult: 0, color: "#2D1810", label: "Burned edges", glow: false },
+          cipher:         { chance: 0.24, valueMult: 10, color: "#4A4A4A", label: "Cipher text", glow: false },
+          agent_report:   { chance: 0.20, valueMult: 35, color: "#1E3A5F", label: "Agent report", glow: true },
+          war_plans:      { chance: 0.14, valueMult: 80, color: "#8B2020", label: "War plans", glow: true },
+          double_agent:   { chance: 0.09, valueMult: 220, color: "#4A0020", label: "Double agent", glow: true },
+          rosetta:        { chance: 0.05, valueMult: 700, color: "#D4A843", label: "Rosetta key", glow: true },
+        },
+        hardness: 14,
+        theme: { bg: "#0E0A10", surface: "#201820", accent: "#4A0020", scratchFreq: 2400, particle: "#802040" },
+        hazard: { type: "lava_timer", seconds: 18 },
+        claimCost: 0,
+      },
+    },
+
+    upgrades: {
+      power:  { name: "Lever force", icon: "🗡", desc: "Pry strength", baseCost: 8, costScale: 1.65, maxLevel: 25, effect: l => 1 + l * 0.6, label: l => `${(1+l*0.6).toFixed(1)}×` },
+      radius: { name: "Heat radius", icon: "🕯", desc: "Adjacent wax softened", baseCost: 20, costScale: 2.0, maxLevel: 12, effect: l => l, label: l => `${l} adj` },
+      luck:   { name: "Intuition", icon: "🧠", desc: "Secret message boost", baseCost: 35, costScale: 2.2, maxLevel: 18, effect: l => 1 + l * 0.15, label: l => `+${(l*15).toFixed(0)}%` },
+      speed:  { name: "Keen reader", icon: "⚡", desc: "Auto-break speed", baseCost: 100, costScale: 2.5, maxLevel: 10, effect: l => l > 0 ? 400 - l * 30 : 0, label: l => l === 0 ? "Locked" : `${(1000/(400-l*30)).toFixed(1)}/s` },
+    },
+
+    prestige: {
+      minCurrency: 500,
+      calcPicks: total => Math.floor(Math.sqrt(total / 50)),
+      pickMultiplier: 0.1,
+      unlockSequence: ["royal_decrees", "spy_dispatches"],
+    },
+
+    tiers: ["Personal letters", "Royal decrees", "Spy dispatches", "Ancient scrolls"],
+    colors: ["#8B2020","#2D1810","#D4A843","#1E3A5F","#F5E6C8","#4A0020"],
+  },
+
+  hatchling: {
+    id: "hatchling",
+    name: "Eggbound",
+    sub: "Crack the shell — something strange is waking up",
+    icon: "🥚",
+
+    labels: {
+      currency: "Wonder", currencyIcon: "✨",
+      verb: "Crack", verbPast: "cracked",
+      surface: "Egg shell", workspace: "Nesting hollow",
+      collection: "Field sketches", display: "Specimen bell jars",
+      claimNoun: "Egg", claimVerb: "Hatch",
+      prestigeAction: "New clutch", prestigeUnit: "Imprint bonds", prestigeVerb: "Incubate",
+      hazardLabel: "Egg tooth",
+    },
+
+    theme: {
+      sidebarBg: "linear-gradient(180deg, #1C1A18 0%, #14120E 100%)",
+      borderAccent: "rgba(180,160,120,0.12)",
+      currencyColor: "#E0C070",
+      accentColor: "#A08858",
+      textPrimary: "#F4F0E4",
+      textMuted: "rgba(244,240,228,0.3)",
+      textFaint: "rgba(244,240,228,0.15)",
+      upgHoverBorder: "rgba(180,160,120,0.6)",
+      upgHoverBg: "rgba(180,160,120,0.12)",
+      prestigeBg: "linear-gradient(135deg, #3A2840, #1E1428)",
+      prestigeBorder: "#9060C0",
+      prestigeGlow: "rgba(144,96,192,0.18)",
+      scrollbarThumb: "rgba(180,160,120,0.2)",
+      cardBg: "rgba(28,26,24,0.6)",
+      cardBgLight: "rgba(28,26,24,0.4)",
+    },
+
+    audio: {
+      scratchFilter: "bandpass", scratchQ: 1.4,
+      revealWave: "triangle",
+      rareNotes: [380, 520, 700, 940],
+      rareWave: "triangle",
+    },
+
+    crackStyle: "eggshell",
+
+    claimTypes: {
+      songbird_egg: {
+        name: "Songbird egg", catalog: "common", stratum: 1,
+        grid: { cols: 5, rows: 4 },
+        geology: {
+          shell:        { chance: 0.22, valueMult: 0, color: "#E8E0D0", label: "Shell", glow: false },
+          down_tuft:    { chance: 0.25, valueMult: 2, color: "#D8C8A0", label: "Down tuft", glow: false },
+          tiny_claw:    { chance: 0.22, valueMult: 6, color: "#8B7355", label: "Tiny claw", glow: false },
+          bright_eye:   { chance: 0.15, valueMult: 18, color: "#E8A020", label: "Bright eye", glow: true },
+          wet_feather:  { chance: 0.10, valueMult: 45, color: "#3080B0", label: "Wet feather", glow: true },
+          egg_tooth:    { chance: 0.06, valueMult: 120, color: "#F0E8D0", label: "Egg tooth", glow: true },
+        },
+        hardness: 2,
+        theme: { bg: "#3A3428", surface: "#6B6050", accent: "#B4A078", scratchFreq: 4600, particle: "#D8C8A0" },
+        hazard: null, claimCost: 0,
+      },
+      leathery_egg: {
+        name: "Leathery egg", catalog: "reptilian", stratum: 2,
+        grid: { cols: 6, rows: 4 },
+        geology: {
+          membrane:      { chance: 0.22, valueMult: 0, color: "#A09878", label: "Membrane", glow: false },
+          scale_patch:   { chance: 0.24, valueMult: 4, color: "#607048", label: "Scale patch", glow: false },
+          forked_tongue: { chance: 0.20, valueMult: 14, color: "#C04060", label: "Forked tongue", glow: false },
+          slit_pupil:    { chance: 0.15, valueMult: 38, color: "#C8B020", label: "Slit pupil", glow: true },
+          barbed_tail:   { chance: 0.10, valueMult: 80, color: "#506030", label: "Barbed tail", glow: true },
+          membrane_wing: { chance: 0.06, valueMult: 200, color: "#804060", label: "Membrane wing", glow: true },
+          compound_eye:  { chance: 0.03, valueMult: 400, color: "#40C080", label: "Compound eye", glow: true },
+        },
+        hardness: 6,
+        theme: { bg: "#2A2818", surface: "#484028", accent: "#706830", scratchFreq: 3200, particle: "#908048" },
+        hazard: { type: "gas_pocket", chance: 0.07 },
+        claimCost: 0,
+      },
+      ancient_egg: {
+        name: "Ancient egg", catalog: "mythic", stratum: 3,
+        grid: { cols: 6, rows: 5 },
+        geology: {
+          calcified:       { chance: 0.25, valueMult: 0, color: "#B0A890", label: "Calcified", glow: false },
+          bone_plate:      { chance: 0.22, valueMult: 10, color: "#C8C0A8", label: "Bone plate", glow: false },
+          obsidian_claw:   { chance: 0.18, valueMult: 35, color: "#1A1A2E", label: "Obsidian claw", glow: true },
+          biolumi_eye:     { chance: 0.14, valueMult: 75, color: "#30E0B0", label: "Bio-eye", glow: true },
+          crystal_feather: { chance: 0.10, valueMult: 180, color: "#A080E0", label: "Crystal feather", glow: true },
+          prehensile:      { chance: 0.07, valueMult: 350, color: "#C04060", label: "Prehensile tongue", glow: true },
+          void_pupil:      { chance: 0.04, valueMult: 800, color: "#000000", label: "Void pupil", glow: true },
+        },
+        hardness: 12,
+        theme: { bg: "#1A1420", surface: "#2E2438", accent: "#6040A0", scratchFreq: 2000, particle: "#8060C0" },
+        hazard: { type: "lava_timer", seconds: 22 },
+        claimCost: 0,
+      },
+    },
+
+    upgrades: {
+      power:  { name: "Tap force", icon: "🦴", desc: "Crack strength", baseCost: 8, costScale: 1.65, maxLevel: 25, effect: l => 1 + l * 0.6, label: l => `${(1+l*0.6).toFixed(1)}×` },
+      radius: { name: "Stress lines", icon: "🕸", desc: "Adjacent cracks spread", baseCost: 20, costScale: 2.0, maxLevel: 12, effect: l => l, label: l => `${l} adj` },
+      luck:   { name: "Instinct", icon: "🧬", desc: "Rare part detection", baseCost: 35, costScale: 2.2, maxLevel: 18, effect: l => 1 + l * 0.15, label: l => `+${(l*15).toFixed(0)}%` },
+      speed:  { name: "Pecking", icon: "🐣", desc: "Auto-tap from inside", baseCost: 100, costScale: 2.5, maxLevel: 10, effect: l => l > 0 ? 400 - l * 30 : 0, label: l => l === 0 ? "Locked" : `${(1000/(400-l*30)).toFixed(1)}/s` },
+    },
+
+    prestige: {
+      minCurrency: 500,
+      calcPicks: total => Math.floor(Math.sqrt(total / 50)),
+      pickMultiplier: 0.1,
+      unlockSequence: ["leathery_egg", "ancient_egg"],
+    },
+
+    tiers: ["Songbird egg", "Leathery egg", "Ancient egg", "Primordial egg"],
+    colors: ["#E8E0D0","#A09878","#6040A0","#30E0B0","#C04060","#1A1A2E"],
+  },
+};
+
+/* ═══════════════════════════════════════════
+   ENGINE (mode-agnostic)
+═══════════════════════════════════════════ */
+const BASE_VAL = 5;
+const upgCost = (upg, lvl) => Math.floor(upg.baseCost * Math.pow(upg.costScale, lvl));
+
+function generateClaim(mode, typeKey, luckMult = 1) {
+  const type = mode.claimTypes[typeKey];
+  const { cols, rows } = type.grid;
+  const entries = Object.entries(type.geology);
+  const tiles = [];
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      let roll = Math.random(), mineral = entries[0], cum = 0;
+      for (const entry of entries) {
+        let ch = entry[1].chance;
+        if (entry[1].valueMult > 10) ch = Math.min(ch * luckMult, ch * 3);
+        cum += ch;
+        if (roll <= cum) { mineral = entry; break; }
+      }
+      const isHazard = type.hazard?.type === "gas_pocket" && Math.random() < (type.hazard.chance || 0) && mineral[1].valueMult === 0;
+      tiles.push({ id: `${r}-${c}`, row: r, col: c, mineralKey: mineral[0], mineral: mineral[1], damage: 0, revealed: false, justRevealed: false, revealTime: 0, isHazard });
+    }
+  }
+  return { typeKey, type, tiles, cols, rows, completed: false, startTime: Date.now() };
+}
+
+function makeInit(mode) {
+  const firstClaim = Object.keys(mode.claimTypes)[0];
+  return {
+    gold: 0, displayGold: 0, totalGold: 0,
+    upgrades: { power: 0, radius: 0, luck: 0, speed: 0 },
+    claim: null, claimTypeKey: firstClaim,
+    journal: {}, recentFinds: [], claimsCompleted: 0,
+    combo: 0, comboTimer: 0, maxCombo: 0,
+    prestigeCount: 0, prestigePicks: 0, permanentMult: 1,
+    unlockedClaims: [firstClaim],
+    particles: [], sparkles: [],
+    notification: null, shake: 0,
+    totalScratches: 0, sessionBest: 0,
+  };
+}
+
+function makeReducer(mode) {
+  return function reducer(state, action) {
+    switch (action.type) {
+      case "NEW_CLAIM": {
+        const lm = mode.upgrades.luck.effect(state.upgrades.luck);
+        return { ...state, claim: generateClaim(mode, action.claimType || state.claimTypeKey, lm), claimTypeKey: action.claimType || state.claimTypeKey, combo: 0 };
+      }
+      case "SCRATCH": {
+        if (!state.claim || state.claim.completed) return state;
+        const { tileId, power, sx, sy } = action;
+        let gold = state.gold, totalGold = state.totalGold, journal = { ...state.journal };
+        let recentFinds = [...state.recentFinds], particles = [...state.particles], sparkles = [...state.sparkles];
+        let notification = state.notification, shake = 0, combo = state.combo, maxCombo = state.maxCombo, sessionBest = state.sessionBest;
+
+        const tiles = state.claim.tiles.map(t => {
+          if (t.id !== tileId || t.revealed) return t;
+          const nd = t.damage + power;
+          if (nd >= state.claim.type.hardness) return { ...t, damage: state.claim.type.hardness, revealed: true, justRevealed: true, revealTime: Date.now() };
+          return { ...t, damage: nd };
+        });
+        const justR = tiles.find(t => t.id === tileId && t.justRevealed && !state.claim.tiles.find(o => o.id === tileId)?.revealed);
+        if (justR) {
+          let val = Math.floor(justR.mineral.valueMult * BASE_VAL * state.permanentMult);
+          if (justR.isHazard) val = Math.floor(val * 0.5);
+          if (val > 0) {
+            combo++;
+            const comboMult = 1 + Math.min(combo, 20) * 0.05;
+            val = Math.floor(val * comboMult);
+            if (combo > maxCombo) maxCombo = combo;
+            gold += val; totalGold += val;
+            if (val > sessionBest) sessionBest = val;
+            journal[justR.mineral.label] = (journal[justR.mineral.label] || 0) + 1;
+            particles.push({ id: Date.now() + Math.random(), x: sx, y: sy, text: `+${val}`, color: justR.mineral.color, big: val > 100, combo: combo > 3 ? combo : 0 });
+            if (justR.mineral.glow) {
+              for (let i = 0; i < (justR.mineral.valueMult >= 50 ? 8 : 4); i++) {
+                sparkles.push({ id: Date.now() + Math.random() + i, x: sx + (Math.random() - 0.5) * 80, y: sy + (Math.random() - 0.5) * 80, color: justR.mineral.color, size: 2 + Math.random() * 4 });
+              }
+            }
+            if (justR.mineral.valueMult >= 15) {
+              recentFinds = [{ label: justR.mineral.label, color: justR.mineral.color, value: val, time: Date.now() }, ...recentFinds].slice(0, 6);
+            }
+            if (justR.mineral.valueMult >= 50) {
+              notification = { text: `${justR.mineral.label}!`, sub: `+${val}${combo > 3 ? ` · ${combo}× combo` : ""}`, color: justR.mineral.color, id: Date.now() };
+              shake = justR.mineral.valueMult >= 200 ? 3 : 2;
+            }
+            if (justR.mineral.valueMult >= 200) {
+              for (let i = 0; i < 16; i++) {
+                sparkles.push({ id: Date.now() + Math.random() + i + 100, x: sx + (Math.random() - 0.5) * 160, y: sy + (Math.random() - 0.5) * 160, color: justR.mineral.color, size: 3 + Math.random() * 5 });
+              }
+            }
+          } else { combo = 0; }
+          if (justR.isHazard) {
+            notification = { text: "Hazard!", sub: "Values halved", color: "#6B7B8D", id: Date.now() }; shake = 1;
+          }
+        }
+        const completed = tiles.every(t => t.revealed);
+        let claimsCompleted = state.claimsCompleted;
+        if (completed && !state.claim.completed) {
+          claimsCompleted++;
+          const bonus = Math.floor(tiles.reduce((s, t) => s + t.mineral.valueMult, 0) * BASE_VAL * state.permanentMult * 0.2);
+          gold += bonus; totalGold += bonus;
+          particles.push({ id: Date.now() + 999, x: sx, y: sy - 30, text: `+${bonus} bonus`, color: mode.theme.currencyColor, big: true, combo: 0 });
+        }
+        return { ...state, gold, totalGold, journal, recentFinds, particles, sparkles, notification, shake, combo, maxCombo, claimsCompleted, sessionBest, totalScratches: state.totalScratches + 1, claim: { ...state.claim, tiles, completed } };
+      }
+      case "BUY_UPGRADE": {
+        const upg = mode.upgrades[action.key];
+        const lvl = state.upgrades[action.key];
+        const cost = upgCost(upg, lvl);
+        if (state.gold < cost || lvl >= upg.maxLevel) return state;
+        return { ...state, gold: state.gold - cost, upgrades: { ...state.upgrades, [action.key]: lvl + 1 } };
+      }
+      case "PRESTIGE": {
+        if (state.totalGold < mode.prestige.minCurrency) return state;
+        const picks = mode.prestige.calcPicks(state.totalGold);
+        const ul = [...state.unlockedClaims];
+        mode.prestige.unlockSequence.forEach((key, i) => {
+          if (state.prestigeCount >= i && !ul.includes(key)) ul.push(key);
+        });
+        return {
+          ...makeInit(mode), journal: state.journal, recentFinds: [],
+          prestigeCount: state.prestigeCount + 1,
+          prestigePicks: state.prestigePicks + picks,
+          permanentMult: state.permanentMult + picks * mode.prestige.pickMultiplier,
+          unlockedClaims: ul, maxCombo: state.maxCombo, claimsCompleted: state.claimsCompleted,
+        };
+      }
+      case "TICK_GOLD": return { ...state, displayGold: state.displayGold + Math.ceil((state.gold - state.displayGold) * 0.2) };
+      case "CLEAR_P": return { ...state, particles: state.particles.filter(p => p.id !== action.id) };
+      case "CLEAR_S": return { ...state, sparkles: state.sparkles.filter(s => s.id !== action.id) };
+      case "CLEAR_N": return { ...state, notification: null };
+      case "SELECT_CLAIM": return { ...state, claimTypeKey: action.key };
+      case "DECAY_COMBO": return { ...state, combo: Math.max(0, state.combo - 1) };
+      case "ADD_IDLE": return { ...state, gold: state.gold + (action.gold || 0), totalGold: state.totalGold + (action.gold || 0) };
+      default: return state;
+    }
+  };
+}
+
+/* ═══════════════════════════════════════════
+   CRACK PATTERNS (per mode)
+═══════════════════════════════════════════ */
+function CrackPattern({ style, pct }) {
+  if (style === "fracture") {
+    // Clean sharp breaks for caramel/brulee
+    return (
+      <svg style={{ position: "absolute", inset: 0, pointerEvents: "none", opacity: Math.min(pct * 1.2, 0.8) }} viewBox="0 0 40 40">
+        <path d={`M${20} ${2}L${18+Math.random()*4} ${14+Math.random()*3}L${22+Math.random()*3} ${26}L${19} ${38}`} stroke="rgba(255,240,200,0.4)" strokeWidth="0.8" fill="none" strokeLinecap="round"/>
+        {pct > 0.4 && <path d={`M${6} ${18+Math.random()*4}L${20} ${20}L${34} ${17+Math.random()*4}`} stroke="rgba(255,240,200,0.3)" strokeWidth="0.6" fill="none"/>}
+        {pct > 0.6 && <>
+          <path d={`M${12} ${8}L${18} ${14}`} stroke="rgba(255,240,200,0.25)" strokeWidth="0.5" fill="none"/>
+          <path d={`M${28} ${10}L${22} ${18}`} stroke="rgba(255,240,200,0.25)" strokeWidth="0.5" fill="none"/>
+        </>}
+      </svg>
+    );
+  }
+  if (style === "dust") {
+    // Soft plaster flaking for archaeology — scattered dots and soft edges
+    const dots = Math.floor(pct * 12);
+    return (
+      <svg style={{ position: "absolute", inset: 0, pointerEvents: "none", opacity: Math.min(pct * 1.0, 0.7) }} viewBox="0 0 40 40">
+        {Array.from({ length: dots }, (_, i) => (
+          <circle key={i} cx={5 + Math.random() * 30} cy={5 + Math.random() * 30} r={0.5 + Math.random() * 1.2} fill="rgba(196,168,130,0.35)"/>
+        ))}
+        {pct > 0.3 && <path d={`M${6} ${20+Math.random()*6}Q${20} ${16+Math.random()*8} ${34} ${22+Math.random()*6}`} stroke="rgba(196,168,130,0.2)" strokeWidth="0.6" fill="none" strokeDasharray="2 2"/>}
+        {pct > 0.6 && <path d={`M${10} ${10+Math.random()*4}Q${20} ${20} ${30} ${12+Math.random()*4}`} stroke="rgba(196,168,130,0.15)" strokeWidth="0.4" fill="none" strokeDasharray="1.5 2.5"/>}
+      </svg>
+    );
+  }
+  if (style === "crystal") {
+    // Ice crystal dendrites for frost — branching angular patterns
+    return (
+      <svg style={{ position: "absolute", inset: 0, pointerEvents: "none", opacity: Math.min(pct * 1.3, 0.85) }} viewBox="0 0 40 40">
+        <path d={`M20 ${2}L20 ${38}`} stroke="rgba(160,208,232,0.3)" strokeWidth="0.4" fill="none"/>
+        <path d={`M${2} 20L${38} 20`} stroke="rgba(160,208,232,0.3)" strokeWidth="0.4" fill="none"/>
+        {pct > 0.3 && <>
+          <path d={`M20 10L${14} ${6}`} stroke="rgba(160,208,232,0.25)" strokeWidth="0.3" fill="none"/>
+          <path d={`M20 10L${26} ${6}`} stroke="rgba(160,208,232,0.25)" strokeWidth="0.3" fill="none"/>
+          <path d={`M20 30L${14} ${34}`} stroke="rgba(160,208,232,0.25)" strokeWidth="0.3" fill="none"/>
+          <path d={`M20 30L${26} ${34}`} stroke="rgba(160,208,232,0.25)" strokeWidth="0.3" fill="none"/>
+        </>}
+        {pct > 0.5 && <>
+          <path d={`M10 20L${6} ${14}`} stroke="rgba(160,208,232,0.2)" strokeWidth="0.3" fill="none"/>
+          <path d={`M10 20L${6} ${26}`} stroke="rgba(160,208,232,0.2)" strokeWidth="0.3" fill="none"/>
+          <path d={`M30 20L${34} ${14}`} stroke="rgba(160,208,232,0.2)" strokeWidth="0.3" fill="none"/>
+          <path d={`M30 20L${34} ${26}`} stroke="rgba(160,208,232,0.2)" strokeWidth="0.3" fill="none"/>
+        </>}
+        {pct > 0.7 && <>
+          <path d={`M${6} ${6}L${34} ${34}`} stroke="rgba(160,208,232,0.15)" strokeWidth="0.3" fill="none"/>
+          <path d={`M${34} ${6}L${6} ${34}`} stroke="rgba(160,208,232,0.15)" strokeWidth="0.3" fill="none"/>
+        </>}
+      </svg>
+    );
+  }
+  if (style === "hex") {
+    // Hexagonal cell edges for beekeeper — waxy honeycomb lines
+    return (
+      <svg style={{ position: "absolute", inset: 0, pointerEvents: "none", opacity: Math.min(pct * 1.1, 0.75) }} viewBox="0 0 40 40">
+        <path d={`M13 ${4}L${27} ${4}L${36} ${20}L${27} ${36}L${13} ${36}L${4} ${20}Z`} stroke="rgba(240,200,96,0.3)" strokeWidth="0.6" fill="none"/>
+        {pct > 0.4 && <>
+          <path d={`M20 ${4}L20 ${36}`} stroke="rgba(240,200,96,0.2)" strokeWidth="0.4" fill="none"/>
+          <path d={`M${4} 20L${36} 20`} stroke="rgba(240,200,96,0.15)" strokeWidth="0.3" fill="none"/>
+        </>}
+        {pct > 0.6 && <>
+          <path d={`M${9} ${12}L${31} ${28}`} stroke="rgba(240,200,96,0.15)" strokeWidth="0.3" fill="none"/>
+          <path d={`M${31} ${12}L${9} ${28}`} stroke="rgba(240,200,96,0.15)" strokeWidth="0.3" fill="none"/>
+        </>}
+      </svg>
+    );
+  }
+  if (style === "wax") {
+    // Wax seal crumble — radial fractures from center
+    return (
+      <svg style={{ position: "absolute", inset: 0, pointerEvents: "none", opacity: Math.min(pct * 1.2, 0.8) }} viewBox="0 0 40 40">
+        <circle cx="20" cy="20" r={8 + pct * 8} stroke="rgba(139,32,32,0.3)" strokeWidth="0.5" fill="none"/>
+        <path d={`M20 20L${8+Math.random()*4} ${6+Math.random()*4}`} stroke="rgba(139,32,32,0.35)" strokeWidth="0.6" fill="none"/>
+        <path d={`M20 20L${30+Math.random()*4} ${8+Math.random()*4}`} stroke="rgba(139,32,32,0.3)" strokeWidth="0.5" fill="none"/>
+        <path d={`M20 20L${32+Math.random()*4} ${30+Math.random()*4}`} stroke="rgba(139,32,32,0.3)" strokeWidth="0.5" fill="none"/>
+        {pct > 0.4 && <>
+          <path d={`M20 20L${6+Math.random()*4} ${30+Math.random()*4}`} stroke="rgba(139,32,32,0.25)" strokeWidth="0.4" fill="none"/>
+          <path d={`M20 20L${20+Math.random()*4} ${2+Math.random()*3}`} stroke="rgba(139,32,32,0.2)" strokeWidth="0.4" fill="none"/>
+        </>}
+        {pct > 0.6 && <circle cx="20" cy="20" r={4 + pct * 3} stroke="rgba(139,32,32,0.15)" strokeWidth="0.4" fill="none" strokeDasharray="1.5 2"/>}
+      </svg>
+    );
+  }
+  if (style === "eggshell") {
+    // Egg — impact point with radiating stress fractures and concentric pressure rings
+    return (
+      <svg style={{ position: "absolute", inset: 0, pointerEvents: "none", opacity: Math.min(pct * 1.3, 0.85) }} viewBox="0 0 40 40">
+        {/* Impact crater */}
+        <circle cx="20" cy="18" r={2 + pct * 2} fill="rgba(0,0,0,0.15)"/>
+        {/* Primary radiating fractures */}
+        <path d={`M20 18L${7+Math.random()*3} ${4+Math.random()*3}`} stroke="rgba(80,60,30,0.4)" strokeWidth="0.7" fill="none" strokeLinecap="round"/>
+        <path d={`M20 18L${33+Math.random()*3} ${10+Math.random()*3}`} stroke="rgba(80,60,30,0.35)" strokeWidth="0.6" fill="none" strokeLinecap="round"/>
+        <path d={`M20 18L${12+Math.random()*3} ${34+Math.random()*3}`} stroke="rgba(80,60,30,0.35)" strokeWidth="0.6" fill="none" strokeLinecap="round"/>
+        {pct > 0.3 && <>
+          <path d={`M20 18L${30+Math.random()*4} ${32+Math.random()*3}`} stroke="rgba(80,60,30,0.3)" strokeWidth="0.5" fill="none"/>
+          <path d={`M20 18L${4+Math.random()*3} ${20+Math.random()*4}`} stroke="rgba(80,60,30,0.25)" strokeWidth="0.5" fill="none"/>
+          {/* Concentric stress ring */}
+          <ellipse cx="20" cy="18" rx={6+pct*4} ry={5+pct*3} stroke="rgba(80,60,30,0.15)" strokeWidth="0.4" fill="none" strokeDasharray="1.5 2.5"/>
+        </>}
+        {pct > 0.5 && <>
+          {/* Secondary branches off main fractures */}
+          <path d={`M14 12L${8+Math.random()*3} ${14+Math.random()*3}`} stroke="rgba(80,60,30,0.2)" strokeWidth="0.4" fill="none"/>
+          <path d={`M26 14L${32+Math.random()*3} ${20+Math.random()*3}`} stroke="rgba(80,60,30,0.2)" strokeWidth="0.4" fill="none"/>
+          <path d={`M16 26L${8+Math.random()*3} ${28+Math.random()*3}`} stroke="rgba(80,60,30,0.2)" strokeWidth="0.4" fill="none"/>
+          {/* Outer stress ring */}
+          <ellipse cx="20" cy="18" rx={10+pct*4} ry={9+pct*3} stroke="rgba(80,60,30,0.1)" strokeWidth="0.3" fill="none" strokeDasharray="1 3"/>
+        </>}
+        {pct > 0.7 && <>
+          {/* Shell fragments separating — small triangular gaps */}
+          <path d={`M18 8L20 10L22 7`} stroke="rgba(80,60,30,0.25)" strokeWidth="0.3" fill="rgba(0,0,0,0.06)"/>
+          <path d={`M28 22L30 24L27 26`} stroke="rgba(80,60,30,0.25)" strokeWidth="0.3" fill="rgba(0,0,0,0.06)"/>
+          <path d={`M10 20L12 23L8 22`} stroke="rgba(80,60,30,0.25)" strokeWidth="0.3" fill="rgba(0,0,0,0.06)"/>
+        </>}
+      </svg>
+    );
+  }
+  // Default: stone cracks
+  return (
+    <svg style={{ position: "absolute", inset: 0, pointerEvents: "none", opacity: Math.min(pct * 1.2, 0.8) }} viewBox="0 0 40 40">
+      <path d={`M${8+Math.random()*4} ${4+Math.random()*3}L${18+Math.random()*4} ${18+Math.random()*4}L${10+Math.random()*4} ${34+Math.random()*3}`} stroke="rgba(0,0,0,0.35)" strokeWidth="0.7" fill="none" strokeLinecap="round"/>
+      <path d={`M${28+Math.random()*4} ${6+Math.random()*3}L${20+Math.random()*4} ${20+Math.random()*4}L${30+Math.random()*4} ${32+Math.random()*3}`} stroke="rgba(0,0,0,0.25)" strokeWidth="0.5" fill="none" strokeLinecap="round"/>
+      {pct > 0.5 && <path d={`M${4+Math.random()*4} ${20+Math.random()*4}L${36+Math.random()*4} ${18+Math.random()*4}`} stroke="rgba(0,0,0,0.2)" strokeWidth="0.4" fill="none"/>}
+    </svg>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   PARTICLE COMPONENTS
+═══════════════════════════════════════════ */
+function GoldPop({ p, onDone }) {
+  useEffect(() => { const t = setTimeout(() => onDone(p.id), 1000); return () => clearTimeout(t); }, [p.id]);
+  const dx = (Math.random() - 0.5) * 30;
+  return (
+    <div style={{
+      position: "absolute", left: p.x - 20, top: p.y - 10, pointerEvents: "none", zIndex: 100,
+      color: p.color || "#D4A843", fontSize: p.big ? 20 : 14, fontWeight: 800, fontFamily: "'Anybody', sans-serif",
+      textShadow: `0 0 8px ${p.color}80, 0 2px 4px rgba(0,0,0,0.6)`,
+      animation: "goldPop 1s ease-out forwards", "--dx": `${dx}px`,
+    }}>
+      {p.text}{p.combo > 0 && <span style={{ fontSize: 10, opacity: 0.7 }}> ×{p.combo}</span>}
+    </div>
+  );
+}
+
+function Sparkle({ s, onDone }) {
+  useEffect(() => { const t = setTimeout(() => onDone(s.id), 800); return () => clearTimeout(t); }, [s.id]);
+  return (
+    <div style={{
+      position: "absolute", left: s.x, top: s.y, width: s.size, height: s.size, pointerEvents: "none", zIndex: 90,
+      background: s.color, borderRadius: "50%", boxShadow: `0 0 ${s.size * 3}px ${s.color}`,
+      animation: "sparkleFade 0.8s ease-out forwards",
+      "--sx": `${(Math.random() - 0.5) * 60}px`, "--sy": `${-20 - Math.random() * 40}px`,
+    }} />
+  );
+}
+
+/* ═══════════════════════════════════════════
+   TILE COMPONENT
+═══════════════════════════════════════════ */
+function Tile({ tile, theme, hardness, crackStyle, onScratch }) {
+  const pct = Math.min(tile.damage / hardness, 1);
+  const isGlow = tile.revealed && tile.mineral.glow;
+  const worth = tile.mineral.valueMult;
+  return (
+    <div
+      onMouseDown={e => { e.preventDefault(); onScratch(tile.id, e); }}
+      onMouseEnter={e => { if (e.buttons === 1) onScratch(tile.id, e); }}
+      onTouchStart={e => { e.preventDefault(); const t = e.touches[0]; onScratch(tile.id, t); }}
+      onTouchMove={e => { const t = e.touches[0]; const el = document.elementFromPoint(t.clientX, t.clientY); if (el) { const tid = el.getAttribute("data-tid"); if (tid) onScratch(tid, t); }}}
+      data-tid={tile.id}
+      style={{
+        width: "100%", aspectRatio: "1", borderRadius: 5, position: "relative", overflow: "hidden",
+        cursor: tile.revealed ? "default" : "crosshair",
+        transform: tile.revealed ? "scale(0.94)" : pct > 0 ? `scale(${1 - pct * 0.02})` : "scale(1)",
+        transition: tile.revealed ? "transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)" : "transform 0.05s",
+        userSelect: "none", WebkitUserSelect: "none",
+      }}
+    >
+      {/* Mineral layer */}
+      <div style={{
+        position: "absolute", inset: 0, borderRadius: 5, background: tile.mineral.color,
+        opacity: tile.revealed ? 1 : Math.pow(pct, 0.6) * 0.9,
+        transition: tile.revealed ? "opacity 0.3s, box-shadow 0.5s" : "opacity 0.05s",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        boxShadow: isGlow ? `inset 0 0 12px ${tile.mineral.color}80, 0 0 16px ${tile.mineral.color}60` : "none",
+      }}>
+        {tile.revealed && worth > 0 && (
+          <span style={{ fontSize: worth >= 50 ? 11 : 9, fontWeight: 700, color: "#fff", textShadow: "0 1px 3px rgba(0,0,0,0.7)", animation: tile.justRevealed ? "revealPop 0.3s ease-out" : "none", letterSpacing: 0.3 }}>{tile.mineral.label}</span>
+        )}
+        {tile.revealed && worth === 0 && !tile.isHazard && (
+          <span style={{ fontSize: 8, color: "rgba(255,255,255,0.3)" }}>{tile.mineral.label}</span>
+        )}
+        {tile.isHazard && tile.revealed && (
+          <span style={{ fontSize: 14, filter: "drop-shadow(0 0 4px rgba(107,123,141,0.6))" }}>💨</span>
+        )}
+      </div>
+      {/* Surface */}
+      <div style={{
+        position: "absolute", inset: 0, borderRadius: 5, pointerEvents: "none",
+        background: `linear-gradient(145deg, ${theme.surface}F0 0%, ${theme.bg}E8 60%, ${theme.surface}D0 100%)`,
+        opacity: 1 - pct, transition: tile.revealed ? "opacity 0.25s ease-in" : "opacity 0.03s",
+      }} />
+      {/* Groove */}
+      {pct > 0 && !tile.revealed && (
+        <div style={{ position: "absolute", inset: "15%", borderRadius: 3, pointerEvents: "none", background: "rgba(0,0,0,0.25)", opacity: pct * 0.7, filter: `blur(${2 - pct}px)` }} />
+      )}
+      {/* Cracks */}
+      {pct > 0.2 && !tile.revealed && <CrackPattern style={crackStyle} pct={pct} />}
+      {/* Shimmer */}
+      {pct > 0.7 && !tile.revealed && (
+        <div style={{ position: "absolute", inset: 0, borderRadius: 5, pointerEvents: "none", border: `1px solid ${tile.mineral.color}40`, animation: "shimmer 1.5s ease-in-out infinite" }} />
+      )}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   MODE SELECT SCREEN
+═══════════════════════════════════════════ */
+/* ═══════════════════════════════════════════
+   SAVE / LOAD
+═══════════════════════════════════════════ */
+const SAVE_PREFIX = "pp_";
+function saveMode(modeId, state) {
+  try {
+    const s = { ...state, particles: [], sparkles: [], notification: null, shake: 0, claim: null };
+    localStorage.setItem(SAVE_PREFIX + "mode_" + modeId, JSON.stringify(s));
+  } catch(e) {}
+}
+function loadMode(modeId, mode) {
+  try {
+    const raw = localStorage.getItem(SAVE_PREFIX + "mode_" + modeId);
+    if (!raw) return null;
+    const s = JSON.parse(raw);
+    s.particles = []; s.sparkles = []; s.notification = null; s.shake = 0; s.displayGold = s.gold;
+    return s;
+  } catch(e) { return null; }
+}
+function saveWorkshop(ws) {
+  try { localStorage.setItem(SAVE_PREFIX + "workshop", JSON.stringify(ws)); } catch(e) {}
+}
+function loadWorkshop() {
+  try {
+    const raw = localStorage.getItem(SAVE_PREFIX + "workshop");
+    return raw ? JSON.parse(raw) : null;
+  } catch(e) { return null; }
+}
+
+const IDLE_RATE = 0.15;
+const IDLE_CAP = 4 * 3600; // 4 hours in seconds
+const ESSENCE_DEFS = {
+  prospector:    { name: "Mineral Dust",       icon: "💎", desc: "+% base currency" },
+  patissier:     { name: "Sugar Glaze",        icon: "🍬", desc: "+% combo duration" },
+  archaeologist: { name: "Ancient Knowledge",  icon: "📜", desc: "+% prestige yield" },
+  frost:         { name: "Chill Factor",       icon: "🧊", desc: "-% hazard frequency" },
+  beekeeper:     { name: "Wax Coating",        icon: "🕯", desc: "+% idle rate" },
+  letterbreaker: { name: "Cipher Fragments",   icon: "🔑", desc: "-% upgrade costs" },
+  hatchling:     { name: "Strange Vitality",   icon: "🧬", desc: "+% rare chance" },
+};
+
+function makeDefaultWorkshop() {
+  const essences = {};
+  Object.keys(ESSENCE_DEFS).forEach(k => essences[k] = 0);
+  return {
+    tier: 1, renovationCount: 0, renovationMult: 1.0,
+    drawerTimestamps: {}, // modeId -> last active timestamp
+    essences,
+    specimenWall: [], // { label, color, mode, modeIcon, foundAt }
+    revelationsFound: [],
+  };
+}
+
+/* ═══════════════════════════════════════════
+   REVELATIONS DATA
+═══════════════════════════════════════════ */
+const REVELATIONS = [
+  { id:"what_stares_back", name:"What Stares Back", req:[["prospector","Void gem"],["hatchling","Void pupil"]], bonus:"+10% rare chance", flavor:"You looked into the void. Something looked back.", tier:"pair" },
+  { id:"midas_touch", name:"Midas Touch", req:[["archaeologist","Gold leaf"],["patissier","Edible gold"]], bonus:"+12% currency gain", flavor:"Everything you touch turns to gold — even dessert.", tier:"pair" },
+  { id:"prismatic", name:"Prismatic", req:[["frost","Aurora"],["hatchling","Crystal feather"]], bonus:"Rainbow particle hue", flavor:"Light bends differently near the creature.", tier:"pair" },
+  { id:"acquired_taste", name:"Acquired Taste", req:[["beekeeper","Royal jelly"],["patissier","Truffle"]], bonus:"Hazard damage -40%", flavor:"Refined palates know what to avoid.", tier:"pair" },
+  { id:"crystalline_palace", name:"Crystalline Palace", req:[["prospector","Diamond"],["frost","Ice palace"]], bonus:"+15% glow-tier value", flavor:"A palace built of everything that sparkles.", tier:"pair" },
+  { id:"volcanic_heritage", name:"Volcanic Heritage", req:[["prospector","Obsidian"],["hatchling","Obsidian claw"]], bonus:"+8% power all modes", flavor:"Forged in the same fire.", tier:"pair" },
+  { id:"the_cartographer", name:"The Cartographer", req:[["letterbreaker","Secret map"],["archaeologist","Star pattern"]], bonus:"Idle luck +25%", flavor:"X marks every spot.", tier:"pair" },
+  { id:"first_light", name:"First Light", req:[["prospector","Fire opal"],["frost","Sunrise"]], bonus:"Combo decay +1s", flavor:"The world holds its breath at dawn.", tier:"pair" },
+  { id:"patina", name:"Patina", req:[["prospector","Emerald"],["archaeologist","Verdigris"]], bonus:"+10% junk tile value", flavor:"Even decay has beauty — and value.", tier:"pair" },
+  { id:"essence_garden", name:"Essence Garden", req:[["patissier","Saffron"],["beekeeper","Lavender"]], bonus:"Essence rate +20%", flavor:"A garden that feeds every sense.", tier:"pair" },
+  { id:"polyglot", name:"Polyglot", req:[["letterbreaker","Rosetta key"],["archaeologist","Calligraphy"]], bonus:"Upgrade costs -8%", flavor:"Understanding is the ultimate currency.", tier:"pair" },
+  { id:"sealed_with_honey", name:"Sealed with Honey", req:[["beekeeper","Propolis"],["letterbreaker","Crown seal"]], bonus:"Prestige picks +15%", flavor:"The sweetest secrets are the best kept.", tier:"pair" },
+  { id:"frozen_feast", name:"Frozen Feast", req:[["patissier","Passion fruit"],["frost","Frozen lake"]], bonus:"Completion bonus +10%", flavor:"Some things are better cold.", tier:"pair" },
+  { id:"living_mosaic", name:"Living Mosaic", req:[["archaeologist","Intact mosaic"],["hatchling","Membrane wing"]], bonus:"Idle rate 15% → 18%", flavor:"Ancient patterns in living flesh.", tier:"pair" },
+  { id:"crystal_triad", name:"Crystal Triad", req:[["prospector","Diamond"],["frost","Ice crystal"],["hatchling","Crystal feather"]], bonus:"Ultra-rares +25%", flavor:"Three facets of the same impossible geometry.", tier:"triad" },
+  { id:"the_naturalist", name:"The Naturalist", req:[["beekeeper","Royal jelly"],["frost","Aurora"],["hatchling","Wet feather"]], bonus:"Luck upgrades -15% cost", flavor:"Patient observation reveals nature's rarest gifts.", tier:"triad" },
+  { id:"alchemists_table", name:"Alchemist's Table", req:[["prospector","Fire opal"],["patissier","Saffron"],["beekeeper","Pure manuka"]], bonus:"Combo cap → 25", flavor:"Gold from lead, honey from fire, flavor from stone.", tier:"triad" },
+  { id:"deep_time", name:"Deep Time", req:[["prospector","Void gem"],["archaeologist","Muqarnas"],["hatchling","Prehensile tongue"]], bonus:"Prestige mult ×0.12", flavor:"Geology, history, and biology share the same clock.", tier:"triad" },
+  { id:"renaissance_soul", name:"Renaissance Soul", req:[["archaeologist","Gold leaf"],["patissier","Edible gold"],["beekeeper","Comb gold"],["letterbreaker","Crown seal"]], bonus:"+20% all currency", flavor:"A mind that sees gold in everything finds it everywhere.", tier:"tetrad" },
+  { id:"the_expedition", name:"The Expedition", req:[["prospector","Void gem"],["frost","Aurora city"],["letterbreaker","Rosetta key"],["hatchling","Bio-eye"]], bonus:"Renovation picks ×2", flavor:"You've been everywhere. Now go deeper.", tier:"tetrad" },
+];
+
+function checkRevelations(wall, found) {
+  const newRevs = [];
+  const wallLabels = {};
+  wall.forEach(s => { if (!wallLabels[s.mode]) wallLabels[s.mode] = new Set(); wallLabels[s.mode].add(s.label); });
+  REVELATIONS.forEach(r => {
+    if (found.includes(r.id)) return;
+    const met = r.req.every(([mode, label]) => wallLabels[mode]?.has(label));
+    if (met) newRevs.push(r);
+  });
+  return newRevs;
+}
+
+/* ═══════════════════════════════════════════
+   IDLE REPORT
+═══════════════════════════════════════════ */
+const IDLE_FLAVOR = {
+  prospector: "Your drones chipped away at the rock face...",
+  patissier: "The oven kept the kitchen warm while you were away...",
+  archaeologist: "Interns carefully dusted the excavation site...",
+  frost: "The frost crept back across the glass...",
+  beekeeper: "The bees kept busy in the hive...",
+  letterbreaker: "Candles flickered over unopened correspondence...",
+  hatchling: "The egg rocked gently in its nest...",
+};
+
+function calcIdleEarnings(modeId, modeState, elapsedSec) {
+  if (!modeState || elapsedSec < 60) return null; // minimum 1 minute
+  const capped = Math.min(elapsedSec, IDLE_CAP);
+  const mode = MODE_DEFINITIONS[modeId];
+  const basePer = (modeState.totalGold || 0) / Math.max(modeState.totalScratches || 1, 1);
+  const rate = basePer * IDLE_RATE;
+  const earned = Math.floor(rate * capped);
+  const essence = Math.floor(capped / 60); // 1 essence per minute
+  if (earned < 1 && essence < 1) return null;
+  return { earned, essence, seconds: capped, flavor: IDLE_FLAVOR[modeId] || "Time passed..." };
+}
+
+/* ═══════════════════════════════════════════
+   SPECIMEN WALL COMPONENT
+═══════════════════════════════════════════ */
+function SpecimenWall({ specimens, revelations }) {
+  if (specimens.length === 0 && revelations.length === 0) {
+    return (
+      <div style={{ padding: "12px 20px", textAlign: "center" }}>
+        <div style={{ fontSize: 9, color: "rgba(245,240,232,0.15)", fontFamily: "'JetBrains Mono', monospace", letterSpacing: 2 }}>
+          SPECIMEN WALL — Find rare items to mount here
+        </div>
+      </div>
+    );
+  }
+  return (
+    <div style={{ padding: "10px 20px 6px" }}>
+      <div style={{ fontSize: 9, color: "rgba(245,240,232,0.2)", fontFamily: "'JetBrains Mono', monospace", letterSpacing: 2, marginBottom: 8 }}>
+        SPECIMEN WALL · {specimens.length} mounted{revelations.length > 0 ? ` · ${revelations.length} revelation${revelations.length > 1 ? 's' : ''}` : ''}
+      </div>
+      {/* Specimens */}
+      <div style={{ display: "flex", gap: 4, flexWrap: "wrap", marginBottom: revelations.length > 0 ? 8 : 0 }}>
+        {specimens.map((s, i) => (
+          <div key={i} title={`${s.label} (${MODE_DEFINITIONS[s.mode]?.name || s.mode})`}
+            style={{
+              width: 28, height: 28, borderRadius: 4, background: s.color,
+              boxShadow: `0 0 8px ${s.color}50, inset 0 0 6px rgba(255,255,255,0.15)`,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: 10, cursor: "default",
+              border: "1px solid rgba(255,255,255,0.08)",
+              animation: `modeCardIn 0.3s ease-out ${i * 0.03}s both`,
+            }}>
+            <span style={{ filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.5))", fontSize: 11 }}>{s.modeIcon}</span>
+          </div>
+        ))}
+      </div>
+      {/* Revelations */}
+      {revelations.length > 0 && (
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+          {revelations.map(r => {
+            const rev = REVELATIONS.find(x => x.id === r);
+            if (!rev) return null;
+            const tierColor = rev.tier === "tetrad" ? "#E0C060" : rev.tier === "triad" ? "#A080E0" : "#80B0A0";
+            return (
+              <div key={r} title={`${rev.name}: ${rev.bonus}\n${rev.flavor}`}
+                style={{
+                  padding: "3px 10px", borderRadius: 12, fontSize: 10, fontWeight: 600,
+                  background: `${tierColor}15`, border: `1px solid ${tierColor}30`, color: tierColor,
+                  fontFamily: "'Anybody', sans-serif", cursor: "default",
+                }}>
+                {rev.name}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   IDLE REPORT MODAL
+═══════════════════════════════════════════ */
+function IdleReport({ report, mode, onDismiss }) {
+  const M = MODE_DEFINITIONS[mode];
+  const T = M.theme;
+  const fmt = g => { if (g >= 1e6) return `${(g/1e6).toFixed(1)}M`; if (g >= 1e3) return `${(g/1e3).toFixed(1)}K`; return `${g}`; };
+  const mins = Math.floor(report.seconds / 60);
+  const hrs = Math.floor(mins / 60);
+  const timeStr = hrs > 0 ? `${hrs}h ${mins % 60}m` : `${mins}m`;
+  return (
+    <div style={{
+      position: "absolute", inset: 0, background: "rgba(8,6,4,0.92)", backdropFilter: "blur(12px)",
+      display: "flex", alignItems: "center", justifyContent: "center", zIndex: 300,
+      animation: "modeFadeIn 0.3s ease-out",
+    }}>
+      <div style={{
+        background: "linear-gradient(150deg, #2A2015, #1A150D)", border: `1px solid ${T.borderAccent}`,
+        borderRadius: 14, padding: "28px 36px", maxWidth: 320, textAlign: "center",
+        animation: "slideUp 0.3s ease-out",
+      }}>
+        <div style={{ fontSize: 28, marginBottom: 8 }}>{M.icon}</div>
+        <div style={{ fontSize: 9, letterSpacing: 3, textTransform: "uppercase", color: T.textMuted, fontFamily: "'JetBrains Mono', monospace", marginBottom: 6 }}>While you were away · {timeStr}</div>
+        <div style={{ fontSize: 12, color: T.textMuted, fontStyle: "italic", marginBottom: 16, lineHeight: 1.4 }}>{report.flavor}</div>
+        <div style={{ display: "flex", gap: 10, justifyContent: "center", marginBottom: 18 }}>
+          <div style={{ background: "rgba(40,32,22,0.6)", borderRadius: 7, padding: "7px 14px" }}>
+            <div style={{ fontSize: 8, color: T.textFaint, fontFamily: "'JetBrains Mono', monospace" }}>{M.labels.currency}</div>
+            <div style={{ fontSize: 22, fontWeight: 800, color: T.currencyColor }}>+{fmt(report.earned)}</div>
+          </div>
+          {report.essence > 0 && (
+            <div style={{ background: "rgba(40,32,22,0.6)", borderRadius: 7, padding: "7px 14px" }}>
+              <div style={{ fontSize: 8, color: T.textFaint, fontFamily: "'JetBrains Mono', monospace" }}>Essence</div>
+              <div style={{ fontSize: 22, fontWeight: 800, color: "#A0D0A0" }}>+{report.essence}</div>
+            </div>
+          )}
+        </div>
+        <button onClick={onDismiss} style={{
+          padding: "9px 28px", borderRadius: 7, border: "none", cursor: "pointer",
+          background: `linear-gradient(135deg, ${T.accentColor}, ${T.accentColor}80)`,
+          color: T.textPrimary, fontSize: 12, fontWeight: 700, fontFamily: "'Anybody', sans-serif",
+        }}>Continue →</button>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   WORKSHOP CABINET
+═══════════════════════════════════════════ */
+function WorkshopCabinet({ workshop, onOpenDrawer, onWorkshopUpdate }) {
+  const modes = Object.values(MODE_DEFINITIONS);
+  const [hoveredRev, setHoveredRev] = useState(null);
+
+  // Essence display
+  const essenceEntries = Object.entries(workshop.essences).filter(([k,v]) => v > 0);
+
+  return (
+    <div style={{
+      width: "100%", height: "100vh", background: "#0E0C0A",
+      display: "flex", flexDirection: "column", fontFamily: "'Anybody', sans-serif", color: "#F5F0E8",
+      animation: "modeFadeIn 0.4s ease-out", overflow: "auto",
+    }}>
+      {/* Header */}
+      <div style={{ padding: "24px 32px 0", textAlign: "center", flexShrink: 0 }}>
+        <div style={{ fontSize: 10, letterSpacing: 5, textTransform: "uppercase", color: "rgba(245,240,232,0.2)", fontFamily: "'JetBrains Mono', monospace", marginBottom: 4 }}>
+          Workshop{workshop.tier > 1 ? ` · Tier ${workshop.tier}` : ''}{workshop.renovationMult > 1 ? ` · ${workshop.renovationMult.toFixed(1)}× mult` : ''}
+        </div>
+        <h1 style={{ fontSize: 26, fontWeight: 900, marginBottom: 4, letterSpacing: -0.5 }}>Pocket Prospector</h1>
+        {essenceEntries.length > 0 && (
+          <div style={{ display: "flex", gap: 10, justifyContent: "center", marginTop: 8, flexWrap: "wrap" }}>
+            {essenceEntries.map(([k, v]) => (
+              <div key={k} title={`${ESSENCE_DEFS[k].name}: ${ESSENCE_DEFS[k].desc}`}
+                style={{ fontSize: 10, color: "rgba(245,240,232,0.3)", fontFamily: "'JetBrains Mono', monospace" }}>
+                {ESSENCE_DEFS[k].icon} {v}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Specimen Wall */}
+      <div style={{ flexShrink: 0 }}>
+        <SpecimenWall specimens={workshop.specimenWall} revelations={workshop.revelationsFound} />
+      </div>
+
+      {/* Drawer Grid */}
+      <div style={{
+        flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "12px 24px 24px",
+      }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 260px))", gap: 12, justifyContent: "center", maxWidth: 860, width: "100%" }}>
+          {modes.map((m, i) => {
+            const ts = workshop.drawerTimestamps[m.id];
+            const savedState = loadMode(m.id, m);
+            const hasProgress = savedState && (savedState.totalGold > 0 || savedState.totalScratches > 0);
+            const elapsed = ts ? Math.floor((Date.now() - ts) / 1000) : 0;
+            const idleInfo = (hasProgress && elapsed > 60) ? calcIdleEarnings(m.id, savedState, elapsed) : null;
+
+            return (
+              <button key={m.id} onClick={() => onOpenDrawer(m.id)}
+                style={{
+                  width: "100%", padding: "18px 16px", borderRadius: 10, cursor: "pointer",
+                  background: `linear-gradient(160deg, ${m.theme.cardBg.replace("0.6","0.7")}, rgba(14,12,10,0.95))`,
+                  border: `1px solid ${m.theme.borderAccent}`,
+                  color: m.theme.textPrimary, textAlign: "left",
+                  animation: `modeCardIn 0.4s ease-out ${i * 0.06}s both`,
+                  transition: "border-color 0.2s, transform 0.2s",
+                  fontFamily: "'Anybody', sans-serif", position: "relative", overflow: "hidden",
+                }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = m.theme.currencyColor + "50"; e.currentTarget.style.transform = "translateY(-2px)"; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = m.theme.borderAccent; e.currentTarget.style.transform = "translateY(0)"; }}
+              >
+                {/* Idle indicator */}
+                {idleInfo && (
+                  <div style={{
+                    position: "absolute", top: 8, right: 10, fontSize: 8, fontFamily: "'JetBrains Mono', monospace",
+                    color: m.theme.currencyColor, opacity: 0.7, animation: "pulse 2s ease-in-out infinite",
+                  }}>+{idleInfo.earned > 0 ? idleInfo.earned : ''}{idleInfo.essence > 0 ? ` · ${idleInfo.essence}e` : ''}</div>
+                )}
+
+                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+                  <span style={{ fontSize: 24 }}>{m.icon}</span>
+                  <div>
+                    <div style={{ fontSize: 15, fontWeight: 800 }}>{m.name}</div>
+                    <div style={{ fontSize: 10, color: m.theme.textMuted, lineHeight: 1.3 }}>{m.sub}</div>
+                  </div>
+                </div>
+
+                <div style={{ display: "flex", gap: 3, marginBottom: 8 }}>
+                  {m.colors.slice(0, 6).map((c, j) => (
+                    <div key={j} style={{ width: 14, height: 14, borderRadius: 3, background: c }} />
+                  ))}
+                </div>
+
+                {/* Progress bar if has save data */}
+                {hasProgress ? (
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <div style={{ fontSize: 9, fontFamily: "'JetBrains Mono', monospace", color: m.theme.currencyColor }}>
+                      {savedState.totalGold >= 1e6 ? `${(savedState.totalGold/1e6).toFixed(1)}M` : savedState.totalGold >= 1e3 ? `${(savedState.totalGold/1e3).toFixed(1)}K` : savedState.totalGold} {m.labels.currency.toLowerCase()}
+                    </div>
+                    {savedState.prestigeCount > 0 && (
+                      <div style={{ fontSize: 8, fontFamily: "'JetBrains Mono', monospace", color: m.theme.textMuted }}>
+                        T{savedState.prestigeCount + 1}
+                      </div>
+                    )}
+                    <div style={{ fontSize: 8, fontFamily: "'JetBrains Mono', monospace", color: m.theme.textFaint }}>
+                      {savedState.claimsCompleted}✓
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{ fontSize: 9, color: m.theme.textMuted, fontFamily: "'JetBrains Mono', monospace" }}>
+                    {m.labels.verb} · {m.labels.currency} · {m.tiers.length} tiers
+                  </div>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   MAIN GAME
+═══════════════════════════════════════════ */
+function Game({ modeId, onBack, workshop, onSpecimen, onEssence, idleReport: pendingIdle }) {
+  const mode = MODE_DEFINITIONS[modeId];
+  const reducer = useMemo(() => makeReducer(mode), [modeId]);
+  const saved = useMemo(() => loadMode(modeId, mode), [modeId]);
+  const initState = useMemo(() => saved || makeInit(mode), [modeId]);
+  const [state, dispatch] = useReducer(reducer, initState);
+  const benchRef = useRef(null);
+  const [showJournal, setShowJournal] = useState(false);
+  const [showPrestige, setShowPrestige] = useState(false);
+  const [showIdleReport, setShowIdleReport] = useState(!!pendingIdle);
+  const [muted, setMuted] = useState(false);
+  const autoRef = useRef(null);
+  const prevJournalRef = useRef(state.journal);
+  const saveTimer = useRef(null);
+  const L = mode.labels;
+  const T = mode.theme;
+
+  // Apply idle earnings on mount
+  useEffect(() => {
+    if (pendingIdle) {
+      dispatch({ type: "ADD_IDLE", gold: pendingIdle.earned });
+    }
+  }, []);
+
+  // Auto-save every 5 seconds
+  useEffect(() => {
+    saveTimer.current = setInterval(() => saveMode(modeId, state), 5000);
+    return () => clearInterval(saveTimer.current);
+  }, [state, modeId]);
+
+  // Save on unmount
+  useEffect(() => () => saveMode(modeId, state), []);
+
+  // Detect new specimen-worthy finds (glow items entering journal)
+  useEffect(() => {
+    const prev = prevJournalRef.current;
+    const cur = state.journal;
+    Object.keys(cur).forEach(label => {
+      if (!prev[label] || cur[label] > prev[label]) {
+        // Check if this label is a glow-tier item
+        Object.values(mode.claimTypes).forEach(ct => {
+          Object.values(ct.geology).forEach(geo => {
+            if (geo.label === label && geo.glow && onSpecimen) {
+              onSpecimen({ label, color: geo.color, mode: modeId, modeIcon: mode.icon, foundAt: Date.now() });
+            }
+          });
+        });
+      }
+    });
+    prevJournalRef.current = cur;
+  }, [state.journal]);
+
+  // Essence generation: 1 per 30 scratches
+  useEffect(() => {
+    if (state.totalScratches > 0 && state.totalScratches % 30 === 0 && onEssence) {
+      onEssence(modeId, 1);
+    }
+  }, [state.totalScratches]);
+
+  useEffect(() => { dispatch({ type: "NEW_CLAIM", claimType: state.claimTypeKey || Object.keys(mode.claimTypes)[0] }); }, []);
+
+  // Gold counter animation
+  useEffect(() => {
+    if (state.displayGold !== state.gold) {
+      const t = requestAnimationFrame(() => dispatch({ type: "TICK_GOLD" }));
+      return () => cancelAnimationFrame(t);
+    }
+  }, [state.displayGold, state.gold]);
+
+  // Combo decay
+  useEffect(() => {
+    if (state.combo > 0) {
+      const t = setTimeout(() => dispatch({ type: "DECAY_COMBO" }), 2200);
+      return () => clearTimeout(t);
+    }
+  }, [state.combo]);
+
+  // Notification auto-clear
+  useEffect(() => {
+    if (state.notification) {
+      const t = setTimeout(() => dispatch({ type: "CLEAR_N" }), 2800);
+      return () => clearTimeout(t);
+    }
+  }, [state.notification?.id]);
+
+  // Auto-scratch
+  useEffect(() => {
+    const spd = mode.upgrades.speed.effect(state.upgrades.speed);
+    if (spd <= 0 || !state.claim || state.claim.completed) { clearInterval(autoRef.current); return; }
+    autoRef.current = setInterval(() => {
+      const unr = state.claim?.tiles.filter(t => !t.revealed);
+      if (unr && unr.length > 0) {
+        const t = unr[Math.floor(Math.random() * unr.length)];
+        dispatch({ type: "SCRATCH", tileId: t.id, power: mode.upgrades.power.effect(state.upgrades.power) * 0.4, sx: 300, sy: 300 });
+      }
+    }, spd);
+    return () => clearInterval(autoRef.current);
+  }, [state.upgrades.speed, state.upgrades.power, state.claim?.completed, state.claim?.typeKey]);
+
+  const handleScratch = useCallback((tileId, e) => {
+    audio.init();
+    if (state.claim?.completed) return;
+    const rect = benchRef.current?.getBoundingClientRect();
+    const cx = e.clientX ?? e.pageX;
+    const cy = e.clientY ?? e.pageY;
+    const sx = rect ? cx - rect.left : 300;
+    const sy = rect ? cy - rect.top : 200;
+    const pw = mode.upgrades.power.effect(state.upgrades.power);
+    const ct = mode.claimTypes[state.claimTypeKey];
+
+    dispatch({ type: "SCRATCH", tileId, power: pw, sx, sy });
+    if (!muted) audio.play("scratch", { freq: ct.theme.scratchFreq + (Math.random() - 0.5) * 400, vol: 0.04 + Math.random() * 0.03, filterType: mode.audio.scratchFilter, Q: mode.audio.scratchQ });
+
+    const tile = state.claim?.tiles.find(t => t.id === tileId);
+    if (tile && !tile.revealed && tile.damage + pw >= ct.hardness) {
+      if (!muted) {
+        if (tile.mineral.valueMult >= 50) audio.play("rare", { notes: mode.audio.rareNotes, wave: mode.audio.rareWave });
+        else if (tile.mineral.valueMult > 0) audio.play("reveal", { freq: 400 + tile.mineral.valueMult * 3, wave: mode.audio.revealWave });
+      }
+    }
+
+    if (state.claim && state.upgrades.radius > 0) {
+      const src = state.claim.tiles.find(t => t.id === tileId);
+      if (src) {
+        state.claim.tiles
+          .filter(t => !t.revealed && t.id !== tileId && Math.abs(t.row - src.row) <= 1 && Math.abs(t.col - src.col) <= 1)
+          .slice(0, state.upgrades.radius)
+          .forEach(t => dispatch({ type: "SCRATCH", tileId: t.id, power: pw * 0.35, sx: sx + (Math.random() - 0.5) * 50, sy: sy + (Math.random() - 0.5) * 50 }));
+      }
+    }
+  }, [state.upgrades.power, state.upgrades.radius, state.claim, state.claimTypeKey, muted, modeId]);
+
+  const ct = state.claim ? mode.claimTypes[state.claimTypeKey] : null;
+  const pct = state.claim ? Math.floor(state.claim.tiles.filter(t => t.revealed).length / state.claim.tiles.length * 100) : 0;
+  const canPrestige = state.totalGold >= mode.prestige.minCurrency;
+  const fmt = g => { if (g >= 1e6) return `${(g/1e6).toFixed(1)}M`; if (g >= 1e3) return `${(g/1e3).toFixed(1)}K`; return `${g}`; };
+  const comboColor = state.combo > 10 ? "#F0C040" : state.combo > 5 ? "#E08830" : state.combo > 2 ? "#C07030" : T.textMuted;
+
+  return (
+    <div style={{
+      width: "100%", height: "100vh", background: "#131010", fontFamily: "'Anybody', sans-serif",
+      display: "flex", position: "relative", overflow: "hidden", color: T.textPrimary,
+      animation: state.shake > 0 ? `shake${state.shake} 0.3s ease-out` : "none",
+    }}>
+      {/* ═══ LEFT SIDEBAR ═══ */}
+      <div style={{
+        width: 210, flexShrink: 0, background: T.sidebarBg,
+        borderRight: `1px solid ${T.borderAccent}`,
+        display: "flex", flexDirection: "column",
+      }}>
+        {/* Back button */}
+        <button onClick={onBack} style={{
+          padding: "8px 14px", background: "transparent", border: "none", borderBottom: `1px solid ${T.borderAccent}`,
+          color: T.textMuted, fontSize: 10, cursor: "pointer", textAlign: "left", fontFamily: "'JetBrains Mono', monospace",
+          letterSpacing: 1,
+        }}>← modes</button>
+
+        {/* Currency */}
+        <div style={{ padding: "18px 14px 14px", borderBottom: `1px solid ${T.borderAccent}` }}>
+          <div style={{ fontSize: 9, letterSpacing: 2.5, textTransform: "uppercase", color: T.textMuted, fontFamily: "'JetBrains Mono', monospace" }}>{L.currency}</div>
+          <div style={{
+            fontSize: 34, fontWeight: 900, color: T.currencyColor, lineHeight: 1, marginTop: 2,
+            textShadow: state.gold > state.displayGold ? `0 0 12px ${T.currencyColor}66` : "none",
+            transition: "text-shadow 0.3s",
+          }}>{fmt(state.displayGold)}</div>
+          <div style={{ display: "flex", gap: 10, marginTop: 6, fontSize: 9, fontFamily: "'JetBrains Mono', monospace", color: T.textFaint }}>
+            <span>Total: {fmt(state.totalGold)}</span>
+            <span>Claims: {state.claimsCompleted}</span>
+          </div>
+        </div>
+
+        {/* Combo */}
+        {state.combo > 0 && (
+          <div style={{ padding: "6px 14px", borderBottom: `1px solid ${T.borderAccent}`, display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ fontSize: 20, fontWeight: 900, color: comboColor, animation: state.combo > 5 ? "comboGlow 0.8s ease-in-out infinite" : "none", fontFamily: "'Anybody', sans-serif" }}>{state.combo}×</div>
+            <div>
+              <div style={{ fontSize: 9, color: T.textMuted, fontFamily: "'JetBrains Mono', monospace" }}>Combo</div>
+              <div style={{ height: 3, width: 80, background: "rgba(255,255,255,0.06)", borderRadius: 2, marginTop: 2, overflow: "hidden" }}>
+                <div style={{ width: `${Math.min(state.combo / 20 * 100, 100)}%`, height: "100%", background: comboColor, borderRadius: 2, transition: "width 0.2s, background 0.3s" }} />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Upgrades */}
+        <div style={{ padding: "10px 10px 6px", flex: 1, overflow: "auto" }}>
+          <div style={{ fontSize: 9, letterSpacing: 2, textTransform: "uppercase", color: T.textMuted, fontFamily: "'JetBrains Mono', monospace", marginBottom: 8, paddingLeft: 2 }}>Upgrades</div>
+          {Object.entries(mode.upgrades).map(([key, upg]) => {
+            const lvl = state.upgrades[key];
+            const cost = upgCost(upg, lvl);
+            const ok = state.gold >= cost && lvl < upg.maxLevel;
+            return (
+              <button key={key} className="upg-btn" disabled={!ok}
+                onClick={() => { dispatch({ type: "BUY_UPGRADE", key }); if (!muted) audio.play("purchase"); }}
+                style={{
+                  display: "block", width: "100%", background: T.cardBg, borderRadius: 7,
+                  padding: "9px 10px", marginBottom: 6, cursor: ok ? "pointer" : "not-allowed",
+                  textAlign: "left", color: T.textPrimary,
+                }}
+              >
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+                  <span style={{ fontSize: 12, fontWeight: 700 }}>{upg.icon} {upg.name}</span>
+                  <span style={{ fontSize: 9, fontFamily: "'JetBrains Mono', monospace", color: ok ? T.currencyColor : T.textFaint }}>
+                    {lvl >= upg.maxLevel ? "MAX" : `${fmt(cost)}`}
+                  </span>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", marginTop: 2 }}>
+                  <span style={{ fontSize: 9, color: T.textMuted }}>{upg.desc}</span>
+                  <span style={{ fontSize: 9, fontFamily: "'JetBrains Mono', monospace", color: T.accentColor }}>Lv{lvl} {upg.label(lvl)}</span>
+                </div>
+                <div style={{ marginTop: 5, height: 2, background: `${T.accentColor}18`, borderRadius: 1, overflow: "hidden" }}>
+                  <div style={{ width: `${(lvl/upg.maxLevel)*100}%`, height: "100%", background: `linear-gradient(90deg, ${T.accentColor}, ${T.currencyColor})`, borderRadius: 1, transition: "width 0.3s" }}/>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Prestige */}
+        <div style={{ padding: "8px 10px 14px", borderTop: `1px solid ${T.borderAccent}` }}>
+          <button onClick={() => setShowPrestige(true)} disabled={!canPrestige}
+            style={{
+              width: "100%", padding: "9px", borderRadius: 7, fontSize: 10, fontWeight: 700,
+              letterSpacing: 1.5, textTransform: "uppercase", fontFamily: "'JetBrains Mono', monospace",
+              cursor: canPrestige ? "pointer" : "not-allowed",
+              background: canPrestige ? T.prestigeBg : T.cardBg,
+              border: canPrestige ? `1px solid ${T.prestigeBorder}` : `1px solid ${T.borderAccent}`,
+              color: canPrestige ? T.textPrimary : T.textFaint,
+              animation: canPrestige ? "breathe 3s ease-in-out infinite" : "none",
+            }}
+          >{mode.icon} {L.prestigeAction}</button>
+          {state.prestigeCount > 0 && (
+            <div style={{ textAlign: "center", marginTop: 5, fontSize: 8, color: T.textFaint, fontFamily: "'JetBrains Mono', monospace" }}>
+              Tier {state.prestigeCount+1} · {state.permanentMult.toFixed(1)}× mult
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ═══ CENTER — WORKBENCH ═══ */}
+      <div ref={benchRef} style={{
+        flex: 1, position: "relative",
+        background: ct ? `radial-gradient(ellipse at 50% 40%, ${ct.theme.accent}08 0%, transparent 60%), linear-gradient(180deg, #1E1A14 0%, #151008 100%)` : "#151008",
+        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+        padding: "16px 24px", overflow: "hidden",
+      }}>
+        {/* Ambient glow */}
+        <div style={{
+          position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)",
+          width: 300 + state.upgrades.luck * 20, height: 200 + state.upgrades.luck * 10,
+          background: `radial-gradient(ellipse, ${T.currencyColor}${Math.round((0.03+state.upgrades.luck*0.006)*255).toString(16).padStart(2,'0')} 0%, transparent 70%)`,
+          pointerEvents: "none", transition: "all 1s",
+        }}/>
+
+        {/* Notification */}
+        {state.notification && (
+          <div key={state.notification.id} style={{
+            position: "absolute", top: 20, left: "50%",
+            background: "rgba(20,16,12,0.92)", backdropFilter: "blur(12px)",
+            border: `1.5px solid ${state.notification.color}`,
+            borderRadius: 10, padding: "10px 24px", zIndex: 50,
+            animation: "notifIn 2.8s ease forwards", textAlign: "center",
+            boxShadow: `0 0 30px ${state.notification.color}30`,
+          }}>
+            <div style={{ fontSize: 16, fontWeight: 800, color: state.notification.color }}>{state.notification.text}</div>
+            {state.notification.sub && <div style={{ fontSize: 11, color: T.textMuted, marginTop: 2 }}>{state.notification.sub}</div>}
+          </div>
+        )}
+
+        {/* Claim type tabs */}
+        <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
+          {state.unlockedClaims.map(key => {
+            const c = mode.claimTypes[key];
+            const active = state.claimTypeKey === key;
+            return (
+              <button key={key} className="cs-btn"
+                onClick={() => { dispatch({ type: "SELECT_CLAIM", key }); dispatch({ type: "NEW_CLAIM", claimType: key }); }}
+                style={{
+                  padding: "5px 14px", borderRadius: 16, fontSize: 11, fontWeight: 600,
+                  border: active ? `1.5px solid ${c.theme.accent}` : `1px solid ${T.borderAccent}`,
+                  background: active ? `${c.theme.accent}20` : T.cardBgLight,
+                  color: active ? T.textPrimary : T.textMuted,
+                  cursor: "pointer", fontFamily: "'Anybody', sans-serif",
+                  boxShadow: active ? `0 0 16px ${c.theme.accent}20` : "none",
+                }}
+              >{c.name}</button>
+            );
+          })}
+          <button onClick={() => { setMuted(!muted); audio.init(); }} style={{
+            padding: "5px 10px", borderRadius: 16, fontSize: 11, border: `1px solid ${T.borderAccent}`,
+            background: T.cardBgLight, color: T.textMuted, cursor: "pointer",
+          }}>{muted ? "🔇" : "🔊"}</button>
+        </div>
+
+        {/* THE CLAIM */}
+        {state.claim && (
+          <div style={{
+            background: `linear-gradient(150deg, ${ct.theme.bg}F8 0%, ${ct.theme.surface}E0 40%, ${ct.theme.bg}F0 100%)`,
+            borderRadius: 10, padding: 10,
+            boxShadow: `0 12px 48px rgba(0,0,0,0.55), 0 0 1px rgba(255,255,255,0.05) inset, 0 0 40px ${ct.theme.accent}10`,
+            position: "relative", maxWidth: ct.grid.cols <= 5 ? 360 : 430, width: "100%",
+          }}>
+            <div style={{
+              position: "absolute", top: -7, right: 10,
+              background: "#16130E", border: `1px solid ${ct.theme.accent}40`, borderRadius: 4,
+              padding: "1px 7px", fontSize: 8, fontFamily: "'JetBrains Mono', monospace",
+              color: ct.theme.accent, letterSpacing: 0.5,
+            }}>H:{ct.hardness}</div>
+
+            <div style={{ display: "grid", gridTemplateColumns: `repeat(${state.claim.cols}, 1fr)`, gap: 3 }}>
+              {state.claim.tiles.map(tile => (
+                <Tile key={tile.id} tile={tile} theme={ct.theme} hardness={ct.hardness} crackStyle={mode.crackStyle} onScratch={handleScratch} />
+              ))}
+            </div>
+
+            <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 6 }}>
+              <div style={{ flex: 1, height: 3, background: "rgba(0,0,0,0.3)", borderRadius: 2, overflow: "hidden" }}>
+                <div style={{
+                  width: `${pct}%`, height: "100%", borderRadius: 2, transition: "width 0.15s",
+                  background: pct === 100 ? T.currencyColor : `linear-gradient(90deg, ${ct.theme.accent}, ${ct.theme.accent}CC)`,
+                }}/>
+              </div>
+              <span style={{ fontSize: 9, fontFamily: "'JetBrains Mono', monospace", color: T.textMuted, minWidth: 28, textAlign: "right" }}>{pct}%</span>
+            </div>
+
+            {state.claim.completed && (
+              <div style={{
+                position: "absolute", inset: 0, borderRadius: 10,
+                background: "rgba(18,14,10,0.88)", backdropFilter: "blur(6px)",
+                display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+                animation: "slideUp 0.25s ease-out",
+              }}>
+                <div style={{ fontSize: 11, letterSpacing: 3, textTransform: "uppercase", color: ct.theme.accent, fontFamily: "'JetBrains Mono', monospace", marginBottom: 4 }}>Complete</div>
+                <div style={{ fontSize: 22, fontWeight: 900, color: T.currencyColor, marginBottom: 4 }}>{L.claimNoun} cleared</div>
+                {state.maxCombo > 2 && <div style={{ fontSize: 11, color: comboColor, marginBottom: 10 }}>Best combo: {state.maxCombo}×</div>}
+                <button onClick={() => dispatch({ type: "NEW_CLAIM" })}
+                  style={{
+                    padding: "10px 32px", borderRadius: 8, border: "none", cursor: "pointer",
+                    background: `linear-gradient(135deg, ${ct.theme.accent}, ${ct.theme.surface})`,
+                    color: T.textPrimary, fontSize: 13, fontWeight: 700, fontFamily: "'Anybody', sans-serif",
+                    boxShadow: `0 0 20px ${ct.theme.accent}40`,
+                  }}
+                >Next {L.claimNoun.toLowerCase()} →</button>
+              </div>
+            )}
+          </div>
+        )}
+
+        <div style={{
+          marginTop: 16, fontSize: 9, letterSpacing: 3.5, textTransform: "uppercase",
+          color: T.textFaint, fontFamily: "'JetBrains Mono', monospace",
+        }}>{L.workspace}</div>
+
+        {state.particles.map(p => <GoldPop key={p.id} p={p} onDone={id => dispatch({ type: "CLEAR_P", id })} />)}
+        {state.sparkles.map(s => <Sparkle key={s.id} s={s} onDone={id => dispatch({ type: "CLEAR_S", id })} />)}
+      </div>
+
+      {/* ═══ RIGHT SIDEBAR ═══ */}
+      <div style={{
+        width: 190, flexShrink: 0, background: T.sidebarBg,
+        borderLeft: `1px solid ${T.borderAccent}`,
+        display: "flex", flexDirection: "column",
+      }}>
+        {/* Recent finds */}
+        <div style={{ padding: "18px 12px 10px", borderBottom: `1px solid ${T.borderAccent}` }}>
+          <div style={{ fontSize: 9, letterSpacing: 2, textTransform: "uppercase", color: T.textMuted, fontFamily: "'JetBrains Mono', monospace", marginBottom: 8 }}>{L.display}</div>
+          {state.recentFinds.length === 0 ? (
+            <div style={{ fontSize: 10, color: T.textFaint, fontStyle: "italic" }}>Find rare items...</div>
+          ) : state.recentFinds.map((f, i) => (
+            <div key={f.time + i} className="find-row" style={{
+              display: "flex", alignItems: "center", gap: 7,
+              padding: "5px 6px", background: T.cardBgLight, borderRadius: 5, marginBottom: 4,
+            }}>
+              <div style={{ width: 18, height: 18, borderRadius: 3, background: f.color, flexShrink: 0, boxShadow: `0 0 8px ${f.color}50` }}/>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: T.textPrimary, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{f.label}</div>
+                <div style={{ fontSize: 8, fontFamily: "'JetBrains Mono', monospace", color: T.currencyColor }}>+{f.value}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Journal */}
+        <div style={{ padding: "8px 12px" }}>
+          <button onClick={() => setShowJournal(!showJournal)} style={{
+            width: "100%", padding: "7px", background: showJournal ? `${T.accentColor}18` : T.cardBgLight,
+            border: `1px solid ${T.borderAccent}`, borderRadius: 6, color: T.textPrimary,
+            fontSize: 10, fontWeight: 600, cursor: "pointer", fontFamily: "'Anybody', sans-serif",
+          }}>📓 {L.collection} ({Object.keys(state.journal).length})</button>
+        </div>
+
+        <div style={{ flex: 1, overflow: "auto", padding: "4px 12px 12px" }}>
+          {showJournal ? (
+            Object.entries(state.journal).sort((a,b) => b[1]-a[1]).map(([m, c]) => (
+              <div key={m} style={{ display: "flex", justifyContent: "space-between", padding: "3px 0", fontSize: 10, borderBottom: `1px solid ${T.borderAccent}` }}>
+                <span style={{ color: T.textMuted }}>{m}</span>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", color: T.textFaint }}>×{c}</span>
+              </div>
+            ))
+          ) : ct && (
+            <>
+              <div style={{ fontSize: 9, letterSpacing: 2, textTransform: "uppercase", color: T.textFaint, fontFamily: "'JetBrains Mono', monospace", marginBottom: 6 }}>Contents</div>
+              {Object.entries(ct.geology).map(([k, m]) => (
+                <div key={k} style={{ display: "flex", alignItems: "center", gap: 5, padding: "3px 0", borderBottom: `1px solid ${T.borderAccent}` }}>
+                  <div style={{ width: 7, height: 7, borderRadius: 2, background: m.color, flexShrink: 0, boxShadow: m.glow ? `0 0 4px ${m.color}60` : "none" }}/>
+                  <span style={{ fontSize: 9, color: T.textMuted, flex: 1 }}>{m.label}</span>
+                  <span style={{ fontSize: 8, fontFamily: "'JetBrains Mono', monospace", color: T.textFaint }}>{(m.chance*100).toFixed(0)}%</span>
+                  <span style={{ fontSize: 8, fontFamily: "'JetBrains Mono', monospace", color: m.valueMult > 0 ? T.currencyColor : T.textFaint, minWidth: 22, textAlign: "right" }}>
+                    {m.valueMult > 0 ? `${m.valueMult}×` : "—"}
+                  </span>
+                </div>
+              ))}
+              {ct.hazard && (
+                <div style={{ marginTop: 6, fontSize: 9, color: "rgba(180,80,60,0.6)", fontStyle: "italic" }}>
+                  ⚠ {ct.hazard.type === "gas_pocket" ? `${L.hazardLabel} ${(ct.hazard.chance*100).toFixed(0)}%` : `Timer ${ct.hazard.seconds}s`}
+                </div>
+              )}
+            </>
+          )}
+        </div>
+
+        {/* Stats */}
+        <div style={{ padding: "8px 12px 14px", borderTop: `1px solid ${T.borderAccent}`, fontSize: 8, fontFamily: "'JetBrains Mono', monospace", color: T.textFaint }}>
+          <div>{L.verb}s: {state.totalScratches}</div>
+          <div>Best find: {state.sessionBest > 0 ? fmt(state.sessionBest) : "—"}</div>
+          <div>Max combo: {state.maxCombo > 0 ? `${state.maxCombo}×` : "—"}</div>
+        </div>
+      </div>
+
+      {/* ═══ PRESTIGE MODAL ═══ */}
+      {showPrestige && (
+        <div style={{
+          position: "absolute", inset: 0, background: "rgba(8,6,4,0.92)", backdropFilter: "blur(12px)",
+          display: "flex", alignItems: "center", justifyContent: "center", zIndex: 200,
+        }}>
+          <div style={{
+            background: `linear-gradient(150deg, #2A2015, #1A150D)`, border: `1px solid ${T.prestigeBorder}50`,
+            borderRadius: 14, padding: "28px 36px", maxWidth: 360, textAlign: "center",
+            animation: "slideUp 0.3s ease-out", boxShadow: `0 0 60px ${T.prestigeGlow}`,
+          }}>
+            <div style={{ fontSize: 9, letterSpacing: 3, textTransform: "uppercase", color: T.prestigeBorder, fontFamily: "'JetBrains Mono', monospace", marginBottom: 6 }}>Prestige</div>
+            <div style={{ fontSize: 22, fontWeight: 900, color: T.textPrimary, marginBottom: 6 }}>{L.prestigeAction}</div>
+            <p style={{ fontSize: 12, color: T.textMuted, lineHeight: 1.5, marginBottom: 18 }}>
+              Reset {L.currency.toLowerCase()} and upgrades. Your {L.collection.toLowerCase()} and {L.prestigeUnit.toLowerCase()} persist.
+            </p>
+            <div style={{ display: "flex", gap: 8, justifyContent: "center", marginBottom: 18 }}>
+              {[[L.prestigeUnit.split(" ").pop(), mode.prestige.calcPicks(state.totalGold), T.currencyColor],
+                ["New mult", `${(state.permanentMult + mode.prestige.calcPicks(state.totalGold)*mode.prestige.pickMultiplier).toFixed(1)}×`, T.accentColor]
+              ].map(([l,v,c]) => (
+                <div key={l} style={{ background: T.cardBg, borderRadius: 7, padding: "7px 14px" }}>
+                  <div style={{ fontSize: 8, color: T.textFaint, fontFamily: "'JetBrains Mono', monospace" }}>{l}</div>
+                  <div style={{ fontSize: 18, fontWeight: 800, color: c }}>{v}</div>
+                </div>
+              ))}
+            </div>
+            <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
+              <button onClick={() => setShowPrestige(false)} style={{
+                padding: "9px 22px", borderRadius: 7, background: "transparent",
+                border: `1px solid ${T.borderAccent}`, color: T.textMuted,
+                fontSize: 11, cursor: "pointer", fontFamily: "'Anybody', sans-serif",
+              }}>Not yet</button>
+              <button onClick={() => { dispatch({ type: "PRESTIGE" }); setShowPrestige(false); dispatch({ type: "NEW_CLAIM", claimType: Object.keys(mode.claimTypes)[0] }); }}
+                style={{
+                  padding: "9px 22px", borderRadius: 7, border: "none",
+                  background: T.prestigeBg, color: T.textPrimary,
+                  fontSize: 11, fontWeight: 700, cursor: "pointer", fontFamily: "'Anybody', sans-serif",
+                  boxShadow: `0 0 20px ${T.prestigeGlow}`,
+                }}
+              >{L.prestigeVerb} →</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Idle Report */}
+      {showIdleReport && pendingIdle && (
+        <IdleReport report={pendingIdle} mode={modeId} onDismiss={() => setShowIdleReport(false)} />
+      )}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   APP ROOT — Workshop State Manager
+═══════════════════════════════════════════ */
+function App() {
+  const [workshop, setWorkshop] = useState(() => loadWorkshop() || makeDefaultWorkshop());
+  const [currentMode, setCurrentMode] = useState(null);
+  const [idleReport, setIdleReport] = useState(null);
+  const [revNotif, setRevNotif] = useState(null);
+
+  // Persist workshop on every change
+  useEffect(() => { saveWorkshop(workshop); }, [workshop]);
+
+  // Open a drawer: calculate idle, set timestamp
+  const openDrawer = useCallback((modeId) => {
+    const ts = workshop.drawerTimestamps[modeId];
+    const savedState = loadMode(modeId, MODE_DEFINITIONS[modeId]);
+    let report = null;
+
+    if (ts && savedState && savedState.totalScratches > 0) {
+      const elapsed = Math.floor((Date.now() - ts) / 1000);
+      report = calcIdleEarnings(modeId, savedState, elapsed);
+      // Add idle essence to workshop
+      if (report?.essence > 0) {
+        setWorkshop(w => ({
+          ...w,
+          essences: { ...w.essences, [modeId]: (w.essences[modeId] || 0) + report.essence },
+        }));
+      }
+    }
+
+    // Update timestamp
+    setWorkshop(w => ({
+      ...w,
+      drawerTimestamps: { ...w.drawerTimestamps, [modeId]: Date.now() },
+    }));
+
+    setIdleReport(report);
+    setCurrentMode(modeId);
+  }, [workshop]);
+
+  // Close drawer: save timestamp
+  const closeDrawer = useCallback(() => {
+    if (currentMode) {
+      setWorkshop(w => ({
+        ...w,
+        drawerTimestamps: { ...w.drawerTimestamps, [currentMode]: Date.now() },
+      }));
+    }
+    setCurrentMode(null);
+    setIdleReport(null);
+  }, [currentMode]);
+
+  // Specimen found callback — dedupe by label+mode
+  const handleSpecimen = useCallback((specimen) => {
+    setWorkshop(w => {
+      const exists = w.specimenWall.some(s => s.label === specimen.label && s.mode === specimen.mode);
+      if (exists) return w;
+      const newWall = [...w.specimenWall, specimen];
+      // Check for new revelations
+      const newRevs = checkRevelations(newWall, w.revelationsFound);
+      if (newRevs.length > 0) {
+        setTimeout(() => { setRevNotif(newRevs[0]); setTimeout(() => setRevNotif(null), 4000); }, 500);
+      }
+      return {
+        ...w,
+        specimenWall: newWall,
+        revelationsFound: [...w.revelationsFound, ...newRevs.map(r => r.id)],
+      };
+    });
+  }, []);
+
+  // Essence earned callback
+  const handleEssence = useCallback((modeId, amount) => {
+    setWorkshop(w => ({
+      ...w,
+      essences: { ...w.essences, [modeId]: (w.essences[modeId] || 0) + amount },
+    }));
+  }, []);
+
+  if (!currentMode) {
+    return <WorkshopCabinet workshop={workshop} onOpenDrawer={openDrawer} onWorkshopUpdate={setWorkshop} />;
+  }
+
+  return (
+    <div style={{ position: "relative", width: "100%", height: "100vh" }}>
+      <Game
+        key={currentMode}
+        modeId={currentMode}
+        onBack={closeDrawer}
+        workshop={workshop}
+        onSpecimen={handleSpecimen}
+        onEssence={handleEssence}
+        idleReport={idleReport}
+      />
+      {/* Revelation notification */}
+      {revNotif && (
+        <div style={{
+          position: "fixed", top: 20, left: "50%", transform: "translateX(-50%)", zIndex: 500,
+          background: "rgba(12,10,8,0.95)", backdropFilter: "blur(16px)",
+          border: `1.5px solid ${revNotif.tier === "tetrad" ? "#E0C060" : revNotif.tier === "triad" ? "#A080E0" : "#80B0A0"}`,
+          borderRadius: 12, padding: "14px 28px", textAlign: "center",
+          animation: "notifIn 4s ease forwards",
+          boxShadow: `0 0 40px ${revNotif.tier === "tetrad" ? "rgba(224,192,96,0.3)" : "rgba(128,176,160,0.2)"}`,
+        }}>
+          <div style={{ fontSize: 9, letterSpacing: 3, textTransform: "uppercase", color: "rgba(245,240,232,0.4)", fontFamily: "'JetBrains Mono', monospace", marginBottom: 4 }}>Revelation Discovered</div>
+          <div style={{ fontSize: 18, fontWeight: 800, color: revNotif.tier === "tetrad" ? "#E0C060" : revNotif.tier === "triad" ? "#A080E0" : "#80B0A0" }}>{revNotif.name}</div>
+          <div style={{ fontSize: 11, color: "rgba(245,240,232,0.4)", marginTop: 4, fontStyle: "italic" }}>{revNotif.flavor}</div>
+          <div style={{ fontSize: 10, color: "rgba(245,240,232,0.3)", marginTop: 4, fontFamily: "'JetBrains Mono', monospace" }}>{revNotif.bonus}</div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>

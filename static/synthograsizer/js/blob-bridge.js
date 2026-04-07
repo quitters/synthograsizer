@@ -170,6 +170,16 @@
       sendToBlobSim({ type: 'apply-preset', preset, blobIndex });
     },
 
+    /** Set individual physics params — only provided keys are overwritten */
+    setParams(params, blobIndex) {
+      sendToBlobSim({ type: 'set-params', params, blobIndex });
+    },
+
+    /** Set blob count (1–8) */
+    setBlobCount(count) {
+      sendToBlobSim({ type: 'set-blob-count', count });
+    },
+
     /** Set a color theme by name (e.g. "ocean") */
     setColorTheme(theme) {
       sendToBlobSim({ type: 'set-colors', theme });

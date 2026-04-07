@@ -1,0 +1,208 @@
+<style>
+.ma{display:flex;flex-direction:column;gap:20px;padding:1rem 0}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tab{padding:6px 14px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary);background:transparent;cursor:pointer;font-size:13px;color:var(--color-text-secondary);transition:all .15s}
+.tab:hover{border-color:var(--color-border-secondary)}
+.tab.on{border-color:var(--color-border-primary);color:var(--color-text-primary);font-weight:500;background:var(--color-background-secondary)}
+.mode-head{display:flex;align-items:baseline;gap:12px;margin-bottom:4px}
+.mode-title{font-size:22px;font-weight:500}
+.mode-sub{font-size:13px;color:var(--color-text-secondary)}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+.card{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px 16px}
+.card-label{font-size:11px;color:var(--color-text-tertiary);margin-bottom:4px;font-family:var(--font-mono);letter-spacing:.5px}
+.card-val{font-size:14px;color:var(--color-text-primary)}
+.card-val b{font-weight:500}
+.full{grid-column:1/-1}
+.swatch-row{display:flex;gap:4px;margin-top:6px}
+.swatch{width:24px;height:24px;border-radius:4px}
+.var-table{width:100%;font-size:13px;border-collapse:collapse}
+.var-table th{text-align:left;font-weight:500;font-size:11px;color:var(--color-text-tertiary);padding:6px 8px;border-bottom:0.5px solid var(--color-border-tertiary);font-family:var(--font-mono)}
+.var-table td{padding:6px 8px;border-bottom:0.5px solid var(--color-border-tertiary);color:var(--color-text-secondary)}
+.var-table td:first-child{font-family:var(--font-mono);font-size:12px;color:var(--color-text-tertiary)}
+.var-table td:nth-child(2){color:var(--color-text-primary);font-weight:500}
+</style>
+<div class="ma">
+<div class="tabs" id="tabs"></div>
+<div id="content"></div>
+</div>
+<script>
+const M = [
+  {
+    id:"prospector", name:"Pocket prospector", sub:"Mine through rock to find gems",
+    source:"Geodes, cave walls, mineral veins",
+    verb:"Scratch / chisel", surface:"Rock slab", workspace:"Miner's workbench",
+    currency:"Gold", currencyIcon:"coin", collection:"Field journal", display:"Specimen jars",
+    tiers:["Shallow soil","Deep stone","Volcanic core","Fossil beds"],
+    prestige:"Descend deeper", prestigeUnit:"Prestige picks", prestigeVerb:"Descend",
+    colors:["#8B7355","#6B7B8D","#6B2A0A","#C2B280","#D4A843","#B87333"],
+    colorNames:["Earth","Slate","Magma","Sand","Gold","Copper"],
+    hazards:["Gas pockets","Lava flows","Fragile fossils"],
+    scratchFeel:"Gritty resistance, chips fly, cracks radiate",
+    audioProfile:"Clinks, scraping stone, echoing cavern",
+    vars:[
+      ["claimType","Rock slab type","shallow_soil, deep_stone, volcanic_core"],
+      ["hardness","Scratch resistance","Integer 3-18, determines strokes to reveal"],
+      ["geology","Mineral table","{ chance, valueMult, color, glow }"],
+      ["gold","Primary currency","Earned from selling minerals"],
+      ["power","Pick power","Damage per scratch stroke"],
+      ["radius","Brush width","Adjacent tiles hit per stroke"],
+      ["luck","Keen eye","Rare mineral chance multiplier"],
+    ]
+  },
+  {
+    id:"patissier", name:"Petit patissier", sub:"Crack through caramel to find flavors",
+    source:"Creme brulee, chocolate shells, sugar glass",
+    verb:"Tap / crack", surface:"Brulee ramekin", workspace:"Pastry station",
+    currency:"Stars", currencyIcon:"star", collection:"Recipe book", display:"Tasting shelf",
+    tiers:["Vanilla custard","Dark chocolate","Citrus glaze","Salted caramel"],
+    prestige:"New kitchen", prestigeUnit:"Michelin points", prestigeVerb:"Reopen",
+    colors:["#F5E6C8","#3D1F0A","#F0A830","#C08040","#FFD700","#8B4513"],
+    colorNames:["Cream","Chocolate","Citrus","Caramel","Gold star","Cocoa"],
+    hazards:["Burnt sugar (bitter, 0 value)","Over-whip (texture lost)","Crystallization (seizes up)"],
+    scratchFeel:"Sharp crack, clean break, satisfying shatter",
+    audioProfile:"Tap-tap-crack, ceramic ring, sugar crunch",
+    vars:[
+      ["dessertType","Ramekin variety","vanilla_custard, dark_chocolate, citrus_glaze"],
+      ["crustThickness","Tap resistance","Integer 2-12, thinner = faster crack"],
+      ["flavors","Flavor table","{ chance, valueMult, color, premium }"],
+      ["stars","Primary currency","Earned from plating flavors"],
+      ["spoonWeight","Tap force","Damage per tap"],
+      ["crackSpread","Break radius","Adjacent tiles cracked per tap"],
+      ["palate","Refined palate","Premium flavor chance boost"],
+    ]
+  },
+  {
+    id:"archaeologist", name:"Lost layers", sub:"Brush away plaster to reveal mosaics",
+    source:"Mosaic under plaster, frescoes, tile murals",
+    verb:"Brush / scrape", surface:"Plaster wall section", workspace:"Excavation table",
+    currency:"Prestige", currencyIcon:"scroll", collection:"Excavation log", display:"Restoration gallery",
+    tiers:["Roman villa","Byzantine chapel","Moorish palace","Renaissance crypt"],
+    prestige:"New dig site", prestigeUnit:"Grant funding", prestigeVerb:"Relocate",
+    colors:["#C4A882","#1E3A5F","#8B2252","#D4A843","#2E8B57","#4A4A4A"],
+    colorNames:["Plaster","Lapis","Crimson tile","Gold leaf","Verdigris","Stone"],
+    hazards:["Water damage (tile faded)","Structural crack (section lost)","Forgery (worthless)"],
+    scratchFeel:"Soft brushing, delicate precision, dust falls away",
+    audioProfile:"Gentle brush strokes, pebble clicks, whispered discovery",
+    vars:[
+      ["siteType","Wall section era","roman_villa, byzantine_chapel, moorish_palace"],
+      ["plasterDepth","Brush resistance","Integer 2-10, fragile work"],
+      ["tesserae","Mosaic tile table","{ chance, valueMult, color, historical }"],
+      ["prestige","Primary currency","Earned from cataloging finds"],
+      ["brushFineness","Stroke precision","Damage per brush pass"],
+      ["sweepWidth","Sweep area","Adjacent tiles brushed per pass"],
+      ["expertise","Trained eye","Rare tessera detection boost"],
+    ]
+  },
+  {
+    id:"frost", name:"Frost & found", sub:"Scrape frost from windows to see what's outside",
+    source:"Frozen windowpanes, iced-over ponds, glacial surfaces",
+    verb:"Scrape / melt", surface:"Frosted pane", workspace:"Cabin windowsill",
+    currency:"Warmth", currencyIcon:"flame", collection:"View journal", display:"Snow globe shelf",
+    tiers:["Morning frost","Deep freeze","Blizzard glass","Permafrost"],
+    prestige:"Next winter", prestigeUnit:"Hearth stones", prestigeVerb:"Hibernate",
+    colors:["#D0E8F0","#88B8D0","#4080A0","#205070","#F0A830","#FFFFFF"],
+    colorNames:["Light frost","Ice blue","Deep cold","Midnight","Hearth","Snow"],
+    hazards:["Black ice (finger slips, lose turn)","Refreezing (tile re-seals)","Fog (obscures view)"],
+    scratchFeel:"Smooth glide, ice curls peel away, glass clears",
+    audioProfile:"High-pitched scraping, crystalline tinkle, wind howl",
+    vars:[
+      ["paneType","Window frost pattern","morning_frost, deep_freeze, blizzard_glass"],
+      ["frostDepth","Scrape resistance","Integer 2-14, thicker = colder"],
+      ["scenes","View fragment table","{ chance, valueMult, color, magical }"],
+      ["warmth","Primary currency","Earned from revealing beautiful views"],
+      ["scraperEdge","Scrape power","Damage per scrape stroke"],
+      ["meltRadius","Melt spread","Adjacent tiles warmed per scrape"],
+      ["perception","Winter sight","Magical view chance boost"],
+    ]
+  },
+  {
+    id:"beekeeper", name:"Hexharvest", sub:"Uncap honeycomb cells to harvest what's inside",
+    source:"Honeycomb, beeswax caps, hive frames",
+    verb:"Uncap / slice", surface:"Honeycomb frame", workspace:"Extraction bench",
+    currency:"Nectar", currencyIcon:"drop", collection:"Hive ledger", display:"Honey jars",
+    tiers:["Clover field","Wildflower meadow","Manuka grove","Royal jelly chamber"],
+    prestige:"New season", prestigeUnit:"Queen's favor", prestigeVerb:"Swarm",
+    colors:["#F0C860","#D4A020","#8B6914","#5A3E0A","#F5E6C8","#C08040"],
+    colorNames:["Light honey","Dark honey","Amber","Propolis","Wax","Pollen"],
+    hazards:["Empty cell (nothing inside)","Drone cell (no honey)","Mite damage (value halved)"],
+    scratchFeel:"Waxy pop per cell, viscous reveal, satisfying slice",
+    audioProfile:"Soft wax pop, liquid glug, buzzing ambience",
+    vars:[
+      ["frameType","Comb variety","clover_field, wildflower, manuka_grove"],
+      ["waxThickness","Uncap resistance","Integer 1-8, thin caps = quick"],
+      ["harvest","Cell contents table","{ chance, valueMult, color, rare }"],
+      ["nectar","Primary currency","Earned from extracting honey"],
+      ["bladeSharpness","Uncap force","Damage per slice"],
+      ["heatSpread","Warming radius","Adjacent cells softened per slice"],
+      ["beeSense","Apiarist instinct","Rare honey detection boost"],
+    ]
+  },
+  {
+    id:"letterbreaker", name:"Sealed secrets", sub:"Break wax seals and decode hidden letters",
+    source:"Wax seals, locked envelopes, cipher tablets",
+    verb:"Break / pry", surface:"Sealed envelope", workspace:"Candlelit desk",
+    currency:"Ink", currencyIcon:"quill", collection:"Correspondence archive", display:"Wax impression case",
+    tiers:["Personal letters","Royal decrees","Spy dispatches","Ancient scrolls"],
+    prestige:"New era", prestigeUnit:"Seal fragments", prestigeVerb:"Turn the page",
+    colors:["#8B2020","#2D1810","#D4A843","#1E3A5F","#F5E6C8","#4A0020"],
+    colorNames:["Wax red","Ink black","Gold leaf","Navy","Parchment","Burgundy"],
+    hazards:["Forgery (worthless text)","Burned edges (partial reveal)","Cipher (requires extra work)"],
+    scratchFeel:"Rigid snap, wax crumbles, parchment unfolds",
+    audioProfile:"Crisp crack, paper rustling, candle flicker",
+    vars:[
+      ["sealType","Letter classification","personal, royal_decree, spy_dispatch"],
+      ["waxHardness","Break resistance","Integer 3-16, older = harder"],
+      ["contents","Letter value table","{ chance, valueMult, color, secret }"],
+      ["ink","Primary currency","Earned from decoding messages"],
+      ["leverForce","Pry strength","Damage per break attempt"],
+      ["heatRadius","Warming spread","Adjacent wax softened per action"],
+      ["intuition","Codebreaker sense","Secret message detection boost"],
+    ]
+  }
+];
+
+let cur = 0;
+const tabs = document.getElementById("tabs");
+const content = document.getElementById("content");
+
+function render(){
+  tabs.innerHTML = M.map((m,i) => `<button class="tab${i===cur?' on':''}" onclick="cur=${i};render()">${m.name}</button>`).join("");
+  const m = M[cur];
+  content.innerHTML = `
+    <div class="mode-head"><div class="mode-title">${m.name}</div><div class="mode-sub">${m.sub}</div></div>
+    <div class="grid">
+      <div class="card"><div class="card-label">Core verb</div><div class="card-val"><b>${m.verb}</b></div></div>
+      <div class="card"><div class="card-label">Surface</div><div class="card-val"><b>${m.surface}</b></div></div>
+      <div class="card"><div class="card-label">Workspace</div><div class="card-val"><b>${m.workspace}</b></div></div>
+      <div class="card"><div class="card-label">Currency</div><div class="card-val"><b>${m.currency}</b> (${m.currencyIcon})</div></div>
+      <div class="card"><div class="card-label">Collection</div><div class="card-val"><b>${m.collection}</b></div></div>
+      <div class="card"><div class="card-label">Display</div><div class="card-val"><b>${m.display}</b></div></div>
+      <div class="card"><div class="card-label">Prestige action</div><div class="card-val"><b>${m.prestige}</b> → earn ${m.prestigeUnit}</div></div>
+      <div class="card"><div class="card-label">Inspiration</div><div class="card-val">${m.source}</div></div>
+      <div class="card full"><div class="card-label">Scratch feel</div><div class="card-val">${m.scratchFeel}</div></div>
+      <div class="card full"><div class="card-label">Audio profile</div><div class="card-val">${m.audioProfile}</div></div>
+      <div class="card full">
+        <div class="card-label">Progression tiers</div>
+        <div class="card-val">${m.tiers.map((t,i)=>`<span style="opacity:${1-i*0.15}">${t}</span>`).join(" → ")}</div>
+      </div>
+      <div class="card full">
+        <div class="card-label">Hazards</div>
+        <div class="card-val">${m.hazards.join(" · ")}</div>
+      </div>
+      <div class="card full">
+        <div class="card-label">Color palette</div>
+        <div class="swatch-row">${m.colors.map((c,i)=>`<div class="swatch" style="background:${c}" title="${m.colorNames[i]}"></div>`).join("")}</div>
+        <div style="display:flex;gap:4px;margin-top:4px;font-size:11px;color:var(--color-text-tertiary)">${m.colorNames.map(n=>`<span style="width:24px;text-align:center;font-size:9px">${n.split(" ")[0]}</span>`).join("")}</div>
+      </div>
+      <div class="card full">
+        <div class="card-label">Variable mapping</div>
+        <table class="var-table">
+          <tr><th>Variable</th><th>Mode name</th><th>Description</th></tr>
+          ${m.vars.map(v=>`<tr><td>${v[0]}</td><td>${v[1]}</td><td>${v[2]}</td></tr>`).join("")}
+        </table>
+      </div>
+    </div>
+  `;
+}
+render();
+</script>

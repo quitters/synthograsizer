@@ -1175,106 +1175,85 @@ export class CodeOverlayManager {
   /**
    * Run P5 sketch
    */
+  /**
+   * Detect sketch type from code content or explicit template field.
+   * Returns 'p5' | 'html' | 'svg' | 'url'
+   */
+  _detectSketchType(code, templateType) {
+    if (templateType && templateType !== 'p5') return templateType;
+    const t = code.trimStart();
+    if (/^https?:\/\/|^\//.test(t) && !t.includes('\n')) return 'url';
+    if (t.startsWith('<svg') || t.startsWith('<SVG')) return 'svg';
+    if (t.startsWith('<!DOCTYPE') || t.startsWith('<html') || t.startsWith('<HTML')) return 'html';
+    return 'p5';
+  }
+
+  /**
+   * Replace {{varName}} tokens in content with current Synthograsizer variable values.
+   */
+  _substituteVars(content, vars) {
+    return content.replace(/\{\{([^}]+)\}\}/g, (match, key) => {
+      const val = vars[key.trim()];
+      return val !== undefined ? val : match;
+    });
+  }
+
   runP5Sketch() {
     const code = this.elements.p5CodeEditor.value;
     if (!code || !code.trim()) {
-      showToast('No P5.js code to run!', 'warning');
+      showToast('No code to run!', 'warning');
       return;
     }
 
-    // Check if p5 library is loaded
-    if (typeof p5 === 'undefined') {
-      showToast('P5.js library not loaded. Please include the P5.js script in your HTML.', 'error');
-      return;
-    }
+    const broadcaster = this.app.displayBroadcaster;
+    const vars = broadcaster?._buildVars() || {};
+    const type = this._detectSketchType(code, this.app.currentTemplate?.sketchType);
 
-    // Determine mount target — prefer the main-page live panel
-    const mountEl = this.elements.p5LiveMount || this.elements.p5SketchMount;
-
-    // Show the live output panel (main page)
-    if (this.elements.p5LiveSection) {
-      this.elements.p5LiveSection.style.display = 'block';
-    }
-    // Also show overlay canvas container if no live panel
-    if (!this.elements.p5LiveMount && this.elements.p5CanvasContainer) {
-      this.elements.p5CanvasContainer.style.display = 'block';
-    }
-
-    // Clear previous sketch
+    // Tear down any residual local p5 instance
     if (this.p5Instance) {
       this.p5Instance.remove();
       this.p5Instance = null;
     }
 
-    // Clear mount point
-    if (mountEl) {
-      mountEl.innerHTML = '';
+    // Send to display — set _lastType/_lastContent first, THEN openDisplay()
+    // so the 1200ms replay in openDisplay() reads the correct type.
+    if (broadcaster) {
+      switch (type) {
+        case 'html':
+          broadcaster.sendHtmlRun(this._substituteVars(code, vars));
+          break;
+        case 'svg':
+          broadcaster.sendSvgRun(this._substituteVars(code, vars));
+          break;
+        case 'url':
+          broadcaster.sendUrlRun(code.trim());
+          break;
+        default: // 'p5'
+          broadcaster.sendP5Run(code, vars);
+          break;
+      }
+      broadcaster.openDisplay();
     }
 
-    // Update button state visually immediately
+    // Show live section with a status card (no local rendering)
+    if (this.elements.p5LiveSection) {
+      this.elements.p5LiveSection.style.display = 'block';
+    }
+    const mountEl = this.elements.p5LiveMount || this.elements.p5SketchMount;
+    if (mountEl) {
+      const label = type.toUpperCase();
+      mountEl.innerHTML = `
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;
+          height:100%;min-height:220px;background:#f0f4f8;border-radius:8px;
+          border:2px dashed #bcccdc;color:#486581;font-family:'Inter',sans-serif;gap:10px;">
+          <span style="font-size:32px;">🖥️</span>
+          <div style="font-weight:600;font-size:15px;">${label} running in Display Window</div>
+          <div style="font-size:11px;opacity:0.7;">Use the Display window to interact</div>
+        </div>`;
+    }
+
     this.p5Running = true;
     this.updateRunButtonState();
-
-    // Broadcast sketch to OBS display page (non-blocking)
-    const broadcaster = this.app.displayBroadcaster;
-    let isDisplayActive = false;
-    
-    if (broadcaster) {
-      broadcaster.sendP5Run(code, broadcaster._buildVars());
-      // Check if display window is open and active
-      isDisplayActive = broadcaster._displayWindow && !broadcaster._displayWindow.closed;
-    }
-
-    if (isDisplayActive) {
-      // ── COMPUTE OPTIMIZATION ──
-      // If the display window is active, don't spin up a second p5 instance locally.
-      if (mountEl) {
-        mountEl.innerHTML = `
-          <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; width:100%; min-height:300px; background:#f0f4f8; border-radius:8px; border:2px dashed #bcccdc; color:#486581; font-family:'Inter', sans-serif;">
-            <span style="font-size:32px; margin-bottom:12px;">🖥️</span>
-            <div style="font-weight:600; font-size:16px;">Running in Display Window</div>
-            <div style="font-size:12px; margin-top:8px; max-width:250px; text-align:center; opacity:0.8;">Local compute disabled to save resources while broadcast is active.</div>
-          </div>
-        `;
-      }
-      return;
-    }
-
-    // ── LOCAL EXECUTION ──
-    try {
-      // Create wrapper sketch that injects getSynthVar
-      const sketch = (p) => {
-        // Inject getSynthVar function (Synthograsizer-compatible)
-        p.getSynthVar = (featureName) => {
-          if (!this.app.currentValues) return null;
-
-          // Find the variable by feature_name or name
-          const variable = this.app.variables.find(v =>
-            v.name === featureName || v.feature_name === featureName
-          );
-
-          if (!variable) return null;
-
-          // Get the current value index
-          const valueIndex = this.app.currentValues[variable.name];
-          if (valueIndex === undefined) return null;
-
-          // Return the actual value text
-          return getValueText(variable.values[valueIndex]);
-        };
-
-        // Execute the user's sketch code
-        const sketchFunc = new Function('p', code);
-        sketchFunc(p);
-      };
-
-      // Create new p5 instance mounted into the live panel
-      this.p5Instance = new p5(sketch, mountEl);
-
-    } catch (error) {
-      showToast(`P5.js Error: ${error.message}. Please check your code and try again.`, 'error');
-      this.stopP5Sketch();
-    }
   }
 
   /**
@@ -1308,8 +1287,8 @@ export class CodeOverlayManager {
     this.p5Running = false;
     this.updateRunButtonState();
 
-    // Notify OBS display page
-    this.app.displayBroadcaster?.sendP5Stop();
+    // Notify display window (stops all sketch types)
+    this.app.displayBroadcaster?.sendSketchStop();
   }
 
   /**
