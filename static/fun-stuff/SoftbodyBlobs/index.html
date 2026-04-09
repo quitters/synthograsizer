@@ -92,6 +92,24 @@
     <option value="terrarium">Terrarium</option>
     <option value="pictionary">Pictionary</option>
   </select>
+  <select id="backgroundSelect" style="font-size:11px;padding:3px 6px;border:0.5px solid #aaa;border-radius:4px;background:#fff;color:#333;cursor:pointer;" title="Background style">
+    <option value="empty" selected>empty</option>
+    <option value="solid">solid bg</option>
+    <option value="gradient">gradient</option>
+    <option value="grid">grid</option>
+    <option value="stars">stars</option>
+    <option value="dots">dots</option>
+    <option value="underwater">underwater</option>
+    <option value="candy">candy</option>
+    <option value="sunny_day">sunny day</option>
+    <option value="candy_land">candy land</option>
+    <option value="quiet_library">library</option>
+    <option value="forest">forest</option>
+    <option value="misty_mountains">mountains</option>
+    <option value="cityscape">cityscape</option>
+    <option value="waves">waves</option>
+    <option value="stormy">stormy</option>
+  </select>
   <label id="eyesToggleWrap" style="display:none;font-size:12px;color:#666;cursor:pointer;user-select:none;" title="Show/hide blob faces">
     <input type="checkbox" id="eyesToggle" checked style="accent-color:#111;cursor:pointer;"> faces
   </label>
@@ -114,16 +132,18 @@
 <div id="facePanelWrap">
   <div class="face-row">
     <span class="face-heading">😊 Face:</span>
-    <label>Expression
+    <label>Mood
       <select id="faceExprSelect">
         <option value="auto">auto</option>
         <option value="happy">happy</option>
-        <option value="sad">sad</option>
-        <option value="neutral">neutral</option>
-        <option value="surprised">surprised</option>
-        <option value="angry">angry</option>
-        <option value="sleepy">sleepy</option>
         <option value="excited">excited</option>
+        <option value="curious">curious</option>
+        <option value="shy">shy</option>
+        <option value="sleepy">sleepy</option>
+        <option value="grumpy">grumpy</option>
+        <option value="sad">sad</option>
+        <option value="surprised">surprised</option>
+        <option value="neutral">neutral</option>
       </select>
     </label>
     <label>Eyes
@@ -138,6 +158,17 @@
     <label><input type="checkbox" id="showBrowsToggle" checked> brows</label>
     <label><input type="checkbox" id="showMouthToggle" checked> mouth</label>
     <label><input type="checkbox" id="showBlushToggle"> blush</label>
+  </div>
+  <div class="face-row">
+    <span class="face-heading">🎨 Pattern:</span>
+    <label>Style
+      <select id="patternSelect">
+        <option value="">none</option>
+        <option value="spots">spots</option>
+        <option value="stripes">stripes</option>
+        <option value="dots">dots</option>
+      </select>
+    </label>
   </div>
 </div>
 
@@ -176,6 +207,11 @@ const ctx = canvas.getContext('2d');
 const W = 520, H = 420;
 canvas.width = W; canvas.height = H;
 
+// Offscreen canvas for pre-rendered static backgrounds
+const bgCanvas = document.createElement('canvas');
+const bgCtx = bgCanvas.getContext('2d');
+bgCanvas.width = W; bgCanvas.height = H;
+
 const WALL = 14, FLOOR = H - WALL, CEIL = WALL, BL = WALL, BR = W - WALL;
 const N = 32;
 const SUBSTEPS = 10;
@@ -200,6 +236,389 @@ const PHYSICS_PRESETS = {
   "tar":            { size: 95, pres: 20, tens: 12, damp: 48, mass: 14, grav: 28, bend: 4 },
   "cloud":          { size: 110, pres: 95, tens: 3, damp: 2, mass: 1, grav: 1, bend: 0 },
 };
+
+// ── Background System ────────────────────────────────────────────────────
+
+let currentBackground = 'empty';
+let backgroundAnimPhase = 0;
+
+const BACKGROUND_DEFAULTS = {
+  playful: 'candy_land',
+  sleepy: 'misty_mountains',
+  grumpy: 'stormy',
+  shy: 'quiet_library',
+  cheerful: 'sunny_day',
+  curious: 'forest'
+};
+
+function renderStaticBackground(type) {
+  // Fill with white background by default (opaque for no trail smearing)
+  bgCtx.fillStyle = '#ffffff';
+  bgCtx.fillRect(0, 0, W, H);
+
+  switch (type) {
+    case 'empty':
+      // Dark opaque background
+      bgCtx.fillStyle = '#0f0f1e';
+      bgCtx.fillRect(0, 0, W, H);
+      break;
+
+    case 'solid':
+      // Already filled above
+      break;
+
+    case 'gradient': {
+      // Linear vertical gradient filling entire canvas
+      const gr = bgCtx.createLinearGradient(0, 0, 0, H);
+      gr.addColorStop(0, '#3d3e5f');
+      gr.addColorStop(0.5, '#2a2a4f');
+      gr.addColorStop(1, '#0f0f2e');
+      bgCtx.fillStyle = gr;
+      bgCtx.fillRect(0, 0, W, H);
+      break;
+    }
+
+    case 'grid': {
+      bgCtx.strokeStyle = 'rgba(255,255,255,0.05)';
+      bgCtx.lineWidth = 0.5;
+      const spacing = 20;
+      for (let x = 0; x < W; x += spacing) {
+        bgCtx.beginPath();
+        bgCtx.moveTo(x, 0);
+        bgCtx.lineTo(x, H);
+        bgCtx.stroke();
+      }
+      for (let y = 0; y < H; y += spacing) {
+        bgCtx.beginPath();
+        bgCtx.moveTo(0, y);
+        bgCtx.lineTo(W, y);
+        bgCtx.stroke();
+      }
+      break;
+    }
+
+    case 'stars': {
+      bgCtx.fillStyle = 'rgba(255,255,200,0.6)';
+      const starCount = 40;
+      let seed = 98765;
+      const nextRand = () => {
+        seed = (seed * 9301 + 49297) % 233280;
+        return seed / 233280;
+      };
+      for (let i = 0; i < starCount; i++) {
+        const x = nextRand() * W;
+        const y = nextRand() * H;
+        const r = 0.5 + nextRand() * 1;
+        bgCtx.beginPath();
+        bgCtx.arc(x, y, r, 0, Math.PI * 2);
+        bgCtx.fill();
+      }
+      break;
+    }
+
+    case 'dots': {
+      bgCtx.fillStyle = 'rgba(200,200,220,0.15)';
+      const spacing = 30;
+      for (let x = 0; x < W; x += spacing) {
+        for (let y = 0; y < H; y += spacing) {
+          bgCtx.beginPath();
+          bgCtx.arc(x, y, 2, 0, Math.PI * 2);
+          bgCtx.fill();
+        }
+      }
+      break;
+    }
+
+    case 'underwater': {
+      // Gradient base
+      const gr = bgCtx.createLinearGradient(0, 0, 0, H);
+      gr.addColorStop(0, '#2a4a6a');
+      gr.addColorStop(1, '#1a2a4a');
+      bgCtx.fillStyle = gr;
+      bgCtx.fillRect(0, 0, W, H);
+      // Coral silhouettes at bottom
+      bgCtx.fillStyle = 'rgba(150,100,80,0.3)';
+      const coralSpacing = 80;
+      for (let x = 0; x < W; x += coralSpacing) {
+        const h = 40 + Math.sin(x * 0.05) * 20;
+        bgCtx.fillRect(x, H - h, 30, h);
+      }
+      break;
+    }
+
+    case 'candy': {
+      // Pastel gradient
+      const gr = bgCtx.createLinearGradient(0, 0, W, H);
+      gr.addColorStop(0, '#ffc0e0');
+      gr.addColorStop(0.5, '#e0c0ff');
+      gr.addColorStop(1, '#c0e0ff');
+      bgCtx.fillStyle = gr;
+      bgCtx.fillRect(0, 0, W, H);
+      // Scattered shape marks
+      bgCtx.fillStyle = 'rgba(255,200,220,0.3)';
+      let seed = 54321;
+      const nextRand = () => {
+        seed = (seed * 9301 + 49297) % 233280;
+        return seed / 233280;
+      };
+      for (let i = 0; i < 12; i++) {
+        const x = nextRand() * W;
+        const y = nextRand() * H;
+        const s = 8 + nextRand() * 12;
+        bgCtx.beginPath();
+        bgCtx.arc(x, y, s, 0, Math.PI * 2);
+        bgCtx.fill();
+      }
+      break;
+    }
+
+    case 'sunny_day': {
+      // Sky gradient (warm yellows)
+      const gr = bgCtx.createLinearGradient(0, 0, 0, H);
+      gr.addColorStop(0, '#ffd89b');
+      gr.addColorStop(0.5, '#ffeb99');
+      gr.addColorStop(1, '#fff9e6');
+      bgCtx.fillStyle = gr;
+      bgCtx.fillRect(0, 0, W, H);
+      // Sun
+      bgCtx.fillStyle = '#ffcc00';
+      const sunX = W * 0.75, sunY = H * 0.2;
+      bgCtx.beginPath();
+      bgCtx.arc(sunX, sunY, W * 0.08, 0, Math.PI * 2);
+      bgCtx.fill();
+      // Clouds
+      bgCtx.fillStyle = 'rgba(255,255,255,0.7)';
+      let seed = 12345;
+      const rnd = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
+      for (let i = 0; i < 5; i++) {
+        const cx = rnd() * W, cy = H * (0.15 + rnd() * 0.25);
+        const cw = W * (0.08 + rnd() * 0.12), ch = cw * 0.5;
+        for (let j = 0; j < 4; j++) {
+          bgCtx.beginPath();
+          bgCtx.ellipse(cx + (j - 1.5) * cw * 0.4, cy, cw * 0.4, ch, 0, 0, Math.PI * 2);
+          bgCtx.fill();
+        }
+      }
+      break;
+    }
+
+    case 'candy_land': {
+      // Pastel candy colors gradient
+      const gr = bgCtx.createLinearGradient(0, 0, W, H);
+      gr.addColorStop(0, '#ffe0f0');
+      gr.addColorStop(0.5, '#e0f0ff');
+      gr.addColorStop(1, '#f0ffe0');
+      bgCtx.fillStyle = gr;
+      bgCtx.fillRect(0, 0, W, H);
+      // Ground
+      bgCtx.fillStyle = '#ffd9e6';
+      bgCtx.fillRect(0, H * 0.7, W, H * 0.3);
+      // Lollipops and gumdrops
+      const candyColors = ['#ff69b4', '#ffc0ff', '#87ceeb', '#90ee90', '#ffff99'];
+      let seed = 11111;
+      const rnd = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
+      for (let i = 0; i < 8; i++) {
+        const x = rnd() * W, y = H * 0.7 - rnd() * H * 0.4;
+        const size = H * (0.06 + rnd() * 0.08);
+        bgCtx.fillStyle = candyColors[Math.floor(rnd() * candyColors.length)];
+        bgCtx.beginPath();
+        bgCtx.arc(x, y, size, 0, Math.PI * 2);
+        bgCtx.fill();
+      }
+      break;
+    }
+
+    case 'quiet_library': {
+      // Warm wall color
+      bgCtx.fillStyle = '#e8dcc8';
+      bgCtx.fillRect(0, 0, W, H);
+      // Bookshelves
+      let seed = 22222;
+      const rnd = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
+      const shelfH = H / 5;
+      const bookColors = ['#8b4513', '#d2691e', '#a0522d', '#4b3621', '#654321', '#8b5a3c'];
+      for (let shelf = 0; shelf < 5; shelf++) {
+        const sy = shelf * shelfH;
+        bgCtx.fillStyle = '#b8a599';
+        bgCtx.fillRect(0, sy + shelfH * 0.85, W, shelfH * 0.08);
+        // Books
+        let bx = 5;
+        while (bx < W - 10) {
+          const bw = 15 + rnd() * 35;
+          const bh = shelfH * 0.8 - rnd() * shelfH * 0.15;
+          bgCtx.fillStyle = bookColors[Math.floor(rnd() * bookColors.length)];
+          bgCtx.fillRect(bx, sy + shelfH * 0.85 - bh, bw, bh);
+          bx += bw + 3;
+        }
+      }
+      break;
+    }
+
+    case 'forest': {
+      // Sky gradient (green)
+      const gr = bgCtx.createLinearGradient(0, 0, 0, H);
+      gr.addColorStop(0, '#90ee90');
+      gr.addColorStop(1, '#228b22');
+      bgCtx.fillStyle = gr;
+      bgCtx.fillRect(0, 0, W, H);
+      // Wavy tree silhouettes
+      let seed = 33333;
+      const rnd = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
+      const treeColors = ['#006400', '#228b22', '#2e8b57', '#3cb371'];
+      for (let t = 0; t < 4; t++) {
+        bgCtx.fillStyle = treeColors[t];
+        bgCtx.beginPath();
+        const tx = W * (0.1 + t * 0.25);
+        bgCtx.moveTo(tx, H);
+        for (let x = tx - W * 0.15; x <= tx + W * 0.15; x += 10) {
+          const y = H * 0.5 + Math.sin((x - tx) * 0.02) * H * 0.3 - Math.random() * H * 0.1;
+          if (x === tx - W * 0.15) bgCtx.moveTo(x, y);
+          else bgCtx.lineTo(x, y);
+        }
+        bgCtx.lineTo(tx + W * 0.15, H);
+        bgCtx.fill();
+      }
+      break;
+    }
+
+    case 'misty_mountains': {
+      // Sky gradient (blues with mist effect)
+      const gr = bgCtx.createLinearGradient(0, 0, 0, H);
+      gr.addColorStop(0, '#87ceeb');
+      gr.addColorStop(0.5, '#add8e6');
+      gr.addColorStop(1, '#b0e0e6');
+      bgCtx.fillStyle = gr;
+      bgCtx.fillRect(0, 0, W, H);
+      // Mountain layers using sine waves
+      let seed = 44444;
+      const rnd = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
+      const mountainColors = ['rgba(100,100,120,0.4)', 'rgba(80,80,100,0.5)', 'rgba(60,60,80,0.6)'];
+      for (let layer = 0; layer < 3; layer++) {
+        bgCtx.fillStyle = mountainColors[layer];
+        bgCtx.beginPath();
+        const baseY = H * (0.4 + layer * 0.2);
+        const freq = 0.008 + layer * 0.002;
+        const amp = H * (0.15 - layer * 0.03);
+        bgCtx.moveTo(0, baseY);
+        for (let x = 0; x <= W; x += 10) {
+          const y = baseY - Math.sin(x * freq) * amp - layer * H * 0.05;
+          bgCtx.lineTo(x, y);
+        }
+        bgCtx.lineTo(W, H);
+        bgCtx.lineTo(0, H);
+        bgCtx.fill();
+      }
+      break;
+    }
+
+    case 'cityscape': {
+      // Night/dusk sky gradient
+      const gr = bgCtx.createLinearGradient(0, 0, 0, H);
+      gr.addColorStop(0, '#2a3f5f');
+      gr.addColorStop(0.5, '#1a2a3f');
+      gr.addColorStop(1, '#0a1a2f');
+      bgCtx.fillStyle = gr;
+      bgCtx.fillRect(0, 0, W, H);
+      // Stars
+      bgCtx.fillStyle = 'rgba(255,255,255,0.6)';
+      let seed = 55555;
+      const rnd = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
+      for (let i = 0; i < 30; i++) {
+        const sx = rnd() * W, sy = rnd() * H * 0.4;
+        bgCtx.beginPath();
+        bgCtx.arc(sx, sy, 0.5 + rnd() * 0.5, 0, Math.PI * 2);
+        bgCtx.fill();
+      }
+      // Buildings with varying heights
+      const buildingW = W / 8;
+      for (let b = 0; b < 8; b++) {
+        const bx = b * buildingW;
+        const bh = H * (0.4 + rnd() * 0.4);
+        const by = H - bh;
+        // Building body
+        bgCtx.fillStyle = `rgb(${30 + rnd() * 40}, ${20 + rnd() * 30}, ${10 + rnd() * 20})`;
+        bgCtx.fillRect(bx, by, buildingW - 2, bh);
+        // Building outline
+        bgCtx.strokeStyle = 'rgba(0,0,0,0.5)';
+        bgCtx.lineWidth = 1;
+        bgCtx.strokeRect(bx, by, buildingW - 2, bh);
+        // Windows
+        bgCtx.fillStyle = '#ffff99';
+        const windowRows = Math.floor(bh / 25);
+        const windowCols = 2;
+        const windowSize = 8;
+        const windowGap = 4;
+        const startX = bx + (buildingW - windowCols * (windowSize + windowGap)) / 2;
+        const startY = by + 15;
+        for (let row = 0; row < windowRows; row++) {
+          for (let col = 0; col < windowCols; col++) {
+            const wx = startX + col * (windowSize + windowGap);
+            const wy = startY + row * (windowSize + windowGap);
+            // Window lit or dark (random)
+            if (rnd() > 0.3) {
+              bgCtx.fillStyle = '#ffff99';
+              bgCtx.fillRect(wx, wy, windowSize, windowSize);
+            } else {
+              bgCtx.fillStyle = '#1a1a2a';
+              bgCtx.fillRect(wx, wy, windowSize, windowSize);
+            }
+          }
+        }
+      }
+      break;
+    }
+  }
+}
+
+function drawBackground() {
+  if (currentBackground === 'waves') {
+    // Animated waves
+    ctx.fillStyle = '#1a1a2e';
+    ctx.fillRect(0, 0, W, H);
+    ctx.strokeStyle = 'rgba(200,200,255,0.15)';
+    ctx.lineWidth = 1;
+    const waveCount = 3;
+    for (let i = 0; i < waveCount; i++) {
+      const yOff = H * 0.25 + i * (H * 0.25);
+      const phase = backgroundAnimPhase * (0.5 + i * 0.3);
+      ctx.beginPath();
+      for (let x = 0; x <= W; x += 10) {
+        const y = yOff + Math.sin((x * 0.02 + phase) * Math.PI * 2) * 15;
+        if (x === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    }
+  } else if (currentBackground === 'stormy') {
+    // Static cloud silhouettes + rare lightning
+    ctx.fillStyle = '#1a1a2e';
+    ctx.fillRect(0, 0, W, H);
+    // Cloud silhouettes
+    ctx.fillStyle = 'rgba(100,100,120,0.4)';
+    ctx.beginPath();
+    ctx.ellipse(W * 0.2, H * 0.2, 80, 40, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(W * 0.7, H * 0.3, 100, 50, 0, 0, Math.PI * 2);
+    ctx.fill();
+    // Rare lightning flash
+    if (Math.sin(backgroundAnimPhase * 4) > 0.95) {
+      ctx.globalAlpha = 0.8;
+      ctx.strokeStyle = '#ffff99';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(W * 0.5, 0);
+      ctx.lineTo(W * 0.45, H * 0.3);
+      ctx.lineTo(W * 0.55, H * 0.5);
+      ctx.lineTo(W * 0.48, H * 0.8);
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+  } else {
+    // Static background from offscreen canvas
+    ctx.drawImage(bgCanvas, 0, 0);
+  }
+}
 
 const COLOR_THEMES = {
   "fire":     ['#e74c3c', '#e67e22', '#f1c40f', '#d35400', '#c0392b'],
@@ -321,6 +740,17 @@ blobChannel.onmessage = (e) => {
       }
       break;
 
+    case 'set-background':
+      // Receives: { type, background: 'solid'|'gradient'|'grid'|'stars'|'dots'|'underwater'|'candy'|'waves'|'stormy' }
+      if (msg.background && ['solid', 'gradient', 'grid', 'stars', 'dots', 'underwater', 'candy', 'waves', 'stormy'].includes(msg.background)) {
+        currentBackground = msg.background;
+        document.getElementById('backgroundSelect').value = msg.background;
+        if (msg.background !== 'waves' && msg.background !== 'stormy') {
+          renderStaticBackground(msg.background);
+        }
+      }
+      break;
+
     case 'ping':
       blobChannel.postMessage({ type: 'pong', mode: currentMode });
       break;
@@ -363,6 +793,11 @@ function handleTerrariumSpawn(creatures) {
     const color = c.color || palette[i % palette.length];
     const blob = createBlob(positions[i].x, positions[i].y, r, color, pr);
     blob.label = c.label || '';
+    blob.pattern = c.pattern || null;
+    // Map legacy personality names from external messages to unified mood
+    const PERSONALITY_MAP = { playful: 'excited', cheerful: 'happy', grumpy: 'grumpy',
+                               shy: 'shy', sleepy: 'sleepy', curious: 'curious' };
+    if (c.personality) blob._faceExpr = PERSONALITY_MAP[c.personality] || c.personality;
     blobs.push(blob);
   }
   selectedBlobIdx = 0;
@@ -397,7 +832,7 @@ function setGameMode(mode) {
 
     case 'terrarium':
       modePanel.style.display = 'block';
-      modePanelContent.innerHTML = '<b>Terrarium Mode</b> — Label your blobs! Each blob is a creature with its own name and physics personality. ' +
+      modePanelContent.innerHTML = '<b>Terrarium Mode</b> — Label your blobs! Each blob is a creature with its own name and personality. ' +
         'Select a blob and type a name below, or receive creatures from the Synthograsizer.';
       pictionaryUI.style.display = 'none';
       labelInput.style.display = 'inline-block';
@@ -416,6 +851,7 @@ function setGameMode(mode) {
         'Or receive prompts from the Synthograsizer.';
       pictionaryUI.style.display = 'block';
       labelInput.style.display = 'none';
+      document.getElementById('eyesToggleWrap').style.display = 'none';
       document.getElementById('facePanelWrap').style.display = 'none';
       // Clear labels in pictionary mode
       blobs.forEach(b => { b.label = ''; });
@@ -437,6 +873,13 @@ function updateLabelInput() {
 
 document.getElementById('modeSelect').addEventListener('change', e => {
   setGameMode(e.target.value);
+});
+
+document.getElementById('backgroundSelect').addEventListener('change', e => {
+  currentBackground = e.target.value;
+  if (currentBackground !== 'waves' && currentBackground !== 'stormy') {
+    renderStaticBackground(currentBackground);
+  }
 });
 
 document.getElementById('labelInput').addEventListener('input', e => {
@@ -731,9 +1174,36 @@ const RAND_RANGES = {
   damp: [1, 45],   mass: [1, 13],   grav: [0, 20], bend: [0, 35]
 };
 
-function randomPr() {
+// Physics randomization ranges keyed by mood
+const MOOD_PR_RANGES = {
+  happy:     { size: [45, 85], pres: [50, 80], damp: [10, 22], grav: [12, 22], tens: [30, 55], bend: [8, 22]  },
+  excited:   { size: [40, 90], pres: [55, 90], damp: [5, 18],  grav: [8, 18],  tens: [25, 50], bend: [5, 20]  },
+  curious:   { size: [25, 85], pres: [40, 70], damp: [12, 25], grav: [5, 15],  tens: [15, 35], bend: [2, 10]  },
+  shy:       { size: [35, 75], pres: [25, 50], damp: [25, 40], grav: [3, 12],  tens: [25, 45], bend: [5, 18]  },
+  sleepy:    { size: [30, 70], pres: [20, 45], damp: [30, 50], grav: [2, 8],   tens: [20, 40], bend: [5, 15]  },
+  grumpy:    { size: [20, 80], pres: [30, 55], damp: [15, 30], grav: [10, 25], tens: [60, 90], bend: [20, 35] },
+  sad:       { size: [30, 70], pres: [25, 50], damp: [25, 40], grav: [3, 12],  tens: [25, 45], bend: [5, 18]  },
+  surprised: { size: [25, 85], pres: [40, 70], damp: [12, 25], grav: [5, 15],  tens: [15, 35], bend: [2, 10]  },
+  neutral:   { size: [30, 80], pres: [35, 65], damp: [15, 30], grav: [5, 15],  tens: [25, 50], bend: [5, 20]  },
+};
+
+// Face config keyed by mood — used by drawFace and blink timing
+const FACE_MODES = {
+  happy:     { mood:  0.70, slant: -0.12, eyes: 'happy',     blinkMin: 2000, blinkRange: 3000 },
+  excited:   { mood:  0.90, slant: -0.25, eyes: 'happy',     blinkMin: 1000, blinkRange: 2000 },
+  curious:   { mood:  0.05, slant: -0.10, eyes: 'surprised', blinkMin: 800,  blinkRange: 1500 },
+  shy:       { mood: -0.05, slant: -0.20, eyes: null,        blinkMin: 3000, blinkRange: 5000 },
+  sleepy:    { mood:  0.05, slant:  0.00, eyes: 'sleepy',    blinkMin: 5000, blinkRange: 8000 },
+  grumpy:    { mood: -0.55, slant:  0.75, eyes: 'angry',     blinkMin: 3000, blinkRange: 5000 },
+  sad:       { mood: -0.55, slant: -0.60, eyes: 'sad',       blinkMin: 3000, blinkRange: 4000 },
+  surprised: { mood:  0.10, slant: -0.45, eyes: 'surprised', blinkMin: 2000, blinkRange: 3000 },
+  neutral:   { mood:  0.05, slant:  0.00, eyes: null,        blinkMin: 2500, blinkRange: 3500 },
+};
+
+function randomPr(mood) {
+  const ranges = mood && MOOD_PR_RANGES[mood] ? MOOD_PR_RANGES[mood] : RAND_RANGES;
   const p = {};
-  for (const [id, [lo, hi]] of Object.entries(RAND_RANGES))
+  for (const [id, [lo, hi]] of Object.entries(ranges))
     p[id] = Math.round(lo + Math.random() * (hi - lo));
   return p;
 }
@@ -747,9 +1217,9 @@ function applyPrToBlob(bi, p) {
 function randomizeSelected() {
   if (blobs.length === 0) return;
   const targets = getTargetBlobs();
-  const p = randomPr();
+  const p = randomPr(masterMode ? (targets[0]?._faceExpr || 'auto') : undefined);
   for (const b of targets) {
-    applyPrToBlob(blobs.indexOf(b), masterMode ? p : randomPr());
+    applyPrToBlob(blobs.indexOf(b), masterMode ? p : randomPr(b._faceExpr || 'auto'));
   }
   syncSlidersToBlob(selectedBlobIdx);
 }
@@ -823,6 +1293,7 @@ function applyFaceToBlob(bi, field, value) {
 function syncFacePanel(bi) {
   if (bi < 0 || bi >= blobs.length) return;
   const b = blobs[bi];
+  document.getElementById('patternSelect').value = b.pattern || '';
   document.getElementById('faceExprSelect').value  = b._faceExpr  || 'auto';
   document.getElementById('eyeStyleSelect').value  = b._eyeStyle  || 'normal';
   document.getElementById('showEyesToggle').checked  = b._showEyes  !== false;
@@ -831,6 +1302,9 @@ function syncFacePanel(bi) {
   document.getElementById('showBlushToggle').checked = !!b._showBlush;
 }
 
+document.getElementById('patternSelect').addEventListener('change', e => {
+  applyFaceToBlob(selectedBlobIdx, 'pattern', e.target.value || null);
+});
 document.getElementById('faceExprSelect').addEventListener('change', e => {
   applyFaceToBlob(selectedBlobIdx, '_faceExpr', e.target.value);
 });
@@ -921,10 +1395,12 @@ document.getElementById('exportBtn').addEventListener('click', () => {
     masterMode,
     selectedBlobIdx,
     mode: currentMode,
+    background: currentBackground,
     blobs: blobs.map(b => ({
       color: b.color,
       pr: { ...b.pr },
       label: b.label || '',
+      pattern: b.pattern || null,
       faceExpr:  b._faceExpr  || 'auto',
       eyeStyle:  b._eyeStyle  || 'normal',
       showEyes:  b._showEyes  !== false,
@@ -969,7 +1445,8 @@ importFile.addEventListener('change', e => {
         const r = sliderToRadius(pr.size);
         const pos = positions[i] || { x: W / 2, y: (CEIL + FLOOR) / 2 };
         const blob = createBlob(pos.x, pos.y, r, saved.color || palette[i % palette.length], pr);
-        blob.label     = saved.label     || '';
+        blob.label       = saved.label   || '';
+        blob.pattern     = saved.pattern || null;
         blob._faceExpr  = saved.faceExpr  || 'auto';
         blob._eyeStyle  = saved.eyeStyle  || 'normal';
         blob._showEyes  = saved.showEyes  !== false;
@@ -982,6 +1459,14 @@ importFile.addEventListener('change', e => {
       if (data.mode && ['sandbox', 'terrarium', 'pictionary'].includes(data.mode)) {
         setGameMode(data.mode);
         document.getElementById('modeSelect').value = data.mode;
+      }
+      // Restore background
+      if (data.background) {
+        currentBackground = data.background;
+        document.getElementById('backgroundSelect').value = data.background;
+        if (currentBackground !== 'waves' && currentBackground !== 'stormy') {
+          renderStaticBackground(currentBackground);
+        }
       }
       // Restore UI state
       if (data.masterMode !== undefined) setMasterMode(data.masterMode);
@@ -1015,7 +1500,11 @@ function createBlob(cx, cy, radius, color, pr) {
     color: color,
     pr: pr ? { ...pr } : defaultPr(),
     label: '',
+    pattern: null,  // null|'spots'|'stripes'|'dots'
     _breathPhase: Math.random() * Math.PI * 2,  // random start so blobs don't breathe in unison
+    _blinkTimer:    Math.random() * 4000,        // ms offset so blobs don't blink in unison
+    _nextBlink:     2000 + Math.random() * 4000, // ms until first blink
+    _blinkProgress: -1,                          // -1=idle, 0..1=blink animation
     // ── Face state (terrarium mode) ────────────────────────────────
     _faceExpr:  'auto',   // 'auto'|'happy'|'sad'|'neutral'|'surprised'|'angry'|'sleepy'|'excited'
     _eyeStyle:  'normal', // 'normal'|'wide'|'sleepy'|'wink'
@@ -1140,13 +1629,23 @@ function syncBlobCount() {
   }
 }
 
+function copyBlobIdentity(src, dst) {
+  dst.label       = src.label   || '';
+  dst.pattern     = src.pattern || null;
+  dst._faceExpr   = src._faceExpr   || 'auto';
+  dst._eyeStyle   = src._eyeStyle   || 'normal';
+  dst._showEyes   = src._showEyes   !== false;
+  dst._showBrows  = src._showBrows  !== false;
+  dst._showMouth  = src._showMouth  !== false;
+  dst._showBlush  = !!src._showBlush;
+}
+
 function rebuildBlob(bi) {
   const b = blobs[bi];
   const cen = blobCentroid(b);
   const r = sliderToRadius(b.pr.size);
-  const label = b.label || '';
   blobs[bi] = createBlob(cen.x, Math.min(cen.y, FLOOR - r - 4), r, b.color, b.pr);
-  blobs[bi].label = label;
+  copyBlobIdentity(b, blobs[bi]);
   snapJoints = snapJoints.filter(j => j.a !== bi && j.b !== bi);
 }
 
@@ -1309,15 +1808,14 @@ canvas.addEventListener('touchcancel', endDrag);
 // ── Physics step ─────────────────────────────────────────────────────
 
 function rescueBlob(bi) {
-  // Rebuild blob in place, keeping color + properties + label
+  // Rebuild blob in place, keeping color + properties + label + face state
   const b = blobs[bi];
   const cen = blobCentroid(b);
   const r = sliderToRadius(b.pr.size);
   const cx = isFinite(cen.x) ? Math.min(Math.max(cen.x, BL + r + 2), BR - r - 2) : W / 2;
   const cy = isFinite(cen.y) ? Math.min(Math.max(cen.y, CEIL + r + 2), FLOOR - r - 2) : (CEIL + FLOOR) / 2;
-  const label = b.label || '';
   blobs[bi] = createBlob(cx, cy, r, b.color, b.pr);
-  blobs[bi].label = label;
+  copyBlobIdentity(b, blobs[bi]);
 }
 
 function blobNeedsRescue(b) {
@@ -1563,17 +2061,7 @@ function drawFace(b, cen, spanX, spanY) {
     browSlant = Math.max(-eyeW * 0.5, Math.min(eyeW * 1.0, (aspect - 1.0) * eyeW * 1.1));
     exprEyes  = null;
   } else {
-    // slant sign: +ve = inner corner lower = angry; -ve = inner corner higher = sad/happy
-    const EXPRS = {
-      happy:     { mood:  0.75, slant: -0.15, eyes: 'happy'     },
-      sad:       { mood: -0.55, slant: -0.60, eyes: 'sad'       },
-      neutral:   { mood:  0.05, slant:  0.00, eyes: null        },
-      surprised: { mood:  0.10, slant: -0.45, eyes: 'surprised' },
-      angry:     { mood: -0.65, slant:  0.90, eyes: 'angry'     },
-      sleepy:    { mood:  0.05, slant:  0.00, eyes: 'sleepy'    },
-      excited:   { mood:  0.90, slant: -0.25, eyes: 'happy'     },
-    };
-    const p = EXPRS[faceExpr] || EXPRS.neutral;
+    const p = FACE_MODES[faceExpr] || FACE_MODES.neutral;
     moodCurve = p.mood;
     browSlant = p.slant * eyeW;
     exprEyes  = p.eyes;
@@ -1630,33 +2118,46 @@ function drawFace(b, cen, spanX, spanY) {
 
   // ── Eyes ──────────────────────────────────────────────────────────
   if (b._showEyes !== false) {
+    // Blink: sin curve 0→1→0 over progress 0..1 squishes eye height
+    const bp = b._blinkProgress;
+    const blinkClose = (bp >= 0) ? Math.sin(Math.PI * bp) : 0;
+
     ctx.fillStyle   = faceInk;
     ctx.strokeStyle = faceInk;
     ctx.lineWidth   = sw;
 
     function drawOneEye(ex, ey, wink) {
       if (wink) {
-        // Wink: upward arc (squinted closed eye)
+        // Wink: upward arc (squinted closed eye) — never blinks further
         ctx.beginPath();
         ctx.ellipse(ex, ey, eyeW * 0.85, eyeH * 0.55, 0, Math.PI, Math.PI * 2);
         ctx.stroke();
         return;
       }
+      // Squish vertical height for blink animation
+      const eH = eyeH * (1 - blinkClose * 0.92);
+      if (blinkClose > 0.82) {
+        // Fully closed: single horizontal dash
+        ctx.strokeStyle = faceInk;
+        ctx.lineWidth = Math.max(1.2, sw * 0.9);
+        ctx.beginPath(); ctx.moveTo(ex - eyeW, ey); ctx.lineTo(ex + eyeW, ey); ctx.stroke();
+        return;
+      }
       switch (finalEyes) {
         case 'happy':
-          // Upward arc = happy squint (MoundProject joyful — π→2π traces upper ellipse)
+          // Upward arc = happy squint (MoundProject joyful)
           ctx.beginPath();
-          ctx.ellipse(ex, ey, eyeW, eyeH * 0.8, 0, Math.PI, Math.PI * 2);
+          ctx.ellipse(ex, ey, eyeW, eH * 0.8, 0, Math.PI, Math.PI * 2);
           ctx.stroke();
           break;
         case 'sad':
-          // Downward arc = droopy eye (MoundProject sad — 0→π traces lower ellipse)
+          // Downward arc = droopy eye (MoundProject sad)
           ctx.beginPath();
-          ctx.ellipse(ex, ey, eyeW, eyeH * 0.5, 0, 0, Math.PI);
+          ctx.ellipse(ex, ey, eyeW, eH * 0.5, 0, 0, Math.PI);
           ctx.stroke();
           break;
         case 'sleepy':
-          // Horizontal filled rectangle — MoundProject sleepy faceType
+          // Horizontal filled bar — MoundProject sleepy faceType (no blink needed)
           const barH = Math.max(2, eyeH * 0.22);
           ctx.beginPath();
           ctx.roundRect(ex - eyeW, ey - barH * 0.5, eyeW * 2, barH, barH * 0.5);
@@ -1665,25 +2166,38 @@ function drawFace(b, cen, spanX, spanY) {
         case 'surprised':
           // Large ellipse + white highlight (MoundProject surprised faceType)
           ctx.fillStyle = faceInk;
-          ctx.beginPath(); ctx.ellipse(ex, ey, eyeW * 1.35, eyeH * 1.35, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.beginPath(); ctx.ellipse(ex, ey, eyeW * 1.35, eH * 1.35, 0, 0, Math.PI * 2); ctx.fill();
           ctx.fillStyle = 'rgba(255,255,255,0.92)';
-          ctx.beginPath(); ctx.ellipse(ex - eyeW * 0.28, ey - eyeH * 0.28, eyeW * 0.38, eyeH * 0.38, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.beginPath(); ctx.ellipse(ex - eyeW * 0.28, ey - eH * 0.28, eyeW * 0.38, eH * 0.38, 0, 0, Math.PI * 2); ctx.fill();
           ctx.fillStyle = faceInk;
           break;
         case 'angry':
           // Tilted ellipse — inner-top edge raised (MoundProject angry faceType)
           ctx.save();
           ctx.translate(ex, ey);
-          ctx.rotate(ex < cen.x ? -0.22 : 0.22);  // CCW for left eye, CW for right eye
+          ctx.rotate(ex < cen.x ? -0.22 : 0.22);
           ctx.fillStyle = faceInk;
-          ctx.beginPath(); ctx.ellipse(0, 0, eyeW, eyeH, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.beginPath(); ctx.ellipse(0, 0, eyeW, eH, 0, 0, Math.PI * 2); ctx.fill();
           ctx.restore();
           break;
         case 'wide':
-          ctx.beginPath(); ctx.ellipse(ex, ey, eyeW * 1.4, eyeH, 0, 0, Math.PI * 2); ctx.fill();
+          // Sclera + pupil + shine — wide eyes (MoundProject wideEyes faceType)
+          ctx.fillStyle = 'rgba(255,255,255,0.92)';
+          ctx.beginPath(); ctx.ellipse(ex, ey, eyeW * 1.55, eH * 1.08, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = faceInk;
+          ctx.beginPath(); ctx.ellipse(ex, ey, eyeW * 0.88, eH * 0.72, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = 'rgba(255,255,255,0.88)';
+          ctx.beginPath(); ctx.arc(ex - eyeW * 0.38, ey - eH * 0.24, Math.max(1, eyeW * 0.22), 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = faceInk;
           break;
-        default: // 'normal' — solid filled tall ellipses (MoundProject classic)
-          ctx.beginPath(); ctx.ellipse(ex, ey, eyeW, eyeH, 0, 0, Math.PI * 2); ctx.fill();
+        default: // 'normal' — sclera + pupil + shine (MoundProject classic)
+          ctx.fillStyle = 'rgba(255,255,255,0.92)';
+          ctx.beginPath(); ctx.ellipse(ex, ey, eyeW * 1.08, eH * 1.06, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = faceInk;
+          ctx.beginPath(); ctx.ellipse(ex, ey, eyeW * 0.62, eH * 0.7, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = 'rgba(255,255,255,0.88)';
+          ctx.beginPath(); ctx.arc(ex - eyeW * 0.25, ey - eH * 0.24, Math.max(1, eyeW * 0.21), 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = faceInk;
           break;
       }
     }
@@ -1696,22 +2210,107 @@ function drawFace(b, cen, spanX, spanY) {
   if (b._showMouth !== false) {
     const mY     = cen.y + spanY * 0.22;
     const mHalfW = spanX * 0.13;
-    const maxCH  = mHalfW * 0.55;
-    const curveH = moodCurve * maxCH;  // +ve lifts ctrl point = smile; -ve drops = frown
 
-    ctx.strokeStyle = 'rgba(20,15,10,0.75)';
-    ctx.lineWidth   = Math.max(1.5, sw * 0.95);
-    ctx.beginPath();
-    ctx.moveTo(cen.x - mHalfW, mY);
-    if (Math.abs(curveH) < maxCH * 0.07) {
-      ctx.lineTo(cen.x + mHalfW, mY);                               // neutral straight line
+    if (faceExpr === 'surprised') {
+      // Open "O" mouth — MoundProject surprised faceType
+      const ow = mHalfW * 0.72;
+      const oh = ow * 0.8;
+      ctx.fillStyle = 'rgba(20,15,10,0.80)';
+      ctx.beginPath(); ctx.ellipse(cen.x, mY - oh * 0.25, ow, oh, 0, 0, Math.PI * 2); ctx.fill();
     } else {
-      ctx.quadraticCurveTo(cen.x, mY + curveH, cen.x + mHalfW, mY);  // smile / frown
+      const maxCH  = mHalfW * 0.55;
+      const curveH = moodCurve * maxCH;  // +ve lifts ctrl point = smile; -ve drops = frown
+      ctx.strokeStyle = 'rgba(20,15,10,0.75)';
+      ctx.lineWidth   = Math.max(1.5, sw * 0.95);
+      ctx.beginPath();
+      ctx.moveTo(cen.x - mHalfW, mY);
+      if (Math.abs(curveH) < maxCH * 0.07) {
+        ctx.lineTo(cen.x + mHalfW, mY);                               // neutral straight line
+      } else {
+        ctx.quadraticCurveTo(cen.x, mY + curveH, cen.x + mHalfW, mY);  // smile / frown
+      }
+      ctx.stroke();
     }
-    ctx.stroke();
   }
 
   ctx.restore();
+}
+
+function drawBlobPattern(ctx, b, minX, minY, maxX, maxY) {
+  if (!b.pattern) return;
+  const spanX = maxX - minX;
+  const spanY = maxY - minY;
+  const cen = blobCentroid(b);
+  const patternColor = darkenColor(b.color, 0.2);
+  const blobIdx = blobs.indexOf(b); // for seeded randomization
+
+  ctx.fillStyle = patternColor;
+
+  switch (b.pattern) {
+    case 'spots': {
+      const seed = 12345 + blobIdx * 789; // deterministic seed per blob
+      let rng = seed;
+      const nextRand = () => {
+        rng = (rng * 9301 + 49297) % 233280;
+        return rng / 233280;
+      };
+      const spotCount = Math.max(3, Math.floor(Math.sqrt(spanX * spanY) / 30));
+      for (let i = 0; i < spotCount; i++) {
+        const x = minX + nextRand() * spanX;
+        const y = minY + nextRand() * spanY;
+        const r = 2 + nextRand() * 4;
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      break;
+    }
+    case 'stripes': {
+      const stripeWidth = 8;
+      const spacing = 14;
+      const seed = 12345 + blobIdx * 789;
+      let rng = seed;
+      const nextRand = () => {
+        rng = (rng * 9301 + 49297) % 233280;
+        return rng / 233280;
+      };
+      const angle = nextRand() * Math.PI; // random stripe angle per blob
+      const cos = Math.cos(angle);
+      const sin = Math.sin(angle);
+      let pos = -spanX - spanY;
+      while (pos < spanX + spanY) {
+        const x1 = cen.x + pos * cos - (spanY * 0.5) * sin;
+        const y1 = cen.y + pos * sin + (spanY * 0.5) * cos;
+        const x2 = cen.x + (pos + stripeWidth) * cos - (spanY * 0.5) * sin;
+        const y2 = cen.y + (pos + stripeWidth) * sin + (spanY * 0.5) * cos;
+        const x3 = cen.x + (pos + stripeWidth) * cos + (spanY * 0.5) * sin;
+        const y3 = cen.y + (pos + stripeWidth) * sin - (spanY * 0.5) * cos;
+        const x4 = cen.x + pos * cos + (spanY * 0.5) * sin;
+        const y4 = cen.y + pos * sin - (spanY * 0.5) * cos;
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.lineTo(x3, y3);
+        ctx.lineTo(x4, y4);
+        ctx.closePath();
+        ctx.fill();
+        pos += spacing;
+      }
+      break;
+    }
+    case 'dots': {
+      const dotSpacing = 12;
+      const dotRadius = 1.5;
+      for (let x = minX; x < maxX; x += dotSpacing) {
+        for (let y = minY; y < maxY; y += dotSpacing) {
+          ctx.beginPath();
+          ctx.arc(x, y, dotRadius, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+      break;
+    }
+  }
 }
 
 function drawBlob(b, isSelected) {
@@ -1773,7 +2372,24 @@ function drawBlob(b, isSelected) {
   ctx.lineWidth = 1.5;
   ctx.stroke();
 
-  // Face (terrarium mode only, when toggle is on)
+  // Surface patterns — below face
+  if (b.pattern) {
+    ctx.save();
+    ctx.beginPath();
+    const midX = i => (b.px[i] + b.px[(i + 1) % N]) * 0.5;
+    const midY = i => (b.py[i] + b.py[(i + 1) % N]) * 0.5;
+    ctx.moveTo(midX(0), midY(0));
+    for (let i = 0; i < N; i++) {
+      const ni = (i + 1) % N;
+      ctx.quadraticCurveTo(b.px[ni], b.py[ni], midX(ni), midY(ni));
+    }
+    ctx.closePath();
+    ctx.clip();
+    drawBlobPattern(ctx, b, minX, minY, maxX, maxY);
+    ctx.restore();
+  }
+
+  // Face (terrarium mode only, when toggle is on) — above pattern
   if (currentMode === 'terrarium' && showEyes) drawFace(b, cen, spanX, spanY);
 
   // Specular highlight
@@ -1995,12 +2611,36 @@ function draw(timestamp) {
   }
   _dbStepMs = performance.now() - _t0;
 
-  // Advance breath phase each render frame (~3 s cycle at 30 fps; staggered by random init)
-  for (let i = 0; i < blobs.length; i++) blobs[i]._breathPhase += 0.07;
+  // Advance breath phase and blink timers each render frame
+  for (let i = 0; i < blobs.length; i++) {
+    const b = blobs[i];
+    b._breathPhase += 0.07;  // ~3s cycle at 30fps, staggered by random init
+    // Blink animation: progress 0→1 over 180ms, then idle until next blink
+    if (b._blinkProgress >= 0) {
+      b._blinkProgress = Math.min(1.0, b._blinkProgress + elapsed / 180);
+      if (b._blinkProgress >= 1.0) b._blinkProgress = -1;
+    } else {
+      b._blinkTimer += elapsed;
+      if (b._blinkTimer >= b._nextBlink) {
+        b._blinkTimer = 0;
+        const fm = FACE_MODES[b._faceExpr];
+        b._nextBlink = (fm ? fm.blinkMin : 2000) + Math.random() * (fm ? fm.blinkRange : 4000);
+        b._blinkProgress = 0;
+      }
+    }
+  }
+
+  // Update background animation phase
+  if (currentBackground === 'waves' || currentBackground === 'stormy') {
+    backgroundAnimPhase += 0.02; // Adjust speed as needed
+  }
 
   const _t1 = performance.now();
-  ctx.clearRect(0, 0, W, H);
 
+  // Draw background
+  drawBackground();
+
+  // Draw walls and floor (on top of background)
   ctx.fillStyle = '#222';
   ctx.fillRect(0, 0, WALL, H);
   ctx.fillRect(W - WALL, 0, WALL, H);
@@ -2016,6 +2656,7 @@ function draw(timestamp) {
 
 // ── Go ───────────────────────────────────────────────────────────────
 hardReset();
+renderStaticBackground('solid');  // Initialize default background
 requestAnimationFrame(draw);
 </script>
 </body>
