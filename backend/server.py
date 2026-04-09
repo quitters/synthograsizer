@@ -100,6 +100,9 @@ class VideoRequest(BaseModel):
     aspect_ratio: Optional[str] = None
     end_frame_image: Optional[str] = None
     start_frame_image: Optional[str] = None
+    resolution: Optional[str] = None               # "720p" | "1080p" | "4k" (4k: Veo 3.1 only; 1080p/4k require 8s)
+    reference_images: Optional[List[str]] = None   # Up to 3 base64 images (Veo 3.1 full/fast only)
+    extension_video_uri: Optional[str] = None      # URI of a prior Veo generation to extend (Veo 3.1 full/fast only)
 
 class ChatRequest(BaseModel):
     message: str
@@ -373,15 +376,18 @@ async def generate_image(request: ImageRequest):
 @app.post("/api/generate/video")
 async def generate_video(request: VideoRequest):
     try:
-        video_b64 = await ai_manager.generate_video(
+        result = await ai_manager.generate_video(
             request.prompt,
             request.model,
             request.duration,
             request.aspect_ratio,
             request.end_frame_image,
-            request.start_frame_image
+            request.start_frame_image,
+            request.reference_images,
+            request.extension_video_uri,
+            request.resolution
         )
-        return {"status": "success", "video": video_b64}
+        return {"status": "success", "video": result["video_b64"], "video_uri": result.get("video_uri")}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

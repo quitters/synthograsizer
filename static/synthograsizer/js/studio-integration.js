@@ -516,6 +516,60 @@ class StudioIntegration {
             .skeuo-switch.active .skeuo-label-right { opacity: 0; }
             .skeuo-switch:not(.active) .skeuo-label-left { opacity: 0; }
 
+            /* Video Mode Bar */
+            .vmode-bar {
+                display: flex; gap: 3px; margin-bottom: 10px;
+                background: #f0f0f0; padding: 3px; border-radius: 8px;
+            }
+            .vmode-btn {
+                flex: 1; padding: 7px 3px; font-size: 11px; font-weight: 600;
+                border: none; border-radius: 6px; cursor: pointer;
+                background: transparent; color: #666; white-space: nowrap;
+                transition: all 0.2s; font-family: 'Inter', sans-serif;
+            }
+            .vmode-btn:hover:not(.active):not(:disabled) { background: #e0e0e0; color: #333; }
+            .vmode-btn.active { background: #5e60ce; color: white; box-shadow: 0 1px 3px rgba(0,0,0,0.15); }
+            .vmode-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+            .vmode-hint {
+                font-size: 11px; color: #444; margin-bottom: 12px;
+                padding: 6px 10px; background: #ededff; border-radius: 6px;
+                border-left: 3px solid #5e60ce; line-height: 1.4;
+            }
+            .vmode-panel { display: none; }
+            .vmode-panel.active { display: block; }
+            .vmode-desc { font-size: 11px; color: #777; margin: 0 0 10px; }
+
+            /* Video Drop Zones */
+            .vdrop-row { display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+            .vdrop-wrap { flex: 1; min-width: 80px; display: flex; flex-direction: column; gap: 4px; }
+            .vdrop-wrap > span { font-size: 10px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: .04em; }
+            .vdrop-zone {
+                position: relative; border: 2px dashed #ccc; border-radius: 8px;
+                padding: 12px 6px; text-align: center; cursor: pointer;
+                background: #fafafa; transition: border-color 0.15s, background 0.15s;
+                min-height: 76px; display: flex; flex-direction: column;
+                align-items: center; justify-content: center; gap: 3px; overflow: hidden;
+            }
+            .vdrop-zone:hover { border-color: #5e60ce; background: #f0f0ff; }
+            .vdrop-zone.has-file { border-color: #5e60ce; border-style: solid; background: #ededff; }
+            .vdrop-zone input[type="file"] {
+                position: absolute; inset: 0; opacity: 0; cursor: pointer;
+                width: 100%; height: 100%; font-size: 0;
+            }
+            .vdrop-thumb {
+                width: 52px; height: 52px; object-fit: cover; border-radius: 5px;
+                display: none; pointer-events: none;
+            }
+            .vdrop-zone-label { font-size: 11px; font-weight: 600; color: #555; pointer-events: none; }
+            .vdrop-zone-hint { font-size: 10px; color: #aaa; pointer-events: none; }
+            .vdrop-filename { font-size: 10px; color: #5e60ce; font-weight: 600; display: none; pointer-events: none; max-width: 90%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+            .vdrop-clear-btn {
+                position: relative; z-index: 2; background: #fce4ec; border: 1px solid #f8bbd0;
+                color: #c2185b; border-radius: 5px; padding: 3px 8px; font-size: 10px;
+                font-weight: 700; cursor: pointer; display: none; margin-top: 2px;
+            }
+            .vdrop-clear-btn:hover { background: #c2185b; color: white; }
+
             /* Progress Bar */
             .batch-progress-container {
                 margin-top: 15px; display: none;
@@ -780,6 +834,7 @@ class StudioIntegration {
 
         this.injectModals();
         this.setupFileClearButtons();
+        this.setupVdropZones();
         this.injectChatWindow();
         this.injectLightbox();
         this.bindEvents();
@@ -1326,26 +1381,128 @@ class StudioIntegration {
             
             <!-- Standard Video UI -->
             <div id="video-std-ui">
-                 <div class="studio-input-group">
-                    <label>Prompt(s)</label>
-                    <textarea id="video-prompt-input" style="width:100%; height:80px; padding:8px; border:1px solid #ddd; border-radius:6px; resize:vertical; font-family:'Inter'"></textarea>
-                </div>
                 <div class="studio-input-group">
-                    <label>First Frame (Optional)</label>
-                    <div class="file-input-wrapper">
-                        <input type="file" id="video-first-frame-input" accept="image/*">
-                        <button type="button" class="clear-file-btn" data-file-input="video-first-frame-input" data-preview-target="video-first-frame-preview">Remove</button>
-                    </div>
-                    <div class="file-preview" id="video-first-frame-preview"><img src="" alt="First frame preview" style="max-width: 150px; display: none; border-radius: 4px; margin-top: 8px;"></div>
+                    <label id="video-prompt-label">Prompt</label>
+                    <textarea id="video-prompt-input" style="width:100%; height:72px; padding:8px; border:1px solid #ddd; border-radius:6px; resize:vertical; font-family:'Inter'"></textarea>
                 </div>
-                <div class="studio-input-group">
-                    <label>Last Frame (Optional)</label>
-                    <div class="file-input-wrapper">
-                        <input type="file" id="video-last-frame-input" accept="image/*">
-                        <button type="button" class="clear-file-btn" data-file-input="video-last-frame-input" data-preview-target="video-last-frame-preview">Remove</button>
+
+                <!-- Generation Mode Bar -->
+                <div class="vmode-bar" id="video-mode-bar">
+                    <button class="vmode-btn active" data-mode="text">Text</button>
+                    <button class="vmode-btn" data-mode="image">Image</button>
+                    <button class="vmode-btn" data-mode="interpolate">Interpolate</button>
+                    <button class="vmode-btn vmode-31only" data-mode="reference" disabled>Reference</button>
+                    <button class="vmode-btn vmode-31only" data-mode="extend" disabled>Extend</button>
+                </div>
+                <div class="vmode-hint" id="video-model-hint">Veo 3.1 Preview &mdash; All modes &middot; 720p, 1080p, 4K &middot; Audio</div>
+
+                <!-- Text mode: no extra inputs -->
+                <div class="vmode-panel active" id="vmode-panel-text">
+                    <p class="vmode-desc">Pure text-to-video. The prompt alone drives generation.</p>
+                </div>
+
+                <!-- Image-to-video mode -->
+                <div class="vmode-panel" id="vmode-panel-image">
+                    <p class="vmode-desc">Animate from a starting frame. The image becomes the first shot.</p>
+                    <div class="vdrop-row">
+                        <div class="vdrop-wrap">
+                            <span>Starting Frame</span>
+                            <div class="vdrop-zone" id="vdrop-first-frame">
+                                <input type="file" id="video-first-frame-input" accept="image/*">
+                                <img class="vdrop-thumb" id="vdrop-first-frame-thumb" src="" alt="">
+                                <div class="vdrop-zone-label">Click to browse</div>
+                                <div class="vdrop-zone-hint">JPG, PNG, WEBP</div>
+                                <div class="vdrop-filename" id="vdrop-first-frame-name"></div>
+                            </div>
+                            <button type="button" class="vdrop-clear-btn" data-zone="vdrop-first-frame">Remove</button>
+                        </div>
                     </div>
-                    <div class="file-preview" id="video-last-frame-preview"><img src="" alt="Last frame preview" style="max-width: 150px; display: none; border-radius: 4px; margin-top: 8px;"></div>
-                    <small style="color:#666; display:block; margin-top:4px;">Ending frame (requires 8s duration)</small>
+                </div>
+
+                <!-- Interpolation mode -->
+                <div class="vmode-panel" id="vmode-panel-interpolate">
+                    <p class="vmode-desc">Define the first and last frame &mdash; Veo generates the transition. Requires 8s duration.</p>
+                    <div class="vdrop-row">
+                        <div class="vdrop-wrap">
+                            <span>Start</span>
+                            <div class="vdrop-zone" id="vdrop-interp-start">
+                                <input type="file" id="video-first-frame-input-interp" accept="image/*">
+                                <img class="vdrop-thumb" id="vdrop-interp-start-thumb" src="" alt="">
+                                <div class="vdrop-zone-label">First Frame</div>
+                                <div class="vdrop-zone-hint">Click to browse</div>
+                                <div class="vdrop-filename" id="vdrop-interp-start-name"></div>
+                            </div>
+                            <button type="button" class="vdrop-clear-btn" data-zone="vdrop-interp-start">Remove</button>
+                        </div>
+                        <div class="vdrop-wrap">
+                            <span>End</span>
+                            <div class="vdrop-zone" id="vdrop-interp-end">
+                                <input type="file" id="video-last-frame-input" accept="image/*">
+                                <img class="vdrop-thumb" id="vdrop-interp-end-thumb" src="" alt="">
+                                <div class="vdrop-zone-label">Last Frame</div>
+                                <div class="vdrop-zone-hint">Click to browse</div>
+                                <div class="vdrop-filename" id="vdrop-interp-end-name"></div>
+                            </div>
+                            <button type="button" class="vdrop-clear-btn" data-zone="vdrop-interp-end">Remove</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reference image direction mode (Veo 3.1 full/fast only) -->
+                <div class="vmode-panel" id="vmode-panel-reference">
+                    <p class="vmode-desc">Provide up to 3 reference images (subject, costume, product) &mdash; Veo preserves their appearance in the output. Requires 8s duration.</p>
+                    <div class="vdrop-row">
+                        <div class="vdrop-wrap">
+                            <span>Ref 1</span>
+                            <div class="vdrop-zone" id="vdrop-ref1">
+                                <input type="file" id="video-ref1-input" accept="image/*">
+                                <img class="vdrop-thumb" id="vdrop-ref1-thumb" src="" alt="">
+                                <div class="vdrop-zone-label">Click to browse</div>
+                                <div class="vdrop-zone-hint">JPG, PNG, WEBP</div>
+                                <div class="vdrop-filename" id="vdrop-ref1-name"></div>
+                            </div>
+                            <button type="button" class="vdrop-clear-btn" data-zone="vdrop-ref1">Remove</button>
+                        </div>
+                        <div class="vdrop-wrap">
+                            <span>Ref 2</span>
+                            <div class="vdrop-zone" id="vdrop-ref2">
+                                <input type="file" id="video-ref2-input" accept="image/*">
+                                <img class="vdrop-thumb" id="vdrop-ref2-thumb" src="" alt="">
+                                <div class="vdrop-zone-label">Click to browse</div>
+                                <div class="vdrop-zone-hint">JPG, PNG, WEBP</div>
+                                <div class="vdrop-filename" id="vdrop-ref2-name"></div>
+                            </div>
+                            <button type="button" class="vdrop-clear-btn" data-zone="vdrop-ref2">Remove</button>
+                        </div>
+                        <div class="vdrop-wrap">
+                            <span>Ref 3</span>
+                            <div class="vdrop-zone" id="vdrop-ref3">
+                                <input type="file" id="video-ref3-input" accept="image/*">
+                                <img class="vdrop-thumb" id="vdrop-ref3-thumb" src="" alt="">
+                                <div class="vdrop-zone-label">Click to browse</div>
+                                <div class="vdrop-zone-hint">JPG, PNG, WEBP</div>
+                                <div class="vdrop-filename" id="vdrop-ref3-name"></div>
+                            </div>
+                            <button type="button" class="vdrop-clear-btn" data-zone="vdrop-ref3">Remove</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Video extension mode (Veo 3.1 full/fast only) -->
+                <div class="vmode-panel" id="vmode-panel-extend">
+                    <p class="vmode-desc">Extend a previously Veo-generated video by ~7 seconds. Aspect ratio and resolution are inherited from the source — Duration and Aspect Ratio controls are not used here.</p>
+                    <div class="studio-input-group">
+                        <label>Recent Generations</label>
+                        <select id="video-extend-recent-select" style="width:100%; padding:8px; border:1px solid #ddd; border-radius:6px; font-family:'Inter'; box-sizing:border-box;">
+                            <option value="">— Select a recent generation —</option>
+                        </select>
+                        <button type="button" id="video-extend-refresh-btn" style="margin-top:5px; background:none; border:1px solid #ccc; border-radius:5px; padding:4px 10px; font-size:11px; cursor:pointer; color:#555;">Refresh list</button>
+                    </div>
+                    <div class="studio-input-group">
+                        <label>Or paste a video URI directly</label>
+                        <input type="text" id="video-extend-uri-input" placeholder="https://generativelanguage.googleapis.com/v1beta/files/..." style="width:100%; padding:8px; border:1px solid #ddd; border-radius:6px; font-family:'Inter'; box-sizing:border-box; font-size:12px;">
+                        <small style="color:#888; margin-top:4px; display:block;">The URI is returned after each generation and is valid for 48 hours.</small>
+                    </div>
                 </div>
             </div>
 
@@ -1387,25 +1544,46 @@ class StudioIntegration {
                     <select id="video-model-select" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;">
                         <option value="veo-3.1-generate-preview" selected>Veo 3.1 Preview</option>
                         <option value="veo-3.1-fast-generate-preview">Veo 3.1 Fast Preview</option>
+                        <option value="veo-3.1-lite-generate-preview">Veo 3.1 Lite Preview</option>
                         <option value="veo-3.0-generate-preview">Veo 3.0 Preview</option>
                     </select>
                 </div>
                 
-                <div class="studio-input-group">
+                <!-- Duration: shown only in Text & Image modes, and when resolution is 720p -->
+                <div id="video-duration-control" class="studio-input-group">
                     <label>Duration</label>
                     <select id="video-duration-select">
                         <option value="4">4 Seconds (Default)</option>
                         <option value="6">6 Seconds</option>
-                         <option value="8">8 Seconds (Veo Only)</option>
+                        <option value="8">8 Seconds</option>
                     </select>
                 </div>
+                <!-- Shown when mode or resolution forces 8s -->
+                <div id="video-duration-locked-note" style="display:none; font-size:11px; color:#888; padding:5px 10px; background:#f5f5f5; border-radius:6px; margin-bottom:10px;">
+                    Duration: 8 seconds (required for this mode or resolution)
+                </div>
 
-                <div class="studio-input-group">
+                <div id="video-aspect-control" class="studio-input-group">
                     <label>Aspect Ratio</label>
                     <select id="video-aspect-select">
                         <option value="16:9" selected>16:9 (Landscape)</option>
                         <option value="9:16">9:16 (Portrait)</option>
                     </select>
+                </div>
+
+                <div id="video-resolution-control" class="studio-input-group">
+                    <label>Resolution</label>
+                    <select id="video-resolution-select">
+                        <option value="720p" selected>720p (Default)</option>
+                        <option value="1080p">1080p (8s only)</option>
+                        <option value="4k" id="video-res-4k-option">4K (8s only &middot; Veo 3.1 only)</option>
+                    </select>
+                    <small style="color:#888; display:block; margin-top:4px;">Audio is always included in Veo 3.1 outputs.</small>
+                </div>
+
+                <!-- Shown only in Extend mode -->
+                <div id="video-extend-locked-note" style="display:none; font-size:11px; color:#888; padding:5px 10px; background:#f5f5f5; border-radius:6px; margin-bottom:10px;">
+                    Duration, Aspect Ratio, and Resolution are inherited from the source video.
                 </div>
             
             <button class="studio-btn-primary" id="run-video-gen">Generate</button>
@@ -1610,6 +1788,89 @@ class StudioIntegration {
                     }
                 }
             });
+        });
+    }
+
+    populateExtendRecentList() {
+        const select = document.getElementById('video-extend-recent-select');
+        if (!select) return;
+        try {
+            const stored = JSON.parse(sessionStorage.getItem('veo_recent_generations') || '[]');
+            // Remove expired entries (older than 47h to give a safety margin)
+            const cutoff = Date.now() - 47 * 60 * 60 * 1000;
+            const valid = stored.filter(g => g.timestamp > cutoff);
+            if (valid.length !== stored.length) {
+                sessionStorage.setItem('veo_recent_generations', JSON.stringify(valid));
+            }
+            select.innerHTML = '<option value="">— Select a recent generation —</option>';
+            if (!valid.length) {
+                select.innerHTML += '<option value="" disabled>No recent generations (generate a video first)</option>';
+            } else {
+                valid.forEach(g => {
+                    const opt = document.createElement('option');
+                    opt.value = g.uri;
+                    opt.textContent = g.label;
+                    select.appendChild(opt);
+                });
+            }
+        } catch (_) {}
+    }
+
+    setupVdropZones() {
+        document.querySelectorAll('.vdrop-zone').forEach(zone => {
+            const input    = zone.querySelector('input[type="file"]');
+            const thumb    = zone.querySelector('.vdrop-thumb');
+            const filename = zone.querySelector('.vdrop-filename');
+            const label    = zone.querySelector('.vdrop-zone-label');
+            const hint     = zone.querySelector('.vdrop-zone-hint');
+            const clearBtn = zone.parentElement?.querySelector('.vdrop-clear-btn');
+            if (!input) return;
+
+            const isImage = input.accept.includes('image');
+
+            const applyFile = (file) => {
+                if (!file) return;
+                zone.classList.add('has-file');
+                if (filename) { filename.textContent = file.name; filename.style.display = 'block'; }
+                if (label) label.style.display = 'none';
+                if (hint)  hint.style.display  = 'none';
+                if (clearBtn) clearBtn.style.display = 'inline-block';
+                if (isImage && thumb) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => { thumb.src = e.target.result; thumb.style.display = 'block'; };
+                    reader.readAsDataURL(file);
+                }
+            };
+
+            const clearZone = () => {
+                input.value = '';
+                zone.classList.remove('has-file');
+                if (thumb)    { thumb.src = ''; thumb.style.display = 'none'; }
+                if (filename) { filename.textContent = ''; filename.style.display = 'none'; }
+                if (label) label.style.display = 'block';
+                if (hint)  hint.style.display  = 'block';
+                if (clearBtn) clearBtn.style.display = 'none';
+            };
+
+            input.addEventListener('change', () => { if (input.files[0]) applyFile(input.files[0]); });
+
+            // Drag-and-drop
+            zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.style.borderColor = '#5e60ce'; });
+            zone.addEventListener('dragleave', () => { if (!zone.classList.contains('has-file')) zone.style.borderColor = ''; });
+            zone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                zone.style.borderColor = '';
+                const file = e.dataTransfer?.files[0];
+                if (!file) return;
+                const dt = new DataTransfer();
+                dt.items.add(file);
+                input.files = dt.files;
+                applyFile(file);
+            });
+
+            if (clearBtn) {
+                clearBtn.addEventListener('click', (e) => { e.stopPropagation(); clearZone(); });
+            }
         });
     }
 
@@ -2118,6 +2379,97 @@ class StudioIntegration {
                 btn.textContent = "Generate Video";
             }
         });
+
+        // Central UI sync: called whenever mode or resolution changes
+        const syncVideoModeUI = (mode) => {
+            const durCtrl   = document.getElementById('video-duration-control');
+            const durNote   = document.getElementById('video-duration-locked-note');
+            const aspectCtrl = document.getElementById('video-aspect-control');
+            const resCtrl   = document.getElementById('video-resolution-control');
+            const extNote   = document.getElementById('video-extend-locked-note');
+            const resVal    = document.getElementById('video-resolution-select')?.value || '720p';
+
+            const isExtend   = mode === 'extend';
+            const modeLocks8s = mode === 'interpolate' || mode === 'reference';
+            const resLocks8s  = resVal === '1080p' || resVal === '4k';
+            const hideDur    = isExtend || modeLocks8s || resLocks8s;
+
+            if (durCtrl)    durCtrl.style.display    = hideDur   ? 'none'  : 'block';
+            if (durNote)    durNote.style.display     = (!isExtend && (modeLocks8s || resLocks8s)) ? 'block' : 'none';
+            if (aspectCtrl) aspectCtrl.style.display  = isExtend  ? 'none'  : 'block';
+            if (resCtrl)    resCtrl.style.display     = isExtend  ? 'none'  : 'block';
+            if (extNote)    extNote.style.display     = isExtend  ? 'block' : 'none';
+
+            // Force the hidden select value to 8 so the backend always gets the right duration
+            if (hideDur) {
+                const durSel = document.getElementById('video-duration-select');
+                if (durSel) durSel.value = '8';
+            }
+
+            if (isExtend) this.populateExtendRecentList();
+        };
+
+        // Video mode bar tab switching
+        document.querySelectorAll('.vmode-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (btn.disabled) return;
+                document.querySelectorAll('.vmode-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                document.querySelectorAll('.vmode-panel').forEach(p => p.classList.remove('active'));
+                const panel = document.getElementById(`vmode-panel-${btn.dataset.mode}`);
+                if (panel) panel.classList.add('active');
+                const lbl = document.getElementById('video-prompt-label');
+                if (lbl) lbl.textContent = btn.dataset.mode === 'extend' ? 'Continuation Prompt' : 'Prompt';
+                syncVideoModeUI(btn.dataset.mode);
+            });
+        });
+
+        // Resolution change: recalculate duration visibility for the current mode
+        this.bindSafe('video-resolution-select', 'onchange', () => {
+            const mode = document.querySelector('#video-mode-bar .vmode-btn.active')?.dataset.mode || 'text';
+            syncVideoModeUI(mode);
+        });
+
+        // Refresh button for recent-generations list
+        this.bindSafe('video-extend-refresh-btn', 'onclick', () => this.populateExtendRecentList());
+
+        // Model selector: update capability hint + enable/disable 3.1-only tabs
+        const VIDEO_MODEL_HINTS = {
+            'veo-3.1-generate-preview':      'All modes &middot; 720p, 1080p, 4K &middot; Audio',
+            'veo-3.1-fast-generate-preview': 'All modes &middot; 720p, 1080p &middot; Audio &middot; Optimized for speed',
+            'veo-3.1-lite-generate-preview': 'Text &amp; Image modes only &middot; 720p, 1080p &middot; Audio &middot; No Reference or Extend',
+            'veo-3.0-generate-preview':      'Text &amp; Image modes only &middot; 720p, 1080p &middot; Audio &middot; No Reference or Extend',
+        };
+        const applyVideoModelCaps = (modelVal) => {
+            const hint = document.getElementById('video-model-hint');
+            if (hint) hint.innerHTML = (VIDEO_MODEL_HINTS[modelVal] || modelVal);
+
+            const is31Full = modelVal === 'veo-3.1-generate-preview' || modelVal === 'veo-3.1-fast-generate-preview';
+
+            // Enable/disable 3.1-exclusive mode tabs
+            document.querySelectorAll('.vmode-31only').forEach(btn => {
+                btn.disabled = !is31Full;
+                if (!is31Full && btn.classList.contains('active')) {
+                    document.querySelector('.vmode-btn[data-mode="text"]')?.click();
+                }
+            });
+
+            // Gate 4K resolution to Veo 3.1 full only
+            const opt4k = document.getElementById('video-res-4k-option');
+            if (opt4k) {
+                opt4k.disabled = !is31Full;
+                // If 4K was selected and model no longer supports it, fall back to 720p
+                const resSel = document.getElementById('video-resolution-select');
+                if (resSel && resSel.value === '4k' && !is31Full) {
+                    resSel.value = '720p';
+                    const mode = document.querySelector('#video-mode-bar .vmode-btn.active')?.dataset.mode || 'text';
+                    syncVideoModeUI(mode);
+                }
+            }
+        };
+        this.bindSafe('video-model-select', 'onchange', (e) => applyVideoModelCaps(e.target.value));
+        // Apply on load for the default selected model
+        applyVideoModelCaps(document.getElementById('video-model-select')?.value || 'veo-3.1-generate-preview');
 
         // Skeuomorphic Switch Logic
         const batchSwitch = document.getElementById('batch-mode-switch');
@@ -3552,19 +3904,54 @@ class StudioIntegration {
             const model = document.getElementById('video-model-select').value;
             const duration = document.getElementById('video-duration-select').value;
             const aspectRatio = document.getElementById('video-aspect-select').value;
+            const resolution = document.getElementById('video-resolution-select')?.value || '720p';
 
-            const startFrameInput = document.getElementById('video-first-frame-input');
-            const lastFrameInput = document.getElementById('video-last-frame-input');
+            // Read active generation mode from the mode bar
+            const activeMode = document.querySelector('#video-mode-bar .vmode-btn.active')?.dataset.mode || 'text';
 
-            let startFrame = null;
-            let endFrame = null;
+            let startFrame = null, endFrame = null, referenceImages = null, extensionVideo = null;
 
-            if (startFrameInput && startFrameInput.files.length > 0) {
-                startFrame = await this.readFileAsBase64(startFrameInput.files[0]);
-            }
+            if (activeMode === 'image') {
+                const el = document.getElementById('video-first-frame-input');
+                if (!el || !el.files.length) {
+                    this.showToast("Image mode requires a starting frame.", 'warning');
+                    return;
+                }
+                startFrame = await this.readFileAsBase64(el.files[0]);
 
-            if (lastFrameInput && lastFrameInput.files.length > 0) {
-                endFrame = await this.readFileAsBase64(lastFrameInput.files[0]);
+            } else if (activeMode === 'interpolate') {
+                const sEl = document.getElementById('video-first-frame-input-interp');
+                const eEl = document.getElementById('video-last-frame-input');
+                if (!sEl?.files.length || !eEl?.files.length) {
+                    this.showToast("Interpolate mode requires both a start and end frame.", 'warning');
+                    return;
+                }
+                startFrame = await this.readFileAsBase64(sEl.files[0]);
+                endFrame   = await this.readFileAsBase64(eEl.files[0]);
+
+            } else if (activeMode === 'reference') {
+                const refIds = ['video-ref1-input', 'video-ref2-input', 'video-ref3-input'];
+                const refs = [];
+                for (const id of refIds) {
+                    const el = document.getElementById(id);
+                    if (el?.files.length) refs.push(await this.readFileAsBase64(el.files[0]));
+                }
+                if (!refs.length) {
+                    this.showToast("Reference mode requires at least one reference image.", 'warning');
+                    return;
+                }
+                referenceImages = refs;
+
+            } else if (activeMode === 'extend') {
+                // Extension uses a stored Google URI from a prior generation — not a file upload.
+                const select = document.getElementById('video-extend-recent-select');
+                const manual = document.getElementById('video-extend-uri-input');
+                const uri = (select?.value || manual?.value || '').trim();
+                if (!uri) {
+                    this.showToast("Extend mode requires selecting or pasting a video URI from a prior generation.", 'warning', 5000);
+                    return;
+                }
+                extensionVideo = uri;  // repurpose variable as URI string for params below
             }
 
             this.closeAllModals();
@@ -3573,8 +3960,11 @@ class StudioIntegration {
                 model,
                 duration,
                 aspect_ratio: aspectRatio,
+                resolution,
                 start_frame_image: startFrame,
-                end_frame_image: endFrame
+                end_frame_image: endFrame,
+                reference_images: referenceImages,
+                extension_video_uri: activeMode === 'extend' ? extensionVideo : null
             };
 
             const prompts = promptInput.split('\n').filter(p => p.trim() !== '');
@@ -3643,6 +4033,16 @@ class StudioIntegration {
                 <video controls autoplay loop class="studio-result-video">
                     <source src="data:video/mp4;base64,${data.video}" type="video/mp4">
                     </video>`;
+
+                // Store the video URI for future extension (valid for 48h on Google's servers)
+                if (data.video_uri) {
+                    try {
+                        const stored = JSON.parse(sessionStorage.getItem('veo_recent_generations') || '[]');
+                        const label = `${params.prompt?.slice(0, 40) || 'Video'}... (${new Date().toLocaleTimeString()})`;
+                        stored.unshift({ uri: data.video_uri, label, timestamp: Date.now() });
+                        sessionStorage.setItem('veo_recent_generations', JSON.stringify(stored.slice(0, 10)));
+                    } catch (_) {}
+                }
 
                 // Auto-push video to OBS display page
                 window.synthSmall?.displayBroadcaster?.sendVideo(
