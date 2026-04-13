@@ -713,10 +713,10 @@ class AIManager:
 
         try:
             config_opts = types.GenerateVideosConfig()
-            
-            # Veo 3.1 is finicky with durations — always use 8 seconds
-            config_opts.duration_seconds = 8
-                 
+
+            # Use requested duration; fall back to 5s if not provided
+            config_opts.duration_seconds = int(duration_seconds) if duration_seconds else 5
+
             if aspect_ratio:
                 config_opts.aspect_ratio = aspect_ratio
 

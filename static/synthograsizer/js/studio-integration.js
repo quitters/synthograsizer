@@ -817,6 +817,7 @@ class StudioIntegration {
                 <h4 style="margin:0; color:#555;">AI Studio Output</h4>
                 <div style="display:flex; gap:10px;">
                     <button id="stop-batch-btn" style="display:none; color:red; border:1px solid red; background:white; border-radius:4px; padding:2px 8px; cursor:pointer;">Stop Batch</button>
+                    <button id="retry-failed-btn" style="display:none; color:#e67e00; border:1px solid #e67e00; background:white; border-radius:4px; padding:2px 8px; cursor:pointer;">Retry Failed (0)</button>
                     <button id="close-studio-result" style="border:none; background:none; cursor:pointer; font-size:16px;">✕</button>
                 </div>
             </div>
@@ -1374,11 +1375,13 @@ class StudioIntegration {
 
         // Video Studio Modal
         this.createModal('video-studio-modal', 'Video Studio', `
-             <div class="studio-toggle-row">
-                <span class="studio-toggle-label">Batch Workflow</span>
-                <input type="checkbox" id="video-batch-toggle">
+            <!-- Workflow Mode Bar -->
+            <div class="vmode-bar" id="video-workflow-bar" style="margin-bottom:14px;">
+                <button class="vmode-btn active" data-vwf="standard">Standard</button>
+                <button class="vmode-btn" data-vwf="batch">Batch</button>
+                <button class="vmode-btn" data-vwf="story">Story / Thematic</button>
             </div>
-            
+
             <!-- Standard Video UI -->
             <div id="video-std-ui">
                 <div class="studio-input-group">
@@ -1506,7 +1509,62 @@ class StudioIntegration {
                 </div>
             </div>
 
-            <!-- Batch Workflow UI -->
+            <!-- Simple Batch Workflow UI -->
+            <div id="video-simple-batch-ui" style="display:none;">
+                <!-- Batch type sub-tabs -->
+                <div class="vmode-bar" id="video-batch-type-bar" style="margin-bottom:12px;">
+                    <button class="vmode-btn active" data-btype="prompts">Text Prompts</button>
+                    <button class="vmode-btn" data-btype="images">Image Folder</button>
+                </div>
+
+                <!-- Prompts mode -->
+                <div id="vbatch-prompts-panel">
+                    <div class="studio-input-group">
+                        <label>Prompts <span style="font-weight:normal;color:#888;">(one per line)</span></label>
+                        <textarea id="video-batch-prompts" placeholder="A cinematic shot of a wave crashing at sunset\nAn astronaut floating through a neon nebula\n..." style="width:100%; height:110px; padding:8px; border:1px solid #ddd; border-radius:6px; resize:vertical; font-family:'Inter'; font-size:12px;"></textarea>
+                    </div>
+                    <div class="studio-input-group">
+                        <label>Or upload a .txt file <span style="font-weight:normal;color:#888;">(one prompt per line)</span></label>
+                        <input type="file" id="video-batch-prompts-file" accept=".txt,.csv">
+                    </div>
+                </div>
+
+                <!-- Images mode -->
+                <div id="vbatch-images-panel" style="display:none;">
+                    <div class="studio-input-group">
+                        <label>Source Images <span style="font-weight:normal;color:#888;">(each animates as image-to-video)</span></label>
+                        <div class="file-input-wrapper">
+                            <input type="file" id="video-batch-images" accept="image/*" multiple webkitdirectory>
+                            <button type="button" class="clear-file-btn" data-file-input="video-batch-images" data-preview-target="video-batch-images-preview">Remove</button>
+                        </div>
+                        <div class="file-preview" id="video-batch-images-preview" data-max="50"></div>
+                        <small style="color:#666; display:block; margin-top:4px;">Select a folder or pick multiple images. Each will become its own video clip.</small>
+                    </div>
+                    <div class="studio-input-group">
+                        <label>Shared Prompt <span style="font-weight:normal;color:#888;">(optional — applied to every clip)</span></label>
+                        <textarea id="video-batch-shared-prompt" placeholder="Cinematic slow motion, golden hour lighting..." style="width:100%; height:60px; padding:8px; border:1px solid #ddd; border-radius:6px; resize:vertical; font-family:'Inter'; font-size:12px;"></textarea>
+                    </div>
+                </div>
+
+                <div style="display:flex; align-items:center; gap:10px; margin-top:10px;">
+                    <label style="font-size:12px; color:#555; white-space:nowrap;">Concurrency</label>
+                    <select id="video-batch-concurrency" style="padding:4px 6px; border:1px solid #ddd; border-radius:4px; font-family:'Inter'; font-size:12px;">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3" selected>3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                    </select>
+                    <small style="color:#888;">simultaneous generations</small>
+                </div>
+
+                <div class="batch-progress-container" id="simple-batch-progress-ui" style="display:none;">
+                    <div class="batch-progress-bar"><div class="batch-progress-fill" id="simple-batch-progress-fill"></div></div>
+                    <div class="batch-progress-status" id="simple-batch-progress-text">Waiting to start...</div>
+                </div>
+            </div>
+
+            <!-- Story / Thematic Batch Workflow UI -->
             <div id="video-batch-ui" style="display:none;">
                 <div class="skeuo-switch-container">
                     <div class="skeuo-switch" id="batch-mode-switch">
@@ -2364,20 +2422,56 @@ class StudioIntegration {
 
         this.bindSafe('image-batch-file', 'onchange', (e) => this.handleBatchFileSelect(e, 'image-prompt-input'));
 
-        this.bindSafe('video-batch-toggle', 'onchange', (e) => {
-            const stdUi = document.getElementById('video-std-ui');
-            const batchUi = document.getElementById('video-batch-ui');
-            const btn = document.getElementById('run-video-gen');
+        // Video workflow mode bar
+        const VIDEO_WORKFLOW_UIS = {
+            standard: 'video-std-ui',
+            batch:    'video-simple-batch-ui',
+            story:    'video-batch-ui',
+        };
+        const VIDEO_WORKFLOW_BTN_LABELS = {
+            standard: 'Generate Video',
+            batch:    'Run Batch',
+            story:    'Run Story Workflow',
+        };
+        this._videoWorkflowMode = 'standard'; // tracked explicitly — don't rely on DOM class alone
+        document.querySelectorAll('#video-workflow-bar .vmode-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const mode = btn.dataset.vwf;
+                this._videoWorkflowMode = mode;
+                document.querySelectorAll('#video-workflow-bar .vmode-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                Object.values(VIDEO_WORKFLOW_UIS).forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.style.display = 'none';
+                });
+                const ui = document.getElementById(VIDEO_WORKFLOW_UIS[mode]);
+                if (ui) ui.style.display = 'block';
+                const runBtn = document.getElementById('run-video-gen');
+                if (runBtn) runBtn.textContent = VIDEO_WORKFLOW_BTN_LABELS[mode];
+            });
+        });
 
-            if (e.target.checked) {
-                stdUi.style.display = 'none';
-                batchUi.style.display = 'block';
-                btn.textContent = "Run Batch Workflow";
-            } else {
-                stdUi.style.display = 'block';
-                batchUi.style.display = 'none';
-                btn.textContent = "Generate Video";
-            }
+        // Batch type sub-tabs (Text Prompts / Image Folder)
+        document.querySelectorAll('#video-batch-type-bar .vmode-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const btype = btn.dataset.btype;
+                document.querySelectorAll('#video-batch-type-bar .vmode-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById('vbatch-prompts-panel').style.display = btype === 'prompts' ? 'block' : 'none';
+                document.getElementById('vbatch-images-panel').style.display  = btype === 'images'  ? 'block' : 'none';
+            });
+        });
+
+        // Load .txt file into prompts textarea
+        this.bindSafe('video-batch-prompts-file', 'onchange', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                const ta = document.getElementById('video-batch-prompts');
+                if (ta) ta.value = ev.target.result.trim();
+            };
+            reader.readAsText(file);
         });
 
         // Central UI sync: called whenever mode or resolution changes
@@ -2409,11 +2503,12 @@ class StudioIntegration {
             if (isExtend) this.populateExtendRecentList();
         };
 
-        // Video mode bar tab switching
-        document.querySelectorAll('.vmode-btn').forEach(btn => {
+        // Video mode bar tab switching — scoped to #video-mode-bar only so it
+        // doesn't clobber active state on the workflow bar or batch type bar.
+        document.querySelectorAll('#video-mode-bar .vmode-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 if (btn.disabled) return;
-                document.querySelectorAll('.vmode-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('#video-mode-bar .vmode-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 document.querySelectorAll('.vmode-panel').forEach(p => p.classList.remove('active'));
                 const panel = document.getElementById(`vmode-panel-${btn.dataset.mode}`);
@@ -2551,6 +2646,8 @@ class StudioIntegration {
             const btn = document.getElementById('stop-batch-btn');
             if (btn) btn.style.display = 'none';
         });
+
+        this.bindSafe('retry-failed-btn', 'onclick', () => this.retryFailedBatch());
 
         // AI Studio Output Close
         this.bindSafe('close-studio-result', 'onclick', () => {
@@ -3368,11 +3465,14 @@ class StudioIntegration {
     }
 
     async generateVideo() {
-        const batchToggle = document.getElementById('video-batch-toggle');
-        const batchMode = batchToggle ? batchToggle.checked : false;
+        const wfMode = this._videoWorkflowMode || 'standard';
 
-        if (batchMode) {
+        if (wfMode === 'story') {
             await this.runBatchStoryWorkflow();
+            return;
+        }
+        if (wfMode === 'batch') {
+            await this.runSimpleBatchWorkflow();
             return;
         }
 
@@ -3450,7 +3550,253 @@ class StudioIntegration {
     }
 
 
+    async runSimpleBatchWorkflow() {
+        if (this.isBatchRunning) { this.showToast("A batch is already running.", 'warning'); return; }
+
+        const activeBtypeBtn = document.querySelector('#video-batch-type-bar .vmode-btn.active');
+        const btype = activeBtypeBtn ? activeBtypeBtn.dataset.btype : 'prompts';
+
+        const modelSelect    = document.getElementById('video-model-select');
+        const aspectSelect   = document.getElementById('video-aspect-select');
+        const durationSelect = document.getElementById('video-duration-select');
+        const model       = modelSelect    ? modelSelect.value    : 'veo-3.1-generate-preview';
+        const aspectRatio = aspectSelect   ? aspectSelect.value   : '16:9';
+        const duration    = parseInt(durationSelect ? durationSelect.value : '4', 10);
+
+        let jobs = []; // { prompt, imageB64 (optional), label }
+
+        if (btype === 'prompts') {
+            const ta = document.getElementById('video-batch-prompts');
+            const lines = (ta ? ta.value : '').split('\n').map(l => l.trim()).filter(Boolean);
+            if (lines.length === 0) { this.showToast("Enter at least one prompt.", 'warning'); return; }
+            jobs = lines.map((prompt, i) => ({ prompt, label: `Prompt ${i + 1}` }));
+        } else {
+            const fileInput = document.getElementById('video-batch-images');
+            const files = fileInput ? Array.from(fileInput.files) : [];
+            if (files.length === 0) { this.showToast("Select at least one image.", 'warning'); return; }
+            const sharedPrompt = (document.getElementById('video-batch-shared-prompt')?.value || '').trim()
+                                 || 'Animate this image cinematically.';
+            // Store file references only — base64 is read lazily in the loop so the
+            // modal can close and the grid can appear immediately.
+            jobs = Array.from(files).map(f => ({ prompt: sharedPrompt, file: f, label: f.name }));
+        }
+
+        this.closeAllModals(); // Show result UI right away — no blocking reads before this
+
+        const resultContainer = document.getElementById('studio-result');
+        const contentDiv      = document.getElementById('studio-result-content') || document.getElementById('studio-content');
+        const stopBtn         = document.getElementById('stop-batch-btn');
+        const closeBtn        = document.getElementById('close-studio-result');
+
+        resultContainer.classList.add('active');
+        if (stopBtn)  stopBtn.style.display  = 'inline-block';
+        if (closeBtn) closeBtn.style.display = 'none';
+
+        contentDiv.innerHTML = '<div class="studio-result-grid" id="batch-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));"></div>';
+        const grid = document.getElementById('batch-grid');
+
+        const ratioStyle = aspectRatio === '9:16' ? 'aspect-ratio:9/16;' : 'aspect-ratio:16/9;';
+        const items = jobs.map((job, i) => {
+            const item = document.createElement('div');
+            item.className = 'studio-result-item';
+            item.innerHTML = `
+                <div style="${ratioStyle} background:#f0f0f0; display:flex; align-items:center; justify-content:center; border-radius:4px; overflow:hidden;">
+                    <span class="loader" style="width:20px; height:20px;"></span>
+                </div>
+                <p style="font-size:11px; margin-top:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${job.label}">${job.label}</p>
+            `;
+            grid.appendChild(item);
+            return item;
+        });
+
+        const concurrency = parseInt(document.getElementById('video-batch-concurrency')?.value || '3', 10);
+        this._retriableJobs = []; // reset retry list
+        this.isBatchRunning = true;
+        let succeeded = 0, failed = 0;
+
+        // Per-item processor — called concurrently by the worker pool
+        const processItem = async (i) => {
+            const job  = jobs[i];
+            const item = items[i];
+            item.querySelector('p').textContent = `Generating ${i + 1}/${jobs.length}…`;
+
+            const params = { prompt: job.prompt, model, aspect_ratio: aspectRatio, duration };
+            if (job.file && !job.imageB64) {
+                job.imageB64 = await this.readFileAsBase64(job.file);
+            }
+            if (job.imageB64) params.start_frame_image = job.imageB64;
+
+            try {
+                const res = await fetch('/api/generate/video', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(params)
+                });
+                if (!res.ok) {
+                    const errData = await res.json().catch(() => null);
+                    throw new Error(errData?.detail || `HTTP ${res.status}`);
+                }
+                const data = await res.json();
+
+                item.querySelector('div').innerHTML = `
+                    <video controls autoplay loop muted style="width:100%; height:100%; object-fit:cover;">
+                        <source src="data:video/mp4;base64,${data.video}" type="video/mp4">
+                    </video>
+                `;
+                item.querySelector('p').textContent = job.label;
+                const dlLink = document.createElement('a');
+                dlLink.href = `data:video/mp4;base64,${data.video}`;
+                dlLink.download = `batch_clip_${i + 1}.mp4`;
+                dlLink.textContent = '⬇️';
+                dlLink.style.cssText = 'display:block; text-align:center; text-decoration:none; margin-top:2px;';
+                item.appendChild(dlLink);
+                succeeded++;
+
+            } catch (itemErr) {
+                console.error(`Batch item ${i + 1} failed:`, itemErr);
+                item.querySelector('div').innerHTML = `
+                    <div style="${ratioStyle} background:#fff0f0; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:8px; border-radius:4px;">
+                        <span style="font-size:18px;">⚠️</span>
+                        <span style="font-size:10px; color:#c00; text-align:center; margin-top:4px; word-break:break-word;">${itemErr.message.slice(0, 120)}</span>
+                    </div>
+                `;
+                item.querySelector('p').textContent = `${job.label} — failed`;
+                failed++;
+                this._retriableJobs.push({ job, item, ratioStyle });
+            }
+        };
+
+        try {
+            // Worker pool: N workers each pull from a shared index queue
+            const queue = jobs.map((_, i) => i);
+            const workers = Array.from({ length: Math.min(concurrency, jobs.length) }, async () => {
+                while (this.isBatchRunning) {
+                    const i = queue.shift();
+                    if (i === undefined) break;
+                    await processItem(i);
+                }
+            });
+            await Promise.all(workers);
+        } finally {
+            this.isBatchRunning = false;
+            if (stopBtn) stopBtn.style.display = 'none';
+            if (closeBtn) closeBtn.style.display = 'block';
+
+            const retryBtn = document.getElementById('retry-failed-btn');
+            if (retryBtn) {
+                if (this._retriableJobs.length > 0) {
+                    retryBtn.textContent = `Retry Failed (${this._retriableJobs.length})`;
+                    retryBtn.style.display = 'inline-block';
+                } else {
+                    retryBtn.style.display = 'none';
+                }
+            }
+            this.showToast(`Batch complete: ${succeeded} succeeded, ${failed} failed.`, failed > 0 ? 'warning' : 'success');
+        }
+    }
+
+    async retryFailedBatch() {
+        if (this.isBatchRunning) { this.showToast("A batch is already running.", 'warning'); return; }
+        if (!this._retriableJobs?.length) { this.showToast("No failed items to retry.", 'warning'); return; }
+
+        const retryBtn  = document.getElementById('retry-failed-btn');
+        const stopBtn   = document.getElementById('stop-batch-btn');
+        const closeBtn  = document.getElementById('close-studio-result');
+
+        const jobs = this._retriableJobs;
+        this._retriableJobs = [];
+        if (retryBtn)  retryBtn.style.display  = 'none';
+        if (stopBtn)   stopBtn.style.display   = 'inline-block';
+        if (closeBtn)  closeBtn.style.display  = 'none';
+
+        // Reset each failed item back to a loading placeholder
+        jobs.forEach(({ item, ratioStyle }) => {
+            item.querySelector('div').innerHTML = `
+                <div style="${ratioStyle} background:#f0f0f0; display:flex; align-items:center; justify-content:center; border-radius:4px; overflow:hidden;">
+                    <span class="loader" style="width:20px; height:20px;"></span>
+                </div>
+            `;
+            item.querySelector('p').textContent = '…';
+        });
+
+        const concurrency = parseInt(document.getElementById('video-batch-concurrency')?.value || '3', 10);
+        // Read shared params from the modal controls (still valid — modal is closed but DOM persists)
+        const model       = document.getElementById('video-model-select')?.value       || 'veo-3.1-generate-preview';
+        const aspectRatio = document.getElementById('video-aspect-select')?.value      || '16:9';
+        const duration    = parseInt(document.getElementById('video-duration-select')?.value || '4', 10);
+
+        this.isBatchRunning = true;
+        let succeeded = 0, failed = 0;
+
+        const queue = jobs.map((_, i) => i);
+        const workers = Array.from({ length: Math.min(concurrency, jobs.length) }, async () => {
+            while (this.isBatchRunning) {
+                const i = queue.shift();
+                if (i === undefined) break;
+                const { job, item, ratioStyle } = jobs[i];
+                item.querySelector('p').textContent = `Retrying ${job.label}…`;
+
+                const params = { prompt: job.prompt, model, aspect_ratio: aspectRatio, duration };
+                if (job.file && !job.imageB64) job.imageB64 = await this.readFileAsBase64(job.file);
+                if (job.imageB64) params.start_frame_image = job.imageB64;
+
+                try {
+                    const res = await fetch('/api/generate/video', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(params)
+                    });
+                    if (!res.ok) {
+                        const errData = await res.json().catch(() => null);
+                        throw new Error(errData?.detail || `HTTP ${res.status}`);
+                    }
+                    const data = await res.json();
+                    item.querySelector('div').innerHTML = `
+                        <video controls autoplay loop muted style="width:100%; height:100%; object-fit:cover;">
+                            <source src="data:video/mp4;base64,${data.video}" type="video/mp4">
+                        </video>
+                    `;
+                    item.querySelector('p').textContent = job.label;
+                    const dlLink = document.createElement('a');
+                    dlLink.href = `data:video/mp4;base64,${data.video}`;
+                    dlLink.download = `retry_${job.label}.mp4`;
+                    dlLink.textContent = '⬇️';
+                    dlLink.style.cssText = 'display:block; text-align:center; text-decoration:none; margin-top:2px;';
+                    item.appendChild(dlLink);
+                    succeeded++;
+                } catch (itemErr) {
+                    console.error(`Retry failed for ${job.label}:`, itemErr);
+                    item.querySelector('div').innerHTML = `
+                        <div style="${ratioStyle} background:#fff0f0; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:8px; border-radius:4px;">
+                            <span style="font-size:18px;">⚠️</span>
+                            <span style="font-size:10px; color:#c00; text-align:center; margin-top:4px; word-break:break-word;">${itemErr.message.slice(0, 120)}</span>
+                        </div>
+                    `;
+                    item.querySelector('p').textContent = `${job.label} — failed`;
+                    failed++;
+                    this._retriableJobs.push({ job, item, ratioStyle });
+                }
+            }
+        });
+        await Promise.all(workers);
+
+        this.isBatchRunning = false;
+        if (stopBtn)  stopBtn.style.display  = 'none';
+        if (closeBtn) closeBtn.style.display = 'block';
+        if (retryBtn) {
+            if (this._retriableJobs.length > 0) {
+                retryBtn.textContent = `Retry Failed (${this._retriableJobs.length})`;
+                retryBtn.style.display = 'inline-block';
+            } else {
+                retryBtn.style.display = 'none';
+            }
+        }
+        this.showToast(`Retry complete: ${succeeded} recovered, ${failed} still failed.`, failed > 0 ? 'warning' : 'success');
+    }
+
     async runBatchStoryWorkflow() {
+        if (this.isBatchRunning) { this.showToast("A batch is already running.", 'warning'); return; }
+
         const modeInput = document.getElementById('batch-mode-value');
         const promptInput = document.getElementById('video-north-star');
         const fileInput = document.getElementById('video-batch-input');
@@ -3889,25 +4235,31 @@ class StudioIntegration {
 
     async generateVideo() {
         try {
-            const batchToggle = document.getElementById('video-batch-toggle');
-            const batchMode = batchToggle ? batchToggle.checked : false;
+            const wfMode = this._videoWorkflowMode || 'standard';
 
-            if (batchMode) {
-                if (this.runBatchStoryWorkflow) {
-                    await this.runBatchStoryWorkflow();
-                } else {
-                    throw new Error("Batch story workflow not implemented");
-                }
+            if (wfMode === 'story') {
+                await this.runBatchStoryWorkflow();
+                return;
+            }
+            if (wfMode === 'batch') {
+                await this.runSimpleBatchWorkflow();
                 return;
             }
             const promptInput = document.getElementById('video-prompt-input').value;
+
+            // Read active generation mode from the mode bar
+            const activeMode = document.querySelector('#video-mode-bar .vmode-btn.active')?.dataset.mode || 'text';
+
+            // Require a prompt for all modes except Extend (which uses a continuation prompt, can be blank)
+            if (activeMode !== 'extend' && !promptInput.trim()) {
+                this.showToast("Please enter a prompt.", 'warning');
+                return;
+            }
+
             const model = document.getElementById('video-model-select').value;
             const duration = document.getElementById('video-duration-select').value;
             const aspectRatio = document.getElementById('video-aspect-select').value;
             const resolution = document.getElementById('video-resolution-select')?.value || '720p';
-
-            // Read active generation mode from the mode bar
-            const activeMode = document.querySelector('#video-mode-bar .vmode-btn.active')?.dataset.mode || 'text';
 
             let startFrame = null, endFrame = null, referenceImages = null, extensionVideo = null;
 
