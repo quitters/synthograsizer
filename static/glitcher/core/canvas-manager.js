@@ -26,6 +26,11 @@ export class CanvasManager {
     this.frames = [];
     this.currentFrameIndex = 0;
     this.animationMode = false;
+
+    // Feedback buffer for effect accumulation across frames
+    this.feedbackBuffer = null;
+    this.feedbackEnabled = false;
+    this.feedbackMix = 0.5; // 0 = clean source only, 1 = full feedback (no source)
   }
 
   /**
@@ -429,10 +434,38 @@ export class CanvasManager {
     if (index >= 0 && index < this.frames.length) {
       this.currentFrameIndex = index;
       this.originalImageData = this.frames[index];
-      this.glitchImageData = copyImageData(this.originalImageData);
+      // When feedback is enabled, blending is handled in the animate loop
+      if (!this.feedbackEnabled) {
+        this.glitchImageData = copyImageData(this.originalImageData);
+      }
     }
   }
   
+  /**
+   * Blend feedback buffer with current source frame into glitchImageData.
+   * mix=0 → pure source, mix=1 → pure feedback (no new source information)
+   */
+  applyFeedbackBlend() {
+    const src = this.originalImageData.data;
+    const fb = this.feedbackBuffer.data;
+    const out = this.glitchImageData.data;
+    const mix = this.feedbackMix;
+    const inv = 1 - mix;
+    for (let i = 0; i < src.length; i += 4) {
+      out[i]     = (fb[i]     * mix + src[i]     * inv) | 0;
+      out[i + 1] = (fb[i + 1] * mix + src[i + 1] * inv) | 0;
+      out[i + 2] = (fb[i + 2] * mix + src[i + 2] * inv) | 0;
+      out[i + 3] = 255;
+    }
+  }
+
+  /**
+   * Store the current output as the feedback buffer for the next frame.
+   */
+  captureFeedback(imageData) {
+    this.feedbackBuffer = copyImageData(imageData);
+  }
+
   /**
    * Advance to next frame
    */

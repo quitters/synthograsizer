@@ -777,8 +777,17 @@
                  min="0.1" max="3" step="0.1" value="1">
         </div>
         
-        <button id="glitch-buffer-toggle" class="control-button" style="margin-top: 10px;">🌀 Glitch Buffer: <span id="glitch-buffer-state">OFF</span></button>
-        
+        <button id="feedback-toggle" class="control-button" style="margin-top: 10px;">🌀 Feedback Buffer: <span id="feedback-state">OFF</span></button>
+
+        <div class="slider-container" id="feedback-mix-container" style="margin-top: 10px; display: none;">
+          <div class="slider-label">
+            <span>🔁 Feedback Mix</span>
+            <span id="feedback-mix-value" class="slider-value">50%</span>
+          </div>
+          <input type="range" id="feedback-mix" class="control-slider"
+                 min="0" max="100" step="1" value="50">
+        </div>
+
         <div class="duration-info" style="margin-top: 10px; font-size: 12px; color: #888;">
           <span>Duration: <strong id="media-duration">0s</strong> (max: 20s)</span>
         </div>

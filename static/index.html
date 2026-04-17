@@ -3,158 +3,1242 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Synthograsizer Suite</title>
-  <link rel="stylesheet" href="/shared/css/base.css">
+  <title>Synthograsizer — The Creative Prompt Instrument</title>
+  <meta name="description" content="A browser-based creative suite for structured AI prompt engineering. D-pad navigation, MIDI & OSC control, live p5.js sketches, batch image & video generation, and real-time integration with Daydream Scope.">
+
   <link rel="icon" type="image/png" href="/shared/assets/favicon.png">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
   <style>
-    .hub-header {
+    /* ================= Reset & base ================= */
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow-x: hidden;
+      transition: background-color .3s, color .3s;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    :root {
+      /* Dark mode (default) */
+      --indigo: #6366f1;
+      --indigo-2: #818cf8;
+      --teal: #3dbdad;
+      --fuchsia: #d946ef;
+      --amber: #fbbf24;
+      --bg: #0a0a12;
+      --bg-2: #12121f;
+      --surface: rgba(255,255,255,0.04);
+      --surface-hi: rgba(255,255,255,0.07);
+      --border: rgba(255,255,255,0.08);
+      --border-hi: rgba(255,255,255,0.14);
+      --text: #e6e8f0;
+      --text-mute: #9aa0b4;
+      --text-dim: #6b7088;
+
+      --nav-bg: rgba(10, 10, 18, 0.6);
+      --hero-bg:
+        radial-gradient(ellipse 60% 55% at 50% 0%, rgba(99,102,241,0.28), transparent 60%),
+        radial-gradient(ellipse 45% 45% at 15% 40%, rgba(61,189,173,0.22), transparent 65%),
+        radial-gradient(ellipse 45% 45% at 85% 60%, rgba(217,70,239,0.18), transparent 65%),
+        linear-gradient(180deg, #0a0a12 0%, #10101c 100%);
+      --grid-color: rgba(255,255,255,0.04);
+      --code-bg: #0b0b16;
+      --code-text: #c9cee0;
+      --shadow-cta: 0 6px 24px rgba(99,102,241,.4);
+      --shadow-cta-hover: 0 10px 32px rgba(99,102,241,.55);
+    }
+
+    /* Light mode — soft-pastel 1980s, borrowed from Synthograsizer hardware theme */
+    [data-theme="light"] {
+      --indigo: #5e60ce;
+      --indigo-2: #8868a8;
+      --teal: #4898a8;
+      --fuchsia: #c06880;
+      --amber: #c8962a;
+
+      --bg: #f5eedd;
+      --bg-2: #ede6d8;
+      --surface: rgba(255,255,255,0.55);
+      --surface-hi: rgba(255,255,255,0.85);
+      --border: rgba(122, 110, 94, 0.18);
+      --border-hi: rgba(122, 110, 94, 0.35);
+      --text: #2e2418;
+      --text-mute: #6d5f4e;
+      --text-dim: #9a8b78;
+
+      --nav-bg: rgba(245, 238, 221, 0.75);
+      --hero-bg:
+        radial-gradient(ellipse 60% 55% at 50% 0%, rgba(198, 168, 220, 0.5), transparent 60%),
+        radial-gradient(ellipse 45% 45% at 15% 40%, rgba(169, 220, 214, 0.55), transparent 65%),
+        radial-gradient(ellipse 45% 45% at 85% 60%, rgba(248, 200, 180, 0.5), transparent 65%),
+        radial-gradient(ellipse 40% 35% at 70% 20%, rgba(255, 220, 170, 0.4), transparent 70%),
+        linear-gradient(180deg, #f5eedd 0%, #ede6d8 100%);
+      --grid-color: rgba(122, 110, 94, 0.08);
+      --code-bg: #fbf6e8;
+      --code-text: #2e2418;
+      --shadow-cta: 0 4px 0 #7a6e5e, 0 8px 20px rgba(94, 96, 206, 0.2);
+      --shadow-cta-hover: 0 6px 0 #7a6e5e, 0 12px 28px rgba(94, 96, 206, 0.3);
+    }
+
+    /* ================= Top nav ================= */
+    .topnav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 40px;
+      background: var(--nav-bg);
+      backdrop-filter: blur(18px) saturate(140%);
+      -webkit-backdrop-filter: blur(18px) saturate(140%);
+      border-bottom: 1px solid var(--border);
+      transition: background-color .3s, border-color .3s;
+    }
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .theme-toggle {
+      width: 36px; height: 36px;
+      display: inline-flex;
+      align-items: center; justify-content: center;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      color: var(--text-mute);
+      cursor: pointer;
+      transition: background .2s, color .2s, border-color .2s, transform .15s;
+      padding: 0;
+    }
+    .theme-toggle:hover { background: var(--surface-hi); color: var(--text); border-color: var(--border-hi); transform: translateY(-1px); }
+    .theme-toggle svg { width: 16px; height: 16px; }
+    .theme-toggle .icon-moon { display: none; }
+    .theme-toggle .icon-sun { display: block; }
+    [data-theme="light"] .theme-toggle .icon-sun { display: none; }
+    [data-theme="light"] .theme-toggle .icon-moon { display: block; }
+    .topnav .brand {
+      display: flex; align-items: center; gap: 10px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700; font-size: 1.05rem;
+      letter-spacing: -0.01em;
+    }
+    .brand-mark {
+      width: 26px; height: 26px; border-radius: 7px;
+      background: conic-gradient(from 210deg, var(--indigo), var(--teal), var(--fuchsia), var(--indigo));
+      box-shadow: 0 0 16px rgba(99,102,241,0.55);
+      position: relative;
+    }
+    .brand-mark::after {
+      content: '';
+      position: absolute; inset: 5px;
+      border-radius: 4px;
+      background: var(--bg);
+      transition: background .3s;
+    }
+    .topnav nav {
+      display: flex; gap: 28px;
+      font-size: 0.92rem; color: var(--text-mute);
+    }
+    .topnav nav a { transition: color .2s; }
+    .topnav nav a:hover { color: var(--text); }
+    .topnav .cta {
+      padding: 8px 16px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--indigo), var(--teal));
+      color: #fff;
+      font-weight: 600;
+      font-size: 0.9rem;
+      box-shadow: 0 4px 16px rgba(99,102,241,.35);
+      transition: transform .15s, box-shadow .2s;
+    }
+    .topnav .cta:hover { transform: translateY(-1px); box-shadow: 0 6px 22px rgba(99,102,241,.55); }
+    @media (max-width: 720px) {
+      .topnav { padding: 14px 20px; }
+      .topnav nav { display: none; }
+    }
+
+    /* ================= Hero ================= */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 140px 24px 80px;
+      overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute; inset: 0;
+      background: var(--hero-bg);
+      z-index: -2;
+      transition: background .3s;
+    }
+    .hero-grid {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(var(--grid-color) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse 70% 50% at 50% 40%, black 0%, transparent 75%);
+      -webkit-mask-image: radial-gradient(ellipse 70% 50% at 50% 40%, black 0%, transparent 75%);
+      z-index: -1;
+      animation: gridDrift 40s linear infinite;
+    }
+    @keyframes gridDrift {
+      from { background-position: 0 0, 0 0; }
+      to   { background-position: 60px 60px, 60px 60px; }
+    }
+
+    .hero-inner {
+      max-width: 1100px;
+      width: 100%;
       text-align: center;
-      padding: 60px 20px 30px;
+      position: relative;
     }
 
-    .hub-header h1 {
-      font-family: 'Press Start 2P', 'Roboto Mono', monospace;
-      font-size: 2.2em;
-      color: #232946;
-      text-shadow: 1px 1px 0 #fff;
-      margin-bottom: 12px;
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      font-size: 0.82rem;
+      color: var(--text-mute);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-weight: 500;
+      margin-bottom: 28px;
+    }
+    .pill .dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--teal);
+      box-shadow: 0 0 10px var(--teal);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
     }
 
-    .hub-header p {
-      color: #4a5568;
-      font-size: 1.15em;
-      max-width: 600px;
+    .hero h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(2.6rem, 6.5vw, 5.2rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.02;
+      margin: 0 0 24px;
+      color: var(--text);
+    }
+    .hero h1 .grad {
+      background: linear-gradient(120deg, var(--indigo-2) 0%, var(--teal) 50%, var(--fuchsia) 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .hero p.lede {
+      font-size: clamp(1.05rem, 1.6vw, 1.25rem);
+      color: var(--text-mute);
+      max-width: 720px;
+      margin: 0 auto 40px;
+      line-height: 1.6;
+    }
+
+    .hero-ctas {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 56px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 24px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.98rem;
+      transition: transform .15s, box-shadow .2s, background .2s, border-color .2s;
+      border: 1px solid transparent;
+      cursor: pointer;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--indigo), var(--teal));
+      color: #fff;
+      box-shadow: var(--shadow-cta);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: var(--shadow-cta-hover); }
+    .btn-ghost {
+      background: var(--surface);
+      border-color: var(--border-hi);
+      color: var(--text);
+    }
+    .btn-ghost:hover { background: var(--surface-hi); border-color: rgba(255,255,255,0.25); }
+    .btn svg { width: 16px; height: 16px; }
+
+    /* Hero stats strip */
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 22px 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .hero-stats .stat {
+      text-align: center;
+      padding: 0 12px;
+      border-right: 1px solid var(--border);
+    }
+    .hero-stats .stat:last-child { border-right: none; }
+    .hero-stats .stat .num {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.7rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.02em;
+    }
+    .hero-stats .stat .lbl {
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-top: 4px;
+    }
+    @media (max-width: 640px) {
+      .hero-stats { grid-template-columns: repeat(2, 1fr); }
+      .hero-stats .stat { padding: 10px; border-bottom: 1px solid var(--border); }
+      .hero-stats .stat:nth-child(2) { border-right: none; }
+      .hero-stats .stat:nth-child(3), .hero-stats .stat:nth-child(4) { border-bottom: none; }
+    }
+
+    /* Floating tag chips on hero */
+    .tag-row {
+      display: flex; justify-content: center; gap: 8px; flex-wrap: wrap;
+      margin-top: 30px;
+    }
+    .chip {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      padding: 5px 11px;
+      border-radius: 6px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-mute);
+    }
+
+    /* ================= Sections ================= */
+    section {
+      padding: 120px 24px;
+      position: relative;
+    }
+    .container {
+      max-width: 1200px;
       margin: 0 auto;
     }
 
-    .card-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 24px;
-      max-width: 1000px;
-      margin: 20px auto 60px;
-      padding: 0 24px;
+    .section-head {
+      text-align: center;
+      margin-bottom: 64px;
     }
-
-    .card {
-      background: #fff;
-      border-radius: 14px;
-      padding: 28px 24px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
-      border: 1px solid #e2e8f0;
-      transition: transform 0.2s, box-shadow 0.2s;
-      text-decoration: none;
-      color: inherit;
-      display: block;
+    .section-eyebrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: var(--teal);
+      margin-bottom: 14px;
     }
-
-    .card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 24px rgba(94, 96, 206, 0.15);
-      border-color: #5e60ce;
-    }
-
-    .card h2 {
-      font-family: 'Inter', sans-serif;
-      font-size: 1.25em;
+    .section-head h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(2rem, 4vw, 3.1rem);
       font-weight: 700;
-      color: #5e60ce;
-      margin: 0 0 8px 0;
+      letter-spacing: -0.025em;
+      line-height: 1.1;
+      margin: 0 0 18px;
+      color: var(--text);
+    }
+    .section-head p {
+      font-size: 1.1rem;
+      color: var(--text-mute);
+      max-width: 640px;
+      margin: 0 auto;
+      line-height: 1.6;
     }
 
-    .card p {
-      color: #4a5568;
-      font-size: 0.95em;
+    /* ================= Feature grid (3 big cards) ================= */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    @media (max-width: 900px) { .feature-grid { grid-template-columns: 1fr; } }
+
+    .feature {
+      background: linear-gradient(180deg, var(--surface-hi), var(--surface));
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 32px 28px;
+      position: relative;
+      overflow: hidden;
+      transition: border-color .25s, transform .25s;
+    }
+    .feature:hover {
+      border-color: var(--border-hi);
+      transform: translateY(-3px);
+    }
+    .feature::before {
+      content: '';
+      position: absolute;
+      top: -80px; right: -80px;
+      width: 200px; height: 200px;
+      border-radius: 50%;
+      opacity: 0.25;
+      filter: blur(50px);
+      pointer-events: none;
+    }
+    .feature.f1::before { background: var(--indigo); }
+    .feature.f2::before { background: var(--teal); }
+    .feature.f3::before { background: var(--fuchsia); }
+
+    .feature-icon {
+      display: inline-flex;
+      align-items: center; justify-content: center;
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      background: var(--surface-hi);
+      border: 1px solid var(--border-hi);
+      color: var(--indigo-2);
+      margin-bottom: 20px;
+    }
+    .feature.f2 .feature-icon { color: var(--teal); }
+    .feature.f3 .feature-icon { color: var(--fuchsia); }
+    .feature-icon svg { width: 22px; height: 22px; }
+
+    .feature h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.35rem;
+      font-weight: 600;
+      margin: 0 0 10px;
+      color: var(--text);
+      letter-spacing: -0.01em;
+    }
+    .feature p {
+      color: var(--text-mute);
+      font-size: 0.97rem;
+      line-height: 1.6;
+      margin: 0 0 18px;
+    }
+    .feature ul {
+      list-style: none;
+      padding: 0; margin: 0;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .feature li {
+      font-size: 0.9rem;
+      color: var(--text);
+      padding-left: 22px;
+      position: relative;
+    }
+    .feature li::before {
+      content: '';
+      position: absolute; left: 0; top: 9px;
+      width: 12px; height: 2px;
+      background: linear-gradient(90deg, var(--indigo-2), var(--teal));
+      border-radius: 2px;
+    }
+
+    /* ================= Tool grid ================= */
+    .tool-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+    }
+    .tool-card {
+      display: flex;
+      flex-direction: column;
+      padding: 26px 24px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      transition: border-color .2s, background .2s, transform .2s;
+      position: relative;
+    }
+    .tool-card:hover {
+      border-color: var(--border-hi);
+      background: var(--surface-hi);
+      transform: translateY(-2px);
+    }
+    .tool-card.primary {
+      grid-column: span 2;
+      background:
+        radial-gradient(ellipse 80% 100% at 100% 0%, rgba(99,102,241,0.18), transparent 60%),
+        var(--surface-hi);
+      border-color: rgba(99,102,241,0.35);
+    }
+    @media (max-width: 720px) { .tool-card.primary { grid-column: span 1; } }
+
+    .tool-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .tool-card h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--text);
+      margin: 0;
+      letter-spacing: -0.01em;
+    }
+    .tool-card.primary h3 { font-size: 1.5rem; }
+    .tool-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.68rem;
+      padding: 3px 8px;
+      border-radius: 5px;
+      background: rgba(99,102,241,0.15);
+      color: var(--indigo-2);
+      border: 1px solid rgba(99,102,241,0.25);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .tool-badge.teal  { background: rgba(61,189,173,0.12); color: var(--teal); border-color: rgba(61,189,173,0.25); }
+    .tool-badge.fuchsia { background: rgba(217,70,239,0.12); color: var(--fuchsia); border-color: rgba(217,70,239,0.25); }
+    .tool-badge.amber { background: rgba(251,191,36,0.12); color: var(--amber); border-color: rgba(251,191,36,0.25); }
+    .tool-badge.gray  { background: rgba(255,255,255,0.06); color: var(--text-mute); border-color: var(--border); }
+
+    .tool-card p {
+      color: var(--text-mute);
+      font-size: 0.92rem;
+      line-height: 1.55;
+      margin: 0 0 18px;
+    }
+    .tool-card .arrow {
+      margin-top: auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: var(--indigo-2);
+      transition: gap .2s;
+    }
+    .tool-card:hover .arrow { gap: 10px; }
+
+    /* ================= Workflow section ================= */
+    .workflow-section {
+      background:
+        radial-gradient(ellipse 50% 80% at 50% 50%, rgba(99,102,241,0.08), transparent 70%),
+        var(--bg-2);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .workflow {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      position: relative;
+    }
+    @media (max-width: 900px) { .workflow { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 520px) { .workflow { grid-template-columns: 1fr; } }
+
+    .step {
+      padding: 24px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      position: relative;
+    }
+    .step .step-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      color: var(--teal);
+      margin-bottom: 10px;
+      letter-spacing: 0.1em;
+    }
+    .step h4 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.08rem;
+      font-weight: 600;
+      margin: 0 0 8px;
+      color: var(--text);
+    }
+    .step p {
+      color: var(--text-mute);
+      font-size: 0.88rem;
       line-height: 1.5;
       margin: 0;
     }
 
-    .card .tag {
-      display: inline-block;
-      background: #f0f0ff;
-      color: #5e60ce;
-      font-size: 0.75em;
+    /* ================= Integrations ================= */
+    .integrations {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+    }
+    .integration {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 18px 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      transition: border-color .2s;
+    }
+    .integration:hover { border-color: var(--border-hi); }
+    .integration-icon {
+      width: 38px; height: 38px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 9px;
+      background: var(--surface-hi);
+      border: 1px solid var(--border-hi);
+      color: var(--teal);
+      flex-shrink: 0;
+    }
+    .integration-icon svg { width: 18px; height: 18px; }
+    .integration .name {
       font-weight: 600;
-      padding: 3px 10px;
-      border-radius: 20px;
-      margin-top: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      color: var(--text);
+      font-size: 0.96rem;
+      margin-bottom: 2px;
+    }
+    .integration .desc {
+      font-size: 0.8rem;
+      color: var(--text-dim);
     }
 
-    .hub-footer {
+    /* ================= Code preview ================= */
+    .code-split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+    }
+    @media (max-width: 900px) { .code-split { grid-template-columns: 1fr; gap: 40px; } }
+
+    .code-split .copy h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      line-height: 1.15;
+      margin: 0 0 18px;
+      color: var(--text);
+    }
+    .code-split .copy p {
+      color: var(--text-mute);
+      font-size: 1.02rem;
+      line-height: 1.65;
+      margin: 0 0 12px;
+    }
+    .code-split .copy .section-eyebrow { text-align: left; margin-bottom: 14px; }
+
+    .codebox {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    }
+    [data-theme="light"] .codebox {
+      box-shadow: 4px 4px 0 #7a6e5e, 0 20px 40px rgba(122, 110, 94, 0.15);
+    }
+    .codebox-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 14px;
+      background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid var(--border);
+    }
+    [data-theme="light"] .codebox-bar { background: rgba(122, 110, 94, 0.08); }
+    .codebox-bar .dot {
+      width: 11px; height: 11px; border-radius: 50%;
+    }
+    .codebox-bar .dot.r { background: #ff5f56; }
+    .codebox-bar .dot.y { background: #ffbd2e; }
+    .codebox-bar .dot.g { background: #27c93f; }
+    .codebox-bar .name {
+      margin-left: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      color: var(--text-dim);
+    }
+    .codebox pre {
+      margin: 0;
+      padding: 20px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      line-height: 1.7;
+      color: var(--code-text);
+      overflow-x: auto;
+    }
+    .codebox .key { color: var(--indigo-2); }
+    .codebox .str { color: var(--teal); }
+    .codebox .num { color: var(--amber); }
+    .codebox .tag { color: var(--fuchsia); }
+    .codebox .com { color: var(--text-dim); font-style: italic; }
+
+    /* ================= CTA ================= */
+    .cta-section {
+      padding: 140px 24px;
       text-align: center;
-      padding: 30px 20px;
-      color: #4a5568;
-      font-size: 0.9em;
-      border-top: 1px solid #e2e8f0;
+      position: relative;
     }
-
-    .hub-footer a {
-      color: #5e60ce;
-      text-decoration: none;
-      font-weight: 600;
+    .cta-box {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 64px 40px;
+      background: linear-gradient(135deg, rgba(99,102,241,0.12), rgba(61,189,173,0.1));
+      border: 1px solid rgba(99,102,241,0.3);
+      border-radius: 24px;
+      position: relative;
+      overflow: hidden;
     }
-
-    .hub-footer a:hover {
-      text-decoration: underline;
+    .cta-box::before {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 50% 80% at 50% 0%, rgba(99,102,241,0.3), transparent 60%);
+      pointer-events: none;
     }
+    .cta-box h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(1.8rem, 3.6vw, 2.8rem);
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      margin: 0 0 16px;
+      color: var(--text);
+      position: relative;
+    }
+    .cta-box p {
+      color: var(--text-mute);
+      font-size: 1.05rem;
+      margin: 0 0 32px;
+      position: relative;
+    }
+    .cta-box .hero-ctas { margin: 0; position: relative; }
 
-    @media (max-width: 480px) {
-      .hub-header h1 {
-        font-size: 1.5em;
-      }
-      .card-grid {
-        grid-template-columns: 1fr;
-      }
+    /* ================= Footer ================= */
+    footer {
+      padding: 50px 24px 40px;
+      border-top: 1px solid var(--border);
+      background: var(--bg);
+      transition: background-color .3s, border-color .3s;
+    }
+    .footer-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+      font-size: 0.88rem;
+      color: var(--text-dim);
+    }
+    .footer-inner a { color: var(--text-mute); transition: color .15s; }
+    .footer-inner a:hover { color: var(--text); }
+    .footer-links { display: flex; gap: 22px; flex-wrap: wrap; }
+
+    /* ================= Reveal animation ================= */
+    .reveal {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity .7s ease, transform .7s ease;
+    }
+    .reveal.in {
+      opacity: 1;
+      transform: none;
     }
   </style>
 </head>
 <body>
-  <div id="navbar-mount"></div>
-  <script src="/shared/js/navbar.js?v=2"></script>
 
-  <div class="hub-header">
-    <h1>Synthograsizer Suite</h1>
-    <p>A collection of creative tools for prompt engineering, generative art, glitch effects, and audio synthesis.</p>
-  </div>
-
-  <div class="card-grid">
-    <a href="/synthograsizer/" class="card">
-      <h2>Synthograsizer</h2>
-      <p>AI-powered prompt engineering with template variables, batch generation, image/video creation via Gemini and Imagen, and a built-in story engine.</p>
-      <span class="tag">Main</span>
+  <!-- ============= Top Nav ============= -->
+  <header class="topnav">
+    <a href="/" class="brand">
+      <span class="brand-mark"></span>
+      <span>Synthograsizer</span>
     </a>
+    <nav>
+      <a href="#features">Features</a>
+      <a href="#tools">Tools</a>
+      <a href="#workflow">Workflow</a>
+      <a href="#integrations">Integrations</a>
+      <a href="/about/">About</a>
+    </nav>
+    <div class="nav-right">
+      <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme" title="Toggle light / dark">
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+      </button>
+      <a href="/synthograsizer/" class="cta">Launch App</a>
+    </div>
+  </header>
 
-    <a href="/legacy/" class="card">
-      <h2>Synthograsizer (Legacy)</h2>
-      <p>The original Synthograsizer with four operating modes, MIDI controller support, p5.js sketch editor, and ComfyUI integration.</p>
-      <span class="tag">Legacy</span>
-    </a>
+  <!-- ============= Hero ============= -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-grid"></div>
 
-    <a href="/glitcher/" class="card">
-      <h2>Glitcher</h2>
-      <p>Professional glitch art studio with destructive and non-destructive effects, selection system, video recording, and MIDI control.</p>
-      <span class="tag">Visual</span>
-    </a>
+    <div class="hero-inner">
+      <div class="pill">
+        <span class="dot"></span>
+        <span>A creative instrument for generative AI</span>
+      </div>
 
-    <a href="/metadata-manager/" class="card">
-      <h2>Metadata Manager</h2>
-      <p>Extract prompts and metadata from PNG files, convert them to reusable Synthograsizer templates, and manage prompt history.</p>
-      <span class="tag">Utility</span>
-    </a>
+      <h1>
+        Play prompts like a <br>
+        <span class="grad">synthesizer.</span>
+      </h1>
 
+      <p class="lede">
+        Synthograsizer is a browser-based creative suite for structured AI prompt engineering —
+        with hardware controller support, live generative sketches, and real-time video streaming
+        to Daydream Scope. Built for artists, VJs, and researchers who think with their hands.
+      </p>
 
-    <a href="/chatroom/" class="card">
-      <h2>Agent Chat Room</h2>
-      <p>Autonomous multi-agent chat room powered by Gemini. Create AI agents with unique personalities and watch them converse in real-time.</p>
-      <span class="tag">AI Agents</span>
-    </a>
-  </div>
+      <div class="hero-ctas">
+        <a href="/synthograsizer/" class="btn btn-primary">
+          Launch Synthograsizer
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+        </a>
+        <a href="#features" class="btn btn-ghost">
+          See what it does
+        </a>
+      </div>
 
-  <div class="hub-footer">
-    <p>&copy; 2025 Synthograsizer Suite. Licensed under <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener">CC BY-NC 4.0</a>.</p>
-    <p><a href="/about/">About/Contact</a></p>
-  </div>
+      <div class="hero-stats">
+        <div class="stat">
+          <div class="num">50+</div>
+          <div class="lbl">Templates</div>
+        </div>
+        <div class="stat">
+          <div class="num">7</div>
+          <div class="lbl">Creative Tools</div>
+        </div>
+        <div class="stat">
+          <div class="num">3</div>
+          <div class="lbl">Scope Channels</div>
+        </div>
+        <div class="stat">
+          <div class="num">∞</div>
+          <div class="lbl">Variations</div>
+        </div>
+      </div>
+
+      <div class="tag-row">
+        <span class="chip">Gemini</span>
+        <span class="chip">Veo 3</span>
+        <span class="chip">p5.js</span>
+        <span class="chip">MIDI</span>
+        <span class="chip">OSC</span>
+        <span class="chip">WebRTC</span>
+        <span class="chip">Daydream Scope</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============= Feature Highlights ============= -->
+  <section id="features">
+    <div class="container">
+      <div class="section-head reveal">
+        <div class="section-eyebrow">What it does</div>
+        <h2>Prompt engineering, reimagined as an instrument</h2>
+        <p>Most AI tools treat prompts like text boxes. Synthograsizer treats them like performable parameters — every variable a knob, every template a patch.</p>
+      </div>
+
+      <div class="feature-grid">
+        <article class="feature f1 reveal">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="9"></circle>
+              <path d="M12 7v5l3 2"></path>
+            </svg>
+          </div>
+          <h3>Structured prompt control</h3>
+          <p>A D-pad interface turns every prompt variable into a navigable parameter. Shape ideas by ear, not by retyping.</p>
+          <ul>
+            <li>Variable-driven template engine</li>
+            <li>Weighted value cycling per parameter</li>
+            <li>Live token preview and editing</li>
+            <li>Keyboard, mouse, or MIDI navigation</li>
+          </ul>
+        </article>
+
+        <article class="feature f2 reveal">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 3v18"></path>
+              <path d="M18 3v18"></path>
+              <path d="M3 8h3"></path>
+              <path d="M3 16h3"></path>
+              <path d="M18 8h3"></path>
+              <path d="M18 16h3"></path>
+              <path d="M9 12h6"></path>
+            </svg>
+          </div>
+          <h3>Hardware-first performance</h3>
+          <p>Wire physical controllers directly into the creative loop. Every knob, fader, and pad becomes a mapping surface.</p>
+          <ul>
+            <li>Web MIDI API — CC + Note bindings</li>
+            <li>OSC UDP bridge for cross-tool sync</li>
+            <li>Performance layout for live use</li>
+            <li>Hardware-synth aesthetic theme</li>
+          </ul>
+        </article>
+
+        <article class="feature f3 reveal">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="5" width="18" height="14" rx="2"></rect>
+              <path d="m10 9 5 3-5 3z" fill="currentColor"></path>
+            </svg>
+          </div>
+          <h3>End-to-end generation</h3>
+          <p>From prompt to pixels to projector — text, image, and video models all live one click away in the same canvas.</p>
+          <ul>
+            <li>Gemini text &amp; image generation</li>
+            <li>Veo video studio with batch queue</li>
+            <li>Embedded p5.js generative sketches</li>
+            <li>Fullscreen Display window for OBS</li>
+          </ul>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============= Tool Grid ============= -->
+  <section id="tools" style="padding-top: 40px;">
+    <div class="container">
+      <div class="section-head reveal">
+        <div class="section-eyebrow">The Suite</div>
+        <h2>Seven purpose-built tools, one creative workflow</h2>
+        <p>Each tool stands alone, but they share a template format, a visual language, and a philosophy: generative AI should feel performable.</p>
+      </div>
+
+      <div class="tool-grid">
+        <a href="/synthograsizer/" class="tool-card primary reveal">
+          <div class="tool-head">
+            <h3>Synthograsizer</h3>
+            <span class="tool-badge">Flagship</span>
+          </div>
+          <p>The main instrument. D-pad prompt navigator, MIDI + OSC control, batch generation, live p5.js panel, Image &amp; Video Studio, Display Window for OBS, and unified Scope integration.</p>
+          <span class="arrow">Launch app →</span>
+        </a>
+
+        <a href="/promptcraft/" class="tool-card reveal">
+          <div class="tool-head">
+            <h3>PromptCraft</h3>
+            <span class="tool-badge teal">Sequencer</span>
+          </div>
+          <p>VST-style step sequencer for prompts — 16 steps, variable locks, glitch engine, and lane-based automation.</p>
+          <span class="arrow">Open →</span>
+        </a>
+
+        <a href="/glitcher/" class="tool-card reveal">
+          <div class="tool-head">
+            <h3>Glitcher</h3>
+            <span class="tool-badge fuchsia">Visual</span>
+          </div>
+          <p>Professional glitch-art studio — destructive and non-destructive effects, selection system, video recording.</p>
+          <span class="arrow">Open →</span>
+        </a>
+
+        <a href="/chatroom/" class="tool-card reveal">
+          <div class="tool-head">
+            <h3>Agent Chat Room</h3>
+            <span class="tool-badge amber">Multi-Agent</span>
+          </div>
+          <p>Autonomous Gemini-powered agents with distinct personas, memory, and scheduled turn-taking.</p>
+          <span class="arrow">Open →</span>
+        </a>
+
+        <a href="/daw/" class="tool-card reveal">
+          <div class="tool-head">
+            <h3>DAW</h3>
+            <span class="tool-badge teal">Audio</span>
+          </div>
+          <p>Web-based digital audio workstation — FM synthesis, step sequencers, and modular effects chain.</p>
+          <span class="arrow">Open →</span>
+        </a>
+
+        <a href="/metadata-manager/" class="tool-card reveal">
+          <div class="tool-head">
+            <h3>Metadata Manager</h3>
+            <span class="tool-badge gray">Utility</span>
+          </div>
+          <p>Extract prompts from PNG metadata and convert them into reusable Synthograsizer templates.</p>
+          <span class="arrow">Open →</span>
+        </a>
+
+        <a href="/legacy/" class="tool-card reveal">
+          <div class="tool-head">
+            <h3>Legacy Synthograsizer</h3>
+            <span class="tool-badge gray">Classic</span>
+          </div>
+          <p>The original four-mode prototype — MIDI control, p5.js sketch editor, and ComfyUI bridge.</p>
+          <span class="arrow">Open →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============= Workflow / How it works ============= -->
+  <section id="workflow" class="workflow-section">
+    <div class="container">
+      <div class="section-head reveal">
+        <div class="section-eyebrow">Workflow</div>
+        <h2>From idea to live output in four moves</h2>
+        <p>Designed for the way creative work actually happens — iterative, tactile, and never locked into a single pipeline.</p>
+      </div>
+
+      <div class="workflow">
+        <div class="step reveal">
+          <div class="step-num">01 / COMPOSE</div>
+          <h4>Load a template</h4>
+          <p>Pick from 50+ included templates or import your own JSON. Generative sketches, cinematic prompts, character generators — all share the same variable format.</p>
+        </div>
+        <div class="step reveal">
+          <div class="step-num">02 / CONTROL</div>
+          <h4>Map your controller</h4>
+          <p>Connect MIDI hardware or map OSC destinations. Every variable becomes a knob. Save the mapping per template for instant recall.</p>
+        </div>
+        <div class="step reveal">
+          <div class="step-num">03 / GENERATE</div>
+          <h4>Render in any medium</h4>
+          <p>Send prompts to Gemini for text, image, or Veo video generation. Run a live p5.js sketch alongside. Batch 100 variations, or generate a single curated output.</p>
+        </div>
+        <div class="step reveal">
+          <div class="step-num">04 / BROADCAST</div>
+          <h4>Stream to the world</h4>
+          <p>Push the output to OBS via the Display Window, stream the canvas to Daydream Scope over WebRTC, or route Spout to any visual pipeline.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============= Code / Template preview ============= -->
+  <section>
+    <div class="container">
+      <div class="code-split">
+        <div class="copy reveal">
+          <div class="section-eyebrow">Template Format</div>
+          <h2>One JSON file.<br>Infinite variations.</h2>
+          <p>Templates are portable, readable, and designed to be authored by humans or generated by LLMs. A template is a prompt skeleton plus a set of weighted variable lists — optionally with an embedded p5.js sketch for live visual output.</p>
+          <p>The same template works in Synthograsizer, PromptCraft, and the Metadata Manager. Share them, remix them, version them in git.</p>
+        </div>
+
+        <div class="codebox reveal">
+          <div class="codebox-bar">
+            <span class="dot r"></span>
+            <span class="dot y"></span>
+            <span class="dot g"></span>
+            <span class="name">strange-attractors.json</span>
+          </div>
+<pre>{
+  <span class="key">"promptTemplate"</span>: <span class="str">"a {{attractor}} in {{palette}}, {{mood}}"</span>,
+  <span class="key">"variables"</span>: [
+    {
+      <span class="key">"name"</span>: <span class="str">"attractor"</span>,
+      <span class="key">"feature_name"</span>: <span class="str">"Attractor Type"</span>,
+      <span class="key">"values"</span>: [
+        { <span class="key">"text"</span>: <span class="str">"lorenz butterfly"</span>, <span class="key">"weight"</span>: <span class="num">2</span> },
+        { <span class="key">"text"</span>: <span class="str">"clifford spiral"</span>, <span class="key">"weight"</span>: <span class="num">1</span> },
+        { <span class="key">"text"</span>: <span class="str">"rössler ribbon"</span>, <span class="key">"weight"</span>: <span class="num">1</span> }
+      ]
+    }
+  ],
+  <span class="key">"p5Code"</span>: <span class="str">"p.setup = () => { p.createCanvas(800, 800); }; ..."</span>
+}</pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============= Integrations ============= -->
+  <section id="integrations">
+    <div class="container">
+      <div class="section-head reveal">
+        <div class="section-eyebrow">Integrations</div>
+        <h2>Plugs into the pipeline you already use</h2>
+        <p>Built to sit comfortably alongside existing creative software — not replace it.</p>
+      </div>
+
+      <div class="integrations">
+        <div class="integration reveal">
+          <div class="integration-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M8 12h8M12 8v8"></path></svg>
+          </div>
+          <div>
+            <div class="name">Google Gemini</div>
+            <div class="desc">Text + template generation</div>
+          </div>
+        </div>
+        <div class="integration reveal">
+          <div class="integration-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="9" cy="9" r="2"></circle><path d="m21 15-5-5L5 21"></path></svg>
+          </div>
+          <div>
+            <div class="name">Veo 3</div>
+            <div class="desc">Video generation</div>
+          </div>
+        </div>
+        <div class="integration reveal">
+          <div class="integration-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 3v18M3 12h18"></path></svg>
+          </div>
+          <div>
+            <div class="name">Daydream Scope</div>
+            <div class="desc">OSC + WebRTC + Spout</div>
+          </div>
+        </div>
+        <div class="integration reveal">
+          <div class="integration-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="16" r="3"></circle><path d="M10 16V7a3 3 0 0 1 3-3h5v5h-5"></path></svg>
+          </div>
+          <div>
+            <div class="name">Web MIDI</div>
+            <div class="desc">Any MIDI controller</div>
+          </div>
+        </div>
+        <div class="integration reveal">
+          <div class="integration-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0 9 9 0 0 0-18 0z"></path><path d="M3 12c3 0 6 2 6 5M21 12c-3 0-6 2-6 5M9 7c0 3 2 5 3 5M15 7c0 3-2 5-3 5"></path></svg>
+          </div>
+          <div>
+            <div class="name">OBS Studio</div>
+            <div class="desc">Browser Source + Spout output</div>
+          </div>
+        </div>
+        <div class="integration reveal">
+          <div class="integration-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"></path><path d="M8 4v16M4 8h16M4 16h16M16 4v16"></path></svg>
+          </div>
+          <div>
+            <div class="name">p5.js Instance Mode</div>
+            <div class="desc">Live generative sketches</div>
+          </div>
+        </div>
+        <div class="integration reveal">
+          <div class="integration-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12a7 7 0 0 1 7-7 7 7 0 0 1 7 7"></path><path d="M8 12a4 4 0 0 1 4-4 4 4 0 0 1 4 4"></path><circle cx="12" cy="12" r="1" fill="currentColor"></circle><path d="M12 20v-6"></path></svg>
+          </div>
+          <div>
+            <div class="name">OSC UDP</div>
+            <div class="desc">TouchDesigner, VDMX, Max</div>
+          </div>
+        </div>
+        <div class="integration reveal">
+          <div class="integration-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16v12H4z"></path><path d="m4 6 8 7 8-7"></path></svg>
+          </div>
+          <div>
+            <div class="name">ComfyUI (Legacy)</div>
+            <div class="desc">Local Stable Diffusion bridge</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============= CTA ============= -->
+  <section class="cta-section">
+    <div class="cta-box reveal">
+      <h2>Ready to play with prompts?</h2>
+      <p>Open the suite in your browser. No install. No account. Just you, a template, and a canvas.</p>
+      <div class="hero-ctas">
+        <a href="/synthograsizer/" class="btn btn-primary">
+          Launch Synthograsizer
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+        </a>
+        <a href="https://github.com/quitters/synthograsizer" class="btn btn-ghost" target="_blank" rel="noopener">
+          View on GitHub
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============= Footer ============= -->
+  <footer>
+    <div class="footer-inner">
+      <div>
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
+          <span class="brand-mark" style="width: 18px; height: 18px; border-radius: 5px;"></span>
+          <span style="color: var(--text); font-weight: 600; font-family: 'Space Grotesk', sans-serif;">Synthograsizer Suite</span>
+        </div>
+        <div>© 2025 · <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener">CC BY-NC 4.0</a></div>
+      </div>
+      <div class="footer-links">
+        <a href="/synthograsizer/">App</a>
+        <a href="/about/">About</a>
+        <a href="https://github.com/quitters/synthograsizer" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://scope.daydream.fm" target="_blank" rel="noopener">Daydream Scope</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ============= Theme toggle ============= -->
+  <script>
+    (function () {
+      const STORAGE_KEY = 'synth-theme';
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved === 'light') document.documentElement.setAttribute('data-theme', 'light');
+
+      const btn = document.getElementById('themeToggle');
+      btn.addEventListener('click', () => {
+        const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+        if (isLight) {
+          document.documentElement.removeAttribute('data-theme');
+          localStorage.setItem(STORAGE_KEY, 'dark');
+        } else {
+          document.documentElement.setAttribute('data-theme', 'light');
+          localStorage.setItem(STORAGE_KEY, 'light');
+        }
+      });
+    })();
+  </script>
+
+  <!-- ============= Reveal observer ============= -->
+  <script>
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) {
+          e.target.classList.add('in');
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+    // Kick off any reveals already in view on load
+    window.addEventListener('load', () => {
+      document.querySelectorAll('.reveal').forEach(el => {
+        const r = el.getBoundingClientRect();
+        if (r.top < window.innerHeight * 0.95) el.classList.add('in');
+      });
+    });
+  </script>
 </body>
 </html>

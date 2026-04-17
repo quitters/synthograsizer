@@ -80,29 +80,23 @@ export class OSCController {
   }
 
   /**
-   * Send a template variable update as a normalized float (0-1).
-   * Address: /synthograsizer/var/{index}
-   * Also sends the variable name + value text for debugging/routing.
+   * Send a template variable update to a mapped Scope OSC parameter.
+   *
+   * Scope's OSC handler only responds to /scope/<param_name> addresses.
+   * Pass `scopeParam` to route this variable to a specific Scope parameter,
+   * e.g. 'noise_scale', 'vace_context_scale', 'kv_cache_attention_bias'.
+   * If no scopeParam is given the call is a no-op (Scope would ignore it).
+   *
+   * Discoverable Scope params: GET /api/v1/osc/paths on a running Scope instance.
+   *
+   * @param {number} index           — variable index (for reference)
+   * @param {number} normalizedValue — 0-1 float
+   * @param {string} [varName]       — human-readable variable name
+   * @param {string} [scopeParam]    — Scope OSC param name, e.g. 'noise_scale'
    */
-  async sendVarUpdate(index, normalizedValue, varName, valueText) {
-    if (!this.enabled) return;
-
-    // Float value for MIDI-like mapping
-    this.sendParam(`/synthograsizer/var/${index}`, normalizedValue);
-
-    // Optional: send the text value for downstream consumers
-    if (varName && valueText) {
-      try {
-        await fetch('/api/osc/send-prompt', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            prompt: valueText,
-            address: `/synthograsizer/var/${index}/text`,
-          }),
-        });
-      } catch {}
-    }
+  async sendVarUpdate(index, normalizedValue, varName, scopeParam) {
+    if (!this.enabled || !scopeParam) return;
+    this.sendParam(`/scope/${scopeParam}`, normalizedValue);
   }
 
   // ── configuration ──────────────────────────────────────

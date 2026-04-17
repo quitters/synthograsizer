@@ -28,7 +28,7 @@
 
 const STORAGE_KEY = 'synthograsizerScopeVideoV1';
 const MAX_RECONNECT_ATTEMPTS = 3;
-const RECONNECT_DELAY_MS = 2000;
+const RECONNECT_DELAY_MS = 3500;
 const CONNECTION_TIMEOUT_MS = 10_000;
 
 export class ScopeVideoClient {
@@ -117,14 +117,7 @@ export class ScopeVideoClient {
       const path = data.path || filename;
       console.log('[ScopeVideo] frame uploaded', data);
 
-      // Dispatch the saved asset as the active VACE reference image
-      if (this.isStreaming && this._dataChannel?.readyState === 'open') {
-        this._dataChannel.send(JSON.stringify({ vace_ref_images: [path], vace_context_scale: 1.0 }));
-        console.log('[ScopeVideo] vace_ref_images dispatched via data channel');
-      } else {
-        await this._pushRefViaOffer(path);
-      }
-
+      await this._pushVaceRef(path);
       this.onStatusChange('frame-sent', filename);
     } catch (e) {
       this.onStatusChange('error', `Upload failed: ${e.message}`);
@@ -168,88 +161,27 @@ export class ScopeVideoClient {
       return null;
     }
 
-    // Deliver the reference image to Scope's active pipeline
-    if (this.isStreaming && this._dataChannel?.readyState === 'open') {
-      // Fast path: push via open data channel
-      try {
-        this._dataChannel.send(JSON.stringify({
-          vace_ref_images: [path],
-          vace_context_scale: 1.0,
-        }));
-        console.log('[ScopeVideo] vace_ref_images pushed via data channel');
-      } catch (e) {
-        console.warn('[ScopeVideo] data channel send failed', e);
-      }
-    } else {
-      // No active stream — open a text-mode WebRTC offer with the reference image
-      // as initialParameters so Scope's pipeline picks it up immediately.
-      await this._pushRefViaOffer(path);
-    }
-
+    await this._pushVaceRef(path);
     this.onStatusChange('ref-sent', filename);
     return path;
   }
 
   /**
-   * Open a minimal WebRTC connection to Scope in text-input mode, supplying
-   * vace_ref_images as initialParameters.  Keeps the connection alive so Scope
-   * continues using the reference image; replaces any previous ref-only session.
+   * Deliver a VACE reference image path to Scope's active pipeline.
+   * Prefers the open data channel (zero-latency); falls back to the REST
+   * session endpoint — a plain HTTP POST that syncs all connected sessions
+   * without opening a new WebRTC connection.
    *
-   * @param {string} path  — asset filename returned by /api/scope/save-asset
+   * @param {string} path  — asset filename (relative to Scope's assets dir)
    */
-  async _pushRefViaOffer(path) {
-    // Close any stale reference-only session
-    if (this._refPc) {
-      try { this._refPc.close(); } catch (_) {}
-      this._refPc = null;
-    }
-
-    try {
-      const iceRes = await fetch(`${this.scopeUrl}/api/v1/webrtc/ice-servers`,
-        { signal: AbortSignal.timeout(5000) });
-      if (!iceRes.ok) throw new Error(`ICE servers: HTTP ${iceRes.status}`);
-      const { iceServers } = await iceRes.json();
-
-      const pc = new RTCPeerConnection({ iceServers });
-      const dc = pc.createDataChannel('parameters', { ordered: true });
-
-      dc.onopen = () => {
-        try {
-          // Only send the reference image params — do not change input_mode,
-          // as overriding it mid-session forces a pipeline mode-switch and freezes generation.
-          dc.send(JSON.stringify({ vace_ref_images: [path], vace_context_scale: 1.0 }));
-          console.log('[ScopeVideo] ref-only session: vace_ref_images sent via data channel');
-        } catch (e) {
-          console.warn('[ScopeVideo] ref-only data channel send failed', e);
-        }
-      };
-
-      const offer = await pc.createOffer();
-      await pc.setLocalDescription(offer);
-
-      const offerRes = await fetch(`${this.scopeUrl}/api/v1/webrtc/offer`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          sdp: pc.localDescription.sdp,
-          type: pc.localDescription.type,
-          initialParameters: {
-            // Deliberately omit input_mode — don't override the pipeline's current mode
-            vace_ref_images: [path],
-            vace_context_scale: 1.0,
-          },
-        }),
-        signal: AbortSignal.timeout(10000),
-      });
-      if (!offerRes.ok) throw new Error(`Offer: HTTP ${offerRes.status}`);
-
-      const answer = await offerRes.json();
-      await pc.setRemoteDescription({ type: answer.type, sdp: answer.sdp });
-
-      this._refPc = pc;
-      console.log('[ScopeVideo] ref-only text-mode session established');
-    } catch (e) {
-      console.warn('[ScopeVideo] _pushRefViaOffer failed:', e.message);
+  async _pushVaceRef(path) {
+    const params = { vace_ref_images: [path], vace_context_scale: 1.0 };
+    if (this._dataChannel?.readyState === 'open') {
+      this._sendDataChannelMsg(params);
+      console.log('[ScopeVideo] vace_ref_images pushed via data channel');
+    } else {
+      const ok = await this.sendRestParams(params);
+      console.log('[ScopeVideo] vace_ref_images pushed via REST', ok ? 'ok' : 'failed');
     }
   }
 
@@ -409,22 +341,50 @@ export class ScopeVideoClient {
   }
 
   /**
-   * Send a live prompt update through the WebRTC data channel.
-   * This is the fastest path for in-session prompt changes (no UDP hop).
-   * Only works while a stream is active.
+   * Send arbitrary parameters to Scope via its REST API.
+   * Works regardless of streaming state — syncs all connected sessions.
+   *
+   * Accepts any field from Scope's Parameters schema, e.g.:
+   *   { prompts: [{text, weight}], noise_scale: 0.5, node_id: "source-1" }
+   *
+   * @param {object} params
+   * @returns {Promise<boolean>} true on success
+   */
+  async sendRestParams(params) {
+    try {
+      const res = await fetch(`${this.scopeUrl}/api/v1/session/parameters`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(params),
+        signal: AbortSignal.timeout(5000),
+      });
+      return res.ok;
+    } catch (e) {
+      console.warn('[ScopeVideo] sendRestParams failed', e);
+      return false;
+    }
+  }
+
+  /**
+   * Send a live prompt update.
+   * Prefers the WebRTC data channel (zero-latency) when streaming;
+   * falls back to Scope's REST session endpoint otherwise.
    *
    * @param {string}  prompt
    * @param {boolean} transition — use Scope's smooth N-step transition (default false)
-   * @returns {boolean} true if sent via data channel
+   * @returns {boolean|Promise<boolean>} true if sent
    */
   sendPromptUpdate(prompt, transition = false) {
     if (!prompt) return false;
 
-    const msg = transition
+    const params = transition
       ? { transition: { target_prompts: [{ text: prompt, weight: 1.0 }], num_steps: 8 } }
       : { prompts: [{ text: prompt, weight: 1.0 }] };
 
-    return this._sendDataChannelMsg(msg);
+    if (this._dataChannel?.readyState === 'open') {
+      return this._sendDataChannelMsg(params);
+    }
+    return this.sendRestParams(params);
   }
 
   /**

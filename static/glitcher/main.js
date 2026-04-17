@@ -1998,16 +1998,19 @@ class GlitcherApp {
     if (this.canvasManager.animationMode && this.frameTimer && this.isSourcePlaying) {
       const newFrameIndex = this.frameTimer.advance();
       if (newFrameIndex !== this.canvasManager.currentFrameIndex) {
-        console.log(`[ANIMATE] Advancing to frame: ${newFrameIndex}`);
-        // Update to new frame
+        // Update to new source frame
         this.canvasManager.setCurrentFrame(newFrameIndex);
         this.canvasManager.mediaManager.currentFrame = newFrameIndex;
         this.canvasManager.updateMediaInfo();
-        // Only reset glitch buffer if not accumulating
-        if (!this.canvasManager.glitchBufferEnabled) {
-          this.canvasManager.glitchImageData = copyImageData(this.canvasManager.originalImageData);
-        }
       }
+    }
+
+    // Feedback buffer blending: mix previous output with current source frame
+    if (this.canvasManager.feedbackEnabled && this.canvasManager.feedbackBuffer) {
+      this.canvasManager.applyFeedbackBlend();
+    } else if (!this.canvasManager.feedbackEnabled) {
+      // Standard behavior: reset to clean source each frame
+      this.canvasManager.glitchImageData = copyImageData(this.canvasManager.originalImageData);
     }
 
     // Process effects based on current mode
@@ -2025,6 +2028,11 @@ class GlitcherApp {
     if (!finalImageData) {
       console.warn('No final image data, using glitch buffer');
       finalImageData = this.canvasManager.glitchImageData;
+    }
+
+    // Capture output into feedback buffer for next frame
+    if (this.canvasManager.feedbackEnabled) {
+      this.canvasManager.captureFeedback(finalImageData);
     }
 
     // Update canvas with final result
@@ -2369,6 +2377,38 @@ class GlitcherApp {
           this.frameTimer.setPlaybackSpeed(this.sourcePlaybackSpeed);
         }
         console.log(`⏩ Source speed: ${this.sourcePlaybackSpeed}x`);
+      });
+    }
+
+    // Feedback buffer toggle
+    const feedbackToggle = document.getElementById('feedback-toggle');
+    const feedbackState = document.getElementById('feedback-state');
+    const feedbackMixContainer = document.getElementById('feedback-mix-container');
+    if (feedbackToggle && feedbackState) {
+      feedbackToggle.addEventListener('click', () => {
+        this.canvasManager.feedbackEnabled = !this.canvasManager.feedbackEnabled;
+        feedbackState.textContent = this.canvasManager.feedbackEnabled ? 'ON' : 'OFF';
+        if (feedbackMixContainer) {
+          feedbackMixContainer.style.display = this.canvasManager.feedbackEnabled ? '' : 'none';
+        }
+        // Seed the feedback buffer with current state when enabling
+        if (this.canvasManager.feedbackEnabled && this.canvasManager.glitchImageData) {
+          this.canvasManager.feedbackBuffer = copyImageData(this.canvasManager.glitchImageData);
+        } else {
+          this.canvasManager.feedbackBuffer = null;
+        }
+        console.log(`🌀 Feedback buffer: ${this.canvasManager.feedbackEnabled ? 'ON' : 'OFF'}`);
+      });
+    }
+
+    // Feedback mix slider
+    const feedbackMixSlider = document.getElementById('feedback-mix');
+    const feedbackMixValue = document.getElementById('feedback-mix-value');
+    if (feedbackMixSlider && feedbackMixValue) {
+      feedbackMixSlider.addEventListener('input', (e) => {
+        const pct = parseInt(e.target.value);
+        this.canvasManager.feedbackMix = pct / 100;
+        feedbackMixValue.textContent = `${pct}%`;
       });
     }
   }
