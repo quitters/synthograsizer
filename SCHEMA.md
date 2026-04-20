@@ -879,7 +879,7 @@ This section documents the system prompts used to instruct LLMs to generate vali
 
 ### 8.1 Common Rules Across All Prompts
 
-These rules are consistent across all 7+ system prompts in `ai_manager.py`:
+These rules are consistent across all 7+ system prompts in `backend/services/template_engine.py`:
 
 1. **Output format:** Valid JSON only. No markdown formatting, no explanatory text.
 2. **Response mode:** All LLM calls use `response_mime_type="application/json"` (Gemini JSON mode).
@@ -896,7 +896,7 @@ These rules are consistent across all 7+ system prompts in `ai_manager.py`:
 | Mode | Variable Count | Values Per Variable | Special Rules |
 |------|---------------|---------------------|---------------|
 | **Text** (basic) | 2-4 | 6-12 | General-purpose template from text description |
-| **Text** (sequencer) | 4-7 | 8-12 | Transition-friendly values for 16-step patterns |
+| **Text** (synthograsizer) | 4-7 | 8-12 | Rich randomizable pool values for Synthograsizer knobs |
 | **Image** | 4-7 | 8-12 | First value = observed from image, rest = creative alternatives |
 | **Hybrid** | 4-7 | 8-12 | Image defines aesthetic baseline (fixed text), user defines variables |
 | **Multi-image** | 4-7 | 8-12 | Common traits = fixed text, differences = variables. Observed values first. |
@@ -904,14 +904,14 @@ These rules are consistent across all 7+ system prompts in `ai_manager.py`:
 | **Story** | 4-7 | 6-12 | Must include `{{character}}` and `{{shot_type}}`. 12-24 total beats. |
 | **Workflow** | Same as input | 1 per variable | Distill to single best-matching value per variable |
 
-### 8.3 Sequencer Design Principles
+### 8.3 Synthograsizer Design Principles
 
-These apply to all sequencer modes (text-sequencer, image, hybrid, multi-image, remix):
+These apply to all Synthograsizer generation modes (text, image, hybrid, multi-image, remix):
 
-1. **8-12 values per variable** — enough for interesting 16-step patterns with repetition and variation
-2. **Transition-friendly values** — adjacent values in the list should create visually smooth or dramatically interesting transitions
+1. **8-12 values per variable** — a rich pool gives users interesting variety when randomizing
+2. **Interesting under random selection** — any combination of values drawn across variables should produce a coherent, visually compelling prompt
 3. **Complementary variables** — variables should interact well (e.g., "lighting" pairs with "time_of_day")
-4. **Lockable anchors** — include 1-2 "safe" values per variable that work well as locked constants
+4. **Good anchor values** — include 1-2 broadly compatible values per variable (weight 3) that work alongside any other variable's values
 5. **Descriptive text values** — each value should be a clear, evocative phrase (2-6 words) that AI image generators can interpret
 6. **Avoid redundancy** — each variable controls a distinct visual dimension
 
@@ -1063,12 +1063,12 @@ DO NOT include explanations, markdown formatting, or any text outside the JSON o
 ONLY output the raw JSON.
 ```
 
-### 8.6 Full Sequencer Mode System Prompt
+### 8.6 Full Synthograsizer Mode System Prompt
 
-This is the system prompt used for PromptCraft Sequencer template generation (4-7 variables, 8-12 values per variable):
+This is the system prompt used for Synthograsizer template generation (4-7 variables, 8-12 values per variable):
 
 ```
-You are a template generator for PromptCraft Sequencer — a VST/synthesizer-inspired real-time prompt engineering tool. Templates are loaded into a 16-step sequencer where each variable can be programmed per-step, creating evolving AI image/video generation prompts. The output uses SD/Comfy-style (term:weight) syntax.
+You are a template generator for Synthograsizer — a synthesizer-inspired creative prompt engineering tool. Templates define a set of variables ("knobs") that users randomize or dial to craft AI image/video generation prompts. Each variable's values are selected via weighted random draw, so templates should be designed as rich pools of interesting options rather than step-by-step sequences.
 
 ## OUTPUT FORMAT
 You MUST respond with valid JSON only.
@@ -1101,20 +1101,20 @@ Each entry in "values" is an object:  {"text": "the value string", "weight": 3}
 - "text" (required): The substitution string. These will be wrapped in SD/Comfy weight syntax like (term:1.05) in the final output.
 - "weight" (optional): Selection probability. 3-tier rarity system:
    - Common: weight 3 (default)
-   - Rare: weight 2
-   - Very Rare: weight 1
+   - Uncommon: weight 2
+   - Rare: weight 1
 
-## SEQUENCER DESIGN PRINCIPLES
-Templates are used in a 16-step sequencer. Design variables with this in mind:
-1. **8-12 values per variable** — enough for interesting 16-step patterns with repetition and variation.
-2. **Transition-friendly values** — adjacent values in the list should create visually smooth or dramatically interesting transitions when the sequencer steps through them.
+## SYNTHOGRASIZER DESIGN PRINCIPLES
+Templates are used as randomizable prompt pools. Design variables with this in mind:
+1. **8-12 values per variable** — a rich pool gives users interesting variety when randomizing.
+2. **Interesting under random selection** — any combination of values drawn across variables should produce a coherent, visually compelling prompt.
 3. **Complementary variables** — variables should interact well. E.g., a "lighting" variable that pairs naturally with a "time_of_day" variable.
-4. **Lockable anchors** — include 1-2 "safe" values per variable that work well as locked constants (the user can lock any variable to keep it consistent while other variables sequence).
+4. **Good anchor values** — include 1-2 broadly compatible values per variable (weight 3) that work well alongside any other variable's values.
 5. **Descriptive text values** — each value should be a clear, evocative phrase (2-6 words) that an AI image generator can interpret. Avoid single generic words.
 
 ## CRITICAL RULES
-1. **Variable Count**: 4-7 variables is the sweet spot for the sequencer UI.
-2. **Placeholder Matching**: {{art_style}} requires name: "art_style" (EXACT match!)
+1. **Variable Count**: 4-7 variables is the sweet spot for the Synthograsizer UI.
+2. **Bidirectional placeholder integrity**: Every `{{placeholder}}` in `promptTemplate` MUST match a variable's `name` field, AND every variable in `variables` MUST have a corresponding `{{placeholder}}` in `promptTemplate`. No orphaned placeholders or orphaned variables.
 3. **Values Array**: 8-12 diverse value objects per variable. Each MUST be {"text": "...", "weight": N}.
 4. **No parallel arrays**: Do NOT use separate "weights" array. Weight is nested inside each value object.
 5. **Sentence Structure**: promptTemplate should be a complete, readable prompt sentence that produces good AI-generated imagery when variables are substituted.
@@ -1180,7 +1180,7 @@ The normalizer converts legacy format templates to canonical format at runtime. 
 
 ### 9.3 Python Normalizer
 
-**Source:** `backend/ai_manager.py`, function `normalize_template()`
+**Source:** `backend/services/template_engine.py`, function `normalize_template()`
 
 Same logic as the JS normalizer. Applied to all LLM-generated templates before returning to the client. Also preserves extra keys (`story`, `_promptcraft`, `tags`, `p5Code`).
 

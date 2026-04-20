@@ -84,6 +84,11 @@ export class BatchGenerator {
     const hasStory = isStoryTemplate(this.app.currentTemplate);
     this.storyMode = hasStory;
 
+    // Default to story-json format when opening in story mode
+    if (hasStory && this.outputFormat === 'plain') {
+      this.outputFormat = 'story-json';
+    }
+
     // Initialize variable modes if not already set
     this.app.variables.forEach(variable => {
       if (!this.variableModes[variable.name]) {
@@ -227,6 +232,57 @@ export class BatchGenerator {
       `;
     }
 
+    // Beat preview — run the engine now to show the first 3 beats.
+    // Applies the same character rotation logic as generateStoryBatch so the
+    // preview is accurate when "Rotate" is selected.
+    let previewHtml = '';
+    try {
+      const isRotate = this.selectedCharacterId === '__rotate__';
+      const chars = this.app.currentTemplate.story?.characters || [];
+
+      let previewTemplate = this.app.currentTemplate;
+      let previewCharId = isRotate ? null
+        : (this.selectedCharacterId || (chars[0]?.id ?? null));
+
+      if (isRotate && chars.length > 1) {
+        previewTemplate = {
+          ...this.app.currentTemplate,
+          story: {
+            ...this.app.currentTemplate.story,
+            acts: this.app.currentTemplate.story.acts.map((act, i) => ({
+              ...act,
+              locks: { character: chars[i % chars.length].id, ...(act.locks || {}) }
+            }))
+          }
+        };
+        previewCharId = null;
+      }
+
+      const previewEngine = new StoryEngine(previewTemplate);
+      const previewSeq = previewEngine.generateSequence({
+        characterId: previewCharId,
+        getWeightedRandomIndex: (weights) => this.app.getWeightedRandomIndex(weights)
+      });
+      const shown = previewSeq.slice(0, 3);
+      const remaining = previewSeq.length - shown.length;
+      if (shown.length > 0) {
+        previewHtml = `
+          <div class="story-section">
+            <h4>Preview <span class="story-preview-note">(first ${shown.length} of ${previewSeq.length} beats)</span></h4>
+            <div class="story-beat-preview">
+              ${shown.map(b => `
+                <div class="story-preview-beat">
+                  <div class="story-preview-beat-label">${b.act} &middot; Beat ${b.beat}</div>
+                  <div class="story-preview-beat-text">${b.text}</div>
+                </div>
+              `).join('')}
+              ${remaining > 0 ? `<div class="story-preview-more">+ ${remaining} more beat${remaining !== 1 ? 's' : ''}\u2026</div>` : ''}
+            </div>
+          </div>
+        `;
+      }
+    } catch (_) { /* preview is best-effort */ }
+
     return `
       <div class="story-panel">
         <div class="story-title">${summary.title}</div>
@@ -234,6 +290,7 @@ export class BatchGenerator {
         ${characterHtml}
         ${actTimelineHtml}
         ${progressionHtml}
+        ${previewHtml}
       </div>
     `;
   }
@@ -344,11 +401,16 @@ export class BatchGenerator {
   }
 
   attachModalEventListeners() {
-    // Story mode toggle
+    // Story mode toggle — also auto-switch output format
     const storyToggle = document.getElementById('story-mode-toggle');
     if (storyToggle) {
       storyToggle.addEventListener('change', (e) => {
         this.storyMode = e.target.checked;
+        if (this.storyMode && this.outputFormat === 'plain') {
+          this.outputFormat = 'story-json';
+        } else if (!this.storyMode && this.outputFormat === 'story-json') {
+          this.outputFormat = 'plain';
+        }
         this.renderModalContent();
       });
     }
@@ -356,7 +418,10 @@ export class BatchGenerator {
     // Character selection (story mode)
     document.querySelectorAll('input[name="story-character"]').forEach(radio => {
       radio.addEventListener('change', (e) => {
-        this.selectedCharacterId = e.target.value === '__rotate__' ? null : e.target.value;
+        // Keep '__rotate__' as a string so generateStoryBatch can detect it;
+        // don't convert to null (null means "no explicit selection", not "rotate").
+        this.selectedCharacterId = e.target.value;
+        this.renderModalContent(); // Refresh preview
       });
     });
 
@@ -481,15 +546,35 @@ export class BatchGenerator {
   }
 
   generateStoryBatch() {
-    const engine = new StoryEngine(this.app.currentTemplate);
+    const template = this.app.currentTemplate;
+    const chars = template.story?.characters || [];
+    const isRotate = this.selectedCharacterId === '__rotate__';
 
-    // Determine character
-    let characterId = this.selectedCharacterId;
-    if (!characterId) {
-      const chars = this.app.currentTemplate.story.characters || [];
-      if (chars.length > 0) characterId = chars[0].id;
+    // Build the effective template — may be a shallow clone with injected per-act
+    // character locks when the user chose "Rotate".
+    let effectiveTemplate = template;
+    let characterId = isRotate ? null : (this.selectedCharacterId || chars[0]?.id || null);
+
+    if (isRotate && chars.length > 1) {
+      // Inject round-robin character locks per act. Existing character locks win.
+      effectiveTemplate = {
+        ...template,
+        story: {
+          ...template.story,
+          acts: template.story.acts.map((act, i) => ({
+            ...act,
+            locks: {
+              character: chars[i % chars.length].id, // rotation default
+              ...(act.locks || {}),                  // existing locks override
+            }
+          }))
+        }
+      };
+      // With per-act locks handling characters, characterId can be null
+      characterId = null;
     }
 
+    const engine = new StoryEngine(effectiveTemplate);
     const sequence = engine.generateSequence({
       characterId,
       getWeightedRandomIndex: (weights) => this.app.getWeightedRandomIndex(weights)
@@ -644,15 +729,27 @@ export class BatchGenerator {
   buildStoryJSON(entries) {
     const template = this.app.currentTemplate || {};
     const story = template.story || {};
+    const sourceActs = story.acts || [];
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
 
-    // Group entries by act
-    const actGroups = {};
-    for (const entry of entries) {
-      const actName = entry.act || 'Unknown Act';
-      if (!actGroups[actName]) actGroups[actName] = [];
-      actGroups[actName].push(entry);
-    }
+    // Slice entries into act groups using beat counts from the source template.
+    // This is order-safe and immune to duplicate act names.
+    let offset = 0;
+    const acts = sourceActs.map((act, i) => {
+      const beatCount = act.beats || 1;
+      const actBeats = entries.slice(offset, offset + beatCount);
+      offset += beatCount;
+      return {
+        name: act.name || `Act ${i + 1}`,
+        locks: act.locks || {},
+        biases: act.biases || {},
+        beats: actBeats.map(b => ({
+          beat: b.beat,
+          prompt: b.text,
+          variables: b.variables
+        }))
+      };
+    });
 
     const storyObj = {
       story_name: story.title || `story_${timestamp}`,
@@ -660,14 +757,7 @@ export class BatchGenerator {
       description: `Story sequence: ${story.title || 'Untitled'}`,
       total_beats: entries.length,
       characters: story.characters || [],
-      acts: Object.entries(actGroups).map(([actName, beats]) => ({
-        name: actName,
-        beats: beats.map(b => ({
-          beat: b.beat,
-          prompt: b.text,
-          variables: b.variables
-        }))
-      })),
+      acts,
       flat_prompts: entries.map(e => e.text)
     };
     // Include provenance tags if any exist

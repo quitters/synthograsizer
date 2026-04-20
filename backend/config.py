@@ -1,4 +1,41 @@
 import os
+import json
+from pathlib import Path
+
+def load_env_file(filepath: Path = Path(".env")):
+    """Pure-stdlib .env file loader."""
+    if not filepath.exists():
+        return
+    with open(filepath, "r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            if "=" in line:
+                key, val = line.split("=", 1)
+                key = key.strip()
+                val = val.strip().strip("\"'")
+                if key not in os.environ:
+                    os.environ[key] = val
+
+# Load .env at startup
+load_env_file()
+
+def get_api_key() -> str | None:
+    """Load API key from env var, or fallback to legacy ai_studio_config.json."""
+    key = os.environ.get("GOOGLE_API_KEY") or os.environ.get("GEMINI_API_KEY")
+    if key:
+        return key
+        
+    legacy_config = Path("ai_studio_config.json")
+    if legacy_config.exists():
+        try:
+            with open(legacy_config, "r") as f:
+                saved = json.load(f)
+                return saved.get("api_key")
+        except Exception:
+            pass
+    return None
 
 # ── Google GenAI Model Names ──
 # Single source of truth — change model versions here, not in ai_manager.py.
@@ -17,10 +54,25 @@ MODEL_TEMPLATE_GEN_FAST = "gemini-3-flash-preview"
 # Lighter tasks: narrative, video variations, chat inside ai_manager
 MODEL_FAST = "gemini-3-flash-preview"
 
+# Missing aliases
+MODEL_ANALYSIS_QUICK = MODEL_FAST
+MODEL_NARRATIVE = MODEL_FAST
+MODEL_SMART_TRANSFORM_PROMPT = MODEL_FAST
+MODEL_CURATION = MODEL_FAST
+
 # ── App Settings ──
 APP_TITLE = "Synthograsizer AI Suite"
 HOST = "127.0.0.1"
 PORT = 8000
+
+# ── Output Paths ──
+OUTPUT_BASE_DIR = Path(
+    os.environ.get("SYNTHOGRASIZER_OUTPUT_DIR",
+                   str(Path.home() / "Desktop" / "Synthograsizer_Output"))
+)
+OUTPUT_IMAGES_DIR = OUTPUT_BASE_DIR / "Images"
+OUTPUT_VIDEOS_DIR = OUTPUT_BASE_DIR / "Videos"
+OUTPUT_JSON_DIR = OUTPUT_BASE_DIR / "JSON"
 
 # ── Operational Limits ──
 VIDEO_POLL_TIMEOUT_SECONDS = 300  # Max wait for video generation

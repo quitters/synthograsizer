@@ -148,14 +148,13 @@ Requires the Node.js backend on port 3001 (see setup below).
 
 ### Backend — Python FastAPI + Google AI
 
-The Python backend (`backend/server.py`) provides:
-- **Text generation** via Gemini (`gemini-2.0-flash`, configurable)
-- **Image generation** via Imagen 3
-- **Video generation** via Veo 2 (local only — requires FFmpeg)
-- **Template generation** — LLM-powered JSON template creation from a description
-- **OSC forwarding** (`osc_bridge.py`) — UDP relay to Daydream Scope or any OSC target
-- **Scope discovery** — probes Scope's health endpoint to auto-configure OSC
-- **ChatRoom API** — SSE streaming for multi-agent conversations
+The Python backend follows a modular service-oriented architecture:
+
+- **Centralized Logic:** `ai_manager.py` acts as a façade, delegating requests to specialized domain modules in `backend/services/`.
+- **Domain Services:** Dedicated generation engines for Text, Image (Imagen 3), Video (Veo 2), Analysis, and Template Engineering.
+- **FastAPI Routing:** Endpoints are decoupled into domain-specific routers in `backend/routers/` for better maintainability.
+- **Config Management:** Centralized `config.py` using pure-stdlib `.env` loading and `pathlib` for cross-platform compatibility.
+- **OSC & Scope:** Native UDP relaying (`osc_bridge.py`) and WebRTC/Asset proxying for Daydream Scope integration.
 
 ---
 
@@ -350,12 +349,17 @@ launch-all.bat
 ```
 synthograsizer-suite/
 │
-├── backend/                    # Python FastAPI server + AI integration
-│   ├── server.py               #   API endpoints (image, video, template gen, chat, scope asset proxy)
-│   ├── ai_manager.py           #   Google GenAI client (Gemini, Imagen, Veo)
-│   ├── music_manager.py        #   Music generation backend
-│   ├── osc_bridge.py           #   OSC UDP relay to Daydream Scope / any OSC target
-│   └── config.py               #   Model names and app settings
+├── backend/                    # Python FastAPI server + Modular AI integration
+│   ├── server.py               #   FastAPI app entry point & router mounting
+│   ├── ai_manager.py           #   AIManager Façade (delegates to services)
+│   ├── config.py               #   Centralized configuration & .env path loader
+│   ├── helpers.py              #   API utilities (image decoding, JSON parsing)
+│   ├── music_manager.py        #   Music generation backend (Lyria RealTime)
+│   ├── osc_bridge.py           #   OSC UDP relay to Daydream Scope
+│   ├── models/                 #   Pydantic request/response models
+│   ├── routers/                #   Domain-specific API routers (chat, generation, templates, etc.)
+│   ├── services/               #   Logic-heavy generation & analysis services
+│   └── utils/                  #   Shared utilities (retry logic, image processing)
 │
 ├── static/                     # All browser-based tools (served as web root)
 │   ├── index.html              #   Hub / navigation page

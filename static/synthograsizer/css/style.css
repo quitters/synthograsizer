@@ -2646,6 +2646,58 @@ body {
   content: '⚠ ';
 }
 
+/* Beat preview */
+.story-preview-note {
+  font-size: 10px;
+  font-weight: 400;
+  color: #475569;
+  text-transform: none;
+  letter-spacing: 0;
+  margin-left: 4px;
+}
+
+.story-beat-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.story-preview-beat {
+  background: #1e293b;
+  border-radius: 8px;
+  padding: 10px 12px;
+  border-left: 3px solid #4f46e5;
+}
+
+.story-preview-beat-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.story-preview-beat-text {
+  font-size: 12px;
+  color: #cbd5e1;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.story-preview-more {
+  font-size: 11px;
+  color: #475569;
+  text-align: center;
+  padding: 4px 0;
+  font-style: italic;
+}
+
 /* Invalid input highlight (e.g. bad Scope URL) */
 .osc-input-invalid {
   border-color: var(--color-red) !important;
