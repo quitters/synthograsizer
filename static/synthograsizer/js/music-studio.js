@@ -168,17 +168,21 @@ class MusicStudioClient {
     }
 
     _onPromptChanged() {
-        if (!this.autoSyncEnabled || this.status !== 'playing') return;
+        // Allow sync whenever the WebSocket is actually open (not only when status === 'playing'),
+        // because Lyria sends states like 'connected', 'started', etc. before 'playing'.
+        const wsLive = this.ws && this.ws.readyState === WebSocket.OPEN;
+        if (!this.autoSyncEnabled || !wsLive) return;
 
-        // Debounce — 300ms after last change
+        // Debounce — 500ms after last change (avoids flooding while knobs are turning)
         clearTimeout(this._syncTimer);
         this._syncTimer = setTimeout(() => {
-            const promptText = this.app.getCurrentPromptText?.() || '';
+            const promptText = this.app?.getCurrentPromptText?.() || '';
             if (!promptText) return;
 
+            console.log('[MusicStudio] Auto-sync → crossfade to:', promptText.slice(0, 60));
             const newPrompts = [{ text: promptText, weight: 1.0 }];
             this.crossfadePrompts(newPrompts);
-        }, 300);
+        }, 500);
     }
 
     // ── Audio Playback ──────────────────────────────────────────────────
@@ -252,14 +256,18 @@ class MusicStudioClient {
     }
 
     _stopAudio() {
+        // Order matters: cancel the meter RAF FIRST, then null out the
+        // analyser, then close the context. If we close first, the next RAF
+        // callback can fire against a closed AudioContext and throw
+        // InvalidStateError when it calls getByteFrequencyData.
+        this._stopMeter();
+        this.analyser = null;
+        this.gainNode = null;
         if (this.audioCtx) {
             this.audioCtx.close().catch(() => {});
             this.audioCtx = null;
-            this.analyser = null;
-            this.gainNode = null;
         }
         this.nextPlayTime = 0;
-        this._stopMeter();
     }
 
     // ── Level Meter ─────────────────────────────────────────────────────
@@ -286,9 +294,15 @@ class MusicStudioClient {
     }
 
     _drawMeter() {
+        // Bail before re-scheduling if any of the resources we'd touch are
+        // gone. Without this guard, _stopAudio()'s teardown can race with an
+        // already-queued RAF callback that then calls getByteFrequencyData
+        // on a freed analyser.
+        if (!this.analyser || !this._meterCtx || !this._meterCanvas) {
+            this._meterRAF = null;
+            return;
+        }
         this._meterRAF = requestAnimationFrame(() => this._drawMeter());
-
-        if (!this.analyser || !this._meterCtx || !this._meterCanvas) return;
 
         const canvas = this._meterCanvas;
         const ctx = this._meterCtx;

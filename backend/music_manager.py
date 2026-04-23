@@ -47,6 +47,11 @@ MUSIC_MODE_MAP = {
     "VOCALIZATION": "VOCALIZATION",
 }
 
+# Hard cap on outstanding music control messages. A real session sends a
+# handful per second at most (knob turns, prompt changes), so 64 covers
+# bursty UIs without ever realistically blocking.
+CMD_QUEUE_MAX = 64
+
 
 class MusicManager:
     """Manages a single Lyria RealTime session.
@@ -76,7 +81,11 @@ class MusicManager:
         self.current_prompts: list[dict] = []
         self.current_config: dict = {}
         self._session_task: Optional[asyncio.Task] = None
-        self._cmd_queue: asyncio.Queue = asyncio.Queue()
+        # Cap the queue so a misbehaving client (or an unresponsive Lyria
+        # session) cannot pin unbounded memory. If we ever fill it, the
+        # producer drops the oldest backlog rather than blocking forever —
+        # see `send_command` for the overflow policy.
+        self._cmd_queue: asyncio.Queue = asyncio.Queue(maxsize=CMD_QUEUE_MAX)
         self._send_callback: Optional[Any] = None
         self._session_ready = asyncio.Event()
 
@@ -93,7 +102,9 @@ class MusicManager:
 
         self._send_callback = send_callback
         self._session_ready.clear()
-        self._cmd_queue = asyncio.Queue()
+        # Re-create the queue so a previous session's leftover commands don't
+        # leak into the new one. Keep the same cap.
+        self._cmd_queue = asyncio.Queue(maxsize=CMD_QUEUE_MAX)
         self._session_task = asyncio.create_task(self._session_loop())
 
         # Wait for the session to connect (with timeout)
@@ -341,8 +352,25 @@ class MusicManager:
         self.current_prompts = new_prompts
 
     async def send_command(self, cmd: dict) -> None:
-        """Queue a command for the session task to process."""
-        await self._cmd_queue.put(cmd)
+        """Queue a command for the session task to process.
+
+        If the queue is full (the consumer is wedged or Lyria is unresponsive),
+        we drop the OLDEST queued command to make room for the new one.
+        For a control surface — knob turns, prompt updates — the freshest
+        intent matters more than backlog fidelity, so this trade is correct.
+        """
+        try:
+            self._cmd_queue.put_nowait(cmd)
+        except asyncio.QueueFull:
+            try:
+                dropped = self._cmd_queue.get_nowait()
+                logger.warning(
+                    "Music command queue full — dropped oldest action=%s",
+                    dropped.get("action") if isinstance(dropped, dict) else "?",
+                )
+            except asyncio.QueueEmpty:
+                pass
+            await self._cmd_queue.put(cmd)
 
     def get_status(self) -> dict:
         """Return current session status."""

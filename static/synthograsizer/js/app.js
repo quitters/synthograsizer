@@ -1358,6 +1358,14 @@ export class SynthograsizerSmall {
         return;
       }
 
+      // Hard cap on likedPrompts to keep the persisted blob bounded. Without
+      // this, a long session can grow the array indefinitely and either blow
+      // past the localStorage quota or make every save expensive.
+      const MAX_LIKED = 500;
+      if (this.likedPrompts.length > MAX_LIKED) {
+        this.likedPrompts = this.likedPrompts.slice(-MAX_LIKED);
+      }
+
       const state = {
         template: this.currentTemplate,
         currentValues: this.currentValues,
@@ -1366,7 +1374,26 @@ export class SynthograsizerSmall {
         controlMode: this.controlMode,
       };
 
-      window.localStorage.setItem(STATE_STORAGE_KEY, JSON.stringify(state));
+      try {
+        window.localStorage.setItem(STATE_STORAGE_KEY, JSON.stringify(state));
+      } catch (storageError) {
+        // QuotaExceededError typically means we have too many liked prompts
+        // OR an oversized template. Aggressively prune likedPrompts and
+        // retry once before giving up — losing some history is better than
+        // losing the whole session.
+        if (storageError && storageError.name === 'QuotaExceededError') {
+          console.warn('localStorage quota exceeded — pruning likedPrompts and retrying');
+          this.likedPrompts = this.likedPrompts.slice(-50);
+          state.likedPrompts = this.likedPrompts;
+          try {
+            window.localStorage.setItem(STATE_STORAGE_KEY, JSON.stringify(state));
+            return;
+          } catch (_) {
+            // Fall through to outer catch
+          }
+        }
+        throw storageError;
+      }
     } catch (error) {
       // Non-fatal; ignore storage errors
       console.warn('Failed to save Synthograsizer Mini state:', error);
@@ -1694,8 +1721,8 @@ export class SynthograsizerSmall {
     // Wire up unified panel UI
     this._bindScopePanelEvents();
 
-    // Start auto-discovery
-    this.scopeConnector.start();
+    // Start auto-discovery (removed to prevent continuous background polling)
+    // this.scopeConnector.start();
   }
 
   _bindScopePanelEvents() {
@@ -1708,6 +1735,13 @@ export class SynthograsizerSmall {
       const open = panel.style.display !== 'none';
       panel.style.display = open ? 'none' : 'block';
       toggleBtn.classList.toggle('active', !open);
+      
+      // Only poll for Scope discovery when the panel is open
+      if (!open) {
+        this.scopeConnector.start();
+      } else {
+        this.scopeConnector.stop();
+      }
     });
 
     // Scope URL change (with validation)

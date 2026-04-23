@@ -6,29 +6,34 @@ LLM JSON responses are parsed via `parse_llm_json()` to keep endpoint
 handlers concise and consistent.
 """
 
+import sys
+import os
+from pathlib import Path
+
+# Add the project root and backend directory to path for imports
+# This allows both 'import config' and 'from backend import config' to work
+backend_dir = Path(__file__).resolve().parent
+root_dir = backend_dir.parent
+if str(root_dir) not in sys.path:
+    sys.path.insert(0, str(root_dir))
+if str(backend_dir) not in sys.path:
+    sys.path.insert(0, str(backend_dir))
+
 import asyncio
 import logging
 from fastapi import FastAPI, HTTPException, BackgroundTasks, Request, WebSocket, WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, StreamingResponse, Response
 import httpx
-from backend import config
 from pydantic import BaseModel
 from typing import Optional, List, Dict
 import uvicorn
-import os
-import sys
 import json
 import base64
 import re
 import time
-from pathlib import Path
 
-# Add backend directory to path for imports
-backend_dir = Path(__file__).resolve().parent
-if str(backend_dir) not in sys.path:
-    sys.path.insert(0, str(backend_dir))
-
+from backend import config
 from ai_manager import ai_manager, normalize_template
 from osc_bridge import osc_bridge
 from music_manager import get_music_manager

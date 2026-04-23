@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import sharp from 'sharp';
+import { synthClient } from 'workflow-engine';
 
 const IMAGE_MODEL = 'gemini-3-pro-image-preview';
 
@@ -38,51 +39,13 @@ export function initializeImageGen(apiKey) {
  * @returns {Promise<{imageData: string, mimeType: string, text?: string}>}
  */
 export async function generateImage(prompt, options = {}) {
-  if (!genAI) {
-    throw new Error('Image generation not initialized');
-  }
-
-  const model = genAI.getGenerativeModel({
-    model: IMAGE_MODEL,
-    generationConfig: {
-      temperature: 1.0,
-      topP: 0.95,
-    },
-  });
-
   try {
-    const result = await model.generateContent({
-      contents: [{
-        role: 'user',
-        parts: [{ text: prompt }]
-      }],
-      generationConfig: {
-        responseModalities: ['image', 'text'],
-      }
-    });
-
-    const response = result.response;
-    const parts = response.candidates?.[0]?.content?.parts || [];
-
-    let imageData = null;
-    let mimeType = null;
-    let text = null;
-
-    for (const part of parts) {
-      if (part.inlineData) {
-        imageData = part.inlineData.data;
-        mimeType = part.inlineData.mimeType;
-      } else if (part.text) {
-        text = part.text;
-      }
-    }
-
+    const result = await synthClient.generateImage(prompt, options);
+    let imageData = result.image || result.imageData;
     if (!imageData) {
       throw new Error('No image generated');
     }
-
-    const normalized = await normalizeImageToPng(imageData, mimeType);
-    return { imageData: normalized.data, mimeType: normalized.mimeType, text };
+    return { imageData, mimeType: 'image/png', text: result.text };
   } catch (error) {
     console.error('Image generation error:', error);
     throw error;
@@ -139,59 +102,14 @@ export async function analyzeImage(prompt, imageData, mimeType) {
  * @returns {Promise<{imageData: string, mimeType: string, text?: string}>}
  */
 export async function editImage(imageData, mimeType, editPrompt) {
-  if (!genAI) {
-    throw new Error('Image generation not initialized');
-  }
-
-  const model = genAI.getGenerativeModel({
-    model: IMAGE_MODEL,
-    generationConfig: {
-      temperature: 1.0,
-      topP: 0.95,
-    },
-  });
-
   try {
-    const result = await model.generateContent({
-      contents: [{
-        role: 'user',
-        parts: [
-          {
-            inlineData: {
-              mimeType: mimeType,
-              data: imageData
-            }
-          },
-          { text: editPrompt }
-        ]
-      }],
-      generationConfig: {
-        responseModalities: ['image', 'text'],
-      }
-    });
-
-    const response = result.response;
-    const parts = response.candidates?.[0]?.content?.parts || [];
-
-    let newImageData = null;
-    let newMimeType = null;
-    let text = null;
-
-    for (const part of parts) {
-      if (part.inlineData) {
-        newImageData = part.inlineData.data;
-        newMimeType = part.inlineData.mimeType;
-      } else if (part.text) {
-        text = part.text;
-      }
-    }
-
+    // Smart transform acts as an edit function via backend
+    const result = await synthClient.smartTransform(imageData, editPrompt);
+    let newImageData = result.image || result.imageData;
     if (!newImageData) {
       throw new Error('No image generated from edit');
     }
-
-    const normalized = await normalizeImageToPng(newImageData, newMimeType);
-    return { imageData: normalized.data, mimeType: normalized.mimeType, text };
+    return { imageData: newImageData, mimeType: 'image/png', text: result.prompt };
   } catch (error) {
     console.error('Image edit error:', error);
     throw error;
@@ -261,68 +179,23 @@ export function stripImageTags(text) {
  * @returns {Promise<{imageData: string, mimeType: string, text?: string}>}
  */
 export async function generateImageWithReferences(prompt, referenceImages = [], options = {}) {
-  if (!genAI) {
-    throw new Error('Image generation not initialized');
-  }
-
-  const model = genAI.getGenerativeModel({
-    model: IMAGE_MODEL,
-    generationConfig: {
-      temperature: options.temperature || 1.0,
-      topP: options.topP || 0.95,
-    },
-  });
-
   try {
-    // Build parts array with reference images first, then the prompt
-    const parts = [];
-
-    // Add reference images
-    for (const ref of referenceImages) {
-      parts.push({
-        inlineData: {
-          mimeType: ref.mimeType,
-          data: ref.imageData
-        }
-      });
-    }
-
-    // Add the prompt - include instruction about using references
-    const fullPrompt = referenceImages.length > 0
-      ? `Using the provided reference image(s) as style and content guidance, create: ${prompt}`
-      : prompt;
-
-    parts.push({ text: fullPrompt });
-
-    const result = await model.generateContent({
-      contents: [{ role: 'user', parts }],
-      generationConfig: {
-        responseModalities: ['image', 'text'],
-      }
+    // Collect reference image data into Array<string>
+    const imageList = referenceImages.map(r => r.imageData);
+    // Use synthClient which routes to the fastAPI backend and embeds metadata cleanly
+    const result = await synthClient._post('/api/generate/image', {
+      prompt,
+      model: 'gemini-3-pro-image-preview',
+      input_images: imageList,
+      temperature: options.temperature || 1.0,
+      top_p: options.topP || 0.95
     });
 
-    const response = result.response;
-    const responseParts = response.candidates?.[0]?.content?.parts || [];
-
-    let imageData = null;
-    let mimeType = null;
-    let text = null;
-
-    for (const part of responseParts) {
-      if (part.inlineData) {
-        imageData = part.inlineData.data;
-        mimeType = part.inlineData.mimeType;
-      } else if (part.text) {
-        text = part.text;
-      }
-    }
-
+    let imageData = result.image || result.imageData;
     if (!imageData) {
       throw new Error('No image generated');
     }
-
-    const normalized = await normalizeImageToPng(imageData, mimeType);
-    return { imageData: normalized.data, mimeType: normalized.mimeType, text };
+    return { imageData, mimeType: 'image/png', text: result.text };
   } catch (error) {
     console.error('Image generation with references error:', error);
     throw error;

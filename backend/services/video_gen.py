@@ -1,21 +1,11 @@
-import os
-import json
 import base64
-import io
 import time
 import requests
-import uuid
-from datetime import datetime
 import asyncio
-from pathlib import Path
-from typing import Optional, List, Dict, Any, Union
+from typing import Optional
 from backend import config
-from backend.utils.retry import retry_on_transient
-import google.generativeai as genai
-from google import genai as genai_client
+from backend.helpers import decode_base64_image
 from google.genai import types
-from PIL import Image
-from PIL.PngImagePlugin import PngInfo
 
 async def generate_video(self, prompt: str, model_name: str = config.MODEL_VIDEO_GEN,
                   duration_seconds: int = None, aspect_ratio: str = None,
@@ -60,26 +50,22 @@ async def generate_video(self, prompt: str, model_name: str = config.MODEL_VIDEO
         
         # Handle First Frame (image parameter) and Last Frame (last_frame in config)
         # Veo 3.1 supports first/last frame via image-to-video and interpolation
+        # Decoding goes through `decode_base64_image`, which enforces a hard
+        # size cap. Videos can have several large reference frames per call,
+        # so we want to bounce oversized payloads early rather than spending
+        # quota and memory on a doomed request.
         first_frame_obj = None
         if start_frame_image:
-            # Decode start image
-            start_bytes = base64.b64decode(start_frame_image.split(",")[1] if "," in start_frame_image else start_frame_image)
-            # Ensure aspect ratio
+            start_bytes = decode_base64_image(start_frame_image)
             if aspect_ratio:
                 start_bytes = self.ensure_aspect_ratio(start_bytes, aspect_ratio)
-            
-            # Create image object for first frame
             first_frame_obj = types.Image(image_bytes=start_bytes, mime_type="image/jpeg")
             print(f"Using first frame for video generation (image parameter)")
 
         if end_frame_image:
-            # Decode end image
-            end_bytes = base64.b64decode(end_frame_image.split(",")[1] if "," in end_frame_image else end_frame_image)
-            # Ensure aspect ratio
+            end_bytes = decode_base64_image(end_frame_image)
             if aspect_ratio:
                 end_bytes = self.ensure_aspect_ratio(end_bytes, aspect_ratio)
-
-            # Set last_frame in config for interpolation
             config_opts.last_frame = types.Image(image_bytes=end_bytes, mime_type="image/jpeg")
             print(f"Using last frame for video interpolation (last_frame parameter)")
 
@@ -88,7 +74,7 @@ async def generate_video(self, prompt: str, model_name: str = config.MODEL_VIDEO
         if reference_images:
             ref_objs = []
             for i, ref_b64 in enumerate(reference_images[:3]):
-                ref_bytes = base64.b64decode(ref_b64.split(",")[1] if "," in ref_b64 else ref_b64)
+                ref_bytes = decode_base64_image(ref_b64)
                 if aspect_ratio:
                     ref_bytes = self.ensure_aspect_ratio(ref_bytes, aspect_ratio)
                 ref_img = types.Image(image_bytes=ref_bytes, mime_type="image/jpeg")

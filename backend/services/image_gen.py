@@ -1,21 +1,12 @@
-import os
-import json
 import base64
-import io
-import time
-import requests
-import uuid
-from datetime import datetime
-import asyncio
-from pathlib import Path
-from typing import Optional, List, Dict, Any, Union
+import logging
+from typing import Optional, List, Dict, Any
 from backend import config
 from backend.utils.retry import retry_on_transient
-import google.generativeai as genai
-from google import genai as genai_client
+from backend.utils.image_utils import sniff_mime_type
 from google.genai import types
-from PIL import Image
-from PIL.PngImagePlugin import PngInfo
+
+logger = logging.getLogger(__name__)
 
 def generate_image(self, prompt: str, model_name: str = None, aspect_ratio: str = "1:1",
                    negative_prompt: str = None, input_images: Optional[List[bytes]] = None,
@@ -43,20 +34,23 @@ def generate_image(self, prompt: str, model_name: str = None, aspect_ratio: str 
             reference_images.extend(input_images)
 
         if "gemini" in model_name.lower():
-            try:
-                return self._generate_image_gemini(
-                    prompt, model_name, aspect_ratio, reference_images,
-                    response_modalities, thinking_level, include_thoughts,
-                    media_resolution, person_generation, safety_settings,
-                    image_count, add_watermark, use_google_search,
-                    temperature, top_k, top_p, tags=tags
-                )
-            except Exception as e:
-                print(f"Image generation failed across all retries, using placeholder: {str(e)[:120]}")
-                return self._placeholder_image(aspect_ratio)
+            return self._generate_image_gemini(
+                prompt, model_name, aspect_ratio, reference_images,
+                response_modalities, thinking_level, include_thoughts,
+                media_resolution, person_generation, safety_settings,
+                image_count, add_watermark, use_google_search,
+                temperature, top_k, top_p, tags=tags
+            )
         else:
-            # Use Imagen 3
-            return self._generate_image_imagen(prompt, model_name, aspect_ratio, negative_prompt, tags=tags)
+            # Use Imagen 3 — natively supports number_of_images, add_watermark,
+            # person_generation. Forward them through.
+            return self._generate_image_imagen(
+                prompt, model_name, aspect_ratio, negative_prompt,
+                image_count=image_count,
+                add_watermark=add_watermark,
+                person_generation=person_generation,
+                tags=tags,
+            )
     except Exception as e:
         raise Exception(f"Image generation failed: {str(e)}")
 
@@ -98,24 +92,39 @@ def _generate_image_gemini(self, prompt: str, model_name: str, aspect_ratio: str
                 thinking_cfg["thinking_level"] = thinking_level.lower()
             config_kwargs["thinking_config"] = thinking_cfg
 
-    # Safety Settings
-    if safety_settings:
-        # Map list of dicts to types.SafetySetting
-        mapped_safety = []
-        for s in safety_settings:
-            mapped_safety.append(types.SafetySetting(
-                category=s["category"],
-                threshold=s["threshold"]
-            ))
-        config_kwargs["safety_settings"] = mapped_safety
+    # Safety Settings (Default to permissive if not provided)
+    if not safety_settings:
+        safety_settings = [
+            {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_ONLY_HIGH"},
+            {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_ONLY_HIGH"},
+            {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_ONLY_HIGH"},
+            {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_ONLY_HIGH"},
+            {"category": "HARM_CATEGORY_CIVIC_INTEGRITY", "threshold": "BLOCK_ONLY_HIGH"}
+        ]
+
+    mapped_safety = []
+    for s in safety_settings:
+        mapped_safety.append(types.SafetySetting(
+            category=s["category"],
+            threshold=s["threshold"]
+        ))
+    config_kwargs["safety_settings"] = mapped_safety
 
     # Image Config
-    # Note: image_count and add_watermark are currently causing Pydantic validation errors 
-    # with the installed SDK version. Removing them for now.
-    image_config_args = {
+    #
+    # The set of fields supported by `types.ImageConfig` varies across
+    # google-genai SDK versions. We always pass `aspect_ratio` (universally
+    # supported), then attempt to layer on optional fields and gracefully
+    # fall back if the installed SDK rejects them.
+    #
+    # Notes on Gemini-side limitations vs. Imagen:
+    #   - `image_count`        : Gemini may not honor multi-image; Imagen does.
+    #     We map it onto ImageConfig if available; callers wanting reliable
+    #     multi-image generation should use the Imagen path.
+    #   - `add_watermark`      : Imagen-only; SynthID is automatic on Gemini.
+    #   - `person_generation`  : Imagen-only on most SDK builds.
+    image_config_base = {
         "aspect_ratio": aspect_ratio if aspect_ratio != "auto" else None,
-        # "image_count": image_count, 
-        # "add_watermark": add_watermark 
     }
 
     # Resolution Handling (Gemini 3.x models support image_size)
@@ -127,14 +136,33 @@ def _generate_image_gemini(self, prompt: str, model_name: str, aspect_ratio: str
             "media_resolution_high": "4K"
         }
         if media_resolution in res_map:
-            image_config_args["image_size"] = res_map[media_resolution]
+            image_config_base["image_size"] = res_map[media_resolution]
 
-    # if person_generation:
-    #     image_config_args["person_generation"] = person_generation
-    
-    # NOTE: person_generation also causing Pydantic errors. Removing for now.
+    # Layer on optional fields, then fall back if the SDK rejects any of them.
+    image_config_extended = dict(image_config_base)
+    if image_count and image_count > 1:
+        image_config_extended["image_count"] = image_count
+    if add_watermark is False:
+        # Only forward when the caller explicitly opts out — default True is
+        # already implicit, and forwarding the default needlessly tickles
+        # SDK validation paths.
+        image_config_extended["add_watermark"] = False
+    if person_generation:
+        image_config_extended["person_generation"] = person_generation
 
-    config_kwargs["image_config"] = types.ImageConfig(**image_config_args)
+    try:
+        image_cfg = types.ImageConfig(**image_config_extended)
+    except Exception as e:
+        # Older/different SDK build — strip extras and try again.
+        dropped = set(image_config_extended) - set(image_config_base)
+        if dropped:
+            logger.warning(
+                "ImageConfig rejected fields %s on Gemini path (%s); "
+                "falling back to base config.",
+                sorted(dropped), e,
+            )
+        image_cfg = types.ImageConfig(**image_config_base)
+    config_kwargs["image_config"] = image_cfg
 
     # Sampling Controls
     if temperature is not None:
@@ -151,12 +179,15 @@ def _generate_image_gemini(self, prompt: str, model_name: str, aspect_ratio: str
 
     gen_config = types.GenerateContentConfig(**config_kwargs)
 
-    contents = [prompt]
+    contents = []
     if reference_images:
-        # Add each reference image as a Part (sniff actual mime type — never assume JPEG)
+        # Add each reference image as a Part first
         for image_bytes in reference_images:
             image_part = types.Part.from_bytes(data=image_bytes, mime_type=sniff_mime_type(image_bytes))
             contents.append(image_part)
+    
+    # Add prompt at the end
+    contents.append(prompt)
 
     response = self.genai_client.models.generate_content(
         model=model_name,
@@ -174,66 +205,125 @@ def _generate_image_gemini(self, prompt: str, model_name: str, aspect_ratio: str
             raise Exception(f"Prompt blocked: {response.prompt_feedback.block_reason}")
 
     if not hasattr(response, 'candidates') or not response.candidates:
-         # This is likely where the "NoneType is not iterable" came from if candidates was None
-         raise Exception("No candidates returned. The prompt may have been blocked for safety.")
+        # `candidates` is None when the prompt itself was rejected upstream.
+        raise Exception("No candidates returned. The prompt may have been blocked for safety.")
+
+    # Walk candidates and collect the first image part we find. We also
+    # capture any text part (Gemini sometimes returns commentary alongside
+    # the image when response_modalities includes "Text"). Safety blocks
+    # raised here are terminal — we don't try other candidates because the
+    # block applies to the prompt, not the candidate ranking.
+    image_b64: Optional[str] = None
+    text_out: Optional[str] = None
 
     for candidate in response.candidates:
-        # Check finish reason
-        if hasattr(candidate, 'finish_reason'):
-            # 3 is SAFETY, but using the enum string or value is safer if available. 
-            # In the new SDK, it might be an enum. converting to str usually works.
-            finish_reason = str(candidate.finish_reason)
-            if "SAFETY" in finish_reason or finish_reason == "3":
-                safety_msg = "Content blocked for SAFETY."
-                if hasattr(candidate, 'safety_ratings') and candidate.safety_ratings:
-                    for rating in candidate.safety_ratings:
-                        # Check if probability is high/medium which usually triggers block
-                        # probability might be an enum or string
-                        prob = str(rating.probability)
-                        if "HIGH" in prob or "MEDIUM" in prob:
-                            category = str(rating.category).replace("HARM_CATEGORY_", "")
-                            safety_msg += f" ({category}: {prob})"
-                raise Exception(safety_msg)
-            
-            if "RECITATION" in finish_reason:
-                 raise Exception("Content blocked: Recitation of copyrighted material.")
+        finish_reason = str(getattr(candidate, "finish_reason", "") or "")
+        if "SAFETY" in finish_reason or finish_reason == "3":
+            safety_msg = "Content blocked for SAFETY."
+            for rating in getattr(candidate, "safety_ratings", None) or []:
+                prob = str(getattr(rating, "probability", ""))
+                if "HIGH" in prob or "MEDIUM" in prob:
+                    category = str(getattr(rating, "category", "")).replace("HARM_CATEGORY_", "")
+                    safety_msg += f" ({category}: {prob})"
+            raise Exception(safety_msg)
 
-        if hasattr(candidate, 'content') and candidate.content is not None and hasattr(candidate.content, 'parts') and candidate.content.parts is not None:
-            for part in candidate.content.parts:
-                if hasattr(part, 'inline_data') and part.inline_data:
-                    # Embed Metadata (with optional provenance tags)
-                    final_bytes = self.embed_metadata(part.inline_data.data, prompt, tags=tags)
+        if "RECITATION" in finish_reason:
+            raise Exception("Content blocked: Recitation of copyrighted material.")
 
-                    self.save_output(final_bytes, f"img_{model_name}")
-                    return base64.b64encode(final_bytes).decode('utf-8')
+        content = getattr(candidate, "content", None)
+        parts = getattr(content, "parts", None) if content is not None else None
+        if not parts:
+            continue
 
-    raise Exception("No image found in Gemini response (Candidates examined but no image part found)")
+        for part in parts:
+            inline = getattr(part, "inline_data", None)
+            if inline and getattr(inline, "data", None) and image_b64 is None:
+                final_bytes = self.embed_metadata(inline.data, prompt, tags=tags)
+                self.save_output(final_bytes, f"img_{model_name}")
+                image_b64 = base64.b64encode(final_bytes).decode("utf-8")
+            elif getattr(part, "text", None):
+                text_out = (text_out or "") + part.text
 
-def _generate_image_imagen(self, prompt: str, model_name: str, aspect_ratio: str, negative_prompt: str = None, tags: list = None):
-    """Helper for Imagen 3 generation."""
-    gen_config = types.GenerateImagesConfig(
-        aspect_ratio=aspect_ratio,
-        number_of_images=1
-    )
+        if image_b64 is not None:
+            break
+
+    if image_b64 is None:
+        raise Exception("No image found in Gemini response (Candidates examined but no image part found)")
+
+    # Preserve historical contract: bare base64 string when there's no text,
+    # dict when the model returned both modalities.
+    if text_out:
+        return {"image": image_b64, "text": text_out}
+    return image_b64
+
+def _generate_image_imagen(
+    self,
+    prompt: str,
+    model_name: str,
+    aspect_ratio: str,
+    negative_prompt: str = None,
+    image_count: int = 1,
+    add_watermark: bool = True,
+    person_generation: Optional[str] = None,
+    tags: list = None,
+):
+    """Helper for Imagen 3 generation.
+
+    Imagen natively supports `number_of_images`, `add_watermark`, and
+    `person_generation`. We layer them onto the config defensively so the
+    call still succeeds against older SDK builds that lack one of them.
+    """
+    config_args: Dict[str, Any] = {
+        "aspect_ratio": aspect_ratio,
+        "number_of_images": max(1, int(image_count or 1)),
+    }
+    if add_watermark is False:
+        config_args["add_watermark"] = False
+    if person_generation:
+        config_args["person_generation"] = person_generation
+    if negative_prompt:
+        config_args["negative_prompt"] = negative_prompt
+
+    try:
+        gen_config = types.GenerateImagesConfig(**config_args)
+    except Exception as e:
+        # Fall back to the minimum-viable config rather than failing the call.
+        dropped = set(config_args) - {"aspect_ratio", "number_of_images"}
+        if dropped:
+            logger.warning(
+                "GenerateImagesConfig rejected fields %s on Imagen path (%s); "
+                "falling back to minimal config.",
+                sorted(dropped), e,
+            )
+        gen_config = types.GenerateImagesConfig(
+            aspect_ratio=aspect_ratio,
+            number_of_images=config_args["number_of_images"],
+        )
 
     response = self.genai_client.models.generate_images(
         model=model_name,
         prompt=prompt,
-        config=gen_config
+        config=gen_config,
     )
 
-    if response.generated_images:
-        image = response.generated_images[0]
-
-        # Embed Metadata (with optional provenance tags)
-        final_bytes = self.embed_metadata(image.image_bytes, prompt, tags=tags)
-
-        # Save to disk
-        self.save_output(final_bytes, f"img_{model_name}")
-        # Return base64 string
-        return base64.b64encode(final_bytes).decode('utf-8')
-    else:
+    if not response.generated_images:
         raise Exception("No images returned")
+
+    # When the caller asked for one image, preserve the original string
+    # return contract. For multi-image requests, return a list so callers
+    # can opt into the new shape without breaking existing single-image flows.
+    encoded: List[str] = []
+    for image in response.generated_images:
+        final_bytes = self.embed_metadata(image.image_bytes, prompt, tags=tags)
+        self.save_output(final_bytes, f"img_{model_name}")
+        encoded.append(base64.b64encode(final_bytes).decode("utf-8"))
+
+    if len(encoded) == 1:
+        return encoded[0]
+    # `image` keeps the existing single-image contract working (router code
+    # reads result.get('image')); `images` carries the full list for callers
+    # that opt into multi-image mode.
+    return {"image": encoded[0], "images": encoded}
 
 def smart_transform(self, input_image_bytes: bytes, user_intent: str, ref_image_bytes: bytes = None, model_name: str = "gemini-3-pro-image-preview", aspect_ratio: str = "1:1"):
     """Execute the ComfyUI-style Smart Transform workflow.

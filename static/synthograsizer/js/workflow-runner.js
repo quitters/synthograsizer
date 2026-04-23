@@ -18,8 +18,39 @@ class WorkflowRunner {
   async init() {
     this.studio.createModal('workflows-modal', '⚡ Workflows', this._buildModalHTML());
     this._bindEvents();
+    this._bindLifecycleCleanup();
     // Pre-fetch templates so the modal opens instantly
     this._fetchTemplates().catch(() => {});
+  }
+
+  // Wire up cleanup paths for the EventSource so it can never outlive the
+  // workflow it's watching. Three triggers:
+  //   1. The user closes the modal (close button or Escape).
+  //   2. The whole tab unloads (page navigation / refresh).
+  //   3. A 5-minute idle safety timeout — covers stuck workflows where the
+  //      backend never emits workflow_complete or workflow_error.
+  _bindLifecycleCleanup() {
+    const modalEl = document.getElementById('workflows-modal');
+    if (modalEl) {
+      // Hook every clickable element with a "close" affordance. Studio modals
+      // typically render an X button with class `close` or a backdrop. We
+      // listen at the modal root and fire cleanup whenever the modal hides.
+      const observer = new MutationObserver(() => {
+        const visible = modalEl.style.display !== 'none' && modalEl.offsetParent !== null;
+        if (!visible) this._cleanupActiveWorkflow();
+      });
+      observer.observe(modalEl, { attributes: true, attributeFilter: ['style', 'class'] });
+    }
+    window.addEventListener('beforeunload', () => this._disconnectSSE());
+  }
+
+  // Centralized teardown for an in-flight workflow. Safe to call repeatedly.
+  _cleanupActiveWorkflow() {
+    this._disconnectSSE();
+    if (this._sseSafetyTimer) {
+      clearTimeout(this._sseSafetyTimer);
+      this._sseSafetyTimer = null;
+    }
   }
 
   // ─── Modal HTML ────────────────────────────────────────────────────────────
@@ -351,12 +382,24 @@ class WorkflowRunner {
         } catch (_) {}
       });
     }
+
+    // Safety net: if neither workflow_complete nor workflow_error arrives
+    // within 5 minutes, force-close the stream so it can't dangle forever.
+    if (this._sseSafetyTimer) clearTimeout(this._sseSafetyTimer);
+    this._sseSafetyTimer = setTimeout(() => {
+      console.warn('[WorkflowRunner] SSE safety timeout — closing stream');
+      this._disconnectSSE();
+    }, 5 * 60 * 1000);
   }
 
   _disconnectSSE() {
     if (this.eventSource) {
       this.eventSource.close();
       this.eventSource = null;
+    }
+    if (this._sseSafetyTimer) {
+      clearTimeout(this._sseSafetyTimer);
+      this._sseSafetyTimer = null;
     }
   }
 
@@ -422,7 +465,11 @@ class WorkflowRunner {
         }
         document.getElementById('wfr-progress-actions').style.display = '';
         this._disconnectSSE();
-        this.studio.showToast('Workflow complete', 'success');
+        if (data.status === 'failed') {
+          this.studio.showToast('Workflow failed to complete all steps', 'error');
+        } else {
+          this.studio.showToast('Workflow complete', 'success');
+        }
         break;
       }
       case 'workflow_step_chunk': {

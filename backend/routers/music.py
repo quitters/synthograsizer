@@ -11,6 +11,7 @@ from pathlib import Path
 from fastapi import APIRouter, Request, HTTPException, BackgroundTasks, WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse, StreamingResponse, Response
 import httpx
+import json
 from typing import Optional, List, Dict
 
 from backend.ai_manager import ai_manager, normalize_template
@@ -26,7 +27,7 @@ logger = logging.getLogger(__name__)
 @router.get("/api/music/status")
 async def music_status():
     """Return current Lyria session status."""
-    from music_manager import music_manager
+    from backend.music_manager import music_manager
     if music_manager is None:
         return {"connected": False, "playing": False, "prompts": [], "config": {}}
     return music_manager.get_status()
@@ -49,9 +50,14 @@ async def ws_music(websocket: WebSocket):
         await websocket.close()
         return
 
-    mm = get_music_manager(ai_manager.genai_client)
-
+    # Defer the get_music_manager() call into the try-block. If the singleton
+    # constructor raises (bad API key shape, network init failure, etc.),
+    # the original `finally` would call `mm.shutdown()` on an undefined name
+    # and mask the real error.
+    mm = None
     try:
+        mm = get_music_manager(ai_manager.genai_client)
+
         # Callback that forwards data to the browser WebSocket
         async def send_to_browser(data):
             if isinstance(data, bytes):
@@ -87,6 +93,10 @@ async def ws_music(websocket: WebSocket):
             pass
 
     finally:
-        await mm.shutdown()
+        if mm is not None:
+            try:
+                await mm.shutdown()
+            except Exception:
+                logger.exception("MusicManager shutdown raised — ignoring")
 
 

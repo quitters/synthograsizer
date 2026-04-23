@@ -141,16 +141,18 @@ async def generate_image(request: ImageRequest):
             tags=request.tags
         )
         
-        # Handle both dict and string returns
+        # Service returns either a bare base64 string (single image, no text)
+        # or a dict with some combination of {image, images, text}. Surface
+        # all populated keys so multi-image (Imagen) and text+image (Gemini)
+        # callers both get what they asked for.
         if isinstance(result, dict):
-            return {
-                "status": "success", 
-                "image": result.get('image'),
-                "text": result.get('text')
-            }
-        else:
-            # Backwards compatibility: string return
-            return {"status": "success", "image": result}
+            payload = {"status": "success"}
+            for key in ("image", "images", "text"):
+                value = result.get(key)
+                if value is not None:
+                    payload[key] = value
+            return payload
+        return {"status": "success", "image": result}
             
     except Exception as e:
         logger.exception("Image generation failed")
