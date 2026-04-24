@@ -842,6 +842,8 @@ body,
 .btn-analysis-large  { background: #d0e8ec !important; border-color: var(--color-cyan)   !important; box-shadow: 2px 2px 0 var(--color-cyan)   !important; }
 .btn-metadata-large  { background: #f0e4d4 !important; border-color: var(--color-orange) !important; box-shadow: 2px 2px 0 var(--color-orange) !important; }
 .btn-music-large     { background: #dcd8f0 !important; border-color: var(--color-purple) !important; box-shadow: 2px 2px 0 var(--color-purple) !important; }
+.btn-agent-large     { background: #e4d8f0 !important; border-color: var(--color-purple) !important; box-shadow: 2px 2px 0 var(--color-purple) !important; }
+.btn-trace-large     { background: #d8ecf0 !important; border-color: var(--color-cyan)   !important; box-shadow: 2px 2px 0 var(--color-cyan)   !important; }
 
 .btn-image-large:hover,
 .btn-video-large:hover,
@@ -850,7 +852,9 @@ body,
 .btn-template-large:hover,
 .btn-analysis-large:hover,
 .btn-metadata-large:hover,
-.btn-music-large:hover { filter: brightness(.95) !important; transform: none !important; }
+.btn-music-large:hover,
+.btn-agent-large:hover,
+.btn-trace-large:hover { filter: brightness(.95) !important; transform: none !important; }
 
 /* Music studio */
 .music-btn-play  { background: #d4ece0 !important; color: #1e4830 !important; border: var(--hw-border) !important; box-shadow: var(--hw-shadow-sm) !important; border-color: var(--color-green) !important; border-radius: 3px !important; }

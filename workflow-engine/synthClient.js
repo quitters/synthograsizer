@@ -124,12 +124,21 @@ class SynthClient {
   /**
    * POST /api/generate/video
    * @param {string} prompt
-   * @param {{ aspect_ratio?, duration?, negative_prompt? }} options
+   * @param {{ aspect_ratio?, duration?, negative_prompt?,
+   *           start_frame_image?, end_frame_image?, reference_images?,
+   *           model? }} options
    */
   async generateVideo(prompt, options = {}) {
     const body = { prompt };
     if (options.aspect_ratio) body.aspect_ratio = options.aspect_ratio;
     if (options.duration)     body.duration = Number(options.duration);
+    // Image conditioning — base64 strings or data-URIs accepted by backend.
+    if (options.start_frame_image) body.start_frame_image = options.start_frame_image;
+    if (options.end_frame_image)   body.end_frame_image = options.end_frame_image;
+    if (options.reference_images && options.reference_images.length) {
+      body.reference_images = options.reference_images.slice(0, 3);
+    }
+    if (options.model) body.model = options.model;
     // negative_prompt is not a server param for video; ignored gracefully
 
     return this._post('/api/generate/video', body, VIDEO_TIMEOUT_MS);

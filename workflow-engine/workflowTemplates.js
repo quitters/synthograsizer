@@ -729,6 +729,131 @@ register(
   }
 );
 
+// ─── 12. Cinematic Animator ─────────────────────────────────────────────────
+//
+// Image-led, agentic short-form animator. Takes a source image, lets the
+// model brainstorm 3 distinct narrative concepts, scores them on density /
+// feasibility / originality, then animates the winner using the source as
+// either a first frame or a reference. Every step lands in the trace
+// viewer — the two text steps in the middle make the model's reasoning
+// fully observable, which is the whole demo point.
+
+register(
+  'cinematic_animator',
+  {
+    name: 'Cinematic Animator (Agentic)',
+    description: 'Image → analyze → brainstorm 3 concepts → self-critique & pick winner → animate. Packs maximum narrative arc into a 4/6/8s short, with the source image used as first frame (default) or as a Veo 3.1 reference.',
+    requiredParams: ['image'],
+    optionalParams: ['prompt', 'duration', 'input_role', 'aspect_ratio'],
+  },
+  (params) => {
+    const {
+      image,
+      prompt: userPrompt = '',
+      duration = 8,
+      input_role = 'first_frame',
+      aspect_ratio = '16:9',
+    } = params;
+
+    const dur = [4, 6, 8].includes(Number(duration)) ? Number(duration) : 8;
+    const role = input_role === 'reference' ? 'reference' : 'first_frame';
+
+    // Animate-step params depend on which conditioning role the user chose.
+    // first_frame → seed the video from the exact image (Veo i2v).
+    // reference  → use as visual reference (Veo 3.1 forces 8s).
+    const animateExtra = role === 'first_frame'
+      ? { start_frame_id: image }
+      : { reference_image_ids: image };
+
+    // If the user opted for "reference" the backend forces 8s; surface that
+    // honestly in the workflow name so the trace viewer reflects reality.
+    const effectiveDur = role === 'reference' ? 8 : dur;
+
+    return {
+      name: `Cinematic Animator — ${effectiveDur}s ${role}`,
+      steps: [
+        // Wave 1: describe the source image in detail.
+        {
+          id: 'analyze',
+          type: 'synth_analyze',
+          params: { image_id: image },
+        },
+
+        // Wave 2: brainstorm three distinct narrative concepts grounded in
+        // the analyzed image. Asks for structured JSON so the next step
+        // can score them deterministically.
+        {
+          id: 'brainstorm',
+          type: 'synth_text',
+          params: {
+            prompt: [
+              'You are a short-film concept developer.',
+              `IMAGE DESCRIPTION:\n{{analyze.description}}`,
+              userPrompt ? `USER INTENT:\n${userPrompt}` : 'USER INTENT: (none provided — pick something visually striking)',
+              `CONSTRAINT: ${effectiveDur}-second video, ${role === 'first_frame' ? 'starting from this exact frame' : 'referencing this image visually'}.`,
+              '',
+              'Generate THREE distinct concepts that pack maximum narrative arc into the runtime. For each concept supply:',
+              '  • opening: the first 1-2 seconds (the hook)',
+              '  • turn:    the transformation moment (the surprise)',
+              '  • close:   the final beat (the emotional residue)',
+              '  • tone:    one word (e.g. "uneasy", "tender", "ecstatic")',
+              '',
+              'Output ONLY a JSON array of 3 objects with keys: opening, turn, close, tone. No prose around it.',
+            ].join('\n'),
+          },
+          dependsOn: ['analyze'],
+        },
+
+        // Wave 3: agentic self-critique — score each concept and write the
+        // final Veo prompt. Outputs a single JSON object with `final_prompt`
+        // so the next step can interpolate it directly.
+        {
+          id: 'critique',
+          type: 'synth_text',
+          params: {
+            prompt: [
+              'You are a video-prompt director scoring three concepts.',
+              `IMAGE: {{analyze.description}}`,
+              `CONCEPTS_JSON: {{brainstorm.text}}`,
+              '',
+              'Score each concept 1-10 on three axes:',
+              '  • narrative_density   (how much story per second)',
+              '  • visual_feasibility  (can image-to-video actually realize this?)',
+              '  • originality         (avoids cliché?)',
+              '',
+              'Pick the winner. Then write the FINAL Veo video prompt (≈80 words) that:',
+              '  - opens with a vivid camera/subject directive',
+              '  - contains exactly one transformation cue',
+              '  - ends on the closing beat',
+              '  - never references "this image" — describe the scene as if from scratch',
+              '',
+              'Output ONLY a JSON object with keys: scores (array of 3), winner_index (0-2), reason (≤30 words), final_prompt.',
+            ].join('\n'),
+          },
+          dependsOn: ['brainstorm'],
+        },
+
+        // Wave 4: animate. The winning prompt drives a Veo generation
+        // conditioned on the source image per the user's chosen role.
+        // We extract `final_prompt` via the two-level interpolator and
+        // fall back to raw text if the JSON parse hint fails on the model
+        // side — Veo handles loose prompts gracefully.
+        {
+          id: 'animate',
+          type: 'synth_video',
+          params: {
+            prompt: '{{critique.text}}',
+            aspect_ratio,
+            duration: String(effectiveDur),
+            ...animateExtra,
+          },
+          dependsOn: ['critique'],
+        },
+      ],
+    };
+  }
+);
+
 // ─── Public API ──────────────────────────────────────────────────────────────
 
 /**

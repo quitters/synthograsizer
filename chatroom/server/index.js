@@ -7,7 +7,7 @@ import { dirname, join } from 'path';
 import agentsRouter from './routes/agents.js';
 import chatRouter from './routes/chat.js';
 import artifactsRouter from './routes/artifacts.js';
-import { createWorkflowRoutes, workflowEngine } from 'workflow-engine';
+import { createWorkflowRoutes, createTraceRoutes, workflowEngine } from 'workflow-engine';
 import { initializeGemini } from './services/gemini.js';
 import { initializeImageGen } from './services/imageGen.js';
 import { initializeTools } from './services/tools.js';
@@ -53,12 +53,15 @@ console.log('Gemini API initialized (text, image, search, and URL tools)');
 // Configure shared workflow engine with chatroom's mediaStore
 workflowEngine.configure({ mediaStore });
 
-// Routes
+// Routes — traceStore.record is invoked from inside orchestrator.broadcast
+// (the chokepoint) so every workflow path (route-triggered, agent-triggered,
+// retry, resume) is observed without per-call-site wrapping.
 app.use('/api/agents', agentsRouter);
 app.use('/api/chat', chatRouter);
 app.use('/api/workflows', createWorkflowRoutes({
   broadcast: orchestrator.broadcast.bind(orchestrator),
 }));
+app.use('/api/traces', createTraceRoutes());
 app.use('/api/artifacts', artifactsRouter);
 
 // Health check
@@ -98,4 +101,6 @@ app.listen(PORT, () => {
   console.log(`  GET  /api/workflows/active`);
   console.log(`  GET  /api/workflows/checkpoints`);
   console.log(`  POST /api/workflows/resume`);
+  console.log(`  GET  /api/traces`);
+  console.log(`  GET  /api/traces/:id`);
 });

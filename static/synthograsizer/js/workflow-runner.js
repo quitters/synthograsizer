@@ -92,7 +92,10 @@ class WorkflowRunner {
         </div>
         <div id="wfr-step-list" style="margin-bottom:14px;"></div>
         <div id="wfr-progress-actions" style="display:none; text-align:center; margin-top:8px;">
-          <button class="studio-btn-primary" id="wfr-view-results-btn" style="width:100%; background:#4CAF50;">View Results</button>
+          <div style="display:flex; gap:8px;">
+            <button class="studio-btn-primary" id="wfr-view-results-btn" style="flex:2; background:#4CAF50;">View Results</button>
+            <button class="studio-btn-primary" id="wfr-view-trace-btn" style="flex:1; background:#5e35b1;" title="Open this run in the Trace Viewer">🔍 Trace</button>
+          </div>
         </div>
       </div>
 
@@ -113,6 +116,16 @@ class WorkflowRunner {
     this.studio.bindSafe('wfr-back-btn', 'onclick', () => this._showPhase('browse'));
     this.studio.bindSafe('wfr-run-btn', 'onclick', () => this._runWorkflow());
     this.studio.bindSafe('wfr-view-results-btn', 'onclick', () => this._showResults());
+    this.studio.bindSafe('wfr-view-trace-btn', 'onclick', () => {
+      const wfId = this.activeWorkflowId;
+      if (!wfId) return;
+      if (window.traceViewer?.open) {
+        window.traceViewer.open();
+        setTimeout(() => window.traceViewer._loadTrace(wfId), 80);
+      } else {
+        this.studio.showToast?.('Trace Viewer not loaded', 'error');
+      }
+    });
     this.studio.bindSafe('wfr-results-back-btn', 'onclick', () => this._showPhase('browse'));
   }
 

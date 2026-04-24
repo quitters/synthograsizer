@@ -5,7 +5,7 @@ import { parseToolRequests, executeToolRequests, stripToolTags, formatToolResult
 import { countTokens, countMessageTokens } from '../utils/tokenCounter.js';
 import { mediaStore } from './mediaStore.js';
 import { artifactStore } from './artifactStore.js';
-import { synthClient } from 'workflow-engine';
+import { synthClient, traceStore } from 'workflow-engine';
 
 /**
  * Chat Orchestrator
@@ -299,12 +299,26 @@ class ChatOrchestrator {
   }
 
   /**
-   * Broadcast an event to all connected clients
+   * Broadcast an event to all connected clients.
+   *
+   * This is the single chokepoint every agent action and workflow event
+   * passes through, which makes it the right place to feed the trace store.
+   * The store no-ops on events without a workflowId, so non-workflow chatter
+   * (chunks, agent_start, etc.) is filtered there rather than here.
    */
   broadcast(event, data) {
+    try { traceStore.record(event, data); }
+    catch (err) { console.error('[traceStore] record failed:', err.message); }
+
     const message = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
+    const clientCount = this.sseClients.size;
+    console.log(`[orchestrator] broadcast: ${event}, clients: ${clientCount}`);
     for (const client of this.sseClients) {
-      client.write(message);
+      try {
+        client.write(message);
+      } catch (err) {
+        console.warn(`[orchestrator] write failed for ${event}:`, err.message);
+      }
     }
   }
 
@@ -328,8 +342,12 @@ class ChatOrchestrator {
     this.tokenCount = 0;
     this.turnCount = 0;
     this.lastSpeakerId = null;
+    // sessionId groups all workflows + traces produced during this run.
+    // The trace viewer's "session lens" pivots on this field.
+    this.sessionId = uuidv4();
 
     this.broadcast('session_start', {
+      sessionId: this.sessionId,
       goal,
       tokenLimit,
       agents: this.agents.map(a => ({ id: a.id, name: a.name, color: a.color }))
@@ -1087,6 +1105,8 @@ class ChatOrchestrator {
                 broadcast: this.broadcast.bind(this),
                 agentId: speaker.id,
                 agentName: speaker.name,
+                agentColor: speaker.color,
+                sessionId: this.sessionId,
               });
               workflowIds.push(wfId);
               this.broadcast('workflow_submitted', {
@@ -1194,10 +1214,15 @@ class ChatOrchestrator {
               broadcast: this.broadcast.bind(this),
               agentId: speaker.id,
               agentName: speaker.name,
+              agentColor: speaker.color,
+              sessionId: this.sessionId,
             });
             workflowIds.push(wfId);
             this.broadcast('workflow_submitted', {
               agentId: speaker.id,
+              agentName: speaker.name,
+              agentColor: speaker.color,
+              sessionId: this.sessionId,
               workflowId: wfId,
               workflowName: req.definition.name,
               templateId: req.templateId,
@@ -1270,6 +1295,9 @@ class ChatOrchestrator {
         this.messages.push(message);
         this.tokenCount += responseTokens;
         this.lastSpeakerId = speaker.id;
+
+        // Broadcast the message to all clients
+        this.broadcast('message', message);
 
         // Broadcast completion
         this.broadcast('agent_complete', {

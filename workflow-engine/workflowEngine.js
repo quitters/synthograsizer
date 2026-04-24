@@ -130,6 +130,30 @@ async function dispatchSynth(type, params, agentId = null, agentName = null, onC
 
     case 'synth_video': {
       const { prompt, ...opts } = params;
+      // Resolve mediaId references for image conditioning. Templates can pass
+      // `start_frame_id`, `end_frame_id`, or `reference_image_ids` (an array
+      // or comma-joined string) — we look each one up in the media store and
+      // hand the raw base64 to the backend.
+      const resolveOne = (idLike) => {
+        if (!idLike) return null;
+        const m = _mediaStore.get(idLike);
+        return m?.data || (typeof idLike === 'string' && idLike.length > 200 ? idLike : null);
+      };
+      if (opts.start_frame_id) {
+        opts.start_frame_image = resolveOne(opts.start_frame_id);
+        delete opts.start_frame_id;
+      }
+      if (opts.end_frame_id) {
+        opts.end_frame_image = resolveOne(opts.end_frame_id);
+        delete opts.end_frame_id;
+      }
+      if (opts.reference_image_ids) {
+        const ids = Array.isArray(opts.reference_image_ids)
+          ? opts.reference_image_ids
+          : String(opts.reference_image_ids).split(',').map(s => s.trim()).filter(Boolean);
+        opts.reference_images = ids.map(resolveOne).filter(Boolean);
+        delete opts.reference_image_ids;
+      }
       const res = await synthClient.generateVideo(prompt || '', opts);
       if (res.video) {
         const mediaId = uuidv4();
@@ -304,7 +328,14 @@ class WorkflowEngine {
    * @param {string}   [options.agentName]
    * @returns {string} workflowId
    */
-  submit(workflowDef, { broadcast = () => {}, agentId = null, agentName = null } = {}) {
+  submit(workflowDef, {
+    broadcast = () => {},
+    agentId = null,
+    agentName = null,
+    agentColor = null,
+    sessionId = null,
+    messageId = null,
+  } = {}) {
     const id = uuidv4();
 
     const state = {
@@ -315,6 +346,9 @@ class WorkflowEngine {
       broadcast,
       agentId,
       agentName,
+      agentColor,
+      sessionId,
+      messageId,
       cancelled: false,
       startedAt: new Date().toISOString(),
       completedAt: null,
@@ -328,8 +362,10 @@ class WorkflowEngine {
       workflowId: id,
       name: state.name,
       stepCount: state.steps.length,
-      steps: state.steps.map(s => ({ id: s.id, type: s.type })),
-      agentId,
+      // Include dependsOn so the trace viewer can render the full DAG
+      // (with edges) before any step runs.
+      steps: state.steps.map(s => ({ id: s.id, type: s.type, dependsOn: s.dependsOn || [] })),
+      agentId, agentName, agentColor, sessionId, messageId,
     });
 
     // Run asynchronously; errors are surfaced via broadcast
@@ -443,8 +479,12 @@ class WorkflowEngine {
       workflowId,
       name:      state.name,
       stepCount: state.steps.length,
-      steps:     state.steps.map(s => ({ id: s.id, type: s.type })),
+      steps:     state.steps.map(s => ({ id: s.id, type: s.type, dependsOn: s.dependsOn || [] })),
       agentId:   state.agentId,
+      agentName: state.agentName,
+      agentColor:state.agentColor,
+      sessionId: state.sessionId,
+      messageId: state.messageId,
       retry:     true,
     });
 
@@ -501,8 +541,12 @@ class WorkflowEngine {
       workflowId,
       name:           state.name,
       stepCount:      state.steps.length,
-      steps:          state.steps.map(s => ({ id: s.id, type: s.type })),
+      steps:          state.steps.map(s => ({ id: s.id, type: s.type, dependsOn: s.dependsOn || [] })),
       agentId:        state.agentId,
+      agentName:      state.agentName,
+      agentColor:     state.agentColor,
+      sessionId:      state.sessionId,
+      messageId:      state.messageId,
       resume:         true,
       resumedFrom:    completedSteps?.length ?? 0,
     });
@@ -641,12 +685,25 @@ class WorkflowEngine {
       workflowLibrary.deleteCheckpoint(state.id).catch(() => {});
     }
 
+    // Aggregate totals so the trace UI can show a single "this workflow took
+    // Xs" headline without re-summing per-step durations on the client.
+    const totalDurationMs = Date.parse(state.completedAt) - Date.parse(state.startedAt);
+    const completedCount = state.steps.filter(s => s.status === 'complete').length;
+    const failedCount = state.steps.filter(s => s.status === 'failed').length;
+    const skippedCount = state.steps.filter(s => s.status === 'skipped').length;
+
     state.broadcast('workflow_complete', {
       workflowId: state.id,
       name: state.name,
       status: state.status,
       completedAt: state.completedAt,
       agentId: state.agentId,
+      totals: {
+        durationMs: totalDurationMs,
+        completedSteps: completedCount,
+        failedSteps: failedCount,
+        skippedSteps: skippedCount,
+      },
       stepResults: state.steps.map(s => ({
         id: s.id,
         type: s.type,
@@ -672,11 +729,18 @@ class WorkflowEngine {
     step.status = 'running';
     step.startedAt = new Date().toISOString();
 
+    // Resolve inputs once, up front, so the step_start event can carry the
+    // exact params that will be sent to the model — this is what the Trace
+    // Viewer renders in the "Inputs" pane.
+    const resolvedParams = interpolate(step.params, state.results);
+
     state.broadcast('workflow_step_start', {
       workflowId: state.id,
       stepId,
       stepType: step.type,
       agentId: state.agentId,
+      dependsOn: step.dependsOn || [],
+      inputs: resolvedParams,
     });
 
     const MAX_ATTEMPTS = 2;
@@ -684,7 +748,6 @@ class WorkflowEngine {
 
     for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
       try {
-        const resolvedParams = interpolate(step.params, state.results);
         const onChunk = (text) => state.broadcast('workflow_step_chunk', {
           workflowId: state.id, stepId, text,
         });
@@ -698,11 +761,18 @@ class WorkflowEngine {
         state.results.set(stepId, result);
         workflowLibrary.saveCheckpoint(state.id, state).catch(() => {});
 
+        // durationMs is the single most useful number in the trace UI —
+        // computed here from the wall-clock timestamps the engine already
+        // tracks rather than asking the trace store to infer it.
+        const durationMs = Date.parse(step.completedAt) - Date.parse(step.startedAt);
+
         state.broadcast('workflow_step_complete', {
           workflowId: state.id,
           stepId,
           stepType: step.type,
           agentId: state.agentId,
+          attempts: attempt,
+          durationMs,
           summary: Object.fromEntries(
             Object.entries(result).filter(([, v]) =>
               typeof v !== 'string' || v.length < 500
@@ -723,6 +793,7 @@ class WorkflowEngine {
 
     step.error = lastErr.message;
     step.completedAt = new Date().toISOString();
+    const failedDurationMs = Date.parse(step.completedAt) - Date.parse(step.startedAt);
 
     if (step.continueOnError) {
       // Soft-fail: mark skipped, store stub result so downstream interpolation doesn't crash
@@ -737,6 +808,8 @@ class WorkflowEngine {
         stepId,
         stepType: step.type,
         agentId: state.agentId,
+        attempts: MAX_ATTEMPTS,
+        durationMs: failedDurationMs,
         summary: { skipped: true, error: lastErr.message },
       });
     } else {
@@ -748,6 +821,8 @@ class WorkflowEngine {
         stepId,
         stepType: step.type,
         agentId: state.agentId,
+        attempts: MAX_ATTEMPTS,
+        durationMs: failedDurationMs,
         error: lastErr.message,
       });
     }

@@ -35,8 +35,12 @@ export {
 // Persistence
 export { workflowLibrary } from './workflowLibrary.js';
 
+// Trace store (observability — every event captured per workflow run)
+export { traceStore, estimateStepCost } from './traceStore.js';
+
 // API client
 export { synthClient } from './synthClient.js';
 
 // Routes (factory)
 export { createWorkflowRoutes } from './routes/workflows.js';
+export { createTraceRoutes } from './routes/traces.js';

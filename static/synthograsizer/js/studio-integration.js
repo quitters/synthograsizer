@@ -802,6 +802,14 @@ class StudioIntegration {
                     <span class="icon">⚡</span>
                     <span class="label">Workflows</span>
                 </button>
+                <button class="studio-btn-large btn-agent-large" id="studio-agent-btn">
+                    <span class="icon">🤖</span>
+                    <span class="label">Agent Studio</span>
+                </button>
+                <button class="studio-btn-large btn-trace-large" id="studio-trace-btn">
+                    <span class="icon">🔍</span>
+                    <span class="label">Trace Viewer</span>
+                </button>
             </div>
         `;
 
@@ -2007,6 +2015,12 @@ class StudioIntegration {
         this.bindSafe('studio-metadata-btn', 'onclick', () => this.openModal('metadata-reader-modal'));
         this.bindSafe('studio-workflow-btn', 'onclick', () => {
             if (window.workflowRunner) window.workflowRunner.open();
+        });
+        this.bindSafe('studio-agent-btn', 'onclick', () => {
+            if (window.agentStudio) window.agentStudio.open();
+        });
+        this.bindSafe('studio-trace-btn', 'onclick', () => {
+            if (window.traceViewer) window.traceViewer.open();
         });
         this.bindSafe('enhance-prompt-btn', 'onclick', () => this.enhancePrompt());
 
@@ -5857,6 +5871,16 @@ window.addEventListener('DOMContentLoaded', () => {
                     if (window.WorkflowRunner) {
                         window.workflowRunner = new WorkflowRunner(window.studioIntegration);
                         window.workflowRunner.init();
+                    }
+                    // Init TraceViewer (agentic trace observability)
+                    if (window.TraceViewer) {
+                        window.traceViewer = new TraceViewer(window.studioIntegration);
+                        window.traceViewer.init();
+                    }
+                    // Init AgentStudio (multi-agent chat surface)
+                    if (window.AgentStudio) {
+                        window.agentStudio = new AgentStudio(window.studioIntegration);
+                        window.agentStudio.init();
                     }
                 } catch (e) {
                     console.error('StudioIntegration: Critical initialization error:', e);
