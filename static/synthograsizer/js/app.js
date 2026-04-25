@@ -1689,8 +1689,8 @@ export class SynthograsizerSmall {
       if (action === 'templateNext') this.templateLoader?.cycleToNextTemplate();
     };
 
-    // Kick off MIDI access request (non-blocking)
-    this.midi.init();
+    // NOTE: midi.init() (which triggers the browser permission prompt) is NOT
+    // called here. It is called lazily the first time the user opens the MIDI panel.
   }
 
   _initOSC() {
@@ -2191,7 +2191,14 @@ class MIDIPanelUI {
     this._panelOpen = !this._panelOpen;
     this._el.panel.style.display = this._panelOpen ? 'block' : 'none';
     this._el.toggleBtn.classList.toggle('active', this._panelOpen);
-    if (this._panelOpen) this.refresh();
+    if (this._panelOpen) {
+      // Lazy MIDI init — request browser permission only on first panel open
+      if (!this._midiInitialized) {
+        this._midiInitialized = true;
+        this.midi.init();
+      }
+      this.refresh();
+    }
   }
 
   // ── Status callbacks ──────────────────────────────────────────────────────

@@ -43,6 +43,230 @@
             margin-top: 20px;
         }
     </style>
+    <style id="v6-tooltip-styles">
+/* ── Custom tooltip system ──────────────────────────────────── */
+/* Usage: add data-tip="YOUR LABEL" to any element */
+[data-tip] { position: relative; }
+
+[data-tip]::before {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: calc(100% + 7px);
+  left: 50%;
+  transform: translateX(-50%) translateY(3px);
+  background: rgba(15, 12, 8, 0.88);
+  color: #f0ebe0;
+  font-family: 'Roboto Mono', 'Share Tech Mono', monospace;
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 3px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.12s ease, transform 0.12s ease;
+  z-index: 9990;
+  box-shadow: 0 2px 8px rgba(0,0,0,.25);
+}
+
+/* Arrow */
+[data-tip]::after {
+  content: '';
+  position: absolute;
+  bottom: calc(100% + 2px);
+  left: 50%;
+  transform: translateX(-50%) translateY(3px);
+  border: 4px solid transparent;
+  border-top-color: rgba(15, 12, 8, 0.88);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.12s ease, transform 0.12s ease;
+  z-index: 9990;
+}
+
+[data-tip]:hover::before,
+[data-tip]:hover::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Tip that opens downward (add data-tip-down attribute) */
+[data-tip][data-tip-pos="down"]::before {
+  bottom: auto;
+  top: calc(100% + 7px);
+  transform: translateX(-50%) translateY(-3px);
+}
+[data-tip][data-tip-pos="down"]::after {
+  bottom: auto;
+  top: calc(100% + 2px);
+  border-top-color: transparent;
+  border-bottom-color: rgba(15, 12, 8, 0.88);
+  transform: translateX(-50%) translateY(-3px);
+}
+[data-tip][data-tip-pos="down"]:hover::before,
+[data-tip][data-tip-pos="down"]:hover::after {
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ── Output section layout — label + buttons in one header row ── */
+.output-section {
+  padding: 0 !important;
+  overflow: hidden;
+}
+.output-header {
+  display: flex;
+  align-items: center;
+  padding: 8px 14px;
+  border-bottom: var(--hw-border, 1px solid rgba(0,0,0,.15));
+  gap: 8px;
+}
+.output-label {
+  flex: 1;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 9px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: rgba(0,0,0,.4);
+  margin-bottom: 0 !important; /* cancel any default bottom margin */
+}
+.output-controls {
+  display: flex;
+  gap: 4px;
+}
+
+/* hw-btn style for output action buttons */
+.icon-btn {
+  font-family: 'Roboto Mono', monospace !important;
+  font-size: 10px !important;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  padding: 4px 10px !important;
+  border-radius: 2px !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  transition: transform 0.08s, box-shadow 0.08s !important;
+}
+.icon-btn:hover  { transform: translate(1px, 1px) !important; filter: none !important; }
+.icon-btn:active { transform: translate(2px, 2px) !important; box-shadow: none !important; }
+
+/* Keyboard hint inside buttons */
+.kbd-tip {
+  font-size: 8px;
+  padding: 0 3px;
+  border: 1px solid rgba(0,0,0,.2);
+  border-radius: 2px;
+  opacity: .55;
+  font-family: 'Roboto Mono', monospace;
+}
+
+/* Output container — taller, with padding from sides */
+.output-container {
+  border-radius: 0 !important;
+  border-left: none !important;
+  border-right: none !important;
+  border-top: none !important;
+  min-height: 160px !important;
+  padding: 16px 18px !important;
+  font-size: 18px !important;
+  line-height: 1.6 !important;
+}
+
+.primary-btn {
+  transition: transform 0.08s, box-shadow 0.08s, filter 0.1s;
+}
+.primary-btn:hover  { filter: brightness(1.05); }
+.primary-btn:active { filter: brightness(0.95); transform: translate(2px,2px); box-shadow: none !important; }
+    </style>
+    <style id="v6-p5-modal-styles">
+/* ── P5.js In-Page Modal ───────────────────────────────────── */
+.p5-modal-v6 {
+  position: fixed; z-index: 200;
+  width: 520px; bottom: 64px; right: 24px;
+  background: var(--bg-card, #f5f0e8);
+  border: 2px solid rgba(0,0,0,.18);
+  box-shadow: 6px 6px 0 rgba(0,0,0,.15);
+  border-radius: 4px;
+  display: flex; flex-direction: column;
+  opacity: 0; pointer-events: none;
+  transform: scale(.94) translateY(10px);
+  transition: opacity .18s, transform .18s;
+}
+.p5-modal-v6.open {
+  opacity: 1; pointer-events: all;
+  transform: scale(1) translateY(0);
+}
+/* Titlebar */
+.p5-titlebar-v6 {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 10px; border-bottom: 1px solid rgba(0,0,0,.12);
+  cursor: grab; user-select: none; flex-shrink: 0;
+  border-radius: 2px 2px 0 0;
+}
+.p5-titlebar-v6:active { cursor: grabbing; }
+.p5-title-v6 {
+  font-family: 'Roboto Mono', monospace; font-size: 10px;
+  letter-spacing: .1em; text-transform: uppercase; flex: 1;
+  color: rgba(0,0,0,.7);
+}
+.p5-badge-v6 {
+  font-family: 'Roboto Mono', monospace; font-size: 8px;
+  letter-spacing: .08em; text-transform: uppercase;
+  padding: 2px 7px; border-radius: 2px;
+  background: #10b981; color: #fff;
+}
+.p5-badge-v6.paused { background: #f59e0b; }
+.p5-badge-v6.stopped { background: rgba(0,0,0,.12); color: rgba(0,0,0,.5); }
+.p5-close-v6 {
+  font-family: 'Roboto Mono', monospace; font-size: 10px;
+  padding: 2px 8px; border: 1px solid rgba(0,0,0,.15);
+  background: rgba(255,255,255,.5); border-radius: 2px;
+  cursor: pointer; color: rgba(0,0,0,.5); transition: all .1s;
+}
+.p5-close-v6:hover { background: #ef4444; color: #fff; border-color: transparent; }
+/* Canvas area */
+.p5-canvas-area-v6 {
+  height: 380px; background: #0a0a0a; overflow: hidden;
+  position: relative; flex-shrink: 0;
+}
+.p5-canvas-area-v6 iframe { width: 100%; height: 100%; border: none; display: block; }
+.p5-placeholder-v6 {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; height: 100%; gap: 10px;
+  color: rgba(255,255,255,.4);
+  font-family: 'Roboto Mono', monospace; font-size: 10px;
+  letter-spacing: .08em; text-transform: uppercase;
+}
+/* Controls */
+.p5-controls-v6 {
+  display: flex; align-items: center; gap: 6px;
+  padding: 7px 10px; border-top: 1px solid rgba(0,0,0,.12); flex-shrink: 0;
+}
+.p5-ctrl-v6 {
+  font-family: 'Roboto Mono', monospace; font-size: 10px;
+  letter-spacing: .06em; text-transform: uppercase;
+  padding: 4px 12px; border: 1px solid rgba(0,0,0,.18);
+  border-radius: 2px; background: rgba(255,255,255,.5);
+  color: rgba(0,0,0,.7); cursor: pointer;
+  box-shadow: 2px 2px 0 rgba(0,0,0,.08); transition: all .1s;
+}
+.p5-ctrl-v6:hover { transform: translate(1px,1px); box-shadow: 1px 1px 0 rgba(0,0,0,.08); }
+.p5-ctrl-v6:active { transform: translate(2px,2px); box-shadow: none; }
+.p5-ctrl-v6.primary { background: #10b981; color: #fff; border-color: #059669; }
+.p5-ctrl-v6.primary:hover { box-shadow: 1px 1px 0 #059669; }
+.p5-size-row-v6 { display: flex; gap: 3px; margin-left: auto; }
+.p5-size-btn-v6 {
+  font-family: 'Roboto Mono', monospace; font-size: 9px;
+  padding: 3px 8px; border: 1px solid rgba(0,0,0,.15);
+  border-radius: 2px; background: rgba(255,255,255,.4);
+  color: rgba(0,0,0,.5); cursor: pointer; transition: all .1s;
+}
+.p5-size-btn-v6:hover { background: rgba(255,255,255,.7); }
+.p5-size-btn-v6.active { background: rgba(0,0,0,.75); color: #fff; border-color: transparent; }
+    </style>
 </head>
 
 <body>
@@ -61,8 +285,8 @@
 
             <!-- Layout Switcher -->
             <div class="layout-switcher" id="layout-switcher">
-                <button class="layout-btn" data-layout="default" title="Studio mode — full AI tools panel">⊟ Studio</button>
-                <button class="layout-btn" data-layout="a" title="Performance mode — two-column, no studio modals">▶ Perform</button>
+                <button class="layout-btn" data-layout="default" data-tip="Studio Mode — Full Tools Panel">⊟ Studio</button>
+                <button class="layout-btn" data-layout="a" data-tip="Perform Mode — Minimal Layout">▶ Perform</button>
             </div>
 
             <!-- Error Display -->
@@ -73,30 +297,17 @@
                 <div class="output-header">
                     <label class="output-label" for="output-container">Generated Output</label>
                     <div class="output-controls">
-                        <button id="copy-button" class="icon-btn copy-btn">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                                <path
-                                    d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" />
-                            </svg>
-                            <span class="label">Copy</span>
+                        <button id="copy-button" class="icon-btn copy-btn" data-tip="Copy Prompt Text" data-tip-pos="down">
+                            📋 Copy <kbd class="kbd-tip">C</kbd>
                         </button>
-                        <button id="code-button" class="icon-btn code-btn">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                                <path
-                                    d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z" />
-                            </svg>
-                            <span class="label">Code</span>
+                        <button id="favorite-button" class="icon-btn favorite-btn" data-tip="Save to Liked" data-tip-pos="down">
+                            ♥ Like <kbd class="kbd-tip">F</kbd>
                         </button>
-                        <button id="favorite-button" class="icon-btn favorite-btn"
-                            title="Add this prompt to your liked list">
-                            <span class="label">❤️ Add</span>
-                            <span class="keybind-badge">F</span>
+                        <button id="code-button" class="icon-btn code-btn" data-tip="Show Template Code" data-tip-pos="down">
+                            ⌥ Code
                         </button>
-                        <button id="send-button" class="icon-btn" title="Send to chat">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" />
-                            </svg>
-                            <span class="label">Send to chat</span>
+                        <button id="send-button" class="icon-btn" data-tip="Send to AI Chat" data-tip-pos="down">
+                            ↗ Send to Chat
                         </button>
                     </div>
                 </div>
@@ -117,13 +328,13 @@
 
             <!-- Primary Action Buttons -->
             <section class="primary-actions-section">
-                <button id="randomize-button" class="primary-btn randomize-btn" title="Randomize all variables  [R]">
+                <button id="randomize-button" class="primary-btn randomize-btn">
                     <span class="label">RANDOMIZE</span><kbd class="keybind-badge">R</kbd>
                 </button>
-                <button id="generate-button" class="primary-btn generate-btn" title="Generate image via AI  [G]">
+                <button id="generate-button" class="primary-btn generate-btn">
                     <span class="label">GENERATE</span><kbd class="keybind-badge">G</kbd>
                 </button>
-                <button id="p5-run-main-btn" class="primary-btn p5-run-main-btn" style="display: none;" title="Run / Stop sketch in Display window  [P]">
+                <button id="p5-run-main-btn" class="primary-btn p5-run-main-btn" style="display: none;">
                     <span class="label">RUN CODE</span><kbd class="keybind-badge">P</kbd>
                 </button>
             </section>
@@ -137,7 +348,7 @@
                     <span class="scope-video-label">◉ Scope Live</span>
                 </div>
                 <button id="p5-display-btn" class="p5-capture-btn p5-display-btn" title="Open full-screen OBS display window">
-                    🖥 Display
+                    🖥 External Display
                 </button>
                 <button id="p5-scope-btn" class="p5-capture-btn p5-scope-btn" title="Send current frame to Scope as reference image">
                     📤 → Scope
@@ -153,13 +364,13 @@
                 <div class="dpad-group">
                 <!-- Mode Toggle -->
                 <div class="control-mode-toggle">
-                    <button id="mode-dpad" class="mode-toggle-btn active" title="D-Pad mode">
+                    <button id="mode-dpad" class="mode-toggle-btn active" data-tip="D-Pad Navigation Mode">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M15 7.5V2H9v5.5l3 3 3-3zM7.5 9H2v6h5.5l3-3-3-3zM9 16.5V22h6v-5.5l-3-3-3 3zM16.5 9l-3 3 3 3H22V9h-5.5z"/>
                         </svg>
                         <span>D-Pad</span>
                     </button>
-                    <button id="mode-knobs" class="mode-toggle-btn" title="Knobs mode">
+                    <button id="mode-knobs" class="mode-toggle-btn" data-tip="Analog Knobs Mode — Great for MIDI">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                             <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/>
                             <circle cx="12" cy="5" r="2.5"/>
@@ -238,7 +449,7 @@
 
                 <!-- MIDI Status Bar -->
                 <div class="midi-bar" id="midi-bar">
-                    <button id="midi-toggle-btn" class="midi-toggle-btn" title="MIDI settings" data-tooltip="MIDI — no controller detected">
+                    <button id="midi-toggle-btn" class="midi-toggle-btn" data-tip="MIDI Controller Settings" data-tip-pos="down">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M12 3c-1.2 5.4-2 8.2-2 11a2 2 0 0 0 4 0c0-2.8-.8-5.6-2-11z"/>
                             <circle cx="9" cy="7" r="1.5"/><circle cx="15" cy="7" r="1.5"/>
@@ -274,7 +485,7 @@
 
                 <!-- Scope Connection Status Bar -->
                 <div class="osc-bar" id="scope-bar">
-                    <button id="scope-toggle-btn" class="osc-toggle-btn" title="Scope Connection — OSC, Video, Spout" data-tooltip="Scope — not connected">
+                    <button id="scope-toggle-btn" class="osc-toggle-btn" data-tip="Scope — OSC, Video, Spout" data-tip-pos="down">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
                         </svg>
@@ -401,7 +612,7 @@
 
                 <!-- Glitcher Status Bar -->
                 <div class="osc-bar" id="glitch-bar">
-                    <button id="glitch-toggle-btn" class="osc-toggle-btn" title="Glitcher — Display Effects" data-tooltip="Glitcher — no effects active">
+                    <button id="glitch-toggle-btn" class="osc-toggle-btn" data-tip="Glitch Effects for Display Window" data-tip-pos="down">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-9 9H3V5h9v7zm9 7H14v-7h7v7z"/>
                         </svg>
@@ -412,11 +623,11 @@
 
                 <!-- Display Window Sidebar Button -->
                 <div class="osc-bar" id="disp-bar">
-                    <button id="disp-toggle-btn" class="osc-toggle-btn" title="Open Full-Screen Display Window" data-tooltip="Display — window closed">
+                    <button id="disp-toggle-btn" class="osc-toggle-btn" data-tip="Open External Display Window" data-tip-pos="down">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M20 3H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h3l-1 1v2h12v-2l-1-1h3c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 13H4V5h16v11z"/>
                         </svg>
-                        <span id="disp-status-text">Display</span>
+                        <span id="disp-status-text">External Display</span>
                         <span class="osc-dot" id="disp-dot"></span>
                     </button>
                     <div class="disp-bg-row">
@@ -594,7 +805,7 @@
                 </div>
                 <!-- API Key Bar -->
                 <div class="midi-bar" id="api-bar">
-                    <button id="api-key-btn" class="midi-toggle-btn" title="Configure Google GenAI API Key">
+                    <button id="api-key-btn" class="midi-toggle-btn" data-tip="Configure AI API Key" data-tip-pos="down">
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M12.65 10C11.83 7.67 9.61 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6c2.61 0 4.83-1.67 5.65-4H17v4h4v-4h2v-4H12.65zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/>
                         </svg>
@@ -1184,6 +1395,251 @@
             btns.forEach(function (btn) {
                 btn.addEventListener('click', function () { applyLayout(btn.dataset.layout); });
             });
+        })();
+        </script>
+
+        <!-- ── P5.js In-Page Modal ── -->
+        <div class="p5-modal-v6" id="p5-modal-v6">
+            <div class="p5-titlebar-v6" id="p5-titlebar-v6">
+                <span class="p5-title-v6" id="p5-modal-title-v6">P5.js Canvas</span>
+                <span class="p5-badge-v6 stopped" id="p5-badge-v6">Stopped</span>
+                <button class="p5-close-v6" id="p5-close-v6">✕</button>
+            </div>
+            <div class="p5-canvas-area-v6" id="p5-canvas-area-v6">
+                <div class="p5-placeholder-v6" id="p5-placeholder-v6">
+                    <span style="font-size:32px;opacity:.3;">▶</span>
+                    <span>Press Play to run sketch</span>
+                    <span id="p5-placeholder-hint-v6" style="opacity:.4;font-size:9px;">Select a P5.js template first</span>
+                </div>
+                <iframe id="p5-iframe-v6" style="display:none;width:100%;height:100%;border:none;"></iframe>
+            </div>
+            <div class="p5-controls-v6">
+                <button class="p5-ctrl-v6 primary" id="p5-play-v6">▶ Play</button>
+                <button class="p5-ctrl-v6" id="p5-pause-v6" style="display:none;">⏸ Pause</button>
+                <button class="p5-ctrl-v6" id="p5-stop-v6">■ Stop</button>
+                <button class="p5-ctrl-v6" id="p5-restart-v6" title="Restart sketch">↺</button>
+                <div class="p5-size-row-v6">
+                    <button class="p5-size-btn-v6 active" data-w="520" data-h="380">SM</button>
+                    <button class="p5-size-btn-v6" data-w="720" data-h="540">MD</button>
+                    <button class="p5-size-btn-v6" data-w="960" data-h="700">LG</button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+        /* ── P5.js In-Page Modal Controller (v6) ── */
+        (function () {
+            var modal    = document.getElementById('p5-modal-v6');
+            var titlebar = document.getElementById('p5-titlebar-v6');
+            var iframe   = document.getElementById('p5-iframe-v6');
+            var ph       = document.getElementById('p5-placeholder-v6');
+            var hint     = document.getElementById('p5-placeholder-hint-v6');
+            var badge    = document.getElementById('p5-badge-v6');
+            var titleEl  = document.getElementById('p5-modal-title-v6');
+            var btnPlay    = document.getElementById('p5-play-v6');
+            var btnPause   = document.getElementById('p5-pause-v6');
+            var btnStop    = document.getElementById('p5-stop-v6');
+            var btnRestart = document.getElementById('p5-restart-v6');
+            var btnClose   = document.getElementById('p5-close-v6');
+            var runBtn     = document.getElementById('p5-run-main-btn');
+
+            var isOpen = false, isPlaying = false, currentCode = null;
+            var _tplName = 'P5.js Canvas';
+
+            /* Capture template name when a card is selected */
+            var pickerBody = document.getElementById('template-picker-body');
+            if (pickerBody) {
+                pickerBody.addEventListener('click', function (e) {
+                    var card = e.target.closest('.template-card');
+                    if (!card) return;
+                    var nameEl = card.querySelector('h3, strong, .template-card-name, .name');
+                    var raw = nameEl ? nameEl.textContent : (card.dataset.template || '');
+                    if (raw) _tplName = raw.trim();
+                });
+            }
+
+            /* ── Variable snapshot ── */
+            function getVarSnap() {
+                var app = window.synthSmall;
+                if (!app) return {};
+                var snap = {};
+                (app.variables || []).forEach(function (v) {
+                    var idx = (app.currentValues && app.currentValues[v.name] !== undefined)
+                        ? app.currentValues[v.name] : 0;
+                    var raw = v.values && v.values[idx];
+                    snap[v.name] = (raw && raw.text) ? raw.text : String(raw || '');
+                });
+                return snap;
+            }
+
+            /* ── P5 code source ── */
+            function getP5Code() {
+                var app = window.synthSmall;
+                return (app && app.currentTemplate && app.currentTemplate.p5Code)
+                    ? app.currentTemplate.p5Code : null;
+            }
+            function getTemplateName() { return _tplName; }
+
+            /* ── srcdoc builder ── */
+            function buildSrcdoc(code, vars) {
+                var varJson = JSON.stringify(vars || {});
+                return '<!DOCTYPE html><html><head><meta charset="utf-8">' +
+                    '<style>*{margin:0;padding:0;overflow:hidden;}canvas{display:block;}</style>' +
+                    '<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"><\/script>' +
+                    '</head><body><script>' +
+                    'var __sv=' + varJson + ';' +
+                    'window.addEventListener("message",function(e){if(e.data&&e.data.synthVars)__sv=e.data.synthVars;});' +
+                    'new p5(function(p){' +
+                    'p.getSynthVar=function(k){return(__sv&&k in __sv)?__sv[k]:null;};' +
+                    code +
+                    '});' +
+                    '<\/script></body></html>';
+            }
+
+            /* ── Play / Pause / Stop ── */
+            function play() {
+                var code = getP5Code();
+                if (!code) { updateHint(); return; }
+                currentCode = code;
+                titleEl.textContent = getTemplateName();
+                iframe.srcdoc = buildSrcdoc(code, getVarSnap());
+                iframe.style.display = 'block';
+                ph.style.display = 'none';
+                badge.textContent = 'Running';
+                badge.className = 'p5-badge-v6';
+                btnPlay.style.display = 'none';
+                btnPause.style.display = '';
+                btnPlay.textContent = '▶ Play';
+                isPlaying = true;
+            }
+
+            function pause() {
+                try { iframe.contentWindow.postMessage({ cmd: 'noLoop' }, '*'); } catch(e){}
+                badge.textContent = 'Paused';
+                badge.className = 'p5-badge-v6 paused';
+                btnPause.style.display = 'none';
+                btnPlay.style.display = '';
+                btnPlay.textContent = '▶ Resume';
+                isPlaying = false;
+            }
+
+            function stop() {
+                iframe.srcdoc = 'about:blank';
+                iframe.style.display = 'none';
+                ph.style.display = '';
+                badge.textContent = 'Stopped';
+                badge.className = 'p5-badge-v6 stopped';
+                btnPause.style.display = 'none';
+                btnPlay.style.display = '';
+                btnPlay.textContent = '▶ Play';
+                isPlaying = false;
+                currentCode = null;
+            }
+
+            /* ── Open / close modal ── */
+            function openModal() {
+                isOpen = true;
+                modal.classList.add('open');
+                if (runBtn) runBtn.classList.add('active');
+                if (!isPlaying) play();
+            }
+            function closeModal() {
+                isOpen = false;
+                modal.classList.remove('open');
+                if (runBtn) runBtn.classList.remove('active');
+            }
+            function toggleModal() {
+                if (isOpen) closeModal(); else openModal();
+            }
+
+            /* ── Intercept RUN CODE button (capture phase → before code-overlay-manager) ── */
+            if (runBtn) {
+                runBtn.addEventListener('click', function (e) {
+                    e.stopImmediatePropagation();
+                    toggleModal();
+                }, true);
+            }
+
+            /* ── Button events ── */
+            btnPlay.addEventListener('click', function () {
+                if (!isPlaying) {
+                    if (btnPlay.textContent.includes('Resume')) {
+                        /* resume after pause — send loop() */
+                        try { iframe.contentWindow.postMessage({ cmd: 'loop' }, '*'); } catch(e){}
+                        badge.textContent = 'Running';
+                        badge.className = 'p5-badge-v6';
+                        btnPlay.style.display = 'none';
+                        btnPause.style.display = '';
+                        isPlaying = true;
+                    } else {
+                        play();
+                    }
+                }
+            });
+            btnPause.addEventListener('click', pause);
+            btnStop.addEventListener('click', stop);
+            btnRestart.addEventListener('click', function () { stop(); play(); });
+            btnClose.addEventListener('click', closeModal);
+
+            /* ── Size buttons ── */
+            document.querySelectorAll('.p5-size-btn-v6').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    document.querySelectorAll('.p5-size-btn-v6').forEach(function (b) { b.classList.remove('active'); });
+                    btn.classList.add('active');
+                    modal.style.width  = btn.dataset.w + 'px';
+                    var canvasArea = document.getElementById('p5-canvas-area-v6');
+                    if (canvasArea) canvasArea.style.height = btn.dataset.h + 'px';
+                });
+            });
+
+            /* ── Drag ── */
+            var dragX = 0, dragY = 0, winX = 0, winY = 0, dragging = false;
+            titlebar.addEventListener('mousedown', function (e) {
+                dragging = true; dragX = e.clientX; dragY = e.clientY;
+                var r = modal.getBoundingClientRect();
+                winX = r.left; winY = r.top;
+                modal.style.right  = 'auto';
+                modal.style.bottom = 'auto';
+                modal.style.left   = winX + 'px';
+                modal.style.top    = winY + 'px';
+            });
+            document.addEventListener('mousemove', function (e) {
+                if (!dragging) return;
+                modal.style.left = (winX + e.clientX - dragX) + 'px';
+                modal.style.top  = (winY + e.clientY - dragY) + 'px';
+            });
+            document.addEventListener('mouseup', function () { dragging = false; });
+
+            /* ── Live variable updates → postMessage to iframe ── */
+            var ctrlVal = document.getElementById('control-value');
+            if (ctrlVal) {
+                new MutationObserver(function () {
+                    if (!isPlaying) return;
+                    try { iframe.contentWindow.postMessage({ synthVars: getVarSnap() }, '*'); } catch(e){}
+                }).observe(ctrlVal, { childList: true, characterData: true, subtree: true });
+            }
+
+            /* ── Template change → update hint / auto-restart if open ── */
+            function updateHint() {
+                var code = getP5Code();
+                if (hint) hint.textContent = code
+                    ? 'Ready — press Play'
+                    : 'Select a P5.js template first';
+            }
+            var indicators = document.getElementById('variable-indicators');
+            if (indicators) {
+                new MutationObserver(function () {
+                    setTimeout(function () {
+                        updateHint();
+                        if (isOpen && isPlaying) { stop(); play(); }
+                    }, 50);
+                }).observe(indicators, { childList: true });
+            }
+
+            /* ── P key shortcut (app.js already routes P → runBtn.click()) ── */
+            /* No extra handler needed — the capture listener on runBtn covers it */
+
+            updateHint();
         })();
         </script>
 </body>
