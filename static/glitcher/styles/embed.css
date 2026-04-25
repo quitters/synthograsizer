@@ -1,0 +1,81 @@
+/* ──────────────────────────────────────────────────────────────────────
+   Glitcher EMBED MODE
+   Loaded only when /glitcher/?embed=1 — strips standalone-page chrome
+   so the app fits inside the Synthograsizer's Glitcher Studio modal.
+   ────────────────────────────────────────────────────────────────────── */
+
+body.embed-mode {
+  background: #1a1a2e !important;
+  overflow: hidden !important;
+  min-height: 0 !important;
+  height: 100vh !important;
+}
+
+/* Tighter outer padding — modal already provides chrome */
+body.embed-mode .studio-container {
+  padding: 8px !important;
+  gap: 8px !important;
+  min-height: 0 !important;
+  height: 100vh !important;
+  grid-template-columns: 360px 1fr !important;
+}
+
+/* Hide standalone close button — modal has its own ✕ */
+body.embed-mode .close-button { display: none !important; }
+
+/* Slim down the giant title header */
+body.embed-mode .panel-header {
+  padding: 10px !important;
+  margin-bottom: 12px !important;
+}
+body.embed-mode .panel-header::before { display: none !important; }
+body.embed-mode .panel-title { font-size: 18px !important; margin-bottom: 2px !important; }
+body.embed-mode .panel-subtitle { font-size: 9px !important; letter-spacing: 2px !important; margin-bottom: 4px !important; }
+
+/* Compact control panel */
+body.embed-mode .control-panel {
+  padding: 10px !important;
+  border-radius: 8px !important;
+  max-height: calc(100vh - 16px) !important;
+}
+
+/* Embed-mode action bar (injected by main.js bridge) */
+.embed-action-bar {
+  position: fixed;
+  top: 8px; right: 8px;
+  z-index: 9999;
+  display: flex; gap: 6px;
+  background: rgba(20, 20, 40, .88);
+  padding: 6px 8px; border-radius: 6px;
+  border: 1px solid rgba(78, 205, 196, .4);
+  backdrop-filter: blur(4px);
+}
+.embed-action-btn {
+  background: rgba(78, 205, 196, .15);
+  color: #4ecdc4;
+  border: 1px solid rgba(78, 205, 196, .5);
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-family: 'Segoe UI', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  transition: all .15s;
+}
+.embed-action-btn:hover {
+  background: rgba(78, 205, 196, .35);
+  color: #fff;
+  border-color: #4ecdc4;
+}
+.embed-action-btn.primary {
+  background: rgba(78, 205, 196, .85);
+  color: #1a1a2e;
+}
+.embed-action-btn.primary:hover {
+  background: #4ecdc4;
+}
+
+/* Hide-only-in-embed helper */
+body.embed-mode .embed-hidden { display: none !important; }

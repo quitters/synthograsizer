@@ -75,6 +75,14 @@ export class GlitcherControls {
   }
 
   _bindEvents() {
+    // Guard: the connection-section glitch UI was removed in favor of
+    // the Glitcher Studio modal (Path A iframe). If the legacy elements
+    // aren't in the DOM, this controller has nothing to bind to.
+    if (!this.toggleBtn || !this.panel) {
+      this._inert = true;
+      return;
+    }
+
     // Toggle overall Glitcher active state
     this.toggleBtn.addEventListener('click', () => {
       const open = this.panel.style.display !== 'none';

@@ -2455,3 +2455,141 @@ window.getGlitcherDebugInfo = () => {
 
 // Expose showFilterControls for presets and panel state restoration
 app.showFilterControls = app.showFilterControls.bind(app);
+
+
+// ──────────────────────────────────────────────────────────────────────
+// EMBED-MODE postMessage BRIDGE
+// Active when /glitcher/?embed=1 (window.__GLITCHER_EMBED__ set in index.html).
+// Lets the Synthograsizer's Glitcher Studio modal:
+//   - Push images/videos in       ({type:'load-media',  dataUrl|blobUrl, mime})
+//   - Pull the current canvas out ({type:'request-export'} → {type:'glitcher-export', dataUrl})
+//   - Stream live frames (e.g. P5 canvas)  ({type:'load-media-frame', dataUrl})
+// ──────────────────────────────────────────────────────────────────────
+if (window.__GLITCHER_EMBED__) {
+  (function () {
+    function _post(msg) {
+      try { window.parent.postMessage(msg, '*'); } catch (e) {}
+    }
+
+    /** Convert a data URL or blob URL into a File so we can reuse the
+     *  existing CanvasManager → MediaManager loader without forking it. */
+    async function urlToFile(url, mime) {
+      const res  = await fetch(url);
+      const blob = await res.blob();
+      const ext  = (mime || blob.type || 'image/png').split('/').pop().split('+')[0];
+      return new File([blob], 'embed-input.' + ext, { type: blob.type || mime || 'image/png' });
+    }
+
+    /** Reuse the existing file-input change pipeline. Most reliable
+     *  path — exercises the exact same code paths drag-and-drop uses. */
+    function feedFile(file) {
+      const inp = document.getElementById('image-input');
+      if (!inp) return false;
+      const dt = new DataTransfer();
+      dt.items.add(file);
+      inp.files = dt.files;
+      inp.dispatchEvent(new Event('change', { bubbles: true }));
+      return true;
+    }
+
+    function exportCanvas(mime) {
+      mime = mime || 'image/png';
+      const cv = document.getElementById('canvas');
+      if (!cv || !cv.width) {
+        _post({ type: 'glitcher-export-error', error: 'No image loaded' });
+        return;
+      }
+      try {
+        const dataUrl = cv.toDataURL(mime);
+        _post({ type: 'glitcher-export', dataUrl: dataUrl, width: cv.width, height: cv.height });
+      } catch (e) {
+        _post({ type: 'glitcher-export-error', error: e.message });
+      }
+    }
+
+    window.addEventListener('message', async function (e) {
+      const d = e.data;
+      if (!d || typeof d !== 'object') return;
+
+      try {
+        switch (d.type) {
+          case 'load-media': {
+            const file = await urlToFile(d.dataUrl || d.url, d.mime);
+            feedFile(file);
+            _post({ type: 'glitcher-loaded', source: d.source || 'parent' });
+            break;
+          }
+
+          case 'load-media-frame': {
+            // Cheap repeat-frame ingestion — for live feeds we don't
+            // want the heavy file-input round-trip every frame, so feed
+            // straight to the canvas as an Image draw.
+            if (!window.glitcherApp || !window.glitcherApp.canvasManager) return;
+            const cm  = window.glitcherApp.canvasManager;
+            const img = new Image();
+            img.onload = function () {
+              if (!cm.canvas) return;
+              if (cm.imgWidth !== img.width || cm.imgHeight !== img.height) {
+                cm.imgWidth  = img.width;  cm.imgHeight = img.height;
+                cm.canvas.width = img.width; cm.canvas.height = img.height;
+                cm.showCanvas && cm.showCanvas();
+              }
+              cm.ctx.drawImage(img, 0, 0);
+              try {
+                cm.originalImageData = cm.ctx.getImageData(0, 0, cm.imgWidth, cm.imgHeight);
+                cm.glitchImageData   = cm.ctx.getImageData(0, 0, cm.imgWidth, cm.imgHeight);
+              } catch (err) {}
+            };
+            img.src = d.dataUrl;
+            break;
+          }
+
+          case 'request-export':
+            exportCanvas(d.mime);
+            break;
+
+          case 'set-pause':
+            if (window.glitcherApp) {
+              window.glitcherApp.isPaused = !!d.paused;
+            }
+            break;
+        }
+      } catch (err) {
+        _post({ type: 'glitcher-bridge-error', error: err.message });
+      }
+    });
+
+    /* Inject a small action bar so the user can manually push/pull
+       between Synthograsizer and the Glitcher without going through
+       the modal's outer toolbar. Visible only in embed mode. */
+    function buildActionBar() {
+      if (document.querySelector('.embed-action-bar')) return;
+      const bar = document.createElement('div');
+      bar.className = 'embed-action-bar';
+      bar.innerHTML = ''
+        + '<button class="embed-action-btn"       id="embed-pull-output"  title="Load latest Synthograsizer output">⤓ Pull Output</button>'
+        + '<button class="embed-action-btn"       id="embed-pull-p5"      title="Snapshot the in-page P5 canvas">⤓ Pull P5</button>'
+        + '<button class="embed-action-btn primary" id="embed-send-back"  title="Send the glitched canvas back to Synthograsizer">⤴ Send Back</button>';
+      document.body.appendChild(bar);
+
+      document.getElementById('embed-pull-output').addEventListener('click', function () {
+        _post({ type: 'request-source', source: 'output' });
+      });
+      document.getElementById('embed-pull-p5').addEventListener('click', function () {
+        _post({ type: 'request-source', source: 'p5' });
+      });
+      document.getElementById('embed-send-back').addEventListener('click', function () {
+        exportCanvas('image/png');
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', buildActionBar, { once: true });
+    } else {
+      buildActionBar();
+    }
+
+    // Announce readiness so parent can immediately push initial media
+    _post({ type: 'glitcher-ready' });
+  })();
+}

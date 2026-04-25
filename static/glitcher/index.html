@@ -11,6 +11,26 @@
   <link rel="stylesheet" href="styles/default-mode-modern.css">
   <!-- Load UI Tidying (Space Optimization) -->
   <link rel="stylesheet" href="styles/ui-tidying.css">
+  <!-- Embed-mode CSS (only takes effect when body.embed-mode is set) -->
+  <link rel="stylesheet" href="styles/embed.css">
+  <script>
+    /* Embed-mode bootstrap — runs before any other script.
+       When loaded as /glitcher/?embed=1 inside the Synthograsizer's
+       Glitcher Studio modal, tag <body> so embed.css strips standalone chrome. */
+    (function () {
+      try {
+        var p = new URLSearchParams(window.location.search);
+        if (p.get('embed') === '1') {
+          window.__GLITCHER_EMBED__ = true;
+          document.documentElement.setAttribute('data-embed', '1');
+          // Tag body as soon as it exists
+          var tag = function () { if (document.body) document.body.classList.add('embed-mode'); };
+          if (document.body) tag();
+          else document.addEventListener('DOMContentLoaded', tag, { once: true });
+        }
+      } catch (e) {}
+    })();
+  </script>
   <style>
     * {
       margin: 0;

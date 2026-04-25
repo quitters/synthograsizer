@@ -167,6 +167,9 @@ class StudioIntegration {
             .btn-music-large { background: linear-gradient(to bottom right, #ffffff, #ede7f6); border-bottom: 3px solid #7c4dff; }
             .btn-music-large:hover { background: #ede7f6; }
 
+            .btn-glitcher-large { background: linear-gradient(to bottom right, #ffffff, #d8f5f1); border-bottom: 3px solid #4ecdc4; }
+            .btn-glitcher-large:hover { background: #d8f5f1; }
+
             /* Music Studio specific */
             .music-playback-controls { display: flex; gap: 8px; margin: 12px 0; justify-content: center; }
             .music-playback-controls button {
@@ -809,6 +812,10 @@ class StudioIntegration {
                 <button class="studio-btn-large btn-trace-large" id="studio-trace-btn">
                     <span class="icon">🔍</span>
                     <span class="label">Trace Viewer</span>
+                </button>
+                <button class="studio-btn-large btn-glitcher-large" id="studio-glitcher-btn">
+                    <span class="icon">✦</span>
+                    <span class="label">Glitcher<br>Studio</span>
                 </button>
             </div>
         `;
@@ -2021,6 +2028,14 @@ class StudioIntegration {
         });
         this.bindSafe('studio-trace-btn', 'onclick', () => {
             if (window.traceViewer) window.traceViewer.open();
+        });
+        this.bindSafe('studio-glitcher-btn', 'onclick', () => {
+            // Lazy-construct on first click (saves memory until needed)
+            if (!window.glitcherStudio && window.GlitcherStudio) {
+                window.glitcherStudio = new window.GlitcherStudio(this);
+                window.glitcherStudio.init();
+            }
+            if (window.glitcherStudio) window.glitcherStudio.open();
         });
         this.bindSafe('enhance-prompt-btn', 'onclick', () => this.enhancePrompt());
 
