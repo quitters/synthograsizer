@@ -266,6 +266,31 @@
 }
 .p5-size-btn-v6:hover { background: rgba(255,255,255,.7); }
 .p5-size-btn-v6.active { background: rgba(0,0,0,.75); color: #fff; border-color: transparent; }
+/* FX Drawer */
+.p5-fx-drawer {
+  background: #111; border-top: 1px solid #2a2a3a;
+  padding: 8px 12px; flex-direction: column; gap: 5px; flex-shrink: 0;
+}
+.p5-fx-row {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 11px; color: #aaa;
+}
+.p5-fx-row label {
+  width: 64px; flex-shrink: 0; color: #888;
+  font-family: 'Roboto Mono', monospace; font-size: 10px; letter-spacing: .04em;
+}
+.p5-fx-row select, .p5-fx-row input[type=range] {
+  flex: 1; min-width: 0;
+  background: #1a1a2e; color: #e0e0e0;
+  border: 1px solid #333; border-radius: 3px;
+  font-size: 11px; height: 22px; padding: 0 4px;
+}
+.p5-fx-row input[type=range] { padding: 0; cursor: pointer; }
+.p5-fx-val {
+  width: 36px; text-align: right; color: #ccc;
+  font-family: 'Roboto Mono', monospace; font-size: 10px; flex-shrink: 0;
+}
+#p5-fx-toggle.active { color: #7fffb2; border-color: #7fffb2; }
     </style>
 </head>
 
@@ -610,17 +635,6 @@
                 <!-- Hidden fields for backward compat with OSCPanelUI -->
                 <input type="hidden" id="osc-host" value="127.0.0.1" />
 
-                <!-- Glitcher Status Bar -->
-                <div class="osc-bar" id="glitch-bar">
-                    <button id="glitch-toggle-btn" class="osc-toggle-btn" data-tip="Glitch Effects for Display Window" data-tip-pos="down">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-9 9H3V5h9v7zm9 7H14v-7h7v7z"/>
-                        </svg>
-                        <span id="glitch-status-text">Glitcher</span>
-                        <span class="osc-dot" id="glitch-dot"></span>
-                    </button>
-                </div>
-
                 <!-- Display Window Sidebar Button -->
                 <div class="osc-bar" id="disp-bar">
                     <button id="disp-toggle-btn" class="osc-toggle-btn" data-tip="Open External Display Window" data-tip-pos="down">
@@ -636,173 +650,6 @@
                     </div>
                 </div>
 
-                <!-- Glitcher Panel (collapsible) -->
-                <div class="osc-panel" id="glitch-panel" style="display:none;">
-                    <div class="osc-panel-header">
-                        <span class="osc-panel-title">Glitcher Effects (Display)</span>
-                        <div style="display: flex; gap: 6px; margin-left: auto;">
-                            <select id="glitch-preset-select" class="osc-input osc-input-sm" title="Load glitcher preset" style="max-width:120px; font-size:11px;">
-                                <option value="">Presets…</option>
-                            </select>
-                            <button id="glitch-preset-save" class="osc-send-btn" style="font-size: 11px; padding: 2px 8px;" title="Save current settings as preset">💾</button>
-                            <button id="glitch-preset-delete" class="osc-send-btn" style="font-size: 11px; padding: 2px 8px;" title="Delete selected preset">🗑</button>
-                            <button id="glitch-pause-btn" class="osc-send-btn" style="font-size: 11px; padding: 2px 8px;">⏸ Pause</button>
-                            <button id="glitch-reset-btn" class="osc-send-btn" style="font-size: 11px; padding: 2px 8px;">↺ Reset</button>
-                        </div>
-                    </div>
-                    <div class="osc-panel-body">
-                        <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; color: rgba(0,0,0,0.6);">Destructive (Images Only)</div>
-                        <label class="osc-row">
-                            <span>Pixel Sort</span>
-                            <select id="glitch-pixel-sort" class="osc-input osc-input-sm">
-                                <option value="off">Off</option>
-                                <option value="horizontal">Horizontal</option>
-                                <option value="vertical">Vertical</option>
-                                <option value="diagonal">Diagonal</option>
-                                <option value="circular">Circular</option>
-                                <option value="wave">Wave</option>
-                            </select>
-                        </label>
-                        <label class="osc-row">
-                            <span>Slice</span>
-                            <select id="glitch-slice" class="osc-input osc-input-sm">
-                                <option value="off">Off</option>
-                                <option value="horizontal">Horizontal</option>
-                                <option value="vertical">Vertical</option>
-                                <option value="grid">Grid</option>
-                            </select>
-                        </label>
-                        <label class="osc-row">
-                            <span>Direction</span>
-                            <select id="glitch-direction" class="osc-input osc-input-sm">
-                                <option value="off">Off</option>
-                                <option value="up">Up</option>
-                                <option value="down">Down</option>
-                                <option value="left">Left</option>
-                                <option value="right">Right</option>
-                                <option value="random">Random</option>
-                                <option value="jitter">Jitter</option>
-                            </select>
-                        </label>
-                        <label class="osc-row">
-                            <span>Spiral</span>
-                            <select id="glitch-spiral" class="osc-input osc-input-sm">
-                                <option value="off">Off</option>
-                                <option value="cw">Clockwise</option>
-                                <option value="ccw">Counter-CW</option>
-                                <option value="insideOut">Inside Out</option>
-                                <option value="outsideIn">Outside In</option>
-                            </select>
-                        </label>
-                        <label class="osc-row">
-                            <span>Color</span>
-                            <select id="glitch-color" class="osc-input osc-input-sm">
-                                <option value="off">Off</option>
-                                <option value="chromatic-aberration">Chromatic Ab.</option>
-                                <option value="hue-shift">Hue Shift</option>
-                                <option value="vintage">Vintage</option>
-                                <option value="invert">Invert</option>
-                                <option value="saturation">Saturation+</option>
-                                <option value="colorNoise">Color Noise</option>
-                            </select>
-                        </label>
-
-                        <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; margin: 12px 0 8px 0; color: rgba(0,0,0,0.6); border-top: 1px solid rgba(0,0,0,0.05); padding-top: 8px;">Advanced Movement (Destructive)</div>
-                        <label class="osc-row">
-                            <span>Shift Speed</span>
-                            <input type="range" id="glitch-speed" min="1" max="10" value="2" style="width: 100px;">
-                        </label>
-                        <label class="osc-row">
-                            <span>Swirl Strength</span>
-                            <input type="range" id="glitch-swirl" min="0.01" max="0.2" step="0.01" value="0.06" style="width: 100px;">
-                        </label>
-                        <label class="osc-row">
-                            <span>Color Offset</span>
-                            <input type="range" id="glitch-offset" min="0" max="50" value="0" style="width: 100px;">
-                        </label>
-
-                        <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; margin: 12px 0 8px 0; color: rgba(0,0,0,0.6); border-top: 1px solid rgba(0,0,0,0.05); padding-top: 8px;">Clump Selection (Destructive)</div>
-                        <label class="osc-row">
-                            <span>Min Lifetime</span>
-                            <input type="range" id="glitch-min-life" min="1" max="300" value="90" style="width: 100px;">
-                        </label>
-                        <label class="osc-row">
-                            <span>Max Lifetime</span>
-                            <input type="range" id="glitch-max-life" min="1" max="300" value="150" style="width: 100px;">
-                        </label>
-                        <label class="osc-row">
-                            <span>Sensitivity</span>
-                            <input type="range" id="glitch-sensitivity" min="0.5" max="2.0" step="0.1" value="1.0" style="width: 100px;">
-                        </label>
-
-                        <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; margin-top: 16px; margin-bottom: 8px; color: rgba(0,0,0,0.6); border-top: 2px solid rgba(0,0,0,0.1); padding-top: 12px;">Non-Destructive (All Media)</div>
-                        <label class="osc-row">
-                            <span>Filter Mode</span>
-                            <select id="glitch-filter" class="osc-input osc-input-sm">
-                                <option value="off">Off</option>
-                                <optgroup label="Classic">
-                                    <option value="vintage">Vintage</option>
-                                    <option value="halftone">Halftone</option>
-                                    <option value="motionBlur">Motion Blur</option>
-                                    <option value="noise">Noise</option>
-                                    <option value="popArt">Pop Art</option>
-                                    <option value="vignette">Vignette</option>
-                                    <option value="emboss">Emboss</option>
-                                    <option value="edgeDetect">Edge Detect</option>
-                                    <option value="liquify">Liquify</option>
-                                    <option value="colorGrading">Color Grading</option>
-                                    <option value="dithering">Dithering</option>
-                                </optgroup>
-                                <optgroup label="Artistic">
-                                    <option value="artistic-oil_painting">Oil Painting</option>
-                                    <option value="artistic-watercolor">Watercolor</option>
-                                    <option value="artistic-pencil_sketch">Pencil Sketch</option>
-                                    <option value="artistic-mosaic">Mosaic</option>
-                                    <option value="artistic-stained_glass">Stained Glass</option>
-                                    <option value="artistic-comic_book">Comic Book</option>
-                                    <option value="artistic-crosshatch">Crosshatch</option>
-                                    <option value="artistic-pointillism">Pointillism</option>
-                                </optgroup>
-                                <optgroup label="Cyberpunk">
-                                    <option value="cyberpunk">Cyberpunk (Basic)</option>
-                                    <option value="cyberpunk-neon">Neon</option>
-                                    <option value="cyberpunk-matrix">Matrix</option>
-                                    <option value="cyberpunk-synthwave">Synthwave</option>
-                                    <option value="cyberpunk-digital_rain">Digital Rain</option>
-                                    <option value="cyberpunk-hologram">Hologram</option>
-                                    <option value="cyberpunk-glitch_scan">Glitch Scan</option>
-                                </optgroup>
-                                <optgroup label="Atmospheric">
-                                    <option value="atmospheric">Atmospheric (Basic)</option>
-                                    <option value="atmospheric-fog">Fog</option>
-                                    <option value="atmospheric-rain">Rain</option>
-                                    <option value="atmospheric-snow">Snow</option>
-                                    <option value="atmospheric-dust">Dust</option>
-                                    <option value="atmospheric-heat_haze">Heat Haze</option>
-                                    <option value="atmospheric-underwater">Underwater</option>
-                                    <option value="atmospheric-aurora">Aurora</option>
-                                    <option value="atmospheric-lightning">Lightning</option>
-                                </optgroup>
-                                <optgroup label="Experimental">
-                                    <option value="experimental-kaleidoscope">Kaleidoscope</option>
-                                    <option value="experimental-fractal">Fractal</option>
-                                    <option value="experimental-tunnel">Tunnel</option>
-                                    <option value="experimental-warp">Warp</option>
-                                    <option value="experimental-chromatic_shift">Chromatic Shift</option>
-                                    <option value="experimental-data_bend">Data Bend</option>
-                                    <option value="experimental-mirror_world">Mirror World</option>
-                                    <option value="experimental-reality_glitch">Reality Glitch</option>
-                                </optgroup>
-                            </select>
-                        </label>
-                        <label class="osc-row">
-                            <span>Intensity/Amount</span>
-                            <input type="range" id="glitch-intensity" min="0" max="100" value="50" style="width: 100px; margin-right: 4px;">
-                        </label>
-                        <!-- Dynamic filter sub-parameter controls (populated by JS) -->
-                        <div id="glitch-filter-params" style="margin-top: 4px;"></div>
-                    </div>
-                </div>
                 <!-- API Key Bar -->
                 <div class="midi-bar" id="api-bar">
                     <button id="api-key-btn" class="midi-toggle-btn" data-tip="Configure AI API Key" data-tip-pos="down">
@@ -1413,11 +1260,61 @@
                 </div>
                 <iframe id="p5-iframe-v6" style="display:none;width:100%;height:100%;border:none;"></iframe>
             </div>
+            <!-- FX Drawer (collapsible, attached below canvas) -->
+            <div class="p5-fx-drawer" id="p5-fx-drawer" style="display:none;">
+                <div class="p5-fx-row">
+                    <label>Filter</label>
+                    <select id="p5-fx-preset">
+                        <option value="">None</option>
+                        <option value="invert(1)">Invert</option>
+                        <option value="grayscale(1)">Grayscale</option>
+                        <option value="sepia(1)">Sepia</option>
+                        <option value="hue-rotate(90deg)">Hue Shift +90°</option>
+                        <option value="hue-rotate(180deg)">Hue Shift +180°</option>
+                        <option value="saturate(3)">Oversaturate</option>
+                        <option value="blur(2px)">Blur</option>
+                        <option value="contrast(2)">High Contrast</option>
+                        <option value="brightness(1.6)">Brighten</option>
+                        <option value="drop-shadow(0 0 8px cyan)">Cyan Glow</option>
+                        <option value="drop-shadow(0 0 10px #ff00ff)">Magenta Glow</option>
+                        <option value="invert(1) hue-rotate(90deg)">Invert + Hue</option>
+                    </select>
+                </div>
+                <div class="p5-fx-row">
+                    <label>Hue°</label>
+                    <input type="range" id="p5-fx-hue" min="0" max="360" value="0">
+                    <span class="p5-fx-val" id="p5-fx-hue-val">0°</span>
+                </div>
+                <div class="p5-fx-row">
+                    <label>Saturate</label>
+                    <input type="range" id="p5-fx-sat" min="0" max="400" value="100">
+                    <span class="p5-fx-val" id="p5-fx-sat-val">100%</span>
+                </div>
+                <div class="p5-fx-row">
+                    <label>Brightness</label>
+                    <input type="range" id="p5-fx-bright" min="0" max="300" value="100">
+                    <span class="p5-fx-val" id="p5-fx-bright-val">100%</span>
+                </div>
+                <div class="p5-fx-row">
+                    <label>Blur</label>
+                    <input type="range" id="p5-fx-blur" min="0" max="20" value="0">
+                    <span class="p5-fx-val" id="p5-fx-blur-val">0px</span>
+                </div>
+                <div class="p5-fx-row">
+                    <label>Contrast</label>
+                    <input type="range" id="p5-fx-contrast" min="0" max="400" value="100">
+                    <span class="p5-fx-val" id="p5-fx-contrast-val">100%</span>
+                </div>
+                <div class="p5-fx-row">
+                    <button class="p5-ctrl-v6" id="p5-fx-reset" style="padding:3px 10px;">↺ Reset</button>
+                </div>
+            </div>
             <div class="p5-controls-v6">
                 <button class="p5-ctrl-v6 primary" id="p5-play-v6">▶ Play</button>
                 <button class="p5-ctrl-v6" id="p5-pause-v6" style="display:none;">⏸ Pause</button>
                 <button class="p5-ctrl-v6" id="p5-stop-v6">■ Stop</button>
                 <button class="p5-ctrl-v6" id="p5-restart-v6" title="Restart sketch">↺</button>
+                <button class="p5-ctrl-v6" id="p5-fx-toggle" title="Toggle FX filters">✦ FX</button>
                 <div class="p5-size-row-v6">
                     <button class="p5-size-btn-v6 active" data-w="520" data-h="380">SM</button>
                     <button class="p5-size-btn-v6" data-w="720" data-h="540">MD</button>
@@ -1640,6 +1537,93 @@
             /* No extra handler needed — the capture listener on runBtn covers it */
 
             updateHint();
+        })();
+        </script>
+
+        <script>
+        /* ── P5 FX Drawer ── */
+        (function () {
+            var fxToggle  = document.getElementById('p5-fx-toggle');
+            var fxDrawer  = document.getElementById('p5-fx-drawer');
+            var fxIframe  = document.getElementById('p5-iframe-v6');
+
+            var selPreset  = document.getElementById('p5-fx-preset');
+            var slHue      = document.getElementById('p5-fx-hue');
+            var slSat      = document.getElementById('p5-fx-sat');
+            var slBright   = document.getElementById('p5-fx-bright');
+            var slBlur     = document.getElementById('p5-fx-blur');
+            var slContrast = document.getElementById('p5-fx-contrast');
+            var btnReset   = document.getElementById('p5-fx-reset');
+
+            var valHue      = document.getElementById('p5-fx-hue-val');
+            var valSat      = document.getElementById('p5-fx-sat-val');
+            var valBright   = document.getElementById('p5-fx-bright-val');
+            var valBlur     = document.getElementById('p5-fx-blur-val');
+            var valContrast = document.getElementById('p5-fx-contrast-val');
+
+            function applyFilter() {
+                if (!fxIframe) return;
+                var preset = selPreset.value;
+                if (preset) { fxIframe.style.filter = preset; return; }
+                var f = '';
+                var hue = +slHue.value, sat = +slSat.value,
+                    bright = +slBright.value, blur = +slBlur.value, contrast = +slContrast.value;
+                if (hue !== 0)      f += 'hue-rotate(' + hue + 'deg) ';
+                if (sat !== 100)    f += 'saturate(' + (sat / 100).toFixed(2) + ') ';
+                if (bright !== 100) f += 'brightness(' + (bright / 100).toFixed(2) + ') ';
+                if (blur !== 0)     f += 'blur(' + blur + 'px) ';
+                if (contrast !== 100) f += 'contrast(' + (contrast / 100).toFixed(2) + ') ';
+                fxIframe.style.filter = f.trim() || 'none';
+            }
+
+            function updateLabels() {
+                valHue.textContent      = slHue.value + '°';
+                valSat.textContent      = slSat.value + '%';
+                valBright.textContent   = slBright.value + '%';
+                valBlur.textContent     = slBlur.value + 'px';
+                valContrast.textContent = slContrast.value + '%';
+            }
+
+            function resetFx() {
+                selPreset.value = '';
+                slHue.value = 0; slSat.value = 100; slBright.value = 100;
+                slBlur.value = 0; slContrast.value = 100;
+                updateLabels();
+                if (fxIframe) fxIframe.style.filter = 'none';
+            }
+
+            fxToggle.addEventListener('click', function () {
+                var open = fxDrawer.style.display === 'none';
+                fxDrawer.style.display = open ? 'flex' : 'none';
+                fxToggle.classList.toggle('active', open);
+            });
+
+            selPreset.addEventListener('change', function () {
+                if (selPreset.value) {
+                    slHue.value = 0; slSat.value = 100; slBright.value = 100;
+                    slBlur.value = 0; slContrast.value = 100;
+                    updateLabels();
+                }
+                applyFilter();
+            });
+
+            [slHue, slSat, slBright, slBlur, slContrast].forEach(function (sl) {
+                sl.addEventListener('input', function () {
+                    selPreset.value = '';
+                    updateLabels();
+                    applyFilter();
+                });
+            });
+
+            btnReset.addEventListener('click', resetFx);
+
+            /* Reset when modal closes */
+            var closeBtn = document.getElementById('p5-close-v6');
+            if (closeBtn) closeBtn.addEventListener('click', function () {
+                resetFx();
+                fxDrawer.style.display = 'none';
+                fxToggle.classList.remove('active');
+            });
         })();
         </script>
 </body>
