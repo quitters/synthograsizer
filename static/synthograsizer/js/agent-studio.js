@@ -806,6 +806,9 @@ class AgentStudio {
     this.sessionStart = null;
     this.eventSource = null;
 
+    // agentId → { el: HTMLElement, text: string } — live streaming bubbles
+    this._streamingBubbles = new Map();
+
     // workflowId → { status, label, messageIndex }
     this._workflowChipMap = new Map();
     // messageIndex → [{ id, mimeType, label }]
@@ -1208,6 +1211,17 @@ class AgentStudio {
       .as-msg-text { font-size:13.5px; line-height:1.55; color:#222; white-space:pre-wrap;
                      word-break:break-word; overflow-wrap:break-word;
                      max-width:100%; }
+      /* Streaming bubble */
+      .as-msg-streaming { opacity:.85; }
+      .as-msg-streaming-text { font-size:13.5px; line-height:1.55; color:#222;
+                               white-space:pre-wrap; word-break:break-word;
+                               overflow-wrap:break-word; max-width:100%; }
+      .as-msg-streaming-indicator {
+        display:inline-block; color:#10b981; font-size:9px;
+        animation:as-blink 1s step-start infinite; margin-left:4px;
+      }
+      @keyframes as-blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
       .as-msg-system { color:#888; font-style:italic; font-size:11px;
                        padding:6px 12px; background:#f7f7f7; border-radius:14px;
                        margin:10px auto; text-align:center; max-width:480px;
@@ -1538,6 +1552,8 @@ class AgentStudio {
       this.messages = [];
       this._workflowChipMap.clear();
       this._imageChipsByMsg.clear();
+      this._streamingBubbles.forEach(b => b.el.remove());
+      this._streamingBubbles.clear();
       this._renderTranscript();
       this._refreshState();
     } catch (err) {
@@ -1606,7 +1622,8 @@ class AgentStudio {
       },
       session_paused:  () => { this.state.isPaused = true;  this._renderControls(); },
       session_resumed: () => { this.state.isPaused = false; this._renderControls(); },
-      message: (d) => this._appendMessage(d),
+      chunk:   (d) => this._appendChunk(d),
+      message: (d) => { this._clearStreamingBubble(d.agentId); this._appendMessage(d); },
 
       // Workflow chips — pinned to the message that triggered them.
       workflow_submitted: (d) => this._upsertChip(d.workflowId, 'submitted', d.template, true),
@@ -1652,6 +1669,51 @@ class AgentStudio {
   _appendSystem(text) {
     this.messages.push({ role: 'system', content: text, timestamp: Date.now() });
     this._renderTranscript();
+  }
+
+  _appendChunk({ agentId, text }) {
+    const body = document.getElementById('as-transcript-body');
+    if (!body) return;
+
+    let bubble = this._streamingBubbles.get(agentId);
+
+    if (!bubble) {
+      // Create the bubble on the first chunk from this agent
+      const agent = this.agents.find(a => a.id === agentId) || {};
+      const color   = agent.color || '#888';
+      const initial = (agent.name || '?').charAt(0).toUpperCase();
+
+      const el = document.createElement('div');
+      el.className = 'as-msg as-msg-streaming';
+      el.dataset.streamingAgentId = agentId;
+      el.innerHTML = `
+        <div class="as-msg-avatar" style="background:${escapeAttr(color)}">${escapeHtml(initial)}</div>
+        <div class="as-msg-body">
+          <div class="as-msg-header">
+            <span class="as-msg-name">${escapeHtml(agent.name || 'Agent')}</span>
+            <span class="as-msg-streaming-indicator">●</span>
+          </div>
+          <div class="as-msg-content as-msg-streaming-text"></div>
+        </div>`;
+      body.appendChild(el);
+
+      bubble = { el, text: '', textEl: el.querySelector('.as-msg-streaming-text') };
+      this._streamingBubbles.set(agentId, bubble);
+    }
+
+    bubble.text += text;
+    // Render as plain text (escapeHtml) with newlines preserved.
+    // The final message render handles full markdown/formatting.
+    bubble.textEl.textContent = bubble.text;
+    body.scrollTop = body.scrollHeight;
+  }
+
+  _clearStreamingBubble(agentId) {
+    const bubble = this._streamingBubbles.get(agentId);
+    if (bubble) {
+      bubble.el.remove();
+      this._streamingBubbles.delete(agentId);
+    }
   }
 
   _renderTranscript() {
