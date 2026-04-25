@@ -138,22 +138,16 @@ def _generate_image_gemini(self, prompt: str, model_name: str, aspect_ratio: str
         if media_resolution in res_map:
             image_config_base["image_size"] = res_map[media_resolution]
 
-    # Layer on optional fields, then fall back if the SDK rejects any of them.
+    # Layer on optional Gemini-supported fields only.
+    # add_watermark and person_generation are Imagen-only — omit them here.
     image_config_extended = dict(image_config_base)
     if image_count and image_count > 1:
         image_config_extended["image_count"] = image_count
-    if add_watermark is False:
-        # Only forward when the caller explicitly opts out — default True is
-        # already implicit, and forwarding the default needlessly tickles
-        # SDK validation paths.
-        image_config_extended["add_watermark"] = False
-    if person_generation:
-        image_config_extended["person_generation"] = person_generation
 
     try:
         image_cfg = types.ImageConfig(**image_config_extended)
     except Exception as e:
-        # Older/different SDK build — strip extras and try again.
+        # SDK version doesn't support image_count — fall back to base config.
         dropped = set(image_config_extended) - set(image_config_base)
         if dropped:
             logger.warning(
