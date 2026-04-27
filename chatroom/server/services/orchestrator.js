@@ -549,7 +549,13 @@ class ChatOrchestrator {
       if (
         contentLower.includes(`@${nameLower}`) ||
         contentLower.includes(`@${firstName}`) ||
-        // Check for direct address patterns
+        // Full-name address (checked first — avoids ambiguity when firstName is shared,
+        // e.g. "Red Spymaster" vs "Red Operative" both having firstName="Red").
+        // Patterns: "Red Operative, ...", "Red Operative?", "Red Operative."
+        contentLower.includes(`${nameLower},`) ||
+        contentLower.includes(`${nameLower}?`) ||
+        contentLower.includes(`${nameLower}.`) ||
+        // First-name fallback (single-word names or informal address)
         contentLower.includes(`${firstName},`) ||
         contentLower.includes(`${firstName}?`) ||
         contentLower.includes(`what do you think, ${firstName}`) ||

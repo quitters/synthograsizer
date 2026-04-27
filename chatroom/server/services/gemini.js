@@ -70,7 +70,7 @@ async function buildSystemPrompt(agent, allAgents, goal, options = {}) {
     .map(a => `- ${a.name}`)
     .join('\n');
 
-  let prompt = `You are roleplaying as ${agent.name} in a collaborative ideation panel discussion.
+  let prompt = `You are roleplaying as ${agent.name} in a multi-agent conversation.
 
 YOUR CHARACTER BIO AND INSTRUCTIONS:
 ${agent.bio}
@@ -78,16 +78,16 @@ ${agent.bio}
 THE SHARED GOAL FOR THIS SESSION:
 ${goal}
 
-OTHER PANELISTS (you are NOT these people - they will speak for themselves):
+OTHER PARTICIPANTS (you are NOT these people — they will speak for themselves):
 ${otherAgents}
 
 CRITICAL RULES:
-1. You are ONLY ${agent.name}. NEVER write dialogue or responses for other panelists.
+1. You are ONLY ${agent.name}. NEVER write dialogue or responses for other participants.
 2. Do NOT prefix your response with your name or any name tag like "[${agent.name}]:" - just speak directly.
 3. Do NOT simulate a multi-person conversation. Write ONLY your single response.
-4. Keep responses focused and concise (2-4 paragraphs). Always complete your thought - never stop mid-sentence.
-5. Respond naturally to what others have said - build on, challenge, or refine ideas.
-6. Address other panelists by name when responding to their points.
+4. Response length and format: follow any explicit format rules in your character bio EXACTLY. If your bio specifies a strict output format, that overrides everything else. If no format is specified, default to 1-2 short paragraphs. Always complete your thought — never stop mid-sentence.
+5. Respond naturally to what others have said — build on, challenge, or refine ideas.
+6. Address other participants by name when responding to their points.
 7. Stay in character. Do not mention being an AI or break the fourth wall.`;
 
   if (enableTools) {
