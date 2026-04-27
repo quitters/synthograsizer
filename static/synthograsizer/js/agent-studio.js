@@ -809,6 +809,13 @@ class AgentStudio {
     // agentId → { el: HTMLElement, text: string } — live streaming bubbles
     this._streamingBubbles = new Map();
 
+    // Session token tracking
+    this._tokenCount = 0;
+    this._tokenLimit = 100000;
+
+    // Local mirror of consensus settings (synced from server on open)
+    this._consensus = { enabled: true, sensitivity: 'medium' };
+
     // workflowId → { status, label, messageIndex }
     this._workflowChipMap = new Map();
     // messageIndex → [{ id, mimeType, label }]
@@ -841,12 +848,14 @@ class AgentStudio {
     this._refreshAgents();
     this._refreshState();
     this._refreshArtifacts();
+    this._fetchConsensusSettings();
   }
 
   close() {
     const modal = document.getElementById('agent-studio-modal');
     if (modal) modal.classList.remove('active');
     this._disconnectStream();
+    this._stopGoalRotation();
   }
 
   _bindLifecycleCleanup() {
@@ -915,6 +924,42 @@ class AgentStudio {
           <button id="as-stop-btn"   class="as-btn" disabled>■ Stop</button>
           <button id="as-reset-btn"  class="as-btn" title="Clear conversation">↺</button>
           <button id="as-export-btn" class="as-btn" title="Download conversation as JSON">⤓</button>
+
+          <div class="as-popover-anchor">
+            <button id="as-settings-btn" class="as-btn" title="Session settings">⚙</button>
+            <div id="as-settings-popover" class="as-popover as-popover-settings">
+              <div class="as-pop-h">Session Settings</div>
+
+              <div class="as-settings-row">
+                <label class="as-settings-label" for="as-token-limit">Token limit</label>
+                <input id="as-token-limit" type="number" class="as-input-sm as-token-limit-input"
+                       min="1000" max="2000000" step="1000" value="100000"/>
+              </div>
+
+              <div class="as-pop-divider"></div>
+
+              <div class="as-settings-row">
+                <label class="as-settings-label" for="as-consensus-enabled">
+                  Auto-consensus
+                  <span class="as-hint" style="display:block;font-size:10px;margin-top:1px;">Stop when agents agree</span>
+                </label>
+                <label class="as-toggle">
+                  <input type="checkbox" id="as-consensus-enabled" checked/>
+                  <span class="as-toggle-track"></span>
+                </label>
+              </div>
+
+              <div class="as-settings-row" id="as-sensitivity-row">
+                <label class="as-settings-label" for="as-consensus-sensitivity">Sensitivity</label>
+                <select id="as-consensus-sensitivity" class="as-input-sm">
+                  <option value="low">Low — explicit marker only</option>
+                  <option value="medium" selected>Medium — common phrases</option>
+                  <option value="high">High — winding-down tone</option>
+                  <option value="manual">Manual — never auto-stop</option>
+                </select>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Body row: transcript (left) + artifact panel (right) -->
@@ -985,12 +1030,20 @@ class AgentStudio {
         <div class="as-status-bar">
           <span class="as-dot" id="as-status-dot"></span>
           <span id="as-status-text" class="as-status-text">idle</span>
+          <span id="as-consensus-badge" class="as-consensus-badge" style="display:none" title="Open ⚙ Settings to change"></span>
           <span class="as-spacer-h"></span>
           <span id="as-msg-count" class="as-hint">0 messages</span>
           <span class="as-sep">·</span>
           <span id="as-wf-count"  class="as-hint">0 workflows</span>
           <span class="as-sep">·</span>
           <span id="as-session-id" class="as-hint" title="Current chat session ID"></span>
+          <span class="as-sep" id="as-token-sep" style="display:none">·</span>
+          <span id="as-token-meter" class="as-token-meter" style="display:none" title="Tokens used">
+            <span id="as-token-bar-wrap" class="as-token-bar-wrap">
+              <span id="as-token-bar" class="as-token-bar"></span>
+            </span>
+            <span id="as-token-label" class="as-hint">0 / 100k tokens</span>
+          </span>
         </div>
       </div>
     `;
@@ -1222,6 +1275,72 @@ class AgentStudio {
       }
       @keyframes as-blink { 0%,100%{opacity:1} 50%{opacity:0} }
 
+      /* ── Settings popover ───────────────────────────────────────────────── */
+      .as-popover-settings { min-width:280px; max-width:340px; }
+      .as-settings-row {
+        display:flex; align-items:center; justify-content:space-between;
+        gap:10px; padding:5px 0;
+      }
+      .as-settings-label { font-size:12px; color:#444; flex:1; line-height:1.3; }
+      .as-token-limit-input {
+        width:90px; padding:4px 6px; border:1px solid #ddd; border-radius:4px;
+        font-size:12px; text-align:right;
+      }
+      /* Toggle switch */
+      .as-toggle { position:relative; display:inline-block; width:34px; height:18px; flex-shrink:0; }
+      .as-toggle input { opacity:0; width:0; height:0; }
+      .as-toggle-track {
+        position:absolute; inset:0; background:#ccc; border-radius:18px;
+        cursor:pointer; transition:background .2s;
+      }
+      .as-toggle-track::before {
+        content:''; position:absolute; width:14px; height:14px; left:2px; top:2px;
+        background:#fff; border-radius:50%; transition:transform .2s;
+      }
+      .as-toggle input:checked + .as-toggle-track { background:#673ab7; }
+      .as-toggle input:checked + .as-toggle-track::before { transform:translateX(16px); }
+
+      /* ── Token meter ─────────────────────────────────────────────────────── */
+      .as-token-meter { display:inline-flex; align-items:center; gap:6px; }
+      .as-token-bar-wrap {
+        width:60px; height:5px; background:#e8e8e8; border-radius:3px; overflow:hidden;
+      }
+      .as-token-bar {
+        height:100%; width:0%; background:#673ab7; border-radius:3px;
+        transition:width .4s ease, background .3s;
+      }
+      .as-token-bar.warn  { background:#f59e0b; }
+      .as-token-bar.limit { background:#ef4444; }
+
+      /* ── Consensus badge ─────────────────────────────────────────────────── */
+      .as-consensus-badge {
+        font-size:10px; font-weight:600; letter-spacing:.04em; text-transform:uppercase;
+        padding:2px 7px; border-radius:10px; line-height:1.6;
+        background:#fef3c7; color:#92400e; border:1px solid #fde68a;
+      }
+      .as-consensus-badge.off {
+        background:#fee2e2; color:#991b1b; border-color:#fecaca;
+      }
+
+      /* ── Action buttons on message bubbles (hover-reveal) ──────────────── */
+      .as-msg { position:relative; }
+      .as-msg-actions {
+        position:absolute; top:6px; right:4px;
+        display:flex; gap:4px;
+        opacity:0; transition:opacity .15s;
+      }
+      .as-msg:hover .as-msg-actions { opacity:1; }
+      .as-msg-action {
+        background:#fff; border:1px solid #e0e0e0; border-radius:4px;
+        padding:2px 6px; font-size:11px; cursor:pointer; color:#777;
+        line-height:1.4;
+      }
+      .as-msg-action:hover { color:#333; border-color:#bbb; }
+      .as-copy-btn.copied { color:#10b981; border-color:#6ee7b7; }
+      .as-gen-btn { color:#673ab7; border-color:#d8c4f5; }
+      .as-gen-btn:hover { color:#5e35b1; border-color:#9575cd; background:#f3eaff; }
+      .as-gen-btn.sent { color:#10b981; border-color:#6ee7b7; }
+
       .as-msg-system { color:#888; font-style:italic; font-size:11px;
                        padding:6px 12px; background:#f7f7f7; border-radius:14px;
                        margin:10px auto; text-align:center; max-width:480px;
@@ -1305,6 +1424,25 @@ class AgentStudio {
       e.stopPropagation();
       this._togglePopover('as-presets-popover');
     };
+    document.getElementById('as-settings-btn').onclick = (e) => {
+      e.stopPropagation();
+      this._togglePopover('as-settings-popover');
+    };
+
+    // Consensus enabled toggle → show/hide sensitivity row + push to server
+    document.getElementById('as-consensus-enabled').addEventListener('change', (e) => {
+      const enabled = e.target.checked;
+      this._consensus.enabled = enabled;
+      const sensRow = document.getElementById('as-sensitivity-row');
+      if (sensRow) sensRow.style.opacity = enabled ? '1' : '0.4';
+      this._pushConsensusSettings();
+    });
+
+    // Sensitivity select → push to server
+    document.getElementById('as-consensus-sensitivity').addEventListener('change', (e) => {
+      this._consensus.sensitivity = e.target.value;
+      this._pushConsensusSettings();
+    });
 
     // Stop click-bubble inside popovers from closing them
     document.querySelectorAll('.as-popover').forEach(p => {
@@ -1472,10 +1610,47 @@ class AgentStudio {
     }
     this._refreshAgents();
     document.getElementById('as-presets-popover')?.classList.remove('open');
-    // Auto-fill first suggested goal if the goal field is empty
+    // Rotate suggested goals as placeholder text (don't fill the value)
+    if (tpl.suggestedGoals?.length) {
+      this._startGoalRotation(tpl.suggestedGoals);
+    }
+  }
+
+  // ─── Goal placeholder rotation ────────────────────────────────────────────
+
+  _startGoalRotation(goals) {
+    this._stopGoalRotation();
     const goalEl = document.getElementById('as-goal');
-    if (goalEl && !goalEl.value.trim() && tpl.suggestedGoals && tpl.suggestedGoals[0]) {
-      goalEl.value = tpl.suggestedGoals[0];
+    if (!goalEl || !goals?.length) return;
+
+    const DEFAULT_PH = 'Conversation goal — e.g. design a poster series for a synthwave album';
+    let idx = 0;
+
+    const show = () => {
+      goalEl.placeholder = goals[idx % goals.length];
+      idx++;
+    };
+    show(); // show immediately on load
+    this._goalRotationInterval = setInterval(show, 3500);
+
+    // Stop rotating once the user starts typing; restore default on clear
+    const onInput = () => {
+      this._stopGoalRotation();
+      // When field is cleared again, restore default placeholder
+      if (!goalEl.value.trim()) goalEl.placeholder = DEFAULT_PH;
+    };
+    goalEl.addEventListener('input', onInput, { once: true });
+    this._goalRotationStop = () => goalEl.removeEventListener('input', onInput);
+  }
+
+  _stopGoalRotation() {
+    if (this._goalRotationInterval) {
+      clearInterval(this._goalRotationInterval);
+      this._goalRotationInterval = null;
+    }
+    if (this._goalRotationStop) {
+      this._goalRotationStop();
+      this._goalRotationStop = null;
     }
   }
 
@@ -1488,6 +1663,15 @@ class AgentStudio {
       this.state.isRunning = !!state.isRunning;
       this.state.isPaused  = !!state.isPaused;
       this._renderControls();
+      // Sync token state from server (handles page reload mid-session)
+      if (typeof state.tokenCount === 'number') {
+        this._tokenCount = state.tokenCount;
+        if (typeof state.tokenLimit === 'number') this._tokenLimit = state.tokenLimit;
+        this._updateTokenMeter();
+        // Populate the token limit field
+        const tlEl = document.getElementById('as-token-limit');
+        if (tlEl) tlEl.value = this._tokenLimit;
+      }
       const histRes = await fetch(`${this.CHATROOM_API}/chat/history`);
       const hist = await histRes.json();
       this.messages = hist.history || [];
@@ -1495,6 +1679,82 @@ class AgentStudio {
     } catch (err) {
       console.warn('[AgentStudio] refreshState failed', err);
     }
+  }
+
+  async _fetchConsensusSettings() {
+    try {
+      const res = await fetch(`${this.CHATROOM_API}/chat/consensus-settings`);
+      if (!res.ok) return;
+      const settings = await res.json();
+      this._consensus.enabled     = settings.enabled !== false;
+      this._consensus.sensitivity = settings.sensitivity || 'medium';
+      // Populate UI
+      const enabledEl  = document.getElementById('as-consensus-enabled');
+      const sensEl     = document.getElementById('as-consensus-sensitivity');
+      const sensRow    = document.getElementById('as-sensitivity-row');
+      if (enabledEl)  enabledEl.checked = this._consensus.enabled;
+      if (sensEl)     sensEl.value      = this._consensus.sensitivity;
+      if (sensRow)    sensRow.style.opacity = this._consensus.enabled ? '1' : '0.4';
+      this._renderConsensusBadge();
+    } catch (err) {
+      console.warn('[AgentStudio] fetchConsensusSettings failed', err);
+    }
+  }
+
+  async _pushConsensusSettings() {
+    try {
+      await fetch(`${this.CHATROOM_API}/chat/consensus-settings`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          enabled:     this._consensus.enabled,
+          sensitivity: this._consensus.sensitivity,
+        }),
+      });
+      this._renderConsensusBadge();
+    } catch (err) {
+      console.warn('[AgentStudio] pushConsensusSettings failed', err);
+    }
+  }
+
+  _renderConsensusBadge() {
+    const badge = document.getElementById('as-consensus-badge');
+    if (!badge) return;
+    if (this._consensus.enabled) {
+      // Only show the badge when consensus is OFF — when on it's the default, no need to advertise it
+      badge.style.display = 'none';
+    } else {
+      badge.textContent = '● consensus off';
+      badge.className = 'as-consensus-badge off';
+      badge.style.display = '';
+    }
+  }
+
+  _updateTokenMeter() {
+    const meterEl = document.getElementById('as-token-meter');
+    const sepEl   = document.getElementById('as-token-sep');
+    const barEl   = document.getElementById('as-token-bar');
+    const labelEl = document.getElementById('as-token-label');
+    if (!meterEl || !barEl || !labelEl) return;
+
+    const count = this._tokenCount || 0;
+    const limit = this._tokenLimit || 100000;
+
+    if (count === 0) {
+      meterEl.style.display = 'none';
+      if (sepEl) sepEl.style.display = 'none';
+      return;
+    }
+
+    meterEl.style.display = 'inline-flex';
+    if (sepEl) sepEl.style.display = '';
+
+    const pct = Math.min(100, (count / limit) * 100);
+    barEl.style.width = pct + '%';
+    barEl.className   = 'as-token-bar' + (pct >= 90 ? ' limit' : pct >= 70 ? ' warn' : '');
+
+    // Format: "42.3k / 100k tokens"
+    const fmt = (n) => n >= 1000 ? (n / 1000).toFixed(1).replace(/\.0$/, '') + 'k' : String(n);
+    labelEl.textContent = `${fmt(count)} / ${fmt(limit)} tokens`;
   }
 
   _renderControls() {
@@ -1521,10 +1781,17 @@ class AgentStudio {
       this._togglePopover('as-roster-popover');
       return;
     }
+    // Read token limit from UI field
+    const tokenLimitEl = document.getElementById('as-token-limit');
+    const tokenLimit = tokenLimitEl ? Math.max(1000, parseInt(tokenLimitEl.value, 10) || 100000) : 100000;
+    this._tokenLimit = tokenLimit;
+    this._tokenCount = 0;
+    this._updateTokenMeter();
+
     try {
       const res = await fetch(`${this.CHATROOM_API}/chat/start`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ goal }),
+        body: JSON.stringify({ goal, tokenLimit }),
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || `HTTP ${res.status}`);
@@ -1554,6 +1821,7 @@ class AgentStudio {
       this._imageChipsByMsg.clear();
       this._streamingBubbles.forEach(b => b.el.remove());
       this._streamingBubbles.clear();
+      this._stopGoalRotation();
       this._renderTranscript();
       this._refreshState();
     } catch (err) {
@@ -1576,6 +1844,47 @@ class AgentStudio {
     } catch (err) {
       this.studio.showToast?.(`Send failed: ${err.message}`, 'error');
     }
+  }
+
+  /**
+   * Bridge: send an agent message's prompt to the Image Studio generator.
+   *
+   * Extracts a clean prompt from the message:
+   *   - Prefer the LAST [IMAGE: ...] tag (those are explicit prompts the agent already crafted)
+   *   - Otherwise use the full message text
+   * Then closes the Agent Studio modal, opens Image Studio, and populates
+   * #image-prompt-input — the user lands directly on the field with the
+   * prompt ready to generate.
+   */
+  _sendToGenerator(rawText) {
+    if (!rawText) return;
+
+    // Extract last [IMAGE: ...] tag if present, else use full text
+    const matches = [...rawText.matchAll(/\[IMAGE:\s*([^\]]+)\]/gi)];
+    const prompt = matches.length
+      ? matches[matches.length - 1][1].trim()
+      : rawText.replace(/\[(?:WORKFLOW|ARTIFACT):[\s\S]*?\]/g, '').trim();
+
+    // Close Agent Studio
+    this.close();
+
+    // Open Image Studio modal and populate prompt
+    const openModal = () => {
+      this.studio.openModal?.('image-studio-modal');
+      // Wait one tick for the modal to render its controls
+      setTimeout(() => {
+        const promptInput = document.getElementById('image-prompt-input');
+        if (promptInput) {
+          promptInput.value = prompt;
+          promptInput.dispatchEvent(new Event('input', { bubbles: true }));
+          promptInput.focus();
+        }
+        this.studio.showToast?.('Prompt sent to Image Studio →', 'success');
+      }, 60);
+    };
+
+    // Slight delay so the close animation completes
+    setTimeout(openModal, 120);
   }
 
   _export() {
@@ -1614,6 +1923,12 @@ class AgentStudio {
         const sid = document.getElementById('as-session-id');
         if (sid && d.sessionId) sid.textContent = `session ${d.sessionId.slice(0, 8)}`;
         this._appendSystem(`Session started — goal: ${d.goal || '(none)'}`);
+        // Sync token limit from server (may differ from UI if another client started)
+        if (d.tokenLimit) {
+          this._tokenLimit = d.tokenLimit;
+          this._tokenCount = 0;
+          this._updateTokenMeter();
+        }
       },
       session_end: (d) => {
         this.state.isRunning = false;
@@ -1637,6 +1952,14 @@ class AgentStudio {
 
       // Artifact updates — agent wrote a [ARTIFACT:] block
       artifact_update: (d) => this._handleArtifactUpdate(d),
+
+      // Token accounting — update meter after each agent turn
+      agent_complete: (d) => {
+        if (typeof d.totalTokens === 'number') {
+          this._tokenCount = d.totalTokens;
+          this._updateTokenMeter();
+        }
+      },
     };
 
     for (const [evt, fn] of Object.entries(handlers)) {
@@ -1761,8 +2084,29 @@ class AgentStudio {
     body.querySelectorAll('.as-chip[data-img]').forEach(el => {
       el.onclick = () => this._openLightbox(el.dataset.img, el.dataset.mime);
     });
+    body.querySelectorAll('.as-copy-btn').forEach(btn => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        navigator.clipboard.writeText(btn.dataset.copy || '').then(() => {
+          btn.textContent = '✓';
+          btn.classList.add('copied');
+          setTimeout(() => { btn.textContent = '⎘'; btn.classList.remove('copied'); }, 1500);
+        }).catch(() => {});
+      };
+    });
+    body.querySelectorAll('.as-gen-btn').forEach(btn => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        this._sendToGenerator(btn.dataset.prompt || '');
+        btn.textContent = '✓ Sent';
+        btn.classList.add('sent');
+        setTimeout(() => { btn.textContent = '→ Gen'; btn.classList.remove('sent'); }, 1500);
+      };
+    });
 
-    body.scrollTop = body.scrollHeight;
+    // Only auto-scroll if already at (or near) the bottom
+    const atBottom = body.scrollHeight - body.scrollTop - body.clientHeight < 60;
+    if (atBottom) body.scrollTop = body.scrollHeight;
   }
 
   _renderMessageHTML(m, index, chips) {
@@ -1798,6 +2142,10 @@ class AgentStudio {
 
     return `
       <div class="as-msg">
+        <div class="as-msg-actions">
+          <button class="as-msg-action as-copy-btn" data-copy="${escapeAttr(content)}" title="Copy message">⎘</button>
+          <button class="as-msg-action as-gen-btn" data-prompt="${escapeAttr(content)}" title="Send to Image Generator">→ Gen</button>
+        </div>
         <div class="as-msg-avatar" style="background:${escapeAttr(agent.color)}">${escapeHtml(initial)}</div>
         <div class="as-msg-body">
           <div class="as-msg-head">

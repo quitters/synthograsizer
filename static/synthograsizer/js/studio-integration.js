@@ -830,9 +830,10 @@ class StudioIntegration {
         resultContainer.innerHTML = `
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid #eee;">
                 <h4 style="margin:0; color:#555;">AI Studio Output</h4>
-                <div style="display:flex; gap:10px;">
+                <div style="display:flex; gap:10px; align-items:center;">
                     <button id="stop-batch-btn" style="display:none; color:red; border:1px solid red; background:white; border-radius:4px; padding:2px 8px; cursor:pointer;">Stop Batch</button>
                     <button id="retry-failed-btn" style="display:none; color:#e67e00; border:1px solid #e67e00; background:white; border-radius:4px; padding:2px 8px; cursor:pointer;">Retry Failed (0)</button>
+                    <button id="discuss-with-agents-btn" style="color:#673ab7; border:1px solid #d8c4f5; background:#f8f4ff; border-radius:4px; padding:4px 10px; cursor:pointer; font-size:12px; font-weight:500;" title="Send this image to the Agent Studio for critique & refinement">→ Agents</button>
                     <button id="close-studio-result" style="border:none; background:none; cursor:pointer; font-size:16px;">✕</button>
                 </div>
             </div>
@@ -2686,6 +2687,10 @@ class StudioIntegration {
             if (content) content.innerHTML = '';
         });
 
+        // Bridge to Agent Studio: send the current generated image to the
+        // active agent conversation as session media + critique prompt.
+        this.bindSafe('discuss-with-agents-btn', 'onclick', () => this.sendOutputToAgents());
+
         // Chat Actions
         this.bindSafe('chat-send', 'onclick', () => this.sendChatMessage());
         this.bindSafe('chat-input', 'onkeypress', (e) => {
@@ -4160,6 +4165,116 @@ class StudioIntegration {
                 this.setApiDot(this.apiKeyConfigured);
             }
         } catch (e) { /* server not ready yet, dot stays grey */ }
+    }
+
+    /**
+     * Bridge to Agent Studio: take the most recently generated image from
+     * #studio-content, attach it to the chatroom as session media, then either
+     * inject a critique-prompting message (if a session is running) or open
+     * the Agent Studio so the user can start one with the image already
+     * attached as context.
+     */
+    async sendOutputToAgents() {
+        const contentEl = document.getElementById('studio-content');
+        if (!contentEl) return this.showToast('No output container', 'error');
+
+        // Grab the first image found in the result panel (single or first of batch)
+        const imgEl = contentEl.querySelector('img');
+        if (!imgEl || !imgEl.src) {
+            return this.showToast('No image to send — generate one first', 'error');
+        }
+
+        // Pull the prompt text that produced this image (if available)
+        const promptUsed = (document.getElementById('image-prompt-input')?.value || '').trim();
+
+        // Decode the data URL into base64 + mimeType
+        const src = imgEl.src;
+        let base64, mimeType = 'image/png';
+        const dataUrlMatch = src.match(/^data:([^;]+);base64,(.+)$/);
+        if (dataUrlMatch) {
+            mimeType = dataUrlMatch[1];
+            base64 = dataUrlMatch[2];
+        } else {
+            // Fall back: fetch + convert (handles blob: and http: URLs)
+            try {
+                const res = await fetch(src);
+                const blob = await res.blob();
+                mimeType = blob.type || 'image/png';
+                base64 = await new Promise((resolve, reject) => {
+                    const r = new FileReader();
+                    r.onloadend = () => resolve(String(r.result).split(',')[1]);
+                    r.onerror = reject;
+                    r.readAsDataURL(blob);
+                });
+            } catch (err) {
+                return this.showToast(`Couldn't read image: ${err.message}`, 'error');
+            }
+        }
+
+        const fileName = `synth-output-${Date.now()}.${mimeType.split('/')[1] || 'png'}`;
+
+        // Step 1: attach as session media so agents can see it
+        try {
+            const mediaRes = await fetch('/chatroom/api/chat/session-media', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    files: [{
+                        name: fileName,
+                        mimeType,
+                        data: base64,
+                        description: promptUsed
+                            ? `Image generated from prompt: "${promptUsed}"`
+                            : 'User-generated image for critique',
+                    }],
+                }),
+            });
+            if (!mediaRes.ok) {
+                const err = await mediaRes.json().catch(() => ({}));
+                throw new Error(err.error || `HTTP ${mediaRes.status}`);
+            }
+        } catch (err) {
+            return this.showToast(`Failed to attach image: ${err.message}`, 'error');
+        }
+
+        // Step 2: check whether a session is running. If so, inject a critique nudge.
+        let sessionRunning = false;
+        try {
+            const stateRes = await fetch('/chatroom/api/chat/state');
+            const state = await stateRes.json();
+            sessionRunning = !!state.isRunning;
+        } catch {}
+
+        if (sessionRunning) {
+            const nudge = promptUsed
+                ? `I just generated an image from this prompt: "${promptUsed}". Please critique it and propose a refined prompt I should try next.`
+                : `I just attached a generated image. Please critique it and propose a refined prompt I should try next.`;
+            try {
+                await fetch('/chatroom/api/chat/inject', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ content: nudge, senderName: 'User' }),
+                });
+            } catch {}
+        }
+
+        // Step 3: open Agent Studio so the user sees the conversation
+        if (!window.agentStudio) {
+            try {
+                window.agentStudio = new window.AgentStudio(this);
+                await window.agentStudio.init();
+            } catch (err) {
+                return this.showToast(`Couldn't open Agent Studio: ${err.message}`, 'error');
+            }
+        }
+        window.agentStudio.open();
+
+        this.showToast(
+            sessionRunning
+                ? 'Image attached + agents notified →'
+                : 'Image attached as reference. Set a goal and start the session →',
+            'success'
+        );
     }
 
     async generateImage() {

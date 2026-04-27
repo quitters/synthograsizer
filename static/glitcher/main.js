@@ -2009,8 +2009,13 @@ class GlitcherApp {
     if (this.canvasManager.feedbackEnabled && this.canvasManager.feedbackBuffer) {
       this.canvasManager.applyFeedbackBlend();
     } else if (!this.canvasManager.feedbackEnabled) {
-      // Standard behavior: reset to clean source each frame
-      this.canvasManager.glitchImageData = copyImageData(this.canvasManager.originalImageData);
+      // Animated media: reset to the new source frame so each frame starts clean.
+      // Static images: do NOT reset — destructive effects (direction, spiral, sort, slice)
+      // are meant to accumulate frame-over-frame for a continuously degrading look.
+      if (this.canvasManager.animationMode) {
+        this.canvasManager.glitchImageData = copyImageData(this.canvasManager.originalImageData);
+      }
+      // For static images glitchImageData persists; effects compound naturally.
     }
 
     // Process effects based on current mode

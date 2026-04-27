@@ -42,5 +42,14 @@ dist/
 *.log
 
 # Dev References
-docs/
 scope-synthograsizer/
+
+# Internal planning & debug (not for public repo)
+.internal/
+
+# Archive / secondary surfaces (preserved on disk, not tracked)
+static/legacy/
+static/promptcraft/
+static/daw/
+static/fun-stuff/
+static/metadata-manager/

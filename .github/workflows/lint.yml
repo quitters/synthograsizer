@@ -1,0 +1,36 @@
+name: Lint
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    name: ESLint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install chatroom deps
+        working-directory: chatroom
+        run: npm ci --ignore-scripts
+
+      - name: Lint chatroom
+        working-directory: chatroom
+        run: npx eslint . --ext .js --max-warnings 0 || true
+
+      - name: Check for console.log in production JS
+        run: |
+          if grep -r "console\.log" static/synthograsizer/js/ \
+               --include="*.js" \
+               --exclude-dir=".internal" \
+               -l | head -5; then
+            echo "⚠ console.log found in production JS (non-blocking)"
+          fi
