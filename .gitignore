@@ -47,6 +47,9 @@ scope-synthograsizer/
 # Internal planning & debug (not for public repo)
 .internal/
 
+# Personal / private templates (not for public repo)
+static/synthograsizer/templates/_private/
+
 # Archive / secondary surfaces (preserved on disk, not tracked)
 static/legacy/
 static/promptcraft/

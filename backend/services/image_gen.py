@@ -242,7 +242,19 @@ def _generate_image_gemini(self, prompt: str, model_name: str, aspect_ratio: str
             break
 
     if image_b64 is None:
-        raise Exception("No image found in Gemini response (Candidates examined but no image part found)")
+        # Log finish reasons and any text content to aid debugging
+        finish_reasons = [
+            str(getattr(c, "finish_reason", "unknown")) for c in response.candidates
+        ]
+        logger.warning(
+            "No image part found in Gemini response. finish_reasons=%s model=%s text_content=%r",
+            finish_reasons, model_name, text_out,
+        )
+        if text_out:
+            raise Exception(f"Model returned text instead of an image: {text_out.strip()[:300]}")
+        raise Exception(
+            f"No image found in Gemini response (finish_reasons={finish_reasons})"
+        )
 
     # Preserve historical contract: bare base64 string when there's no text,
     # dict when the model returned both modalities.
