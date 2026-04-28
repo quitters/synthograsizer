@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="css/code-overlay.css?v=2">
     <link rel="stylesheet" href="css/layout-options.css?v=7">
     <link rel="stylesheet" href="css/synth-hardware-theme.css?v=7">
+    <link rel="stylesheet" href="css/storyboard-panel.css?v=1">
     <link rel="icon" type="image/png" href="assets/favicon.png">
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Quantico:ital,wght@0,400;0,700;1,400;1,700&family=Roboto+Mono:wght@300;400;500;600;700&display=swap"
@@ -180,6 +181,58 @@
 }
 .primary-btn:hover  { filter: brightness(1.05); }
 .primary-btn:active { filter: brightness(0.95); transform: translate(2px,2px); box-shadow: none !important; }
+
+/* Beat Navigator */
+.beat-navigator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 8px 16px 4px;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.03em;
+  color: #888;
+  border-bottom: 1px solid rgba(0,0,0,0.07);
+}
+.beat-nav-arrow {
+  background: none;
+  border: 1px solid rgba(0,0,0,0.18);
+  border-radius: 4px;
+  padding: 2px 11px;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1.4;
+  color: #555;
+  transition: opacity 0.1s;
+}
+.beat-nav-arrow:hover:not(:disabled) { background: rgba(0,0,0,0.05); }
+.beat-nav-arrow:disabled { opacity: 0.25; cursor: default; }
+.beat-nav-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  min-width: 220px;
+  text-align: center;
+}
+.beat-nav-dots {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.beat-nav-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.15);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.15s, transform 0.1s;
+}
+.beat-nav-dot:hover { transform: scale(1.3); }
+.beat-nav-dot.active { background: #5b8dd9; }
     </style>
     <style id="v6-p5-modal-styles">
 /* ── P5.js In-Page Modal ───────────────────────────────────── */
@@ -231,6 +284,7 @@
 .p5-canvas-area-v6 {
   height: 380px; background: #0a0a0a; overflow: hidden;
   position: relative; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
 }
 .p5-canvas-area-v6 iframe { width: 100%; height: 100%; border: none; display: block; }
 .p5-placeholder-v6 {
@@ -266,6 +320,8 @@
 }
 .p5-size-btn-v6:hover { background: rgba(255,255,255,.7); }
 .p5-size-btn-v6.active { background: rgba(0,0,0,.75); color: #fff; border-color: transparent; }
+.p5-size-btn-v6#p5-size-fit-btn { color: #7fffb2; border-color: rgba(127,255,178,.35); }
+.p5-size-btn-v6#p5-size-fit-btn.active { background: rgba(127,255,178,.85); color: #000; border-color: transparent; }
 /* FX Drawer */
 .p5-fx-drawer {
   background: #111; border-top: 1px solid #2a2a3a;
@@ -350,6 +406,16 @@
                     <div id="output-history-list" class="output-history-list"></div>
                 </div>
             </section>
+
+            <!-- Beat Navigator (story mode only) -->
+            <div id="beat-navigator" class="beat-navigator" style="display:none">
+              <button id="beat-nav-prev" class="beat-nav-arrow" aria-label="Previous beat">&#8592;</button>
+              <div class="beat-nav-info">
+                <span id="beat-nav-label"></span>
+                <div id="beat-nav-dots" class="beat-nav-dots"></div>
+              </div>
+              <button id="beat-nav-next" class="beat-nav-arrow" aria-label="Next beat">&#8594;</button>
+            </div>
 
             <!-- Primary Action Buttons -->
             <section class="primary-actions-section">
@@ -791,6 +857,24 @@
                 aria-label="Select JSON file to import">
         </div>
 
+        <!-- Storyboard Panel Overlay -->
+        <div class="batch-modal-overlay" id="storyboard-overlay" style="display:none;">
+            <div class="storyboard-panel" id="storyboard-panel">
+                <div class="storyboard-header">
+                    <h2 class="storyboard-title" id="storyboard-title">Storyboard</h2>
+                    <div class="storyboard-header-meta" id="storyboard-meta"></div>
+                    <button class="batch-close-btn" id="storyboard-close" aria-label="Close storyboard">&times;</button>
+                </div>
+                <div class="storyboard-body" id="storyboard-body">
+                    <!-- Act groups and beat cards injected by storyboard-panel.js -->
+                </div>
+                <div class="storyboard-footer">
+                    <button class="storyboard-btn storyboard-btn-secondary" id="storyboard-export-json">Export Story JSON</button>
+                    <button class="storyboard-btn storyboard-btn-primary" id="storyboard-generate-all">▶ Generate All Beats</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Batch Generation Modal -->
         <div class="batch-modal-overlay" id="batch-modal-overlay">
             <div class="batch-modal">
@@ -1204,7 +1288,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
 
         <!-- Load app as ES6 module -->
-        <script type="module" src="js/app.js?v=21"></script>
+        <script type="module" src="js/app.js?v=22"></script>
         <script src="js/music-studio.js?v=2"></script>
         <script src="../metadata-manager/js/utils/metadata_extractor.js"></script>
         <script src="js/workflow-runner.js?v=5"></script>
@@ -1319,6 +1403,7 @@
                     <button class="p5-size-btn-v6 active" data-w="520" data-h="380">SM</button>
                     <button class="p5-size-btn-v6" data-w="720" data-h="540">MD</button>
                     <button class="p5-size-btn-v6" data-w="960" data-h="700">LG</button>
+                    <button class="p5-size-btn-v6" id="p5-size-fit-btn" title="Fit viewer to canvas native size">FIT</button>
                 </div>
             </div>
         </div>
@@ -1342,6 +1427,31 @@
 
             var isOpen = false, isPlaying = false, currentCode = null;
             var _tplName = 'P5.js Canvas';
+            var _canvasNativeW = 0, _canvasNativeH = 0;
+
+            /* ── Smart scale: fit canvas into current viewer without clipping ── */
+            function applySmartScale() {
+                if (!_canvasNativeW || !_canvasNativeH) return;
+                var canvasArea = document.getElementById('p5-canvas-area-v6');
+                var aW = canvasArea.clientWidth;
+                var aH = canvasArea.clientHeight;
+                var s = Math.min(1.0, Math.min(aW / _canvasNativeW, aH / _canvasNativeH));
+                try { iframe.contentWindow.postMessage({ p5CssScale: s }, '*'); } catch(e){}
+            }
+
+            /* ── Receive canvas native dimensions from iframe ── */
+            window.addEventListener('message', function(e) {
+                if (e.source !== iframe.contentWindow) return;
+                if (!e.data || !e.data.p5CanvasSize) return;
+                var sz = e.data.p5CanvasSize;
+                if (!sz.w || !sz.h) return;
+                _canvasNativeW = sz.w;
+                _canvasNativeH = sz.h;
+                // Update FIT button tooltip
+                var fitBtn = document.getElementById('p5-size-fit-btn');
+                if (fitBtn) fitBtn.title = 'Fit viewer to canvas (' + sz.w + '×' + sz.h + ')';
+                applySmartScale();
+            });
 
             /* Capture template name when a card is selected */
             var pickerBody = document.getElementById('template-picker-body');
@@ -1381,15 +1491,33 @@
             function buildSrcdoc(code, vars) {
                 var varJson = JSON.stringify(vars || {});
                 return '<!DOCTYPE html><html><head><meta charset="utf-8">' +
-                    '<style>*{margin:0;padding:0;overflow:hidden;}canvas{display:block;}</style>' +
+                    '<style>' +
+                    '*{margin:0;padding:0;}' +
+                    'html,body{width:100%;height:100%;overflow:hidden;background:#0a0a0a;}' +
+                    'body{display:flex;align-items:center;justify-content:center;}' +
+                    'canvas{display:block;flex-shrink:0;}' +
+                    '<\/style>' +
                     '<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"><\/script>' +
                     '</head><body><script>' +
                     'var __sv=' + varJson + ';' +
-                    'window.addEventListener("message",function(e){if(e.data&&e.data.synthVars)__sv=e.data.synthVars;});' +
+                    'window.addEventListener("message",function(e){' +
+                    '  if(!e.data)return;' +
+                    '  if(e.data.synthVars)__sv=e.data.synthVars;' +
+                    '  if(e.data.p5CssScale!==undefined){' +
+                    '    var c=document.querySelector("canvas");' +
+                    '    if(c){c.style.transformOrigin="center center";c.style.transform="scale("+e.data.p5CssScale+")";}' +
+                    '  }' +
+                    '});' +
                     'new p5(function(p){' +
                     'p.getSynthVar=function(k){return(__sv&&k in __sv)?__sv[k]:null;};' +
                     code +
                     '});' +
+                    // After p5 setup runs, post canvas native dimensions to parent
+                    '(function(){var _tries=0;function _poll(){' +
+                    'var c=document.querySelector("canvas");' +
+                    'if(c&&c.width>0&&c.height>0){window.parent.postMessage({p5CanvasSize:{w:c.width,h:c.height}},"*");return;}' +
+                    'if(++_tries<120)requestAnimationFrame(_poll);}' +
+                    'requestAnimationFrame(_poll);})();' +
                     '<\/script></body></html>';
             }
 
@@ -1397,6 +1525,7 @@
             function play() {
                 var code = getP5Code();
                 if (!code) { updateHint(); return; }
+                _canvasNativeW = 0; _canvasNativeH = 0; // reset — will be re-reported by new iframe
                 currentCode = code;
                 titleEl.textContent = getTemplateName();
                 iframe.srcdoc = buildSrcdoc(code, getVarSnap());
@@ -1478,16 +1607,33 @@
             btnRestart.addEventListener('click', function () { stop(); play(); });
             btnClose.addEventListener('click', closeModal);
 
-            /* ── Size buttons ── */
-            document.querySelectorAll('.p5-size-btn-v6').forEach(function (btn) {
+            /* ── Size buttons (SM / MD / LG) ── */
+            document.querySelectorAll('.p5-size-btn-v6[data-w]').forEach(function (btn) {
                 btn.addEventListener('click', function () {
                     document.querySelectorAll('.p5-size-btn-v6').forEach(function (b) { b.classList.remove('active'); });
                     btn.classList.add('active');
                     modal.style.width  = btn.dataset.w + 'px';
                     var canvasArea = document.getElementById('p5-canvas-area-v6');
                     if (canvasArea) canvasArea.style.height = btn.dataset.h + 'px';
+                    // Re-run smart scale for new viewer dimensions
+                    setTimeout(applySmartScale, 0);
                 });
             });
+
+            /* ── FIT button: resize viewer to canvas native size ── */
+            var fitBtn = document.getElementById('p5-size-fit-btn');
+            if (fitBtn) {
+                fitBtn.addEventListener('click', function () {
+                    if (!_canvasNativeW || !_canvasNativeH) return;
+                    document.querySelectorAll('.p5-size-btn-v6').forEach(function (b) { b.classList.remove('active'); });
+                    fitBtn.classList.add('active');
+                    modal.style.width  = _canvasNativeW + 'px';
+                    var canvasArea = document.getElementById('p5-canvas-area-v6');
+                    if (canvasArea) canvasArea.style.height = _canvasNativeH + 'px';
+                    // Viewer now matches canvas exactly — scale = 1
+                    try { iframe.contentWindow.postMessage({ p5CssScale: 1 }, '*'); } catch(e){}
+                });
+            }
 
             /* ── Drag ── */
             var dragX = 0, dragY = 0, winX = 0, winY = 0, dragging = false;

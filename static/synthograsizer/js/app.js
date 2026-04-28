@@ -2,7 +2,7 @@
 
 import { DEFAULT_CONFIG, ERROR_MESSAGES } from './config.js';
 import { TextRenderer } from './text-renderer.js?v=2';
-import { BatchGenerator } from './batch-generator.js';
+import { BatchGenerator } from './batch-generator.js?v=2';
 import { TemplateLoader } from './template-loader.js';
 import { CodeOverlayManager } from './code-overlay-manager.js?v=6';
 import { normalizeTemplate, getValueText, getValueWeight, getWeightsArray, computeTemplateFingerprint, generateTagId } from './template-normalizer.js?v=2';
@@ -13,6 +13,8 @@ import { ScopeVideoClient } from './scope-video-client.js?v=6';
 import { ScopeConnector } from './scope-connector.js';
 import { DisplayBroadcaster } from './display-broadcaster.js';
 import { GlitcherControls } from './glitcher-controls.js';
+import { StoryboardPanel } from './storyboard-panel.js?v=2';
+import { StoryEngine, isBespokeStoryTemplate } from './story-engine.js?v=2';
 
 // Expose fingerprint + tag utilities globally for non-module scripts (e.g. studio-integration.js)
 window.__computeTemplateFingerprint = computeTemplateFingerprint;
@@ -42,6 +44,9 @@ export class SynthograsizerSmall {
     this.scopeConnector = null;   // ScopeConnector instance
     this.displayBroadcaster = null; // DisplayBroadcaster instance
     this.glitcherControls = null; // GlitcherControls instance
+    this.storyboardPanel = null; // StoryboardPanel instance
+    this.storySequence = null;   // Array of beat entries when bespoke story template is active
+    this.currentBeatIndex = 0;
     this.outputHistory = []; // [{text, values, mediaSrc, mediaType, time}] — last 10 generated
     this._historyThumbsVisible = false;
 
@@ -151,6 +156,12 @@ export class SynthograsizerSmall {
 
       // Initialize Glitcher Controls
       this._initGlitcherControls();
+
+      // Initialize Storyboard Panel
+      this._initStoryboardPanel();
+
+      // Initialize Beat Navigator
+      this._initBeatNavigator();
 
       // Initialize hide-inactive connections toggle
       this._initHideInactiveToggle();
@@ -455,6 +466,12 @@ export class SynthograsizerSmall {
 
       // Auto-save template to JSON directory (fire and forget - don't block UI)
       this.autoSaveTemplate(template);
+
+      // Show/hide Storyboard button based on template type
+      this._updateStoryboardButton(template);
+
+      // Show/hide beat navigator based on template type
+      this._updateBeatNavigator(template);
 
       return true;
 
@@ -770,6 +787,13 @@ export class SynthograsizerSmall {
       }
     }
 
+    // Story mode: left/right navigate beats instead of cycling values
+    if (this.storySequence && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
+      e.preventDefault();
+      this.navigateBeat(e.key === 'ArrowLeft' ? -1 : 1);
+      return;
+    }
+
     if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
       e.preventDefault();
 
@@ -1078,6 +1102,18 @@ export class SynthograsizerSmall {
   generateOutput() {
     if (this.isEditingTemplate) return; // don't clobber while user is typing
     if (!this.currentTemplate) {
+      return;
+    }
+
+    // Story mode: re-expand all beats with current knob values and display the active beat
+    if (this.storySequence) {
+      const engine = new StoryEngine(this.currentTemplate);
+      this.storySequence = engine.generateSequence({ knobValues: this._buildKnobValues() });
+      this.renderBeatNavigator();
+      const text = this.storySequence[this.currentBeatIndex]?.text || '';
+      if (this.osc) this.osc.debouncedSendPrompt(text);
+      if (this.scopeVideo?.isStreaming) this.scopeVideo.sendPromptUpdate(text);
+      if (this.displayBroadcaster) this.displayBroadcaster.sendVarsUpdate(this.displayBroadcaster._buildVars());
       return;
     }
 
@@ -1967,6 +2003,130 @@ export class SynthograsizerSmall {
 
   _initGlitcherControls() {
     this.glitcherControls = new GlitcherControls(this);
+  }
+
+  _initStoryboardPanel() {
+    this.storyboardPanel = new StoryboardPanel(this);
+
+    // The "Open Storyboard" button is added dynamically to the toolbar
+    // when a bespoke-beat template is loaded (see _updateStoryboardButton).
+  }
+
+  _initBeatNavigator() {
+    document.getElementById('beat-nav-prev')?.addEventListener('click', () => this.navigateBeat(-1));
+    document.getElementById('beat-nav-next')?.addEventListener('click', () => this.navigateBeat(1));
+  }
+
+  _updateBeatNavigator(template) {
+    const nav = document.getElementById('beat-navigator');
+    if (!nav) return;
+
+    if (isBespokeStoryTemplate(template)) {
+      const engine = new StoryEngine(template);
+      this.storySequence = engine.generateSequence({ knobValues: this._buildKnobValues() });
+      this.currentBeatIndex = 0;
+      nav.style.display = '';
+      this.renderBeatNavigator();
+    } else {
+      this.storySequence = null;
+      this.currentBeatIndex = 0;
+      nav.style.display = 'none';
+    }
+  }
+
+  _buildKnobValues() {
+    const knobValues = {};
+    this.variables.forEach(v => {
+      const idx = this.currentValues[v.name];
+      if (idx !== undefined && v.values?.[idx] !== undefined) {
+        knobValues[v.name] = getValueText(v.values[idx]);
+      }
+    });
+    return knobValues;
+  }
+
+  renderBeatNavigator() {
+    if (!this.storySequence) return;
+    const total = this.storySequence.length;
+    const idx = this.currentBeatIndex;
+    const entry = this.storySequence[idx];
+    if (!entry) return;
+
+    const label = document.getElementById('beat-nav-label');
+    if (label) {
+      const parts = [`Beat ${idx + 1} of ${total}`];
+      if (entry.act && entry.act !== 'Unassigned') parts.push(entry.act);
+      if (entry.shot) parts.push(entry.shot);
+      label.textContent = parts.join(' · ');
+    }
+
+    const dotsContainer = document.getElementById('beat-nav-dots');
+    if (dotsContainer) {
+      dotsContainer.innerHTML = '';
+      this.storySequence.forEach((_, i) => {
+        const dot = document.createElement('button');
+        dot.className = 'beat-nav-dot' + (i === idx ? ' active' : '');
+        dot.setAttribute('aria-label', `Beat ${i + 1}`);
+        dot.addEventListener('click', () => {
+          this.currentBeatIndex = i;
+          this.renderBeatNavigator();
+        });
+        dotsContainer.appendChild(dot);
+      });
+    }
+
+    const prevBtn = document.getElementById('beat-nav-prev');
+    const nextBtn = document.getElementById('beat-nav-next');
+    if (prevBtn) prevBtn.disabled = idx === 0;
+    if (nextBtn) nextBtn.disabled = idx === total - 1;
+
+    const safeText = entry.text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    this.textRenderer.updateDisplay(`<span class="beat-text">${safeText}</span>`);
+    this.renderTagBadges();
+    this.saveStateToStorage();
+  }
+
+  navigateBeat(delta) {
+    if (!this.storySequence) return;
+    const next = this.currentBeatIndex + delta;
+    if (next < 0 || next >= this.storySequence.length) return;
+    this.currentBeatIndex = next;
+    this.renderBeatNavigator();
+  }
+
+  /**
+   * Show or hide the "Open Storyboard" button based on whether the loaded
+   * template is a bespoke-beat story template.
+   */
+  _updateStoryboardButton(template) {
+    let btn = document.getElementById('open-storyboard-btn');
+
+    if (isBespokeStoryTemplate(template)) {
+      // Create button if it doesn't exist
+      if (!btn) {
+        btn = document.createElement('button');
+        btn.id = 'open-storyboard-btn';
+        btn.className = 'storyboard-open-btn';
+        btn.title = 'Open Storyboard';
+        btn.innerHTML = '🎬 Storyboard';
+        btn.addEventListener('click', () => this.storyboardPanel?.open());
+
+        // Insert into the toolbar area (near batch/export buttons)
+        const toolbar = document.querySelector('.template-actions')
+                     || document.querySelector('.header-row');
+        if (toolbar) {
+          toolbar.appendChild(btn);
+        } else {
+          // Fallback: insert before the batch modal
+          const batchOverlay = document.getElementById('batch-modal-overlay');
+          if (batchOverlay) batchOverlay.parentNode.insertBefore(btn, batchOverlay);
+        }
+      }
+      btn.style.display = '';
+    } else {
+      // Hide the button if it exists
+      if (btn) btn.style.display = 'none';
+    }
   }
 
   _initHistoryStrip() {
