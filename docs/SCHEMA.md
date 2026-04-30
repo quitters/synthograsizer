@@ -16,6 +16,7 @@
 6. [Batch Export Formats](#6-batch-export-formats)
 7. [Backend API Models](#7-backend-api-models)
 8. [LLM Template Generation Instructions](#8-llm-template-generation-instructions)
+   - [8.8 p5.js Mode System Prompt & Runtime Contract](#88-p5js-mode-system-prompt--runtime-contract)
 9. [Template Normalization](#9-template-normalization)
 10. [Validation](#10-validation)
 11. [Migration Guide: Legacy to Canonical](#11-migration-guide-legacy-to-canonical)
@@ -63,7 +64,7 @@ All tiers share the same base structure. The `story` and `_promptcraft` blocks a
 | `promptTemplate` | `string` | Yes | Natural language sentence with `{{variable_name}}` placeholders. Must read naturally with any combination of substituted values. |
 | `variables` | `Variable[]` | Yes | Array of variable definitions. Can be empty for blank templates. Maximum 20 variables (configurable via `maxKnobs`). |
 | `tags` | `Tag[]` | No | Provenance metadata for lineage tracking. See [Section 2.4](#24-tags-and-provenance). |
-| `p5Code` | `string` | No | Embedded p5.js sketch code (used by some legacy templates for visual effects). |
+| `p5Code` | `string` | No | Embedded p5.js sketch code. When present, the template runs a live animated canvas in the P5 viewer rather than producing AI image prompts. The sketch reads variable values in real time via `p.getSynthVar()`. See [Section 8.8](#88-p5js-mode-system-prompt--runtime-contract) for the code contract. |
 | `story` | `object` | No | Story Engine narrative structure. See [Section 4](#4-story-template-schema). |
 | `_promptcraft` | `object` | No | PromptCraft 16-step sequencer state. See [Section 5](#5-promptcraft-sequencer-schema). |
 
@@ -268,16 +269,42 @@ The story schema extends a base template with narrative structure for sequential
 
 ### 4.1 Top-Level Structure
 
-A story template has all base template fields plus a `story` object:
+A story template has all base template fields plus a `story` object. There are two supported schemas for the `story` block: **Bespoke-Beat** (new canonical format) and **Legacy Acts**.
+
+#### Bespoke-Beat Schema (Canonical)
+
+The bespoke-beat schema generates an array of distinct, sequential beats, each with its own bespoke prompt, shot composition, and purpose. It maintains continuity using shared global anchors.
 
 ```jsonc
 {
-  "promptTemplate": "A {{shot_type}} of {{character}} in {{environment}}, {{mood}} atmosphere, {{lighting}}",
+  "promptTemplate": "", // Empty or ignored in bespoke mode
+  "variables": [],      // Optional global knob-twist variables
+  "story": {
+    "title": "High Noon Showdown",
+    "duration_seconds": 96,
+    "beat_duration_seconds": 8,
+    "anchors": {
+      "world": "A dusty 1880s frontier town with weathered wooden storefronts and tumbleweeds.",
+      "style": "Cinematic lighting, 35mm film grain, anamorphic lens flare, gritty Western aesthetic."
+    },
+    "characters": [ /* character anchors */ ],
+    "beats": [ /* narrative sequence of bespoke beats */ ]
+  }
+}
+```
+
+#### Legacy Acts Schema (Deprecated)
+
+The legacy schema uses a single shared `promptTemplate` and varies the values rolled for each act via locks and biases.
+
+```jsonc
+{
+  "promptTemplate": "A {{shot_type}} of {{character}} in {{environment}}, {{mood}} atmosphere.",
   "variables": [ /* standard variables */ ],
   "story": {
     "title": "The Wanderer's Journey",
     "characters": [ /* character anchors */ ],
-    "acts": [ /* narrative structure */ ],
+    "acts": [ /* pacing structure */ ],
     "progressions": [ /* variable evolution arcs */ ]
   }
 }
@@ -305,13 +332,54 @@ Named entities with fixed visual descriptions for continuity across all beats.
 
 | Field | Type | Required | Rules |
 |-------|------|----------|-------|
-| `id` | `string` | Yes | `snake_case` identifier. Used in act locks: `{"character": "wanderer"}`. Auto-derived from `name` if omitted. |
+| `id` | `string` | Yes | `snake_case` identifier. Used in the `characters` array of bespoke beats, or act locks. Auto-derived from `name` if omitted. |
 | `name` | `string` | Yes | Display name. Defaults to `"Unnamed Character"`. |
 | `anchors` | `string` | Yes | 50-100 word visual description that stays **constant** across all frames. This is the continuity anchor — include physical appearance, clothing/armor, distinctive features, color palette. Be specific enough for AI image generation to maintain visual consistency. |
 
-If the template has a `{{character}}` variable, the engine substitutes the selected character's `anchors` text.
+In legacy templates, if the template has a `{{character}}` variable, the engine substitutes the selected character's `anchors` text. In bespoke templates, the `{{id}}` is substituted with the anchors text wherever it appears in a beat's `prompt`.
 
-### 4.4 story.acts
+### 4.4 story.anchors (Bespoke Schema Only)
+
+Shared environmental and stylistic constants for bespoke-beat templates.
+
+```jsonc
+{
+  "world": "A neon-lit cyberpunk metropolis bathed in perpetual rain...",
+  "style": "Syd Mead concept art, high-contrast chiaroscuro, vivid synthwave colors..."
+}
+```
+
+| Field | Type | Required | Rules |
+|-------|------|----------|-------|
+| `(any)` | `string` | No | Map of `snake_case` keys to 30-80 word descriptions. Common keys are `world`, `style`, `lighting`. These are substituted whenever `{{key}}` appears in a beat's `prompt`. |
+
+### 4.5 story.beats (Bespoke Schema Only)
+
+The sequence of individual narrative moments.
+
+```jsonc
+{
+  "id": 1,
+  "act": "Act 1 - Arrival",
+  "shot": "Wide establishing shot",
+  "purpose": "Establish the setting and mood",
+  "prompt": "A wide establishing shot of {{world}}, looking down an empty dirt street. The air is thick with tension. {{style}}",
+  "characters": []
+}
+```
+
+| Field | Type | Required | Rules |
+|-------|------|----------|-------|
+| `id` | `integer` | Yes | The sequential beat number (1-indexed). |
+| `act` | `string` | Yes | The narrative act this beat belongs to. Used for grouping in the UI. |
+| `shot` | `string` | Yes | The cinematography/framing (e.g., "Close-up", "Low-angle hero shot"). |
+| `purpose` | `string` | Yes | What this beat accomplishes narratively. |
+| `prompt` | `string` | Yes | The bespoke text for this specific moment. Can contain anchor references (e.g., `{{world}}`), character references (e.g., `{{sheriff}}`), and global knob-twist variables. |
+| `characters` | `string[]` | Yes | Array of character `id`s featured in this beat. |
+
+### 4.6 story.acts & story.progressions (Legacy Schema Only)
+
+In the legacy schema, the narrative structure is defined by acts and progressions instead of an array of distinct beats.
 
 The narrative structure. Each act defines a segment of the story with its own constraints.
 
@@ -629,43 +697,47 @@ Designed for import into the AI Studio Batch Image Generation tool:
 
 ### 6.5 Story JSON
 
-Available when Story Mode is active. Groups beats by act:
+Available when Story Mode is active or from the Storyboard Panel. Groups beats by act. The bespoke format includes additional metadata:
 
 ```json
 {
-  "story_name": "The Wanderer's Journey",
+  "story_name": "High Noon Showdown",
   "source": "synthograsizer-story-engine",
-  "description": "Story sequence: The Wanderer's Journey",
-  "total_beats": 14,
+  "description": "Story sequence: High Noon Showdown",
+  "total_beats": 12,
+  "duration_seconds": 96,          // Bespoke only
+  "beat_duration_seconds": 8,      // Bespoke only
+  "anchors": {                     // Bespoke only
+    "world": "A dusty 1880s frontier town...",
+    "style": "Cinematic lighting, 35mm film grain..."
+  },
   "characters": [
     {
-      "id": "wanderer",
-      "name": "The Wanderer",
-      "anchors": "a solitary traveler in a weathered dark green hooded cloak..."
+      "id": "sheriff",
+      "name": "Sheriff",
+      "anchors": "A tall man in a weathered duster..."
     }
   ],
   "acts": [
     {
-      "name": "Act 1 - The Threshold",
+      "name": "Act 1 - Arrival",
       "beats": [
         {
           "beat": 1,
-          "prompt": "A wide establishing shot of a solitary traveler...",
-          "variables": {
-            "shot_type": "wide establishing shot",
-            "character": "a solitary traveler in a weathered dark green hooded cloak...",
-            "environment": "ancient stone ruins",
-            "mood": "mysterious",
-            "lighting": "soft dawn glow",
-            "detail": "dust motes floating in light beams"
-          }
+          "shot": "Wide establishing shot",             // Bespoke only
+          "purpose": "Establish the setting",           // Bespoke only
+          "prompt": "A wide establishing shot of A dusty 1880s frontier town...",
+          "characters": ["sheriff"],                    // Bespoke only
+          "variables": {},
+          "image": "data:image/png;base64,...",         // Exported from Storyboard Panel
+          "video": "https://..."                        // Exported from Storyboard Panel
         }
       ]
     }
   ],
   "flat_prompts": [
-    "A wide establishing shot of a solitary traveler...",
-    "A medium shot of a solitary traveler..."
+    "A wide establishing shot of A dusty 1880s frontier town...",
+    "A close-up of a weathered badge..."
   ],
   "tags": []
 }
@@ -675,10 +747,13 @@ Available when Story Mode is active. Groups beats by act:
 |-------|------|-------------|
 | `story_name` | `string` | From `story.title` or auto-generated timestamp |
 | `source` | `string` | Always `"synthograsizer-story-engine"` |
-| `total_beats` | `integer` | Sum of all act beat counts |
+| `total_beats` | `integer` | Sum of all act beat counts / length of beats array |
+| `duration_seconds` | `integer` | Total sequence duration (Bespoke schema only) |
+| `beat_duration_seconds` | `integer` | Duration per beat (Bespoke schema only) |
+| `anchors` | `object` | Global visual anchors (Bespoke schema only) |
 | `characters` | `array` | Character definitions from the story block |
-| `acts` | `array` | Grouped by act, each containing `name` and `beats[]` with `beat` number, `prompt` text, and `variables` map |
-| `flat_prompts` | `string[]` | All prompts in order, ungrouped |
+| `acts` | `array` | Grouped by act, each containing `name` and `beats[]` with `beat` number, `prompt` text, `variables` map, and bespoke metadata (`shot`, `purpose`, `characters`, `image`, `video`) |
+| `flat_prompts` | `string[]` | All expanded prompts in order, ungrouped |
 | `tags` | `Tag[]` | Provenance tags if present |
 
 ---
@@ -695,18 +770,19 @@ The FastAPI backend (`server.py`) defines Pydantic models for all API requests.
 // Request: TemplateRequest
 {
   "prompt": "Create a template for sci-fi landscapes",   // Text description
-  "mode": "text",           // "text" | "image" | "hybrid" | "multi-image" | "remix" | "workflow" | "story"
+  "mode": "text",           // "text" | "image" | "hybrid" | "multi-image" | "remix" | "workflow" | "story" | "story-beat" | "p5"
   "images": ["base64..."],  // Base64 images (for image/hybrid/multi-image/workflow modes)
-  "current_template": {},   // Existing template JSON (for remix mode)
+  "current_template": {},   // Existing template JSON (for remix/story-beat modes)
   "workflow": {},           // Workflow JSON to curate (for workflow mode)
   "preview": true,          // Include rationale (for workflow mode)
-  "batch": false            // Multiple images = batch curation (for workflow mode)
+  "batch": false,           // Multiple images = batch curation (for workflow mode)
+  "target_beat_id": 3       // Target beat to regenerate (for story-beat mode)
 }
 
 // Response
 {
   "status": "success",
-  "template": { /* normalized canonical template JSON */ }
+  "template": { /* normalized canonical template JSON or single beat object (for story-beat) */ }
 }
 ```
 
@@ -717,10 +793,14 @@ The FastAPI backend (`server.py`) defines Pydantic models for all API requests.
 | `text` | `prompt` only | Generate template from text description |
 | `image` | Single `images[]` entry | Analyze image, generate template matching its aesthetic |
 | `hybrid` | `images[]` + `prompt` | Image defines style baseline, text defines variable structure |
-| `multi-image` | Multiple `images[]` | Extract common patterns across images as fixed text, differences as variables |
+| `multi-image` | Multiple `images[]` (+ optional `prompt` for creative direction) | Extract common patterns across images as fixed text, differences as variables |
 | `remix` | `current_template` + `prompt` | Edit existing template per instructions, preserving unmentioned elements |
 | `workflow` | `workflow` + `images[]` | Curate workflow to match reference image (single-value selection) |
-| `story` | `prompt` only | Generate template with narrative `story` block |
+| `story` | `prompt` only | Generate full bespoke-beat story template |
+| `story-beat` | `current_template` + `target_beat_id` | Regenerate a single specific beat in context of the surrounding story |
+| `p5` | `prompt` (+ optional single `images[]` style reference) | Generate p5.js generative art template with `p5Code` and controllable variables |
+
+> **Frontend routing note:** The Template Generator UI presents a single **Create** tab for modes `text`, `image`, `hybrid`, and `multi-image`. The tab auto-detects the correct mode from what the user provides (text only → `text`; 1 image only → `image`; 1 image + text → `hybrid`; 2+ images → `multi-image`) and dispatches to the same backend endpoint unchanged.
 
 ### 7.2 Image Generation
 
@@ -879,7 +959,7 @@ This section documents the system prompts used to instruct LLMs to generate vali
 
 ### 8.1 Common Rules Across All Prompts
 
-These rules are consistent across all 7+ system prompts in `backend/services/template_engine.py`:
+These rules are consistent across all 8+ system prompts in `backend/services/template_engine.py`:
 
 1. **Output format:** Valid JSON only. No markdown formatting, no explanatory text.
 2. **Response mode:** All LLM calls use `response_mime_type="application/json"` (Gemini JSON mode).
@@ -903,6 +983,7 @@ These rules are consistent across all 7+ system prompts in `backend/services/tem
 | **Remix** | 4-7 | 8-12 | Preserve unmentioned elements. Convert old format to new. |
 | **Story** | 4-7 | 6-12 | Must include `{{character}}` and `{{shot_type}}`. 12-24 total beats. |
 | **Workflow** | Same as input | 1 per variable | Distill to single best-matching value per variable |
+| **p5.js** | 4-7 | 8-12 | Values are descriptive string labels (not raw numbers). Lookup map keys must exactly match `text` values. `p5Code` must be complete and self-contained. |
 
 ### 8.3 Synthograsizer Design Principles
 
@@ -1147,6 +1228,100 @@ Analyze the provided image and create a detailed descriptive prompt following th
 OUTPUT FORMAT:
 Combine all sections into a single flowing prompt of 50-150 words, written in a natural descriptive style (not bullet points). Use precise, evocative terminology that would help a text-to-image AI understand exactly what to generate. Avoid subjective judgments — focus on observable, reproducible qualities.
 ```
+
+### 8.8 p5.js Mode System Prompt & Runtime Contract
+
+Used by `generate_p5_template()` in `backend/services/template_engine.py`. Produces a template with a `p5Code` field that runs as a live animated canvas in the P5 viewer.
+
+#### Runtime Contract
+
+The sketch executes inside a sandboxed iframe in **p5.js instance mode** (v1.9.4). The user's code is wrapped automatically:
+
+```javascript
+new p5(function(p) { /* YOUR p5Code HERE */ });
+```
+
+| Contract Rule | Detail |
+|---|---|
+| All p5 built-ins prefixed with `p.` | `p.setup`, `p.draw`, `p.background()`, `p.fill()`, `p.frameCount`, etc. |
+| Variable access | `p.getSynthVar('variable_name')` returns the currently selected string value, or `null` |
+| Live updates | Variables are switched in real time by the user — `p.draw()` re-reads them every frame |
+| Canvas 2D API | `p.drawingContext` exposes the raw Canvas 2D API (`createRadialGradient`, `clip`, etc.) |
+| No external assets | `p.loadImage()` from URLs fails in the sandbox — all visuals must be procedural |
+| Canvas size | Call `p.createCanvas(800, 800)` in `p.setup` (or another fixed size) |
+| Animation | Use `p.frameCount` for time-based motion |
+| No side effects | No `console.log`, no `alert`, no external imports |
+
+#### Required Lookup Map Pattern
+
+Every `getSynthVar` call must have a fallback. Parameter values must be resolved through a const lookup map defined at the top of `p5Code`, not inline:
+
+```javascript
+// ✅ CORRECT — define maps at top, resolve once per frame with fallback
+const PALETTE_MAP = {
+  'warm embers':    [[220,80,40],  [255,160,60], [180,40,20]],
+  'cool arctic':    [[40,120,200], [80,180,240], [20,60,120]],
+  'acid neon':      [[180,255,0],  [0,255,180],  [255,0,180]],
+};
+
+p.draw = function() {
+  var palKey = p.getSynthVar('color_palette') || 'warm embers';
+  var pal    = PALETTE_MAP[palKey] || PALETTE_MAP['warm embers'];
+  p.background(pal[0][0], pal[0][1], pal[0][2]);
+};
+
+// ❌ WRONG — raw numbers as values, no fallback
+p.draw = function() {
+  var r = p.getSynthVar('red_channel');   // returns null on first frame → crash
+  p.background(r, 0, 0);
+};
+```
+
+Lookup map keys **must exactly match** the `text` strings in the template's `variables` array.
+
+#### Output JSON Format
+
+```jsonc
+{
+  "name": "Sketch Name",
+  "promptTemplate": "A {{style_type}} animation with {{color_palette}} and {{motion_style}} movement",
+  "p5Code": "const PALETTE_MAP = {...};\np.setup = function() { p.createCanvas(800,800); };\np.draw = function() { ... };",
+  "variables": [
+    {
+      "name": "color_palette",
+      "feature_name": "Palette",
+      "values": [
+        {"text": "warm embers",    "weight": 3},
+        {"text": "cool arctic",    "weight": 3},
+        {"text": "acid neon",      "weight": 2},
+        {"text": "monochrome ink", "weight": 2},
+        {"text": "deep ocean",     "weight": 2},
+        {"text": "golden hour",    "weight": 1},
+        {"text": "toxic bloom",    "weight": 1},
+        {"text": "midnight rose",  "weight": 1}
+      ]
+    }
+  ]
+}
+```
+
+#### Variable Design Rules (p5.js Mode)
+
+1. **4-7 variables**, each controlling a distinct visual dimension (color, form, motion, density, atmosphere…)
+2. **8-12 values per variable** — descriptive string labels, never raw numbers
+3. **Lookup map keys must exactly match** the `text` values in the variables array
+4. **Adjacent values should produce coherent visual transitions** — good for sequencer stepping
+5. **Weight distribution:** Common = 3, Uncommon = 2, Rare = 1; include 1-2 neutral/broadly compatible values per variable
+
+#### Multimodal Path
+
+When a style reference image is provided, it is sent as the first content part in a multimodal Gemini call:
+
+```
+[image bytes] + "Use the image as a color palette and aesthetic reference for this generative sketch: {user_prompt}"
+```
+
+The model extracts dominant colors and textures from the image and incorporates them into the palette lookup map values and variable names.
 
 ---
 
@@ -1428,4 +1603,4 @@ From `backend/config.py`:
 
 ---
 
-*Last updated: 2026-03-09*
+*Last updated: 2026-04-27*

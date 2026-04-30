@@ -37,7 +37,7 @@ router.get('/stream', (req, res) => {
  * Start the autonomous chat
  */
 router.post('/start', async (req, res) => {
-  const { goal, tokenLimit = 100000 } = req.body;
+  const { goal, tokenLimit = 100000, model } = req.body;
 
   if (!goal) {
     return res.status(400).json({ error: 'Goal is required' });
@@ -50,7 +50,7 @@ router.post('/start', async (req, res) => {
 
   try {
     // Start is async but returns immediately
-    orchestrator.start(goal, tokenLimit);
+    orchestrator.start(goal, tokenLimit, { model });
     res.json({
       success: true,
       message: 'Chat started',

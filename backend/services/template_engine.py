@@ -297,10 +297,11 @@ Each entry in "values" is: {"text": "the value string", "weight": N}
     except Exception as e:
         raise Exception(f"Hybrid template generation failed: {e}")
 
-def generate_template_from_images(self, images_list: list, model_override: str = None) -> str:
+def generate_template_from_images(self, images_list: list, direction: str = None, model_override: str = None) -> str:
     """
     Extract a common aesthetic pattern from multiple images and generate a template.
     Shared traits become fixed text; differences become variables.
+    Optional direction text lets the user steer variable structure and template focus.
     """
     if not self.genai_client:
         raise ValueError("API Key not configured")
@@ -364,6 +365,14 @@ Each entry in "values" is: {"text": "the value string", "weight": N}
 """
 
     combined = "\n\n".join([f"IMAGE {i+1} ANALYSIS:\n{a}" for i, a in enumerate(analyses)])
+
+    # Append optional creative direction from the user
+    if direction:
+        combined += (
+            "\n\n## CREATIVE DIRECTION\n"
+            "The user has also provided this creative direction — use it to shape "
+            "the variable structure and template focus:\n" + direction
+        )
 
     try:
         gen_config = types.GenerateContentConfig(
@@ -456,233 +465,151 @@ Each entry in "values" is: {"text": "the value string", "weight": N}
 
 def generate_story_template(self, user_prompt: str, model_override: str = None) -> str:
     """
-    W16 — Story Template Generator.
-    Generates a Synthograsizer template with a 'story' block that defines
-    characters, acts with beat counts, locks/biases, and progression arcs.
-    Designed for sequential prompt generation with narrative continuity.
+    Story Template Generator — Bespoke-Beat Storyboard Mode.
+    Generates a Synthograsizer template with N narratively distinct per-beat prompts
+    sharing world/character/style anchors. Designed for storyboard-driven
+    short film production (e.g. 12 beats × 8s = 96s).
     """
     if not self.genai_client:
         raise ValueError("API Key not configured")
 
     model = model_override or config.MODEL_TEMPLATE_GEN
 
-    system_prompt = """You are a Story Template Generator for a creative prompt manipulation tool that produces sequential image/video prompts with narrative continuity.
+    # ── Infer target_beats and beat_duration_s from user prompt ──
+    import re as _re
+    beats_match = _re.search(r'(\d+)\s*(?:beats?|clips?|shots?|scenes?|frames?)', user_prompt, _re.IGNORECASE)
+    target_beats = int(beats_match.group(1)) if beats_match else 12
 
-## YOUR ROLE
-You are a screenwriter and art director. The user gives you a story concept. You produce a JSON template that a "story engine" will walk through beat-by-beat to generate a sequence of AI image/video prompts with consistent characters, evolving mood, and structured pacing.
+    dur_match = _re.search(r'(\d+)\s*(?:sec(?:ond)?s?|s)\s*(?:per\s*)?(?:beat|clip|each)', user_prompt, _re.IGNORECASE)
+    beat_duration_s = int(dur_match.group(1)) if dur_match else 8
+
+    total_duration = target_beats * beat_duration_s
+
+    system_prompt = f"""You are a cinematic storyboard writer and art director for an AI short-film tool.
+
+## YOUR TASK
+The user gives you a story concept. You produce a JSON template that drives a visual storyboard:
+- {target_beats} BESPOKE beat prompts (each a unique shot with its own framing, action, and prose)
+- Shared ANCHORS (style, world, palette) substituted into every beat via {{{{anchor_key}}}} placeholders
+- Character descriptions referenced via {{{{character_id}}}} placeholders
+- A 3-act structure mapping beats to acts
+- Optionally 0-3 knob-twist variables for cross-beat tuning
+
+Target: {total_duration}s short film ({target_beats} clips × {beat_duration_s}s each).
 
 ## OUTPUT FORMAT
-You MUST respond with valid JSON only. The JSON has THREE top-level keys:
+Respond with valid JSON only. The JSON has this structure:
 
-{
-  "promptTemplate": "A {{shot_type}} of {{character}} in {{environment}}, {{mood}} atmosphere, {{lighting}}",
-  "variables": [ ...standard variables with values and weights... ],
-  "story": {
-"title": "Story Title",
-"acts": [ ...act definitions... ],
-"characters": [ ...character anchors... ],
-"progressions": [ ...variable arc definitions... ]
-  }
-}
+{{
+  "story": {{
+    "title": "Story Title",
+    "logline": "One-sentence summary of the narrative.",
+    "duration_seconds": {total_duration},
+    "beat_duration_seconds": {beat_duration_s},
 
-## TEMPLATE STRUCTURE (promptTemplate + variables)
-Same rules as standard Synthograsizer templates:
-- promptTemplate: Natural language with {{variable_name}} placeholders
-- variables: Array of variable objects, each with name (snake_case), feature_name (Title Case), and values array
-- Values use nested object format: {"text": "option", "weight": 3}
-- Weight tiers: Common=3, Rare=2, Very Rare=1
+    "anchors": {{
+      "style": "painterly cinematic, oil-painting texture, warm desaturated palette, anamorphic widescreen",
+      "world": "1880s frontier town at sunset, dust-blown empty streets, drifting embers",
+      "palette": "burnt sienna, ochre, deep indigo shadows, gold-leaf highlights"
+    }},
 
-## STORY BLOCK STRUCTURE
+    "characters": [
+      {{
+        "id": "sheriff",
+        "name": "Sheriff Reeves",
+        "anchors": "weathered 50s man, gray-streaked beard, dark duster coat, tarnished tin star badge, leather gun belt, deep-set weary eyes, dust on boots"
+      }}
+    ],
 
-### story.title (string)
-A descriptive title for the narrative.
+    "acts": [
+      {{"name": "Act 1 — The Wait", "beats": [1, 2, 3, 4]}},
+      {{"name": "Act 2 — The Confrontation", "beats": [5, 6, 7, 8]}},
+      {{"name": "Act 3 — The Reckoning", "beats": [9, 10, 11, 12]}}
+    ],
 
-### story.characters (array)
-Named entities with fixed visual descriptions for continuity across all beats.
-Each character has:
-- "id": snake_case identifier (e.g., "protagonist", "mentor", "rival")
-- "name": Human-readable name (e.g., "The Green Knight")
-- "anchors": Detailed visual description that stays CONSTANT across all frames.
-  This is the continuity anchor — it should include: physical appearance, clothing/armor,
-  distinctive features, color palette. Be specific enough for AI image generation to
-  maintain visual consistency. (50-100 words)
+    "beats": [
+      {{
+        "id": 1,
+        "shot": "Wide establishing",
+        "purpose": "Set the world. Empty street, sense of dread.",
+        "prompt": "Wide establishing shot of {{{{world}}}}. Street is empty. Weather-vane creaking, tumbleweed drifts past a leaning saloon sign. {{{{style}}}}.",
+        "characters": []
+      }},
+      {{
+        "id": 2,
+        "shot": "Medium tracking",
+        "purpose": "Introduce the sheriff. Show his readiness.",
+        "prompt": "Medium tracking shot of {{{{sheriff}}}} walking down the empty street, hand near holster, eyes fixed forward, dust kicking from boots. {{{{world}}}}. {{{{style}}}}.",
+        "characters": ["sheriff"]
+      }}
+    ]
+  }},
 
-If the template has a {{character}} variable, the engine will substitute the character's
-anchor text. Characters can also be locked per-act via the locks system.
+  "promptTemplate": "{{{{__beat__}}}} | tension: {{{{tension}}}}",
+  "variables": [
+    {{
+      "name": "tension",
+      "feature_name": "Tension",
+      "values": [
+        {{"text": "uneasy quiet", "weight": 3}},
+        {{"text": "rising dread", "weight": 2}},
+        {{"text": "razor-edge stillness", "weight": 1}}
+      ]
+    }}
+  ]
+}}
 
-### story.acts (array)
-The narrative structure. Each act defines a segment of the story with its own constraints.
-Each act has:
-- "name": Display name (e.g., "Act 1 - The Arrival")
-- "beats": Integer count of how many prompts this act produces (typically 2-8)
-- "locks": Object mapping variable_name → forced_value for this act.
-  Locks override all other selection logic. Use for atmospheric anchoring.
-  Example: {"lighting": "golden hour dawn", "mood": "anticipation"}
-  For characters: {"character": "protagonist"} (uses character ID)
-- "biases": Object mapping variable_name → array of preferred values.
-  The engine picks randomly from this subset instead of the full variable values.
-  Example: {"environment": ["castle gates", "tournament grounds"]}
+## ANCHOR RULES
+- story.anchors MUST include "style" and "world". "palette" is optional.
+- Each anchor is a dense, AI-image-generator-ready phrase (30-80 words).
+- Anchors are substituted into every beat via {{{{style}}}}, {{{{world}}}}, {{{{palette}}}} placeholders.
+- They ensure visual consistency across all beats without repeating the same sentence structure.
 
-### story.progressions (array)
-Variables that evolve across the ENTIRE story (not per-act).
-Each progression has:
-- "variable": The variable name this progression controls
-- "arc": Array of string values representing the evolution from start to end.
-  The engine maps global progress (0.0 → 1.0) to the closest arc step.
-  Example: {"variable": "lighting", "arc": ["golden dawn", "harsh midday", "dramatic clouds", "golden sunset"]}
+## CHARACTER RULES
+- Each character has "id" (snake_case), "name", and "anchors" (50-100 word visual description).
+- Characters are referenced in beat prompts via {{{{character_id}}}} (e.g. {{{{sheriff}}}}).
+- The "characters" array in each beat lists which character IDs appear in that beat.
 
-Progressions OVERRIDE act locks and biases for that variable. Use them for
-story-wide arcs like time-of-day, emotional escalation, or visual transformation.
+## BEAT RULES — CRITICAL
+- Write EXACTLY {target_beats} beat objects in story.beats[].
+- Each beat MUST have a UNIQUE, BESPOKE prompt — different shot type, different framing, different action.
+- Each beat must advance the story. No two beats should describe the same moment.
+- Each beat prompt should reference shared anchors via {{{{style}}}}, {{{{world}}}} etc.
+- Each beat prompt should reference characters via {{{{character_id}}}}.
+- Vary shot types across beats: wide, medium, close-up, POV, low-angle, overhead, tracking, etc.
+- Each beat has a clear "purpose" — what narrative function it serves.
 
-## DESIGN PRINCIPLES
+### POSITIVE EXAMPLE (GOOD — each beat is distinct):
+Beat 1: "Wide establishing shot of {{{{world}}}}. Street is empty."
+Beat 2: "Medium tracking shot of {{{{sheriff}}}} walking down the street."
+Beat 3: "Close-up of {{{{sheriff}}}}'s hand hovering over holster."
+Beat 4: "POV from a saloon window — dust swirls, a figure approaches."
 
-1. **Limitation Breeds Creativity**: The story structure constrains the generative space
-   just enough to maintain continuity while leaving room for surprise. Don't over-specify —
-   lock only what MUST stay consistent, bias what SHOULD lean a certain way, and let
-   everything else be free.
+### NEGATIVE EXAMPLE (BAD — do NOT do this):
+Beat 1: "A shot of {{{{character}}}} in {{{{environment}}}}, {{{{mood}}}} atmosphere."
+Beat 2: "A shot of {{{{character}}}} in {{{{environment}}}}, {{{{mood}}}} atmosphere."
+Beat 3: "A shot of {{{{character}}}} in {{{{environment}}}}, {{{{mood}}}} atmosphere."
+(Same structure repeated — this defeats the entire purpose of bespoke beats!)
 
-2. **Character Anchors = Continuity**: The anchor text is the single most important element
-   for visual consistency across frames. Be detailed and specific about appearance.
+## ACT RULES
+- Divide {target_beats} beats into 3 acts (or 2-5 if the story warrants).
+- Each act has "name" and "beats" (array of beat IDs belonging to that act).
+- Acts provide narrative pacing: setup → confrontation → resolution.
 
-3. **Acts = Pacing**: Use beat counts to control pacing. Short acts (2-3 beats) for
-   intensity or transitions. Longer acts (5-8 beats) for development and exploration.
-
-4. **Progressions = Story Arcs**: Use progressions for elements that should feel like they
-   evolve over the whole story — lighting (time of day), mood (emotional arc),
-   environment (journey), camera work (escalating intensity).
-   **Style/visual treatment progressions**: When the story involves a genre shift, tonal
-   transformation, or reveal (e.g., epic fantasy → toy photography), express this as a
-   progression on the style variable rather than per-act locks. This creates smoother
-   visual transitions and ensures the shift happens at exactly the right narrative moment.
-
-5. **Total Beats**: Aim for 12-24 total beats. This produces a coherent sequence that
-   works as a slideshow, storyboard, or video sequence. Adjust based on user request.
-
-6. **Climax/Punchline Acts — Lock, Don't Bias**: When a variable's value is essential to the
-   story's climax, punchline, or emotional payoff, use a LOCK — not a bias. Biases are
-   suggestions; locks are guarantees. If the joke depends on "standing frozen in confusion,"
-   that must be a lock. If the drama requires "triumphant," lock it. Reserve biases for
-   variables where variety within a subset is acceptable.
-
-7. **Bias Pool Diversity**: When biasing a variable within an act, include at least 2-3
-   options so the engine has room to avoid repetition between consecutive beats. The engine
-   has a no-repeat heuristic that re-rolls when it picks the same value as the previous beat,
-   but this only works if the pool has more than one option.
+## KNOB-TWIST VARIABLES (OPTIONAL)
+- Include 0-3 variables in the "variables" array for cross-beat tuning.
+- These are global knobs (tension, color shift, mood overlay) that re-substitute into prompts.
+- The "promptTemplate" field is a synthetic template: "{{{{__beat__}}}} | varname: {{{{varname}}}}"
+- {{{{__beat__}}}} is a special placeholder replaced by the beat's expanded prompt at runtime.
+- Many stories need ZERO knob-twist variables — include them only when a global parameter genuinely makes narrative sense.
+- Use nested object format: {{"text": "value", "weight": N}} — never parallel arrays.
 
 ## CRITICAL RULES
-1. Every {{placeholder}} in promptTemplate MUST have a matching variable in the variables array.
-2. Lock and bias values should reference actual values from the variable's values array
-   (or be valid alternatives that fit the variable's domain).
-3. Progression arc values do NOT need to exist in the variable's values array — they are
-   injected directly as overrides.
-4. Character IDs used in locks (e.g., "character": "protagonist") must match a character's "id" field.
-5. The promptTemplate SHOULD include {{character}} if characters are defined.
-6. Variables controlled by progressions should still have a full values array (used when
-   the story engine runs in non-story mode or for preview).
-7. Include a {{shot_type}} or {{camera}} variable for cinematic variety.
-
-## EXAMPLE (abbreviated)
-{
-  "promptTemplate": "A {{shot_type}} of {{character}} in {{environment}}, {{mood}} atmosphere with {{lighting}} lighting, {{detail}}",
-  "variables": [
-{
-  "name": "shot_type",
-  "feature_name": "Shot Type",
-  "values": [
-    {"text": "wide establishing shot", "weight": 3},
-    {"text": "medium shot", "weight": 3},
-    {"text": "close-up", "weight": 2},
-    {"text": "over-the-shoulder shot", "weight": 2},
-    {"text": "low-angle hero shot", "weight": 1},
-    {"text": "bird's eye view", "weight": 1}
-  ]
-},
-{
-  "name": "character",
-  "feature_name": "Character",
-  "values": [
-    {"text": "a lone wanderer", "weight": 3},
-    {"text": "a mysterious figure", "weight": 2}
-  ]
-},
-{
-  "name": "environment",
-  "feature_name": "Environment",
-  "values": [
-    {"text": "ancient stone ruins", "weight": 3},
-    {"text": "misty forest path", "weight": 3},
-    {"text": "mountain summit", "weight": 2},
-    {"text": "underground cavern", "weight": 2},
-    {"text": "crumbling bridge over a chasm", "weight": 1}
-  ]
-},
-{
-  "name": "mood",
-  "feature_name": "Mood",
-  "values": [
-    {"text": "mysterious", "weight": 3},
-    {"text": "tense", "weight": 3},
-    {"text": "awe-inspiring", "weight": 2},
-    {"text": "melancholic", "weight": 2},
-    {"text": "triumphant", "weight": 1}
-  ]
-},
-{
-  "name": "lighting",
-  "feature_name": "Lighting",
-  "values": [
-    {"text": "soft dawn glow", "weight": 3},
-    {"text": "harsh midday sun", "weight": 3},
-    {"text": "dramatic storm light", "weight": 2},
-    {"text": "warm golden sunset", "weight": 2},
-    {"text": "moonlit silver", "weight": 1}
-  ]
-},
-{
-  "name": "detail",
-  "feature_name": "Detail",
-  "values": [
-    {"text": "dust motes floating in light beams", "weight": 3},
-    {"text": "wind-swept cloak and hair", "weight": 3},
-    {"text": "glowing runes on ancient stones", "weight": 2},
-    {"text": "scattered autumn leaves", "weight": 1}
-  ]
-}
-  ],
-  "story": {
-"title": "The Wanderer's Journey",
-"characters": [
-  {
-    "id": "wanderer",
-    "name": "The Wanderer",
-    "anchors": "a solitary traveler in a weathered dark green hooded cloak, leather armor underneath, carrying a carved wooden staff, angular face with deep-set hazel eyes, short gray-streaked brown hair, a faded scar across the left cheek, worn leather boots and a brass compass hanging from the belt"
-  }
-],
-"acts": [
-  {
-    "name": "Act 1 - The Threshold",
-    "beats": 4,
-    "locks": {"character": "wanderer", "mood": "mysterious"},
-    "biases": {"environment": ["ancient stone ruins", "misty forest path"], "shot_type": ["wide establishing shot", "medium shot"]}
-  },
-  {
-    "name": "Act 2 - The Descent",
-    "beats": 6,
-    "locks": {"character": "wanderer"},
-    "biases": {"mood": ["tense", "awe-inspiring"], "environment": ["underground cavern", "crumbling bridge over a chasm"], "shot_type": ["close-up", "low-angle hero shot"]}
-  },
-  {
-    "name": "Act 3 - The Summit",
-    "beats": 4,
-    "locks": {"character": "wanderer", "mood": "triumphant"},
-    "biases": {"environment": ["mountain summit"], "shot_type": ["wide establishing shot", "low-angle hero shot"]}
-  }
-],
-"progressions": [
-  {"variable": "lighting", "arc": ["soft dawn glow", "harsh midday sun", "dramatic storm light", "warm golden sunset"]}
-]
-  }
-}
+1. Output valid JSON only. No markdown, no comments, no explanation.
+2. Every beat prompt must be narratively distinct — different shot, different action, different prose.
+3. Anchors carry visual continuity. Beat prompts carry narrative progression.
+4. Characters referenced by {{{{id}}}} in prompts — the system substitutes their anchor text.
+5. Beat IDs are sequential integers starting from 1.
 """
 
     try:
@@ -698,4 +625,206 @@ story-wide arcs like time-of-day, emotional escalation, or visual transformation
         return response.text
     except Exception as e:
         raise Exception(f"Story template generation failed: {e}")
+
+def generate_story_beat(self, current_template: dict, target_beat_id: int, direction: str = None, model_override: str = None) -> str:
+    """
+    Regenerate a single beat within a bespoke-beat story template.
+    Returns just the replacement beat object (JSON).
+    """
+    if not self.genai_client:
+        raise ValueError("API Key not configured")
+
+    model = model_override or config.MODEL_TEMPLATE_GEN
+
+    story = current_template.get("story", {})
+    beats = story.get("beats", [])
+    anchors = story.get("anchors", {})
+    characters = story.get("characters", [])
+
+    # Find the target beat
+    target_beat = None
+    for b in beats:
+        if b.get("id") == target_beat_id:
+            target_beat = b
+            break
+
+    # Build context: adjacent beats for narrative continuity
+    prev_beat = next((b for b in beats if b.get("id") == target_beat_id - 1), None)
+    next_beat = next((b for b in beats if b.get("id") == target_beat_id + 1), None)
+
+    context_parts = []
+    context_parts.append(f"Story title: {story.get('title', 'Untitled')}")
+    context_parts.append(f"Logline: {story.get('logline', '')}")
+    context_parts.append(f"Anchors: {json.dumps(anchors)}")
+    context_parts.append(f"Characters: {json.dumps(characters)}")
+    if prev_beat:
+        context_parts.append(f"Previous beat (id {prev_beat['id']}): shot={prev_beat.get('shot','')}, purpose={prev_beat.get('purpose','')}, prompt={prev_beat.get('prompt','')}")
+    if target_beat:
+        context_parts.append(f"Current beat (id {target_beat_id}): shot={target_beat.get('shot','')}, purpose={target_beat.get('purpose','')}, prompt={target_beat.get('prompt','')}")
+    if next_beat:
+        context_parts.append(f"Next beat (id {next_beat['id']}): shot={next_beat.get('shot','')}, purpose={next_beat.get('purpose','')}, prompt={next_beat.get('prompt','')}")
+
+    direction_text = f"\nUser direction: {direction}" if direction else ""
+
+    system_prompt = f"""You are a cinematic storyboard writer. Regenerate a single beat in an existing storyboard.
+
+## CONTEXT
+{chr(10).join(context_parts)}
+{direction_text}
+
+## TASK
+Write a NEW replacement beat object for beat ID {target_beat_id}. The beat must:
+1. Be narratively distinct from adjacent beats (different shot type, different framing).
+2. Reference shared anchors via {{{{anchor_key}}}} placeholders (e.g. {{{{style}}}}, {{{{world}}}}).
+3. Reference characters via {{{{character_id}}}} placeholders.
+4. Advance the story and serve a clear narrative purpose.
+5. If user direction is provided, incorporate it.
+
+## OUTPUT FORMAT
+Respond with valid JSON only — a single beat object:
+{{
+  "id": {target_beat_id},
+  "shot": "Shot type label",
+  "purpose": "What this beat accomplishes narratively.",
+  "prompt": "The bespoke image prompt for this beat with {{{{anchor}}}} and {{{{character}}}} placeholders.",
+  "characters": ["character_id_1"]
+}}
+"""
+
+    try:
+        gen_config = types.GenerateContentConfig(
+            response_mime_type="application/json"
+        )
+
+        response = self.genai_client.models.generate_content(
+            model=model,
+            contents=[system_prompt],
+            config=gen_config
+        )
+        return response.text
+    except Exception as e:
+        raise Exception(f"Story beat regeneration failed: {e}")
+
+def generate_p5_template(self, user_prompt: str, image_bytes: bytes = None, model_override: str = None) -> str:
+    """
+    Generate a complete p5.js generative art template with Synthograsizer-controllable variables.
+    The sketch code uses instance mode (p. prefix) and reads live variable values via p.getSynthVar().
+    An optional reference image can be provided for color palette / aesthetic guidance.
+    """
+    if not self.genai_client:
+        raise ValueError("API Key not configured")
+
+    model = model_override or config.MODEL_TEMPLATE_GEN
+
+    system_prompt = """You are a creative coder generating p5.js generative art templates for the Synthograsizer system.
+
+## RUNTIME CONTRACT
+The sketch runs in a sandboxed iframe using p5.js 1.9.4 in INSTANCE MODE.
+Your code is wrapped automatically: new p5(function(p) { YOUR_CODE });
+- All p5 built-ins MUST be called via p: p.setup, p.draw, p.background(), p.fill(), p.frameCount, etc.
+- p.getSynthVar('variable_name') returns the currently selected string value, or null.
+- Variables are switched live by the user — p.draw() reads them every frame.
+- p.drawingContext gives you the raw Canvas 2D API (createRadialGradient, clip, createLinearGradient, etc.)
+- NO external assets — p.loadImage() from URLs fails in the sandbox. Do not use it.
+- Canvas: call p.createCanvas(800, 800) in p.setup (or another square fixed size).
+- Animation: use p.frameCount for time-based motion. p.draw() is called ~60fps.
+
+## REQUIRED PATTERN: LOOKUP MAPS
+Define all parameter mappings as const objects at the TOP of p5Code (before p.setup).
+Resolve getSynthVar ONCE per frame at the top of p.draw, always with a fallback value:
+
+  const PALETTE_MAP = {
+    'warm embers':   [[220,80,40],  [255,160,60],[180,40,20]],
+    'cool arctic':   [[40,120,200], [80,180,240],[20,60,120]],
+    'acid neon':     [[0,255,100],  [200,255,0], [0,200,255]],
+    // ... one entry per variable value, keys EXACTLY matching "text" in variables array
+  };
+
+  p.draw = function() {
+    var palKey = p.getSynthVar('color_palette') || 'warm embers';
+    var pal    = PALETTE_MAP[palKey] || PALETTE_MAP['warm embers'];
+    // use pal[0], pal[1], pal[2] as RGB arrays
+    p.background(pal[0][0], pal[0][1], pal[0][2]);
+  };
+
+## OUTPUT FORMAT — respond with valid JSON only:
+{
+  "name": "Descriptive Sketch Name",
+  "promptTemplate": "A {{style_type}} generative animation with {{color_palette}} and {{motion_style}} movement",
+  "p5Code": "const PALETTE_MAP = {...};\n\np.setup = function() {\n  p.createCanvas(800, 800);\n};\n\np.draw = function() {\n  ...\n};",
+  "variables": [
+    {
+      "name": "color_palette",
+      "feature_name": "Palette",
+      "values": [
+        {"text": "warm embers",    "weight": 3},
+        {"text": "cool arctic",    "weight": 3},
+        {"text": "acid neon",      "weight": 2},
+        {"text": "monochrome ink", "weight": 2},
+        {"text": "deep ocean",     "weight": 2},
+        {"text": "golden hour",    "weight": 1},
+        {"text": "toxic bloom",    "weight": 1},
+        {"text": "midnight rose",  "weight": 1}
+      ]
+    }
+  ]
+}
+
+## VARIABLE DESIGN RULES
+- 4-7 variables, each controlling a distinct visual dimension (color, form, motion, density, atmosphere, pattern, symmetry...)
+- 8-12 values per variable — descriptive string LABELS, NOT raw numbers
+- Every lookup map key MUST exactly match a "text" entry in the corresponding variable's values array
+- Adjacent values in the array should produce coherent visual transitions (good for sequencer stepping)
+- Weights: Common=3, Rare=2, Very Rare=1. Include 1-2 stable/neutral values per variable as lockable anchors.
+
+## CODE QUALITY RULES
+- p5Code must be COMPLETE and SELF-CONTAINED — no TODOs, no placeholder comments like "// add more"
+- Every getSynthVar call must have a fallback: p.getSynthVar('x') || 'default_value'
+- Every lookup map access must have a fallback: MAP[key] || MAP['first_key']
+- Smooth animation — use p.lerp(), Math.sin(p.frameCount * speed), or easing; avoid hard jumps
+- Clear the background each frame unless intentional trails (comment if so)
+- Use p.push() / p.pop() for state isolation; p.translate() / p.rotate() for transforms
+- No console.log, no alert, no document.write, no external dependencies"""
+
+    # Build content list — image first if provided (for palette/style reference)
+    contents = []
+
+    if image_bytes:
+        import base64 as _b64
+        img_b64 = _b64.b64encode(image_bytes).decode("utf-8")
+        # Detect mime type (default jpeg)
+        mime = "image/jpeg"
+        if image_bytes[:4] == b'\x89PNG':
+            mime = "image/png"
+        elif image_bytes[:4] in (b'GIF8', b'GIF9'):
+            mime = "image/gif"
+        elif image_bytes[:2] == b'BM':
+            mime = "image/bmp"
+
+        from google.genai import types as _types
+        contents.append(_types.Part.from_bytes(data=image_bytes, mime_type=mime))
+        contents.append(
+            "Use the image above as a color palette and aesthetic reference for this generative sketch. "
+            "Extract the dominant colors and mood, then embed them as one of the variable options (e.g., the first or default value in a palette variable).\n\n"
+            f"Sketch Description: {user_prompt}"
+        )
+    else:
+        contents = [system_prompt, f"Sketch Description: {user_prompt}"]
+
+    if image_bytes:
+        # Prepend system prompt as first content element when using multimodal
+        contents.insert(0, system_prompt)
+
+    try:
+        gen_config = types.GenerateContentConfig(
+            response_mime_type="application/json"
+        )
+        response = self.genai_client.models.generate_content(
+            model=model,
+            contents=contents,
+            config=gen_config
+        )
+        return response.text
+    except Exception as e:
+        raise Exception(f"p5.js template generation failed: {e}")
 

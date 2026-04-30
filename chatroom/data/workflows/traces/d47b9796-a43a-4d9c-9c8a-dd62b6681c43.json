@@ -1,0 +1,295 @@
+{
+  "workflowId": "d47b9796-a43a-4d9c-9c8a-dd62b6681c43",
+  "name": "Progressive Transform: a sterile, fluorescent-lit corporate off",
+  "agentId": "bb12a961-8429-4118-9205-8abc7dde2a8a",
+  "agentName": "The Master Agent-Crafter 1",
+  "agentColor": "#FF6B6B",
+  "sessionId": "1edf97c5-9f31-44f6-b499-cb90a15f155d",
+  "messageId": null,
+  "startedAt": "2026-04-30T17:01:44.930Z",
+  "completedAt": "2026-04-30T17:02:49.546Z",
+  "status": "failed",
+  "totals": {
+    "durationMs": 64616,
+    "costUsd": 0.04,
+    "completedSteps": 1,
+    "failedSteps": 1
+  },
+  "steps": {
+    "origin": {
+      "id": "origin",
+      "type": "synth_image",
+      "dependsOn": [],
+      "status": "complete",
+      "startedMs": 0,
+      "completedMs": 61286,
+      "durationMs": 61286,
+      "inputs": {
+        "prompt": "a sterile, fluorescent-lit corporate office cubicle",
+        "aspect_ratio": "1:1"
+      },
+      "outputSummary": {
+        "status": "success",
+        "mediaId": "81b7ba19-4962-4428-a737-1b48d377b09e",
+        "mediaType": "image"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.04,
+      "lastRetryError": "This operation was aborted"
+    },
+    "transform_0": {
+      "id": "transform_0",
+      "type": "synth_transform",
+      "dependsOn": [
+        "origin"
+      ],
+      "status": "failed",
+      "startedMs": 61287,
+      "completedMs": 64616,
+      "durationMs": 3329,
+      "inputs": {
+        "image_id": "81b7ba19-4962-4428-a737-1b48d377b09e",
+        "intent": "shatter the walls into woven starlight"
+      },
+      "outputSummary": null,
+      "error": "Smart Transform failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'models/gemini-3.1-flash-preview is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.', 'status': 'NOT_FOUND'}}",
+      "attempts": 1,
+      "costUsd": 0,
+      "lastRetryError": "Smart Transform failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'models/gemini-3.1-flash-preview is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.', 'status': 'NOT_FOUND'}}"
+    },
+    "transform_1": {
+      "id": "transform_1",
+      "type": "synth_transform",
+      "dependsOn": [
+        "transform_0"
+      ],
+      "status": "pending",
+      "startedMs": null,
+      "completedMs": null,
+      "durationMs": null,
+      "inputs": null,
+      "outputSummary": null,
+      "error": null,
+      "attempts": 0,
+      "costUsd": 0
+    },
+    "transform_2": {
+      "id": "transform_2",
+      "type": "synth_transform",
+      "dependsOn": [
+        "transform_1"
+      ],
+      "status": "pending",
+      "startedMs": null,
+      "completedMs": null,
+      "durationMs": null,
+      "inputs": null,
+      "outputSummary": null,
+      "error": null,
+      "attempts": 0,
+      "costUsd": 0
+    }
+  },
+  "events": [
+    {
+      "t": 0,
+      "event": "workflow_start",
+      "data": {
+        "workflowId": "d47b9796-a43a-4d9c-9c8a-dd62b6681c43",
+        "name": "Progressive Transform: a sterile, fluorescent-lit corporate off",
+        "stepCount": 4,
+        "steps": [
+          {
+            "id": "origin",
+            "type": "synth_image",
+            "dependsOn": []
+          },
+          {
+            "id": "transform_0",
+            "type": "synth_transform",
+            "dependsOn": [
+              "origin"
+            ]
+          },
+          {
+            "id": "transform_1",
+            "type": "synth_transform",
+            "dependsOn": [
+              "transform_0"
+            ]
+          },
+          {
+            "id": "transform_2",
+            "type": "synth_transform",
+            "dependsOn": [
+              "transform_1"
+            ]
+          }
+        ],
+        "agentId": "bb12a961-8429-4118-9205-8abc7dde2a8a",
+        "agentName": "The Master Agent-Crafter 1",
+        "agentColor": "#FF6B6B",
+        "sessionId": "1edf97c5-9f31-44f6-b499-cb90a15f155d",
+        "messageId": null
+      }
+    },
+    {
+      "t": 0,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "d47b9796-a43a-4d9c-9c8a-dd62b6681c43",
+        "stepId": "origin",
+        "stepType": "synth_image",
+        "agentId": "bb12a961-8429-4118-9205-8abc7dde2a8a",
+        "dependsOn": [],
+        "inputs": {
+          "prompt": "a sterile, fluorescent-lit corporate office cubicle",
+          "aspect_ratio": "1:1"
+        }
+      }
+    },
+    {
+      "t": 1,
+      "event": "workflow_submitted",
+      "data": {
+        "agentId": "bb12a961-8429-4118-9205-8abc7dde2a8a",
+        "agentName": "The Master Agent-Crafter 1",
+        "agentColor": "#FF6B6B",
+        "sessionId": "1edf97c5-9f31-44f6-b499-cb90a15f155d",
+        "workflowId": "d47b9796-a43a-4d9c-9c8a-dd62b6681c43",
+        "workflowName": "Progressive Transform: a sterile, fluorescent-lit corporate off",
+        "templateId": "progressive_transform",
+        "stepCount": 4,
+        "steps": [
+          {
+            "id": "origin",
+            "type": "synth_image"
+          },
+          {
+            "id": "transform_0",
+            "type": "synth_transform"
+          },
+          {
+            "id": "transform_1",
+            "type": "synth_transform"
+          },
+          {
+            "id": "transform_2",
+            "type": "synth_transform"
+          }
+        ]
+      }
+    },
+    {
+      "t": 30001,
+      "event": "workflow_step_retry",
+      "data": {
+        "workflowId": "d47b9796-a43a-4d9c-9c8a-dd62b6681c43",
+        "stepId": "origin",
+        "stepType": "synth_image",
+        "attempt": 1,
+        "error": "This operation was aborted"
+      }
+    },
+    {
+      "t": 61286,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "d47b9796-a43a-4d9c-9c8a-dd62b6681c43",
+        "stepId": "origin",
+        "stepType": "synth_image",
+        "agentId": "bb12a961-8429-4118-9205-8abc7dde2a8a",
+        "attempts": 2,
+        "durationMs": 61286,
+        "summary": {
+          "status": "success",
+          "mediaId": "81b7ba19-4962-4428-a737-1b48d377b09e",
+          "mediaType": "image"
+        }
+      }
+    },
+    {
+      "t": 61287,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "d47b9796-a43a-4d9c-9c8a-dd62b6681c43",
+        "stepId": "transform_0",
+        "stepType": "synth_transform",
+        "agentId": "bb12a961-8429-4118-9205-8abc7dde2a8a",
+        "dependsOn": [
+          "origin"
+        ],
+        "inputs": {
+          "image_id": "81b7ba19-4962-4428-a737-1b48d377b09e",
+          "intent": "shatter the walls into woven starlight"
+        }
+      }
+    },
+    {
+      "t": 61409,
+      "event": "workflow_step_retry",
+      "data": {
+        "workflowId": "d47b9796-a43a-4d9c-9c8a-dd62b6681c43",
+        "stepId": "transform_0",
+        "stepType": "synth_transform",
+        "attempt": 1,
+        "error": "Smart Transform failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'models/gemini-3.1-flash-preview is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.', 'status': 'NOT_FOUND'}}"
+      }
+    },
+    {
+      "t": 64616,
+      "event": "workflow_step_error",
+      "data": {
+        "workflowId": "d47b9796-a43a-4d9c-9c8a-dd62b6681c43",
+        "stepId": "transform_0",
+        "stepType": "synth_transform",
+        "agentId": "bb12a961-8429-4118-9205-8abc7dde2a8a",
+        "attempts": 2,
+        "durationMs": 3329,
+        "error": "Smart Transform failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'models/gemini-3.1-flash-preview is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.', 'status': 'NOT_FOUND'}}"
+      }
+    },
+    {
+      "t": 64616,
+      "event": "workflow_complete",
+      "data": {
+        "workflowId": "d47b9796-a43a-4d9c-9c8a-dd62b6681c43",
+        "name": "Progressive Transform: a sterile, fluorescent-lit corporate off",
+        "status": "failed",
+        "completedAt": "2026-04-30T17:02:49.546Z",
+        "agentId": "bb12a961-8429-4118-9205-8abc7dde2a8a",
+        "totals": {
+          "durationMs": 64616,
+          "completedSteps": 1,
+          "failedSteps": 1,
+          "skippedSteps": 0
+        },
+        "stepResults": [
+          {
+            "id": "origin",
+            "type": "synth_image",
+            "status": "success",
+            "mediaId": "81b7ba19-4962-4428-a737-1b48d377b09e",
+            "mediaType": "image"
+          },
+          {
+            "id": "transform_0",
+            "type": "synth_transform",
+            "status": "failed"
+          },
+          {
+            "id": "transform_1",
+            "type": "synth_transform",
+            "status": "pending"
+          },
+          {
+            "id": "transform_2",
+            "type": "synth_transform",
+            "status": "pending"
+          }
+        ]
+      }
+    }
+  ]
+}

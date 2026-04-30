@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 async def analyze_image_to_prompt(request: AnalyzeRequest):
     try:
         image_bytes = decode_base64_image(request.image)
-        analysis_text = await asyncio.to_thread(ai_manager.analyze_image_to_prompt, image_bytes)
+        analysis_text = await asyncio.to_thread(ai_manager.analyze_image_to_prompt, image_bytes, model_name=request.model)
 
         result = {
             "status": "success",
@@ -67,7 +67,7 @@ async def batch_analyze(request: BatchAnalyzeRequest):
         for idx, img_b64 in enumerate(request.images):
             try:
                 image_bytes = decode_base64_image(img_b64)
-                analysis = await asyncio.to_thread(ai_manager.analyze_image_to_prompt, image_bytes)
+                analysis = await asyncio.to_thread(ai_manager.analyze_image_to_prompt, image_bytes, model_name=request.model)
 
                 result = {
                     "index": idx,

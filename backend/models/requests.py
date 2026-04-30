@@ -61,21 +61,25 @@ class SmartTransformRequest(BaseModel):
 
 class TemplateRequest(BaseModel):
     prompt: str = ""                          # Text description (Text, Hybrid, Remix, Workflow guidance)
-    mode: str = "text"                        # "text" | "image" | "hybrid" | "multi-image" | "remix" | "workflow"
+    mode: str = "text"                        # "text" | "image" | "hybrid" | "multi-image" | "remix" | "workflow" | "story-beat"
     images: Optional[List[str]] = None        # Base64 images (Image, Hybrid, Multi-Image, Workflow modes)
-    current_template: Optional[dict] = None   # Current template JSON (Remix mode)
+    current_template: Optional[dict] = None   # Current template JSON (Remix / story-beat mode)
     workflow: Optional[dict] = None           # Workflow JSON to curate (Workflow mode)
     preview: Optional[bool] = True            # Return rationale with selections (Workflow mode)
     batch: Optional[bool] = False             # Multiple images = batch curation (Workflow mode)
     use_flash: Optional[bool] = False         # Use Flash model for faster (lower quality) generation
+    model: Optional[str] = None               # Override model selection
+    target_beat_id: Optional[int] = None      # Beat ID for story-beat mode (per-beat regeneration)
 
 class AnalyzeRequest(BaseModel):
     image: str  # Base64 encoded image
     auto_generate: Optional[bool] = False  # Auto-generate image from analysis
+    model: Optional[str] = config.MODEL_ANALYSIS_QUICK
 
 class BatchAnalyzeRequest(BaseModel):
     images: List[str]  # List of base64 images (no size limit)
     auto_generate: Optional[bool] = False
+    model: Optional[str] = config.MODEL_ANALYSIS_QUICK
 
 class TemplateFromAnalysisRequest(BaseModel):
     analysis: str

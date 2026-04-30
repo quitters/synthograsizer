@@ -1056,6 +1056,18 @@ class AgentStudio {
                        min="1000" max="2000000" step="1000" value="100000"/>
               </div>
 
+              <div class="as-settings-row" style="flex-direction:column; align-items:stretch;">
+                <label class="as-settings-label">AI Model</label>
+                <div style="display:flex; gap:6px; margin-top:4px;">
+                    <label style="flex:1; display:flex; align-items:center; gap:4px; font-size:10px; cursor:pointer; padding:4px 6px; background:rgba(0,0,0,0.05); border-radius:4px;">
+                        <input type="radio" name="as-model-choice" value="gemini-3-flash-preview" checked style="accent-color:#009688;"> Flash
+                    </label>
+                    <label style="flex:1; display:flex; align-items:center; gap:4px; font-size:10px; cursor:pointer; padding:4px 6px; background:rgba(0,0,0,0.05); border-radius:4px;">
+                        <input type="radio" name="as-model-choice" value="gemini-3.1-pro-preview" style="accent-color:#3f51b5;"> Pro
+                    </label>
+                </div>
+              </div>
+
               <div class="as-pop-divider"></div>
 
               <div class="as-settings-row">
@@ -1908,10 +1920,12 @@ class AgentStudio {
     this._tokenCount = 0;
     this._updateTokenMeter();
 
+    const model = document.querySelector('input[name="as-model-choice"]:checked')?.value;
+
     try {
       const res = await fetch(`${this.CHATROOM_API}/chat/start`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ goal, tokenLimit }),
+        body: JSON.stringify({ goal, tokenLimit, model }),
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || `HTTP ${res.status}`);

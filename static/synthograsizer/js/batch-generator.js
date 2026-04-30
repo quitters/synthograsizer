@@ -1,6 +1,6 @@
 // Batch Generator Module for Synthograsizer Mini
 import { getValueText, getWeightsArray } from './template-normalizer.js';
-import { StoryEngine, isStoryTemplate } from './story-engine.js';
+import { StoryEngine, isStoryTemplate } from './story-engine.js?v=2';
 
 export class BatchGenerator {
   constructor(app) {
@@ -154,6 +154,49 @@ export class BatchGenerator {
     const summary = engine.getSummary();
     const validation = engine.validate();
 
+    // ── Bespoke-beat panel ──
+    if (summary.isBespoke) {
+      const previewBeats = (story.beats || []).slice(0, 3);
+      const remaining = (story.beats || []).length - previewBeats.length;
+
+      let warningHtml = '';
+      if (validation.warnings.length > 0) {
+        warningHtml = `
+          <div class="story-warnings">
+            ${validation.warnings.map(w => `<div class="story-warning-item">${w}</div>`).join('')}
+          </div>
+        `;
+      }
+
+      return `
+        <div class="story-panel">
+          <div class="story-title">🎬 ${summary.title}</div>
+          <div style="font-size:12px; color:#94a3b8; margin-bottom:8px;">
+            ${summary.totalBeats} bespoke beats · ${summary.acts.length} acts ·
+            ${summary.characters.length} character${summary.characters.length !== 1 ? 's' : ''}
+            ${summary.duration_seconds ? ` · ${summary.duration_seconds}s total` : ''}
+          </div>
+          ${warningHtml}
+          <div class="story-section">
+            <h4>Beat Preview</h4>
+            <div class="story-beat-preview">
+              ${previewBeats.map(b => `
+                <div class="story-preview-beat">
+                  <div class="story-preview-beat-label">#${b.id} · ${b.shot || 'Shot'}</div>
+                  <div class="story-preview-beat-text">${b.prompt?.slice(0, 120) || ''}${(b.prompt?.length || 0) > 120 ? '…' : ''}</div>
+                </div>
+              `).join('')}
+              ${remaining > 0 ? `<div class="story-preview-more">+ ${remaining} more beat${remaining !== 1 ? 's' : ''}…</div>` : ''}
+            </div>
+          </div>
+          <div style="text-align:center; margin-top:8px;">
+            <em style="font-size:11px; color:#64748b;">Open the Storyboard panel (🎬 button in toolbar) for full per-beat control.</em>
+          </div>
+        </div>
+      `;
+    }
+
+    // ── Legacy panel (acts-with-counts shape) ──
     // Character selector
     let characterHtml = '';
     if (summary.characters.length > 0) {
@@ -732,30 +775,64 @@ export class BatchGenerator {
     const sourceActs = story.acts || [];
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
 
-    // Slice entries into act groups using beat counts from the source template.
-    // This is order-safe and immune to duplicate act names.
-    let offset = 0;
-    const acts = sourceActs.map((act, i) => {
-      const beatCount = act.beats || 1;
-      const actBeats = entries.slice(offset, offset + beatCount);
-      offset += beatCount;
-      return {
-        name: act.name || `Act ${i + 1}`,
-        locks: act.locks || {},
-        biases: act.biases || {},
-        beats: actBeats.map(b => ({
+    // Detect bespoke-beat shape
+    const isBespoke = Array.isArray(story.beats) && story.beats.length > 0
+                      && typeof story.beats[0] === 'object' && 'prompt' in story.beats[0];
+
+    let acts;
+    if (isBespoke) {
+      // Bespoke path: group entries by act name from sequence metadata
+      const actMap = new Map();
+      for (const act of sourceActs) {
+        actMap.set(act.name || 'Unnamed', { ...act, beatEntries: [] });
+      }
+      for (const entry of entries) {
+        const actData = actMap.get(entry.act);
+        if (actData) {
+          actData.beatEntries.push(entry);
+        }
+      }
+      acts = Array.from(actMap.values()).map(act => ({
+        name: act.name || 'Unnamed Act',
+        beats: act.beatEntries.map(b => ({
           beat: b.beat,
+          shot: b.shot || '',
+          purpose: b.purpose || '',
           prompt: b.text,
-          variables: b.variables
+          characters: b.characters || [],
+          variables: b.variables || {}
         }))
-      };
-    });
+      }));
+    } else {
+      // Legacy path: slice entries into act groups using beat counts
+      let offset = 0;
+      acts = sourceActs.map((act, i) => {
+        const beatCount = act.beats || 1;
+        const actBeats = entries.slice(offset, offset + beatCount);
+        offset += beatCount;
+        return {
+          name: act.name || `Act ${i + 1}`,
+          locks: act.locks || {},
+          biases: act.biases || {},
+          beats: actBeats.map(b => ({
+            beat: b.beat,
+            prompt: b.text,
+            variables: b.variables
+          }))
+        };
+      });
+    }
 
     const storyObj = {
       story_name: story.title || `story_${timestamp}`,
       source: 'synthograsizer-story-engine',
       description: `Story sequence: ${story.title || 'Untitled'}`,
       total_beats: entries.length,
+      ...(isBespoke && {
+        duration_seconds: story.duration_seconds || null,
+        beat_duration_seconds: story.beat_duration_seconds || null,
+        anchors: story.anchors || {}
+      }),
       characters: story.characters || [],
       acts,
       flat_prompts: entries.map(e => e.text)

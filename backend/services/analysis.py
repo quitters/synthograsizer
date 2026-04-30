@@ -17,13 +17,13 @@ from google.genai import types
 from PIL import Image
 from PIL.PngImagePlugin import PngInfo
 
-def analyze_image(self, image_bytes: bytes, prompt: str):
+def analyze_image(self, image_bytes: bytes, prompt: str, model_name: Optional[str] = None):
     """Analyze an image using Gemini."""
     if not self.genai_client:
         raise ValueError("API Key not configured")
         
     try:
-        model_name = config.MODEL_ANALYSIS_QUICK
+        model_name = model_name or config.MODEL_ANALYSIS_QUICK
         
         contents = [prompt]
         image_part = types.Part.from_bytes(data=image_bytes, mime_type=sniff_mime_type(image_bytes))
@@ -44,14 +44,14 @@ def analyze_image(self, image_bytes: bytes, prompt: str):
             
         return f"Analysis failed: {error_msg}"
 
-def analyze_image_to_prompt(self, image_bytes: bytes, mime_type: str = "image/png") -> str:
+def analyze_image_to_prompt(self, image_bytes: bytes, mime_type: str = "image/png", model_name: Optional[str] = None) -> str:
     """
     Reverse-engineer an image into a detailed text prompt using a specific system prompt.
     """
     if not self.genai_client:
         raise ValueError("API Key not configured")
 
-    model_name = config.MODEL_FAST
+    model_name = model_name or config.MODEL_FAST
     
     IMAGE_ANALYSIS_SYSTEM_PROMPT = """You are an expert at analyzing images and generating detailed text prompts suitable for text-to-image AI systems. Your goal is to reverse-engineer an image into a prompt that could recreate something similar.
 Analyze the provided image and create a detailed descriptive prompt following this structure:

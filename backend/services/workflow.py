@@ -17,7 +17,7 @@ from google.genai import types
 from PIL import Image
 from PIL.PngImagePlugin import PngInfo
 
-def curate_workflow(self, workflow: dict, image_bytes: bytes, guidance: str = None, include_rationale: bool = True) -> dict:
+def curate_workflow(self, workflow: dict, image_bytes: bytes, guidance: str = None, include_rationale: bool = True, model_override: str = None) -> dict:
     """
     Curate a workflow to match a reference image.
     Each variable is distilled to a single value that best aligns with the image.
@@ -30,8 +30,8 @@ def curate_workflow(self, workflow: dict, image_bytes: bytes, guidance: str = No
     # Step 1: Quick image analysis (faster than full analyze_image_to_prompt)
     analysis = self.analyze_image_quick(image_bytes)
 
-    # Step 2: Curate the workflow using flash model for speed
-    model = config.MODEL_CURATION
+    # Step 2: Curate the workflow
+    model = model_override or config.MODEL_CURATION
 
     system_prompt = """You are a workflow curator. Curate the workflow JSON so each variable has exactly ONE value that best matches the image.
 

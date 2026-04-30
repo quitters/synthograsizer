@@ -39,13 +39,13 @@ def get_api_key() -> str | None:
 
 # ── Google GenAI Model Names ──
 # Single source of truth — change model versions here, not in ai_manager.py.
-MODEL_TEXT_CHAT = "gemini-3-flash-preview"
+MODEL_TEXT_CHAT = "gemini-3.1-pro-preview"
 MODEL_IMAGE_GEN_FAST = "gemini-2.5-flash-image"
 MODEL_IMAGE_GEN_NB2 = "gemini-3.1-flash-image-preview"
 MODEL_IMAGE_GEN_HQ = "gemini-3-pro-image-preview"
 MODEL_VIDEO_GEN = "veo-3.1-generate-preview"
 MODEL_MUSIC_REALTIME = "models/lyria-realtime-exp"
-MODEL_ANALYSIS = "gemini-3-flash-preview"
+MODEL_ANALYSIS = "gemini-3.1-pro-preview"
 
 # Template generation (Pro for creative quality)
 MODEL_TEMPLATE_GEN = "gemini-3.1-pro-preview"
@@ -53,6 +53,25 @@ MODEL_TEMPLATE_GEN = "gemini-3.1-pro-preview"
 MODEL_TEMPLATE_GEN_FAST = "gemini-3-flash-preview"
 # Lighter tasks: narrative, video variations, chat inside ai_manager
 MODEL_FAST = "gemini-3-flash-preview"
+
+# Registry for UI consumption
+GEMINI_MODELS = {
+    "gemini-3-flash-preview": {
+        "name": "Gemini 3 Flash",
+        "description": "Fast and efficient for most tasks",
+        "capability": "Vision, Audio, 1M Context"
+    },
+    "gemini-3.1-pro-preview": {
+        "name": "Gemini 3.1 Pro",
+        "description": "Best quality for reasoning and complex analysis",
+        "capability": "Advanced Reasoning, 2M Context"
+    },
+    "gemini-3.1-flash-lite-preview": {
+        "name": "Gemini 3.1 Flash Lite",
+        "description": "Ultra-fast, optimized for simple tasks",
+        "capability": "Efficiency"
+    }
+}
 
 # Missing aliases
 MODEL_ANALYSIS_QUICK = MODEL_FAST

@@ -1,0 +1,1558 @@
+{
+  "workflowId": "a893cc05-48d4-42a7-9cf6-f33d314f2dc9",
+  "name": "Cinematic Short: A sterile fluorescent cubicle collapsing into a hy",
+  "agentId": "b0ab9cd4-66cd-477a-8b1e-afd3993fa21b",
+  "agentName": "Agent",
+  "agentColor": "#4ECDC4",
+  "sessionId": "1edf97c5-9f31-44f6-b499-cb90a15f155d",
+  "messageId": null,
+  "startedAt": "2026-04-30T17:03:00.395Z",
+  "completedAt": "2026-04-30T17:03:53.923Z",
+  "status": "failed",
+  "totals": {
+    "durationMs": 53528,
+    "costUsd": 0.162,
+    "completedSteps": 6,
+    "failedSteps": 4
+  },
+  "steps": {
+    "plan": {
+      "id": "plan",
+      "type": "synth_text",
+      "dependsOn": [],
+      "status": "complete",
+      "startedMs": 1,
+      "completedMs": 17323,
+      "durationMs": 17322,
+      "inputs": {
+        "prompt": "You are a film director planning a short film. Concept: \"A sterile fluorescent cubicle collapsing into a hypnotic ocean of liquid neon and woven starlight, flowing upward through intense temporal shear and non-Euclidean geometric mutations\". Mood: surreal and hypnotic.\nPlan exactly 4 scenes. For each scene, write a vivid image generation prompt (2-3 sentences) describing the visual.\nOutput ONLY a JSON array of strings, one prompt per scene. Example: [\"scene 1 prompt\", \"scene 2 prompt\"]"
+      },
+      "outputSummary": {},
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.001,
+      "chunks": 14,
+      "lastChunk": " scene radiates an intensely surreal, dreamlike energy that appears to freeze time itself within a glowing, abstract cosmos.\"\n]"
+    },
+    "style": {
+      "id": "style",
+      "type": "synth_template",
+      "dependsOn": [],
+      "status": "complete",
+      "startedMs": 2,
+      "completedMs": 25982,
+      "durationMs": 25980,
+      "inputs": {
+        "description": "surreal and hypnotic visual style for a short film about: A sterile fluorescent cubicle collapsing into a hypnotic ocean of liquid neon and woven starlight, flowing upward through intense temporal shear and non-Euclidean geometric mutations",
+        "mode": "text"
+      },
+      "outputSummary": {
+        "status": "success",
+        "template": {
+          "promptTemplate": "A cinematic short film still of a surreal environment where {{office_element}} is collapsing and transforming into an ocean of {{liquid_element}}, visually defined by {{geometric_mutation}} flowing upward through {{temporal_effect}}, captured with {{cinematography}}.",
+          "variables": [
+            {
+              "name": "office_element",
+              "feature_name": "Office Aesthetic",
+              "values": [
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]"
+              ]
+            },
+            {
+              "name": "liquid_element",
+              "feature_name": "Liquid Material",
+              "values": [
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]"
+              ]
+            },
+            {
+              "name": "geometric_mutation",
+              "feature_name": "Geometric Mutation",
+              "values": [
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]"
+              ]
+            },
+            {
+              "name": "temporal_effect",
+              "feature_name": "Temporal Effect",
+              "values": [
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]"
+              ]
+            },
+            {
+              "name": "cinematography",
+              "feature_name": "Cinematography",
+              "values": [
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]"
+              ]
+            }
+          ]
+        }
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.001
+    },
+    "scene0": {
+      "id": "scene0",
+      "type": "synth_image",
+      "dependsOn": [
+        "plan",
+        "style"
+      ],
+      "status": "complete",
+      "startedMs": 25983,
+      "completedMs": 39000,
+      "durationMs": 13017,
+      "inputs": {
+        "prompt": "Scene 1 of 4 from a surreal and hypnotic short film: A sterile fluorescent cubicle collapsing into a hypnotic ocean of liquid neon and woven starlight, flowing upward through intense temporal shear and non-Euclidean geometric mutations. A cinematic short film still of a surreal environment where {{office_element}} is collapsing and transforming into an ocean of {{liquid_element}}, visually defined by {{geometric_mutation}} flowing upward through {{temporal_effect}}, captured with {{cinematography}}.",
+        "aspect_ratio": "16:9"
+      },
+      "outputSummary": {
+        "status": "success",
+        "mediaId": "0a01411e-bb58-40f9-933f-e527dc54f27c",
+        "mediaType": "image"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.04
+    },
+    "scene1": {
+      "id": "scene1",
+      "type": "synth_image",
+      "dependsOn": [
+        "plan",
+        "style"
+      ],
+      "status": "complete",
+      "startedMs": 25984,
+      "completedMs": 44271,
+      "durationMs": 18287,
+      "inputs": {
+        "prompt": "Scene 2 of 4 from a surreal and hypnotic short film: A sterile fluorescent cubicle collapsing into a hypnotic ocean of liquid neon and woven starlight, flowing upward through intense temporal shear and non-Euclidean geometric mutations. A cinematic short film still of a surreal environment where {{office_element}} is collapsing and transforming into an ocean of {{liquid_element}}, visually defined by {{geometric_mutation}} flowing upward through {{temporal_effect}}, captured with {{cinematography}}.",
+        "aspect_ratio": "16:9"
+      },
+      "outputSummary": {
+        "status": "success",
+        "mediaId": "1a0d5824-54de-4fa9-abf9-5e2d57b04345",
+        "mediaType": "image"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.04
+    },
+    "scene2": {
+      "id": "scene2",
+      "type": "synth_image",
+      "dependsOn": [
+        "plan",
+        "style"
+      ],
+      "status": "complete",
+      "startedMs": 25984,
+      "completedMs": 49403,
+      "durationMs": 23419,
+      "inputs": {
+        "prompt": "Scene 3 of 4 from a surreal and hypnotic short film: A sterile fluorescent cubicle collapsing into a hypnotic ocean of liquid neon and woven starlight, flowing upward through intense temporal shear and non-Euclidean geometric mutations. A cinematic short film still of a surreal environment where {{office_element}} is collapsing and transforming into an ocean of {{liquid_element}}, visually defined by {{geometric_mutation}} flowing upward through {{temporal_effect}}, captured with {{cinematography}}.",
+        "aspect_ratio": "16:9"
+      },
+      "outputSummary": {
+        "status": "success",
+        "mediaId": "943e5a4b-8250-4414-b6ae-095853f11707",
+        "mediaType": "image"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.04
+    },
+    "scene3": {
+      "id": "scene3",
+      "type": "synth_image",
+      "dependsOn": [
+        "plan",
+        "style"
+      ],
+      "status": "complete",
+      "startedMs": 25985,
+      "completedMs": 40288,
+      "durationMs": 14303,
+      "inputs": {
+        "prompt": "Scene 4 of 4 from a surreal and hypnotic short film: A sterile fluorescent cubicle collapsing into a hypnotic ocean of liquid neon and woven starlight, flowing upward through intense temporal shear and non-Euclidean geometric mutations. A cinematic short film still of a surreal environment where {{office_element}} is collapsing and transforming into an ocean of {{liquid_element}}, visually defined by {{geometric_mutation}} flowing upward through {{temporal_effect}}, captured with {{cinematography}}.",
+        "aspect_ratio": "16:9"
+      },
+      "outputSummary": {
+        "status": "success",
+        "mediaId": "864961af-14a3-44ba-9178-b34b5b0f90a1",
+        "mediaType": "image"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.04
+    },
+    "desc0": {
+      "id": "desc0",
+      "type": "synth_analyze",
+      "dependsOn": [
+        "scene0"
+      ],
+      "status": "failed",
+      "startedMs": 49404,
+      "completedMs": 53527,
+      "durationMs": 4123,
+      "inputs": {
+        "image_id": "0a01411e-bb58-40f9-933f-e527dc54f27c"
+      },
+      "outputSummary": null,
+      "error": "Image analysis failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'models/gemini-3.1-flash-preview is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.', 'status': 'NOT_FOUND'}}",
+      "attempts": 1,
+      "costUsd": 0,
+      "lastRetryError": "Image analysis failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'models/gemini-3.1-flash-preview is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.', 'status': 'NOT_FOUND'}}"
+    },
+    "desc1": {
+      "id": "desc1",
+      "type": "synth_analyze",
+      "dependsOn": [
+        "scene1"
+      ],
+      "status": "failed",
+      "startedMs": 49410,
+      "completedMs": 53375,
+      "durationMs": 3965,
+      "inputs": {
+        "image_id": "1a0d5824-54de-4fa9-abf9-5e2d57b04345"
+      },
+      "outputSummary": null,
+      "error": "Image analysis failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'models/gemini-3.1-flash-preview is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.', 'status': 'NOT_FOUND'}}",
+      "attempts": 1,
+      "costUsd": 0,
+      "lastRetryError": "Image analysis failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'models/gemini-3.1-flash-preview is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.', 'status': 'NOT_FOUND'}}"
+    },
+    "desc2": {
+      "id": "desc2",
+      "type": "synth_analyze",
+      "dependsOn": [
+        "scene2"
+      ],
+      "status": "failed",
+      "startedMs": 49416,
+      "completedMs": 53352,
+      "durationMs": 3936,
+      "inputs": {
+        "image_id": "943e5a4b-8250-4414-b6ae-095853f11707"
+      },
+      "outputSummary": null,
+      "error": "Image analysis failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'models/gemini-3.1-flash-preview is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.', 'status': 'NOT_FOUND'}}",
+      "attempts": 1,
+      "costUsd": 0,
+      "lastRetryError": "Image analysis failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'models/gemini-3.1-flash-preview is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.', 'status': 'NOT_FOUND'}}"
+    },
+    "desc3": {
+      "id": "desc3",
+      "type": "synth_analyze",
+      "dependsOn": [
+        "scene3"
+      ],
+      "status": "failed",
+      "startedMs": 49423,
+      "completedMs": 53517,
+      "durationMs": 4094,
+      "inputs": {
+        "image_id": "864961af-14a3-44ba-9178-b34b5b0f90a1"
+      },
+      "outputSummary": null,
+      "error": "Image analysis failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'models/gemini-3.1-flash-preview is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.', 'status': 'NOT_FOUND'}}",
+      "attempts": 1,
+      "costUsd": 0,
+      "lastRetryError": "Image analysis failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'models/gemini-3.1-flash-preview is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.', 'status': 'NOT_FOUND'}}"
+    },
+    "narrative": {
+      "id": "narrative",
+      "type": "synth_narrative",
+      "dependsOn": [
+        "desc0",
+        "desc1",
+        "desc2",
+        "desc3"
+      ],
+      "status": "pending",
+      "startedMs": null,
+      "completedMs": null,
+      "durationMs": null,
+      "inputs": null,
+      "outputSummary": null,
+      "error": null,
+      "attempts": 0,
+      "costUsd": 0
+    },
+    "hero_video": {
+      "id": "hero_video",
+      "type": "synth_video",
+      "dependsOn": [
+        "desc0"
+      ],
+      "status": "pending",
+      "startedMs": null,
+      "completedMs": null,
+      "durationMs": null,
+      "inputs": null,
+      "outputSummary": null,
+      "error": null,
+      "attempts": 0,
+      "costUsd": 0
+    }
+  },
+  "events": [
+    {
+      "t": 0,
+      "event": "workflow_start",
+      "data": {
+        "workflowId": "a893cc05-48d4-42a7-9cf6-f33d314f2dc9",
+        "name": "Cinematic Short: A sterile fluorescent cubicle collapsing into a hy",
+        "stepCount": 12,
+        "steps": [
+          {
+            "id": "plan",
+            "type": "synth_text",
+            "dependsOn": []
+          },
+          {
+            "id": "style",
+            "type": "synth_template",
+            "dependsOn": []
+          },
+          {
+            "id": "scene0",
+            "type": "synth_image",
+            "dependsOn": [
+              "plan",
+              "style"
+            ]
+          },
+          {
+            "id": "scene1",
+            "type": "synth_image",
+            "dependsOn": [
+              "plan",
+              "style"
+            ]
+          },
+          {
+            "id": "scene2",
+            "type": "synth_image",
+            "dependsOn": [
+              "plan",
+              "style"
+            ]
+          },
+          {
+            "id": "scene3",
+            "type": "synth_image",
+            "dependsOn": [
+              "plan",
+              "style"
+            ]
+          },
+          {
+            "id": "desc0",
+            "type": "synth_analyze",
+            "dependsOn": [
+              "scene0"
+            ]
+          },
+          {
+            "id": "desc1",
+            "type": "synth_analyze",
+            "dependsOn": [
+              "scene1"
+            ]
+          },
+          {
+            "id": "desc2",
+            "type": "synth_analyze",
+            "dependsOn": [
+              "scene2"
+            ]
+          },
+          {
+            "id": "desc3",
+            "type": "synth_analyze",
+            "dependsOn": [
+              "scene3"
+            ]
+          },
+          {
+            "id": "narrative",
+            "type": "synth_narrative",
+            "dependsOn": [
+              "desc0",
+              "desc1",
+              "desc2",
+              "desc3"
+            ]
+          },
+          {
+            "id": "hero_video",
+            "type": "synth_video",
+            "dependsOn": [
+              "desc0"
+            ]
+          }
+        ],
+        "agentId": "b0ab9cd4-66cd-477a-8b1e-afd3993fa21b",
+        "agentName": "Agent",
+        "agentColor": "#4ECDC4",
+        "sessionId": "1edf97c5-9f31-44f6-b499-cb90a15f155d",
+        "messageId": null
+      }
+    },
+    {
+      "t": 1,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "a893cc05-48d4-42a7-9cf6-f33d314f2dc9",
+        "stepId": "plan",
+        "stepType": "synth_text",
+        "agentId": "b0ab9cd4-66cd-477a-8b1e-afd3993fa21b",
+        "dependsOn": [],
+        "inputs": {
+          "prompt": "You are a film director planning a short film. Concept: \"A sterile fluorescent cubicle collapsing into a hypnotic ocean of liquid neon and woven starlight, flowing upward through intense temporal shear and non-Euclidean geometric mutations\". Mood: surreal and hypnotic.\nPlan exactly 4 scenes. For each scene, write a vivid image generation prompt (2-3 sentences) describing the visual.\nOutput ONLY a JSON array of strings, one prompt per scene. Example: [\"scene 1 prompt\", \"scene 2 prompt\"]"
+        }
+      }
+    },
+    {
+      "t": 2,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "a893cc05-48d4-42a7-9cf6-f33d314f2dc9",
+        "stepId": "style",
+        "stepType": "synth_template",
+        "agentId": "b0ab9cd4-66cd-477a-8b1e-afd3993fa21b",
+        "dependsOn": [],
+        "inputs": {
+          "description": "surreal and hypnotic visual style for a short film about: A sterile fluorescent cubicle collapsing into a hypnotic ocean of liquid neon and woven starlight, flowing upward through intense temporal shear and non-Euclidean geometric mutations",
+          "mode": "text"
+        }
+      }
+    },
+    {
+      "t": 2,
+      "event": "workflow_submitted",
+      "data": {
+        "agentId": "b0ab9cd4-66cd-477a-8b1e-afd3993fa21b",
+        "agentName": "Agent",
+        "agentColor": "#4ECDC4",
+        "sessionId": "1edf97c5-9f31-44f6-b499-cb90a15f155d",
+        "workflowId": "a893cc05-48d4-42a7-9cf6-f33d314f2dc9",
+        "workflowName": "Cinematic Short: A sterile fluorescent cubicle collapsing into a hy",
+        "templateId": "cinematic_short",
+        "stepCount": 12,
+        "steps": [
+          {
+            "id": "plan",
+            "type": "synth_text"
+          },
+          {
+            "id": "style",
+            "type": "synth_template"
+          },
+          {
+            "id": "scene0",
+            "type": "synth_image"
+          },
+          {
+            "id": "scene1",
+            "type": "synth_image"
+          },
+          {
+            "id": "scene2",
+            "type": "synth_image"
+          },
+          {
+            "id": "scene3",
+            "type": "synth_image"
+          },
+          {
+            "id": "desc0",
+            "type": "synth_analyze"
+          },
+          {
+            "id": "desc1",
+            "type": "synth_analyze"
+          },
+          {
+            "id": "desc2",
+            "type": "synth_analyze"
+          },
+          {
+            "id": "desc3",
+            "type": "synth_analyze"
+          },
+          {
+            "id": "narrative",
+            "type": "synth_narrative"
+          },
+          {
+            "id": "hero_video",
+            "type": "synth_video"
+          }
+        ]
+      }
+    },
+    {
+      "t": 15362,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "a893cc05-48d4-42a7-9cf6-f33d314f2dc9",
+        "stepId": "plan",
+        "text": "[\n  \"A drab, sterile office cubicle illuminated by harsh, flickering fluorescent lights, with beige walls"
+      }
+    },
+    {
+      "t": 15462,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "a893cc05-48d4-42a7-9cf6-f33d314f2dc9",
+        "stepId": "plan",
+        "text": " and a solitary computer monitor. A mesmerizing puddle of glowing liquid neon begins to seep from a crack in the gray carpet,"
+      }
+    },
+    {
+      "t": 15659,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "a893cc05-48d4-42a7-9cf6-f33d314f2dc9",
+        "stepId": "plan",
+        "text": " defying gravity as it slowly crawls up the desk leg. The atmosphere feels tense yet hypnotically mundane, perfectly capturing the precipice of a surreal"
+      }
+    },
+    {
+      "t": 15776,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "a893cc05-48d4-42a7-9cf6-f33d314f2dc9",
+        "stepId": "plan",
+        "text": " transformation.\",\n  \"The cubicle walls suddenly melt and warp into impossible, non-Euclidean geometric folds, dissolving"
+      }
+    },
+    {
+      "t": 15955,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "a893cc05-48d4-42a7-9cf6-f33d314f2dc9",
+        "stepId": "plan",
+        "text": " into a cascading waterfall of vibrant cyan and magenta liquid neon. Office supplies and floating keyboards disintegrate into glowing particles as the"
+      }
+    },
+    {
+      "t": 16130,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "a893cc05-48d4-42a7-9cf6-f33d314f2dc9",
+        "stepId": "plan",
+        "text": " rigid right angles of the room bend inward like a collapsing tesseract. The lighting shifts from sterile white to a deep,"
+      }
+    },
+    {
+      "t": 16254,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "a893cc05-48d4-42a7-9cf6-f33d314f2dc9",
+        "stepId": "plan",
+        "text": " pulsating bioluminescent glow that irresistibly pulls the viewer's eye upward.\",\n  \"An endless, mesmerizing ocean of"
+      }
+    },
+    {
+      "t": 16381,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "a893cc05-48d4-42a7-9cf6-f33d314f2dc9",
+        "stepId": "plan",
+        "text": " liquid neon flows vertically upward, defying all laws of physics in a boundless surreal void. Glistening threads of woven starlight"
+      }
+    },
+    {
+      "t": 16520,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "a893cc05-48d4-42a7-9cf6-f33d314f2dc9",
+        "stepId": "plan",
+        "text": " intertwine with the upward-rushing neon waves, creating a hypnotic, luminescent tapestry of deep purples, electric"
+      }
+    },
+    {
+      "t": 16668,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "a893cc05-48d4-42a7-9cf6-f33d314f2dc9",
+        "stepId": "plan",
+        "text": " blues, and vibrant pinks. The perspective is completely disorienting, surrounded by fractal, shifting geometries that pulse with"
+      }
+    },
+    {
+      "t": 16796,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "a893cc05-48d4-42a7-9cf6-f33d314f2dc9",
+        "stepId": "plan",
+        "text": " a calming, otherworldly rhythm.\",\n  \"A visually overwhelming climax of intense temporal shear, where ribbons of woven starlight"
+      }
+    },
+    {
+      "t": 16969,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "a893cc05-48d4-42a7-9cf6-f33d314f2dc9",
+        "stepId": "plan",
+        "text": " and liquid neon violently streak across a collapsing multi-dimensional space. The remnants of the office cubicle are now completely mutated"
+      }
+    },
+    {
+      "t": 17107,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "a893cc05-48d4-42a7-9cf6-f33d314f2dc9",
+        "stepId": "plan",
+        "text": " into a hypnotic kaleidoscope of shifting, non-Euclidean shapes that spiral infinitely upwards toward a blinding cosmic singularity. The entire"
+      }
+    },
+    {
+      "t": 17297,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "a893cc05-48d4-42a7-9cf6-f33d314f2dc9",
+        "stepId": "plan",
+        "text": " scene radiates an intensely surreal, dreamlike energy that appears to freeze time itself within a glowing, abstract cosmos.\"\n]"
+      }
+    },
+    {
+      "t": 17323,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "a893cc05-48d4-42a7-9cf6-f33d314f2dc9",
+        "stepId": "plan",
+        "stepType": "synth_text",
+        "agentId": "b0ab9cd4-66cd-477a-8b1e-afd3993fa21b",
+        "attempts": 1,
+        "durationMs": 17322,
+        "summary": {}
+      }
+    },
+    {
+      "t": 25982,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "a893cc05-48d4-42a7-9cf6-f33d314f2dc9",
+        "stepId": "style",
+        "stepType": "synth_template",
+        "agentId": "b0ab9cd4-66cd-477a-8b1e-afd3993fa21b",
+        "attempts": 1,
+        "durationMs": 25980,
+        "summary": {
+          "status": "success",
+          "template": {
+            "promptTemplate": "A cinematic short film still of a surreal environment where {{office_element}} is collapsing and transforming into an ocean of {{liquid_element}}, visually defined by {{geometric_mutation}} flowing upward through {{temporal_effect}}, captured with {{cinematography}}.",
+            "variables": [
+              {
+                "name": "office_element",
+                "feature_name": "Office Aesthetic",
+                "values": [
+                  {
+                    "text": "flickering fluorescent lights and beige partitions",
+                    "weight": 3
+                  },
+                  {
+                    "text": "stark white desks and endless drop ceilings",
+                    "weight": 3
+                  },
+                  {
+                    "text": "monotonous grey fabric walls and CRT monitors",
+                    "weight": 3
+                  },
+                  {
+                    "text": "soulless corporate workstations lined up symmetrically",
+                    "weight": 3
+                  },
+                  {
+                    "text": "oppressive grid-like cubicle mazes",
+                    "weight": 3
+                  },
+                  {
+                    "text": "liminal hallway aesthetics with buzzing lights",
+                    "weight": 2
+                  },
+                  {
+                    "text": "abandoned brutalist concrete office spaces",
+                    "weight": 2
+                  },
+                  {
+                    "text": "claustrophobic windowless paper-pushing cells",
+                    "weight": 2
+                  },
+                  {
+                    "text": "surreal infinitely looping office corridors",
+                    "weight": 1
+                  },
+                  {
+                    "text": "decaying retro-corporate server rooms",
+                    "weight": 1
+                  }
+                ]
+              },
+              {
+                "name": "liquid_element",
+                "feature_name": "Liquid Material",
+                "values": [
+                  {
+                    "text": "glowing liquid neon and woven starlight",
+                    "weight": 3
+                  },
+                  {
+                    "text": "undulating waves of bioluminescent plasma",
+                    "weight": 3
+                  },
+                  {
+                    "text": "swirling iridescent quantum fluids",
+                    "weight": 3
+                  },
+                  {
+                    "text": "shimmering pools of liquid chrome and mercury",
+                    "weight": 3
+                  },
+                  {
+                    "text": "hypnotic tides of glowing synthetic resin",
+                    "weight": 3
+                  },
+                  {
+                    "text": "pulsing veins of neon cyber-fluids",
+                    "weight": 2
+                  },
+                  {
+                    "text": "cascading waterfalls of pure starlight",
+                    "weight": 2
+                  },
+                  {
+                    "text": "amorphous blobs of glowing ferrofluid",
+                    "weight": 2
+                  },
+                  {
+                    "text": "fractal oceans of liquid glass and ether",
+                    "weight": 1
+                  },
+                  {
+                    "text": "impossible shifting colors out of space",
+                    "weight": 1
+                  }
+                ]
+              },
+              {
+                "name": "geometric_mutation",
+                "feature_name": "Geometric Mutation",
+                "values": [
+                  {
+                    "text": "impossible non-Euclidean folding architecture",
+                    "weight": 3
+                  },
+                  {
+                    "text": "fractal-like recursive geometric shifting",
+                    "weight": 3
+                  },
+                  {
+                    "text": "surreal M.C. Escher gravity inversions",
+                    "weight": 3
+                  },
+                  {
+                    "text": "tessellating hypercube dimensional rips",
+                    "weight": 3
+                  },
+                  {
+                    "text": "melting Dali-esque architectural distortions",
+                    "weight": 3
+                  },
+                  {
+                    "text": "kaleidoscopic mirroring and spatial echoing",
+                    "weight": 2
+                  },
+                  {
+                    "text": "glitching polygonal mesh deconstructions",
+                    "weight": 2
+                  },
+                  {
+                    "text": "crystalline shattering of 3D space",
+                    "weight": 2
+                  },
+                  {
+                    "text": "tesseract-inspired morphing grid structures",
+                    "weight": 1
+                  },
+                  {
+                    "text": "seamless mobius strip spatial warping",
+                    "weight": 1
+                  }
+                ]
+              },
+              {
+                "name": "temporal_effect",
+                "feature_name": "Temporal Effect",
+                "values": [
+                  {
+                    "text": "intense temporal shear and motion blur",
+                    "weight": 3
+                  },
+                  {
+                    "text": "slow-motion suspension of gravity",
+                    "weight": 3
+                  },
+                  {
+                    "text": "stuttering time-lapse chronological decay",
+                    "weight": 3
+                  },
+                  {
+                    "text": "echoing chronophotographic light trails",
+                    "weight": 3
+                  },
+                  {
+                    "text": "frozen droplets suspended in mid-air",
+                    "weight": 3
+                  },
+                  {
+                    "text": "hyper-speed warp tunneling effects",
+                    "weight": 2
+                  },
+                  {
+                    "text": "reverse chronological liquid splashing",
+                    "weight": 2
+                  },
+                  {
+                    "text": "stroboscopic rhythmic time slicing",
+                    "weight": 2
+                  },
+                  {
+                    "text": "simultaneous past-future visual echoing",
+                    "weight": 1
+                  },
+                  {
+                    "text": "frozen reality with localized temporal rifts",
+                    "weight": 1
+                  }
+                ]
+              },
+              {
+                "name": "cinematography",
+                "feature_name": "Cinematography",
+                "values": [
+                  {
+                    "text": "hyper-surreal ultra-wide angle cinematography",
+                    "weight": 3
+                  },
+                  {
+                    "text": "deep depth of field with volumetric fog",
+                    "weight": 3
+                  },
+                  {
+                    "text": "hypnotic slow-panning extreme macro shots",
+                    "weight": 3
+                  },
+                  {
+                    "text": "cinematic anamorphic lens flares",
+                    "weight": 3
+                  },
+                  {
+                    "text": "hallucinatory low-angle tracking shots",
+                    "weight": 3
+                  },
+                  {
+                    "text": "high-contrast neon cyberpunk lighting",
+                    "weight": 2
+                  },
+                  {
+                    "text": "ethereal soft-focus dreamscape rendering",
+                    "weight": 2
+                  },
+                  {
+                    "text": "dutch angle disorienting perspective",
+                    "weight": 2
+                  },
+                  {
+                    "text": "cross-polarized surreal spectrum lighting",
+                    "weight": 1
+                  },
+                  {
+                    "text": "8mm vintage film stock with heavy light leaks",
+                    "weight": 1
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "t": 25983,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "a893cc05-48d4-42a7-9cf6-f33d314f2dc9",
+        "stepId": "scene0",
+        "stepType": "synth_image",
+        "agentId": "b0ab9cd4-66cd-477a-8b1e-afd3993fa21b",
+        "dependsOn": [
+          "plan",
+          "style"
+        ],
+        "inputs": {
+          "prompt": "Scene 1 of 4 from a surreal and hypnotic short film: A sterile fluorescent cubicle collapsing into a hypnotic ocean of liquid neon and woven starlight, flowing upward through intense temporal shear and non-Euclidean geometric mutations. A cinematic short film still of a surreal environment where {{office_element}} is collapsing and transforming into an ocean of {{liquid_element}}, visually defined by {{geometric_mutation}} flowing upward through {{temporal_effect}}, captured with {{cinematography}}.",
+          "aspect_ratio": "16:9"
+        }
+      }
+    },
+    {
+      "t": 25984,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "a893cc05-48d4-42a7-9cf6-f33d314f2dc9",
+        "stepId": "scene1",
+        "stepType": "synth_image",
+        "agentId": "b0ab9cd4-66cd-477a-8b1e-afd3993fa21b",
+        "dependsOn": [
+          "plan",
+          "style"
+        ],
+        "inputs": {
+          "prompt": "Scene 2 of 4 from a surreal and hypnotic short film: A sterile fluorescent cubicle collapsing into a hypnotic ocean of liquid neon and woven starlight, flowing upward through intense temporal shear and non-Euclidean geometric mutations. A cinematic short film still of a surreal environment where {{office_element}} is collapsing and transforming into an ocean of {{liquid_element}}, visually defined by {{geometric_mutation}} flowing upward through {{temporal_effect}}, captured with {{cinematography}}.",
+          "aspect_ratio": "16:9"
+        }
+      }
+    },
+    {
+      "t": 25984,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "a893cc05-48d4-42a7-9cf6-f33d314f2dc9",
+        "stepId": "scene2",
+        "stepType": "synth_image",
+        "agentId": "b0ab9cd4-66cd-477a-8b1e-afd3993fa21b",
+        "dependsOn": [
+          "plan",
+          "style"
+        ],
+        "inputs": {
+          "prompt": "Scene 3 of 4 from a surreal and hypnotic short film: A sterile fluorescent cubicle collapsing into a hypnotic ocean of liquid neon and woven starlight, flowing upward through intense temporal shear and non-Euclidean geometric mutations. A cinematic short film still of a surreal environment where {{office_element}} is collapsing and transforming into an ocean of {{liquid_element}}, visually defined by {{geometric_mutation}} flowing upward through {{temporal_effect}}, captured with {{cinematography}}.",
+          "aspect_ratio": "16:9"
+        }
+      }
+    },
+    {
+      "t": 25985,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "a893cc05-48d4-42a7-9cf6-f33d314f2dc9",
+        "stepId": "scene3",
+        "stepType": "synth_image",
+        "agentId": "b0ab9cd4-66cd-477a-8b1e-afd3993fa21b",
+        "dependsOn": [
+          "plan",
+          "style"
+        ],
+        "inputs": {
+          "prompt": "Scene 4 of 4 from a surreal and hypnotic short film: A sterile fluorescent cubicle collapsing into a hypnotic ocean of liquid neon and woven starlight, flowing upward through intense temporal shear and non-Euclidean geometric mutations. A cinematic short film still of a surreal environment where {{office_element}} is collapsing and transforming into an ocean of {{liquid_element}}, visually defined by {{geometric_mutation}} flowing upward through {{temporal_effect}}, captured with {{cinematography}}.",
+          "aspect_ratio": "16:9"
+        }
+      }
+    },
+    {
+      "t": 39000,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "a893cc05-48d4-42a7-9cf6-f33d314f2dc9",
+        "stepId": "scene0",
+        "stepType": "synth_image",
+        "agentId": "b0ab9cd4-66cd-477a-8b1e-afd3993fa21b",
+        "attempts": 1,
+        "durationMs": 13017,
+        "summary": {
+          "status": "success",
+          "mediaId": "0a01411e-bb58-40f9-933f-e527dc54f27c",
+          "mediaType": "image"
+        }
+      }
+    },
+    {
+      "t": 40288,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "a893cc05-48d4-42a7-9cf6-f33d314f2dc9",
+        "stepId": "scene3",
+        "stepType": "synth_image",
+        "agentId": "b0ab9cd4-66cd-477a-8b1e-afd3993fa21b",
+        "attempts": 1,
+        "durationMs": 14303,
+        "summary": {
+          "status": "success",
+          "mediaId": "864961af-14a3-44ba-9178-b34b5b0f90a1",
+          "mediaType": "image"
+        }
+      }
+    },
+    {
+      "t": 44271,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "a893cc05-48d4-42a7-9cf6-f33d314f2dc9",
+        "stepId": "scene1",
+        "stepType": "synth_image",
+        "agentId": "b0ab9cd4-66cd-477a-8b1e-afd3993fa21b",
+        "attempts": 1,
+        "durationMs": 18287,
+        "summary": {
+          "status": "success",
+          "mediaId": "1a0d5824-54de-4fa9-abf9-5e2d57b04345",
+          "mediaType": "image"
+        }
+      }
+    },
+    {
+      "t": 49403,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "a893cc05-48d4-42a7-9cf6-f33d314f2dc9",
+        "stepId": "scene2",
+        "stepType": "synth_image",
+        "agentId": "b0ab9cd4-66cd-477a-8b1e-afd3993fa21b",
+        "attempts": 1,
+        "durationMs": 23419,
+        "summary": {
+          "status": "success",
+          "mediaId": "943e5a4b-8250-4414-b6ae-095853f11707",
+          "mediaType": "image"
+        }
+      }
+    },
+    {
+      "t": 49404,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "a893cc05-48d4-42a7-9cf6-f33d314f2dc9",
+        "stepId": "desc0",
+        "stepType": "synth_analyze",
+        "agentId": "b0ab9cd4-66cd-477a-8b1e-afd3993fa21b",
+        "dependsOn": [
+          "scene0"
+        ],
+        "inputs": {
+          "image_id": "0a01411e-bb58-40f9-933f-e527dc54f27c"
+        }
+      }
+    },
+    {
+      "t": 49410,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "a893cc05-48d4-42a7-9cf6-f33d314f2dc9",
+        "stepId": "desc1",
+        "stepType": "synth_analyze",
+        "agentId": "b0ab9cd4-66cd-477a-8b1e-afd3993fa21b",
+        "dependsOn": [
+          "scene1"
+        ],
+        "inputs": {
+          "image_id": "1a0d5824-54de-4fa9-abf9-5e2d57b04345"
+        }
+      }
+    },
+    {
+      "t": 49416,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "a893cc05-48d4-42a7-9cf6-f33d314f2dc9",
+        "stepId": "desc2",
+        "stepType": "synth_analyze",
+        "agentId": "b0ab9cd4-66cd-477a-8b1e-afd3993fa21b",
+        "dependsOn": [
+          "scene2"
+        ],
+        "inputs": {
+          "image_id": "943e5a4b-8250-4414-b6ae-095853f11707"
+        }
+      }
+    },
+    {
+      "t": 49423,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "a893cc05-48d4-42a7-9cf6-f33d314f2dc9",
+        "stepId": "desc3",
+        "stepType": "synth_analyze",
+        "agentId": "b0ab9cd4-66cd-477a-8b1e-afd3993fa21b",
+        "dependsOn": [
+          "scene3"
+        ],
+        "inputs": {
+          "image_id": "864961af-14a3-44ba-9178-b34b5b0f90a1"
+        }
+      }
+    },
+    {
+      "t": 49755,
+      "event": "workflow_step_retry",
+      "data": {
+        "workflowId": "a893cc05-48d4-42a7-9cf6-f33d314f2dc9",
+        "stepId": "desc1",
+        "stepType": "synth_analyze",
+        "attempt": 1,
+        "error": "Image analysis failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'models/gemini-3.1-flash-preview is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.', 'status': 'NOT_FOUND'}}"
+      }
+    },
+    {
+      "t": 49999,
+      "event": "workflow_step_retry",
+      "data": {
+        "workflowId": "a893cc05-48d4-42a7-9cf6-f33d314f2dc9",
+        "stepId": "desc2",
+        "stepType": "synth_analyze",
+        "attempt": 1,
+        "error": "Image analysis failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'models/gemini-3.1-flash-preview is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.', 'status': 'NOT_FOUND'}}"
+      }
+    },
+    {
+      "t": 50039,
+      "event": "workflow_step_retry",
+      "data": {
+        "workflowId": "a893cc05-48d4-42a7-9cf6-f33d314f2dc9",
+        "stepId": "desc3",
+        "stepType": "synth_analyze",
+        "attempt": 1,
+        "error": "Image analysis failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'models/gemini-3.1-flash-preview is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.', 'status': 'NOT_FOUND'}}"
+      }
+    },
+    {
+      "t": 50122,
+      "event": "workflow_step_retry",
+      "data": {
+        "workflowId": "a893cc05-48d4-42a7-9cf6-f33d314f2dc9",
+        "stepId": "desc0",
+        "stepType": "synth_analyze",
+        "attempt": 1,
+        "error": "Image analysis failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'models/gemini-3.1-flash-preview is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.', 'status': 'NOT_FOUND'}}"
+      }
+    },
+    {
+      "t": 53352,
+      "event": "workflow_step_error",
+      "data": {
+        "workflowId": "a893cc05-48d4-42a7-9cf6-f33d314f2dc9",
+        "stepId": "desc2",
+        "stepType": "synth_analyze",
+        "agentId": "b0ab9cd4-66cd-477a-8b1e-afd3993fa21b",
+        "attempts": 2,
+        "durationMs": 3936,
+        "error": "Image analysis failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'models/gemini-3.1-flash-preview is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.', 'status': 'NOT_FOUND'}}"
+      }
+    },
+    {
+      "t": 53375,
+      "event": "workflow_step_error",
+      "data": {
+        "workflowId": "a893cc05-48d4-42a7-9cf6-f33d314f2dc9",
+        "stepId": "desc1",
+        "stepType": "synth_analyze",
+        "agentId": "b0ab9cd4-66cd-477a-8b1e-afd3993fa21b",
+        "attempts": 2,
+        "durationMs": 3965,
+        "error": "Image analysis failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'models/gemini-3.1-flash-preview is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.', 'status': 'NOT_FOUND'}}"
+      }
+    },
+    {
+      "t": 53517,
+      "event": "workflow_step_error",
+      "data": {
+        "workflowId": "a893cc05-48d4-42a7-9cf6-f33d314f2dc9",
+        "stepId": "desc3",
+        "stepType": "synth_analyze",
+        "agentId": "b0ab9cd4-66cd-477a-8b1e-afd3993fa21b",
+        "attempts": 2,
+        "durationMs": 4094,
+        "error": "Image analysis failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'models/gemini-3.1-flash-preview is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.', 'status': 'NOT_FOUND'}}"
+      }
+    },
+    {
+      "t": 53527,
+      "event": "workflow_step_error",
+      "data": {
+        "workflowId": "a893cc05-48d4-42a7-9cf6-f33d314f2dc9",
+        "stepId": "desc0",
+        "stepType": "synth_analyze",
+        "agentId": "b0ab9cd4-66cd-477a-8b1e-afd3993fa21b",
+        "attempts": 2,
+        "durationMs": 4123,
+        "error": "Image analysis failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'models/gemini-3.1-flash-preview is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.', 'status': 'NOT_FOUND'}}"
+      }
+    },
+    {
+      "t": 53528,
+      "event": "workflow_complete",
+      "data": {
+        "workflowId": "a893cc05-48d4-42a7-9cf6-f33d314f2dc9",
+        "name": "Cinematic Short: A sterile fluorescent cubicle collapsing into a hy",
+        "status": "failed",
+        "completedAt": "2026-04-30T17:03:53.923Z",
+        "agentId": "b0ab9cd4-66cd-477a-8b1e-afd3993fa21b",
+        "totals": {
+          "durationMs": 53528,
+          "completedSteps": 6,
+          "failedSteps": 4,
+          "skippedSteps": 0
+        },
+        "stepResults": [
+          {
+            "id": "plan",
+            "type": "synth_text",
+            "status": "complete"
+          },
+          {
+            "id": "style",
+            "type": "synth_template",
+            "status": "success",
+            "template": {
+              "promptTemplate": "A cinematic short film still of a surreal environment where {{office_element}} is collapsing and transforming into an ocean of {{liquid_element}}, visually defined by {{geometric_mutation}} flowing upward through {{temporal_effect}}, captured with {{cinematography}}.",
+              "variables": [
+                {
+                  "name": "office_element",
+                  "feature_name": "Office Aesthetic",
+                  "values": [
+                    {
+                      "text": "flickering fluorescent lights and beige partitions",
+                      "weight": 3
+                    },
+                    {
+                      "text": "stark white desks and endless drop ceilings",
+                      "weight": 3
+                    },
+                    {
+                      "text": "monotonous grey fabric walls and CRT monitors",
+                      "weight": 3
+                    },
+                    {
+                      "text": "soulless corporate workstations lined up symmetrically",
+                      "weight": 3
+                    },
+                    {
+                      "text": "oppressive grid-like cubicle mazes",
+                      "weight": 3
+                    },
+                    {
+                      "text": "liminal hallway aesthetics with buzzing lights",
+                      "weight": 2
+                    },
+                    {
+                      "text": "abandoned brutalist concrete office spaces",
+                      "weight": 2
+                    },
+                    {
+                      "text": "claustrophobic windowless paper-pushing cells",
+                      "weight": 2
+                    },
+                    {
+                      "text": "surreal infinitely looping office corridors",
+                      "weight": 1
+                    },
+                    {
+                      "text": "decaying retro-corporate server rooms",
+                      "weight": 1
+                    }
+                  ]
+                },
+                {
+                  "name": "liquid_element",
+                  "feature_name": "Liquid Material",
+                  "values": [
+                    {
+                      "text": "glowing liquid neon and woven starlight",
+                      "weight": 3
+                    },
+                    {
+                      "text": "undulating waves of bioluminescent plasma",
+                      "weight": 3
+                    },
+                    {
+                      "text": "swirling iridescent quantum fluids",
+                      "weight": 3
+                    },
+                    {
+                      "text": "shimmering pools of liquid chrome and mercury",
+                      "weight": 3
+                    },
+                    {
+                      "text": "hypnotic tides of glowing synthetic resin",
+                      "weight": 3
+                    },
+                    {
+                      "text": "pulsing veins of neon cyber-fluids",
+                      "weight": 2
+                    },
+                    {
+                      "text": "cascading waterfalls of pure starlight",
+                      "weight": 2
+                    },
+                    {
+                      "text": "amorphous blobs of glowing ferrofluid",
+                      "weight": 2
+                    },
+                    {
+                      "text": "fractal oceans of liquid glass and ether",
+                      "weight": 1
+                    },
+                    {
+                      "text": "impossible shifting colors out of space",
+                      "weight": 1
+                    }
+                  ]
+                },
+                {
+                  "name": "geometric_mutation",
+                  "feature_name": "Geometric Mutation",
+                  "values": [
+                    {
+                      "text": "impossible non-Euclidean folding architecture",
+                      "weight": 3
+                    },
+                    {
+                      "text": "fractal-like recursive geometric shifting",
+                      "weight": 3
+                    },
+                    {
+                      "text": "surreal M.C. Escher gravity inversions",
+                      "weight": 3
+                    },
+                    {
+                      "text": "tessellating hypercube dimensional rips",
+                      "weight": 3
+                    },
+                    {
+                      "text": "melting Dali-esque architectural distortions",
+                      "weight": 3
+                    },
+                    {
+                      "text": "kaleidoscopic mirroring and spatial echoing",
+                      "weight": 2
+                    },
+                    {
+                      "text": "glitching polygonal mesh deconstructions",
+                      "weight": 2
+                    },
+                    {
+                      "text": "crystalline shattering of 3D space",
+                      "weight": 2
+                    },
+                    {
+                      "text": "tesseract-inspired morphing grid structures",
+                      "weight": 1
+                    },
+                    {
+                      "text": "seamless mobius strip spatial warping",
+                      "weight": 1
+                    }
+                  ]
+                },
+                {
+                  "name": "temporal_effect",
+                  "feature_name": "Temporal Effect",
+                  "values": [
+                    {
+                      "text": "intense temporal shear and motion blur",
+                      "weight": 3
+                    },
+                    {
+                      "text": "slow-motion suspension of gravity",
+                      "weight": 3
+                    },
+                    {
+                      "text": "stuttering time-lapse chronological decay",
+                      "weight": 3
+                    },
+                    {
+                      "text": "echoing chronophotographic light trails",
+                      "weight": 3
+                    },
+                    {
+                      "text": "frozen droplets suspended in mid-air",
+                      "weight": 3
+                    },
+                    {
+                      "text": "hyper-speed warp tunneling effects",
+                      "weight": 2
+                    },
+                    {
+                      "text": "reverse chronological liquid splashing",
+                      "weight": 2
+                    },
+                    {
+                      "text": "stroboscopic rhythmic time slicing",
+                      "weight": 2
+                    },
+                    {
+                      "text": "simultaneous past-future visual echoing",
+                      "weight": 1
+                    },
+                    {
+                      "text": "frozen reality with localized temporal rifts",
+                      "weight": 1
+                    }
+                  ]
+                },
+                {
+                  "name": "cinematography",
+                  "feature_name": "Cinematography",
+                  "values": [
+                    {
+                      "text": "hyper-surreal ultra-wide angle cinematography",
+                      "weight": 3
+                    },
+                    {
+                      "text": "deep depth of field with volumetric fog",
+                      "weight": 3
+                    },
+                    {
+                      "text": "hypnotic slow-panning extreme macro shots",
+                      "weight": 3
+                    },
+                    {
+                      "text": "cinematic anamorphic lens flares",
+                      "weight": 3
+                    },
+                    {
+                      "text": "hallucinatory low-angle tracking shots",
+                      "weight": 3
+                    },
+                    {
+                      "text": "high-contrast neon cyberpunk lighting",
+                      "weight": 2
+                    },
+                    {
+                      "text": "ethereal soft-focus dreamscape rendering",
+                      "weight": 2
+                    },
+                    {
+                      "text": "dutch angle disorienting perspective",
+                      "weight": 2
+                    },
+                    {
+                      "text": "cross-polarized surreal spectrum lighting",
+                      "weight": 1
+                    },
+                    {
+                      "text": "8mm vintage film stock with heavy light leaks",
+                      "weight": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "id": "scene0",
+            "type": "synth_image",
+            "status": "success",
+            "mediaId": "0a01411e-bb58-40f9-933f-e527dc54f27c",
+            "mediaType": "image"
+          },
+          {
+            "id": "scene1",
+            "type": "synth_image",
+            "status": "success",
+            "mediaId": "1a0d5824-54de-4fa9-abf9-5e2d57b04345",
+            "mediaType": "image"
+          },
+          {
+            "id": "scene2",
+            "type": "synth_image",
+            "status": "success",
+            "mediaId": "943e5a4b-8250-4414-b6ae-095853f11707",
+            "mediaType": "image"
+          },
+          {
+            "id": "scene3",
+            "type": "synth_image",
+            "status": "success",
+            "mediaId": "864961af-14a3-44ba-9178-b34b5b0f90a1",
+            "mediaType": "image"
+          },
+          {
+            "id": "desc0",
+            "type": "synth_analyze",
+            "status": "failed"
+          },
+          {
+            "id": "desc1",
+            "type": "synth_analyze",
+            "status": "failed"
+          },
+          {
+            "id": "desc2",
+            "type": "synth_analyze",
+            "status": "failed"
+          },
+          {
+            "id": "desc3",
+            "type": "synth_analyze",
+            "status": "failed"
+          },
+          {
+            "id": "narrative",
+            "type": "synth_narrative",
+            "status": "pending"
+          },
+          {
+            "id": "hero_video",
+            "type": "synth_video",
+            "status": "pending"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -3,8 +3,8 @@ import { countTokens } from '../utils/tokenCounter.js';
 import { synthClient, listPresetsCompact, listTemplatesForPrompt } from 'workflow-engine';
 import { artifactStore } from './artifactStore.js';
 
-// Use Gemini 3 Pro Preview
-const MODEL_NAME = 'gemini-3-pro-preview';
+// Use a stable Gemini model
+const MODEL_NAME = 'gemini-3.1-pro-preview';
 
 // Max attempts to continue a truncated response
 const MAX_CONTINUATION_ATTEMPTS = 2;
@@ -443,7 +443,7 @@ function buildContentParts(promptText, sessionMedia = []) {
  * Generate a streaming response from an agent
  * Includes truncation detection, auto-continuation, and session media support
  */
-export async function* generateAgentResponse(agent, allAgents, messages, goal, sessionMedia = []) {
+export async function* generateAgentResponse(agent, allAgents, messages, goal, sessionMedia = [], options = {}) {
   if (!genAI) {
     throw new Error('Gemini not initialized. Call initializeGemini first.');
   }
@@ -451,7 +451,7 @@ export async function* generateAgentResponse(agent, allAgents, messages, goal, s
   const systemPrompt = await buildSystemPrompt(agent, allAgents, goal);
 
   const model = genAI.getGenerativeModel({
-    model: MODEL_NAME,
+    model: (typeof options !== 'undefined' ? options.model : null) || MODEL_NAME,
     systemInstruction: systemPrompt,
     generationConfig: {
       maxOutputTokens: 8192,
@@ -567,7 +567,7 @@ export async function generateAgentResponseSync(agent, allAgents, messages, goal
   }
 
   const model = genAI.getGenerativeModel({
-    model: MODEL_NAME,
+    model: (typeof options !== 'undefined' ? options.model : null) || MODEL_NAME,
     systemInstruction: await buildSystemPrompt(agent, allAgents, goal),
     generationConfig: {
       maxOutputTokens: 8192,

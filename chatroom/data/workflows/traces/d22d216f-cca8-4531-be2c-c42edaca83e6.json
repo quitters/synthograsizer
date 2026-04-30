@@ -1,0 +1,283 @@
+{
+  "workflowId": "d22d216f-cca8-4531-be2c-c42edaca83e6",
+  "name": "Progressive Transform: a sterile, grey corporate office cubicle",
+  "agentId": "b0ab9cd4-66cd-477a-8b1e-afd3993fa21b",
+  "agentName": "Agent",
+  "agentColor": "#4ECDC4",
+  "sessionId": "1edf97c5-9f31-44f6-b499-cb90a15f155d",
+  "messageId": null,
+  "startedAt": "2026-04-30T17:01:08.140Z",
+  "completedAt": "2026-04-30T17:01:28.867Z",
+  "status": "failed",
+  "totals": {
+    "durationMs": 20727,
+    "costUsd": 0.04,
+    "completedSteps": 1,
+    "failedSteps": 1
+  },
+  "steps": {
+    "origin": {
+      "id": "origin",
+      "type": "synth_image",
+      "dependsOn": [],
+      "status": "complete",
+      "startedMs": 0,
+      "completedMs": 17493,
+      "durationMs": 17493,
+      "inputs": {
+        "prompt": "a sterile, grey corporate office cubicle under fluorescent lights",
+        "aspect_ratio": "16:9"
+      },
+      "outputSummary": {
+        "status": "success",
+        "mediaId": "2429398b-0d2c-4f02-bd6a-925b07b5ad48",
+        "mediaType": "image"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.04
+    },
+    "transform_0": {
+      "id": "transform_0",
+      "type": "synth_transform",
+      "dependsOn": [
+        "origin"
+      ],
+      "status": "failed",
+      "startedMs": 17494,
+      "completedMs": 20726,
+      "durationMs": 3232,
+      "inputs": {
+        "image_id": "2429398b-0d2c-4f02-bd6a-925b07b5ad48",
+        "intent": "submerge the entire environment in a bioluminescent deep-sea coral ecosystem with glowing flora"
+      },
+      "outputSummary": null,
+      "error": "Smart Transform failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'models/gemini-3.1-flash-preview is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.', 'status': 'NOT_FOUND'}}",
+      "attempts": 1,
+      "costUsd": 0,
+      "lastRetryError": "Smart Transform failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'models/gemini-3.1-flash-preview is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.', 'status': 'NOT_FOUND'}}"
+    },
+    "transform_1": {
+      "id": "transform_1",
+      "type": "synth_transform",
+      "dependsOn": [
+        "transform_0"
+      ],
+      "status": "pending",
+      "startedMs": null,
+      "completedMs": null,
+      "durationMs": null,
+      "inputs": null,
+      "outputSummary": null,
+      "error": null,
+      "attempts": 0,
+      "costUsd": 0
+    },
+    "transform_2": {
+      "id": "transform_2",
+      "type": "synth_transform",
+      "dependsOn": [
+        "transform_1"
+      ],
+      "status": "pending",
+      "startedMs": null,
+      "completedMs": null,
+      "durationMs": null,
+      "inputs": null,
+      "outputSummary": null,
+      "error": null,
+      "attempts": 0,
+      "costUsd": 0
+    }
+  },
+  "events": [
+    {
+      "t": 0,
+      "event": "workflow_start",
+      "data": {
+        "workflowId": "d22d216f-cca8-4531-be2c-c42edaca83e6",
+        "name": "Progressive Transform: a sterile, grey corporate office cubicle",
+        "stepCount": 4,
+        "steps": [
+          {
+            "id": "origin",
+            "type": "synth_image",
+            "dependsOn": []
+          },
+          {
+            "id": "transform_0",
+            "type": "synth_transform",
+            "dependsOn": [
+              "origin"
+            ]
+          },
+          {
+            "id": "transform_1",
+            "type": "synth_transform",
+            "dependsOn": [
+              "transform_0"
+            ]
+          },
+          {
+            "id": "transform_2",
+            "type": "synth_transform",
+            "dependsOn": [
+              "transform_1"
+            ]
+          }
+        ],
+        "agentId": "b0ab9cd4-66cd-477a-8b1e-afd3993fa21b",
+        "agentName": "Agent",
+        "agentColor": "#4ECDC4",
+        "sessionId": "1edf97c5-9f31-44f6-b499-cb90a15f155d",
+        "messageId": null
+      }
+    },
+    {
+      "t": 0,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "d22d216f-cca8-4531-be2c-c42edaca83e6",
+        "stepId": "origin",
+        "stepType": "synth_image",
+        "agentId": "b0ab9cd4-66cd-477a-8b1e-afd3993fa21b",
+        "dependsOn": [],
+        "inputs": {
+          "prompt": "a sterile, grey corporate office cubicle under fluorescent lights",
+          "aspect_ratio": "16:9"
+        }
+      }
+    },
+    {
+      "t": 1,
+      "event": "workflow_submitted",
+      "data": {
+        "agentId": "b0ab9cd4-66cd-477a-8b1e-afd3993fa21b",
+        "agentName": "Agent",
+        "agentColor": "#4ECDC4",
+        "sessionId": "1edf97c5-9f31-44f6-b499-cb90a15f155d",
+        "workflowId": "d22d216f-cca8-4531-be2c-c42edaca83e6",
+        "workflowName": "Progressive Transform: a sterile, grey corporate office cubicle",
+        "templateId": "progressive_transform",
+        "stepCount": 4,
+        "steps": [
+          {
+            "id": "origin",
+            "type": "synth_image"
+          },
+          {
+            "id": "transform_0",
+            "type": "synth_transform"
+          },
+          {
+            "id": "transform_1",
+            "type": "synth_transform"
+          },
+          {
+            "id": "transform_2",
+            "type": "synth_transform"
+          }
+        ]
+      }
+    },
+    {
+      "t": 17493,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "d22d216f-cca8-4531-be2c-c42edaca83e6",
+        "stepId": "origin",
+        "stepType": "synth_image",
+        "agentId": "b0ab9cd4-66cd-477a-8b1e-afd3993fa21b",
+        "attempts": 1,
+        "durationMs": 17493,
+        "summary": {
+          "status": "success",
+          "mediaId": "2429398b-0d2c-4f02-bd6a-925b07b5ad48",
+          "mediaType": "image"
+        }
+      }
+    },
+    {
+      "t": 17494,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "d22d216f-cca8-4531-be2c-c42edaca83e6",
+        "stepId": "transform_0",
+        "stepType": "synth_transform",
+        "agentId": "b0ab9cd4-66cd-477a-8b1e-afd3993fa21b",
+        "dependsOn": [
+          "origin"
+        ],
+        "inputs": {
+          "image_id": "2429398b-0d2c-4f02-bd6a-925b07b5ad48",
+          "intent": "submerge the entire environment in a bioluminescent deep-sea coral ecosystem with glowing flora"
+        }
+      }
+    },
+    {
+      "t": 17614,
+      "event": "workflow_step_retry",
+      "data": {
+        "workflowId": "d22d216f-cca8-4531-be2c-c42edaca83e6",
+        "stepId": "transform_0",
+        "stepType": "synth_transform",
+        "attempt": 1,
+        "error": "Smart Transform failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'models/gemini-3.1-flash-preview is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.', 'status': 'NOT_FOUND'}}"
+      }
+    },
+    {
+      "t": 20726,
+      "event": "workflow_step_error",
+      "data": {
+        "workflowId": "d22d216f-cca8-4531-be2c-c42edaca83e6",
+        "stepId": "transform_0",
+        "stepType": "synth_transform",
+        "agentId": "b0ab9cd4-66cd-477a-8b1e-afd3993fa21b",
+        "attempts": 2,
+        "durationMs": 3232,
+        "error": "Smart Transform failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'models/gemini-3.1-flash-preview is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.', 'status': 'NOT_FOUND'}}"
+      }
+    },
+    {
+      "t": 20727,
+      "event": "workflow_complete",
+      "data": {
+        "workflowId": "d22d216f-cca8-4531-be2c-c42edaca83e6",
+        "name": "Progressive Transform: a sterile, grey corporate office cubicle",
+        "status": "failed",
+        "completedAt": "2026-04-30T17:01:28.867Z",
+        "agentId": "b0ab9cd4-66cd-477a-8b1e-afd3993fa21b",
+        "totals": {
+          "durationMs": 20727,
+          "completedSteps": 1,
+          "failedSteps": 1,
+          "skippedSteps": 0
+        },
+        "stepResults": [
+          {
+            "id": "origin",
+            "type": "synth_image",
+            "status": "success",
+            "mediaId": "2429398b-0d2c-4f02-bd6a-925b07b5ad48",
+            "mediaType": "image"
+          },
+          {
+            "id": "transform_0",
+            "type": "synth_transform",
+            "status": "failed"
+          },
+          {
+            "id": "transform_1",
+            "type": "synth_transform",
+            "status": "pending"
+          },
+          {
+            "id": "transform_2",
+            "type": "synth_transform",
+            "status": "pending"
+          }
+        ]
+      }
+    }
+  ]
+}

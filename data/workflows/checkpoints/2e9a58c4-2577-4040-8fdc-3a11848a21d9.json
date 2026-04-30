@@ -1,0 +1,403 @@
+{
+  "workflowId": "2e9a58c4-2577-4040-8fdc-3a11848a21d9",
+  "name": "Cinematic Short: Abstract color transitions evolving from rigid geo",
+  "workflowDef": {
+    "name": "Cinematic Short: Abstract color transitions evolving from rigid geo",
+    "steps": [
+      {
+        "id": "plan",
+        "type": "synth_text",
+        "params": {
+          "prompt": "You are a film director planning a short film. Concept: \"Abstract color transitions evolving from rigid geometric primary colors, melting into fluid complementary blends, and vaporizing into atmospheric hazy neon\". Mood: hypnotic.\nPlan exactly 3 scenes. For each scene, write a vivid image generation prompt (2-3 sentences) describing the visual.\nOutput ONLY a JSON array of strings, one prompt per scene. Example: [\"scene 1 prompt\", \"scene 2 prompt\"]"
+        },
+        "dependsOn": []
+      },
+      {
+        "id": "style",
+        "type": "synth_template",
+        "params": {
+          "description": "hypnotic visual style for a short film about: Abstract color transitions evolving from rigid geometric primary colors, melting into fluid complementary blends, and vaporizing into atmospheric hazy neon",
+          "mode": "text"
+        },
+        "dependsOn": []
+      },
+      {
+        "id": "scene0",
+        "type": "synth_image",
+        "params": {
+          "prompt": "Scene 1 of 3 from a hypnotic short film: Abstract color transitions evolving from rigid geometric primary colors, melting into fluid complementary blends, and vaporizing into atmospheric hazy neon. {{style.template.promptTemplate}}",
+          "aspect_ratio": "16:9"
+        },
+        "dependsOn": [
+          "plan",
+          "style"
+        ]
+      },
+      {
+        "id": "scene1",
+        "type": "synth_image",
+        "params": {
+          "prompt": "Scene 2 of 3 from a hypnotic short film: Abstract color transitions evolving from rigid geometric primary colors, melting into fluid complementary blends, and vaporizing into atmospheric hazy neon. {{style.template.promptTemplate}}",
+          "aspect_ratio": "16:9"
+        },
+        "dependsOn": [
+          "plan",
+          "style"
+        ]
+      },
+      {
+        "id": "scene2",
+        "type": "synth_image",
+        "params": {
+          "prompt": "Scene 3 of 3 from a hypnotic short film: Abstract color transitions evolving from rigid geometric primary colors, melting into fluid complementary blends, and vaporizing into atmospheric hazy neon. {{style.template.promptTemplate}}",
+          "aspect_ratio": "16:9"
+        },
+        "dependsOn": [
+          "plan",
+          "style"
+        ]
+      },
+      {
+        "id": "desc0",
+        "type": "synth_analyze",
+        "params": {
+          "image_id": "{{scene0.mediaId}}"
+        },
+        "dependsOn": [
+          "scene0"
+        ]
+      },
+      {
+        "id": "desc1",
+        "type": "synth_analyze",
+        "params": {
+          "image_id": "{{scene1.mediaId}}"
+        },
+        "dependsOn": [
+          "scene1"
+        ]
+      },
+      {
+        "id": "desc2",
+        "type": "synth_analyze",
+        "params": {
+          "image_id": "{{scene2.mediaId}}"
+        },
+        "dependsOn": [
+          "scene2"
+        ]
+      },
+      {
+        "id": "narrative",
+        "type": "synth_narrative",
+        "params": {
+          "descriptions": [
+            "{{desc0.description}}",
+            "{{desc1.description}}",
+            "{{desc2.description}}"
+          ],
+          "mode": "story"
+        },
+        "dependsOn": [
+          "desc0",
+          "desc1",
+          "desc2"
+        ]
+      },
+      {
+        "id": "hero_video",
+        "type": "synth_video",
+        "params": {
+          "prompt": "hypnotic cinematic shot: {{desc0.description}}. Slow camera movement, atmospheric lighting.",
+          "aspect_ratio": "16:9",
+          "duration": "5"
+        },
+        "dependsOn": [
+          "desc0"
+        ]
+      }
+    ]
+  },
+  "completedSteps": [
+    "plan",
+    "style",
+    "scene0",
+    "scene1",
+    "scene2",
+    "desc1"
+  ],
+  "failedSteps": [
+    {
+      "id": "desc0",
+      "error": "Image analysis failed: Input is not a valid image (starts with: b'q\\xae9\\xdfF\\xfc\\xf3_x\\xe3]\\xda\\xf3\\xc7\\x9e\\xd1\\xf7w\\xd7\\xae')"
+    },
+    {
+      "id": "desc2",
+      "error": "Image analysis failed: Input is not a valid image (starts with: b'\\xd5\\xff_\\xd1\\xf7\\x1a\\xd7\\xb6\\xdf\\xe1\\xbe\\xbbk\\x86\\xf8{\\xcf5\\xf7\\xcf')"
+    }
+  ],
+  "stepResults": {
+    "plan": {
+      "text": "[\"A stark, minimalist composition of razor-sharp geometric shapes in saturated primary red, blue, and yellow against a deep black void. The forms vibrate with mathematical precision, creating a hypnotic, rhythmic pattern of intersecting planes and hard-edged shadows.\", \"The rigid edges liquefy into a viscous, swirling tide of molten paint, where primary colors bleed into deep violets, burnt oranges, and emerald greens. Thick, marbled ribbons of complementary hues coil around each other in a slow-motion aqueous dance, creating a dense, tactile surface of shifting gradients.\", \"The fluid matter dissolves into a weightless expanse of luminous gas and iridescent vapor, glowing with soft neon pinks and electric cyans. Shimmering particles float through a dense, atmospheric haze where light diffuses into infinite, dreamlike gradients, stripping away all form into pure, hypnotic radiance.\"]"
+    },
+    "style": {
+      "status": "success",
+      "template": {
+        "promptTemplate": "A hypnotic short film visual of {{texture_state}} {{geometric_form}} with a {{color_palette}}, illuminated by {{lighting_effect}}, captured with {{cinematic_look}}.",
+        "variables": [
+          {
+            "name": "texture_state",
+            "feature_name": "Matter State",
+            "values": [
+              {
+                "text": "crisp rigid structures",
+                "weight": 3
+              },
+              {
+                "text": "sharp crystalline facets",
+                "weight": 3
+              },
+              {
+                "text": "softening structural edges",
+                "weight": 2
+              },
+              {
+                "text": "slowly melting surfaces",
+                "weight": 3
+              },
+              {
+                "text": "fluid viscous ripples",
+                "weight": 3
+              },
+              {
+                "text": "swirling liquid mercury",
+                "weight": 2
+              },
+              {
+                "text": "dissolving particle clouds",
+                "weight": 3
+              },
+              {
+                "text": "vaporizing atmospheric mist",
+                "weight": 3
+              },
+              {
+                "text": "ethereal floating haze",
+                "weight": 2
+              },
+              {
+                "text": "weightless neon plasma",
+                "weight": 1
+              }
+            ]
+          },
+          {
+            "name": "geometric_form",
+            "feature_name": "Form Shape",
+            "values": [
+              {
+                "text": "perfect cubic monoliths",
+                "weight": 3
+              },
+              {
+                "text": "interlocking angular tessellations",
+                "weight": 3
+              },
+              {
+                "text": "fractal brutalist architecture",
+                "weight": 2
+              },
+              {
+                "text": "smooth organic curves",
+                "weight": 3
+              },
+              {
+                "text": "undulating mobius strips",
+                "weight": 3
+              },
+              {
+                "text": "blooming mathematical toruses",
+                "weight": 2
+              },
+              {
+                "text": "amorphous shifting blobs",
+                "weight": 3
+              },
+              {
+                "text": "wispy nebulous clusters",
+                "weight": 3
+              },
+              {
+                "text": "scattered geometric debris",
+                "weight": 2
+              },
+              {
+                "text": "impossible non-euclidean illusions",
+                "weight": 1
+              }
+            ]
+          },
+          {
+            "name": "color_palette",
+            "feature_name": "Color Palette",
+            "values": [
+              {
+                "text": "stark primary colors",
+                "weight": 3
+              },
+              {
+                "text": "bold De Stijl red and blue",
+                "weight": 2
+              },
+              {
+                "text": "vibrant cyan and magenta",
+                "weight": 3
+              },
+              {
+                "text": "deep shifting complementary hues",
+                "weight": 3
+              },
+              {
+                "text": "iridescent pastel blends",
+                "weight": 3
+              },
+              {
+                "text": "chromatic oil slick rainbows",
+                "weight": 2
+              },
+              {
+                "text": "electric ultraviolet glow",
+                "weight": 3
+              },
+              {
+                "text": "saturated synthwave neon",
+                "weight": 3
+              },
+              {
+                "text": "hazy bioluminescent teal",
+                "weight": 2
+              },
+              {
+                "text": "monochromatic radioactive green",
+                "weight": 1
+              }
+            ]
+          },
+          {
+            "name": "lighting_effect",
+            "feature_name": "Lighting Style",
+            "values": [
+              {
+                "text": "harsh directional studio lights",
+                "weight": 3
+              },
+              {
+                "text": "sharp chiaroscuro shadows",
+                "weight": 3
+              },
+              {
+                "text": "soft diffused ambient light",
+                "weight": 3
+              },
+              {
+                "text": "pulsing rhythmic strobes",
+                "weight": 2
+              },
+              {
+                "text": "glowing subsurface scattering",
+                "weight": 3
+              },
+              {
+                "text": "dynamic volumetric god rays",
+                "weight": 3
+              },
+              {
+                "text": "shimmering caustic reflections",
+                "weight": 2
+              },
+              {
+                "text": "thick atmospheric laser fog",
+                "weight": 3
+              },
+              {
+                "text": "soft ethereal aura",
+                "weight": 2
+              },
+              {
+                "text": "blinding overexposed flares",
+                "weight": 1
+              }
+            ]
+          },
+          {
+            "name": "cinematic_look",
+            "feature_name": "Cinematography",
+            "values": [
+              {
+                "text": "clean digital 8k resolution",
+                "weight": 3
+              },
+              {
+                "text": "sharp macro lens photography",
+                "weight": 3
+              },
+              {
+                "text": "subtle chromatic aberration",
+                "weight": 3
+              },
+              {
+                "text": "heavy analog film grain",
+                "weight": 2
+              },
+              {
+                "text": "distorted VHS tracking artifacts",
+                "weight": 1
+              },
+              {
+                "text": "dreamy tilt-shift focus",
+                "weight": 3
+              },
+              {
+                "text": "smooth slow-motion capture",
+                "weight": 2
+              },
+              {
+                "text": "anamorphic lens flares",
+                "weight": 3
+              },
+              {
+                "text": "hypnotic kaleidoscope filter",
+                "weight": 2
+              },
+              {
+                "text": "psychedelic fisheye perspective",
+                "weight": 1
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "scene0": {
+      "status": "success",
+      "mediaId": "ca4530b8-8194-413a-88ee-0fd316547c7b",
+      "mediaType": "image"
+    },
+    "scene2": {
+      "status": "success",
+      "mediaId": "1f9f0fca-17bf-4b67-a4b4-e881988b5559",
+      "mediaType": "image"
+    },
+    "scene1": {
+      "status": "success",
+      "mediaId": "1fb2d637-ff55-46ac-a45f-2bcf20489578",
+      "mediaType": "image"
+    },
+    "desc1": {
+      "status": "success",
+      "analysis": "Abstract 3D digital render featuring a surrealist blend of geometric and fluid elements. An angled close-up depicts matte primary-colored cubes partially submerged in thick, glossy rainbow liquid. The viscous paint creates marbled swirls that contrast with the rigid blocks. The subject is set against a dark void filled with cyan and magenta volumetric smoke. Soft backlighting produces a lens flare and sharp reflections on the liquid surface. The palette moves from vibrant primaries to a neon spectrum. Technical aspects include shallow depth of field and high-resolution textures. The mood is kinetic and vibrant, balancing industrial structure with organic, psychedelic chaos.",
+      "description": "Abstract 3D digital render featuring a surrealist blend of geometric and fluid elements. An angled close-up depicts matte primary-colored cubes partially submerged in thick, glossy rainbow liquid. The viscous paint creates marbled swirls that contrast with the rigid blocks. The subject is set against a dark void filled with cyan and magenta volumetric smoke. Soft backlighting produces a lens flare and sharp reflections on the liquid surface. The palette moves from vibrant primaries to a neon spectrum. Technical aspects include shallow depth of field and high-resolution textures. The mood is kinetic and vibrant, balancing industrial structure with organic, psychedelic chaos."
+    }
+  },
+  "savedAt": "2026-04-24T17:27:18.634Z"
+}

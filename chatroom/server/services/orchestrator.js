@@ -325,7 +325,7 @@ class ChatOrchestrator {
   /**
    * Start the autonomous chat
    */
-  async start(goal, tokenLimit = 100000) {
+  async start(goal, tokenLimit = 100000, options = {}) {
     if (this.isRunning) {
       throw new Error('Chat is already running');
     }
@@ -342,6 +342,7 @@ class ChatOrchestrator {
     this.tokenCount = 0;
     this.turnCount = 0;
     this.lastSpeakerId = null;
+    this.modelPreference = options.model || null;
     // sessionId groups all workflows + traces produced during this run.
     // The trace viewer's "session lens" pivots on this field.
     this.sessionId = uuidv4();
@@ -787,7 +788,8 @@ class ChatOrchestrator {
           this.agents,
           this.messages,
           this.goal,
-          this.sessionMedia
+          this.sessionMedia,
+          { model: this.modelPreference }
         );
 
         for await (const event of generator) {

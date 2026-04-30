@@ -1,0 +1,170 @@
+{
+  "workflowId": "e99aba90-a71f-4646-9366-59179dca9adf",
+  "name": "Aesthetic Velocity Recursion Alpha",
+  "agentId": "b0ab9cd4-66cd-477a-8b1e-afd3993fa21b",
+  "agentName": "Agent",
+  "agentColor": "#4ECDC4",
+  "sessionId": "1edf97c5-9f31-44f6-b499-cb90a15f155d",
+  "messageId": null,
+  "startedAt": "2026-04-30T17:02:15.546Z",
+  "completedAt": "2026-04-30T17:03:18.549Z",
+  "status": "failed",
+  "totals": {
+    "durationMs": 63003,
+    "costUsd": 0,
+    "completedSteps": 0,
+    "failedSteps": 1
+  },
+  "steps": {
+    "base_synthesis": {
+      "id": "base_synthesis",
+      "type": "synth_image",
+      "dependsOn": [],
+      "status": "failed",
+      "startedMs": 0,
+      "completedMs": 63003,
+      "durationMs": 63003,
+      "inputs": {
+        "prompt": "a fluorescent-lit corporate office cubicle fundamentally mutated by woven starlight and liquid neon, unprecedented surreal beauty"
+      },
+      "outputSummary": null,
+      "error": "This operation was aborted",
+      "attempts": 1,
+      "costUsd": 0,
+      "lastRetryError": "This operation was aborted"
+    },
+    "escalation_loop": {
+      "id": "escalation_loop",
+      "type": "loop",
+      "dependsOn": [
+        "base_synthesis"
+      ],
+      "status": "pending",
+      "startedMs": null,
+      "completedMs": null,
+      "durationMs": null,
+      "inputs": null,
+      "outputSummary": null,
+      "error": null,
+      "attempts": 0,
+      "costUsd": 0
+    }
+  },
+  "events": [
+    {
+      "t": 0,
+      "event": "workflow_start",
+      "data": {
+        "workflowId": "e99aba90-a71f-4646-9366-59179dca9adf",
+        "name": "Aesthetic Velocity Recursion Alpha",
+        "stepCount": 2,
+        "steps": [
+          {
+            "id": "base_synthesis",
+            "type": "synth_image",
+            "dependsOn": []
+          },
+          {
+            "id": "escalation_loop",
+            "type": "loop",
+            "dependsOn": [
+              "base_synthesis"
+            ]
+          }
+        ],
+        "agentId": "b0ab9cd4-66cd-477a-8b1e-afd3993fa21b",
+        "agentName": "Agent",
+        "agentColor": "#4ECDC4",
+        "sessionId": "1edf97c5-9f31-44f6-b499-cb90a15f155d",
+        "messageId": null
+      }
+    },
+    {
+      "t": 0,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "e99aba90-a71f-4646-9366-59179dca9adf",
+        "stepId": "base_synthesis",
+        "stepType": "synth_image",
+        "agentId": "b0ab9cd4-66cd-477a-8b1e-afd3993fa21b",
+        "dependsOn": [],
+        "inputs": {
+          "prompt": "a fluorescent-lit corporate office cubicle fundamentally mutated by woven starlight and liquid neon, unprecedented surreal beauty"
+        }
+      }
+    },
+    {
+      "t": 1,
+      "event": "workflow_submitted",
+      "data": {
+        "agentId": "b0ab9cd4-66cd-477a-8b1e-afd3993fa21b",
+        "workflowId": "e99aba90-a71f-4646-9366-59179dca9adf",
+        "workflowName": "Aesthetic Velocity Recursion Alpha",
+        "stepCount": 2,
+        "steps": [
+          {
+            "id": "base_synthesis",
+            "type": "synth_image"
+          },
+          {
+            "id": "escalation_loop",
+            "type": "loop"
+          }
+        ]
+      }
+    },
+    {
+      "t": 30001,
+      "event": "workflow_step_retry",
+      "data": {
+        "workflowId": "e99aba90-a71f-4646-9366-59179dca9adf",
+        "stepId": "base_synthesis",
+        "stepType": "synth_image",
+        "attempt": 1,
+        "error": "This operation was aborted"
+      }
+    },
+    {
+      "t": 63003,
+      "event": "workflow_step_error",
+      "data": {
+        "workflowId": "e99aba90-a71f-4646-9366-59179dca9adf",
+        "stepId": "base_synthesis",
+        "stepType": "synth_image",
+        "agentId": "b0ab9cd4-66cd-477a-8b1e-afd3993fa21b",
+        "attempts": 2,
+        "durationMs": 63003,
+        "error": "This operation was aborted"
+      }
+    },
+    {
+      "t": 63003,
+      "event": "workflow_complete",
+      "data": {
+        "workflowId": "e99aba90-a71f-4646-9366-59179dca9adf",
+        "name": "Aesthetic Velocity Recursion Alpha",
+        "status": "failed",
+        "completedAt": "2026-04-30T17:03:18.549Z",
+        "agentId": "b0ab9cd4-66cd-477a-8b1e-afd3993fa21b",
+        "totals": {
+          "durationMs": 63003,
+          "completedSteps": 0,
+          "failedSteps": 1,
+          "skippedSteps": 0
+        },
+        "stepResults": [
+          {
+            "id": "base_synthesis",
+            "type": "synth_image",
+            "status": "failed"
+          },
+          {
+            "id": "escalation_loop",
+            "type": "loop",
+            "status": "pending"
+          }
+        ]
+      }
+    }
+  ]
+}

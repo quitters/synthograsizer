@@ -11,7 +11,7 @@ class StudioIntegration {
         this.chatHistory = [];
         this.isBatchRunning = false;
         this.selectedRefImages = []; // Store reference images {file, base64}
-        this.templateGenMode = 'text'; // Template Generator active mode
+        this.templateGenMode = 'create'; // Template Generator active mode
         // Smart Video Options state
         this.svoState = {
             sourceImageB64: null,
@@ -1213,13 +1213,11 @@ class StudioIntegration {
         // Template Generator Modal (5 Modes)
         this.createModal('template-gen-modal', 'Template Generator', `
             <div class="tg-mode-selector">
-                <button class="tg-mode-btn active" data-mode="text">📝 Text</button>
-                <button class="tg-mode-btn" data-mode="image">🖼️ Image</button>
-                <button class="tg-mode-btn" data-mode="hybrid">🎨 Hybrid</button>
-                <button class="tg-mode-btn" data-mode="multi-image">📚 Multi</button>
+                <button class="tg-mode-btn active" data-mode="create">🎨 Create</button>
                 <button class="tg-mode-btn" data-mode="remix">🔄 Remix</button>
                 <button class="tg-mode-btn" data-mode="workflow">⚙️ Workflow</button>
                 <button class="tg-mode-btn" data-mode="story">📖 Story</button>
+                <button class="tg-mode-btn" data-mode="p5">🎛️ p5.js</button>
             </div>
 
             <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px; padding:8px 12px; background:rgba(0,150,136,0.06); border-radius:6px; border:1px solid rgba(0,150,136,0.15);">
@@ -1231,54 +1229,25 @@ class StudioIntegration {
                     <input type="radio" name="tg-model-choice" value="flash" style="accent-color:#FF9800;"> Flash <span style="color:#999; font-weight:normal;">(speed)</span>
                 </label>
             </div>
-            <div class="tg-panel" id="tg-panel-text">
-                <div class="tg-hint">
-                    <strong>Text Mode:</strong> Describe what kind of prompt template you want, and AI will build it for you with variables and options.
-                </div>
-                <div class="studio-input-group">
-                    <label>Template Description</label>
-                    <textarea id="template-prompt-input" placeholder="e.g. A template for generating sci-fi weapon descriptions with variables for type, energy source, and damage effect..." style="width:100%; height:100px; padding:8px; border:1px solid #ddd; border-radius:6px; resize:vertical; font-family:'Inter'"></textarea>
-                </div>
-            </div>
 
-            <!-- Image Mode -->
-            <div class="tg-panel" id="tg-panel-image" style="display:none">
+            <!-- Unified Create Panel -->
+            <div class="tg-panel" id="tg-panel-create">
                 <div class="tg-hint">
-                    <strong>Image Mode:</strong> Upload an image and AI will analyze its style, composition, and aesthetic to create a template that captures its essence with customizable variables.
+                    <strong>Create Mode:</strong> Add text, images, or both — the right workflow is chosen automatically.
+                </div>
+                <div id="tg-mode-badge" style="margin-bottom:8px;font-size:12px;color:#009688;font-weight:600;">Mode: 📝 Text — enter a description below</div>
+                <div class="studio-input-group">
+                    <label>Description <span style="color:#999; font-weight:normal;">(optional with images)</span></label>
+                    <textarea id="tg-create-text" placeholder="e.g. A cyberpunk cityscape template with variables for weather, neon color, and time of day..." style="width:100%; height:90px; padding:8px; border:1px solid #ddd; border-radius:6px; resize:vertical; font-family:'Inter'"></textarea>
                 </div>
                 <div class="studio-input-group">
-                    <label>Reference Image</label>
-                    <input type="file" id="tg-image-input" accept="image/*">
+                    <label>Images <span style="color:#999; font-weight:normal;">(optional — 1 for style reference, 2+ for pattern extraction)</span></label>
+                    <div id="tg-create-dropzone" style="position:relative; border:2px dashed #ccc; border-radius:6px; padding:14px; text-align:center; cursor:pointer; color:#888; font-size:13px; transition:border-color .2s; background:#fafafa;">
+                        📎 Click or drag images here
+                        <input type="file" id="tg-create-images" accept="image/*" multiple style="position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%;">
+                    </div>
+                    <div id="tg-create-previews" style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;"></div>
                 </div>
-                <div id="tg-image-preview" class="tg-preview"></div>
-            </div>
-
-            <!-- Hybrid Mode -->
-            <div class="tg-panel" id="tg-panel-hybrid" style="display:none">
-                <div class="tg-hint">
-                    <strong>Hybrid Mode:</strong> Upload a reference image for aesthetic/style guidance, then describe what variables and structure you want. The image sets the visual baseline; your text defines the controls.
-                </div>
-                <div class="studio-input-group">
-                    <label>Style Reference Image</label>
-                    <input type="file" id="tg-hybrid-image" accept="image/*">
-                </div>
-                <div id="tg-hybrid-preview" class="tg-preview"></div>
-                <div class="studio-input-group">
-                    <label>Template Direction</label>
-                    <textarea id="tg-hybrid-direction" placeholder="e.g. Create a portrait studio template with variables for lighting, mood, and camera angle" style="width:100%; height:80px; padding:8px; border:1px solid #ddd; border-radius:6px; resize:vertical; font-family:'Inter'"></textarea>
-                </div>
-            </div>
-
-            <!-- Multi-Image Mode -->
-            <div class="tg-panel" id="tg-panel-multi-image" style="display:none">
-                <div class="tg-hint">
-                    <strong>Multi-Image Mode:</strong> Upload multiple images and AI will find the common aesthetic pattern across them. Shared traits become fixed style; differences become template variables.
-                </div>
-                <div class="studio-input-group">
-                    <label>Select Images (2 or more)</label>
-                    <input type="file" id="tg-multi-image-input" accept="image/*" multiple>
-                </div>
-                <div id="tg-multi-image-count" class="tg-file-count"></div>
             </div>
 
             <!-- Remix Mode -->
@@ -1327,11 +1296,41 @@ class StudioIntegration {
             <!-- Story Mode -->
             <div class="tg-panel" id="tg-panel-story" style="display:none">
                 <div class="tg-hint">
-                    <strong>Story Mode:</strong> Describe a narrative concept and AI will generate a template with characters (visual continuity anchors), acts (pacing structure with locks and biases), and progression arcs (variables that evolve across the sequence). Use Batch Generator's Story Mode to produce sequential prompts.
+                    <strong>🎬 Storyboard Mode:</strong> Describe a narrative concept and AI will generate a bespoke-beat storyboard — each beat gets its own unique shot with distinct framing, action, and prose, while sharing consistent character and world anchors. Open the Storyboard panel after generation for per-beat control.
                 </div>
                 <div class="studio-input-group">
                     <label>Story Concept</label>
-                    <textarea id="tg-story-prompt" placeholder="e.g. A medieval tournament story: two rival knights compete across 3 acts — arrival at the castle, the jousting contest, and the victory feast. Include time-of-day progression from dawn to sunset." style="width:100%; height:120px; padding:8px; border:1px solid #ddd; border-radius:6px; resize:vertical; font-family:'Inter'"></textarea>
+                    <textarea id="tg-story-prompt" placeholder="e.g. A lone sheriff waits for a train carrying his nemesis in a dusty 1880s frontier town. The story builds from uneasy calm to a tense standoff at high noon." style="width:100%; height:120px; padding:8px; border:1px solid #ddd; border-radius:6px; resize:vertical; font-family:'Inter'"></textarea>
+                </div>
+                <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                    <div class="studio-input-group" style="flex:1; min-width:120px;">
+                        <label>Total Beats <span style="color:#999; font-weight:normal;">(clips)</span></label>
+                        <input type="number" id="tg-story-beats" min="4" max="32" value="12" style="width:100%; padding:6px 8px; border:1px solid #ddd; border-radius:6px; font-family:'Inter'">
+                    </div>
+                    <div class="studio-input-group" style="flex:1; min-width:120px;">
+                        <label>Beat Duration <span style="color:#999; font-weight:normal;">(seconds)</span></label>
+                        <input type="number" id="tg-story-beat-duration" min="2" max="30" value="8" style="width:100%; padding:6px 8px; border:1px solid #ddd; border-radius:6px; font-family:'Inter'">
+                    </div>
+                </div>
+                <div class="studio-input-group">
+                    <label>Shot List Seeds <span style="color:#999; font-weight:normal;">(optional — comma-separated shot types to include)</span></label>
+                    <input type="text" id="tg-story-shot-seeds" placeholder="e.g. wide establishing, close-up hands, POV, low-angle hero" style="width:100%; padding:6px 8px; border:1px solid #ddd; border-radius:6px; font-family:'Inter'">
+                </div>
+            </div>
+
+            <!-- p5.js Mode -->
+            <div class="tg-panel" id="tg-panel-p5" style="display:none">
+                <div class="tg-hint">
+                    <strong>p5.js Mode:</strong> Describe a generative animation or visual system. AI writes a complete p5.js sketch with Synthograsizer-controllable variables — load it and run it live in the P5 canvas viewer.
+                </div>
+                <div class="studio-input-group">
+                    <label>Sketch Description</label>
+                    <textarea id="tg-p5-prompt" placeholder="e.g. Organic flowing particles that cluster into formations, with variables for color palette, density, flow speed, and formation shape..." style="width:100%; height:100px; padding:8px; border:1px solid #ddd; border-radius:6px; resize:vertical; font-family:'Inter'"></textarea>
+                </div>
+                <div class="studio-input-group">
+                    <label>Style Reference <span style="color:#999; font-weight:normal;">(optional — for color palette / aesthetic)</span></label>
+                    <input type="file" id="tg-p5-image" accept="image/*">
+                    <div id="tg-p5-preview" class="tg-preview"></div>
                 </div>
             </div>
 
@@ -1347,6 +1346,16 @@ class StudioIntegration {
             <div class="studio-toggle-row">
                 <span class="studio-toggle-label">Batch Mode</span>
                 <input type="checkbox" id="analysis-batch-toggle">
+            </div>
+
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px; padding:8px 12px; background:rgba(63, 81, 181, 0.06); border-radius:6px; border:1px solid rgba(63, 81, 181, 0.15);">
+                <span style="font-size:12px; font-weight:600; color:#555;">AI Model:</span>
+                <label style="display:flex; align-items:center; gap:4px; font-size:12px; cursor:pointer; color:#3F51B5;">
+                    <input type="radio" name="analysis-model-choice" value="gemini-3-flash-preview" checked style="accent-color:#3F51B5;"> Flash <span style="color:#999; font-weight:normal;">(speed)</span>
+                </label>
+                <label style="display:flex; align-items:center; gap:4px; font-size:12px; cursor:pointer; color:#009688;">
+                    <input type="radio" name="analysis-model-choice" value="gemini-3.1-pro-preview" style="accent-color:#009688;"> Pro <span style="color:#999; font-weight:normal;">(quality)</span>
+                </label>
             </div>
             
             <div id="analysis-batch-options" class="studio-batch-options">
@@ -2277,13 +2286,11 @@ class StudioIntegration {
                 // Update button text
                 const genBtn = document.getElementById('run-template-gen');
                 const labels = {
-                    'text': 'Generate & Import Template',
-                    'image': 'Analyze & Generate Template',
-                    'hybrid': 'Generate Hybrid Template',
-                    'multi-image': 'Extract Pattern & Generate',
-                    'remix': 'Remix Template',
+                    'create':   'Generate & Import Template',
+                    'remix':    'Remix Template',
                     'workflow': 'Curate Workflow',
-                    'story': 'Generate Story Template'
+                    'story':    'Generate Story Template',
+                    'p5':       'Generate p5.js Sketch'
                 };
                 if (genBtn) genBtn.textContent = labels[mode] || 'Generate & Import Template';
 
@@ -2310,28 +2317,42 @@ class StudioIntegration {
         });
 
         // Template Generator Image Previews
-        this.bindSafe('tg-image-input', 'onchange', async (e) => {
-            const preview = document.getElementById('tg-image-preview');
+        // Unified Create panel: image thumbnails + mode badge
+        this.bindSafe('tg-create-images', 'onchange', async (e) => {
+            await this._renderCreatePreviews(e.target.files);
+            this.updateCreateModeBadge();
+        });
+
+        // Drag-over highlight for create drop zone
+        const dropzone = document.getElementById('tg-create-dropzone');
+        if (dropzone) {
+            dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.style.borderColor = '#009688'; });
+            dropzone.addEventListener('dragleave', () => { dropzone.style.borderColor = '#ccc'; });
+            dropzone.addEventListener('drop', (e) => {
+                e.preventDefault(); dropzone.style.borderColor = '#ccc';
+                const inp = document.getElementById('tg-create-images');
+                if (inp && e.dataTransfer.files.length) {
+                    // Merge dropped files with existing via DataTransfer
+                    const dt = new DataTransfer();
+                    Array.from(inp.files).forEach(f => dt.items.add(f));
+                    Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/')).forEach(f => dt.items.add(f));
+                    inp.files = dt.files;
+                    this._renderCreatePreviews(inp.files).then(() => this.updateCreateModeBadge());
+                }
+            });
+        }
+
+        // Create panel: update badge on text input too
+        const createText = document.getElementById('tg-create-text');
+        if (createText) createText.addEventListener('input', () => this.updateCreateModeBadge());
+
+        // p5 mode: image preview
+        this.bindSafe('tg-p5-image', 'onchange', async (e) => {
+            const preview = document.getElementById('tg-p5-preview');
             if (preview && e.target.files[0]) {
                 const b64 = await this.readFileAsBase64(e.target.files[0]);
                 preview.innerHTML = `<img src="${b64}">`;
             } else if (preview) { preview.innerHTML = ''; }
-        });
-
-        this.bindSafe('tg-hybrid-image', 'onchange', async (e) => {
-            const preview = document.getElementById('tg-hybrid-preview');
-            if (preview && e.target.files[0]) {
-                const b64 = await this.readFileAsBase64(e.target.files[0]);
-                preview.innerHTML = `<img src="${b64}">`;
-            } else if (preview) { preview.innerHTML = ''; }
-        });
-
-        this.bindSafe('tg-multi-image-input', 'onchange', (e) => {
-            const countEl = document.getElementById('tg-multi-image-count');
-            if (countEl) {
-                const count = e.target.files.length;
-                countEl.textContent = count > 0 ? `${count} image${count !== 1 ? 's' : ''} selected` : '';
-            }
         });
 
         // Workflow Mode: "Use Current Template" button
@@ -4698,41 +4719,107 @@ class StudioIntegration {
         closeBtn.style.display = 'block';
     }
 
+    // ── Unified Create panel helpers ──────────────────────────────────────
+
+    updateCreateModeBadge() {
+        const text  = document.getElementById('tg-create-text')?.value.trim() || '';
+        const files = document.getElementById('tg-create-images')?.files || [];
+        const n = files.length;
+        let label;
+        if (n === 0 && text)  label = '📝 Text';
+        else if (n === 1 && !text) label = '🖼️ Image';
+        else if (n === 1 && text)  label = '🎨 Hybrid';
+        else if (n >= 2)           label = `📚 Multi (${n} images)`;
+        else                       label = '📝 Text — enter a description below';
+        const badge = document.getElementById('tg-mode-badge');
+        if (badge) badge.textContent = 'Mode: ' + label;
+
+        // Update submit button label for create mode
+        if (this.templateGenMode === 'create') {
+            const genBtn = document.getElementById('run-template-gen');
+            if (genBtn) {
+                const subLabels = {
+                    '📝 Text': 'Generate & Import Template',
+                    '🖼️ Image': 'Analyze & Generate Template',
+                    '🎨 Hybrid': 'Generate Hybrid Template',
+                    '📚 Multi': 'Extract Pattern & Generate',
+                };
+                const subKey = Object.keys(subLabels).find(k => label.startsWith(k));
+                genBtn.textContent = subKey ? subLabels[subKey] : 'Generate & Import Template';
+            }
+        }
+    }
+
+    async _renderCreatePreviews(fileList) {
+        const container = document.getElementById('tg-create-previews');
+        if (!container) return;
+        container.innerHTML = '';
+        const files = Array.from(fileList || []);
+        for (let i = 0; i < files.length; i++) {
+            const b64 = await this.readFileAsBase64(files[i]);
+            const wrap = document.createElement('div');
+            wrap.style.cssText = 'position:relative; display:inline-block;';
+            const img = document.createElement('img');
+            img.src = b64;
+            img.style.cssText = 'max-width:72px; max-height:72px; border-radius:4px; object-fit:cover; display:block;';
+            const rm = document.createElement('button');
+            rm.textContent = '✕';
+            rm.title = 'Remove';
+            rm.style.cssText = 'position:absolute;top:-4px;right:-4px;background:#ef4444;color:#fff;border:none;border-radius:50%;width:16px;height:16px;font-size:10px;line-height:16px;text-align:center;cursor:pointer;padding:0;';
+            rm.addEventListener('click', () => {
+                const inp = document.getElementById('tg-create-images');
+                if (!inp) return;
+                const dt = new DataTransfer();
+                Array.from(inp.files).forEach((f, j) => { if (j !== i) dt.items.add(f); });
+                inp.files = dt.files;
+                this._renderCreatePreviews(inp.files).then(() => this.updateCreateModeBadge());
+            });
+            wrap.appendChild(img);
+            wrap.appendChild(rm);
+            container.appendChild(wrap);
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+
     async runTemplateGen() {
-        const mode = this.templateGenMode || 'text';
+        const mode = this.templateGenMode || 'create';
         let body = { mode };
 
         // Validate & build request body per mode
         switch (mode) {
-            case 'text': {
-                const prompt = document.getElementById('template-prompt-input').value;
-                if (!prompt.trim()) { this.showToast("Please enter a template description.", 'warning'); return; }
-                body.prompt = prompt;
-                break;
-            }
-            case 'image': {
-                const input = document.getElementById('tg-image-input');
-                if (!input || !input.files.length) { this.showToast("Please select an image.", 'warning'); return; }
-                body.images = [await this.readFileAsBase64(input.files[0])];
-                break;
-            }
-            case 'hybrid': {
-                const input = document.getElementById('tg-hybrid-image');
-                const direction = document.getElementById('tg-hybrid-direction')?.value;
-                if (!input || !input.files.length) { this.showToast("Please select a reference image.", 'warning'); return; }
-                if (!direction || !direction.trim()) { this.showToast("Please enter a text direction describing the variables you want.", 'warning'); return; }
-                body.images = [await this.readFileAsBase64(input.files[0])];
-                body.prompt = direction;
-                break;
-            }
-            case 'multi-image': {
-                const input = document.getElementById('tg-multi-image-input');
-                if (!input || !input.files.length || input.files.length < 2) {
-                    this.showToast("Please select at least 2 images for pattern extraction.", 'warning'); return;
+            case 'create': {
+                const text  = document.getElementById('tg-create-text')?.value.trim() || '';
+                const files = document.getElementById('tg-create-images')?.files || [];
+                const n = files.length;
+                if (n === 0 && !text) {
+                    this.showToast("Enter a description or drop at least one image.", 'warning'); return;
                 }
-                body.images = [];
-                for (const file of input.files) {
-                    body.images.push(await this.readFileAsBase64(file));
+                if (n === 0) {
+                    body.mode = 'text';
+                    body.prompt = text;
+                } else if (n === 1 && !text) {
+                    body.mode = 'image';
+                    body.images = [await this.readFileAsBase64(files[0])];
+                } else if (n === 1) {
+                    body.mode = 'hybrid';
+                    body.images = [await this.readFileAsBase64(files[0])];
+                    body.prompt = text;
+                } else {
+                    body.mode = 'multi-image';
+                    body.images = [];
+                    for (const f of files) body.images.push(await this.readFileAsBase64(f));
+                    if (text) body.prompt = text;
+                }
+                break;
+            }
+            case 'p5': {
+                const prompt = document.getElementById('tg-p5-prompt')?.value.trim();
+                if (!prompt) { this.showToast("Please describe your generative sketch.", 'warning'); return; }
+                body.prompt = prompt;
+                const imgInput = document.getElementById('tg-p5-image');
+                if (imgInput?.files?.length) {
+                    body.images = [await this.readFileAsBase64(imgInput.files[0])];
                 }
                 break;
             }
@@ -4754,7 +4841,19 @@ class StudioIntegration {
             case 'story': {
                 const storyPrompt = document.getElementById('tg-story-prompt')?.value;
                 if (!storyPrompt || !storyPrompt.trim()) { this.showToast("Please describe your story concept.", 'warning'); return; }
-                body.prompt = storyPrompt;
+
+                // Append structured metadata to the prompt for the backend to parse
+                const beatsCount = document.getElementById('tg-story-beats')?.value || '12';
+                const beatDuration = document.getElementById('tg-story-beat-duration')?.value || '8';
+                const shotSeeds = document.getElementById('tg-story-shot-seeds')?.value?.trim() || '';
+
+                let enrichedPrompt = storyPrompt.trim();
+                enrichedPrompt += ` [${beatsCount} beats, ${beatDuration} seconds per beat]`;
+                if (shotSeeds) {
+                    enrichedPrompt += ` [Shot list: ${shotSeeds}]`;
+                }
+
+                body.prompt = enrichedPrompt;
                 break;
             }
             case 'workflow': {
@@ -4785,10 +4884,11 @@ class StudioIntegration {
                 body.batch = imageInput.files.length > 1;
                 break;
             }
-            default: {
-                this.showToast("Unknown template generation mode.", 'error'); return;
-            }
         }
+
+        // Model Selection
+        const modelChoice = document.querySelector('input[name="tg-model-choice"]:checked')?.value || 'pro';
+        body.use_flash = (modelChoice === 'flash');
 
         this.closeAllModals();
 
@@ -4799,17 +4899,20 @@ class StudioIntegration {
             'multi-image': 'Multi-Image Pattern',
             'remix': 'Remix',
             'workflow': 'Workflow Curation',
-            'story': 'Story'
+            'story': 'Story',
+            'p5': 'p5.js Sketch'
         };
+        // Resolved mode after create auto-detection
+        const resolvedMode = body.mode;
 
         // Workflow mode: show progress with image count
         const modelLabel = document.querySelector('input[name="tg-model-choice"]:checked')?.value === 'flash' ? '⚡ Flash' : '🧠 Pro';
-        if (mode === 'workflow') {
+        if (resolvedMode === 'workflow') {
             const imageCount = body.images?.length || 1;
             this.showLoading(`Workflow Curation (${imageCount} image${imageCount > 1 ? 's' : ''}) — ${modelLabel}`,
                 'Analyzing image and curating variables...');
         } else {
-            this.showLoading(`Template Generator (${modeLabels[mode]}) — ${modelLabel}`);
+            this.showLoading(`Template Generator (${modeLabels[resolvedMode] || resolvedMode}) — ${modelLabel}`);
         }
 
         try {
@@ -4818,9 +4921,9 @@ class StudioIntegration {
             const timeoutTable = {
                 'text': 120000, 'image': 120000, 'hybrid': 120000,
                 'multi-image': 150000, 'remix': 120000,
-                'story': 150000, 'workflow': 150000
+                'story': 150000, 'workflow': 150000, 'p5': 150000
             };
-            const timeoutMs = timeoutTable[mode] || 120000;
+            const timeoutMs = timeoutTable[resolvedMode] || 120000;
             const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
             // Read Pro/Flash model choice
@@ -4846,9 +4949,9 @@ class StudioIntegration {
             const closeBtn = document.getElementById('close-studio-result');
 
             // Handle Workflow Mode with preview/batch support
-            if (mode === 'workflow' && data.results) {
+            if (resolvedMode === 'workflow' && data.results) {
                 // Batch or preview workflow response
-                this.renderWorkflowResults(data.results, modeLabels[mode]);
+                this.renderWorkflowResults(data.results, modeLabels[resolvedMode]);
                 return;
             }
 
@@ -4865,7 +4968,7 @@ class StudioIntegration {
 
                 if (success) {
                     // ── Remix lineage: auto-tag if mode was 'remix' ──
-                    if (mode === 'remix' && this._remixParentInfo) {
+                    if (resolvedMode === 'remix' && this._remixParentInfo) {
                         const parent = this._remixParentInfo;
                         // Ensure tags array exists on loaded template
                         if (!Array.isArray(this.app.currentTemplate.tags)) {
@@ -4902,7 +5005,7 @@ class StudioIntegration {
                     content.innerHTML = `
                         <div style="text-align:center; padding:20px;">
                             <h3 style="color:#009688;">Template Generated & Imported!</h3>
-                            <p style="margin:10px 0; font-size:14px;">Mode: <strong>${modeLabels[mode]}</strong> &mdash; Check the main Synthograsizer interface to use your new template.</p>
+                            <p style="margin:10px 0; font-size:14px;">Mode: <strong>${modeLabels[resolvedMode] || resolvedMode}</strong> &mdash; Check the main Synthograsizer interface to use your new template.</p>
                             <div style="background:#f5f5f5; padding:10px; text-align:left; border-radius:6px; max-height:200px; overflow:auto; border:1px solid #eee;">
                                 <pre style="margin:0; font-size:11px;">${JSON.stringify(this.app.currentTemplate, null, 2)}</pre>
                             </div>
@@ -5092,13 +5195,15 @@ class StudioIntegration {
         try {
             const imageB64 = await this.readFileAsBase64(input.files[0]);
             const autoGenerate = document.getElementById('analysis-auto-generate')?.checked;
+            const model = document.querySelector('input[name="analysis-model-choice"]:checked')?.value;
 
             const res = await fetch('/api/analyze/image-to-prompt', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     image: imageB64,
-                    auto_generate: autoGenerate
+                    auto_generate: autoGenerate,
+                    model: model
                 })
             });
 
@@ -5194,13 +5299,16 @@ class StudioIntegration {
             const imagePromises = images.map(img => this.readFileAsBase64(img));
             const imagesB64 = await Promise.all(imagePromises);
 
+            const model = document.querySelector('input[name="analysis-model-choice"]:checked')?.value;
+
             // Call batch endpoint
             const res = await fetch('/api/analyze/batch', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     images: imagesB64,
-                    auto_generate: autoGenerate
+                    auto_generate: autoGenerate,
+                    model: model
                 })
             });
 

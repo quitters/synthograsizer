@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Glitcher V2</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* ── Design tokens ──────────────────────────────────────────────────── */
+    :root {
+      --bg:  #0e0d0b;
+      --p1:  #171512;
+      --p2:  #1f1d19;
+      --p3:  #272420;
+      --w06: rgba(240,228,200,0.06);
+      --w12: rgba(240,228,200,0.09);
+      --w25: rgba(240,228,200,0.22);
+      --w50: rgba(240,228,200,0.5);
+      --w75: rgba(240,228,200,0.75);
+      --mono: 'Space Mono', monospace;
+      --sans: 'Inter', system-ui, sans-serif;
+      --text:  #ede8e0;
+      --muted: #5a5550;
+      --cream: #ede8d8;
+      --border: rgba(240,228,200,0.15);
+      /* Category colors — warm lo-fi pastels */
+      --mov:  #c97d68;
+      --sort: #c4a06a;
+      --slic: #bdb268;
+      --col:  #9e7ab8;
+      --filt: #6aaab5;
+      --art:  #7aad80;
+      --cyber:#7a8ec0;
+      --atmo: #6ab5aa;
+      --exp:  #b87aa8;
+      /* State */
+      --playing:  #8ab870;
+      --reccolor: #c87878;
+      /* Layout */
+      --hdr: 50px;
+      --tbw: 90px;
+      --pnl: 286px;
+      --ch:  96px;
+      --sb:  24px;
+    }
+
+    /* ── Reset ──────────────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 13px; }
+    button { cursor: pointer; background: none; border: none; color: inherit; font: inherit; }
+    input[type=range] { accent-color: var(--cream); }
+    select { background: var(--p2); color: var(--text); border: 1px solid var(--border); font-family: var(--mono); font-size: 11px; padding: 2px 4px; }
+
+    /* ── App shell ──────────────────────────────────────────────────────── */
+    .app {
+      display: grid;
+      grid-template-rows: var(--hdr) 1fr var(--ch) var(--sb);
+      grid-template-columns: 1fr;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    /* ── Header ─────────────────────────────────────────────────────────── */
+    .hdr {
+      grid-row: 1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 14px;
+      background: var(--p1);
+      border-bottom: 2px solid var(--border);
+      z-index: 10;
+    }
+
+    /* Glitch logo */
+    .logo {
+      font-family: var(--mono);
+      font-weight: 700;
+      font-size: 18px;
+      letter-spacing: 0.12em;
+      color: var(--cream);
+      position: relative;
+      user-select: none;
+      animation: logoIdle 6s infinite;
+      flex-shrink: 0;
+    }
+    .logo::before,
+    .logo::after {
+      content: 'GLITCHER';
+      position: absolute;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      opacity: 0;
+    }
+    .logo::before { color: #e05555; animation: lgR 6s infinite; }
+    .logo::after  { color: #55c8e0; animation: lgC 6s infinite; }
+
+    @keyframes lgR {
+      0%,88%,100% { opacity:0; transform:translate(0); }
+      90%  { opacity:0.8; transform:translate(-2px, 0); }
+      92%  { opacity:0.6; transform:translate(2px, 1px); }
+      94%  { opacity:0; }
+    }
+    @keyframes lgC {
+      0%,88%,100% { opacity:0; transform:translate(0); }
+      90%  { opacity:0.8; transform:translate(2px, 0); }
+      92%  { opacity:0.6; transform:translate(-2px,-1px); }
+      94%  { opacity:0; }
+    }
+
+    .hdr-sep { width: 1px; height: 28px; background: var(--border); flex-shrink: 0; }
+
+    /* Load button */
+    .hdr-load {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 10px;
+      background: var(--p2);
+      border: 2px solid var(--border);
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.05em;
+      color: var(--cream);
+      text-transform: uppercase;
+      box-shadow: 3px 3px 0 rgba(240,228,200,0.15);
+      transition: box-shadow 80ms, transform 80ms;
+      flex-shrink: 0;
+    }
+    .hdr-load:hover { box-shadow: 4px 4px 0 var(--w50); transform: translate(-1px,-1px); }
+    .hdr-load:active { box-shadow: 1px 1px 0 var(--w25); transform: translate(2px,2px); }
+
+    .hdr-media-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--muted);
+      max-width: 120px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* Transport group */
+    .hdr-transport {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-left: auto;
+    }
+
+    .hdr-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border: 2px solid var(--border);
+      background: var(--p2);
+      color: var(--cream);
+      font-size: 14px;
+      box-shadow: 3px 3px 0 rgba(240,228,200,0.12);
+      transition: box-shadow 80ms, transform 80ms;
+    }
+    .hdr-btn:hover { box-shadow: 4px 4px 0 var(--w50); transform: translate(-1px,-1px); }
+    .hdr-btn:active { box-shadow: 1px 1px 0 var(--w25); transform: translate(2px,2px); }
+    .hdr-btn.wide { width: auto; padding: 0 10px; font-family: var(--mono); font-size: 11px; }
+    .hdr-btn.rec-btn { color: var(--reccolor); border-color: var(--reccolor); }
+    .hdr-btn.rec-btn.recording { background: var(--reccolor); color: var(--p1); }
+
+    /* ── Body row ────────────────────────────────────────────────────────── */
+    .body {
+      grid-row: 2;
+      display: grid;
+      grid-template-columns: var(--tbw) 1fr var(--pnl);
+      overflow: hidden;
+    }
+
+    /* ── Left Toolbar ────────────────────────────────────────────────────── */
+    .toolbar {
+      display: flex;
+      flex-direction: column;
+      background: var(--p1);
+      border-right: 2px solid var(--border);
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    .tb-section {
+      padding: 10px 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .tb-label {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      padding: 0 2px;
+    }
+
+    /* Tool buttons */
+    .tool-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5px;
+    }
+    .tool-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      padding: 6px 2px;
+      border: 2px solid var(--border);
+      background: var(--p2);
+      color: var(--w50);
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.05em;
+      transition: all 80ms;
+      box-shadow: 2px 2px 0 rgba(0,0,0,0.3);
+    }
+    .tool-btn .tb-icon { font-size: 15px; line-height: 1; color: var(--w75); }
+    .tool-btn:hover { border-color: var(--w50); color: var(--cream); box-shadow: 3px 3px 0 rgba(240,228,200,0.15); transform: translate(-1px,-1px); }
+    .tool-btn.active {
+      background: var(--p3);
+      border-color: var(--cream);
+      color: var(--cream);
+      box-shadow: inset 2px 2px 0 rgba(0,0,0,0.3);
+      transform: none;
+    }
+    .tool-btn.auto-btn { grid-column: 1 / -1; flex-direction: row; gap: 6px; padding: 7px 10px; }
+
+    /* Key effects (contextual) */
+    #v2-key-effects {
+      display: none;
+    }
+    .key-fx-btn {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 5px 6px;
+      border: 1px solid var(--border);
+      background: var(--p2);
+      color: var(--cream);
+      font-family: var(--mono);
+      font-size: 9px;
+      margin-bottom: 4px;
+      transition: border-color 80ms;
+    }
+    .key-fx-btn:hover { border-color: var(--cream); }
+
+    /* Brush size control */
+    #v2-brush-control {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      margin-top: 6px;
+    }
+    #v2-brush-control label { font-family: var(--mono); font-size: 9px; color: var(--muted); white-space: nowrap; }
+    #v2-brush-control input { flex: 1; }
+
+    /* Toolbar clear button */
+    .tb-action-btn {
+      display: block;
+      width: 100%;
+      padding: 5px 6px;
+      border: 1px solid var(--border);
+      background: var(--p2);
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 9px;
+      text-align: center;
+      text-transform: uppercase;
+      transition: all 80ms;
+    }
+    .tb-action-btn:hover { border-color: var(--cream); color: var(--cream); }
+
+    /* Playback in toolbar */
+    .tb-play-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      padding: 7px;
+      border: 2px solid var(--border);
+      background: var(--p2);
+      color: var(--cream);
+      font-size: 16px;
+      box-shadow: 2px 2px 0 rgba(240,228,200,0.1);
+      transition: all 80ms;
+    }
+    .tb-play-btn:hover { box-shadow: 3px 3px 0 var(--w50); transform: translate(-1px,-1px); }
+    .tb-play-btn:active { box-shadow: inset 1px 1px 0 rgba(0,0,0,0.3); transform: none; }
+
+    /* ── Canvas area ─────────────────────────────────────────────────────── */
+    .canvas-area {
+      position: relative;
+      background: #080807;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    #canvas {
+      max-width: 100%;
+      max-height: 100%;
+      display: block;
+      image-rendering: pixelated;
+    }
+
+    /* Drop zone placeholder */
+    #canvas-placeholder {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      cursor: pointer;
+      border: 2px dashed var(--border);
+      margin: 20px;
+      transition: border-color 150ms;
+      user-select: none;
+    }
+    #canvas-placeholder:hover,
+    #canvas-placeholder.drag-over { border-color: var(--cream); }
+    #canvas-placeholder:hover .ph-icon { opacity: 0.9; }
+
+    .ph-icon {
+      font-size: 48px;
+      opacity: 0.25;
+      font-family: var(--mono);
+      line-height: 1;
+    }
+    .ph-title {
+      font-family: var(--mono);
+      font-size: 14px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+    }
+    .ph-sub {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--muted);
+      opacity: 0.6;
+    }
+
+    /* HUD overlay */
+    .c-hud {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      display: flex;
+      gap: 8px;
+      pointer-events: none;
+    }
+    .hud-pill {
+      padding: 3px 8px;
+      background: rgba(14,13,11,0.75);
+      border: 1px solid var(--border);
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      backdrop-filter: blur(4px);
+    }
+    .hud-state.running { color: var(--playing); }
+    .hud-state.paused  { color: var(--reccolor); }
+
+    /* ── Right Panel ─────────────────────────────────────────────────────── */
+    .rpanel {
+      display: flex;
+      flex-direction: column;
+      background: var(--p1);
+      border-left: 2px solid var(--border);
+      overflow: hidden;
+    }
+
+    .rp-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px 8px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    #rp-back {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      border: 1px solid var(--border);
+      background: var(--p2);
+      font-size: 13px;
+      color: var(--muted);
+      flex-shrink: 0;
+      transition: all 80ms;
+    }
+    #rp-back:hover { border-color: var(--cream); color: var(--cream); }
+
+    #rp-title {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      color: var(--cream);
+      flex: 1;
+    }
+
+    .rp-search-wrap {
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    #rp-search {
+      width: 100%;
+      padding: 5px 8px;
+      background: var(--p2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 11px;
+      outline: none;
+      transition: border-color 120ms;
+    }
+    #rp-search::placeholder { color: var(--muted); }
+    #rp-search:focus { border-color: var(--w50); }
+
+    #rp-content {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+    #rp-content::-webkit-scrollbar { width: 4px; }
+    #rp-content::-webkit-scrollbar-track { background: var(--p1); }
+    #rp-content::-webkit-scrollbar-thumb { background: var(--p3); }
+
+    /* Category grid */
+    .cat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      padding: 10px;
+    }
+    .cat-tile {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 6px;
+      padding: 10px 10px 8px;
+      border: 2px solid transparent;
+      background: var(--p2);
+      text-align: left;
+      transition: all 100ms;
+      box-shadow: 3px 3px 0 rgba(0,0,0,0.3);
+      position: relative;
+    }
+    .cat-tile::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 3px; height: 100%;
+      background: var(--cat-color);
+    }
+    .cat-tile:hover {
+      border-color: var(--cat-color);
+      box-shadow: 4px 4px 0 rgba(240,228,200,0.15);
+      transform: translate(-1px,-1px);
+    }
+    .cat-tile:active {
+      box-shadow: 1px 1px 0 rgba(0,0,0,0.3);
+      transform: translate(2px,2px);
+    }
+    .cat-icon { font-size: 18px; color: var(--cat-color); line-height: 1; }
+    .cat-name { font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; color: var(--cream); text-transform: uppercase; }
+    .cat-count { font-family: var(--mono); font-size: 9px; color: var(--muted); }
+
+    /* Effect list */
+    .fx-list { padding: 6px; }
+    .fx-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 8px;
+      border-bottom: 1px solid var(--w06);
+      transition: background 80ms;
+    }
+    .fx-row:hover { background: var(--w06); }
+    .fx-info { flex: 1; min-width: 0; }
+    .fx-name { display: block; font-family: var(--mono); font-size: 10px; color: var(--cream); margin-bottom: 2px; }
+    .fx-desc { display: block; font-size: 10px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .cat-badge { font-family: var(--mono); font-size: 9px; letter-spacing: 0.05em; }
+
+    .fx-add-btn {
+      flex-shrink: 0;
+      width: 26px;
+      height: 26px;
+      border: 2px solid var(--cat-color, var(--border));
+      background: transparent;
+      color: var(--cat-color, var(--cream));
+      font-family: var(--mono);
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 2px 2px 0 rgba(0,0,0,0.3);
+      transition: all 80ms;
+    }
+    .fx-add-btn:hover {
+      background: var(--cat-color, var(--cream));
+      color: var(--p1);
+      box-shadow: 3px 3px 0 rgba(240,228,200,0.2);
+      transform: translate(-1px,-1px);
+    }
+    .fx-add-btn:active { box-shadow: none; transform: translate(1px,1px); }
+    .fx-add-btn.added { background: var(--cat-color, var(--cream)); color: var(--p1); font-size: 12px; }
+
+    /* Properties panel */
+    .props-empty {
+      padding: 24px 16px;
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--muted);
+      text-align: center;
+    }
+    .props-form { padding: 10px; display: flex; flex-direction: column; gap: 14px; }
+    .prop-row { display: flex; flex-direction: column; gap: 6px; }
+    .prop-header { display: flex; align-items: baseline; justify-content: space-between; }
+    .prop-label { font-family: var(--mono); font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+    .prop-value { font-family: var(--mono); font-size: 10px; color: var(--cream); }
+    .prop-slider { width: 100%; height: 4px; accent-color: var(--cream); cursor: pointer; }
+    .prop-select { width: 100%; }
+    .prop-check-row { display: flex; align-items: center; justify-content: space-between; }
+    .prop-check { width: 16px; height: 16px; cursor: pointer; accent-color: var(--cream); }
+
+    /* ── Chain Strip ─────────────────────────────────────────────────────── */
+    .chain {
+      grid-row: 3;
+      display: flex;
+      flex-direction: column;
+      background: var(--p1);
+      border-top: 2px solid var(--border);
+      overflow: hidden;
+    }
+
+    .chain-hdr {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 12px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .chain-hdr-label {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+    .chain-count-badge {
+      background: var(--p3);
+      border: 1px solid var(--border);
+      font-family: var(--mono);
+      font-size: 9px;
+      color: var(--muted);
+      padding: 1px 6px;
+    }
+    .chain-clear-btn {
+      margin-left: auto;
+      padding: 2px 8px;
+      border: 1px solid var(--border);
+      background: transparent;
+      font-family: var(--mono);
+      font-size: 9px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      transition: all 80ms;
+    }
+    .chain-clear-btn:hover { border-color: var(--reccolor); color: var(--reccolor); }
+
+    .chain-scroll {
+      flex: 1;
+      overflow-x: auto;
+      overflow-y: hidden;
+      display: flex;
+      align-items: center;
+      padding: 6px 12px;
+      gap: 6px;
+    }
+    .chain-scroll::-webkit-scrollbar { height: 4px; }
+    .chain-scroll::-webkit-scrollbar-track { background: var(--p1); }
+    .chain-scroll::-webkit-scrollbar-thumb { background: var(--p3); }
+
+    #chain-nodes {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 62px;
+      flex: 1;
+    }
+
+    .chain-empty {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--muted);
+      opacity: 0.5;
+      white-space: nowrap;
+      padding: 4px 8px;
+    }
+
+    /* Chain node */
+    .chain-node {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-width: 96px;
+      height: 60px;
+      padding: 5px 7px;
+      background: var(--p2);
+      border: 2px solid transparent;
+      border-left: 3px solid var(--node-color, var(--muted));
+      position: relative;
+      cursor: pointer;
+      user-select: none;
+      transition: border-color 80ms, box-shadow 80ms, opacity 80ms;
+      box-shadow: 3px 3px 0 rgba(0,0,0,0.3);
+      flex-shrink: 0;
+    }
+    .chain-node:hover { border-color: var(--node-color, var(--cream)); box-shadow: 4px 4px 0 rgba(240,228,200,0.15); }
+    .chain-node.selected { border-color: var(--cream); box-shadow: 3px 3px 0 rgba(240,228,200,0.25); }
+    .chain-node.disabled { opacity: 0.4; }
+    .chain-node.soloed { border-color: var(--node-color); box-shadow: 3px 3px 0 var(--node-color); }
+    .chain-node.dragging { opacity: 0.35; }
+    .chain-node.drop-target { border-left-color: var(--cream); }
+
+    .node-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .node-bypass {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px;
+      height: 16px;
+    }
+    .bypass-dot {
+      display: block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      border: 1.5px solid var(--muted);
+      transition: background 80ms, border-color 80ms;
+    }
+    .bypass-dot.on { background: var(--playing); border-color: var(--playing); }
+    .bypass-dot.off { background: transparent; border-color: var(--muted); }
+
+    .node-solo {
+      font-family: var(--mono);
+      font-size: 8px;
+      font-weight: 700;
+      width: 16px;
+      height: 16px;
+      border: 1px solid var(--muted);
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 80ms;
+    }
+    .node-solo.active,
+    .node-solo:hover { border-color: var(--node-color); color: var(--node-color); }
+    .node-solo.active { background: var(--node-color); color: var(--p1); }
+
+    .node-label {
+      font-family: var(--mono);
+      font-size: 9px;
+      color: var(--cream);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      letter-spacing: 0.04em;
+    }
+
+    .node-delete {
+      position: absolute;
+      right: 4px;
+      bottom: 4px;
+      width: 14px;
+      height: 14px;
+      font-size: 12px;
+      line-height: 1;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 80ms, color 80ms;
+    }
+    .chain-node:hover .node-delete { opacity: 1; }
+    .node-delete:hover { color: var(--reccolor); }
+
+    /* ── Status bar ──────────────────────────────────────────────────────── */
+    .sb {
+      grid-row: 4;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 0 14px;
+      background: var(--p1);
+      border-top: 1px solid var(--border);
+    }
+    .sb-item {
+      font-family: var(--mono);
+      font-size: 9px;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+    }
+    .sb-item strong { color: var(--cream); }
+    .sb-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--muted);
+    }
+
+    /* ── Hidden legacy controls ──────────────────────────────────────────── */
+    .legacy-controls { display: none !important; }
+
+    /* ── Scrollbars global ───────────────────────────────────────────────── */
+    .toolbar::-webkit-scrollbar { width: 3px; }
+    .toolbar::-webkit-scrollbar-thumb { background: var(--p3); }
+  </style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ─── Header ─────────────────────────────────────────────────────────── -->
+  <header class="hdr">
+    <div class="logo">GLITCHER</div>
+
+    <div class="hdr-sep"></div>
+
+    <button class="hdr-load" id="v2-load-btn">
+      ⊕ Load Media
+    </button>
+    <span class="hdr-media-label" id="v2-media-label">No media</span>
+
+    <div class="hdr-transport">
+      <button class="hdr-btn wide" id="v2-speed-btn" title="Cycle speed">1×</button>
+      <button class="hdr-btn" id="v2-play-btn" title="Play / Pause">▶</button>
+      <div class="hdr-sep"></div>
+      <button class="hdr-btn" id="v2-snapshot-btn" title="Snapshot">📷</button>
+      <button class="hdr-btn rec-btn" id="v2-record-btn" title="Record">⏺</button>
+    </div>
+  </header>
+
+  <!-- ─── Body ───────────────────────────────────────────────────────────── -->
+  <div class="body">
+
+    <!-- Left toolbar -->
+    <aside class="toolbar">
+
+      <!-- Selection mode -->
+      <div class="tb-section">
+        <div class="tb-label">Selection Mode</div>
+        <div class="tool-grid">
+          <button class="tool-btn auto-btn active" id="v2-tool-auto" title="Auto selection">
+            <span class="tb-icon">✦</span>
+            <span>Auto</span>
+          </button>
+          <button class="tool-btn" id="v2-tool-rect" title="Rectangle selection">
+            <span class="tb-icon">▭</span>
+            <span>Rect</span>
+          </button>
+          <button class="tool-btn" id="v2-tool-brush" title="Brush selection">
+            <span class="tb-icon">⊙</span>
+            <span>Brush</span>
+          </button>
+          <button class="tool-btn" id="v2-tool-wand" title="Magic wand">
+            <span class="tb-icon">⋆</span>
+            <span>Wand</span>
+          </button>
+          <button class="tool-btn" id="v2-tool-lasso" title="Lasso selection">
+            <span class="tb-icon">∮</span>
+            <span>Lasso</span>
+          </button>
+        </div>
+
+        <!-- Brush size (contextual) -->
+        <div id="v2-brush-control">
+          <label>SIZE</label>
+          <input type="range" id="v2-brush-size" min="5" max="100" value="20" step="1">
+        </div>
+
+        <!-- Key effects (contextual — shown for manual tools) -->
+        <div id="v2-key-effects">
+          <div class="tb-label" style="margin-top:10px">Key Effects</div>
+          <div id="v2-key-effects-list"></div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="tb-section">
+        <div class="tb-label">Selection</div>
+        <button class="tb-action-btn" id="v2-clear-sel">Clear</button>
+      </div>
+
+      <!-- Playback -->
+      <div class="tb-section">
+        <div class="tb-label">Playback</div>
+        <button class="tb-play-btn" id="v2-tb-play">▶</button>
+      </div>
+
+    </aside>
+
+    <!-- Canvas area -->
+    <main class="canvas-area">
+      <canvas id="canvas" style="display:none;"></canvas>
+
+      <div id="canvas-placeholder">
+        <span class="ph-icon">⬡</span>
+        <span class="ph-title">Drop media here</span>
+        <span class="ph-sub">or click to browse · image / video / gif</span>
+      </div>
+
+      <!-- HUD -->
+      <div class="c-hud">
+        <div class="hud-pill hud-state running" id="v2-hud-state">IDLE</div>
+        <div class="hud-pill" id="v2-hud-dims">—</div>
+      </div>
+    </main>
+
+    <!-- Right panel -->
+    <aside class="rpanel">
+      <div class="rp-header">
+        <button id="rp-back">‹</button>
+        <span id="rp-title">EFFECTS</span>
+      </div>
+      <div class="rp-search-wrap">
+        <input type="text" id="rp-search" placeholder="Search effects…" autocomplete="off" spellcheck="false">
+      </div>
+      <div id="rp-content"></div>
+    </aside>
+
+  </div><!-- /.body -->
+
+  <!-- ─── Effect Chain Strip ─────────────────────────────────────────────── -->
+  <div class="chain">
+    <div class="chain-hdr">
+      <span class="chain-hdr-label">Effect Chain</span>
+      <span class="chain-count-badge" id="v2-chain-count">0</span>
+      <button class="chain-clear-btn" id="v2-chain-clear">Clear All</button>
+    </div>
+    <div class="chain-scroll">
+      <div id="chain-nodes"></div>
+    </div>
+  </div>
+
+  <!-- ─── Status Bar ─────────────────────────────────────────────────────── -->
+  <div class="sb">
+    <span class="sb-item">GLITCHER <strong>V2</strong></span>
+    <span class="sb-dot"></span>
+    <span class="sb-item">Tool: <strong id="v2-status-tool">AUTO</strong></span>
+    <span class="sb-dot"></span>
+    <span class="sb-item" id="v2-status-chain">Chain: <strong>0</strong> effects</span>
+  </div>
+
+</div><!-- /.app -->
+
+<!-- ─── Hidden legacy controls (main.js initialization compatibility) ────── -->
+<div class="legacy-controls" aria-hidden="true">
+  <input type="file" id="image-input" accept="image/*,video/*,.gif">
+  <button id="play-pause-btn">Pause</button>
+  <button id="reset-btn">Reset</button>
+
+  <!-- Direction / movement -->
+  <select id="direction-select">
+    <option value="none">None</option>
+    <option value="up">Up</option>
+    <option value="down">Down</option>
+    <option value="left">Left</option>
+    <option value="right">Right</option>
+  </select>
+  <input type="range" id="speed-range" min="0" max="50" value="5">
+  <input type="range" id="source-speed" min="0.1" max="4" step="0.05" value="1">
+
+  <!-- Spiral -->
+  <select id="spiral-select">
+    <option value="none">None</option>
+    <option value="clockwise">Clockwise</option>
+    <option value="counterclockwise">Counter-clockwise</option>
+  </select>
+  <input type="range" id="swirl-range" min="0" max="100" value="30">
+  <button id="spiral-direction-btn">Toggle</button>
+
+  <!-- Slice -->
+  <select id="slice-select">
+    <option value="none">None</option>
+    <option value="horizontal">Horizontal</option>
+    <option value="vertical">Vertical</option>
+    <option value="both">Both</option>
+  </select>
+
+  <!-- Color offset (chromatic aberration) -->
+  <input type="range" id="color-offset-range" min="0" max="50" value="0">
+
+  <!-- Pixel sort -->
+  <select id="pixel-sort-select">
+    <option value="none">None</option>
+    <option value="luminance">Luminance</option>
+    <option value="red">Red</option>
+    <option value="green">Green</option>
+    <option value="blue">Blue</option>
+  </select>
+
+  <!-- Color effect -->
+  <select id="color-effect-select">
+    <option value="none">None</option>
+    <option value="hue-shift">Hue Shift</option>
+    <option value="saturation-boost">Saturation</option>
+    <option value="color-invert">Invert</option>
+    <option value="vintage">Vintage</option>
+    <option value="color-noise">Color Noise</option>
+  </select>
+  <input type="range" id="color-intensity-range" min="0" max="100" value="50">
+
+  <!-- Filter effect -->
+  <select id="filter-effect-select">
+    <option value="none">None</option>
+    <option value="pop-art">Pop Art</option>
+    <option value="vintage">Vintage Filter</option>
+    <option value="emboss">Emboss</option>
+    <option value="edge-detect">Edge Detect</option>
+    <option value="motion-blur">Motion Blur</option>
+    <option value="vignette">Vignette</option>
+    <option value="halftone">Halftone</option>
+  </select>
+  <input type="range" id="filter-intensity-range" min="0" max="100" value="50">
+
+  <!-- Selection controls -->
+  <input type="checkbox" id="manual-selection-mode">
+  <select id="selection-method">
+    <option value="brightness">Brightness</option>
+    <option value="color">Color</option>
+    <option value="edge">Edge</option>
+  </select>
+  <input type="range" id="selection-sensitivity" min="0" max="100" value="50">
+  <input type="checkbox" id="selection-preview-checkbox">
+
+  <!-- Tool buttons -->
+  <button id="select-tool">Rect</button>
+  <button id="brush-tool">Brush</button>
+  <button id="wand-tool">Wand</button>
+  <button id="lasso-tool">Lasso</button>
+  <button id="clear-selections">Clear</button>
+  <button id="invert-selection">Invert</button>
+  <input type="range" id="brush-size" min="5" max="100" value="20">
+
+  <!-- Selection method sub-controls -->
+  <div id="brightness-controls">
+    <input type="range" id="brightness-threshold" min="0" max="255" value="128">
+    <input type="checkbox" id="brightness-invert">
+  </div>
+  <div id="color-controls">
+    <input type="color" id="color-target" value="#ff0000">
+    <input type="range" id="color-tolerance" min="0" max="100" value="30">
+  </div>
+  <div id="edge-controls">
+    <input type="range" id="edge-threshold" min="0" max="100" value="50">
+  </div>
+
+  <!-- Recording -->
+  <button id="record-btn">Record</button>
+  <button id="snapshot-btn">Snapshot</button>
+  <button id="batch-export-btn">Batch Export</button>
+  <input type="range" id="record-frames-range" min="10" max="500" value="60">
+  <select id="record-fps-select">
+    <option value="12">12 fps</option>
+    <option value="24">24 fps</option>
+    <option value="30" selected>30 fps</option>
+    <option value="60">60 fps</option>
+  </select>
+  <input type="checkbox" id="reverse-checkbox">
+
+  <!-- Playback -->
+  <select id="playback-mode">
+    <option value="loop">Loop</option>
+    <option value="once">Once</option>
+    <option value="pingpong">Ping-Pong</option>
+  </select>
+
+  <!-- Animation controls -->
+  <input type="range" id="animation-speed" min="1" max="100" value="30">
+  <input type="range" id="effect-lifetime" min="1" max="100" value="50">
+  <input type="range" id="trail-length" min="0" max="100" value="20">
+  <input type="range" id="feedback-amount" min="0" max="100" value="0">
+  <input type="checkbox" id="auto-generate-checkbox">
+  <select id="generation-interval-select">
+    <option value="500">0.5s</option>
+    <option value="1000">1s</option>
+    <option value="2000">2s</option>
+  </select>
+</div>
+
+<!-- ─── EffectStudioManager injection prevention stub ───────────────────── -->
+<!-- If this div.glitcher-studio is absent, EffectStudioManager creates its own UI. -->
+<div class="glitcher-studio" style="display:none" aria-hidden="true">
+  <div id="studioCanvasWrapper"></div>
+  <div id="studio-canvas-placeholder"></div>
+  <div id="effectChainPanel"></div>
+  <div id="effectLibraryPanel"></div>
+  <div id="propertiesPanel"></div>
+  <button id="studio-classic-btn"></button>
+  <button id="studioPlayBtn"></button>
+  <button id="studioResetBtn"></button>
+  <button id="studioRecordBtn"></button>
+  <button id="clearChainBtn"></button>
+  <button id="savePresetBtn"></button>
+  <button id="loadPresetBtn"></button>
+  <a id="helpLink" href="#"></a>
+  <a id="shortcutsLink" href="#"></a>
+  <span id="effectCountText"></span>
+  <span id="studioFpsCounter"></span>
+  <span id="performanceText"></span>
+</div>
+
+<!-- ─── Scripts ─────────────────────────────────────────────────────────── -->
+<script>
+  // Embed mode bootstrap (mirrors index.html)
+  (function() {
+    const isEmbedded = window.self !== window.top ||
+      new URLSearchParams(window.location.search).has('embed');
+    if (isEmbedded) {
+      document.documentElement.classList.add('embedded-mode');
+    }
+  })();
+</script>
+
+<script type="module" src="./main.js"></script>
+<script type="module" src="./ui/chain-bridge.js"></script>
+
+</body>
+</html>

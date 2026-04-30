@@ -1,0 +1,1353 @@
+{
+  "workflowId": "2e9a58c4-2577-4040-8fdc-3a11848a21d9",
+  "name": "Cinematic Short: Abstract color transitions evolving from rigid geo",
+  "agentId": "d9bdb165-c282-4ced-9285-3dcc643586f4",
+  "agentName": "Architect",
+  "agentColor": "#FF6B6B",
+  "sessionId": "6b7eb36d-5cf4-4f2c-be78-f73a3f43bd57",
+  "messageId": null,
+  "startedAt": "2026-04-24T17:26:16.185Z",
+  "completedAt": "2026-04-24T17:27:18.634Z",
+  "status": "failed",
+  "totals": {
+    "durationMs": 62449,
+    "costUsd": 0.124,
+    "completedSteps": 6,
+    "failedSteps": 2
+  },
+  "steps": {
+    "plan": {
+      "id": "plan",
+      "type": "synth_text",
+      "dependsOn": [],
+      "status": "complete",
+      "startedMs": 1,
+      "completedMs": 4580,
+      "durationMs": 4579,
+      "inputs": {
+        "prompt": "You are a film director planning a short film. Concept: \"Abstract color transitions evolving from rigid geometric primary colors, melting into fluid complementary blends, and vaporizing into atmospheric hazy neon\". Mood: hypnotic.\nPlan exactly 3 scenes. For each scene, write a vivid image generation prompt (2-3 sentences) describing the visual.\nOutput ONLY a JSON array of strings, one prompt per scene. Example: [\"scene 1 prompt\", \"scene 2 prompt\"]"
+      },
+      "outputSummary": {},
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.001,
+      "chunks": 8,
+      "lastChunk": "uses into infinite, dreamlike gradients, stripping away all form into pure, hypnotic radiance.\"]"
+    },
+    "style": {
+      "id": "style",
+      "type": "synth_template",
+      "dependsOn": [],
+      "status": "complete",
+      "startedMs": 2,
+      "completedMs": 20275,
+      "durationMs": 20273,
+      "inputs": {
+        "description": "hypnotic visual style for a short film about: Abstract color transitions evolving from rigid geometric primary colors, melting into fluid complementary blends, and vaporizing into atmospheric hazy neon",
+        "mode": "text"
+      },
+      "outputSummary": {
+        "status": "success",
+        "template": {
+          "promptTemplate": "A hypnotic short film visual of {{texture_state}} {{geometric_form}} with a {{color_palette}}, illuminated by {{lighting_effect}}, captured with {{cinematic_look}}.",
+          "variables": [
+            {
+              "name": "texture_state",
+              "feature_name": "Matter State",
+              "values": [
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]"
+              ]
+            },
+            {
+              "name": "geometric_form",
+              "feature_name": "Form Shape",
+              "values": [
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]"
+              ]
+            },
+            {
+              "name": "color_palette",
+              "feature_name": "Color Palette",
+              "values": [
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]"
+              ]
+            },
+            {
+              "name": "lighting_effect",
+              "feature_name": "Lighting Style",
+              "values": [
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]"
+              ]
+            },
+            {
+              "name": "cinematic_look",
+              "feature_name": "Cinematography",
+              "values": [
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]"
+              ]
+            }
+          ]
+        }
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.001
+    },
+    "scene0": {
+      "id": "scene0",
+      "type": "synth_image",
+      "dependsOn": [
+        "plan",
+        "style"
+      ],
+      "status": "complete",
+      "startedMs": 20276,
+      "completedMs": 32830,
+      "durationMs": 12554,
+      "inputs": {
+        "prompt": "Scene 1 of 3 from a hypnotic short film: Abstract color transitions evolving from rigid geometric primary colors, melting into fluid complementary blends, and vaporizing into atmospheric hazy neon. A hypnotic short film visual of {{texture_state}} {{geometric_form}} with a {{color_palette}}, illuminated by {{lighting_effect}}, captured with {{cinematic_look}}.",
+        "aspect_ratio": "16:9"
+      },
+      "outputSummary": {
+        "status": "success",
+        "mediaId": "ca4530b8-8194-413a-88ee-0fd316547c7b",
+        "mediaType": "image"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.04
+    },
+    "scene1": {
+      "id": "scene1",
+      "type": "synth_image",
+      "dependsOn": [
+        "plan",
+        "style"
+      ],
+      "status": "complete",
+      "startedMs": 20276,
+      "completedMs": 53480,
+      "durationMs": 33204,
+      "inputs": {
+        "prompt": "Scene 2 of 3 from a hypnotic short film: Abstract color transitions evolving from rigid geometric primary colors, melting into fluid complementary blends, and vaporizing into atmospheric hazy neon. A hypnotic short film visual of {{texture_state}} {{geometric_form}} with a {{color_palette}}, illuminated by {{lighting_effect}}, captured with {{cinematic_look}}.",
+        "aspect_ratio": "16:9"
+      },
+      "outputSummary": {
+        "status": "success",
+        "mediaId": "1fb2d637-ff55-46ac-a45f-2bcf20489578",
+        "mediaType": "image"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.04,
+      "lastRetryError": "Image generation failed: No image found in Gemini response (Candidates examined but no image part found)"
+    },
+    "scene2": {
+      "id": "scene2",
+      "type": "synth_image",
+      "dependsOn": [
+        "plan",
+        "style"
+      ],
+      "status": "complete",
+      "startedMs": 20277,
+      "completedMs": 34499,
+      "durationMs": 14222,
+      "inputs": {
+        "prompt": "Scene 3 of 3 from a hypnotic short film: Abstract color transitions evolving from rigid geometric primary colors, melting into fluid complementary blends, and vaporizing into atmospheric hazy neon. A hypnotic short film visual of {{texture_state}} {{geometric_form}} with a {{color_palette}}, illuminated by {{lighting_effect}}, captured with {{cinematic_look}}.",
+        "aspect_ratio": "16:9"
+      },
+      "outputSummary": {
+        "status": "success",
+        "mediaId": "1f9f0fca-17bf-4b67-a4b4-e881988b5559",
+        "mediaType": "image"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.04
+    },
+    "desc0": {
+      "id": "desc0",
+      "type": "synth_analyze",
+      "dependsOn": [
+        "scene0"
+      ],
+      "status": "failed",
+      "startedMs": 53481,
+      "completedMs": 56498,
+      "durationMs": 3017,
+      "inputs": {
+        "image_id": "ca4530b8-8194-413a-88ee-0fd316547c7b"
+      },
+      "outputSummary": null,
+      "error": "Image analysis failed: Input is not a valid image (starts with: b'q\\xae9\\xdfF\\xfc\\xf3_x\\xe3]\\xda\\xf3\\xc7\\x9e\\xd1\\xf7w\\xd7\\xae')",
+      "attempts": 1,
+      "costUsd": 0,
+      "lastRetryError": "Image analysis failed: Input is not a valid image (starts with: b'q\\xae9\\xdfF\\xfc\\xf3_x\\xe3]\\xda\\xf3\\xc7\\x9e\\xd1\\xf7w\\xd7\\xae')"
+    },
+    "desc1": {
+      "id": "desc1",
+      "type": "synth_analyze",
+      "dependsOn": [
+        "scene1"
+      ],
+      "status": "complete",
+      "startedMs": 53481,
+      "completedMs": 62449,
+      "durationMs": 8968,
+      "inputs": {
+        "image_id": "1fb2d637-ff55-46ac-a45f-2bcf20489578"
+      },
+      "outputSummary": {
+        "status": "success"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.002
+    },
+    "desc2": {
+      "id": "desc2",
+      "type": "synth_analyze",
+      "dependsOn": [
+        "scene2"
+      ],
+      "status": "failed",
+      "startedMs": 53487,
+      "completedMs": 56504,
+      "durationMs": 3017,
+      "inputs": {
+        "image_id": "1f9f0fca-17bf-4b67-a4b4-e881988b5559"
+      },
+      "outputSummary": null,
+      "error": "Image analysis failed: Input is not a valid image (starts with: b'\\xd5\\xff_\\xd1\\xf7\\x1a\\xd7\\xb6\\xdf\\xe1\\xbe\\xbbk\\x86\\xf8{\\xcf5\\xf7\\xcf')",
+      "attempts": 1,
+      "costUsd": 0,
+      "lastRetryError": "Image analysis failed: Input is not a valid image (starts with: b'\\xd5\\xff_\\xd1\\xf7\\x1a\\xd7\\xb6\\xdf\\xe1\\xbe\\xbbk\\x86\\xf8{\\xcf5\\xf7\\xcf')"
+    },
+    "narrative": {
+      "id": "narrative",
+      "type": "synth_narrative",
+      "dependsOn": [
+        "desc0",
+        "desc1",
+        "desc2"
+      ],
+      "status": "pending",
+      "startedMs": null,
+      "completedMs": null,
+      "durationMs": null,
+      "inputs": null,
+      "outputSummary": null,
+      "error": null,
+      "attempts": 0,
+      "costUsd": 0
+    },
+    "hero_video": {
+      "id": "hero_video",
+      "type": "synth_video",
+      "dependsOn": [
+        "desc0"
+      ],
+      "status": "pending",
+      "startedMs": null,
+      "completedMs": null,
+      "durationMs": null,
+      "inputs": null,
+      "outputSummary": null,
+      "error": null,
+      "attempts": 0,
+      "costUsd": 0
+    }
+  },
+  "events": [
+    {
+      "t": 0,
+      "event": "workflow_start",
+      "data": {
+        "workflowId": "2e9a58c4-2577-4040-8fdc-3a11848a21d9",
+        "name": "Cinematic Short: Abstract color transitions evolving from rigid geo",
+        "stepCount": 10,
+        "steps": [
+          {
+            "id": "plan",
+            "type": "synth_text",
+            "dependsOn": []
+          },
+          {
+            "id": "style",
+            "type": "synth_template",
+            "dependsOn": []
+          },
+          {
+            "id": "scene0",
+            "type": "synth_image",
+            "dependsOn": [
+              "plan",
+              "style"
+            ]
+          },
+          {
+            "id": "scene1",
+            "type": "synth_image",
+            "dependsOn": [
+              "plan",
+              "style"
+            ]
+          },
+          {
+            "id": "scene2",
+            "type": "synth_image",
+            "dependsOn": [
+              "plan",
+              "style"
+            ]
+          },
+          {
+            "id": "desc0",
+            "type": "synth_analyze",
+            "dependsOn": [
+              "scene0"
+            ]
+          },
+          {
+            "id": "desc1",
+            "type": "synth_analyze",
+            "dependsOn": [
+              "scene1"
+            ]
+          },
+          {
+            "id": "desc2",
+            "type": "synth_analyze",
+            "dependsOn": [
+              "scene2"
+            ]
+          },
+          {
+            "id": "narrative",
+            "type": "synth_narrative",
+            "dependsOn": [
+              "desc0",
+              "desc1",
+              "desc2"
+            ]
+          },
+          {
+            "id": "hero_video",
+            "type": "synth_video",
+            "dependsOn": [
+              "desc0"
+            ]
+          }
+        ],
+        "agentId": "d9bdb165-c282-4ced-9285-3dcc643586f4",
+        "agentName": "Architect",
+        "agentColor": "#FF6B6B",
+        "sessionId": "6b7eb36d-5cf4-4f2c-be78-f73a3f43bd57",
+        "messageId": null
+      }
+    },
+    {
+      "t": 1,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "2e9a58c4-2577-4040-8fdc-3a11848a21d9",
+        "stepId": "plan",
+        "stepType": "synth_text",
+        "agentId": "d9bdb165-c282-4ced-9285-3dcc643586f4",
+        "dependsOn": [],
+        "inputs": {
+          "prompt": "You are a film director planning a short film. Concept: \"Abstract color transitions evolving from rigid geometric primary colors, melting into fluid complementary blends, and vaporizing into atmospheric hazy neon\". Mood: hypnotic.\nPlan exactly 3 scenes. For each scene, write a vivid image generation prompt (2-3 sentences) describing the visual.\nOutput ONLY a JSON array of strings, one prompt per scene. Example: [\"scene 1 prompt\", \"scene 2 prompt\"]"
+        }
+      }
+    },
+    {
+      "t": 2,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "2e9a58c4-2577-4040-8fdc-3a11848a21d9",
+        "stepId": "style",
+        "stepType": "synth_template",
+        "agentId": "d9bdb165-c282-4ced-9285-3dcc643586f4",
+        "dependsOn": [],
+        "inputs": {
+          "description": "hypnotic visual style for a short film about: Abstract color transitions evolving from rigid geometric primary colors, melting into fluid complementary blends, and vaporizing into atmospheric hazy neon",
+          "mode": "text"
+        }
+      }
+    },
+    {
+      "t": 3,
+      "event": "workflow_submitted",
+      "data": {
+        "agentId": "d9bdb165-c282-4ced-9285-3dcc643586f4",
+        "agentName": "Architect",
+        "agentColor": "#FF6B6B",
+        "sessionId": "6b7eb36d-5cf4-4f2c-be78-f73a3f43bd57",
+        "workflowId": "2e9a58c4-2577-4040-8fdc-3a11848a21d9",
+        "workflowName": "Cinematic Short: Abstract color transitions evolving from rigid geo",
+        "templateId": "cinematic_short",
+        "stepCount": 10,
+        "steps": [
+          {
+            "id": "plan",
+            "type": "synth_text"
+          },
+          {
+            "id": "style",
+            "type": "synth_template"
+          },
+          {
+            "id": "scene0",
+            "type": "synth_image"
+          },
+          {
+            "id": "scene1",
+            "type": "synth_image"
+          },
+          {
+            "id": "scene2",
+            "type": "synth_image"
+          },
+          {
+            "id": "desc0",
+            "type": "synth_analyze"
+          },
+          {
+            "id": "desc1",
+            "type": "synth_analyze"
+          },
+          {
+            "id": "desc2",
+            "type": "synth_analyze"
+          },
+          {
+            "id": "narrative",
+            "type": "synth_narrative"
+          },
+          {
+            "id": "hero_video",
+            "type": "synth_video"
+          }
+        ]
+      }
+    },
+    {
+      "t": 4035,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "2e9a58c4-2577-4040-8fdc-3a11848a21d9",
+        "stepId": "plan",
+        "text": "[\"A stark, minimalist composition of"
+      }
+    },
+    {
+      "t": 4071,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "2e9a58c4-2577-4040-8fdc-3a11848a21d9",
+        "stepId": "plan",
+        "text": " razor-sharp geometric shapes in saturated primary red, blue, and yellow against a deep black void. The forms vibrate with"
+      }
+    },
+    {
+      "t": 4173,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "2e9a58c4-2577-4040-8fdc-3a11848a21d9",
+        "stepId": "plan",
+        "text": " mathematical precision, creating a hypnotic, rhythmic pattern of intersecting planes and hard-edged shadows.\", \"The rigid edges liquefy into"
+      }
+    },
+    {
+      "t": 4249,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "2e9a58c4-2577-4040-8fdc-3a11848a21d9",
+        "stepId": "plan",
+        "text": " a viscous, swirling tide of molten paint, where primary colors bleed into deep violets, burnt oranges, and emerald greens"
+      }
+    },
+    {
+      "t": 4338,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "2e9a58c4-2577-4040-8fdc-3a11848a21d9",
+        "stepId": "plan",
+        "text": ". Thick, marbled ribbons of complementary hues coil around each other in a slow-motion aqueous dance, creating a dense,"
+      }
+    },
+    {
+      "t": 4425,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "2e9a58c4-2577-4040-8fdc-3a11848a21d9",
+        "stepId": "plan",
+        "text": " tactile surface of shifting gradients.\", \"The fluid matter dissolves into a weightless expanse of luminous gas and iridescent vapor, glowing"
+      }
+    },
+    {
+      "t": 4469,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "2e9a58c4-2577-4040-8fdc-3a11848a21d9",
+        "stepId": "plan",
+        "text": " with soft neon pinks and electric cyans. Shimmering particles float through a dense, atmospheric haze where light diff"
+      }
+    },
+    {
+      "t": 4570,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "2e9a58c4-2577-4040-8fdc-3a11848a21d9",
+        "stepId": "plan",
+        "text": "uses into infinite, dreamlike gradients, stripping away all form into pure, hypnotic radiance.\"]"
+      }
+    },
+    {
+      "t": 4580,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "2e9a58c4-2577-4040-8fdc-3a11848a21d9",
+        "stepId": "plan",
+        "stepType": "synth_text",
+        "agentId": "d9bdb165-c282-4ced-9285-3dcc643586f4",
+        "attempts": 1,
+        "durationMs": 4579,
+        "summary": {}
+      }
+    },
+    {
+      "t": 20275,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "2e9a58c4-2577-4040-8fdc-3a11848a21d9",
+        "stepId": "style",
+        "stepType": "synth_template",
+        "agentId": "d9bdb165-c282-4ced-9285-3dcc643586f4",
+        "attempts": 1,
+        "durationMs": 20273,
+        "summary": {
+          "status": "success",
+          "template": {
+            "promptTemplate": "A hypnotic short film visual of {{texture_state}} {{geometric_form}} with a {{color_palette}}, illuminated by {{lighting_effect}}, captured with {{cinematic_look}}.",
+            "variables": [
+              {
+                "name": "texture_state",
+                "feature_name": "Matter State",
+                "values": [
+                  {
+                    "text": "crisp rigid structures",
+                    "weight": 3
+                  },
+                  {
+                    "text": "sharp crystalline facets",
+                    "weight": 3
+                  },
+                  {
+                    "text": "softening structural edges",
+                    "weight": 2
+                  },
+                  {
+                    "text": "slowly melting surfaces",
+                    "weight": 3
+                  },
+                  {
+                    "text": "fluid viscous ripples",
+                    "weight": 3
+                  },
+                  {
+                    "text": "swirling liquid mercury",
+                    "weight": 2
+                  },
+                  {
+                    "text": "dissolving particle clouds",
+                    "weight": 3
+                  },
+                  {
+                    "text": "vaporizing atmospheric mist",
+                    "weight": 3
+                  },
+                  {
+                    "text": "ethereal floating haze",
+                    "weight": 2
+                  },
+                  {
+                    "text": "weightless neon plasma",
+                    "weight": 1
+                  }
+                ]
+              },
+              {
+                "name": "geometric_form",
+                "feature_name": "Form Shape",
+                "values": [
+                  {
+                    "text": "perfect cubic monoliths",
+                    "weight": 3
+                  },
+                  {
+                    "text": "interlocking angular tessellations",
+                    "weight": 3
+                  },
+                  {
+                    "text": "fractal brutalist architecture",
+                    "weight": 2
+                  },
+                  {
+                    "text": "smooth organic curves",
+                    "weight": 3
+                  },
+                  {
+                    "text": "undulating mobius strips",
+                    "weight": 3
+                  },
+                  {
+                    "text": "blooming mathematical toruses",
+                    "weight": 2
+                  },
+                  {
+                    "text": "amorphous shifting blobs",
+                    "weight": 3
+                  },
+                  {
+                    "text": "wispy nebulous clusters",
+                    "weight": 3
+                  },
+                  {
+                    "text": "scattered geometric debris",
+                    "weight": 2
+                  },
+                  {
+                    "text": "impossible non-euclidean illusions",
+                    "weight": 1
+                  }
+                ]
+              },
+              {
+                "name": "color_palette",
+                "feature_name": "Color Palette",
+                "values": [
+                  {
+                    "text": "stark primary colors",
+                    "weight": 3
+                  },
+                  {
+                    "text": "bold De Stijl red and blue",
+                    "weight": 2
+                  },
+                  {
+                    "text": "vibrant cyan and magenta",
+                    "weight": 3
+                  },
+                  {
+                    "text": "deep shifting complementary hues",
+                    "weight": 3
+                  },
+                  {
+                    "text": "iridescent pastel blends",
+                    "weight": 3
+                  },
+                  {
+                    "text": "chromatic oil slick rainbows",
+                    "weight": 2
+                  },
+                  {
+                    "text": "electric ultraviolet glow",
+                    "weight": 3
+                  },
+                  {
+                    "text": "saturated synthwave neon",
+                    "weight": 3
+                  },
+                  {
+                    "text": "hazy bioluminescent teal",
+                    "weight": 2
+                  },
+                  {
+                    "text": "monochromatic radioactive green",
+                    "weight": 1
+                  }
+                ]
+              },
+              {
+                "name": "lighting_effect",
+                "feature_name": "Lighting Style",
+                "values": [
+                  {
+                    "text": "harsh directional studio lights",
+                    "weight": 3
+                  },
+                  {
+                    "text": "sharp chiaroscuro shadows",
+                    "weight": 3
+                  },
+                  {
+                    "text": "soft diffused ambient light",
+                    "weight": 3
+                  },
+                  {
+                    "text": "pulsing rhythmic strobes",
+                    "weight": 2
+                  },
+                  {
+                    "text": "glowing subsurface scattering",
+                    "weight": 3
+                  },
+                  {
+                    "text": "dynamic volumetric god rays",
+                    "weight": 3
+                  },
+                  {
+                    "text": "shimmering caustic reflections",
+                    "weight": 2
+                  },
+                  {
+                    "text": "thick atmospheric laser fog",
+                    "weight": 3
+                  },
+                  {
+                    "text": "soft ethereal aura",
+                    "weight": 2
+                  },
+                  {
+                    "text": "blinding overexposed flares",
+                    "weight": 1
+                  }
+                ]
+              },
+              {
+                "name": "cinematic_look",
+                "feature_name": "Cinematography",
+                "values": [
+                  {
+                    "text": "clean digital 8k resolution",
+                    "weight": 3
+                  },
+                  {
+                    "text": "sharp macro lens photography",
+                    "weight": 3
+                  },
+                  {
+                    "text": "subtle chromatic aberration",
+                    "weight": 3
+                  },
+                  {
+                    "text": "heavy analog film grain",
+                    "weight": 2
+                  },
+                  {
+                    "text": "distorted VHS tracking artifacts",
+                    "weight": 1
+                  },
+                  {
+                    "text": "dreamy tilt-shift focus",
+                    "weight": 3
+                  },
+                  {
+                    "text": "smooth slow-motion capture",
+                    "weight": 2
+                  },
+                  {
+                    "text": "anamorphic lens flares",
+                    "weight": 3
+                  },
+                  {
+                    "text": "hypnotic kaleidoscope filter",
+                    "weight": 2
+                  },
+                  {
+                    "text": "psychedelic fisheye perspective",
+                    "weight": 1
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "t": 20276,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "2e9a58c4-2577-4040-8fdc-3a11848a21d9",
+        "stepId": "scene0",
+        "stepType": "synth_image",
+        "agentId": "d9bdb165-c282-4ced-9285-3dcc643586f4",
+        "dependsOn": [
+          "plan",
+          "style"
+        ],
+        "inputs": {
+          "prompt": "Scene 1 of 3 from a hypnotic short film: Abstract color transitions evolving from rigid geometric primary colors, melting into fluid complementary blends, and vaporizing into atmospheric hazy neon. A hypnotic short film visual of {{texture_state}} {{geometric_form}} with a {{color_palette}}, illuminated by {{lighting_effect}}, captured with {{cinematic_look}}.",
+          "aspect_ratio": "16:9"
+        }
+      }
+    },
+    {
+      "t": 20276,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "2e9a58c4-2577-4040-8fdc-3a11848a21d9",
+        "stepId": "scene1",
+        "stepType": "synth_image",
+        "agentId": "d9bdb165-c282-4ced-9285-3dcc643586f4",
+        "dependsOn": [
+          "plan",
+          "style"
+        ],
+        "inputs": {
+          "prompt": "Scene 2 of 3 from a hypnotic short film: Abstract color transitions evolving from rigid geometric primary colors, melting into fluid complementary blends, and vaporizing into atmospheric hazy neon. A hypnotic short film visual of {{texture_state}} {{geometric_form}} with a {{color_palette}}, illuminated by {{lighting_effect}}, captured with {{cinematic_look}}.",
+          "aspect_ratio": "16:9"
+        }
+      }
+    },
+    {
+      "t": 20277,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "2e9a58c4-2577-4040-8fdc-3a11848a21d9",
+        "stepId": "scene2",
+        "stepType": "synth_image",
+        "agentId": "d9bdb165-c282-4ced-9285-3dcc643586f4",
+        "dependsOn": [
+          "plan",
+          "style"
+        ],
+        "inputs": {
+          "prompt": "Scene 3 of 3 from a hypnotic short film: Abstract color transitions evolving from rigid geometric primary colors, melting into fluid complementary blends, and vaporizing into atmospheric hazy neon. A hypnotic short film visual of {{texture_state}} {{geometric_form}} with a {{color_palette}}, illuminated by {{lighting_effect}}, captured with {{cinematic_look}}.",
+          "aspect_ratio": "16:9"
+        }
+      }
+    },
+    {
+      "t": 25209,
+      "event": "workflow_step_retry",
+      "data": {
+        "workflowId": "2e9a58c4-2577-4040-8fdc-3a11848a21d9",
+        "stepId": "scene1",
+        "stepType": "synth_image",
+        "attempt": 1,
+        "error": "Image generation failed: No image found in Gemini response (Candidates examined but no image part found)"
+      }
+    },
+    {
+      "t": 32830,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "2e9a58c4-2577-4040-8fdc-3a11848a21d9",
+        "stepId": "scene0",
+        "stepType": "synth_image",
+        "agentId": "d9bdb165-c282-4ced-9285-3dcc643586f4",
+        "attempts": 1,
+        "durationMs": 12554,
+        "summary": {
+          "status": "success",
+          "mediaId": "ca4530b8-8194-413a-88ee-0fd316547c7b",
+          "mediaType": "image"
+        }
+      }
+    },
+    {
+      "t": 34499,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "2e9a58c4-2577-4040-8fdc-3a11848a21d9",
+        "stepId": "scene2",
+        "stepType": "synth_image",
+        "agentId": "d9bdb165-c282-4ced-9285-3dcc643586f4",
+        "attempts": 1,
+        "durationMs": 14222,
+        "summary": {
+          "status": "success",
+          "mediaId": "1f9f0fca-17bf-4b67-a4b4-e881988b5559",
+          "mediaType": "image"
+        }
+      }
+    },
+    {
+      "t": 53480,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "2e9a58c4-2577-4040-8fdc-3a11848a21d9",
+        "stepId": "scene1",
+        "stepType": "synth_image",
+        "agentId": "d9bdb165-c282-4ced-9285-3dcc643586f4",
+        "attempts": 2,
+        "durationMs": 33204,
+        "summary": {
+          "status": "success",
+          "mediaId": "1fb2d637-ff55-46ac-a45f-2bcf20489578",
+          "mediaType": "image"
+        }
+      }
+    },
+    {
+      "t": 53481,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "2e9a58c4-2577-4040-8fdc-3a11848a21d9",
+        "stepId": "desc0",
+        "stepType": "synth_analyze",
+        "agentId": "d9bdb165-c282-4ced-9285-3dcc643586f4",
+        "dependsOn": [
+          "scene0"
+        ],
+        "inputs": {
+          "image_id": "ca4530b8-8194-413a-88ee-0fd316547c7b"
+        }
+      }
+    },
+    {
+      "t": 53481,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "2e9a58c4-2577-4040-8fdc-3a11848a21d9",
+        "stepId": "desc1",
+        "stepType": "synth_analyze",
+        "agentId": "d9bdb165-c282-4ced-9285-3dcc643586f4",
+        "dependsOn": [
+          "scene1"
+        ],
+        "inputs": {
+          "image_id": "1fb2d637-ff55-46ac-a45f-2bcf20489578"
+        }
+      }
+    },
+    {
+      "t": 53487,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "2e9a58c4-2577-4040-8fdc-3a11848a21d9",
+        "stepId": "desc2",
+        "stepType": "synth_analyze",
+        "agentId": "d9bdb165-c282-4ced-9285-3dcc643586f4",
+        "dependsOn": [
+          "scene2"
+        ],
+        "inputs": {
+          "image_id": "1f9f0fca-17bf-4b67-a4b4-e881988b5559"
+        }
+      }
+    },
+    {
+      "t": 53495,
+      "event": "workflow_step_retry",
+      "data": {
+        "workflowId": "2e9a58c4-2577-4040-8fdc-3a11848a21d9",
+        "stepId": "desc0",
+        "stepType": "synth_analyze",
+        "attempt": 1,
+        "error": "Image analysis failed: Input is not a valid image (starts with: b'q\\xae9\\xdfF\\xfc\\xf3_x\\xe3]\\xda\\xf3\\xc7\\x9e\\xd1\\xf7w\\xd7\\xae')"
+      }
+    },
+    {
+      "t": 53500,
+      "event": "workflow_step_retry",
+      "data": {
+        "workflowId": "2e9a58c4-2577-4040-8fdc-3a11848a21d9",
+        "stepId": "desc2",
+        "stepType": "synth_analyze",
+        "attempt": 1,
+        "error": "Image analysis failed: Input is not a valid image (starts with: b'\\xd5\\xff_\\xd1\\xf7\\x1a\\xd7\\xb6\\xdf\\xe1\\xbe\\xbbk\\x86\\xf8{\\xcf5\\xf7\\xcf')"
+      }
+    },
+    {
+      "t": 56498,
+      "event": "workflow_step_error",
+      "data": {
+        "workflowId": "2e9a58c4-2577-4040-8fdc-3a11848a21d9",
+        "stepId": "desc0",
+        "stepType": "synth_analyze",
+        "agentId": "d9bdb165-c282-4ced-9285-3dcc643586f4",
+        "attempts": 2,
+        "durationMs": 3017,
+        "error": "Image analysis failed: Input is not a valid image (starts with: b'q\\xae9\\xdfF\\xfc\\xf3_x\\xe3]\\xda\\xf3\\xc7\\x9e\\xd1\\xf7w\\xd7\\xae')"
+      }
+    },
+    {
+      "t": 56504,
+      "event": "workflow_step_error",
+      "data": {
+        "workflowId": "2e9a58c4-2577-4040-8fdc-3a11848a21d9",
+        "stepId": "desc2",
+        "stepType": "synth_analyze",
+        "agentId": "d9bdb165-c282-4ced-9285-3dcc643586f4",
+        "attempts": 2,
+        "durationMs": 3017,
+        "error": "Image analysis failed: Input is not a valid image (starts with: b'\\xd5\\xff_\\xd1\\xf7\\x1a\\xd7\\xb6\\xdf\\xe1\\xbe\\xbbk\\x86\\xf8{\\xcf5\\xf7\\xcf')"
+      }
+    },
+    {
+      "t": 62449,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "2e9a58c4-2577-4040-8fdc-3a11848a21d9",
+        "stepId": "desc1",
+        "stepType": "synth_analyze",
+        "agentId": "d9bdb165-c282-4ced-9285-3dcc643586f4",
+        "attempts": 1,
+        "durationMs": 8968,
+        "summary": {
+          "status": "success"
+        }
+      }
+    },
+    {
+      "t": 62449,
+      "event": "workflow_complete",
+      "data": {
+        "workflowId": "2e9a58c4-2577-4040-8fdc-3a11848a21d9",
+        "name": "Cinematic Short: Abstract color transitions evolving from rigid geo",
+        "status": "failed",
+        "completedAt": "2026-04-24T17:27:18.634Z",
+        "agentId": "d9bdb165-c282-4ced-9285-3dcc643586f4",
+        "totals": {
+          "durationMs": 62449,
+          "completedSteps": 6,
+          "failedSteps": 2,
+          "skippedSteps": 0
+        },
+        "stepResults": [
+          {
+            "id": "plan",
+            "type": "synth_text",
+            "status": "complete"
+          },
+          {
+            "id": "style",
+            "type": "synth_template",
+            "status": "success",
+            "template": {
+              "promptTemplate": "A hypnotic short film visual of {{texture_state}} {{geometric_form}} with a {{color_palette}}, illuminated by {{lighting_effect}}, captured with {{cinematic_look}}.",
+              "variables": [
+                {
+                  "name": "texture_state",
+                  "feature_name": "Matter State",
+                  "values": [
+                    {
+                      "text": "crisp rigid structures",
+                      "weight": 3
+                    },
+                    {
+                      "text": "sharp crystalline facets",
+                      "weight": 3
+                    },
+                    {
+                      "text": "softening structural edges",
+                      "weight": 2
+                    },
+                    {
+                      "text": "slowly melting surfaces",
+                      "weight": 3
+                    },
+                    {
+                      "text": "fluid viscous ripples",
+                      "weight": 3
+                    },
+                    {
+                      "text": "swirling liquid mercury",
+                      "weight": 2
+                    },
+                    {
+                      "text": "dissolving particle clouds",
+                      "weight": 3
+                    },
+                    {
+                      "text": "vaporizing atmospheric mist",
+                      "weight": 3
+                    },
+                    {
+                      "text": "ethereal floating haze",
+                      "weight": 2
+                    },
+                    {
+                      "text": "weightless neon plasma",
+                      "weight": 1
+                    }
+                  ]
+                },
+                {
+                  "name": "geometric_form",
+                  "feature_name": "Form Shape",
+                  "values": [
+                    {
+                      "text": "perfect cubic monoliths",
+                      "weight": 3
+                    },
+                    {
+                      "text": "interlocking angular tessellations",
+                      "weight": 3
+                    },
+                    {
+                      "text": "fractal brutalist architecture",
+                      "weight": 2
+                    },
+                    {
+                      "text": "smooth organic curves",
+                      "weight": 3
+                    },
+                    {
+                      "text": "undulating mobius strips",
+                      "weight": 3
+                    },
+                    {
+                      "text": "blooming mathematical toruses",
+                      "weight": 2
+                    },
+                    {
+                      "text": "amorphous shifting blobs",
+                      "weight": 3
+                    },
+                    {
+                      "text": "wispy nebulous clusters",
+                      "weight": 3
+                    },
+                    {
+                      "text": "scattered geometric debris",
+                      "weight": 2
+                    },
+                    {
+                      "text": "impossible non-euclidean illusions",
+                      "weight": 1
+                    }
+                  ]
+                },
+                {
+                  "name": "color_palette",
+                  "feature_name": "Color Palette",
+                  "values": [
+                    {
+                      "text": "stark primary colors",
+                      "weight": 3
+                    },
+                    {
+                      "text": "bold De Stijl red and blue",
+                      "weight": 2
+                    },
+                    {
+                      "text": "vibrant cyan and magenta",
+                      "weight": 3
+                    },
+                    {
+                      "text": "deep shifting complementary hues",
+                      "weight": 3
+                    },
+                    {
+                      "text": "iridescent pastel blends",
+                      "weight": 3
+                    },
+                    {
+                      "text": "chromatic oil slick rainbows",
+                      "weight": 2
+                    },
+                    {
+                      "text": "electric ultraviolet glow",
+                      "weight": 3
+                    },
+                    {
+                      "text": "saturated synthwave neon",
+                      "weight": 3
+                    },
+                    {
+                      "text": "hazy bioluminescent teal",
+                      "weight": 2
+                    },
+                    {
+                      "text": "monochromatic radioactive green",
+                      "weight": 1
+                    }
+                  ]
+                },
+                {
+                  "name": "lighting_effect",
+                  "feature_name": "Lighting Style",
+                  "values": [
+                    {
+                      "text": "harsh directional studio lights",
+                      "weight": 3
+                    },
+                    {
+                      "text": "sharp chiaroscuro shadows",
+                      "weight": 3
+                    },
+                    {
+                      "text": "soft diffused ambient light",
+                      "weight": 3
+                    },
+                    {
+                      "text": "pulsing rhythmic strobes",
+                      "weight": 2
+                    },
+                    {
+                      "text": "glowing subsurface scattering",
+                      "weight": 3
+                    },
+                    {
+                      "text": "dynamic volumetric god rays",
+                      "weight": 3
+                    },
+                    {
+                      "text": "shimmering caustic reflections",
+                      "weight": 2
+                    },
+                    {
+                      "text": "thick atmospheric laser fog",
+                      "weight": 3
+                    },
+                    {
+                      "text": "soft ethereal aura",
+                      "weight": 2
+                    },
+                    {
+                      "text": "blinding overexposed flares",
+                      "weight": 1
+                    }
+                  ]
+                },
+                {
+                  "name": "cinematic_look",
+                  "feature_name": "Cinematography",
+                  "values": [
+                    {
+                      "text": "clean digital 8k resolution",
+                      "weight": 3
+                    },
+                    {
+                      "text": "sharp macro lens photography",
+                      "weight": 3
+                    },
+                    {
+                      "text": "subtle chromatic aberration",
+                      "weight": 3
+                    },
+                    {
+                      "text": "heavy analog film grain",
+                      "weight": 2
+                    },
+                    {
+                      "text": "distorted VHS tracking artifacts",
+                      "weight": 1
+                    },
+                    {
+                      "text": "dreamy tilt-shift focus",
+                      "weight": 3
+                    },
+                    {
+                      "text": "smooth slow-motion capture",
+                      "weight": 2
+                    },
+                    {
+                      "text": "anamorphic lens flares",
+                      "weight": 3
+                    },
+                    {
+                      "text": "hypnotic kaleidoscope filter",
+                      "weight": 2
+                    },
+                    {
+                      "text": "psychedelic fisheye perspective",
+                      "weight": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "id": "scene0",
+            "type": "synth_image",
+            "status": "success",
+            "mediaId": "ca4530b8-8194-413a-88ee-0fd316547c7b",
+            "mediaType": "image"
+          },
+          {
+            "id": "scene1",
+            "type": "synth_image",
+            "status": "success",
+            "mediaId": "1fb2d637-ff55-46ac-a45f-2bcf20489578",
+            "mediaType": "image"
+          },
+          {
+            "id": "scene2",
+            "type": "synth_image",
+            "status": "success",
+            "mediaId": "1f9f0fca-17bf-4b67-a4b4-e881988b5559",
+            "mediaType": "image"
+          },
+          {
+            "id": "desc0",
+            "type": "synth_analyze",
+            "status": "failed"
+          },
+          {
+            "id": "desc1",
+            "type": "synth_analyze",
+            "status": "success"
+          },
+          {
+            "id": "desc2",
+            "type": "synth_analyze",
+            "status": "failed"
+          },
+          {
+            "id": "narrative",
+            "type": "synth_narrative",
+            "status": "pending"
+          },
+          {
+            "id": "hero_video",
+            "type": "synth_video",
+            "status": "pending"
+          }
+        ]
+      }
+    }
+  ]
+}

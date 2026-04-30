@@ -1,0 +1,379 @@
+{
+  "workflowId": "e0b2480f-d12c-418e-8b44-9659f1f54ddb",
+  "name": "Progressive Transform: A pristine brutalist concrete monument s",
+  "agentId": "f5185267-166c-463c-9db6-77f691673417",
+  "agentName": "Architect",
+  "agentColor": "#FF6B6B",
+  "sessionId": "33d875f9-6321-40d0-a218-c0f18301815e",
+  "messageId": null,
+  "startedAt": "2026-04-24T17:49:03.832Z",
+  "completedAt": "2026-04-24T17:51:06.326Z",
+  "status": "complete",
+  "totals": {
+    "durationMs": 122494,
+    "costUsd": 0.166,
+    "completedSteps": 4,
+    "failedSteps": 0
+  },
+  "steps": {
+    "origin": {
+      "id": "origin",
+      "type": "synth_image",
+      "dependsOn": [],
+      "status": "complete",
+      "startedMs": 1,
+      "completedMs": 19441,
+      "durationMs": 19440,
+      "inputs": {
+        "prompt": "A pristine brutalist concrete monument standing alone in a sterile white desert under a stark sun, cinematic composition",
+        "aspect_ratio": "1:1"
+      },
+      "outputSummary": {
+        "status": "success",
+        "mediaId": "7cbc3870-09f4-4efd-a36f-4a96e422ae26",
+        "mediaType": "image"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.04
+    },
+    "transform_0": {
+      "id": "transform_0",
+      "type": "synth_transform",
+      "dependsOn": [
+        "origin"
+      ],
+      "status": "complete",
+      "startedMs": 19442,
+      "completedMs": 40861,
+      "durationMs": 21419,
+      "inputs": {
+        "image_id": "7cbc3870-09f4-4efd-a36f-4a96e422ae26",
+        "intent": "deep glowing crimson fissures crack through the concrete"
+      },
+      "outputSummary": {
+        "status": "success",
+        "mediaId": "4401ab37-dd12-4048-a177-a79a49ca6d5e",
+        "mediaType": "image"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.042
+    },
+    "transform_1": {
+      "id": "transform_1",
+      "type": "synth_transform",
+      "dependsOn": [
+        "transform_0"
+      ],
+      "status": "complete",
+      "startedMs": 40862,
+      "completedMs": 66919,
+      "durationMs": 26057,
+      "inputs": {
+        "image_id": "4401ab37-dd12-4048-a177-a79a49ca6d5e",
+        "intent": "golden organic flora erupts from the fissures consuming the monument"
+      },
+      "outputSummary": {
+        "status": "success",
+        "mediaId": "e1f488a0-3516-4ef4-8545-31ab0fb77da0",
+        "mediaType": "image"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.042
+    },
+    "transform_2": {
+      "id": "transform_2",
+      "type": "synth_transform",
+      "dependsOn": [
+        "transform_1"
+      ],
+      "status": "complete",
+      "startedMs": 66920,
+      "completedMs": 122493,
+      "durationMs": 55573,
+      "inputs": {
+        "image_id": "e1f488a0-3516-4ef4-8545-31ab0fb77da0",
+        "intent": "the entire structure shatters into floating luminous fragments against a dark cosmic sky"
+      },
+      "outputSummary": {
+        "status": "success",
+        "mediaId": "10512873-1605-4ae6-a365-ce00863ca5b0",
+        "mediaType": "image"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.042,
+      "lastRetryError": "This operation was aborted"
+    }
+  },
+  "events": [
+    {
+      "t": 0,
+      "event": "workflow_start",
+      "data": {
+        "workflowId": "e0b2480f-d12c-418e-8b44-9659f1f54ddb",
+        "name": "Progressive Transform: A pristine brutalist concrete monument s",
+        "stepCount": 4,
+        "steps": [
+          {
+            "id": "origin",
+            "type": "synth_image",
+            "dependsOn": []
+          },
+          {
+            "id": "transform_0",
+            "type": "synth_transform",
+            "dependsOn": [
+              "origin"
+            ]
+          },
+          {
+            "id": "transform_1",
+            "type": "synth_transform",
+            "dependsOn": [
+              "transform_0"
+            ]
+          },
+          {
+            "id": "transform_2",
+            "type": "synth_transform",
+            "dependsOn": [
+              "transform_1"
+            ]
+          }
+        ],
+        "agentId": "f5185267-166c-463c-9db6-77f691673417",
+        "agentName": "Architect",
+        "agentColor": "#FF6B6B",
+        "sessionId": "33d875f9-6321-40d0-a218-c0f18301815e",
+        "messageId": null
+      }
+    },
+    {
+      "t": 1,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "e0b2480f-d12c-418e-8b44-9659f1f54ddb",
+        "stepId": "origin",
+        "stepType": "synth_image",
+        "agentId": "f5185267-166c-463c-9db6-77f691673417",
+        "dependsOn": [],
+        "inputs": {
+          "prompt": "A pristine brutalist concrete monument standing alone in a sterile white desert under a stark sun, cinematic composition",
+          "aspect_ratio": "1:1"
+        }
+      }
+    },
+    {
+      "t": 2,
+      "event": "workflow_submitted",
+      "data": {
+        "agentId": "f5185267-166c-463c-9db6-77f691673417",
+        "agentName": "Architect",
+        "agentColor": "#FF6B6B",
+        "sessionId": "33d875f9-6321-40d0-a218-c0f18301815e",
+        "workflowId": "e0b2480f-d12c-418e-8b44-9659f1f54ddb",
+        "workflowName": "Progressive Transform: A pristine brutalist concrete monument s",
+        "templateId": "progressive_transform",
+        "stepCount": 4,
+        "steps": [
+          {
+            "id": "origin",
+            "type": "synth_image"
+          },
+          {
+            "id": "transform_0",
+            "type": "synth_transform"
+          },
+          {
+            "id": "transform_1",
+            "type": "synth_transform"
+          },
+          {
+            "id": "transform_2",
+            "type": "synth_transform"
+          }
+        ]
+      }
+    },
+    {
+      "t": 19441,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "e0b2480f-d12c-418e-8b44-9659f1f54ddb",
+        "stepId": "origin",
+        "stepType": "synth_image",
+        "agentId": "f5185267-166c-463c-9db6-77f691673417",
+        "attempts": 1,
+        "durationMs": 19440,
+        "summary": {
+          "status": "success",
+          "mediaId": "7cbc3870-09f4-4efd-a36f-4a96e422ae26",
+          "mediaType": "image"
+        }
+      }
+    },
+    {
+      "t": 19442,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "e0b2480f-d12c-418e-8b44-9659f1f54ddb",
+        "stepId": "transform_0",
+        "stepType": "synth_transform",
+        "agentId": "f5185267-166c-463c-9db6-77f691673417",
+        "dependsOn": [
+          "origin"
+        ],
+        "inputs": {
+          "image_id": "7cbc3870-09f4-4efd-a36f-4a96e422ae26",
+          "intent": "deep glowing crimson fissures crack through the concrete"
+        }
+      }
+    },
+    {
+      "t": 40861,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "e0b2480f-d12c-418e-8b44-9659f1f54ddb",
+        "stepId": "transform_0",
+        "stepType": "synth_transform",
+        "agentId": "f5185267-166c-463c-9db6-77f691673417",
+        "attempts": 1,
+        "durationMs": 21419,
+        "summary": {
+          "status": "success",
+          "mediaId": "4401ab37-dd12-4048-a177-a79a49ca6d5e",
+          "mediaType": "image"
+        }
+      }
+    },
+    {
+      "t": 40862,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "e0b2480f-d12c-418e-8b44-9659f1f54ddb",
+        "stepId": "transform_1",
+        "stepType": "synth_transform",
+        "agentId": "f5185267-166c-463c-9db6-77f691673417",
+        "dependsOn": [
+          "transform_0"
+        ],
+        "inputs": {
+          "image_id": "4401ab37-dd12-4048-a177-a79a49ca6d5e",
+          "intent": "golden organic flora erupts from the fissures consuming the monument"
+        }
+      }
+    },
+    {
+      "t": 66919,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "e0b2480f-d12c-418e-8b44-9659f1f54ddb",
+        "stepId": "transform_1",
+        "stepType": "synth_transform",
+        "agentId": "f5185267-166c-463c-9db6-77f691673417",
+        "attempts": 1,
+        "durationMs": 26057,
+        "summary": {
+          "status": "success",
+          "mediaId": "e1f488a0-3516-4ef4-8545-31ab0fb77da0",
+          "mediaType": "image"
+        }
+      }
+    },
+    {
+      "t": 66920,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "e0b2480f-d12c-418e-8b44-9659f1f54ddb",
+        "stepId": "transform_2",
+        "stepType": "synth_transform",
+        "agentId": "f5185267-166c-463c-9db6-77f691673417",
+        "dependsOn": [
+          "transform_1"
+        ],
+        "inputs": {
+          "image_id": "e1f488a0-3516-4ef4-8545-31ab0fb77da0",
+          "intent": "the entire structure shatters into floating luminous fragments against a dark cosmic sky"
+        }
+      }
+    },
+    {
+      "t": 96932,
+      "event": "workflow_step_retry",
+      "data": {
+        "workflowId": "e0b2480f-d12c-418e-8b44-9659f1f54ddb",
+        "stepId": "transform_2",
+        "stepType": "synth_transform",
+        "attempt": 1,
+        "error": "This operation was aborted"
+      }
+    },
+    {
+      "t": 122493,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "e0b2480f-d12c-418e-8b44-9659f1f54ddb",
+        "stepId": "transform_2",
+        "stepType": "synth_transform",
+        "agentId": "f5185267-166c-463c-9db6-77f691673417",
+        "attempts": 2,
+        "durationMs": 55573,
+        "summary": {
+          "status": "success",
+          "mediaId": "10512873-1605-4ae6-a365-ce00863ca5b0",
+          "mediaType": "image"
+        }
+      }
+    },
+    {
+      "t": 122494,
+      "event": "workflow_complete",
+      "data": {
+        "workflowId": "e0b2480f-d12c-418e-8b44-9659f1f54ddb",
+        "name": "Progressive Transform: A pristine brutalist concrete monument s",
+        "status": "complete",
+        "completedAt": "2026-04-24T17:51:06.325Z",
+        "agentId": "f5185267-166c-463c-9db6-77f691673417",
+        "totals": {
+          "durationMs": 122493,
+          "completedSteps": 4,
+          "failedSteps": 0,
+          "skippedSteps": 0
+        },
+        "stepResults": [
+          {
+            "id": "origin",
+            "type": "synth_image",
+            "status": "success",
+            "mediaId": "7cbc3870-09f4-4efd-a36f-4a96e422ae26",
+            "mediaType": "image"
+          },
+          {
+            "id": "transform_0",
+            "type": "synth_transform",
+            "status": "success",
+            "mediaId": "4401ab37-dd12-4048-a177-a79a49ca6d5e",
+            "mediaType": "image"
+          },
+          {
+            "id": "transform_1",
+            "type": "synth_transform",
+            "status": "success",
+            "mediaId": "e1f488a0-3516-4ef4-8545-31ab0fb77da0",
+            "mediaType": "image"
+          },
+          {
+            "id": "transform_2",
+            "type": "synth_transform",
+            "status": "success",
+            "mediaId": "10512873-1605-4ae6-a365-ce00863ca5b0",
+            "mediaType": "image"
+          }
+        ]
+      }
+    }
+  ]
+}

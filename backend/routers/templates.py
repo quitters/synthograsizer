@@ -27,8 +27,10 @@ logger = logging.getLogger(__name__)
 @router.post("/api/generate/template")
 async def generate_template(request: TemplateRequest):
     timeout = config.TEMPLATE_GEN_TIMEOUT_SECONDS
-    # Resolve model override: Flash for speed, Pro for quality
-    model_override = config.MODEL_TEMPLATE_GEN_FAST if request.use_flash else None
+    # Resolve model override: Flash for speed, Pro for quality, or explicit model
+    model_override = request.model
+    if not model_override and request.use_flash:
+        model_override = config.MODEL_TEMPLATE_GEN_FAST
     try:
         mode = request.mode
 
@@ -43,7 +45,7 @@ async def generate_template(request: TemplateRequest):
                 raise ValueError("Image mode requires at least one image.")
             image_bytes = decode_base64_image(request.images[0])
             analysis = await asyncio.wait_for(
-                asyncio.to_thread(ai_manager.analyze_image_to_prompt, image_bytes),
+                asyncio.to_thread(ai_manager.analyze_image_to_prompt, image_bytes, model_name=model_override),
                 timeout=timeout
             )
             json_str = await asyncio.wait_for(
@@ -66,8 +68,10 @@ async def generate_template(request: TemplateRequest):
             if not request.images or len(request.images) < 2:
                 raise ValueError("Multi-Image mode requires at least 2 images.")
             decoded = [decode_base64_image(img) for img in request.images]
+            direction = request.prompt.strip() if request.prompt else None
             json_str = await asyncio.wait_for(
-                asyncio.to_thread(ai_manager.generate_template_from_images, decoded, model_override=model_override),
+                asyncio.to_thread(ai_manager.generate_template_from_images, decoded,
+                                  direction=direction, model_override=model_override),
                 timeout=timeout
             )
 
@@ -91,6 +95,24 @@ async def generate_template(request: TemplateRequest):
                 timeout=timeout
             )
 
+        elif mode == "story-beat":
+            # Regenerate a single beat within a bespoke-beat story template
+            if not request.current_template:
+                raise ValueError("story-beat mode requires a current_template (the full story template).")
+            if request.target_beat_id is None:
+                raise ValueError("story-beat mode requires a target_beat_id.")
+            direction = request.prompt.strip() if request.prompt else None
+            json_str = await asyncio.wait_for(
+                asyncio.to_thread(
+                    ai_manager.generate_story_beat,
+                    request.current_template,
+                    request.target_beat_id,
+                    direction=direction,
+                    model_override=model_override
+                ),
+                timeout=timeout
+            )
+
         elif mode == "workflow":
             # Workflow JSON + Image(s) → Curated workflow(s) with one value per variable
             if not request.workflow:
@@ -111,13 +133,24 @@ async def generate_template(request: TemplateRequest):
                         request.workflow,
                         image_bytes,
                         guidance=guidance,
-                        include_rationale=include_rationale
+                        include_rationale=include_rationale,
+                        model_override=model_override
                     ),
                     timeout=timeout
                 )
                 results.append(result)
 
             return {"status": "success", "results": results}
+
+        elif mode == "p5":
+            if not request.prompt.strip():
+                raise ValueError("p5 mode requires a sketch description.")
+            image_bytes = decode_base64_image(request.images[0]) if request.images else None
+            json_str = await asyncio.wait_for(
+                asyncio.to_thread(ai_manager.generate_p5_template, request.prompt,
+                                  image_bytes=image_bytes, model_override=model_override),
+                timeout=timeout
+            )
 
         else:
             raise HTTPException(status_code=400, detail=f"Unknown template generation mode: {mode}")

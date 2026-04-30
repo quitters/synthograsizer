@@ -1,0 +1,283 @@
+{
+  "workflowId": "de216457-3c03-4c5b-b54b-1ddf78552a1c",
+  "name": "Progressive Transform: a tranquil Victorian tea party",
+  "agentId": "bb12a961-8429-4118-9205-8abc7dde2a8a",
+  "agentName": "The Master Agent-Crafter 1",
+  "agentColor": "#FF6B6B",
+  "sessionId": "1edf97c5-9f31-44f6-b499-cb90a15f155d",
+  "messageId": null,
+  "startedAt": "2026-04-30T17:00:52.367Z",
+  "completedAt": "2026-04-30T17:01:21.997Z",
+  "status": "failed",
+  "totals": {
+    "durationMs": 29630,
+    "costUsd": 0.04,
+    "completedSteps": 1,
+    "failedSteps": 1
+  },
+  "steps": {
+    "origin": {
+      "id": "origin",
+      "type": "synth_image",
+      "dependsOn": [],
+      "status": "complete",
+      "startedMs": 1,
+      "completedMs": 26382,
+      "durationMs": 26381,
+      "inputs": {
+        "prompt": "a tranquil Victorian tea party",
+        "aspect_ratio": "1:1"
+      },
+      "outputSummary": {
+        "status": "success",
+        "mediaId": "52a967f1-3139-43ed-9211-0f947904b56e",
+        "mediaType": "image"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.04
+    },
+    "transform_0": {
+      "id": "transform_0",
+      "type": "synth_transform",
+      "dependsOn": [
+        "origin"
+      ],
+      "status": "failed",
+      "startedMs": 26383,
+      "completedMs": 29630,
+      "durationMs": 3247,
+      "inputs": {
+        "image_id": "52a967f1-3139-43ed-9211-0f947904b56e",
+        "intent": "mutate the guests into iridescent glass sculptures"
+      },
+      "outputSummary": null,
+      "error": "Smart Transform failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'models/gemini-3.1-flash-preview is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.', 'status': 'NOT_FOUND'}}",
+      "attempts": 1,
+      "costUsd": 0,
+      "lastRetryError": "Smart Transform failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'models/gemini-3.1-flash-preview is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.', 'status': 'NOT_FOUND'}}"
+    },
+    "transform_1": {
+      "id": "transform_1",
+      "type": "synth_transform",
+      "dependsOn": [
+        "transform_0"
+      ],
+      "status": "pending",
+      "startedMs": null,
+      "completedMs": null,
+      "durationMs": null,
+      "inputs": null,
+      "outputSummary": null,
+      "error": null,
+      "attempts": 0,
+      "costUsd": 0
+    },
+    "transform_2": {
+      "id": "transform_2",
+      "type": "synth_transform",
+      "dependsOn": [
+        "transform_1"
+      ],
+      "status": "pending",
+      "startedMs": null,
+      "completedMs": null,
+      "durationMs": null,
+      "inputs": null,
+      "outputSummary": null,
+      "error": null,
+      "attempts": 0,
+      "costUsd": 0
+    }
+  },
+  "events": [
+    {
+      "t": 0,
+      "event": "workflow_start",
+      "data": {
+        "workflowId": "de216457-3c03-4c5b-b54b-1ddf78552a1c",
+        "name": "Progressive Transform: a tranquil Victorian tea party",
+        "stepCount": 4,
+        "steps": [
+          {
+            "id": "origin",
+            "type": "synth_image",
+            "dependsOn": []
+          },
+          {
+            "id": "transform_0",
+            "type": "synth_transform",
+            "dependsOn": [
+              "origin"
+            ]
+          },
+          {
+            "id": "transform_1",
+            "type": "synth_transform",
+            "dependsOn": [
+              "transform_0"
+            ]
+          },
+          {
+            "id": "transform_2",
+            "type": "synth_transform",
+            "dependsOn": [
+              "transform_1"
+            ]
+          }
+        ],
+        "agentId": "bb12a961-8429-4118-9205-8abc7dde2a8a",
+        "agentName": "The Master Agent-Crafter 1",
+        "agentColor": "#FF6B6B",
+        "sessionId": "1edf97c5-9f31-44f6-b499-cb90a15f155d",
+        "messageId": null
+      }
+    },
+    {
+      "t": 1,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "de216457-3c03-4c5b-b54b-1ddf78552a1c",
+        "stepId": "origin",
+        "stepType": "synth_image",
+        "agentId": "bb12a961-8429-4118-9205-8abc7dde2a8a",
+        "dependsOn": [],
+        "inputs": {
+          "prompt": "a tranquil Victorian tea party",
+          "aspect_ratio": "1:1"
+        }
+      }
+    },
+    {
+      "t": 2,
+      "event": "workflow_submitted",
+      "data": {
+        "agentId": "bb12a961-8429-4118-9205-8abc7dde2a8a",
+        "agentName": "The Master Agent-Crafter 1",
+        "agentColor": "#FF6B6B",
+        "sessionId": "1edf97c5-9f31-44f6-b499-cb90a15f155d",
+        "workflowId": "de216457-3c03-4c5b-b54b-1ddf78552a1c",
+        "workflowName": "Progressive Transform: a tranquil Victorian tea party",
+        "templateId": "progressive_transform",
+        "stepCount": 4,
+        "steps": [
+          {
+            "id": "origin",
+            "type": "synth_image"
+          },
+          {
+            "id": "transform_0",
+            "type": "synth_transform"
+          },
+          {
+            "id": "transform_1",
+            "type": "synth_transform"
+          },
+          {
+            "id": "transform_2",
+            "type": "synth_transform"
+          }
+        ]
+      }
+    },
+    {
+      "t": 26382,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "de216457-3c03-4c5b-b54b-1ddf78552a1c",
+        "stepId": "origin",
+        "stepType": "synth_image",
+        "agentId": "bb12a961-8429-4118-9205-8abc7dde2a8a",
+        "attempts": 1,
+        "durationMs": 26382,
+        "summary": {
+          "status": "success",
+          "mediaId": "52a967f1-3139-43ed-9211-0f947904b56e",
+          "mediaType": "image"
+        }
+      }
+    },
+    {
+      "t": 26383,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "de216457-3c03-4c5b-b54b-1ddf78552a1c",
+        "stepId": "transform_0",
+        "stepType": "synth_transform",
+        "agentId": "bb12a961-8429-4118-9205-8abc7dde2a8a",
+        "dependsOn": [
+          "origin"
+        ],
+        "inputs": {
+          "image_id": "52a967f1-3139-43ed-9211-0f947904b56e",
+          "intent": "mutate the guests into iridescent glass sculptures"
+        }
+      }
+    },
+    {
+      "t": 26499,
+      "event": "workflow_step_retry",
+      "data": {
+        "workflowId": "de216457-3c03-4c5b-b54b-1ddf78552a1c",
+        "stepId": "transform_0",
+        "stepType": "synth_transform",
+        "attempt": 1,
+        "error": "Smart Transform failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'models/gemini-3.1-flash-preview is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.', 'status': 'NOT_FOUND'}}"
+      }
+    },
+    {
+      "t": 29630,
+      "event": "workflow_step_error",
+      "data": {
+        "workflowId": "de216457-3c03-4c5b-b54b-1ddf78552a1c",
+        "stepId": "transform_0",
+        "stepType": "synth_transform",
+        "agentId": "bb12a961-8429-4118-9205-8abc7dde2a8a",
+        "attempts": 2,
+        "durationMs": 3247,
+        "error": "Smart Transform failed: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'models/gemini-3.1-flash-preview is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.', 'status': 'NOT_FOUND'}}"
+      }
+    },
+    {
+      "t": 29630,
+      "event": "workflow_complete",
+      "data": {
+        "workflowId": "de216457-3c03-4c5b-b54b-1ddf78552a1c",
+        "name": "Progressive Transform: a tranquil Victorian tea party",
+        "status": "failed",
+        "completedAt": "2026-04-30T17:01:21.997Z",
+        "agentId": "bb12a961-8429-4118-9205-8abc7dde2a8a",
+        "totals": {
+          "durationMs": 29630,
+          "completedSteps": 1,
+          "failedSteps": 1,
+          "skippedSteps": 0
+        },
+        "stepResults": [
+          {
+            "id": "origin",
+            "type": "synth_image",
+            "status": "success",
+            "mediaId": "52a967f1-3139-43ed-9211-0f947904b56e",
+            "mediaType": "image"
+          },
+          {
+            "id": "transform_0",
+            "type": "synth_transform",
+            "status": "failed"
+          },
+          {
+            "id": "transform_1",
+            "type": "synth_transform",
+            "status": "pending"
+          },
+          {
+            "id": "transform_2",
+            "type": "synth_transform",
+            "status": "pending"
+          }
+        ]
+      }
+    }
+  ]
+}

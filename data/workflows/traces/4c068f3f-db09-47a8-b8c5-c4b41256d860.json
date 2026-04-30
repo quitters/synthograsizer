@@ -1,0 +1,292 @@
+{
+  "workflowId": "4c068f3f-db09-47a8-b8c5-c4b41256d860",
+  "name": "Progressive Transform: stark rigid geometric blocks of deep mat",
+  "agentId": "840d42c3-7a7b-4b03-b2d7-ebe8d7940ea2",
+  "agentName": "Painter",
+  "agentColor": "#4ECDC4",
+  "sessionId": "6b7eb36d-5cf4-4f2c-be78-f73a3f43bd57",
+  "messageId": null,
+  "startedAt": "2026-04-24T17:26:32.027Z",
+  "completedAt": "2026-04-24T17:27:34.109Z",
+  "status": "complete",
+  "totals": {
+    "durationMs": 62082,
+    "costUsd": 0.124,
+    "completedSteps": 3,
+    "failedSteps": 0
+  },
+  "steps": {
+    "origin": {
+      "id": "origin",
+      "type": "synth_image",
+      "dependsOn": [],
+      "status": "complete",
+      "startedMs": 1,
+      "completedMs": 16239,
+      "durationMs": 16238,
+      "inputs": {
+        "prompt": "stark rigid geometric blocks of deep matte cobalt blue in a dark void, volumetric lighting, cinematic chiaroscuro",
+        "aspect_ratio": "16:9"
+      },
+      "outputSummary": {
+        "status": "success",
+        "mediaId": "6a71039b-48ab-4058-86cd-d2aaa12a17c2",
+        "mediaType": "image"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.04
+    },
+    "transform_0": {
+      "id": "transform_0",
+      "type": "synth_transform",
+      "dependsOn": [
+        "origin"
+      ],
+      "status": "complete",
+      "startedMs": 16239,
+      "completedMs": 36752,
+      "durationMs": 20513,
+      "inputs": {
+        "image_id": "6a71039b-48ab-4058-86cd-d2aaa12a17c2",
+        "intent": "melt the geometry into glossy viscous fluid bleeds of toxic fluorescent green and magenta with caustic light leaks"
+      },
+      "outputSummary": {
+        "status": "success",
+        "mediaId": "6c57a411-8704-4f05-86c5-2394fe896110",
+        "mediaType": "image"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.042
+    },
+    "transform_1": {
+      "id": "transform_1",
+      "type": "synth_transform",
+      "dependsOn": [
+        "transform_0"
+      ],
+      "status": "complete",
+      "startedMs": 36752,
+      "completedMs": 62082,
+      "durationMs": 25330,
+      "inputs": {
+        "image_id": "6c57a411-8704-4f05-86c5-2394fe896110",
+        "intent": "vaporize the fluid into a heavy grainy atmospheric haze of bruised violet and oxidized copper twilight tones"
+      },
+      "outputSummary": {
+        "status": "success",
+        "mediaId": "591f2f16-84bc-4d9b-90f1-d9ba01ed77dd",
+        "mediaType": "image"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.042
+    }
+  },
+  "events": [
+    {
+      "t": 0,
+      "event": "workflow_start",
+      "data": {
+        "workflowId": "4c068f3f-db09-47a8-b8c5-c4b41256d860",
+        "name": "Progressive Transform: stark rigid geometric blocks of deep mat",
+        "stepCount": 3,
+        "steps": [
+          {
+            "id": "origin",
+            "type": "synth_image",
+            "dependsOn": []
+          },
+          {
+            "id": "transform_0",
+            "type": "synth_transform",
+            "dependsOn": [
+              "origin"
+            ]
+          },
+          {
+            "id": "transform_1",
+            "type": "synth_transform",
+            "dependsOn": [
+              "transform_0"
+            ]
+          }
+        ],
+        "agentId": "840d42c3-7a7b-4b03-b2d7-ebe8d7940ea2",
+        "agentName": "Painter",
+        "agentColor": "#4ECDC4",
+        "sessionId": "6b7eb36d-5cf4-4f2c-be78-f73a3f43bd57",
+        "messageId": null
+      }
+    },
+    {
+      "t": 1,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "4c068f3f-db09-47a8-b8c5-c4b41256d860",
+        "stepId": "origin",
+        "stepType": "synth_image",
+        "agentId": "840d42c3-7a7b-4b03-b2d7-ebe8d7940ea2",
+        "dependsOn": [],
+        "inputs": {
+          "prompt": "stark rigid geometric blocks of deep matte cobalt blue in a dark void, volumetric lighting, cinematic chiaroscuro",
+          "aspect_ratio": "16:9"
+        }
+      }
+    },
+    {
+      "t": 1,
+      "event": "workflow_submitted",
+      "data": {
+        "agentId": "840d42c3-7a7b-4b03-b2d7-ebe8d7940ea2",
+        "agentName": "Painter",
+        "agentColor": "#4ECDC4",
+        "sessionId": "6b7eb36d-5cf4-4f2c-be78-f73a3f43bd57",
+        "workflowId": "4c068f3f-db09-47a8-b8c5-c4b41256d860",
+        "workflowName": "Progressive Transform: stark rigid geometric blocks of deep mat",
+        "templateId": "progressive_transform",
+        "stepCount": 3,
+        "steps": [
+          {
+            "id": "origin",
+            "type": "synth_image"
+          },
+          {
+            "id": "transform_0",
+            "type": "synth_transform"
+          },
+          {
+            "id": "transform_1",
+            "type": "synth_transform"
+          }
+        ]
+      }
+    },
+    {
+      "t": 16239,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "4c068f3f-db09-47a8-b8c5-c4b41256d860",
+        "stepId": "origin",
+        "stepType": "synth_image",
+        "agentId": "840d42c3-7a7b-4b03-b2d7-ebe8d7940ea2",
+        "attempts": 1,
+        "durationMs": 16238,
+        "summary": {
+          "status": "success",
+          "mediaId": "6a71039b-48ab-4058-86cd-d2aaa12a17c2",
+          "mediaType": "image"
+        }
+      }
+    },
+    {
+      "t": 16239,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "4c068f3f-db09-47a8-b8c5-c4b41256d860",
+        "stepId": "transform_0",
+        "stepType": "synth_transform",
+        "agentId": "840d42c3-7a7b-4b03-b2d7-ebe8d7940ea2",
+        "dependsOn": [
+          "origin"
+        ],
+        "inputs": {
+          "image_id": "6a71039b-48ab-4058-86cd-d2aaa12a17c2",
+          "intent": "melt the geometry into glossy viscous fluid bleeds of toxic fluorescent green and magenta with caustic light leaks"
+        }
+      }
+    },
+    {
+      "t": 36752,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "4c068f3f-db09-47a8-b8c5-c4b41256d860",
+        "stepId": "transform_0",
+        "stepType": "synth_transform",
+        "agentId": "840d42c3-7a7b-4b03-b2d7-ebe8d7940ea2",
+        "attempts": 1,
+        "durationMs": 20513,
+        "summary": {
+          "status": "success",
+          "mediaId": "6c57a411-8704-4f05-86c5-2394fe896110",
+          "mediaType": "image"
+        }
+      }
+    },
+    {
+      "t": 36752,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "4c068f3f-db09-47a8-b8c5-c4b41256d860",
+        "stepId": "transform_1",
+        "stepType": "synth_transform",
+        "agentId": "840d42c3-7a7b-4b03-b2d7-ebe8d7940ea2",
+        "dependsOn": [
+          "transform_0"
+        ],
+        "inputs": {
+          "image_id": "6c57a411-8704-4f05-86c5-2394fe896110",
+          "intent": "vaporize the fluid into a heavy grainy atmospheric haze of bruised violet and oxidized copper twilight tones"
+        }
+      }
+    },
+    {
+      "t": 62082,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "4c068f3f-db09-47a8-b8c5-c4b41256d860",
+        "stepId": "transform_1",
+        "stepType": "synth_transform",
+        "agentId": "840d42c3-7a7b-4b03-b2d7-ebe8d7940ea2",
+        "attempts": 1,
+        "durationMs": 25330,
+        "summary": {
+          "status": "success",
+          "mediaId": "591f2f16-84bc-4d9b-90f1-d9ba01ed77dd",
+          "mediaType": "image"
+        }
+      }
+    },
+    {
+      "t": 62082,
+      "event": "workflow_complete",
+      "data": {
+        "workflowId": "4c068f3f-db09-47a8-b8c5-c4b41256d860",
+        "name": "Progressive Transform: stark rigid geometric blocks of deep mat",
+        "status": "complete",
+        "completedAt": "2026-04-24T17:27:34.109Z",
+        "agentId": "840d42c3-7a7b-4b03-b2d7-ebe8d7940ea2",
+        "totals": {
+          "durationMs": 62082,
+          "completedSteps": 3,
+          "failedSteps": 0,
+          "skippedSteps": 0
+        },
+        "stepResults": [
+          {
+            "id": "origin",
+            "type": "synth_image",
+            "status": "success",
+            "mediaId": "6a71039b-48ab-4058-86cd-d2aaa12a17c2",
+            "mediaType": "image"
+          },
+          {
+            "id": "transform_0",
+            "type": "synth_transform",
+            "status": "success",
+            "mediaId": "6c57a411-8704-4f05-86c5-2394fe896110",
+            "mediaType": "image"
+          },
+          {
+            "id": "transform_1",
+            "type": "synth_transform",
+            "status": "success",
+            "mediaId": "591f2f16-84bc-4d9b-90f1-d9ba01ed77dd",
+            "mediaType": "image"
+          }
+        ]
+      }
+    }
+  ]
+}

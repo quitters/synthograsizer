@@ -10,7 +10,7 @@ export { getTemplate, listTemplates, buildWorkflow, listTemplatesForPrompt, list
  * Follows the same tag-based pattern as image generation
  */
 
-const TOOL_MODEL = 'gemini-3-flash-preview';
+const TOOL_MODEL = 'gemini-3.1-pro-preview-customtools';
 
 let genAI = null;
 

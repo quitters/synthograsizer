@@ -1,0 +1,470 @@
+{
+  "workflowId": "db526562-ac08-46da-b552-ad0cd2dddb99",
+  "name": "Cinematic Short: Abstract geometric cobalt blue blocks melting into",
+  "workflowDef": {
+    "name": "Cinematic Short: Abstract geometric cobalt blue blocks melting into",
+    "steps": [
+      {
+        "id": "plan",
+        "type": "synth_text",
+        "params": {
+          "prompt": "You are a film director planning a short film. Concept: \"Abstract geometric cobalt blue blocks melting into a highly refractive, toxic green fluid, then vaporizing into a bruised violet particulate twilight haze\". Mood: tense build to chaotic rupture, ending in melancholic decay.\nPlan exactly 3 scenes. For each scene, write a vivid image generation prompt (2-3 sentences) describing the visual.\nOutput ONLY a JSON array of strings, one prompt per scene. Example: [\"scene 1 prompt\", \"scene 2 prompt\"]"
+        },
+        "dependsOn": []
+      },
+      {
+        "id": "style",
+        "type": "synth_template",
+        "params": {
+          "description": "tense build to chaotic rupture, ending in melancholic decay visual style for a short film about: Abstract geometric cobalt blue blocks melting into a highly refractive, toxic green fluid, then vaporizing into a bruised violet particulate twilight haze",
+          "mode": "text"
+        },
+        "dependsOn": []
+      },
+      {
+        "id": "scene0",
+        "type": "synth_image",
+        "params": {
+          "prompt": "Scene 1 of 3 from a tense build to chaotic rupture, ending in melancholic decay short film: Abstract geometric cobalt blue blocks melting into a highly refractive, toxic green fluid, then vaporizing into a bruised violet particulate twilight haze. {{style.template.promptTemplate}}",
+          "aspect_ratio": "16:9"
+        },
+        "dependsOn": [
+          "plan",
+          "style"
+        ]
+      },
+      {
+        "id": "scene1",
+        "type": "synth_image",
+        "params": {
+          "prompt": "Scene 2 of 3 from a tense build to chaotic rupture, ending in melancholic decay short film: Abstract geometric cobalt blue blocks melting into a highly refractive, toxic green fluid, then vaporizing into a bruised violet particulate twilight haze. {{style.template.promptTemplate}}",
+          "aspect_ratio": "16:9"
+        },
+        "dependsOn": [
+          "plan",
+          "style"
+        ]
+      },
+      {
+        "id": "scene2",
+        "type": "synth_image",
+        "params": {
+          "prompt": "Scene 3 of 3 from a tense build to chaotic rupture, ending in melancholic decay short film: Abstract geometric cobalt blue blocks melting into a highly refractive, toxic green fluid, then vaporizing into a bruised violet particulate twilight haze. {{style.template.promptTemplate}}",
+          "aspect_ratio": "16:9"
+        },
+        "dependsOn": [
+          "plan",
+          "style"
+        ]
+      },
+      {
+        "id": "desc0",
+        "type": "synth_analyze",
+        "params": {
+          "image_id": "{{scene0.mediaId}}"
+        },
+        "dependsOn": [
+          "scene0"
+        ]
+      },
+      {
+        "id": "desc1",
+        "type": "synth_analyze",
+        "params": {
+          "image_id": "{{scene1.mediaId}}"
+        },
+        "dependsOn": [
+          "scene1"
+        ]
+      },
+      {
+        "id": "desc2",
+        "type": "synth_analyze",
+        "params": {
+          "image_id": "{{scene2.mediaId}}"
+        },
+        "dependsOn": [
+          "scene2"
+        ]
+      },
+      {
+        "id": "narrative",
+        "type": "synth_narrative",
+        "params": {
+          "descriptions": [
+            "{{desc0.description}}",
+            "{{desc1.description}}",
+            "{{desc2.description}}"
+          ],
+          "mode": "story"
+        },
+        "dependsOn": [
+          "desc0",
+          "desc1",
+          "desc2"
+        ]
+      },
+      {
+        "id": "hero_video",
+        "type": "synth_video",
+        "params": {
+          "prompt": "tense build to chaotic rupture, ending in melancholic decay cinematic shot: {{desc0.description}}. Slow camera movement, atmospheric lighting.",
+          "aspect_ratio": "16:9",
+          "duration": "5"
+        },
+        "dependsOn": [
+          "desc0"
+        ]
+      }
+    ]
+  },
+  "completedSteps": [
+    "plan",
+    "style",
+    "scene0",
+    "scene1",
+    "scene2",
+    "desc0",
+    "desc1",
+    "desc2",
+    "narrative"
+  ],
+  "failedSteps": [
+    {
+      "id": "hero_video",
+      "error": "400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'The number value for `durationSeconds` is out of bound. Please provide a value between 4 and 8, inclusive.', 'status': 'INVALID_ARGUMENT'}}"
+    }
+  ],
+  "stepResults": {
+    "plan": {
+      "text": "[\n  \"Monolithic cobalt blue geometric blocks are stacked in a cold, silent void, their sharp matte edges catching a faint clinical light. Micro-fractures begin to spiderweb across the surfaces as a high-frequency vibration causes the massive cubes to shudder with an unbearable, building tension.\",\n  \"The blue structures violently dissolve into a seething, viscous toxic green fluid that surges with intense caustic refractions and oily shimmers. Chaotic splashes of neon liquid erupt upwards, refracting the surrounding darkness through bubbling, distorted lenses as the geometric order completely ruptures into a molten surge.\",\n  \"The emerald fluid rapidly vaporizes into a dense, bruised violet particulate haze that hangs suspended in a somber twilight atmosphere. Fine purple crystalline dust drifts slowly like glowing ash through the stagnant air, marking the final melancholic decay of the former structure into a silent, spectral mist.\"\n]"
+    },
+    "style": {
+      "status": "success",
+      "template": {
+        "promptTemplate": "A cinematic short film sequence featuring {{state_of_matter}} rendered in a {{color_palette}} palette, captured with {{camera_motion}}. The scene exhibits {{visual_texture}} illuminated by {{lighting_and_atmosphere}}, radiating an aura of {{energy_level}}.",
+        "variables": [
+          {
+            "name": "state_of_matter",
+            "feature_name": "Matter State",
+            "values": [
+              {
+                "text": "rigid abstract geometric blocks",
+                "weight": 3
+              },
+              {
+                "text": "pulsating monolithic crystalline structures",
+                "weight": 2
+              },
+              {
+                "text": "vibrating asymmetrical cubes",
+                "weight": 3
+              },
+              {
+                "text": "softening structural architectural forms",
+                "weight": 3
+              },
+              {
+                "text": "sluggishly melting solid masses",
+                "weight": 3
+              },
+              {
+                "text": "flowing thick refractive fluid",
+                "weight": 3
+              },
+              {
+                "text": "churning turbulent liquid waves",
+                "weight": 2
+              },
+              {
+                "text": "boiling chaotic plasma pools",
+                "weight": 1
+              },
+              {
+                "text": "dissolving misty floating droplets",
+                "weight": 3
+              },
+              {
+                "text": "drifting particulate twilight haze",
+                "weight": 3
+              },
+              {
+                "text": "evaporating ethereal micro-fog",
+                "weight": 2
+              }
+            ]
+          },
+          {
+            "name": "color_palette",
+            "feature_name": "Color Palette",
+            "values": [
+              {
+                "text": "stark cobalt blue and slate",
+                "weight": 3
+              },
+              {
+                "text": "deep sapphire and metallic silver",
+                "weight": 3
+              },
+              {
+                "text": "electric blue with cyan highlights",
+                "weight": 2
+              },
+              {
+                "text": "mutating teal and sickly chartreuse",
+                "weight": 3
+              },
+              {
+                "text": "highly refractive toxic green",
+                "weight": 3
+              },
+              {
+                "text": "radioactive emerald and neon yellow",
+                "weight": 2
+              },
+              {
+                "text": "acidic lime and dark magenta",
+                "weight": 1
+              },
+              {
+                "text": "bruised violet and deep plum",
+                "weight": 3
+              },
+              {
+                "text": "fading lavender and ash grey",
+                "weight": 3
+              },
+              {
+                "text": "twilight purple and charcoal",
+                "weight": 2
+              }
+            ]
+          },
+          {
+            "name": "camera_motion",
+            "feature_name": "Camera Motion",
+            "values": [
+              {
+                "text": "a slow creeping dolly in",
+                "weight": 3
+              },
+              {
+                "text": "a static locked-off wide shot",
+                "weight": 3
+              },
+              {
+                "text": "a tense microscopic macro pan",
+                "weight": 2
+              },
+              {
+                "text": "an unsettling Dutch angle push",
+                "weight": 2
+              },
+              {
+                "text": "an erratic handheld tracking shot",
+                "weight": 3
+              },
+              {
+                "text": "violent whip pan transitions",
+                "weight": 1
+              },
+              {
+                "text": "a shaky chaotic orbit",
+                "weight": 3
+              },
+              {
+                "text": "a smooth floating crane shot",
+                "weight": 3
+              },
+              {
+                "text": "a slow melancholic pull back",
+                "weight": 3
+              },
+              {
+                "text": "a drifting ethereal tilt up",
+                "weight": 2
+              }
+            ]
+          },
+          {
+            "name": "visual_texture",
+            "feature_name": "Visual Texture",
+            "values": [
+              {
+                "text": "flawless glossy geometric surfaces",
+                "weight": 3
+              },
+              {
+                "text": "micro-scratched matte obsidian finishes",
+                "weight": 2
+              },
+              {
+                "text": "sweating condensation-covered facets",
+                "weight": 3
+              },
+              {
+                "text": "bubbling viscous syrupy layers",
+                "weight": 3
+              },
+              {
+                "text": "highly refractive caustic ripples",
+                "weight": 3
+              },
+              {
+                "text": "violent splashing chaotic droplets",
+                "weight": 2
+              },
+              {
+                "text": "fine microscopic suspended dust",
+                "weight": 3
+              },
+              {
+                "text": "wispy translucent smoke trails",
+                "weight": 3
+              },
+              {
+                "text": "grainy disintegrating static noise",
+                "weight": 2
+              },
+              {
+                "text": "soft blurred ethereal fuzz",
+                "weight": 1
+              }
+            ]
+          },
+          {
+            "name": "lighting_and_atmosphere",
+            "feature_name": "Lighting & Atmosphere",
+            "values": [
+              {
+                "text": "harsh directional spotlighting",
+                "weight": 3
+              },
+              {
+                "text": "flickering low-key illumination",
+                "weight": 3
+              },
+              {
+                "text": "strobe-like tense flashes",
+                "weight": 2
+              },
+              {
+                "text": "blinding volumetric light bursts",
+                "weight": 1
+              },
+              {
+                "text": "chaotic multi-directional glares",
+                "weight": 3
+              },
+              {
+                "text": "eerie bioluminescent under-glow",
+                "weight": 3
+              },
+              {
+                "text": "toxic luminescent sub-surface scattering",
+                "weight": 2
+              },
+              {
+                "text": "dim melancholic ambient twilight",
+                "weight": 3
+              },
+              {
+                "text": "soft diffused fading dusk",
+                "weight": 3
+              },
+              {
+                "text": "gloomy shadow-drenched darkness",
+                "weight": 2
+              }
+            ]
+          },
+          {
+            "name": "energy_level",
+            "feature_name": "Energy Level",
+            "values": [
+              {
+                "text": "suppressed latent tension",
+                "weight": 3
+              },
+              {
+                "text": "ominous building pressure",
+                "weight": 3
+              },
+              {
+                "text": "rapidly escalating instability",
+                "weight": 2
+              },
+              {
+                "text": "violent explosive rupture",
+                "weight": 1
+              },
+              {
+                "text": "frenzied chaotic kineticism",
+                "weight": 3
+              },
+              {
+                "text": "overwhelming sensory overload",
+                "weight": 2
+              },
+              {
+                "text": "exhausted collapsing momentum",
+                "weight": 3
+              },
+              {
+                "text": "quiet melancholic decay",
+                "weight": 3
+              },
+              {
+                "text": "silent mournful entropy",
+                "weight": 3
+              },
+              {
+                "text": "absolute frozen stillness",
+                "weight": 2
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "scene1": {
+      "status": "success",
+      "mediaId": "747a02a0-1bfa-4fd4-8aed-531883aaefad",
+      "mediaType": "image"
+    },
+    "scene0": {
+      "status": "success",
+      "mediaId": "263da350-1c6a-4d0f-a03d-27d1cb33fad5",
+      "mediaType": "image"
+    },
+    "scene2": {
+      "status": "success",
+      "mediaId": "6ce0c521-5026-42a0-9095-1d2435c7441c",
+      "mediaType": "image"
+    },
+    "desc2": {
+      "status": "success",
+      "analysis": "Abstract 3D digital render illustrating a material phase change. A cluster of matte cobalt blue geometric cubes melts into a highly refractive, bioluminescent toxic green fluid. This viscous liquid pools on a dark reflective surface before vaporizing into a dense, bruised violet particulate haze. The composition progresses from close-ups of the melting process to wide shots of the volumetric smoke. Lighting is dominated by the internal neon green glow and soft ambient twilight tones. The palette features a high-contrast triad of deep blue, acid green, and muted purple. Ray-traced details include realistic fluid dynamics, subsurface scattering, and cinematic depth of field. The aesthetic is surreal, experimental, and chemically volatile.",
+      "description": "Abstract 3D digital render illustrating a material phase change. A cluster of matte cobalt blue geometric cubes melts into a highly refractive, bioluminescent toxic green fluid. This viscous liquid pools on a dark reflective surface before vaporizing into a dense, bruised violet particulate haze. The composition progresses from close-ups of the melting process to wide shots of the volumetric smoke. Lighting is dominated by the internal neon green glow and soft ambient twilight tones. The palette features a high-contrast triad of deep blue, acid green, and muted purple. Ray-traced details include realistic fluid dynamics, subsurface scattering, and cinematic depth of field. The aesthetic is surreal, experimental, and chemically volatile."
+    },
+    "desc0": {
+      "status": "success",
+      "analysis": "This high-detail digital 3D render features surreal abstraction within a dark industrial setting. A cluster of fractured cobalt blue cubes is centrally composed, melting under viscous, glowing neon green slime that pools on the floor. Billowing purple smoke rises behind the subject, filling the background with thick atmospheric vapor. Bioluminescent green light provides the primary illumination, creating sharp highlights and dramatic shadows. The palette centers on high-contrast neon green, deep blue, and royal purple against shadowy neutrals. Captured with a macro perspective and shallow depth of field, the render emphasizes sharp material textures and liquid viscosity. The resulting aesthetic is toxic, chemically volatile, and eerie.",
+      "description": "This high-detail digital 3D render features surreal abstraction within a dark industrial setting. A cluster of fractured cobalt blue cubes is centrally composed, melting under viscous, glowing neon green slime that pools on the floor. Billowing purple smoke rises behind the subject, filling the background with thick atmospheric vapor. Bioluminescent green light provides the primary illumination, creating sharp highlights and dramatic shadows. The palette centers on high-contrast neon green, deep blue, and royal purple against shadowy neutrals. Captured with a macro perspective and shallow depth of field, the render emphasizes sharp material textures and liquid viscosity. The resulting aesthetic is toxic, chemically volatile, and eerie."
+    },
+    "desc1": {
+      "status": "success",
+      "analysis": "This abstract 3D digital render uses a horizontal triptych to depict a material evolution. Matte cobalt blue cubes are gradually engulfed by a viscous, translucent neon green slime, concluding in a bloom of purple vapor and green sparks. The composition utilizes tight macro framing to emphasize the tactile contrast between rigid geometry and fluid splashes. Minimalist dark studio lighting creates sharp specular highlights on the liquid and soft shadows across the geometric forms. The palette centers on vibrant acid green against deep blue and violet tones. High-fidelity ray tracing captures realistic fluid dynamics and intricate reflections. The resulting aesthetic is visceral, experimental, and chemically surreal.",
+      "description": "This abstract 3D digital render uses a horizontal triptych to depict a material evolution. Matte cobalt blue cubes are gradually engulfed by a viscous, translucent neon green slime, concluding in a bloom of purple vapor and green sparks. The composition utilizes tight macro framing to emphasize the tactile contrast between rigid geometry and fluid splashes. Minimalist dark studio lighting creates sharp specular highlights on the liquid and soft shadows across the geometric forms. The palette centers on vibrant acid green against deep blue and violet tones. High-fidelity ray tracing captures realistic fluid dynamics and intricate reflections. The resulting aesthetic is visceral, experimental, and chemically surreal."
+    },
+    "narrative": {
+      "status": "success",
+      "prompts": [
+        "Scene 1: In a dark, shadowed industrial warehouse, a slow-motion macro shot reveals a cluster of fractured cobalt blue cubes. Viscous, glowing neon green slime drips from above, slowly coating the geometric surfaces with a thick, liquid texture. As the slime pools on the floor, billows of royal purple smoke begin to rise in the background, illuminated by an eerie bioluminescent green glow that casts sharp highlights on the melting cubes.",
+        "Scene 2: The camera tracks horizontally across the scene as the material evolution intensifies. The matte blue cubes are now being aggressively engulfed by the translucent green slime. High-speed splashes of acid-green liquid erupt as the cubes crack and dissolve, sending bright green sparks into the air. The camera captures the visceral contrast between the rigid geometry and the fluid dynamics, as purple vapor begins to bloom from the points of contact.",
+        "Scene 3: A cinematic transition shows the final phase change. The cluster of blue cubes fully liquefies into a highly refractive, bioluminescent toxic green fluid that pools across a dark, reflective surface. The camera pulls back from a tight macro shot to a wide perspective, showing the liquid rapidly vaporizing into a dense, bruised violet particulate haze. Volumetric smoke fills the frame, creating a sense of chemical volatility and atmospheric depth as the solid matter completely transforms into gas."
+      ]
+    }
+  },
+  "savedAt": "2026-04-24T17:28:21.291Z"
+}
