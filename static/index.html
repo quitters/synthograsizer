@@ -35,7 +35,7 @@
         <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path></svg>
         <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
       </button>
-      <a href="/synthograsizer/" class="cta">Launch App</a>
+      <a href="/synthograsizer/demo.html" class="cta">Launch App</a>
     </div>
   </header>
 
@@ -62,7 +62,7 @@
       </p>
 
       <div class="hero-ctas">
-        <a href="/synthograsizer/" class="btn btn-primary">
+        <a href="/synthograsizer/demo.html" class="btn btn-primary">
           Launch Synthograsizer
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
         </a>
@@ -81,8 +81,8 @@
           <div class="lbl">Studio Tools</div>
         </div>
         <div class="stat">
-          <div class="num">3</div>
-          <div class="lbl">Scope Channels</div>
+          <div class="num">46+</div>
+          <div class="lbl">Agent Personas</div>
         </div>
         <div class="stat">
           <div class="num">∞</div>
@@ -98,6 +98,8 @@
         <span class="chip">OSC</span>
         <span class="chip">WebRTC</span>
         <span class="chip">Daydream Scope</span>
+        <span class="chip">Agent Orchestration</span>
+        <span class="chip">Trace Observability</span>
       </div>
     </div>
   </section>
@@ -181,7 +183,7 @@
       </div>
 
       <div class="tool-grid">
-        <a href="/synthograsizer/" class="tool-card primary reveal" style="grid-column: 1 / -1;">
+        <a href="/synthograsizer/demo.html" class="tool-card primary reveal" style="grid-column: 1 / -1;">
           <div class="tool-head">
             <h3>Synthograsizer</h3>
             <span class="tool-badge">Launch</span>
@@ -192,18 +194,18 @@
 
         <div class="tool-card reveal">
           <div class="tool-head">
-            <h3>Image &amp; Video Studio</h3>
-            <span class="tool-badge teal">Built-in</span>
+            <h3>Agent Studio</h3>
+            <span class="tool-badge amber">Built-in</span>
           </div>
-          <p>Gemini image generation, Veo 3 video with batch queuing, Smart Transform, reverse-prompt analysis, and metadata extraction.</p>
+          <p>Multi-agent Gemini orchestration with 46+ persona presets, configurable turn-order routing, autonomous turn-taking, structured artifact emission, live token streaming, and a per-turn agentic trace viewer for debugging consensus and tool use.</p>
         </div>
 
         <div class="tool-card reveal">
           <div class="tool-head">
-            <h3>Agent Studio</h3>
-            <span class="tool-badge amber">Built-in</span>
+            <h3>Image &amp; Video Studio</h3>
+            <span class="tool-badge teal">Built-in</span>
           </div>
-          <p>Multi-agent Gemini conversations with 46+ persona presets, live token streaming, artifact creation, and an agentic trace viewer.</p>
+          <p>Gemini image generation, Veo 3 video with batch queuing, Smart Transform, reverse-prompt analysis, and metadata extraction.</p>
         </div>
 
         <div class="tool-card reveal">
@@ -275,6 +277,32 @@
     </div>
   </section>
 
+  <!-- ============= How the agents work ============= -->
+  <section id="agents">
+    <div class="container">
+      <div class="section-head reveal">
+        <div class="section-eyebrow">Under the Hood</div>
+        <h2>How the agents work</h2>
+        <p>Agent Studio is a small orchestration runtime — the pieces that make a multi-agent conversation reproducible, inspectable, and steerable.</p>
+      </div>
+
+      <div class="feature-grid">
+        <article class="feature reveal">
+          <h3>Turn-order routing</h3>
+          <p>A configurable policy decides who speaks next — round-robin, mention-driven, or autonomous turn-taking with a stop condition. Per-template overrides keep behaviour predictable.</p>
+        </article>
+        <article class="feature reveal">
+          <h3>Per-turn prompt assembly</h3>
+          <p>Each agent's prompt is composed at runtime from a persona, the shared transcript, and any artifacts emitted by prior turns. The same JSON template format defines personas and prompts.</p>
+        </article>
+        <article class="feature reveal">
+          <h3>Trace capture &amp; consensus</h3>
+          <p>Every turn writes a trace record — inputs, raw model output, parsed artifacts, latency. The trace viewer renders the run for debugging; consensus detection ends the loop when agents converge.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
   <!-- ============= Code / Template preview ============= -->
   <section>
     <div class="container">
@@ -283,6 +311,7 @@
           <div class="section-eyebrow">Template Format</div>
           <h2>One JSON file.<br>Infinite variations.</h2>
           <p>Templates are portable, readable, and designed to be authored by humans or generated by LLMs. A template is a prompt skeleton plus a set of weighted variable lists — optionally with an embedded p5.js sketch for live visual output.</p>
+          <p>The same JSON drives prompt assembly, batch evaluation runs of up to 100 variations, and agent persona definitions — one schema, three runtimes.</p>
           <p>Import from PNG metadata, generate with the Template Generator, or author by hand. Share them, remix them, version them in git.</p>
         </div>
 
@@ -323,6 +352,7 @@
       </div>
 
       <div class="integrations">
+        <div class="reveal" style="grid-column: 1 / -1; font-family: 'JetBrains Mono', monospace; font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.22em; color: var(--text-dim); padding: 6px 2px; border-bottom: 1px solid var(--border);">Models &amp; APIs</div>
         <div class="integration reveal">
           <div class="integration-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M8 12h8M12 8v8"></path></svg>
@@ -341,6 +371,16 @@
             <div class="desc">Video generation</div>
           </div>
         </div>
+        <div class="integration reveal">
+          <div class="integration-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16v12H4z"></path><path d="m4 6 8 7 8-7"></path></svg>
+          </div>
+          <div>
+            <div class="name">ComfyUI (Legacy)</div>
+            <div class="desc">Local Stable Diffusion bridge</div>
+          </div>
+        </div>
+        <div class="reveal" style="grid-column: 1 / -1; font-family: 'JetBrains Mono', monospace; font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.22em; color: var(--text-dim); padding: 6px 2px; border-bottom: 1px solid var(--border); margin-top: 18px;">Creative Surfaces</div>
         <div class="integration reveal">
           <div class="integration-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 3v18M3 12h18"></path></svg>
@@ -386,15 +426,6 @@
             <div class="desc">TouchDesigner, VDMX, Max</div>
           </div>
         </div>
-        <div class="integration reveal">
-          <div class="integration-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16v12H4z"></path><path d="m4 6 8 7 8-7"></path></svg>
-          </div>
-          <div>
-            <div class="name">ComfyUI (Legacy)</div>
-            <div class="desc">Local Stable Diffusion bridge</div>
-          </div>
-        </div>
       </div>
     </div>
   </section>
@@ -405,7 +436,7 @@
       <h2>Ready to play with prompts?</h2>
       <p>Open the suite in your browser. No install. No account. Just you, a template, and a canvas.</p>
       <div class="hero-ctas">
-        <a href="/synthograsizer/" class="btn btn-primary">
+        <a href="/synthograsizer/demo.html" class="btn btn-primary">
           Launch Synthograsizer
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
         </a>
@@ -427,7 +458,7 @@
         <div>© 2025 · <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener">CC BY-NC 4.0</a></div>
       </div>
       <div class="footer-links">
-        <a href="/synthograsizer/">App</a>
+        <a href="/synthograsizer/demo.html">App</a>
         <a href="/about/">About</a>
         <a href="https://github.com/quitters/synthograsizer" target="_blank" rel="noopener">GitHub</a>
         <a href="https://scope.daydream.fm" target="_blank" rel="noopener">Daydream Scope</a>

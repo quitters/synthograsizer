@@ -1,0 +1,1818 @@
+{
+  "workflowId": "60607b8a-c805-4266-80cd-bb0a37f0ef17",
+  "name": "Cinematic Short: A deadpan reality TV show where an anthropomorphic",
+  "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+  "agentName": "Theo Nakamura",
+  "agentColor": "#4ECDC4",
+  "sessionId": "c85d5173-41d1-4e1e-ab57-bc3e3a077616",
+  "messageId": null,
+  "startedAt": "2026-04-30T21:09:32.003Z",
+  "completedAt": "2026-04-30T21:11:04.288Z",
+  "status": "failed",
+  "totals": {
+    "durationMs": 92285,
+    "costUsd": 0.2135,
+    "completedSteps": 13,
+    "failedSteps": 1
+  },
+  "steps": {
+    "plan": {
+      "id": "plan",
+      "type": "synth_text",
+      "dependsOn": [],
+      "status": "complete",
+      "startedMs": 0,
+      "completedMs": 18986,
+      "durationMs": 18986,
+      "inputs": {
+        "prompt": "You are a film director planning a short film. Concept: \"A deadpan reality TV show where an anthropomorphic Strangler Fig and delicate Fern maintain polite, perfectly symmetrical composure in a pastel mint-green brutalist diorama, while a hidden parasitic betrayal unfolds, ending in a stark UV biometric confessional and cryogenic freezing.\". Mood: whimsical macabre.\nPlan exactly 5 scenes. For each scene, write a vivid image generation prompt (2-3 sentences) describing the visual.\nOutput ONLY a JSON array of strings, one prompt per scene. Example: [\"scene 1 prompt\", \"scene 2 prompt\"]"
+      },
+      "outputSummary": {},
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.001,
+      "chunks": 18,
+      "lastChunk": " nitrogen vapor adds a whimsical, macabre finality to the grim reality show diorama.\"\n]"
+    },
+    "style": {
+      "id": "style",
+      "type": "synth_template",
+      "dependsOn": [],
+      "status": "complete",
+      "startedMs": 1,
+      "completedMs": 25886,
+      "durationMs": 25885,
+      "inputs": {
+        "description": "whimsical macabre visual style for a short film about: A deadpan reality TV show where an anthropomorphic Strangler Fig and delicate Fern maintain polite, perfectly symmetrical composure in a pastel mint-green brutalist diorama, while a hidden parasitic betrayal unfolds, ending in a stark UV biometric confessional and cryogenic freezing.",
+        "mode": "text"
+      },
+      "outputSummary": {
+        "status": "success",
+        "template": {
+          "promptTemplate": "A deadpan reality TV show still, whimsical macabre aesthetic. An anthropomorphic Strangler Fig and delicate Fern {{plant_interaction}} inside a pastel mint-green brutalist diorama {{diorama_setting}}. The scene is illuminated by {{cinematic_lighting}}, highlighting {{macabre_element}}, captured with a {{camera_angle}}.",
+          "variables": [
+            {
+              "name": "plant_interaction",
+              "feature_name": "Plant Interaction",
+              "values": [
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]"
+              ]
+            },
+            {
+              "name": "diorama_setting",
+              "feature_name": "Diorama Room",
+              "values": [
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]"
+              ]
+            },
+            {
+              "name": "cinematic_lighting",
+              "feature_name": "Scene Lighting",
+              "values": [
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]"
+              ]
+            },
+            {
+              "name": "macabre_element",
+              "feature_name": "Macabre Detail",
+              "values": [
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]"
+              ]
+            },
+            {
+              "name": "camera_angle",
+              "feature_name": "Camera Framing",
+              "values": [
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]"
+              ]
+            }
+          ]
+        }
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.001
+    },
+    "scene0": {
+      "id": "scene0",
+      "type": "synth_image",
+      "dependsOn": [
+        "plan",
+        "style"
+      ],
+      "status": "complete",
+      "startedMs": 25886,
+      "completedMs": 43276,
+      "durationMs": 17390,
+      "inputs": {
+        "prompt": "Scene 1 of 5 from a whimsical macabre short film: A deadpan reality TV show where an anthropomorphic Strangler Fig and delicate Fern maintain polite, perfectly symmetrical composure in a pastel mint-green brutalist diorama, while a hidden parasitic betrayal unfolds, ending in a stark UV biometric confessional and cryogenic freezing.. A deadpan reality TV show still, whimsical macabre aesthetic. An anthropomorphic Strangler Fig and delicate Fern {{plant_interaction}} inside a pastel mint-green brutalist diorama {{diorama_setting}}. The scene is illuminated by {{cinematic_lighting}}, highlighting {{macabre_element}}, captured with a {{camera_angle}}.",
+        "aspect_ratio": "16:9"
+      },
+      "outputSummary": {
+        "status": "success",
+        "mediaId": "bcdc554a-f8d4-4a96-92c5-0c1bb1cb0925",
+        "mediaType": "image"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.04,
+      "lastRetryError": "Image generation failed: No image found in Gemini response (finish_reasons=['FinishReason.NO_IMAGE'])"
+    },
+    "scene1": {
+      "id": "scene1",
+      "type": "synth_image",
+      "dependsOn": [
+        "plan",
+        "style"
+      ],
+      "status": "complete",
+      "startedMs": 25887,
+      "completedMs": 77417,
+      "durationMs": 51530,
+      "inputs": {
+        "prompt": "Scene 2 of 5 from a whimsical macabre short film: A deadpan reality TV show where an anthropomorphic Strangler Fig and delicate Fern maintain polite, perfectly symmetrical composure in a pastel mint-green brutalist diorama, while a hidden parasitic betrayal unfolds, ending in a stark UV biometric confessional and cryogenic freezing.. A deadpan reality TV show still, whimsical macabre aesthetic. An anthropomorphic Strangler Fig and delicate Fern {{plant_interaction}} inside a pastel mint-green brutalist diorama {{diorama_setting}}. The scene is illuminated by {{cinematic_lighting}}, highlighting {{macabre_element}}, captured with a {{camera_angle}}.",
+        "aspect_ratio": "16:9"
+      },
+      "outputSummary": {
+        "status": "success",
+        "mediaId": "ec14a3f7-bdaf-434b-a807-c4daa1b38a14",
+        "mediaType": "image"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.04,
+      "lastRetryError": "This operation was aborted"
+    },
+    "scene2": {
+      "id": "scene2",
+      "type": "synth_image",
+      "dependsOn": [
+        "plan",
+        "style"
+      ],
+      "status": "complete",
+      "startedMs": 25888,
+      "completedMs": 40313,
+      "durationMs": 14425,
+      "inputs": {
+        "prompt": "Scene 3 of 5 from a whimsical macabre short film: A deadpan reality TV show where an anthropomorphic Strangler Fig and delicate Fern maintain polite, perfectly symmetrical composure in a pastel mint-green brutalist diorama, while a hidden parasitic betrayal unfolds, ending in a stark UV biometric confessional and cryogenic freezing.. A deadpan reality TV show still, whimsical macabre aesthetic. An anthropomorphic Strangler Fig and delicate Fern {{plant_interaction}} inside a pastel mint-green brutalist diorama {{diorama_setting}}. The scene is illuminated by {{cinematic_lighting}}, highlighting {{macabre_element}}, captured with a {{camera_angle}}.",
+        "aspect_ratio": "16:9"
+      },
+      "outputSummary": {
+        "status": "success",
+        "mediaId": "0cecfb32-a2d8-4dea-8757-33eb3ddd3dba",
+        "mediaType": "image"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.04
+    },
+    "scene3": {
+      "id": "scene3",
+      "type": "synth_image",
+      "dependsOn": [
+        "plan",
+        "style"
+      ],
+      "status": "complete",
+      "startedMs": 25889,
+      "completedMs": 51963,
+      "durationMs": 26074,
+      "inputs": {
+        "prompt": "Scene 4 of 5 from a whimsical macabre short film: A deadpan reality TV show where an anthropomorphic Strangler Fig and delicate Fern maintain polite, perfectly symmetrical composure in a pastel mint-green brutalist diorama, while a hidden parasitic betrayal unfolds, ending in a stark UV biometric confessional and cryogenic freezing.. A deadpan reality TV show still, whimsical macabre aesthetic. An anthropomorphic Strangler Fig and delicate Fern {{plant_interaction}} inside a pastel mint-green brutalist diorama {{diorama_setting}}. The scene is illuminated by {{cinematic_lighting}}, highlighting {{macabre_element}}, captured with a {{camera_angle}}.",
+        "aspect_ratio": "16:9"
+      },
+      "outputSummary": {
+        "status": "success",
+        "mediaId": "968bd14f-abd8-4e7d-9934-f40c11ca9f50",
+        "mediaType": "image"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.04
+    },
+    "scene4": {
+      "id": "scene4",
+      "type": "synth_image",
+      "dependsOn": [
+        "plan",
+        "style"
+      ],
+      "status": "complete",
+      "startedMs": 25890,
+      "completedMs": 43457,
+      "durationMs": 17567,
+      "inputs": {
+        "prompt": "Scene 5 of 5 from a whimsical macabre short film: A deadpan reality TV show where an anthropomorphic Strangler Fig and delicate Fern maintain polite, perfectly symmetrical composure in a pastel mint-green brutalist diorama, while a hidden parasitic betrayal unfolds, ending in a stark UV biometric confessional and cryogenic freezing.. A deadpan reality TV show still, whimsical macabre aesthetic. An anthropomorphic Strangler Fig and delicate Fern {{plant_interaction}} inside a pastel mint-green brutalist diorama {{diorama_setting}}. The scene is illuminated by {{cinematic_lighting}}, highlighting {{macabre_element}}, captured with a {{camera_angle}}.",
+        "aspect_ratio": "16:9"
+      },
+      "outputSummary": {
+        "status": "success",
+        "mediaId": "4909d802-501c-4ce9-a5e6-dc5d00bfdda2",
+        "mediaType": "image"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.04
+    },
+    "desc0": {
+      "id": "desc0",
+      "type": "synth_analyze",
+      "dependsOn": [
+        "scene0"
+      ],
+      "status": "complete",
+      "startedMs": 77417,
+      "completedMs": 84076,
+      "durationMs": 6659,
+      "inputs": {
+        "image_id": "bcdc554a-f8d4-4a96-92c5-0c1bb1cb0925"
+      },
+      "outputSummary": {
+        "status": "success"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.002
+    },
+    "desc1": {
+      "id": "desc1",
+      "type": "synth_analyze",
+      "dependsOn": [
+        "scene1"
+      ],
+      "status": "complete",
+      "startedMs": 77424,
+      "completedMs": 85147,
+      "durationMs": 7723,
+      "inputs": {
+        "image_id": "ec14a3f7-bdaf-434b-a807-c4daa1b38a14"
+      },
+      "outputSummary": {
+        "status": "success"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.002
+    },
+    "desc2": {
+      "id": "desc2",
+      "type": "synth_analyze",
+      "dependsOn": [
+        "scene2"
+      ],
+      "status": "complete",
+      "startedMs": 77429,
+      "completedMs": 83649,
+      "durationMs": 6220,
+      "inputs": {
+        "image_id": "0cecfb32-a2d8-4dea-8757-33eb3ddd3dba"
+      },
+      "outputSummary": {
+        "status": "success"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.002
+    },
+    "desc3": {
+      "id": "desc3",
+      "type": "synth_analyze",
+      "dependsOn": [
+        "scene3"
+      ],
+      "status": "complete",
+      "startedMs": 77436,
+      "completedMs": 83555,
+      "durationMs": 6119,
+      "inputs": {
+        "image_id": "968bd14f-abd8-4e7d-9934-f40c11ca9f50"
+      },
+      "outputSummary": {
+        "status": "success"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.002
+    },
+    "desc4": {
+      "id": "desc4",
+      "type": "synth_analyze",
+      "dependsOn": [
+        "scene4"
+      ],
+      "status": "complete",
+      "startedMs": 77443,
+      "completedMs": 83122,
+      "durationMs": 5679,
+      "inputs": {
+        "image_id": "4909d802-501c-4ce9-a5e6-dc5d00bfdda2"
+      },
+      "outputSummary": {
+        "status": "success"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.002
+    },
+    "narrative": {
+      "id": "narrative",
+      "type": "synth_narrative",
+      "dependsOn": [
+        "desc0",
+        "desc1",
+        "desc2",
+        "desc3",
+        "desc4"
+      ],
+      "status": "complete",
+      "startedMs": 85148,
+      "completedMs": 92285,
+      "durationMs": 7137,
+      "inputs": {
+        "descriptions": [
+          "This digital art utilizes a stop-motion animation aesthetic, featuring anthropomorphic plant figures in a detailed 3D diorama. A mandrake-like man in a tweed suit and a fern figure wearing a lace collar sit in blocky concrete chairs. The composition mimics a surreal talk show set, framed by an out-of-focus vintage camera in the foreground. The scene is set in a monochrome mint-green room with brutalist textures and miniature architectural details. Soft, diffused overhead studio lighting creates a clean, even atmosphere with subtle shadows. The palette blends pastel teal backgrounds with earthy plant browns and vibrant foliage greens. A wide-angle perspective with shallow depth of field highlights the intricate textures of the roots and fabric. The overall mood is whimsical yet uncanny, evo… <+35 chars>",
+          "A high-detail 3D digital render with a tactile diorama aesthetic, blending surrealist fantasy and cinematic miniature photography. A towering tree-creature in a tweed blazer sits opposite a small fern-headed figure in a lace shawl, extending a knotted root-arm toward them. The symmetrical composition centers on blocky teal benches within a minimalist, brutalist room of mint-green concrete modules. Digital countdown displays and small animal skulls decorate the walls. Soft, sterile overhead lighting creates a cold, diffused atmosphere with gentle shadows. The color palette consists of pale mint, sage, and earthy wood tones. This sharp macro render features realistic bark textures and high-fidelity concrete surfaces. The overall mood is melancholic and dystopian, evoking ritualistic tension … <+16 chars>",
+          "This surreal stop-motion diorama features two anthropomorphic plant figures in a wide, centrally framed composition. A seated creature made of intricate ferns interacts with a standing tree-man sporting a mossy beard and a tan cardigan. They are positioned within a brutalist interior of pale-green, textured concrete blocks, accented by exposed copper pipes and a small CRT monitor. Diffused overhead lighting casts soft shadows across the clinical environment, emphasizing a monochromatic mint-green palette. High-resolution macro details showcase the tactile contrast between rough concrete, soft knit wool, and organic foliage. The overall aesthetic is somberly surreal, blending domestic mundanity with bizarre botanical life.",
+          "A high-fidelity 3D digital render presents a surrealist fantasy scene. A gnarled wood-ent and a leaf-covered fern-spirit sit on gray pedestal chairs, sharing tea on a silver tray. The symmetrical composition is centered within a minimalist mint-green hall featuring repeating arches and floating light embers. Visible studio softbox lights provide soft, uniform illumination, creating a curated, artificial atmosphere. The color palette is dominated by monochromatic mint, contrasted by the figures' earthy browns and vibrant greens. Rendered with hyper-detailed textures and a wide-angle perspective, the image maintains sharp focus across all elements. The overall aesthetic is whimsically sterile, merging organic forms with rigid, modern architectural design.",
+          "This stop-motion miniature diorama features a surrealist, dollhouse aesthetic. A tall anthropomorphic tree figure in a tweed vest and a fern-clad child figure flank an owl skull on a pedestal in a symmetrical, stagelike composition. They stand within a mint-green concrete room featuring brutalist stairs and a block-letter sign reading \"ELIMINATION DIORAMA: FINAL ROSE.\" Clinical overhead lighting mixes with a soft purple glow from a retro monitor nestled in a central arched alcove. The color palette is dominated by monochromatic seafoam green contrasted with natural woody browns and neon accents. Macro photography captures high tactile detail and sharp focus across the textured miniature set. The overall mood is uncanny, melancholic, and clinical."
+        ],
+        "mode": "story"
+      },
+      "outputSummary": {
+        "status": "success",
+        "prompts": [
+          "A slow camera zoom-in through a vintage lens into a mint-green brutalist talk show set. The mandrake-like man in a tweed suit gestures with stiff, stop-motion movements while talking to the fern figure. The lighting is soft and studio-quality, emphasizing the tactile textures of their mossy skin and the concrete chairs.",
+          "The camera pans slowly as the towering tree-creature extends a knotted, creaking root-arm toward the fern-headed figure. On the mint-green walls, digital countdown displays flicker and change numbers rapidly. The atmosphere is tense and ritualistic, with tiny dust motes dancing in the sterile overhead light.",
+          "A medium shot of the moss-bearded tree-man leaning toward the seated fern creature, his cardigan moving slightly with his breath. Behind them, the CRT monitor flickers with green static while steam rises from the exposed copper pipes. The stop-motion aesthetic is emphasized by the jerky but fluid botanical movements.",
+          "A symmetrical wide shot of the two plant figures sharing tea in the arched hall. Floating embers drift slowly through the air like fireflies. The wood-ent lifts a silver teacup with a trembling branch, while the studio softbox lights create a clean, artificial glare on the mint-green surfaces.",
+          "The final scene of the 'Elimination Diorama.' The camera pulls back to reveal the tree figure and fern-child flanking the owl skull. The 'FINAL ROSE' sign flickers with a cold neon hum, and the purple glow from the retro monitor pulses like a heartbeat against the seafoam green concrete."
+        ]
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.0015
+    },
+    "hero_video": {
+      "id": "hero_video",
+      "type": "synth_video",
+      "dependsOn": [
+        "desc0"
+      ],
+      "status": "failed",
+      "startedMs": 85148,
+      "completedMs": 88375,
+      "durationMs": 3227,
+      "inputs": {
+        "prompt": "whimsical macabre cinematic shot: This digital art utilizes a stop-motion animation aesthetic, featuring anthropomorphic plant figures in a detailed 3D diorama. A mandrake-like man in a tweed suit and a fern figure wearing a lace collar sit in blocky concrete chairs. The composition mimics a surreal talk show set, framed by an out-of-focus vintage camera in the foreground. The scene is set in a monochrome mint-green room with brutalist textures and miniature architectural details. Soft, diffused overhead studio lighting creates a clean, even atmosphere with subtle shadows. The palette blends pastel teal backgrounds with earthy plant browns and vibrant foliage greens. A wide-angle perspective with shallow depth of field highlights the intricate textures of the roots and fabric. The overall … <+114 chars>",
+        "aspect_ratio": "16:9",
+        "duration": "5"
+      },
+      "outputSummary": null,
+      "error": "400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'The number value for `durationSeconds` is out of bound. Please provide a value between 4 and 8, inclusive.', 'status': 'INVALID_ARGUMENT'}}",
+      "attempts": 1,
+      "costUsd": 0,
+      "lastRetryError": "400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'The number value for `durationSeconds` is out of bound. Please provide a value between 4 and 8, inclusive.', 'status': 'INVALID_ARGUMENT'}}"
+    }
+  },
+  "events": [
+    {
+      "t": 0,
+      "event": "workflow_start",
+      "data": {
+        "workflowId": "60607b8a-c805-4266-80cd-bb0a37f0ef17",
+        "name": "Cinematic Short: A deadpan reality TV show where an anthropomorphic",
+        "stepCount": 14,
+        "steps": [
+          {
+            "id": "plan",
+            "type": "synth_text",
+            "dependsOn": []
+          },
+          {
+            "id": "style",
+            "type": "synth_template",
+            "dependsOn": []
+          },
+          {
+            "id": "scene0",
+            "type": "synth_image",
+            "dependsOn": [
+              "plan",
+              "style"
+            ]
+          },
+          {
+            "id": "scene1",
+            "type": "synth_image",
+            "dependsOn": [
+              "plan",
+              "style"
+            ]
+          },
+          {
+            "id": "scene2",
+            "type": "synth_image",
+            "dependsOn": [
+              "plan",
+              "style"
+            ]
+          },
+          {
+            "id": "scene3",
+            "type": "synth_image",
+            "dependsOn": [
+              "plan",
+              "style"
+            ]
+          },
+          {
+            "id": "scene4",
+            "type": "synth_image",
+            "dependsOn": [
+              "plan",
+              "style"
+            ]
+          },
+          {
+            "id": "desc0",
+            "type": "synth_analyze",
+            "dependsOn": [
+              "scene0"
+            ]
+          },
+          {
+            "id": "desc1",
+            "type": "synth_analyze",
+            "dependsOn": [
+              "scene1"
+            ]
+          },
+          {
+            "id": "desc2",
+            "type": "synth_analyze",
+            "dependsOn": [
+              "scene2"
+            ]
+          },
+          {
+            "id": "desc3",
+            "type": "synth_analyze",
+            "dependsOn": [
+              "scene3"
+            ]
+          },
+          {
+            "id": "desc4",
+            "type": "synth_analyze",
+            "dependsOn": [
+              "scene4"
+            ]
+          },
+          {
+            "id": "narrative",
+            "type": "synth_narrative",
+            "dependsOn": [
+              "desc0",
+              "desc1",
+              "desc2",
+              "desc3",
+              "desc4"
+            ]
+          },
+          {
+            "id": "hero_video",
+            "type": "synth_video",
+            "dependsOn": [
+              "desc0"
+            ]
+          }
+        ],
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "agentName": "Theo Nakamura",
+        "agentColor": "#4ECDC4",
+        "sessionId": "c85d5173-41d1-4e1e-ab57-bc3e3a077616",
+        "messageId": null
+      }
+    },
+    {
+      "t": 0,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "60607b8a-c805-4266-80cd-bb0a37f0ef17",
+        "stepId": "plan",
+        "stepType": "synth_text",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "dependsOn": [],
+        "inputs": {
+          "prompt": "You are a film director planning a short film. Concept: \"A deadpan reality TV show where an anthropomorphic Strangler Fig and delicate Fern maintain polite, perfectly symmetrical composure in a pastel mint-green brutalist diorama, while a hidden parasitic betrayal unfolds, ending in a stark UV biometric confessional and cryogenic freezing.\". Mood: whimsical macabre.\nPlan exactly 5 scenes. For each scene, write a vivid image generation prompt (2-3 sentences) describing the visual.\nOutput ONLY a JSON array of strings, one prompt per scene. Example: [\"scene 1 prompt\", \"scene 2 prompt\"]"
+        }
+      }
+    },
+    {
+      "t": 1,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "60607b8a-c805-4266-80cd-bb0a37f0ef17",
+        "stepId": "style",
+        "stepType": "synth_template",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "dependsOn": [],
+        "inputs": {
+          "description": "whimsical macabre visual style for a short film about: A deadpan reality TV show where an anthropomorphic Strangler Fig and delicate Fern maintain polite, perfectly symmetrical composure in a pastel mint-green brutalist diorama, while a hidden parasitic betrayal unfolds, ending in a stark UV biometric confessional and cryogenic freezing.",
+          "mode": "text"
+        }
+      }
+    },
+    {
+      "t": 2,
+      "event": "workflow_submitted",
+      "data": {
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "agentName": "Theo Nakamura",
+        "agentColor": "#4ECDC4",
+        "sessionId": "c85d5173-41d1-4e1e-ab57-bc3e3a077616",
+        "workflowId": "60607b8a-c805-4266-80cd-bb0a37f0ef17",
+        "workflowName": "Cinematic Short: A deadpan reality TV show where an anthropomorphic",
+        "templateId": "cinematic_short",
+        "stepCount": 14,
+        "steps": [
+          {
+            "id": "plan",
+            "type": "synth_text"
+          },
+          {
+            "id": "style",
+            "type": "synth_template"
+          },
+          {
+            "id": "scene0",
+            "type": "synth_image"
+          },
+          {
+            "id": "scene1",
+            "type": "synth_image"
+          },
+          {
+            "id": "scene2",
+            "type": "synth_image"
+          },
+          {
+            "id": "scene3",
+            "type": "synth_image"
+          },
+          {
+            "id": "scene4",
+            "type": "synth_image"
+          },
+          {
+            "id": "desc0",
+            "type": "synth_analyze"
+          },
+          {
+            "id": "desc1",
+            "type": "synth_analyze"
+          },
+          {
+            "id": "desc2",
+            "type": "synth_analyze"
+          },
+          {
+            "id": "desc3",
+            "type": "synth_analyze"
+          },
+          {
+            "id": "desc4",
+            "type": "synth_analyze"
+          },
+          {
+            "id": "narrative",
+            "type": "synth_narrative"
+          },
+          {
+            "id": "hero_video",
+            "type": "synth_video"
+          }
+        ]
+      }
+    },
+    {
+      "t": 16514,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "60607b8a-c805-4266-80cd-bb0a37f0ef17",
+        "stepId": "plan",
+        "text": "[\n  \"A"
+      }
+    },
+    {
+      "t": 16639,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "60607b8a-c805-4266-80cd-bb0a37f0ef17",
+        "stepId": "plan",
+        "text": " wide, symmetrical shot of a pastel mint-green brutalist living room diorama functioning as a reality TV set. Two"
+      }
+    },
+    {
+      "t": 16807,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "60607b8a-c805-4266-80cd-bb0a37f0ef17",
+        "stepId": "plan",
+        "text": " anthropomorphic plants, a towering Strangler Fig in a tailored suit and a delicate Fern in a lace dress, sit rigidly"
+      }
+    },
+    {
+      "t": 16943,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "60607b8a-c805-4266-80cd-bb0a37f0ef17",
+        "stepId": "plan",
+        "text": " on a concrete sofa with deadpan expressions. The lighting is flat and cheerful, contrasting with the unsettling stillness of their perfectly"
+      }
+    },
+    {
+      "t": 17080,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "60607b8a-c805-4266-80cd-bb0a37f0ef17",
+        "stepId": "plan",
+        "text": " mirrored posture.\",\n  \"A medium shot shows the pair politely sipping tea from identical geometric cups, maintaining flawless, emotion"
+      }
+    },
+    {
+      "t": 17232,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "60607b8a-c805-4266-80cd-bb0a37f0ef17",
+        "stepId": "plan",
+        "text": "less eye contact with the studio camera. Beneath the pastel concrete table, the Strangler Fig’s thick, woody vines"
+      }
+    },
+    {
+      "t": 17364,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "60607b8a-c805-4266-80cd-bb0a37f0ef17",
+        "stepId": "plan",
+        "text": " discreetly uncoil, creeping toward the Fern's delicate root system in a whimsical yet sinister display of hidden parasitism"
+      }
+    },
+    {
+      "t": 17506,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "60607b8a-c805-4266-80cd-bb0a37f0ef17",
+        "stepId": "plan",
+        "text": ". The mint-green walls emphasize the sterile, controlled environment of the bizarre reality show.\",\n  \"A close-"
+      }
+    },
+    {
+      "t": 17681,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "60607b8a-c805-4266-80cd-bb0a37f0ef17",
+        "stepId": "plan",
+        "text": "up reveals the macabre betrayal as the Strangler Fig's vines tightly lace up the Fern's torso like a"
+      }
+    },
+    {
+      "t": 17814,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "60607b8a-c805-4266-80cd-bb0a37f0ef17",
+        "stepId": "plan",
+        "text": " corset, though both characters remain cheerfully deadpan. The Fern's delicate fronds are slightly wilting against the harsh"
+      }
+    },
+    {
+      "t": 17982,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "60607b8a-c805-4266-80cd-bb0a37f0ef17",
+        "stepId": "plan",
+        "text": " lines of the pastel brutalist architecture, trapped in a suffocating, polite embrace. Bright studio lights highlight the absurdity of"
+      }
+    },
+    {
+      "t": 18114,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "60607b8a-c805-4266-80cd-bb0a37f0ef17",
+        "stepId": "plan",
+        "text": " their continued, composed postures amidst the quiet strangulation.\",\n  \"The setting abruptly shifts to a stark, dark conf"
+      }
+    },
+    {
+      "t": 18233,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "60607b8a-c805-4266-80cd-bb0a37f0ef17",
+        "stepId": "plan",
+        "text": "essional booth illuminated strictly by harsh ultraviolet light. The Strangler Fig stares directly into the camera, its parasitic biometric network glowing"
+      }
+    },
+    {
+      "t": 18387,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "60607b8a-c805-4266-80cd-bb0a37f0ef17",
+        "stepId": "plan",
+        "text": " in neon purples and greens, revealing the digested life force of the Fern pulsating within its trunk. The mood is a"
+      }
+    },
+    {
+      "t": 18542,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "60607b8a-c805-4266-80cd-bb0a37f0ef17",
+        "stepId": "plan",
+        "text": " chilling blend of reality TV gossip and alien autopsy, devoid of the previous pastel warmth.\",\n  \"The narrative concludes in"
+      }
+    },
+    {
+      "t": 18700,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "60607b8a-c805-4266-80cd-bb0a37f0ef17",
+        "stepId": "plan",
+        "text": " a symmetrical, frost-covered cryogenic chamber built into the mint-green concrete walls. The Strangler Fig and the engulfed"
+      }
+    },
+    {
+      "t": 18820,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "60607b8a-c805-4266-80cd-bb0a37f0ef17",
+        "stepId": "plan",
+        "text": " Fern are permanently frozen together inside a glowing glass pod, preserving their polite, deadpan embrace for eternity. Billowing white"
+      }
+    },
+    {
+      "t": 18969,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "60607b8a-c805-4266-80cd-bb0a37f0ef17",
+        "stepId": "plan",
+        "text": " nitrogen vapor adds a whimsical, macabre finality to the grim reality show diorama.\"\n]"
+      }
+    },
+    {
+      "t": 18986,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "60607b8a-c805-4266-80cd-bb0a37f0ef17",
+        "stepId": "plan",
+        "stepType": "synth_text",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "attempts": 1,
+        "durationMs": 18986,
+        "summary": {}
+      }
+    },
+    {
+      "t": 25886,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "60607b8a-c805-4266-80cd-bb0a37f0ef17",
+        "stepId": "style",
+        "stepType": "synth_template",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "attempts": 1,
+        "durationMs": 25885,
+        "summary": {
+          "status": "success",
+          "template": {
+            "promptTemplate": "A deadpan reality TV show still, whimsical macabre aesthetic. An anthropomorphic Strangler Fig and delicate Fern {{plant_interaction}} inside a pastel mint-green brutalist diorama {{diorama_setting}}. The scene is illuminated by {{cinematic_lighting}}, highlighting {{macabre_element}}, captured with a {{camera_angle}}.",
+            "variables": [
+              {
+                "name": "plant_interaction",
+                "feature_name": "Plant Interaction",
+                "values": [
+                  {
+                    "text": "sitting rigidly at opposite ends of a velvet sofa",
+                    "weight": 3
+                  },
+                  {
+                    "text": "sharing a tense, unblinking afternoon tea",
+                    "weight": 3
+                  },
+                  {
+                    "text": "maintaining polite distance while a single vine creeps closer",
+                    "weight": 3
+                  },
+                  {
+                    "text": "smiling awkwardly as roots slowly entangle beneath the floorboards",
+                    "weight": 2
+                  },
+                  {
+                    "text": "engaging in a passive-aggressive pruning competition",
+                    "weight": 3
+                  },
+                  {
+                    "text": "exchanging pleasantries while sap drips ominously",
+                    "weight": 2
+                  },
+                  {
+                    "text": "locked in a suffocating, yet elegant, ballroom dance",
+                    "weight": 2
+                  },
+                  {
+                    "text": "performing a coordinated parasitic strangulation",
+                    "weight": 1
+                  },
+                  {
+                    "text": "staring blankly during a stark biometric confessional",
+                    "weight": 1
+                  },
+                  {
+                    "text": "frozen mid-betrayal in a cryogenic state",
+                    "weight": 1
+                  }
+                ]
+              },
+              {
+                "name": "diorama_setting",
+                "feature_name": "Diorama Room",
+                "values": [
+                  {
+                    "text": "designed like a sterile mid-century modern living room",
+                    "weight": 3
+                  },
+                  {
+                    "text": "featuring oppressive geometric concrete furniture",
+                    "weight": 3
+                  },
+                  {
+                    "text": "decorated with sharply angled pastel mint pedestals",
+                    "weight": 3
+                  },
+                  {
+                    "text": "resembling an isolation chamber disguised as a cozy den",
+                    "weight": 2
+                  },
+                  {
+                    "text": "with miniature reality TV cameras hidden in the brutalist corners",
+                    "weight": 2
+                  },
+                  {
+                    "text": "featuring perfectly symmetrical but unsettlingly narrow doorways",
+                    "weight": 3
+                  },
+                  {
+                    "text": "with stark confessional booth dividers made of frosted glass",
+                    "weight": 2
+                  },
+                  {
+                    "text": "transitioning into a cold, clinical elimination room",
+                    "weight": 2
+                  },
+                  {
+                    "text": "with a claustrophobic ceiling made of ribbed mint concrete",
+                    "weight": 1
+                  },
+                  {
+                    "text": "equipped with cryogenic freezing pods disguised as wardrobes",
+                    "weight": 1
+                  }
+                ]
+              },
+              {
+                "name": "cinematic_lighting",
+                "feature_name": "Scene Lighting",
+                "values": [
+                  {
+                    "text": "flat, shadowless pastel studio lighting",
+                    "weight": 3
+                  },
+                  {
+                    "text": "uncanny, artificially cheerful daytime fill light",
+                    "weight": 3
+                  },
+                  {
+                    "text": "soft diffused minty overhead fluorescent tubes",
+                    "weight": 3
+                  },
+                  {
+                    "text": "harsh, interrogative reality TV spotlights",
+                    "weight": 2
+                  },
+                  {
+                    "text": "moody chiaroscuro creeping from the brutalist shadows",
+                    "weight": 2
+                  },
+                  {
+                    "text": "sickly green bioluminescent ambient glow",
+                    "weight": 2
+                  },
+                  {
+                    "text": "flickering, faulty neon casting ominous silhouettes",
+                    "weight": 2
+                  },
+                  {
+                    "text": "stark, glowing ultraviolet biometric scanning lasers",
+                    "weight": 1
+                  },
+                  {
+                    "text": "cold, clinical blue and cyan cryogenic backlighting",
+                    "weight": 1
+                  }
+                ]
+              },
+              {
+                "name": "macabre_element",
+                "feature_name": "Macabre Detail",
+                "values": [
+                  {
+                    "text": "perfectly manicured but slowly decaying fern fronds",
+                    "weight": 3
+                  },
+                  {
+                    "text": "an unsettlingly symmetrical arrangement of fallen dead leaves",
+                    "weight": 3
+                  },
+                  {
+                    "text": "a single drop of dark amber sap on a pristine teacup",
+                    "weight": 3
+                  },
+                  {
+                    "text": "subtle signs of parasitic chlorophyll draining",
+                    "weight": 2
+                  },
+                  {
+                    "text": "hidden roots secretly piercing the pastel concrete",
+                    "weight": 2
+                  },
+                  {
+                    "text": "frost beginning to crystallize on dying botanical limbs",
+                    "weight": 2
+                  },
+                  {
+                    "text": "delicate leaves forming a suffocating noose",
+                    "weight": 1
+                  },
+                  {
+                    "text": "UV-reactive warning markings on the strangler fig",
+                    "weight": 1
+                  },
+                  {
+                    "text": "a hidden microphone boom dripping with plant poison",
+                    "weight": 1
+                  }
+                ]
+              },
+              {
+                "name": "camera_angle",
+                "feature_name": "Camera Framing",
+                "values": [
+                  {
+                    "text": "wide, deadpan symmetrical establishing shot",
+                    "weight": 3
+                  },
+                  {
+                    "text": "static, unblinking medium two-shot",
+                    "weight": 3
+                  },
+                  {
+                    "text": "low-angle brutalist architectural hero shot",
+                    "weight": 3
+                  },
+                  {
+                    "text": "stark front-facing confessional medium close-up",
+                    "weight": 2
+                  },
+                  {
+                    "text": "claustrophobic overhead architectural floor-plan view",
+                    "weight": 2
+                  },
+                  {
+                    "text": "voyeuristic hidden-camera high angle shot",
+                    "weight": 2
+                  },
+                  {
+                    "text": "intrusive macro close-up on the entangling roots",
+                    "weight": 1
+                  },
+                  {
+                    "text": "dutch angle emphasizing the parasitic betrayal",
+                    "weight": 1
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "t": 25886,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "60607b8a-c805-4266-80cd-bb0a37f0ef17",
+        "stepId": "scene0",
+        "stepType": "synth_image",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "dependsOn": [
+          "plan",
+          "style"
+        ],
+        "inputs": {
+          "prompt": "Scene 1 of 5 from a whimsical macabre short film: A deadpan reality TV show where an anthropomorphic Strangler Fig and delicate Fern maintain polite, perfectly symmetrical composure in a pastel mint-green brutalist diorama, while a hidden parasitic betrayal unfolds, ending in a stark UV biometric confessional and cryogenic freezing.. A deadpan reality TV show still, whimsical macabre aesthetic. An anthropomorphic Strangler Fig and delicate Fern {{plant_interaction}} inside a pastel mint-green brutalist diorama {{diorama_setting}}. The scene is illuminated by {{cinematic_lighting}}, highlighting {{macabre_element}}, captured with a {{camera_angle}}.",
+          "aspect_ratio": "16:9"
+        }
+      }
+    },
+    {
+      "t": 25887,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "60607b8a-c805-4266-80cd-bb0a37f0ef17",
+        "stepId": "scene1",
+        "stepType": "synth_image",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "dependsOn": [
+          "plan",
+          "style"
+        ],
+        "inputs": {
+          "prompt": "Scene 2 of 5 from a whimsical macabre short film: A deadpan reality TV show where an anthropomorphic Strangler Fig and delicate Fern maintain polite, perfectly symmetrical composure in a pastel mint-green brutalist diorama, while a hidden parasitic betrayal unfolds, ending in a stark UV biometric confessional and cryogenic freezing.. A deadpan reality TV show still, whimsical macabre aesthetic. An anthropomorphic Strangler Fig and delicate Fern {{plant_interaction}} inside a pastel mint-green brutalist diorama {{diorama_setting}}. The scene is illuminated by {{cinematic_lighting}}, highlighting {{macabre_element}}, captured with a {{camera_angle}}.",
+          "aspect_ratio": "16:9"
+        }
+      }
+    },
+    {
+      "t": 25888,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "60607b8a-c805-4266-80cd-bb0a37f0ef17",
+        "stepId": "scene2",
+        "stepType": "synth_image",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "dependsOn": [
+          "plan",
+          "style"
+        ],
+        "inputs": {
+          "prompt": "Scene 3 of 5 from a whimsical macabre short film: A deadpan reality TV show where an anthropomorphic Strangler Fig and delicate Fern maintain polite, perfectly symmetrical composure in a pastel mint-green brutalist diorama, while a hidden parasitic betrayal unfolds, ending in a stark UV biometric confessional and cryogenic freezing.. A deadpan reality TV show still, whimsical macabre aesthetic. An anthropomorphic Strangler Fig and delicate Fern {{plant_interaction}} inside a pastel mint-green brutalist diorama {{diorama_setting}}. The scene is illuminated by {{cinematic_lighting}}, highlighting {{macabre_element}}, captured with a {{camera_angle}}.",
+          "aspect_ratio": "16:9"
+        }
+      }
+    },
+    {
+      "t": 25889,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "60607b8a-c805-4266-80cd-bb0a37f0ef17",
+        "stepId": "scene3",
+        "stepType": "synth_image",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "dependsOn": [
+          "plan",
+          "style"
+        ],
+        "inputs": {
+          "prompt": "Scene 4 of 5 from a whimsical macabre short film: A deadpan reality TV show where an anthropomorphic Strangler Fig and delicate Fern maintain polite, perfectly symmetrical composure in a pastel mint-green brutalist diorama, while a hidden parasitic betrayal unfolds, ending in a stark UV biometric confessional and cryogenic freezing.. A deadpan reality TV show still, whimsical macabre aesthetic. An anthropomorphic Strangler Fig and delicate Fern {{plant_interaction}} inside a pastel mint-green brutalist diorama {{diorama_setting}}. The scene is illuminated by {{cinematic_lighting}}, highlighting {{macabre_element}}, captured with a {{camera_angle}}.",
+          "aspect_ratio": "16:9"
+        }
+      }
+    },
+    {
+      "t": 25890,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "60607b8a-c805-4266-80cd-bb0a37f0ef17",
+        "stepId": "scene4",
+        "stepType": "synth_image",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "dependsOn": [
+          "plan",
+          "style"
+        ],
+        "inputs": {
+          "prompt": "Scene 5 of 5 from a whimsical macabre short film: A deadpan reality TV show where an anthropomorphic Strangler Fig and delicate Fern maintain polite, perfectly symmetrical composure in a pastel mint-green brutalist diorama, while a hidden parasitic betrayal unfolds, ending in a stark UV biometric confessional and cryogenic freezing.. A deadpan reality TV show still, whimsical macabre aesthetic. An anthropomorphic Strangler Fig and delicate Fern {{plant_interaction}} inside a pastel mint-green brutalist diorama {{diorama_setting}}. The scene is illuminated by {{cinematic_lighting}}, highlighting {{macabre_element}}, captured with a {{camera_angle}}.",
+          "aspect_ratio": "16:9"
+        }
+      }
+    },
+    {
+      "t": 27927,
+      "event": "workflow_step_retry",
+      "data": {
+        "workflowId": "60607b8a-c805-4266-80cd-bb0a37f0ef17",
+        "stepId": "scene0",
+        "stepType": "synth_image",
+        "attempt": 1,
+        "error": "Image generation failed: No image found in Gemini response (finish_reasons=['FinishReason.NO_IMAGE'])"
+      }
+    },
+    {
+      "t": 40313,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "60607b8a-c805-4266-80cd-bb0a37f0ef17",
+        "stepId": "scene2",
+        "stepType": "synth_image",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "attempts": 1,
+        "durationMs": 14425,
+        "summary": {
+          "status": "success",
+          "mediaId": "0cecfb32-a2d8-4dea-8757-33eb3ddd3dba",
+          "mediaType": "image"
+        }
+      }
+    },
+    {
+      "t": 43276,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "60607b8a-c805-4266-80cd-bb0a37f0ef17",
+        "stepId": "scene0",
+        "stepType": "synth_image",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "attempts": 2,
+        "durationMs": 17390,
+        "summary": {
+          "status": "success",
+          "mediaId": "bcdc554a-f8d4-4a96-92c5-0c1bb1cb0925",
+          "mediaType": "image"
+        }
+      }
+    },
+    {
+      "t": 43457,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "60607b8a-c805-4266-80cd-bb0a37f0ef17",
+        "stepId": "scene4",
+        "stepType": "synth_image",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "attempts": 1,
+        "durationMs": 17567,
+        "summary": {
+          "status": "success",
+          "mediaId": "4909d802-501c-4ce9-a5e6-dc5d00bfdda2",
+          "mediaType": "image"
+        }
+      }
+    },
+    {
+      "t": 51963,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "60607b8a-c805-4266-80cd-bb0a37f0ef17",
+        "stepId": "scene3",
+        "stepType": "synth_image",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "attempts": 1,
+        "durationMs": 26074,
+        "summary": {
+          "status": "success",
+          "mediaId": "968bd14f-abd8-4e7d-9934-f40c11ca9f50",
+          "mediaType": "image"
+        }
+      }
+    },
+    {
+      "t": 55889,
+      "event": "workflow_step_retry",
+      "data": {
+        "workflowId": "60607b8a-c805-4266-80cd-bb0a37f0ef17",
+        "stepId": "scene1",
+        "stepType": "synth_image",
+        "attempt": 1,
+        "error": "This operation was aborted"
+      }
+    },
+    {
+      "t": 77417,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "60607b8a-c805-4266-80cd-bb0a37f0ef17",
+        "stepId": "scene1",
+        "stepType": "synth_image",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "attempts": 2,
+        "durationMs": 51530,
+        "summary": {
+          "status": "success",
+          "mediaId": "ec14a3f7-bdaf-434b-a807-c4daa1b38a14",
+          "mediaType": "image"
+        }
+      }
+    },
+    {
+      "t": 77417,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "60607b8a-c805-4266-80cd-bb0a37f0ef17",
+        "stepId": "desc0",
+        "stepType": "synth_analyze",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "dependsOn": [
+          "scene0"
+        ],
+        "inputs": {
+          "image_id": "bcdc554a-f8d4-4a96-92c5-0c1bb1cb0925"
+        }
+      }
+    },
+    {
+      "t": 77424,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "60607b8a-c805-4266-80cd-bb0a37f0ef17",
+        "stepId": "desc1",
+        "stepType": "synth_analyze",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "dependsOn": [
+          "scene1"
+        ],
+        "inputs": {
+          "image_id": "ec14a3f7-bdaf-434b-a807-c4daa1b38a14"
+        }
+      }
+    },
+    {
+      "t": 77429,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "60607b8a-c805-4266-80cd-bb0a37f0ef17",
+        "stepId": "desc2",
+        "stepType": "synth_analyze",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "dependsOn": [
+          "scene2"
+        ],
+        "inputs": {
+          "image_id": "0cecfb32-a2d8-4dea-8757-33eb3ddd3dba"
+        }
+      }
+    },
+    {
+      "t": 77436,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "60607b8a-c805-4266-80cd-bb0a37f0ef17",
+        "stepId": "desc3",
+        "stepType": "synth_analyze",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "dependsOn": [
+          "scene3"
+        ],
+        "inputs": {
+          "image_id": "968bd14f-abd8-4e7d-9934-f40c11ca9f50"
+        }
+      }
+    },
+    {
+      "t": 77443,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "60607b8a-c805-4266-80cd-bb0a37f0ef17",
+        "stepId": "desc4",
+        "stepType": "synth_analyze",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "dependsOn": [
+          "scene4"
+        ],
+        "inputs": {
+          "image_id": "4909d802-501c-4ce9-a5e6-dc5d00bfdda2"
+        }
+      }
+    },
+    {
+      "t": 83122,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "60607b8a-c805-4266-80cd-bb0a37f0ef17",
+        "stepId": "desc4",
+        "stepType": "synth_analyze",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "attempts": 1,
+        "durationMs": 5680,
+        "summary": {
+          "status": "success"
+        }
+      }
+    },
+    {
+      "t": 83555,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "60607b8a-c805-4266-80cd-bb0a37f0ef17",
+        "stepId": "desc3",
+        "stepType": "synth_analyze",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "attempts": 1,
+        "durationMs": 6119,
+        "summary": {
+          "status": "success"
+        }
+      }
+    },
+    {
+      "t": 83649,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "60607b8a-c805-4266-80cd-bb0a37f0ef17",
+        "stepId": "desc2",
+        "stepType": "synth_analyze",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "attempts": 1,
+        "durationMs": 6220,
+        "summary": {
+          "status": "success"
+        }
+      }
+    },
+    {
+      "t": 84076,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "60607b8a-c805-4266-80cd-bb0a37f0ef17",
+        "stepId": "desc0",
+        "stepType": "synth_analyze",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "attempts": 1,
+        "durationMs": 6659,
+        "summary": {
+          "status": "success"
+        }
+      }
+    },
+    {
+      "t": 85147,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "60607b8a-c805-4266-80cd-bb0a37f0ef17",
+        "stepId": "desc1",
+        "stepType": "synth_analyze",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "attempts": 1,
+        "durationMs": 7723,
+        "summary": {
+          "status": "success"
+        }
+      }
+    },
+    {
+      "t": 85148,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "60607b8a-c805-4266-80cd-bb0a37f0ef17",
+        "stepId": "narrative",
+        "stepType": "synth_narrative",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "dependsOn": [
+          "desc0",
+          "desc1",
+          "desc2",
+          "desc3",
+          "desc4"
+        ],
+        "inputs": {
+          "descriptions": [
+            "This digital art utilizes a stop-motion animation aesthetic, featuring anthropomorphic plant figures in a detailed 3D diorama. A mandrake-like man in a tweed suit and a fern figure wearing a lace collar sit in blocky concrete chairs. The composition mimics a surreal talk show set, framed by an out-of-focus vintage camera in the foreground. The scene is set in a monochrome mint-green room with brutalist textures and miniature architectural details. Soft, diffused overhead studio lighting creates a clean, even atmosphere with subtle shadows. The palette blends pastel teal backgrounds with earthy plant browns and vibrant foliage greens. A wide-angle perspective with shallow depth of field highlights the intricate textures of the roots and fabric. The overall mood is whimsical yet uncanny, evoking a stylized, botanical theater.",
+            "A high-detail 3D digital render with a tactile diorama aesthetic, blending surrealist fantasy and cinematic miniature photography. A towering tree-creature in a tweed blazer sits opposite a small fern-headed figure in a lace shawl, extending a knotted root-arm toward them. The symmetrical composition centers on blocky teal benches within a minimalist, brutalist room of mint-green concrete modules. Digital countdown displays and small animal skulls decorate the walls. Soft, sterile overhead lighting creates a cold, diffused atmosphere with gentle shadows. The color palette consists of pale mint, sage, and earthy wood tones. This sharp macro render features realistic bark textures and high-fidelity concrete surfaces. The overall mood is melancholic and dystopian, evoking ritualistic tension and quiet dread.",
+            "This surreal stop-motion diorama features two anthropomorphic plant figures in a wide, centrally framed composition. A seated creature made of intricate ferns interacts with a standing tree-man sporting a mossy beard and a tan cardigan. They are positioned within a brutalist interior of pale-green, textured concrete blocks, accented by exposed copper pipes and a small CRT monitor. Diffused overhead lighting casts soft shadows across the clinical environment, emphasizing a monochromatic mint-green palette. High-resolution macro details showcase the tactile contrast between rough concrete, soft knit wool, and organic foliage. The overall aesthetic is somberly surreal, blending domestic mundanity with bizarre botanical life.",
+            "A high-fidelity 3D digital render presents a surrealist fantasy scene. A gnarled wood-ent and a leaf-covered fern-spirit sit on gray pedestal chairs, sharing tea on a silver tray. The symmetrical composition is centered within a minimalist mint-green hall featuring repeating arches and floating light embers. Visible studio softbox lights provide soft, uniform illumination, creating a curated, artificial atmosphere. The color palette is dominated by monochromatic mint, contrasted by the figures' earthy browns and vibrant greens. Rendered with hyper-detailed textures and a wide-angle perspective, the image maintains sharp focus across all elements. The overall aesthetic is whimsically sterile, merging organic forms with rigid, modern architectural design.",
+            "This stop-motion miniature diorama features a surrealist, dollhouse aesthetic. A tall anthropomorphic tree figure in a tweed vest and a fern-clad child figure flank an owl skull on a pedestal in a symmetrical, stagelike composition. They stand within a mint-green concrete room featuring brutalist stairs and a block-letter sign reading \"ELIMINATION DIORAMA: FINAL ROSE.\" Clinical overhead lighting mixes with a soft purple glow from a retro monitor nestled in a central arched alcove. The color palette is dominated by monochromatic seafoam green contrasted with natural woody browns and neon accents. Macro photography captures high tactile detail and sharp focus across the textured miniature set. The overall mood is uncanny, melancholic, and clinical."
+          ],
+          "mode": "story"
+        }
+      }
+    },
+    {
+      "t": 85148,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "60607b8a-c805-4266-80cd-bb0a37f0ef17",
+        "stepId": "hero_video",
+        "stepType": "synth_video",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "dependsOn": [
+          "desc0"
+        ],
+        "inputs": {
+          "prompt": "whimsical macabre cinematic shot: This digital art utilizes a stop-motion animation aesthetic, featuring anthropomorphic plant figures in a detailed 3D diorama. A mandrake-like man in a tweed suit and a fern figure wearing a lace collar sit in blocky concrete chairs. The composition mimics a surreal talk show set, framed by an out-of-focus vintage camera in the foreground. The scene is set in a monochrome mint-green room with brutalist textures and miniature architectural details. Soft, diffused overhead studio lighting creates a clean, even atmosphere with subtle shadows. The palette blends pastel teal backgrounds with earthy plant browns and vibrant foliage greens. A wide-angle perspective with shallow depth of field highlights the intricate textures of the roots and fabric. The overall mood is whimsical yet uncanny, evoking a stylized, botanical theater.. Slow camera movement, atmospheric lighting.",
+          "aspect_ratio": "16:9",
+          "duration": "5"
+        }
+      }
+    },
+    {
+      "t": 85260,
+      "event": "workflow_step_retry",
+      "data": {
+        "workflowId": "60607b8a-c805-4266-80cd-bb0a37f0ef17",
+        "stepId": "hero_video",
+        "stepType": "synth_video",
+        "attempt": 1,
+        "error": "400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'The number value for `durationSeconds` is out of bound. Please provide a value between 4 and 8, inclusive.', 'status': 'INVALID_ARGUMENT'}}"
+      }
+    },
+    {
+      "t": 88375,
+      "event": "workflow_step_error",
+      "data": {
+        "workflowId": "60607b8a-c805-4266-80cd-bb0a37f0ef17",
+        "stepId": "hero_video",
+        "stepType": "synth_video",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "attempts": 2,
+        "durationMs": 3227,
+        "error": "400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'The number value for `durationSeconds` is out of bound. Please provide a value between 4 and 8, inclusive.', 'status': 'INVALID_ARGUMENT'}}"
+      }
+    },
+    {
+      "t": 92285,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "60607b8a-c805-4266-80cd-bb0a37f0ef17",
+        "stepId": "narrative",
+        "stepType": "synth_narrative",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "attempts": 1,
+        "durationMs": 7137,
+        "summary": {
+          "status": "success",
+          "prompts": [
+            "A slow camera zoom-in through a vintage lens into a mint-green brutalist talk show set. The mandrake-like man in a tweed suit gestures with stiff, stop-motion movements while talking to the fern figure. The lighting is soft and studio-quality, emphasizing the tactile textures of their mossy skin and the concrete chairs.",
+            "The camera pans slowly as the towering tree-creature extends a knotted, creaking root-arm toward the fern-headed figure. On the mint-green walls, digital countdown displays flicker and change numbers rapidly. The atmosphere is tense and ritualistic, with tiny dust motes dancing in the sterile overhead light.",
+            "A medium shot of the moss-bearded tree-man leaning toward the seated fern creature, his cardigan moving slightly with his breath. Behind them, the CRT monitor flickers with green static while steam rises from the exposed copper pipes. The stop-motion aesthetic is emphasized by the jerky but fluid botanical movements.",
+            "A symmetrical wide shot of the two plant figures sharing tea in the arched hall. Floating embers drift slowly through the air like fireflies. The wood-ent lifts a silver teacup with a trembling branch, while the studio softbox lights create a clean, artificial glare on the mint-green surfaces.",
+            "The final scene of the 'Elimination Diorama.' The camera pulls back to reveal the tree figure and fern-child flanking the owl skull. The 'FINAL ROSE' sign flickers with a cold neon hum, and the purple glow from the retro monitor pulses like a heartbeat against the seafoam green concrete."
+          ]
+        }
+      }
+    },
+    {
+      "t": 92285,
+      "event": "workflow_complete",
+      "data": {
+        "workflowId": "60607b8a-c805-4266-80cd-bb0a37f0ef17",
+        "name": "Cinematic Short: A deadpan reality TV show where an anthropomorphic",
+        "status": "failed",
+        "completedAt": "2026-04-30T21:11:04.288Z",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "totals": {
+          "durationMs": 92285,
+          "completedSteps": 13,
+          "failedSteps": 1,
+          "skippedSteps": 0
+        },
+        "stepResults": [
+          {
+            "id": "plan",
+            "type": "synth_text",
+            "status": "complete"
+          },
+          {
+            "id": "style",
+            "type": "synth_template",
+            "status": "success",
+            "template": {
+              "promptTemplate": "A deadpan reality TV show still, whimsical macabre aesthetic. An anthropomorphic Strangler Fig and delicate Fern {{plant_interaction}} inside a pastel mint-green brutalist diorama {{diorama_setting}}. The scene is illuminated by {{cinematic_lighting}}, highlighting {{macabre_element}}, captured with a {{camera_angle}}.",
+              "variables": [
+                {
+                  "name": "plant_interaction",
+                  "feature_name": "Plant Interaction",
+                  "values": [
+                    {
+                      "text": "sitting rigidly at opposite ends of a velvet sofa",
+                      "weight": 3
+                    },
+                    {
+                      "text": "sharing a tense, unblinking afternoon tea",
+                      "weight": 3
+                    },
+                    {
+                      "text": "maintaining polite distance while a single vine creeps closer",
+                      "weight": 3
+                    },
+                    {
+                      "text": "smiling awkwardly as roots slowly entangle beneath the floorboards",
+                      "weight": 2
+                    },
+                    {
+                      "text": "engaging in a passive-aggressive pruning competition",
+                      "weight": 3
+                    },
+                    {
+                      "text": "exchanging pleasantries while sap drips ominously",
+                      "weight": 2
+                    },
+                    {
+                      "text": "locked in a suffocating, yet elegant, ballroom dance",
+                      "weight": 2
+                    },
+                    {
+                      "text": "performing a coordinated parasitic strangulation",
+                      "weight": 1
+                    },
+                    {
+                      "text": "staring blankly during a stark biometric confessional",
+                      "weight": 1
+                    },
+                    {
+                      "text": "frozen mid-betrayal in a cryogenic state",
+                      "weight": 1
+                    }
+                  ]
+                },
+                {
+                  "name": "diorama_setting",
+                  "feature_name": "Diorama Room",
+                  "values": [
+                    {
+                      "text": "designed like a sterile mid-century modern living room",
+                      "weight": 3
+                    },
+                    {
+                      "text": "featuring oppressive geometric concrete furniture",
+                      "weight": 3
+                    },
+                    {
+                      "text": "decorated with sharply angled pastel mint pedestals",
+                      "weight": 3
+                    },
+                    {
+                      "text": "resembling an isolation chamber disguised as a cozy den",
+                      "weight": 2
+                    },
+                    {
+                      "text": "with miniature reality TV cameras hidden in the brutalist corners",
+                      "weight": 2
+                    },
+                    {
+                      "text": "featuring perfectly symmetrical but unsettlingly narrow doorways",
+                      "weight": 3
+                    },
+                    {
+                      "text": "with stark confessional booth dividers made of frosted glass",
+                      "weight": 2
+                    },
+                    {
+                      "text": "transitioning into a cold, clinical elimination room",
+                      "weight": 2
+                    },
+                    {
+                      "text": "with a claustrophobic ceiling made of ribbed mint concrete",
+                      "weight": 1
+                    },
+                    {
+                      "text": "equipped with cryogenic freezing pods disguised as wardrobes",
+                      "weight": 1
+                    }
+                  ]
+                },
+                {
+                  "name": "cinematic_lighting",
+                  "feature_name": "Scene Lighting",
+                  "values": [
+                    {
+                      "text": "flat, shadowless pastel studio lighting",
+                      "weight": 3
+                    },
+                    {
+                      "text": "uncanny, artificially cheerful daytime fill light",
+                      "weight": 3
+                    },
+                    {
+                      "text": "soft diffused minty overhead fluorescent tubes",
+                      "weight": 3
+                    },
+                    {
+                      "text": "harsh, interrogative reality TV spotlights",
+                      "weight": 2
+                    },
+                    {
+                      "text": "moody chiaroscuro creeping from the brutalist shadows",
+                      "weight": 2
+                    },
+                    {
+                      "text": "sickly green bioluminescent ambient glow",
+                      "weight": 2
+                    },
+                    {
+                      "text": "flickering, faulty neon casting ominous silhouettes",
+                      "weight": 2
+                    },
+                    {
+                      "text": "stark, glowing ultraviolet biometric scanning lasers",
+                      "weight": 1
+                    },
+                    {
+                      "text": "cold, clinical blue and cyan cryogenic backlighting",
+                      "weight": 1
+                    }
+                  ]
+                },
+                {
+                  "name": "macabre_element",
+                  "feature_name": "Macabre Detail",
+                  "values": [
+                    {
+                      "text": "perfectly manicured but slowly decaying fern fronds",
+                      "weight": 3
+                    },
+                    {
+                      "text": "an unsettlingly symmetrical arrangement of fallen dead leaves",
+                      "weight": 3
+                    },
+                    {
+                      "text": "a single drop of dark amber sap on a pristine teacup",
+                      "weight": 3
+                    },
+                    {
+                      "text": "subtle signs of parasitic chlorophyll draining",
+                      "weight": 2
+                    },
+                    {
+                      "text": "hidden roots secretly piercing the pastel concrete",
+                      "weight": 2
+                    },
+                    {
+                      "text": "frost beginning to crystallize on dying botanical limbs",
+                      "weight": 2
+                    },
+                    {
+                      "text": "delicate leaves forming a suffocating noose",
+                      "weight": 1
+                    },
+                    {
+                      "text": "UV-reactive warning markings on the strangler fig",
+                      "weight": 1
+                    },
+                    {
+                      "text": "a hidden microphone boom dripping with plant poison",
+                      "weight": 1
+                    }
+                  ]
+                },
+                {
+                  "name": "camera_angle",
+                  "feature_name": "Camera Framing",
+                  "values": [
+                    {
+                      "text": "wide, deadpan symmetrical establishing shot",
+                      "weight": 3
+                    },
+                    {
+                      "text": "static, unblinking medium two-shot",
+                      "weight": 3
+                    },
+                    {
+                      "text": "low-angle brutalist architectural hero shot",
+                      "weight": 3
+                    },
+                    {
+                      "text": "stark front-facing confessional medium close-up",
+                      "weight": 2
+                    },
+                    {
+                      "text": "claustrophobic overhead architectural floor-plan view",
+                      "weight": 2
+                    },
+                    {
+                      "text": "voyeuristic hidden-camera high angle shot",
+                      "weight": 2
+                    },
+                    {
+                      "text": "intrusive macro close-up on the entangling roots",
+                      "weight": 1
+                    },
+                    {
+                      "text": "dutch angle emphasizing the parasitic betrayal",
+                      "weight": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "id": "scene0",
+            "type": "synth_image",
+            "status": "success",
+            "mediaId": "bcdc554a-f8d4-4a96-92c5-0c1bb1cb0925",
+            "mediaType": "image"
+          },
+          {
+            "id": "scene1",
+            "type": "synth_image",
+            "status": "success",
+            "mediaId": "ec14a3f7-bdaf-434b-a807-c4daa1b38a14",
+            "mediaType": "image"
+          },
+          {
+            "id": "scene2",
+            "type": "synth_image",
+            "status": "success",
+            "mediaId": "0cecfb32-a2d8-4dea-8757-33eb3ddd3dba",
+            "mediaType": "image"
+          },
+          {
+            "id": "scene3",
+            "type": "synth_image",
+            "status": "success",
+            "mediaId": "968bd14f-abd8-4e7d-9934-f40c11ca9f50",
+            "mediaType": "image"
+          },
+          {
+            "id": "scene4",
+            "type": "synth_image",
+            "status": "success",
+            "mediaId": "4909d802-501c-4ce9-a5e6-dc5d00bfdda2",
+            "mediaType": "image"
+          },
+          {
+            "id": "desc0",
+            "type": "synth_analyze",
+            "status": "success"
+          },
+          {
+            "id": "desc1",
+            "type": "synth_analyze",
+            "status": "success"
+          },
+          {
+            "id": "desc2",
+            "type": "synth_analyze",
+            "status": "success"
+          },
+          {
+            "id": "desc3",
+            "type": "synth_analyze",
+            "status": "success"
+          },
+          {
+            "id": "desc4",
+            "type": "synth_analyze",
+            "status": "success"
+          },
+          {
+            "id": "narrative",
+            "type": "synth_narrative",
+            "status": "success",
+            "prompts": [
+              "A slow camera zoom-in through a vintage lens into a mint-green brutalist talk show set. The mandrake-like man in a tweed suit gestures with stiff, stop-motion movements while talking to the fern figure. The lighting is soft and studio-quality, emphasizing the tactile textures of their mossy skin and the concrete chairs.",
+              "The camera pans slowly as the towering tree-creature extends a knotted, creaking root-arm toward the fern-headed figure. On the mint-green walls, digital countdown displays flicker and change numbers rapidly. The atmosphere is tense and ritualistic, with tiny dust motes dancing in the sterile overhead light.",
+              "A medium shot of the moss-bearded tree-man leaning toward the seated fern creature, his cardigan moving slightly with his breath. Behind them, the CRT monitor flickers with green static while steam rises from the exposed copper pipes. The stop-motion aesthetic is emphasized by the jerky but fluid botanical movements.",
+              "A symmetrical wide shot of the two plant figures sharing tea in the arched hall. Floating embers drift slowly through the air like fireflies. The wood-ent lifts a silver teacup with a trembling branch, while the studio softbox lights create a clean, artificial glare on the mint-green surfaces.",
+              "The final scene of the 'Elimination Diorama.' The camera pulls back to reveal the tree figure and fern-child flanking the owl skull. The 'FINAL ROSE' sign flickers with a cold neon hum, and the purple glow from the retro monitor pulses like a heartbeat against the seafoam green concrete."
+            ]
+          },
+          {
+            "id": "hero_video",
+            "type": "synth_video",
+            "status": "failed"
+          }
+        ]
+      }
+    }
+  ]
+}

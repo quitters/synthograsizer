@@ -12,7 +12,7 @@
 
   // Page definitions: { path, label, dropdown }
   const pages = [
-    { path: '/synthograsizer/', label: 'Synthograsizer (main)' },
+    { path: '/synthograsizer/demo.html', label: 'Synthograsizer (main)' },
     { path: '/legacy/', label: 'Synthograsizer (legacy)' },
     { path: '/glitcher/', label: 'Glitcher' },
     { path: '/metadata-manager/', label: 'Metadata Manager' },

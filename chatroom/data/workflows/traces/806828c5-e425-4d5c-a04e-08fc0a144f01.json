@@ -1,0 +1,1851 @@
+{
+  "workflowId": "806828c5-e425-4d5c-a04e-08fc0a144f01",
+  "name": "Cinematic Short: A high-drama reality TV romance between anthropomo",
+  "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+  "agentName": "Theo Nakamura",
+  "agentColor": "#4ECDC4",
+  "sessionId": "c85d5173-41d1-4e1e-ab57-bc3e3a077616",
+  "messageId": null,
+  "startedAt": "2026-04-30T21:08:18.772Z",
+  "completedAt": "2026-04-30T21:09:28.030Z",
+  "status": "failed",
+  "totals": {
+    "durationMs": 69258,
+    "costUsd": 0.2135,
+    "completedSteps": 13,
+    "failedSteps": 1
+  },
+  "steps": {
+    "plan": {
+      "id": "plan",
+      "type": "synth_text",
+      "dependsOn": [],
+      "status": "complete",
+      "startedMs": 1,
+      "completedMs": 21117,
+      "durationMs": 21116,
+      "inputs": {
+        "prompt": "You are a film director planning a short film. Concept: \"A high-drama reality TV romance between anthropomorphic high-fashion plants in a brutalist concrete containment vault. Features a parasitic botanical betrayal revealed via biometric UV thermal scan confessional, ending with the withered loser clinically vacuum-sealed into a cryogenic seed-bank wall.\". Mood: lethal luxury.\nPlan exactly 5 scenes. For each scene, write a vivid image generation prompt (2-3 sentences) describing the visual.\nOutput ONLY a JSON array of strings, one prompt per scene. Example: [\"scene 1 prompt\", \"scene 2 prompt\"]"
+      },
+      "outputSummary": {},
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.001,
+      "chunks": 19,
+      "lastChunk": " luxury, bathed in ice-blue LED light that reflects off the flawless metal and dead botanical couture.\"\n]"
+    },
+    "style": {
+      "id": "style",
+      "type": "synth_template",
+      "dependsOn": [],
+      "status": "complete",
+      "startedMs": 2,
+      "completedMs": 29839,
+      "durationMs": 29837,
+      "inputs": {
+        "description": "lethal luxury visual style for a short film about: A high-drama reality TV romance between anthropomorphic high-fashion plants in a brutalist concrete containment vault. Features a parasitic botanical betrayal revealed via biometric UV thermal scan confessional, ending with the withered loser clinically vacuum-sealed into a cryogenic seed-bank wall.",
+        "mode": "text"
+      },
+      "outputSummary": {
+        "status": "success",
+        "template": {
+          "promptTemplate": "Cinematic still from a lethal luxury high-fashion reality TV show: {{plant_characters}} {{dramatic_action}} inside a {{containment_vault}}, captured by {{cinematography}} with {{lethal_lighting}}, striking brutalist botany aesthetic.",
+          "variables": [
+            {
+              "name": "plant_characters",
+              "feature_name": "Plant Cast",
+              "values": [
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]"
+              ]
+            },
+            {
+              "name": "dramatic_action",
+              "feature_name": "Reality Drama",
+              "values": [
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]"
+              ]
+            },
+            {
+              "name": "containment_vault",
+              "feature_name": "Vault Setting",
+              "values": [
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]"
+              ]
+            },
+            {
+              "name": "cinematography",
+              "feature_name": "Camera Style",
+              "values": [
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]"
+              ]
+            },
+            {
+              "name": "lethal_lighting",
+              "feature_name": "Lethal Lighting",
+              "values": [
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]"
+              ]
+            }
+          ]
+        }
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.001
+    },
+    "scene0": {
+      "id": "scene0",
+      "type": "synth_image",
+      "dependsOn": [
+        "plan",
+        "style"
+      ],
+      "status": "complete",
+      "startedMs": 29840,
+      "completedMs": 46083,
+      "durationMs": 16243,
+      "inputs": {
+        "prompt": "Scene 1 of 5 from a lethal luxury short film: A high-drama reality TV romance between anthropomorphic high-fashion plants in a brutalist concrete containment vault. Features a parasitic botanical betrayal revealed via biometric UV thermal scan confessional, ending with the withered loser clinically vacuum-sealed into a cryogenic seed-bank wall.. Cinematic still from a lethal luxury high-fashion reality TV show: {{plant_characters}} {{dramatic_action}} inside a {{containment_vault}}, captured by {{cinematography}} with {{lethal_lighting}}, striking brutalist botany aesthetic.",
+        "aspect_ratio": "16:9"
+      },
+      "outputSummary": {
+        "status": "success",
+        "mediaId": "f037f887-e32f-40b0-ae7c-22f3df9deda1",
+        "mediaType": "image"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.04
+    },
+    "scene1": {
+      "id": "scene1",
+      "type": "synth_image",
+      "dependsOn": [
+        "plan",
+        "style"
+      ],
+      "status": "complete",
+      "startedMs": 29841,
+      "completedMs": 45399,
+      "durationMs": 15558,
+      "inputs": {
+        "prompt": "Scene 2 of 5 from a lethal luxury short film: A high-drama reality TV romance between anthropomorphic high-fashion plants in a brutalist concrete containment vault. Features a parasitic botanical betrayal revealed via biometric UV thermal scan confessional, ending with the withered loser clinically vacuum-sealed into a cryogenic seed-bank wall.. Cinematic still from a lethal luxury high-fashion reality TV show: {{plant_characters}} {{dramatic_action}} inside a {{containment_vault}}, captured by {{cinematography}} with {{lethal_lighting}}, striking brutalist botany aesthetic.",
+        "aspect_ratio": "16:9"
+      },
+      "outputSummary": {
+        "status": "success",
+        "mediaId": "e1fbef92-3a50-4d95-aa3e-eb52c7f34277",
+        "mediaType": "image"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.04
+    },
+    "scene2": {
+      "id": "scene2",
+      "type": "synth_image",
+      "dependsOn": [
+        "plan",
+        "style"
+      ],
+      "status": "complete",
+      "startedMs": 29841,
+      "completedMs": 52905,
+      "durationMs": 23064,
+      "inputs": {
+        "prompt": "Scene 3 of 5 from a lethal luxury short film: A high-drama reality TV romance between anthropomorphic high-fashion plants in a brutalist concrete containment vault. Features a parasitic botanical betrayal revealed via biometric UV thermal scan confessional, ending with the withered loser clinically vacuum-sealed into a cryogenic seed-bank wall.. Cinematic still from a lethal luxury high-fashion reality TV show: {{plant_characters}} {{dramatic_action}} inside a {{containment_vault}}, captured by {{cinematography}} with {{lethal_lighting}}, striking brutalist botany aesthetic.",
+        "aspect_ratio": "16:9"
+      },
+      "outputSummary": {
+        "status": "success",
+        "mediaId": "d13ed6b9-be6b-4c53-9f6b-03c1c6d1a9f2",
+        "mediaType": "image"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.04,
+      "lastRetryError": "Image generation failed: No image found in Gemini response (finish_reasons=['FinishReason.NO_IMAGE'])"
+    },
+    "scene3": {
+      "id": "scene3",
+      "type": "synth_image",
+      "dependsOn": [
+        "plan",
+        "style"
+      ],
+      "status": "complete",
+      "startedMs": 29842,
+      "completedMs": 47016,
+      "durationMs": 17174,
+      "inputs": {
+        "prompt": "Scene 4 of 5 from a lethal luxury short film: A high-drama reality TV romance between anthropomorphic high-fashion plants in a brutalist concrete containment vault. Features a parasitic botanical betrayal revealed via biometric UV thermal scan confessional, ending with the withered loser clinically vacuum-sealed into a cryogenic seed-bank wall.. Cinematic still from a lethal luxury high-fashion reality TV show: {{plant_characters}} {{dramatic_action}} inside a {{containment_vault}}, captured by {{cinematography}} with {{lethal_lighting}}, striking brutalist botany aesthetic.",
+        "aspect_ratio": "16:9"
+      },
+      "outputSummary": {
+        "status": "success",
+        "mediaId": "8cafbe3b-e6ec-4ce2-a716-f859c6fbe391",
+        "mediaType": "image"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.04
+    },
+    "scene4": {
+      "id": "scene4",
+      "type": "synth_image",
+      "dependsOn": [
+        "plan",
+        "style"
+      ],
+      "status": "complete",
+      "startedMs": 29842,
+      "completedMs": 45255,
+      "durationMs": 15413,
+      "inputs": {
+        "prompt": "Scene 5 of 5 from a lethal luxury short film: A high-drama reality TV romance between anthropomorphic high-fashion plants in a brutalist concrete containment vault. Features a parasitic botanical betrayal revealed via biometric UV thermal scan confessional, ending with the withered loser clinically vacuum-sealed into a cryogenic seed-bank wall.. Cinematic still from a lethal luxury high-fashion reality TV show: {{plant_characters}} {{dramatic_action}} inside a {{containment_vault}}, captured by {{cinematography}} with {{lethal_lighting}}, striking brutalist botany aesthetic.",
+        "aspect_ratio": "16:9"
+      },
+      "outputSummary": {
+        "status": "success",
+        "mediaId": "db064dca-9cc1-480c-a537-3781fd54b3e4",
+        "mediaType": "image"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.04
+    },
+    "desc0": {
+      "id": "desc0",
+      "type": "synth_analyze",
+      "dependsOn": [
+        "scene0"
+      ],
+      "status": "complete",
+      "startedMs": 52906,
+      "completedMs": 61064,
+      "durationMs": 8158,
+      "inputs": {
+        "image_id": "f037f887-e32f-40b0-ae7c-22f3df9deda1"
+      },
+      "outputSummary": {
+        "status": "success"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.002
+    },
+    "desc1": {
+      "id": "desc1",
+      "type": "synth_analyze",
+      "dependsOn": [
+        "scene1"
+      ],
+      "status": "complete",
+      "startedMs": 52914,
+      "completedMs": 60154,
+      "durationMs": 7240,
+      "inputs": {
+        "image_id": "e1fbef92-3a50-4d95-aa3e-eb52c7f34277"
+      },
+      "outputSummary": {
+        "status": "success"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.002
+    },
+    "desc2": {
+      "id": "desc2",
+      "type": "synth_analyze",
+      "dependsOn": [
+        "scene2"
+      ],
+      "status": "complete",
+      "startedMs": 52922,
+      "completedMs": 61792,
+      "durationMs": 8870,
+      "inputs": {
+        "image_id": "d13ed6b9-be6b-4c53-9f6b-03c1c6d1a9f2"
+      },
+      "outputSummary": {
+        "status": "success"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.002
+    },
+    "desc3": {
+      "id": "desc3",
+      "type": "synth_analyze",
+      "dependsOn": [
+        "scene3"
+      ],
+      "status": "complete",
+      "startedMs": 52928,
+      "completedMs": 60409,
+      "durationMs": 7481,
+      "inputs": {
+        "image_id": "8cafbe3b-e6ec-4ce2-a716-f859c6fbe391"
+      },
+      "outputSummary": {
+        "status": "success"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.002
+    },
+    "desc4": {
+      "id": "desc4",
+      "type": "synth_analyze",
+      "dependsOn": [
+        "scene4"
+      ],
+      "status": "complete",
+      "startedMs": 52935,
+      "completedMs": 61113,
+      "durationMs": 8178,
+      "inputs": {
+        "image_id": "db064dca-9cc1-480c-a537-3781fd54b3e4"
+      },
+      "outputSummary": {
+        "status": "success"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.002
+    },
+    "narrative": {
+      "id": "narrative",
+      "type": "synth_narrative",
+      "dependsOn": [
+        "desc0",
+        "desc1",
+        "desc2",
+        "desc3",
+        "desc4"
+      ],
+      "status": "complete",
+      "startedMs": 61793,
+      "completedMs": 69257,
+      "durationMs": 7464,
+      "inputs": {
+        "descriptions": [
+          "This cinematic 3D digital render merges sci-fi realism with bio-organic surrealism. A green-skinned botanical humanoid stands center-right, draped in a gown of purple orchids and lush tropical leaves. To her left, a monitor displays a thermal biometric scan, while glass containment pods behind her hold withered vine-like figures. The setting is a brutalist concrete laboratory with heavy industrial doors and exposed hardware. Lighting features cold cyan and violet neon accents and a soft overhead glow, creating a sterile yet ominous atmosphere. The palette contrasts vibrant magenta and emerald against monochromatic grey concrete. High-resolution rendering captures sharp textures and realistic light scattering on the floral elements. This biopunk scene conveys an uncanny, clinical mystery.",
+          "This cinematic photograph captures a surreal sci-fi scene blending high-fashion botanical costumes with industrial Brutalism. A central figure in a vibrant pink orchid bodysuit points accusingly at a wilted yellow floral humanoid. In the background, other plant-hybrid characters watch from a cold concrete lab, while a monitor displays thermal scans and a metallic chamber holds a specimen. The wide-angle composition creates a dramatic theatrical tableau illuminated by neon magenta and violet spotlights. The color palette pairs intense floral saturations with sterile grays and metallic surfaces. Technical precision shows sharp textures on the organic costumes and the weathered concrete walls. The mood is a campy, high-stakes horticultural thriller with a polished techno-organic aesthetic.",
+          "Cinematic 3D digital render in a biopunk sci-fi style. A woman wearing magenta orchid-inspired bio-armor is displayed on a large holographic monitor showing biometric data. To the right, a figure in a feathery headpiece leans from an open, plastic-lined storage locker. The scene takes place in a brutalist concrete lab with glass-door pods receding into the background. Harsh industrial lighting contrasts with neon teal and orange glows from the screen. Deep magenta and cyan hues dominate against neutral gray walls. High-resolution rendering features sharp focus and detailed digital textures. The aesthetic is clinical, dystopian, and avant-garde.",
+          "Cinematic digital art in a biopunk surrealist style. A tall iris-headed figure in a tattered purple velvet gown is escorted by armored guards toward a glowing cryogenic pod. In the foreground, a spiky green creature points to a terminal displaying a bioluminescent thermal analysis. The setting is a brutalist concrete laboratory featuring industrial pipes and hexagonal wall textures. Stark cyan and magenta neon lighting contrasts with deep shadows, creating a sterile, ominous atmosphere. The palette blends industrial greys with vibrant greens and rich floral purples. A wide-angle lens captures sharp details and a cinematic depth of field. The aesthetic is dystopian, unsettling, and clinical.",
+          "This cinematic sci-fi photograph blends high-fashion editorial with surreal biological horror. Two botanical humanoids stand in a wide composition: a figure with a purple orchid head in sharp black couture holds the hand of a collapsing, fern-headed figure in shimmering green silk beside a modular morgue wall. The setting is a brutalist high-tech laboratory featuring a massive blue screen displaying bioluminescent floral heat maps. Clinical spotlights provide high contrast, accented by the cold blue glow of monitors and sharp red status lights from a \"TERMINATED\" display. The palette of steel greys and deep blues is punctured by vibrant magenta, metallic gold, and neon green. Sharp digital focus and a wide-angle perspective capture intricate textile textures and matte concrete surfaces. Th… <+82 chars>"
+        ],
+        "mode": "story"
+      },
+      "outputSummary": {
+        "status": "success",
+        "prompts": [
+          "In a brutalist concrete laboratory, a green-skinned botanical humanoid draped in purple orchids stands before a thermal biometric monitor. She slowly turns her head as the withered vine-figures in the glass pods behind her begin to twitch, the cold cyan and violet neon lights reflecting off the sterile floor.",
+          "The tension breaks as the figure in the pink orchid bodysuit lunges forward, pointing an accusing finger at a trembling, wilted yellow floral humanoid. The surrounding plant-hybrid onlookers shift uneasily in the shadows of the lab while the metallic chamber in the background hisses with pressurized steam.",
+          "A holographic screen flickers to life, displaying the biometric vitals of the magenta orchid bio-armor. The camera pans right to reveal a figure in a feathery headpiece cautiously peering out from an open industrial locker, watching the data with a look of desperate urgency amidst the teal and orange glow.",
+          "Armored guards march the tall iris-headed figure, her tattered velvet gown dragging on the concrete, toward a glowing cryogenic pod. In the foreground, a spiky green creature frantically interacts with a terminal, his bioluminescent thermal analysis flashing as the heavy industrial doors begin to seal shut.",
+          "In the cold blue light of the morgue, the orchid-headed figure in black couture stands over her companion, holding the hand of the collapsing fern-headed figure. A massive screen behind them flashes 'TERMINATED' in stark red lettering, casting a macabre glow over the shimmering green silk and the final, still moments of the failed experiment."
+        ]
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.0015
+    },
+    "hero_video": {
+      "id": "hero_video",
+      "type": "synth_video",
+      "dependsOn": [
+        "desc0"
+      ],
+      "status": "failed",
+      "startedMs": 61793,
+      "completedMs": 65065,
+      "durationMs": 3272,
+      "inputs": {
+        "prompt": "lethal luxury cinematic shot: This cinematic 3D digital render merges sci-fi realism with bio-organic surrealism. A green-skinned botanical humanoid stands center-right, draped in a gown of purple orchids and lush tropical leaves. To her left, a monitor displays a thermal biometric scan, while glass containment pods behind her hold withered vine-like figures. The setting is a brutalist concrete laboratory with heavy industrial doors and exposed hardware. Lighting features cold cyan and violet neon accents and a soft overhead glow, creating a sterile yet ominous atmosphere. The palette contrasts vibrant magenta and emerald against monochromatic grey concrete. High-resolution rendering captures sharp textures and realistic light scattering on the floral elements. This biopunk scene conveys a… <+73 chars>",
+        "aspect_ratio": "16:9",
+        "duration": "5"
+      },
+      "outputSummary": null,
+      "error": "400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'The number value for `durationSeconds` is out of bound. Please provide a value between 4 and 8, inclusive.', 'status': 'INVALID_ARGUMENT'}}",
+      "attempts": 1,
+      "costUsd": 0,
+      "lastRetryError": "400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'The number value for `durationSeconds` is out of bound. Please provide a value between 4 and 8, inclusive.', 'status': 'INVALID_ARGUMENT'}}"
+    }
+  },
+  "events": [
+    {
+      "t": 0,
+      "event": "workflow_start",
+      "data": {
+        "workflowId": "806828c5-e425-4d5c-a04e-08fc0a144f01",
+        "name": "Cinematic Short: A high-drama reality TV romance between anthropomo",
+        "stepCount": 14,
+        "steps": [
+          {
+            "id": "plan",
+            "type": "synth_text",
+            "dependsOn": []
+          },
+          {
+            "id": "style",
+            "type": "synth_template",
+            "dependsOn": []
+          },
+          {
+            "id": "scene0",
+            "type": "synth_image",
+            "dependsOn": [
+              "plan",
+              "style"
+            ]
+          },
+          {
+            "id": "scene1",
+            "type": "synth_image",
+            "dependsOn": [
+              "plan",
+              "style"
+            ]
+          },
+          {
+            "id": "scene2",
+            "type": "synth_image",
+            "dependsOn": [
+              "plan",
+              "style"
+            ]
+          },
+          {
+            "id": "scene3",
+            "type": "synth_image",
+            "dependsOn": [
+              "plan",
+              "style"
+            ]
+          },
+          {
+            "id": "scene4",
+            "type": "synth_image",
+            "dependsOn": [
+              "plan",
+              "style"
+            ]
+          },
+          {
+            "id": "desc0",
+            "type": "synth_analyze",
+            "dependsOn": [
+              "scene0"
+            ]
+          },
+          {
+            "id": "desc1",
+            "type": "synth_analyze",
+            "dependsOn": [
+              "scene1"
+            ]
+          },
+          {
+            "id": "desc2",
+            "type": "synth_analyze",
+            "dependsOn": [
+              "scene2"
+            ]
+          },
+          {
+            "id": "desc3",
+            "type": "synth_analyze",
+            "dependsOn": [
+              "scene3"
+            ]
+          },
+          {
+            "id": "desc4",
+            "type": "synth_analyze",
+            "dependsOn": [
+              "scene4"
+            ]
+          },
+          {
+            "id": "narrative",
+            "type": "synth_narrative",
+            "dependsOn": [
+              "desc0",
+              "desc1",
+              "desc2",
+              "desc3",
+              "desc4"
+            ]
+          },
+          {
+            "id": "hero_video",
+            "type": "synth_video",
+            "dependsOn": [
+              "desc0"
+            ]
+          }
+        ],
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "agentName": "Theo Nakamura",
+        "agentColor": "#4ECDC4",
+        "sessionId": "c85d5173-41d1-4e1e-ab57-bc3e3a077616",
+        "messageId": null
+      }
+    },
+    {
+      "t": 1,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "806828c5-e425-4d5c-a04e-08fc0a144f01",
+        "stepId": "plan",
+        "stepType": "synth_text",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "dependsOn": [],
+        "inputs": {
+          "prompt": "You are a film director planning a short film. Concept: \"A high-drama reality TV romance between anthropomorphic high-fashion plants in a brutalist concrete containment vault. Features a parasitic botanical betrayal revealed via biometric UV thermal scan confessional, ending with the withered loser clinically vacuum-sealed into a cryogenic seed-bank wall.\". Mood: lethal luxury.\nPlan exactly 5 scenes. For each scene, write a vivid image generation prompt (2-3 sentences) describing the visual.\nOutput ONLY a JSON array of strings, one prompt per scene. Example: [\"scene 1 prompt\", \"scene 2 prompt\"]"
+        }
+      }
+    },
+    {
+      "t": 2,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "806828c5-e425-4d5c-a04e-08fc0a144f01",
+        "stepId": "style",
+        "stepType": "synth_template",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "dependsOn": [],
+        "inputs": {
+          "description": "lethal luxury visual style for a short film about: A high-drama reality TV romance between anthropomorphic high-fashion plants in a brutalist concrete containment vault. Features a parasitic botanical betrayal revealed via biometric UV thermal scan confessional, ending with the withered loser clinically vacuum-sealed into a cryogenic seed-bank wall.",
+          "mode": "text"
+        }
+      }
+    },
+    {
+      "t": 2,
+      "event": "workflow_submitted",
+      "data": {
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "agentName": "Theo Nakamura",
+        "agentColor": "#4ECDC4",
+        "sessionId": "c85d5173-41d1-4e1e-ab57-bc3e3a077616",
+        "workflowId": "806828c5-e425-4d5c-a04e-08fc0a144f01",
+        "workflowName": "Cinematic Short: A high-drama reality TV romance between anthropomo",
+        "templateId": "cinematic_short",
+        "stepCount": 14,
+        "steps": [
+          {
+            "id": "plan",
+            "type": "synth_text"
+          },
+          {
+            "id": "style",
+            "type": "synth_template"
+          },
+          {
+            "id": "scene0",
+            "type": "synth_image"
+          },
+          {
+            "id": "scene1",
+            "type": "synth_image"
+          },
+          {
+            "id": "scene2",
+            "type": "synth_image"
+          },
+          {
+            "id": "scene3",
+            "type": "synth_image"
+          },
+          {
+            "id": "scene4",
+            "type": "synth_image"
+          },
+          {
+            "id": "desc0",
+            "type": "synth_analyze"
+          },
+          {
+            "id": "desc1",
+            "type": "synth_analyze"
+          },
+          {
+            "id": "desc2",
+            "type": "synth_analyze"
+          },
+          {
+            "id": "desc3",
+            "type": "synth_analyze"
+          },
+          {
+            "id": "desc4",
+            "type": "synth_analyze"
+          },
+          {
+            "id": "narrative",
+            "type": "synth_narrative"
+          },
+          {
+            "id": "hero_video",
+            "type": "synth_video"
+          }
+        ]
+      }
+    },
+    {
+      "t": 18481,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "806828c5-e425-4d5c-a04e-08fc0a144f01",
+        "stepId": "plan",
+        "text": "[\n  \"A"
+      }
+    },
+    {
+      "t": 18580,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "806828c5-e425-4d5c-a04e-08fc0a144f01",
+        "stepId": "plan",
+        "text": " cinematic wide shot of a brutalist concrete vault transformed into a luxury reality TV lounge, illuminated by harsh spotlights and sleek neon"
+      }
+    },
+    {
+      "t": 18737,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "806828c5-e425-4d5c-a04e-08fc0a144f01",
+        "stepId": "plan",
+        "text": " accents. Several anthropomorphic, high-fashion plant hybrids mingle elegantly, their bodies adorned in natural haute couture of toxic orchids"
+      }
+    },
+    {
+      "t": 18888,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "806828c5-e425-4d5c-a04e-08fc0a144f01",
+        "stepId": "plan",
+        "text": " and razor-sharp obsidian leaves. The atmosphere is cold, opulent, and dangerously glamorous, captured with sharp focus and dramatic"
+      }
+    },
+    {
+      "t": 19056,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "806828c5-e425-4d5c-a04e-08fc0a144f01",
+        "stepId": "plan",
+        "text": " shadow.\",\n  \"A close-up shot mimicking a reality TV 'private date' captures two stunning anthropomorphic plants"
+      }
+    },
+    {
+      "t": 19174,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "806828c5-e425-4d5c-a04e-08fc0a144f01",
+        "stepId": "plan",
+        "text": " intertwining delicately on a plush velvet sofa set against harsh gray concrete. One is a sleek, black-stemmed rose"
+      }
+    },
+    {
+      "t": 19332,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "806828c5-e425-4d5c-a04e-08fc0a144f01",
+        "stepId": "plan",
+        "text": " with glittering metallic thorns, wrapping seductively around a pale, luminous ghost orchid draped in gossamer petals. Sensual"
+      }
+    },
+    {
+      "t": 19471,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "806828c5-e425-4d5c-a04e-08fc0a144f01",
+        "stepId": "plan",
+        "text": " lighting highlights the contrast between their lethal, high-end botanical textures and the sterile, unforgiving environment.\",\n  \""
+      }
+    },
+    {
+      "t": 19702,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "806828c5-e425-4d5c-a04e-08fc0a144f01",
+        "stepId": "plan",
+        "text": "A stark reality TV confessional shot filmed through a biometric UV thermal camera lens, revealing a shocking parasitic betrayal. The thermal"
+      }
+    },
+    {
+      "t": 19802,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "806828c5-e425-4d5c-a04e-08fc0a144f01",
+        "stepId": "plan",
+        "text": " imaging glows with neon pink and electric blue, showing the black rose's hidden microscopic root system secretly siphoning vibrant"
+      }
+    },
+    {
+      "t": 19933,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "806828c5-e425-4d5c-a04e-08fc0a144f01",
+        "stepId": "plan",
+        "text": " heat signatures directly from the fading ghost orchid. A cold, scientific HUD overlay contrasts sharply with the dramatic, sinister intimacy of"
+      }
+    },
+    {
+      "t": 20102,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "806828c5-e425-4d5c-a04e-08fc0a144f01",
+        "stepId": "plan",
+        "text": " the botanical energy theft.\",\n  \"A dramatic low-angle shot on the brutalist concrete floor shows the pale ghost"
+      }
+    },
+    {
+      "t": 20230,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "806828c5-e425-4d5c-a04e-08fc0a144f01",
+        "stepId": "plan",
+        "text": " orchid contestant collapsed and rapidly withering, its gossamer petals turning to cracked, desiccated ash. Towering over the"
+      }
+    },
+    {
+      "t": 20386,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "806828c5-e425-4d5c-a04e-08fc0a144f01",
+        "stepId": "plan",
+        "text": " fallen plant is the parasitic rose, now blooming with a terrifying, hyper-vibrant crimson extravagance and dripping with stolen sap"
+      }
+    },
+    {
+      "t": 20545,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "806828c5-e425-4d5c-a04e-08fc0a144f01",
+        "stepId": "plan",
+        "text": " like liquid jewels. The lighting is cruel and editorial, framing the tragic reality TV elimination as a dark high-fashion magazine"
+      }
+    },
+    {
+      "t": 20677,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "806828c5-e425-4d5c-a04e-08fc0a144f01",
+        "stepId": "plan",
+        "text": " spread.\",\n  \"A sterile, clinical wide shot of a massive, glowing cryogenic seed-bank wall embedded in the"
+      }
+    },
+    {
+      "t": 20815,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "806828c5-e425-4d5c-a04e-08fc0a144f01",
+        "stepId": "plan",
+        "text": " dark brutalist concrete. Sleek mechanical arms press a high-tech, vacuum-sealed polymer preservation bag containing the brittle"
+      }
+    },
+    {
+      "t": 20973,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "806828c5-e425-4d5c-a04e-08fc0a144f01",
+        "stepId": "plan",
+        "text": ", withered remains of the defeated ghost orchid into a glowing, frost-covered slot. The scene exudes a chilling, lethal"
+      }
+    },
+    {
+      "t": 21098,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "806828c5-e425-4d5c-a04e-08fc0a144f01",
+        "stepId": "plan",
+        "text": " luxury, bathed in ice-blue LED light that reflects off the flawless metal and dead botanical couture.\"\n]"
+      }
+    },
+    {
+      "t": 21117,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "806828c5-e425-4d5c-a04e-08fc0a144f01",
+        "stepId": "plan",
+        "stepType": "synth_text",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "attempts": 1,
+        "durationMs": 21116,
+        "summary": {}
+      }
+    },
+    {
+      "t": 29839,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "806828c5-e425-4d5c-a04e-08fc0a144f01",
+        "stepId": "style",
+        "stepType": "synth_template",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "attempts": 1,
+        "durationMs": 29837,
+        "summary": {
+          "status": "success",
+          "template": {
+            "promptTemplate": "Cinematic still from a lethal luxury high-fashion reality TV show: {{plant_characters}} {{dramatic_action}} inside a {{containment_vault}}, captured by {{cinematography}} with {{lethal_lighting}}, striking brutalist botany aesthetic.",
+            "variables": [
+              {
+                "name": "plant_characters",
+                "feature_name": "Plant Cast",
+                "values": [
+                  {
+                    "text": "high-fashion orchids draped in spiked obsidian jewelry",
+                    "weight": 3
+                  },
+                  {
+                    "text": "statuesque Monstera with razor-sharp chrome-dipped leaves",
+                    "weight": 3
+                  },
+                  {
+                    "text": "weeping willows tangled in tight silk bondage restraints",
+                    "weight": 3
+                  },
+                  {
+                    "text": "carnivorous pitcher plants wearing glossy latex couture",
+                    "weight": 3
+                  },
+                  {
+                    "text": "bioluminescent nightshades in sheer haute couture organza",
+                    "weight": 2
+                  },
+                  {
+                    "text": "venomous thorny roses with smeared black mascara",
+                    "weight": 2
+                  },
+                  {
+                    "text": "decaying parasitic vines wrapped heavily in gold chains",
+                    "weight": 2
+                  },
+                  {
+                    "text": "a withered bonsai vacuum-sealed inside a glossy cryo-bag",
+                    "weight": 2
+                  },
+                  {
+                    "text": "albino ghost flora radiating toxic iridescent spores",
+                    "weight": 1
+                  },
+                  {
+                    "text": "crystallized succulents scarred with weeping thermal burns",
+                    "weight": 1
+                  }
+                ]
+              },
+              {
+                "name": "dramatic_action",
+                "feature_name": "Reality Drama",
+                "values": [
+                  {
+                    "text": "passionately kissing and exchanging glowing venomous pollen",
+                    "weight": 3
+                  },
+                  {
+                    "text": "screaming silently behind thick biometric security glass",
+                    "weight": 3
+                  },
+                  {
+                    "text": "whispering a parasitic betrayal into a hidden lapel mic",
+                    "weight": 3
+                  },
+                  {
+                    "text": "weeping iridescent sap during an emotional confessional",
+                    "weight": 3
+                  },
+                  {
+                    "text": "dramatically throwing a crystal glass of acidic fertilizer",
+                    "weight": 2
+                  },
+                  {
+                    "text": "physically choking a rival with tightening strangler fig vines",
+                    "weight": 2
+                  },
+                  {
+                    "text": "slowly wilting under a harsh interrogator's spotlight",
+                    "weight": 2
+                  },
+                  {
+                    "text": "clinically pressing a panicked face against the cryo-chamber wall",
+                    "weight": 2
+                  },
+                  {
+                    "text": "erupting into a toxic victorious bloom of dark petals",
+                    "weight": 1
+                  },
+                  {
+                    "text": "being violently vacuum-sealed alive into the concrete wall",
+                    "weight": 1
+                  }
+                ]
+              },
+              {
+                "name": "containment_vault",
+                "feature_name": "Vault Setting",
+                "values": [
+                  {
+                    "text": "sterile brutalist concrete underground bunker",
+                    "weight": 3
+                  },
+                  {
+                    "text": "claustrophobic high-end luxury panic room",
+                    "weight": 3
+                  },
+                  {
+                    "text": "cold cryogenic seed-bank isolation block",
+                    "weight": 3
+                  },
+                  {
+                    "text": "brutalist concrete amphitheater with one-way mirrored walls",
+                    "weight": 3
+                  },
+                  {
+                    "text": "high-security botanical containment cell",
+                    "weight": 2
+                  },
+                  {
+                    "text": "stark reality TV confessional booth lined with lead panels",
+                    "weight": 2
+                  },
+                  {
+                    "text": "clinical morgue-like vault with frosted glass doors",
+                    "weight": 2
+                  },
+                  {
+                    "text": "dark concrete hallway illuminated by scattered emergency flares",
+                    "weight": 2
+                  },
+                  {
+                    "text": "flooded brutalist chamber filled with floating couture garments",
+                    "weight": 1
+                  },
+                  {
+                    "text": "endless geometric grid of vacuum-sealed plant graves",
+                    "weight": 1
+                  }
+                ]
+              },
+              {
+                "name": "cinematography",
+                "feature_name": "Camera Style",
+                "values": [
+                  {
+                    "text": "an extreme close-up reality TV confessional shot",
+                    "weight": 3
+                  },
+                  {
+                    "text": "a wide dramatic cinematic establishing shot",
+                    "weight": 3
+                  },
+                  {
+                    "text": "a hidden fisheye security camera perspective",
+                    "weight": 3
+                  },
+                  {
+                    "text": "a clinical top-down medical surveillance view",
+                    "weight": 3
+                  },
+                  {
+                    "text": "a handheld shaky-cam documentary style angle",
+                    "weight": 2
+                  },
+                  {
+                    "text": "a high-fashion editorial magazine layout composition",
+                    "weight": 2
+                  },
+                  {
+                    "text": "a voyeuristic long-lens shot through observation glass",
+                    "weight": 2
+                  },
+                  {
+                    "text": "an aggressive low-angle wide focal length power shot",
+                    "weight": 2
+                  },
+                  {
+                    "text": "a glitching biometric thermal night-vision feed",
+                    "weight": 1
+                  },
+                  {
+                    "text": "a slow-motion macro shot emphasizing tearing plant tissue",
+                    "weight": 1
+                  }
+                ]
+              },
+              {
+                "name": "lethal_lighting",
+                "feature_name": "Lethal Lighting",
+                "values": [
+                  {
+                    "text": "harsh biometric UV thermal scan lighting",
+                    "weight": 3
+                  },
+                  {
+                    "text": "glossy high-end studio ring light glare",
+                    "weight": 3
+                  },
+                  {
+                    "text": "oppressive flickering fluorescent hospital lights",
+                    "weight": 3
+                  },
+                  {
+                    "text": "cold blue cryogenic ambient shadow-casting glow",
+                    "weight": 3
+                  },
+                  {
+                    "text": "stark dramatic chiaroscuro with pitch black shadows",
+                    "weight": 2
+                  },
+                  {
+                    "text": "sickly neon green radioactive toxicity illumination",
+                    "weight": 2
+                  },
+                  {
+                    "text": "clinical white shadowless operating room lights",
+                    "weight": 2
+                  },
+                  {
+                    "text": "warm but deceptive artificial golden hour simulation lights",
+                    "weight": 2
+                  },
+                  {
+                    "text": "a blinding paparazzi flash photography burst",
+                    "weight": 1
+                  },
+                  {
+                    "text": "pitch darkness pierced only by glowing bioluminescent sap",
+                    "weight": 1
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "t": 29840,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "806828c5-e425-4d5c-a04e-08fc0a144f01",
+        "stepId": "scene0",
+        "stepType": "synth_image",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "dependsOn": [
+          "plan",
+          "style"
+        ],
+        "inputs": {
+          "prompt": "Scene 1 of 5 from a lethal luxury short film: A high-drama reality TV romance between anthropomorphic high-fashion plants in a brutalist concrete containment vault. Features a parasitic botanical betrayal revealed via biometric UV thermal scan confessional, ending with the withered loser clinically vacuum-sealed into a cryogenic seed-bank wall.. Cinematic still from a lethal luxury high-fashion reality TV show: {{plant_characters}} {{dramatic_action}} inside a {{containment_vault}}, captured by {{cinematography}} with {{lethal_lighting}}, striking brutalist botany aesthetic.",
+          "aspect_ratio": "16:9"
+        }
+      }
+    },
+    {
+      "t": 29841,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "806828c5-e425-4d5c-a04e-08fc0a144f01",
+        "stepId": "scene1",
+        "stepType": "synth_image",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "dependsOn": [
+          "plan",
+          "style"
+        ],
+        "inputs": {
+          "prompt": "Scene 2 of 5 from a lethal luxury short film: A high-drama reality TV romance between anthropomorphic high-fashion plants in a brutalist concrete containment vault. Features a parasitic botanical betrayal revealed via biometric UV thermal scan confessional, ending with the withered loser clinically vacuum-sealed into a cryogenic seed-bank wall.. Cinematic still from a lethal luxury high-fashion reality TV show: {{plant_characters}} {{dramatic_action}} inside a {{containment_vault}}, captured by {{cinematography}} with {{lethal_lighting}}, striking brutalist botany aesthetic.",
+          "aspect_ratio": "16:9"
+        }
+      }
+    },
+    {
+      "t": 29841,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "806828c5-e425-4d5c-a04e-08fc0a144f01",
+        "stepId": "scene2",
+        "stepType": "synth_image",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "dependsOn": [
+          "plan",
+          "style"
+        ],
+        "inputs": {
+          "prompt": "Scene 3 of 5 from a lethal luxury short film: A high-drama reality TV romance between anthropomorphic high-fashion plants in a brutalist concrete containment vault. Features a parasitic botanical betrayal revealed via biometric UV thermal scan confessional, ending with the withered loser clinically vacuum-sealed into a cryogenic seed-bank wall.. Cinematic still from a lethal luxury high-fashion reality TV show: {{plant_characters}} {{dramatic_action}} inside a {{containment_vault}}, captured by {{cinematography}} with {{lethal_lighting}}, striking brutalist botany aesthetic.",
+          "aspect_ratio": "16:9"
+        }
+      }
+    },
+    {
+      "t": 29842,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "806828c5-e425-4d5c-a04e-08fc0a144f01",
+        "stepId": "scene3",
+        "stepType": "synth_image",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "dependsOn": [
+          "plan",
+          "style"
+        ],
+        "inputs": {
+          "prompt": "Scene 4 of 5 from a lethal luxury short film: A high-drama reality TV romance between anthropomorphic high-fashion plants in a brutalist concrete containment vault. Features a parasitic botanical betrayal revealed via biometric UV thermal scan confessional, ending with the withered loser clinically vacuum-sealed into a cryogenic seed-bank wall.. Cinematic still from a lethal luxury high-fashion reality TV show: {{plant_characters}} {{dramatic_action}} inside a {{containment_vault}}, captured by {{cinematography}} with {{lethal_lighting}}, striking brutalist botany aesthetic.",
+          "aspect_ratio": "16:9"
+        }
+      }
+    },
+    {
+      "t": 29842,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "806828c5-e425-4d5c-a04e-08fc0a144f01",
+        "stepId": "scene4",
+        "stepType": "synth_image",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "dependsOn": [
+          "plan",
+          "style"
+        ],
+        "inputs": {
+          "prompt": "Scene 5 of 5 from a lethal luxury short film: A high-drama reality TV romance between anthropomorphic high-fashion plants in a brutalist concrete containment vault. Features a parasitic botanical betrayal revealed via biometric UV thermal scan confessional, ending with the withered loser clinically vacuum-sealed into a cryogenic seed-bank wall.. Cinematic still from a lethal luxury high-fashion reality TV show: {{plant_characters}} {{dramatic_action}} inside a {{containment_vault}}, captured by {{cinematography}} with {{lethal_lighting}}, striking brutalist botany aesthetic.",
+          "aspect_ratio": "16:9"
+        }
+      }
+    },
+    {
+      "t": 33180,
+      "event": "workflow_step_retry",
+      "data": {
+        "workflowId": "806828c5-e425-4d5c-a04e-08fc0a144f01",
+        "stepId": "scene2",
+        "stepType": "synth_image",
+        "attempt": 1,
+        "error": "Image generation failed: No image found in Gemini response (finish_reasons=['FinishReason.NO_IMAGE'])"
+      }
+    },
+    {
+      "t": 45255,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "806828c5-e425-4d5c-a04e-08fc0a144f01",
+        "stepId": "scene4",
+        "stepType": "synth_image",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "attempts": 1,
+        "durationMs": 15413,
+        "summary": {
+          "status": "success",
+          "mediaId": "db064dca-9cc1-480c-a537-3781fd54b3e4",
+          "mediaType": "image"
+        }
+      }
+    },
+    {
+      "t": 45399,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "806828c5-e425-4d5c-a04e-08fc0a144f01",
+        "stepId": "scene1",
+        "stepType": "synth_image",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "attempts": 1,
+        "durationMs": 15558,
+        "summary": {
+          "status": "success",
+          "mediaId": "e1fbef92-3a50-4d95-aa3e-eb52c7f34277",
+          "mediaType": "image"
+        }
+      }
+    },
+    {
+      "t": 46083,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "806828c5-e425-4d5c-a04e-08fc0a144f01",
+        "stepId": "scene0",
+        "stepType": "synth_image",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "attempts": 1,
+        "durationMs": 16243,
+        "summary": {
+          "status": "success",
+          "mediaId": "f037f887-e32f-40b0-ae7c-22f3df9deda1",
+          "mediaType": "image"
+        }
+      }
+    },
+    {
+      "t": 47016,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "806828c5-e425-4d5c-a04e-08fc0a144f01",
+        "stepId": "scene3",
+        "stepType": "synth_image",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "attempts": 1,
+        "durationMs": 17174,
+        "summary": {
+          "status": "success",
+          "mediaId": "8cafbe3b-e6ec-4ce2-a716-f859c6fbe391",
+          "mediaType": "image"
+        }
+      }
+    },
+    {
+      "t": 52905,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "806828c5-e425-4d5c-a04e-08fc0a144f01",
+        "stepId": "scene2",
+        "stepType": "synth_image",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "attempts": 2,
+        "durationMs": 23064,
+        "summary": {
+          "status": "success",
+          "mediaId": "d13ed6b9-be6b-4c53-9f6b-03c1c6d1a9f2",
+          "mediaType": "image"
+        }
+      }
+    },
+    {
+      "t": 52906,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "806828c5-e425-4d5c-a04e-08fc0a144f01",
+        "stepId": "desc0",
+        "stepType": "synth_analyze",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "dependsOn": [
+          "scene0"
+        ],
+        "inputs": {
+          "image_id": "f037f887-e32f-40b0-ae7c-22f3df9deda1"
+        }
+      }
+    },
+    {
+      "t": 52914,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "806828c5-e425-4d5c-a04e-08fc0a144f01",
+        "stepId": "desc1",
+        "stepType": "synth_analyze",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "dependsOn": [
+          "scene1"
+        ],
+        "inputs": {
+          "image_id": "e1fbef92-3a50-4d95-aa3e-eb52c7f34277"
+        }
+      }
+    },
+    {
+      "t": 52922,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "806828c5-e425-4d5c-a04e-08fc0a144f01",
+        "stepId": "desc2",
+        "stepType": "synth_analyze",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "dependsOn": [
+          "scene2"
+        ],
+        "inputs": {
+          "image_id": "d13ed6b9-be6b-4c53-9f6b-03c1c6d1a9f2"
+        }
+      }
+    },
+    {
+      "t": 52928,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "806828c5-e425-4d5c-a04e-08fc0a144f01",
+        "stepId": "desc3",
+        "stepType": "synth_analyze",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "dependsOn": [
+          "scene3"
+        ],
+        "inputs": {
+          "image_id": "8cafbe3b-e6ec-4ce2-a716-f859c6fbe391"
+        }
+      }
+    },
+    {
+      "t": 52935,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "806828c5-e425-4d5c-a04e-08fc0a144f01",
+        "stepId": "desc4",
+        "stepType": "synth_analyze",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "dependsOn": [
+          "scene4"
+        ],
+        "inputs": {
+          "image_id": "db064dca-9cc1-480c-a537-3781fd54b3e4"
+        }
+      }
+    },
+    {
+      "t": 60154,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "806828c5-e425-4d5c-a04e-08fc0a144f01",
+        "stepId": "desc1",
+        "stepType": "synth_analyze",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "attempts": 1,
+        "durationMs": 7240,
+        "summary": {
+          "status": "success"
+        }
+      }
+    },
+    {
+      "t": 60409,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "806828c5-e425-4d5c-a04e-08fc0a144f01",
+        "stepId": "desc3",
+        "stepType": "synth_analyze",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "attempts": 1,
+        "durationMs": 7481,
+        "summary": {
+          "status": "success"
+        }
+      }
+    },
+    {
+      "t": 61064,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "806828c5-e425-4d5c-a04e-08fc0a144f01",
+        "stepId": "desc0",
+        "stepType": "synth_analyze",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "attempts": 1,
+        "durationMs": 8158,
+        "summary": {
+          "status": "success"
+        }
+      }
+    },
+    {
+      "t": 61113,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "806828c5-e425-4d5c-a04e-08fc0a144f01",
+        "stepId": "desc4",
+        "stepType": "synth_analyze",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "attempts": 1,
+        "durationMs": 8178,
+        "summary": {
+          "status": "success"
+        }
+      }
+    },
+    {
+      "t": 61792,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "806828c5-e425-4d5c-a04e-08fc0a144f01",
+        "stepId": "desc2",
+        "stepType": "synth_analyze",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "attempts": 1,
+        "durationMs": 8870,
+        "summary": {
+          "status": "success"
+        }
+      }
+    },
+    {
+      "t": 61793,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "806828c5-e425-4d5c-a04e-08fc0a144f01",
+        "stepId": "narrative",
+        "stepType": "synth_narrative",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "dependsOn": [
+          "desc0",
+          "desc1",
+          "desc2",
+          "desc3",
+          "desc4"
+        ],
+        "inputs": {
+          "descriptions": [
+            "This cinematic 3D digital render merges sci-fi realism with bio-organic surrealism. A green-skinned botanical humanoid stands center-right, draped in a gown of purple orchids and lush tropical leaves. To her left, a monitor displays a thermal biometric scan, while glass containment pods behind her hold withered vine-like figures. The setting is a brutalist concrete laboratory with heavy industrial doors and exposed hardware. Lighting features cold cyan and violet neon accents and a soft overhead glow, creating a sterile yet ominous atmosphere. The palette contrasts vibrant magenta and emerald against monochromatic grey concrete. High-resolution rendering captures sharp textures and realistic light scattering on the floral elements. This biopunk scene conveys an uncanny, clinical mystery.",
+            "This cinematic photograph captures a surreal sci-fi scene blending high-fashion botanical costumes with industrial Brutalism. A central figure in a vibrant pink orchid bodysuit points accusingly at a wilted yellow floral humanoid. In the background, other plant-hybrid characters watch from a cold concrete lab, while a monitor displays thermal scans and a metallic chamber holds a specimen. The wide-angle composition creates a dramatic theatrical tableau illuminated by neon magenta and violet spotlights. The color palette pairs intense floral saturations with sterile grays and metallic surfaces. Technical precision shows sharp textures on the organic costumes and the weathered concrete walls. The mood is a campy, high-stakes horticultural thriller with a polished techno-organic aesthetic.",
+            "Cinematic 3D digital render in a biopunk sci-fi style. A woman wearing magenta orchid-inspired bio-armor is displayed on a large holographic monitor showing biometric data. To the right, a figure in a feathery headpiece leans from an open, plastic-lined storage locker. The scene takes place in a brutalist concrete lab with glass-door pods receding into the background. Harsh industrial lighting contrasts with neon teal and orange glows from the screen. Deep magenta and cyan hues dominate against neutral gray walls. High-resolution rendering features sharp focus and detailed digital textures. The aesthetic is clinical, dystopian, and avant-garde.",
+            "Cinematic digital art in a biopunk surrealist style. A tall iris-headed figure in a tattered purple velvet gown is escorted by armored guards toward a glowing cryogenic pod. In the foreground, a spiky green creature points to a terminal displaying a bioluminescent thermal analysis. The setting is a brutalist concrete laboratory featuring industrial pipes and hexagonal wall textures. Stark cyan and magenta neon lighting contrasts with deep shadows, creating a sterile, ominous atmosphere. The palette blends industrial greys with vibrant greens and rich floral purples. A wide-angle lens captures sharp details and a cinematic depth of field. The aesthetic is dystopian, unsettling, and clinical.",
+            "This cinematic sci-fi photograph blends high-fashion editorial with surreal biological horror. Two botanical humanoids stand in a wide composition: a figure with a purple orchid head in sharp black couture holds the hand of a collapsing, fern-headed figure in shimmering green silk beside a modular morgue wall. The setting is a brutalist high-tech laboratory featuring a massive blue screen displaying bioluminescent floral heat maps. Clinical spotlights provide high contrast, accented by the cold blue glow of monitors and sharp red status lights from a \"TERMINATED\" display. The palette of steel greys and deep blues is punctured by vibrant magenta, metallic gold, and neon green. Sharp digital focus and a wide-angle perspective capture intricate textile textures and matte concrete surfaces. The overall mood is clinical and macabre, evoking a high-stakes biological dystopia."
+          ],
+          "mode": "story"
+        }
+      }
+    },
+    {
+      "t": 61793,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "806828c5-e425-4d5c-a04e-08fc0a144f01",
+        "stepId": "hero_video",
+        "stepType": "synth_video",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "dependsOn": [
+          "desc0"
+        ],
+        "inputs": {
+          "prompt": "lethal luxury cinematic shot: This cinematic 3D digital render merges sci-fi realism with bio-organic surrealism. A green-skinned botanical humanoid stands center-right, draped in a gown of purple orchids and lush tropical leaves. To her left, a monitor displays a thermal biometric scan, while glass containment pods behind her hold withered vine-like figures. The setting is a brutalist concrete laboratory with heavy industrial doors and exposed hardware. Lighting features cold cyan and violet neon accents and a soft overhead glow, creating a sterile yet ominous atmosphere. The palette contrasts vibrant magenta and emerald against monochromatic grey concrete. High-resolution rendering captures sharp textures and realistic light scattering on the floral elements. This biopunk scene conveys an uncanny, clinical mystery.. Slow camera movement, atmospheric lighting.",
+          "aspect_ratio": "16:9",
+          "duration": "5"
+        }
+      }
+    },
+    {
+      "t": 61948,
+      "event": "workflow_step_retry",
+      "data": {
+        "workflowId": "806828c5-e425-4d5c-a04e-08fc0a144f01",
+        "stepId": "hero_video",
+        "stepType": "synth_video",
+        "attempt": 1,
+        "error": "400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'The number value for `durationSeconds` is out of bound. Please provide a value between 4 and 8, inclusive.', 'status': 'INVALID_ARGUMENT'}}"
+      }
+    },
+    {
+      "t": 65065,
+      "event": "workflow_step_error",
+      "data": {
+        "workflowId": "806828c5-e425-4d5c-a04e-08fc0a144f01",
+        "stepId": "hero_video",
+        "stepType": "synth_video",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "attempts": 2,
+        "durationMs": 3272,
+        "error": "400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'The number value for `durationSeconds` is out of bound. Please provide a value between 4 and 8, inclusive.', 'status': 'INVALID_ARGUMENT'}}"
+      }
+    },
+    {
+      "t": 69257,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "806828c5-e425-4d5c-a04e-08fc0a144f01",
+        "stepId": "narrative",
+        "stepType": "synth_narrative",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "attempts": 1,
+        "durationMs": 7464,
+        "summary": {
+          "status": "success",
+          "prompts": [
+            "In a brutalist concrete laboratory, a green-skinned botanical humanoid draped in purple orchids stands before a thermal biometric monitor. She slowly turns her head as the withered vine-figures in the glass pods behind her begin to twitch, the cold cyan and violet neon lights reflecting off the sterile floor.",
+            "The tension breaks as the figure in the pink orchid bodysuit lunges forward, pointing an accusing finger at a trembling, wilted yellow floral humanoid. The surrounding plant-hybrid onlookers shift uneasily in the shadows of the lab while the metallic chamber in the background hisses with pressurized steam.",
+            "A holographic screen flickers to life, displaying the biometric vitals of the magenta orchid bio-armor. The camera pans right to reveal a figure in a feathery headpiece cautiously peering out from an open industrial locker, watching the data with a look of desperate urgency amidst the teal and orange glow.",
+            "Armored guards march the tall iris-headed figure, her tattered velvet gown dragging on the concrete, toward a glowing cryogenic pod. In the foreground, a spiky green creature frantically interacts with a terminal, his bioluminescent thermal analysis flashing as the heavy industrial doors begin to seal shut.",
+            "In the cold blue light of the morgue, the orchid-headed figure in black couture stands over her companion, holding the hand of the collapsing fern-headed figure. A massive screen behind them flashes 'TERMINATED' in stark red lettering, casting a macabre glow over the shimmering green silk and the final, still moments of the failed experiment."
+          ]
+        }
+      }
+    },
+    {
+      "t": 69258,
+      "event": "workflow_complete",
+      "data": {
+        "workflowId": "806828c5-e425-4d5c-a04e-08fc0a144f01",
+        "name": "Cinematic Short: A high-drama reality TV romance between anthropomo",
+        "status": "failed",
+        "completedAt": "2026-04-30T21:09:28.030Z",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "totals": {
+          "durationMs": 69258,
+          "completedSteps": 13,
+          "failedSteps": 1,
+          "skippedSteps": 0
+        },
+        "stepResults": [
+          {
+            "id": "plan",
+            "type": "synth_text",
+            "status": "complete"
+          },
+          {
+            "id": "style",
+            "type": "synth_template",
+            "status": "success",
+            "template": {
+              "promptTemplate": "Cinematic still from a lethal luxury high-fashion reality TV show: {{plant_characters}} {{dramatic_action}} inside a {{containment_vault}}, captured by {{cinematography}} with {{lethal_lighting}}, striking brutalist botany aesthetic.",
+              "variables": [
+                {
+                  "name": "plant_characters",
+                  "feature_name": "Plant Cast",
+                  "values": [
+                    {
+                      "text": "high-fashion orchids draped in spiked obsidian jewelry",
+                      "weight": 3
+                    },
+                    {
+                      "text": "statuesque Monstera with razor-sharp chrome-dipped leaves",
+                      "weight": 3
+                    },
+                    {
+                      "text": "weeping willows tangled in tight silk bondage restraints",
+                      "weight": 3
+                    },
+                    {
+                      "text": "carnivorous pitcher plants wearing glossy latex couture",
+                      "weight": 3
+                    },
+                    {
+                      "text": "bioluminescent nightshades in sheer haute couture organza",
+                      "weight": 2
+                    },
+                    {
+                      "text": "venomous thorny roses with smeared black mascara",
+                      "weight": 2
+                    },
+                    {
+                      "text": "decaying parasitic vines wrapped heavily in gold chains",
+                      "weight": 2
+                    },
+                    {
+                      "text": "a withered bonsai vacuum-sealed inside a glossy cryo-bag",
+                      "weight": 2
+                    },
+                    {
+                      "text": "albino ghost flora radiating toxic iridescent spores",
+                      "weight": 1
+                    },
+                    {
+                      "text": "crystallized succulents scarred with weeping thermal burns",
+                      "weight": 1
+                    }
+                  ]
+                },
+                {
+                  "name": "dramatic_action",
+                  "feature_name": "Reality Drama",
+                  "values": [
+                    {
+                      "text": "passionately kissing and exchanging glowing venomous pollen",
+                      "weight": 3
+                    },
+                    {
+                      "text": "screaming silently behind thick biometric security glass",
+                      "weight": 3
+                    },
+                    {
+                      "text": "whispering a parasitic betrayal into a hidden lapel mic",
+                      "weight": 3
+                    },
+                    {
+                      "text": "weeping iridescent sap during an emotional confessional",
+                      "weight": 3
+                    },
+                    {
+                      "text": "dramatically throwing a crystal glass of acidic fertilizer",
+                      "weight": 2
+                    },
+                    {
+                      "text": "physically choking a rival with tightening strangler fig vines",
+                      "weight": 2
+                    },
+                    {
+                      "text": "slowly wilting under a harsh interrogator's spotlight",
+                      "weight": 2
+                    },
+                    {
+                      "text": "clinically pressing a panicked face against the cryo-chamber wall",
+                      "weight": 2
+                    },
+                    {
+                      "text": "erupting into a toxic victorious bloom of dark petals",
+                      "weight": 1
+                    },
+                    {
+                      "text": "being violently vacuum-sealed alive into the concrete wall",
+                      "weight": 1
+                    }
+                  ]
+                },
+                {
+                  "name": "containment_vault",
+                  "feature_name": "Vault Setting",
+                  "values": [
+                    {
+                      "text": "sterile brutalist concrete underground bunker",
+                      "weight": 3
+                    },
+                    {
+                      "text": "claustrophobic high-end luxury panic room",
+                      "weight": 3
+                    },
+                    {
+                      "text": "cold cryogenic seed-bank isolation block",
+                      "weight": 3
+                    },
+                    {
+                      "text": "brutalist concrete amphitheater with one-way mirrored walls",
+                      "weight": 3
+                    },
+                    {
+                      "text": "high-security botanical containment cell",
+                      "weight": 2
+                    },
+                    {
+                      "text": "stark reality TV confessional booth lined with lead panels",
+                      "weight": 2
+                    },
+                    {
+                      "text": "clinical morgue-like vault with frosted glass doors",
+                      "weight": 2
+                    },
+                    {
+                      "text": "dark concrete hallway illuminated by scattered emergency flares",
+                      "weight": 2
+                    },
+                    {
+                      "text": "flooded brutalist chamber filled with floating couture garments",
+                      "weight": 1
+                    },
+                    {
+                      "text": "endless geometric grid of vacuum-sealed plant graves",
+                      "weight": 1
+                    }
+                  ]
+                },
+                {
+                  "name": "cinematography",
+                  "feature_name": "Camera Style",
+                  "values": [
+                    {
+                      "text": "an extreme close-up reality TV confessional shot",
+                      "weight": 3
+                    },
+                    {
+                      "text": "a wide dramatic cinematic establishing shot",
+                      "weight": 3
+                    },
+                    {
+                      "text": "a hidden fisheye security camera perspective",
+                      "weight": 3
+                    },
+                    {
+                      "text": "a clinical top-down medical surveillance view",
+                      "weight": 3
+                    },
+                    {
+                      "text": "a handheld shaky-cam documentary style angle",
+                      "weight": 2
+                    },
+                    {
+                      "text": "a high-fashion editorial magazine layout composition",
+                      "weight": 2
+                    },
+                    {
+                      "text": "a voyeuristic long-lens shot through observation glass",
+                      "weight": 2
+                    },
+                    {
+                      "text": "an aggressive low-angle wide focal length power shot",
+                      "weight": 2
+                    },
+                    {
+                      "text": "a glitching biometric thermal night-vision feed",
+                      "weight": 1
+                    },
+                    {
+                      "text": "a slow-motion macro shot emphasizing tearing plant tissue",
+                      "weight": 1
+                    }
+                  ]
+                },
+                {
+                  "name": "lethal_lighting",
+                  "feature_name": "Lethal Lighting",
+                  "values": [
+                    {
+                      "text": "harsh biometric UV thermal scan lighting",
+                      "weight": 3
+                    },
+                    {
+                      "text": "glossy high-end studio ring light glare",
+                      "weight": 3
+                    },
+                    {
+                      "text": "oppressive flickering fluorescent hospital lights",
+                      "weight": 3
+                    },
+                    {
+                      "text": "cold blue cryogenic ambient shadow-casting glow",
+                      "weight": 3
+                    },
+                    {
+                      "text": "stark dramatic chiaroscuro with pitch black shadows",
+                      "weight": 2
+                    },
+                    {
+                      "text": "sickly neon green radioactive toxicity illumination",
+                      "weight": 2
+                    },
+                    {
+                      "text": "clinical white shadowless operating room lights",
+                      "weight": 2
+                    },
+                    {
+                      "text": "warm but deceptive artificial golden hour simulation lights",
+                      "weight": 2
+                    },
+                    {
+                      "text": "a blinding paparazzi flash photography burst",
+                      "weight": 1
+                    },
+                    {
+                      "text": "pitch darkness pierced only by glowing bioluminescent sap",
+                      "weight": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "id": "scene0",
+            "type": "synth_image",
+            "status": "success",
+            "mediaId": "f037f887-e32f-40b0-ae7c-22f3df9deda1",
+            "mediaType": "image"
+          },
+          {
+            "id": "scene1",
+            "type": "synth_image",
+            "status": "success",
+            "mediaId": "e1fbef92-3a50-4d95-aa3e-eb52c7f34277",
+            "mediaType": "image"
+          },
+          {
+            "id": "scene2",
+            "type": "synth_image",
+            "status": "success",
+            "mediaId": "d13ed6b9-be6b-4c53-9f6b-03c1c6d1a9f2",
+            "mediaType": "image"
+          },
+          {
+            "id": "scene3",
+            "type": "synth_image",
+            "status": "success",
+            "mediaId": "8cafbe3b-e6ec-4ce2-a716-f859c6fbe391",
+            "mediaType": "image"
+          },
+          {
+            "id": "scene4",
+            "type": "synth_image",
+            "status": "success",
+            "mediaId": "db064dca-9cc1-480c-a537-3781fd54b3e4",
+            "mediaType": "image"
+          },
+          {
+            "id": "desc0",
+            "type": "synth_analyze",
+            "status": "success"
+          },
+          {
+            "id": "desc1",
+            "type": "synth_analyze",
+            "status": "success"
+          },
+          {
+            "id": "desc2",
+            "type": "synth_analyze",
+            "status": "success"
+          },
+          {
+            "id": "desc3",
+            "type": "synth_analyze",
+            "status": "success"
+          },
+          {
+            "id": "desc4",
+            "type": "synth_analyze",
+            "status": "success"
+          },
+          {
+            "id": "narrative",
+            "type": "synth_narrative",
+            "status": "success",
+            "prompts": [
+              "In a brutalist concrete laboratory, a green-skinned botanical humanoid draped in purple orchids stands before a thermal biometric monitor. She slowly turns her head as the withered vine-figures in the glass pods behind her begin to twitch, the cold cyan and violet neon lights reflecting off the sterile floor.",
+              "The tension breaks as the figure in the pink orchid bodysuit lunges forward, pointing an accusing finger at a trembling, wilted yellow floral humanoid. The surrounding plant-hybrid onlookers shift uneasily in the shadows of the lab while the metallic chamber in the background hisses with pressurized steam.",
+              "A holographic screen flickers to life, displaying the biometric vitals of the magenta orchid bio-armor. The camera pans right to reveal a figure in a feathery headpiece cautiously peering out from an open industrial locker, watching the data with a look of desperate urgency amidst the teal and orange glow.",
+              "Armored guards march the tall iris-headed figure, her tattered velvet gown dragging on the concrete, toward a glowing cryogenic pod. In the foreground, a spiky green creature frantically interacts with a terminal, his bioluminescent thermal analysis flashing as the heavy industrial doors begin to seal shut.",
+              "In the cold blue light of the morgue, the orchid-headed figure in black couture stands over her companion, holding the hand of the collapsing fern-headed figure. A massive screen behind them flashes 'TERMINATED' in stark red lettering, casting a macabre glow over the shimmering green silk and the final, still moments of the failed experiment."
+            ]
+          },
+          {
+            "id": "hero_video",
+            "type": "synth_video",
+            "status": "failed"
+          }
+        ]
+      }
+    }
+  ]
+}

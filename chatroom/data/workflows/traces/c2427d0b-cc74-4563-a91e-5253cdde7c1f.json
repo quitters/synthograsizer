@@ -1,0 +1,170 @@
+{
+  "workflowId": "c2427d0b-cc74-4563-a91e-5253cdde7c1f",
+  "name": "Procedural Botany Sandbox - Spin 01",
+  "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+  "agentName": "Theo Nakamura",
+  "agentColor": "#4ECDC4",
+  "sessionId": "c85d5173-41d1-4e1e-ab57-bc3e3a077616",
+  "messageId": null,
+  "startedAt": "2026-04-30T21:15:12.292Z",
+  "completedAt": "2026-04-30T21:16:15.296Z",
+  "status": "failed",
+  "totals": {
+    "durationMs": 63004,
+    "costUsd": 0,
+    "completedSteps": 0,
+    "failedSteps": 1
+  },
+  "steps": {
+    "sandbox_story": {
+      "id": "sandbox_story",
+      "type": "synth_story",
+      "dependsOn": [],
+      "status": "failed",
+      "startedMs": 1,
+      "completedMs": 63004,
+      "durationMs": 63003,
+      "inputs": {
+        "description": "A highly dramatic, silent reality-TV storyboard set in a pristine, pastel mint-green brutalist botanical containment center. Generate a scandalous romantic betrayal, a hypnotic fluid exchange, and a cryogenic elimination featuring random, highly sensual anthropomorphic flora with dripping Georgia O'Keeffe style anatomy in 1950s silhouettes."
+      },
+      "outputSummary": null,
+      "error": "This operation was aborted",
+      "attempts": 1,
+      "costUsd": 0,
+      "lastRetryError": "This operation was aborted"
+    },
+    "sandbox_hero": {
+      "id": "sandbox_hero",
+      "type": "synth_image",
+      "dependsOn": [
+        "sandbox_story"
+      ],
+      "status": "pending",
+      "startedMs": null,
+      "completedMs": null,
+      "durationMs": null,
+      "inputs": null,
+      "outputSummary": null,
+      "error": null,
+      "attempts": 0,
+      "costUsd": 0
+    }
+  },
+  "events": [
+    {
+      "t": 0,
+      "event": "workflow_start",
+      "data": {
+        "workflowId": "c2427d0b-cc74-4563-a91e-5253cdde7c1f",
+        "name": "Procedural Botany Sandbox - Spin 01",
+        "stepCount": 2,
+        "steps": [
+          {
+            "id": "sandbox_story",
+            "type": "synth_story",
+            "dependsOn": []
+          },
+          {
+            "id": "sandbox_hero",
+            "type": "synth_image",
+            "dependsOn": [
+              "sandbox_story"
+            ]
+          }
+        ],
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "agentName": "Theo Nakamura",
+        "agentColor": "#4ECDC4",
+        "sessionId": "c85d5173-41d1-4e1e-ab57-bc3e3a077616",
+        "messageId": null
+      }
+    },
+    {
+      "t": 1,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "c2427d0b-cc74-4563-a91e-5253cdde7c1f",
+        "stepId": "sandbox_story",
+        "stepType": "synth_story",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "dependsOn": [],
+        "inputs": {
+          "description": "A highly dramatic, silent reality-TV storyboard set in a pristine, pastel mint-green brutalist botanical containment center. Generate a scandalous romantic betrayal, a hypnotic fluid exchange, and a cryogenic elimination featuring random, highly sensual anthropomorphic flora with dripping Georgia O'Keeffe style anatomy in 1950s silhouettes."
+        }
+      }
+    },
+    {
+      "t": 2,
+      "event": "workflow_submitted",
+      "data": {
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "workflowId": "c2427d0b-cc74-4563-a91e-5253cdde7c1f",
+        "workflowName": "Procedural Botany Sandbox - Spin 01",
+        "stepCount": 2,
+        "steps": [
+          {
+            "id": "sandbox_story",
+            "type": "synth_story"
+          },
+          {
+            "id": "sandbox_hero",
+            "type": "synth_image"
+          }
+        ]
+      }
+    },
+    {
+      "t": 30002,
+      "event": "workflow_step_retry",
+      "data": {
+        "workflowId": "c2427d0b-cc74-4563-a91e-5253cdde7c1f",
+        "stepId": "sandbox_story",
+        "stepType": "synth_story",
+        "attempt": 1,
+        "error": "This operation was aborted"
+      }
+    },
+    {
+      "t": 63004,
+      "event": "workflow_step_error",
+      "data": {
+        "workflowId": "c2427d0b-cc74-4563-a91e-5253cdde7c1f",
+        "stepId": "sandbox_story",
+        "stepType": "synth_story",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "attempts": 2,
+        "durationMs": 63003,
+        "error": "This operation was aborted"
+      }
+    },
+    {
+      "t": 63004,
+      "event": "workflow_complete",
+      "data": {
+        "workflowId": "c2427d0b-cc74-4563-a91e-5253cdde7c1f",
+        "name": "Procedural Botany Sandbox - Spin 01",
+        "status": "failed",
+        "completedAt": "2026-04-30T21:16:15.296Z",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "totals": {
+          "durationMs": 63004,
+          "completedSteps": 0,
+          "failedSteps": 1,
+          "skippedSteps": 0
+        },
+        "stepResults": [
+          {
+            "id": "sandbox_story",
+            "type": "synth_story",
+            "status": "failed"
+          },
+          {
+            "id": "sandbox_hero",
+            "type": "synth_image",
+            "status": "pending"
+          }
+        ]
+      }
+    }
+  ]
+}

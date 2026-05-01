@@ -1,0 +1,1499 @@
+{
+  "workflowId": "7546cf0b-6228-447f-be31-1129c647e1db",
+  "name": "Cinematic Short: A voluptuous Pitcher Plant femme fatale slowly dig",
+  "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+  "agentName": "Theo Nakamura",
+  "agentColor": "#4ECDC4",
+  "sessionId": "c85d5173-41d1-4e1e-ab57-bc3e3a077616",
+  "messageId": null,
+  "startedAt": "2026-04-30T21:11:59.200Z",
+  "completedAt": "2026-04-30T21:13:29.336Z",
+  "status": "failed",
+  "totals": {
+    "durationMs": 90135,
+    "costUsd": 0.122,
+    "completedSteps": 5,
+    "failedSteps": 1
+  },
+  "steps": {
+    "plan": {
+      "id": "plan",
+      "type": "synth_text",
+      "dependsOn": [],
+      "status": "complete",
+      "startedMs": 0,
+      "completedMs": 20208,
+      "durationMs": 20208,
+      "inputs": {
+        "prompt": "You are a film director planning a short film. Concept: \"A voluptuous Pitcher Plant femme fatale slowly digesting her partner on a perfectly symmetrical pastel mustard sofa, thick nectar dripping, deadpan 1950s etiquette, hyper-tactile ASMR atmosphere\". Mood: hypnotic and uncomfortably erotic.\nPlan exactly 4 scenes. For each scene, write a vivid image generation prompt (2-3 sentences) describing the visual.\nOutput ONLY a JSON array of strings, one prompt per scene. Example: [\"scene 1 prompt\", \"scene 2 prompt\"]"
+      },
+      "outputSummary": {},
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.001,
+      "chunks": 15,
+      "lastChunk": " hypnotic vintage glow, emphasizing the hyper-tactile, sticky textures of the heavy syrup pooling perfectly at her feet.\"\n]"
+    },
+    "style": {
+      "id": "style",
+      "type": "synth_template",
+      "dependsOn": [],
+      "status": "complete",
+      "startedMs": 1,
+      "completedMs": 27130,
+      "durationMs": 27129,
+      "inputs": {
+        "description": "hypnotic and uncomfortably erotic visual style for a short film about: A voluptuous Pitcher Plant femme fatale slowly digesting her partner on a perfectly symmetrical pastel mustard sofa, thick nectar dripping, deadpan 1950s etiquette, hyper-tactile ASMR atmosphere",
+        "mode": "text"
+      },
+      "outputSummary": {
+        "status": "success",
+        "template": {
+          "promptTemplate": "A visually hypnotic and uncomfortably erotic still from a short film featuring a voluptuous Pitcher Plant femme fatale with {{plant_anatomy}}, wearing {{period_detail}}. She is sitting on a perfectly symmetrical pastel mustard sofa, slowly digesting her partner who is {{partner_state}}, while {{nectar_texture}} drips down. Captured with {{camera_style}} in a {{lighting_mood}}, evoking a hyper-tactile ASMR atmosphere and deadpan 1950s etiquette.",
+          "variables": [
+            {
+              "name": "plant_anatomy",
+              "feature_name": "Plant Anatomy",
+              "values": [
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]"
+              ]
+            },
+            {
+              "name": "period_detail",
+              "feature_name": "1950s Detail",
+              "values": [
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]"
+              ]
+            },
+            {
+              "name": "partner_state",
+              "feature_name": "Partner State",
+              "values": [
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]"
+              ]
+            },
+            {
+              "name": "nectar_texture",
+              "feature_name": "Nectar Texture",
+              "values": [
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]"
+              ]
+            },
+            {
+              "name": "camera_style",
+              "feature_name": "Camera Style",
+              "values": [
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]"
+              ]
+            },
+            {
+              "name": "lighting_mood",
+              "feature_name": "Lighting Mood",
+              "values": [
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]"
+              ]
+            }
+          ]
+        }
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.001
+    },
+    "scene0": {
+      "id": "scene0",
+      "type": "synth_image",
+      "dependsOn": [
+        "plan",
+        "style"
+      ],
+      "status": "failed",
+      "startedMs": 27130,
+      "completedMs": 90135,
+      "durationMs": 63005,
+      "inputs": {
+        "prompt": "Scene 1 of 4 from a hypnotic and uncomfortably erotic short film: A voluptuous Pitcher Plant femme fatale slowly digesting her partner on a perfectly symmetrical pastel mustard sofa, thick nectar dripping, deadpan 1950s etiquette, hyper-tactile ASMR atmosphere. A visually hypnotic and uncomfortably erotic still from a short film featuring a voluptuous Pitcher Plant femme fatale with {{plant_anatomy}}, wearing {{period_detail}}. She is sitting on a perfectly symmetrical pastel mustard sofa, slowly digesting her partner who is {{partner_state}}, while {{nectar_texture}} drips down. Captured with {{camera_style}} in a {{lighting_mood}}, evoking a hyper-tactile ASMR atmosphere and deadpan 1950s etiquette.",
+        "aspect_ratio": "16:9"
+      },
+      "outputSummary": null,
+      "error": "This operation was aborted",
+      "attempts": 1,
+      "costUsd": 0,
+      "lastRetryError": "This operation was aborted"
+    },
+    "scene1": {
+      "id": "scene1",
+      "type": "synth_image",
+      "dependsOn": [
+        "plan",
+        "style"
+      ],
+      "status": "complete",
+      "startedMs": 27131,
+      "completedMs": 45300,
+      "durationMs": 18169,
+      "inputs": {
+        "prompt": "Scene 2 of 4 from a hypnotic and uncomfortably erotic short film: A voluptuous Pitcher Plant femme fatale slowly digesting her partner on a perfectly symmetrical pastel mustard sofa, thick nectar dripping, deadpan 1950s etiquette, hyper-tactile ASMR atmosphere. A visually hypnotic and uncomfortably erotic still from a short film featuring a voluptuous Pitcher Plant femme fatale with {{plant_anatomy}}, wearing {{period_detail}}. She is sitting on a perfectly symmetrical pastel mustard sofa, slowly digesting her partner who is {{partner_state}}, while {{nectar_texture}} drips down. Captured with {{camera_style}} in a {{lighting_mood}}, evoking a hyper-tactile ASMR atmosphere and deadpan 1950s etiquette.",
+        "aspect_ratio": "16:9"
+      },
+      "outputSummary": {
+        "status": "success",
+        "mediaId": "9c14c621-eb05-47b1-96ed-d8e3322fa3d0",
+        "mediaType": "image"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.04,
+      "lastRetryError": "Image generation failed: No image found in Gemini response (finish_reasons=['FinishReason.NO_IMAGE'])"
+    },
+    "scene2": {
+      "id": "scene2",
+      "type": "synth_image",
+      "dependsOn": [
+        "plan",
+        "style"
+      ],
+      "status": "complete",
+      "startedMs": 27131,
+      "completedMs": 41739,
+      "durationMs": 14608,
+      "inputs": {
+        "prompt": "Scene 3 of 4 from a hypnotic and uncomfortably erotic short film: A voluptuous Pitcher Plant femme fatale slowly digesting her partner on a perfectly symmetrical pastel mustard sofa, thick nectar dripping, deadpan 1950s etiquette, hyper-tactile ASMR atmosphere. A visually hypnotic and uncomfortably erotic still from a short film featuring a voluptuous Pitcher Plant femme fatale with {{plant_anatomy}}, wearing {{period_detail}}. She is sitting on a perfectly symmetrical pastel mustard sofa, slowly digesting her partner who is {{partner_state}}, while {{nectar_texture}} drips down. Captured with {{camera_style}} in a {{lighting_mood}}, evoking a hyper-tactile ASMR atmosphere and deadpan 1950s etiquette.",
+        "aspect_ratio": "16:9"
+      },
+      "outputSummary": {
+        "status": "success",
+        "mediaId": "a03fa270-ceb0-47a5-9380-24c7d83a88ec",
+        "mediaType": "image"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.04
+    },
+    "scene3": {
+      "id": "scene3",
+      "type": "synth_image",
+      "dependsOn": [
+        "plan",
+        "style"
+      ],
+      "status": "complete",
+      "startedMs": 27132,
+      "completedMs": 54841,
+      "durationMs": 27709,
+      "inputs": {
+        "prompt": "Scene 4 of 4 from a hypnotic and uncomfortably erotic short film: A voluptuous Pitcher Plant femme fatale slowly digesting her partner on a perfectly symmetrical pastel mustard sofa, thick nectar dripping, deadpan 1950s etiquette, hyper-tactile ASMR atmosphere. A visually hypnotic and uncomfortably erotic still from a short film featuring a voluptuous Pitcher Plant femme fatale with {{plant_anatomy}}, wearing {{period_detail}}. She is sitting on a perfectly symmetrical pastel mustard sofa, slowly digesting her partner who is {{partner_state}}, while {{nectar_texture}} drips down. Captured with {{camera_style}} in a {{lighting_mood}}, evoking a hyper-tactile ASMR atmosphere and deadpan 1950s etiquette.",
+        "aspect_ratio": "16:9"
+      },
+      "outputSummary": {
+        "status": "success",
+        "mediaId": "01d0c58d-eaef-42d6-9e48-c4a3c434dc88",
+        "mediaType": "image"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.04
+    },
+    "desc0": {
+      "id": "desc0",
+      "type": "synth_analyze",
+      "dependsOn": [
+        "scene0"
+      ],
+      "status": "pending",
+      "startedMs": null,
+      "completedMs": null,
+      "durationMs": null,
+      "inputs": null,
+      "outputSummary": null,
+      "error": null,
+      "attempts": 0,
+      "costUsd": 0
+    },
+    "desc1": {
+      "id": "desc1",
+      "type": "synth_analyze",
+      "dependsOn": [
+        "scene1"
+      ],
+      "status": "pending",
+      "startedMs": null,
+      "completedMs": null,
+      "durationMs": null,
+      "inputs": null,
+      "outputSummary": null,
+      "error": null,
+      "attempts": 0,
+      "costUsd": 0
+    },
+    "desc2": {
+      "id": "desc2",
+      "type": "synth_analyze",
+      "dependsOn": [
+        "scene2"
+      ],
+      "status": "pending",
+      "startedMs": null,
+      "completedMs": null,
+      "durationMs": null,
+      "inputs": null,
+      "outputSummary": null,
+      "error": null,
+      "attempts": 0,
+      "costUsd": 0
+    },
+    "desc3": {
+      "id": "desc3",
+      "type": "synth_analyze",
+      "dependsOn": [
+        "scene3"
+      ],
+      "status": "pending",
+      "startedMs": null,
+      "completedMs": null,
+      "durationMs": null,
+      "inputs": null,
+      "outputSummary": null,
+      "error": null,
+      "attempts": 0,
+      "costUsd": 0
+    },
+    "narrative": {
+      "id": "narrative",
+      "type": "synth_narrative",
+      "dependsOn": [
+        "desc0",
+        "desc1",
+        "desc2",
+        "desc3"
+      ],
+      "status": "pending",
+      "startedMs": null,
+      "completedMs": null,
+      "durationMs": null,
+      "inputs": null,
+      "outputSummary": null,
+      "error": null,
+      "attempts": 0,
+      "costUsd": 0
+    },
+    "hero_video": {
+      "id": "hero_video",
+      "type": "synth_video",
+      "dependsOn": [
+        "desc0"
+      ],
+      "status": "pending",
+      "startedMs": null,
+      "completedMs": null,
+      "durationMs": null,
+      "inputs": null,
+      "outputSummary": null,
+      "error": null,
+      "attempts": 0,
+      "costUsd": 0
+    }
+  },
+  "events": [
+    {
+      "t": 0,
+      "event": "workflow_start",
+      "data": {
+        "workflowId": "7546cf0b-6228-447f-be31-1129c647e1db",
+        "name": "Cinematic Short: A voluptuous Pitcher Plant femme fatale slowly dig",
+        "stepCount": 12,
+        "steps": [
+          {
+            "id": "plan",
+            "type": "synth_text",
+            "dependsOn": []
+          },
+          {
+            "id": "style",
+            "type": "synth_template",
+            "dependsOn": []
+          },
+          {
+            "id": "scene0",
+            "type": "synth_image",
+            "dependsOn": [
+              "plan",
+              "style"
+            ]
+          },
+          {
+            "id": "scene1",
+            "type": "synth_image",
+            "dependsOn": [
+              "plan",
+              "style"
+            ]
+          },
+          {
+            "id": "scene2",
+            "type": "synth_image",
+            "dependsOn": [
+              "plan",
+              "style"
+            ]
+          },
+          {
+            "id": "scene3",
+            "type": "synth_image",
+            "dependsOn": [
+              "plan",
+              "style"
+            ]
+          },
+          {
+            "id": "desc0",
+            "type": "synth_analyze",
+            "dependsOn": [
+              "scene0"
+            ]
+          },
+          {
+            "id": "desc1",
+            "type": "synth_analyze",
+            "dependsOn": [
+              "scene1"
+            ]
+          },
+          {
+            "id": "desc2",
+            "type": "synth_analyze",
+            "dependsOn": [
+              "scene2"
+            ]
+          },
+          {
+            "id": "desc3",
+            "type": "synth_analyze",
+            "dependsOn": [
+              "scene3"
+            ]
+          },
+          {
+            "id": "narrative",
+            "type": "synth_narrative",
+            "dependsOn": [
+              "desc0",
+              "desc1",
+              "desc2",
+              "desc3"
+            ]
+          },
+          {
+            "id": "hero_video",
+            "type": "synth_video",
+            "dependsOn": [
+              "desc0"
+            ]
+          }
+        ],
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "agentName": "Theo Nakamura",
+        "agentColor": "#4ECDC4",
+        "sessionId": "c85d5173-41d1-4e1e-ab57-bc3e3a077616",
+        "messageId": null
+      }
+    },
+    {
+      "t": 0,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "7546cf0b-6228-447f-be31-1129c647e1db",
+        "stepId": "plan",
+        "stepType": "synth_text",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "dependsOn": [],
+        "inputs": {
+          "prompt": "You are a film director planning a short film. Concept: \"A voluptuous Pitcher Plant femme fatale slowly digesting her partner on a perfectly symmetrical pastel mustard sofa, thick nectar dripping, deadpan 1950s etiquette, hyper-tactile ASMR atmosphere\". Mood: hypnotic and uncomfortably erotic.\nPlan exactly 4 scenes. For each scene, write a vivid image generation prompt (2-3 sentences) describing the visual.\nOutput ONLY a JSON array of strings, one prompt per scene. Example: [\"scene 1 prompt\", \"scene 2 prompt\"]"
+        }
+      }
+    },
+    {
+      "t": 1,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "7546cf0b-6228-447f-be31-1129c647e1db",
+        "stepId": "style",
+        "stepType": "synth_template",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "dependsOn": [],
+        "inputs": {
+          "description": "hypnotic and uncomfortably erotic visual style for a short film about: A voluptuous Pitcher Plant femme fatale slowly digesting her partner on a perfectly symmetrical pastel mustard sofa, thick nectar dripping, deadpan 1950s etiquette, hyper-tactile ASMR atmosphere",
+          "mode": "text"
+        }
+      }
+    },
+    {
+      "t": 1,
+      "event": "workflow_submitted",
+      "data": {
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "agentName": "Theo Nakamura",
+        "agentColor": "#4ECDC4",
+        "sessionId": "c85d5173-41d1-4e1e-ab57-bc3e3a077616",
+        "workflowId": "7546cf0b-6228-447f-be31-1129c647e1db",
+        "workflowName": "Cinematic Short: A voluptuous Pitcher Plant femme fatale slowly dig",
+        "templateId": "cinematic_short",
+        "stepCount": 12,
+        "steps": [
+          {
+            "id": "plan",
+            "type": "synth_text"
+          },
+          {
+            "id": "style",
+            "type": "synth_template"
+          },
+          {
+            "id": "scene0",
+            "type": "synth_image"
+          },
+          {
+            "id": "scene1",
+            "type": "synth_image"
+          },
+          {
+            "id": "scene2",
+            "type": "synth_image"
+          },
+          {
+            "id": "scene3",
+            "type": "synth_image"
+          },
+          {
+            "id": "desc0",
+            "type": "synth_analyze"
+          },
+          {
+            "id": "desc1",
+            "type": "synth_analyze"
+          },
+          {
+            "id": "desc2",
+            "type": "synth_analyze"
+          },
+          {
+            "id": "desc3",
+            "type": "synth_analyze"
+          },
+          {
+            "id": "narrative",
+            "type": "synth_narrative"
+          },
+          {
+            "id": "hero_video",
+            "type": "synth_video"
+          }
+        ]
+      }
+    },
+    {
+      "t": 18042,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "7546cf0b-6228-447f-be31-1129c647e1db",
+        "stepId": "plan",
+        "text": "[\n  \"A perfectly symmetrical wide shot of a voluptuous Pitcher Plant femme fatale sitting upright on"
+      }
+    },
+    {
+      "t": 18182,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "7546cf0b-6228-447f-be31-1129c647e1db",
+        "stepId": "plan",
+        "text": " a pastel mustard velvet sofa in a retro 1950s living room. She wears a classic pearl necklace and a deadpan"
+      }
+    },
+    {
+      "t": 18317,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "7546cf0b-6228-447f-be31-1129c647e1db",
+        "stepId": "plan",
+        "text": " expression, while her bulbous, fleshy botanical lower half slowly engulfs the torso of a man in a tailored suit."
+      }
+    },
+    {
+      "t": 18451,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "7546cf0b-6228-447f-be31-1129c647e1db",
+        "stepId": "plan",
+        "text": " Thick, translucent pink nectar drips from her petal-lips onto the pristine upholstery, creating a hyper-tactile, glossy"
+      }
+    },
+    {
+      "t": 18584,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "7546cf0b-6228-447f-be31-1129c647e1db",
+        "stepId": "plan",
+        "text": " sheen.\",\n  \"An extreme macro, ASMR-focused close-up of her vibrant botanical curves and the man"
+      }
+    },
+    {
+      "t": 18711,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "7546cf0b-6228-447f-be31-1129c647e1db",
+        "stepId": "plan",
+        "text": "'s dissolving body pressed together in a sticky, hypnotic embrace. Viscous, honey-like digestive enzymes ooze slowly"
+      }
+    },
+    {
+      "t": 18891,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "7546cf0b-6228-447f-be31-1129c647e1db",
+        "stepId": "plan",
+        "text": " over wet plant-flesh, catching the warm, uncomfortably erotic cinematic lighting. In the soft-focus background"
+      }
+    },
+    {
+      "t": 19020,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "7546cf0b-6228-447f-be31-1129c647e1db",
+        "stepId": "plan",
+        "text": ", her elegantly manicured human hand calmly sets a delicate porcelain teacup onto a matching pastel mustard saucer.\",\n  \"A medium shot of the"
+      }
+    },
+    {
+      "t": 19161,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "7546cf0b-6228-447f-be31-1129c647e1db",
+        "stepId": "plan",
+        "text": " femme fatale staring directly into the lens with a stoic 1950s housewife gaze, her voluptuous"
+      }
+    },
+    {
+      "t": 19329,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "7546cf0b-6228-447f-be31-1129c647e1db",
+        "stepId": "plan",
+        "text": " pitcher-body glowing softly from the inside. Within her translucent, veiny stomach-pouch, the silhouette of her partner is peacefully dissolving into"
+      }
+    },
+    {
+      "t": 19457,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "7546cf0b-6228-447f-be31-1129c647e1db",
+        "stepId": "plan",
+        "text": " a shimmering, viscous golden syrup. Glistening tendrils stroke his remaining arm with unsettling tenderness as thick beads of nectar cascade"
+      }
+    },
+    {
+      "t": 19635,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "7546cf0b-6228-447f-be31-1129c647e1db",
+        "stepId": "plan",
+        "text": " down the symmetrical sofa cushions.\",\n  \"A flawlessly symmetrical shot focusing on the femme fatale lounging comfortably on the pastel mustard sofa,"
+      }
+    },
+    {
+      "t": 19834,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "7546cf0b-6228-447f-be31-1129c647e1db",
+        "stepId": "plan",
+        "text": " with only a single polished men's oxford shoe protruding from her glossy carnivorous bloom. She delicately dabs her wet, nectar-stained lips"
+      }
+    },
+    {
+      "t": 20008,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "7546cf0b-6228-447f-be31-1129c647e1db",
+        "stepId": "plan",
+        "text": " with a pristine lace napkin, maintaining an impeccably polite and unbothered posture. The room is bathed in a"
+      }
+    },
+    {
+      "t": 20200,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "7546cf0b-6228-447f-be31-1129c647e1db",
+        "stepId": "plan",
+        "text": " hypnotic vintage glow, emphasizing the hyper-tactile, sticky textures of the heavy syrup pooling perfectly at her feet.\"\n]"
+      }
+    },
+    {
+      "t": 20208,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "7546cf0b-6228-447f-be31-1129c647e1db",
+        "stepId": "plan",
+        "stepType": "synth_text",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "attempts": 1,
+        "durationMs": 20208,
+        "summary": {}
+      }
+    },
+    {
+      "t": 27130,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "7546cf0b-6228-447f-be31-1129c647e1db",
+        "stepId": "style",
+        "stepType": "synth_template",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "attempts": 1,
+        "durationMs": 27129,
+        "summary": {
+          "status": "success",
+          "template": {
+            "promptTemplate": "A visually hypnotic and uncomfortably erotic still from a short film featuring a voluptuous Pitcher Plant femme fatale with {{plant_anatomy}}, wearing {{period_detail}}. She is sitting on a perfectly symmetrical pastel mustard sofa, slowly digesting her partner who is {{partner_state}}, while {{nectar_texture}} drips down. Captured with {{camera_style}} in a {{lighting_mood}}, evoking a hyper-tactile ASMR atmosphere and deadpan 1950s etiquette.",
+            "variables": [
+              {
+                "name": "plant_anatomy",
+                "feature_name": "Plant Anatomy",
+                "values": [
+                  {
+                    "text": "glistening translucent petals",
+                    "weight": 3
+                  },
+                  {
+                    "text": "throbbing veined botanical curves",
+                    "weight": 3
+                  },
+                  {
+                    "text": "fleshy orchid-like labia",
+                    "weight": 2
+                  },
+                  {
+                    "text": "dew-covered velvety sepals",
+                    "weight": 3
+                  },
+                  {
+                    "text": "pulsating neon-veined pitcher rims",
+                    "weight": 2
+                  },
+                  {
+                    "text": "plump flushed botanical lips",
+                    "weight": 3
+                  },
+                  {
+                    "text": "slick carnivorous peristome ridges",
+                    "weight": 2
+                  },
+                  {
+                    "text": "iridescent wet stigma hoods",
+                    "weight": 1
+                  },
+                  {
+                    "text": "supple engorged leaf-flesh",
+                    "weight": 3
+                  },
+                  {
+                    "text": "quivering biomimetic tentacles",
+                    "weight": 1
+                  }
+                ]
+              },
+              {
+                "name": "period_detail",
+                "feature_name": "1950s Detail",
+                "values": [
+                  {
+                    "text": "a pristine pearl necklace",
+                    "weight": 3
+                  },
+                  {
+                    "text": "tight silk evening gloves",
+                    "weight": 3
+                  },
+                  {
+                    "text": "a perfectly tailored hounds-tooth pencil skirt",
+                    "weight": 3
+                  },
+                  {
+                    "text": "impeccable vintage cat-eye glasses",
+                    "weight": 2
+                  },
+                  {
+                    "text": "a sheer mid-century grieving veil",
+                    "weight": 2
+                  },
+                  {
+                    "text": "starched lace tea-party frills",
+                    "weight": 3
+                  },
+                  {
+                    "text": "a stiff crinoline petticoat",
+                    "weight": 3
+                  },
+                  {
+                    "text": "an uncomfortable restricting 1950s corset",
+                    "weight": 2
+                  },
+                  {
+                    "text": "a delicate pillbox hat with netting",
+                    "weight": 1
+                  },
+                  {
+                    "text": "a neat gingham apron over botanical flesh",
+                    "weight": 1
+                  }
+                ]
+              },
+              {
+                "name": "partner_state",
+                "feature_name": "Partner State",
+                "values": [
+                  {
+                    "text": "sinking into viscous botanical folds",
+                    "weight": 3
+                  },
+                  {
+                    "text": "submitting with a polite vacant smile",
+                    "weight": 3
+                  },
+                  {
+                    "text": "half-dissolved in a tailored tuxedo",
+                    "weight": 2
+                  },
+                  {
+                    "text": "politely sipping tea while melting",
+                    "weight": 2
+                  },
+                  {
+                    "text": "gently dissolving into sweet organic mush",
+                    "weight": 3
+                  },
+                  {
+                    "text": "stoically accepting their acidic embrace",
+                    "weight": 3
+                  },
+                  {
+                    "text": "wrapped in suffocating soft tendrils",
+                    "weight": 2
+                  },
+                  {
+                    "text": "blissfully paralyzed and slowly liquefying",
+                    "weight": 1
+                  },
+                  {
+                    "text": "fading into a translucent husked shell",
+                    "weight": 1
+                  },
+                  {
+                    "text": "staring blankly as their limbs decompose",
+                    "weight": 3
+                  }
+                ]
+              },
+              {
+                "name": "nectar_texture",
+                "feature_name": "Nectar Texture",
+                "values": [
+                  {
+                    "text": "thick opalescent digestive fluid",
+                    "weight": 3
+                  },
+                  {
+                    "text": "stringy warm honey-like resin",
+                    "weight": 3
+                  },
+                  {
+                    "text": "heavy glistening pearl drops",
+                    "weight": 3
+                  },
+                  {
+                    "text": "viscous fragrant milky sap",
+                    "weight": 2
+                  },
+                  {
+                    "text": "hyper-detailed bubbling acidic dew",
+                    "weight": 2
+                  },
+                  {
+                    "text": "slow-motion trails of glowing enzymes",
+                    "weight": 1
+                  },
+                  {
+                    "text": "sticky translucent botanical lubrication",
+                    "weight": 3
+                  },
+                  {
+                    "text": "shimmering gelatinous floral slime",
+                    "weight": 2
+                  },
+                  {
+                    "text": "syrupy amber-colored digestive juices",
+                    "weight": 3
+                  },
+                  {
+                    "text": "slick iridescent nectar strands",
+                    "weight": 1
+                  }
+                ]
+              },
+              {
+                "name": "camera_style",
+                "feature_name": "Camera Style",
+                "values": [
+                  {
+                    "text": "a voyeuristic macro close-up",
+                    "weight": 3
+                  },
+                  {
+                    "text": "a deadpan symmetrical Wes Anderson-style wide shot",
+                    "weight": 3
+                  },
+                  {
+                    "text": "a slow creeping dolly zoom",
+                    "weight": 3
+                  },
+                  {
+                    "text": "a clinical deep-focus archival composition",
+                    "weight": 2
+                  },
+                  {
+                    "text": "an uncomfortably intimate extreme macro shot",
+                    "weight": 2
+                  },
+                  {
+                    "text": "a rigid low-angle subjective perspective",
+                    "weight": 3
+                  },
+                  {
+                    "text": "a hypnotic slow-pan tracking shot",
+                    "weight": 2
+                  },
+                  {
+                    "text": "a claustrophobic fish-eye lens distortion",
+                    "weight": 1
+                  },
+                  {
+                    "text": "a perfectly framed split-diopter shot",
+                    "weight": 1
+                  }
+                ]
+              },
+              {
+                "name": "lighting_mood",
+                "feature_name": "Lighting Mood",
+                "values": [
+                  {
+                    "text": "soft pastel mid-century studio lighting",
+                    "weight": 3
+                  },
+                  {
+                    "text": "harsh clinical Technicolor glare",
+                    "weight": 3
+                  },
+                  {
+                    "text": "sultry film noir shadow-play",
+                    "weight": 3
+                  },
+                  {
+                    "text": "dreamy hazy soft-focus glow",
+                    "weight": 3
+                  },
+                  {
+                    "text": "unsettling fluorescent basement hum",
+                    "weight": 2
+                  },
+                  {
+                    "text": "warm buttery golden hour sunlight",
+                    "weight": 2
+                  },
+                  {
+                    "text": "hypnotic bioluminescent internal illumination",
+                    "weight": 1
+                  },
+                  {
+                    "text": "stark high-contrast chiaroscuro",
+                    "weight": 2
+                  },
+                  {
+                    "text": "eerie muted Kodachrome color grading",
+                    "weight": 1
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "t": 27130,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "7546cf0b-6228-447f-be31-1129c647e1db",
+        "stepId": "scene0",
+        "stepType": "synth_image",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "dependsOn": [
+          "plan",
+          "style"
+        ],
+        "inputs": {
+          "prompt": "Scene 1 of 4 from a hypnotic and uncomfortably erotic short film: A voluptuous Pitcher Plant femme fatale slowly digesting her partner on a perfectly symmetrical pastel mustard sofa, thick nectar dripping, deadpan 1950s etiquette, hyper-tactile ASMR atmosphere. A visually hypnotic and uncomfortably erotic still from a short film featuring a voluptuous Pitcher Plant femme fatale with {{plant_anatomy}}, wearing {{period_detail}}. She is sitting on a perfectly symmetrical pastel mustard sofa, slowly digesting her partner who is {{partner_state}}, while {{nectar_texture}} drips down. Captured with {{camera_style}} in a {{lighting_mood}}, evoking a hyper-tactile ASMR atmosphere and deadpan 1950s etiquette.",
+          "aspect_ratio": "16:9"
+        }
+      }
+    },
+    {
+      "t": 27131,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "7546cf0b-6228-447f-be31-1129c647e1db",
+        "stepId": "scene1",
+        "stepType": "synth_image",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "dependsOn": [
+          "plan",
+          "style"
+        ],
+        "inputs": {
+          "prompt": "Scene 2 of 4 from a hypnotic and uncomfortably erotic short film: A voluptuous Pitcher Plant femme fatale slowly digesting her partner on a perfectly symmetrical pastel mustard sofa, thick nectar dripping, deadpan 1950s etiquette, hyper-tactile ASMR atmosphere. A visually hypnotic and uncomfortably erotic still from a short film featuring a voluptuous Pitcher Plant femme fatale with {{plant_anatomy}}, wearing {{period_detail}}. She is sitting on a perfectly symmetrical pastel mustard sofa, slowly digesting her partner who is {{partner_state}}, while {{nectar_texture}} drips down. Captured with {{camera_style}} in a {{lighting_mood}}, evoking a hyper-tactile ASMR atmosphere and deadpan 1950s etiquette.",
+          "aspect_ratio": "16:9"
+        }
+      }
+    },
+    {
+      "t": 27131,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "7546cf0b-6228-447f-be31-1129c647e1db",
+        "stepId": "scene2",
+        "stepType": "synth_image",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "dependsOn": [
+          "plan",
+          "style"
+        ],
+        "inputs": {
+          "prompt": "Scene 3 of 4 from a hypnotic and uncomfortably erotic short film: A voluptuous Pitcher Plant femme fatale slowly digesting her partner on a perfectly symmetrical pastel mustard sofa, thick nectar dripping, deadpan 1950s etiquette, hyper-tactile ASMR atmosphere. A visually hypnotic and uncomfortably erotic still from a short film featuring a voluptuous Pitcher Plant femme fatale with {{plant_anatomy}}, wearing {{period_detail}}. She is sitting on a perfectly symmetrical pastel mustard sofa, slowly digesting her partner who is {{partner_state}}, while {{nectar_texture}} drips down. Captured with {{camera_style}} in a {{lighting_mood}}, evoking a hyper-tactile ASMR atmosphere and deadpan 1950s etiquette.",
+          "aspect_ratio": "16:9"
+        }
+      }
+    },
+    {
+      "t": 27132,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "7546cf0b-6228-447f-be31-1129c647e1db",
+        "stepId": "scene3",
+        "stepType": "synth_image",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "dependsOn": [
+          "plan",
+          "style"
+        ],
+        "inputs": {
+          "prompt": "Scene 4 of 4 from a hypnotic and uncomfortably erotic short film: A voluptuous Pitcher Plant femme fatale slowly digesting her partner on a perfectly symmetrical pastel mustard sofa, thick nectar dripping, deadpan 1950s etiquette, hyper-tactile ASMR atmosphere. A visually hypnotic and uncomfortably erotic still from a short film featuring a voluptuous Pitcher Plant femme fatale with {{plant_anatomy}}, wearing {{period_detail}}. She is sitting on a perfectly symmetrical pastel mustard sofa, slowly digesting her partner who is {{partner_state}}, while {{nectar_texture}} drips down. Captured with {{camera_style}} in a {{lighting_mood}}, evoking a hyper-tactile ASMR atmosphere and deadpan 1950s etiquette.",
+          "aspect_ratio": "16:9"
+        }
+      }
+    },
+    {
+      "t": 29036,
+      "event": "workflow_step_retry",
+      "data": {
+        "workflowId": "7546cf0b-6228-447f-be31-1129c647e1db",
+        "stepId": "scene1",
+        "stepType": "synth_image",
+        "attempt": 1,
+        "error": "Image generation failed: No image found in Gemini response (finish_reasons=['FinishReason.NO_IMAGE'])"
+      }
+    },
+    {
+      "t": 41739,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "7546cf0b-6228-447f-be31-1129c647e1db",
+        "stepId": "scene2",
+        "stepType": "synth_image",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "attempts": 1,
+        "durationMs": 14608,
+        "summary": {
+          "status": "success",
+          "mediaId": "a03fa270-ceb0-47a5-9380-24c7d83a88ec",
+          "mediaType": "image"
+        }
+      }
+    },
+    {
+      "t": 45300,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "7546cf0b-6228-447f-be31-1129c647e1db",
+        "stepId": "scene1",
+        "stepType": "synth_image",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "attempts": 2,
+        "durationMs": 18169,
+        "summary": {
+          "status": "success",
+          "mediaId": "9c14c621-eb05-47b1-96ed-d8e3322fa3d0",
+          "mediaType": "image"
+        }
+      }
+    },
+    {
+      "t": 54841,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "7546cf0b-6228-447f-be31-1129c647e1db",
+        "stepId": "scene3",
+        "stepType": "synth_image",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "attempts": 1,
+        "durationMs": 27709,
+        "summary": {
+          "status": "success",
+          "mediaId": "01d0c58d-eaef-42d6-9e48-c4a3c434dc88",
+          "mediaType": "image"
+        }
+      }
+    },
+    {
+      "t": 57133,
+      "event": "workflow_step_retry",
+      "data": {
+        "workflowId": "7546cf0b-6228-447f-be31-1129c647e1db",
+        "stepId": "scene0",
+        "stepType": "synth_image",
+        "attempt": 1,
+        "error": "This operation was aborted"
+      }
+    },
+    {
+      "t": 90135,
+      "event": "workflow_step_error",
+      "data": {
+        "workflowId": "7546cf0b-6228-447f-be31-1129c647e1db",
+        "stepId": "scene0",
+        "stepType": "synth_image",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "attempts": 2,
+        "durationMs": 63005,
+        "error": "This operation was aborted"
+      }
+    },
+    {
+      "t": 90135,
+      "event": "workflow_complete",
+      "data": {
+        "workflowId": "7546cf0b-6228-447f-be31-1129c647e1db",
+        "name": "Cinematic Short: A voluptuous Pitcher Plant femme fatale slowly dig",
+        "status": "failed",
+        "completedAt": "2026-04-30T21:13:29.336Z",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "totals": {
+          "durationMs": 90136,
+          "completedSteps": 5,
+          "failedSteps": 1,
+          "skippedSteps": 0
+        },
+        "stepResults": [
+          {
+            "id": "plan",
+            "type": "synth_text",
+            "status": "complete"
+          },
+          {
+            "id": "style",
+            "type": "synth_template",
+            "status": "success",
+            "template": {
+              "promptTemplate": "A visually hypnotic and uncomfortably erotic still from a short film featuring a voluptuous Pitcher Plant femme fatale with {{plant_anatomy}}, wearing {{period_detail}}. She is sitting on a perfectly symmetrical pastel mustard sofa, slowly digesting her partner who is {{partner_state}}, while {{nectar_texture}} drips down. Captured with {{camera_style}} in a {{lighting_mood}}, evoking a hyper-tactile ASMR atmosphere and deadpan 1950s etiquette.",
+              "variables": [
+                {
+                  "name": "plant_anatomy",
+                  "feature_name": "Plant Anatomy",
+                  "values": [
+                    {
+                      "text": "glistening translucent petals",
+                      "weight": 3
+                    },
+                    {
+                      "text": "throbbing veined botanical curves",
+                      "weight": 3
+                    },
+                    {
+                      "text": "fleshy orchid-like labia",
+                      "weight": 2
+                    },
+                    {
+                      "text": "dew-covered velvety sepals",
+                      "weight": 3
+                    },
+                    {
+                      "text": "pulsating neon-veined pitcher rims",
+                      "weight": 2
+                    },
+                    {
+                      "text": "plump flushed botanical lips",
+                      "weight": 3
+                    },
+                    {
+                      "text": "slick carnivorous peristome ridges",
+                      "weight": 2
+                    },
+                    {
+                      "text": "iridescent wet stigma hoods",
+                      "weight": 1
+                    },
+                    {
+                      "text": "supple engorged leaf-flesh",
+                      "weight": 3
+                    },
+                    {
+                      "text": "quivering biomimetic tentacles",
+                      "weight": 1
+                    }
+                  ]
+                },
+                {
+                  "name": "period_detail",
+                  "feature_name": "1950s Detail",
+                  "values": [
+                    {
+                      "text": "a pristine pearl necklace",
+                      "weight": 3
+                    },
+                    {
+                      "text": "tight silk evening gloves",
+                      "weight": 3
+                    },
+                    {
+                      "text": "a perfectly tailored hounds-tooth pencil skirt",
+                      "weight": 3
+                    },
+                    {
+                      "text": "impeccable vintage cat-eye glasses",
+                      "weight": 2
+                    },
+                    {
+                      "text": "a sheer mid-century grieving veil",
+                      "weight": 2
+                    },
+                    {
+                      "text": "starched lace tea-party frills",
+                      "weight": 3
+                    },
+                    {
+                      "text": "a stiff crinoline petticoat",
+                      "weight": 3
+                    },
+                    {
+                      "text": "an uncomfortable restricting 1950s corset",
+                      "weight": 2
+                    },
+                    {
+                      "text": "a delicate pillbox hat with netting",
+                      "weight": 1
+                    },
+                    {
+                      "text": "a neat gingham apron over botanical flesh",
+                      "weight": 1
+                    }
+                  ]
+                },
+                {
+                  "name": "partner_state",
+                  "feature_name": "Partner State",
+                  "values": [
+                    {
+                      "text": "sinking into viscous botanical folds",
+                      "weight": 3
+                    },
+                    {
+                      "text": "submitting with a polite vacant smile",
+                      "weight": 3
+                    },
+                    {
+                      "text": "half-dissolved in a tailored tuxedo",
+                      "weight": 2
+                    },
+                    {
+                      "text": "politely sipping tea while melting",
+                      "weight": 2
+                    },
+                    {
+                      "text": "gently dissolving into sweet organic mush",
+                      "weight": 3
+                    },
+                    {
+                      "text": "stoically accepting their acidic embrace",
+                      "weight": 3
+                    },
+                    {
+                      "text": "wrapped in suffocating soft tendrils",
+                      "weight": 2
+                    },
+                    {
+                      "text": "blissfully paralyzed and slowly liquefying",
+                      "weight": 1
+                    },
+                    {
+                      "text": "fading into a translucent husked shell",
+                      "weight": 1
+                    },
+                    {
+                      "text": "staring blankly as their limbs decompose",
+                      "weight": 3
+                    }
+                  ]
+                },
+                {
+                  "name": "nectar_texture",
+                  "feature_name": "Nectar Texture",
+                  "values": [
+                    {
+                      "text": "thick opalescent digestive fluid",
+                      "weight": 3
+                    },
+                    {
+                      "text": "stringy warm honey-like resin",
+                      "weight": 3
+                    },
+                    {
+                      "text": "heavy glistening pearl drops",
+                      "weight": 3
+                    },
+                    {
+                      "text": "viscous fragrant milky sap",
+                      "weight": 2
+                    },
+                    {
+                      "text": "hyper-detailed bubbling acidic dew",
+                      "weight": 2
+                    },
+                    {
+                      "text": "slow-motion trails of glowing enzymes",
+                      "weight": 1
+                    },
+                    {
+                      "text": "sticky translucent botanical lubrication",
+                      "weight": 3
+                    },
+                    {
+                      "text": "shimmering gelatinous floral slime",
+                      "weight": 2
+                    },
+                    {
+                      "text": "syrupy amber-colored digestive juices",
+                      "weight": 3
+                    },
+                    {
+                      "text": "slick iridescent nectar strands",
+                      "weight": 1
+                    }
+                  ]
+                },
+                {
+                  "name": "camera_style",
+                  "feature_name": "Camera Style",
+                  "values": [
+                    {
+                      "text": "a voyeuristic macro close-up",
+                      "weight": 3
+                    },
+                    {
+                      "text": "a deadpan symmetrical Wes Anderson-style wide shot",
+                      "weight": 3
+                    },
+                    {
+                      "text": "a slow creeping dolly zoom",
+                      "weight": 3
+                    },
+                    {
+                      "text": "a clinical deep-focus archival composition",
+                      "weight": 2
+                    },
+                    {
+                      "text": "an uncomfortably intimate extreme macro shot",
+                      "weight": 2
+                    },
+                    {
+                      "text": "a rigid low-angle subjective perspective",
+                      "weight": 3
+                    },
+                    {
+                      "text": "a hypnotic slow-pan tracking shot",
+                      "weight": 2
+                    },
+                    {
+                      "text": "a claustrophobic fish-eye lens distortion",
+                      "weight": 1
+                    },
+                    {
+                      "text": "a perfectly framed split-diopter shot",
+                      "weight": 1
+                    }
+                  ]
+                },
+                {
+                  "name": "lighting_mood",
+                  "feature_name": "Lighting Mood",
+                  "values": [
+                    {
+                      "text": "soft pastel mid-century studio lighting",
+                      "weight": 3
+                    },
+                    {
+                      "text": "harsh clinical Technicolor glare",
+                      "weight": 3
+                    },
+                    {
+                      "text": "sultry film noir shadow-play",
+                      "weight": 3
+                    },
+                    {
+                      "text": "dreamy hazy soft-focus glow",
+                      "weight": 3
+                    },
+                    {
+                      "text": "unsettling fluorescent basement hum",
+                      "weight": 2
+                    },
+                    {
+                      "text": "warm buttery golden hour sunlight",
+                      "weight": 2
+                    },
+                    {
+                      "text": "hypnotic bioluminescent internal illumination",
+                      "weight": 1
+                    },
+                    {
+                      "text": "stark high-contrast chiaroscuro",
+                      "weight": 2
+                    },
+                    {
+                      "text": "eerie muted Kodachrome color grading",
+                      "weight": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "id": "scene0",
+            "type": "synth_image",
+            "status": "failed"
+          },
+          {
+            "id": "scene1",
+            "type": "synth_image",
+            "status": "success",
+            "mediaId": "9c14c621-eb05-47b1-96ed-d8e3322fa3d0",
+            "mediaType": "image"
+          },
+          {
+            "id": "scene2",
+            "type": "synth_image",
+            "status": "success",
+            "mediaId": "a03fa270-ceb0-47a5-9380-24c7d83a88ec",
+            "mediaType": "image"
+          },
+          {
+            "id": "scene3",
+            "type": "synth_image",
+            "status": "success",
+            "mediaId": "01d0c58d-eaef-42d6-9e48-c4a3c434dc88",
+            "mediaType": "image"
+          },
+          {
+            "id": "desc0",
+            "type": "synth_analyze",
+            "status": "pending"
+          },
+          {
+            "id": "desc1",
+            "type": "synth_analyze",
+            "status": "pending"
+          },
+          {
+            "id": "desc2",
+            "type": "synth_analyze",
+            "status": "pending"
+          },
+          {
+            "id": "desc3",
+            "type": "synth_analyze",
+            "status": "pending"
+          },
+          {
+            "id": "narrative",
+            "type": "synth_narrative",
+            "status": "pending"
+          },
+          {
+            "id": "hero_video",
+            "type": "synth_video",
+            "status": "pending"
+          }
+        ]
+      }
+    }
+  ]
+}

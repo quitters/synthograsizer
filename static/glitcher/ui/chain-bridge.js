@@ -96,6 +96,16 @@ const CATS = [
 const EFFECT_LOOKUP = new Map();
 CATS.forEach(cat => cat.effects.forEach(fx => EFFECT_LOOKUP.set(fx.id, { cat, effect: fx })));
 
+// Build category-slug → color lookup (chain summary returns type = category slug)
+const CAT_COLOR = new Map();
+CATS.forEach(cat => CAT_COLOR.set(cat.id, cat.color));
+// Also map common category name variants returned by EffectModule
+CAT_COLOR.set('filter', '#6aaab5');    // "filter" → Filters
+CAT_COLOR.set('artistic', '#7aad80');
+CAT_COLOR.set('cyberpunk', '#7a8ec0');
+CAT_COLOR.set('atmospheric', '#6ab5aa');
+CAT_COLOR.set('experimental', '#b87aa8');
+
 // State
 let app = null;
 let ecm = null;
@@ -172,9 +182,15 @@ function addEffect(effectId) {
   }
 }
 
-function catColorFor(effectId) {
-  const entry = EFFECT_LOOKUP.get(effectId);
-  return entry ? entry.cat.color : '#5a5550';
+// node can provide { id (effectId), type (category slug or effectId) }
+function catColorFor(effectIdOrCatSlug) {
+  // Try direct effect ID match first
+  const byEffect = EFFECT_LOOKUP.get(effectIdOrCatSlug);
+  if (byEffect) return byEffect.cat.color;
+  // Try category slug (what getChainSummary() returns as "type")
+  const byCat = CAT_COLOR.get(effectIdOrCatSlug);
+  if (byCat) return byCat;
+  return '#7a7570'; // neutral fallback
 }
 
 function catFor(effectId) {
@@ -251,8 +267,8 @@ function showProperties(effect) {
   currentView = 'props';
   currentEffectId = effect.id;
 
-  const meta = EFFECT_LOOKUP.get(effect.type);
-  rpTitle((meta ? meta.effect.name : effect.name || effect.type).toUpperCase(), true);
+  const meta = EFFECT_LOOKUP.get(effect.id);
+  rpTitle((meta ? meta.effect.name : effect.name || effect.id).toUpperCase(), true);
 
   const el = document.getElementById('rp-content');
   if (!el) return;
@@ -422,9 +438,11 @@ function renderChainStrip() {
   const summary = ecm.getChainSummary ? ecm.getChainSummary() : [];
   container.innerHTML = '';
 
-  // Update count badge
+  // Update count badge and status bar
   const countEl = document.getElementById('v2-chain-count');
   if (countEl) countEl.textContent = summary.length;
+  const sbChain = document.getElementById('v2-status-chain');
+  if (sbChain) sbChain.innerHTML = `Chain: <strong>${summary.length}</strong> effect${summary.length !== 1 ? 's' : ''}`;
 
   if (!summary.length) {
     const empty = document.createElement('div');
@@ -435,7 +453,8 @@ function renderChainStrip() {
   }
 
   summary.forEach((node, index) => {
-    const color = catColorFor(node.type);
+    // node.id = effectId (e.g. "direction-movement"), node.type = category slug (e.g. "movement")
+    const color = catColorFor(node.id) !== '#7a7570' ? catColorFor(node.id) : catColorFor(node.type);
     const isSelected = node.id === currentEffectId;
     const isSoloed = node.solo;
     const isDisabled = !node.enabled;
@@ -450,9 +469,9 @@ function renderChainStrip() {
     tile.style.setProperty('--node-color', color);
     tile.draggable = true;
 
-    // Label
-    const meta = EFFECT_LOOKUP.get(node.type);
-    const displayName = meta ? meta.effect.name : (node.name || node.type);
+    // Label — look up by effectId first
+    const meta = EFFECT_LOOKUP.get(node.id);
+    const displayName = meta ? meta.effect.name : (node.name || node.id);
 
     tile.innerHTML = `
       <div class="node-top">
@@ -828,3 +847,4 @@ document.addEventListener('DOMContentLoaded', () => {
   wireCanvasDrop();
   waitForApp();
 });
+

@@ -1,0 +1,1596 @@
+{
+  "workflowId": "a1554402-067c-4c7c-bdc7-a0d05a0f3883",
+  "name": "Cinematic Short: Anthropomorphic toxic carnivorous plants in a past",
+  "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+  "agentName": "Luna Martinez",
+  "agentColor": "#FF6B6B",
+  "sessionId": "c85d5173-41d1-4e1e-ab57-bc3e3a077616",
+  "messageId": null,
+  "startedAt": "2026-04-30T21:10:00.462Z",
+  "completedAt": "2026-04-30T21:11:28.310Z",
+  "status": "failed",
+  "totals": {
+    "durationMs": 87848,
+    "costUsd": 0.162,
+    "completedSteps": 6,
+    "failedSteps": 1
+  },
+  "steps": {
+    "plan": {
+      "id": "plan",
+      "type": "synth_text",
+      "dependsOn": [],
+      "status": "complete",
+      "startedMs": 2,
+      "completedMs": 17417,
+      "durationMs": 17415,
+      "inputs": {
+        "prompt": "You are a film director planning a short film. Concept: \"Anthropomorphic toxic carnivorous plants in a pastel brutalist reality tv villa. Flat planar camera angles, obsessive symmetry, deadpan expressions, mint green and powder pink decor. Polite domestic betrayal ending in a cryogenic freeze elimination.\". Mood: whimsical macabre.\nPlan exactly 5 scenes. For each scene, write a vivid image generation prompt (2-3 sentences) describing the visual.\nOutput ONLY a JSON array of strings, one prompt per scene. Example: [\"scene 1 prompt\", \"scene 2 prompt\"]"
+      },
+      "outputSummary": {},
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.001,
+      "chunks": 18,
+      "lastChunk": " macabre finale.\"\n]"
+    },
+    "style": {
+      "id": "style",
+      "type": "synth_template",
+      "dependsOn": [],
+      "status": "complete",
+      "startedMs": 3,
+      "completedMs": 24844,
+      "durationMs": 24841,
+      "inputs": {
+        "description": "whimsical macabre visual style for a short film about: Anthropomorphic toxic carnivorous plants in a pastel brutalist reality tv villa. Flat planar camera angles, obsessive symmetry, deadpan expressions, mint green and powder pink decor. Polite domestic betrayal ending in a cryogenic freeze elimination.",
+        "mode": "text"
+      },
+      "outputSummary": {
+        "status": "success",
+        "template": {
+          "promptTemplate": "{{film_aesthetic}} featuring a {{plant_species}} {{plant_action}}. Set in a {{decor_lighting}}, captured with a {{camera_composition}}. The scene resolves with {{macabre_drama}}.",
+          "variables": [
+            {
+              "name": "film_aesthetic",
+              "feature_name": "Film Aesthetic",
+              "values": [
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]"
+              ]
+            },
+            {
+              "name": "plant_species",
+              "feature_name": "Plant Species",
+              "values": [
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]"
+              ]
+            },
+            {
+              "name": "plant_action",
+              "feature_name": "Plant Action",
+              "values": [
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]"
+              ]
+            },
+            {
+              "name": "decor_lighting",
+              "feature_name": "Decor & Lighting",
+              "values": [
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]"
+              ]
+            },
+            {
+              "name": "camera_composition",
+              "feature_name": "Camera Angle",
+              "values": [
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]"
+              ]
+            },
+            {
+              "name": "macabre_drama",
+              "feature_name": "Macabre Drama",
+              "values": [
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]"
+              ]
+            }
+          ]
+        }
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.001
+    },
+    "scene0": {
+      "id": "scene0",
+      "type": "synth_image",
+      "dependsOn": [
+        "plan",
+        "style"
+      ],
+      "status": "complete",
+      "startedMs": 24845,
+      "completedMs": 51925,
+      "durationMs": 27080,
+      "inputs": {
+        "prompt": "Scene 1 of 5 from a whimsical macabre short film: Anthropomorphic toxic carnivorous plants in a pastel brutalist reality tv villa. Flat planar camera angles, obsessive symmetry, deadpan expressions, mint green and powder pink decor. Polite domestic betrayal ending in a cryogenic freeze elimination.. {{film_aesthetic}} featuring a {{plant_species}} {{plant_action}}. Set in a {{decor_lighting}}, captured with a {{camera_composition}}. The scene resolves with {{macabre_drama}}.",
+        "aspect_ratio": "16:9"
+      },
+      "outputSummary": {
+        "status": "success",
+        "mediaId": "7f669498-72ed-43b8-a54c-22cc9e2755b5",
+        "mediaType": "image"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.04,
+      "lastRetryError": "Image generation failed: No image found in Gemini response (finish_reasons=['FinishReason.NO_IMAGE'])"
+    },
+    "scene1": {
+      "id": "scene1",
+      "type": "synth_image",
+      "dependsOn": [
+        "plan",
+        "style"
+      ],
+      "status": "failed",
+      "startedMs": 24846,
+      "completedMs": 87848,
+      "durationMs": 63002,
+      "inputs": {
+        "prompt": "Scene 2 of 5 from a whimsical macabre short film: Anthropomorphic toxic carnivorous plants in a pastel brutalist reality tv villa. Flat planar camera angles, obsessive symmetry, deadpan expressions, mint green and powder pink decor. Polite domestic betrayal ending in a cryogenic freeze elimination.. {{film_aesthetic}} featuring a {{plant_species}} {{plant_action}}. Set in a {{decor_lighting}}, captured with a {{camera_composition}}. The scene resolves with {{macabre_drama}}.",
+        "aspect_ratio": "16:9"
+      },
+      "outputSummary": null,
+      "error": "This operation was aborted",
+      "attempts": 1,
+      "costUsd": 0,
+      "lastRetryError": "This operation was aborted"
+    },
+    "scene2": {
+      "id": "scene2",
+      "type": "synth_image",
+      "dependsOn": [
+        "plan",
+        "style"
+      ],
+      "status": "complete",
+      "startedMs": 24846,
+      "completedMs": 50972,
+      "durationMs": 26126,
+      "inputs": {
+        "prompt": "Scene 3 of 5 from a whimsical macabre short film: Anthropomorphic toxic carnivorous plants in a pastel brutalist reality tv villa. Flat planar camera angles, obsessive symmetry, deadpan expressions, mint green and powder pink decor. Polite domestic betrayal ending in a cryogenic freeze elimination.. {{film_aesthetic}} featuring a {{plant_species}} {{plant_action}}. Set in a {{decor_lighting}}, captured with a {{camera_composition}}. The scene resolves with {{macabre_drama}}.",
+        "aspect_ratio": "16:9"
+      },
+      "outputSummary": {
+        "status": "success",
+        "mediaId": "09d88118-cf1d-407b-a5f1-b26690bb4292",
+        "mediaType": "image"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.04,
+      "lastRetryError": "Image generation failed: No image found in Gemini response (finish_reasons=['FinishReason.NO_IMAGE'])"
+    },
+    "scene3": {
+      "id": "scene3",
+      "type": "synth_image",
+      "dependsOn": [
+        "plan",
+        "style"
+      ],
+      "status": "complete",
+      "startedMs": 24846,
+      "completedMs": 36739,
+      "durationMs": 11893,
+      "inputs": {
+        "prompt": "Scene 4 of 5 from a whimsical macabre short film: Anthropomorphic toxic carnivorous plants in a pastel brutalist reality tv villa. Flat planar camera angles, obsessive symmetry, deadpan expressions, mint green and powder pink decor. Polite domestic betrayal ending in a cryogenic freeze elimination.. {{film_aesthetic}} featuring a {{plant_species}} {{plant_action}}. Set in a {{decor_lighting}}, captured with a {{camera_composition}}. The scene resolves with {{macabre_drama}}.",
+        "aspect_ratio": "16:9"
+      },
+      "outputSummary": {
+        "status": "success",
+        "mediaId": "95f3128e-fae9-4aaf-aa51-877db891289f",
+        "mediaType": "image"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.04
+    },
+    "scene4": {
+      "id": "scene4",
+      "type": "synth_image",
+      "dependsOn": [
+        "plan",
+        "style"
+      ],
+      "status": "complete",
+      "startedMs": 24847,
+      "completedMs": 43947,
+      "durationMs": 19100,
+      "inputs": {
+        "prompt": "Scene 5 of 5 from a whimsical macabre short film: Anthropomorphic toxic carnivorous plants in a pastel brutalist reality tv villa. Flat planar camera angles, obsessive symmetry, deadpan expressions, mint green and powder pink decor. Polite domestic betrayal ending in a cryogenic freeze elimination.. {{film_aesthetic}} featuring a {{plant_species}} {{plant_action}}. Set in a {{decor_lighting}}, captured with a {{camera_composition}}. The scene resolves with {{macabre_drama}}.",
+        "aspect_ratio": "16:9"
+      },
+      "outputSummary": {
+        "status": "success",
+        "mediaId": "e779fcb8-2d02-45ac-930b-0fe6317d7d2e",
+        "mediaType": "image"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.04
+    },
+    "desc0": {
+      "id": "desc0",
+      "type": "synth_analyze",
+      "dependsOn": [
+        "scene0"
+      ],
+      "status": "pending",
+      "startedMs": null,
+      "completedMs": null,
+      "durationMs": null,
+      "inputs": null,
+      "outputSummary": null,
+      "error": null,
+      "attempts": 0,
+      "costUsd": 0
+    },
+    "desc1": {
+      "id": "desc1",
+      "type": "synth_analyze",
+      "dependsOn": [
+        "scene1"
+      ],
+      "status": "pending",
+      "startedMs": null,
+      "completedMs": null,
+      "durationMs": null,
+      "inputs": null,
+      "outputSummary": null,
+      "error": null,
+      "attempts": 0,
+      "costUsd": 0
+    },
+    "desc2": {
+      "id": "desc2",
+      "type": "synth_analyze",
+      "dependsOn": [
+        "scene2"
+      ],
+      "status": "pending",
+      "startedMs": null,
+      "completedMs": null,
+      "durationMs": null,
+      "inputs": null,
+      "outputSummary": null,
+      "error": null,
+      "attempts": 0,
+      "costUsd": 0
+    },
+    "desc3": {
+      "id": "desc3",
+      "type": "synth_analyze",
+      "dependsOn": [
+        "scene3"
+      ],
+      "status": "pending",
+      "startedMs": null,
+      "completedMs": null,
+      "durationMs": null,
+      "inputs": null,
+      "outputSummary": null,
+      "error": null,
+      "attempts": 0,
+      "costUsd": 0
+    },
+    "desc4": {
+      "id": "desc4",
+      "type": "synth_analyze",
+      "dependsOn": [
+        "scene4"
+      ],
+      "status": "pending",
+      "startedMs": null,
+      "completedMs": null,
+      "durationMs": null,
+      "inputs": null,
+      "outputSummary": null,
+      "error": null,
+      "attempts": 0,
+      "costUsd": 0
+    },
+    "narrative": {
+      "id": "narrative",
+      "type": "synth_narrative",
+      "dependsOn": [
+        "desc0",
+        "desc1",
+        "desc2",
+        "desc3",
+        "desc4"
+      ],
+      "status": "pending",
+      "startedMs": null,
+      "completedMs": null,
+      "durationMs": null,
+      "inputs": null,
+      "outputSummary": null,
+      "error": null,
+      "attempts": 0,
+      "costUsd": 0
+    },
+    "hero_video": {
+      "id": "hero_video",
+      "type": "synth_video",
+      "dependsOn": [
+        "desc0"
+      ],
+      "status": "pending",
+      "startedMs": null,
+      "completedMs": null,
+      "durationMs": null,
+      "inputs": null,
+      "outputSummary": null,
+      "error": null,
+      "attempts": 0,
+      "costUsd": 0
+    }
+  },
+  "events": [
+    {
+      "t": 0,
+      "event": "workflow_start",
+      "data": {
+        "workflowId": "a1554402-067c-4c7c-bdc7-a0d05a0f3883",
+        "name": "Cinematic Short: Anthropomorphic toxic carnivorous plants in a past",
+        "stepCount": 14,
+        "steps": [
+          {
+            "id": "plan",
+            "type": "synth_text",
+            "dependsOn": []
+          },
+          {
+            "id": "style",
+            "type": "synth_template",
+            "dependsOn": []
+          },
+          {
+            "id": "scene0",
+            "type": "synth_image",
+            "dependsOn": [
+              "plan",
+              "style"
+            ]
+          },
+          {
+            "id": "scene1",
+            "type": "synth_image",
+            "dependsOn": [
+              "plan",
+              "style"
+            ]
+          },
+          {
+            "id": "scene2",
+            "type": "synth_image",
+            "dependsOn": [
+              "plan",
+              "style"
+            ]
+          },
+          {
+            "id": "scene3",
+            "type": "synth_image",
+            "dependsOn": [
+              "plan",
+              "style"
+            ]
+          },
+          {
+            "id": "scene4",
+            "type": "synth_image",
+            "dependsOn": [
+              "plan",
+              "style"
+            ]
+          },
+          {
+            "id": "desc0",
+            "type": "synth_analyze",
+            "dependsOn": [
+              "scene0"
+            ]
+          },
+          {
+            "id": "desc1",
+            "type": "synth_analyze",
+            "dependsOn": [
+              "scene1"
+            ]
+          },
+          {
+            "id": "desc2",
+            "type": "synth_analyze",
+            "dependsOn": [
+              "scene2"
+            ]
+          },
+          {
+            "id": "desc3",
+            "type": "synth_analyze",
+            "dependsOn": [
+              "scene3"
+            ]
+          },
+          {
+            "id": "desc4",
+            "type": "synth_analyze",
+            "dependsOn": [
+              "scene4"
+            ]
+          },
+          {
+            "id": "narrative",
+            "type": "synth_narrative",
+            "dependsOn": [
+              "desc0",
+              "desc1",
+              "desc2",
+              "desc3",
+              "desc4"
+            ]
+          },
+          {
+            "id": "hero_video",
+            "type": "synth_video",
+            "dependsOn": [
+              "desc0"
+            ]
+          }
+        ],
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "agentName": "Luna Martinez",
+        "agentColor": "#FF6B6B",
+        "sessionId": "c85d5173-41d1-4e1e-ab57-bc3e3a077616",
+        "messageId": null
+      }
+    },
+    {
+      "t": 2,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "a1554402-067c-4c7c-bdc7-a0d05a0f3883",
+        "stepId": "plan",
+        "stepType": "synth_text",
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "dependsOn": [],
+        "inputs": {
+          "prompt": "You are a film director planning a short film. Concept: \"Anthropomorphic toxic carnivorous plants in a pastel brutalist reality tv villa. Flat planar camera angles, obsessive symmetry, deadpan expressions, mint green and powder pink decor. Polite domestic betrayal ending in a cryogenic freeze elimination.\". Mood: whimsical macabre.\nPlan exactly 5 scenes. For each scene, write a vivid image generation prompt (2-3 sentences) describing the visual.\nOutput ONLY a JSON array of strings, one prompt per scene. Example: [\"scene 1 prompt\", \"scene 2 prompt\"]"
+        }
+      }
+    },
+    {
+      "t": 3,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "a1554402-067c-4c7c-bdc7-a0d05a0f3883",
+        "stepId": "style",
+        "stepType": "synth_template",
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "dependsOn": [],
+        "inputs": {
+          "description": "whimsical macabre visual style for a short film about: Anthropomorphic toxic carnivorous plants in a pastel brutalist reality tv villa. Flat planar camera angles, obsessive symmetry, deadpan expressions, mint green and powder pink decor. Polite domestic betrayal ending in a cryogenic freeze elimination.",
+          "mode": "text"
+        }
+      }
+    },
+    {
+      "t": 3,
+      "event": "workflow_submitted",
+      "data": {
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "agentName": "Luna Martinez",
+        "agentColor": "#FF6B6B",
+        "sessionId": "c85d5173-41d1-4e1e-ab57-bc3e3a077616",
+        "workflowId": "a1554402-067c-4c7c-bdc7-a0d05a0f3883",
+        "workflowName": "Cinematic Short: Anthropomorphic toxic carnivorous plants in a past",
+        "templateId": "cinematic_short",
+        "stepCount": 14,
+        "steps": [
+          {
+            "id": "plan",
+            "type": "synth_text"
+          },
+          {
+            "id": "style",
+            "type": "synth_template"
+          },
+          {
+            "id": "scene0",
+            "type": "synth_image"
+          },
+          {
+            "id": "scene1",
+            "type": "synth_image"
+          },
+          {
+            "id": "scene2",
+            "type": "synth_image"
+          },
+          {
+            "id": "scene3",
+            "type": "synth_image"
+          },
+          {
+            "id": "scene4",
+            "type": "synth_image"
+          },
+          {
+            "id": "desc0",
+            "type": "synth_analyze"
+          },
+          {
+            "id": "desc1",
+            "type": "synth_analyze"
+          },
+          {
+            "id": "desc2",
+            "type": "synth_analyze"
+          },
+          {
+            "id": "desc3",
+            "type": "synth_analyze"
+          },
+          {
+            "id": "desc4",
+            "type": "synth_analyze"
+          },
+          {
+            "id": "narrative",
+            "type": "synth_narrative"
+          },
+          {
+            "id": "hero_video",
+            "type": "synth_video"
+          }
+        ]
+      }
+    },
+    {
+      "t": 15081,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "a1554402-067c-4c7c-bdc7-a0d05a0f3883",
+        "stepId": "plan",
+        "text": "[\n  \"A perfectly symmetrical wide"
+      }
+    },
+    {
+      "t": 15158,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "a1554402-067c-4c7c-bdc7-a0d05a0f3883",
+        "stepId": "plan",
+        "text": " shot of a pastel brutalist living room with raw mint green concrete walls and powder pink geometric furniture. Three impeccably dressed"
+      }
+    },
+    {
+      "t": 15286,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "a1554402-067c-4c7c-bdc7-a0d05a0f3883",
+        "stepId": "plan",
+        "text": " anthropomorphic Venus flytraps sit completely still on a modular sofa, staring directly at the camera with deadpan neutrality."
+      }
+    },
+    {
+      "t": 15423,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "a1554402-067c-4c7c-bdc7-a0d05a0f3883",
+        "stepId": "plan",
+        "text": " The flat, planar composition highlights a whimsical yet unsettling reality TV confessional setup.\",\n  \"A flat, head-"
+      }
+    },
+    {
+      "t": 15556,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "a1554402-067c-4c7c-bdc7-a0d05a0f3883",
+        "stepId": "plan",
+        "text": "on shot of an impossibly long powder pink dining table set against a stark mint green concrete wall. An elegant anthropomorphic"
+      }
+    },
+    {
+      "t": 15680,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "a1554402-067c-4c7c-bdc7-a0d05a0f3883",
+        "stepId": "plan",
+        "text": " pitcher plant in a retro cardigan politely passes a silver sugar bowl to a sundew plant, both maintaining expressionless, un"
+      }
+    },
+    {
+      "t": 15815,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "a1554402-067c-4c7c-bdc7-a0d05a0f3883",
+        "stepId": "plan",
+        "text": "blinking composure. The obsessive symmetry and soft pastel lighting mask the quiet, macabre tension of their domestic rivalry.\",\n"
+      }
+    },
+    {
+      "t": 15976,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "a1554402-067c-4c7c-bdc7-a0d05a0f3883",
+        "stepId": "plan",
+        "text": "  \"A tight, perfectly centered symmetrical shot of a pastel mint green brutalist kitchen counter where a tall pitcher plant gracefully"
+      }
+    },
+    {
+      "t": 16143,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "a1554402-067c-4c7c-bdc7-a0d05a0f3883",
+        "stepId": "plan",
+        "text": " pours a steaming cup of tea. With a deadpan lack of emotion, it drops a glowing, toxic purple cube into"
+      }
+    },
+    {
+      "t": 16256,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "a1554402-067c-4c7c-bdc7-a0d05a0f3883",
+        "stepId": "plan",
+        "text": " the powder pink teacup, orchestrating a quiet domestic betrayal. The flat, diorama-like camera angle emphasizes the"
+      }
+    },
+    {
+      "t": 16414,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "a1554402-067c-4c7c-bdc7-a0d05a0f3883",
+        "stepId": "plan",
+        "text": " whimsical macabre atmosphere of the reality show.\",\n  \"A highly symmetrical, planar wide shot of the reality TV elimination"
+      }
+    },
+    {
+      "t": 16527,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "a1554402-067c-4c7c-bdc7-a0d05a0f3883",
+        "stepId": "plan",
+        "text": " room featuring glowing powder pink podiums against a towering mint green brutalist backdrop. The remaining anthropomorphic carnivorous plants stand rigidly"
+      }
+    },
+    {
+      "t": 16674,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "a1554402-067c-4c7c-bdc7-a0d05a0f3883",
+        "stepId": "plan",
+        "text": " behind the podiums, their leafy heads cast downward in a polite but soulless display of faux-remorse."
+      }
+    },
+    {
+      "t": 16856,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "a1554402-067c-4c7c-bdc7-a0d05a0f3883",
+        "stepId": "plan",
+        "text": " The stark, whimsical macabre aesthetic is amplified by the flat, theatrical lighting and absolute geometric perfection.\",\n  \"A"
+      }
+    },
+    {
+      "t": 17003,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "a1554402-067c-4c7c-bdc7-a0d05a0f3883",
+        "stepId": "plan",
+        "text": " centered, flat-angle shot of a frosted glass cryogenic tube encased in a heavy powder pink brutalist frame. Inside,"
+      }
+    },
+    {
+      "t": 17151,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "a1554402-067c-4c7c-bdc7-a0d05a0f3883",
+        "stepId": "plan",
+        "text": " the betrayed anthropomorphic sundew plant is frozen solid in a block of pale mint green ice, maintaining a perfectly deadpan"
+      }
+    },
+    {
+      "t": 17291,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "a1554402-067c-4c7c-bdc7-a0d05a0f3883",
+        "stepId": "plan",
+        "text": ", frozen posture. The surviving plants stand symmetrically on either side of the chamber, politely clapping in a chilling, whimsically"
+      }
+    },
+    {
+      "t": 17394,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "a1554402-067c-4c7c-bdc7-a0d05a0f3883",
+        "stepId": "plan",
+        "text": " macabre finale.\"\n]"
+      }
+    },
+    {
+      "t": 17417,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "a1554402-067c-4c7c-bdc7-a0d05a0f3883",
+        "stepId": "plan",
+        "stepType": "synth_text",
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "attempts": 1,
+        "durationMs": 17416,
+        "summary": {}
+      }
+    },
+    {
+      "t": 24844,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "a1554402-067c-4c7c-bdc7-a0d05a0f3883",
+        "stepId": "style",
+        "stepType": "synth_template",
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "attempts": 1,
+        "durationMs": 24841,
+        "summary": {
+          "status": "success",
+          "template": {
+            "promptTemplate": "{{film_aesthetic}} featuring a {{plant_species}} {{plant_action}}. Set in a {{decor_lighting}}, captured with a {{camera_composition}}. The scene resolves with {{macabre_drama}}.",
+            "variables": [
+              {
+                "name": "film_aesthetic",
+                "feature_name": "Film Aesthetic",
+                "values": [
+                  {
+                    "text": "whimsical macabre short film still",
+                    "weight": 3
+                  },
+                  {
+                    "text": "dark comedy indie cinema look",
+                    "weight": 3
+                  },
+                  {
+                    "text": "surreal botanical reality show broadcast",
+                    "weight": 3
+                  },
+                  {
+                    "text": "high fashion editorial cinematography",
+                    "weight": 2
+                  },
+                  {
+                    "text": "vintage 16mm pastel film grain",
+                    "weight": 2
+                  },
+                  {
+                    "text": "crisp 4k digital cinema look",
+                    "weight": 3
+                  },
+                  {
+                    "text": "uncanny valley television production",
+                    "weight": 2
+                  },
+                  {
+                    "text": "retro-futuristic botanical dystopia",
+                    "weight": 1
+                  }
+                ]
+              },
+              {
+                "name": "plant_species",
+                "feature_name": "Plant Species",
+                "values": [
+                  {
+                    "text": "anthropomorphic elegant pitcher plant",
+                    "weight": 3
+                  },
+                  {
+                    "text": "deadpan venus flytrap in tailoring",
+                    "weight": 3
+                  },
+                  {
+                    "text": "glowing pastel sundew with manicured tentacles",
+                    "weight": 2
+                  },
+                  {
+                    "text": "powder pink cobra lily",
+                    "weight": 3
+                  },
+                  {
+                    "text": "mint green bladderwort in silk",
+                    "weight": 2
+                  },
+                  {
+                    "text": "monolithic corpse flower contestant",
+                    "weight": 1
+                  },
+                  {
+                    "text": "butterwort covered in sparkling toxic dew",
+                    "weight": 3
+                  },
+                  {
+                    "text": "sophisticated aquatic waterwheel plant",
+                    "weight": 2
+                  },
+                  {
+                    "text": "stoic nepenthes with a judging gaze",
+                    "weight": 3
+                  }
+                ]
+              },
+              {
+                "name": "plant_action",
+                "feature_name": "Plant Action",
+                "values": [
+                  {
+                    "text": "staring directly with deadpan expressions",
+                    "weight": 3
+                  },
+                  {
+                    "text": "politely plotting a domestic betrayal",
+                    "weight": 3
+                  },
+                  {
+                    "text": "calmly discussing reality tv alliances",
+                    "weight": 3
+                  },
+                  {
+                    "text": "silently judging a fellow contestant",
+                    "weight": 2
+                  },
+                  {
+                    "text": "waiting patiently in the confession booth",
+                    "weight": 3
+                  },
+                  {
+                    "text": "exchanging frosty emotionless glances",
+                    "weight": 2
+                  },
+                  {
+                    "text": "offering a poisoned cup of tea",
+                    "weight": 1
+                  },
+                  {
+                    "text": "maintaining perfect posture during an argument",
+                    "weight": 3
+                  },
+                  {
+                    "text": "arranging pastel pillows passive-aggressively",
+                    "weight": 2
+                  }
+                ]
+              },
+              {
+                "name": "decor_lighting",
+                "feature_name": "Decor & Lighting",
+                "values": [
+                  {
+                    "text": "mint green and powder pink brutalist interior",
+                    "weight": 3
+                  },
+                  {
+                    "text": "stark concrete walls painted soft pastels",
+                    "weight": 3
+                  },
+                  {
+                    "text": "obsessively symmetrical velvet seating area",
+                    "weight": 3
+                  },
+                  {
+                    "text": "harsh reality tv studio lighting",
+                    "weight": 2
+                  },
+                  {
+                    "text": "clinical pastel geometric furniture",
+                    "weight": 3
+                  },
+                  {
+                    "text": "smooth pastel concrete and frosted glass",
+                    "weight": 2
+                  },
+                  {
+                    "text": "dreamy volumetric light in a brutalist atrium",
+                    "weight": 1
+                  },
+                  {
+                    "text": "monochromatic mint green elimination room",
+                    "weight": 2
+                  },
+                  {
+                    "text": "powder pink confession room with hard shadows",
+                    "weight": 3
+                  }
+                ]
+              },
+              {
+                "name": "camera_composition",
+                "feature_name": "Camera Angle",
+                "values": [
+                  {
+                    "text": "flat planar camera angle",
+                    "weight": 3
+                  },
+                  {
+                    "text": "obsessive symmetrical wide shot",
+                    "weight": 3
+                  },
+                  {
+                    "text": "dead-center medium shot",
+                    "weight": 3
+                  },
+                  {
+                    "text": "rigid architectural framing",
+                    "weight": 2
+                  },
+                  {
+                    "text": "clinical top-down overhead shot",
+                    "weight": 1
+                  },
+                  {
+                    "text": "static dolly shot profile",
+                    "weight": 2
+                  },
+                  {
+                    "text": "orthographic projection style framing",
+                    "weight": 2
+                  },
+                  {
+                    "text": "perfectly balanced geometric two-shot",
+                    "weight": 3
+                  },
+                  {
+                    "text": "ultra-wide brutalist landscape framing",
+                    "weight": 3
+                  }
+                ]
+              },
+              {
+                "name": "macabre_drama",
+                "feature_name": "Macabre Drama",
+                "values": [
+                  {
+                    "text": "subtle hints of toxic spores",
+                    "weight": 3
+                  },
+                  {
+                    "text": "a polite cryogenic freeze elimination",
+                    "weight": 2
+                  },
+                  {
+                    "text": "frost slowly encasing a losing contestant",
+                    "weight": 1
+                  },
+                  {
+                    "text": "whimsical but deadly liquid nitrogen mist",
+                    "weight": 2
+                  },
+                  {
+                    "text": "a neatly arranged display of frozen victims",
+                    "weight": 1
+                  },
+                  {
+                    "text": "polite applause during a chilling execution",
+                    "weight": 2
+                  },
+                  {
+                    "text": "hidden venom dripping on pastel carpet",
+                    "weight": 3
+                  },
+                  {
+                    "text": "a sterile emotionless reality show exit",
+                    "weight": 3
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "t": 24845,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "a1554402-067c-4c7c-bdc7-a0d05a0f3883",
+        "stepId": "scene0",
+        "stepType": "synth_image",
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "dependsOn": [
+          "plan",
+          "style"
+        ],
+        "inputs": {
+          "prompt": "Scene 1 of 5 from a whimsical macabre short film: Anthropomorphic toxic carnivorous plants in a pastel brutalist reality tv villa. Flat planar camera angles, obsessive symmetry, deadpan expressions, mint green and powder pink decor. Polite domestic betrayal ending in a cryogenic freeze elimination.. {{film_aesthetic}} featuring a {{plant_species}} {{plant_action}}. Set in a {{decor_lighting}}, captured with a {{camera_composition}}. The scene resolves with {{macabre_drama}}.",
+          "aspect_ratio": "16:9"
+        }
+      }
+    },
+    {
+      "t": 24846,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "a1554402-067c-4c7c-bdc7-a0d05a0f3883",
+        "stepId": "scene1",
+        "stepType": "synth_image",
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "dependsOn": [
+          "plan",
+          "style"
+        ],
+        "inputs": {
+          "prompt": "Scene 2 of 5 from a whimsical macabre short film: Anthropomorphic toxic carnivorous plants in a pastel brutalist reality tv villa. Flat planar camera angles, obsessive symmetry, deadpan expressions, mint green and powder pink decor. Polite domestic betrayal ending in a cryogenic freeze elimination.. {{film_aesthetic}} featuring a {{plant_species}} {{plant_action}}. Set in a {{decor_lighting}}, captured with a {{camera_composition}}. The scene resolves with {{macabre_drama}}.",
+          "aspect_ratio": "16:9"
+        }
+      }
+    },
+    {
+      "t": 24846,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "a1554402-067c-4c7c-bdc7-a0d05a0f3883",
+        "stepId": "scene2",
+        "stepType": "synth_image",
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "dependsOn": [
+          "plan",
+          "style"
+        ],
+        "inputs": {
+          "prompt": "Scene 3 of 5 from a whimsical macabre short film: Anthropomorphic toxic carnivorous plants in a pastel brutalist reality tv villa. Flat planar camera angles, obsessive symmetry, deadpan expressions, mint green and powder pink decor. Polite domestic betrayal ending in a cryogenic freeze elimination.. {{film_aesthetic}} featuring a {{plant_species}} {{plant_action}}. Set in a {{decor_lighting}}, captured with a {{camera_composition}}. The scene resolves with {{macabre_drama}}.",
+          "aspect_ratio": "16:9"
+        }
+      }
+    },
+    {
+      "t": 24846,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "a1554402-067c-4c7c-bdc7-a0d05a0f3883",
+        "stepId": "scene3",
+        "stepType": "synth_image",
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "dependsOn": [
+          "plan",
+          "style"
+        ],
+        "inputs": {
+          "prompt": "Scene 4 of 5 from a whimsical macabre short film: Anthropomorphic toxic carnivorous plants in a pastel brutalist reality tv villa. Flat planar camera angles, obsessive symmetry, deadpan expressions, mint green and powder pink decor. Polite domestic betrayal ending in a cryogenic freeze elimination.. {{film_aesthetic}} featuring a {{plant_species}} {{plant_action}}. Set in a {{decor_lighting}}, captured with a {{camera_composition}}. The scene resolves with {{macabre_drama}}.",
+          "aspect_ratio": "16:9"
+        }
+      }
+    },
+    {
+      "t": 24847,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "a1554402-067c-4c7c-bdc7-a0d05a0f3883",
+        "stepId": "scene4",
+        "stepType": "synth_image",
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "dependsOn": [
+          "plan",
+          "style"
+        ],
+        "inputs": {
+          "prompt": "Scene 5 of 5 from a whimsical macabre short film: Anthropomorphic toxic carnivorous plants in a pastel brutalist reality tv villa. Flat planar camera angles, obsessive symmetry, deadpan expressions, mint green and powder pink decor. Polite domestic betrayal ending in a cryogenic freeze elimination.. {{film_aesthetic}} featuring a {{plant_species}} {{plant_action}}. Set in a {{decor_lighting}}, captured with a {{camera_composition}}. The scene resolves with {{macabre_drama}}.",
+          "aspect_ratio": "16:9"
+        }
+      }
+    },
+    {
+      "t": 28491,
+      "event": "workflow_step_retry",
+      "data": {
+        "workflowId": "a1554402-067c-4c7c-bdc7-a0d05a0f3883",
+        "stepId": "scene0",
+        "stepType": "synth_image",
+        "attempt": 1,
+        "error": "Image generation failed: No image found in Gemini response (finish_reasons=['FinishReason.NO_IMAGE'])"
+      }
+    },
+    {
+      "t": 29636,
+      "event": "workflow_step_retry",
+      "data": {
+        "workflowId": "a1554402-067c-4c7c-bdc7-a0d05a0f3883",
+        "stepId": "scene2",
+        "stepType": "synth_image",
+        "attempt": 1,
+        "error": "Image generation failed: No image found in Gemini response (finish_reasons=['FinishReason.NO_IMAGE'])"
+      }
+    },
+    {
+      "t": 36739,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "a1554402-067c-4c7c-bdc7-a0d05a0f3883",
+        "stepId": "scene3",
+        "stepType": "synth_image",
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "attempts": 1,
+        "durationMs": 11893,
+        "summary": {
+          "status": "success",
+          "mediaId": "95f3128e-fae9-4aaf-aa51-877db891289f",
+          "mediaType": "image"
+        }
+      }
+    },
+    {
+      "t": 43947,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "a1554402-067c-4c7c-bdc7-a0d05a0f3883",
+        "stepId": "scene4",
+        "stepType": "synth_image",
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "attempts": 1,
+        "durationMs": 19100,
+        "summary": {
+          "status": "success",
+          "mediaId": "e779fcb8-2d02-45ac-930b-0fe6317d7d2e",
+          "mediaType": "image"
+        }
+      }
+    },
+    {
+      "t": 50972,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "a1554402-067c-4c7c-bdc7-a0d05a0f3883",
+        "stepId": "scene2",
+        "stepType": "synth_image",
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "attempts": 2,
+        "durationMs": 26126,
+        "summary": {
+          "status": "success",
+          "mediaId": "09d88118-cf1d-407b-a5f1-b26690bb4292",
+          "mediaType": "image"
+        }
+      }
+    },
+    {
+      "t": 51925,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "a1554402-067c-4c7c-bdc7-a0d05a0f3883",
+        "stepId": "scene0",
+        "stepType": "synth_image",
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "attempts": 2,
+        "durationMs": 27080,
+        "summary": {
+          "status": "success",
+          "mediaId": "7f669498-72ed-43b8-a54c-22cc9e2755b5",
+          "mediaType": "image"
+        }
+      }
+    },
+    {
+      "t": 54846,
+      "event": "workflow_step_retry",
+      "data": {
+        "workflowId": "a1554402-067c-4c7c-bdc7-a0d05a0f3883",
+        "stepId": "scene1",
+        "stepType": "synth_image",
+        "attempt": 1,
+        "error": "This operation was aborted"
+      }
+    },
+    {
+      "t": 87848,
+      "event": "workflow_step_error",
+      "data": {
+        "workflowId": "a1554402-067c-4c7c-bdc7-a0d05a0f3883",
+        "stepId": "scene1",
+        "stepType": "synth_image",
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "attempts": 2,
+        "durationMs": 63003,
+        "error": "This operation was aborted"
+      }
+    },
+    {
+      "t": 87848,
+      "event": "workflow_complete",
+      "data": {
+        "workflowId": "a1554402-067c-4c7c-bdc7-a0d05a0f3883",
+        "name": "Cinematic Short: Anthropomorphic toxic carnivorous plants in a past",
+        "status": "failed",
+        "completedAt": "2026-04-30T21:11:28.310Z",
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "totals": {
+          "durationMs": 87848,
+          "completedSteps": 6,
+          "failedSteps": 1,
+          "skippedSteps": 0
+        },
+        "stepResults": [
+          {
+            "id": "plan",
+            "type": "synth_text",
+            "status": "complete"
+          },
+          {
+            "id": "style",
+            "type": "synth_template",
+            "status": "success",
+            "template": {
+              "promptTemplate": "{{film_aesthetic}} featuring a {{plant_species}} {{plant_action}}. Set in a {{decor_lighting}}, captured with a {{camera_composition}}. The scene resolves with {{macabre_drama}}.",
+              "variables": [
+                {
+                  "name": "film_aesthetic",
+                  "feature_name": "Film Aesthetic",
+                  "values": [
+                    {
+                      "text": "whimsical macabre short film still",
+                      "weight": 3
+                    },
+                    {
+                      "text": "dark comedy indie cinema look",
+                      "weight": 3
+                    },
+                    {
+                      "text": "surreal botanical reality show broadcast",
+                      "weight": 3
+                    },
+                    {
+                      "text": "high fashion editorial cinematography",
+                      "weight": 2
+                    },
+                    {
+                      "text": "vintage 16mm pastel film grain",
+                      "weight": 2
+                    },
+                    {
+                      "text": "crisp 4k digital cinema look",
+                      "weight": 3
+                    },
+                    {
+                      "text": "uncanny valley television production",
+                      "weight": 2
+                    },
+                    {
+                      "text": "retro-futuristic botanical dystopia",
+                      "weight": 1
+                    }
+                  ]
+                },
+                {
+                  "name": "plant_species",
+                  "feature_name": "Plant Species",
+                  "values": [
+                    {
+                      "text": "anthropomorphic elegant pitcher plant",
+                      "weight": 3
+                    },
+                    {
+                      "text": "deadpan venus flytrap in tailoring",
+                      "weight": 3
+                    },
+                    {
+                      "text": "glowing pastel sundew with manicured tentacles",
+                      "weight": 2
+                    },
+                    {
+                      "text": "powder pink cobra lily",
+                      "weight": 3
+                    },
+                    {
+                      "text": "mint green bladderwort in silk",
+                      "weight": 2
+                    },
+                    {
+                      "text": "monolithic corpse flower contestant",
+                      "weight": 1
+                    },
+                    {
+                      "text": "butterwort covered in sparkling toxic dew",
+                      "weight": 3
+                    },
+                    {
+                      "text": "sophisticated aquatic waterwheel plant",
+                      "weight": 2
+                    },
+                    {
+                      "text": "stoic nepenthes with a judging gaze",
+                      "weight": 3
+                    }
+                  ]
+                },
+                {
+                  "name": "plant_action",
+                  "feature_name": "Plant Action",
+                  "values": [
+                    {
+                      "text": "staring directly with deadpan expressions",
+                      "weight": 3
+                    },
+                    {
+                      "text": "politely plotting a domestic betrayal",
+                      "weight": 3
+                    },
+                    {
+                      "text": "calmly discussing reality tv alliances",
+                      "weight": 3
+                    },
+                    {
+                      "text": "silently judging a fellow contestant",
+                      "weight": 2
+                    },
+                    {
+                      "text": "waiting patiently in the confession booth",
+                      "weight": 3
+                    },
+                    {
+                      "text": "exchanging frosty emotionless glances",
+                      "weight": 2
+                    },
+                    {
+                      "text": "offering a poisoned cup of tea",
+                      "weight": 1
+                    },
+                    {
+                      "text": "maintaining perfect posture during an argument",
+                      "weight": 3
+                    },
+                    {
+                      "text": "arranging pastel pillows passive-aggressively",
+                      "weight": 2
+                    }
+                  ]
+                },
+                {
+                  "name": "decor_lighting",
+                  "feature_name": "Decor & Lighting",
+                  "values": [
+                    {
+                      "text": "mint green and powder pink brutalist interior",
+                      "weight": 3
+                    },
+                    {
+                      "text": "stark concrete walls painted soft pastels",
+                      "weight": 3
+                    },
+                    {
+                      "text": "obsessively symmetrical velvet seating area",
+                      "weight": 3
+                    },
+                    {
+                      "text": "harsh reality tv studio lighting",
+                      "weight": 2
+                    },
+                    {
+                      "text": "clinical pastel geometric furniture",
+                      "weight": 3
+                    },
+                    {
+                      "text": "smooth pastel concrete and frosted glass",
+                      "weight": 2
+                    },
+                    {
+                      "text": "dreamy volumetric light in a brutalist atrium",
+                      "weight": 1
+                    },
+                    {
+                      "text": "monochromatic mint green elimination room",
+                      "weight": 2
+                    },
+                    {
+                      "text": "powder pink confession room with hard shadows",
+                      "weight": 3
+                    }
+                  ]
+                },
+                {
+                  "name": "camera_composition",
+                  "feature_name": "Camera Angle",
+                  "values": [
+                    {
+                      "text": "flat planar camera angle",
+                      "weight": 3
+                    },
+                    {
+                      "text": "obsessive symmetrical wide shot",
+                      "weight": 3
+                    },
+                    {
+                      "text": "dead-center medium shot",
+                      "weight": 3
+                    },
+                    {
+                      "text": "rigid architectural framing",
+                      "weight": 2
+                    },
+                    {
+                      "text": "clinical top-down overhead shot",
+                      "weight": 1
+                    },
+                    {
+                      "text": "static dolly shot profile",
+                      "weight": 2
+                    },
+                    {
+                      "text": "orthographic projection style framing",
+                      "weight": 2
+                    },
+                    {
+                      "text": "perfectly balanced geometric two-shot",
+                      "weight": 3
+                    },
+                    {
+                      "text": "ultra-wide brutalist landscape framing",
+                      "weight": 3
+                    }
+                  ]
+                },
+                {
+                  "name": "macabre_drama",
+                  "feature_name": "Macabre Drama",
+                  "values": [
+                    {
+                      "text": "subtle hints of toxic spores",
+                      "weight": 3
+                    },
+                    {
+                      "text": "a polite cryogenic freeze elimination",
+                      "weight": 2
+                    },
+                    {
+                      "text": "frost slowly encasing a losing contestant",
+                      "weight": 1
+                    },
+                    {
+                      "text": "whimsical but deadly liquid nitrogen mist",
+                      "weight": 2
+                    },
+                    {
+                      "text": "a neatly arranged display of frozen victims",
+                      "weight": 1
+                    },
+                    {
+                      "text": "polite applause during a chilling execution",
+                      "weight": 2
+                    },
+                    {
+                      "text": "hidden venom dripping on pastel carpet",
+                      "weight": 3
+                    },
+                    {
+                      "text": "a sterile emotionless reality show exit",
+                      "weight": 3
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "id": "scene0",
+            "type": "synth_image",
+            "status": "success",
+            "mediaId": "7f669498-72ed-43b8-a54c-22cc9e2755b5",
+            "mediaType": "image"
+          },
+          {
+            "id": "scene1",
+            "type": "synth_image",
+            "status": "failed"
+          },
+          {
+            "id": "scene2",
+            "type": "synth_image",
+            "status": "success",
+            "mediaId": "09d88118-cf1d-407b-a5f1-b26690bb4292",
+            "mediaType": "image"
+          },
+          {
+            "id": "scene3",
+            "type": "synth_image",
+            "status": "success",
+            "mediaId": "95f3128e-fae9-4aaf-aa51-877db891289f",
+            "mediaType": "image"
+          },
+          {
+            "id": "scene4",
+            "type": "synth_image",
+            "status": "success",
+            "mediaId": "e779fcb8-2d02-45ac-930b-0fe6317d7d2e",
+            "mediaType": "image"
+          },
+          {
+            "id": "desc0",
+            "type": "synth_analyze",
+            "status": "pending"
+          },
+          {
+            "id": "desc1",
+            "type": "synth_analyze",
+            "status": "pending"
+          },
+          {
+            "id": "desc2",
+            "type": "synth_analyze",
+            "status": "pending"
+          },
+          {
+            "id": "desc3",
+            "type": "synth_analyze",
+            "status": "pending"
+          },
+          {
+            "id": "desc4",
+            "type": "synth_analyze",
+            "status": "pending"
+          },
+          {
+            "id": "narrative",
+            "type": "synth_narrative",
+            "status": "pending"
+          },
+          {
+            "id": "hero_video",
+            "type": "synth_video",
+            "status": "pending"
+          }
+        ]
+      }
+    }
+  ]
+}

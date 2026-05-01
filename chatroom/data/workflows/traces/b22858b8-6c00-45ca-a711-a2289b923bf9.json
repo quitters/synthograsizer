@@ -1,0 +1,1851 @@
+{
+  "workflowId": "b22858b8-6c00-45ca-a711-a2289b923bf9",
+  "name": "Cinematic Short: Anthropomorphic voluptuous Pitcher Plant with fles",
+  "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+  "agentName": "Theo Nakamura",
+  "agentColor": "#4ECDC4",
+  "sessionId": "c85d5173-41d1-4e1e-ab57-bc3e3a077616",
+  "messageId": null,
+  "startedAt": "2026-04-30T21:11:13.813Z",
+  "completedAt": "2026-04-30T21:12:19.048Z",
+  "status": "failed",
+  "totals": {
+    "durationMs": 65235,
+    "costUsd": 0.2135,
+    "completedSteps": 13,
+    "failedSteps": 1
+  },
+  "steps": {
+    "plan": {
+      "id": "plan",
+      "type": "synth_text",
+      "dependsOn": [],
+      "status": "complete",
+      "startedMs": 0,
+      "completedMs": 18913,
+      "durationMs": 18913,
+      "inputs": {
+        "prompt": "You are a film director planning a short film. Concept: \"Anthropomorphic voluptuous Pitcher Plant with fleshy Georgia O'Keeffe inspired botanical cleavage in a perfectly symmetrical pastel brutalist room seducing and betraying her partner, ending in a biometric thermal scan and cryogenic freezing\". Mood: deadpan sensual macabre.\nPlan exactly 5 scenes. For each scene, write a vivid image generation prompt (2-3 sentences) describing the visual.\nOutput ONLY a JSON array of strings, one prompt per scene. Example: [\"scene 1 prompt\", \"scene 2 prompt\"]"
+      },
+      "outputSummary": {},
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.001,
+      "chunks": 18,
+      "lastChunk": " the perfectly centered floor, cementing the eerie, deadpan stillness of this botanical tomb.\"\n]"
+    },
+    "style": {
+      "id": "style",
+      "type": "synth_template",
+      "dependsOn": [],
+      "status": "complete",
+      "startedMs": 1,
+      "completedMs": 24835,
+      "durationMs": 24834,
+      "inputs": {
+        "description": "deadpan sensual macabre visual style for a short film about: Anthropomorphic voluptuous Pitcher Plant with fleshy Georgia O'Keeffe inspired botanical cleavage in a perfectly symmetrical pastel brutalist room seducing and betraying her partner, ending in a biometric thermal scan and cryogenic freezing",
+        "mode": "text"
+      },
+      "outputSummary": {
+        "status": "success",
+        "template": {
+          "promptTemplate": "A deadpan sensual macabre short film still of an anthropomorphic voluptuous pitcher plant with {{botanical_anatomy}}, seducing and betraying her {{partner_entity}} through {{seduction_action}}. They are in a perfectly symmetrical pastel brutalist room featuring {{room_aesthetics}}. The scene is captured with {{cinematography}}, culminating in a bizarre botanical climax involving {{macabre_element}}.",
+          "variables": [
+            {
+              "name": "botanical_anatomy",
+              "feature_name": "Botanical Anatomy",
+              "values": [
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]"
+              ]
+            },
+            {
+              "name": "partner_entity",
+              "feature_name": "Partner Entity",
+              "values": [
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]"
+              ]
+            },
+            {
+              "name": "seduction_action",
+              "feature_name": "Seduction Action",
+              "values": [
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]"
+              ]
+            },
+            {
+              "name": "room_aesthetics",
+              "feature_name": "Room Aesthetics",
+              "values": [
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]"
+              ]
+            },
+            {
+              "name": "cinematography",
+              "feature_name": "Cinematography",
+              "values": [
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]"
+              ]
+            },
+            {
+              "name": "macabre_element",
+              "feature_name": "Macabre Element",
+              "values": [
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]"
+              ]
+            }
+          ]
+        }
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.001
+    },
+    "scene0": {
+      "id": "scene0",
+      "type": "synth_image",
+      "dependsOn": [
+        "plan",
+        "style"
+      ],
+      "status": "complete",
+      "startedMs": 24835,
+      "completedMs": 39948,
+      "durationMs": 15113,
+      "inputs": {
+        "prompt": "Scene 1 of 5 from a deadpan sensual macabre short film: Anthropomorphic voluptuous Pitcher Plant with fleshy Georgia O'Keeffe inspired botanical cleavage in a perfectly symmetrical pastel brutalist room seducing and betraying her partner, ending in a biometric thermal scan and cryogenic freezing. A deadpan sensual macabre short film still of an anthropomorphic voluptuous pitcher plant with {{botanical_anatomy}}, seducing and betraying her {{partner_entity}} through {{seduction_action}}. They are in a perfectly symmetrical pastel brutalist room featuring {{room_aesthetics}}. The scene is captured with {{cinematography}}, culminating in a bizarre botanical climax involving {{macabre_element}}.",
+        "aspect_ratio": "16:9"
+      },
+      "outputSummary": {
+        "status": "success",
+        "mediaId": "771c07fd-8cf6-4c17-9d64-a11bbaf07775",
+        "mediaType": "image"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.04
+    },
+    "scene1": {
+      "id": "scene1",
+      "type": "synth_image",
+      "dependsOn": [
+        "plan",
+        "style"
+      ],
+      "status": "complete",
+      "startedMs": 24836,
+      "completedMs": 44279,
+      "durationMs": 19443,
+      "inputs": {
+        "prompt": "Scene 2 of 5 from a deadpan sensual macabre short film: Anthropomorphic voluptuous Pitcher Plant with fleshy Georgia O'Keeffe inspired botanical cleavage in a perfectly symmetrical pastel brutalist room seducing and betraying her partner, ending in a biometric thermal scan and cryogenic freezing. A deadpan sensual macabre short film still of an anthropomorphic voluptuous pitcher plant with {{botanical_anatomy}}, seducing and betraying her {{partner_entity}} through {{seduction_action}}. They are in a perfectly symmetrical pastel brutalist room featuring {{room_aesthetics}}. The scene is captured with {{cinematography}}, culminating in a bizarre botanical climax involving {{macabre_element}}.",
+        "aspect_ratio": "16:9"
+      },
+      "outputSummary": {
+        "status": "success",
+        "mediaId": "69db6c0c-03ad-431a-8cb4-aabb1031357a",
+        "mediaType": "image"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.04
+    },
+    "scene2": {
+      "id": "scene2",
+      "type": "synth_image",
+      "dependsOn": [
+        "plan",
+        "style"
+      ],
+      "status": "complete",
+      "startedMs": 24836,
+      "completedMs": 51021,
+      "durationMs": 26185,
+      "inputs": {
+        "prompt": "Scene 3 of 5 from a deadpan sensual macabre short film: Anthropomorphic voluptuous Pitcher Plant with fleshy Georgia O'Keeffe inspired botanical cleavage in a perfectly symmetrical pastel brutalist room seducing and betraying her partner, ending in a biometric thermal scan and cryogenic freezing. A deadpan sensual macabre short film still of an anthropomorphic voluptuous pitcher plant with {{botanical_anatomy}}, seducing and betraying her {{partner_entity}} through {{seduction_action}}. They are in a perfectly symmetrical pastel brutalist room featuring {{room_aesthetics}}. The scene is captured with {{cinematography}}, culminating in a bizarre botanical climax involving {{macabre_element}}.",
+        "aspect_ratio": "16:9"
+      },
+      "outputSummary": {
+        "status": "success",
+        "mediaId": "05cde0db-7a8c-4f30-9ec4-82ad3f5025f7",
+        "mediaType": "image"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.04
+    },
+    "scene3": {
+      "id": "scene3",
+      "type": "synth_image",
+      "dependsOn": [
+        "plan",
+        "style"
+      ],
+      "status": "complete",
+      "startedMs": 24837,
+      "completedMs": 41231,
+      "durationMs": 16394,
+      "inputs": {
+        "prompt": "Scene 4 of 5 from a deadpan sensual macabre short film: Anthropomorphic voluptuous Pitcher Plant with fleshy Georgia O'Keeffe inspired botanical cleavage in a perfectly symmetrical pastel brutalist room seducing and betraying her partner, ending in a biometric thermal scan and cryogenic freezing. A deadpan sensual macabre short film still of an anthropomorphic voluptuous pitcher plant with {{botanical_anatomy}}, seducing and betraying her {{partner_entity}} through {{seduction_action}}. They are in a perfectly symmetrical pastel brutalist room featuring {{room_aesthetics}}. The scene is captured with {{cinematography}}, culminating in a bizarre botanical climax involving {{macabre_element}}.",
+        "aspect_ratio": "16:9"
+      },
+      "outputSummary": {
+        "status": "success",
+        "mediaId": "aee8db7c-f48a-4ddb-a405-08260fdcfe57",
+        "mediaType": "image"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.04,
+      "lastRetryError": "Image generation failed: No image found in Gemini response (finish_reasons=['FinishReason.NO_IMAGE'])"
+    },
+    "scene4": {
+      "id": "scene4",
+      "type": "synth_image",
+      "dependsOn": [
+        "plan",
+        "style"
+      ],
+      "status": "complete",
+      "startedMs": 24838,
+      "completedMs": 38382,
+      "durationMs": 13544,
+      "inputs": {
+        "prompt": "Scene 5 of 5 from a deadpan sensual macabre short film: Anthropomorphic voluptuous Pitcher Plant with fleshy Georgia O'Keeffe inspired botanical cleavage in a perfectly symmetrical pastel brutalist room seducing and betraying her partner, ending in a biometric thermal scan and cryogenic freezing. A deadpan sensual macabre short film still of an anthropomorphic voluptuous pitcher plant with {{botanical_anatomy}}, seducing and betraying her {{partner_entity}} through {{seduction_action}}. They are in a perfectly symmetrical pastel brutalist room featuring {{room_aesthetics}}. The scene is captured with {{cinematography}}, culminating in a bizarre botanical climax involving {{macabre_element}}.",
+        "aspect_ratio": "16:9"
+      },
+      "outputSummary": {
+        "status": "success",
+        "mediaId": "235f623b-0709-47d1-9cd3-58761c82016b",
+        "mediaType": "image"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.04
+    },
+    "desc0": {
+      "id": "desc0",
+      "type": "synth_analyze",
+      "dependsOn": [
+        "scene0"
+      ],
+      "status": "complete",
+      "startedMs": 51021,
+      "completedMs": 57892,
+      "durationMs": 6871,
+      "inputs": {
+        "image_id": "771c07fd-8cf6-4c17-9d64-a11bbaf07775"
+      },
+      "outputSummary": {
+        "status": "success"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.002
+    },
+    "desc1": {
+      "id": "desc1",
+      "type": "synth_analyze",
+      "dependsOn": [
+        "scene1"
+      ],
+      "status": "complete",
+      "startedMs": 51029,
+      "completedMs": 56755,
+      "durationMs": 5726,
+      "inputs": {
+        "image_id": "69db6c0c-03ad-431a-8cb4-aabb1031357a"
+      },
+      "outputSummary": {
+        "status": "success"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.002
+    },
+    "desc2": {
+      "id": "desc2",
+      "type": "synth_analyze",
+      "dependsOn": [
+        "scene2"
+      ],
+      "status": "complete",
+      "startedMs": 51035,
+      "completedMs": 56967,
+      "durationMs": 5932,
+      "inputs": {
+        "image_id": "05cde0db-7a8c-4f30-9ec4-82ad3f5025f7"
+      },
+      "outputSummary": {
+        "status": "success"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.002
+    },
+    "desc3": {
+      "id": "desc3",
+      "type": "synth_analyze",
+      "dependsOn": [
+        "scene3"
+      ],
+      "status": "complete",
+      "startedMs": 51040,
+      "completedMs": 58085,
+      "durationMs": 7045,
+      "inputs": {
+        "image_id": "aee8db7c-f48a-4ddb-a405-08260fdcfe57"
+      },
+      "outputSummary": {
+        "status": "success"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.002
+    },
+    "desc4": {
+      "id": "desc4",
+      "type": "synth_analyze",
+      "dependsOn": [
+        "scene4"
+      ],
+      "status": "complete",
+      "startedMs": 51047,
+      "completedMs": 56658,
+      "durationMs": 5611,
+      "inputs": {
+        "image_id": "235f623b-0709-47d1-9cd3-58761c82016b"
+      },
+      "outputSummary": {
+        "status": "success"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.002
+    },
+    "narrative": {
+      "id": "narrative",
+      "type": "synth_narrative",
+      "dependsOn": [
+        "desc0",
+        "desc1",
+        "desc2",
+        "desc3",
+        "desc4"
+      ],
+      "status": "complete",
+      "startedMs": 58085,
+      "completedMs": 65234,
+      "durationMs": 7149,
+      "inputs": {
+        "descriptions": [
+          "Cinematic film still in a sci-fi surrealist style. A towering botanical humanoid with petal-like cranial structures and a green velvet gown stands centrally, looking down at a man in a grey suit. The pair is framed within a large circular portal amidst pink concrete arches. The background reveals a minimalist, clinical laboratory with glowing blue medical monitors and glass chambers. Soft, diffused overhead lighting creates a sterile atmosphere with light atmospheric haze. The color palette features a striking contrast of forest green, dusty rose, and icy blue. Captured with a sharp wide-angle lens, the composition emphasizes architectural symmetry and clean digital textures. The overall aesthetic is uncanny and clinical, blending high-fashion elegance with eerie science fiction elements.",
+          "This cinematic surrealist photograph features a symmetrical, stylized composition. A man in a linen shirt stands beside a woman in a green velvet dress whose head is a carnivorous pitcher plant; she leans in as if whispering. They are positioned within a brutalist, minimalist interior characterized by arched windows and geometric pastel pink and mint green wall panels. Flat, clinical lighting fills the space, creating a desaturated, eerie atmosphere. The color palette centers on sage, dusty rose, and concrete grey. Captured with a wide-angle lens and sharp focus, the image conveys a detached, uncanny aesthetic.",
+          "This surreal cinematic 3D composite features a man in a grey suit facing a bulbous, fleshy pitcher-plant creature in a centered composition. The creature, possessing humanoid arms, exhales crystalline shards while touching the man's face. Above them, a holographic interface displays a thermal scan of their interaction. They stand in a vast, Brutalist hall with organic concrete arches in pale mint and dusty pink hues. Diffused, clinical lighting permeates the sterile space, creating a shadowless environment. The palette balances muted architectural pastels with the creature's vibrant organic greens and the glowing cyan and orange of the HUD. Captured with a wide-angle lens, the scene exhibits high-detail rendering and a clean, unsettlingly calm aesthetic of biological sci-fi and clinical de… <+9 chars>",
+          "This surrealist 3D digital render, presented as a cinematic contact sheet, depicts an enigmatic encounter between a humanoid pitcher-plant creature and an astronaut. The grid-based composition follows their interaction within a minimalist, brutalist facility defined by geometric architecture. The sequence illustrates the plant creature examining the astronaut before the human enters a cylindrical cryogenic chamber for observation. The environment utilizes soft, sterile high-key lighting that shifts to cooler, darker tones as the narrative concludes. A striking color palette of pastel pink and mint green contrasts with the organic olive greens of the creature. High-fidelity textures emphasize the juxtaposition of biological forms against sharp architectural lines. The overall aesthetic is c… <+43 chars>",
+          "This cinematic film still captures a surreal encounter within a minimalist, Brutalist interior. A humanoid creature with a bulbous, pitcher-plant head and black velvet robe stands opposite a man in a tan linen suit. Symmetrical framing utilizes pastel pink and mint green architectural alcoves to center the duo. Soft, diffused lighting creates a clinical, dreamlike atmosphere, complemented by a faint plume of smoke rising from the floor. The palette balances dusty rose and pale green against deep black and neutral beige. Technical qualities include 35mm film grain and sharp focus, evoking a retro-futuristic aesthetic. The overall mood is distinctly uncanny and absurdist."
+        ],
+        "mode": "story"
+      },
+      "outputSummary": {
+        "status": "success",
+        "prompts": [
+          "The camera slowly pushes in on the towering botanical humanoid as its petal-like cranial structures twitch subtly. The man in the grey suit stands motionless while the glowing blue medical monitors in the laboratory background flicker with data, and a soft atmospheric haze drifts through the circular portal.",
+          "A symmetrical medium shot shows the pitcher-plant woman leaning in with a fluid, organic motion to whisper into the man's ear. The flat, clinical lighting of the mint and pink brutalist room remains constant as the man's expression shifts into a daze, the camera slowly tracking her serpentine movements.",
+          "The creature extends its humanoid arms to gently cup the man's face as it exhales a shimmering cloud of crystalline shards. Above them, the holographic thermal interface pulses with cyan and orange light, reflecting off the organic green textures of the creature and the sterile concrete arches of the hall.",
+          "A cinematic sequence shows the plant creature conducting a physical examination of the man, now in an astronaut suit, before guiding him toward a glowing cylindrical cryogenic chamber. The camera captures the man's slow, rhythmic steps as he enters the pod, the lighting transitioning from pastel pink to a cold, clinical blue as the chamber seals.",
+          "The robed pitcher-plant creature and the man in the tan suit stand in a final, symmetrical standoff as a faint plume of white smoke curls up from the floor. The camera slowly pulls back to reveal the vastness of the Brutalist alcoves, capturing the retro-futuristic atmosphere and the uncanny stillness of the biological encounter."
+        ]
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.0015
+    },
+    "hero_video": {
+      "id": "hero_video",
+      "type": "synth_video",
+      "dependsOn": [
+        "desc0"
+      ],
+      "status": "failed",
+      "startedMs": 58086,
+      "completedMs": 61303,
+      "durationMs": 3217,
+      "inputs": {
+        "prompt": "deadpan sensual macabre cinematic shot: Cinematic film still in a sci-fi surrealist style. A towering botanical humanoid with petal-like cranial structures and a green velvet gown stands centrally, looking down at a man in a grey suit. The pair is framed within a large circular portal amidst pink concrete arches. The background reveals a minimalist, clinical laboratory with glowing blue medical monitors and glass chambers. Soft, diffused overhead lighting creates a sterile atmosphere with light atmospheric haze. The color palette features a striking contrast of forest green, dusty rose, and icy blue. Captured with a sharp wide-angle lens, the composition emphasizes architectural symmetry and clean digital textures. The overall aesthetic is uncanny and clinical, blending high-fashion elegan… <+84 chars>",
+        "aspect_ratio": "16:9",
+        "duration": "5"
+      },
+      "outputSummary": null,
+      "error": "400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'The number value for `durationSeconds` is out of bound. Please provide a value between 4 and 8, inclusive.', 'status': 'INVALID_ARGUMENT'}}",
+      "attempts": 1,
+      "costUsd": 0,
+      "lastRetryError": "400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'The number value for `durationSeconds` is out of bound. Please provide a value between 4 and 8, inclusive.', 'status': 'INVALID_ARGUMENT'}}"
+    }
+  },
+  "events": [
+    {
+      "t": 0,
+      "event": "workflow_start",
+      "data": {
+        "workflowId": "b22858b8-6c00-45ca-a711-a2289b923bf9",
+        "name": "Cinematic Short: Anthropomorphic voluptuous Pitcher Plant with fles",
+        "stepCount": 14,
+        "steps": [
+          {
+            "id": "plan",
+            "type": "synth_text",
+            "dependsOn": []
+          },
+          {
+            "id": "style",
+            "type": "synth_template",
+            "dependsOn": []
+          },
+          {
+            "id": "scene0",
+            "type": "synth_image",
+            "dependsOn": [
+              "plan",
+              "style"
+            ]
+          },
+          {
+            "id": "scene1",
+            "type": "synth_image",
+            "dependsOn": [
+              "plan",
+              "style"
+            ]
+          },
+          {
+            "id": "scene2",
+            "type": "synth_image",
+            "dependsOn": [
+              "plan",
+              "style"
+            ]
+          },
+          {
+            "id": "scene3",
+            "type": "synth_image",
+            "dependsOn": [
+              "plan",
+              "style"
+            ]
+          },
+          {
+            "id": "scene4",
+            "type": "synth_image",
+            "dependsOn": [
+              "plan",
+              "style"
+            ]
+          },
+          {
+            "id": "desc0",
+            "type": "synth_analyze",
+            "dependsOn": [
+              "scene0"
+            ]
+          },
+          {
+            "id": "desc1",
+            "type": "synth_analyze",
+            "dependsOn": [
+              "scene1"
+            ]
+          },
+          {
+            "id": "desc2",
+            "type": "synth_analyze",
+            "dependsOn": [
+              "scene2"
+            ]
+          },
+          {
+            "id": "desc3",
+            "type": "synth_analyze",
+            "dependsOn": [
+              "scene3"
+            ]
+          },
+          {
+            "id": "desc4",
+            "type": "synth_analyze",
+            "dependsOn": [
+              "scene4"
+            ]
+          },
+          {
+            "id": "narrative",
+            "type": "synth_narrative",
+            "dependsOn": [
+              "desc0",
+              "desc1",
+              "desc2",
+              "desc3",
+              "desc4"
+            ]
+          },
+          {
+            "id": "hero_video",
+            "type": "synth_video",
+            "dependsOn": [
+              "desc0"
+            ]
+          }
+        ],
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "agentName": "Theo Nakamura",
+        "agentColor": "#4ECDC4",
+        "sessionId": "c85d5173-41d1-4e1e-ab57-bc3e3a077616",
+        "messageId": null
+      }
+    },
+    {
+      "t": 0,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "b22858b8-6c00-45ca-a711-a2289b923bf9",
+        "stepId": "plan",
+        "stepType": "synth_text",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "dependsOn": [],
+        "inputs": {
+          "prompt": "You are a film director planning a short film. Concept: \"Anthropomorphic voluptuous Pitcher Plant with fleshy Georgia O'Keeffe inspired botanical cleavage in a perfectly symmetrical pastel brutalist room seducing and betraying her partner, ending in a biometric thermal scan and cryogenic freezing\". Mood: deadpan sensual macabre.\nPlan exactly 5 scenes. For each scene, write a vivid image generation prompt (2-3 sentences) describing the visual.\nOutput ONLY a JSON array of strings, one prompt per scene. Example: [\"scene 1 prompt\", \"scene 2 prompt\"]"
+        }
+      }
+    },
+    {
+      "t": 1,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "b22858b8-6c00-45ca-a711-a2289b923bf9",
+        "stepId": "style",
+        "stepType": "synth_template",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "dependsOn": [],
+        "inputs": {
+          "description": "deadpan sensual macabre visual style for a short film about: Anthropomorphic voluptuous Pitcher Plant with fleshy Georgia O'Keeffe inspired botanical cleavage in a perfectly symmetrical pastel brutalist room seducing and betraying her partner, ending in a biometric thermal scan and cryogenic freezing",
+          "mode": "text"
+        }
+      }
+    },
+    {
+      "t": 1,
+      "event": "workflow_submitted",
+      "data": {
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "agentName": "Theo Nakamura",
+        "agentColor": "#4ECDC4",
+        "sessionId": "c85d5173-41d1-4e1e-ab57-bc3e3a077616",
+        "workflowId": "b22858b8-6c00-45ca-a711-a2289b923bf9",
+        "workflowName": "Cinematic Short: Anthropomorphic voluptuous Pitcher Plant with fles",
+        "templateId": "cinematic_short",
+        "stepCount": 14,
+        "steps": [
+          {
+            "id": "plan",
+            "type": "synth_text"
+          },
+          {
+            "id": "style",
+            "type": "synth_template"
+          },
+          {
+            "id": "scene0",
+            "type": "synth_image"
+          },
+          {
+            "id": "scene1",
+            "type": "synth_image"
+          },
+          {
+            "id": "scene2",
+            "type": "synth_image"
+          },
+          {
+            "id": "scene3",
+            "type": "synth_image"
+          },
+          {
+            "id": "scene4",
+            "type": "synth_image"
+          },
+          {
+            "id": "desc0",
+            "type": "synth_analyze"
+          },
+          {
+            "id": "desc1",
+            "type": "synth_analyze"
+          },
+          {
+            "id": "desc2",
+            "type": "synth_analyze"
+          },
+          {
+            "id": "desc3",
+            "type": "synth_analyze"
+          },
+          {
+            "id": "desc4",
+            "type": "synth_analyze"
+          },
+          {
+            "id": "narrative",
+            "type": "synth_narrative"
+          },
+          {
+            "id": "hero_video",
+            "type": "synth_video"
+          }
+        ]
+      }
+    },
+    {
+      "t": 16374,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "b22858b8-6c00-45ca-a711-a2289b923bf9",
+        "stepId": "plan",
+        "text": "[\n  \"Wide symmetrical shot of a perfectly symmetrical pastel pink"
+      }
+    },
+    {
+      "t": 16490,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "b22858b8-6c00-45ca-a711-a2289b923bf9",
+        "stepId": "plan",
+        "text": " and mint-green brutalist concrete room under deadpan cinematic lighting. In the center sits an anthropomorphic, voluptuous"
+      }
+    },
+    {
+      "t": 16621,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "b22858b8-6c00-45ca-a711-a2289b923bf9",
+        "stepId": "plan",
+        "text": " pitcher plant with fleshy, layered, Georgia O'Keeffe-inspired botanical folds resembling deep, alluring cleavage. The"
+      }
+    },
+    {
+      "t": 16795,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "b22858b8-6c00-45ca-a711-a2289b923bf9",
+        "stepId": "plan",
+        "text": " plant exudes a strange, slick sensuality that contrasts deeply with the stark, cold geometric architecture.\",\n  \"Close up"
+      }
+    },
+    {
+      "t": 16898,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "b22858b8-6c00-45ca-a711-a2289b923bf9",
+        "stepId": "plan",
+        "text": " of the voluptuous pitcher plant extending a dripping, nectar-coated tendril to caress the face of a mesmerized"
+      }
+    },
+    {
+      "t": 17056,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "b22858b8-6c00-45ca-a711-a2289b923bf9",
+        "stepId": "plan",
+        "text": " human partner in minimalist clothing. The fleshy, deep red and peach botanical curves of the plant part invitingly, echoing O"
+      }
+    },
+    {
+      "t": 17225,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "b22858b8-6c00-45ca-a711-a2289b923bf9",
+        "stepId": "plan",
+        "text": "'Keeffe's highly sensual, macabre flower paintings. Bathed in soft, diffused pastel light, the"
+      }
+    },
+    {
+      "t": 17381,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "b22858b8-6c00-45ca-a711-a2289b923bf9",
+        "stepId": "plan",
+        "text": " mood is eerily erotic and completely devoid of emotion.\",\n  \"The massive fleshy petals abruptly snap shut around the partner"
+      }
+    },
+    {
+      "t": 17536,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "b22858b8-6c00-45ca-a711-a2289b923bf9",
+        "stepId": "plan",
+        "text": ", violently engulfing them within the slick, vein-laced botanical folds. Thick, glossy digestive fluids begin to seep"
+      }
+    },
+    {
+      "t": 17676,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "b22858b8-6c00-45ca-a711-a2289b923bf9",
+        "stepId": "plan",
+        "text": " from the edges of the tight maroon seal, contrasting sharply with the pristine, sterile pastel concrete background. The framing remains unsettling"
+      }
+    },
+    {
+      "t": 17839,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "b22858b8-6c00-45ca-a711-a2289b923bf9",
+        "stepId": "plan",
+        "text": "ly symmetrical and detached, capturing a brutally macabre moment of quiet consumption.\",\n  \"The visual abruptly shifts to a"
+      }
+    },
+    {
+      "t": 17984,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "b22858b8-6c00-45ca-a711-a2289b923bf9",
+        "stepId": "plan",
+        "text": " biometric thermal imaging scan, transforming the brutalist room into stark gradients of deep blue, acid green, and searing crimson."
+      }
+    },
+    {
+      "t": 18160,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "b22858b8-6c00-45ca-a711-a2289b923bf9",
+        "stepId": "plan",
+        "text": " Inside the cooling, dark silhouette of the monstrous pitcher plant, the trapped partner registers as a bright, glowing orange heat signature"
+      }
+    },
+    {
+      "t": 18347,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "b22858b8-6c00-45ca-a711-a2289b923bf9",
+        "stepId": "plan",
+        "text": " that is slowly fading away. Crisp digital overlays and targeting reticles frame this deadpan, high-tech observation of a"
+      }
+    },
+    {
+      "t": 18436,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "b22858b8-6c00-45ca-a711-a2289b923bf9",
+        "stepId": "plan",
+        "text": " gruesome botanical digestion.\",\n  \"Thick, heavy frost rapidly blooms across the symmetrical pastel concrete walls, encasing the"
+      }
+    },
+    {
+      "t": 18611,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "b22858b8-6c00-45ca-a711-a2289b923bf9",
+        "stepId": "plan",
+        "text": " bloated, fleshy pitcher plant in jagged, glittering ice crystals. The once-vibrant botanical curves are now frozen solid under"
+      }
+    },
+    {
+      "t": 18738,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "b22858b8-6c00-45ca-a711-a2289b923bf9",
+        "stepId": "plan",
+        "text": " a pale, sterile blue light, perfectly preserving the macabre tragedy trapped inside. Plumes of dense cryogenic vapor roll across"
+      }
+    },
+    {
+      "t": 18893,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "b22858b8-6c00-45ca-a711-a2289b923bf9",
+        "stepId": "plan",
+        "text": " the perfectly centered floor, cementing the eerie, deadpan stillness of this botanical tomb.\"\n]"
+      }
+    },
+    {
+      "t": 18913,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "b22858b8-6c00-45ca-a711-a2289b923bf9",
+        "stepId": "plan",
+        "stepType": "synth_text",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "attempts": 1,
+        "durationMs": 18913,
+        "summary": {}
+      }
+    },
+    {
+      "t": 24835,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "b22858b8-6c00-45ca-a711-a2289b923bf9",
+        "stepId": "style",
+        "stepType": "synth_template",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "attempts": 1,
+        "durationMs": 24834,
+        "summary": {
+          "status": "success",
+          "template": {
+            "promptTemplate": "A deadpan sensual macabre short film still of an anthropomorphic voluptuous pitcher plant with {{botanical_anatomy}}, seducing and betraying her {{partner_entity}} through {{seduction_action}}. They are in a perfectly symmetrical pastel brutalist room featuring {{room_aesthetics}}. The scene is captured with {{cinematography}}, culminating in a bizarre botanical climax involving {{macabre_element}}.",
+            "variables": [
+              {
+                "name": "botanical_anatomy",
+                "feature_name": "Botanical Anatomy",
+                "values": [
+                  {
+                    "text": "fleshy Georgia O'Keeffe inspired botanical cleavage",
+                    "weight": 3
+                  },
+                  {
+                    "text": "dew-slicked translucent petal folds",
+                    "weight": 3
+                  },
+                  {
+                    "text": "velvety crimson carnivorous lips",
+                    "weight": 3
+                  },
+                  {
+                    "text": "pulsating neon-veined floral curves",
+                    "weight": 2
+                  },
+                  {
+                    "text": "glistening sap-covered pistil structures",
+                    "weight": 2
+                  },
+                  {
+                    "text": "swollen bioluminescent nectar pouches",
+                    "weight": 2
+                  },
+                  {
+                    "text": "smooth latex-like green tendrils",
+                    "weight": 2
+                  },
+                  {
+                    "text": "hyper-detailed erotic orchid geometry",
+                    "weight": 1
+                  },
+                  {
+                    "text": "gaping digestive floral cavities",
+                    "weight": 1
+                  }
+                ]
+              },
+              {
+                "name": "partner_entity",
+                "feature_name": "Partner Entity",
+                "values": [
+                  {
+                    "text": "ensnared porcelain-skinned botanist",
+                    "weight": 3
+                  },
+                  {
+                    "text": "hypnotized iridescent pollinator insect",
+                    "weight": 3
+                  },
+                  {
+                    "text": "trembling bioluminescent moth creature",
+                    "weight": 3
+                  },
+                  {
+                    "text": "doomed silver android lover",
+                    "weight": 2
+                  },
+                  {
+                    "text": "gullible human astronaut",
+                    "weight": 2
+                  },
+                  {
+                    "text": "faceless hazmat-suited technician",
+                    "weight": 2
+                  },
+                  {
+                    "text": "translucent deep-sea diver",
+                    "weight": 1
+                  },
+                  {
+                    "text": "rival carnivorous flora",
+                    "weight": 1
+                  }
+                ]
+              },
+              {
+                "name": "seduction_action",
+                "feature_name": "Seduction Action",
+                "values": [
+                  {
+                    "text": "a slow deadpan wrapping of vines",
+                    "weight": 3
+                  },
+                  {
+                    "text": "enticing pheromone vapor trails",
+                    "weight": 3
+                  },
+                  {
+                    "text": "offering a dripping bead of narcotic nectar",
+                    "weight": 3
+                  },
+                  {
+                    "text": "hypnotic swaying and toxic pollen release",
+                    "weight": 2
+                  },
+                  {
+                    "text": "tenderly stroking with serrated leaves",
+                    "weight": 2
+                  },
+                  {
+                    "text": "emotionless mirroring of their movements",
+                    "weight": 2
+                  },
+                  {
+                    "text": "gentle strangulation via floral stems",
+                    "weight": 1
+                  },
+                  {
+                    "text": "a sudden paralyzing thorny embrace",
+                    "weight": 1
+                  }
+                ]
+              },
+              {
+                "name": "room_aesthetics",
+                "feature_name": "Room Aesthetics",
+                "values": [
+                  {
+                    "text": "mint-green raw concrete monoliths",
+                    "weight": 3
+                  },
+                  {
+                    "text": "stark symmetrical pale-pink pillars",
+                    "weight": 3
+                  },
+                  {
+                    "text": "peach-tinted brutalist geometric altars",
+                    "weight": 3
+                  },
+                  {
+                    "text": "soft lavender stepped architectural concrete",
+                    "weight": 2
+                  },
+                  {
+                    "text": "baby-blue harsh cement enclosures",
+                    "weight": 2
+                  },
+                  {
+                    "text": "matte beige sterile brutalist curves",
+                    "weight": 2
+                  },
+                  {
+                    "text": "dusty rose soundproof brutalist chambers",
+                    "weight": 1
+                  },
+                  {
+                    "text": "chalky coral-colored concrete brutalism",
+                    "weight": 1
+                  }
+                ]
+              },
+              {
+                "name": "cinematography",
+                "feature_name": "Cinematography",
+                "values": [
+                  {
+                    "text": "static center-framed symmetrical cinematography",
+                    "weight": 3
+                  },
+                  {
+                    "text": "cold clinical laboratory floodlights",
+                    "weight": 3
+                  },
+                  {
+                    "text": "moody sensual indie horror lighting",
+                    "weight": 3
+                  },
+                  {
+                    "text": "harsh overhead flash photography",
+                    "weight": 2
+                  },
+                  {
+                    "text": "neon-drenched darkroom aesthetic",
+                    "weight": 2
+                  },
+                  {
+                    "text": "hazy soft-focus 70s cinema lens",
+                    "weight": 2
+                  },
+                  {
+                    "text": "false-color infrared thermal imaging",
+                    "weight": 1
+                  },
+                  {
+                    "text": "high-contrast biometric thermal scanning",
+                    "weight": 1
+                  }
+                ]
+              },
+              {
+                "name": "macabre_element",
+                "feature_name": "Macabre Element",
+                "values": [
+                  {
+                    "text": "sudden cryogenic freezing mist",
+                    "weight": 3
+                  },
+                  {
+                    "text": "icy frost creeping up botanical vines",
+                    "weight": 3
+                  },
+                  {
+                    "text": "petrified remains wrapped in soft petals",
+                    "weight": 3
+                  },
+                  {
+                    "text": "slow digestion in a translucent pod",
+                    "weight": 2
+                  },
+                  {
+                    "text": "flash-frozen nectar preserving the victim",
+                    "weight": 2
+                  },
+                  {
+                    "text": "sub-zero liquid nitrogen floods",
+                    "weight": 2
+                  },
+                  {
+                    "text": "a thermal bloom of decreasing body temperature",
+                    "weight": 1
+                  },
+                  {
+                    "text": "a deadpan biological temperature drop",
+                    "weight": 1
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "t": 24835,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "b22858b8-6c00-45ca-a711-a2289b923bf9",
+        "stepId": "scene0",
+        "stepType": "synth_image",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "dependsOn": [
+          "plan",
+          "style"
+        ],
+        "inputs": {
+          "prompt": "Scene 1 of 5 from a deadpan sensual macabre short film: Anthropomorphic voluptuous Pitcher Plant with fleshy Georgia O'Keeffe inspired botanical cleavage in a perfectly symmetrical pastel brutalist room seducing and betraying her partner, ending in a biometric thermal scan and cryogenic freezing. A deadpan sensual macabre short film still of an anthropomorphic voluptuous pitcher plant with {{botanical_anatomy}}, seducing and betraying her {{partner_entity}} through {{seduction_action}}. They are in a perfectly symmetrical pastel brutalist room featuring {{room_aesthetics}}. The scene is captured with {{cinematography}}, culminating in a bizarre botanical climax involving {{macabre_element}}.",
+          "aspect_ratio": "16:9"
+        }
+      }
+    },
+    {
+      "t": 24836,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "b22858b8-6c00-45ca-a711-a2289b923bf9",
+        "stepId": "scene1",
+        "stepType": "synth_image",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "dependsOn": [
+          "plan",
+          "style"
+        ],
+        "inputs": {
+          "prompt": "Scene 2 of 5 from a deadpan sensual macabre short film: Anthropomorphic voluptuous Pitcher Plant with fleshy Georgia O'Keeffe inspired botanical cleavage in a perfectly symmetrical pastel brutalist room seducing and betraying her partner, ending in a biometric thermal scan and cryogenic freezing. A deadpan sensual macabre short film still of an anthropomorphic voluptuous pitcher plant with {{botanical_anatomy}}, seducing and betraying her {{partner_entity}} through {{seduction_action}}. They are in a perfectly symmetrical pastel brutalist room featuring {{room_aesthetics}}. The scene is captured with {{cinematography}}, culminating in a bizarre botanical climax involving {{macabre_element}}.",
+          "aspect_ratio": "16:9"
+        }
+      }
+    },
+    {
+      "t": 24836,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "b22858b8-6c00-45ca-a711-a2289b923bf9",
+        "stepId": "scene2",
+        "stepType": "synth_image",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "dependsOn": [
+          "plan",
+          "style"
+        ],
+        "inputs": {
+          "prompt": "Scene 3 of 5 from a deadpan sensual macabre short film: Anthropomorphic voluptuous Pitcher Plant with fleshy Georgia O'Keeffe inspired botanical cleavage in a perfectly symmetrical pastel brutalist room seducing and betraying her partner, ending in a biometric thermal scan and cryogenic freezing. A deadpan sensual macabre short film still of an anthropomorphic voluptuous pitcher plant with {{botanical_anatomy}}, seducing and betraying her {{partner_entity}} through {{seduction_action}}. They are in a perfectly symmetrical pastel brutalist room featuring {{room_aesthetics}}. The scene is captured with {{cinematography}}, culminating in a bizarre botanical climax involving {{macabre_element}}.",
+          "aspect_ratio": "16:9"
+        }
+      }
+    },
+    {
+      "t": 24837,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "b22858b8-6c00-45ca-a711-a2289b923bf9",
+        "stepId": "scene3",
+        "stepType": "synth_image",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "dependsOn": [
+          "plan",
+          "style"
+        ],
+        "inputs": {
+          "prompt": "Scene 4 of 5 from a deadpan sensual macabre short film: Anthropomorphic voluptuous Pitcher Plant with fleshy Georgia O'Keeffe inspired botanical cleavage in a perfectly symmetrical pastel brutalist room seducing and betraying her partner, ending in a biometric thermal scan and cryogenic freezing. A deadpan sensual macabre short film still of an anthropomorphic voluptuous pitcher plant with {{botanical_anatomy}}, seducing and betraying her {{partner_entity}} through {{seduction_action}}. They are in a perfectly symmetrical pastel brutalist room featuring {{room_aesthetics}}. The scene is captured with {{cinematography}}, culminating in a bizarre botanical climax involving {{macabre_element}}.",
+          "aspect_ratio": "16:9"
+        }
+      }
+    },
+    {
+      "t": 24838,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "b22858b8-6c00-45ca-a711-a2289b923bf9",
+        "stepId": "scene4",
+        "stepType": "synth_image",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "dependsOn": [
+          "plan",
+          "style"
+        ],
+        "inputs": {
+          "prompt": "Scene 5 of 5 from a deadpan sensual macabre short film: Anthropomorphic voluptuous Pitcher Plant with fleshy Georgia O'Keeffe inspired botanical cleavage in a perfectly symmetrical pastel brutalist room seducing and betraying her partner, ending in a biometric thermal scan and cryogenic freezing. A deadpan sensual macabre short film still of an anthropomorphic voluptuous pitcher plant with {{botanical_anatomy}}, seducing and betraying her {{partner_entity}} through {{seduction_action}}. They are in a perfectly symmetrical pastel brutalist room featuring {{room_aesthetics}}. The scene is captured with {{cinematography}}, culminating in a bizarre botanical climax involving {{macabre_element}}.",
+          "aspect_ratio": "16:9"
+        }
+      }
+    },
+    {
+      "t": 25777,
+      "event": "workflow_step_retry",
+      "data": {
+        "workflowId": "b22858b8-6c00-45ca-a711-a2289b923bf9",
+        "stepId": "scene3",
+        "stepType": "synth_image",
+        "attempt": 1,
+        "error": "Image generation failed: No image found in Gemini response (finish_reasons=['FinishReason.NO_IMAGE'])"
+      }
+    },
+    {
+      "t": 38382,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "b22858b8-6c00-45ca-a711-a2289b923bf9",
+        "stepId": "scene4",
+        "stepType": "synth_image",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "attempts": 1,
+        "durationMs": 13544,
+        "summary": {
+          "status": "success",
+          "mediaId": "235f623b-0709-47d1-9cd3-58761c82016b",
+          "mediaType": "image"
+        }
+      }
+    },
+    {
+      "t": 39948,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "b22858b8-6c00-45ca-a711-a2289b923bf9",
+        "stepId": "scene0",
+        "stepType": "synth_image",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "attempts": 1,
+        "durationMs": 15113,
+        "summary": {
+          "status": "success",
+          "mediaId": "771c07fd-8cf6-4c17-9d64-a11bbaf07775",
+          "mediaType": "image"
+        }
+      }
+    },
+    {
+      "t": 41231,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "b22858b8-6c00-45ca-a711-a2289b923bf9",
+        "stepId": "scene3",
+        "stepType": "synth_image",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "attempts": 2,
+        "durationMs": 16394,
+        "summary": {
+          "status": "success",
+          "mediaId": "aee8db7c-f48a-4ddb-a405-08260fdcfe57",
+          "mediaType": "image"
+        }
+      }
+    },
+    {
+      "t": 44279,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "b22858b8-6c00-45ca-a711-a2289b923bf9",
+        "stepId": "scene1",
+        "stepType": "synth_image",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "attempts": 1,
+        "durationMs": 19443,
+        "summary": {
+          "status": "success",
+          "mediaId": "69db6c0c-03ad-431a-8cb4-aabb1031357a",
+          "mediaType": "image"
+        }
+      }
+    },
+    {
+      "t": 51021,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "b22858b8-6c00-45ca-a711-a2289b923bf9",
+        "stepId": "scene2",
+        "stepType": "synth_image",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "attempts": 1,
+        "durationMs": 26185,
+        "summary": {
+          "status": "success",
+          "mediaId": "05cde0db-7a8c-4f30-9ec4-82ad3f5025f7",
+          "mediaType": "image"
+        }
+      }
+    },
+    {
+      "t": 51021,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "b22858b8-6c00-45ca-a711-a2289b923bf9",
+        "stepId": "desc0",
+        "stepType": "synth_analyze",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "dependsOn": [
+          "scene0"
+        ],
+        "inputs": {
+          "image_id": "771c07fd-8cf6-4c17-9d64-a11bbaf07775"
+        }
+      }
+    },
+    {
+      "t": 51029,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "b22858b8-6c00-45ca-a711-a2289b923bf9",
+        "stepId": "desc1",
+        "stepType": "synth_analyze",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "dependsOn": [
+          "scene1"
+        ],
+        "inputs": {
+          "image_id": "69db6c0c-03ad-431a-8cb4-aabb1031357a"
+        }
+      }
+    },
+    {
+      "t": 51035,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "b22858b8-6c00-45ca-a711-a2289b923bf9",
+        "stepId": "desc2",
+        "stepType": "synth_analyze",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "dependsOn": [
+          "scene2"
+        ],
+        "inputs": {
+          "image_id": "05cde0db-7a8c-4f30-9ec4-82ad3f5025f7"
+        }
+      }
+    },
+    {
+      "t": 51040,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "b22858b8-6c00-45ca-a711-a2289b923bf9",
+        "stepId": "desc3",
+        "stepType": "synth_analyze",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "dependsOn": [
+          "scene3"
+        ],
+        "inputs": {
+          "image_id": "aee8db7c-f48a-4ddb-a405-08260fdcfe57"
+        }
+      }
+    },
+    {
+      "t": 51047,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "b22858b8-6c00-45ca-a711-a2289b923bf9",
+        "stepId": "desc4",
+        "stepType": "synth_analyze",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "dependsOn": [
+          "scene4"
+        ],
+        "inputs": {
+          "image_id": "235f623b-0709-47d1-9cd3-58761c82016b"
+        }
+      }
+    },
+    {
+      "t": 56658,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "b22858b8-6c00-45ca-a711-a2289b923bf9",
+        "stepId": "desc4",
+        "stepType": "synth_analyze",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "attempts": 1,
+        "durationMs": 5611,
+        "summary": {
+          "status": "success"
+        }
+      }
+    },
+    {
+      "t": 56755,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "b22858b8-6c00-45ca-a711-a2289b923bf9",
+        "stepId": "desc1",
+        "stepType": "synth_analyze",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "attempts": 1,
+        "durationMs": 5726,
+        "summary": {
+          "status": "success"
+        }
+      }
+    },
+    {
+      "t": 56967,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "b22858b8-6c00-45ca-a711-a2289b923bf9",
+        "stepId": "desc2",
+        "stepType": "synth_analyze",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "attempts": 1,
+        "durationMs": 5932,
+        "summary": {
+          "status": "success"
+        }
+      }
+    },
+    {
+      "t": 57892,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "b22858b8-6c00-45ca-a711-a2289b923bf9",
+        "stepId": "desc0",
+        "stepType": "synth_analyze",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "attempts": 1,
+        "durationMs": 6870,
+        "summary": {
+          "status": "success"
+        }
+      }
+    },
+    {
+      "t": 58085,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "b22858b8-6c00-45ca-a711-a2289b923bf9",
+        "stepId": "desc3",
+        "stepType": "synth_analyze",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "attempts": 1,
+        "durationMs": 7045,
+        "summary": {
+          "status": "success"
+        }
+      }
+    },
+    {
+      "t": 58085,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "b22858b8-6c00-45ca-a711-a2289b923bf9",
+        "stepId": "narrative",
+        "stepType": "synth_narrative",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "dependsOn": [
+          "desc0",
+          "desc1",
+          "desc2",
+          "desc3",
+          "desc4"
+        ],
+        "inputs": {
+          "descriptions": [
+            "Cinematic film still in a sci-fi surrealist style. A towering botanical humanoid with petal-like cranial structures and a green velvet gown stands centrally, looking down at a man in a grey suit. The pair is framed within a large circular portal amidst pink concrete arches. The background reveals a minimalist, clinical laboratory with glowing blue medical monitors and glass chambers. Soft, diffused overhead lighting creates a sterile atmosphere with light atmospheric haze. The color palette features a striking contrast of forest green, dusty rose, and icy blue. Captured with a sharp wide-angle lens, the composition emphasizes architectural symmetry and clean digital textures. The overall aesthetic is uncanny and clinical, blending high-fashion elegance with eerie science fiction elements.",
+            "This cinematic surrealist photograph features a symmetrical, stylized composition. A man in a linen shirt stands beside a woman in a green velvet dress whose head is a carnivorous pitcher plant; she leans in as if whispering. They are positioned within a brutalist, minimalist interior characterized by arched windows and geometric pastel pink and mint green wall panels. Flat, clinical lighting fills the space, creating a desaturated, eerie atmosphere. The color palette centers on sage, dusty rose, and concrete grey. Captured with a wide-angle lens and sharp focus, the image conveys a detached, uncanny aesthetic.",
+            "This surreal cinematic 3D composite features a man in a grey suit facing a bulbous, fleshy pitcher-plant creature in a centered composition. The creature, possessing humanoid arms, exhales crystalline shards while touching the man's face. Above them, a holographic interface displays a thermal scan of their interaction. They stand in a vast, Brutalist hall with organic concrete arches in pale mint and dusty pink hues. Diffused, clinical lighting permeates the sterile space, creating a shadowless environment. The palette balances muted architectural pastels with the creature's vibrant organic greens and the glowing cyan and orange of the HUD. Captured with a wide-angle lens, the scene exhibits high-detail rendering and a clean, unsettlingly calm aesthetic of biological sci-fi and clinical detachment.",
+            "This surrealist 3D digital render, presented as a cinematic contact sheet, depicts an enigmatic encounter between a humanoid pitcher-plant creature and an astronaut. The grid-based composition follows their interaction within a minimalist, brutalist facility defined by geometric architecture. The sequence illustrates the plant creature examining the astronaut before the human enters a cylindrical cryogenic chamber for observation. The environment utilizes soft, sterile high-key lighting that shifts to cooler, darker tones as the narrative concludes. A striking color palette of pastel pink and mint green contrasts with the organic olive greens of the creature. High-fidelity textures emphasize the juxtaposition of biological forms against sharp architectural lines. The overall aesthetic is clinical, uncanny, and biologically surreal.",
+            "This cinematic film still captures a surreal encounter within a minimalist, Brutalist interior. A humanoid creature with a bulbous, pitcher-plant head and black velvet robe stands opposite a man in a tan linen suit. Symmetrical framing utilizes pastel pink and mint green architectural alcoves to center the duo. Soft, diffused lighting creates a clinical, dreamlike atmosphere, complemented by a faint plume of smoke rising from the floor. The palette balances dusty rose and pale green against deep black and neutral beige. Technical qualities include 35mm film grain and sharp focus, evoking a retro-futuristic aesthetic. The overall mood is distinctly uncanny and absurdist."
+          ],
+          "mode": "story"
+        }
+      }
+    },
+    {
+      "t": 58086,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "b22858b8-6c00-45ca-a711-a2289b923bf9",
+        "stepId": "hero_video",
+        "stepType": "synth_video",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "dependsOn": [
+          "desc0"
+        ],
+        "inputs": {
+          "prompt": "deadpan sensual macabre cinematic shot: Cinematic film still in a sci-fi surrealist style. A towering botanical humanoid with petal-like cranial structures and a green velvet gown stands centrally, looking down at a man in a grey suit. The pair is framed within a large circular portal amidst pink concrete arches. The background reveals a minimalist, clinical laboratory with glowing blue medical monitors and glass chambers. Soft, diffused overhead lighting creates a sterile atmosphere with light atmospheric haze. The color palette features a striking contrast of forest green, dusty rose, and icy blue. Captured with a sharp wide-angle lens, the composition emphasizes architectural symmetry and clean digital textures. The overall aesthetic is uncanny and clinical, blending high-fashion elegance with eerie science fiction elements.. Slow camera movement, atmospheric lighting.",
+          "aspect_ratio": "16:9",
+          "duration": "5"
+        }
+      }
+    },
+    {
+      "t": 58186,
+      "event": "workflow_step_retry",
+      "data": {
+        "workflowId": "b22858b8-6c00-45ca-a711-a2289b923bf9",
+        "stepId": "hero_video",
+        "stepType": "synth_video",
+        "attempt": 1,
+        "error": "400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'The number value for `durationSeconds` is out of bound. Please provide a value between 4 and 8, inclusive.', 'status': 'INVALID_ARGUMENT'}}"
+      }
+    },
+    {
+      "t": 61303,
+      "event": "workflow_step_error",
+      "data": {
+        "workflowId": "b22858b8-6c00-45ca-a711-a2289b923bf9",
+        "stepId": "hero_video",
+        "stepType": "synth_video",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "attempts": 2,
+        "durationMs": 3217,
+        "error": "400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'The number value for `durationSeconds` is out of bound. Please provide a value between 4 and 8, inclusive.', 'status': 'INVALID_ARGUMENT'}}"
+      }
+    },
+    {
+      "t": 65234,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "b22858b8-6c00-45ca-a711-a2289b923bf9",
+        "stepId": "narrative",
+        "stepType": "synth_narrative",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "attempts": 1,
+        "durationMs": 7149,
+        "summary": {
+          "status": "success",
+          "prompts": [
+            "The camera slowly pushes in on the towering botanical humanoid as its petal-like cranial structures twitch subtly. The man in the grey suit stands motionless while the glowing blue medical monitors in the laboratory background flicker with data, and a soft atmospheric haze drifts through the circular portal.",
+            "A symmetrical medium shot shows the pitcher-plant woman leaning in with a fluid, organic motion to whisper into the man's ear. The flat, clinical lighting of the mint and pink brutalist room remains constant as the man's expression shifts into a daze, the camera slowly tracking her serpentine movements.",
+            "The creature extends its humanoid arms to gently cup the man's face as it exhales a shimmering cloud of crystalline shards. Above them, the holographic thermal interface pulses with cyan and orange light, reflecting off the organic green textures of the creature and the sterile concrete arches of the hall.",
+            "A cinematic sequence shows the plant creature conducting a physical examination of the man, now in an astronaut suit, before guiding him toward a glowing cylindrical cryogenic chamber. The camera captures the man's slow, rhythmic steps as he enters the pod, the lighting transitioning from pastel pink to a cold, clinical blue as the chamber seals.",
+            "The robed pitcher-plant creature and the man in the tan suit stand in a final, symmetrical standoff as a faint plume of white smoke curls up from the floor. The camera slowly pulls back to reveal the vastness of the Brutalist alcoves, capturing the retro-futuristic atmosphere and the uncanny stillness of the biological encounter."
+          ]
+        }
+      }
+    },
+    {
+      "t": 65235,
+      "event": "workflow_complete",
+      "data": {
+        "workflowId": "b22858b8-6c00-45ca-a711-a2289b923bf9",
+        "name": "Cinematic Short: Anthropomorphic voluptuous Pitcher Plant with fles",
+        "status": "failed",
+        "completedAt": "2026-04-30T21:12:19.048Z",
+        "agentId": "b25d2d56-c041-49f5-a1cd-ff7f40f57e06",
+        "totals": {
+          "durationMs": 65235,
+          "completedSteps": 13,
+          "failedSteps": 1,
+          "skippedSteps": 0
+        },
+        "stepResults": [
+          {
+            "id": "plan",
+            "type": "synth_text",
+            "status": "complete"
+          },
+          {
+            "id": "style",
+            "type": "synth_template",
+            "status": "success",
+            "template": {
+              "promptTemplate": "A deadpan sensual macabre short film still of an anthropomorphic voluptuous pitcher plant with {{botanical_anatomy}}, seducing and betraying her {{partner_entity}} through {{seduction_action}}. They are in a perfectly symmetrical pastel brutalist room featuring {{room_aesthetics}}. The scene is captured with {{cinematography}}, culminating in a bizarre botanical climax involving {{macabre_element}}.",
+              "variables": [
+                {
+                  "name": "botanical_anatomy",
+                  "feature_name": "Botanical Anatomy",
+                  "values": [
+                    {
+                      "text": "fleshy Georgia O'Keeffe inspired botanical cleavage",
+                      "weight": 3
+                    },
+                    {
+                      "text": "dew-slicked translucent petal folds",
+                      "weight": 3
+                    },
+                    {
+                      "text": "velvety crimson carnivorous lips",
+                      "weight": 3
+                    },
+                    {
+                      "text": "pulsating neon-veined floral curves",
+                      "weight": 2
+                    },
+                    {
+                      "text": "glistening sap-covered pistil structures",
+                      "weight": 2
+                    },
+                    {
+                      "text": "swollen bioluminescent nectar pouches",
+                      "weight": 2
+                    },
+                    {
+                      "text": "smooth latex-like green tendrils",
+                      "weight": 2
+                    },
+                    {
+                      "text": "hyper-detailed erotic orchid geometry",
+                      "weight": 1
+                    },
+                    {
+                      "text": "gaping digestive floral cavities",
+                      "weight": 1
+                    }
+                  ]
+                },
+                {
+                  "name": "partner_entity",
+                  "feature_name": "Partner Entity",
+                  "values": [
+                    {
+                      "text": "ensnared porcelain-skinned botanist",
+                      "weight": 3
+                    },
+                    {
+                      "text": "hypnotized iridescent pollinator insect",
+                      "weight": 3
+                    },
+                    {
+                      "text": "trembling bioluminescent moth creature",
+                      "weight": 3
+                    },
+                    {
+                      "text": "doomed silver android lover",
+                      "weight": 2
+                    },
+                    {
+                      "text": "gullible human astronaut",
+                      "weight": 2
+                    },
+                    {
+                      "text": "faceless hazmat-suited technician",
+                      "weight": 2
+                    },
+                    {
+                      "text": "translucent deep-sea diver",
+                      "weight": 1
+                    },
+                    {
+                      "text": "rival carnivorous flora",
+                      "weight": 1
+                    }
+                  ]
+                },
+                {
+                  "name": "seduction_action",
+                  "feature_name": "Seduction Action",
+                  "values": [
+                    {
+                      "text": "a slow deadpan wrapping of vines",
+                      "weight": 3
+                    },
+                    {
+                      "text": "enticing pheromone vapor trails",
+                      "weight": 3
+                    },
+                    {
+                      "text": "offering a dripping bead of narcotic nectar",
+                      "weight": 3
+                    },
+                    {
+                      "text": "hypnotic swaying and toxic pollen release",
+                      "weight": 2
+                    },
+                    {
+                      "text": "tenderly stroking with serrated leaves",
+                      "weight": 2
+                    },
+                    {
+                      "text": "emotionless mirroring of their movements",
+                      "weight": 2
+                    },
+                    {
+                      "text": "gentle strangulation via floral stems",
+                      "weight": 1
+                    },
+                    {
+                      "text": "a sudden paralyzing thorny embrace",
+                      "weight": 1
+                    }
+                  ]
+                },
+                {
+                  "name": "room_aesthetics",
+                  "feature_name": "Room Aesthetics",
+                  "values": [
+                    {
+                      "text": "mint-green raw concrete monoliths",
+                      "weight": 3
+                    },
+                    {
+                      "text": "stark symmetrical pale-pink pillars",
+                      "weight": 3
+                    },
+                    {
+                      "text": "peach-tinted brutalist geometric altars",
+                      "weight": 3
+                    },
+                    {
+                      "text": "soft lavender stepped architectural concrete",
+                      "weight": 2
+                    },
+                    {
+                      "text": "baby-blue harsh cement enclosures",
+                      "weight": 2
+                    },
+                    {
+                      "text": "matte beige sterile brutalist curves",
+                      "weight": 2
+                    },
+                    {
+                      "text": "dusty rose soundproof brutalist chambers",
+                      "weight": 1
+                    },
+                    {
+                      "text": "chalky coral-colored concrete brutalism",
+                      "weight": 1
+                    }
+                  ]
+                },
+                {
+                  "name": "cinematography",
+                  "feature_name": "Cinematography",
+                  "values": [
+                    {
+                      "text": "static center-framed symmetrical cinematography",
+                      "weight": 3
+                    },
+                    {
+                      "text": "cold clinical laboratory floodlights",
+                      "weight": 3
+                    },
+                    {
+                      "text": "moody sensual indie horror lighting",
+                      "weight": 3
+                    },
+                    {
+                      "text": "harsh overhead flash photography",
+                      "weight": 2
+                    },
+                    {
+                      "text": "neon-drenched darkroom aesthetic",
+                      "weight": 2
+                    },
+                    {
+                      "text": "hazy soft-focus 70s cinema lens",
+                      "weight": 2
+                    },
+                    {
+                      "text": "false-color infrared thermal imaging",
+                      "weight": 1
+                    },
+                    {
+                      "text": "high-contrast biometric thermal scanning",
+                      "weight": 1
+                    }
+                  ]
+                },
+                {
+                  "name": "macabre_element",
+                  "feature_name": "Macabre Element",
+                  "values": [
+                    {
+                      "text": "sudden cryogenic freezing mist",
+                      "weight": 3
+                    },
+                    {
+                      "text": "icy frost creeping up botanical vines",
+                      "weight": 3
+                    },
+                    {
+                      "text": "petrified remains wrapped in soft petals",
+                      "weight": 3
+                    },
+                    {
+                      "text": "slow digestion in a translucent pod",
+                      "weight": 2
+                    },
+                    {
+                      "text": "flash-frozen nectar preserving the victim",
+                      "weight": 2
+                    },
+                    {
+                      "text": "sub-zero liquid nitrogen floods",
+                      "weight": 2
+                    },
+                    {
+                      "text": "a thermal bloom of decreasing body temperature",
+                      "weight": 1
+                    },
+                    {
+                      "text": "a deadpan biological temperature drop",
+                      "weight": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "id": "scene0",
+            "type": "synth_image",
+            "status": "success",
+            "mediaId": "771c07fd-8cf6-4c17-9d64-a11bbaf07775",
+            "mediaType": "image"
+          },
+          {
+            "id": "scene1",
+            "type": "synth_image",
+            "status": "success",
+            "mediaId": "69db6c0c-03ad-431a-8cb4-aabb1031357a",
+            "mediaType": "image"
+          },
+          {
+            "id": "scene2",
+            "type": "synth_image",
+            "status": "success",
+            "mediaId": "05cde0db-7a8c-4f30-9ec4-82ad3f5025f7",
+            "mediaType": "image"
+          },
+          {
+            "id": "scene3",
+            "type": "synth_image",
+            "status": "success",
+            "mediaId": "aee8db7c-f48a-4ddb-a405-08260fdcfe57",
+            "mediaType": "image"
+          },
+          {
+            "id": "scene4",
+            "type": "synth_image",
+            "status": "success",
+            "mediaId": "235f623b-0709-47d1-9cd3-58761c82016b",
+            "mediaType": "image"
+          },
+          {
+            "id": "desc0",
+            "type": "synth_analyze",
+            "status": "success"
+          },
+          {
+            "id": "desc1",
+            "type": "synth_analyze",
+            "status": "success"
+          },
+          {
+            "id": "desc2",
+            "type": "synth_analyze",
+            "status": "success"
+          },
+          {
+            "id": "desc3",
+            "type": "synth_analyze",
+            "status": "success"
+          },
+          {
+            "id": "desc4",
+            "type": "synth_analyze",
+            "status": "success"
+          },
+          {
+            "id": "narrative",
+            "type": "synth_narrative",
+            "status": "success",
+            "prompts": [
+              "The camera slowly pushes in on the towering botanical humanoid as its petal-like cranial structures twitch subtly. The man in the grey suit stands motionless while the glowing blue medical monitors in the laboratory background flicker with data, and a soft atmospheric haze drifts through the circular portal.",
+              "A symmetrical medium shot shows the pitcher-plant woman leaning in with a fluid, organic motion to whisper into the man's ear. The flat, clinical lighting of the mint and pink brutalist room remains constant as the man's expression shifts into a daze, the camera slowly tracking her serpentine movements.",
+              "The creature extends its humanoid arms to gently cup the man's face as it exhales a shimmering cloud of crystalline shards. Above them, the holographic thermal interface pulses with cyan and orange light, reflecting off the organic green textures of the creature and the sterile concrete arches of the hall.",
+              "A cinematic sequence shows the plant creature conducting a physical examination of the man, now in an astronaut suit, before guiding him toward a glowing cylindrical cryogenic chamber. The camera captures the man's slow, rhythmic steps as he enters the pod, the lighting transitioning from pastel pink to a cold, clinical blue as the chamber seals.",
+              "The robed pitcher-plant creature and the man in the tan suit stand in a final, symmetrical standoff as a faint plume of white smoke curls up from the floor. The camera slowly pulls back to reveal the vastness of the Brutalist alcoves, capturing the retro-futuristic atmosphere and the uncanny stillness of the biological encounter."
+            ]
+          },
+          {
+            "id": "hero_video",
+            "type": "synth_video",
+            "status": "failed"
+          }
+        ]
+      }
+    }
+  ]
+}

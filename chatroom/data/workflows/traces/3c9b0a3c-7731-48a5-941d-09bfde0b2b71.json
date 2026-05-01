@@ -1,0 +1,1950 @@
+{
+  "workflowId": "3c9b0a3c-7731-48a5-941d-09bfde0b2b71",
+  "name": "Cinematic Short: A perfectly symmetrical, pastel-colored brutalist ",
+  "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+  "agentName": "Luna Martinez",
+  "agentColor": "#FF6B6B",
+  "sessionId": "c85d5173-41d1-4e1e-ab57-bc3e3a077616",
+  "messageId": null,
+  "startedAt": "2026-04-30T21:09:08.390Z",
+  "completedAt": "2026-04-30T21:10:15.974Z",
+  "status": "failed",
+  "totals": {
+    "durationMs": 67584,
+    "costUsd": 0.2135,
+    "completedSteps": 13,
+    "failedSteps": 1
+  },
+  "steps": {
+    "plan": {
+      "id": "plan",
+      "type": "synth_text",
+      "dependsOn": [],
+      "status": "complete",
+      "startedMs": 0,
+      "completedMs": 16887,
+      "durationMs": 16887,
+      "inputs": {
+        "prompt": "You are a film director planning a short film. Concept: \"A perfectly symmetrical, pastel-colored brutalist reality TV villa where high-fashion anthropomorphic toxic plants date and betray each other. Beat 1: perfectly centered flat-angle shot of couple. Beat 2: intimate symmetrical macro. Beat 3: deadpan parasitic betrayal. Beat 4: flat-angle UV thermal confessional. Beat 5: cryogenic archival elimination in a frosted pastel drawer. Deadpan expressions, mint green and powder pink concrete, whimsical but lethal.\". Mood: deadpan and darkly whimsical.\nPlan exactly 5 scenes. For each scene, write a vivid image generation prompt (2-3 sentences) describing the visual.\nOutput ONLY a JSON array of strings, one prompt per scene. Example: [\"scene 1 prompt\", \"scene 2 prompt\"]"
+      },
+      "outputSummary": {},
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.001,
+      "chunks": 18,
+      "lastChunk": "\n]"
+    },
+    "style": {
+      "id": "style",
+      "type": "synth_template",
+      "dependsOn": [],
+      "status": "complete",
+      "startedMs": 1,
+      "completedMs": 24439,
+      "durationMs": 24438,
+      "inputs": {
+        "description": "deadpan and darkly whimsical visual style for a short film about: A perfectly symmetrical, pastel-colored brutalist reality TV villa where high-fashion anthropomorphic toxic plants date and betray each other. Beat 1: perfectly centered flat-angle shot of couple. Beat 2: intimate symmetrical macro. Beat 3: deadpan parasitic betrayal. Beat 4: flat-angle UV thermal confessional. Beat 5: cryogenic archival elimination in a frosted pastel drawer. Deadpan expressions, mint green and powder pink concrete, whimsical but lethal.",
+        "mode": "text"
+      },
+      "outputSummary": {
+        "status": "success",
+        "template": {
+          "promptTemplate": "A deadpan darkly whimsical film still: {{shot_type}} of {{plant_characters}} {{action_interaction}}. Set in a perfectly symmetrical pastel-colored brutalist reality TV villa, featuring a {{brutalist_setting}}, illuminated by {{color_lighting}}, establishing a {{stylistic_finish}} atmosphere.",
+          "variables": [
+            {
+              "name": "shot_type",
+              "feature_name": "Shot Type",
+              "values": [
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]"
+              ]
+            },
+            {
+              "name": "plant_characters",
+              "feature_name": "Characters",
+              "values": [
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]"
+              ]
+            },
+            {
+              "name": "action_interaction",
+              "feature_name": "Action",
+              "values": [
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]"
+              ]
+            },
+            {
+              "name": "brutalist_setting",
+              "feature_name": "Room Setting",
+              "values": [
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]"
+              ]
+            },
+            {
+              "name": "color_lighting",
+              "feature_name": "Lighting",
+              "values": [
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]"
+              ]
+            },
+            {
+              "name": "stylistic_finish",
+              "feature_name": "Atmosphere",
+              "values": [
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]"
+              ]
+            }
+          ]
+        }
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.001
+    },
+    "scene0": {
+      "id": "scene0",
+      "type": "synth_image",
+      "dependsOn": [
+        "plan",
+        "style"
+      ],
+      "status": "complete",
+      "startedMs": 24439,
+      "completedMs": 40343,
+      "durationMs": 15904,
+      "inputs": {
+        "prompt": "Scene 1 of 5 from a deadpan and darkly whimsical short film: A perfectly symmetrical, pastel-colored brutalist reality TV villa where high-fashion anthropomorphic toxic plants date and betray each other. Beat 1: perfectly centered flat-angle shot of couple. Beat 2: intimate symmetrical macro. Beat 3: deadpan parasitic betrayal. Beat 4: flat-angle UV thermal confessional. Beat 5: cryogenic archival elimination in a frosted pastel drawer. Deadpan expressions, mint green and powder pink concrete, whimsical but lethal.. A deadpan darkly whimsical film still: {{shot_type}} of {{plant_characters}} {{action_interaction}}. Set in a perfectly symmetrical pastel-colored brutalist reality TV villa, featuring a {{brutalist_setting}}, illuminated by {{color_lighting}}, establishing a {{stylistic_finish… <+14 chars>",
+        "aspect_ratio": "16:9"
+      },
+      "outputSummary": {
+        "status": "success",
+        "mediaId": "aabb6f61-8815-47e0-8ffb-c436b35281ba",
+        "mediaType": "image"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.04
+    },
+    "scene1": {
+      "id": "scene1",
+      "type": "synth_image",
+      "dependsOn": [
+        "plan",
+        "style"
+      ],
+      "status": "complete",
+      "startedMs": 24440,
+      "completedMs": 41499,
+      "durationMs": 17059,
+      "inputs": {
+        "prompt": "Scene 2 of 5 from a deadpan and darkly whimsical short film: A perfectly symmetrical, pastel-colored brutalist reality TV villa where high-fashion anthropomorphic toxic plants date and betray each other. Beat 1: perfectly centered flat-angle shot of couple. Beat 2: intimate symmetrical macro. Beat 3: deadpan parasitic betrayal. Beat 4: flat-angle UV thermal confessional. Beat 5: cryogenic archival elimination in a frosted pastel drawer. Deadpan expressions, mint green and powder pink concrete, whimsical but lethal.. A deadpan darkly whimsical film still: {{shot_type}} of {{plant_characters}} {{action_interaction}}. Set in a perfectly symmetrical pastel-colored brutalist reality TV villa, featuring a {{brutalist_setting}}, illuminated by {{color_lighting}}, establishing a {{stylistic_finish… <+14 chars>",
+        "aspect_ratio": "16:9"
+      },
+      "outputSummary": {
+        "status": "success",
+        "mediaId": "20e857d5-e539-4721-a904-de9e6ad7b606",
+        "mediaType": "image"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.04,
+      "lastRetryError": "Image generation failed: No image found in Gemini response (finish_reasons=['FinishReason.NO_IMAGE'])"
+    },
+    "scene2": {
+      "id": "scene2",
+      "type": "synth_image",
+      "dependsOn": [
+        "plan",
+        "style"
+      ],
+      "status": "complete",
+      "startedMs": 24440,
+      "completedMs": 43612,
+      "durationMs": 19172,
+      "inputs": {
+        "prompt": "Scene 3 of 5 from a deadpan and darkly whimsical short film: A perfectly symmetrical, pastel-colored brutalist reality TV villa where high-fashion anthropomorphic toxic plants date and betray each other. Beat 1: perfectly centered flat-angle shot of couple. Beat 2: intimate symmetrical macro. Beat 3: deadpan parasitic betrayal. Beat 4: flat-angle UV thermal confessional. Beat 5: cryogenic archival elimination in a frosted pastel drawer. Deadpan expressions, mint green and powder pink concrete, whimsical but lethal.. A deadpan darkly whimsical film still: {{shot_type}} of {{plant_characters}} {{action_interaction}}. Set in a perfectly symmetrical pastel-colored brutalist reality TV villa, featuring a {{brutalist_setting}}, illuminated by {{color_lighting}}, establishing a {{stylistic_finish… <+14 chars>",
+        "aspect_ratio": "16:9"
+      },
+      "outputSummary": {
+        "status": "success",
+        "mediaId": "04f2bbc6-ce0c-43d8-ab62-d3054e53d0d9",
+        "mediaType": "image"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.04
+    },
+    "scene3": {
+      "id": "scene3",
+      "type": "synth_image",
+      "dependsOn": [
+        "plan",
+        "style"
+      ],
+      "status": "complete",
+      "startedMs": 24440,
+      "completedMs": 49077,
+      "durationMs": 24637,
+      "inputs": {
+        "prompt": "Scene 4 of 5 from a deadpan and darkly whimsical short film: A perfectly symmetrical, pastel-colored brutalist reality TV villa where high-fashion anthropomorphic toxic plants date and betray each other. Beat 1: perfectly centered flat-angle shot of couple. Beat 2: intimate symmetrical macro. Beat 3: deadpan parasitic betrayal. Beat 4: flat-angle UV thermal confessional. Beat 5: cryogenic archival elimination in a frosted pastel drawer. Deadpan expressions, mint green and powder pink concrete, whimsical but lethal.. A deadpan darkly whimsical film still: {{shot_type}} of {{plant_characters}} {{action_interaction}}. Set in a perfectly symmetrical pastel-colored brutalist reality TV villa, featuring a {{brutalist_setting}}, illuminated by {{color_lighting}}, establishing a {{stylistic_finish… <+14 chars>",
+        "aspect_ratio": "16:9"
+      },
+      "outputSummary": {
+        "status": "success",
+        "mediaId": "8ad2ff28-dd2f-44e9-ac2f-701228bfaba2",
+        "mediaType": "image"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.04
+    },
+    "scene4": {
+      "id": "scene4",
+      "type": "synth_image",
+      "dependsOn": [
+        "plan",
+        "style"
+      ],
+      "status": "complete",
+      "startedMs": 24441,
+      "completedMs": 38932,
+      "durationMs": 14491,
+      "inputs": {
+        "prompt": "Scene 5 of 5 from a deadpan and darkly whimsical short film: A perfectly symmetrical, pastel-colored brutalist reality TV villa where high-fashion anthropomorphic toxic plants date and betray each other. Beat 1: perfectly centered flat-angle shot of couple. Beat 2: intimate symmetrical macro. Beat 3: deadpan parasitic betrayal. Beat 4: flat-angle UV thermal confessional. Beat 5: cryogenic archival elimination in a frosted pastel drawer. Deadpan expressions, mint green and powder pink concrete, whimsical but lethal.. A deadpan darkly whimsical film still: {{shot_type}} of {{plant_characters}} {{action_interaction}}. Set in a perfectly symmetrical pastel-colored brutalist reality TV villa, featuring a {{brutalist_setting}}, illuminated by {{color_lighting}}, establishing a {{stylistic_finish… <+14 chars>",
+        "aspect_ratio": "16:9"
+      },
+      "outputSummary": {
+        "status": "success",
+        "mediaId": "7b430127-5480-47d4-a3f7-f0bfac15b458",
+        "mediaType": "image"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.04
+    },
+    "desc0": {
+      "id": "desc0",
+      "type": "synth_analyze",
+      "dependsOn": [
+        "scene0"
+      ],
+      "status": "complete",
+      "startedMs": 49078,
+      "completedMs": 59581,
+      "durationMs": 10503,
+      "inputs": {
+        "image_id": "aabb6f61-8815-47e0-8ffb-c436b35281ba"
+      },
+      "outputSummary": {
+        "status": "success"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.002
+    },
+    "desc1": {
+      "id": "desc1",
+      "type": "synth_analyze",
+      "dependsOn": [
+        "scene1"
+      ],
+      "status": "complete",
+      "startedMs": 49087,
+      "completedMs": 57250,
+      "durationMs": 8163,
+      "inputs": {
+        "image_id": "20e857d5-e539-4721-a904-de9e6ad7b606"
+      },
+      "outputSummary": {
+        "status": "success"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.002
+    },
+    "desc2": {
+      "id": "desc2",
+      "type": "synth_analyze",
+      "dependsOn": [
+        "scene2"
+      ],
+      "status": "complete",
+      "startedMs": 49093,
+      "completedMs": 55942,
+      "durationMs": 6849,
+      "inputs": {
+        "image_id": "04f2bbc6-ce0c-43d8-ab62-d3054e53d0d9"
+      },
+      "outputSummary": {
+        "status": "success"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.002
+    },
+    "desc3": {
+      "id": "desc3",
+      "type": "synth_analyze",
+      "dependsOn": [
+        "scene3"
+      ],
+      "status": "complete",
+      "startedMs": 49100,
+      "completedMs": 56051,
+      "durationMs": 6951,
+      "inputs": {
+        "image_id": "8ad2ff28-dd2f-44e9-ac2f-701228bfaba2"
+      },
+      "outputSummary": {
+        "status": "success"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.002
+    },
+    "desc4": {
+      "id": "desc4",
+      "type": "synth_analyze",
+      "dependsOn": [
+        "scene4"
+      ],
+      "status": "complete",
+      "startedMs": 49106,
+      "completedMs": 56503,
+      "durationMs": 7397,
+      "inputs": {
+        "image_id": "7b430127-5480-47d4-a3f7-f0bfac15b458"
+      },
+      "outputSummary": {
+        "status": "success"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.002
+    },
+    "narrative": {
+      "id": "narrative",
+      "type": "synth_narrative",
+      "dependsOn": [
+        "desc0",
+        "desc1",
+        "desc2",
+        "desc3",
+        "desc4"
+      ],
+      "status": "complete",
+      "startedMs": 59582,
+      "completedMs": 67583,
+      "durationMs": 8001,
+      "inputs": {
+        "descriptions": [
+          "Cinematic 3D digital rendering in a surrealist style. Humanoid figures with botanical heads—a fern-headed man in a teal suit and a Venus flytrap-headed woman in a spiked lavender gown—pose stiffly in symmetrical frames. They inhabit a minimalist brutalist interior of pastel pink and mint green concrete with geometric breeze blocks. Soft, clinical lighting creates a shadowless atmosphere, accompanied by high-contrast thermal imaging panels. The color palette features soft pastels against deep forest greens and vibrant neons. Sharp architectural focus and clean textures define the rendering. The mood is uncanny and sterile, suggesting a meticulously ordered, absurdist dystopian setting.",
+          "This surrealist 3D digital render features botanical-human hybrids within minimalist architecture. Two figures sit symmetrically on a mint bench: one with an oleander-crowned head and wooden legs in a black dress, the other a spiny cactus-woman in a lavender silk gown. They are centered before a receding perspective of salmon-pink and seafoam-green arches in a brutalist courtyard. Harsh, high-contrast midday sunlight casts sharp shadows, creating a clinical yet dreamlike atmosphere. The color palette emphasizes pastel pinks and greens against vibrant magenta and deep black. Rendered with wide-angle clarity, the scene exhibits matte textures and a crisp, deep focus. The overall mood is deadpan, uncanny, and highly structured.",
+          "This hyper-realistic 3D digital render captures a surrealist botanical fashion scene. A humanoid Venus flytrap wearing sunglasses and a textured leaf-patterned blazer stands centered, while a pitcher plant hybrid in cobalt opera gloves adjusts an iridescent insect brooch on their lapel. The composition is a balanced mid-shot within a brutalist architectural space made of modular mint and pink concrete blocks. Diffused studio lighting is enhanced by purple neon accents hidden in wall recesses, creating a clean, high-contrast atmosphere. The color scheme features vibrant pastels against deep purples and blues. Detailed surface textures and sharp focal clarity define the high-resolution rendering. The resulting aesthetic is an uncanny blend of avant-garde couture and whimsical biological surr… <+7 chars>",
+          "Surreal digital art in a retro-futuristic style. A humanoid figure with a yellow-faced pitcher plant head wears a tailored pink suit, seated centrally on a blocky green chair. The symmetrical composition features a brutalist concrete chamber with fluted pillars and a \"Confessional\" wall terminal. High-contrast neon lighting in magenta, orange, and blue drapes the space in an eerie, saturated glow. The color palette emphasizes vibrant pinks against deep blues and verdant greens. This sharp digital render with subtle film grain maintains a clinical yet psychedelic aesthetic, evoking an uncanny, liminal mood.",
+          "This surrealist digital photography series adopts a retro-futuristic, cinematic aesthetic. A human man in a mint green suit stands alongside a floral-humanoid woman sporting a large pink rose head and cactus-like appendages. The compositions are stiffly symmetrical, set against minimalist Brutalist architecture in pastel tones featuring desert flora and clinical storage units. Lighting is diffused and flat, creating a clinical, high-key atmosphere without harsh shadows. The color palette is strictly coordinated in mint green and soft pink, contrasted by a vibrant purple and neon thermal-vision segment. Technical execution features sharp focus and wide-angle perspectives, emphasizing the clean, stylized textures of the biological-fashion hybrids. The overall mood is eerie and avant-garde, b… <+64 chars>"
+        ],
+        "mode": "story"
+      },
+      "outputSummary": {
+        "status": "success",
+        "prompts": [
+          "Scene 1: A cinematic slow camera glide moves past the fern-headed man in a teal suit and the flytrap-headed woman in her spiked lavender gown. They stand with rigid, doll-like symmetry within a mint and pink brutalist corridor. The clinical, shadowless lighting remains constant while high-contrast thermal panels in the background pulse with subtle electronic flickers, establishing an uncanny dystopian atmosphere.",
+          "Scene 2: A wide-angle shot of the brutalist courtyard under harsh, high-contrast sunlight. The oleander-headed figure and the cactus-woman sit perfectly motionless on a mint bench. The camera slowly zooms in, emphasizing the sharp shadows cast against the salmon-pink arches. There is a deadpan, frozen quality to their posture as the air seems to shimmer with heat.",
+          "Scene 3: A medium-shot focus on the Venus flytrap hybrid in his leaf-patterned blazer and sunglasses. Beside him, the pitcher plant hybrid in cobalt opera gloves reaches out in a slow, precise motion to adjust the iridescent insect brooch. Purple neon accents in the wall recesses glow softly, catching the metallic sheen of the jewelry and the textures of the botanical heads.",
+          "Scene 4: The yellow-faced pitcher plant in a tailored pink suit sits centrally on a blocky green chair. The camera remains static as the 'Confessional' wall terminal behind him begins to glow with an intense, saturated magenta and orange light. Subtle film grain overlays the scene as the character's botanical head tilts slightly, reacting to the eerie, psychedelic atmosphere of the chamber.",
+          "Scene 5: The final sequence features a symmetrical wide shot of a human man in a mint green suit standing beside a tall rose-headed woman. They stand in a sterile, high-key storage unit. The camera slowly pulls back, revealing the immense scale of the brutalist architecture. The lighting transitions momentarily into a vibrant purple thermal-vision filter before returning to the flat, clinical pastel palette, concluding the avant-garde narrative."
+        ]
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.0015
+    },
+    "hero_video": {
+      "id": "hero_video",
+      "type": "synth_video",
+      "dependsOn": [
+        "desc0"
+      ],
+      "status": "failed",
+      "startedMs": 59582,
+      "completedMs": 62954,
+      "durationMs": 3372,
+      "inputs": {
+        "prompt": "deadpan and darkly whimsical cinematic shot: Cinematic 3D digital rendering in a surrealist style. Humanoid figures with botanical heads—a fern-headed man in a teal suit and a Venus flytrap-headed woman in a spiked lavender gown—pose stiffly in symmetrical frames. They inhabit a minimalist brutalist interior of pastel pink and mint green concrete with geometric breeze blocks. Soft, clinical lighting creates a shadowless atmosphere, accompanied by high-contrast thermal imaging panels. The color palette features soft pastels against deep forest greens and vibrant neons. Sharp architectural focus and clean textures define the rendering. The mood is uncanny and sterile, suggesting a meticulously ordered, absurdist dystopian setting.. Slow camera movement, atmospheric lighting.",
+        "aspect_ratio": "16:9",
+        "duration": "5"
+      },
+      "outputSummary": null,
+      "error": "400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'The number value for `durationSeconds` is out of bound. Please provide a value between 4 and 8, inclusive.', 'status': 'INVALID_ARGUMENT'}}",
+      "attempts": 1,
+      "costUsd": 0,
+      "lastRetryError": "400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'The number value for `durationSeconds` is out of bound. Please provide a value between 4 and 8, inclusive.', 'status': 'INVALID_ARGUMENT'}}"
+    }
+  },
+  "events": [
+    {
+      "t": 0,
+      "event": "workflow_start",
+      "data": {
+        "workflowId": "3c9b0a3c-7731-48a5-941d-09bfde0b2b71",
+        "name": "Cinematic Short: A perfectly symmetrical, pastel-colored brutalist ",
+        "stepCount": 14,
+        "steps": [
+          {
+            "id": "plan",
+            "type": "synth_text",
+            "dependsOn": []
+          },
+          {
+            "id": "style",
+            "type": "synth_template",
+            "dependsOn": []
+          },
+          {
+            "id": "scene0",
+            "type": "synth_image",
+            "dependsOn": [
+              "plan",
+              "style"
+            ]
+          },
+          {
+            "id": "scene1",
+            "type": "synth_image",
+            "dependsOn": [
+              "plan",
+              "style"
+            ]
+          },
+          {
+            "id": "scene2",
+            "type": "synth_image",
+            "dependsOn": [
+              "plan",
+              "style"
+            ]
+          },
+          {
+            "id": "scene3",
+            "type": "synth_image",
+            "dependsOn": [
+              "plan",
+              "style"
+            ]
+          },
+          {
+            "id": "scene4",
+            "type": "synth_image",
+            "dependsOn": [
+              "plan",
+              "style"
+            ]
+          },
+          {
+            "id": "desc0",
+            "type": "synth_analyze",
+            "dependsOn": [
+              "scene0"
+            ]
+          },
+          {
+            "id": "desc1",
+            "type": "synth_analyze",
+            "dependsOn": [
+              "scene1"
+            ]
+          },
+          {
+            "id": "desc2",
+            "type": "synth_analyze",
+            "dependsOn": [
+              "scene2"
+            ]
+          },
+          {
+            "id": "desc3",
+            "type": "synth_analyze",
+            "dependsOn": [
+              "scene3"
+            ]
+          },
+          {
+            "id": "desc4",
+            "type": "synth_analyze",
+            "dependsOn": [
+              "scene4"
+            ]
+          },
+          {
+            "id": "narrative",
+            "type": "synth_narrative",
+            "dependsOn": [
+              "desc0",
+              "desc1",
+              "desc2",
+              "desc3",
+              "desc4"
+            ]
+          },
+          {
+            "id": "hero_video",
+            "type": "synth_video",
+            "dependsOn": [
+              "desc0"
+            ]
+          }
+        ],
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "agentName": "Luna Martinez",
+        "agentColor": "#FF6B6B",
+        "sessionId": "c85d5173-41d1-4e1e-ab57-bc3e3a077616",
+        "messageId": null
+      }
+    },
+    {
+      "t": 0,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "3c9b0a3c-7731-48a5-941d-09bfde0b2b71",
+        "stepId": "plan",
+        "stepType": "synth_text",
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "dependsOn": [],
+        "inputs": {
+          "prompt": "You are a film director planning a short film. Concept: \"A perfectly symmetrical, pastel-colored brutalist reality TV villa where high-fashion anthropomorphic toxic plants date and betray each other. Beat 1: perfectly centered flat-angle shot of couple. Beat 2: intimate symmetrical macro. Beat 3: deadpan parasitic betrayal. Beat 4: flat-angle UV thermal confessional. Beat 5: cryogenic archival elimination in a frosted pastel drawer. Deadpan expressions, mint green and powder pink concrete, whimsical but lethal.\". Mood: deadpan and darkly whimsical.\nPlan exactly 5 scenes. For each scene, write a vivid image generation prompt (2-3 sentences) describing the visual.\nOutput ONLY a JSON array of strings, one prompt per scene. Example: [\"scene 1 prompt\", \"scene 2 prompt\"]"
+        }
+      }
+    },
+    {
+      "t": 1,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "3c9b0a3c-7731-48a5-941d-09bfde0b2b71",
+        "stepId": "style",
+        "stepType": "synth_template",
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "dependsOn": [],
+        "inputs": {
+          "description": "deadpan and darkly whimsical visual style for a short film about: A perfectly symmetrical, pastel-colored brutalist reality TV villa where high-fashion anthropomorphic toxic plants date and betray each other. Beat 1: perfectly centered flat-angle shot of couple. Beat 2: intimate symmetrical macro. Beat 3: deadpan parasitic betrayal. Beat 4: flat-angle UV thermal confessional. Beat 5: cryogenic archival elimination in a frosted pastel drawer. Deadpan expressions, mint green and powder pink concrete, whimsical but lethal.",
+          "mode": "text"
+        }
+      }
+    },
+    {
+      "t": 2,
+      "event": "workflow_submitted",
+      "data": {
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "agentName": "Luna Martinez",
+        "agentColor": "#FF6B6B",
+        "sessionId": "c85d5173-41d1-4e1e-ab57-bc3e3a077616",
+        "workflowId": "3c9b0a3c-7731-48a5-941d-09bfde0b2b71",
+        "workflowName": "Cinematic Short: A perfectly symmetrical, pastel-colored brutalist ",
+        "templateId": "cinematic_short",
+        "stepCount": 14,
+        "steps": [
+          {
+            "id": "plan",
+            "type": "synth_text"
+          },
+          {
+            "id": "style",
+            "type": "synth_template"
+          },
+          {
+            "id": "scene0",
+            "type": "synth_image"
+          },
+          {
+            "id": "scene1",
+            "type": "synth_image"
+          },
+          {
+            "id": "scene2",
+            "type": "synth_image"
+          },
+          {
+            "id": "scene3",
+            "type": "synth_image"
+          },
+          {
+            "id": "scene4",
+            "type": "synth_image"
+          },
+          {
+            "id": "desc0",
+            "type": "synth_analyze"
+          },
+          {
+            "id": "desc1",
+            "type": "synth_analyze"
+          },
+          {
+            "id": "desc2",
+            "type": "synth_analyze"
+          },
+          {
+            "id": "desc3",
+            "type": "synth_analyze"
+          },
+          {
+            "id": "desc4",
+            "type": "synth_analyze"
+          },
+          {
+            "id": "narrative",
+            "type": "synth_narrative"
+          },
+          {
+            "id": "hero_video",
+            "type": "synth_video"
+          }
+        ]
+      }
+    },
+    {
+      "t": 14722,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "3c9b0a3c-7731-48a5-941d-09bfde0b2b71",
+        "stepId": "plan",
+        "text": "[\n  \"A perfectly centered,"
+      }
+    },
+    {
+      "t": 14829,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "3c9b0a3c-7731-48a5-941d-09bfde0b2b71",
+        "stepId": "plan",
+        "text": " flat-angle cinematic shot of a powder pink brutalist living room with mint green concrete accents. Two anthropomorphic toxic plants"
+      }
+    },
+    {
+      "t": 14938,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "3c9b0a3c-7731-48a5-941d-09bfde0b2b71",
+        "stepId": "plan",
+        "text": " dressed in avant-garde haute couture sit rigidly on a symmetrical sofa, staring straight ahead with deadpan expressions. The lighting"
+      }
+    },
+    {
+      "t": 15085,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "3c9b0a3c-7731-48a5-941d-09bfde0b2b71",
+        "stepId": "plan",
+        "text": " is soft and pastel, emphasizing the whimsical yet quietly lethal reality TV villa setting.\",\n  \"An intimate, perfectly symmetrical"
+      }
+    },
+    {
+      "t": 15239,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "3c9b0a3c-7731-48a5-941d-09bfde0b2b71",
+        "stepId": "plan",
+        "text": " macro shot of two delicate, anthropomorphic botanical hands intertwining, one adorned with sharp translucent thorns and the other dripping pear"
+      }
+    },
+    {
+      "t": 15448,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "3c9b0a3c-7731-48a5-941d-09bfde0b2b71",
+        "stepId": "plan",
+        "text": "lescent toxic sap. The extreme close-up reveals the high-fashion textures of their floral garments against a blurred background"
+      }
+    },
+    {
+      "t": 15494,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "3c9b0a3c-7731-48a5-941d-09bfde0b2b71",
+        "stepId": "plan",
+        "text": " of mint green brutalist architecture. The lighting is pristine and cinematic, capturing a darkly whimsical moment of faux romance.\",\n"
+      }
+    },
+    {
+      "t": 15635,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "3c9b0a3c-7731-48a5-941d-09bfde0b2b71",
+        "stepId": "plan",
+        "text": "  \"A darkly whimsical scene where a chic, anthropomorphic Nightshade elegantly pierces the back of its fashionable Bellad"
+      }
+    },
+    {
+      "t": 15799,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "3c9b0a3c-7731-48a5-941d-09bfde0b2b71",
+        "stepId": "plan",
+        "text": "onna partner with a creeping, parasitic tendril. Both botanical figures maintain completely deadpan, unbothered expressions,"
+      }
+    },
+    {
+      "t": 15910,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "3c9b0a3c-7731-48a5-941d-09bfde0b2b71",
+        "stepId": "plan",
+        "text": " contrasting sharply with the lethal act of reality TV betrayal unfolding. They stand perfectly centered in a powder pink brutalist courtyard,"
+      }
+    },
+    {
+      "t": 16071,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "3c9b0a3c-7731-48a5-941d-09bfde0b2b71",
+        "stepId": "plan",
+        "text": " bathed in soft, flat daylight.\",\n  \"A flat-angle, symmetrical shot of a glowing UV thermal reality TV"
+      }
+    },
+    {
+      "t": 16169,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "3c9b0a3c-7731-48a5-941d-09bfde0b2b71",
+        "stepId": "plan",
+        "text": " confessional booth framed by heavy mint green concrete walls. Inside, a high-fashion anthropomorphic Foxglove stares blank"
+      }
+    },
+    {
+      "t": 16312,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "3c9b0a3c-7731-48a5-941d-09bfde0b2b71",
+        "stepId": "plan",
+        "text": "ly into the camera, its internal toxic veins radiating in neon pink and electric blue under the specialized lighting. The deadpan"
+      }
+    },
+    {
+      "t": 16430,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "3c9b0a3c-7731-48a5-941d-09bfde0b2b71",
+        "stepId": "plan",
+        "text": " confessional captures the botanical contestant's cold, calculating nature in a beautifully eerie and darkly whimsical way.\",\n  \""
+      }
+    },
+    {
+      "t": 16554,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "3c9b0a3c-7731-48a5-941d-09bfde0b2b71",
+        "stepId": "plan",
+        "text": "A perfectly framed overhead shot of an anthropomorphic toxic plant elegantly frozen inside a frosted, powder pink cryogenic drawer. The eliminated"
+      }
+    },
+    {
+      "t": 16712,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "3c9b0a3c-7731-48a5-941d-09bfde0b2b71",
+        "stepId": "plan",
+        "text": " contestant rests in an avant-garde pose with a perfectly preserved deadpan expression, surrounded by wisps of chilling, mint"
+      }
+    },
+    {
+      "t": 16851,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "3c9b0a3c-7731-48a5-941d-09bfde0b2b71",
+        "stepId": "plan",
+        "text": " green mist. This brutalist archival elimination captures the finality of the lethal dating show in stunning, symmetrical pastel tones.\""
+      }
+    },
+    {
+      "t": 16874,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "3c9b0a3c-7731-48a5-941d-09bfde0b2b71",
+        "stepId": "plan",
+        "text": "\n]"
+      }
+    },
+    {
+      "t": 16887,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "3c9b0a3c-7731-48a5-941d-09bfde0b2b71",
+        "stepId": "plan",
+        "stepType": "synth_text",
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "attempts": 1,
+        "durationMs": 16887,
+        "summary": {}
+      }
+    },
+    {
+      "t": 24439,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "3c9b0a3c-7731-48a5-941d-09bfde0b2b71",
+        "stepId": "style",
+        "stepType": "synth_template",
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "attempts": 1,
+        "durationMs": 24438,
+        "summary": {
+          "status": "success",
+          "template": {
+            "promptTemplate": "A deadpan darkly whimsical film still: {{shot_type}} of {{plant_characters}} {{action_interaction}}. Set in a perfectly symmetrical pastel-colored brutalist reality TV villa, featuring a {{brutalist_setting}}, illuminated by {{color_lighting}}, establishing a {{stylistic_finish}} atmosphere.",
+            "variables": [
+              {
+                "name": "shot_type",
+                "feature_name": "Shot Type",
+                "values": [
+                  {
+                    "text": "perfectly centered flat-angle medium shot",
+                    "weight": 3
+                  },
+                  {
+                    "text": "intimate symmetrical macro shot",
+                    "weight": 3
+                  },
+                  {
+                    "text": "deadpan static wide shot",
+                    "weight": 3
+                  },
+                  {
+                    "text": "flat-angle surveillance camera view",
+                    "weight": 2
+                  },
+                  {
+                    "text": "slow push-in centered portrait",
+                    "weight": 2
+                  },
+                  {
+                    "text": "rigid tracking shot from a dolly",
+                    "weight": 3
+                  },
+                  {
+                    "text": "overhead symmetrical god's eye view",
+                    "weight": 2
+                  },
+                  {
+                    "text": "claustrophobic symmetrical close-up",
+                    "weight": 3
+                  },
+                  {
+                    "text": "flat-angle UV thermal footage",
+                    "weight": 1
+                  },
+                  {
+                    "text": "clinical archival documentation shot",
+                    "weight": 1
+                  }
+                ]
+              },
+              {
+                "name": "plant_characters",
+                "feature_name": "Characters",
+                "values": [
+                  {
+                    "text": "a chic venus flytrap in a powder-pink tailored suit",
+                    "weight": 3
+                  },
+                  {
+                    "text": "two glamorous poison ivy socialites in matching silk gowns",
+                    "weight": 3
+                  },
+                  {
+                    "text": "an elegant belladonna wearing vintage haute couture",
+                    "weight": 3
+                  },
+                  {
+                    "text": "a high-fashion mandrake dripping in pearls",
+                    "weight": 2
+                  },
+                  {
+                    "text": "a haughty oleander bush with geometric sunglasses",
+                    "weight": 2
+                  },
+                  {
+                    "text": "toxic hemlock twins in mint-green tracksuits",
+                    "weight": 3
+                  },
+                  {
+                    "text": "a sharply dressed pitcher plant in a tuxedo",
+                    "weight": 3
+                  },
+                  {
+                    "text": "an elegant foxglove with vacant deadpan eyes",
+                    "weight": 2
+                  },
+                  {
+                    "text": "a carnivorous sundew wrapped in sheer chiffon",
+                    "weight": 1
+                  },
+                  {
+                    "text": "a weeping fig styling a lethal floral crown",
+                    "weight": 1
+                  }
+                ]
+              },
+              {
+                "name": "action_interaction",
+                "feature_name": "Action",
+                "values": [
+                  {
+                    "text": "staring blankly while sharing a toxic cocktail",
+                    "weight": 3
+                  },
+                  {
+                    "text": "executing a slow parasitic betrayal",
+                    "weight": 3
+                  },
+                  {
+                    "text": "delivering a flat emotional confessional",
+                    "weight": 3
+                  },
+                  {
+                    "text": "aggressively pruning each other's leaves",
+                    "weight": 2
+                  },
+                  {
+                    "text": "exchanging a poisoned glance across the room",
+                    "weight": 3
+                  },
+                  {
+                    "text": "posing stiffly in a lethargic argument",
+                    "weight": 2
+                  },
+                  {
+                    "text": "secretly absorbing nutrients from a sleeping rival",
+                    "weight": 2
+                  },
+                  {
+                    "text": "waiting silently for an elimination ceremony",
+                    "weight": 3
+                  },
+                  {
+                    "text": "shedding toxic spores in a moment of staged heartbreak",
+                    "weight": 1
+                  },
+                  {
+                    "text": "undergoing cryogenic archival elimination",
+                    "weight": 1
+                  }
+                ]
+              },
+              {
+                "name": "brutalist_setting",
+                "feature_name": "Room Setting",
+                "values": [
+                  {
+                    "text": "mint green concrete lounge with velvet sofas",
+                    "weight": 3
+                  },
+                  {
+                    "text": "stark powder-pink concrete confession booth",
+                    "weight": 3
+                  },
+                  {
+                    "text": "symmetrical concrete dining hall with wilted centerpieces",
+                    "weight": 3
+                  },
+                  {
+                    "text": "geometric brutalist poolside terrace",
+                    "weight": 2
+                  },
+                  {
+                    "text": "minimalist raw terrazzo powder room",
+                    "weight": 2
+                  },
+                  {
+                    "text": "sterile hydroponic luxury suite",
+                    "weight": 3
+                  },
+                  {
+                    "text": "perfectly square pink concrete bedroom",
+                    "weight": 3
+                  },
+                  {
+                    "text": "austere pastel-colored greenhouse prison",
+                    "weight": 2
+                  },
+                  {
+                    "text": "frosted pastel cryogenic drawer",
+                    "weight": 1
+                  },
+                  {
+                    "text": "windowless concrete isolation chamber",
+                    "weight": 1
+                  }
+                ]
+              },
+              {
+                "name": "color_lighting",
+                "feature_name": "Lighting",
+                "values": [
+                  {
+                    "text": "flat mint green and powder pink studio lights",
+                    "weight": 3
+                  },
+                  {
+                    "text": "perfectly diffused shadowless softbox lighting",
+                    "weight": 3
+                  },
+                  {
+                    "text": "deadpan overhead fluorescent lighting",
+                    "weight": 3
+                  },
+                  {
+                    "text": "washed-out pastel sunlight through thick glass",
+                    "weight": 2
+                  },
+                  {
+                    "text": "stark chiaroscuro with pastel undertones",
+                    "weight": 2
+                  },
+                  {
+                    "text": "moody and clinical surgical spotlights",
+                    "weight": 3
+                  },
+                  {
+                    "text": "whimsical but lethal bioluminescent glow",
+                    "weight": 2
+                  },
+                  {
+                    "text": "harsh ultraviolet thermal glow",
+                    "weight": 1
+                  },
+                  {
+                    "text": "cold cryogenic frosted ambient light",
+                    "weight": 1
+                  },
+                  {
+                    "text": "glowing radioactive neon-pink ambiance",
+                    "weight": 1
+                  }
+                ]
+              },
+              {
+                "name": "stylistic_finish",
+                "feature_name": "Atmosphere",
+                "values": [
+                  {
+                    "text": "sterile and hilariously bleak",
+                    "weight": 3
+                  },
+                  {
+                    "text": "unsettlingly calm and fashionable",
+                    "weight": 3
+                  },
+                  {
+                    "text": "romantically toxic and rigidly symmetrical",
+                    "weight": 3
+                  },
+                  {
+                    "text": "passive-aggressive pastel gothic",
+                    "weight": 2
+                  },
+                  {
+                    "text": "absurdly chic and lethal",
+                    "weight": 2
+                  },
+                  {
+                    "text": "dryly humorous and botanically precise",
+                    "weight": 3
+                  },
+                  {
+                    "text": "emotionally vacant and aesthetically beautiful",
+                    "weight": 3
+                  },
+                  {
+                    "text": "delightfully macabre high-fashion",
+                    "weight": 2
+                  },
+                  {
+                    "text": "chillingly organized and botanical",
+                    "weight": 2
+                  },
+                  {
+                    "text": "bizarrely terrifying yet whimsical",
+                    "weight": 1
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "t": 24439,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "3c9b0a3c-7731-48a5-941d-09bfde0b2b71",
+        "stepId": "scene0",
+        "stepType": "synth_image",
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "dependsOn": [
+          "plan",
+          "style"
+        ],
+        "inputs": {
+          "prompt": "Scene 1 of 5 from a deadpan and darkly whimsical short film: A perfectly symmetrical, pastel-colored brutalist reality TV villa where high-fashion anthropomorphic toxic plants date and betray each other. Beat 1: perfectly centered flat-angle shot of couple. Beat 2: intimate symmetrical macro. Beat 3: deadpan parasitic betrayal. Beat 4: flat-angle UV thermal confessional. Beat 5: cryogenic archival elimination in a frosted pastel drawer. Deadpan expressions, mint green and powder pink concrete, whimsical but lethal.. A deadpan darkly whimsical film still: {{shot_type}} of {{plant_characters}} {{action_interaction}}. Set in a perfectly symmetrical pastel-colored brutalist reality TV villa, featuring a {{brutalist_setting}}, illuminated by {{color_lighting}}, establishing a {{stylistic_finish}} atmosphere.",
+          "aspect_ratio": "16:9"
+        }
+      }
+    },
+    {
+      "t": 24440,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "3c9b0a3c-7731-48a5-941d-09bfde0b2b71",
+        "stepId": "scene1",
+        "stepType": "synth_image",
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "dependsOn": [
+          "plan",
+          "style"
+        ],
+        "inputs": {
+          "prompt": "Scene 2 of 5 from a deadpan and darkly whimsical short film: A perfectly symmetrical, pastel-colored brutalist reality TV villa where high-fashion anthropomorphic toxic plants date and betray each other. Beat 1: perfectly centered flat-angle shot of couple. Beat 2: intimate symmetrical macro. Beat 3: deadpan parasitic betrayal. Beat 4: flat-angle UV thermal confessional. Beat 5: cryogenic archival elimination in a frosted pastel drawer. Deadpan expressions, mint green and powder pink concrete, whimsical but lethal.. A deadpan darkly whimsical film still: {{shot_type}} of {{plant_characters}} {{action_interaction}}. Set in a perfectly symmetrical pastel-colored brutalist reality TV villa, featuring a {{brutalist_setting}}, illuminated by {{color_lighting}}, establishing a {{stylistic_finish}} atmosphere.",
+          "aspect_ratio": "16:9"
+        }
+      }
+    },
+    {
+      "t": 24440,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "3c9b0a3c-7731-48a5-941d-09bfde0b2b71",
+        "stepId": "scene2",
+        "stepType": "synth_image",
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "dependsOn": [
+          "plan",
+          "style"
+        ],
+        "inputs": {
+          "prompt": "Scene 3 of 5 from a deadpan and darkly whimsical short film: A perfectly symmetrical, pastel-colored brutalist reality TV villa where high-fashion anthropomorphic toxic plants date and betray each other. Beat 1: perfectly centered flat-angle shot of couple. Beat 2: intimate symmetrical macro. Beat 3: deadpan parasitic betrayal. Beat 4: flat-angle UV thermal confessional. Beat 5: cryogenic archival elimination in a frosted pastel drawer. Deadpan expressions, mint green and powder pink concrete, whimsical but lethal.. A deadpan darkly whimsical film still: {{shot_type}} of {{plant_characters}} {{action_interaction}}. Set in a perfectly symmetrical pastel-colored brutalist reality TV villa, featuring a {{brutalist_setting}}, illuminated by {{color_lighting}}, establishing a {{stylistic_finish}} atmosphere.",
+          "aspect_ratio": "16:9"
+        }
+      }
+    },
+    {
+      "t": 24440,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "3c9b0a3c-7731-48a5-941d-09bfde0b2b71",
+        "stepId": "scene3",
+        "stepType": "synth_image",
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "dependsOn": [
+          "plan",
+          "style"
+        ],
+        "inputs": {
+          "prompt": "Scene 4 of 5 from a deadpan and darkly whimsical short film: A perfectly symmetrical, pastel-colored brutalist reality TV villa where high-fashion anthropomorphic toxic plants date and betray each other. Beat 1: perfectly centered flat-angle shot of couple. Beat 2: intimate symmetrical macro. Beat 3: deadpan parasitic betrayal. Beat 4: flat-angle UV thermal confessional. Beat 5: cryogenic archival elimination in a frosted pastel drawer. Deadpan expressions, mint green and powder pink concrete, whimsical but lethal.. A deadpan darkly whimsical film still: {{shot_type}} of {{plant_characters}} {{action_interaction}}. Set in a perfectly symmetrical pastel-colored brutalist reality TV villa, featuring a {{brutalist_setting}}, illuminated by {{color_lighting}}, establishing a {{stylistic_finish}} atmosphere.",
+          "aspect_ratio": "16:9"
+        }
+      }
+    },
+    {
+      "t": 24441,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "3c9b0a3c-7731-48a5-941d-09bfde0b2b71",
+        "stepId": "scene4",
+        "stepType": "synth_image",
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "dependsOn": [
+          "plan",
+          "style"
+        ],
+        "inputs": {
+          "prompt": "Scene 5 of 5 from a deadpan and darkly whimsical short film: A perfectly symmetrical, pastel-colored brutalist reality TV villa where high-fashion anthropomorphic toxic plants date and betray each other. Beat 1: perfectly centered flat-angle shot of couple. Beat 2: intimate symmetrical macro. Beat 3: deadpan parasitic betrayal. Beat 4: flat-angle UV thermal confessional. Beat 5: cryogenic archival elimination in a frosted pastel drawer. Deadpan expressions, mint green and powder pink concrete, whimsical but lethal.. A deadpan darkly whimsical film still: {{shot_type}} of {{plant_characters}} {{action_interaction}}. Set in a perfectly symmetrical pastel-colored brutalist reality TV villa, featuring a {{brutalist_setting}}, illuminated by {{color_lighting}}, establishing a {{stylistic_finish}} atmosphere.",
+          "aspect_ratio": "16:9"
+        }
+      }
+    },
+    {
+      "t": 26087,
+      "event": "workflow_step_retry",
+      "data": {
+        "workflowId": "3c9b0a3c-7731-48a5-941d-09bfde0b2b71",
+        "stepId": "scene1",
+        "stepType": "synth_image",
+        "attempt": 1,
+        "error": "Image generation failed: No image found in Gemini response (finish_reasons=['FinishReason.NO_IMAGE'])"
+      }
+    },
+    {
+      "t": 38932,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "3c9b0a3c-7731-48a5-941d-09bfde0b2b71",
+        "stepId": "scene4",
+        "stepType": "synth_image",
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "attempts": 1,
+        "durationMs": 14491,
+        "summary": {
+          "status": "success",
+          "mediaId": "7b430127-5480-47d4-a3f7-f0bfac15b458",
+          "mediaType": "image"
+        }
+      }
+    },
+    {
+      "t": 40343,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "3c9b0a3c-7731-48a5-941d-09bfde0b2b71",
+        "stepId": "scene0",
+        "stepType": "synth_image",
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "attempts": 1,
+        "durationMs": 15904,
+        "summary": {
+          "status": "success",
+          "mediaId": "aabb6f61-8815-47e0-8ffb-c436b35281ba",
+          "mediaType": "image"
+        }
+      }
+    },
+    {
+      "t": 41499,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "3c9b0a3c-7731-48a5-941d-09bfde0b2b71",
+        "stepId": "scene1",
+        "stepType": "synth_image",
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "attempts": 2,
+        "durationMs": 17059,
+        "summary": {
+          "status": "success",
+          "mediaId": "20e857d5-e539-4721-a904-de9e6ad7b606",
+          "mediaType": "image"
+        }
+      }
+    },
+    {
+      "t": 43612,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "3c9b0a3c-7731-48a5-941d-09bfde0b2b71",
+        "stepId": "scene2",
+        "stepType": "synth_image",
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "attempts": 1,
+        "durationMs": 19172,
+        "summary": {
+          "status": "success",
+          "mediaId": "04f2bbc6-ce0c-43d8-ab62-d3054e53d0d9",
+          "mediaType": "image"
+        }
+      }
+    },
+    {
+      "t": 49077,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "3c9b0a3c-7731-48a5-941d-09bfde0b2b71",
+        "stepId": "scene3",
+        "stepType": "synth_image",
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "attempts": 1,
+        "durationMs": 24637,
+        "summary": {
+          "status": "success",
+          "mediaId": "8ad2ff28-dd2f-44e9-ac2f-701228bfaba2",
+          "mediaType": "image"
+        }
+      }
+    },
+    {
+      "t": 49078,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "3c9b0a3c-7731-48a5-941d-09bfde0b2b71",
+        "stepId": "desc0",
+        "stepType": "synth_analyze",
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "dependsOn": [
+          "scene0"
+        ],
+        "inputs": {
+          "image_id": "aabb6f61-8815-47e0-8ffb-c436b35281ba"
+        }
+      }
+    },
+    {
+      "t": 49087,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "3c9b0a3c-7731-48a5-941d-09bfde0b2b71",
+        "stepId": "desc1",
+        "stepType": "synth_analyze",
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "dependsOn": [
+          "scene1"
+        ],
+        "inputs": {
+          "image_id": "20e857d5-e539-4721-a904-de9e6ad7b606"
+        }
+      }
+    },
+    {
+      "t": 49093,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "3c9b0a3c-7731-48a5-941d-09bfde0b2b71",
+        "stepId": "desc2",
+        "stepType": "synth_analyze",
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "dependsOn": [
+          "scene2"
+        ],
+        "inputs": {
+          "image_id": "04f2bbc6-ce0c-43d8-ab62-d3054e53d0d9"
+        }
+      }
+    },
+    {
+      "t": 49100,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "3c9b0a3c-7731-48a5-941d-09bfde0b2b71",
+        "stepId": "desc3",
+        "stepType": "synth_analyze",
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "dependsOn": [
+          "scene3"
+        ],
+        "inputs": {
+          "image_id": "8ad2ff28-dd2f-44e9-ac2f-701228bfaba2"
+        }
+      }
+    },
+    {
+      "t": 49106,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "3c9b0a3c-7731-48a5-941d-09bfde0b2b71",
+        "stepId": "desc4",
+        "stepType": "synth_analyze",
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "dependsOn": [
+          "scene4"
+        ],
+        "inputs": {
+          "image_id": "7b430127-5480-47d4-a3f7-f0bfac15b458"
+        }
+      }
+    },
+    {
+      "t": 55942,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "3c9b0a3c-7731-48a5-941d-09bfde0b2b71",
+        "stepId": "desc2",
+        "stepType": "synth_analyze",
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "attempts": 1,
+        "durationMs": 6849,
+        "summary": {
+          "status": "success"
+        }
+      }
+    },
+    {
+      "t": 56051,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "3c9b0a3c-7731-48a5-941d-09bfde0b2b71",
+        "stepId": "desc3",
+        "stepType": "synth_analyze",
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "attempts": 1,
+        "durationMs": 6951,
+        "summary": {
+          "status": "success"
+        }
+      }
+    },
+    {
+      "t": 56503,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "3c9b0a3c-7731-48a5-941d-09bfde0b2b71",
+        "stepId": "desc4",
+        "stepType": "synth_analyze",
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "attempts": 1,
+        "durationMs": 7397,
+        "summary": {
+          "status": "success"
+        }
+      }
+    },
+    {
+      "t": 57250,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "3c9b0a3c-7731-48a5-941d-09bfde0b2b71",
+        "stepId": "desc1",
+        "stepType": "synth_analyze",
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "attempts": 1,
+        "durationMs": 8163,
+        "summary": {
+          "status": "success"
+        }
+      }
+    },
+    {
+      "t": 59581,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "3c9b0a3c-7731-48a5-941d-09bfde0b2b71",
+        "stepId": "desc0",
+        "stepType": "synth_analyze",
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "attempts": 1,
+        "durationMs": 10503,
+        "summary": {
+          "status": "success"
+        }
+      }
+    },
+    {
+      "t": 59582,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "3c9b0a3c-7731-48a5-941d-09bfde0b2b71",
+        "stepId": "narrative",
+        "stepType": "synth_narrative",
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "dependsOn": [
+          "desc0",
+          "desc1",
+          "desc2",
+          "desc3",
+          "desc4"
+        ],
+        "inputs": {
+          "descriptions": [
+            "Cinematic 3D digital rendering in a surrealist style. Humanoid figures with botanical heads—a fern-headed man in a teal suit and a Venus flytrap-headed woman in a spiked lavender gown—pose stiffly in symmetrical frames. They inhabit a minimalist brutalist interior of pastel pink and mint green concrete with geometric breeze blocks. Soft, clinical lighting creates a shadowless atmosphere, accompanied by high-contrast thermal imaging panels. The color palette features soft pastels against deep forest greens and vibrant neons. Sharp architectural focus and clean textures define the rendering. The mood is uncanny and sterile, suggesting a meticulously ordered, absurdist dystopian setting.",
+            "This surrealist 3D digital render features botanical-human hybrids within minimalist architecture. Two figures sit symmetrically on a mint bench: one with an oleander-crowned head and wooden legs in a black dress, the other a spiny cactus-woman in a lavender silk gown. They are centered before a receding perspective of salmon-pink and seafoam-green arches in a brutalist courtyard. Harsh, high-contrast midday sunlight casts sharp shadows, creating a clinical yet dreamlike atmosphere. The color palette emphasizes pastel pinks and greens against vibrant magenta and deep black. Rendered with wide-angle clarity, the scene exhibits matte textures and a crisp, deep focus. The overall mood is deadpan, uncanny, and highly structured.",
+            "This hyper-realistic 3D digital render captures a surrealist botanical fashion scene. A humanoid Venus flytrap wearing sunglasses and a textured leaf-patterned blazer stands centered, while a pitcher plant hybrid in cobalt opera gloves adjusts an iridescent insect brooch on their lapel. The composition is a balanced mid-shot within a brutalist architectural space made of modular mint and pink concrete blocks. Diffused studio lighting is enhanced by purple neon accents hidden in wall recesses, creating a clean, high-contrast atmosphere. The color scheme features vibrant pastels against deep purples and blues. Detailed surface textures and sharp focal clarity define the high-resolution rendering. The resulting aesthetic is an uncanny blend of avant-garde couture and whimsical biological surrealism.",
+            "Surreal digital art in a retro-futuristic style. A humanoid figure with a yellow-faced pitcher plant head wears a tailored pink suit, seated centrally on a blocky green chair. The symmetrical composition features a brutalist concrete chamber with fluted pillars and a \"Confessional\" wall terminal. High-contrast neon lighting in magenta, orange, and blue drapes the space in an eerie, saturated glow. The color palette emphasizes vibrant pinks against deep blues and verdant greens. This sharp digital render with subtle film grain maintains a clinical yet psychedelic aesthetic, evoking an uncanny, liminal mood.",
+            "This surrealist digital photography series adopts a retro-futuristic, cinematic aesthetic. A human man in a mint green suit stands alongside a floral-humanoid woman sporting a large pink rose head and cactus-like appendages. The compositions are stiffly symmetrical, set against minimalist Brutalist architecture in pastel tones featuring desert flora and clinical storage units. Lighting is diffused and flat, creating a clinical, high-key atmosphere without harsh shadows. The color palette is strictly coordinated in mint green and soft pink, contrasted by a vibrant purple and neon thermal-vision segment. Technical execution features sharp focus and wide-angle perspectives, emphasizing the clean, stylized textures of the biological-fashion hybrids. The overall mood is eerie and avant-garde, blending botanical elements with high-fashion clinical precision."
+          ],
+          "mode": "story"
+        }
+      }
+    },
+    {
+      "t": 59582,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "3c9b0a3c-7731-48a5-941d-09bfde0b2b71",
+        "stepId": "hero_video",
+        "stepType": "synth_video",
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "dependsOn": [
+          "desc0"
+        ],
+        "inputs": {
+          "prompt": "deadpan and darkly whimsical cinematic shot: Cinematic 3D digital rendering in a surrealist style. Humanoid figures with botanical heads—a fern-headed man in a teal suit and a Venus flytrap-headed woman in a spiked lavender gown—pose stiffly in symmetrical frames. They inhabit a minimalist brutalist interior of pastel pink and mint green concrete with geometric breeze blocks. Soft, clinical lighting creates a shadowless atmosphere, accompanied by high-contrast thermal imaging panels. The color palette features soft pastels against deep forest greens and vibrant neons. Sharp architectural focus and clean textures define the rendering. The mood is uncanny and sterile, suggesting a meticulously ordered, absurdist dystopian setting.. Slow camera movement, atmospheric lighting.",
+          "aspect_ratio": "16:9",
+          "duration": "5"
+        }
+      }
+    },
+    {
+      "t": 59809,
+      "event": "workflow_step_retry",
+      "data": {
+        "workflowId": "3c9b0a3c-7731-48a5-941d-09bfde0b2b71",
+        "stepId": "hero_video",
+        "stepType": "synth_video",
+        "attempt": 1,
+        "error": "400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'The number value for `durationSeconds` is out of bound. Please provide a value between 4 and 8, inclusive.', 'status': 'INVALID_ARGUMENT'}}"
+      }
+    },
+    {
+      "t": 62954,
+      "event": "workflow_step_error",
+      "data": {
+        "workflowId": "3c9b0a3c-7731-48a5-941d-09bfde0b2b71",
+        "stepId": "hero_video",
+        "stepType": "synth_video",
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "attempts": 2,
+        "durationMs": 3372,
+        "error": "400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'The number value for `durationSeconds` is out of bound. Please provide a value between 4 and 8, inclusive.', 'status': 'INVALID_ARGUMENT'}}"
+      }
+    },
+    {
+      "t": 67583,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "3c9b0a3c-7731-48a5-941d-09bfde0b2b71",
+        "stepId": "narrative",
+        "stepType": "synth_narrative",
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "attempts": 1,
+        "durationMs": 8001,
+        "summary": {
+          "status": "success",
+          "prompts": [
+            "Scene 1: A cinematic slow camera glide moves past the fern-headed man in a teal suit and the flytrap-headed woman in her spiked lavender gown. They stand with rigid, doll-like symmetry within a mint and pink brutalist corridor. The clinical, shadowless lighting remains constant while high-contrast thermal panels in the background pulse with subtle electronic flickers, establishing an uncanny dystopian atmosphere.",
+            "Scene 2: A wide-angle shot of the brutalist courtyard under harsh, high-contrast sunlight. The oleander-headed figure and the cactus-woman sit perfectly motionless on a mint bench. The camera slowly zooms in, emphasizing the sharp shadows cast against the salmon-pink arches. There is a deadpan, frozen quality to their posture as the air seems to shimmer with heat.",
+            "Scene 3: A medium-shot focus on the Venus flytrap hybrid in his leaf-patterned blazer and sunglasses. Beside him, the pitcher plant hybrid in cobalt opera gloves reaches out in a slow, precise motion to adjust the iridescent insect brooch. Purple neon accents in the wall recesses glow softly, catching the metallic sheen of the jewelry and the textures of the botanical heads.",
+            "Scene 4: The yellow-faced pitcher plant in a tailored pink suit sits centrally on a blocky green chair. The camera remains static as the 'Confessional' wall terminal behind him begins to glow with an intense, saturated magenta and orange light. Subtle film grain overlays the scene as the character's botanical head tilts slightly, reacting to the eerie, psychedelic atmosphere of the chamber.",
+            "Scene 5: The final sequence features a symmetrical wide shot of a human man in a mint green suit standing beside a tall rose-headed woman. They stand in a sterile, high-key storage unit. The camera slowly pulls back, revealing the immense scale of the brutalist architecture. The lighting transitions momentarily into a vibrant purple thermal-vision filter before returning to the flat, clinical pastel palette, concluding the avant-garde narrative."
+          ]
+        }
+      }
+    },
+    {
+      "t": 67584,
+      "event": "workflow_complete",
+      "data": {
+        "workflowId": "3c9b0a3c-7731-48a5-941d-09bfde0b2b71",
+        "name": "Cinematic Short: A perfectly symmetrical, pastel-colored brutalist ",
+        "status": "failed",
+        "completedAt": "2026-04-30T21:10:15.974Z",
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "totals": {
+          "durationMs": 67584,
+          "completedSteps": 13,
+          "failedSteps": 1,
+          "skippedSteps": 0
+        },
+        "stepResults": [
+          {
+            "id": "plan",
+            "type": "synth_text",
+            "status": "complete"
+          },
+          {
+            "id": "style",
+            "type": "synth_template",
+            "status": "success",
+            "template": {
+              "promptTemplate": "A deadpan darkly whimsical film still: {{shot_type}} of {{plant_characters}} {{action_interaction}}. Set in a perfectly symmetrical pastel-colored brutalist reality TV villa, featuring a {{brutalist_setting}}, illuminated by {{color_lighting}}, establishing a {{stylistic_finish}} atmosphere.",
+              "variables": [
+                {
+                  "name": "shot_type",
+                  "feature_name": "Shot Type",
+                  "values": [
+                    {
+                      "text": "perfectly centered flat-angle medium shot",
+                      "weight": 3
+                    },
+                    {
+                      "text": "intimate symmetrical macro shot",
+                      "weight": 3
+                    },
+                    {
+                      "text": "deadpan static wide shot",
+                      "weight": 3
+                    },
+                    {
+                      "text": "flat-angle surveillance camera view",
+                      "weight": 2
+                    },
+                    {
+                      "text": "slow push-in centered portrait",
+                      "weight": 2
+                    },
+                    {
+                      "text": "rigid tracking shot from a dolly",
+                      "weight": 3
+                    },
+                    {
+                      "text": "overhead symmetrical god's eye view",
+                      "weight": 2
+                    },
+                    {
+                      "text": "claustrophobic symmetrical close-up",
+                      "weight": 3
+                    },
+                    {
+                      "text": "flat-angle UV thermal footage",
+                      "weight": 1
+                    },
+                    {
+                      "text": "clinical archival documentation shot",
+                      "weight": 1
+                    }
+                  ]
+                },
+                {
+                  "name": "plant_characters",
+                  "feature_name": "Characters",
+                  "values": [
+                    {
+                      "text": "a chic venus flytrap in a powder-pink tailored suit",
+                      "weight": 3
+                    },
+                    {
+                      "text": "two glamorous poison ivy socialites in matching silk gowns",
+                      "weight": 3
+                    },
+                    {
+                      "text": "an elegant belladonna wearing vintage haute couture",
+                      "weight": 3
+                    },
+                    {
+                      "text": "a high-fashion mandrake dripping in pearls",
+                      "weight": 2
+                    },
+                    {
+                      "text": "a haughty oleander bush with geometric sunglasses",
+                      "weight": 2
+                    },
+                    {
+                      "text": "toxic hemlock twins in mint-green tracksuits",
+                      "weight": 3
+                    },
+                    {
+                      "text": "a sharply dressed pitcher plant in a tuxedo",
+                      "weight": 3
+                    },
+                    {
+                      "text": "an elegant foxglove with vacant deadpan eyes",
+                      "weight": 2
+                    },
+                    {
+                      "text": "a carnivorous sundew wrapped in sheer chiffon",
+                      "weight": 1
+                    },
+                    {
+                      "text": "a weeping fig styling a lethal floral crown",
+                      "weight": 1
+                    }
+                  ]
+                },
+                {
+                  "name": "action_interaction",
+                  "feature_name": "Action",
+                  "values": [
+                    {
+                      "text": "staring blankly while sharing a toxic cocktail",
+                      "weight": 3
+                    },
+                    {
+                      "text": "executing a slow parasitic betrayal",
+                      "weight": 3
+                    },
+                    {
+                      "text": "delivering a flat emotional confessional",
+                      "weight": 3
+                    },
+                    {
+                      "text": "aggressively pruning each other's leaves",
+                      "weight": 2
+                    },
+                    {
+                      "text": "exchanging a poisoned glance across the room",
+                      "weight": 3
+                    },
+                    {
+                      "text": "posing stiffly in a lethargic argument",
+                      "weight": 2
+                    },
+                    {
+                      "text": "secretly absorbing nutrients from a sleeping rival",
+                      "weight": 2
+                    },
+                    {
+                      "text": "waiting silently for an elimination ceremony",
+                      "weight": 3
+                    },
+                    {
+                      "text": "shedding toxic spores in a moment of staged heartbreak",
+                      "weight": 1
+                    },
+                    {
+                      "text": "undergoing cryogenic archival elimination",
+                      "weight": 1
+                    }
+                  ]
+                },
+                {
+                  "name": "brutalist_setting",
+                  "feature_name": "Room Setting",
+                  "values": [
+                    {
+                      "text": "mint green concrete lounge with velvet sofas",
+                      "weight": 3
+                    },
+                    {
+                      "text": "stark powder-pink concrete confession booth",
+                      "weight": 3
+                    },
+                    {
+                      "text": "symmetrical concrete dining hall with wilted centerpieces",
+                      "weight": 3
+                    },
+                    {
+                      "text": "geometric brutalist poolside terrace",
+                      "weight": 2
+                    },
+                    {
+                      "text": "minimalist raw terrazzo powder room",
+                      "weight": 2
+                    },
+                    {
+                      "text": "sterile hydroponic luxury suite",
+                      "weight": 3
+                    },
+                    {
+                      "text": "perfectly square pink concrete bedroom",
+                      "weight": 3
+                    },
+                    {
+                      "text": "austere pastel-colored greenhouse prison",
+                      "weight": 2
+                    },
+                    {
+                      "text": "frosted pastel cryogenic drawer",
+                      "weight": 1
+                    },
+                    {
+                      "text": "windowless concrete isolation chamber",
+                      "weight": 1
+                    }
+                  ]
+                },
+                {
+                  "name": "color_lighting",
+                  "feature_name": "Lighting",
+                  "values": [
+                    {
+                      "text": "flat mint green and powder pink studio lights",
+                      "weight": 3
+                    },
+                    {
+                      "text": "perfectly diffused shadowless softbox lighting",
+                      "weight": 3
+                    },
+                    {
+                      "text": "deadpan overhead fluorescent lighting",
+                      "weight": 3
+                    },
+                    {
+                      "text": "washed-out pastel sunlight through thick glass",
+                      "weight": 2
+                    },
+                    {
+                      "text": "stark chiaroscuro with pastel undertones",
+                      "weight": 2
+                    },
+                    {
+                      "text": "moody and clinical surgical spotlights",
+                      "weight": 3
+                    },
+                    {
+                      "text": "whimsical but lethal bioluminescent glow",
+                      "weight": 2
+                    },
+                    {
+                      "text": "harsh ultraviolet thermal glow",
+                      "weight": 1
+                    },
+                    {
+                      "text": "cold cryogenic frosted ambient light",
+                      "weight": 1
+                    },
+                    {
+                      "text": "glowing radioactive neon-pink ambiance",
+                      "weight": 1
+                    }
+                  ]
+                },
+                {
+                  "name": "stylistic_finish",
+                  "feature_name": "Atmosphere",
+                  "values": [
+                    {
+                      "text": "sterile and hilariously bleak",
+                      "weight": 3
+                    },
+                    {
+                      "text": "unsettlingly calm and fashionable",
+                      "weight": 3
+                    },
+                    {
+                      "text": "romantically toxic and rigidly symmetrical",
+                      "weight": 3
+                    },
+                    {
+                      "text": "passive-aggressive pastel gothic",
+                      "weight": 2
+                    },
+                    {
+                      "text": "absurdly chic and lethal",
+                      "weight": 2
+                    },
+                    {
+                      "text": "dryly humorous and botanically precise",
+                      "weight": 3
+                    },
+                    {
+                      "text": "emotionally vacant and aesthetically beautiful",
+                      "weight": 3
+                    },
+                    {
+                      "text": "delightfully macabre high-fashion",
+                      "weight": 2
+                    },
+                    {
+                      "text": "chillingly organized and botanical",
+                      "weight": 2
+                    },
+                    {
+                      "text": "bizarrely terrifying yet whimsical",
+                      "weight": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "id": "scene0",
+            "type": "synth_image",
+            "status": "success",
+            "mediaId": "aabb6f61-8815-47e0-8ffb-c436b35281ba",
+            "mediaType": "image"
+          },
+          {
+            "id": "scene1",
+            "type": "synth_image",
+            "status": "success",
+            "mediaId": "20e857d5-e539-4721-a904-de9e6ad7b606",
+            "mediaType": "image"
+          },
+          {
+            "id": "scene2",
+            "type": "synth_image",
+            "status": "success",
+            "mediaId": "04f2bbc6-ce0c-43d8-ab62-d3054e53d0d9",
+            "mediaType": "image"
+          },
+          {
+            "id": "scene3",
+            "type": "synth_image",
+            "status": "success",
+            "mediaId": "8ad2ff28-dd2f-44e9-ac2f-701228bfaba2",
+            "mediaType": "image"
+          },
+          {
+            "id": "scene4",
+            "type": "synth_image",
+            "status": "success",
+            "mediaId": "7b430127-5480-47d4-a3f7-f0bfac15b458",
+            "mediaType": "image"
+          },
+          {
+            "id": "desc0",
+            "type": "synth_analyze",
+            "status": "success"
+          },
+          {
+            "id": "desc1",
+            "type": "synth_analyze",
+            "status": "success"
+          },
+          {
+            "id": "desc2",
+            "type": "synth_analyze",
+            "status": "success"
+          },
+          {
+            "id": "desc3",
+            "type": "synth_analyze",
+            "status": "success"
+          },
+          {
+            "id": "desc4",
+            "type": "synth_analyze",
+            "status": "success"
+          },
+          {
+            "id": "narrative",
+            "type": "synth_narrative",
+            "status": "success",
+            "prompts": [
+              "Scene 1: A cinematic slow camera glide moves past the fern-headed man in a teal suit and the flytrap-headed woman in her spiked lavender gown. They stand with rigid, doll-like symmetry within a mint and pink brutalist corridor. The clinical, shadowless lighting remains constant while high-contrast thermal panels in the background pulse with subtle electronic flickers, establishing an uncanny dystopian atmosphere.",
+              "Scene 2: A wide-angle shot of the brutalist courtyard under harsh, high-contrast sunlight. The oleander-headed figure and the cactus-woman sit perfectly motionless on a mint bench. The camera slowly zooms in, emphasizing the sharp shadows cast against the salmon-pink arches. There is a deadpan, frozen quality to their posture as the air seems to shimmer with heat.",
+              "Scene 3: A medium-shot focus on the Venus flytrap hybrid in his leaf-patterned blazer and sunglasses. Beside him, the pitcher plant hybrid in cobalt opera gloves reaches out in a slow, precise motion to adjust the iridescent insect brooch. Purple neon accents in the wall recesses glow softly, catching the metallic sheen of the jewelry and the textures of the botanical heads.",
+              "Scene 4: The yellow-faced pitcher plant in a tailored pink suit sits centrally on a blocky green chair. The camera remains static as the 'Confessional' wall terminal behind him begins to glow with an intense, saturated magenta and orange light. Subtle film grain overlays the scene as the character's botanical head tilts slightly, reacting to the eerie, psychedelic atmosphere of the chamber.",
+              "Scene 5: The final sequence features a symmetrical wide shot of a human man in a mint green suit standing beside a tall rose-headed woman. They stand in a sterile, high-key storage unit. The camera slowly pulls back, revealing the immense scale of the brutalist architecture. The lighting transitions momentarily into a vibrant purple thermal-vision filter before returning to the flat, clinical pastel palette, concluding the avant-garde narrative."
+            ]
+          },
+          {
+            "id": "hero_video",
+            "type": "synth_video",
+            "status": "failed"
+          }
+        ]
+      }
+    }
+  ]
+}

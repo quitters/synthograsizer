@@ -79,3 +79,9 @@ body.embed-mode .control-panel {
 
 /* Hide-only-in-embed helper */
 body.embed-mode .embed-hidden { display: none !important; }
+
+/* Hide the suite-wide navbar (Projects / About / Contact) when embedded —
+   the parent app already provides chrome, and the navbar would link out
+   of the demo. */
+body.embed-mode #navbar-mount,
+body.embed-mode .suite-navbar { display: none !important; }

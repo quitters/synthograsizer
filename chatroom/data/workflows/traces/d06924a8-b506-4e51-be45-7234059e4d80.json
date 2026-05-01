@@ -1,0 +1,1502 @@
+{
+  "workflowId": "d06924a8-b506-4e51-be45-7234059e4d80",
+  "name": "Cinematic Short: Sexy anthropomorphic toxic flora in a pastel mint-",
+  "agentId": "641fec33-c166-4fdb-9ca8-12ce2dcac2a0",
+  "agentName": "Ava Williams",
+  "agentColor": "#45B7D1",
+  "sessionId": "c85d5173-41d1-4e1e-ab57-bc3e3a077616",
+  "messageId": null,
+  "startedAt": "2026-04-30T21:13:38.723Z",
+  "completedAt": "2026-04-30T21:14:40.517Z",
+  "status": "failed",
+  "totals": {
+    "durationMs": 61794,
+    "costUsd": 0.002,
+    "completedSteps": 2,
+    "failedSteps": 4
+  },
+  "steps": {
+    "plan": {
+      "id": "plan",
+      "type": "synth_text",
+      "dependsOn": [],
+      "status": "complete",
+      "startedMs": 1,
+      "completedMs": 21160,
+      "durationMs": 21159,
+      "inputs": {
+        "prompt": "You are a film director planning a short film. Concept: \"Sexy anthropomorphic toxic flora in a pastel mint-green brutalist containment center. Silent story told via excruciatingly slow body language and ASMR tactile close-ups. A delicate Orchid betrays her voluptuous Pitcher Plant girlfriend. Characters include a rigid Anthurium with a glowing spadix and corseted Belladonna berries. Climax: Pitcher Plant, Anthurium, and Belladonna share a languid, symbiotic fluid exchange on a centered mustard yellow velvet couch, while the camera reveals the Orchid clinically vacuum-sealed inside a frosted cryogenic wall-drawer in the background.\". Mood: unsettling sensual.\nPlan exactly 4 scenes. For each scene, write a vivid image generation prompt (2-3 sentences) describing the visual.\nOutput ONLY a JSO… <+87 chars>"
+      },
+      "outputSummary": {},
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.001,
+      "chunks": 14,
+      "lastChunk": " wall-drawer.\"\n]"
+    },
+    "style": {
+      "id": "style",
+      "type": "synth_template",
+      "dependsOn": [],
+      "status": "complete",
+      "startedMs": 1,
+      "completedMs": 27779,
+      "durationMs": 27778,
+      "inputs": {
+        "description": "unsettling sensual visual style for a short film about: Sexy anthropomorphic toxic flora in a pastel mint-green brutalist containment center. Silent story told via excruciatingly slow body language and ASMR tactile close-ups. A delicate Orchid betrays her voluptuous Pitcher Plant girlfriend. Characters include a rigid Anthurium with a glowing spadix and corseted Belladonna berries. Climax: Pitcher Plant, Anthurium, and Belladonna share a languid, symbiotic fluid exchange on a centered mustard yellow velvet couch, while the camera reveals the Orchid clinically vacuum-sealed inside a frosted cryogenic wall-drawer in the background.",
+        "mode": "text"
+      },
+      "outputSummary": {
+        "status": "success",
+        "template": {
+          "promptTemplate": "Cinematic short film still, {{shot_type}} of {{plant_character}} engaged in {{sensual_action}}, emphasizing {{texture_detail}}. The scene is illuminated by {{lighting_mood}} within a pastel mint-green brutalist containment center, featuring {{background_element}} in the background, unsettling sensual visual style, 8k resolution, photorealistic masterpiece.",
+          "variables": [
+            {
+              "name": "shot_type",
+              "feature_name": "Camera Shot",
+              "values": [
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]"
+              ]
+            },
+            {
+              "name": "plant_character",
+              "feature_name": "Flora Character",
+              "values": [
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]"
+              ]
+            },
+            {
+              "name": "sensual_action",
+              "feature_name": "Sensual Action",
+              "values": [
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]"
+              ]
+            },
+            {
+              "name": "texture_detail",
+              "feature_name": "Tactile Detail",
+              "values": [
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]"
+              ]
+            },
+            {
+              "name": "lighting_mood",
+              "feature_name": "Lighting",
+              "values": [
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]"
+              ]
+            },
+            {
+              "name": "background_element",
+              "feature_name": "Background Context",
+              "values": [
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]",
+                "[…]"
+              ]
+            }
+          ]
+        }
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.001
+    },
+    "scene0": {
+      "id": "scene0",
+      "type": "synth_image",
+      "dependsOn": [
+        "plan",
+        "style"
+      ],
+      "status": "failed",
+      "startedMs": 27780,
+      "completedMs": 33018,
+      "durationMs": 5238,
+      "inputs": {
+        "prompt": "Scene 1 of 4 from a unsettling sensual short film: Sexy anthropomorphic toxic flora in a pastel mint-green brutalist containment center. Silent story told via excruciatingly slow body language and ASMR tactile close-ups. A delicate Orchid betrays her voluptuous Pitcher Plant girlfriend. Characters include a rigid Anthurium with a glowing spadix and corseted Belladonna berries. Climax: Pitcher Plant, Anthurium, and Belladonna share a languid, symbiotic fluid exchange on a centered mustard yellow velvet couch, while the camera reveals the Orchid clinically vacuum-sealed inside a frosted cryogenic wall-drawer in the background.. Cinematic short film still, {{shot_type}} of {{plant_character}} engaged in {{sensual_action}}, emphasizing {{texture_detail}}. The scene is illuminated by {{lighting… <+192 chars>",
+        "aspect_ratio": "16:9"
+      },
+      "outputSummary": null,
+      "error": "Image generation failed: No image found in Gemini response (finish_reasons=['FinishReason.NO_IMAGE'])",
+      "attempts": 1,
+      "costUsd": 0,
+      "lastRetryError": "Image generation failed: No image found in Gemini response (finish_reasons=['FinishReason.NO_IMAGE'])"
+    },
+    "scene1": {
+      "id": "scene1",
+      "type": "synth_image",
+      "dependsOn": [
+        "plan",
+        "style"
+      ],
+      "status": "failed",
+      "startedMs": 27780,
+      "completedMs": 42260,
+      "durationMs": 14480,
+      "inputs": {
+        "prompt": "Scene 2 of 4 from a unsettling sensual short film: Sexy anthropomorphic toxic flora in a pastel mint-green brutalist containment center. Silent story told via excruciatingly slow body language and ASMR tactile close-ups. A delicate Orchid betrays her voluptuous Pitcher Plant girlfriend. Characters include a rigid Anthurium with a glowing spadix and corseted Belladonna berries. Climax: Pitcher Plant, Anthurium, and Belladonna share a languid, symbiotic fluid exchange on a centered mustard yellow velvet couch, while the camera reveals the Orchid clinically vacuum-sealed inside a frosted cryogenic wall-drawer in the background.. Cinematic short film still, {{shot_type}} of {{plant_character}} engaged in {{sensual_action}}, emphasizing {{texture_detail}}. The scene is illuminated by {{lighting… <+192 chars>",
+        "aspect_ratio": "16:9"
+      },
+      "outputSummary": null,
+      "error": "Image generation failed: No image found in Gemini response (finish_reasons=['FinishReason.NO_IMAGE'])",
+      "attempts": 1,
+      "costUsd": 0,
+      "lastRetryError": "Image generation failed: No image found in Gemini response (finish_reasons=['FinishReason.PROHIBITED_CONTENT'])"
+    },
+    "scene2": {
+      "id": "scene2",
+      "type": "synth_image",
+      "dependsOn": [
+        "plan",
+        "style"
+      ],
+      "status": "failed",
+      "startedMs": 27781,
+      "completedMs": 33536,
+      "durationMs": 5755,
+      "inputs": {
+        "prompt": "Scene 3 of 4 from a unsettling sensual short film: Sexy anthropomorphic toxic flora in a pastel mint-green brutalist containment center. Silent story told via excruciatingly slow body language and ASMR tactile close-ups. A delicate Orchid betrays her voluptuous Pitcher Plant girlfriend. Characters include a rigid Anthurium with a glowing spadix and corseted Belladonna berries. Climax: Pitcher Plant, Anthurium, and Belladonna share a languid, symbiotic fluid exchange on a centered mustard yellow velvet couch, while the camera reveals the Orchid clinically vacuum-sealed inside a frosted cryogenic wall-drawer in the background.. Cinematic short film still, {{shot_type}} of {{plant_character}} engaged in {{sensual_action}}, emphasizing {{texture_detail}}. The scene is illuminated by {{lighting… <+192 chars>",
+        "aspect_ratio": "16:9"
+      },
+      "outputSummary": null,
+      "error": "Image generation failed: No image found in Gemini response (finish_reasons=['FinishReason.NO_IMAGE'])",
+      "attempts": 1,
+      "costUsd": 0,
+      "lastRetryError": "Image generation failed: No image found in Gemini response (finish_reasons=['FinishReason.NO_IMAGE'])"
+    },
+    "scene3": {
+      "id": "scene3",
+      "type": "synth_image",
+      "dependsOn": [
+        "plan",
+        "style"
+      ],
+      "status": "failed",
+      "startedMs": 27781,
+      "completedMs": 61794,
+      "durationMs": 34013,
+      "inputs": {
+        "prompt": "Scene 4 of 4 from a unsettling sensual short film: Sexy anthropomorphic toxic flora in a pastel mint-green brutalist containment center. Silent story told via excruciatingly slow body language and ASMR tactile close-ups. A delicate Orchid betrays her voluptuous Pitcher Plant girlfriend. Characters include a rigid Anthurium with a glowing spadix and corseted Belladonna berries. Climax: Pitcher Plant, Anthurium, and Belladonna share a languid, symbiotic fluid exchange on a centered mustard yellow velvet couch, while the camera reveals the Orchid clinically vacuum-sealed inside a frosted cryogenic wall-drawer in the background.. Cinematic short film still, {{shot_type}} of {{plant_character}} engaged in {{sensual_action}}, emphasizing {{texture_detail}}. The scene is illuminated by {{lighting… <+192 chars>",
+        "aspect_ratio": "16:9"
+      },
+      "outputSummary": null,
+      "error": "This operation was aborted",
+      "attempts": 1,
+      "costUsd": 0,
+      "lastRetryError": "Image generation failed: No image found in Gemini response (finish_reasons=['FinishReason.NO_IMAGE'])"
+    },
+    "desc0": {
+      "id": "desc0",
+      "type": "synth_analyze",
+      "dependsOn": [
+        "scene0"
+      ],
+      "status": "pending",
+      "startedMs": null,
+      "completedMs": null,
+      "durationMs": null,
+      "inputs": null,
+      "outputSummary": null,
+      "error": null,
+      "attempts": 0,
+      "costUsd": 0
+    },
+    "desc1": {
+      "id": "desc1",
+      "type": "synth_analyze",
+      "dependsOn": [
+        "scene1"
+      ],
+      "status": "pending",
+      "startedMs": null,
+      "completedMs": null,
+      "durationMs": null,
+      "inputs": null,
+      "outputSummary": null,
+      "error": null,
+      "attempts": 0,
+      "costUsd": 0
+    },
+    "desc2": {
+      "id": "desc2",
+      "type": "synth_analyze",
+      "dependsOn": [
+        "scene2"
+      ],
+      "status": "pending",
+      "startedMs": null,
+      "completedMs": null,
+      "durationMs": null,
+      "inputs": null,
+      "outputSummary": null,
+      "error": null,
+      "attempts": 0,
+      "costUsd": 0
+    },
+    "desc3": {
+      "id": "desc3",
+      "type": "synth_analyze",
+      "dependsOn": [
+        "scene3"
+      ],
+      "status": "pending",
+      "startedMs": null,
+      "completedMs": null,
+      "durationMs": null,
+      "inputs": null,
+      "outputSummary": null,
+      "error": null,
+      "attempts": 0,
+      "costUsd": 0
+    },
+    "narrative": {
+      "id": "narrative",
+      "type": "synth_narrative",
+      "dependsOn": [
+        "desc0",
+        "desc1",
+        "desc2",
+        "desc3"
+      ],
+      "status": "pending",
+      "startedMs": null,
+      "completedMs": null,
+      "durationMs": null,
+      "inputs": null,
+      "outputSummary": null,
+      "error": null,
+      "attempts": 0,
+      "costUsd": 0
+    },
+    "hero_video": {
+      "id": "hero_video",
+      "type": "synth_video",
+      "dependsOn": [
+        "desc0"
+      ],
+      "status": "pending",
+      "startedMs": null,
+      "completedMs": null,
+      "durationMs": null,
+      "inputs": null,
+      "outputSummary": null,
+      "error": null,
+      "attempts": 0,
+      "costUsd": 0
+    }
+  },
+  "events": [
+    {
+      "t": 0,
+      "event": "workflow_start",
+      "data": {
+        "workflowId": "d06924a8-b506-4e51-be45-7234059e4d80",
+        "name": "Cinematic Short: Sexy anthropomorphic toxic flora in a pastel mint-",
+        "stepCount": 12,
+        "steps": [
+          {
+            "id": "plan",
+            "type": "synth_text",
+            "dependsOn": []
+          },
+          {
+            "id": "style",
+            "type": "synth_template",
+            "dependsOn": []
+          },
+          {
+            "id": "scene0",
+            "type": "synth_image",
+            "dependsOn": [
+              "plan",
+              "style"
+            ]
+          },
+          {
+            "id": "scene1",
+            "type": "synth_image",
+            "dependsOn": [
+              "plan",
+              "style"
+            ]
+          },
+          {
+            "id": "scene2",
+            "type": "synth_image",
+            "dependsOn": [
+              "plan",
+              "style"
+            ]
+          },
+          {
+            "id": "scene3",
+            "type": "synth_image",
+            "dependsOn": [
+              "plan",
+              "style"
+            ]
+          },
+          {
+            "id": "desc0",
+            "type": "synth_analyze",
+            "dependsOn": [
+              "scene0"
+            ]
+          },
+          {
+            "id": "desc1",
+            "type": "synth_analyze",
+            "dependsOn": [
+              "scene1"
+            ]
+          },
+          {
+            "id": "desc2",
+            "type": "synth_analyze",
+            "dependsOn": [
+              "scene2"
+            ]
+          },
+          {
+            "id": "desc3",
+            "type": "synth_analyze",
+            "dependsOn": [
+              "scene3"
+            ]
+          },
+          {
+            "id": "narrative",
+            "type": "synth_narrative",
+            "dependsOn": [
+              "desc0",
+              "desc1",
+              "desc2",
+              "desc3"
+            ]
+          },
+          {
+            "id": "hero_video",
+            "type": "synth_video",
+            "dependsOn": [
+              "desc0"
+            ]
+          }
+        ],
+        "agentId": "641fec33-c166-4fdb-9ca8-12ce2dcac2a0",
+        "agentName": "Ava Williams",
+        "agentColor": "#45B7D1",
+        "sessionId": "c85d5173-41d1-4e1e-ab57-bc3e3a077616",
+        "messageId": null
+      }
+    },
+    {
+      "t": 1,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "d06924a8-b506-4e51-be45-7234059e4d80",
+        "stepId": "plan",
+        "stepType": "synth_text",
+        "agentId": "641fec33-c166-4fdb-9ca8-12ce2dcac2a0",
+        "dependsOn": [],
+        "inputs": {
+          "prompt": "You are a film director planning a short film. Concept: \"Sexy anthropomorphic toxic flora in a pastel mint-green brutalist containment center. Silent story told via excruciatingly slow body language and ASMR tactile close-ups. A delicate Orchid betrays her voluptuous Pitcher Plant girlfriend. Characters include a rigid Anthurium with a glowing spadix and corseted Belladonna berries. Climax: Pitcher Plant, Anthurium, and Belladonna share a languid, symbiotic fluid exchange on a centered mustard yellow velvet couch, while the camera reveals the Orchid clinically vacuum-sealed inside a frosted cryogenic wall-drawer in the background.\". Mood: unsettling sensual.\nPlan exactly 4 scenes. For each scene, write a vivid image generation prompt (2-3 sentences) describing the visual.\nOutput ONLY a JSON array of strings, one prompt per scene. Example: [\"scene 1 prompt\", \"scene 2 prompt\"]"
+        }
+      }
+    },
+    {
+      "t": 1,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "d06924a8-b506-4e51-be45-7234059e4d80",
+        "stepId": "style",
+        "stepType": "synth_template",
+        "agentId": "641fec33-c166-4fdb-9ca8-12ce2dcac2a0",
+        "dependsOn": [],
+        "inputs": {
+          "description": "unsettling sensual visual style for a short film about: Sexy anthropomorphic toxic flora in a pastel mint-green brutalist containment center. Silent story told via excruciatingly slow body language and ASMR tactile close-ups. A delicate Orchid betrays her voluptuous Pitcher Plant girlfriend. Characters include a rigid Anthurium with a glowing spadix and corseted Belladonna berries. Climax: Pitcher Plant, Anthurium, and Belladonna share a languid, symbiotic fluid exchange on a centered mustard yellow velvet couch, while the camera reveals the Orchid clinically vacuum-sealed inside a frosted cryogenic wall-drawer in the background.",
+          "mode": "text"
+        }
+      }
+    },
+    {
+      "t": 2,
+      "event": "workflow_submitted",
+      "data": {
+        "agentId": "641fec33-c166-4fdb-9ca8-12ce2dcac2a0",
+        "agentName": "Ava Williams",
+        "agentColor": "#45B7D1",
+        "sessionId": "c85d5173-41d1-4e1e-ab57-bc3e3a077616",
+        "workflowId": "d06924a8-b506-4e51-be45-7234059e4d80",
+        "workflowName": "Cinematic Short: Sexy anthropomorphic toxic flora in a pastel mint-",
+        "templateId": "cinematic_short",
+        "stepCount": 12,
+        "steps": [
+          {
+            "id": "plan",
+            "type": "synth_text"
+          },
+          {
+            "id": "style",
+            "type": "synth_template"
+          },
+          {
+            "id": "scene0",
+            "type": "synth_image"
+          },
+          {
+            "id": "scene1",
+            "type": "synth_image"
+          },
+          {
+            "id": "scene2",
+            "type": "synth_image"
+          },
+          {
+            "id": "scene3",
+            "type": "synth_image"
+          },
+          {
+            "id": "desc0",
+            "type": "synth_analyze"
+          },
+          {
+            "id": "desc1",
+            "type": "synth_analyze"
+          },
+          {
+            "id": "desc2",
+            "type": "synth_analyze"
+          },
+          {
+            "id": "desc3",
+            "type": "synth_analyze"
+          },
+          {
+            "id": "narrative",
+            "type": "synth_narrative"
+          },
+          {
+            "id": "hero_video",
+            "type": "synth_video"
+          }
+        ]
+      }
+    },
+    {
+      "t": 19541,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "d06924a8-b506-4e51-be45-7234059e4d80",
+        "stepId": "plan",
+        "text": "[\n  \"Extreme close-up inside"
+      }
+    },
+    {
+      "t": 19542,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "d06924a8-b506-4e51-be45-7234059e4d80",
+        "stepId": "plan",
+        "text": " a pastel mint-green brutalist containment center, capturing a voluptuous anthropomorphic Pitcher Plant tenderly stroking a"
+      }
+    },
+    {
+      "t": 19543,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "d06924a8-b506-4e51-be45-7234059e4d80",
+        "stepId": "plan",
+        "text": " delicate, translucent Orchid. The camera focuses on the ASMR-like tactile textures of slippery, nectar-slicked curves"
+      }
+    },
+    {
+      "t": 19559,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "d06924a8-b506-4e51-be45-7234059e4d80",
+        "stepId": "plan",
+        "text": " against fragile petals, radiating an unsettlingly sensual mood as the Orchid's stiff posture hints at silent betrayal.\",\n  "
+      }
+    },
+    {
+      "t": 19783,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "d06924a8-b506-4e51-be45-7234059e4d80",
+        "stepId": "plan",
+        "text": "\"A rigid, anthropomorphic Anthurium with an intensely glowing neon spadix and a dark, alluring Belladonna wearing a"
+      }
+    },
+    {
+      "t": 19948,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "d06924a8-b506-4e51-be45-7234059e4d80",
+        "stepId": "plan",
+        "text": " tight corset of toxic black berries emerge from the mint-green concrete shadows. Captured in an excruciatingly slow, macro-"
+      }
+    },
+    {
+      "t": 20105,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "d06924a8-b506-4e51-be45-7234059e4d80",
+        "stepId": "plan",
+        "text": "focused shot, their glossy, veined skin drips with viscous toxic sap, setting a tone of creeping, erotic dread.\","
+      }
+    },
+    {
+      "t": 20215,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "d06924a8-b506-4e51-be45-7234059e4d80",
+        "stepId": "plan",
+        "text": "\n  \"The voluptuous Pitcher Plant reacts to the Orchid's deceit, using thick, wet vines to slowly"
+      }
+    },
+    {
+      "t": 20345,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "d06924a8-b506-4e51-be45-7234059e4d80",
+        "stepId": "plan",
+        "text": " and sensually overpower the fragile white flower against a cold mint-green brutalist pillar. The camera emphasizes the glistening friction"
+      }
+    },
+    {
+      "t": 20630,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "d06924a8-b506-4e51-be45-7234059e4d80",
+        "stepId": "plan",
+        "text": " between soft, humid plant flesh and rigid concrete, turning the silent struggle into a mesmerizing, sticky tactile display.\",\n  "
+      }
+    },
+    {
+      "t": 20881,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "d06924a8-b506-4e51-be45-7234059e4d80",
+        "stepId": "plan",
+        "text": "\"A languid, symbiotic exchange of glowing, viscous fluids takes place between the Pitcher Plant, Anthurium, and"
+      }
+    },
+    {
+      "t": 21042,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "d06924a8-b506-4e51-be45-7234059e4d80",
+        "stepId": "plan",
+        "text": " Belladonna as they sprawl entwined across a mustard yellow velvet couch centered in the room. In the chillingly clinical"
+      }
+    },
+    {
+      "t": 21043,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "d06924a8-b506-4e51-be45-7234059e4d80",
+        "stepId": "plan",
+        "text": " background, the camera reveals the delicate Orchid frozen in silent defeat, permanently vacuum-sealed behind the frosted glass of a cryogenic"
+      }
+    },
+    {
+      "t": 21139,
+      "event": "workflow_step_chunk",
+      "data": {
+        "workflowId": "d06924a8-b506-4e51-be45-7234059e4d80",
+        "stepId": "plan",
+        "text": " wall-drawer.\"\n]"
+      }
+    },
+    {
+      "t": 21160,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "d06924a8-b506-4e51-be45-7234059e4d80",
+        "stepId": "plan",
+        "stepType": "synth_text",
+        "agentId": "641fec33-c166-4fdb-9ca8-12ce2dcac2a0",
+        "attempts": 1,
+        "durationMs": 21159,
+        "summary": {}
+      }
+    },
+    {
+      "t": 27779,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "d06924a8-b506-4e51-be45-7234059e4d80",
+        "stepId": "style",
+        "stepType": "synth_template",
+        "agentId": "641fec33-c166-4fdb-9ca8-12ce2dcac2a0",
+        "attempts": 1,
+        "durationMs": 27778,
+        "summary": {
+          "status": "success",
+          "template": {
+            "promptTemplate": "Cinematic short film still, {{shot_type}} of {{plant_character}} engaged in {{sensual_action}}, emphasizing {{texture_detail}}. The scene is illuminated by {{lighting_mood}} within a pastel mint-green brutalist containment center, featuring {{background_element}} in the background, unsettling sensual visual style, 8k resolution, photorealistic masterpiece.",
+            "variables": [
+              {
+                "name": "shot_type",
+                "feature_name": "Camera Shot",
+                "values": [
+                  {
+                    "text": "ASMR tactile extreme macro close-up",
+                    "weight": 3
+                  },
+                  {
+                    "text": "voyeuristic shallow depth of field shot",
+                    "weight": 3
+                  },
+                  {
+                    "text": "clinical medium framing",
+                    "weight": 3
+                  },
+                  {
+                    "text": "intimate over-the-shoulder angle",
+                    "weight": 2
+                  },
+                  {
+                    "text": "claustrophobic overhead angle",
+                    "weight": 2
+                  },
+                  {
+                    "text": "deep focus wide angle",
+                    "weight": 3
+                  },
+                  {
+                    "text": "slow cinematic zoom-in",
+                    "weight": 2
+                  },
+                  {
+                    "text": "distorted fisheye perspective",
+                    "weight": 1
+                  },
+                  {
+                    "text": "clinical surveillance camera angle",
+                    "weight": 1
+                  },
+                  {
+                    "text": "low-angle dramatic perspective",
+                    "weight": 3
+                  }
+                ]
+              },
+              {
+                "name": "plant_character",
+                "feature_name": "Flora Character",
+                "values": [
+                  {
+                    "text": "a voluptuous anthropomorphic Pitcher Plant",
+                    "weight": 3
+                  },
+                  {
+                    "text": "a rigid Anthurium with a glowing spadix",
+                    "weight": 3
+                  },
+                  {
+                    "text": "a cluster of corseted Belladonna berries",
+                    "weight": 2
+                  },
+                  {
+                    "text": "a delicate vacuum-sealed Orchid",
+                    "weight": 3
+                  },
+                  {
+                    "text": "the intertwined Pitcher Plant and Anthurium",
+                    "weight": 3
+                  },
+                  {
+                    "text": "an anthropomorphic Orchid shedding petals",
+                    "weight": 2
+                  },
+                  {
+                    "text": "a trembling humanoid Belladonna figure",
+                    "weight": 2
+                  },
+                  {
+                    "text": "a languid Pitcher Plant girlfriend",
+                    "weight": 3
+                  },
+                  {
+                    "text": "an imposing Anthurium dominating the frame",
+                    "weight": 2
+                  },
+                  {
+                    "text": "a weeping pastel mint-green mutated fern",
+                    "weight": 1
+                  }
+                ]
+              },
+              {
+                "name": "sensual_action",
+                "feature_name": "Sensual Action",
+                "values": [
+                  {
+                    "text": "a languid symbiotic fluid exchange",
+                    "weight": 3
+                  },
+                  {
+                    "text": "excruciatingly slow body language",
+                    "weight": 3
+                  },
+                  {
+                    "text": "an intimate, tactile botanical caress",
+                    "weight": 3
+                  },
+                  {
+                    "text": "oozing glistening toxic nectar",
+                    "weight": 2
+                  },
+                  {
+                    "text": "a silent, delicate betrayal",
+                    "weight": 2
+                  },
+                  {
+                    "text": "slowly pressing against frosted glass",
+                    "weight": 3
+                  },
+                  {
+                    "text": "trembling with suppressed botanical desire",
+                    "weight": 2
+                  },
+                  {
+                    "text": "a rigid, corseted embrace",
+                    "weight": 2
+                  },
+                  {
+                    "text": "dripping bioluminescent sap rhythmically",
+                    "weight": 1
+                  },
+                  {
+                    "text": "vacuum-sealing into a cryogenic slumber",
+                    "weight": 1
+                  }
+                ]
+              },
+              {
+                "name": "texture_detail",
+                "feature_name": "Tactile Detail",
+                "values": [
+                  {
+                    "text": "slick, wet botanical surfaces",
+                    "weight": 3
+                  },
+                  {
+                    "text": "plush mustard yellow velvet fabric",
+                    "weight": 3
+                  },
+                  {
+                    "text": "cold, frosted cryogenic glass condensation",
+                    "weight": 3
+                  },
+                  {
+                    "text": "tight, restrictive corseted vines",
+                    "weight": 2
+                  },
+                  {
+                    "text": "sticky, glistening nectar droplets",
+                    "weight": 3
+                  },
+                  {
+                    "text": "pulsating, glowing plant veins",
+                    "weight": 2
+                  },
+                  {
+                    "text": "rigid, waxy floral cuticles",
+                    "weight": 2
+                  },
+                  {
+                    "text": "soft, bruised flower petals",
+                    "weight": 2
+                  },
+                  {
+                    "text": "smooth, vacuum-sealed plastic wrapping",
+                    "weight": 1
+                  },
+                  {
+                    "text": "porous, breathing organic brutalist concrete",
+                    "weight": 1
+                  }
+                ]
+              },
+              {
+                "name": "lighting_mood",
+                "feature_name": "Lighting",
+                "values": [
+                  {
+                    "text": "soft pastel mint-green ambient glow",
+                    "weight": 3
+                  },
+                  {
+                    "text": "sterile fluorescent overhead lighting",
+                    "weight": 3
+                  },
+                  {
+                    "text": "moody chiaroscuro with deep shadows",
+                    "weight": 3
+                  },
+                  {
+                    "text": "seductive bioluminescent subsurface scattering",
+                    "weight": 2
+                  },
+                  {
+                    "text": "harsh clinical spotlighting",
+                    "weight": 2
+                  },
+                  {
+                    "text": "hazy, dreamlike diffuse illumination",
+                    "weight": 2
+                  },
+                  {
+                    "text": "unsettling sickly green neon rim lights",
+                    "weight": 2
+                  },
+                  {
+                    "text": "warm contrasting amber fill light",
+                    "weight": 3
+                  },
+                  {
+                    "text": "cold cryogenic blue frosted light",
+                    "weight": 1
+                  },
+                  {
+                    "text": "flickering unstable containment facility lights",
+                    "weight": 1
+                  }
+                ]
+              },
+              {
+                "name": "background_element",
+                "feature_name": "Background Context",
+                "values": [
+                  {
+                    "text": "a centered mustard yellow velvet couch",
+                    "weight": 3
+                  },
+                  {
+                    "text": "a frosted cryogenic wall-drawer",
+                    "weight": 3
+                  },
+                  {
+                    "text": "pastel mint-green brutalist concrete walls",
+                    "weight": 3
+                  },
+                  {
+                    "text": "geometric brutalist shadow patterns",
+                    "weight": 3
+                  },
+                  {
+                    "text": "clinical stainless steel medical trays",
+                    "weight": 2
+                  },
+                  {
+                    "text": "misty botanical containment tubes",
+                    "weight": 2
+                  },
+                  {
+                    "text": "heavily reinforced glass observation windows",
+                    "weight": 2
+                  },
+                  {
+                    "text": "a series of glowing specimen jars",
+                    "weight": 2
+                  },
+                  {
+                    "text": "an empty vacuum-sealed chamber",
+                    "weight": 1
+                  },
+                  {
+                    "text": "tangled industrial pipes overgrown with toxic moss",
+                    "weight": 1
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "t": 27780,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "d06924a8-b506-4e51-be45-7234059e4d80",
+        "stepId": "scene0",
+        "stepType": "synth_image",
+        "agentId": "641fec33-c166-4fdb-9ca8-12ce2dcac2a0",
+        "dependsOn": [
+          "plan",
+          "style"
+        ],
+        "inputs": {
+          "prompt": "Scene 1 of 4 from a unsettling sensual short film: Sexy anthropomorphic toxic flora in a pastel mint-green brutalist containment center. Silent story told via excruciatingly slow body language and ASMR tactile close-ups. A delicate Orchid betrays her voluptuous Pitcher Plant girlfriend. Characters include a rigid Anthurium with a glowing spadix and corseted Belladonna berries. Climax: Pitcher Plant, Anthurium, and Belladonna share a languid, symbiotic fluid exchange on a centered mustard yellow velvet couch, while the camera reveals the Orchid clinically vacuum-sealed inside a frosted cryogenic wall-drawer in the background.. Cinematic short film still, {{shot_type}} of {{plant_character}} engaged in {{sensual_action}}, emphasizing {{texture_detail}}. The scene is illuminated by {{lighting_mood}} within a pastel mint-green brutalist containment center, featuring {{background_element}} in the background, unsettling sensual visual style, 8k resolution, photorealistic masterpiece.",
+          "aspect_ratio": "16:9"
+        }
+      }
+    },
+    {
+      "t": 27780,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "d06924a8-b506-4e51-be45-7234059e4d80",
+        "stepId": "scene1",
+        "stepType": "synth_image",
+        "agentId": "641fec33-c166-4fdb-9ca8-12ce2dcac2a0",
+        "dependsOn": [
+          "plan",
+          "style"
+        ],
+        "inputs": {
+          "prompt": "Scene 2 of 4 from a unsettling sensual short film: Sexy anthropomorphic toxic flora in a pastel mint-green brutalist containment center. Silent story told via excruciatingly slow body language and ASMR tactile close-ups. A delicate Orchid betrays her voluptuous Pitcher Plant girlfriend. Characters include a rigid Anthurium with a glowing spadix and corseted Belladonna berries. Climax: Pitcher Plant, Anthurium, and Belladonna share a languid, symbiotic fluid exchange on a centered mustard yellow velvet couch, while the camera reveals the Orchid clinically vacuum-sealed inside a frosted cryogenic wall-drawer in the background.. Cinematic short film still, {{shot_type}} of {{plant_character}} engaged in {{sensual_action}}, emphasizing {{texture_detail}}. The scene is illuminated by {{lighting_mood}} within a pastel mint-green brutalist containment center, featuring {{background_element}} in the background, unsettling sensual visual style, 8k resolution, photorealistic masterpiece.",
+          "aspect_ratio": "16:9"
+        }
+      }
+    },
+    {
+      "t": 27781,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "d06924a8-b506-4e51-be45-7234059e4d80",
+        "stepId": "scene2",
+        "stepType": "synth_image",
+        "agentId": "641fec33-c166-4fdb-9ca8-12ce2dcac2a0",
+        "dependsOn": [
+          "plan",
+          "style"
+        ],
+        "inputs": {
+          "prompt": "Scene 3 of 4 from a unsettling sensual short film: Sexy anthropomorphic toxic flora in a pastel mint-green brutalist containment center. Silent story told via excruciatingly slow body language and ASMR tactile close-ups. A delicate Orchid betrays her voluptuous Pitcher Plant girlfriend. Characters include a rigid Anthurium with a glowing spadix and corseted Belladonna berries. Climax: Pitcher Plant, Anthurium, and Belladonna share a languid, symbiotic fluid exchange on a centered mustard yellow velvet couch, while the camera reveals the Orchid clinically vacuum-sealed inside a frosted cryogenic wall-drawer in the background.. Cinematic short film still, {{shot_type}} of {{plant_character}} engaged in {{sensual_action}}, emphasizing {{texture_detail}}. The scene is illuminated by {{lighting_mood}} within a pastel mint-green brutalist containment center, featuring {{background_element}} in the background, unsettling sensual visual style, 8k resolution, photorealistic masterpiece.",
+          "aspect_ratio": "16:9"
+        }
+      }
+    },
+    {
+      "t": 27781,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "d06924a8-b506-4e51-be45-7234059e4d80",
+        "stepId": "scene3",
+        "stepType": "synth_image",
+        "agentId": "641fec33-c166-4fdb-9ca8-12ce2dcac2a0",
+        "dependsOn": [
+          "plan",
+          "style"
+        ],
+        "inputs": {
+          "prompt": "Scene 4 of 4 from a unsettling sensual short film: Sexy anthropomorphic toxic flora in a pastel mint-green brutalist containment center. Silent story told via excruciatingly slow body language and ASMR tactile close-ups. A delicate Orchid betrays her voluptuous Pitcher Plant girlfriend. Characters include a rigid Anthurium with a glowing spadix and corseted Belladonna berries. Climax: Pitcher Plant, Anthurium, and Belladonna share a languid, symbiotic fluid exchange on a centered mustard yellow velvet couch, while the camera reveals the Orchid clinically vacuum-sealed inside a frosted cryogenic wall-drawer in the background.. Cinematic short film still, {{shot_type}} of {{plant_character}} engaged in {{sensual_action}}, emphasizing {{texture_detail}}. The scene is illuminated by {{lighting_mood}} within a pastel mint-green brutalist containment center, featuring {{background_element}} in the background, unsettling sensual visual style, 8k resolution, photorealistic masterpiece.",
+          "aspect_ratio": "16:9"
+        }
+      }
+    },
+    {
+      "t": 28791,
+      "event": "workflow_step_retry",
+      "data": {
+        "workflowId": "d06924a8-b506-4e51-be45-7234059e4d80",
+        "stepId": "scene0",
+        "stepType": "synth_image",
+        "attempt": 1,
+        "error": "Image generation failed: No image found in Gemini response (finish_reasons=['FinishReason.NO_IMAGE'])"
+      }
+    },
+    {
+      "t": 28793,
+      "event": "workflow_step_retry",
+      "data": {
+        "workflowId": "d06924a8-b506-4e51-be45-7234059e4d80",
+        "stepId": "scene3",
+        "stepType": "synth_image",
+        "attempt": 1,
+        "error": "Image generation failed: No image found in Gemini response (finish_reasons=['FinishReason.NO_IMAGE'])"
+      }
+    },
+    {
+      "t": 29053,
+      "event": "workflow_step_retry",
+      "data": {
+        "workflowId": "d06924a8-b506-4e51-be45-7234059e4d80",
+        "stepId": "scene2",
+        "stepType": "synth_image",
+        "attempt": 1,
+        "error": "Image generation failed: No image found in Gemini response (finish_reasons=['FinishReason.NO_IMAGE'])"
+      }
+    },
+    {
+      "t": 33018,
+      "event": "workflow_step_error",
+      "data": {
+        "workflowId": "d06924a8-b506-4e51-be45-7234059e4d80",
+        "stepId": "scene0",
+        "stepType": "synth_image",
+        "agentId": "641fec33-c166-4fdb-9ca8-12ce2dcac2a0",
+        "attempts": 2,
+        "durationMs": 5238,
+        "error": "Image generation failed: No image found in Gemini response (finish_reasons=['FinishReason.NO_IMAGE'])"
+      }
+    },
+    {
+      "t": 33536,
+      "event": "workflow_step_error",
+      "data": {
+        "workflowId": "d06924a8-b506-4e51-be45-7234059e4d80",
+        "stepId": "scene2",
+        "stepType": "synth_image",
+        "agentId": "641fec33-c166-4fdb-9ca8-12ce2dcac2a0",
+        "attempts": 2,
+        "durationMs": 5755,
+        "error": "Image generation failed: No image found in Gemini response (finish_reasons=['FinishReason.NO_IMAGE'])"
+      }
+    },
+    {
+      "t": 38039,
+      "event": "workflow_step_retry",
+      "data": {
+        "workflowId": "d06924a8-b506-4e51-be45-7234059e4d80",
+        "stepId": "scene1",
+        "stepType": "synth_image",
+        "attempt": 1,
+        "error": "Image generation failed: No image found in Gemini response (finish_reasons=['FinishReason.PROHIBITED_CONTENT'])"
+      }
+    },
+    {
+      "t": 42260,
+      "event": "workflow_step_error",
+      "data": {
+        "workflowId": "d06924a8-b506-4e51-be45-7234059e4d80",
+        "stepId": "scene1",
+        "stepType": "synth_image",
+        "agentId": "641fec33-c166-4fdb-9ca8-12ce2dcac2a0",
+        "attempts": 2,
+        "durationMs": 14480,
+        "error": "Image generation failed: No image found in Gemini response (finish_reasons=['FinishReason.NO_IMAGE'])"
+      }
+    },
+    {
+      "t": 61794,
+      "event": "workflow_step_error",
+      "data": {
+        "workflowId": "d06924a8-b506-4e51-be45-7234059e4d80",
+        "stepId": "scene3",
+        "stepType": "synth_image",
+        "agentId": "641fec33-c166-4fdb-9ca8-12ce2dcac2a0",
+        "attempts": 2,
+        "durationMs": 34012,
+        "error": "This operation was aborted"
+      }
+    },
+    {
+      "t": 61794,
+      "event": "workflow_complete",
+      "data": {
+        "workflowId": "d06924a8-b506-4e51-be45-7234059e4d80",
+        "name": "Cinematic Short: Sexy anthropomorphic toxic flora in a pastel mint-",
+        "status": "failed",
+        "completedAt": "2026-04-30T21:14:40.517Z",
+        "agentId": "641fec33-c166-4fdb-9ca8-12ce2dcac2a0",
+        "totals": {
+          "durationMs": 61794,
+          "completedSteps": 2,
+          "failedSteps": 4,
+          "skippedSteps": 0
+        },
+        "stepResults": [
+          {
+            "id": "plan",
+            "type": "synth_text",
+            "status": "complete"
+          },
+          {
+            "id": "style",
+            "type": "synth_template",
+            "status": "success",
+            "template": {
+              "promptTemplate": "Cinematic short film still, {{shot_type}} of {{plant_character}} engaged in {{sensual_action}}, emphasizing {{texture_detail}}. The scene is illuminated by {{lighting_mood}} within a pastel mint-green brutalist containment center, featuring {{background_element}} in the background, unsettling sensual visual style, 8k resolution, photorealistic masterpiece.",
+              "variables": [
+                {
+                  "name": "shot_type",
+                  "feature_name": "Camera Shot",
+                  "values": [
+                    {
+                      "text": "ASMR tactile extreme macro close-up",
+                      "weight": 3
+                    },
+                    {
+                      "text": "voyeuristic shallow depth of field shot",
+                      "weight": 3
+                    },
+                    {
+                      "text": "clinical medium framing",
+                      "weight": 3
+                    },
+                    {
+                      "text": "intimate over-the-shoulder angle",
+                      "weight": 2
+                    },
+                    {
+                      "text": "claustrophobic overhead angle",
+                      "weight": 2
+                    },
+                    {
+                      "text": "deep focus wide angle",
+                      "weight": 3
+                    },
+                    {
+                      "text": "slow cinematic zoom-in",
+                      "weight": 2
+                    },
+                    {
+                      "text": "distorted fisheye perspective",
+                      "weight": 1
+                    },
+                    {
+                      "text": "clinical surveillance camera angle",
+                      "weight": 1
+                    },
+                    {
+                      "text": "low-angle dramatic perspective",
+                      "weight": 3
+                    }
+                  ]
+                },
+                {
+                  "name": "plant_character",
+                  "feature_name": "Flora Character",
+                  "values": [
+                    {
+                      "text": "a voluptuous anthropomorphic Pitcher Plant",
+                      "weight": 3
+                    },
+                    {
+                      "text": "a rigid Anthurium with a glowing spadix",
+                      "weight": 3
+                    },
+                    {
+                      "text": "a cluster of corseted Belladonna berries",
+                      "weight": 2
+                    },
+                    {
+                      "text": "a delicate vacuum-sealed Orchid",
+                      "weight": 3
+                    },
+                    {
+                      "text": "the intertwined Pitcher Plant and Anthurium",
+                      "weight": 3
+                    },
+                    {
+                      "text": "an anthropomorphic Orchid shedding petals",
+                      "weight": 2
+                    },
+                    {
+                      "text": "a trembling humanoid Belladonna figure",
+                      "weight": 2
+                    },
+                    {
+                      "text": "a languid Pitcher Plant girlfriend",
+                      "weight": 3
+                    },
+                    {
+                      "text": "an imposing Anthurium dominating the frame",
+                      "weight": 2
+                    },
+                    {
+                      "text": "a weeping pastel mint-green mutated fern",
+                      "weight": 1
+                    }
+                  ]
+                },
+                {
+                  "name": "sensual_action",
+                  "feature_name": "Sensual Action",
+                  "values": [
+                    {
+                      "text": "a languid symbiotic fluid exchange",
+                      "weight": 3
+                    },
+                    {
+                      "text": "excruciatingly slow body language",
+                      "weight": 3
+                    },
+                    {
+                      "text": "an intimate, tactile botanical caress",
+                      "weight": 3
+                    },
+                    {
+                      "text": "oozing glistening toxic nectar",
+                      "weight": 2
+                    },
+                    {
+                      "text": "a silent, delicate betrayal",
+                      "weight": 2
+                    },
+                    {
+                      "text": "slowly pressing against frosted glass",
+                      "weight": 3
+                    },
+                    {
+                      "text": "trembling with suppressed botanical desire",
+                      "weight": 2
+                    },
+                    {
+                      "text": "a rigid, corseted embrace",
+                      "weight": 2
+                    },
+                    {
+                      "text": "dripping bioluminescent sap rhythmically",
+                      "weight": 1
+                    },
+                    {
+                      "text": "vacuum-sealing into a cryogenic slumber",
+                      "weight": 1
+                    }
+                  ]
+                },
+                {
+                  "name": "texture_detail",
+                  "feature_name": "Tactile Detail",
+                  "values": [
+                    {
+                      "text": "slick, wet botanical surfaces",
+                      "weight": 3
+                    },
+                    {
+                      "text": "plush mustard yellow velvet fabric",
+                      "weight": 3
+                    },
+                    {
+                      "text": "cold, frosted cryogenic glass condensation",
+                      "weight": 3
+                    },
+                    {
+                      "text": "tight, restrictive corseted vines",
+                      "weight": 2
+                    },
+                    {
+                      "text": "sticky, glistening nectar droplets",
+                      "weight": 3
+                    },
+                    {
+                      "text": "pulsating, glowing plant veins",
+                      "weight": 2
+                    },
+                    {
+                      "text": "rigid, waxy floral cuticles",
+                      "weight": 2
+                    },
+                    {
+                      "text": "soft, bruised flower petals",
+                      "weight": 2
+                    },
+                    {
+                      "text": "smooth, vacuum-sealed plastic wrapping",
+                      "weight": 1
+                    },
+                    {
+                      "text": "porous, breathing organic brutalist concrete",
+                      "weight": 1
+                    }
+                  ]
+                },
+                {
+                  "name": "lighting_mood",
+                  "feature_name": "Lighting",
+                  "values": [
+                    {
+                      "text": "soft pastel mint-green ambient glow",
+                      "weight": 3
+                    },
+                    {
+                      "text": "sterile fluorescent overhead lighting",
+                      "weight": 3
+                    },
+                    {
+                      "text": "moody chiaroscuro with deep shadows",
+                      "weight": 3
+                    },
+                    {
+                      "text": "seductive bioluminescent subsurface scattering",
+                      "weight": 2
+                    },
+                    {
+                      "text": "harsh clinical spotlighting",
+                      "weight": 2
+                    },
+                    {
+                      "text": "hazy, dreamlike diffuse illumination",
+                      "weight": 2
+                    },
+                    {
+                      "text": "unsettling sickly green neon rim lights",
+                      "weight": 2
+                    },
+                    {
+                      "text": "warm contrasting amber fill light",
+                      "weight": 3
+                    },
+                    {
+                      "text": "cold cryogenic blue frosted light",
+                      "weight": 1
+                    },
+                    {
+                      "text": "flickering unstable containment facility lights",
+                      "weight": 1
+                    }
+                  ]
+                },
+                {
+                  "name": "background_element",
+                  "feature_name": "Background Context",
+                  "values": [
+                    {
+                      "text": "a centered mustard yellow velvet couch",
+                      "weight": 3
+                    },
+                    {
+                      "text": "a frosted cryogenic wall-drawer",
+                      "weight": 3
+                    },
+                    {
+                      "text": "pastel mint-green brutalist concrete walls",
+                      "weight": 3
+                    },
+                    {
+                      "text": "geometric brutalist shadow patterns",
+                      "weight": 3
+                    },
+                    {
+                      "text": "clinical stainless steel medical trays",
+                      "weight": 2
+                    },
+                    {
+                      "text": "misty botanical containment tubes",
+                      "weight": 2
+                    },
+                    {
+                      "text": "heavily reinforced glass observation windows",
+                      "weight": 2
+                    },
+                    {
+                      "text": "a series of glowing specimen jars",
+                      "weight": 2
+                    },
+                    {
+                      "text": "an empty vacuum-sealed chamber",
+                      "weight": 1
+                    },
+                    {
+                      "text": "tangled industrial pipes overgrown with toxic moss",
+                      "weight": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "id": "scene0",
+            "type": "synth_image",
+            "status": "failed"
+          },
+          {
+            "id": "scene1",
+            "type": "synth_image",
+            "status": "failed"
+          },
+          {
+            "id": "scene2",
+            "type": "synth_image",
+            "status": "failed"
+          },
+          {
+            "id": "scene3",
+            "type": "synth_image",
+            "status": "failed"
+          },
+          {
+            "id": "desc0",
+            "type": "synth_analyze",
+            "status": "pending"
+          },
+          {
+            "id": "desc1",
+            "type": "synth_analyze",
+            "status": "pending"
+          },
+          {
+            "id": "desc2",
+            "type": "synth_analyze",
+            "status": "pending"
+          },
+          {
+            "id": "desc3",
+            "type": "synth_analyze",
+            "status": "pending"
+          },
+          {
+            "id": "narrative",
+            "type": "synth_narrative",
+            "status": "pending"
+          },
+          {
+            "id": "hero_video",
+            "type": "synth_video",
+            "status": "pending"
+          }
+        ]
+      }
+    }
+  ]
+}

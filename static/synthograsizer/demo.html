@@ -1,0 +1,1706 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- CSP removed for development - add back in production if needed -->
+    <title>Synthograsizer — DEMO</title>
+    <script>window.SYNTH_DEMO_MODE = true;</script>
+    <link rel="stylesheet" href="css/style.css?v=4">
+    <link rel="stylesheet" href="css/code-overlay.css?v=2">
+    <link rel="stylesheet" href="css/layout-options.css?v=7">
+    <link rel="stylesheet" href="css/synth-hardware-theme.css?v=7">
+    <link rel="stylesheet" href="css/storyboard-panel.css?v=1">
+    <link rel="icon" type="image/png" href="assets/favicon.png">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Quantico:ital,wght@0,400;0,700;1,400;1,700&family=Roboto+Mono:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        /* Navigation styling to match other pages */
+        body {
+            margin: 0;
+            padding: 0;
+            display: block !important;
+            /* Override flex layout */
+            background: #f5f5f5;
+        }
+
+        .page-wrapper {
+            width: 100%;
+            max-width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding-top: 0;
+        }
+
+        .about-navbar {
+            background: transparent;
+            width: 100%;
+        }
+
+        .synthograsizer-small {
+            margin-top: 20px;
+        }
+    </style>
+    <style id="v6-tooltip-styles">
+/* ── Custom tooltip system ──────────────────────────────────── */
+/* Usage: add data-tip="YOUR LABEL" to any element */
+[data-tip] { position: relative; }
+
+[data-tip]::before {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: calc(100% + 7px);
+  left: 50%;
+  transform: translateX(-50%) translateY(3px);
+  background: rgba(15, 12, 8, 0.88);
+  color: #f0ebe0;
+  font-family: 'Roboto Mono', 'Share Tech Mono', monospace;
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 3px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.12s ease, transform 0.12s ease;
+  z-index: 9990;
+  box-shadow: 0 2px 8px rgba(0,0,0,.25);
+}
+
+/* Arrow */
+[data-tip]::after {
+  content: '';
+  position: absolute;
+  bottom: calc(100% + 2px);
+  left: 50%;
+  transform: translateX(-50%) translateY(3px);
+  border: 4px solid transparent;
+  border-top-color: rgba(15, 12, 8, 0.88);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.12s ease, transform 0.12s ease;
+  z-index: 9990;
+}
+
+[data-tip]:hover::before,
+[data-tip]:hover::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Tip that opens downward (add data-tip-down attribute) */
+[data-tip][data-tip-pos="down"]::before {
+  bottom: auto;
+  top: calc(100% + 7px);
+  transform: translateX(-50%) translateY(-3px);
+}
+[data-tip][data-tip-pos="down"]::after {
+  bottom: auto;
+  top: calc(100% + 2px);
+  border-top-color: transparent;
+  border-bottom-color: rgba(15, 12, 8, 0.88);
+  transform: translateX(-50%) translateY(-3px);
+}
+[data-tip][data-tip-pos="down"]:hover::before,
+[data-tip][data-tip-pos="down"]:hover::after {
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ── Output section layout — label + buttons in one header row ── */
+.output-section {
+  padding: 0 !important;
+  overflow: hidden;
+}
+.output-header {
+  display: flex;
+  align-items: center;
+  padding: 8px 14px;
+  border-bottom: var(--hw-border, 1px solid rgba(0,0,0,.15));
+  gap: 8px;
+}
+.output-label {
+  flex: 1;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 9px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: rgba(0,0,0,.4);
+  margin-bottom: 0 !important; /* cancel any default bottom margin */
+}
+.output-controls {
+  display: flex;
+  gap: 4px;
+}
+
+/* hw-btn style for output action buttons */
+.icon-btn {
+  font-family: 'Roboto Mono', monospace !important;
+  font-size: 10px !important;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  padding: 4px 10px !important;
+  border-radius: 2px !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  transition: transform 0.08s, box-shadow 0.08s !important;
+}
+.icon-btn:hover  { transform: translate(1px, 1px) !important; filter: none !important; }
+.icon-btn:active { transform: translate(2px, 2px) !important; box-shadow: none !important; }
+
+/* Keyboard hint inside buttons */
+.kbd-tip {
+  font-size: 8px;
+  padding: 0 3px;
+  border: 1px solid rgba(0,0,0,.2);
+  border-radius: 2px;
+  opacity: .55;
+  font-family: 'Roboto Mono', monospace;
+}
+
+/* Output container — taller, with padding from sides */
+.output-container {
+  border-radius: 0 !important;
+  border-left: none !important;
+  border-right: none !important;
+  border-top: none !important;
+  min-height: 160px !important;
+  padding: 16px 18px !important;
+  font-size: 18px !important;
+  line-height: 1.6 !important;
+}
+
+.primary-btn {
+  transition: transform 0.08s, box-shadow 0.08s, filter 0.1s;
+}
+.primary-btn:hover  { filter: brightness(1.05); }
+.primary-btn:active { filter: brightness(0.95); transform: translate(2px,2px); box-shadow: none !important; }
+
+/* Beat Navigator */
+.beat-navigator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 8px 16px 4px;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.03em;
+  color: #888;
+  border-bottom: 1px solid rgba(0,0,0,0.07);
+}
+.beat-nav-arrow {
+  background: none;
+  border: 1px solid rgba(0,0,0,0.18);
+  border-radius: 4px;
+  padding: 2px 11px;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1.4;
+  color: #555;
+  transition: opacity 0.1s;
+}
+.beat-nav-arrow:hover:not(:disabled) { background: rgba(0,0,0,0.05); }
+.beat-nav-arrow:disabled { opacity: 0.25; cursor: default; }
+.beat-nav-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  min-width: 220px;
+  text-align: center;
+}
+.beat-nav-dots {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.beat-nav-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.15);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.15s, transform 0.1s;
+}
+.beat-nav-dot:hover { transform: scale(1.3); }
+.beat-nav-dot.active { background: #5b8dd9; }
+    </style>
+    <style id="v6-p5-modal-styles">
+/* ── P5.js In-Page Modal ───────────────────────────────────── */
+.p5-modal-v6 {
+  position: fixed; z-index: 200;
+  width: 520px; bottom: 64px; right: 24px;
+  background: var(--bg-card, #f5f0e8);
+  border: 2px solid rgba(0,0,0,.18);
+  box-shadow: 6px 6px 0 rgba(0,0,0,.15);
+  border-radius: 4px;
+  display: flex; flex-direction: column;
+  opacity: 0; pointer-events: none;
+  transform: scale(.94) translateY(10px);
+  transition: opacity .18s, transform .18s;
+}
+.p5-modal-v6.open {
+  opacity: 1; pointer-events: all;
+  transform: scale(1) translateY(0);
+}
+/* Titlebar */
+.p5-titlebar-v6 {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 10px; border-bottom: 1px solid rgba(0,0,0,.12);
+  cursor: grab; user-select: none; flex-shrink: 0;
+  border-radius: 2px 2px 0 0;
+}
+.p5-titlebar-v6:active { cursor: grabbing; }
+.p5-title-v6 {
+  font-family: 'Roboto Mono', monospace; font-size: 10px;
+  letter-spacing: .1em; text-transform: uppercase; flex: 1;
+  color: rgba(0,0,0,.7);
+}
+.p5-badge-v6 {
+  font-family: 'Roboto Mono', monospace; font-size: 8px;
+  letter-spacing: .08em; text-transform: uppercase;
+  padding: 2px 7px; border-radius: 2px;
+  background: #10b981; color: #fff;
+}
+.p5-badge-v6.paused { background: #f59e0b; }
+.p5-badge-v6.stopped { background: rgba(0,0,0,.12); color: rgba(0,0,0,.5); }
+.p5-close-v6 {
+  font-family: 'Roboto Mono', monospace; font-size: 10px;
+  padding: 2px 8px; border: 1px solid rgba(0,0,0,.15);
+  background: rgba(255,255,255,.5); border-radius: 2px;
+  cursor: pointer; color: rgba(0,0,0,.5); transition: all .1s;
+}
+.p5-close-v6:hover { background: #ef4444; color: #fff; border-color: transparent; }
+/* Canvas area */
+.p5-canvas-area-v6 {
+  height: 380px; background: #0a0a0a; overflow: hidden;
+  position: relative; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.p5-canvas-area-v6 iframe { width: 100%; height: 100%; border: none; display: block; }
+.p5-placeholder-v6 {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; height: 100%; gap: 10px;
+  color: rgba(255,255,255,.4);
+  font-family: 'Roboto Mono', monospace; font-size: 10px;
+  letter-spacing: .08em; text-transform: uppercase;
+}
+/* Controls */
+.p5-controls-v6 {
+  display: flex; align-items: center; gap: 6px;
+  padding: 7px 10px; border-top: 1px solid rgba(0,0,0,.12); flex-shrink: 0;
+}
+.p5-ctrl-v6 {
+  font-family: 'Roboto Mono', monospace; font-size: 10px;
+  letter-spacing: .06em; text-transform: uppercase;
+  padding: 4px 12px; border: 1px solid rgba(0,0,0,.18);
+  border-radius: 2px; background: rgba(255,255,255,.5);
+  color: rgba(0,0,0,.7); cursor: pointer;
+  box-shadow: 2px 2px 0 rgba(0,0,0,.08); transition: all .1s;
+}
+.p5-ctrl-v6:hover { transform: translate(1px,1px); box-shadow: 1px 1px 0 rgba(0,0,0,.08); }
+.p5-ctrl-v6:active { transform: translate(2px,2px); box-shadow: none; }
+.p5-ctrl-v6.primary { background: #10b981; color: #fff; border-color: #059669; }
+.p5-ctrl-v6.primary:hover { box-shadow: 1px 1px 0 #059669; }
+.p5-size-row-v6 { display: flex; gap: 3px; margin-left: auto; }
+.p5-size-btn-v6 {
+  font-family: 'Roboto Mono', monospace; font-size: 9px;
+  padding: 3px 8px; border: 1px solid rgba(0,0,0,.15);
+  border-radius: 2px; background: rgba(255,255,255,.4);
+  color: rgba(0,0,0,.5); cursor: pointer; transition: all .1s;
+}
+.p5-size-btn-v6:hover { background: rgba(255,255,255,.7); }
+.p5-size-btn-v6.active { background: rgba(0,0,0,.75); color: #fff; border-color: transparent; }
+.p5-size-btn-v6#p5-size-fit-btn { color: #7fffb2; border-color: rgba(127,255,178,.35); }
+.p5-size-btn-v6#p5-size-fit-btn.active { background: rgba(127,255,178,.85); color: #000; border-color: transparent; }
+/* FX Drawer */
+.p5-fx-drawer {
+  background: #111; border-top: 1px solid #2a2a3a;
+  padding: 8px 12px; flex-direction: column; gap: 5px; flex-shrink: 0;
+}
+.p5-fx-row {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 11px; color: #aaa;
+}
+.p5-fx-row label {
+  width: 64px; flex-shrink: 0; color: #888;
+  font-family: 'Roboto Mono', monospace; font-size: 10px; letter-spacing: .04em;
+}
+.p5-fx-row select, .p5-fx-row input[type=range] {
+  flex: 1; min-width: 0;
+  background: #1a1a2e; color: #e0e0e0;
+  border: 1px solid #333; border-radius: 3px;
+  font-size: 11px; height: 22px; padding: 0 4px;
+}
+.p5-fx-row input[type=range] { padding: 0; cursor: pointer; }
+.p5-fx-val {
+  width: 36px; text-align: right; color: #ccc;
+  font-family: 'Roboto Mono', monospace; font-size: 10px; flex-shrink: 0;
+}
+#p5-fx-toggle.active { color: #7fffb2; border-color: #7fffb2; }
+    </style>
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <link rel="stylesheet" href="/shared/css/base.css">
+        <div id="navbar-mount"></div>
+        <script src="/shared/js/navbar.js?v=2"></script>
+
+        <div class="synthograsizer-small">
+            <!-- Header -->
+            <header class="app-header">
+                <h1 class="app-title">Synthograsizer Demo</h1>
+                <p class="app-tagline">Generate structured, remixable AI prompts with variable-based templates and batch
+                    export.</p>
+            </header>
+
+            <!-- Layout Switcher (DEMO: locked to Perform Mode) -->
+
+            <!-- Error Display -->
+            <div id="error-message" class="error-message" role="alert"></div>
+
+            <!-- Generated Output Section -->
+            <section class="output-section">
+                <div class="output-header">
+                    <label class="output-label" for="output-container">Generated Output</label>
+                    <div class="output-controls">
+                        <button id="copy-button" class="icon-btn copy-btn" data-tip="Copy Prompt Text" data-tip-pos="down">
+                            📋 Copy <kbd class="kbd-tip">C</kbd>
+                        </button>
+                        <button id="favorite-button" class="icon-btn favorite-btn" data-tip="Save to Liked" data-tip-pos="down">
+                            ♥ Like <kbd class="kbd-tip">F</kbd>
+                        </button>
+                        <button id="code-button" class="icon-btn code-btn" data-tip="Show Template Code" data-tip-pos="down">
+                            ⌥ Code
+                        </button>
+                        <button id="send-button" class="icon-btn" data-tip="Send to AI Chat" data-tip-pos="down">
+                            ↗ Send to Chat
+                        </button>
+                    </div>
+                </div>
+                <div id="output-container" class="output-container" role="textbox" aria-readonly="true"
+                    aria-label="Generated prompt output">
+                </div>
+                <div id="tag-badges-container" class="tag-badges-container"></div>
+                <!-- Output history strip -->
+                <div id="output-history-strip" class="output-history-strip" style="display:none;">
+                    <div class="output-history-header">
+                        <span class="output-history-label">Recent</span>
+                        <button id="output-history-thumbs-btn" class="output-history-thumbs-btn" title="Show thumbnails">Img</button>
+                        <button id="output-history-clear" class="output-history-clear-btn" title="Clear history">✕</button>
+                    </div>
+                    <div id="output-history-list" class="output-history-list"></div>
+                </div>
+            </section>
+
+            <!-- Beat Navigator (story mode only) -->
+            <div id="beat-navigator" class="beat-navigator" style="display:none">
+              <button id="beat-nav-prev" class="beat-nav-arrow" aria-label="Previous beat">&#8592;</button>
+              <div class="beat-nav-info">
+                <span id="beat-nav-label"></span>
+                <div id="beat-nav-dots" class="beat-nav-dots"></div>
+              </div>
+              <button id="beat-nav-next" class="beat-nav-arrow" aria-label="Next beat">&#8594;</button>
+            </div>
+
+            <!-- Primary Action Buttons -->
+            <section class="primary-actions-section">
+                <button id="randomize-button" class="primary-btn randomize-btn">
+                    <span class="label">RANDOMIZE</span><kbd class="keybind-badge">R</kbd>
+                </button>
+                <button id="p5-run-main-btn" class="primary-btn p5-run-main-btn" style="display: none;">
+                    <span class="label">RUN CODE</span><kbd class="keybind-badge">P</kbd>
+                </button>
+                <button id="generate-button" class="primary-btn generate-btn" data-demo-glitcher="1">
+                    <span class="label">GLITCH</span><kbd class="keybind-badge">G</kbd>
+                </button>
+            </section>
+
+            <!-- P5.js Live Output Panel -->
+            <section id="p5-live-section" class="p5-live-section" style="display: none;">
+                <div id="p5-live-mount" class="p5-live-mount"></div>
+                <!-- Scope processed-video overlay (visible only while WebRTC streaming) -->
+                <div id="scope-video-section" class="scope-video-section">
+                    <video id="scope-video-output" class="scope-video-output" autoplay muted playsinline></video>
+                    <span class="scope-video-label">◉ Scope Live</span>
+                </div>
+                <button id="p5-display-btn" class="p5-capture-btn p5-display-btn" title="Open full-screen OBS display window">
+                    🖥 External Display
+                </button>
+                <button id="p5-scope-btn" class="p5-capture-btn p5-scope-btn" title="Send current frame to Scope as reference image">
+                    📤 → Scope
+                </button>
+                <button id="p5-capture-btn" class="p5-capture-btn" title="Capture frame to Image Studio">
+                    📸 Capture
+                </button>
+            </section>
+
+            <!-- Single Variable Control Section -->
+            <section class="variable-control-section">
+                <!-- D-Pad group: mode toggle + widget + indicators + hint -->
+                <div class="dpad-group">
+                <!-- Mode Toggle -->
+                <div class="control-mode-toggle">
+                    <button id="mode-dpad" class="mode-toggle-btn active" data-tip="D-Pad Navigation Mode">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M15 7.5V2H9v5.5l3 3 3-3zM7.5 9H2v6h5.5l3-3-3-3zM9 16.5V22h6v-5.5l-3-3-3 3zM16.5 9l-3 3 3 3H22V9h-5.5z"/>
+                        </svg>
+                        <span>D-Pad</span>
+                    </button>
+                    <button id="mode-knobs" class="mode-toggle-btn" data-tip="Analog Knobs Mode — Great for MIDI">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/>
+                            <circle cx="12" cy="5" r="2.5"/>
+                        </svg>
+                        <span>Knobs</span>
+                    </button>
+                </div>
+
+                <div class="variable-control-container">
+                    <!-- D-Pad Container with 3D Base -->
+                    <div id="center-control" class="center-control">
+                        <div class="control-box">
+                            <!-- Up Arrow - Previous Variable -->
+                            <button id="prev-variable" class="nav-arrow nav-arrow-up" aria-label="Previous variable">
+                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M7 14l5-5 5 5z" />
+                                </svg>
+                            </button>
+
+                            <!-- Left Arrow - Previous Value -->
+                            <button class="control-arrow control-arrow-left" aria-label="Previous value">
+                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M14 7l-5 5 5 5z" />
+                                </svg>
+                            </button>
+
+                            <!-- Center Display with Variable Name and Value -->
+                            <div class="control-variable-name" id="control-variable-name" data-variable-name="SUBJECT">
+                                <div class="control-value-row">
+                                    <div class="control-value" id="control-value">a mountain landscape</div>
+                                </div>
+                            </div>
+
+                            <!-- Right Arrow - Next Value -->
+                            <button class="control-arrow control-arrow-right" aria-label="Next value">
+                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M10 7l5 5-5 5z" />
+                                </svg>
+                            </button>
+
+                            <!-- Down Arrow - Next Variable -->
+                            <button id="next-variable" class="nav-arrow nav-arrow-down" aria-label="Next variable">
+                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M7 10l5 5 5-5z" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Knobs Container (hidden by default) -->
+                    <div id="knobs-container" class="knobs-container" style="display: none;">
+                        <!-- Knob elements will be dynamically inserted here -->
+                    </div>
+                </div>
+
+                <!-- Variable indicator dots -->
+                <div class="variable-indicators" id="variable-indicators">
+                    <!-- Dots will be dynamically inserted here -->
+                </div>
+
+                <!-- Keyboard hint -->
+                <div class="keyboard-hint">
+                    <span>Use </span>
+                    <kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd>
+                    <span> arrow keys to navigate</span>
+                </div>
+                </div><!-- /.dpad-group -->
+
+                <!-- Connections group: MIDI · OSC · Scope Video · Glitcher · Display -->
+                <div class="connections-group">
+
+                <div class="connections-header">
+                    <span class="connections-label">Connections</span>
+                    <button id="hide-inactive-btn" class="connections-filter-btn" title="Hide inactive connections">Hide inactive</button>
+                </div>
+
+                <!-- MIDI Status Bar -->
+                <div class="midi-bar" id="midi-bar">
+                    <button id="midi-toggle-btn" class="midi-toggle-btn" data-tip="MIDI Controller Settings" data-tip-pos="down">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 3c-1.2 5.4-2 8.2-2 11a2 2 0 0 0 4 0c0-2.8-.8-5.6-2-11z"/>
+                            <circle cx="9" cy="7" r="1.5"/><circle cx="15" cy="7" r="1.5"/>
+                            <circle cx="7" cy="11" r="1.5"/><circle cx="17" cy="11" r="1.5"/>
+                            <path d="M3 16h4v3a1 1 0 0 0 2 0v-3h6v3a1 1 0 0 0 2 0v-3h4"/>
+                        </svg>
+                        <span id="midi-status-text">MIDI</span>
+                        <span class="midi-dot" id="midi-dot"></span>
+                    </button>
+                </div>
+
+                <!-- MIDI Panel (collapsible) -->
+                <div class="midi-panel" id="midi-panel" style="display:none;">
+                    <div class="midi-panel-header">
+                        <span class="midi-panel-title">MIDI Controller</span>
+                        <span id="midi-device-name" class="midi-device-name"></span>
+                        <button id="midi-learn-cancel" class="midi-learn-cancel-btn" style="display:none;">✕ Cancel Learn</button>
+                    </div>
+                    <div class="midi-automap-bar">
+                        <button id="midi-automap-cc-btn" class="midi-automap-btn midi-automap-cc" title="Touch one knob/fader → all variables get sequential CCs">Auto CCs ▸</button>
+                        <button id="midi-automap-note-btn" class="midi-automap-btn midi-automap-note" title="Press one key/pad → all variables get sequential notes">Auto Notes ▸</button>
+                    </div>
+                    <div class="midi-learn-hint" id="midi-learn-hint" style="display:none;">
+                        Move a <strong>knob/fader</strong> or press a <strong>key</strong> on your controller…
+                    </div>
+                    <div class="midi-mappings-grid" id="midi-mappings-grid">
+                        <!-- Populated by JS -->
+                    </div>
+                    <div class="midi-panel-footer">
+                        <button id="midi-clear-btn" class="midi-clear-btn">Clear all mappings</button>
+                    </div>
+                </div>
+
+                <!-- Scope Connection Status Bar -->
+                <div class="osc-bar" id="scope-bar">
+                    <button id="scope-toggle-btn" class="osc-toggle-btn" data-tip="Scope — OSC, Video, Spout" data-tip-pos="down">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+                        </svg>
+                        <span id="scope-status-text">Scope</span>
+                        <span class="osc-dot" id="scope-dot"></span>
+                    </button>
+                </div>
+
+                <!-- Scope Unified Panel (collapsible) -->
+                <div class="osc-panel" id="scope-panel" style="display:none;">
+                    <div class="osc-panel-header">
+                        <span class="osc-panel-title">Scope Connection</span>
+                        <span id="scope-health-badge" class="scope-health-badge" title=""></span>
+                        <span id="scope-osc-route" class="scope-osc-route" title="Active OSC address"></span>
+                    </div>
+                    <div class="osc-panel-body">
+
+                        <!-- Connection -->
+                        <label class="osc-row">
+                            <span>Scope URL</span>
+                            <input type="text" id="scope-url" value="http://127.0.0.1:8000" class="osc-input" />
+                        </label>
+
+                        <!-- OSC Section -->
+                        <div class="scope-section">
+                            <div class="scope-section-header" data-toggle="scope-osc-body">
+                                <span>▸ Prompt (OSC)</span>
+                                <span class="osc-dot scope-section-dot" id="osc-dot"></span>
+                            </div>
+                            <div class="scope-section-body" id="scope-osc-body">
+                                <label class="osc-row">
+                                    <span>Enabled</span>
+                                    <input type="checkbox" id="osc-enabled" />
+                                </label>
+                                <label class="osc-row">
+                                    <span>Auto-send on change</span>
+                                    <input type="checkbox" id="osc-auto-send" />
+                                </label>
+                                <label class="osc-row">
+                                    <span>OSC Port</span>
+                                    <input type="number" id="osc-port" value="8000" class="osc-input osc-input-sm" />
+                                </label>
+                                <label class="osc-row">
+                                    <span>Address</span>
+                                    <input type="text" id="osc-address" value="/scope/prompt" class="osc-input" />
+                                </label>
+                                <label class="osc-row">
+                                    <span>Debounce (ms)</span>
+                                    <input type="number" id="osc-debounce" value="80" min="10" max="1000" class="osc-input osc-input-sm" />
+                                </label>
+                                <div class="osc-row" style="gap: 6px;">
+                                    <button id="osc-send-now" class="osc-send-btn" style="flex:1;">Send Now</button>
+                                </div>
+                                <span id="osc-last-sent" class="osc-last-sent" title=""></span>
+                            </div>
+                        </div>
+
+                        <!-- Video Section -->
+                        <div class="scope-section">
+                            <div class="scope-section-header" data-toggle="scope-video-body">
+                                <span>▸ Video Stream (WebRTC)</span>
+                                <span class="osc-dot scope-section-dot" id="sv-dot"></span>
+                            </div>
+                            <div class="scope-section-body" id="scope-video-body">
+                                <label class="osc-row">
+                                    <span>Stream FPS</span>
+                                    <select id="sv-fps" class="osc-input osc-input-sm">
+                                        <option value="5">5</option>
+                                        <option value="10">10</option>
+                                        <option value="15" selected>15</option>
+                                        <option value="20">20</option>
+                                        <option value="30">30</option>
+                                    </select>
+                                </label>
+                                <div class="osc-row" style="gap: 6px; flex-wrap: wrap;">
+                                    <button id="sv-stream-btn" class="osc-send-btn" style="flex:1;">▶ Start Stream</button>
+                                    <button id="sv-pause-btn" class="osc-send-btn" disabled title="Freeze generation without disconnecting">⏸</button>
+                                    <button id="sv-reset-cache-btn" class="osc-send-btn" disabled title="Clear frame cache">🔄</button>
+                                </div>
+                                <span id="sv-status-detail" class="osc-last-sent" title=""></span>
+                            </div>
+                        </div>
+
+                        <!-- Spout Section -->
+                        <div class="scope-section">
+                            <div class="scope-section-header" data-toggle="scope-spout-body">
+                                <span>▸ Display → Spout (via OBS)</span>
+                            </div>
+                            <div class="scope-section-body" id="scope-spout-body" style="display:none;">
+                                <p class="scope-help-text">
+                                    To send the display window to Scope via Spout:
+                                </p>
+                                <ol class="scope-help-list">
+                                    <li>Install <a href="https://github.com/Off-World-Live/obs-spout2-plugin" target="_blank">obs-spout2-plugin</a></li>
+                                    <li>Add a <b>Browser Source</b> in OBS with the URL below</li>
+                                    <li>Enable <b>Spout Output</b> in OBS (Tools → Spout Output)</li>
+                                    <li>In Scope, enable <b>Spout Receiver</b> as video input</li>
+                                </ol>
+                                <div class="osc-row" style="gap: 6px;">
+                                    <input type="text" id="scope-display-url" class="osc-input" readonly />
+                                    <button id="scope-copy-url" class="osc-send-btn" title="Copy display URL">📋</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Image Push Section -->
+                        <div class="scope-section">
+                            <div class="scope-section-header" data-toggle="scope-image-body">
+                                <span>▸ Image Push</span>
+                            </div>
+                            <div class="scope-section-body" id="scope-image-body" style="display:none;">
+                                <p class="scope-help-text">
+                                    Send a canvas snapshot to Scope as a VACE reference image for conditioning.
+                                </p>
+                                <button id="scope-send-frame" class="osc-send-btn" style="width:100%;">📸 Send Current Frame</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Hidden fields for backward compat with OSCPanelUI -->
+                <input type="hidden" id="osc-host" value="127.0.0.1" />
+
+                <!-- Display Window Sidebar Button -->
+                <div class="osc-bar" id="disp-bar">
+                    <button id="disp-toggle-btn" class="osc-toggle-btn" data-tip="Open External Display Window" data-tip-pos="down">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M20 3H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h3l-1 1v2h12v-2l-1-1h3c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 13H4V5h16v11z"/>
+                        </svg>
+                        <span id="disp-status-text">External Display</span>
+                        <span class="osc-dot" id="disp-dot"></span>
+                    </button>
+                    <div class="disp-bg-row">
+                        <label for="disp-bg-color">BG</label>
+                        <input type="color" id="disp-bg-color" value="#000000" title="Display window background color" />
+                    </div>
+                </div>
+
+                <!-- API Key Bar -->
+                <div class="midi-bar" id="api-bar">
+                    <button id="api-key-btn" class="midi-toggle-btn" data-tip="Configure AI API Key" data-tip-pos="down">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12.65 10C11.83 7.67 9.61 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6c2.61 0 4.83-1.67 5.65-4H17v4h4v-4h2v-4H12.65zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/>
+                        </svg>
+                        <span>API</span>
+                        <span class="midi-dot" id="api-dot"></span>
+                    </button>
+                </div>
+
+                </div><!-- /.connections-group -->
+            </section>
+
+            <!-- Action Buttons -->
+            <section class="actions-section">
+                <button id="batch-button" class="action-btn batch-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-9 9H3V5h9v7zm9 7H14v-7h7v7z" />
+                    </svg>
+                    <span class="label">Prompt Batch</span>
+                </button>
+                <button id="favorites-button" class="action-btn favorites-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                    </svg>
+                    <span class="label">Liked Prompts</span>
+                </button>
+                <button id="perf-template-gen-btn" class="action-btn perf-template-gen-btn" title="AI Template Generator" onclick="window.studioIntegrationInstance?.openModal('template-gen-modal')">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/>
+                    </svg>
+                    <span class="label">Template Gen</span>
+                    <kbd class="keybind-badge">T</kbd>
+                </button>
+                <div class="template-controls">
+                    <button id="template-prev-btn" class="template-nav-btn template-prev-btn" title="Previous template">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+                        </svg>
+                    </button>
+                    <div class="template-dropdown">
+                        <button id="template-button" class="action-btn template-btn">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                <path
+                                    d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" />
+                            </svg>
+                            <span class="label">Templates</span>
+                            <svg class="dropdown-arrow" width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M7 10l5 5 5-5z" />
+                            </svg>
+                        </button>
+                        <div class="template-dropdown-menu" id="template-dropdown-menu">
+                            <div class="template-search-container">
+                                <input type="text" id="template-search-input" class="template-search-input"
+                                    placeholder="Search templates..." aria-label="Search templates">
+                            </div>
+                            <div class="template-section-label">Built-in templates — P5.js</div>
+                            <button class="template-option" data-template="svg-flow-particles">🌊 SVG Flow Particles (P5.js)</button>
+                            <button class="template-option" data-template="layered-echo">🔷 Layered Echo (P5.js)</button>
+                            <button class="template-option" data-template="urban-skyline">🏙️ Urban Skyline (P5.js)</button>
+                            <button class="template-option" data-template="gobstoppers">🔮 Gobstoppers (P5.js)</button>
+                            <button class="template-option" data-template="face-generator-full">😊 Face Generator Full (P5.js)</button>
+                            <div class="template-dropdown-divider"></div>
+                            <div class="template-section-label">Custom / imported</div>
+                            <button class="template-option template-import-option" id="template-import-option">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+                                </svg>
+                                Import Template...
+                            </button>
+                            <button class="template-option template-export-option" id="template-export-option">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z" />
+                                </svg>
+                                Export Template...
+                            </button>
+                        </div>
+                    </div>
+                    <button id="template-next-btn" class="template-nav-btn template-next-btn" title="Next template">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M8.59 16.34l1.41 1.41L17.82 9 9 1.18l1.41 1.41L8.59 7z"/>
+                        </svg>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Hidden file input for import -->
+            <input type="file" id="import-file-input" accept=".json,application/json"
+                aria-label="Select JSON file to import">
+        </div>
+
+        <!-- Storyboard Panel Overlay -->
+        <div class="batch-modal-overlay" id="storyboard-overlay" style="display:none;">
+            <div class="storyboard-panel" id="storyboard-panel">
+                <div class="storyboard-header">
+                    <h2 class="storyboard-title" id="storyboard-title">Storyboard</h2>
+                    <div class="storyboard-header-meta" id="storyboard-meta"></div>
+                    <button class="batch-close-btn" id="storyboard-close" aria-label="Close storyboard">&times;</button>
+                </div>
+                <div class="storyboard-body" id="storyboard-body">
+                    <!-- Act groups and beat cards injected by storyboard-panel.js -->
+                </div>
+                <div class="storyboard-footer">
+                    <button class="storyboard-btn storyboard-btn-secondary" id="storyboard-export-json">Export Story JSON</button>
+                    <button class="storyboard-btn storyboard-btn-primary" id="storyboard-generate-all">▶ Generate All Beats</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Batch Generation Modal -->
+        <div class="batch-modal-overlay" id="batch-modal-overlay">
+            <div class="batch-modal">
+                <div class="batch-modal-header">
+                    <h2 class="batch-modal-title">Batch Prompt Generation</h2>
+                    <button class="batch-close-btn" id="batch-close-btn"
+                        aria-label="Close batch generator">&times;</button>
+                </div>
+
+                <div class="batch-modal-body" id="batch-modal-body">
+                    <!-- Variables will be dynamically inserted here -->
+                </div>
+
+                <div class="batch-modal-footer">
+                    <button class="batch-cancel-btn" id="batch-cancel-btn">Cancel</button>
+                    <button class="batch-generate-btn" id="batch-generate-btn">Generate Batch</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Batch Output Modal -->
+        <div class="batch-output-overlay" id="batch-output-overlay">
+            <div class="batch-output-modal">
+                <div class="batch-output-header">
+                    <h2 class="batch-output-title">Generated Prompts</h2>
+                    <button class="batch-output-close" id="batch-output-close"
+                        aria-label="Close output">&times;</button>
+                </div>
+
+                <div class="batch-output-body">
+                    <div class="batch-output-controls">
+                        <button id="batch-copy-btn" class="batch-output-btn">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path
+                                    d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" />
+                            </svg>
+                            Copy All
+                        </button>
+                        <button id="batch-download-btn" class="batch-output-btn">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+                            </svg>
+                            Download
+                        </button>
+                    </div>
+                    <textarea id="batch-output-text" class="batch-output-textarea" readonly></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Liked Prompts Output Modal -->
+        <div class="batch-output-overlay" id="favorites-output-overlay">
+            <div class="batch-output-modal">
+                <div class="batch-output-header">
+                    <h2 class="batch-output-title">Liked Prompts</h2>
+                    <button class="batch-output-close" id="favorites-output-close"
+                        aria-label="Close liked prompts">&times;</button>
+                </div>
+                <div class="batch-output-body">
+                    <div class="batch-output-controls">
+                        <button id="favorites-copy-btn" class="batch-output-btn">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path
+                                    d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" />
+                            </svg>
+                            Copy All
+                        </button>
+                        <button id="favorites-download-btn" class="batch-output-btn">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+                            </svg>
+                            Download
+                        </button>
+                        <button id="favorites-clear-btn" class="batch-output-btn">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path
+                                    d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+                            </svg>
+                            Clear
+                        </button>
+                    </div>
+                    <textarea id="favorites-output-text" class="batch-output-textarea" readonly></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Template Card Picker Modal -->
+        <div class="batch-modal-overlay" id="template-picker-overlay">
+            <div class="batch-modal template-picker-modal">
+                <div class="batch-modal-header">
+                    <h2 class="batch-modal-title">Templates</h2>
+                    <button class="batch-close-btn" id="template-picker-close" aria-label="Close template picker">&times;</button>
+                </div>
+                <div class="template-picker-search-bar">
+                    <input type="text" id="template-picker-search" placeholder="Search templates…" autocomplete="off" aria-label="Search templates">
+                </div>
+                <div class="batch-modal-body" id="template-picker-body">
+                    <!-- Cards injected by template-loader.js -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Variable Template Picker Modal -->
+        <div class="variable-picker-overlay" id="variable-picker-overlay">
+            <div class="variable-picker-modal">
+                <div class="variable-picker-header">
+                    <h2 class="variable-picker-title">Add Variable from Template</h2>
+                    <button class="variable-picker-close" id="variable-picker-close" aria-label="Close">&times;</button>
+                </div>
+
+                <div class="variable-picker-body">
+                    <p class="variable-picker-description">Select a pre-defined variable to add to your template:</p>
+
+                    <div class="variable-template-list">
+                        <!-- Color Variable Template -->
+                        <button class="variable-template-card" data-template="color">
+                            <div class="variable-template-icon">🎨</div>
+                            <div class="variable-template-info">
+                                <h3 class="variable-template-name">Color</h3>
+                                <p class="variable-template-desc">6 color options: red, orange, yellow, green, blue,
+                                    purple</p>
+                            </div>
+                        </button>
+
+                        <!-- Size Variable Template -->
+                        <button class="variable-template-card" data-template="size">
+                            <div class="variable-template-icon">📏</div>
+                            <div class="variable-template-info">
+                                <h3 class="variable-template-name">Size</h3>
+                                <p class="variable-template-desc">5 size options: tiny, small, medium, large, huge</p>
+                            </div>
+                        </button>
+
+                        <!-- Mood Variable Template -->
+                        <button class="variable-template-card" data-template="mood">
+                            <div class="variable-template-icon">😊</div>
+                            <div class="variable-template-info">
+                                <h3 class="variable-template-name">Mood</h3>
+                                <p class="variable-template-desc">6 mood options: happy, sad, angry, calm, excited,
+                                    mysterious</p>
+                            </div>
+                        </button>
+
+                        <!-- Time of Day Variable Template -->
+                        <button class="variable-template-card" data-template="time">
+                            <div class="variable-template-icon">🕐</div>
+                            <div class="variable-template-info">
+                                <h3 class="variable-template-name">Time of Day</h3>
+                                <p class="variable-template-desc">6 time options: dawn, morning, noon, afternoon, dusk,
+                                    night</p>
+                            </div>
+                        </button>
+
+                        <!-- Weather Variable Template -->
+                        <button class="variable-template-card" data-template="weather">
+                            <div class="variable-template-icon">🌤️</div>
+                            <div class="variable-template-info">
+                                <h3 class="variable-template-name">Weather</h3>
+                                <p class="variable-template-desc">7 weather options: sunny, cloudy, rainy, stormy,
+                                    snowy, foggy, windy</p>
+                            </div>
+                        </button>
+
+                        <!-- Style Variable Template -->
+                        <button class="variable-template-card" data-template="style">
+                            <div class="variable-template-icon">✨</div>
+                            <div class="variable-template-info">
+                                <h3 class="variable-template-name">Style</h3>
+                                <p class="variable-template-desc">8 style options: modern, vintage, futuristic, rustic,
+                                    minimalist, ornate, abstract, realistic</p>
+                            </div>
+                        </button>
+
+                        <!-- Material Variable Template -->
+                        <button class="variable-template-card" data-template="material">
+                            <div class="variable-template-icon">🪨</div>
+                            <div class="variable-template-info">
+                                <h3 class="variable-template-name">Material</h3>
+                                <p class="variable-template-desc">8 material options: wood, metal, glass, stone, fabric,
+                                    plastic, ceramic, paper</p>
+                            </div>
+                        </button>
+
+                        <!-- Lighting Variable Template -->
+                        <button class="variable-template-card" data-template="lighting">
+                            <div class="variable-template-icon">💡</div>
+                            <div class="variable-template-info">
+                                <h3 class="variable-template-name">Lighting</h3>
+                                <p class="variable-template-desc">6 lighting options: bright, dim, dramatic, soft,
+                                    harsh, ambient</p>
+                            </div>
+                        </button>
+
+                        <!-- Import Custom Variable -->
+                        <button class="variable-template-card variable-import-card" id="import-variable-card">
+                            <div class="variable-template-icon">📁</div>
+                            <div class="variable-template-info">
+                                <h3 class="variable-template-name">Import Custom Variable</h3>
+                                <p class="variable-template-desc">Import from CSV or JSON file</p>
+                            </div>
+                        </button>
+                    </div>
+
+                    <!-- Hidden file input for variable import -->
+                    <input type="file" id="variable-import-input" accept=".csv,.json,text/csv,application/json"
+                        style="display: none;" aria-label="Select CSV or JSON file to import variable">
+                </div>
+            </div>
+        </div>
+
+        <!-- Code Overlay Backdrop -->
+        <div id="code-overlay-backdrop" class="code-overlay-backdrop"></div>
+
+        <!-- Code Overlay Panel -->
+        <div id="code-overlay" class="code-overlay">
+            <div class="code-panel">
+                <button id="close-code-overlay" class="close-code-overlay" aria-label="Close code panel">×</button>
+
+                <h2 class="code-panel-title">Advanced Controls</h2>
+
+                <!-- Template Editor Section -->
+                <div class="code-editor-section">
+                    <h3>Prompt Template Editor</h3>
+                    <p class="code-section-subtitle">Edit the underlying template and variables that drive the knob UI.
+                    </p>
+                    <textarea id="template-editor" class="code-textarea" spellcheck="false" aria-label="Template editor"
+                        placeholder="Enter your prompt template here..."></textarea>
+                    <div class="editor-controls">
+                        <button id="apply-template" class="editor-btn apply-btn">
+                            <span class="icon">✓</span> Apply Template
+                        </button>
+                        <button id="reset-template" class="editor-btn reset-btn">
+                            <span class="icon">↺</span> Reset
+                        </button>
+                        <button id="create-variable-from-selection" class="editor-btn selection-variable-btn">
+                            <span class="icon">✨</span> Make Variable from Selection
+                        </button>
+                        <button id="add-variable-btn" class="editor-btn add-variable-btn">
+                            <span class="icon">➕</span> Add Variable from Template
+                        </button>
+                    </div>
+                </div>
+
+                <div class="code-editor-section">
+                    <h3>Variable List Editor</h3>
+                    <div id="variable-list-editor" class="variable-list-editor"></div>
+                </div>
+
+                <!-- Variables JSON Section -->
+                <div class="code-editor-section">
+                    <h3>Variables (JSON View)</h3>
+                    <textarea id="variables-json" class="code-textarea" spellcheck="false" readonly
+                        aria-label="Variables JSON view"></textarea>
+                    <div id="json-status" class="json-status" aria-live="polite" aria-atomic="true"></div>
+                    <div class="json-controls">
+                        <div class="json-view-controls">
+                            <button id="copy-json" class="editor-btn copy-json-btn">
+                                <span class="icon">📋</span> Copy JSON
+                            </button>
+                            <button id="edit-json" class="editor-btn edit-json-btn">
+                                <span class="icon">✏️</span> Edit JSON
+                            </button>
+                        </div>
+                        <div class="json-edit-controls" style="display: none;">
+                            <button id="save-json" class="editor-btn save-json-btn">
+                                <span class="icon">✓</span> Save Changes
+                            </button>
+                            <button id="cancel-json" class="editor-btn cancel-json-btn">
+                                <span class="icon">✕</span> Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tags & Provenance Section (Collapsible) -->
+                <div class="code-editor-section tags-section">
+                    <div class="section-header" id="tags-section-header">
+                        <h3>Tags & Provenance</h3>
+                        <button class="collapse-toggle" id="tags-collapse-toggle" aria-label="Toggle tags section">
+                            <span class="collapse-icon">▼</span>
+                        </button>
+                    </div>
+                    <div class="section-content collapsed" id="tags-section-content">
+                        <p class="code-section-subtitle">Track sources, collections, remix lineage, and attribution for this template.</p>
+                        <div id="tags-list-container"></div>
+                        <button id="add-tag-btn" class="editor-btn add-variable-btn">
+                            <span class="icon">🏷️</span> Add Tag
+                        </button>
+                        <div id="tag-add-form" style="display:none;">
+                            <div class="tag-form-inner">
+                                <div class="tag-form-row">
+                                    <label>Type</label>
+                                    <select id="tag-type-select">
+                                        <option value="source">Source (Reference Material)</option>
+                                        <option value="collection">Collection (NFT/Blockchain)</option>
+                                        <option value="event">Event (Historical/Cultural)</option>
+                                        <option value="creator">Creator (Attribution)</option>
+                                        <option value="custom">Custom</option>
+                                    </select>
+                                </div>
+                                <div class="tag-form-row">
+                                    <label>Label *</label>
+                                    <input type="text" id="tag-label-input" placeholder="e.g. 2024 Climate Protests">
+                                </div>
+                                <div class="tag-form-row">
+                                    <label>URL</label>
+                                    <input type="text" id="tag-url-input" placeholder="https://...">
+                                </div>
+                                <div class="tag-form-row" id="tag-description-row">
+                                    <label>Description</label>
+                                    <input type="text" id="tag-description-input" placeholder="Why is this relevant?">
+                                </div>
+                                <div class="tag-form-row" id="tag-chain-row" style="display:none;">
+                                    <label>Blockchain</label>
+                                    <select id="tag-chain-select">
+                                        <option value="">None</option>
+                                        <option value="tezos">Tezos</option>
+                                        <option value="ethereum">Ethereum</option>
+                                        <option value="base">Base</option>
+                                    </select>
+                                </div>
+                                <div class="tag-form-row" id="tag-date-row">
+                                    <label>Date</label>
+                                    <input type="date" id="tag-date-input">
+                                </div>
+                                <div class="tag-form-actions">
+                                    <button id="tag-save-btn" class="editor-btn apply-btn"><span class="icon">✓</span> Save Tag</button>
+                                    <button id="tag-cancel-btn" class="editor-btn reset-btn"><span class="icon">✕</span> Cancel</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- P5.js Code Section (Collapsible) -->
+                <div class="code-editor-section p5-section">
+                    <div class="section-header" id="p5-section-header">
+                        <h3>P5.js Code (Optional)</h3>
+                        <button class="collapse-toggle" id="p5-collapse-toggle" aria-label="Toggle P5.js section">
+                            <span class="collapse-icon">▼</span>
+                        </button>
+                    </div>
+                    <div class="section-content collapsed" id="p5-section-content">
+                        <textarea id="p5-code-editor" class="code-textarea p5-editor" spellcheck="false" readonly
+                            aria-label="P5.js code editor" placeholder="No P5.js code for this template"></textarea>
+                        <div class="p5-controls">
+                            <div class="p5-view-controls">
+                                <button id="copy-p5" class="editor-btn copy-p5-btn">
+                                    <span class="icon">📋</span> Copy Code
+                                </button>
+                                <button id="edit-p5" class="editor-btn edit-p5-btn">
+                                    <span class="icon">✏️</span> Edit Code
+                                </button>
+                                <button id="run-p5" class="editor-btn run-p5-btn">
+                                    <span class="icon">▶</span> Run Code
+                                </button>
+                            </div>
+                            <div class="p5-edit-controls" style="display: none;">
+                                <button id="save-p5" class="editor-btn save-p5-btn">
+                                    <span class="icon">✓</span> Save Changes
+                                </button>
+                                <button id="cancel-p5" class="editor-btn cancel-p5-btn">
+                                    <span class="icon">✕</span> Cancel
+                                </button>
+                            </div>
+                        </div>
+                        <!-- P5.js Canvas Container -->
+                        <div id="p5-canvas-container" class="p5-canvas-container" style="display: none;">
+                            <div class="canvas-header">
+                                <span class="canvas-title">P5.js Sketch Output</span>
+                            </div>
+                            <div id="p5-sketch-mount"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Import/Export Section -->
+                <div class="code-editor-section">
+                    <h3>Import / Export</h3>
+                    <div class="import-export-controls">
+                        <button id="code-import-button" class="editor-btn import-template-btn">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+                            </svg>
+                            <span class="label">Import Template</span>
+                        </button>
+                        <button id="code-export-button" class="editor-btn export-template-btn">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z" />
+                            </svg>
+                            <span class="label">Export Template</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Current State Section -->
+                <div class="code-state-section">
+                    <h3>Current State</h3>
+                    <div id="current-state-display" class="state-display">
+                        <!-- State info will be dynamically inserted here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen reader announcements -->
+        <div id="knob-announcer" role="status" aria-live="polite" aria-atomic="true" class="sr-only">
+        </div>
+
+        <!-- Load P5.js library -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+
+        <!-- Load app as ES6 module -->
+        <script type="module" src="js/app.js?v=22"></script>
+        <script src="js/music-studio.js?v=2"></script>
+        <script src="../metadata-manager/js/utils/metadata_extractor.js"></script>
+        <script src="js/workflow-runner.js?v=5"></script>
+        <script src="js/trace-viewer.js?v=1"></script>
+        <script src="js/agent-studio.js?v=5"></script>
+        <script src="js/glitcher-studio.js?v=1"></script>
+        <script src="js/studio-integration.js?v=35"></script>
+        <script src="js/blob-bridge.js?v=2"></script>
+
+        <!-- DEMO: layout locked to Perform (layout-a) -->
+        <script>
+        (function () {
+            var root = document.querySelector('.synthograsizer-small');
+            if (root) root.classList.add('layout-a');
+            document.body.classList.add('layout-a');
+        })();
+        </script>
+        <script src="js/demo-mode.js?v=1"></script>
+
+        <!-- ── P5.js In-Page Modal ── -->
+        <div class="p5-modal-v6" id="p5-modal-v6">
+            <div class="p5-titlebar-v6" id="p5-titlebar-v6">
+                <span class="p5-title-v6" id="p5-modal-title-v6">P5.js Canvas</span>
+                <span class="p5-badge-v6 stopped" id="p5-badge-v6">Stopped</span>
+                <button class="p5-close-v6" id="p5-close-v6">✕</button>
+            </div>
+            <div class="p5-canvas-area-v6" id="p5-canvas-area-v6">
+                <div class="p5-placeholder-v6" id="p5-placeholder-v6">
+                    <span style="font-size:32px;opacity:.3;">▶</span>
+                    <span>Press Play to run sketch</span>
+                    <span id="p5-placeholder-hint-v6" style="opacity:.4;font-size:9px;">Select a P5.js template first</span>
+                </div>
+                <iframe id="p5-iframe-v6" style="display:none;width:100%;height:100%;border:none;"></iframe>
+            </div>
+            <!-- FX Drawer (collapsible, attached below canvas) -->
+            <div class="p5-fx-drawer" id="p5-fx-drawer" style="display:none;">
+                <div class="p5-fx-row">
+                    <label>Filter</label>
+                    <select id="p5-fx-preset">
+                        <option value="">None</option>
+                        <option value="invert(1)">Invert</option>
+                        <option value="grayscale(1)">Grayscale</option>
+                        <option value="sepia(1)">Sepia</option>
+                        <option value="hue-rotate(90deg)">Hue Shift +90°</option>
+                        <option value="hue-rotate(180deg)">Hue Shift +180°</option>
+                        <option value="saturate(3)">Oversaturate</option>
+                        <option value="blur(2px)">Blur</option>
+                        <option value="contrast(2)">High Contrast</option>
+                        <option value="brightness(1.6)">Brighten</option>
+                        <option value="drop-shadow(0 0 8px cyan)">Cyan Glow</option>
+                        <option value="drop-shadow(0 0 10px #ff00ff)">Magenta Glow</option>
+                        <option value="invert(1) hue-rotate(90deg)">Invert + Hue</option>
+                    </select>
+                </div>
+                <div class="p5-fx-row">
+                    <label>Hue°</label>
+                    <input type="range" id="p5-fx-hue" min="0" max="360" value="0">
+                    <span class="p5-fx-val" id="p5-fx-hue-val">0°</span>
+                </div>
+                <div class="p5-fx-row">
+                    <label>Saturate</label>
+                    <input type="range" id="p5-fx-sat" min="0" max="400" value="100">
+                    <span class="p5-fx-val" id="p5-fx-sat-val">100%</span>
+                </div>
+                <div class="p5-fx-row">
+                    <label>Brightness</label>
+                    <input type="range" id="p5-fx-bright" min="0" max="300" value="100">
+                    <span class="p5-fx-val" id="p5-fx-bright-val">100%</span>
+                </div>
+                <div class="p5-fx-row">
+                    <label>Blur</label>
+                    <input type="range" id="p5-fx-blur" min="0" max="20" value="0">
+                    <span class="p5-fx-val" id="p5-fx-blur-val">0px</span>
+                </div>
+                <div class="p5-fx-row">
+                    <label>Contrast</label>
+                    <input type="range" id="p5-fx-contrast" min="0" max="400" value="100">
+                    <span class="p5-fx-val" id="p5-fx-contrast-val">100%</span>
+                </div>
+                <div class="p5-fx-row">
+                    <button class="p5-ctrl-v6" id="p5-fx-reset" style="padding:3px 10px;">↺ Reset</button>
+                </div>
+            </div>
+            <div class="p5-controls-v6">
+                <button class="p5-ctrl-v6 primary" id="p5-play-v6">▶ Play</button>
+                <button class="p5-ctrl-v6" id="p5-pause-v6" style="display:none;">⏸ Pause</button>
+                <button class="p5-ctrl-v6" id="p5-stop-v6">■ Stop</button>
+                <button class="p5-ctrl-v6" id="p5-restart-v6" title="Restart sketch">↺</button>
+                <button class="p5-ctrl-v6" id="p5-fx-toggle" title="Toggle FX filters">✦ FX</button>
+                <div class="p5-size-row-v6">
+                    <button class="p5-size-btn-v6 active" data-w="520" data-h="380">SM</button>
+                    <button class="p5-size-btn-v6" data-w="720" data-h="540">MD</button>
+                    <button class="p5-size-btn-v6" data-w="960" data-h="700">LG</button>
+                    <button class="p5-size-btn-v6" id="p5-size-fit-btn" title="Fit viewer to canvas native size">FIT</button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+        /* ── P5.js In-Page Modal Controller (v6) ── */
+        (function () {
+            var modal    = document.getElementById('p5-modal-v6');
+            var titlebar = document.getElementById('p5-titlebar-v6');
+            var iframe   = document.getElementById('p5-iframe-v6');
+            var ph       = document.getElementById('p5-placeholder-v6');
+            var hint     = document.getElementById('p5-placeholder-hint-v6');
+            var badge    = document.getElementById('p5-badge-v6');
+            var titleEl  = document.getElementById('p5-modal-title-v6');
+            var btnPlay    = document.getElementById('p5-play-v6');
+            var btnPause   = document.getElementById('p5-pause-v6');
+            var btnStop    = document.getElementById('p5-stop-v6');
+            var btnRestart = document.getElementById('p5-restart-v6');
+            var btnClose   = document.getElementById('p5-close-v6');
+            var runBtn     = document.getElementById('p5-run-main-btn');
+
+            var isOpen = false, isPlaying = false, currentCode = null;
+            var _tplName = 'P5.js Canvas';
+            var _canvasNativeW = 0, _canvasNativeH = 0;
+
+            /* ── Smart scale: fit canvas into current viewer without clipping ── */
+            function applySmartScale() {
+                if (!_canvasNativeW || !_canvasNativeH) return;
+                var canvasArea = document.getElementById('p5-canvas-area-v6');
+                var aW = canvasArea.clientWidth;
+                var aH = canvasArea.clientHeight;
+                var s = Math.min(1.0, Math.min(aW / _canvasNativeW, aH / _canvasNativeH));
+                try { iframe.contentWindow.postMessage({ p5CssScale: s }, '*'); } catch(e){}
+            }
+
+            /* ── Receive canvas native dimensions from iframe ── */
+            window.addEventListener('message', function(e) {
+                if (e.source !== iframe.contentWindow) return;
+                if (!e.data || !e.data.p5CanvasSize) return;
+                var sz = e.data.p5CanvasSize;
+                if (!sz.w || !sz.h) return;
+                _canvasNativeW = sz.w;
+                _canvasNativeH = sz.h;
+                // Update FIT button tooltip
+                var fitBtn = document.getElementById('p5-size-fit-btn');
+                if (fitBtn) fitBtn.title = 'Fit viewer to canvas (' + sz.w + '×' + sz.h + ')';
+                applySmartScale();
+            });
+
+            /* Capture template name when a card is selected */
+            var pickerBody = document.getElementById('template-picker-body');
+            if (pickerBody) {
+                pickerBody.addEventListener('click', function (e) {
+                    var card = e.target.closest('.template-card');
+                    if (!card) return;
+                    var nameEl = card.querySelector('h3, strong, .template-card-name, .name');
+                    var raw = nameEl ? nameEl.textContent : (card.dataset.template || '');
+                    if (raw) _tplName = raw.trim();
+                });
+            }
+
+            /* ── Variable snapshot ── */
+            function getVarSnap() {
+                var app = window.synthSmall;
+                if (!app) return {};
+                var snap = {};
+                (app.variables || []).forEach(function (v) {
+                    var idx = (app.currentValues && app.currentValues[v.name] !== undefined)
+                        ? app.currentValues[v.name] : 0;
+                    var raw = v.values && v.values[idx];
+                    snap[v.name] = (raw && raw.text) ? raw.text : String(raw || '');
+                });
+                return snap;
+            }
+
+            /* ── P5 code source ── */
+            function getP5Code() {
+                var app = window.synthSmall;
+                return (app && app.currentTemplate && app.currentTemplate.p5Code)
+                    ? app.currentTemplate.p5Code : null;
+            }
+            function getTemplateName() { return _tplName; }
+
+            /* ── srcdoc builder ── */
+            function buildSrcdoc(code, vars) {
+                var varJson = JSON.stringify(vars || {});
+                return '<!DOCTYPE html><html><head><meta charset="utf-8">' +
+                    '<style>' +
+                    '*{margin:0;padding:0;}' +
+                    'html,body{width:100%;height:100%;overflow:hidden;background:#0a0a0a;}' +
+                    'body{display:flex;align-items:center;justify-content:center;}' +
+                    'canvas{display:block;flex-shrink:0;}' +
+                    '<\/style>' +
+                    '<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"><\/script>' +
+                    '</head><body><script>' +
+                    'var __sv=' + varJson + ';' +
+                    'window.addEventListener("message",function(e){' +
+                    '  if(!e.data)return;' +
+                    '  if(e.data.synthVars)__sv=e.data.synthVars;' +
+                    '  if(e.data.p5CssScale!==undefined){' +
+                    '    var c=document.querySelector("canvas");' +
+                    '    if(c){c.style.transformOrigin="center center";c.style.transform="scale("+e.data.p5CssScale+")";}' +
+                    '  }' +
+                    '});' +
+                    'new p5(function(p){' +
+                    'p.getSynthVar=function(k){return(__sv&&k in __sv)?__sv[k]:null;};' +
+                    code +
+                    '});' +
+                    // After p5 setup runs, post canvas native dimensions to parent
+                    '(function(){var _tries=0;function _poll(){' +
+                    'var c=document.querySelector("canvas");' +
+                    'if(c&&c.width>0&&c.height>0){window.parent.postMessage({p5CanvasSize:{w:c.width,h:c.height}},"*");return;}' +
+                    'if(++_tries<120)requestAnimationFrame(_poll);}' +
+                    'requestAnimationFrame(_poll);})();' +
+                    '<\/script></body></html>';
+            }
+
+            /* ── Play / Pause / Stop ── */
+            function play() {
+                var code = getP5Code();
+                if (!code) { updateHint(); return; }
+                _canvasNativeW = 0; _canvasNativeH = 0; // reset — will be re-reported by new iframe
+                currentCode = code;
+                titleEl.textContent = getTemplateName();
+                iframe.srcdoc = buildSrcdoc(code, getVarSnap());
+                iframe.style.display = 'block';
+                ph.style.display = 'none';
+                badge.textContent = 'Running';
+                badge.className = 'p5-badge-v6';
+                btnPlay.style.display = 'none';
+                btnPause.style.display = '';
+                btnPlay.textContent = '▶ Play';
+                isPlaying = true;
+            }
+
+            function pause() {
+                try { iframe.contentWindow.postMessage({ cmd: 'noLoop' }, '*'); } catch(e){}
+                badge.textContent = 'Paused';
+                badge.className = 'p5-badge-v6 paused';
+                btnPause.style.display = 'none';
+                btnPlay.style.display = '';
+                btnPlay.textContent = '▶ Resume';
+                isPlaying = false;
+            }
+
+            function stop() {
+                iframe.srcdoc = 'about:blank';
+                iframe.style.display = 'none';
+                ph.style.display = '';
+                badge.textContent = 'Stopped';
+                badge.className = 'p5-badge-v6 stopped';
+                btnPause.style.display = 'none';
+                btnPlay.style.display = '';
+                btnPlay.textContent = '▶ Play';
+                isPlaying = false;
+                currentCode = null;
+            }
+
+            /* ── Open / close modal ── */
+            function openModal() {
+                isOpen = true;
+                modal.classList.add('open');
+                if (runBtn) runBtn.classList.add('active');
+                if (!isPlaying) play();
+            }
+            function closeModal() {
+                isOpen = false;
+                modal.classList.remove('open');
+                if (runBtn) runBtn.classList.remove('active');
+            }
+            function toggleModal() {
+                if (isOpen) closeModal(); else openModal();
+            }
+
+            /* ── Intercept RUN CODE button (capture phase → before code-overlay-manager) ── */
+            if (runBtn) {
+                runBtn.addEventListener('click', function (e) {
+                    e.stopImmediatePropagation();
+                    toggleModal();
+                }, true);
+            }
+
+            /* ── Button events ── */
+            btnPlay.addEventListener('click', function () {
+                if (!isPlaying) {
+                    if (btnPlay.textContent.includes('Resume')) {
+                        /* resume after pause — send loop() */
+                        try { iframe.contentWindow.postMessage({ cmd: 'loop' }, '*'); } catch(e){}
+                        badge.textContent = 'Running';
+                        badge.className = 'p5-badge-v6';
+                        btnPlay.style.display = 'none';
+                        btnPause.style.display = '';
+                        isPlaying = true;
+                    } else {
+                        play();
+                    }
+                }
+            });
+            btnPause.addEventListener('click', pause);
+            btnStop.addEventListener('click', stop);
+            btnRestart.addEventListener('click', function () { stop(); play(); });
+            btnClose.addEventListener('click', closeModal);
+
+            /* ── Size buttons (SM / MD / LG) ── */
+            document.querySelectorAll('.p5-size-btn-v6[data-w]').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    document.querySelectorAll('.p5-size-btn-v6').forEach(function (b) { b.classList.remove('active'); });
+                    btn.classList.add('active');
+                    modal.style.width  = btn.dataset.w + 'px';
+                    var canvasArea = document.getElementById('p5-canvas-area-v6');
+                    if (canvasArea) canvasArea.style.height = btn.dataset.h + 'px';
+                    // Re-run smart scale for new viewer dimensions
+                    setTimeout(applySmartScale, 0);
+                });
+            });
+
+            /* ── FIT button: resize viewer to canvas native size ── */
+            var fitBtn = document.getElementById('p5-size-fit-btn');
+            if (fitBtn) {
+                fitBtn.addEventListener('click', function () {
+                    if (!_canvasNativeW || !_canvasNativeH) return;
+                    document.querySelectorAll('.p5-size-btn-v6').forEach(function (b) { b.classList.remove('active'); });
+                    fitBtn.classList.add('active');
+                    modal.style.width  = _canvasNativeW + 'px';
+                    var canvasArea = document.getElementById('p5-canvas-area-v6');
+                    if (canvasArea) canvasArea.style.height = _canvasNativeH + 'px';
+                    // Viewer now matches canvas exactly — scale = 1
+                    try { iframe.contentWindow.postMessage({ p5CssScale: 1 }, '*'); } catch(e){}
+                });
+            }
+
+            /* ── Drag ── */
+            var dragX = 0, dragY = 0, winX = 0, winY = 0, dragging = false;
+            titlebar.addEventListener('mousedown', function (e) {
+                dragging = true; dragX = e.clientX; dragY = e.clientY;
+                var r = modal.getBoundingClientRect();
+                winX = r.left; winY = r.top;
+                modal.style.right  = 'auto';
+                modal.style.bottom = 'auto';
+                modal.style.left   = winX + 'px';
+                modal.style.top    = winY + 'px';
+            });
+            document.addEventListener('mousemove', function (e) {
+                if (!dragging) return;
+                modal.style.left = (winX + e.clientX - dragX) + 'px';
+                modal.style.top  = (winY + e.clientY - dragY) + 'px';
+            });
+            document.addEventListener('mouseup', function () { dragging = false; });
+
+            /* ── Live variable updates → postMessage to iframe ── */
+            var ctrlVal = document.getElementById('control-value');
+            if (ctrlVal) {
+                new MutationObserver(function () {
+                    if (!isPlaying) return;
+                    try { iframe.contentWindow.postMessage({ synthVars: getVarSnap() }, '*'); } catch(e){}
+                }).observe(ctrlVal, { childList: true, characterData: true, subtree: true });
+            }
+
+            /* ── Template change → update hint / auto-restart if open ── */
+            function updateHint() {
+                var code = getP5Code();
+                if (hint) hint.textContent = code
+                    ? 'Ready — press Play'
+                    : 'Select a P5.js template first';
+            }
+            var indicators = document.getElementById('variable-indicators');
+            if (indicators) {
+                new MutationObserver(function () {
+                    setTimeout(function () {
+                        updateHint();
+                        if (isOpen && isPlaying) { stop(); play(); }
+                    }, 50);
+                }).observe(indicators, { childList: true });
+            }
+
+            /* ── P key shortcut (app.js already routes P → runBtn.click()) ── */
+            /* No extra handler needed — the capture listener on runBtn covers it */
+
+            updateHint();
+        })();
+        </script>
+
+        <script>
+        /* ── P5 FX Drawer ── */
+        (function () {
+            var fxToggle  = document.getElementById('p5-fx-toggle');
+            var fxDrawer  = document.getElementById('p5-fx-drawer');
+            var fxIframe  = document.getElementById('p5-iframe-v6');
+
+            var selPreset  = document.getElementById('p5-fx-preset');
+            var slHue      = document.getElementById('p5-fx-hue');
+            var slSat      = document.getElementById('p5-fx-sat');
+            var slBright   = document.getElementById('p5-fx-bright');
+            var slBlur     = document.getElementById('p5-fx-blur');
+            var slContrast = document.getElementById('p5-fx-contrast');
+            var btnReset   = document.getElementById('p5-fx-reset');
+
+            var valHue      = document.getElementById('p5-fx-hue-val');
+            var valSat      = document.getElementById('p5-fx-sat-val');
+            var valBright   = document.getElementById('p5-fx-bright-val');
+            var valBlur     = document.getElementById('p5-fx-blur-val');
+            var valContrast = document.getElementById('p5-fx-contrast-val');
+
+            function applyFilter() {
+                if (!fxIframe) return;
+                var preset = selPreset.value;
+                if (preset) { fxIframe.style.filter = preset; return; }
+                var f = '';
+                var hue = +slHue.value, sat = +slSat.value,
+                    bright = +slBright.value, blur = +slBlur.value, contrast = +slContrast.value;
+                if (hue !== 0)      f += 'hue-rotate(' + hue + 'deg) ';
+                if (sat !== 100)    f += 'saturate(' + (sat / 100).toFixed(2) + ') ';
+                if (bright !== 100) f += 'brightness(' + (bright / 100).toFixed(2) + ') ';
+                if (blur !== 0)     f += 'blur(' + blur + 'px) ';
+                if (contrast !== 100) f += 'contrast(' + (contrast / 100).toFixed(2) + ') ';
+                fxIframe.style.filter = f.trim() || 'none';
+            }
+
+            function updateLabels() {
+                valHue.textContent      = slHue.value + '°';
+                valSat.textContent      = slSat.value + '%';
+                valBright.textContent   = slBright.value + '%';
+                valBlur.textContent     = slBlur.value + 'px';
+                valContrast.textContent = slContrast.value + '%';
+            }
+
+            function resetFx() {
+                selPreset.value = '';
+                slHue.value = 0; slSat.value = 100; slBright.value = 100;
+                slBlur.value = 0; slContrast.value = 100;
+                updateLabels();
+                if (fxIframe) fxIframe.style.filter = 'none';
+            }
+
+            fxToggle.addEventListener('click', function () {
+                var open = fxDrawer.style.display === 'none';
+                fxDrawer.style.display = open ? 'flex' : 'none';
+                fxToggle.classList.toggle('active', open);
+            });
+
+            selPreset.addEventListener('change', function () {
+                if (selPreset.value) {
+                    slHue.value = 0; slSat.value = 100; slBright.value = 100;
+                    slBlur.value = 0; slContrast.value = 100;
+                    updateLabels();
+                }
+                applyFilter();
+            });
+
+            [slHue, slSat, slBright, slBlur, slContrast].forEach(function (sl) {
+                sl.addEventListener('input', function () {
+                    selPreset.value = '';
+                    updateLabels();
+                    applyFilter();
+                });
+            });
+
+            btnReset.addEventListener('click', resetFx);
+
+            /* Reset when modal closes */
+            var closeBtn = document.getElementById('p5-close-v6');
+            if (closeBtn) closeBtn.addEventListener('click', function () {
+                resetFx();
+                fxDrawer.style.display = 'none';
+                fxToggle.classList.remove('active');
+            });
+        })();
+        </script>
+</body>
+
+</html>

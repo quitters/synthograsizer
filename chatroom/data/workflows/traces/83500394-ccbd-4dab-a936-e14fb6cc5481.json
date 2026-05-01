@@ -1,0 +1,172 @@
+{
+  "workflowId": "83500394-ccbd-4dab-a936-e14fb6cc5481",
+  "name": "Savage Garden Storyboard Test",
+  "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+  "agentName": "Luna Martinez",
+  "agentColor": "#FF6B6B",
+  "sessionId": "c85d5173-41d1-4e1e-ab57-bc3e3a077616",
+  "messageId": null,
+  "startedAt": "2026-04-30T21:07:54.915Z",
+  "completedAt": "2026-04-30T21:08:57.920Z",
+  "status": "failed",
+  "totals": {
+    "durationMs": 63005,
+    "costUsd": 0,
+    "completedSteps": 0,
+    "failedSteps": 1
+  },
+  "steps": {
+    "story": {
+      "id": "story",
+      "type": "synth_template",
+      "dependsOn": [],
+      "status": "failed",
+      "startedMs": 1,
+      "completedMs": 63005,
+      "durationMs": 63004,
+      "inputs": {
+        "description": "High-drama reality TV storyboard set in 'The Vault', a pristine brutalist botanical containment center. Characters are high-fashion, anthropomorphic toxic plants. Beats: 1. Sleek surveillance of a new symbiotic couple. 2. Intimate macro-shot of their physical connection. 3. Hidden parasitic betrayal. 4. Biometric UV/thermal confessional exposing the biological truth. 5. Dramatic fallout (one thrives, one withers).",
+        "mode": "story"
+      },
+      "outputSummary": null,
+      "error": "This operation was aborted",
+      "attempts": 1,
+      "costUsd": 0,
+      "lastRetryError": "This operation was aborted"
+    },
+    "narrative": {
+      "id": "narrative",
+      "type": "synth_narrative",
+      "dependsOn": [
+        "story"
+      ],
+      "status": "pending",
+      "startedMs": null,
+      "completedMs": null,
+      "durationMs": null,
+      "inputs": null,
+      "outputSummary": null,
+      "error": null,
+      "attempts": 0,
+      "costUsd": 0
+    }
+  },
+  "events": [
+    {
+      "t": 0,
+      "event": "workflow_start",
+      "data": {
+        "workflowId": "83500394-ccbd-4dab-a936-e14fb6cc5481",
+        "name": "Savage Garden Storyboard Test",
+        "stepCount": 2,
+        "steps": [
+          {
+            "id": "story",
+            "type": "synth_template",
+            "dependsOn": []
+          },
+          {
+            "id": "narrative",
+            "type": "synth_narrative",
+            "dependsOn": [
+              "story"
+            ]
+          }
+        ],
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "agentName": "Luna Martinez",
+        "agentColor": "#FF6B6B",
+        "sessionId": "c85d5173-41d1-4e1e-ab57-bc3e3a077616",
+        "messageId": null
+      }
+    },
+    {
+      "t": 1,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "83500394-ccbd-4dab-a936-e14fb6cc5481",
+        "stepId": "story",
+        "stepType": "synth_template",
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "dependsOn": [],
+        "inputs": {
+          "description": "High-drama reality TV storyboard set in 'The Vault', a pristine brutalist botanical containment center. Characters are high-fashion, anthropomorphic toxic plants. Beats: 1. Sleek surveillance of a new symbiotic couple. 2. Intimate macro-shot of their physical connection. 3. Hidden parasitic betrayal. 4. Biometric UV/thermal confessional exposing the biological truth. 5. Dramatic fallout (one thrives, one withers).",
+          "mode": "story"
+        }
+      }
+    },
+    {
+      "t": 2,
+      "event": "workflow_submitted",
+      "data": {
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "workflowId": "83500394-ccbd-4dab-a936-e14fb6cc5481",
+        "workflowName": "Savage Garden Storyboard Test",
+        "stepCount": 2,
+        "steps": [
+          {
+            "id": "story",
+            "type": "synth_template"
+          },
+          {
+            "id": "narrative",
+            "type": "synth_narrative"
+          }
+        ]
+      }
+    },
+    {
+      "t": 30003,
+      "event": "workflow_step_retry",
+      "data": {
+        "workflowId": "83500394-ccbd-4dab-a936-e14fb6cc5481",
+        "stepId": "story",
+        "stepType": "synth_template",
+        "attempt": 1,
+        "error": "This operation was aborted"
+      }
+    },
+    {
+      "t": 63005,
+      "event": "workflow_step_error",
+      "data": {
+        "workflowId": "83500394-ccbd-4dab-a936-e14fb6cc5481",
+        "stepId": "story",
+        "stepType": "synth_template",
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "attempts": 2,
+        "durationMs": 63004,
+        "error": "This operation was aborted"
+      }
+    },
+    {
+      "t": 63005,
+      "event": "workflow_complete",
+      "data": {
+        "workflowId": "83500394-ccbd-4dab-a936-e14fb6cc5481",
+        "name": "Savage Garden Storyboard Test",
+        "status": "failed",
+        "completedAt": "2026-04-30T21:08:57.920Z",
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "totals": {
+          "durationMs": 63005,
+          "completedSteps": 0,
+          "failedSteps": 1,
+          "skippedSteps": 0
+        },
+        "stepResults": [
+          {
+            "id": "story",
+            "type": "synth_template",
+            "status": "failed"
+          },
+          {
+            "id": "narrative",
+            "type": "synth_narrative",
+            "status": "pending"
+          }
+        ]
+      }
+    }
+  ]
+}

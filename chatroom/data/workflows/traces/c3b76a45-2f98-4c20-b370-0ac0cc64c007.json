@@ -1,0 +1,658 @@
+{
+  "workflowId": "c3b76a45-2f98-4c20-b370-0ac0cc64c007",
+  "name": "Pastel Parasite Pilot Engine",
+  "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+  "agentName": "Luna Martinez",
+  "agentColor": "#FF6B6B",
+  "sessionId": "c85d5173-41d1-4e1e-ab57-bc3e3a077616",
+  "messageId": null,
+  "startedAt": "2026-04-30T21:12:25.705Z",
+  "completedAt": "2026-04-30T21:13:06.291Z",
+  "status": "failed",
+  "totals": {
+    "durationMs": 40586,
+    "costUsd": 0.081,
+    "completedSteps": 3,
+    "failedSteps": 1
+  },
+  "steps": {
+    "master_prompt": {
+      "id": "master_prompt",
+      "type": "synth_template",
+      "dependsOn": [],
+      "status": "complete",
+      "startedMs": 0,
+      "completedMs": 18227,
+      "durationMs": 18227,
+      "inputs": {
+        "description": "High-drama reality TV storyboard set in 'The Vault', a pastel mint-green brutalist containment center. Symmetrical Wes Anderson framing, deadpan mood. Characters: Anthropomorphic Pitcher Plant femme fatale with fleshy, dripping O'Keeffe-style botanical cleavage, and a glamorous Orchid. 4 beats: 1. Hypnotic languid seduction on a mustard velvet couch. 2. Uncomfortably intimate macro-shot of dripping nectar. 3. Stark UV/thermal biometric confessional showing parasitic life-drain. 4. Cryogenic elimination in frosted glass.",
+        "mode": "story"
+      },
+      "outputSummary": {
+        "status": "success",
+        "template": {
+          "story": {
+            "title": "The Vault: Botanical Betrayal",
+            "logline": "In a pastel brutalist reality show, a seductive pitcher plant eliminates her glamorous orchid rival through parasitic betrayal.",
+            "duration_seconds": 32,
+            "beat_duration_seconds": 8,
+            "anchors": {
+              "style": "Symmetrical Wes Anderson framing, high-drama reality TV aesthetic, deadpan mood, sharp studio lighting with cinematic shadows, 35mm film grain, striking minimalist composition",
+              "world": "The Vault, a pastel mint-green brutalist containment center, rigid geometric concrete structures, stark clinical corridors, oppressive yet highly stylized",
+              "palette": "Pastel mint-green, mustard yellow, fleshy pinks, deep ultraviolet highlights, stark white"
+            },
+            "characters": [
+              {
+                "id": "[…]",
+                "name": "[…]",
+                "anchors": "[…]"
+              },
+              {
+                "id": "[…]",
+                "name": "[…]",
+                "anchors": "[…]"
+              }
+            ],
+            "acts": [
+              {
+                "name": "[…]",
+                "beats": "[…]"
+              },
+              {
+                "name": "[…]",
+                "beats": "[…]"
+              },
+              {
+                "name": "[…]",
+                "beats": "[…]"
+              }
+            ],
+            "beats": [
+              {
+                "id": "[…]",
+                "shot": "[…]",
+                "purpose": "[…]",
+                "prompt": "[…]",
+                "characters": "[…]"
+              },
+              {
+                "id": "[…]",
+                "shot": "[…]",
+                "purpose": "[…]",
+                "prompt": "[…]",
+                "characters": "[…]"
+              },
+              {
+                "id": "[…]",
+                "shot": "[…]",
+                "purpose": "[…]",
+                "prompt": "[…]",
+                "characters": "[…]"
+              },
+              {
+                "id": "[…]",
+                "shot": "[…]",
+                "purpose": "[…]",
+                "prompt": "[…]",
+                "characters": "[…]"
+              }
+            ]
+          },
+          "promptTemplate": "{{__beat__}} | botanical humidity: {{humidity}}",
+          "variables": [
+            {
+              "name": "humidity",
+              "feature_name": "Botanical Humidity",
+              "values": [
+                "[…]",
+                "[…]",
+                "[…]"
+              ]
+            }
+          ]
+        }
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.001
+    },
+    "hero_img": {
+      "id": "hero_img",
+      "type": "synth_image",
+      "dependsOn": [
+        "master_prompt"
+      ],
+      "status": "complete",
+      "startedMs": 18228,
+      "completedMs": 32131,
+      "durationMs": 13903,
+      "inputs": {
+        "prompt": "cinematic editorial, anthropomorphic Pitcher Plant femme fatale in a corseted pastel dress, deep voluptuous fleshy botanical clefts, dripping glowing nectar, deadpan expression, sitting perfectly centered on a mustard velvet couch, pastel mint-green brutalist room, obsessive symmetry, Wes Anderson style",
+        "aspect_ratio": "16:9"
+      },
+      "outputSummary": {
+        "status": "success",
+        "mediaId": "1f10fcf1-b52e-463c-b33b-704bf2269323",
+        "mediaType": "image"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.04
+    },
+    "confessional": {
+      "id": "confessional",
+      "type": "synth_image",
+      "dependsOn": [
+        "master_prompt"
+      ],
+      "status": "complete",
+      "startedMs": 18229,
+      "completedMs": 37281,
+      "durationMs": 19052,
+      "inputs": {
+        "prompt": "cinematic ultraviolet thermal vision reality tv confessional shot, glowing neon heat signatures revealing internal toxic nutrient siphoning of a glamorous plant, high fashion meets stark medical imaging, dramatic reality tv lighting",
+        "aspect_ratio": "16:9"
+      },
+      "outputSummary": {
+        "status": "success",
+        "mediaId": "2f922d15-cfb6-48cf-95c0-6f7e75db98c1",
+        "mediaType": "image"
+      },
+      "error": null,
+      "attempts": 1,
+      "costUsd": 0.04
+    },
+    "hero_vid": {
+      "id": "hero_vid",
+      "type": "synth_video",
+      "dependsOn": [
+        "hero_img"
+      ],
+      "status": "failed",
+      "startedMs": 37282,
+      "completedMs": 40585,
+      "durationMs": 3303,
+      "inputs": {
+        "prompt": "cinematic slow-motion, highly symmetrical planar angle, an anthropomorphic Pitcher Plant femme fatale with fleshy botanical cleavage dripping thick bioluminescent nectar, she stares deadpan into the camera with languid hypnotic micro-movements, pastel brutalist background",
+        "aspect_ratio": "16:9",
+        "duration": 5
+      },
+      "outputSummary": null,
+      "error": "400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'The number value for `durationSeconds` is out of bound. Please provide a value between 4 and 8, inclusive.', 'status': 'INVALID_ARGUMENT'}}",
+      "attempts": 1,
+      "costUsd": 0,
+      "lastRetryError": "400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'The number value for `durationSeconds` is out of bound. Please provide a value between 4 and 8, inclusive.', 'status': 'INVALID_ARGUMENT'}}"
+    }
+  },
+  "events": [
+    {
+      "t": 0,
+      "event": "workflow_start",
+      "data": {
+        "workflowId": "c3b76a45-2f98-4c20-b370-0ac0cc64c007",
+        "name": "Pastel Parasite Pilot Engine",
+        "stepCount": 4,
+        "steps": [
+          {
+            "id": "master_prompt",
+            "type": "synth_template",
+            "dependsOn": []
+          },
+          {
+            "id": "hero_img",
+            "type": "synth_image",
+            "dependsOn": [
+              "master_prompt"
+            ]
+          },
+          {
+            "id": "confessional",
+            "type": "synth_image",
+            "dependsOn": [
+              "master_prompt"
+            ]
+          },
+          {
+            "id": "hero_vid",
+            "type": "synth_video",
+            "dependsOn": [
+              "hero_img"
+            ]
+          }
+        ],
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "agentName": "Luna Martinez",
+        "agentColor": "#FF6B6B",
+        "sessionId": "c85d5173-41d1-4e1e-ab57-bc3e3a077616",
+        "messageId": null
+      }
+    },
+    {
+      "t": 0,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "c3b76a45-2f98-4c20-b370-0ac0cc64c007",
+        "stepId": "master_prompt",
+        "stepType": "synth_template",
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "dependsOn": [],
+        "inputs": {
+          "description": "High-drama reality TV storyboard set in 'The Vault', a pastel mint-green brutalist containment center. Symmetrical Wes Anderson framing, deadpan mood. Characters: Anthropomorphic Pitcher Plant femme fatale with fleshy, dripping O'Keeffe-style botanical cleavage, and a glamorous Orchid. 4 beats: 1. Hypnotic languid seduction on a mustard velvet couch. 2. Uncomfortably intimate macro-shot of dripping nectar. 3. Stark UV/thermal biometric confessional showing parasitic life-drain. 4. Cryogenic elimination in frosted glass.",
+          "mode": "story"
+        }
+      }
+    },
+    {
+      "t": 3,
+      "event": "workflow_submitted",
+      "data": {
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "workflowId": "c3b76a45-2f98-4c20-b370-0ac0cc64c007",
+        "workflowName": "Pastel Parasite Pilot Engine",
+        "stepCount": 4,
+        "steps": [
+          {
+            "id": "master_prompt",
+            "type": "synth_template"
+          },
+          {
+            "id": "hero_img",
+            "type": "synth_image"
+          },
+          {
+            "id": "confessional",
+            "type": "synth_image"
+          },
+          {
+            "id": "hero_vid",
+            "type": "synth_video"
+          }
+        ]
+      }
+    },
+    {
+      "t": 18227,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "c3b76a45-2f98-4c20-b370-0ac0cc64c007",
+        "stepId": "master_prompt",
+        "stepType": "synth_template",
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "attempts": 1,
+        "durationMs": 18227,
+        "summary": {
+          "status": "success",
+          "template": {
+            "story": {
+              "title": "The Vault: Botanical Betrayal",
+              "logline": "In a pastel brutalist reality show, a seductive pitcher plant eliminates her glamorous orchid rival through parasitic betrayal.",
+              "duration_seconds": 32,
+              "beat_duration_seconds": 8,
+              "anchors": {
+                "style": "Symmetrical Wes Anderson framing, high-drama reality TV aesthetic, deadpan mood, sharp studio lighting with cinematic shadows, 35mm film grain, striking minimalist composition",
+                "world": "The Vault, a pastel mint-green brutalist containment center, rigid geometric concrete structures, stark clinical corridors, oppressive yet highly stylized",
+                "palette": "Pastel mint-green, mustard yellow, fleshy pinks, deep ultraviolet highlights, stark white"
+              },
+              "characters": [
+                {
+                  "id": "pitcher",
+                  "name": "Nepenthes",
+                  "anchors": "Anthropomorphic Pitcher Plant femme fatale, sleek structured botanical gown, fleshy dripping O'Keeffe-style botanical cleavage, heavy-lidded seductive eyes, glossy predatory textures, emerald and crimson hues"
+                },
+                {
+                  "id": "orchid",
+                  "name": "Orchid",
+                  "anchors": "Glamorous anthropomorphic Orchid, fragile and elegant, wearing delicate ruffled petals like haute couture, pristine white and magenta accents, anxious expression, delicate stems"
+                }
+              ],
+              "acts": [
+                {
+                  "name": "Act 1 — The Seduction",
+                  "beats": [
+                    1,
+                    2
+                  ]
+                },
+                {
+                  "name": "Act 2 — The Confessional",
+                  "beats": [
+                    3
+                  ]
+                },
+                {
+                  "name": "Act 3 — The Elimination",
+                  "beats": [
+                    4
+                  ]
+                }
+              ],
+              "beats": [
+                {
+                  "id": 1,
+                  "shot": "Wide symmetrical",
+                  "purpose": "Establish the awkward, stylized reality TV tension between the two rivals.",
+                  "prompt": "Wide perfectly symmetrical shot of {{pitcher}} lounging languidly next to {{orchid}} on a stark mustard velvet couch. {{world}}. The mood is thick with hypnotic seduction as both stare deadpan directly into the lens. {{palette}}. {{style}}.",
+                  "characters": [
+                    "pitcher",
+                    "orchid"
+                  ]
+                },
+                {
+                  "id": 2,
+                  "shot": "Extreme macro close-up",
+                  "purpose": "Highlight the predatory, sensual nature of the Pitcher Plant.",
+                  "prompt": "Uncomfortably intimate macro-shot focusing on the chest of {{pitcher}}, thick translucent nectar dripping slowly from a fleshy botanical fold. The background is a soft bokeh blur of the mint-green brutalist walls. {{style}}.",
+                  "characters": [
+                    "pitcher"
+                  ]
+                },
+                {
+                  "id": 3,
+                  "shot": "Medium confessional / Thermal POV",
+                  "purpose": "Reveal the hidden parasitic betrayal through a stylized biometric lens.",
+                  "prompt": "Stark reality TV confessional shot framed in glowing UV and thermal imaging. {{pitcher}}'s roots are visibly wrapped around the shivering silhouette of {{orchid}}, actively draining vibrant glowing energy. High contrast parasitic life-drain revealed. {{world}}. {{style}}.",
+                  "characters": [
+                    "pitcher",
+                    "orchid"
+                  ]
+                },
+                {
+                  "id": 4,
+                  "shot": "Medium static",
+                  "purpose": "Show the final, cold elimination of the Orchid.",
+                  "prompt": "Medium static shot of {{orchid}} trapped inside a cylindrical cryogenic chamber of frosted glass. Mint-green fog billows out symmetrically. {{pitcher}} stands perfectly centered in the foreground, looking back over her shoulder with a remorseless deadpan stare. {{world}}. {{style}}.",
+                  "characters": [
+                    "pitcher",
+                    "orchid"
+                  ]
+                }
+              ]
+            },
+            "promptTemplate": "{{__beat__}} | botanical humidity: {{humidity}}",
+            "variables": [
+              {
+                "name": "humidity",
+                "feature_name": "Botanical Humidity",
+                "values": [
+                  {
+                    "text": "dry, clinical, pristine air",
+                    "weight": 1
+                  },
+                  {
+                    "text": "glistening, slick, dewy moisture",
+                    "weight": 2
+                  },
+                  {
+                    "text": "suffocatingly humid, dripping condensation, steamy",
+                    "weight": 3
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "t": 18228,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "c3b76a45-2f98-4c20-b370-0ac0cc64c007",
+        "stepId": "hero_img",
+        "stepType": "synth_image",
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "dependsOn": [
+          "master_prompt"
+        ],
+        "inputs": {
+          "prompt": "cinematic editorial, anthropomorphic Pitcher Plant femme fatale in a corseted pastel dress, deep voluptuous fleshy botanical clefts, dripping glowing nectar, deadpan expression, sitting perfectly centered on a mustard velvet couch, pastel mint-green brutalist room, obsessive symmetry, Wes Anderson style",
+          "aspect_ratio": "16:9"
+        }
+      }
+    },
+    {
+      "t": 18229,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "c3b76a45-2f98-4c20-b370-0ac0cc64c007",
+        "stepId": "confessional",
+        "stepType": "synth_image",
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "dependsOn": [
+          "master_prompt"
+        ],
+        "inputs": {
+          "prompt": "cinematic ultraviolet thermal vision reality tv confessional shot, glowing neon heat signatures revealing internal toxic nutrient siphoning of a glamorous plant, high fashion meets stark medical imaging, dramatic reality tv lighting",
+          "aspect_ratio": "16:9"
+        }
+      }
+    },
+    {
+      "t": 32131,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "c3b76a45-2f98-4c20-b370-0ac0cc64c007",
+        "stepId": "hero_img",
+        "stepType": "synth_image",
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "attempts": 1,
+        "durationMs": 13903,
+        "summary": {
+          "status": "success",
+          "mediaId": "1f10fcf1-b52e-463c-b33b-704bf2269323",
+          "mediaType": "image"
+        }
+      }
+    },
+    {
+      "t": 37281,
+      "event": "workflow_step_complete",
+      "data": {
+        "workflowId": "c3b76a45-2f98-4c20-b370-0ac0cc64c007",
+        "stepId": "confessional",
+        "stepType": "synth_image",
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "attempts": 1,
+        "durationMs": 19052,
+        "summary": {
+          "status": "success",
+          "mediaId": "2f922d15-cfb6-48cf-95c0-6f7e75db98c1",
+          "mediaType": "image"
+        }
+      }
+    },
+    {
+      "t": 37282,
+      "event": "workflow_step_start",
+      "data": {
+        "workflowId": "c3b76a45-2f98-4c20-b370-0ac0cc64c007",
+        "stepId": "hero_vid",
+        "stepType": "synth_video",
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "dependsOn": [
+          "hero_img"
+        ],
+        "inputs": {
+          "prompt": "cinematic slow-motion, highly symmetrical planar angle, an anthropomorphic Pitcher Plant femme fatale with fleshy botanical cleavage dripping thick bioluminescent nectar, she stares deadpan into the camera with languid hypnotic micro-movements, pastel brutalist background",
+          "aspect_ratio": "16:9",
+          "duration": 5
+        }
+      }
+    },
+    {
+      "t": 37430,
+      "event": "workflow_step_retry",
+      "data": {
+        "workflowId": "c3b76a45-2f98-4c20-b370-0ac0cc64c007",
+        "stepId": "hero_vid",
+        "stepType": "synth_video",
+        "attempt": 1,
+        "error": "400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'The number value for `durationSeconds` is out of bound. Please provide a value between 4 and 8, inclusive.', 'status': 'INVALID_ARGUMENT'}}"
+      }
+    },
+    {
+      "t": 40585,
+      "event": "workflow_step_error",
+      "data": {
+        "workflowId": "c3b76a45-2f98-4c20-b370-0ac0cc64c007",
+        "stepId": "hero_vid",
+        "stepType": "synth_video",
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "attempts": 2,
+        "durationMs": 3303,
+        "error": "400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'The number value for `durationSeconds` is out of bound. Please provide a value between 4 and 8, inclusive.', 'status': 'INVALID_ARGUMENT'}}"
+      }
+    },
+    {
+      "t": 40586,
+      "event": "workflow_complete",
+      "data": {
+        "workflowId": "c3b76a45-2f98-4c20-b370-0ac0cc64c007",
+        "name": "Pastel Parasite Pilot Engine",
+        "status": "failed",
+        "completedAt": "2026-04-30T21:13:06.290Z",
+        "agentId": "8bb9452e-640d-4cc5-8c28-cc50680d6e1b",
+        "totals": {
+          "durationMs": 40585,
+          "completedSteps": 3,
+          "failedSteps": 1,
+          "skippedSteps": 0
+        },
+        "stepResults": [
+          {
+            "id": "master_prompt",
+            "type": "synth_template",
+            "status": "success",
+            "template": {
+              "story": {
+                "title": "The Vault: Botanical Betrayal",
+                "logline": "In a pastel brutalist reality show, a seductive pitcher plant eliminates her glamorous orchid rival through parasitic betrayal.",
+                "duration_seconds": 32,
+                "beat_duration_seconds": 8,
+                "anchors": {
+                  "style": "Symmetrical Wes Anderson framing, high-drama reality TV aesthetic, deadpan mood, sharp studio lighting with cinematic shadows, 35mm film grain, striking minimalist composition",
+                  "world": "The Vault, a pastel mint-green brutalist containment center, rigid geometric concrete structures, stark clinical corridors, oppressive yet highly stylized",
+                  "palette": "Pastel mint-green, mustard yellow, fleshy pinks, deep ultraviolet highlights, stark white"
+                },
+                "characters": [
+                  {
+                    "id": "pitcher",
+                    "name": "Nepenthes",
+                    "anchors": "Anthropomorphic Pitcher Plant femme fatale, sleek structured botanical gown, fleshy dripping O'Keeffe-style botanical cleavage, heavy-lidded seductive eyes, glossy predatory textures, emerald and crimson hues"
+                  },
+                  {
+                    "id": "orchid",
+                    "name": "Orchid",
+                    "anchors": "Glamorous anthropomorphic Orchid, fragile and elegant, wearing delicate ruffled petals like haute couture, pristine white and magenta accents, anxious expression, delicate stems"
+                  }
+                ],
+                "acts": [
+                  {
+                    "name": "Act 1 — The Seduction",
+                    "beats": [
+                      1,
+                      2
+                    ]
+                  },
+                  {
+                    "name": "Act 2 — The Confessional",
+                    "beats": [
+                      3
+                    ]
+                  },
+                  {
+                    "name": "Act 3 — The Elimination",
+                    "beats": [
+                      4
+                    ]
+                  }
+                ],
+                "beats": [
+                  {
+                    "id": 1,
+                    "shot": "Wide symmetrical",
+                    "purpose": "Establish the awkward, stylized reality TV tension between the two rivals.",
+                    "prompt": "Wide perfectly symmetrical shot of {{pitcher}} lounging languidly next to {{orchid}} on a stark mustard velvet couch. {{world}}. The mood is thick with hypnotic seduction as both stare deadpan directly into the lens. {{palette}}. {{style}}.",
+                    "characters": [
+                      "pitcher",
+                      "orchid"
+                    ]
+                  },
+                  {
+                    "id": 2,
+                    "shot": "Extreme macro close-up",
+                    "purpose": "Highlight the predatory, sensual nature of the Pitcher Plant.",
+                    "prompt": "Uncomfortably intimate macro-shot focusing on the chest of {{pitcher}}, thick translucent nectar dripping slowly from a fleshy botanical fold. The background is a soft bokeh blur of the mint-green brutalist walls. {{style}}.",
+                    "characters": [
+                      "pitcher"
+                    ]
+                  },
+                  {
+                    "id": 3,
+                    "shot": "Medium confessional / Thermal POV",
+                    "purpose": "Reveal the hidden parasitic betrayal through a stylized biometric lens.",
+                    "prompt": "Stark reality TV confessional shot framed in glowing UV and thermal imaging. {{pitcher}}'s roots are visibly wrapped around the shivering silhouette of {{orchid}}, actively draining vibrant glowing energy. High contrast parasitic life-drain revealed. {{world}}. {{style}}.",
+                    "characters": [
+                      "pitcher",
+                      "orchid"
+                    ]
+                  },
+                  {
+                    "id": 4,
+                    "shot": "Medium static",
+                    "purpose": "Show the final, cold elimination of the Orchid.",
+                    "prompt": "Medium static shot of {{orchid}} trapped inside a cylindrical cryogenic chamber of frosted glass. Mint-green fog billows out symmetrically. {{pitcher}} stands perfectly centered in the foreground, looking back over her shoulder with a remorseless deadpan stare. {{world}}. {{style}}.",
+                    "characters": [
+                      "pitcher",
+                      "orchid"
+                    ]
+                  }
+                ]
+              },
+              "promptTemplate": "{{__beat__}} | botanical humidity: {{humidity}}",
+              "variables": [
+                {
+                  "name": "humidity",
+                  "feature_name": "Botanical Humidity",
+                  "values": [
+                    {
+                      "text": "dry, clinical, pristine air",
+                      "weight": 1
+                    },
+                    {
+                      "text": "glistening, slick, dewy moisture",
+                      "weight": 2
+                    },
+                    {
+                      "text": "suffocatingly humid, dripping condensation, steamy",
+                      "weight": 3
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "id": "hero_img",
+            "type": "synth_image",
+            "status": "success",
+            "mediaId": "1f10fcf1-b52e-463c-b33b-704bf2269323",
+            "mediaType": "image"
+          },
+          {
+            "id": "confessional",
+            "type": "synth_image",
+            "status": "success",
+            "mediaId": "2f922d15-cfb6-48cf-95c0-6f7e75db98c1",
+            "mediaType": "image"
+          },
+          {
+            "id": "hero_vid",
+            "type": "synth_video",
+            "status": "failed"
+          }
+        ]
+      }
+    }
+  ]
+}

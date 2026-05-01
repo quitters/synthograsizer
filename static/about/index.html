@@ -510,7 +510,7 @@
         <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path></svg>
         <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
       </button>
-      <a href="/synthograsizer/" class="cta">Launch App</a>
+      <a href="/synthograsizer/demo.html" class="cta">Launch App</a>
     </div>
   </header>
 
@@ -524,8 +524,59 @@
         The person behind the <span class="grad">instrument.</span>
       </h1>
       <p class="lede">
-        Synthograsizer is built and maintained by a single creative technologist who believes generative AI should feel playable, not prompt-shaped.
+        Built for creative people working with creative agents.
       </p>
+      <p style="font-family:'JetBrains Mono',monospace; font-size:0.92rem; color:var(--teal); font-style:italic; margin:18px 0 4px;">"The medium is the message."</p>
+      <p style="font-family:'JetBrains Mono',monospace; font-size:0.72rem; color:var(--text-dim); margin:0;">— Marshall McLuhan, <em>Understanding Media: The Extensions of Man</em>, 1964</p>
+    </div>
+  </section>
+
+  <!-- ============= Now / Currently Building ============= -->
+  <section style="padding: 30px 24px 10px;">
+    <div class="container">
+      <div class="reveal" style="display: flex; align-items: center; gap: 14px; margin-bottom: 20px;">
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.22em; color: var(--text-dim);">§ Now</span>
+        <span style="flex: 1; height: 1px; background: var(--border);"></span>
+      </div>
+      <div class="reveal" style="padding: 28px 28px; background: linear-gradient(180deg, var(--surface-hi), var(--surface)); border: 1px solid var(--border-hi); border-radius: 18px; position: relative; overflow: hidden;">
+        <div style="position: absolute; top: -80px; right: -80px; width: 220px; height: 220px; border-radius: 50%; background: var(--indigo); opacity: 0.16; filter: blur(60px); pointer-events: none;"></div>
+        <div style="position: absolute; bottom: -60px; left: 30%; width: 180px; height: 180px; border-radius: 50%; background: var(--teal); opacity: 0.12; filter: blur(50px); pointer-events: none;"></div>
+        <div style="position: relative; z-index: 1;">
+          <div style="display: inline-flex; align-items: center; gap: 8px; margin-bottom: 14px;">
+            <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--teal); box-shadow: 0 0 12px var(--teal);"></span>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--teal); font-weight: 600;">Currently Building</span>
+          </div>
+          <h2 style="font-family: 'Space Grotesk', sans-serif; font-size: 1.7rem; font-weight: 700; letter-spacing: -0.02em; margin: 0 0 10px; color: var(--text);">Synthograsizer Suite</h2>
+          <p style="font-size: 1rem; color: var(--text-mute); line-height: 1.65; margin: 0 0 22px; max-width: 720px;">A solo-designed, open-source browser-based AI workflow platform. Agent Studio (multi-agent LLM orchestration with per-turn trace viewer), a portable JSON template DSL spanning prompt assembly + batch evaluation + agent definitions, and real-time integrations across MIDI, OSC, and WebRTC. Recently selected for the Daydream Scope Interactive AI Video Program (Cohort 3).</p>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px;">
+            <div style="padding: 14px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px;">
+              <div style="font-family: 'Space Grotesk', sans-serif; font-size: 1.5rem; font-weight: 700; color: var(--text); letter-spacing: -0.01em; line-height: 1;">7</div>
+              <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--text-dim); margin-top: 6px;">Studio Tools</div>
+            </div>
+            <div style="padding: 14px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px;">
+              <div style="font-family: 'Space Grotesk', sans-serif; font-size: 1.5rem; font-weight: 700; color: var(--text); letter-spacing: -0.01em; line-height: 1;">50+</div>
+              <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--text-dim); margin-top: 6px;">JSON Templates</div>
+            </div>
+            <div style="padding: 14px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px;">
+              <div style="font-family: 'Space Grotesk', sans-serif; font-size: 1.5rem; font-weight: 700; color: var(--text); letter-spacing: -0.01em; line-height: 1;">46+</div>
+              <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--text-dim); margin-top: 6px;">Agent Personas</div>
+            </div>
+            <div style="padding: 14px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px;">
+              <div style="font-family: 'Space Grotesk', sans-serif; font-size: 1.5rem; font-weight: 700; color: var(--text); letter-spacing: -0.01em; line-height: 1;">Cohort 3</div>
+              <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--text-dim); margin-top: 6px;">Daydream Scope</div>
+            </div>
+          </div>
+          <div style="margin-top: 22px; display: flex; gap: 14px; flex-wrap: wrap;">
+            <a href="/synthograsizer/demo.html" class="btn btn-primary" style="padding: 10px 18px; font-size: 0.9rem;">
+              Launch the suite
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+            </a>
+            <a href="https://github.com/quitters/synthograsizer" target="_blank" rel="noopener" class="btn btn-ghost" style="padding: 10px 18px; font-size: 0.9rem;">
+              View on GitHub
+            </a>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -538,7 +589,7 @@
         <aside class="profile-card reveal">
           <div class="profile-avatar"></div>
           <h2 class="profile-name">Alexander Heemskerk</h2>
-          <div class="profile-role">Creative Technologist &amp; AI Workflow Architect</div>
+          <div class="profile-role">Creative Technologist — Agentic Systems &amp; LLM Tooling</div>
           <div class="profile-meta">
             <div class="profile-meta-row">
               <span class="k">Email</span>
@@ -577,24 +628,31 @@
               <strong>Alexander Heemskerk</strong> is a creative technologist and AI workflow architect passionate about making advanced technology accessible, intuitive, and inspiring. His background spans generative art, interface design, and creative AI — with a focus on building tools that empower artists, designers, and curious minds to explore new forms of expression.
             </p>
             <p>
+              Recent work focuses on multi-agent orchestration with observability primitives — turn-order routing, per-turn trace capture, and consensus detection across LLM agents — built on a portable JSON template format that doubles as an evaluation harness for batch prompt runs.
+            </p>
+            <p>
               Alexander believes technology should feel playful and empowering — not intimidating. His work bridges the gap between cutting-edge AI and creative practitioners, centered on human-centered design and sustainable creative ecosystems.
             </p>
           </div>
 
           <div class="reveal">
             <h3>Core Skills &amp; Interests</h3>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.18em; color: var(--text-dim); margin: 8px 0 6px;">Engineering</div>
             <div class="skill-grid">
               <div class="skill"><span class="skill-dot"></span>AI Workflow Design</div>
               <div class="skill"><span class="skill-dot"></span>Generative AI Systems</div>
               <div class="skill"><span class="skill-dot"></span>Node-based Architecture</div>
               <div class="skill"><span class="skill-dot"></span>Creative Coding</div>
               <div class="skill"><span class="skill-dot"></span>UX for Complex Systems</div>
-              <div class="skill"><span class="skill-dot"></span>Blockchain &amp; Attribution</div>
               <div class="skill"><span class="skill-dot"></span>Interactive Media</div>
+            </div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.18em; color: var(--text-dim); margin: 22px 0 6px;">Practice</div>
+            <div class="skill-grid">
               <div class="skill"><span class="skill-dot"></span>Product Strategy</div>
-              <div class="skill"><span class="skill-dot"></span>Community Building</div>
               <div class="skill"><span class="skill-dot"></span>User Research</div>
               <div class="skill"><span class="skill-dot"></span>Technical Writing</div>
+              <div class="skill"><span class="skill-dot"></span>Community Building</div>
+              <div class="skill"><span class="skill-dot"></span>Blockchain &amp; Attribution</div>
               <div class="skill"><span class="skill-dot"></span>Creative Problem Solving</div>
             </div>
           </div>
@@ -602,6 +660,35 @@
           <div class="reveal">
             <h3>Selected Experience</h3>
             <div class="exp-list">
+              <div class="exp">
+                <div class="role">Synthograsizer Suite — Solo design &amp; implementation</div>
+                <div class="org">Browser-based AI workflow platform: multi-agent orchestration (46+ personas, autonomous turn-taking, trace viewer), JSON template DSL spanning prompt assembly + batch evaluation + agent definitions, real-time integrations across MIDI, OSC, and WebRTC.</div>
+              </div>
+              <div class="exp">
+                <div class="role">AI Workflow Engineer &amp; Prompt Architect (Contract)</div>
+                <div class="org">Emerge — Aug 2025 – Apr 2026. Designed the image and video generation workflows powering <strong>@tryemerge</strong>, a Farcaster-native AI agent that turned a user's profile photo plus a natural-language prompt into personalized social-media content. Engineered and iteratively refined the agent's LLM system prompts across four production revisions to handle action-routing (create / like / recast), transaction-safety guardrails, and conversation-length edge cases — each pass informed by observed production failures. Authored auxiliary prompts for workflow auto-naming (structured JSON output) and token-branding extraction. Produced launch assets including a flagship influencer-collab workflow and a 700+ asset batch generated from real user prompts.</div>
+                <div style="margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border);">
+                  <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.18em; color: var(--text-dim); margin-bottom: 8px;">Platform impact (team)</div>
+                  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px;">
+                    <div>
+                      <div style="font-family: 'Space Grotesk', sans-serif; font-size: 1.15rem; font-weight: 700; color: var(--text); letter-spacing: -0.01em; line-height: 1;">30K</div>
+                      <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-dim); margin-top: 4px;">Total users</div>
+                    </div>
+                    <div>
+                      <div style="font-family: 'Space Grotesk', sans-serif; font-size: 1.15rem; font-weight: 700; color: var(--text); letter-spacing: -0.01em; line-height: 1;">70K+</div>
+                      <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-dim); margin-top: 4px;">Pieces generated</div>
+                    </div>
+                    <div>
+                      <div style="font-family: 'Space Grotesk', sans-serif; font-size: 1.15rem; font-weight: 700; color: var(--text); letter-spacing: -0.01em; line-height: 1;">#1</div>
+                      <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-dim); margin-top: 4px;">Farcaster · 5 wks</div>
+                    </div>
+                    <div>
+                      <div style="font-family: 'Space Grotesk', sans-serif; font-size: 1.15rem; font-weight: 700; color: var(--text); letter-spacing: -0.01em; line-height: 1;">$90K+</div>
+                      <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-dim); margin-top: 4px;">Revenue</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
               <div class="exp">
                 <div class="role">AI Workflow Architect &amp; Creative Technology Strategist</div>
                 <div class="org">EmProps.ai</div>
@@ -650,7 +737,7 @@
       </div>
       <div class="footer-links">
         <a href="/">Home</a>
-        <a href="/synthograsizer/">App</a>
+        <a href="/synthograsizer/demo.html">App</a>
         <a href="https://github.com/quitters/synthograsizer" target="_blank" rel="noopener">GitHub</a>
         <a href="https://scope.daydream.fm" target="_blank" rel="noopener">Daydream Scope</a>
       </div>
