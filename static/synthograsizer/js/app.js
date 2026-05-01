@@ -2111,13 +2111,12 @@ export class SynthograsizerSmall {
         btn.innerHTML = '📖 STORYBOARD';
         btn.addEventListener('click', () => this.storyboardPanel?.open());
 
-        // Insert into the toolbar area (near batch/export buttons)
-        const toolbar = document.querySelector('.template-actions')
-                     || document.querySelector('.header-row');
+        // Insert into the actions toolbar alongside PROMPT BATCH / LIKED PROMPTS
+        const toolbar = document.querySelector('.actions-section');
         if (toolbar) {
           toolbar.appendChild(btn);
         } else {
-          // Fallback: insert before the batch modal
+          // Fallback: insert before the batch modal overlay
           const batchOverlay = document.getElementById('batch-modal-overlay');
           if (batchOverlay) batchOverlay.parentNode.insertBefore(btn, batchOverlay);
         }
