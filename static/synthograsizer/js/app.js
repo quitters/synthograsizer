@@ -2106,9 +2106,9 @@ export class SynthograsizerSmall {
       if (!btn) {
         btn = document.createElement('button');
         btn.id = 'open-storyboard-btn';
-        btn.className = 'storyboard-open-btn';
+        btn.className = 'action-btn storyboard-story-btn';
         btn.title = 'Open Storyboard';
-        btn.innerHTML = '🎬 Storyboard';
+        btn.innerHTML = '📖 STORYBOARD';
         btn.addEventListener('click', () => this.storyboardPanel?.open());
 
         // Insert into the toolbar area (near batch/export buttons)

@@ -1019,3 +1019,20 @@ header nav a:hover {
   letter-spacing: 2px;
   text-transform: uppercase;
 }
+
+/* ── Storyboard button — Pastel cyan (for video/story editing) ──────── */
+.storyboard-story-btn {
+  background: #d0e4e8 !important;       /* Pastel cyan */
+  color: #1a3a48 !important;            /* Deep teal */
+  border-color: #4898a8 !important;     /* Medium teal */
+  box-shadow: 3px 3px 0 #4898a8 !important;
+}
+
+.storyboard-story-btn:hover {
+  filter: brightness(0.95);
+}
+
+.storyboard-story-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: none !important;
+}
