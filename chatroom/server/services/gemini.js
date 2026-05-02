@@ -460,7 +460,13 @@ export async function* generateAgentResponse(agent, allAgents, messages, goal, s
   });
 
   // Build the full prompt with conversation history
-  const promptText = buildConversationPrompt(messages, goal, agent.name);
+  let promptText = buildConversationPrompt(messages, goal, agent.name);
+
+  // Prepend any system notes (e.g. workflow outcomes from the previous turn)
+  // so the agent reacts to real results instead of hallucinating success.
+  if (options.systemNotes && typeof options.systemNotes === 'string' && options.systemNotes.trim()) {
+    promptText = `[SYSTEM NOTE TO ${agent.name.toUpperCase()}]\n${options.systemNotes.trim()}\n\n${promptText}`;
+  }
 
   // Only include session media on the first turn to avoid sending large payloads every turn
   // After the first turn, media context is carried via transcript references

@@ -227,7 +227,9 @@
       gap: 48px;
       align-items: start;
     }
-    @media (max-width: 820px) { .about-split { grid-template-columns: 1fr; gap: 32px; } }
+    @media (max-width: 820px) {
+      .about-split { grid-template-columns: 1fr; gap: 32px; }
+    }
 
     .profile-card {
       padding: 28px 26px;
@@ -237,6 +239,7 @@
       position: sticky;
       top: 100px;
     }
+    @media (max-width: 820px) { .profile-card { position: relative; top: 0; } }
     [data-theme="light"] .profile-card { box-shadow: 4px 4px 0 #7a6e5e; }
 
     .profile-avatar {
@@ -383,6 +386,13 @@
       font-size: 1.02rem;
       margin: 0 0 4px;
     }
+    .exp .role a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: border-color .18s;
+    }
+    .exp .role a:hover { border-bottom-color: var(--teal); }
     .exp .org {
       font-size: 0.88rem;
       color: var(--text-mute);
@@ -593,7 +603,7 @@
           <div class="profile-meta">
             <div class="profile-meta-row">
               <span class="k">Email</span>
-              <span class="v"><a href="mailto:quittersarts@gmail.com">quittersarts@gmail.com</a></span>
+              <span class="v"><a href="mailto:adaheemskerk@gmail.com">adaheemskerk@gmail.com</a></span>
             </div>
             <div class="profile-meta-row">
               <span class="k">Art</span>
@@ -661,11 +671,11 @@
             <h3>Selected Experience</h3>
             <div class="exp-list">
               <div class="exp">
-                <div class="role">Synthograsizer Suite — Solo design &amp; implementation</div>
+                <div class="role"><a href="https://synthograsizer.com" target="_blank" rel="noopener">Synthograsizer Suite — Solo design &amp; implementation</a></div>
                 <div class="org">Browser-based AI workflow platform: multi-agent orchestration (46+ personas, autonomous turn-taking, trace viewer), JSON template DSL spanning prompt assembly + batch evaluation + agent definitions, real-time integrations across MIDI, OSC, and WebRTC.</div>
               </div>
               <div class="exp">
-                <div class="role">AI Workflow Engineer &amp; Prompt Architect (Contract)</div>
+                <div class="role"><a href="https://www.tryemerge.xyz/#team" target="_blank" rel="noopener">AI Workflow Engineer &amp; Prompt Architect (Contract)</a></div>
                 <div class="org">Emerge — Aug 2025 – Apr 2026. Designed the image and video generation workflows powering <strong>@tryemerge</strong>, a Farcaster-native AI agent that turned a user's profile photo plus a natural-language prompt into personalized social-media content. Engineered and iteratively refined the agent's LLM system prompts across four production revisions to handle action-routing (create / like / recast), transaction-safety guardrails, and conversation-length edge cases — each pass informed by observed production failures. Authored auxiliary prompts for workflow auto-naming (structured JSON output) and token-branding extraction. Produced launch assets including a flagship influencer-collab workflow and a 700+ asset batch generated from real user prompts.</div>
                 <div style="margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border);">
                   <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.18em; color: var(--text-dim); margin-bottom: 8px;">Platform impact (team)</div>
@@ -690,12 +700,20 @@
                 </div>
               </div>
               <div class="exp">
-                <div class="role">AI Workflow Architect &amp; Creative Technology Strategist</div>
-                <div class="org">EmProps.ai</div>
+                <div class="role"><a href="https://objkt.com/users/tz1cf3zcLmTsd32ZoEn3fe9QmZK7rwaVHBZ2" target="_blank" rel="noopener">Memento Mori — Generative Pipeline &amp; Workflow Design</a></div>
+                <div class="org">Collaboration with Michael Beets · May 2024. Built the generative pipeline for <em>Here and Now Edition 6</em>, the final installment in Beets' immersive Tezos blockchain series. User interactions inside a Unity-based 3D gallery drove trait selection, which fed a p5.js sketch, a detailed generative prompt, and personalized LoRAs — producing a unique image of each participant emerging from Plato's Cave. Powered by the EmProps OpenStudio API in real-time.</div>
               </div>
               <div class="exp">
-                <div class="role">Virtual Events &amp; Technology Coordinator</div>
-                <div class="org">Canadian Film Institute</div>
+                <div class="role"><a href="https://emprops.ai/studio/projects" target="_blank" rel="noopener">AI Workflow Architect &amp; Creative Technology Strategist</a></div>
+                <div class="org">EmProps.ai · Mar 2023 – Aug 2025. Designed and optimized modular AI workflows integrating Stable Diffusion, SDXL, and LLMs into accessible creative tools used by hundreds of creators. Identified friction points in complex AI interfaces and built solutions to make advanced capabilities usable by non-technical users. Contributed to product roadmap and feature prioritization; conceptualized frameworks for content attribution, collaborative creation, and adaptive workflows. Led the technical transition from Legacy to EmProps 2.0. Primary technical resource for the creator community on prompt engineering and JavaScript/p5.js creative coding.</div>
+              </div>
+              <div class="exp">
+                <div class="role"><a href="https://objkt.com/collections/KT1KSWBouZ8KQ5KUGZPqBc6TKAHDGTSV2LNc" target="_blank" rel="noopener">Detective Jack Seasons 1 &amp; 2 — Backend Infrastructure</a></div>
+                <div class="org">Collaboration with ClownVamp · Sep 2022 – Mar 2023. Designed and built the backend infrastructure for a blockchain-powered choose-your-own-adventure narrative on Tezos, enabling branching story choices to be resolved and recorded per-wallet. ClownVamp is a conceptual AI artist whose work has been exhibited in New York, Paris, and Los Angeles, and featured in Artnet, Outland, and Surface Magazine.</div>
+              </div>
+              <div class="exp">
+                <div class="role"><a href="https://www.animationfestival.ca/" target="_blank" rel="noopener">Virtual Events &amp; Technology Coordinator</a></div>
+                <div class="org"><a href="https://www.animationfestival.ca/" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;border-bottom:1px solid var(--border);">Ottawa International Animation Festival</a> / <a href="https://www.iffo.ca/" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;border-bottom:1px solid var(--border);">IFFO</a> · Jul 2020 – Oct 2021. Three consecutive roles spanning the full pandemic pivot to virtual programming. Orchestrated the digital transformation of major international festivals — selected, deployed, and operated webinar platforms, A/V streaming software, and interactive networking spaces for a global audience. Served as primary technical point-of-contact during live events, troubleshooting in real-time for presenters from major international animation studios. Developed onboarding documentation and training materials; analyzed engagement metrics to optimize future programming.</div>
               </div>
             </div>
           </div>
@@ -705,7 +723,7 @@
               <div class="callout c1">
                 <h3>Work With Me</h3>
                 <p>Open to collaborations, creative technology consulting, and conversations about the future of AI and creativity.</p>
-                <a href="mailto:quittersarts@gmail.com" class="btn btn-primary">
+                <a href="mailto:adaheemskerk@gmail.com" class="btn btn-primary">
                   Get in touch
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"></path><path d="m4 4 8 8 8-8"></path></svg>
                 </a>

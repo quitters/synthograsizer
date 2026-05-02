@@ -44,8 +44,19 @@ class ChatOrchestrator {
       sensitivity: 'medium', // 'low', 'medium', 'high', 'manual'
       requireExplicitMarker: false,
       minSignoffCount: 2,
-      customPhrases: []
+      customPhrases: [],
+      // Cooldown (in turns) after a user message before consensus can fire
+      userCooldownTurns: 2,
+      // Sliding window (in turns) for collecting consensus votes
+      voteWindowTurns: 4
     };
+    // Track consensus votes: { agentId, turn } per emission of [CONSENSUS REACHED]
+    this.consensusVotes = [];
+    // Turn count at which the last user message was injected (for cooldown)
+    this.lastUserMessageTurn = -Infinity;
+    // Pending workflow outcomes to surface to the next-speaking agent.
+    // Each item: { workflowId, status, label, error, agentId, agentName }
+    this.pendingWorkflowOutcomes = [];
   }
 
   /**
@@ -408,6 +419,11 @@ class ChatOrchestrator {
     this.messages.push(message);
     this.tokenCount += message.tokenCount;
 
+    // Reset consensus state: a fresh user prompt should never be immediately
+    // closed out by an in-flight consensus marker from a previous turn.
+    this.lastUserMessageTurn = this.turnCount;
+    this.consensusVotes = [];
+
     this.broadcast('message', message);
 
     // If paused, resume after injection
@@ -461,7 +477,77 @@ class ChatOrchestrator {
   /**
    * Select the next speaker based on conversation context and speaking order mode
    */
+  /**
+   * Wrap broadcast() so that workflow lifecycle events (`workflow_complete`,
+   * `workflow_error`) are also recorded as pending outcomes that will be
+   * surfaced to the next-speaking agent. Without this, agents continue talking
+   * as if their submitted workflows succeeded — the failure mode observed in
+   * the exported sessions where 9 of 10 workflows failed silently.
+   */
+  _wrapBroadcastForWorkflow(speaker, label) {
+    const base = this.broadcast.bind(this);
+    return (event, payload) => {
+      if (event === 'workflow_complete') {
+        const failed = (payload?.totals?.failedSteps || 0) > 0
+          || (payload?.status && payload.status !== 'complete');
+        this.pendingWorkflowOutcomes.push({
+          workflowId: payload?.workflowId,
+          label: payload?.name || label,
+          status: failed ? 'failed' : 'succeeded',
+          agentId: speaker.id,
+          agentName: speaker.name,
+          error: failed ? `${payload?.totals?.failedSteps || 0} step(s) failed` : null,
+        });
+      } else if (event === 'workflow_error') {
+        this.pendingWorkflowOutcomes.push({
+          workflowId: payload?.workflowId,
+          label,
+          status: 'failed',
+          agentId: speaker.id,
+          agentName: speaker.name,
+          error: payload?.error || 'unknown error',
+        });
+      }
+      base(event, payload);
+    };
+  }
+
+  /**
+   * Drain pending workflow outcomes into a system note for the next agent.
+   * Returns null if there are no outcomes to report.
+   */
+  _drainWorkflowOutcomes() {
+    if (this.pendingWorkflowOutcomes.length === 0) return null;
+    const items = this.pendingWorkflowOutcomes.splice(0);
+    const lines = items.map(o => {
+      if (o.status === 'succeeded') {
+        return `- "${o.label}" (submitted by ${o.agentName}) SUCCEEDED.`;
+      }
+      return `- "${o.label}" (submitted by ${o.agentName}) FAILED: ${o.error}.`;
+    });
+    return [
+      'Workflow outcomes since the last turn:',
+      ...lines,
+      'Acknowledge these results in your reply. Do NOT pretend failed workflows succeeded.',
+    ].join('\n');
+  }
+
   selectNextSpeaker() {
+    // Filter out muted agents up front — they are never selected regardless of mode.
+    const speakable = this.agents.filter(a => !a.muted);
+    if (speakable.length === 0) return null;
+    // Temporarily swap agents -> speakable for the strategy methods that read
+    // `this.agents`. Cleanest path is to delegate via a saved reference.
+    const allAgents = this.agents;
+    this.agents = speakable;
+    try {
+      return this._selectNextSpeakerInternal();
+    } finally {
+      this.agents = allAgents;
+    }
+  }
+
+  _selectNextSpeakerInternal() {
     if (this.agents.length === 0) return null;
 
     // First turn: start with moderator if present, otherwise first agent (or highest priority in priority mode)
@@ -585,6 +671,25 @@ class ChatOrchestrator {
       return expertMatch;
     }
 
+    // 3b. Fairness floor — any agent who hasn't spoken in 2*N turns gets
+    // priority. Prevents the dominant-speaker pattern observed in exported
+    // sessions (e.g. dissent/strategist roles ignored for ~10 turns).
+    const fairnessThreshold = this.agents.length * 2;
+    const starved = this.agents.filter(a => {
+      if (a.id === this.lastSpeakerId) return false;
+      // Has the agent ever spoken? If not, they are starved by definition
+      // once at least `fairnessThreshold` turns have elapsed.
+      const everSpoke = this.messages.some(m => m.agentId === a.id);
+      if (!everSpoke) return this.messages.length >= fairnessThreshold;
+      const since = this.countTurnsSince(a.id);
+      return since >= fairnessThreshold;
+    });
+    if (starved.length > 0) {
+      // Prefer the most starved (longest silence)
+      starved.sort((a, b) => this.countTurnsSince(b.id) - this.countTurnsSince(a.id));
+      return starved[0];
+    }
+
     // 4. Weighted random (excluding last speaker)
     const eligible = this.agents.filter(a => a.id !== this.lastSpeakerId);
     if (eligible.length === 0) return this.agents[0];
@@ -649,21 +754,58 @@ class ChatOrchestrator {
   /**
    * Check if the conversation has reached consensus or completion
    */
-  checkForCompletion(content) {
+  checkForCompletion(content, speakerId = null) {
     // If consensus detection is disabled or set to manual, never auto-detect
     if (!this.consensusSettings.enabled || this.consensusSettings.sensitivity === 'manual') {
       return null;
     }
 
     const contentLower = content.toLowerCase();
+    const hasMarker = content.includes('[CONSENSUS REACHED]') || contentLower.includes('[consensus reached]');
 
-    // Explicit consensus marker (always checked regardless of sensitivity)
-    if (content.includes('[CONSENSUS REACHED]') || contentLower.includes('[consensus reached]')) {
-      return 'consensus_reached';
+    // Cooldown: a single user prompt cannot be closed out within N turns of
+    // being submitted. Required to prevent premature shutdown observed in
+    // exported sessions where one agent fired the marker after the user was
+    // still iterating.
+    const cooldown = this.consensusSettings.userCooldownTurns ?? 2;
+    const turnsSinceUser = this.turnCount - (this.lastUserMessageTurn ?? -Infinity);
+    const inCooldown = Number.isFinite(this.lastUserMessageTurn) && turnsSinceUser < cooldown;
+
+    // Explicit consensus marker — record as a vote, then require quorum.
+    if (hasMarker) {
+      if (speakerId) {
+        // De-dupe: one vote per agent per active window.
+        this.consensusVotes = this.consensusVotes.filter(v => v.agentId !== speakerId);
+        this.consensusVotes.push({ agentId: speakerId, turn: this.turnCount });
+      }
+      // Drop votes older than the window
+      const window = this.consensusSettings.voteWindowTurns ?? 4;
+      this.consensusVotes = this.consensusVotes.filter(
+        v => this.turnCount - v.turn <= window
+      );
+      const distinctVoters = new Set(this.consensusVotes.map(v => v.agentId)).size;
+      const required = Math.max(2, Math.ceil((this.agents.length || 0) / 2));
+
+      if (!inCooldown && distinctVoters >= required) {
+        return 'consensus_reached';
+      }
+      // Surface a "proposed" event so the UI can show progress without ending.
+      this.broadcast('consensus_proposed', {
+        agentId: speakerId,
+        votes: distinctVoters,
+        required,
+        inCooldown
+      });
+      return null;
     }
 
     // If require explicit marker is set, only the above check applies
     if (this.consensusSettings.requireExplicitMarker) {
+      return null;
+    }
+
+    // Phrase-based detection still respects the cooldown.
+    if (inCooldown) {
       return null;
     }
 
@@ -783,13 +925,14 @@ class ChatOrchestrator {
         let fullResponse = '';
         let responseTokens = 0;
 
+        const systemNotes = this._drainWorkflowOutcomes();
         const generator = generateAgentResponse(
           speaker,
           this.agents,
           this.messages,
           this.goal,
           this.sessionMedia,
-          { model: this.modelPreference }
+          { model: this.modelPreference, systemNotes }
         );
 
         for await (const event of generator) {
@@ -1109,8 +1252,9 @@ class ChatOrchestrator {
           for (const req of workflowRequests) {
             if (req.type === 'workflow') {
               // Submit the workflow — execution runs in the background
+              const wfLabel = req.definition.name || 'Unnamed Workflow';
               const wfId = workflowEngine.submit(req.definition, {
-                broadcast: this.broadcast.bind(this),
+                broadcast: this._wrapBroadcastForWorkflow(speaker, wfLabel),
                 agentId: speaker.id,
                 agentName: speaker.name,
                 agentColor: speaker.color,
@@ -1219,7 +1363,7 @@ class ChatOrchestrator {
             }
 
             const wfId = workflowEngine.submit(req.definition, {
-              broadcast: this.broadcast.bind(this),
+              broadcast: this._wrapBroadcastForWorkflow(speaker, req.definition.name || req.templateId),
               agentId: speaker.id,
               agentName: speaker.name,
               agentColor: speaker.color,
@@ -1316,7 +1460,7 @@ class ChatOrchestrator {
         });
 
         // Check for consensus/completion
-        const completionReason = this.checkForCompletion(fullResponse);
+        const completionReason = this.checkForCompletion(fullResponse, speaker.id);
         if (completionReason) {
           this.stop(completionReason);
           break;

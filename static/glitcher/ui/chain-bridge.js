@@ -161,6 +161,9 @@ function boot(glitcherApp) {
   // Wire chain strip header
   wireChainHeader();
 
+  // Wire animation / clump controls
+  wireAnimationControls();
+
   // Initial render
   showCategoryGrid();
   renderChainStrip();
@@ -447,7 +450,8 @@ function renderChainStrip() {
   if (!summary.length) {
     const empty = document.createElement('div');
     empty.className = 'chain-empty';
-    empty.textContent = 'No effects — add from library →';
+    // CSS pseudo-element renders "+ ADD EFFECT"; child <span> shows the hint text
+    empty.innerHTML = '<span>pick from library →</span>';
     container.appendChild(empty);
     return;
   }
@@ -473,6 +477,10 @@ function renderChainStrip() {
     const meta = EFFECT_LOOKUP.get(node.id);
     const displayName = meta ? meta.effect.name : (node.name || node.id);
 
+    // Check for a stored per-effect selection mask
+    const effectObj = ecm.getEffect(node.id);
+    const hasMask = effectObj && effectObj.selectionMask != null;
+
     tile.innerHTML = `
       <div class="node-top">
         <button class="node-bypass" title="Bypass" data-id="${node.id}" data-enabled="${node.enabled}">
@@ -481,6 +489,7 @@ function renderChainStrip() {
         <button class="node-solo ${isSoloed ? 'active' : ''}" title="Solo" data-id="${node.id}">S</button>
       </div>
       <div class="node-label">${displayName}</div>
+      ${hasMask ? `<div class="node-mask-dot" title="Has custom selection mask">▣</div>` : ''}
       <button class="node-delete" title="Remove" data-id="${node.id}">×</button>
     `;
 
@@ -640,11 +649,50 @@ function wireToolbar() {
     btn.addEventListener('click', () => selectTool(tool.id));
   });
 
-  // Clear selection
+  // "All" — assign full-canvas mask to currently selected effect node
+  const allBtn = document.getElementById('v2-all-sel');
+  if (allBtn) {
+    allBtn.addEventListener('click', () => {
+      if (!currentEffectId) return;
+      const effect = ecm.getEffect(currentEffectId);
+      if (!effect) return;
+      const canvas = document.getElementById('canvas');
+      if (!canvas) return;
+      const w = canvas.width || 1920;
+      const h = canvas.height || 1080;
+      effect.selectionMask = new Uint8ClampedArray(w * h).fill(255);
+      renderChainStrip(); // update mask indicator
+    });
+  }
+
+  // Clear selection — clears the selected node's stored mask first; falls back to global clear
   const clearBtn = document.getElementById('v2-clear-sel');
   const hiddenClear = document.getElementById('clear-selections');
-  if (clearBtn && hiddenClear) {
-    clearBtn.addEventListener('click', () => hiddenClear.click());
+  if (clearBtn) {
+    clearBtn.addEventListener('click', () => {
+      // If a node is selected and has a stored mask, clear just that mask
+      if (currentEffectId) {
+        const effect = ecm.getEffect(currentEffectId);
+        if (effect && effect.selectionMask != null) {
+          effect.selectionMask = null;
+          renderChainStrip();
+          return; // don't also wipe the painted selection
+        }
+      }
+      // Otherwise clear the painted selection as usual
+      if (hiddenClear) hiddenClear.click();
+    });
+  }
+
+  // Selection preview toggle
+  const previewToggle = document.getElementById('v2-preview-toggle');
+  const hiddenPreview = document.getElementById('selection-preview-checkbox');
+  if (previewToggle && hiddenPreview) {
+    previewToggle.addEventListener('click', () => {
+      hiddenPreview.checked = !hiddenPreview.checked;
+      hiddenPreview.dispatchEvent(new Event('change', { bubbles: true }));
+      previewToggle.classList.toggle('active', hiddenPreview.checked);
+    });
   }
 
   // Brush size mirror
@@ -814,6 +862,47 @@ function startHudUpdater() {
 
   setInterval(update, 500);
   update();
+}
+
+// ─── Animation / clump controls ──────────────────────────────────────────────
+
+function wireAnimationControls() {
+  // Helper: mirror a v2 control to its hidden counterpart and clear active clumps
+  function mirror(v2Id, hiddenId, valueDisplayId, transform) {
+    const v2El = document.getElementById(v2Id);
+    const hiddenEl = document.getElementById(hiddenId);
+    const valEl = valueDisplayId ? document.getElementById(valueDisplayId) : null;
+    if (!v2El || !hiddenEl) return;
+    v2El.addEventListener('input', () => {
+      const val = transform ? transform(v2El.value) : v2El.value;
+      hiddenEl.value = val;
+      hiddenEl.dispatchEvent(new Event('input', { bubbles: true }));
+      if (valEl) valEl.textContent = v2El.value;
+      // Reset clumps so new settings take effect immediately
+      if (app) app.activeClumps = [];
+    });
+    v2El.addEventListener('change', () => {
+      const val = transform ? transform(v2El.value) : v2El.value;
+      hiddenEl.value = val;
+      hiddenEl.dispatchEvent(new Event('change', { bubbles: true }));
+      if (app) app.activeClumps = [];
+    });
+  }
+
+  // Selection method
+  mirror('v2-sel-method', 'selection-method', null);
+
+  // Intensity (size)
+  mirror('v2-intensity', 'intensity-select', null);
+
+  // Concurrent selections
+  mirror('v2-concurrent', 'concurrent-selections', 'v2-concurrent-val');
+
+  // Min lifetime
+  mirror('v2-minlife', 'min-lifetime', 'v2-minlife-val');
+
+  // Max lifetime
+  mirror('v2-maxlife', 'max-lifetime', 'v2-maxlife-val');
 }
 
 // ─── Canvas drag-and-drop for media loading ───────────────────────────────────

@@ -131,7 +131,12 @@ class SynthClient {
   async generateVideo(prompt, options = {}) {
     const body = { prompt };
     if (options.aspect_ratio) body.aspect_ratio = options.aspect_ratio;
-    if (options.duration)     body.duration = Number(options.duration);
+    if (options.duration !== undefined && options.duration !== null) {
+      const raw = Number(options.duration);
+      if (Number.isFinite(raw)) {
+        body.duration = Math.min(8, Math.max(4, Math.round(raw)));
+      }
+    }
     // Image conditioning — base64 strings or data-URIs accepted by backend.
     if (options.start_frame_image) body.start_frame_image = options.start_frame_image;
     if (options.end_frame_image)   body.end_frame_image = options.end_frame_image;

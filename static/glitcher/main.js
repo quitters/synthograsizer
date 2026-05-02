@@ -2057,48 +2057,114 @@ class GlitcherApp {
 
   /**
    * NEW: Process effects using the studio effect chain
+   * When clumps are active (auto or manual selection), effects are composited
+   * per-clump so only selected regions accumulate glitch — matching the
+   * "messy collage" aesthetic of classic mode.
    */
   processStudioEffects(currentTime) {
-    // Get current image data to process
-    let imageData = this.canvasManager.glitchImageData;
-    
-    // Get selection mask if in manual mode
-    const selectionMask = this.selectionManager.isInManualMode() ? 
-      this.selectionManager.getSelectionMask() : null;
-    
-    // Manage clumps for effects that need them
+    // Uses the persistent accumulation buffer (same as classic mode)
+    const imageData = this.canvasManager.glitchImageData;
+
+    // Manual-mode painted selection mask
+    const manualMask = this.selectionManager.isInManualMode()
+      ? this.selectionManager.getSelectionMask()
+      : null;
+
+    // Spawn clumps when the queue is empty
     if (this.activeClumps.length === 0) {
       this.spawnNewClumps();
     }
-    
-    // Create context for effects that need it
+
     const context = {
       frameCount: this.frameCount,
       time: currentTime,
       clumps: this.activeClumps,
       canvasManager: this.canvasManager,
-      selectionMask: selectionMask
+      selectionMask: manualMask
     };
-    
-    // Process through effect chain
+
+    // Global fallback mask: manual painted > clump regions > null (full canvas)
+    let globalMask = manualMask;
+    if (!globalMask && this.activeClumps.length > 0) {
+      const { width, height } = this.canvasManager.getImageDimensions();
+      globalMask = this._buildClumpMask(this.activeClumps, width, height);
+    }
+
     try {
-      const result = this.effectChainManager.processChain(
-        imageData,
-        selectionMask,
-        context
-      );
-      
-      // Update clumps (decrease lifetime, remove expired)
-      this.activeClumps.forEach(clump => {
-        clump.framesRemaining--;
-      });
+      const chain = this.effectChainManager.chain;
+      const soloedEffects = chain.filter(e => e.solo && e.enabled);
+      const effectsToProcess = soloedEffects.length > 0
+        ? soloedEffects
+        : chain.filter(e => e.enabled);
+
+      let currentData = imageData;
+
+      for (const effect of effectsToProcess) {
+        // Per-effect stored mask takes priority over global mask.
+        // null selectionMask means "use global" (clump/manual/none).
+        const effectMask = (effect.selectionMask != null)
+          ? effect.selectionMask
+          : globalMask;
+
+        if (effectMask) {
+          // Snapshot the buffer before this effect so we can composite masked regions only
+          const snapshot = new Uint8ClampedArray(currentData.data);
+
+          try {
+            const result = effect.process(currentData, null, context);
+            if (result) currentData = result;
+          } catch (e) {
+            console.error(`Error in effect ${effect.id}:`, e);
+            continue;
+          }
+
+          // Composite: pixels outside mask → restore from pre-effect snapshot
+          const d = currentData.data;
+          for (let i = 0, n = d.length; i < n; i += 4) {
+            if (effectMask[i >> 2] === 0) {
+              d[i]     = snapshot[i];
+              d[i + 1] = snapshot[i + 1];
+              d[i + 2] = snapshot[i + 2];
+              d[i + 3] = snapshot[i + 3];
+            }
+          }
+        } else {
+          // No mask — apply effect to the full canvas
+          try {
+            const result = effect.process(currentData, null, context);
+            if (result) currentData = result;
+          } catch (e) {
+            console.error(`Error in effect ${effect.id}:`, e);
+          }
+        }
+      }
+
+      // Advance clump lifetimes; expire finished ones
+      this.activeClumps.forEach(c => c.framesRemaining--);
       this.activeClumps = this.activeClumps.filter(c => c.framesRemaining > 0);
-      
-      return result || imageData;
+
+      return currentData;
     } catch (error) {
       console.error('Error processing studio effects:', error);
       return imageData;
     }
+  }
+
+  /**
+   * Build a flat Uint8ClampedArray mask (255 inside clump rects, 0 outside).
+   */
+  _buildClumpMask(clumps, width, height) {
+    const mask = new Uint8ClampedArray(width * height); // zeroed by default
+    for (const clump of clumps) {
+      const x1 = Math.max(0, clump.x);
+      const y1 = Math.max(0, clump.y);
+      const x2 = Math.min(width,  clump.x + clump.w);
+      const y2 = Math.min(height, clump.y + clump.h);
+      for (let y = y1; y < y2; y++) {
+        mask.fill(255, y * width + x1, y * width + x2);
+      }
+    }
+    return mask;
   }
 
   /**

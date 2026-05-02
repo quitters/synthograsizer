@@ -10,21 +10,27 @@
   <style>
     /* ── Design tokens ──────────────────────────────────────────────────── */
     :root {
-      --bg:  #0e0d0b;
-      --p1:  #171512;
-      --p2:  #1f1d19;
-      --p3:  #272420;
-      --w06: rgba(240,228,200,0.06);
-      --w12: rgba(240,228,200,0.09);
-      --w25: rgba(240,228,200,0.22);
-      --w50: rgba(240,228,200,0.5);
-      --w75: rgba(240,228,200,0.75);
+      /* Warm-dark palette — matches the synthograsizer host modal */
+      --bg:  #221d18;
+      --p1:  #2c2620;
+      --p2:  #383128;
+      --p3:  #443c32;
+      --w06: rgba(237,228,207,0.07);
+      --w12: rgba(237,228,207,0.12);
+      --w25: rgba(237,228,207,0.25);
+      --w50: rgba(237,228,207,0.55);
+      --w75: rgba(237,228,207,0.78);
       --mono: 'Space Mono', monospace;
       --sans: 'Inter', system-ui, sans-serif;
-      --text:  #ede8e0;
-      --muted: #5a5550;
-      --cream: #ede8d8;
-      --border: rgba(240,228,200,0.15);
+      --text:  #ede4cf;
+      --muted: #8a8175;
+      --cream: #ede4cf;
+      --sand:  #c8b896;
+      --border: rgba(237,228,207,0.18);
+      /* Synthograsizer host accents */
+      --teal:    #1e3a4a;     /* host action bar background */
+      --teal-2:  #284b5f;
+      --accent:  #7fc8d4;     /* cyan — used for active states */
       /* Category colors — warm lo-fi pastels */
       --mov:  #c97d68;
       --sort: #c4a06a;
@@ -188,17 +194,31 @@
     }
 
     .tb-section {
-      padding: 10px 8px;
-      border-bottom: 1px solid var(--border);
+      padding: 10px 8px 12px;
+      border-top: 1px solid var(--border);
     }
+    .tb-section:first-child { border-top: none; }
     .tb-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
       font-family: var(--mono);
-      font-size: 9px;
-      letter-spacing: 0.1em;
-      color: var(--muted);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      color: var(--cream);
       text-transform: uppercase;
-      margin-bottom: 8px;
+      margin-bottom: 9px;
       padding: 0 2px;
+    }
+    .tb-label::before {
+      content: '';
+      display: block;
+      width: 8px;
+      height: 8px;
+      background: var(--section-color, var(--w50));
+      border: 1.5px solid var(--section-color, var(--w50));
+      flex-shrink: 0;
     }
 
     /* Tool buttons */
@@ -224,14 +244,15 @@
       box-shadow: 2px 2px 0 rgba(0,0,0,0.3);
     }
     .tool-btn .tb-icon { font-size: 15px; line-height: 1; color: var(--w75); }
-    .tool-btn:hover { border-color: var(--w50); color: var(--cream); box-shadow: 3px 3px 0 rgba(240,228,200,0.15); transform: translate(-1px,-1px); }
+    .tool-btn:hover { border-color: var(--w50); color: var(--cream); box-shadow: 4px 4px 0 rgba(237,228,207,0.18); transform: translate(-1px,-1px); }
     .tool-btn.active {
-      background: var(--p3);
-      border-color: var(--cream);
-      color: var(--cream);
-      box-shadow: inset 2px 2px 0 rgba(0,0,0,0.3);
+      background: rgba(127,200,212,0.08);
+      border-color: var(--accent);
+      color: var(--accent);
+      box-shadow: inset 2px 2px 0 rgba(0,0,0,0.25);
       transform: none;
     }
+    .tool-btn.active .tb-icon { color: var(--accent); }
     .tool-btn.auto-btn { grid-column: 1 / -1; flex-direction: row; gap: 6px; padding: 7px 10px; }
 
     /* Key effects (contextual) */
@@ -263,21 +284,41 @@
     #v2-brush-control label { font-family: var(--mono); font-size: 9px; color: var(--muted); white-space: nowrap; }
     #v2-brush-control input { flex: 1; }
 
-    /* Toolbar clear button */
+    /* Toolbar action buttons (All / Clear) — clearly enabled state */
     .tb-action-btn {
       display: block;
       width: 100%;
-      padding: 5px 6px;
-      border: 1px solid var(--border);
+      padding: 7px 6px;
+      border: 2px solid var(--w50);
       background: var(--p2);
-      color: var(--muted);
+      color: var(--cream);
       font-family: var(--mono);
-      font-size: 9px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
       text-align: center;
       text-transform: uppercase;
       transition: all 80ms;
+      box-shadow: 2px 2px 0 rgba(0,0,0,0.32);
     }
-    .tb-action-btn:hover { border-color: var(--cream); color: var(--cream); }
+    .tb-action-btn:hover {
+      border-color: var(--cream);
+      background: var(--sand);
+      color: var(--p1);
+      box-shadow: 4px 4px 0 rgba(237,228,207,0.22);
+      transform: translate(-1px,-1px);
+    }
+    .tb-action-btn:active {
+      box-shadow: inset 1px 1px 0 rgba(0,0,0,0.3);
+      transform: translate(2px,2px);
+    }
+    .tb-action-btn:disabled,
+    .tb-action-btn[aria-disabled="true"] {
+      opacity: 0.35;
+      cursor: not-allowed;
+      box-shadow: none;
+      pointer-events: none;
+    }
 
     /* Playback in toolbar */
     .tb-play-btn {
@@ -386,32 +427,44 @@
     .rp-header {
       display: flex;
       align-items: center;
-      gap: 8px;
-      padding: 10px 12px 8px;
-      border-bottom: 1px solid var(--border);
+      gap: 0;
+      border-bottom: 2px solid var(--border);
       flex-shrink: 0;
     }
     #rp-back {
       display: none;
       align-items: center;
       justify-content: center;
-      width: 22px;
-      height: 22px;
-      border: 1px solid var(--border);
+      gap: 4px;
+      padding: 0 12px;
+      height: 38px;
+      border-right: 2px solid var(--border);
       background: var(--p2);
-      font-size: 13px;
-      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--cream);
       flex-shrink: 0;
-      transition: all 80ms;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      box-shadow: 3px 0 0 rgba(0,0,0,0.3);
+      transition: background 80ms, color 80ms;
     }
-    #rp-back:hover { border-color: var(--cream); color: var(--cream); }
+    #rp-back:hover { background: var(--p3); color: var(--cream); }
+    #rp-back:active { background: var(--p1); }
 
     #rp-title {
       font-family: var(--mono);
       font-size: 11px;
-      letter-spacing: 0.1em;
+      font-weight: 700;
+      letter-spacing: 0.12em;
       color: var(--cream);
       flex: 1;
+      padding: 0 12px;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      text-transform: uppercase;
     }
 
     .rp-search-wrap {
@@ -603,40 +656,64 @@
     #chain-nodes {
       display: flex;
       align-items: center;
-      gap: 6px;
-      min-height: 62px;
+      gap: 8px;
+      min-height: 80px;
       flex: 1;
     }
 
+    /* Empty / ghost-add placeholder tile shown when chain is empty */
     .chain-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      min-width: 140px;
+      height: 80px;
+      border: 2px dashed var(--w25);
+      background: transparent;
       font-family: var(--mono);
       font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
       color: var(--muted);
-      opacity: 0.5;
-      white-space: nowrap;
-      padding: 4px 8px;
+      text-transform: uppercase;
+      flex-shrink: 0;
     }
+    .chain-empty::before {
+      content: '+ ADD EFFECT';
+      color: var(--w50);
+      font-size: 11px;
+    }
+    .chain-empty span { font-size: 9px; opacity: 0.6; }
 
     /* Chain node */
     .chain-node {
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      min-width: 96px;
-      height: 60px;
-      padding: 5px 7px;
+      min-width: 140px;
+      height: 80px;
+      padding: 7px 10px;
       background: var(--p2);
       border: 2px solid transparent;
-      border-left: 3px solid var(--node-color, var(--muted));
+      border-left: 4px solid var(--node-color, var(--muted));
       position: relative;
       cursor: pointer;
       user-select: none;
-      transition: border-color 80ms, box-shadow 80ms, opacity 80ms;
-      box-shadow: 3px 3px 0 rgba(0,0,0,0.3);
+      transition: border-color 80ms, box-shadow 80ms, opacity 80ms, transform 80ms;
+      box-shadow: 3px 3px 0 rgba(0,0,0,0.32);
       flex-shrink: 0;
     }
-    .chain-node:hover { border-color: var(--node-color, var(--cream)); box-shadow: 4px 4px 0 rgba(240,228,200,0.15); }
-    .chain-node.selected { border-color: var(--cream); box-shadow: 3px 3px 0 rgba(240,228,200,0.25); }
+    .chain-node:hover {
+      border-color: var(--node-color, var(--cream));
+      box-shadow: 4px 4px 0 rgba(237,228,207,0.2);
+      transform: translate(-1px,-1px);
+    }
+    .chain-node.selected {
+      border-color: var(--accent);
+      box-shadow: 4px 4px 0 rgba(127,200,212,0.25);
+    }
     .chain-node.disabled { opacity: 0.4; }
     .chain-node.soloed { border-color: var(--node-color); box-shadow: 3px 3px 0 var(--node-color); }
     .chain-node.dragging { opacity: 0.35; }
@@ -710,37 +787,195 @@
     .chain-node:hover .node-delete { opacity: 1; }
     .node-delete:hover { color: var(--reccolor); }
 
+    /* Mask indicator shown when effect has a stored selection mask */
+    .node-mask-dot {
+      position: absolute;
+      bottom: 4px;
+      left: 4px;
+      font-size: 8px;
+      line-height: 1;
+      color: var(--node-color);
+      opacity: 0.85;
+      pointer-events: none;
+    }
+
     /* ── Status bar ──────────────────────────────────────────────────────── */
     .sb {
       grid-row: 4;
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 14px;
       padding: 0 14px;
       background: var(--p1);
-      border-top: 1px solid var(--border);
+      border-top: 2px solid var(--border);
     }
     .sb-item {
       font-family: var(--mono);
-      font-size: 9px;
-      color: var(--muted);
-      letter-spacing: 0.06em;
+      font-size: 10px;
+      color: var(--w75);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
     }
-    .sb-item strong { color: var(--cream); }
+    .sb-item strong {
+      color: var(--cream);
+      font-weight: 700;
+    }
     .sb-dot {
-      width: 5px;
-      height: 5px;
-      border-radius: 50%;
-      background: var(--muted);
+      width: 7px;
+      height: 7px;
+      background: var(--accent);
+      flex-shrink: 0;
     }
 
     /* ── Hidden legacy controls ──────────────────────────────────────────── */
     .legacy-controls { display: none !important; }
 
+    /* ── Animation controls — neo-brutalist pastel ───────────────────────── */
+    .anim-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+    .anim-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--cream);
+      text-transform: uppercase;
+      white-space: nowrap;
+      flex-shrink: 0;
+      width: 38px;
+      letter-spacing: 0.06em;
+    }
+    .anim-val {
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--p1);
+      background: var(--row-color, var(--sand));
+      min-width: 28px;
+      padding: 1px 4px;
+      text-align: center;
+      border: 1.5px solid var(--row-color, var(--sand));
+    }
+    .anim-select {
+      flex: 1;
+      background: var(--p2);
+      color: var(--cream);
+      border: 2px solid var(--row-color, var(--w50));
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 6px;
+      min-width: 0;
+      outline: none;
+      cursor: pointer;
+      transition: border-color 80ms, background 80ms;
+    }
+    .anim-select:hover { background: var(--p3); }
+    .anim-select:focus { border-color: var(--cream); }
+
+    /* Slider with visible track tinted by row color */
+    .anim-slider {
+      flex: 1;
+      min-width: 0;
+      height: 18px;
+      -webkit-appearance: none;
+      appearance: none;
+      background: transparent;
+      cursor: pointer;
+    }
+    .anim-slider::-webkit-slider-runnable-track {
+      height: 4px;
+      background: var(--p3);
+      border: 1px solid var(--row-color, var(--w25));
+    }
+    .anim-slider::-moz-range-track {
+      height: 4px;
+      background: var(--p3);
+      border: 1px solid var(--row-color, var(--w25));
+    }
+    .anim-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 12px;
+      height: 12px;
+      background: var(--row-color, var(--cream));
+      border: 2px solid var(--p1);
+      margin-top: -5px;
+      cursor: pointer;
+    }
+    .anim-slider::-moz-range-thumb {
+      width: 12px;
+      height: 12px;
+      background: var(--row-color, var(--cream));
+      border: 2px solid var(--p1);
+      cursor: pointer;
+    }
+
+    /* Per-row pastel dot */
+    .anim-dot {
+      width: 9px;
+      height: 9px;
+      flex-shrink: 0;
+      background: var(--row-color, currentColor);
+      border: 1.5px solid var(--row-color, currentColor);
+    }
+
+    /* Selection preview toggle */
+    .preview-toggle {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      width: 100%;
+      padding: 6px 8px;
+      border: 2px solid var(--border);
+      background: var(--p2);
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      transition: all 80ms;
+      box-shadow: 2px 2px 0 rgba(0,0,0,0.3);
+    }
+    .preview-toggle:hover { border-color: var(--playing); color: var(--playing); }
+    .preview-toggle.active {
+      background: var(--p3);
+      border-color: var(--playing);
+      color: var(--playing);
+      box-shadow: inset 1px 1px 0 rgba(0,0,0,0.3);
+    }
+    .preview-toggle-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      border: 1.5px solid currentColor;
+      flex-shrink: 0;
+    }
+    .preview-toggle.active .preview-toggle-dot { background: currentColor; }
+
     /* ── Scrollbars global ───────────────────────────────────────────────── */
     .toolbar::-webkit-scrollbar { width: 3px; }
     .toolbar::-webkit-scrollbar-thumb { background: var(--p3); }
-  </style>
+
+    /* ── Embed mode (loaded inside Synthograsizer Glitcher Studio modal) ── */
+    /* Modal already provides PULL/SEND toolbar — hide v2's own header      */
+    .embedded-mode .hdr { display: none; }
+    .embedded-mode .app {
+      grid-template-rows: 1fr var(--ch) var(--sb);
+    }
+    /* Re-map explicit grid-row indices now that the header row is gone */
+    .embedded-mode .body  { grid-row: 1; }
+    .embedded-mode .chain { grid-row: 2; }
+    .embedded-mode .sb    { grid-row: 3; }
+
+    /* Hidden — the synthograsizer host modal already supplies PULL/SEND buttons.
+       Keeping the bar would duplicate that toolbar inside the iframe.            */
+    .embed-action-bar { display: none !important; }
+</style>
 </head>
 <body>
 
@@ -774,7 +1009,7 @@
 
       <!-- Selection mode -->
       <div class="tb-section">
-        <div class="tb-label">Selection Mode</div>
+        <div class="tb-label" style="--section-color: var(--mov)">Selection Mode</div>
         <div class="tool-grid">
           <button class="tool-btn auto-btn active" id="v2-tool-auto" title="Auto selection">
             <span class="tb-icon">✦</span>
@@ -806,21 +1041,74 @@
 
         <!-- Key effects (contextual — shown for manual tools) -->
         <div id="v2-key-effects">
-          <div class="tb-label" style="margin-top:10px">Key Effects</div>
+          <div class="tb-label" style="margin-top:10px; --section-color: var(--cyber)">Key Effects</div>
           <div id="v2-key-effects-list"></div>
         </div>
       </div>
 
       <!-- Actions -->
       <div class="tb-section">
-        <div class="tb-label">Selection</div>
-        <button class="tb-action-btn" id="v2-clear-sel">Clear</button>
+        <div class="tb-label" style="--section-color: var(--sort)">Selection</div>
+        <button class="tb-action-btn" id="v2-all-sel" style="margin-bottom:5px" title="Fill entire canvas for the selected effect node">All</button>
+        <button class="tb-action-btn" id="v2-clear-sel" style="margin-bottom:5px">Clear</button>
+        <button class="preview-toggle" id="v2-preview-toggle">
+          <span class="preview-toggle-dot"></span>Preview
+        </button>
       </div>
 
       <!-- Playback -->
       <div class="tb-section">
-        <div class="tb-label">Playback</div>
+        <div class="tb-label" style="--section-color: var(--art)">Playback</div>
         <button class="tb-play-btn" id="v2-tb-play">▶</button>
+      </div>
+
+      <!-- Animation / clump settings -->
+      <div class="tb-section">
+        <div class="tb-label" style="--section-color: var(--exp)">Animation</div>
+
+        <div class="anim-row" style="--row-color: var(--mov)">
+          <span class="anim-dot"></span>
+          <label class="anim-label">Mode</label>
+          <select class="anim-select" id="v2-sel-method">
+            <option value="random">Random</option>
+            <option value="colorRange">Color</option>
+            <option value="brightness">Bright</option>
+            <option value="edge">Edge</option>
+            <option value="adaptive">Adapt</option>
+          </select>
+        </div>
+
+        <div class="anim-row" style="--row-color: var(--sort)">
+          <span class="anim-dot"></span>
+          <label class="anim-label">Size</label>
+          <select class="anim-select" id="v2-intensity">
+            <option value="low">Small</option>
+            <option value="medium" selected>Med</option>
+            <option value="high">Large</option>
+            <option value="extreme">XL</option>
+          </select>
+        </div>
+
+        <div class="anim-row" style="--row-color: var(--col)">
+          <span class="anim-dot"></span>
+          <label class="anim-label">Count</label>
+          <input type="range" class="anim-slider" id="v2-concurrent" min="1" max="10" value="3">
+          <span class="anim-val" id="v2-concurrent-val">3</span>
+        </div>
+
+        <div class="anim-row" style="--row-color: var(--filt)">
+          <span class="anim-dot"></span>
+          <label class="anim-label">Min</label>
+          <input type="range" class="anim-slider" id="v2-minlife" min="1" max="300" value="90">
+          <span class="anim-val" id="v2-minlife-val">90</span>
+        </div>
+
+        <div class="anim-row" style="--row-color: var(--art)">
+          <span class="anim-dot"></span>
+          <label class="anim-label">Max</label>
+          <input type="range" class="anim-slider" id="v2-maxlife" min="1" max="300" value="150">
+          <span class="anim-val" id="v2-maxlife-val">150</span>
+        </div>
       </div>
 
     </aside>
@@ -845,7 +1133,7 @@
     <!-- Right panel -->
     <aside class="rpanel">
       <div class="rp-header">
-        <button id="rp-back">‹</button>
+        <button id="rp-back">← All</button>
         <span id="rp-title">EFFECTS</span>
       </div>
       <div class="rp-search-wrap">
@@ -1012,6 +1300,20 @@
     <option value="1000">1s</option>
     <option value="2000">2s</option>
   </select>
+
+  <!-- Selection animation controls (read by enhanced-selection-ui.js + main.js) -->
+  <select id="intensity-select">
+    <option value="low">Low</option>
+    <option value="medium" selected>Medium</option>
+    <option value="high">High</option>
+    <option value="extreme">Extreme</option>
+  </select>
+  <span id="concurrent-selections-value">3</span>
+  <input type="range" id="concurrent-selections" min="1" max="10" value="3">
+  <span id="min-lifetime-value">90</span>
+  <input type="range" id="min-lifetime" min="1" max="300" step="1" value="90">
+  <span id="max-lifetime-value">150</span>
+  <input type="range" id="max-lifetime" min="1" max="300" step="1" value="150">
 </div>
 
 <!-- ─── EffectStudioManager injection prevention stub ───────────────────── -->
@@ -1038,18 +1340,19 @@
 
 <!-- ─── Scripts ─────────────────────────────────────────────────────────── -->
 <script>
-  // Embed mode bootstrap (mirrors index.html)
+  // Embed mode bootstrap — mirrors index.html exactly
   (function() {
     const isEmbedded = window.self !== window.top ||
       new URLSearchParams(window.location.search).has('embed');
     if (isEmbedded) {
+      window.__GLITCHER_EMBED__ = true;           // activates main.js postMessage bridge
       document.documentElement.classList.add('embedded-mode');
     }
   })();
 </script>
 
-<script type="module" src="./main.js"></script>
-<script type="module" src="./ui/chain-bridge.js?v=20250430"></script>
+<script type="module" src="./main.js?v=2"></script>
+<script type="module" src="./ui/chain-bridge.js?v=20250501d"></script>
 
 </body>
 </html>

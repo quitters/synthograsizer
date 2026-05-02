@@ -21,7 +21,7 @@ class GlitcherStudio {
     this.studio  = studioIntegration;
     this.MODAL   = 'glitcher-studio-modal';
     this.IFRAME  = 'gs-iframe';
-    this.SRC     = '/glitcher/?embed=1';
+    this.SRC     = '/glitcher/v2.html?embed=1';
 
     this._ready          = false;
     this._msgHandler     = null;
