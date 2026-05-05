@@ -388,7 +388,7 @@ Improved navigation and mode switching layout:
 ## Files Analyzed (Not Modified)
 - `glitcher/main.js` (54 console.logs remain - future improvement)
 - `glitcher/core/recording-manager.js` (15 console.logs remain)
-- `glitcher/ui/selection-ui.js` (14 console.logs remain)
+- `glitcher/ui/enhanced-selection-ui.js` (console.logs remain)
 - Others...
 
 ---

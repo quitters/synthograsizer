@@ -50,9 +50,6 @@ class GlitcherApp {
     this.effectStudioManager = null;
     this.studioMode = false; // Toggle between classic and studio modes
     
-    // Enhanced UI flag
-    this.useEnhancedUI = true;
-    
     this.animationId = null;
     this.isPaused = false;
     this.frameCount = 0;
@@ -331,33 +328,23 @@ class GlitcherApp {
       this.selectionManager = new SelectionManager(this.canvasManager);
       
       // Initialize enhanced canvas interaction and UI
-      if (this.useEnhancedUI) {
-        this.canvasInteraction = new EnhancedCanvasInteraction(this.canvasManager, this.selectionManager);
-        this.selectionUI = new EnhancedSelectionUI(this.selectionManager, this.canvasInteraction);
-        console.log('✨ Enhanced selection system initialized');
-      } else {
-        // Fallback to original system
-        const { CanvasInteraction } = await import('./ui/canvas-interaction.js');
-        const { SelectionUI } = await import('./ui/selection-ui.js');
-        this.canvasInteraction = new CanvasInteraction(this.canvasManager, this.selectionManager);
-        this.selectionUI = new SelectionUI(this.selectionManager, this.canvasInteraction);
-        console.log('📝 Standard selection system initialized');
-      }
+      this.canvasInteraction = new EnhancedCanvasInteraction(this.canvasManager, this.selectionManager);
+      this.selectionUI = new EnhancedSelectionUI(this.selectionManager, this.canvasInteraction);
       
       // Set up image load callback
       this.canvasManager.onImageLoad((imageData, width, height) => {
         console.log(`✅ Image loaded: ${width}x${height}`);
         
-        // Initialize frame timer for animated media
+        // Initialize frame timer for animated media with multiple frames
         if (this.canvasManager.animationMode) {
           const mediaInfo = this.canvasManager.mediaManager.getMediaInfo();
-          this.frameTimer = new FrameTimer(mediaInfo.frameRate, this.targetFrameRate);
-          this.frameTimer.setMaxFrames(mediaInfo.frameCount);
-          console.log('[DEBUG] FrameTimer initialized. maxFrames:', mediaInfo.frameCount, 'frameRate:', mediaInfo.frameRate);
-          this.frameTimer.setPlaybackMode(mediaInfo.playbackMode);
-          console.log(`🎬 Animated media: ${mediaInfo.frameCount} frames at ${mediaInfo.frameRate} fps`);
+          if (mediaInfo.frameCount > 1) {
+            this.frameTimer = new FrameTimer(mediaInfo.frameRate, this.targetFrameRate);
+            this.frameTimer.setMaxFrames(mediaInfo.frameCount);
+            this.frameTimer.setPlaybackMode(mediaInfo.playbackMode);
+          }
         }
-        
+
         this.startAnimation();
       });
       

@@ -4,10 +4,10 @@
  */
 export class FrameTimer {
   constructor(sourceFrameRate = 30, outputFrameRate = 60) {
-    this.sourceFrameRate = sourceFrameRate;
-    this.outputFrameRate = outputFrameRate;
+    this.sourceFrameRate = Math.max(1, sourceFrameRate || 30);
+    this.outputFrameRate = Math.max(1, outputFrameRate || 60);
     this.frameCounter = 0;
-    this.sourceFrameInterval = outputFrameRate / sourceFrameRate;
+    this.sourceFrameInterval = this.outputFrameRate / this.sourceFrameRate;
     this.playbackMode = 'loop'; // 'loop' or 'ping-pong'
     this.direction = 1; // 1 for forward, -1 for reverse
     this.currentFrame = 0;

@@ -120,12 +120,12 @@ export class MediaManager {
       // Store frames and metadata
       this.frames = result.frames;
       this.originalFrames = result.frames.map(frame => this.cloneImageData(frame));
-      this.frameRate = result.frameRate;
+      this.frameRate = Math.max(1, Math.min(120, result.frameRate || 30));
       this.duration = result.duration;
       this.width = result.width;
       this.height = result.height;
       this.currentFrame = 0;
-      
+
       return result;
     } catch (error) {
       // Fallback to basic GIF loading if library not available
@@ -134,12 +134,14 @@ export class MediaManager {
         return GIFLoader.loadGIFBasic(file).then(result => {
           this.frames = result.frames;
           this.originalFrames = result.frames.map(frame => this.cloneImageData(frame));
-          this.frameRate = result.frameRate;
+          this.frameRate = Math.max(1, Math.min(120, result.frameRate || 30));
           this.duration = result.duration;
           this.width = result.width;
           this.height = result.height;
           this.currentFrame = 0;
           return result;
+        }).catch(fallbackError => {
+          throw new Error(`GIF fallback loader failed: ${fallbackError.message}`);
         });
       }
       throw error;
@@ -157,12 +159,12 @@ export class MediaManager {
     // Store frames and metadata
     this.frames = result.frames;
     this.originalFrames = result.frames.map(frame => this.cloneImageData(frame));
-    this.frameRate = result.frameRate;
+    this.frameRate = Math.max(1, Math.min(120, result.frameRate || 30));
     this.duration = result.duration;
     this.width = result.width;
     this.height = result.height;
     this.currentFrame = 0;
-    
+
     return result;
   }
   
