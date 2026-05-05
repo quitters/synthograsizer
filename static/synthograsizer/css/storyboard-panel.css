@@ -10,10 +10,19 @@
   z-index: 9000;
   background: rgba(0, 0, 0, 0.75);
   backdrop-filter: blur(6px);
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
+}
+
+#storyboard-overlay.is-open {
+  display: flex;
   animation: sb-fade-in 0.2s ease-out;
+}
+
+/* Honor the [hidden] attribute even though display:flex would otherwise win */
+#storyboard-overlay[hidden] {
+  display: none;
 }
 
 @keyframes sb-fade-in {
@@ -331,6 +340,32 @@
   color: #64748b;
   line-height: 1.4;
   flex: 1;
+}
+
+.beat-card-narrative {
+  margin: 0 10px 6px;
+  padding: 6px 8px;
+  font-size: 11px;
+  line-height: 1.4;
+  color: #c4b5fd;
+  background: rgba(139, 92, 246, 0.08);
+  border-left: 2px solid rgba(139, 92, 246, 0.45);
+  border-radius: 3px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.narrative-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #a78bfa;
+  text-transform: uppercase;
+}
+
+.narrative-text {
+  color: #cbd5e1;
 }
 
 .beat-card-chars {

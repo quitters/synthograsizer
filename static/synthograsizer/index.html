@@ -6,12 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- CSP removed for development - add back in production if needed -->
     <title>Synthograsizer</title>
+    <script src="js/debug-log.js?v=1"></script>
     <link rel="stylesheet" href="css/style.css?v=4">
     <link rel="stylesheet" href="css/code-overlay.css?v=2">
     <link rel="stylesheet" href="css/layout-options.css?v=7">
     <link rel="stylesheet" href="css/synth-hardware-theme.css?v=7">
-    <link rel="stylesheet" href="css/storyboard-panel.css?v=1">
-    <link rel="stylesheet" href="css/storyboard-panel-hardware-theme.css?v=1">
+    <link rel="stylesheet" href="css/storyboard-panel.css?v=3">
+    <link rel="stylesheet" href="css/storyboard-panel-hardware-theme.css?v=3">
     <link rel="icon" type="image/png" href="assets/favicon.png">
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Quantico:ital,wght@0,400;0,700;1,400;1,700&family=Roboto+Mono:wght@300;400;500;600;700&display=swap"
@@ -859,7 +860,7 @@
         </div>
 
         <!-- Storyboard Panel Overlay -->
-        <div class="batch-modal-overlay" id="storyboard-overlay" style="display:none;">
+        <div class="batch-modal-overlay" id="storyboard-overlay" role="dialog" aria-modal="true" aria-labelledby="storyboard-title" hidden>
             <div class="storyboard-panel" id="storyboard-panel">
                 <div class="storyboard-header">
                     <h2 class="storyboard-title" id="storyboard-title">Storyboard</h2>
@@ -871,6 +872,7 @@
                 </div>
                 <div class="storyboard-footer">
                     <button class="storyboard-btn storyboard-btn-secondary" id="storyboard-export-json">Export Story JSON</button>
+                    <button class="storyboard-btn storyboard-btn-secondary" id="storyboard-compose-narrative" title="Use the narrative service to weave a cohesive video-prompt sequence across all beats">🎭 Compose Narrative</button>
                     <button class="storyboard-btn storyboard-btn-primary" id="storyboard-generate-all">▶ Generate All Beats</button>
                 </div>
             </div>
