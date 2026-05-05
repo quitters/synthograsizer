@@ -1186,26 +1186,47 @@ class AgentStudio {
     const style = document.createElement('style');
     style.id = 'as-styles';
     style.textContent = `
-      /* Modal — override the base 500px cap and claim full viewport */
-      #agent-studio-modal {
-        width: 96vw !important; max-width: 96vw !important;
-        height: 92vh !important; max-height: 92vh !important;
-        overflow: hidden !important;
-        display: none; top: 50% !important; left: 50% !important;
-        transform: translate(-50%, -50%) !important;
-        box-sizing: border-box !important;
+      /* Size tokens for the studio modal — single source of truth */
+      :root {
+        --as-modal-w: 96vw;
+        --as-modal-h: 92vh;
       }
-      #agent-studio-modal.active { display: flex !important; flex-direction: column !important; }
+
+      /* Modal — override the base 500px cap and claim full viewport.
+         Selectors use #id (specificity 1,0,0) which already beats the
+         base .studio-modal-* rules, so no !important needed. The injected
+         <style> is appended last to document.head, so identical selectors
+         lose to ours on cascade order. */
+      #agent-studio-modal {
+        width: var(--as-modal-w);
+        max-width: var(--as-modal-w);
+        height: var(--as-modal-h);
+        max-height: var(--as-modal-h);
+        overflow: hidden;
+        display: none;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        box-sizing: border-box;
+      }
+      #agent-studio-modal.active { display: flex; flex-direction: column; }
       #agent-studio-modal .studio-modal-content {
-        max-width: none !important; width: 100% !important;
-        height: 100% !important; max-height: 100% !important;
-        display: flex !important; flex-direction: column !important;
-        overflow: hidden !important; box-sizing: border-box !important;
+        max-width: none;
+        width: 100%;
+        height: 100%;
+        max-height: 100%;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        box-sizing: border-box;
       }
       #agent-studio-modal .studio-modal-body {
-        padding: 0 !important; flex: 1 1 auto !important; min-height: 0 !important;
-        display: flex !important; flex-direction: column !important;
-        overflow: hidden !important;
+        padding: 0;
+        flex: 1 1 auto;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
       }
       .as-root { display:flex; flex-direction:column; flex:1 1 auto; min-height:0;
                  font-size:13px; color:#333; width:100%; overflow:hidden; box-sizing:border-box; }
