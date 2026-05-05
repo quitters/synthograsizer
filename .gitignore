@@ -18,6 +18,9 @@ backend/ai_studio_config.json
 # Claude local config
 .claude/
 
+# Chatroom workflow trace artifacts (debug output, not source)
+chatroom/data/workflows/traces/*.json
+
 # OS
 .DS_Store
 Thumbs.db

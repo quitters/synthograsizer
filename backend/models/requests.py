@@ -12,6 +12,7 @@ class TextRequest(BaseModel):
 class ImageRequest(BaseModel):
     prompt: str
     model: str = config.MODEL_IMAGE_GEN_FAST
+    is_demo: Optional[bool] = False
     aspect_ratio: str = "1:1"
     negative_prompt: Optional[str] = None
     reference_image: Optional[str] = None  # Kept for backwards compatibility
@@ -70,6 +71,9 @@ class TemplateRequest(BaseModel):
     use_flash: Optional[bool] = False         # Use Flash model for faster (lower quality) generation
     model: Optional[str] = None               # Override model selection
     target_beat_id: Optional[int] = None      # Beat ID for story-beat mode (per-beat regeneration)
+    prev_image_b64: Optional[str] = None      # Base64 image of previous beat (story-beat: multimodal continuity context)
+    next_image_b64: Optional[str] = None      # Base64 image of next beat (story-beat: multimodal continuity context)
+    is_demo: Optional[bool] = False           # When True, backend overrides model to MODEL_DEMO
 
 class AnalyzeRequest(BaseModel):
     image: str  # Base64 encoded image

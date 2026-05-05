@@ -169,8 +169,27 @@
     document.body.style.paddingTop = '28px';
   }
 
+  // ── Patch fetch to inject is_demo:true into all /api/ POST bodies ────
+  // This is the server-side enforcement signal — the backend will cap the
+  // model to MODEL_DEMO regardless of what the UI selectors claim.
+  function patchFetch() {
+    var _origFetch = window.fetch.bind(window);
+    window.fetch = function (url, opts) {
+      if (opts && opts.method === 'POST' &&
+          typeof url === 'string' && url.indexOf('/api/') !== -1) {
+        try {
+          var body = JSON.parse(opts.body);
+          body.is_demo = true;
+          opts = Object.assign({}, opts, { body: JSON.stringify(body) });
+        } catch (_) { /* not JSON — leave as-is */ }
+      }
+      return _origFetch(url, opts);
+    };
+  }
+
   // ── Boot ─────────────────────────────────────────────────────────────
   function boot() {
+    patchFetch();
     stripLayoutSwitcher();
     injectBanner();
     hideForbiddenModals();

@@ -27,10 +27,14 @@ logger = logging.getLogger(__name__)
 @router.post("/api/generate/template")
 async def generate_template(request: TemplateRequest):
     timeout = config.TEMPLATE_GEN_TIMEOUT_SECONDS
-    # Resolve model override: Flash for speed, Pro for quality, or explicit model
-    model_override = request.model
-    if not model_override and request.use_flash:
-        model_override = config.MODEL_TEMPLATE_GEN_FAST
+    # Demo requests are capped at MODEL_DEMO regardless of what the client sends.
+    if request.is_demo:
+        model_override = config.MODEL_DEMO
+    else:
+        # Resolve model override: Flash for speed, Pro for quality, or explicit model
+        model_override = request.model
+        if not model_override and request.use_flash:
+            model_override = config.MODEL_TEMPLATE_GEN_FAST
     try:
         mode = request.mode
 
@@ -108,7 +112,9 @@ async def generate_template(request: TemplateRequest):
                     request.current_template,
                     request.target_beat_id,
                     direction=direction,
-                    model_override=model_override
+                    model_override=model_override,
+                    prev_image_b64=request.prev_image_b64,
+                    next_image_b64=request.next_image_b64,
                 ),
                 timeout=timeout
             )

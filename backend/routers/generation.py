@@ -114,10 +114,14 @@ async def generate_image(request: ImageRequest):
 
         # Call generate_image with all parameters
         
-        # Override deprecated model if present
-        model_name = request.model
-        if model_name == "gemini-2.0-flash-exp":
-            model_name = "gemini-3-flash-preview"
+        # Demo requests are capped at MODEL_DEMO regardless of what the client sends.
+        if request.is_demo:
+            model_name = config.MODEL_DEMO
+        else:
+            model_name = request.model
+            # Override deprecated model if present
+            if model_name == "gemini-2.0-flash-exp":
+                model_name = "gemini-3-flash-preview"
 
         result = await asyncio.to_thread(
             ai_manager.generate_image,

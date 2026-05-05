@@ -33,8 +33,11 @@ def get_api_key() -> str | None:
             with open(legacy_config, "r") as f:
                 saved = json.load(f)
                 return saved.get("api_key")
-        except Exception:
-            pass
+        except (OSError, json.JSONDecodeError) as exc:
+            import logging
+            logging.getLogger(__name__).warning(
+                "Failed to read legacy ai_studio_config.json: %s", exc
+            )
     return None
 
 # ── Google GenAI Model Names ──
@@ -53,6 +56,8 @@ MODEL_TEMPLATE_GEN = "gemini-3.1-pro-preview"
 MODEL_TEMPLATE_GEN_FAST = "gemini-3-flash-preview"
 # Lighter tasks: narrative, video variations, chat inside ai_manager
 MODEL_FAST = "gemini-3-flash-preview"
+# Demo mode — cheapest allowed model; backend enforces this when is_demo=True
+MODEL_DEMO = "gemini-3.1-flash-lite-preview"
 
 # Registry for UI consumption
 GEMINI_MODELS = {
@@ -95,5 +100,6 @@ OUTPUT_JSON_DIR = OUTPUT_BASE_DIR / "JSON"
 
 # ── Operational Limits ──
 VIDEO_POLL_TIMEOUT_SECONDS = 300  # Max wait for video generation
+VIDEO_DOWNLOAD_TIMEOUT_SECONDS = (10, 120)  # (connect, read) for downloading the rendered MP4
 MAX_BATCH_IMAGES = 200           # Safety cap for batch analysis
 TEMPLATE_GEN_TIMEOUT_SECONDS = 180  # Max wait for LLM template generation
