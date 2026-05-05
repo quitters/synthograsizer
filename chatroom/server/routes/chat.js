@@ -307,7 +307,10 @@ router.post('/session-media', (req, res) => {
       totalCount: orchestrator.getSessionMedia().length
     });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    const body = { error: error.message };
+    if (error.code) body.code = error.code;
+    if (error.limit !== undefined) { body.limit = error.limit; body.current = error.current; }
+    res.status(400).json(body);
   }
 });
 

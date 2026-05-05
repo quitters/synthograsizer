@@ -2,12 +2,15 @@ import os
 import json
 import base64
 import io
+import logging
 import time
 import requests
 import uuid
 from datetime import datetime
 import asyncio
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 from typing import Optional, List, Dict, Any, Union
 from backend import config
 from backend.utils.retry import retry_on_transient
@@ -626,10 +629,17 @@ Beat 3: "A shot of {{{{character}}}} in {{{{environment}}}}, {{{{mood}}}} atmosp
     except Exception as e:
         raise Exception(f"Story template generation failed: {e}")
 
-def generate_story_beat(self, current_template: dict, target_beat_id: int, direction: str = None, model_override: str = None) -> str:
+def generate_story_beat(self, current_template: dict, target_beat_id: int, direction: str = None, model_override: str = None,
+                        prev_image_b64: str = None, next_image_b64: str = None) -> str:
     """
     Regenerate a single beat within a bespoke-beat story template.
     Returns just the replacement beat object (JSON).
+
+    If prev_image_b64 / next_image_b64 are supplied (base64-encoded images of
+    the rendered adjacent beats), they're attached to the LLM call as
+    multimodal context so the new beat can be visually continuous with the
+    surrounding shots.  Text continuity (anchors, characters, ±1 beat
+    descriptions) still drives the brief — images anchor consistency.
     """
     if not self.genai_client:
         raise ValueError("API Key not configured")
@@ -691,6 +701,30 @@ Respond with valid JSON only — a single beat object:
 }}
 """
 
+    # Optional: multimodal continuity — attach rendered adjacent beat images
+    # so the LLM can see what's actually on screen, not just our prompt text.
+    contents = [system_prompt]
+    image_notes = []
+    for label, b64 in (("PREVIOUS BEAT", prev_image_b64), ("NEXT BEAT", next_image_b64)):
+        if not b64:
+            continue
+        try:
+            import base64 as _b64
+            raw = _b64.b64decode(b64)
+            mime = "image/png" if raw[:4] == b"\x89PNG" else "image/jpeg"
+            contents.append(types.Part.from_bytes(data=raw, mime_type=mime))
+            image_notes.append(f"{label} image attached above")
+        except (ValueError, TypeError, base64.binascii.Error) as exc:
+            # Bad payload — skip image, fall back to text-only.
+            logger.warning("Skipping malformed %s image attachment: %s", label, exc)
+
+    if image_notes:
+        contents.append(
+            "VISUAL CONTINUITY: " + "; ".join(image_notes)
+            + ". Treat these images as references for character appearance, lighting, "
+              "and world detail — the new beat should be consistent with them but distinct in framing/action."
+        )
+
     try:
         gen_config = types.GenerateContentConfig(
             response_mime_type="application/json"
@@ -698,7 +732,7 @@ Respond with valid JSON only — a single beat object:
 
         response = self.genai_client.models.generate_content(
             model=model,
-            contents=[system_prompt],
+            contents=contents,
             config=gen_config
         )
         return response.text

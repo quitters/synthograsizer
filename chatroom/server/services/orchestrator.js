@@ -64,7 +64,11 @@ class ChatOrchestrator {
    */
   addSessionMedia(mediaItem) {
     if (this.sessionMedia.length >= 14) {
-      throw new Error('Maximum of 14 session media files allowed');
+      const err = new Error('Maximum of 14 session media files allowed');
+      err.code = 'MEDIA_LIMIT_EXCEEDED';
+      err.limit = 14;
+      err.current = this.sessionMedia.length;
+      throw err;
     }
     this.sessionMedia.push(mediaItem);
     return mediaItem;
@@ -784,7 +788,10 @@ class ChatOrchestrator {
         v => this.turnCount - v.turn <= window
       );
       const distinctVoters = new Set(this.consensusVotes.map(v => v.agentId)).size;
-      const required = Math.max(2, Math.ceil((this.agents.length || 0) / 2));
+      // Use unmuted agent count — muted agents can never vote, so including them
+      // in the denominator can make quorum unreachable.
+      const speakableCount = this.agents.filter(a => !a.muted).length;
+      const required = Math.max(2, Math.ceil((speakableCount || 0) / 2));
 
       if (!inCooldown && distinctVoters >= required) {
         return 'consensus_reached';
@@ -1695,7 +1702,7 @@ class ChatOrchestrator {
  * Detect when an agent claims to have written/updated code but didn't use
  * [ARTIFACT:] tags.  Returns a short correction string or null.
  */
-const CODE_CLAIM_RE = /\b(here'?s?\s+(the\s+)?(updated|new|revised|modified|complete|full)\s+(code|sketch|file|html|script|game|artifact)|(i'?ve|i have|i just)\s+(updated|created|added|modified|written|built|refactored|revised)\s+(the\s+)?(code|sketch|file|artifact|game|html|function|class)|(let me (update|create|write|add)|updating the artifact|pushing.*changes|here are the changes))/i;
+const CODE_CLAIM_RE = /\b(here'?s?\s+(the\s+)?(updated|new|revised|modified|complete|full)\s+(code|sketch|file|html|script|game|artifact|implementation|solution|version|fix|feature)|(i'?ve|i have|i just)\s+(updated|created|added|modified|written|built|refactored|revised|implemented|fixed|changed)\s+(the\s+)?(code|sketch|file|artifact|game|html|function|class|script|component|module|solution|implementation|fix|feature)|let me\s+(update|create|write|add|implement|fix|refactor|build)|updating\s+the\s+(artifact|code|file|sketch)|pushing.*changes|here\s+are\s+the\s+(changes|updates|modifications)|here\s+is\s+(the\s+)?(implementation|solution|updated|new|revised|complete)\b|updated\s+it\b|check\s+out\s+(the\s+)?(changes|updates|code|implementation))\b|^(implemented|updated|created|added|modified|fixed|refactored)\b.*:/im;
 
 function detectArtifactHallucination(responseText, hadArtifactTags) {
   if (hadArtifactTags) return null;              // actually used tags — all good

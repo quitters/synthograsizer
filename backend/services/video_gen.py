@@ -1,11 +1,15 @@
 import base64
+import logging
 import time
 import requests
 import asyncio
+from functools import partial
 from typing import Optional
 from backend import config
 from backend.helpers import decode_base64_image
 from google.genai import types
+
+logger = logging.getLogger(__name__)
 
 async def generate_video(self, prompt: str, model_name: str = config.MODEL_VIDEO_GEN,
                   duration_seconds: int = None, aspect_ratio: str = None,
@@ -33,8 +37,16 @@ async def generate_video(self, prompt: str, model_name: str = config.MODEL_VIDEO
     try:
         config_opts = types.GenerateVideosConfig()
 
-        # Use requested duration; fall back to 5s if not provided
-        config_opts.duration_seconds = int(duration_seconds) if duration_seconds else 5
+        # Use requested duration; fall back to a model-appropriate default.
+        # Veo 3.1 rejects sub-8s durations across all modes (t2v, i2v, last_frame,
+        # reference, extension) with a misleading "between 4 and 8 inclusive"
+        # error — so when the client doesn't specify, default 3.1 to 8s.
+        if duration_seconds:
+            config_opts.duration_seconds = int(duration_seconds)
+        elif "veo-3.1" in str(model_name):
+            config_opts.duration_seconds = 8
+        else:
+            config_opts.duration_seconds = 5
 
         if aspect_ratio:
             config_opts.aspect_ratio = aspect_ratio
@@ -60,14 +72,18 @@ async def generate_video(self, prompt: str, model_name: str = config.MODEL_VIDEO
             if aspect_ratio:
                 start_bytes = self.ensure_aspect_ratio(start_bytes, aspect_ratio)
             first_frame_obj = types.Image(image_bytes=start_bytes, mime_type="image/jpeg")
-            print(f"Using first frame for video generation (image parameter)")
+            # Veo 3.1 image-to-video rejects shorter durations with a misleading
+            # "out of bound" error — pin to 8s, same as last_frame / reference / extension paths.
+            if "veo-3.1" in str(model_name):
+                config_opts.duration_seconds = 8
+            logger.info("Using first frame for video generation (image parameter, duration=%ss)", config_opts.duration_seconds)
 
         if end_frame_image:
             end_bytes = decode_base64_image(end_frame_image)
             if aspect_ratio:
                 end_bytes = self.ensure_aspect_ratio(end_bytes, aspect_ratio)
             config_opts.last_frame = types.Image(image_bytes=end_bytes, mime_type="image/jpeg")
-            print(f"Using last frame for video interpolation (last_frame parameter)")
+            logger.info("Using last frame for video interpolation (last_frame parameter)")
 
         # Handle Reference Images (Veo 3.1 full/fast only — up to 3 asset images)
         extension_video_obj = None
@@ -82,7 +98,7 @@ async def generate_video(self, prompt: str, model_name: str = config.MODEL_VIDEO
             config_opts.reference_images = ref_objs
             # Reference images require 8s duration per API spec
             config_opts.duration_seconds = 8
-            print(f"Using {len(ref_objs)} reference image(s) for Veo 3.1 direction (duration forced to 8s)")
+            logger.info("Using %d reference image(s) for Veo 3.1 direction (duration forced to 8s)", len(ref_objs))
 
         # Handle Video Extension (Veo 3.1 full/fast only)
         # Must reference a stored URI from a prior Veo generation — inline bytes are rejected by the API.
@@ -93,10 +109,10 @@ async def generate_video(self, prompt: str, model_name: str = config.MODEL_VIDEO
             config_opts.duration_seconds = 8
             config_opts.resolution = "720p"
             config_opts.aspect_ratio = None
-            print(f"Using video extension mode — URI={extension_video_uri} (duration=8s, resolution=720p)")
+            logger.info("Using video extension mode — URI=%s (duration=8s, resolution=720p)", extension_video_uri)
 
-        print(f"Starting video generation with model {model_name}...")
-        print(f"  duration_seconds={config_opts.duration_seconds}, aspect_ratio={config_opts.aspect_ratio}")
+        logger.info("Starting video generation with model %s (duration_seconds=%s, aspect_ratio=%s)",
+                    model_name, config_opts.duration_seconds, config_opts.aspect_ratio)
         # Only pass image/video kwargs when we actually have them — passing None
         # causes Veo 3.1 to reject valid durationSeconds values.
         video_kwargs = dict(model=model_name, prompt=prompt, config=config_opts)
@@ -106,9 +122,9 @@ async def generate_video(self, prompt: str, model_name: str = config.MODEL_VIDEO
         elif first_frame_obj is not None:
             video_kwargs['image'] = first_frame_obj
         operation = self.genai_client.models.generate_videos(**video_kwargs)
-        
-        print(f"Operation started: {operation.name}. Polling for completion...")
-        
+
+        logger.info("Operation started: %s. Polling for completion...", operation.name)
+
         # Poll until complete with timeout
         MAX_POLL_SECONDS = config.VIDEO_POLL_TIMEOUT_SECONDS
         poll_start = time.time()
@@ -117,10 +133,10 @@ async def generate_video(self, prompt: str, model_name: str = config.MODEL_VIDEO
             if elapsed > MAX_POLL_SECONDS:
                 raise Exception(f"Video generation timed out after {MAX_POLL_SECONDS}s")
             await asyncio.sleep(5)
-            print(f"Still generating... ({int(elapsed)}s elapsed)")
+            logger.debug("Still generating... (%ds elapsed)", int(elapsed))
             operation = self.genai_client.operations.get(operation)
 
-        print("Generation complete.")
+        logger.info("Generation complete.")
         
         # Get the result from the operation
         response = None
@@ -141,25 +157,34 @@ async def generate_video(self, prompt: str, model_name: str = config.MODEL_VIDEO
                 inner_video = video_wrapper.video
                 if hasattr(inner_video, 'uri') and inner_video.uri:
                     video_uri = inner_video.uri
-                    print(f"Video URI found: {video_uri}. Downloading...")
-                    download_url = f"{video_uri}&key={self.api_key}"
-                    # Use run_in_executor for blocking request
+                    logger.info("Video URI found. Downloading...")
+                    # Pass the API key via header instead of embedding in URL —
+                    # URL params leak into proxies, browser history, and error reporters.
+                    headers = {"x-goog-api-key": self.api_key} if self.api_key else {}
                     loop = asyncio.get_event_loop()
-                    vid_response = await loop.run_in_executor(None, requests.get, download_url)
+                    vid_response = await loop.run_in_executor(
+                        None,
+                        partial(
+                            requests.get,
+                            video_uri,
+                            headers=headers,
+                            timeout=config.VIDEO_DOWNLOAD_TIMEOUT_SECONDS,
+                        ),
+                    )
 
                     if vid_response.status_code == 200:
-                        print(f"Video downloaded! Size: {len(vid_response.content)} bytes")
+                        logger.info("Video downloaded (%d bytes)", len(vid_response.content))
                         self.save_output(vid_response.content, f"vid_{model_name}")
                         return {
                             "video_b64": base64.b64encode(vid_response.content).decode('utf-8'),
                             "video_uri": video_uri,
                         }
                     else:
-                        print(f"Failed to download video. Status: {vid_response.status_code}")
+                        logger.error("Failed to download video. Status: %s", vid_response.status_code)
                         raise Exception(f"Failed to download video from URI: {vid_response.text}")
 
             if hasattr(video_wrapper, 'video_bytes') and video_wrapper.video_bytes:
-                print(f"Video bytes found directly. Size: {len(video_wrapper.video_bytes)} bytes")
+                logger.info("Video bytes found directly (%d bytes)", len(video_wrapper.video_bytes))
                 self.save_output(video_wrapper.video_bytes, f"vid_{model_name}")
                 return {
                     "video_b64": base64.b64encode(video_wrapper.video_bytes).decode('utf-8'),
@@ -169,8 +194,6 @@ async def generate_video(self, prompt: str, model_name: str = config.MODEL_VIDEO
         raise Exception("No video found in response")
 
     except Exception as e:
-        import traceback
-        traceback.print_exc()
-        print(f"Video generation error: {str(e)}")
-        raise e
+        logger.exception("Video generation error: %s", e)
+        raise
 
