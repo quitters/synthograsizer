@@ -922,7 +922,9 @@ class AgentStudio {
 
     this.agents = [];
     this.messages = [];
-    this.state = { isRunning: false, isPaused: false };
+    // Conversation mode: 'group' (autonomous multi-agent) | 'solo' (1-on-1 chat)
+    this.mode = 'group';
+    this.state = { isRunning: false, isPaused: false, mode: 'group' };
     this.sessionStart = null;
     this.eventSource = null;
 
@@ -949,6 +951,11 @@ class AgentStudio {
     this._consoleOpen = true;      // console pane visibility
     this._lastScreenshot = null;   // data URL of most recent capture
     this._msgHandler = null;       // bound window message listener (for cleanup)
+
+    // mediaId → { data, mimeType, prompt } — avoid re-fetching the same image
+    this._mediaCache = new Map();
+    // Pending file attachments queued in the compose bar
+    this._pendingAttachments = []; // [{ name, mimeType, data, objectURL }]
   }
 
   // ─── Bootstrap ─────────────────────────────────────────────────────────────
@@ -969,6 +976,24 @@ class AgentStudio {
     this._refreshState();
     this._refreshArtifacts();
     this._fetchConsensusSettings();
+  }
+
+  /**
+   * Open the studio in Solo mode with `text` prefilled in the compose bar.
+   * The replacement entry point for the legacy floating chat widget — callers
+   * use this for 'send-to-chat' style flows from elsewhere in the suite.
+   */
+  openSoloWith(text = '') {
+    this.open();
+    // Defer one tick so the modal markup + bindings are in place
+    setTimeout(() => {
+      this._setMode('solo');
+      const input = document.getElementById('as-inject-input');
+      if (input) {
+        input.value = text || '';
+        input.focus();
+      }
+    }, 0);
   }
 
   close() {
@@ -1002,7 +1027,23 @@ class AgentStudio {
 
   _buildModalHTML() {
     return `
-      <div id="as-root" class="as-root">
+      <div id="as-root" class="as-root" data-mode="group">
+        <!-- Mode tabs: Group (autonomous discussion) vs Solo (1-on-1 chat) -->
+        <div class="as-mode-tabs" role="tablist" aria-label="Conversation mode">
+          <button class="as-mode-tab active" data-mode="group" role="tab" aria-selected="true"
+                  title="Multiple agents discuss autonomously toward a goal">
+            <span class="as-mode-icon">👥</span>
+            <span class="as-mode-label">Group Chat</span>
+            <span class="as-mode-sub">Auto-discussion · 2+ agents</span>
+          </button>
+          <button class="as-mode-tab" data-mode="solo" role="tab" aria-selected="false"
+                  title="Talk one-on-one with a single agent — your turn, their turn">
+            <span class="as-mode-icon">👤</span>
+            <span class="as-mode-label">Solo Chat</span>
+            <span class="as-mode-sub">Turn-by-turn · 1 agent</span>
+          </button>
+        </div>
+
         <!-- Compact header: goal + roster popover + presets + controls -->
         <div class="as-header">
           <input id="as-goal" class="as-goal" type="text"
@@ -1040,6 +1081,9 @@ class AgentStudio {
           <button id="as-artifacts-btn" class="as-btn" title="Toggle artifact panel">
             ◈ Artifacts <span id="as-artifact-count" class="as-pill" style="display:none">0</span>
           </button>
+          <button id="as-gallery-btn" class="as-btn" title="View all generated images">
+            🖼 Gallery <span id="as-gallery-count" class="as-pill" style="display:none">0</span>
+          </button>
           <button id="as-start-btn"  class="as-btn as-btn-primary">▶ Start</button>
           <button id="as-stop-btn"   class="as-btn" disabled>■ Stop</button>
           <button id="as-reset-btn"  class="as-btn" title="Clear conversation">↺</button>
@@ -1068,9 +1112,9 @@ class AgentStudio {
                 </div>
               </div>
 
-              <div class="as-pop-divider"></div>
+              <div class="as-pop-divider as-solo-hide"></div>
 
-              <div class="as-settings-row">
+              <div class="as-settings-row as-solo-hide">
                 <label class="as-settings-label" for="as-consensus-enabled">
                   Auto-consensus
                   <span class="as-hint" style="display:block;font-size:10px;margin-top:1px;">Stop when agents agree</span>
@@ -1081,7 +1125,7 @@ class AgentStudio {
                 </label>
               </div>
 
-              <div class="as-settings-row" id="as-sensitivity-row">
+              <div class="as-settings-row as-solo-hide" id="as-sensitivity-row">
                 <label class="as-settings-label" for="as-consensus-sensitivity">Sensitivity</label>
                 <select id="as-consensus-sensitivity" class="as-input-sm">
                   <option value="low">Low — explicit marker only</option>
@@ -1153,8 +1197,13 @@ class AgentStudio {
 
         <!-- Compose bar: inject a nudge mid-conversation -->
         <div class="as-compose">
-          <input id="as-inject-input" class="as-inject-input" type="text"
-                 placeholder="Nudge the conversation — your message appears as 'User'"/>
+          <input id="as-attach-input" type="file" multiple accept="image/*,.pdf,.txt,.md,.json,.csv" style="display:none"/>
+          <button id="as-attach-btn" class="as-btn as-btn-attach" title="Attach files">📎</button>
+          <div class="as-compose-center">
+            <div id="as-attach-chips" class="as-attach-chips" style="display:none"></div>
+            <input id="as-inject-input" class="as-inject-input" type="text"
+                   placeholder="Nudge the conversation — your message appears as 'User'"/>
+          </div>
           <button id="as-inject-btn" class="as-btn">Send →</button>
         </div>
 
@@ -1230,6 +1279,27 @@ class AgentStudio {
       }
       .as-root { display:flex; flex-direction:column; flex:1 1 auto; min-height:0;
                  font-size:13px; color:#333; width:100%; overflow:hidden; box-sizing:border-box; }
+
+      /* ── Mode tabs (Group vs Solo) ──────────────────────────────────────── */
+      .as-mode-tabs { display:flex; gap:0; background:#f5f5f5;
+                      border-bottom:1px solid #e0e0e0; padding:0; }
+      .as-mode-tab { flex:1; display:flex; flex-direction:column; align-items:center;
+                     gap:2px; padding:10px 14px; background:transparent; border:none;
+                     border-bottom:3px solid transparent; cursor:pointer;
+                     font-family:inherit; color:#666; transition:all .15s ease; }
+      .as-mode-tab:hover { background:rgba(103,58,183,.04); color:#333; }
+      .as-mode-tab.active { background:#fff; color:#673ab7; border-bottom-color:#673ab7; }
+      .as-mode-icon { font-size:18px; line-height:1; }
+      .as-mode-label { font-weight:600; font-size:13px; letter-spacing:.02em; }
+      .as-mode-sub { font-size:10px; color:#999; letter-spacing:.04em; text-transform:uppercase; }
+      .as-mode-tab.active .as-mode-sub { color:#9575cd; }
+
+      /* Solo-mode visibility tweaks: hide group-only controls.
+         The presets popover stays — solo presets are still useful as agent bios. */
+      .as-root[data-mode="solo"] #as-consensus-badge,
+      .as-root[data-mode="solo"] .as-solo-hide { display:none !important; }
+      .as-root[data-mode="solo"] .as-empty h3::before { content:'👤 '; }
+      /* Solo-only inject placeholder is set via JS — different copy than group nudge */
 
       /* ── Header strip ───────────────────────────────────────────────────── */
       .as-header { display:flex; gap:8px; padding:10px 14px; background:#fafafa;
@@ -1534,22 +1604,132 @@ class AgentStudio {
       .as-status-text.running { color:#e65100; }
       .as-sep { color:#ccc; }
 
-      /* Lightbox */
-      .as-lightbox { position:fixed; inset:0; background:rgba(0,0,0,.85); z-index:99999;
-                     display:flex; align-items:center; justify-content:center; cursor:pointer; }
-      .as-lightbox img { max-width:90vw; max-height:90vh; box-shadow:0 4px 30px #000; }
+      /* ── Code blocks in chat ───────────────────────────────────────────── */
+      .as-code-block { background:#1e1e2e; color:#e4e4f4; padding:10px 12px;
+                       border-radius:6px; margin:8px 0; overflow-x:auto;
+                       font-family:'Consolas','Monaco','Courier New',monospace;
+                       font-size:12px; line-height:1.5; position:relative; }
+      .as-code-block[data-lang]::before { content:attr(data-lang); position:absolute;
+                       top:4px; right:8px; font-size:9px; color:#888; text-transform:uppercase;
+                       letter-spacing:.5px; }
+      .as-code-block code { background:transparent; padding:0; color:inherit;
+                            font-family:inherit; font-size:inherit; }
+      .as-code-inline { background:#f3f0fb; color:#5e35b1; padding:1px 5px;
+                        border-radius:3px; font-family:'Consolas','Monaco',monospace;
+                        font-size:.92em; }
+
+      /* ── Thumbnail strip ────────────────────────────────────────────────── */
+      .as-img-strip { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+      .as-img-thumb-wrap { display:flex; flex-direction:column; align-items:center; gap:3px;
+                           cursor:pointer; }
+      .as-img-thumb { width:88px; height:66px; object-fit:cover; border-radius:5px;
+                      background:#eee; border:1.5px solid #e0e0e0;
+                      box-shadow:0 1px 4px rgba(0,0,0,.12);
+                      transition:transform .15s, box-shadow .15s; }
+      .as-img-thumb:hover { transform:translateY(-2px); box-shadow:0 4px 12px rgba(0,0,0,.22); }
+      .as-img-thumb-label { font-size:10px; color:#888; max-width:88px; overflow:hidden;
+                            text-overflow:ellipsis; white-space:nowrap; text-align:center; }
+
+      /* ── Enhanced lightbox ──────────────────────────────────────────────── */
+      .as-lightbox { position:fixed; inset:0; background:rgba(0,0,0,.92); z-index:99999;
+                     display:flex; flex-direction:column; align-items:center; justify-content:center; }
+      .as-lb-close { position:absolute; top:14px; right:18px; background:rgba(255,255,255,.15);
+                     border:none; color:#fff; font-size:18px; width:34px; height:34px;
+                     border-radius:50%; cursor:pointer; display:flex; align-items:center;
+                     justify-content:center; transition:background .15s; z-index:1; }
+      .as-lb-close:hover { background:rgba(255,255,255,.3); }
+      .as-lb-img-wrap { flex:1; display:flex; align-items:center; justify-content:center;
+                        width:100%; padding:20px 80px; box-sizing:border-box; overflow:hidden; }
+      .as-lb-img { max-width:100%; max-height:72vh; box-shadow:0 8px 40px rgba(0,0,0,.6);
+                   border-radius:4px; transition:opacity .2s; }
+      .as-lb-prev, .as-lb-next { position:absolute; top:50%; transform:translateY(-50%);
+                                  background:rgba(255,255,255,.13); border:none; color:#fff;
+                                  font-size:30px; width:46px; height:60px; border-radius:6px;
+                                  cursor:pointer; display:flex; align-items:center; justify-content:center;
+                                  transition:background .15s; }
+      .as-lb-prev { left:10px; }
+      .as-lb-next { right:10px; }
+      .as-lb-prev:hover, .as-lb-next:hover { background:rgba(255,255,255,.28); }
+      .as-lb-footer { width:100%; padding:10px 20px; background:rgba(0,0,0,.55);
+                      display:flex; align-items:center; gap:14px; box-sizing:border-box; flex-wrap:wrap; }
+      .as-lb-counter { color:#bbb; font-size:11px; font-family:monospace; min-width:36px; flex-shrink:0; }
+      .as-lb-prompt { color:#ddd; font-size:11px; flex:1; overflow:hidden; text-overflow:ellipsis;
+                      white-space:nowrap; font-style:italic; }
+      .as-lb-actions { display:flex; gap:8px; flex-shrink:0; }
+      .as-lb-download, .as-lb-pin { background:rgba(255,255,255,.13); border:1px solid rgba(255,255,255,.22);
+                                     color:#fff; border-radius:5px; padding:5px 11px; font-size:11px;
+                                     cursor:pointer; transition:background .15s; white-space:nowrap; }
+      .as-lb-download:hover, .as-lb-pin:hover { background:rgba(255,255,255,.28); }
+
+      /* ── Session gallery panel ─────────────────────────────────────────── */
+      .as-gallery-panel { position:fixed; inset:0; background:rgba(0,0,0,.85); z-index:99998;
+                          display:flex; flex-direction:column; padding:24px; box-sizing:border-box; }
+      .as-gallery-header { display:flex; align-items:center; justify-content:space-between;
+                           color:#fff; padding:0 6px 14px; border-bottom:1px solid rgba(255,255,255,.15);
+                           margin-bottom:16px; }
+      .as-gallery-title { font-size:15px; font-weight:600; letter-spacing:.3px; }
+      .as-gallery-close { background:rgba(255,255,255,.15); border:none; color:#fff; font-size:16px;
+                          width:32px; height:32px; border-radius:50%; cursor:pointer;
+                          display:flex; align-items:center; justify-content:center; transition:background .15s; }
+      .as-gallery-close:hover { background:rgba(255,255,255,.3); }
+      .as-gallery-grid { flex:1; overflow-y:auto; display:grid;
+                         grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+                         gap:14px; padding:4px; }
+      .as-gallery-card { background:#1a1a24; border:1px solid rgba(255,255,255,.08);
+                         border-radius:8px; overflow:hidden; cursor:pointer;
+                         transition:transform .15s, border-color .15s;
+                         display:flex; flex-direction:column; }
+      .as-gallery-card:hover { transform:translateY(-2px); border-color:rgba(255,255,255,.25); }
+      .as-gallery-thumb-wrap { position:relative; width:100%; aspect-ratio:4/3; background:#0a0a12; }
+      .as-gallery-thumb { width:100%; height:100%; object-fit:cover; display:block; }
+      .as-gallery-seq { position:absolute; top:6px; left:6px; background:rgba(0,0,0,.65);
+                        color:#fff; font-size:10px; font-family:monospace; padding:2px 6px;
+                        border-radius:8px; }
+      .as-gallery-meta { padding:8px 10px 10px; display:flex; flex-direction:column; gap:3px; }
+      .as-gallery-agent { font-size:11px; font-weight:600; }
+      .as-gallery-prompt { color:#bbb; font-size:11px; line-height:1.35;
+                           display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+      .as-gallery-lineage { color:#888; font-size:10px; font-family:monospace; }
+      .as-gallery-lineage code { background:rgba(255,255,255,.08); padding:1px 4px; border-radius:3px; color:#aaa; }
+      .as-gallery-lineage-children { color:#7c9ec4; }
+
+      /* ── Attach chip row ────────────────────────────────────────────────── */
+      .as-compose { flex-wrap:wrap; }
+      .as-compose-center { flex:1; display:flex; flex-direction:column; gap:4px; min-width:0; }
+      .as-attach-chips { display:flex; gap:6px; flex-wrap:wrap; }
+      .as-attach-chip { display:flex; align-items:center; gap:5px; padding:3px 8px 3px 5px;
+                        background:#f3e5f5; border:1px solid #ce93d8; border-radius:12px;
+                        font-size:11px; color:#6a1b9a; }
+      .as-attach-chip-thumb { width:22px; height:22px; object-fit:cover; border-radius:3px; }
+      .as-attach-chip-icon { font-size:13px; line-height:1; }
+      .as-attach-chip-name { max-width:100px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+      .as-attach-chip-rm { background:none; border:none; color:#9c27b0; cursor:pointer;
+                           font-size:11px; padding:0 2px; line-height:1; }
+      .as-attach-chip-rm:hover { color:#6a1b9a; }
+      .as-btn-attach { padding:8px 10px; flex-shrink:0; }
     `;
     document.head.appendChild(style);
   }
 
   _bindEvents() {
+    // Mode-tab clicks
+    document.querySelectorAll('.as-mode-tab').forEach(tab => {
+      tab.onclick = () => this._setMode(tab.dataset.mode);
+    });
+
     document.getElementById('as-start-btn').onclick   = () => this._start();
     document.getElementById('as-stop-btn').onclick    = () => this._stop();
     document.getElementById('as-reset-btn').onclick   = () => this._reset();
     document.getElementById('as-export-btn').onclick  = () => this._export();
     document.getElementById('as-add-agent-btn').onclick = () => this._addAgent();
     document.getElementById('as-inject-btn').onclick  = () => this._inject();
+    document.getElementById('as-attach-btn').onclick  = () => document.getElementById('as-attach-input').click();
+    document.getElementById('as-attach-input').addEventListener('change', (e) => {
+      if (e.target.files.length) this._handleAttachSelect(Array.from(e.target.files));
+      e.target.value = ''; // allow re-selecting same file
+    });
     document.getElementById('as-artifacts-btn').onclick = () => this._toggleArtifactPanel();
+    document.getElementById('as-gallery-btn').onclick   = () => this._openGalleryPanel();
     document.getElementById('as-artifact-close').onclick = () => this._toggleArtifactPanel(false);
     document.getElementById('as-preview-btn').onclick = () => this._setArtifactView(false);
     document.getElementById('as-code-btn').onclick    = () => this._setArtifactView(true);
@@ -1687,10 +1867,11 @@ class AgentStudio {
 
     if (count) count.textContent = String(this.agents.length);
     if (minHint) {
-      minHint.textContent = this.agents.length < 2
-        ? `${2 - this.agents.length} more needed`
+      const min = this.mode === 'solo' ? 1 : 2;
+      minHint.textContent = this.agents.length < min
+        ? `${min - this.agents.length} more needed`
         : 'ready to start';
-      minHint.style.color = this.agents.length < 2 ? '#e65100' : '#2e7d32';
+      minHint.style.color = this.agents.length < min ? '#e65100' : '#2e7d32';
     }
 
     if (!this.agents.length) {
@@ -1815,6 +1996,10 @@ class AgentStudio {
       const state = await res.json();
       this.state.isRunning = !!state.isRunning;
       this.state.isPaused  = !!state.isPaused;
+      // Sync mode from server (handles page reload during a solo session)
+      if (state.mode === 'solo' || state.mode === 'group') {
+        if (this.mode !== state.mode) this._setMode(state.mode);
+      }
       this._renderControls();
       // Sync token state from server (handles page reload mid-session)
       if (typeof state.tokenCount === 'number') {
@@ -1918,19 +2103,99 @@ class AgentStudio {
     if (!start) return;
     start.disabled = this.state.isRunning;
     stop.disabled  = !this.state.isRunning;
-    const text = this.state.isRunning
-      ? (this.state.isPaused ? 'paused' : 'running')
-      : 'idle';
+    let text;
+    if (!this.state.isRunning) {
+      text = 'idle';
+    } else if (this.state.isPaused) {
+      // Solo paused = waiting for the user to type. Group paused = explicitly paused.
+      text = this.mode === 'solo' ? 'your turn' : 'paused';
+    } else {
+      text = this.mode === 'solo' ? 'thinking' : 'running';
+    }
     status.textContent = text;
     status.className = `as-status-text ${this.state.isRunning ? 'running' : 'idle'}`;
     dot.className = `as-dot ${this.state.isRunning ? 'running' : ''}`;
   }
 
+  /**
+   * Switch between Group and Solo modes. Disabled while a session is running
+   * to avoid mid-flight semantics changes.
+   */
+  _setMode(mode) {
+    if (mode !== 'group' && mode !== 'solo') return;
+    if (this.state.isRunning) {
+      this.studio.showToast?.('Stop the current session before switching modes', 'warning');
+      return;
+    }
+    if (this.mode === mode) return;
+    this.mode = mode;
+
+    // Update root data-attr (drives CSS visibility tweaks)
+    const root = document.getElementById('as-root');
+    if (root) root.setAttribute('data-mode', mode);
+
+    // Update tabs
+    document.querySelectorAll('.as-mode-tab').forEach(t => {
+      const active = t.dataset.mode === mode;
+      t.classList.toggle('active', active);
+      t.setAttribute('aria-selected', active ? 'true' : 'false');
+    });
+
+    // Adjust roster minimum hint
+    const minHint = document.getElementById('as-roster-min');
+    if (minHint) minHint.textContent = mode === 'solo' ? 'need 1 minimum' : 'need 2 minimum';
+
+    // Adjust placeholders / labels
+    const goalInput = document.getElementById('as-goal');
+    if (goalInput) {
+      goalInput.placeholder = mode === 'solo'
+        ? 'Conversation context (optional) — e.g. "you are my brainstorming partner"'
+        : 'Conversation goal — e.g. design a poster series for a synthwave album';
+    }
+    const injectInput = document.getElementById('as-inject-input');
+    if (injectInput) {
+      injectInput.placeholder = mode === 'solo'
+        ? 'Type a message to your agent…'
+        : "Nudge the conversation — your message appears as 'User'";
+    }
+    const startBtn = document.getElementById('as-start-btn');
+    if (startBtn) startBtn.textContent = mode === 'solo' ? '▶ Open Chat' : '▶ Start';
+
+    // Empty state copy
+    const empty = document.querySelector('#as-transcript-body .as-empty');
+    if (empty && this.messages.length === 0) {
+      empty.innerHTML = mode === 'solo'
+        ? `<div class="as-empty-icon">💬</div>
+           <h3>Talk one-on-one with an agent</h3>
+           <p>Pick a preset or add an agent (top right), then press <strong>Open Chat</strong>.<br/>
+              Type messages below — your agent replies one turn at a time.</p>`
+        : `<div class="as-empty-icon">🤖</div>
+           <h3>Start a multi-agent conversation</h3>
+           <p>Pick a preset or build your own roster (top right), set a goal, and press <strong>Start</strong>.<br/>
+              Workflows the agents launch will appear inline as clickable chips — click any chip to open it in the Trace Viewer.</p>`;
+    }
+  }
+
   async _start() {
-    const goal = document.getElementById('as-goal').value.trim();
-    if (!goal) { this.studio.showToast?.('Set a goal first', 'error'); return; }
-    if (this.agents.length < 2) {
-      this.studio.showToast?.('Need at least 2 agents — add some via the 👥 menu', 'error');
+    const isSolo = this.mode === 'solo';
+    let goal = document.getElementById('as-goal').value.trim();
+    if (!goal) {
+      if (isSolo) {
+        // Solo mode: goal is optional context. Default keeps the orchestrator happy.
+        goal = 'Open-ended conversation';
+      } else {
+        this.studio.showToast?.('Set a goal first', 'error');
+        return;
+      }
+    }
+    const minAgents = isSolo ? 1 : 2;
+    if (this.agents.length < minAgents) {
+      this.studio.showToast?.(
+        isSolo
+          ? 'Add an agent first — open the 👥 menu'
+          : 'Need at least 2 agents — add some via the 👥 menu',
+        'error'
+      );
       this._togglePopover('as-roster-popover');
       return;
     }
@@ -1946,7 +2211,7 @@ class AgentStudio {
     try {
       const res = await fetch(`${this.CHATROOM_API}/chat/start`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ goal, tokenLimit, model }),
+        body: JSON.stringify({ goal, tokenLimit, model, mode: this.mode }),
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || `HTTP ${res.status}`);
@@ -1974,6 +2239,7 @@ class AgentStudio {
       this.messages = [];
       this._workflowChipMap.clear();
       this._imageChipsByMsg.clear();
+      this._mediaCache.clear();
       this._streamingBubbles.forEach(b => b.el.remove());
       this._streamingBubbles.clear();
       this._stopGoalRotation();
@@ -1986,16 +2252,17 @@ class AgentStudio {
 
   async _inject() {
     const input = document.getElementById('as-inject-input');
-    const content = input.value.trim();
-    if (!content) return;
+    const baseContent = input.value.trim();
+    if (!baseContent && !this._pendingAttachments.length) return;
     try {
+      const note = await this._uploadAttachments();
+      const content = (baseContent || '(shared attachments)') + note;
       const res = await fetch(`${this.CHATROOM_API}/chat/inject`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content, senderName: 'User' }),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       input.value = '';
-      // The orchestrator will broadcast the injected message back to us via SSE.
     } catch (err) {
       this.studio.showToast?.(`Send failed: ${err.message}`, 'error');
     }
@@ -2217,16 +2484,42 @@ class AgentStudio {
       return;
     }
 
-    // Pre-compute chips per message index so we can render inline
+    // Pre-compute chips per message index so we can render inline.
+    // Sources, in priority order:
+    //   1. message.synthMedia (authoritative — survives session export/import)
+    //   2. message.images     (authoritative — from [GENERATE_IMAGE:]/[REMIX:] flow)
+    //   3. _imageChipsByMsg   (live SSE supplement; only useful while session active)
     const chipsByIndex = new Map();
+    const ensure = (idx) => {
+      if (!chipsByIndex.has(idx)) chipsByIndex.set(idx, { wf: [], img: [], seenImg: new Set() });
+      return chipsByIndex.get(idx);
+    };
     for (const [wfId, info] of this._workflowChipMap) {
       const idx = info.messageIndex ?? (this.messages.length - 1);
-      if (!chipsByIndex.has(idx)) chipsByIndex.set(idx, { wf: [], img: [] });
-      chipsByIndex.get(idx).wf.push({ id: wfId, ...info });
+      ensure(idx).wf.push({ id: wfId, ...info });
     }
+    // Pull images directly from each message's persistent arrays
+    this.messages.forEach((m, i) => {
+      const slot = ensure(i);
+      const pushImg = (id, mimeType, label, referenceId) => {
+        if (!id || slot.seenImg.has(id)) return;
+        slot.seenImg.add(id);
+        slot.img.push({ id, mimeType: mimeType || 'image/png', label: (label || 'image').slice(0, 32), referenceId });
+      };
+      (m.synthMedia || []).forEach(sm => {
+        if (sm.type === 'image') pushImg(sm.id, sm.mimeType, sm.prompt || sm.intent, sm.referenceId);
+      });
+      (m.images || []).forEach(img => pushImg(img.id, img.mimeType, img.caption || img.prompt, img.referenceId));
+    });
+    // Then layer in the live SSE chips (only fills gaps for in-flight messages)
     for (const [idx, imgs] of this._imageChipsByMsg) {
-      if (!chipsByIndex.has(idx)) chipsByIndex.set(idx, { wf: [], img: [] });
-      chipsByIndex.get(idx).img.push(...imgs);
+      const slot = ensure(idx);
+      imgs.forEach(img => {
+        if (!slot.seenImg.has(img.id)) {
+          slot.seenImg.add(img.id);
+          slot.img.push(img);
+        }
+      });
     }
 
     body.innerHTML = this.messages
@@ -2236,8 +2529,14 @@ class AgentStudio {
     body.querySelectorAll('.as-chip[data-wf]').forEach(el => {
       el.onclick = () => this._openTraceViewer(el.dataset.wf);
     });
-    body.querySelectorAll('.as-chip[data-img]').forEach(el => {
-      el.onclick = () => this._openLightbox(el.dataset.img, el.dataset.mime);
+    body.querySelectorAll('.as-img-strip').forEach(strip => {
+      const thumbs = Array.from(strip.querySelectorAll('.as-img-thumb'));
+      const ids = thumbs.map(t => t.dataset.img);
+      const mimes = thumbs.map(t => t.dataset.mime);
+      thumbs.forEach((thumb, i) => {
+        thumb.onclick = () => this._openLightbox(ids, mimes, i);
+      });
+      this._prefetchThumbnails(thumbs);
     });
     body.querySelectorAll('.as-copy-btn').forEach(btn => {
       btn.onclick = (e) => {
@@ -2262,6 +2561,8 @@ class AgentStudio {
     // Only auto-scroll if already at (or near) the bottom
     const atBottom = body.scrollHeight - body.scrollTop - body.clientHeight < 60;
     if (atBottom) body.scrollTop = body.scrollHeight;
+
+    this._updateGalleryCount();
   }
 
   _renderMessageHTML(m, index, chips) {
@@ -2276,8 +2577,13 @@ class AgentStudio {
       ? new Date(m.timestamp).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })
       : '';
 
-    // Strip [WORKFLOW: ...] tags from the displayed content (already parsed).
-    const content = (m.content || '').replace(/\[WORKFLOW:[\s\S]*?\]/g, '').trim();
+    // Strip server-side tags from displayed content (already parsed by orchestrator).
+    // Defensive — also catch malformed [ARTIFACT:] blocks the backend might miss.
+    const content = (m.content || '')
+      .replace(/\[WORKFLOW:[\s\S]*?\]/g, '')
+      .replace(/\[ARTIFACT:\s*[^\]]+\][\s\S]*?\[\/ARTIFACT\]/g, '')
+      .replace(/\[ARTIFACT:\s*[^\]]+\]\s*```(?:\w+)?\n[\s\S]*?\n```/g, '')
+      .trim();
 
     let chipsHTML = '';
     if (chips) {
@@ -2287,12 +2593,18 @@ class AgentStudio {
           ⚡ ${escapeHtml(c.label || c.id.slice(0, 8))}
         </span>
       `).join('');
-      const imgChips = chips.img.map(img => `
-        <span class="as-chip as-chip-img" data-img="${escapeAttr(img.id)}" data-mime="${escapeAttr(img.mimeType || 'image/png')}">
-          🖼 ${escapeHtml((img.label || 'image').slice(0, 24))}
-        </span>
-      `).join('');
-      if (wfChips || imgChips) chipsHTML = `<div class="as-chips">${wfChips}${imgChips}</div>`;
+      const imgStrip = chips.img.length ? `
+        <div class="as-img-strip">
+          ${chips.img.map(img => `
+            <div class="as-img-thumb-wrap">
+              <img class="as-img-thumb" data-img="${escapeAttr(img.id)}" data-mime="${escapeAttr(img.mimeType || 'image/png')}"
+                   src="" alt="${escapeAttr(img.label || 'image')}" title="${escapeAttr(img.label || 'image')}"/>
+              <span class="as-img-thumb-label">${escapeHtml((img.label || 'image').slice(0, 20))}</span>
+            </div>
+          `).join('')}
+        </div>
+      ` : '';
+      if (wfChips || imgStrip) chipsHTML = `<div class="as-chips">${wfChips}${imgStrip}</div>`;
     }
 
     return `
@@ -2307,7 +2619,7 @@ class AgentStudio {
             <span class="as-msg-name" style="color:${escapeAttr(agent.color)}">${escapeHtml(m.agentName || agent.name)}</span>
             <span class="as-msg-time">${escapeHtml(time)}</span>
           </div>
-          <div class="as-msg-text">${escapeHtml(content)}</div>
+          <div class="as-msg-text">${renderChatMarkdown(content)}</div>
           ${chipsHTML}
         </div>
       </div>
@@ -2729,20 +3041,286 @@ ${HARNESS}
     }
   }
 
-  async _openLightbox(mediaId, mimeType) {
-    try {
-      const res = await fetch(`${this.CHATROOM_API}/chat/media/${encodeURIComponent(mediaId)}`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const media = await res.json();
-      const src = `data:${mimeType || media.mimeType || 'image/png'};base64,${media.data}`;
-      const box = document.createElement('div');
-      box.className = 'as-lightbox';
-      box.innerHTML = `<img src="${src}" alt=""/>`;
-      box.onclick = () => box.remove();
-      document.body.appendChild(box);
-    } catch (err) {
-      this.studio.showToast?.(`Could not open image: ${err.message}`, 'error');
+  // Collect every image the session has produced, in chronological order.
+  // Returns: [{ id, mimeType, prompt, agentName, messageIndex, referenceId }]
+  _collectSessionImages() {
+    const out = [];
+    const seen = new Set();
+    this.messages.forEach((m, i) => {
+      const push = (id, mimeType, prompt, referenceId) => {
+        if (!id || seen.has(id)) return;
+        seen.add(id);
+        out.push({
+          id,
+          mimeType: mimeType || 'image/png',
+          prompt: prompt || '',
+          agentName: m.agentName || 'Agent',
+          messageIndex: i,
+          referenceId: referenceId || null,
+        });
+      };
+      (m.synthMedia || []).forEach(sm => {
+        if (sm.type === 'image') push(sm.id, sm.mimeType, sm.prompt || sm.intent, sm.referenceId);
+      });
+      (m.images || []).forEach(img => push(img.id, img.mimeType, img.caption || img.prompt, img.referenceId));
+    });
+    return out;
+  }
+
+  _updateGalleryCount() {
+    const badge = document.getElementById('as-gallery-count');
+    if (!badge) return;
+    const count = this._collectSessionImages().length;
+    if (count > 0) {
+      badge.textContent = String(count);
+      badge.style.display = '';
+    } else {
+      badge.style.display = 'none';
     }
+  }
+
+  async _openGalleryPanel() {
+    const images = this._collectSessionImages();
+    if (!images.length) {
+      this.studio.showToast?.('No images generated yet', 'info');
+      return;
+    }
+
+    // Build lineage map: id → list of children that reference it
+    const childrenOf = new Map();
+    images.forEach(img => {
+      if (img.referenceId) {
+        if (!childrenOf.has(img.referenceId)) childrenOf.set(img.referenceId, []);
+        childrenOf.get(img.referenceId).push(img.id);
+      }
+    });
+
+    const panel = document.createElement('div');
+    panel.className = 'as-gallery-panel';
+    panel.innerHTML = `
+      <div class="as-gallery-header">
+        <span class="as-gallery-title">🖼 Session Gallery — ${images.length} image${images.length === 1 ? '' : 's'}</span>
+        <button class="as-gallery-close" title="Close">✕</button>
+      </div>
+      <div class="as-gallery-grid">
+        ${images.map((img, i) => `
+          <div class="as-gallery-card" data-idx="${i}" data-img-id="${escapeAttr(img.id)}">
+            <div class="as-gallery-thumb-wrap">
+              <img class="as-gallery-thumb" data-img="${escapeAttr(img.id)}" data-mime="${escapeAttr(img.mimeType)}" src="" alt=""/>
+              <span class="as-gallery-seq">${i + 1}</span>
+            </div>
+            <div class="as-gallery-meta">
+              <div class="as-gallery-agent" style="color:${escapeAttr((this.agents.find(a => a.name === img.agentName) || {}).color || '#888')}">
+                ${escapeHtml(img.agentName)}
+              </div>
+              <div class="as-gallery-prompt" title="${escapeAttr(img.prompt)}">${escapeHtml(img.prompt.slice(0, 90))}${img.prompt.length > 90 ? '…' : ''}</div>
+              ${img.referenceId
+                ? `<div class="as-gallery-lineage" title="Built from earlier image">↳ from <code>${escapeHtml(img.referenceId.slice(0, 8))}</code></div>`
+                : ''}
+              ${(childrenOf.get(img.id) || []).length
+                ? `<div class="as-gallery-lineage as-gallery-lineage-children">→ ${childrenOf.get(img.id).length} derivative${childrenOf.get(img.id).length === 1 ? '' : 's'}</div>`
+                : ''}
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+    document.body.appendChild(panel);
+
+    // Click image → open lightbox at that index
+    const ids = images.map(img => img.id);
+    const mimes = images.map(img => img.mimeType);
+    panel.querySelectorAll('.as-gallery-card').forEach(card => {
+      card.onclick = () => this._openLightbox(ids, mimes, Number(card.dataset.idx));
+    });
+
+    // Prefetch all thumbnails
+    this._prefetchThumbnails(Array.from(panel.querySelectorAll('.as-gallery-thumb')));
+
+    const close = () => panel.remove();
+    panel.querySelector('.as-gallery-close').onclick = close;
+    panel.onclick = (e) => { if (e.target === panel) close(); };
+
+    const keyHandler = (e) => {
+      if (e.key === 'Escape') {
+        document.removeEventListener('keydown', keyHandler);
+        close();
+      }
+    };
+    document.addEventListener('keydown', keyHandler);
+  }
+
+  _prefetchThumbnails(thumbs) {
+    thumbs.forEach(async (thumb) => {
+      const id = thumb.dataset.img;
+      if (!id || thumb.src) return;
+      try {
+        let media = this._mediaCache.get(id);
+        if (!media) {
+          const res = await fetch(`${this.CHATROOM_API}/chat/media/${encodeURIComponent(id)}`);
+          if (!res.ok) return;
+          media = await res.json();
+          this._mediaCache.set(id, media);
+        }
+        thumb.src = `data:${media.mimeType || 'image/png'};base64,${media.data}`;
+      } catch (_) { /* ignore failed prefetch */ }
+    });
+  }
+
+  async _openLightbox(mediaIds, mimeTypes, startIndex = 0) {
+    const ids = Array.isArray(mediaIds) ? mediaIds : [mediaIds];
+    const mimes = Array.isArray(mimeTypes) ? mimeTypes : [mimeTypes || 'image/png'];
+    let idx = startIndex;
+
+    const box = document.createElement('div');
+    box.className = 'as-lightbox';
+    box.innerHTML = `
+      <button class="as-lb-close" title="Close (Esc)">✕</button>
+      <button class="as-lb-prev" title="Previous (←)">‹</button>
+      <div class="as-lb-img-wrap"><img class="as-lb-img" src="" alt=""/></div>
+      <button class="as-lb-next" title="Next (→)">›</button>
+      <div class="as-lb-footer">
+        <span class="as-lb-counter"></span>
+        <span class="as-lb-prompt"></span>
+        <div class="as-lb-actions">
+          <button class="as-lb-download">⬇ Download</button>
+          <button class="as-lb-pin">📌 Pin as reference</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(box);
+
+    const imgEl    = box.querySelector('.as-lb-img');
+    const counter  = box.querySelector('.as-lb-counter');
+    const promptEl = box.querySelector('.as-lb-prompt');
+    const prevBtn  = box.querySelector('.as-lb-prev');
+    const nextBtn  = box.querySelector('.as-lb-next');
+    const dlBtn    = box.querySelector('.as-lb-download');
+    const pinBtn   = box.querySelector('.as-lb-pin');
+
+    const loadImage = async (i) => {
+      const id   = ids[i];
+      const mime = mimes[i] || 'image/png';
+      imgEl.style.opacity = '0.4';
+      counter.textContent = ids.length > 1 ? `${i + 1} / ${ids.length}` : '';
+      prevBtn.style.visibility = i > 0 ? 'visible' : 'hidden';
+      nextBtn.style.visibility = i < ids.length - 1 ? 'visible' : 'hidden';
+      try {
+        let media = this._mediaCache.get(id);
+        if (!media) {
+          const res = await fetch(`${this.CHATROOM_API}/chat/media/${encodeURIComponent(id)}`);
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          media = await res.json();
+          this._mediaCache.set(id, media);
+        }
+        const src = `data:${mime || media.mimeType || 'image/png'};base64,${media.data}`;
+        imgEl.src = src;
+        imgEl.style.opacity = '1';
+        promptEl.textContent = media.prompt || '';
+        dlBtn.onclick = () => {
+          const a = document.createElement('a');
+          a.href = src; a.download = `image_${id}.png`;
+          document.body.appendChild(a); a.click(); a.remove();
+        };
+        pinBtn.textContent = '📌 Pin as reference';
+        pinBtn.onclick = async () => {
+          try {
+            await fetch(`${this.CHATROOM_API}/chat/session-media`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ files: [{ name: `generated_${id}.png`, mimeType: mime || media.mimeType || 'image/png', data: media.data, description: `Pinned: ${media.prompt || id}` }] }),
+            });
+            pinBtn.textContent = '✓ Pinned';
+            setTimeout(() => { pinBtn.textContent = '📌 Pin as reference'; }, 2000);
+          } catch (e) {
+            this.studio.showToast?.(`Pin failed: ${e.message}`, 'error');
+          }
+        };
+      } catch (err) {
+        promptEl.textContent = `Error: ${err.message}`;
+        imgEl.style.opacity = '1';
+      }
+    };
+
+    prevBtn.onclick = (e) => { e.stopPropagation(); if (idx > 0) loadImage(--idx); };
+    nextBtn.onclick = (e) => { e.stopPropagation(); if (idx < ids.length - 1) loadImage(++idx); };
+    box.querySelector('.as-lb-close').onclick = () => close();
+    box.onclick = (e) => { if (e.target === box) close(); };
+
+    const keyHandler = (e) => {
+      if (e.key === 'Escape') close();
+      else if (e.key === 'ArrowLeft'  && idx > 0)              loadImage(--idx);
+      else if (e.key === 'ArrowRight' && idx < ids.length - 1) loadImage(++idx);
+    };
+    document.addEventListener('keydown', keyHandler);
+
+    const close = () => {
+      document.removeEventListener('keydown', keyHandler);
+      box.remove();
+    };
+
+    loadImage(idx);
+  }
+
+  async _handleAttachSelect(files) {
+    for (const file of files) {
+      const data = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload  = e => resolve(e.target.result.split(',')[1]);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+      const objectURL = file.type.startsWith('image/') ? URL.createObjectURL(file) : null;
+      this._pendingAttachments.push({ name: file.name, mimeType: file.type, data, objectURL });
+    }
+    this._renderAttachChips();
+  }
+
+  _renderAttachChips() {
+    const container = document.getElementById('as-attach-chips');
+    if (!container) return;
+    if (!this._pendingAttachments.length) {
+      container.style.display = 'none';
+      container.innerHTML = '';
+      return;
+    }
+    container.style.display = 'flex';
+    container.innerHTML = this._pendingAttachments.map((f, i) => `
+      <div class="as-attach-chip">
+        ${f.objectURL
+          ? `<img src="${escapeAttr(f.objectURL)}" alt="" class="as-attach-chip-thumb"/>`
+          : '<span class="as-attach-chip-icon">📄</span>'}
+        <span class="as-attach-chip-name">${escapeHtml(f.name.slice(0, 22))}</span>
+        <button class="as-attach-chip-rm" data-idx="${i}" title="Remove">✕</button>
+      </div>
+    `).join('');
+    container.querySelectorAll('.as-attach-chip-rm').forEach(btn => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        const i = Number(btn.dataset.idx);
+        const f = this._pendingAttachments[i];
+        if (f?.objectURL) URL.revokeObjectURL(f.objectURL);
+        this._pendingAttachments.splice(i, 1);
+        this._renderAttachChips();
+      };
+    });
+  }
+
+  async _uploadAttachments() {
+    if (!this._pendingAttachments.length) return '';
+    const files = this._pendingAttachments.map(f => ({ name: f.name, mimeType: f.mimeType, data: f.data }));
+    try {
+      await fetch(`${this.CHATROOM_API}/chat/session-media`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ files }),
+      });
+    } catch (_) { /* non-fatal — message still goes through */ }
+    const note = ` [Attached: ${files.map(f => f.name).join(', ')}]`;
+    this._pendingAttachments.forEach(f => { if (f.objectURL) URL.revokeObjectURL(f.objectURL); });
+    this._pendingAttachments = [];
+    this._renderAttachChips();
+    return note;
   }
 }
 
@@ -2755,5 +3333,32 @@ function escapeHtml(s) {
   }[c]));
 }
 function escapeAttr(s) { return escapeHtml(s); }
+
+// Lightweight markdown for chat bubbles: fenced code blocks, inline code, bold.
+// Extracts code blocks BEFORE escaping so their content survives intact.
+function renderChatMarkdown(text) {
+  if (!text) return '';
+  const blocks = [];
+  let s = String(text).replace(/```(\w*)\n([\s\S]*?)\n```/g, (_, lang, code) => {
+    blocks.push({ lang, code });
+    return ` CB${blocks.length - 1} `;
+  });
+  const inlines = [];
+  s = s.replace(/`([^`\n]+)`/g, (_, code) => {
+    inlines.push(code);
+    return ` IC${inlines.length - 1} `;
+  });
+  let html = escapeHtml(s);
+  html = html.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/ CB(\d+) /g, (_, i) => {
+    const { lang, code } = blocks[+i];
+    const langAttr = lang ? ` data-lang="${escapeAttr(lang)}"` : '';
+    return `<pre class="as-code-block"${langAttr}><code>${escapeHtml(code)}</code></pre>`;
+  });
+  html = html.replace(/ IC(\d+) /g, (_, i) =>
+    `<code class="as-code-inline">${escapeHtml(inlines[+i])}</code>`
+  );
+  return html;
+}
 
 window.AgentStudio = AgentStudio;

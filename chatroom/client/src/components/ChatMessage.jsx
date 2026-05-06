@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 
 // Simple markdown parser for common elements
 function parseMarkdown(text) {
@@ -193,17 +193,29 @@ function MarkdownContent({ content }) {
 
 export function ChatMessage({ message, isStreaming, onRemixImage }) {
   const isUser = message.isUser || message.agentId === 'user';
-  const [expandedImage, setExpandedImage] = useState(null);
+  const [gallery, setGallery] = useState(null); // { images, index }
   const [expandedToolResult, setExpandedToolResult] = useState(null);
   const [showActions, setShowActions] = useState(false);
   const [copied, setCopied] = useState(false);
 
   const handleRemix = (image) => {
-    setExpandedImage(null);
+    setGallery(null);
     if (onRemixImage) {
       onRemixImage(image);
     }
   };
+
+  // Keyboard navigation for gallery modal
+  useEffect(() => {
+    if (!gallery) return;
+    const handler = (e) => {
+      if (e.key === 'Escape') setGallery(null);
+      else if (e.key === 'ArrowLeft')  setGallery(g => g && g.index > 0 ? { ...g, index: g.index - 1 } : g);
+      else if (e.key === 'ArrowRight') setGallery(g => g && g.index < g.images.length - 1 ? { ...g, index: g.index + 1 } : g);
+    };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [gallery]);
 
   const handleCopy = useCallback(async () => {
     try {
@@ -267,13 +279,13 @@ export function ChatMessage({ message, isStreaming, onRemixImage }) {
       {/* Display images if present */}
       {message.images && message.images.length > 0 && (
         <div className="message-images">
-          {message.images.map((image) => (
+          {message.images.map((image, i) => (
             <div key={image.id} className="message-image-container">
               <img
                 src={`data:${image.mimeType};base64,${image.imageData}`}
                 alt={image.caption || image.prompt}
                 className="message-image"
-                onClick={() => setExpandedImage(image)}
+                onClick={() => setGallery({ images: message.images, index: i })}
               />
               {image.caption && (
                 <div className="image-caption">{image.caption}</div>
@@ -305,28 +317,41 @@ export function ChatMessage({ message, isStreaming, onRemixImage }) {
         </div>
       )}
 
-      {/* Expanded image modal with remix option */}
-      {expandedImage && (
-        <div className="image-modal-overlay" onClick={() => setExpandedImage(null)}>
+      {/* Gallery modal with prev/next navigation */}
+      {gallery && (() => {
+        const img = gallery.images[gallery.index];
+        const hasPrev = gallery.index > 0;
+        const hasNext = gallery.index < gallery.images.length - 1;
+        return (
+        <div className="image-modal-overlay" onClick={() => setGallery(null)}>
           <div className="image-modal" onClick={(e) => e.stopPropagation()}>
-            <button className="close-btn" onClick={() => setExpandedImage(null)}>
+            <button className="close-btn" onClick={() => setGallery(null)}>
               &times;
             </button>
+            {hasPrev && (
+              <button className="gallery-prev" onClick={() => setGallery(g => ({ ...g, index: g.index - 1 }))}>‹</button>
+            )}
+            {hasNext && (
+              <button className="gallery-next" onClick={() => setGallery(g => ({ ...g, index: g.index + 1 }))}>›</button>
+            )}
+            {gallery.images.length > 1 && (
+              <div className="gallery-counter">{gallery.index + 1} / {gallery.images.length}</div>
+            )}
             <img
-              src={`data:${expandedImage.mimeType};base64,${expandedImage.imageData}`}
-              alt={expandedImage.caption || expandedImage.prompt}
+              src={`data:${img.mimeType};base64,${img.imageData}`}
+              alt={img.caption || img.prompt}
               className="expanded-image"
             />
-            {expandedImage.caption && (
-              <div className="expanded-image-caption">{expandedImage.caption}</div>
+            {img.caption && (
+              <div className="expanded-image-caption">{img.caption}</div>
             )}
             <div className="image-prompt">
-              <strong>Prompt:</strong> {expandedImage.prompt}
+              <strong>Prompt:</strong> {img.prompt}
             </div>
             <div className="image-actions">
               <button
                 className="btn btn-primary"
-                onClick={() => handleRemix(expandedImage)}
+                onClick={() => handleRemix(img)}
               >
                 Remix / Iterate
               </button>
@@ -334,8 +359,8 @@ export function ChatMessage({ message, isStreaming, onRemixImage }) {
                 className="btn btn-secondary"
                 onClick={() => {
                   const link = document.createElement('a');
-                  link.href = `data:${expandedImage.mimeType};base64,${expandedImage.imageData}`;
-                  link.download = `image_${expandedImage.id}.png`;
+                  link.href = `data:${img.mimeType};base64,${img.imageData}`;
+                  link.download = `image_${img.id}.png`;
                   link.click();
                 }}
               >
@@ -344,7 +369,7 @@ export function ChatMessage({ message, isStreaming, onRemixImage }) {
               <button
                 className="btn btn-secondary"
                 onClick={() => {
-                  navigator.clipboard.writeText(expandedImage.id);
+                  navigator.clipboard.writeText(img.id);
                   alert('Image ID copied to clipboard');
                 }}
               >
@@ -353,7 +378,8 @@ export function ChatMessage({ message, isStreaming, onRemixImage }) {
             </div>
           </div>
         </div>
-      )}
+        );
+      })()}
 
       {/* Expanded tool result modal */}
       {expandedToolResult && (

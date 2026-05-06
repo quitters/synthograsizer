@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
+const VISION_WINDOW = 5; // max recent generated images passed as inlineData to models
 import { generateAgentResponse } from './gemini.js';
 import { generateImage, generateImageWithReferences, parseImageRequests, parseRemixRequests, stripImageTags } from './imageGen.js';
 import { parseToolRequests, executeToolRequests, stripToolTags, formatToolResults, parseSynthRequests, executeSynthRequests, stripSynthTags, formatSynthResults, parseWorkflowRequests, stripWorkflowTags, workflowEngine, parseSynthStyleRequests, parseWorkflowTemplateRequests, stripStyleAndTemplateTags } from './tools.js';
@@ -26,6 +27,10 @@ class ChatOrchestrator {
     this.isRunning = false;
     this.isPaused = false;
     this.lastSpeakerId = null;
+    // Conversation mode:
+    //   'group' — autonomous multi-agent loop (default)
+    //   'solo'  — single agent, one reply per user inject (chat-with-agent UX)
+    this.mode = 'group';
     // NOTE: do NOT clear sseClients — they are transport-level connections
     // that persist across session resets. Clearing them orphans live clients.
     if (!this.sseClients) this.sseClients = new Set();
@@ -57,6 +62,8 @@ class ChatOrchestrator {
     // Pending workflow outcomes to surface to the next-speaking agent.
     // Each item: { workflowId, status, label, error, agentId, agentName }
     this.pendingWorkflowOutcomes = [];
+    // Rolling window of recently generated images to pass as vision context
+    this.recentGenImages = []; // [{ id, data, mimeType, prompt, agentName }]
   }
 
   /**
@@ -344,14 +351,18 @@ class ChatOrchestrator {
     if (this.isRunning) {
       throw new Error('Chat is already running');
     }
-    if (this.agents.length < 2) {
-      throw new Error('Need at least 2 agents to start a chat');
+    const mode = options.mode === 'solo' ? 'solo' : 'group';
+    const minAgents = mode === 'solo' ? 1 : 2;
+    if (this.agents.length < minAgents) {
+      throw new Error(`Need at least ${minAgents} agent${minAgents > 1 ? 's' : ''} to start a ${mode} chat`);
     }
 
+    this.mode = mode;
     this.goal = goal;
     this.tokenLimit = tokenLimit;
     this.isRunning = true;
-    this.isPaused = false;
+    // Solo mode pauses immediately — the first user inject drives the first turn.
+    this.isPaused = mode === 'solo';
     this.completionReason = null;
     this.messages = [];
     this.tokenCount = 0;
@@ -366,11 +377,15 @@ class ChatOrchestrator {
       sessionId: this.sessionId,
       goal,
       tokenLimit,
+      mode: this.mode,
       agents: this.agents.map(a => ({ id: a.id, name: a.name, color: a.color }))
     });
 
-    // Start the conversation loop
-    this.runConversationLoop();
+    // Group mode kicks off the autonomous loop immediately.
+    // Solo mode waits for the first user inject before generating any turn.
+    if (this.mode === 'group') {
+      this.runConversationLoop();
+    }
   }
 
   /**
@@ -435,9 +450,10 @@ class ChatOrchestrator {
       this.resume();
     }
 
-    // If chat ended (not running but has messages and agents), restart the conversation
-    // This allows continuing after consensus/completion
-    if (!this.isRunning && this.messages.length > 0 && this.agents.length >= 2 && this.goal) {
+    // If chat ended (not running but has messages and agents), restart the conversation.
+    // Solo mode needs only 1 agent; group needs 2.
+    const minAgents = this.mode === 'solo' ? 1 : 2;
+    if (!this.isRunning && this.messages.length > 0 && this.agents.length >= minAgents && this.goal) {
       this.isRunning = true;
       this.isPaused = false;
       this.completionReason = null;
@@ -939,7 +955,7 @@ class ChatOrchestrator {
           this.messages,
           this.goal,
           this.sessionMedia,
-          { model: this.modelPreference, systemNotes }
+          { model: this.modelPreference, systemNotes, generatedImages: this.recentGenImages }
         );
 
         for await (const event of generator) {
@@ -1013,6 +1029,10 @@ class ChatOrchestrator {
                 agentName: speaker.name
               });
 
+              // Add to vision window so subsequent agents can see this image
+              this.recentGenImages.push({ id: imageId, data: imageResult.imageData, mimeType: imageResult.mimeType, prompt: request.prompt, agentName: speaker.name });
+              if (this.recentGenImages.length > VISION_WINDOW) this.recentGenImages.shift();
+
               this.broadcast('image_generated', {
                 agentId: speaker.id,
                 imageId: imageId,
@@ -1082,6 +1102,10 @@ class ChatOrchestrator {
                 agentName: speaker.name,
                 referenceIds: [request.referenceImageId]
               });
+
+              // Add to vision window
+              this.recentGenImages.push({ id: imageId, data: imageResult.imageData, mimeType: imageResult.mimeType, prompt: request.prompt, agentName: speaker.name });
+              if (this.recentGenImages.length > VISION_WINDOW) this.recentGenImages.shift();
 
               this.broadcast('image_generated', {
                 agentId: speaker.id,
@@ -1198,6 +1222,11 @@ class ChatOrchestrator {
                   agentId: speaker.id,
                   agentName: speaker.name
                 });
+
+                // Add to vision window
+                this.recentGenImages.push({ id: mediaId, data: raw.image, mimeType, prompt: raw.prompt || raw.intent || '', agentName: speaker.name });
+                if (this.recentGenImages.length > VISION_WINDOW) this.recentGenImages.shift();
+
                 synthMedia.push({ id: mediaId, type: 'image', mimeType, prompt: raw.prompt || raw.intent || '' });
                 this.broadcast('synth_media', {
                   agentId: speaker.id,
@@ -1473,6 +1502,14 @@ class ChatOrchestrator {
           break;
         }
 
+        // Solo mode: one agent reply per user message. Pause after the turn
+        // and wait for the next inject (which will resume() us automatically).
+        if (this.mode === 'solo') {
+          this.isPaused = true;
+          this.broadcast('session_waiting_user', {});
+          break;
+        }
+
         // Small delay between turns for readability
         await this.delay(1500);
 
@@ -1502,6 +1539,7 @@ class ChatOrchestrator {
     return {
       isRunning: this.isRunning,
       isPaused: this.isPaused,
+      mode: this.mode,
       goal: this.goal,
       tokenLimit: this.tokenLimit,
       tokenCount: this.tokenCount,
@@ -1713,22 +1751,61 @@ function detectArtifactHallucination(responseText, hadArtifactTags) {
 
 // ─── Artifact tag parsers ──────────────────────────────────────────────────
 
-const ARTIFACT_TAG_RE = /\[ARTIFACT:\s*([^\]]+)\]([\s\S]*?)\[\/ARTIFACT\]/g;
+// Strict form: [ARTIFACT: filename] body [/ARTIFACT]
+const ARTIFACT_TAG_STRICT = /\[ARTIFACT:\s*([^\]]+)\]([\s\S]*?)\[\/ARTIFACT\]/g;
+// Forgiving form (when agents forget the closing tag):
+//   [ARTIFACT: filename] then a fenced code block ```lang ... ``` and nothing more.
+// Captures the filename and the inner code (without fences).
+const ARTIFACT_TAG_FENCED = /\[ARTIFACT:\s*([^\]]+)\]\s*```(?:\w+)?\n([\s\S]*?)\n```/g;
+
+// Strip leading/trailing markdown code fences from artifact content
+// (in case the agent wrapped the inner code in fences inside [ARTIFACT:]...[/ARTIFACT])
+function stripCodeFences(content) {
+  let out = content.trim();
+  out = out.replace(/^```\w*\s*\n/, '');
+  out = out.replace(/\n```\s*$/, '');
+  return out.trim();
+}
 
 function parseArtifactTags(text) {
   const results = [];
+  const seen = new Set();
   let m;
-  while ((m = ARTIFACT_TAG_RE.exec(text)) !== null) {
-    results.push({ filename: m[1].trim(), content: m[2].trim() });
+
+  ARTIFACT_TAG_STRICT.lastIndex = 0;
+  while ((m = ARTIFACT_TAG_STRICT.exec(text)) !== null) {
+    const filename = m[1].trim();
+    const content = stripCodeFences(m[2]);
+    const key = filename + '|' + content.length;
+    if (!seen.has(key)) {
+      results.push({ filename, content });
+      seen.add(key);
+    }
   }
-  ARTIFACT_TAG_RE.lastIndex = 0;
+  ARTIFACT_TAG_STRICT.lastIndex = 0;
+
+  // Fallback: catch malformed tags missing [/ARTIFACT]
+  ARTIFACT_TAG_FENCED.lastIndex = 0;
+  while ((m = ARTIFACT_TAG_FENCED.exec(text)) !== null) {
+    const filename = m[1].trim();
+    const content = m[2].trim();
+    const key = filename + '|' + content.length;
+    if (!seen.has(key)) {
+      results.push({ filename, content });
+      seen.add(key);
+    }
+  }
+  ARTIFACT_TAG_FENCED.lastIndex = 0;
+
   return results;
 }
 
 function stripArtifactTags(text) {
-  const stripped = text.replace(ARTIFACT_TAG_RE, '').trim();
-  ARTIFACT_TAG_RE.lastIndex = 0;
-  return stripped;
+  let out = text.replace(ARTIFACT_TAG_STRICT, '');
+  ARTIFACT_TAG_STRICT.lastIndex = 0;
+  out = out.replace(ARTIFACT_TAG_FENCED, '');
+  ARTIFACT_TAG_FENCED.lastIndex = 0;
+  return out.trim();
 }
 
 // Export singleton instance

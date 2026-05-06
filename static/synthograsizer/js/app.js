@@ -186,12 +186,24 @@ export class SynthograsizerSmall {
       this.elements.favoritesButton.addEventListener('click', () => this.openFavoritesOverlay());
     }
 
-    // Send button → OSC
-    this.elements.sendButton?.addEventListener('click', () => {
-      if (this.osc) {
-        const prompt = this.getCurrentPromptText();
-        if (prompt) this.osc.sendPrompt(prompt);
+    // Send button → AI Chat (Agent Studio in Solo mode); also broadcast via OSC
+    // if the bridge is connected, so external clients still receive the prompt.
+    this.elements.sendButton?.addEventListener('click', async () => {
+      const prompt = this.getCurrentPromptText();
+      if (!prompt) return;
+
+      // Open Agent Studio in Solo mode with the prompt prefilled
+      if (window.agentStudio?.openSoloWith) {
+        window.agentStudio.openSoloWith(prompt);
+      } else if (window.AgentStudio && window.studioIntegrationInstance) {
+        // Lazy-init if the studio hasn't been instantiated yet
+        window.agentStudio = new window.AgentStudio(window.studioIntegrationInstance);
+        await window.agentStudio.init();
+        window.agentStudio.openSoloWith(prompt);
       }
+
+      // OSC mirror — independent of the chat surface
+      this.osc?.sendPrompt(prompt);
     });
 
     // Randomize button

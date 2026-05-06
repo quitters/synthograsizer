@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { StylePicker } from './StylePicker';
+
+const CHATROOM_API = '/chatroom/api';
 
 export function Controls({
   isRunning,
@@ -19,6 +21,8 @@ export function Controls({
   const [tokenLimit, setTokenLimit] = useState(100000);
   const [injectMessage, setInjectMessage] = useState('');
   const [showStartModal, setShowStartModal] = useState(false);
+  const [attachments, setAttachments] = useState([]); // [{ name, mimeType, data, previewURL }]
+  const fileInputRef = useRef(null);
 
   const handleStart = () => {
     if (!goal.trim()) return;
@@ -26,10 +30,49 @@ export function Controls({
     setShowStartModal(false);
   };
 
-  const handleInject = (e) => {
+  const handleAttachSelect = async (e) => {
+    const files = Array.from(e.target.files);
+    if (!files.length) return;
+    const newAttachments = await Promise.all(files.map(file => new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const data = ev.target.result.split(',')[1];
+        const previewURL = file.type.startsWith('image/') ? URL.createObjectURL(file) : null;
+        resolve({ name: file.name, mimeType: file.type, data, previewURL });
+      };
+      reader.readAsDataURL(file);
+    })));
+    setAttachments(prev => [...prev, ...newAttachments]);
+    e.target.value = '';
+  };
+
+  const removeAttachment = (i) => {
+    setAttachments(prev => {
+      const next = [...prev];
+      if (next[i]?.previewURL) URL.revokeObjectURL(next[i].previewURL);
+      next.splice(i, 1);
+      return next;
+    });
+  };
+
+  const handleInject = async (e) => {
     e.preventDefault();
-    if (!injectMessage.trim()) return;
-    onInject(injectMessage.trim());
+    if (!injectMessage.trim() && !attachments.length) return;
+    let note = '';
+    if (attachments.length) {
+      try {
+        await fetch(`${CHATROOM_API}/chat/session-media`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ files: attachments.map(a => ({ name: a.name, mimeType: a.mimeType, data: a.data })) }),
+        });
+        note = ` [Attached: ${attachments.map(a => a.name).join(', ')}]`;
+      } catch (_) { /* non-fatal */ }
+      attachments.forEach(a => { if (a.previewURL) URL.revokeObjectURL(a.previewURL); });
+      setAttachments([]);
+    }
+    const content = (injectMessage.trim() || '(shared attachments)') + note;
+    onInject(content);
     setInjectMessage('');
   };
 
@@ -144,22 +187,54 @@ Example: Brainstorm and develop a comprehensive pitch for an innovative mobile a
       {/* Message Injection - show when running OR when there are messages (post-consensus) */}
       {(isRunning || hasMessages) && (
         <form onSubmit={handleInject} className="inject-form">
+          <input
+            ref={fileInputRef}
+            type="file"
+            multiple
+            accept="image/*,.pdf,.txt,.md,.json,.csv"
+            style={{ display: 'none' }}
+            onChange={handleAttachSelect}
+          />
           <StylePicker
             onSelect={(tag) => setInjectMessage((prev) => prev + tag)}
           />
-          <input
-            type="text"
-            placeholder={isRunning
-              ? "Inject a message to guide the conversation..."
-              : "Inject a message to continue..."
-            }
-            value={injectMessage}
-            onChange={(e) => setInjectMessage(e.target.value)}
-          />
+          <button
+            type="button"
+            className="btn btn-icon"
+            title="Attach files"
+            onClick={() => fileInputRef.current?.click()}
+          >
+            📎
+          </button>
+          <div className="inject-input-wrap">
+            {attachments.length > 0 && (
+              <div className="attach-chips">
+                {attachments.map((f, i) => (
+                  <div key={i} className="attach-chip">
+                    {f.previewURL
+                      ? <img src={f.previewURL} alt="" className="attach-chip-thumb" />
+                      : <span className="attach-chip-icon">📄</span>
+                    }
+                    <span className="attach-chip-name">{f.name.length > 20 ? f.name.slice(0, 20) + '…' : f.name}</span>
+                    <button type="button" className="attach-chip-rm" onClick={() => removeAttachment(i)}>✕</button>
+                  </div>
+                ))}
+              </div>
+            )}
+            <input
+              type="text"
+              placeholder={isRunning
+                ? "Inject a message to guide the conversation..."
+                : "Inject a message to continue..."
+              }
+              value={injectMessage}
+              onChange={(e) => setInjectMessage(e.target.value)}
+            />
+          </div>
           <button
             type="submit"
             className="btn btn-secondary"
-            disabled={!injectMessage.trim()}
+            disabled={!injectMessage.trim() && !attachments.length}
           >
             Send
           </button>

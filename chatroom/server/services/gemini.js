@@ -94,11 +94,14 @@ CRITICAL RULES:
     prompt += `
 
 TOOLS (use sparingly, only when they add value):
-- Image: [IMAGE: detailed description] - Generate a visual
-- Remix: [REMIX: imageId | changes] - Iterate on a previous image
+- Image: [IMAGE: detailed description] - Generate a fresh visual from text only
+- Compose-from prior image: [COMPOSE_FROM: imageId | what to add or change] - Generate a NEW image that visually incorporates a previous one as input. Use this for recursive workflows, mise-en-abyme, or any time the new image must literally contain or build on an earlier one. ALIASES: [REMIX: id | prompt], [ITERATE: id | prompt], [VARIATION: id | prompt], [INCLUDE_IMAGE: id | prompt].
 - Search: [SEARCH: query] - Search the web for current info
 - URL: [ANALYZE_URL: url] - Analyze a webpage
-- Research: [RESEARCH: topic] - Deep research combining search + analysis`;
+- Research: [RESEARCH: topic] - Deep research combining search + analysis
+
+CRITICAL — referencing prior images:
+NEVER paste an image ID into a [IMAGE:] prompt as descriptive text (e.g. "showing the painting (ID: abc-123)"). The image model cannot fetch by ID; it sees the UUID as random characters. To make a new image that visually contains or builds on a prior one, you MUST use [COMPOSE_FROM: <id> | what to add]. The prior image is then passed as input alongside your prompt.`;
 
     if (synthAvailable) {
       prompt += `
@@ -384,7 +387,7 @@ function isTextMedia(mimeType) {
  * Build multipart content parts for Gemini API including session media
  * Returns an array of content parts: text parts + inline media
  */
-function buildContentParts(promptText, sessionMedia = []) {
+function buildContentParts(promptText, sessionMedia = [], generatedImages = []) {
   const parts = [];
 
   if (sessionMedia.length > 0) {
@@ -436,6 +439,27 @@ function buildContentParts(promptText, sessionMedia = []) {
     parts.push({ text: promptText });
   }
 
+  // Inject recently generated images so agents can visually evaluate the output.
+  // The most recent image is labelled separately so models know which one to build on
+  // for recursive workflows; older images are flagged as background context only.
+  if (generatedImages.length > 0) {
+    const lastIdx = generatedImages.length - 1;
+    let genPreface = `\nIMAGES GENERATED DURING THIS SESSION (${generatedImages.length} attached, in chronological order):\n`;
+    generatedImages.forEach((img, i) => {
+      const tag = i === lastIdx ? '[MOST RECENT — build on THIS one if extending the series]' : '[earlier in session]';
+      genPreface += `- ${tag} ${img.agentName}: "${img.prompt}" (ID: ${img.id})\n`;
+    });
+    genPreface += `\nReact to what you actually SEE in these images, not just the prompts. ` +
+                  `If your turn is to extend a recursive series, use [COMPOSE_FROM: <id> | what to add] ` +
+                  `with the MOST RECENT image's ID — never paste IDs into prose prompts.\n`;
+    parts[parts.length - 1].text += genPreface;
+    // Order: oldest first so the model "sees" the chronological progression,
+    // ending with the most recent image right before its own response.
+    for (const img of generatedImages) {
+      parts.push({ inlineData: { mimeType: img.mimeType, data: img.data } });
+    }
+  }
+
   return parts;
 }
 
@@ -468,10 +492,12 @@ export async function* generateAgentResponse(agent, allAgents, messages, goal, s
     promptText = `[SYSTEM NOTE TO ${agent.name.toUpperCase()}]\n${options.systemNotes.trim()}\n\n${promptText}`;
   }
 
+  const { generatedImages = [] } = options || {};
+
   // Only include session media on the first turn to avoid sending large payloads every turn
   // After the first turn, media context is carried via transcript references
   const includeMedia = messages.length === 0 || messages.length <= 2;
-  const contentParts = buildContentParts(promptText, includeMedia ? sessionMedia : []);
+  const contentParts = buildContentParts(promptText, includeMedia ? sessionMedia : [], generatedImages);
 
   // For text files that were included inline, add a note to later turns too
   const hasTextMedia = sessionMedia.some(m => isTextMedia(m.mimeType));

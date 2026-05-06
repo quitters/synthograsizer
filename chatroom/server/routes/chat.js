@@ -37,20 +37,24 @@ router.get('/stream', (req, res) => {
  * Start the autonomous chat
  */
 router.post('/start', async (req, res) => {
-  const { goal, tokenLimit = 100000, model } = req.body;
+  const { goal, tokenLimit = 100000, model, mode } = req.body;
 
   if (!goal) {
     return res.status(400).json({ error: 'Goal is required' });
   }
 
+  const normalizedMode = mode === 'solo' ? 'solo' : 'group';
+  const minAgents = normalizedMode === 'solo' ? 1 : 2;
   const agents = orchestrator.getAgents();
-  if (agents.length < 2) {
-    return res.status(400).json({ error: 'Need at least 2 agents to start' });
+  if (agents.length < minAgents) {
+    return res.status(400).json({
+      error: `Need at least ${minAgents} agent${minAgents > 1 ? 's' : ''} to start a ${normalizedMode} chat`
+    });
   }
 
   try {
     // Start is async but returns immediately
-    orchestrator.start(goal, tokenLimit, { model });
+    orchestrator.start(goal, tokenLimit, { model, mode: normalizedMode });
     res.json({
       success: true,
       message: 'Chat started',

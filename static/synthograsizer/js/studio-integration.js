@@ -852,7 +852,9 @@ class StudioIntegration {
         this.injectModals();
         this.setupFileClearButtons();
         this.setupVdropZones();
-        this.injectChatWindow();
+        // Floating chat widget retired — Agent Studio Solo mode replaces it.
+        // injectChatWindow() and the legacy /api/chat one-shot helpers remain
+        // defined for backward compat but are no longer wired into the page.
         this.injectLightbox();
         this.bindEvents();
     }
@@ -2712,11 +2714,14 @@ class StudioIntegration {
         // active agent conversation as session media + critique prompt.
         this.bindSafe('discuss-with-agents-btn', 'onclick', () => this.sendOutputToAgents());
 
-        // Chat Actions
-        this.bindSafe('chat-send', 'onclick', () => this.sendChatMessage());
-        this.bindSafe('chat-input', 'onkeypress', (e) => {
-            if (e.key === 'Enter') this.sendChatMessage();
-        });
+        // Chat Actions — only if the legacy floating widget was injected.
+        // (Retired by default; Agent Studio Solo mode is now the chat surface.)
+        if (document.getElementById('chat-input')) {
+            this.bindSafe('chat-send', 'onclick', () => this.sendChatMessage());
+            this.bindSafe('chat-input', 'onkeypress', (e) => {
+                if (e.key === 'Enter') this.sendChatMessage();
+            });
+        }
 
         // Hook into existing "Send to chat" button if it exists
         const existingSendToChat = document.querySelector('button.action-btn[title="Send to chat"]');
@@ -2835,17 +2840,28 @@ class StudioIntegration {
         document.getElementById('modal-backdrop').classList.remove('active');
     }
 
+    /**
+     * Open the AI chat surface. Now routes to Agent Studio in Solo mode —
+     * the floating chat widget has been retired in favour of the unified
+     * Agent Studio modal.
+     */
     openChat() {
-        document.getElementById('chat-window').classList.add('active');
-        document.getElementById('chat-input').focus();
+        this.openChatWithText('');
     }
 
     openChatWithText(text) {
-        this.openChat();
-        const chatInput = document.getElementById('chat-input');
-        if (chatInput) {
-            chatInput.value = text || '';
-            chatInput.focus();
+        const launch = () => {
+            if (window.agentStudio?.openSoloWith) {
+                window.agentStudio.openSoloWith(text || '');
+            }
+        };
+        if (window.agentStudio) {
+            launch();
+        } else if (window.AgentStudio) {
+            window.agentStudio = new window.AgentStudio(this);
+            Promise.resolve(window.agentStudio.init()).then(launch);
+        } else {
+            console.warn('[studio-integration] AgentStudio not available — chat unavailable');
         }
     }
 

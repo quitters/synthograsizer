@@ -161,6 +161,9 @@ export function stripImageTags(text) {
     /\[VISUALIZE:\s*[\s\S]+?\]/gi,
     /\[REMIX:\s*[\s\S]+?\]/gi,
     /\[ITERATE:\s*[\s\S]+?\]/gi,
+    /\[VARIATION:\s*[\s\S]+?\]/gi,
+    /\[COMPOSE_FROM:\s*[\s\S]+?\]/gi,
+    /\[INCLUDE_IMAGE:\s*[\s\S]+?\]/gi,
   ];
 
   let cleaned = text;
@@ -212,6 +215,8 @@ export function parseRemixRequests(text) {
     /\[REMIX:\s*([a-f0-9-]+)\s*\|\s*([\s\S]+?)\]/gi,
     /\[ITERATE:\s*([a-f0-9-]+)\s*\|\s*([\s\S]+?)\]/gi,
     /\[VARIATION:\s*([a-f0-9-]+)\s*\|\s*([\s\S]+?)\]/gi,
+    /\[COMPOSE_FROM:\s*([a-f0-9-]+)\s*\|\s*([\s\S]+?)\]/gi,
+    /\[INCLUDE_IMAGE:\s*([a-f0-9-]+)\s*\|\s*([\s\S]+?)\]/gi,
   ];
 
   const requests = [];
