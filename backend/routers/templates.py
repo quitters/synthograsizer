@@ -158,6 +158,25 @@ async def generate_template(request: TemplateRequest):
                 timeout=timeout
             )
 
+        elif mode == "agent_profile":
+            if not request.prompt.strip():
+                raise ValueError("agent_profile mode requires a description.")
+            json_str = await asyncio.wait_for(
+                asyncio.to_thread(ai_manager.generate_agent_profile, request.prompt, model_override=model_override),
+                timeout=timeout
+            )
+
+        elif mode == "taste_vector":
+            if not request.artifacts:
+                raise ValueError("taste_vector mode requires a non-empty `artifacts` list.")
+            json_str = await asyncio.wait_for(
+                asyncio.to_thread(ai_manager.generate_taste_vector, request.artifacts, model_override=model_override),
+                timeout=timeout
+            )
+            # Taste vector is not a Synthograsizer template — skip normalize_template,
+            # which is shaped for {promptTemplate, variables[]}.
+            return {"status": "success", "taste_vector": parse_llm_json(json_str)}
+
         else:
             raise HTTPException(status_code=400, detail=f"Unknown template generation mode: {mode}")
 

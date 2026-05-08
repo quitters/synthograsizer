@@ -289,6 +289,20 @@ class ChatOrchestrator {
   }
 
   /**
+   * Hot-swap an agent's bio (or other mutable fields) mid-session.
+   * Looks up by id first, then falls back to a name match. Returns the
+   * mutated agent on success, or null if no match.
+   */
+  updateAgent(idOrName, fields = {}) {
+    let agent = this.agents.find(a => a.id === idOrName);
+    if (!agent) agent = this.agents.find(a => a.name === idOrName);
+    if (!agent) return null;
+    if (typeof fields.bio === 'string') agent.bio = fields.bio;
+    if (typeof fields.name === 'string' && fields.name.trim()) agent.name = fields.name.trim();
+    return agent;
+  }
+
+  /**
    * Get all agents
    */
   getAgents() {

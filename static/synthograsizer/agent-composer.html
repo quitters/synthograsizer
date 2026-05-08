@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Synthograsizer — Agent Profiles (v5)</title>
+<link rel="icon" type="image/png" href="agent-composer-favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&family=Bungee&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<!-- Agent profile storage (exposes window.AgentProfileStore + helpers) -->
+<script type="module" src="js/agent-profiles.js"></script>
+<link rel="stylesheet" href="css/composer.css">
+</head>
+<body>
+
+<!-- All composer markup lives inside #composer-mount so the scoped CSS in composer.css applies. -->
+<div id="composer-mount">
+
+<div class="shell">
+
+  <!-- Header -->
+  <header class="app-header">
+    <div style="display:flex; align-items:center; gap:14px;">
+      <span class="app-title">Synthograsizer <small>· Agent Profiles</small></span>
+    </div>
+    <div class="room-pill" id="room-pill">
+      <button data-room="library" class="active">📇 Library</button>
+      <button data-room="editor">⚙ Editor</button>
+      <button data-room="session">▤ Session</button>
+      <button data-room="run">▶ Run</button>
+    </div>
+  </header>
+
+  <!-- Flow banner -->
+  <div class="flow-banner" id="flow-banner">
+    <div class="flow-step active" data-room="library">
+      <div class="flow-num">1</div>
+      <div class="flow-info">
+        <span class="flow-title">Browse / Create Profile</span>
+        <span class="flow-sub">Pick a patch or design a new agent</span>
+      </div>
+    </div>
+    <div class="flow-arrow">›</div>
+    <div class="flow-step" data-room="editor">
+      <div class="flow-num">2</div>
+      <div class="flow-info">
+        <span class="flow-title">Edit Bio Template</span>
+        <span class="flow-sub">Variables, anchors, live preview</span>
+      </div>
+    </div>
+    <div class="flow-arrow">›</div>
+    <div class="flow-step" data-room="session">
+      <div class="flow-num">3</div>
+      <div class="flow-info">
+        <span class="flow-title">Compose Session</span>
+        <span class="flow-sub">Load 3–6 agents into channels</span>
+      </div>
+    </div>
+    <div class="flow-arrow">›</div>
+    <div class="flow-step" data-room="run">
+      <div class="flow-num">4</div>
+      <div class="flow-info">
+        <span class="flow-title">Run · Tweak Live</span>
+        <span class="flow-sub">Knobs control agents in real time</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROOMS -->
+  <div id="room-library" class="room active"></div>
+  <div id="room-editor"  class="room"></div>
+  <div id="room-session" class="room"></div>
+  <div id="room-run"     class="room"></div>
+
+</div>
+
+<!-- Footer -->
+<div class="app-footer">
+  <div class="stat-pill"><span class="led"></span>Profile Store · localStorage</div>
+  <div class="stat-pill"><span class="led warn"></span>Gemini · API key required</div>
+  <div class="stat-pill"><span class="led off"></span>Orchestrator · idle</div>
+  <span class="grow"></span>
+  <span>v5 · Phase 2 UX proposal</span>
+</div>
+</div><!-- /#composer-mount -->
+
+<script type="text/babel" src="js/composer.js"></script>
+</body>
+</html>

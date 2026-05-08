@@ -182,6 +182,8 @@ class AIManager:
     generate_story_template = backend.services.template_engine.generate_story_template
     generate_story_beat = backend.services.template_engine.generate_story_beat
     generate_p5_template = backend.services.template_engine.generate_p5_template
+    generate_agent_profile = backend.services.template_engine.generate_agent_profile
+    generate_taste_vector = backend.services.template_engine.generate_taste_vector
     generate_narrative = backend.services.narrative.generate_narrative
     generate_video_variations = backend.services.narrative.generate_video_variations
     generate_image_variation_prompts = backend.services.narrative.generate_image_variation_prompts

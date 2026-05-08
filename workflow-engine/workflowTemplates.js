@@ -854,6 +854,245 @@ register(
   }
 );
 
+// ─── Agent Recipe Presets ────────────────────────────────────────────────────
+//
+// Two surfaces feed into this section:
+//
+//   1. agent_panel_run — the open-ended path. Takes a flat agents[] list (each
+//      { name, bio }) and a freeform `task` string. Every agent runs the same
+//      task in parallel. Used by the "What do you want them to accomplish?"
+//      goal field in Agent Studio.
+//
+//   2. joke_panel / pitch_doctor / debate_panel — curated presets. Each
+//      declares `agentRoles` (slots like 'devil', 'champion') and a `script`
+//      of steps. The frontend collects role assignments and required inputs;
+//      the preset's builder weaves bios + tasks into a workflow with proper
+//      dependsOn chains.
+//
+// Two interpolation passes coexist:
+//   - Build-time: {{name}}            → resolved here from user inputs
+//   - Engine-time: {{stepId.field}}   → resolved by WorkflowEngine at run time
+// The dot distinguishes them; resolveInputs only matches single-word names.
+
+function resolveInputs(template, inputs) {
+  return String(template || '').replace(/\{\{(\w+)\}\}/g, (match, name) => {
+    return inputs[name] !== undefined ? String(inputs[name]) : match;
+  });
+}
+
+// Shared step builder. Validates roles + inputs, returns engine-ready steps.
+function buildAgentRecipeSteps(presetMeta, params) {
+  const { agentRoles = [], inputs: inputDefs = [], script = [] } = presetMeta;
+  const { roleAssignments = {}, ...userInputs } = params;
+
+  const missingRoles = agentRoles
+    .map(r => r.role)
+    .filter(role => !roleAssignments[role] || !roleAssignments[role].name);
+  if (missingRoles.length) {
+    throw new Error(`Missing agent assignment(s) for role(s): ${missingRoles.join(', ')}`);
+  }
+
+  const missingInputs = inputDefs
+    .filter(i => i.required !== false)
+    .map(i => i.name)
+    .filter(name => userInputs[name] === undefined || userInputs[name] === '');
+  if (missingInputs.length) {
+    throw new Error(`Missing required input(s): ${missingInputs.join(', ')}`);
+  }
+
+  return script.map(entry => {
+    const agent = roleAssignments[entry.role];
+    if (!agent) throw new Error(`No agent assigned to role "${entry.role}"`);
+    const bio = (agent.bio || '').trim();
+    const task = resolveInputs(entry.task, userInputs);
+    const prompt = bio ? `${bio}\n\n---\n${task}` : task;
+    return {
+      id: entry.id,
+      type: 'synth_text',
+      params: { prompt },
+      ...(entry.dependsOn && entry.dependsOn.length ? { dependsOn: entry.dependsOn } : {}),
+    };
+  });
+}
+
+// ─── 1. agent_panel_run — open-ended goal-field workflow ─────────────────────
+// Parallel cast, single shared task. No role slots — pass `agents[]` directly.
+
+register(
+  'agent_panel_run',
+  {
+    name: 'Agent Panel',
+    description: 'Run the currently loaded agents through a single shared task. Each agent answers in their own voice. All run in parallel.',
+    requiredParams: ['agents'],
+    optionalParams: ['task'],
+    isAgentRecipe: true,
+    isOpenEnded: true,
+  },
+  (params) => {
+    const {
+      agents,
+      task = 'Tell one joke. Stay fully in character — voice, worldview, diction. Just the joke. No preamble.',
+    } = params;
+
+    if (!Array.isArray(agents) || agents.length === 0) {
+      throw new Error('agent_panel_run requires a non-empty `agents` array. Each agent must have { name: string, bio: string }.');
+    }
+
+    const slugify = (s, fb) => {
+      const out = String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 24);
+      return out || fb;
+    };
+
+    const seen = new Set();
+    const steps = agents.map((agent, i) => {
+      const name = (agent && agent.name) ? agent.name : `agent_${i}`;
+      const bio  = (agent && agent.bio)  ? String(agent.bio) : '';
+      let id = `agent_${i}_${slugify(name, 'unnamed')}`;
+      while (seen.has(id)) id = `${id}_${i}`;
+      seen.add(id);
+      const prompt = bio.trim() ? `${bio.trim()}\n\n---\n${task}` : task;
+      return { id, type: 'synth_text', params: { prompt } };
+    });
+
+    return {
+      name: `Agent Panel — ${agents.length} agent${agents.length === 1 ? '' : 's'}`,
+      steps,
+    };
+  }
+);
+
+// ─── 2. joke_panel — parallel, four comic roles ──────────────────────────────
+
+const JOKE_PANEL_META = {
+  agentRoles: [
+    { role: 'storyteller', label: 'Storyteller', suggested: 'Stand-up Storyteller', hint: 'Long-form, observational' },
+    { role: 'absurdist',   label: 'Absurdist',   suggested: 'Chaos Muse',           hint: 'Surreal, unhinged' },
+    { role: 'dry',         label: 'Deadpan',     suggested: 'Aesthetic Theorist',   hint: 'Dry, intellectual' },
+    { role: 'roast',       label: 'Roastmaster', suggested: 'Mythopoet',            hint: 'Sharp, willing to wound' },
+  ],
+  inputs: [
+    { name: 'topic', label: 'Joke topic (optional)', required: false, placeholder: 'e.g. modern dating, AI, taxes' },
+  ],
+  script: [
+    { id: 'joke_a', role: 'storyteller', task: 'Tell one joke{{topic_clause}}. Just the joke — no preamble, no commentary.' },
+    { id: 'joke_b', role: 'absurdist',   task: 'Tell one joke{{topic_clause}}. Just the joke — no preamble, no commentary.' },
+    { id: 'joke_c', role: 'dry',         task: 'Tell one joke{{topic_clause}}. Just the joke — no preamble, no commentary.' },
+    { id: 'joke_d', role: 'roast',       task: 'Tell one joke{{topic_clause}}. Just the joke — no preamble, no commentary.' },
+  ],
+};
+
+register(
+  'joke_panel',
+  {
+    name: 'Joke Panel',
+    description: 'Four comics share a stage. Each tells one joke in their own voice. Runs in parallel.',
+    agentRoles: JOKE_PANEL_META.agentRoles,
+    inputs: JOKE_PANEL_META.inputs,
+    stepRoleMap: Object.fromEntries(JOKE_PANEL_META.script.map(s => [s.id, s.role])),
+    requiredParams: ['roleAssignments'],
+    optionalParams: ['topic'],
+    isAgentRecipe: true,
+  },
+  (params) => {
+    const enriched = {
+      ...params,
+      topic_clause: params.topic ? ` about: ${params.topic}` : '',
+    };
+    const steps = buildAgentRecipeSteps(JOKE_PANEL_META, enriched);
+    return { name: 'Joke Panel', steps };
+  }
+);
+
+// ─── 3. pitch_doctor — sequential, four roles ────────────────────────────────
+
+const PITCH_DOCTOR_META = {
+  agentRoles: [
+    { role: 'devil',    label: "Devil's Advocate", suggested: 'Sharp Tongue',    hint: 'Names the weakest link' },
+    { role: 'champion', label: 'Champion',         suggested: 'Optimist',        hint: 'Steelmans against the critique' },
+    { role: 'outsider', label: 'Outsider',         suggested: 'Wildcard',        hint: 'Reframes from a stranger angle' },
+    { role: 'synth',    label: 'Synthesist',       suggested: 'Editor-in-Chief', hint: 'Picks the keeper' },
+  ],
+  inputs: [
+    { name: 'idea', label: 'The idea', required: true, placeholder: 'e.g. a subscription service for handwritten letters' },
+  ],
+  script: [
+    { id: 'critique',
+      role: 'devil',
+      task: 'Idea: "{{idea}}"\n\nFind the single weakest assumption. Be precise, not cruel. Two sentences max.' },
+    { id: 'defend',
+      role: 'champion',
+      task: 'Idea: "{{idea}}"\n\nThis was just said:\n  {{critique.text}}\n\nSteelman the idea against this critique. Two sentences max.',
+      dependsOn: ['critique'] },
+    { id: 'reframe',
+      role: 'outsider',
+      task: 'Idea: "{{idea}}"\n\nForget the critique and defense. Reframe the idea as something stranger — what is it really, underneath? Two sentences max.',
+      dependsOn: ['defend'] },
+    { id: 'synth',
+      role: 'synth',
+      task: 'Idea: "{{idea}}"\n\nThree takes have landed:\n  CRITIQUE: {{critique.text}}\n  DEFENSE: {{defend.text}}\n  REFRAME: {{reframe.text}}\n\nName the take that should drive the next move and explain in two sentences. Do not split the difference.',
+      dependsOn: ['reframe'] },
+  ],
+};
+
+register(
+  'pitch_doctor',
+  {
+    name: 'Pitch Doctor',
+    description: 'Three voices stress-test your idea, then a synthesist names the keeper. Sequential.',
+    agentRoles: PITCH_DOCTOR_META.agentRoles,
+    inputs: PITCH_DOCTOR_META.inputs,
+    stepRoleMap: Object.fromEntries(PITCH_DOCTOR_META.script.map(s => [s.id, s.role])),
+    requiredParams: ['idea', 'roleAssignments'],
+    isAgentRecipe: true,
+  },
+  (params) => {
+    const steps = buildAgentRecipeSteps(PITCH_DOCTOR_META, params);
+    return { name: `Pitch Doctor: ${(params.idea || '').slice(0, 50)}`, steps };
+  }
+);
+
+// ─── 4. debate_panel — two debaters in parallel + judge ──────────────────────
+
+const DEBATE_PANEL_META = {
+  agentRoles: [
+    { role: 'pro',   label: 'For the motion',     suggested: 'Champion',        hint: 'Argues the affirmative' },
+    { role: 'con',   label: 'Against the motion', suggested: 'Skeptic',         hint: 'Argues the negative' },
+    { role: 'judge', label: 'Judge',              suggested: 'Editor-in-Chief', hint: 'Names the winner' },
+  ],
+  inputs: [
+    { name: 'topic', label: 'Debate topic', required: true, placeholder: 'e.g. AI-generated art is real art' },
+  ],
+  script: [
+    { id: 'pro',
+      role: 'pro',
+      task: 'Topic: "{{topic}}"\n\nArgue FOR the motion. Make your strongest single argument. Three sentences max.' },
+    { id: 'con',
+      role: 'con',
+      task: 'Topic: "{{topic}}"\n\nArgue AGAINST the motion. Make your strongest single argument. Three sentences max.' },
+    { id: 'judge',
+      role: 'judge',
+      task: 'Topic: "{{topic}}"\n\nFOR: {{pro.text}}\n\nAGAINST: {{con.text}}\n\nName the more persuasive case and explain why in two sentences. Do not split the difference.',
+      dependsOn: ['pro', 'con'] },
+  ],
+};
+
+register(
+  'debate_panel',
+  {
+    name: 'Debate Panel',
+    description: 'Two debaters argue opposing sides of a topic in parallel. A judge picks the more persuasive case.',
+    agentRoles: DEBATE_PANEL_META.agentRoles,
+    inputs: DEBATE_PANEL_META.inputs,
+    stepRoleMap: Object.fromEntries(DEBATE_PANEL_META.script.map(s => [s.id, s.role])),
+    requiredParams: ['topic', 'roleAssignments'],
+    isAgentRecipe: true,
+  },
+  (params) => {
+    const steps = buildAgentRecipeSteps(DEBATE_PANEL_META, params);
+    return { name: `Debate: ${(params.topic || '').slice(0, 50)}`, steps };
+  }
+);
+
 // ─── Public API ──────────────────────────────────────────────────────────────
 
 /**
@@ -870,8 +1109,13 @@ export function getTemplate(id) {
  * @returns {Array<{id, name, description, requiredParams, optionalParams}>}
  */
 export function listTemplates() {
-  return [...templates.values()].map(({ id, name, description, requiredParams, optionalParams }) => ({
+  return [...templates.values()].map(({ id, name, description, requiredParams, optionalParams, agentRoles, inputs, stepRoleMap, isAgentRecipe, isOpenEnded }) => ({
     id, name, description, requiredParams, optionalParams,
+    ...(agentRoles ? { agentRoles } : {}),
+    ...(inputs ? { inputs } : {}),
+    ...(stepRoleMap ? { stepRoleMap } : {}),
+    ...(isAgentRecipe ? { isAgentRecipe } : {}),
+    ...(isOpenEnded ? { isOpenEnded } : {}),
   }));
 }
 

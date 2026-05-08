@@ -17,6 +17,9 @@ const AS_CATEGORIES = [
   { id: 'utility',    name: 'Utility',     icon: '🔧' },
 ];
 
+// Expose to window so the Composer (which loads after this script) can also
+// migrate the built-in templates into AgentProfileStore on first run.
+window.AS_AGENT_TEMPLATES_REF = null; // populated below
 const AS_AGENT_TEMPLATES = {
 
   // ── Image Generation ──────────────────────────────────────────────────────
@@ -892,6 +895,9 @@ RULES:
 
 };
 
+// Make the registry reachable from Composer (React app loaded after this script).
+window.AS_AGENT_TEMPLATES_REF = AS_AGENT_TEMPLATES;
+
 /**
  * AgentStudio — Vanilla-JS multi-agent chat surface for the Synthograsizer.
  *
@@ -976,6 +982,10 @@ class AgentStudio {
     this._refreshState();
     this._refreshArtifacts();
     this._fetchConsensusSettings();
+    // Hide the back-to-composer pill on plain opens; openWithSession will
+    // re-show it after toggling _fromComposer=true.
+    const pill = document.getElementById('as-back-composer');
+    if (pill && !this._fromComposer) pill.style.display = 'none';
   }
 
   /**
@@ -994,6 +1004,68 @@ class AgentStudio {
         input.focus();
       }
     }, 0);
+  }
+
+  /**
+   * Open Group Chat mode with a pre-built ensemble. Used by the Composer's
+   * Launch Session flow — Composer has already POSTed agents to the chatroom,
+   * so we just refresh, set the goal, and trigger Start.
+   *
+   * @param {object}   opts
+   * @param {string}   opts.goal           - Conversation goal for this session
+   * @param {boolean}  opts.fromComposer   - If true, render a "← Back to Composer" pill
+   * @param {object}   [opts.composerCtx]  - Optional: composer-side context to bundle
+   *   into _export later (sharedAnchors, sessionName, sessionPresetId, knob states).
+   *   Captured at launch time and frozen — live tweaks don't update it.
+   */
+  async openWithSession({ goal = '', fromComposer = false, composerCtx = null } = {}) {
+    this._fromComposer = !!fromComposer;
+    this._composerContext = composerCtx
+      ? { ...composerCtx, capturedAt: new Date().toISOString() }
+      : null;
+    this.open();
+    // Pull the freshly-POSTed agents from the chatroom backend
+    try { await this._refreshAgents(); } catch (_) {}
+    // Defer one tick so modal mode tabs are wired before we switch
+    await new Promise(r => setTimeout(r, 30));
+    this._setMode('group');
+    const goalInput = document.getElementById('as-goal');
+    if (goalInput) goalInput.value = goal || '';
+    this._renderBackToComposer();
+    // Final tick before starting so all UI state has settled
+    setTimeout(() => this._start(), 60);
+  }
+
+  /**
+   * Show or hide the "← Back to Composer" pill in the modal header. The pill
+   * is rendered once into the mode-tabs row (created on demand if missing) and
+   * its visibility is toggled by the `_fromComposer` flag.
+   */
+  _renderBackToComposer() {
+    let pill = document.getElementById('as-back-composer');
+    if (!pill) {
+      const modeTabs = document.querySelector('#agent-studio-modal .as-mode-tabs');
+      if (!modeTabs) return;
+      pill = document.createElement('button');
+      pill.id = 'as-back-composer';
+      pill.className = 'as-back-composer';
+      pill.title = 'Return to the Composer Session room — keeps the running session intact';
+      pill.innerHTML = '<span>←</span> Back to Composer';
+      pill.onclick = () => {
+        this._fromComposer = false;
+        this.close();
+        // Ask the synthograsizer mode-switcher to re-show Composer
+        if (window.Composer && window.Composer.openSession) {
+          window.Composer.openSession();
+        } else {
+          // Fallback: click the Composer mode button if present
+          const btn = document.querySelector('.layout-btn[data-mode="composer"]');
+          if (btn) btn.click();
+        }
+      };
+      modeTabs.appendChild(pill);
+    }
+    pill.style.display = this._fromComposer ? '' : 'none';
   }
 
   close() {
@@ -1042,6 +1114,12 @@ class AgentStudio {
             <span class="as-mode-label">Solo Chat</span>
             <span class="as-mode-sub">Turn-by-turn · 1 agent</span>
           </button>
+          <button class="as-mode-tab" data-mode="recipes" role="tab" aria-selected="false"
+                  title="Run loaded agents through a structured task or curated preset">
+            <span class="as-mode-icon">🧪</span>
+            <span class="as-mode-label">Recipes</span>
+            <span class="as-mode-sub">Goal field · presets</span>
+          </button>
         </div>
 
         <!-- Compact header: goal + roster popover + presets + controls -->
@@ -1063,6 +1141,9 @@ class AgentStudio {
                 <textarea id="as-new-agent-bio" class="as-input-sm" rows="3"
                           placeholder="Bio / role / personality — describes how this agent thinks and talks"></textarea>
                 <button id="as-add-agent-btn" class="as-btn-sm">+ Add agent</button>
+                <button id="as-compose-new-btn" class="as-btn-sm" type="button"
+                        title="Open the Composer Library to design a variable-driven agent profile"
+                        style="background:#ede7f6; color:#5e35b1; border-color:#b39ddb;">🧪 Compose new agent</button>
               </div>
             </div>
           </div>
@@ -1195,6 +1276,42 @@ class AgentStudio {
 
         </div><!-- /.as-body-row -->
 
+        <!-- Recipes panel: visible only in recipes mode (CSS-toggled by data-mode) -->
+        <section class="as-recipes-panel" data-section="recipes">
+          <!-- Roster summary (read-only — user manages agents in Group/Solo modes) -->
+          <div class="as-recipes-roster">
+            <span class="as-recipes-roster-label">Cast:</span>
+            <span id="as-recipes-roster-list" class="as-recipes-roster-list">no agents loaded — switch to Group Chat to add some</span>
+          </div>
+
+          <!-- Open-ended goal field -->
+          <div class="as-recipes-goal-block">
+            <label class="as-recipes-section-label">What do you want them to accomplish?</label>
+            <div class="as-recipes-goal-row">
+              <input id="as-recipes-goal" class="as-recipes-goal-input" type="text"
+                     placeholder='e.g. "Tell jokes about modern dating" — every loaded agent answers in their own voice'/>
+              <button id="as-recipes-goal-run" class="as-btn as-btn-primary" disabled>▶ Run</button>
+            </div>
+          </div>
+
+          <!-- Preset gallery -->
+          <div class="as-recipes-presets-block">
+            <label class="as-recipes-section-label">Or pick a preset</label>
+            <div id="as-recipes-grid" class="as-recipes-grid">
+              <div class="as-recipes-loading">Loading recipes…</div>
+            </div>
+          </div>
+
+          <!-- Results (appears after a run) -->
+          <div id="as-recipes-results" class="as-recipes-results" style="display:none;">
+            <div class="as-recipes-results-header">
+              <span id="as-recipes-results-title">Running…</span>
+              <button id="as-recipes-results-clear" class="as-btn-sm" title="Clear results">✕</button>
+            </div>
+            <div id="as-recipes-results-grid" class="as-recipes-results-grid"></div>
+          </div>
+        </section>
+
         <!-- Compose bar: inject a nudge mid-conversation -->
         <div class="as-compose">
           <input id="as-attach-input" type="file" multiple accept="image/*,.pdf,.txt,.md,.json,.csv" style="display:none"/>
@@ -1282,7 +1399,22 @@ class AgentStudio {
 
       /* ── Mode tabs (Group vs Solo) ──────────────────────────────────────── */
       .as-mode-tabs { display:flex; gap:0; background:#f5f5f5;
-                      border-bottom:1px solid #e0e0e0; padding:0; }
+                      border-bottom:1px solid #e0e0e0; padding:0;
+                      position:relative; }
+
+      /* "← Back to Composer" pill — shown only when AgentStudio was launched
+         from a Composer session via openWithSession({fromComposer:true}). */
+      .as-back-composer {
+        position:absolute; top:6px; right:8px;
+        font-family: inherit; font-size:10px; letter-spacing:.06em; text-transform:uppercase;
+        background:#ede7f6; color:#5e35b1;
+        border:1px solid #b39ddb; border-radius:12px;
+        padding:3px 10px; cursor:pointer;
+        display:inline-flex; align-items:center; gap:4px;
+        z-index:5; transition: background .12s, color .12s;
+      }
+      .as-back-composer:hover { background:#5e35b1; color:#fff; border-color:#5e35b1; }
+      .as-back-composer span { font-size:12px; line-height:1; }
       .as-mode-tab { flex:1; display:flex; flex-direction:column; align-items:center;
                      gap:2px; padding:10px 14px; background:transparent; border:none;
                      border-bottom:3px solid transparent; cursor:pointer;
@@ -1300,6 +1432,75 @@ class AgentStudio {
       .as-root[data-mode="solo"] .as-solo-hide { display:none !important; }
       .as-root[data-mode="solo"] .as-empty h3::before { content:'👤 '; }
       /* Solo-only inject placeholder is set via JS — different copy than group nudge */
+
+      /* ── Recipes-mode visibility ─────────────────────────────────────────
+         Recipes mode replaces the chat surface with a goal field + preset gallery.
+         The roster (top-right) stays available in chat modes for cast management;
+         in recipes mode we render a compact summary instead. */
+      .as-recipes-panel { display:none; }
+      .as-root[data-mode="recipes"] .as-header,
+      .as-root[data-mode="recipes"] .as-body-row,
+      .as-root[data-mode="recipes"] .as-compose,
+      .as-root[data-mode="recipes"] .as-status-bar { display:none !important; }
+      .as-root[data-mode="recipes"] .as-recipes-panel { display:flex; }
+
+      .as-recipes-panel { flex:1 1 auto; min-height:0; flex-direction:column;
+                          gap:18px; padding:20px 24px; overflow-y:auto; background:#fafafa; }
+      .as-recipes-section-label { display:block; font-size:11px; font-weight:600;
+                                  letter-spacing:.06em; text-transform:uppercase;
+                                  color:#673ab7; margin-bottom:8px; }
+      .as-recipes-roster { display:flex; align-items:center; gap:8px;
+                           padding:10px 14px; background:#fff; border:1px solid #eee;
+                           border-radius:8px; font-size:12px; color:#666; flex-wrap:wrap; }
+      .as-recipes-roster-label { font-weight:600; color:#333; }
+      .as-recipes-roster-list { color:#666; }
+      .as-recipes-roster-pill { display:inline-block; padding:2px 8px; margin:2px;
+                                background:#ede7f6; color:#5e35b1; border-radius:10px;
+                                font-size:11px; font-weight:500; }
+
+      .as-recipes-goal-block { background:#fff; border:1px solid #eee;
+                               border-radius:10px; padding:16px; }
+      .as-recipes-goal-row { display:flex; gap:8px; }
+      .as-recipes-goal-input { flex:1; padding:10px 12px; border:1px solid #ddd;
+                               border-radius:6px; font-family:inherit; font-size:13px; }
+      .as-recipes-goal-input:focus { outline:none; border-color:#673ab7;
+                                     box-shadow:0 0 0 3px rgba(103,58,183,.12); }
+
+      .as-recipes-presets-block { background:#fff; border:1px solid #eee;
+                                  border-radius:10px; padding:16px; }
+      .as-recipes-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
+                         gap:10px; }
+      .as-recipes-card { padding:14px; border:1px solid #eee; border-radius:8px;
+                         cursor:pointer; transition:all .15s ease; background:#fafafa; }
+      .as-recipes-card:hover { transform:translateY(-2px); box-shadow:0 4px 12px rgba(0,0,0,.08);
+                               border-color:transparent; background:#fff; }
+      .as-recipes-card-name { font-size:13px; font-weight:600; color:#333; margin-bottom:4px; }
+      .as-recipes-card-desc { font-size:11px; color:#888; line-height:1.4; margin-bottom:8px; }
+      .as-recipes-card-roles { display:flex; flex-wrap:wrap; gap:4px; }
+      .as-recipes-card-role { font-size:10px; padding:2px 6px; background:#ede7f6;
+                              color:#5e35b1; border-radius:4px; font-weight:500; }
+      .as-recipes-loading { grid-column:1/-1; padding:14px; text-align:center;
+                            color:#999; font-size:12px; }
+
+      .as-recipes-results { background:#fff; border:1px solid #eee; border-radius:10px;
+                            padding:16px; }
+      .as-recipes-results-header { display:flex; justify-content:space-between;
+                                   align-items:center; margin-bottom:12px;
+                                   padding-bottom:10px; border-bottom:1px solid #f0f0f0; }
+      .as-recipes-results-header span { font-size:13px; font-weight:600; color:#333; }
+      .as-recipes-results-grid { display:grid; gap:10px; }
+      .as-recipes-result-card { padding:12px 14px; border:1px solid #eee;
+                                border-radius:8px; background:#fafafa; }
+      .as-recipes-result-card.pending { background:#fff8e1; border-color:#ffe082; }
+      .as-recipes-result-card.error   { background:#ffebee; border-color:#ffcdd2; }
+      .as-recipes-result-head { display:flex; justify-content:space-between;
+                                margin-bottom:6px; align-items:center; }
+      .as-recipes-result-name { font-size:12px; font-weight:600; color:#5e35b1; }
+      .as-recipes-result-role { font-size:10px; color:#888; text-transform:uppercase;
+                                letter-spacing:.06em; }
+      .as-recipes-result-text { font-size:13px; line-height:1.5; color:#222;
+                                white-space:pre-wrap; word-wrap:break-word; }
+      .as-recipes-result-spinner { font-size:11px; color:#888; font-style:italic; }
 
       /* ── Header strip ───────────────────────────────────────────────────── */
       .as-header { display:flex; gap:8px; padding:10px 14px; background:#fafafa;
@@ -1348,6 +1549,9 @@ class AgentStudio {
       .as-agent-rm { background:none; border:none; cursor:pointer; color:#bbb;
                      font-size:16px; padding:0 4px; align-self:flex-start; }
       .as-agent-rm:hover { color:#e94560; }
+      .as-agent-edit { background:none; border:none; cursor:pointer; color:#bbb;
+                       font-size:13px; padding:0 4px; align-self:flex-start; }
+      .as-agent-edit:hover { color:#673ab7; }
 
       .as-add-form { display:flex; flex-direction:column; gap:6px; }
       .as-input-sm { width:100%; padding:7px 10px; font-size:12px; border:1px solid #ddd;
@@ -1722,6 +1926,15 @@ class AgentStudio {
     document.getElementById('as-reset-btn').onclick   = () => this._reset();
     document.getElementById('as-export-btn').onclick  = () => this._export();
     document.getElementById('as-add-agent-btn').onclick = () => this._addAgent();
+    const composeBtn = document.getElementById('as-compose-new-btn');
+    if (composeBtn) composeBtn.onclick = () => {
+      if (window.Composer && window.Composer.openLibrary) {
+        this.close();
+        window.Composer.openLibrary();
+      } else {
+        this.studio.showToast?.('Composer not loaded', 'warning');
+      }
+    };
     document.getElementById('as-inject-btn').onclick  = () => this._inject();
     document.getElementById('as-attach-btn').onclick  = () => document.getElementById('as-attach-input').click();
     document.getElementById('as-attach-input').addEventListener('change', (e) => {
@@ -1803,6 +2016,9 @@ class AgentStudio {
   // ─── Preset browser ───────────────────────────────────────────────────────
 
   _initPresetBrowser() {
+    if (window.autoMigrateBuiltInPresets) {
+      window.autoMigrateBuiltInPresets(AS_AGENT_TEMPLATES);
+    }
     const tabsEl = document.getElementById('as-cat-tabs');
     if (!tabsEl) return;
     tabsEl.innerHTML = AS_CATEGORIES.map(cat => `
@@ -1854,6 +2070,8 @@ class AgentStudio {
       const json = await res.json();
       this.agents = json.agents || [];
       this._renderAgents();
+      // Keep the recipes-mode roster summary in sync if the panel has been opened
+      if (this._recipesInitialized) this._updateRecipesRoster();
     } catch (err) {
       console.error('[AgentStudio] refreshAgents failed', err);
     }
@@ -1886,12 +2104,27 @@ class AgentStudio {
           <div class="as-agent-name">${escapeHtml(a.name)}</div>
           <div class="as-agent-bio">${escapeHtml(a.bio || '')}</div>
         </div>
+        <button class="as-agent-edit" data-name="${escapeAttr(a.name)}" data-bio="${escapeAttr(a.bio || '')}" title="Open this agent in the Composer Editor">✎</button>
         <button class="as-agent-rm" data-id="${escapeAttr(a.id)}" title="Remove">×</button>
       </div>
     `).join('');
 
     list.querySelectorAll('.as-agent-rm').forEach(btn => {
       btn.onclick = () => this._removeAgent(btn.dataset.id);
+    });
+    list.querySelectorAll('.as-agent-edit').forEach(btn => {
+      btn.onclick = (ev) => {
+        ev.stopPropagation();
+        const name = btn.dataset.name;
+        const bio  = btn.dataset.bio;
+        if (!window.Composer || !window.Composer.openEditor) {
+          this.studio.showToast?.('Composer not loaded — open a synthograsizer page first', 'warning');
+          return;
+        }
+        // Composer will resolve by name → existing profile, or auto-create one
+        // from {name, bio} if no match exists in AgentProfileStore.
+        window.Composer.openEditor({ name, bio });
+      };
     });
   }
 
@@ -1936,10 +2169,30 @@ class AgentStudio {
       if (!ok) return;
       await fetch(`${this.CHATROOM_API}/agents`, { method: 'DELETE' });
     }
+
+    // Capture current Synthograsizer UI variables
+    const uiVariableStates = {};
+    if (window.synthSmall && window.synthSmall.currentValues && window.synthSmall.variables) {
+      window.synthSmall.variables.forEach(v => {
+        const valIdx = window.synthSmall.currentValues[v.name];
+        uiVariableStates[v.name] = { index: valIdx };
+      });
+    }
+
+    const profiles = window.AgentProfileStore ? window.AgentProfileStore.loadAll() : [];
+
     for (const a of tpl.agents) {
+      let finalBio = a.bio;
+      
+      if (window.resolveProfileBio) {
+         // Find matching profile from store (if migrated) or create a temporary one
+         const profile = profiles.find(p => p.name === a.name) || { name: a.name, bioTemplate: a.bio, variables: [] };
+         finalBio = window.resolveProfileBio(profile, {}, uiVariableStates);
+      }
+
       await fetch(`${this.CHATROOM_API}/agents`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: a.name, bio: a.bio }),
+        body: JSON.stringify({ name: a.name, bio: finalBio }),
       });
     }
     this._refreshAgents();
@@ -2122,13 +2375,16 @@ class AgentStudio {
    * to avoid mid-flight semantics changes.
    */
   _setMode(mode) {
-    if (mode !== 'group' && mode !== 'solo') return;
+    if (mode !== 'group' && mode !== 'solo' && mode !== 'recipes') return;
     if (this.state.isRunning) {
       this.studio.showToast?.('Stop the current session before switching modes', 'warning');
       return;
     }
     if (this.mode === mode) return;
     this.mode = mode;
+
+    // Recipes mode loads its grid lazily on first entry
+    if (mode === 'recipes') this._initRecipes();
 
     // Update root data-attr (drives CSS visibility tweaks)
     const root = document.getElementById('as-root');
@@ -2174,6 +2430,351 @@ class AgentStudio {
            <p>Pick a preset or build your own roster (top right), set a goal, and press <strong>Start</strong>.<br/>
               Workflows the agents launch will appear inline as clickable chips — click any chip to open it in the Trace Viewer.</p>`;
     }
+  }
+
+  // ─── Recipes mode (goal field + preset gallery) ───────────────────────────
+
+  async _initRecipes() {
+    if (this._recipesInitialized) {
+      this._updateRecipesRoster();
+      return;
+    }
+    this._recipesInitialized = true;
+    this._recipesEventSource = null;
+    this._activeRecipeWorkflowId = null;
+    this._recipeStepLookup = {};
+
+    const goalInput  = document.getElementById('as-recipes-goal');
+    const goalRunBtn = document.getElementById('as-recipes-goal-run');
+    const updateBtn = () => {
+      const hasAgents = this.agents && this.agents.length > 0;
+      const hasText   = goalInput && goalInput.value.trim();
+      if (goalRunBtn) goalRunBtn.disabled = !hasAgents || !hasText;
+    };
+    this._updateRecipesRunButton = updateBtn;
+    if (goalInput) {
+      goalInput.addEventListener('input', updateBtn);
+      goalInput.addEventListener('keydown', e => {
+        if (e.key === 'Enter' && goalRunBtn && !goalRunBtn.disabled) this._runGoalField();
+      });
+    }
+    if (goalRunBtn) goalRunBtn.onclick = () => this._runGoalField();
+
+    const clearBtn = document.getElementById('as-recipes-results-clear');
+    if (clearBtn) clearBtn.onclick = () => this._clearRecipesResults();
+
+    this._updateRecipesRoster();
+    await this._fetchRecipesGrid();
+  }
+
+  _updateRecipesRoster() {
+    const list = document.getElementById('as-recipes-roster-list');
+    if (list) {
+      if (!this.agents || this.agents.length === 0) {
+        list.innerHTML = '<em>no agents loaded — switch to Group Chat to add some</em>';
+      } else {
+        list.innerHTML = this.agents.map(a =>
+          `<span class="as-recipes-roster-pill">${escapeHtml(a.name)}</span>`
+        ).join('');
+      }
+    }
+    if (this._updateRecipesRunButton) this._updateRecipesRunButton();
+  }
+
+  async _fetchRecipesGrid() {
+    const grid = document.getElementById('as-recipes-grid');
+    if (!grid) return;
+    try {
+      const res = await fetch(`${this.CHATROOM_API}/workflows/templates`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const all = await res.json();
+      const presets = all.filter(t => t.isAgentRecipe && !t.isOpenEnded);
+      this._recipesPresets = presets;
+      if (presets.length === 0) {
+        grid.innerHTML = '<div class="as-recipes-loading">No presets registered yet.</div>';
+        return;
+      }
+      grid.innerHTML = presets.map(p => {
+        const roleLabels = (p.agentRoles || [])
+          .map(r => `<span class="as-recipes-card-role">${escapeHtml(r.label || r.role)}</span>`)
+          .join('');
+        return `
+          <div class="as-recipes-card" data-preset="${escapeAttr(p.id)}">
+            <div class="as-recipes-card-name">${escapeHtml(p.name)}</div>
+            <div class="as-recipes-card-desc">${escapeHtml(p.description || '')}</div>
+            <div class="as-recipes-card-roles">${roleLabels}</div>
+            <div class="as-recipes-card-actions" style="display:flex; gap:6px; margin-top:8px; padding-top:8px; border-top:1px solid #f0f0f0;">
+              <button class="studio-btn-primary as-recipe-run" style="flex:1; font-size:10px; padding:4px 8px;">▶ Run now</button>
+              <button class="as-recipe-compose" title="Open this recipe's roster in the Composer Session Builder to customise before running" style="flex:1; font-size:10px; padding:4px 8px; background:#ede7f6; color:#5e35b1; border:1px solid #b39ddb; border-radius:4px; cursor:pointer;">🧪 Open in Composer</button>
+            </div>
+          </div>`;
+      }).join('');
+      grid.querySelectorAll('.as-recipe-run').forEach(btn => {
+        btn.onclick = (e) => {
+          e.stopPropagation();
+          const card = btn.closest('.as-recipes-card');
+          if (card) this._runPreset(card.dataset.preset);
+        };
+      });
+      grid.querySelectorAll('.as-recipe-compose').forEach(btn => {
+        btn.onclick = (e) => {
+          e.stopPropagation();
+          const card = btn.closest('.as-recipes-card');
+          if (!card || !window.Composer || !window.Composer.openSessionFromRecipe) return;
+          const preset = (this._recipesPresets || []).find(p => p.id === card.dataset.preset);
+          if (!preset) return;
+          // Map the preset's role-suggested agents into name/bio pairs for Composer
+          const agents = (preset.agentRoles || [])
+            .map(slot => {
+              // Prefer a currently-loaded chatroom agent matching the suggested name
+              const live = (this.agents || []).find(a => a.name === slot.suggested);
+              if (live) return { name: live.name, bio: live.bio || '' };
+              // Otherwise fall back to whatever Composer can find by name in its store
+              return { name: slot.suggested };
+            })
+            .filter(Boolean);
+          this.close();
+          window.Composer.openSessionFromRecipe({
+            agents,
+            goal: preset.description || preset.name,
+          });
+        };
+      });
+      // Make whole card still openable as Run-now (preserves prior single-click behaviour)
+      grid.querySelectorAll('.as-recipes-card').forEach(card => {
+        card.onclick = (e) => {
+          // Only treat as Run-now if click landed on the card chrome, not a button
+          if (e.target.closest('button')) return;
+          this._runPreset(card.dataset.preset);
+        };
+      });
+    } catch (err) {
+      grid.innerHTML = '<div class="as-recipes-loading">Workflow engine offline — start the chatroom backend.</div>';
+    }
+  }
+
+  async _runGoalField() {
+    const input = document.getElementById('as-recipes-goal');
+    const task  = input && input.value.trim();
+    if (!task) return;
+    if (!this.agents || this.agents.length === 0) {
+      this.studio.showToast?.('Load some agents first (Group Chat → roster)', 'error');
+      return;
+    }
+
+    // Mirror the backend's slugify rule so we can pre-build a stepId → label lookup
+    const slugify = (s, fb) => {
+      const out = String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 24);
+      return out || fb;
+    };
+    const lookup = {};
+    const seen = new Set();
+    this.agents.forEach((a, i) => {
+      const name = a.name || `agent_${i}`;
+      let id = `agent_${i}_${slugify(name, 'unnamed')}`;
+      while (seen.has(id)) id = `${id}_${i}`;
+      seen.add(id);
+      lookup[id] = { name, role: 'panel' };
+    });
+
+    await this._submitRecipe(
+      'agent_panel_run',
+      { agents: this.agents.map(a => ({ name: a.name, bio: a.bio || '' })), task },
+      { title: `Goal: ${task.slice(0, 60)}${task.length > 60 ? '…' : ''}`, stepLookup: lookup }
+    );
+  }
+
+  async _runPreset(presetId) {
+    const preset = (this._recipesPresets || []).find(p => p.id === presetId);
+    if (!preset) return;
+    const needed = (preset.agentRoles || []).length;
+    if (!this.agents || this.agents.length < needed) {
+      this.studio.showToast?.(`Preset "${preset.name}" needs ${needed} agent(s) — load more in Group Chat`, 'error');
+      return;
+    }
+
+    // Collect inputs via window.prompt — bare-basics. Replace with proper UI later.
+    const inputValues = {};
+    for (const inp of (preset.inputs || [])) {
+      const required = inp.required !== false;
+      const promptText = `${preset.name}\n\n${inp.label}${required ? '' : ' (optional)'}` +
+                         (inp.placeholder ? `\nExample: ${inp.placeholder}` : '');
+      const val = window.prompt(promptText);
+      if (val == null) return; // user cancelled
+      if (required && val.trim() === '') {
+        this.studio.showToast?.(`${inp.label} is required`, 'error');
+        return;
+      }
+      inputValues[inp.name] = val.trim();
+    }
+
+    // Auto-resolve role assignments: prefer suggested name, else next unused agent
+    const roleAssignments = {};
+    const used = new Set();
+    const lookup = {};
+    for (const slot of (preset.agentRoles || [])) {
+      let pick = this.agents.find(a => a.name === slot.suggested && !used.has(a.name));
+      if (!pick) pick = this.agents.find(a => !used.has(a.name));
+      if (!pick) {
+        this.studio.showToast?.(`Not enough agents for "${preset.name}"`, 'error');
+        return;
+      }
+      used.add(pick.name);
+      roleAssignments[slot.role] = { name: pick.name, bio: pick.bio || '' };
+      lookup[slot.role] = { name: pick.name, role: slot.label || slot.role };
+    }
+
+    await this._submitRecipe(
+      presetId,
+      { ...inputValues, roleAssignments },
+      { title: preset.name, stepLookup: lookup, roleSlots: preset.agentRoles, stepRoleMap: preset.stepRoleMap }
+    );
+  }
+
+  async _submitRecipe(templateId, params, displayMeta) {
+    this._recipeStepLookup = displayMeta.stepLookup || {};
+    this._recipeRoleSlots  = displayMeta.roleSlots || null;
+    this._recipeStepRoleMap = displayMeta.stepRoleMap || {};
+    this._lastRecipeTitle  = displayMeta.title;
+
+    const resultsEl = document.getElementById('as-recipes-results');
+    const titleEl   = document.getElementById('as-recipes-results-title');
+    const grid      = document.getElementById('as-recipes-results-grid');
+    if (resultsEl) resultsEl.style.display = '';
+    if (titleEl)   titleEl.textContent = `Running — ${displayMeta.title}`;
+    if (grid)      grid.innerHTML = '';
+
+    try {
+      this._connectRecipesSSE();
+      const res = await fetch(`${this.CHATROOM_API}/workflows/run`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ templateId, params }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || `HTTP ${res.status}`);
+      }
+      const data = await res.json();
+      this._activeRecipeWorkflowId = data.workflowId;
+    } catch (err) {
+      this.studio.showToast?.(`Recipe run failed: ${err.message}`, 'error');
+      if (titleEl) titleEl.textContent = `Failed — ${err.message}`;
+      this._disconnectRecipesSSE();
+    }
+  }
+
+  _connectRecipesSSE() {
+    this._disconnectRecipesSSE();
+    const es = new EventSource(`${this.CHATROOM_API}/chat/stream`);
+    this._recipesEventSource = es;
+    const events = ['workflow_step_start', 'workflow_step_complete', 'workflow_step_error', 'workflow_complete', 'workflow_error'];
+    for (const evt of events) {
+      es.addEventListener(evt, (e) => {
+        try {
+          const data = JSON.parse(e.data);
+          if (data.workflowId !== this._activeRecipeWorkflowId) return;
+          this._handleRecipeEvent(evt, data);
+        } catch (_) {}
+      });
+    }
+    if (this._recipesSSETimer) clearTimeout(this._recipesSSETimer);
+    this._recipesSSETimer = setTimeout(() => {
+      console.warn('[AgentStudio] recipes SSE safety timeout — closing stream');
+      this._disconnectRecipesSSE();
+    }, 180_000);
+  }
+
+  _disconnectRecipesSSE() {
+    if (this._recipesEventSource) {
+      try { this._recipesEventSource.close(); } catch (_) {}
+      this._recipesEventSource = null;
+    }
+    if (this._recipesSSETimer) {
+      clearTimeout(this._recipesSSETimer);
+      this._recipesSSETimer = null;
+    }
+  }
+
+  _resolveStepDisplay(stepId) {
+    // Open-ended panel: stepId already keys directly into the lookup
+    if (this._recipeStepLookup[stepId]) return this._recipeStepLookup[stepId];
+    // Preset path: stepId → role (via stepRoleMap) → display (via lookup keyed by role)
+    const role = this._recipeStepRoleMap && this._recipeStepRoleMap[stepId];
+    if (role && this._recipeStepLookup[role]) return this._recipeStepLookup[role];
+    return { name: stepId, role: '' };
+  }
+
+  _handleRecipeEvent(evt, data) {
+    const grid    = document.getElementById('as-recipes-results-grid');
+    const titleEl = document.getElementById('as-recipes-results-title');
+    if (!grid) return;
+
+    const renderHead = (display) => `
+      <div class="as-recipes-result-head">
+        <span class="as-recipes-result-name">${escapeHtml(display.name)}</span>
+        <span class="as-recipes-result-role">${escapeHtml(display.role || '')}</span>
+      </div>`;
+
+    if (evt === 'workflow_step_start') {
+      let card = grid.querySelector(`[data-stepid="${escapeAttr(data.stepId)}"]`);
+      if (!card) {
+        const display = this._resolveStepDisplay(data.stepId);
+        card = document.createElement('div');
+        card.className = 'as-recipes-result-card pending';
+        card.dataset.stepid = data.stepId;
+        card.innerHTML = renderHead(display) +
+          `<div class="as-recipes-result-spinner">thinking…</div>`;
+        grid.appendChild(card);
+      }
+    } else if (evt === 'workflow_step_complete') {
+      const display = this._resolveStepDisplay(data.stepId);
+      // The engine drops string fields ≥500 chars from `summary` to keep events small.
+      // For our recipe tasks ("two sentences max", "just the joke") that's plenty.
+      const text = (data.summary && (data.summary.text || data.summary.response || data.summary.result)) ||
+                   '(output exceeded 500 chars and was dropped from the event payload)';
+      const html = renderHead(display) + `<div class="as-recipes-result-text">${escapeHtml(text)}</div>`;
+      let card = grid.querySelector(`[data-stepid="${escapeAttr(data.stepId)}"]`);
+      if (card) {
+        card.classList.remove('pending');
+        card.innerHTML = html;
+      } else {
+        card = document.createElement('div');
+        card.className = 'as-recipes-result-card';
+        card.dataset.stepid = data.stepId;
+        card.innerHTML = html;
+        grid.appendChild(card);
+      }
+    } else if (evt === 'workflow_step_error') {
+      const display = this._resolveStepDisplay(data.stepId);
+      const html = renderHead(display) +
+        `<div class="as-recipes-result-text">Error: ${escapeHtml(data.error || 'unknown')}</div>`;
+      let card = grid.querySelector(`[data-stepid="${escapeAttr(data.stepId)}"]`);
+      if (card) {
+        card.classList.remove('pending');
+        card.classList.add('error');
+        card.innerHTML = html;
+      } else {
+        card = document.createElement('div');
+        card.className = 'as-recipes-result-card error';
+        card.dataset.stepid = data.stepId;
+        card.innerHTML = html;
+        grid.appendChild(card);
+      }
+    } else if (evt === 'workflow_complete') {
+      if (titleEl) titleEl.textContent = `Done — ${this._lastRecipeTitle || 'Recipe'}`;
+      this._disconnectRecipesSSE();
+    } else if (evt === 'workflow_error') {
+      if (titleEl) titleEl.textContent = `Failed — ${data.error || 'unknown'}`;
+      this._disconnectRecipesSSE();
+    }
+  }
+
+  _clearRecipesResults() {
+    const resultsEl = document.getElementById('as-recipes-results');
+    if (resultsEl) resultsEl.style.display = 'none';
+    this._disconnectRecipesSSE();
+    this._activeRecipeWorkflowId = null;
   }
 
   async _start() {
@@ -2312,16 +2913,27 @@ class AgentStudio {
   _export() {
     const payload = {
       exportedAt: new Date().toISOString(),
-      agents: this.agents,
+      goal: document.getElementById('as-goal')?.value || '',
+      mode: this.mode,
+      agents: this.agents.map(a => ({
+        id: a.id, name: a.name, bio: a.bio, color: a.color, muted: !!a.muted,
+      })),
       messages: this.messages,
       workflows: Array.from(this._workflowChipMap.entries()).map(([id, info]) => ({ id, ...info })),
       artifacts: this._artifacts,
+      // Composer context — populated only when this session was launched via
+      // openWithSession({fromComposer:true, composerCtx}). Captures the knob
+      // states and shared anchors at the moment of launch so a recorded
+      // transcript can be exactly replayed.
+      composerContext: this._composerContext || null,
     };
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
+    const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const composerTag = this._composerContext ? '-composer' : '';
     a.href = url;
-    a.download = `agent-session-${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+    a.download = `agent-session${composerTag}-${stamp}.json`;
     document.body.appendChild(a); a.click(); a.remove();
     URL.revokeObjectURL(url);
   }

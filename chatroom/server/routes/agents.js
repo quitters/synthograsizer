@@ -52,6 +52,26 @@ router.delete('/:id', (req, res) => {
 });
 
 /**
+ * PATCH /api/agents/:idOrName
+ * Hot-swap an agent's bio (or name) mid-session. The path parameter is
+ * matched against agent ids first, then names — the Composer's live knob
+ * tweaks identify agents by name (the chatroom's uuids aren't surfaced),
+ * so we fall back to that.
+ *
+ * Body: { bio?: string, name?: string }
+ */
+router.patch('/:idOrName', (req, res) => {
+  const { idOrName } = req.params;
+  const { bio, name } = req.body || {};
+  if (typeof bio !== 'string' && typeof name !== 'string') {
+    return res.status(400).json({ error: 'Provide at least one of: bio, name' });
+  }
+  const updated = orchestrator.updateAgent(idOrName, { bio, name });
+  if (!updated) return res.status(404).json({ error: `Agent not found: ${idOrName}` });
+  res.json({ agent: updated });
+});
+
+/**
  * DELETE /api/agents
  * Remove all agents (reset)
  */

@@ -862,3 +862,143 @@ Resolve getSynthVar ONCE per frame at the top of p.draw, always with a fallback 
     except Exception as e:
         raise Exception(f"p5.js template generation failed: {e}")
 
+def generate_taste_vector(self, artifacts: list, model_override: str = None) -> str:
+    """
+    Mines a sample of the user's creative artifacts (saved templates, agent bios,
+    image prompts, chat fragments, presets) and extracts a portable "taste vector"
+    JSON profile capturing voice, aesthetic, and creative tendencies.
+
+    artifacts: list of dicts. Each dict must include:
+      - kind:  'template' | 'agent_bio' | 'image_prompt' | 'chat_message' | 'preset' | 'other'
+      - text:  the artifact's textual content
+      - meta:  (optional) dict with extra context — name, variables, weights, source path
+    """
+    if not self.genai_client:
+        raise ValueError("API Key not configured")
+
+    if not artifacts:
+        raise ValueError("artifacts list is empty — nothing to mine")
+
+    model = model_override or config.MODEL_TEMPLATE_GEN
+
+    system_prompt = """You are an aesthetic anthropologist analyzing a creator's body of work. Your task is to extract a concise but vivid "taste vector" — a portable JSON profile capturing their voice, sensibility, and creative tendencies. This vector will be used downstream to bias the generation of new outputs (agent personas, prompts, recipes) so they feel personal rather than generic.
+
+You will be given a sample of artifacts: prompts they've written, agents they've designed, templates they've saved. Read across the whole set, not item by item. You are looking for patterns, not summaries.
+
+Output STRICTLY valid JSON in this shape:
+
+{
+  "voice": {
+    "register": "single sentence describing their tone (e.g. 'wry, literate, slightly bruised — favors specificity over abstraction')",
+    "diction": ["3–6 distinctive words or phrases that recur or feel signature"],
+    "sentence_shape": "single sentence on rhythm and structure (e.g. 'short fragments stacked into rhythm; resists run-ons')"
+  },
+  "aesthetic": {
+    "themes": ["3–6 recurring subjects or emotional territories"],
+    "palette": "concrete colour/light tendency (e.g. 'high-contrast, desaturated greens and bruised purples; rare red')",
+    "texture": "material/surface tendency (e.g. 'analog noise over clean geometry')",
+    "scale": "how big or intimate things tend to feel (e.g. 'domestic objects rendered with cosmic gravity')"
+  },
+  "tendencies": {
+    "favors": ["3–6 things they reach for: techniques, archetypes, framings, devices"],
+    "avoids": ["2–4 things conspicuously absent or actively resisted"],
+    "tensions": "single sentence naming a productive contradiction (e.g. 'wants the sacred and the ridiculous in the same frame')"
+  },
+  "voice_signature": "1–2 sentences written IN their own register. The litmus test: a stranger reading this should be able to recognise their next piece."
+}
+
+Hard rules:
+- Be specific. "Atmospheric" is useless; "fluorescent-lit interiors at 3am" is signal.
+- Quote distinctive phrasing only as fragments; never copy more than a few words.
+- `tendencies.avoids` is the most diagnostic field — what they DON'T do separates them from neighbours. Work to fill it honestly.
+- If the sample is thin or contradictory, say so plainly inside `voice_signature` rather than inventing.
+- Do not flatter. Do not generalise. Do not pad. The vector should feel uncomfortably accurate."""
+
+    bundle_lines = [f"# Sample of {len(artifacts)} artifact(s)"]
+    for i, art in enumerate(artifacts, start=1):
+        if not isinstance(art, dict):
+            continue
+        kind = art.get("kind", "other")
+        text = (art.get("text") or "").strip()
+        if not text:
+            continue
+        meta = art.get("meta")
+        bundle_lines.append(f"\n## Artifact {i} — kind: {kind}")
+        if meta:
+            try:
+                bundle_lines.append(f"_meta: {json.dumps(meta, ensure_ascii=False)[:400]}_")
+            except Exception:
+                pass
+        bundle_lines.append(text[:1500])
+
+    bundle = "\n".join(bundle_lines)
+    contents = [system_prompt, bundle]
+
+    try:
+        gen_config = types.GenerateContentConfig(
+            response_mime_type="application/json"
+        )
+        response = self.genai_client.models.generate_content(
+            model=model,
+            contents=contents,
+            config=gen_config
+        )
+        return response.text
+    except Exception as e:
+        raise Exception(f"Taste vector extraction failed: {e}")
+
+
+def generate_agent_profile(self, user_prompt: str, model_override: str = None) -> str:
+    """
+    Generates a bespoke Agent Profile template with placeholders and variables.
+    """
+    if not self.genai_client:
+        raise ValueError("API Key not configured")
+
+    model = model_override or config.MODEL_TEMPLATE_GEN
+    
+    system_prompt = """
+You are an expert agent persona designer for Agent Studio, a collaborative multi-agent simulation framework. Your task is to generate an "Agent Profile", which is a dynamic, variable-driven character biography template.
+
+The output MUST be valid JSON containing exactly this structure:
+{
+  "name": "A catchy, thematic name for the agent",
+  "category": "One of: imagegen, creative, writing, business, tech, gaming, education, science, philosophy, social, utility",
+  "bioTemplate": "A multi-sentence biography containing {{variable_name}} placeholders where dynamic traits, tones, or approaches go. Also contain static anchors like {{agent_name}}.",
+  "variables": [
+    {
+      "name": "variable_name",
+      "feature_name": "Human Readable Feature Name (e.g. Tone, Logic Style, Flaw)",
+      "values": [
+        {"text": "Option 1 description", "weight": 3},
+        {"text": "Option 2 description", "weight": 1}
+      ]
+    }
+  ],
+  "anchors": {
+    "agent_name": "The agent's name"
+  }
+}
+
+Guidelines:
+1. Make the bioTemplate detailed, using at least 3 distinct {{variables}}.
+2. Create 3 to 6 values for each variable, distributing weights so 1-2 options are common and others are rare.
+3. Treat this agent as a creative collaborator who brings a specific, highly-opinionated viewpoint to the table.
+"""
+
+    contents = [system_prompt, f"Agent Description: {user_prompt}"]
+
+    try:
+        gen_config = types.GenerateContentConfig(
+            response_mime_type="application/json"
+        )
+        response = self.genai_client.models.generate_content(
+            model=model,
+            contents=contents,
+            config=gen_config
+        )
+        return response.text
+    except Exception as e:
+        raise Exception(f"Agent Profile generation failed: {e}")
+
+

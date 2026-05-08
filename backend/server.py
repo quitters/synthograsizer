@@ -52,6 +52,7 @@ from backend.routers import scope
 from backend.routers import metadata
 from backend.routers import osc
 from backend.routers import music
+from backend.routers import sessions
 
 app.include_router(chat.router)
 app.include_router(generation.router)
@@ -63,6 +64,7 @@ app.include_router(scope.router)
 app.include_router(metadata.router)
 app.include_router(osc.router)
 app.include_router(music.router)
+app.include_router(sessions.router)
 
 
 

@@ -74,6 +74,7 @@ class TemplateRequest(BaseModel):
     prev_image_b64: Optional[str] = None      # Base64 image of previous beat (story-beat: multimodal continuity context)
     next_image_b64: Optional[str] = None      # Base64 image of next beat (story-beat: multimodal continuity context)
     is_demo: Optional[bool] = False           # When True, backend overrides model to MODEL_DEMO
+    artifacts: Optional[List[dict]] = None    # Sample of user artifacts for taste_vector mode (each: {kind, text, meta?})
 
 class AnalyzeRequest(BaseModel):
     image: str  # Base64 encoded image

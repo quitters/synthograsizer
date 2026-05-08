@@ -13,6 +13,8 @@
     <link rel="stylesheet" href="css/synth-hardware-theme.css?v=7">
     <link rel="stylesheet" href="css/storyboard-panel.css?v=3">
     <link rel="stylesheet" href="css/storyboard-panel-hardware-theme.css?v=3">
+    <!-- Composer (third mode) — styles scoped via @scope (#composer-mount) so they don't leak into Studio/Perform -->
+    <link rel="stylesheet" href="css/composer.css?v=1">
     <link rel="icon" type="image/png" href="assets/favicon.png">
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Quantico:ital,wght@0,400;0,700;1,400;1,700&family=Roboto+Mono:wght@300;400;500;600;700&display=swap"
@@ -358,6 +360,17 @@
         <div id="navbar-mount"></div>
         <script src="/shared/js/navbar.js?v=2"></script>
 
+        <!-- Layout / Mode Switcher — lifted out of .synthograsizer-small so it stays
+             reachable in Composer mode (where .synthograsizer-small is hidden).
+             Sticky so it remains visible while either app scrolls.
+             - data-layout buttons toggle the visual layout of the Synthograsizer (Studio vs Perform)
+             - data-mode="composer" swaps in the agent-composer React app entirely -->
+        <div class="layout-switcher mode-bar" id="layout-switcher">
+            <button class="layout-btn" data-layout="default" data-tip="Studio Mode — Full Tools Panel">⊟ Studio</button>
+            <button class="layout-btn" data-layout="a" data-tip="Perform Mode — Minimal Layout">▶ Perform</button>
+            <button class="layout-btn" data-mode="composer" data-tip="4-room agent composer (Library → Editor → Session → Run)">🧪 Composer</button>
+        </div>
+
         <div class="synthograsizer-small">
             <!-- Header -->
             <header class="app-header">
@@ -365,12 +378,6 @@
                 <p class="app-tagline">Generate structured, remixable AI prompts with variable-based templates and batch
                     export.</p>
             </header>
-
-            <!-- Layout Switcher -->
-            <div class="layout-switcher" id="layout-switcher">
-                <button class="layout-btn" data-layout="default" data-tip="Studio Mode — Full Tools Panel">⊟ Studio</button>
-                <button class="layout-btn" data-layout="a" data-tip="Perform Mode — Minimal Layout">▶ Perform</button>
-            </div>
 
             <!-- Error Display -->
             <div id="error-message" class="error-message" role="alert"></div>
@@ -1283,6 +1290,90 @@
             </div>
         </div>
 
+        <!-- ================================================================== -->
+        <!-- COMPOSER MOUNT — third mode, sibling of .synthograsizer-small.     -->
+        <!-- Hidden by default; the layout switcher reveals it when data-mode   -->
+        <!-- ="composer" is selected. Same scaffold as the standalone           -->
+        <!-- agent-composer.html so composer.js can render rooms via portals.   -->
+        <!-- ================================================================== -->
+        <div id="composer-mount" hidden>
+          <div class="shell">
+            <header class="app-header">
+              <div style="display:flex; align-items:center; gap:14px;">
+                <span class="app-title">Synthograsizer <small>· Agent Profiles</small></span>
+              </div>
+              <div class="room-pill" id="room-pill">
+                <button data-room="library" class="active">📇 Library</button>
+                <button data-room="editor">⚙ Editor</button>
+                <button data-room="session">▤ Session</button>
+                <button data-room="run">▶ Run</button>
+              </div>
+            </header>
+
+            <div class="flow-banner" id="flow-banner">
+              <div class="flow-step active" data-room="library">
+                <div class="flow-num">1</div>
+                <div class="flow-info">
+                  <span class="flow-title">Browse / Create Profile</span>
+                  <span class="flow-sub">Pick a patch or design a new agent</span>
+                </div>
+              </div>
+              <div class="flow-arrow">›</div>
+              <div class="flow-step" data-room="editor">
+                <div class="flow-num">2</div>
+                <div class="flow-info">
+                  <span class="flow-title">Edit Bio Template</span>
+                  <span class="flow-sub">Variables, anchors, live preview</span>
+                </div>
+              </div>
+              <div class="flow-arrow">›</div>
+              <div class="flow-step" data-room="session">
+                <div class="flow-num">3</div>
+                <div class="flow-info">
+                  <span class="flow-title">Compose Session</span>
+                  <span class="flow-sub">Load 3–6 agents into channels</span>
+                </div>
+              </div>
+              <div class="flow-arrow">›</div>
+              <div class="flow-step" data-room="run">
+                <div class="flow-num">4</div>
+                <div class="flow-info">
+                  <span class="flow-title">Run · Tweak Live</span>
+                  <span class="flow-sub">Knobs control agents in real time</span>
+                </div>
+              </div>
+            </div>
+
+            <div id="room-library" class="room active"></div>
+            <div id="room-editor"  class="room"></div>
+            <div id="room-session" class="room"></div>
+            <div id="room-run"     class="room"></div>
+          </div>
+
+          <div class="app-footer">
+            <div class="stat-pill"><span class="led"></span>Profile Store · localStorage</div>
+            <div class="stat-pill"><span class="led warn"></span>Gemini · API key required</div>
+            <div class="stat-pill"><span class="led off"></span>Orchestrator · idle</div>
+            <span class="grow"></span>
+            <span title="1/2/3/4 jump rooms · Ctrl+S confirms save (auto-save is on)" style="opacity:.6">⌨ 1·2·3·4 rooms · Ctrl+S save</span>
+            <span class="sep" style="opacity:.4">·</span>
+            <span>v5 · Composer mode</span>
+          </div>
+
+          <!-- Mobile gate: visible only on viewports <1024px (CSS-toggled). The
+               Composer is a three-column desktop layout; cramming it into a
+               phone is worse than gracefully bouncing the user back. -->
+          <div class="composer-mobile-notice">
+            <h3>Composer needs more room</h3>
+            <p>The Agent Composer is a three-column desktop layout (Library · Editor · Session).
+               It needs at least <strong>1024px</strong> of horizontal space. On a phone or narrow window,
+               please switch back to Studio or Perform — both work great here.</p>
+            <div class="composer-mobile-actions">
+              <button onclick="document.querySelector('.layout-btn[data-layout=&quot;default&quot;]').click()">← Back to Studio</button>
+            </div>
+          </div>
+        </div><!-- /#composer-mount -->
+
         <!-- Screen reader announcements -->
         <div id="knob-announcer" role="status" aria-live="polite" aria-atomic="true" class="sr-only">
         </div>
@@ -1294,6 +1385,7 @@
         <script type="module" src="js/app.js?v=22"></script>
         <script src="js/music-studio.js?v=2"></script>
         <script src="../metadata-manager/js/utils/metadata_extractor.js"></script>
+        <script type="module" src="js/agent-profiles.js"></script>
         <script src="js/workflow-runner.js?v=5"></script>
         <script src="js/trace-viewer.js?v=1"></script>
         <script src="js/agent-studio.js?v=5"></script>
@@ -1301,33 +1393,86 @@
         <script src="js/studio-integration.js?v=35"></script>
         <script src="js/blob-bridge.js?v=2"></script>
 
-        <!-- Layout switcher -->
+        <!-- Composer (third mode) — React app + Babel-standalone for in-browser JSX -->
+        <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+        <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+        <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+        <script type="text/babel" src="js/composer.js?v=1"></script>
+
+        <!-- Layout / mode switcher
+             Two orthogonal dimensions on the same button row:
+               - Layout (Studio vs Perform): visual variants of the synth UI. Persisted as
+                 `synthograsizerLayout` ∈ {'default','a'}.
+               - Mode (synth vs composer): which app is shown. Persisted as
+                 `synthograsizerMode` ∈ {'synth','composer'}. In composer mode we hide
+                 .synthograsizer-small and reveal #composer-mount (the React app there
+                 hydrates from AgentProfileStore on its own).
+             Buttons carry either `data-layout` or `data-mode` to declare their dimension. -->
         <script>
         (function () {
             var root = document.querySelector('.synthograsizer-small');
+            var composerMount = document.getElementById('composer-mount');
             var btns = document.querySelectorAll('.layout-btn');
+            var currentLayout = 'default';
+            var currentMode = 'synth';
+
+            function setActiveButtons() {
+                btns.forEach(function (btn) {
+                    if (btn.dataset.mode) {
+                        btn.classList.toggle('active', currentMode === btn.dataset.mode);
+                    } else if (btn.dataset.layout) {
+                        // Layout buttons only "active" when synth mode is showing
+                        btn.classList.toggle('active', currentMode === 'synth' && btn.dataset.layout === currentLayout);
+                    }
+                });
+            }
 
             function applyLayout(layout) {
-                root.classList.remove('layout-a');
-                document.body.classList.remove('layout-a');
-                if (layout === 'a') {
-                    root.classList.add('layout-a');
-                    document.body.classList.add('layout-a');
-                }
-                btns.forEach(function (btn) {
-                    btn.classList.toggle('active', btn.dataset.layout === layout);
-                });
+                currentLayout = layout;
+                root.classList.toggle('layout-a', layout === 'a');
+                document.body.classList.toggle('layout-a', layout === 'a' && currentMode === 'synth');
                 try { localStorage.setItem('synthograsizerLayout', layout); } catch (e) {}
             }
 
-            // Restore persisted choice — 'b' (docked) is removed, fall back to default
-            var saved = 'default';
-            try { saved = localStorage.getItem('synthograsizerLayout') || 'default'; } catch (e) {}
-            if (saved === 'b') saved = 'default';
-            applyLayout(saved);
+            function applyMode(mode) {
+                currentMode = mode;
+                if (mode === 'composer') {
+                    if (root) root.style.display = 'none';
+                    if (composerMount) composerMount.hidden = false;
+                    document.body.classList.remove('layout-a'); // composer has no perform layout
+                } else {
+                    if (root) root.style.display = '';
+                    if (composerMount) composerMount.hidden = true;
+                    document.body.classList.toggle('layout-a', currentLayout === 'a');
+                }
+                try { localStorage.setItem('synthograsizerMode', mode); } catch (e) {}
+                setActiveButtons();
+            }
+
+            // Restore persisted choices — both layout and mode independently.
+            // 'b' (docked layout) was removed; fall back to default.
+            try {
+                var savedLayout = localStorage.getItem('synthograsizerLayout') || 'default';
+                if (savedLayout === 'b') savedLayout = 'default';
+                currentLayout = savedLayout;
+                var savedMode = localStorage.getItem('synthograsizerMode') || 'synth';
+                if (savedMode !== 'synth' && savedMode !== 'composer') savedMode = 'synth';
+                currentMode = savedMode;
+            } catch (e) {}
+            applyLayout(currentLayout);
+            applyMode(currentMode);
 
             btns.forEach(function (btn) {
-                btn.addEventListener('click', function () { applyLayout(btn.dataset.layout); });
+                if (btn.dataset.mode) {
+                    btn.addEventListener('click', function () { applyMode(btn.dataset.mode); });
+                } else if (btn.dataset.layout) {
+                    btn.addEventListener('click', function () {
+                        // Clicking a layout button also returns from composer mode
+                        if (currentMode === 'composer') applyMode('synth');
+                        applyLayout(btn.dataset.layout);
+                        setActiveButtons();
+                    });
+                }
             });
         })();
         </script>
