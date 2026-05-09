@@ -105,31 +105,32 @@
   .hw-btn.tiny { font-size: 9px; padding: 3px 7px; box-shadow: var(--hw-shadow-sm); border-width: 1px; }
   .hw-btn.ghost { background: transparent; border: var(--hw-border-soft); box-shadow: none; }
 
-  /* ── Flow banner (Library → Editor → Session → Run) ── */
-  .flow-banner {
-    display: flex; align-items: stretch;
-    border: var(--hw-border); border-radius: 3px;
+  /* ── Flow pill — compact 34px step indicator ── */
+  .flow-pill {
+    display: flex; height: 34px; align-items: stretch;
+    border: var(--hw-border); border-radius: 99px;
     box-shadow: var(--hw-shadow-sm); overflow: hidden;
+    background: var(--hw-surface);
   }
-  .flow-step {
-    flex: 1; display: flex; align-items: center; gap: 10px;
-    padding: 10px 14px; background: var(--hw-panel);
-    border-right: var(--hw-border-soft); cursor: pointer;
+  .flow-seg {
+    flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 0 14px; background: transparent; border: none; border-right: var(--hw-border-soft);
+    font-family: var(--font-label); font-size: 9.5px; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--hw-text-dim); cursor: pointer; white-space: nowrap;
+    transition: background .1s;
   }
-  .flow-step:last-child { border-right: none; }
-  .flow-step.active { background: var(--hw-lcd-bg); }
-  .flow-num {
-    width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
-    font-family: var(--font-label); font-size: 10px; font-weight: bold;
-    background: var(--hw-recessed); border: var(--hw-border-soft); color: var(--hw-text-dim);
+  .flow-seg:last-child { border-right: none; }
+  .flow-seg:hover:not(.active) { background: var(--hw-panel); color: var(--hw-text); }
+  .flow-seg.active { background: var(--hw-text); color: var(--hw-chassis); }
+  .flow-seg.done   { color: var(--hw-grn); }
+  .flow-seg-num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 16px; height: 16px; border-radius: 50%; font-size: 9px; font-weight: 700;
+    background: var(--hw-recessed); border: var(--hw-border-soft); flex-shrink: 0;
   }
-  .flow-step.active .flow-num { background: var(--hw-text); color: var(--hw-chassis); border-color: var(--hw-text); }
-  .flow-step.done .flow-num { background: var(--hw-grn); color: var(--hw-chassis); border-color: var(--hw-grn); }
-  .flow-info { display:flex; flex-direction:column; gap:1px; min-width:0; }
-  .flow-title { font-family: var(--font-label); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--hw-text); }
-  .flow-sub { font-size: 9px; color: var(--hw-text-dim); letter-spacing: .04em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .flow-arrow { display:flex; align-items:center; padding:0 6px; color:var(--hw-text-label); font-size:14px; }
+  .flow-seg.active .flow-seg-num { background: var(--hw-chassis); color: var(--hw-text); border-color: var(--hw-chassis); }
+  .flow-seg.done   .flow-seg-num { background: var(--hw-grn); color: var(--hw-chassis); border-color: var(--hw-grn); }
+  .flow-seg-lbl { font-size: 9.5px; }
 
   /* ──────────────────────────────────────────────────────── */
   /* ROOM 1 — LIBRARY (Rolodex)                               */
@@ -217,6 +218,32 @@
   .pc-tag.remix { color: var(--hw-purp); border-color: var(--hw-purp); }
   .pc-tag.builtin { color: var(--hw-blue); border-color: var(--hw-blue); }
   .pc-actions { padding: 6px 8px; border-top: var(--hw-border-soft); display: flex; gap: 4px; }
+
+  /* ── Thin color rail replaces old pc-strip ── */
+  .pc-rail {
+    height: 3px; flex-shrink: 0;
+  }
+  /* ── Monogram avatar ── */
+  .pc-avatar.pc-monogram {
+    font-size: 14px; font-weight: 700; font-family: var(--font-label);
+    color: #fff; letter-spacing: .04em;
+    text-shadow: 0 1px 2px rgba(0,0,0,.3);
+  }
+  /* ── ⋯ overflow menu ── */
+  .pc-menu {
+    position: absolute; bottom: calc(100% + 4px); left: 0; z-index: 20;
+    min-width: 140px; background: var(--hw-panel); border: var(--hw-border);
+    border-radius: 3px; box-shadow: var(--hw-shadow); overflow: hidden;
+  }
+  .pc-menu-item {
+    padding: 7px 12px; font-family: var(--font-label); font-size: 10px;
+    letter-spacing: .06em; text-transform: uppercase; color: var(--hw-text);
+    cursor: pointer; border-bottom: var(--hw-border-soft);
+  }
+  .pc-menu-item:last-child { border-bottom: none; }
+  .pc-menu-item:hover { background: var(--hw-surface); }
+  .pc-menu-danger { color: var(--hw-pink); }
+  .pc-menu-danger:hover { background: #f1d0d8; }
 
   .profile-card.create-card {
     border-style: dashed; box-shadow: none; background: var(--hw-surface);
@@ -399,10 +426,6 @@
   .channel-knob.locked { background: var(--hw-lcd-bg); border-color: var(--hw-amb); }
   .channel-knob.locked .lbl::after { content: ' 🔒'; }
   .channel-foot { padding: 5px 7px; border-top: var(--hw-border-soft); display: flex; gap: 4px; align-items:center; background: var(--hw-surface); flex-shrink: 0; }
-  .channel-foot .v-fader { flex:1; height: 4px; background: var(--hw-recessed); border-radius: 2px; position: relative; cursor: pointer; }
-  .channel-foot .v-fader-cap { position: absolute; left: 65%; top: -3px; width: 8px; height: 10px; background: var(--hw-text); border-radius: 1px; }
-  .channel-foot .v-lbl { font-size: 8px; letter-spacing: .1em; color: var(--hw-text-dim); }
-
   .channel.empty {
     background: transparent; border-style: dashed; box-shadow: none;
     display: flex; align-items: center; justify-content: center; cursor: pointer;
@@ -503,6 +526,13 @@
   .app-footer .led { width: 6px; height: 6px; border-radius: 50%; background: var(--hw-grn); box-shadow: 0 0 3px var(--hw-grn); }
   .app-footer .led.warn { background: var(--hw-amb); box-shadow: 0 0 3px var(--hw-amb); }
   .app-footer .led.off { background: var(--hw-recessed); box-shadow: none; }
+  .app-footer .stat-pill-cta {
+    font-family: var(--font-label); font-size: 9px; letter-spacing: .12em; text-transform: uppercase;
+    cursor: pointer; border: var(--hw-border-soft); border-radius: 2px; background: var(--hw-panel);
+    color: var(--hw-amb); font-weight: 700;
+  }
+  .app-footer .stat-pill-cta:hover { background: var(--hw-amb); color: var(--hw-chassis); }
+  .app-footer .stat-pill-cta .led.warn { flex-shrink: 0; }
 
   /* ── A11y: visible focus ring on the DraggableKnob slider ─────────────── */
   div[role="slider"]:focus-visible {
@@ -571,3 +601,85 @@
   letter-spacing: 1px;
 }
 .composer-mobile-notice button:hover { background: #c07040; }
+
+/* ── Toolbar popover (Issue 06) ── */
+.lib-popover {
+  position: absolute; top: calc(100% + 4px); right: 0; z-index: 30;
+  min-width: 200px; background: var(--hw-panel); border: var(--hw-border);
+  border-radius: 3px; box-shadow: var(--hw-shadow); overflow: hidden;
+}
+.lib-pop-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 12px; font-family: var(--font-label); font-size: 10px;
+  letter-spacing: .06em; text-transform: uppercase; color: var(--hw-text);
+  cursor: pointer; border-bottom: var(--hw-border-soft);
+}
+.lib-pop-item:last-child { border-bottom: none; }
+.lib-pop-item:hover { background: var(--hw-surface); }
+.lib-pop-hint { color: var(--hw-text-label); font-size: 9px; letter-spacing: .04em; }
+
+/* ── Library empty state (Issue 09) ── */
+.lib-empty {
+  grid-column: 1 / -1;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 40px 20px; gap: 12px;
+  color: var(--hw-text-dim);
+}
+.lib-empty-icon { font-size: 32px; opacity: .5; }
+.lib-empty-msg  { font-family: var(--font-display); font-size: 14px; text-align: center; line-height: 1.4; }
+.lib-empty-actions { display: flex; gap: 8px; margin-top: 4px; }
+
+/* ── Chip caret & context menu (Issue 05) ── */
+.chip-caret {
+  padding: 0 3px; margin-left: 2px; border-radius: 1px;
+  cursor: pointer; opacity: .55; font-size: 9px;
+  line-height: inherit;
+}
+.chip-caret:hover { opacity: 1; background: var(--hw-recessed); }
+.chip-popover {
+  min-width: 180px;
+  background: var(--hw-panel);
+  border: var(--hw-border);
+  border-radius: 3px;
+  box-shadow: var(--hw-shadow);
+  font-family: var(--font-label);
+  font-size: 11px;
+  overflow: hidden;
+}
+.chip-pop-item {
+  padding: 8px 12px; cursor: pointer;
+  color: var(--hw-text);
+  border-bottom: 1px solid var(--hw-border-soft);
+}
+.chip-pop-item:last-child { border-bottom: none; }
+.chip-pop-item:hover { background: var(--hw-surface); }
+
+/* ── Bio preview overlay (Issue 10) ── */
+.bio-preview-overlay {
+  position: fixed; inset: 0; z-index: 90;
+  background: rgba(0,0,0,.45);
+  display: flex; align-items: center; justify-content: center;
+}
+.bio-preview-panel {
+  width: min(680px, 92vw); max-height: 80vh;
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+.bio-preview-list {
+  flex: 1; overflow-y: auto;
+  padding: 10px 14px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.bio-preview-agent { display: flex; flex-direction: column; gap: 6px; }
+.bio-preview-agent-head {
+  display: flex; align-items: center; gap: 8px;
+}
+.bio-preview-bio {
+  font-size: 11px; line-height: 1.55;
+  color: var(--hw-text);
+  background: var(--hw-recessed);
+  border: var(--hw-border-soft);
+  border-radius: 2px;
+  padding: 8px 10px;
+  white-space: pre-wrap;
+}

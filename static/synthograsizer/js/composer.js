@@ -37,7 +37,7 @@ const SEED_PROFILES = [
       behavior_rules: 'You one-up other panelists by going weirder, never safer.',
       signature_action: 'use [IMAGE:] to manifest your unhinged visions',
     },
-    tags: [{ type: 'creator', label: 'Built-in' }],
+    tags: [{ type: 'builtin', label: 'Built-in' }],
   },
   {
     id: 'p_critic',
@@ -200,6 +200,26 @@ function resolveBio(profile, sessionAnchors = {}) {
   });
 }
 
+/* Splits a bio template into typed segments for safe JSX rendering.
+   Avoids dangerouslySetInnerHTML by returning text/anchor/var/pending objects. */
+function buildBioSegments(template, anchors, variables) {
+  const segments = [];
+  const re = /\{\{(\w+)\}\}/g;
+  let last = 0, m;
+  while ((m = re.exec(template)) !== null) {
+    if (m.index > last) segments.push({ kind: 'text', text: template.slice(last, m.index) });
+    const key = m[1];
+    const aVal = (anchors || {})[key];
+    const v = (variables || []).find(vv => vv.name === key);
+    if (aVal != null) segments.push({ kind: 'anchor', key, anchorVal: aVal });
+    else if (v)       segments.push({ kind: 'var', key, featureName: v.feature_name, resolvedText: v.values[v.valueIdx]?.text ?? '' });
+    else              segments.push({ kind: 'pending', key });
+    last = m.index + m[0].length;
+  }
+  if (last < template.length) segments.push({ kind: 'text', text: template.slice(last) });
+  return segments;
+}
+
 /* ── Knob component ── */
 function KnobSVG({ valueIdx, total, size = 48, color = '#c07040' }) {
   const minA = -135, maxA = 135;
@@ -324,6 +344,20 @@ function LibraryRoom({ profiles, onPick, onEdit, onSendToSession, onCreate,
   const [cat, setCat] = useState('all');
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState('recent');
+  const [createOpen, setCreateOpen] = useState(false);
+  const [overflowOpen, setOverflowOpen] = useState(false);
+  const createRef = useRef(null);
+  const overflowRef = useRef(null);
+
+  // Close popovers on outside click
+  useEffect(() => {
+    const handler = (e) => {
+      if (createRef.current && !createRef.current.contains(e.target)) setCreateOpen(false);
+      if (overflowRef.current && !overflowRef.current.contains(e.target)) setOverflowOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
 
   const filtered = useMemo(() => {
     let list = profiles;
@@ -338,6 +372,9 @@ function LibraryRoom({ profiles, onPick, onEdit, onSendToSession, onCreate,
         p.bioTemplate.toLowerCase().includes(s)
       );
     }
+    if (sort === 'name')          list = [...list].sort((a, b) => a.name.localeCompare(b.name));
+    else if (sort === 'recent')   list = [...list].sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+    else if (sort === 'category') list = [...list].sort((a, b) => a.category.localeCompare(b.category) || a.name.localeCompare(b.name));
     return list;
   }, [profiles, cat, search, sort]);
 
@@ -360,14 +397,6 @@ function LibraryRoom({ profiles, onPick, onEdit, onSendToSession, onCreate,
               </div>
             ))}
           </div>
-          <div className="lib-side-divider"></div>
-          <div className="lib-side-head">Quick Actions</div>
-          <div className="lib-side-list">
-            <div className="lib-side-item" onClick={onCreate}><span style={{ width: 14, color: 'var(--hw-amb)' }}>+</span><span>New Profile</span></div>
-            <div className="lib-side-item" onClick={onImport}><span style={{ width: 14 }}>↑</span><span>Import JSON</span></div>
-            <div className="lib-side-item" onClick={onExport}><span style={{ width: 14 }}>↓</span><span>Export All</span></div>
-            <div className="lib-side-item" onClick={onGenerateFromImage}><span style={{ width: 14 }}>✦</span><span>Generate from Image</span></div>
-          </div>
         </div>
       </aside>
 
@@ -382,17 +411,30 @@ function LibraryRoom({ profiles, onPick, onEdit, onSendToSession, onCreate,
               <button key={s} className={sort === s ? 'active' : ''} onClick={() => setSort(s)}>{s}</button>
             ))}
           </div>
-          <button className="hw-btn primary" onClick={onCreate}>+ New Profile</button>
+          {/* ⋯ overflow for infrequent actions */}
+          <div style={{ position: 'relative' }} ref={overflowRef}>
+            <button className="hw-btn tiny ghost" onClick={() => setOverflowOpen(o => !o)} title="More actions">⋯</button>
+            {overflowOpen && (
+              <div className="lib-popover">
+                <div className="lib-pop-item" onClick={() => { onExport?.(); setOverflowOpen(false); }}>↓ Export All</div>
+              </div>
+            )}
+          </div>
+          {/* Single + Create button with path popover */}
+          <div style={{ position: 'relative' }} ref={createRef}>
+            <button className="hw-btn primary" onClick={() => setCreateOpen(o => !o)}>+ Create Profile</button>
+            {createOpen && (
+              <div className="lib-popover lib-popover-create">
+                <div className="lib-pop-item" onClick={() => { onCreate?.(); setCreateOpen(false); }}>▢ Blank canvas <span className="lib-pop-hint">N</span></div>
+                <div className="lib-pop-item" onClick={() => { onCreate?.(); setCreateOpen(false); }}>✎ From description <span className="lib-pop-hint">D</span></div>
+                <div className="lib-pop-item" onClick={() => { onGenerateFromImage?.(); setCreateOpen(false); }}>⌷ From image <span className="lib-pop-hint">I</span></div>
+                <div className="lib-pop-item" onClick={() => { onImport?.(); setCreateOpen(false); }}>↑ Import JSON <span className="lib-pop-hint">⇧I</span></div>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="lib-cards">
-          <div className="profile-card create-card" onClick={onCreate}>
-            <span className="plus">+</span>
-            <span className="lbl">New Agent Profile</span>
-            <span style={{ fontSize: 9, color: 'var(--hw-text-label)', maxWidth: 200, textAlign: 'center', lineHeight: 1.4 }}>
-              Blank canvas · From description · From image
-            </span>
-          </div>
           {filtered.map(p => (
             <ProfileCard key={p.id} profile={p}
                          onEdit={() => onEdit(p)}
@@ -401,66 +443,114 @@ function LibraryRoom({ profiles, onPick, onEdit, onSendToSession, onCreate,
                          onDelete={() => onDelete && onDelete(p)}
                          onSendToSession={() => onSendToSession(p)} />
           ))}
+          {filtered.length === 0 && (
+            <div className="lib-empty">
+              <div className="lib-empty-icon">⌀</div>
+              <div className="lib-empty-msg">
+                {search
+                  ? <span>No profiles match <strong>"{search}"</strong>{cat !== 'all' ? ` in ${CATEGORIES.find(c => c.id === cat)?.label || cat}` : ''}</span>
+                  : <span>No profiles in <strong>{CATEGORIES.find(c => c.id === cat)?.label || cat}</strong></span>
+                }
+              </div>
+              <div className="lib-empty-actions">
+                {search && <button className="hw-btn tiny" onClick={() => setSearch('')}>⌫ Clear search</button>}
+                {cat !== 'all' && <button className="hw-btn tiny" onClick={() => setCat('all')}>⊕ All Profiles</button>}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
   );
 }
 
+/* Derive a 2-letter monogram and category gradient for a profile */
+function profileMonogram(name) {
+  const words = name.trim().split(/\s+/);
+  return words.length >= 2
+    ? (words[0][0] + words[1][0]).toUpperCase()
+    : name.slice(0, 2).toUpperCase();
+}
+const CAT_COLORS = {
+  imagegen:   ['#c87090', '#8868a8'],
+  discussion: ['#5a8ab8', '#3a7a98'],
+  roleplay:   ['#8868a8', '#c07040'],
+  text:       ['#5a8ab8', '#5a9870'],
+  data:       ['#c07040', '#c0a040'],
+  flow:       ['#5a9870', '#5a8ab8'],
+};
+function catGradient(category) {
+  const [a, b] = CAT_COLORS[category] || ['#8a7e6e', '#5a5040'];
+  return `linear-gradient(135deg, ${a}, ${b})`;
+}
+
 function ProfileCard({ profile, onEdit, onSendToSession, onRemix, onTest, onDelete }) {
-  const tokens = tokensIn(profile.bioTemplate);
-  const enriched = classify(tokens, profile);
-  const previewBio = useMemo(() => {
-    const html = profile.bioTemplate.replace(PLACEHOLDER_RE, (full, key) => {
-      const a = profile.anchors?.[key];
-      if (a) return `[A:${a}]`;
-      const v = profile.variables?.find(v => v.name === key);
-      if (v) return `[V:${v.feature_name}]`;
-      return full;
-    });
-    return html.replace(/\[A:([^\]]+)\]/g, '<em>$1</em>')
-               .replace(/\[V:([^\]]+)\]/g, '<em style="border-color:var(--hw-amb);color:var(--hw-amb);">↻ $1</em>');
-  }, [profile]);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef(null);
+  const previewBioSegs = useMemo(() => buildBioSegments(
+    profile.bioTemplate, profile.anchors, profile.variables
+  ), [profile]);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handler = (e) => { if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false); };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [menuOpen]);
+
+  const varCount = profile.variables.length;
 
   return (
     <div className="profile-card">
-      <div className="pc-strip" style={{ borderBottomColor: profile.color }}>
-        <span style={{ width: 7, height: 7, borderRadius: '50%', background: profile.color, boxShadow: `0 0 4px ${profile.color}` }}></span>
-        <span>PATCH</span>
-        <span className="pc-strip-id">#{profile.id.replace('p_', '').toUpperCase()}</span>
-      </div>
+      {/* Thin color rail — replaces full strip */}
+      <div className="pc-rail" style={{ background: profile.color }} />
       <div className="pc-head">
-        <div className="pc-avatar" style={{ background: profile.color + '22' }}>{profile.icon}</div>
-        <div style={{ minWidth: 0 }}>
+        <div className="pc-avatar pc-monogram" style={{ background: catGradient(profile.category) }}>
+          {profileMonogram(profile.name)}
+        </div>
+        <div style={{ minWidth: 0, flex: 1 }}>
           <div className="pc-name">{profile.name}</div>
           <div className="pc-cat">{profile.category}</div>
         </div>
-      </div>
-      <div className="pc-bio" dangerouslySetInnerHTML={{ __html: previewBio }}></div>
-      <div className="pc-meta">
-        <div className="pc-vars">
-          {profile.variables.slice(0, 4).map((v, i) => (
-            <span className="knob-mini" key={i} title={v.feature_name}
-                  style={{ '--rot': (-90 + (v.valueIdx / Math.max(1, v.values.length - 1)) * 180) + 'deg' }}>
-            </span>
-          ))}
-          <span style={{ marginLeft: 4 }}>{profile.variables.length} vars</span>
-        </div>
-        <div className="pc-tags">
+        <div className="pc-tags" style={{ alignSelf: 'flex-start', paddingTop: 2 }}>
           {profile.tags.map((t, i) => <span key={i} className={'pc-tag ' + t.type}>{t.label}</span>)}
         </div>
       </div>
+      <div className="pc-bio">
+        {previewBioSegs.map((seg, i) => {
+          if (seg.kind === 'anchor')  return <em key={i}>{seg.anchorVal}</em>;
+          if (seg.kind === 'var')     return <em key={i} style={{ borderColor: 'var(--hw-amb)', color: 'var(--hw-amb)' }}>↻ {seg.featureName}</em>;
+          if (seg.kind === 'pending') return <span key={i}>{`{{${seg.key}}}`}</span>;
+          return <React.Fragment key={i}>{seg.text}</React.Fragment>;
+        })}
+      </div>
+      {varCount > 0 && (
+        <div className="pc-meta">
+          <div className="pc-vars">
+            {profile.variables.slice(0, 4).map((v, i) => (
+              <span className="knob-mini" key={i} title={v.feature_name}
+                    style={{ '--rot': (-90 + (v.valueIdx / Math.max(1, v.values.length - 1)) * 180) + 'deg' }}>
+              </span>
+            ))}
+            <span style={{ marginLeft: 4 }}>{varCount} var{varCount !== 1 ? 's' : ''}</span>
+          </div>
+        </div>
+      )}
       <div className="pc-actions">
-        <button className="hw-btn tiny" onClick={onEdit} title="Open in Editor">✎ Edit</button>
-        <button className="hw-btn tiny" onClick={onRemix}  title="Clone as a new profile">⎘ Remix</button>
-        <button className="hw-btn tiny" onClick={onTest}   title="Send a test message">▷ Test</button>
-        {onDelete && (
-          <button className="hw-btn tiny ghost"
-                  onClick={(e) => { e.stopPropagation(); onDelete(); }}
-                  title="Delete this profile" style={{ color: 'var(--hw-pink)' }}>✕</button>
-        )}
+        {/* ⋯ overflow for secondary actions */}
+        <div style={{ position: 'relative' }} ref={menuRef}>
+          <button className="hw-btn tiny ghost" onClick={(e) => { e.stopPropagation(); setMenuOpen(o => !o); }} title="More">⋯</button>
+          {menuOpen && (
+            <div className="pc-menu">
+              <div className="pc-menu-item" onClick={(e) => { e.stopPropagation(); onEdit?.(); setMenuOpen(false); }}>✎ Edit</div>
+              <div className="pc-menu-item" onClick={(e) => { e.stopPropagation(); onRemix?.(); setMenuOpen(false); }}>⎘ Remix</div>
+              <div className="pc-menu-item" onClick={(e) => { e.stopPropagation(); onTest?.(); setMenuOpen(false); }}>▷ Test</div>
+              {onDelete && <div className="pc-menu-item pc-menu-danger" onClick={(e) => { e.stopPropagation(); onDelete(); setMenuOpen(false); }}>✕ Delete</div>}
+            </div>
+          )}
+        </div>
         <span style={{ flex: 1 }}></span>
-        <button className="hw-btn tiny primary" onClick={onSendToSession}>+ Add to Session</button>
+        <button className="hw-btn tiny primary" onClick={(e) => { e.stopPropagation(); onSendToSession(); }}>+ Add</button>
       </div>
     </div>
   );
@@ -477,6 +567,7 @@ function EditorRoom({ profile, setProfile, onAddToSession, onBack, onGenerate, o
   const [generatingForVar, setGeneratingForVar] = useState(null);
   const [savedAgo, setSavedAgo] = useState('just now');
   const [lastSavedAt, setLastSavedAt] = useState(Date.now());
+  const [chipMenu, setChipMenu] = useState(null);
   const bioAreaRef = useRef(null);
 
   // Bump the saved timestamp on every profile change. Since `setProfile` (passed
@@ -509,14 +600,19 @@ function EditorRoom({ profile, setProfile, onAddToSession, onBack, onGenerate, o
   }, [profile.id]);
   useEffect(() => {
     if (!testHistory || testHistory.length === 0) return;
-    try {
-      // Keep last 30 messages so the JSON doesn't grow unbounded
-      localStorage.setItem(
+    try { localStorage.setItem(
         `composer_test_history_${profile.id}`,
         JSON.stringify(testHistory.slice(-30))
       );
     } catch (_) {}
   }, [testHistory, profile.id]);
+
+  useEffect(() => {
+    if (!chipMenu) return;
+    const close = () => setChipMenu(null);
+    document.addEventListener('click', close);
+    return () => document.removeEventListener('click', close);
+  }, [chipMenu]);
 
   function simulateReply(prof, q) {
     const r = (prof.variables.find(v => v.name === 'role') || prof.variables[0])?.values[0]?.text || 'agent';
@@ -524,15 +620,9 @@ function EditorRoom({ profile, setProfile, onAddToSession, onBack, onGenerate, o
   }
 
   const tokens = useMemo(() => classify(tokensIn(profile.bioTemplate), profile), [profile]);
-  const previewHTML = useMemo(() => {
-    return profile.bioTemplate.replace(PLACEHOLDER_RE, (full, key) => {
-      const a = profile.anchors?.[key];
-      if (a != null) return `<span class="anchor-fill">${a}</span>`;
-      const v = profile.variables?.find(v => v.name === key);
-      if (v && v.values[v.valueIdx]) return `<span class="var-fill">${v.values[v.valueIdx].text}</span>`;
-      return `<span class="pending">{{${key}}}</span>`;
-    });
-  }, [profile]);
+  const previewSegs = useMemo(() => buildBioSegments(
+    profile.bioTemplate, profile.anchors, profile.variables
+  ), [profile]);
 
   const updateVar = (idx, mut) => {
     const vs = [...profile.variables];
@@ -669,11 +759,6 @@ function EditorRoom({ profile, setProfile, onAddToSession, onBack, onGenerate, o
                      placeholder='e.g. "A snarky brutalist architect who hates rounded corners"'/>
             </div>
             <div>
-              <div className="lbl-mini" style={{ opacity:.6 }}>Mode</div>
-              <button className="hw-btn">📝 from text ▾</button>
-            </div>
-            <div>
-              <div className="lbl-mini" style={{ opacity:0 }}>—</div>
               <button className="hw-btn primary" onClick={() => onGenerate && onGenerate(aiPrompt)}>✦ Generate</button>
             </div>
           </div>
@@ -721,15 +806,32 @@ function EditorRoom({ profile, setProfile, onAddToSession, onBack, onGenerate, o
           <div className="ed-bio-foot">
             <span className="hint">Use <code style={{ background: 'var(--hw-recessed)', padding: '1px 4px', borderRadius: 2 }}>{'{{name}}'}</code> for variables/anchors. Click a chip to insert · click an unbound chip to register it.</span>
             <div className="ed-bio-tokens">
-              {tokens.map((t, i) => (
-                <span key={i} className={'token-chip ' + t.kind}
-                      onClick={() => handleChipClick(t)}
-                      title={t.kind === 'pending'
-                        ? `"${t.name}" is unbound — click to register`
-                        : `Click to insert {{${t.name}}} at cursor`}>
-                  {t.kind === 'var' ? '↻' : t.kind === 'anchor' ? '⚓' : '?'} {t.name}
-                </span>
-              ))}
+              {tokens.map((t, i) => {
+                if (t.kind === 'pending') {
+                  return (
+                    <span key={i} className="token-chip pending"
+                          onClick={() => handleChipClick(t)}
+                          title={`"${t.name}" is unbound — click to register`}>
+                      ? {t.name}
+                    </span>
+                  );
+                }
+                const vIdx = t.kind === 'var' ? profile.variables.findIndex(v => v.name === t.name) : -1;
+                return (
+                  <span key={i} className={'token-chip ' + t.kind} style={{ position: 'relative' }}>
+                    <span onClick={() => handleChipClick(t)} title="Click to insert at cursor">
+                      {t.kind === 'var' ? '↻' : '⚓'} {t.name}
+                    </span>
+                    <span className="chip-caret"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const rect = e.currentTarget.getBoundingClientRect();
+                            setChipMenu(prev => prev?.token.name === t.name ? null : { token: t, x: rect.left, y: rect.bottom + 4, vIdx });
+                          }}
+                          title="More options">▾</span>
+                  </span>
+                );
+              })}
               <span className="token-chip add" onClick={addVar} title="Add variable">+ Var</span>
               <span className="token-chip add" onClick={addAnchor} title="Add anchor">+ Anchor</span>
             </div>
@@ -745,6 +847,7 @@ function EditorRoom({ profile, setProfile, onAddToSession, onBack, onGenerate, o
                 const isDragOver = dragOverVarIdx === idx && draggingVarIdx !== idx;
                 return (
                 <div key={idx}
+                     id={`var-row-${idx}`}
                      className={'var-row' + (idx === activeVarIdx ? ' active' : '')}
                      onClick={() => setActiveVarIdx(idx)}
                      style={{
@@ -878,7 +981,14 @@ function EditorRoom({ profile, setProfile, onAddToSession, onBack, onGenerate, o
         <div className="hw-card preview-card" style={{ position: 'relative' }}>
           <span className="card-label"><span className="step">P</span>Live Preview · resolved bio</span>
           <div className="pv-stack">
-            <div className="pv-lcd" dangerouslySetInnerHTML={{ __html: previewHTML }}></div>
+            <div className="pv-lcd">
+              {previewSegs.map((seg, i) => {
+                if (seg.kind === 'anchor')  return <span key={i} className="anchor-fill">{seg.anchorVal}</span>;
+                if (seg.kind === 'var')     return <span key={i} className="var-fill">{seg.resolvedText}</span>;
+                if (seg.kind === 'pending') return <span key={i} className="pending">{`{{${seg.key}}}`}</span>;
+                return <React.Fragment key={i}>{seg.text}</React.Fragment>;
+              })}
+            </div>
           </div>
           <div className="pv-knobs">
             {profile.variables.slice(0, 6).map((v, i) => (
@@ -1002,6 +1112,36 @@ function EditorRoom({ profile, setProfile, onAddToSession, onBack, onGenerate, o
           </span>
         </div>
       </div>
+      {chipMenu && ReactDOM.createPortal(
+        <div className="chip-popover"
+             style={{ position: 'fixed', left: chipMenu.x, top: chipMenu.y, zIndex: 200 }}
+             onClick={e => e.stopPropagation()}>
+          <div className="chip-pop-item"
+               onClick={() => { insertToken(chipMenu.token.kind, chipMenu.token.name); setChipMenu(null); }}>
+            ↳ Insert {`{{${chipMenu.token.name}}}`}
+          </div>
+          {chipMenu.token.kind === 'var' && chipMenu.vIdx >= 0 && (
+            <div className="chip-pop-item"
+                 onClick={() => {
+                   setActiveVarIdx(chipMenu.vIdx);
+                   document.getElementById(`var-row-${chipMenu.vIdx}`)?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+                   setChipMenu(null);
+                 }}>
+              ⤳ Jump to variable
+            </div>
+          )}
+          {chipMenu.token.kind === 'var' && (
+            <div className="chip-pop-item"
+                 onClick={() => {
+                   setProfile({ ...profile, anchors: { ...profile.anchors, [chipMenu.token.name]: '' } });
+                   setChipMenu(null);
+                 }}>
+              ⊕ Promote to anchor
+            </div>
+          )}
+        </div>,
+        document.body
+      )}
     </div>
   );
 }
@@ -1021,6 +1161,7 @@ function SessionRoom({
   const [dragOverSlot, setDragOverSlot] = useState(null);
   const [rosterDropArmed, setRosterDropArmed] = useState(false);
   const [showLoadMenu, setShowLoadMenu] = useState(false);
+  const [showBioPreview, setShowBioPreview] = useState(false);
 
   // Common anchor presets a user might want to drop in
   const ANCHOR_TEMPLATES = [
@@ -1074,6 +1215,28 @@ function SessionRoom({
     copy[slotIdx].overrides = ovs;
     setSessionAgents(copy);
   };
+  const rerollAgent = (slotIdx) => {
+    const slot = sessionAgents[slotIdx];
+    if (!slot) return;
+    const p = profiles.find(pp => pp.id === slot.profileId);
+    if (!p || p.variables.length === 0) return;
+    const copy = [...sessionAgents];
+    const ovs = { ...(copy[slotIdx].overrides || {}) };
+    p.variables.forEach(v => {
+      if (ovs[v.name] !== undefined || v.values.length <= 1) return;
+      const totalWeight = v.values.reduce((sum, val) => sum + (val.weight || 1), 0);
+      let r = Math.random() * totalWeight;
+      let picked = v.values.length - 1;
+      for (let i = 0; i < v.values.length; i++) {
+        r -= (v.values[i].weight || 1);
+        if (r <= 0) { picked = i; break; }
+      }
+      ovs[v.name] = v.values[picked].text;
+    });
+    copy[slotIdx] = { ...copy[slotIdx], overrides: ovs };
+    setSessionAgents(copy);
+  };
+
   // Effective valueIdx for a channel knob: derived from override (if any), else profile state
   const effectiveIdx = (slot, v) => {
     const lock = slot.overrides?.[v.name];
@@ -1426,105 +1589,95 @@ function SessionRoom({
           }, 0)}</span>knobs</span>
           <span className="grow"></span>
           <button className="hw-btn" onClick={onSaveSession} disabled={filled === 0} title="Save this session as a reusable preset">💾 Save</button>
+          <button className="hw-btn" onClick={() => setShowBioPreview(true)} disabled={filled === 0} title="Preview resolved bios before launch">👁 Preview</button>
           <button className="launch-btn" onClick={onLaunch} disabled={filled === 0}>▶ Launch Session</button>
         </div>
+        {showBioPreview && (
+          <div className="bio-preview-overlay">
+            <div className="bio-preview-panel hw-card">
+              <span className="card-label" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span>👁 Bio preview · exactly what will be posted</span>
+                <button className="hw-btn tiny ghost" onClick={() => setShowBioPreview(false)}>✕</button>
+              </span>
+              <div className="bio-preview-list">
+                {sessionAgents.map((slot, si) => {
+                  const p = profiles.find(pp => pp.id === slot.profileId);
+                  if (!p) return null;
+                  const lp = { ...p, variables: p.variables.map(v => {
+                    const lock = slot.overrides?.[v.name];
+                    if (lock === undefined) return v;
+                    const idx = v.values.findIndex(val => val.text === lock);
+                    return idx >= 0 ? { ...v, valueIdx: idx } : v;
+                  })};
+                  const bio = resolveBio(lp, sharedAnchors);
+                  return (
+                    <div key={si} className="bio-preview-agent">
+                      <div className="bio-preview-agent-head">
+                        <span style={{ width: 8, height: 8, borderRadius: '50%', background: p.color, display: 'inline-block', flexShrink: 0 }}></span>
+                        <span style={{ fontFamily: 'var(--font-display)', fontSize: 13 }}>{p.name}</span>
+                        <span style={{ flex: 1 }}></span>
+                        <button className="hw-btn tiny" onClick={() => rerollAgent(si)} title="Re-randomize unlocked variables">🎲 reroll</button>
+                      </div>
+                      <div className="bio-preview-bio">{bio}</div>
+                    </div>
+                  );
+                })}
+              </div>
+              <div style={{ padding: '10px 14px', display: 'flex', gap: 8, borderTop: 'var(--hw-border)' }}>
+                <button className="hw-btn ghost" onClick={() => setShowBioPreview(false)}>← Back</button>
+                <span style={{ flex: 1 }}></span>
+                <button className="launch-btn" onClick={() => { setShowBioPreview(false); onLaunch(); }}>▶ Looks good — Launch</button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
-/* ── Run Room — multi-agent chat with live knobs along bottom ── */
-function RunRoom({ profiles, sessionAgents, sharedAnchors, goal, onBack, onTweak }) {
+/* ── Run Room — launch staging card ────────────────────────────────────────
+   Agents are already posted to the chatroom by launchSession() before this
+   room is shown. This card surfaces the result and hands off to Agent Studio.
+   Shown only as a fallback when window.agentStudio is not available. */
+function RunRoom({ profiles, sessionAgents, sharedAnchors, goal, onBack }) {
   const agents = sessionAgents.map(a => ({
     ...a, profile: profiles.find(p => p.id === a.profileId),
   })).filter(a => a.profile);
 
-  const [msgs, setMsgs] = useState([
-    { who: '— SYSTEM —', text: `Goal: ${goal || '(no goal set)'} · ${agents.length} agents loaded.`, system: true },
-    ...(agents[0] ? [{ who: agents[0].profile.name, color: agents[0].profile.color, text: resolveBio(agents[0].profile, sharedAnchors).slice(0, 200) + '… [agent thinking]' }] : []),
-  ]);
-
-  const [activeAgent, setActiveAgent] = useState(0);
+  const openInStudio = () => {
+    if (window.agentStudio && typeof window.agentStudio.openWithSession === 'function') {
+      window.agentStudio.openWithSession({ goal: goal || '', fromComposer: true });
+    }
+  };
+  const copyGoal = () => { navigator.clipboard?.writeText(goal || '').catch(() => {}); };
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 14 }}>
-      <div className="hw-card" style={{ display: 'flex', flexDirection: 'column', minHeight: 540 }}>
-        <span className="card-label"><span className="step">▶</span>Live Session · {goal}</span>
-        <div style={{ flex: 1, padding: 12, display: 'flex', flexDirection: 'column', gap: 8, minHeight: 360, overflowY: 'auto' }}>
-          {msgs.map((m, i) => (
-            <div key={i} className="test-bubble" style={ m.system ? { background: 'var(--hw-recessed)', fontStyle: 'italic', textAlign: 'center', borderColor: 'var(--hw-text-dim)' } : {} }>
-              <div className="who" style={ m.color ? { color: m.color } : {} }>{m.who}</div>
-              <div>{m.text}</div>
+    <div style={{ maxWidth: 600, margin: '40px auto', display: 'flex', flexDirection: 'column', gap: 14 }}>
+      <div className="hw-card">
+        <span className="card-label"><span className="step">▶</span>Launch Staging</span>
+        <div style={{ padding: '10px 16px 4px', display: 'flex', flexDirection: 'column', gap: 6 }}>
+          {agents.map((a, i) => (
+            <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'center', padding: '4px 0' }}>
+              <span style={{ width: 8, height: 8, borderRadius: '50%', background: a.profile.color, flexShrink: 0 }}></span>
+              <span style={{ fontFamily: 'var(--font-display)', fontSize: 14 }}>{a.profile.name}</span>
+              <span style={{ flex: 1 }}></span>
+              <span style={{ fontSize: 9, letterSpacing: '.1em', color: 'var(--hw-grn)', textTransform: 'uppercase' }}>✓ posted</span>
             </div>
           ))}
         </div>
-
-        {/* Live knob strip */}
-        <div style={{ borderTop: 'var(--hw-border)', background: 'var(--hw-recessed)', padding: 10 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-            <span style={{ fontSize: 9, letterSpacing: '.14em', textTransform:'uppercase', color: 'var(--hw-text-dim)' }}>Now mixing →</span>
-            <div className="res-toggle">
-              {agents.map((a, i) => (
-                <button key={i} className={i === activeAgent ? 'active' : ''} onClick={() => setActiveAgent(i)}>
-                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: a.profile.color, display: 'inline-block', marginRight: 4 }}></span>
-                  {a.profile.name}
-                </button>
-              ))}
-            </div>
-            <span style={{ flex: 1 }}></span>
-            <button className="hw-btn tiny" onClick={onBack}>← Edit Session</button>
-          </div>
-          {agents[activeAgent] && (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 8 }}>
-              {agents[activeAgent].profile.variables.slice(0, 6).map((v, i) => (
-                <div className="knob-cell" key={i} onClick={() => onTweak(activeAgent, i)}>
-                  <KnobSVG valueIdx={v.valueIdx} total={v.values.length} color={agents[activeAgent].profile.color} size={56}/>
-                  <div className="knob-name">{v.feature_name}</div>
-                  <div className="knob-val" style={{ maxWidth: '100%' }}>{v.values[v.valueIdx]?.text}</div>
-                </div>
-              ))}
-            </div>
-          )}
+        <div style={{ margin: '8px 16px', padding: '10px 12px', background: 'var(--hw-recessed)', borderRadius: 2, fontSize: 10, display: 'flex', flexDirection: 'column', gap: 4 }}>
+          <div><span style={{ color: 'var(--hw-grn)' }}>✓</span> {agents.length} agent{agents.length !== 1 ? 's' : ''} loaded into chatroom</div>
+          {goal && <div><span style={{ color: 'var(--hw-grn)' }}>✓</span> Goal set · {Object.keys(sharedAnchors).length} shared anchor{Object.keys(sharedAnchors).length !== 1 ? 's' : ''} merged</div>}
         </div>
-
-        <div style={{ padding: 10, borderTop: 'var(--hw-border-soft)', display: 'flex', gap: 8 }}>
-          <input style={{ flex: 1, fontFamily: 'var(--font-label)', fontSize: 12, padding: '8px 10px', border: 'var(--hw-border-soft)', background: 'var(--hw-panel)', borderRadius: 2 }}
-                 placeholder="Speak to the ensemble…"/>
-          <button className="hw-btn primary">↵ Send</button>
-          <button className="hw-btn">🎲 Reroll all knobs</button>
+        <div style={{ padding: '10px 16px 6px', display: 'flex', gap: 8 }}>
+          <button className="launch-btn" style={{ flex: 1 }} onClick={openInStudio}>▶ Open in Agent Studio</button>
         </div>
-      </div>
-
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-        <div className="hw-card">
-          <span className="card-label">Active ensemble</span>
-          <div style={{ padding: 8 }}>
-            {agents.map((a, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '5px 6px', borderRadius: 2, background: i === activeAgent ? 'var(--hw-lcd-bg)' : 'transparent', cursor:'pointer' }}
-                   onClick={() => setActiveAgent(i)}>
-                <span style={{ width: 8, height: 8, borderRadius: '50%', background: a.profile.color }}></span>
-                <span style={{ fontFamily: 'var(--font-display)', fontSize: 14 }}>{a.profile.name}</span>
-                <span style={{ marginLeft: 'auto', fontSize: 9, color: 'var(--hw-text-dim)' }}>CH {String(i+1).padStart(2,'0')}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="hw-card anchor-side">
-          <span className="card-label">Shared anchors (live)</span>
-          {Object.entries(sharedAnchors).map(([k, v]) => (
-            <div key={k} className="anch-row">
-              <span className="akey">{k}</span>
-              <input className="aval" value={v} readOnly/>
-            </div>
-          ))}
-        </div>
-
-        <div className="hw-card" style={{ padding: 10, display:'flex', flexDirection:'column', gap:6 }}>
-          <span className="card-label" style={{ padding:0 }}>Recording</span>
-          <button className="hw-btn">⏺ Record transcript</button>
-          <button className="hw-btn">💾 Save session preset</button>
-          <button className="hw-btn ghost" onClick={onBack}>■ Stop</button>
+        <div style={{ padding: '4px 16px 14px', display: 'flex', gap: 8, alignItems: 'center' }}>
+          <button className="hw-btn ghost" onClick={onBack}>← Back to Compose</button>
+          {goal && <button className="hw-btn" onClick={copyGoal}>⎘ Copy Goal</button>}
+          <span style={{ flex: 1 }}></span>
+          <a href="/chatroom" className="hw-btn" style={{ textDecoration: 'none' }} target="_blank" rel="noopener noreferrer">Open Chatroom ↗</a>
         </div>
       </div>
     </div>
@@ -1552,8 +1705,14 @@ function normalizeStoredProfile(p) {
     bioTemplate: p.bioTemplate || '',
     variables: p.variables || [],
     anchors: p.anchors || {},
-    tags: p.tags || [{ type: 'creator', label: 'You' }],
+    tags: normalizeTags(p.tags),
   };
+}
+function normalizeTags(tags) {
+  return (tags || [{ type: 'creator', label: 'You' }]).map(t => ({
+    ...t,
+    type: t.label === 'Built-in' ? 'builtin' : (t.label === 'You' ? 'creator' : t.type),
+  }));
 }
 
 // Poll briefly for the AgentProfileStore module to finish loading.
@@ -1694,7 +1853,8 @@ function App() {
       b.classList.toggle('active', b.dataset.room === room);
       b.onclick = () => setRoom(b.dataset.room);
     });
-    document.querySelectorAll('.flow-step').forEach(s => {
+    // Support both the legacy .flow-step and new .flow-seg pill elements
+    document.querySelectorAll('.flow-step, .flow-seg').forEach(s => {
       s.classList.toggle('active', s.dataset.room === room);
       const order = ['library','editor','session','run'];
       const cur = order.indexOf(room);
@@ -2365,8 +2525,7 @@ function App() {
       {room === 'run' && (
         <RunPortal>
           <RunRoom profiles={profiles} sessionAgents={sessionAgents} sharedAnchors={sharedAnchors} goal={goal}
-                   onBack={() => setRoom('session')}
-                   onTweak={liveTweakKnob}/>
+                   onBack={() => setRoom('session')}/>
         </RunPortal>
       )}
       {toast && (

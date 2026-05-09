@@ -562,12 +562,17 @@ export class SynthograsizerSmall {
     // Update variable name using data attribute for CSS ::before
     this.elements.controlVariableName.setAttribute('data-variable-name', variable.name.toUpperCase());
 
-    // Update value (clear any cached original text first)
+    // Update value — CSS clamp() + white-space:nowrap handles sizing
     this.elements.controlValue.removeAttribute('data-original-text');
     this.elements.controlValue.textContent = value;
+    this.elements.controlValue.style.fontSize = '';
 
-    // Dynamically resize text to fit
-    this.resizeControlValueText();
+    // Sub-label: "{n} of {total} · ▴▾ to step"
+    const sublabel = document.getElementById('control-value-sublabel');
+    if (sublabel) {
+      const total = variable.values.length;
+      sublabel.textContent = total > 1 ? `${valueIndex + 1} of ${total} · ▴▾ to step` : '';
+    }
 
     // Update colors
     document.documentElement.style.setProperty('--current-color', color);
@@ -598,63 +603,7 @@ export class SynthograsizerSmall {
    * Format text with line breaks (max 12 characters per line)
    */
   resizeControlValueText() {
-    const element = this.elements.controlValue;
-
-    if (!element) return;
-
-    // Get original text
-    const originalText = element.getAttribute('data-original-text') || element.textContent;
-    element.setAttribute('data-original-text', originalText);
-
-    // Break text into lines with max 18 characters per line (wider control)
-    const maxCharsPerLine = 18;
-    const words = originalText.split(' ');
-    const lines = [];
-    let currentLine = '';
-
-    words.forEach((word, index) => {
-      const testLine = currentLine ? `${currentLine} ${word}` : word;
-
-      if (testLine.length <= maxCharsPerLine) {
-        currentLine = testLine;
-      } else {
-        // If current line has content, push it and start new line
-        if (currentLine) {
-          lines.push(currentLine);
-          currentLine = word;
-        } else {
-          // Single word is too long, break it
-          lines.push(word.substring(0, maxCharsPerLine));
-          currentLine = word.substring(maxCharsPerLine);
-        }
-      }
-
-      // Push last line if this is the last word
-      if (index === words.length - 1 && currentLine) {
-        lines.push(currentLine);
-      }
-    });
-
-    // Update element with line breaks (use textContent per-line to avoid XSS)
-    element.textContent = '';
-    lines.forEach((line, i) => {
-      if (i > 0) element.appendChild(document.createElement('br'));
-      element.appendChild(document.createTextNode(line));
-    });
-
-    // Adjust font size based on number of lines
-    let fontSize;
-    if (lines.length === 1) {
-      fontSize = 42;
-    } else if (lines.length === 2) {
-      fontSize = 36;
-    } else if (lines.length === 3) {
-      fontSize = 30;
-    } else {
-      fontSize = 24;
-    }
-
-    element.style.fontSize = `${fontSize}px`;
+    // Font sizing is handled by CSS clamp(14px, 4cqw, 42px) — no JS needed.
   }
 
   /**
@@ -2230,6 +2179,24 @@ export class SynthograsizerSmall {
   }
 
   _initHideInactiveToggle() {
+    const toggleBtn = document.getElementById('connections-toggle-btn');
+    if (toggleBtn) {
+      const group = toggleBtn.closest('.connections-group');
+      const collapsed = localStorage.getItem('synthConnectionsCollapsed') === 'true';
+      if (collapsed && group) {
+        group.classList.add('collapsed');
+        toggleBtn.setAttribute('aria-expanded', 'false');
+        toggleBtn.textContent = '› Connections';
+      }
+      toggleBtn.addEventListener('click', () => {
+        const isExpanded = toggleBtn.getAttribute('aria-expanded') === 'true';
+        toggleBtn.setAttribute('aria-expanded', String(!isExpanded));
+        toggleBtn.textContent = isExpanded ? '› Connections' : '⌄ Connections';
+        group?.classList.toggle('collapsed', isExpanded);
+        localStorage.setItem('synthConnectionsCollapsed', String(isExpanded));
+      });
+    }
+
     const btn = document.getElementById('hide-inactive-btn');
     if (!btn) return;
 

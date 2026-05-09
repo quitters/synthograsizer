@@ -640,12 +640,34 @@ body {
 /* ===== Connections Header ===== */
 .connections-header {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
+  flex-direction: row;
+  align-items: center;
   margin-top: 16px;
   margin-bottom: 0;
   padding: 0 2px;
-  gap: 4px;
+  gap: 6px;
+}
+
+.connections-toggle-btn {
+  flex: 1;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s;
+}
+.connections-toggle-btn:hover { color: var(--text-primary); }
+.connections-toggle-btn[aria-expanded="false"] { color: var(--text-secondary); }
+
+/* Collapse body when toggle is closed */
+.connections-group.collapsed > *:not(.connections-header) {
+  display: none;
 }
 
 .connections-label {
@@ -1539,40 +1561,42 @@ body {
 .control-value-row {
   flex: 1;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 16px;
+  padding: 12px 16px 4px;
   min-height: 0;
-  /* Allow flex item to shrink */
   overflow: hidden;
-  /* Prevent clipping */
+  container-type: inline-size;
 }
 
 .control-value {
-  font-size: 42px;
-  /* Maximum size, dynamically adjusted by JS */
+  font-size: clamp(14px, 4cqw, 42px);
   font-weight: 700;
   color: var(--current-color, var(--primary-purple));
   letter-spacing: -0.5px;
   text-align: center;
-  padding: 8px 16px;
+  padding: 4px 12px;
 
-  /* Text Overflow Handling */
-  display: -webkit-box;
-  -webkit-line-clamp: 4;
-  line-clamp: 4;
-  /* Limit to 4 lines */
-  -webkit-box-orient: vertical;
+  /* Single-line — never wrap mid-camelCase */
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: normal;
 
-  word-wrap: break-word;
-  word-break: break-word;
-  overflow-wrap: break-word;
   transition: font-size 0.2s ease;
   line-height: 1.2;
   max-width: 100%;
+  display: block;
+}
+
+.control-value-sublabel {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--current-color, var(--primary-purple));
+  opacity: 0.6;
+  text-align: center;
+  padding: 0 12px 4px;
+  white-space: nowrap;
 }
 
 /* Directional Buttons */

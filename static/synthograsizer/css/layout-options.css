@@ -9,13 +9,102 @@
    All rules here are scoped to min-width: 900px so mobile is never affected.
 ───────────────────────────────────────────────────────────────────────────── */
 
-/* ── Layout Switcher UI ─────────────────────────────────────────────────── */
+/* ── App Bar — unified logo + template selector + mode switcher ─────────── */
 
+.app-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 32px;
+  margin-bottom: 20px;
+  /* Match page chassis — no jarring white band */
+  background: var(--hw-chassis, #edeae2);
+  border-bottom: 1px solid var(--hw-recessed, #c4bcac);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  gap: 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.app-bar-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+/* Bungee wordmark — matches .app-title in synth-hardware-theme.css */
+.app-bar-logo {
+  font-family: 'Bungee', sans-serif;
+  font-weight: 400;
+  font-size: 20px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--hw-accent, #3dbdad);
+  text-shadow:
+    -1px -1px 0 rgba(30,20,10,0.35),
+     1px -1px 0 rgba(30,20,10,0.35),
+    -1px  1px 0 rgba(30,20,10,0.35),
+     1px  1px 0 rgba(30,20,10,0.35);
+  white-space: nowrap;
+}
+
+/* Hardware-beveled template selector */
+.app-bar-tpl-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  background: var(--hw-panel, #e5e1d8);
+  border: 1.5px solid var(--hw-recessed, #c4bcac);
+  border-radius: 3px;
+  box-shadow: 2px 2px 0 var(--hw-recessed, #c4bcac);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--hw-text-dim, #8a7e6e);
+  cursor: pointer;
+  transition: transform 0.08s, box-shadow 0.08s, color 0.08s;
+  white-space: nowrap;
+  max-width: 220px;
+}
+.app-bar-tpl-btn:hover {
+  color: var(--hw-text, #2e2418);
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--hw-recessed, #c4bcac);
+}
+.app-bar-tpl-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+#app-bar-tpl-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 150px;
+  display: inline-block;
+}
+.app-bar-tpl-arrow { flex-shrink: 0; opacity: 0.6; }
+
+/* Hide template button in Composer mode (template picker is Studio-specific) */
+body.mode-composer .app-bar-tpl-btn { display: none; }
+
+/* ── Mode buttons ────────────────────────────────────────────────────────── */
+
+.app-bar-modes {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+/* Override the old .layout-switcher block sizing that no longer applies */
 .layout-switcher {
   display: flex;
-  justify-content: center;
   gap: 4px;
-  margin-bottom: 20px;
+  margin-bottom: 0;
 }
 
 .layout-btn {
@@ -43,6 +132,12 @@
   border-color: #8b5cf6;
   color: white;
 }
+
+/* ── Composer mode: hide inner title (logo already in app-bar) ───────────── */
+body.mode-composer #composer-mount .app-header .app-title { display: none; }
+
+/* ── Perform mode: also hide navbar (was handled via body.layout-a) ──────── */
+body.layout-a #navbar-mount { display: none; }
 
 
 /* ══════════════════════════════════════════════════════════════════════════
@@ -174,6 +269,55 @@ body.layout-a #navbar-mount {
   .layout-a .variable-control-section {
     grid-column: 2;
     grid-row: 2 / span 20;  /* span enough rows to cover the left column */
+    position: sticky;
+    top: 20px;
+    align-self: start;
+    margin-bottom: 0;
+  }
+
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════
+   STUDIO MODE (default) — Two-Column condensed layout
+   Left (~1fr): Output + Actions + AI Tools
+   Right (400px): D-Pad / Knobs + collapsible Connections (sticky)
+   Title is hidden — redundant with site nav
+══════════════════════════════════════════════════════════════════════════ */
+
+/* Hide page title — redundant with site nav */
+.synthograsizer-small:not(.layout-a) .app-header {
+  display: none;
+}
+
+@media (min-width: 900px) {
+
+  .synthograsizer-small:not(.layout-a) {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    column-gap: 36px;
+    align-items: start;
+  }
+
+  .synthograsizer-small:not(.layout-a) #error-message {
+    grid-column: 1 / -1;
+  }
+
+  .synthograsizer-small:not(.layout-a) .output-section,
+  .synthograsizer-small:not(.layout-a) .primary-actions-section,
+  .synthograsizer-small:not(.layout-a) #p5-live-section,
+  .synthograsizer-small:not(.layout-a) .actions-section,
+  .synthograsizer-small:not(.layout-a) .studio-controls-section {
+    grid-column: 1;
+    min-width: 0;
+  }
+
+  .synthograsizer-small:not(.layout-a) .output-section          { margin-bottom: 20px; }
+  .synthograsizer-small:not(.layout-a) .primary-actions-section { margin-bottom: 20px; }
+
+  .synthograsizer-small:not(.layout-a) .variable-control-section {
+    grid-column: 2;
+    grid-row: 1 / span 20;
     position: sticky;
     top: 20px;
     align-self: start;

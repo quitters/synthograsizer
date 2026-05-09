@@ -143,32 +143,44 @@ class StudioIntegration {
                 letter-spacing: 0.03em;
             }
             
-            .btn-chat-large { background: linear-gradient(to bottom right, #ffffff, #f0f7ff); border-bottom: 3px solid #2196F3; }
-            .btn-chat-large:hover { background: #e3f2fd; }
+            /* ── 5 category accents — left rail only, shared paper bg ── */
+            /* Image category: Image Studio, Image Analysis */
+            .btn-image-large,
+            .btn-analysis-large {
+                border-left: 3px solid #E91E63; background: #fff;
+            }
+            .btn-image-large:hover, .btn-analysis-large:hover { background: #fce4ec; }
 
-            .btn-image-large { background: linear-gradient(to bottom right, #ffffff, #fff0f5); border-bottom: 3px solid #E91E63; }
-            .btn-image-large:hover { background: #fce4ec; }
-
-            .btn-video-large { background: linear-gradient(to bottom right, #ffffff, #f3e5f5); border-bottom: 3px solid #9C27B0; }
+            /* Video category: Video Studio */
+            .btn-video-large {
+                border-left: 3px solid #9C27B0; background: #fff;
+            }
             .btn-video-large:hover { background: #f3e5f5; }
 
-            .btn-transform-large { background: linear-gradient(to bottom right, #ffffff, #fff3e0); border-bottom: 3px solid #FF9800; }
-            .btn-transform-large:hover { background: #fff3e0; }
+            /* Text category: Transform, AI Chat, Template Gen */
+            .btn-transform-large,
+            .btn-chat-large,
+            .btn-template-large {
+                border-left: 3px solid #2196F3; background: #fff;
+            }
+            .btn-transform-large:hover, .btn-chat-large:hover, .btn-template-large:hover { background: #e3f2fd; }
 
-            .btn-template-large { background: linear-gradient(to bottom right, #ffffff, #e0f2f1); border-bottom: 3px solid #009688; }
-            .btn-template-large:hover { background: #e0f2f1; }
+            /* Data category: Metadata, Trace Viewer */
+            .btn-metadata-large,
+            .btn-trace-large {
+                border-left: 3px solid #FF9800; background: #fff;
+            }
+            .btn-metadata-large:hover, .btn-trace-large:hover { background: #fff3e0; }
 
-            .btn-analysis-large { background: linear-gradient(to bottom right, #ffffff, #e8eaf6); border-bottom: 3px solid #3f51b5; }
-            .btn-analysis-large:hover { background: #e8eaf6; }
-
-            .btn-metadata-large { background: linear-gradient(to bottom right, #ffffff, #fbe9e7); border-bottom: 3px solid #ff5722; }
-            .btn-metadata-large:hover { background: #fbe9e7; }
-
-            .btn-music-large { background: linear-gradient(to bottom right, #ffffff, #ede7f6); border-bottom: 3px solid #7c4dff; }
-            .btn-music-large:hover { background: #ede7f6; }
-
-            .btn-glitcher-large { background: linear-gradient(to bottom right, #ffffff, #d8f5f1); border-bottom: 3px solid #4ecdc4; }
-            .btn-glitcher-large:hover { background: #d8f5f1; }
+            /* Flow category: Music Studio, Workflows, Agent Studio, Glitcher */
+            .btn-music-large,
+            .btn-workflow-large,
+            .btn-agent-large,
+            .btn-glitcher-large {
+                border-left: 3px solid #009688; background: #fff;
+            }
+            .btn-music-large:hover, .btn-workflow-large:hover,
+            .btn-agent-large:hover, .btn-glitcher-large:hover { background: #e0f2f1; }
 
             /* Music Studio specific */
             .music-playback-controls { display: flex; gap: 8px; margin: 12px 0; justify-content: center; }
@@ -769,14 +781,21 @@ class StudioIntegration {
                 <span>AI Studio Tools</span>
             </div>
             <div class="studio-btn-grid">
+                <!-- Image -->
                 <button class="studio-btn-large btn-image-large" id="studio-image-btn">
                     <span class="icon">🎨</span>
                     <span class="label">Image Studio</span>
                 </button>
+                <button class="studio-btn-large btn-analysis-large" id="studio-analysis-btn">
+                    <span class="icon">🔍</span>
+                    <span class="label">Image Analysis</span>
+                </button>
+                <!-- Video -->
                 <button class="studio-btn-large btn-video-large" id="studio-video-btn">
                     <span class="icon">🎥</span>
                     <span class="label">Video Studio</span>
                 </button>
+                <!-- Text -->
                 <button class="studio-btn-large btn-transform-large" id="studio-transform-btn">
                     <span class="icon">✨</span>
                     <span class="label">Transform</span>
@@ -789,17 +808,19 @@ class StudioIntegration {
                     <span class="icon">🧩</span>
                     <span class="label">Template Gen</span>
                 </button>
-                <button class="studio-btn-large btn-analysis-large" id="studio-analysis-btn">
-                    <span class="icon">🔍</span>
-                    <span class="label">Image Analysis</span>
-                </button>
+                <!-- Data -->
                 <button class="studio-btn-large btn-metadata-large" id="studio-metadata-btn">
                     <span class="icon">📋</span>
                     <span class="label">Metadata</span>
                 </button>
+                <button class="studio-btn-large btn-trace-large" id="studio-trace-btn">
+                    <span class="icon">🔎</span>
+                    <span class="label">Trace Viewer</span>
+                </button>
+                <!-- Flow -->
                 <button class="studio-btn-large btn-music-large" id="studio-music-btn">
                     <span class="icon">🎵</span>
-                    <span class="label">Music<br>Studio</span>
+                    <span class="label">Music Studio</span>
                 </button>
                 <button class="studio-btn-large btn-workflow-large" id="studio-workflow-btn">
                     <span class="icon">⚡</span>
@@ -809,13 +830,9 @@ class StudioIntegration {
                     <span class="icon">🤖</span>
                     <span class="label">Agent Studio</span>
                 </button>
-                <button class="studio-btn-large btn-trace-large" id="studio-trace-btn">
-                    <span class="icon">🔍</span>
-                    <span class="label">Trace Viewer</span>
-                </button>
                 <button class="studio-btn-large btn-glitcher-large" id="studio-glitcher-btn">
                     <span class="icon">✦</span>
-                    <span class="label">Glitcher<br>Studio</span>
+                    <span class="label">Glitcher Studio</span>
                 </button>
             </div>
         `;

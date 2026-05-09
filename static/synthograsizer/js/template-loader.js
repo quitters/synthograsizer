@@ -29,8 +29,14 @@ export class TemplateLoader {
   }
 
   setupEventListeners() {
-    // Open card picker modal
+    // Open card picker modal — primary (sidebar) button
     this.elements.templateButton?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.openPicker();
+    });
+
+    // Open card picker modal — app-bar button
+    document.getElementById('app-bar-tpl-btn')?.addEventListener('click', (e) => {
       e.stopPropagation();
       this.openPicker();
     });
@@ -293,6 +299,13 @@ export class TemplateLoader {
     const index = this.builtInTemplates.indexOf(templateName);
     if (index !== -1) {
       this.currentTemplateIndex = index;
+    }
+    // Update app-bar label to reflect current template
+    const nameEl = document.getElementById('app-bar-tpl-name');
+    if (nameEl) {
+      nameEl.textContent = templateName
+        .replace(/[-_]/g, ' ')
+        .replace(/\b\w/g, c => c.toUpperCase());
     }
   }
 

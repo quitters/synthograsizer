@@ -242,7 +242,7 @@
 /* ── P5.js In-Page Modal ───────────────────────────────────── */
 .p5-modal-v6 {
   position: fixed; z-index: 200;
-  width: 520px; bottom: 64px; right: 24px;
+  width: 520px; height: 500px; bottom: 64px; right: 24px;
   background: var(--bg-card, #f5f0e8);
   border: 2px solid rgba(0,0,0,.18);
   box-shadow: 6px 6px 0 rgba(0,0,0,.15);
@@ -284,10 +284,10 @@
   cursor: pointer; color: rgba(0,0,0,.5); transition: all .1s;
 }
 .p5-close-v6:hover { background: #ef4444; color: #fff; border-color: transparent; }
-/* Canvas area */
+/* Canvas area — hero: fills all remaining height */
 .p5-canvas-area-v6 {
-  height: 380px; background: #0a0a0a; overflow: hidden;
-  position: relative; flex-shrink: 0;
+  flex: 1; min-height: 0; background: #0a0a0a; overflow: hidden;
+  position: relative;
   display: flex; align-items: center; justify-content: center;
 }
 .p5-canvas-area-v6 iframe { width: 100%; height: 100%; border: none; display: block; }
@@ -298,10 +298,11 @@
   font-family: 'Roboto Mono', monospace; font-size: 10px;
   letter-spacing: .08em; text-transform: uppercase;
 }
-/* Controls */
+/* Controls — locked 56px bottom strip */
 .p5-controls-v6 {
   display: flex; align-items: center; gap: 6px;
-  padding: 7px 10px; border-top: 1px solid rgba(0,0,0,.12); flex-shrink: 0;
+  height: 56px; padding: 0 10px; box-sizing: border-box;
+  border-top: 1px solid rgba(0,0,0,.12); flex-shrink: 0;
 }
 .p5-ctrl-v6 {
   font-family: 'Roboto Mono', monospace; font-size: 10px;
@@ -356,20 +357,22 @@
 
 <body>
     <div class="page-wrapper">
-        <link rel="stylesheet" href="/shared/css/base.css">
-        <div id="navbar-mount"></div>
-        <script src="/shared/js/navbar.js?v=2"></script>
-
-        <!-- Layout / Mode Switcher — lifted out of .synthograsizer-small so it stays
-             reachable in Composer mode (where .synthograsizer-small is hidden).
-             Sticky so it remains visible while either app scrolls.
-             - data-layout buttons toggle the visual layout of the Synthograsizer (Studio vs Perform)
-             - data-mode="composer" swaps in the agent-composer React app entirely -->
-        <div class="layout-switcher mode-bar" id="layout-switcher">
+        <!-- ── App Bar — logo · template picker · mode switcher ── -->
+        <header class="app-bar">
+          <div class="app-bar-brand">
+            <span class="app-bar-logo">Synthograsizer</span>
+            <button class="app-bar-tpl-btn" id="app-bar-tpl-btn" title="Browse prompt templates (T)">
+              <span id="app-bar-tpl-name">Templates</span>
+              <span class="app-bar-tpl-arrow">▾</span>
+            </button>
+          </div>
+          <!-- id="layout-switcher" kept so the existing mode-switching JS can find buttons via querySelectorAll('.layout-btn') -->
+          <div class="app-bar-modes layout-switcher" id="layout-switcher">
             <button class="layout-btn" data-layout="default" data-tip="Studio Mode — Full Tools Panel">⊟ Studio</button>
             <button class="layout-btn" data-layout="a" data-tip="Perform Mode — Minimal Layout">▶ Perform</button>
             <button class="layout-btn" data-mode="composer" data-tip="4-room agent composer (Library → Editor → Session → Run)">🧪 Composer</button>
-        </div>
+          </div>
+        </header>
 
         <div class="synthograsizer-small">
             <!-- Header -->
@@ -501,6 +504,7 @@
                             <div class="control-variable-name" id="control-variable-name" data-variable-name="SUBJECT">
                                 <div class="control-value-row">
                                     <div class="control-value" id="control-value">a mountain landscape</div>
+                                    <div class="control-value-sublabel" id="control-value-sublabel"></div>
                                 </div>
                             </div>
 
@@ -543,7 +547,7 @@
                 <div class="connections-group">
 
                 <div class="connections-header">
-                    <span class="connections-label">Connections</span>
+                    <button id="connections-toggle-btn" class="connections-toggle-btn" title="Collapse connections panel" aria-expanded="true">⌄ Connections</button>
                     <button id="hide-inactive-btn" class="connections-filter-btn" title="Hide inactive connections">Hide inactive</button>
                 </div>
 
@@ -1310,38 +1314,23 @@
               </div>
             </header>
 
-            <div class="flow-banner" id="flow-banner">
-              <div class="flow-step active" data-room="library">
-                <div class="flow-num">1</div>
-                <div class="flow-info">
-                  <span class="flow-title">Browse / Create Profile</span>
-                  <span class="flow-sub">Pick a patch or design a new agent</span>
-                </div>
-              </div>
-              <div class="flow-arrow">›</div>
-              <div class="flow-step" data-room="editor">
-                <div class="flow-num">2</div>
-                <div class="flow-info">
-                  <span class="flow-title">Edit Bio Template</span>
-                  <span class="flow-sub">Variables, anchors, live preview</span>
-                </div>
-              </div>
-              <div class="flow-arrow">›</div>
-              <div class="flow-step" data-room="session">
-                <div class="flow-num">3</div>
-                <div class="flow-info">
-                  <span class="flow-title">Compose Session</span>
-                  <span class="flow-sub">Load 3–6 agents into channels</span>
-                </div>
-              </div>
-              <div class="flow-arrow">›</div>
-              <div class="flow-step" data-room="run">
-                <div class="flow-num">4</div>
-                <div class="flow-info">
-                  <span class="flow-title">Run · Tweak Live</span>
-                  <span class="flow-sub">Knobs control agents in real time</span>
-                </div>
-              </div>
+            <div class="flow-pill" id="flow-banner">
+              <button class="flow-seg active" data-room="library">
+                <span class="flow-seg-num">1</span>
+                <span class="flow-seg-lbl">Library</span>
+              </button>
+              <button class="flow-seg" data-room="editor">
+                <span class="flow-seg-num">2</span>
+                <span class="flow-seg-lbl">Editor</span>
+              </button>
+              <button class="flow-seg" data-room="session">
+                <span class="flow-seg-num">3</span>
+                <span class="flow-seg-lbl">Session</span>
+              </button>
+              <button class="flow-seg" data-room="run">
+                <span class="flow-seg-num">4</span>
+                <span class="flow-seg-lbl">Run</span>
+              </button>
             </div>
 
             <div id="room-library" class="room active"></div>
@@ -1439,11 +1428,13 @@
                 if (mode === 'composer') {
                     if (root) root.style.display = 'none';
                     if (composerMount) composerMount.hidden = false;
-                    document.body.classList.remove('layout-a'); // composer has no perform layout
+                    document.body.classList.remove('layout-a');
+                    document.body.classList.add('mode-composer');
                 } else {
                     if (root) root.style.display = '';
                     if (composerMount) composerMount.hidden = true;
                     document.body.classList.toggle('layout-a', currentLayout === 'a');
+                    document.body.classList.remove('mode-composer');
                 }
                 try { localStorage.setItem('synthograsizerMode', mode); } catch (e) {}
                 setActiveButtons();
@@ -1548,10 +1539,10 @@
                 <button class="p5-ctrl-v6" id="p5-restart-v6" title="Restart sketch">↺</button>
                 <button class="p5-ctrl-v6" id="p5-fx-toggle" title="Toggle FX filters">✦ FX</button>
                 <div class="p5-size-row-v6">
-                    <button class="p5-size-btn-v6 active" data-w="520" data-h="380">SM</button>
-                    <button class="p5-size-btn-v6" data-w="720" data-h="540">MD</button>
-                    <button class="p5-size-btn-v6" data-w="960" data-h="700">LG</button>
-                    <button class="p5-size-btn-v6" id="p5-size-fit-btn" title="Fit viewer to canvas native size">FIT</button>
+                    <button class="p5-size-btn-v6" data-w="520">SM</button>
+                    <button class="p5-size-btn-v6" data-w="720">MD</button>
+                    <button class="p5-size-btn-v6" data-w="960">LG</button>
+                    <button class="p5-size-btn-v6 active" id="p5-size-fit-btn" title="Fit viewer to canvas native size">FIT</button>
                 </div>
             </div>
         </div>
@@ -1755,30 +1746,28 @@
             btnRestart.addEventListener('click', function () { stop(); play(); });
             btnClose.addEventListener('click', closeModal);
 
-            /* ── Size buttons (SM / MD / LG) ── */
-            document.querySelectorAll('.p5-size-btn-v6[data-w]').forEach(function (btn) {
+            /* ── Size buttons (SM / MD / LG) — width only; canvas fills hero flex row ── */
+            document.querySelectorAll('.p5-size-btn-v6[data-w]:not(#p5-size-fit-btn)').forEach(function (btn) {
                 btn.addEventListener('click', function () {
                     document.querySelectorAll('.p5-size-btn-v6').forEach(function (b) { b.classList.remove('active'); });
                     btn.classList.add('active');
                     modal.style.width  = btn.dataset.w + 'px';
-                    var canvasArea = document.getElementById('p5-canvas-area-v6');
-                    if (canvasArea) canvasArea.style.height = btn.dataset.h + 'px';
-                    // Re-run smart scale for new viewer dimensions
+                    modal.style.height = '';
                     setTimeout(applySmartScale, 0);
                 });
             });
 
-            /* ── FIT button: resize viewer to canvas native size ── */
+            /* ── FIT button: resize modal to canvas native dimensions ── */
             var fitBtn = document.getElementById('p5-size-fit-btn');
             if (fitBtn) {
                 fitBtn.addEventListener('click', function () {
                     if (!_canvasNativeW || !_canvasNativeH) return;
                     document.querySelectorAll('.p5-size-btn-v6').forEach(function (b) { b.classList.remove('active'); });
                     fitBtn.classList.add('active');
+                    var titlebarH = document.getElementById('p5-titlebar-v6').offsetHeight;
+                    var controlsH = 56;
                     modal.style.width  = _canvasNativeW + 'px';
-                    var canvasArea = document.getElementById('p5-canvas-area-v6');
-                    if (canvasArea) canvasArea.style.height = _canvasNativeH + 'px';
-                    // Viewer now matches canvas exactly — scale = 1
+                    modal.style.height = (_canvasNativeH + titlebarH + controlsH) + 'px';
                     try { iframe.contentWindow.postMessage({ p5CssScale: 1 }, '*'); } catch(e){}
                 });
             }

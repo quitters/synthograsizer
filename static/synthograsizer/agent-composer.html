@@ -33,39 +33,24 @@
     </div>
   </header>
 
-  <!-- Flow banner -->
-  <div class="flow-banner" id="flow-banner">
-    <div class="flow-step active" data-room="library">
-      <div class="flow-num">1</div>
-      <div class="flow-info">
-        <span class="flow-title">Browse / Create Profile</span>
-        <span class="flow-sub">Pick a patch or design a new agent</span>
-      </div>
-    </div>
-    <div class="flow-arrow">›</div>
-    <div class="flow-step" data-room="editor">
-      <div class="flow-num">2</div>
-      <div class="flow-info">
-        <span class="flow-title">Edit Bio Template</span>
-        <span class="flow-sub">Variables, anchors, live preview</span>
-      </div>
-    </div>
-    <div class="flow-arrow">›</div>
-    <div class="flow-step" data-room="session">
-      <div class="flow-num">3</div>
-      <div class="flow-info">
-        <span class="flow-title">Compose Session</span>
-        <span class="flow-sub">Load 3–6 agents into channels</span>
-      </div>
-    </div>
-    <div class="flow-arrow">›</div>
-    <div class="flow-step" data-room="run">
-      <div class="flow-num">4</div>
-      <div class="flow-info">
-        <span class="flow-title">Run · Tweak Live</span>
-        <span class="flow-sub">Knobs control agents in real time</span>
-      </div>
-    </div>
+  <!-- Flow pill (compact step indicator) -->
+  <div class="flow-pill" id="flow-banner">
+    <button class="flow-seg active" data-room="library">
+      <span class="flow-seg-num">1</span>
+      <span class="flow-seg-lbl">Library</span>
+    </button>
+    <button class="flow-seg" data-room="editor">
+      <span class="flow-seg-num">2</span>
+      <span class="flow-seg-lbl">Editor</span>
+    </button>
+    <button class="flow-seg" data-room="session">
+      <span class="flow-seg-num">3</span>
+      <span class="flow-seg-lbl">Session</span>
+    </button>
+    <button class="flow-seg" data-room="run">
+      <span class="flow-seg-num">4</span>
+      <span class="flow-seg-lbl">Run</span>
+    </button>
   </div>
 
   <!-- ROOMS -->
@@ -78,11 +63,10 @@
 
 <!-- Footer -->
 <div class="app-footer">
-  <div class="stat-pill"><span class="led"></span>Profile Store · localStorage</div>
-  <div class="stat-pill"><span class="led warn"></span>Gemini · API key required</div>
+  <div class="stat-pill"><span class="led"></span>Local · saved</div>
   <div class="stat-pill"><span class="led off"></span>Orchestrator · idle</div>
   <span class="grow"></span>
-  <span>v5 · Phase 2 UX proposal</span>
+  <button class="stat-pill stat-pill-cta" id="gemini-connect-btn"><span class="led warn"></span>Connect Gemini ▸</button>
 </div>
 </div><!-- /#composer-mount -->
 

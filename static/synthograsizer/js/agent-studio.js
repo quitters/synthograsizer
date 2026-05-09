@@ -954,7 +954,7 @@ class AgentStudio {
     this._activeArtifact = null;   // currently selected filename
     this._artifactCodeView = false; // preview vs raw code
     this._consoleLogs = [];        // { level, message, ts } from iframe postMessage
-    this._consoleOpen = true;      // console pane visibility
+    this._consoleOpen = false;     // console pane collapsed by default
     this._lastScreenshot = null;   // data URL of most recent capture
     this._msgHandler = null;       // bound window message listener (for cleanup)
 
@@ -1102,24 +1102,26 @@ class AgentStudio {
       <div id="as-root" class="as-root" data-mode="group">
         <!-- Mode tabs: Group (autonomous discussion) vs Solo (1-on-1 chat) -->
         <div class="as-mode-tabs" role="tablist" aria-label="Conversation mode">
-          <button class="as-mode-tab active" data-mode="group" role="tab" aria-selected="true"
-                  title="Multiple agents discuss autonomously toward a goal">
-            <span class="as-mode-icon">👥</span>
-            <span class="as-mode-label">Group Chat</span>
-            <span class="as-mode-sub">Auto-discussion · 2+ agents</span>
-          </button>
-          <button class="as-mode-tab" data-mode="solo" role="tab" aria-selected="false"
-                  title="Talk one-on-one with a single agent — your turn, their turn">
-            <span class="as-mode-icon">👤</span>
-            <span class="as-mode-label">Solo Chat</span>
-            <span class="as-mode-sub">Turn-by-turn · 1 agent</span>
-          </button>
-          <button class="as-mode-tab" data-mode="recipes" role="tab" aria-selected="false"
-                  title="Run loaded agents through a structured task or curated preset">
-            <span class="as-mode-icon">🧪</span>
-            <span class="as-mode-label">Recipes</span>
-            <span class="as-mode-sub">Goal field · presets</span>
-          </button>
+          <div class="as-mode-tabs-inner">
+            <button class="as-mode-tab active" data-mode="group" role="tab" aria-selected="true"
+                    title="Multiple agents discuss autonomously toward a goal">
+              <span class="as-mode-icon">👥</span>
+              <span class="as-mode-label">Group Chat</span>
+              <span class="as-mode-sub">Auto-discussion · 2+ agents</span>
+            </button>
+            <button class="as-mode-tab" data-mode="solo" role="tab" aria-selected="false"
+                    title="Talk one-on-one with a single agent — your turn, their turn">
+              <span class="as-mode-icon">👤</span>
+              <span class="as-mode-label">Solo Chat</span>
+              <span class="as-mode-sub">Turn-by-turn · 1 agent</span>
+            </button>
+            <button class="as-mode-tab" data-mode="recipes" role="tab" aria-selected="false"
+                    title="Run loaded agents through a structured task or curated preset">
+              <span class="as-mode-icon">🧪</span>
+              <span class="as-mode-label">Recipes</span>
+              <span class="as-mode-sub">Goal field · presets</span>
+            </button>
+          </div>
         </div>
 
         <!-- Compact header: goal + roster popover + presets + controls -->
@@ -1259,22 +1261,26 @@ class AgentStudio {
               </div>
             </div>
 
-            <!-- Console log pane -->
-            <div class="as-console-pane" id="as-console-pane">
-              <div class="as-console-hdr">
-                <button class="as-console-toggle" id="as-console-toggle">▾ Console</button>
-                <span id="as-console-err-badge" class="as-console-err-badge" style="display:none">0 errors</span>
-                <div style="flex:1"></div>
-                <button class="as-av-btn" id="as-console-share" title="Share errors to chat">⇪ Share to Chat</button>
-                <button class="as-av-btn" id="as-console-clear" title="Clear logs">✕</button>
-              </div>
-              <div class="as-console-body" id="as-console-body">
-                <div class="as-console-hint">Console output will appear here</div>
-              </div>
-            </div>
           </div>
 
         </div><!-- /.as-body-row -->
+
+        <!-- Console strip: own row above compose bar, collapsed by default -->
+        <div class="as-console-pane collapsed" id="as-console-pane">
+          <div class="as-console-hdr">
+            <button class="as-console-toggle" id="as-console-toggle">▸ Console</button>
+            <span id="as-console-err-badge" class="as-console-err-badge" style="display:none">0 errors</span>
+            <span id="as-console-count" class="as-console-count">0 output</span>
+            <div style="flex:1"></div>
+            <button class="as-av-btn" id="as-console-clear" title="Clear logs">✕</button>
+          </div>
+          <div class="as-console-body" id="as-console-body">
+            <div class="as-console-hint">Console output will appear here</div>
+            <div class="as-console-actions">
+              <button class="as-av-btn" id="as-console-share" title="Share errors to chat">⇪ Share to Chat</button>
+            </div>
+          </div>
+        </div>
 
         <!-- Recipes panel: visible only in recipes mode (CSS-toggled by data-mode) -->
         <section class="as-recipes-panel" data-section="recipes">
@@ -1394,13 +1400,16 @@ class AgentStudio {
         flex-direction: column;
         overflow: hidden;
       }
+      /* ── Inherit Composer visual language ── */
       .as-root { display:flex; flex-direction:column; flex:1 1 auto; min-height:0;
-                 font-size:13px; color:#333; width:100%; overflow:hidden; box-sizing:border-box; }
+                 font-size:13px; color:#2e2418; width:100%; overflow:hidden; box-sizing:border-box;
+                 font-family:'Share Tech Mono', 'JetBrains Mono', ui-monospace, monospace;
+                 background:#ede6d8; }
 
-      /* ── Mode tabs (Group vs Solo) ──────────────────────────────────────── */
-      .as-mode-tabs { display:flex; gap:0; background:#f5f5f5;
-                      border-bottom:1px solid #e0e0e0; padding:0;
-                      position:relative; }
+      /* ── Mode tabs → segmented pill ── */
+      .as-mode-tabs { display:flex; gap:0; background:#d4ccbe;
+                      border-bottom:2px solid #7a6e5e; padding:8px 12px;
+                      position:relative; align-items:center; }
 
       /* "← Back to Composer" pill — shown only when AgentStudio was launched
          from a Composer session via openWithSession({fromComposer:true}). */
@@ -1415,16 +1424,21 @@ class AgentStudio {
       }
       .as-back-composer:hover { background:#5e35b1; color:#fff; border-color:#5e35b1; }
       .as-back-composer span { font-size:12px; line-height:1; }
-      .as-mode-tab { flex:1; display:flex; flex-direction:column; align-items:center;
-                     gap:2px; padding:10px 14px; background:transparent; border:none;
-                     border-bottom:3px solid transparent; cursor:pointer;
-                     font-family:inherit; color:#666; transition:all .15s ease; }
-      .as-mode-tab:hover { background:rgba(103,58,183,.04); color:#333; }
-      .as-mode-tab.active { background:#fff; color:#673ab7; border-bottom-color:#673ab7; }
-      .as-mode-icon { font-size:18px; line-height:1; }
-      .as-mode-label { font-weight:600; font-size:13px; letter-spacing:.02em; }
-      .as-mode-sub { font-size:10px; color:#999; letter-spacing:.04em; text-transform:uppercase; }
-      .as-mode-tab.active .as-mode-sub { color:#9575cd; }
+      /* Pill wrapper for the three tabs */
+      .as-mode-tabs-inner { display:flex; border:2px solid #7a6e5e; border-radius:3px;
+                            overflow:hidden; box-shadow:2px 2px 0 #7a6e5e; }
+      .as-mode-tab { display:flex; align-items:center; gap:6px;
+                     padding:6px 14px; background:#e0d8ca; border:none;
+                     border-right:1px solid #b8b0a0; cursor:pointer;
+                     font-family:'Share Tech Mono', ui-monospace, monospace;
+                     font-size:10px; letter-spacing:.08em; text-transform:uppercase;
+                     color:#8a7e6e; transition:background .1s, color .1s; }
+      .as-mode-tab:last-child { border-right:none; }
+      .as-mode-tab:hover:not(.active) { background:#d4ccbe; color:#2e2418; }
+      .as-mode-tab.active { background:#2e2418; color:#ede6d8; }
+      .as-mode-icon { font-size:14px; line-height:1; }
+      .as-mode-label { font-weight:600; font-size:10px; letter-spacing:.06em; }
+      .as-mode-sub { display:none; }
 
       /* Solo-mode visibility tweaks: hide group-only controls.
          The presets popover stays — solo presets are still useful as agent bios. */
@@ -1503,8 +1517,8 @@ class AgentStudio {
       .as-recipes-result-spinner { font-size:11px; color:#888; font-style:italic; }
 
       /* ── Header strip ───────────────────────────────────────────────────── */
-      .as-header { display:flex; gap:8px; padding:10px 14px; background:#fafafa;
-                   border-bottom:1px solid #e9e9e9; align-items:center;
+      .as-header { display:flex; gap:8px; padding:10px 14px; background:#e0d8ca;
+                   border-bottom:2px solid #7a6e5e; align-items:center;
                    position:relative; z-index:10; flex-wrap:wrap; }
       .as-goal { flex:1 1 280px; padding:8px 12px; border:1px solid #ddd;
                  border-radius:6px; font-size:13px; min-width:200px; }
@@ -1597,7 +1611,7 @@ class AgentStudio {
 
       /* ── Transcript ─────────────────────────────────────────────────────── */
       .as-transcript-body { flex:1 1 auto; min-height:0; overflow-y:auto; overflow-x:hidden;
-                            padding:18px 24px 18px 18px; background:#fff;
+                            padding:18px 24px 18px 18px; background:#f0e8d0;
                             box-sizing:border-box; }
 
       /* ── Artifact panel ─────────────────────────────────────────────────── */
@@ -1644,15 +1658,21 @@ class AgentStudio {
                             justify-content:center; color:#bbb; font-size:12px;
                             text-align:center; padding:24px; line-height:1.6; }
 
-      /* ── Console pane ───────────────────────────────────────────────────── */
-      .as-console-pane { flex-shrink:0; border-top:1px solid #e0e0e0; background:#1a1a2e;
-                         display:flex; flex-direction:column; max-height:160px; }
+      /* ── Console strip — own row above compose bar ──────────────────────── */
+      .as-console-pane { flex-shrink:0; border-top:1px solid #e0e0e0; border-bottom:1px solid #e0e0e0;
+                         background:#1a1a2e; display:flex; flex-direction:column; }
+      .as-console-pane.collapsed { max-height:28px; overflow:hidden; }
+      .as-console-pane:not(.collapsed) { max-height:160px; }
       .as-console-pane.collapsed .as-console-body { display:none; }
+      /* Hide console in recipes mode — no artifacts there */
+      .as-root[data-mode="recipes"] .as-console-pane { display:none !important; }
       .as-console-hdr  { display:flex; align-items:center; gap:6px; padding:4px 8px;
                          background:#111827; flex-shrink:0; }
       .as-console-toggle { background:none; border:none; color:#9ca3af; font-size:11px;
                            cursor:pointer; padding:2px 4px; font-family:monospace; }
       .as-console-toggle:hover { color:#e0e0e0; }
+      .as-console-count { font-size:10px; color:#4b5563; font-family:monospace; }
+      .as-console-actions { padding:4px 10px 6px; display:flex; gap:6px; border-top:1px solid rgba(255,255,255,.06); }
       .as-console-err-badge { font-size:10px; background:#e94560; color:#fff;
                               padding:1px 6px; border-radius:8px; }
       .as-console-body  { overflow-y:auto; flex:1; padding:4px 0; }
@@ -1790,23 +1810,25 @@ class AgentStudio {
       @keyframes as-pulse { 50% { opacity:.4; } }
 
       /* ── Compose bar ────────────────────────────────────────────────────── */
-      .as-compose { display:flex; gap:8px; padding:10px 14px; background:#fafafa;
-                    border-top:1px solid #e9e9e9; align-items:center; }
-      .as-inject-input { flex:1; padding:8px 12px; border:1px solid #ddd;
-                         border-radius:6px; font-size:13px; }
-      .as-inject-input:focus { outline:none; border-color:#673ab7;
-                               box-shadow:0 0 0 2px rgba(103,58,183,.15); }
+      .as-compose { display:flex; gap:8px; padding:10px 14px; background:#e0d8ca;
+                    border-top:2px solid #7a6e5e; align-items:center; }
+      .as-inject-input { flex:1; padding:7px 10px; border:2px solid #7a6e5e;
+                         border-radius:2px; font-size:12px; background:#f0e8d0;
+                         font-family:'Share Tech Mono', ui-monospace, monospace;
+                         color:#2e2418; box-shadow:inset 2px 2px 5px rgba(90,80,60,.15); }
+      .as-inject-input:focus { outline:none; border-color:#2e2418; }
 
       /* ── Status footer ──────────────────────────────────────────────────── */
-      .as-status-bar { display:flex; align-items:center; gap:10px; padding:6px 14px;
-                       background:#f5f5f5; border-top:1px solid #e9e9e9; font-size:11px; }
-      .as-dot { width:8px; height:8px; border-radius:50%; background:#bbb; }
-      .as-dot.running { background:#f0a500; animation:as-pulse 1.5s infinite; }
-      .as-dot.complete { background:#4caf50; }
-      .as-status-text { font-weight:600; color:#666; text-transform:uppercase;
-                        letter-spacing:.5px; font-size:10px; }
-      .as-status-text.running { color:#e65100; }
-      .as-sep { color:#ccc; }
+      .as-status-bar { display:flex; align-items:center; gap:10px; padding:5px 14px;
+                       background:#d4ccbe; border-top:1px solid #b8b0a0; font-size:10px;
+                       letter-spacing:.08em; text-transform:uppercase; color:#8a7e6e; }
+      .as-dot { width:7px; height:7px; border-radius:50%; background:#a09080; }
+      .as-dot.running { background:#c07040; animation:as-pulse 1.5s infinite; }
+      .as-dot.complete { background:#5a9870; }
+      .as-status-text { font-weight:700; color:#8a7e6e; text-transform:uppercase;
+                        letter-spacing:.1em; font-size:9px; }
+      .as-status-text.running { color:#c07040; }
+      .as-sep { color:#b8b0a0; }
 
       /* ── Code blocks in chat ───────────────────────────────────────────── */
       .as-code-block { background:#1e1e2e; color:#e4e4f4; padding:10px 12px;
@@ -3484,8 +3506,9 @@ ${HARNESS}
   }
 
   _renderConsoleLogs() {
-    const body = document.getElementById('as-console-body');
+    const body  = document.getElementById('as-console-body');
     const badge = document.getElementById('as-console-err-badge');
+    const count = document.getElementById('as-console-count');
     if (!body) return;
 
     const errorCount = this._consoleLogs.filter(l => l.level === 'error').length;
@@ -3493,9 +3516,16 @@ ${HARNESS}
       badge.style.display = errorCount ? '' : 'none';
       badge.textContent = `${errorCount} error${errorCount === 1 ? '' : 's'}`;
     }
+    if (count) {
+      count.textContent = this._consoleLogs.length
+        ? `${this._consoleLogs.length} output${errorCount ? ` · ${errorCount} ●` : ''}`
+        : '0 output';
+    }
 
     if (!this._consoleLogs.length) {
-      body.innerHTML = '<div class="as-console-hint">Console output will appear here</div>';
+      body.innerHTML = '<div class="as-console-hint">Console output will appear here</div>'
+        + '<div class="as-console-actions"><button class="as-av-btn" id="as-console-share" title="Share errors to chat">⇪ Share to Chat</button></div>';
+      document.getElementById('as-console-share')?.addEventListener('click', () => this._shareDebugToChat());
       return;
     }
     body.innerHTML = this._consoleLogs.map(e => `
@@ -3504,7 +3534,9 @@ ${HARNESS}
         <span class="as-console-lv">${escapeHtml(e.level)}</span>
         <span class="as-console-msg">${escapeHtml(e.message)}</span>
       </div>
-    `).join('');
+    `).join('')
+      + '<div class="as-console-actions"><button class="as-av-btn" id="as-console-share" title="Share errors to chat">⇪ Share to Chat</button></div>';
+    document.getElementById('as-console-share')?.addEventListener('click', () => this._shareDebugToChat());
     body.scrollTop = body.scrollHeight;
   }
 
