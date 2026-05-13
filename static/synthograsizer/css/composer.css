@@ -209,7 +209,7 @@
     border: 1px solid var(--hw-text-dim); position: relative; flex-shrink: 0;
   }
   .pc-meta .knob-mini::after { content:''; position:absolute; top: 2px; left: 50%; width: 1px; height: 4px; background: var(--hw-text); transform-origin: top center; }
-  .pc-tags { display: flex; gap: 4px; flex-wrap: wrap; margin-left: auto; }
+  .pc-tags { display: inline-flex; gap: 4px; flex-wrap: nowrap; overflow: hidden; }
   .pc-tag {
     font-size: 8px; letter-spacing: .08em; padding: 2px 6px; border-radius: 2px;
     text-transform: uppercase; border: 1px solid var(--hw-text-label); color: var(--hw-text-dim); background: var(--hw-panel);
@@ -217,6 +217,9 @@
   .pc-tag.creator { color: var(--hw-grn); border-color: var(--hw-grn); }
   .pc-tag.remix { color: var(--hw-purp); border-color: var(--hw-purp); }
   .pc-tag.builtin { color: var(--hw-blue); border-color: var(--hw-blue); }
+  .pc-tag.style { color: var(--hw-pink); border-color: var(--hw-pink); }
+  .pc-tag.role { color: var(--hw-amb); border-color: var(--hw-amb); }
+  .pc-tag.source { color: var(--hw-text-label); border-color: var(--hw-text-label); font-style: italic; }
   .pc-actions { padding: 6px 8px; border-top: var(--hw-border-soft); display: flex; gap: 4px; }
 
   /* ── Thin color rail replaces old pc-strip ── */
@@ -549,6 +552,81 @@
     outline-offset: 1px;
   }
 
+  /* ── Session Template Quick-Start picker ────────────────────────────── */
+  .qs-card { overflow: hidden; transition: max-height .3s ease; }
+  .qs-card.collapsed .qs-body { display: none; }
+  .qs-header {
+    display: flex; align-items: center; gap: 8px; padding: 7px 12px;
+    cursor: pointer; user-select: none;
+  }
+  .qs-header .qs-chevron {
+    font-size: 10px; transition: transform .2s; color: var(--hw-text-dim);
+    display: inline-block; width: 12px; text-align: center;
+  }
+  .qs-card.collapsed .qs-chevron { transform: rotate(-90deg); }
+  .qs-header .qs-loaded-badge {
+    margin-left: auto; font-size: 8px; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--hw-grn);
+  }
+  .qs-cats {
+    display: flex; flex-wrap: wrap; gap: 3px; padding: 0 12px 6px;
+  }
+  .qs-cat-pill {
+    font-family: var(--font-label); font-size: 8px; letter-spacing: .06em;
+    text-transform: uppercase; padding: 2px 7px; border-radius: 2px;
+    border: 1px solid var(--hw-border-soft); background: var(--hw-surface);
+    color: var(--hw-text-dim); cursor: pointer; white-space: nowrap;
+  }
+  .qs-cat-pill:hover { background: var(--hw-panel); color: var(--hw-text); }
+  .qs-cat-pill.active { background: var(--hw-text); color: var(--hw-chassis); border-color: var(--hw-text); }
+  .qs-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
+    padding: 0 10px 10px; max-height: 320px; overflow-y: auto;
+  }
+  .qs-tpl {
+    padding: 7px 9px; background: var(--hw-surface); border: var(--hw-border-soft);
+    border-radius: 3px; cursor: pointer; transition: background .1s, border-color .1s;
+    display: flex; flex-direction: column; gap: 3px;
+  }
+  .qs-tpl:hover { background: var(--hw-lcd-bg); border-color: var(--hw-text-dim); }
+  .qs-tpl.active { border-color: var(--hw-amb); background: var(--hw-lcd-bg); }
+  .qs-tpl-name {
+    font-family: var(--font-display); font-size: 13px; line-height: 1.1;
+    color: var(--hw-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .qs-tpl-meta {
+    font-size: 8px; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--hw-text-dim); display: flex; gap: 6px; align-items: center;
+  }
+  .qs-tpl-meta .qs-dot {
+    width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+  }
+
+  /* ── Conflict dialog overlay ─────────────────────────────────────────── */
+  .conflict-overlay {
+    position: fixed; inset: 0; z-index: 95;
+    background: rgba(0,0,0,.45);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .conflict-panel {
+    width: min(400px, 90vw); background: var(--hw-panel);
+    border: var(--hw-border); border-radius: 3px; box-shadow: var(--hw-shadow-lg);
+    overflow: hidden;
+  }
+  .conflict-panel .conf-head {
+    padding: 12px 14px 8px; font-family: var(--font-brand);
+    font-size: 14px; letter-spacing: 1px;
+  }
+  .conflict-panel .conf-body {
+    padding: 0 14px 12px; font-size: 11px; line-height: 1.5;
+    color: var(--hw-text-dim); font-family: var(--font-ui);
+  }
+  .conflict-panel .conf-actions {
+    display: flex; gap: 8px; padding: 10px 14px;
+    border-top: var(--hw-border-soft); background: var(--hw-surface);
+  }
+  .conflict-panel .conf-actions .grow { flex: 1; }
+
   /* ── Mobile gate ───────────────────────────────────────────────────────
      The Composer is laid out as a 3-column desktop tool. Below 1024px the
      channel rack and editor split would crush; show a friendly notice
@@ -682,4 +760,66 @@
   border-radius: 2px;
   padding: 8px 10px;
   white-space: pre-wrap;
+}
+
+/* ── Generation context indicators ── */
+.gen-context-hint {
+  font-size: 9px;
+  letter-spacing: .1em;
+  opacity: .55;
+}
+.gen-context-active {
+  border-left: 2px solid var(--hw-amb) !important;
+  transition: border-left-color .2s;
+}
+
+/* ── Generation Instructions panel ── */
+.gen-instr-toggle {
+  font-size: 9px;
+  letter-spacing: .12em;
+  padding: 2px 7px;
+  opacity: .75;
+}
+.gen-instr-toggle:hover { opacity: 1; }
+.gen-instr-panel {
+  margin: 0 12px 10px;
+  padding: 8px 10px;
+  background: var(--hw-recessed);
+  border: var(--hw-border-soft);
+  border-radius: 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.gen-instr-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.gen-instr-note {
+  font-size: 9px;
+  letter-spacing: .08em;
+  color: var(--hw-text-label);
+  line-height: 1.4;
+  border-left: 2px solid var(--hw-amb);
+  padding-left: 6px;
+  opacity: .8;
+}
+.gen-instr-area {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 80px;
+  background: var(--hw-lcd-bg);
+  color: var(--hw-text);
+  border: var(--hw-border-soft);
+  border-radius: 2px;
+  padding: 6px 8px;
+  font-family: inherit;
+  font-size: 10px;
+  line-height: 1.5;
+  resize: vertical;
+}
+.gen-instr-area:focus {
+  outline: none;
+  border-color: var(--hw-amb);
 }

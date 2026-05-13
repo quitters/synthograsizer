@@ -948,27 +948,18 @@ Hard rules:
         raise Exception(f"Taste vector extraction failed: {e}")
 
 
-def generate_agent_profile(self, user_prompt: str, model_override: str = None) -> str:
-    """
-    Generates a bespoke Agent Profile template with placeholders and variables.
-    """
-    if not self.genai_client:
-        raise ValueError("API Key not configured")
-
-    model = model_override or config.MODEL_TEMPLATE_GEN
-    
-    system_prompt = """
-You are an expert agent persona designer for Agent Studio, a collaborative multi-agent simulation framework. Your task is to generate an "Agent Profile", which is a dynamic, variable-driven character biography template.
+_AGENT_PROFILE_STRUCTURAL_PREAMBLE = """You are an expert agent persona designer for Agent Studio, a collaborative multi-agent simulation framework. Your task is to generate or refine an "Agent Profile" — a dynamic, variable-driven character biography template.
 
 The output MUST be valid JSON containing exactly this structure:
 {
   "name": "A catchy, thematic name for the agent",
   "category": "One of: imagegen, creative, writing, business, tech, gaming, education, science, philosophy, social, utility",
-  "bioTemplate": "A multi-sentence biography containing {{variable_name}} placeholders where dynamic traits, tones, or approaches go. Also contain static anchors like {{agent_name}}.",
+  "description": "One-sentence summary shown on library cards.",
+  "bioTemplate": "A multi-sentence biography containing {{variable_name}} placeholders where dynamic traits, tones, or approaches go. Always include {{agent_name}} as an anchor.",
   "variables": [
     {
       "name": "variable_name",
-      "feature_name": "Human Readable Feature Name (e.g. Tone, Logic Style, Flaw)",
+      "feature_name": "Human Readable Feature Name (e.g. Tone, Logic Style, Approach)",
       "values": [
         {"text": "Option 1 description", "weight": 3},
         {"text": "Option 2 description", "weight": 1}
@@ -980,13 +971,32 @@ The output MUST be valid JSON containing exactly this structure:
   }
 }
 
-Guidelines:
-1. Make the bioTemplate detailed, using at least 3 distinct {{variables}}.
-2. Create 3 to 6 values for each variable, distributing weights so 1-2 options are common and others are rare.
-3. Treat this agent as a creative collaborator who brings a specific, highly-opinionated viewpoint to the table.
-"""
+Structural rules (always enforced — never violate these):
+1. bioTemplate MUST contain at least 3 distinct {{variable_name}} placeholders. Each placeholder must match a variable entry by name.
+2. Every variable must have 3 to 6 values. Distribute weights so 1-2 options have weight 3+ and others weight 1.
+3. anchors.agent_name must match the top-level name field.
+4. If an EXISTING PROFILE is provided, edit it to match the request rather than generating from scratch — preserve variables and anchors that still apply.
+5. The bioTemplate must faithfully reflect the user's described concept, domain, and character."""
 
-    contents = [system_prompt, f"Agent Description: {user_prompt}"]
+_AGENT_PROFILE_DEFAULT_STYLE = """Style guidelines:
+- Match the tone and energy of the user's description precisely. If they describe a cheerful character, write upbeat text; if they describe a gruff expert, be terse and technical.
+- Lean positive and collaborative by default. Avoid gratuitous darkness, cynicism, or menace unless the description explicitly calls for it.
+- Write the bioTemplate in first person ("I am {{agent_name}}...") or third person as fits the character — be consistent within a profile.
+- Variable values should be concrete, vivid phrases (3–12 words each) that slot naturally into the bioTemplate sentence."""
+
+def generate_agent_profile(self, user_prompt: str, model_override: str = None, style_instruction: str = None) -> str:
+    """
+    Generates or refines a bespoke Agent Profile template with placeholders and variables.
+    """
+    if not self.genai_client:
+        raise ValueError("API Key not configured")
+
+    model = model_override or config.MODEL_TEMPLATE_GEN
+
+    style_block = style_instruction.strip() if style_instruction and style_instruction.strip() else _AGENT_PROFILE_DEFAULT_STYLE
+    system_prompt = _AGENT_PROFILE_STRUCTURAL_PREAMBLE + "\n\n" + style_block
+
+    contents = [system_prompt, user_prompt]
 
     try:
         gen_config = types.GenerateContentConfig(

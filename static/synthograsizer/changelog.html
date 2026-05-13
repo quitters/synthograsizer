@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Synthograsizer — Change Notes</title>
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+  <link rel="stylesheet" href="css/synth-hardware-theme.css?v=7">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Bungee&family=VT323&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background: var(--hw-chassis);
+      background-image:
+        repeating-linear-gradient(
+          0deg,
+          transparent, transparent 3px,
+          rgba(100,80,40,.025) 3px, rgba(100,80,40,.025) 4px
+        );
+      color: var(--hw-text);
+      font-family: var(--font-label);
+    }
+
+    /* ── App Bar ─────────────────────────────────────────────────────────── */
+    .app-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 32px;
+      background: var(--hw-chassis);
+      border-bottom: 1px solid var(--hw-recessed);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      gap: 16px;
+    }
+
+    .app-bar-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .app-bar-logo {
+      font-family: 'Bungee', sans-serif;
+      font-size: 20px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--hw-accent, #3dbdad);
+      text-shadow:
+        -1px -1px 0 rgba(30,20,10,.35),  1px -1px 0 rgba(30,20,10,.35),
+        -1px  1px 0 rgba(30,20,10,.35),  1px  1px 0 rgba(30,20,10,.35);
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .app-bar-nav {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      background: var(--hw-panel);
+      border: 1.5px solid var(--hw-recessed);
+      border-radius: 3px;
+      box-shadow: 2px 2px 0 var(--hw-recessed);
+      font-family: var(--font-label);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--hw-text-dim);
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform 0.08s, box-shadow 0.08s, color 0.08s;
+    }
+    .nav-link:hover {
+      color: var(--hw-text);
+      transform: translate(1px, 1px);
+      box-shadow: 1px 1px 0 var(--hw-recessed);
+    }
+    .nav-link.active {
+      background: var(--hw-surface);
+      color: var(--hw-text);
+      border-color: #7a6e5e;
+    }
+
+    /* ── Page Content ────────────────────────────────────────────────────── */
+    .page-content {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 40px 32px 80px;
+    }
+
+    .page-header {
+      margin-bottom: 36px;
+      padding-bottom: 20px;
+      border-bottom: var(--hw-border);
+    }
+
+    .page-title {
+      font-family: var(--font-brand);
+      font-size: 28px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--hw-text);
+      margin-bottom: 6px;
+    }
+
+    .page-subtitle {
+      font-family: var(--font-label);
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--hw-text-dim);
+    }
+
+    /* ── Version Blocks ──────────────────────────────────────────────────── */
+    .version-block {
+      margin-bottom: 28px;
+    }
+
+    .version-header {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .version-tag {
+      font-family: var(--font-display);
+      font-size: 22px;
+      letter-spacing: 2px;
+      color: var(--hw-lcd-text);
+      background: var(--hw-lcd-bg);
+      border: var(--hw-border);
+      box-shadow: var(--hw-shadow-sm);
+      padding: 2px 12px 0;
+      border-radius: 3px;
+      white-space: nowrap;
+    }
+
+    .version-date {
+      font-family: var(--font-label);
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--hw-text-dim);
+    }
+
+    .version-label {
+      font-family: var(--font-label);
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border-radius: 2px;
+      border: 1px solid;
+    }
+    .version-label.unreleased {
+      color: var(--color-orange);
+      border-color: var(--color-orange);
+      background: rgba(192,112,64,.08);
+    }
+    .version-label.latest {
+      color: var(--color-green);
+      border-color: var(--color-green);
+      background: rgba(90,152,112,.08);
+    }
+
+    .version-panel {
+      background: var(--hw-panel);
+      border: var(--hw-border);
+      border-radius: 4px;
+      box-shadow: var(--hw-shadow);
+      overflow: hidden;
+    }
+
+    .entry-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .entry-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 10px 16px;
+      border-bottom: var(--hw-border-soft);
+    }
+    .entry-item:last-child {
+      border-bottom: none;
+    }
+    .entry-item:hover {
+      background: rgba(0,0,0,.025);
+    }
+
+    .entry-badge {
+      flex-shrink: 0;
+      font-family: var(--font-label);
+      font-size: 8px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 2px 6px;
+      border-radius: 2px;
+      border: 1px solid;
+      margin-top: 1px;
+      min-width: 52px;
+      text-align: center;
+    }
+    .badge-feat   { color: var(--color-blue);   border-color: var(--color-blue);   background: rgba(90,138,184,.09); }
+    .badge-fix    { color: var(--color-red);     border-color: var(--color-red);    background: rgba(184,80,80,.09);  }
+    .badge-style  { color: var(--color-purple);  border-color: var(--color-purple); background: rgba(136,104,168,.09); }
+    .badge-refact { color: var(--color-cyan);    border-color: var(--color-cyan);   background: rgba(72,152,168,.09); }
+    .badge-chore  { color: var(--color-yellow);  border-color: var(--color-yellow); background: rgba(200,150,42,.09); }
+
+    .entry-text {
+      font-family: var(--font-label);
+      font-size: 12px;
+      line-height: 1.6;
+      color: var(--hw-text);
+    }
+
+    .entry-sub {
+      font-size: 10px;
+      color: var(--hw-text-dim);
+      margin-top: 2px;
+      line-height: 1.5;
+    }
+
+    /* Section divider inside a panel */
+    .panel-section-label {
+      font-family: var(--font-label);
+      font-size: 9px;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--hw-text-label);
+      background: var(--hw-surface);
+      border-bottom: var(--hw-border-soft);
+      padding: 6px 16px;
+    }
+
+    /* ── LCD footer ──────────────────────────────────────────────────────── */
+    .lcd-footer {
+      margin-top: 48px;
+      background: var(--hw-lcd-bg);
+      border: var(--hw-border);
+      border-radius: 4px;
+      box-shadow: var(--hw-inset);
+      padding: 12px 20px;
+      font-family: var(--font-display);
+      font-size: 16px;
+      color: var(--hw-lcd-dim);
+      letter-spacing: 1px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="app-bar">
+    <div class="app-bar-brand">
+      <a href="index.html" class="app-bar-logo">Synthograsizer</a>
+    </div>
+    <nav class="app-bar-nav">
+      <a href="index.html" class="nav-link">⊟ Studio</a>
+      <a href="agent-composer.html" class="nav-link">🧪 Composer</a>
+      <a href="changelog.html" class="nav-link active">📋 What's New</a>
+    </nav>
+  </header>
+
+  <main class="page-content">
+    <div class="page-header">
+      <h1 class="page-title">Change Notes</h1>
+      <p class="page-subtitle">Synthograsizer Suite — Build History &amp; Release Log</p>
+    </div>
+
+    <!-- ── UNRELEASED ─────────────────────────────────────────────────── -->
+    <div class="version-block">
+      <div class="version-header">
+        <span class="version-tag">NEXT</span>
+        <span class="version-label unreleased">Unreleased</span>
+        <span class="version-date">In Progress — 2026-05-10</span>
+      </div>
+      <div class="version-panel">
+        <div class="panel-section-label">Agent Composer — Generation Instructions</div>
+        <ul class="entry-list">
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">User-editable style instruction field for agent profile generation</div>
+              <div class="entry-sub">Structural rules (JSON format, variables, anchors) always enforced; tone and style are now customizable per-user</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">Agent profile edit-in-place — refine existing profiles instead of regenerating from scratch</div>
+              <div class="entry-sub">Current profile JSON sent alongside the generation prompt so the model can make targeted changes</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">Collapsible generation instructions panel in Composer Editor room</div>
+              <div class="entry-sub">State persisted to localStorage; factory-default reset button included</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-style">style</span>
+            <div>
+              <div class="entry-text">Visual context cues when generation instructions are active</div>
+              <div class="entry-sub">Identity row and Bio template highlighted with gen-context-active state; taste vector bias automatically included when a vector is set</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ── v0.7 ───────────────────────────────────────────────────────── -->
+    <div class="version-block">
+      <div class="version-header">
+        <span class="version-tag">V0.7</span>
+        <span class="version-label latest">Latest</span>
+        <span class="version-date">2026-05-08</span>
+      </div>
+      <div class="version-panel">
+        <div class="panel-section-label">Major UI Overhaul</div>
+        <ul class="entry-list">
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">V6→V7 UI audit — unified app bar, full layout overhaul, Agent Studio re-skin</div>
+              <div class="entry-sub">Single persistent top bar across all modes; layout-switcher promoted to app-bar-modes; hardware theme fully applied to Agent Studio</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">Agent Composer complete — 4-room mode (Library → Editor → Session → Run) with live knob control</div>
+              <div class="entry-sub">Each room is a discrete workflow step; knobs in Run room control live generation parameters in real time</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">React chatroom: attach-chip CSS and gallery lightbox polish</div>
+            </div>
+          </li>
+        </ul>
+        <div class="panel-section-label">Bug Fixes &amp; Stability</div>
+        <ul class="entry-list">
+          <li class="entry-item">
+            <span class="entry-badge badge-fix">fix</span>
+            <div>
+              <div class="entry-text">Consensus quorum now counts only unmuted agents</div>
+              <div class="entry-sub">Previously, muted agents still counted toward quorum threshold, producing incorrect vote outcomes</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-fix">fix</span>
+            <div>
+              <div class="entry-text">Demo mode backend guard — non-demo routes blocked in demo context</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-fix">fix</span>
+            <div>
+              <div class="entry-text">Veo 3.1 duration default corrected; multimodal beat continuity restored; workflow outcome now surfaces in UI</div>
+            </div>
+          </li>
+        </ul>
+        <div class="panel-section-label">Code Quality</div>
+        <ul class="entry-list">
+          <li class="entry-item">
+            <span class="entry-badge badge-refact">refact</span>
+            <div>
+              <div class="entry-text">Agent Studio CSS modernized — all !important overrides replaced with CSS custom properties and proper cascade ordering</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">Storyboard: beatNarrative store, hidden/classList overlay, aria-labels, CSS contract doc</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-refact">refact</span>
+            <div>
+              <div class="entry-text">Glitcher: removed dead selection fallback; FrameTimer guarded on frame count</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ── v0.6 ───────────────────────────────────────────────────────── -->
+    <div class="version-block">
+      <div class="version-header">
+        <span class="version-tag">V0.6</span>
+        <span class="version-date">2026-05-01</span>
+      </div>
+      <div class="version-panel">
+        <div class="panel-section-label">Deployment &amp; Demo</div>
+        <ul class="entry-list">
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">Demo mode — Gemini Flash Lite locked in for demo sessions; CTAs route to demo.html</div>
+              <div class="entry-sub">Full interactive demo with no API key required; rate-limited to lightweight models</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-fix">fix</span>
+            <div>
+              <div class="entry-text">Vercel routing corrected — /synthograsizer/ now resolves to full app</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">Glitcher v2 embedded in Synthograsizer; comprehensive UI overhaul</div>
+              <div class="entry-sub">Bidirectional bridge between Synthograsizer prompt output and Glitcher effect parameters</div>
+            </div>
+          </li>
+        </ul>
+        <div class="panel-section-label">Storyboard Panel</div>
+        <ul class="entry-list">
+          <li class="entry-item">
+            <span class="entry-badge badge-style">style</span>
+            <div>
+              <div class="entry-text">Storyboard panel fully redesigned to match hardware synth theme</div>
+              <div class="entry-sub">Cream chassis, warm brown borders, NeoBrutalism shadows, monospace labels throughout</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-fix">fix</span>
+            <div>
+              <div class="entry-text">Hardware theme CSS class names corrected across all storyboard components</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ── v0.5 ───────────────────────────────────────────────────────── -->
+    <div class="version-block">
+      <div class="version-header">
+        <span class="version-tag">V0.5</span>
+        <span class="version-date">2026-04-25 – 2026-04-30</span>
+      </div>
+      <div class="version-panel">
+        <div class="panel-section-label">AI Model &amp; Generation</div>
+        <ul class="entry-list">
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">Suite-wide upgrade to Gemini 3.1 Pro Preview</div>
+              <div class="entry-sub">Improved output coherence, longer context window, faster multimodal responses across all generation endpoints</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">Live Gemini token streaming in Agent Studio transcripts</div>
+              <div class="entry-sub">Tokens appear as they arrive — no more waiting for full response before text renders</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-fix">fix</span>
+            <div>
+              <div class="entry-text">Imagen-only fields no longer sent on Gemini generation path</div>
+            </div>
+          </li>
+        </ul>
+        <div class="panel-section-label">Agent Studio</div>
+        <ul class="entry-list">
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">Codenames game template — Layer 1 secret knowledge prototype</div>
+              <div class="entry-sub">Multi-agent Codenames with roles (spymaster / operative); agents maintain secret layer inaccessible to opponents</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-fix">fix</span>
+            <div>
+              <div class="entry-text">Turn-order routing corrected; verbosity defaults tuned; Codenames protocol formalized</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">Template library, artifact panel with debug console, MIDI lazy-init, Display mode renamed</div>
+            </div>
+          </li>
+        </ul>
+        <div class="panel-section-label">Templates &amp; Story Mode</div>
+        <ul class="entry-list">
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">Beat navigator for story templates — previous/next beat controls with dot-position indicator</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">Twin Spheres p5.js generative template added</div>
+            </div>
+          </li>
+        </ul>
+        <div class="panel-section-label">Platform</div>
+        <ul class="entry-list">
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">Glitcher Studio modal — P5 FX drawer within Synthograsizer with bidirectional bridge</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-refact">refact</span>
+            <div>
+              <div class="entry-text">Landing page consolidated — Synthograsizer as primary product surface</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-chore">chore</span>
+            <div>
+              <div class="entry-text">Repo polish — trust signals, cleaned surfaces, docs structure</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="lcd-footer">
+      SYNTHOGRASIZER SUITE — CHANGE NOTES — UPDATED 2026-05-10
+    </div>
+  </main>
+
+</body>
+</html>

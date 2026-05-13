@@ -42,12 +42,9 @@
   font-size: 20px;
   letter-spacing: 3px;
   text-transform: uppercase;
-  color: var(--hw-accent, #3dbdad);
+  color: #2e2418;
   text-shadow:
-    -1px -1px 0 rgba(30,20,10,0.35),
-     1px -1px 0 rgba(30,20,10,0.35),
-    -1px  1px 0 rgba(30,20,10,0.35),
-     1px  1px 0 rgba(30,20,10,0.35);
+    1px 1px 0 rgba(255,255,255,0.5);
   white-space: nowrap;
 }
 
@@ -55,39 +52,49 @@
 .app-bar-tpl-btn {
   display: flex;
   align-items: center;
-  gap: 5px;
-  padding: 4px 10px;
-  background: var(--hw-panel, #e5e1d8);
-  border: 1.5px solid var(--hw-recessed, #c4bcac);
-  border-radius: 3px;
-  box-shadow: 2px 2px 0 var(--hw-recessed, #c4bcac);
+  gap: 8px;
+  padding: 4px 6px 4px 10px;
+  background: var(--hw-panel, #e4dccf);
+  border: 2px solid #5a5040;
+  border-radius: 4px;
+  box-shadow: 2px 2px 0 #5a5040;
   font-family: 'Share Tech Mono', monospace;
-  font-size: 10px;
+  font-size: 13px;
+  font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--hw-text-dim, #8a7e6e);
+  color: #5a5040;
   cursor: pointer;
-  transition: transform 0.08s, box-shadow 0.08s, color 0.08s;
+  transition: transform 0.08s, box-shadow 0.08s, background 0.08s;
   white-space: nowrap;
-  max-width: 220px;
 }
 .app-bar-tpl-btn:hover {
-  color: var(--hw-text, #2e2418);
+  background: #ede6d8;
   transform: translate(1px, 1px);
-  box-shadow: 1px 1px 0 var(--hw-recessed, #c4bcac);
+  box-shadow: 1px 1px 0 #5a5040;
 }
 .app-bar-tpl-btn:active {
   transform: translate(2px, 2px);
   box-shadow: none;
 }
-#app-bar-tpl-name {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 150px;
-  display: inline-block;
+.app-bar-tpl-name {
+  color: #5a8ab8;
+  margin-right: 4px;
 }
-.app-bar-tpl-arrow { flex-shrink: 0; opacity: 0.6; }
+.app-bar-tpl-icon {
+  font-size: 14px;
+}
+.app-bar-tpl-change {
+  display: flex;
+  align-items: center;
+  padding: 2px 4px;
+  background: transparent;
+  border: 1px solid #c0b8a8;
+  border-radius: 2px;
+  font-size: 10px;
+  color: #8a7e6e;
+  letter-spacing: 0px;
+}
 
 /* Hide template button in Composer mode (template picker is Studio-specific) */
 body.mode-composer .app-bar-tpl-btn { display: none; }
@@ -357,4 +364,76 @@ body.layout-a #navbar-mount {
     min-width: unset;
     width: 100%;
   }
+}
+
+/* ── Template Picker Modal (Hardware Theme Overrides) ────────────────── */
+
+.template-picker-categories {
+  display: flex;
+  gap: 8px;
+  padding: 0 20px 12px 20px;
+  border-bottom: 1px solid var(--hw-recessed, #c4bcac);
+  margin-bottom: 20px;
+}
+
+.category-pill {
+  padding: 4px 12px;
+  border-radius: 16px;
+  border: 1px solid var(--hw-recessed, #c4bcac);
+  background: transparent;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  color: var(--hw-text-dim, #8a7e6e);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+}
+
+.category-pill:hover {
+  background: var(--hw-surface, #ede6d8);
+  color: var(--hw-text, #2e2418);
+}
+
+.category-pill.active {
+  background: var(--hw-text, #2e2418);
+  color: var(--hw-panel, #e4dccf);
+  border-color: var(--hw-text, #2e2418);
+}
+
+.template-picker-modal .template-card {
+  background: var(--hw-surface, #ede6d8);
+  border: 1px solid var(--hw-border, #c0b8a8);
+  box-shadow: none;
+  border-radius: 4px;
+}
+
+.template-picker-modal .template-card:hover {
+  background: var(--hw-panel, #e4dccf);
+  border-color: var(--hw-text, #2e2418);
+  box-shadow: 2px 2px 0 var(--hw-text, #2e2418);
+  transform: translate(-1px, -1px);
+}
+
+.template-picker-modal .template-card.active-template {
+  background: var(--hw-panel, #e4dccf);
+  border-color: var(--hw-text, #2e2418);
+  border-width: 2px;
+  box-shadow: 3px 3px 0 var(--hw-text, #2e2418);
+  padding: 11px 5px; /* offset for thicker border */
+}
+
+.template-card-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  margin-top: 4px;
+}
+
+.template-card-category {
+  font-size: 9px;
+  font-family: 'Share Tech Mono', monospace;
+  color: var(--hw-text-dim, #8a7e6e);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
 }

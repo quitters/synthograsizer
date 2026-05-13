@@ -162,7 +162,12 @@ async def generate_template(request: TemplateRequest):
             if not request.prompt.strip():
                 raise ValueError("agent_profile mode requires a description.")
             json_str = await asyncio.wait_for(
-                asyncio.to_thread(ai_manager.generate_agent_profile, request.prompt, model_override=model_override),
+                asyncio.to_thread(
+                    ai_manager.generate_agent_profile,
+                    request.prompt,
+                    model_override=model_override,
+                    style_instruction=request.style_instruction,
+                ),
                 timeout=timeout
             )
 

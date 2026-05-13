@@ -23,6 +23,7 @@ export class TemplateLoader {
       pickerSearch: document.getElementById('template-picker-search'),
     };
 
+    this.currentFilterCategory = 'ALL';
     this.extractBuiltInTemplates();
     this.buildCards();
     this.setupEventListeners();
@@ -56,9 +57,23 @@ export class TemplateLoader {
       }
     });
 
-    // Search filter
-    this.elements.pickerSearch?.addEventListener('input', () => {
-      this.filterCards(this.elements.pickerSearch.value);
+    // Search bar filtering
+    this.elements.pickerSearch?.addEventListener('input', (e) => {
+      this.filterCards(e.target.value);
+    });
+
+    // Category pill filtering
+    const categoryPills = document.querySelectorAll('.category-pill');
+    categoryPills.forEach(pill => {
+      pill.addEventListener('click', (e) => {
+        // Update active class
+        categoryPills.forEach(p => p.classList.remove('active'));
+        e.target.classList.add('active');
+        
+        // Update filter category and run filter
+        this.currentFilterCategory = e.target.dataset.category;
+        this.filterCards(this.elements.pickerSearch?.value || '');
+      });
     });
 
     // Template navigation arrow buttons
@@ -110,12 +125,20 @@ export class TemplateLoader {
       const emojiMatch = fullText.match(/^([\p{Emoji_Presentation}\p{Extended_Pictographic}]+)\s*/u);
       const icon = emojiMatch ? emojiMatch[1] : '📄';
       const name = emojiMatch ? fullText.slice(emojiMatch[0].length) : fullText;
+      const category = option.dataset.category || 'PROMPT';
 
       const card = document.createElement('button');
       card.className = 'template-card';
       card.dataset.template = templateName;
+      card.dataset.category = category.toUpperCase();
       card.dataset.searchText = fullText.toLowerCase();
-      card.innerHTML = `<span class="template-card-icon">${icon}</span><span class="template-card-name">${name}</span>`;
+      card.innerHTML = `
+        <span class="template-card-icon">${icon}</span>
+        <div class="template-card-info">
+            <span class="template-card-name">${name}</span>
+            <span class="template-card-category">${category.toUpperCase()}</span>
+        </div>
+      `;
       card.addEventListener('click', async () => {
         await this.loadTemplate(templateName);
         this.closePicker();
@@ -172,7 +195,13 @@ export class TemplateLoader {
     let hasCustom = false;
 
     body.querySelectorAll('.template-card').forEach(card => {
-      const matches = !q || card.dataset.searchText?.includes(q);
+      const matchesSearch = !q || card.dataset.searchText?.includes(q);
+      const cardCat = card.dataset.category || '';
+      const filterCat = this.currentFilterCategory || 'ALL';
+      const matchesCategory = filterCat === 'ALL' || cardCat.toUpperCase() === filterCat.toUpperCase() || 
+                              (card.id === 'picker-import-card' || card.id === 'picker-export-card');
+      
+      const matches = matchesSearch && matchesCategory;
       card.classList.toggle('hidden', !matches);
       const isCustom = card.id === 'picker-import-card' || card.id === 'picker-export-card';
       if (matches && !isCustom) hasBuiltIn = true;
@@ -231,6 +260,9 @@ export class TemplateLoader {
       // Update current template index for cycling
       this.updateCurrentTemplateIndex(templateName);
       
+      // Update header button UI
+      this.updateHeaderButton(templateName);
+      
       // Show success message briefly
       this.showLoadSuccess(templateName);
       
@@ -261,6 +293,29 @@ export class TemplateLoader {
       btn.style.color = '';
       btn.style.borderColor = '';
     }, 2000);
+  }
+
+  updateHeaderButton(templateName) {
+    const headerName = document.getElementById('app-bar-tpl-name');
+    const headerIcon = document.getElementById('app-bar-tpl-icon');
+    if (!headerName) return;
+
+    // Find the template option to get the display name and emoji
+    const option = document.querySelector(`.template-option[data-template="${templateName}"]`);
+    if (option) {
+      const fullText = option.textContent.trim();
+      const emojiMatch = fullText.match(/^([\p{Emoji_Presentation}\p{Extended_Pictographic}]+)\s*/u);
+      
+      if (headerIcon) {
+        headerIcon.textContent = emojiMatch ? emojiMatch[1] : '📄';
+      }
+      
+      const nameText = emojiMatch ? fullText.slice(emojiMatch[0].length) : fullText;
+      headerName.textContent = nameText.toUpperCase();
+    } else {
+      headerName.textContent = templateName.toUpperCase();
+      if (headerIcon) headerIcon.textContent = '📄';
+    }
   }
 
   showLoadError(message) {

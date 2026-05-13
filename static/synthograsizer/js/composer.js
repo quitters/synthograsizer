@@ -37,7 +37,7 @@ const SEED_PROFILES = [
       behavior_rules: 'You one-up other panelists by going weirder, never safer.',
       signature_action: 'use [IMAGE:] to manifest your unhinged visions',
     },
-    tags: [{ type: 'builtin', label: 'Built-in' }],
+    tags: [{ type: 'builtin', label: 'Built-in' }, { type: 'style', label: 'Surrealist' }, { type: 'role', label: 'Provocateur' }],
   },
   {
     id: 'p_critic',
@@ -68,7 +68,7 @@ const SEED_PROFILES = [
       ]},
     ],
     anchors: { agent_name: 'Art Critic' },
-    tags: [{ type: 'builtin', label: 'Built-in' }],
+    tags: [{ type: 'builtin', label: 'Built-in' }, { type: 'style', label: 'Analytical' }, { type: 'role', label: 'Evaluator' }],
   },
   {
     id: 'p_arch',
@@ -90,7 +90,7 @@ const SEED_PROFILES = [
       ]},
     ],
     anchors: { agent_name: 'Prompt Architect' },
-    tags: [{ type: 'creator', label: 'You' }, { type: 'remix', label: 'Remixed' }],
+    tags: [{ type: 'builtin', label: 'Built-in' }, { type: 'role', label: 'Architect' }, { type: 'style', label: 'Methodical' }],
   },
   {
     id: 'p_punk',
@@ -120,7 +120,7 @@ const SEED_PROFILES = [
       ]},
     ],
     anchors: { agent_name: 'Razor' },
-    tags: [{ type: 'creator', label: 'You' }],
+    tags: [{ type: 'builtin', label: 'Built-in' }, { type: 'style', label: 'Cyberpunk' }, { type: 'role', label: 'Infiltrator' }],
   },
   {
     id: 'p_zen',
@@ -141,7 +141,7 @@ const SEED_PROFILES = [
       ]},
     ],
     anchors: { agent_name: 'Zen Editor' },
-    tags: [{ type: 'builtin', label: 'Built-in' }],
+    tags: [{ type: 'builtin', label: 'Built-in' }, { type: 'style', label: 'Minimalist' }, { type: 'role', label: 'Editor' }],
   },
   {
     id: 'p_devil',
@@ -162,16 +162,26 @@ const SEED_PROFILES = [
       ]},
     ],
     anchors: { agent_name: "Devil's Advocate" },
-    tags: [{ type: 'builtin', label: 'Built-in' }],
+    tags: [{ type: 'builtin', label: 'Built-in' }, { type: 'style', label: 'Contrarian' }, { type: 'role', label: 'Stress-test' }],
   },
 ];
 
 const CATEGORIES = [
   { id: 'all', label: 'All Profiles', icon: '◆' },
   { id: 'mine', label: 'My Profiles', icon: '★' },
-  { id: 'imagegen', label: 'Image Gen', icon: '🎨' },
+  { id: 'imagegen', label: 'Image Gen', icon: '🖼️' },
+  { id: 'creative', label: 'Creative', icon: '🎨' },
+  { id: 'writing', label: 'Writing', icon: '✍️' },
+  { id: 'business', label: 'Business', icon: '💼' },
+  { id: 'tech', label: 'Tech', icon: '💻' },
+  { id: 'gaming', label: 'Gaming', icon: '🎮' },
+  { id: 'education', label: 'Education', icon: '📚' },
+  { id: 'science', label: 'Science', icon: '🔬' },
+  { id: 'philosophy', label: 'Philosophy', icon: '🤔' },
+  { id: 'social', label: 'Social', icon: '🌍' },
   { id: 'discussion', label: 'Discussion', icon: '💬' },
   { id: 'roleplay', label: 'Role-play', icon: '🎭' },
+  { id: 'utility', label: 'Utility', icon: '🔧' },
   { id: 'builtin', label: 'Built-in', icon: '◌' },
 ];
 
@@ -369,7 +379,8 @@ function LibraryRoom({ profiles, onPick, onEdit, onSendToSession, onCreate,
       list = list.filter(p =>
         p.name.toLowerCase().includes(s) ||
         p.description.toLowerCase().includes(s) ||
-        p.bioTemplate.toLowerCase().includes(s)
+        p.bioTemplate.toLowerCase().includes(s) ||
+        p.tags.some(t => t.label.toLowerCase().includes(s))
       );
     }
     if (sort === 'name')          list = [...list].sort((a, b) => a.name.localeCompare(b.name));
@@ -441,6 +452,7 @@ function LibraryRoom({ profiles, onPick, onEdit, onSendToSession, onCreate,
                          onRemix={() => onRemix && onRemix(p)}
                          onTest={() => onTest && onTest(p)}
                          onDelete={() => onDelete && onDelete(p)}
+                         onTagClick={(t) => setSearch(t)}
                          onSendToSession={() => onSendToSession(p)} />
           ))}
           {filtered.length === 0 && (
@@ -473,18 +485,28 @@ function profileMonogram(name) {
 }
 const CAT_COLORS = {
   imagegen:   ['#c87090', '#8868a8'],
+  creative:   ['#e08060', '#b86880'],
+  writing:    ['#5a8ab8', '#8868a8'],
+  business:   ['#4a6a8a', '#3a7a98'],
+  tech:       ['#5a9870', '#3a7a98'],
+  gaming:     ['#c07040', '#8868a8'],
+  education:  ['#c0a040', '#8a7e6e'],
+  science:    ['#3a7a98', '#5a9870'],
+  philosophy: ['#8868a8', '#5a8ab8'],
+  social:     ['#b86880', '#e08060'],
   discussion: ['#5a8ab8', '#3a7a98'],
   roleplay:   ['#8868a8', '#c07040'],
   text:       ['#5a8ab8', '#5a9870'],
   data:       ['#c07040', '#c0a040'],
   flow:       ['#5a9870', '#5a8ab8'],
+  utility:    ['#8a7e6e', '#5a5040'],
 };
 function catGradient(category) {
   const [a, b] = CAT_COLORS[category] || ['#8a7e6e', '#5a5040'];
   return `linear-gradient(135deg, ${a}, ${b})`;
 }
 
-function ProfileCard({ profile, onEdit, onSendToSession, onRemix, onTest, onDelete }) {
+function ProfileCard({ profile, onEdit, onSendToSession, onRemix, onTest, onDelete, onTagClick }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
   const previewBioSegs = useMemo(() => buildBioSegments(
@@ -511,9 +533,6 @@ function ProfileCard({ profile, onEdit, onSendToSession, onRemix, onTest, onDele
         <div style={{ minWidth: 0, flex: 1 }}>
           <div className="pc-name">{profile.name}</div>
           <div className="pc-cat">{profile.category}</div>
-        </div>
-        <div className="pc-tags" style={{ alignSelf: 'flex-start', paddingTop: 2 }}>
-          {profile.tags.map((t, i) => <span key={i} className={'pc-tag ' + t.type}>{t.label}</span>)}
         </div>
       </div>
       <div className="pc-bio">
@@ -550,6 +569,15 @@ function ProfileCard({ profile, onEdit, onSendToSession, onRemix, onTest, onDele
           )}
         </div>
         <span style={{ flex: 1 }}></span>
+        <div className="pc-tags" style={{ overflow: 'hidden', whiteSpace: 'nowrap', maxWidth: '60%' }}>
+          {profile.tags.map((t, i) => (
+            <span key={i}
+                  className={'pc-tag ' + t.type}
+                  onClick={(e) => { e.stopPropagation(); onTagClick && onTagClick(t.label); }}>
+              {t.label}
+            </span>
+          ))}
+        </div>
         <button className="hw-btn tiny primary" onClick={(e) => { e.stopPropagation(); onSendToSession(); }}>+ Add</button>
       </div>
     </div>
@@ -557,6 +585,10 @@ function ProfileCard({ profile, onEdit, onSendToSession, onRemix, onTest, onDele
 }
 
 /* ── Editor Room ── */
+const GEN_INSTRUCTIONS_KEY = 'as_gen_instructions';
+const DEFAULT_GEN_INSTRUCTIONS =
+  'Match the tone and energy of the user\'s description precisely. Lean positive and collaborative by default — avoid gratuitous darkness or cynicism unless the description calls for it. Write variable values as concrete, vivid phrases (3–12 words) that slot naturally into the bio template.';
+
 function EditorRoom({ profile, setProfile, onAddToSession, onBack, onGenerate, onTestSend, onSaveAs, onShowToast }) {
   const [activeVarIdx, setActiveVarIdx] = useState(0);
   const [aiPrompt, setAiPrompt] = useState('');
@@ -568,7 +600,17 @@ function EditorRoom({ profile, setProfile, onAddToSession, onBack, onGenerate, o
   const [savedAgo, setSavedAgo] = useState('just now');
   const [lastSavedAt, setLastSavedAt] = useState(Date.now());
   const [chipMenu, setChipMenu] = useState(null);
+  const [genInstructions, setGenInstructionsState] = useState(() => {
+    try { return localStorage.getItem(GEN_INSTRUCTIONS_KEY) || DEFAULT_GEN_INSTRUCTIONS; } catch(_) { return DEFAULT_GEN_INSTRUCTIONS; }
+  });
+  const [showGenInstructions, setShowGenInstructions] = useState(false);
   const bioAreaRef = useRef(null);
+
+  const setGenInstructions = (val) => {
+    setGenInstructionsState(val);
+    try { localStorage.setItem(GEN_INSTRUCTIONS_KEY, val); } catch(_) {}
+  };
+  const resetGenInstructions = () => setGenInstructions(DEFAULT_GEN_INSTRUCTIONS);
 
   // Bump the saved timestamp on every profile change. Since `setProfile` (passed
   // from App = `updateProfile`) writes through to AgentProfileStore on every call,
@@ -753,19 +795,46 @@ function EditorRoom({ profile, setProfile, onAddToSession, onBack, onGenerate, o
         {/* AI generate-from-description bar */}
         <div className="hw-card" style={{ position: 'relative' }}>
           <div className="ai-bar">
-            <div>
+            <div style={{ flex: 1, minWidth: 0 }}>
               <div className="lbl-mini">Create from description</div>
               <input value={aiPrompt} onChange={e => setAiPrompt(e.target.value)}
-                     placeholder='e.g. "A snarky brutalist architect who hates rounded corners"'/>
+                     placeholder='e.g. "A cheerful botanist obsessed with rare orchids"'/>
             </div>
-            <div>
-              <button className="hw-btn primary" onClick={() => onGenerate && onGenerate(aiPrompt)}>✦ Generate</button>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'flex-end' }}>
+              <button className="hw-btn primary" onClick={() => onGenerate && onGenerate(aiPrompt, genInstructions)}>✦ Generate</button>
+              <button className="hw-btn gen-instr-toggle" onClick={() => setShowGenInstructions(v => !v)}
+                      title="Edit generation instructions">
+                ⚙ {showGenInstructions ? 'Hide' : 'Instructions'}
+              </button>
             </div>
           </div>
+          <div className="lbl-mini gen-context-hint" style={{ padding: '2px 12px 6px', color: 'var(--hw-text-label)' }}>
+            ✦ sends: name · category · description · bio · variables · anchors
+          </div>
+
+          {/* Collapsible generation instructions panel */}
+          {showGenInstructions && (
+            <div className="gen-instr-panel">
+              <div className="gen-instr-header">
+                <span className="lbl-mini">Generation Instructions</span>
+                <button className="hw-btn" style={{ fontSize: 9, padding: '1px 6px' }}
+                        onClick={resetGenInstructions}
+                        title="Restore default instructions">Reset</button>
+              </div>
+              <div className="gen-instr-note">
+                Controls tone and style. Schema structure (JSON format, variables, anchors) is always enforced.
+              </div>
+              <textarea className="gen-instr-area"
+                value={genInstructions}
+                onChange={e => setGenInstructions(e.target.value)}
+                rows={5}
+                spellCheck={false}/>
+            </div>
+          )}
 
           {/* Identity row */}
-          <span className="card-label"><span className="step">A</span>Identity</span>
-          <div className="ed-meta-row" style={{ gridTemplateColumns: '60px 1fr 160px 110px' }}>
+          <span className="card-label"><span className="step">A</span>Identity — sent to generation</span>
+          <div className={`ed-meta-row${aiPrompt.trim() ? ' gen-context-active' : ''}`} style={{ gridTemplateColumns: '60px 1fr 160px 110px' }}>
             <div className="ed-input-grp">
               <span className="lbl">Icon</span>
               <input className="ed-emoji" value={profile.icon} onChange={e => setProfile({ ...profile, icon: e.target.value })}/>
@@ -795,9 +864,9 @@ function EditorRoom({ profile, setProfile, onAddToSession, onBack, onGenerate, o
         </div>
 
         {/* Bio Template */}
-        <div className="hw-card ed-bio-card" style={{ position: 'relative' }}>
+        <div className={`hw-card ed-bio-card${aiPrompt.trim() ? ' gen-context-active' : ''}`} style={{ position: 'relative' }}>
           <span className="note-pin">{tokens.length} tokens · {tokens.filter(t => t.kind === 'pending').length} unbound</span>
-          <span className="card-label"><span className="step">B</span>Bio Template</span>
+          <span className="card-label"><span className="step">B</span>Bio Template — sent to generation</span>
           <div style={{ padding: '0 12px' }}>
             <textarea id="bio-area" ref={bioAreaRef} className="ed-bio-area"
               value={profile.bioTemplate}
@@ -1155,6 +1224,8 @@ function SessionRoom({
   sessionName, setSessionName,
   savedSessions = [],
   onSaveSession, onLoadSession, onDeleteSession,
+  sessionTemplates,
+  activeTemplateKey, setActiveTemplateKey,
 }) {
   const slots = 6;
   const filled = sessionAgents.length;
@@ -1162,6 +1233,80 @@ function SessionRoom({
   const [rosterDropArmed, setRosterDropArmed] = useState(false);
   const [showLoadMenu, setShowLoadMenu] = useState(false);
   const [showBioPreview, setShowBioPreview] = useState(false);
+
+  // ── Quick-Start template picker state ──────────────────────────────────
+  const [qsCat, setQsCat] = useState('');
+  const [qsCollapsed, setQsCollapsed] = useState(false);
+  const [conflictPending, setConflictPending] = useState(null); // {key, tpl, resolvedSlots}
+
+  const tplEntries = useMemo(() => {
+    if (!sessionTemplates) return [];
+    return Object.entries(sessionTemplates).map(([key, tpl]) => ({ key, ...tpl }));
+  }, [sessionTemplates]);
+
+  const filteredTpls = useMemo(() => {
+    if (!qsCat) return tplEntries;
+    return tplEntries.filter(t => t.category === qsCat);
+  }, [tplEntries, qsCat]);
+
+  const tplCategories = useMemo(() => {
+    const cats = new Set(tplEntries.map(t => t.category));
+    return [{ id: '', label: 'All' }, ...Array.from(cats).map(c => ({
+      id: c,
+      label: (c || 'other').charAt(0).toUpperCase() + (c || 'other').slice(1),
+    }))];
+  }, [tplEntries]);
+
+  // Resolve a template's agents to profile slots
+  const resolveTemplateSlots = (tpl) => {
+    return (tpl.agents || []).map(a => {
+      const p = profiles.find(pp => pp.name === a.name);
+      return p ? { profileId: p.id, overrides: {} } : null;
+    }).filter(Boolean);
+  };
+
+  // Apply template slots + metadata to the session
+  const applyTemplate = (key, tpl, resolvedSlots, mode) => {
+    if (mode === 'replace') {
+      setSessionAgents(resolvedSlots.slice(0, slots));
+    } else if (mode === 'append') {
+      const existing = [...sessionAgents];
+      for (const slot of resolvedSlots) {
+        if (existing.length >= slots) break;
+        if (!existing.find(a => a.profileId === slot.profileId)) {
+          existing.push(slot);
+        }
+      }
+      setSessionAgents(existing);
+    }
+    setSessionName(tpl.name || 'Untitled Session');
+    if (tpl.suggestedGoals && tpl.suggestedGoals.length > 0) {
+      setGoal(tpl.suggestedGoals[0]);
+    }
+    setActiveTemplateKey(key);
+    setQsCollapsed(true);
+  };
+
+  const loadTemplate = (key) => {
+    const tpl = sessionTemplates?.[key];
+    if (!tpl) return;
+    const resolvedSlots = resolveTemplateSlots(tpl);
+    if (resolvedSlots.length === 0) return;
+
+    if (sessionAgents.length > 0) {
+      // Agents already in session — ask user what to do
+      setConflictPending({ key, tpl, resolvedSlots });
+    } else {
+      applyTemplate(key, tpl, resolvedSlots, 'replace');
+    }
+  };
+
+  const handleConflict = (mode) => {
+    if (conflictPending && mode !== 'cancel') {
+      applyTemplate(conflictPending.key, conflictPending.tpl, conflictPending.resolvedSlots, mode);
+    }
+    setConflictPending(null);
+  };
 
   // Common anchor presets a user might want to drop in
   const ANCHOR_TEMPLATES = [
@@ -1343,12 +1488,17 @@ function SessionRoom({
     }
   };
 
-  const SUGG = [
-    'Write the weirdest text-to-image prompts possible',
-    'Iterate one concept through 10 evolutions',
-    'Pitch a band poster, refine the visual language',
-    'Argue both sides of "AI art is real art"',
-  ];
+  // Dynamic goal suggestions: prefer the active template's suggestedGoals,
+  // then fall back to generic defaults.
+  const activeTpl = activeTemplateKey && sessionTemplates?.[activeTemplateKey];
+  const SUGG = (activeTpl && activeTpl.suggestedGoals && activeTpl.suggestedGoals.length > 0)
+    ? activeTpl.suggestedGoals
+    : [
+        'Write the weirdest text-to-image prompts possible',
+        'Iterate one concept through 10 evolutions',
+        'Pitch a band poster, refine the visual language',
+        'Argue both sides of "AI art is real art"',
+      ];
 
   return (
     <div className="session-grid">
@@ -1527,8 +1677,48 @@ function SessionRoom({
         </div>
       </div>
 
-      {/* Right column — Goal + Anchors */}
+      {/* Right column — Quick Start + Goal + Anchors */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+
+        {/* Quick Start — Session Templates */}
+        {tplEntries.length > 0 && (
+          <div className={'hw-card qs-card' + (qsCollapsed ? ' collapsed' : '')}>
+            <div className="qs-header" onClick={() => setQsCollapsed(c => !c)}>
+              <span className="card-label" style={{ padding: 0 }}>
+                <span className="step">⚡</span>Quick Start · Session Templates
+              </span>
+              <span className="qs-chevron">▾</span>
+              {activeTemplateKey && qsCollapsed && (
+                <span className="qs-loaded-badge">✓ {sessionTemplates?.[activeTemplateKey]?.name}</span>
+              )}
+            </div>
+            <div className="qs-body">
+              <div className="qs-cats">
+                {tplCategories.map(c => (
+                  <span key={c.id}
+                        className={'qs-cat-pill' + (qsCat === c.id ? ' active' : '')}
+                        onClick={() => setQsCat(c.id)}>{c.label}</span>
+                ))}
+              </div>
+              <div className="qs-grid">
+                {filteredTpls.map(t => (
+                  <div key={t.key}
+                       className={'qs-tpl' + (activeTemplateKey === t.key ? ' active' : '')}
+                       onClick={() => loadTemplate(t.key)}
+                       title={t.description || t.name}>
+                    <div className="qs-tpl-name">{t.name}</div>
+                    <div className="qs-tpl-meta">
+                      <span className="qs-dot" style={{ background: CAT_COLORS[t.category]?.[0] || '#8a7e6e' }}></span>
+                      <span>{t.category}</span>
+                      <span>·</span>
+                      <span>{(t.agents || []).length} agents</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
         <div className="hw-card goal-card">
           <span className="card-label"><span className="step">2</span>Session Goal</span>
           <textarea value={goal} onChange={e => setGoal(e.target.value)} placeholder="What is this ensemble trying to do?"/>
@@ -1627,6 +1817,28 @@ function SessionRoom({
                 <button className="hw-btn ghost" onClick={() => setShowBioPreview(false)}>← Back</button>
                 <span style={{ flex: 1 }}></span>
                 <button className="launch-btn" onClick={() => { setShowBioPreview(false); onLaunch(); }}>▶ Looks good — Launch</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Conflict resolution dialog */}
+        {conflictPending && (
+          <div className="conflict-overlay">
+            <div className="conflict-panel">
+              <div className="conf-head">Session has agents</div>
+              <div className="conf-body">
+                You have {sessionAgents.length} agent{sessionAgents.length !== 1 ? 's' : ''} in the current session.
+                Loading <strong>{conflictPending.tpl.name}</strong> ({conflictPending.resolvedSlots.length} agents) —
+                how would you like to proceed?
+              </div>
+              <div className="conf-actions">
+                <button className="hw-btn ghost" onClick={() => handleConflict('cancel')}>Cancel</button>
+                <span className="grow"></span>
+                <button className="hw-btn" onClick={() => handleConflict('append')}
+                        title="Add template agents to existing slots (up to 6)">+ Append</button>
+                <button className="hw-btn primary" onClick={() => handleConflict('replace')}
+                        title="Clear current agents and load the template">↻ Replace</button>
               </div>
             </div>
           </div>
@@ -1740,6 +1952,8 @@ function App() {
   const [resolutionMode, setResolutionMode] = useState('once'); // 'once' | 'each_turn' (each_turn pending Phase 8)
   const [savedSessions, setSavedSessions] = useState([]);
   const [toast, setToast] = useState(null);
+  const [activeTemplateKey, setActiveTemplateKey] = useState(null);
+  const sessionTemplates = window.AS_AGENT_TEMPLATES_REF || null;
 
   // Hydrate from AgentProfileStore once the module has loaded.
   // Also run the legacy AS_AGENT_TEMPLATES migration so built-in agents from
@@ -2153,7 +2367,7 @@ function App() {
     }
   };
 
-  const generateFromDescription = async (description) => {
+  const generateFromDescription = async (description, styleInstruction) => {
     if (!description || !description.trim()) {
       showToast('Type a description first', 'warn');
       return;
@@ -2162,18 +2376,35 @@ function App() {
       showToast('Reading your taste…', 'ok');
       const tasteVector = await fetchTasteVector();
 
-      // If we have a vector, prepend it as biasing context. The agent_profile
-      // generator's system prompt is fixed in template_engine.py; we shape the
-      // user-side prompt instead, which the model treats as additional guidance.
-      const prompt = tasteVector
-        ? `[CREATOR'S TASTE PROFILE — bias the generated agent toward this voice and aesthetic, but do not literally quote it]\n${JSON.stringify(tasteVector, null, 2)}\n\n[REQUESTED AGENT]\n${description}`
-        : description;
+      // Build a structured context prompt that includes the full current profile
+      // so the model can edit-in-place rather than starting from scratch.
+      const current = profiles.find(p => p.id === editingId) || profiles[0];
+      const profileContext = current ? {
+        name: current.name,
+        category: current.category,
+        description: current.description,
+        bioTemplate: current.bioTemplate,
+        variables: current.variables,
+        anchors: current.anchors,
+      } : null;
+
+      let prompt = '';
+      if (tasteVector) {
+        prompt += `[CREATOR'S TASTE PROFILE — bias the generated agent toward this voice and aesthetic, but do not literally quote it]\n${JSON.stringify(tasteVector, null, 2)}\n\n`;
+      }
+      if (profileContext && profileContext.bioTemplate) {
+        prompt += `[EXISTING PROFILE — edit this to match the request; regenerate fully only if the concept changes completely]\n${JSON.stringify(profileContext, null, 2)}\n\n`;
+      }
+      prompt += `[USER REQUEST]\n${description}`;
 
       showToast('Asking Gemini…', 'ok');
+      const body = { mode: 'agent_profile', prompt };
+      if (styleInstruction && styleInstruction.trim()) body.style_instruction = styleInstruction.trim();
+
       const res = await fetch(`${SYNTHO_API}/api/generate/template`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mode: 'agent_profile', prompt }),
+        body: JSON.stringify(body),
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
@@ -2182,7 +2413,6 @@ function App() {
       const data = await res.json();
       const tpl = data.template || {};
       // Merge into the currently-editing profile (preserves id, color, tags, icon)
-      const current = profiles.find(p => p.id === editingId) || profiles[0];
       const merged = {
         ...current,
         name: tpl.name || current.name,
@@ -2519,6 +2749,9 @@ function App() {
                        onLoadSession={loadSessionPreset}
                        onDeleteSession={deleteSessionPreset}
                        onLaunch={launchSession}
+                       sessionTemplates={sessionTemplates}
+                       activeTemplateKey={activeTemplateKey}
+                       setActiveTemplateKey={setActiveTemplateKey}
                        onEditAgent={(p) => { setEditingId(p.id); setRoom('editor'); }}/>
         </SessionPortal>
       )}

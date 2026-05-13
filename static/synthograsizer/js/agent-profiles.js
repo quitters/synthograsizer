@@ -314,22 +314,41 @@ export function migrateLegacyAgentToProfile(agentData, category, extraTags = [])
  * profile store on first load. Safe to call repeatedly — guarded by a marker.
  */
 export function autoMigrateBuiltInPresets(legacyTemplates) {
-  if (localStorage.getItem('as_migrated_presets')) return;
+  const needsInitialMigration = !localStorage.getItem('as_migrated_presets');
+  const needsTagMigration = !localStorage.getItem('as_migrated_tags_v2');
+
+  if (!needsInitialMigration && !needsTagMigration) return;
 
   for (const [key, tpl] of Object.entries(legacyTemplates || {})) {
     for (const agentData of (tpl.agents || [])) {
       const existing = AgentProfileStore.loadAll().find(p => p.name === agentData.name);
-      if (!existing) {
-        const profile = migrateLegacyAgentToProfile(agentData, tpl.category, [
-          { type: 'source', label: `From: ${tpl.name}` },
-        ]);
+      
+      const targetTags = [
+        { type: 'source', label: `From: ${tpl.name}` },
+        ...(agentData.tags || []),
+      ];
+
+      if (!existing && needsInitialMigration) {
+        const profile = migrateLegacyAgentToProfile(agentData, tpl.category, targetTags);
         AgentProfileStore.save(profile);
+      } else if (existing && needsTagMigration && existing.tags.some(t => t.type === 'builtin')) {
+        // Only update tags if it's explicitly a built-in profile
+        const currentTags = existing.tags || [];
+        const mergedTags = [...currentTags];
+        for (const targetTag of targetTags) {
+          if (!mergedTags.some(t => t.type === targetTag.type && t.label === targetTag.label)) {
+            mergedTags.push(targetTag);
+          }
+        }
+        existing.tags = mergedTags;
+        AgentProfileStore.save(existing);
       }
     }
   }
 
-  localStorage.setItem('as_migrated_presets', 'true');
-  console.log('[AgentProfiles] Auto-migrated built-in presets to Profile Store.');
+  if (needsInitialMigration) localStorage.setItem('as_migrated_presets', 'true');
+  if (needsTagMigration) localStorage.setItem('as_migrated_tags_v2', 'true');
+  console.log('[AgentProfiles] Auto-migrated built-in presets (v2) to Profile Store.');
 }
 
 // ─── Global exposure ────────────────────────────────────────────────────────

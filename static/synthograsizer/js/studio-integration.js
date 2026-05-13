@@ -5533,72 +5533,74 @@ class StudioIntegration {
         if (addFavBtn) addFavBtn.style.display = 'none';
 
         try {
-            const base64Image = await this.readFileAsBase64(file, { compress: false });
+            const arrayBuffer = await file.arrayBuffer();
+            const metadata = await window.extractAIMetadataFromPNG(arrayBuffer);
 
-            const response = await fetch('/api/extract-metadata', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ image: base64Image })
-            });
+            let displayText = "";
 
-            const data = await response.json();
-            if (data.status === 'success') {
-                const metadata = data.metadata;
-                let displayText = "";
+            if (metadata.prompt) {
+                displayText += `Prompt:\n${metadata.prompt}\n\n`;
 
-                if (metadata.prompt) {
-                    displayText += `Prompt:\n${metadata.prompt}\n\n`;
-
-                    // Setup Add to Favorites button
-                    if (addFavBtn) {
-                        addFavBtn.style.display = 'block';
-                        addFavBtn.onclick = () => {
-                            this.addToFavorites(metadata.prompt);
-                            const originalBtnText = addFavBtn.textContent;
-                            addFavBtn.textContent = "Added!";
-                            setTimeout(() => addFavBtn.textContent = originalBtnText, 1000);
-                        };
-                    }
+                // Setup Add to Favorites button
+                if (addFavBtn) {
+                    addFavBtn.style.display = 'block';
+                    addFavBtn.onclick = () => {
+                        this.addToFavorites(metadata.prompt);
+                        const originalBtnText = addFavBtn.textContent;
+                        addFavBtn.textContent = "Added!";
+                        setTimeout(() => addFavBtn.textContent = originalBtnText, 1000);
+                    };
                 }
-                if (metadata.negative_prompt) {
-                    displayText += `Negative Prompt:\n${metadata.negative_prompt}\n\n`;
-                }
+            }
+            if (metadata.negative_prompt) {
+                displayText += `Negative Prompt:\n${metadata.negative_prompt}\n\n`;
+            }
 
-                // Display provenance tags if present
-                if (metadata.provenance && metadata.provenance.tags) {
-                    displayText += `── Provenance ──\n`;
-                    if (metadata.provenance.generated_at) {
-                        displayText += `Generated: ${metadata.provenance.generated_at}\n`;
-                    }
-                    displayText += `Tags (${metadata.provenance.tags.length}):\n`;
-                    for (const tag of metadata.provenance.tags) {
-                        const type = (tag.type || 'custom').toUpperCase();
-                        displayText += `  [${type}] ${tag.label || 'Untitled'}`;
-                        if (tag.url) displayText += `\n    URL: ${tag.url}`;
-                        if (tag.description) displayText += `\n    ${tag.description}`;
-                        if (tag.chain) displayText += `  (${tag.chain})`;
-                        if (tag.date) displayText += `  (${tag.date})`;
-                        if (tag.meta?.parent_fingerprint) displayText += `\n    Parent: ${tag.meta.parent_fingerprint}`;
-                        displayText += `\n`;
-                    }
+            // Display provenance tags if present
+            if (metadata.provenance && metadata.provenance.tags) {
+                displayText += `── Provenance ──\n`;
+                if (metadata.provenance.generated_at) {
+                    displayText += `Generated: ${metadata.provenance.generated_at}\n`;
+                }
+                displayText += `Tags (${metadata.provenance.tags.length}):\n`;
+                for (const tag of metadata.provenance.tags) {
+                    const type = (tag.type || 'custom').toUpperCase();
+                    displayText += `  [${type}] ${tag.label || 'Untitled'}`;
+                    if (tag.url) displayText += `\n    URL: ${tag.url}`;
+                    if (tag.description) displayText += `\n    ${tag.description}`;
+                    if (tag.chain) displayText += `  (${tag.chain})`;
+                    if (tag.date) displayText += `  (${tag.date})`;
+                    if (tag.meta?.parent_fingerprint) displayText += `\n    Parent: ${tag.meta.parent_fingerprint}`;
                     displayText += `\n`;
                 }
-
-                // Display other keys
-                for (const [key, value] of Object.entries(metadata)) {
-                    if (['prompt', 'negative_prompt', 'provenance', 'provenance_raw'].includes(key)) continue;
-                    displayText += `${key}:\n${value}\n\n`;
-                }
-
-                if (!displayText) {
-                    displayText = "No metadata found in this image.";
-                }
-
-                outputArea.value = displayText.trim();
-                resultArea.style.display = 'block';
-            } else {
-                throw new Error(data.detail || 'Unknown error');
+                displayText += `\n`;
             }
+
+            // Display other keys
+            for (const [key, value] of Object.entries(metadata)) {
+                if (['prompt', 'negative_prompt', 'provenance', 'provenance_raw', 'raw', 'parameters', 'source', 'model'].includes(key)) continue;
+                displayText += `${key}:\n${value}\n\n`;
+            }
+
+            // Also show parameters if available
+            if (metadata.parameters && metadata.parameters.length > 0) {
+                displayText += `── Parameters ──\n`;
+                for (const p of metadata.parameters) {
+                    if (typeof p === 'object' && p.name) {
+                        displayText += `${p.name}: ${p.value}\n`;
+                    } else {
+                        displayText += `${p}\n`;
+                    }
+                }
+                displayText += `\n`;
+            }
+
+            if (!displayText) {
+                displayText = "No metadata found in this image.";
+            }
+
+            outputArea.value = displayText.trim();
+            resultArea.style.display = 'block';
         } catch (error) {
             console.error('Metadata extraction error:', error);
             this.showToast('Extraction failed: ' + error.message, 'error');
@@ -5804,7 +5806,7 @@ class StudioIntegration {
                 for (const file of chunk) {
                     try {
                         const arrayBuffer = await file.arrayBuffer();
-                        const meta = window.extractAIMetadataFromPNG(arrayBuffer);
+                        const meta = await window.extractAIMetadataFromPNG(arrayBuffer);
                         results.push({
                             index: results.length,
                             status: 'success',

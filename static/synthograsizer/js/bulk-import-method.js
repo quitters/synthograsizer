@@ -43,60 +43,40 @@ async runBulkMetadataImport() {
             
             statusText.textContent = `Processing batch ${batchIndex + 1}/${totalBatches} (${startIdx + 1}-${endIdx} of ${pngFiles.length})`;
             
-            // Convert batch to base64
-            const base64Images = [];
             for (let i = 0; i < batchFiles.length; i++) {
-                const base64 = await this.readFileAsBase64(batchFiles[i]);
-                base64Images.push(base64);
-                
-                // Update progress (first 50% is reading files)
-                const overallProgress = ((startIdx + i + 1) / pngFiles.length) * 50;
-                progressBar.style.width = `${overallProgress}%`;
-            }
-
-            // Send batch to backend
-            const response = await fetch('/api/extract-metadata/bulk', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ images: base64Images })
-            });
-
-            const data = await response.json();
-            if (data.status === 'success') {
-                const results = data.results;
-
-                // Process results
-                for (let i = 0; i < results.length; i++) {
-                    const result = results[i];
-                    const fileName = batchFiles[i].name;
+                const file = batchFiles[i];
+                const fileName = file.name;
+                try {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const meta = await window.extractAIMetadataFromPNG(arrayBuffer);
                     
-                    if (result.status === 'success' && result.prompt) {
+                    if (meta.prompt) {
                         totalSuccessCount++;
-                        // Trim prompt to remove extra whitespace/newlines
-                        const trimmedPrompt = result.prompt.trim();
-                        if (trimmedPrompt) {  // Only add non-empty prompts
+                        const trimmedPrompt = meta.prompt.trim();
+                        if (trimmedPrompt) {
                             allExtractedPrompts.push(trimmedPrompt);
                             logArea.value += `✓ ${fileName}: Prompt extracted\n`;
                         } else {
                             logArea.value += `⚠ ${fileName}: Prompt was empty after trimming\n`;
                         }
-                    } else if (result.status === 'success' && !result.prompt) {
-                        logArea.value += `⚠ ${fileName}: No prompt found in metadata\n`;
                     } else {
-                        totalErrorCount++;
-                        logArea.value += `✗ ${fileName}: ${result.error || 'Unknown error'}\n`;
+                        logArea.value += `⚠ ${fileName}: No prompt found in metadata\n`;
                     }
-                    
-                    // Update progress (second 50% is extracting metadata)
-                    const overallProgress = 50 + ((startIdx + i + 1) / pngFiles.length) * 50;
-                    progressBar.style.width = `${overallProgress}%`;
+                } catch (err) {
+                    totalErrorCount++;
+                    logArea.value += `✗ ${fileName}: ${err.message || 'Unknown error'}\n`;
                 }
+
+                // Update progress
+                const overallProgress = ((startIdx + i + 1) / pngFiles.length) * 100;
+                progressBar.style.width = `${overallProgress}%`;
                 
-                // Scroll log to bottom
-                logArea.scrollTop = logArea.scrollHeight;
-            } else {
-                throw new Error(data.detail || 'Unknown error');
+                // Yield to keep UI responsive
+                await new Promise(r => setTimeout(r, 0));
             }
+            
+            // Scroll log to bottom
+            logArea.scrollTop = logArea.scrollHeight;
         }
 
         // Add prompts to liked prompts list

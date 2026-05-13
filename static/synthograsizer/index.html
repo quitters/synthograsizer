@@ -17,7 +17,7 @@
     <link rel="stylesheet" href="css/composer.css?v=1">
     <link rel="icon" type="image/png" href="assets/favicon.png">
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Quantico:ital,wght@0,400;0,700;1,400;1,700&family=Roboto+Mono:wght@300;400;500;600;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Quantico:ital,wght@0,400;0,700;1,400;1,700&family=Roboto+Mono:wght@300;400;500;600;700&family=Bungee&family=Share+Tech+Mono&display=swap"
         rel="stylesheet">
     <style>
         /* Navigation styling to match other pages */
@@ -360,10 +360,11 @@
         <!-- ── App Bar — logo · template picker · mode switcher ── -->
         <header class="app-bar">
           <div class="app-bar-brand">
-            <span class="app-bar-logo">Synthograsizer</span>
-            <button class="app-bar-tpl-btn" id="app-bar-tpl-btn" title="Browse prompt templates (T)">
-              <span id="app-bar-tpl-name">Templates</span>
-              <span class="app-bar-tpl-arrow">▾</span>
+            <span class="app-bar-logo">SYNTHOGRASIZER</span>
+            <button class="app-bar-tpl-btn" id="app-bar-tpl-btn" data-tip="BROWSE ALL TEMPLATES (T)">
+              <span class="app-bar-tpl-icon" id="app-bar-tpl-icon">🎨</span>
+              <span class="app-bar-tpl-name" id="app-bar-tpl-name">ART PROMPT</span>
+              <span class="app-bar-tpl-change">CHANGE ▾</span>
             </button>
           </div>
           <!-- id="layout-switcher" kept so the existing mode-switching JS can find buttons via querySelectorAll('.layout-btn') -->
@@ -371,6 +372,7 @@
             <button class="layout-btn" data-layout="default" data-tip="Studio Mode — Full Tools Panel">⊟ Studio</button>
             <button class="layout-btn" data-layout="a" data-tip="Perform Mode — Minimal Layout">▶ Perform</button>
             <button class="layout-btn" data-mode="composer" data-tip="4-room agent composer (Library → Editor → Session → Run)">🧪 Composer</button>
+            <a href="changelog.html" class="app-bar-tpl-btn" style="text-decoration:none" data-tip="Change Notes &amp; Release History">📋 What's New</a>
           </div>
         </header>
 
@@ -788,59 +790,61 @@
                                 <input type="text" id="template-search-input" class="template-search-input"
                                     placeholder="Search templates..." aria-label="Search templates">
                             </div>
-                            <div class="template-section-label">Built-in templates — P5.js</div>
-                            <button class="template-option" data-template="blob-simulator">🫧 Blob Simulator (Live)</button>
-                            <button class="template-option" data-template="spring-physics-v2">🧬 Spring Physics v2 (P5.js)</button>
-                            <button class="template-option" data-template="face-generator-full">😊 Face Generator Full (P5.js)</button>
-                            <button class="template-option" data-template="svg-flow-particles">🌊 SVG Flow Particles (P5.js)</button>
-                            <button class="template-option" data-template="cellular-tapestry">🧫 Cellular Tapestry (P5.js)</button>
-                            <button class="template-option" data-template="strange-attractors">✨ Strange Attractors (P5.js)</button>
-                            <button class="template-option" data-template="urban-skyline">🏙️ Urban Skyline (P5.js)</button>
-                            <button class="template-option" data-template="layered-echo">🔷 Layered Echo (P5.js)</button>
-                            <button class="template-option" data-template="recursive-subdivisions">🔲 Recursive Subdivisions (P5.js)</button>
-                            <button class="template-option" data-template="gobstoppers">🔮 Gobstoppers (P5.js)</button>
-                            <button class="template-option" data-template="smiley-mound">🌋 Smiley Mound (P5.js)</button>
-                            <button class="template-option" data-template="lissajous-lab">📡 Lissajous Lab (P5.js)</button>
-                            <button class="template-option" data-template="moire-waves">〰️ Moiré Waves (P5.js)</button>
-                            <button class="template-option" data-template="digital-fidget">🎆 Digital Fidget (P5.js)</button>
-                            <button class="template-option" data-template="big-bang">💥 Big Bang (P5.js)</button>
-                            <button class="template-option" data-template="circuit-poem">⚡ Circuit Poem (P5.js)</button>
-                            <button class="template-option" data-template="origami-tiles">🧩 Origami Tiles (P5.js)</button>
-                            <button class="template-option" data-template="particle-nebula">🌌 Particle Nebula (P5.js)</button>
-                            <button class="template-option" data-template="quantum-pairs">⚛️ Quantum Pairs (P5.js)</button>
-                            <button class="template-option" data-template="botanical-growth">🌿 Botanical Growth (P5.js)</button>
-                            <button class="template-option" data-template="time-crystals">💎 Time Crystals (P5.js)</button>
-                            <button class="template-option" data-template="flow-field">💫 Flow Field (P5.js)</button>
-                            <button class="template-option" data-template="sacred-geometry">✴️ Sacred Geometry (P5.js)</button>
-                            <button class="template-option" data-template="crystal-growth">💠 Crystal Growth (P5.js)</button>
-                            <button class="template-option" data-template="matrix-rain">💻 Matrix Rain (P5.js)</button>
-                            <button class="template-option" data-template="glorpy_heads">👾 Glorpy Heads (P5.js)</button>
-                            <button class="template-option" data-template="harmonic-waves">🎶 Harmonic Waves (P5.js)</button>
-                            <div class="template-section-label">Built-in templates — Prompt</div>
-                            <button class="template-option" data-template="synthograsizer-prompt">🎨 Art Prompt</button>
-                            <button class="template-option" data-template="character-design">👤 Character Design</button>
-                            <button class="template-option" data-template="fantasy-scene">🏔️ Fantasy Scene</button>
-                            <button class="template-option" data-template="monster_maker">👹 Monster Maker</button>
-                            <button class="template-option" data-template="band-name">🎸 Band Name</button>
-                            <button class="template-option" data-template="movie-logline">🎬 Movie Logline</button>
-                            <button class="template-option" data-template="startup-slogan">💡 Startup Slogan</button>
-                            <button class="template-option" data-template="tattoo-concept">🖤 Tattoo Concept</button>
-                            <button class="template-option" data-template="villain-motivation">😈 Villain Motivation</button>
-                            <button class="template-option" data-template="breakdance">🕺 Breakdance</button>
-                            <button class="template-option" data-template="blooper_reel">🎭 Blooper Reel</button>
-                            <button class="template-option" data-template="lovebombing">💣 Lovebombing</button>
-                            <button class="template-option" data-template="jacket_weather_v2">🧥 Jacket Weather</button>
-                            <button class="template-option" data-template="img2vid-cinematographer">🎥 img2vid Cinematographer</button>
-                            <button class="template-option" data-template="hollywood_squares">📺 Hollywood Squares</button>
-                            <button class="template-option" data-template="cinematic-plot-twist">🎬 Cinematic Plot Twist</button>
-                            <button class="template-option" data-template="lyria-realtime">🎵 Lyria Music (Realtime)</button>
-                            <button class="template-option" data-template="nimby">🏗️ NIMBY</button>
-                            <button class="template-option" data-template="the-idea-machine">⚙️ The Idea Machine</button>
-                            <button class="template-option" data-template="blurred_autonomy">🌀 Blurred Autonomy</button>
-                            <button class="template-option" data-template="the_harlequins_of_neptune">🎪 Harlequins of Neptune</button>
-                            <button class="template-option" data-template="synesthetic_singularity">🌈 Synesthetic Singularity</button>
-                            <button class="template-option" data-template="subliminal-liminals">👁️ Subliminal Liminals</button>
-                            <button class="template-option" data-template="empty">📄 Empty Template</button>
+                            <div class="template-section-label">Built-in templates</div>
+                            <button class="template-option" data-template="blob-simulator" data-category="P5">🫧 Blob Simulator</button>
+                            <button class="template-option" data-template="spring-physics-v2" data-category="P5">🧬 Spring Physics v2</button>
+                            <button class="template-option" data-template="face-generator-full" data-category="P5">😊 Face Generator Full</button>
+                            <button class="template-option" data-template="svg-flow-particles" data-category="P5">🌊 SVG Flow Particles</button>
+                            <button class="template-option" data-template="cellular-tapestry" data-category="P5">🧫 Cellular Tapestry</button>
+                            <button class="template-option" data-template="strange-attractors" data-category="P5">✨ Strange Attractors</button>
+                            <button class="template-option" data-template="urban-skyline" data-category="P5">🏙️ Urban Skyline</button>
+                            <button class="template-option" data-template="layered-echo" data-category="P5">🔷 Layered Echo</button>
+                            <button class="template-option" data-template="recursive-subdivisions" data-category="P5">🔲 Recursive Subdivisions</button>
+                            <button class="template-option" data-template="gobstoppers" data-category="P5">🔮 Gobstoppers</button>
+                            <button class="template-option" data-template="smiley-mound" data-category="P5">🌋 Smiley Mound</button>
+                            <button class="template-option" data-template="lissajous-lab" data-category="P5">📡 Lissajous Lab</button>
+                            <button class="template-option" data-template="moire-waves" data-category="P5">〰️ Moiré Waves</button>
+                            <button class="template-option" data-template="digital-fidget" data-category="P5">🎆 Digital Fidget</button>
+                            <button class="template-option" data-template="big-bang" data-category="P5">💥 Big Bang</button>
+                            <button class="template-option" data-template="circuit-poem" data-category="P5">⚡ Circuit Poem</button>
+                            <button class="template-option" data-template="origami-tiles" data-category="P5">🧩 Origami Tiles</button>
+                            <button class="template-option" data-template="particle-nebula" data-category="P5">🌌 Particle Nebula</button>
+                            <button class="template-option" data-template="quantum-pairs" data-category="P5">⚛️ Quantum Pairs</button>
+                            <button class="template-option" data-template="botanical-growth" data-category="P5">🌿 Botanical Growth</button>
+                            <button class="template-option" data-template="time-crystals" data-category="P5">💎 Time Crystals</button>
+                            <button class="template-option" data-template="flow-field" data-category="P5">💫 Flow Field</button>
+                            <button class="template-option" data-template="sacred-geometry" data-category="P5">✴️ Sacred Geometry</button>
+                            <button class="template-option" data-template="crystal-growth" data-category="P5">💠 Crystal Growth</button>
+                            <button class="template-option" data-template="matrix-rain" data-category="P5">💻 Matrix Rain</button>
+                            <button class="template-option" data-template="glorpy_heads" data-category="P5">👾 Glorpy Heads</button>
+                            <button class="template-option" data-template="harmonic-waves" data-category="P5">🎶 Harmonic Waves</button>
+                            
+                            <button class="template-option" data-template="synthograsizer-prompt" data-category="PROMPT">🎨 Art Prompt</button>
+                            <button class="template-option" data-template="character-design" data-category="PROMPT">👤 Character Design</button>
+                            <button class="template-option" data-template="fantasy-scene" data-category="PROMPT">🏔️ Fantasy Scene</button>
+                            <button class="template-option" data-template="monster_maker" data-category="PROMPT">👹 Monster Maker</button>
+                            <button class="template-option" data-template="band-name" data-category="PROMPT">🎸 Band Name</button>
+                            <button class="template-option" data-template="startup-slogan" data-category="PROMPT">💡 Startup Slogan</button>
+                            <button class="template-option" data-template="tattoo-concept" data-category="PROMPT">🖤 Tattoo Concept</button>
+                            <button class="template-option" data-template="breakdance" data-category="PROMPT">🕺 Breakdance</button>
+                            <button class="template-option" data-template="jacket_weather_v2" data-category="PROMPT">🧥 Jacket Weather</button>
+                            <button class="template-option" data-template="img2vid-cinematographer" data-category="PROMPT">🎥 img2vid Cinematographer</button>
+                            <button class="template-option" data-template="the-idea-machine" data-category="PROMPT">⚙️ The Idea Machine</button>
+                            <button class="template-option" data-template="synesthetic_singularity" data-category="PROMPT">🌈 Synesthetic Singularity</button>
+                            <button class="template-option" data-template="empty" data-category="PROMPT">📄 Empty Template</button>
+
+                            <button class="template-option" data-template="movie-logline" data-category="STORY">🎬 Movie Logline</button>
+                            <button class="template-option" data-template="villain-motivation" data-category="STORY">😈 Villain Motivation</button>
+                            <button class="template-option" data-template="blooper_reel" data-category="STORY">🎭 Blooper Reel</button>
+                            <button class="template-option" data-template="lovebombing" data-category="STORY">💣 Lovebombing</button>
+                            <button class="template-option" data-template="hollywood_squares" data-category="STORY">📺 Hollywood Squares</button>
+                            <button class="template-option" data-template="cinematic-plot-twist" data-category="STORY">🎬 Cinematic Plot Twist</button>
+                            <button class="template-option" data-template="nimby" data-category="STORY">🏗️ NIMBY</button>
+                            <button class="template-option" data-template="blurred_autonomy" data-category="STORY">🌀 Blurred Autonomy</button>
+                            <button class="template-option" data-template="the_harlequins_of_neptune" data-category="STORY">🎪 Harlequins of Neptune</button>
+                            <button class="template-option" data-template="subliminal-liminals" data-category="STORY">👁️ Subliminal Liminals</button>
+                            
+                            <button class="template-option" data-template="lyria-realtime" data-category="MUSIC">🎵 Lyria Music</button>
                             <div class="template-dropdown-divider"></div>
                             <div class="template-section-label">Custom / imported</div>
                             <button class="template-option template-import-option" id="template-import-option">
@@ -984,6 +988,13 @@
                 </div>
                 <div class="template-picker-search-bar">
                     <input type="text" id="template-picker-search" placeholder="Search templates…" autocomplete="off" aria-label="Search templates">
+                </div>
+                <div class="template-picker-categories" id="template-picker-categories">
+                    <button class="category-pill active" data-category="ALL">ALL</button>
+                    <button class="category-pill" data-category="P5">P5.JS</button>
+                    <button class="category-pill" data-category="PROMPT">PROMPT</button>
+                    <button class="category-pill" data-category="STORY">STORY</button>
+                    <button class="category-pill" data-category="MUSIC">MUSIC</button>
                 </div>
                 <div class="batch-modal-body" id="template-picker-body">
                     <!-- Cards injected by template-loader.js -->
