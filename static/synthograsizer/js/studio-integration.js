@@ -1272,12 +1272,20 @@ class StudioIntegration {
             <!-- Remix Mode -->
             <div class="tg-panel" id="tg-panel-remix" style="display:none">
                 <div class="tg-hint">
-                    <strong>Remix Mode:</strong> Modify the currently loaded template using natural language. Add variables, change values, restructure the prompt — existing elements are preserved unless you say otherwise.
+                    <strong>Remix Mode:</strong> Modify the currently loaded template using natural language. Add variables, change values, restructure the prompt — existing elements are preserved unless you say otherwise. Optionally attach reference images for visual context.
                 </div>
                 <div id="tg-remix-current" class="tg-current-template">No template loaded</div>
                 <div class="studio-input-group">
                     <label>Remix Instructions</label>
                     <textarea id="tg-remix-instruction" placeholder="e.g. Add a 'time_of_day' variable with morning, noon, and night options" style="width:100%; height:80px; padding:8px; border:1px solid #ddd; border-radius:6px; resize:vertical; font-family:'Inter'"></textarea>
+                </div>
+                <div class="studio-input-group">
+                    <label>Reference Images <span style="color:#999; font-weight:normal;">(optional — up to 8)</span></label>
+                    <div id="tg-remix-dropzone" style="position:relative; border:2px dashed #ccc; border-radius:6px; padding:14px; text-align:center; cursor:pointer; color:#888; font-size:13px; transition:border-color .2s; background:#fafafa;">
+                        📎 Click or drag images here
+                        <input type="file" id="tg-remix-images" accept="image/*" multiple style="position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%;">
+                    </div>
+                    <div id="tg-remix-previews" style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;"></div>
                 </div>
             </div>
 
@@ -2338,6 +2346,11 @@ class StudioIntegration {
         // Template Generator Image Previews
         // Unified Create panel: image thumbnails + mode badge
         this.bindSafe('tg-create-images', 'onchange', async (e) => {
+            // Enforce max 8 images (soft limit for pattern matching)
+            const dt = new DataTransfer();
+            Array.from(e.target.files).slice(0, 8).forEach(f => dt.items.add(f));
+            if (e.target.files.length > 8) this.showToast("Maximum 8 images allowed.", 'warning');
+            e.target.files = dt.files;
             await this._renderCreatePreviews(e.target.files);
             this.updateCreateModeBadge();
         });
@@ -2351,11 +2364,20 @@ class StudioIntegration {
                 e.preventDefault(); dropzone.style.borderColor = '#ccc';
                 const inp = document.getElementById('tg-create-images');
                 if (inp && e.dataTransfer.files.length) {
-                    // Merge dropped files with existing via DataTransfer
+                    // Merge dropped files with existing via DataTransfer, up to 8 max
                     const dt = new DataTransfer();
                     Array.from(inp.files).forEach(f => dt.items.add(f));
                     Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/')).forEach(f => dt.items.add(f));
-                    inp.files = dt.files;
+                    
+                    if (dt.files.length > 8) {
+                        const trimmedDt = new DataTransfer();
+                        Array.from(dt.files).slice(0, 8).forEach(f => trimmedDt.items.add(f));
+                        inp.files = trimmedDt.files;
+                        this.showToast("Maximum 8 images allowed.", 'warning');
+                    } else {
+                        inp.files = dt.files;
+                    }
+                    
                     this._renderCreatePreviews(inp.files).then(() => this.updateCreateModeBadge());
                 }
             });
@@ -2364,6 +2386,42 @@ class StudioIntegration {
         // Create panel: update badge on text input too
         const createText = document.getElementById('tg-create-text');
         if (createText) createText.addEventListener('input', () => this.updateCreateModeBadge());
+
+        // Remix panel: image thumbnails
+        this.bindSafe('tg-remix-images', 'onchange', async (e) => {
+            const dt = new DataTransfer();
+            Array.from(e.target.files).slice(0, 8).forEach(f => dt.items.add(f));
+            if (e.target.files.length > 8) this.showToast("Maximum 8 reference images allowed.", 'warning');
+            e.target.files = dt.files;
+            await this._renderRemixPreviews(e.target.files);
+        });
+
+        // Drag-over highlight for remix drop zone
+        const remixDropzone = document.getElementById('tg-remix-dropzone');
+        if (remixDropzone) {
+            remixDropzone.addEventListener('dragover', (e) => { e.preventDefault(); remixDropzone.style.borderColor = '#009688'; });
+            remixDropzone.addEventListener('dragleave', () => { remixDropzone.style.borderColor = '#ccc'; });
+            remixDropzone.addEventListener('drop', (e) => {
+                e.preventDefault(); remixDropzone.style.borderColor = '#ccc';
+                const inp = document.getElementById('tg-remix-images');
+                if (inp && e.dataTransfer.files.length) {
+                    const dt = new DataTransfer();
+                    Array.from(inp.files).forEach(f => dt.items.add(f));
+                    Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/')).forEach(f => dt.items.add(f));
+                    
+                    if (dt.files.length > 8) {
+                        const trimmedDt = new DataTransfer();
+                        Array.from(dt.files).slice(0, 8).forEach(f => trimmedDt.items.add(f));
+                        inp.files = trimmedDt.files;
+                        this.showToast("Maximum 8 reference images allowed.", 'warning');
+                    } else {
+                        inp.files = dt.files;
+                    }
+                    
+                    this._renderRemixPreviews(inp.files);
+                }
+            });
+        }
 
         // p5 mode: image preview
         this.bindSafe('tg-p5-image', 'onchange', async (e) => {
@@ -4813,6 +4871,36 @@ class StudioIntegration {
         }
     }
 
+    async _renderRemixPreviews(fileList) {
+        const container = document.getElementById('tg-remix-previews');
+        if (!container) return;
+        container.innerHTML = '';
+        const files = Array.from(fileList || []);
+        for (let i = 0; i < files.length; i++) {
+            const b64 = await this.readFileAsBase64(files[i]);
+            const wrap = document.createElement('div');
+            wrap.style.cssText = 'position:relative; display:inline-block;';
+            const img = document.createElement('img');
+            img.src = b64;
+            img.style.cssText = 'max-width:72px; max-height:72px; border-radius:4px; object-fit:cover; display:block; border:1px solid #ddd;';
+            const rm = document.createElement('button');
+            rm.textContent = '✕';
+            rm.title = 'Remove';
+            rm.style.cssText = 'position:absolute;top:-4px;right:-4px;background:#ef4444;color:#fff;border:none;border-radius:50%;width:16px;height:16px;font-size:10px;line-height:16px;text-align:center;cursor:pointer;padding:0;box-shadow:0 1px 3px rgba(0,0,0,0.2);';
+            rm.addEventListener('click', () => {
+                const inp = document.getElementById('tg-remix-images');
+                if (!inp) return;
+                const dt = new DataTransfer();
+                Array.from(inp.files).forEach((f, j) => { if (j !== i) dt.items.add(f); });
+                inp.files = dt.files;
+                this._renderRemixPreviews(inp.files);
+            });
+            wrap.appendChild(img);
+            wrap.appendChild(rm);
+            container.appendChild(wrap);
+        }
+    }
+
     // ─────────────────────────────────────────────────────────────────────────
 
     async runTemplateGen() {
@@ -4862,6 +4950,16 @@ class StudioIntegration {
                 if (!this.app?.currentTemplate) { this.showToast("No template loaded to remix. Please load a template first.", 'warning'); return; }
                 body.prompt = instruction;
                 body.current_template = this.app.currentTemplate;
+                
+                // Attach optional reference images (up to 8)
+                const remixFiles = document.getElementById('tg-remix-images')?.files || [];
+                if (remixFiles.length > 0) {
+                    body.images = [];
+                    for (let i = 0; i < Math.min(remixFiles.length, 8); i++) {
+                        body.images.push(await this.readFileAsBase64(remixFiles[i]));
+                    }
+                }
+                
                 // Capture parent info for remix lineage tagging (used after template loads)
                 this._remixParentInfo = {
                     fingerprint: window.__computeTemplateFingerprint?.(this.app.currentTemplate) || null,
@@ -4953,7 +5051,7 @@ class StudioIntegration {
             const controller = new AbortController();
             const timeoutTable = {
                 'text': 120000, 'image': 120000, 'hybrid': 120000,
-                'multi-image': 150000, 'remix': 120000,
+                'multi-image': 150000, 'remix': 150000,
                 // p5 / story / workflow: Pro model writes a complete self-contained sketch
                 // or story template — needs up to 5 minutes for large outputs.
                 'story': 180000, 'workflow': 180000, 'p5': 300000

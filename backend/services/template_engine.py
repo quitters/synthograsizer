@@ -391,7 +391,7 @@ Each entry in "values" is: {"text": "the value string", "weight": N}
     except Exception as e:
         raise Exception(f"Multi-image template generation failed: {e}")
 
-def remix_template(self, current_template: dict, instruction: str, model_override: str = None) -> str:
+def remix_template(self, current_template: dict, instruction: str, reference_images: list = None, model_override: str = None) -> str:
     """
     Evolve an existing template based on user instructions.
     Preserves elements the user doesn't explicitly ask to change.
@@ -448,6 +448,7 @@ Each entry in "values" is: {"text": "the value string", "weight": N}
 6. **PRESERVATION**: If the user says "add a time_of_day variable", keep ALL existing variables intact — only ADD the new variable.
 7. **Incoming template format**: The input template may use either the old parallel-array format or the new nested format. Always OUTPUT the new nested format regardless of input format.
 8. **Sequencer-friendly**: When adding new variables, include 8-12 values with smooth transitions. Include 1-2 neutral/lockable values.
+9. **Reference Images**: If reference images are attached, the user's instructions will explain their purpose (e.g., character reference, aesthetic palette, current vs. desired output). Use the images as visual context for your modifications — extract colors, styles, compositions, or character traits as directed by the instruction text. Do not describe the images in the output unless the user asks for it.
 """
 
     template_json = json.dumps(current_template, indent=2)
@@ -457,9 +458,23 @@ Each entry in "values" is: {"text": "the value string", "weight": N}
             response_mime_type="application/json"
         )
 
+        contents = [system_prompt, f"CURRENT TEMPLATE:\n{template_json}\n\nINSTRUCTIONS:\n{instruction}"]
+
+        if reference_images:
+            image_notes = []
+            for i, img_bytes in enumerate(reference_images):
+                mime = "image/png" if img_bytes[:4] == b"\x89PNG" else "image/jpeg"
+                contents.insert(-1, types.Part.from_bytes(data=img_bytes, mime_type=mime))
+                image_notes.append(f"Image {i+1}")
+            contents.append(
+                f"REFERENCE IMAGES: {len(reference_images)} image(s) attached ({', '.join(image_notes)}). "
+                "Use these as visual context when applying the user's remix instructions. "
+                "The user's text explains how to interpret them."
+            )
+
         response = self.genai_client.models.generate_content(
             model=model,
-            contents=[system_prompt, f"CURRENT TEMPLATE:\n{template_json}\n\nINSTRUCTIONS:\n{instruction}"],
+            contents=contents,
             config=gen_config
         )
         return response.text

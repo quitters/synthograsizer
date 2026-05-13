@@ -91,8 +91,14 @@ async def generate_template(request: TemplateRequest):
                 raise ValueError("Remix mode requires a current template.")
             if not request.prompt.strip():
                 raise ValueError("Remix mode requires instructions.")
+            
+            # Decode optional reference images for multimodal context
+            ref_images = None
+            if request.images:
+                ref_images = [decode_base64_image(img) for img in request.images[:8]]
+                
             json_str = await asyncio.wait_for(
-                asyncio.to_thread(ai_manager.remix_template, request.current_template, request.prompt, model_override=model_override),
+                asyncio.to_thread(ai_manager.remix_template, request.current_template, request.prompt, reference_images=ref_images, model_override=model_override),
                 timeout=timeout
             )
 
