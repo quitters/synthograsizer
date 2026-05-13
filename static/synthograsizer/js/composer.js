@@ -210,6 +210,52 @@ function resolveBio(profile, sessionAnchors = {}) {
   });
 }
 
+/**
+ * Robustly extract a JSON array from LLM output text.
+ * Handles: markdown fences (```json ... ```), preamble/postamble text,
+ * trailing commas, and single-quoted strings.
+ * Returns the parsed array, or null on failure.
+ */
+function extractJSONArray(text) {
+  if (!text || typeof text !== 'string') return null;
+
+  // Step 1: Strip markdown code fences
+  let cleaned = text.replace(/```(?:json|JSON|js|javascript)?\s*/g, '').replace(/```/g, '');
+
+  // Step 2: Find the first [...] block (greedy but balanced)
+  const start = cleaned.indexOf('[');
+  if (start === -1) return null;
+
+  // Walk forward to find the matching closing bracket
+  let depth = 0;
+  let end = -1;
+  for (let i = start; i < cleaned.length; i++) {
+    if (cleaned[i] === '[') depth++;
+    else if (cleaned[i] === ']') { depth--; if (depth === 0) { end = i; break; } }
+  }
+  if (end === -1) return null;
+
+  let jsonStr = cleaned.slice(start, end + 1);
+
+  // Step 3: Fix trailing commas before ] (e.g. ["a", "b",])
+  jsonStr = jsonStr.replace(/,\s*\]/g, ']');
+
+  // Step 4: Attempt parse
+  try {
+    const parsed = JSON.parse(jsonStr);
+    return Array.isArray(parsed) ? parsed : null;
+  } catch (_) {}
+
+  // Step 5: Fallback — try replacing single quotes with double quotes
+  try {
+    const fallback = jsonStr.replace(/'/g, '"');
+    const parsed = JSON.parse(fallback);
+    return Array.isArray(parsed) ? parsed : null;
+  } catch (_) {}
+
+  return null;
+}
+
 /* Splits a bio template into typed segments for safe JSX rendering.
    Avoids dangerouslySetInnerHTML by returning text/anchor/var/pending objects. */
 function buildBioSegments(template, anchors, variables) {
@@ -716,9 +762,8 @@ function EditorRoom({ profile, setProfile, onAddToSession, onBack, onGenerate, o
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       const text = data.text || data.response || data.result || '';
-      const match = text.match(/\[[\s\S]*\]/);
-      const arr = match ? JSON.parse(match[0]) : [];
-      if (!Array.isArray(arr) || arr.length === 0) throw new Error('Could not parse values');
+      const arr = extractJSONArray(text);
+      if (!arr || arr.length === 0) throw new Error('Could not parse values from AI response');
       const newValues = arr.filter(x => typeof x === 'string').map(x => ({ text: x.trim(), weight: 1 }));
       updateVar(varIdx, { values: [...v.values, ...newValues] });
       onShowToast?.(`Added ${newValues.length} value${newValues.length === 1 ? '' : 's'}`, 'ok');
@@ -1959,16 +2004,17 @@ function App() {
   // Also run the legacy AS_AGENT_TEMPLATES migration so built-in agents from
   // Agent Studio show up as "Built-in" patches in the Library on first visit.
   useEffect(() => {
-    whenStoreReady((store) => {
+    whenStoreReady(async (store) => {
       if (!store) return;
       // Pull in legacy built-ins (idempotent — guarded by an internal marker)
       if (window.autoMigrateBuiltInPresets && window.AS_AGENT_TEMPLATES_REF) {
         try { window.autoMigrateBuiltInPresets(window.AS_AGENT_TEMPLATES_REF); } catch (_) {}
       }
-      let stored = store.loadAll();
+      // Use async IDB load if available, sync fallback otherwise
+      let stored = store.loadAllAsync ? await store.loadAllAsync() : store.loadAll();
       if (stored.length === 0) {
         SEED_PROFILES.forEach(p => store.save(p));
-        stored = store.loadAll();
+        stored = store.loadAllAsync ? await store.loadAllAsync() : store.loadAll();
       }
       setProfiles(stored.map(normalizeStoredProfile));
       setStoreReady(true);

@@ -4,9 +4,10 @@
  * Treats agent bios as variable-driven templates using the same {{placeholder}}
  * + weighted-value-array machinery the Synthograsizer uses for image prompts.
  *
- * Storage: localStorage under STORE_KEY. Schema migration runs on every loadAll
- * so older entries (string-array values, missing valueIdx, no icon/color, etc.)
- * are normalised to the canonical v5 shape before they reach any consumer.
+ * Storage: IndexedDB (primary) with localStorage as a synchronous fallback cache.
+ * Auto-migrates existing localStorage data to IndexedDB on first load.
+ * Schema migration runs on every loadAll so older entries (string-array values,
+ * missing valueIdx, no icon/color, etc.) are normalised to the canonical v5 shape.
  */
 
 import { normalizeVariable } from './template-normalizer.js';
@@ -152,11 +153,18 @@ export function migrateProfileSchema(raw) {
 /**
  * Resolves an agent profile template into a flat bio string.
  * Anchors first, then variables (using session overrides → UI knob lock → weighted random).
+ * Anti-repetition: when using weighted random, avoids picking the same value
+ * that was chosen on the previous call for this profile (up to 3 re-rolls).
  */
+const _lastPickMemory = {}; // profileId → { varName → lastChosenText }
+
 export function resolveProfileBio(profile, sessionConfig = {}, uiVariableStates = {}) {
   if (!profile || !profile.bioTemplate) return profile?.bio || '';
 
   let bio = profile.bioTemplate;
+  const memKey = profile.id || '__anon__';
+  if (!_lastPickMemory[memKey]) _lastPickMemory[memKey] = {};
+  const memory = _lastPickMemory[memKey];
 
   // 1. Anchor substitution (session-wide anchors first, profile anchors override)
   const anchors = {
@@ -189,21 +197,32 @@ export function resolveProfileBio(profile, sessionConfig = {}, uiVariableStates 
           // Honour the profile's own valueIdx (set by the editor's knobs)
           chosenValue = valuesToConsider[rawVar.valueIdx].text;
         } else {
+          // Weighted random with anti-repetition
           let totalWeight = 0;
           const weightedValues = valuesToConsider.map((v, idx) => {
             const weight = uiKnob?.weights?.[idx] !== undefined ? uiKnob.weights[idx] : (v.weight ?? 1);
             totalWeight += weight;
             return { text: v.text, weight };
           });
-          if (totalWeight > 0) {
-            let r = Math.random() * totalWeight;
-            for (const v of weightedValues) {
-              r -= v.weight;
-              if (r <= 0) { chosenValue = v.text; break; }
+
+          const MAX_REROLLS = 3;
+          const prevPick = memory[varName];
+
+          for (let attempt = 0; attempt <= MAX_REROLLS; attempt++) {
+            if (totalWeight > 0) {
+              let r = Math.random() * totalWeight;
+              for (const v of weightedValues) {
+                r -= v.weight;
+                if (r <= 0) { chosenValue = v.text; break; }
+              }
+            } else {
+              chosenValue = valuesToConsider[Math.floor(Math.random() * valuesToConsider.length)].text;
             }
-          } else {
-            chosenValue = valuesToConsider[Math.floor(Math.random() * valuesToConsider.length)].text;
+            // Accept if different from last pick, or if only 1 option, or last attempt
+            if (chosenValue !== prevPick || valuesToConsider.length <= 1 || attempt === MAX_REROLLS) break;
           }
+
+          memory[varName] = chosenValue;
         }
       }
 
@@ -222,37 +241,144 @@ function escapeRegExp(string) {
   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-// ─── Profile Storage ─────────────────────────────────────────────────────────
+// ─── Profile Storage (IndexedDB-backed with sync cache) ─────────────────────
 
 const STORE_KEY = 'as_agent_profiles';
+const IDB_NAME  = 'SynthoAgentProfiles';
+const IDB_VER   = 1;
+const IDB_STORE = 'profiles';
+
+// ── IndexedDB helpers ────────────────────────────────────────────────────────
+
+function _openDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(IDB_NAME, IDB_VER);
+    req.onupgradeneeded = () => {
+      const db = req.result;
+      if (!db.objectStoreNames.contains(IDB_STORE)) {
+        db.createObjectStore(IDB_STORE, { keyPath: 'id' });
+      }
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror   = () => reject(req.error);
+  });
+}
+
+async function _idbGetAll() {
+  const db = await _openDB();
+  return new Promise((resolve, reject) => {
+    const tx  = db.transaction(IDB_STORE, 'readonly');
+    const req = tx.objectStore(IDB_STORE).getAll();
+    req.onsuccess = () => resolve(req.result || []);
+    req.onerror   = () => reject(req.error);
+  });
+}
+
+async function _idbPut(profile) {
+  const db = await _openDB();
+  return new Promise((resolve, reject) => {
+    const tx  = db.transaction(IDB_STORE, 'readwrite');
+    const req = tx.objectStore(IDB_STORE).put(profile);
+    req.onsuccess = () => resolve();
+    req.onerror   = () => reject(req.error);
+  });
+}
+
+async function _idbDelete(id) {
+  const db = await _openDB();
+  return new Promise((resolve, reject) => {
+    const tx  = db.transaction(IDB_STORE, 'readwrite');
+    const req = tx.objectStore(IDB_STORE).delete(id);
+    req.onsuccess = () => resolve();
+    req.onerror   = () => reject(req.error);
+  });
+}
+
+async function _idbPutAll(profiles) {
+  const db = await _openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(IDB_STORE, 'readwrite');
+    const store = tx.objectStore(IDB_STORE);
+    for (const p of profiles) store.put(p);
+    tx.oncomplete = () => resolve();
+    tx.onerror    = () => reject(tx.error);
+  });
+}
+
+// ── localStorage → IndexedDB one-time migration ─────────────────────────────
+
+async function _migrateLocalStorageToIDB() {
+  if (localStorage.getItem('as_idb_migrated')) return;
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (raw) {
+      const arr = JSON.parse(raw);
+      if (Array.isArray(arr) && arr.length > 0) {
+        const migrated = arr.map(p => migrateProfileSchema(p).profile);
+        await _idbPutAll(migrated);
+        console.log(`[AgentProfiles] Migrated ${migrated.length} profiles from localStorage → IndexedDB`);
+      }
+    }
+  } catch (e) {
+    console.warn('[AgentProfiles] localStorage→IDB migration failed, will retry', e);
+    return; // Don't set the flag so we retry next load
+  }
+  localStorage.setItem('as_idb_migrated', 'true');
+}
+
+// ── Synchronous in-memory cache ──────────────────────────────────────────────
+// Many callers (Composer React, Agent Studio) currently call loadAll()
+// synchronously. We maintain a cache that is populated on first async load
+// and kept in sync on every save/delete. This preserves backward compat.
+
+let _profileCache = null; // null = not yet initialised
+
+function _syncCacheFromLS() {
+  // Bootstrap cache from localStorage (fast, synchronous) so the UI has
+  // data immediately. The async IDB load will overwrite this shortly after.
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    const arr = raw ? JSON.parse(raw) : [];
+    if (Array.isArray(arr)) {
+      _profileCache = arr.map(p => migrateProfileSchema(p).profile);
+    }
+  } catch (_) {}
+  if (!_profileCache) _profileCache = [];
+}
 
 export const AgentProfileStore = {
 
+  /** True once IndexedDB has been loaded at least once. */
+  _idbReady: false,
+
   /**
-   * Load every profile, migrating each to canonical v5 shape on the way out.
-   * If any profile actually changed during migration, the whole list is written
-   * back so the on-disk form stays current.
+   * Synchronous: returns the in-memory cache (bootstrapped from localStorage,
+   * then replaced by IndexedDB contents once ready). Safe for existing callers.
    */
   loadAll() {
-    try {
-      const data = localStorage.getItem(STORE_KEY);
-      const raw = data ? JSON.parse(data) : [];
-      if (!Array.isArray(raw)) return [];
+    if (_profileCache === null) _syncCacheFromLS();
+    return [..._profileCache];
+  },
 
-      let dirty = false;
-      const migrated = raw.map(p => {
-        const { profile, changed } = migrateProfileSchema(p);
-        if (changed) dirty = true;
-        return profile;
-      });
-      if (dirty) {
-        try { localStorage.setItem(STORE_KEY, JSON.stringify(migrated)); } catch (_) {}
-      }
-      return migrated;
-    } catch (e) {
-      console.error('[AgentProfiles] loadAll failed', e);
-      return [];
+  /**
+   * Async: loads from IndexedDB, migrates localStorage if needed,
+   * and refreshes the sync cache. Callers that can await should prefer this.
+   */
+  async loadAllAsync() {
+    await _migrateLocalStorageToIDB();
+    const raw = await _idbGetAll();
+    let dirty = false;
+    const migrated = raw.map(p => {
+      const { profile, changed } = migrateProfileSchema(p);
+      if (changed) dirty = true;
+      return profile;
+    });
+    if (dirty) {
+      await _idbPutAll(migrated);
     }
+    _profileCache = migrated;
+    this._idbReady = true;
+    return [..._profileCache];
   },
 
   get(id) {
@@ -260,9 +386,8 @@ export const AgentProfileStore = {
   },
 
   /**
-   * Upsert a profile. Migration is run before persisting so callers can pass
-   * partially-shaped objects (e.g. legacy or AI-generated) and still get a
-   * canonical record back.
+   * Save works synchronously (updates cache + localStorage for safety)
+   * and kicks off an async IndexedDB write in the background.
    */
   save(profile) {
     const { profile: normalised } = migrateProfileSchema(profile || {});
@@ -272,19 +397,25 @@ export const AgentProfileStore = {
     }
     normalised.updatedAt = new Date().toISOString();
 
-    const profiles = this.loadAll();
-    const idx = profiles.findIndex(p => p.id === normalised.id);
-    if (idx >= 0) profiles[idx] = normalised;
-    else profiles.push(normalised);
+    if (_profileCache === null) _syncCacheFromLS();
+    const idx = _profileCache.findIndex(p => p.id === normalised.id);
+    if (idx >= 0) _profileCache[idx] = normalised;
+    else _profileCache.push(normalised);
 
-    try { localStorage.setItem(STORE_KEY, JSON.stringify(profiles)); } catch (_) {}
+    // Sync write to localStorage (backward compat safety net)
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(_profileCache)); } catch (_) {}
+    // Async write to IndexedDB (non-blocking)
+    _idbPut(normalised).catch(e => console.warn('[AgentProfiles] IDB save failed', e));
+
     return normalised;
   },
 
   delete(id) {
-    const profiles = this.loadAll();
-    const filtered = profiles.filter(p => p.id !== id);
-    try { localStorage.setItem(STORE_KEY, JSON.stringify(filtered)); } catch (_) {}
+    if (_profileCache === null) _syncCacheFromLS();
+    _profileCache = _profileCache.filter(p => p.id !== id);
+
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(_profileCache)); } catch (_) {}
+    _idbDelete(id).catch(e => console.warn('[AgentProfiles] IDB delete failed', e));
   },
 };
 

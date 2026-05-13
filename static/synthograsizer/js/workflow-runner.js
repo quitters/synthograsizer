@@ -391,18 +391,28 @@ class WorkflowRunner {
         try {
           const data = JSON.parse(e.data);
           if (data.workflowId !== this.activeWorkflowId) return;
+          // Reset the inactivity timer on every relevant event
+          this._resetSSEKeepalive();
           this._handleWorkflowEvent(evt, data);
         } catch (_) {}
       });
     }
 
-    // Safety net: if neither workflow_complete nor workflow_error arrives
-    // within 5 minutes, force-close the stream so it can't dangle forever.
+    // Dynamic keepalive: instead of a fixed 5-minute guillotine, we use a
+    // 10-minute *inactivity* timer that resets every time the server sends
+    // a progress event. This allows long-running workflows (video generation,
+    // complex story sequences) to run indefinitely as long as the server is
+    // actively working, while still cleaning up truly stuck/dead connections.
+    this._resetSSEKeepalive();
+  }
+
+  /** Reset the SSE inactivity timer. Called on every incoming event. */
+  _resetSSEKeepalive() {
     if (this._sseSafetyTimer) clearTimeout(this._sseSafetyTimer);
     this._sseSafetyTimer = setTimeout(() => {
-      console.warn('[WorkflowRunner] SSE safety timeout — closing stream');
+      console.warn('[WorkflowRunner] SSE inactivity timeout (10 min without events) — closing stream');
       this._disconnectSSE();
-    }, 5 * 60 * 1000);
+    }, 10 * 60 * 1000);
   }
 
   _disconnectSSE() {
