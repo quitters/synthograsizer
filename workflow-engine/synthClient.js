@@ -17,7 +17,10 @@
 
 const DEFAULT_BASE_URL = 'http://127.0.0.1:8000';
 const DEFAULT_TIMEOUT_MS = 30_000;
-const VIDEO_TIMEOUT_MS = 120_000;
+const VIDEO_TIMEOUT_MS   = 120_000;
+// Template generation — especially p5.js with Pro model — can take up to 5 minutes
+// because the model writes complete self-contained sketch code with lookup maps.
+const TEMPLATE_TIMEOUT_MS = 300_000;
 const HEALTH_CACHE_MS = 30_000;
 
 class SynthClient {
@@ -204,7 +207,7 @@ class SynthClient {
    * @param {string} mode
    */
   async generateTemplate(description, mode = 'text') {
-    return this._post('/api/generate/template', { prompt: description, mode });
+    return this._post('/api/generate/template', { prompt: description, mode }, TEMPLATE_TIMEOUT_MS);
   }
 
   /**
@@ -217,7 +220,7 @@ class SynthClient {
       prompt: instructions,
       mode: 'remix',
       current_template: template,
-    });
+    }, TEMPLATE_TIMEOUT_MS);
   }
 
   /**

@@ -26,7 +26,13 @@ logger = logging.getLogger(__name__)
 
 @router.post("/api/generate/template")
 async def generate_template(request: TemplateRequest):
-    timeout = config.TEMPLATE_GEN_TIMEOUT_SECONDS
+    # p5.js sketch generation uses a longer timeout — the Pro model writes a complete,
+    # self-contained sketch with lookup maps, variables, and animation logic.
+    if request.mode == "p5":
+        timeout = config.TEMPLATE_GEN_P5_TIMEOUT_SECONDS
+    else:
+        timeout = config.TEMPLATE_GEN_TIMEOUT_SECONDS
+
     # Demo requests are capped at MODEL_DEMO regardless of what the client sends.
     if request.is_demo:
         model_override = config.MODEL_DEMO

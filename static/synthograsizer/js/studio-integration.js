@@ -4954,7 +4954,9 @@ class StudioIntegration {
             const timeoutTable = {
                 'text': 120000, 'image': 120000, 'hybrid': 120000,
                 'multi-image': 150000, 'remix': 120000,
-                'story': 150000, 'workflow': 150000, 'p5': 150000
+                // p5 / story / workflow: Pro model writes a complete self-contained sketch
+                // or story template — needs up to 5 minutes for large outputs.
+                'story': 180000, 'workflow': 180000, 'p5': 300000
             };
             const timeoutMs = timeoutTable[resolvedMode] || 120000;
             const timeoutId = setTimeout(() => controller.abort(), timeoutMs);

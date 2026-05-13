@@ -286,9 +286,74 @@
       <div class="version-header">
         <span class="version-tag">NEXT</span>
         <span class="version-label unreleased">Unreleased</span>
-        <span class="version-date">In Progress — 2026-05-10</span>
+        <span class="version-date">In Progress — 2026-05-13</span>
       </div>
       <div class="version-panel">
+        <div class="panel-section-label">Agent Profile Engine — Storage &amp; Intelligence</div>
+        <ul class="entry-list">
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">IndexedDB storage backend for AgentProfileStore</div>
+              <div class="entry-sub">Replaces synchronous 5 MB-limited localStorage; profile saves/loads are now fully async, eliminating UI jank on large agent rosters with embedded assets</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">Zero-friction auto-migration from localStorage → IndexedDB on first load</div>
+              <div class="entry-sub">Existing profiles are transparently moved on first run; no manual export/import step required</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-refact">refact</span>
+            <div>
+              <div class="entry-text">Synchronous in-memory cache maintained for backward compatibility</div>
+              <div class="entry-sub">Legacy call-sites using <code>AgentProfileStore.loadAll()</code> continue to work until they are updated to <code>loadAllAsync()</code></div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">Anti-repetition intelligence in agent bio resolution</div>
+              <div class="entry-sub">resolveProfileBio() now re-rolls weighted-random attribute picks up to 3 times to avoid choosing the same value as the previous interaction, producing more varied and dynamic agent behaviour</div>
+            </div>
+          </li>
+        </ul>
+        <div class="panel-section-label">Composer — Robust JSON Parser</div>
+        <ul class="entry-list">
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">extractJSONArray() — multi-layer LLM output parser for variable generation</div>
+              <div class="entry-sub">Replaces fragile regex; gracefully handles markdown code fences, preamble/postamble prose, trailing commas, and single-quoted strings hallucinated by the model</div>
+            </div>
+          </li>
+        </ul>
+        <div class="panel-section-label">Workflow Engine — Session Stability</div>
+        <ul class="entry-list">
+          <li class="entry-item">
+            <span class="entry-badge badge-fix">fix</span>
+            <div>
+              <div class="entry-text">Removed hard-coded 5-minute SSE timeout in WorkflowRunner</div>
+              <div class="entry-sub">The kill-switch would silently cancel complex long-running tasks (e.g. video generation) at exactly 5 minutes regardless of activity</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">Dynamic 10-minute inactivity keepalive replaces static timeout</div>
+              <div class="entry-sub">Timer resets automatically on every workflow_step_start / workflow_step_chunk event; connections only close if the backend goes genuinely silent for 10 minutes</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-fix">fix</span>
+            <div>
+              <div class="entry-text">p5.js Template Gen timeout raised to 5 minutes for Pro model</div>
+              <div class="entry-sub">Pro model generating a full self-contained p5 sketch (lookup maps, 4–7 variables, draw loop) was being cut off by the shared 150s frontend abort; now 300s frontend, 300s backend, 300s workflow-engine path — all three layers aligned</div>
+            </div>
+          </li>
+        </ul>
         <div class="panel-section-label">Agent Composer — Generation Instructions</div>
         <ul class="entry-list">
           <li class="entry-item">
@@ -541,7 +606,7 @@
     </div>
 
     <div class="lcd-footer">
-      SYNTHOGRASIZER SUITE — CHANGE NOTES — UPDATED 2026-05-10
+      SYNTHOGRASIZER SUITE — CHANGE NOTES — UPDATED 2026-05-13
     </div>
   </main>
 

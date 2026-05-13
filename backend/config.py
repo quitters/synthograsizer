@@ -102,4 +102,5 @@ OUTPUT_JSON_DIR = OUTPUT_BASE_DIR / "JSON"
 VIDEO_POLL_TIMEOUT_SECONDS = 300  # Max wait for video generation
 VIDEO_DOWNLOAD_TIMEOUT_SECONDS = (10, 120)  # (connect, read) for downloading the rendered MP4
 MAX_BATCH_IMAGES = 200           # Safety cap for batch analysis
-TEMPLATE_GEN_TIMEOUT_SECONDS = 180  # Max wait for LLM template generation
+TEMPLATE_GEN_TIMEOUT_SECONDS = 180    # Max wait for LLM template generation (text/image/hybrid/remix/story)
+TEMPLATE_GEN_P5_TIMEOUT_SECONDS = 300 # p5.js sketch generation: Pro model writes complete code with lookup maps — needs more time
