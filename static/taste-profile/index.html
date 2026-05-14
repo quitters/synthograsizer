@@ -1,0 +1,1431 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Taste Profile — Synthograsizer</title>
+<script type="module" src="/synthograsizer/js/agent-profiles.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  :root {
+    --indigo: #6366f1;
+    --indigo-2: #818cf8;
+    --teal: #3dbdad;
+    --fuchsia: #d946ef;
+    --amber: #fbbf24;
+    --rose: #fb7185;
+    --bg: #0a0a12;
+    --bg-2: #12121f;
+    --surface: rgba(255,255,255,0.04);
+    --surface-hi: rgba(255,255,255,0.08);
+    --border: rgba(255,255,255,0.10);
+    --border-hi: rgba(255,255,255,0.18);
+    --text: #e6e8f0;
+    --text-mute: #9aa0b4;
+    --text-dim: #6b7088;
+    --hero-bg:
+      radial-gradient(ellipse 60% 55% at 50% 0%, rgba(99,102,241,0.28), transparent 60%),
+      radial-gradient(ellipse 45% 45% at 15% 40%, rgba(61,189,173,0.22), transparent 65%),
+      radial-gradient(ellipse 45% 45% at 85% 60%, rgba(217,70,239,0.18), transparent 65%),
+      linear-gradient(180deg, #0a0a12 0%, #10101c 100%);
+  }
+  html, body {
+    margin: 0; padding: 0;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+  body {
+    background: var(--hero-bg);
+    background-attachment: fixed;
+  }
+
+  /* ============ Layout ============ */
+  .wrap {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+  }
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 36px;
+  }
+  .brand {
+    display: flex; align-items: center; gap: 12px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700; font-size: 1.05rem;
+    letter-spacing: -0.01em;
+  }
+  .brand-mark {
+    width: 22px; height: 22px;
+    border-radius: 6px;
+    background: conic-gradient(from 180deg, var(--indigo), var(--fuchsia), var(--teal), var(--indigo));
+    box-shadow: 0 0 24px rgba(99,102,241,.4);
+  }
+  .badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text-dim);
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    background: var(--surface);
+  }
+
+  /* ============ Stepper ============ */
+  .stepper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+  }
+  .step-chip {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    font-size: 0.82rem;
+    color: var(--text-mute);
+    transition: all .25s;
+  }
+  .step-chip .num {
+    width: 20px; height: 20px;
+    border-radius: 99px;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+  }
+  .step-chip.active {
+    color: var(--text);
+    border-color: var(--indigo);
+    background: rgba(99,102,241,0.12);
+  }
+  .step-chip.active .num {
+    background: var(--indigo);
+    color: white;
+    border-color: var(--indigo);
+  }
+  .step-chip.done .num {
+    background: var(--teal);
+    color: white;
+    border-color: var(--teal);
+  }
+
+  /* ============ Panels ============ */
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 40px;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+  .panel + .panel { margin-top: 24px; }
+  .panel.hidden { display: none; }
+
+  h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 2.3rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin: 0 0 12px;
+    line-height: 1.1;
+  }
+  h1 .grad {
+    background: linear-gradient(120deg, var(--indigo-2), var(--fuchsia) 70%, var(--amber));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0 0 8px;
+    letter-spacing: -0.01em;
+  }
+  h3 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 0 0 4px;
+  }
+  .lede {
+    color: var(--text-mute);
+    font-size: 1.05rem;
+    line-height: 1.6;
+    margin: 0 0 28px;
+    max-width: 60ch;
+  }
+  .sub {
+    color: var(--text-dim);
+    font-size: 0.92rem;
+    margin: 0 0 24px;
+  }
+
+  /* ============ Buttons ============ */
+  .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .row.right { justify-content: flex-end; margin-top: 28px; }
+  .btn {
+    appearance: none;
+    border: 1px solid var(--border-hi);
+    background: var(--surface-hi);
+    color: var(--text);
+    padding: 12px 22px;
+    border-radius: 11px;
+    font-family: inherit;
+    font-size: 0.92rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .2s;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn:hover:not(:disabled) {
+    background: rgba(255,255,255,0.10);
+    transform: translateY(-1px);
+    border-color: var(--text-dim);
+  }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-primary {
+    background: linear-gradient(120deg, var(--indigo), var(--fuchsia));
+    border-color: transparent;
+    box-shadow: 0 6px 22px rgba(99,102,241,.35);
+  }
+  .btn-primary:hover:not(:disabled) {
+    box-shadow: 0 10px 30px rgba(99,102,241,.5);
+  }
+  .btn-ghost {
+    background: transparent;
+    border-color: var(--border);
+    color: var(--text-mute);
+  }
+
+  /* ============ Step 1: Upload ============ */
+  .dropzone {
+    border: 2px dashed var(--border-hi);
+    border-radius: 14px;
+    padding: 48px 32px;
+    text-align: center;
+    cursor: pointer;
+    transition: all .2s;
+    background: rgba(255,255,255,0.02);
+  }
+  .dropzone:hover, .dropzone.drag {
+    border-color: var(--indigo);
+    background: rgba(99,102,241,0.08);
+  }
+  .dropzone .icon {
+    width: 48px; height: 48px;
+    margin: 0 auto 14px;
+    color: var(--text-mute);
+  }
+  .dropzone strong { color: var(--text); font-weight: 600; }
+  .dropzone span { color: var(--text-mute); font-size: 0.9rem; }
+  input[type=file] { display: none; }
+
+  .thumbs {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 10px;
+    margin-top: 20px;
+  }
+  .thumb {
+    aspect-ratio: 1;
+    border-radius: 10px;
+    background-size: cover;
+    background-position: center;
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+  .thumb .name {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: linear-gradient(180deg, transparent, rgba(0,0,0,0.85));
+    color: white;
+    font-size: 0.7rem;
+    padding: 12px 8px 6px;
+    font-family: 'JetBrains Mono', monospace;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .upload-stats {
+    margin-top: 18px;
+    display: flex; gap: 18px;
+    font-size: 0.88rem;
+    color: var(--text-mute);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .upload-stats span strong { color: var(--text); }
+
+  textarea.prompts {
+    width: 100%;
+    min-height: 120px;
+    background: var(--bg-2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    resize: vertical;
+    margin-top: 16px;
+  }
+  textarea.prompts:focus {
+    outline: none;
+    border-color: var(--indigo);
+  }
+  details { margin-top: 18px; }
+  details summary {
+    cursor: pointer;
+    color: var(--text-mute);
+    font-size: 0.92rem;
+    padding: 6px 0;
+  }
+  details summary:hover { color: var(--text); }
+
+  /* ============ Step 2: Quiz ============ */
+  .quiz-progress {
+    height: 4px;
+    background: var(--surface);
+    border-radius: 99px;
+    overflow: hidden;
+    margin-bottom: 32px;
+  }
+  .quiz-progress .bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--indigo), var(--fuchsia));
+    transition: width .4s ease;
+  }
+  .quiz-question {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+  .quiz-question .qnum {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text-dim);
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .quiz-question h2 {
+    font-size: 1.6rem;
+    margin: 0;
+  }
+  .pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+  }
+  .pair-card {
+    aspect-ratio: 4/3;
+    border-radius: 16px;
+    cursor: pointer;
+    padding: 26px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    position: relative;
+    overflow: hidden;
+    border: 2px solid transparent;
+    transition: all .25s;
+    isolation: isolate;
+  }
+  .pair-card::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: var(--cardbg);
+    z-index: -2;
+  }
+  .pair-card::after {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 50% 100%, rgba(0,0,0,0.55), transparent 70%);
+    z-index: -1;
+  }
+  .pair-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(255,255,255,0.4);
+  }
+  .pair-card.chosen {
+    border-color: var(--amber);
+    box-shadow: 0 0 0 4px rgba(251,191,36,0.2);
+  }
+  .pair-card .label {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: white;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.7);
+  }
+  .pair-card .desc {
+    color: rgba(255,255,255,0.85);
+    font-size: 0.85rem;
+    margin-top: 4px;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.7);
+  }
+
+  /* ============ Step 3: Synthesizing ============ */
+  .synth-state {
+    text-align: center;
+    padding: 60px 20px;
+  }
+  .synth-spinner {
+    width: 80px; height: 80px;
+    margin: 0 auto 28px;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg, var(--indigo), var(--fuchsia), var(--teal), var(--indigo));
+    animation: spin 2.5s linear infinite;
+    position: relative;
+  }
+  .synth-spinner::after {
+    content: '';
+    position: absolute;
+    inset: 8px;
+    border-radius: 50%;
+    background: var(--bg);
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .synth-log {
+    text-align: left;
+    max-width: 460px;
+    margin: 28px auto 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    color: var(--text-mute);
+    line-height: 1.8;
+  }
+  .synth-log .line {
+    opacity: 0;
+    transform: translateY(6px);
+    transition: all .3s;
+  }
+  .synth-log .line.show { opacity: 1; transform: translateY(0); }
+  .synth-log .line .check { color: var(--teal); margin-right: 8px; }
+  .synth-log .line.active .check { color: var(--amber); }
+
+  /* ============ Step 4: Profile + Agents ============ */
+  .profile-header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+  .profile-name {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 2.4rem;
+    font-weight: 700;
+    background: linear-gradient(120deg, var(--indigo-2), var(--fuchsia) 70%, var(--amber));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 0;
+    letter-spacing: -0.02em;
+  }
+  .profile-tagline {
+    color: var(--text-mute);
+    font-size: 1.05rem;
+    margin-top: 6px;
+    font-style: italic;
+  }
+
+  .profile-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin-bottom: 28px;
+  }
+  .stat-card {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+  }
+  .stat-card h3 {
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 12px;
+  }
+  .tag-list { display: flex; gap: 8px; flex-wrap: wrap; }
+  .tag {
+    padding: 5px 10px;
+    background: var(--surface-hi);
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    font-size: 0.82rem;
+    color: var(--text);
+  }
+  .tag.primary { background: rgba(99,102,241,0.18); border-color: var(--indigo); }
+  .tag.secondary { background: rgba(217,70,239,0.18); border-color: var(--fuchsia); }
+  .tag.accent { background: rgba(61,189,173,0.18); border-color: var(--teal); }
+
+  .palette {
+    display: flex;
+    gap: 6px;
+    margin-top: 4px;
+  }
+  .swatch {
+    flex: 1;
+    height: 38px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+  .swatch .hex {
+    position: absolute;
+    bottom: 4px; left: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    color: rgba(255,255,255,0.8);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.7);
+  }
+
+  .axes { display: grid; gap: 14px; }
+  .axis {
+    display: grid;
+    grid-template-columns: 90px 1fr 90px;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.85rem;
+  }
+  .axis .axis-left { color: var(--text-mute); text-align: left; }
+  .axis .axis-right { color: var(--text-mute); text-align: right; }
+  .axis .axis-bar {
+    height: 6px;
+    background: var(--surface-hi);
+    border-radius: 99px;
+    position: relative;
+  }
+  .axis .axis-bar .marker {
+    position: absolute;
+    top: 50%;
+    width: 16px; height: 16px;
+    background: var(--amber);
+    border: 2px solid var(--bg);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 10px rgba(251,191,36,0.5);
+  }
+
+  /* Agents */
+  .agents {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin-top: 8px;
+  }
+  .agent-card {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px;
+    position: relative;
+    overflow: hidden;
+  }
+  .agent-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--agent-color, var(--indigo));
+  }
+  .agent-head {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 14px;
+  }
+  .agent-avatar {
+    width: 42px; height: 42px;
+    border-radius: 12px;
+    background: var(--agent-color, var(--indigo));
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: white;
+  }
+  .agent-name {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin: 0;
+  }
+  .agent-role {
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .agent-bio {
+    color: var(--text-mute);
+    font-size: 0.92rem;
+    line-height: 1.55;
+    margin: 0 0 14px;
+  }
+  .agent-quote {
+    background: var(--surface);
+    border-left: 3px solid var(--agent-color, var(--indigo));
+    padding: 10px 14px;
+    border-radius: 0 8px 8px 0;
+    font-size: 0.88rem;
+    font-style: italic;
+    color: var(--text);
+  }
+  .agent-quote::before { content: '"'; }
+  .agent-quote::after { content: '"'; }
+
+  .section-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 32px 0 16px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-title::before {
+    content: '';
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--amber);
+    box-shadow: 0 0 8px var(--amber);
+  }
+
+  .json-preview {
+    background: #07070d;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    color: #c9cee0;
+    max-height: 280px;
+    overflow: auto;
+    white-space: pre-wrap;
+    margin-top: 8px;
+  }
+
+  .footer-note {
+    color: var(--text-dim);
+    font-size: 0.82rem;
+    margin-top: 40px;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  @media (max-width: 640px) {
+    .wrap { padding: 24px 16px 60px; }
+    .panel { padding: 26px 20px; }
+    .pair { grid-template-columns: 1fr; }
+    .profile-grid { grid-template-columns: 1fr; }
+    h1 { font-size: 1.8rem; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="brand">
+      <span class="brand-mark"></span>
+      <span>Synthograsizer</span>
+    </div>
+    <div class="badge">POC · Taste Profile</div>
+  </div>
+
+  <div class="stepper" id="stepper">
+    <div class="step-chip active" data-step="1"><span class="num">1</span> Upload</div>
+    <div class="step-chip" data-step="2"><span class="num">2</span> Taste Pairs</div>
+    <div class="step-chip" data-step="3"><span class="num">3</span> Synthesizing</div>
+    <div class="step-chip" data-step="4"><span class="num">4</span> Your Profile</div>
+  </div>
+
+  <!-- ====== STEP 1: UPLOAD ====== -->
+  <section class="panel" id="panel-1">
+    <h1>Bring your art. <br/><span class="grad">Get a team that thinks like you.</span></h1>
+    <p class="lede">
+      Drop a folder of your finished pieces. We'll analyze your visual language, then spawn a small crew of AI collaborators tuned to how you actually create — not the generic creative assistant everyone else gets.
+    </p>
+
+    <label class="dropzone" id="dropzone">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="17 8 12 3 7 8"/>
+        <line x1="12" y1="3" x2="12" y2="15"/>
+      </svg>
+      <div><strong>Drop your work here</strong></div>
+      <div><span>PNGs, JPGs, WEBPs — anything you've made. 5–50 images is plenty.</span></div>
+      <input type="file" id="fileInput" multiple accept="image/*" />
+    </label>
+
+    <div class="thumbs" id="thumbs"></div>
+    <div class="upload-stats" id="uploadStats" style="display:none;">
+      <span><strong id="statCount">0</strong> images</span>
+      <span><strong id="statSize">0</strong> MB</span>
+      <span><strong id="statKinds">—</strong></span>
+    </div>
+
+    <details>
+      <summary>Optional: paste your prompt history (Midjourney, ComfyUI, Stable Diffusion, etc.)</summary>
+      <textarea class="prompts" id="prompts" placeholder="paste prompts here, one per line or separated by blank lines — we'll mine recurring subjects, modifiers, and aesthetic vocabulary"></textarea>
+    </details>
+
+    <div class="row right">
+      <button class="btn btn-primary" id="toStep2" disabled>Continue →</button>
+    </div>
+  </section>
+
+  <!-- ====== STEP 2: QUIZ ====== -->
+  <section class="panel hidden" id="panel-2">
+    <div class="quiz-progress"><div class="bar" id="quizBar" style="width:0%"></div></div>
+    <div class="quiz-question">
+      <div class="qnum" id="qnum">Pair 1 of 10</div>
+      <h2 id="qprompt">Which feels more like you?</h2>
+    </div>
+    <div class="pair" id="pair"></div>
+    <div class="sub" style="text-align:center; margin-top: 22px;">Pick fast — first instinct. There's no wrong answer.</div>
+  </section>
+
+  <!-- ====== STEP 3: SYNTHESIZING ====== -->
+  <section class="panel hidden" id="panel-3">
+    <div class="synth-state">
+      <div class="synth-spinner"></div>
+      <h2>Synthesizing your taste profile</h2>
+      <p class="sub">Cross-referencing your work, your prompts, and your instincts. This would call Gemini in production; here it runs deterministically on your inputs.</p>
+      <div class="synth-log" id="synthLog"></div>
+    </div>
+  </section>
+
+  <!-- ====== STEP 4: PROFILE ====== -->
+  <section class="panel hidden" id="panel-4">
+    <div class="profile-header">
+      <div class="qnum" style="font-family:'JetBrains Mono',monospace; color: var(--text-dim); font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px;">your taste profile</div>
+      <h1 class="profile-name" id="profileName">—</h1>
+      <p class="profile-tagline" id="profileTagline">—</p>
+    </div>
+
+    <div class="profile-grid">
+      <div class="stat-card">
+        <h3>Aesthetic Axes</h3>
+        <div class="axes" id="axes"></div>
+      </div>
+      <div class="stat-card">
+        <h3>Palette Affinity</h3>
+        <div class="palette" id="palette"></div>
+        <h3 style="margin-top:18px;">Recurring Subjects</h3>
+        <div class="tag-list" id="subjects"></div>
+      </div>
+      <div class="stat-card">
+        <h3>Prompting Tendencies</h3>
+        <div class="tag-list" id="tendencies"></div>
+      </div>
+      <div class="stat-card">
+        <h3>Narrative Inclinations</h3>
+        <div class="tag-list" id="narratives"></div>
+      </div>
+    </div>
+
+    <div class="section-title">Your AI crew</div>
+    <p class="sub">Four agents tuned to your profile. Each has a voice, a job, and an opinion. You can edit, fork, or build new ones in the Agent Composer.</p>
+    <div class="agents" id="agents"></div>
+
+    <div class="section-title">Profile JSON (exportable, BYOK-friendly)</div>
+    <pre class="json-preview" id="jsonPreview"></pre>
+
+    <div class="row right">
+      <button class="btn btn-ghost" id="restart">Start over</button>
+      <button class="btn btn-ghost" id="download">Download profile.json</button>
+      <button class="btn btn-primary" id="sendToComposer">Send to Composer →</button>
+    </div>
+    <div id="synthModeNote" class="footer-note" style="margin-top: 16px;"></div>
+  </section>
+
+  <div class="footer-note">
+    Synthesis runs through Gemini Vision on your local backend. If the backend is unreachable a deterministic local fallback is used.
+  </div>
+
+</div>
+
+<script>
+/* ====================================================================== */
+/* DATA: Taste pairs                                                       */
+/* ====================================================================== */
+
+// Each pair is a forced choice on a single axis. Cards have a CSS background
+// that visually represents the mood; choosing one nudges that axis.
+const QUIZ_PAIRS = [
+  { axis: 'mood', q: "Which feels more like you?",
+    a: { label: "Ominous calm", desc: "still water, low light, anticipation", bg: "linear-gradient(135deg, #1a1f3a 0%, #0a0e1f 50%, #2c1f3a 100%)", val: "dark" },
+    b: { label: "Kinetic chaos", desc: "movement, noise, things colliding", bg: "linear-gradient(135deg, #ff6b35 0%, #fbbf24 40%, #d946ef 100%)", val: "light" } },
+  { axis: 'density', q: "Pick your room.",
+    a: { label: "Minimal", desc: "one object, lots of negative space", bg: "linear-gradient(160deg, #e8e6df 0%, #c5c2b8 100%)", val: "min" },
+    b: { label: "Maximal", desc: "every surface alive, layers of detail", bg: "conic-gradient(from 30deg, #c06880, #fbbf24, #3dbdad, #6366f1, #d946ef, #c06880)", val: "max" } },
+  { axis: 'representation', q: "What pulls your eye?",
+    a: { label: "Figurative", desc: "people, places, recognizable things", bg: "linear-gradient(180deg, #4a3a52 0%, #8a6a72 60%, #d4a5a5 100%)", val: "rep" },
+    b: { label: "Abstract", desc: "color, shape, gesture — no scene", bg: "radial-gradient(circle at 30% 40%, #3dbdad 0%, transparent 50%), radial-gradient(circle at 70% 60%, #d946ef 0%, transparent 50%), #1a1a2e", val: "abs" } },
+  { axis: 'temperature', q: "Pick a temperature.",
+    a: { label: "Cold + Cyan", desc: "blue hour, screens, water, glass", bg: "linear-gradient(160deg, #0a1f3a 0%, #1a5a7a 50%, #6ed4dc 100%)", val: "cool" },
+    b: { label: "Warm + Ember", desc: "sunset, fire, copper, dusk", bg: "linear-gradient(160deg, #2a0a05 0%, #c0421a 50%, #fbbf24 100%)", val: "warm" } },
+  { axis: 'finish', q: "How does the surface feel?",
+    a: { label: "Polished + Glossy", desc: "crisp edges, rendered, controlled", bg: "linear-gradient(135deg, #1a1a2e 0%, #2a2a4a 50%, #6366f1 100%)", val: "polish" },
+    b: { label: "Raw + Textured", desc: "grain, paper, error, hand-marks", bg: "repeating-linear-gradient(45deg, #4a3a2a, #4a3a2a 2px, #6a5a48 2px, #6a5a48 4px), linear-gradient(180deg, #6a5a48, #2a1f15)", val: "raw" } },
+  { axis: 'pace', q: "How do you work?",
+    a: { label: "Plan it out", desc: "sketches, lists, considered moves", bg: "linear-gradient(120deg, #f5eedd 0%, #c5b89a 100%)", val: "plan" },
+    b: { label: "Just go", desc: "no map, follow the moment", bg: "linear-gradient(45deg, #d946ef 0%, #ff6b35 50%, #fbbf24 100%)", val: "improv" } },
+  { axis: 'subject', q: "Pick your obsession.",
+    a: { label: "Bodies + Faces", desc: "portraits, anatomy, expression", bg: "linear-gradient(160deg, #5a3a3a 0%, #c08868 60%, #f0c8a8 100%)", val: "figures" },
+    b: { label: "Architecture + Place", desc: "interiors, ruins, infrastructure", bg: "linear-gradient(180deg, #2a3a4a 0%, #4a5a6a 60%, #8a9aaa 100%)", val: "places" } },
+  { axis: 'tone', q: "What do you want it to do to viewers?",
+    a: { label: "Unsettle", desc: "wrong, uncanny, can't look away", bg: "radial-gradient(circle at 50% 70%, #4a0a3a 0%, #1a0a1a 70%)", val: "dark" },
+    b: { label: "Delight", desc: "joy, surprise, color, play", bg: "radial-gradient(circle at 30% 30%, #fbbf24 0%, transparent 60%), radial-gradient(circle at 70% 70%, #d946ef 0%, transparent 60%), #3dbdad", val: "light" } },
+  { axis: 'reference', q: "Which lineage feels closer?",
+    a: { label: "Cinematic", desc: "framing, lens, lighting, mise-en-scène", bg: "linear-gradient(180deg, #000 0%, #1a1a1a 30%, #3a2a1a 100%)", val: "cine" },
+    b: { label: "Graphic + Editorial", desc: "poster, illustration, type-aware", bg: "linear-gradient(120deg, #fbbf24 0%, #fbbf24 40%, #d946ef 40%, #d946ef 100%)", val: "graphic" } },
+  { axis: 'evolution', q: "Should your AI crew push you?",
+    a: { label: "Stay in lane", desc: "make me sharper at what I do", bg: "linear-gradient(180deg, #2a2a4a 0%, #4a4a8a 100%)", val: "exploit" },
+    b: { label: "Push me sideways", desc: "drag me out of my comfort zone", bg: "conic-gradient(from 90deg, #d946ef, #6366f1, #3dbdad, #fbbf24, #d946ef)", val: "explore" } },
+];
+
+/* ====================================================================== */
+/* STATE                                                                   */
+/* ====================================================================== */
+
+const state = {
+  step: 1,
+  files: [],     // {name, sizeMB, kind, url}
+  prompts: '',
+  answers: {},   // axis -> val
+  qi: 0,
+  profile: null,
+};
+
+/* ====================================================================== */
+/* STEP 1: UPLOAD                                                          */
+/* ====================================================================== */
+
+const dropzone = document.getElementById('dropzone');
+const fileInput = document.getElementById('fileInput');
+const thumbs = document.getElementById('thumbs');
+const uploadStats = document.getElementById('uploadStats');
+const toStep2Btn = document.getElementById('toStep2');
+
+dropzone.addEventListener('click', () => fileInput.click());
+['dragenter', 'dragover'].forEach(e => dropzone.addEventListener(e, ev => {
+  ev.preventDefault(); dropzone.classList.add('drag');
+}));
+['dragleave', 'drop'].forEach(e => dropzone.addEventListener(e, ev => {
+  ev.preventDefault(); dropzone.classList.remove('drag');
+}));
+dropzone.addEventListener('drop', ev => {
+  const files = Array.from(ev.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+  handleFiles(files);
+});
+fileInput.addEventListener('change', () => {
+  handleFiles(Array.from(fileInput.files));
+});
+
+function handleFiles(files) {
+  files.forEach(f => {
+    const url = URL.createObjectURL(f);
+    const kind = inferKind(f.name);
+    state.files.push({
+      name: f.name,
+      sizeMB: f.size / (1024 * 1024),
+      kind,
+      url,
+      fileObj: f,  // kept for base64 encoding at synthesis time
+    });
+  });
+  renderThumbs();
+  toStep2Btn.disabled = state.files.length < 3;
+}
+
+function readFileAsBase64(file) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => {
+      // strip data URL prefix; backend's decode_base64_image expects raw base64
+      const s = String(r.result);
+      const comma = s.indexOf(',');
+      resolve(comma >= 0 ? s.slice(comma + 1) : s);
+    };
+    r.onerror = () => reject(r.error);
+    r.readAsDataURL(file);
+  });
+}
+
+function inferKind(filename) {
+  const n = filename.toLowerCase();
+  if (n.includes('mj_') || n.includes('midjourney')) return 'midjourney';
+  if (n.includes('comfy') || n.match(/\d{5,}_/)) return 'comfy';
+  if (n.includes('sd_') || n.includes('a1111')) return 'a1111';
+  if (n.match(/img_\d+/i) || n.match(/dsc_\d+/i)) return 'photo';
+  if (n.match(/\.(png|webp)$/) && n.match(/\d{4,}/)) return 'generated';
+  return 'image';
+}
+
+function renderThumbs() {
+  thumbs.innerHTML = state.files.slice(0, 24).map(f => `
+    <div class="thumb" style="background-image:url('${f.url}')">
+      <div class="name">${escapeHtml(f.name)}</div>
+    </div>
+  `).join('');
+  if (state.files.length === 0) {
+    uploadStats.style.display = 'none';
+    return;
+  }
+  uploadStats.style.display = 'flex';
+  document.getElementById('statCount').textContent = state.files.length;
+  const totalMB = state.files.reduce((s, f) => s + f.sizeMB, 0);
+  document.getElementById('statSize').textContent = totalMB.toFixed(1);
+  const kinds = {};
+  state.files.forEach(f => kinds[f.kind] = (kinds[f.kind] || 0) + 1);
+  const kindStr = Object.entries(kinds)
+    .sort((a,b) => b[1]-a[1])
+    .slice(0,2)
+    .map(([k,v]) => `${k} ×${v}`)
+    .join(' · ');
+  document.getElementById('statKinds').textContent = kindStr || '—';
+}
+
+toStep2Btn.addEventListener('click', () => {
+  state.prompts = document.getElementById('prompts').value;
+  go(2);
+  renderQuiz();
+});
+
+/* ====================================================================== */
+/* STEP 2: QUIZ                                                            */
+/* ====================================================================== */
+
+function renderQuiz() {
+  const pair = QUIZ_PAIRS[state.qi];
+  document.getElementById('qnum').textContent = `Pair ${state.qi + 1} of ${QUIZ_PAIRS.length}`;
+  document.getElementById('qprompt').textContent = pair.q;
+  document.getElementById('quizBar').style.width = `${(state.qi / QUIZ_PAIRS.length) * 100}%`;
+
+  const cards = document.getElementById('pair');
+  cards.innerHTML = `
+    <div class="pair-card" data-side="a" style="--cardbg: ${pair.a.bg}">
+      <div class="label">${pair.a.label}</div>
+      <div class="desc">${pair.a.desc}</div>
+    </div>
+    <div class="pair-card" data-side="b" style="--cardbg: ${pair.b.bg}">
+      <div class="label">${pair.b.label}</div>
+      <div class="desc">${pair.b.desc}</div>
+    </div>
+  `;
+  cards.querySelectorAll('.pair-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const side = card.dataset.side;
+      state.answers[pair.axis] = pair[side].val;
+      card.classList.add('chosen');
+      setTimeout(() => {
+        state.qi++;
+        if (state.qi >= QUIZ_PAIRS.length) {
+          document.getElementById('quizBar').style.width = '100%';
+          go(3);
+          runSynthesis();
+        } else {
+          renderQuiz();
+        }
+      }, 220);
+    });
+  });
+}
+
+/* ====================================================================== */
+/* STEP 3: SYNTHESIZING                                                    */
+/* ====================================================================== */
+
+const SYNTH_STEPS = [
+  "Encoding your uploads…",
+  "Sending to Gemini Vision…",
+  "Clustering visual themes…",
+  "Mining prompt corpus for recurring tokens…",
+  "Mapping taste pair answers to aesthetic axes…",
+  "Sketching agent personalities…",
+  "Calibrating Critic against your blind spots…",
+  "Profile ready.",
+];
+
+state.synthMode = 'remote';  // 'remote' | 'local'  — flipped to 'local' on backend failure
+
+async function runSynthesis() {
+  const log = document.getElementById('synthLog');
+  log.innerHTML = SYNTH_STEPS.map((s,i) => `
+    <div class="line" data-i="${i}"><span class="check">✓</span>${s}</div>
+  `).join('');
+  const lines = log.querySelectorAll('.line');
+
+  // Animation that stops one step short of the final tick until the fetch resolves.
+  let i = 0, animDone = false;
+  const tick = () => {
+    if (i > 0) lines[i-1].classList.remove('active');
+    if (i < lines.length - 1) {
+      lines[i].classList.add('show', 'active');
+      i++;
+      setTimeout(tick, 600 + Math.random() * 600);  // slower — covers a real ~10-30s call
+    } else {
+      animDone = true;
+    }
+  };
+  tick();
+
+  // Kick the real fetch in parallel.
+  let result = null;
+  try {
+    const images = await Promise.all(
+      state.files.map(f => readFileAsBase64(f.fileObj))
+    );
+    const res = await fetch('/api/generate/template', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        mode: 'taste_profile',
+        images,
+        quiz_answers: state.answers,
+        corpus_text: state.prompts || '',
+      }),
+    });
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}: ${await res.text()}`);
+    }
+    const data = await res.json();
+    if (!data.taste_profile || !data.taste_profile.profile || !data.taste_profile.agents) {
+      throw new Error('Malformed response from backend');
+    }
+    const tp = data.taste_profile;
+    // Stitch backend output into the same shape buildProfile() / renderProfile() expect.
+    result = {
+      ...tp.profile,
+      generatedAt: new Date().toISOString(),
+      sources: {
+        images: state.files.length,
+        promptLines: (state.prompts || '').split(/\r?\n/).filter(Boolean).length,
+        tasteAnswers: Object.keys(state.answers).length,
+      },
+      agents: tp.agents,
+    };
+  } catch (err) {
+    console.warn('[TasteProfile] Backend synthesis failed, falling back to local mock:', err);
+    state.synthMode = 'local';
+    result = buildProfile();
+  }
+
+  // Wait until the animation has reached the last line, then snap it to done.
+  await new Promise(resolve => {
+    const wait = () => animDone ? resolve() : setTimeout(wait, 100);
+    wait();
+  });
+  lines[lines.length - 1].classList.add('show', 'active');
+
+  setTimeout(() => {
+    state.profile = result;
+    renderProfile();
+    go(4);
+  }, 400);
+}
+
+/* ====================================================================== */
+/* PROFILE SYNTHESIS                                                       */
+/* ====================================================================== */
+
+function buildProfile() {
+  const a = state.answers;
+  const files = state.files;
+  const promptText = state.prompts || '';
+
+  // ---- aesthetic axes (0 = left/A, 1 = right/B) ----
+  const axes = [
+    { name: 'Calm — Kinetic',          left: 'Calm',    right: 'Kinetic',    pos: a.mood === 'light' ? 0.78 : 0.22 },
+    { name: 'Minimal — Maximal',       left: 'Minimal', right: 'Maximal',    pos: a.density === 'max' ? 0.80 : 0.20 },
+    { name: 'Figurative — Abstract',   left: 'Figurative', right: 'Abstract',pos: a.representation === 'abs' ? 0.75 : 0.25 },
+    { name: 'Cool — Warm',             left: 'Cool',    right: 'Warm',       pos: a.temperature === 'warm' ? 0.78 : 0.22 },
+    { name: 'Polished — Raw',          left: 'Polished',right: 'Raw',        pos: a.finish === 'raw' ? 0.78 : 0.22 },
+    { name: 'Planned — Improvised',    left: 'Planned', right: 'Improvised', pos: a.pace === 'improv' ? 0.78 : 0.22 },
+    { name: 'Unsettle — Delight',      left: 'Unsettle',right: 'Delight',    pos: a.tone === 'light' ? 0.78 : 0.22 },
+    { name: 'Cinematic — Graphic',     left: 'Cinematic',right:'Graphic',    pos: a.reference === 'graphic' ? 0.78 : 0.22 },
+  ];
+
+  // ---- palette: derived from temperature + mood ----
+  const palettes = {
+    'cool-dark':   ['#0a1f3a', '#1a5a7a', '#3dbdad', '#6366f1', '#e6e8f0'],
+    'cool-light':  ['#6ed4dc', '#a8c8e8', '#d946ef', '#fbbf24', '#ffffff'],
+    'warm-dark':   ['#2a0a05', '#5a1a0a', '#c0421a', '#fbbf24', '#f5eedd'],
+    'warm-light':  ['#fbbf24', '#ff6b35', '#c06880', '#3dbdad', '#fdf6e3'],
+  };
+  const palKey = `${a.temperature === 'warm' ? 'warm' : 'cool'}-${a.mood === 'light' ? 'light' : 'dark'}`;
+  const palette = palettes[palKey];
+
+  // ---- subjects: from quiz subject + prompt mining ----
+  const baseSubjects = a.subject === 'places'
+    ? ['interiors', 'ruins', 'architecture', 'thresholds', 'corridors']
+    : ['portraits', 'figures', 'hands', 'gaze', 'anatomy'];
+  const minedSubjects = mineSubjects(promptText);
+  const subjects = uniq([...baseSubjects.slice(0,3), ...minedSubjects.slice(0,3)]);
+
+  // ---- prompting tendencies ----
+  const tendencies = [];
+  if (a.finish === 'polish') tendencies.push('cinematic lens vocab', 'rendered finish');
+  else tendencies.push('analog grain', 'imperfect surfaces');
+  if (a.temperature === 'warm') tendencies.push('golden hour', 'ember light');
+  else tendencies.push('blue hour', 'monitor glow');
+  if (a.density === 'max') tendencies.push('layered modifiers', 'long prompts');
+  else tendencies.push('terse prompts', 'one strong noun');
+  if (a.reference === 'cine') tendencies.push('director references', 'aspect-aware');
+  else tendencies.push('typographic awareness', 'flat color blocks');
+
+  // ---- narrative inclinations ----
+  const narratives = [];
+  if (a.tone === 'dark') narratives.push('unease', 'aftermath', 'liminal');
+  else narratives.push('play', 'wonder', 'celebration');
+  if (a.pace === 'plan') narratives.push('serial arcs', 'recurring symbols');
+  else narratives.push('one-off moments', 'reaction shots');
+  if (a.representation === 'abs') narratives.push('mood over story');
+  else narratives.push('implied protagonist');
+
+  // ---- name + tagline ----
+  const { name, tagline } = nameForProfile(a, promptText);
+
+  return {
+    name, tagline,
+    generatedAt: new Date().toISOString(),
+    sources: {
+      images: files.length,
+      promptLines: promptText.split(/\n/).filter(l => l.trim()).length,
+      tasteAnswers: Object.keys(a).length,
+    },
+    axes,
+    palette,
+    subjects,
+    promptingTendencies: tendencies,
+    narrativeInclinations: narratives,
+    pushSetting: a.evolution === 'explore' ? 'push-sideways' : 'stay-in-lane',
+    agents: buildAgents(a, subjects, promptText),
+  };
+}
+
+function mineSubjects(text) {
+  if (!text) return [];
+  // very dumb mining: most-common nouns from a known list
+  const noun_bank = [
+    'water','rain','mirror','window','door','smoke','fire','light','shadow',
+    'flower','tree','forest','wire','cable','glass','concrete','flesh','hand',
+    'eye','sky','cloud','machine','engine','wave','dust','stone','metal',
+    'screen','crowd','street','road','tunnel','room','chair','bed','cup',
+    'fabric','silk','denim','leather','glow','neon','pavement','rust','moss',
+  ];
+  const lower = text.toLowerCase();
+  const counts = noun_bank
+    .map(n => ({ n, c: (lower.match(new RegExp('\\b' + n + 's?\\b', 'g')) || []).length }))
+    .filter(x => x.c > 0)
+    .sort((a,b) => b.c - a.c);
+  return counts.map(x => x.n);
+}
+
+function uniq(arr) { return Array.from(new Set(arr)); }
+
+function nameForProfile(a, promptText) {
+  // build a 2-word evocative name
+  const adj = {
+    'dark-cool':   ['Quiet', 'Cold', 'Submerged', 'Tidal', 'Hushed'],
+    'dark-warm':   ['Ember', 'Smouldering', 'Dust', 'Ash', 'Late'],
+    'light-cool':  ['Bright', 'Glassine', 'Open', 'Cerulean', 'Polar'],
+    'light-warm':  ['Solar', 'Honeyed', 'Riotous', 'Pollen', 'Heatwave'],
+  };
+  const noun_set = a.subject === 'places'
+    ? ['Architecture', 'Interior', 'Threshold', 'Corridor', 'Atlas']
+    : ['Portraiture', 'Figure', 'Gaze', 'Witness', 'Saint'];
+  const key = `${a.mood === 'light' ? 'light' : 'dark'}-${a.temperature === 'warm' ? 'warm' : 'cool'}`;
+  const ad = pick(adj[key]);
+  const no = pick(noun_set);
+  const name = `${ad} ${no}`;
+  const taglines = {
+    'dark-cool':  'patience and waterlogged light',
+    'dark-warm':  'ash, slow burns, and unfinished rooms',
+    'light-cool': 'cool air, hard edges, breath held',
+    'light-warm': 'sun-drunk, loud, full of hands',
+  };
+  return { name, tagline: taglines[key] };
+}
+
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+function buildAgents(a, subjects, promptText) {
+  const pushMode = a.evolution === 'explore';
+  const subjFocus = subjects[0] || 'your work';
+  // Each agent gets a name + role + bio + sample quote that reflects the profile.
+  return [
+    {
+      key: 'muse',
+      name: namedAgent('muse', a),
+      role: 'Muse',
+      color: '#6366f1',
+      avatar: 'M',
+      bio: `Proposes new pieces in your voice. Pulls from your obsessions — ${subjects.slice(0,3).join(', ') || 'your recurring subjects'} — and offers three directions any time you ask "what now?".`,
+      quote: musequote(a, subjFocus),
+    },
+    {
+      key: 'critic',
+      name: namedAgent('critic', a),
+      role: pushMode ? 'Critic (pushy)' : 'Critic (sharpening)',
+      color: '#d946ef',
+      avatar: 'C',
+      bio: pushMode
+        ? `Pushes against your defaults. When you reach for ${a.temperature === 'warm' ? 'warmth' : 'cool light'}, asks what would happen if you didn't. Tuned for productive friction, not negativity.`
+        : `Sharpens what you already do well. Catches when a piece drifts off your axis and pulls it back toward your strongest moves.`,
+      quote: criticquote(a, pushMode),
+    },
+    {
+      key: 'curator',
+      name: namedAgent('curator', a),
+      role: 'Curator',
+      color: '#3dbdad',
+      avatar: 'K',
+      bio: `Picks favorites the way you would. Trained on what you accepted and rejected. Builds sequences, suggests which piece to release, holds the bar.`,
+      quote: curatorquote(a),
+    },
+    {
+      key: 'continuity',
+      name: namedAgent('continuity', a),
+      role: 'Continuity Keeper',
+      color: '#fbbf24',
+      avatar: 'N',
+      bio: `Tracks your serial threads. Remembers ${a.subject === 'places' ? 'the rooms you keep returning to' : 'the figures who recur'}, the symbols that show up across pieces, the arcs you haven't closed.`,
+      quote: continuityquote(a, subjFocus),
+    },
+  ];
+}
+
+function namedAgent(role, a) {
+  // names hint at mood/temperature
+  const sets = {
+    muse: {
+      'dark-cool':  ['Mira', 'Vesper', 'Nico'],
+      'dark-warm':  ['Sol', 'Calla', 'Ember'],
+      'light-cool': ['Iris', 'Lumen', 'Halcyon'],
+      'light-warm': ['Mango', 'Polly', 'Sunny'],
+    },
+    critic: {
+      'dark-cool':  ['August', 'Kael', 'Drogo'],
+      'dark-warm':  ['Briar', 'Saoirse', 'Cinder'],
+      'light-cool': ['Beck', 'Wren', 'Indigo'],
+      'light-warm': ['Rio', 'Pip', 'Margot'],
+    },
+    curator: {
+      'dark-cool':  ['Lior', 'Sable', 'Roen'],
+      'dark-warm':  ['Tally', 'Ferro', 'Marrow'],
+      'light-cool': ['Quinn', 'Vita', 'Echo'],
+      'light-warm': ['Juno', 'Pico', 'Lemon'],
+    },
+    continuity: {
+      'dark-cool':  ['Nyx', 'Atlas', 'Wynn'],
+      'dark-warm':  ['Ash', 'Reed', 'Vela'],
+      'light-cool': ['Ori', 'Aero', 'Coda'],
+      'light-warm': ['Zinnia', 'Bex', 'Tangelo'],
+    },
+  };
+  const k = `${a.mood === 'light' ? 'light' : 'dark'}-${a.temperature === 'warm' ? 'warm' : 'cool'}`;
+  return pick(sets[role][k]);
+}
+
+function musequote(a, subj) {
+  if (a.tone === 'dark' && a.density === 'min') return `One ${subj}, one window, one hour before something happens. Don't show the something.`;
+  if (a.tone === 'dark' && a.density === 'max') return `A ${subj} buried in detritus. Make me look twice to find it.`;
+  if (a.tone === 'light' && a.density === 'min') return `A ${subj} in honest daylight. Nothing hiding. Confidence.`;
+  return `A parade of ${subj}. Colour first, story second, edges last.`;
+}
+function criticquote(a, pushMode) {
+  if (pushMode && a.temperature === 'warm') return `Lose the warmth for one piece. Just one. See what's left when the sun goes down.`;
+  if (pushMode && a.temperature === 'cool') return `Warm it up. Burn it. You're hiding behind blue.`;
+  if (!pushMode && a.finish === 'polish') return `That edge isn't crisp enough. You can do cleaner than this.`;
+  return `You're repeating yourself in the third panel. Cut it or commit harder.`;
+}
+function curatorquote(a) {
+  if (a.evolution === 'exploit') return `These three belong together. Release them as a set. The fourth is weaker — hold it back.`;
+  return `Show the weird one. The one you're nervous about. That's the show.`;
+}
+function continuityquote(a, subj) {
+  if (a.subject === 'places') return `You haven't returned to that corridor in five pieces. It wants a sequel.`;
+  return `${subj} again — fifth time this month. There's a thread here. Are you following it or stuck on it?`;
+}
+
+/* ====================================================================== */
+/* RENDER PROFILE                                                          */
+/* ====================================================================== */
+
+function renderProfile() {
+  const p = state.profile;
+  document.getElementById('profileName').textContent = p.name;
+  document.getElementById('profileTagline').textContent = p.tagline;
+
+  // axes
+  document.getElementById('axes').innerHTML = p.axes.map(ax => `
+    <div class="axis">
+      <div class="axis-left">${ax.left}</div>
+      <div class="axis-bar"><div class="marker" style="left:${ax.pos * 100}%"></div></div>
+      <div class="axis-right">${ax.right}</div>
+    </div>
+  `).join('');
+
+  // palette
+  document.getElementById('palette').innerHTML = p.palette.map(c => `
+    <div class="swatch" style="background:${c}"><div class="hex">${c}</div></div>
+  `).join('');
+
+  // tags
+  const tagify = (arr, cls = '') => arr.map((t, i) => {
+    const klass = i === 0 ? 'primary' : i === 1 ? 'secondary' : i === 2 ? 'accent' : '';
+    return `<span class="tag ${klass}">${escapeHtml(t)}</span>`;
+  }).join('');
+  document.getElementById('subjects').innerHTML = tagify(p.subjects);
+  document.getElementById('tendencies').innerHTML = tagify(p.promptingTendencies);
+  document.getElementById('narratives').innerHTML = tagify(p.narrativeInclinations);
+
+  // agents
+  document.getElementById('agents').innerHTML = p.agents.map(ag => `
+    <div class="agent-card" style="--agent-color: ${ag.color}">
+      <div class="agent-head">
+        <div class="agent-avatar" style="background:${ag.color}">${ag.avatar}</div>
+        <div>
+          <h3 class="agent-name">${escapeHtml(ag.name)}</h3>
+          <div class="agent-role">${escapeHtml(ag.role)}</div>
+        </div>
+      </div>
+      <p class="agent-bio">${escapeHtml(ag.bio)}</p>
+      <div class="agent-quote">${escapeHtml(ag.quote)}</div>
+    </div>
+  `).join('');
+
+  // json
+  document.getElementById('jsonPreview').textContent = JSON.stringify(p, null, 2);
+
+  // synthesis-mode badge
+  const note = document.getElementById('synthModeNote');
+  if (note) {
+    if (state.synthMode === 'local') {
+      note.innerHTML = '<strong style="color: var(--amber);">Synthesized locally</strong> — backend was unreachable, so this profile uses the deterministic fallback. Start the Synthograsizer backend and click "Start over" for a real Gemini-synthesized profile.';
+    } else {
+      note.innerHTML = '<span style="color: var(--text-mute);">Synthesized via Gemini on your local backend.</span>';
+    }
+  }
+}
+
+/* ====================================================================== */
+/* STEPPER + NAV                                                           */
+/* ====================================================================== */
+
+function go(n) {
+  state.step = n;
+  for (let i = 1; i <= 4; i++) {
+    document.getElementById('panel-' + i).classList.toggle('hidden', i !== n);
+  }
+  document.querySelectorAll('.step-chip').forEach(chip => {
+    const s = parseInt(chip.dataset.step);
+    chip.classList.toggle('active', s === n);
+    chip.classList.toggle('done', s < n);
+  });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+document.getElementById('restart').addEventListener('click', () => {
+  // reset
+  state.files.forEach(f => URL.revokeObjectURL(f.url));
+  Object.assign(state, { step:1, files:[], prompts:'', answers:{}, qi:0, profile:null });
+  document.getElementById('thumbs').innerHTML = '';
+  document.getElementById('uploadStats').style.display = 'none';
+  document.getElementById('prompts').value = '';
+  fileInput.value = '';
+  toStep2Btn.disabled = true;
+  go(1);
+});
+
+document.getElementById('download').addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(state.profile, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${state.profile.name.toLowerCase().replace(/\s+/g, '-')}.profile.json`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+});
+
+document.getElementById('sendToComposer').addEventListener('click', () => {
+  if (!state.profile || !Array.isArray(state.profile.agents) || !state.profile.agents.length) {
+    alert('No agents to send.');
+    return;
+  }
+  if (!window.AgentProfileStore || typeof window.AgentProfileStore.save !== 'function') {
+    alert('Agent Profile Store not loaded yet — try again in a moment.');
+    return;
+  }
+
+  const tag = { type: 'creator', label: `Taste Profile: ${state.profile.name || 'untitled'}` };
+  let saved = 0;
+
+  state.profile.agents.forEach(a => {
+    // Local-fallback agents lack the bioTemplate/variables/anchors fields needed for the
+    // canonical v5 schema. Synthesize a minimal template so the agent is still importable.
+    const hasTemplate = a.bioTemplate && Array.isArray(a.variables) && a.variables.length;
+    const profile = {
+      name: a.name,
+      category: a.category || 'creative',
+      color: a.color,
+      icon: a.avatar || undefined,
+      description: a.bio || a.role || '',
+      bioTemplate: hasTemplate
+        ? a.bioTemplate
+        : `${a.bio || ''} They speak with the voice of a {{tone}} {{role_word}}, and tend toward {{focus}}.`,
+      variables: hasTemplate ? a.variables : [
+        { name: 'tone',      feature_name: 'Tone',      values: [{text:'patient', weight:2},{text:'restless', weight:2},{text:'wry', weight:1}] },
+        { name: 'role_word', feature_name: 'Role',      values: [{text:'collaborator', weight:2},{text:'witness', weight:1},{text:'antagonist', weight:1}] },
+        { name: 'focus',     feature_name: 'Focus',     values: [{text:'composition', weight:2},{text:'mood', weight:2},{text:'rhythm', weight:1}] },
+      ],
+      anchors: a.anchors || { agent_name: a.name },
+      tags: [tag],
+    };
+    try {
+      window.AgentProfileStore.save(profile);
+      saved++;
+    } catch (e) {
+      console.error('[TasteProfile] Failed to save agent', a.name, e);
+    }
+  });
+
+  if (saved === 0) {
+    alert('No agents could be saved. Check the console.');
+    return;
+  }
+  // Composer reads via AgentProfileStore.loadAll() on mount — landing in the Library
+  // surfaces the new agents immediately.
+  window.location.href = '/synthograsizer/#composer';
+});
+
+/* ====================================================================== */
+/* UTIL                                                                    */
+/* ====================================================================== */
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[c]));
+}
+</script>
+</body>
+</html>

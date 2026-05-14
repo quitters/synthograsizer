@@ -384,6 +384,7 @@
             <button class="layout-btn" data-layout="default" data-tip="Studio Mode — Full Tools Panel">⊟ Studio</button>
             <button class="layout-btn" data-layout="a" data-tip="Perform Mode — Minimal Layout">▶ Perform</button>
             <button class="layout-btn" data-mode="composer" data-tip="4-room agent composer (Library → Editor → Session → Run)">🧪 Composer</button>
+            <a href="/taste-profile/" class="app-bar-tpl-btn" style="text-decoration:none" data-tip="Onboarding: synthesize your aesthetic + 4 tuned agents">🎯 Taste Profile</a>
             <a href="changelog.html" class="app-bar-tpl-btn" style="text-decoration:none" data-tip="Change Notes &amp; Release History">📋 What's New</a>
           </div>
         </header>
@@ -1475,6 +1476,13 @@
             } catch (e) {}
             applyLayout(currentLayout);
             applyMode(currentMode);
+
+            // Honor #composer in the URL (used by /taste-profile/ Send-to-Composer flow).
+            // Also drops the hash so refreshes don't re-trigger the switch.
+            if (window.location.hash === '#composer') {
+                applyMode('composer');
+                try { history.replaceState(null, '', window.location.pathname + window.location.search); } catch (e) {}
+            }
 
             btns.forEach(function (btn) {
                 if (btn.dataset.mode) {

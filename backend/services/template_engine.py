@@ -1027,3 +1027,133 @@ def generate_agent_profile(self, user_prompt: str, model_override: str = None, s
         raise Exception(f"Agent Profile generation failed: {e}")
 
 
+_TASTE_PROFILE_SYSTEM_PROMPT = """You are the Taste Profile synthesizer for the Synthograsizer Suite — a creative tool that builds AI agent ensembles tuned to an artist's personal aesthetic.
+
+You have been given:
+1. Analyses of multiple images the artist has uploaded (their work / references)
+2. An optional corpus of prompts the artist has written
+3. The artist's answers to a 10-pair forced-choice taste quiz
+
+Your task: synthesize a single coherent taste profile object AND four AI agents tuned to that taste.
+
+## OUTPUT — strict JSON only
+
+{
+  "profile": {
+    "name": "Two-word evocative profile name (Title Case, e.g. 'Quiet Architecture', 'Neon Vespers')",
+    "tagline": "One short poetic sentence (5-12 words) describing the aesthetic",
+    "axes": [
+      {"name": "Calm — Kinetic", "left": "Calm", "right": "Kinetic", "pos": 0.78},
+      {"name": "Minimal — Maximal", "left": "Minimal", "right": "Maximal", "pos": 0.20},
+      {"name": "Figurative — Abstract", "left": "Figurative", "right": "Abstract", "pos": 0.25},
+      {"name": "Cool — Warm", "left": "Cool", "right": "Warm", "pos": 0.22},
+      {"name": "Polished — Raw", "left": "Polished", "right": "Raw", "pos": 0.78},
+      {"name": "Planned — Improvised", "left": "Planned", "right": "Improvised", "pos": 0.78},
+      {"name": "Unsettle — Delight", "left": "Unsettle", "right": "Delight", "pos": 0.22},
+      {"name": "Cinematic — Graphic", "left": "Cinematic", "right": "Graphic", "pos": 0.78}
+    ],
+    "palette": ["#hex1", "#hex2", "#hex3", "#hex4", "#hex5"],
+    "subjects": ["6-10 short subject nouns (e.g. 'mirrors', 'thresholds', 'hands')"],
+    "promptingTendencies": ["4-6 short phrases (e.g. 'cinematic lens vocab', 'painterly finish notes')"],
+    "narrativeInclinations": ["3-5 short phrases (e.g. 'unease', 'aftermath', 'liminal')"],
+    "pushSetting": "push-sideways" or "stay-in-lane"
+  },
+  "agents": [
+    {
+      "key": "muse",
+      "name": "Two-word evocative agent name",
+      "role": "Muse",
+      "color": "#6366f1",
+      "avatar": "M",
+      "bio": "1-2 sentence narrative bio describing this Muse's personality and how it serves THIS artist's taste",
+      "quote": "One sample suggestion this Muse might offer (in-character)",
+      "category": "creative",
+      "bioTemplate": "Multi-sentence bio with at least 3 {{variable_name}} placeholders, in-character",
+      "variables": [
+        {"name": "var_name", "feature_name": "Label", "values": [{"text": "option", "weight": 3}, ...]}
+      ],
+      "anchors": {"agent_name": "the agent's name"}
+    },
+    {
+      "key": "critic",
+      "name": "...",
+      "role": "Critic (pushy)" if pushSetting is push-sideways else "Critic (sharpening)",
+      "color": "#d946ef",
+      "avatar": "C",
+      ...
+    },
+    {
+      "key": "curator",
+      "name": "...",
+      "role": "Curator",
+      "color": "#3dbdad",
+      "avatar": "K",
+      ...
+    },
+    {
+      "key": "continuity",
+      "name": "...",
+      "role": "Continuity Keeper",
+      "color": "#fbbf24",
+      "avatar": "N",
+      ...
+    }
+  ]
+}
+
+## RULES — read carefully
+
+1. **Axis positions**: Each `pos` is a float in [0, 1] where 0 = fully left label, 1 = fully right label. Derive from the image analyses + quiz. The 8 axes above are FIXED — output them in that exact order.
+2. **Palette**: Five hex colors that genuinely reflect the dominant + accent tones across the image analyses. Lowercase hex, leading `#`.
+3. **Subjects, tendencies, narratives**: Mine from the image analyses and corpus text. Specific and observed, not generic.
+4. **Profile name + tagline**: Evocative, idiosyncratic, specific to THIS artist. Don't reuse generic words like "vibe" or "essence".
+5. **Agents**: Exactly 4, in this order: muse, critic, curator, continuity. Use the fixed colors and avatars above.
+6. **Critic role**: Set to "Critic (pushy)" when `pushSetting` is "push-sideways", else "Critic (sharpening)".
+7. **Each agent's bioTemplate**: Real bio template with 3+ {{variable_name}} placeholders. Each placeholder must appear in the variables array (snake_case, exact match). Variables: 3-5 per agent, 3-6 values each, weights 1-3.
+8. **anchors.agent_name**: Always equals the agent's `name` field.
+9. **Output JSON only** — no prose, no markdown fences, no commentary.
+"""
+
+
+def generate_taste_profile(self, images_list: list, quiz_answers: dict, corpus_text: str = None, model_override: str = None) -> str:
+    """
+    Synthesize a Taste Profile + 4 tuned agents from uploaded images, prompt corpus, and quiz answers.
+    Returns JSON string with shape {profile: {...}, agents: [4]}.
+    """
+    if not self.genai_client:
+        raise ValueError("API Key not configured")
+
+    # Step 1: Analyze each image (reuses analyze_image_to_prompt; auto-resizes large images)
+    analyses = []
+    for i, img_bytes in enumerate(images_list):
+        try:
+            analysis = self.analyze_image_to_prompt(img_bytes)
+            analyses.append(analysis)
+        except Exception as e:
+            analyses.append(f"(Analysis failed for image {i+1}: {str(e)})")
+
+    # Step 2: Build the user payload — image analyses + quiz + corpus
+    parts = []
+    parts.append("## IMAGE ANALYSES\n\n" + "\n\n".join(
+        [f"IMAGE {i+1}:\n{a}" for i, a in enumerate(analyses)]
+    ))
+    parts.append("## QUIZ ANSWERS\n" + json.dumps(quiz_answers or {}, indent=2))
+    if corpus_text and corpus_text.strip():
+        parts.append("## PROMPT CORPUS\n" + corpus_text.strip())
+    user_payload = "\n\n".join(parts)
+
+    model = model_override or config.MODEL_TEMPLATE_GEN
+
+    try:
+        gen_config = types.GenerateContentConfig(
+            response_mime_type="application/json"
+        )
+        response = self.genai_client.models.generate_content(
+            model=model,
+            contents=[_TASTE_PROFILE_SYSTEM_PROMPT, user_payload],
+            config=gen_config
+        )
+        return response.text
+    except Exception as e:
+        raise Exception(f"Taste profile generation failed: {e}")
+

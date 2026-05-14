@@ -76,6 +76,8 @@ class TemplateRequest(BaseModel):
     is_demo: Optional[bool] = False           # When True, backend overrides model to MODEL_DEMO
     artifacts: Optional[List[dict]] = None    # Sample of user artifacts for taste_vector mode (each: {kind, text, meta?})
     style_instruction: Optional[str] = None   # User-editable style/tone instructions for agent_profile mode (structural rules are always enforced)
+    quiz_answers: Optional[Dict[str, str]] = None  # 10 forced-choice taste-pair answers (taste_profile mode)
+    corpus_text: Optional[str] = None         # User's prompt corpus / reference text (taste_profile mode)
 
 class AnalyzeRequest(BaseModel):
     image: str  # Base64 encoded image

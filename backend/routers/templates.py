@@ -194,6 +194,26 @@ async def generate_template(request: TemplateRequest):
             # which is shaped for {promptTemplate, variables[]}.
             return {"status": "success", "taste_vector": parse_llm_json(json_str)}
 
+        elif mode == "taste_profile":
+            if not request.images or len(request.images) < 3:
+                raise ValueError("taste_profile mode requires at least 3 images.")
+            if not request.quiz_answers:
+                raise ValueError("taste_profile mode requires quiz_answers.")
+            decoded = [decode_base64_image(img) for img in request.images]
+            json_str = await asyncio.wait_for(
+                asyncio.to_thread(
+                    ai_manager.generate_taste_profile,
+                    decoded,
+                    request.quiz_answers,
+                    request.corpus_text or "",
+                    model_override=model_override,
+                ),
+                timeout=timeout
+            )
+            # Taste profile output is {profile, agents} — not a Synthograsizer template,
+            # so skip normalize_template and return parsed JSON directly.
+            return {"status": "success", "taste_profile": parse_llm_json(json_str)}
+
         else:
             raise HTTPException(status_code=400, detail=f"Unknown template generation mode: {mode}")
 
