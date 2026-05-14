@@ -327,6 +327,18 @@
 .p5-size-btn-v6.active { background: rgba(0,0,0,.75); color: #fff; border-color: transparent; }
 .p5-size-btn-v6#p5-size-fit-btn { color: #7fffb2; border-color: rgba(127,255,178,.35); }
 .p5-size-btn-v6#p5-size-fit-btn.active { background: rgba(127,255,178,.85); color: #000; border-color: transparent; }
+.p5-size-btn-v6#p5-size-fill-btn { color: #ffb27f; border-color: rgba(255,178,127,.35); }
+.p5-size-btn-v6#p5-size-fill-btn.active { background: rgba(255,178,127,.85); color: #000; border-color: transparent; }
+/* ── Edge / corner resize handles ── */
+.p5-resize-v6 { position: absolute; z-index: 10; background: transparent; }
+.p5-resize-v6.r-n  { top: -3px;    left: 12px;   right: 12px;  height: 6px;  cursor: ns-resize; }
+.p5-resize-v6.r-s  { bottom: -3px; left: 12px;   right: 12px;  height: 6px;  cursor: ns-resize; }
+.p5-resize-v6.r-e  { top: 12px;    bottom: 12px; right: -3px;  width: 6px;   cursor: ew-resize; }
+.p5-resize-v6.r-w  { top: 12px;    bottom: 12px; left: -3px;   width: 6px;   cursor: ew-resize; }
+.p5-resize-v6.r-ne { top: -6px;    right: -6px;  width: 14px; height: 14px;  cursor: nesw-resize; }
+.p5-resize-v6.r-nw { top: -6px;    left: -6px;   width: 14px; height: 14px;  cursor: nwse-resize; }
+.p5-resize-v6.r-se { bottom: -6px; right: -6px;  width: 14px; height: 14px;  cursor: nwse-resize; }
+.p5-resize-v6.r-sw { bottom: -6px; left: -6px;   width: 14px; height: 14px;  cursor: nesw-resize; }
 /* FX Drawer */
 .p5-fx-drawer {
   background: #111; border-top: 1px solid #2a2a3a;
@@ -1554,8 +1566,18 @@
                     <button class="p5-size-btn-v6" data-w="720">MD</button>
                     <button class="p5-size-btn-v6" data-w="960">LG</button>
                     <button class="p5-size-btn-v6 active" id="p5-size-fit-btn" title="Fit viewer to canvas native size">FIT</button>
+                    <button class="p5-size-btn-v6" id="p5-size-fill-btn" title="Scale canvas to fill viewer (may upscale beyond native)">FILL</button>
                 </div>
             </div>
+            <!-- Edge / corner resize handles -->
+            <div class="p5-resize-v6 r-n"  data-dir="n"></div>
+            <div class="p5-resize-v6 r-s"  data-dir="s"></div>
+            <div class="p5-resize-v6 r-e"  data-dir="e"></div>
+            <div class="p5-resize-v6 r-w"  data-dir="w"></div>
+            <div class="p5-resize-v6 r-ne" data-dir="ne"></div>
+            <div class="p5-resize-v6 r-nw" data-dir="nw"></div>
+            <div class="p5-resize-v6 r-se" data-dir="se"></div>
+            <div class="p5-resize-v6 r-sw" data-dir="sw"></div>
         </div>
 
         <script>
@@ -1578,6 +1600,7 @@
             var isOpen = false, isPlaying = false, currentCode = null;
             var _tplName = 'P5.js Canvas';
             var _canvasNativeW = 0, _canvasNativeH = 0;
+            var _fillMode = false;
 
             /* ── Smart scale: fit canvas into current viewer without clipping ── */
             function applySmartScale() {
@@ -1585,8 +1608,14 @@
                 var canvasArea = document.getElementById('p5-canvas-area-v6');
                 var aW = canvasArea.clientWidth;
                 var aH = canvasArea.clientHeight;
-                var s = Math.min(1.0, Math.min(aW / _canvasNativeW, aH / _canvasNativeH));
-                try { iframe.contentWindow.postMessage({ p5CssScale: s }, '*'); } catch(e){}
+                var raw = Math.min(aW / _canvasNativeW, aH / _canvasNativeH);
+                var s = _fillMode ? raw : Math.min(1.0, raw);
+                try {
+                    iframe.contentWindow.postMessage({
+                        p5CssScale: s,
+                        p5Pixelated: _fillMode && s > 1
+                    }, '*');
+                } catch(e){}
             }
 
             /* ── Receive canvas native dimensions from iframe ── */
@@ -1655,7 +1684,9 @@
                     '  if(e.data.synthVars)__sv=e.data.synthVars;' +
                     '  if(e.data.p5CssScale!==undefined){' +
                     '    var c=document.querySelector("canvas");' +
-                    '    if(c){c.style.transformOrigin="center center";c.style.transform="scale("+e.data.p5CssScale+")";}' +
+                    '    if(c){c.style.transformOrigin="center center";c.style.transform="scale("+e.data.p5CssScale+")";' +
+                    '      if(e.data.p5Pixelated){c.style.imageRendering="pixelated";}else{c.style.imageRendering="";}' +
+                    '    }' +
                     '  }' +
                     '});' +
                     'new p5(function(p){' +
@@ -1757,13 +1788,37 @@
             btnRestart.addEventListener('click', function () { stop(); play(); });
             btnClose.addEventListener('click', closeModal);
 
-            /* ── Size buttons (SM / MD / LG) — width only; canvas fills hero flex row ── */
-            document.querySelectorAll('.p5-size-btn-v6[data-w]:not(#p5-size-fit-btn)').forEach(function (btn) {
+            /* ── Helpers for aspect-aware sizing ── */
+            function getChromeHeight() {
+                var titlebarH = document.getElementById('p5-titlebar-v6').offsetHeight;
+                var controlsH = 56;
+                var drawer = document.getElementById('p5-fx-drawer');
+                var drawerH = (drawer && drawer.style.display !== 'none') ? drawer.offsetHeight : 0;
+                return titlebarH + controlsH + drawerH;
+            }
+            function clearActiveSizeBtn() {
+                document.querySelectorAll('.p5-size-btn-v6').forEach(function (b) { b.classList.remove('active'); });
+            }
+
+            /* ── Size buttons (SM / MD / LG) — aspect-aware: data-w is longer edge ── */
+            document.querySelectorAll('.p5-size-btn-v6[data-w]:not(#p5-size-fit-btn):not(#p5-size-fill-btn)').forEach(function (btn) {
                 btn.addEventListener('click', function () {
-                    document.querySelectorAll('.p5-size-btn-v6').forEach(function (b) { b.classList.remove('active'); });
+                    clearActiveSizeBtn();
                     btn.classList.add('active');
-                    modal.style.width  = btn.dataset.w + 'px';
-                    modal.style.height = '';
+                    _fillMode = false;
+                    var longEdge = parseInt(btn.dataset.w, 10);
+                    if (_canvasNativeW && _canvasNativeH) {
+                        var ratio = _canvasNativeW / _canvasNativeH;
+                        var canvasW, canvasH;
+                        if (ratio >= 1) { canvasW = longEdge; canvasH = longEdge / ratio; }
+                        else            { canvasH = longEdge; canvasW = longEdge * ratio; }
+                        modal.style.width  = Math.round(canvasW) + 'px';
+                        modal.style.height = Math.round(canvasH + getChromeHeight()) + 'px';
+                    } else {
+                        /* No canvas reported yet — fall back to width-only */
+                        modal.style.width  = longEdge + 'px';
+                        modal.style.height = '';
+                    }
                     setTimeout(applySmartScale, 0);
                 });
             });
@@ -1773,13 +1828,23 @@
             if (fitBtn) {
                 fitBtn.addEventListener('click', function () {
                     if (!_canvasNativeW || !_canvasNativeH) return;
-                    document.querySelectorAll('.p5-size-btn-v6').forEach(function (b) { b.classList.remove('active'); });
+                    clearActiveSizeBtn();
                     fitBtn.classList.add('active');
-                    var titlebarH = document.getElementById('p5-titlebar-v6').offsetHeight;
-                    var controlsH = 56;
+                    _fillMode = false;
                     modal.style.width  = _canvasNativeW + 'px';
-                    modal.style.height = (_canvasNativeH + titlebarH + controlsH) + 'px';
-                    try { iframe.contentWindow.postMessage({ p5CssScale: 1 }, '*'); } catch(e){}
+                    modal.style.height = (_canvasNativeH + getChromeHeight()) + 'px';
+                    try { iframe.contentWindow.postMessage({ p5CssScale: 1, p5Pixelated: false }, '*'); } catch(e){}
+                });
+            }
+
+            /* ── FILL button: scale canvas to fill viewer area (may upscale beyond native) ── */
+            var fillBtn = document.getElementById('p5-size-fill-btn');
+            if (fillBtn) {
+                fillBtn.addEventListener('click', function () {
+                    clearActiveSizeBtn();
+                    fillBtn.classList.add('active');
+                    _fillMode = true;
+                    applySmartScale();
                 });
             }
 
@@ -1800,6 +1865,58 @@
                 modal.style.top  = (winY + e.clientY - dragY) + 'px';
             });
             document.addEventListener('mouseup', function () { dragging = false; });
+
+            /* ── Edge / corner resize ── */
+            var MIN_W = 280, MIN_H = 220;
+            var rsActive = false, rsDir = '', rsStartX = 0, rsStartY = 0;
+            var rsStartL = 0, rsStartT = 0, rsStartW = 0, rsStartH = 0;
+            document.querySelectorAll('.p5-resize-v6').forEach(function (h) {
+                h.addEventListener('mousedown', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    rsActive = true;
+                    rsDir = h.dataset.dir;
+                    rsStartX = e.clientX; rsStartY = e.clientY;
+                    var r = modal.getBoundingClientRect();
+                    rsStartL = r.left; rsStartT = r.top;
+                    rsStartW = r.width; rsStartH = r.height;
+                    /* Pin to top/left coords so width/height changes are predictable */
+                    modal.style.right  = 'auto';
+                    modal.style.bottom = 'auto';
+                    modal.style.left   = rsStartL + 'px';
+                    modal.style.top    = rsStartT + 'px';
+                    clearActiveSizeBtn();
+                });
+            });
+            document.addEventListener('mousemove', function (e) {
+                if (!rsActive) return;
+                var dx = e.clientX - rsStartX;
+                var dy = e.clientY - rsStartY;
+                var newL = rsStartL, newT = rsStartT, newW = rsStartW, newH = rsStartH;
+                if (rsDir.indexOf('e') !== -1) { newW = Math.max(MIN_W, rsStartW + dx); }
+                if (rsDir.indexOf('s') !== -1) { newH = Math.max(MIN_H, rsStartH + dy); }
+                if (rsDir.indexOf('w') !== -1) {
+                    newW = Math.max(MIN_W, rsStartW - dx);
+                    newL = rsStartL + (rsStartW - newW);
+                }
+                if (rsDir.indexOf('n') !== -1) {
+                    newH = Math.max(MIN_H, rsStartH - dy);
+                    newT = rsStartT + (rsStartH - newH);
+                }
+                modal.style.left   = newL + 'px';
+                modal.style.top    = newT + 'px';
+                modal.style.width  = newW + 'px';
+                modal.style.height = newH + 'px';
+                applySmartScale();
+            });
+            document.addEventListener('mouseup', function () {
+                if (rsActive) { rsActive = false; applySmartScale(); }
+            });
+
+            /* Re-fit canvas on any modal size change (e.g. drawer toggle) */
+            if (typeof ResizeObserver !== 'undefined') {
+                new ResizeObserver(function () { applySmartScale(); }).observe(modal);
+            }
 
             /* ── Live variable updates → postMessage to iframe ── */
             var ctrlVal = document.getElementById('control-value');
