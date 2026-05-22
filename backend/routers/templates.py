@@ -7,6 +7,7 @@ import os
 import io
 import tempfile
 import subprocess
+import hashlib
 from pathlib import Path
 from fastapi import APIRouter, Request, HTTPException, BackgroundTasks, WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse, StreamingResponse, Response
@@ -240,6 +241,65 @@ async def generate_template_from_analysis(request: TemplateFromAnalysisRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+def _val_text(val) -> str:
+    if isinstance(val, str):
+        return val
+    if isinstance(val, dict) and "text" in val:
+        return val["text"]
+    return str(val)
+
+
+def _template_fingerprint(t: dict) -> str:
+    payload = {
+        "promptTemplate": t.get("promptTemplate", ""),
+        "variables": [
+            {"name": v.get("name", ""), "values": [_val_text(x) for x in v.get("values", [])]}
+            for v in t.get("variables", [])
+        ],
+        "p5Code": bool(t.get("p5Code")),
+        "steps": len(t.get("steps") or []),
+    }
+    return hashlib.sha256(json.dumps(payload, sort_keys=True).encode()).hexdigest()[:8]
+
+
+def _derive_filename(template: dict, fingerprint: str) -> str:
+    # Determine 1-3 word slug
+    slug_source = ""
+    if template.get("name"):
+        slug_source = template["name"]
+    else:
+        for tag in template.get("tags", []):
+            if isinstance(tag, dict) and tag.get("type") == "source" and tag.get("label"):
+                slug_source = tag["label"]
+                break
+        if not slug_source:
+            slug_source = template.get("promptTemplate", "template")
+
+    # Strip template variables {{...}} before slugifying
+    slug_source = re.sub(r"\{\{[^}]*\}\}", "", slug_source)
+    words = re.sub(r"[^a-z0-9 ]+", " ", slug_source.lower()).split()
+    # Drop leading stop words when using the promptTemplate fallback
+    stop = {"a", "an", "the", "this", "is", "in", "of", "with", "for"}
+    while words and words[0] in stop:
+        words = words[1:]
+    slug = "-".join(words[:3]).strip("-") or "template"
+
+    # Type suffixes
+    suffixes = ""
+    if template.get("p5Code"):
+        suffixes += "-p5"
+    steps = template.get("steps") or []
+    tags = template.get("tags") or []
+    is_story = bool(steps) or any(
+        isinstance(t, dict) and "story" in t.get("label", "").lower()
+        for t in tags
+    )
+    if is_story:
+        suffixes += "-story"
+
+    return f"{slug}{suffixes}-{fingerprint[:6]}.json"
+
+
 @router.post("/api/save-template")
 async def save_template(request: SaveTemplateRequest):
     """Save a JSON template to the Synthograsizer_Output/JSON/Project Templates directory."""
@@ -251,36 +311,44 @@ async def save_template(request: SaveTemplateRequest):
         # Create directory if it doesn't exist
         output_dir.mkdir(parents=True, exist_ok=True)
         
-        # Generate filename if not provided
+        # Explicit filename override (user-triggered saves)
         if request.filename:
-            # Clean the provided filename
             safe_filename = request.filename
             if not safe_filename.endswith('.json'):
                 safe_filename += '.json'
-        else:
-            # Generate filename from template name or use timestamp
-            template_name = request.template.get('name', 'template')
-            safe_name = re.sub(r'[^a-z0-9]+', '-', template_name.lower())
-            safe_name = re.sub(r'^-+|-+$', '', safe_name)
-            timestamp = int(time.time() * 1000)  # milliseconds like frontend
-            safe_filename = f"synthograsizer-{safe_name}-{timestamp}.json"
-        
-        # Ensure filename is safe for filesystem
-        safe_filename = "".join(c for c in safe_filename if c.isalnum() or c in ".-_")
-        
-        # Full file path
+            safe_filename = "".join(c for c in safe_filename if c.isalnum() or c in ".-_")
+            file_path = output_dir / safe_filename
+            with open(file_path, 'w', encoding='utf-8') as f:
+                json.dump(request.template, f, indent=2, ensure_ascii=False)
+            return {"status": "success", "message": "Template saved successfully",
+                    "filepath": str(file_path), "filename": safe_filename}
+
+        # Auto-save path: derive deterministic name + deduplicate
+        fingerprint = _template_fingerprint(request.template)
+        safe_filename = _derive_filename(request.template, fingerprint)
         file_path = output_dir / safe_filename
-        
-        # Write JSON file
+
+        # Fast path: already saved under the derived name
+        if file_path.exists():
+            return {"status": "exists", "message": "Template already saved",
+                    "filepath": str(file_path), "filename": safe_filename}
+
+        # Slow path: scan for any file whose content matches (catches old timestamp-named files)
+        for existing in output_dir.glob("*.json"):
+            try:
+                existing_data = json.loads(existing.read_text(encoding="utf-8"))
+                if _template_fingerprint(existing_data) == fingerprint:
+                    return {"status": "exists", "message": "Template already saved",
+                            "filepath": str(existing), "filename": existing.name}
+            except Exception:
+                continue
+
+        # Write new file
         with open(file_path, 'w', encoding='utf-8') as f:
             json.dump(request.template, f, indent=2, ensure_ascii=False)
-        
-        return {
-            "status": "success", 
-            "message": "Template saved successfully",
-            "filepath": str(file_path),
-            "filename": safe_filename
-        }
+
+        return {"status": "success", "message": "Template saved successfully",
+                "filepath": str(file_path), "filename": safe_filename}
         
     except Exception as e:
         logger.error(f"Failed to save template: {str(e)}")

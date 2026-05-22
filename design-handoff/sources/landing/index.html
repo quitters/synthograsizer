@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Synthograsizer — The Creative Prompt Instrument</title>
+  <meta name="description" content="A browser-based creative suite for structured AI prompt engineering. D-pad navigation, MIDI & OSC control, live p5.js sketches, batch image & video generation, and real-time integration with Daydream Scope.">
+
+  <link rel="icon" type="image/png" href="/shared/assets/favicon.png">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/css/index.css">
+</head>
+<body>
+
+  <!-- ============= Top Nav ============= -->
+  <header class="topnav">
+    <a href="/" class="brand">
+      <span class="brand-mark"></span>
+      <span>Synthograsizer</span>
+    </a>
+    <nav>
+      <a href="#features">Features</a>
+      <a href="#tools">Inside</a>
+      <a href="#workflow">Workflow</a>
+      <a href="#integrations">Integrations</a>
+      <a href="/about/">About</a>
+    </nav>
+    <div class="nav-right">
+      <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme" title="Toggle light / dark">
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+      </button>
+      <a href="/synthograsizer/demo.html" class="cta">Launch App</a>
+    </div>
+  </header>
+
+  <!-- ============= Hero ============= -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-grid"></div>
+
+    <div class="hero-inner">
+      <div class="pill">
+        <span class="dot"></span>
+        <span>A creative instrument for generative AI</span>
+      </div>
+
+      <h1>
+        Play prompts like a <br>
+        <span class="grad">synthesizer.</span>
+      </h1>
+
+      <p class="lede">
+        Synthograsizer is a browser-based creative suite for structured AI prompt engineering —
+        with hardware controller support, live generative sketches, and real-time video streaming
+        to Daydream Scope. Built for artists, VJs, and researchers who think with their hands.
+      </p>
+
+      <div class="hero-ctas">
+        <a href="/synthograsizer/demo.html" class="btn btn-primary">
+          Launch Synthograsizer
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+        </a>
+        <a href="#features" class="btn btn-ghost">
+          See what it does
+        </a>
+      </div>
+
+      <div class="hero-stats">
+        <div class="stat">
+          <div class="num">50+</div>
+          <div class="lbl">Templates</div>
+        </div>
+        <div class="stat">
+          <div class="num">10+</div>
+          <div class="lbl">Studio Tools</div>
+        </div>
+        <div class="stat">
+          <div class="num">46+</div>
+          <div class="lbl">Agent Personas</div>
+        </div>
+        <div class="stat">
+          <div class="num">∞</div>
+          <div class="lbl">Variations</div>
+        </div>
+      </div>
+
+      <div class="tag-row">
+        <span class="chip">Gemini</span>
+        <span class="chip">Veo 3</span>
+        <span class="chip">p5.js</span>
+        <span class="chip">MIDI</span>
+        <span class="chip">OSC</span>
+        <span class="chip">WebRTC</span>
+        <span class="chip">Daydream Scope</span>
+        <span class="chip">Agent Orchestration</span>
+        <span class="chip">Trace Observability</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============= Feature Highlights ============= -->
+  <section id="features">
+    <div class="container">
+      <div class="section-head reveal">
+        <div class="section-eyebrow">What it does</div>
+        <h2>Prompt engineering, reimagined as an instrument</h2>
+        <p>Most AI tools treat prompts like text boxes. Synthograsizer treats them like performable parameters — every variable a knob, every template a patch.</p>
+      </div>
+
+      <div class="feature-grid">
+        <article class="feature f1 reveal">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="9"></circle>
+              <path d="M12 7v5l3 2"></path>
+            </svg>
+          </div>
+          <h3>Structured prompt control</h3>
+          <p>A D-pad interface turns every prompt variable into a navigable parameter. Shape ideas by ear, not by retyping.</p>
+          <ul>
+            <li>Variable-driven template engine</li>
+            <li>Weighted value cycling per parameter</li>
+            <li>Live token preview and editing</li>
+            <li>Keyboard, mouse, or MIDI navigation</li>
+          </ul>
+        </article>
+
+        <article class="feature f2 reveal">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 3v18"></path>
+              <path d="M18 3v18"></path>
+              <path d="M3 8h3"></path>
+              <path d="M3 16h3"></path>
+              <path d="M18 8h3"></path>
+              <path d="M18 16h3"></path>
+              <path d="M9 12h6"></path>
+            </svg>
+          </div>
+          <h3>Hardware-first performance</h3>
+          <p>Wire physical controllers directly into the creative loop. Every knob, fader, and pad becomes a mapping surface.</p>
+          <ul>
+            <li>Web MIDI API — CC + Note bindings</li>
+            <li>OSC UDP bridge for cross-tool sync</li>
+            <li>Performance layout for live use</li>
+            <li>Hardware-synth aesthetic theme</li>
+          </ul>
+        </article>
+
+        <article class="feature f3 reveal">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="5" width="18" height="14" rx="2"></rect>
+              <path d="m10 9 5 3-5 3z" fill="currentColor"></path>
+            </svg>
+          </div>
+          <h3>End-to-end generation</h3>
+          <p>From prompt to pixels to projector — text, image, and video models all live one click away in the same canvas.</p>
+          <ul>
+            <li>Gemini text &amp; image generation</li>
+            <li>Veo video studio with batch queue</li>
+            <li>Embedded p5.js generative sketches</li>
+            <li>Fullscreen Display window for OBS</li>
+          </ul>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============= What's Inside ============= -->
+  <section id="tools" style="padding-top: 40px;">
+    <div class="container">
+      <div class="section-head reveal">
+        <div class="section-eyebrow">Inside the App</div>
+        <h2>Everything in one instrument</h2>
+        <p>Synthograsizer is a single, deeply integrated creative environment. Every tool below is available inside the app — no switching tabs, no separate logins.</p>
+      </div>
+
+      <div class="tool-grid">
+        <a href="/synthograsizer/demo.html" class="tool-card primary reveal" style="grid-column: 1 / -1;">
+          <div class="tool-head">
+            <h3>Synthograsizer</h3>
+            <span class="tool-badge">Launch</span>
+          </div>
+          <p>The instrument. D-pad prompt navigator with MIDI + OSC hardware control, 50+ templates, batch generation, and a live p5.js canvas — all in one browser tab.</p>
+          <span class="arrow">Open app →</span>
+        </a>
+
+        <div class="tool-card reveal">
+          <div class="tool-head">
+            <h3>Agent Studio</h3>
+            <span class="tool-badge amber">Built-in</span>
+          </div>
+          <p>Multi-agent Gemini orchestration with 46+ persona presets, configurable turn-order routing, autonomous turn-taking, structured artifact emission, live token streaming, and a per-turn agentic trace viewer for debugging consensus and tool use.</p>
+        </div>
+
+        <div class="tool-card reveal">
+          <div class="tool-head">
+            <h3>Image &amp; Video Studio</h3>
+            <span class="tool-badge teal">Built-in</span>
+          </div>
+          <p>Gemini image generation, Veo 3 video with batch queuing, Smart Transform, reverse-prompt analysis, and metadata extraction.</p>
+        </div>
+
+        <div class="tool-card reveal">
+          <div class="tool-head">
+            <h3>Glitcher Studio</h3>
+            <span class="tool-badge fuchsia">Built-in</span>
+          </div>
+          <p>Full glitch-art engine embedded directly in the app — destructive pixel effects, non-destructive filter chains, selection tools, and live P5 canvas feed.</p>
+        </div>
+
+        <div class="tool-card reveal">
+          <div class="tool-head">
+            <h3>P5.js Canvas</h3>
+            <span class="tool-badge">Built-in</span>
+          </div>
+          <p>In-page generative sketch runner with live variable sync, CSS FX drawer, and External Display output for OBS and Daydream Scope.</p>
+        </div>
+
+        <div class="tool-card reveal">
+          <div class="tool-head">
+            <h3>MIDI &amp; OSC</h3>
+            <span class="tool-badge teal">Built-in</span>
+          </div>
+          <p>Map any MIDI controller to any template variable. Route OSC to TouchDesigner, VDMX, or Max — every parameter is a performable knob.</p>
+        </div>
+
+        <div class="tool-card reveal">
+          <div class="tool-head">
+            <h3>Music Studio</h3>
+            <span class="tool-badge">Built-in</span>
+          </div>
+          <p>Lyria RealTime audio generation driven by the current prompt context — ambient scores, generative soundscapes, live to output.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============= Workflow / How it works ============= -->
+  <section id="workflow" class="workflow-section">
+    <div class="container">
+      <div class="section-head reveal">
+        <div class="section-eyebrow">Workflow</div>
+        <h2>From idea to live output in four moves</h2>
+        <p>Designed for the way creative work actually happens — iterative, tactile, and never locked into a single pipeline.</p>
+      </div>
+
+      <div class="workflow">
+        <div class="step reveal">
+          <div class="step-num">01 / COMPOSE</div>
+          <h4>Load a template</h4>
+          <p>Pick from 50+ included templates or import your own JSON. Generative sketches, cinematic prompts, character generators — all share the same variable format.</p>
+        </div>
+        <div class="step reveal">
+          <div class="step-num">02 / CONTROL</div>
+          <h4>Map your controller</h4>
+          <p>Connect MIDI hardware or map OSC destinations. Every variable becomes a knob. Save the mapping per template for instant recall.</p>
+        </div>
+        <div class="step reveal">
+          <div class="step-num">03 / GENERATE</div>
+          <h4>Render in any medium</h4>
+          <p>Send prompts to Gemini for text, image, or Veo video generation. Run a live p5.js sketch alongside. Batch 100 variations, or generate a single curated output.</p>
+        </div>
+        <div class="step reveal">
+          <div class="step-num">04 / BROADCAST</div>
+          <h4>Stream to the world</h4>
+          <p>Push the output to OBS via the Display Window, stream the canvas to Daydream Scope over WebRTC, or route Spout to any visual pipeline.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============= How the agents work ============= -->
+  <section id="agents">
+    <div class="container">
+      <div class="section-head reveal">
+        <div class="section-eyebrow">Under the Hood</div>
+        <h2>How the agents work</h2>
+        <p>Agent Studio is a small orchestration runtime — the pieces that make a multi-agent conversation reproducible, inspectable, and steerable.</p>
+      </div>
+
+      <div class="feature-grid">
+        <article class="feature reveal">
+          <h3>Turn-order routing</h3>
+          <p>A configurable policy decides who speaks next — round-robin, mention-driven, or autonomous turn-taking with a stop condition. Per-template overrides keep behaviour predictable.</p>
+        </article>
+        <article class="feature reveal">
+          <h3>Per-turn prompt assembly</h3>
+          <p>Each agent's prompt is composed at runtime from a persona, the shared transcript, and any artifacts emitted by prior turns. The same JSON template format defines personas and prompts.</p>
+        </article>
+        <article class="feature reveal">
+          <h3>Trace capture &amp; consensus</h3>
+          <p>Every turn writes a trace record — inputs, raw model output, parsed artifacts, latency. The trace viewer renders the run for debugging; consensus detection ends the loop when agents converge.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============= Code / Template preview ============= -->
+  <section>
+    <div class="container">
+      <div class="code-split">
+        <div class="copy reveal">
+          <div class="section-eyebrow">Template Format</div>
+          <h2>One JSON file.<br>Infinite variations.</h2>
+          <p>Templates are portable, readable, and designed to be authored by humans or generated by LLMs. A template is a prompt skeleton plus a set of weighted variable lists — optionally with an embedded p5.js sketch for live visual output.</p>
+          <p>The same JSON drives prompt assembly, batch evaluation runs of up to 100 variations, and agent persona definitions — one schema, three runtimes.</p>
+          <p>Import from PNG metadata, generate with the Template Generator, or author by hand. Share them, remix them, version them in git.</p>
+        </div>
+
+        <div class="codebox reveal">
+          <div class="codebox-bar">
+            <span class="dot r"></span>
+            <span class="dot y"></span>
+            <span class="dot g"></span>
+            <span class="name">strange-attractors.json</span>
+          </div>
+<pre>{
+  <span class="key">"promptTemplate"</span>: <span class="str">"a {{attractor}} in {{palette}}, {{mood}}"</span>,
+  <span class="key">"variables"</span>: [
+    {
+      <span class="key">"name"</span>: <span class="str">"attractor"</span>,
+      <span class="key">"feature_name"</span>: <span class="str">"Attractor Type"</span>,
+      <span class="key">"values"</span>: [
+        { <span class="key">"text"</span>: <span class="str">"lorenz butterfly"</span>, <span class="key">"weight"</span>: <span class="num">2</span> },
+        { <span class="key">"text"</span>: <span class="str">"clifford spiral"</span>, <span class="key">"weight"</span>: <span class="num">1</span> },
+        { <span class="key">"text"</span>: <span class="str">"rössler ribbon"</span>, <span class="key">"weight"</span>: <span class="num">1</span> }
+      ]
+    }
+  ],
+  <span class="key">"p5Code"</span>: <span class="str">"p.setup = () => { p.createCanvas(800, 800); }; ..."</span>
+}</pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============= Integrations ============= -->
+  <section id="integrations">
+    <div class="container">
+      <div class="section-head reveal">
+        <div class="section-eyebrow">Integrations</div>
+        <h2>Plugs into the pipeline you already use</h2>
+        <p>Built to sit comfortably alongside existing creative software — not replace it.</p>
+      </div>
+
+      <div class="integrations">
+        <div class="reveal" style="grid-column: 1 / -1; font-family: 'JetBrains Mono', monospace; font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.22em; color: var(--text-dim); padding: 6px 2px; border-bottom: 1px solid var(--border);">Models &amp; APIs</div>
+        <div class="integration reveal">
+          <div class="integration-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M8 12h8M12 8v8"></path></svg>
+          </div>
+          <div>
+            <div class="name">Google Gemini</div>
+            <div class="desc">Text + template generation</div>
+          </div>
+        </div>
+        <div class="integration reveal">
+          <div class="integration-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="9" cy="9" r="2"></circle><path d="m21 15-5-5L5 21"></path></svg>
+          </div>
+          <div>
+            <div class="name">Veo 3</div>
+            <div class="desc">Video generation</div>
+          </div>
+        </div>
+        <div class="integration reveal">
+          <div class="integration-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16v12H4z"></path><path d="m4 6 8 7 8-7"></path></svg>
+          </div>
+          <div>
+            <div class="name">ComfyUI (Legacy)</div>
+            <div class="desc">Local Stable Diffusion bridge</div>
+          </div>
+        </div>
+        <div class="reveal" style="grid-column: 1 / -1; font-family: 'JetBrains Mono', monospace; font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.22em; color: var(--text-dim); padding: 6px 2px; border-bottom: 1px solid var(--border); margin-top: 18px;">Creative Surfaces</div>
+        <div class="integration reveal">
+          <div class="integration-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 3v18M3 12h18"></path></svg>
+          </div>
+          <div>
+            <div class="name">Daydream Scope</div>
+            <div class="desc">OSC + WebRTC + Spout</div>
+          </div>
+        </div>
+        <div class="integration reveal">
+          <div class="integration-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="16" r="3"></circle><path d="M10 16V7a3 3 0 0 1 3-3h5v5h-5"></path></svg>
+          </div>
+          <div>
+            <div class="name">Web MIDI</div>
+            <div class="desc">Any MIDI controller</div>
+          </div>
+        </div>
+        <div class="integration reveal">
+          <div class="integration-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0 9 9 0 0 0-18 0z"></path><path d="M3 12c3 0 6 2 6 5M21 12c-3 0-6 2-6 5M9 7c0 3 2 5 3 5M15 7c0 3-2 5-3 5"></path></svg>
+          </div>
+          <div>
+            <div class="name">OBS Studio</div>
+            <div class="desc">Browser Source + Spout output</div>
+          </div>
+        </div>
+        <div class="integration reveal">
+          <div class="integration-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"></path><path d="M8 4v16M4 8h16M4 16h16M16 4v16"></path></svg>
+          </div>
+          <div>
+            <div class="name">p5.js Instance Mode</div>
+            <div class="desc">Live generative sketches</div>
+          </div>
+        </div>
+        <div class="integration reveal">
+          <div class="integration-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12a7 7 0 0 1 7-7 7 7 0 0 1 7 7"></path><path d="M8 12a4 4 0 0 1 4-4 4 4 0 0 1 4 4"></path><circle cx="12" cy="12" r="1" fill="currentColor"></circle><path d="M12 20v-6"></path></svg>
+          </div>
+          <div>
+            <div class="name">OSC UDP</div>
+            <div class="desc">TouchDesigner, VDMX, Max</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============= CTA ============= -->
+  <section class="cta-section">
+    <div class="cta-box reveal">
+      <h2>Ready to play with prompts?</h2>
+      <p>Open the suite in your browser. No install. No account. Just you, a template, and a canvas.</p>
+      <div class="hero-ctas">
+        <a href="/synthograsizer/demo.html" class="btn btn-primary">
+          Launch Synthograsizer
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+        </a>
+        <a href="https://github.com/quitters/synthograsizer" class="btn btn-ghost" target="_blank" rel="noopener">
+          View on GitHub
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============= Footer ============= -->
+  <footer>
+    <div class="footer-inner">
+      <div>
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
+          <span class="brand-mark" style="width: 18px; height: 18px; border-radius: 5px;"></span>
+          <span style="color: var(--text); font-weight: 600; font-family: 'Space Grotesk', sans-serif;">Synthograsizer Suite</span>
+        </div>
+        <div>© 2025 · <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener">CC BY-NC 4.0</a></div>
+      </div>
+      <div class="footer-links">
+        <a href="/synthograsizer/demo.html">App</a>
+        <a href="/about/">About</a>
+        <a href="https://github.com/quitters/synthograsizer" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://scope.daydream.fm" target="_blank" rel="noopener">Daydream Scope</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ============= Theme toggle ============= -->
+  <script>
+    (function () {
+      const STORAGE_KEY = 'synth-theme';
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved === 'light') document.documentElement.setAttribute('data-theme', 'light');
+
+      const btn = document.getElementById('themeToggle');
+      btn.addEventListener('click', () => {
+        const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+        if (isLight) {
+          document.documentElement.removeAttribute('data-theme');
+          localStorage.setItem(STORAGE_KEY, 'dark');
+        } else {
+          document.documentElement.setAttribute('data-theme', 'light');
+          localStorage.setItem(STORAGE_KEY, 'light');
+        }
+      });
+    })();
+  </script>
+
+  <!-- ============= Reveal observer ============= -->
+  <script>
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) {
+          e.target.classList.add('in');
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+    // Kick off any reveals already in view on load
+    window.addEventListener('load', () => {
+      document.querySelectorAll('.reveal').forEach(el => {
+        const r = el.getBoundingClientRect();
+        if (r.top < window.innerHeight * 0.95) el.classList.add('in');
+      });
+    });
+  </script>
+</body>
+</html>

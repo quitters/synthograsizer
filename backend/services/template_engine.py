@@ -1058,47 +1058,27 @@ Your task: synthesize a single coherent taste profile object AND four AI agents 
     "narrativeInclinations": ["3-5 short phrases (e.g. 'unease', 'aftermath', 'liminal')"],
     "pushSetting": "push-sideways" or "stay-in-lane"
   },
-  "agents": [
-    {
-      "key": "muse",
-      "name": "Two-word evocative agent name",
-      "role": "Muse",
-      "color": "#6366f1",
-      "avatar": "M",
-      "bio": "1-2 sentence narrative bio describing this Muse's personality and how it serves THIS artist's taste",
-      "quote": "One sample suggestion this Muse might offer (in-character)",
-      "category": "creative",
-      "bioTemplate": "Multi-sentence bio with at least 3 {{variable_name}} placeholders, in-character",
-      "variables": [
-        {"name": "var_name", "feature_name": "Label", "values": [{"text": "option", "weight": 3}, ...]}
-      ],
-      "anchors": {"agent_name": "the agent's name"}
-    },
-    {
-      "key": "critic",
-      "name": "...",
-      "role": "Critic (pushy)" if pushSetting is push-sideways else "Critic (sharpening)",
-      "color": "#d946ef",
-      "avatar": "C",
-      ...
-    },
-    {
-      "key": "curator",
-      "name": "...",
-      "role": "Curator",
-      "color": "#3dbdad",
-      "avatar": "K",
-      ...
-    },
-    {
-      "key": "continuity",
-      "name": "...",
-      "role": "Continuity Keeper",
-      "color": "#fbbf24",
-      "avatar": "N",
-      ...
-    }
-  ]
+  "agents": [ <agent_object>, <agent_object>, <agent_object>, <agent_object> ]
+}
+
+## AGENT OBJECT SHAPE — every agent MUST include every field below. No exceptions.
+
+{
+  "key": "muse" | "critic" | "curator" | "continuity",
+  "name": "Two-word evocative agent name (no prefixes like 'The')",
+  "role": "Muse" | "Critic (pushy)" | "Critic (sharpening)" | "Curator" | "Continuity Keeper",
+  "color": "#6366f1" (muse) | "#d946ef" (critic) | "#3dbdad" (curator) | "#fbbf24" (continuity),
+  "avatar": "M" (muse) | "C" (critic) | "K" (curator) | "N" (continuity),
+  "category": "creative",
+  "bio": "1-2 sentence in-character narrative bio (plain text, NO {{placeholders}})",
+  "quote": "One sample in-character line this agent might say to the artist",
+  "bioTemplate": "Multi-sentence bio with AT LEAST 3 {{snake_case_var}} placeholders. REQUIRED.",
+  "variables": [
+    {"name": "snake_case_var", "feature_name": "Title Case Label", "values": [{"text": "option phrase", "weight": 3}, {"text": "other phrase", "weight": 2}, {"text": "third phrase", "weight": 1}]},
+    {"name": "another_var",    "feature_name": "Other Label",      "values": [{"text": "...", "weight": 3}, {"text": "...", "weight": 2}, {"text": "...", "weight": 1}]},
+    {"name": "third_var",      "feature_name": "Third Label",      "values": [{"text": "...", "weight": 3}, {"text": "...", "weight": 2}, {"text": "...", "weight": 1}]}
+  ],
+  "anchors": {"agent_name": "<the agent's name field, exactly>"}
 }
 
 ## RULES — read carefully
@@ -1107,11 +1087,21 @@ Your task: synthesize a single coherent taste profile object AND four AI agents 
 2. **Palette**: Five hex colors that genuinely reflect the dominant + accent tones across the image analyses. Lowercase hex, leading `#`.
 3. **Subjects, tendencies, narratives**: Mine from the image analyses and corpus text. Specific and observed, not generic.
 4. **Profile name + tagline**: Evocative, idiosyncratic, specific to THIS artist. Don't reuse generic words like "vibe" or "essence".
-5. **Agents**: Exactly 4, in this order: muse, critic, curator, continuity. Use the fixed colors and avatars above.
-6. **Critic role**: Set to "Critic (pushy)" when `pushSetting` is "push-sideways", else "Critic (sharpening)".
-7. **Each agent's bioTemplate**: Real bio template with 3+ {{variable_name}} placeholders. Each placeholder must appear in the variables array (snake_case, exact match). Variables: 3-5 per agent, 3-6 values each, weights 1-3.
-8. **anchors.agent_name**: Always equals the agent's `name` field.
-9. **Output JSON only** — no prose, no markdown fences, no commentary.
+5. **Quiz answers**: Any axis with the answer "neutral" (or unanswered) means the artist did NOT take a side — bias that axis toward 0.5 (range 0.4-0.6) rather than the extremes.
+6. **Agents**: Exactly 4, in this order: muse, critic, curator, continuity. Use the fixed colors and avatars listed in the agent shape above.
+7. **Critic role**: Set to "Critic (pushy)" when `pushSetting` is "push-sideways", else "Critic (sharpening)".
+8. **bioTemplate is MANDATORY** for every agent. Each must contain AT LEAST 3 `{{snake_case}}` placeholders. Each placeholder must have a matching entry in `variables` with the same `name`.
+9. **variables array is MANDATORY** for every agent: 3-5 entries, each with 3-6 weighted text values. Use only `{"text": "...", "weight": N}` value objects — never parallel arrays.
+10. **anchors.agent_name is MANDATORY** for every agent and must equal the agent's `name` field exactly.
+11. **Output JSON only** — no prose, no markdown fences, no commentary.
+
+## VALIDATION CHECKLIST — before emitting your response, verify:
+
+- [ ] Exactly 4 agents, in order: muse, critic, curator, continuity
+- [ ] Every agent has bioTemplate (with 3+ {{placeholders}}), variables (3+ entries), anchors.agent_name
+- [ ] Every {{placeholder}} in each bioTemplate has a matching entry in that agent's variables array
+- [ ] All 8 axes are present in the fixed order
+- [ ] palette has exactly 5 hex colors
 """
 
 

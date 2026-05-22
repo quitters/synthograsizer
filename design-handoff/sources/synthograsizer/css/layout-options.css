@@ -1,0 +1,439 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   layout-options.css
+   Layout switcher for Synthograsizer.
+
+   Modes (button labels → data-layout value → class on .synthograsizer-small):
+     ⊟ Studio  (default)  — single centered column, full AI Studio Tools panel
+     ▶ Perform (layout-a) — two-column, D-Pad sticky right, no AI Studio Tools
+
+   All rules here are scoped to min-width: 900px so mobile is never affected.
+───────────────────────────────────────────────────────────────────────────── */
+
+/* ── App Bar — unified logo + template selector + mode switcher ─────────── */
+
+.app-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 32px;
+  margin-bottom: 20px;
+  /* Match page chassis — no jarring white band */
+  background: var(--hw-chassis, #edeae2);
+  border-bottom: 1px solid var(--hw-recessed, #c4bcac);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  gap: 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.app-bar-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+/* Bungee wordmark — matches .app-title in synth-hardware-theme.css */
+.app-bar-logo {
+  font-family: 'Bungee', sans-serif;
+  font-weight: 400;
+  font-size: 20px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #2e2418;
+  text-shadow:
+    1px 1px 0 rgba(255,255,255,0.5);
+  white-space: nowrap;
+}
+
+/* Hardware-beveled template selector */
+.app-bar-tpl-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 6px 4px 10px;
+  background: var(--hw-panel, #e4dccf);
+  border: 2px solid #5a5040;
+  border-radius: 4px;
+  box-shadow: 2px 2px 0 #5a5040;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #5a5040;
+  cursor: pointer;
+  transition: transform 0.08s, box-shadow 0.08s, background 0.08s;
+  white-space: nowrap;
+}
+.app-bar-tpl-btn:hover {
+  background: #ede6d8;
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 #5a5040;
+}
+.app-bar-tpl-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+.app-bar-tpl-name {
+  color: #5a8ab8;
+  margin-right: 4px;
+}
+.app-bar-tpl-icon {
+  font-size: 14px;
+}
+.app-bar-tpl-change {
+  display: flex;
+  align-items: center;
+  padding: 2px 4px;
+  background: transparent;
+  border: 1px solid #c0b8a8;
+  border-radius: 2px;
+  font-size: 10px;
+  color: #8a7e6e;
+  letter-spacing: 0px;
+}
+
+/* Hide template button in Composer mode (template picker is Studio-specific) */
+body.mode-composer .app-bar-tpl-btn { display: none; }
+
+/* ── Mode buttons ────────────────────────────────────────────────────────── */
+
+.app-bar-modes {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+/* Override the old .layout-switcher block sizing that no longer applies */
+.layout-switcher {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 0;
+}
+
+.layout-btn {
+  padding: 4px 13px;
+  border: 1.5px solid #d1d5db;
+  border-radius: 7px;
+  background: white;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #9ca3af;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  user-select: none;
+}
+
+.layout-btn:hover {
+  border-color: #8b5cf6;
+  color: #8b5cf6;
+}
+
+.layout-btn.active {
+  background: #8b5cf6;
+  border-color: #8b5cf6;
+  color: white;
+}
+
+/* ── Composer mode: hide inner title (logo already in app-bar) ───────────── */
+body.mode-composer #composer-mount .app-header .app-title { display: none; }
+
+/* ── Perform mode: also hide navbar (was handled via body.layout-a) ──────── */
+body.layout-a #navbar-mount { display: none; }
+
+
+/* ══════════════════════════════════════════════════════════════════════════
+   PERFORM MODE (layout-a) — Two-Column, no AI Studio Tools
+   Left  (~55%): Output + Actions + Bottom bar
+   Right (400px): D-Pad / Knobs + Connections (sticky)
+   AI Studio Tools panel is hidden — not needed during live performance
+══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Performance mode: hide AI Studio Tools (any viewport) ────────────── */
+.layout-a .studio-controls-section {
+  display: none !important;
+}
+
+/* ── Performance mode: hide site nav (keep app title, lose nav links) ──── */
+/* #navbar-mount is a sibling of .synthograsizer-small, so scope to body   */
+body.layout-a #navbar-mount {
+  display: none;
+}
+
+/* ── Performance mode: hide studio-only bottom-bar actions ─────────────── */
+.layout-a #batch-button,
+.layout-a #favorites-button {
+  display: none;
+}
+
+/* ── Performance mode: hide output-header utility buttons ──────────────── */
+.layout-a #copy-button,
+.layout-a #code-button,
+.layout-a #favorite-button,
+.layout-a #send-button {
+  display: none;
+}
+
+/* ── Performance mode: hide output-header label row entirely (no buttons
+      remain, so the label "Generated Output" is just dead weight) ─────── */
+.layout-a .output-header {
+  display: none;
+}
+
+/* ── Performance mode: larger, fully-visible output text ───────────────── */
+.layout-a #output-container {
+  font-size: 22px;
+  line-height: 1.7;
+  max-height: none;
+  padding: 20px 24px;
+}
+
+/* ── Performance mode: hide tag badges (metadata, not needed live) ─────── */
+.layout-a #tag-badges-container {
+  display: none;
+}
+
+/* ── Performance mode: hide D-pad keyboard tutorial hint ───────────────── */
+.layout-a .keyboard-hint {
+  display: none;
+}
+
+/* ── Performance mode: larger primary action buttons ───────────────────── */
+.layout-a .primary-btn {
+  height: 80px;
+  font-size: 22px;
+}
+
+/* ── Performance-mode Template Gen shortcut — hidden in Studio (Template Gen
+      is already in the AI Studio Tools panel there) ─────────────────────── */
+#perf-template-gen-btn {
+  display: none;
+}
+.layout-a #perf-template-gen-btn {
+  display: flex;
+}
+
+@media (min-width: 900px) {
+
+  /* ── Grid container ── */
+  .layout-a.synthograsizer-small {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    column-gap: 36px;
+    align-items: start;
+  }
+
+  /* Full-width: header + error banner */
+  .layout-a .app-header,
+  .layout-a #error-message {
+    grid-column: 1 / -1;
+  }
+
+  /* Left column: all content sections */
+  .layout-a .output-section,
+  .layout-a .primary-actions-section,
+  .layout-a #p5-live-section,
+  .layout-a .actions-section {
+    grid-column: 1;
+    min-width: 0; /* prevent content from blowing out the 1fr column */
+  }
+
+  /* Tighter bottom margins in two-col — less vertical breathing room needed */
+  .layout-a .output-section          { margin-bottom: 20px; }
+  .layout-a .primary-actions-section { margin-bottom: 20px; }
+
+  /* Keep Recent list compact so the left column doesn't balloon */
+  .layout-a .output-history-strip {
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .layout-a .output-history-list {
+    max-height: 148px;
+    overflow-y: auto;
+  }
+
+  .layout-a .output-history-entry {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .layout-a .output-history-entry-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+  }
+
+  /* Right column: D-Pad + connections — sticky so it stays in view while
+     the user scrolls through the left column */
+  .layout-a .variable-control-section {
+    grid-column: 2;
+    grid-row: 2 / span 20;  /* span enough rows to cover the left column */
+    position: sticky;
+    top: 20px;
+    align-self: start;
+    margin-bottom: 0;
+  }
+
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════
+   STUDIO MODE (default) — Two-Column condensed layout
+   Left (~1fr): Output + Actions + AI Tools
+   Right (400px): D-Pad / Knobs + collapsible Connections (sticky)
+   Title is hidden — redundant with site nav
+══════════════════════════════════════════════════════════════════════════ */
+
+/* Hide page title — redundant with site nav */
+.synthograsizer-small:not(.layout-a) .app-header {
+  display: none;
+}
+
+@media (min-width: 900px) {
+
+  .synthograsizer-small:not(.layout-a) {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    column-gap: 36px;
+    align-items: start;
+  }
+
+  .synthograsizer-small:not(.layout-a) #error-message {
+    grid-column: 1 / -1;
+  }
+
+  .synthograsizer-small:not(.layout-a) .output-section,
+  .synthograsizer-small:not(.layout-a) .primary-actions-section,
+  .synthograsizer-small:not(.layout-a) #p5-live-section,
+  .synthograsizer-small:not(.layout-a) .actions-section,
+  .synthograsizer-small:not(.layout-a) .studio-controls-section {
+    grid-column: 1;
+    min-width: 0;
+  }
+
+  .synthograsizer-small:not(.layout-a) .output-section          { margin-bottom: 20px; }
+  .synthograsizer-small:not(.layout-a) .primary-actions-section { margin-bottom: 20px; }
+
+  .synthograsizer-small:not(.layout-a) .variable-control-section {
+    grid-column: 2;
+    grid-row: 1 / span 20;
+    position: sticky;
+    top: 20px;
+    align-self: start;
+    margin-bottom: 0;
+  }
+
+}
+
+
+/* ── Shared tweak for Two-Column layout ──────────────────────────────── */
+
+.layout-a .variable-control-section {
+  margin-bottom: 24px;
+}
+
+
+/* ── Knobs grid (Two Column) ─────────────────────────────────────────── */
+/*
+   Scoped to .knob-mode so the rule only fires when JS is actually showing
+   the knobs container.  Without this scope, display:grid !important would
+   override the display:none that setControlMode() sets for D-Pad mode.
+*/
+@media (min-width: 900px) {
+  .layout-a .variable-control-section.knob-mode .knobs-container {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+    gap: 12px;
+    overflow-x: visible;
+    overflow-y: visible;
+    padding: 16px 8px;
+    scrollbar-width: auto;
+  }
+
+  /* Items no longer need to resist shrinking — the grid handles sizing */
+  .layout-a .variable-control-section.knob-mode .knob-item {
+    flex-shrink: unset;
+    min-width: unset;
+    width: 100%;
+  }
+}
+
+/* ── Template Picker Modal (Hardware Theme Overrides) ────────────────── */
+
+.template-picker-categories {
+  display: flex;
+  gap: 8px;
+  padding: 0 20px 12px 20px;
+  border-bottom: 1px solid var(--hw-recessed, #c4bcac);
+  margin-bottom: 20px;
+}
+
+.category-pill {
+  padding: 4px 12px;
+  border-radius: 16px;
+  border: 1px solid var(--hw-recessed, #c4bcac);
+  background: transparent;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  color: var(--hw-text-dim, #8a7e6e);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+}
+
+.category-pill:hover {
+  background: var(--hw-surface, #ede6d8);
+  color: var(--hw-text, #2e2418);
+}
+
+.category-pill.active {
+  background: var(--hw-text, #2e2418);
+  color: var(--hw-panel, #e4dccf);
+  border-color: var(--hw-text, #2e2418);
+}
+
+.template-picker-modal .template-card {
+  background: var(--hw-surface, #ede6d8);
+  border: 1px solid var(--hw-border, #c0b8a8);
+  box-shadow: none;
+  border-radius: 4px;
+}
+
+.template-picker-modal .template-card:hover {
+  background: var(--hw-panel, #e4dccf);
+  border-color: var(--hw-text, #2e2418);
+  box-shadow: 2px 2px 0 var(--hw-text, #2e2418);
+  transform: translate(-1px, -1px);
+}
+
+.template-picker-modal .template-card.active-template {
+  background: var(--hw-panel, #e4dccf);
+  border-color: var(--hw-text, #2e2418);
+  border-width: 2px;
+  box-shadow: 3px 3px 0 var(--hw-text, #2e2418);
+  padding: 11px 5px; /* offset for thicker border */
+}
+
+.template-card-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  margin-top: 4px;
+}
+
+.template-card-category {
+  font-size: 9px;
+  font-family: 'Share Tech Mono', monospace;
+  color: var(--hw-text-dim, #8a7e6e);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
