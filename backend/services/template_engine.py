@@ -481,6 +481,163 @@ Each entry in "values" is: {"text": "the value string", "weight": N}
     except Exception as e:
         raise Exception(f"Template remix failed: {e}")
 
+def edit_p5_sketch(self, p5_code: str, instruction: str, variables: list = None,
+                   reference_images: list = None, model_override: str = None) -> str:
+    """
+    Surgically edit a p5.js sketch in place.
+
+    Unlike remix_template, which regenerates the entire template (promptTemplate +
+    variables + p5Code) — and pays Pro-model latency for emitting the full JSON —
+    this method ONLY touches the sketch code. The variables list is passed in as
+    read-only context so the model can reference existing names correctly, but it
+    cannot modify them. Output is raw JavaScript (no JSON envelope).
+
+    Use case: AV / live-performance editing where the user wants "change the
+    palette to greens", "make the particles cluster more", "add easing" — none of
+    which require regenerating the prompt template or knob set.
+
+    Args:
+      p5_code: the current sketch source (instance-mode p5.js 1.9.4)
+      instruction: natural-language edit request
+      variables: optional list of {name, values:[{text,...}, ...]} for read-only
+                 context. Lets the model honour existing lookup-map keys.
+      reference_images: optional list of image bytes (palette / style cues)
+      model_override: 'gemini-2.5-pro' / 'gemini-2.5-flash' / etc.
+
+    Returns:
+      Raw JavaScript source (no markdown fences, no JSON wrapping).
+      If the instruction can't be satisfied by sketch-only changes, the model is
+      told to prepend `// REQUIRES_FULL_REMIX: <reason>` and return the unchanged
+      sketch — the caller can detect this and re-route to full remix.
+    """
+    if not self.genai_client:
+        raise ValueError("API Key not configured")
+    if not p5_code or not p5_code.strip():
+        raise ValueError("edit_p5_sketch requires a non-empty p5_code.")
+    if not instruction or not instruction.strip():
+        raise ValueError("edit_p5_sketch requires an instruction.")
+
+    model = model_override or config.MODEL_TEMPLATE_GEN
+
+    system_prompt = """You are a p5.js sketch editor for the Synthograsizer Performance Suite.
+
+You receive a p5.js sketch (INSTANCE MODE, p5.js 1.9.4) and an edit instruction.
+
+## OUTPUT FORMAT
+Respond with the modified sketch as RAW JavaScript only:
+- NO JSON wrapper
+- NO markdown fences (no ```js, no ```)
+- NO explanatory prose before or after
+- The first character of your response is the first character of the sketch
+
+## TASK
+Apply the user's instruction precisely. Modify ONLY what the instruction asks for.
+Preserve everything else verbatim — including:
+- INSTANCE MODE structure (p.setup, p.draw, p.createCanvas, p.fill, etc.)
+- Existing const lookup maps at the top of the sketch
+- Function signatures and helper definitions
+- Comments not touched by the instruction
+- Indentation and overall style
+
+## P5.JS RULES
+- INSTANCE MODE: every p5 call goes through the `p` parameter (p.setup, p.draw, …)
+- p5.js 1.9.4 features only — no WebGL libraries, no external imports
+- Sketch must remain COMPLETE and SELF-CONTAINED — no TODOs, no "// add more"
+
+## LOOKUP-MAP CONVENTION
+Knob-driven parameters are declared as const lookup objects at the TOP of the sketch:
+
+  const PALETTE_MAP = {
+    "warm sunset":   ['#ff6b35', '#fbbf24'],
+    "cool dawn":     ['#3dbdad', '#6366f1'],
+  };
+  function getPalette(v) { return PALETTE_MAP[v] || PALETTE_MAP[Object.keys(PALETTE_MAP)[0]]; }
+
+The map key IS the variable's value text. When the instruction asks to add a
+visual mode / palette / behaviour, add a matching entry to the relevant lookup
+map. Do NOT invent new variable names — only the variables passed in CONTEXT
+exist outside the sketch.
+
+## SCOPE GUARD
+If the instruction can ONLY be satisfied by changing the variable set or the
+prompt template (e.g. "add a flow_speed variable", "rename the palette variable",
+"change the prompt to mention X"), do not attempt the edit. Instead return the
+ORIGINAL sketch unchanged, with a single comment prepended at the very top:
+
+  // REQUIRES_FULL_REMIX: <one-sentence reason>
+
+The caller will route to full remix mode. Do not partially apply such edits.
+
+## REFERENCE IMAGES
+If reference images are attached, the user's instruction explains how to use
+them (palette extraction, motion cue, composition reference). Apply the cue to
+the sketch only — do not describe the image.
+"""
+
+    # Build the context block — read-only variables list, if provided.
+    ctx_parts = []
+    if variables:
+        # Slim representation: name + first 6 value texts
+        slim = []
+        for v in variables[:12]:
+            name = v.get('name') if isinstance(v, dict) else None
+            vals = v.get('values') if isinstance(v, dict) else None
+            if not name or not isinstance(vals, list):
+                continue
+            value_texts = []
+            for entry in vals[:6]:
+                if isinstance(entry, dict) and entry.get('text'):
+                    value_texts.append(entry['text'])
+                elif isinstance(entry, str):
+                    value_texts.append(entry)
+            slim.append({'name': name, 'values': value_texts})
+        if slim:
+            ctx_parts.append("VARIABLES IN SCOPE (read-only — do not modify, but you may reference these names in lookup maps):")
+            ctx_parts.append(json.dumps(slim, indent=2))
+    ctx_block = "\n".join(ctx_parts) if ctx_parts else "(no variable context provided)"
+
+    user_msg = (
+        f"CURRENT SKETCH:\n```\n{p5_code}\n```\n\n"
+        f"{ctx_block}\n\n"
+        f"INSTRUCTION:\n{instruction}"
+    )
+
+    try:
+        # Plain-text response — no JSON mime type, no schema overhead
+        gen_config = types.GenerateContentConfig()
+        contents = [system_prompt, user_msg]
+
+        if reference_images:
+            image_notes = []
+            for i, img_bytes in enumerate(reference_images):
+                mime = "image/png" if img_bytes[:4] == b"\x89PNG" else "image/jpeg"
+                contents.insert(-1, types.Part.from_bytes(data=img_bytes, mime_type=mime))
+                image_notes.append(f"Image {i+1}")
+            contents.append(
+                f"REFERENCE IMAGES: {len(reference_images)} attached ({', '.join(image_notes)}). "
+                "Apply as the instruction directs."
+            )
+
+        response = self.genai_client.models.generate_content(
+            model=model,
+            contents=contents,
+            config=gen_config
+        )
+        raw = response.text or ""
+        # Strip accidental markdown fences if the model emits them despite the rule
+        text = raw.strip()
+        if text.startswith("```"):
+            # Drop the opening fence line and a closing fence if present
+            lines = text.splitlines()
+            if lines and lines[0].startswith("```"):
+                lines = lines[1:]
+            if lines and lines[-1].strip().startswith("```"):
+                lines = lines[:-1]
+            text = "\n".join(lines)
+        return text
+    except Exception as e:
+        raise Exception(f"p5.js sketch edit failed: {e}")
+
 def generate_story_template(self, user_prompt: str, model_override: str = None) -> str:
     """
     Story Template Generator — Bespoke-Beat Storyboard Mode.

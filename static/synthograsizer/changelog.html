@@ -322,6 +322,13 @@
           <li class="entry-item">
             <span class="entry-badge badge-feat">feat</span>
             <div>
+              <div class="entry-text">Sketch-only Remix path — surgical p5.js edits without regenerating the whole template</div>
+              <div class="entry-sub">New <code>mode: "p5_edit"</code> endpoint takes the loaded sketch + an instruction and returns RAW JavaScript (no JSON envelope, no schema overhead). The frontend merges the result back, leaving <code>promptTemplate</code> and <code>variables</code> untouched. Surfaced as an inline "Edit scope" toggle in the Remix panel — appears only when the loaded template has a p5.js sketch, defaults to "Sketch only" (the common AV case). Should dramatically reduce timeouts on Pro for visual edits since the model no longer has to re-emit the entire template every time. Includes a <code>REQUIRES_FULL_REMIX</code> escape hatch: if the model decides the edit needs variable / prompt changes it prepends a comment and the frontend prompts the user to switch scope.</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
               <div class="entry-text">Active-profile pill in the Synthograsizer app bar — visible status + one-click profile switcher</div>
               <div class="entry-sub">Persistent indicator showing which Taste Profile is currently active (with a green / cherry status dot). Clicking it opens a small menu listing all saved profiles, with switch / clear / "Manage on Taste Profile" actions. Subscribes to <code>TasteProfileStore</code> changes so it stays in sync if the active profile is updated in another tab. Hidden in Composer mode (where the Taste-Profile shortcut already gets hidden). Styled for both Hardware and Cel-Pastel themes.</div>
             </div>

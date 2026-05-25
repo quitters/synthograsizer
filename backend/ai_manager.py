@@ -179,6 +179,7 @@ class AIManager:
     generate_template_hybrid = backend.services.template_engine.generate_template_hybrid
     generate_template_from_images = backend.services.template_engine.generate_template_from_images
     remix_template = backend.services.template_engine.remix_template
+    edit_p5_sketch = backend.services.template_engine.edit_p5_sketch
     generate_story_template = backend.services.template_engine.generate_story_template
     generate_story_beat = backend.services.template_engine.generate_story_beat
     generate_p5_template = backend.services.template_engine.generate_p5_template

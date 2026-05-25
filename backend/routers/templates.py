@@ -92,16 +92,52 @@ async def generate_template(request: TemplateRequest):
                 raise ValueError("Remix mode requires a current template.")
             if not request.prompt.strip():
                 raise ValueError("Remix mode requires instructions.")
-            
+
             # Decode optional reference images for multimodal context
             ref_images = None
             if request.images:
                 ref_images = [decode_base64_image(img) for img in request.images[:8]]
-                
+
             json_str = await asyncio.wait_for(
                 asyncio.to_thread(ai_manager.remix_template, request.current_template, request.prompt, reference_images=ref_images, model_override=model_override),
                 timeout=timeout
             )
+
+        elif mode == "p5_edit":
+            # Sketch-only edit: returns raw JS, NOT a full template JSON. The
+            # caller merges the result back into the loaded template, leaving
+            # promptTemplate and variables untouched. Faster than full remix
+            # because the model only emits the (typically much smaller) sketch
+            # delta and no JSON envelope.
+            tpl = request.current_template or {}
+            existing_code = (tpl.get("p5Code") or "").strip()
+            if not existing_code:
+                raise ValueError("p5_edit mode requires a current_template with a non-empty p5Code.")
+            if not request.prompt.strip():
+                raise ValueError("p5_edit mode requires instructions.")
+            ref_images = None
+            if request.images:
+                ref_images = [decode_base64_image(img) for img in request.images[:8]]
+            variables = tpl.get("variables") if isinstance(tpl.get("variables"), list) else None
+            new_code = await asyncio.wait_for(
+                asyncio.to_thread(
+                    ai_manager.edit_p5_sketch,
+                    existing_code,
+                    request.prompt,
+                    variables=variables,
+                    reference_images=ref_images,
+                    model_override=model_override,
+                ),
+                timeout=timeout,
+            )
+            # Detect the scope-guard escape hatch
+            requires_full_remix = new_code.lstrip().startswith("// REQUIRES_FULL_REMIX")
+            return {
+                "status": "success",
+                "mode": "p5_edit",
+                "p5_code": new_code,
+                "requires_full_remix": requires_full_remix,
+            }
 
         elif mode == "story":
             # Text prompt → Story template with acts, characters, progressions

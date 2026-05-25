@@ -1275,6 +1275,24 @@ class StudioIntegration {
                     <strong>Remix Mode:</strong> Modify the currently loaded template using natural language. Add variables, change values, restructure the prompt — existing elements are preserved unless you say otherwise. Optionally attach reference images for visual context.
                 </div>
                 <div id="tg-remix-current" class="tg-current-template">No template loaded</div>
+                <!-- Scope toggle: only shown when the loaded template has a p5.js sketch.
+                     "Sketch only" routes to the much faster /api/generate/template
+                     mode=p5_edit endpoint that returns just the modified JS, not the
+                     full template JSON. Full Remix is needed when changing variables
+                     or prompt text. -->
+                <div id="tg-remix-scope" class="studio-input-group" style="display:none; padding:8px 12px; background:rgba(0,150,136,0.06); border-radius:6px; border:1px solid rgba(0,150,136,0.15); margin-bottom:10px;">
+                    <label style="font-size:12px; font-weight:600; color:#555; margin-bottom:4px; display:block;">
+                        Edit scope <span style="color:#999; font-weight:normal; font-size:11px;">(p5.js template loaded)</span>
+                    </label>
+                    <label style="display:inline-flex; align-items:center; gap:4px; font-size:12px; cursor:pointer; margin-right:14px;">
+                        <input type="radio" name="tg-remix-scope" value="p5_only" checked style="accent-color:#009688;">
+                        Sketch only <span style="color:#999;">(faster — touches p5.js code only)</span>
+                    </label>
+                    <label style="display:inline-flex; align-items:center; gap:4px; font-size:12px; cursor:pointer;">
+                        <input type="radio" name="tg-remix-scope" value="full" style="accent-color:#FF9800;">
+                        Full template <span style="color:#999;">(variables + prompt + sketch)</span>
+                    </label>
+                </div>
                 <div class="studio-input-group">
                     <label>Remix Instructions</label>
                     <textarea id="tg-remix-instruction" placeholder="e.g. Add a 'time_of_day' variable with morning, noon, and night options" style="width:100%; height:80px; padding:8px; border:1px solid #ddd; border-radius:6px; resize:vertical; font-family:'Inter'"></textarea>
@@ -2321,16 +2339,22 @@ class StudioIntegration {
                 };
                 if (genBtn) genBtn.textContent = labels[mode] || 'Generate & Import Template';
 
-                // Remix: show current template info
+                // Remix: show current template info + scope toggle if p5-enabled
                 if (mode === 'remix') {
                     const info = document.getElementById('tg-remix-current');
+                    const scope = document.getElementById('tg-remix-scope');
                     if (info && this.app && this.app.currentTemplate) {
                         const t = this.app.currentTemplate;
                         const varNames = (t.variables || []).map(v => v.feature_name || v.name).join(', ');
                         const preview = (t.promptTemplate || '').substring(0, 80);
                         info.innerHTML = `<strong>Current:</strong> ${preview}${preview.length >= 80 ? '...' : ''}<br><small>Variables: ${varNames || 'none'}</small>`;
+                        // Show scope toggle only when the loaded template has a p5.js sketch.
+                        // Default to "sketch only" (fastest path; what AV users want most of the time).
+                        const hasP5 = !!(t.p5Code && t.p5Code.trim());
+                        if (scope) scope.style.display = hasP5 ? 'block' : 'none';
                     } else if (info) {
                         info.innerHTML = '⚠️ No template loaded. Load a template first, then come back to remix it.';
+                        if (scope) scope.style.display = 'none';
                     }
                 }
 
@@ -4950,7 +4974,17 @@ class StudioIntegration {
                 if (!this.app?.currentTemplate) { this.showToast("No template loaded to remix. Please load a template first.", 'warning'); return; }
                 body.prompt = instruction;
                 body.current_template = this.app.currentTemplate;
-                
+
+                // Sketch-only scope: route to p5_edit endpoint instead of full remix.
+                // Returns raw JS that's merged client-side into the loaded template,
+                // leaving variables + promptTemplate untouched. Much faster (no JSON
+                // envelope, much smaller output).
+                const scope = document.querySelector('input[name="tg-remix-scope"]:checked')?.value || 'full';
+                const hasP5 = !!(this.app.currentTemplate.p5Code && this.app.currentTemplate.p5Code.trim());
+                if (scope === 'p5_only' && hasP5) {
+                    body.mode = 'p5_edit';
+                }
+
                 // Attach optional reference images (up to 8)
                 const remixFiles = document.getElementById('tg-remix-images')?.files || [];
                 if (remixFiles.length > 0) {
@@ -4959,7 +4993,7 @@ class StudioIntegration {
                         body.images.push(await this.readFileAsBase64(remixFiles[i]));
                     }
                 }
-                
+
                 // Capture parent info for remix lineage tagging (used after template loads)
                 this._remixParentInfo = {
                     fingerprint: window.__computeTemplateFingerprint?.(this.app.currentTemplate) || null,
@@ -5054,7 +5088,10 @@ class StudioIntegration {
                 'multi-image': 150000, 'remix': 150000,
                 // p5 / story / workflow: Pro model writes a complete self-contained sketch
                 // or story template — needs up to 5 minutes for large outputs.
-                'story': 180000, 'workflow': 180000, 'p5': 300000
+                'story': 180000, 'workflow': 180000, 'p5': 300000,
+                // p5_edit: sketch-only edit, much smaller output than full remix or p5 gen.
+                // Faster on average but allow some headroom for Pro on complex sketches.
+                'p5_edit': 180000
             };
             const timeoutMs = timeoutTable[resolvedMode] || 120000;
             const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
@@ -5080,6 +5117,37 @@ class StudioIntegration {
             const data = await res.json();
             const content = document.getElementById('studio-content');
             const closeBtn = document.getElementById('close-studio-result');
+
+            // Handle p5_edit Mode — merge returned JS into the current template.
+            // The backend returns { mode: 'p5_edit', p5_code: '...', requires_full_remix: bool }
+            // and we leave variables + promptTemplate untouched.
+            if (resolvedMode === 'p5_edit' && data.p5_code !== undefined) {
+                // Escape hatch: model decided the edit needs full remix
+                if (data.requires_full_remix) {
+                    const firstLine = (data.p5_code.split('\n')[0] || '').replace(/^\/\/\s*REQUIRES_FULL_REMIX:\s*/i, '').trim();
+                    this.showToast(
+                        `Sketch-only edit can't satisfy this — try Full template scope. (${firstLine || 'reason unclear'})`,
+                        'warning'
+                    );
+                    this.hideLoading?.();
+                    return;
+                }
+                if (!this.app?.currentTemplate) {
+                    this.showToast('Lost current template during edit — nothing to merge into.', 'error');
+                    return;
+                }
+                // Merge: replace p5Code, keep everything else
+                const merged = { ...this.app.currentTemplate, p5Code: data.p5_code };
+                const ok = this.app.loadTemplate(merged);
+                if (ok) {
+                    this.showToast('p5.js sketch updated.', 'success');
+                } else {
+                    this.showToast('Sketch was edited but reload failed — check console.', 'error');
+                }
+                this.hideLoading?.();
+                this.closeAllModals?.();
+                return;
+            }
 
             // Handle Workflow Mode with preview/batch support
             if (resolvedMode === 'workflow' && data.results) {
