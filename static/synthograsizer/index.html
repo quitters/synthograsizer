@@ -11,13 +11,14 @@
     <link rel="stylesheet" href="css/code-overlay.css?v=2">
     <link rel="stylesheet" href="css/layout-options.css?v=7">
     <link rel="stylesheet" href="css/synth-hardware-theme.css?v=7">
+    <link rel="stylesheet" href="css/cel-pastel-theme.css?v=5">
     <link rel="stylesheet" href="css/storyboard-panel.css?v=3">
     <link rel="stylesheet" href="css/storyboard-panel-hardware-theme.css?v=3">
     <!-- Composer (third mode) — styles scoped via @scope (#composer-mount) so they don't leak into Studio/Perform -->
     <link rel="stylesheet" href="css/composer.css?v=1">
     <link rel="icon" type="image/png" href="assets/favicon.png">
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Quantico:ital,wght@0,400;0,700;1,400;1,700&family=Roboto+Mono:wght@300;400;500;600;700&family=Bungee&family=Share+Tech+Mono&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Quantico:ital,wght@0,400;0,700;1,400;1,700&family=Roboto+Mono:wght@300;400;500;600;700&family=Bungee&family=Share+Tech+Mono&family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
         rel="stylesheet">
     <style>
         /* Navigation styling to match other pages */
@@ -381,11 +382,22 @@
           </div>
           <!-- id="layout-switcher" kept so the existing mode-switching JS can find buttons via querySelectorAll('.layout-btn') -->
           <div class="app-bar-modes layout-switcher" id="layout-switcher">
+            <!-- MODE group: the three primary surface switchers -->
+            <span class="app-bar-section-label" aria-hidden="true">MODE</span>
             <button class="layout-btn" data-layout="default" data-tip="Studio Mode — Full Tools Panel">⊟ Studio</button>
             <button class="layout-btn" data-layout="a" data-tip="Perform Mode — Minimal Layout">▶ Perform</button>
             <button class="layout-btn" data-mode="composer" data-tip="4-room agent composer (Library → Editor → Session → Run)">🧪 Composer</button>
+            <span class="app-bar-section-divider" aria-hidden="true"></span>
+            <!-- LINKS group: outbound destinations -->
             <a href="/taste-profile/" class="app-bar-tpl-btn" style="text-decoration:none" data-tip="Onboarding: synthesize your aesthetic + 4 tuned agents">🎯 Taste Profile</a>
             <a href="changelog.html" class="app-bar-tpl-btn" style="text-decoration:none" data-tip="Change Notes &amp; Release History">📋 What's New</a>
+            <span class="app-bar-section-divider" aria-hidden="true"></span>
+            <!-- THEME group: visual style picker -->
+            <div class="theme-picker" role="group" aria-label="Theme">
+              <span aria-hidden="true">THEME</span>
+              <button type="button" class="theme-picker-btn active" data-theme="hardware" data-tip="Roland Juno / Korg Polysix aesthetic">Hardware</button>
+              <button type="button" class="theme-picker-btn" data-theme="cel-pastel" data-tip="1990s DIC pastels — Madeline / Care Bears">Cel-Pastel</button>
+            </div>
           </div>
         </header>
 
@@ -1495,6 +1507,25 @@
                         setActiveButtons();
                     });
                 }
+            });
+
+            // ── Theme picker (Hardware ↔ Cel-Pastel) ───────────────────
+            // Persisted as `synthograsizerTheme` ∈ {'hardware','cel-pastel'}.
+            // Cel-pastel layers on top of base styles via body.theme-cel-pastel.
+            var themeBtns = document.querySelectorAll('.theme-picker-btn');
+            function applyTheme(theme) {
+                document.body.classList.toggle('theme-cel-pastel', theme === 'cel-pastel');
+                themeBtns.forEach(function (b) {
+                    b.classList.toggle('active', b.dataset.theme === theme);
+                });
+                try { localStorage.setItem('synthograsizerTheme', theme); } catch (e) {}
+            }
+            var savedTheme = 'hardware';
+            try { savedTheme = localStorage.getItem('synthograsizerTheme') || 'hardware'; } catch (e) {}
+            if (savedTheme !== 'cel-pastel' && savedTheme !== 'hardware') savedTheme = 'hardware';
+            applyTheme(savedTheme);
+            themeBtns.forEach(function (btn) {
+                btn.addEventListener('click', function () { applyTheme(btn.dataset.theme); });
             });
         })();
         </script>

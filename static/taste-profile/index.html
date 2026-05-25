@@ -7,7 +7,7 @@
 <script type="module" src="/synthograsizer/js/agent-profiles.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 <style>
   *, *::before, *::after { box-sizing: border-box; }
   :root {
@@ -684,6 +684,412 @@
     .pair { grid-template-columns: 1fr; }
     .profile-grid { grid-template-columns: 1fr; }
   }
+
+  /* ═══════════════════════════════════════════════════════════════════
+     CEL-PASTEL THEME OVERRIDES — toggled via body.theme-cel-pastel.
+     1990s DIC pastels + 2.5px navy-ink outlines + offset sticker shadows.
+     ═══════════════════════════════════════════════════════════════════ */
+  body.theme-cel-pastel {
+    --cp-ink:  #1d2233;
+    --cp-ink2: #3a4055;
+    --cp-ink3: #6c7088;
+    --cp-paper:  #fff5e0;
+    --cp-paper2: #f7e9c8;
+    --cp-paper3: #e9d8a8;
+    --cp-white:  #fffdf6;
+    --cp-bubblegum: #ffb6c8; --cp-bubblegumD: #f08aa6;
+    --cp-peach:     #ffcb9a; --cp-peachD:     #f2a872;
+    --cp-butter:    #ffe79e; --cp-butterD:    #f2cf6a;
+    --cp-mint:      #b8e8c8; --cp-mintD:      #8fd4a8;
+    --cp-sky:       #b6dafd; --cp-skyD:       #8bbcec;
+    --cp-lilac:     #dbb8ec; --cp-lilacD:     #b58dcf;
+    --cp-cherry:    #ef7a7a; --cp-cherryD:    #d44a4a;
+
+    background:
+      radial-gradient(var(--cp-ink3) 1px, transparent 1px) 0 0 / 18px 18px,
+      var(--cp-paper) !important;
+    background-attachment: fixed;
+    color: var(--cp-ink);
+    font-family: 'Nunito', system-ui, sans-serif;
+  }
+  body.theme-cel-pastel::before {
+    content: '';
+    position: fixed; inset: 0;
+    background: radial-gradient(ellipse at center, transparent 55%, var(--cp-paper) 100%);
+    pointer-events: none; z-index: 0;
+  }
+  body.theme-cel-pastel .wrap { position: relative; z-index: 1; }
+
+  body.theme-cel-pastel .brand,
+  body.theme-cel-pastel h1,
+  body.theme-cel-pastel h2,
+  body.theme-cel-pastel h3 {
+    font-family: 'Fredoka', 'Quicksand', system-ui, sans-serif !important;
+    color: var(--cp-ink) !important;
+  }
+  body.theme-cel-pastel h1 {
+    text-shadow: 3px 3px 0 var(--cp-bubblegum);
+  }
+  body.theme-cel-pastel h1 .grad {
+    background: linear-gradient(120deg, var(--cp-cherry), var(--cp-lilac) 60%, var(--cp-peach));
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  body.theme-cel-pastel .lede, body.theme-cel-pastel .sub { color: var(--cp-ink2); }
+  body.theme-cel-pastel .brand-mark {
+    background: linear-gradient(var(--cp-butter) 0 50%, var(--cp-butterD) 50% 100%);
+    border: 2.5px solid var(--cp-ink);
+    border-radius: 6px;
+    box-shadow: 3px 3px 0 0 var(--cp-ink);
+  }
+  body.theme-cel-pastel .badge {
+    background: linear-gradient(var(--cp-peach) 0 50%, var(--cp-peachD) 50% 100%);
+    border: 2px solid var(--cp-ink);
+    color: var(--cp-ink);
+    font-family: 'JetBrains Mono', monospace;
+    box-shadow: 3px 3px 0 0 var(--cp-ink);
+  }
+
+  /* Stepper chips */
+  body.theme-cel-pastel .step-chip {
+    background: var(--cp-white);
+    border: 2px solid var(--cp-ink);
+    color: var(--cp-ink2);
+    box-shadow: 2px 2px 0 0 var(--cp-ink);
+    font-family: 'Fredoka', system-ui, sans-serif;
+    font-weight: 600;
+  }
+  body.theme-cel-pastel .step-chip .num {
+    background: var(--cp-paper);
+    border: 1.5px solid var(--cp-ink);
+    color: var(--cp-ink);
+  }
+  body.theme-cel-pastel .step-chip.active {
+    background: linear-gradient(var(--cp-butter) 0 50%, var(--cp-butterD) 50% 100%);
+    color: var(--cp-ink);
+    box-shadow: 3px 3px 0 0 var(--cp-ink);
+  }
+  body.theme-cel-pastel .step-chip.active .num {
+    background: var(--cp-cherry);
+    color: var(--cp-white);
+    border-color: var(--cp-ink);
+  }
+  body.theme-cel-pastel .step-chip.done {
+    background: linear-gradient(var(--cp-mint) 0 50%, var(--cp-mintD) 50% 100%);
+  }
+  body.theme-cel-pastel .step-chip.done .num {
+    background: var(--cp-ink); color: var(--cp-paper);
+  }
+
+  /* Panels */
+  body.theme-cel-pastel .panel {
+    background: var(--cp-white);
+    border: 2.5px solid var(--cp-ink);
+    border-radius: 18px;
+    box-shadow:
+      4px 5px 0 0 var(--cp-ink),
+      inset 0 2px 0 0 rgba(255,255,255,0.55),
+      inset 0 -3px 0 0 rgba(29,34,51,0.15);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  /* Buttons */
+  body.theme-cel-pastel .btn {
+    background: linear-gradient(var(--cp-sky) 0 50%, var(--cp-skyD) 50% 100%);
+    border: 2.5px solid var(--cp-ink);
+    color: var(--cp-ink);
+    border-radius: 12px;
+    font-family: 'Fredoka', system-ui, sans-serif;
+    font-weight: 600;
+    box-shadow:
+      4px 5px 0 0 var(--cp-ink),
+      inset 0 2px 0 0 rgba(255,255,255,0.55),
+      inset 0 -3px 0 0 rgba(29,34,51,0.18);
+    transition: transform 90ms cubic-bezier(.2,.7,.3,1), box-shadow 90ms;
+  }
+  body.theme-cel-pastel .btn:hover:not(:disabled) {
+    transform: translate(-1px, -2px);
+    box-shadow:
+      5px 7px 0 0 var(--cp-ink),
+      inset 0 2px 0 0 rgba(255,255,255,0.55),
+      inset 0 -3px 0 0 rgba(29,34,51,0.18);
+    background: linear-gradient(var(--cp-sky) 0 50%, var(--cp-skyD) 50% 100%);
+  }
+  body.theme-cel-pastel .btn:active:not(:disabled) {
+    transform: translate(4px, 5px);
+    box-shadow:
+      0 0 0 0 transparent,
+      inset 0 2px 0 0 rgba(29,34,51,0.18),
+      inset 0 -3px 0 0 rgba(255,255,255,0.30);
+  }
+  body.theme-cel-pastel .btn-primary {
+    background: linear-gradient(var(--cp-cherry) 0 50%, var(--cp-cherryD) 50% 100%);
+    color: var(--cp-white);
+  }
+  body.theme-cel-pastel .btn-ghost {
+    background: var(--cp-paper);
+    color: var(--cp-ink2);
+  }
+
+  /* Dropzone */
+  body.theme-cel-pastel .dropzone {
+    background: var(--cp-paper);
+    border: 2.5px dashed var(--cp-ink);
+    border-radius: 14px;
+    color: var(--cp-ink);
+    box-shadow: inset 0 2px 0 0 rgba(29,34,51,0.06);
+  }
+  body.theme-cel-pastel .dropzone:hover,
+  body.theme-cel-pastel .dropzone.drag {
+    border-color: var(--cp-cherry);
+    background: linear-gradient(var(--cp-butter) 0 50%, var(--cp-butterD) 50% 100%);
+  }
+  body.theme-cel-pastel .dropzone .icon { color: var(--cp-ink2); }
+  body.theme-cel-pastel .dropzone strong { color: var(--cp-ink); }
+  body.theme-cel-pastel .dropzone span { color: var(--cp-ink2); }
+
+  /* Thumbs */
+  body.theme-cel-pastel .thumb {
+    border: 2px solid var(--cp-ink);
+    border-radius: 10px;
+    box-shadow: 3px 3px 0 0 var(--cp-ink);
+  }
+  body.theme-cel-pastel .upload-stats {
+    color: var(--cp-ink2);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  body.theme-cel-pastel .upload-stats span strong { color: var(--cp-ink); }
+
+  /* Prompts textarea */
+  body.theme-cel-pastel textarea.prompts {
+    background: var(--cp-white);
+    border: 2px solid var(--cp-ink);
+    border-radius: 10px;
+    color: var(--cp-ink);
+    font-family: 'JetBrains Mono', monospace;
+    box-shadow: inset 0 2px 0 0 rgba(29,34,51,0.08);
+  }
+  body.theme-cel-pastel textarea.prompts:focus {
+    outline: none;
+    box-shadow:
+      0 0 0 3px var(--cp-butter),
+      0 0 0 5px var(--cp-ink),
+      inset 0 2px 0 0 rgba(29,34,51,0.08);
+  }
+  body.theme-cel-pastel details summary { color: var(--cp-ink2); }
+
+  /* Quiz */
+  body.theme-cel-pastel .quiz-progress {
+    background: var(--cp-paper);
+    border: 1.5px solid var(--cp-ink);
+  }
+  body.theme-cel-pastel .quiz-progress .bar {
+    background: linear-gradient(90deg, var(--cp-cherry), var(--cp-lilac));
+  }
+  body.theme-cel-pastel .quiz-question .qnum {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--cp-ink3);
+  }
+  body.theme-cel-pastel .pair-card {
+    border: 2.5px solid var(--cp-ink);
+    box-shadow: 4px 5px 0 0 var(--cp-ink);
+  }
+  body.theme-cel-pastel .pair-card.chosen {
+    border-color: var(--cp-ink);
+    box-shadow:
+      0 0 0 4px var(--cp-butter),
+      4px 5px 0 0 var(--cp-ink);
+  }
+
+  /* Synthesizing */
+  body.theme-cel-pastel .synth-spinner {
+    background: conic-gradient(from 0deg, var(--cp-cherry), var(--cp-lilac), var(--cp-mint), var(--cp-butter), var(--cp-cherry));
+    border: 2.5px solid var(--cp-ink);
+    box-shadow: 4px 5px 0 0 var(--cp-ink);
+  }
+  body.theme-cel-pastel .synth-spinner::after {
+    background: var(--cp-white);
+    border: 2px solid var(--cp-ink);
+  }
+  body.theme-cel-pastel .synth-log {
+    color: var(--cp-ink2);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  body.theme-cel-pastel .synth-log .line .check { color: var(--cp-mintD); }
+  body.theme-cel-pastel .synth-log .line.active .check { color: var(--cp-cherry); }
+
+  /* Theme picker */
+  .tp-theme-picker {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 6px;
+    border: 1px solid var(--border, rgba(255,255,255,0.10));
+    border-radius: 99px;
+    background: var(--surface, rgba(255,255,255,0.04));
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text-dim, #6b7088);
+  }
+  .tp-theme-picker-btn {
+    appearance: none;
+    border: 1.5px solid transparent;
+    background: transparent;
+    font: inherit;
+    color: inherit;
+    padding: 3px 8px;
+    border-radius: 99px;
+    cursor: pointer;
+    text-transform: uppercase;
+  }
+  .tp-theme-picker-btn:hover { color: var(--text, #e6e8f0); }
+  .tp-theme-picker-btn.active {
+    background: rgba(255,255,255,0.10);
+    color: var(--text, #e6e8f0);
+  }
+  body.theme-cel-pastel .tp-theme-picker {
+    background: linear-gradient(var(--cp-peach) 0 50%, var(--cp-peachD) 50% 100%);
+    border: 2.5px solid var(--cp-ink);
+    color: var(--cp-ink);
+    box-shadow: 3px 3px 0 0 var(--cp-ink);
+  }
+  body.theme-cel-pastel .tp-theme-picker-btn { color: var(--cp-ink); font-family: 'Fredoka', system-ui, sans-serif; font-weight: 600; }
+  body.theme-cel-pastel .tp-theme-picker-btn.active {
+    background: var(--cp-white);
+    border-color: var(--cp-ink);
+    box-shadow: inset 0 -2px 0 0 rgba(29,34,51,0.2);
+  }
+
+  /* Topbar — replace dark glass with paper + ink underline */
+  body.theme-cel-pastel .topbar {
+    background: rgba(255, 245, 224, 0.85);
+    border-bottom: 1.5px solid var(--cp-ink);
+  }
+  /* Root background must match so overscroll/edges don't reveal dark */
+  html:has(body.theme-cel-pastel) { background: var(--cp-paper, #fff5e0); }
+
+  /* Dropzone label still uses some default heading colors — Step 1 lede */
+  body.theme-cel-pastel h1 .grad {
+    background: linear-gradient(120deg, var(--cp-cherryD), var(--cp-bubblegumD) 60%, var(--cp-lilacD));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* ─── Step 4: Your Profile ─────────────────────────────────────── */
+  body.theme-cel-pastel .profile-name {
+    background: linear-gradient(120deg, var(--cp-cherryD), var(--cp-lilacD) 60%, var(--cp-skyD));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  body.theme-cel-pastel .profile-tagline { color: var(--cp-ink2); }
+
+  body.theme-cel-pastel .stat-card {
+    background: var(--cp-white);
+    border: 2.5px solid var(--cp-ink);
+    border-radius: 16px;
+    box-shadow:
+      4px 5px 0 0 var(--cp-ink),
+      inset 0 2px 0 0 rgba(255,255,255,0.55),
+      inset 0 -3px 0 0 rgba(29,34,51,0.12);
+    color: var(--cp-ink);
+  }
+  body.theme-cel-pastel .stat-card h3 {
+    color: var(--cp-ink2);
+    font-family: 'Fredoka', system-ui, sans-serif;
+    font-weight: 700;
+  }
+
+  /* Aesthetic axes */
+  body.theme-cel-pastel .axis { color: var(--cp-ink); }
+  body.theme-cel-pastel .axis .axis-left,
+  body.theme-cel-pastel .axis .axis-right { color: var(--cp-ink2); }
+  body.theme-cel-pastel .axis .axis-bar {
+    background: var(--cp-paper2);
+    border: 1.5px solid var(--cp-ink);
+    height: 8px;
+  }
+  body.theme-cel-pastel .axis .axis-bar .marker {
+    width: 18px; height: 18px;
+    background: var(--cp-cherry);
+    border: 2px solid var(--cp-ink);
+    box-shadow: 2px 2px 0 0 var(--cp-ink);
+  }
+
+  /* Palette swatches */
+  body.theme-cel-pastel .swatch {
+    border: 2px solid var(--cp-ink);
+    border-radius: 10px;
+    box-shadow: 2px 2px 0 0 var(--cp-ink);
+  }
+  body.theme-cel-pastel .swatch .hex {
+    color: var(--cp-ink);
+    text-shadow: 0 1px 0 rgba(255,255,255,0.65);
+    font-weight: 600;
+  }
+
+  /* Tag chips (subjects, tendencies, narratives) */
+  body.theme-cel-pastel .tag {
+    background: var(--cp-paper2);
+    border: 2px solid var(--cp-ink);
+    color: var(--cp-ink);
+    font-family: 'Fredoka', system-ui, sans-serif;
+    font-weight: 600;
+    box-shadow: 2px 2px 0 0 var(--cp-ink);
+  }
+  body.theme-cel-pastel .tag.primary   { background: var(--cp-lilac); }
+  body.theme-cel-pastel .tag.secondary { background: var(--cp-bubblegum); }
+  body.theme-cel-pastel .tag.accent    { background: var(--cp-mint); }
+
+  /* Section title ("Your AI crew") */
+  body.theme-cel-pastel .section-title {
+    color: var(--cp-ink);
+    font-family: 'Fredoka', 'Quicksand', system-ui, sans-serif;
+  }
+  body.theme-cel-pastel .section-title::before {
+    background: var(--cp-cherry);
+    box-shadow: 0 0 0 2px var(--cp-ink);
+  }
+
+  /* Agent cards */
+  body.theme-cel-pastel .agent-card {
+    background: var(--cp-white);
+    border: 2.5px solid var(--cp-ink);
+    border-radius: 16px;
+    box-shadow:
+      4px 5px 0 0 var(--cp-ink),
+      inset 0 2px 0 0 rgba(255,255,255,0.55),
+      inset 0 -3px 0 0 rgba(29,34,51,0.12);
+    color: var(--cp-ink);
+  }
+  body.theme-cel-pastel .agent-avatar {
+    border: 2px solid var(--cp-ink);
+    box-shadow: 2px 2px 0 0 var(--cp-ink);
+    color: var(--cp-white);
+  }
+  body.theme-cel-pastel .agent-name { color: var(--cp-ink); font-family: 'Fredoka', sans-serif; }
+  body.theme-cel-pastel .agent-role { color: var(--cp-ink2); }
+  body.theme-cel-pastel .agent-bio  { color: var(--cp-ink2); }
+  body.theme-cel-pastel .agent-quote {
+    background: var(--cp-paper2);
+    border-left: 4px solid var(--cp-cherryD);
+    color: var(--cp-ink);
+    border-top: 1.5px solid var(--cp-ink);
+    border-right: 1.5px solid var(--cp-ink);
+    border-bottom: 1.5px solid var(--cp-ink);
+  }
+
+  /* JSON preview */
+  body.theme-cel-pastel .json-preview {
+    background: var(--cp-paper);
+    border: 2px solid var(--cp-ink);
+    border-radius: 12px;
+    color: var(--cp-ink);
+  }
 </style>
 </head>
 <body>
@@ -694,7 +1100,14 @@
       <span class="brand-mark"></span>
       <span>Synthograsizer</span>
     </div>
-    <div class="badge">Taste Profile</div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div class="tp-theme-picker" role="group" aria-label="Theme">
+        <span>Theme</span>
+        <button type="button" class="tp-theme-picker-btn active" data-theme="dark">Dark</button>
+        <button type="button" class="tp-theme-picker-btn" data-theme="cel-pastel">Cel-Pastel</button>
+      </div>
+      <div class="badge">Taste Profile</div>
+    </div>
   </div>
 
   <div class="stepper" id="stepper">
@@ -808,6 +1221,25 @@
 </div>
 
 <script>
+/* ====================================================================== */
+/* THEME PICKER — Dark (default) ↔ Cel-Pastel. Persisted in localStorage. */
+/* ====================================================================== */
+(function () {
+  var btns = document.querySelectorAll('.tp-theme-picker-btn');
+  function apply(theme) {
+    document.body.classList.toggle('theme-cel-pastel', theme === 'cel-pastel');
+    btns.forEach(function (b) { b.classList.toggle('active', b.dataset.theme === theme); });
+    try { localStorage.setItem('synthograsizerTheme', theme); } catch (e) {}
+  }
+  var saved = 'dark';
+  try { saved = localStorage.getItem('synthograsizerTheme') || 'dark'; } catch (e) {}
+  if (saved !== 'cel-pastel') saved = 'dark';
+  apply(saved);
+  btns.forEach(function (b) {
+    b.addEventListener('click', function () { apply(b.dataset.theme); });
+  });
+})();
+
 /* ====================================================================== */
 /* DATA: Taste pairs                                                       */
 /* ====================================================================== */
