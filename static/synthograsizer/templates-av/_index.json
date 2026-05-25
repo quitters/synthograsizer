@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "description": "AV / Resolume variants of curated Synthograsizer templates. Originals in ../templates/ are never overwritten.",
+  "templates": [
+    {
+      "name": "svg-flow-particles",
+      "title": "Flow Particles (AV)",
+      "kind": "both",
+      "summary": "Particle flow field. Knobs drive in-browser p5 visual AND Resolume layers."
+    },
+    {
+      "name": "synthograsizer-prompt",
+      "title": "Synthograsizer Prompt (AV)",
+      "kind": "ai",
+      "summary": "Short mad-libs prompt. Knobs fill prompt AND trigger Resolume columns."
+    },
+    {
+      "name": "lissajous-lab",
+      "title": "Lissajous Lab (AV)",
+      "kind": "code",
+      "summary": "Lissajous figures. Knobs drive p5 visual + Composition Speed / Crossfader."
+    }
+  ]
+}

@@ -1086,7 +1086,9 @@ export class SynthograsizerSmall {
       // Use 'name' as the Token ID for matching {{placeholders}} in the template
       const varName = variable.name || variable.feature_name;
       const valueIndex = this.currentValues[variable.name];
-      variableMap[varName] = getValueText(variable.values[valueIndex]);
+      const rawText = getValueText(variable.values[valueIndex]);
+      // AV-mode hook: returns rawText by default; av-mode.js may mask code-only vars
+      variableMap[varName] = this._avMaskValueText(variable, rawText);
       colorMap[varName] = this.config.colorPalette[index % this.config.colorPalette.length];
     });
 
@@ -1120,7 +1122,14 @@ export class SynthograsizerSmall {
     if (this.displayBroadcaster) {
       this.displayBroadcaster.sendVarsUpdate(this.displayBroadcaster._buildVars());
     }
+
+    // AV-mode hook: no-op by default; av-mode.js fires per-variable OSC mappings
+    this._avEmitOsc();
   }
+
+  // ── AV-mode extension hooks (patched by av-mode.js when window.SYNTH_AV_MODE) ──
+  _avMaskValueText(variable, valueText) { return valueText; }
+  _avEmitOsc() { /* no-op */ }
 
   /**
    * Render small tag pill badges below the output area.

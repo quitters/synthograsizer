@@ -1,0 +1,270 @@
+/* ──────────────────────────────────────────────────────────────────
+ * AV Mode styles — source-tag badges, group headers, inspector drawer
+ * ────────────────────────────────────────────────────────────────── */
+
+/* ── Source tag badges on knobs ─────────────────────────────────── */
+
+body.av-mode .knob-item {
+  position: relative;
+  overflow: visible;
+}
+
+body.av-mode .av-source-badge {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  font: 700 8px/1 'Roboto Mono', 'Share Tech Mono', monospace;
+  letter-spacing: 0.08em;
+  padding: 2px 4px;
+  border-radius: 2px;
+  background: rgba(15, 12, 8, 0.85);
+  color: #f0ebe0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+body.av-mode .av-source-badge.src-code {
+  background: #1a8cff;
+  color: #0a1424;
+}
+
+body.av-mode .av-source-badge.src-ai {
+  background: #d4a017;
+  color: #1a1208;
+}
+
+body.av-mode .av-source-badge.src-both {
+  background: linear-gradient(135deg, #1a8cff 0%, #d4a017 100%);
+  color: #fff;
+}
+
+body.av-mode .av-osc-dot {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #444;
+  border: 1px solid #222;
+  pointer-events: none;
+  z-index: 2;
+}
+
+body.av-mode .av-osc-dot.bound {
+  background: #00d9c0;
+  box-shadow: 0 0 6px rgba(0, 217, 192, 0.6);
+}
+
+/* Group headers between knobs */
+
+body.av-mode .av-group-header {
+  flex-basis: 100%;
+  width: 100%;
+  text-align: left;
+  font: 600 10px/1.2 'Roboto Mono', 'Share Tech Mono', monospace;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #1a8cff;
+  margin: 12px 0 4px;
+  padding: 4px 8px;
+  border-left: 3px solid #1a8cff;
+  background: rgba(26, 140, 255, 0.06);
+}
+
+/* ── Inspector drawer ───────────────────────────────────────────── */
+
+.av-inspector {
+  position: fixed;
+  top: 28px;            /* below the banner */
+  right: 0;
+  bottom: 0;
+  width: 320px;
+  background: #1a1612;
+  color: #e8e2d4;
+  font: 400 12px/1.4 'Roboto Mono', 'Share Tech Mono', monospace;
+  border-left: 1px solid #2a221a;
+  box-shadow: -4px 0 16px rgba(0, 0, 0, 0.3);
+  z-index: 9000;
+  overflow-y: auto;
+  transform: translateX(0);
+  transition: transform 0.2s ease;
+}
+
+.av-inspector.collapsed {
+  transform: translateX(100%);
+}
+
+.av-inspector-handle {
+  position: fixed;
+  top: 80px;
+  right: 0;
+  z-index: 9001;
+  background: #1a8cff;
+  color: #0a1424;
+  font: 700 10px/1 'Roboto Mono', monospace;
+  letter-spacing: 0.12em;
+  padding: 8px 6px;
+  border: none;
+  border-radius: 4px 0 0 4px;
+  cursor: pointer;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  display: none;
+}
+
+.av-inspector.collapsed ~ .av-inspector-handle {
+  display: block;
+}
+
+.av-inspector-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  background: #0f0c08;
+  border-bottom: 1px solid #2a221a;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.av-inspector-title {
+  font: 700 11px/1 'Roboto Mono', monospace;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #1a8cff;
+}
+
+.av-inspector-section {
+  padding: 12px;
+  border-bottom: 1px solid #2a221a;
+}
+
+.av-section-label {
+  font: 700 10px/1 'Roboto Mono', monospace;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #8a7e6a;
+  margin-bottom: 8px;
+}
+
+.av-section-sub {
+  margin-top: 12px;
+  border-top: 1px dashed #2a221a;
+  padding-top: 10px;
+}
+
+.av-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.av-row label {
+  flex: 0 0 70px;
+  font-size: 10px;
+  color: #b8af9c;
+  letter-spacing: 0.04em;
+}
+
+.av-row input[type="text"],
+.av-row input[type="number"],
+.av-row select {
+  flex: 1;
+  background: #0a0805;
+  color: #e8e2d4;
+  border: 1px solid #2a221a;
+  border-radius: 2px;
+  padding: 4px 6px;
+  font: 400 11px/1.2 'Roboto Mono', monospace;
+  min-width: 0;
+}
+
+.av-row input[type="color"] {
+  width: 28px;
+  height: 24px;
+  padding: 0;
+  border: 1px solid #2a221a;
+  background: #0a0805;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.av-row input[type="checkbox"] {
+  accent-color: #1a8cff;
+}
+
+.av-row-range {
+  gap: 4px;
+}
+
+.av-row-range input[type="number"] {
+  width: 60px;
+  flex: 0 0 60px;
+}
+
+.av-range-sep {
+  color: #8a7e6a;
+  font-size: 11px;
+}
+
+.av-row-status {
+  color: #00d9c0;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+}
+
+.av-inspector-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.av-btn-mini {
+  background: #2a221a;
+  color: #e8e2d4;
+  border: 1px solid #3a3024;
+  border-radius: 2px;
+  padding: 4px 8px;
+  font: 600 10px/1 'Roboto Mono', monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.1s ease;
+}
+
+.av-btn-mini:hover {
+  background: #3a3024;
+}
+
+.av-btn-icon {
+  background: transparent;
+  color: #8a7e6a;
+  border: none;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 4px;
+}
+
+.av-btn-icon:hover {
+  color: #e8e2d4;
+}
+
+/* Make room for the drawer when it's open */
+body.av-mode {
+  /* drawer is fixed; main content fills full width — drawer overlays */
+}
+
+/* Hint that knobs are right-clickable / shift-clickable for inspector */
+body.av-mode .knob-item {
+  cursor: pointer;
+}
+
+body.av-mode .knob-item:hover .av-osc-dot {
+  transform: scale(1.3);
+  transition: transform 0.1s ease;
+}
