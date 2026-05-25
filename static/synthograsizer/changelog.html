@@ -286,9 +286,140 @@
       <div class="version-header">
         <span class="version-tag">NEXT</span>
         <span class="version-label unreleased">Unreleased</span>
-        <span class="version-date">In Progress — 2026-05-13</span>
+        <span class="version-date">In Progress — 2026-05-25</span>
       </div>
       <div class="version-panel">
+        <div class="panel-section-label">Cel-Pastel Theme — Optional Visual Mode</div>
+        <ul class="entry-list">
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">Second theme: 1990s DIC-animation pastels (Madeline / Care Bears) with 2.5px navy-ink outlines and offset sticker shadows</div>
+              <div class="entry-sub">Layered on top of the Hardware theme via <code>body.theme-cel-pastel</code> — Hardware remains the default and is unaffected when the picker is set to Hardware</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">Theme picker in the Synthograsizer app bar (Hardware ↔ Cel-Pastel) and on the Taste-Profile topbar (Dark ↔ Cel-Pastel)</div>
+              <div class="entry-sub">Persists to <code>localStorage['synthograsizerTheme']</code>; each page gracefully normalizes the other's vocabulary ('dark' ↔ 'hardware') so navigation stays consistent</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">Cel-Pastel overrides for Studio, Perform, and Composer modes — including the Composer "needs more room" mobile fallback</div>
+              <div class="entry-sub">Covers the full Taste-Profile surface (steps 1–4): dropzone, pair cards, synth spinner, stat cards, aesthetic axes, palette swatches, tag chips, agent cards, JSON preview</div>
+            </div>
+          </li>
+        </ul>
+        <div class="panel-section-label">AV / Resolume Control-Surface Mode</div>
+        <ul class="entry-list">
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">New <code>/synthograsizer/av.html</code> performance surface — knob grid wired for OSC dispatch to Resolume (or any OSC-aware receiver)</div>
+              <div class="entry-sub">Standard Synthograsizer page is unaffected at runtime; the AV hooks in <code>app.js</code> stay no-op unless <code>window.SYNTH_AV_MODE</code> is set (only by av.html)</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">Per-variable source-tag mapping — CODE / AI / BOTH</div>
+              <div class="entry-sub">A variable set to <code>source: 'code'</code> drives OSC only and is masked from the LLM prompt; set to <code>'ai'</code> fills the prompt without firing OSC; <code>'both'</code> does both</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">Throttled OSC dispatch (~30 fps) with per-variable diff suppression and per-knob curve / range / send-type config</div>
+              <div class="entry-sub">Send types: <code>float</code>, <code>int</code>, <code>trigger</code>. Curves: linear, exponential, logarithmic, custom. Sends only fire when the normalized value actually changes</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">AV Inspector drawer — live-edit OSC mappings, set host/port, save/load profiles</div>
+              <div class="entry-sub">Profiles persist via the new <code>AVProfileStore</code>; override edits apply to the running surface immediately without reload</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">Per-template AV variants under <code>templates-av/</code> with automatic fallback to <code>templates/</code></div>
+              <div class="entry-sub">Same template can have a performance-tuned variant (smaller knob set, OSC-wired) without forking the LLM template. Ships with AV variants for <code>svg-flow-particles</code>, <code>lissajous-lab</code>, <code>synthograsizer-prompt</code></div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">Resolume preset helpers — clip launch, layer opacity, blend-mode address builders</div>
+              <div class="entry-sub">Pre-built OSC address templates targeting Resolume's standard composition routing</div>
+            </div>
+          </li>
+        </ul>
+        <div class="panel-section-label">Taste Profile — Onboarding Polish</div>
+        <ul class="entry-list">
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">"Both / Neither" skip button on every taste-pair axis</div>
+              <div class="entry-sub">Lets the artist leave an axis unconstrained instead of forcing a false choice; the marker biases to 0.5 (range 0.4–0.6) in <code>buildProfile()</code> and the backend prompt was hardened to honor neutral answers</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">PNG metadata extraction on upload — auto-fills the prompt-history field</div>
+              <div class="entry-sub">Reads <code>tEXt</code>, <code>iTXt</code>, and <code>zTXt</code> chunks. Knows the formats used by AUTOMATIC1111 (<code>parameters</code>), ComfyUI (<code>workflow</code> / <code>prompt</code>), NovelAI (<code>Description</code>), and generic <code>Comment</code></div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">GIF first-frame extraction for animated uploads</div>
+              <div class="entry-sub">Frame is rendered onto a canvas and resized like any still image; lets you train on a GIF without uploading the full animation</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">Thumbnail remove button — hover-reveal × on each upload preview</div>
+              <div class="entry-sub">Clean up mistakes without restarting the upload step</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">Hardened agent-synthesis prompt with explicit schema block + pre-emit validation checklist</div>
+              <div class="entry-sub">Every agent now reliably ships <code>bioTemplate</code> + <code>variables</code> + <code>anchors</code>; the Send-to-Composer flow has a client-side fallback that synthesizes a minimum-viable template if any field is still missing</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">Send-to-Composer flow waits for IDB writes to settle before navigating</div>
+              <div class="entry-sub">Saves all 4 agents, verifies each landed in the cache, then waits ~600 ms before redirecting so the Composer page's <code>loadAllAsync()</code> doesn't race the writes</div>
+            </div>
+          </li>
+        </ul>
+        <div class="panel-section-label">Template Auto-Save — Deduplication</div>
+        <ul class="entry-list">
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">Deterministic content-fingerprint filenames for auto-saved templates</div>
+              <div class="entry-sub">Auto-save now derives a 1–3-word slug from the template name (or first source tag) + 6-character SHA-256 of the canonical content. No more timestamp spam in the output directory</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">Directory scan on save — catches duplicates from older timestamp-named files</div>
+              <div class="entry-sub">If any existing file in the output directory has the same content fingerprint (even under a different name), the save returns <code>status: exists</code> pointing at the original instead of creating a copy</div>
+            </div>
+          </li>
+        </ul>
         <div class="panel-section-label">Agent Profile Engine — Storage &amp; Intelligence</div>
         <ul class="entry-list">
           <li class="entry-item">
