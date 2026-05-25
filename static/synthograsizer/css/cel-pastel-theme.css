@@ -1656,4 +1656,82 @@ body.theme-cel-pastel .composer-mobile-notice button:hover {
     inset 0 -3px 0 0 rgba(29,34,51,0.18);
 }
 
+/* ── Active Taste Profile pill ─────────────────────────────────────────── */
+body.theme-cel-pastel .active-profile-pill-btn {
+  background: linear-gradient(var(--cp-lilac) 0 50%, var(--cp-lilacD) 50% 100%);
+  border: var(--cp-stroke) solid var(--cp-ink);
+  color: var(--cp-ink);
+  font-family: 'Fredoka', system-ui, sans-serif;
+  font-weight: 600;
+  border-radius: 99px;
+  box-shadow:
+    3px 4px 0 0 var(--cp-ink),
+    inset 0 2px 0 0 rgba(255,255,255,0.55),
+    inset 0 -3px 0 0 rgba(29,34,51,0.18);
+}
+body.theme-cel-pastel .active-profile-pill-btn:hover {
+  background: linear-gradient(var(--cp-lilac) 0 50%, var(--cp-lilacD) 50% 100%);
+  transform: translate(-1px, -2px);
+  box-shadow:
+    4px 5px 0 0 var(--cp-ink),
+    inset 0 2px 0 0 rgba(255,255,255,0.55),
+    inset 0 -3px 0 0 rgba(29,34,51,0.18);
+}
+body.theme-cel-pastel .active-profile-pill-btn[aria-expanded="true"] {
+  transform: translate(2px, 3px);
+  box-shadow: 0 0 0 0 transparent;
+}
+body.theme-cel-pastel .active-profile-pill-dot {
+  background: var(--cp-cherry);
+  box-shadow: 0 0 0 1.5px var(--cp-ink);
+}
+body.theme-cel-pastel .active-profile-pill-name {
+  color: var(--cp-ink);
+}
+body.theme-cel-pastel .active-profile-pill-caret {
+  color: var(--cp-ink2);
+}
+body.theme-cel-pastel .active-profile-pill-menu {
+  background: var(--cp-white);
+  border: var(--cp-stroke) solid var(--cp-ink);
+  border-radius: 14px;
+  box-shadow:
+    4px 5px 0 0 var(--cp-ink),
+    inset 0 2px 0 0 rgba(255,255,255,0.55),
+    inset 0 -3px 0 0 rgba(29,34,51,0.12);
+  font-family: 'Nunito', system-ui, sans-serif;
+}
+body.theme-cel-pastel .active-profile-pill-menu .apm-section-label {
+  color: var(--cp-ink2);
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+}
+body.theme-cel-pastel .active-profile-pill-menu .apm-item {
+  color: var(--cp-ink);
+  font-family: 'Fredoka', system-ui, sans-serif;
+  font-weight: 600;
+  border-radius: 8px;
+}
+body.theme-cel-pastel .active-profile-pill-menu .apm-item:hover {
+  background: var(--cp-paper2);
+}
+body.theme-cel-pastel .active-profile-pill-menu .apm-item.active::before {
+  color: var(--cp-cherry);
+}
+body.theme-cel-pastel .active-profile-pill-menu .apm-item.active {
+  color: var(--cp-cherryD);
+}
+body.theme-cel-pastel .active-profile-pill-menu .apm-item-tagline {
+  color: var(--cp-ink2);
+  font-family: 'Nunito', system-ui, sans-serif;
+  font-weight: 400;
+}
+body.theme-cel-pastel .active-profile-pill-menu .apm-divider {
+  background: var(--cp-ink);
+  opacity: 0.25;
+}
+body.theme-cel-pastel .active-profile-pill-menu .apm-item.danger {
+  color: var(--cp-cherryD);
+}
+
 

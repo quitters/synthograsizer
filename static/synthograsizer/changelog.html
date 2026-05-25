@@ -319,6 +319,13 @@
               <div class="entry-sub">Like <code>openSessionFromRecipe</code> but addresses agents by <code>profileId</code> (deterministic) and accepts <code>sharedAnchors</code> + <code>sessionName</code> in addition to <code>goal</code>. Fired from a one-shot sessionStorage handoff so the redirect from /taste-profile/ is seamless.</div>
             </div>
           </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">Active-profile pill in the Synthograsizer app bar — visible status + one-click profile switcher</div>
+              <div class="entry-sub">Persistent indicator showing which Taste Profile is currently active (with a green / cherry status dot). Clicking it opens a small menu listing all saved profiles, with switch / clear / "Manage on Taste Profile" actions. Subscribes to <code>TasteProfileStore</code> changes so it stays in sync if the active profile is updated in another tab. Hidden in Composer mode (where the Taste-Profile shortcut already gets hidden). Styled for both Hardware and Cel-Pastel themes.</div>
+            </div>
+          </li>
         </ul>
         <div class="panel-section-label">Cel-Pastel Theme — Optional Visual Mode</div>
         <ul class="entry-list">

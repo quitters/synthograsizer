@@ -390,6 +390,17 @@
             <span class="app-bar-section-divider" aria-hidden="true"></span>
             <!-- LINKS group: outbound destinations -->
             <a href="/taste-profile/" class="app-bar-tpl-btn" style="text-decoration:none" data-tip="Onboarding: synthesize your aesthetic + 4 tuned agents">🎯 Taste Profile</a>
+            <!-- Active-profile pill: hidden until TasteProfileStore reports an active profile.
+                 Built dynamically by the inline JS below; opening it toggles a dropdown
+                 with switch / clear / manage actions. -->
+            <div class="active-profile-pill" id="active-profile-pill" hidden>
+              <button type="button" class="active-profile-pill-btn" id="active-profile-pill-btn" aria-haspopup="true" aria-expanded="false" data-tip="Active Taste Profile — click to switch or clear">
+                <span class="active-profile-pill-dot" aria-hidden="true"></span>
+                <span class="active-profile-pill-name" id="active-profile-pill-name">—</span>
+                <span class="active-profile-pill-caret" aria-hidden="true">▾</span>
+              </button>
+              <div class="active-profile-pill-menu" id="active-profile-pill-menu" role="menu" hidden></div>
+            </div>
             <a href="changelog.html" class="app-bar-tpl-btn" style="text-decoration:none" data-tip="Change Notes &amp; Release History">📋 What's New</a>
             <span class="app-bar-section-divider" aria-hidden="true"></span>
             <!-- THEME group: visual style picker -->
@@ -1528,6 +1539,112 @@
             themeBtns.forEach(function (btn) {
                 btn.addEventListener('click', function () { applyTheme(btn.dataset.theme); });
             });
+
+            // ── Active Taste Profile pill ──────────────────────────────
+            // Hidden by default. Polls briefly for window.TasteProfileStore
+            // (loaded async as an ES module). Once present, hydrates the
+            // pill, subscribes to changes, and wires the dropdown menu.
+            var pill = document.getElementById('active-profile-pill');
+            var pillBtn = document.getElementById('active-profile-pill-btn');
+            var pillNameEl = document.getElementById('active-profile-pill-name');
+            var pillMenu = document.getElementById('active-profile-pill-menu');
+
+            function renderPill() {
+                var store = window.TasteProfileStore;
+                if (!store) return;
+                var active = store.getActive();
+                if (!active) {
+                    pill.hidden = true;
+                    return;
+                }
+                pill.hidden = false;
+                pillNameEl.textContent = active.name || 'Untitled';
+                pillBtn.title = 'Active: ' + (active.name || 'Untitled') +
+                                (active.tagline ? ' — ' + active.tagline : '');
+            }
+
+            function renderMenu() {
+                var store = window.TasteProfileStore;
+                if (!store) return;
+                var profiles = store.list();
+                var activeId = store.activeId();
+                var html = '';
+                if (profiles.length > 0) {
+                    html += '<div class="apm-section-label">Saved Profiles</div>';
+                    profiles.forEach(function (p) {
+                        var isActive = p.id === activeId;
+                        html += '<button type="button" class="apm-item' + (isActive ? ' active' : '') + '" role="menuitem" data-action="switch" data-id="' + p.id + '">' +
+                            '<span><span class="apm-item-label">' + escapeHtml(p.name || 'Untitled') + '</span>' +
+                            (p.tagline ? '<span class="apm-item-tagline">' + escapeHtml(p.tagline) + '</span>' : '') +
+                            '</span></button>';
+                    });
+                    html += '<div class="apm-divider"></div>';
+                }
+                html += '<a class="apm-item" role="menuitem" href="/taste-profile/">+ New / Manage on Taste Profile</a>';
+                if (activeId) {
+                    html += '<button type="button" class="apm-item danger" role="menuitem" data-action="clear">⊘ Clear Active</button>';
+                }
+                pillMenu.innerHTML = html;
+            }
+
+            function escapeHtml(s) {
+                return String(s).replace(/[&<>"']/g, function (c) {
+                    return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c];
+                });
+            }
+
+            function openMenu() {
+                renderMenu();
+                pillMenu.hidden = false;
+                pillBtn.setAttribute('aria-expanded', 'true');
+                // Close on outside click — defer to avoid catching the current click
+                setTimeout(function () {
+                    document.addEventListener('click', onDocClick, { once: false });
+                }, 0);
+            }
+            function closeMenu() {
+                pillMenu.hidden = true;
+                pillBtn.setAttribute('aria-expanded', 'false');
+                document.removeEventListener('click', onDocClick);
+            }
+            function onDocClick(ev) {
+                if (!pill.contains(ev.target)) closeMenu();
+            }
+
+            pillBtn.addEventListener('click', function (ev) {
+                ev.stopPropagation();
+                if (pillMenu.hidden) openMenu(); else closeMenu();
+            });
+            pillMenu.addEventListener('click', function (ev) {
+                var t = ev.target.closest('[data-action]');
+                if (!t) return;
+                var action = t.dataset.action;
+                var store = window.TasteProfileStore;
+                if (!store) return;
+                if (action === 'switch') {
+                    store.setActive(t.dataset.id);
+                } else if (action === 'clear') {
+                    store.setActive(null);
+                }
+                closeMenu();
+            });
+
+            function whenStoreReady(cb) {
+                if (window.TasteProfileStore) { cb(); return; }
+                var tries = 0;
+                var iv = setInterval(function () {
+                    if (window.TasteProfileStore) { clearInterval(iv); cb(); return; }
+                    if (++tries > 50) clearInterval(iv); // ~5s max
+                }, 100);
+            }
+            whenStoreReady(function () {
+                renderPill();
+                // Re-render on any store change (save / setActive / delete)
+                window.TasteProfileStore.subscribe(renderPill);
+            });
+            // Also refresh when the window regains focus — picks up changes
+            // made in another tab (e.g., user just finished onboarding on /taste-profile/)
+            window.addEventListener('focus', renderPill);
         })();
         </script>
 

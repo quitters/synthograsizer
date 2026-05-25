@@ -99,6 +99,140 @@
 /* Hide template button in Composer mode (template picker is Studio-specific) */
 body.mode-composer .app-bar-tpl-btn { display: none; }
 
+/* ── Active Taste Profile pill ───────────────────────────────────────────
+   Lives next to the Taste Profile button. Hidden until an active profile
+   is set in TasteProfileStore. Clicking the button toggles a small menu
+   for switching / clearing / managing profiles. */
+.active-profile-pill {
+  position: relative;
+  display: inline-flex;
+  align-items: stretch;
+}
+.active-profile-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px 4px 10px;
+  background: var(--hw-panel, #e4dccf);
+  border: 2px solid #5a5040;
+  border-radius: 4px;
+  box-shadow: 2px 2px 0 #5a5040;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #5a5040;
+  cursor: pointer;
+  transition: transform 0.08s, box-shadow 0.08s, background 0.08s;
+  white-space: nowrap;
+  max-width: 220px;
+}
+.active-profile-pill-btn:hover {
+  background: #ede6d8;
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 #5a5040;
+}
+.active-profile-pill-btn[aria-expanded="true"] {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+  background: #d5cabb;
+}
+.active-profile-pill-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #5a9870;
+  box-shadow: 0 0 6px rgba(90,152,112,0.6);
+  flex-shrink: 0;
+}
+.active-profile-pill-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 160px;
+  color: #5a8ab8;
+}
+.active-profile-pill-caret {
+  font-size: 9px;
+  color: #8a7e6e;
+  margin-left: 2px;
+}
+
+/* Dropdown menu */
+.active-profile-pill-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  min-width: 220px;
+  max-width: 320px;
+  background: var(--hw-panel, #ede6d8);
+  border: 2px solid #5a5040;
+  border-radius: 4px;
+  box-shadow: 3px 3px 0 #5a5040;
+  padding: 4px;
+  z-index: 100;
+  font-family: 'Share Tech Mono', monospace;
+}
+.active-profile-pill-menu .apm-section-label {
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  color: #8a7e6e;
+  text-transform: uppercase;
+  padding: 6px 8px 2px;
+}
+.active-profile-pill-menu .apm-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 6px 8px;
+  background: transparent;
+  border: none;
+  border-radius: 2px;
+  font: inherit;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #5a5040;
+  cursor: pointer;
+  text-align: left;
+  text-decoration: none;
+}
+.active-profile-pill-menu .apm-item:hover {
+  background: #d5cabb;
+}
+.active-profile-pill-menu .apm-item.active {
+  color: #5a8ab8;
+}
+.active-profile-pill-menu .apm-item.active::before {
+  content: '●';
+  font-size: 8px;
+  color: #5a9870;
+}
+.active-profile-pill-menu .apm-item-tagline {
+  display: block;
+  font-size: 9px;
+  color: #8a7e6e;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 250px;
+}
+.active-profile-pill-menu .apm-divider {
+  height: 1px;
+  background: #c0b8a8;
+  margin: 4px 0;
+}
+.active-profile-pill-menu .apm-item.danger {
+  color: #b85050;
+}
+
+/* Hide pill in Composer mode (same rationale as app-bar-tpl-btn) */
+body.mode-composer .active-profile-pill { display: none; }
+
 /* ── Mode buttons ────────────────────────────────────────────────────────── */
 
 .app-bar-modes {
