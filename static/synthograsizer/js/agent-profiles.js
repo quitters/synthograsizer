@@ -166,8 +166,19 @@ export function resolveProfileBio(profile, sessionConfig = {}, uiVariableStates 
   if (!_lastPickMemory[memKey]) _lastPickMemory[memKey] = {};
   const memory = _lastPickMemory[memKey];
 
-  // 1. Anchor substitution (session-wide anchors first, profile anchors override)
+  // Pull the active taste-profile context if available. Provides synthetic
+  // anchors (taste_profile_name, taste_tagline, taste_palette_*) and synthetic
+  // variables (taste_tendency, taste_narrative, taste_subject). The profile's
+  // own anchors/variables override these — taste-profile vocab is a *fallback*
+  // pool, not a forced override.
+  const tasteCtx = (typeof window !== 'undefined' && window.TasteProfileStore?.asBioContext)
+    ? window.TasteProfileStore.asBioContext()
+    : null;
+
+  // 1. Anchor substitution (taste-profile anchors first, then session-wide,
+  // profile-level anchors win on top — most specific wins).
   const anchors = {
+    ...(tasteCtx?.anchors || {}),
     ...(sessionConfig.sharedAnchors || {}),
     ...(profile.anchors || {}),
   };
@@ -176,9 +187,15 @@ export function resolveProfileBio(profile, sessionConfig = {}, uiVariableStates 
     bio = bio.replace(regex, value);
   }
 
-  // 2. Variable resolution
-  if (Array.isArray(profile.variables)) {
-    for (const rawVar of profile.variables) {
+  // 2. Variable resolution. Merge taste-profile synthetic variables in as a
+  // fallback pool — the profile's own variables shadow them by name so that
+  // a deliberately-pinned {{taste_tendency}} on a custom agent still wins.
+  const profileVarNames = new Set((profile.variables || []).map(v => v?.name).filter(Boolean));
+  const tasteVars = (tasteCtx?.variables || []).filter(v => !profileVarNames.has(v.name));
+  const allVars = [...(profile.variables || []), ...tasteVars];
+
+  if (allVars.length) {
+    for (const rawVar of allVars) {
       const variable = normalizeVariable(JSON.parse(JSON.stringify(rawVar)));
       const varName = variable.name;
       let chosenValue = '';

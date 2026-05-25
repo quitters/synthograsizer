@@ -289,6 +289,37 @@
         <span class="version-date">In Progress — 2026-05-25</span>
       </div>
       <div class="version-panel">
+        <div class="panel-section-label">Taste Profile → Composer · End-to-End Handoff</div>
+        <ul class="entry-list">
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">"Send to Composer" now lands you in the Session room with a pre-built Welcome Session — not an empty Library</div>
+              <div class="entry-sub">All 4 tuned agents auto-placed in channels 1–4, session named "<em>&lt;profile&gt; · First Session</em>", goal pre-filled, three shared anchors (session_context, tone, output_rules) derived from the profile's tagline + axes + narrative inclinations. One click "Launch Session" and the crew is collaborating.</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">New <code>TasteProfileStore</code> — persists synthesised profiles, supports multiple personas with an active pointer</div>
+              <div class="entry-sub">Mirrors AgentProfileStore's shape; full CRUD + subscribe. Lives in localStorage (lightweight at this scale). An artist can keep "Neon Sirens" and "Quiet Erosion" side-by-side and switch which one their agents read from.</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">Agent bios pull dynamically from the active Taste Profile</div>
+              <div class="entry-sub"><code>resolveProfileBio()</code> now injects synthetic placeholders — <code>{{taste_tendency}}</code>, <code>{{taste_narrative}}</code>, <code>{{taste_subject}}</code>, <code>{{taste_profile_name}}</code>, <code>{{taste_tagline}}</code>, <code>{{taste_palette_primary/secondary/accent}}</code>, <code>{{taste_axes_summary}}</code> — resolved at render time against whichever profile is active. Switch profiles, every agent re-skins instantly. Profile-defined variables with the same name still win (no surprise overrides).</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">New Composer command bus action: <code>openSessionFromTasteProfile</code></div>
+              <div class="entry-sub">Like <code>openSessionFromRecipe</code> but addresses agents by <code>profileId</code> (deterministic) and accepts <code>sharedAnchors</code> + <code>sessionName</code> in addition to <code>goal</code>. Fired from a one-shot sessionStorage handoff so the redirect from /taste-profile/ is seamless.</div>
+            </div>
+          </li>
+        </ul>
         <div class="panel-section-label">Cel-Pastel Theme — Optional Visual Mode</div>
         <ul class="entry-list">
           <li class="entry-item">

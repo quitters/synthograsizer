@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Taste Profile — Synthograsizer</title>
 <script type="module" src="/synthograsizer/js/agent-profiles.js"></script>
+<script type="module" src="/synthograsizer/js/taste-profile-store.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -2098,12 +2099,82 @@ document.getElementById('sendToComposer').addEventListener('click', async (ev) =
     if (note) note.innerHTML = `<strong style="color: var(--amber);">${msg}</strong>`;
   }
 
+  // ── Persist the taste profile itself and build a pending Welcome Session ──
+  // The profile (axes/palette/tendencies/etc.) is the artist's own model.
+  // Saving it means agent bios can keep pulling from its vocabulary via
+  // {{taste_tendency}}, {{taste_narrative}}, etc. resolved against whatever
+  // profile is currently active.
+  if (window.TasteProfileStore && typeof window.TasteProfileStore.save === 'function') {
+    try {
+      window.TasteProfileStore.save({
+        name: state.profile.name,
+        tagline: state.profile.tagline,
+        axes: state.profile.axes,
+        palette: state.profile.palette,
+        subjects: state.profile.subjects,
+        promptingTendencies: state.profile.promptingTendencies,
+        narrativeInclinations: state.profile.narrativeInclinations,
+        pushSetting: state.profile.pushSetting,
+      });
+    } catch (e) {
+      console.warn('[TasteProfile] Could not persist profile:', e);
+    }
+  }
+
+  // Build a Welcome Session payload. The Composer consumes this on mount
+  // (looks for sessionStorage['pendingTasteSession']) and dispatches an
+  // openSessionFromTasteProfile command that pre-fills slots / goal / anchors.
+  const verifiedById = verified.reduce((acc, p) => { acc[p.id] = p; return acc; }, {});
+  const orderedSlots = state.profile.agents
+    .map(a => {
+      // Match saved agent back to its profile by name (we just saved them by name).
+      return Object.values(verifiedById).find(p => p.name === a.name);
+    })
+    .filter(Boolean)
+    .slice(0, 6)
+    .map(p => ({ profileId: p.id, overrides: {} }));
+
+  // Axis-derived tone phrase: pick the 3-4 most lopsided axes, render their
+  // dominant side as a tone descriptor. Mirrors TasteProfileStore.asBioContext.
+  const lopsidedTone = (state.profile.axes || [])
+    .filter(a => typeof a.pos === 'number' && Math.abs(a.pos - 0.5) >= 0.2)
+    .map(a => a.pos < 0.5 ? a.left : a.right)
+    .filter(Boolean)
+    .slice(0, 4)
+    .join(', ')
+    .toLowerCase();
+
+  const narratives = (state.profile.narrativeInclinations || []).slice(0, 3).join(', ');
+  const sessionContext = state.profile.tagline
+    ? `${state.profile.tagline}${narratives ? ' Recurring threads: ' + narratives + '.' : ''}`
+    : (narratives ? `Recurring threads: ${narratives}.` : 'Multi-agent creative studio session.');
+
+  const pendingSession = {
+    sessionName: `${state.profile.name || 'Untitled'} · First Session`,
+    goal: `Explore your taste profile with your tuned crew.`,
+    agents: orderedSlots,
+    sharedAnchors: {
+      session_context: sessionContext,
+      tone: lopsidedTone || 'professional but playful',
+      output_rules: 'Stay in voice. Reference the artist\'s palette and recurring subjects when grounding visual ideas.',
+    },
+    createdFrom: 'taste-profile',
+    profileName: state.profile.name,
+    timestamp: Date.now(),
+  };
+  try {
+    sessionStorage.setItem('pendingTasteSession', JSON.stringify(pendingSession));
+  } catch (e) {
+    console.warn('[TasteProfile] Could not stash pending session:', e);
+  }
+
   // IDB writes are async / non-blocking — give them a moment to land before navigating,
   // otherwise the next page's loadAllAsync() may replace the sync cache with stale IDB data.
   await new Promise(r => setTimeout(r, 600));
 
-  // Composer reads from AgentProfileStore.loadAll() on mount; landing in #composer
-  // auto-switches into Composer mode (handler in synthograsizer/index.html).
+  // Composer mounts in #composer mode, sees the pending session, and dispatches
+  // the openSessionFromTasteProfile command that puts the user in the Session room
+  // with everything pre-filled.
   window.location.href = '/synthograsizer/#composer';
 });
 

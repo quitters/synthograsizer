@@ -2021,6 +2021,31 @@ function App() {
     });
   }, []);
 
+  // Consume a Taste-Profile → Composer handoff once the store is hydrated. The
+  // /taste-profile/ page writes `pendingTasteSession` to sessionStorage right
+  // before redirecting here; we drain it and dispatch the command bus so the
+  // user lands directly in the Session room with everything pre-filled.
+  // sessionStorage (not localStorage) so the handoff is one-shot and doesn't
+  // persist across tabs / refreshes.
+  useEffect(() => {
+    if (!storeReady) return;
+    let raw;
+    try { raw = sessionStorage.getItem('pendingTasteSession'); } catch (_) { return; }
+    if (!raw) return;
+    let payload;
+    try { payload = JSON.parse(raw); } catch (_) {
+      try { sessionStorage.removeItem('pendingTasteSession'); } catch (_) {}
+      return;
+    }
+    try { sessionStorage.removeItem('pendingTasteSession'); } catch (_) {}
+    // Defer one tick so the handler useEffect below has subscribed
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('composer:command', {
+        detail: { action: 'openSessionFromTasteProfile', ...payload },
+      }));
+    }, 0);
+  }, [storeReady]);
+
   // Reload from store when the window regains focus — picks up changes the user
   // made via the Agent Studio modal (which writes to the same AgentProfileStore).
   useEffect(() => {
@@ -2089,6 +2114,27 @@ function App() {
           }).filter(Boolean);
           if (slots.length > 0) setSessionAgents(slots);
           if (d.goal) setGoal(d.goal);
+          setRoom('session');
+          break;
+        }
+        case 'openSessionFromTasteProfile': {
+          // Like openSessionFromRecipe but for the /taste-profile/ → Composer
+          // handoff. Agents are addressed by profileId (deterministic, since
+          // we just saved them) instead of name, and we also accept goal,
+          // sharedAnchors, and sessionName.
+          //   d.agents: [{profileId, overrides}, ...]
+          //   d.goal, d.sharedAnchors, d.sessionName
+          const slots = (d.agents || [])
+            .map(a => a && a.profileId && latest.find(p => p.id === a.profileId)
+              ? { profileId: a.profileId, overrides: a.overrides || {} }
+              : null)
+            .filter(Boolean);
+          if (slots.length > 0) setSessionAgents(slots);
+          if (d.goal) setGoal(d.goal);
+          if (d.sharedAnchors && typeof d.sharedAnchors === 'object') {
+            setSharedAnchors(prev => ({ ...prev, ...d.sharedAnchors }));
+          }
+          if (d.sessionName) setSessionName(d.sessionName);
           setRoom('session');
           break;
         }
