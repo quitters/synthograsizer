@@ -268,3 +268,17 @@ body.av-mode .knob-item:hover .av-osc-dot {
   transform: scale(1.3);
   transition: transform 0.1s ease;
 }
+
+/* ── Template Generator restricted to AV-relevant modes ────────────────────
+   For Resolume / performance use the Create / Workflow / Story modes don't
+   really fit. Hide their tabs (and their panels) so the modal only exposes
+   Remix (modify the loaded template) and p5.js (generate a live sketch).
+   av-mode.js makes p5.js the default active tab on open. */
+body.av-mode .tg-mode-btn[data-mode="create"],
+body.av-mode .tg-mode-btn[data-mode="workflow"],
+body.av-mode .tg-mode-btn[data-mode="story"],
+body.av-mode #tg-panel-create,
+body.av-mode #tg-panel-workflow,
+body.av-mode #tg-panel-story {
+  display: none !important;
+}

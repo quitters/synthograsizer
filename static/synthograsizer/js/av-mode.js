@@ -378,11 +378,54 @@
         mountInspector();
 
         preferKnobMode(app);
+        installTemplateGenModeFilter();
         console.info('[av] AV mode booted');
         return;
       }
       if (tries > 200) clearInterval(iv);
     }, 100);
+  }
+
+  // ── Template Generator: default to p5.js (Create/Workflow/Story are hidden via CSS) ──
+  // The modal's default-active tab is "create"; once that's hidden by av-mode CSS the
+  // user would see an empty modal because the Create panel doesn't switch on its own.
+  // We listen for the modal opening and programmatically click the p5.js tab so the
+  // user lands on a visible, AV-relevant default. Idempotent — if remix is already
+  // active (e.g. user switched manually) we leave it alone.
+  function installTemplateGenModeFilter() {
+    function selectAvDefault() {
+      const active = document.querySelector('.tg-mode-btn.active');
+      const allowed = ['remix', 'p5'];
+      if (active && allowed.includes(active.dataset.mode)) return; // already fine
+      const p5Btn = document.querySelector('.tg-mode-btn[data-mode="p5"]');
+      if (p5Btn) p5Btn.click();
+    }
+    // The modal can be opened from multiple buttons; the canonical paths all go through
+    // window.studioIntegrationInstance.openModal('template-gen-modal'). Hook openModal
+    // so we run AFTER the modal is shown, on every open.
+    function patchOpenModal() {
+      const si = window.studioIntegrationInstance;
+      if (!si || si._avTemplateGenPatched) return false;
+      const orig = si.openModal && si.openModal.bind(si);
+      if (typeof orig !== 'function') return false;
+      si.openModal = function (id, ...rest) {
+        const result = orig(id, ...rest);
+        if (id === 'template-gen-modal') {
+          // Defer so the panel display:none toggles already happened
+          setTimeout(selectAvDefault, 0);
+        }
+        return result;
+      };
+      si._avTemplateGenPatched = true;
+      return true;
+    }
+    if (!patchOpenModal()) {
+      // studio-integration may load slightly after av-mode; poll briefly.
+      let tries = 0;
+      const iv = setInterval(() => {
+        if (patchOpenModal() || ++tries > 100) clearInterval(iv);
+      }, 100);
+    }
   }
 
   if (document.readyState === 'loading') {
