@@ -349,6 +349,23 @@ class WorkflowRunner {
     document.getElementById('wfr-progress-actions').style.display = 'none';
     this._showPhase('progress');
 
+    // Capture run metadata so workflow_complete can persist a full record to disk.
+    // Image params are dropped from the persisted payload — they're huge base64
+    // blobs and the images themselves are kept on disk separately.
+    const persistableParams = {};
+    for (const [k, v] of Object.entries(params)) {
+      const meta = WORKFLOW_PARAM_META[k] || {};
+      if (meta.type === 'image') continue;
+      persistableParams[k] = v;
+    }
+    this._currentRun = {
+      templateId: tpl.id,
+      templateName: tpl.name,
+      params: persistableParams,
+      startedAt: new Date().toISOString(),
+    };
+    this._stepResults = [];
+
     try {
       // Connect SSE before submitting so we don't miss events
       this._connectSSE();
@@ -492,6 +509,37 @@ class WorkflowRunner {
           this.studio.showToast('Workflow failed to complete all steps', 'error');
         } else {
           this.studio.showToast('Workflow complete', 'success');
+        }
+        // Auto-save the run (both successful and failed — failed runs are
+        // valuable for diagnostics). Image params have already been stripped.
+        try {
+          const run = this._currentRun || {};
+          const endedAt = new Date().toISOString();
+          const startedAt = run.startedAt || endedAt;
+          const durationMs = new Date(endedAt) - new Date(startedAt);
+          const payload = {
+            workflowName: run.templateName || 'Workflow',
+            workflowId: run.templateId || null,
+            runId: this.activeWorkflowId || null,
+            status: data.status || 'complete',
+            params: run.params || {},
+            stepResults: this._stepResults || [],
+            startedAt,
+            endedAt,
+            durationMs: isFinite(durationMs) ? durationMs : null,
+            summary: `${(this._stepResults || []).length} steps · ${data.status || 'complete'}`,
+          };
+          fetch('/api/save-output', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              kind: 'workflow_output',
+              content: payload,
+              filename_hint: payload.workflowName,
+            }),
+          }).catch(() => {}); // backend offline — silent
+        } catch (e) {
+          console.warn('[WorkflowRunner] auto-save failed', e);
         }
         break;
       }

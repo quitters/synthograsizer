@@ -289,6 +289,23 @@
         <span class="version-date">In Progress — 2026-05-25</span>
       </div>
       <div class="version-panel">
+        <div class="panel-section-label">Local-Disk Persistence — Agent Logs &amp; Workflow Runs</div>
+        <ul class="entry-list">
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">Agent Studio conversations auto-save on close</div>
+              <div class="entry-sub">When you close the Agent Studio modal with at least one message in the transcript, the session is persisted to <code>JSON/Agent Studio Logs/&lt;agent-name&gt;-&lt;hash&gt;.json</code> with the same payload shape as the manual ⤓ Export button: goal, mode, agents, messages, workflow chips, artifacts, and composer context if launched from the Composer. Empty sessions (modal opened but no chat) are skipped to keep the folder clean. Content-addressed dedup means closing/reopening the same conversation lands on the same file.</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">Workflow runs auto-save on completion</div>
+              <div class="entry-sub">When the Workflow Runner fires <code>workflow_complete</code> (success OR failure), the run is logged to <code>JSON/Workflow Outputs/&lt;workflow-name&gt;-&lt;hash&gt;.json</code> with the template name, run id, params used (image params stripped — they're huge base64 blobs), step results, status, and duration. Failed runs are saved too — useful for diagnostics. The run metadata is captured at <code>_runWorkflow</code> start time so the complete handler has everything it needs.</div>
+            </div>
+          </li>
+        </ul>
         <div class="panel-section-label">Local-Disk Persistence — Auto-Backup &amp; Restore</div>
         <ul class="entry-list">
           <li class="entry-item">

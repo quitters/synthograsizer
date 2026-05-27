@@ -1071,10 +1071,53 @@ class AgentStudio {
   }
 
   close() {
+    // Best-effort log to disk before tearing down (only if there's anything
+    // worth saving — empty modal opens shouldn't spam Agent Studio Logs/).
+    this._backupLog();
     const modal = document.getElementById('agent-studio-modal');
     if (modal) modal.classList.remove('active');
     this._disconnectStream();
     this._stopGoalRotation();
+  }
+
+  /**
+   * Auto-save the conversation to disk via /api/save-output. Mirrors the
+   * _export() payload but adds a top-level agentName for the picker UI's
+   * summary, and routes through the generic outputs endpoint instead of
+   * triggering a browser download. Fire-and-forget; backend dedup
+   * deduplicates identical payloads server-side.
+   */
+  _backupLog() {
+    try {
+      if (!Array.isArray(this.messages) || this.messages.length === 0) return;
+      const agentName = this.mode === 'solo'
+        ? (this.agents[0]?.name || 'Solo Chat')
+        : `Group · ${this.agents.length || 0} agents`;
+      const startedAt = this.sessionStart?.startedAt || this.sessionStart?.ts || new Date().toISOString();
+      const payload = {
+        agentName,
+        startedAt,
+        endedAt: new Date().toISOString(),
+        goal: document.getElementById('as-goal')?.value || '',
+        mode: this.mode,
+        agents: this.agents.map(a => ({ id: a.id, name: a.name, bio: a.bio, color: a.color, muted: !!a.muted })),
+        messages: this.messages,
+        workflows: Array.from(this._workflowChipMap.entries()).map(([id, info]) => ({ id, ...info })),
+        artifacts: this._artifacts,
+        composerContext: this._composerContext || null,
+      };
+      fetch('/api/save-output', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          kind: 'agent_log',
+          content: payload,
+          filename_hint: agentName,
+        }),
+      }).catch(() => {}); // backend offline — silent
+    } catch (e) {
+      console.warn('[AgentStudio] _backupLog failed', e);
+    }
   }
 
   _bindLifecycleCleanup() {
