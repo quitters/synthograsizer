@@ -363,6 +363,22 @@ function _syncCacheFromLS() {
   if (!_profileCache) _profileCache = [];
 }
 
+// ─── Disk backup (best-effort, non-blocking) ────────────────────────────────
+//
+// Fire-and-forget POST to /api/save-output. If the backend isn't running,
+// the fetch rejects silently — the local stores remain the source of truth.
+// Content-addressed dedup on the server means rapid re-saves don't spam disk.
+function _backupToDisk(kind, content) {
+  try {
+    if (typeof fetch !== 'function' || typeof window === 'undefined') return;
+    fetch('/api/save-output', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ kind, content }),
+    }).catch(() => {}); // backend offline — no-op
+  } catch (_) {}
+}
+
 export const AgentProfileStore = {
 
   /** True once IndexedDB has been loaded at least once. */
@@ -423,6 +439,9 @@ export const AgentProfileStore = {
     try { localStorage.setItem(STORE_KEY, JSON.stringify(_profileCache)); } catch (_) {}
     // Async write to IndexedDB (non-blocking)
     _idbPut(normalised).catch(e => console.warn('[AgentProfiles] IDB save failed', e));
+    // Best-effort disk backup via /api/save-output (content-addressed dedup on
+    // the server side). Failures are silent — backend may not be running.
+    _backupToDisk('agent_profile', normalised);
 
     return normalised;
   },

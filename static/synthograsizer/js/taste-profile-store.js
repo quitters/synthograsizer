@@ -58,6 +58,20 @@ function notify() {
   }
 }
 
+// Fire-and-forget disk backup. Failures are silent — the local store remains
+// the source of truth. Server-side content-addressed dedup keeps the directory
+// tidy even when the user saves repeatedly.
+function _backupToDisk(content) {
+  try {
+    if (typeof fetch !== 'function' || typeof window === 'undefined') return;
+    fetch('/api/save-output', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ kind: 'taste_profile', content }),
+    }).catch(() => {});
+  } catch (_) {}
+}
+
 const TasteProfileStore = {
   /**
    * Save a profile and mark it active. Generates an id if the profile
@@ -95,6 +109,8 @@ const TasteProfileStore = {
     idx.activeId = id;
     saveIndex(idx);
     notify();
+    // Best-effort disk backup
+    _backupToDisk(enriched);
     return enriched;
   },
 
