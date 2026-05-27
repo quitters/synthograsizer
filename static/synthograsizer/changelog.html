@@ -289,6 +289,30 @@
         <span class="version-date">In Progress — 2026-05-25</span>
       </div>
       <div class="version-panel">
+        <div class="panel-section-label">Local-Disk Persistence — Auto-Backup &amp; Restore</div>
+        <ul class="entry-list">
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">New <code>/api/save-output</code> generic endpoint — content-addressed JSON backup for any store</div>
+              <div class="entry-sub">POST <code>{kind, content, filename_hint?}</code>. Files land at <code>Synthograsizer_Output/JSON/&lt;Kind&gt;/&lt;slug&gt;-&lt;6-char sha256&gt;.json</code>. Server-side dedup is content-addressed (id + timestamps stripped before hashing) so repeated saves of the same logical content land on the same file. Supported kinds: <code>agent_profile</code>, <code>taste_profile</code>, <code>agent_log</code>, <code>story_output</code>, <code>workflow_output</code> (last three reserved for follow-ups). Sibling endpoints: <code>GET /api/list-outputs/{kind}</code> for picker UIs (returns lightweight per-kind summary), <code>GET /api/get-output/{kind}/{filename}</code> for full content, <code>DELETE /api/delete-output/{kind}/{filename}</code>.</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">Auto-backup wired into AgentProfileStore and TasteProfileStore</div>
+              <div class="entry-sub">Every <code>.save()</code> now fires a best-effort POST to <code>/api/save-output</code> alongside the local localStorage / IndexedDB write. Failures are silent (backend may be offline). Net effect: on first load of the Composer, every built-in agent gets re-saved through the store and back-filled to disk — instant historical backup. The user no longer loses agents to a wiped browser cache.</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">"Restore from Disk" modals on two surfaces</div>
+              <div class="entry-sub">Composer Library overflow menu (<code>⋯</code>) gets a "📁 Restore from disk…" item that lists every <code>Agent Profiles/*.json</code> with a one-click Restore button per row. The active-profile pill on the Synthograsizer app bar gets the same affordance for <code>Taste Profiles/*.json</code>. The pill now stays visible even when no profile is active (shows "No active profile") so Restore is always reachable.</div>
+            </div>
+          </li>
+        </ul>
         <div class="panel-section-label">Taste Profile → Composer · End-to-End Handoff</div>
         <ul class="entry-list">
           <li class="entry-item">

@@ -1434,7 +1434,7 @@
         <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
         <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
         <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
-        <script type="text/babel" src="js/composer.js?v=1"></script>
+        <script type="text/babel" src="js/composer.js?v=2"></script>
 
         <!-- Layout / mode switcher
              Two orthogonal dimensions on the same button row:
@@ -1553,14 +1553,18 @@
                 var store = window.TasteProfileStore;
                 if (!store) return;
                 var active = store.getActive();
-                if (!active) {
-                    pill.hidden = true;
-                    return;
-                }
+                // Stay visible even when there's no active profile, so the user
+                // can always reach the menu (including Restore from disk).
                 pill.hidden = false;
-                pillNameEl.textContent = active.name || 'Untitled';
-                pillBtn.title = 'Active: ' + (active.name || 'Untitled') +
-                                (active.tagline ? ' — ' + active.tagline : '');
+                pill.classList.toggle('active-profile-pill-empty', !active);
+                if (active) {
+                    pillNameEl.textContent = active.name || 'Untitled';
+                    pillBtn.title = 'Active: ' + (active.name || 'Untitled') +
+                                    (active.tagline ? ' — ' + active.tagline : '');
+                } else {
+                    pillNameEl.textContent = 'No active profile';
+                    pillBtn.title = 'No active taste profile — click to set up or restore from disk';
+                }
             }
 
             function renderMenu() {
@@ -1581,6 +1585,7 @@
                     html += '<div class="apm-divider"></div>';
                 }
                 html += '<a class="apm-item" role="menuitem" href="/taste-profile/">+ New / Manage on Taste Profile</a>';
+                html += '<button type="button" class="apm-item" role="menuitem" data-action="restore">📁 Restore from disk…</button>';
                 if (activeId) {
                     html += '<button type="button" class="apm-item danger" role="menuitem" data-action="clear">⊘ Clear Active</button>';
                 }
@@ -1625,9 +1630,84 @@
                     store.setActive(t.dataset.id);
                 } else if (action === 'clear') {
                     store.setActive(null);
+                } else if (action === 'restore') {
+                    closeMenu();
+                    openRestoreFromDisk('taste_profile', function (content) {
+                        // Re-save via TasteProfileStore — it'll get a fresh local id
+                        // and become active (and re-backup to disk, which dedups).
+                        store.save(content);
+                    });
+                    return; // don't double-close
                 }
                 closeMenu();
             });
+
+            // ── Restore from Disk modal helper ──────────────────────────────
+            // Generic — works for any kind exposed by /api/list-outputs/<kind>.
+            // Calls onSelect(content) with the parsed JSON of the chosen file.
+            window.openRestoreFromDisk = function (kind, onSelect) {
+                var overlay = document.createElement('div');
+                overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px;font-family:Inter,system-ui,sans-serif;';
+                overlay.addEventListener('click', function (e) { if (e.target === overlay) document.body.removeChild(overlay); });
+                var card = document.createElement('div');
+                card.style.cssText = 'background:#fff;border-radius:10px;max-width:640px;width:100%;max-height:80vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 64px rgba(0,0,0,0.4);';
+                var header = document.createElement('div');
+                header.style.cssText = 'padding:14px 20px;border-bottom:1px solid #eee;display:flex;align-items:center;justify-content:space-between;';
+                header.innerHTML = '<div><strong style="font-size:14px;">Restore from Disk</strong><div style="font-size:11px;color:#888;margin-top:2px;">Synthograsizer_Output / JSON / ' + (kind === 'taste_profile' ? 'Taste Profiles' : 'Agent Profiles') + '</div></div><button type="button" style="background:none;border:none;font-size:20px;cursor:pointer;color:#888;" aria-label="Close">×</button>';
+                header.querySelector('button').addEventListener('click', function () { document.body.removeChild(overlay); });
+                var listEl = document.createElement('div');
+                listEl.style.cssText = 'overflow-y:auto;padding:8px;flex:1;';
+                listEl.innerHTML = '<div style="padding:20px;text-align:center;color:#888;font-size:12px;">Loading…</div>';
+                card.appendChild(header);
+                card.appendChild(listEl);
+                overlay.appendChild(card);
+                document.body.appendChild(overlay);
+                fetch('/api/list-outputs/' + encodeURIComponent(kind))
+                    .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+                    .then(function (data) {
+                        var items = (data && data.items) || [];
+                        if (items.length === 0) {
+                            listEl.innerHTML = '<div style="padding:30px;text-align:center;color:#999;font-size:13px;">No files yet. Synthesize a profile and it\'ll appear here.</div>';
+                            return;
+                        }
+                        listEl.innerHTML = '';
+                        items.forEach(function (it) {
+                            var row = document.createElement('div');
+                            row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;border-bottom:1px solid #f0f0f0;';
+                            var meta = document.createElement('div');
+                            meta.style.cssText = 'flex:1;min-width:0;';
+                            var nameEl = '<div style="font-size:13px;font-weight:600;color:#222;">' + escapeHtml(it.name || it.agentName || it.filename) + '</div>';
+                            var taglineEl = (it.tagline || it.description) ? '<div style="font-size:11px;color:#666;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeHtml(it.tagline || it.description) + '</div>' : '';
+                            var fileEl = '<div style="font-size:10px;color:#aaa;margin-top:2px;font-family:JetBrains Mono,monospace;">' + escapeHtml(it.filename) + '</div>';
+                            meta.innerHTML = nameEl + taglineEl + fileEl;
+                            var btn = document.createElement('button');
+                            btn.type = 'button';
+                            btn.textContent = '↻ Restore';
+                            btn.style.cssText = 'padding:6px 12px;background:#3dbdad;color:#fff;border:none;border-radius:4px;font-size:11px;cursor:pointer;letter-spacing:0.05em;text-transform:uppercase;font-weight:600;';
+                            btn.addEventListener('click', function () {
+                                btn.disabled = true;
+                                btn.textContent = '…';
+                                fetch('/api/get-output/' + encodeURIComponent(kind) + '/' + encodeURIComponent(it.filename))
+                                    .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+                                    .then(function (full) {
+                                        try { onSelect(full.content); } catch (e) { console.error('[restore] onSelect threw', e); }
+                                        document.body.removeChild(overlay);
+                                    })
+                                    .catch(function (e) {
+                                        btn.disabled = false;
+                                        btn.textContent = '↻ Restore';
+                                        alert('Restore failed: ' + e.message);
+                                    });
+                            });
+                            row.appendChild(meta);
+                            row.appendChild(btn);
+                            listEl.appendChild(row);
+                        });
+                    })
+                    .catch(function (e) {
+                        listEl.innerHTML = '<div style="padding:20px;text-align:center;color:#c00;font-size:12px;">Failed to load: ' + escapeHtml(e.message) + '</div>';
+                    });
+            };
 
             function whenStoreReady(cb) {
                 if (window.TasteProfileStore) { cb(); return; }

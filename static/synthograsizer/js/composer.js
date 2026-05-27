@@ -395,7 +395,7 @@ function DraggableKnob({ valueIdx, total, color, size = 48, onChange, ariaLabel 
 
 /* ── Library Room ── */
 function LibraryRoom({ profiles, onPick, onEdit, onSendToSession, onCreate,
-                       onImport, onExport, onGenerateFromImage,
+                       onImport, onExport, onRestoreFromDisk, onGenerateFromImage,
                        onRemix, onTest, onDelete }) {
   const [cat, setCat] = useState('all');
   const [search, setSearch] = useState('');
@@ -474,6 +474,7 @@ function LibraryRoom({ profiles, onPick, onEdit, onSendToSession, onCreate,
             {overflowOpen && (
               <div className="lib-popover">
                 <div className="lib-pop-item" onClick={() => { onExport?.(); setOverflowOpen(false); }}>↓ Export All</div>
+                <div className="lib-pop-item" onClick={() => { onRestoreFromDisk?.(); setOverflowOpen(false); }}>📁 Restore from disk…</div>
               </div>
             )}
           </div>
@@ -2803,6 +2804,27 @@ function App() {
                        onCreate={createNew}
                        onImport={importProfilesFromJson}
                        onExport={exportAllProfiles}
+                       onRestoreFromDisk={() => {
+                         if (typeof window.openRestoreFromDisk !== 'function') {
+                           showToast('Restore UI not ready yet — try again in a moment.', 'warn');
+                           return;
+                         }
+                         window.openRestoreFromDisk('agent_profile', (content) => {
+                           if (!content || !window.AgentProfileStore) return;
+                           // Drop the disk id so the store assigns a fresh local one.
+                           // (The auto-backup will resave; dedup makes that a no-op.)
+                           const incoming = { ...content };
+                           delete incoming.id;
+                           const saved = window.AgentProfileStore.save(incoming);
+                           // Refresh the local React list so the new agent appears
+                           setProfiles((prev) => {
+                             const existing = prev.find(p => p.id === saved.id);
+                             if (existing) return prev.map(p => p.id === saved.id ? saved : p);
+                             return [saved, ...prev];
+                           });
+                           showToast(`Restored "${saved.name}"`, 'ok');
+                         });
+                       }}
                        onGenerateFromImage={generateFromImage}
                        onRemix={remixProfile}
                        onTest={testProfile}
