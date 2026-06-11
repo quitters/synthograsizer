@@ -26,33 +26,40 @@ def generate_narrative(self, descriptions: List[str], user_prompt: str, mode: st
 
     model_name = config.MODEL_NARRATIVE
     
+    n = len(descriptions)
     system_prompt = ""
     if mode.lower() == "story":
-         system_prompt = """
+         system_prompt = f"""
 You are a Master Storyteller and Video Director.
-**TASK**: You will be given a list of image descriptions (representing scenes) and a User's "North Star" plot outline.
+**TASK**: You will be given {n} image descriptions (scenes, in order) and a User's "North Star" plot outline.
 **OBJECTIVE**: Write a cohesive, linear story that moves through these images sequentially. The story must make sense as a video sequence.
-**OUTPUT**: A JSON Object containing a single key "prompts" which is a list of strings. Each string is a VIDEO GENERATION PROMPT for that specific image index.
-Example: {"prompts": ["Scene 1: Action A...", "Scene 2: Action B..."]}
+**OUTPUT**: A JSON Object containing a single key "prompts" which is a list of EXACTLY {n} strings — prompts[0] corresponds to IMAGE 1, prompts[1] to IMAGE 2, and so on. Each string is a complete, self-contained VIDEO GENERATION PROMPT for that image (40-100 words): describe the motion, camera work, and action occurring in that scene, not just the scene itself.
+Example: {{"prompts": ["Scene 1: Action A...", "Scene 2: Action B..."]}}
 
 **RULES**:
-1. Respect the visual facts of each image description.
-2. Infuse the User's Plot into the action/movement of the video prompt.
-3. Ensure continuity of mood/lighting.
-4. Output RAW JSON only. No markdown formatting.
+1. Output EXACTLY {n} prompts, one per image, in the same order as the input. Never merge, skip, or add scenes.
+2. Respect the visual facts of each image description — the prompt must work for THAT image.
+3. The North Star is the creative spine: infer the user's intended genre, tone, and stakes from it, even when it is terse. If the outline is sparse or vague, derive the narrative arc from the imagery itself — find the story the images are already telling rather than imposing a generic one.
+4. Infuse the plot into the action/movement of each video prompt. Each prompt should advance the story by one beat.
+5. Ensure continuity of mood, lighting, and character across consecutive prompts.
+6. Each prompt must be self-contained — never reference other scenes ("as before", "the same man") since prompts are rendered independently.
+7. Output RAW JSON only. No markdown formatting.
 """
     else: # Artwork/Thematic
-         system_prompt = """
+         system_prompt = f"""
 You are an Art Director and Curator.
-**TASK**: You will be given a list of image descriptions and a User's "North Star" Thematic Concept.
+**TASK**: You will be given {n} image descriptions and a User's "North Star" Thematic Concept.
 **OBJECTIVE**: Reimagine these images as a unified art exhibition or thematic collection.
-**OUTPUT**: A JSON Object containing a single key "prompts" which is a list of strings.
-Example: {"prompts": ["Style A applied to Subject 1...", "Style A applied to Subject 2..."]}
+**OUTPUT**: A JSON Object containing a single key "prompts" which is a list of EXACTLY {n} strings — prompts[0] corresponds to IMAGE 1, prompts[1] to IMAGE 2, and so on. Each string is a complete, self-contained generation prompt (40-100 words).
+Example: {{"prompts": ["Style A applied to Subject 1...", "Style A applied to Subject 2..."]}}
 
 **RULES**:
-1. The "North Star" Theme is supreme. Apply its aesthetic to every image.
-2. Make the movement/animation style consistent across all images.
-3. Output RAW JSON only. No markdown formatting.
+1. Output EXACTLY {n} prompts, one per image, in the same order as the input. Never merge, skip, or add entries.
+2. The "North Star" Theme is supreme. Interpret what the user is reaching for — a terse theme like "decay" still implies a palette, texture, and emotional register; commit to a specific reading and apply it consistently.
+3. Apply the theme's aesthetic to every image while preserving each image's distinct subject — unified treatment, not identical prompts.
+4. Make the movement/animation style consistent across all images.
+5. Each prompt must be self-contained — never reference other pieces in the collection.
+6. Output RAW JSON only. No markdown formatting.
 """
 
     # Format context
@@ -132,9 +139,9 @@ Example:
 ]}
 
 **RULES**:
-1. Each variation must be visually distinct from the others.
+1. Each variation must be visually distinct from the others — different camera grammar, different energy, different narrative function.
 2. Prompts should be specific and directive — describe the MOTION, not just the scene.
-3. Reference elements from the image description to ground the motion in the scene.
+3. Ground every variation in what is distinctive about THIS image (its subject, composition, lighting, mood) — avoid stock moves that could apply to any image. If the description implies a genre or emotional register, lean into it.
 4. Keep prompts concise but evocative (50-100 words each).
 5. Output RAW JSON only. No markdown formatting."""
     else:  # Artwork / Thematic
@@ -162,7 +169,7 @@ Example:
 **RULES**:
 1. Each variation must offer a distinctly different artistic vision.
 2. Prompts should describe both the visual STYLE and the MOTION/TRANSFORMATION.
-3. Reference elements from the image description but reimagine them creatively.
+3. Reference elements from the image description but reimagine them creatively — choose treatments that resonate with the image's existing subject and mood rather than applying arbitrary styles.
 4. Keep prompts concise but evocative (50-100 words each).
 5. Output RAW JSON only. No markdown formatting."""
 
@@ -237,12 +244,13 @@ Example:
 ]}
 
 **RULES**:
-1. Each variation must be visually distinct from the others — different mood, palette, style, or interpretation.
-2. Prompts must be complete and self-contained (don't reference other variations or the "original").
-3. Ground each prompt in elements from the image analysis (subject matter, composition, setting).
-4. Follow the user's creative direction as the primary guide for variation themes.
-5. Each prompt should be 50-100 words, rich in visual detail.
-6. Output RAW JSON only. No markdown formatting."""
+1. Output EXACTLY 5 prompt objects — no more, no fewer.
+2. Each variation must be visually distinct from the others — different mood, palette, style, or interpretation.
+3. Prompts must be complete and self-contained (don't reference other variations or the "original").
+4. Ground each prompt in elements from the image analysis (subject matter, composition, setting).
+5. Follow the user's creative direction as the primary guide for variation themes. Interpret terse or open-ended direction generously — infer the spirit of what they're asking for and commit to five bold, distinct readings of it rather than five timid variants of one idea.
+6. Each prompt should be 50-100 words, rich in visual detail.
+7. Output RAW JSON only. No markdown formatting."""
 
     user_content = f"""USER CREATIVE DIRECTION: {user_direction}
 

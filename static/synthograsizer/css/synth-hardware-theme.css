@@ -204,7 +204,9 @@ body,
   border: var(--hw-border);
   box-shadow: var(--hw-shadow-sm);
   border-radius: 3px;
-  color: var(--hw-text-label);
+  /* --hw-text, not --hw-text-label: these are live actions (Copy/Like/Send) —
+     the label tint reads as disabled at 11px (~1.9:1 contrast). */
+  color: var(--hw-text);
   font-family: var(--font-label);
   font-size: 11px;
   transition: none;
@@ -844,6 +846,8 @@ body,
 .btn-music-large     { background: #dcd8f0 !important; border-color: var(--color-purple) !important; box-shadow: 2px 2px 0 var(--color-purple) !important; }
 .btn-agent-large     { background: #e4d8f0 !important; border-color: var(--color-purple) !important; box-shadow: 2px 2px 0 var(--color-purple) !important; }
 .btn-trace-large     { background: #d8ecf0 !important; border-color: var(--color-cyan)   !important; box-shadow: 2px 2px 0 var(--color-cyan)   !important; }
+.btn-glitcher-large  { background: #d2ece6 !important; border-color: var(--color-cyan)   !important; box-shadow: 2px 2px 0 var(--color-cyan)   !important; }
+.btn-workflow-large  { background: #dcecd4 !important; border-color: var(--color-green)  !important; box-shadow: 2px 2px 0 var(--color-green)  !important; }
 
 .btn-image-large:hover,
 .btn-video-large:hover,
@@ -854,7 +858,9 @@ body,
 .btn-metadata-large:hover,
 .btn-music-large:hover,
 .btn-agent-large:hover,
-.btn-trace-large:hover { filter: brightness(.95) !important; transform: none !important; }
+.btn-trace-large:hover,
+.btn-glitcher-large:hover,
+.btn-workflow-large:hover { filter: brightness(.95) !important; transform: none !important; }
 
 /* Music studio */
 .music-btn-play  { background: #d4ece0 !important; color: #1e4830 !important; border: var(--hw-border) !important; box-shadow: var(--hw-shadow-sm) !important; border-color: var(--color-green) !important; border-radius: 3px !important; }

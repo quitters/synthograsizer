@@ -7,11 +7,11 @@
     <!-- CSP removed for development - add back in production if needed -->
     <title>Synthograsizer</title>
     <script src="js/debug-log.js?v=1"></script>
-    <link rel="stylesheet" href="css/style.css?v=4">
+    <link rel="stylesheet" href="css/style.css?v=5">
     <link rel="stylesheet" href="css/code-overlay.css?v=2">
-    <link rel="stylesheet" href="css/layout-options.css?v=7">
-    <link rel="stylesheet" href="css/synth-hardware-theme.css?v=7">
-    <link rel="stylesheet" href="css/cel-pastel-theme.css?v=5">
+    <link rel="stylesheet" href="css/layout-options.css?v=10">
+    <link rel="stylesheet" href="css/synth-hardware-theme.css?v=8">
+    <link rel="stylesheet" href="css/cel-pastel-theme.css?v=6">
     <link rel="stylesheet" href="css/storyboard-panel.css?v=3">
     <link rel="stylesheet" href="css/storyboard-panel-hardware-theme.css?v=3">
     <!-- Composer (third mode) — styles scoped via @scope (#composer-mount) so they don't leak into Studio/Perform -->
@@ -382,26 +382,31 @@
           </div>
           <!-- id="layout-switcher" kept so the existing mode-switching JS can find buttons via querySelectorAll('.layout-btn') -->
           <div class="app-bar-modes layout-switcher" id="layout-switcher">
-            <!-- MODE group: the three primary surface switchers -->
-            <span class="app-bar-section-label" aria-hidden="true">MODE</span>
-            <button class="layout-btn" data-layout="default" data-tip="Studio Mode — Full Tools Panel">⊟ Studio</button>
-            <button class="layout-btn" data-layout="a" data-tip="Perform Mode — Minimal Layout">▶ Perform</button>
-            <button class="layout-btn" data-mode="composer" data-tip="4-room agent composer (Library → Editor → Session → Run)">🧪 Composer</button>
+            <!-- MODE group: the three primary surface switchers.
+                 Groups wrap as whole units at narrow widths — buttons never split mid-group. -->
+            <div class="app-bar-group" role="group" aria-label="Mode">
+              <span class="app-bar-section-label" aria-hidden="true">MODE</span>
+              <button class="layout-btn" data-layout="default" data-tip="Studio Mode — Full Tools Panel">⊟ Studio</button>
+              <button class="layout-btn" data-layout="a" data-tip="Perform Mode — Minimal Layout">▶ Perform</button>
+              <button class="layout-btn" data-mode="composer" data-tip="4-room agent composer (Library → Editor → Session → Run)">🧪 Composer</button>
+            </div>
             <span class="app-bar-section-divider" aria-hidden="true"></span>
             <!-- LINKS group: outbound destinations -->
-            <a href="/taste-profile/" class="app-bar-tpl-btn" style="text-decoration:none" data-tip="Onboarding: synthesize your aesthetic + 4 tuned agents">🎯 Taste Profile</a>
-            <!-- Active-profile pill: hidden until TasteProfileStore reports an active profile.
-                 Built dynamically by the inline JS below; opening it toggles a dropdown
-                 with switch / clear / manage actions. -->
-            <div class="active-profile-pill" id="active-profile-pill" hidden>
-              <button type="button" class="active-profile-pill-btn" id="active-profile-pill-btn" aria-haspopup="true" aria-expanded="false" data-tip="Active Taste Profile — click to switch or clear">
-                <span class="active-profile-pill-dot" aria-hidden="true"></span>
-                <span class="active-profile-pill-name" id="active-profile-pill-name">—</span>
-                <span class="active-profile-pill-caret" aria-hidden="true">▾</span>
-              </button>
-              <div class="active-profile-pill-menu" id="active-profile-pill-menu" role="menu" hidden></div>
+            <div class="app-bar-group" role="group" aria-label="Profile and links">
+              <a href="/taste-profile/" class="app-bar-tpl-btn" style="text-decoration:none" data-tip="Onboarding: synthesize your aesthetic + 4 tuned agents">🎯 Taste Profile</a>
+              <!-- Active-profile pill: hidden until TasteProfileStore reports an active profile.
+                   Built dynamically by the inline JS below; opening it toggles a dropdown
+                   with switch / clear / manage actions. -->
+              <div class="active-profile-pill" id="active-profile-pill" hidden>
+                <button type="button" class="active-profile-pill-btn" id="active-profile-pill-btn" aria-haspopup="true" aria-expanded="false" data-tip="Active Taste Profile — click to switch or clear">
+                  <span class="active-profile-pill-dot" aria-hidden="true"></span>
+                  <span class="active-profile-pill-name" id="active-profile-pill-name">—</span>
+                  <span class="active-profile-pill-caret" aria-hidden="true">▾</span>
+                </button>
+                <div class="active-profile-pill-menu" id="active-profile-pill-menu" role="menu" hidden></div>
+              </div>
+              <a href="changelog.html" class="app-bar-tpl-btn" style="text-decoration:none" data-tip="Change Notes &amp; Release History">📋 What's New</a>
             </div>
-            <a href="changelog.html" class="app-bar-tpl-btn" style="text-decoration:none" data-tip="Change Notes &amp; Release History">📋 What's New</a>
             <span class="app-bar-section-divider" aria-hidden="true"></span>
             <!-- THEME group: visual style picker -->
             <div class="theme-picker" role="group" aria-label="Theme">
@@ -1418,7 +1423,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
 
         <!-- Load app as ES6 module -->
-        <script type="module" src="js/app.js?v=22"></script>
+        <script type="module" src="js/app.js?v=23"></script>
         <script src="js/music-studio.js?v=2"></script>
         <script src="../metadata-manager/js/utils/metadata_extractor.js"></script>
         <script type="module" src="js/agent-profiles.js"></script>
@@ -1427,7 +1432,7 @@
         <script src="js/trace-viewer.js?v=1"></script>
         <script src="js/agent-studio.js?v=5"></script>
         <script src="js/glitcher-studio.js?v=2"></script>
-        <script src="js/studio-integration.js?v=36"></script>
+        <script src="js/studio-integration.js?v=37"></script>
         <script src="js/blob-bridge.js?v=2"></script>
 
         <!-- Composer (third mode) — React app + Babel-standalone for in-browser JSX -->

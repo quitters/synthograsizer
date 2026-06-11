@@ -10,7 +10,7 @@ The center of gravity. A prompt template engine wrapped in live-performance cont
 
 ### Current regions (top to bottom on wide viewports)
 
-- **App bar** (sticky) — brand mark, template picker dropdown, mode switcher buttons (Studio / Perform / Composer / Taste Profile / Changelog). Currently styled as hardware bezel buttons.
+- **App bar** (sticky) — brand mark + template picker dropdown on the left; on the right, three grouped control clusters: **Mode** (Studio / Perform / Composer), **Links** (Taste Profile, active-profile pill, What's New), and **Theme** (Hardware / Cel-Pastel picker). Currently styled as hardware bezel buttons. Groups wrap as whole units to a second right-aligned row at narrow widths.
 - **Output section** — header label + action buttons (Copy, Like, Code, Send to Chat); main scrollable `#output-container` showing the assembled prompt; tag badges; optional history strip with thumbnails of recent generations.
 - **Primary actions row** — three full-width buttons: **Randomize**, **Generate**, **Run Code**. A "beat navigator" appears here conditionally for story-mode templates.
 - **P5.js canvas section** (hidden until activated) — live sketch mount + Scope video overlay + control buttons (External Display, Send to Scope, Capture).
@@ -43,11 +43,21 @@ Two modes toggled from the app bar:
 
 ### Pain points to address
 
-- Multiple competing dark themes layered on each other (`style.css` + `synth-hardware-theme.css` + `layout-options.css`). Component styling drifts across files.
+- Multiple competing dark themes layered on each other (`style.css` + `synth-hardware-theme.css` + `layout-options.css`). Component styling drifts across files. *(This is the core structural problem a redesign should solve — see the interim note below for why band-aids keep accreting.)*
 - No central design tokens — colors hard-coded throughout.
 - Connections panels feel like a settings drawer bolted onto the main UI; they should feel like part of the instrument.
 - Output section visual weight is unclear — sometimes feels secondary even though it's the actual output.
 - Hit targets on D-pad inconsistent with hit targets elsewhere.
+
+> **Interim fixes applied to the live app (2026-06-11) — not yet reflected in `sources/`:**
+> A round of targeted band-aids landed in the live app while this redesign is pending. These are symptom fixes, not the token-system redesign the points above call for — treat them as evidence of *where* the drift bites, not as solved problems:
+> - Studio-tool tiles now reflow responsively (`auto-fit` grid) and every tile carries a theme color (Glitcher + Workflows tiles were previously un-themed grey).
+> - App-bar controls grouped into wrap units; theme picker no longer clips off-screen at mid widths; stacked-bar breakpoints added for tablet/phone.
+> - Connections bars realigned into a 2-up chip grid (was a ragged right-aligned stack).
+> - D-pad value text shrinks to fit instead of truncating under the fixed-size Hardware theme.
+> - Output action buttons re-colored for contrast (read as disabled before).
+>
+> Each of these required a per-theme override *because* there's no shared token layer — which is exactly the problem to design away.
 
 ---
 

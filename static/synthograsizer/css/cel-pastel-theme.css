@@ -1252,7 +1252,8 @@ body.theme-cel-pastel .btn-trace-large .icon {
 }
 body.theme-cel-pastel .btn-music-large .icon,
 body.theme-cel-pastel .btn-workflow-large .icon,
-body.theme-cel-pastel .btn-agent-large .icon {
+body.theme-cel-pastel .btn-agent-large .icon,
+body.theme-cel-pastel .btn-glitcher-large .icon {
   background: linear-gradient(var(--cp-mint) 0 50%, var(--cp-mintD) 50% 100%);
 }
 body.theme-cel-pastel .studio-btn-large .label {

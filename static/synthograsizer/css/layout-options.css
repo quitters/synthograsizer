@@ -237,8 +237,51 @@ body.mode-composer .active-profile-pill { display: none; }
 
 .app-bar-modes {
   display: flex;
+  align-items: center;
+  gap: 6px;
+  /* Allow shrink + wrap: at narrow viewports whole groups (mode switcher,
+     links, theme picker) drop to the next right-aligned row instead of
+     clipping off-screen past the viewport edge. No min-width:0 here — the
+     container must never get narrower than its widest group, or the
+     right-aligned rows overflow leftward across the brand. */
+  flex-shrink: 1;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  row-gap: 8px;
+}
+
+/* Squeeze zone (brand + widest group no longer fit side-by-side):
+   stack the bar — brand on its own row, mode groups centered beneath. */
+@media (max-width: 1080px) {
+  .app-bar { flex-wrap: wrap; row-gap: 8px; }
+  .app-bar-brand { flex: 1 1 100%; justify-content: space-between; }
+  .app-bar-modes { flex: 1 1 100%; justify-content: center; }
+}
+@media (max-width: 600px) {
+  .app-bar { padding: 8px 12px; }
+  .app-bar-logo { font-size: 16px; letter-spacing: 2px; }
+  /* Groups wider than the viewport (links row) wrap internally here
+     instead of clipping off the right edge. */
+  .app-bar-group {
+    flex-wrap: wrap;
+    flex-shrink: 1;
+    justify-content: center;
+    row-gap: 6px;
+  }
+}
+
+/* Wrap units: buttons inside a group never split across rows. */
+.app-bar-group {
+  display: flex;
+  align-items: center;
   gap: 4px;
   flex-shrink: 0;
+}
+
+/* Below the width where the bar starts wrapping, the inter-group dividers
+   can land at a row edge and dangle — drop them; row separation is enough. */
+@media (max-width: 1680px) {
+  .app-bar .app-bar-section-divider { display: none; }
 }
 
 /* Override the old .layout-switcher block sizing that no longer applies */

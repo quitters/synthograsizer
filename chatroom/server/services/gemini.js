@@ -589,36 +589,3 @@ export async function* generateAgentResponse(agent, allAgents, messages, goal, s
     yield { type: 'error', error: error.message };
   }
 }
-
-/**
- * Non-streaming version for simpler use cases
- */
-export async function generateAgentResponseSync(agent, allAgents, messages, goal) {
-  if (!genAI) {
-    throw new Error('Gemini not initialized. Call initializeGemini first.');
-  }
-
-  const model = genAI.getGenerativeModel({
-    model: (typeof options !== 'undefined' ? options.model : null) || MODEL_NAME,
-    systemInstruction: await buildSystemPrompt(agent, allAgents, goal),
-    generationConfig: {
-      maxOutputTokens: 8192,
-      temperature: 1.0, // Gemini 3 recommends 1.0
-    },
-  });
-
-  const prompt = buildConversationPrompt(messages, goal, agent.name);
-  const result = await model.generateContent(prompt);
-  const response = result.response.text();
-
-  // Check for truncation
-  const finishReason = result.response.candidates?.[0]?.finishReason;
-  if (finishReason === 'MAX_TOKENS') {
-    console.warn(`[${agent?.name}] Sync response was truncated (MAX_TOKENS)`);
-  }
-
-  return {
-    content: response,
-    tokenCount: countTokens(response)
-  };
-}

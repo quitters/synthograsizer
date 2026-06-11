@@ -648,6 +648,45 @@ body {
   gap: 6px;
 }
 
+/* ── Connections layout: 2×2 chip grid ──────────────────────────────────
+   The four connection bars (MIDI / Scope / Display / API) read as equal
+   chips in a wrapping grid instead of a ragged right-aligned stack.
+   (Mirrors the cel-pastel Tier-3 treatment so both themes match.) */
+.connections-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.connections-group > .connections-header {
+  flex: 1 1 100%;
+}
+.connections-group > input[type="hidden"] { display: none; }
+.connections-group > .midi-bar,
+.connections-group > .osc-bar {
+  flex: 1 1 calc(50% - 3px);
+  min-width: 0;
+  margin-top: 0;
+  justify-content: stretch;
+}
+.connections-group > .midi-bar .midi-toggle-btn,
+.connections-group > .osc-bar .osc-toggle-btn {
+  width: 100%;
+  justify-content: flex-start;
+}
+/* Display bar carries the BG color picker — span the full row so the
+   swatch has room beside the chip. */
+.connections-group > #disp-bar {
+  flex: 1 1 100%;
+  align-items: center;
+  gap: 8px;
+}
+.connections-group > #disp-bar #disp-toggle-btn { flex: 1; width: auto; }
+/* Expanding settings panels always take the full row beneath the chips. */
+.connections-group > .midi-panel,
+.connections-group > .osc-panel {
+  flex: 1 1 100%;
+}
+
 .connections-toggle-btn {
   flex: 1;
   text-align: left;

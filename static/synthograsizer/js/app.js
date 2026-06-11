@@ -562,10 +562,10 @@ export class SynthograsizerSmall {
     // Update variable name using data attribute for CSS ::before
     this.elements.controlVariableName.setAttribute('data-variable-name', variable.name.toUpperCase());
 
-    // Update value — CSS clamp() + white-space:nowrap handles sizing
+    // Update value, then shrink-to-fit if the theme uses a fixed size
     this.elements.controlValue.removeAttribute('data-original-text');
     this.elements.controlValue.textContent = value;
-    this.elements.controlValue.style.fontSize = '';
+    this.resizeControlValueText();
 
     // Sub-label: "{n} of {total} · ▴▾ to step"
     const sublabel = document.getElementById('control-value-sublabel');
@@ -603,7 +603,26 @@ export class SynthograsizerSmall {
    * Format text with line breaks (max 12 characters per line)
    */
   resizeControlValueText() {
-    // Font sizing is handled by CSS clamp(14px, 4cqw, 42px) — no JS needed.
+    // The base theme sizes via CSS clamp(), but skin themes (e.g. hardware)
+    // override with a fixed font-size while keeping nowrap+ellipsis — long
+    // values like "razor-edge stillness" truncate. Shrink-to-fit from the
+    // theme's preferred size down to a floor, instead of ellipsizing.
+    const el = this.elements.controlValue;
+    if (!el || !el.textContent) return;
+    el.style.fontSize = '';
+    const cs = getComputedStyle(el);
+    if (cs.whiteSpace !== 'nowrap') return; // theme wraps instead (cel-pastel)
+    // Suspend the theme's font-size transition so mid-shrink measurements
+    // reflect the set size, not an animating one.
+    const prevTransition = el.style.transition;
+    el.style.transition = 'none';
+    let size = parseFloat(cs.fontSize) || 38;
+    const MIN = 14;
+    while (size > MIN && el.scrollWidth > el.clientWidth) {
+      size = Math.max(MIN, size - 2);
+      el.style.fontSize = size + 'px';
+    }
+    el.style.transition = prevTransition;
   }
 
   /**

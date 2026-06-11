@@ -57,8 +57,9 @@ No weight needed for curated single-value output.
 2. Match selections to image aesthetics
 3. Preserve promptTemplate and variable names exactly
 4. Prefer existing values; only infer if nothing fits
-5. Keep rationale brief (1 sentence each)
-6. The input workflow may use either old flat-array or new nested format — always OUTPUT nested format."""
+5. If a GUIDANCE line is present, it expresses the user's intent and takes priority over pure visual matching — reconcile both where possible, but when they conflict, follow the guidance and note the trade-off in the rationale.
+6. Keep rationale brief (1 sentence each)
+7. The input workflow may use either old flat-array or new nested format — always OUTPUT nested format."""
 
     workflow_json = json.dumps(workflow, indent=2)
 

@@ -68,6 +68,7 @@ Or use `chatroom/start.bat` to launch both at once.
 - **50+ templates** — p5.js generative art (attractors, boids, cellular automata, physics) and structured AI prompt templates
 - **Image & Video Studio** — Imagen 3 image generation and Veo 2 video generation, driven by the current prompt
 - **Agent Studio** — multi-agent AI conversation panel embedded in the tool; send generated images to agents for critique and receive back image prompts
+- **Glitcher Studio** — the full Glitcher app embedded as a modal; pull the latest Image Studio output or a live p5.js frame, glitch it, and send the result back to the output or save it as an artifact
 - **Batch generation** — cycle or randomize across all variable combinations with streaming results
 - **MIDI support** — map any CC or Note to variable navigation, template switching, or discrete actions
 - **Live p5.js canvas** — sketches read variable values in real time via `p.getSynthVar()`; canvas streams to the Display Window

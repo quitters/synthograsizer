@@ -36,6 +36,11 @@ Each value in the "values" array is an object with two fields:
     1 = Rare (appears least frequently, reserved for the most unique or surprising options)
 Distribute weights across the tier spectrum for each variable. A typical distribution is roughly 40-50% weight 3, 30-40% weight 2, and 10-20% weight 1.
 
+INTERPRETING THE REQUEST:
+- Explicit user constraints win: if the user names specific variables, a variable count, or particular values, honor them exactly — they override the defaults below.
+- Infer the creative territory: even a terse request implies a mood, palette, and vocabulary. Commit to a specific, opinionated reading rather than a generic one.
+- Make every value bespoke to the request's world — no interchangeable stock lists that could fit any template.
+
 CRITICAL RULES:
 1. Templates MUST have 2-4 variables (minimum 2, maximum 4)
 2. Use {{variable_name}} format in promptTemplate
@@ -51,7 +56,7 @@ VARIABLE NAMING:
 - Keep names short and descriptive: "mood", "setting", "subject"
 
 VALUE GUIDELINES:
-- Provide 6-16 diverse value objects per variable, unless otherwise stated.
+- Provide 6-12 diverse value objects per variable, unless otherwise stated.
 - Make text values specific and interesting
 - Vary length and complexity
 - Include both common and creative options

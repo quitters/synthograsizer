@@ -83,6 +83,13 @@ def generate_template(self, user_prompt: str, model_override: str = None) -> str
     system_prompt = """
 You are a template generator for PromptCraft Sequencer — a VST/synthesizer-inspired real-time prompt engineering tool. Templates are loaded into a 16-step sequencer where each variable can be programmed per-step, creating evolving AI image/video generation prompts. The output uses SD/Comfy-style (term:weight) syntax.
 
+## INTERPRETING THE REQUEST
+The user's request is a creative brief. Before generating:
+1. **Explicit constraints win**: If the user names specific variables, a variable count, particular values, or a fixed phrase that must appear in the template, honor them exactly — they override the defaults below.
+2. **Infer the creative territory**: A terse request ("brutalist architecture") still implies a palette, mood, and vocabulary. Commit to a specific, opinionated reading of it.
+3. **Make every value bespoke**: Values must belong to THIS request's world. "golden hour" fits a landscape template but is filler in a biomechanical-horror one. No interchangeable stock lists.
+4. **Mirror their language**: If the user writes with distinctive vocabulary or names a specific aesthetic/artist/genre, carry that register into the promptTemplate and values.
+
 ## OUTPUT FORMAT
 You MUST respond with valid JSON only.
 
@@ -248,8 +255,8 @@ You are working in HYBRID mode: you have been given an IMAGE ANALYSIS (describin
 
 ## YOUR TASK
 1. Use the IMAGE ANALYSIS to define the AESTHETIC BASELINE — bake the style, medium, color palette, mood into the promptTemplate as fixed text.
-2. Use the USER DIRECTION to define the VARIABLE STRUCTURE — what elements to make customizable.
-3. The template should feel like variations within the image's aesthetic world, designed for 16-step sequencer patterns.
+2. Use the USER DIRECTION to define the VARIABLE STRUCTURE — what elements to make customizable. If the direction names specific variables, counts, or values, honor them exactly; if it is loose ("make the creatures and weather changeable"), translate it into well-named variables yourself.
+3. The template should feel like variations within the image's aesthetic world, designed for 16-step sequencer patterns. Every value should be plausible inside that world — invent alternatives the original artist might have made, not generic swaps.
 
 ## OUTPUT FORMAT
 You MUST respond with valid JSON only.
@@ -785,6 +792,7 @@ Beat 3: "A shot of {{{{character}}}} in {{{{environment}}}}, {{{{mood}}}} atmosp
 3. Anchors carry visual continuity. Beat prompts carry narrative progression.
 4. Characters referenced by {{{{id}}}} in prompts — the system substitutes their anchor text.
 5. Beat IDs are sequential integers starting from 1.
+6. Honor the user's explicit choices exactly — named characters, settings, genres, tones, or plot points from the concept must appear as given. Where the concept is open-ended, commit to a specific genre register and let its visual language (lighting, lenses, palette) shape the anchors, rather than defaulting to a generic cinematic look.
 """
 
     try:
@@ -924,6 +932,9 @@ def generate_p5_template(self, user_prompt: str, image_bytes: bytes = None, mode
 
     system_prompt = """You are a creative coder generating p5.js generative art templates for the Synthograsizer system.
 
+## FIDELITY TO THE REQUEST
+The sketch must implement what the user actually described. If they name a specific technique (flow field, boids, L-system, reaction-diffusion, particle trails), implement that technique — do not substitute a simpler effect. If the description is loose or poetic, translate its mood into concrete visual systems and commit to a distinctive interpretation rather than a generic particle sketch.
+
 ## RUNTIME CONTRACT
 The sketch runs in a sandboxed iframe using p5.js 1.9.4 in INSTANCE MODE.
 Your code is wrapped automatically: new p5(function(p) { YOUR_CODE });
@@ -993,11 +1004,7 @@ Resolve getSynthVar ONCE per frame at the top of p.draw, always with a fallback 
 - No console.log, no alert, no document.write, no external dependencies"""
 
     # Build content list — image first if provided (for palette/style reference)
-    contents = []
-
     if image_bytes:
-        import base64 as _b64
-        img_b64 = _b64.b64encode(image_bytes).decode("utf-8")
         # Detect mime type (default jpeg)
         mime = "image/jpeg"
         if image_bytes[:4] == b'\x89PNG':
@@ -1007,19 +1014,15 @@ Resolve getSynthVar ONCE per frame at the top of p.draw, always with a fallback 
         elif image_bytes[:2] == b'BM':
             mime = "image/bmp"
 
-        from google.genai import types as _types
-        contents.append(_types.Part.from_bytes(data=image_bytes, mime_type=mime))
-        contents.append(
+        contents = [
+            system_prompt,
+            types.Part.from_bytes(data=image_bytes, mime_type=mime),
             "Use the image above as a color palette and aesthetic reference for this generative sketch. "
             "Extract the dominant colors and mood, then embed them as one of the variable options (e.g., the first or default value in a palette variable).\n\n"
-            f"Sketch Description: {user_prompt}"
-        )
+            f"Sketch Description: {user_prompt}",
+        ]
     else:
         contents = [system_prompt, f"Sketch Description: {user_prompt}"]
-
-    if image_bytes:
-        # Prepend system prompt as first content element when using multimodal
-        contents.insert(0, system_prompt)
 
     try:
         gen_config = types.GenerateContentConfig(

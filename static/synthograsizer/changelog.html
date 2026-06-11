@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Synthograsizer — Change Notes</title>
   <link rel="icon" type="image/png" href="assets/favicon.png">
-  <link rel="stylesheet" href="css/synth-hardware-theme.css?v=7">
+  <link rel="stylesheet" href="css/synth-hardware-theme.css?v=8">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Bungee&family=VT323&family=Share+Tech+Mono&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -286,9 +286,74 @@
       <div class="version-header">
         <span class="version-tag">NEXT</span>
         <span class="version-label unreleased">Unreleased</span>
-        <span class="version-date">In Progress — 2026-05-25</span>
+        <span class="version-date">In Progress — 2026-06-11</span>
       </div>
       <div class="version-panel">
+        <div class="panel-section-label">Responsive Layout &amp; UI Consistency</div>
+        <ul class="entry-list">
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">Layout now holds together across phone, tablet, and desktop widths</div>
+              <div class="entry-sub">The AI Studio Tools grid switched from a hard <code>repeat(3, 1fr)</code> to <code>repeat(auto-fit, minmax(170px, 1fr))</code>, so tiles reflow 3-up → 2-up → 1-up instead of squeezing. The app bar's controls are now grouped into wrap units (Mode / Links / Theme) that drop to a second row as whole groups rather than splitting mid-group, with a stacked-bar breakpoint at ≤1080px and tightened chrome below 600px. Verified clean at 1577 / 1024 / 768 / 375.</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-fix">fix</span>
+            <div>
+              <div class="entry-text">Theme picker no longer clips off the right edge at mid widths</div>
+              <div class="entry-sub">The app-bar mode container had <code>flex-shrink: 0</code>, pushing the Cel-Pastel button past the viewport (partially unclickable) on screens narrower than ~1620px. It now shrinks and wraps to a tidy right-aligned row; dividers that would dangle at a row edge are dropped once wrapping begins.</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-fix">fix</span>
+            <div>
+              <div class="entry-text">Connections panel reads as an aligned 2-up chip grid</div>
+              <div class="entry-sub">MIDI / Scope / Display / API were four full-width rows each hugging the right edge under a left-aligned header — lopsided and disorganized. They now pair into a wrapping grid (Display spans its row for the BG swatch), matching the treatment the Cel-Pastel theme already had.</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-fix">fix</span>
+            <div>
+              <div class="entry-text">D-Pad value text shrinks to fit instead of truncating</div>
+              <div class="entry-sub">The Hardware theme pins the center value to a fixed 38px with <code>nowrap + ellipsis</code>, so longer values like "razor-edge stillness" rendered as "razor-edge st…". The dormant <code>resizeControlValueText()</code> hook is reimplemented as a shrink-to-fit (down to a 14px floor, transition suspended during measurement) and now runs on every value change, not just window resize.</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-fix">fix</span>
+            <div>
+              <div class="entry-text">Glitcher Studio &amp; Workflows tiles now carry their theme color</div>
+              <div class="entry-sub"><code>.btn-glitcher-large</code> and <code>.btn-workflow-large</code> were missing from the Hardware theme's accent block (and Glitcher from Cel-Pastel's icon group), so they fell back to an un-themed grey. Glitcher gets a teal tint matching its brand accent; Workflows joins its Flow-category green. Output action buttons (Copy / Like / Code / Send to Chat) were re-colored from the label tint (~1.9:1) to full text contrast (~9.7:1) so they no longer read as disabled.</div>
+            </div>
+          </li>
+        </ul>
+        <div class="panel-section-label">Gemini Prompt Engineering</div>
+        <ul class="entry-list">
+          <li class="entry-item">
+            <span class="entry-badge badge-refact">refact</span>
+            <div>
+              <div class="entry-text">Template / narrative / transform prompts rewritten for schema reliability + intent inference</div>
+              <div class="entry-sub">Every Gemini-facing prompt in <code>backend/services/</code> gained an explicit "interpret the request" layer: terse user input is expanded into a specific, opinionated reading rather than a generic one, and explicit user constraints (named variables, counts, fixed phrases) are honored over defaults. Narrative generation now requires exactly one self-contained prompt per image in input order; image-variation requires exactly five; smart-transform handles the EMPTY-input and no-reference edge cases. The external-LLM authoring guides (<code>SYSTEM_PROMPT.txt</code> and friends) were de-duplicated against the canonical prompt and corrected — one shipped a stale flat-array schema.</div>
+            </div>
+          </li>
+        </ul>
+        <div class="panel-section-label">Glitcher CSS Consolidation &amp; Repo Cleanup</div>
+        <ul class="entry-list">
+          <li class="entry-item">
+            <span class="entry-badge badge-refact">refact</span>
+            <div>
+              <div class="entry-text">Standalone Glitcher's 8-file CSS <code>@import</code> chain flattened into one file</div>
+              <div class="entry-sub">The accreted <code>styles/fixes/*.css</code> patch cascade (where <code>.effect-module</code> was redefined 11× across files) was inlined into <code>effect-studio.css</code> in exact load order — byte-identical cascade, verified in-browser. The orphaned <code>quick-fixes.css</code> (referenced nowhere) was deleted.</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-chore">chore</span>
+            <div>
+              <div class="entry-text">Trimmed stale scratch dirs, dead bundles, and a leftover design export</div>
+              <div class="entry-sub">Removed <code>tmp/</code>, <code>scratch/</code>, an empty <code>presentation/</code> shell, a stray root <code>node_modules/</code>, two superseded ChatRoom build bundles, an orphan <code>tweaks-panel.jsx</code>, a dead <code>generateAgentResponseSync</code> export, and the untracked <code>.design-handoff/</code> raw export (the curated <code>design-handoff/</code> remains). <code>REPO_MAP.md</code> updated with each pass.</div>
+            </div>
+          </li>
+        </ul>
         <div class="panel-section-label">Local-Disk Persistence — Agent Logs &amp; Workflow Runs</div>
         <ul class="entry-list">
           <li class="entry-item">

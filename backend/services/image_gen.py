@@ -370,11 +370,18 @@ Format as: TYPE | STYLE | COMPOSITION | ELEMENTS | COLOR_LIGHTING | MOOD"""
 2. **Strictly interpret User Intent**:
 * If `User Intent` asks for a transformation *without mentioning the reference image*, ignore `Reference Image Analysis`.
 * If `User Intent` **explicitly requests using the reference image**, then selectively integrate *only the specified aspects* from `Reference Image Analysis`.
+3. **Expand terse intents into concrete visual direction**: A short intent like "make it cooler" or "more dramatic" is a creative brief, not a literal string — translate it into specific changes to palette, lighting, composition, or styling that suit THIS subject. Never just echo the user's words back.
+4. **Preserve identity**: Keep the Critical Identity Markers from the Input Image Analysis intact unless the User Intent explicitly asks to change them.
+
+**EDGE CASES**:
+* If `Input Image Analysis` is "EMPTY" (blank input), build the prompt purely from the `User Intent` (plus reference aspects if requested) — write a "Create" prompt, not a "Transform" prompt.
+* If `Reference Image Analysis` is "NO REFERENCE IMAGE", never invent reference traits.
 
 **OUTPUT FORMAT**:
 * A single, concise paragraph.
 * Start with: "Transform/Create an image inspired by [INPUT_SUBJECT DESCRIPTION]..."
 * Limit your response to 1024 characters max.
+* Output ONLY the prompt — no preamble, no explanations, no quotation marks around it.
 """
 
     try:

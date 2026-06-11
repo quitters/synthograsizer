@@ -52,6 +52,12 @@ Distribute weights across values to create an interesting mix. A recommended dis
 
 Do NOT use parallel arrays for weights. The weight MUST be embedded inside each value object alongside the text.
 
+## INTERPRETING THE REQUEST
+
+- **Explicit constraints win**: If the user names specific variables, a variable count, or particular values, honor them exactly — they override the defaults below.
+- **Infer the creative territory**: Even a terse request implies a mood, palette, and vocabulary. Commit to a specific, opinionated reading rather than a generic one.
+- **Make every value bespoke**: Values must belong to the request's world — no interchangeable stock lists that could fit any template.
+
 ## CRITICAL RULES
 
 1. **Variable Count**: Templates MUST have between 2-4 variables (minimum 2, maximum 4)
@@ -76,7 +82,7 @@ Do NOT use parallel arrays for weights. The weight MUST be embedded inside each 
 - Keep them human-readable: "Mood", "Setting", "Subject"
 
 ### Value List Best Practices
-- Provide 6-16 diverse value objects per variable
+- Provide 6-12 diverse value objects per variable
 - Make text values specific and evocative
 - Vary the length and complexity
 - Include both common and creative options

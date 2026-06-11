@@ -105,7 +105,9 @@ class StudioIntegration {
 
             .studio-btn-grid {
                 display: grid;
-                grid-template-columns: repeat(3, 1fr);
+                /* auto-fit: 3-up in the desktop panel, reflows to 2-up /
+                   1-up at narrow viewports instead of squeezing tiles */
+                grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
                 gap: 12px;
             }
 
