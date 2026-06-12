@@ -2,6 +2,7 @@ import base64
 import logging
 from typing import Optional, List, Dict, Any
 from backend import config
+from backend.helpers import SafetyBlockedError
 from backend.utils.retry import retry_on_transient
 from backend.utils.image_utils import sniff_mime_type
 from google.genai import types
@@ -51,6 +52,8 @@ def generate_image(self, prompt: str, model_name: str = None, aspect_ratio: str 
                 person_generation=person_generation,
                 tags=tags,
             )
+    except SafetyBlockedError:
+        raise  # keep the type — routers emit a structured 422 for these
     except Exception as e:
         raise Exception(f"Image generation failed: {str(e)}")
 
@@ -92,15 +95,11 @@ def _generate_image_gemini(self, prompt: str, model_name: str, aspect_ratio: str
                 thinking_cfg["thinking_level"] = thinking_level.lower()
             config_kwargs["thinking_config"] = thinking_cfg
 
-    # Safety Settings (Default to permissive if not provided)
-    if not safety_settings:
-        safety_settings = [
-            {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_ONLY_HIGH"},
-            {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_ONLY_HIGH"},
-            {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_ONLY_HIGH"},
-            {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_ONLY_HIGH"},
-            {"category": "HARM_CATEGORY_CIVIC_INTEGRITY", "threshold": "BLOCK_ONLY_HIGH"}
-        ]
+    # Safety Settings — resolved by policy: per-request > saved operator
+    # defaults > permissive baseline. Hosted instances ignore per-request
+    # settings so anonymous visitors can't lower thresholds.
+    from backend.policy import policy
+    safety_settings = policy.effective_safety(safety_settings)
 
     mapped_safety = []
     for s in safety_settings:
@@ -196,11 +195,11 @@ def _generate_image_gemini(self, prompt: str, model_name: str, aspect_ratio: str
     # Check for prompt feedback blocks (common in some API versions)
     if hasattr(response, 'prompt_feedback') and response.prompt_feedback:
         if response.prompt_feedback.block_reason:
-            raise Exception(f"Prompt blocked: {response.prompt_feedback.block_reason}")
+            raise SafetyBlockedError(f"Prompt blocked: {response.prompt_feedback.block_reason}")
 
     if not hasattr(response, 'candidates') or not response.candidates:
         # `candidates` is None when the prompt itself was rejected upstream.
-        raise Exception("No candidates returned. The prompt may have been blocked for safety.")
+        raise SafetyBlockedError("No candidates returned. The prompt may have been blocked for safety.")
 
     # Walk candidates and collect the first image part we find. We also
     # capture any text part (Gemini sometimes returns commentary alongside
@@ -214,12 +213,14 @@ def _generate_image_gemini(self, prompt: str, model_name: str, aspect_ratio: str
         finish_reason = str(getattr(candidate, "finish_reason", "") or "")
         if "SAFETY" in finish_reason or finish_reason == "3":
             safety_msg = "Content blocked for SAFETY."
+            categories = []
             for rating in getattr(candidate, "safety_ratings", None) or []:
                 prob = str(getattr(rating, "probability", ""))
                 if "HIGH" in prob or "MEDIUM" in prob:
                     category = str(getattr(rating, "category", "")).replace("HARM_CATEGORY_", "")
+                    categories.append(category)
                     safety_msg += f" ({category}: {prob})"
-            raise Exception(safety_msg)
+            raise SafetyBlockedError(safety_msg, categories=categories)
 
         if "RECITATION" in finish_reason:
             raise Exception("Content blocked: Recitation of copyrighted material.")

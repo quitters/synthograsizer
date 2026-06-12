@@ -18,7 +18,7 @@ from backend.osc_bridge import osc_bridge
 from backend.music_manager import get_music_manager
 from backend import config
 from backend.models.requests import *
-from backend.helpers import decode_base64_image, parse_llm_json
+from backend.helpers import decode_base64_image, parse_llm_json, SafetyBlockedError, safety_block_detail
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -28,6 +28,8 @@ async def generate_narrative(request: NarrativeRequest):
     try:
         prompts = await asyncio.to_thread(ai_manager.generate_narrative, request.descriptions, request.user_prompt, request.mode)
         return {"status": "success", "prompts": prompts}
+    except SafetyBlockedError as e:
+        raise HTTPException(status_code=422, detail=safety_block_detail(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -37,6 +39,8 @@ async def generate_video_variations(request: VideoVariationsRequest):
     try:
         variations = await asyncio.to_thread(ai_manager.generate_video_variations, request.description, request.mode)
         return {"status": "success", "variations": variations}
+    except SafetyBlockedError as e:
+        raise HTTPException(status_code=422, detail=safety_block_detail(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -49,6 +53,8 @@ async def generate_image_variation_prompts(request: ImageVariationPromptsRequest
             request.user_direction, request.image_analysis
         )
         return {"status": "success", "prompts": prompts}
+    except SafetyBlockedError as e:
+        raise HTTPException(status_code=422, detail=safety_block_detail(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -79,6 +85,8 @@ async def generate_smart_transform(request: SmartTransformRequest):
             prompt = None
 
         return {"status": "success", "image": image_b64, "prompt": prompt}
+    except SafetyBlockedError as e:
+        raise HTTPException(status_code=422, detail=safety_block_detail(e))
     except Exception as e:
         print(f"[smart-transform] ERROR: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -89,6 +97,8 @@ async def generate_text(request: TextRequest):
     try:
         text = await asyncio.to_thread(ai_manager.generate_text, request.prompt, request.model)
         return {"status": "success", "text": text}
+    except SafetyBlockedError as e:
+        raise HTTPException(status_code=422, detail=safety_block_detail(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -178,6 +188,8 @@ async def generate_video(request: VideoRequest):
             request.resolution
         )
         return {"status": "success", "video": result["video_b64"], "video_uri": result.get("video_uri")}
+    except SafetyBlockedError as e:
+        raise HTTPException(status_code=422, detail=safety_block_detail(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

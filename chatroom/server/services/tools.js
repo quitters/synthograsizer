@@ -1,5 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { synthClient } from 'workflow-engine';
+import { synthClient, assertPlausiblePublicUrl } from 'workflow-engine';
 export { parseWorkflowRequests, stripWorkflowTags, workflowEngine } from 'workflow-engine';
 export { getPreset, searchPresets, applyPreset, getCategories, getPresetsByCategory, listPresetsCompact } from 'workflow-engine';
 export { getTemplate, listTemplates, buildWorkflow, listTemplatesForPrompt, listStylesForPrompt } from 'workflow-engine';
@@ -136,6 +136,11 @@ export async function analyzeUrl(url, prompt = 'Summarize the key information fr
   if (!genAI) {
     throw new Error('Tools not initialized');
   }
+  // Gemini's urlContext tool does the fetching (Google's egress, not this
+  // server), so this is not an SSRF vector against the local network — but
+  // reject non-http(s) schemes and private-address literals up front rather
+  // than forwarding junk/internal hostnames to a third party.
+  assertPlausiblePublicUrl(url);
 
   const model = genAI.getGenerativeModel({
     model: TOOL_MODEL,

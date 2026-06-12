@@ -10,6 +10,7 @@ import asyncio
 from pathlib import Path
 from typing import Optional, List, Dict, Any, Union
 from backend import config
+from backend.helpers import SafetyBlockedError
 from backend.utils.retry import retry_on_transient
 import google.generativeai as genai
 from google import genai as genai_client
@@ -23,10 +24,10 @@ def curate_workflow(self, workflow: dict, image_bytes: bytes, guidance: str = No
     Each variable is distilled to a single value that best aligns with the image.
 
     Returns dict with 'template' (curated JSON) and optionally 'rationale' (list of selection reasons).
-    """
-    if not self.genai_client:
-        raise ValueError("API Key not configured")
 
+    Image analysis (step 1) always uses Google's multimodal API; curation
+    (step 2) is text-only and follows the active backend tier.
+    """
     # Step 1: Quick image analysis (faster than full analyze_image_to_prompt)
     analysis = self.analyze_image_quick(image_bytes)
 
@@ -72,21 +73,16 @@ WORKFLOW:
         user_content += f"\n\nGUIDANCE: {guidance}"
 
     try:
-        gen_config = types.GenerateContentConfig(
-            response_mime_type="application/json"
+        response_text = self.llm_text(
+            [system_prompt, user_content],
+            model,
+            json_mode=True,
         )
 
-        response = self.genai_client.models.generate_content(
-            model=model,
-            contents=[system_prompt, user_content],
-            config=gen_config
-        )
-
-        # Safely extract text to avoid hanging on thought_signature
-        response_text = self._extract_text_from_response(response)
-
-        # Parse response
-        result_json = json.loads(response_text)
+        # Parse response — parse_llm_json strips markdown fences (needed for
+        # local models that ignore JSON mode)
+        from backend.helpers import parse_llm_json
+        result_json = parse_llm_json(response_text)
 
         # Ensure proper structure
         if "template" not in result_json:
@@ -99,18 +95,10 @@ WORKFLOW:
 
         return result_json
 
-    except json.JSONDecodeError as e:
-        # Try to extract JSON from markdown if present
-        response_text = self._extract_text_from_response(response)
-        if "```json" in response_text:
-            clean_str = response_text.split("```json")[1].split("```")[0]
-            result_json = json.loads(clean_str)
-            if "template" not in result_json:
-                result_json = {"template": result_json, "rationale": []}
-            if not include_rationale and "rationale" in result_json:
-                del result_json["rationale"]
-            return result_json
-        raise Exception(f"Workflow curation failed - invalid JSON: {e}")
+    except SafetyBlockedError:
+        raise  # keep the type — routers emit a structured 422 for these
     except Exception as e:
+        # parse_llm_json already handles markdown-fenced JSON, so any failure
+        # reaching here is a genuine generation/parsing error.
         raise Exception(f"Workflow curation failed: {e}")
 

@@ -10,6 +10,7 @@ import asyncio
 from pathlib import Path
 from typing import Optional, List, Dict, Any, Union
 from backend import config
+from backend.helpers import SafetyBlockedError
 from backend.utils.retry import retry_on_transient
 import google.generativeai as genai
 from google import genai as genai_client
@@ -20,10 +21,8 @@ from PIL.PngImagePlugin import PngInfo
 def generate_narrative(self, descriptions: List[str], user_prompt: str, mode: str = "story") -> List[str]:
     """
     Synthesize a cohesive narrative or thematic set of prompts from multiple image descriptions.
+    Text-only — follows the active backend tier.
     """
-    if not self.genai_client:
-        raise ValueError("API Key not configured")
-
     model_name = config.MODEL_NARRATIVE
     
     n = len(descriptions)
@@ -68,20 +67,16 @@ Example: {{"prompts": ["Style A applied to Subject 1...", "Style A applied to Su
         context += f"IMAGE {i+1}: {desc}\n"
 
     try:
-         gen_config = types.GenerateContentConfig(
-             response_mime_type="application/json"
+         response_text = self.llm_text(
+            [system_prompt, context],
+            model_name,
+            json_mode=True,
          )
-         
-         response = self.genai_client.models.generate_content(
-            model=model_name,
-            contents=[system_prompt, context],
-            config=gen_config
-         )
-         
+
          # Parse JSON
          try:
             import json
-            cleaned_text = response.text.replace("```json", "").replace("```", "").strip()
+            cleaned_text = response_text.replace("```json", "").replace("```", "").strip()
             result = json.loads(cleaned_text)
             
             if "prompts" in result and isinstance(result["prompts"], list):
@@ -102,6 +97,8 @@ Example: {{"prompts": ["Style A applied to Subject 1...", "Style A applied to Su
              # Fallback to simple list if JSON parsing fails
              return [f"{user_prompt} - {desc[:50]}" for desc in descriptions]
 
+    except SafetyBlockedError:
+        raise  # keep the type — routers emit a structured 422 for these
     except Exception as e:
         raise Exception(f"Narrative generation failed: {e}")
 
@@ -110,10 +107,8 @@ def generate_video_variations(self, description: str, mode: str = "story") -> li
     Generate a set of labeled video variation prompts from an image description.
     Each variation is a different creative direction for animating/filming the scene.
     Returns a list of dicts: [{"label": "...", "prompt": "..."}, ...]
+    Text-only — follows the active backend tier.
     """
-    if not self.genai_client:
-        raise ValueError("API Key not configured")
-
     model_name = config.MODEL_FAST
 
     if mode.lower() == "story":
@@ -174,18 +169,13 @@ Example:
 5. Output RAW JSON only. No markdown formatting."""
 
     try:
-        gen_config = types.GenerateContentConfig(
-            response_mime_type="application/json"
-        )
-
-        response = self.genai_client.models.generate_content(
-            model=model_name,
-            contents=[system_prompt, f"IMAGE DESCRIPTION:\n{description}"],
-            config=gen_config
+        response_text = self.llm_text(
+            [system_prompt, f"IMAGE DESCRIPTION:\n{description}"],
+            model_name,
+            json_mode=True,
         )
 
         # Parse JSON response
-        response_text = self._extract_text_from_response(response)
         cleaned_text = response_text.replace("```json", "").replace("```", "").strip()
         result = json.loads(cleaned_text)
 
@@ -210,6 +200,8 @@ Example:
             {"label": "Atmospheric Shift", "prompt": f"Subtle atmospheric lighting change across the scene. {description[:100]}"},
             {"label": "Subject Motion", "prompt": f"Gentle motion of the main subject within the scene. {description[:100]}"}
         ]
+    except SafetyBlockedError:
+        raise  # keep the type — routers emit a structured 422 for these
     except Exception as e:
         raise Exception(f"Video variations generation failed: {e}")
 
@@ -222,10 +214,8 @@ def generate_image_variation_prompts(self, user_direction: str, image_analysis: 
     visual language.
 
     Returns a list of dicts: [{"label": "...", "prompt": "..."}, ...]
+    Text-only — follows the active backend tier.
     """
-    if not self.genai_client:
-        raise ValueError("API Key not configured")
-
     model_name = config.MODEL_FAST
 
     system_prompt = """You are an expert Creative Director and Image Prompt Engineer.
@@ -258,18 +248,13 @@ ORIGINAL IMAGE ANALYSIS:
 {image_analysis}"""
 
     try:
-        gen_config = types.GenerateContentConfig(
-            response_mime_type="application/json"
-        )
-
-        response = self.genai_client.models.generate_content(
-            model=model_name,
-            contents=[system_prompt, user_content],
-            config=gen_config
+        response_text = self.llm_text(
+            [system_prompt, user_content],
+            model_name,
+            json_mode=True,
         )
 
         # Parse JSON response
-        response_text = self._extract_text_from_response(response)
         cleaned_text = response_text.replace("```json", "").replace("```", "").strip()
         result = json.loads(cleaned_text)
 
@@ -295,6 +280,8 @@ ORIGINAL IMAGE ANALYSIS:
             {"label": labels[i], "prompt": f"{labels[i]} interpretation: {user_direction}. Based on: {image_analysis[:100]}"}
             for i in range(5)
         ]
+    except SafetyBlockedError:
+        raise  # keep the type — routers emit a structured 422 for these
     except Exception as e:
         raise Exception(f"Image variation prompt generation failed: {e}")
 

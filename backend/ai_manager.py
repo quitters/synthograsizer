@@ -18,6 +18,7 @@ import backend.services.analysis
 import backend.services.template_engine
 import backend.services.narrative
 import backend.services.workflow
+import backend.services.llm_router
 import backend.utils.image_utils
 from backend.utils.image_utils import sniff_mime_type
 
@@ -162,6 +163,9 @@ class AIManager:
             self.save_config(api_key)
 
     # ── Delegated Service Methods ──
+    llm_text = backend.services.llm_router.llm_text
+    llm_text_stream = backend.services.llm_router.llm_text_stream
+    llm_chat = backend.services.llm_router.llm_chat
     chat = backend.services.text_gen.chat
     generate_text = backend.services.text_gen.generate_text
     generate_text_stream = backend.services.text_gen.generate_text_stream

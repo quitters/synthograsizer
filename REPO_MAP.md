@@ -17,7 +17,7 @@ There are **two independent servers** plus a pile of static browser tools:
 
 - **Local dev:** `start.bat` (Python only) or `launch-all.bat` (Python + ChatRoom). The Python server mounts `static/` at `/`, so browser tools and API live on the same origin.
 - **Vercel deploy:** [`vercel.json`](vercel.json) routes `/api/*` → `backend/server.py` and everything else → `static/`. Video gen, OSC, music, and ChatRoom do **not** work on Vercel (need the local server).
-- **Request flow:** browser tool in `static/` → `fetch('/api/...')` → a router in `backend/routers/` → `AIManager` façade → a service in `backend/services/` → Google GenAI (Gemini / Imagen / Veo / Lyria).
+- **Request flow:** browser tool in `static/` → `fetch('/api/...')` → a router in `backend/routers/` → `AIManager` façade → a service in `backend/services/` → Google GenAI (Gemini / Imagen / Veo / Lyria). **Text** generation routes through `services/llm_router.py`, which follows the backend tier in `backend/policy.py`: `google` (default) or `local` (OpenAI-compatible endpoint — Ollama / LM Studio). Image/video/music are Google-only (mixed-mode v1).
 
 ---
 
@@ -27,10 +27,12 @@ The AI brain. Routers are thin HTTP handlers; real logic lives in `services/`, f
 
 ```
 backend/
-├── server.py            # Entry point. Mounts all routers + static/. Edit here to add a router.
+├── server.py            # Entry point. Mounts all routers + static/. Hosted-mode rate limiting + retention task live here.
 ├── ai_manager.py        # AIManager façade — delegates to every service in services/. Also exports normalize_template().
 ├── config.py            # API key loading (ai_studio_config.json / GOOGLE_API_KEY), model names, constants.
-├── helpers.py           # decode_base64_image(), parse_llm_json() — shared by routers.
+├── policy.py            # ⭐ Backend-tier + safety policy: google|local tier, hosted pinning (SYNTH_HOSTED), safety precedence.
+├── providers/           # Text-generation providers: google_text.py (genai wrapper), openai_compat.py (Ollama/LM Studio).
+├── helpers.py           # decode_base64_image(), parse_llm_json(), SafetyBlockedError — shared by routers.
 ├── osc_bridge.py         # Singleton UDP OSC client → Daydream Scope. Used by routers/osc.py.
 ├── music_manager.py     # Lyria RealTime music session (Google GenAI WebSocket). Used by routers/music.py.
 │
@@ -46,10 +48,13 @@ backend/
 │   ├── music.py         #   GET /api/music/status, WS /ws/music
 │   ├── sessions.py      #   CRUD /api/sessions — saved Composer session presets (disk-backed)
 │   ├── outputs.py       #   /api/save-output, /api/list-outputs/{kind}, get/delete — local-disk persistence for browser stores
-│   └── system.py        #   POST /api/config, GET /api/health
+│   ├── feedback.py      #   POST /api/feedback — JSONL store (block reports + general feedback)
+│   └── system.py        #   POST /api/config (key/tier/safety), GET /api/health, GET /api/backend/local/models
 │
 ├── services/            # ── Generation engines (the actual model calls / logic). ──
-│   ├── text_gen.py      #   Gemini text + streaming
+│   ├── llm_router.py    #   Text-generation choke point — routes to Google or local tier per policy.py
+│   ├── text_gen.py      #   Text + streaming + chat (via llm_router)
+│   ├── retention.py     #   Hosted-mode hourly purge of old outputs (RETENTION_DAYS)
 │   ├── image_gen.py     #   Imagen image generation (uses utils/retry.py)
 │   ├── video_gen.py     #   Veo video generation (long-poll)
 │   ├── analysis.py      #   Image→prompt and batch analysis
@@ -100,6 +105,7 @@ static/
 │                         #     default-mode-modern.css + ui-tidying.css (loaded by index.html), embed.css
 │
 ├── taste-profile/index.html   # Standalone "taste profile" surface
+├── terms/index.html      # Terms & Privacy page (draft v0.1, hardware-themed; linked from hub + about footers)
 └── chatroom/             # ⚠️ BUILT ARTIFACT — compiled ChatRoom client (assets/index-*.js/.css)
                           #   Generated from chatroom/client/ via Vite. Do NOT hand-edit; rebuild instead.
 ```
@@ -114,6 +120,7 @@ Grouped by concern, since this is the densest editable area:
 - **Scope integration:** `scope-connector.js`, `scope-video-client.js`, `osc-controller.js`, `osc-mapping-ui.js`, `osc-panel-ui.js`, `resolume-presets.js`
 - **Storyboard / narrative:** `story-engine.js`, `storyboard-panel.js`
 - **Workflow / persistence:** `workflow-runner.js`, `trace-viewer.js`, `taste-profile-store.js`
+- **Backend tier / consent:** `backend-safety-panel.js` (Backend & Safety section in the settings modal), `upload-consent.js` (one-time upload notice, capture-phase, also loaded by taste-profile)
 - **AV mode:** `av-mode.js`, `analysis-functions.js`, `blob-bridge.js`, `bulk-import-method.js`
 
 ---
@@ -137,7 +144,7 @@ chatroom/
 
 **Edit the source here (`chatroom/client/`), not `static/chatroom/`.** The latter is the compiled output.
 
-**Depends on `workflow-engine/`** (root-level, untracked) via `"workflow-engine": "file:../workflow-engine"` in `chatroom/package.json`. The server's `gemini.js` and `tools.js` import the workflow engine, style presets, and workflow templates from it — it is live infrastructure, not a superseded experiment.
+**Depends on `workflow-engine/`** (root-level, untracked) via `"workflow-engine": "file:../workflow-engine"` in `chatroom/package.json`. The server's `gemini.js` and `tools.js` import the workflow engine, style presets, and workflow templates from it — it is live infrastructure, not a superseded experiment. `workflow-engine/urlGuard.js` is the shared SSRF guard for server-side fetches (`synth_fetch`, ANALYZE_URL pre-check).
 
 ---
 
@@ -163,6 +170,7 @@ Per project memory, the glitcher is the only component intended to become a Scop
 docs/
 ├── README.md             # Index
 ├── SCHEMA.md             # ⭐ Full template JSON schema — authoritative spec for template format
+├── COMPLIANCE_ROADMAP.md # Risk self-assessment + Canada/GDPR/EU-AI-Act compliance phases (pairs with static/terms/)
 ├── agent-composer-plan.md
 └── weekly-recap-2026-05-13.md
 ```
@@ -173,7 +181,7 @@ docs/
 
 | Path | Purpose |
 |------|---------|
-| `tests/` | Pytest suite (`conftest.py`, `test_ai_manager_delegation.py`, `test_helpers.py`) — backend only |
+| `tests/` | Pytest suite — backend only. Delegation + helpers, plus the tier system: `test_policy.py` (tier/hosted/safety precedence), `test_openai_compat.py` (local provider incl. the no-safety-params contract), `test_llm_router.py`, `test_system_config.py`, `test_feedback.py` |
 | `requirements.txt` | Python deps |
 | `start.bat` / `launch-all.bat` | Windows launchers |
 | `.github/` | Issue/PR templates + `workflows/lint.yml` |

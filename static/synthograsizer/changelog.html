@@ -286,9 +286,40 @@
       <div class="version-header">
         <span class="version-tag">NEXT</span>
         <span class="version-label unreleased">Unreleased</span>
-        <span class="version-date">In Progress — 2026-06-11</span>
+        <span class="version-date">In Progress — 2026-06-12</span>
       </div>
       <div class="version-panel">
+        <div class="panel-section-label">Backend Tiers, Safety Controls &amp; Feedback</div>
+        <ul class="entry-list">
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">Local-model backend tier — run text generation on your own hardware, unrestricted</div>
+              <div class="entry-sub">Settings → Backend &amp; Safety now offers two text backends: <strong>Google AI</strong> (cloud — Google's safety filters and Prohibited Use Policy apply) and <strong>Local model</strong> (any OpenAI-compatible endpoint: Ollama, LM Studio). On the local tier Synthograsizer applies no content filters of its own — your hardware, your discretion, within the <a href="/terms/#acceptable-use">Terms §6</a> floor. Mixed-mode v1: images, video, and music always generate via Google. Includes endpoint test-connection + model picker (<code>GET /api/backend/local/models</code>), JSON-mode mapping with graceful fallback for servers that reject <code>response_format</code>, and SSE streaming. Hosted instances are pinned to Google and reject config changes.</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">User-controlled Google safety thresholds</div>
+              <div class="entry-sub">Per-category selectors (Harassment / Hate speech / Sexually explicit / Dangerous content / Civic integrity) adjust Google's <code>safety_settings</code> within what its API permits — values pass through verbatim and Google's rejections surface honestly at generation time. Saved server-side; precedence: per-request &gt; saved defaults &gt; permissive baseline. Hosted instances clamp per-request settings to the operator's defaults — closing a pre-existing hole where any client could send <code>BLOCK_NONE</code>.</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">"Report wrongly blocked" + one-click feedback</div>
+              <div class="entry-sub">Safety blocks are now a typed error end-to-end (<code>SafetyBlockedError</code> → structured 422), so the error panel shows what was blocked and why, with a <strong>Report wrongly blocked</strong> button: prefilled GitHub issue form (<code>wrongly_blocked.yml</code>) and/or a local report to <code>POST /api/feedback</code> (JSONL on the operator's disk). Prompts are never auto-included — sharing one is an explicit checkbox. General "Send feedback" lives in the settings modal.</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-fix">security</span>
+            <div>
+              <div class="entry-text">Phase-1 hardening: SSRF guard, upload consent, retention, rate limiting</div>
+              <div class="entry-sub"><code>synth_fetch</code> now validates URLs and every redirect hop against private/loopback/metadata addresses with a 10s timeout and 2 MB cap (<code>workflow-engine/urlGuard.js</code>); ANALYZE_URL gets a scheme/private-literal pre-check. First image upload shows a one-time consent notice (images go to Google's APIs — see <a href="/terms/#privacy">Terms §7</a>). Hosted mode (<code>SYNTH_HOSTED=1</code>): env-only API key, per-IP rate limiting (429 + Retry-After), and an hourly retention purge (default 30 days). None of this affects a normal local install.</div>
+            </div>
+          </li>
+        </ul>
         <div class="panel-section-label">Responsive Layout &amp; UI Consistency</div>
         <ul class="entry-list">
           <li class="entry-item">

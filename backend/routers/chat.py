@@ -18,7 +18,7 @@ from backend.osc_bridge import osc_bridge
 from backend.music_manager import get_music_manager
 from backend import config
 from backend.models.requests import *
-from backend.helpers import decode_base64_image, parse_llm_json
+from backend.helpers import decode_base64_image, parse_llm_json, SafetyBlockedError, safety_block_detail
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -28,6 +28,8 @@ async def chat(request: ChatRequest):
     try:
         response = await asyncio.to_thread(ai_manager.chat, request.message, request.history, request.model)
         return {"status": "success", "response": response}
+    except SafetyBlockedError as e:
+        raise HTTPException(status_code=422, detail=safety_block_detail(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

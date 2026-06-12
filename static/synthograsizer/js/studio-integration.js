@@ -4629,7 +4629,17 @@ class StudioIntegration {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(params)
             });
-            if (!res.ok) throw new Error((await res.json()).detail);
+            if (!res.ok) {
+                // detail may be a string (legacy 500s) or a structured object
+                // (typed 422 safety blocks: {error_type, message, categories})
+                const errData = await res.json().catch(() => ({}));
+                const detail = errData.detail;
+                const err = new Error(typeof detail === 'string' ? detail : (detail?.message || res.statusText));
+                if (detail && typeof detail === 'object') err.detail = detail;
+                err.surface = type === 'image' ? 'image-studio' : 'video-studio';
+                err.model = params.model;
+                throw err;
+            }
 
             const data = await res.json();
             const content = document.getElementById('studio-content');
@@ -4693,7 +4703,7 @@ class StudioIntegration {
                 }));
             }
         } catch (e) {
-            this.showError(e.message);
+            this.showError(e.message, { detail: e.detail, surface: e.surface, model: e.model });
         }
     }
 
@@ -6247,8 +6257,124 @@ class StudioIntegration {
         `;
     }
 
-    showError(msg) {
-        document.getElementById('studio-content').innerHTML = `<div style="color:red;padding:20px;text-align:center;">Error: ${msg}</div>`;
+    showError(msg, ctx = {}) {
+        const content = document.getElementById('studio-content');
+        if (!content) return;
+        const detail = ctx.detail || {};
+        const isSafetyBlock = detail.error_type === 'safety_block';
+
+        let html = `<div style="color:red;padding:20px;text-align:center;">Error: ${this.escapeHtml(msg)}</div>`;
+        if (isSafetyBlock) {
+            html = `
+            <div style="padding:20px;text-align:center;">
+                <div style="color:#b45309;font-weight:600;margin-bottom:6px;">🛡️ Blocked by safety filters</div>
+                <div style="font-size:13px;color:#92400e;margin-bottom:4px;">${this.escapeHtml(detail.message || msg)}</div>
+                ${detail.categories?.length ? `<div style="font-size:11px;opacity:.75;margin-bottom:10px;">Category: ${this.escapeHtml(detail.categories.join(', '))}</div>` : '<div style="margin-bottom:10px;"></div>'}
+                <div style="font-size:12px;color:#555;margin-bottom:12px;">
+                    Creative work trips filters more than most. If this block seems wrong, telling us helps tune the defaults.
+                </div>
+                <button onclick="window.studioIntegrationInstance.openBlockReport()"
+                        style="background:#e67e00;color:white;border:none;padding:7px 14px;border-radius:6px;cursor:pointer;font-size:13px;">
+                    🚫 Report wrongly blocked
+                </button>
+            </div>`;
+            // Stash context for the report flow — never auto-includes the prompt.
+            this._lastBlock = {
+                message: detail.message || msg,
+                categories: detail.categories || [],
+                surface: ctx.surface || 'unknown',
+                model: ctx.model || '',
+                tier: window.synthBackendTier || 'google',
+            };
+        }
+        content.innerHTML = html;
+    }
+
+    /** Prefilled GitHub issue + local /api/feedback for a wrong safety block. */
+    openBlockReport() {
+        const b = this._lastBlock || {};
+        const params = new URLSearchParams({
+            template: 'wrongly_blocked.yml',
+            title: '[BLOCK] ',
+            surface: b.surface || '',
+            model: `${b.model || ''}${b.tier ? ` (${b.tier} tier)` : ''}`,
+            category: (b.categories || []).join(', '),
+        });
+        this.openFeedbackModal({
+            kind: 'wrongly_blocked',
+            heading: 'Report a wrongly blocked generation',
+            error_message: b.message,
+            categories: b.categories,
+            surface: b.surface,
+            model: b.model,
+            githubUrl: `https://github.com/quitters/synthograsizer/issues/new?${params.toString()}`,
+        });
+    }
+
+    /** General feedback modal — also the landing spot for block reports. */
+    openFeedbackModal(ctx = {}) {
+        const isBlock = ctx.kind === 'wrongly_blocked';
+        const githubUrl = ctx.githubUrl || 'https://github.com/quitters/synthograsizer/issues/new/choose';
+        this.createModal('feedback-modal', ctx.heading || '💬 Send Feedback', `
+            ${isBlock ? `<div style="font-size:12px;padding:8px 10px;background:#fff8e1;border-radius:6px;margin-bottom:10px;">
+                <strong>Block:</strong> ${this.escapeHtml(ctx.error_message || '')}
+                ${ctx.categories?.length ? `<br><strong>Category:</strong> ${this.escapeHtml(ctx.categories.join(', '))}` : ''}
+            </div>` : ''}
+            <div class="studio-input-group">
+                <label>${isBlock ? 'What were you making, and why is the block wrong?' : 'Your feedback'}</label>
+                <textarea id="feedback-message" rows="4" style="width:100%;box-sizing:border-box;" placeholder="${isBlock ? 'Describe the creative intent…' : 'Wrong block, missing feature, rough edge — anything.'}"></textarea>
+            </div>
+            <label style="display:flex;gap:6px;align-items:center;font-size:12px;margin:6px 0;cursor:pointer;">
+                <input type="checkbox" id="feedback-include-prompt">
+                Include my last prompt <span style="opacity:.7;">(optional — never sent automatically)</span>
+            </label>
+            <div class="studio-input-group">
+                <label>Contact (optional)</label>
+                <input type="text" id="feedback-contact" placeholder="email, if you want a reply">
+            </div>
+            <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+                <button class="studio-btn-primary" id="feedback-save-btn">💾 Save report locally</button>
+                <button class="studio-btn-primary" id="feedback-github-btn" style="background:#24292e;">🐙 Open GitHub issue</button>
+            </div>
+            <div style="font-size:11px;opacity:.7;margin-top:8px;">
+                "Save locally" writes to <code>data/feedback/</code> on the machine running the server — nothing is sent anywhere else.
+            </div>
+        `);
+        this.openModal('feedback-modal');
+
+        document.getElementById('feedback-save-btn').onclick = async () => {
+            const includePrompt = document.getElementById('feedback-include-prompt').checked;
+            const payload = {
+                kind: ctx.kind || 'general',
+                message: document.getElementById('feedback-message').value.trim(),
+                surface: ctx.surface,
+                error_message: ctx.error_message,
+                categories: ctx.categories,
+                backend_tier: window.synthBackendTier || 'google',
+                model: ctx.model,
+                prompt: includePrompt ? (window.synthSmall?.getCurrentPromptText() || null) : null,
+                contact: document.getElementById('feedback-contact').value.trim() || null,
+            };
+            if (!payload.message) { this.showToast('Write a line or two first', 'warning'); return; }
+            try {
+                const res = await fetch('/api/feedback', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                });
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) {
+                    const gh = data.detail?.github_url;
+                    if (gh) { window.open(gh, '_blank'); return; }
+                    throw new Error(data.detail?.message || data.detail || res.statusText);
+                }
+                this.showToast('Feedback saved — thank you!', 'success');
+                this.closeAllModals();
+            } catch (e) {
+                this.showToast('Could not save: ' + e.message, 'error');
+            }
+        };
+        document.getElementById('feedback-github-btn').onclick = () => window.open(githubUrl, '_blank');
     }
 
     escapeHtml(str = '') {

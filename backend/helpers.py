@@ -1,6 +1,30 @@
 import base64
 import json
 
+
+class SafetyBlockedError(Exception):
+    """A generation was blocked by the provider's safety filters.
+
+    Routers catch this and emit a typed 422 ({"error_type": "safety_block"})
+    so the front-end can show the "Report wrongly blocked" affordance instead
+    of a generic error. `categories` lists the triggering harm categories
+    when the provider reported them (e.g. ["HARASSMENT"]).
+    """
+
+    def __init__(self, message: str, categories: list = None):
+        super().__init__(message)
+        self.categories = categories or []
+
+
+def safety_block_detail(e: "SafetyBlockedError") -> dict:
+    """Structured HTTPException detail for a safety block (422 payload)."""
+    return {
+        "error_type": "safety_block",
+        "message": str(e),
+        "categories": getattr(e, "categories", []) or [],
+    }
+
+
 # Hard cap on the decoded size of any base64 payload accepted from clients.
 # The Gemini APIs reject images much larger than this anyway, so the limit is
 # generous but bounded — preventing a single oversized request from pinning

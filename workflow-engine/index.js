@@ -41,6 +41,9 @@ export { traceStore, estimateStepCost } from './traceStore.js';
 // API client
 export { synthClient } from './synthClient.js';
 
+// SSRF guard for server-side fetches of model/user-supplied URLs
+export { safeFetchText, assertSafeUrl, assertPlausiblePublicUrl, isHostedInstance } from './urlGuard.js';
+
 // Routes (factory)
 export { createWorkflowRoutes } from './routes/workflows.js';
 export { createTraceRoutes } from './routes/traces.js';

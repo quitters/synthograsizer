@@ -14,6 +14,7 @@ import inspect
 
 import backend.services.analysis as analysis_svc
 import backend.services.image_gen as image_gen_svc
+import backend.services.llm_router as llm_router_svc
 import backend.services.narrative as narrative_svc
 import backend.services.template_engine as template_engine_svc
 import backend.services.text_gen as text_gen_svc
@@ -27,6 +28,9 @@ from backend.ai_manager import AIManager, ai_manager
 # Whenever we add or rename a delegated method, this map should change too —
 # and the test will fail loudly until it does.
 EXPECTED_DELEGATIONS = {
+    "llm_text": (llm_router_svc, "llm_text"),
+    "llm_text_stream": (llm_router_svc, "llm_text_stream"),
+    "llm_chat": (llm_router_svc, "llm_chat"),
     "chat": (text_gen_svc, "chat"),
     "generate_text": (text_gen_svc, "generate_text"),
     "generate_text_stream": (text_gen_svc, "generate_text_stream"),

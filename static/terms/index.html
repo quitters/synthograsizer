@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Synthograsizer — Terms &amp; Privacy</title>
+  <link rel="icon" type="image/png" href="/shared/assets/favicon.png">
+  <link rel="stylesheet" href="/synthograsizer/css/synth-hardware-theme.css?v=8">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Bungee&family=VT323&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background: var(--hw-chassis);
+      background-image:
+        repeating-linear-gradient(
+          0deg,
+          transparent, transparent 3px,
+          rgba(100,80,40,.025) 3px, rgba(100,80,40,.025) 4px
+        );
+      color: var(--hw-text);
+      font-family: var(--font-label);
+    }
+
+    /* ── App Bar ─────────────────────────────────────────────────────── */
+    .app-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 32px;
+      background: var(--hw-chassis);
+      border-bottom: 1px solid var(--hw-recessed);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .app-bar-logo {
+      font-family: 'Bungee', sans-serif;
+      font-size: 20px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--hw-accent, #3dbdad);
+      text-shadow:
+        -1px -1px 0 rgba(30,20,10,.35),  1px -1px 0 rgba(30,20,10,.35),
+        -1px  1px 0 rgba(30,20,10,.35),  1px  1px 0 rgba(30,20,10,.35);
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .app-bar-nav { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .nav-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      background: var(--hw-panel);
+      border: 1.5px solid var(--hw-recessed);
+      border-radius: 3px;
+      box-shadow: 2px 2px 0 var(--hw-recessed);
+      font-family: var(--font-label);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--hw-text-dim);
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform 0.08s, box-shadow 0.08s, color 0.08s;
+    }
+    .nav-link:hover {
+      color: var(--hw-text);
+      transform: translate(1px, 1px);
+      box-shadow: 1px 1px 0 var(--hw-recessed);
+    }
+
+    /* ── Page ────────────────────────────────────────────────────────── */
+    .page-content { max-width: 860px; margin: 0 auto; padding: 40px 32px 80px; }
+    .page-header { margin-bottom: 28px; padding-bottom: 20px; border-bottom: var(--hw-border); }
+    .page-title {
+      font-family: var(--font-brand);
+      font-size: 28px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--hw-text);
+      margin-bottom: 6px;
+    }
+    .page-subtitle {
+      font-family: var(--font-label);
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--hw-text-dim);
+    }
+    .draft-banner {
+      margin-top: 14px;
+      padding: 8px 12px;
+      background: rgba(200,150,42,.10);
+      border: 1.5px solid var(--color-yellow);
+      border-radius: 3px;
+      font-size: 11px;
+      letter-spacing: .06em;
+      color: var(--hw-text);
+    }
+
+    /* ── Sections ────────────────────────────────────────────────────── */
+    .tos-section {
+      background: var(--hw-panel);
+      border: var(--hw-border);
+      border-radius: 4px;
+      box-shadow: var(--hw-shadow-sm);
+      padding: 18px 22px;
+      margin-bottom: 18px;
+    }
+    .tos-section h2 {
+      font-family: var(--font-label);
+      font-size: 13px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--hw-text);
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px dashed var(--hw-recessed);
+    }
+    .tos-section h3 {
+      font-family: var(--font-label);
+      font-size: 11px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--hw-text-dim);
+      margin: 14px 0 6px;
+    }
+    .tos-section p, .tos-section li {
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      line-height: 1.7;
+      color: var(--hw-text);
+    }
+    .tos-section p + p { margin-top: 8px; }
+    .tos-section ul { margin: 8px 0 8px 18px; }
+    .tos-section li { margin-bottom: 4px; }
+    .tos-section a { color: var(--color-blue); }
+    .tos-section code {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 12px;
+      background: rgba(30,20,10,.06);
+      padding: 1px 5px;
+      border-radius: 3px;
+    }
+    .plain {
+      margin-top: 12px;
+      padding: 10px 12px;
+      background: rgba(61,189,173,.07);
+      border-left: 3px solid var(--hw-accent, #3dbdad);
+      border-radius: 0 3px 3px 0;
+      font-size: 12.5px;
+    }
+    .plain strong { letter-spacing: .05em; }
+
+    table.data-flow {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0;
+      font-family: 'Inter', sans-serif;
+      font-size: 12.5px;
+    }
+    table.data-flow th, table.data-flow td {
+      text-align: left;
+      padding: 7px 10px;
+      border: 1px solid var(--hw-recessed);
+      vertical-align: top;
+      line-height: 1.5;
+    }
+    table.data-flow th {
+      font-family: var(--font-label);
+      font-size: 10px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--hw-text-dim);
+      background: rgba(30,20,10,.04);
+    }
+
+    .toc {
+      columns: 2;
+      gap: 24px;
+      margin: 6px 0 2px;
+    }
+    .toc a {
+      display: block;
+      font-family: 'Inter', sans-serif;
+      font-size: 12.5px;
+      line-height: 1.9;
+      color: var(--color-blue);
+      text-decoration: none;
+    }
+    .toc a:hover { text-decoration: underline; }
+
+    @media (max-width: 640px) {
+      .page-content { padding: 24px 16px 60px; }
+      .toc { columns: 1; }
+      .app-bar { padding: 8px 12px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="app-bar">
+    <a class="app-bar-logo" href="/">Synthograsizer</a>
+    <nav class="app-bar-nav">
+      <a class="nav-link" href="/synthograsizer/">⊟ Studio</a>
+      <a class="nav-link" href="/about/">ⓘ About</a>
+      <a class="nav-link" href="/synthograsizer/changelog.html">📋 What's New</a>
+      <a class="nav-link" href="https://github.com/quitters/synthograsizer" target="_blank" rel="noopener">⌥ GitHub</a>
+    </nav>
+  </header>
+
+  <main class="page-content">
+    <div class="page-header">
+      <h1 class="page-title">Terms &amp; Privacy</h1>
+      <p class="page-subtitle">Synthograsizer Suite — Terms of Use &amp; Privacy Notice</p>
+      <div class="draft-banner">
+        ⚠ DRAFT v0.1 · 2026-06-11 · This document has not yet been reviewed by a lawyer.
+        It is a good-faith working draft, published for transparency while the project is pre-release.
+        See the <a href="https://github.com/quitters/synthograsizer/blob/main/docs/COMPLIANCE_ROADMAP.md">compliance roadmap</a> for what's planned.
+      </div>
+    </div>
+
+    <section class="tos-section">
+      <h2>Contents</h2>
+      <nav class="toc">
+        <a href="#scope">1 · Who these terms cover</a>
+        <a href="#eligibility">2 · Eligibility</a>
+        <a href="#service">3 · The service</a>
+        <a href="#your-content">4 · Your content (inputs)</a>
+        <a href="#ai-content">5 · AI-generated content (outputs)</a>
+        <a href="#acceptable-use">6 · Acceptable use</a>
+        <a href="#privacy">7 · Privacy &amp; data handling</a>
+        <a href="#third-party">8 · Third-party services</a>
+        <a href="#ip">9 · Intellectual property</a>
+        <a href="#disclaimers">10 · Disclaimers</a>
+        <a href="#liability">11 · Limitation of liability</a>
+        <a href="#termination">12 · Suspension &amp; termination</a>
+        <a href="#changes">13 · Changes to these terms</a>
+        <a href="#law">14 · Governing law</a>
+        <a href="#contact">15 · Contact</a>
+      </nav>
+    </section>
+
+    <section class="tos-section" id="scope">
+      <h2>1 · Who these terms cover</h2>
+      <p>The Synthograsizer Suite ("the Suite") exists in two forms, and the rules differ:</p>
+      <ul>
+        <li><strong>Self-hosted:</strong> you downloaded or cloned the source code and run it on your own machine. The code is provided under the repository's open-source license, and <em>you</em> are the operator: data the Suite touches stays under your control (and your responsibility), and these terms apply only as a template you may adapt.</li>
+        <li><strong>Hosted instance:</strong> you are using a deployment operated by the project maintainer ("we", "us"). These terms are an agreement between you and the maintainer and govern your use of that deployment.</li>
+      </ul>
+      <p class="plain"><strong>Plain language:</strong> if you run the code yourself, it's your instrument and your data. If you're using our hosted copy, the rest of this page is the deal.</p>
+    </section>
+
+    <section class="tos-section" id="eligibility">
+      <h2>2 · Eligibility</h2>
+      <p>You must be at least <strong>18 years old</strong> (or the age of majority where you live, if higher) to use the hosted instance. This mirrors the age requirements of the underlying Google generative AI services. We do not knowingly collect data from minors; if you believe a minor has used the service, contact us and we will delete the associated data.</p>
+    </section>
+
+    <section class="tos-section" id="service">
+      <h2>3 · The service</h2>
+      <p>The Suite is a creative instrument for structured AI prompt engineering: prompt templates with variables, AI image / video / text / music generation, generative p5.js sketches, multi-agent AI conversations, glitch-art processing, and live-performance integrations (MIDI, OSC, external displays).</p>
+      <p>Generation features call <strong>Google's generative AI APIs</strong> (Gemini, Imagen, Veo, Lyria) using an API key. On a self-hosted install, that is your own key, used at your own cost and subject to your own agreement with Google. On a hosted instance, generation may be disabled, rate-limited, or require you to supply your own key ("bring your own key") — a key you supply is used only to call Google's APIs on your behalf for the features you invoke.</p>
+      <p><strong>Backend tiers:</strong> on a self-hosted install you may point <em>text</em> generation at a local, OpenAI-compatible model running on your own hardware (e.g. Ollama or LM Studio). On that local tier the Suite applies no content filters of its own — what you generate on your own machine is your responsibility, within the acceptable-use rules in §6, which apply regardless of backend. When generation runs through a cloud provider (Google), that provider's safety filters and use policies apply, and the Suite's safety controls operate only within what the provider's API permits. Image, video, and music generation always use Google in the current version. Hosted instances are pinned to the Google backend.</p>
+      <p>The Suite is experimental, pre-release software, provided as-is. Features may change, break, or disappear without notice.</p>
+    </section>
+
+    <section class="tos-section" id="your-content">
+      <h2>4 · Your content (inputs)</h2>
+      <p>"Inputs" are things you provide: prompt text, uploaded images, templates, agent personas, quiz answers, audio, and files you drop into any tool.</p>
+      <ul>
+        <li>You retain all rights you hold in your inputs. You grant us only the limited right to process them as needed to run the features you invoke (including sending them to Google's APIs for analysis or generation).</li>
+        <li>Only upload content you own or have permission to use. Do not upload images of identifiable people without their consent — especially for the transformation, remix, or taste-profile features.</li>
+        <li>Do not upload content that is unlawful, or that includes other people's confidential or sensitive personal information.</li>
+      </ul>
+      <p class="plain"><strong>Plain language:</strong> your stuff stays yours. Don't feed the machine other people's faces or art without permission.</p>
+    </section>
+
+    <section class="tos-section" id="ai-content">
+      <h2>5 · AI-generated content (outputs)</h2>
+      <ul>
+        <li><strong>Ownership:</strong> as between you and us, we claim no rights in outputs generated from your inputs. Outputs are also subject to Google's Generative AI terms, and may be similar to outputs generated for other people (AI models can produce similar results from similar prompts) — we cannot promise uniqueness.</li>
+        <li><strong>No accuracy promise:</strong> AI outputs can be wrong, biased, or inappropriate despite safety filters. Review outputs before relying on or publishing them.</li>
+        <li><strong>Infringement:</strong> we make no representation that outputs do not infringe third-party rights. Clearing outputs for commercial use is your responsibility.</li>
+        <li><strong>Provenance metadata:</strong> images generated by the Suite embed the generation prompt and settings in the file's metadata. This is deliberate (provenance and reproducibility), but be aware: <em>sharing a generated PNG shares your prompt</em>. Strip metadata before sharing if your prompt is sensitive.</li>
+        <li><strong>Disclosure:</strong> if you publish outputs in contexts where they could be mistaken for authentic photographs or recordings of real people or events, you are responsible for disclosing that they are AI-generated, as required by the laws that apply to you.</li>
+      </ul>
+    </section>
+
+    <section class="tos-section" id="acceptable-use">
+      <h2>6 · Acceptable use</h2>
+      <p>You agree <strong>not</strong> to use the Suite to:</p>
+      <ul>
+        <li>Create, request, or distribute child sexual abuse material, or any sexual content involving minors — zero tolerance; reported where required by law.</li>
+        <li>Create non-consensual intimate imagery of any person.</li>
+        <li>Create deceptive media of identifiable real people without their consent ("deepfakes"), or any content intended to mislead about a person's words or actions — satire and art that a reasonable viewer would recognize as such, or made with consent, must still be labeled as synthetic where the law requires.</li>
+        <li>Harass, threaten, defame, or incite hatred or violence against any person or group.</li>
+        <li>Generate malware, or use the agent tools (web search, URL analysis, workflow fetch steps) to attack, probe, scrape abusively, or overload other systems.</li>
+        <li>Attempt to bypass, jailbreak, or weaken the safety filters of the underlying AI services.</li>
+        <li>Violate <a href="https://policies.google.com/terms/generative-ai/use-policy" target="_blank" rel="noopener">Google's Generative AI Prohibited Use Policy</a>, which applies to all generation features and is incorporated into these terms.</li>
+        <li>Break any law that applies to you or to us.</li>
+      </ul>
+      <p class="plain"><strong>Plain language:</strong> it's an art instrument. Use it to make art, not to hurt, impersonate, or deceive people.</p>
+    </section>
+
+    <section class="tos-section" id="privacy">
+      <h2>7 · Privacy &amp; data handling</h2>
+      <p>The Suite is designed local-first: there are no accounts, no advertising, no analytics trackers, and no cookies. Here is the complete data flow:</p>
+      <table class="data-flow">
+        <tr><th>Data</th><th>Where it lives</th><th>Leaves your machine?</th></tr>
+        <tr>
+          <td>Prompts, templates, liked prompts, theme choice</td>
+          <td>Your browser's <code>localStorage</code></td>
+          <td>Only when a feature sends a prompt to Google's APIs to generate</td>
+        </tr>
+        <tr>
+          <td>Uploaded images (analysis, transform, taste profile)</td>
+          <td>Processed in memory</td>
+          <td><strong>Yes</strong> — sent to Google's generative AI APIs (servers may be outside your country, typically the US) to perform the analysis or generation you requested</td>
+        </tr>
+        <tr>
+          <td>Generated images / video / audio, agent-session logs, workflow runs, taste &amp; agent profiles</td>
+          <td>Saved to the operator's disk (<code>Synthograsizer_Output/</code>) — on a self-hosted install, that's your own computer</td>
+          <td>No</td>
+        </tr>
+        <tr>
+          <td>Taste profile (aesthetic profile derived from your images, prompts, and quiz answers)</td>
+          <td><code>localStorage</code> + operator's disk backup</td>
+          <td>Inputs are sent to Google for analysis during synthesis; the resulting profile is stored locally</td>
+        </tr>
+        <tr>
+          <td>Google API key</td>
+          <td>Operator's disk (<code>ai_studio_config.json</code>) or environment variable</td>
+          <td>Sent only to Google to authenticate API calls</td>
+        </tr>
+        <tr>
+          <td>Feedback you submit (incl. "wrongly blocked" reports)</td>
+          <td>Operator's disk (<code>data/feedback/</code>) — your prompt is included only if you tick the opt-in box</td>
+          <td>No — unless you choose the GitHub-issue option, which opens GitHub in your browser</td>
+        </tr>
+        <tr>
+          <td>Local-model generations (when you select a local backend)</td>
+          <td>Processed entirely on your own hardware by your local model server</td>
+          <td><strong>No</strong> — local-tier text generation never leaves your machine/network</td>
+        </tr>
+      </table>
+      <h3>What we don't do</h3>
+      <ul>
+        <li>No sale or sharing of personal information. No advertising or behavioral tracking.</li>
+        <li>No training of AI models on your content by us. (Google's handling of API data is governed by <a href="https://ai.google.dev/gemini-api/terms" target="_blank" rel="noopener">Google's API terms</a> — review them, especially the difference between free and paid tiers.)</li>
+      </ul>
+      <h3>Your rights</h3>
+      <p>Subject to the privacy laws that apply to you (in Canada, PIPEDA and provincial laws; in the EU/EEA/UK, the GDPR), you can request access to, correction of, or deletion of personal information a hosted instance holds about you, and you can complain to your privacy regulator (in Canada, the <a href="https://www.priv.gc.ca" target="_blank" rel="noopener">Office of the Privacy Commissioner</a>). On a self-hosted install you can simply delete <code>localStorage</code> and the output folder. Contact for requests: see <a href="#contact">§15</a>.</p>
+      <h3>A note on the taste profile</h3>
+      <p>The taste-profile feature deliberately builds a profile of your aesthetic sensibility from work you provide. It exists to personalize <em>your own</em> creative tools, never to score, rank, or make decisions about you, and it is never shared. Build profiles only of yourself, or of someone who has explicitly agreed.</p>
+    </section>
+
+    <section class="tos-section" id="third-party">
+      <h2>8 · Third-party services</h2>
+      <ul>
+        <li><strong>Google generative AI</strong> (Gemini, Imagen, Veo, Lyria) — generation and analysis. Governed by <a href="https://ai.google.dev/gemini-api/terms" target="_blank" rel="noopener">Gemini API Terms</a> and the <a href="https://policies.google.com/terms/generative-ai/use-policy" target="_blank" rel="noopener">Prohibited Use Policy</a>.</li>
+        <li><strong>Google Fonts</strong> — font files loaded from Google's CDN (your IP address reaches Google when fonts load).</li>
+        <li><strong>Daydream Scope, OBS, MIDI devices</strong> — optional local integrations on your own network; nothing is sent to us.</li>
+      </ul>
+    </section>
+
+    <section class="tos-section" id="ip">
+      <h2>9 · Intellectual property</h2>
+      <p>The Suite's source code is available on <a href="https://github.com/quitters/synthograsizer" target="_blank" rel="noopener">GitHub</a> under the repository's license. The Synthograsizer name, wordmark, and visual identity belong to the maintainer. Feedback you choose to send us may be used to improve the Suite without obligation to you.</p>
+    </section>
+
+    <section class="tos-section" id="disclaimers">
+      <h2>10 · Disclaimers</h2>
+      <p>THE SUITE IS PROVIDED "AS IS" AND "AS AVAILABLE", WITHOUT WARRANTIES OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, ACCURACY, OR UNINTERRUPTED OPERATION. SOME JURISDICTIONS DO NOT ALLOW CERTAIN WARRANTY EXCLUSIONS, SO PARTS OF THIS SECTION MAY NOT APPLY TO YOU.</p>
+    </section>
+
+    <section class="tos-section" id="liability">
+      <h2>11 · Limitation of liability</h2>
+      <p>TO THE MAXIMUM EXTENT PERMITTED BY LAW, THE MAINTAINER WILL NOT BE LIABLE FOR INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR FOR LOST PROFITS, DATA, OR GOODWILL, ARISING FROM YOUR USE OF THE SUITE. THE MAINTAINER'S TOTAL LIABILITY FOR ALL CLAIMS RELATING TO THE HOSTED INSTANCE WILL NOT EXCEED THE GREATER OF CAD $50 OR THE AMOUNT YOU PAID US IN THE 12 MONTHS BEFORE THE CLAIM (CURRENTLY: NOTHING — THE SERVICE IS FREE). NOTHING IN THESE TERMS LIMITS LIABILITY THAT CANNOT BE LIMITED BY LAW.</p>
+    </section>
+
+    <section class="tos-section" id="termination">
+      <h2>12 · Suspension &amp; termination</h2>
+      <p>We may suspend or terminate access to a hosted instance at any time, with or without notice, including for violations of §6. You can stop using the Suite at any time; on a self-hosted install, deleting your data is entirely in your hands.</p>
+    </section>
+
+    <section class="tos-section" id="changes">
+      <h2>13 · Changes to these terms</h2>
+      <p>We may update these terms as the Suite evolves. The "last updated" date at the top will change, and material changes will be noted in the <a href="/synthograsizer/changelog.html">change notes</a>. Continued use after a change means you accept the new terms.</p>
+    </section>
+
+    <section class="tos-section" id="law">
+      <h2>14 · Governing law</h2>
+      <p>These terms are governed by the laws of <strong>[Province — e.g., Ontario]</strong> and the federal laws of Canada applicable there, without regard to conflict-of-law rules. Courts located in that province have exclusive jurisdiction, except that either party may seek injunctive relief anywhere. <em>[Placeholder — confirm province with counsel.]</em></p>
+    </section>
+
+    <section class="tos-section" id="contact">
+      <h2>15 · Contact</h2>
+      <p>Questions, privacy requests, or reports of content that violates §6: <a href="mailto:quittersarts@gmail.com">quittersarts@gmail.com</a>. Please include enough detail for us to act (links, filenames, timestamps).</p>
+    </section>
+
+  </main>
+</body>
+</html>

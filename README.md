@@ -35,6 +35,28 @@ Open **http://127.0.0.1:8000** → pick a tool from the hub.
 
 **API key:** Click the **API** button in the Synthograsizer sidebar and enter your [Google AI Studio](https://aistudio.google.com) key. It saves to `ai_studio_config.json` (gitignored, never committed). Or set `GOOGLE_API_KEY` as an environment variable before starting the server.
 
+### Local models (Ollama / LM Studio) — optional
+
+Text generation (templates, narratives, agent profiles, chat) can run on your own
+hardware instead of Google: open **Settings → Backend & Safety**, pick **Local model**,
+and point it at any OpenAI-compatible endpoint (Ollama default: `http://localhost:11434/v1`).
+
+- **Tier semantics:** on the local tier Synthograsizer applies no content filters of its
+  own — your hardware, your discretion, within the [Terms](static/terms/index.html)
+  acceptable-use rules, which apply regardless of backend. On the Google tier, Google's
+  safety filters and Prohibited Use Policy apply; the same panel adjusts Google's safety
+  thresholds within what its API permits.
+- **Mixed-mode v1:** images, video, and music always generate via Google (a key is still
+  needed for those). Multimodal template modes (image-reference remix, hybrid) also use Google.
+- **Caveat:** strict-JSON features (template generation, p5 sketches) are demanding —
+  small local models will sometimes fail schema validation; errors surface honestly.
+- **ChatRoom is separate:** the multi-agent ChatRoom app is hard-wired to Gemini and does
+  not follow the backend tier.
+
+Compliance posture, risk register, and the hosted-mode hardening switches
+(`SYNTH_HOSTED`, `RETENTION_DAYS`, rate limits) are documented in
+[docs/COMPLIANCE_ROADMAP.md](docs/COMPLIANCE_ROADMAP.md).
+
 **Windows shortcut:** double-click `start.bat` (Python server) or `launch-all.bat` (Python + ChatRoom Node.js).
 
 ### Option B — Vercel (static tools + AI endpoints)

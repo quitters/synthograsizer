@@ -1,0 +1,48 @@
+name: Wrongly blocked generation
+description: A safety filter blocked something it shouldn't have. Tell us so we can tune defaults and report upstream patterns.
+title: "[BLOCK] "
+labels: ["safety-feedback"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. Safety filters err on the side of caution and creative work
+        trips them more than most — these reports are how defaults get tuned.
+        **Please don't paste personal information.** Sharing your prompt is optional.
+  - type: input
+    id: surface
+    attributes:
+      label: Where did it happen?
+      description: Which tool/surface (Image Studio, Template Gen, Agent Studio, …)
+      placeholder: Image Studio
+    validations:
+      required: true
+  - type: input
+    id: model
+    attributes:
+      label: Model / backend
+      description: Prefilled by the app when you arrive from the error panel.
+      placeholder: gemini-3-pro-image-preview (google tier)
+  - type: input
+    id: category
+    attributes:
+      label: Reported harm category (if shown)
+      placeholder: e.g. DANGEROUS_CONTENT
+  - type: textarea
+    id: expected
+    attributes:
+      label: What were you making, and why is the block wrong?
+      description: Describe the creative intent. Include the prompt only if you're comfortable sharing it.
+      placeholder: Glitch-art portrait series — abstract paint-splatter texture got flagged as…
+    validations:
+      required: true
+  - type: dropdown
+    id: threshold
+    attributes:
+      label: Safety threshold in your settings at the time
+      options:
+        - Default (Light — block high risk)
+        - "Off (where permitted)"
+        - Medium
+        - Strict
+        - Not sure

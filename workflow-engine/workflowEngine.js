@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { synthClient } from './synthClient.js';
 import { workflowLibrary } from './workflowLibrary.js';
+import { safeFetchText } from './urlGuard.js';
 
 // mediaStore is injected at runtime via workflowEngine.configure({ mediaStore })
 let _mediaStore = null;
@@ -180,23 +181,13 @@ async function dispatchSynth(type, params, agentId = null, agentName = null, onC
     case 'synth_fetch': {
       // Fetch an external URL and return its content for downstream interpolation.
       // params: { url, format? = 'text'|'json', selector? }
+      // SSRF-guarded: scheme/private-IP validation on the URL and every
+      // redirect hop, 10s timeout, 2MB body cap. Loopback targets are
+      // allowed only when the instance is not hosted (urlGuard.js).
       const { url, format = 'text', selector } = params;
       if (!url) throw new Error('synth_fetch requires a url param');
 
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 15_000);
-      let raw;
-      try {
-        const res = await fetch(url, {
-          signal: controller.signal,
-          headers: { 'User-Agent': 'Synthograsizer-WorkflowEngine/1.0' },
-        });
-        clearTimeout(timer);
-        if (!res.ok) throw new Error(`HTTP ${res.status} from ${url}`);
-        raw = await res.text();
-      } finally {
-        clearTimeout(timer);
-      }
+      const raw = await safeFetchText(url, { timeoutMs: 10_000, maxBytes: 2 * 1024 * 1024 });
 
       if (format === 'json') {
         let data;

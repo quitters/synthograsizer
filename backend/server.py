@@ -54,6 +54,7 @@ from backend.routers import osc
 from backend.routers import music
 from backend.routers import sessions
 from backend.routers import outputs
+from backend.routers import feedback
 
 app.include_router(chat.router)
 app.include_router(generation.router)
@@ -67,6 +68,52 @@ app.include_router(osc.router)
 app.include_router(music.router)
 app.include_router(sessions.router)
 app.include_router(outputs.router)
+app.include_router(feedback.router)
+
+
+# ── Hosted-mode hardening ────────────────────────────────────────────────────
+# Rate limiting + retention purge activate only when SYNTH_HOSTED=1 (or on
+# Vercel). A solo local install is unaffected. See docs/COMPLIANCE_ROADMAP.md.
+from backend.policy import is_hosted as _is_hosted
+
+if _is_hosted():
+    import time as _time
+    from collections import defaultdict, deque
+    from fastapi import Request as _Request
+    from fastapi.responses import JSONResponse as _JSONResponse
+
+    # Per-IP sliding window over the expensive endpoints. Deliberately
+    # hand-rolled (no new dependency): a deque of timestamps per client.
+    _RATE_LIMITED_PREFIXES = ("/api/generate/", "/api/chat", "/api/analyze/", "/api/feedback")
+    _RATE_MAX_REQUESTS = int(os.environ.get("RATE_LIMIT_REQUESTS", "30"))
+    _RATE_WINDOW_SECONDS = int(os.environ.get("RATE_LIMIT_WINDOW_SECONDS", "300"))
+    _rate_buckets: dict = defaultdict(deque)
+
+    @app.middleware("http")
+    async def _rate_limit(request: _Request, call_next):
+        if request.method == "POST" and request.url.path.startswith(_RATE_LIMITED_PREFIXES):
+            client_ip = (request.headers.get("x-forwarded-for", "").split(",")[0].strip()
+                         or (request.client.host if request.client else "unknown"))
+            now = _time.monotonic()
+            bucket = _rate_buckets[client_ip]
+            while bucket and now - bucket[0] > _RATE_WINDOW_SECONDS:
+                bucket.popleft()
+            if len(bucket) >= _RATE_MAX_REQUESTS:
+                retry_after = int(_RATE_WINDOW_SECONDS - (now - bucket[0])) + 1
+                return _JSONResponse(
+                    status_code=429,
+                    content={"detail": "Rate limit exceeded — this is a shared instance. "
+                                       f"Try again in ~{retry_after}s, or run Synthograsizer locally."},
+                    headers={"Retry-After": str(retry_after)},
+                )
+            bucket.append(now)
+        return await call_next(request)
+
+    @app.on_event("startup")
+    async def _start_retention():
+        import asyncio
+        from backend.services.retention import retention_loop
+        asyncio.create_task(retention_loop())
 
 
 

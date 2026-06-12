@@ -20,7 +20,7 @@ from backend.osc_bridge import osc_bridge
 from backend.music_manager import get_music_manager
 from backend import config
 from backend.models.requests import *
-from backend.helpers import decode_base64_image, parse_llm_json
+from backend.helpers import decode_base64_image, parse_llm_json, SafetyBlockedError, safety_block_detail
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -263,6 +263,8 @@ async def generate_template(request: TemplateRequest):
             status_code=504,
             detail=f"Template generation timed out after {timeout}s. Try using Flash mode for faster results, or simplify your request."
         )
+    except SafetyBlockedError as e:
+        raise HTTPException(status_code=422, detail=safety_block_detail(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -273,6 +275,8 @@ async def generate_template_from_analysis(request: TemplateFromAnalysisRequest):
         json_str = await asyncio.to_thread(ai_manager.generate_template_from_analysis, request.analysis)
         json_obj = normalize_template(parse_llm_json(json_str))
         return {"status": "success", "template": json_obj}
+    except SafetyBlockedError as e:
+        raise HTTPException(status_code=422, detail=safety_block_detail(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

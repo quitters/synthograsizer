@@ -3,7 +3,13 @@ from typing import Optional, List, Dict
 from backend import config
 
 class ConfigRequest(BaseModel):
-    api_key: str
+    # All fields optional — clients send only what they're changing.
+    # Legacy payload {"api_key": "..."} keeps working unchanged.
+    api_key: Optional[str] = None
+    backend_tier: Optional[str] = None                      # "google" | "local"
+    local_base_url: Optional[str] = None                    # OpenAI-compatible endpoint
+    local_model: Optional[str] = None                       # model name on that endpoint
+    safety_settings: Optional[List[Dict[str, str]]] = None  # saved Google safety defaults
 
 class TextRequest(BaseModel):
     prompt: str

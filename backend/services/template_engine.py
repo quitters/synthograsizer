@@ -13,6 +13,7 @@ from pathlib import Path
 logger = logging.getLogger(__name__)
 from typing import Optional, List, Dict, Any, Union
 from backend import config
+from backend.helpers import SafetyBlockedError
 from backend.utils.retry import retry_on_transient
 import google.generativeai as genai
 from google import genai as genai_client
@@ -75,9 +76,6 @@ def generate_template(self, user_prompt: str, model_override: str = None) -> str
     """
     Generates a Synthograsizer JSON template based on user prompt.
     """
-    if not self.genai_client:
-        raise ValueError("API Key not configured")
-
     model = model_override or config.MODEL_TEMPLATE_GEN
     
     system_prompt = """
@@ -149,17 +147,13 @@ WRONG (parallel arrays — NEVER use this):
 """
     
     try:
-         # Use json mode if available or just prompt engineering
-         gen_config = types.GenerateContentConfig(
-             response_mime_type="application/json"
+         return self.llm_text(
+            [system_prompt, f"User Request: {user_prompt}"],
+            model,
+            json_mode=True,
          )
-         
-         response = self.genai_client.models.generate_content(
-            model=model,
-            contents=[system_prompt, f"User Request: {user_prompt}"],
-            config=gen_config
-         )
-         return response.text
+    except SafetyBlockedError:
+        raise  # keep the type — routers emit a structured 422 for these
     except Exception as e:
         raise Exception(f"Template generation failed: {e}")
 
@@ -167,9 +161,6 @@ def generate_template_from_analysis(self, analysis_text: str, model_override: st
     """
     Generates a Synthograsizer JSON template based on an image analysis description.
     """
-    if not self.genai_client:
-        raise ValueError("API Key not configured")
-
     model = model_override or config.MODEL_TEMPLATE_GEN
     
     system_prompt = """
@@ -223,16 +214,13 @@ Each entry in "values" is: {"text": "the value string", "weight": N}
 """
 
     try:
-         gen_config = types.GenerateContentConfig(
-             response_mime_type="application/json"
+         return self.llm_text(
+            [system_prompt, f"Image Analysis: {analysis_text}"],
+            model,
+            json_mode=True,
          )
-
-         response = self.genai_client.models.generate_content(
-            model=model,
-            contents=[system_prompt, f"Image Analysis: {analysis_text}"],
-            config=gen_config
-         )
-         return response.text
+    except SafetyBlockedError:
+        raise  # keep the type — routers emit a structured 422 for these
     except Exception as e:
         raise Exception(f"Template generation failed: {e}")
 
@@ -294,16 +282,15 @@ Each entry in "values" is: {"text": "the value string", "weight": N}
 """
 
     try:
-        gen_config = types.GenerateContentConfig(
-            response_mime_type="application/json"
+        # Image analysis above used Google (multimodal); this final step is
+        # text-only and follows the active backend tier.
+        return self.llm_text(
+            [system_prompt, f"IMAGE ANALYSIS:\n{analysis}\n\nUSER DIRECTION:\n{direction}"],
+            model,
+            json_mode=True,
         )
-
-        response = self.genai_client.models.generate_content(
-            model=model,
-            contents=[system_prompt, f"IMAGE ANALYSIS:\n{analysis}\n\nUSER DIRECTION:\n{direction}"],
-            config=gen_config
-        )
-        return response.text
+    except SafetyBlockedError:
+        raise  # keep the type — routers emit a structured 422 for these
     except Exception as e:
         raise Exception(f"Hybrid template generation failed: {e}")
 
@@ -385,16 +372,11 @@ Each entry in "values" is: {"text": "the value string", "weight": N}
         )
 
     try:
-        gen_config = types.GenerateContentConfig(
-            response_mime_type="application/json"
-        )
-
-        response = self.genai_client.models.generate_content(
-            model=model,
-            contents=[system_prompt, combined],
-            config=gen_config
-        )
-        return response.text
+        # Per-image analyses above used Google (multimodal); this synthesis
+        # step is text-only and follows the active backend tier.
+        return self.llm_text([system_prompt, combined], model, json_mode=True)
+    except SafetyBlockedError:
+        raise  # keep the type — routers emit a structured 422 for these
     except Exception as e:
         raise Exception(f"Multi-image template generation failed: {e}")
 
@@ -403,9 +385,6 @@ def remix_template(self, current_template: dict, instruction: str, reference_ima
     Evolve an existing template based on user instructions.
     Preserves elements the user doesn't explicitly ask to change.
     """
-    if not self.genai_client:
-        raise ValueError("API Key not configured")
-
     model = model_override or config.MODEL_TEMPLATE_GEN
 
     system_prompt = """You are a template editor for PromptCraft Sequencer — a VST-inspired 16-step prompt sequencer for AI image/video generation.
@@ -461,23 +440,31 @@ Each entry in "values" is: {"text": "the value string", "weight": N}
     template_json = json.dumps(current_template, indent=2)
 
     try:
+        contents = [system_prompt, f"CURRENT TEMPLATE:\n{template_json}\n\nINSTRUCTIONS:\n{instruction}"]
+
+        if not reference_images:
+            # Text-only remix follows the active backend tier.
+            return self.llm_text(contents, model, json_mode=True)
+
+        # Reference images attached → multimodal → Google path required.
+        if not self.genai_client:
+            raise ValueError(
+                "Reference images require the Google backend, but no Google API key "
+                "is configured. Remove the images or add a key in settings."
+            )
         gen_config = types.GenerateContentConfig(
             response_mime_type="application/json"
         )
-
-        contents = [system_prompt, f"CURRENT TEMPLATE:\n{template_json}\n\nINSTRUCTIONS:\n{instruction}"]
-
-        if reference_images:
-            image_notes = []
-            for i, img_bytes in enumerate(reference_images):
-                mime = "image/png" if img_bytes[:4] == b"\x89PNG" else "image/jpeg"
-                contents.insert(-1, types.Part.from_bytes(data=img_bytes, mime_type=mime))
-                image_notes.append(f"Image {i+1}")
-            contents.append(
-                f"REFERENCE IMAGES: {len(reference_images)} image(s) attached ({', '.join(image_notes)}). "
-                "Use these as visual context when applying the user's remix instructions. "
-                "The user's text explains how to interpret them."
-            )
+        image_notes = []
+        for i, img_bytes in enumerate(reference_images):
+            mime = "image/png" if img_bytes[:4] == b"\x89PNG" else "image/jpeg"
+            contents.insert(-1, types.Part.from_bytes(data=img_bytes, mime_type=mime))
+            image_notes.append(f"Image {i+1}")
+        contents.append(
+            f"REFERENCE IMAGES: {len(reference_images)} image(s) attached ({', '.join(image_notes)}). "
+            "Use these as visual context when applying the user's remix instructions. "
+            "The user's text explains how to interpret them."
+        )
 
         response = self.genai_client.models.generate_content(
             model=model,
@@ -485,6 +472,8 @@ Each entry in "values" is: {"text": "the value string", "weight": N}
             config=gen_config
         )
         return response.text
+    except SafetyBlockedError:
+        raise  # keep the type — routers emit a structured 422 for these
     except Exception as e:
         raise Exception(f"Template remix failed: {e}")
 
@@ -517,8 +506,6 @@ def edit_p5_sketch(self, p5_code: str, instruction: str, variables: list = None,
       told to prepend `// REQUIRES_FULL_REMIX: <reason>` and return the unchanged
       sketch — the caller can detect this and re-route to full remix.
     """
-    if not self.genai_client:
-        raise ValueError("API Key not configured")
     if not p5_code or not p5_code.strip():
         raise ValueError("edit_p5_sketch requires a non-empty p5_code.")
     if not instruction or not instruction.strip():
@@ -610,11 +597,19 @@ the sketch only — do not describe the image.
     )
 
     try:
-        # Plain-text response — no JSON mime type, no schema overhead
-        gen_config = types.GenerateContentConfig()
         contents = [system_prompt, user_msg]
 
-        if reference_images:
+        if not reference_images:
+            # Text-only sketch edit follows the active backend tier.
+            # Plain-text response — no JSON mode, no schema overhead.
+            raw = self.llm_text(contents, model) or ""
+        else:
+            # Reference images attached → multimodal → Google path required.
+            if not self.genai_client:
+                raise ValueError(
+                    "Reference images require the Google backend, but no Google API "
+                    "key is configured. Remove the images or add a key in settings."
+                )
             image_notes = []
             for i, img_bytes in enumerate(reference_images):
                 mime = "image/png" if img_bytes[:4] == b"\x89PNG" else "image/jpeg"
@@ -625,12 +620,12 @@ the sketch only — do not describe the image.
                 "Apply as the instruction directs."
             )
 
-        response = self.genai_client.models.generate_content(
-            model=model,
-            contents=contents,
-            config=gen_config
-        )
-        raw = response.text or ""
+            response = self.genai_client.models.generate_content(
+                model=model,
+                contents=contents,
+                config=types.GenerateContentConfig()
+            )
+            raw = response.text or ""
         # Strip accidental markdown fences if the model emits them despite the rule
         text = raw.strip()
         if text.startswith("```"):
@@ -642,6 +637,8 @@ the sketch only — do not describe the image.
                 lines = lines[:-1]
             text = "\n".join(lines)
         return text
+    except SafetyBlockedError:
+        raise  # keep the type — routers emit a structured 422 for these
     except Exception as e:
         raise Exception(f"p5.js sketch edit failed: {e}")
 
@@ -652,9 +649,6 @@ def generate_story_template(self, user_prompt: str, model_override: str = None) 
     sharing world/character/style anchors. Designed for storyboard-driven
     short film production (e.g. 12 beats × 8s = 96s).
     """
-    if not self.genai_client:
-        raise ValueError("API Key not configured")
-
     model = model_override or config.MODEL_TEMPLATE_GEN
 
     # ── Infer target_beats and beat_duration_s from user prompt ──
@@ -796,16 +790,13 @@ Beat 3: "A shot of {{{{character}}}} in {{{{environment}}}}, {{{{mood}}}} atmosp
 """
 
     try:
-        gen_config = types.GenerateContentConfig(
-            response_mime_type="application/json"
+        return self.llm_text(
+            [system_prompt, f"Story Concept: {user_prompt}"],
+            model,
+            json_mode=True,
         )
-
-        response = self.genai_client.models.generate_content(
-            model=model,
-            contents=[system_prompt, f"Story Concept: {user_prompt}"],
-            config=gen_config
-        )
-        return response.text
+    except SafetyBlockedError:
+        raise  # keep the type — routers emit a structured 422 for these
     except Exception as e:
         raise Exception(f"Story template generation failed: {e}")
 
@@ -821,9 +812,6 @@ def generate_story_beat(self, current_template: dict, target_beat_id: int, direc
     surrounding shots.  Text continuity (anchors, characters, ±1 beat
     descriptions) still drives the brief — images anchor consistency.
     """
-    if not self.genai_client:
-        raise ValueError("API Key not configured")
-
     model = model_override or config.MODEL_TEMPLATE_GEN
 
     story = current_template.get("story", {})
@@ -906,6 +894,16 @@ Respond with valid JSON only — a single beat object:
         )
 
     try:
+        if not image_notes:
+            # Text-only beat regeneration follows the active backend tier.
+            return self.llm_text(contents, model, json_mode=True)
+
+        # Adjacent-beat images attached → multimodal → Google path required.
+        if not self.genai_client:
+            raise ValueError(
+                "Visual-continuity images require the Google backend, but no Google "
+                "API key is configured. Regenerate without images or add a key."
+            )
         gen_config = types.GenerateContentConfig(
             response_mime_type="application/json"
         )
@@ -916,6 +914,8 @@ Respond with valid JSON only — a single beat object:
             config=gen_config
         )
         return response.text
+    except SafetyBlockedError:
+        raise  # keep the type — routers emit a structured 422 for these
     except Exception as e:
         raise Exception(f"Story beat regeneration failed: {e}")
 
@@ -925,9 +925,6 @@ def generate_p5_template(self, user_prompt: str, image_bytes: bytes = None, mode
     The sketch code uses instance mode (p. prefix) and reads live variable values via p.getSynthVar().
     An optional reference image can be provided for color palette / aesthetic guidance.
     """
-    if not self.genai_client:
-        raise ValueError("API Key not configured")
-
     model = model_override or config.MODEL_TEMPLATE_GEN
 
     system_prompt = """You are a creative coder generating p5.js generative art templates for the Synthograsizer system.
@@ -1003,8 +1000,21 @@ Resolve getSynthVar ONCE per frame at the top of p.draw, always with a fallback 
 - Use p.push() / p.pop() for state isolation; p.translate() / p.rotate() for transforms
 - No console.log, no alert, no document.write, no external dependencies"""
 
-    # Build content list — image first if provided (for palette/style reference)
-    if image_bytes:
+    try:
+        if not image_bytes:
+            # Text-only sketch generation follows the active backend tier.
+            return self.llm_text(
+                [system_prompt, f"Sketch Description: {user_prompt}"],
+                model,
+                json_mode=True,
+            )
+
+        # Palette-reference image attached → multimodal → Google path required.
+        if not self.genai_client:
+            raise ValueError(
+                "Reference images require the Google backend, but no Google API "
+                "key is configured. Remove the image or add a key in settings."
+            )
         # Detect mime type (default jpeg)
         mime = "image/jpeg"
         if image_bytes[:4] == b'\x89PNG':
@@ -1021,10 +1031,7 @@ Resolve getSynthVar ONCE per frame at the top of p.draw, always with a fallback 
             "Extract the dominant colors and mood, then embed them as one of the variable options (e.g., the first or default value in a palette variable).\n\n"
             f"Sketch Description: {user_prompt}",
         ]
-    else:
-        contents = [system_prompt, f"Sketch Description: {user_prompt}"]
 
-    try:
         gen_config = types.GenerateContentConfig(
             response_mime_type="application/json"
         )
@@ -1034,6 +1041,8 @@ Resolve getSynthVar ONCE per frame at the top of p.draw, always with a fallback 
             config=gen_config
         )
         return response.text
+    except SafetyBlockedError:
+        raise  # keep the type — routers emit a structured 422 for these
     except Exception as e:
         raise Exception(f"p5.js template generation failed: {e}")
 
@@ -1048,9 +1057,6 @@ def generate_taste_vector(self, artifacts: list, model_override: str = None) -> 
       - text:  the artifact's textual content
       - meta:  (optional) dict with extra context — name, variables, weights, source path
     """
-    if not self.genai_client:
-        raise ValueError("API Key not configured")
-
     if not artifacts:
         raise ValueError("artifacts list is empty — nothing to mine")
 
@@ -1107,18 +1113,11 @@ Hard rules:
         bundle_lines.append(text[:1500])
 
     bundle = "\n".join(bundle_lines)
-    contents = [system_prompt, bundle]
 
     try:
-        gen_config = types.GenerateContentConfig(
-            response_mime_type="application/json"
-        )
-        response = self.genai_client.models.generate_content(
-            model=model,
-            contents=contents,
-            config=gen_config
-        )
-        return response.text
+        return self.llm_text([system_prompt, bundle], model, json_mode=True)
+    except SafetyBlockedError:
+        raise  # keep the type — routers emit a structured 422 for these
     except Exception as e:
         raise Exception(f"Taste vector extraction failed: {e}")
 
@@ -1163,26 +1162,15 @@ def generate_agent_profile(self, user_prompt: str, model_override: str = None, s
     """
     Generates or refines a bespoke Agent Profile template with placeholders and variables.
     """
-    if not self.genai_client:
-        raise ValueError("API Key not configured")
-
     model = model_override or config.MODEL_TEMPLATE_GEN
 
     style_block = style_instruction.strip() if style_instruction and style_instruction.strip() else _AGENT_PROFILE_DEFAULT_STYLE
     system_prompt = _AGENT_PROFILE_STRUCTURAL_PREAMBLE + "\n\n" + style_block
 
-    contents = [system_prompt, user_prompt]
-
     try:
-        gen_config = types.GenerateContentConfig(
-            response_mime_type="application/json"
-        )
-        response = self.genai_client.models.generate_content(
-            model=model,
-            contents=contents,
-            config=gen_config
-        )
-        return response.text
+        return self.llm_text([system_prompt, user_prompt], model, json_mode=True)
+    except SafetyBlockedError:
+        raise  # keep the type — routers emit a structured 422 for these
     except Exception as e:
         raise Exception(f"Agent Profile generation failed: {e}")
 
@@ -1269,10 +1257,10 @@ def generate_taste_profile(self, images_list: list, quiz_answers: dict, corpus_t
     """
     Synthesize a Taste Profile + 4 tuned agents from uploaded images, prompt corpus, and quiz answers.
     Returns JSON string with shape {profile: {...}, agents: [4]}.
-    """
-    if not self.genai_client:
-        raise ValueError("API Key not configured")
 
+    Image analysis (step 1) always uses Google's multimodal API; the final
+    synthesis (step 2) is text-only and follows the active backend tier.
+    """
     # Step 1: Analyze each image (reuses analyze_image_to_prompt; auto-resizes large images)
     analyses = []
     for i, img_bytes in enumerate(images_list):
@@ -1295,15 +1283,13 @@ def generate_taste_profile(self, images_list: list, quiz_answers: dict, corpus_t
     model = model_override or config.MODEL_TEMPLATE_GEN
 
     try:
-        gen_config = types.GenerateContentConfig(
-            response_mime_type="application/json"
+        return self.llm_text(
+            [_TASTE_PROFILE_SYSTEM_PROMPT, user_payload],
+            model,
+            json_mode=True,
         )
-        response = self.genai_client.models.generate_content(
-            model=model,
-            contents=[_TASTE_PROFILE_SYSTEM_PROMPT, user_payload],
-            config=gen_config
-        )
-        return response.text
+    except SafetyBlockedError:
+        raise  # keep the type — routers emit a structured 422 for these
     except Exception as e:
         raise Exception(f"Taste profile generation failed: {e}")
 
