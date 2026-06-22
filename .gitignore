@@ -59,3 +59,7 @@ static/promptcraft/
 static/daw/
 static/fun-stuff/
 static/metadata-manager/
+
+# Capacitr storyboard run artifacts (regenerable; archived under Synthograsizer_Output/JSON/Capacitr Workflows/)
+data/capacitr/
+static/synthograsizer/capacitr-gallery*/
