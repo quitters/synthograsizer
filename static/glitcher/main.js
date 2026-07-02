@@ -2089,9 +2089,12 @@ class GlitcherApp {
       for (const effect of effectsToProcess) {
         // Per-effect stored mask takes priority over global mask.
         // null selectionMask means "use global" (clump/manual/none).
+        // Clump-aware effects (direction, spiral) localize themselves via
+        // context.clumps — masking them again would clip their shift trails
+        // at the clump edge, which is exactly what classic mode doesn't do.
         const effectMask = (effect.selectionMask != null)
           ? effect.selectionMask
-          : globalMask;
+          : (effect.clumpAware ? null : globalMask);
 
         if (effectMask) {
           // Snapshot the buffer before this effect so we can composite masked regions only

@@ -34,6 +34,7 @@ export class EffectFactory {
       category: 'Movement',
       icon: '🧭',
       defaultMode: 'destructive',
+      clumpAware: true, // consumes context.clumps itself — skip global clump masking
       defaultParameters: {
         direction: 'down',
         speed: 2,
@@ -59,23 +60,32 @@ export class EffectFactory {
           label: 'Selection Aware'
         }
       },
-      processFunction: (imageData, params, selectionMask) => {
-        // Create a clump for the effect
-        const clump = {
-          x: 0,
-          y: 0,
-          w: imageData.width,
-          h: imageData.height,
-          clumpDirection: params.direction
-        };
-        
-        DirectionEffects.applyDirectionShift(
-          imageData,
-          clump,
-          params.speed,
-          params.direction,
-          params.selectionAware ? selectionMask : null
-        );
+      processFunction: (imageData, params, selectionMask, context) => {
+        // Match classic mode: apply per active clump (small animated regions
+        // from the selection engine) so the shift accumulates into streaks.
+        // Fall back to one whole-canvas clump when no clump context exists
+        // (e.g. one-shot chain application on a bare image).
+        const mask = params.selectionAware
+          ? (selectionMask || context?.selectionMask || null)
+          : null;
+        const dirs = ['up', 'down', 'left', 'right'];
+        const clumps = (context?.clumps && context.clumps.length)
+          ? context.clumps
+          : [{
+              x: 0, y: 0, w: imageData.width, h: imageData.height,
+              // 'random' resolves via clumpDirection — give the fallback a real one
+              clumpDirection: dirs[Math.floor(Math.random() * dirs.length)]
+            }];
+
+        for (const clump of clumps) {
+          DirectionEffects.applyDirectionShift(
+            imageData,
+            clump,
+            params.speed,
+            params.direction,
+            mask
+          );
+        }
       }
     });
 
@@ -87,6 +97,7 @@ export class EffectFactory {
       category: 'Distort',
       icon: '🌀',
       defaultMode: 'destructive',
+      clumpAware: true, // consumes context.clumps itself — skip global clump masking
       defaultParameters: {
         type: 'spiral',
         strength: 0.06,
@@ -118,22 +129,31 @@ export class EffectFactory {
           label: 'Selection Aware'
         }
       },
-      processFunction: (imageData, params, selectionMask) => {
-        const clump = {
-          x: 0,
-          y: 0,
-          w: imageData.width,
-          h: imageData.height
-        };
-        
-        SpiralEffects.applySwirlEffect(
-          imageData,
-          clump,
-          params.strength,
-          params.type,
-          params.direction,
-          params.selectionAware ? selectionMask : null
-        );
+      processFunction: (imageData, params, selectionMask, context) => {
+        // Match classic mode: one vortex per active clump (localized swirls),
+        // not a single whole-canvas swirl. 'spiral' type resolves to the
+        // chosen rotation direction, exactly like the classic path.
+        const mask = params.selectionAware
+          ? (selectionMask || context?.selectionMask || null)
+          : null;
+        let swirlType = params.type;
+        if (swirlType === 'spiral') {
+          swirlType = params.direction;
+        }
+        const clumps = (context?.clumps && context.clumps.length)
+          ? context.clumps
+          : [{ x: 0, y: 0, w: imageData.width, h: imageData.height }];
+
+        for (const clump of clumps) {
+          SpiralEffects.applySwirlEffect(
+            imageData,
+            clump,
+            params.strength,
+            swirlType,
+            params.direction,
+            mask
+          );
+        }
       }
     });
 

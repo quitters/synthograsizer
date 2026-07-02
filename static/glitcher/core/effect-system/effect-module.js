@@ -16,6 +16,11 @@ export class EffectModule {
     
     // Processing mode
     this.mode = config.defaultMode || 'destructive'; // 'destructive' or 'non-destructive'
+
+    // Clump-aware effects consume context.clumps themselves (per-region
+    // application, like classic mode) — the studio loop must not re-clip
+    // their output to the clump-union mask or it destroys shift trails.
+    this.clumpAware = !!config.clumpAware;
     
     // State
     this.enabled = true;
