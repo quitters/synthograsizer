@@ -45,12 +45,14 @@ async def configure_api(request: ConfigRequest):
             ai_manager.configure_api(request.api_key)
             applied.append("api_key")
         if any(v is not None for v in (request.backend_tier, request.local_base_url,
-                                       request.local_model, request.safety_settings)):
+                                       request.local_model, request.safety_settings,
+                                       request.google_api_mode)):
             policy.update(
                 tier=request.backend_tier,
                 local_base_url=request.local_base_url,
                 local_model=request.local_model,
                 safety_defaults=request.safety_settings,
+                google_api_mode=request.google_api_mode,
             )
             applied.extend(
                 name for name, val in (
@@ -58,6 +60,7 @@ async def configure_api(request: ConfigRequest):
                     ("local_base_url", request.local_base_url),
                     ("local_model", request.local_model),
                     ("safety_settings", request.safety_settings),
+                    ("google_api_mode", request.google_api_mode),
                 ) if val is not None
             )
         if not applied:

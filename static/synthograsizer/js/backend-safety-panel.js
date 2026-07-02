@@ -7,12 +7,15 @@
  * What it controls:
  *   - Backend tier for TEXT generation:
  *       google : Google GenAI APIs — Google's safety filters and Prohibited
- *                Use Policy apply. The safety selectors below adjust
- *                Google's thresholds within what its API permits.
+ *                Use Policy apply.
  *       local  : an OpenAI-compatible endpoint on your own hardware
  *                (Ollama, LM Studio). Synthograsizer applies no content
  *                filters of its own — your discretion under the Terms (§6).
  *     Mixed-mode v1: images, video, and music ALWAYS generate via Google.
+ *   - Google API mode (google_api_mode):
+ *       interactions : Interactions API (default) — Google-managed filtering,
+ *                      store=false on every call; threshold knobs are inert.
+ *       legacy       : generateContent — honors the per-category thresholds.
  *   - Google safety defaults (saved server-side via POST /api/config).
  *
  * Hosted instances (/api/health → hosted:true): everything renders
@@ -56,6 +59,8 @@
   function buildPanelHTML(snap) {
     const hosted = !!snap.hosted;
     const tier = snap.backend_tier || 'google';
+    const apiMode = snap.google_api_mode || 'interactions';
+    const thresholdsActive = apiMode === 'legacy';
     const safety = {};
     (snap.safety_defaults || []).forEach(s => { safety[s.category] = s.threshold; });
 
@@ -66,7 +71,7 @@
     const safetyRows = SAFETY_CATEGORIES.map(c => `
       <div class="bsp-safety-row">
         <span class="bsp-safety-label">${c.label}</span>
-        <select class="bsp-safety-select" data-category="${c.id}" ${hosted ? 'disabled' : ''}>
+        <select class="bsp-safety-select" data-category="${c.id}" ${(hosted || !thresholdsActive) ? 'disabled' : ''}>
           ${thresholdOptions(safety[c.id])}
         </select>
       </div>`).join('');
@@ -124,14 +129,35 @@
 
       <div id="bsp-safety-block" style="display:${tier === 'google' ? 'block' : 'none'};">
         <div class="studio-input-group">
+          <label>Google API</label>
+          <label style="display:flex; gap:8px; align-items:flex-start; font-weight:normal; cursor:pointer; margin:4px 0;">
+            <input type="radio" name="bsp-api-mode" value="interactions" ${apiMode === 'interactions' ? 'checked' : ''} ${hosted ? 'disabled' : ''} style="margin-top:3px;">
+            <span><strong>Interactions API (current)</strong><br>
+            <span style="font-size:11.5px; opacity:.85;">Google's recommended interface. Filtering is
+            managed by Google — the per-category thresholds below don't apply. Requests are sent
+            stateless (<code>store=false</code>): nothing is retained server-side at Google.</span></span>
+          </label>
+          <label style="display:flex; gap:8px; align-items:flex-start; font-weight:normal; cursor:pointer; margin:4px 0;">
+            <input type="radio" name="bsp-api-mode" value="legacy" ${apiMode === 'legacy' ? 'checked' : ''} ${hosted ? 'disabled' : ''} style="margin-top:3px;">
+            <span><strong>generateContent (legacy)</strong><br>
+            <span style="font-size:11.5px; opacity:.85;">Still fully supported by Google. Honors the
+            per-category thresholds below — switch here if the Interactions API blocks too much of
+            your artistic work.</span></span>
+          </label>
+        </div>
+        <div class="studio-input-group">
           <label>Google safety thresholds <span style="font-weight:normal; opacity:.7;">(apply to all Google calls — image, video, and text on the Google backend)</span></label>
+          <div id="bsp-api-mode-note" style="display:${thresholdsActive ? 'none' : 'block'}; font-size:11px; padding:8px 10px; background:rgba(90,138,184,.10); border:1px solid #5a8ab8; border-radius:6px; margin-bottom:6px;">
+            ℹ️ Thresholds are saved but <strong>only enforced on the legacy generateContent API</strong>.
+            On the Interactions API, Google applies its own managed filtering.
+          </div>
           ${safetyRows}
           <div style="font-size:11px; opacity:.75; margin-top:6px;">
             "Off" is honored only where Google's API permits it for your account — rejections
             surface as errors when you generate, not here.
           </div>
         </div>
-        <button class="studio-btn-secondary" id="bsp-safety-reset" type="button" ${hosted ? 'disabled' : ''}>↺ Reset to defaults</button>
+        <button class="studio-btn-secondary" id="bsp-safety-reset" type="button" ${(hosted || !thresholdsActive) ? 'disabled' : ''}>↺ Reset to defaults</button>
       </div>
 
       ${hosted ? '' : `<button class="studio-btn-primary" id="bsp-save" type="button" style="margin-top:12px;">Save Backend &amp; Safety</button>`}
@@ -168,6 +194,18 @@
         const local = radio.value === 'local' && radio.checked;
         document.getElementById('bsp-local-fields').style.display = local ? 'block' : 'none';
         document.getElementById('bsp-safety-block').style.display = local ? 'none' : 'block';
+      });
+    });
+
+    // Google API mode radio → arm/disarm the threshold knobs
+    document.querySelectorAll('input[name="bsp-api-mode"]').forEach(radio => {
+      radio.addEventListener('change', () => {
+        const legacy = document.querySelector('input[name="bsp-api-mode"]:checked')?.value === 'legacy';
+        document.querySelectorAll('.bsp-safety-select').forEach(sel => { sel.disabled = hosted || !legacy; });
+        const note = document.getElementById('bsp-api-mode-note');
+        if (note) note.style.display = legacy ? 'none' : 'block';
+        const reset = document.getElementById('bsp-safety-reset');
+        if (reset) reset.disabled = hosted || !legacy;
       });
     });
 
@@ -215,6 +253,10 @@
         if (url) payload.local_base_url = url;
         if (model) payload.local_model = model;
       } else {
+        payload.google_api_mode =
+          document.querySelector('input[name="bsp-api-mode"]:checked')?.value || 'interactions';
+        // Thresholds are saved regardless of mode — they take effect whenever
+        // the legacy generateContent API is selected.
         payload.safety_settings = Array.from(document.querySelectorAll('.bsp-safety-select')).map(sel => ({
           category: sel.dataset.category,
           threshold: sel.value,

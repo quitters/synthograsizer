@@ -10,6 +10,7 @@ class ConfigRequest(BaseModel):
     local_base_url: Optional[str] = None                    # OpenAI-compatible endpoint
     local_model: Optional[str] = None                       # model name on that endpoint
     safety_settings: Optional[List[Dict[str, str]]] = None  # saved Google safety defaults
+    google_api_mode: Optional[str] = None                   # "interactions" | "legacy"
 
 class TextRequest(BaseModel):
     prompt: str
