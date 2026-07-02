@@ -219,6 +219,7 @@
     .badge-style  { color: var(--color-purple);  border-color: var(--color-purple); background: rgba(136,104,168,.09); }
     .badge-refact { color: var(--color-cyan);    border-color: var(--color-cyan);   background: rgba(72,152,168,.09); }
     .badge-chore  { color: var(--color-yellow);  border-color: var(--color-yellow); background: rgba(200,150,42,.09); }
+    .badge-perf   { color: var(--color-yellow);  border-color: var(--color-yellow); background: rgba(200,150,42,.09); }
 
     .entry-text {
       font-family: var(--font-label);
@@ -286,9 +287,81 @@
       <div class="version-header">
         <span class="version-tag">NEXT</span>
         <span class="version-label unreleased">Unreleased</span>
-        <span class="version-date">In Progress — 2026-06-12</span>
+        <span class="version-date">In Progress — 2026-07-02</span>
       </div>
       <div class="version-panel">
+        <div class="panel-section-label">Gemini Interactions API Migration</div>
+        <ul class="entry-list">
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">All Gemini calls migrated to Google's Interactions API — stateless by default</div>
+              <div class="entry-sub">Text, chat, vision, multimodal template modes, Gemini image generation, and the entire ChatRoom server now use <code>interactions.create</code> (Google's GA interface, June 2026) instead of <code>generateContent</code>. Every request is sent with <code>store=false</code> — nothing is retained server-side at Google (the API's default would keep requests for 55 days). The deprecated <code>google-generativeai</code> / <code>@google/generative-ai</code> SDKs are gone; Veo, Imagen, and Lyria keep their dedicated APIs.</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">Google API mode switch — legacy generateContent as a safety escape hatch</div>
+              <div class="entry-sub">The Interactions API has no per-category safety thresholds — filtering is Google-managed. <strong>Settings → Backend &amp; Safety → Google API</strong> now offers <strong>Interactions (current)</strong> and <strong>generateContent (legacy)</strong>: legacy mode re-arms the threshold knobs for edgy artistic work and doubles as a wholesale behavioral rollback. The panel greys the knobs out (with an explanation) while Interactions is active; <code>/api/health</code> reports the mode; hosted instances pin it via <code>SYNTH_GOOGLE_API</code>.</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-fix">fix</span>
+            <div>
+              <div class="entry-text">Thinking-model output can no longer leak into streamed text</div>
+              <div class="entry-sub">Interactions streams thinking summaries as separate events; the new stream handlers (backend and ChatRoom) only surface text from real model output, and ChatRoom's truncation auto-continue now keys on <code>status: incomplete</code>. Verified live across text, streaming, JSON mode, chat history, vision, image gen, and web-search grounding in both API modes; new unit suite (<code>tests/test_google_api.py</code>) locks the <code>store=false</code> contract.</div>
+            </div>
+          </li>
+        </ul>
+        <div class="panel-section-label">Suite Wayfinding &amp; First-Run</div>
+        <ul class="entry-list">
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">The hub finally goes places — and knows when you're local</div>
+              <div class="entry-sub">Every "Launch" button on the landing page detects a local instance and opens the full app (public/hosted visitors keep the gated demo); Taste Profile, standalone Glitcher, and Agent Chat Room got real linked cards. The shared navbar now appears on <em>every</em> surface (main app and Taste Profile included, as a slim dark pill), lists the full app first, and labels the demo honestly instead of calling it "main".</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">⚙ Settings button in the header + honest API-key status</div>
+              <div class="entry-sub">Global Settings was only reachable through the small API chip (its dedicated button had been lost — the binding was still warning in the console). A visible <strong>⚙ Settings</strong> button is back in the header, and the modal now says <em>"✓ API key active on this server"</em> instead of showing an empty field when a key is already configured.</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-perf">perf</span>
+            <div>
+              <div class="entry-text">Composer precompiled — no more in-browser Babel or CDN React</div>
+              <div class="entry-sub">Composer shipped as raw JSX transpiled in the browser via unpkg Babel, with development-build React from a CDN — slow startup, console warnings, and a hard break if the CDN was unreachable. It's now compiled ahead of time (<code>composer.jsx</code> → <code>composer.js</code>) with production React vendored locally; Composer works fully offline.</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-fix">fix</span>
+            <div>
+              <div class="entry-text">Workflows explain themselves when the ChatRoom server is down</div>
+              <div class="entry-sub">Instead of a dead panel and console spam, the Workflows modal now shows what's wrong, names <code>launch-all.bat</code> as the fix, and offers a working <strong>↻ Retry connection</strong> button.</div>
+            </div>
+          </li>
+        </ul>
+        <div class="panel-section-label">Glitcher: Suite Identity &amp; Studio-Mode Effect Fixes</div>
+        <ul class="entry-list">
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">Glitcher joins the family — teal-forward on the suite's dark identity</div>
+              <div class="entry-sub">New shared design tokens (<code>static/shared/css/tokens.css</code>) define the suite palette; Glitcher was remapped onto it (569 substitutions across both modes) keeping teal as its signature accent on the suite's near-black backgrounds. Also: the duplicate sidebar drop-zone is now a compact "Browse files…" tile, and the unexplained red ✕ is gone.</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-fix">fix</span>
+            <div>
+              <div class="entry-text">Direction &amp; Spiral now behave like classic mode inside Studio Mode</div>
+              <div class="entry-sub">Studio Mode applied both effects to the whole canvas at once — spiral rendered one global swirl instead of per-region vortices, direction was a uniform shift with its smear trails clipped off, and <strong>Direction → Random did nothing at all</strong>. Both effects now consume the same animated clump regions as classic mode, trails render fully, and random direction works. Verified side-by-side against classic on identical images.</div>
+            </div>
+          </li>
+        </ul>
         <div class="panel-section-label">Backend Tiers, Safety Controls &amp; Feedback</div>
         <ul class="entry-list">
           <li class="entry-item">

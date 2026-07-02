@@ -12,6 +12,7 @@
 | Tool | Description |
 |------|-------------|
 | **Synthograsizer** | D-pad prompt template engine with MIDI, live p5.js canvas, Image/Video Studio, Agent Studio, and Display Window |
+| **Taste Profile** | Onboarding flow — drop your finished work, take an A/B taste test, get an AI agent crew tuned to how you create |
 | **Glitcher** | Professional glitch-art studio — destructive & non-destructive pixel effects, selection system, recording |
 | **ChatRoom** | Multi-agent autonomous AI conversations powered by Gemini — custom personas, memory, image generation |
 | **Scope Plugin** | [`scope-synthograsizer`](scope-synthograsizer/) — pip-installable Daydream Scope preprocessor pipeline |
@@ -33,7 +34,17 @@ python -m backend.server
 
 Open **http://127.0.0.1:8000** → pick a tool from the hub.
 
-**API key:** Click the **API** button in the Synthograsizer sidebar and enter your [Google AI Studio](https://aistudio.google.com) key. It saves to `ai_studio_config.json` (gitignored, never committed). Or set `GOOGLE_API_KEY` as an environment variable before starting the server.
+**API key:** Click **⚙ Settings** in the Synthograsizer header (or the **API** chip in the connections strip) and enter your [Google AI Studio](https://aistudio.google.com) key. It saves to `ai_studio_config.json` (gitignored, never committed). Or set `GOOGLE_API_KEY` as an environment variable before starting the server.
+
+### Gemini API mode
+
+Gemini-model calls (text, vision, image generation) use Google's **Interactions API** by
+default — every request is sent stateless (`store=false`), so nothing is retained
+server-side at Google. Content filtering in this mode is Google-managed. If the managed
+filtering blocks too much of your artistic work, **⚙ Settings → Backend & Safety →
+Google API** switches to the legacy **generateContent** API, which honors the
+per-category safety thresholds in the same panel. Veo video, Imagen, and Lyria music are
+unaffected by this switch.
 
 ### Local models (Ollama / LM Studio) — optional
 
@@ -44,8 +55,9 @@ and point it at any OpenAI-compatible endpoint (Ollama default: `http://localhos
 - **Tier semantics:** on the local tier Synthograsizer applies no content filters of its
   own — your hardware, your discretion, within the [Terms](static/terms/index.html)
   acceptable-use rules, which apply regardless of backend. On the Google tier, Google's
-  safety filters and Prohibited Use Policy apply; the same panel adjusts Google's safety
-  thresholds within what its API permits.
+  safety filters and Prohibited Use Policy apply; the panel's per-category thresholds are
+  honored in the legacy generateContent API mode (on the default Interactions API,
+  filtering is Google-managed — see *Gemini API mode* above).
 - **Mixed-mode v1:** images, video, and music always generate via Google (a key is still
   needed for those). Multimodal template modes (image-reference remix, hybrid) also use Google.
 - **Caveat:** strict-JSON features (template generation, p5 sketches) are demanding —
@@ -88,7 +100,7 @@ Or use `chatroom/start.bat` to launch both at once.
 ### Synthograsizer
 - **D-pad / knob UI** — navigate variables with ↑↓←→ or a MIDI controller; weights and values update live
 - **50+ templates** — p5.js generative art (attractors, boids, cellular automata, physics) and structured AI prompt templates
-- **Image & Video Studio** — Imagen 3 image generation and Veo 2 video generation, driven by the current prompt
+- **Image & Video Studio** — Gemini image generation (Flash / NB2 / Pro) and Veo video generation, driven by the current prompt
 - **Agent Studio** — multi-agent AI conversation panel embedded in the tool; send generated images to agents for critique and receive back image prompts
 - **Glitcher Studio** — the full Glitcher app embedded as a modal; pull the latest Image Studio output or a live p5.js frame, glitch it, and send the result back to the output or save it as an artifact
 - **Batch generation** — cycle or randomize across all variable combinations with streaming results
