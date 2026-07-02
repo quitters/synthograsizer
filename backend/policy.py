@@ -45,6 +45,19 @@ TIER_GOOGLE = "google"
 TIER_LOCAL = "local"
 VALID_TIERS = (TIER_GOOGLE, TIER_LOCAL)
 
+# Which Google API serves Gemini-model calls (text / vision / gemini image gen):
+#   - "interactions" (default): the Interactions API (interactions.create).
+#     No per-category safety thresholds exist there — Google-managed filtering
+#     applies. Every call is sent with store=False (no server-side retention).
+#   - "legacy": generateContent — still fully supported by Google; honors the
+#     operator's safety_settings thresholds. Doubles as a wholesale behavioral
+#     rollback switch for the Interactions migration.
+# Veo / Imagen / Lyria are not covered by the Interactions API and always use
+# their dedicated endpoints regardless of this mode.
+GOOGLE_API_INTERACTIONS = "interactions"
+GOOGLE_API_LEGACY = "legacy"
+VALID_GOOGLE_APIS = (GOOGLE_API_INTERACTIONS, GOOGLE_API_LEGACY)
+
 DEFAULT_LOCAL_BASE_URL = "http://localhost:11434/v1"   # Ollama's OpenAI-compatible mount
 DEFAULT_LOCAL_MODEL = "llama3.1"
 
@@ -136,6 +149,7 @@ class Policy:
         self._local_base_url: str = DEFAULT_LOCAL_BASE_URL
         self._local_model: str = DEFAULT_LOCAL_MODEL
         self._safety_defaults: Optional[List[Dict[str, str]]] = None
+        self._google_api_mode: str = GOOGLE_API_INTERACTIONS
         self.load()
 
     # ── persistence ──────────────────────────────────────────────────────
@@ -149,6 +163,10 @@ class Policy:
         self._local_model = backend.get("local_model") or DEFAULT_LOCAL_MODEL
         saved_safety = backend.get("safety_defaults")
         self._safety_defaults = saved_safety if self._valid_safety_shape(saved_safety) else None
+        api_mode = backend.get("google_api_mode")
+        self._google_api_mode = (
+            api_mode if api_mode in VALID_GOOGLE_APIS else GOOGLE_API_INTERACTIONS
+        )
 
     def save(self) -> None:
         """Merge policy state into the shared config file (key preserved)."""
@@ -161,6 +179,7 @@ class Policy:
                 "local_base_url": self._local_base_url,
                 "local_model": self._local_model,
                 "safety_defaults": self._safety_defaults,
+                "google_api_mode": self._google_api_mode,
             }
             try:
                 with open(CONFIG_PATH, "w", encoding="utf-8") as f:
@@ -195,6 +214,18 @@ class Policy:
         if is_hosted():
             return TIER_GOOGLE
         return self._tier
+
+    def effective_google_api(self) -> str:
+        """Which Google API serves Gemini-model calls right now.
+
+        Hosted instances take the mode from the environment
+        (``SYNTH_GOOGLE_API``) so anonymous visitors can't switch APIs on
+        the operator's key; unset or invalid values mean Interactions.
+        """
+        if is_hosted():
+            env_mode = os.environ.get("SYNTH_GOOGLE_API", "")
+            return env_mode if env_mode in VALID_GOOGLE_APIS else GOOGLE_API_INTERACTIONS
+        return self._google_api_mode
 
     @property
     def local_base_url(self) -> str:
@@ -233,6 +264,7 @@ class Policy:
         local_base_url: Optional[str] = None,
         local_model: Optional[str] = None,
         safety_defaults: Optional[List[Dict[str, str]]] = None,
+        google_api_mode: Optional[str] = None,
     ) -> None:
         """Apply operator configuration. Raises on hosted instances and on
         malformed input; persists on success."""
@@ -261,6 +293,13 @@ class Policy:
                     '{"category": str, "threshold": str} objects'
                 )
             self._safety_defaults = safety_defaults
+        if google_api_mode is not None:
+            if google_api_mode not in VALID_GOOGLE_APIS:
+                raise ValueError(
+                    f"Unknown google_api_mode: {google_api_mode!r} "
+                    f"(expected one of {VALID_GOOGLE_APIS})"
+                )
+            self._google_api_mode = google_api_mode
         self.save()
 
     # ── introspection for /api/health and the settings panel ────────────
@@ -274,6 +313,10 @@ class Policy:
             "local_model": self._local_model,
             "safety_defaults": self._safety_defaults or BASELINE_SAFETY,
             "safety_customized": self._safety_defaults is not None,
+            "google_api_mode": self.effective_google_api(),
+            # Safety thresholds only reach Google on the legacy generateContent
+            # API — the panel uses this to render the knobs active vs. inert.
+            "safety_thresholds_active": self.effective_google_api() == GOOGLE_API_LEGACY,
         }
 
 
