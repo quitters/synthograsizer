@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>Glitcher - Glitch Art Studio</title>
+  <link rel="stylesheet" href="/shared/css/tokens.css">
   <link rel="stylesheet" href="/shared/css/base.css">
   <link rel="icon" type="image/png" href="/shared/assets/favicon.png">
   <!-- Load Effect Studio CSS -->
@@ -39,10 +40,13 @@
     }
 
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      font-family: var(--suite-font-ui, 'Inter', 'Segoe UI', sans-serif);
+      /* Suite dark ramp with Glitcher's teal signature glow at the top */
+      background:
+        radial-gradient(ellipse 65% 50% at 50% 0%, rgba(61, 189, 173, 0.10), transparent 60%),
+        linear-gradient(180deg, var(--suite-bg, #0a0a12) 0%, var(--suite-bg-2, #12121f) 100%);
       min-height: 100vh;
-      color: #ffffff;
+      color: var(--suite-text, #e6e8f0);
       overflow-x: auto;
     }
 
@@ -57,7 +61,7 @@
     /* Control Panel Styling */
     .control-panel {
       position: relative; /* For absolute positioned close button */
-      background: linear-gradient(145deg, #2a2a40, #1f1f35);
+      background: linear-gradient(145deg, #1f1f30, #161624);
       border-radius: 20px;
       padding: 25px;
       box-shadow: 
@@ -73,9 +77,9 @@
       text-align: center;
       margin-bottom: 40px;
       padding: 25px 20px 30px;
-      border-bottom: 1px solid rgba(78, 205, 196, 0.15);
+      border-bottom: 1px solid rgba(61, 189, 173, 0.15);
       background: 
-        linear-gradient(180deg, rgba(78, 205, 196, 0.03) 0%, transparent 100%);
+        linear-gradient(180deg, rgba(61, 189, 173, 0.03) 0%, transparent 100%);
       position: relative;
     }
     
@@ -88,14 +92,14 @@
       transform: translateX(-50%);
       width: 60px;
       height: 3px;
-      background: linear-gradient(90deg, transparent, #4ecdc4, transparent);
+      background: linear-gradient(90deg, transparent, #3dbdad, transparent);
       border-radius: 2px;
     }
 
     .panel-title {
       font-size: 32px;
       font-weight: 800;
-      background: linear-gradient(135deg, #4ecdc4 0%, #45b7d1 50%, #5e60ce 100%);
+      background: linear-gradient(135deg, #3dbdad 0%, #818cf8 50%, #5e60ce 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -115,53 +119,11 @@
       opacity: 0.7;
     }
 
-    /* Close button - fixed to viewport corner */
-    .close-button {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      width: 40px;
-      height: 40px;
-      background: linear-gradient(145deg, #ff4757, #d63031);
-      color: #fff;
-      font-size: 32px;
-      font-weight: bold;
-      line-height: 36px;
-      text-align: center;
-      text-decoration: none;
-      border-radius: 6px;
-      border: 2px solid rgba(0,0,0,0.3);
-      box-shadow: 
-        inset 1px 1px 2px rgba(255,255,255,0.3),
-        inset -1px -1px 2px rgba(0,0,0,0.3),
-        0 4px 12px rgba(0,0,0,0.5);
-      transition: all 0.2s ease;
-      cursor: pointer;
-      z-index: 10000;
-      font-family: monospace;
-    }
-    
-    .close-button:hover {
-      background: linear-gradient(145deg, #ff6b7a, #e74c3c);
-      transform: scale(1.1);
-      box-shadow: 
-        inset 1px 1px 2px rgba(255,255,255,0.4),
-        inset -1px -1px 2px rgba(0,0,0,0.4),
-        0 6px 16px rgba(255, 71, 87, 0.5);
-    }
-    
-    .close-button:active {
-      transform: scale(1.0);
-      box-shadow: 
-        inset 2px 2px 4px rgba(0,0,0,0.4),
-        0 2px 8px rgba(0,0,0,0.4);
-    }
-    
     /* Header Studio Toggle Button */
     .header-studio-toggle {
       padding: 16px 32px;
-      background: linear-gradient(135deg, #4ecdc4 0%, #45b7d1 100%);
-      border: 2px solid rgba(78, 205, 196, 0.3);
+      background: linear-gradient(135deg, #3dbdad 0%, #818cf8 100%);
+      border: 2px solid rgba(61, 189, 173, 0.3);
       border-radius: 12px;
       color: #fff;
       font-weight: 700;
@@ -169,7 +131,7 @@
       cursor: pointer;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       box-shadow: 
-        0 6px 20px rgba(78, 205, 196, 0.25),
+        0 6px 20px rgba(61, 189, 173, 0.25),
         inset 0 1px 0 rgba(255, 255, 255, 0.2);
       width: calc(100% - 40px);
       max-width: 320px;
@@ -195,18 +157,18 @@
     }
     
     .header-studio-toggle:hover {
-      background: linear-gradient(135deg, #45b7d1 0%, #4ecdc4 100%);
+      background: linear-gradient(135deg, #818cf8 0%, #3dbdad 100%);
       transform: translateY(-3px) scale(1.02);
       box-shadow: 
-        0 10px 30px rgba(78, 205, 196, 0.4),
+        0 10px 30px rgba(61, 189, 173, 0.4),
         inset 0 1px 0 rgba(255, 255, 255, 0.3);
-      border-color: rgba(78, 205, 196, 0.5);
+      border-color: rgba(61, 189, 173, 0.5);
     }
     
     .header-studio-toggle:active {
       transform: translateY(-1px) scale(1.0);
       box-shadow: 
-        0 4px 15px rgba(78, 205, 196, 0.3),
+        0 4px 15px rgba(61, 189, 173, 0.3),
         inset 0 2px 4px rgba(0, 0, 0, 0.2);
     }
     
@@ -222,7 +184,7 @@
 
     /* Control Groups */
     .control-group {
-      background: linear-gradient(145deg, #1f1f35, #2a2a40);
+      background: linear-gradient(145deg, #161624, #1f1f30);
       border-radius: 15px;
       padding: 20px;
       margin-bottom: 20px;
@@ -236,7 +198,7 @@
       font-size: 16px;
       font-weight: bold;
       margin-bottom: 15px;
-      color: #ff6b6b;
+      color: #fb7185;
       text-transform: uppercase;
       letter-spacing: 1px;
       display: flex;
@@ -247,11 +209,11 @@
     /* NEW: Filter effects styling */
     .filter-group {
       background: linear-gradient(145deg, #2a4028, #1f351d);
-      border: 1px solid rgba(78, 205, 196, 0.2);
+      border: 1px solid rgba(61, 189, 173, 0.2);
     }
 
     .filter-group .group-title {
-      color: #4ecdc4;
+      color: #3dbdad;
     }
 
     /* Filter-specific controls */
@@ -260,7 +222,7 @@
       padding: 15px;
       background: rgba(0,0,0,0.2);
       border-radius: 8px;
-      border: 1px solid rgba(78, 205, 196, 0.1);
+      border: 1px solid rgba(61, 189, 173, 0.1);
     }
 
     /* Media info styling */
@@ -296,7 +258,7 @@
     /* Selection-specific styling */
     .selection-group {
       background: linear-gradient(145deg, #403028, #351f1d);
-      border: 1px solid rgba(255, 196, 78, 0.2);
+      border: 1px solid rgba(251, 191, 36, 0.2);
     }
 
     .selection-group .group-title {
@@ -305,51 +267,53 @@
 
     /* File Upload, Button, Select, Slider, Canvas styling... (same as before) */
     .file-upload-area {
-      border: 2px dashed rgba(255,255,255,0.3);
-      border-radius: 12px;
-      padding: 30px 20px;
+      /* Compact browse tile — the large center canvas drop-zone is the
+         primary affordance; this is the sidebar's browse/replace entry. */
+      border: 1px dashed var(--suite-border-hi, rgba(255,255,255,0.3));
+      border-radius: 10px;
+      padding: 12px 14px;
       text-align: center;
       transition: all 0.3s ease;
       cursor: pointer;
-      background: linear-gradient(145deg, #1a1a30, #252540);
+      background: linear-gradient(145deg, #1a1a30, #1b1b2c);
     }
 
     .file-upload-area:hover {
-      border-color: #4ecdc4;
+      border-color: #3dbdad;
       transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(78, 205, 196, 0.2);
+      box-shadow: 0 8px 25px rgba(61, 189, 173, 0.2);
     }
 
-    .upload-icon { font-size: 48px; margin-bottom: 15px; color: #4ecdc4; }
-    .upload-text { font-size: 16px; margin-bottom: 8px; font-weight: bold; }
-    .upload-hint { font-size: 12px; color: #888; }
+    .upload-icon { font-size: 48px; margin-bottom: 15px; color: var(--suite-teal, #3dbdad); }
+    .upload-text { font-size: 13px; margin-bottom: 4px; font-weight: 600; color: var(--suite-teal, #3dbdad); }
+    .upload-hint { font-size: 11px; color: var(--suite-text-dim, #888); line-height: 1.5; }
     #image-input { display: none; }
 
     .control-button {
-      background: linear-gradient(145deg, #4ecdc4, #45b7d1);
+      background: linear-gradient(145deg, #3dbdad, #818cf8);
       border: none; border-radius: 12px; padding: 12px 20px; color: white;
       font-weight: bold; cursor: pointer; transition: all 0.3s ease;
-      box-shadow: 0 6px 15px rgba(78, 205, 196, 0.3);
+      box-shadow: 0 6px 15px rgba(61, 189, 173, 0.3);
       text-transform: uppercase; letter-spacing: 1px; font-size: 12px; margin: 5px;
     }
 
-    .control-button:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(78, 205, 196, 0.4); transition: all 0.3s ease; }
+    .control-button:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(61, 189, 173, 0.4); transition: all 0.3s ease; }
     .control-button.active { 
-      background: linear-gradient(145deg, #4ecdc4, #45b7d1); 
-      box-shadow: 0 0 15px rgba(78, 205, 196, 0.5), inset 0 2px 5px rgba(255,255,255,0.2);
+      background: linear-gradient(145deg, #3dbdad, #818cf8); 
+      box-shadow: 0 0 15px rgba(61, 189, 173, 0.5), inset 0 2px 5px rgba(255,255,255,0.2);
       transform: translateY(-1px);
     }
-    .danger-button { background: linear-gradient(145deg, #ff6b6b, #ff5252); }
-    .success-button { background: linear-gradient(145deg, #66bb6a, #4caf50); }
-    .toggle-button { background: linear-gradient(145deg, #ffa726, #ff9800); min-width: 60px; }
+    .danger-button { background: linear-gradient(145deg, #fb7185, #f43f5e); }
+    .success-button { background: linear-gradient(145deg, #10b981, #4caf50); }
+    .toggle-button { background: linear-gradient(145deg, #fbbf24, #ff9800); min-width: 60px; }
 
     .control-select {
-      background: linear-gradient(145deg, #2a2a40, #1f1f35);
+      background: linear-gradient(145deg, #1f1f30, #161624);
       border: 1px solid rgba(255,255,255,0.2); border-radius: 8px;
       padding: 10px 15px; color: white; font-size: 14px; cursor: pointer; width: 100%; margin-bottom: 10px;
     }
-    .control-select:focus { outline: none; border-color: #4ecdc4; box-shadow: 0 0 10px rgba(78, 205, 196, 0.3); }
-    .control-select option { background: #2a2a40; color: white; }
+    .control-select:focus { outline: none; border-color: #3dbdad; box-shadow: 0 0 10px rgba(61, 189, 173, 0.3); }
+    .control-select option { background: #1f1f30; color: white; }
     .control-select optgroup { 
       background: #4a5568; 
       color: white; 
@@ -357,7 +321,7 @@
       font-size: 13px;
     }
     .control-select optgroup option {
-      background: #2a2a40;
+      background: #1f1f30;
       color: white;
       font-weight: normal;
       padding-left: 15px;
@@ -365,10 +329,10 @@
 
     .slider-container { margin-bottom: 15px; }
     .slider-label { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 14px; font-weight: bold; }
-    .slider-value { background: linear-gradient(45deg, #4ecdc4, #45b7d1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-size: 16px; min-width: 50px; text-align: right; }
-    .control-slider { width: 100%; height: 8px; border-radius: 5px; background: linear-gradient(to right, #1f1f35, #2a2a40); outline: none; cursor: pointer; -webkit-appearance: none; appearance: none; }
-    .control-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 20px; height: 20px; border-radius: 50%; background: linear-gradient(145deg, #4ecdc4, #45b7d1); cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
-    .control-slider::-moz-range-thumb { width: 20px; height: 20px; border-radius: 50%; background: linear-gradient(145deg, #4ecdc4, #45b7d1); cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.3); border: none; }
+    .slider-value { background: linear-gradient(45deg, #3dbdad, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-size: 16px; min-width: 50px; text-align: right; }
+    .control-slider { width: 100%; height: 8px; border-radius: 5px; background: linear-gradient(to right, #161624, #1f1f30); outline: none; cursor: pointer; -webkit-appearance: none; appearance: none; }
+    .control-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 20px; height: 20px; border-radius: 50%; background: linear-gradient(145deg, #3dbdad, #818cf8); cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
+    .control-slider::-moz-range-thumb { width: 20px; height: 20px; border-radius: 50%; background: linear-gradient(145deg, #3dbdad, #818cf8); cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.3); border: none; }
 
     /* Checkbox styling */
     .checkbox-container {
@@ -381,7 +345,7 @@
     .control-checkbox {
       width: 20px;
       height: 20px;
-      background: linear-gradient(145deg, #2a2a40, #1f1f35);
+      background: linear-gradient(145deg, #1f1f30, #161624);
       border: 2px solid rgba(255,255,255,0.2);
       border-radius: 4px;
       cursor: pointer;
@@ -392,8 +356,8 @@
     }
 
     .control-checkbox:checked {
-      background: linear-gradient(145deg, #4ecdc4, #45b7d1);
-      border-color: #4ecdc4;
+      background: linear-gradient(145deg, #3dbdad, #818cf8);
+      border-color: #3dbdad;
     }
 
     .control-checkbox:checked::after {
@@ -410,11 +374,11 @@
     /* Preset buttons styling */
     .preset-group {
       background: linear-gradient(145deg, #2a3640, #1f2b35);
-      border: 1px solid rgba(255, 215, 0, 0.2);
+      border: 1px solid rgba(251, 191, 36, 0.2);
     }
     
     .preset-group .group-title {
-      color: #ffd700;
+      color: #fbbf24;
     }
     
     .preset-grid {
@@ -442,16 +406,16 @@
     
     .preset-button:hover {
       background: linear-gradient(145deg, #4a4a60, #3f3f55);
-      border-color: rgba(255, 215, 0, 0.3);
+      border-color: rgba(251, 191, 36, 0.3);
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(255, 215, 0, 0.2);
+      box-shadow: 0 4px 12px rgba(251, 191, 36, 0.2);
     }
     
     .preset-button.active {
-      background: linear-gradient(145deg, #ffd700, #ffed4e);
-      color: #1a1a2e;
-      border-color: #ffd700;
-      box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+      background: linear-gradient(145deg, #fbbf24, #ffed4e);
+      color: #12121f;
+      border-color: #fbbf24;
+      box-shadow: 0 0 15px rgba(251, 191, 36, 0.4);
     }
     
     .preset-info {
@@ -460,7 +424,7 @@
     }
 
     .canvas-area {
-      background: linear-gradient(145deg, #2a2a40, #1f1f35); border-radius: 20px; padding: 30px;
+      background: linear-gradient(145deg, #1f1f30, #161624); border-radius: 20px; padding: 30px;
       box-shadow: inset -5px -5px 10px rgba(0,0,0,0.3), inset 5px 5px 10px rgba(255,255,255,0.1), 0 20px 40px rgba(0,0,0,0.4);
       border: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 600px;
     }
@@ -478,7 +442,7 @@
       border: 2px dashed rgba(255,255,255,0.3);
       border-radius: 15px;
       padding: 40px 30px;
-      background: linear-gradient(145deg, rgba(26, 26, 48, 0.8), rgba(37, 37, 64, 0.6));
+      background: linear-gradient(145deg, rgba(18, 18, 31, 0.8), rgba(27, 27, 44, 0.6));
       backdrop-filter: blur(10px);
       transition: all 0.3s ease;
       cursor: pointer;
@@ -487,20 +451,20 @@
     }
     
     .canvas-drop-zone:hover {
-      border-color: #4ecdc4;
-      background: linear-gradient(145deg, rgba(26, 26, 48, 0.9), rgba(37, 37, 64, 0.8));
+      border-color: #3dbdad;
+      background: linear-gradient(145deg, rgba(18, 18, 31, 0.9), rgba(27, 27, 44, 0.8));
       transform: translateY(-5px);
       box-shadow: 
-        0 15px 35px rgba(78, 205, 196, 0.2),
+        0 15px 35px rgba(61, 189, 173, 0.2),
         inset 0 1px 0 rgba(255,255,255,0.1);
     }
     
     .canvas-drop-zone.drag-over {
-      border-color: #4ecdc4;
-      background: linear-gradient(145deg, rgba(78, 205, 196, 0.2), rgba(69, 183, 209, 0.1));
+      border-color: #3dbdad;
+      background: linear-gradient(145deg, rgba(61, 189, 173, 0.2), rgba(129, 140, 248, 0.1));
       transform: scale(1.02);
       box-shadow: 
-        0 20px 40px rgba(78, 205, 196, 0.3),
+        0 20px 40px rgba(61, 189, 173, 0.3),
         inset 0 1px 0 rgba(255,255,255,0.2);
     }
     
@@ -526,12 +490,12 @@
     }
     
     .feature-tag {
-      background: linear-gradient(145deg, rgba(78, 205, 196, 0.2), rgba(69, 183, 209, 0.1));
-      border: 1px solid rgba(78, 205, 196, 0.3);
+      background: linear-gradient(145deg, rgba(61, 189, 173, 0.2), rgba(129, 140, 248, 0.1));
+      border: 1px solid rgba(61, 189, 173, 0.3);
       border-radius: 20px;
       padding: 6px 12px;
       font-size: 12px;
-      color: #4ecdc4;
+      color: #3dbdad;
       font-weight: bold;
       white-space: nowrap;
     }
@@ -545,20 +509,20 @@
 
     .button-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
     .button-grid-full { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 10px; }
-    .status-indicator { width: 12px; height: 12px; border-radius: 50%; background: #66bb6a; box-shadow: 0 0 10px rgba(102, 187, 106, 0.5); animation: pulse 2s infinite; }
+    .status-indicator { width: 12px; height: 12px; border-radius: 50%; background: #10b981; box-shadow: 0 0 10px rgba(102, 187, 106, 0.5); animation: pulse 2s infinite; }
     @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.2); opacity: 0.7; } 100% { transform: scale(1); opacity: 1; } }
-    .status-indicator.paused { background: #ffa726; box-shadow: 0 0 10px rgba(255, 167, 38, 0.5); }
+    .status-indicator.paused { background: #fbbf24; box-shadow: 0 0 10px rgba(251, 191, 36, 0.5); }
 
     .flex-row { display: flex; align-items: center; gap: 10px; }
     .text-small { font-size: 12px; color: #888; margin-top: 5px; }
 
-    .module-status { background: rgba(78, 205, 196, 0.1); border: 1px solid rgba(78, 205, 196, 0.3); border-radius: 8px; padding: 10px; margin-bottom: 20px; font-size: 12px; }
-    .module-status.enhanced { background: rgba(255, 215, 0, 0.1); border-color: rgba(255, 215, 0, 0.3); }
+    .module-status { background: rgba(61, 189, 173, 0.1); border: 1px solid rgba(61, 189, 173, 0.3); border-radius: 8px; padding: 10px; margin-bottom: 20px; font-size: 12px; }
+    .module-status.enhanced { background: rgba(251, 191, 36, 0.1); border-color: rgba(251, 191, 36, 0.3); }
 
     /* Enhanced selection feedback */
     .selection-ripple {
       position: absolute;
-      border: 2px solid rgba(78, 205, 196, 0.6);
+      border: 2px solid rgba(61, 189, 173, 0.6);
       border-radius: 50%;
       pointer-events: none;
       animation: ripple-expand 0.6s ease-out forwards;
@@ -589,29 +553,29 @@
     }
     
     .notification-info {
-      background: rgba(78, 205, 196, 0.9);
-      border-left: 4px solid #4ecdc4;
+      background: rgba(61, 189, 173, 0.9);
+      border-left: 4px solid #3dbdad;
     }
     
     .notification-success {
       background: rgba(102, 187, 106, 0.9);
-      border-left: 4px solid #66bb6a;
+      border-left: 4px solid #10b981;
     }
     
     .notification-warning {
-      background: rgba(255, 167, 38, 0.9);
-      border-left: 4px solid #ffa726;
+      background: rgba(251, 191, 36, 0.9);
+      border-left: 4px solid #fbbf24;
     }
     
     .notification-error {
-      background: rgba(255, 107, 107, 0.9);
-      border-left: 4px solid #ff6b6b;
+      background: rgba(251, 113, 133, 0.9);
+      border-left: 4px solid #fb7185;
     }
     
     /* Context menu styling */
     .context-menu {
       position: fixed;
-      background: linear-gradient(145deg, #2a2a40, #1f1f35);
+      background: linear-gradient(145deg, #1f1f30, #161624);
       border: 1px solid rgba(255,255,255,0.2);
       border-radius: 8px;
       padding: 8px 0;
@@ -633,13 +597,13 @@
     }
     
     .context-menu-item:hover {
-      background: rgba(78, 205, 196, 0.2);
+      background: rgba(61, 189, 173, 0.2);
     }
     
     /* Tooltip styling */
     .selection-tooltip {
       position: fixed;
-      background: linear-gradient(145deg, #2a2a40, #1f1f35);
+      background: linear-gradient(145deg, #1f1f30, #161624);
       color: white;
       padding: 8px 12px;
       border-radius: 6px;
@@ -656,7 +620,7 @@
     
     /* Color picker styling */
     .control-color-picker {
-      background: linear-gradient(145deg, #2a2a40, #1f1f35);
+      background: linear-gradient(145deg, #1f1f30, #161624);
       border: 2px solid rgba(255,255,255,0.2);
       border-radius: 8px;
       padding: 5px;
@@ -665,14 +629,14 @@
     }
     
     .control-color-picker:hover {
-      border-color: #4ecdc4;
-      box-shadow: 0 0 10px rgba(78, 205, 196, 0.3);
+      border-color: #3dbdad;
+      box-shadow: 0 0 10px rgba(61, 189, 173, 0.3);
     }
     
     .control-color-picker:focus {
       outline: none;
-      border-color: #4ecdc4;
-      box-shadow: 0 0 15px rgba(78, 205, 196, 0.5);
+      border-color: #3dbdad;
+      box-shadow: 0 0 15px rgba(61, 189, 173, 0.5);
     }
     
     /* Dynamic control styling */
@@ -693,7 +657,7 @@
       padding: 15px;
       background: rgba(0,0,0,0.2);
       border-radius: 8px;
-      border: 1px solid rgba(255, 196, 78, 0.1);
+      border: 1px solid rgba(251, 191, 36, 0.1);
       animation: fadeIn 0.3s ease;
     }
     
@@ -707,8 +671,8 @@
     }
     
     @keyframes colorPulse {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(78, 205, 196, 0); }
-      50% { box-shadow: 0 0 10px 2px rgba(78, 205, 196, 0.3); }
+      0%, 100% { box-shadow: 0 0 0 0 rgba(61, 189, 173, 0); }
+      50% { box-shadow: 0 0 10px 2px rgba(61, 189, 173, 0.3); }
     }
     
     @media (max-width: 900px) {
@@ -725,15 +689,14 @@
   <style>
     /* Dark theme overrides for Glitcher navbar */
     .suite-navbar { margin-top: 10px !important; margin-bottom: 0 !important; padding: 10px 20px !important; }
-    .suite-navbar a, .suite-navbar .dropbtn { color: #4ecdc4 !important; }
+    .suite-navbar a, .suite-navbar .dropbtn { color: #3dbdad !important; }
     .suite-navbar a:hover, .suite-navbar .dropbtn:hover { color: #7efff6 !important; }
-    .suite-navbar .dropdown-content { background: #2a2a40 !important; }
-    .suite-navbar .dropdown-content a { color: #4ecdc4 !important; }
-    .suite-navbar .dropdown-content a:hover { background-color: rgba(78, 205, 196, 0.1) !important; }
+    .suite-navbar .dropdown-content { background: #1f1f30 !important; }
+    .suite-navbar .dropdown-content a { color: #3dbdad !important; }
+    .suite-navbar .dropdown-content a:hover { background-color: rgba(61, 189, 173, 0.1) !important; }
   </style>
 
-  <!-- Close button fixed to viewport -->
-  <a href="/" class="close-button" title="Back to Home">×</a>
+  <!-- (viewport close button removed — the suite navbar's home link covers navigation) -->
 
   <div class="studio-container">
     <!-- Control Panel -->
@@ -755,9 +718,8 @@
       <div class="control-group">
         <div class="group-title">📁 Media Source</div>
         <div class="file-upload-area" onclick="document.getElementById('image-input').click()">
-          <div class="upload-icon">🖼️</div>
-          <div class="upload-text">Drop Media Here</div>
-          <div class="upload-hint">Images, GIFs, or Videos (max 20s)</div>
+          <div class="upload-text">📂 Browse files…</div>
+          <div class="upload-hint">or drag &amp; drop onto the canvas — images, GIFs, videos (max 20s)</div>
           <input type="file" id="image-input" accept="image/*,video/mp4,video/webm,image/gif">
         </div>
         <div class="media-info" style="margin-top: 10px; display: none;">
@@ -1000,7 +962,7 @@
         </div>
         
         <!-- Interactive Tools -->
-        <div class="control-group" style="margin-top: 15px; background: rgba(78, 205, 196, 0.1); border: 1px solid rgba(78, 205, 196, 0.3);">
+        <div class="control-group" style="margin-top: 15px; background: rgba(61, 189, 173, 0.1); border: 1px solid rgba(61, 189, 173, 0.3);">
           <div class="group-title">✏️ Interactive Tools</div>
           <div class="button-grid">
             <button id="select-tool" class="control-button toggle-button" data-tool="select">🔲 Select</button>

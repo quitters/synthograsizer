@@ -1,0 +1,59 @@
+/* ════════════════════════════════════════════════════════════════════
+   Synthograsizer Suite — shared design tokens
+   ════════════════════════════════════════════════════════════════════
+   The canonical palette + type stack for the suite's dark identity
+   (landing page, Taste Profile, and — teal-forward — Glitcher).
+
+   Adoption status:
+     - Glitcher: palette remapped to these values (hex inlined for the
+       legacy 6.6k-line stylesheets; new rules use the variables).
+     - Landing / Taste Profile: define the same values locally in :root;
+       migrating them to this file is incremental follow-up work.
+     - Main app: keeps its own themeable hardware/cel-pastel skins.
+
+   Per-tool signature accents (used on tool cards, headers, focus rings):
+     Synthograsizer = indigo · Glitcher = teal · Taste Profile = fuchsia
+   ════════════════════════════════════════════════════════════════════ */
+:root {
+  /* Brand hues */
+  --suite-indigo:   #6366f1;
+  --suite-indigo-2: #818cf8;
+  --suite-teal:     #3dbdad;
+  --suite-fuchsia:  #d946ef;
+  --suite-amber:    #fbbf24;
+  --suite-rose:     #fb7185;
+  --suite-rose-deep:#f43f5e;
+  --suite-green:    #10b981;
+  --suite-red:      #ef4444;
+
+  /* RGB triplets for rgba() composition */
+  --suite-indigo-rgb:   99, 102, 241;
+  --suite-indigo-2-rgb: 129, 140, 248;
+  --suite-teal-rgb:     61, 189, 173;
+  --suite-rose-rgb:     251, 113, 133;
+  --suite-amber-rgb:    251, 191, 36;
+
+  /* Elevation ramp (darkest page bg → lifted panel) */
+  --suite-bg:   #0a0a12;
+  --suite-bg-2: #12121f;
+  --suite-bg-3: #161624;
+  --suite-bg-4: #1b1b2c;
+  --suite-bg-5: #1f1f30;
+  --suite-bg-hover: #262638;
+
+  /* Surfaces & borders (over any bg step) */
+  --suite-surface:    rgba(255, 255, 255, 0.04);
+  --suite-surface-hi: rgba(255, 255, 255, 0.07);
+  --suite-border:     rgba(255, 255, 255, 0.08);
+  --suite-border-hi:  rgba(255, 255, 255, 0.14);
+
+  /* Text */
+  --suite-text:      #e6e8f0;
+  --suite-text-mute: #9aa0b4;
+  --suite-text-dim:  #6b7088;
+
+  /* Type stack */
+  --suite-font-ui:      'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --suite-font-display: 'Space Grotesk', 'Inter', sans-serif;
+  --suite-font-mono:    'JetBrains Mono', 'Roboto Mono', monospace;
+}

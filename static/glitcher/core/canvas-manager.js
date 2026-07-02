@@ -79,7 +79,7 @@ export class CanvasManager {
       dropZone.classList.add('drag-over');
       // For legacy file upload area, also change border color
       if (dropZone.classList.contains('file-upload-area')) {
-        dropZone.style.borderColor = '#4ecdc4';
+        dropZone.style.borderColor = '#3dbdad';
       }
     });
 

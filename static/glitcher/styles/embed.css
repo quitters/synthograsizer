@@ -5,7 +5,7 @@
    ────────────────────────────────────────────────────────────────────── */
 
 body.embed-mode {
-  background: #1a1a2e !important;
+  background: #12121f !important;
   overflow: hidden !important;
   min-height: 0 !important;
   height: 100vh !important;
@@ -47,13 +47,13 @@ body.embed-mode .control-panel {
   display: flex; gap: 6px;
   background: rgba(20, 20, 40, .88);
   padding: 6px 8px; border-radius: 6px;
-  border: 1px solid rgba(78, 205, 196, .4);
+  border: 1px solid rgba(61, 189, 173, .4);
   backdrop-filter: blur(4px);
 }
 .embed-action-btn {
-  background: rgba(78, 205, 196, .15);
-  color: #4ecdc4;
-  border: 1px solid rgba(78, 205, 196, .5);
+  background: rgba(61, 189, 173, .15);
+  color: #3dbdad;
+  border: 1px solid rgba(61, 189, 173, .5);
   padding: 5px 10px;
   border-radius: 4px;
   font-size: 11px;
@@ -65,16 +65,16 @@ body.embed-mode .control-panel {
   transition: all .15s;
 }
 .embed-action-btn:hover {
-  background: rgba(78, 205, 196, .35);
+  background: rgba(61, 189, 173, .35);
   color: #fff;
-  border-color: #4ecdc4;
+  border-color: #3dbdad;
 }
 .embed-action-btn.primary {
-  background: rgba(78, 205, 196, .85);
-  color: #1a1a2e;
+  background: rgba(61, 189, 173, .85);
+  color: #12121f;
 }
 .embed-action-btn.primary:hover {
-  background: #4ecdc4;
+  background: #3dbdad;
 }
 
 /* Hide-only-in-embed helper */

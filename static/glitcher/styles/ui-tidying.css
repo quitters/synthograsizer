@@ -103,7 +103,7 @@
   right: 80px !important; /* Next to close button */
   width: 40px !important;
   height: 40px !important;
-  background: linear-gradient(145deg, #4ecdc4, #45b7d1) !important;
+  background: linear-gradient(145deg, #3dbdad, #818cf8) !important;
   color: #fff !important;
   font-size: 24px !important;
   text-align: center !important;
@@ -124,12 +124,12 @@
 }
 
 .mode-toggle-icon-button:hover {
-  background: linear-gradient(145deg, #45b7d1, #3bc9be) !important;
+  background: linear-gradient(145deg, #818cf8, #3bc9be) !important;
   transform: scale(1.1) !important;
   box-shadow: 
     inset 1px 1px 2px rgba(255,255,255,0.4),
     inset -1px -1px 2px rgba(0,0,0,0.4),
-    0 6px 16px rgba(78, 205, 196, 0.5) !important;
+    0 6px 16px rgba(61, 189, 173, 0.5) !important;
 }
 
 .mode-toggle-icon-button:active {

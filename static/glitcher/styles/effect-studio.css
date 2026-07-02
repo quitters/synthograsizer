@@ -24,7 +24,7 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: linear-gradient(145deg, #252540, #2a2a40);
+  background: linear-gradient(145deg, #1b1b2c, #1f1f30);
   border-radius: 12px;
   border: 1px solid rgba(255,255,255,0.1);
   overflow: hidden;
@@ -33,7 +33,7 @@
 
 .effect-chain-header {
   padding: 16px 20px;
-  background: linear-gradient(145deg, #2a2a40, #1f1f35);
+  background: linear-gradient(145deg, #1f1f30, #161624);
   border-bottom: 1px solid rgba(255,255,255,0.1);
   display: flex;
   align-items: center;
@@ -43,7 +43,7 @@
 .effect-chain-header h3 {
   font-size: 16px;
   font-weight: bold;
-  color: #4ecdc4;
+  color: #3dbdad;
   margin: 0;
 }
 
@@ -64,7 +64,7 @@
 }
 
 .chain-info .stat-value {
-  color: #4ecdc4;
+  color: #3dbdad;
   font-weight: bold;
 }
 
@@ -73,8 +73,8 @@
   height: 32px;
   border: none;
   border-radius: 8px;
-  background: linear-gradient(145deg, #4ecdc4, #45b7d1);
-  color: #1a1a2e;
+  background: linear-gradient(145deg, #3dbdad, #818cf8);
+  color: #12121f;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -84,7 +84,7 @@
 
 .add-effect-btn:hover {
   transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(78, 205, 196, 0.3);
+  box-shadow: 0 4px 12px rgba(61, 189, 173, 0.3);
 }
 
 /* Enhanced Effect Chain List */
@@ -105,9 +105,9 @@
   width: 2px;
   background: linear-gradient(180deg, 
     transparent 0%, 
-    rgba(78, 205, 196, 0.3) 20%, 
-    rgba(78, 205, 196, 0.5) 50%, 
-    rgba(78, 205, 196, 0.3) 80%, 
+    rgba(61, 189, 173, 0.3) 20%, 
+    rgba(61, 189, 173, 0.5) 50%, 
+    rgba(61, 189, 173, 0.3) 80%, 
     transparent 100%);
   z-index: 0;
 }
@@ -115,7 +115,7 @@
 /* Enhanced Effect Module */
 .effect-module {
   position: relative;
-  background: linear-gradient(145deg, #2a2a40, #1f1f35);
+  background: linear-gradient(145deg, #1f1f30, #161624);
   border: 1px solid rgba(255,255,255,0.1);
   border-radius: 12px;
   margin-bottom: 12px;
@@ -134,16 +134,16 @@
   right: 0;
   height: 3px;
   background: linear-gradient(90deg, 
-    rgba(78, 205, 196, 0.8), 
-    rgba(69, 183, 209, 0.8), 
-    rgba(78, 205, 196, 0.8));
+    rgba(61, 189, 173, 0.8), 
+    rgba(129, 140, 248, 0.8), 
+    rgba(61, 189, 173, 0.8));
   opacity: 0;
   transition: opacity 0.3s ease;
 }
 
 .effect-module:hover {
-  border-color: rgba(78, 205, 196, 0.5);
-  box-shadow: 0 8px 25px rgba(78, 205, 196, 0.2);
+  border-color: rgba(61, 189, 173, 0.5);
+  box-shadow: 0 8px 25px rgba(61, 189, 173, 0.2);
   transform: translateY(-2px);
 }
 
@@ -152,8 +152,8 @@
 }
 
 .effect-module.selected {
-  border-color: #4ecdc4;
-  box-shadow: 0 0 20px rgba(78, 205, 196, 0.4);
+  border-color: #3dbdad;
+  box-shadow: 0 0 20px rgba(61, 189, 173, 0.4);
 }
 
 .effect-module.selected::before {
@@ -173,8 +173,8 @@
 }
 
 .effect-module.soloed {
-  border-color: #ffd700;
-  box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+  border-color: #fbbf24;
+  box-shadow: 0 0 15px rgba(251, 191, 36, 0.3);
 }
 
 /* Effect Header */
@@ -197,13 +197,13 @@
 }
 
 .effect-module:hover .drag-handle {
-  color: #4ecdc4;
+  color: #3dbdad;
 }
 
 .effect-icon {
   width: 32px;
   height: 32px;
-  background: linear-gradient(145deg, #4ecdc4, #45b7d1);
+  background: linear-gradient(145deg, #3dbdad, #818cf8);
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -260,8 +260,8 @@
 }
 
 .effect-controls button.active {
-  background: #4ecdc4;
-  color: #1a1a2e;
+  background: #3dbdad;
+  color: #12121f;
 }
 
 .mode-toggle {
@@ -275,13 +275,13 @@
 }
 
 .mode-toggle.destructive {
-  background: linear-gradient(145deg, #ff6b6b, #ff5252) !important;
+  background: linear-gradient(145deg, #fb7185, #f43f5e) !important;
   color: white !important;
 }
 
 .mode-toggle.non-destructive {
-  background: linear-gradient(145deg, #4ecdc4, #45b7d1) !important;
-  color: #1a1a2e !important;
+  background: linear-gradient(145deg, #3dbdad, #818cf8) !important;
+  color: #12121f !important;
 }
 
 /* Performance Indicator */
@@ -292,19 +292,19 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #66bb6a;
+  background: #10b981;
   box-shadow: 0 0 8px rgba(102, 187, 106, 0.5);
   z-index: 10;
 }
 
 .performance-indicator.medium {
-  background: #ffa726;
-  box-shadow: 0 0 8px rgba(255, 167, 38, 0.5);
+  background: #fbbf24;
+  box-shadow: 0 0 8px rgba(251, 191, 36, 0.5);
 }
 
 .performance-indicator.high {
-  background: #ff6b6b;
-  box-shadow: 0 0 8px rgba(255, 107, 107, 0.5);
+  background: #fb7185;
+  box-shadow: 0 0 8px rgba(251, 113, 133, 0.5);
 }
 
 /* Effect Parameters Preview */
@@ -357,14 +357,14 @@
   -webkit-appearance: none;
   width: 16px;
   height: 16px;
-  background: #4ecdc4;
+  background: #3dbdad;
   border-radius: 50%;
   cursor: pointer;
 }
 
 .opacity-value {
   font-size: 11px;
-  color: #4ecdc4;
+  color: #3dbdad;
   font-weight: bold;
   min-width: 30px;
   text-align: right;
@@ -424,21 +424,21 @@
 
 .effect-chain-footer button:hover {
   background: linear-gradient(145deg, #4a4a60, #3f3f55);
-  border-color: #4ecdc4;
+  border-color: #3dbdad;
 }
 
 /* Quick Actions Panel */
 .quick-actions {
   margin-top: 16px;
   padding: 12px;
-  background: rgba(78, 205, 196, 0.1);
-  border: 1px solid rgba(78, 205, 196, 0.2);
+  background: rgba(61, 189, 173, 0.1);
+  border: 1px solid rgba(61, 189, 173, 0.2);
   border-radius: 8px;
 }
 
 .quick-actions-title {
   font-size: 12px;
-  color: #4ecdc4;
+  color: #3dbdad;
   margin-bottom: 8px;
   font-weight: bold;
 }
@@ -451,17 +451,17 @@
 
 .quick-action-btn {
   padding: 6px 8px;
-  background: rgba(78, 205, 196, 0.2);
-  border: 1px solid rgba(78, 205, 196, 0.3);
+  background: rgba(61, 189, 173, 0.2);
+  border: 1px solid rgba(61, 189, 173, 0.3);
   border-radius: 4px;
-  color: #4ecdc4;
+  color: #3dbdad;
   font-size: 11px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .quick-action-btn:hover {
-  background: rgba(78, 205, 196, 0.3);
+  background: rgba(61, 189, 173, 0.3);
   color: #fff;
 }
 
@@ -469,15 +469,15 @@
 .drag-placeholder {
   height: 80px;
   background: linear-gradient(145deg, 
-    rgba(78, 205, 196, 0.1), 
-    rgba(78, 205, 196, 0.05));
-  border: 2px dashed rgba(78, 205, 196, 0.3);
+    rgba(61, 189, 173, 0.1), 
+    rgba(61, 189, 173, 0.05));
+  border: 2px dashed rgba(61, 189, 173, 0.3);
   border-radius: 12px;
   margin-bottom: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #4ecdc4;
+  color: #3dbdad;
   font-size: 14px;
   opacity: 0;
   animation: dragPlaceholderFadeIn 0.3s ease forwards;
@@ -503,21 +503,21 @@
 }
 
 .perf-stat.good {
-  color: #66bb6a;
+  color: #10b981;
 }
 
 .perf-stat.warning {
-  color: #ffa726;
+  color: #fbbf24;
 }
 
 .perf-stat.critical {
-  color: #ff6b6b;
+  color: #fb7185;
 }
 
 /* Tooltips */
 .effect-tooltip {
   position: absolute;
-  background: #2a2a40;
+  background: #1f1f30;
   color: #fff;
   padding: 8px 12px;
   border-radius: 6px;
@@ -559,7 +559,7 @@
 }
 
 .chain-stat-value {
-  color: #4ecdc4;
+  color: #3dbdad;
   font-weight: bold;
 }
 
@@ -591,12 +591,12 @@
 }
 
 .effect-chain-list::-webkit-scrollbar-thumb {
-  background: rgba(78, 205, 196, 0.3);
+  background: rgba(61, 189, 173, 0.3);
   border-radius: 4px;
 }
 
 .effect-chain-list::-webkit-scrollbar-thumb:hover {
-  background: rgba(78, 205, 196, 0.5);
+  background: rgba(61, 189, 173, 0.5);
 }
 
 /* Animation for new effects */
@@ -675,7 +675,7 @@
   position: absolute;
   right: 50px;
   top: 12px;
-  background: rgba(37, 37, 64, 0.95);
+  background: rgba(27, 27, 44, 0.95);
   padding: 4px 8px;
   border-radius: 8px;
   backdrop-filter: blur(10px);
@@ -775,7 +775,7 @@
 }
 
 .chain-controls::-webkit-scrollbar-thumb {
-  background: rgba(78, 205, 196, 0.3);
+  background: rgba(61, 189, 173, 0.3);
   border-radius: 2px;
 }
 
@@ -807,7 +807,7 @@
 }
 
 .effect-params-preview strong {
-  color: #4ecdc4;
+  color: #3dbdad;
 }
 
 /* ========================================
@@ -907,7 +907,7 @@
 .effect-chain-list,
 .properties-content {
   scrollbar-width: thin;
-  scrollbar-color: rgba(78, 205, 196, 0.3) rgba(0,0,0,0.2);
+  scrollbar-color: rgba(61, 189, 173, 0.3) rgba(0,0,0,0.2);
 }
 
 .effect-chain-list::-webkit-scrollbar,
@@ -923,13 +923,13 @@
 
 .effect-chain-list::-webkit-scrollbar-thumb,
 .properties-content::-webkit-scrollbar-thumb {
-  background: rgba(78, 205, 196, 0.3);
+  background: rgba(61, 189, 173, 0.3);
   border-radius: 3px;
 }
 
 .effect-chain-list::-webkit-scrollbar-thumb:hover,
 .properties-content::-webkit-scrollbar-thumb:hover {
-  background: rgba(78, 205, 196, 0.5);
+  background: rgba(61, 189, 173, 0.5);
 }
 
 /* ========================================
@@ -1143,13 +1143,13 @@ button:active {
 
 /* Focus styles */
 *:focus {
-  outline: 2px solid #4ecdc4;
+  outline: 2px solid #3dbdad;
   outline-offset: 2px;
 }
 
 button:focus,
 .effect-module:focus {
-  outline: 2px solid #4ecdc4;
+  outline: 2px solid #3dbdad;
   outline-offset: -2px;
 }
 
@@ -1189,7 +1189,7 @@ button:focus,
 }
 
 .effect-module:hover {
-  box-shadow: 0 4px 16px rgba(78, 205, 196, 0.2);
+  box-shadow: 0 4px 16px rgba(61, 189, 173, 0.2);
 }
 
 /* Improve button feedback */
@@ -1224,8 +1224,8 @@ button:active {
   transform: translate(-50%, -50%);
   width: 20px;
   height: 20px;
-  border: 2px solid rgba(78, 205, 196, 0.3);
-  border-top-color: #4ecdc4;
+  border: 2px solid rgba(61, 189, 173, 0.3);
+  border-top-color: #3dbdad;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -1250,8 +1250,8 @@ button:active {
 .effect-chain-container {
   background: linear-gradient(
     145deg,
-    rgba(37, 37, 64, 0.8),
-    rgba(42, 42, 64, 0.6)
+    rgba(27, 27, 44, 0.8),
+    rgba(31, 31, 48, 0.6)
   );
   backdrop-filter: blur(20px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.15);
@@ -1264,8 +1264,8 @@ button:active {
 .effect-module {
   background: linear-gradient(
     145deg,
-    rgba(42, 42, 64, 0.7),
-    rgba(31, 31, 53, 0.7)
+    rgba(31, 31, 48, 0.7),
+    rgba(22, 22, 36, 0.7)
   );
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.12);
@@ -1288,11 +1288,11 @@ button:active {
   border-radius: 12px;
   background: linear-gradient(
     45deg,
-    #4ecdc4,
-    #45b7d1,
-    #7b68ee,
-    #ff6b6b,
-    #4ecdc4
+    #3dbdad,
+    #818cf8,
+    #6366f1,
+    #fb7185,
+    #3dbdad
   );
   -webkit-mask: 
     linear-gradient(#fff 0 0) content-box, 
@@ -1320,24 +1320,24 @@ button:active {
 
 /* Neon glow for active elements */
 .mode-toggle.destructive {
-  background: linear-gradient(145deg, #ff6b6b, #ff5252);
+  background: linear-gradient(145deg, #fb7185, #f43f5e);
   box-shadow: 
-    0 0 20px rgba(255, 107, 107, 0.5),
+    0 0 20px rgba(251, 113, 133, 0.5),
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  text-shadow: 0 0 8px rgba(255, 107, 107, 0.8);
+  text-shadow: 0 0 8px rgba(251, 113, 133, 0.8);
 }
 
 .mode-toggle.non-destructive {
-  background: linear-gradient(145deg, #4ecdc4, #45b7d1);
+  background: linear-gradient(145deg, #3dbdad, #818cf8);
   box-shadow: 
-    0 0 20px rgba(78, 205, 196, 0.5),
+    0 0 20px rgba(61, 189, 173, 0.5),
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  text-shadow: 0 0 8px rgba(78, 205, 196, 0.8);
+  text-shadow: 0 0 8px rgba(61, 189, 173, 0.8);
 }
 
 /* Pulsing glow for power button */
 .power-toggle.active {
-  background: linear-gradient(145deg, #66bb6a, #4caf50);
+  background: linear-gradient(145deg, #10b981, #4caf50);
   color: white;
   box-shadow: 0 0 15px rgba(102, 187, 106, 0.6);
   animation: powerPulse 2s ease-in-out infinite;
@@ -1420,7 +1420,7 @@ button:active::after {
 :root {
   --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   --success-gradient: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
-  --danger-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+  --danger-gradient: linear-gradient(135deg, #d946ef 0%, #fbbf24 100%);
   --info-gradient: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
 }
 
@@ -1444,7 +1444,7 @@ button:active::after {
 
 .effect-chain-list {
   scrollbar-width: thin;
-  scrollbar-color: rgba(78, 205, 196, 0.3) transparent;
+  scrollbar-color: rgba(61, 189, 173, 0.3) transparent;
 }
 
 .effect-chain-list::-webkit-scrollbar {
@@ -1461,8 +1461,8 @@ button:active::after {
 .effect-chain-list::-webkit-scrollbar-thumb {
   background: linear-gradient(
     180deg,
-    rgba(78, 205, 196, 0.5),
-    rgba(69, 183, 209, 0.5)
+    rgba(61, 189, 173, 0.5),
+    rgba(129, 140, 248, 0.5)
   );
   border-radius: 3px;
   transition: all 0.3s ease;
@@ -1471,8 +1471,8 @@ button:active::after {
 .effect-chain-list::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(
     180deg,
-    rgba(78, 205, 196, 0.8),
-    rgba(69, 183, 209, 0.8)
+    rgba(61, 189, 173, 0.8),
+    rgba(129, 140, 248, 0.8)
   );
 }
 
@@ -1484,9 +1484,9 @@ button:active::after {
 .effect-module.loading {
   background: linear-gradient(
     90deg,
-    rgba(42, 42, 64, 0.7) 25%,
-    rgba(52, 52, 74, 0.7) 50%,
-    rgba(42, 42, 64, 0.7) 75%
+    rgba(31, 31, 48, 0.7) 25%,
+    rgba(38, 38, 56, 0.7) 50%,
+    rgba(31, 31, 48, 0.7) 75%
   );
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
@@ -1507,7 +1507,7 @@ button:active::after {
   transform: rotate(2deg) scale(1.05);
   box-shadow: 
     0 20px 60px rgba(0, 0, 0, 0.4),
-    0 0 40px rgba(78, 205, 196, 0.4);
+    0 0 40px rgba(61, 189, 173, 0.4);
   z-index: 1000;
 }
 
@@ -1515,7 +1515,7 @@ button:active::after {
 .effect-chain-list.drag-over {
   background: radial-gradient(
     ellipse at center,
-    rgba(78, 205, 196, 0.1) 0%,
+    rgba(61, 189, 173, 0.1) 0%,
     transparent 70%
   );
 }
@@ -1527,7 +1527,7 @@ button:active::after {
 .empty-chain-message {
   background: radial-gradient(
     ellipse at center,
-    rgba(78, 205, 196, 0.05) 0%,
+    rgba(61, 189, 173, 0.05) 0%,
     transparent 70%
   );
   border-radius: 16px;
@@ -1535,11 +1535,11 @@ button:active::after {
 }
 
 .empty-icon {
-  background: linear-gradient(135deg, #4ecdc4, #45b7d1);
+  background: linear-gradient(135deg, #3dbdad, #818cf8);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  filter: drop-shadow(0 2px 4px rgba(78, 205, 196, 0.3));
+  filter: drop-shadow(0 2px 4px rgba(61, 189, 173, 0.3));
 }
 
 /* ========================================
@@ -1610,7 +1610,7 @@ button:active::after {
 .effect-chain-footer button:hover {
   background: rgba(255, 255, 255, 0.1);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(78, 205, 196, 0.2);
+  box-shadow: 0 4px 12px rgba(61, 189, 173, 0.2);
 }
 
 /* ========================================
@@ -1620,10 +1620,10 @@ button:active::after {
 .quick-action-btn {
   background: linear-gradient(
     135deg,
-    rgba(78, 205, 196, 0.1),
-    rgba(69, 183, 209, 0.1)
+    rgba(61, 189, 173, 0.1),
+    rgba(129, 140, 248, 0.1)
   );
-  border: 1px solid rgba(78, 205, 196, 0.2);
+  border: 1px solid rgba(61, 189, 173, 0.2);
   backdrop-filter: blur(10px);
   transition: all 0.3s ease;
   font-weight: 500;
@@ -1632,12 +1632,12 @@ button:active::after {
 .quick-action-btn:hover {
   background: linear-gradient(
     135deg,
-    rgba(78, 205, 196, 0.3),
-    rgba(69, 183, 209, 0.3)
+    rgba(61, 189, 173, 0.3),
+    rgba(129, 140, 248, 0.3)
   );
-  border-color: rgba(78, 205, 196, 0.5);
+  border-color: rgba(61, 189, 173, 0.5);
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(78, 205, 196, 0.3);
+  box-shadow: 0 8px 20px rgba(61, 189, 173, 0.3);
 }
 
 /* ========================================
@@ -1645,7 +1645,7 @@ button:active::after {
    ======================================== */
 
 .effect-context-menu {
-  background: rgba(42, 42, 64, 0.95);
+  background: rgba(31, 31, 48, 0.95);
   backdrop-filter: blur(20px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.15);
   box-shadow: 
@@ -1660,8 +1660,8 @@ button:active::after {
 .context-menu-item:hover {
   background: linear-gradient(
     90deg,
-    rgba(78, 205, 196, 0.2) 0%,
-    rgba(78, 205, 196, 0.1) 100%
+    rgba(61, 189, 173, 0.2) 0%,
+    rgba(61, 189, 173, 0.1) 100%
   );
   padding-left: 20px;
 }
@@ -1683,15 +1683,15 @@ button:active::after {
 .stat-item:hover {
   background: linear-gradient(
     135deg,
-    rgba(78, 205, 196, 0.2),
-    rgba(78, 205, 196, 0.1)
+    rgba(61, 189, 173, 0.2),
+    rgba(61, 189, 173, 0.1)
   );
   transform: translateY(-2px);
 }
 
 .stat-value {
   font-weight: 700;
-  background: linear-gradient(135deg, #4ecdc4, #45b7d1);
+  background: linear-gradient(135deg, #3dbdad, #818cf8);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -1704,8 +1704,8 @@ button:active::after {
 .modal-content {
   background: linear-gradient(
     145deg,
-    rgba(42, 42, 64, 0.95),
-    rgba(31, 31, 53, 0.95)
+    rgba(31, 31, 48, 0.95),
+    rgba(22, 22, 36, 0.95)
   );
   backdrop-filter: blur(20px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.15);
@@ -1722,10 +1722,10 @@ button:active::after {
 }
 
 .template-card:hover {
-  background: rgba(78, 205, 196, 0.1);
-  border-color: rgba(78, 205, 196, 0.3);
+  background: rgba(61, 189, 173, 0.1);
+  border-color: rgba(61, 189, 173, 0.3);
   transform: translateY(-4px) scale(1.02);
-  box-shadow: 0 12px 30px rgba(78, 205, 196, 0.3);
+  box-shadow: 0 12px 30px rgba(61, 189, 173, 0.3);
 }
 
 /* ========================================
@@ -1767,7 +1767,7 @@ button:active::after {
    ======================================== */
 
 *:focus-visible {
-  outline: 2px solid #4ecdc4;
+  outline: 2px solid #3dbdad;
   outline-offset: 2px;
   border-radius: 4px;
 }
@@ -1778,8 +1778,8 @@ button:focus-visible {
 
 .effect-module:focus-within {
   box-shadow: 
-    0 0 0 2px #4ecdc4,
-    0 8px 25px rgba(78, 205, 196, 0.3);
+    0 0 0 2px #3dbdad,
+    0 8px 25px rgba(61, 189, 173, 0.3);
 }
 
 /* ========================================
@@ -1846,7 +1846,7 @@ button,
 .glitcher-studio {
   box-shadow: 
     0 0 100px rgba(0, 0, 0, 0.5),
-    inset 0 0 120px rgba(78, 205, 196, 0.05);
+    inset 0 0 120px rgba(61, 189, 173, 0.05);
 }
 
 /* ===== SECTION: tooltip-and-sizing-fixes ===== */
@@ -1976,7 +1976,7 @@ button,
   font-size: 16px;
   flex-shrink: 0;
   border-radius: 6px;
-  background: linear-gradient(145deg, #4ecdc4, #45b7d1);
+  background: linear-gradient(145deg, #3dbdad, #818cf8);
 }
 
 /* Fix effect info layout */
@@ -2165,7 +2165,7 @@ button,
 
 .opacity-value {
   font-size: 11px;
-  color: #4ecdc4;
+  color: #3dbdad;
   font-weight: bold;
   min-width: 35px;
   text-align: right;
@@ -2183,7 +2183,7 @@ button,
 
 .effect-module:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 16px rgba(78, 205, 196, 0.2);
+  box-shadow: 0 4px 16px rgba(61, 189, 173, 0.2);
 }
 
 /* Prevent hover effects during drag */
@@ -2438,7 +2438,7 @@ button {
 /* Fix the main chain header layout */
 .effect-chain-header {
   padding: 12px 16px;
-  background: linear-gradient(145deg, #2a2a40, #1f1f35);
+  background: linear-gradient(145deg, #1f1f30, #161624);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   align-items: center;
@@ -2451,7 +2451,7 @@ button {
 .effect-chain-header h3 {
   font-size: 15px;
   font-weight: 600;
-  color: #4ecdc4;
+  color: #3dbdad;
   margin: 0;
   letter-spacing: -0.02em;
 }
@@ -2475,7 +2475,7 @@ button {
   overflow-x: auto;
   overflow-y: hidden;
   scrollbar-width: thin;
-  scrollbar-color: rgba(78, 205, 196, 0.3) transparent;
+  scrollbar-color: rgba(61, 189, 173, 0.3) transparent;
 }
 
 /* Style chain control buttons */
@@ -2499,7 +2499,7 @@ button {
 
 .chain-btn:hover {
   background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(78, 205, 196, 0.3);
+  border-color: rgba(61, 189, 173, 0.3);
   transform: translateY(-1px);
 }
 
@@ -2509,21 +2509,21 @@ button {
 
 /* Primary button style */
 .chain-btn.primary {
-  background: linear-gradient(145deg, #4ecdc4, #45b7d1);
-  border-color: #4ecdc4;
-  color: #1a1a2e;
+  background: linear-gradient(145deg, #3dbdad, #818cf8);
+  border-color: #3dbdad;
+  color: #12121f;
 }
 
 .chain-btn.primary:hover {
-  background: linear-gradient(145deg, #45b7d1, #3ea8b9);
-  box-shadow: 0 4px 12px rgba(78, 205, 196, 0.3);
+  background: linear-gradient(145deg, #818cf8, #3ea8b9);
+  box-shadow: 0 4px 12px rgba(61, 189, 173, 0.3);
 }
 
 /* Active state for toggle buttons */
 .chain-btn.active {
-  background: rgba(78, 205, 196, 0.2);
-  border-color: #4ecdc4;
-  color: #4ecdc4;
+  background: rgba(61, 189, 173, 0.2);
+  border-color: #3dbdad;
+  color: #3dbdad;
 }
 
 /* Button icons */
@@ -2564,8 +2564,8 @@ button {
   padding: 0;
   border: none;
   border-radius: 8px;
-  background: linear-gradient(145deg, #4ecdc4, #45b7d1);
-  color: #1a1a2e;
+  background: linear-gradient(145deg, #3dbdad, #818cf8);
+  color: #12121f;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -2576,7 +2576,7 @@ button {
 
 .add-effect-btn:hover {
   transform: scale(1.1);
-  box-shadow: 0 4px 12px rgba(78, 205, 196, 0.4);
+  box-shadow: 0 4px 12px rgba(61, 189, 173, 0.4);
 }
 
 .add-effect-btn:active {
@@ -2591,9 +2591,9 @@ button {
 
 /* Alternative add button in controls */
 .add-effect-btn-alt {
-  background: linear-gradient(145deg, #4ecdc4, #45b7d1);
-  border-color: #4ecdc4;
-  color: #1a1a2e;
+  background: linear-gradient(145deg, #3dbdad, #818cf8);
+  border-color: #3dbdad;
+  color: #12121f;
 }
 
 /* ========================================
@@ -2610,12 +2610,12 @@ button {
 }
 
 .chain-controls::-webkit-scrollbar-thumb {
-  background: rgba(78, 205, 196, 0.3);
+  background: rgba(61, 189, 173, 0.3);
   border-radius: 2px;
 }
 
 .chain-controls::-webkit-scrollbar-thumb:hover {
-  background: rgba(78, 205, 196, 0.5);
+  background: rgba(61, 189, 173, 0.5);
 }
 
 /* ========================================
@@ -2630,7 +2630,7 @@ button {
     right: 52px;
     top: 50%;
     transform: translateY(-50%);
-    background: rgba(37, 37, 64, 0.95);
+    background: rgba(27, 27, 44, 0.95);
     padding: 6px 12px;
     border-radius: 8px;
     backdrop-filter: blur(10px);
@@ -2688,16 +2688,16 @@ button {
 /* Focus states */
 .chain-btn:focus,
 .add-effect-btn:focus {
-  outline: 2px solid #4ecdc4;
+  outline: 2px solid #3dbdad;
   outline-offset: 2px;
 }
 
 /* Keyboard navigation indicator */
 .chain-btn:focus-visible,
 .add-effect-btn:focus-visible {
-  outline: 2px solid #4ecdc4;
+  outline: 2px solid #3dbdad;
   outline-offset: 2px;
-  box-shadow: 0 0 0 4px rgba(78, 205, 196, 0.2);
+  box-shadow: 0 0 0 4px rgba(61, 189, 173, 0.2);
 }
 
 /* ========================================
@@ -2719,8 +2719,8 @@ button {
   width: 14px;
   height: 14px;
   margin: -7px 0 0 -7px;
-  border: 2px solid rgba(78, 205, 196, 0.3);
-  border-top-color: #4ecdc4;
+  border: 2px solid rgba(61, 189, 173, 0.3);
+  border-top-color: #3dbdad;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -2808,8 +2808,8 @@ button {
 }
 
 .library-effect:hover {
-    background: rgba(78, 205, 196, 0.2);
-    border-color: rgba(78, 205, 196, 0.3);
+    background: rgba(61, 189, 173, 0.2);
+    border-color: rgba(61, 189, 173, 0.3);
     transform: translateX(2px);
     z-index: 2;
 }
@@ -2897,10 +2897,10 @@ button {
 /* Add to Chain Button */
 .add-to-chain {
     padding: 6px 10px;
-    background: rgba(78, 205, 196, 0.2);
-    border: 1px solid rgba(78, 205, 196, 0.3);
+    background: rgba(61, 189, 173, 0.2);
+    border: 1px solid rgba(61, 189, 173, 0.3);
     border-radius: 4px;
-    color: #4ecdc4;
+    color: #3dbdad;
     cursor: pointer;
     transition: all 0.2s ease;
     opacity: 0.7;
@@ -2909,8 +2909,8 @@ button {
 }
 
 .add-to-chain:hover {
-    background: rgba(78, 205, 196, 0.3);
-    border-color: #4ecdc4;
+    background: rgba(61, 189, 173, 0.3);
+    border-color: #3dbdad;
     opacity: 1;
     transform: scale(1.05);
 }
@@ -2921,8 +2921,8 @@ button {
 
 /* Just Added Animation */
 .library-effect.just-added {
-    background: rgba(78, 205, 196, 0.4);
-    border-color: #4ecdc4;
+    background: rgba(61, 189, 173, 0.4);
+    border-color: #3dbdad;
     animation: addedPulse 0.6s ease;
 }
 
@@ -2981,7 +2981,7 @@ button {
   display: flex;
   flex-direction: column;
   border-left: 1px solid rgba(255, 255, 255, 0.1);
-  background: #252540;
+  background: #1b1b2c;
 }
 
 /* Effect chain section container */
@@ -3022,7 +3022,7 @@ button {
   
   /* Custom scrollbar that doesn't add width */
   scrollbar-width: thin;
-  scrollbar-color: rgba(78, 205, 196, 0.3) transparent;
+  scrollbar-color: rgba(61, 189, 173, 0.3) transparent;
 }
 
 .effect-chain-list::-webkit-scrollbar {
@@ -3034,7 +3034,7 @@ button {
 }
 
 .effect-chain-list::-webkit-scrollbar-thumb {
-  background: rgba(78, 205, 196, 0.3);
+  background: rgba(61, 189, 173, 0.3);
   border-radius: 3px;
 }
 
@@ -3385,7 +3385,7 @@ body.studio-mode .studio-container {
   display: grid;
   grid-template-rows: 50px 1fr 30px;
   height: 100vh;
-  background: #1a1a2e;
+  background: #12121f;
   color: #fff;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   overflow: hidden;
@@ -3397,14 +3397,14 @@ body.studio-mode .studio-container {
   align-items: center;
   justify-content: space-between;
   padding: 0 20px;
-  background: linear-gradient(145deg, #2a2a40, #1f1f35);
+  background: linear-gradient(145deg, #1f1f30, #161624);
   border-bottom: 1px solid rgba(255,255,255,0.1);
 }
 
 .logo {
   font-size: 20px;
   font-weight: bold;
-  background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1);
+  background: linear-gradient(45deg, #fb7185, #3dbdad, #818cf8);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -3430,9 +3430,9 @@ body.studio-mode .studio-container {
 }
 
 .view-mode-btn.active {
-  background: #4ecdc4;
-  border-color: #4ecdc4;
-  color: #1a1a2e;
+  background: #3dbdad;
+  border-color: #3dbdad;
+  color: #12121f;
 }
 
 /* Main Content */
@@ -3445,7 +3445,7 @@ body.studio-mode .studio-container {
 
 /* Panels */
 .panel {
-  background: #252540;
+  background: #1b1b2c;
   border-right: 1px solid rgba(255,255,255,0.1);
   display: flex;
   flex-direction: column;
@@ -3454,7 +3454,7 @@ body.studio-mode .studio-container {
 
 .panel-header {
   padding: 12px 15px;
-  background: linear-gradient(145deg, #2a2a40, #1f1f35);
+  background: linear-gradient(145deg, #1f1f30, #161624);
   border-bottom: 1px solid rgba(255,255,255,0.1);
   display: flex;
   align-items: center;
@@ -3464,7 +3464,7 @@ body.studio-mode .studio-container {
 .panel-title {
   font-size: 14px;
   font-weight: bold;
-  color: #4ecdc4;
+  color: #3dbdad;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -3488,7 +3488,7 @@ body.studio-mode .studio-container {
 
 .search-box:focus {
   outline: none;
-  border-color: #4ecdc4;
+  border-color: #3dbdad;
 }
 
 .effects-categories {
@@ -3541,7 +3541,7 @@ body.studio-mode .studio-container {
 }
 
 .library-effect:hover {
-  background: rgba(78, 205, 196, 0.2);
+  background: rgba(61, 189, 173, 0.2);
   transform: translateX(2px);
 }
 
@@ -3557,10 +3557,10 @@ body.studio-mode .studio-container {
 
 .add-effect-btn {
   padding: 4px 8px;
-  background: #4ecdc4;
+  background: #3dbdad;
   border: none;
   border-radius: 3px;
-  color: #1a1a2e;
+  color: #12121f;
   font-weight: bold;
   cursor: pointer;
   opacity: 0;
@@ -3575,7 +3575,7 @@ body.studio-mode .studio-container {
 .center-panel {
   display: flex;
   flex-direction: column;
-  background: #1a1a2e;
+  background: #12121f;
 }
 
 .chain-controls {
@@ -3632,7 +3632,7 @@ body.studio-mode .studio-container {
   align-items: center;
   padding: 10px;
   margin: 4px 0;
-  background: linear-gradient(145deg, #2a2a40, #1f1f35);
+  background: linear-gradient(145deg, #1f1f30, #161624);
   border: 1px solid rgba(255,255,255,0.1);
   border-radius: 4px;
   cursor: move;
@@ -3640,12 +3640,12 @@ body.studio-mode .studio-container {
 }
 
 .effect-module:hover {
-  border-color: #4ecdc4;
-  box-shadow: 0 2px 8px rgba(78, 205, 196, 0.3);
+  border-color: #3dbdad;
+  box-shadow: 0 2px 8px rgba(61, 189, 173, 0.3);
 }
 
 .effect-module.selected {
-  border-color: #4ecdc4;
+  border-color: #3dbdad;
   background: linear-gradient(145deg, #2a4040, #1f3535);
 }
 
@@ -3694,14 +3694,14 @@ body.studio-mode .studio-container {
 }
 
 .mode-toggle.destructive {
-  background: #e74c3c;
-  border-color: #e74c3c;
+  background: #ef4444;
+  border-color: #ef4444;
   color: white;
 }
 
 .mode-toggle.non-destructive {
-  background: #3498db;
-  border-color: #3498db;
+  background: #818cf8;
+  border-color: #818cf8;
   color: white;
 }
 
@@ -3726,7 +3726,7 @@ body.studio-mode .studio-container {
 }
 
 .effect-btn.active {
-  color: #4ecdc4;
+  color: #3dbdad;
 }
 
 
@@ -3781,14 +3781,14 @@ body.studio-mode .studio-container {
 }
 
 .comparison-btn.active {
-  background: #4ecdc4;
-  border-color: #4ecdc4;
-  color: #1a1a2e;
+  background: #3dbdad;
+  border-color: #3dbdad;
+  color: #12121f;
 }
 
 .fps-counter {
   font-size: 12px;
-  color: #4ecdc4;
+  color: #3dbdad;
   font-weight: bold;
 }
 
@@ -3815,7 +3815,7 @@ body.studio-mode .studio-container {
   border: 2px dashed rgba(255,255,255,0.3);
   border-radius: 15px;
   padding: 40px 30px;
-  background: linear-gradient(145deg, rgba(15, 15, 31, 0.8), rgba(37, 37, 64, 0.6));
+  background: linear-gradient(145deg, rgba(15, 15, 31, 0.8), rgba(27, 27, 44, 0.6));
   backdrop-filter: blur(10px);
   transition: all 0.3s ease;
   cursor: pointer;
@@ -3826,20 +3826,20 @@ body.studio-mode .studio-container {
 }
 
 .studio-drop-zone:hover {
-  border-color: #4ecdc4;
-  background: linear-gradient(145deg, rgba(15, 15, 31, 0.9), rgba(37, 37, 64, 0.8));
+  border-color: #3dbdad;
+  background: linear-gradient(145deg, rgba(15, 15, 31, 0.9), rgba(27, 27, 44, 0.8));
   transform: translateY(-5px);
   box-shadow: 
-    0 15px 35px rgba(78, 205, 196, 0.2),
+    0 15px 35px rgba(61, 189, 173, 0.2),
     inset 0 1px 0 rgba(255,255,255,0.1);
 }
 
 .studio-drop-zone.drag-over {
-  border-color: #4ecdc4;
-  background: linear-gradient(145deg, rgba(78, 205, 196, 0.2), rgba(69, 183, 209, 0.1));
+  border-color: #3dbdad;
+  background: linear-gradient(145deg, rgba(61, 189, 173, 0.2), rgba(129, 140, 248, 0.1));
   transform: scale(1.02);
   box-shadow: 
-    0 20px 40px rgba(78, 205, 196, 0.3),
+    0 20px 40px rgba(61, 189, 173, 0.3),
     inset 0 1px 0 rgba(255,255,255,0.2);
 }
 
@@ -3877,12 +3877,12 @@ body.studio-mode .studio-container {
 }
 
 .studio-feature-tag {
-  background: linear-gradient(145deg, rgba(78, 205, 196, 0.2), rgba(69, 183, 209, 0.1));
-  border: 1px solid rgba(78, 205, 196, 0.3);
+  background: linear-gradient(145deg, rgba(61, 189, 173, 0.2), rgba(129, 140, 248, 0.1));
+  border: 1px solid rgba(61, 189, 173, 0.3);
   border-radius: 20px;
   padding: 6px 12px;
   font-size: 12px;
-  color: #4ecdc4;
+  color: #3dbdad;
   font-weight: bold;
   white-space: nowrap;
 }
@@ -3897,8 +3897,8 @@ body.studio-mode .studio-container {
 
 /* Effect Chain Section */
 .effect-chain-section {
-  background: #252540;
-  border-bottom: 2px solid #1a1a2e;
+  background: #1b1b2c;
+  border-bottom: 2px solid #12121f;
   height: 45%;
   min-height: 200px;
   max-height: 60%;
@@ -3915,13 +3915,13 @@ body.studio-mode .studio-container {
   left: 0;
   right: 0;
   height: 4px;
-  background: #1a1a2e;
+  background: #12121f;
   cursor: ns-resize;
   transition: background 0.2s;
 }
 
 .effect-chain-section:hover::after {
-  background: #4ecdc4;
+  background: #3dbdad;
 }
 
 /* Properties Section */
@@ -3929,7 +3929,7 @@ body.studio-mode .studio-container {
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: #252540;
+  background: #1b1b2c;
   min-height: 200px;
 }
 
@@ -3977,7 +3977,7 @@ body.studio-mode .studio-container {
 
 .property-control:focus {
   outline: none;
-  border-color: #4ecdc4;
+  border-color: #3dbdad;
 }
 
 .property-slider {
@@ -3995,7 +3995,7 @@ body.studio-mode .studio-container {
   appearance: none;
   width: 16px;
   height: 16px;
-  background: #4ecdc4;
+  background: #3dbdad;
   border-radius: 50%;
   cursor: pointer;
 }
@@ -4003,7 +4003,7 @@ body.studio-mode .studio-container {
 .property-slider::-moz-range-thumb {
   width: 16px;
   height: 16px;
-  background: #4ecdc4;
+  background: #3dbdad;
   border-radius: 50%;
   cursor: pointer;
   border: none;
@@ -4015,7 +4015,7 @@ body.studio-mode .studio-container {
   align-items: center;
   justify-content: space-between;
   padding: 0 20px;
-  background: linear-gradient(145deg, #2a2a40, #1f1f35);
+  background: linear-gradient(145deg, #1f1f30, #161624);
   border-top: 1px solid rgba(255,255,255,0.1);
   font-size: 12px;
   color: #888;
@@ -4032,7 +4032,7 @@ body.studio-mode .studio-container {
 }
 
 .help-links a {
-  color: #4ecdc4;
+  color: #3dbdad;
   text-decoration: none;
 }
 
@@ -4055,7 +4055,7 @@ body.studio-mode .studio-container {
 }
 
 .modal-content {
-  background: #252540;
+  background: #1b1b2c;
   border-radius: 8px;
   width: 90%;
   max-width: 600px;
@@ -4080,7 +4080,7 @@ body.studio-mode .studio-container {
 .modal-header h2 {
   margin: 0;
   font-size: 20px;
-  color: #4ecdc4;
+  color: #3dbdad;
 }
 
 .modal-close {
@@ -4122,7 +4122,7 @@ body.studio-mode .studio-container {
 }
 
 .preset-card:hover {
-  border-color: #4ecdc4;
+  border-color: #3dbdad;
   transform: translateY(-2px);
 }
 
@@ -4141,10 +4141,10 @@ body.studio-mode .studio-container {
   margin-top: 10px;
   width: 100%;
   padding: 6px 12px;
-  background: #4ecdc4;
+  background: #3dbdad;
   border: none;
   border-radius: 4px;
-  color: #1a1a2e;
+  color: #12121f;
   font-weight: bold;
   cursor: pointer;
 }
@@ -4193,15 +4193,15 @@ body.studio-mode .studio-container {
 }
 
 .mode-status.destructive {
-  background: linear-gradient(145deg, rgba(255, 107, 107, 0.15), rgba(255, 82, 82, 0.1));
-  border-color: rgba(255, 107, 107, 0.3);
-  color: #ff6b6b;
+  background: linear-gradient(145deg, rgba(251, 113, 133, 0.15), rgba(244, 63, 94, 0.1));
+  border-color: rgba(251, 113, 133, 0.3);
+  color: #fb7185;
 }
 
 .mode-status.non-destructive {
-  background: linear-gradient(145deg, rgba(78, 205, 196, 0.15), rgba(69, 183, 209, 0.1));
-  border-color: rgba(78, 205, 196, 0.3);
-  color: #4ecdc4;
+  background: linear-gradient(145deg, rgba(61, 189, 173, 0.15), rgba(129, 140, 248, 0.1));
+  border-color: rgba(61, 189, 173, 0.3);
+  color: #3dbdad;
 }
 
 .mode-status .mode-icon {
@@ -4301,7 +4301,7 @@ body.studio-mode .studio-container {
 /* Context Menu Styles */
 .effect-context-menu {
   position: fixed;
-  background: linear-gradient(145deg, #2a2a40, #1f1f35);
+  background: linear-gradient(145deg, #1f1f30, #161624);
   border: 1px solid rgba(255,255,255,0.2);
   border-radius: 8px;
   padding: 8px 0;
@@ -4324,12 +4324,12 @@ body.studio-mode .studio-container {
 }
 
 .context-menu-item:hover {
-  background: rgba(78, 205, 196, 0.2);
+  background: rgba(61, 189, 173, 0.2);
 }
 
 .context-menu-item.danger:hover {
-  background: rgba(255, 107, 107, 0.2);
-  color: #ff6b6b;
+  background: rgba(251, 113, 133, 0.2);
+  color: #fb7185;
 }
 
 .context-menu-separator {
@@ -4363,7 +4363,7 @@ body.studio-mode .studio-container {
 }
 
 .modal-content {
-  background: linear-gradient(145deg, #2a2a40, #1f1f35);
+  background: linear-gradient(145deg, #1f1f30, #161624);
   border-radius: 12px;
   padding: 24px;
   max-width: 500px;
@@ -4375,7 +4375,7 @@ body.studio-mode .studio-container {
 
 .modal-content h3 {
   margin: 0 0 16px 0;
-  color: #4ecdc4;
+  color: #3dbdad;
   font-size: 20px;
 }
 
@@ -4414,12 +4414,12 @@ body.studio-mode .studio-container {
 }
 
 .btn-delete {
-  background: linear-gradient(145deg, #ff6b6b, #ff5252);
+  background: linear-gradient(145deg, #fb7185, #f43f5e);
   color: white;
 }
 
 .btn-delete:hover {
-  background: linear-gradient(145deg, #ff5252, #f44336);
+  background: linear-gradient(145deg, #f43f5e, #f44336);
   transform: translateY(-1px);
 }
 
@@ -4464,14 +4464,14 @@ body.studio-mode .studio-container {
 }
 
 .template-card:hover {
-  border-color: #4ecdc4;
+  border-color: #3dbdad;
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(78, 205, 196, 0.2);
+  box-shadow: 0 8px 25px rgba(61, 189, 173, 0.2);
 }
 
 .template-card h4 {
   margin: 0 0 8px 0;
-  color: #4ecdc4;
+  color: #3dbdad;
   font-size: 16px;
 }
 
@@ -4485,10 +4485,10 @@ body.studio-mode .studio-container {
 .apply-template-btn {
   width: 100%;
   padding: 8px 12px;
-  background: linear-gradient(145deg, #4ecdc4, #45b7d1);
+  background: linear-gradient(145deg, #3dbdad, #818cf8);
   border: none;
   border-radius: 6px;
-  color: #1a1a2e;
+  color: #12121f;
   font-weight: bold;
   cursor: pointer;
   font-size: 12px;
@@ -4496,7 +4496,7 @@ body.studio-mode .studio-container {
 }
 
 .apply-template-btn:hover {
-  background: linear-gradient(145deg, #45b7d1, #3498db);
+  background: linear-gradient(145deg, #818cf8, #818cf8);
   transform: translateY(-1px);
 }
 
@@ -4520,31 +4520,31 @@ body.studio-mode .studio-container {
 }
 
 .effect-notification.info {
-  background: rgba(78, 205, 196, 0.9);
-  border-left: 4px solid #4ecdc4;
+  background: rgba(61, 189, 173, 0.9);
+  border-left: 4px solid #3dbdad;
 }
 
 .effect-notification.success {
   background: rgba(102, 187, 106, 0.9);
-  border-left: 4px solid #66bb6a;
+  border-left: 4px solid #10b981;
 }
 
 .effect-notification.warning {
-  background: rgba(255, 167, 38, 0.9);
-  border-left: 4px solid #ffa726;
+  background: rgba(251, 191, 36, 0.9);
+  border-left: 4px solid #fbbf24;
 }
 
 .effect-notification.error {
-  background: rgba(255, 107, 107, 0.9);
-  border-left: 4px solid #ff6b6b;
+  background: rgba(251, 113, 133, 0.9);
+  border-left: 4px solid #fb7185;
 }
 
 /* Enhanced Button States */
 .chain-btn.active,
 .footer-btn.active {
-  background: linear-gradient(145deg, #4ecdc4, #45b7d1) !important;
-  color: #1a1a2e !important;
-  border-color: #4ecdc4 !important;
+  background: linear-gradient(145deg, #3dbdad, #818cf8) !important;
+  color: #12121f !important;
+  border-color: #3dbdad !important;
 }
 
 /* Keyboard Shortcuts Indicator */
@@ -4575,18 +4575,18 @@ body.studio-mode .studio-container {
 }
 
 .efficiency-indicator.excellent {
-  background: #66bb6a;
+  background: #10b981;
   box-shadow: 0 0 6px rgba(102, 187, 106, 0.5);
 }
 
 .efficiency-indicator.good {
-  background: #ffa726;
-  box-shadow: 0 0 6px rgba(255, 167, 38, 0.5);
+  background: #fbbf24;
+  box-shadow: 0 0 6px rgba(251, 191, 36, 0.5);
 }
 
 .efficiency-indicator.poor {
-  background: #ff6b6b;
-  box-shadow: 0 0 6px rgba(255, 107, 107, 0.5);
+  background: #fb7185;
+  box-shadow: 0 0 6px rgba(251, 113, 133, 0.5);
 }
 
 /* Responsive improvements */
@@ -4638,24 +4638,24 @@ body.studio-mode .studio-container {
 
 /* Focus styles for accessibility */
 .effect-module:focus-within {
-  outline: 2px solid #4ecdc4;
+  outline: 2px solid #3dbdad;
   outline-offset: 2px;
 }
 
 .chain-btn:focus,
 .footer-btn:focus,
 .effect-controls button:focus {
-  outline: 2px solid #4ecdc4;
+  outline: 2px solid #3dbdad;
   outline-offset: 2px;
 }
 
 /* Animation enhancements */
 @keyframes pulseGlow {
   0%, 100% {
-    box-shadow: 0 0 5px rgba(78, 205, 196, 0.3);
+    box-shadow: 0 0 5px rgba(61, 189, 173, 0.3);
   }
   50% {
-    box-shadow: 0 0 20px rgba(78, 205, 196, 0.6);
+    box-shadow: 0 0 20px rgba(61, 189, 173, 0.6);
   }
 }
 
@@ -4668,9 +4668,9 @@ body.studio-mode .studio-container {
   display: inline-block;
   width: 12px;
   height: 12px;
-  border: 2px solid rgba(78, 205, 196, 0.3);
+  border: 2px solid rgba(61, 189, 173, 0.3);
   border-radius: 50%;
-  border-top-color: #4ecdc4;
+  border-top-color: #3dbdad;
   animation: spin 1s ease-in-out infinite;
 }
 
@@ -4787,7 +4787,7 @@ body.studio-mode .studio-container {
 .library-header h3 {
   margin: 0 0 10px 0;
   font-size: 16px;
-  color: #4ecdc4;
+  color: #3dbdad;
 }
 
 .search-container {
@@ -4806,7 +4806,7 @@ body.studio-mode .studio-container {
 
 .effect-search:focus {
   outline: none;
-  border-color: #4ecdc4;
+  border-color: #3dbdad;
 }
 
 .search-icon {
@@ -4878,8 +4878,8 @@ body.studio-mode .studio-container {
 }
 
 .library-effect:hover {
-  background: rgba(78, 205, 196, 0.2);
-  border-color: rgba(78, 205, 196, 0.3);
+  background: rgba(61, 189, 173, 0.2);
+  border-color: rgba(61, 189, 173, 0.3);
   transform: translateX(2px);
 }
 
@@ -4908,7 +4908,7 @@ body.studio-mode .studio-container {
 }
 
 .effect-badge.new {
-  background: #e74c3c;
+  background: #ef4444;
   color: white;
 }
 
@@ -4919,10 +4919,10 @@ body.studio-mode .studio-container {
 
 .add-to-chain {
   padding: 4px 8px;
-  background: #4ecdc4;
+  background: #3dbdad;
   border: none;
   border-radius: 3px;
-  color: #1a1a2e;
+  color: #12121f;
   font-weight: bold;
   cursor: pointer;
   opacity: 0;
@@ -4944,8 +4944,8 @@ body.studio-mode .studio-container {
 
 /* Just added feedback */
 .library-effect.just-added {
-  background: rgba(78, 205, 196, 0.4);
-  border-color: #4ecdc4;
+  background: rgba(61, 189, 173, 0.4);
+  border-color: #3dbdad;
   animation: addedPulse 0.6s ease;
 }
 

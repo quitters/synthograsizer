@@ -52,8 +52,8 @@ function addIntegrationStyles() {
     }
     
     #studio-mode-toggle.active {
-      background: linear-gradient(145deg, #5ed3d0, #4ecdc4) !important;
-      color: #1a1a2e !important;
+      background: linear-gradient(145deg, #5ed3d0, #3dbdad) !important;
+      color: #12121f !important;
     }
     
     /* Animations for mode switching */
@@ -96,23 +96,23 @@ function addIntegrationStyles() {
     }
     
     .studio-notification.info {
-      background: rgba(78, 205, 196, 0.9);
-      border-left: 4px solid #4ecdc4;
+      background: rgba(61, 189, 173, 0.9);
+      border-left: 4px solid #3dbdad;
     }
     
     .studio-notification.success {
       background: rgba(102, 187, 106, 0.9);
-      border-left: 4px solid #66bb6a;
+      border-left: 4px solid #10b981;
     }
     
     .studio-notification.warning {
-      background: rgba(255, 167, 38, 0.9);
-      border-left: 4px solid #ffa726;
+      background: rgba(251, 191, 36, 0.9);
+      border-left: 4px solid #fbbf24;
     }
     
     .studio-notification.error {
-      background: rgba(255, 107, 107, 0.9);
-      border-left: 4px solid #ff6b6b;
+      background: rgba(251, 113, 133, 0.9);
+      border-left: 4px solid #fb7185;
     }
   `;
   document.head.appendChild(style);
