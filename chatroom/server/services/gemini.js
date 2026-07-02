@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenAI } from '@google/genai';
 import { countTokens } from '../utils/tokenCounter.js';
 import { synthClient, listPresetsCompact, listTemplatesForPrompt } from 'workflow-engine';
 import { artifactStore } from './artifactStore.js';
@@ -12,7 +12,7 @@ const MAX_CONTINUATION_ATTEMPTS = 2;
 let genAI = null;
 
 export function initializeGemini(apiKey) {
-  genAI = new GoogleGenerativeAI(apiKey);
+  genAI = new GoogleGenAI({ apiKey });
 }
 
 /**
@@ -343,18 +343,6 @@ Please provide your opening statement to kick off the discussion. Remember, writ
 }
 
 /**
- * Extract finish reason from Gemini streaming result
- */
-async function getFinishReason(streamResult) {
-  try {
-    const response = await streamResult.response;
-    return response.candidates?.[0]?.finishReason || 'UNKNOWN';
-  } catch {
-    return 'ERROR';
-  }
-}
-
-/**
  * Check if a MIME type is a visual/image type that Gemini can view inline
  */
 function isVisualMedia(mimeType) {
@@ -384,8 +372,23 @@ function isTextMedia(mimeType) {
 }
 
 /**
- * Build multipart content parts for Gemini API including session media
- * Returns an array of content parts: text parts + inline media
+ * Map an inline media file onto an Interactions content block.
+ * Images → image blocks, video → video blocks, PDFs → document blocks.
+ * `data` stays base64 (the media store already holds base64).
+ */
+function mediaToBlock(media) {
+  if (media.mimeType === 'application/pdf') {
+    return { type: 'document', data: media.data, mime_type: media.mimeType };
+  }
+  if (media.mimeType.startsWith('video/')) {
+    return { type: 'video', data: media.data, mime_type: media.mimeType };
+  }
+  return { type: 'image', data: media.data, mime_type: media.mimeType };
+}
+
+/**
+ * Build Interactions content blocks including session media.
+ * Returns an array of content blocks: text blocks + inline media blocks.
  */
 function buildContentParts(promptText, sessionMedia = [], generatedImages = []) {
   const parts = [];
@@ -421,22 +424,17 @@ function buildContentParts(promptText, sessionMedia = [], generatedImages = []) 
     mediaPreface += `\nYou may reference, analyze, critique, or remix these materials in your response.\n`;
 
     // Add the preface + main prompt as text
-    parts.push({ text: mediaPreface + '\n' + promptText });
+    parts.push({ type: 'text', text: mediaPreface + '\n' + promptText });
 
-    // Add visual media as inlineData parts
+    // Attach visual media / PDFs as content blocks
     for (const media of sessionMedia) {
       if (isVisualMedia(media.mimeType) || media.mimeType === 'application/pdf') {
-        parts.push({
-          inlineData: {
-            mimeType: media.mimeType,
-            data: media.data
-          }
-        });
+        parts.push(mediaToBlock(media));
       }
     }
   } else {
     // No session media, just text
-    parts.push({ text: promptText });
+    parts.push({ type: 'text', text: promptText });
   }
 
   // Inject recently generated images so agents can visually evaluate the output.
@@ -452,15 +450,48 @@ function buildContentParts(promptText, sessionMedia = [], generatedImages = []) 
     genPreface += `\nReact to what you actually SEE in these images, not just the prompts. ` +
                   `If your turn is to extend a recursive series, use [COMPOSE_FROM: <id> | what to add] ` +
                   `with the MOST RECENT image's ID — never paste IDs into prose prompts.\n`;
-    parts[parts.length - 1].text += genPreface;
+    // Push as its own text block (the previous block may be an image).
+    parts.push({ type: 'text', text: genPreface });
     // Order: oldest first so the model "sees" the chronological progression,
     // ending with the most recent image right before its own response.
     for (const img of generatedImages) {
-      parts.push({ inlineData: { mimeType: img.mimeType, data: img.data } });
+      parts.push({ type: 'image', data: img.data, mime_type: img.mimeType });
     }
   }
 
   return parts;
+}
+
+/**
+ * Open an Interactions stream for an agent turn.
+ * If the API rejects document (PDF) blocks, retry once without them rather
+ * than failing the whole turn — the text preface still names the files.
+ */
+async function createAgentStream(model, systemPrompt, blocks) {
+  const request = {
+    model,
+    system_instruction: systemPrompt,
+    generation_config: {
+      max_output_tokens: 8192,
+      temperature: 1.0, // Gemini 3 recommends 1.0
+    },
+    input: blocks,
+    stream: true,
+    store: false, // stateless — nothing retained server-side at Google
+  };
+  try {
+    return await genAI.interactions.create(request);
+  } catch (err) {
+    const hasDocs = blocks.some(b => b.type === 'document');
+    if (hasDocs && /document|pdf|mime/i.test(err.message || '')) {
+      console.warn(`[gemini] Interactions rejected document blocks (${err.message}); retrying without PDFs`);
+      return await genAI.interactions.create({
+        ...request,
+        input: blocks.filter(b => b.type !== 'document'),
+      });
+    }
+    throw err;
+  }
 }
 
 /**
@@ -473,15 +504,7 @@ export async function* generateAgentResponse(agent, allAgents, messages, goal, s
   }
 
   const systemPrompt = await buildSystemPrompt(agent, allAgents, goal);
-
-  const model = genAI.getGenerativeModel({
-    model: (typeof options !== 'undefined' ? options.model : null) || MODEL_NAME,
-    systemInstruction: systemPrompt,
-    generationConfig: {
-      maxOutputTokens: 8192,
-      temperature: 1.0, // Gemini 3 recommends 1.0
-    },
-  });
+  const modelId = (typeof options !== 'undefined' ? options.model : null) || MODEL_NAME;
 
   // Build the full prompt with conversation history
   let promptText = buildConversationPrompt(messages, goal, agent.name);
@@ -515,19 +538,28 @@ export async function* generateAgentResponse(agent, allAgents, messages, goal, s
 
     // Initial generation + continuation loop
     while (continuationAttempts <= MAX_CONTINUATION_ATTEMPTS) {
-      const result = await model.generateContentStream({
-        contents: [{ role: 'user', parts: currentParts }]
-      });
+      const stream = await createAgentStream(modelId, systemPrompt, currentParts);
 
       let chunkText = '';
       let streamError = null;
+      let finalInteraction = null;
+      let currentStepType = null;
       try {
-        for await (const chunk of result.stream) {
-          const text = chunk.text();
-          if (text) {
-            chunkText += text;
-            fullResponse += text;
-            yield { type: 'chunk', text };
+        for await (const event of stream) {
+          if (event.event_type === 'step.start') {
+            currentStepType = event.step?.type ?? null;
+          } else if (event.event_type === 'step.delta') {
+            // Thought-leak guard: only surface text deltas from model output,
+            // never from thought steps / thinking summaries.
+            if (currentStepType !== 'thought' && event.delta?.type === 'text' && event.delta.text) {
+              chunkText += event.delta.text;
+              fullResponse += event.delta.text;
+              yield { type: 'chunk', text: event.delta.text };
+            }
+          } else if (event.event_type === 'interaction.completed') {
+            finalInteraction = event.interaction;
+          } else if (event.event_type === 'error') {
+            throw new Error(event.error?.message || 'Interactions stream error');
           }
         }
       } catch (streamErr) {
@@ -540,17 +572,12 @@ export async function* generateAgentResponse(agent, allAgents, messages, goal, s
         }
       }
 
-      // Check finish reason (may fail if stream errored)
-      let finishReason;
-      try {
-        finishReason = await getFinishReason(result);
-      } catch (e) {
-        finishReason = streamError ? 'STREAM_ERROR' : 'UNKNOWN';
-      }
-      console.log(`[${agent.name}] finishReason: ${finishReason}, tokens so far: ${countTokens(fullResponse)}, attempt: ${continuationAttempts}`);
+      const status = streamError ? 'STREAM_ERROR' : (finalInteraction?.status || 'completed');
+      console.log(`[${agent.name}] status: ${status}, tokens so far: ${countTokens(fullResponse)}, attempt: ${continuationAttempts}`);
 
-      // If the model finished naturally, we're done
-      if (finishReason !== 'MAX_TOKENS') {
+      // 'incomplete' is the Interactions equivalent of the old MAX_TOKENS
+      // truncation; anything else means the model finished (or failed) — done.
+      if (status !== 'incomplete') {
         break;
       }
 
@@ -563,10 +590,10 @@ export async function* generateAgentResponse(agent, allAgents, messages, goal, s
         break;
       }
 
-      console.log(`[${agent.name}] Response truncated (MAX_TOKENS), attempting continuation ${continuationAttempts}/${MAX_CONTINUATION_ATTEMPTS}`);
+      console.log(`[${agent.name}] Response truncated (incomplete), attempting continuation ${continuationAttempts}/${MAX_CONTINUATION_ATTEMPTS}`);
 
       // Build continuation prompt (text-only for continuations, no need to re-send media)
-      currentParts = [{ text: `${promptText}\n\n[Your response so far]: ${fullResponse}\n\nYour previous response was cut off. Continue EXACTLY where you left off - do not repeat what you already said. Complete your thought.` }];
+      currentParts = [{ type: 'text', text: `${promptText}\n\n[Your response so far]: ${fullResponse}\n\nYour previous response was cut off. Continue EXACTLY where you left off - do not repeat what you already said. Complete your thought.` }];
     }
 
     if (wasTruncated) {

@@ -43,7 +43,7 @@ An autonomous multi-agent chat room powered by Google's Gemini API. Create AI ag
 
 ### Backend
 - **Node.js** with Express.js
-- **Google Generative AI SDK** (`@google/generative-ai`)
+- **Google GenAI SDK** (`@google/genai`, Interactions API; every call is stateless — `store: false`)
 - **Server-Sent Events** for real-time streaming
 - **UUID** for unique identifiers
 
@@ -103,10 +103,10 @@ ChatRoom/
 ## Installation
 
 ### Prerequisites
-- Node.js 18+
+- Node.js 20+
 - Google Gemini API key with access to:
-  - `gemini-2.0-flash` (text generation)
-  - `gemini-2.0-flash-preview-image-generation` (image generation)
+  - `gemini-3.1-pro-preview` (text generation, search/URL tools)
+  - `gemini-3-pro-image-preview` (image analysis; generation delegates to the Synthograsizer backend)
 
 ### Setup
 

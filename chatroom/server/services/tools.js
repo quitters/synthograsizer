@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenAI } from '@google/genai';
 import { synthClient, assertPlausiblePublicUrl } from 'workflow-engine';
 export { parseWorkflowRequests, stripWorkflowTags, workflowEngine } from 'workflow-engine';
 export { getPreset, searchPresets, applyPreset, getCategories, getPresetsByCategory, listPresetsCompact } from 'workflow-engine';
@@ -10,12 +10,48 @@ export { getTemplate, listTemplates, buildWorkflow, listTemplatesForPrompt, list
  * Follows the same tag-based pattern as image generation
  */
 
-const TOOL_MODEL = 'gemini-3.1-pro-preview-customtools';
+const TOOL_MODEL = 'gemini-3.1-pro-preview';
 
 let genAI = null;
 
 export function initializeTools(apiKey) {
-  genAI = new GoogleGenerativeAI(apiKey);
+  genAI = new GoogleGenAI({ apiKey });
+}
+
+/**
+ * Run a tool-equipped Interactions call and normalize what downstream
+ * consumers need: final text, url_citation annotations, search queries.
+ */
+async function runToolInteraction(input, tools) {
+  const interaction = await genAI.interactions.create({
+    model: TOOL_MODEL,
+    input,
+    tools,
+    store: false,
+  });
+
+  const steps = interaction.steps || [];
+  const annotations = [];
+  const searchQueries = [];
+  for (const step of steps) {
+    if (step.type === 'model_output') {
+      for (const block of step.content || []) {
+        if (block.type === 'text' && Array.isArray(block.annotations)) {
+          annotations.push(...block.annotations);
+        }
+      }
+    } else if (step.type === 'google_search_call') {
+      searchQueries.push(...(step.arguments?.queries || []));
+    }
+  }
+
+  return {
+    interaction,
+    text: interaction.output_text || '',
+    annotations,
+    searchQueries,
+    steps,
+  };
 }
 
 // ============================================================================
@@ -32,26 +68,15 @@ export async function webSearch(query) {
     throw new Error('Tools not initialized');
   }
 
-  const model = genAI.getGenerativeModel({
-    model: TOOL_MODEL,
-    tools: [{ googleSearch: {} }],
-  });
-
   try {
-    const result = await model.generateContent(query);
-    const response = result.response;
-    const text = response.text();
-
-    // Extract grounding metadata
-    const groundingMetadata = response.candidates?.[0]?.groundingMetadata;
-    const sources = extractSources(groundingMetadata);
-    const searchQueries = groundingMetadata?.webSearchQueries || [];
+    const { text, annotations, searchQueries, steps } =
+      await runToolInteraction(query, [{ type: 'google_search' }]);
 
     return {
       text,
-      sources,
+      sources: extractSources(annotations),
       searchQueries,
-      rawMetadata: groundingMetadata
+      rawMetadata: { annotations, steps },
     };
   } catch (error) {
     console.error('Web search error:', error);
@@ -60,65 +85,50 @@ export async function webSearch(query) {
 }
 
 /**
- * Extract and format sources from grounding metadata
+ * Extract and format sources from url_citation annotations.
+ * Keeps the historical {index, title, uri} shape consumers expect.
  */
-function extractSources(groundingMetadata) {
-  if (!groundingMetadata) return [];
+function extractSources(annotations) {
+  if (!Array.isArray(annotations)) return [];
 
-  const chunks = groundingMetadata.groundingChunks || [];
-  const supports = groundingMetadata.groundingSupports || [];
-
-  // Build source list from chunks
-  const sources = chunks.map((chunk, index) => ({
-    index: index + 1,
-    title: chunk.web?.title || 'Unknown',
-    uri: chunk.web?.uri || '',
-  })).filter(s => s.uri);
-
+  const seen = new Set();
+  const sources = [];
+  for (const anno of annotations) {
+    if (anno?.type !== 'url_citation' || !anno.url || seen.has(anno.url)) continue;
+    seen.add(anno.url);
+    sources.push({
+      index: sources.length + 1,
+      title: anno.title || 'Unknown',
+      uri: anno.url,
+    });
+  }
   return sources;
 }
 
 /**
- * Add inline citations to text based on grounding metadata
+ * Add inline citations to text based on url_citation annotations
+ * (metadata is the rawMetadata object returned by webSearch/research).
  */
-export function addCitations(text, groundingMetadata) {
-  if (!groundingMetadata) return text;
-
-  const supports = groundingMetadata.groundingSupports || [];
-  const chunks = groundingMetadata.groundingChunks || [];
-
-  if (!supports.length || !chunks.length) return text;
-
-  // Sort by end index descending to insert from end
-  const sortedSupports = [...supports].sort(
-    (a, b) => (b.segment?.endIndex ?? 0) - (a.segment?.endIndex ?? 0)
+export function addCitations(text, metadata) {
+  const annotations = (metadata?.annotations || []).filter(
+    a => a?.type === 'url_citation' && a.url && a.end_index !== undefined
   );
+  if (!annotations.length) return text;
 
-  let citedText = text;
-
-  for (const support of sortedSupports) {
-    const endIndex = support.segment?.endIndex;
-    if (endIndex === undefined || !support.groundingChunkIndices?.length) {
-      continue;
-    }
-
-    const citationLinks = support.groundingChunkIndices
-      .map(i => {
-        const uri = chunks[i]?.web?.uri;
-        const title = chunks[i]?.web?.title || `Source ${i + 1}`;
-        if (uri) {
-          return `[${i + 1}]`;
-        }
-        return null;
-      })
-      .filter(Boolean);
-
-    if (citationLinks.length > 0) {
-      const citationString = ` ${citationLinks.join('')}`;
-      citedText = citedText.slice(0, endIndex) + citationString + citedText.slice(endIndex);
-    }
+  // Number citations by first appearance of each distinct URL
+  const urlIndex = new Map();
+  for (const anno of annotations) {
+    if (!urlIndex.has(anno.url)) urlIndex.set(anno.url, urlIndex.size + 1);
   }
 
+  // Insert from the end so indices stay valid
+  const sorted = [...annotations].sort((a, b) => b.end_index - a.end_index);
+  let citedText = text;
+  for (const anno of sorted) {
+    if (anno.end_index > citedText.length) continue;
+    const citation = ` [${urlIndex.get(anno.url)}]`;
+    citedText = citedText.slice(0, anno.end_index) + citation + citedText.slice(anno.end_index);
+  }
   return citedText;
 }
 
@@ -136,25 +146,18 @@ export async function analyzeUrl(url, prompt = 'Summarize the key information fr
   if (!genAI) {
     throw new Error('Tools not initialized');
   }
-  // Gemini's urlContext tool does the fetching (Google's egress, not this
+  // Gemini's url_context tool does the fetching (Google's egress, not this
   // server), so this is not an SSRF vector against the local network — but
   // reject non-http(s) schemes and private-address literals up front rather
   // than forwarding junk/internal hostnames to a third party.
   assertPlausiblePublicUrl(url);
 
-  const model = genAI.getGenerativeModel({
-    model: TOOL_MODEL,
-    tools: [{ urlContext: {} }],
-  });
-
   try {
     const fullPrompt = `${prompt}\n\nURL: ${url}`;
-    const result = await model.generateContent(fullPrompt);
-    const response = result.response;
-    const text = response.text();
+    const { text, steps } = await runToolInteraction(fullPrompt, [{ type: 'url_context' }]);
 
-    // Extract URL context metadata
-    const urlMetadata = response.candidates?.[0]?.urlContextMetadata;
+    // URL-context fetch details now arrive as steps rather than metadata
+    const urlMetadata = steps.filter(s => (s.type || '').startsWith('url_context'));
 
     return {
       text,
@@ -178,22 +181,16 @@ export async function analyzeMultipleUrls(urls, prompt) {
     throw new Error('Tools not initialized');
   }
 
-  const model = genAI.getGenerativeModel({
-    model: TOOL_MODEL,
-    tools: [{ urlContext: {} }],
-  });
-
   try {
     const urlList = urls.map((url, i) => `URL ${i + 1}: ${url}`).join('\n');
     const fullPrompt = `${prompt}\n\n${urlList}`;
 
-    const result = await model.generateContent(fullPrompt);
-    const response = result.response;
+    const { text, steps } = await runToolInteraction(fullPrompt, [{ type: 'url_context' }]);
 
     return {
-      text: response.text(),
+      text,
       urls,
-      urlMetadata: response.candidates?.[0]?.urlContextMetadata
+      urlMetadata: steps.filter(s => (s.type || '').startsWith('url_context'))
     };
   } catch (error) {
     console.error('Multi-URL analysis error:', error);
@@ -215,27 +212,20 @@ export async function research(query) {
     throw new Error('Tools not initialized');
   }
 
-  const model = genAI.getGenerativeModel({
-    model: TOOL_MODEL,
-    tools: [
-      { googleSearch: {} },
-      { urlContext: {} }
-    ],
-  });
-
   try {
-    const result = await model.generateContent(query);
-    const response = result.response;
+    const { text, annotations, searchQueries, steps } = await runToolInteraction(
+      query,
+      [{ type: 'google_search' }, { type: 'url_context' }]
+    );
 
-    const groundingMetadata = response.candidates?.[0]?.groundingMetadata;
-    const urlMetadata = response.candidates?.[0]?.urlContextMetadata;
+    const urlMetadata = steps.filter(s => (s.type || '').startsWith('url_context'));
 
     return {
-      text: response.text(),
-      sources: extractSources(groundingMetadata),
-      searchQueries: groundingMetadata?.webSearchQueries || [],
+      text,
+      sources: extractSources(annotations),
+      searchQueries,
       urlMetadata,
-      rawMetadata: { groundingMetadata, urlMetadata }
+      rawMetadata: { annotations, steps, urlMetadata }
     };
   } catch (error) {
     console.error('Research error:', error);

@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenAI } from '@google/genai';
 import sharp from 'sharp';
 import { synthClient } from 'workflow-engine';
 
@@ -29,7 +29,7 @@ async function normalizeImageToPng(base64Data, mimeType) {
 let genAI = null;
 
 export function initializeImageGen(apiKey) {
-  genAI = new GoogleGenerativeAI(apiKey);
+  genAI = new GoogleGenAI({ apiKey });
 }
 
 /**
@@ -64,30 +64,18 @@ export async function analyzeImage(prompt, imageData, mimeType) {
     throw new Error('Image generation not initialized');
   }
 
-  const model = genAI.getGenerativeModel({
-    model: IMAGE_MODEL,
-    generationConfig: {
-      temperature: 1.0,
-    },
-  });
-
   try {
-    const result = await model.generateContent({
-      contents: [{
-        role: 'user',
-        parts: [
-          {
-            inlineData: {
-              mimeType: mimeType,
-              data: imageData
-            }
-          },
-          { text: prompt }
-        ]
-      }]
+    const interaction = await genAI.interactions.create({
+      model: IMAGE_MODEL,
+      generation_config: { temperature: 1.0 },
+      input: [
+        { type: 'image', data: imageData, mime_type: mimeType },
+        { type: 'text', text: prompt },
+      ],
+      store: false,
     });
 
-    return result.response.text();
+    return interaction.output_text || '';
   } catch (error) {
     console.error('Image analysis error:', error);
     throw error;

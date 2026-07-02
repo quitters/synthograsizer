@@ -170,30 +170,30 @@ createBranchPoint(name) {
 
 ### 2. Gemini Service (`server/services/gemini.js`)
 
-Handles all LLM interactions with Google's Gemini API.
+Handles all LLM interactions via the Gemini **Interactions API** (`@google/genai`).
+Every call is stateless (`store: false`) — the full windowed transcript is
+resent each turn and nothing is retained server-side at Google.
 
-#### Model Configuration
+#### Request Configuration
 
 ```javascript
-// Text generation
-const textModel = genAI.getGenerativeModel({
-  model: 'gemini-2.0-flash',
-  generationConfig: {
-    temperature: 0.9,
-    topK: 40,
-    topP: 0.95,
-    maxOutputTokens: 2048,
+// Streaming agent turn (text generation)
+const stream = await genAI.interactions.create({
+  model: 'gemini-3.1-pro-preview',
+  system_instruction: systemPrompt,
+  generation_config: {
+    max_output_tokens: 8192,
+    temperature: 1.0,
   },
-});
-
-// Image generation
-const imageModel = genAI.getGenerativeModel({
-  model: 'gemini-2.0-flash-preview-image-generation',
-  generationConfig: {
-    responseModalities: ['Text', 'Image'],
-  },
+  input: blocks, // [{type:'text',...}, {type:'image',...}, {type:'document',...}]
+  stream: true,
+  store: false,
 });
 ```
+
+Truncated responses surface as `interaction.status === 'incomplete'` and are
+auto-continued (max 2 attempts). Thinking summaries stream as separate
+`thought_summary` deltas and are filtered out of the chat stream.
 
 #### System Prompt Structure
 
@@ -336,19 +336,19 @@ function parseRemixRequests(text) {
 
 ```javascript
 async function executeWebSearch(query) {
-  // Uses Gemini's grounding with Google Search
-  const model = genAI.getGenerativeModel({
-    model: 'gemini-2.0-flash',
-    tools: [{ googleSearch: {} }],
+  // Uses Gemini's grounding with Google Search (Interactions API)
+  const interaction = await genAI.interactions.create({
+    model: 'gemini-3.1-pro-preview',
+    input: query,
+    tools: [{ type: 'google_search' }],
+    store: false,
   });
 
-  const result = await model.generateContent(query);
-
-  // Extract search results from grounding metadata
+  // Extract sources from url_citation annotations on the output text
   return {
     type: 'search',
     query,
-    results: formatSearchResults(result)
+    results: formatSearchResults(interaction)
   };
 }
 ```

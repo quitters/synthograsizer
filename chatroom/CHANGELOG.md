@@ -2,6 +2,21 @@
 
 All notable changes to the Agent Chat Room project are documented in this file.
 
+## [1.1.0] - 2026-07
+
+### Changed
+- **Migrated to the Gemini Interactions API** (`@google/genai` ^2.3.0, replacing
+  the deprecated `@google/generative-ai` 0.21). All server calls
+  (`gemini.js`, `tools.js`, `imageGen.js`) now use `interactions.create`.
+- Every call is stateless (`store: false`) — no server-side retention at Google.
+- Truncation detection now keys on `interaction.status === 'incomplete'`
+  (was `finishReason === 'MAX_TOKENS'`); auto-continuation behavior unchanged.
+- Search/URL tools declare `{ type: 'google_search' }` / `{ type: 'url_context' }`;
+  source extraction reads inline `url_citation` annotations (replacing
+  `groundingMetadata`). Tool model is now plain `gemini-3.1-pro-preview`.
+- PDFs attach as Interactions `document` blocks; thinking summaries are
+  filtered from the streamed chat output.
+
 ## [1.0.0] - 2025-02
 
 ### Added
