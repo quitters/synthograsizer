@@ -1,7 +1,7 @@
 fastapi
 uvicorn
 google-generativeai
-google-genai
+google-genai>=2.3.0
 pillow
 python-multipart
 requests

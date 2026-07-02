@@ -56,8 +56,9 @@ CMD_QUEUE_MAX = 64
 class MusicManager:
     """Manages a single Lyria RealTime session.
 
-    The genai_client is shared with AIManager (same API key). This class
-    gets the client passed in — it never creates its own.
+    Takes the API key (shared with AIManager) and builds its own client —
+    Lyria RealTime requires api_version='v1alpha', so it can't reuse the
+    shared client without changing that client's version for everyone.
 
     Architecture: The Lyria SDK returns an async context manager from
     `connect()`, so the session must live inside an `async with` block.
@@ -66,11 +67,7 @@ class MusicManager:
     callback for audio output.
     """
 
-    def __init__(self, genai_client):
-        # Lyria RealTime requires api_version='v1alpha'. Create a dedicated
-        # client rather than modifying the shared one (which could break
-        # other API calls that use the default version).
-        api_key = genai_client._api_client.api_key
+    def __init__(self, api_key: str):
         self.client = genai_sdk.Client(
             api_key=api_key,
             http_options={"api_version": "v1alpha"},
@@ -386,9 +383,9 @@ class MusicManager:
 music_manager: Optional[MusicManager] = None
 
 
-def get_music_manager(genai_client) -> MusicManager:
+def get_music_manager(api_key: str) -> MusicManager:
     """Get or create the singleton MusicManager."""
     global music_manager
     if music_manager is None:
-        music_manager = MusicManager(genai_client)
+        music_manager = MusicManager(api_key)
     return music_manager

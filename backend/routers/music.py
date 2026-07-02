@@ -56,7 +56,7 @@ async def ws_music(websocket: WebSocket):
     # and mask the real error.
     mm = None
     try:
-        mm = get_music_manager(ai_manager.genai_client)
+        mm = get_music_manager(ai_manager.api_key)
 
         # Callback that forwards data to the browser WebSocket
         async def send_to_browser(data):
