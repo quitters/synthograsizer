@@ -1,63 +1,22 @@
-"""Google GenAI text provider — wraps the clients ai_manager already owns.
+"""Google GenAI text provider — thin adapter over backend.google_api.
 
-Behavior is identical to the pre-refactor inline calls:
-- ``json_mode`` → ``GenerateContentConfig(response_mime_type="application/json")``
-- safety dicts → ``types.SafetySetting`` (strings pass through; Google's API
-  validates thresholds, and its errors surface verbatim)
-- text extraction tolerates thought/empty parts (same logic as
-  ``services/analysis._extract_text_from_response``)
+All call mechanics (Interactions vs. legacy generateContent dispatch,
+store=False, JSON mode, safety handling, block detection, streaming
+thought-guard) live in ``backend/google_api.py``. This class only adapts the
+``TextProvider`` interface onto it:
+
+- ``json_mode`` → JSON response constraint (both modes)
+- ``safety_settings`` are threaded through; they reach Google only when
+  ``google_api_mode`` is ``legacy`` (the Interactions API has no such
+  parameter — google_api warns once and drops them)
 - safety blocks raise ``SafetyBlockedError`` so routers can emit a typed 422
   that the front-end's "Report wrongly blocked" affordance recognizes.
 """
 
-import logging
 from typing import Dict, Iterator, List, Optional
 
-import google.generativeai as legacy_genai
-from google.genai import types
-
-from backend.helpers import SafetyBlockedError
+from backend import google_api
 from backend.providers.base import TextProvider, ensure_text_only
-
-logger = logging.getLogger(__name__)
-
-
-def _extract_text(response) -> str:
-    """Safely extract text parts (skips thought_signature parts)."""
-    try:
-        if hasattr(response, "candidates") and response.candidates:
-            parts = response.candidates[0].content.parts
-            text_parts = [p.text for p in parts if getattr(p, "text", None)]
-            if text_parts:
-                return "".join(text_parts)
-        return response.text
-    except Exception:
-        return str(response.text) if hasattr(response, "text") else ""
-
-
-def _raise_if_blocked(response) -> None:
-    """Translate Google block signals into SafetyBlockedError."""
-    feedback = getattr(response, "prompt_feedback", None)
-    if feedback is not None and getattr(feedback, "block_reason", None):
-        raise SafetyBlockedError(
-            f"Prompt blocked by Google safety filters: {feedback.block_reason}"
-        )
-    candidates = getattr(response, "candidates", None)
-    if not candidates:
-        return
-    for candidate in candidates:
-        finish_reason = str(getattr(candidate, "finish_reason", "") or "")
-        if "SAFETY" in finish_reason:
-            categories = []
-            for rating in getattr(candidate, "safety_ratings", None) or []:
-                prob = str(getattr(rating, "probability", ""))
-                if "HIGH" in prob or "MEDIUM" in prob:
-                    categories.append(
-                        str(getattr(rating, "category", "")).replace("HARM_CATEGORY_", "")
-                    )
-            raise SafetyBlockedError(
-                "Response blocked by Google safety filters.", categories=categories
-            )
 
 
 class GoogleTextProvider(TextProvider):
@@ -72,50 +31,25 @@ class GoogleTextProvider(TextProvider):
         return self._mgr.genai_client
 
     @staticmethod
-    def _config(json_mode: bool, safety_settings: Optional[List[Dict[str, str]]]):
-        kwargs = {}
-        if json_mode:
-            kwargs["response_mime_type"] = "application/json"
-        if safety_settings:
-            kwargs["safety_settings"] = [
-                types.SafetySetting(category=s["category"], threshold=s["threshold"])
-                for s in safety_settings
-            ]
-        return types.GenerateContentConfig(**kwargs) if kwargs else None
+    def _blocks(contents: List[str]):
+        return [google_api.text_block(part) for part in ensure_text_only(contents)]
 
     def generate(self, model, contents, json_mode=False, safety_settings=None) -> str:
-        contents = ensure_text_only(contents)
-        gen_config = self._config(json_mode, safety_settings)
-        response = self._client().models.generate_content(
-            model=model,
-            contents=contents,
-            **({"config": gen_config} if gen_config else {}),
+        return google_api.gen_text(
+            self._client(),
+            model,
+            self._blocks(contents),
+            json_mode=json_mode,
+            safety_settings=safety_settings,
         )
-        _raise_if_blocked(response)
-        return _extract_text(response)
 
     def generate_stream(self, model, contents, safety_settings=None) -> Iterator[str]:
-        contents = ensure_text_only(contents)
-        gen_config = self._config(False, safety_settings)
-        stream = self._client().models.generate_content_stream(
-            model=model,
-            contents=contents,
-            **({"config": gen_config} if gen_config else {}),
+        return google_api.gen_text_stream(
+            self._client(),
+            model,
+            self._blocks(contents),
+            safety_settings=safety_settings,
         )
-        for chunk in stream:
-            if chunk.text:
-                yield chunk.text
 
     def chat(self, message, history, model) -> str:
-        # Legacy SDK path preserved verbatim from services/text_gen.chat —
-        # the multi-turn chat surface still rides google.generativeai.
-        if not self._mgr.api_key:
-            raise ValueError("API Key not configured")
-        chat_model = legacy_genai.GenerativeModel(model)
-        chat_history = []
-        for msg in history or []:
-            role = "user" if msg["role"] == "user" else "model"
-            chat_history.append({"role": role, "parts": [msg["content"]]})
-        chat = chat_model.start_chat(history=chat_history)
-        response = chat.send_message(message)
-        return response.text
+        return google_api.gen_chat(self._client(), model, message, history)

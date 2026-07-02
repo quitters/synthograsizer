@@ -10,10 +10,8 @@ import asyncio
 from pathlib import Path
 from typing import Optional, List, Dict, Any, Union
 from backend import config
+from backend import google_api
 from backend.utils.retry import retry_on_transient
-import google.generativeai as genai
-from google import genai as genai_client
-from google.genai import types
 from PIL import Image
 from PIL.PngImagePlugin import PngInfo
 
@@ -24,24 +22,20 @@ def analyze_image(self, image_bytes: bytes, prompt: str, model_name: Optional[st
         
     try:
         model_name = model_name or config.MODEL_ANALYSIS_QUICK
-        
-        contents = [prompt]
-        image_part = types.Part.from_bytes(data=image_bytes, mime_type=sniff_mime_type(image_bytes))
-        contents.append(image_part)
-        
-        response = self.genai_client.models.generate_content(
-            model=model_name,
-            contents=contents
-        )
-        return response.text
+
+        blocks = [
+            google_api.text_block(prompt),
+            google_api.image_block(image_bytes),
+        ]
+        return google_api.gen_text(self.genai_client, model_name, blocks)
     except Exception as e:
         error_msg = str(e)
         print(f"Analysis failed: {error_msg}")
-        
-        # Check for Pydantic validation errors (often due to blocked content/NoneType)
+
+        # Legacy-mode Pydantic validation errors (often blocked content/NoneType)
         if "validation errors for _GenerateContentParameters" in error_msg:
             return "Analysis failed: Content blocked by safety filters."
-            
+
         return f"Analysis failed: {error_msg}"
 
 def analyze_image_to_prompt(self, image_bytes: bytes, mime_type: str = "image/png", model_name: Optional[str] = None) -> str:
@@ -128,25 +122,25 @@ Combine all sections into a single flowing prompt of 50-150 words, written in a 
                 mime_type = "image/webp"
             print(f"[Analysis] Fallback: {len(image_bytes)} bytes as {mime_type}")
 
-        image_part = types.Part.from_bytes(data=image_bytes, mime_type=mime_type)
-
-        response = self.genai_client.models.generate_content(
-            model=model_name,
-            contents=["Analyze this image:", image_part],
-            config=types.GenerateContentConfig(
-                system_instruction=IMAGE_ANALYSIS_SYSTEM_PROMPT
-            )
+        blocks = [
+            google_api.text_block("Analyze this image:"),
+            google_api.image_block(image_bytes, mime_type=mime_type),
+        ]
+        return google_api.gen_text(
+            self.genai_client,
+            model_name,
+            blocks,
+            system_instruction=IMAGE_ANALYSIS_SYSTEM_PROMPT,
         )
-        return response.text
-        
+
     except Exception as e:
         error_msg = str(e)
         print(f"Image analysis error: {error_msg}")
-        
-        # Catch the verbose Pydantic error
+
+        # Legacy-mode verbose Pydantic error
         if "validation errors for _GenerateContentParameters" in error_msg:
             raise Exception("Image analysis failed: Content blocked by safety filters (Input rejected).")
-            
+
         raise Exception(f"Image analysis failed: {error_msg}")
 
 def analyze_image_quick(self, image_bytes: bytes) -> str:
@@ -169,14 +163,11 @@ def analyze_image_quick(self, image_bytes: bytes) -> str:
 Be concise and specific. Focus on attributes that would be relevant for selecting creative prompt variables."""
 
     try:
-        image_part = types.Part.from_bytes(data=image_bytes, mime_type="image/png")
-
-        response = self.genai_client.models.generate_content(
-            model=model,
-            contents=[prompt, image_part]
-        )
-
-        return self._extract_text_from_response(response)
+        blocks = [
+            google_api.text_block(prompt),
+            google_api.image_block(image_bytes, mime_type="image/png"),
+        ]
+        return google_api.gen_text(self.genai_client, model, blocks)
     except Exception as e:
         raise Exception(f"Quick image analysis failed: {e}")
 

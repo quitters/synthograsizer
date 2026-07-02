@@ -12,7 +12,6 @@ from typing import Optional, List, Dict, Any, Union
 from backend import config
 from backend.helpers import SafetyBlockedError
 from backend.utils.retry import retry_on_transient
-import google.generativeai as genai
 from google import genai as genai_client
 from google.genai import types
 from PIL import Image

@@ -22,9 +22,7 @@ import backend.services.llm_router
 import backend.utils.image_utils
 from backend.utils.image_utils import sniff_mime_type
 
-import google.generativeai as genai
 from google import genai as genai_client
-from google.genai import types
 from PIL import Image
 from PIL.PngImagePlugin import PngInfo
 
@@ -150,13 +148,8 @@ class AIManager:
             print(f"Failed to save config: {e}")
 
     def configure_api(self, api_key: str, save: bool = True):
-        """Configure both GenAI clients."""
+        """Configure the GenAI client (Interactions + generateContent + Veo/Imagen)."""
         self.api_key = api_key
-
-        # Configure legacy client (for Text/Gemini)
-        genai.configure(api_key=api_key)
-
-        # Configure new client (for Video/Veo and Imagen 3)
         self.genai_client = genai_client.Client(api_key=api_key)
 
         if save:

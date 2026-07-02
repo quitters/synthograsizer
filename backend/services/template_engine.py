@@ -13,11 +13,9 @@ from pathlib import Path
 logger = logging.getLogger(__name__)
 from typing import Optional, List, Dict, Any, Union
 from backend import config
+from backend import google_api
 from backend.helpers import SafetyBlockedError
 from backend.utils.retry import retry_on_transient
-import google.generativeai as genai
-from google import genai as genai_client
-from google.genai import types
 from PIL import Image
 from PIL.PngImagePlugin import PngInfo
 
@@ -452,26 +450,24 @@ Each entry in "values" is: {"text": "the value string", "weight": N}
                 "Reference images require the Google backend, but no Google API key "
                 "is configured. Remove the images or add a key in settings."
             )
-        gen_config = types.GenerateContentConfig(
-            response_mime_type="application/json"
-        )
+        image_blocks = []
         image_notes = []
         for i, img_bytes in enumerate(reference_images):
             mime = "image/png" if img_bytes[:4] == b"\x89PNG" else "image/jpeg"
-            contents.insert(-1, types.Part.from_bytes(data=img_bytes, mime_type=mime))
+            image_blocks.append(google_api.image_block(img_bytes, mime_type=mime))
             image_notes.append(f"Image {i+1}")
-        contents.append(
-            f"REFERENCE IMAGES: {len(reference_images)} image(s) attached ({', '.join(image_notes)}). "
-            "Use these as visual context when applying the user's remix instructions. "
-            "The user's text explains how to interpret them."
+        # Same order as before: system prompt, images, template+instructions, note.
+        blocks = (
+            [google_api.text_block(contents[0])]
+            + image_blocks
+            + [google_api.text_block(part) for part in contents[1:]]
+            + [google_api.text_block(
+                f"REFERENCE IMAGES: {len(reference_images)} image(s) attached ({', '.join(image_notes)}). "
+                "Use these as visual context when applying the user's remix instructions. "
+                "The user's text explains how to interpret them."
+            )]
         )
-
-        response = self.genai_client.models.generate_content(
-            model=model,
-            contents=contents,
-            config=gen_config
-        )
-        return response.text
+        return google_api.gen_text(self.genai_client, model, blocks, json_mode=True)
     except SafetyBlockedError:
         raise  # keep the type — routers emit a structured 422 for these
     except Exception as e:
@@ -610,22 +606,23 @@ the sketch only — do not describe the image.
                     "Reference images require the Google backend, but no Google API "
                     "key is configured. Remove the images or add a key in settings."
                 )
+            image_blocks = []
             image_notes = []
             for i, img_bytes in enumerate(reference_images):
                 mime = "image/png" if img_bytes[:4] == b"\x89PNG" else "image/jpeg"
-                contents.insert(-1, types.Part.from_bytes(data=img_bytes, mime_type=mime))
+                image_blocks.append(google_api.image_block(img_bytes, mime_type=mime))
                 image_notes.append(f"Image {i+1}")
-            contents.append(
-                f"REFERENCE IMAGES: {len(reference_images)} attached ({', '.join(image_notes)}). "
-                "Apply as the instruction directs."
+            # Same order as before: system prompt, images, user message, note.
+            blocks = (
+                [google_api.text_block(contents[0])]
+                + image_blocks
+                + [google_api.text_block(part) for part in contents[1:]]
+                + [google_api.text_block(
+                    f"REFERENCE IMAGES: {len(reference_images)} attached ({', '.join(image_notes)}). "
+                    "Apply as the instruction directs."
+                )]
             )
-
-            response = self.genai_client.models.generate_content(
-                model=model,
-                contents=contents,
-                config=types.GenerateContentConfig()
-            )
-            raw = response.text or ""
+            raw = google_api.gen_text(self.genai_client, model, blocks) or ""
         # Strip accidental markdown fences if the model emits them despite the rule
         text = raw.strip()
         if text.startswith("```"):
@@ -872,6 +869,7 @@ Respond with valid JSON only — a single beat object:
     # Optional: multimodal continuity — attach rendered adjacent beat images
     # so the LLM can see what's actually on screen, not just our prompt text.
     contents = [system_prompt]
+    image_blocks = []
     image_notes = []
     for label, b64 in (("PREVIOUS BEAT", prev_image_b64), ("NEXT BEAT", next_image_b64)):
         if not b64:
@@ -880,7 +878,7 @@ Respond with valid JSON only — a single beat object:
             import base64 as _b64
             raw = _b64.b64decode(b64)
             mime = "image/png" if raw[:4] == b"\x89PNG" else "image/jpeg"
-            contents.append(types.Part.from_bytes(data=raw, mime_type=mime))
+            image_blocks.append(google_api.image_block(raw, mime_type=mime))
             image_notes.append(f"{label} image attached above")
         except (ValueError, TypeError, base64.binascii.Error) as exc:
             # Bad payload — skip image, fall back to text-only.
@@ -904,16 +902,13 @@ Respond with valid JSON only — a single beat object:
                 "Visual-continuity images require the Google backend, but no Google "
                 "API key is configured. Regenerate without images or add a key."
             )
-        gen_config = types.GenerateContentConfig(
-            response_mime_type="application/json"
+        # Same order as before: system prompt, images, continuity note.
+        blocks = (
+            [google_api.text_block(contents[0])]
+            + image_blocks
+            + [google_api.text_block(part) for part in contents[1:]]
         )
-
-        response = self.genai_client.models.generate_content(
-            model=model,
-            contents=contents,
-            config=gen_config
-        )
-        return response.text
+        return google_api.gen_text(self.genai_client, model, blocks, json_mode=True)
     except SafetyBlockedError:
         raise  # keep the type — routers emit a structured 422 for these
     except Exception as e:
@@ -1024,23 +1019,16 @@ Resolve getSynthVar ONCE per frame at the top of p.draw, always with a fallback 
         elif image_bytes[:2] == b'BM':
             mime = "image/bmp"
 
-        contents = [
-            system_prompt,
-            types.Part.from_bytes(data=image_bytes, mime_type=mime),
-            "Use the image above as a color palette and aesthetic reference for this generative sketch. "
-            "Extract the dominant colors and mood, then embed them as one of the variable options (e.g., the first or default value in a palette variable).\n\n"
-            f"Sketch Description: {user_prompt}",
+        blocks = [
+            google_api.text_block(system_prompt),
+            google_api.image_block(image_bytes, mime_type=mime),
+            google_api.text_block(
+                "Use the image above as a color palette and aesthetic reference for this generative sketch. "
+                "Extract the dominant colors and mood, then embed them as one of the variable options (e.g., the first or default value in a palette variable).\n\n"
+                f"Sketch Description: {user_prompt}"
+            ),
         ]
-
-        gen_config = types.GenerateContentConfig(
-            response_mime_type="application/json"
-        )
-        response = self.genai_client.models.generate_content(
-            model=model,
-            contents=contents,
-            config=gen_config
-        )
-        return response.text
+        return google_api.gen_text(self.genai_client, model, blocks, json_mode=True)
     except SafetyBlockedError:
         raise  # keep the type — routers emit a structured 422 for these
     except Exception as e:

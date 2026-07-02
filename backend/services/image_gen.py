@@ -2,9 +2,9 @@ import base64
 import logging
 from typing import Optional, List, Dict, Any
 from backend import config
+from backend import google_api
 from backend.helpers import SafetyBlockedError
 from backend.utils.retry import retry_on_transient
-from backend.utils.image_utils import sniff_mime_type
 from google.genai import types
 
 logger = logging.getLogger(__name__)
@@ -73,60 +73,30 @@ def _generate_image_gemini(self, prompt: str, model_name: str, aspect_ratio: str
                            top_k: Optional[int] = None,
                            top_p: Optional[float] = None,
                            tags: list = None):
-    """Generate an image via Gemini's generate_content API.
+    """Generate an image via Gemini (google_api dispatch: Interactions or legacy).
 
-    Builds a GenerateContentConfig with image modality, optional thinking,
-    safety settings, sampling controls, and reference images.  Returns
-    either a base64 string or a dict with 'image' and 'text' keys
-    (when the model returns both modalities).
+    Returns either a base64 string or a dict with 'image' and 'text' keys
+    (when the model returns both modalities). Signature keeps the full set of
+    public API parameters; ones without an Interactions equivalent
+    (top_k, image_count>1) are dropped there with a warning, and
+    `person_generation` / `add_watermark` remain Imagen-only as before.
     """
-    # Build config kwargs — start with image modality
-    config_kwargs: Dict[str, Any] = {
-        "response_modalities": response_modalities or ['Image']
-    }
-
-    # Thinking Config
+    # Thinking gate:
     # NB2 (gemini-3.1-flash-image) supports configurable thinking_level (minimal/high).
     # NB Pro (gemini-3-pro-image) has thinking always-on; does NOT accept thinking_level.
-    if "gemini-3" in model_name and "pro-image" not in model_name:
-        if thinking_level or include_thoughts:
-            thinking_cfg = {"include_thoughts": include_thoughts}
-            if thinking_level:
-                thinking_cfg["thinking_level"] = thinking_level.lower()
-            config_kwargs["thinking_config"] = thinking_cfg
+    if not ("gemini-3" in model_name and "pro-image" not in model_name):
+        thinking_level = None
+        include_thoughts = False
 
     # Safety Settings — resolved by policy: per-request > saved operator
     # defaults > permissive baseline. Hosted instances ignore per-request
-    # settings so anonymous visitors can't lower thresholds.
+    # settings so anonymous visitors can't lower thresholds. They only reach
+    # Google on the legacy generateContent mode (Interactions has no such knob).
     from backend.policy import policy
     safety_settings = policy.effective_safety(safety_settings)
 
-    mapped_safety = []
-    for s in safety_settings:
-        mapped_safety.append(types.SafetySetting(
-            category=s["category"],
-            threshold=s["threshold"]
-        ))
-    config_kwargs["safety_settings"] = mapped_safety
-
-    # Image Config
-    #
-    # The set of fields supported by `types.ImageConfig` varies across
-    # google-genai SDK versions. We always pass `aspect_ratio` (universally
-    # supported), then attempt to layer on optional fields and gracefully
-    # fall back if the installed SDK rejects them.
-    #
-    # Notes on Gemini-side limitations vs. Imagen:
-    #   - `image_count`        : Gemini may not honor multi-image; Imagen does.
-    #     We map it onto ImageConfig if available; callers wanting reliable
-    #     multi-image generation should use the Imagen path.
-    #   - `add_watermark`      : Imagen-only; SynthID is automatic on Gemini.
-    #   - `person_generation`  : Imagen-only on most SDK builds.
-    image_config_base = {
-        "aspect_ratio": aspect_ratio if aspect_ratio != "auto" else None,
-    }
-
     # Resolution Handling (Gemini 3.x models support image_size)
+    image_size = None
     if media_resolution and "gemini-3" in model_name:
         res_map = {
             "media_resolution_512": "512px",  # 3.1 Flash only
@@ -134,128 +104,39 @@ def _generate_image_gemini(self, prompt: str, model_name: str, aspect_ratio: str
             "media_resolution_medium": "2K",
             "media_resolution_high": "4K"
         }
-        if media_resolution in res_map:
-            image_config_base["image_size"] = res_map[media_resolution]
+        image_size = res_map.get(media_resolution)
 
-    # Layer on optional Gemini-supported fields only.
-    # add_watermark and person_generation are Imagen-only — omit them here.
-    image_config_extended = dict(image_config_base)
-    if image_count and image_count > 1:
-        image_config_extended["image_count"] = image_count
-
-    try:
-        image_cfg = types.ImageConfig(**image_config_extended)
-    except Exception as e:
-        # SDK version doesn't support image_count — fall back to base config.
-        dropped = set(image_config_extended) - set(image_config_base)
-        if dropped:
-            logger.warning(
-                "ImageConfig rejected fields %s on Gemini path (%s); "
-                "falling back to base config.",
-                sorted(dropped), e,
-            )
-        image_cfg = types.ImageConfig(**image_config_base)
-    config_kwargs["image_config"] = image_cfg
-
-    # Sampling Controls
-    if temperature is not None:
-        config_kwargs["temperature"] = max(0.0, min(2.0, temperature))
-    if top_k is not None:
-        config_kwargs["top_k"] = max(1, min(100, top_k))
-    if top_p is not None:
-        config_kwargs["top_p"] = max(0.0, min(1.0, top_p))
-
-    # Google Search Tool
-    if use_google_search:
-        tool = types.Tool(google_search=types.GoogleSearch())
-        config_kwargs["tools"] = [tool]
-
-    gen_config = types.GenerateContentConfig(**config_kwargs)
-
-    contents = []
+    blocks = []
     if reference_images:
-        # Add each reference image as a Part first
         for image_bytes in reference_images:
-            image_part = types.Part.from_bytes(data=image_bytes, mime_type=sniff_mime_type(image_bytes))
-            contents.append(image_part)
-    
-    # Add prompt at the end
-    contents.append(prompt)
+            blocks.append(google_api.image_block(image_bytes))
+    blocks.append(google_api.text_block(prompt))
 
-    response = self.genai_client.models.generate_content(
-        model=model_name,
-        contents=contents,
-        config=gen_config
+    image_bytes, _mime, text_out = google_api.gen_image(
+        self.genai_client,
+        model_name,
+        blocks,
+        aspect_ratio=aspect_ratio if aspect_ratio != "auto" else None,
+        image_size=image_size,
+        response_modalities=response_modalities,
+        thinking_level=thinking_level,
+        include_thoughts=include_thoughts,
+        temperature=temperature,
+        top_k=top_k,
+        top_p=top_p,
+        safety_settings=safety_settings,
+        use_google_search=use_google_search,
+        image_count=image_count,
     )
 
-    # Parse response for inline image data
-    if not response:
-        raise Exception("API returned empty response")
-
-    # Check for prompt feedback blocks (common in some API versions)
-    if hasattr(response, 'prompt_feedback') and response.prompt_feedback:
-        if response.prompt_feedback.block_reason:
-            raise SafetyBlockedError(f"Prompt blocked: {response.prompt_feedback.block_reason}")
-
-    if not hasattr(response, 'candidates') or not response.candidates:
-        # `candidates` is None when the prompt itself was rejected upstream.
-        raise SafetyBlockedError("No candidates returned. The prompt may have been blocked for safety.")
-
-    # Walk candidates and collect the first image part we find. We also
-    # capture any text part (Gemini sometimes returns commentary alongside
-    # the image when response_modalities includes "Text"). Safety blocks
-    # raised here are terminal — we don't try other candidates because the
-    # block applies to the prompt, not the candidate ranking.
-    image_b64: Optional[str] = None
-    text_out: Optional[str] = None
-
-    for candidate in response.candidates:
-        finish_reason = str(getattr(candidate, "finish_reason", "") or "")
-        if "SAFETY" in finish_reason or finish_reason == "3":
-            safety_msg = "Content blocked for SAFETY."
-            categories = []
-            for rating in getattr(candidate, "safety_ratings", None) or []:
-                prob = str(getattr(rating, "probability", ""))
-                if "HIGH" in prob or "MEDIUM" in prob:
-                    category = str(getattr(rating, "category", "")).replace("HARM_CATEGORY_", "")
-                    categories.append(category)
-                    safety_msg += f" ({category}: {prob})"
-            raise SafetyBlockedError(safety_msg, categories=categories)
-
-        if "RECITATION" in finish_reason:
-            raise Exception("Content blocked: Recitation of copyrighted material.")
-
-        content = getattr(candidate, "content", None)
-        parts = getattr(content, "parts", None) if content is not None else None
-        if not parts:
-            continue
-
-        for part in parts:
-            inline = getattr(part, "inline_data", None)
-            if inline and getattr(inline, "data", None) and image_b64 is None:
-                final_bytes = self.embed_metadata(inline.data, prompt, tags=tags)
-                self.save_output(final_bytes, f"img_{model_name}")
-                image_b64 = base64.b64encode(final_bytes).decode("utf-8")
-            elif getattr(part, "text", None):
-                text_out = (text_out or "") + part.text
-
-        if image_b64 is not None:
-            break
-
-    if image_b64 is None:
-        # Log finish reasons and any text content to aid debugging
-        finish_reasons = [
-            str(getattr(c, "finish_reason", "unknown")) for c in response.candidates
-        ]
-        logger.warning(
-            "No image part found in Gemini response. finish_reasons=%s model=%s text_content=%r",
-            finish_reasons, model_name, text_out,
-        )
+    if image_bytes is None:
         if text_out:
             raise Exception(f"Model returned text instead of an image: {text_out.strip()[:300]}")
-        raise Exception(
-            f"No image found in Gemini response (finish_reasons={finish_reasons})"
-        )
+        raise Exception("No image found in Gemini response")
+
+    final_bytes = self.embed_metadata(image_bytes, prompt, tags=tags)
+    self.save_output(final_bytes, f"img_{model_name}")
+    image_b64 = base64.b64encode(final_bytes).decode("utf-8")
 
     # Preserve historical contract: bare base64 string when there's no text,
     # dict when the model returned both modalities.
@@ -399,11 +280,11 @@ Format as: TYPE | STYLE | COMPOSITION | ELEMENTS | COLOR_LIGHTING | MOOD"""
 [REFERENCE STYLE ANALYSIS: {ref_analysis} ]"""
 
         prompt_model = config.MODEL_SMART_TRANSFORM_PROMPT
-        prompt_response = self.genai_client.models.generate_content(
-            model=prompt_model,
-            contents=[PROMPT_GEN_SYSTEM_PROMPT, context]
+        final_prompt = google_api.gen_text(
+            self.genai_client,
+            prompt_model,
+            [google_api.text_block(PROMPT_GEN_SYSTEM_PROMPT), google_api.text_block(context)],
         )
-        final_prompt = prompt_response.text
 
         # 4. Generate Image — pass input image as reference for transformation
         reference_images = [input_image_bytes]
