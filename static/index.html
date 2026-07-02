@@ -35,7 +35,7 @@
         <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path></svg>
         <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
       </button>
-      <a href="/synthograsizer/demo.html" class="cta">Launch App</a>
+      <a href="/synthograsizer/demo.html" class="cta" data-launch>Launch App</a>
     </div>
   </header>
 
@@ -62,13 +62,16 @@
       </p>
 
       <div class="hero-ctas">
-        <a href="/synthograsizer/demo.html" class="btn btn-primary">
+        <a href="/synthograsizer/demo.html" class="btn btn-primary" data-launch>
           Launch Synthograsizer
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
         </a>
         <a href="#features" class="btn btn-ghost">
           See what it does
         </a>
+      </div>
+      <div class="demo-alt" data-demo-alt style="display:none; margin-top:10px; font-size:13px; opacity:.75;">
+        Running locally — buttons open the full app. <a href="/synthograsizer/demo.html">Try the gated demo instead →</a>
       </div>
 
       <div class="hero-stats">
@@ -183,7 +186,7 @@
       </div>
 
       <div class="tool-grid">
-        <a href="/synthograsizer/demo.html" class="tool-card primary reveal" style="grid-column: 1 / -1;">
+        <a href="/synthograsizer/demo.html" class="tool-card primary reveal" style="grid-column: 1 / -1;" data-launch>
           <div class="tool-head">
             <h3>Synthograsizer</h3>
             <span class="tool-badge">Launch</span>
@@ -239,6 +242,33 @@
           </div>
           <p>Lyria RealTime audio generation driven by the current prompt context — ambient scores, generative soundscapes, live to output.</p>
         </div>
+
+        <a href="/taste-profile/" class="tool-card reveal">
+          <div class="tool-head">
+            <h3>Taste Profile</h3>
+            <span class="tool-badge amber">Companion</span>
+          </div>
+          <p>Onboarding ritual: drop your finished work, take a quick A/B taste test, and get an AI agent crew tuned to how you actually create.</p>
+          <span class="arrow">Open →</span>
+        </a>
+
+        <a href="/glitcher/" class="tool-card reveal">
+          <div class="tool-head">
+            <h3>Glitcher (standalone)</h3>
+            <span class="tool-badge fuchsia">Companion</span>
+          </div>
+          <p>The full Glitch Art Studio in its own tab — destructive pixel effects, filter chains, selections, recording, and preset management.</p>
+          <span class="arrow">Open →</span>
+        </a>
+
+        <a href="/chatroom/" class="tool-card reveal">
+          <div class="tool-head">
+            <h3>Agent Chat Room</h3>
+            <span class="tool-badge teal">Local server</span>
+          </div>
+          <p>An autonomous band of Gemini agents that discuss your goal, generate and critique images, search the web, and run workflows. Needs the ChatRoom server (launch-all.bat).</p>
+          <span class="arrow">Open →</span>
+        </a>
       </div>
     </div>
   </section>
@@ -436,7 +466,7 @@
       <h2>Ready to play with prompts?</h2>
       <p>Open the suite in your browser. No install. No account. Just you, a template, and a canvas.</p>
       <div class="hero-ctas">
-        <a href="/synthograsizer/demo.html" class="btn btn-primary">
+        <a href="/synthograsizer/demo.html" class="btn btn-primary" data-launch>
           Launch Synthograsizer
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
         </a>
@@ -458,7 +488,9 @@
         <div>© 2025 · <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener">CC BY-NC 4.0</a></div>
       </div>
       <div class="footer-links">
-        <a href="/synthograsizer/demo.html">App</a>
+        <a href="/synthograsizer/demo.html" data-launch>App</a>
+        <a href="/taste-profile/">Taste Profile</a>
+        <a href="/glitcher/">Glitcher</a>
         <a href="/about/">About</a>
         <a href="/terms/">Terms &amp; Privacy</a>
         <a href="https://github.com/quitters/synthograsizer" target="_blank" rel="noopener">GitHub</a>
@@ -466,6 +498,25 @@
       </div>
     </div>
   </footer>
+
+  <!-- ============= Local-instance detection ============= -->
+  <script>
+    // On a local (non-hosted) instance, the "Launch" CTAs should open the
+    // full app; the gated demo stays the default for hosted/public visitors
+    // (cheapest-model pinning, no operator-key exposure).
+    (function () {
+      fetch('/api/health').then(r => r.json()).then(h => {
+        if (h && h.hosted === false) {
+          document.querySelectorAll('[data-launch]').forEach(a => {
+            a.href = '/synthograsizer/';
+          });
+          document.querySelectorAll('[data-demo-alt]').forEach(el => {
+            el.style.display = '';
+          });
+        }
+      }).catch(() => { /* backend absent (pure static hosting) — keep demo links */ });
+    })();
+  </script>
 
   <!-- ============= Theme toggle ============= -->
   <script>

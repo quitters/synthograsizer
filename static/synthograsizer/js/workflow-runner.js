@@ -64,8 +64,12 @@ class WorkflowRunner {
       </div>
 
       <!-- Offline banner -->
-      <div id="wfr-offline" style="display:none; padding:16px; text-align:center; color:#999; font-size:13px;">
-        Workflow engine is offline. Start the chatroom server to use workflows.
+      <div id="wfr-offline" style="display:none; padding:20px; text-align:center; color:#999; font-size:13px; line-height:1.7;">
+        <div style="font-size:24px;">🔌</div>
+        <strong>Workflow engine is offline.</strong><br>
+        Workflows run on the ChatRoom server. Start it with <code>launch-all.bat</code>
+        (or <code>npm start</code> inside <code>chatroom/</code>), then retry.<br>
+        <button id="wfr-retry" type="button" class="studio-btn-secondary" style="margin-top:10px; padding:5px 14px; cursor:pointer;">↻ Retry connection</button>
       </div>
 
       <!-- Phase 0: Template browser -->
@@ -114,6 +118,7 @@ class WorkflowRunner {
 
   _bindEvents() {
     this.studio.bindSafe('wfr-back-btn', 'onclick', () => this._showPhase('browse'));
+    this.studio.bindSafe('wfr-retry', 'onclick', () => this._fetchTemplates());
     this.studio.bindSafe('wfr-run-btn', 'onclick', () => this._runWorkflow());
     this.studio.bindSafe('wfr-view-results-btn', 'onclick', () => this._showResults());
     this.studio.bindSafe('wfr-view-trace-btn', 'onclick', () => {
@@ -157,8 +162,14 @@ class WorkflowRunner {
       if (!res.ok) throw new Error('Failed to fetch');
       this.templates = await res.json();
       this._renderTemplateGrid();
+      document.getElementById('wfr-offline').style.display = 'none';
+      document.getElementById('wfr-browse').style.display = '';
+      this._offlineLogged = false;
     } catch (e) {
-      console.warn('Workflow engine offline:', e.message);
+      if (!this._offlineLogged) {
+        console.info('Workflow engine offline (ChatRoom server not running — launch-all.bat starts it):', e.message);
+        this._offlineLogged = true;
+      }
       document.getElementById('wfr-offline').style.display = '';
       document.getElementById('wfr-browse').style.display = 'none';
     }

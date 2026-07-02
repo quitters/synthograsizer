@@ -297,6 +297,20 @@
     }
   }
 
+  function markKeyConfigured(modalBody, snap) {
+    // Local instances: make it obvious when a key is already active so users
+    // don't re-enter it (or think setup failed) on every visit.
+    if (!snap.api_key_configured || snap.hosted) return;
+    const input = modalBody.querySelector('#api-key-input');
+    if (!input || document.getElementById('bsp-key-status')) return;
+    input.placeholder = '•••••••• (a key is configured — leave blank to keep it)';
+    const group = input.closest('.studio-input-group') || input.parentElement;
+    group.appendChild(el(
+      '<div id="bsp-key-status" style="font-size:11px; color:#10b981; margin-top:4px;">' +
+      '✓ API key active on this server. Enter a new one only to replace it.</div>'
+    ));
+  }
+
   function applyHostedKeyUI(modalBody) {
     // Hosted instances: the key comes from environment config — hide the
     // input and replace the amber "local use only" warning with a calmer note.
@@ -328,6 +342,7 @@
         body.appendChild(el(buildPanelHTML(snap)));
         wirePanel(studio, snap);
         if (snap.hosted) applyHostedKeyUI(body);
+        markKeyConfigured(body, snap);
         try { localStorage.setItem(TIER_KEY, snap.backend_tier || 'google'); } catch (_) {}
         window.synthBackendTier = snap.backend_tier || 'google';
       })

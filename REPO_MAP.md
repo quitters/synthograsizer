@@ -115,7 +115,7 @@ static/
 Grouped by concern, since this is the densest editable area:
 
 - **Core app:** `app.js`, `config.js`, `template-loader.js`, `template-normalizer.js`, `text-renderer.js`, `debug-log.js`, `demo-mode.js`
-- **Controls / input:** `knob-controller.js`, `control-surface.js`, `midi-controller.js`, `composer.js`
+- **Controls / input:** `knob-controller.js`, `control-surface.js`, `midi-controller.js`, `composer.js` (⚠ GENERATED — edit `composer.jsx` and recompile per its header; React is vendored at `static/shared/vendor/`, no CDN)
 - **Studios:** `agent-studio.js`, `agent-profiles.js`, `music-studio.js`, `glitcher-studio.js`, `studio-integration.js`, `batch-generator.js`
 - **Output / display:** `display-broadcaster.js`, `display.html` logic, `display-glitcher.js`, `glitcher-controls.js`, `code-overlay-manager.js`
 - **Scope integration:** `scope-connector.js`, `scope-video-client.js`, `osc-controller.js`, `osc-mapping-ui.js`, `osc-panel-ui.js`, `resolume-presets.js`
