@@ -132,7 +132,7 @@ def create_interaction(client, *, model: str, input: Any,
                        system_instruction: Optional[str] = None,
                        generation_config: Optional[Dict[str, Any]] = None,
                        response_modalities: Optional[List[str]] = None,
-                       response_mime_type: Optional[str] = None,
+                       response_format: Optional[Dict[str, Any]] = None,
                        tools: Optional[List[Dict[str, Any]]] = None,
                        stream: bool = False,
                        store: bool = False):
@@ -156,8 +156,8 @@ def create_interaction(client, *, model: str, input: Any,
         kwargs["generation_config"] = generation_config
     if response_modalities:
         kwargs["response_modalities"] = response_modalities
-    if response_mime_type:
-        kwargs["response_mime_type"] = response_mime_type
+    if response_format:
+        kwargs["response_format"] = response_format
     if tools:
         kwargs["tools"] = tools
     try:
@@ -343,22 +343,23 @@ def gen_text(client, model: str, blocks: List[Dict[str, Any]], *,
         generation_config=generation_config,
         store=False,
     )
+    json_format = {"type": "text", "mime_type": "application/json"}
     try:
         interaction = create_interaction(
             client,
-            response_mime_type="application/json" if json_mode else None,
+            response_format=json_format if json_mode else None,
             **request,
         )
     except SafetyBlockedError:
         raise
     except Exception as exc:
         # JSON-mode degrade: some models/API revisions may reject the
-        # response_mime_type constraint — retry unconstrained; downstream
+        # response_format constraint — retry unconstrained; downstream
         # callers already run parse_llm_json which tolerates fenced JSON.
         message = str(exc).lower()
-        if json_mode and ("mime" in message or "response_format" in message):
+        if json_mode and ("mime" in message or "format" in message):
             logger.warning(
-                "Interactions rejected JSON response_mime_type (%s); retrying "
+                "Interactions rejected the JSON response_format (%s); retrying "
                 "without the constraint.", exc,
             )
             interaction = create_interaction(client, **request)
