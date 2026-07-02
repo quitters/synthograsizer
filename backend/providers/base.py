@@ -1,7 +1,9 @@
 """Provider protocol for text-only generation.
 
 The router (``services/llm_router.py``) calls these methods instead of
-``genai_client.models.generate_content`` at every *text-only* call site.
+touching ``genai_client`` at every *text-only* call site (the Google
+provider dispatches through ``backend/google_api.py`` — Interactions API
+by default, legacy generateContent behind the policy switch).
 Multimodal calls (image parts in contents) never come through here — and
 ``ensure_text_only`` enforces that by construction, so a future refactor
 can't accidentally route an image to a local text endpoint.

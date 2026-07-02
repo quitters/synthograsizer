@@ -17,7 +17,7 @@ There are **two independent servers** plus a pile of static browser tools:
 
 - **Local dev:** `start.bat` (Python only) or `launch-all.bat` (Python + ChatRoom). The Python server mounts `static/` at `/`, so browser tools and API live on the same origin.
 - **Vercel deploy:** [`vercel.json`](vercel.json) routes `/api/*` → `backend/server.py` and everything else → `static/`. Video gen, OSC, music, and ChatRoom do **not** work on Vercel (need the local server).
-- **Request flow:** browser tool in `static/` → `fetch('/api/...')` → a router in `backend/routers/` → `AIManager` façade → a service in `backend/services/` → Google GenAI (Gemini / Imagen / Veo / Lyria). **Text** generation routes through `services/llm_router.py`, which follows the backend tier in `backend/policy.py`: `google` (default) or `local` (OpenAI-compatible endpoint — Ollama / LM Studio). Image/video/music are Google-only (mixed-mode v1).
+- **Request flow:** browser tool in `static/` → `fetch('/api/...')` → a router in `backend/routers/` → `AIManager` façade → a service in `backend/services/` → Google GenAI (Gemini / Imagen / Veo / Lyria). **Text** generation routes through `services/llm_router.py`, which follows the backend tier in `backend/policy.py`: `google` (default) or `local` (OpenAI-compatible endpoint — Ollama / LM Studio). Image/video/music are Google-only (mixed-mode v1). **Gemini-model calls** (text/vision/gemini-image) go through `backend/google_api.py`, which dispatches on `policy.google_api_mode`: the **Interactions API** (default; `store=false` on every call, Google-managed filtering) or **legacy generateContent** (honors the safety-threshold knobs; also the migration rollback switch). Veo / Imagen / Lyria keep their dedicated APIs regardless.
 
 ---
 
@@ -31,7 +31,8 @@ backend/
 ├── ai_manager.py        # AIManager façade — delegates to every service in services/. Also exports normalize_template().
 ├── config.py            # API key loading (ai_studio_config.json / GOOGLE_API_KEY), model names, constants.
 ├── policy.py            # ⭐ Backend-tier + safety policy: google|local tier, hosted pinning (SYNTH_HOSTED), safety precedence.
-├── providers/           # Text-generation providers: google_text.py (genai wrapper), openai_compat.py (Ollama/LM Studio).
+├── google_api.py        # ⭐ Gemini call layer — Interactions API (default) vs legacy generateContent dispatch; store=False everywhere.
+├── providers/           # Text-generation providers: google_text.py (thin adapter over google_api), openai_compat.py (Ollama/LM Studio).
 ├── helpers.py           # decode_base64_image(), parse_llm_json(), SafetyBlockedError — shared by routers.
 ├── osc_bridge.py         # Singleton UDP OSC client → Daydream Scope. Used by routers/osc.py.
 ├── music_manager.py     # Lyria RealTime music session (Google GenAI WebSocket). Used by routers/music.py.
@@ -181,7 +182,7 @@ docs/
 
 | Path | Purpose |
 |------|---------|
-| `tests/` | Pytest suite — backend only. Delegation + helpers, plus the tier system: `test_policy.py` (tier/hosted/safety precedence), `test_openai_compat.py` (local provider incl. the no-safety-params contract), `test_llm_router.py`, `test_system_config.py`, `test_feedback.py` |
+| `tests/` | Pytest suite — backend only. Delegation + helpers, plus the tier system: `test_policy.py` (tier/hosted/safety precedence), `test_openai_compat.py` (local provider incl. the no-safety-params contract), `test_llm_router.py`, `test_system_config.py`, `test_feedback.py`, `test_google_api.py` (Interactions/legacy dispatch, store=False, thought-guard). Live smoke: `scripts/verify_interactions.py` |
 | `requirements.txt` | Python deps |
 | `start.bat` / `launch-all.bat` | Windows launchers |
 | `.github/` | Issue/PR templates + `workflows/lint.yml` |

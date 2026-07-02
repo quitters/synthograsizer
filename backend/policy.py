@@ -1,6 +1,9 @@
 """Backend-tier and safety policy — single source of truth.
 
-Owns three pieces of state and the rules around them:
+Owns four pieces of state and the rules around them (backend tier, safety
+defaults, hosted mode, and the Google API mode — see ``GOOGLE_API_*`` below
+for the Interactions-vs-legacy dispatch that ``backend/google_api.py``
+follows):
 
 1. **Backend tier** — which engine serves *text* generation:
      - ``google`` (default): Google GenAI APIs. Google's safety filters and

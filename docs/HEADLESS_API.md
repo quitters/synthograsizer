@@ -92,10 +92,20 @@ requests.post(f"{BASE}/api/config", json={
     "backend_tier": "google",      # "google" | "local"
     "local_base_url": "http://localhost:11434/v1",
     "local_model": "llama3.1",
+    "google_api_mode": "interactions",  # "interactions" (default) | "legacy" (generateContent)
     "safety_settings": [{"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_ONLY_HIGH"}]
 })
 # -> {"status":"success","applied":["api_key",...],"backend":{...snapshot...}}
 ```
+
+> **Google API mode.** Gemini-model calls (text / vision / gemini-image) use the
+> **Interactions API** by default: every request is stateless (`store=false`,
+> nothing retained at Google) and content filtering is Google-managed —
+> `safety_settings` thresholds are accepted but **not enforced** in this mode.
+> Set `"google_api_mode": "legacy"` to route through generateContent instead,
+> which honors the thresholds. `/api/health` reports the active mode as
+> `google_api_mode` plus `safety_thresholds_active`. Veo, Imagen, and Lyria are
+> unaffected by this switch.
 
 ---
 
@@ -149,9 +159,9 @@ Body (`ImageRequest`) — key fields:
 | `response_modalities` | list[str]? | null | e.g. `["Image"]` or `["Text","Image"]` |
 | `thinking_level` | str? | null | `"low"`/`"high"` (Gemini-3 flash image) |
 | `media_resolution` | str? | null | `media_resolution_low/medium/high` (Gemini-3) |
-| `image_count` | int? | 1 | multi-image is reliable on Imagen only |
-| `safety_settings` | list[{category,threshold}]? | null | per-request override |
-| `temperature`/`top_k`/`top_p` | num? | null | sampling controls |
+| `image_count` | int? | 1 | multi-image is reliable on Imagen only; single image on the Interactions Gemini path |
+| `safety_settings` | list[{category,threshold}]? | null | per-request override — enforced only in `legacy` API mode |
+| `temperature`/`top_k`/`top_p` | num? | null | sampling controls (`top_k` has no Interactions equivalent — ignored there) |
 | `is_demo` | bool? | false | forces `MODEL_DEMO` |
 
 Response: `{"status":"success", "image": "<base64 PNG>"}` for a single image.
@@ -524,3 +534,8 @@ prompt, or pass a per-request `safety_settings` list of
 `{"category": "...", "threshold": "..."}` on `ImageRequest` (categories like
 `HARM_CATEGORY_DANGEROUS_CONTENT`; thresholds like `BLOCK_ONLY_HIGH`). On hosted
 instances per-request safety overrides are ignored — the operator's defaults win.
+
+Note: thresholds only reach Google in **`legacy` API mode** (generateContent).
+On the default Interactions API, filtering is Google-managed and thresholds are
+inert; if artistic work gets over-blocked, switch `google_api_mode` to `legacy`
+via `POST /api/config` (or the settings panel) to re-arm them.
