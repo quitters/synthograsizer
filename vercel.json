@@ -6,7 +6,11 @@
   ],
   "routes": [
     { "src": "/api/(.*)", "dest": "/backend/server.py" },
-    { "src": "^/synthograsizer/?$", "dest": "/static/synthograsizer/index.html" },
-    { "src": "/(.*)",     "dest": "/static/$1" }
+    { "src": "^/synthograsizer/?$", "dest": "/static/synthograsizer/index.html",
+      "headers": { "Cache-Control": "no-cache" } },
+    { "src": "/(.*\\.(?:png|jpe?g|gif|webp|avif|ico|mp4|webm|mp3|wav|ogg|woff2?|ttf|otf))", "dest": "/static/$1",
+      "headers": { "Cache-Control": "public, max-age=86400" } },
+    { "src": "/(.*)",     "dest": "/static/$1",
+      "headers": { "Cache-Control": "no-cache" } }
   ]
 }

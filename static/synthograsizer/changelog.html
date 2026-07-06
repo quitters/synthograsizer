@@ -287,9 +287,47 @@
       <div class="version-header">
         <span class="version-tag">NEXT</span>
         <span class="version-label unreleased">Unreleased</span>
-        <span class="version-date">In Progress — 2026-07-02</span>
+        <span class="version-date">In Progress — 2026-07-05</span>
       </div>
       <div class="version-panel">
+        <div class="panel-section-label">Videorama — Batch Video Synthesis</div>
+        <ul class="entry-list">
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">Videorama — prompt to a finished set of stylized Veo video clips, entirely inside the suite</div>
+              <div class="entry-sub">New tool at <strong>/videorama/</strong> (hub tile added). A Brief Writer (Gemini) expands a plain-language idea into a full production brief — concept, cast, locations, per-shot camera/lighting direction, QC grading criteria — then a checkpointed pipeline (shot list → 4-clip pilot → full render → assembly) drives Veo 3.1 with automated QC grading and retakes. Local-only; ships with 6 starter templates (home-video bloopers, corporate training, mall CCTV, news remotes, public-access cable, art-competition mockumentary) plus era-correct post-processing presets (VHS, Betacam, security time-lapse, ENG news).</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">Shot Inspector — per-clip editing, keyframe reimagining, and shot extension</div>
+              <div class="entry-sub">Click any shot to open its Inspector: edit and re-render the prompt, pin/unpin an NB2 keyframe (fixes Veo not holding unusual camera angles), reimagine the keyframe by typed intent, request Gemini-suggested motion variations, extend a shot ~8s further, or spin off a sequel shot from its last frame. A Cast &amp; Locations panel manages the character/location reference sheets directly — regenerate with a tweak, drag-drop upload a replacement, or reset stale keyframes after a cast change.</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">9:16 vertical format</div>
+              <div class="entry-sub">Every project now picks a Format (16:9 landscape or 9:16 vertical) at creation — threaded through the brief writer, Veo render calls, NB2 keyframes, and final assembly, so a Snapchat/TikTok-style set renders as genuine portrait video end to end.</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">Grow and re-cut a project after it's "done"</div>
+              <div class="entry-sub"><strong>Add shots…</strong> appends new shots (a new act, in a described direction) to an already-rendered project; <strong>Reassemble</strong> rebuilds the exported reel from the current shot selection/order/exclusions without re-rendering, versioning each cut (v2, v3, …) rather than overwriting.</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-fix">fix</span>
+            <div>
+              <div class="entry-text">Shot review grid no longer restarts playing clips every few seconds</div>
+              <div class="entry-sub">The dashboard's polling loop was rebuilding every video element on each refresh; it now diffs and patches shot cards in place, and slows to a 30-second idle poll once a project is done — clips keep playing, and the grid doesn't flash while idle.</div>
+            </div>
+          </li>
+        </ul>
         <div class="panel-section-label">Gemini Interactions API Migration</div>
         <ul class="entry-list">
           <li class="entry-item">

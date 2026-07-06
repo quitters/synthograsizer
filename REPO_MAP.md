@@ -28,6 +28,8 @@ The AI brain. Routers are thin HTTP handlers; real logic lives in `services/`, f
 ```
 backend/
 ├── server.py            # Entry point. Mounts all routers + static/. Hosted-mode rate limiting + retention task live here.
+│                        #   Also mounts /films → FILMS_ROOT (default D:\Synthograsizer_Films, override SYNTH_FILMS_ROOT)
+│                        #   for Videorama project media — local-only, skipped when is_hosted().
 ├── ai_manager.py        # AIManager façade — delegates to every service in services/. Also exports normalize_template().
 ├── config.py            # API key loading (ai_studio_config.json / GOOGLE_API_KEY), model names, constants.
 ├── policy.py            # ⭐ Backend-tier + safety policy: google|local tier, hosted pinning (SYNTH_HOSTED), safety precedence.
@@ -50,6 +52,10 @@ backend/
 │   ├── sessions.py      #   CRUD /api/sessions — saved Composer session presets (disk-backed)
 │   ├── outputs.py       #   /api/save-output, /api/list-outputs/{kind}, get/delete — local-disk persistence for browser stores
 │   ├── feedback.py      #   POST /api/feedback — JSONL store (block reports + general feedback)
+│   ├── videorama.py     #   ⭐ /api/videorama/* — batch video synthesis: brief→shots→pilot→render→assemble
+│   │                    #     state machine over scripts/film_factory/ subprocess stages; local-only (is_hosted() 403s
+│   │                    #     every mutation); Shot Inspector ops (retake/extend/continue/reimagine) run in-process
+│   │                    #     via backend/services/videorama_shots.py instead of a subprocess
 │   └── system.py        #   POST /api/config (key/tier/safety), GET /api/health, GET /api/backend/local/models
 │
 ├── services/            # ── Generation engines (the actual model calls / logic). ──
@@ -60,8 +66,10 @@ backend/
 │   ├── video_gen.py     #   Veo video generation (long-poll)
 │   ├── analysis.py      #   Image→prompt and batch analysis
 │   ├── template_engine.py # Template generation/normalization logic
-│   ├── narrative.py     #   Story/narrative generation
-│   └── workflow.py      #   Multi-step workflow execution (Python side)
+│   ├── narrative.py     #   Story/narrative generation (also: generate_video_variations — Videorama's "Suggest variations")
+│   ├── workflow.py      #   Multi-step workflow execution (Python side)
+│   ├── videorama_brief.py # Brief Writer — prompt→JSON production brief; hard-codes BASELINE_RULES + UNREALITY_RAIL
+│   └── videorama_shots.py # Single-shot ops for the Inspector (reimagine keyframe, extend, continue) — ledger-charged, run outside the farm subprocess
 │
 ├── models/requests.py   # Pydantic request models
 └── utils/
@@ -106,6 +114,11 @@ static/
 │                         #     default-mode-modern.css + ui-tidying.css (loaded by index.html), embed.css
 │
 ├── taste-profile/index.html   # Standalone "taste profile" surface
+├── videorama/            # ⭐ Batch video synthesis dashboard — local-only (hosted shows a teaser)
+│   ├── index.html        #   New-set form + project dashboard
+│   ├── js/videorama.js   #   Single-file vanilla JS: keyed shot-grid rendering, poll lifecycle (4s active / 30s idle),
+│   │                     #     toast system, Shot Inspector modal, Cast & Locations panel
+│   └── css/videorama.css
 ├── terms/index.html      # Terms & Privacy page (draft v0.1, hardware-themed; linked from hub + about footers)
 └── chatroom/             # ⚠️ BUILT ARTIFACT — compiled ChatRoom client (assets/index-*.js/.css)
                           #   Generated from chatroom/client/ via Vite. Do NOT hand-edit; rebuild instead.
@@ -171,14 +184,55 @@ Per project memory, the glitcher is the only component intended to become a Scop
 docs/
 ├── README.md             # Index
 ├── SCHEMA.md             # ⭐ Full template JSON schema — authoritative spec for template format
+├── HEADLESS_API.md       # ⭐ Driving the backend over HTTP with no browser UI — endpoint reference incl. Videorama
 ├── COMPLIANCE_ROADMAP.md # Risk self-assessment + Canada/GDPR/EU-AI-Act compliance phases (pairs with static/terms/)
+├── videorama-guide/      # Videorama user guide (README.md) + walkthrough screenshots
+├── June6_handoff.md      # Dated planning snapshot — historical, do not treat as current
 ├── agent-composer-plan.md
 └── weekly-recap-2026-05-13.md
 ```
 
 ---
 
-## 7. Support / config / meta
+## 7. `scripts/film_factory/` — Videorama's pipeline engine ⭐
+
+The actual generation pipeline behind `backend/routers/videorama.py`. Runs both as
+CLI stages (`python -m scripts.film_factory <stage> --project-dir <dir>`, for
+scripted/unattended use) and as subprocesses spawned by the web UI — same code
+path either way, so CLI and UI runs are always in sync.
+
+```
+scripts/film_factory/
+├── cli.py               # Entry point: develop/bible/keyframes/render/tapeify/assemble/extend/restyle/status/budget
+├── briefs.py             # Briefs as JSON — TEMPLATES_DIR + brief loader (a "brief" is the creative contract:
+│                          #   concept, style anchor, cast/locations, per-shot rules, QC notes, tape preset, aspect)
+├── develop.py            # LLM shot-list writer: showrunner pass (bible/cast/locations) + shot-writer pass (per scene)
+├── bible.py               # NB2 character/location reference sheets
+├── keyframes.py           # NB2 per-shot composed stills, conditioned on the bible sheets
+├── render.py              # Async Veo farm: i2v-from-keyframe or t2v-with-reference-sheets, QC-gated retakes,
+│                          #   celebrity-filter name-scrubbing, RAI-block retry/soften
+├── qc.py                  # ffmpeg frame sampling + Gemini-vision grading (0-10, feeds the grid's poster thumbnails)
+├── assemble.py             # ffmpeg concat → per-act + full-cut reels; --tape/--crop43 for era signal paths
+├── tapeify.py             # Post-render signal-path presets (vhs/publicaccess/betacam/cctv/news)
+├── restyle.py             # Whole-project prompt rewrite to a new visual direction (re-render required)
+├── costs.py               # Ledger + per-project budget cap (assert_budget/charge) — shared by CLI stages and the
+│                          #   in-process Shot Inspector ops in backend/services/videorama_shots.py
+├── db.py                  # Per-project SQLite (shots/takes/assets/ledger/meta); dict-driven additive migrations
+├── overnight.py, overnight2.py  # Unattended multi-batch drivers — a queue of concept specs run back-to-back,
+│                          #   resumable (skips already-assembled batches), used for the large overnight video runs
+├── brief_*.py             # The original Python-module briefs (now mirrored into templates/*.json)
+└── templates/*.json       # Seeded + user-saved (Save as template) briefs, loaded by both CLI and UI
+```
+
+Project state lives entirely under `FILMS_ROOT/<slug>/` (see the `server.py` note
+in §2) — `film.db`, `film.json` (the bible), `brief.json`, and per-stage output
+dirs (`bible/`, `keyframes/`, `takes/`, `tape/`, `exports/`). Every stage is
+idempotent/resumable by design (skips already-completed shots/assets), which is
+what makes the `overnight*.py` drivers and the UI's **Resume** button safe.
+
+---
+
+## 8. Support / config / meta
 
 | Path | Purpose |
 |------|---------|
@@ -192,7 +246,7 @@ docs/
 
 ---
 
-## 8. ⚠️ Stale / duplicated / audit candidates
+## 9. ⚠️ Stale / duplicated / audit candidates
 
 Flagged for cleanup review — an LLM auditing this repo should treat these with suspicion.
 
@@ -213,9 +267,9 @@ Flagged for cleanup review — an LLM auditing this repo should treat these with
 
 ---
 
-## 9. Routing cheat-sheet (for mismatch audits)
+## 10. Routing cheat-sheet (for mismatch audits)
 
 - **Static page not loading?** Check `vercel.json` rewrites — only `/api/*`, `/synthograsizer`, and `/(.*)→static/$1` are defined. Anything else 404s on Vercel.
 - **Endpoint 404?** Confirm the router is `include_router`-ed in `server.py:58-69` and the path prefix in the router matches (`/api/...`).
-- **Feature works locally but not on Vercel?** Video (`video_tools`, `generation` video), OSC (`osc`), music (`music`), and ChatRoom require the local Python/Node servers — they're not in the Vercel build.
+- **Feature works locally but not on Vercel?** Video (`video_tools`, `generation` video), OSC (`osc`), music (`music`), ChatRoom, and **Videorama** (`videorama` — every mutating endpoint 403s via `is_hosted()`; needs ffmpeg + a persistent `FILMS_ROOT` disk) require the local Python/Node servers — they're not in the Vercel build.
 - **Template not appearing?** `static/synthograsizer/templates/` JSON must conform to `docs/SCHEMA.md`; AV templates also need an entry in `templates-av/_index.json`.

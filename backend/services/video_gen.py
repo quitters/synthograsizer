@@ -15,7 +15,7 @@ async def generate_video(self, prompt: str, model_name: str = config.MODEL_VIDEO
                   duration_seconds: int = None, aspect_ratio: str = None,
                   end_frame_image: str = None, start_frame_image: str = None,
                   reference_images: list = None, extension_video_uri: str = None,
-                  resolution: str = None):
+                  resolution: str = None, person_generation: str = None):
     """Generate video using Veo (Async).
 
     Supports text-to-video, image-to-video (first frame), interpolation
@@ -50,6 +50,12 @@ async def generate_video(self, prompt: str, model_name: str = config.MODEL_VIDEO
 
         if aspect_ratio:
             config_opts.aspect_ratio = aspect_ratio
+
+        if person_generation:
+            # e.g. "allow_adult" — the implicit default is stricter for
+            # image-to-video inputs that contain people, which surfaces as an
+            # empty (RAI-filtered) response rather than an explicit error.
+            config_opts.person_generation = person_generation
 
         if resolution and resolution in ("720p", "1080p", "4k"):
             config_opts.resolution = resolution
@@ -103,7 +109,9 @@ async def generate_video(self, prompt: str, model_name: str = config.MODEL_VIDEO
         # Handle Video Extension (Veo 3.1 full/fast only)
         # Must reference a stored URI from a prior Veo generation — inline bytes are rejected by the API.
         if extension_video_uri:
-            extension_video_obj = types.Video(uri=extension_video_uri, mime_type="video/mp4")
+            # NOTE: no mime_type — the SDK serializes it as `encoding`, which
+            # the current Veo API rejects with 400 INVALID_ARGUMENT.
+            extension_video_obj = types.Video(uri=extension_video_uri)
             # Extension requires 720p and 8s duration per API spec;
             # aspect ratio is inherited from the source video, so we don't set it.
             config_opts.duration_seconds = 8
@@ -191,6 +199,13 @@ async def generate_video(self, prompt: str, model_name: str = config.MODEL_VIDEO
                     "video_uri": None,
                 }
         
+        # Surface RAI filtering explicitly — an empty result with a filtered
+        # count is a content-policy rejection, not a malformed response.
+        filtered_count = getattr(response, "rai_media_filtered_count", None)
+        filtered_reasons = getattr(response, "rai_media_filtered_reasons", None)
+        if filtered_count:
+            reasons = "; ".join(str(r) for r in (filtered_reasons or []))[:400]
+            raise Exception(f"RAI filtered ({filtered_count}): {reasons or 'no reason given'}")
         raise Exception("No video found in response")
 
     except Exception as e:

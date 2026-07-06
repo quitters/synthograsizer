@@ -1,0 +1,1924 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Synthograsizer — Redesign v4</title>
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&family=Bungee&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<style>
+/* ── Tokens ────────────────────────────────────────────────────── */
+:root {
+  --hw-chassis:     #ede6d8;
+  --hw-panel:       #e0d8ca;
+  --hw-surface:     #d4ccbe;
+  --hw-recessed:    #c4bcac;
+  --hw-border:      2px solid #7a6e5e;
+  --hw-border-soft: 1px solid #b8b0a0;
+  --hw-shadow:      3px 3px 0 #7a6e5e;
+  --hw-shadow-sm:   2px 2px 0 #7a6e5e;
+  --hw-shadow-lg:   5px 5px 0 #7a6e5e;
+  --hw-inset:       inset 2px 2px 5px rgba(90,80,60,.22), inset -1px -1px 2px rgba(255,255,255,.55);
+  --hw-text:        #2e2418;
+  --hw-text-dim:    #8a7e6e;
+  --hw-text-label:  #a09080;
+  --hw-lcd-bg:      #f0e8d0;
+  --hw-lcd-text:    #1e180e;
+  --hw-lcd-dim:     #b0a888;
+  --hw-accent-pink: #b86880;
+  --hw-accent-purp: #8868a8;
+  --hw-accent-grn:  #5a9870;
+  --hw-accent-blue: #5a8ab8;
+  --hw-accent-amb:  #c07040;
+  --hw-dot-off:     #c0b8a8;
+  --hw-dot-on:      #5a9870;
+  --font-display:   'VT323', monospace;
+  --font-label:     'Share Tech Mono', monospace;
+  --font-brand:     'Bungee', sans-serif;
+  --font-ui:        'Inter', sans-serif;
+  --app-width:      1100px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-label);
+  background: var(--hw-chassis);
+  background-image: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(100,80,40,.02) 3px, rgba(100,80,40,.02) 4px);
+  color: var(--hw-text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 18px 16px 0;
+}
+
+/* ── Card ──────────────────────────────────────────────────────── */
+.hw-card {
+  background: var(--hw-panel);
+  border: var(--hw-border);
+  border-radius: 3px;
+  box-shadow: var(--hw-shadow);
+}
+.card-label {
+  font-size: 9px; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--hw-text-label); padding: 7px 12px 0; display: block;
+}
+
+/* ── Flow steps banner ─────────────────────────────────────────── */
+.flow-banner {
+  width: 100%; max-width: var(--app-width);
+  display: flex; align-items: stretch; gap: 0;
+  margin-bottom: 14px;
+  border: var(--hw-border); border-radius: 3px;
+  box-shadow: var(--hw-shadow-sm); overflow: hidden;
+}
+.flow-step {
+  flex: 1; display: flex; align-items: center; gap: 10px;
+  padding: 9px 14px; background: var(--hw-panel);
+  border-right: var(--hw-border-soft); cursor: default;
+  transition: background .12s;
+}
+.flow-step:last-child { border-right: none; }
+.flow-step.active { background: var(--hw-lcd-bg); }
+.flow-num {
+  width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-label); font-size: 10px; font-weight: bold;
+  background: var(--hw-recessed); border: var(--hw-border-soft); color: var(--hw-text-dim);
+}
+.flow-step.active .flow-num { background: var(--hw-text); color: var(--hw-chassis); border-color: var(--hw-text); }
+.flow-info { display: flex; flex-direction: column; gap: 1px; }
+.flow-title { font-family: var(--font-label); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--hw-text); }
+.flow-sub { font-size: 9px; color: var(--hw-text-dim); letter-spacing: .04em; }
+.flow-arrow { font-size: 12px; color: var(--hw-text-label); flex-shrink: 0; padding: 0 2px; align-self: center; }
+
+/* ── Header ────────────────────────────────────────────────────── */
+.app-header {
+  width: 100%; max-width: var(--app-width);
+  display: flex; align-items: center; justify-content: space-between;
+  padding-bottom: 12px; border-bottom: var(--hw-border); margin-bottom: 16px;
+  gap: 12px; flex-wrap: wrap;
+}
+.app-title { font-family: var(--font-brand); font-size: 20px; letter-spacing: 3px; text-transform: uppercase; }
+.template-badge {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--hw-text-dim);
+  background: var(--hw-surface); border: var(--hw-border); border-radius: 2px;
+  padding: 5px 12px; cursor: pointer; transition: all .12s;
+  box-shadow: var(--hw-shadow-sm);
+}
+.template-badge:hover { background: var(--hw-recessed); color: var(--hw-text); transform: translate(1px,1px); box-shadow: 1px 1px 0 #7a6e5e; }
+.template-badge .badge-emoji { font-size: 14px; }
+.template-badge .badge-change { font-size: 8px; opacity: .55; letter-spacing: .04em; border: 1px solid currentColor; border-radius: 2px; padding: 1px 4px; }
+.layout-pill {
+  display: flex; border: var(--hw-border); border-radius: 3px;
+  overflow: hidden; box-shadow: var(--hw-shadow-sm);
+}
+.layout-pill button {
+  font-family: var(--font-label); font-size: 10px; letter-spacing: .06em;
+  padding: 4px 12px; border: none; border-right: var(--hw-border-soft);
+  background: var(--hw-surface); color: var(--hw-text-dim); cursor: pointer;
+  text-transform: uppercase; transition: background .12s;
+}
+.layout-pill button:last-child { border-right: none; }
+.layout-pill button.active { background: var(--hw-text); color: var(--hw-chassis); }
+
+/* ── Main wrapper ──────────────────────────────────────────────── */
+.app-main { width: 100%; max-width: var(--app-width); display: flex; flex-direction: column; gap: 14px; }
+
+/* ── Output card ───────────────────────────────────────────────── */
+.output-card { }
+.output-inner { padding: 10px 14px 12px; }
+.output-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.output-btns { display: flex; gap: 5px; }
+.hw-btn {
+  font-family: var(--font-label); font-size: 10px; letter-spacing: .05em; text-transform: uppercase;
+  padding: 4px 10px; border: var(--hw-border); background: var(--hw-surface);
+  border-radius: 2px; box-shadow: var(--hw-shadow-sm); cursor: pointer; color: var(--hw-text);
+  display: flex; align-items: center; gap: 4px; transition: all .1s; white-space: nowrap;
+}
+.hw-btn:hover { background: var(--hw-recessed); transform: translate(1px,1px); box-shadow: 1px 1px 0 #7a6e5e; }
+.hw-btn:active { transform: translate(2px,2px); box-shadow: none; }
+.hw-btn .kbd { font-size: 8px; padding: 0 3px; border: 1px solid rgba(0,0,0,.2); border-radius: 2px; opacity: .55; }
+
+.output-display {
+  background: var(--hw-lcd-bg); border: var(--hw-border); border-radius: 2px;
+  box-shadow: var(--hw-inset); padding: 14px 16px;
+  font-family: var(--font-display); font-size: 22px; line-height: 1.55;
+  color: var(--hw-lcd-text); min-height: 80px; max-height: 130px;
+  overflow-y: auto; word-break: break-word; position: relative;
+}
+.output-display::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,.03) 3px, rgba(0,0,0,.03) 4px);
+}
+.output-display:empty::before { content: 'Ready…'; color: var(--hw-lcd-dim); }
+
+.var-span { border-radius: 2px; padding: 1px 3px; transition: all .2s; }
+.var-span.active { background: #2e2418; color: #f0e8c0; box-shadow: inset 1px 1px 3px rgba(0,0,0,.4); }
+
+.tag-row { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 7px; }
+.tag { font-size: 9px; letter-spacing: .06em; padding: 2px 7px; border-radius: 2px;
+  border: 1px solid; text-transform: uppercase; opacity: .7; cursor: pointer; }
+.tag:hover { opacity: 1; }
+
+/* History */
+.history-section { margin-top: 8px; border-top: var(--hw-border-soft); padding-top: 6px; }
+.history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+.history-lbl { font-size: 9px; letter-spacing: .12em; text-transform: uppercase; color: var(--hw-text-label); }
+.history-clear { font-size: 9px; background: none; border: none; color: var(--hw-text-label); cursor: pointer; font-family: var(--font-label); }
+.history-clear:hover { color: var(--hw-accent-pink); }
+.history-row {
+  display: flex; align-items: center; gap: 8px; padding: 3px 6px; border-radius: 2px;
+  cursor: pointer; border: 1px solid transparent; transition: all .1s;
+}
+.history-row:hover { background: var(--hw-surface); border-color: var(--hw-border-soft); }
+.history-text { font-size: 11px; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--hw-text-dim); }
+.history-time { font-size: 9px; color: var(--hw-text-label); flex-shrink: 0; }
+
+/* ── Control row (D-pad + Variable list) ───────────────────────── */
+.control-row {
+  display: grid; grid-template-columns: 300px 1fr; gap: 14px; align-items: start;
+}
+
+/* Variable list */
+.var-list-card {}
+.var-list-inner { padding: 6px 8px; max-height: 216px; overflow-y: auto; display: flex; flex-direction: column; gap: 1px; }
+.var-list-inner::-webkit-scrollbar { width: 4px; }
+.var-list-inner::-webkit-scrollbar-thumb { background: var(--hw-recessed); }
+.var-row {
+  display: flex; align-items: center; gap: 8px; padding: 5px 8px;
+  border: 1px solid transparent; border-radius: 2px; cursor: pointer; transition: all .1s;
+}
+.var-row:hover { background: var(--hw-surface); border-color: var(--hw-border-soft); }
+.var-row.active {
+  background: var(--hw-lcd-bg); border: var(--hw-border); box-shadow: var(--hw-shadow-sm);
+}
+.var-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.var-name { font-size: 10px; letter-spacing: .06em; text-transform: uppercase; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.var-val { font-family: var(--font-display); font-size: 16px; color: var(--hw-text-dim); max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.var-row.active .var-val { color: var(--hw-lcd-text); }
+.var-list-footer { font-size: 9px; color: var(--hw-text-label); letter-spacing: .08em; padding: 4px 10px; border-top: var(--hw-border-soft); display: flex; justify-content: space-between; align-items: center; }
+
+/* D-Pad */
+.dpad-card {}
+.dpad-inner { padding: 12px 14px 12px; }
+.dpad-top { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px; }
+.dpad-var-name { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--hw-text-dim); }
+.mode-toggle { display: flex; gap: 3px; }
+.mode-btn {
+  font-family: var(--font-label); font-size: 9px; padding: 2px 8px;
+  border: var(--hw-border-soft); background: var(--hw-surface); border-radius: 2px;
+  cursor: pointer; color: var(--hw-text-dim); text-transform: uppercase; transition: all .1s;
+}
+.mode-btn.active { background: var(--hw-text); color: var(--hw-chassis); border-color: var(--hw-text); }
+.dpad-lcd {
+  background: var(--hw-lcd-bg); border: var(--hw-border); box-shadow: var(--hw-inset);
+  border-radius: 2px; padding: 8px 12px; font-family: var(--font-display); font-size: 22px;
+  color: var(--hw-lcd-text); min-height: 48px; display: flex; align-items: center;
+  margin-bottom: 10px; line-height: 1.2; overflow: hidden; position: relative;
+}
+.dpad-lcd::after {
+  content:''; position:absolute; inset:0; pointer-events:none;
+  background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,.03) 3px, rgba(0,0,0,.03) 4px);
+}
+.dpad-cross { display: grid; grid-template-columns: 44px 1fr 44px; grid-template-rows: 44px 44px 44px; gap: 3px; }
+.dpad-btn {
+  background: var(--hw-surface); border: var(--hw-border); border-radius: 3px;
+  box-shadow: var(--hw-shadow-sm); cursor: pointer; display: flex; align-items: center;
+  justify-content: center; font-size: 16px; color: var(--hw-text);
+  transition: all .1s; user-select: none;
+}
+.dpad-btn:hover { background: var(--hw-recessed); }
+.dpad-btn:active { transform: translate(2px,2px); box-shadow: none; }
+.dpad-center {
+  background: var(--hw-recessed); border: var(--hw-border); border-radius: 50%;
+  box-shadow: var(--hw-inset); display: flex; align-items: center; justify-content: center;
+  font-size: 8px; letter-spacing: .06em; color: var(--hw-text-label); text-transform: uppercase; font-family: var(--font-label);
+}
+.dpad-up { grid-column:2; grid-row:1; }
+.dpad-left { grid-column:1; grid-row:2; }
+.dpad-center { grid-column:2; grid-row:2; }
+.dpad-right { grid-column:3; grid-row:2; }
+.dpad-down { grid-column:2; grid-row:3; }
+.dpad-hint { text-align:center; margin-top:7px; font-size:9px; color:var(--hw-text-label); letter-spacing:.05em; }
+.dpad-hint kbd { font-family:var(--font-label); font-size:8px; padding:0 3px; border:1px solid var(--hw-text-label); border-radius:2px; }
+
+/* ── Value stepper (clearer than D-pad alone) ──────────────────── */
+.val-stepper {
+  display: flex; align-items: stretch; gap: 0; margin-bottom: 10px;
+  border: var(--hw-border); border-radius: 3px; overflow: hidden;
+  box-shadow: var(--hw-shadow-sm);
+}
+.val-stepper-btn {
+  width: 44px; flex-shrink: 0; background: var(--hw-surface); border: none;
+  border-right: var(--hw-border-soft); cursor: pointer; font-size: 18px; color: var(--hw-text);
+  display: flex; align-items: center; justify-content: center; transition: all .1s;
+}
+.val-stepper-btn:last-child { border-right: none; border-left: var(--hw-border-soft); }
+.val-stepper-btn:hover { background: var(--hw-recessed); }
+.val-stepper-btn:active { transform: translate(1px,1px); }
+.val-stepper-lcd {
+  flex: 1; background: var(--hw-lcd-bg); border: none;
+  font-family: var(--font-display); font-size: 20px; color: var(--hw-lcd-text);
+  display: flex; align-items: center; justify-content: center;
+  padding: 8px 12px; text-align: center; line-height: 1.2;
+  position: relative;
+}
+.val-stepper-lcd::after {
+  content:''; position:absolute; inset:0; pointer-events:none;
+  background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,.03) 3px, rgba(0,0,0,.03) 4px);
+}
+.val-stepper-counter {
+  position: absolute; bottom: 4px; right: 8px;
+  font-family: var(--font-label); font-size: 8px; color: var(--hw-lcd-dim); letter-spacing: .06em;
+}
+.val-stepper-name {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 5px; padding: 0 2px;
+}
+.val-stepper-label { font-size: 9px; letter-spacing: .12em; text-transform: uppercase; color: var(--hw-text-dim); }
+.val-stepper-tip { font-size: 9px; color: var(--hw-text-label); }
+
+/* ── Quick-pick chips for values ───────────────────────────────── */
+.val-chips { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 7px; }
+.val-chip {
+  font-family: var(--font-label); font-size: 9px; padding: 3px 8px;
+  border: var(--hw-border-soft); border-radius: 2px; background: var(--hw-surface);
+  color: var(--hw-text-dim); cursor: pointer; letter-spacing: .04em;
+  transition: all .1s; white-space: nowrap; max-width: 120px;
+  overflow: hidden; text-overflow: ellipsis;
+}
+.val-chip:hover { background: var(--hw-recessed); border-color: #7a6e5e; color: var(--hw-text); }
+.val-chip.sel { background: var(--hw-text); color: var(--hw-chassis); border-color: var(--hw-text); }
+
+/* ── Output improvements ───────────────────────────────────────── */
+.output-label-row {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 6px;
+}
+.output-section-label {
+  font-size: 9px; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--hw-text-label);
+}
+.output-char-count { font-size: 9px; color: var(--hw-text-label); margin-left: auto; }
+
+/* ── Section step badges ───────────────────────────────────────── */
+.section-step {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 16px; height: 16px; border-radius: 50%; background: var(--hw-text);
+  color: var(--hw-chassis); font-size: 8px; font-family: var(--font-label);
+  flex-shrink: 0; margin-right: 2px;
+}
+
+/* ── Tooltip ───────────────────────────────────────────────────── */
+[data-tip] { position: relative; }
+[data-tip]::after {
+  content: attr(data-tip); position: absolute; bottom: calc(100% + 6px); left: 50%;
+  transform: translateX(-50%); background: var(--hw-text); color: var(--hw-chassis);
+  font-family: var(--font-label); font-size: 9px; letter-spacing: .06em;
+  padding: 4px 8px; border-radius: 2px; white-space: nowrap; pointer-events: none;
+  opacity: 0; transition: opacity .15s; z-index: 50;
+}
+[data-tip]:hover::after { opacity: 1; }
+
+/* ── Keyboard strip ────────────────────────────────────────────── */
+.kb-strip {
+  width: 100%; max-width: var(--app-width);
+  display: flex; align-items: center; gap: 14px; padding: 6px 10px;
+  background: var(--hw-panel); border: var(--hw-border-soft); border-radius: 2px;
+  margin-bottom: 14px; flex-wrap: wrap;
+}
+.kb-item { display: flex; align-items: center; gap: 4px; font-size: 9px; color: var(--hw-text-dim); letter-spacing: .04em; }
+.kb-item kbd { font-family: var(--font-label); font-size: 8px; padding: 1px 4px; border: 1px solid var(--hw-text-dim); border-radius: 2px; color: var(--hw-text); }
+.kb-strip-lbl { font-size: 8px; letter-spacing: .12em; text-transform: uppercase; color: var(--hw-text-label); margin-right: 4px; flex-shrink: 0; }
+
+/* ── Primary actions ───────────────────────────────────────────── */
+.primary-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.primary-btn {
+  height: 52px; border: var(--hw-border); border-radius: 3px;
+  font-family: var(--font-brand); font-size: 15px; letter-spacing: 2px; text-transform: uppercase;
+  cursor: pointer; transition: all .1s; display: flex; align-items: center; justify-content: center; gap: 10px;
+}
+.primary-btn:hover { transform: translate(1px,1px); }
+.primary-btn:active { transform: translate(3px,3px); box-shadow: none !important; }
+.primary-btn kbd { font-family:var(--font-label); font-size:9px; padding:1px 5px; border:1px solid; border-radius:2px; opacity:.55; }
+.randomize-btn { background: var(--hw-accent-pink); color: #fff; box-shadow: var(--hw-shadow); border-color: #8a4858; }
+.randomize-btn:hover { box-shadow: 2px 2px 0 #8a4858; }
+.randomize-btn kbd { border-color: rgba(255,255,255,.4); }
+.generate-btn { background: var(--hw-accent-purp); color: #fff; box-shadow: var(--hw-shadow); border-color: #604878; }
+.generate-btn:hover { box-shadow: 2px 2px 0 #604878; }
+.generate-btn kbd { border-color: rgba(255,255,255,.4); }
+
+/* ── AI Studio Tools ───────────────────────────────────────────── */
+.studio-panel { }
+.studio-panel-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 14px; border-bottom: var(--hw-border-soft);
+}
+.studio-panel-title { font-family: var(--font-brand); font-size: 12px; letter-spacing: 2px; text-transform: uppercase; }
+.studio-tabs { display: flex; gap: 3px; }
+.studio-tab {
+  font-family: var(--font-label); font-size: 9px; letter-spacing: .08em; text-transform: uppercase;
+  padding: 3px 10px; border: var(--hw-border-soft); background: var(--hw-surface);
+  border-radius: 2px; cursor: pointer; color: var(--hw-text-dim); transition: all .1s;
+}
+.studio-tab:hover { background: var(--hw-recessed); }
+.studio-tab.active { background: var(--hw-text); color: var(--hw-chassis); border-color: var(--hw-text); }
+.studio-body { padding: 14px; }
+
+/* Image Studio */
+.image-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; }
+.image-cell {
+  aspect-ratio: 1; border: var(--hw-border); border-radius: 2px;
+  background: var(--hw-recessed); box-shadow: var(--hw-inset);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 6px; cursor: pointer; transition: all .12s; position: relative; overflow: hidden;
+}
+.image-cell:hover { border-color: var(--hw-accent-purp); }
+.image-cell img { width:100%; height:100%; object-fit:cover; display:block; }
+.image-cell-empty { font-size: 9px; letter-spacing:.08em; text-transform:uppercase; color:var(--hw-text-label); text-align:center; padding:8px; }
+.image-actions { display: flex; gap: 6px; margin-top: 10px; align-items: center; }
+.image-actions-label { font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:var(--hw-text-label); flex:1; }
+.gen-count { font-family:var(--font-label); font-size:10px; padding:3px 8px; border:var(--hw-border-soft); border-radius:2px; background:var(--hw-lcd-bg); color:var(--hw-lcd-text); width:48px; text-align:center; }
+
+/* Template Gen */
+.tplgen-area {
+  display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: start;
+}
+.tplgen-textarea {
+  font-family:var(--font-label); font-size:11px; padding:10px 12px;
+  border:var(--hw-border); background:var(--hw-lcd-bg); border-radius:2px;
+  box-shadow:var(--hw-inset); color:var(--hw-lcd-text); resize:vertical; min-height:80px;
+  width:100%;
+}
+.tplgen-textarea:focus { outline:none; }
+.tplgen-actions { display:flex; flex-direction:column; gap:6px; }
+.tplgen-row { display:flex; gap:8px; margin-top:8px; align-items:center; }
+.tplgen-label { font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:var(--hw-text-label); }
+.tplgen-mode-pill { display:flex; border:var(--hw-border-soft); border-radius:2px; overflow:hidden; }
+.tplgen-mode-pill button {
+  font-family:var(--font-label); font-size:9px; padding:3px 9px; border:none; border-right:var(--hw-border-soft);
+  background:var(--hw-surface); color:var(--hw-text-dim); cursor:pointer; text-transform:uppercase; transition:background .1s;
+}
+.tplgen-mode-pill button:last-child { border-right:none; }
+.tplgen-mode-pill button.active { background:var(--hw-recessed); color:var(--hw-text); }
+
+/* Agent Studio */
+.agent-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.agent-card {
+  border:var(--hw-border-soft); border-radius:2px; background:var(--hw-surface); padding:10px 12px;
+  display:flex; flex-direction:column; gap:6px;
+}
+.agent-title { font-size:10px; letter-spacing:.08em; text-transform:uppercase; }
+.agent-desc { font-size:10px; color:var(--hw-text-dim); line-height:1.5; }
+.agent-status { display:flex; align-items:center; gap:5px; font-size:9px; color:var(--hw-text-label); }
+.agent-dot { width:6px; height:6px; border-radius:50%; background:var(--hw-dot-off); }
+
+/* ── Bottom status bar ─────────────────────────────────────────── */
+.status-bar {
+  width:100%; max-width:var(--app-width);
+  border-top:var(--hw-border); margin-top:2px; padding:8px 0;
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+}
+.status-conns { display:flex; gap:4px; align-items:center; }
+.status-pill {
+  display:flex; align-items:center; gap:5px; padding:4px 10px;
+  border:var(--hw-border-soft); border-radius:2px; background:var(--hw-surface);
+  cursor:pointer; font-size:10px; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--hw-text-dim); transition:all .1s;
+}
+.status-pill:hover { background:var(--hw-recessed); border-color:#7a6e5e; color:var(--hw-text); }
+.status-pill.open { background:var(--hw-lcd-bg); border:var(--hw-border); box-shadow:var(--hw-shadow-sm); color:var(--hw-text); }
+.status-dot { width:6px; height:6px; border-radius:50%; background:var(--hw-dot-off); flex-shrink:0; }
+.status-dot.on  { background:var(--hw-dot-on); box-shadow:0 0 5px rgba(90,152,112,.5); }
+.status-dot.warn{ background:var(--hw-accent-amb); }
+
+.bottom-btns { display:flex; gap:4px; }
+.bottom-btn {
+  font-family:var(--font-label); font-size:10px; letter-spacing:.06em; text-transform:uppercase;
+  padding:4px 11px; border:var(--hw-border-soft); border-radius:2px; background:var(--hw-surface);
+  color:var(--hw-text-dim); cursor:pointer; transition:all .1s;
+}
+.bottom-btn:hover { background:var(--hw-recessed); border-color:#7a6e5e; color:var(--hw-text); }
+.bottom-btn.prominent { border:var(--hw-border); box-shadow:var(--hw-shadow-sm); background:var(--hw-panel); color:var(--hw-text); }
+.bottom-btn .kbd { font-size:8px; padding:0 3px; border:1px solid currentColor; border-radius:2px; opacity:.45; margin-left:3px; }
+
+/* ── Conn expand panel ─────────────────────────────────────────── */
+.conn-panel {
+  width:100%; max-width:var(--app-width);
+  background:var(--hw-panel); border:var(--hw-border); border-top:none;
+  box-shadow:var(--hw-shadow); padding:14px 18px; display:none;
+}
+.conn-panel.open { display:block; }
+.conn-panel-title { font-size:9px; letter-spacing:.14em; text-transform:uppercase; color:var(--hw-text-label); margin-bottom:10px; }
+.conn-row { display:flex; align-items:center; gap:10px; margin-bottom:8px; font-size:11px; }
+.conn-lbl { width:110px; color:var(--hw-text-dim); font-size:10px; }
+.conn-input { font-family:var(--font-label); font-size:11px; padding:3px 8px; border:var(--hw-border-soft); background:var(--hw-lcd-bg); border-radius:2px; color:var(--hw-lcd-text); max-width:240px; flex:1; }
+.conn-input:focus { outline:none; border-color:#7a6e5e; }
+
+/* ── Template picker modal ─────────────────────────────────────── */
+.modal-bg {
+  position:fixed; inset:0; background:rgba(46,36,24,.55); z-index:100;
+  display:flex; align-items:center; justify-content:center;
+  opacity:0; pointer-events:none; transition:opacity .18s;
+}
+.modal-bg.open { opacity:1; pointer-events:all; }
+.modal-box {
+  background:var(--hw-panel); border:var(--hw-border); box-shadow:var(--hw-shadow-lg);
+  border-radius:4px; width:660px; max-width:95vw; max-height:82vh;
+  display:flex; flex-direction:column;
+  transform:translateY(6px); transition:transform .18s;
+}
+.modal-bg.open .modal-box { transform:translateY(0); }
+.modal-head {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:10px 16px; border-bottom:var(--hw-border); flex-shrink:0;
+}
+.modal-title { font-family:var(--font-brand); font-size:13px; letter-spacing:2px; text-transform:uppercase; }
+.modal-close {
+  font-family:var(--font-label); font-size:10px; padding:3px 9px;
+  border:var(--hw-border-soft); background:var(--hw-surface); border-radius:2px; cursor:pointer; color:var(--hw-text-dim);
+}
+.modal-close:hover { background:var(--hw-recessed); }
+.tpl-search-row { padding:9px 14px; border-bottom:var(--hw-border-soft); display:flex; gap:8px; flex-shrink:0; }
+.tpl-search {
+  font-family:var(--font-label); font-size:12px; flex:1; padding:5px 10px;
+  border:var(--hw-border-soft); background:var(--hw-lcd-bg); border-radius:2px; color:var(--hw-lcd-text);
+}
+.tpl-search:focus { outline:none; border-color:#7a6e5e; }
+.cat-row { display:flex; gap:4px; flex-wrap:wrap; padding:7px 14px; border-bottom:var(--hw-border-soft); flex-shrink:0; }
+.cat-pill {
+  font-family:var(--font-label); font-size:9px; letter-spacing:.07em; text-transform:uppercase;
+  padding:3px 9px; border:var(--hw-border-soft); border-radius:20px; background:var(--hw-surface);
+  color:var(--hw-text-dim); cursor:pointer; transition:all .1s;
+}
+.cat-pill:hover { background:var(--hw-recessed); }
+.cat-pill.active { background:var(--hw-text); color:var(--hw-chassis); border-color:var(--hw-text); }
+.tpl-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:7px; padding:12px 14px; overflow-y:auto; flex:1; }
+.tpl-grid::-webkit-scrollbar { width:5px; }
+.tpl-grid::-webkit-scrollbar-thumb { background:var(--hw-recessed); }
+.tpl-card {
+  display:flex; flex-direction:column; align-items:center; gap:4px;
+  padding:11px 6px; border:var(--hw-border-soft); border-radius:3px;
+  background:var(--hw-surface); cursor:pointer; text-align:center; font-family:inherit; transition:all .1s;
+}
+.tpl-card:hover { background:var(--hw-lcd-bg); border:var(--hw-border); box-shadow:var(--hw-shadow-sm); transform:translate(-1px,-1px); }
+.tpl-card.cur { background:var(--hw-lcd-bg); border:var(--hw-border); box-shadow:var(--hw-shadow-sm); }
+.tpl-icon { font-size:1.5rem; line-height:1; }
+.tpl-name { font-size:.64rem; letter-spacing:.04em; text-transform:uppercase; color:var(--hw-text); line-height:1.3; }
+.tpl-cat  { font-size:.58rem; color:var(--hw-text-label); text-transform:uppercase; letter-spacing:.06em; }
+
+/* ── Shortcut overlay ──────────────────────────────────────────── */
+.shortcut-bg {
+  position:fixed; inset:0; background:rgba(46,36,24,.65); z-index:200;
+  display:flex; align-items:center; justify-content:center;
+  opacity:0; pointer-events:none; transition:opacity .18s;
+}
+.shortcut-bg.open { opacity:1; pointer-events:all; }
+.shortcut-box { background:var(--hw-panel); border:var(--hw-border); box-shadow:var(--hw-shadow-lg); border-radius:4px; padding:22px 28px; min-width:360px; }
+.shortcut-title { font-family:var(--font-brand); font-size:13px; letter-spacing:2px; text-transform:uppercase; margin-bottom:14px; }
+.sk-grid { display:grid; grid-template-columns:auto 1fr; gap:5px 16px; align-items:center; }
+.sk-key { font-family:var(--font-label); font-size:10px; padding:2px 7px; border:var(--hw-border); border-radius:3px; background:var(--hw-surface); box-shadow:var(--hw-shadow-sm); white-space:nowrap; }
+.sk-desc { font-size:11px; color:var(--hw-text-dim); }
+.shortcut-hint { margin-top:14px; text-align:center; font-size:9px; color:var(--hw-text-label); letter-spacing:.08em; }
+
+/* ── Toast ─────────────────────────────────────────────────────── */
+.toast {
+  position:fixed; bottom:52px; left:50%; transform:translateX(-50%) translateY(8px);
+  background:var(--hw-text); color:var(--hw-chassis); font-family:var(--font-label);
+  font-size:11px; letter-spacing:.08em; padding:6px 16px; border-radius:3px;
+  opacity:0; transition:all .18s; pointer-events:none; z-index:300; white-space:nowrap;
+}
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* ── Perform mode ──────────────────────────────────────────────── */
+body.perform .studio-panel { display:none; }
+body.perform .app-main { display:grid; grid-template-columns:1fr 320px; gap:16px; align-items:start; }
+body.perform .output-card,
+body.perform .primary-actions { grid-column:1; }
+body.perform .control-row { grid-column:2; grid-row:2 / span 4; position:sticky; top:16px; grid-template-columns:1fr; }
+body.perform .primary-btn { height:64px; font-size:18px; }
+body.perform .output-display { font-size:24px; max-height:none; }
+body.perform .output-btns { display:none; }
+
+/* ── Improvement callout badges ────────────────────────────────── */
+.callout {
+  position:absolute; top:-9px; right:8px; z-index:5; pointer-events:none;
+  font-family:var(--font-label); font-size:8px; letter-spacing:.08em; text-transform:uppercase;
+  padding:1px 7px; background:var(--hw-accent-blue); color:#fff; border-radius:2px;
+}
+.callout-wrap { position:relative; }
+
+/* scrollbar global */
+::-webkit-scrollbar { width:5px; height:5px; }
+::-webkit-scrollbar-thumb { background:var(--hw-recessed); border-radius:2px; }
+
+/* ── P5 Canvas Window ──────────────────────────────────────────── */
+.p5-window {
+  position: fixed; z-index: 150;
+  width: 520px; height: 480px;
+  background: var(--hw-panel); border: var(--hw-border);
+  box-shadow: var(--hw-shadow-lg); border-radius: 4px;
+  display: flex; flex-direction: column;
+  bottom: 60px; right: 24px;
+  transform: scale(.92) translateY(12px);
+  opacity: 0; pointer-events: none;
+  transition: opacity .2s, transform .2s;
+}
+.p5-window.open {
+  opacity: 1; pointer-events: all;
+  transform: scale(1) translateY(0);
+}
+.p5-titlebar {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 10px; border-bottom: var(--hw-border);
+  cursor: grab; user-select: none; flex-shrink: 0;
+  background: var(--hw-surface); border-radius: 4px 4px 0 0;
+}
+.p5-titlebar:active { cursor: grabbing; }
+.p5-title { font-family: var(--font-label); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; flex: 1; color: var(--hw-text); }
+.p5-badge { font-size: 8px; letter-spacing: .08em; text-transform: uppercase; padding: 2px 6px; border-radius: 2px; background: var(--hw-accent-grn); color: #fff; }
+.p5-badge.paused { background: var(--hw-accent-amb); }
+.p5-badge.stopped { background: var(--hw-recessed); color: var(--hw-text-dim); }
+.p5-close {
+  font-family: var(--font-label); font-size: 10px; padding: 2px 8px;
+  border: var(--hw-border-soft); background: var(--hw-surface); border-radius: 2px;
+  cursor: pointer; color: var(--hw-text-dim); transition: all .1s;
+}
+.p5-close:hover { background: var(--hw-accent-pink); color: #fff; border-color: transparent; }
+.p5-canvas-area {
+  flex: 1; background: #0a0a0a; overflow: hidden; position: relative;
+}
+.p5-canvas-area iframe {
+  width: 100%; height: 100%; border: none; display: block;
+}
+.p5-placeholder {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  height: 100%; gap: 10px; color: var(--hw-text-label);
+  font-family: var(--font-label); font-size: 10px; letter-spacing: .08em; text-transform: uppercase;
+}
+.p5-placeholder-icon { font-size: 32px; opacity: .4; }
+.p5-controls {
+  display: flex; align-items: center; gap: 6px;
+  padding: 7px 10px; border-top: var(--hw-border); flex-shrink: 0;
+}
+.p5-ctrl-btn {
+  font-family: var(--font-label); font-size: 10px; letter-spacing: .06em; text-transform: uppercase;
+  padding: 4px 12px; border: var(--hw-border); border-radius: 2px;
+  background: var(--hw-surface); color: var(--hw-text); cursor: pointer;
+  box-shadow: var(--hw-shadow-sm); transition: all .1s; display: flex; align-items: center; gap: 4px;
+}
+.p5-ctrl-btn:hover { background: var(--hw-recessed); transform: translate(1px,1px); box-shadow: 1px 1px 0 #7a6e5e; }
+.p5-ctrl-btn:active { transform: translate(2px,2px); box-shadow: none; }
+.p5-ctrl-btn.primary { background: var(--hw-accent-grn); color: #fff; border-color: #3a7850; }
+.p5-ctrl-btn.primary:hover { box-shadow: 1px 1px 0 #3a7850; }
+.p5-size-row { display: flex; gap: 3px; margin-left: auto; }
+.p5-size-btn {
+  font-family: var(--font-label); font-size: 9px; padding: 3px 7px;
+  border: var(--hw-border-soft); border-radius: 2px; background: var(--hw-surface);
+  color: var(--hw-text-dim); cursor: pointer; transition: all .1s;
+}
+.p5-size-btn:hover { background: var(--hw-recessed); }
+.p5-size-btn.active { background: var(--hw-text); color: var(--hw-chassis); }
+
+/* ── Knobs mode ────────────────────────────────────────────────── */
+.knobs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(52px, 1fr));
+  gap: 6px 4px;
+  padding: 8px 2px 4px;
+}
+.knob-wrap {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  cursor: pointer; padding: 5px 3px 6px;
+  border: 1px solid transparent; border-radius: 3px;
+  transition: background .1s, border-color .1s;
+  user-select: none;
+}
+.knob-wrap:hover { background: var(--hw-surface); }
+.knob-wrap.active {
+  background: var(--hw-lcd-bg); border-color: #7a6e5e;
+  box-shadow: var(--hw-shadow-sm);
+}
+.knob-name {
+  font-family: var(--font-label); font-size: 8px; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--hw-text-dim); text-align: center;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%;
+}
+.knob-wrap.active .knob-name { color: var(--hw-text); }
+.knob-svg { display: block; flex-shrink: 0; }
+.knob-val {
+  font-family: var(--font-display); font-size: 10px; color: var(--hw-text-dim);
+  text-align: center; max-width: 100%; overflow: hidden;
+  text-overflow: ellipsis; white-space: nowrap; line-height: 1.2;
+}
+.knob-wrap.active .knob-val { color: var(--hw-lcd-text); }
+
+/* mode toggle strip */
+.var-mode-toggle {
+  display: flex; gap: 0; border: var(--hw-border-soft);
+  border-radius: 2px; overflow: hidden; flex-shrink: 0;
+}
+.var-mode-btn {
+  font-family: var(--font-label); font-size: 9px; letter-spacing: .06em;
+  text-transform: uppercase; padding: 3px 9px; border: none;
+  border-right: var(--hw-border-soft); background: var(--hw-surface);
+  color: var(--hw-text-dim); cursor: pointer; transition: background .1s;
+}
+.var-mode-btn:last-child { border-right: none; }
+.var-mode-btn.active { background: var(--hw-text); color: var(--hw-chassis); }
+
+/* Run button in primary actions area */
+.run-btn {
+  background: var(--hw-surface); color: var(--hw-text); border-color: #7a6e5e;
+  box-shadow: var(--hw-shadow);
+}
+.run-btn:hover { box-shadow: 2px 2px 0 #7a6e5e; }
+.run-btn.active { background: var(--hw-accent-grn); color: #fff; border-color: #3a7850; box-shadow: var(--hw-shadow); }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="app-header">
+  <div style="display:flex;align-items:center;gap:12px;">
+    <span class="app-title">Synthograsizer</span>
+    <button class="template-badge" id="template-badge" data-tip="Browse all templates (T)">
+      <span id="badge-emoji">🎨</span>
+      <span id="badge-name">Art Prompt</span>
+      <span class="badge-change">change ▾</span>
+    </button>
+  </div>
+  <div class="layout-pill">
+    <button id="btn-studio" class="active" title="Studio mode — full interface">⊟ Studio</button>
+    <button id="btn-perform" title="Perform mode — focused layout">▶ Perform</button>
+  </div>
+</header>
+
+<!-- Flow steps banner -->
+<div class="flow-banner" id="flow-banner">
+  <div class="flow-step" id="flow-1">
+    <div class="flow-num">1</div>
+    <div class="flow-info">
+      <span class="flow-title">Pick Template</span>
+      <span class="flow-sub">Choose a prompt type above</span>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;padding:0 6px;color:var(--hw-text-label);font-size:12px;">›</div>
+  <div class="flow-step" id="flow-2">
+    <div class="flow-num">2</div>
+    <div class="flow-info">
+      <span class="flow-title">Tweak Variables</span>
+      <span class="flow-sub">Use ← → arrows or click chips</span>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;padding:0 6px;color:var(--hw-text-label);font-size:12px;">›</div>
+  <div class="flow-step" id="flow-3">
+    <div class="flow-num">3</div>
+    <div class="flow-info">
+      <span class="flow-title">Generate / Copy</span>
+      <span class="flow-sub">Press R to randomize, G to generate</span>
+    </div>
+  </div>
+</div>
+
+<!-- Main -->
+<div class="app-main" id="app-main">
+
+  <!-- Output card -->
+  <div class="callout-wrap">
+    <div class="hw-card output-card">
+      <span class="card-label">Generated Output</span>
+      <div class="output-inner">
+        <div class="output-header">
+          <div></div>
+          <div class="output-btns">
+            <button class="hw-btn" id="copy-btn" data-tip="Copy prompt text">📋 Copy <span class="kbd">C</span></button>
+            <button class="hw-btn" id="fav-btn" data-tip="Save to Liked">♥ Like <span class="kbd">F</span></button>
+            <button class="hw-btn" id="code-btn" data-tip="Open in code editor">⌥ Code</button>
+            <button class="hw-btn" id="send-btn" data-tip="Send to AI chat">↗ Send to Chat</button>
+          </div>
+        </div>
+        <div class="output-display" id="output-display"></div>
+        <div class="tag-row" id="tag-row"></div>
+        <div id="history-section" class="history-section" style="display:none;">
+          <div class="history-header">
+            <span class="history-lbl">Recent</span>
+            <button class="history-clear" id="history-clear">✕ Clear</button>
+          </div>
+          <div id="history-rows"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Control row: variable list + D-pad -->
+  <div class="control-row">
+
+    <!-- Variable list -->
+    <div class="callout-wrap">
+      <span class="callout" id="c-varlist">↑ Replaces dot indicators</span>
+      <div class="hw-card">
+        <span class="card-label">Variables</span>
+        <div class="var-list-inner" id="var-list"></div>
+        <div class="var-list-footer">
+          <span id="var-count">— / — variables</span>
+          <button class="mode-btn" id="mode-knobs-btn" style="padding:2px 7px;">Knobs</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- D-pad -->
+    <div class="callout-wrap">
+      <span class="callout" id="c-dpad">↑ Select a variable, pick its value</span>
+      <div class="hw-card">
+        <div class="dpad-inner">
+          <!-- Header with mode toggle -->
+          <div class="val-stepper-name">
+            <span class="val-stepper-label" id="dpad-var-name">STYLE</span>
+            <div class="var-mode-toggle">
+              <button class="var-mode-btn active" id="mode-stepper-btn">Stepper</button>
+              <button class="var-mode-btn" id="mode-knobs-btn">Knobs</button>
+            </div>
+          </div>
+
+          <!-- Stepper mode -->
+          <div id="stepper-mode-panel">
+            <!-- Value stepper -->
+            <div class="val-stepper">
+              <button class="val-stepper-btn" id="dpad-left" data-tip="Previous value (←)">◀</button>
+              <div class="val-stepper-lcd" id="dpad-lcd">
+                rococo
+                <span class="val-stepper-counter" id="val-counter">1 / 6</span>
+              </div>
+              <button class="val-stepper-btn" id="dpad-right" data-tip="Next value (→)">▶</button>
+            </div>
+            <!-- Quick-pick chips -->
+            <div class="val-chips" id="val-chips"></div>
+            <!-- Var nav row -->
+            <div style="display:flex;gap:4px;margin-top:8px;">
+              <button class="hw-btn" id="dpad-up" style="flex:1;justify-content:center;" data-tip="Previous variable (↑)">▲ Prev var</button>
+              <button class="hw-btn" id="dpad-down" style="flex:1;justify-content:center;" data-tip="Next variable (↓)">▼ Next var</button>
+            </div>
+          </div>
+
+          <!-- Knobs mode -->
+          <div id="knobs-mode-panel" style="display:none;">
+            <div class="knobs-grid" id="knobs-grid"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /control-row -->
+
+  <!-- Primary actions -->
+  <div class="primary-actions" style="grid-template-columns:1fr 1fr;">
+    <button class="primary-btn randomize-btn" id="randomize-btn" data-tip="Shuffle all variables at once">🎲 Randomize <kbd>R</kbd></button>
+    <button class="primary-btn generate-btn"  id="generate-btn" data-tip="Send prompt to AI image generator">✦ Generate <kbd>G</kbd></button>
+    <button class="primary-btn run-btn" id="run-p5-btn" style="display:none;" data-tip="Open P5.js canvas window (P)">▶ Run P5 <kbd>P</kbd></button>
+  </div>
+
+  <!-- AI Studio Tools -->
+  <div class="callout-wrap" id="studio-wrap">
+    <div class="hw-card studio-panel" id="studio-panel">
+      <div class="studio-panel-header">
+        <span class="studio-panel-title">AI Studio Tools</span>
+        <div class="studio-tabs">
+          <button class="studio-tab active" data-tab="image">Image Studio</button>
+          <button class="studio-tab" data-tab="tplgen">Template Gen</button>
+          <button class="studio-tab" data-tab="agent">Agent Studio</button>
+          <button class="studio-tab" data-tab="music">Music Studio</button>
+        </div>
+      </div>
+
+      <!-- Image Studio tab -->
+      <div class="studio-body" id="tab-image">
+        <div class="image-grid" id="image-grid">
+          <!-- populated by JS -->
+        </div>
+        <div class="image-actions">
+          <span class="image-actions-label">Batch count</span>
+          <input class="gen-count hw-btn" id="gen-count" type="number" value="4" min="1" max="16" style="width:52px;text-align:center;">
+          <button class="hw-btn" id="gen-batch-btn">⊞ Generate Batch</button>
+          <button class="hw-btn" id="gen-export-btn">↓ Export All</button>
+          <button class="hw-btn" id="gen-send-scope-btn">↗ Send to Scope</button>
+        </div>
+      </div>
+
+      <!-- Template Gen tab -->
+      <div class="studio-body" id="tab-tplgen" style="display:none;">
+        <div class="tplgen-area">
+          <div>
+            <div class="tplgen-label" style="margin-bottom:6px;">Describe a template concept</div>
+            <textarea class="tplgen-textarea" id="tplgen-input" placeholder="e.g. A cinematic sci-fi scene generator with variables for setting, lighting, character archetype, and emotional tone…"></textarea>
+          </div>
+          <div class="tplgen-actions">
+            <button class="hw-btn" id="tplgen-gen-btn" style="white-space:nowrap;">✦ Generate</button>
+            <button class="hw-btn" id="tplgen-load-btn" style="white-space:nowrap;">↑ Load</button>
+          </div>
+        </div>
+        <div class="tplgen-row">
+          <span class="tplgen-label">Mode</span>
+          <div class="tplgen-mode-pill">
+            <button class="active">Text</button>
+            <button>Image</button>
+            <button>Music</button>
+            <button>P5.js</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Agent Studio tab -->
+      <div class="studio-body" id="tab-agent" style="display:none;">
+        <div class="agent-grid">
+          <div class="agent-card">
+            <span class="agent-title">Img2Vid Cinematographer</span>
+            <span class="agent-desc">Takes a reference image and generates a cinematic video prompt with dynamic camera movements.</span>
+            <span class="agent-status"><span class="agent-dot"></span>Ready</span>
+          </div>
+          <div class="agent-card">
+            <span class="agent-title">Blob Pictionary Reveal</span>
+            <span class="agent-desc">Progressive image-to-description reveal game. Generates guesses as blobs resolve into shapes.</span>
+            <span class="agent-status"><span class="agent-dot"></span>Ready</span>
+          </div>
+          <div class="agent-card">
+            <span class="agent-title">Salvagepunk Salon</span>
+            <span class="agent-desc">Iterative aesthetic transformer — takes input images and applies salvagepunk visual language.</span>
+            <span class="agent-status"><span class="agent-dot"></span>Ready</span>
+          </div>
+          <div class="agent-card">
+            <span class="agent-title">Smart Video Options</span>
+            <span class="agent-desc">Analyzes a source image and generates 5 diverse video prompt directions with thumbnails.</span>
+            <span class="agent-status"><span class="agent-dot"></span>Ready</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Music Studio tab -->
+      <div class="studio-body" id="tab-music" style="display:none;">
+        <div style="display:flex;align-items:center;justify-content:center;min-height:80px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--hw-text-label);">
+          Lyria Realtime — connect API key to enable
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /app-main -->
+
+<!-- Conn expand panel -->
+<div class="conn-panel" id="conn-panel">
+  <div class="conn-panel-title" id="conn-panel-title">MIDI Controller</div>
+  <div class="conn-row"><span class="conn-lbl">Device</span><span style="font-size:11px;color:var(--hw-text-dim);">No controller detected</span></div>
+  <div class="conn-row"><span class="conn-lbl">Auto-map</span><button class="hw-btn">Auto CCs ▸</button><button class="hw-btn" style="margin-left:4px;">Auto Notes ▸</button></div>
+  <div class="conn-row"><span class="conn-lbl">Scope URL</span><input class="conn-input" value="http://127.0.0.1:8000"></div>
+</div>
+
+<!-- Status bar -->
+<div class="status-bar" style="width:100%;max-width:var(--app-width);">
+  <div class="status-conns callout-wrap" style="position:relative;">
+    <span class="callout" id="c-conns">↑ Collapsed connections</span>
+    <div class="status-pill" data-conn="midi"><span class="status-dot" id="dot-midi"></span>MIDI</div>
+    <div class="status-pill" data-conn="scope"><span class="status-dot" id="dot-scope"></span>Scope</div>
+    <div class="status-pill" data-conn="glitch"><span class="status-dot" id="dot-glitch"></span>Glitch</div>
+    <div class="status-pill" data-conn="display"><span class="status-dot" id="dot-display"></span>Display</div>
+    <div class="status-pill" data-conn="api"><span class="status-dot warn" id="dot-api"></span>API</div>
+  </div>
+  <div class="bottom-btns callout-wrap" style="position:relative;">
+    <span class="callout" id="c-tpl">↑ Card picker + categories</span>
+    <button class="bottom-btn prominent" id="tpl-btn">📄 Templates<span class="kbd">T</span></button>
+    <button class="bottom-btn" id="batch-btn">⊞ Batch</button>
+    <button class="bottom-btn" id="liked-btn">♥ Liked</button>
+    <button class="bottom-btn" id="shortcut-btn">?</button>
+  </div>
+</div>
+<div style="height:20px;"></div>
+
+<!-- Template picker modal -->
+<div class="modal-bg" id="tpl-modal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <span class="modal-title">Templates</span>
+      <button class="modal-close" id="tpl-close">✕ Close</button>
+    </div>
+    <div class="tpl-search-row">
+      <input class="tpl-search" id="tpl-search" placeholder="Search templates…" autocomplete="off">
+    </div>
+    <div class="cat-row" id="cat-row">
+      <button class="cat-pill active" data-cat="all">All</button>
+      <button class="cat-pill" data-cat="p5">P5.js</button>
+      <button class="cat-pill" data-cat="prompt">Prompt</button>
+      <button class="cat-pill" data-cat="story">Story</button>
+      <button class="cat-pill" data-cat="music">Music</button>
+    </div>
+    <div class="tpl-grid" id="tpl-grid"></div>
+  </div>
+</div>
+
+<!-- Shortcut overlay -->
+<div class="shortcut-bg" id="shortcut-bg">
+  <div class="shortcut-box">
+    <div class="shortcut-title">Keyboard Shortcuts</div>
+    <div class="sk-grid">
+      <span class="sk-key">↑ / ↓</span><span class="sk-desc">Navigate between variables</span>
+      <span class="sk-key">← / →</span><span class="sk-desc">Cycle values for current variable</span>
+      <span class="sk-key">R</span><span class="sk-desc">Randomize all variables</span>
+      <span class="sk-key">G</span><span class="sk-desc">Generate image via AI</span>
+      <span class="sk-key">T</span><span class="sk-desc">Open template picker</span>
+      <span class="sk-key">F</span><span class="sk-desc">Like / add current prompt</span>
+      <span class="sk-key">P</span><span class="sk-desc">Run / stop P5.js sketch</span>
+      <span class="sk-key">?</span><span class="sk-desc">Show this overlay</span>
+      <span class="sk-key">Esc</span><span class="sk-desc">Close any open panel</span>
+    </div>
+    <div class="shortcut-hint">PRESS ANY KEY TO DISMISS</div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Tweaks root -->
+<div id="tweaks-root"></div>
+
+<!-- P5 Canvas Window -->
+<div class="p5-window" id="p5-window">
+  <div class="p5-titlebar" id="p5-titlebar">
+    <span class="p5-title" id="p5-title">P5.js Canvas</span>
+    <span class="p5-badge stopped" id="p5-badge">Stopped</span>
+    <button class="p5-close" id="p5-close">✕</button>
+  </div>
+  <div class="p5-canvas-area" id="p5-canvas-area">
+    <div class="p5-placeholder" id="p5-placeholder">
+      <span class="p5-placeholder-icon">▶</span>
+      <span>Press Play to run sketch</span>
+      <span style="opacity:.5;font-size:9px;">Select a P5.js template first</span>
+    </div>
+    <iframe id="p5-iframe" style="display:none;width:100%;height:100%;border:none;"></iframe>
+  </div>
+  <div class="p5-controls">
+    <button class="p5-ctrl-btn primary" id="p5-play">▶ Play</button>
+    <button class="p5-ctrl-btn" id="p5-pause" style="display:none;">⏸ Pause</button>
+    <button class="p5-ctrl-btn" id="p5-stop">■ Stop</button>
+    <button class="p5-ctrl-btn" id="p5-restart">↺ Restart</button>
+    <div class="p5-size-row">
+      <button class="p5-size-btn active" data-w="520" data-h="480">SM</button>
+      <button class="p5-size-btn" data-w="720" data-h="600">MD</button>
+      <button class="p5-size-btn" data-w="960" data-h="720">LG</button>
+    </div>
+  </div>
+</div>
+
+<script type="text/babel">
+const { useState, useEffect, useCallback, useRef } = React;
+
+/* ── Knob SVG renderer ── */
+function KnobSVG({ color, valueIdx, total, size = 48 }) {
+  const minAngle = -135, maxAngle = 135;
+  const angle = total <= 1 ? 0 : minAngle + (valueIdx / (total - 1)) * (maxAngle - minAngle);
+  const r = size / 2;
+  const cx = r, cy = r;
+  const rad = (angle - 90) * Math.PI / 180;
+  const dotR = r * 0.72;
+  const dotX = cx + Math.cos(rad) * dotR;
+  const dotY = cy + Math.sin(rad) * dotR;
+
+  // Arc track
+  const describeArc = (startDeg, endDeg, radius) => {
+    const s = (startDeg - 90) * Math.PI / 180;
+    const e = (endDeg - 90) * Math.PI / 180;
+    const x1 = cx + Math.cos(s) * radius, y1 = cy + Math.sin(s) * radius;
+    const x2 = cx + Math.cos(e) * radius, y2 = cy + Math.sin(e) * radius;
+    const large = endDeg - startDeg > 180 ? 1 : 0;
+    return `M ${x1} ${y1} A ${radius} ${radius} 0 ${large} 1 ${x2} ${y2}`;
+  };
+
+  const trackR = r * 0.88;
+
+  return (
+    <svg className="knob-svg" width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+      <defs>
+        <radialGradient id={`kg-${color.replace('#','')}`} cx="40%" cy="35%">
+          <stop offset="0%" stopColor="rgba(255,255,255,0.18)" />
+          <stop offset="100%" stopColor="rgba(0,0,0,0.18)" />
+        </radialGradient>
+      </defs>
+      {/* Body shadow */}
+      <circle cx={cx+1} cy={cy+1} r={r*0.82} fill="rgba(0,0,0,0.25)" />
+      {/* Body */}
+      <circle cx={cx} cy={cy} r={r*0.82} fill="var(--hw-surface)" stroke="var(--hw-recessed)" strokeWidth="1.5" />
+      <circle cx={cx} cy={cy} r={r*0.82} fill={`url(#kg-${color.replace('#','')})`} />
+      {/* Track bg */}
+      <path d={describeArc(minAngle, maxAngle, trackR)} fill="none" stroke="var(--hw-recessed)" strokeWidth="3" strokeLinecap="round" />
+      {/* Track active */}
+      {valueIdx > 0 && (
+        <path d={describeArc(minAngle, angle, trackR)} fill="none" stroke={color} strokeWidth="3" strokeLinecap="round" opacity="0.85" />
+      )}
+      {/* Indicator dot */}
+      <circle cx={dotX} cy={dotY} r={r * 0.1} fill={color} />
+      {/* Center pip */}
+      <circle cx={cx} cy={cy} r={r * 0.12} fill="var(--hw-recessed)" />
+    </svg>
+  );
+}
+
+/* ── Template data (from real JSON files) ── */
+const TEMPLATES = [
+  { id:'art-prompt', emoji:'🎨', name:'Art Prompt', cat:'prompt',
+    tpl:'Make the scene {{style}}. Maintain the {{framing}}. The {{subject}} {{verb}} the {{fashion}}.',
+    vars:[
+      {name:'style',   vals:['rococo','narrative collage art','vaporwave citypop','baroque','surrealism','modernist']},
+      {name:'framing', vals:['original framing','dynamic angles','symmetrical layout','cinematic perspective','minimalist framing']},
+      {name:'subject', vals:['figure','character','object','animal','landscape element']},
+      {name:'verb',    vals:['imbues','radiates','expresses','embodies','channels']},
+      {name:'fashion', vals:['avant-garde fashion','retro streetwear','futuristic armor','traditional costume','casual attire']},
+    ]},
+  { id:'character', emoji:'👤', name:'Character Design', cat:'prompt',
+    tpl:'A {{profession}} from {{origin}} with {{physical_trait}} and {{accessory}}, dressed in {{clothing}}, with a {{personality}} demeanor.',
+    vars:[
+      {name:'profession',    vals:['enigmatic alchemist','wandering bard','master blacksmith','nocturnal detective','botanical illustrator','astral cartographer','dimensional architect','relic hunter','memory weaver','storm chaser','beast tamer','shadow puppeteer','dream interpreter','time mechanic','fortune teller','plague doctor']},
+      {name:'origin',        vals:['floating archipelago','subterranean city','nomadic caravan','forgotten library','mechanical forest','crystalline caverns','shifting desert','perpetual aurora','coastal monastery','vertical metropolis','fungal kingdom','prismatic oasis','orbital sanctuary','volcanic bazaar','mist-shrouded valley','thundercloud citadel']},
+      {name:'physical_trait',vals:['iridescent eyes','geometric markings','translucent skin','botanical implants','ancestral tattoos','antler-like growth','living shadow','scaled texture','compound eyes','bioluminescent freckles','crystalline hair','retrofitted limb','constellation birthmarks','weather-responsive features','symbiotic companion','woven feathers']},
+      {name:'accessory',     vals:['mechanical familiar','singing lantern','memory-storing amulet','atmospheric sextant','perspective-shifting lenses','holographic grimoire','resonance fork','time-worn compass','probability dice','sentient quill','impossible container','astral chronometer','vocal modifier','essence collector','encrypted correspondence','reality anchor']},
+      {name:'clothing',      vals:['asymmetrical robes','adaptive armor','layered textiles','ceremonial vestments','practical workwear','transforming garments','element-reactive fabrics','reclaimed materials','concealing drapes','symbolic uniform','interlocking pieces','climate-responsive coat','inherited heirlooms','bioluminescent threads','patchwork ensemble','sensory-enhancing suit']},
+      {name:'personality',   vals:['contemplative','mercurial','methodical','enigmatic','jubilant','stoic','mischievous','reverent','calculated','whimsical','introspective','theatrical','observant','dauntless','melancholic','zealous']},
+    ]},
+  { id:'movie-logline', emoji:'🎬', name:'Movie Logline', cat:'story',
+    tpl:'A {{protagonist}} must {{conflict}} in a world where {{premise}}.',
+    vars:[
+      {name:'protagonist',vals:['time-traveling chef','amnesiac detective','sentient AI','retired assassin','psychic librarian','teenage hacker','disgraced astronaut','ghost whisperer','quantum physicist','reformed con artist','robot therapist','dimension-hopping musician']},
+      {name:'conflict',   vals:['prevent their own birth','solve their own murder','save humanity from extinction','stop an impending war','find their missing memories','escape a time loop','prove their innocence','break an ancient curse','choose between two realities','redeem their greatest mistake','unite fractured worlds','destroy their own creation']},
+      {name:'premise',    vals:['dreams are illegal','death is reversible','emotions are currency','memories can be stolen','lies become reality','time flows backwards','everyone has a clone','magic is dying','the dead outnumber the living','thoughts are visible','gravity is optional','reality is glitching']},
+    ]},
+  { id:'band-name', emoji:'🎸', name:'Band Name', cat:'prompt',
+    tpl:'{{adjective}} {{noun}}',
+    vars:[
+      {name:'adjective',vals:['Velvet','Electric','Cosmic','Silent','Neon','Crystal','Broken','Digital','Phantom','Crimson','Ancient','Lunar','Faded','Shattered','Infinite','Golden']},
+      {name:'noun',     vals:['Thunder','Echoes','Architects','Prophets','Shadows','Ritual','Algorithm','Serpents','Cathedral','Frequencies','Ghosts','Machinery','Pilots','Horizon','Transmission','Sanctuary']},
+    ]},
+  { id:'villain', emoji:'😈', name:'Villain Motivation', cat:'story',
+    tpl:'{{villain_type}} who wants to {{goal}} because {{reason}}.',
+    vars:[
+      {name:'villain_type',vals:['A brilliant scientist','A fallen hero','A corporate executive','An AI consciousness','A cult leader','A spurned artist','A time traveler','A genetic experiment','A disillusioned activist','A reality-warper','A shadow organization','An immortal being']},
+      {name:'goal',        vals:['remake society','erase all memory','merge all minds','reverse evolution','control emotions','freeze time','commercialize dreams','weaponize beauty','eliminate free will','commodify suffering','monopolize truth','privatize nature']},
+      {name:'reason',      vals:['they lost someone they loved','they believe humanity is flawed','they were betrayed by those they trusted','they discovered a terrible truth','they see themselves as the only solution','they want to prevent a worse outcome','they\'re following a twisted sense of justice','they\'ve transcended human morality','they\'re completing someone else\'s work','they experienced unbearable pain','they believe it\'s their destiny','they\'re trying to save the world']},
+    ]},
+  { id:'lyria', emoji:'🎵', name:'Lyria Music', cat:'music',
+    tpl:'{{genre}} with {{mood}} energy, featuring {{lead_instrument}}, {{texture}} production, {{rhythm}} groove, {{atmosphere}} soundscape',
+    vars:[
+      {name:'genre',           vals:['minimal techno','ambient electronic','lo-fi hip hop','deep house','synthpop','jazz fusion','drum and bass','trip hop','afrobeat','post-punk','psytrance','bossa nova','glitch hop','electro swing','shoegaze','vaporwave']},
+      {name:'mood',            vals:['dreamy and ethereal','dark and brooding','uplifting and euphoric','melancholic and nostalgic','hypnotic and meditative','tense and suspenseful','playful and quirky','aggressive and driving','warm and intimate','cinematic and epic','psychedelic','unsettling','chill','funky','experimental','subdued melody']},
+      {name:'lead_instrument', vals:['spacey synths','smooth pianos','Rhodes piano','Moog oscillations','Buchla synths','sitar','harmonica','cello','slide guitar','kalimba','hang drum','flamenco guitar','303 acid bass','mellotron','vibraphone','synth pads']},
+      {name:'texture',         vals:['lo-fi','saturated tones','crunchy distortion','bright tones','glitchy effects','echo','swirling phasers','sustained chords','fat beats','rich orchestration','acoustic instruments','dirty synths','metallic twang','boomy bass','warm acoustic guitar','ominous drone']},
+      {name:'rhythm',          vals:['tight groove','808 hip hop beat','TR-909 drum machine','funk drums','bongos','tabla','conga drums','djembe','maracas','danceable','drumline','breakbeat','virtuoso','sparse percussion','live performance','huge drop']},
+      {name:'atmosphere',      vals:['ethereal ambience','psychedelic','ambient','weird noises','upbeat','emotional','dreamy','cinematic','experimental','cosmic','industrial','tropical','nocturnal','underwater','desert','forest']},
+    ]},
+  { id:'blob-sim', emoji:'🫧', name:'Blob Simulator', cat:'p5',
+    tpl:'{{blob_count}} {{blob_preset}} blob(s), {{color_theme}} palette, size {{blob_size}}, inflation {{blob_inflation}}, tension {{blob_tension}}, damping {{blob_damping}}, gravity {{blob_gravity}}, mode: {{blob_mode}}',
+    vars:[
+      {name:'blob_preset',   vals:['gelatin','marshmallow','jelly','water balloon','rubber ball','bouncy ball','soap bubble','plasma','mercury','slime','molten lava','pudding','tar','steel ball','cloud']},
+      {name:'color_theme',   vals:['pastel','candy','neon','fire','ocean','forest','sunset','midnight','earth','arctic']},
+      {name:'blob_count',    vals:['1','2','3','4','5','6','7','8']},
+      {name:'blob_mode',     vals:['sandbox','terrarium','pictionary']},
+      {name:'blob_gravity',  vals:['0','5','12','22','35','50']},
+      {name:'blob_inflation',vals:['10','35','50','70','100','125']},
+      {name:'blob_tension',  vals:['5','20','35','60','90','125']},
+      {name:'blob_damping',  vals:['3','10','20','35','50']},
+      {name:'blob_size',     vals:['25','50','75','100','125']},
+    ]},
+  { id:'spring', emoji:'🧬', name:'Spring Physics', cat:'p5',
+    tpl:'A 3D physics-based generative artwork with {{node_count}} nodes in a {{structure_type}} formation, shaped as {{node_shape}} primitives. Connected via {{connection_type}} topology with {{spring_style}} springs at {{spring_stiffness}} stiffness. Colored using {{color_palette}} palette with {{color_strategy}} mapping. Rendered in {{render_mode}} mode with {{lighting}} lighting, {{background_style}} background, and {{trail_mode}} trails. Post-processed with {{post_processing}} effects.',
+    vars:[
+      {name:'structure_type', vals:['circle','line','goldenSpiral','fibonacciSphere','blueNoise','platonic','lorenz','helix']},
+      {name:'node_count',     vals:['few','some','moderate','many','cluster','swarm']},
+      {name:'node_shape',     vals:['sphere','box','torus','cone','octahedron','icosahedron']},
+      {name:'connection_type',vals:['chain','star','kNearest','mst','gabriel','delaunay']},
+      {name:'spring_style',   vals:['line','curve','ribbon','particles','tube']},
+      {name:'spring_stiffness',vals:['floating','loose','elastic','moderate','firm','rigid']},
+      {name:'color_palette',  vals:['Ocean Breeze','Sapphire Nights','Neon Dream','Cyberpunk','Autumn Leaves','Aurora','Rose Gold','Monochrome']},
+      {name:'color_strategy', vals:['radialGradient','angularGradient','graphAware','clusterColoring']},
+      {name:'lighting',       vals:['none','ambient','directional','point','spot','multi']},
+      {name:'background_style',vals:['solid','gradient','noise','stars']},
+      {name:'trail_mode',     vals:['off','medium','full']},
+      {name:'render_mode',    vals:['nodes and springs','nodes only','springs only','minimalist']},
+      {name:'post_processing',vals:['none','bloom','grain','chromatic aberration']},
+    ]},
+  { id:'matrix', emoji:'💻', name:'Matrix Rain', cat:'p5',
+    tpl:'{{glyph_set}} glyph cascade, {{density}} columns, {{drop_speed}} fall, {{trail_length}} trails, {{color_mode}} tint',
+    vars:[
+      {name:'glyph_set',   vals:['katakana','latin','symbols','mixed']},
+      {name:'color_mode',  vals:['matrix','neon','amber','ice']},
+      {name:'drop_speed',  vals:['slow','medium','fast']},
+      {name:'trail_length',vals:['short','medium','long']},
+      {name:'density',     vals:['sparse','medium','dense']},
+    ]},
+  { id:'flow-field', emoji:'💫', name:'Flow Field', cat:'p5',
+    tpl:'{{particle_density}} particles in {{flow_mode}} flow, {{color_palette}} palette, {{trail_mode}} trails, {{flow_speed}} current',
+    vars:[
+      {name:'flow_mode',       vals:['perlin','circular','gravity','wave','chaos']},
+      {name:'color_palette',   vals:['angle','fire','ocean','forest','neon']},
+      {name:'trail_mode',      vals:['sharp','medium','ghostly','infinite']},
+      {name:'particle_density',vals:['sparse','medium','dense']},
+      {name:'flow_speed',      vals:['slow','medium','fast']},
+    ]},
+  { id:'nebula', emoji:'🌌', name:'Particle Nebula', cat:'p5',
+    tpl:'{{particle_count}} particles, {{attractor_count}} {{attractor_mass}} attractors, {{color_mode}} palette, {{trail_mode}} trails',
+    vars:[
+      {name:'particle_count',  vals:['sparse','medium','dense']},
+      {name:'attractor_count', vals:['few','medium','many']},
+      {name:'attractor_mass',  vals:['light','medium','heavy']},
+      {name:'trail_mode',      vals:['short','medium','long']},
+      {name:'color_mode',      vals:['nebula','fire','ice','spectrum']},
+    ]},
+  { id:'attractors', emoji:'✨', name:'Strange Attractors', cat:'p5',
+    tpl:'A luminous generative artwork visualizing a {{attractor_type}} strange attractor with {{trail_count}} trails of {{trail_length}} length. Colors mapped by {{color_mode}} using a {{color_palette}} palette. Lines drawn at {{line_weight}} weight in {{render_style}} style. Background fades at {{background_fade}} rate. The view rotates at {{rotation}} speed with {{perturbation}} perturbation.',
+    vars:[
+      {name:'attractor_type',  vals:['lorenz','clifford','dejong','rossler','aizawa','thomas','halvorsen','dadras']},
+      {name:'trail_count',     vals:['single','few','several','many','swarm','cloud']},
+      {name:'trail_length',    vals:['short','medium','long','flowing','infinite','flash']},
+      {name:'color_mode',      vals:['velocity','position','age','angle','rainbow_cycle','depth']},
+      {name:'color_palette',   vals:['electric','fire','ice','aurora','sunset','vapor','acid','phantom']},
+      {name:'line_weight',     vals:['hairline','fine','medium','bold','heavy','variable']},
+      {name:'background_fade', vals:['none','slow','medium','fast','instant','strobe']},
+      {name:'rotation',        vals:['none','slow','medium','fast','oscillating','chaotic']},
+      {name:'perturbation',    vals:['none','subtle','moderate','wild','explosive','breathing']},
+      {name:'render_style',    vals:['lines','points','glow','ribbon','dotted','pixelated']},
+    ]},
+  { id:'glorpy', emoji:'👾', name:'Glorpy Heads', cat:'p5',
+    tpl:'A large-scale pop surrealist artwork of a chaotic conglomeration of {{face_count}} faces teetering atop one another to form an eerie human totem. Each face is fabricated from {{material}}, capturing a {{expression}} expression with exaggerated, oversized eyes and dramatically expressive features. The faces span from {{era}} aesthetics, each with {{skin_quality}} skin and {{feature_style}} facial features. The overall composition has {{visual_texture}}, presented in a {{art_register}} style. Photographed as if a {{photo_quality}} photograph, captured on a Leica C9 using Kodak 400 film.',
+    vars:[
+      {name:'color_palette', vals:['original','neon','pastels','earth','monochrome','warm','cool','acid']},
+      {name:'complexity',    vals:['minimal','moderate','dense','extreme']},
+      {name:'face_count',    vals:['dozens of','countless','seven','three towering','a precarious pile of','an infinite cascade of','a swirling vortex of','five grotesque']},
+      {name:'material',      vals:['bright fleshy silicone replicating human skin','wet clay with visible fingerprints','gelatinous ceramic glazed and glistening','waxy hyperrealistic latex','fibrous needle-felted wool','translucent resin with embedded objects','porous organic matter and mycelium','shiny chrome-plated rubber']},
+      {name:'expression',    vals:['simultaneously terrified and euphoric','wide-eyed and disbelieving','grinning with too many teeth','weeping with joy','slack-jawed and awestruck','sneering with contempt','beatifically serene','convulsing with silent laughter']},
+      {name:'era',           vals:['glittery grunge 1970s','garish 1980s neon','slick 1990s alt-culture','early 2000s maximalist','contemporary hyperpop','ambiguous and atemporal','post-internet 2010s','distant retrofuturist']},
+      {name:'skin_quality',  vals:['viscously porous and glistening','waxy and slightly translucent','taut over-stretched','deeply wrinkled and sagging','iridescent and shifting hue','matte and clay-dry','wet and freshly exhumed','hyper-detailed and pore-mapped']},
+      {name:'feature_style', vals:['grotesquely exaggerated cartoon','precisely anatomical yet uncanny','melting and asymmetrical','geometric and angular','childlike and oversized','baroque and ornamented','alien and barely human','pixelated and low-resolution']},
+      {name:'visual_texture',vals:['a precarious equilibrium between reality and fantasy','swirling impasto paint layers','a grid-like formal composition','overlapping translucent layers','explosive radial symmetry','dense fractal repetition','collaged mixed-media surfaces','stark high-contrast isolation']},
+      {name:'art_register',  vals:['neo-pop surrealist','contemporary pop surrealism','low-brow outsider art','expressionist figurative','hyperrealist sculpture photograph','carnivalesque grotesque','clinical documentary','fever-dream cinematic']},
+      {name:'photo_quality', vals:['2021 Pulitzer Prize winning','award-winning National Geographic','grainy 1997 disposable camera','clinical museum documentation','blurry found-footage','precisely lit studio','candid street photography','oversaturated tabloid press']},
+    ]},
+  { id:'sacred', emoji:'✴️', name:'Sacred Geometry', cat:'p5',
+    tpl:'{{point_count}} golden-ratio nodes, {{symmetry}}-fold symmetry, {{color_palette}} palette, {{motion_speed}} oscillation',
+    vars:[
+      {name:'point_count',  vals:['sparse','balanced','dense']},
+      {name:'symmetry',     vals:['binary','quad','hexagon','octave']},
+      {name:'color_palette',vals:['gold','celestial','emerald','amethyst','sunset']},
+      {name:'motion_speed', vals:['meditative','flowing','energetic']},
+    ]},
+  { id:'tattoo', emoji:'🖤', name:'Tattoo Concept', cat:'prompt',
+    tpl:'A {{style}} tattoo of {{subject}} on {{placement}} with {{detail}} details.',
+    vars:[
+      {name:'style',    vals:['minimalist linework','traditional American','Japanese irezumi','watercolor','geometric','blackwork','fine line','neo-traditional','dotwork','tribal','illustrative','abstract']},
+      {name:'subject',  vals:['a phoenix rising','intertwined serpents','crescent moon phases','blooming lotus','anatomical heart','waves and mountains','hourglass','compass rose','tree of life','skull and flowers','moth and flame','constellation map','koi fish','raven in flight','pocket watch','sacred geometry']},
+      {name:'placement',vals:['forearm','shoulder blade','ribcage','thigh','upper arm','spine','calf','behind ear','wrist','chest','ankle','fingers']},
+      {name:'detail',   vals:['intricate','minimal','bold','delicate','flowing','sharp','ornamental','symbolic','realistic','stylized','textured','clean']},
+    ]},
+  { id:'startup', emoji:'💡', name:'Startup Slogan', cat:'prompt',
+    tpl:'{{action}} {{outcome}}. {{tagline}}',
+    vars:[
+      {name:'action', vals:['Redefine','Transform','Unlock','Accelerate','Simplify','Revolutionize','Elevate','Amplify','Reimagine','Optimize','Streamline','Empower']},
+      {name:'outcome',vals:['your workflow','tomorrow','what\'s possible','your potential','the experience','collaboration','innovation','productivity','connection','growth','creativity','success']},
+      {name:'tagline',vals:['Built for the future.','Where ideas become reality.','Because time matters.','Human-centered technology.','Complexity made simple.','Progress, perfected.','Intelligence meets intuition.','The smarter way forward.','Designed for you.','Innovation you can trust.','Power meets simplicity.','Your vision, our mission.']},
+    ]},
+  { id:'img2vid', emoji:'🎥', name:'img2vid Cinematographer', cat:'prompt',
+    tpl:'A visually stunning {{cinematic_style}} sequence. The camera initiates a {{camera_movement}}, perfectly timed with a {{focal_transition}} to draw the viewer\'s eye. The inherent life of the scene is revealed through {{subject_dynamism}}, grounded by {{environmental_motion}} interacting with the surroundings. The atmosphere is structurally transformed by {{lighting_evolution}}, culminating in a masterful display of {{vfx_overlay}}. The entire sequence maintains a cohesive {{creative_intention}}, engineered for fluid motion and absolute visual fidelity.',
+    vars:[
+      {name:'cinematic_style',   vals:['high-budget commercial and polished','gritty documentary realism','contemplative art house cinema','kinetic music video pacing','ethereal magical fantasy','tense psychological thriller','nostalgic retro vintage film','hyper-stylized dynamic anime']},
+      {name:'camera_movement',   vals:['subtle, intimate push-in','majestic, revealing crane up','disorienting, dramatic dolly zoom','smooth, sweeping tracking shot','voyeuristic orbit around the subject','visceral handheld camera shake','ultra-smooth steadicam glide','fast, horizontal whip pan transition']},
+      {name:'focal_transition',  vals:['rack focus shifting elegantly from foreground to background','constant razor-sharp, deep depth of field','softening of the edges into a dreamy, shallow bokeh','sudden, sharp focus pull to a hidden detail','subtle, breathing autofocus hunt','split-diopter effect keeping two visual planes in sharp focus']},
+      {name:'subject_dynamism',  vals:['gentle, natural micro-movements and breathing','moderate, deliberate scene-appropriate activity','organic flowing motion of fabric and hair','meditative, statue-like stillness','a slow, dramatic transformation of posture','dynamic, high-impact athletic motion','rhythmic, mesmerizing repetitive patterns']},
+      {name:'environmental_motion',vals:['subtle wind rustling through the available elements','dust motes and particles lazily drifting through the air','water and liquid dynamics flowing naturally','thick rolling fog or smoke slowly overtaking the frame','time-lapse speed revealing rapid environmental changes','explosive energy scattering the surroundings','gravity-defiant floating of loose objects']},
+      {name:'lighting_evolution',vals:['enhanced natural lighting that elevates the existing shadows','a shift towards a warm, nostalgic golden hour glow','volumetric light rays piercing through the atmosphere','the sudden appearance of sharp, dramatic chiaroscuro shadows','vibrant, pulsating neon artificial lighting','a gradual desaturation into an austere, muted palette','a strobe-like flickering of failing light sources']},
+      {name:'vfx_overlay',       vals:['authentic 35mm film grain and subtle halation','crystalline lens flares glinting off highlights','subtle chromatic aberration strictly on the edges','a dreamy, soft-focus orton effect','brief, jarring digital glitch artifacts','semi-transparent holographic elements overlaying the view','mathematical geometric fractals subtly shifting']},
+      {name:'creative_intention',vals:['sense of profound, peaceful isolation','mood of melancholic, wistful nostalgia','tone of romantic, intimate warmth','feeling of impending, unstoppable dread','burst of joyous, unbridled energy','atmosphere of cold, clinical detachment','vibe of awe-inspiring, cosmic insignificance','state of hallucinatory, logic-defying surrealism']},
+    ]},
+  { id:'lovebombing', emoji:'💣', name:'Lovebombing', cat:'story',
+    tpl:'A vintage film-photograph that triggers a sense of {{emotion}} and leaves an impactful memory, soaked in the heights of mystical allure strongly influenced by Vaporwave aesthetics. The image should spotlight a soft pastel ({{color}}) ({{material}}) mushroom cloud, slowly billowing towards the heavens.',
+    vars:[
+      {name:'emotion',  vals:['frisson','awe','incomprehensible-joy','goofy-feeling','glory','existential-angst','sublimity','dread','astonishment','bewilderment','fascination','thrill','ecstasy','rapture','exhilaration','elation','shock','horror','jubilation','delirium']},
+      {name:'color',    vals:['black','white','red','orange','yellow','green','blue','indigo','violet','rainbow','pink','cyan','beige','brown']},
+      {name:'material', vals:['Cottony','Woolen','Felted','Gilded Gold-leaf','Silver','Silky Polyester','Plasticy','nylon','Soft Velvet','holographic foil','Papercraft','Wooden','Glassy and glossy','Bronzen','Cardboard','Enamel-Ceramic','Concrete','Waxy','jellyfish']},
+    ]},
+];
+
+const COLORS = ['#5a8ab8','#c07040','#c06880','#8868a8','#5a9870','#4898a8','#c8962a','#b85050'];
+
+function buildOutput(tpl, vars, vals, activeIdx) {
+  if (!tpl) return '';
+  return tpl.replace(/\{\{(\w+)\}\}/g, (_, k) => {
+    const i = vars.findIndex(v => v.name === k);
+    const color = COLORS[i % COLORS.length];
+    const isActive = i === activeIdx;
+    const val = vals[k] ?? vars[i]?.vals[0] ?? k;
+    return `<span class="var-span${isActive ? ' active' : ''}" style="${isActive ? '' : `color:${color}`}">${val}</span>`;
+  });
+}
+
+function App() {
+  const [tplIdx, setTplIdx]       = useState(0);
+  const [varIdx, setVarIdx]       = useState(0);
+  const [vals, setVals]           = useState({});
+  const [history, setHistory]     = useState([]);
+  const [tplOpen, setTplOpen]     = useState(false);
+  const [shortcutOpen, setShortcutOpen] = useState(false);
+  const [tplSearch, setTplSearch] = useState('');
+  const [cat, setCat]             = useState('all');
+  const [activeConn, setActiveConn] = useState(null);
+  const [activeTab, setActiveTab] = useState('image');
+  const [toastTxt, setToastTxt]   = useState('');
+  const [toastOn, setToastOn]     = useState(false);
+  const [showCallouts, setShowCallouts] = useState(true);
+  const [performMode, setPerformMode] = useState(false);
+
+  const [varMode, setVarMode]     = useState('stepper'); // 'stepper' | 'knobs'
+  const knobsRootRef = useRef(null);
+  const varListRootRef = useRef(null);
+  const tplGridRootRef = useRef(null);
+  const imgGridRootRef = useRef(null);
+
+  /* ── Var mode toggle ── */
+  useEffect(() => {
+    const stepperBtn   = document.getElementById('mode-stepper-btn');
+    const knobsBtn     = document.getElementById('mode-knobs-btn');
+    const stepperPanel = document.getElementById('stepper-mode-panel');
+    const knobsPanel   = document.getElementById('knobs-mode-panel');
+    if (!stepperBtn) return;
+    stepperBtn.classList.toggle('active', varMode === 'stepper');
+    knobsBtn.classList.toggle('active',   varMode === 'knobs');
+    stepperPanel.style.display = varMode === 'stepper' ? '' : 'none';
+    knobsPanel.style.display   = varMode === 'knobs'   ? '' : 'none';
+    stepperBtn.onclick = () => setVarMode('stepper');
+    knobsBtn.onclick   = () => setVarMode('knobs');
+  }, [varMode]);
+
+  /* ── Knobs rendering ── */
+  useEffect(() => {
+    if (varMode !== 'knobs') return;
+    const el = document.getElementById('knobs-grid');
+    if (!el) return;
+    const knobsContent = vars.map((v, i) => {
+      const color  = COLORS[i % COLORS.length];
+      const curVal = vals[v.name] ?? v.vals[0];
+      const valIdx = Math.max(0, v.vals.indexOf(curVal));
+      const isActive = i === varIdx;
+      const handleMouseDown = (e) => {
+        e.preventDefault();
+        setVarIdx(i);
+        const startY   = e.clientY;
+        const startIdx = Math.max(0, v.vals.indexOf(vals[v.name] ?? v.vals[0]));
+        const onMove = (me) => {
+          const delta  = Math.round((startY - me.clientY) / 18);
+          const newIdx = Math.max(0, Math.min(v.vals.length - 1, startIdx + delta));
+          setVals(vv => ({ ...vv, [v.name]: v.vals[newIdx] }));
+        };
+        const onUp = () => {
+          document.removeEventListener('mousemove', onMove);
+          document.removeEventListener('mouseup', onUp);
+        };
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onUp);
+      };
+      return (
+        <div key={v.name} className={`knob-wrap${isActive ? ' active' : ''}`}
+          onMouseDown={handleMouseDown} onClick={() => setVarIdx(i)}
+          title={`${v.name} — drag up/down to change`}>
+          <span className="knob-name">{v.name}</span>
+          <KnobSVG color={color} valueIdx={valIdx} total={v.vals.length} size={44} />
+          <span className="knob-val">{curVal}</span>
+        </div>
+      );
+    });
+    if (!knobsRootRef.current) knobsRootRef.current = ReactDOM.createRoot(el);
+    knobsRootRef.current.render(<>{knobsContent}</>);
+  }, [varMode, vars, vals, varIdx]);
+  const tweakDefaults = /*EDITMODE-BEGIN*/{"showCallouts":true,"themeMode":"cream"}/*EDITMODE-END*/;
+  const [tweaks, setTweaks] = useTweaks(tweakDefaults);
+
+  const tpl  = TEMPLATES[tplIdx];
+  const vars = tpl.vars;
+  const curVar = vars[varIdx];
+
+  /* init vals when template changes */
+  useEffect(() => {
+    const v = {};
+    tpl.vars.forEach(va => { v[va.name] = va.vals[0]; });
+    setVals(v); setVarIdx(0);
+  }, [tplIdx]);
+
+  const toast = useCallback((msg) => {
+    setToastTxt(msg); setToastOn(true);
+    setTimeout(() => setToastOn(false), 1800);
+  }, []);
+
+  const nextVal  = useCallback(() => {
+    if (!curVar) return;
+    const i = curVar.vals.indexOf(vals[curVar.name] ?? curVar.vals[0]);
+    setVals(v => ({ ...v, [curVar.name]: curVar.vals[(i+1)%curVar.vals.length] }));
+  }, [curVar, vals]);
+  const prevVal  = useCallback(() => {
+    if (!curVar) return;
+    const i = curVar.vals.indexOf(vals[curVar.name] ?? curVar.vals[0]);
+    setVals(v => ({ ...v, [curVar.name]: curVar.vals[(i-1+curVar.vals.length)%curVar.vals.length] }));
+  }, [curVar, vals]);
+  const nextVar  = useCallback(() => setVarIdx(i => (i+1)%Math.max(vars.length,1)), [vars.length]);
+  const prevVar  = useCallback(() => setVarIdx(i => (i-1+Math.max(vars.length,1))%Math.max(vars.length,1)), [vars.length]);
+  const randomize = useCallback(() => {
+    const v = {};
+    tpl.vars.forEach(va => { v[va.name] = va.vals[Math.floor(Math.random()*va.vals.length)]; });
+    setVals(v);
+    const text = tpl.tpl.replace(/\{\{(\w+)\}\}/g, (_,k) => v[k] || '');
+    if (text) setHistory(h => [{text, time:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})},...h].slice(0,5));
+  }, [tpl]);
+
+  /* Keyboard */
+  useEffect(() => {
+    const h = (e) => {
+      const tag = document.activeElement?.tagName;
+      if (tag==='INPUT'||tag==='TEXTAREA') return;
+      if (shortcutOpen) { setShortcutOpen(false); return; }
+      if (tplOpen && e.key==='Escape') { setTplOpen(false); return; }
+      if (tplOpen) return;
+      switch(e.key) {
+        case 'ArrowUp':    e.preventDefault(); prevVar(); break;
+        case 'ArrowDown':  e.preventDefault(); nextVar(); break;
+        case 'ArrowLeft':  e.preventDefault(); prevVal(); break;
+        case 'ArrowRight': e.preventDefault(); nextVal(); break;
+        case 'r':case'R':  randomize(); break;
+        case 'g':case'G':  toast('AI generation — connect API key'); break;
+        case 't':case'T':  setTplOpen(true); break;
+        case 'f':case'F':  toast('♥ Added to Liked'); break;
+        case '?': setShortcutOpen(true); break;
+        case 'Escape': setActiveConn(null); break;
+      }
+    };
+    window.addEventListener('keydown', h);
+    return () => window.removeEventListener('keydown', h);
+  }, [shortcutOpen, tplOpen, prevVar, nextVar, prevVal, nextVal, randomize]);
+
+  /* Wire DOM buttons */
+  useEffect(() => {
+    const w = (id, fn) => { const el=document.getElementById(id); if(el) el.onclick=fn; };
+    w('randomize-btn', randomize);
+    w('generate-btn',  () => toast('AI generation — connect API key'));
+    w('copy-btn',  () => {
+      const t = tpl.tpl.replace(/\{\{(\w+)\}\}/g,(_,k)=>vals[k]||'');
+      navigator.clipboard?.writeText(t).then(()=>toast('Copied!')).catch(()=>toast('Copy failed'));
+    });
+    w('fav-btn',   () => toast('♥ Added to Liked'));
+    w('code-btn',  () => toast('Code editor — connect live app'));
+    w('send-btn',  () => toast('Sent to chat ↗'));
+    w('tpl-btn',   () => setTplOpen(true));
+    w('template-badge', () => setTplOpen(true));
+    w('tpl-close', () => setTplOpen(false));
+    w('shortcut-btn', () => setShortcutOpen(true));
+    w('batch-btn', () => toast('Batch generator — connect live app'));
+    w('liked-btn', () => toast('Liked prompts — connect live app'));
+    w('history-clear', () => setHistory([]));
+    w('dpad-up',    prevVar);
+    w('dpad-down',  nextVar);
+    w('dpad-left',  prevVal);
+    w('dpad-right', nextVal);
+    w('gen-batch-btn',      () => toast('Generate Batch — connect API key'));
+    w('gen-export-btn',     () => toast('Export — no images yet'));
+    w('gen-send-scope-btn', () => toast('Send to Scope — connect live app'));
+    w('tplgen-gen-btn',     () => toast('Template Gen — connect API key'));
+    w('tplgen-load-btn',    () => toast('Load template — connect live app'));
+    w('btn-studio',  () => setPerformMode(false));
+    w('btn-perform', () => setPerformMode(true));
+    document.querySelectorAll('.status-pill').forEach(el => {
+      el.onclick = () => setActiveConn(c => c===el.dataset.conn ? null : el.dataset.conn);
+    });
+    document.querySelectorAll('.studio-tab').forEach(el => {
+      el.onclick = () => { setActiveTab(el.dataset.tab); };
+    });
+  }, [randomize, prevVar, nextVar, prevVal, nextVal, vals, tpl]);
+
+  /* Output display */
+  const html = buildOutput(tpl.tpl, vars, vals, varIdx);
+  useEffect(() => {
+    const el = document.getElementById('output-display');
+    if (el) el.innerHTML = html || '<span style="color:var(--hw-lcd-dim)">Ready…</span>';
+  }, [html]);
+
+  /* Run P5 button visibility */
+  useEffect(() => {
+    const btn = document.getElementById('run-p5-btn');
+    const actions = document.querySelector('.primary-actions');
+    if (!btn || !actions) return;
+    const isP5 = tpl.cat === 'p5';
+    btn.style.display = isP5 ? '' : 'none';
+    actions.style.gridTemplateColumns = isP5 ? '1fr 1fr 1fr' : '1fr 1fr';
+  }, [tpl]);
+
+  /* Flow step highlights */
+  useEffect(() => {
+    const setActive = (n) => {
+      [1,2,3].forEach(i => {
+        const el = document.getElementById(`flow-${i}`);
+        if (el) el.classList.toggle('active', i === n);
+      });
+    };
+    if (tplOpen) { setActive(1); return; }
+    const txt = tpl.tpl.replace(/\{\{(\w+)\}\}/g, (_,k) => vals[k]||'');
+    if (txt) setActive(3); else setActive(2);
+  }, [tplOpen, tpl, vals]);
+
+  /* D-pad LCD + var name */
+  useEffect(() => {
+    const n = document.getElementById('dpad-var-name');
+    const l = document.getElementById('dpad-lcd');
+    const counter = document.getElementById('val-counter');
+    if (n) n.textContent = curVar ? curVar.name.toUpperCase() : '—';
+    if (l) {
+      const txt = curVar ? (vals[curVar.name] ?? curVar.vals[0]) : '—';
+      // clear children, set text
+      l.childNodes.forEach(c => { if (c.nodeType === 3) c.remove(); });
+      l.insertAdjacentText('afterbegin', txt);
+    }
+    // value counter
+    if (counter && curVar) {
+      const idx = curVar.vals.indexOf(vals[curVar.name] ?? curVar.vals[0]);
+      counter.textContent = `${idx+1} / ${curVar.vals.length}`;
+    }
+    // chips
+    const chips = document.getElementById('val-chips');
+    if (chips && curVar) {
+      chips.innerHTML = curVar.vals.map(v => {
+        const isSel = (vals[curVar.name] ?? curVar.vals[0]) === v;
+        return `<button class="val-chip${isSel?' sel':''}" data-val="${v}">${v}</button>`;
+      }).join('');
+      chips.querySelectorAll('.val-chip').forEach(btn => {
+        btn.onclick = () => setVals(vv => ({ ...vv, [curVar.name]: btn.dataset.val }));
+      });
+    } else if (chips) {
+      chips.innerHTML = '';
+    }
+  }, [curVar, vals, varIdx]);
+
+  /* Template badge */
+  useEffect(() => {
+    document.getElementById('badge-emoji').textContent = tpl.emoji;
+    document.getElementById('badge-name').textContent  = tpl.name;
+  }, [tpl]);
+
+  /* History */
+  useEffect(() => {
+    const sec = document.getElementById('history-section');
+    if (sec) sec.style.display = history.length ? 'block' : 'none';
+    const rows = document.getElementById('history-rows');
+    if (rows) rows.innerHTML = history.map(h =>
+      `<div class="history-row"><span class="history-text">${h.text}</span><span class="history-time">${h.time}</span></div>`
+    ).join('');
+  }, [history]);
+
+  /* Tags */
+  useEffect(() => {
+    const row = document.getElementById('tag-row');
+    if (!row) return;
+    row.innerHTML = vars.map((v,i) => {
+      const c = COLORS[i%COLORS.length];
+      return `<span class="tag" style="color:${c};border-color:${c}20;background:${c}12">${v.name}</span>`;
+    }).join('');
+  }, [vars]);
+
+  /* Connections */
+  useEffect(() => {
+    document.querySelectorAll('.status-pill').forEach(el => {
+      el.classList.toggle('open', el.dataset.conn === activeConn);
+    });
+    const panel = document.getElementById('conn-panel');
+    panel.classList.toggle('open', !!activeConn);
+    const titles = {midi:'MIDI Controller', scope:'Scope Connection (OSC / Video)', glitch:'Glitcher Effects (Display)', display:'Display Window', api:'API Key Configuration'};
+    document.getElementById('conn-panel-title').textContent = titles[activeConn] || '';
+  }, [activeConn]);
+
+  /* Modals */
+  useEffect(() => {
+    document.getElementById('tpl-modal').classList.toggle('open', tplOpen);
+    document.getElementById('shortcut-bg').classList.toggle('open', shortcutOpen);
+    document.getElementById('tpl-modal').onclick = (e) => { if (e.target===e.currentTarget) setTplOpen(false); };
+    document.getElementById('shortcut-bg').onclick = () => setShortcutOpen(false);
+  }, [tplOpen, shortcutOpen]);
+
+  /* Studio tabs */
+  useEffect(() => {
+    ['image','tplgen','agent','music'].forEach(t => {
+      const el = document.getElementById(`tab-${t}`);
+      if (el) el.style.display = t===activeTab ? 'block' : 'none';
+    });
+    document.querySelectorAll('.studio-tab').forEach(el => {
+      el.classList.toggle('active', el.dataset.tab===activeTab);
+    });
+  }, [activeTab]);
+
+  /* Toast */
+  useEffect(() => {
+    const el = document.getElementById('toast');
+    el.textContent = toastTxt;
+    el.classList.toggle('show', toastOn);
+  }, [toastTxt, toastOn]);
+
+  /* Perform / Studio layout */
+  useEffect(() => {
+    document.body.classList.toggle('perform', performMode);
+    document.getElementById('btn-studio').classList.toggle('active', !performMode);
+    document.getElementById('btn-perform').classList.toggle('active', performMode);
+  }, [performMode]);
+
+  /* Callout badges */
+  useEffect(() => {
+    const show = tweaks.showCallouts;
+    ['c-varlist','c-dpad','c-conns','c-tpl'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = show ? '' : 'none';
+    });
+  }, [tweaks.showCallouts]);
+
+  /* Dark theme */
+  useEffect(() => {
+    const r = document.documentElement;
+    if (tweaks.themeMode === 'dark') {
+      r.style.setProperty('--hw-chassis','#1c1810'); r.style.setProperty('--hw-panel','#242018');
+      r.style.setProperty('--hw-surface','#2c2820'); r.style.setProperty('--hw-recessed','#343028');
+      r.style.setProperty('--hw-lcd-bg','#181408');  r.style.setProperty('--hw-lcd-text','#d4c8a0');
+      r.style.setProperty('--hw-text','#d4c8a0');    r.style.setProperty('--hw-text-dim','#706050');
+      r.style.setProperty('--hw-border-soft','1px solid #3e3828');
+      r.style.setProperty('--hw-border','2px solid #5a5040');
+      r.style.setProperty('--hw-shadow','3px 3px 0 #080604');
+      r.style.setProperty('--hw-shadow-sm','2px 2px 0 #080604');
+      r.style.setProperty('--hw-shadow-lg','5px 5px 0 #080604');
+    } else {
+      r.style.setProperty('--hw-chassis','#ede6d8'); r.style.setProperty('--hw-panel','#e0d8ca');
+      r.style.setProperty('--hw-surface','#d4ccbe'); r.style.setProperty('--hw-recessed','#c4bcac');
+      r.style.setProperty('--hw-lcd-bg','#f0e8d0');  r.style.setProperty('--hw-lcd-text','#1e180e');
+      r.style.setProperty('--hw-text','#2e2418');    r.style.setProperty('--hw-text-dim','#8a7e6e');
+      r.style.setProperty('--hw-border-soft','1px solid #b8b0a0');
+      r.style.setProperty('--hw-border','2px solid #7a6e5e');
+      r.style.setProperty('--hw-shadow','3px 3px 0 #7a6e5e');
+      r.style.setProperty('--hw-shadow-sm','2px 2px 0 #7a6e5e');
+      r.style.setProperty('--hw-shadow-lg','5px 5px 0 #7a6e5e');
+    }
+  }, [tweaks.themeMode]);
+
+  /* Variable list */
+  const varListContent = vars.map((v,i) => (
+    <div key={v.name} className={`var-row${i===varIdx?' active':''}`} onClick={()=>setVarIdx(i)}>
+      <div className="var-dot" style={{background:COLORS[i%COLORS.length]}}></div>
+      <span className="var-name">{v.name}</span>
+      <span className="var-val">{vals[v.name]??v.vals[0]}</span>
+    </div>
+  ));
+  useEffect(() => {
+    const el = document.getElementById('var-list');
+    if (!el) return;
+    if (!varListRootRef.current) varListRootRef.current = ReactDOM.createRoot(el);
+    varListRootRef.current.render(<>{varListContent}</>);
+    const cnt = document.getElementById('var-count');
+    if (cnt) cnt.textContent = vars.length ? `${varIdx+1} / ${vars.length} variables` : 'No variables';
+  }, [varListContent, vars.length, varIdx]);
+
+  /* Template grid */
+  const filtered = TEMPLATES.filter(t => {
+    const mc = cat==='all'||t.cat===cat;
+    const ms = !tplSearch||t.name.toLowerCase().includes(tplSearch.toLowerCase());
+    return mc&&ms;
+  });
+  const tplGridContent = filtered.map(t => (
+    <button key={t.id} className={`tpl-card${t.id===tpl.id?' cur':''}`}
+      onClick={() => { setTplIdx(TEMPLATES.indexOf(t)); setTplOpen(false); toast(`Loaded: ${t.name}`); }}>
+      <span className="tpl-icon">{t.emoji}</span>
+      <span className="tpl-name">{t.name}</span>
+      <span className="tpl-cat">{t.cat}</span>
+    </button>
+  ));
+  useEffect(() => {
+    const el = document.getElementById('tpl-grid');
+    if (!el) return;
+    if (!tplGridRootRef.current) tplGridRootRef.current = ReactDOM.createRoot(el);
+    tplGridRootRef.current.render(<>{tplGridContent}</>);
+  }, [filtered, tpl.id]);
+
+  /* Cat pills */
+  useEffect(() => {
+    document.querySelectorAll('.cat-pill').forEach(p => {
+      p.classList.toggle('active', p.dataset.cat===cat);
+      p.onclick = () => setCat(p.dataset.cat);
+    });
+  }, [cat]);
+
+  /* Search */
+  useEffect(() => {
+    const s = document.getElementById('tpl-search');
+    if (s) { s.value=tplSearch; s.oninput=e=>setTplSearch(e.target.value); }
+  }, [tplSearch]);
+
+  /* Image grid placeholder */
+  const imgCells = Array.from({length:4},(_,i)=>i);
+  const imgGridContent = imgCells.map(i => (
+    <div key={i} className="image-cell">
+      <div className="image-cell-empty">
+        {i===0 ? '📸 Generate to fill' : `Slot ${i+1}`}
+      </div>
+    </div>
+  ));
+  useEffect(() => {
+    const el = document.getElementById('image-grid');
+    if (!el) return;
+    if (!imgGridRootRef.current) imgGridRootRef.current = ReactDOM.createRoot(el);
+    imgGridRootRef.current.render(<>{imgGridContent}</>);
+  }, []);
+
+  return (
+    <TweaksPanel title="Tweaks">
+      <TweakSection label="Prototype">
+        <TweakToggle label="Show improvement callouts" value={tweaks.showCallouts} onChange={v => setTweaks('showCallouts', v)} />
+      </TweakSection>
+      <TweakSection label="Theme">
+        <TweakRadio label="Color mode" value={tweaks.themeMode} options={['cream','dark']} onChange={v => setTweaks('themeMode', v)} />
+      </TweakSection>
+    </TweaksPanel>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('tweaks-root')).render(<App />);
+</script>
+
+<script>
+/* ── P5 Sketches ──────────────────────────────────────────────── */
+const P5_SKETCHES = {
+  'matrix': {
+    name: 'Matrix Rain',
+    code: `
+const cols=[], fs=14;
+let nc,drops;
+function setup(){createCanvas(windowWidth,windowHeight);background(0);textFont('monospace');textSize(fs);nc=floor(width/fs);drops=Array(nc).fill(1);}
+function draw(){background(0,0,0,25);fill(0,255,70);for(let i=0;i<nc;i++){const c=String.fromCharCode(0x30A0+random(96));text(c,i*fs,drops[i]*fs);if(drops[i]*fs>height&&random()>0.975)drops[i]=0;drops[i]++;}}
+function windowResized(){resizeCanvas(windowWidth,windowHeight);}
+`},
+  'blob-sim': {
+    name: 'Blob Simulator',
+    code: `
+let blobs=[];
+function setup(){createCanvas(windowWidth,windowHeight);for(let i=0;i<8;i++)blobs.push({x:random(width),y:random(height),vx:random(-1.5,1.5),vy:random(-1.5,1.5),r:random(40,90),h:random(360)});}
+function draw(){background(10,10,20,30);noStroke();for(let b of blobs){b.x+=b.vx;b.y+=b.vy;if(b.x<-b.r||b.x>width+b.r)b.vx*=-1;if(b.y<-b.r||b.y>height+b.r)b.vy*=-1;fill(color('hsla('+b.h+',70%,60%,0.18)'));ellipse(b.x,b.y,b.r*2+sin(frameCount*.02+b.h)*20,b.r*2+cos(frameCount*.02+b.h)*20);}drawfield();}
+function drawfield(){for(let b of blobs){stroke(color('hsla('+b.h+',80%,70%,0.4)'));strokeWeight(1);noFill();ellipse(b.x,b.y,b.r*2,b.r*2);}noStroke();}
+function windowResized(){resizeCanvas(windowWidth,windowHeight);}
+`},
+  'flow-field': {
+    name: 'Flow Field',
+    code: `
+let particles=[],cols,rows,fs=20,zoff=0;
+function setup(){createCanvas(windowWidth,windowHeight);background(15,12,25);for(let i=0;i<600;i++)particles.push({x:random(width),y:random(height),px:0,py:0,c:color(random(180,260),80,70,0.6)});}
+function draw(){fill(15,12,25,8);noStroke();rect(0,0,width,height);cols=floor(width/fs)+1;rows=floor(height/fs)+1;for(let p of particles){p.px=p.x;p.py=p.y;let xi=floor(p.x/fs),yi=floor(p.y/fs);let n=noise(xi*.1,yi*.1,zoff);let a=n*TWO_PI*2;p.x+=cos(a)*2;p.y+=sin(a)*2;if(p.x<0||p.x>width||p.y<0||p.y>height){p.x=random(width);p.y=random(height);}stroke(p.c);strokeWeight(1.2);line(p.px,p.py,p.x,p.y);}zoff+=0.003;}
+function windowResized(){resizeCanvas(windowWidth,windowHeight);}
+`},
+  'spring': {
+    name: 'Spring Physics',
+    code: `
+let nodes=[],mouse={x:0,y:0},dragging=null;
+const K=0.12,DAMP=0.85,REST=80;
+function setup(){createCanvas(windowWidth,windowHeight);let cx=width/2,cy=height/2;for(let i=0;i<12;i++){let a=TWO_PI/12*i;nodes.push({x:cx+cos(a)*180,y:cy+sin(a)*180,vx:0,vy:0,r:16});}nodes.push({x:cx,y:cy,vx:0,vy:0,r:22});}
+function draw(){background(12,14,22,40);for(let i=0;i<nodes.length-1;i++){let n=nodes[i],c=nodes[nodes.length-1];let dx=c.x-n.x,dy=c.y-n.y,d=sqrt(dx*dx+dy*dy),f=(d-REST)*K;let fx=dx/d*f,fy=dy/d*f;n.vx+=fx;n.vy+=fy;c.vx-=fx;c.vy-=fy;}for(let n of nodes){if(n===dragging){n.x=mouseX;n.y=mouseY;n.vx=0;n.vy=0;}else{n.vx*=DAMP;n.vy*=DAMP;n.x+=n.vx;n.y+=n.vy;}}for(let i=0;i<nodes.length-1;i++){let n=nodes[i],c=nodes[nodes.length-1];stroke(80,160,255,120);strokeWeight(1.5);line(n.x,n.y,c.x,c.y);}for(let n of nodes){fill(n===dragging?'rgba(255,200,80,.9)':'rgba(80,180,255,.8)');noStroke();ellipse(n.x,n.y,n.r*2);};}
+function mousePressed(){for(let n of nodes)if(dist(mouseX,mouseY,n.x,n.y)<n.r+6){dragging=n;break;}}
+function mouseReleased(){dragging=null;}
+function windowResized(){resizeCanvas(windowWidth,windowHeight);}
+`},
+  'nebula': {
+    name: 'Particle Nebula',
+    code: `
+let pts=[];
+function setup(){createCanvas(windowWidth,windowHeight);background(5,4,14);colorMode(HSB);}
+function draw(){for(let i=0;i<18;i++){let cx=width/2+noise(frameCount*.003)*200-100,cy=height/2+noise(frameCount*.003+10)*200-100;let a=random(TWO_PI),r=randomGaussian(0,80);let x=cx+cos(a)*r,y=cy+sin(a)*r;let h=(frameCount*0.5+r)%360;pts.push({x,y,h,a:1,vx:(x-cx)*.002,vy:(y-cy)*.002});}for(let p of pts){p.x+=p.vx;p.y+=p.vy;p.a-=0.006;stroke(p.h,70,90,p.a);strokeWeight(random(1,2));point(p.x,p.y);}pts=pts.filter(p=>p.a>0);}
+function windowResized(){resizeCanvas(windowWidth,windowHeight);}
+`},
+  'glorpy': {
+    name: 'Glorpy Heads',
+    code: `
+let heads=[];
+function setup(){createCanvas(windowWidth,windowHeight);for(let i=0;i<6;i++)heads.push({x:random(100,width-100),y:random(100,height-100),vx:random(-1,1),vy:random(-1,1),s:random(60,110),hue:random(360),phase:random(TWO_PI)});}
+function draw(){background(18,14,28,30);noStroke();for(let h of heads){h.phase+=0.02;h.x+=h.vx;h.y+=h.vy;if(h.x<h.s||h.x>width-h.s)h.vx*=-1;if(h.y<h.s||h.y>height-h.s)h.vy*=-1;let wobble=sin(h.phase)*12;fill(color('hsla('+(h.hue)+',60%,60%,0.85)'));ellipse(h.x,h.y,h.s*2+wobble,h.s*2-wobble*0.5);fill(255,240,220,220);ellipse(h.x-h.s*.22,h.y-h.s*.1,h.s*.28,h.s*.32);ellipse(h.x+h.s*.22,h.y-h.s*.1,h.s*.28,h.s*.32);fill(30);ellipse(h.x-h.s*.18+sin(h.phase)*4,h.y-h.s*.08,h.s*.12,h.s*.14);ellipse(h.x+h.s*.18+sin(h.phase)*4,h.y-h.s*.08,h.s*.12,h.s*.14);fill(color('hsla('+(h.hue+40)+',80%,40%,.9)'));arc(h.x,h.y+h.s*.18,h.s*.6,h.s*.3,0,PI);}}
+function windowResized(){resizeCanvas(windowWidth,windowHeight);}
+`},
+  'attractors': {
+    name: 'Strange Attractors',
+    code: `
+let x=.1,y=0,z=0,a=10,b=28,c=8/3,scale=8,pts=[];
+function setup(){createCanvas(windowWidth,windowHeight);background(8,6,16);stroke(255);strokeWeight(1);}
+function draw(){for(let i=0;i<60;i++){let dx=a*(y-x),dy=x*(b-z)-y,dz=x*y-c*z,dt=0.005;x+=dx*dt;y+=dy*dt;z+=dz*dt;pts.push({x,y,z});}if(pts.length>8000)pts.splice(0,60);background(8,6,16,15);translate(width/2,height/2);for(let i=1;i<pts.length;i++){let p=pts[i],q=pts[i-1];let ratio=i/pts.length;stroke(color('hsla('+(ratio*240+180)+',80%,65%,'+(ratio*.7+.1)+')'));line(q.x*scale,q.z*scale-height*.18,p.x*scale,p.z*scale-height*.18);}resetMatrix();}
+function windowResized(){resizeCanvas(windowWidth,windowHeight);}
+`},
+  'sacred': {
+    name: 'Sacred Geometry',
+    code: `
+let t=0;
+function setup(){createCanvas(windowWidth,windowHeight);}
+function draw(){background(10,8,20);translate(width/2,height/2);let n=6;for(let ring=1;ring<=5;ring++){let r=ring*55;stroke(color('hsla('+(t*30+ring*40)+',70%,65%,.5)'));strokeWeight(1);noFill();rotate(t*.002);for(let i=0;i<n;i++){let a=TWO_PI/n*i;let x=cos(a)*r,y=sin(a)*r;for(let j=0;j<n;j++){let a2=TWO_PI/n*j;let x2=cos(a2)*r,y2=sin(a2)*r;if(i!==j)line(x,y,x2,y2);}circle(x,y,ring*8);}}t++;}
+function windowResized(){resizeCanvas(windowWidth,windowHeight);}
+`}
+};
+
+/* ── P5 Window Controller ─────────────────────────────────────── */
+(function() {
+  const win    = document.getElementById('p5-window');
+  const bar    = document.getElementById('p5-titlebar');
+  const iframe = document.getElementById('p5-iframe');
+  const ph     = document.getElementById('p5-placeholder');
+  const badge  = document.getElementById('p5-badge');
+  const title  = document.getElementById('p5-title');
+  const btnPlay    = document.getElementById('p5-play');
+  const btnPause   = document.getElementById('p5-pause');
+  const btnStop    = document.getElementById('p5-stop');
+  const btnRestart = document.getElementById('p5-restart');
+  const btnClose   = document.getElementById('p5-close');
+  const runBtn     = document.getElementById('run-p5-btn');
+
+  let isOpen = false, isPlaying = false, currentSketchId = null;
+
+  /* drag */
+  let dragX=0, dragY=0, winX=0, winY=0, dragging=false;
+  bar.addEventListener('mousedown', e => {
+    dragging=true; dragX=e.clientX; dragY=e.clientY;
+    const r=win.getBoundingClientRect();
+    winX=r.left; winY=r.top;
+    win.style.right='auto'; win.style.bottom='auto';
+    win.style.left=winX+'px'; win.style.top=winY+'px';
+  });
+  document.addEventListener('mousemove', e => {
+    if(!dragging)return;
+    win.style.left=(winX+e.clientX-dragX)+'px';
+    win.style.top=(winY+e.clientY-dragY)+'px';
+  });
+  document.addEventListener('mouseup', ()=>dragging=false);
+
+  /* size buttons */
+  document.querySelectorAll('.p5-size-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.p5-size-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      win.style.width = btn.dataset.w + 'px';
+      win.style.height = btn.dataset.h + 'px';
+    });
+  });
+
+  function getSketchId() {
+    // find active template — look for a P5 template
+    const badge = document.getElementById('badge-name');
+    if (!badge) return null;
+    const name = badge.textContent.trim();
+    const match = Object.keys(P5_SKETCHES).find(k =>
+      P5_SKETCHES[k].name === name ||
+      name.toLowerCase().includes(k.replace('-',' '))
+    );
+    return match || null;
+  }
+
+  function buildSrcdoc(id) {
+    const s = P5_SKETCHES[id];
+    if (!s) return '';
+    return `<!DOCTYPE html><html><head><meta charset="utf-8">
+<style>*{margin:0;padding:0;overflow:hidden;}body{background:#000;}canvas{display:block;}</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"><\/script>
+</head><body><script>
+${s.code}
+<\/script></body></html>`;
+  }
+
+  function play(sketchId) {
+    const sid = sketchId || getSketchId() || 'matrix';
+    currentSketchId = sid;
+    const s = P5_SKETCHES[sid];
+    title.textContent = s ? s.name : 'P5.js Canvas';
+    iframe.srcdoc = buildSrcdoc(sid);
+    iframe.style.display = 'block';
+    ph.style.display = 'none';
+    badge.textContent = 'Running';
+    badge.className = 'p5-badge';
+    btnPlay.style.display = 'none';
+    btnPause.style.display = '';
+    isPlaying = true;
+  }
+
+  function pause() {
+    try { iframe.contentWindow.noLoop && iframe.contentWindow.noLoop(); } catch(e){}
+    badge.textContent = 'Paused';
+    badge.className = 'p5-badge paused';
+    btnPause.style.display = 'none';
+    btnPlay.style.display = '';
+    btnPlay.textContent = '▶ Resume';
+    isPlaying = false;
+  }
+
+  function stop() {
+    iframe.srcdoc = '';
+    iframe.style.display = 'none';
+    ph.style.display = '';
+    badge.textContent = 'Stopped';
+    badge.className = 'p5-badge stopped';
+    btnPause.style.display = 'none';
+    btnPlay.style.display = '';
+    btnPlay.textContent = '▶ Play';
+    isPlaying = false;
+  }
+
+  function toggleWindow() {
+    isOpen = !isOpen;
+    win.classList.toggle('open', isOpen);
+    runBtn && runBtn.classList.toggle('active', isOpen);
+    if (isOpen && !isPlaying) play();
+  }
+
+  btnPlay.addEventListener('click', () => {
+    if (!isPlaying) play(currentSketchId);
+  });
+  btnPause.addEventListener('click', pause);
+  btnStop.addEventListener('click', stop);
+  btnRestart.addEventListener('click', () => play(currentSketchId));
+  btnClose.addEventListener('click', () => { isOpen=false; win.classList.remove('open'); runBtn&&runBtn.classList.remove('active'); });
+  runBtn && runBtn.addEventListener('click', toggleWindow);
+
+  /* keyboard P */
+  document.addEventListener('keydown', e => {
+    const tag = document.activeElement?.tagName;
+    if (tag==='INPUT'||tag==='TEXTAREA') return;
+    if (e.key==='p'||e.key==='P') toggleWindow();
+  });
+
+  /* auto-switch sketch when template changes */
+  const obs = new MutationObserver(() => {
+    const sid = getSketchId();
+    if (sid && isOpen && isPlaying && sid !== currentSketchId) play(sid);
+    // update placeholder hint
+    if (ph.style.display !== 'none') {
+      const hint = ph.querySelector('span:last-child');
+      if (hint) hint.textContent = sid ? `Sketch: ${P5_SKETCHES[sid].name}` : 'Select a P5.js template first';
+    }
+  });
+  const badgeNameEl = document.getElementById('badge-name');
+  if (badgeNameEl) obs.observe(badgeNameEl, {childList:true, characterData:true, subtree:true});
+})();
+</script>
+
+<template id="__bundler_thumbnail">
+  <svg viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg">
+    <rect width="120" height="80" fill="#ede6d8"/>
+    <rect x="8" y="8" width="104" height="3" rx="1" fill="#7a6e5e"/>
+    <rect x="8" y="16" width="104" height="18" rx="2" fill="#e0d8ca" stroke="#7a6e5e" stroke-width="1"/>
+    <rect x="12" y="19" width="80" height="12" rx="1" fill="#f0e8d0"/>
+    <rect x="8" y="38" width="46" height="28" rx="2" fill="#e0d8ca" stroke="#7a6e5e" stroke-width="1"/>
+    <rect x="58" y="38" width="54" height="28" rx="2" fill="#e0d8ca" stroke="#7a6e5e" stroke-width="1"/>
+    <rect x="12" y="42" width="38" height="8" rx="1" fill="#f0e8d0"/>
+    <circle cx="30" cy="58" r="6" fill="#d4ccbe" stroke="#7a6e5e" stroke-width="1"/>
+    <rect x="62" y="42" width="46" height="3" rx="1" fill="#c06880" opacity=".7"/>
+    <rect x="62" y="48" width="46" height="3" rx="1" fill="#8868a8" opacity=".7"/>
+    <rect x="62" y="54" width="46" height="3" rx="1" fill="#5a9870" opacity=".7"/>
+    <rect x="62" y="60" width="30" height="3" rx="1" fill="#5a8ab8" opacity=".7"/>
+  </svg>
+</template>
+</body>
+</html>

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Videorama — Synthograsizer Suite</title>
+<link rel="stylesheet" href="/shared/css/tokens.css">
+<link rel="stylesheet" href="css/videorama.css">
+</head>
+<body>
+<header class="vr-header">
+  <a class="vr-back" href="/">← Suite</a>
+  <h1>VIDEORAMA</h1>
+  <span class="vr-tag">prompt → stylized video sets</span>
+  <span id="vr-health" class="vr-health"></span>
+</header>
+
+<main class="vr-main">
+  <aside class="vr-side">
+    <button id="btn-new" class="vr-btn vr-btn-primary">+ New Set</button>
+    <h2>Projects</h2>
+    <ul id="project-list"></ul>
+  </aside>
+
+  <!-- NEW PROJECT -->
+  <section id="view-new" class="vr-panel">
+    <h2>New video set</h2>
+    <div id="hosted-note" class="vr-note" hidden>
+      Videorama renders run on a local Synthograsizer install — this hosted
+      instance can browse but not generate.
+    </div>
+    <label>Describe the set
+      <textarea id="new-prompt" rows="3"
+        placeholder="e.g. late-night 1980s Japanese city-pop TV performances where the band is slightly wrong…"></textarea>
+    </label>
+    <div class="vr-row">
+      <label>Clips <input id="new-clips" type="number" value="30" min="4" max="120"></label>
+      <label>Signal path
+        <select id="new-preset">
+          <option value="auto">auto (writer picks)</option>
+          <option value="vhs">VHS camcorder</option>
+          <option value="publicaccess">Public-access studio</option>
+          <option value="betacam">Betacam / corporate</option>
+          <option value="cctv">Security time-lapse</option>
+          <option value="news">ENG news field</option>
+          <option value="none">Clean (no post)</option>
+        </select>
+      </label>
+      <label>Format
+        <select id="new-aspect">
+          <option value="16:9">16:9 landscape</option>
+          <option value="9:16">9:16 vertical (Snapchat/TikTok)</option>
+        </select>
+      </label>
+      <label>Budget cap $ <input id="new-budget" type="number" value="300" min="10"></label>
+    </div>
+    <div class="vr-row">
+      <label class="vr-check"><input id="new-chars" type="checkbox"> Consistent characters
+        <small>character bible + keyframes (adds ~20–35% cost)</small></label>
+      <label class="vr-check"><input id="new-auto" type="checkbox"> Full auto
+        <small>skip approval checkpoints</small></label>
+    </div>
+    <button id="btn-create" class="vr-btn vr-btn-primary">Write brief</button>
+    <div id="create-result" class="vr-note" hidden></div>
+
+    <h2>Or start from a template</h2>
+    <div id="template-grid" class="vr-grid"></div>
+  </section>
+
+  <!-- PROJECT DASHBOARD -->
+  <section id="view-project" class="vr-panel" hidden>
+    <div class="vr-title-row">
+      <h2 id="p-title"></h2>
+      <span id="p-state" class="vr-state"></span>
+      <button id="btn-refresh" class="vr-btn" title="Refresh now">⟳</button>
+      <button id="btn-stop" class="vr-btn vr-btn-ghost">Stop farm</button>
+    </div>
+    <p id="p-logline" class="vr-dim"></p>
+    <div class="vr-meter-row">
+      <div class="vr-meter"><div id="p-spendbar"></div></div>
+      <span id="p-spend"></span>
+    </div>
+    <div id="p-error" class="vr-note vr-error" hidden></div>
+    <div id="p-likeness" class="vr-note vr-error" hidden></div>
+
+    <div id="p-actions" class="vr-actions"></div>
+
+    <div id="extend-row" class="vr-row" hidden>
+      <label>How many <input id="extend-count" type="number" value="5" min="1" max="30"></label>
+      <input id="extend-direction" placeholder="direction for the new shots (optional)…">
+      <button id="btn-extend-shots" class="vr-btn vr-btn-primary">Write new shots</button>
+    </div>
+
+    <div id="p-exports" class="vr-exports"></div>
+
+    <details class="vr-log"><summary>Pipeline log</summary>
+      <pre id="p-log"></pre>
+    </details>
+
+    <details id="cast-panel"><summary>Cast &amp; Locations (reference sheets)</summary>
+      <div id="asset-grid" class="vr-grid"></div>
+    </details>
+
+    <div class="vr-title-row">
+      <h3>Shots</h3>
+      <label class="vr-check"><input id="chk-lowqc" type="checkbox"> low QC only</label>
+      <button id="btn-retake" class="vr-btn" disabled>Retake selected</button>
+    </div>
+    <div class="vr-row">
+      <input id="restyle-input" placeholder="restyle direction (rewrites every prompt, re-renders all)…">
+      <button id="btn-restyle" class="vr-btn">Restyle</button>
+    </div>
+    <div id="shot-grid" class="vr-grid"></div>
+  </section>
+</main>
+
+<div id="vr-toasts"></div>
+<div id="vr-modal" class="vr-modal" hidden>
+  <div id="vr-modal-box" class="vr-modal-box"></div>
+</div>
+<script src="js/videorama.js"></script>
+</body>
+</html>

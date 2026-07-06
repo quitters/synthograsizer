@@ -320,6 +320,104 @@ to disk yourself). Files land under `…/Synthograsizer_Output/JSON/<dir>/`.
 - `GET /api/backend/local/models` — proxy the local tier's `/models` (settings
   "test connection"); `403` on hosted.
 
+### 3f. Videorama — `backend/routers/videorama.py`  *(local server only)*
+
+Batch Veo video synthesis: prompt → a written production brief → a full shot
+list → rendered clips → an assembled reel. Unlike §3a–3e's stateless one-shot
+calls, Videorama is **stateful and long-running** — a project is a folder on
+disk (`FILMS_ROOT/<slug>/`, default `D:\Synthograsizer_Films`, override
+`SYNTH_FILMS_ROOT`) holding a SQLite db, and most endpoints kick off a
+subprocess pipeline stage that can run for minutes to hours. Every mutating
+endpoint returns `403` when `is_hosted()` is true — this feature never runs on
+a hosted/Vercel instance.
+
+**Two equally-valid ways to drive it headlessly:**
+1. **This HTTP API** — poll `GET .../status` for `state` / `job_alive` between calls.
+2. **The underlying CLI directly**, no server required: `python -m
+   scripts.film_factory <stage> --project-dir <dir> [args]` (stages: `develop`,
+   `bible`, `keyframes`, `render`, `tapeify`, `assemble`, `extend`, `restyle`,
+   `status`, `budget`). This is what `scripts/film_factory/overnight.py` uses to
+   drive large unattended multi-project batches — see that file for the pattern
+   (a list of concept specs, each run through develop→render→assemble in a
+   `try/except` so one failure never stops the queue).
+
+**Project lifecycle states** (`status.state`): `brief_ready` → `shots_ready` →
+`pilot_ready` → `done`, or `running:<stage>` while a job is active, or
+`error:<stage>` on failure. Every stage is **idempotent/resumable** — it skips
+already-completed shots/assets, which is what makes `POST .../resume` and the
+overnight drivers safe to re-run after a crash or reboot.
+
+| Method | Path | Purpose |
+|---|---|---|
+| GET | `/api/videorama/health` | ffmpeg/key/rails status, `FILMS_ROOT` path |
+| GET | `/api/videorama/templates` | List saved brief templates |
+| GET | `/api/videorama/projects` | List all projects + their state/spend |
+| POST | `/api/videorama/projects` | Create a project — write a brief (Brief Writer, or from a template) |
+| POST | `/api/videorama/projects/{slug}/develop` | Write the full shot list from the brief |
+| POST | `/api/videorama/projects/{slug}/pilot` | Render a 4-shot pilot (bible/keyframes first if the brief uses characters) |
+| POST | `/api/videorama/projects/{slug}/finish` | Render every remaining shot → tapeify (if a signal preset) → assemble |
+| POST | `/api/videorama/projects/{slug}/resume` | Continue a job left mid-stage (crash/restart) — always safe, stages are idempotent |
+| POST | `/api/videorama/projects/{slug}/retake` | Re-render specific shots — body `{"shot_ids": [...]}` |
+| POST | `/api/videorama/projects/{slug}/restyle` | Rewrite every shot prompt to a new direction and re-render all |
+| POST | `/api/videorama/projects/{slug}/likeness` | Screen character reference sheets against real public figures |
+| POST | `/api/videorama/projects/{slug}/extend-shots` | Append N new shots (new act) to an already-developed project |
+| POST | `/api/videorama/projects/{slug}/assemble` | Re-assemble the reel (version-bumped) without re-rendering |
+| POST | `/api/videorama/projects/{slug}/stop` | Write a STOP file — in-flight takes finish, nothing new starts |
+| GET | `/api/videorama/projects/{slug}/status` | Full status: state, shot counts, spend/budget, exports, log tail |
+| GET | `/api/videorama/projects/{slug}/shots` | All shots with clip/poster URLs and QC scores |
+| GET | `/api/videorama/projects/{slug}/shots/{shot_id}` | One shot + its full take history (age, extendable, etc.) |
+| PATCH | `/api/videorama/projects/{slug}/shots/{shot_id}` | Edit `veo_prompt` / `needs_keyframe` / `excluded` |
+| POST | `/api/videorama/projects/{slug}/shots/{shot_id}/move` | Reorder — body `{"direction": "up"\|"down"}` |
+| POST | `/api/videorama/projects/{slug}/shots/{shot_id}/variations` | Gemini-suggested motion/prompt variations for one shot |
+| POST | `/api/videorama/projects/{slug}/shots/{shot_id}/reimagine-keyframe` | NB2-transform the shot's keyframe by intent — body `{"intent": str}` |
+| POST | `/api/videorama/projects/{slug}/shots/{shot_id}/extend` | Continue the shot ~8s further (seamless Veo extension on a fresh 720p take, else a last-frame image-to-video chain) |
+| POST | `/api/videorama/projects/{slug}/shots/{shot_id}/continue` | New sequel shot seeded from this shot's last frame — body `{"prompt": str}` |
+| GET | `/api/videorama/projects/{slug}/assets` | Character/location reference sheets |
+| POST | `/api/videorama/projects/{slug}/assets/{asset_id}/regenerate` | Regenerate a sheet — body `{"tweak": str}` (optional) |
+| POST | `/api/videorama/projects/{slug}/assets/{asset_id}/upload` | Replace a sheet with your own image — body `{"image_b64": str}` |
+| POST | `/api/videorama/projects/{slug}/assets/{asset_id}/reset-keyframes` | Mark keyframes stale for every shot using this asset |
+| POST | `/api/videorama/projects/{slug}/keyframes` | Regenerate pending keyframes |
+| POST | `/api/videorama/projects/{slug}/save-template` | Save this project's brief as a reusable template |
+
+**Minimal headless run** (checkpointed — poll `status` between steps):
+
+```python
+import time, requests
+BASE = "http://127.0.0.1:8000"
+
+r = requests.post(f"{BASE}/api/videorama/projects", json={
+    "prompt": "a set of 8-second clips of an office aquarium where the fish "
+              "hold quiet, deadpan staff meetings",
+    "clips": 12, "aspect": "16:9", "tape_preset": "auto",
+    "consistent_characters": False, "budget_usd": 100,
+}).json()
+slug = r["slug"]
+print("brief:", r["brief"]["title_hint"], "~$", r["estimated_usd"])
+
+def wait_until(state_in):
+    while True:
+        s = requests.get(f"{BASE}/api/videorama/projects/{slug}/status").json()
+        if not s["job_alive"] and s["state"] in state_in:
+            return s
+        if s["state"].startswith("error"):
+            raise RuntimeError(s["error"])
+        time.sleep(5)
+
+requests.post(f"{BASE}/api/videorama/projects/{slug}/develop")
+wait_until({"shots_ready"})
+requests.post(f"{BASE}/api/videorama/projects/{slug}/finish")
+s = wait_until({"done"})
+print(s["exports"])   # ["/films/<slug>/exports/..._full.mp4", ...]
+```
+
+The Brief Writer (`backend/services/videorama_brief.py`) hard-codes safety
+rules on every generated brief regardless of caller (adults only, no real
+people/names/brands, no readable on-screen text) and adds an **unreality
+rail** for "realistic" registers (news, CCTV, dashcam, documentary) requiring
+every clip to be obviously impossible and banning plausibly-real events. See
+`docs/videorama-guide/README.md` §7 for the full rationale and the
+`SYNTH_VIDEORAMA_RAILS` operator override.
+
 ---
 
 ## 4. Template / variable schema

@@ -15,6 +15,7 @@
 | **Taste Profile** | Onboarding flow — drop your finished work, take an A/B taste test, get an AI agent crew tuned to how you create |
 | **Glitcher** | Professional glitch-art studio — destructive & non-destructive pixel effects, selection system, recording |
 | **ChatRoom** | Multi-agent autonomous AI conversations powered by Gemini — custom personas, memory, image generation |
+| **Videorama** | Prompt → a finished set of stylized Veo video clips — brief writer, checkpointed shot-by-shot pipeline, per-shot Inspector (retake, extend, reimagine), QC grading, budget caps. Local-only. |
 | **Scope Plugin** | [`scope-synthograsizer`](scope-synthograsizer/) — pip-installable Daydream Scope preprocessor pipeline |
 
 ---
@@ -139,12 +140,15 @@ synthograsizer-suite/
 │   ├── index.html            #   Hub / navigation
 │   ├── synthograsizer/       #   Main tool (templates/, js/, css/)
 │   ├── glitcher/             #   Glitch Art Studio
+│   ├── videorama/            #   Batch video synthesis dashboard (local-only)
 │   └── shared/               #   Shared navbar, base CSS, favicon
 │
 ├── chatroom/                 # ChatRoom Node.js backend + React frontend
 │   ├── server/               #   Express + SSE + Gemini orchestration
-│   └── client/               #   React (Vite)
+│   └── client/                #   React (Vite)
 │
+├── scripts/film_factory/     # Videorama's pipeline engine (develop/render/assemble)
+│                              #   + CLI (`python -m scripts.film_factory <stage>`)
 ├── scope-synthograsizer/     # Daydream Scope pip plugin
 ├── docs/                     # Reference documentation & schema specs
 ├── requirements.txt

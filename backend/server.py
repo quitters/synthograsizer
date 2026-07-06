@@ -55,6 +55,7 @@ from backend.routers import music
 from backend.routers import sessions
 from backend.routers import outputs
 from backend.routers import feedback
+from backend.routers import videorama
 
 app.include_router(chat.router)
 app.include_router(generation.router)
@@ -69,6 +70,13 @@ app.include_router(music.router)
 app.include_router(sessions.router)
 app.include_router(outputs.router)
 app.include_router(feedback.router)
+app.include_router(videorama.router)
+
+# Videorama project media (local installs only): serves rendered takes,
+# tape-processed clips, and export reels for the review UI.
+if not videorama.HOSTED and videorama.FILMS_ROOT.exists():
+    from fastapi.staticfiles import StaticFiles as _SF
+    app.mount("/films", _SF(directory=str(videorama.FILMS_ROOT)), name="films")
 
 
 # ── Hosted-mode hardening ────────────────────────────────────────────────────
@@ -123,9 +131,29 @@ STATIC_DIR = BASE_DIR / "static"
 if not STATIC_DIR.exists():
     print(f"WARNING: Static directory not found at {STATIC_DIR}")
 
+class CacheControlStaticFiles(StaticFiles):
+    """StaticFiles with explicit Cache-Control headers.
+
+    Without these, browsers apply heuristic caching (~10% of Last-Modified age)
+    and can serve days-stale JS/CSS after a deploy. ES-module imports are worst:
+    query-param busting on the entry script doesn't propagate to its imports.
+    no-cache forces ETag revalidation (cheap 304s) while media keeps a max-age.
+    """
+
+    REVALIDATE_SUFFIXES = (".html", ".js", ".mjs", ".css", ".json", ".svg", ".map")
+
+    def file_response(self, full_path, stat_result, scope, status_code=200):
+        response = super().file_response(full_path, stat_result, scope, status_code)
+        if str(full_path).lower().endswith(self.REVALIDATE_SUFFIXES):
+            response.headers["Cache-Control"] = "no-cache"
+        else:
+            response.headers["Cache-Control"] = "public, max-age=86400"
+        return response
+
+
 # On Vercel, static files are served by the CDN via vercel.json rewrites
 if not os.environ.get("VERCEL") and STATIC_DIR.exists():
-    app.mount("/", StaticFiles(directory=str(STATIC_DIR), html=True), name="static")
+    app.mount("/", CacheControlStaticFiles(directory=str(STATIC_DIR), html=True), name="static")
 
 if __name__ == "__main__":
     uvicorn.run("backend.server:app", host="0.0.0.0", port=8000, reload=True)
