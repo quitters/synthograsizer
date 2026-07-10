@@ -1,0 +1,25 @@
+{
+  "name": "@synthograsizer/design-system",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Thin React wrappers over the Synthograsizer Suite's real CSS vocabulary (suite tokens + Videorama .vr-* classes) — built for the claude.ai/design sync, not for app runtime.",
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "node build.mjs"
+  },
+  "peerDependencies": {
+    "react": ">=17"
+  },
+  "devDependencies": {
+    "@fontsource/inter": "^5.1.0",
+    "@fontsource/jetbrains-mono": "^5.1.0",
+    "@fontsource/space-grotesk": "^5.1.0",
+    "@types/react": "^18.3.12",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "typescript": "^5.5.0"
+  }
+}

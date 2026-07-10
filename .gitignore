@@ -63,3 +63,14 @@ static/metadata-manager/
 # Capacitr storyboard run artifacts (regenerable; archived under Synthograsizer_Output/JSON/Capacitr Workflows/)
 data/capacitr/
 static/synthograsizer/capacitr-gallery*/
+
+# design-sync (claude.ai/design) — staged scripts, build output, machine state.
+# The durable inputs under .design-sync/ (config.json, NOTES.md, conventions.md,
+# previews/, guidelines are in design-system/) ARE committed; only these are not.
+.ds-sync/
+ds-bundle/
+.design-sync/.cache/
+.design-sync/learnings/
+.design-sync/node_modules
+# Self-hosted webfonts are copied from the @fontsource dev deps at build time.
+design-system/fonts/files/

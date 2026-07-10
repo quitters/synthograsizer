@@ -1,0 +1,123 @@
+/* ════════════════════════════════════════════════════════════════════
+   Design-system theme layer — LIGHT-FIRST (warm cream, teal-forward)
+
+   This is a design-system decision, not the live app's. The suite's real
+   tokens.css is dark-first; this file is appended AFTER it in the build, so
+   its :root wins and the DS defaults to a warm-cream light identity — the
+   direction the suite's landing / Videorama / Glitcher surfaces are moving
+   toward (cozy pastel minimalist, functional lo-fi). Values are derived from
+   the repo's real light material (landing `[data-theme="light"]` palette +
+   the cel-pastel theme). Dark stays available, opt-in via [data-theme="dark"].
+
+   Only color/surface tokens are redefined here; the type tokens
+   (--suite-font-*) stay as tokens.css defines them.
+
+   Note: --suite-bg-raised is consumed by the Videorama vocabulary (panels,
+   header, toasts) but is NOT defined in tokens.css — it had been falling back
+   to a hard-coded dark #14141f. It's defined explicitly here for both themes.
+   ════════════════════════════════════════════════════════════════════ */
+
+:root {
+  color-scheme: light;
+
+  /* Brand hues — muted, warm, teal-forward (teal leads; indigo secondary) */
+  --suite-indigo:   #5e60ce;
+  --suite-indigo-2: #8868a8;
+  --suite-teal:     #2f8f86;
+  --suite-fuchsia:  #c06880;
+  --suite-amber:    #c8962a;
+  --suite-rose:     #d4737f;
+  --suite-rose-deep:#c0574f;
+  --suite-green:    #4a9d6e;
+  --suite-red:      #c0574f;
+
+  --suite-indigo-rgb:   94, 96, 206;
+  --suite-indigo-2-rgb: 136, 104, 168;
+  --suite-teal-rgb:     47, 143, 134;
+  --suite-rose-rgb:     212, 115, 127;
+  --suite-amber-rgb:    200, 150, 42;
+
+  /* Warm-cream elevation: page is cream, raised surfaces lift toward paper */
+  --suite-bg:       #f5eedd;
+  --suite-bg-2:     #efe7d6;
+  --suite-bg-3:     #eae1ce;
+  --suite-bg-4:     #faf6ec;
+  --suite-bg-5:     #fdfaf3;
+  --suite-bg-hover: #ece2ce;
+  --suite-bg-raised:#fdfaf3;
+
+  /* Surfaces & borders — warm translucent white / warm brown-grey ink */
+  --suite-surface:    rgba(255, 255, 255, 0.55);
+  --suite-surface-hi: rgba(255, 255, 255, 0.85);
+  --suite-border:     rgba(122, 110, 94, 0.22);
+  --suite-border-hi:  rgba(122, 110, 94, 0.40);
+
+  /* Text — warm dark ink */
+  --suite-text:      #2e2418;
+  --suite-text-mute: #6d5f4e;
+  --suite-text-dim:  #9a8b78;
+}
+
+/* Opt-in dark — the suite's original dark identity (from tokens.css),
+   restored here so [data-theme="dark"] wins over the light :root above. */
+:root[data-theme="dark"],
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --suite-indigo:   #6366f1;
+  --suite-indigo-2: #818cf8;
+  --suite-teal:     #3dbdad;
+  --suite-fuchsia:  #d946ef;
+  --suite-amber:    #fbbf24;
+  --suite-rose:     #fb7185;
+  --suite-rose-deep:#f43f5e;
+  --suite-green:    #10b981;
+  --suite-red:      #ef4444;
+
+  --suite-indigo-rgb:   99, 102, 241;
+  --suite-indigo-2-rgb: 129, 140, 248;
+  --suite-teal-rgb:     61, 189, 173;
+  --suite-rose-rgb:     251, 113, 133;
+  --suite-amber-rgb:    251, 191, 36;
+
+  --suite-bg:       #0a0a12;
+  --suite-bg-2:     #12121f;
+  --suite-bg-3:     #161624;
+  --suite-bg-4:     #1b1b2c;
+  --suite-bg-5:     #1f1f30;
+  --suite-bg-hover: #262638;
+  --suite-bg-raised:#14141f;
+
+  --suite-surface:    rgba(255, 255, 255, 0.04);
+  --suite-surface-hi: rgba(255, 255, 255, 0.07);
+  --suite-border:     rgba(255, 255, 255, 0.08);
+  --suite-border-hi:  rgba(255, 255, 255, 0.14);
+
+  --suite-text:      #e6e8f0;
+  --suite-text-mute: #9aa0b4;
+  --suite-text-dim:  #6b7088;
+}
+
+/* ── Light skin: teal-forward actions ─────────────────────────────────
+   The Videorama vocabulary (imported verbatim) hard-codes var(--suite-indigo)
+   for primaries, links, and active/hover accents. In the light identity the
+   signature is teal (the suite's Videorama/Glitcher accent), so retarget those
+   action surfaces to teal here — leaving the --suite-indigo TOKEN honestly
+   indigo (the palette reference stays true) and leaving dark mode's original
+   indigo-forward look untouched (these are scoped out of [data-theme="dark"]).
+   ──────────────────────────────────────────────────────────────────── */
+:root:not([data-theme="dark"]) .vr-btn-primary { background: var(--suite-teal); }
+:root:not([data-theme="dark"]) .vr-btn:hover { border-color: var(--suite-teal); }
+:root:not([data-theme="dark"]) .vr-back { color: var(--suite-teal); }
+:root:not([data-theme="dark"]) .vr-side li.active { border-color: var(--suite-teal); }
+:root:not([data-theme="dark"]) .vr-card.template:hover { border-color: var(--suite-teal); }
+:root:not([data-theme="dark"]) .vr-chip { border-color: var(--suite-teal); }
+:root:not([data-theme="dark"]) .vr-chip:hover { background: var(--suite-teal); }
+/* de-purple the two hard-coded indigo rgba surfaces (note tint, meter start) */
+:root:not([data-theme="dark"]) .vr-note {
+  background: rgba(var(--suite-teal-rgb), 0.10);
+  border-color: rgba(var(--suite-teal-rgb), 0.38);
+}
+:root:not([data-theme="dark"]) .vr-meter div {
+  background: linear-gradient(90deg, var(--suite-teal), var(--suite-fuchsia));
+}

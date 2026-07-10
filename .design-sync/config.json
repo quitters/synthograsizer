@@ -1,0 +1,22 @@
+{
+  "projectId": "8e4af2e9-913b-4b2d-ba7b-8c2dce243b93",
+  "shape": "package",
+  "pkg": "@synthograsizer/design-system",
+  "globalName": "SuiteDS",
+  "buildCmd": "npm --prefix design-system run build",
+  "cssEntry": "dist/component-styles.css",
+  "extraFonts": ["fonts/fonts.css"],
+  "runtimeFontPrefixes": ["roboto mono"],
+  "docsDir": "docs",
+  "guidelinesGlob": ["guidelines/**/*.md"],
+  "readmeHeader": ".design-sync/conventions.md",
+  "provider": { "component": "Surface" },
+  "overrides": {
+    "AppShell": { "cardMode": "single", "primaryStory": "FullPage", "viewport": "1100x640" },
+    "Modal": { "cardMode": "single", "primaryStory": "ShotInspector", "viewport": "880x680" },
+    "HeaderBar": { "cardMode": "column" },
+    "CardGrid": { "cardMode": "column" },
+    "TitleRow": { "cardMode": "column" },
+    "TakesTable": { "cardMode": "column" }
+  }
+}

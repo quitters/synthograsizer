@@ -1,0 +1,80 @@
+/* Self-hosted latin subsets for the suite's three families, so every design
+   built with this DS renders in the real fonts without the Google Fonts CDN.
+   The woff2 files under ./files/ are copied from the @fontsource dev deps by
+   build.mjs; this file is the extraFonts entry the sync ships as fonts/fonts.css. */
+
+/* Inter — UI / body (--suite-font-ui) */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(./files/inter-latin-400-normal.woff2) format('woff2');
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 500;
+  src: url(./files/inter-latin-500-normal.woff2) format('woff2');
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 600;
+  src: url(./files/inter-latin-600-normal.woff2) format('woff2');
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 700;
+  src: url(./files/inter-latin-700-normal.woff2) format('woff2');
+}
+
+/* Space Grotesk — display / titles (--suite-font-display) */
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(./files/space-grotesk-latin-400-normal.woff2) format('woff2');
+}
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 500;
+  src: url(./files/space-grotesk-latin-500-normal.woff2) format('woff2');
+}
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 600;
+  src: url(./files/space-grotesk-latin-600-normal.woff2) format('woff2');
+}
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 700;
+  src: url(./files/space-grotesk-latin-700-normal.woff2) format('woff2');
+}
+
+/* JetBrains Mono — code / prompts / data (--suite-font-mono) */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(./files/jetbrains-mono-latin-400-normal.woff2) format('woff2');
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 500;
+  src: url(./files/jetbrains-mono-latin-500-normal.woff2) format('woff2');
+}
