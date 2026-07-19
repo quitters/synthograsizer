@@ -19,6 +19,7 @@ from backend.music_manager import get_music_manager
 from backend import config
 from backend.models.requests import *
 from backend.helpers import decode_base64_image, parse_llm_json, SafetyBlockedError, safety_block_detail
+from backend.service import is_free_tier, service_mode
 from backend.service.credits import Charge, charged
 
 router = APIRouter()
@@ -177,14 +178,23 @@ async def generate_image(request: ImageRequest, http_request: Request):
 
         # Call generate_image with all parameters
 
-        # Demo requests are capped at MODEL_DEMO regardless of what the client sends.
-        if request.is_demo:
+        # Demo requests are capped at MODEL_DEMO regardless of what the client
+        # sends — locally. In service mode the client-supplied flag means
+        # nothing: tier comes from the session, models from the allowlist.
+        if request.is_demo and not service_mode():
             model_name = config.MODEL_DEMO
         else:
             model_name = request.model
             # Override deprecated model if present
             if model_name == "gemini-2.0-flash-exp":
                 model_name = "gemini-3-flash-preview"
+
+        if is_free_tier(http_request):
+            request.image_count = min(max(1, request.image_count or 1), 4)
+            request.use_google_search = False       # grounded gen is operator-cost amplification
+            request.add_watermark = True            # SynthID stays on for free-tier output
+            if request.person_generation == "allow_all":
+                request.person_generation = "allow_adult"
 
         async with charged(http_request, action="image", model=model_name,
                            units=max(1, request.image_count or 1),
@@ -270,8 +280,9 @@ async def generate_video(request: VideoRequest, http_request: Request):
 
 @router.post("/api/batch/text")
 async def batch_text(request: BatchTextRequest, http_request: Request):
+    prompts = request.prompts[:20] if is_free_tier(http_request) else request.prompts
     results = []
-    for prompt in request.prompts:
+    for prompt in prompts:
         try:
             async with charged(http_request, action="text", model=request.model,
                                prompt_chars=len(prompt)) as ch:

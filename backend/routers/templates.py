@@ -21,6 +21,7 @@ from backend.music_manager import get_music_manager
 from backend import config
 from backend.models.requests import *
 from backend.helpers import decode_base64_image, parse_llm_json, SafetyBlockedError, safety_block_detail
+from backend.service import is_free_tier, service_mode
 from backend.service.credits import charged
 
 router = APIRouter()
@@ -33,12 +34,14 @@ async def generate_template(request: TemplateRequest, http_request: Request):
     Pricing mirrors the impl's model resolution (Pro unless demo/flash/explicit)
     plus one credit per analyzed input image; the impl itself is unchanged.
     """
-    if request.is_demo:
+    if request.is_demo and not service_mode():
         priced_model = config.MODEL_DEMO
     else:
         priced_model = request.model or (
             config.MODEL_TEMPLATE_GEN_FAST if request.use_flash else config.MODEL_TEMPLATE_GEN
         )
+    if is_free_tier(http_request) and request.images and len(request.images) > 8:
+        request.images = request.images[:8]
     n_images = min(len(request.images or []), 8)
     async with charged(http_request, action="template", model=priced_model,
                        units=n_images, prompt_chars=len(request.prompt or "")) as ch:
@@ -55,8 +58,10 @@ async def _generate_template_impl(request: TemplateRequest):
     else:
         timeout = config.TEMPLATE_GEN_TIMEOUT_SECONDS
 
-    # Demo requests are capped at MODEL_DEMO regardless of what the client sends.
-    if request.is_demo:
+    # Demo requests are capped at MODEL_DEMO regardless of what the client
+    # sends (local only — in service mode the flag is inert; tier and pricing
+    # come from the session).
+    if request.is_demo and not service_mode():
         model_override = config.MODEL_DEMO
     else:
         # Resolve model override: Flash for speed, Pro for quality, or explicit model

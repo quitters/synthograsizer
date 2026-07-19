@@ -19,6 +19,7 @@ from backend.music_manager import get_music_manager
 from backend import config
 from backend.models.requests import *
 from backend.helpers import decode_base64_image, parse_llm_json, SafetyBlockedError, safety_block_detail
+from backend.service import is_free_tier
 from backend.service.credits import charged
 
 router = APIRouter()
@@ -26,10 +27,13 @@ logger = logging.getLogger(__name__)
 
 @router.post("/api/chat")
 async def chat(request: ChatRequest, http_request: Request):
+    history = request.history or []
+    if is_free_tier(http_request):
+        history = history[-40:]  # resent-context cap: long chats get expensive fast
     try:
         async with charged(http_request, action="chat", model=request.model,
                            prompt_chars=len(request.message)) as ch:
-            response = await asyncio.to_thread(ai_manager.chat, request.message, request.history, request.model)
+            response = await asyncio.to_thread(ai_manager.chat, request.message, history, request.model)
             ch.commit()
         return {"status": "success", "response": response}
     except SafetyBlockedError as e:

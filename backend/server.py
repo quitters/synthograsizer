@@ -120,6 +120,10 @@ if _is_hosted():
                     headers={"Retry-After": str(retry_after)},
                 )
             bucket.append(now)
+            if len(_rate_buckets) > 1000:  # bound idle-IP growth
+                for ip in [k for k, b in _rate_buckets.items()
+                           if not b or now - b[-1] > _RATE_WINDOW_SECONDS]:
+                    _rate_buckets.pop(ip, None)
         return await call_next(request)
 
     @app.on_event("startup")
@@ -137,6 +141,30 @@ from backend.service import service_mode as _service_mode
 from backend.service.enforcement import service_middleware as _service_middleware
 
 app.middleware("http")(_service_middleware)
+
+# Error hygiene: our routers wrap upstream failures as HTTPException(500,
+# str(e)), which is exactly right for a local operator debugging their own
+# box and exactly wrong for a shared instance (leaks paths, SDK internals,
+# sometimes prompt fragments). In service mode, 5xx details are swapped for
+# a correlation id; the full detail still lands in the server log. Client
+# contracts below 500 (422 safety blocks, 402 credits, etc.) are untouched.
+import uuid as _uuid
+from fastapi import HTTPException as _HTTPException
+from fastapi.exception_handlers import http_exception_handler as _default_http_exc_handler
+from fastapi.responses import JSONResponse as _ServiceJSONResponse
+
+
+@app.exception_handler(_HTTPException)
+async def _scrubbed_http_exception(request, exc):
+    if _service_mode() and exc.status_code >= 500:
+        cid = _uuid.uuid4().hex[:8]
+        logging.getLogger("backend.service").error(
+            "[%s] %s %s → %s: %s", cid, request.method, request.url.path,
+            exc.status_code, exc.detail,
+        )
+        return _ServiceJSONResponse(status_code=exc.status_code,
+                                    content={"error": "upstream_error", "id": cid})
+    return await _default_http_exc_handler(request, exc)
 
 if _service_mode():
     @app.on_event("startup")

@@ -16,11 +16,14 @@ websocket scope).
 """
 
 import logging
+import os
+import time
+from collections import deque
 from urllib.parse import urlparse
 
 from fastapi.responses import JSONResponse
 
-from . import auth, credits, service_mode
+from . import auth, budget, credits, service_mode
 
 logger = logging.getLogger(__name__)
 
@@ -34,6 +37,46 @@ AI_PREFIXES = (
     "/api/music",
     "/api/video/",
 )
+
+# Operator-disk persistence + local hardware bridges. On Cloud Run the disk
+# is one shared writable tmpfs — these would silently mix users' data — and
+# OSC/scope send UDP/HTTP from the server to hardware that isn't there.
+DISABLED_PREFIXES = (
+    "/api/sessions",
+    "/api/save-output",
+    "/api/list-outputs",
+    "/api/get-output",
+    "/api/delete-output",
+    "/api/save-template",
+    "/api/osc/",
+    "/api/scope/",
+)
+
+# Paid-tier surfaces (free tier gets text/image/analysis/templates).
+ADMIN_ONLY_PREFIXES = (
+    "/api/generate/video",
+    "/api/video/combine",
+)
+
+# ── per-user rate limiting (sliding window, mirrors the per-IP limiter) ─────
+_user_buckets: dict[int, deque] = {}
+
+
+def _user_rate_retry_after(user_id: int) -> int | None:
+    """Record a hit; returns seconds-until-slot when over the limit."""
+    window = int(os.environ.get("RATE_LIMIT_WINDOW_SECONDS", "300"))
+    max_requests = int(os.environ.get("RATE_LIMIT_USER_REQUESTS", "60"))
+    now = time.monotonic()
+    bucket = _user_buckets.setdefault(user_id, deque())
+    while bucket and now - bucket[0] > window:
+        bucket.popleft()
+    if len(bucket) >= max_requests:
+        return int(window - (now - bucket[0])) + 1
+    bucket.append(now)
+    if len(_user_buckets) > 500:  # bound idle growth
+        for uid in [u for u, b in _user_buckets.items() if not b or now - b[-1] > window]:
+            _user_buckets.pop(uid, None)
+    return None
 
 
 def _same_origin(request) -> bool:
@@ -59,6 +102,19 @@ async def service_middleware(request, call_next):
     request.state.tier = None
 
     guarded = path.startswith("/api/") or path.startswith("/chatroom/")
+
+    if path.startswith("/chatroom/"):
+        # ChatRoom's Node sidecar is local-installs-only; don't dial localhost.
+        return JSONResponse(status_code=503, content={
+            "error": "chatroom_unavailable",
+            "detail": "ChatRoom runs on local installs only.",
+        })
+
+    if any(path.startswith(p) for p in DISABLED_PREFIXES):
+        return JSONResponse(status_code=403, content={
+            "error": "not_available_hosted",
+            "detail": "This feature is only available on local installs.",
+        })
 
     if guarded and request.method in ("POST", "PUT", "PATCH", "DELETE") and not _same_origin(request):
         return JSONResponse(status_code=403, content={"error": "cross_origin_rejected"})
@@ -93,6 +149,26 @@ async def service_middleware(request, call_next):
                 status_code=403,
                 content={"error": "terms_required", "terms_version": auth.terms_version()},
             )
+        if request.state.tier != "admin":
+            if any(path.startswith(p) for p in ADMIN_ONLY_PREFIXES):
+                return JSONResponse(status_code=403, content={
+                    "error": "tier_required",
+                    "detail": "This feature is not included in the free tier.",
+                })
+            retry_after = _user_rate_retry_after(request.state.user["id"])
+            if retry_after is not None:
+                return JSONResponse(
+                    status_code=429,
+                    content={"error": "rate_limited",
+                             "detail": f"Slow down a little — try again in ~{retry_after}s."},
+                    headers={"Retry-After": str(retry_after)},
+                )
+            if await budget.tripped():
+                return JSONResponse(status_code=503, content={
+                    "error": "daily_budget_reached",
+                    "detail": "This instance hit its daily generation budget — "
+                              "come back after midnight UTC.",
+                })
 
     response = await call_next(request)
     if rotated:

@@ -37,6 +37,7 @@ class FakePool:
         self.ops = []           # ("reserve"|"refund"|"ledger:<reason>"|"grant", ...)
         self.gen_rows = {}
         self._next_gen = 1
+        self.daily_usd = 0.0    # answered to the budget breaker's SUM query
 
     # -- helpers ------------------------------------------------------------
     def _norm(self, sql):
@@ -69,6 +70,8 @@ class FakePool:
             return gid
         if "SELECT credits_balance FROM users" in s:
             return self.balance
+        if "SUM(usd_est)" in s:
+            return self.daily_usd
         raise AssertionError(f"unexpected fetchval: {s}")
 
     async def fetchrow(self, sql, *args):
@@ -243,7 +246,11 @@ def test_video_blocked_for_free_tier(service_on, fake_pool, monkeypatch):
     cookies = _sign_in(monkeypatch, _fake_user())
     r = client.post("/api/generate/video", json={"prompt": "a shot"}, cookies=cookies)
     assert r.status_code == 403
-    assert r.json()["detail"]["error"] == "tier_video"
+    # Middleware gate (tier_required) fires first; the endpoint's own
+    # tier_video check remains as defense in depth behind it.
+    body = r.json()
+    err = body.get("error") or (body.get("detail") or {}).get("error")
+    assert err in ("tier_required", "tier_video")
     assert fake_pool.ops == [] and fake_pool.gen_rows == {}
 
 

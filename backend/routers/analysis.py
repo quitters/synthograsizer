@@ -20,6 +20,7 @@ from backend.music_manager import get_music_manager
 from backend import config
 from backend.models.requests import *
 from backend.helpers import decode_base64_image, parse_llm_json
+from backend.service import is_free_tier
 from backend.service.credits import Charge, charged
 
 router = APIRouter()
@@ -106,7 +107,10 @@ async def batch_analyze(request: BatchAnalyzeRequest, http_request: Request):
         return result
 
     async def generate_batch_stream():
-        for idx, img_b64 in enumerate(request.images):
+        # First real enforcement of the batch cap (config.MAX_BATCH_IMAGES was
+        # advisory-only): free tier 20/request, admin the documented maximum.
+        cap = 20 if is_free_tier(http_request) else config.MAX_BATCH_IMAGES
+        for idx, img_b64 in enumerate(request.images[:cap]):
             try:
                 yield json.dumps(await _one(idx, img_b64)) + "\n"
             except HTTPException as e:
