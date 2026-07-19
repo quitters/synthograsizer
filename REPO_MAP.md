@@ -186,6 +186,10 @@ docs/
 ├── SCHEMA.md             # ⭐ Full template JSON schema — authoritative spec for template format
 ├── HEADLESS_API.md       # ⭐ Driving the backend over HTTP with no browser UI — endpoint reference incl. Videorama
 ├── COMPLIANCE_ROADMAP.md # Risk self-assessment + Canada/GDPR/EU-AI-Act compliance phases (pairs with static/terms/)
+├── HANDOFF_SERVICE_LAUNCH.md # ⭐ Hosted-service launch handoff — Cloud Run state, status, next steps (start here for ops)
+├── DEPLOY_CLOUDRUN.md    # Cloud Run redeploy runbook: secrets → deploy → OAuth origin → smoke checklist + field notes
+├── INCIDENT_PLAYBOOK.md  # Kill switches, abuse response, breach steps for the hosted service
+├── HANDOFF_CLOUD_STORAGE.md # Phase 5 plan (unbuilt): per-user GCS storage / "My creations" gallery
 ├── videorama-guide/      # Videorama user guide (README.md) + walkthrough screenshots
 ├── June6_handoff.md      # Dated planning snapshot — historical, do not treat as current
 ├── agent-composer-plan.md

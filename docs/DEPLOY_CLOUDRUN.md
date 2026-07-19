@@ -12,6 +12,9 @@ gcloud config set project synthograsizer-app
 # Gemini API key (paste when prompted, then Ctrl-D — never lands in shell history)
 gcloud secrets create synth-gemini-key --data-file=-
 
+# Sanity-check EVERY new key version — the bare key only, 39 ASCII chars, no newline:
+gcloud secrets versions access latest --secret synth-gemini-key | wc -c   # must print 39
+
 # Cloud SQL password: reset it in console (SQL → synth-db → Users → postgres →
 # Change password → let it generate), then:
 gcloud secrets create synth-db-pass --data-file=-
@@ -40,8 +43,10 @@ First deploy prints the service URL (`https://synthograsizer-<hash>-<region>.a.r
 
 ## 3 · One-time: OAuth origin
 Console → Google Auth Platform → Clients → **Synthograsizer Web** → add the service URL to
-**Authorized JavaScript origins**. (Takes 5 min–few hours to propagate. Custom domain later:
-add it here too + Cloud Run domain mapping.)
+**Authorized JavaScript origins**. (Takes 5 min–few hours to propagate. ✓ run.app origin added
+2026-07-19.) Custom domain later: add it here too, but note **Cloud Run domain mappings are not
+available in northamerica-northeast1** — route the domain via a Vercel proxy rewrite or a global
+external ALB + serverless NEG instead (details in HANDOFF_SERVICE_LAUNCH.md step 5).
 
 ## 4 · Smoke checklist (each deploy)
 1. `GET <url>/api/health` → `service.auth_required: true`, `api_key_configured: true`.
@@ -59,3 +64,10 @@ Tune without code: `SYNTH_MONTHLY_CREDITS`, `SYNTH_DAILY_BUDGET_USD`,
 rate-limit/budget state first (documented in the plan).
 
 > **Field notes (2026-07-19 launch):** grant the runtime SA secret access once:`gcloud secrets add-iam-policy-binding <secret> --member=serviceAccount:679278101913-compute@developer.gserviceaccount.com --role=roles/secretmanager.secretAccessor` for both secrets; deploy FROM `~/synthograsizer` (home-dir deploys use Buildpacks and fail); secrets must have no trailing newline; Cloud SQL enforces password complexity — use `P="$(openssl rand -base64 18)Aa1!"`. See HANDOFF_SERVICE_LAUNCH.md.
+>
+> **Field note (2026-07-19 smoke):** a `synth-gemini-key` version that isn't the bare key (extra
+> pasted text with an em-dash/curly quote) makes **every** Gemini call 500 with
+> `'ascii' codec can't encode characters in position N` from the SDK's `before_request` — the key
+> rides in an HTTP header and header values must be ASCII. The `wc -c` check in §1 catches this.
+> Also: the console's "Scaling: Min 0, Max 20" header is the service-level default display; the
+> revision template from the §2 flags is really min=max=1 (check the YAML tab, not the header).
