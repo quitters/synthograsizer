@@ -5,6 +5,7 @@ pillow
 python-multipart
 requests
 httpx
+python-osc
 # Service mode (SYNTH_AUTH=1): accounts + credits
 asyncpg
 google-auth
