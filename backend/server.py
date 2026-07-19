@@ -56,6 +56,8 @@ from backend.routers import sessions
 from backend.routers import outputs
 from backend.routers import feedback
 from backend.routers import videorama
+from backend.routers import account
+from backend.routers import admin
 
 app.include_router(chat.router)
 app.include_router(generation.router)
@@ -71,6 +73,8 @@ app.include_router(sessions.router)
 app.include_router(outputs.router)
 app.include_router(feedback.router)
 app.include_router(videorama.router)
+app.include_router(account.router)  # endpoints 404 unless SYNTH_AUTH=1
+app.include_router(admin.router)    # 404 unless SYNTH_AUTH=1 and caller is admin
 
 # Videorama project media (local installs only): serves rendered takes,
 # tape-processed clips, and export reels for the review UI.
@@ -92,7 +96,8 @@ if _is_hosted():
 
     # Per-IP sliding window over the expensive endpoints. Deliberately
     # hand-rolled (no new dependency): a deque of timestamps per client.
-    _RATE_LIMITED_PREFIXES = ("/api/generate/", "/api/chat", "/api/analyze/", "/api/feedback")
+    _RATE_LIMITED_PREFIXES = ("/api/generate/", "/api/chat", "/api/analyze/", "/api/feedback",
+                              "/api/auth/")  # /api/auth/google is pre-auth: brute-force surface
     _RATE_MAX_REQUESTS = int(os.environ.get("RATE_LIMIT_REQUESTS", "30"))
     _RATE_WINDOW_SECONDS = int(os.environ.get("RATE_LIMIT_WINDOW_SECONDS", "300"))
     _rate_buckets: dict = defaultdict(deque)
@@ -122,6 +127,27 @@ if _is_hosted():
         import asyncio
         from backend.services.retention import retention_loop
         asyncio.create_task(retention_loop())
+
+
+# ── Service mode (accounts + credits) ────────────────────────────────────────
+# The middleware is registered unconditionally and self-neutralizes when
+# SYNTH_AUTH is unset, so local behavior is untouched and tests can toggle the
+# flag without re-importing the app. The database only spins up under the flag.
+from backend.service import service_mode as _service_mode
+from backend.service.enforcement import service_middleware as _service_middleware
+
+app.middleware("http")(_service_middleware)
+
+if _service_mode():
+    @app.on_event("startup")
+    async def _service_db_start():
+        from backend.service import db as _service_db
+        await _service_db.init()
+
+    @app.on_event("shutdown")
+    async def _service_db_stop():
+        from backend.service import db as _service_db
+        await _service_db.close()
 
 
 

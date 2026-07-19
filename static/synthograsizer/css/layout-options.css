@@ -9,13 +9,20 @@
    All rules here are scoped to min-width: 900px so mobile is never affected.
 ───────────────────────────────────────────────────────────────────────────── */
 
-/* ── App Bar — unified logo + template selector + mode switcher ─────────── */
+/* ── App Bar — one row, three zones ──────────────────────────────────────
+   LEFT (brand + template chip) · CENTER (mode segment) · RIGHT (utilities).
+   Never wraps: at narrow widths labels collapse (see ladder at the bottom
+   of this section) instead of controls dropping to a second row.
+   Every control shares one height (--ab-h) so the row reads as one unit. */
 
 .app-bar {
+  --ab-h: 34px;                    /* uniform control height */
+  --ab-ink: #5a5040;               /* bezel ink (hardware default) */
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 32px;
+  flex-wrap: nowrap;
+  padding: 9px 20px;
   margin-bottom: 20px;
   /* Match page chassis — no jarring white band */
   background: var(--hw-chassis, #edeae2);
@@ -23,7 +30,7 @@
   position: sticky;
   top: 0;
   z-index: 50;
-  gap: 16px;
+  gap: 14px;
   width: 100%;
   box-sizing: border-box;
 }
@@ -32,15 +39,16 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  flex-shrink: 0;
+  flex-shrink: 1;
+  min-width: 0;                    /* template name may ellipsize */
 }
 
 /* Bungee wordmark — matches .app-title in synth-hardware-theme.css */
 .app-bar-logo {
   font-family: 'Bungee', sans-serif;
   font-weight: 400;
-  font-size: 20px;
-  letter-spacing: 3px;
+  font-size: 16px;
+  letter-spacing: 2px;
   text-transform: uppercase;
   color: #2e2418;
   text-shadow:
@@ -48,30 +56,33 @@
   white-space: nowrap;
 }
 
-/* Hardware-beveled template selector */
+/* Hardware-beveled template selector — the "open document" chip */
 .app-bar-tpl-btn {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 4px 6px 4px 10px;
+  height: var(--ab-h);
+  box-sizing: border-box;
+  padding: 0 10px;
   background: var(--hw-panel, #e4dccf);
-  border: 2px solid #5a5040;
+  border: 2px solid var(--ab-ink);
   border-radius: 4px;
-  box-shadow: 2px 2px 0 #5a5040;
+  box-shadow: 2px 2px 0 var(--ab-ink);
   font-family: 'Share Tech Mono', monospace;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #5a5040;
+  color: var(--ab-ink);
   cursor: pointer;
   transition: transform 0.08s, box-shadow 0.08s, background 0.08s;
   white-space: nowrap;
+  min-width: 0;
 }
 .app-bar-tpl-btn:hover {
   background: #ede6d8;
   transform: translate(1px, 1px);
-  box-shadow: 1px 1px 0 #5a5040;
+  box-shadow: 1px 1px 0 var(--ab-ink);
 }
 .app-bar-tpl-btn:active {
   transform: translate(2px, 2px);
@@ -79,25 +90,21 @@
 }
 .app-bar-tpl-name {
   color: #5a8ab8;
-  margin-right: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
 }
 .app-bar-tpl-icon {
   font-size: 14px;
 }
-.app-bar-tpl-change {
-  display: flex;
-  align-items: center;
-  padding: 2px 4px;
-  background: transparent;
-  border: 1px solid #c0b8a8;
-  border-radius: 2px;
-  font-size: 10px;
+.app-bar-tpl-caret {
+  font-size: 9px;
   color: #8a7e6e;
-  letter-spacing: 0px;
 }
 
-/* Hide template button in Composer mode (template picker is Studio-specific) */
-body.mode-composer .app-bar-tpl-btn { display: none; }
+/* Hide template chip in Composer mode (template picker is Studio-specific).
+   Scoped to the id — other controls no longer share the class. */
+body.mode-composer #app-bar-tpl-btn { display: none; }
 
 /* ── Active Taste Profile pill ───────────────────────────────────────────
    Lives next to the Taste Profile button. Hidden until an active profile
@@ -112,7 +119,9 @@ body.mode-composer .app-bar-tpl-btn { display: none; }
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 4px 8px 4px 10px;
+  height: var(--ab-h, 34px);
+  box-sizing: border-box;
+  padding: 0 8px 0 10px;
   background: var(--hw-panel, #e4dccf);
   border: 2px solid #5a5040;
   border-radius: 4px;
@@ -233,95 +242,206 @@ body.mode-composer .app-bar-tpl-btn { display: none; }
 /* Hide pill in Composer mode (same rationale as app-bar-tpl-btn) */
 body.mode-composer .active-profile-pill { display: none; }
 
-/* ── Mode buttons ────────────────────────────────────────────────────────── */
+/* ── Mode segment — Studio / Perform / Composer ─────────────────────────
+   One connected control (single bezel, three cells) so the primary mode
+   switch reads as a single instrument button-bank, not three loose chips. */
 
-.app-bar-modes {
+.app-bar-seg {
   display: flex;
-  align-items: center;
-  gap: 6px;
-  /* Allow shrink + wrap: at narrow viewports whole groups (mode switcher,
-     links, theme picker) drop to the next right-aligned row instead of
-     clipping off-screen past the viewport edge. No min-width:0 here — the
-     container must never get narrower than its widest group, or the
-     right-aligned rows overflow leftward across the brand. */
-  flex-shrink: 1;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  row-gap: 8px;
-}
-
-/* Squeeze zone (brand + widest group no longer fit side-by-side):
-   stack the bar — brand on its own row, mode groups centered beneath. */
-@media (max-width: 1080px) {
-  .app-bar { flex-wrap: wrap; row-gap: 8px; }
-  .app-bar-brand { flex: 1 1 100%; justify-content: space-between; }
-  .app-bar-modes { flex: 1 1 100%; justify-content: center; }
-}
-@media (max-width: 600px) {
-  .app-bar { padding: 8px 12px; }
-  .app-bar-logo { font-size: 16px; letter-spacing: 2px; }
-  /* Groups wider than the viewport (links row) wrap internally here
-     instead of clipping off the right edge. */
-  .app-bar-group {
-    flex-wrap: wrap;
-    flex-shrink: 1;
-    justify-content: center;
-    row-gap: 6px;
-  }
-}
-
-/* Wrap units: buttons inside a group never split across rows. */
-.app-bar-group {
-  display: flex;
-  align-items: center;
-  gap: 4px;
+  align-items: stretch;
+  height: var(--ab-h, 34px);
+  box-sizing: border-box;
+  background: var(--hw-panel, #e4dccf);
+  border: 2px solid var(--ab-ink, #5a5040);
+  border-radius: 4px;
+  box-shadow: 2px 2px 0 var(--ab-ink, #5a5040);
+  overflow: hidden;
   flex-shrink: 0;
 }
 
-/* Below the width where the bar starts wrapping, the inter-group dividers
-   can land at a row edge and dangle — drop them; row separation is enough. */
-@media (max-width: 1680px) {
-  .app-bar .app-bar-section-divider { display: none; }
-}
-
-/* Override the old .layout-switcher block sizing that no longer applies */
-.layout-switcher {
-  display: flex;
-  gap: 4px;
-  margin-bottom: 0;
-}
-
-.layout-btn {
-  padding: 4px 13px;
-  border: 1.5px solid #d1d5db;
-  border-radius: 7px;
-  background: white;
+.app-bar-seg .layout-btn {
+  appearance: none;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  height: 100%;
+  padding: 0 16px;
+  font-family: 'Share Tech Mono', monospace;
   font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.05em;
+  font-weight: 700;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #9ca3af;
+  color: #8a7e6e;
   cursor: pointer;
-  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  transition: background 0.12s, color 0.12s;
   user-select: none;
 }
-
-.layout-btn:hover {
-  border-color: #8b5cf6;
-  color: #8b5cf6;
+.app-bar-seg .layout-btn + .layout-btn {
+  border-left: 2px solid var(--ab-ink, #5a5040);
+}
+.app-bar-seg .layout-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: #2e2418;
+}
+.app-bar-seg .layout-btn.active {
+  background: #2e2418;
+  color: #f0e8d0;
 }
 
-.layout-btn.active {
-  background: #8b5cf6;
-  border-color: #8b5cf6;
-  color: white;
+/* ── Right utilities — profile pill · settings · ⋯ menu ────────────────── */
+
+.app-bar-utils {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.app-bar-icon-btn {
+  display: grid;
+  place-items: center;
+  width: var(--ab-h, 34px);
+  height: var(--ab-h, 34px);
+  box-sizing: border-box;
+  padding: 0;
+  background: var(--hw-panel, #e4dccf);
+  border: 2px solid var(--ab-ink, #5a5040);
+  border-radius: 4px;
+  box-shadow: 2px 2px 0 var(--ab-ink, #5a5040);
+  font-size: 15px;
+  line-height: 1;
+  color: var(--ab-ink, #5a5040);
+  cursor: pointer;
+  transition: transform 0.08s, box-shadow 0.08s, background 0.08s;
+}
+.app-bar-icon-btn:hover {
+  background: #ede6d8;
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--ab-ink, #5a5040);
+}
+.app-bar-icon-btn:active,
+.app-bar-icon-btn[aria-expanded="true"] {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+/* ── ⋯ menu — theme picker · app links · suite navigation ──────────────── */
+
+.app-bar-more {
+  position: relative;
+}
+
+.app-bar-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 240px;
+  background: var(--hw-panel, #ede6d8);
+  border: 2px solid var(--ab-ink, #5a5040);
+  border-radius: 4px;
+  box-shadow: 3px 3px 0 var(--ab-ink, #5a5040);
+  padding: 4px;
+  z-index: 100;
+  font-family: 'Share Tech Mono', monospace;
+}
+.abm-section-label {
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  color: #8a7e6e;
+  text-transform: uppercase;
+  padding: 6px 8px 2px;
+}
+.abm-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 7px 8px;
+  background: transparent;
+  border: none;
+  border-radius: 2px;
+  font: inherit;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #5a5040;
+  cursor: pointer;
+  text-align: left;
+  text-decoration: none;
+}
+.abm-item:hover {
+  background: #d5cabb;
+  color: #2e2418;
+}
+.abm-divider {
+  height: 1px;
+  background: #c0b8a8;
+  margin: 4px 0;
+}
+
+/* Theme radio row inside the menu (base look; themes reskin) */
+.abm-theme-row {
+  display: flex;
+  gap: 4px;
+  padding: 4px 8px 6px;
+}
+.theme-picker-btn {
+  appearance: none;
+  flex: 1;
+  border: 1.5px solid transparent;
+  background: transparent;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: #5a5040;
+  padding: 5px 8px;
+  border-radius: 3px;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+.theme-picker-btn:hover { background: rgba(0, 0, 0, 0.06); }
+.theme-picker-btn.active {
+  background: #fff;
+  border-color: #5a5040;
+  color: #2e2418;
+}
+
+/* ── Collapse ladder — the bar NEVER wraps; labels shed instead ────────── */
+
+@media (max-width: 1180px) {
+  .app-bar-tpl-name { max-width: 130px; }
+  .active-profile-pill-name { max-width: 100px; }
+}
+@media (max-width: 1024px) {
+  .app-bar { gap: 10px; }
+  .app-bar-logo { font-size: 13px; letter-spacing: 1.5px; }
+  .app-bar-seg .layout-btn { padding: 0 12px; }
+}
+@media (max-width: 900px) {
+  .app-bar { padding: 8px 12px; }
+  /* Profile pill collapses to its status dot; tooltip + menu still work */
+  .active-profile-pill-name,
+  .active-profile-pill-caret { display: none; }
+  .active-profile-pill-btn { padding: 0 8px; }
+  .app-bar-tpl-name { max-width: 90px; }
+}
+@media (max-width: 760px) {
+  .app-bar-logo { display: none; }
+  .app-bar-seg .layout-btn { padding: 0 10px; font-size: 10px; letter-spacing: 0.08em; }
+}
+@media (max-width: 560px) {
+  .app-bar { --ab-h: 40px; gap: 8px; padding: 8px 10px; }  /* phone: bigger touch targets */
+  .app-bar-tpl-name,
+  .app-bar-tpl-caret { display: none; }  /* chip becomes the 🎨 icon */
+  .app-bar-tpl-btn { padding: 0 9px; flex-shrink: 0; }     /* never crush the chip */
+  .app-bar-seg .layout-btn { padding: 0 8px; font-size: 9px; letter-spacing: 0.06em; }
+  .app-bar-icon-btn { width: 36px; }     /* keep 40px height, slim the width */
+  .app-bar-utils { gap: 6px; }
 }
 
 /* ── Composer mode: hide inner title (logo already in app-bar) ───────────── */
 body.mode-composer #composer-mount .app-header .app-title { display: none; }
-
-/* ── Perform mode: also hide navbar (was handled via body.layout-a) ──────── */
-body.layout-a #navbar-mount { display: none; }
 
 
 /* ══════════════════════════════════════════════════════════════════════════
@@ -334,12 +454,6 @@ body.layout-a #navbar-mount { display: none; }
 /* ── Performance mode: hide AI Studio Tools (any viewport) ────────────── */
 .layout-a .studio-controls-section {
   display: none !important;
-}
-
-/* ── Performance mode: hide site nav (keep app title, lose nav links) ──── */
-/* #navbar-mount is a sibling of .synthograsizer-small, so scope to body   */
-body.layout-a #navbar-mount {
-  display: none;
 }
 
 /* ── Performance mode: hide studio-only bottom-bar actions ─────────────── */

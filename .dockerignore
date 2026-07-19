@@ -1,0 +1,32 @@
+# Secrets — must NEVER enter the image. The API key lives in Secret Manager.
+ai_studio_config.json
+backend/ai_studio_config.json
+.env
+*.env
+chatroom/
+
+# Local state / outputs
+data/
+*.log
+**/__pycache__/
+*.pyc
+
+# Dev-only trees
+tests/
+docs/
+design-handoff/
+design-system/
+ds-bundle/
+scope-synthograsizer/
+workflow-engine/
+.github/
+.claude/
+
+# VCS + tooling
+.git/
+.gitignore
+*.bat
+vercel.json
+docker-compose.dev.yml
+Dockerfile
+.dockerignore

@@ -20,80 +20,103 @@ from backend.music_manager import get_music_manager
 from backend import config
 from backend.models.requests import *
 from backend.helpers import decode_base64_image, parse_llm_json
+from backend.service.credits import Charge, charged
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
 @router.post("/api/analyze/image-to-prompt")
-async def analyze_image_to_prompt(request: AnalyzeRequest):
+async def analyze_image_to_prompt(request: AnalyzeRequest, http_request: Request):
     try:
         image_bytes = decode_base64_image(request.image)
-        analysis_text = await asyncio.to_thread(ai_manager.analyze_image_to_prompt, image_bytes, model_name=request.model)
+        async with charged(http_request, action="analyze", units=1) as ch:
+            analysis_text = await asyncio.to_thread(ai_manager.analyze_image_to_prompt, image_bytes, model_name=request.model)
+            ch.commit()
 
         result = {
             "status": "success",
             "analysis": analysis_text
         }
 
-        # Auto-generate if requested
+        # Auto-generate if requested (its own charge: analysis stands even if this fails)
         if request.auto_generate:
             # Detect aspect ratio
             width, height = ai_manager.get_image_dimensions(image_bytes)
             aspect_ratio = ai_manager.map_to_closest_aspect_ratio(width, height)
 
-            # Generate image using analysis as prompt
-            generated = await asyncio.to_thread(
-                ai_manager.generate_image,
-                prompt=analysis_text,
-                model_name=config.MODEL_IMAGE_GEN_HQ,
-                aspect_ratio=aspect_ratio
-            )
-            
+            async with charged(http_request, action="image",
+                               model=config.MODEL_IMAGE_GEN_HQ) as ch2:
+                generated = await asyncio.to_thread(
+                    ai_manager.generate_image,
+                    prompt=analysis_text,
+                    model_name=config.MODEL_IMAGE_GEN_HQ,
+                    aspect_ratio=aspect_ratio
+                )
+                ch2.commit()
+
             result["generated_image"] = generated if isinstance(generated, str) else generated.get('image')
             result["detected_aspect_ratio"] = aspect_ratio
             result["original_dimensions"] = f"{width}x{height}"
-        
+
         return result
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.post("/api/analyze/batch")
-async def batch_analyze(request: BatchAnalyzeRequest):
+async def batch_analyze(request: BatchAnalyzeRequest, http_request: Request):
     """Process multiple images sequentially with optional auto-generation.
     
     No limit on batch size - can handle 100+ images.
     """
+    async def _one(idx, img_b64):
+        """Analyze (+optionally generate) one image under its own charges."""
+        image_bytes = decode_base64_image(img_b64)
+        async with charged(http_request, action="analyze", units=1) as ch:
+            analysis = await asyncio.to_thread(ai_manager.analyze_image_to_prompt, image_bytes, model_name=request.model)
+            ch.commit()
+
+        result = {
+            "index": idx,
+            "status": "success",
+            "analysis": analysis
+        }
+
+        # Auto-generate if requested
+        if request.auto_generate:
+            width, height = ai_manager.get_image_dimensions(image_bytes)
+            aspect_ratio = ai_manager.map_to_closest_aspect_ratio(width, height)
+
+            async with charged(http_request, action="image",
+                               model=config.MODEL_IMAGE_GEN_HQ) as ch2:
+                generated = await asyncio.to_thread(
+                    ai_manager.generate_image,
+                    prompt=analysis,
+                    model_name=config.MODEL_IMAGE_GEN_HQ,
+                    aspect_ratio=aspect_ratio
+                )
+                ch2.commit()
+
+            result["generated_image"] = generated if isinstance(generated, str) else generated.get('image')
+            result["aspect_ratio"] = aspect_ratio
+            result["dimensions"] = f"{width}x{height}"
+
+        return result
+
     async def generate_batch_stream():
         for idx, img_b64 in enumerate(request.images):
             try:
-                image_bytes = decode_base64_image(img_b64)
-                analysis = await asyncio.to_thread(ai_manager.analyze_image_to_prompt, image_bytes, model_name=request.model)
-
-                result = {
-                    "index": idx,
-                    "status": "success",
-                    "analysis": analysis
-                }
-
-                # Auto-generate if requested
-                if request.auto_generate:
-                    width, height = ai_manager.get_image_dimensions(image_bytes)
-                    aspect_ratio = ai_manager.map_to_closest_aspect_ratio(width, height)
-
-                    generated = await asyncio.to_thread(
-                        ai_manager.generate_image,
-                        prompt=analysis,
-                        model_name=config.MODEL_IMAGE_GEN_HQ,
-                        aspect_ratio=aspect_ratio
-                    )
-                    
-                    result["generated_image"] = generated if isinstance(generated, str) else generated.get('image')
-                    result["aspect_ratio"] = aspect_ratio
-                    result["dimensions"] = f"{width}x{height}"
-                
-                yield json.dumps(result) + "\n"
-                
+                yield json.dumps(await _one(idx, img_b64)) + "\n"
+            except HTTPException as e:
+                # The response is already streaming (200), so credit exhaustion
+                # surfaces as a row — and ends the batch instead of burning on.
+                detail = e.detail if isinstance(e.detail, dict) else {"error": str(e.detail)}
+                yield json.dumps({"index": idx, "status": "error",
+                                  "error": detail.get("error", "request_rejected")}) + "\n"
+                if detail.get("error") == "out_of_credits":
+                    break
             except Exception as e:
                 yield json.dumps({
                     "index": idx,

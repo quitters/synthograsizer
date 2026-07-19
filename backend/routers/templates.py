@@ -21,12 +21,33 @@ from backend.music_manager import get_music_manager
 from backend import config
 from backend.models.requests import *
 from backend.helpers import decode_base64_image, parse_llm_json, SafetyBlockedError, safety_block_detail
+from backend.service.credits import charged
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
 @router.post("/api/generate/template")
-async def generate_template(request: TemplateRequest):
+async def generate_template(request: TemplateRequest, http_request: Request):
+    """Charged wrapper around the mode dispatch below.
+
+    Pricing mirrors the impl's model resolution (Pro unless demo/flash/explicit)
+    plus one credit per analyzed input image; the impl itself is unchanged.
+    """
+    if request.is_demo:
+        priced_model = config.MODEL_DEMO
+    else:
+        priced_model = request.model or (
+            config.MODEL_TEMPLATE_GEN_FAST if request.use_flash else config.MODEL_TEMPLATE_GEN
+        )
+    n_images = min(len(request.images or []), 8)
+    async with charged(http_request, action="template", model=priced_model,
+                       units=n_images, prompt_chars=len(request.prompt or "")) as ch:
+        result = await _generate_template_impl(request)
+        ch.commit()
+    return result
+
+
+async def _generate_template_impl(request: TemplateRequest):
     # p5.js sketch generation uses a longer timeout — the Pro model writes a complete,
     # self-contained sketch with lookup maps, variables, and animation logic.
     if request.mode == "p5":
@@ -270,13 +291,18 @@ async def generate_template(request: TemplateRequest):
 
 
 @router.post("/api/generate/template-from-analysis")
-async def generate_template_from_analysis(request: TemplateFromAnalysisRequest):
+async def generate_template_from_analysis(request: TemplateFromAnalysisRequest, http_request: Request):
     try:
-        json_str = await asyncio.to_thread(ai_manager.generate_template_from_analysis, request.analysis)
+        async with charged(http_request, action="template", model=config.MODEL_TEMPLATE_GEN,
+                           prompt_chars=len(request.analysis)) as ch:
+            json_str = await asyncio.to_thread(ai_manager.generate_template_from_analysis, request.analysis)
+            ch.commit()
         json_obj = normalize_template(parse_llm_json(json_str))
         return {"status": "success", "template": json_obj}
     except SafetyBlockedError as e:
         raise HTTPException(status_code=422, detail=safety_block_detail(e))
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

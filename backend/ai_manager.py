@@ -138,8 +138,14 @@ class AIManager:
             self.configure_api(key, save=False)
 
     def save_config(self, api_key: str):
-        """Save API key to local config file (skipped on Vercel — read-only filesystem)."""
-        if os.environ.get("VERCEL"):
+        """Save API key to local config file.
+
+        Skipped on any hosted instance: Vercel's filesystem is read-only, and
+        Cloud Run's is a writable tmpfs where a persisted key would outlive the
+        request that set it — hosted keys come from the environment only.
+        """
+        from backend.policy import is_hosted
+        if is_hosted():
             return
         try:
             with open(self.config_path, 'w') as f:

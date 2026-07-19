@@ -18,7 +18,7 @@ import threading
 from datetime import datetime, timezone
 from pathlib import Path
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 from typing import Optional, List
 
@@ -49,7 +49,7 @@ class FeedbackRequest(BaseModel):
 
 
 @router.post("/api/feedback")
-async def submit_feedback(request: FeedbackRequest):
+async def submit_feedback(request: FeedbackRequest, http_request: Request):
     if os.environ.get("VERCEL"):
         # Read-only filesystem — point the client at GitHub instead.
         raise HTTPException(
@@ -74,6 +74,19 @@ async def submit_feedback(request: FeedbackRequest):
                       ensure_ascii=False)
     if len(line.encode("utf-8")) > MAX_ENTRY_BYTES:
         raise HTTPException(status_code=413, detail="Feedback entry too large (32 KB cap).")
+
+    # Service mode: feedback goes to Postgres (the instance disk is ephemeral
+    # tmpfs on Cloud Run — a JSONL there would vanish on the next deploy).
+    from backend.service import service_mode
+    if service_mode():
+        from backend.service import db
+        user = getattr(http_request.state, "user", None)
+        await db.pool().execute(
+            "INSERT INTO feedback (user_id, payload) VALUES ($1, $2::jsonb)",
+            user["id"] if user else None, line,
+        )
+        return {"status": "success", "message": "Feedback saved — thank you.",
+                "stored_at": "service-db"}
 
     try:
         FEEDBACK_DIR.mkdir(parents=True, exist_ok=True)

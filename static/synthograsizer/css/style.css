@@ -672,6 +672,15 @@ body {
 .connections-group > .osc-bar .osc-toggle-btn {
   width: 100%;
   justify-content: flex-start;
+  /* Match the app-bar control height so the whole page shares one rhythm */
+  min-height: 34px;
+  box-sizing: border-box;
+}
+/* Patch-bay read: label on the left, status LED pinned to the right edge
+   so connection state scans as a single column down the chip stack. */
+.connections-group > .midi-bar .midi-toggle-btn .midi-dot,
+.connections-group > .osc-bar .osc-toggle-btn .osc-dot {
+  margin-left: auto;
 }
 /* Display bar carries the BG color picker — span the full row so the
    swatch has room beside the chip. */

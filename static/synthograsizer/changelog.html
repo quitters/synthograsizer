@@ -290,6 +290,30 @@
         <span class="version-date">In Progress — 2026-07-05</span>
       </div>
       <div class="version-panel">
+        <div class="panel-section-label">Main App — One-Row Header</div>
+        <ul class="entry-list">
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">App bar redesigned — two stacked headers become one 53px row</div>
+              <div class="entry-sub">Three zones by frequency of use: brand + template chip on the left, a Studio / Perform / Composer segmented control in the center (hardware theme renders it as a latching button bank with a teal-lit active cell; cel-pastel keeps each mode's signature pastel), and a utility cluster on the right — active-profile pill, ⚙ Settings, and a new <strong>⋯ menu</strong> holding the theme picker, Taste Profile, What's New, and suite navigation. The old floating suite-navbar pill no longer loads on this page; the MODE/THEME captions, divider chips, and the "CHANGE ▾" label are gone. Content starts ~100px higher.</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-fix">fix</span>
+            <div>
+              <div class="entry-text">The header never wraps — labels collapse instead</div>
+              <div class="entry-sub">One shared control height (34px, 40px on phones) replaces the old 26–38px jumble, and a collapse ladder sheds labels progressively (template name → ellipsis → icon; wordmark hides ≤760px; profile pill becomes its status dot ≤900px) so the bar stays a single row down to 375px. Geometry now lives only in <code>layout-options.css</code> — the themes reskin colors and typefaces but can no longer fight the layout, which is what kept breaking the old bar. Mode buttons expose <code>aria-pressed</code>; edge tooltips no longer clip offscreen.</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-fix">fix</span>
+            <div>
+              <div class="entry-text">Connections reads as part of the instrument, not a bolted-on drawer</div>
+              <div class="entry-sub">The section header now uses the same teal function-label language as Output and AI Studio Tools (hardware theme), the "Hide inactive" pill follows the teal accent instead of the legacy purple, connection chips share the 34px control height, and every status LED is pinned to the chip's right edge so connection state scans as one column.</div>
+            </div>
+          </li>
+        </ul>
         <div class="panel-section-label">Videorama — Batch Video Synthesis</div>
         <ul class="entry-list">
           <li class="entry-item">

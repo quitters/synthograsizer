@@ -173,8 +173,8 @@ class Policy:
 
     def save(self) -> None:
         """Merge policy state into the shared config file (key preserved)."""
-        if os.environ.get("VERCEL"):
-            return  # read-only filesystem; hosted state comes from env anyway
+        if is_hosted():
+            return  # hosted state comes from env; never persist to instance disk
         with _lock:
             data = _read_config_file()
             data["backend"] = {

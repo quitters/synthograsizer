@@ -1,0 +1,44 @@
+# Local service-mode stack: FastAPI app in service mode + Postgres 16.
+# Plain local development (no accounts) does NOT need this — run start.bat.
+#
+#   docker compose -f docker-compose.dev.yml up --build
+#   → http://localhost:8000  (matches the OAuth client's authorized origin)
+#
+# Supply GOOGLE_API_KEY via your shell or an untracked .env file (compose
+# reads .env automatically). See .env.example for the full variable list.
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: synth
+      POSTGRES_PASSWORD: synth
+      POSTGRES_DB: synth
+    volumes:
+      - synth-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U synth -d synth"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  app:
+    build: .
+    ports:
+      - "8000:8080"
+    environment:
+      SYNTH_HOSTED: "1"
+      SYNTH_AUTH: "1"
+      DATABASE_URL: postgresql://synth:synth@db:5432/synth
+      GOOGLE_OAUTH_CLIENT_ID: 679278101913-k4am2o8gu3dhah9n08i40lpslb7m0afs.apps.googleusercontent.com
+      ADMIN_EMAILS: quittersarts@gmail.com
+      SYNTH_TERMS_VERSION: v0.2
+      SYNTH_MONTHLY_CREDITS: "300"
+      # Dev runs over http://localhost — allow the session cookie without Secure.
+      SYNTH_INSECURE_COOKIES: "1"
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  synth-pgdata:

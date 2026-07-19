@@ -42,7 +42,28 @@ async def ws_music(websocket: WebSocket):
       Client → Server (JSON text): control messages (play, pause, stop, set_prompts, set_config, reset_context)
       Server → Client (binary): raw 16-bit PCM audio chunks (48kHz stereo)
       Server → Client (JSON text): status updates and errors
+
+    Service mode gates this endpoint here — HTTP middleware never sees
+    websocket scope. Lyria is not part of the free tier: anonymous sockets
+    close 4401, non-admin users 4403 (music-studio.js maps both to UI).
     """
+    from backend.service import service_mode
+    if service_mode():
+        from backend.service import auth as service_auth
+        user = None
+        token = websocket.cookies.get(service_auth.COOKIE_NAME)
+        if token:
+            try:
+                user, _ = await service_auth.resolve_session(token)
+            except RuntimeError:
+                user = None
+        if user is None:
+            await websocket.close(code=4401, reason="Sign in required")
+            return
+        if service_auth.effective_tier(user) != "admin":
+            await websocket.close(code=4403, reason="Music is not included in the free tier")
+            return
+
     await websocket.accept()
 
     if not ai_manager.genai_client:

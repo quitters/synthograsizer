@@ -79,13 +79,23 @@ async def configure_api(request: ConfigRequest):
 async def health_check():
     """Test API connectivity and return diagnostic info (incl. backend tier)."""
     snapshot = policy.snapshot()
-    return {
+    payload = {
         "status": "ok",
         "api_key_configured": bool(ai_manager.api_key),
         "genai_client_available": ai_manager.genai_client is not None,
         "message": "Synthograsizer Suite API is running",
         **snapshot,
     }
+    from backend.service import service_mode
+    if service_mode():
+        # Consumed by static/shared/js/auth.js: presence of this block is the
+        # signal to load Google Identity Services. The client id is public.
+        payload["service"] = {
+            "auth_required": True,
+            "gis_client_id": os.environ.get("GOOGLE_OAUTH_CLIENT_ID", ""),
+            "terms_version": os.environ.get("SYNTH_TERMS_VERSION", "v0.2"),
+        }
+    return payload
 
 
 @router.get("/api/backend/local/models")

@@ -7,11 +7,11 @@
     <!-- CSP removed for development - add back in production if needed -->
     <title>Synthograsizer</title>
     <script src="js/debug-log.js?v=1"></script>
-    <link rel="stylesheet" href="css/style.css?v=5">
+    <link rel="stylesheet" href="css/style.css?v=6">
     <link rel="stylesheet" href="css/code-overlay.css?v=2">
-    <link rel="stylesheet" href="css/layout-options.css?v=10">
-    <link rel="stylesheet" href="css/synth-hardware-theme.css?v=8">
-    <link rel="stylesheet" href="css/cel-pastel-theme.css?v=6">
+    <link rel="stylesheet" href="css/layout-options.css?v=11">
+    <link rel="stylesheet" href="css/synth-hardware-theme.css?v=10">
+    <link rel="stylesheet" href="css/cel-pastel-theme.css?v=7">
     <link rel="stylesheet" href="css/storyboard-panel.css?v=3">
     <link rel="stylesheet" href="css/storyboard-panel-hardware-theme.css?v=3">
     <!-- Composer (third mode) — styles scoped via @scope (#composer-mount) so they don't leak into Studio/Perform -->
@@ -38,11 +38,6 @@
             align-items: center;
             min-height: 100vh;
             padding-top: 0;
-        }
-
-        .about-navbar {
-            background: transparent;
-            width: 100%;
         }
 
         .synthograsizer-small {
@@ -114,6 +109,40 @@
 [data-tip][data-tip-pos="down"]:hover::before,
 [data-tip][data-tip-pos="down"]:hover::after {
   transform: translateX(-50%) translateY(0);
+}
+
+/* Right-edge safety: tips on the app-bar utility cluster hang left from the
+   button's right edge instead of centering (centered tips clip offscreen). */
+.app-bar-utils [data-tip][data-tip-pos="down"]::before {
+  left: auto;
+  right: 0;
+  transform: translateY(-3px);
+}
+.app-bar-utils [data-tip][data-tip-pos="down"]::after {
+  left: auto;
+  right: 12px;
+  transform: translateY(-3px);
+}
+.app-bar-utils [data-tip][data-tip-pos="down"]:hover::before,
+.app-bar-utils [data-tip][data-tip-pos="down"]:hover::after {
+  transform: translateY(0);
+}
+
+/* Left-edge safety: the brand cluster's tips grow rightward from the
+   button's left edge (centered tips clip past the left viewport edge). */
+.app-bar-brand [data-tip][data-tip-pos="down"]::before {
+  left: 0;
+  right: auto;
+  transform: translateY(-3px);
+}
+.app-bar-brand [data-tip][data-tip-pos="down"]::after {
+  left: 12px;
+  right: auto;
+  transform: translateY(-3px);
+}
+.app-bar-brand [data-tip][data-tip-pos="down"]:hover::before,
+.app-bar-brand [data-tip][data-tip-pos="down"]:hover::after {
+  transform: translateY(0);
 }
 
 /* ── Output section layout — label + buttons in one header row ── */
@@ -370,50 +399,64 @@
 
 <body>
     <div class="page-wrapper">
-        <!-- ── App Bar — logo · template picker · mode switcher ── -->
+        <!-- ── App Bar — one row, three zones ──────────────────────────────
+             LEFT   identity + context: wordmark · template chip (the "open document")
+             CENTER primary control:   Studio / Perform / Composer segment
+             RIGHT  utilities:         profile pill · settings · ⋯ menu
+             The bar never wraps; labels collapse progressively at narrow widths.
+             Suite navigation (old floating navbar) now lives in the ⋯ menu. -->
         <header class="app-bar">
           <div class="app-bar-brand">
             <span class="app-bar-logo">SYNTHOGRASIZER</span>
-            <button class="app-bar-tpl-btn" id="app-bar-tpl-btn" data-tip="BROWSE ALL TEMPLATES (T)">
+            <button class="app-bar-tpl-btn" id="app-bar-tpl-btn" data-tip="Browse all templates" data-tip-pos="down">
               <span class="app-bar-tpl-icon" id="app-bar-tpl-icon">🎨</span>
               <span class="app-bar-tpl-name" id="app-bar-tpl-name">ART PROMPT</span>
-              <span class="app-bar-tpl-change">CHANGE ▾</span>
+              <span class="app-bar-tpl-caret" aria-hidden="true">▾</span>
             </button>
           </div>
-          <!-- id="layout-switcher" kept so the existing mode-switching JS can find buttons via querySelectorAll('.layout-btn') -->
-          <div class="app-bar-modes layout-switcher" id="layout-switcher">
-            <!-- MODE group: the three primary surface switchers.
-                 Groups wrap as whole units at narrow widths — buttons never split mid-group. -->
-            <div class="app-bar-group" role="group" aria-label="Mode">
-              <span class="app-bar-section-label" aria-hidden="true">MODE</span>
-              <button class="layout-btn" data-layout="default" data-tip="Studio Mode — Full Tools Panel">⊟ Studio</button>
-              <button class="layout-btn" data-layout="a" data-tip="Perform Mode — Minimal Layout">▶ Perform</button>
-              <button class="layout-btn" data-mode="composer" data-tip="4-room agent composer (Library → Editor → Session → Run)">🧪 Composer</button>
+
+          <!-- id="layout-switcher" kept so mode-switching JS (and av/demo strip
+               logic) can find this group; buttons bind via .layout-btn -->
+          <nav class="app-bar-seg layout-switcher" id="layout-switcher" role="group" aria-label="Mode">
+            <button class="layout-btn" data-layout="default" data-tip="Studio — full toolkit" data-tip-pos="down">Studio</button>
+            <button class="layout-btn" data-layout="a" data-tip="Perform — minimal live layout" data-tip-pos="down">Perform</button>
+            <button class="layout-btn" data-mode="composer" data-tip="Composer — 4-room agent studio" data-tip-pos="down">Composer</button>
+          </nav>
+
+          <div class="app-bar-utils">
+            <!-- Service-mode account pill / sign-in button (auth.js; empty locally) -->
+            <div id="synth-account-slot"></div>
+            <!-- Active-profile pill: hydrated by inline JS below; dropdown has
+                 switch / clear / manage / restore actions. -->
+            <div class="active-profile-pill" id="active-profile-pill" hidden>
+              <button type="button" class="active-profile-pill-btn" id="active-profile-pill-btn" aria-haspopup="true" aria-expanded="false" data-tip="Active Taste Profile — switch or clear" data-tip-pos="down">
+                <span class="active-profile-pill-dot" aria-hidden="true"></span>
+                <span class="active-profile-pill-name" id="active-profile-pill-name">—</span>
+                <span class="active-profile-pill-caret" aria-hidden="true">▾</span>
+              </button>
+              <div class="active-profile-pill-menu" id="active-profile-pill-menu" role="menu" hidden></div>
             </div>
-            <span class="app-bar-section-divider" aria-hidden="true"></span>
-            <!-- LINKS group: outbound destinations -->
-            <div class="app-bar-group" role="group" aria-label="Profile and links">
-              <a href="/taste-profile/" class="app-bar-tpl-btn" style="text-decoration:none" data-tip="Onboarding: synthesize your aesthetic + 4 tuned agents">🎯 Taste Profile</a>
-              <!-- Active-profile pill: hidden until TasteProfileStore reports an active profile.
-                   Built dynamically by the inline JS below; opening it toggles a dropdown
-                   with switch / clear / manage actions. -->
-              <div class="active-profile-pill" id="active-profile-pill" hidden>
-                <button type="button" class="active-profile-pill-btn" id="active-profile-pill-btn" aria-haspopup="true" aria-expanded="false" data-tip="Active Taste Profile — click to switch or clear">
-                  <span class="active-profile-pill-dot" aria-hidden="true"></span>
-                  <span class="active-profile-pill-name" id="active-profile-pill-name">—</span>
-                  <span class="active-profile-pill-caret" aria-hidden="true">▾</span>
-                </button>
-                <div class="active-profile-pill-menu" id="active-profile-pill-menu" role="menu" hidden></div>
+            <button type="button" id="studio-settings-btn" class="app-bar-icon-btn" aria-label="Settings" data-tip="Settings — API key, backend &amp; safety" data-tip-pos="down">⚙</button>
+            <div class="app-bar-more">
+              <button type="button" id="app-bar-more-btn" class="app-bar-icon-btn" aria-label="More — theme, suite apps, what's new" aria-haspopup="true" aria-expanded="false" data-tip="Theme · suite apps · what's new" data-tip-pos="down">⋯</button>
+              <div class="app-bar-menu" id="app-bar-menu" hidden>
+                <div class="abm-section-label">Theme</div>
+                <div class="abm-theme-row" role="group" aria-label="Theme">
+                  <button type="button" class="theme-picker-btn active" data-theme="hardware" data-tip="Roland Juno / Korg Polysix aesthetic">Hardware</button>
+                  <button type="button" class="theme-picker-btn" data-theme="cel-pastel" data-tip="1990s DIC pastels — Madeline / Care Bears">Cel-Pastel</button>
+                </div>
+                <div class="abm-divider" role="separator"></div>
+                <div class="abm-section-label">This App</div>
+                <a class="abm-item" href="/taste-profile/">🎯 Taste Profile setup</a>
+                <a class="abm-item" href="changelog.html">📋 What's New</a>
+                <div class="abm-divider" role="separator"></div>
+                <div class="abm-section-label">Suite</div>
+                <a class="abm-item" href="/">⌂ Suite Home</a>
+                <a class="abm-item" href="/glitcher/">Glitcher</a>
+                <a class="abm-item" href="/chatroom/">Agent Chat Room</a>
+                <a class="abm-item" href="/metadata-manager/">Metadata Manager</a>
+                <a class="abm-item" href="/about/">About / Contact</a>
               </div>
-              <a href="changelog.html" class="app-bar-tpl-btn" style="text-decoration:none" data-tip="Change Notes &amp; Release History">📋 What's New</a>
-              <button type="button" id="studio-settings-btn" class="app-bar-tpl-btn" data-tip="Global Settings — API key, backend &amp; safety">⚙ Settings</button>
-            </div>
-            <span class="app-bar-section-divider" aria-hidden="true"></span>
-            <!-- THEME group: visual style picker -->
-            <div class="theme-picker" role="group" aria-label="Theme">
-              <span aria-hidden="true">THEME</span>
-              <button type="button" class="theme-picker-btn active" data-theme="hardware" data-tip="Roland Juno / Korg Polysix aesthetic">Hardware</button>
-              <button type="button" class="theme-picker-btn" data-theme="cel-pastel" data-tip="1990s DIC pastels — Madeline / Care Bears">Cel-Pastel</button>
             </div>
           </div>
         </header>
@@ -1424,6 +1467,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
 
         <!-- Load app as ES6 module -->
+        <script src="/shared/js/auth.js" defer></script>
         <script type="module" src="js/app.js?v=23"></script>
         <script src="js/music-studio.js?v=2"></script>
         <script src="../metadata-manager/js/utils/metadata_extractor.js"></script>
@@ -1464,12 +1508,15 @@
 
             function setActiveButtons() {
                 btns.forEach(function (btn) {
+                    var on;
                     if (btn.dataset.mode) {
-                        btn.classList.toggle('active', currentMode === btn.dataset.mode);
-                    } else if (btn.dataset.layout) {
+                        on = currentMode === btn.dataset.mode;
+                    } else {
                         // Layout buttons only "active" when synth mode is showing
-                        btn.classList.toggle('active', currentMode === 'synth' && btn.dataset.layout === currentLayout);
+                        on = currentMode === 'synth' && btn.dataset.layout === currentLayout;
                     }
+                    btn.classList.toggle('active', on);
+                    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
                 });
             }
 
@@ -1548,6 +1595,38 @@
             themeBtns.forEach(function (btn) {
                 btn.addEventListener('click', function () { applyTheme(btn.dataset.theme); });
             });
+
+            // ── ⋯ "More" menu (theme · suite apps · what's new) ─────────
+            var moreBtn = document.getElementById('app-bar-more-btn');
+            var moreMenu = document.getElementById('app-bar-menu');
+            if (moreBtn && moreMenu) {
+                function closeMore() {
+                    moreMenu.hidden = true;
+                    moreBtn.setAttribute('aria-expanded', 'false');
+                    document.removeEventListener('click', onMoreDocClick);
+                    document.removeEventListener('keydown', onMoreKey);
+                }
+                function onMoreDocClick(e) {
+                    // Theme buttons live inside the menu — keep it open while toggling
+                    if (moreMenu.contains(e.target) || moreBtn.contains(e.target)) return;
+                    closeMore();
+                }
+                function onMoreKey(e) {
+                    if (e.key === 'Escape') { closeMore(); moreBtn.focus(); }
+                }
+                moreBtn.addEventListener('click', function () {
+                    if (moreMenu.hidden) {
+                        moreMenu.hidden = false;
+                        moreBtn.setAttribute('aria-expanded', 'true');
+                        setTimeout(function () {
+                            document.addEventListener('click', onMoreDocClick);
+                            document.addEventListener('keydown', onMoreKey);
+                        }, 0);
+                    } else {
+                        closeMore();
+                    }
+                });
+            }
 
             // ── Active Taste Profile pill ──────────────────────────────
             // Hidden by default. Polls briefly for window.TasteProfileStore
@@ -2283,7 +2362,8 @@
             });
         })();
         </script>
-        <script src="/shared/js/navbar.js?v=3"></script>
+        <!-- Suite navbar intentionally not loaded here: suite navigation lives
+             in the app-bar's ⋯ menu (keeps the header to a single row). -->
 </body>
 
 </html>
