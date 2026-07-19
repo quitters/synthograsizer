@@ -108,13 +108,28 @@
       `<div class="sy-email">${me.user.email}</div>` +
       `<div>Tier: <b>${me.user.tier}</b>${me.credits.unlimited ? '' :
         ` · resets ${me.credits.resets}`}</div>` +
+      `<button type="button" id="sy-export">Download my data</button>` +
+      `<button type="button" id="sy-delete">Delete my account…</button>` +
       `<button type="button" id="sy-signout">Sign out</button>`;
     pill.addEventListener('click', () => { menu.hidden = !menu.hidden; });
     document.addEventListener('click', (e) => { if (!wrap.contains(e.target)) menu.hidden = true; });
     menu.addEventListener('click', async (e) => {
-      if (e.target.id !== 'sy-signout') return;
-      await fetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
-      location.reload();
+      if (e.target.id === 'sy-signout') {
+        await fetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
+        location.reload();
+      } else if (e.target.id === 'sy-export') {
+        window.location.href = '/api/me/export';
+      } else if (e.target.id === 'sy-delete') {
+        const sure = window.confirm(
+          'Delete your Synthograsizer account?\n\n' +
+          'Your account, sessions, and credit ledger are removed immediately. ' +
+          'Templates and outputs saved in this browser stay on this device. ' +
+          'This cannot be undone.');
+        if (!sure) return;
+        const r = await fetch('/api/me', { method: 'DELETE' }).catch(() => null);
+        if (r && r.ok) { toast('Account deleted. Take care out there.'); setTimeout(() => location.reload(), 1400); }
+        else toast('Deletion failed — please try again.');
+      }
     });
     wrap.appendChild(pill);
     wrap.appendChild(menu);

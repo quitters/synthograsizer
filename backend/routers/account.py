@@ -7,6 +7,7 @@ The enforcement middleware (backend/service/enforcement.py) attaches
 """
 
 import logging
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import JSONResponse, Response
@@ -85,6 +86,70 @@ async def me(request: Request):
     if user is None:
         raise HTTPException(status_code=401, detail="Not signed in.")
     return auth.me_payload(user)
+
+
+@router.get("/api/me/export")
+async def export_my_data(request: Request):
+    """DSAR export — everything the service holds about this account, as JSON."""
+    _require_service()
+    user = getattr(request.state, "user", None)
+    if user is None:
+        raise HTTPException(status_code=401, detail="Not signed in.")
+    from backend.service import db
+    pool = db.pool()
+    ledger = await pool.fetch(
+        "SELECT ts, delta, reason, balance_after, note FROM credit_ledger "
+        "WHERE user_id = $1 ORDER BY ts", user["id"])
+    generations = await pool.fetch(
+        "SELECT ts, endpoint, action, model, units, unit_kind, credits, usd_est, "
+        "status, latency_ms, prompt_chars FROM generations "
+        "WHERE user_id = $1 ORDER BY ts", user["id"])
+    sessions = await pool.fetch(
+        "SELECT created_at, expires_at, last_seen_at, user_agent FROM sessions "
+        "WHERE user_id = $1 ORDER BY created_at", user["id"])
+    feedback = await pool.fetch(
+        "SELECT ts, payload FROM feedback WHERE user_id = $1 ORDER BY ts", user["id"])
+
+    def rows(rs):
+        return [{k: (v.isoformat() if hasattr(v, "isoformat") else
+                     float(v) if type(v).__name__ == "Decimal" else v)
+                 for k, v in dict(r).items()} for r in rs]
+
+    return JSONResponse(
+        content={
+            "exported_at": datetime.now(timezone.utc).isoformat(),
+            "account": {k: (v.isoformat() if hasattr(v, "isoformat") else v)
+                        for k, v in dict(user).items()
+                        if k in ("google_sub", "email", "name", "avatar_url", "tier",
+                                 "credits_balance", "credits_period",
+                                 "accepted_terms_version", "age_attested_at")},
+            "credit_ledger": rows(ledger),
+            "generation_log": rows(generations),
+            "sessions": rows(sessions),
+            "feedback": rows(feedback),
+        },
+        headers={"Content-Disposition": 'attachment; filename="synthograsizer-account-export.json"'},
+    )
+
+
+@router.delete("/api/me")
+async def delete_my_account(request: Request):
+    """DSAR delete — immediate and self-serve.
+
+    The user row goes away now; sessions and ledger CASCADE with it, and
+    generation-log rows anonymize (user_id → NULL) and age out with the
+    normal retention window. No email, no waiting period.
+    """
+    _require_service()
+    user = getattr(request.state, "user", None)
+    if user is None:
+        raise HTTPException(status_code=401, detail="Not signed in.")
+    from backend.service import db
+    await db.pool().execute("DELETE FROM users WHERE id = $1", user["id"])
+    logger.info("account deleted (user id %s)", user["id"])
+    response = JSONResponse({"status": "deleted"})
+    auth.clear_session_cookie(response)
+    return response
 
 
 @router.post("/api/me/accept-terms")

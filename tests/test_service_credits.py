@@ -38,6 +38,7 @@ class FakePool:
         self.gen_rows = {}
         self._next_gen = 1
         self.daily_usd = 0.0    # answered to the budget breaker's SUM query
+        self.orphans = []       # rows served to the retention janitor's SELECT
 
     # -- helpers ------------------------------------------------------------
     def _norm(self, sql):
@@ -72,7 +73,18 @@ class FakePool:
             return self.balance
         if "SUM(usd_est)" in s:
             return self.daily_usd
+        if "WITH gone AS" in s:
+            return 0
         raise AssertionError(f"unexpected fetchval: {s}")
+
+    async def fetch(self, sql, *args):
+        s = self._norm(sql)
+        if "status = 'failed'" in s:
+            return list(self.orphans)
+        for table in ("credit_ledger", "generations", "sessions", "feedback", "users"):
+            if f"FROM {table}" in s:
+                return []
+        raise AssertionError(f"unexpected fetch: {s}")
 
     async def fetchrow(self, sql, *args):
         s = self._norm(sql)
@@ -89,14 +101,17 @@ class FakePool:
             self.ops.append((f"ledger:{reason}", args))
             return
         if "UPDATE generations SET status = 'ok'" in s:
-            self.gen_rows[args[2]].update(status="ok", error=args[1])
+            self.gen_rows.setdefault(args[-1], {}).update(status="ok", error=args[1])
             return
         if "UPDATE generations SET status = 'refunded'" in s:
-            self.gen_rows[args[2]].update(status="refunded", error=args[1])
+            self.gen_rows.setdefault(args[-1], {}).update(status="refunded")
             return
         if "UPDATE users SET credits_balance = $1" in s:
             self.balance, self.period = args[0], args[1]
             self.ops.append(("grant", args[0]))
+            return
+        if "DELETE FROM users" in s:
+            self.ops.append(("delete_user", args[0]))
             return
         if "DELETE FROM sessions" in s or "UPDATE sessions" in s:
             return

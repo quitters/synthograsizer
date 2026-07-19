@@ -69,6 +69,61 @@ def purge_old_outputs(days: int = None) -> dict:
     return summary
 
 
+async def purge_service_db() -> dict:
+    """Service-mode database housekeeping (no-op otherwise):
+
+    - expired sessions go away,
+    - generation-log rows past the retention window are deleted
+      (privacy: metadata-only, but still not kept forever),
+    - feedback older than 90 days is deleted,
+    - orphaned reserves (a crash between reserve and settle leaves an old
+      'failed' row whose charge was never refunded) are refunded after 15
+      minutes — keeps the ledger-sum invariant honest.
+    """
+    from backend.service import service_mode
+    if not service_mode():
+        return {}
+    from backend.service import db
+    pool = db.pool()
+    summary = {}
+    summary["sessions"] = await pool.fetchval(
+        "WITH gone AS (DELETE FROM sessions WHERE expires_at <= now() RETURNING 1) "
+        "SELECT COUNT(*) FROM gone")
+    summary["generations"] = await pool.fetchval(
+        "WITH gone AS (DELETE FROM generations "
+        f"WHERE ts < now() - INTERVAL '{retention_days()} days' RETURNING 1) "
+        "SELECT COUNT(*) FROM gone")
+    summary["feedback"] = await pool.fetchval(
+        "WITH gone AS (DELETE FROM feedback "
+        "WHERE ts < now() - INTERVAL '90 days' RETURNING 1) "
+        "SELECT COUNT(*) FROM gone")
+
+    orphans = await pool.fetch(
+        "SELECT id, user_id, credits FROM generations "
+        "WHERE status = 'failed' AND credits > 0 AND user_id IS NOT NULL "
+        "AND ts < now() - INTERVAL '15 minutes'")
+    refunded = 0
+    for row in orphans:
+        balance = await pool.fetchval(
+            "UPDATE users SET credits_balance = credits_balance + $1 "
+            "WHERE id = $2 RETURNING credits_balance",
+            row["credits"], row["user_id"])
+        if balance is None:
+            continue  # user deleted since
+        await pool.execute(
+            "INSERT INTO credit_ledger (user_id, delta, reason, balance_after, generation_id, note) "
+            "VALUES ($1, $2, 'refund', $3, $4, 'orphaned reserve auto-refund')",
+            row["user_id"], row["credits"], balance, row["id"])
+        await pool.execute(
+            "UPDATE generations SET status = 'refunded', error = 'orphaned_reserve' WHERE id = $1",
+            row["id"])
+        refunded += 1
+    summary["orphan_refunds"] = refunded
+    if any(summary.values()):
+        logger.info("Service DB retention: %s", summary)
+    return summary
+
+
 async def retention_loop():
     """Hourly purge loop — started from server.py only when hosted."""
     import asyncio
@@ -80,4 +135,8 @@ async def retention_loop():
             purge_old_outputs()
         except Exception as e:  # never let housekeeping kill the server
             logger.error("Retention purge failed: %s", e)
+        try:
+            await purge_service_db()
+        except Exception as e:
+            logger.error("Service DB retention failed: %s", e)
         await asyncio.sleep(3600)

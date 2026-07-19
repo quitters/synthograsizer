@@ -219,8 +219,9 @@
       <h1 class="page-title">Terms &amp; Privacy</h1>
       <p class="page-subtitle">Synthograsizer Suite — Terms of Use &amp; Privacy Notice</p>
       <div class="draft-banner">
-        ⚠ DRAFT v0.1 · 2026-06-11 · This document has not yet been reviewed by a lawyer.
+        ⚠ DRAFT v0.2 · 2026-07-19 · This document has not yet been reviewed by a lawyer.
         It is a good-faith working draft, published for transparency while the project is pre-release.
+        v0.2 adds the hosted-service account, credit, and data-handling terms (§2, §3, §7).
         See the <a href="https://github.com/quitters/synthograsizer/blob/main/docs/COMPLIANCE_ROADMAP.md">compliance roadmap</a> for what's planned.
       </div>
     </div>
@@ -258,13 +259,14 @@
 
     <section class="tos-section" id="eligibility">
       <h2>2 · Eligibility</h2>
-      <p>You must be at least <strong>18 years old</strong> (or the age of majority where you live, if higher) to use the hosted instance. This mirrors the age requirements of the underlying Google generative AI services. We do not knowingly collect data from minors; if you believe a minor has used the service, contact us and we will delete the associated data.</p>
+      <p>You must be at least <strong>18 years old</strong> (or the age of majority where you live, if higher) to use the hosted instance. This mirrors the age requirements of the underlying Google generative AI services. When you sign in for the first time you are asked to confirm this; generation stays locked until you do. We do not knowingly collect data from minors; if you believe a minor has used the service, contact us and we will delete the associated data.</p>
     </section>
 
     <section class="tos-section" id="service">
       <h2>3 · The service</h2>
       <p>The Suite is a creative instrument for structured AI prompt engineering: prompt templates with variables, AI image / video / text / music generation, generative p5.js sketches, multi-agent AI conversations, glitch-art processing, and live-performance integrations (MIDI, OSC, external displays).</p>
-      <p>Generation features call <strong>Google's generative AI APIs</strong> (Gemini, Imagen, Veo, Lyria) using an API key. On a self-hosted install, that is your own key, used at your own cost and subject to your own agreement with Google. On a hosted instance, generation may be disabled, rate-limited, or require you to supply your own key ("bring your own key") — a key you supply is used only to call Google's APIs on your behalf for the features you invoke.</p>
+      <p>Generation features call <strong>Google's generative AI APIs</strong> (Gemini, Imagen, Veo, Lyria) using an API key. On a self-hosted install, that is your own key, used at your own cost and subject to your own agreement with Google.</p>
+      <p><strong>Hosted service accounts &amp; credits:</strong> on the hosted instance, generation runs on <em>our</em> API key and requires signing in with a Google account. Free accounts receive a monthly credit allowance (currently 300 credits, reset on the first of each month, no rollover) spent per generation at posted per-model rates. Text and image generation and analysis tools are included; video (Veo) and music (Lyria) generation are not part of the free tier. Credits have no cash value, cannot be transferred or redeemed, and exist only to keep a shared instrument affordable to run. We may adjust allowances, rates, rate limits, and daily instance-wide budgets to keep the service healthy — the in-app numbers are authoritative. Some local-install features (saving to the operator's disk, OSC/MIDI hardware bridges, ChatRoom, Videorama) are unavailable on the hosted instance.</p>
       <p><strong>Backend tiers:</strong> on a self-hosted install you may point <em>text</em> generation at a local, OpenAI-compatible model running on your own hardware (e.g. Ollama or LM Studio). On that local tier the Suite applies no content filters of its own — what you generate on your own machine is your responsibility, within the acceptable-use rules in §6, which apply regardless of backend. When generation runs through a cloud provider (Google), that provider's safety filters and use policies apply, and the Suite's safety controls operate only within what the provider's API permits. Image, video, and music generation always use Google in the current version. Hosted instances are pinned to the Google backend.</p>
       <p>The Suite is experimental, pre-release software, provided as-is. Features may change, break, or disappear without notice.</p>
     </section>
@@ -348,6 +350,34 @@
           <td><strong>No</strong> — local-tier text generation never leaves your machine/network</td>
         </tr>
       </table>
+      <h3>Accounts &amp; credits on the hosted service</h3>
+      <p>Signing in to the hosted instance adds the following, and only the following, server-side data:</p>
+      <table class="data-flow">
+        <tr><th>Data</th><th>Contents</th><th>Kept</th></tr>
+        <tr>
+          <td>Account record</td>
+          <td>Your Google account identifier, email address, display name, and avatar URL (received from Google Sign-In), plus your credit balance, tier, terms-acceptance version, and 18+ confirmation date</td>
+          <td>Until you delete your account</td>
+        </tr>
+        <tr>
+          <td>Session cookie</td>
+          <td>One first-party, HttpOnly cookie (<code>synth_session</code>) holding a random token — no tracking, no third-party cookies</td>
+          <td>30 days per session; expired sessions are purged automatically</td>
+        </tr>
+        <tr>
+          <td>Credit ledger &amp; generation log</td>
+          <td>Per-generation metadata: endpoint, model, credit cost, estimated provider cost, timing, and prompt <em>length</em>. <strong>Prompt text and generated media are never stored server-side</strong> — outputs return to your browser and live there</td>
+          <td>Log entries older than the retention window (currently 30 days) are purged; ledger totals persist with your account</td>
+        </tr>
+        <tr>
+          <td>Feedback you submit</td>
+          <td>Stored in the service database instead of the operator's disk; your prompt is included only if you tick the opt-in box</td>
+          <td>90 days</td>
+        </tr>
+      </table>
+      <p>The hosted service runs in <strong>Google Cloud's Montréal region (Canada)</strong>. Generation requests are processed by Google's generative AI APIs on our paid API tier, which may involve servers outside Canada (typically the US) — governed by <a href="https://ai.google.dev/gemini-api/terms" target="_blank" rel="noopener">Google's API terms</a> for paid services.</p>
+      <p><strong>Self-serve rights:</strong> the account menu includes <em>Download my data</em> (a JSON export of your account record, ledger, and generation log) and <em>Delete my account</em> (immediate removal of your account, sessions, and ledger; generation-log rows are anonymized and age out with the retention window). No email required, no waiting period.</p>
+
       <h3>What we don't do</h3>
       <ul>
         <li>No sale or sharing of personal information. No advertising or behavioral tracking.</li>
