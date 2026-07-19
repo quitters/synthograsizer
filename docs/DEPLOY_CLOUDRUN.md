@@ -57,3 +57,5 @@ add it here too + Cloud Run domain mapping.)
 Tune without code: `SYNTH_MONTHLY_CREDITS`, `SYNTH_DAILY_BUDGET_USD`,
 `RATE_LIMIT_USER_REQUESTS`, `RETENTION_DAYS`. Scaling past max-instances=1 needs shared
 rate-limit/budget state first (documented in the plan).
+
+> **Field notes (2026-07-19 launch):** grant the runtime SA secret access once:`gcloud secrets add-iam-policy-binding <secret> --member=serviceAccount:679278101913-compute@developer.gserviceaccount.com --role=roles/secretmanager.secretAccessor` for both secrets; deploy FROM `~/synthograsizer` (home-dir deploys use Buildpacks and fail); secrets must have no trailing newline; Cloud SQL enforces password complexity — use `P="$(openssl rand -base64 18)Aa1!"`. See HANDOFF_SERVICE_LAUNCH.md.
