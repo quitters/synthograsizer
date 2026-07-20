@@ -79,18 +79,45 @@ def _user_rate_retry_after(user_id: int) -> int | None:
     return None
 
 
+def _trusted_origins() -> set[str]:
+    """Extra origins allowed past the same-origin check (``SYNTH_PUBLIC_ORIGINS``).
+
+    Needed when a reverse proxy fronts the service under a different name: the
+    browser sends ``Origin: https://synthograsizer.com`` while the proxy dials
+    Cloud Run with ``Host: …run.app``, so the hosts legitimately disagree.
+    Empty by default — an unset env changes nothing.
+
+    Accepts full URLs or bare hosts, comma-separated.
+    """
+    raw = os.environ.get("SYNTH_PUBLIC_ORIGINS", "")
+    origins = set()
+    for item in raw.split(","):
+        item = item.strip()
+        if not item:
+            continue
+        origins.add((urlparse(item).netloc or item).lower())
+    return origins
+
+
 def _same_origin(request) -> bool:
     """Origin (fallback Referer) must match the request host when present.
 
     Absent headers pass: browsers always send Origin on cross-site unsafe
     requests (the case CSRF cares about); header-less callers are non-browser
     clients (curl, tests) that can't ride ambient cookies cross-site.
+
+    A proxied public origin (``SYNTH_PUBLIC_ORIGINS``) also passes — that list
+    is operator-set, so it is an allowlist, not a wildcard.
     """
     origin = request.headers.get("origin") or request.headers.get("referer")
     if not origin:
         return True
-    netloc = urlparse(origin).netloc
-    return bool(netloc) and netloc == request.headers.get("host", "")
+    netloc = urlparse(origin).netloc.lower()
+    if not netloc:
+        return False
+    if netloc == request.headers.get("host", "").lower():
+        return True
+    return netloc in _trusted_origins()
 
 
 async def service_middleware(request, call_next):

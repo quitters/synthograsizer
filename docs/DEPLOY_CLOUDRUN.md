@@ -41,6 +41,19 @@ ADMIN_EMAILS=quittersarts@gmail.com,SYNTH_MONTHLY_CREDITS=300,SYNTH_DAILY_BUDGET
 ```
 First deploy prints the service URL (`https://synthograsizer-<hash>-<region>.a.run.app`).
 
+### 2b · Public origins (only when a proxy/domain fronts the service)
+`synthograsizer.com` is proxied to Cloud Run by Vercel, so the browser sends
+`Origin: https://synthograsizer.com` while the proxy dials with `Host: …run.app`. The CSRF
+check needs that pair allowlisted or **every POST 403s `cross_origin_rejected`** (sign-in included):
+```bash
+# NOTE: the value contains a comma, which is --set-env-vars' own delimiter.
+# The ^@^ prefix switches the delimiter for this flag — without it gcloud
+# splits the value and writes a garbage second variable.
+gcloud run services update synthograsizer --region northamerica-northeast1 \
+  --update-env-vars "^@^SYNTH_PUBLIC_ORIGINS=https://synthograsizer.com,https://www.synthograsizer.com"
+```
+Unset = same-origin only (local installs and the bare run.app URL need nothing).
+
 ## 3 · One-time: OAuth origin
 Console → Google Auth Platform → Clients → **Synthograsizer Web** → add the service URL to
 **Authorized JavaScript origins**. (Takes 5 min–few hours to propagate. ✓ run.app origin added

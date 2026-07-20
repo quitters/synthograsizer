@@ -30,7 +30,9 @@ The service is **live on Cloud Run**. Companion docs: **[DEPLOY_CLOUDRUN.md](DEP
 - Smoke §4: **1 ✓ 2 ✓ 6 ✓**; **3 partial ✓** (non-admin = 300cr, video 403 `tier_required`,
   DSAR export 200; text-gen decrement blocked by the secret issue below); **4, 5 pending**.
 - Landing + about **launch CTAs now point at `/synthograsizer/`** (was the gated demo);
-  the hosted-demo rewrite script is gone. Committed? — check git; needs push + redeploy to go live.
+  the hosted-demo rewrite script is gone. **Committed + pushed to `main`** (92d57e5) — live on
+  the next redeploy. (Note: the final-CTA copy still reads "No account" — accurate for local, but
+  hosted generation needs sign-in; reword if desired.)
 
 ## Next steps, in order
 1. **⚠ BLOCKER — re-add `synth-gemini-key` with a clean value.** Every Gemini call 500s with
@@ -53,16 +55,18 @@ The service is **live on Cloud Run**. Companion docs: **[DEPLOY_CLOUDRUN.md](DEP
 4. **Watch week one**: `/api/admin/stats` daily; budget emails (synthograsizer-monthly, $100/mo);
    trial credits ($425, expire 2026-10-16 — **upgrade to full account before then or everything
    stops**).
-5. **Custom domain — synthograsizer.com currently sits on Vercel.** Cloud Run domain mappings
-   are region-limited and Montréal has not been on the list, so pick one of:
-   (a) **Vercel as pure proxy** (fast, free): strip the Vercel project to a single `vercel.json`
-   `{"rewrites":[{"source":"/(.*)","destination":"https://synthograsizer-679278101913.northamerica-northeast1.run.app/$1"}]}`
-   — test Veo's long requests against Vercel's proxy timeout before trusting it;
-   (b) **global external Application Load Balancer + serverless NEG** (~$18/mo, no timeout
-   issues): apex A record → LB IP, managed cert. Either way add `https://synthograsizer.com`
-   (+ `https://www.…`) to the OAuth client origins. Then: counsel review of Terms v0.2
-   (`static/terms/index.html` — [counsel] items flagged); delete the stray empty
-   "Synthograsizer" project under adaheemskerk@gmail.com.
+5. **Custom domain — synthograsizer.com (Vercel proxy).** Chosen 2026-07-19; domain stays
+   registered at Vercel. Cloud Run domain mapping was ruled out — **confirmed** unsupported in
+   northamerica-northeast1 (only 10 regions; Google directs everything else to an ALB).
+   Already done: `vercel.json` reduced to a pure rewrite → Cloud Run (also kills the old
+   `@vercel/python` build that was erroring 100%); `SYNTH_PUBLIC_ORIGINS` support added to the
+   CSRF check; both `https://synthograsizer.com` and `https://www.…` added to the OAuth client.
+   **Remaining: the redeploy in runbook §2b** — until that env is live, sign-in on the domain
+   403s `cross_origin_rejected`. Then verify a full sign-in + text gen through the domain, and
+   check whether Veo's long runs survive Vercel's proxy timeout (admin-only; fall back to the
+   run.app URL for those, or move to an ALB ~$18/mo if it matters).
+   Also still open: counsel review of Terms v0.2 (`static/terms/index.html` — [counsel] items
+   flagged); delete the stray empty "Synthograsizer" project under adaheemskerk@gmail.com.
 6. **Phase 5 (designed-for, unbuilt)**: Stripe paid tier (`tier` column + webhook + ledger
    `purchase` rows exist), per-user cloud storage (**plan written:
    [HANDOFF_CLOUD_STORAGE.md](HANDOFF_CLOUD_STORAGE.md)**), hosted ChatRoom, multi-instance
@@ -70,4 +74,5 @@ The service is **live on Cloud Run**. Companion docs: **[DEPLOY_CLOUDRUN.md](DEP
 
 ## Tuning knobs (env only, no code)
 `SYNTH_MONTHLY_CREDITS` · `SYNTH_DAILY_BUDGET_USD` · `RATE_LIMIT_USER_REQUESTS` ·
-`RETENTION_DAYS` · `ADMIN_EMAILS` · prices in `backend/service/pricing.py`.
+`RETENTION_DAYS` · `ADMIN_EMAILS` · `SYNTH_PUBLIC_ORIGINS` (proxy/domain allowlist — see
+runbook §2b) · prices in `backend/service/pricing.py`.

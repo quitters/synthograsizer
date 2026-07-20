@@ -100,6 +100,31 @@ def test_same_origin_post_passes_origin_check(service_on):
     assert r.status_code == 401  # cleared CSRF, stopped at the auth wall
 
 
+def test_proxied_public_origin_passes_when_allowlisted(service_on, monkeypatch):
+    """A reverse proxy (synthograsizer.com → run.app) makes Origin and Host
+    legitimately disagree; SYNTH_PUBLIC_ORIGINS is the operator's opt-in."""
+    monkeypatch.setenv("SYNTH_PUBLIC_ORIGINS", "https://synthograsizer.com")
+    r = client.post("/api/generate/text", json={},
+                    headers={"Origin": "https://synthograsizer.com", "Host": "testserver"})
+    assert r.status_code == 401  # cleared CSRF, stopped at the auth wall
+
+
+def test_proxied_public_origin_rejected_when_not_allowlisted(service_on, monkeypatch):
+    monkeypatch.delenv("SYNTH_PUBLIC_ORIGINS", raising=False)
+    r = client.post("/api/generate/text", json={},
+                    headers={"Origin": "https://synthograsizer.com", "Host": "testserver"})
+    assert r.status_code == 403
+    assert r.json()["error"] == "cross_origin_rejected"
+
+
+def test_allowlist_does_not_admit_other_origins(service_on, monkeypatch):
+    monkeypatch.setenv("SYNTH_PUBLIC_ORIGINS", "https://synthograsizer.com")
+    r = client.post("/api/generate/text", json={},
+                    headers={"Origin": "https://evil.example", "Host": "testserver"})
+    assert r.status_code == 403
+    assert r.json()["error"] == "cross_origin_rejected"
+
+
 # ── sign-in flow (Google verify + DB mocked) ────────────────────────────────
 
 def test_auth_google_rejects_bad_credential(service_on, monkeypatch):

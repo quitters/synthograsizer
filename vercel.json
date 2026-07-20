@@ -1,16 +1,9 @@
 {
   "version": 2,
-  "builds": [
-    { "src": "backend/server.py", "use": "@vercel/python" },
-    { "src": "static/**",        "use": "@vercel/static" }
-  ],
-  "routes": [
-    { "src": "/api/(.*)", "dest": "/backend/server.py" },
-    { "src": "^/synthograsizer/?$", "dest": "/static/synthograsizer/index.html",
-      "headers": { "Cache-Control": "no-cache" } },
-    { "src": "/(.*\\.(?:png|jpe?g|gif|webp|avif|ico|mp4|webm|mp3|wav|ogg|woff2?|ttf|otf))", "dest": "/static/$1",
-      "headers": { "Cache-Control": "public, max-age=86400" } },
-    { "src": "/(.*)",     "dest": "/static/$1",
-      "headers": { "Cache-Control": "no-cache" } }
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "https://synthograsizer-679278101913.northamerica-northeast1.run.app/$1"
+    }
   ]
 }
