@@ -320,6 +320,27 @@
               <div class="entry-sub">Every "Launch" call-to-action on the landing and about pages now goes straight to the full suite. The demo build had been the default for public visitors back when there was no way to sign in; the free tier replaces it. The gated demo is still reachable from the suite navigation if you want it.</div>
             </div>
           </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-fix">fix</span>
+            <div>
+              <div class="entry-text">Backend &amp; Safety panel now talks about credits, not a mythical "instance operator"</div>
+              <div class="entry-sub">Settings → Backend &amp; Safety carried notices written before the service existed — a generic operator managing config "via environment variables," which means nothing if you're signed in and paying in credits. The panel now branches on whether accounts are on: with accounts, it explains metering and points at the account menu; a plain hosted deployment without accounts keeps the operator wording. The backend note also stopped hardcoding "Google" — it names whichever tier is actually pinned, so a hosted local-model deployment no longer claims Google's usage policy applies to it.</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-fix">fix</span>
+            <div>
+              <div class="entry-text">Smart Video Options and Send to Scope no longer show up as dead ends on the hosted service</div>
+              <div class="entry-sub">Both buttons sat on every image result and led nowhere for free-tier users. Smart Video Options now shows only for admins, matching the admin-only video endpoint it opens; Send to Scope hides for everyone in service mode, admins included — it bridges to a renderer on your own machine, and the underlying endpoint 403s before a hosted request could ever reach one.</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-fix">fix</span>
+            <div>
+              <div class="entry-text">Fixed a database migration bug that would have broken every fresh install</div>
+              <div class="entry-sub">Laying groundwork for a future account-storage feature surfaced a latent bug in the service database's upgrade path: a brand-new database computed itself as version zero and replayed every migration step up to current, even though it had just been built at the current schema in one shot. Harmless while every step was an additive table creation, but the first column-add or backfill would have errored or double-applied on new installs. Fresh databases now stamp straight to the current version with nothing replayed; migrations only run against a database that already has its own older recorded version. Covered by a new test written to fail against the old logic first.</div>
+            </div>
+          </li>
         </ul>
 
         <div class="panel-section-label">Main App — One-Row Header</div>
@@ -1096,7 +1117,7 @@
     </div>
 
     <div class="lcd-footer">
-      SYNTHOGRASIZER SUITE — CHANGE NOTES — UPDATED 2026-05-13
+      SYNTHOGRASIZER SUITE — CHANGE NOTES — UPDATED 2026-07-20
     </div>
   </main>
 
