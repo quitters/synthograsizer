@@ -38,7 +38,7 @@ gcloud run deploy synthograsizer \
   --allow-unauthenticated \
   --add-cloudsql-instances synthograsizer-app:northamerica-northeast1:synth-db \
   --set-secrets GOOGLE_API_KEY=synth-gemini-key:latest,DB_PASS=synth-db-pass:latest \
-  --set-env-vars "SYNTH_HOSTED=1,SYNTH_AUTH=1,SYNTH_TERMS_VERSION=v0.2,\
+  --set-env-vars "SYNTH_HOSTED=1,SYNTH_AUTH=1,SYNTH_TERMS_VERSION=v0.3,\
 INSTANCE_CONNECTION_NAME=synthograsizer-app:northamerica-northeast1:synth-db,\
 DB_USER=postgres,DB_NAME=synth,\
 GOOGLE_OAUTH_CLIENT_ID=679278101913-k4am2o8gu3dhah9n08i40lpslb7m0afs.apps.googleusercontent.com,\
@@ -47,6 +47,12 @@ ADMIN_EMAILS=quittersarts@gmail.com,SYNTH_MONTHLY_CREDITS=300,SYNTH_DAILY_BUDGET
   --session-affinity
 ```
 First deploy prints the service URL (`https://synthograsizer-<hash>-<region>.a.run.app`).
+
+> **Keep `SYNTH_TERMS_VERSION` here in sync with the live terms.** It read `v0.2` until
+> 2026-07-20, one revision behind what §2c sets. Harmless only because §2c is mandatory and runs
+> straight after — but a single skipped §2c would have *downgraded* the live terms version,
+> re-prompting every user to accept a document older than the one they already accepted. Bump this
+> line and §2c together whenever the terms revision changes.
 
 ### 2b · Public origins (required — re-run after every §2 once a domain fronts the service)
 **Run this AFTER §2, never instead of it — and never before it. Once this has been applied even
