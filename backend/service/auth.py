@@ -16,7 +16,7 @@ import os
 import secrets
 from datetime import date, datetime, timedelta, timezone
 
-from . import db
+from . import db, storage
 
 logger = logging.getLogger(__name__)
 
@@ -255,6 +255,7 @@ def me_payload(user) -> dict:
             "video": is_admin,
             "music": is_admin,
             "videorama": False,
+            "storage": storage.enabled(),
         },
         "needs_terms": needs_terms(user),
         "terms_version": terms_version(),

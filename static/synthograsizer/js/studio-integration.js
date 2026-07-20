@@ -3609,6 +3609,51 @@ class StudioIntegration {
         }
     }
 
+    /**
+     * Save a generated image/video/track to the signed-in user's account
+     * gallery. generationId is whatever the generating endpoint returned —
+     * the server re-verifies it belongs to this account and produced media
+     * of this kind before accepting the bytes, so this call can 404 even
+     * with a real id if something upstream is stale.
+     */
+    async saveArtifact(kind, mime, base64Data, generationId, btn) {
+        if (generationId == null) {
+            this.showToast('Nothing to save yet — generate first.', 'warning', 3000);
+            return;
+        }
+        const original = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = '💾 Saving…';
+        try {
+            const res = await fetch('/api/artifacts', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    data_b64: base64Data, kind, mime, generation_id: generationId
+                })
+            });
+            if (res.ok) {
+                btn.textContent = '✅ Saved';
+                this.showToast('Saved — find it under My creations in the account menu.', 'success', 3500);
+                return;
+            }
+            const err = await res.json().catch(() => ({}));
+            const detail = err.detail;
+            if (detail && detail.error === 'storage_quota') {
+                this.showToast(
+                    `Storage full (${detail.used_mb}/${detail.limit_mb} MB) — delete something first.`,
+                    'error', 4000
+                );
+            } else {
+                this.showToast('Save failed — please try again.', 'error', 3000);
+            }
+        } catch (e) {
+            this.showToast('Save failed — please try again.', 'error', 3000);
+        }
+        btn.disabled = false;
+        btn.textContent = original;
+    }
+
     isUrl(str) {
         return typeof str === 'string' && (str.startsWith('http') || str.startsWith('blob:'));
     }
@@ -4644,10 +4689,19 @@ class StudioIntegration {
             const data = await res.json();
             const content = document.getElementById('studio-content');
 
+            // Signed-in + storage-enabled accounts only — a bare accounts-off
+            // deployment (SYNTH_HOSTED without SYNTH_AUTH) has no features at all.
+            const canSave = !!(window.SynthAuth && window.SynthAuth.me &&
+                                window.SynthAuth.me.features && window.SynthAuth.me.features.storage);
+            const saveBtnHtml = (kind, mime, sourceExpr) => canSave
+                ? `<button class="synth-save-artifact" onclick="window.studioIntegrationInstance.saveArtifact('${kind}','${mime}', ${sourceExpr}, window.studioIntegrationInstance.lastGenerationId, this)" style="background:rgba(61,189,173,0.15); border:1px solid rgba(61,189,173,0.5); color:#3dbdad; padding:6px 14px; border-radius:6px; cursor:pointer; font-size:13px;">💾 Save</button>`
+                : '';
+
             if (type === 'image') {
-                // Store for lightbox / Smart Video Options
+                // Store for lightbox / Smart Video Options / Save
                 this.currentBatchResults = [data.image];
                 this.currentLightboxIndex = 0;
+                this.lastGenerationId = data.generation_id ?? null;
 
                 // Auto-push to OBS display page
                 window.synthSmall?.displayBroadcaster?.sendImage(
@@ -4667,16 +4721,26 @@ class StudioIntegration {
                 html += `<div style="margin-top:10px; display:flex; justify-content:center; gap:10px;">`;
                 html += `<button class="synth-gated-video" onclick="window.studioIntegrationInstance.openVideoOptionsFromResult(0)" style="background:rgba(156,39,176,0.15); border:1px solid rgba(156,39,176,0.4); color:#7b1fa2; padding:6px 14px; border-radius:6px; cursor:pointer; font-size:13px;">🎬 Smart Video Options</button>`;
                 html += `<button class="synth-gated-scope" onclick="window.studioIntegrationInstance.pushCurrentImageToScope(window.studioIntegrationInstance.currentBatchResults[0])" style="background:rgba(0,120,200,0.15); border:1px solid rgba(0,120,200,0.4); color:#0078c8; padding:6px 14px; border-radius:6px; cursor:pointer; font-size:13px;">📡 Send to Scope</button>`;
+                html += saveBtnHtml('image', 'image/png', 'window.studioIntegrationInstance.currentBatchResults[0]');
                 html += `</div>`;
                 if (data.text) {
                     html += `<div style="margin-top:10px; padding:10px; background:#f0f0f0; border-radius:5px; font-family:monospace; white-space:pre-wrap; max-height:200px; overflow-y:auto;"><strong>Thinking Process:</strong><br>${data.text}</div>`;
                 }
                 content.innerHTML = html;
             } else {
-                content.innerHTML = `
+                this.currentSingleVideoResult = data.video;
+                this.lastGenerationId = data.generation_id ?? null;
+
+                let videoHtml = `
                 <video controls autoplay loop class="studio-result-video">
                     <source src="data:video/mp4;base64,${data.video}" type="video/mp4">
                     </video>`;
+                if (canSave) {
+                    videoHtml += `<div style="margin-top:10px; display:flex; justify-content:center; gap:10px;">`;
+                    videoHtml += saveBtnHtml('video', 'video/mp4', 'window.studioIntegrationInstance.currentSingleVideoResult');
+                    videoHtml += `</div>`;
+                }
+                content.innerHTML = videoHtml;
 
                 // Store the video URI for future extension (valid for 48h on Google's servers)
                 if (data.video_uri) {

@@ -51,7 +51,22 @@
   .sy-toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:99996;
     background:var(--suite-bg-raised,#1f1f30);border:1px solid var(--suite-border,#33334d);
     color:var(--suite-text,#e8e8f0);padding:10px 16px;border-radius:10px;
-    font:500 12.5px Inter,system-ui,sans-serif;box-shadow:0 8px 28px rgba(0,0,0,.45)}`;
+    font:500 12.5px Inter,system-ui,sans-serif;box-shadow:0 8px 28px rgba(0,0,0,.45)}
+  .sy-gallery-modal{max-width:640px;max-height:80vh;display:flex;flex-direction:column}
+  .sy-gallery-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+  .sy-gallery-head h3{margin:0}
+  .sy-gallery-close{background:none;border:0;color:inherit;font-size:20px;line-height:1;cursor:pointer;padding:2px 6px}
+  .sy-gallery-quota{opacity:.7;font-size:12px;margin-bottom:10px}
+  .sy-gallery-grid{overflow-y:auto;display:flex;flex-direction:column;gap:8px}
+  .sy-gallery-empty{opacity:.7;padding:20px 4px;text-align:center}
+  .sy-gallery-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;
+    background:rgba(255,255,255,.03);border:1px solid var(--suite-border,#33334d)}
+  .sy-gallery-icon{font-size:18px}
+  .sy-gallery-label{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .sy-gallery-meta{opacity:.6;font-size:11px;white-space:nowrap}
+  .sy-gallery-item button{width:auto;margin:0;padding:5px 10px;font-size:11.5px}
+  .sy-gallery-more{margin-top:4px;padding:8px;border-radius:8px;border:1px solid var(--suite-border,#33334d);
+    background:transparent;color:inherit;cursor:pointer;font:inherit}`;
 
   function injectStyles() {
     const el = document.createElement('style');
@@ -108,6 +123,7 @@
       `<div class="sy-email">${me.user.email}</div>` +
       `<div>Tier: <b>${me.user.tier}</b>${me.credits.unlimited ? '' :
         ` · resets ${me.credits.resets}`}</div>` +
+      (me.features.storage ? `<button type="button" id="sy-gallery">My creations</button>` : '') +
       `<button type="button" id="sy-export">Download my data</button>` +
       `<button type="button" id="sy-delete">Delete my account…</button>` +
       `<button type="button" id="sy-signout">Sign out</button>`;
@@ -117,6 +133,9 @@
       if (e.target.id === 'sy-signout') {
         await fetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
         location.reload();
+      } else if (e.target.id === 'sy-gallery') {
+        menu.hidden = true;
+        showGalleryModal();
       } else if (e.target.id === 'sy-export') {
         window.location.href = '/api/me/export';
       } else if (e.target.id === 'sy-delete') {
@@ -208,6 +227,119 @@
       if (r.ok) { state.me = await r.json(); ov.remove(); announce(); }
       else toast('Could not record acceptance — please retry.');
     });
+  }
+
+  /* ── "My creations" gallery ────────────────────────────────────────────
+   * Deliberately no thumbnails on load: fetching a signed URL per item
+   * would mean N requests just to open the list. Each row shows a kind
+   * icon + label + size/date; View fetches ONE signed URL on demand. */
+  const KIND_ICON = { image: '🖼️', video: '🎬', music: '🎵' };
+
+  function formatBytes(n) {
+    const mb = n / (1024 * 1024);
+    return (mb >= 1 ? mb.toFixed(1) : mb.toFixed(2)) + ' MB';
+  }
+
+  async function refreshGalleryQuota(overlay) {
+    const r = await fetch('/api/me/artifacts').catch(() => null);
+    if (!r || !r.ok) return;
+    const data = await r.json();
+    const q = overlay.querySelector('#sy-gallery-quota');
+    if (q) q.textContent = `${data.storage_used_mb} MB of ${data.storage_limit_mb} MB used`;
+  }
+
+  async function loadGalleryPage(overlay, beforeId) {
+    const grid = overlay.querySelector('#sy-gallery-grid');
+    const url = '/api/me/artifacts' + (beforeId ? `?before_id=${beforeId}` : '');
+    const r = await fetch(url).catch(() => null);
+    if (!r || !r.ok) {
+      if (!beforeId) grid.innerHTML = '<div class="sy-gallery-empty">Couldn’t load your creations.</div>';
+      return;
+    }
+    const data = await r.json();
+    const q = overlay.querySelector('#sy-gallery-quota');
+    if (q) q.textContent = `${data.storage_used_mb} MB of ${data.storage_limit_mb} MB used`;
+    if (!beforeId) grid.innerHTML = '';
+    if (data.items.length === 0 && !beforeId) {
+      grid.innerHTML = '<div class="sy-gallery-empty">Nothing saved yet — look for a Save button under a ' +
+        'generated image, video, or track.</div>';
+      return;
+    }
+    const moreBtn = grid.querySelector('.sy-gallery-more');
+    if (moreBtn) moreBtn.remove();
+    data.items.forEach((item) => {
+      const row = document.createElement('div');
+      row.className = 'sy-gallery-item';
+      row.dataset.id = item.id;
+      const when = new Date(item.created_at).toLocaleDateString();
+      row.innerHTML =
+        `<span class="sy-gallery-icon">${KIND_ICON[item.kind] || '📄'}</span>` +
+        `<span class="sy-gallery-label">${item.label ? String(item.label).replace(/</g, '&lt;') : item.kind}</span>` +
+        `<span class="sy-gallery-meta">${formatBytes(item.bytes)} · ${when}</span>` +
+        `<button type="button" class="sy-gallery-view">View</button>` +
+        `<button type="button" class="sy-gallery-del">Delete</button>`;
+      grid.appendChild(row);
+    });
+    if (data.next_before_id) {
+      const more = document.createElement('button');
+      more.type = 'button';
+      more.className = 'sy-gallery-more';
+      more.textContent = 'Load more';
+      more.addEventListener('click', () => loadGalleryPage(overlay, data.next_before_id));
+      grid.appendChild(more);
+    }
+  }
+
+  function showGalleryModal() {
+    if (document.getElementById('sy-gallery-overlay')) return;
+    const ov = document.createElement('div');
+    ov.className = 'sy-overlay';
+    ov.id = 'sy-gallery-overlay';
+    ov.innerHTML =
+      `<div class="sy-modal sy-gallery-modal" role="dialog" aria-modal="true" aria-label="My creations">` +
+        `<div class="sy-gallery-head"><h3>My creations</h3>` +
+        `<button type="button" class="sy-gallery-close" aria-label="Close">×</button></div>` +
+        `<div class="sy-gallery-quota" id="sy-gallery-quota">Loading…</div>` +
+        `<div class="sy-gallery-grid" id="sy-gallery-grid">` +
+          `<div class="sy-gallery-empty">Loading…</div></div>` +
+      `</div>`;
+    document.body.appendChild(ov);
+    ov.addEventListener('click', (e) => { if (e.target === ov) ov.remove(); });
+    ov.querySelector('.sy-gallery-close').addEventListener('click', () => ov.remove());
+
+    // Event delegation: one listener survives across "load more" pages,
+    // rather than rebinding (and stacking) a handler on every page load.
+    ov.querySelector('#sy-gallery-grid').addEventListener('click', async (e) => {
+      const row = e.target.closest('.sy-gallery-item');
+      if (!row) return;
+      const id = row.dataset.id;
+      if (e.target.classList.contains('sy-gallery-view')) {
+        const btn = e.target;
+        const original = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = '…';
+        const r = await fetch(`/api/artifacts/${id}/url`).catch(() => null);
+        if (r && r.ok) {
+          const { url } = await r.json();
+          window.open(url, '_blank', 'noopener');
+        } else {
+          toast('Could not open that item — the link may have expired.');
+        }
+        btn.disabled = false;
+        btn.textContent = original;
+      } else if (e.target.classList.contains('sy-gallery-del')) {
+        if (!window.confirm('Delete this creation? This cannot be undone.')) return;
+        const r = await fetch(`/api/artifacts/${id}`, { method: 'DELETE' }).catch(() => null);
+        if (r && r.ok) {
+          row.remove();
+          refreshGalleryQuota(ov);
+        } else {
+          toast('Delete failed — please try again.');
+        }
+      }
+    });
+
+    loadGalleryPage(ov);
   }
 
   /* ── global fetch patch (demo-mode.js precedent) ─────────────────────── */
