@@ -42,6 +42,10 @@ ADMIN_EMAILS=quittersarts@gmail.com,SYNTH_MONTHLY_CREDITS=300,SYNTH_DAILY_BUDGET
 First deploy prints the service URL (`https://synthograsizer-<hash>-<region>.a.run.app`).
 
 ### 2b · Public origins (only when a proxy/domain fronts the service)
+**Run this AFTER §2, never instead of it — and never before it.** Two reasons: §2's
+`--set-env-vars` *replaces* the whole env set, so running 2b first silently wipes it; and
+`--update-env-vars` reuses the current image, so the variable does nothing until an image
+containing the `SYNTH_PUBLIC_ORIGINS` code has been built by §2.
 `synthograsizer.com` is proxied to Cloud Run by Vercel, so the browser sends
 `Origin: https://synthograsizer.com` while the proxy dials with `Host: …run.app`. The CSRF
 check needs that pair allowlisted or **every POST 403s `cross_origin_rejected`** (sign-in included):
