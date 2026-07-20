@@ -287,9 +287,41 @@
       <div class="version-header">
         <span class="version-tag">NEXT</span>
         <span class="version-label unreleased">Unreleased</span>
-        <span class="version-date">In Progress — 2026-07-05</span>
+        <span class="version-date">In Progress — 2026-07-20</span>
       </div>
       <div class="version-panel">
+        <div class="panel-section-label">Hosted Service — synthograsizer.com is live</div>
+        <ul class="entry-list">
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">Sign in with Google and use the suite in the browser — 300 credits a month, free</div>
+              <div class="entry-sub">The suite now runs as a hosted service at <strong>synthograsizer.com</strong>, backed by Cloud Run in Montréal. Signing in with Google grants 300 credits per month (text costs ⚡1–5, images ⚡4–15), topped back up on your first visit each month — no rollover, no card, no waiting list. Anonymous visitors can still open the app and play with templates, variables, and knobs; only the AI calls require an account. <strong>Local installs are completely unaffected</strong> — run it yourself with your own API key and none of this applies.</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">Your data stays yours — one-click export and account deletion</div>
+              <div class="entry-sub">The account menu has <strong>Download my data</strong> (a JSON file of your account, credit history, and generation log) and <strong>Delete account</strong>, which removes everything immediately — no email round-trip, no waiting period. Prompt text is never stored: the generation log keeps only metadata like which model ran and how long it took. Generated artifacts age out automatically on a retention timer.</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">Video and music studios are local-only for now</div>
+              <div class="entry-sub">Veo, Lyria, and Videorama stay off on the hosted tier — a single Veo clip can cost more than a month of everyone's text generation combined. Those tools are hidden rather than teasingly disabled, and the underlying endpoints refuse the call too. Run the suite locally with your own key and they all work as before. A paid tier that unlocks them is designed but not built.</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-fix">fix</span>
+            <div>
+              <div class="entry-text">Launch buttons open the real app, not the gated demo</div>
+              <div class="entry-sub">Every "Launch" call-to-action on the landing and about pages now goes straight to the full suite. The demo build had been the default for public visitors back when there was no way to sign in; the free tier replaces it. The gated demo is still reachable from the suite navigation if you want it.</div>
+            </div>
+          </li>
+        </ul>
+
         <div class="panel-section-label">Main App — One-Row Header</div>
         <ul class="entry-list">
           <li class="entry-item">
