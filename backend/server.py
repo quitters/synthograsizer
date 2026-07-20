@@ -58,6 +58,7 @@ from backend.routers import feedback
 from backend.routers import videorama
 from backend.routers import account
 from backend.routers import admin
+from backend.routers import artifacts
 
 app.include_router(chat.router)
 app.include_router(generation.router)
@@ -75,6 +76,7 @@ app.include_router(feedback.router)
 app.include_router(videorama.router)
 app.include_router(account.router)  # endpoints 404 unless SYNTH_AUTH=1
 app.include_router(admin.router)    # 404 unless SYNTH_AUTH=1 and caller is admin
+app.include_router(artifacts.router)  # endpoints 404 unless SYNTH_AUTH=1
 
 # Videorama project media (local installs only): serves rendered takes,
 # tape-processed clips, and export reels for the review UI.

@@ -105,7 +105,7 @@ async def generate_smart_transform(request: SmartTransformRequest, http_request:
             image_b64 = transform_result
             prompt = None
 
-        return {"status": "success", "image": image_b64, "prompt": prompt}
+        return {"status": "success", "image": image_b64, "prompt": prompt, "generation_id": ch.gen_id}
     except SafetyBlockedError as e:
         raise HTTPException(status_code=422, detail=safety_block_detail(e))
     except HTTPException:
@@ -198,7 +198,7 @@ async def generate_image(request: ImageRequest, http_request: Request):
 
         async with charged(http_request, action="image", model=model_name,
                            units=max(1, request.image_count or 1),
-                           prompt_chars=len(request.prompt)) as _ch:
+                           prompt_chars=len(request.prompt)) as ch:
             result = await asyncio.to_thread(
                 ai_manager.generate_image,
                 prompt=request.prompt,
@@ -220,21 +220,23 @@ async def generate_image(request: ImageRequest, http_request: Request):
                 top_p=request.top_p,
                 tags=request.tags
             )
-            _ch.commit()
+            ch.commit()
 
 
         # Service returns either a bare base64 string (single image, no text)
         # or a dict with some combination of {image, images, text}. Surface
         # all populated keys so multi-image (Imagen) and text+image (Gemini)
-        # callers both get what they asked for.
+        # callers both get what they asked for. generation_id lets the client
+        # bind a later "save to my creations" call to this call, whichever of
+        # possibly several images it saves — see routers/artifacts.py.
         if isinstance(result, dict):
-            payload = {"status": "success"}
+            payload = {"status": "success", "generation_id": ch.gen_id}
             for key in ("image", "images", "text"):
                 value = result.get(key)
                 if value is not None:
                     payload[key] = value
             return payload
-        return {"status": "success", "image": result}
+        return {"status": "success", "image": result, "generation_id": ch.gen_id}
 
     except HTTPException:
         raise
@@ -269,7 +271,8 @@ async def generate_video(request: VideoRequest, http_request: Request):
                 request.resolution
             )
             ch.commit()
-        return {"status": "success", "video": result["video_b64"], "video_uri": result.get("video_uri")}
+        return {"status": "success", "video": result["video_b64"], "video_uri": result.get("video_uri"),
+                "generation_id": ch.gen_id}
     except SafetyBlockedError as e:
         raise HTTPException(status_code=422, detail=safety_block_detail(e))
     except HTTPException:

@@ -9,3 +9,4 @@ python-osc
 # Service mode (SYNTH_AUTH=1): accounts + credits
 asyncpg
 google-auth
+google-cloud-storage

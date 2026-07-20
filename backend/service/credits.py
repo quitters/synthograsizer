@@ -178,6 +178,14 @@ class charged:
     def commit(self):
         self._committed = True
 
+    @property
+    def gen_id(self):
+        """The generations.id this call charged against (None outside service
+        mode). Endpoints that return savable media surface this so the client
+        can bind a later "save to my creations" call to it — see
+        routers/artifacts.py, which requires and ownership-checks it."""
+        return self._charge.gen_id
+
     async def __aenter__(self):
         await self._charge.reserve()
         return self
