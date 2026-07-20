@@ -74,3 +74,26 @@ CREATE TABLE IF NOT EXISTS feedback (
   ts      TIMESTAMPTZ NOT NULL DEFAULT now(),
   payload JSONB NOT NULL
 );
+
+-- Saved creations ("My creations" gallery). Deliberately NOT columns on
+-- generations: those rows are inserted at reserve time before any output
+-- exists, age out with RETENTION_DAYS, and survive a DSAR delete anonymized.
+-- Artifacts need the opposite lifecycle — they are the user's library, kept
+-- until they delete it, and hard-CASCADEd with the account.
+--
+-- CASCADE removes ROWS, not GCS objects: backend/routers/account.py purges the
+-- users/{id}/ prefix before deleting the user, and the retention janitor sweeps
+-- any prefix left orphaned by a partial failure.
+CREATE TABLE IF NOT EXISTS artifacts (
+  id            BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  user_id       BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  generation_id BIGINT,                        -- soft link, like credit_ledger
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+  kind          TEXT NOT NULL,                 -- 'image'|'video'|'music'
+  mime          TEXT NOT NULL,
+  bytes         BIGINT NOT NULL CHECK (bytes >= 0),
+  storage_path  TEXT NOT NULL UNIQUE,          -- users/{user_id}/{id}.{ext}
+  label         TEXT                           -- optional user-facing name
+);
+-- Covers both the gallery listing and the SUM(bytes) quota check.
+CREATE INDEX IF NOT EXISTS artifacts_user_created ON artifacts(user_id, created_at DESC);

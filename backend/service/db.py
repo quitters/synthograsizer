@@ -18,10 +18,23 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 
-# version → list of SQL statements upgrading from version-1. Purely additive.
-_MIGRATIONS: dict[int, list[str]] = {}
+# version → list of SQL statements upgrading an EXISTING database from
+# version-1 to version. Purely additive, and never run on a fresh database
+# (see _migrate: schema.sql already is the current schema there).
+#
+# What goes here: only what schema.sql cannot express idempotently — ALTER
+# TABLE ADD COLUMN, backfills, index changes over existing rows. A brand-new
+# table does NOT belong here; add it to schema.sql with CREATE TABLE IF NOT
+# EXISTS and it lands on fresh and existing databases alike.
+#
+# v2 (artifacts, 2026-07-20) is exactly that case: the table and its index are
+# in schema.sql, so there is nothing additive to replay — the version bump
+# alone records the change.
+_MIGRATIONS: dict[int, list[str]] = {
+    2: [],
+}
 
 _pool = None
 
@@ -62,21 +75,37 @@ async def init():
     return _pool
 
 
+def _schema_sql_text() -> str:
+    return (Path(__file__).parent / "schema.sql").read_text(encoding="utf-8")
+
+
 async def _migrate(pool) -> None:
-    schema_sql = (Path(__file__).parent / "schema.sql").read_text(encoding="utf-8")
+    """Apply schema.sql, then bring an EXISTING database's version forward.
+
+    A fresh database (no schema_version row yet) is stamped straight to
+    SCHEMA_VERSION with no migration steps replayed: schema.sql just built
+    the complete current schema, so there is nothing additive left to apply
+    — replaying old steps here would run them against tables/columns that
+    already exist in their final form, which for anything past a bare
+    CREATE TABLE (e.g. an ALTER TABLE ADD COLUMN) errors or double-applies.
+    Migration steps exist solely to carry a database that pre-dates this
+    deploy forward from its own recorded version.
+    """
+    schema_sql = _schema_sql_text()
     async with pool.acquire() as conn:
         async with conn.transaction():
             await conn.execute(schema_sql)
             row = await conn.fetchrow("SELECT version FROM schema_version LIMIT 1")
-            current = row["version"] if row else 0
-            for step in range(current + 1, SCHEMA_VERSION + 1):
-                for stmt in _MIGRATIONS.get(step, []):
-                    await conn.execute(stmt)
             if row is None:
                 await conn.execute(
                     "INSERT INTO schema_version (version) VALUES ($1)", SCHEMA_VERSION
                 )
-            elif current < SCHEMA_VERSION:
+                return
+            current = row["version"]
+            for step in range(current + 1, SCHEMA_VERSION + 1):
+                for stmt in _MIGRATIONS.get(step, []):
+                    await conn.execute(stmt)
+            if current < SCHEMA_VERSION:
                 await conn.execute("UPDATE schema_version SET version = $1", SCHEMA_VERSION)
 
 
