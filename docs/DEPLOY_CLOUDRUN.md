@@ -24,6 +24,13 @@ gcloud sql databases create synth --instance=synth-db
 ```
 
 ## 2 · Deploy (repeat per release)
+> ⚠ **`--set-env-vars` REPLACES every environment variable on the service — it is not additive.**
+> If §2b and/or §2c have ever been applied, this command **silently wipes them** the moment you
+> run it again for a routine code update. This is not hypothetical: it happened on 2026-07-20 —
+> a plain redeploy dropped `SYNTH_PUBLIC_ORIGINS`, and every POST through the domain (sign-in,
+> terms acceptance, generation, saves) started 403ing `cross_origin_rejected` until caught.
+> **Rule: the moment you have ever run §2b or §2c on this service, treat them as steps 2 and 3 of
+> this deploy, not optional add-ons — run them again, every time, immediately after §2.**
 ```bash
 gcloud run deploy synthograsizer \
   --source . \
@@ -41,11 +48,9 @@ ADMIN_EMAILS=quittersarts@gmail.com,SYNTH_MONTHLY_CREDITS=300,SYNTH_DAILY_BUDGET
 ```
 First deploy prints the service URL (`https://synthograsizer-<hash>-<region>.a.run.app`).
 
-### 2b · Public origins (only when a proxy/domain fronts the service)
-**Run this AFTER §2, never instead of it — and never before it.** Two reasons: §2's
-`--set-env-vars` *replaces* the whole env set, so running 2b first silently wipes it; and
-`--update-env-vars` reuses the current image, so the variable does nothing until an image
-containing the `SYNTH_PUBLIC_ORIGINS` code has been built by §2.
+### 2b · Public origins (required — re-run after every §2 once a domain fronts the service)
+**Run this AFTER §2, never instead of it — and never before it. Once this has been applied even
+once, re-run it after EVERY future §2 deploy — see the warning in §2.**
 `synthograsizer.com` is proxied to Cloud Run by Vercel, so the browser sends
 `Origin: https://synthograsizer.com` while the proxy dials with `Host: …run.app`. The CSRF
 check needs that pair allowlisted or **every POST 403s `cross_origin_rejected`** (sign-in included):
@@ -59,15 +64,16 @@ gcloud run services update synthograsizer --region northamerica-northeast1 \
 Unset = same-origin only (local installs and the bare run.app URL need nothing).
 
 ### 2c · Enable saved creations (the "My creations" gallery)
-One-time GCS setup (bucket + IAM), if not already done — see
-[HANDOFF_CLOUD_STORAGE.md](HANDOFF_CLOUD_STORAGE.md). Same ordering rule as 2b: run after a §2
-deploy that contains the artifacts-router code, never before.
+GCS bucket + IAM is one-time setup, already done — see [HANDOFF_CLOUD_STORAGE.md](HANDOFF_CLOUD_STORAGE.md).
+The env vars below are **not**: same rule as 2b — run after every §2 deploy from now on, since §2
+wipes them too.
 
-Bump `SYNTH_TERMS_VERSION` to `v0.3` in the **same call** that turns storage on — v0.3 is the
-first terms revision that says generated media can be stored server-side (opt-in, saved
-creations only), so consent has to track the feature going live, not lag behind it. This
-re-prompts **every already-signed-in user** with the terms interstitial on their next request —
-expected, not a bug: they're consenting to a real change in what the service now does.
+`SYNTH_TERMS_VERSION=v0.3` only needs to be *set* once (re-running it after every deploy is a
+no-op past the first time, harmless either way). It was bumped in the **same call** that turned
+storage on — v0.3 is the first terms revision that says generated media can be stored
+server-side (opt-in, saved creations only), so consent had to track the feature going live, not
+lag behind it. That re-prompted **every already-signed-in user** with the terms interstitial —
+expected, not a bug.
 ```bash
 gcloud run services update synthograsizer --region northamerica-northeast1 \
   --update-env-vars "SYNTH_GCS_BUCKET=synthograsizer-app-user-content,SYNTH_TERMS_VERSION=v0.3"
@@ -83,6 +89,11 @@ available in northamerica-northeast1** — route the domain via a Vercel proxy r
 external ALB + serverless NEG instead (details in HANDOFF_SERVICE_LAUNCH.md step 5).
 
 ## 4 · Smoke checklist (each deploy)
+0. **If §2b/2c apply to this deployment**: confirm they survived —
+   `gcloud run services describe synthograsizer --region northamerica-northeast1 --format='value(spec.template.spec.containers[0].env.list())' | tr ';' '\n' | grep -iE 'PUBLIC_ORIGINS|GCS_BUCKET'`
+   — then a domain POST with a mismatched Origin should 401/422 (reaches the app), **not 403
+   `cross_origin_rejected`** (blocked before the app). Catches the exact §2-wipes-2b/2c failure
+   mode from 2026-07-20 before it reaches a real user.
 1. `GET <url>/api/health` → `service.auth_required: true`, `api_key_configured: true`.
 2. Anonymous `POST <url>/api/generate/text` → **401**.
 3. Sign in with a NON-admin Google account → 300 credits, terms interstitial once, text gen
@@ -118,3 +129,14 @@ first (documented in the plan).
 > keep both in sync if you draft a v0.4. `/api/health`'s `terms_version` field has the same
 > fallback in `routers/system.py`; the two had silently drifted apart before (harmless so far,
 > since the deploy command has always set the env var explicitly either way).
+>
+> **Field note (2026-07-20, §2 wiped §2b in production):** a routine §2 redeploy — done to ship
+> the gallery code — silently dropped `SYNTH_PUBLIC_ORIGINS`, which had been added on 2026-07-19
+> via `--update-env-vars` and was never in §2's `--set-env-vars` list. Every POST through
+> `synthograsizer.com` (sign-in, terms acceptance, generation, saves) started 403ing
+> `cross_origin_rejected`; the only user-visible symptom was "Could not record acceptance —
+> please retry" on the terms screen, which undersold how broad the breakage actually was. Fixed
+> by re-running §2b (additive, no redeploy needed — confirmed live in ~15s). This is why §2b/2c
+> are no longer framed as one-time: `--set-env-vars` replaces the *entire* environment on every
+> call, full stop — anything added later via `--update-env-vars` does not survive a plain §2
+> re-run, ever. Smoke step 0 now checks for this before it reaches a signed-in user.
