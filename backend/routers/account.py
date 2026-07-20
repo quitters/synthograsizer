@@ -13,7 +13,7 @@ from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel
 
-from backend.service import auth, service_mode
+from backend.service import auth, service_mode, storage
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -109,6 +109,9 @@ async def export_my_data(request: Request):
         "WHERE user_id = $1 ORDER BY created_at", user["id"])
     feedback = await pool.fetch(
         "SELECT ts, payload FROM feedback WHERE user_id = $1 ORDER BY ts", user["id"])
+    artifacts = await pool.fetch(
+        "SELECT id, generation_id, kind, mime, bytes, storage_path, label, created_at "
+        "FROM artifacts WHERE user_id = $1 ORDER BY created_at", user["id"])
 
     def rows(rs):
         return [{k: (v.isoformat() if hasattr(v, "isoformat") else
@@ -127,6 +130,7 @@ async def export_my_data(request: Request):
             "generation_log": rows(generations),
             "sessions": rows(sessions),
             "feedback": rows(feedback),
+            "artifacts": rows(artifacts),
         },
         headers={"Content-Disposition": 'attachment; filename="synthograsizer-account-export.json"'},
     )
@@ -136,6 +140,12 @@ async def export_my_data(request: Request):
 async def delete_my_account(request: Request):
     """DSAR delete — immediate and self-serve.
 
+    Saved creations are purged from Cloud Storage BEFORE the user row, since
+    the row's artifacts rows CASCADE away with it — losing that prefix would
+    otherwise mean nothing left to know which objects were this user's. A
+    GCS hiccup here must never block account deletion: it's logged and left
+    for the retention janitor's orphan-prefix sweep to catch, not raised.
+
     The user row goes away now; sessions and ledger CASCADE with it, and
     generation-log rows anonymize (user_id → NULL) and age out with the
     normal retention window. No email, no waiting period.
@@ -144,6 +154,12 @@ async def delete_my_account(request: Request):
     user = getattr(request.state, "user", None)
     if user is None:
         raise HTTPException(status_code=401, detail="Not signed in.")
+    if storage.enabled():
+        try:
+            storage.delete_prefix(f"users/{user['id']}/")
+        except Exception:
+            logger.exception("storage purge failed for deleted account (user id %s) — "
+                              "left for the retention janitor", user["id"])
     from backend.service import db
     await db.pool().execute("DELETE FROM users WHERE id = $1", user["id"])
     logger.info("account deleted (user id %s)", user["id"])

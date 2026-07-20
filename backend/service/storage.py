@@ -133,3 +133,25 @@ def delete_prefix(prefix: str) -> int:
             continue
         removed += 1
     return removed
+
+
+def list_user_ids_with_objects() -> list[int]:
+    """Every numeric user_id with at least one object under ``users/``.
+
+    Used by the retention janitor to find storage orphaned by a DSAR delete
+    whose purge step failed (routers/account.py logs and continues rather
+    than blocking account deletion on a GCS hiccup — this is the cleanup for
+    that case). Directory-style listing: ``delimiter="/"`` makes the SDK
+    populate ``.prefixes`` with immediate "subdirectories" like
+    ``users/42/``, but only once the iterator has been fully consumed.
+    """
+    client_obj, bucket = _client_and_bucket()
+    iterator = client_obj.list_blobs(bucket, prefix="users/", delimiter="/")
+    for _ in iterator:
+        pass  # force full pagination so .prefixes is populated
+    ids = []
+    for prefix in iterator.prefixes:
+        part = prefix[len("users/"):].rstrip("/")
+        if part.isdigit():
+            ids.append(int(part))
+    return ids

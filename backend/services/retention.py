@@ -78,7 +78,10 @@ async def purge_service_db() -> dict:
     - feedback older than 90 days is deleted,
     - orphaned reserves (a crash between reserve and settle leaves an old
       'failed' row whose charge was never refunded) are refunded after 15
-      minutes — keeps the ledger-sum invariant honest.
+      minutes — keeps the ledger-sum invariant honest,
+    - storage orphans: a DSAR delete's GCS purge step logs and continues
+      rather than blocking account deletion on a transient failure, so a
+      users/{id}/ prefix can occasionally outlive its user row — swept here.
     """
     from backend.service import service_mode
     if not service_mode():
@@ -119,6 +122,27 @@ async def purge_service_db() -> dict:
             row["id"])
         refunded += 1
     summary["orphan_refunds"] = refunded
+
+    from backend.service import storage
+    if storage.enabled():
+        try:
+            candidate_ids = storage.list_user_ids_with_objects()
+        except Exception as e:
+            logger.error("Storage orphan sweep: listing failed: %s", e)
+            candidate_ids = []
+        orphan_users = 0
+        orphan_objects = 0
+        for uid in candidate_ids:
+            exists = await pool.fetchval("SELECT 1 FROM users WHERE id = $1", uid)
+            if exists is None:
+                try:
+                    orphan_objects += storage.delete_prefix(f"users/{uid}/")
+                    orphan_users += 1
+                except Exception as e:
+                    logger.error("Storage orphan sweep: purge failed for user %s: %s", uid, e)
+        summary["storage_orphan_users"] = orphan_users
+        summary["storage_orphan_objects"] = orphan_objects
+
     if any(summary.values()):
         logger.info("Service DB retention: %s", summary)
     return summary

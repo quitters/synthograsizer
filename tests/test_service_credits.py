@@ -75,13 +75,16 @@ class FakePool:
             return self.daily_usd
         if "WITH gone AS" in s:
             return 0
+        if "SELECT 1 FROM users WHERE id = $1" in s:
+            (uid,) = args
+            return 1 if uid == self.user["id"] else None
         raise AssertionError(f"unexpected fetchval: {s}")
 
     async def fetch(self, sql, *args):
         s = self._norm(sql)
         if "status = 'failed'" in s:
             return list(self.orphans)
-        for table in ("credit_ledger", "generations", "sessions", "feedback", "users"):
+        for table in ("credit_ledger", "generations", "sessions", "feedback", "users", "artifacts"):
             if f"FROM {table}" in s:
                 return []
         raise AssertionError(f"unexpected fetch: {s}")
