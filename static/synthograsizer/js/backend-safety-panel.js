@@ -18,9 +18,11 @@
  *       legacy       : generateContent — honors the per-category thresholds.
  *   - Google safety defaults (saved server-side via POST /api/config).
  *
- * Hosted instances (/api/health → hosted:true): everything renders
- * read-only — configuration is pinned by the instance operator — and the
- * API-key input is hidden (keys come from environment variables there).
+ * Hosted deployments (/api/health → hosted:true): everything renders
+ * read-only — the backend is pinned by whoever runs the server — and the
+ * API-key input is hidden (the operator supplies the key). When accounts are
+ * also on (service.auth_required), the key note says usage is metered in
+ * credits instead; `hosted` alone doesn't imply a credit system.
  *
  * Load order: after studio-integration.js. No-ops in demo mode.
  * ────────────────────────────────────────────────────────────────────── */
@@ -84,9 +86,12 @@
 
       ${hosted ? `
       <div style="padding:10px 12px; background:rgba(90,138,184,.10); border:1px solid #5a8ab8; border-radius:6px; font-size:12px; line-height:1.6; margin-bottom:12px;">
-        🔒 This hosted instance is <strong>pinned to the Google backend</strong> and managed by its
-        operator. Backend and safety settings can't be changed here. Run Synthograsizer locally
-        for full control.
+        🔒 <strong>Pinned to the ${tier === 'local' ? 'local-model' : 'Google'} backend.</strong>
+        Everything below is read-only on this deployment.${tier === 'google' ? ` Google's safety
+        filtering and <a href="https://policies.google.com/terms/generative-ai/use-policy" target="_blank" rel="noopener">Prohibited
+        Use Policy</a> apply to everything generated here.` : ''}
+        <a href="https://github.com/quitters/synthograsizer" target="_blank" rel="noopener">Run Synthograsizer
+        locally</a> to pick your own backend and thresholds.
       </div>` : ''}
 
       <div class="studio-input-group">
@@ -148,8 +153,12 @@
         <div class="studio-input-group">
           <label>Google safety thresholds <span style="font-weight:normal; opacity:.7;">(apply to all Google calls — image, video, and text on the Google backend)</span></label>
           <div id="bsp-api-mode-note" style="display:${thresholdsActive ? 'none' : 'block'}; font-size:11px; padding:8px 10px; background:rgba(90,138,184,.10); border:1px solid #5a8ab8; border-radius:6px; margin-bottom:6px;">
-            ℹ️ Thresholds are saved but <strong>only enforced on the legacy generateContent API</strong>.
-            On the Interactions API, Google applies its own managed filtering.
+            ${hosted
+              ? `ℹ️ <strong>Not in effect here.</strong> This deployment uses the Interactions API,
+                 where Google applies its own managed filtering — the values below are shown for
+                 reference only.`
+              : `ℹ️ Thresholds are saved but <strong>only enforced on the legacy generateContent API</strong>.
+                 On the Interactions API, Google applies its own managed filtering.`}
           </div>
           ${safetyRows}
           <div style="font-size:11px; opacity:.75; margin-top:6px;">
@@ -311,19 +320,22 @@
     ));
   }
 
-  function applyHostedKeyUI(modalBody) {
-    // Hosted instances: the key comes from environment config — hide the
-    // input and replace the amber "local use only" warning with a calmer note.
+  function applyHostedKeyUI(modalBody, snap) {
+    // Hosted deployments: the operator supplies the key — hide the input and
+    // replace the amber "local use only" warning with a calmer note. With
+    // accounts on (service mode), say what the user actually pays with.
     const keyGroup = modalBody.querySelector('#api-key-input')?.closest('.studio-input-group');
     const saveBtn = modalBody.querySelector('#api-key-save');
     if (keyGroup) keyGroup.style.display = 'none';
     if (saveBtn) saveBtn.style.display = 'none';
     const warning = Array.from(modalBody.children).find(div =>
       div.textContent && div.textContent.includes('Local use only'));
-    if (warning) {
-      warning.innerHTML = '🔒 <strong>Hosted instance.</strong> The API key and backend ' +
-        'configuration are managed by the instance operator via environment variables.';
-    }
+    if (!warning) return;
+    warning.innerHTML = snap && snap.service && snap.service.auth_required
+      ? '🔒 <strong>Hosted service.</strong> Generation runs on the operator\'s API key and is ' +
+        'metered in credits, so there\'s no key to enter here — your balance is in the account menu.'
+      : '🔒 <strong>Hosted deployment.</strong> The API key is supplied by whoever runs this ' +
+        'server. Run Synthograsizer locally to use your own.';
   }
 
   function init() {
@@ -341,7 +353,7 @@
       .then(snap => {
         body.appendChild(el(buildPanelHTML(snap)));
         wirePanel(studio, snap);
-        if (snap.hosted) applyHostedKeyUI(body);
+        if (snap.hosted) applyHostedKeyUI(body, snap);
         markKeyConfigured(body, snap);
         try { localStorage.setItem(TIER_KEY, snap.backend_tier || 'google'); } catch (_) {}
         window.synthBackendTier = snap.backend_tier || 'google';
