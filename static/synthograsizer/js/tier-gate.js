@@ -17,6 +17,26 @@
 
   var gatedModals = [];
 
+  /**
+   * Result-action buttons are re-rendered on every generation, so hiding the
+   * instances present at boot isn't enough. A stylesheet keyed off <html>
+   * classes covers every future render for free.
+   *
+   * Scope hides for EVERYONE in service mode, admins included: /api/scope/ is
+   * in the middleware's DISABLED_PREFIXES and 403s before the request is ever
+   * attributed to a user, so an admin-visible button would only ever fail.
+   * (It's a bridge to a renderer on your own machine — meaningless server-side.)
+   */
+  function injectGateStyles() {
+    if (document.getElementById('synth-tier-gate-styles')) return;
+    var s = document.createElement('style');
+    s.id = 'synth-tier-gate-styles';
+    s.textContent =
+      '.synth-no-video .synth-gated-video { display: none !important; }' +
+      '.synth-no-scope .synth-gated-scope { display: none !important; }';
+    document.head.appendChild(s);
+  }
+
   function hideGated(features) {
     Object.keys(GATE_BY_FEATURE).forEach(function (feat) {
       if (features[feat]) return; // allowed → leave alone
@@ -63,6 +83,13 @@
   window.addEventListener('synth:auth-ready', function (e) {
     var me = e.detail;
     if (!me || !me.features) return; // signed out or local install → no gating here
+
+    // Reaching here at all means service mode, so Scope is server-disabled.
+    injectGateStyles();
+    var root = document.documentElement;
+    root.classList.add('synth-no-scope');
+    if (!me.features.video) root.classList.add('synth-no-video');
+
     if (me.features.video && me.features.music && me.features.videorama) return;
     var apply = function () { hideGated(me.features); };
     apply();

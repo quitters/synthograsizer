@@ -49,8 +49,8 @@ class StudioIntegration {
             <img id="lightbox-img" src="">
             <div class="studio-lightbox-controls">
                 <button class="studio-lightbox-btn" id="lightbox-prev">&larr; Prev</button>
-                <button class="studio-lightbox-btn" id="video-options-btn" style="background:rgba(156, 39, 176, 0.3); border-color:rgba(156, 39, 176, 0.6);">🎬 Smart Video Options</button>
-                <button class="studio-lightbox-btn" id="scope-send-btn" style="background:rgba(0, 120, 200, 0.3); border-color:rgba(0, 120, 200, 0.6);">📡 Send to Scope</button>
+                <button class="studio-lightbox-btn synth-gated-video" id="video-options-btn" style="background:rgba(156, 39, 176, 0.3); border-color:rgba(156, 39, 176, 0.6);">🎬 Smart Video Options</button>
+                <button class="studio-lightbox-btn synth-gated-scope" id="scope-send-btn" style="background:rgba(0, 120, 200, 0.3); border-color:rgba(0, 120, 200, 0.6);">📡 Send to Scope</button>
                 <button class="studio-lightbox-btn" id="lightbox-next">Next &rarr;</button>
             </div>
             <div class="studio-lightbox-hint" id="lightbox-hint">ESC to close · ← → to navigate</div>
@@ -4665,8 +4665,8 @@ class StudioIntegration {
 
                 let html = `<img src="data:image/png;base64,${data.image}" class="studio-result-image" style="cursor:pointer;" onclick="window.studioIntegrationInstance.openLightbox(0)">`;
                 html += `<div style="margin-top:10px; display:flex; justify-content:center; gap:10px;">`;
-                html += `<button onclick="window.studioIntegrationInstance.openVideoOptionsFromResult(0)" style="background:rgba(156,39,176,0.15); border:1px solid rgba(156,39,176,0.4); color:#7b1fa2; padding:6px 14px; border-radius:6px; cursor:pointer; font-size:13px;">🎬 Smart Video Options</button>`;
-                html += `<button onclick="window.studioIntegrationInstance.pushCurrentImageToScope(window.studioIntegrationInstance.currentBatchResults[0])" style="background:rgba(0,120,200,0.15); border:1px solid rgba(0,120,200,0.4); color:#0078c8; padding:6px 14px; border-radius:6px; cursor:pointer; font-size:13px;">📡 Send to Scope</button>`;
+                html += `<button class="synth-gated-video" onclick="window.studioIntegrationInstance.openVideoOptionsFromResult(0)" style="background:rgba(156,39,176,0.15); border:1px solid rgba(156,39,176,0.4); color:#7b1fa2; padding:6px 14px; border-radius:6px; cursor:pointer; font-size:13px;">🎬 Smart Video Options</button>`;
+                html += `<button class="synth-gated-scope" onclick="window.studioIntegrationInstance.pushCurrentImageToScope(window.studioIntegrationInstance.currentBatchResults[0])" style="background:rgba(0,120,200,0.15); border:1px solid rgba(0,120,200,0.4); color:#0078c8; padding:6px 14px; border-radius:6px; cursor:pointer; font-size:13px;">📡 Send to Scope</button>`;
                 html += `</div>`;
                 if (data.text) {
                     html += `<div style="margin-top:10px; padding:10px; background:#f0f0f0; border-radius:5px; font-family:monospace; white-space:pre-wrap; max-height:200px; overflow-y:auto;"><strong>Thinking Process:</strong><br>${data.text}</div>`;
