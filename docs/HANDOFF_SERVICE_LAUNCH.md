@@ -3,7 +3,7 @@
 The service is **live on Cloud Run**. Companion docs: **[DEPLOY_CLOUDRUN.md](DEPLOY_CLOUDRUN.md)**
 (redeploy runbook) · [INCIDENT_PLAYBOOK.md](INCIDENT_PLAYBOOK.md) (kill switches, breach steps)
 · [COMPLIANCE_ROADMAP.md](COMPLIANCE_ROADMAP.md) (Mode C context) ·
-[HANDOFF_CLOUD_STORAGE.md](HANDOFF_CLOUD_STORAGE.md) (Phase 5 per-user storage — built, not yet deployed).
+[HANDOFF_CLOUD_STORAGE.md](HANDOFF_CLOUD_STORAGE.md) (Phase 5 per-user storage — deployed; next slice specced).
 
 ## What's running
 - **Cloud Run** `synthograsizer`, project `synthograsizer-app` (quittersarts@gmail.com),
@@ -50,12 +50,12 @@ The launch blocker is cleared and generation works end-to-end on the public doma
 - **Smoke §4**: 1 ✓ 2 ✓ 3 ✓ 6 ✓. **Steps 4 (admin ∞/Veo end-to-end) and 5 (DSAR delete →
   re-signup grants fresh 300) still unrun.**
 
-## Status 2026-07-20 (later) — "My creations" gallery built, not yet deployed
+## Status 2026-07-20 (later) — "My creations" gallery built and DEPLOYED ✅
 Per-user saved images/video/music, backed by Cloud Storage. Full design record:
-[HANDOFF_CLOUD_STORAGE.md](HANDOFF_CLOUD_STORAGE.md). Everything below is **built and tested
-locally** (162 passed; frontend verified live in-browser, including a fetch-mocked signed-in
-session since no Postgres/GCS is available outside Cloud Run) but **not yet on Cloud Run** — the
-running revision still predates all of it.
+[HANDOFF_CLOUD_STORAGE.md](HANDOFF_CLOUD_STORAGE.md). 162 tests green; frontend verified live
+in-browser (including a fetch-mocked signed-in session, since no Postgres/GCS is reachable
+outside Cloud Run). **Live on Cloud Run as of 2026-07-20** with `SYNTH_GCS_BUCKET` and
+`SYNTH_TERMS_VERSION=v0.3` set. Smoke step 7 still unrun end-to-end.
 - GCS bucket `synthograsizer-app-user-content` (Montréal, uniform access + public-access
   prevention) + IAM (runtime SA `objectAdmin` + `serviceAccountTokenCreator` on itself for
   keyless V4 signed-URL signing) — **already created**, live in GCP, nothing pending there.
@@ -71,14 +71,23 @@ running revision still predates all of it.
   content) — this is the first version that says generated media can be stored server-side
   (opt-in only). Bumping it in production **re-prompts every signed-in user** — see runbook §2c,
   which pairs the terms bump with turning the bucket on so consent tracks the actual feature.
-- **Deploy this with runbook §2 (ships the code) then §2c (turns the bucket + v0.3 terms on
-  together) then smoke step 7.** Known gap: Save button not yet wired into batch-grid or
-  Smart Transform results (small follow-up, not a redesign — `generation_id` already flows from
-  those endpoints too).
+- **Deploy incident (same day):** the §2 redeploy that shipped this code **silently wiped
+  `SYNTH_PUBLIC_ORIGINS`** — `--set-env-vars` replaces the entire environment, and §2's var list
+  never included it. Every POST through the domain (sign-in, terms acceptance, generation, saves)
+  403'd `cross_origin_rejected`; the only visible symptom was "Could not record acceptance" on
+  the terms screen. Fixed by re-running §2b. **§2b/§2c are now mandatory after every §2** — see
+  the warning at the top of runbook §2 and new smoke step 0.
+- Known gap: Save button not yet wired into batch-grid or Smart Transform results (small
+  follow-up, not a redesign — `generation_id` already flows from those endpoints too).
 
 ## Next steps, in order
-1. **Finish smoke** — runbook §4 steps 4 and 5, the only two never exercised.
-2. **Deploy the gallery** — runbook §2 → §2c → smoke step 7 (see status above).
+1. **Finish smoke** — runbook §4 steps 4 and 5 (never exercised), plus step 7 for the gallery.
+2. **Next feature slice** — Download button, gallery thumbnails, and templates-in-My-creations
+   with a Load-template button. Specced with effort estimates and a consent analysis in
+   [HANDOFF_CLOUD_STORAGE.md](HANDOFF_CLOUD_STORAGE.md#roadmap--next-slice-requested-2026-07-20).
+   **Note:** auto-saving templates conflicts with two claims in the just-shipped Terms v0.3
+   ("nothing is saved unless you click Save" and "prompt text is never stored server-side" — a
+   template *is* prompt text). Explicit Save needs no terms change; auto-save needs v0.4.
 3. **Does Veo survive the Vercel proxy?** Untested. Vercel's edge response timeout is well under
    Veo's 600s ceiling, so long renders may fail through `synthograsizer.com` while working fine
    on the run.app URL directly. Admin-only, so worst case is a personal annoyance — but if it

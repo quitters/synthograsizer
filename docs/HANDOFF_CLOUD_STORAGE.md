@@ -7,14 +7,17 @@ keep-until-deleted quota-bounded, image/video/music scope). Code: `backend/servi
 `routers/account.py` + `services/retention.py`, frontend in `auth.js` + `studio-integration.js`.
 162 tests green. GCS bucket + IAM live (see §"GCP setup" below — already run).
 
+**Deployed to Cloud Run 2026-07-20** (`SYNTH_GCS_BUCKET` + `SYNTH_TERMS_VERSION=v0.3`).
+Runbook smoke step 7 still unrun end-to-end.
+
 **Known gaps, not yet done:**
 - Save button wired into the main Studio `runSingle()` flow (image + video) only. Batch-grid
   results and Smart Transform results don't have one yet — `generation_id` already flows from
   all three endpoints, so this is a small frontend-only follow-up, not a redesign.
-- Not yet deployed to Cloud Run — needs runbook §2c (`SYNTH_GCS_BUCKET` +
-  `SYNTH_TERMS_VERSION=v0.3` together) and runbook smoke step 7.
 - Terms v0.3 copy is written (`static/terms/index.html`) but — like v0.2 before it — is an
   unreviewed draft; counsel review is still on the launch handoff's open list.
+
+**Next slice is specced below** — see [Roadmap](#roadmap--next-slice-requested-2026-07-20).
 
 Original goal, unchanged: hosted users' generated content (images / video / music) saved to
 Google Cloud Storage and browsable from their Synthograsizer account — list, re-download,
@@ -179,3 +182,81 @@ full 200 MB quota = 20 GB ≈ **$0.50/mo** — noise next to Cloud SQL. Signing 
 1. Decisions 1–3 (10 min) → 2. GCP setup → 3. schema v2 + `storage.py` + tests →
 4. artifacts router + enforcement + tests → 5. auth.js gallery + save buttons →
 6. DSAR/retention/terms/playbook edits → 7. `requirements.txt` + deploy + smoke step 7.
+
+**All seven done.** Everything past this point is the next slice.
+
+---
+
+## Roadmap — next slice (requested 2026-07-20)
+
+Three follow-ups, ordered smallest-effort first. **#1 and #2 need no terms change; #3 does —
+read its consent note before building it.**
+
+### 1 · Download button beside Save (images) — do first
+Pure frontend: no API, no storage, no cost. The base64 is already in hand where `runSingle()`
+renders the result, so it's a `Blob` + `<a download>` next to the existing Save button.
+
+Note it should **not** reuse Save's `canSave` gating — downloading works signed-out and on local
+installs too, since nothing leaves the browser. Give it a real filename
+(`synthograsizer-<yyyymmdd-hhmm>.png`, not `download.png`). Worth a line of UI copy that PNGs
+embed the generation prompt in their metadata (already disclosed in Terms §7) — sharing the file
+shares the prompt.
+
+### 2 · Thumbnails in the My creations modal
+The gallery deliberately shipped without them: one signed URL per item would mean N round-trips
+just to open the list (see the comment above `loadGalleryPage` in `auth.js`). Two fixes, and
+they compose:
+
+- **Store a thumbnail at save time** (recommended): downscale client-side to ~256px on a canvas
+  before POSTing, upload as a second small object (`users/{id}/{key}_thumb.jpg`, a few KB), and
+  record it on the row. Listing stays one request and thumbs are cheap. Costs a schema column
+  (`thumb_path TEXT NULL`) — which is exactly the `ALTER TABLE ADD COLUMN` case the migration
+  machinery was fixed for on 2026-07-20, so `_MIGRATIONS[3]` finally earns its keep. Note the
+  fresh-database rule: new installs get the column from `schema.sql`, so the migration entry is
+  only for databases that already exist.
+- **Lazy-load with `IntersectionObserver`** so only visible rows fetch anything either way.
+
+Video can't be thumbnailed server-side without ffmpeg in the container — but the client can grab
+a frame off the `<video>` element onto a canvas at save time for near-zero cost. Music should
+keep the 🎵 icon.
+
+### 3 · Templates in My creations, with a "Load template" button
+The storage half is a small extension. The **"automatic"** half needs a decision first.
+
+Mechanically:
+- `routers/artifacts.py`: add `"template": ("template",)` to `_KIND_ACTIONS` and
+  `"template": "application/json"` to `_KIND_MIME_PREFIX`; `storage.py` `_KIND_EXT` gets
+  `"template": "json"`.
+- **`POST /api/generate/template` must return `generation_id` — it doesn't yet.** Only image,
+  video, and smart-transform were wired (`charged.gen_id`); this is a one-line change in
+  `routers/templates.py`, but without it the save endpoint's ownership check rejects everything.
+- Gallery: for `kind === 'template'`, swap View for **Load template** — fetch the signed URL,
+  `JSON.parse`, hand it to the app's existing template loader.
+- Quota: templates are KB not MB, so effectively free against the 200 MB budget — but auto-saving
+  *every* generation accumulates. Add a per-kind cap (keep newest ~200) or dedupe by content
+  hash, or regenerating a template ten times leaves ten near-identical rows.
+- Auto-save must be fire-and-forget: a failed save must never fail or block the generation that
+  produced it.
+
+**⚠ Consent note — auto-save contradicts two live Terms claims.** Terms v0.3 (in force since
+2026-07-20; every signed-in user was re-prompted to accept it) says both:
+
+> "Saved creations *(opt-in — nothing is saved unless you click Save)*"
+
+> "**Prompt text is never stored server-side**"
+
+A template's whole point is its `promptTemplate` field — it **is** prompt text — and auto-saving
+stores it without the user clicking anything. Building it exactly as requested breaks both
+sentences at once, for users who accepted them today. Options:
+
+- **(a) Explicit Save for templates too** — reuses the existing button and wording, needs **no
+  terms change**, ships immediately. Only loses the never-think-about-it convenience.
+- **(b) Auto-save, disclosed** — needs **Terms v0.4** rewriting both claims, plus a second
+  re-prompt for every signed-in user within days of the first.
+- **(c) Auto-save behind a toggle**, default off, disclosed at first use — still needs v0.4
+  language, but a far easier one to write honestly.
+
+**Recommendation: ship (a) now; treat (b)/(c) as a follow-up if users ask.** The Load-template
+button — the part with real day-to-day value — is identical under all three, so nothing is lost
+by starting explicit. If auto-save does happen later, bundle the terms rewrite with the pending
+counsel review rather than spending a third re-prompt on it alone.

@@ -22,7 +22,21 @@
 
 ## Quick Start
 
-### Option A — Local server (full features)
+### Option A — Hosted (no install)
+
+**[synthograsizer.com](https://synthograsizer.com)** — sign in with Google, get **300 credits a
+month, free**. Text costs ⚡1–5 per call, images ⚡4–15; the balance refills on your first visit
+each month. Anonymous visitors can open the app and play with templates, variables, and knobs —
+only the AI calls need an account.
+
+Generated images and video can be saved to **My creations** (in the account menu) — stored
+privately to your account, kept until you delete them. Video and music generation are local-only
+for now: a single Veo clip can cost more than a month of everyone else's text generation.
+
+Everything below applies to running it yourself, which has no credit limits and unlocks the
+local-only tools.
+
+### Option B — Local server (full features)
 
 **Requirements:** Python 3.10+
 
@@ -72,13 +86,17 @@ Compliance posture, risk register, and the hosted-mode hardening switches
 
 **Windows shortcut:** double-click `start.bat` (Python server) or `launch-all.bat` (Python + ChatRoom Node.js).
 
-### Option B — Vercel (static tools + AI endpoints)
+### Option C — Deploy your own hosted instance
 
-1. Fork this repo and connect it in your [Vercel dashboard](https://vercel.com)
-2. Add environment variable `GOOGLE_API_KEY` → your key from [aistudio.google.com](https://aistudio.google.com)
-3. Deploy — no build step required
+The service that runs `synthograsizer.com` is in this repo: Cloud Run + Cloud SQL, Google
+sign-in, credit metering, and per-user storage, all behind env flags that are **off by default**
+(a plain local install is unaffected by any of it). See
+[docs/DEPLOY_CLOUDRUN.md](docs/DEPLOY_CLOUDRUN.md) for the runbook and
+[docs/HANDOFF_SERVICE_LAUNCH.md](docs/HANDOFF_SERVICE_LAUNCH.md) for what's running and why.
 
-> **Note:** Video generation, OSC bridge, and ChatRoom require the local server.
+> **Note:** `vercel.json` in this repo is a **reverse proxy to Cloud Run**, not a deploy target —
+> Vercel can't run the Python backend. Video generation, OSC bridge, and ChatRoom require a real
+> server either way.
 
 ### ChatRoom (additional setup)
 
@@ -192,6 +210,23 @@ Three integration channels connect Synthograsizer to [Daydream Scope](https://sc
 | Spout | OBS Browser Source → Spout plugin | GPU texture share of `display.html` |
 
 All three are configured from the unified **Scope** panel in the sidebar.
+
+---
+
+## Roadmap
+
+Next up, smallest first. Full engineering detail and the consent analysis behind #3 are in
+[docs/HANDOFF_CLOUD_STORAGE.md](docs/HANDOFF_CLOUD_STORAGE.md#roadmap--next-slice-requested-2026-07-20).
+
+| | Item | Notes |
+|---|---|---|
+| 1 | **Download button** beside Save on generated images | Pure frontend — the image bytes are already in the browser. Works signed-out and on local installs, unlike Save. |
+| 2 | **Thumbnails in My creations** | Gallery currently lists items by icon/name/size to avoid one signed-URL request per row. Plan: generate a ~256px thumb client-side at save time, store it alongside, lazy-load with `IntersectionObserver`. Needs schema v3 (`thumb_path`). |
+| 3 | **Templates in My creations + "Load template"** | Save generated template JSON to your library and reload it in one click. Needs `/api/generate/template` to return `generation_id` (it doesn't yet) and a `template` kind on the artifacts API. ⚠ *Auto*-saving conflicts with two current Terms claims — see the consent note in the linked doc; explicit Save ships with no terms change. |
+
+Also open: Save buttons on batch-grid and Smart Transform results; Stripe paid tier (schema
+already has `tier` + `purchase` ledger rows); hosted ChatRoom; multi-instance scaling (needs
+shared rate-limit/budget state first).
 
 ---
 
