@@ -58,6 +58,23 @@ gcloud run services update synthograsizer --region northamerica-northeast1 \
 ```
 Unset = same-origin only (local installs and the bare run.app URL need nothing).
 
+### 2c · Enable saved creations (the "My creations" gallery)
+One-time GCS setup (bucket + IAM), if not already done — see
+[HANDOFF_CLOUD_STORAGE.md](HANDOFF_CLOUD_STORAGE.md). Same ordering rule as 2b: run after a §2
+deploy that contains the artifacts-router code, never before.
+
+Bump `SYNTH_TERMS_VERSION` to `v0.3` in the **same call** that turns storage on — v0.3 is the
+first terms revision that says generated media can be stored server-side (opt-in, saved
+creations only), so consent has to track the feature going live, not lag behind it. This
+re-prompts **every already-signed-in user** with the terms interstitial on their next request —
+expected, not a bug: they're consenting to a real change in what the service now does.
+```bash
+gcloud run services update synthograsizer --region northamerica-northeast1 \
+  --update-env-vars "SYNTH_GCS_BUCKET=synthograsizer-app-user-content,SYNTH_TERMS_VERSION=v0.3"
+```
+Optional tuning in the same call: `SYNTH_STORAGE_QUOTA_MB` (default 200), `SYNTH_SIGNED_URL_TTL_S`
+(default 600, seconds a "View" link stays valid).
+
 ## 3 · One-time: OAuth origin
 Console → Google Auth Platform → Clients → **Synthograsizer Web** → add the service URL to
 **Authorized JavaScript origins**. (Takes 5 min–few hours to propagate. ✓ run.app origin added
@@ -73,12 +90,19 @@ external ALB + serverless NEG instead (details in HANDOFF_SERVICE_LAUNCH.md step
 4. Sign in as quittersarts@gmail.com → ∞ badge, Veo works end-to-end (≤ 600s).
 5. Account menu → Download my data (JSON) → Delete account → re-signup grants fresh 300.
 6. Cloud Logging: no raw 5xx details (only `upstream_error` + id), no prompt text anywhere.
+7. **(if 2c is enabled)** Generate an image → Save → My creations shows it with the right
+   size/date → View opens a working signed link → Delete removes it and the quota meter drops →
+   delete the (test) account → `gcloud storage ls gs://synthograsizer-app-user-content/users/<id>/`
+   comes back empty.
 
 ## 5 · Costs & knobs
-~$30/mo Cloud SQL + ~$15/mo min-instance Cloud Run (trial credits cover ~3 months).
+~$30/mo Cloud SQL + ~$15/mo min-instance Cloud Run (trial credits cover ~3 months). Saved
+creations add ~$0.023/GB/mo storage + ~$0.12/GB egress on downloads — noise next to Cloud SQL
+at any realistic per-user quota.
 Tune without code: `SYNTH_MONTHLY_CREDITS`, `SYNTH_DAILY_BUDGET_USD`,
-`RATE_LIMIT_USER_REQUESTS`, `RETENTION_DAYS`. Scaling past max-instances=1 needs shared
-rate-limit/budget state first (documented in the plan).
+`RATE_LIMIT_USER_REQUESTS`, `RETENTION_DAYS`, `SYNTH_GCS_BUCKET`, `SYNTH_STORAGE_QUOTA_MB`,
+`SYNTH_SIGNED_URL_TTL_S`. Scaling past max-instances=1 needs shared rate-limit/budget state
+first (documented in the plan).
 
 > **Field notes (2026-07-19 launch):** grant the runtime SA secret access once:`gcloud secrets add-iam-policy-binding <secret> --member=serviceAccount:679278101913-compute@developer.gserviceaccount.com --role=roles/secretmanager.secretAccessor` for both secrets; deploy FROM `~/synthograsizer` (home-dir deploys use Buildpacks and fail); secrets must have no trailing newline; Cloud SQL enforces password complexity — use `P="$(openssl rand -base64 18)Aa1!"`. See HANDOFF_SERVICE_LAUNCH.md.
 >
@@ -88,3 +112,9 @@ rate-limit/budget state first (documented in the plan).
 > rides in an HTTP header and header values must be ASCII. The `wc -c` check in §1 catches this.
 > Also: the console's "Scaling: Min 0, Max 20" header is the service-level default display; the
 > revision template from the §2 flags is really min=max=1 (check the YAML tab, not the header).
+>
+> **Field note (2026-07-20, saved creations):** `terms_version()`'s code-level fallback (used only
+> if `SYNTH_TERMS_VERSION` is ever left unset) is now `v0.3`, matching the Terms page content —
+> keep both in sync if you draft a v0.4. `/api/health`'s `terms_version` field has the same
+> fallback in `routers/system.py`; the two had silently drifted apart before (harmless so far,
+> since the deploy command has always set the env var explicitly either way).

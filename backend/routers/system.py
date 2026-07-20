@@ -93,7 +93,7 @@ async def health_check():
         payload["service"] = {
             "auth_required": True,
             "gis_client_id": os.environ.get("GOOGLE_OAUTH_CLIENT_ID", ""),
-            "terms_version": os.environ.get("SYNTH_TERMS_VERSION", "v0.2"),
+            "terms_version": os.environ.get("SYNTH_TERMS_VERSION", "v0.3"),
         }
     return payload
 

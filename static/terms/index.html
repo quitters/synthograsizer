@@ -219,9 +219,11 @@
       <h1 class="page-title">Terms &amp; Privacy</h1>
       <p class="page-subtitle">Synthograsizer Suite — Terms of Use &amp; Privacy Notice</p>
       <div class="draft-banner">
-        ⚠ DRAFT v0.2 · 2026-07-19 · This document has not yet been reviewed by a lawyer.
+        ⚠ DRAFT v0.3 · 2026-07-20 · This document has not yet been reviewed by a lawyer.
         It is a good-faith working draft, published for transparency while the project is pre-release.
-        v0.2 adds the hosted-service account, credit, and data-handling terms (§2, §3, §7).
+        v0.2 added the hosted-service account, credit, and data-handling terms (§2, §3, §7).
+        v0.3 adds saved creations (§7) — the first hosted feature that stores generated media
+        server-side, and only when you explicitly choose to save it.
         See the <a href="https://github.com/quitters/synthograsizer/blob/main/docs/COMPLIANCE_ROADMAP.md">compliance roadmap</a> for what's planned.
       </div>
     </div>
@@ -366,8 +368,13 @@
         </tr>
         <tr>
           <td>Credit ledger &amp; generation log</td>
-          <td>Per-generation metadata: endpoint, model, credit cost, estimated provider cost, timing, and prompt <em>length</em>. <strong>Prompt text and generated media are never stored server-side</strong> — outputs return to your browser and live there</td>
+          <td>Per-generation metadata: endpoint, model, credit cost, estimated provider cost, timing, and prompt <em>length</em>. <strong>Prompt text is never stored server-side</strong> — only generated media you explicitly save (see below) is; everything else returns to your browser and lives there</td>
           <td>Log entries older than the retention window (currently 30 days) are purged; ledger totals persist with your account</td>
+        </tr>
+        <tr>
+          <td>Saved creations <em>(opt-in — nothing is saved unless you click Save)</em></td>
+          <td>The image, video, or audio file itself, when you click "Save" under something you generated. Stored in Google Cloud Storage, same Montréal region as the rest of the service; readable only by your account, via a short-lived signed link the server issues on request</td>
+          <td>Until you delete that item or your account — not covered by the generation-log retention window above</td>
         </tr>
         <tr>
           <td>Feedback you submit</td>
@@ -376,7 +383,7 @@
         </tr>
       </table>
       <p>The hosted service runs in <strong>Google Cloud's Montréal region (Canada)</strong>. Generation requests are processed by Google's generative AI APIs on our paid API tier, which may involve servers outside Canada (typically the US) — governed by <a href="https://ai.google.dev/gemini-api/terms" target="_blank" rel="noopener">Google's API terms</a> for paid services.</p>
-      <p><strong>Self-serve rights:</strong> the account menu includes <em>Download my data</em> (a JSON export of your account record, ledger, and generation log) and <em>Delete my account</em> (immediate removal of your account, sessions, and ledger; generation-log rows are anonymized and age out with the retention window). No email required, no waiting period.</p>
+      <p><strong>Self-serve rights:</strong> the account menu includes <em>My creations</em> (view, open, and delete anything you've saved — each item individually, any time), <em>Download my data</em> (a JSON export of your account record, ledger, generation log, and saved-creation metadata), and <em>Delete my account</em> (immediate removal of your account, sessions, ledger, and every saved creation; generation-log rows are anonymized and age out with the retention window). No email required, no waiting period.</p>
 
       <h3>What we don't do</h3>
       <ul>

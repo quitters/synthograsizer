@@ -42,7 +42,7 @@ def oauth_client_id() -> str:
 
 
 def terms_version() -> str:
-    return os.environ.get("SYNTH_TERMS_VERSION", "v0.2")
+    return os.environ.get("SYNTH_TERMS_VERSION", "v0.3")
 
 
 def monthly_credits() -> int:

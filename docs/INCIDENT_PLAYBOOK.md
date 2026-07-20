@@ -16,12 +16,18 @@ One page. If something is on fire, work top to bottom. (Compliance roadmap §3.1
 | One bad account | `POST /api/admin/users/{id}/disable {"disabled":true}` (also kills their sessions) |
 | Spend spike, service still wanted | lower `SYNTH_DAILY_BUDGET_USD` env and redeploy — breaker 503s free traffic |
 | DB compromise suspected | Cloud SQL → Users → reset password; rotate `synth-db-pass` secret; redeploy |
+| Saved-creations (GCS) issue — bad access pattern, suspected leak, runaway storage | unset `SYNTH_GCS_BUCKET` and redeploy: uploads/downloads 503, the gallery goes empty, nothing else breaks (`storage.enabled()` gates every I/O path) — buys time without taking the whole service down |
 
 ## 2 · Assess
 - `/api/admin/stats` — today's spend/action mix. Cloud Logging — filter `upstream_error` correlation ids.
 - Billing → Reports for real cost curve. AI Studio → usage for key-level calls.
-- What data could be affected? Server-side there are only: account records (email/name/avatar),
-  session hashes, credit ledger, generation *metadata* (no prompt bodies, no media), feedback.
+- What data could be affected? Server-side there are: account records (email/name/avatar),
+  session hashes, credit ledger, generation *metadata* (no prompt bodies), feedback, and — since
+  saved creations shipped — the actual image/video/audio bytes for anything a user explicitly
+  saved (Cloud Storage, bucket `synthograsizer-app-user-content`, prefixed `users/{id}/`; nothing
+  else touches raw media server-side). If a bucket-side incident is suspected, also check whether
+  signed URLs were logged or cached anywhere reachable — a leaked signed URL grants read access
+  to that one object until it expires (`SYNTH_SIGNED_URL_TTL_S`, default 600s).
 
 ## 3 · Breach notification (PIPEDA)
 If personal data was plausibly accessed: record what/when/who in an incident note (date-stamped file

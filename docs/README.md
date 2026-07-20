@@ -9,4 +9,4 @@
 | [HANDOFF_SERVICE_LAUNCH.md](HANDOFF_SERVICE_LAUNCH.md) | Hosted-service launch handoff (2026-07-19) — what's running on Cloud Run, current status, next steps in order. **Start here for service ops.** |
 | [DEPLOY_CLOUDRUN.md](DEPLOY_CLOUDRUN.md) | Cloud Run redeploy runbook — secrets, deploy command, OAuth origin, 6-step smoke checklist, field notes. |
 | [INCIDENT_PLAYBOOK.md](INCIDENT_PLAYBOOK.md) | Kill switches, abuse response, breach steps (PIPEDA/RROSH) for the hosted service. |
-| [HANDOFF_CLOUD_STORAGE.md](HANDOFF_CLOUD_STORAGE.md) | Phase 5 plan (unbuilt): per-user GCS storage — "My creations" gallery, signed URLs, DSAR/retention integration. |
+| [HANDOFF_CLOUD_STORAGE.md](HANDOFF_CLOUD_STORAGE.md) | Phase 5 "My creations" gallery — per-user GCS storage, signed URLs, DSAR/retention integration. Built and tested; not yet deployed (runbook §2c). |

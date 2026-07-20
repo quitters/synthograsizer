@@ -189,7 +189,7 @@ docs/
 ├── HANDOFF_SERVICE_LAUNCH.md # ⭐ Hosted-service launch handoff — Cloud Run state, status, next steps (start here for ops)
 ├── DEPLOY_CLOUDRUN.md    # Cloud Run redeploy runbook: secrets → deploy → OAuth origin → smoke checklist + field notes
 ├── INCIDENT_PLAYBOOK.md  # Kill switches, abuse response, breach steps for the hosted service
-├── HANDOFF_CLOUD_STORAGE.md # Phase 5 plan (unbuilt): per-user GCS storage / "My creations" gallery
+├── HANDOFF_CLOUD_STORAGE.md # Phase 5 "My creations" gallery — built + tested, not yet deployed (runbook §2c)
 ├── videorama-guide/      # Videorama user guide (README.md) + walkthrough screenshots
 ├── June6_handoff.md      # Dated planning snapshot — historical, do not treat as current
 ├── agent-composer-plan.md

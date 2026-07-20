@@ -1,9 +1,25 @@
 # Handoff — Per-User Cloud Storage (Phase 5 slice: "My creations")
 
-Goal: hosted users' generated content (images / video / music) saved to Google Cloud Storage
-and browsable from their Synthograsizer account — list, re-download, delete — with DSAR and
-retention fully wired in. Written 2026-07-19 against the launched service
-(see [HANDOFF_SERVICE_LAUNCH.md](HANDOFF_SERVICE_LAUNCH.md)); nothing here is built yet.
+**✅ BUILT 2026-07-20.** Everything below describes what shipped, not a forward plan — kept as
+the design record. Decisions 1–3 were taken exactly as recommended (explicit Save button,
+keep-until-deleted quota-bounded, image/video/music scope). Code: `backend/service/storage.py`,
+`backend/routers/artifacts.py`, schema v2 (`artifacts` table), DSAR/retention wiring in
+`routers/account.py` + `services/retention.py`, frontend in `auth.js` + `studio-integration.js`.
+162 tests green. GCS bucket + IAM live (see §"GCP setup" below — already run).
+
+**Known gaps, not yet done:**
+- Save button wired into the main Studio `runSingle()` flow (image + video) only. Batch-grid
+  results and Smart Transform results don't have one yet — `generation_id` already flows from
+  all three endpoints, so this is a small frontend-only follow-up, not a redesign.
+- Not yet deployed to Cloud Run — needs runbook §2c (`SYNTH_GCS_BUCKET` +
+  `SYNTH_TERMS_VERSION=v0.3` together) and runbook smoke step 7.
+- Terms v0.3 copy is written (`static/terms/index.html`) but — like v0.2 before it — is an
+  unreviewed draft; counsel review is still on the launch handoff's open list.
+
+Original goal, unchanged: hosted users' generated content (images / video / music) saved to
+Google Cloud Storage and browsable from their Synthograsizer account — list, re-download,
+delete — with DSAR and retention fully wired in. Written 2026-07-19 against the launched service
+(see [HANDOFF_SERVICE_LAUNCH.md](HANDOFF_SERVICE_LAUNCH.md)).
 
 ## Why nothing is saved today
 - Hosted generation endpoints return base64 in the JSON response and persist **nothing**.

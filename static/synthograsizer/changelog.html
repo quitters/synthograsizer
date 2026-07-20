@@ -303,7 +303,7 @@
             <span class="entry-badge badge-feat">feat</span>
             <div>
               <div class="entry-text">Your data stays yours — one-click export and account deletion</div>
-              <div class="entry-sub">The account menu has <strong>Download my data</strong> (a JSON file of your account, credit history, and generation log) and <strong>Delete account</strong>, which removes everything immediately — no email round-trip, no waiting period. Prompt text is never stored: the generation log keeps only metadata like which model ran and how long it took. Generated artifacts age out automatically on a retention timer.</div>
+              <div class="entry-sub">The account menu has <strong>Download my data</strong> (a JSON file of your account, credit history, and generation log) and <strong>Delete account</strong>, which removes everything immediately — no email round-trip, no waiting period. Prompt text is never stored: the generation log keeps only metadata like which model ran and how long it took, and it ages out automatically on a retention timer. Anything you explicitly save to My creations (see below) is the one exception — it's kept until you delete it, not on a timer, since that's the point of saving it.</div>
             </div>
           </li>
           <li class="entry-item">
@@ -339,6 +339,24 @@
             <div>
               <div class="entry-text">Fixed a database migration bug that would have broken every fresh install</div>
               <div class="entry-sub">Laying groundwork for a future account-storage feature surfaced a latent bug in the service database's upgrade path: a brand-new database computed itself as version zero and replayed every migration step up to current, even though it had just been built at the current schema in one shot. Harmless while every step was an additive table creation, but the first column-add or backfill would have errored or double-applied on new installs. Fresh databases now stamp straight to the current version with nothing replayed; migrations only run against a database that already has its own older recorded version. Covered by a new test written to fail against the old logic first.</div>
+            </div>
+          </li>
+        </ul>
+
+        <div class="panel-section-label">Saved Creations — the "My creations" gallery</div>
+        <ul class="entry-list">
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">Save any generated image, video, or track to your account — find it later under My creations</div>
+              <div class="entry-sub">A <strong>💾 Save</strong> button now sits beside generated images and videos. Saved items live in Cloud Storage (same Montréal region as everything else), private to your account, and stay there until you delete them — no retention timer, since that's the point of saving something. The account menu's new <strong>My creations</strong> entry lists everything you've saved with size and date, opens any item on demand, and deletes individually. A quota meter (200 MB by default) keeps things bounded; deleting your account removes every saved item along with it, immediately.</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-chore">chore</span>
+            <div>
+              <div class="entry-text">Terms bumped to v0.3 — saved creations are the first hosted feature that stores generated media server-side</div>
+              <div class="entry-sub">Everything else about the service is unchanged: prompts are still never stored, and nothing is saved unless you click Save. Since this is a real change in what the service does with your content, signing in again shows the terms interstitial once more so you can review and re-accept — not a bug, just consent catching up to the feature.</div>
             </div>
           </li>
         </ul>
