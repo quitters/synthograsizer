@@ -33,6 +33,12 @@ The service is **live on Cloud Run**. Companion docs: **[DEPLOY_CLOUDRUN.md](DEP
   the hosted-demo rewrite script is gone. **Committed + pushed to `main`** (92d57e5) — live on
   the next redeploy. (Note: the final-CTA copy still reads "No account" — accurate for local, but
   hosted generation needs sign-in; reword if desired.)
+- **synthograsizer.com now proxies to Cloud Run** (4def9d5, Vercel rewrite live and verified:
+  `/api/health` through the domain returns the Cloud Run service block). Note the apex 307s to
+  `www.` — www is the effective origin. Both are on the OAuth client. The old `@vercel/python`
+  build (100% invocation failures) is gone. **Sign-in on the domain still 403s
+  `cross_origin_rejected` until the §2b redeploy sets `SYNTH_PUBLIC_ORIGINS`** — verified live:
+  POST via the domain → 403, the same POST direct to run.app → 401 (auth wall, CSRF cleared).
 
 ## Next steps, in order
 1. **⚠ BLOCKER — re-add `synth-gemini-key` with a clean value.** Every Gemini call 500s with
