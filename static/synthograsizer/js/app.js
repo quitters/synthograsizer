@@ -1579,6 +1579,19 @@ export class SynthograsizerSmall {
     try {
       if (!template) return;
 
+      // Never on the hosted service. /api/save-template writes to the operator's
+      // disk and is 403'd there (DISABLED_PREFIXES), so this fired a doomed
+      // request and logged a warning on every single template load.
+      //
+      // The bigger reason is consent: a template's promptTemplate IS prompt
+      // text, and this pushes it server-side with no user action. Today only a
+      // server-side prefix block stops it — enable that endpoint on hosted and
+      // template prompt text would start being stored silently, contradicting
+      // Terms v0.3. Saving to an account is the explicit "Save to My creations"
+      // button and nothing else. SynthAuth.active covers anonymous hosted
+      // visitors too, not just signed-in ones.
+      if (window.SynthAuth && window.SynthAuth.active) return;
+
       const response = await fetch('/api/save-template', {
         method: 'POST',
         headers: {

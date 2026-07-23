@@ -64,11 +64,15 @@ class WorkflowRunner {
       </div>
 
       <!-- Offline banner -->
+      <!-- Copy is swapped for hosted visitors in _showOffline(): telling someone
+           on synthograsizer.com to run launch-all.bat is nonsense advice. -->
       <div id="wfr-offline" style="display:none; padding:20px; text-align:center; color:#999; font-size:13px; line-height:1.7;">
         <div style="font-size:24px;">🔌</div>
-        <strong>Workflow engine is offline.</strong><br>
-        Workflows run on the ChatRoom server. Start it with <code>launch-all.bat</code>
-        (or <code>npm start</code> inside <code>chatroom/</code>), then retry.<br>
+        <div id="wfr-offline-msg">
+          <strong>Workflow engine is offline.</strong><br>
+          Workflows run on the ChatRoom server. Start it with <code>launch-all.bat</code>
+          (or <code>npm start</code> inside <code>chatroom/</code>), then retry.
+        </div>
         <button id="wfr-retry" type="button" class="studio-btn-secondary" style="margin-top:10px; padding:5px 14px; cursor:pointer;">↻ Retry connection</button>
       </div>
 
@@ -166,9 +170,23 @@ class WorkflowRunner {
       document.getElementById('wfr-browse').style.display = '';
       this._offlineLogged = false;
     } catch (e) {
+      // On the hosted service the ChatRoom backend simply isn't deployed, so
+      // this is expected — not an outage the visitor can do anything about.
+      const hosted = !!(window.SynthAuth && window.SynthAuth.active);
       if (!this._offlineLogged) {
-        console.info('Workflow engine offline (ChatRoom server not running — launch-all.bat starts it):', e.message);
+        console.info(hosted
+          ? 'Workflow engine unavailable: the ChatRoom backend runs on local installs only.'
+          : `Workflow engine offline (ChatRoom server not running — launch-all.bat starts it): ${e.message}`);
         this._offlineLogged = true;
+      }
+      const msg = document.getElementById('wfr-offline-msg');
+      if (msg && hosted) {
+        msg.innerHTML =
+          '<strong>Workflows run on local installs only.</strong><br>' +
+          'They need the ChatRoom backend, which isn\'t part of the hosted service. ' +
+          'Run Synthograsizer locally to use them — everything else here works as normal.';
+        const retry = document.getElementById('wfr-retry');
+        if (retry) retry.style.display = 'none';  // nothing to retry against
       }
       document.getElementById('wfr-offline').style.display = '';
       document.getElementById('wfr-browse').style.display = 'none';

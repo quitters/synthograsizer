@@ -638,6 +638,37 @@ body.mode-composer #composer-mount .app-header .app-title { display: none; }
    the knobs container.  Without this scope, display:grid !important would
    override the display:none that setControlMode() sets for D-Pad mode.
 */
+/*
+   Below the grid breakpoint the knobs fall back to the base nowrap flex row
+   with overflow-x:auto. On a phone that puts most of them off-screen behind a
+   horizontal scroll with no affordance — 13 knobs, roughly 2.5 visible. Knobs
+   is now the first-run default, so a first-time mobile visitor would land on a
+   surface where the controls look truncated. Wrap into the same auto-fill grid
+   instead, at a smaller track size, and cap the height so a template with many
+   variables scrolls vertically (the natural direction) rather than sideways.
+
+   Not scoped to .layout-a: unlike the desktop rule this applies in Studio too,
+   since the flex-row problem is identical there. Kept scoped to .knob-mode for
+   the reason given above — display:grid !important would otherwise beat the
+   display:none that setControlMode() sets when D-Pad mode is active.
+*/
+@media (max-width: 899px) {
+  .variable-control-section.knob-mode .knobs-container {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+    gap: 10px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    max-height: 58vh;
+    padding: 12px 8px;
+  }
+
+  .variable-control-section.knob-mode .knob-item {
+    flex-shrink: unset;
+    min-width: unset;
+  }
+}
+
 @media (min-width: 900px) {
   .layout-a .variable-control-section.knob-mode .knobs-container {
     display: grid !important;
