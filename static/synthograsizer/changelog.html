@@ -394,6 +394,13 @@
           <li class="entry-item">
             <span class="entry-badge badge-fix">fix</span>
             <div>
+              <div class="entry-text">Tools that only work on a local install no longer appear on the website</div>
+              <div class="entry-sub">Synthograsizer began as a desktop tool, and a few of those features were still showing on synthograsizer.com where they could never work: <strong>Video Studio</strong> and <strong>Music Studio</strong> (both need a paid tier — the buttons were visible but did nothing when clicked), and the whole <strong>Scope</strong> panel, which bridges to a renderer running on your own computer. They're now hidden unless your account can actually use them, so admins still see Video and Music. Signed-out visitors were missing these checks entirely and saw everything. Nothing changes if you run Synthograsizer locally — every one of these tools works there exactly as before, which is still the way to get the full toolkit.</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-fix">fix</span>
+            <div>
               <div class="entry-text">The header now always names the template you're actually using — and saved work is named too</div>
               <div class="entry-sub">The template name in the header could show the wrong thing: re-picking a template you'd already loaded left the previous name up there, and templates that arrived any other way (the one loaded on your first visit, a generated one, or one loaded from My creations) never updated it at all — so it could sit on "ART PROMPT" over something completely different. It now follows whatever is really loaded. Because templates now carry their name with them, anything you save to My creations is labelled with it instead of just reading "Image". Also removed a dead entry from the template picker — "Blob Simulator" had no template behind it, so choosing it quietly did nothing and left your previous template loaded.</div>
             </div>
