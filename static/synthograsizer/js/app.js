@@ -132,6 +132,13 @@ export class SynthograsizerSmall {
           const res = await fetch('templates/svg-flow-particles.json');
           if (!res.ok) throw new Error(`HTTP ${res.status}`);
           const defaultTemplate = await res.json();
+          // Name it the same way the picker would, so the header chip and any
+          // saved creation get a real label instead of "Untitled" on a first
+          // visit. Falls back to the key if the picker hasn't rendered yet.
+          if (!defaultTemplate.name) {
+            defaultTemplate.name =
+              this.templateLoader?.displayInfoFor?.('svg-flow-particles')?.name || 'SVG Flow Particles';
+          }
           this.loadTemplate(defaultTemplate);
         } catch (fetchErr) {
           console.warn('Could not fetch default template, using built-in fallback:', fetchErr);
@@ -461,6 +468,17 @@ export class SynthograsizerSmall {
       // Store template and variables
       this.currentTemplate = template;
       this.variables = template.variables;
+
+      // Keep the header chip honest. Templates arriving as an object rather
+      // than a picker key — the first-run default, generated, imported, or
+      // loaded from My creations — never updated it, so it kept naming
+      // whatever was loaded before (the app shipped showing "ART PROMPT" over
+      // an unrelated template). A neutral icon here rather than a guessed
+      // emoji; picker loads call updateHeaderButton() straight after this and
+      // overwrite both name and icon with the real entry.
+      if (typeof TemplateLoader !== 'undefined') {
+        TemplateLoader.setHeaderLabel(template.name || 'Untitled', '📄');
+      }
 
       // Reset current variable index
       this.currentVariableIndex = 0;

@@ -394,6 +394,13 @@
           <li class="entry-item">
             <span class="entry-badge badge-fix">fix</span>
             <div>
+              <div class="entry-text">The header now always names the template you're actually using — and saved work is named too</div>
+              <div class="entry-sub">The template name in the header could show the wrong thing: re-picking a template you'd already loaded left the previous name up there, and templates that arrived any other way (the one loaded on your first visit, a generated one, or one loaded from My creations) never updated it at all — so it could sit on "ART PROMPT" over something completely different. It now follows whatever is really loaded. Because templates now carry their name with them, anything you save to My creations is labelled with it instead of just reading "Image". Also removed a dead entry from the template picker — "Blob Simulator" had no template behind it, so choosing it quietly did nothing and left your previous template loaded.</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-fix">fix</span>
+            <div>
               <div class="entry-text">Knobs fit the screen on phones, and hosted users stop being told to run a batch file</div>
               <div class="entry-sub">On a narrow screen the knobs used to sit in one long row you had to scroll sideways to reach — with 13 variables, only about two were visible and there was nothing indicating the rest existed. They now wrap into a grid that fits the width, the same way they already did on desktop. Separately, the Workflows panel told everyone to start a local server with <code>launch-all.bat</code> when it couldn't connect, which is impossible advice on synthograsizer.com — it now says plainly that Workflows are a local-install feature. Behind the scenes, the app also stopped firing a save request on every template load that the hosted service always refused.</div>
             </div>

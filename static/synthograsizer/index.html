@@ -881,7 +881,11 @@
                                     placeholder="Search templates..." aria-label="Search templates">
                             </div>
                             <div class="template-section-label">Built-in templates</div>
-                            <button class="template-option" data-template="blob-simulator" data-category="P5">🫧 Blob Simulator</button>
+                            <!-- "🫧 Blob Simulator" (data-template="blob-simulator") was removed:
+                                 templates/blob-simulator.json does not exist, so picking it 404'd,
+                                 failed silently, and left the previously loaded template in place.
+                                 It was the first entry under Built-in templates. Re-add here if the
+                                 JSON is ever added back. -->
                             <button class="template-option" data-template="spring-physics-v2" data-category="P5">🧬 Spring Physics v2</button>
                             <button class="template-option" data-template="face-generator-full" data-category="P5">😊 Face Generator Full</button>
                             <button class="template-option" data-template="svg-flow-particles" data-category="P5">🌊 SVG Flow Particles</button>

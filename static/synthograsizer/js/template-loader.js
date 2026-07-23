@@ -233,39 +233,43 @@ export class TemplateLoader {
     this.elements.templateDropdown?.classList.remove('active');
   }
 
+  /**
+   * Load a template by picker key.
+   *
+   * Cached and freshly-fetched templates deliberately share ONE tail. They used
+   * to diverge: the cached branch returned early, skipping the header update and
+   * the success flash, so re-picking an already-loaded template left the chip
+   * naming the previous one. That branch is the common case, not the rare one —
+   * the loader pre-caches ~50 templates at startup, so almost every pick took
+   * the path that skipped the UI updates.
+   */
   async loadTemplate(templateName) {
     try {
-      // Check if template is already cached
-      if (this.templates[templateName]) {
-        this.app.loadTemplate(this.templates[templateName]);
-        this.updateCurrentTemplateIndex(templateName);
-        return;
+      let templateData = this.templates[templateName];
+
+      if (!templateData) {
+        const response = await fetch(`templates/${templateName}.json`);
+        if (!response.ok) {
+          throw new Error(`Failed to load template: ${response.statusText}`);
+        }
+        templateData = await response.json();
+        this.templates[templateName] = templateData;
       }
 
-      // Fetch template from file
-      const response = await fetch(`templates/${templateName}.json`);
-      
-      if (!response.ok) {
-        throw new Error(`Failed to load template: ${response.statusText}`);
+      // Stamp a display name on the template itself. None of the bundled
+      // templates carry a `name` field, which left saved creations with no
+      // label and anything reading currentTemplate.name empty. Taking it from
+      // the picker entry names all of them without editing every JSON file,
+      // and keeps one source of truth for the wording.
+      if (!templateData.name) {
+        templateData.name = this.displayInfoFor(templateName).name;
       }
 
-      const templateData = await response.json();
-      
-      // Cache the template
-      this.templates[templateName] = templateData;
-      
-      // Load template into app
       this.app.loadTemplate(templateData);
-      
-      // Update current template index for cycling
       this.updateCurrentTemplateIndex(templateName);
-      
-      // Update header button UI
       this.updateHeaderButton(templateName);
-      
-      // Show success message briefly
       this.showLoadSuccess(templateName);
-      
+
     } catch (error) {
       console.error('Template loading error:', error);
       this.showLoadError(error.message);
@@ -295,27 +299,39 @@ export class TemplateLoader {
     }, 2000);
   }
 
+  /**
+   * Display name + emoji for a template key, read from its picker entry.
+   * Falls back to the key itself when there's no matching option (an ad-hoc
+   * or generated template that isn't in the picker).
+   */
+  displayInfoFor(templateName) {
+    const option = document.querySelector(`.template-option[data-template="${templateName}"]`);
+    if (!option) return { name: String(templateName), icon: '📄' };
+    const fullText = option.textContent.trim();
+    const emojiMatch = fullText.match(/^([\p{Emoji_Presentation}\p{Extended_Pictographic}]+)\s*/u);
+    return {
+      name: (emojiMatch ? fullText.slice(emojiMatch[0].length) : fullText).trim(),
+      icon: emojiMatch ? emojiMatch[1] : '📄',
+    };
+  }
+
   updateHeaderButton(templateName) {
+    const { name, icon } = this.displayInfoFor(templateName);
+    TemplateLoader.setHeaderLabel(name, icon);
+  }
+
+  /**
+   * Write the header chip directly. Static so app.loadTemplate() can keep the
+   * chip honest when a template arrives as an OBJECT rather than a picker key
+   * — generated, imported, restored, or loaded from My creations. Those paths
+   * never touched the chip, so it kept displaying whatever was loaded before.
+   */
+  static setHeaderLabel(name, icon) {
     const headerName = document.getElementById('app-bar-tpl-name');
     const headerIcon = document.getElementById('app-bar-tpl-icon');
     if (!headerName) return;
-
-    // Find the template option to get the display name and emoji
-    const option = document.querySelector(`.template-option[data-template="${templateName}"]`);
-    if (option) {
-      const fullText = option.textContent.trim();
-      const emojiMatch = fullText.match(/^([\p{Emoji_Presentation}\p{Extended_Pictographic}]+)\s*/u);
-      
-      if (headerIcon) {
-        headerIcon.textContent = emojiMatch ? emojiMatch[1] : '📄';
-      }
-      
-      const nameText = emojiMatch ? fullText.slice(emojiMatch[0].length) : fullText;
-      headerName.textContent = nameText.toUpperCase();
-    } else {
-      headerName.textContent = templateName.toUpperCase();
-      if (headerIcon) headerIcon.textContent = '📄';
-    }
+    headerName.textContent = String(name || 'Untitled').toUpperCase();
+    if (headerIcon && icon) headerIcon.textContent = icon;
   }
 
   showLoadError(message) {
