@@ -89,11 +89,12 @@ CREATE TABLE IF NOT EXISTS artifacts (
   user_id       BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   generation_id BIGINT,                        -- soft link, like credit_ledger
   created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
-  kind          TEXT NOT NULL,                 -- 'image'|'video'|'music'
+  kind          TEXT NOT NULL,                 -- 'image'|'video'|'music'|'template'
   mime          TEXT NOT NULL,
   bytes         BIGINT NOT NULL CHECK (bytes >= 0),
   storage_path  TEXT NOT NULL UNIQUE,          -- users/{user_id}/{id}.{ext}
-  label         TEXT                           -- optional user-facing name
+  label         TEXT,                          -- optional user-facing name
+  thumb_path    TEXT                           -- users/{user_id}/{id}_thumb.jpg, NULL if none (v3)
 );
 -- Covers both the gallery listing and the SUM(bytes) quota check.
 CREATE INDEX IF NOT EXISTS artifacts_user_created ON artifacts(user_id, created_at DESC);

@@ -189,8 +189,34 @@ full 200 MB quota = 20 GB ≈ **$0.50/mo** — noise next to Cloud SQL. Signing 
 
 ## Roadmap — next slice (requested 2026-07-20)
 
+> **✅ ALL THREE BUILT 2026-07-22.** #1 (download) is deployed and live (Cloud Run rev
+> `synthograsizer-00013-qvk`). #2 (thumbnails) and #3 (templates, explicit save) are built +
+> tested (187 tests green) but **await a deploy** — they need **schema v3** to reach the prod DB.
+> What shipped vs. the plan below:
+> - **Schema v3** (`artifacts.thumb_path`) — the first real `_MIGRATIONS` entry with SQL
+>   (`ALTER TABLE ADD COLUMN IF NOT EXISTS`). `db.py` bumped to `SCHEMA_VERSION = 3`; it applies
+>   automatically at boot on the next deploy.
+> - **Thumbnails** are served by a new `GET /api/artifacts/{id}/thumb` **proxy**, not signed URLs —
+>   keyless V4 signing is one IAM call per URL, too slow for a 50-row page. The client lazy-loads
+>   via `IntersectionObserver`. Images only; video/music keep their icon.
+> - **Templates**: `/api/generate/template` now returns `generation_id` (+ a Flash-generated
+>   `template_name`, service-mode only so local installs pay no extra call). Load-template reads
+>   JSON via a same-origin `GET /api/artifacts/{id}/content` proxy — chosen over a signed URL to
+>   avoid a **bucket CORS rule** (a hidden deploy step). Shipped **explicit Save only** (option a);
+>   auto-save (b/c) still deferred, still needs Terms v0.4.
+> - **Terms §7** got a clarifying line: a saved template stores prompt text (the one exception to
+>   "prompt text is never stored"). Kept at **v0.3, no re-prompt** — it clarifies the existing
+>   "generated media you explicitly save" carve-out rather than expanding it. Flag for counsel.
+> - **Bonus (unrelated ask):** the Agent Composer/Studio "Launch failed: chatroom_unavailable"
+>   dead-end on hosted is now an honest local-only message (composer.jsx + .js + agent-studio.js).
+>   ChatRoom itself is still local-only — see the launch handoff's Phase 5 remainder.
+>
+> **Deploy note:** this is a normal §2 → §2b → §2c. Schema v3 auto-migrates at boot; the prod DB
+> is small, the ALTER is instant. Smoke step 7 (gallery) now also covers a thumbnail rendering and
+> a template save→Load round-trip.
+
 Three follow-ups, ordered smallest-effort first. **#1 and #2 need no terms change; #3 does —
-read its consent note before building it.**
+read its consent note before building it.** *(Original plan preserved below for the design record.)*
 
 ### 1 · Download button beside Save (images) — do first
 Pure frontend: no API, no storage, no cost. The base64 is already in hand where `runSingle()`

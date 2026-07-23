@@ -61,7 +61,9 @@
   .sy-gallery-empty{opacity:.7;padding:20px 4px;text-align:center}
   .sy-gallery-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;
     background:rgba(255,255,255,.03);border:1px solid var(--suite-border,#33334d)}
-  .sy-gallery-icon{font-size:18px}
+  .sy-gallery-icon{font-size:18px;width:40px;text-align:center;flex:none}
+  .sy-gallery-thumb{width:40px;height:40px;flex:none;border-radius:6px;object-fit:cover;
+    background:rgba(255,255,255,.05);display:block}
   .sy-gallery-label{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .sy-gallery-meta{opacity:.6;font-size:11px;white-space:nowrap}
   .sy-gallery-item button{width:auto;margin:0;padding:5px 10px;font-size:11.5px}
@@ -230,10 +232,46 @@
   }
 
   /* ── "My creations" gallery ────────────────────────────────────────────
-   * Deliberately no thumbnails on load: fetching a signed URL per item
-   * would mean N requests just to open the list. Each row shows a kind
-   * icon + label + size/date; View fetches ONE signed URL on demand. */
-  const KIND_ICON = { image: '🖼️', video: '🎬', music: '🎵' };
+   * Rows carry a kind icon by default; image rows that saved a thumbnail
+   * (schema v3) lazy-load a ~256px preview from the proxy endpoint via
+   * IntersectionObserver, so the list itself stays one request and only
+   * visible thumbs fetch bytes. Full media opens via a signed URL on demand
+   * (View); templates load straight into the app (Load template). */
+  const KIND_ICON = { image: '🖼️', video: '🎬', music: '🎵', template: '🧩' };
+  // Display fallback when an item has no label. Most built-in templates carry no
+  // name, so unlabelled saves are common — "Image" reads better than a raw
+  // lowercase kind, and the thumbnail carries the actual identification.
+  const KIND_NAME = { image: 'Image', video: 'Video', music: 'Track', template: 'Template' };
+
+  /* Lazy-load thumbnails for any rows that declared has_thumb. One observer
+   * per open gallery (stashed on the overlay), re-run after each "Load more". */
+  function observeThumbs(overlay) {
+    const grid = overlay.querySelector('#sy-gallery-grid');
+    if (!grid) return;
+    let obs = overlay._thumbObs;
+    if (!obs) {
+      obs = new IntersectionObserver((entries, o) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          const img = entry.target;
+          o.unobserve(img);
+          img.onerror = () => {
+            // thumb object gone or link raced expiry — fall back to an icon
+            const span = document.createElement('span');
+            span.className = 'sy-gallery-icon';
+            span.textContent = '🖼️';
+            img.replaceWith(span);
+          };
+          img.src = `/api/artifacts/${img.dataset.thumbId}/thumb`;
+        });
+      }, { root: grid, rootMargin: '150px' });
+      overlay._thumbObs = obs;
+    }
+    grid.querySelectorAll('img.sy-gallery-thumb:not([data-observed])').forEach((img) => {
+      img.setAttribute('data-observed', '1');
+      obs.observe(img);
+    });
+  }
 
   function formatBytes(n) {
     const mb = n / (1024 * 1024);
@@ -262,7 +300,7 @@
     if (!beforeId) grid.innerHTML = '';
     if (data.items.length === 0 && !beforeId) {
       grid.innerHTML = '<div class="sy-gallery-empty">Nothing saved yet — look for a Save button under a ' +
-        'generated image, video, or track.</div>';
+        'generated image, video, track, or template.</div>';
       return;
     }
     const moreBtn = grid.querySelector('.sy-gallery-more');
@@ -271,15 +309,25 @@
       const row = document.createElement('div');
       row.className = 'sy-gallery-item';
       row.dataset.id = item.id;
+      row.dataset.kind = item.kind;
       const when = new Date(item.created_at).toLocaleDateString();
+      // Image rows with a saved preview lazy-load it; everything else shows its icon.
+      const lead = item.has_thumb
+        ? `<img class="sy-gallery-thumb" alt="" data-thumb-id="${item.id}">`
+        : `<span class="sy-gallery-icon">${KIND_ICON[item.kind] || '📄'}</span>`;
+      // Templates load into the app; media opens via a signed URL.
+      const primary = item.kind === 'template'
+        ? `<button type="button" class="sy-gallery-load">Load template</button>`
+        : `<button type="button" class="sy-gallery-view">View</button>`;
       row.innerHTML =
-        `<span class="sy-gallery-icon">${KIND_ICON[item.kind] || '📄'}</span>` +
-        `<span class="sy-gallery-label">${item.label ? String(item.label).replace(/</g, '&lt;') : item.kind}</span>` +
+        lead +
+        `<span class="sy-gallery-label">${item.label ? String(item.label).replace(/</g, '&lt;') : (KIND_NAME[item.kind] || item.kind)}</span>` +
         `<span class="sy-gallery-meta">${formatBytes(item.bytes)} · ${when}</span>` +
-        `<button type="button" class="sy-gallery-view">View</button>` +
+        primary +
         `<button type="button" class="sy-gallery-del">Delete</button>`;
       grid.appendChild(row);
     });
+    observeThumbs(overlay);
     if (data.next_before_id) {
       const more = document.createElement('button');
       more.type = 'button';
@@ -324,6 +372,39 @@
           window.open(url, '_blank', 'noopener');
         } else {
           toast('Could not open that item — the link may have expired.');
+        }
+        btn.disabled = false;
+        btn.textContent = original;
+      } else if (e.target.classList.contains('sy-gallery-load')) {
+        // Load a saved template straight into the running Synthograsizer app.
+        // Content comes through the same-origin proxy (no bucket CORS needed).
+        const btn = e.target;
+        const app = window.synthSmall;
+        if (!app || typeof app.loadTemplate !== 'function') {
+          toast('Open the Synthograsizer app to load templates.');
+          return;
+        }
+        // Loading REPLACES whatever is in the app right now, and there's no undo
+        // — confirm rather than silently discarding unsaved variable tweaks.
+        const name = row.querySelector('.sy-gallery-label')?.textContent || 'this template';
+        const current = app.currentTemplate && app.currentTemplate.name;
+        if (!window.confirm(
+              `Load “${name}”?\n\nThis replaces the template currently loaded` +
+              (current ? ` (“${current}”)` : '') + ' — any unsaved changes to it are lost.')) {
+          return;
+        }
+        const original = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = '…';
+        try {
+          const r = await fetch(`/api/artifacts/${id}/content`);
+          if (!r.ok) throw new Error('fetch');
+          const tpl = await r.json();
+          app.loadTemplate(tpl);
+          toast(`Loaded “${name}”.`);
+          ov.remove();
+        } catch (_) {
+          toast('Could not load that template.');
         }
         btn.disabled = false;
         btn.textContent = original;

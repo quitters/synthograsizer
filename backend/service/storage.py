@@ -32,13 +32,18 @@ _credentials = None  # cached google.auth Credentials; refreshed lazily
 # Extension chosen by MIME type first; falls back to a per-kind default so an
 # unrecognized-but-plausible MIME (a codec variant, a future format) still
 # gets a sane filename instead of failing the save outright.
-_KIND_EXT = {"image": "png", "video": "mp4", "music": "wav"}
+_KIND_EXT = {"image": "png", "video": "mp4", "music": "wav", "template": "json"}
 _MIME_EXT = {
     "image/png": "png", "image/jpeg": "jpg", "image/webp": "webp", "image/gif": "gif",
     "video/mp4": "mp4", "video/webm": "webm", "video/quicktime": "mov",
     "audio/wav": "wav", "audio/x-wav": "wav", "audio/mpeg": "mp3", "audio/mp3": "mp3",
     "audio/ogg": "ogg",
+    "application/json": "json",
 }
+
+# Thumbnails are always small JPEGs (see routers/artifacts.py) regardless of
+# what kind of media they preview — one extension, no per-kind table.
+THUMB_MIME = "image/jpeg"
 
 
 def enabled() -> bool:
@@ -88,10 +93,25 @@ def object_path(user_id: int, artifact_key: str, kind: str, mime: Optional[str])
     return f"users/{user_id}/{artifact_key}.{extension_for(kind, mime)}"
 
 
+def thumb_path(user_id: int, artifact_key: str) -> str:
+    """Sibling object for the ~256px preview. Same key as the main object so an
+    account-prefix delete (``users/{id}/``) removes both, and always .jpg."""
+    return f"users/{user_id}/{artifact_key}_thumb.jpg"
+
+
 def put(storage_path: str, data: bytes, mime: str) -> None:
     """Upload bytes to an already-computed path (see object_path)."""
     _client_obj, bucket = _client_and_bucket()
     bucket.blob(storage_path).upload_from_string(data, content_type=mime)
+
+
+def get(storage_path: str) -> bytes:
+    """Download an object's bytes. Used by the thumbnail proxy endpoint, which
+    streams tiny previews through the app instead of minting a signed URL per
+    row (keyless V4 signing is one IAM call apiece — too slow for a list page).
+    Full-size media still goes out via signed_url, never through here."""
+    _client_obj, bucket = _client_and_bucket()
+    return bucket.blob(storage_path).download_as_bytes()
 
 
 def signed_url(storage_path: str, ttl_seconds: Optional[int] = None) -> str:

@@ -978,6 +978,16 @@ class AgentStudio {
   open() {
     const modal = document.getElementById('agent-studio-modal');
     if (!modal) return;
+    // The whole studio is backed by the ChatRoom Node server (/chatroom/api/*),
+    // which isn't deployed on the hosted service — every panel here would 503.
+    // Signed-in state only exists on hosted, so it's a reliable gate: show an
+    // honest note instead of opening an all-errors modal. (Composer's Launch
+    // path is already blocked upstream, so this only catches direct opens.)
+    if (window.SynthAuth && window.SynthAuth.me) {
+      (window.studioIntegrationInstance?.showToast || ((m) => alert(m)))(
+        'Live agent sessions run on local installs only — not on the hosted service.', 'warning', 5000);
+      return;
+    }
     modal.classList.add('active');
     this._connectStream();
     this._refreshAgents();

@@ -360,6 +360,27 @@
             </div>
           </li>
           <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">My creations now shows thumbnails</div>
+              <div class="entry-sub">Saved images get a little preview in the gallery instead of a generic icon. The thumbnail is made in your browser when you save (a small ~256px copy), so opening the list stays a single quick request and previews only load as you scroll to them. Older images saved before this update keep showing an icon; anything you save from now on gets a thumbnail. Videos and tracks still show their icon.</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">Save a generated template to your library — and load it back in one click</div>
+              <div class="entry-sub">When you generate a template, there's now a <strong>💾 Save to My creations</strong> button, and it comes pre-named: a quick one- or two-word theme name so you can spot it later (e.g. "Neon Cats"). Saved templates live in My creations alongside your images; each one gets a <strong>Load template</strong> button that drops it straight back into the app. Saving is always a deliberate click — nothing is auto-saved. One honest note: a template is prompt text, so unlike an image (where only the file is stored), saving a template does keep its prompt on our server — that's spelled out in the updated Terms §7, and it only happens when you click Save.</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-fix">fix</span>
+            <div>
+              <div class="entry-text">Agent Composer no longer dead-ends with "Launch failed" on the hosted service</div>
+              <div class="entry-sub">Live multi-agent sessions (the Agent Composer / Agent Studio chat rooms) run on a separate backend that only exists on local installs, so launching one on the hosted service failed with a cryptic <code>chatroom_unavailable</code> error after you'd built the whole session. It now says up front that live sessions are local-only, before you do the work — and the rest of the Composer, including generating agent profiles and templates, keeps working on the hosted service. Running locally? Nothing changes; sessions launch as before.</div>
+            </div>
+          </li>
+          <li class="entry-item">
             <span class="entry-badge badge-chore">chore</span>
             <div>
               <div class="entry-text">Terms bumped to v0.3 — saved creations are the first hosted feature that stores generated media server-side</div>
@@ -370,6 +391,13 @@
 
         <div class="panel-section-label">Main App — One-Row Header</div>
         <ul class="entry-list">
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">First visit now opens in Perform mode with the Knobs surface</div>
+              <div class="entry-sub">A fresh visit now starts in <strong>Perform</strong> (the minimal live layout) on the <strong>Knobs</strong> control surface, instead of Studio + D-Pad — a friendlier starting point for live use and MIDI. Both are now the <em>first</em> button in their row. This only changes the starting default: if you've ever picked a layout or control mode yourself, your choice is remembered and still wins — nothing is forced on a return visit.</div>
+            </div>
+          </li>
           <li class="entry-item">
             <span class="entry-badge badge-feat">feat</span>
             <div>

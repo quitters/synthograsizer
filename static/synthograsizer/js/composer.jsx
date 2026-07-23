@@ -2618,6 +2618,16 @@ function App() {
       showToast('Add at least one agent', 'warn');
       return;
     }
+    // ChatRoom's Node backend isn't deployed on the hosted service — the app
+    // proxies /chatroom/* to a 503 there. Signed-in state (window.SynthAuth.me)
+    // only exists on the hosted service, so it's a reliable "this is hosted"
+    // signal: fail fast with an honest message rather than a cryptic error
+    // after the user has built a whole session. The rest of the Composer
+    // (agent profiles, template generation) works on hosted regardless.
+    if (window.SynthAuth && window.SynthAuth.me) {
+      showToast('Live agent sessions run on local installs only — not on the hosted service. The rest of the Composer works here.', 'warn');
+      return;
+    }
     showToast('Loading agents into chatroom…', 'ok');
     try {
       // Optional: clear existing chatroom agents so the session is clean.
@@ -2643,6 +2653,9 @@ function App() {
         });
         if (!res.ok) {
           const err = await res.json().catch(() => ({}));
+          if (res.status === 503 && err.error === 'chatroom_unavailable') {
+            throw new Error('Live agent sessions run on local installs only — not on the hosted service.');
+          }
           throw new Error(err.error || `Failed to add ${p.name}`);
         }
       }

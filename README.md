@@ -215,18 +215,22 @@ All three are configured from the unified **Scope** panel in the sidebar.
 
 ## Roadmap
 
-Next up, smallest first. Full engineering detail and the consent analysis behind #3 are in
+The 2026-07-20 gallery slice is **done** — download button (live), thumbnails, and
+templates-in-My-creations with Load-template all shipped; engineering detail and the consent
+analysis are in
 [docs/HANDOFF_CLOUD_STORAGE.md](docs/HANDOFF_CLOUD_STORAGE.md#roadmap--next-slice-requested-2026-07-20).
+Template saves are **explicit only** (auto-save still needs Terms v0.4).
+
+Next up:
 
 | | Item | Notes |
 |---|---|---|
-| 1 | **Download button** beside Save on generated images | Pure frontend — the image bytes are already in the browser. Works signed-out and on local installs, unlike Save. |
-| 2 | **Thumbnails in My creations** | Gallery currently lists items by icon/name/size to avoid one signed-URL request per row. Plan: generate a ~256px thumb client-side at save time, store it alongside, lazy-load with `IntersectionObserver`. Needs schema v3 (`thumb_path`). |
-| 3 | **Templates in My creations + "Load template"** | Save generated template JSON to your library and reload it in one click. Needs `/api/generate/template` to return `generation_id` (it doesn't yet) and a `template` kind on the artifacts API. ⚠ *Auto*-saving conflicts with two current Terms claims — see the consent note in the linked doc; explicit Save ships with no terms change. |
+| 1 | **Save buttons on batch-grid & Smart Transform results** | `generation_id` already flows from those endpoints; `saveArtifact` / `makeThumb` are reusable — frontend-only. |
+| 2 | **Stripe paid tier** | Schema already has `tier` + `purchase` ledger rows; needs the webhook + checkout flow. |
+| 3 | **Hosted ChatRoom** | Currently local-only (the launch is gated with an honest message on hosted). Needs the Node backend hosted **and** its autonomous multi-agent Gemini spend routed through credit metering first — a project in its own right. |
 
-Also open: Save buttons on batch-grid and Smart Transform results; Stripe paid tier (schema
-already has `tier` + `purchase` ledger rows); hosted ChatRoom; multi-instance scaling (needs
-shared rate-limit/budget state first).
+Also open: multi-instance scaling (needs shared rate-limit/budget state first); auto-save
+templates behind Terms v0.4.
 
 ---
 

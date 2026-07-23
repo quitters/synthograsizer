@@ -18,7 +18,7 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 
 # version → list of SQL statements upgrading an EXISTING database from
 # version-1 to version. Purely additive, and never run on a fresh database
@@ -32,8 +32,15 @@ SCHEMA_VERSION = 2
 # v2 (artifacts, 2026-07-20) is exactly that case: the table and its index are
 # in schema.sql, so there is nothing additive to replay — the version bump
 # alone records the change.
+#
+# v3 (artifacts.thumb_path, 2026-07-22) is the FIRST entry that carries real
+# SQL: a new column on an existing table. A fresh database already has it from
+# schema.sql and never runs this; only a database created at v2 needs the
+# ALTER. IF NOT EXISTS keeps it safe even if the version bookkeeping is ever
+# off — re-running it against a DB that already has the column is a no-op.
 _MIGRATIONS: dict[int, list[str]] = {
     2: [],
+    3: ["ALTER TABLE artifacts ADD COLUMN IF NOT EXISTS thumb_path TEXT"],
 }
 
 _pool = None

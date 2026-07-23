@@ -27,12 +27,57 @@ from backend.service.credits import charged
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
+def _sanitize_name(raw: str) -> Optional[str]:
+    """First line of the model's reply, stripped to a 1-2 word Title-Case label."""
+    if not raw:
+        return None
+    line = raw.strip().splitlines()[0] if raw.strip() else ""
+    line = re.sub(r'[`"*_#<>\[\]\(\)]', "", line).strip().strip(".").strip()
+    name = " ".join(line.split()[:2])[:24].strip()
+    return name or None
+
+
+def _name_template(template: dict) -> Optional[str]:
+    """One cheap Flash call → a snappy 1-2 word theme name for the saved-
+    workflow gallery. Synchronous (runs in a thread); see _safe_name_template."""
+    prompt_t = (template.get("promptTemplate") or "").strip()
+    var_names = [v.get("name", "") for v in (template.get("variables") or [])
+                 if isinstance(v, dict) and v.get("name")]
+    if not prompt_t and not var_names:
+        return None
+    ask = (
+        "Give a snappy 1-2 word name for the THEME of this generative-art prompt "
+        "template, for a user's saved-workflow library. Reply with ONLY the name "
+        "— no quotes, no punctuation, Title Case.\n\n"
+        f"Prompt template: {prompt_t[:400]}\n"
+        f"Variables: {', '.join(var_names[:12])}"
+    )
+    return _sanitize_name(ai_manager.generate_text(ask, model_name=config.MODEL_FAST))
+
+
+async def _safe_name_template(template: dict) -> Optional[str]:
+    """Best-effort wrapper: naming must never fail or noticeably slow a
+    generation that already succeeded, so any error/timeout just yields None
+    and the client falls back to letting the user name it."""
+    try:
+        return await asyncio.wait_for(asyncio.to_thread(_name_template, template), timeout=15)
+    except Exception:
+        logger.info("template auto-naming skipped (non-fatal)", exc_info=True)
+        return None
+
+
 @router.post("/api/generate/template")
 async def generate_template(request: TemplateRequest, http_request: Request):
     """Charged wrapper around the mode dispatch below.
 
     Pricing mirrors the impl's model resolution (Pro unless demo/flash/explicit)
     plus one credit per analyzed input image; the impl itself is unchanged.
+
+    Surfaces ``generation_id`` (the charged generations row) so the client can
+    bind a later "save this template to My creations" call to it — the artifacts
+    save endpoint requires an owned generation_id of a compatible action. Also
+    attaches a ``template_name`` (service mode only, so a local install pays no
+    extra call) for the gallery label.
     """
     if request.is_demo and not service_mode():
         priced_model = config.MODEL_DEMO
@@ -47,6 +92,18 @@ async def generate_template(request: TemplateRequest, http_request: Request):
                        units=n_images, prompt_chars=len(request.prompt or "")) as ch:
         result = await _generate_template_impl(request)
         ch.commit()
+        gen_id = ch.gen_id
+
+    if isinstance(result, dict):
+        if gen_id is not None:
+            result.setdefault("generation_id", gen_id)
+        tpl = result.get("template")
+        # Name real Synthograsizer templates only (not p5_edit/workflow/taste
+        # payloads), and only in service mode where the gallery uses the label.
+        if service_mode() and isinstance(tpl, dict):
+            name = await _safe_name_template(tpl)
+            if name:
+                result["template_name"] = name
     return result
 
 

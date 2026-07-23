@@ -373,7 +373,7 @@
         </tr>
         <tr>
           <td>Saved creations <em>(opt-in — nothing is saved unless you click Save)</em></td>
-          <td>The image, video, or audio file itself, when you click "Save" under something you generated. Stored in Google Cloud Storage, same Montréal region as the rest of the service; readable only by your account, via a short-lived signed link the server issues on request</td>
+          <td>The image, video, or audio file itself, when you click "Save" under something you generated — or a generated <strong>template</strong> (a small JSON file) you choose to save to your library. A template contains the prompt text that defines it, so saving one does store that prompt text server-side: this is the single exception to "prompt text is never stored" above, and it happens only when you explicitly click Save on a template. Stored in Google Cloud Storage, same Montréal region as the rest of the service; readable only by your account, via a short-lived signed link the server issues on request</td>
           <td>Until you delete that item or your account — not covered by the generation-log retention window above</td>
         </tr>
         <tr>

@@ -134,3 +134,32 @@ def test_artifacts_table_and_index_are_in_schema_sql():
     assert "CREATE TABLE IF NOT EXISTS artifacts" in sql
     assert "artifacts_user_created" in sql
     assert "ON DELETE CASCADE" in sql
+
+
+# ── v3: artifacts.thumb_path — the first migration entry with real SQL ────────
+
+_THUMB_ALTER = "ADD COLUMN IF NOT EXISTS thumb_path"
+
+
+def test_existing_v2_database_runs_v3_thumb_migration():
+    """A DB created at v2 (pre-thumbnails) gets the thumb_path column added."""
+    pool = FakePool(existing_version=2)
+    asyncio.run(service_db._migrate(pool))
+    assert pool.conn.statements_containing(_THUMB_ALTER), "v2→v3 must add artifacts.thumb_path"
+    updates = pool.conn.statements_containing("UPDATE schema_version")
+    assert len(updates) == 1
+    assert pool.conn.executed[-1][1] == (service_db.SCHEMA_VERSION,)
+
+
+def test_fresh_database_does_not_run_v3_thumb_alter():
+    """The exact bug class: a fresh DB already has thumb_path from schema.sql, so
+    the ALTER must NOT replay (it would be redundant, and any future non-idempotent
+    step here would double-apply)."""
+    pool = FakePool(existing_version=None)
+    asyncio.run(service_db._migrate(pool))
+    assert pool.conn.statements_containing(_THUMB_ALTER) == []
+
+
+def test_thumb_path_in_schema_sql_for_fresh_databases():
+    """Fresh installs must get thumb_path from the base DDL, not the migration."""
+    assert "thumb_path" in service_db._schema_sql_text()

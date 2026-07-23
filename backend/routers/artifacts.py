@@ -32,6 +32,7 @@ import os
 from typing import Optional
 
 from fastapi import APIRouter, HTTPException, Request
+from fastapi.responses import Response
 from pydantic import BaseModel
 
 from backend.service import service_mode, storage
@@ -43,13 +44,19 @@ DEFAULT_QUOTA_MB = 200
 PAGE_SIZE = 50
 
 # kind -> generations.action values that could plausibly have produced it,
-# and the MIME top-level type it must declare.
+# and the MIME top-level type it must declare. 'template' is prompt-bearing
+# JSON, saved only on an explicit click (never auto-saved — that would need a
+# Terms rev; see HANDOFF_CLOUD_STORAGE.md's roadmap consent note).
 _KIND_ACTIONS = {
     "image": ("image", "smart_transform"),
     "video": ("video",),
     "music": ("music",),
+    "template": ("template",),
 }
-_KIND_MIME_PREFIX = {"image": "image/", "video": "video/", "music": "audio/"}
+_KIND_MIME_PREFIX = {
+    "image": "image/", "video": "video/", "music": "audio/",
+    "template": "application/",  # application/json
+}
 
 
 class SaveArtifactRequest(BaseModel):
@@ -58,6 +65,11 @@ class SaveArtifactRequest(BaseModel):
     mime: str
     generation_id: int
     label: Optional[str] = None
+    # ~256px JPEG preview, generated client-side at save time. Optional and
+    # best-effort: a failed thumb never fails the save, and templates/music
+    # send none. Not counted against quota — a few KB is rounding error next
+    # to the media it previews.
+    thumb_b64: Optional[str] = None
 
 
 def _require_service() -> None:
@@ -127,6 +139,16 @@ async def save_artifact(body: SaveArtifactRequest, request: Request):
             "limit_mb": quota // (1024 * 1024),
         })
 
+    # Optional thumbnail. Decoded up front so a malformed thumb is caught before
+    # we touch the DB, but a bad/absent thumb only means "no preview" — never a
+    # failed save. Not counted against the quota check above (a few KB).
+    thumb_data = None
+    if body.thumb_b64:
+        try:
+            thumb_data = base64.b64decode(body.thumb_b64, validate=True) or None
+        except (binascii.Error, ValueError):
+            thumb_data = None  # ignore a broken thumb; the media still saves
+
     # The GCS object name is a UUID, not the DB row id: the id only exists
     # after INSERT, but storage_path is NOT NULL — computing the path from an
     # independent key sidesteps that ordering instead of a two-step
@@ -134,12 +156,13 @@ async def save_artifact(body: SaveArtifactRequest, request: Request):
     import uuid
     artifact_key = uuid.uuid4().hex
     storage_path = storage.object_path(user["id"], artifact_key, body.kind, body.mime)
+    thumb_storage_path = storage.thumb_path(user["id"], artifact_key) if thumb_data else None
 
     artifact_id = await pool.fetchval(
-        "INSERT INTO artifacts (user_id, generation_id, kind, mime, bytes, storage_path, label) "
-        "VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id",
+        "INSERT INTO artifacts (user_id, generation_id, kind, mime, bytes, storage_path, label, thumb_path) "
+        "VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id",
         user["id"], body.generation_id, body.kind, body.mime, len(data),
-        storage_path, body.label,
+        storage_path, body.label, thumb_storage_path,
     )
     try:
         storage.put(storage_path, data, body.mime)
@@ -148,8 +171,21 @@ async def save_artifact(body: SaveArtifactRequest, request: Request):
         await pool.execute("DELETE FROM artifacts WHERE id = $1", artifact_id)
         raise HTTPException(status_code=503, detail="Upload failed — nothing was saved.")
 
+    # Thumb is strictly best-effort: the media is already safely stored, so a
+    # thumb upload failure just clears thumb_path (the gallery falls back to the
+    # kind icon) rather than unwinding a good save.
+    has_thumb = False
+    if thumb_data:
+        try:
+            storage.put(thumb_storage_path, thumb_data, storage.THUMB_MIME)
+            has_thumb = True
+        except Exception:
+            logger.warning("thumb upload failed (user=%s, path=%s) — saving without preview",
+                           user["id"], thumb_storage_path)
+            await pool.execute("UPDATE artifacts SET thumb_path = NULL WHERE id = $1", artifact_id)
+
     return {"id": artifact_id, "kind": body.kind, "mime": body.mime,
-            "bytes": len(data), "label": body.label}
+            "bytes": len(data), "label": body.label, "has_thumb": has_thumb}
 
 
 @router.get("/api/me/artifacts")
@@ -160,7 +196,7 @@ async def list_artifacts(request: Request, before_id: Optional[int] = None):
     from backend.service import db
     pool = db.pool()
     rows = await pool.fetch(
-        "SELECT id, kind, mime, bytes, label, created_at FROM artifacts "
+        "SELECT id, kind, mime, bytes, label, created_at, thumb_path FROM artifacts "
         "WHERE user_id = $1 AND ($2::bigint IS NULL OR id < $2) "
         "ORDER BY id DESC LIMIT $3",
         user["id"], before_id, PAGE_SIZE + 1,
@@ -170,10 +206,14 @@ async def list_artifacts(request: Request, before_id: Optional[int] = None):
     used = await pool.fetchval(
         "SELECT COALESCE(SUM(bytes), 0) FROM artifacts WHERE user_id = $1", user["id"]
     )
+    # has_thumb, not a URL: the client lazy-loads visible thumbs from the proxy
+    # endpoint (one request each, only when scrolled into view), so the list
+    # stays a single round-trip regardless of page size.
     return {
         "items": [
             {"id": r["id"], "kind": r["kind"], "mime": r["mime"], "bytes": r["bytes"],
-             "label": r["label"], "created_at": r["created_at"].isoformat()}
+             "label": r["label"], "created_at": r["created_at"].isoformat(),
+             "has_thumb": r["thumb_path"] is not None}
             for r in rows
         ],
         "next_before_id": rows[-1]["id"] if has_more and rows else None,
@@ -203,6 +243,70 @@ async def artifact_url(artifact_id: int, request: Request):
     return {"url": url, "expires_in": ttl}
 
 
+@router.get("/api/artifacts/{artifact_id}/thumb")
+async def artifact_thumb(artifact_id: int, request: Request):
+    """Proxy the ~256px preview bytes. Deliberately not a signed URL: keyless V4
+    signing costs one IAM signBlob call per URL, so a 50-row page would mean 50
+    slow signs; thumbs are tiny, so streaming them through the app on demand is
+    cheaper and naturally lazy. Full-size media still uses /url (signed)."""
+    _require_service()
+    user = _current_user(request)
+    if not storage.enabled():
+        raise _storage_unavailable()
+
+    from backend.service import db
+    pool = db.pool()
+    row = await pool.fetchrow(
+        "SELECT thumb_path FROM artifacts WHERE id = $1 AND user_id = $2",
+        artifact_id, user["id"],
+    )
+    if row is None or row["thumb_path"] is None:
+        raise HTTPException(status_code=404, detail="Not found")
+
+    try:
+        data = storage.get(row["thumb_path"])
+    except Exception:
+        # Row says there's a thumb but the object is gone (partial failure, a
+        # sweep, a race) — 404 so the client falls back to the kind icon.
+        raise HTTPException(status_code=404, detail="Not found")
+
+    # private: it's a per-user object behind auth; must never sit in a shared
+    # proxy cache. max-age lets the browser reuse it while the gallery is open.
+    return Response(content=data, media_type=storage.THUMB_MIME,
+                    headers={"Cache-Control": "private, max-age=600"})
+
+
+@router.get("/api/artifacts/{artifact_id}/content")
+async def artifact_content(artifact_id: int, request: Request):
+    """Proxy a small text artifact's raw bytes so the client can read them same-
+    origin. Templates need their JSON *parsed* (to hand to the app's loader), and
+    fetch() against a GCS signed URL is cross-origin — it would need a bucket CORS
+    rule, a hidden deploy step. Restricted to template kind so this never streams
+    multi-MB media (those keep using /url + the browser's own GET)."""
+    _require_service()
+    user = _current_user(request)
+    if not storage.enabled():
+        raise _storage_unavailable()
+
+    from backend.service import db
+    pool = db.pool()
+    row = await pool.fetchrow(
+        "SELECT kind, mime, storage_path FROM artifacts WHERE id = $1 AND user_id = $2",
+        artifact_id, user["id"],
+    )
+    if row is None:
+        raise HTTPException(status_code=404, detail="Not found")
+    if row["kind"] != "template":
+        raise HTTPException(status_code=415, detail="Use /url for this kind.")
+
+    try:
+        data = storage.get(row["storage_path"])
+    except Exception:
+        raise HTTPException(status_code=404, detail="Not found")
+    return Response(content=data, media_type=row["mime"] or "application/json",
+                    headers={"Cache-Control": "private, max-age=60"})
+
+
 @router.delete("/api/artifacts/{artifact_id}")
 async def delete_artifact(artifact_id: int, request: Request):
     _require_service()
@@ -211,7 +315,7 @@ async def delete_artifact(artifact_id: int, request: Request):
     from backend.service import db
     pool = db.pool()
     row = await pool.fetchrow(
-        "SELECT storage_path FROM artifacts WHERE id = $1 AND user_id = $2",
+        "SELECT storage_path, thumb_path FROM artifacts WHERE id = $1 AND user_id = $2",
         artifact_id, user["id"],
     )
     if row is None:
@@ -219,7 +323,10 @@ async def delete_artifact(artifact_id: int, request: Request):
 
     # The row must always be deletable even if the operator has since turned
     # storage off — a disabled bucket must not leave a gallery entry stuck.
+    # Both objects go: storage.delete is idempotent, so a missing thumb is fine.
     if storage.enabled():
         storage.delete(row["storage_path"])
+        if row["thumb_path"] is not None:
+            storage.delete(row["thumb_path"])
     await pool.execute("DELETE FROM artifacts WHERE id = $1", artifact_id)
     return {"status": "deleted"}

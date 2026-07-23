@@ -3667,7 +3667,72 @@ class StudioIntegration {
      * of this kind before accepting the bytes, so this call can 404 even
      * with a real id if something upstream is stale.
      */
-    async saveArtifact(kind, mime, base64Data, generationId, btn) {
+    /**
+     * A human label for saved media, so My creations doesn't list ten rows all
+     * reading "image". Uses the loaded template's name — deliberately NOT the
+     * prompt: a prompt fragment in a queryable DB column would be a new data
+     * practice, and Terms §7 says prompt text isn't stored server-side (the
+     * PNG's own embedded metadata is a separate, separately-disclosed thing).
+     * The template name is already on screen in the header chip.
+     */
+    mediaLabel() {
+        const name = (this.app?.currentTemplate?.name || '').trim();
+        return name ? name.slice(0, 60) : null;
+    }
+
+    /**
+     * Downscale a base64 image to a small JPEG for the gallery thumbnail.
+     * Returns raw base64 (no data: prefix) or throws — callers treat any
+     * failure as "no thumb", never as a failed save.
+     */
+    makeThumb(base64Data, mime, max = 256) {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => {
+                try {
+                    const scale = Math.min(1, max / Math.max(img.width, img.height));
+                    const w = Math.max(1, Math.round(img.width * scale));
+                    const h = Math.max(1, Math.round(img.height * scale));
+                    const cv = document.createElement('canvas');
+                    cv.width = w; cv.height = h;
+                    cv.getContext('2d').drawImage(img, 0, 0, w, h);
+                    // JPEG q0.7 keeps a 256px thumb to a few KB; the gallery
+                    // never needs alpha, so no reason to pay PNG size here.
+                    resolve(cv.toDataURL('image/jpeg', 0.7).split(',')[1]);
+                } catch (e) { reject(e); }
+            };
+            img.onerror = reject;
+            img.src = `data:${mime};base64,${base64Data}`;
+        });
+    }
+
+    /**
+     * Base64-encode a UTF-8 string safely (btoa alone throws on non-Latin1).
+     * Used to ship a generated template's JSON to the artifacts endpoint.
+     */
+    utf8ToBase64(str) {
+        return btoa(unescape(encodeURIComponent(str)));
+    }
+
+    /**
+     * Save the currently-loaded template to My creations. Only a freshly
+     * GENERATED template can be saved — the artifacts endpoint requires an owned
+     * generation_id of action 'template', which a hand-edited or file-loaded
+     * template doesn't have. lastTemplateGenId/Name are set when one generates.
+     */
+    saveCurrentTemplate(btn) {
+        const tpl = this.app?.currentTemplate;
+        if (!tpl) { this.showToast('No template to save.', 'warning', 3000); return; }
+        if (this.lastTemplateGenId == null) {
+            this.showToast('Only a freshly generated template can be saved.', 'warning', 3500);
+            return;
+        }
+        const b64 = this.utf8ToBase64(JSON.stringify(tpl));
+        return this.saveArtifact('template', 'application/json', b64,
+                                 this.lastTemplateGenId, btn, this.lastTemplateName || null);
+    }
+
+    async saveArtifact(kind, mime, base64Data, generationId, btn, label = null) {
         if (generationId == null) {
             this.showToast('Nothing to save yet — generate first.', 'warning', 3000);
             return;
@@ -3676,12 +3741,20 @@ class StudioIntegration {
         btn.disabled = true;
         btn.textContent = '💾 Saving…';
         try {
+            // Best-effort ~256px preview so My creations can show a thumbnail
+            // without a signed-URL round-trip per row. Images only for now;
+            // video is admin-only on hosted and music has no visual.
+            let thumbB64 = null;
+            if (kind === 'image') {
+                try { thumbB64 = await this.makeThumb(base64Data, mime); } catch (_) {}
+            }
+            const payload = { data_b64: base64Data, kind, mime, generation_id: generationId };
+            if (thumbB64) payload.thumb_b64 = thumbB64;
+            if (label) payload.label = label;
             const res = await fetch('/api/artifacts', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    data_b64: base64Data, kind, mime, generation_id: generationId
-                })
+                body: JSON.stringify(payload)
             });
             if (res.ok) {
                 btn.textContent = '✅ Saved';
@@ -4744,8 +4817,11 @@ class StudioIntegration {
             // deployment (SYNTH_HOSTED without SYNTH_AUTH) has no features at all.
             const canSave = !!(window.SynthAuth && window.SynthAuth.me &&
                                 window.SynthAuth.me.features && window.SynthAuth.me.features.storage);
+            // lastMediaLabel is read at click time (a property reference, not an
+            // interpolated literal) so a template name with quotes can't break the
+            // inline handler.
             const saveBtnHtml = (kind, mime, sourceExpr) => canSave
-                ? `<button class="synth-save-artifact" onclick="window.studioIntegrationInstance.saveArtifact('${kind}','${mime}', ${sourceExpr}, window.studioIntegrationInstance.lastGenerationId, this)" style="background:rgba(61,189,173,0.15); border:1px solid rgba(61,189,173,0.5); color:#3dbdad; padding:6px 14px; border-radius:6px; cursor:pointer; font-size:13px;">💾 Save</button>`
+                ? `<button class="synth-save-artifact" onclick="window.studioIntegrationInstance.saveArtifact('${kind}','${mime}', ${sourceExpr}, window.studioIntegrationInstance.lastGenerationId, this, window.studioIntegrationInstance.lastMediaLabel)" style="background:rgba(61,189,173,0.15); border:1px solid rgba(61,189,173,0.5); color:#3dbdad; padding:6px 14px; border-radius:6px; cursor:pointer; font-size:13px;">💾 Save</button>`
                 : '';
 
             if (type === 'image') {
@@ -4753,6 +4829,7 @@ class StudioIntegration {
                 this.currentBatchResults = [data.image];
                 this.currentLightboxIndex = 0;
                 this.lastGenerationId = data.generation_id ?? null;
+                this.lastMediaLabel = this.mediaLabel();
 
                 // Auto-push to OBS display page
                 window.synthSmall?.displayBroadcaster?.sendImage(
@@ -4784,6 +4861,7 @@ class StudioIntegration {
             } else {
                 this.currentSingleVideoResult = data.video;
                 this.lastGenerationId = data.generation_id ?? null;
+                this.lastMediaLabel = this.mediaLabel();
 
                 let videoHtml = `
                 <video controls autoplay loop class="studio-result-video">
@@ -5333,6 +5411,16 @@ class StudioIntegration {
                         this._remixParentInfo = null; // Clear after use
                     }
 
+                    // Remember what was just generated so it can be saved to the
+                    // account gallery — the endpoint needs this generation_id.
+                    this.lastTemplateGenId = data.generation_id ?? null;
+                    this.lastTemplateName = data.template_name || null;
+                    const canSaveTpl = !!(window.SynthAuth && window.SynthAuth.me &&
+                                          window.SynthAuth.me.features && window.SynthAuth.me.features.storage);
+                    const tplSaveBtn = (canSaveTpl && this.lastTemplateGenId != null)
+                        ? `<button class="synth-save-template" onclick="window.studioIntegrationInstance.saveCurrentTemplate(this)" style="margin-top:14px; background:rgba(61,189,173,0.15); border:1px solid rgba(61,189,173,0.5); color:#3dbdad; padding:8px 16px; border-radius:6px; cursor:pointer; font-size:13px;">💾 Save to My creations${this.lastTemplateName ? ` — “${this.lastTemplateName}”` : ''}</button>`
+                        : '';
+
                     content.innerHTML = `
                         <div style="text-align:center; padding:20px;">
                             <h3 style="color:#009688;">Template Generated & Imported!</h3>
@@ -5340,6 +5428,7 @@ class StudioIntegration {
                             <div style="background:#f5f5f5; padding:10px; text-align:left; border-radius:6px; max-height:200px; overflow:auto; border:1px solid #eee;">
                                 <pre style="margin:0; font-size:11px;">${JSON.stringify(this.app.currentTemplate, null, 2)}</pre>
                             </div>
+                            ${tplSaveBtn}
                         </div>
                     `;
                     closeBtn.style.display = 'block';
