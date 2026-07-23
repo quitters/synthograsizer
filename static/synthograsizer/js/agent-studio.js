@@ -984,8 +984,12 @@ class AgentStudio {
     // honest note instead of opening an all-errors modal. (Composer's Launch
     // path is already blocked upstream, so this only catches direct opens.)
     if (window.SynthAuth && window.SynthAuth.me) {
-      (window.studioIntegrationInstance?.showToast || ((m) => alert(m)))(
-        'Live agent sessions run on local installs only — not on the hosted service.', 'warning', 5000);
+      // Call showToast AS A METHOD — it uses `this` internally (escapeHtml), so
+      // pulling it off the instance into a bare function reference throws.
+      const msg = 'Live agent sessions run on local installs only — not on the hosted service.';
+      const si = window.studioIntegrationInstance;
+      if (si && typeof si.showToast === 'function') si.showToast(msg, 'warning', 5000);
+      else alert(msg);
       return;
     }
     modal.classList.add('active');
