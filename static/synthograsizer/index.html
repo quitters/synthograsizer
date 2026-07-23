@@ -418,8 +418,9 @@
           <!-- id="layout-switcher" kept so mode-switching JS (and av/demo strip
                logic) can find this group; buttons bind via .layout-btn -->
           <nav class="app-bar-seg layout-switcher" id="layout-switcher" role="group" aria-label="Mode">
-            <button class="layout-btn" data-layout="default" data-tip="Studio — full toolkit" data-tip-pos="down">Studio</button>
+            <!-- Perform is first: it's the default layout (see the layout switcher script). -->
             <button class="layout-btn" data-layout="a" data-tip="Perform — minimal live layout" data-tip-pos="down">Perform</button>
+            <button class="layout-btn" data-layout="default" data-tip="Studio — full toolkit" data-tip-pos="down">Studio</button>
             <button class="layout-btn" data-mode="composer" data-tip="Composer — 4-room agent studio" data-tip-pos="down">Composer</button>
           </nav>
 
@@ -553,19 +554,23 @@
                 <!-- D-Pad group: mode toggle + widget + indicators + hint -->
                 <div class="dpad-group">
                 <!-- Mode Toggle -->
+                <!-- Knobs is first: it's the default control surface on a fresh visit
+                     (app.js init calls setControlMode('knobs')). The `active` class stays
+                     on D-Pad here to match the constructor default before JS runs — a fresh
+                     session flips it to Knobs on init, a returning D-Pad session keeps it. -->
                 <div class="control-mode-toggle">
-                    <button id="mode-dpad" class="mode-toggle-btn active" data-tip="D-Pad Navigation Mode">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M15 7.5V2H9v5.5l3 3 3-3zM7.5 9H2v6h5.5l3-3-3-3zM9 16.5V22h6v-5.5l-3-3-3 3zM16.5 9l-3 3 3 3H22V9h-5.5z"/>
-                        </svg>
-                        <span>D-Pad</span>
-                    </button>
                     <button id="mode-knobs" class="mode-toggle-btn" data-tip="Analog Knobs Mode — Great for MIDI">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                             <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/>
                             <circle cx="12" cy="5" r="2.5"/>
                         </svg>
                         <span>Knobs</span>
+                    </button>
+                    <button id="mode-dpad" class="mode-toggle-btn active" data-tip="D-Pad Navigation Mode">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M15 7.5V2H9v5.5l3 3 3-3zM7.5 9H2v6h5.5l3-3-3-3zM9 16.5V22h6v-5.5l-3-3-3 3zM16.5 9l-3 3 3 3H22V9h-5.5z"/>
+                        </svg>
+                        <span>D-Pad</span>
                     </button>
                 </div>
 
@@ -1548,7 +1553,9 @@
             // Restore persisted choices — both layout and mode independently.
             // 'b' (docked layout) was removed; fall back to default.
             try {
-                var savedLayout = localStorage.getItem('synthograsizerLayout') || 'default';
+                // First-run default is Perform ('a') — a live-performance layout.
+                // A returning user's explicit choice (persisted below) still wins.
+                var savedLayout = localStorage.getItem('synthograsizerLayout') || 'a';
                 if (savedLayout === 'b') savedLayout = 'default';
                 currentLayout = savedLayout;
                 var savedMode = localStorage.getItem('synthograsizerMode') || 'synth';
@@ -1651,7 +1658,10 @@
                     pillBtn.title = 'Active: ' + (active.name || 'Untitled') +
                                     (active.tagline ? ' — ' + active.tagline : '');
                 } else {
-                    pillNameEl.textContent = 'No active profile';
+                    // Short enough not to ellipsis-clip in the header ("No active
+                    // profile" rendered as "NO ACTIVE PR…"). The pill stays visible
+                    // by design — the menu is how you set one up or restore one.
+                    pillNameEl.textContent = 'No profile';
                     pillBtn.title = 'No active taste profile — click to set up or restore from disk';
                 }
             }

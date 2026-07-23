@@ -137,6 +137,10 @@ export class SynthograsizerSmall {
           console.warn('Could not fetch default template, using built-in fallback:', fetchErr);
           this.loadTemplate(this.config.fallbackTemplate);
         }
+        // First-run default is the Knobs control surface. Runs after the
+        // template loads so renderKnobs() has variables to draw. A returning
+        // session keeps its saved control mode (loadStateFromStorage above).
+        this.setControlMode('knobs');
       }
 
       // Initialize MIDI
