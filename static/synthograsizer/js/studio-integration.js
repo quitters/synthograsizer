@@ -3672,6 +3672,38 @@ class StudioIntegration {
                                  this.lastTemplateGenId, btn, this.lastTemplateName || null);
     }
 
+    /**
+     * Whether this session can save to My creations. Signed-in + storage-enabled
+     * accounts only — a bare accounts-off deployment (SYNTH_HOSTED without
+     * SYNTH_AUTH) has no features block at all, and a local install has no
+     * SynthAuth.me. Every Save-button surface gates on this one predicate so a
+     * future auth change has a single place to land.
+     */
+    canSaveArtifacts() {
+        return !!(window.SynthAuth && window.SynthAuth.me &&
+                  window.SynthAuth.me.features && window.SynthAuth.me.features.storage);
+    }
+
+    /**
+     * Build a Save button as a real element, for the result surfaces that are
+     * assembled with DOM calls rather than an innerHTML string. Takes the bytes
+     * by closure instead of interpolating them into an inline onclick — a
+     * multi-MB base64 payload in an attribute would hold the data a second time
+     * and is a quoting hazard besides. Returns null when saving isn't available,
+     * so callers can `if (btn) container.appendChild(btn)`.
+     */
+    buildSaveButton(kind, mime, getBase64, generationId, label = null) {
+        if (!this.canSaveArtifacts() || generationId == null) return null;
+        const btn = document.createElement('button');
+        btn.className = 'synth-save-artifact';
+        btn.textContent = '💾 Save';
+        btn.style.cssText = 'background:rgba(61,189,173,0.15); border:1px solid rgba(61,189,173,0.5);'
+                          + ' color:#3dbdad; padding:4px 10px; border-radius:6px; cursor:pointer;'
+                          + ' font-size:11px; margin-top:6px;';
+        btn.onclick = () => this.saveArtifact(kind, mime, getBase64(), generationId, btn, label);
+        return btn;
+    }
+
     async saveArtifact(kind, mime, base64Data, generationId, btn, label = null) {
         if (generationId == null) {
             this.showToast('Nothing to save yet — generate first.', 'warning', 3000);
@@ -4753,10 +4785,7 @@ class StudioIntegration {
             const data = await res.json();
             const content = document.getElementById('studio-content');
 
-            // Signed-in + storage-enabled accounts only — a bare accounts-off
-            // deployment (SYNTH_HOSTED without SYNTH_AUTH) has no features at all.
-            const canSave = !!(window.SynthAuth && window.SynthAuth.me &&
-                                window.SynthAuth.me.features && window.SynthAuth.me.features.storage);
+            const canSave = this.canSaveArtifacts();
             // lastMediaLabel is read at click time (a property reference, not an
             // interpolated literal) so a template name with quotes can't break the
             // inline handler.
@@ -4846,6 +4875,15 @@ class StudioIntegration {
     async runBatch(prompts, type, params) {
         this.isBatchRunning = true;
         this.currentBatchResults = []; // Reset for lightbox
+
+        // Every batch item is its own charged generation with its own id, so a
+        // Save button here cannot reuse lastGenerationId the way the single-result
+        // view does — the server checks that the id belongs to this account AND
+        // produced media of this kind, so a shared id would attach every save to
+        // whichever generation happened to finish last. Captured per item below.
+        // The label is the loaded template's name, same as a single generate:
+        // one batch is one template, so it applies to every item.
+        const batchLabel = this.mediaLabel();
 
         const resultContainer = document.getElementById('studio-result');
         const contentDiv = document.getElementById('studio-content');
@@ -4953,6 +4991,16 @@ class StudioIntegration {
                     img.onclick = () => this.openLightbox(resultIndex);
                     imgDiv.appendChild(img);
 
+                    // Read through currentBatchResults at click time rather than
+                    // closing over data.image, so the button holds an index and
+                    // not a second reference to the bytes.
+                    const saveBtn = this.buildSaveButton(
+                        'image', 'image/png',
+                        () => this.currentBatchResults[resultIndex],
+                        data.generation_id ?? null, batchLabel
+                    );
+                    if (saveBtn) item.appendChild(saveBtn);
+
                     // Auto-push latest batch image to OBS display page
                     window.synthSmall?.displayBroadcaster?.sendImage(
                         `data:image/png;base64,${data.image}`, `batch-${resultIndex + 1}`
@@ -4962,6 +5010,16 @@ class StudioIntegration {
                 <video controls autoplay loop muted>
                     <source src="data:video/mp4;base64,${data.video}" type="video/mp4">
                     </video>`;
+
+                    // Batch video is admin-only on hosted (free tier can't reach
+                    // this endpoint at all), but the button costs nothing to offer
+                    // and the save path is identical.
+                    const videoB64 = data.video;
+                    const saveBtn = this.buildSaveButton(
+                        'video', 'video/mp4', () => videoB64,
+                        data.generation_id ?? null, batchLabel
+                    );
+                    if (saveBtn) item.appendChild(saveBtn);
 
                     // Auto-push video to OBS display page
                     window.synthSmall?.displayBroadcaster?.sendVideo(
@@ -6019,7 +6077,8 @@ class StudioIntegration {
                     const refB64 = await this.readFileAsBase64(references[i]);
 
                     const result = await this.executeTransformApi(subjectB64, refB64, userIntent, model, aspectRatio);
-                    results.push({ type: 'image', data: result.image, label: `Style ${i + 1}` });
+                    results.push({ type: 'image', data: result.image, label: `Style ${i + 1}`,
+                                   genId: result.generation_id ?? null });
                 }
 
             } else {
@@ -6033,7 +6092,8 @@ class StudioIntegration {
 
                     try {
                         const result = await this.executeTransformApi(subjectB64, refB64, userIntent, model, aspectRatio);
-                        results.push({ type: 'image', data: result.image, label: inputs[i].name });
+                        results.push({ type: 'image', data: result.image, label: inputs[i].name,
+                                       genId: result.generation_id ?? null });
                     } catch (e) {
                         console.error(`Failed to process ${inputs[i].name}`, e);
                         results.push({ type: 'error', msg: `Failed: ${inputs[i].name} <br><small style="color:#d32f2f;">${e.message || e}</small>` });
@@ -6072,6 +6132,10 @@ class StudioIntegration {
 
     renderBatchResults(results) {
         const content = document.getElementById('studio-content');
+        // Held on the instance so the Save handlers below can reach the bytes by
+        // index instead of the markup carrying each payload twice.
+        this.lastTransformResults = results;
+        const canSave = this.canSaveArtifacts();
         content.innerHTML = `
             <div style="padding:20px;">
                 <h3>Transform Results (${results.length})</h3>
@@ -6082,6 +6146,9 @@ class StudioIntegration {
                                 <div style="margin-bottom:5px; font-weight:600; font-size:12px;">${r.label || ('Image ' + (idx + 1))}</div>
                                 <img src="data:image/png;base64,${r.data}" style="width:100%; border-radius:4px; cursor:pointer;"
                                      onclick="window.studioIntegration.openLightboxWithImage('data:image/png;base64,${r.data}')">
+                                ${canSave && r.genId != null
+                                    ? `<button class="synth-save-artifact" data-st-save="${idx}" style="background:rgba(61,189,173,0.15); border:1px solid rgba(61,189,173,0.5); color:#3dbdad; padding:4px 10px; border-radius:6px; cursor:pointer; font-size:11px; margin-top:6px;">💾 Save</button>`
+                                    : ''}
                             ` : `
                                 <div style="color:red; font-size:12px;">${r.msg}</div>
                             `}
@@ -6090,6 +6157,23 @@ class StudioIntegration {
                 </div>
             </div>
         `;
+        // Wired after render rather than as inline onclick attributes: the card
+        // label is a user-chosen filename in batch-subject mode, and dropping one
+        // into an attribute is an escaping bug waiting to happen.
+        content.querySelectorAll('[data-st-save]').forEach((btn) => {
+            const idx = Number(btn.dataset.stSave);
+            const r = results[idx];
+            // In batch-subject mode r.label is the user's own filename, and this
+            // label lands in a queryable DB column — so only the synthetic
+            // "Style N" wording is passed through, and everything else gets a
+            // neutral derived name. Deliberately NOT mediaLabel(): the loaded
+            // template had nothing to do with an uploaded image, so naming the
+            // save after it would be an outright false claim about its origin.
+            const label = /^Style \d+$/.test(r.label || '') ? r.label : 'Smart Transform';
+            btn.onclick = () => this.saveArtifact(
+                'image', 'image/png', this.lastTransformResults[idx].data, r.genId, btn, label
+            );
+        });
         const closeBtn = document.getElementById('close-studio-result');
         if (closeBtn) closeBtn.style.display = 'block';
     }
