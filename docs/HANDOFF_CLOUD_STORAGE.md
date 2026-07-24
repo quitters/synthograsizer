@@ -11,9 +11,12 @@ keep-until-deleted quota-bounded, image/video/music scope). Code: `backend/servi
 Runbook smoke step 7 still unrun end-to-end.
 
 **Known gaps, not yet done:**
-- Save button wired into the main Studio `runSingle()` flow (image + video) only. Batch-grid
-  results and Smart Transform results don't have one yet — `generation_id` already flows from
-  all three endpoints, so this is a small frontend-only follow-up, not a redesign.
+- ~~Save button wired into the main Studio `runSingle()` flow (image + video) only.~~ **Closed
+  2026-07-24**: batch-grid tiles and Smart Transform results each got their own Save button,
+  frontend-only as predicted. The one non-obvious part was that a batch tile must capture its
+  own `generation_id` — reusing `lastGenerationId` would have attached every save to the
+  last-finished generation and still returned 200, since the endpoint's ownership + action check
+  passes for any of the account's own image generations. Awaiting deploy.
 - Terms v0.3 copy is written (`static/terms/index.html`) but — like v0.2 before it — is an
   unreviewed draft; counsel review is still on the launch handoff's open list.
 

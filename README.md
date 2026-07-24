@@ -228,13 +228,15 @@ on the hosted service, the tier gate actually hides local-only and paid surfaces
 Tools became a menu bar — all live, see
 [docs/HANDOFF_SERVICE_LAUNCH.md](docs/HANDOFF_SERVICE_LAUNCH.md).
 
+Save buttons now sit on batch-grid and Smart Transform results too, so every generated
+image can be kept, not just single generates.
+
 Next up:
 
 | | Item | Notes |
 |---|---|---|
-| 1 | **Save buttons on batch-grid & Smart Transform results** | `generation_id` already flows from those endpoints; `saveArtifact` / `makeThumb` are reusable — frontend-only. |
-| 2 | **Stripe paid tier** | Schema already has `tier` + `purchase` ledger rows; needs the webhook + checkout flow. |
-| 3 | **Hosted ChatRoom** | Currently local-only (the launch is gated with an honest message on hosted). Needs the Node backend hosted **and** its autonomous multi-agent Gemini spend routed through credit metering first — a project in its own right. |
+| 1 | **Stripe paid tier** | Schema already has `tier` + `purchase` ledger rows; needs the webhook + checkout flow. |
+| 2 | **Hosted ChatRoom** | Currently local-only (the launch is gated with an honest message on hosted). Needs the Node backend hosted **and** its autonomous multi-agent Gemini spend routed through credit metering first — a project in its own right. |
 
 Also open: multi-instance scaling (needs shared rate-limit/budget state first); auto-save
 templates behind Terms v0.4.

@@ -174,10 +174,13 @@ picker's display name onto each template as it loads — so saves land in My cre
      delete leaves the GCS prefix empty).
    - Runbook §4 **steps 4** (admin ∞ / Veo end-to-end) **and 5** (DSAR delete → re-signup grants
      fresh 300 — wants a throwaway Google account, since it deletes one).
-2. **Next feature slice** — Save buttons on batch-grid & Smart Transform results. Frontend-only:
-   `generation_id` already flows from both endpoints and `saveArtifact` / `makeThumb` are
-   reusable. (The 2026-07-20 slice — download, thumbnails, saved templates — shipped 07-22 and is
-   deployed; see [HANDOFF_CLOUD_STORAGE.md](HANDOFF_CLOUD_STORAGE.md#roadmap--next-slice-requested-2026-07-20).)
+2. **Next feature slice** — ~~Save buttons on batch-grid & Smart Transform results~~ **shipped
+   2026-07-24, not yet deployed** (frontend-only, no backend change). Each batch tile captures
+   its own `generation_id` rather than reusing `lastGenerationId`: the artifacts endpoint checks
+   the id belongs to this account and produced media of this kind, so a shared id would silently
+   attach every save to whichever generation finished last and still return 200. Next slice is
+   the Stripe paid tier. (The 2026-07-20 slice — download, thumbnails, saved templates — shipped
+   07-22 and is deployed; see [HANDOFF_CLOUD_STORAGE.md](HANDOFF_CLOUD_STORAGE.md#roadmap--next-slice-requested-2026-07-20).)
    **Standing note:** auto-saving templates conflicts with two claims in Terms v0.3 ("nothing is
    saved unless you click Save" and "prompt text is never stored server-side" — a template *is*
    prompt text). Explicit Save needs no terms change; auto-save needs v0.4 and sign-off.
