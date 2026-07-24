@@ -8,8 +8,17 @@
  *
  * Mechanics: a capture-phase listener on document intercepts the first
  * image-bearing `change`/`drop` event, cancels it, and shows the notice.
- * After "I understand", the user re-picks the file (re-dispatching file
- * inputs is unreliable across browsers — one moment of friction, once).
+ *
+ * After "I understand" the pick is REPLAYED rather than thrown away: the
+ * file input is left populated (the earlier version cleared it) and a fresh
+ * `change` event is dispatched on it, which the now-consented interceptor lets
+ * through to the app's own handler. Picking a file, being interrupted, and then
+ * having to find the same file again was the single most annoying moment in the
+ * flow, and it was self-inflicted.
+ *
+ * Drops cannot be replayed this way — a DataTransfer's files can't be
+ * re-delivered to a handler that never saw the event — so a dropped file still
+ * has to be dropped again, and only that case says so in the copy.
  *
  * Consent persistence:
  *   - local install : localStorage  (once per browser)
@@ -56,7 +65,10 @@
     return false;
   }
 
-  function showNotice() {
+  // The input whose pick we interrupted, so accepting can replay it.
+  let pendingInput = null;
+
+  function showNotice(canReplay) {
     if (document.getElementById('upload-consent-overlay')) return;
     const overlay = document.createElement('div');
     overlay.id = 'upload-consent-overlay';
@@ -79,7 +91,8 @@
           <button id="uc-accept" type="button">I understand — continue</button>
         </div>
         <div style="font-size:11px; opacity:.7; margin-top:8px;">
-          You'll only see this once${hosted ? ' per visit' : ''}. After continuing, re-select your file.
+          You'll only see this once${hosted ? ' per visit' : ''}.${canReplay ? ''
+            : ' After continuing, drop your file again.'}
         </div>
       </div>`;
     const style = document.createElement('style');
@@ -106,8 +119,26 @@
     `;
     overlay.appendChild(style);
     document.body.appendChild(overlay);
-    document.getElementById('uc-accept').onclick = () => { grantConsent(); overlay.remove(); };
-    document.getElementById('uc-cancel').onclick = () => overlay.remove();
+    document.getElementById('uc-accept').onclick = () => {
+      grantConsent();
+      overlay.remove();
+      // Replay the interrupted pick. hasConsent() is now true, so the
+      // interceptor passes this one straight through to the app's handler.
+      const input = pendingInput;
+      pendingInput = null;
+      if (input && input.isConnected && input.files?.length) {
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    };
+    document.getElementById('uc-cancel').onclick = () => {
+      // Declining should not leave a file sitting in the input as though it
+      // were accepted — clear it here, where the choice is actually made.
+      if (pendingInput && pendingInput.value !== undefined) {
+        try { pendingInput.value = ''; } catch (_) {}
+      }
+      pendingInput = null;
+      overlay.remove();
+    };
   }
 
   function interceptor(e) {
@@ -115,10 +146,10 @@
     if (!eventHasImages(e)) return;
     e.preventDefault();
     e.stopImmediatePropagation();
-    if (e.type === 'change' && e.target?.value !== undefined) {
-      try { e.target.value = ''; } catch (_) {}
-    }
-    showNotice();
+    // Keep the selection so accepting can replay it; only a drop is unreplayable.
+    const replayable = e.type === 'change' && e.target?.type === 'file';
+    pendingInput = replayable ? e.target : null;
+    showNotice(replayable);
   }
 
   // Capture phase — runs before any surface-specific handler.

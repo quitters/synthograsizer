@@ -2164,9 +2164,19 @@
                     code +
                     '});' +
                     // After p5 setup runs, post canvas native dimensions to parent
+                    // Report the canvas LAYOUT size, not c.width/c.height. Those are
+                    // the backing-store attributes, which p5 sets to logical size x
+                    // pixelDensity (2 on a retina display) — while the parent applies
+                    // its scale as a CSS transform, which acts on the layout box.
+                    // Mixing the two made FILL render at ~50% inside its own viewer and
+                    // FIT size the window to twice the canvas. offsetWidth is the layout
+                    // box and is not affected by transforms, so it stays correct on
+                    // re-report. Attributes remain the fallback if layout isn't ready.
                     '(function(){var _tries=0;function _poll(){' +
                     'var c=document.querySelector("canvas");' +
-                    'if(c&&c.width>0&&c.height>0){window.parent.postMessage({p5CanvasSize:{w:c.width,h:c.height}},"*");return;}' +
+                    'if(c&&c.width>0&&c.height>0){' +
+                    'var lw=c.offsetWidth||c.width,lh=c.offsetHeight||c.height;' +
+                    'window.parent.postMessage({p5CanvasSize:{w:lw,h:lh}},"*");return;}' +
                     'if(++_tries<120)requestAnimationFrame(_poll);}' +
                     'requestAnimationFrame(_poll);})();' +
                     '<\/script></body></html>';

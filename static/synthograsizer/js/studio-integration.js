@@ -1038,15 +1038,16 @@ class StudioIntegration {
                 <div class="studio-input-group">
                     <label>Model</label>
                     <select id="st-model-select">
-                        <option value="gemini-3-pro-image-preview" selected>Gemini 3 Pro (NB Pro)</option>
+                        <option value="gemini-2.5-flash-image" selected>Gemini 2.5 Flash (NB)</option>
                         <option value="gemini-3.1-flash-image-preview">Gemini 3.1 Flash (NB2)</option>
-                        <option value="gemini-2.5-flash-image">Gemini 2.5 Flash (NB)</option>
+                        <option value="gemini-3-pro-image-preview">Gemini 3 Pro (NB Pro)</option>
                     </select>
                 </div>
                 <div class="studio-input-group">
                     <label>Aspect Ratio</label>
                     <select id="st-aspect-select">
-                        <option value="1:1" selected>1:1 (Square)</option>
+                        <option value="auto" selected>Match input</option>
+                        <option value="1:1">1:1 (Square)</option>
                         <option value="16:9">16:9 (Landscape)</option>
                         <option value="9:16">9:16 (Portrait)</option>
                     </select>
@@ -1088,6 +1089,14 @@ class StudioIntegration {
             </div>
             <button class="studio-btn-primary" id="run-smart-transform">Run Smart Transform</button>
         `);
+        // Price the model picker and the Run button from the server's own rate
+        // table, so a user knows what a run costs before spending rather than
+        // after. No-ops on a local install, where nothing is metered.
+        // Called twice on purpose: once now (a warm session already has rates)
+        // and again on auth-ready, since a cold load builds this modal before
+        // the /api/me probe resolves.
+        this.priceSmartTransform();
+        window.addEventListener('synth:auth-ready', () => this.priceSmartTransform());
 
         // Smart Video Options Modal — Multi-step workflow
         this.createModal('video-options-modal', '🎬 Smart Video Options', `
@@ -3673,6 +3682,46 @@ class StudioIntegration {
     }
 
     /**
+     * Label the Smart Transform model picker and Run button with what a run
+     * costs, e.g. "Gemini 3 Pro (NB Pro) — ⚡17".
+     *
+     * Rates come from `SynthAuth.me.rates` (the server's own pricing table)
+     * rather than numbers copied into this file, so a price change on the
+     * server can't leave the UI quoting a stale figure. Silent no-op on a local
+     * install and for signed-out visitors: there is no meter to quote.
+     *
+     * Re-run on auth-ready as well as at modal build time, because the modal is
+     * constructed before the /api/me probe resolves on a cold load.
+     */
+    priceSmartTransform() {
+        const rates = window.SynthAuth && window.SynthAuth.me && window.SynthAuth.me.rates;
+        const sel = document.getElementById('st-model-select');
+        const run = document.getElementById('run-smart-transform');
+        if (!rates || !rates.image || !sel || !run) return;
+
+        const costOf = (model) => {
+            const base = rates.image[model];
+            return typeof base === 'number' ? base + (rates.smart_transform_overhead || 0) : null;
+        };
+        Array.from(sel.options).forEach((opt) => {
+            const c = costOf(opt.value);
+            // Strip any previous suffix so repeated calls don't stack them.
+            const base = opt.textContent.replace(/\s+—\s+⚡\d+$/, '');
+            opt.textContent = c == null ? base : `${base} — ⚡${c}`;
+        });
+
+        const updateRun = () => {
+            const c = costOf(sel.value);
+            run.textContent = c == null ? 'Run Smart Transform' : `Run Smart Transform — ⚡${c}`;
+        };
+        if (!sel._pricingBound) {
+            sel.addEventListener('change', updateRun);
+            sel._pricingBound = true;
+        }
+        updateRun();
+    }
+
+    /**
      * Whether this session can save to My creations. Signed-in + storage-enabled
      * accounts only — a bare accounts-off deployment (SYNTH_HOSTED without
      * SYNTH_AUTH) has no features block at all, and a local install has no
@@ -3682,6 +3731,26 @@ class StudioIntegration {
     canSaveArtifacts() {
         return !!(window.SynthAuth && window.SynthAuth.me &&
                   window.SynthAuth.me.features && window.SynthAuth.me.features.storage);
+    }
+
+    /**
+     * Build a Download button as a real element, mirroring buildSaveButton.
+     * Never gated: the bytes are already in the browser and nothing is
+     * uploaded, so this works signed-out and on local installs. Always returns
+     * an element, unlike buildSaveButton which returns null when saving is off.
+     */
+    buildDownloadButton(getBase64, mime = 'image/png', ext = 'png') {
+        const btn = document.createElement('button');
+        btn.className = 'synth-download-image';
+        btn.textContent = '⬇ Download';
+        btn.title = "Saves the file to your device — nothing is uploaded. Note: the file's"
+                  + ' metadata carries the prompt that made it, so sharing it shares the prompt.';
+        btn.style.cssText = 'background:rgba(120,120,130,0.12); border:1px solid rgba(120,120,130,0.4);'
+                          + ' color:#5a5a66; padding:4px 10px; border-radius:6px; cursor:pointer;'
+                          + ' font-size:11px;';
+        btn.onclick = () => this.downloadBase64(
+            getBase64(), mime, `synthograsizer-${this.downloadStamp()}.${ext}`);
+        return btn;
     }
 
     /**
@@ -4994,12 +5063,17 @@ class StudioIntegration {
                     // Read through currentBatchResults at click time rather than
                     // closing over data.image, so the button holds an index and
                     // not a second reference to the bytes.
+                    const row = document.createElement('div');
+                    row.style.cssText = 'display:flex; gap:6px; justify-content:center; margin-top:6px;';
+                    row.appendChild(this.buildDownloadButton(
+                        () => this.currentBatchResults[resultIndex]));
                     const saveBtn = this.buildSaveButton(
                         'image', 'image/png',
                         () => this.currentBatchResults[resultIndex],
                         data.generation_id ?? null, batchLabel
                     );
-                    if (saveBtn) item.appendChild(saveBtn);
+                    if (saveBtn) row.appendChild(saveBtn);
+                    item.appendChild(row);
 
                     // Auto-push latest batch image to OBS display page
                     window.synthSmall?.displayBroadcaster?.sendImage(
@@ -6063,7 +6137,7 @@ class StudioIntegration {
 
         // 3. Execution
         const totalOps = mode === 'STYLE_MATRIX' ? references.length : inputs.length;
-        this.showLoading(`Running ${mode}... (0/${totalOps})`);
+        this.showLoading(`${mode.replace(/_/g, ' ')} (0/${totalOps})`);
 
         try {
             const results = [];
@@ -6073,7 +6147,7 @@ class StudioIntegration {
                 const subjectB64 = await this.readFileAsBase64(inputs[0]);
 
                 for (let i = 0; i < references.length; i++) {
-                    this.showLoading(`Style Matrix: Generating style ${i + 1}/${references.length}...`);
+                    this.showLoading(`Style Matrix (${i + 1}/${references.length})`);
                     const refB64 = await this.readFileAsBase64(references[i]);
 
                     const result = await this.executeTransformApi(subjectB64, refB64, userIntent, model, aspectRatio);
@@ -6087,7 +6161,9 @@ class StudioIntegration {
                 const refB64 = references.length > 0 ? await this.readFileAsBase64(references[0]) : null;
 
                 for (let i = 0; i < inputs.length; i++) {
-                    this.showLoading(inputs.length === 1 ? 'Generating Smart Transform...' : `Batch Transform: Processing image ${i + 1}/${inputs.length}...`);
+                    // showLoading() renders "Generating {type}..." itself — passing a
+                    // full sentence here produced "Generating Generating Smart Transform......"
+                    this.showLoading(inputs.length === 1 ? 'Smart Transform' : `Batch Transform (${i + 1}/${inputs.length})`);
                     const subjectB64 = await this.readFileAsBase64(inputs[i]);
 
                     try {
@@ -6146,9 +6222,12 @@ class StudioIntegration {
                                 <div style="margin-bottom:5px; font-weight:600; font-size:12px;">${r.label || ('Image ' + (idx + 1))}</div>
                                 <img src="data:image/png;base64,${r.data}" style="width:100%; border-radius:4px; cursor:pointer;"
                                      onclick="window.studioIntegration.openLightboxWithImage('data:image/png;base64,${r.data}')">
-                                ${canSave && r.genId != null
-                                    ? `<button class="synth-save-artifact" data-st-save="${idx}" style="background:rgba(61,189,173,0.15); border:1px solid rgba(61,189,173,0.5); color:#3dbdad; padding:4px 10px; border-radius:6px; cursor:pointer; font-size:11px; margin-top:6px;">💾 Save</button>`
+                                <div style="display:flex; gap:6px; margin-top:6px;">
+                                  <button class="synth-download-image" data-st-download="${idx}" title="Saves the PNG to your device — nothing is uploaded. Note: the file's metadata carries the prompt that made it." style="background:rgba(120,120,130,0.12); border:1px solid rgba(120,120,130,0.4); color:#5a5a66; padding:4px 10px; border-radius:6px; cursor:pointer; font-size:11px;">⬇ Download</button>
+                                  ${canSave && r.genId != null
+                                    ? `<button class="synth-save-artifact" data-st-save="${idx}" style="background:rgba(61,189,173,0.15); border:1px solid rgba(61,189,173,0.5); color:#3dbdad; padding:4px 10px; border-radius:6px; cursor:pointer; font-size:11px;">💾 Save</button>`
                                     : ''}
+                                </div>
                             ` : `
                                 <div style="color:red; font-size:12px;">${r.msg}</div>
                             `}
@@ -6157,6 +6236,16 @@ class StudioIntegration {
                 </div>
             </div>
         `;
+        // Download is ungated on purpose — same reasoning as the single-result
+        // view: the bytes are already in the browser, nothing is uploaded, so it
+        // works signed-out and on local installs where Save cannot appear.
+        content.querySelectorAll('[data-st-download]').forEach((btn) => {
+            const idx = Number(btn.dataset.stDownload);
+            btn.onclick = () => this.downloadBase64(
+                this.lastTransformResults[idx].data, 'image/png',
+                `synthograsizer-transform-${this.downloadStamp()}.png`
+            );
+        });
         // Wired after render rather than as inline onclick attributes: the card
         // label is a user-chosen filename in batch-subject mode, and dropping one
         // into an attribute is an escaping bug waiting to happen.

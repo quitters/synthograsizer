@@ -16,7 +16,7 @@ import os
 import secrets
 from datetime import date, datetime, timedelta, timezone
 
-from . import db, storage
+from . import db, pricing, storage
 
 logger = logging.getLogger(__name__)
 
@@ -257,6 +257,9 @@ def me_payload(user) -> dict:
             "videorama": False,
             "storage": storage.enabled(),
         },
+        # What things cost, so the UI can quote a price before the user spends
+        # rather than after. Admins are billed nothing but still see real rates.
+        "rates": pricing.client_rates(),
         "needs_terms": needs_terms(user),
         "terms_version": terms_version(),
     }

@@ -1450,7 +1450,10 @@
                     // After p5 setup runs, post canvas native dimensions to parent
                     '(function(){var _tries=0;function _poll(){' +
                     'var c=document.querySelector("canvas");' +
-                    'if(c&&c.width>0&&c.height>0){window.parent.postMessage({p5CanvasSize:{w:c.width,h:c.height}},"*");return;}' +
+                    // Layout size, not backing-store attributes — see index.html.
+                    'if(c&&c.width>0&&c.height>0){' +
+                    'var lw=c.offsetWidth||c.width,lh=c.offsetHeight||c.height;' +
+                    'window.parent.postMessage({p5CanvasSize:{w:lw,h:lh}},"*");return;}' +
                     'if(++_tries<120)requestAnimationFrame(_poll);}' +
                     'requestAnimationFrame(_poll);})();' +
                     '<\/script></body></html>';

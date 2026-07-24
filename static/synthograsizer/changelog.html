@@ -392,6 +392,20 @@
         <div class="panel-section-label">Main App — One-Row Header</div>
         <ul class="entry-list">
           <li class="entry-item">
+            <span class="entry-badge badge-fix">fix</span>
+            <div>
+              <div class="entry-text">Smart Transform: keeps your image's shape, shows what a run costs, and defaults to the cheap model</div>
+              <div class="entry-sub">Aspect ratio now defaults to <strong>Match input</strong>, so a wide image comes back wide instead of being squeezed into a square. The model picker and the Run button show the credit cost up front (<strong>Run Smart Transform — ⚡6</strong>), read from the live price list rather than hardcoded, and the default is now Gemini 2.5 Flash at ⚡6 instead of Pro at ⚡17 — Pro is still one click away when you want it. Every result also gets <strong>⬇ Download</strong> beside Save, so you can keep a transform without being signed in. And picking a file no longer means picking it twice: the first-upload notice now remembers your file and carries on with it once you accept.</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-fix">fix</span>
+            <div>
+              <div class="entry-text">The p5 canvas viewer now actually fills its window</div>
+              <div class="entry-sub">On a high-DPI screen the sketch rendered at about half the size of its own viewer, with a wide black border, and <strong>FIT</strong> and <strong>FILL</strong> looked identical. The viewer was measuring the canvas in hardware pixels while sizing it in layout pixels — on a 2× display that halves everything. Both buttons now do what they say. Batch tiles gained a Download button too.</div>
+            </div>
+          </li>
+          <li class="entry-item">
             <span class="entry-badge badge-feat">feat</span>
             <div>
               <div class="entry-text">Save buttons on batch results and Smart Transform results</div>

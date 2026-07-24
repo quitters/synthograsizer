@@ -216,6 +216,31 @@ def test_admin_email_gets_admin_features(service_on, monkeypatch):
     assert payload["features"]["video"] is False
 
 
+def test_me_payload_quotes_real_rates(service_on):
+    """The UI labels its model pickers from this, so it has to be the live table.
+
+    Asserted against pricing's own dicts rather than copied literals: hardcoding
+    15 here would let the payload and the charge silently disagree the first
+    time a price moves, which is precisely the drift `client_rates` exists to
+    prevent.
+    """
+    from backend.service import pricing
+
+    rates = service_auth.me_payload(_fake_user())["rates"]
+    assert rates["image"] == pricing.IMAGE_MODEL_CREDITS
+    assert rates["text"] == pricing.TEXT_MODEL_CREDITS
+    assert rates["smart_transform_overhead"] == pricing.SMART_TRANSFORM_OVERHEAD
+
+    # A quote the UI builds must equal what the ledger actually charges.
+    for model in pricing.IMAGE_MODEL_CREDITS:
+        quoted = rates["image"][model] + rates["smart_transform_overhead"]
+        charged, _usd, _kind = pricing.resolve("smart_transform", model)
+        assert quoted == charged, f"quote/charge drift for {model}"
+
+    # Video and music are per-second admin-only; a flat number would mislead.
+    assert "video" not in rates and "music" not in rates
+
+
 def test_ws_music_closes_for_anonymous(service_on):
     from starlette.websockets import WebSocketDisconnect
     with pytest.raises(WebSocketDisconnect) as exc:

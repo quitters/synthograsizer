@@ -93,3 +93,23 @@ def resolve(action: str, model: str | None, units: float = 1) -> tuple[int, floa
     else:
         raise ValueError(f"unknown charge action: {action}")
     return credits, round(credits * CREDIT_USD, 4), kind
+
+
+def client_rates() -> dict:
+    """The subset of this table the UI needs to quote a price before spending.
+
+    Exists so the front-end can label a model picker with what it costs without
+    hardcoding numbers that would silently drift from the table above the first
+    time a price changes. Shipped on ``/api/me`` (service mode only) rather than
+    a public endpoint: quoting a price is only useful to someone who can spend.
+
+    Deliberately partial — video/music are admin-only and priced per second, so
+    a single number would misinform rather than inform.
+    """
+    return {
+        "image": dict(IMAGE_MODEL_CREDITS),
+        "text": dict(TEXT_MODEL_CREDITS),
+        "analyze_per_image": ANALYZE_CREDITS_PER_IMAGE,
+        "smart_transform_overhead": SMART_TRANSFORM_OVERHEAD,
+        "template_image": TEMPLATE_IMAGE_CREDITS,
+    }

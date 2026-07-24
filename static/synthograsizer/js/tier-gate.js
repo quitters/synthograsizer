@@ -38,7 +38,13 @@
     '.synth-no-scope #scope-panel,' +
     '.synth-no-scope #p5-scope-btn,' +
     '.synth-no-scope #scope-video-section,' +
-    '.synth-no-scope .synth-gated-scope { display: none !important; }';
+    '.synth-no-scope .synth-gated-scope { display: none !important; }' +
+    /* Suite links that cannot resolve on the hosted service. Metadata Manager
+       is one of the .gitignore'd static surfaces, so it is not in the container
+       at all and 404s; ChatRoom's Node backend isn't deployed, so its page 503s.
+       Both were live menu items leading to error pages. */
+    '.synth-no-localtools a[href*="/metadata-manager/"],' +
+    '.synth-no-localtools a[href="/chatroom/"] { display: none !important; }';
 
   var gatedModals = [];
 
@@ -104,6 +110,9 @@
     injectGateStyles();
     var root = document.documentElement;
     root.classList.add('synth-no-scope');
+    // Server-side facts, not tier facts: these surfaces don't exist in the
+    // container for anyone, admins included.
+    root.classList.add('synth-no-localtools');
 
     // An anonymous visitor has no features block. They cannot use the paid
     // surfaces either (every call 401s), so gate them like a free account
