@@ -30,8 +30,11 @@ each month. Anonymous visitors can open the app and play with templates, variabl
 only the AI calls need an account.
 
 Generated images and video can be saved to **My creations** (in the account menu) — stored
-privately to your account, kept until you delete them. Video and music generation are local-only
-for now: a single Veo clip can cost more than a month of everyone else's text generation.
+privately to your account, kept until you delete them. **Workflows** — multi-step chains like
+style transfer or template→image→critique — run in the browser against the same metered
+endpoints, so 13 of the 16 built-in workflows work on the free tier; the 3 that generate video
+are shown locked. Video and music generation are local-only for now: a single Veo clip can cost
+more than a month of everyone else's text generation.
 
 Everything below applies to running it yourself, which has no credit limits and unlocks the
 local-only tools.
@@ -122,6 +125,7 @@ Or use `chatroom/start.bat` to launch both at once.
 - **Image & Video Studio** — Gemini image generation (Flash / NB2 / Pro) and Veo video generation, driven by the current prompt
 - **Agent Studio** — multi-agent AI conversation panel embedded in the tool; send generated images to agents for critique and receive back image prompts
 - **Glitcher Studio** — the full Glitcher app embedded as a modal; pull the latest Image Studio output or a live p5.js frame, glitch it, and send the result back to the output or save it as an artifact
+- **Workflows** — 16 multi-step chains (style transfer, template→image→critique, cinematic shorts). Local installs execute them on the ChatRoom backend; the hosted service runs the same engine client-side against metered endpoints
 - **Batch generation** — cycle or randomize across all variable combinations with streaming results
 - **MIDI support** — map any CC or Note to variable navigation, template switching, or discrete actions
 - **Live p5.js canvas** — sketches read variable values in real time via `p.getSynthVar()`; canvas streams to the Display Window
@@ -215,11 +219,14 @@ All three are configured from the unified **Scope** panel in the sidebar.
 
 ## Roadmap
 
-The 2026-07-20 gallery slice is **done** — download button (live), thumbnails, and
-templates-in-My-creations with Load-template all shipped; engineering detail and the consent
-analysis are in
+The 2026-07-20 gallery slice is **done** — download button, thumbnails, and
+templates-in-My-creations with Load-template all shipped and deployed; engineering detail and the
+consent analysis are in
 [docs/HANDOFF_CLOUD_STORAGE.md](docs/HANDOFF_CLOUD_STORAGE.md#roadmap--next-slice-requested-2026-07-20).
-Template saves are **explicit only** (auto-save still needs Terms v0.4).
+Template saves are **explicit only** (auto-save still needs Terms v0.4). Since then: workflows run
+on the hosted service, the tier gate actually hides local-only and paid surfaces, and AI Studio
+Tools became a menu bar — all live, see
+[docs/HANDOFF_SERVICE_LAUNCH.md](docs/HANDOFF_SERVICE_LAUNCH.md).
 
 Next up:
 

@@ -189,9 +189,13 @@ full 200 MB quota = 20 GB ≈ **$0.50/mo** — noise next to Cloud SQL. Signing 
 
 ## Roadmap — next slice (requested 2026-07-20)
 
-> **✅ ALL THREE BUILT 2026-07-22.** #1 (download) is deployed and live (Cloud Run rev
-> `synthograsizer-00013-qvk`). #2 (thumbnails) and #3 (templates, explicit save) are built +
-> tested (187 tests green) but **await a deploy** — they need **schema v3** to reach the prod DB.
+> **✅ ALL THREE BUILT 2026-07-22 — AND ALL THREE ARE NOW DEPLOYED.** #1 (download) went out as
+> `synthograsizer-00013-qvk` (2026-07-22 11:55 EDT). #2 (thumbnails) and #3 (templates, explicit
+> save) followed with commit `860ebcf` as **`synthograsizer-00016-ccv`** (2026-07-23 12:44 EDT),
+> which is where **schema v3** reached the prod DB. Confirmed live 2026-07-24: the v3-era routes
+> `/api/artifacts/{id}/thumb` and `/api/artifacts/{id}/content` answer **401** (the auth wall),
+> not 404 — i.e. they exist in the running image. Anything below reading "awaits a deploy" is
+> historical.
 > What shipped vs. the plan below:
 > - **Schema v3** (`artifacts.thumb_path`) — the first real `_MIGRATIONS` entry with SQL
 >   (`ALTER TABLE ADD COLUMN IF NOT EXISTS`). `db.py` bumped to `SCHEMA_VERSION = 3`; it applies
@@ -211,9 +215,11 @@ full 200 MB quota = 20 GB ≈ **$0.50/mo** — noise next to Cloud SQL. Signing 
 >   dead-end on hosted is now an honest local-only message (composer.jsx + .js + agent-studio.js).
 >   ChatRoom itself is still local-only — see the launch handoff's Phase 5 remainder.
 >
-> **Deploy note:** this is a normal §2 → §2b → §2c. Schema v3 auto-migrates at boot; the prod DB
-> is small, the ALTER is instant. Smoke step 7 (gallery) now also covers a thumbnail rendering and
-> a template save→Load round-trip.
+> **Deploy note:** this was a normal §2 → §2b → §2c (done 2026-07-23 12:44, revisions
+> 00014/00015/00016). Schema v3 auto-migrated at boot; the prod DB is small, the ALTER is instant.
+> Smoke step 7 (gallery) now also covers a thumbnail rendering and a template save→Load
+> round-trip — **and is still unrun end-to-end**, because it needs real credits and a signed-in
+> browser. That the routes exist proves the code shipped, not that the feature works.
 
 Three follow-ups, ordered smallest-effort first. **#1 and #2 need no terms change; #3 does —
 read its consent note before building it.** *(Original plan preserved below for the design record.)*

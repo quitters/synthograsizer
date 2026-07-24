@@ -100,6 +100,28 @@ external ALB + serverless NEG instead (details in HANDOFF_SERVICE_LAUNCH.md step
    — then a domain POST with a mismatched Origin should 401/422 (reaches the app), **not 403
    `cross_origin_rejected`** (blocked before the app). Catches the exact §2-wipes-2b/2c failure
    mode from 2026-07-20 before it reaches a real user.
+
+   Quick shape check on the same thing: a correctly-run deploy leaves **three revisions ~15s
+   apart** (§2 → §2b → §2c), e.g. `00029` / `00030` / `00031` on 2026-07-24. A lone revision with
+   no siblings behind it means §2b/§2c were skipped — go read the env before anything else.
+0b. **Confirm the running image actually contains the commit you deployed.** Nothing else in this
+   list checks this, and the failure is silent — a stale image serves fine, just as the previous
+   release. Runs from a checkout of the deployed commit, no gcloud needed:
+```bash
+RUN=https://synthograsizer-679278101913.northamerica-northeast1.run.app
+for f in $(git diff --name-only <last-deployed-sha>..HEAD -- static); do
+  curl -s -m 40 "$RUN${f#static}" | diff -q - <(tr -d '\r' < "$f") >/dev/null \
+    && echo "MATCH  $f" || echo "STALE  $f"
+done
+```
+   Two things this depends on: hit the **run.app URL, not `synthograsizer.com`** (the domain is a
+   Vercel proxy, so a failure there can't distinguish a stale container from a caching proxy),
+   and **strip `\r`** — the Windows working tree is CRLF and the container is LF, so a raw byte
+   comparison reports a false mismatch of exactly one byte per line. `curl -w '%{size_download}'`
+   against `wc -c` fails for the same reason; diff the content, don't compare sizes.
+
+   This also answers "is the thing I'm looking at deployed?" *after* the fact — which is how the
+   2026-07-24 deploy was confirmed when the handoff doc still claimed four commits were pending.
 1. `GET <url>/api/health` → `service.auth_required: true`, `api_key_configured: true`.
 2. Anonymous `POST <url>/api/generate/text` → **401**.
 3. Sign in with a NON-admin Google account → 300 credits, terms interstitial once, text gen

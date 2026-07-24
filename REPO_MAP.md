@@ -16,7 +16,8 @@ There are **two independent servers** plus a pile of static browser tools:
 | **ChatRoom** | Node.js / Express + React | [`chatroom/server/index.js`](chatroom/server/index.js) (`npm start` in `chatroom/`) | The ChatRoom app only |
 
 - **Local dev:** `start.bat` (Python only) or `launch-all.bat` (Python + ChatRoom). The Python server mounts `static/` at `/`, so browser tools and API live on the same origin.
-- **Vercel deploy:** [`vercel.json`](vercel.json) routes `/api/*` → `backend/server.py` and everything else → `static/`. Video gen, OSC, music, and ChatRoom do **not** work on Vercel (need the local server).
+- **Hosted deploy (`synthograsizer.com`):** Cloud Run in Montréal, project `synthograsizer-app` — see [`docs/DEPLOY_CLOUDRUN.md`](docs/DEPLOY_CLOUDRUN.md). [`vercel.json`](vercel.json) is a **pure reverse proxy**: a single `/(.*)` rewrite pointing every path at the run.app URL. Vercel serves nothing itself and is not a build target — the Python backend can't run there. (It once routed `/api/*` → `backend/server.py` and the rest → `static/`; that arrangement is gone.)
+- **Container contents:** the [`Dockerfile`](Dockerfile) copies **only `backend/`, `static/`, and `scripts/`**. `workflow-engine/`, `chatroom/`, and `scope-synthograsizer/` are **not** in the image — anything the hosted browser needs must live under `static/` (this is why the workflow engine is vendored, see §3).
 - **Request flow:** browser tool in `static/` → `fetch('/api/...')` → a router in `backend/routers/` → `AIManager` façade → a service in `backend/services/` → Google GenAI (Gemini / Imagen / Veo / Lyria). **Text** generation routes through `services/llm_router.py`, which follows the backend tier in `backend/policy.py`: `google` (default) or `local` (OpenAI-compatible endpoint — Ollama / LM Studio). Image/video/music are Google-only (mixed-mode v1). **Gemini-model calls** (text/vision/gemini-image) go through `backend/google_api.py`, which dispatches on `policy.google_api_mode`: the **Interactions API** (default; `store=false` on every call, Google-managed filtering) or **legacy generateContent** (honors the safety-threshold knobs; also the migration rollback switch). Veo / Imagen / Lyria keep their dedicated APIs regardless.
 
 ---
@@ -97,6 +98,9 @@ static/
 │   ├── display.html      #   Output window (OBS/projector via BroadcastChannel)
 │   ├── av.html, demo.html, agent-composer.html, changelog.html
 │   ├── js/               #   ~45 modules — see "Synthograsizer JS map" below
+│   │   └── workflow-engine/ # ⚠ VENDORED copy of the browser-safe half of root-level workflow-engine/,
+│   │                     #     plus 3 browser shims. Keep in sync — see §4. Exists because the
+│   │                     #     Dockerfile only copies static/, so this is what reaches the container.
 │   ├── css/              #   style.css + per-feature stylesheets + themes
 │   ├── templates/        #   ~60 JSON templates (p5.js art + AI prompt templates)
 │   ├── templates-av/     #   Audio-visual templates (+ _index.json manifest)
@@ -133,7 +137,8 @@ Grouped by concern, since this is the densest editable area:
 - **Output / display:** `display-broadcaster.js`, `display.html` logic, `display-glitcher.js`, `glitcher-controls.js`, `code-overlay-manager.js`
 - **Scope integration:** `scope-connector.js`, `scope-video-client.js`, `osc-controller.js`, `osc-mapping-ui.js`, `osc-panel-ui.js`, `resolume-presets.js`
 - **Storyboard / narrative:** `story-engine.js`, `storyboard-panel.js`
-- **Workflow / persistence:** `workflow-runner.js`, `trace-viewer.js`, `taste-profile-store.js`
+- **Workflow / persistence:** `workflow-runner.js` (branches on `SynthAuth.active`: hosted runs the vendored engine client-side, local installs call the ChatRoom backend), `workflow-engine/` (⚠ vendored — see below), `trace-viewer.js`, `taste-profile-store.js`
+- **Hosted service / tier:** `tier-gate.js` — hides paid (Video/Music) and local-only (Scope) surfaces in service mode. **Hides via CSS keyed off `<html>` classes, never `style.display`**: the studio chrome is re-rendered by `studio-integration.js` at times this script doesn't control, so imperative hiding is a race, and targeting a renamed/absent id fails silently (it hid nothing for over a month that way). The element ids live in one `GATE_CSS` string — update them there if a button is renamed.
 - **Backend tier / consent:** `backend-safety-panel.js` (Backend & Safety section in the settings modal), `upload-consent.js` (one-time upload notice, capture-phase, also loaded by taste-profile)
 - **AV mode:** `av-mode.js`, `analysis-functions.js`, `blob-bridge.js`, `bulk-import-method.js`
 
@@ -159,6 +164,23 @@ chatroom/
 **Edit the source here (`chatroom/client/`), not `static/chatroom/`.** The latter is the compiled output.
 
 **Depends on `workflow-engine/`** (root-level, untracked) via `"workflow-engine": "file:../workflow-engine"` in `chatroom/package.json`. The server's `gemini.js` and `tools.js` import the workflow engine, style presets, and workflow templates from it — it is live infrastructure, not a superseded experiment. `workflow-engine/urlGuard.js` is the shared SSRF guard for server-side fetches (`synth_fetch`, ANALYZE_URL pre-check).
+
+### ⚠ `workflow-engine/` is vendored into `static/` — two copies, keep them in sync
+
+Workflows run on the hosted service *without* this Node backend: the engine is pure ESM that only orchestrates HTTP calls, so it also runs client-side. Four modules are duplicated at `static/synthograsizer/js/workflow-engine/`:
+
+| Source (`workflow-engine/`) | Vendored copy | Difference |
+|---|---|---|
+| `workflowEngine.js` | same name | uuid import → `./uuid.js` shim |
+| `synthClient.js` | same name | same-origin default base URL; no `process.env` |
+| `workflowTemplates.js` · `stylePresets.js` | same names | **byte-identical** |
+| — | `workflowLibrary.js` · `urlGuard.js` · `uuid.js` | browser shims (localStorage checkpoints · fetch with timeout+byte-cap · `crypto.randomUUID`) |
+
+Note: the checkpoints `workflowLibrary.js` writes are currently write-only in this app — `workflowEngine.resume()` exists but `workflow-runner.js` never calls it, so an interrupted run isn't resumable from the UI yet.
+
+**`diff` the pair before changing either.** The only intended differences are the header comments and the shim edits documented in each file's header. The Node `urlGuard`'s DNS anti-SSRF pinning is *deliberately* absent from the browser shim — a browser fetch reaches only what the user already can and carries no server credentials.
+
+Same-origin is load-bearing, not cosmetic: each step becomes an authenticated `/api/*` call, so credits, rate limits, and the budget breaker apply per step via the existing middleware. **ChatRoom itself is still local-only** and can't take the same route — it runs autonomous multi-agent Gemini turn-taking server-side, which would have to be credit-metered first.
 
 ---
 
@@ -273,7 +295,7 @@ Flagged for cleanup review — an LLM auditing this repo should treat these with
 
 ## 10. Routing cheat-sheet (for mismatch audits)
 
-- **Static page not loading?** Check `vercel.json` rewrites — only `/api/*`, `/synthograsizer`, and `/(.*)→static/$1` are defined. Anything else 404s on Vercel.
+- **Static page not loading on the hosted service?** `vercel.json` is a blanket proxy, so it isn't the culprit — check that the file is under `static/` (the only front-end dir the Dockerfile copies) and that the deployed image is actually current (see the runbook's §4 step 0b).
 - **Endpoint 404?** Confirm the router is `include_router`-ed in `server.py:58-69` and the path prefix in the router matches (`/api/...`).
-- **Feature works locally but not on Vercel?** Video (`video_tools`, `generation` video), OSC (`osc`), music (`music`), ChatRoom, and **Videorama** (`videorama` — every mutating endpoint 403s via `is_hosted()`; needs ffmpeg + a persistent `FILMS_ROOT` disk) require the local Python/Node servers — they're not in the Vercel build.
+- **Feature works locally but not hosted?** Video (`video_tools`, `generation` video), OSC (`osc`), music (`music`), ChatRoom, and **Videorama** (`videorama` — every mutating endpoint 403s via `is_hosted()`; needs ffmpeg + a persistent `FILMS_ROOT` disk) require the local Python/Node servers. Server-side these are blocked by `DISABLED_PREFIXES` / `is_hosted()`; in the UI, `tier-gate.js` hides them so nothing renders as a dead button. Workflows used to be on this list — they aren't any more (§4).
 - **Template not appearing?** `static/synthograsizer/templates/` JSON must conform to `docs/SCHEMA.md`; AV templates also need an entry in `templates-av/_index.json`.

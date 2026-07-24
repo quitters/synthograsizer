@@ -60,6 +60,14 @@ static/daw/
 static/fun-stuff/
 static/metadata-manager/
 
+# Build output of the sibling Plinth repo (../plinth), not source of this one.
+# Written by `python ../plinth/export/deploy-suite.py`, which copies plinth's
+# core/ frame/ gallery/ pieces/ here because its pieces import from absolute
+# /plinth/* paths. Regenerate it there, never edit it here. Tracking it would
+# also ship its gallery publicly, whose legacy cards point at /02_Generative_Art/*
+# — paths that exist on the dev machine but never inside the container.
+static/plinth/
+
 # Capacitr storyboard run artifacts (regenerable; archived under Synthograsizer_Output/JSON/Capacitr Workflows/)
 data/capacitr/
 static/synthograsizer/capacitr-gallery*/
