@@ -126,7 +126,7 @@ because auth resolves asynchronously after the runner is constructed).
 - **Metering is free**: each step is a normal authenticated same-origin `/api/*` call, so
   credits, per-user rate limits, and the daily budget breaker all apply per step through the
   existing middleware. The client engine needs no metering of its own.
-- **Veo templates**: 3 of 16 (`img_to_video`, `cinematic_short`, `cinematic_animator`) are
+- **Veo templates**: 3 of 17 (`img_to_video`, `cinematic_short`, `cinematic_animator`) are
   detected by building each definition and scanning for a `synth_video` step — not a hardcoded
   id list, so a future video template is caught automatically. Non-admins see them listed but
   inert (lock badge, reason, refusing click handler); `_runWorkflow` also refuses before

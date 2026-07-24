@@ -12,6 +12,18 @@ in code they are identical by construction, and generation is reserved for the
     python -m scripts.cardgen deck -o cells/ --width 71 --height 96
     python -m scripts.spritesheet assemble cells/ -o deck.png
 
+To style the deck, point `--assets` at a directory of generated art — a
+`frame.png` plus `spade/heart/club/diamond.png`. The 40 pip cards then inherit
+that style and stay pixel-consistent, because they are still composed rather
+than sampled. The Workflows library has a **Card Style Kit** template that
+generates exactly those five files in one run:
+
+    python -m scripts.cardgen deck -o cells/ --assets kit/
+
+Anything missing from the kit falls back to the drawn shape, so one asset can be
+iterated on at a time. Near-white backgrounds in the suit art are keyed out on
+load, since image models return opaque images.
+
 Output filenames match scripts/spritesheet.py's manifest convention
 (``cell_rRR_cCC.png``, row = suit, col 0-9 = A-10), so a generated deck drops
 straight into a sliced sheet and `assemble` closes the loop unchanged.
@@ -67,8 +79,71 @@ FONT_CANDIDATES = [
 ]
 
 
+ASSET_FILES = {"spades": "spade.png", "hearts": "heart.png",
+               "clubs": "club.png", "diamonds": "diamond.png"}
+FRAME_FILE = "frame.png"
+
+
 def suit_colour(suit: str):
     return RED if suit in ("hearts", "diamonds") else BLACK
+
+
+def key_white(img: Image.Image, threshold: int = 238) -> Image.Image:
+    """Make a near-white background transparent.
+
+    Generated symbol art comes back opaque on whatever background was asked
+    for, so without this the pips would each paste an opaque white tile over
+    the card frame. Only applied to art that arrives with no transparency of
+    its own — an asset that already has an alpha channel in use is left alone.
+    """
+    img = img.convert("RGBA")
+    alpha = img.getchannel("A")
+    if alpha.getextrema()[0] < 255:
+        return img  # already has real transparency; trust the author
+    px = img.load()
+    w, h = img.size
+    for y in range(h):
+        for x in range(w):
+            r, g, b, _ = px[x, y]
+            if r >= threshold and g >= threshold and b >= threshold:
+                px[x, y] = (r, g, b, 0)
+    return img
+
+
+class AssetKit:
+    """Generated style assets standing in for the drawn shapes.
+
+    A kit is a directory holding `frame.png` and any of `spade.png`,
+    `heart.png`, `club.png`, `diamond.png`. Anything absent falls back to the
+    drawn shape, so a half-finished kit still renders a full deck — which is
+    what makes iterating on one asset at a time practical.
+
+    The rank glyph deliberately keeps the conventional red/black rather than
+    picking up a colour from the art: averaging a two-tone symbol gives mud,
+    and the index is the one part of a card that has to stay legible.
+    """
+
+    def __init__(self, directory):
+        self.dir = Path(directory)
+        if not self.dir.is_dir():
+            sys.exit(f"asset directory not found: {self.dir}")
+        self.suits = {}
+        for suit, fname in ASSET_FILES.items():
+            path = self.dir / fname
+            if path.exists():
+                self.suits[suit] = key_white(Image.open(path))
+        frame_path = self.dir / FRAME_FILE
+        self.frame = Image.open(frame_path).convert("RGBA") if frame_path.exists() else None
+
+    def missing(self) -> list[str]:
+        gaps = [f for s, f in ASSET_FILES.items() if s not in self.suits]
+        if self.frame is None:
+            gaps.append(FRAME_FILE)
+        return gaps
+
+    def suit_stamp(self, suit: str, size: int):
+        art = self.suits.get(suit)
+        return art.resize((size, size), Image.LANCZOS) if art else None
 
 
 def load_font(size: int, override: str | None = None):
@@ -113,14 +188,19 @@ def draw_suit(img: Image.Image, suit: str, box, colour):
         raise ValueError(f"unknown suit: {suit}")
 
 
-def _suit_stamp(suit: str, size: int, colour) -> Image.Image:
+def _suit_stamp(suit: str, size: int, colour, assets: "AssetKit | None" = None) -> Image.Image:
+    if assets is not None:
+        art = assets.suit_stamp(suit, size)
+        if art is not None:
+            return art
     stamp = Image.new("RGBA", (size, size), (0, 0, 0, 0))
     draw_suit(stamp, suit, (0, 0, size, size), colour)
     return stamp
 
 
 def render_pip_card(rank: str, suit: str, width: int, height: int,
-                    font_path: str | None = None) -> Image.Image:
+                    font_path: str | None = None,
+                    assets: "AssetKit | None" = None) -> Image.Image:
     if rank not in LAYOUTS:
         raise ValueError(f"{rank} is not a pip card (A-10)")
     colour = suit_colour(suit)
@@ -128,12 +208,17 @@ def render_pip_card(rank: str, suit: str, width: int, height: int,
     card = Image.new("RGBA", (W, H), (255, 255, 255, 255))
     d = ImageDraw.Draw(card)
 
-    # Border: a thin rounded rect, inset so it survives the downsample.
-    inset = max(1, round(W * 0.012))
-    radius = round(W * 0.07)
-    d.rounded_rectangle([inset, inset, W - inset - 1, H - inset - 1],
-                        radius=radius, outline=(60, 60, 60, 255),
-                        width=max(1, round(W * 0.010)))
+    if assets is not None and assets.frame is not None:
+        # A generated frame IS the card face — it carries its own border and
+        # ground, so the drawn rectangle would only fight it.
+        card.alpha_composite(assets.frame.resize((W, H), Image.LANCZOS))
+    else:
+        # Border: a thin rounded rect, inset so it survives the downsample.
+        inset = max(1, round(W * 0.012))
+        radius = round(W * 0.07)
+        d.rounded_rectangle([inset, inset, W - inset - 1, H - inset - 1],
+                            radius=radius, outline=(60, 60, 60, 255),
+                            width=max(1, round(W * 0.010)))
 
     # ── Corner index: rank glyph with a small suit pip beneath it ──
     # Kept narrow on purpose. On a real deck the index column clears the pip
@@ -155,7 +240,7 @@ def render_pip_card(rank: str, suit: str, width: int, height: int,
     corner = Image.new("RGBA", (corner_w, corner_h), (0, 0, 0, 0))
     cd = ImageDraw.Draw(corner)
     cd.text((corner_w / 2, 0), rank, font=font, fill=colour, anchor="ma")
-    corner.alpha_composite(_suit_stamp(suit, pip_small, colour),
+    corner.alpha_composite(_suit_stamp(suit, pip_small, colour, assets),
                            ((corner_w - pip_small) // 2, corner_h - pip_small))
     card.alpha_composite(corner, (margin, margin))
     card.alpha_composite(corner.rotate(180, expand=False),
@@ -167,7 +252,7 @@ def render_pip_card(rank: str, suit: str, width: int, height: int,
     fx0, fx1 = W * 0.315, W * 0.685
     fy0, fy1 = H * 0.13, H * 0.87
     pip = round(W * (0.32 if rank == "A" else 0.19))
-    stamp = _suit_stamp(suit, pip, colour)
+    stamp = _suit_stamp(suit, pip, colour, assets)
     flipped = stamp.rotate(180, expand=False)
 
     for col, y in LAYOUTS[rank]:
@@ -180,13 +265,14 @@ def render_pip_card(rank: str, suit: str, width: int, height: int,
 
 
 def render_deck(out_dir: Path, width: int, height: int,
-                font_path: str | None = None) -> list[str]:
+                font_path: str | None = None,
+                assets: "AssetKit | None" = None) -> list[str]:
     out_dir.mkdir(parents=True, exist_ok=True)
     written = []
     for row, suit in enumerate(SUITS):
         for col, rank in enumerate(RANKS):
             name = f"cell_r{row:02d}_c{col:02d}.png"
-            render_pip_card(rank, suit, width, height, font_path).save(out_dir / name)
+            render_pip_card(rank, suit, width, height, font_path, assets).save(out_dir / name)
             written.append(name)
     return written
 
@@ -200,9 +286,21 @@ def main(argv=None):
     d.add_argument("--width", type=int, default=71)
     d.add_argument("--height", type=int, default=96)
     d.add_argument("--font", help="path to a .ttf for the rank glyphs")
+    d.add_argument("--assets", type=Path,
+                   help="directory of style art (frame.png, spade/heart/club/diamond.png); "
+                        "anything absent falls back to the drawn shape")
     args = p.parse_args(argv)
 
-    written = render_deck(args.out, args.width, args.height, args.font)
+    kit = AssetKit(args.assets) if args.assets else None
+    if kit:
+        have = sorted(set(ASSET_FILES.values()) - set(kit.missing()))
+        if kit.frame is not None:
+            have.append(FRAME_FILE)
+        print(f"style kit {args.assets}: using {', '.join(have) or '(nothing usable)'}")
+        if kit.missing():
+            print(f"  falling back to drawn shapes for: {', '.join(kit.missing())}")
+
+    written = render_deck(args.out, args.width, args.height, args.font, kit)
     print(f"rendered {len(written)} pip cards at {args.width}x{args.height} -> {args.out}")
     print("  court cards (cols 10-12) and any backs are left to you — "
           "drop them in and run `spritesheet assemble`")

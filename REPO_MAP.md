@@ -163,7 +163,7 @@ chatroom/
 
 **Edit the source here (`chatroom/client/`), not `static/chatroom/`.** The latter is the compiled output.
 
-**Depends on `workflow-engine/`** (root-level, untracked) via `"workflow-engine": "file:../workflow-engine"` in `chatroom/package.json`. The server's `gemini.js` and `tools.js` import the workflow engine, style presets, and workflow templates from it — it is live infrastructure, not a superseded experiment. `workflow-engine/urlGuard.js` is the shared SSRF guard for server-side fetches (`synth_fetch`, ANALYZE_URL pre-check).
+**Depends on `workflow-engine/`** (root-level, **tracked** — 12 files; this doc previously said untracked, which was wrong) via `"workflow-engine": "file:../workflow-engine"` in `chatroom/package.json`. The server's `gemini.js` and `tools.js` import the workflow engine, style presets, and workflow templates from it — it is live infrastructure, not a superseded experiment. `workflow-engine/urlGuard.js` is the shared SSRF guard for server-side fetches (`synth_fetch`, ANALYZE_URL pre-check).
 
 ### ⚠ `workflow-engine/` is vendored into `static/` — two copies, keep them in sync
 

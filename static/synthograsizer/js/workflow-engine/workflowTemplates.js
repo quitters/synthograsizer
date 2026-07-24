@@ -1093,6 +1093,62 @@ register(
   }
 );
 
+// ─── 17. Card Style Kit ─────────────────────────────────────────────────────
+// Feeds scripts/cardgen.py. A deck's 40 pip cards are layout, not art, so they
+// are composited in code and stay identical to each other; only the reusable
+// pieces need generating. Asking for five images in one style beats asking for
+// 52 that drift — and a whole-sheet restyle is worse still, because one call
+// cannot hold 78 card identities at once (it scrambles ranks and suits).
+register(
+  'card_style_kit',
+  {
+    name: 'Card Style Kit',
+    description: 'Generate the reusable pieces of a styled playing-card deck — a blank card frame and the four suit symbols — ready to composite into all 40 pip cards with scripts/cardgen.py.',
+    requiredParams: ['style'],
+    optionalParams: ['palette'],
+  },
+  (params) => {
+    const { style, palette = '' } = params;
+    const look = `${style}${palette ? `, ${palette} colour palette` : ''}`;
+
+    // Flat, centred, white-ground symbols: cardgen keys near-white out on load,
+    // so a plain background is what makes the art droppable onto a frame.
+    const symbol = (id, shape) => ({
+      id,
+      type: 'synth_image',
+      params: {
+        prompt: `A single ${shape} playing-card suit symbol, ${look}. `
+              + 'Centred and filling the frame, flat graphic symbol on a pure white '
+              + 'background, even lighting, no shadow, no text, no border, no card, '
+              + 'no extra ornament around it — the symbol by itself.',
+        aspect_ratio: '1:1',
+      },
+    });
+
+    const steps = [
+      {
+        id: 'frame',
+        type: 'synth_image',
+        params: {
+          // 3:4 is the natural card proportion; the pip field has to stay clear
+          // or composited pips will sit on top of ornament.
+          prompt: `The blank face of a playing card, ${look}. Ornate decorative border `
+                + 'framing a large empty centre, portrait orientation. No pips, no suit '
+                + 'symbols, no rank letters or numbers, no figures, no text — an empty '
+                + 'card face only, with the middle left plain.',
+          aspect_ratio: '3:4',
+        },
+      },
+      symbol('spade', 'spade'),
+      symbol('heart', 'heart'),
+      symbol('club', 'club'),
+      symbol('diamond', 'diamond'),
+    ];
+
+    return { name: `Card Style Kit: ${style}`, steps };
+  }
+);
+
 // ─── Public API ──────────────────────────────────────────────────────────────
 
 /**
