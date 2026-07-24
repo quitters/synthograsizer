@@ -220,7 +220,11 @@ docs/
 
 ---
 
-## 7. `scripts/film_factory/` — Videorama's pipeline engine ⭐
+## 7. `scripts/` — CLI tooling
+
+`scripts/spritesheet.py` — slice a uniform sprite sheet into per-cell PNGs and reassemble it (`python -m scripts.spritesheet slice|assemble`). Exists because a whole-sheet Smart Transform restyles the *look* of a sheet but scrambles the *identity* of its cells; per-cell restyling is the fix and this is the prep/reassembly either side. Writes a `sheet.json` manifest (grid, cell size, which cells are flat-colour filler) so assembly needs no re-specifying and a skipped cell lands back in the right place. Round-trip is pixel-lossless — `tests/test_spritesheet.py`.
+
+### `scripts/film_factory/` — Videorama's pipeline engine ⭐
 
 The actual generation pipeline behind `backend/routers/videorama.py`. Runs both as
 CLI stages (`python -m scripts.film_factory <stage> --project-dir <dir>`, for
