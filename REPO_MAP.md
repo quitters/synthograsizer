@@ -222,6 +222,8 @@ docs/
 
 ## 7. `scripts/` — CLI tooling
 
+`scripts/cardgen.py` — composite the 40 pip cards of a card deck (`python -m scripts.cardgen deck`). Pip cards are layout, not art: a frame, N suit symbols in the canonical arrangement, and a rank glyph in two corners. Built in code they are identical by construction, so generation is reserved for the 12 courts and the back, where variation is wanted. Suits are drawn as shapes (crisp at any size), rendered at 4× and downsampled. Filenames match the `spritesheet` manifest convention, so a deck drops into a sliced sheet and `assemble` closes the loop. Tests: `tests/test_cardgen.py`.
+
 `scripts/spritesheet.py` — slice a uniform sprite sheet into per-cell PNGs and reassemble it (`python -m scripts.spritesheet slice|assemble`). Exists because a whole-sheet Smart Transform restyles the *look* of a sheet but scrambles the *identity* of its cells; per-cell restyling is the fix and this is the prep/reassembly either side. Writes a `sheet.json` manifest (grid, cell size, which cells are flat-colour filler) so assembly needs no re-specifying and a skipped cell lands back in the right place. Round-trip is pixel-lossless — `tests/test_spritesheet.py`.
 
 ### `scripts/film_factory/` — Videorama's pipeline engine ⭐
