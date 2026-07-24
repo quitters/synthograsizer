@@ -231,6 +231,61 @@ body.theme-cel-pastel .abm-item {
 body.theme-cel-pastel .abm-item:hover { background: var(--cp-butter); }
 body.theme-cel-pastel .abm-divider { background: var(--cp-ink); opacity: .18; }
 
+/* ── AI Studio Tools menu bar (cel reskin; geometry stays in layout-options) ── */
+body.theme-cel-pastel .studio-menubar {
+  background: var(--cp-paper);
+  border-bottom: var(--cp-stroke) solid var(--cp-ink);
+  box-shadow: 0 4px 0 0 var(--cp-ink);
+  font-family: var(--cp-font-body);
+}
+body.theme-cel-pastel .smb-featured {
+  background: linear-gradient(var(--cp-mint) 0 50%, #9fdcb4 50% 100%);
+  color: var(--cp-ink);
+  border: var(--cp-stroke) solid var(--cp-ink);
+  border-radius: 12px;
+  box-shadow: var(--cp-drop-sm), var(--cp-cel-inner);
+  font-family: var(--cp-font-display);
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: 0;
+}
+body.theme-cel-pastel .smb-featured:hover { transform: translate(-1px, -2px); box-shadow: var(--cp-drop), var(--cp-cel-inner); filter: none; }
+body.theme-cel-pastel .smb-featured:active { transform: translate(3px, 4px); box-shadow: 0 0 0 0 transparent, var(--cp-cel-inner-pressed); }
+body.theme-cel-pastel .smb-sep { background: var(--cp-ink); opacity: .25; }
+body.theme-cel-pastel .smb-title {
+  font-family: var(--cp-font-display);
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--cp-ink);
+  border-radius: 8px;
+}
+body.theme-cel-pastel .smb-title:hover,
+body.theme-cel-pastel .smb-menu.open .smb-title {
+  background: var(--cp-white);
+  border-color: var(--cp-ink);
+}
+body.theme-cel-pastel .smb-dropdown {
+  background: var(--cp-white);
+  border: var(--cp-stroke) solid var(--cp-ink);
+  border-radius: 12px;
+  box-shadow: var(--cp-drop);
+}
+body.theme-cel-pastel .smb-item {
+  font-family: var(--cp-font-display);
+  font-weight: 600;
+  font-size: 13px;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--cp-ink);
+  border-radius: 8px;
+}
+body.theme-cel-pastel .smb-item:hover { background: var(--cp-butter); color: var(--cp-ink); }
+body.theme-cel-pastel .primary-btn.template-gen-btn {
+  background: linear-gradient(var(--cp-mint) 0 50%, #9fdcb4 50% 100%);
+  color: var(--cp-ink);
+}
+
 /* Theme radio row inside the ⋯ menu */
 body.theme-cel-pastel .theme-picker-btn {
   border-color: transparent;

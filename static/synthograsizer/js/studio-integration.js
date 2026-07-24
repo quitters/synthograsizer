@@ -775,72 +775,12 @@ class StudioIntegration {
             return;
         }
 
-        // 1. Inject Controls Section
-        const controlsSection = document.createElement('section');
-        controlsSection.className = 'studio-controls-section';
-        controlsSection.innerHTML = `
-            <div class="studio-controls-header">
-                <span>AI Studio Tools</span>
-            </div>
-            <div class="studio-btn-grid">
-                <!-- Image -->
-                <button class="studio-btn-large btn-image-large" id="studio-image-btn">
-                    <span class="icon">🎨</span>
-                    <span class="label">Image Studio</span>
-                </button>
-                <button class="studio-btn-large btn-analysis-large" id="studio-analysis-btn">
-                    <span class="icon">🔍</span>
-                    <span class="label">Image Analysis</span>
-                </button>
-                <!-- Video -->
-                <button class="studio-btn-large btn-video-large" id="studio-video-btn">
-                    <span class="icon">🎥</span>
-                    <span class="label">Video Studio</span>
-                </button>
-                <!-- Text -->
-                <button class="studio-btn-large btn-transform-large" id="studio-transform-btn">
-                    <span class="icon">✨</span>
-                    <span class="label">Transform</span>
-                </button>
-                <button class="studio-btn-large btn-chat-large" id="studio-chat-btn">
-                    <span class="icon">💬</span>
-                    <span class="label">AI Chat</span>
-                </button>
-                <button class="studio-btn-large btn-template-large" id="studio-template-btn">
-                    <span class="icon">🧩</span>
-                    <span class="label">Template Gen</span>
-                </button>
-                <!-- Data -->
-                <button class="studio-btn-large btn-metadata-large" id="studio-metadata-btn">
-                    <span class="icon">📋</span>
-                    <span class="label">Metadata</span>
-                </button>
-                <button class="studio-btn-large btn-trace-large" id="studio-trace-btn">
-                    <span class="icon">🔎</span>
-                    <span class="label">Trace Viewer</span>
-                </button>
-                <!-- Flow -->
-                <button class="studio-btn-large btn-music-large" id="studio-music-btn">
-                    <span class="icon">🎵</span>
-                    <span class="label">Music Studio</span>
-                </button>
-                <button class="studio-btn-large btn-workflow-large" id="studio-workflow-btn">
-                    <span class="icon">⚡</span>
-                    <span class="label">Workflows</span>
-                </button>
-                <button class="studio-btn-large btn-agent-large" id="studio-agent-btn">
-                    <span class="icon">🤖</span>
-                    <span class="label">Agent Studio</span>
-                </button>
-                <button class="studio-btn-large btn-glitcher-large" id="studio-glitcher-btn">
-                    <span class="icon">✦</span>
-                    <span class="label">Glitcher Studio</span>
-                </button>
-            </div>
-        `;
-
-        // Insert after primary actions (Generate/Randomize)
-        primaryActions.parentNode.insertBefore(controlsSection, primaryActions.nextSibling);
+        // 1. AI Studio Tools now live in the menu bar (index.html #studio-menubar):
+        //    a classic dropdown menubar under the app-bar rather than a grid of
+        //    large buttons here. The buttons kept their studio-*-btn ids, so the
+        //    bindSafe() wiring below and the tier-gate rules are unaffected — this
+        //    injection is simply no longer needed. `primaryActions` is still
+        //    resolved above only for the required-elements guard.
 
         // 2. Inject Result Container
         const resultContainer = document.createElement('div');

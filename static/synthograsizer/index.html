@@ -462,6 +462,53 @@
           </div>
         </header>
 
+        <!-- ── AI Studio Tools menu bar ────────────────────────────────────
+             Classic menubar under the app-bar, Studio mode only (hidden in
+             Perform/Composer, like the button grid it replaces). Template Gen
+             is the featured accent button; the rest live in click-to-open
+             dropdowns. Every item keeps its studio-*-btn id so the existing
+             click bindings and the tier-gate hiding rules apply unchanged. -->
+        <nav class="studio-menubar" id="studio-menubar" aria-label="AI Studio Tools">
+          <button type="button" class="smb-featured" id="studio-template-btn"
+                  data-tip="Generate a new template with AI" data-tip-pos="down">
+            <span class="smb-featured-icon" aria-hidden="true">🧩</span><span>Template Gen</span>
+          </button>
+          <span class="smb-sep" aria-hidden="true"></span>
+          <div class="smb-menus">
+            <div class="smb-menu" data-menu="generate">
+              <button type="button" class="smb-title" aria-haspopup="true" aria-expanded="false">Generate<span class="smb-caret" aria-hidden="true">▾</span></button>
+              <div class="smb-dropdown" role="menu" hidden>
+                <button type="button" class="smb-item" id="studio-image-btn" role="menuitem"><span class="smb-i" aria-hidden="true">🎨</span>Image Studio</button>
+                <button type="button" class="smb-item" id="studio-video-btn" role="menuitem"><span class="smb-i" aria-hidden="true">🎥</span>Video Studio</button>
+                <button type="button" class="smb-item" id="studio-music-btn" role="menuitem"><span class="smb-i" aria-hidden="true">🎵</span>Music Studio</button>
+              </div>
+            </div>
+            <div class="smb-menu" data-menu="transform">
+              <button type="button" class="smb-title" aria-haspopup="true" aria-expanded="false">Transform<span class="smb-caret" aria-hidden="true">▾</span></button>
+              <div class="smb-dropdown" role="menu" hidden>
+                <button type="button" class="smb-item" id="studio-transform-btn" role="menuitem"><span class="smb-i" aria-hidden="true">✨</span>Smart Transform</button>
+                <button type="button" class="smb-item" id="studio-glitcher-btn" role="menuitem"><span class="smb-i" aria-hidden="true">✦</span>Glitcher Studio</button>
+                <button type="button" class="smb-item" id="studio-analysis-btn" role="menuitem"><span class="smb-i" aria-hidden="true">🔍</span>Image Analysis</button>
+              </div>
+            </div>
+            <div class="smb-menu" data-menu="automate">
+              <button type="button" class="smb-title" aria-haspopup="true" aria-expanded="false">Automate<span class="smb-caret" aria-hidden="true">▾</span></button>
+              <div class="smb-dropdown" role="menu" hidden>
+                <button type="button" class="smb-item" id="studio-workflow-btn" role="menuitem"><span class="smb-i" aria-hidden="true">⚡</span>Workflows</button>
+                <button type="button" class="smb-item" id="studio-agent-btn" role="menuitem"><span class="smb-i" aria-hidden="true">🤖</span>Agent Studio</button>
+                <button type="button" class="smb-item" id="studio-chat-btn" role="menuitem"><span class="smb-i" aria-hidden="true">💬</span>AI Chat</button>
+              </div>
+            </div>
+            <div class="smb-menu" data-menu="inspect">
+              <button type="button" class="smb-title" aria-haspopup="true" aria-expanded="false">Inspect<span class="smb-caret" aria-hidden="true">▾</span></button>
+              <div class="smb-dropdown" role="menu" hidden>
+                <button type="button" class="smb-item" id="studio-metadata-btn" role="menuitem"><span class="smb-i" aria-hidden="true">📋</span>Metadata</button>
+                <button type="button" class="smb-item" id="studio-trace-btn" role="menuitem"><span class="smb-i" aria-hidden="true">🔎</span>Trace Viewer</button>
+              </div>
+            </div>
+          </div>
+        </nav>
+
         <div class="synthograsizer-small">
             <!-- Header -->
             <header class="app-header">
@@ -524,6 +571,12 @@
                 </button>
                 <button id="generate-button" class="primary-btn generate-btn">
                     <span class="label">GENERATE</span><kbd class="keybind-badge">G</kbd>
+                </button>
+                <!-- Featured tool launcher — forwards to #studio-template-btn (see the
+                     menubar init script). Studio mode only; hidden in Perform. -->
+                <button id="template-gen-featured-btn" class="primary-btn template-gen-btn"
+                        data-tip="Generate a new template with AI" data-tip-pos="down">
+                    <span class="label">🧩 TEMPLATE GEN</span>
                 </button>
                 <button id="p5-run-main-btn" class="primary-btn p5-run-main-btn" style="display: none;">
                     <span class="label">RUN CODE</span><kbd class="keybind-badge">P</kbd>
@@ -1639,6 +1692,83 @@
                     }
                 });
             }
+
+            // ── AI Studio Tools menu bar ───────────────────────────────
+            // Classic click-to-open menubar; mirrors the ⋯ menu's open/close/
+            // escape/click-outside behaviour, plus hover-to-switch once a menu
+            // is open (the way desktop menu bars work).
+            (function initStudioMenubar() {
+                var bar = document.getElementById('studio-menubar');
+                if (!bar) return;
+                var menus = [].slice.call(bar.querySelectorAll('.smb-menu'));
+                var openMenu = null;
+                function dd(m) { return m.querySelector('.smb-dropdown'); }
+                function title(m) { return m.querySelector('.smb-title'); }
+                function shut(m) {
+                    dd(m).hidden = true;
+                    title(m).setAttribute('aria-expanded', 'false');
+                    m.classList.remove('open');
+                }
+                function closeAll() {
+                    menus.forEach(shut);
+                    openMenu = null;
+                    document.removeEventListener('click', onDoc);
+                    document.removeEventListener('keydown', onKey);
+                }
+                function openM(m) {
+                    if (openMenu && openMenu !== m) shut(openMenu);
+                    dd(m).hidden = false;
+                    title(m).setAttribute('aria-expanded', 'true');
+                    m.classList.add('open');
+                    openMenu = m;
+                    setTimeout(function () {
+                        document.addEventListener('click', onDoc);
+                        document.addEventListener('keydown', onKey);
+                    }, 0);
+                }
+                function onDoc(e) { if (!bar.contains(e.target)) closeAll(); }
+                function onKey(e) { if (e.key === 'Escape') { closeAll(); } }
+                menus.forEach(function (m) {
+                    title(m).addEventListener('click', function (e) {
+                        e.stopPropagation();
+                        if (m.classList.contains('open')) closeAll(); else openM(m);
+                    });
+                    // Once one menu is open, hovering a sibling switches to it.
+                    title(m).addEventListener('mouseenter', function () {
+                        if (openMenu && openMenu !== m) openM(m);
+                    });
+                    // Clicking a tool closes the menu; its own handler opens the modal.
+                    dd(m).addEventListener('click', function () { closeAll(); });
+                });
+
+                // The action-row "Template Gen" button is a second, redundant entry
+                // point; forward it to the real (bound) button rather than owning a
+                // duplicate id.
+                var featured = document.getElementById('template-gen-featured-btn');
+                if (featured) {
+                    featured.addEventListener('click', function () {
+                        var real = document.getElementById('studio-template-btn');
+                        if (real) real.click();
+                    });
+                }
+
+                // Hide a menu whose every item is hidden by tier-gating, so an
+                // empty dropdown never appears. Re-checked when auth resolves.
+                function pruneEmptyMenus() {
+                    menus.forEach(function (m) {
+                        var items = [].slice.call(m.querySelectorAll('.smb-item'));
+                        var anyVisible = items.some(function (b) {
+                            return b.offsetParent !== null || getComputedStyle(b).display !== 'none';
+                        });
+                        m.classList.toggle('smb-empty', !anyVisible);
+                    });
+                }
+                window.addEventListener('synth:auth-ready', function () {
+                    // Let tier-gate's stylesheet apply first.
+                    setTimeout(pruneEmptyMenus, 0);
+                    setTimeout(pruneEmptyMenus, 1200);
+                });
+            })();
 
             // ── Active Taste Profile pill ──────────────────────────────
             // Hidden by default. Polls briefly for window.TasteProfileStore
