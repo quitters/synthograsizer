@@ -1,0 +1,1167 @@
+/**
+ * Workflow Templates
+ * ──────────────────
+ * Pre-built named workflow definitions that agents can invoke by name
+ * instead of writing raw workflow JSON. Each template is a function that
+ * takes user-supplied params and returns a full workflow definition
+ * compatible with WorkflowEngine.submit().
+ *
+ * Usage:
+ *   import { getTemplate, listTemplates, buildWorkflow } from './workflowTemplates.js';
+ *   const wfDef = buildWorkflow('style_transfer', { subject: 'a fox in snow', style: 'oil_painting' });
+ *   workflowEngine.submit(wfDef, { broadcast, agentId, agentName });
+ */
+
+import { getPreset, applyPreset, stylePresets, listPresetsCompact } from './stylePresets.js';
+
+// ─── Template registry ───────────────────────────────────────────────────────
+
+const templates = new Map();
+
+/**
+ * Register a workflow template.
+ * @param {string}   id          - unique template id
+ * @param {object}   meta        - { name, description, requiredParams, optionalParams }
+ * @param {Function} builderFn   - (params) => workflowDefinition
+ */
+function register(id, meta, builderFn) {
+  templates.set(id, { id, ...meta, build: builderFn });
+}
+
+// ─── 1. Style Transfer ──────────────────────────────────────────────────────
+
+register(
+  'style_transfer',
+  {
+    name: 'Style Transfer',
+    description: 'Generate an image of a subject in a chosen artistic style. Analyzes the result and optionally regenerates for quality refinement.',
+    requiredParams: ['subject'],
+    optionalParams: ['style', 'refine'],
+  },
+  (params) => {
+    const { subject, style = 'oil_painting', refine = false } = params;
+    const preset = getPreset(style);
+
+    if (!preset) {
+      throw new Error(`Unknown style preset: "${style}". Available: ${stylePresets.map(p => p.id).join(', ')}`);
+    }
+
+    const applied = applyPreset(preset, subject);
+
+    const steps = [
+      {
+        id: 'generate',
+        type: 'synth_image',
+        params: {
+          prompt: applied.prompt,
+          ...(applied.negative_prompt ? { negative_prompt: applied.negative_prompt } : {}),
+          ...(applied.aspect_ratio ? { aspect_ratio: applied.aspect_ratio } : {}),
+        },
+      },
+    ];
+
+    if (refine) {
+      // Analyze the generated image
+      steps.push({
+        id: 'analyze',
+        type: 'synth_analyze',
+        params: { image_id: '{{generate.mediaId}}' },
+        dependsOn: ['generate'],
+      });
+
+      // Regenerate with analysis-informed prompt
+      steps.push({
+        id: 'refine',
+        type: 'synth_image',
+        params: {
+          prompt: `${applied.prompt}, refined: {{analyze.description}}`,
+          ...(applied.negative_prompt ? { negative_prompt: applied.negative_prompt } : {}),
+          ...(applied.aspect_ratio ? { aspect_ratio: applied.aspect_ratio } : {}),
+        },
+        dependsOn: ['analyze'],
+      });
+    }
+
+    return {
+      name: `Style Transfer: ${preset.name} — ${subject}`,
+      steps,
+    };
+  }
+);
+
+// ─── 2. Refinement Loop ─────────────────────────────────────────────────────
+
+register(
+  'refinement_loop',
+  {
+    name: 'Generate → Analyze → Regenerate',
+    description: 'Generates a draft image, analyzes it to extract a detailed description, then regenerates with the enriched prompt for higher quality. Inspired by the Parlours workflow pattern.',
+    requiredParams: ['prompt'],
+    optionalParams: ['aspect_ratio', 'negative_prompt', 'refinement_instruction'],
+  },
+  (params) => {
+    const {
+      prompt,
+      aspect_ratio = '1:1',
+      negative_prompt = '',
+      refinement_instruction = 'enhance detail, improve composition, increase visual coherence',
+    } = params;
+
+    return {
+      name: `Refinement Loop: ${prompt.slice(0, 50)}`,
+      steps: [
+        // Wave 1: generate draft
+        {
+          id: 'draft',
+          type: 'synth_image',
+          params: {
+            prompt,
+            aspect_ratio,
+            ...(negative_prompt ? { negative_prompt } : {}),
+          },
+        },
+        // Wave 2: analyze draft
+        {
+          id: 'analyze',
+          type: 'synth_analyze',
+          params: { image_id: '{{draft.mediaId}}' },
+          dependsOn: ['draft'],
+        },
+        // Wave 3: regenerate with analysis
+        {
+          id: 'final',
+          type: 'synth_image',
+          params: {
+            prompt: `${prompt}. Visual reference: {{analyze.description}}. ${refinement_instruction}`,
+            aspect_ratio,
+            ...(negative_prompt ? { negative_prompt } : {}),
+          },
+          dependsOn: ['analyze'],
+        },
+      ],
+    };
+  }
+);
+
+// ─── 3. Style Comparison ─────────────────────────────────────────────────────
+
+register(
+  'style_comparison',
+  {
+    name: 'Style Comparison',
+    description: 'Generates the same subject in multiple artistic styles side by side for comparison. All style generations run in parallel.',
+    requiredParams: ['subject'],
+    optionalParams: ['styles'],
+  },
+  (params) => {
+    const {
+      subject,
+      styles = ['oil_painting', 'watercolor', 'glitch', 'claymation', 'ukiyo_e'],
+    } = params;
+
+    const styleList = Array.isArray(styles) ? styles : styles.split(',').map(s => s.trim());
+
+    const steps = styleList.map(styleId => {
+      const preset = getPreset(styleId);
+      if (!preset) return null;
+      const applied = applyPreset(preset, subject);
+      return {
+        id: `style_${styleId}`,
+        type: 'synth_image',
+        params: {
+          prompt: applied.prompt,
+          ...(applied.negative_prompt ? { negative_prompt: applied.negative_prompt } : {}),
+          ...(applied.aspect_ratio ? { aspect_ratio: applied.aspect_ratio } : {}),
+        },
+      };
+    }).filter(Boolean);
+
+    if (steps.length === 0) {
+      throw new Error('No valid style presets found');
+    }
+
+    return {
+      name: `Style Comparison: ${subject}`,
+      steps,
+    };
+  }
+);
+
+// ─── 4. Narrative Dreamscape ─────────────────────────────────────────────────
+
+register(
+  'narrative_dreamscape',
+  {
+    name: 'Narrative Dreamscape',
+    description: 'Generates a template from a concept, creates multiple images from it, analyzes each, then weaves the analyses into a dream narrative.',
+    requiredParams: ['concept'],
+    optionalParams: ['image_count', 'narrative_mode'],
+  },
+  (params) => {
+    const { concept, image_count = 3, narrative_mode = 'dream' } = params;
+    const count = Math.min(Math.max(Number(image_count) || 3, 2), 6);
+
+    const steps = [
+      // Wave 1: generate template
+      {
+        id: 'tpl',
+        type: 'synth_template',
+        params: { description: concept, mode: 'story' },
+      },
+    ];
+
+    // Wave 2: generate images in parallel from template
+    for (let i = 0; i < count; i++) {
+      const suffix = i === 0 ? '' : `, variation ${i + 1}`;
+      steps.push({
+        id: `img${i}`,
+        type: 'synth_image',
+        params: { prompt: `{{tpl.template.promptTemplate}}${suffix}` },
+        dependsOn: ['tpl'],
+      });
+    }
+
+    // Wave 3: analyze each image in parallel
+    for (let i = 0; i < count; i++) {
+      steps.push({
+        id: `analyze${i}`,
+        type: 'synth_analyze',
+        params: { image_id: `{{img${i}.mediaId}}` },
+        dependsOn: [`img${i}`],
+      });
+    }
+
+    // Wave 4: generate narrative from all analyses
+    const descriptions = [];
+    for (let i = 0; i < count; i++) {
+      descriptions.push(`{{analyze${i}.description}}`);
+    }
+    steps.push({
+      id: 'narrative',
+      type: 'synth_narrative',
+      params: { descriptions, mode: narrative_mode },
+      dependsOn: Array.from({ length: count }, (_, i) => `analyze${i}`),
+    });
+
+    return {
+      name: `Narrative Dreamscape: ${concept}`,
+      steps,
+    };
+  }
+);
+
+// ─── 5. Progressive Transform ────────────────────────────────────────────────
+
+register(
+  'progressive_transform',
+  {
+    name: 'Progressive Transform',
+    description: 'Generates an image then applies a series of transformations, each building on the previous result. Creates a visual progression / evolution strip.',
+    requiredParams: ['prompt', 'transforms'],
+    optionalParams: ['aspect_ratio'],
+  },
+  (params) => {
+    const { prompt, transforms, aspect_ratio = '1:1' } = params;
+    const transformList = Array.isArray(transforms)
+      ? transforms
+      : String(transforms).split(/\n|,/).map(s => s.trim()).filter(Boolean);
+
+    if (transformList.length === 0) {
+      throw new Error('At least one transform intent is required');
+    }
+
+    const steps = [
+      {
+        id: 'origin',
+        type: 'synth_image',
+        params: { prompt, aspect_ratio },
+      },
+    ];
+
+    let prevId = 'origin';
+    transformList.forEach((intent, i) => {
+      const stepId = `transform_${i}`;
+      steps.push({
+        id: stepId,
+        type: 'synth_transform',
+        params: {
+          image_id: `{{${prevId}.mediaId}}`,
+          intent,
+        },
+        dependsOn: [prevId],
+      });
+      prevId = stepId;
+    });
+
+    return {
+      name: `Progressive Transform: ${prompt.slice(0, 40)}`,
+      steps,
+    };
+  }
+);
+
+// ─── 6. Image-to-Video Pipeline ──────────────────────────────────────────────
+
+register(
+  'img_to_video',
+  {
+    name: 'Image to Video',
+    description: 'Generates an image from a prompt, performs multi-aspect analysis (scene description, mood, motion potential), synthesizes a cinematic video prompt, then generates the video. Adapted from the Glif IMG2VID workflow.',
+    requiredParams: ['prompt'],
+    optionalParams: ['aspect_ratio', 'duration', 'cinematic_style'],
+  },
+  (params) => {
+    const {
+      prompt,
+      aspect_ratio = '16:9',
+      duration = 5,
+      cinematic_style = 'cinematic',
+    } = params;
+
+    const CINEMATIC_STYLES = [
+      'cinematic', 'documentary', 'music_video', 'dreamy', 'horror',
+      'noir', 'anime', 'stop_motion', 'timelapse', 'surveillance', 'vhs',
+    ];
+    const style = CINEMATIC_STYLES.includes(cinematic_style) ? cinematic_style : 'cinematic';
+
+    return {
+      name: `Image to Video: ${prompt.slice(0, 50)}`,
+      steps: [
+        // Wave 1: generate keyframe image
+        {
+          id: 'keyframe',
+          type: 'synth_image',
+          params: { prompt, aspect_ratio },
+        },
+        // Wave 2: analyze the keyframe
+        {
+          id: 'analyze',
+          type: 'synth_analyze',
+          params: { image_id: '{{keyframe.mediaId}}' },
+          dependsOn: ['keyframe'],
+        },
+        // Wave 3: synthesize a cinematic video prompt from analysis
+        {
+          id: 'video_prompt',
+          type: 'synth_text',
+          params: {
+            prompt: `You are a cinematic prompt engineer. Given this image description, write a single detailed video generation prompt. Style: ${style}. Duration: ${duration} seconds. Include camera movement, lighting changes, and atmospheric effects. Image description: {{analyze.description}}. Original concept: ${prompt}. Output ONLY the video prompt, nothing else.`,
+          },
+          dependsOn: ['analyze'],
+        },
+        // Wave 4: generate video
+        {
+          id: 'video',
+          type: 'synth_video',
+          params: {
+            prompt: '{{video_prompt.text}}',
+            aspect_ratio,
+            duration: String(duration),
+          },
+          dependsOn: ['video_prompt'],
+        },
+      ],
+    };
+  }
+);
+
+// ─── 7. Memory Visualization ─────────────────────────────────────────────────
+
+register(
+  'memory_visualization',
+  {
+    name: 'Memory Visualization',
+    description: 'Visualizes a memory or biographical moment, then progressively degrades it through temporal stages (fresh → fading → fragmenting → dissolving → lost). Adapted from the Glif "Memories" workflow, inspired by "Everywhere at the End of Time."',
+    requiredParams: ['memory'],
+    optionalParams: ['life_stage', 'degradation_depth'],
+  },
+  (params) => {
+    const {
+      memory,
+      life_stage = 'childhood',
+      degradation_depth = 4,
+    } = params;
+
+    const depth = Math.min(Math.max(Number(degradation_depth) || 4, 1), 5);
+
+    const DEGRADATION_STAGES = [
+      { id: 'fading', intent: 'make the image slightly faded and soft, as if recalled through time — gentle blur, slightly desaturated colors, warm nostalgic haze' },
+      { id: 'fragmenting', intent: 'fragment the image — parts are dissolving, edges are breaking apart, some areas are becoming abstract shapes, memory is becoming unreliable' },
+      { id: 'dissolving', intent: 'heavily dissolve the image — forms are barely recognizable, colors are bleeding and shifting, abstract patterns overtaking the original scene, deep entropy' },
+      { id: 'ghosting', intent: 'ghost the image — transparent overlapping copies of the scene at different angles, temporal echoes, almost entirely abstract, only faint traces of the original remain' },
+      { id: 'lost', intent: 'completely abstract — the original image is gone, replaced by noise, color field, and texture. Only the emotional residue remains as abstract marks and shapes' },
+    ];
+
+    const stages = DEGRADATION_STAGES.slice(0, depth);
+
+    const steps = [
+      // Wave 1: generate the vivid original memory
+      {
+        id: 'memory',
+        type: 'synth_image',
+        params: {
+          prompt: `A vivid, emotionally resonant visualization of this ${life_stage} memory: ${memory}. Warm, detailed, sharply focused, as if perfectly preserved in the mind's eye.`,
+        },
+      },
+      // Wave 2: analyze the memory image
+      {
+        id: 'describe',
+        type: 'synth_analyze',
+        params: { image_id: '{{memory.mediaId}}' },
+        dependsOn: ['memory'],
+      },
+    ];
+
+    // Wave 3+: sequential degradation, each building on the previous
+    let prevId = 'memory';
+    for (const stage of stages) {
+      steps.push({
+        id: stage.id,
+        type: 'synth_transform',
+        params: {
+          image_id: `{{${prevId}.mediaId}}`,
+          intent: stage.intent,
+        },
+        dependsOn: [prevId],
+      });
+      prevId = stage.id;
+    }
+
+    return {
+      name: `Memory Visualization: ${memory.slice(0, 50)}`,
+      steps,
+    };
+  }
+);
+
+// ─── 8. Multi-Image Composite ────────────────────────────────────────────────
+
+register(
+  'multi_image_composite',
+  {
+    name: 'Multi-Image Composite',
+    description: 'Generates multiple subjects, analyzes each, then uses an AI "creative director" to plan how they should be composed together in a final scene. Adapted from the Glif "PFP Group Photo" workflow.',
+    requiredParams: ['subjects', 'scene'],
+    optionalParams: ['aspect_ratio'],
+  },
+  (params) => {
+    const { subjects, scene, aspect_ratio = '16:9' } = params;
+    const subjectList = Array.isArray(subjects) ? subjects : subjects.split(',').map(s => s.trim());
+
+    if (subjectList.length < 2) {
+      throw new Error('multi_image_composite requires at least 2 subjects');
+    }
+    if (subjectList.length > 6) {
+      throw new Error('multi_image_composite supports up to 6 subjects');
+    }
+
+    const steps = [];
+
+    // Wave 1: generate each subject in parallel
+    for (let i = 0; i < subjectList.length; i++) {
+      steps.push({
+        id: `subj${i}`,
+        type: 'synth_image',
+        params: { prompt: `Portrait of ${subjectList[i]}, clean background, detailed features, studio lighting` },
+      });
+    }
+
+    // Wave 2: analyze each subject in parallel
+    for (let i = 0; i < subjectList.length; i++) {
+      steps.push({
+        id: `analyze${i}`,
+        type: 'synth_analyze',
+        params: { image_id: `{{subj${i}.mediaId}}` },
+        dependsOn: [`subj${i}`],
+      });
+    }
+
+    // Wave 3: creative director synthesizes the composite prompt
+    const analysisRefs = subjectList.map((subj, i) =>
+      `Subject ${i + 1} ("${subj}"): {{analyze${i}.description}}`
+    ).join(' | ');
+
+    steps.push({
+      id: 'director',
+      type: 'synth_text',
+      params: {
+        prompt: `You are a creative director composing a group scene. You have these subjects:\n${analysisRefs}\n\nScene setting: ${scene}\n\nWrite a single, detailed image generation prompt that places all subjects together in the scene. Consider: spatial arrangement, lighting consistency, scale relationships, interaction between subjects, and overall composition. Style should be cohesive. Output ONLY the image prompt.`,
+      },
+      dependsOn: subjectList.map((_, i) => `analyze${i}`),
+    });
+
+    // Wave 4: generate the composite image
+    steps.push({
+      id: 'composite',
+      type: 'synth_image',
+      params: {
+        prompt: '{{director.text}}',
+        aspect_ratio,
+      },
+      dependsOn: ['director'],
+    });
+
+    return {
+      name: `Multi-Image Composite: ${scene}`,
+      steps,
+    };
+  }
+);
+
+// ─── 9. Branching Narrative (CYOA) ───────────────────────────────────────────
+
+register(
+  'branching_narrative',
+  {
+    name: 'Branching Narrative (CYOA)',
+    description: 'Generates a Choose-Your-Own-Adventure branching story structure as JSON, then creates images for key scenes. Adapted from the Glif CYOA Generator workflow.',
+    requiredParams: ['theme'],
+    optionalParams: ['scenario', 'page_count', 'endings', 'complexity', 'image_count'],
+  },
+  (params) => {
+    const {
+      theme,
+      scenario = 'surprise me',
+      page_count = 12,
+      endings = 3,
+      complexity = 'medium',
+      image_count = 3,
+    } = params;
+
+    const imgCount = Math.min(Math.max(Number(image_count) || 3, 1), 5);
+
+    return {
+      name: `Branching Narrative: ${theme}`,
+      steps: [
+        // Wave 1: generate the branching story structure
+        {
+          id: 'story',
+          type: 'synth_text',
+          params: {
+            prompt: `You are an expert Choose-Your-Own-Adventure story generator. Create a branching narrative with these parameters:
+- Theme: ${theme}
+- Starting scenario: ${scenario}
+- Page count: ~${page_count}
+- Minimum unique endings: ${endings}
+- Complexity: ${complexity}
+
+Output a valid JSON object with this structure:
+{
+  "story_title": "...",
+  "page_count": N,
+  "unique_endings": N,
+  "narrative_arcs": ["arc1", "arc2"],
+  "story_structure": {
+    "page_1": { "page_id": "page_1", "text": "narrative text...", "choices": [{ "text": "choice text", "target_page_id": "page_2a" }] },
+    ...
+  },
+  "key_scenes": ["description of 1st key visual moment", "description of 2nd key visual moment", ...]
+}
+
+Every target_page_id must exist. Ending pages must have "choices": []. Include ${imgCount} entries in key_scenes describing the most visually striking moments.
+Output ONLY valid JSON.`,
+          },
+        },
+        // Wave 2: generate a template from the story for prompt consistency
+        {
+          id: 'style_tpl',
+          type: 'synth_template',
+          params: {
+            description: `Visual style template for a ${theme} ${complexity}-complexity branching narrative. ${scenario}`,
+            mode: 'story',
+          },
+        },
+        // Wave 3: generate images for key scenes (up to imgCount, using template style)
+        // Since we can't dynamically determine how many scenes the LLM picks,
+        // we generate a fixed number and reference the story text for context
+        ...Array.from({ length: imgCount }, (_, i) => ({
+          id: `scene_img_${i}`,
+          type: 'synth_image',
+          params: {
+            prompt: `Scene ${i + 1} from a ${theme} adventure story. {{style_tpl.template.promptTemplate}}. Dramatic moment, narrative illustration style.`,
+          },
+          dependsOn: ['story', 'style_tpl'],
+          continueOnError: true,
+        })),
+      ],
+    };
+  }
+);
+
+// ─── 10. Cinematic Short Film ────────────────────────────────────────────────
+
+register(
+  'cinematic_short',
+  {
+    name: 'Cinematic Short Film',
+    description: 'From a single concept, generates a multi-scene storyboard: plans 3-5 scenes, generates an image for each, analyzes them, produces a narrative, then generates a video from the hero scene. Adapted from the Glif "Profile Pic to Short Film" workflow.',
+    requiredParams: ['concept'],
+    optionalParams: ['scene_count', 'mood', 'aspect_ratio'],
+  },
+  (params) => {
+    const {
+      concept,
+      scene_count = 4,
+      mood = 'cinematic',
+      aspect_ratio = '16:9',
+    } = params;
+
+    const count = Math.min(Math.max(Number(scene_count) || 4, 3), 5);
+
+    const steps = [
+      // Wave 1: plan the scenes via LLM
+      {
+        id: 'plan',
+        type: 'synth_text',
+        params: {
+          prompt: `You are a film director planning a short film. Concept: "${concept}". Mood: ${mood}.
+Plan exactly ${count} scenes. For each scene, write a vivid image generation prompt (2-3 sentences) describing the visual.
+Output ONLY a JSON array of strings, one prompt per scene. Example: ["scene 1 prompt", "scene 2 prompt"]`,
+        },
+      },
+      // Wave 1 (parallel): create a style template for visual consistency
+      {
+        id: 'style',
+        type: 'synth_template',
+        params: {
+          description: `${mood} visual style for a short film about: ${concept}`,
+          mode: 'text',
+        },
+      },
+    ];
+
+    // Wave 2: generate scene images in parallel
+    // We use a fixed count since we can't parse the LLM JSON at template-build time
+    for (let i = 0; i < count; i++) {
+      steps.push({
+        id: `scene${i}`,
+        type: 'synth_image',
+        params: {
+          prompt: `Scene ${i + 1} of ${count} from a ${mood} short film: ${concept}. {{style.template.promptTemplate}}`,
+          aspect_ratio,
+        },
+        dependsOn: ['plan', 'style'],
+        continueOnError: true,
+      });
+    }
+
+    // Wave 3: analyze each scene in parallel
+    for (let i = 0; i < count; i++) {
+      steps.push({
+        id: `desc${i}`,
+        type: 'synth_analyze',
+        params: { image_id: `{{scene${i}.mediaId}}` },
+        dependsOn: [`scene${i}`],
+      });
+    }
+
+    // Wave 4: generate narrative from all scene descriptions
+    const descriptions = Array.from({ length: count }, (_, i) => `{{desc${i}.description}}`);
+    steps.push({
+      id: 'narrative',
+      type: 'synth_narrative',
+      params: { descriptions, mode: 'story' },
+      dependsOn: Array.from({ length: count }, (_, i) => `desc${i}`),
+    });
+
+    // Wave 4 (parallel): generate video from the first scene (hero shot)
+    steps.push({
+      id: 'hero_video',
+      type: 'synth_video',
+      params: {
+        prompt: `${mood} cinematic shot: {{desc0.description}}. Slow camera movement, atmospheric lighting.`,
+        aspect_ratio,
+        duration: '5',
+      },
+      dependsOn: ['desc0'],
+    });
+
+    return {
+      name: `Cinematic Short: ${concept.slice(0, 50)}`,
+      steps,
+    };
+  }
+);
+
+// ─── 11. Polar Opposite ──────────────────────────────────────────────────────
+
+register(
+  'polar_opposite',
+  {
+    name: 'Polar Opposite',
+    description: 'Analyzes an uploaded image to extract a detailed description, writes the polar opposite of that scene (inverted mood, subject, palette, energy), then generates a new image from the opposite prompt.',
+    requiredParams: ['image'],
+    optionalParams: ['aspect_ratio'],
+  },
+  (params) => {
+    const { image, aspect_ratio = '1:1' } = params;
+
+    return {
+      name: 'Polar Opposite',
+      steps: [
+        // Wave 1: describe the uploaded image
+        {
+          id: 'analyze',
+          type: 'synth_analyze',
+          params: { image_id: image },
+        },
+        // Wave 2: generate the opposite concept as a prompt
+        {
+          id: 'opposite',
+          type: 'synth_text',
+          params: {
+            prompt: 'IMAGE DESCRIPTION:\n{{analyze.description}}\n\nTASK: Write an image generation prompt for the POLAR OPPOSITE of the image described above. Go through each observable quality and invert it:\n- If warm colors → cold colors\n- If bright/daytime → dark/nighttime\n- If crowded/busy → empty/still\n- If joyful/energetic → melancholic/quiet\n- If natural/organic → artificial/geometric\n- If soft/gentle → harsh/stark\n- If the subject is a person → make it an absence or landscape\n- Invert the artistic style too\n\nOutput ONLY the image generation prompt. No explanation, no preamble.',
+          },
+          dependsOn: ['analyze'],
+        },
+        // Wave 3: generate the opposite image
+        {
+          id: 'result',
+          type: 'synth_image',
+          params: {
+            prompt: '{{opposite.text}}',
+            aspect_ratio,
+          },
+          dependsOn: ['opposite'],
+        },
+      ],
+    };
+  }
+);
+
+// ─── 12. Cinematic Animator ─────────────────────────────────────────────────
+//
+// Image-led, agentic short-form animator. Takes a source image, lets the
+// model brainstorm 3 distinct narrative concepts, scores them on density /
+// feasibility / originality, then animates the winner using the source as
+// either a first frame or a reference. Every step lands in the trace
+// viewer — the two text steps in the middle make the model's reasoning
+// fully observable, which is the whole demo point.
+
+register(
+  'cinematic_animator',
+  {
+    name: 'Cinematic Animator (Agentic)',
+    description: 'Image → analyze → brainstorm 3 concepts → self-critique & pick winner → animate. Packs maximum narrative arc into a 4/6/8s short, with the source image used as first frame (default) or as a Veo 3.1 reference.',
+    requiredParams: ['image'],
+    optionalParams: ['prompt', 'duration', 'input_role', 'aspect_ratio'],
+  },
+  (params) => {
+    const {
+      image,
+      prompt: userPrompt = '',
+      duration = 8,
+      input_role = 'first_frame',
+      aspect_ratio = '16:9',
+    } = params;
+
+    const dur = [4, 6, 8].includes(Number(duration)) ? Number(duration) : 8;
+    const role = input_role === 'reference' ? 'reference' : 'first_frame';
+
+    // Animate-step params depend on which conditioning role the user chose.
+    // first_frame → seed the video from the exact image (Veo i2v).
+    // reference  → use as visual reference (Veo 3.1 forces 8s).
+    const animateExtra = role === 'first_frame'
+      ? { start_frame_id: image }
+      : { reference_image_ids: image };
+
+    // If the user opted for "reference" the backend forces 8s; surface that
+    // honestly in the workflow name so the trace viewer reflects reality.
+    const effectiveDur = role === 'reference' ? 8 : dur;
+
+    return {
+      name: `Cinematic Animator — ${effectiveDur}s ${role}`,
+      steps: [
+        // Wave 1: describe the source image in detail.
+        {
+          id: 'analyze',
+          type: 'synth_analyze',
+          params: { image_id: image },
+        },
+
+        // Wave 2: brainstorm three distinct narrative concepts grounded in
+        // the analyzed image. Asks for structured JSON so the next step
+        // can score them deterministically.
+        {
+          id: 'brainstorm',
+          type: 'synth_text',
+          params: {
+            prompt: [
+              'You are a short-film concept developer.',
+              `IMAGE DESCRIPTION:\n{{analyze.description}}`,
+              userPrompt ? `USER INTENT:\n${userPrompt}` : 'USER INTENT: (none provided — pick something visually striking)',
+              `CONSTRAINT: ${effectiveDur}-second video, ${role === 'first_frame' ? 'starting from this exact frame' : 'referencing this image visually'}.`,
+              '',
+              'Generate THREE distinct concepts that pack maximum narrative arc into the runtime. For each concept supply:',
+              '  • opening: the first 1-2 seconds (the hook)',
+              '  • turn:    the transformation moment (the surprise)',
+              '  • close:   the final beat (the emotional residue)',
+              '  • tone:    one word (e.g. "uneasy", "tender", "ecstatic")',
+              '',
+              'Output ONLY a JSON array of 3 objects with keys: opening, turn, close, tone. No prose around it.',
+            ].join('\n'),
+          },
+          dependsOn: ['analyze'],
+        },
+
+        // Wave 3: agentic self-critique — score each concept and write the
+        // final Veo prompt. Outputs a single JSON object with `final_prompt`
+        // so the next step can interpolate it directly.
+        {
+          id: 'critique',
+          type: 'synth_text',
+          params: {
+            prompt: [
+              'You are a video-prompt director scoring three concepts.',
+              `IMAGE: {{analyze.description}}`,
+              `CONCEPTS_JSON: {{brainstorm.text}}`,
+              '',
+              'Score each concept 1-10 on three axes:',
+              '  • narrative_density   (how much story per second)',
+              '  • visual_feasibility  (can image-to-video actually realize this?)',
+              '  • originality         (avoids cliché?)',
+              '',
+              'Pick the winner. Then write the FINAL Veo video prompt (≈80 words) that:',
+              '  - opens with a vivid camera/subject directive',
+              '  - contains exactly one transformation cue',
+              '  - ends on the closing beat',
+              '  - never references "this image" — describe the scene as if from scratch',
+              '',
+              'Output ONLY a JSON object with keys: scores (array of 3), winner_index (0-2), reason (≤30 words), final_prompt.',
+            ].join('\n'),
+          },
+          dependsOn: ['brainstorm'],
+        },
+
+        // Wave 4: animate. The winning prompt drives a Veo generation
+        // conditioned on the source image per the user's chosen role.
+        // We extract `final_prompt` via the two-level interpolator and
+        // fall back to raw text if the JSON parse hint fails on the model
+        // side — Veo handles loose prompts gracefully.
+        {
+          id: 'animate',
+          type: 'synth_video',
+          params: {
+            prompt: '{{critique.text}}',
+            aspect_ratio,
+            duration: String(effectiveDur),
+            ...animateExtra,
+          },
+          dependsOn: ['critique'],
+        },
+      ],
+    };
+  }
+);
+
+// ─── Agent Recipe Presets ────────────────────────────────────────────────────
+//
+// Two surfaces feed into this section:
+//
+//   1. agent_panel_run — the open-ended path. Takes a flat agents[] list (each
+//      { name, bio }) and a freeform `task` string. Every agent runs the same
+//      task in parallel. Used by the "What do you want them to accomplish?"
+//      goal field in Agent Studio.
+//
+//   2. joke_panel / pitch_doctor / debate_panel — curated presets. Each
+//      declares `agentRoles` (slots like 'devil', 'champion') and a `script`
+//      of steps. The frontend collects role assignments and required inputs;
+//      the preset's builder weaves bios + tasks into a workflow with proper
+//      dependsOn chains.
+//
+// Two interpolation passes coexist:
+//   - Build-time: {{name}}            → resolved here from user inputs
+//   - Engine-time: {{stepId.field}}   → resolved by WorkflowEngine at run time
+// The dot distinguishes them; resolveInputs only matches single-word names.
+
+function resolveInputs(template, inputs) {
+  return String(template || '').replace(/\{\{(\w+)\}\}/g, (match, name) => {
+    return inputs[name] !== undefined ? String(inputs[name]) : match;
+  });
+}
+
+// Shared step builder. Validates roles + inputs, returns engine-ready steps.
+function buildAgentRecipeSteps(presetMeta, params) {
+  const { agentRoles = [], inputs: inputDefs = [], script = [] } = presetMeta;
+  const { roleAssignments = {}, ...userInputs } = params;
+
+  const missingRoles = agentRoles
+    .map(r => r.role)
+    .filter(role => !roleAssignments[role] || !roleAssignments[role].name);
+  if (missingRoles.length) {
+    throw new Error(`Missing agent assignment(s) for role(s): ${missingRoles.join(', ')}`);
+  }
+
+  const missingInputs = inputDefs
+    .filter(i => i.required !== false)
+    .map(i => i.name)
+    .filter(name => userInputs[name] === undefined || userInputs[name] === '');
+  if (missingInputs.length) {
+    throw new Error(`Missing required input(s): ${missingInputs.join(', ')}`);
+  }
+
+  return script.map(entry => {
+    const agent = roleAssignments[entry.role];
+    if (!agent) throw new Error(`No agent assigned to role "${entry.role}"`);
+    const bio = (agent.bio || '').trim();
+    const task = resolveInputs(entry.task, userInputs);
+    const prompt = bio ? `${bio}\n\n---\n${task}` : task;
+    return {
+      id: entry.id,
+      type: 'synth_text',
+      params: { prompt },
+      ...(entry.dependsOn && entry.dependsOn.length ? { dependsOn: entry.dependsOn } : {}),
+    };
+  });
+}
+
+// ─── 1. agent_panel_run — open-ended goal-field workflow ─────────────────────
+// Parallel cast, single shared task. No role slots — pass `agents[]` directly.
+
+register(
+  'agent_panel_run',
+  {
+    name: 'Agent Panel',
+    description: 'Run the currently loaded agents through a single shared task. Each agent answers in their own voice. All run in parallel.',
+    requiredParams: ['agents'],
+    optionalParams: ['task'],
+    isAgentRecipe: true,
+    isOpenEnded: true,
+  },
+  (params) => {
+    const {
+      agents,
+      task = 'Tell one joke. Stay fully in character — voice, worldview, diction. Just the joke. No preamble.',
+    } = params;
+
+    if (!Array.isArray(agents) || agents.length === 0) {
+      throw new Error('agent_panel_run requires a non-empty `agents` array. Each agent must have { name: string, bio: string }.');
+    }
+
+    const slugify = (s, fb) => {
+      const out = String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 24);
+      return out || fb;
+    };
+
+    const seen = new Set();
+    const steps = agents.map((agent, i) => {
+      const name = (agent && agent.name) ? agent.name : `agent_${i}`;
+      const bio  = (agent && agent.bio)  ? String(agent.bio) : '';
+      let id = `agent_${i}_${slugify(name, 'unnamed')}`;
+      while (seen.has(id)) id = `${id}_${i}`;
+      seen.add(id);
+      const prompt = bio.trim() ? `${bio.trim()}\n\n---\n${task}` : task;
+      return { id, type: 'synth_text', params: { prompt } };
+    });
+
+    return {
+      name: `Agent Panel — ${agents.length} agent${agents.length === 1 ? '' : 's'}`,
+      steps,
+    };
+  }
+);
+
+// ─── 2. joke_panel — parallel, four comic roles ──────────────────────────────
+
+const JOKE_PANEL_META = {
+  agentRoles: [
+    { role: 'storyteller', label: 'Storyteller', suggested: 'Stand-up Storyteller', hint: 'Long-form, observational' },
+    { role: 'absurdist',   label: 'Absurdist',   suggested: 'Chaos Muse',           hint: 'Surreal, unhinged' },
+    { role: 'dry',         label: 'Deadpan',     suggested: 'Aesthetic Theorist',   hint: 'Dry, intellectual' },
+    { role: 'roast',       label: 'Roastmaster', suggested: 'Mythopoet',            hint: 'Sharp, willing to wound' },
+  ],
+  inputs: [
+    { name: 'topic', label: 'Joke topic (optional)', required: false, placeholder: 'e.g. modern dating, AI, taxes' },
+  ],
+  script: [
+    { id: 'joke_a', role: 'storyteller', task: 'Tell one joke{{topic_clause}}. Just the joke — no preamble, no commentary.' },
+    { id: 'joke_b', role: 'absurdist',   task: 'Tell one joke{{topic_clause}}. Just the joke — no preamble, no commentary.' },
+    { id: 'joke_c', role: 'dry',         task: 'Tell one joke{{topic_clause}}. Just the joke — no preamble, no commentary.' },
+    { id: 'joke_d', role: 'roast',       task: 'Tell one joke{{topic_clause}}. Just the joke — no preamble, no commentary.' },
+  ],
+};
+
+register(
+  'joke_panel',
+  {
+    name: 'Joke Panel',
+    description: 'Four comics share a stage. Each tells one joke in their own voice. Runs in parallel.',
+    agentRoles: JOKE_PANEL_META.agentRoles,
+    inputs: JOKE_PANEL_META.inputs,
+    stepRoleMap: Object.fromEntries(JOKE_PANEL_META.script.map(s => [s.id, s.role])),
+    requiredParams: ['roleAssignments'],
+    optionalParams: ['topic'],
+    isAgentRecipe: true,
+  },
+  (params) => {
+    const enriched = {
+      ...params,
+      topic_clause: params.topic ? ` about: ${params.topic}` : '',
+    };
+    const steps = buildAgentRecipeSteps(JOKE_PANEL_META, enriched);
+    return { name: 'Joke Panel', steps };
+  }
+);
+
+// ─── 3. pitch_doctor — sequential, four roles ────────────────────────────────
+
+const PITCH_DOCTOR_META = {
+  agentRoles: [
+    { role: 'devil',    label: "Devil's Advocate", suggested: 'Sharp Tongue',    hint: 'Names the weakest link' },
+    { role: 'champion', label: 'Champion',         suggested: 'Optimist',        hint: 'Steelmans against the critique' },
+    { role: 'outsider', label: 'Outsider',         suggested: 'Wildcard',        hint: 'Reframes from a stranger angle' },
+    { role: 'synth',    label: 'Synthesist',       suggested: 'Editor-in-Chief', hint: 'Picks the keeper' },
+  ],
+  inputs: [
+    { name: 'idea', label: 'The idea', required: true, placeholder: 'e.g. a subscription service for handwritten letters' },
+  ],
+  script: [
+    { id: 'critique',
+      role: 'devil',
+      task: 'Idea: "{{idea}}"\n\nFind the single weakest assumption. Be precise, not cruel. Two sentences max.' },
+    { id: 'defend',
+      role: 'champion',
+      task: 'Idea: "{{idea}}"\n\nThis was just said:\n  {{critique.text}}\n\nSteelman the idea against this critique. Two sentences max.',
+      dependsOn: ['critique'] },
+    { id: 'reframe',
+      role: 'outsider',
+      task: 'Idea: "{{idea}}"\n\nForget the critique and defense. Reframe the idea as something stranger — what is it really, underneath? Two sentences max.',
+      dependsOn: ['defend'] },
+    { id: 'synth',
+      role: 'synth',
+      task: 'Idea: "{{idea}}"\n\nThree takes have landed:\n  CRITIQUE: {{critique.text}}\n  DEFENSE: {{defend.text}}\n  REFRAME: {{reframe.text}}\n\nName the take that should drive the next move and explain in two sentences. Do not split the difference.',
+      dependsOn: ['reframe'] },
+  ],
+};
+
+register(
+  'pitch_doctor',
+  {
+    name: 'Pitch Doctor',
+    description: 'Three voices stress-test your idea, then a synthesist names the keeper. Sequential.',
+    agentRoles: PITCH_DOCTOR_META.agentRoles,
+    inputs: PITCH_DOCTOR_META.inputs,
+    stepRoleMap: Object.fromEntries(PITCH_DOCTOR_META.script.map(s => [s.id, s.role])),
+    requiredParams: ['idea', 'roleAssignments'],
+    isAgentRecipe: true,
+  },
+  (params) => {
+    const steps = buildAgentRecipeSteps(PITCH_DOCTOR_META, params);
+    return { name: `Pitch Doctor: ${(params.idea || '').slice(0, 50)}`, steps };
+  }
+);
+
+// ─── 4. debate_panel — two debaters in parallel + judge ──────────────────────
+
+const DEBATE_PANEL_META = {
+  agentRoles: [
+    { role: 'pro',   label: 'For the motion',     suggested: 'Champion',        hint: 'Argues the affirmative' },
+    { role: 'con',   label: 'Against the motion', suggested: 'Skeptic',         hint: 'Argues the negative' },
+    { role: 'judge', label: 'Judge',              suggested: 'Editor-in-Chief', hint: 'Names the winner' },
+  ],
+  inputs: [
+    { name: 'topic', label: 'Debate topic', required: true, placeholder: 'e.g. AI-generated art is real art' },
+  ],
+  script: [
+    { id: 'pro',
+      role: 'pro',
+      task: 'Topic: "{{topic}}"\n\nArgue FOR the motion. Make your strongest single argument. Three sentences max.' },
+    { id: 'con',
+      role: 'con',
+      task: 'Topic: "{{topic}}"\n\nArgue AGAINST the motion. Make your strongest single argument. Three sentences max.' },
+    { id: 'judge',
+      role: 'judge',
+      task: 'Topic: "{{topic}}"\n\nFOR: {{pro.text}}\n\nAGAINST: {{con.text}}\n\nName the more persuasive case and explain why in two sentences. Do not split the difference.',
+      dependsOn: ['pro', 'con'] },
+  ],
+};
+
+register(
+  'debate_panel',
+  {
+    name: 'Debate Panel',
+    description: 'Two debaters argue opposing sides of a topic in parallel. A judge picks the more persuasive case.',
+    agentRoles: DEBATE_PANEL_META.agentRoles,
+    inputs: DEBATE_PANEL_META.inputs,
+    stepRoleMap: Object.fromEntries(DEBATE_PANEL_META.script.map(s => [s.id, s.role])),
+    requiredParams: ['topic', 'roleAssignments'],
+    isAgentRecipe: true,
+  },
+  (params) => {
+    const steps = buildAgentRecipeSteps(DEBATE_PANEL_META, params);
+    return { name: `Debate: ${(params.topic || '').slice(0, 50)}`, steps };
+  }
+);
+
+// ─── Public API ──────────────────────────────────────────────────────────────
+
+/**
+ * Get a template definition by id.
+ * @param {string} id
+ * @returns {object|null}
+ */
+export function getTemplate(id) {
+  return templates.get(id) || null;
+}
+
+/**
+ * List all available templates (metadata only, no build function).
+ * @returns {Array<{id, name, description, requiredParams, optionalParams}>}
+ */
+export function listTemplates() {
+  return [...templates.values()].map(({ id, name, description, requiredParams, optionalParams, agentRoles, inputs, stepRoleMap, isAgentRecipe, isOpenEnded }) => ({
+    id, name, description, requiredParams, optionalParams,
+    ...(agentRoles ? { agentRoles } : {}),
+    ...(inputs ? { inputs } : {}),
+    ...(stepRoleMap ? { stepRoleMap } : {}),
+    ...(isAgentRecipe ? { isAgentRecipe } : {}),
+    ...(isOpenEnded ? { isOpenEnded } : {}),
+  }));
+}
+
+/**
+ * Build a workflow definition from a named template and params.
+ * @param {string} templateId
+ * @param {object} params
+ * @returns {object} workflow definition for WorkflowEngine.submit()
+ * @throws {Error} if template not found or params invalid
+ */
+export function buildWorkflow(templateId, params) {
+  const tpl = templates.get(templateId);
+  if (!tpl) {
+    const available = [...templates.keys()].join(', ');
+    throw new Error(`Unknown workflow template: "${templateId}". Available: ${available}`);
+  }
+
+  // Validate required params
+  for (const req of tpl.requiredParams || []) {
+    if (params[req] === undefined || params[req] === null || params[req] === '') {
+      throw new Error(`Template "${templateId}" requires param "${req}"`);
+    }
+  }
+
+  return tpl.build(params);
+}
+
+/**
+ * Generate a compact listing for system prompts.
+ * @returns {string}
+ */
+export function listTemplatesForPrompt() {
+  const lines = [];
+  for (const tpl of templates.values()) {
+    const req = (tpl.requiredParams || []).join(', ');
+    const opt = (tpl.optionalParams || []).map(p => `${p}?`).join(', ');
+    const allParams = [req, opt].filter(Boolean).join(', ');
+    lines.push(`  - ${tpl.id}(${allParams}): ${tpl.description.split('.')[0]}`);
+  }
+  return lines.join('\n');
+}
+
+/**
+ * Generate the style preset listing for system prompts.
+ * @returns {string}
+ */
+export function listStylesForPrompt() {
+  return listPresetsCompact();
+}
