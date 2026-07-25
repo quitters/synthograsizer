@@ -103,11 +103,13 @@ class WorkflowRunner {
       });
       observer.observe(modalEl, { attributes: true, attributeFilter: ['style', 'class'] });
     }
-    window.addEventListener('beforeunload', () => this._disconnectSSE());
+    window.addEventListener('beforeunload', () => this._cleanupActiveWorkflow(true));
   }
 
   // Centralized teardown for an in-flight workflow. Safe to call repeatedly.
-  _cleanupActiveWorkflow() {
+  // `silent` is for page unload, where a toast would be pointless.
+  _cleanupActiveWorkflow(silent = false) {
+    const wasRunning = this._runInFlight;
     this._disconnectSSE();
     // Client-engine mode has no SSE; stop the detached run so it doesn't keep
     // spending credits after the modal is closed.
@@ -118,6 +120,32 @@ class WorkflowRunner {
       clearTimeout(this._sseSafetyTimer);
       this._sseSafetyTimer = null;
     }
+    this._runInFlight = false;
+    this._setRunningUI(false);
+
+    // Closing the modal mid-run stops it — deliberately, so a detached run
+    // can't keep spending after you've walked away. Silently was the problem:
+    // say it happened, and say the finished steps are still there.
+    if (wasRunning && !silent) {
+      const done = (this._stepResults || []).length;
+      this.studio.showToast(
+        done
+          ? `Run stopped. The ${done} step${done === 1 ? '' : 's'} that finished are under “View results”.`
+          : 'Run stopped before any step finished.',
+        'info', 4500);
+    }
+  }
+
+  /** Show/hide the in-flight affordances. */
+  _setRunningUI(running) {
+    const el = document.getElementById('wfr-progress-running');
+    if (el) el.style.display = running ? '' : 'none';
+  }
+
+  /** Deliberate stop, from the button. Same teardown, plus a route out. */
+  _cancelRun() {
+    this._cleanupActiveWorkflow();
+    this._showPhase('browse');
   }
 
   // ─── Modal HTML ────────────────────────────────────────────────────────────
@@ -178,6 +206,16 @@ class WorkflowRunner {
           <span id="wfr-progress-status" style="font-size:11px; padding:2px 8px; border-radius:10px; background:#fff3e0; color:#e65100;"></span>
         </div>
         <div id="wfr-step-list" style="margin-bottom:14px;"></div>
+        <!-- While a run is in flight the only exit used to be closing the modal,
+             which cancels it silently. An explicit stop is the honest version of
+             the same thing, and it keeps whatever already finished. -->
+        <div id="wfr-progress-running" style="display:none; text-align:center; margin-top:8px;">
+          <button id="wfr-cancel-btn" style="background:none; border:1px solid #d9534f; color:#d9534f;
+                  padding:5px 12px; border-radius:6px; cursor:pointer; font-size:12px;">■ Stop run</button>
+          <div style="font-size:10.5px; color:#999; margin-top:6px;">
+            Steps already finished stay available under “View results”.
+          </div>
+        </div>
         <div id="wfr-progress-actions" style="display:none; text-align:center; margin-top:8px;">
           <div style="display:flex; gap:8px;">
             <button class="studio-btn-primary" id="wfr-view-results-btn" style="flex:2; background:#4CAF50;">View Results</button>
@@ -216,6 +254,7 @@ class WorkflowRunner {
     });
     this.studio.bindSafe('wfr-results-back-btn', 'onclick', () => this._showPhase('browse'));
     this.studio.bindSafe('wfr-last-run-btn', 'onclick', () => this._showResults());
+    this.studio.bindSafe('wfr-cancel-btn', 'onclick', () => this._cancelRun());
   }
 
   // ─── Open modal ────────────────────────────────────────────────────────────
@@ -382,7 +421,44 @@ class WorkflowRunner {
     document.getElementById('wfr-template-desc').textContent = tpl.description || '';
 
     this._renderParamForm(tpl);
+    this._restoreParamDraft(tpl);
     this._showPhase('params');
+  }
+
+  /**
+   * Keep what was typed when you step back to the template list and return.
+   *
+   * Losing a half-written prompt for glancing at the list punishes exactly the
+   * "let me just check something" instinct, and it is the same class of
+   * unforgiving as stranding a finished run. Drafts are per template and live
+   * for the session only — file inputs are skipped, since a File can't be
+   * restored into an <input type=file> by assignment.
+   */
+  _restoreParamDraft(tpl) {
+    const draft = (this._paramDrafts || {})[tpl.id];
+    const container = document.getElementById('wfr-param-fields');
+    if (!container) return;
+
+    if (draft) {
+      for (const [name, value] of Object.entries(draft)) {
+        const el = document.getElementById(`wfr-param-${name}`);
+        if (!el || el.type === 'file') continue;
+        if (el.type === 'checkbox') el.checked = !!value;
+        else el.value = value;
+      }
+    }
+    if (container._draftBound) return;
+    container.addEventListener('input', (e) => {
+      const el = e.target;
+      if (!el.id || !el.id.startsWith('wfr-param-') || el.type === 'file') return;
+      const name = el.id.slice('wfr-param-'.length);
+      this._paramDrafts = this._paramDrafts || {};
+      const id = this.selectedTemplate && this.selectedTemplate.id;
+      if (!id) return;
+      this._paramDrafts[id] = this._paramDrafts[id] || {};
+      this._paramDrafts[id][name] = el.type === 'checkbox' ? el.checked : el.value;
+    });
+    container._draftBound = true;
   }
 
   _renderParamForm(tpl) {
@@ -544,6 +620,8 @@ class WorkflowRunner {
     // so the banner offering it has to go at the same moment.
     this._stepResults = [];
     this._lastRunName = tpl.name;
+    this._runInFlight = true;
+    this._setRunningUI(true);
     this._refreshLastRunBanner('progress');
 
     try {
@@ -692,6 +770,10 @@ class WorkflowRunner {
         break;
       }
       case 'workflow_complete': {
+        // The run is over: retire the in-flight affordances, or the Stop button
+        // lingers and a later close would claim it stopped a finished run.
+        this._runInFlight = false;
+        this._setRunningUI(false);
         statusEl.textContent = data.status === 'failed' ? 'failed' : 'complete';
         statusEl.style.background = data.status === 'failed' ? '#ffebee' : '#e8f5e9';
         statusEl.style.color = data.status === 'failed' ? '#c62828' : '#2e7d32';
@@ -759,6 +841,8 @@ class WorkflowRunner {
         break;
       }
       case 'workflow_error': {
+        this._runInFlight = false;
+        this._setRunningUI(false);
         statusEl.textContent = 'error';
         statusEl.style.background = '#ffebee';
         statusEl.style.color = '#c62828';

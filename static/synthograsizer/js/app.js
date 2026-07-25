@@ -2173,9 +2173,10 @@ export class SynthograsizerSmall {
     });
   }
 
-  _captureHistory({ text, mediaSrc, mediaType }) {
+  _captureHistory({ text, mediaSrc, mediaType, generationId = null }) {
     if (!text || !mediaSrc) return;
-    this.outputHistory.unshift({ text, values: { ...this.currentValues }, mediaSrc, mediaType, time: Date.now() });
+    this.outputHistory.unshift({ text, values: { ...this.currentValues }, mediaSrc, mediaType,
+                                 generationId, time: Date.now() });
     if (this.outputHistory.length > 10) this.outputHistory.pop();
     this._renderHistoryStrip();
   }
@@ -2236,6 +2237,30 @@ export class SynthograsizerSmall {
         </video>`;
     } else {
       content.innerHTML = `<img src="${entry.mediaSrc}" class="studio-result-image" alt="">`;
+    }
+
+    // Recovering a past generation gave you back the picture but no way to keep
+    // it — the same "viewable but unkeepable" gap the workflow results had.
+    // Reuses the Studio's own buttons so behaviour and gating stay in one place.
+    const si = window.studioIntegrationInstance;
+    const b64 = (entry.mediaSrc || '').split(',')[1];
+    if (si && b64 && typeof si.buildDownloadButton === 'function') {
+      const isVideo = entry.mediaType === 'video';
+      const mime = isVideo ? 'video/mp4' : 'image/png';
+      const row = document.createElement('div');
+      row.style.cssText = 'margin-top:10px; display:flex; justify-content:center; gap:10px;';
+      row.appendChild(si.buildDownloadButton(() => b64, mime, isVideo ? 'mp4' : 'png'));
+      // Save needs the generation this came from; entries captured before that
+      // was carried through simply don't get the button rather than failing.
+      // Label is the template name via mediaLabel(), NOT entry.text — that is
+      // the prompt, and Terms v0.3 says prompt text is never stored
+      // server-side. `label` is a queryable column, so it is exactly the place
+      // that claim would be broken.
+      const save = si.buildSaveButton(isVideo ? 'video' : 'image', mime, () => b64,
+                                      entry.generationId ?? null,
+                                      typeof si.mediaLabel === 'function' ? si.mediaLabel() : null);
+      if (save) row.appendChild(save);
+      content.appendChild(row);
     }
 
     resultContainer.classList.add('active');

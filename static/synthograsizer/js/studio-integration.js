@@ -4879,7 +4879,10 @@ class StudioIntegration {
                     detail: {
                         text: window.synthSmall?.getCurrentPromptText() || params.prompt || '',
                         mediaSrc: `data:image/png;base64,${data.image}`,
-                        mediaType: 'image'
+                        mediaType: 'image',
+                        // Carried so a restored history entry can still be saved,
+                        // not just looked at.
+                        generationId: data.generation_id ?? null
                     }
                 }));
 
@@ -4932,7 +4935,10 @@ class StudioIntegration {
                     detail: {
                         text: window.synthSmall?.getCurrentPromptText() || params.prompt || '',
                         mediaSrc: `data:video/mp4;base64,${data.video}`,
-                        mediaType: 'video'
+                        mediaType: 'video',
+                        // Carried so a restored history entry can still be saved,
+                        // not just looked at.
+                        generationId: data.generation_id ?? null
                     }
                 }));
             }
