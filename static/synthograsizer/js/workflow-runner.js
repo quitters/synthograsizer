@@ -144,6 +144,18 @@ class WorkflowRunner {
       </div>
 
       <!-- Phase 0: Template browser -->
+      <!-- Way back to the last run's results. The results themselves live in
+           memory until the next run starts, so leaving the results view was
+           only ever a navigation dead-end: the output was still there with
+           nothing pointing at it. -->
+      <div id="wfr-last-run" style="display:none; margin-bottom:12px; padding:8px 10px;
+           border:1px solid rgba(61,189,173,0.45); background:rgba(61,189,173,0.08);
+           border-radius:6px; align-items:center; gap:10px;">
+        <span style="font-size:11.5px; color:#2a8a7e; flex:1;" id="wfr-last-run-label"></span>
+        <button id="wfr-last-run-btn" class="studio-btn-primary"
+                style="background:#3dbdad; padding:4px 10px; font-size:11px;">View results</button>
+      </div>
+
       <div id="wfr-browse">
         <div id="wfr-template-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; max-height:55vh; overflow-y:auto; padding:2px;"></div>
       </div>
@@ -203,6 +215,7 @@ class WorkflowRunner {
       }
     });
     this.studio.bindSafe('wfr-results-back-btn', 'onclick', () => this._showPhase('browse'));
+    this.studio.bindSafe('wfr-last-run-btn', 'onclick', () => this._showResults());
   }
 
   // ─── Open modal ────────────────────────────────────────────────────────────
@@ -223,6 +236,34 @@ class WorkflowRunner {
     }
     document.getElementById('wfr-status').style.display = 'none';
     document.getElementById('wfr-offline').style.display = 'none';
+    this._refreshLastRunBanner(phase);
+  }
+
+  /** Anything worth going back FOR — media or text a step actually produced. */
+  _hasViewableResults() {
+    return (this._stepResults || []).some(
+      s => s.mediaId || s.text || s.description || s.narrative);
+  }
+
+  /**
+   * Offer the way back to the last run's results, on the browse screen only.
+   *
+   * Results survive both leaving the results view and closing the modal —
+   * `_stepResults` and the media store are only reset when the NEXT run starts
+   * — so without this the output sat in memory, intact and unreachable.
+   */
+  _refreshLastRunBanner(phase) {
+    const bar = document.getElementById('wfr-last-run');
+    if (!bar) return;
+    const show = phase === 'browse' && this._hasViewableResults();
+    bar.style.display = show ? 'flex' : 'none';
+    if (!show) return;
+    const label = document.getElementById('wfr-last-run-label');
+    if (label) {
+      const n = (this._stepResults || []).length;
+      const name = this._lastRunName || 'Last run';
+      label.textContent = `${name} — ${n} step${n === 1 ? '' : 's'} finished`;
+    }
   }
 
   // ─── Template fetching & rendering ─────────────────────────────────────────
@@ -499,7 +540,11 @@ class WorkflowRunner {
       params: persistableParams,
       startedAt: new Date().toISOString(),
     };
+    // Starting a run is the one thing that discards the previous one's output,
+    // so the banner offering it has to go at the same moment.
     this._stepResults = [];
+    this._lastRunName = tpl.name;
+    this._refreshLastRunBanner('progress');
 
     try {
       if (this._clientEngine) {
@@ -766,18 +811,25 @@ class WorkflowRunner {
     for (let i = 0; i < mediaItems.length; i++) {
       const item = mediaItems[i];
       const src = `data:${item.media.mimeType || 'image/png'};base64,${item.media.data}`;
+      // A row of keep-it actions per result. Without these a workflow's output
+      // existed only for as long as the tab did — viewable, but impossible to
+      // take away, which is the other half of "the output is lost for good".
+      const actions = `<div class="wfr-result-actions" data-result-index="${i}"
+             style="display:flex; gap:6px; padding:0 8px 8px;"></div>`;
       if (item.media.type === 'video') {
         html += `
           <div style="border-radius:8px; overflow:hidden; border:1px solid #eee;">
             <video src="${src}" controls muted style="width:100%; display:block;"></video>
             <div style="padding:6px 8px; font-size:11px; color:#888;">${item.stepId}</div>
+            ${actions}
           </div>`;
       } else {
         html += `
-          <div style="border-radius:8px; overflow:hidden; border:1px solid #eee; cursor:pointer;"
-               onclick="window.studioIntegrationInstance.openLightbox(${i})">
-            <img src="${src}" style="width:100%; height:140px; object-fit:cover; display:block;">
+          <div style="border-radius:8px; overflow:hidden; border:1px solid #eee;">
+            <img src="${src}" style="width:100%; height:140px; object-fit:cover; display:block; cursor:pointer;"
+                 onclick="window.studioIntegrationInstance.openLightbox(${i})">
             <div style="padding:6px 8px; font-size:11px; color:#888;">${item.stepId}</div>
+            ${actions}
           </div>`;
       }
     }
@@ -793,6 +845,26 @@ class WorkflowRunner {
     }
 
     grid.innerHTML = html;
+
+    // Wired after render rather than as inline handlers: these carry multi-MB
+    // base64 payloads, which have no business in an onclick attribute.
+    // generation_id rides through the engine's step summary (it's a number, so
+    // the summary's string-length filter keeps it) — which is what lets a
+    // workflow result be saved to My creations at all, not just downloaded.
+    const si = this.studio;
+    grid.querySelectorAll('.wfr-result-actions').forEach((row) => {
+      const item = mediaItems[Number(row.dataset.resultIndex)];
+      if (!item) return;
+      const isVideo = item.media.type === 'video';
+      const mime = item.media.mimeType || (isVideo ? 'video/mp4' : 'image/png');
+      row.appendChild(si.buildDownloadButton(
+        () => item.media.data, mime, isVideo ? 'mp4' : 'png'));
+      const save = si.buildSaveButton(
+        isVideo ? 'video' : 'image', mime, () => item.media.data,
+        item.generation_id ?? null,
+        `${this._lastRunName || 'Workflow'} · ${item.stepId}`.slice(0, 60));
+      if (save) row.appendChild(save);
+    });
   }
 }
 
