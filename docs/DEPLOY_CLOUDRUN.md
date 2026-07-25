@@ -54,6 +54,16 @@ First deploy prints the service URL (`https://synthograsizer-<hash>-<region>.a.r
 > re-prompting every user to accept a document older than the one they already accepted. Bump this
 > line and §2c together whenever the terms revision changes.
 
+> ⚠ **Paste §2, §2b and §2c as three separate commands. Do not flatten them onto one
+> line, and do not `&&`-chain them.** Two independent reasons, both hit on 2026-07-24:
+> a very long single line gets truncated mid-paste in Cloud Shell — that deploy's §2b
+> failed with `Invalid value for property [api_endpoint_overrides/run]` because its
+> `--region` had swallowed `GOOGLE_OAUTH_CLIENT_ID=…` from §2's env list, characters
+> having been dropped between them — and `&&` means one failure skips everything after
+> it, so §2c never ran at all. §2b and §2c are `--update-env-vars`, which is additive
+> and idempotent: running them again is always safe, so the recovery is simply to run
+> each on its own. Keep the backslash continuations below; they exist for this reason.
+
 ### 2b · Public origins (required — re-run after every §2 once a domain fronts the service)
 **Run this AFTER §2, never instead of it — and never before it. Once this has been applied even
 once, re-run it after EVERY future §2 deploy — see the warning in §2.**
@@ -104,6 +114,13 @@ external ALB + serverless NEG instead (details in HANDOFF_SERVICE_LAUNCH.md step
    Quick shape check on the same thing: a correctly-run deploy leaves **three revisions ~15s
    apart** (§2 → §2b → §2c), e.g. `00029` / `00030` / `00031` on 2026-07-24. A lone revision with
    no siblings behind it means §2b/§2c were skipped — go read the env before anything else.
+
+   ⚠ **This Origin probe can false-pass in the minute or two after a deploy.** On 2026-07-24,
+   §2 had run without §2b (so `SYNTH_PUBLIC_ORIGINS` was genuinely absent from the new
+   revision's env) and the probe still returned `401`, not the `403` that condition should
+   produce — most likely a warm instance of the previous revision still answering under
+   `--min-instances 1` with session affinity. **`describe` is the authority; the probe is the
+   convenience.** If they disagree, believe `describe`, and re-probe a couple of minutes later.
 0b. **Confirm the running image actually contains the commit you deployed.** Nothing else in this
    list checks this, and the failure is silent — a stale image serves fine, just as the previous
    release. Runs from a checkout of the deployed commit, no gcloud needed:
