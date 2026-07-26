@@ -227,6 +227,105 @@ is a design habit rather than five separate defects.
   preset *id* reaches the prompt verbatim (`"…playing card, art_nouveau, antique gold…"`). It
   worked only because `art_nouveau` happens to exist. Rename to a non-reserved param.
 
+## Status 2026-07-26 — first accessibility slice, and the tools moved into the app-bar ✅ DEPLOYED
+Serving revision **`synthograsizer-00041-22r`**. Three commits — `f1dfc64` · `9695f3a` ·
+`b51a42e` — deployed 2026-07-26 02:29–02:31 UTC as a clean triple (`00039` → `00040` → `00041`).
+Frontend only: **zero changes under `backend/`, `scripts/`, `requirements.txt` or the Dockerfile**,
+no schema change, terms unchanged at v0.3 so nobody was re-prompted. 281 tests green. Env whole at
+14 vars; all 11 changed static files verified MATCH against the run.app origin (smoke step 0b),
+including the new `static/shared/js/modal-a11y.js` — the one file whose absence would have made the
+whole slice silently inert.
+
+### Every dialog is now keyboard-reachable and announced (`f1dfc64`)
+Measured before touching anything, on a local install: with Smart Transform open on screen, **48
+real Tab presses walked the page behind it and never once entered the dialog** — its first control
+sat at position **63 of 70** in the tab order. Escape did nothing. All 12 modals reported
+`role=null`, `aria-modal=null`, no accessible name, and a close button whose entire accessible
+name was `×`. Focus never moved in, so it was never restored either.
+
+- **Markup half** in `createModal()`: role / aria-modal / aria-labelledby / tabindex, an id on the
+  `<h3>`, and a real name on the close button with the `×` marked `aria-hidden`. A new
+  `plainText()` helper strips the leading emoji, so it reads "Close Agent Studio".
+- **Behaviour half** in new **`static/shared/js/modal-a11y.js`** — focus in on open, trap, Escape,
+  restore on close. Loaded by the six pages that have modals.
+- **It observes the `active` class, not `openModal()`.** Three of the twelve modals (trace-viewer,
+  agent-studio, and the auth overlays) never call `openModal()` — they toggle the class or create
+  their overlay directly. Hooking the call site would have covered nine and silently missed three,
+  which is exactly how `tier-gate.js` hid nothing for a month.
+- **Blocking vs dismissible is inferred from markup**: a modal is dismissible if it contains a
+  close control. The terms interstitial has none, so **Escape deliberately will not dismiss it** —
+  acceptance is recorded server-side and a keyboard user must not skip a gate a mouse user cannot.
+- Verified live on the domain after deploy: forward wrap, backward wrap, escaped-focus-pulled-back,
+  Escape-closes, and focus restored to the launching menu trigger. 12/12 modals carry a resolving
+  name; 0/12 close buttons are icon-only.
+
+### Studio tools folded into the app-bar (`9695f3a`)
+The tools menubar was a second full-width band under the app-bar. Measured live at 2174px it was
+**74% empty** (content ran to x569 of 2174), in the same colour as the app-bar with a 20px gap —
+a row of chrome that mostly wasn't there. The deeper problem was that the two rows were
+*near*-siblings: mode switcher 11px/700/0.12em against tools titles 11.5px/400/0.08em. They now
+share the bar and its exact metrics.
+- Relocation, not rewrite: the `<nav>` keeps its id and aria-label, every item keeps its
+  `studio-*-btn` id, so `bindSafe()` wiring and tier-gate CSS are untouched.
+- **The single row needs 1621px** for the widest cohort (hosted + signed in, long template name):
+  brand 373 + tools 551 + seg 256 + utils 359 + 82 padding/gaps. Below **1620px the bar wraps** and
+  the tools take their own row — the band, restored where it was never the problem. So this is a
+  wide-screen win specifically. The biggest single term is the featured Template Gen chip (145px);
+  moving it into the Generate dropdown would drop the requirement to ~1460px and cover 1512/1600
+  laptops. Not done — it was deliberately featured, and Alexander confirmed the redundancy with the
+  primary button row is wanted: **the menus are the complete index, the big buttons are fast paths.**
+- Dropdown offset matches `.app-bar-menu` (the ⋯ menu), which already overlaps the bar by 4px.
+  Making these flush would have singled them out beside their own neighbour and needed per-theme
+  border/shadow math.
+
+### Method notes worth keeping (each one caught a wrong answer)
+- **The browser harness cannot synthesise button activation from Enter.** A freshly-created plain
+  `<button>` with a click listener received Enter with `defaultPrevented:false` and fired zero
+  clicks. Tab traversal *is* faithful. Measure focus **order** with real Tabs; measure
+  **activation** by the DOM contract. A control experiment is the only way to tell a harness
+  artifact from an app defect — this one nearly got filed as "Enter doesn't activate the Studio
+  button".
+- **Synthetic keys don't reach a backgrounded tab at all** (`visibilityState: "hidden"` → zero
+  keydowns). A "trap failed on production" reading came from exactly this, plus concurrent human
+  interaction closing the modal. Branches the code drives *explicitly* (wrap, pull-back, Escape)
+  can still be verified with `dispatchEvent`; native traversal cannot.
+- **`requestAnimationFrame` does not run in a hidden or throttled tab.** The first version of the
+  focus-in used rAF and silently did nothing there. Synchronous attempt + `setTimeout(0)` retry.
+- **A crushed flex container's own rect lies.** At 560px the tools container reported 3px wide with
+  "no collision" while its buttons overflowed and drew over the mode switcher. Collision checks
+  must run against the **buttons**, not the wrapper — an earlier pass called that width clean on
+  exactly this mistake.
+- **Cohorts differ in bar geometry**: `.app-bar-utils` is 359px hosted-signed-in vs 219px on a
+  local install (no account/profile pills). Simulating the pills by eye overshot by 86px and gave
+  two wrong breakpoints before calibrating against the live measurement.
+
+### Corrections to earlier notes in this document
+- The `⋯` control **does** exist and already had a good accessible name (`app-bar-more-btn`,
+  U+22EF, "More — theme, suite apps, what's new"). The standing-goal list below flagged it as
+  probably unnamed; it wasn't.
+- `⬇ Download` / `💾 Save` / `■ Stop run` are **not** emoji-only — each carries its word and had an
+  accessible name all along. The genuinely emoji-only controls were the bare `⬇️` links in
+  `studio-integration.js` and the modal close buttons.
+- **There is a keyboard path to the knob rack**, contrary to the open question below: `app.js`'s
+  document-level handler cycles values with ←/→ and moves between knobs with ↑/↓, and correctly
+  bails inside inputs and when a modal is open. What it lacks is discoverability, a focus
+  indicator, and any announcement — a much cheaper fix than building keyboard knobs.
+- `knob-controller.js` is **dead code imported by nobody** — and it is a fully accessible knob
+  (real `<button>`s, `aria-label`, Arrow/Home/End). The live rack is `app.js:renderKnobs()`,
+  building `<div class="knob-item">` with pointer/wheel handlers only.
+
+### Still open on accessibility (measured, not fixed)
+- **The `→ result → Save` leg has no announcement.** Smart Transform closes its modal before
+  rendering into `#studio-content`, so nothing is stranded — but focus returns to the menu trigger
+  while results appear elsewhere with no `aria-live` and no focus move. A keyboard or screen-reader
+  user gets no signal the run finished or where the output went. Same shape as the stranded-state
+  class, wearing attention instead of state.
+- Focus rings are the browser default (~0.67px) — WCAG 2.4.11 wants better; one CSS rule.
+- `p5-close-v6` (`✕`) is the last unnamed visible control on the default screen.
+- 13 knobs still mouse-only; 17 workflow cards are still unfocusable `<div>`s; the `#888`/`#999`
+  caption greys are still **3.4:1** and **2.7:1** against `#fafafa` (AA body text wants 4.5:1;
+  `#767676` is the darkest grey that passes).
+
 ## Card deck pipeline (`scripts/`)
 Restyling a sprite sheet in one Smart Transform call **does not work** — verified on a real 13×6
 solitaire deck: the grid geometry and styling survived beautifully, the *identities* did not
@@ -289,15 +388,22 @@ instead of assuming white is the robust fix, and is not yet done.
 The service works. The open question is now **who can use it, and how much it asks of someone
 who has just arrived.** Two strands, neither started:
 
-**Accessibility (never audited).** No pass has been made for keyboard navigation, focus order,
-ARIA, contrast, or screen readers, and the codebase makes that likely to be poor: modal chrome,
-result grids and studio panels are assembled from inline-styled `<div>`s with emoji as the only
-label (`⬇ Download`, `💾 Save`, `■ Stop run`, `←`, `⋯`). Concretely worth checking first:
-- Can the whole Studio → Smart Transform → result → Save path be driven with the keyboard alone?
-- Do modals trap focus, restore it on close, and close on Escape? (The ⋯ menu does; others unverified.)
-- Do the icon-only buttons have accessible names? `←` and `⋯` almost certainly do not.
-- Contrast on the low-emphasis greys (`#888`, `#999` on `#fafafa`) — used for every result caption.
-- The knob rack is drag-driven; is there a keyboard path to change a variable at all?
+**Accessibility.** ⚠ **The modal half of this is DONE and deployed — see Status 2026-07-26**,
+which also corrects four of the guesses originally written below (`⋯` was already named, the
+Download/Save/Stop labels were never emoji-only, and there *is* a keyboard path to the knobs).
+The list is kept for the items still open:
+- ~~Can the Studio → Smart Transform → result → Save path be driven by keyboard alone?~~ The
+  **dialog** leg is fixed; the **result → Save** leg still announces nothing when a run finishes.
+- ~~Do modals trap focus, restore it on close, and close on Escape?~~ Done, all 12.
+- ~~Do the icon-only buttons have accessible names?~~ Close buttons done; `p5-close-v6` remains.
+- Contrast on the low-emphasis greys — **measured**: `#888` = 3.4:1, `#999` = 2.7:1 on `#fafafa`.
+  Both fail AA body text (4.5:1); `#999` fails even the 3:1 large-text bar. 77 occurrences.
+- ~~Is there a keyboard path to the knob rack?~~ Yes — document-level arrow keys. It needs
+  discoverability, a focus indicator and announcement, not building from scratch. Note
+  `knob-controller.js` is an already-accessible implementation that nothing imports.
+- Still mouse-only: 13 knobs (`<div class="knob-item">`), 17 workflow cards
+  (`<div class="wfr-template-card">`). Zero `tabindex` in workflow-runner, studio-integration or
+  auth.js.
 
 **Simplicity (measured, not guessed).** A brand-new account lands in **Perform** mode, where the
 AI Studio Tools menu bar is deliberately hidden — so the first screen offers Randomize / Generate

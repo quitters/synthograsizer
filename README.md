@@ -234,7 +234,11 @@ all carry Download and (signed in) Save. Workflow runs stay recoverable after yo
 and a running workflow can be stopped deliberately rather than only by closing the window.
 
 The current focus is **accessibility and simplicity** — the app works; the open question is who
-can use it and how much it asks of a newcomer. Starting points are in
+can use it and how much it asks of a newcomer. The first slice shipped 2026-07-26: every dialog
+now takes focus when it opens, keeps it while open, closes on Escape and hands focus back where
+you came from, and announces itself by name — none of which was true before. The Studio tools
+also moved up into the top bar instead of occupying a near-empty strip of their own. What's done,
+what was measured, and what's still open are all in
 [docs/HANDOFF_SERVICE_LAUNCH.md](docs/HANDOFF_SERVICE_LAUNCH.md).
 
 Next up:
