@@ -109,10 +109,12 @@ body,
   margin-bottom: 0;
 }
 
-.app-bar-seg {
-  border: var(--hw-border);
-  box-shadow: var(--hw-shadow-sm);
-}
+/* No border/shadow override here on purpose. --hw-border and --hw-shadow-sm are
+   #7a6e5e, while every other control in the app-bar draws its edge from --ab-ink
+   (#5a5040) — so overriding made the mode switcher the one item in the row with
+   a lighter frame than its neighbours, at identical 2px. Letting layout-options'
+   --ab-ink rule stand costs no theming: cel-pastel recolors by redefining
+   --ab-ink, which reaches this control the same as all the others. */
 
 /* Geometry (size/padding/letter-spacing) lives in layout-options.css so the
    responsive ladder there always wins — themes only recolor. */

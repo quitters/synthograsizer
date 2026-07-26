@@ -308,6 +308,10 @@ body.mode-composer .active-profile-pill { display: none; }
   border: 2px solid var(--ab-ink, #5a5040);
   border-radius: 4px;
   box-shadow: 2px 2px 0 var(--ab-ink, #5a5040);
+  /* Was falling through to the browser default (Arial) — these carry glyphs
+     (⚙ ⋯) rather than words, so it barely showed, but it left two of the bar's
+     controls rendering in a font nothing else in the app uses. */
+  font-family: 'Share Tech Mono', monospace;
   font-size: 15px;
   line-height: 1;
   color: var(--ab-ink, #5a5040);
@@ -446,13 +450,19 @@ body.mode-composer .studio-menubar { display: none; }
   padding: 0 14px;
   background: var(--hw-accent, #3dbdad);
   color: #08201d;
-  border: 1.5px solid rgba(0, 0, 0, 0.28);
+  /* Bezel and ink come from the bar, not from this button's own palette. It
+     used to carry a 1.5px black-alpha border and a --hw-recessed shadow, which
+     made it the only control in the bar with a different edge weight AND a
+     different shadow ink — visibly not part of the set it sits in. The teal
+     fill is what marks it as the featured action; the frame should not. */
+  border: 2px solid var(--ab-ink, #5a5040);
   border-radius: 4px;
-  box-shadow: 2px 2px 0 var(--hw-recessed, #a89575);
-  font: inherit;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
+  box-shadow: 2px 2px 0 var(--ab-ink, #5a5040);
+  /* Same type as .smb-title beside it and the mode buttons opposite it. */
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   cursor: pointer;
   white-space: nowrap;

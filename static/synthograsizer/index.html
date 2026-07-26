@@ -9,8 +9,8 @@
     <script src="js/debug-log.js?v=1"></script>
     <link rel="stylesheet" href="css/style.css?v=6">
     <link rel="stylesheet" href="css/code-overlay.css?v=2">
-    <link rel="stylesheet" href="css/layout-options.css?v=12">
-    <link rel="stylesheet" href="css/synth-hardware-theme.css?v=10">
+    <link rel="stylesheet" href="css/layout-options.css?v=13">
+    <link rel="stylesheet" href="css/synth-hardware-theme.css?v=11">
     <link rel="stylesheet" href="css/cel-pastel-theme.css?v=8">
     <link rel="stylesheet" href="css/storyboard-panel.css?v=3">
     <link rel="stylesheet" href="css/storyboard-panel-hardware-theme.css?v=3">
@@ -587,10 +587,15 @@
                     <span class="label">GENERATE</span><kbd class="keybind-badge">G</kbd>
                 </button>
                 <!-- Featured tool launcher — forwards to #studio-template-btn (see the
-                     menubar init script). Studio mode only; hidden in Perform. -->
+                     menubar init script). Studio mode only; hidden in Perform.
+                     Plain label + keybind badge like its three row-mates: T is a real
+                     bound shortcut (app.js handleKeyboard), Perform's equivalent button
+                     already advertised it, and this one was the only button in the row
+                     wearing an emoji and hiding its key. The teal fill is what marks it
+                     as featured; it does not need a different shape of label too. -->
                 <button id="template-gen-featured-btn" class="primary-btn template-gen-btn"
                         data-tip="Generate a new template with AI" data-tip-pos="down">
-                    <span class="label">🧩 TEMPLATE GEN</span>
+                    <span class="label">TEMPLATE GEN</span><kbd class="keybind-badge">T</kbd>
                 </button>
                 <button id="p5-run-main-btn" class="primary-btn p5-run-main-btn" style="display: none;">
                     <span class="label">RUN CODE</span><kbd class="keybind-badge">P</kbd>
