@@ -20,7 +20,15 @@
   --ab-ink: #5a5040;               /* bezel ink (hardware default) */
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  /* Deliberately NOT space-between. That distributed free space *between* the
+     zones, so the mode switcher's position depended on what else was in the
+     row — and the tools group is only present in Studio. Measured at 1800px it
+     sat at x1418 in Studio, x986 in Perform and x948 in Composer: the primary
+     navigation control jumping 432px when you used it. Everything now packs
+     left and .app-bar-utils pushes itself right with its own auto margin, so
+     the switcher's position depends on the brand's width alone, which does not
+     change with mode. */
+  justify-content: flex-start;
   flex-wrap: nowrap;
   padding: 9px 20px;
   margin-bottom: 20px;
@@ -102,9 +110,14 @@
   color: #8a7e6e;
 }
 
-/* Hide template chip in Composer mode (template picker is Studio-specific).
-   Scoped to the id — other controls no longer share the class. */
-body.mode-composer #app-bar-tpl-btn { display: none; }
+/* Hide the template chip in Composer mode (the template picker is
+   Studio-specific). Scoped to the id — other controls no longer share the class.
+   `visibility` rather than `display` on purpose: the chip is the widest thing in
+   the brand zone, and removing it from layout shifted the mode switcher 212px
+   left the moment you entered Composer — the same jump this whole arrangement
+   exists to stop. Holding its box keeps the switcher still; the chip is
+   unreachable and invisible either way. */
+body.mode-composer #app-bar-tpl-btn { visibility: hidden; }
 
 /* ── Active Taste Profile pill ───────────────────────────────────────────
    Lives next to the Taste Profile button. Hidden until an active profile
@@ -295,6 +308,10 @@ body.mode-composer .active-profile-pill { display: none; }
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
+  /* Sole owner of the bar's free space — see the note on .app-bar's
+     justify-content. Nothing else in the row may take an auto margin, or the
+     slack splits and the switcher starts moving with the mode again. */
+  margin-left: auto;
 }
 
 .app-bar-icon-btn {
@@ -429,11 +446,6 @@ body.mode-composer .active-profile-pill { display: none; }
   display: flex;
   align-items: center;
   gap: 10px;
-  /* margin-right:auto collects the bar's slack to the right of the tools, so
-     brand+tools stay left-packed and .app-bar-utils stays right-packed. The
-     bar is justify-content:space-between, which would otherwise wedge the free
-     space between the brand and these menus. */
-  margin-right: auto;
   min-width: 0;
   font-family: 'Share Tech Mono', monospace;
 }
@@ -587,7 +599,6 @@ body.layout-a #template-gen-featured-btn { display: none; }
   .studio-menubar {
     order: 10;
     flex-basis: 100%;
-    margin-right: 0;
     flex-wrap: wrap;
     row-gap: 6px;
     border-top: 1px solid var(--hw-recessed, #c4bcac);
@@ -854,8 +865,23 @@ body.mode-composer #composer-mount .app-header .app-title { display: none; }
   }
 }
 
+/*
+   This rule used to be scoped to .layout-a, i.e. Perform only — which left
+   Studio on desktop as the one place still using the base nowrap flex row.
+   Measured in Studio at 1280px: 13 knobs × 102px = 1358px of content inside a
+   396px column, so **10 of the 13 were off-screen** behind a horizontal
+   scrollbar. That is precisely the failure the mobile rule above was written to
+   fix, and its comment already said the flex-row problem is identical in
+   Studio; the desktop scope simply never got the same treatment. Unscoping it
+   is the whole fix — the grid is the app's own existing answer, not a new idea.
+
+   Studio's column is narrower than Perform's stage, so auto-fill lands on 4
+   tracks instead of 3 and the rack is denser there. That is the right
+   difference between a performance surface and a workbench, and it falls out of
+   auto-fill rather than needing a second set of numbers.
+*/
 @media (min-width: 900px) {
-  .layout-a .variable-control-section.knob-mode .knobs-container {
+  .variable-control-section.knob-mode .knobs-container {
     display: grid !important;
     grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
     gap: 12px;
@@ -866,10 +892,44 @@ body.mode-composer #composer-mount .app-header .app-title { display: none; }
   }
 
   /* Items no longer need to resist shrinking — the grid handles sizing */
-  .layout-a .variable-control-section.knob-mode .knob-item {
+  .variable-control-section.knob-mode .knob-item {
     flex-shrink: unset;
     min-width: unset;
     width: 100%;
+  }
+
+  /* ── Studio: the same rack, one size down ────────────────────────────
+     Wrapping alone fixed the clipping but moved the cost rather than paying
+     it: at Perform's dimensions 13 knobs wrap to 5 rows and stand 719px tall,
+     which in an 800px viewport pushed the CONNECTIONS strip to y938 — off the
+     bottom. Perform can afford that height because the rack IS the screen
+     there; Studio is a workbench where the rack shares a column.
+
+     So Studio gets a denser knob: 52px dial instead of 68, tighter label and
+     name. That lands 4 per row instead of 3 and 4 rows instead of 5 — 446px
+     against 719px, which puts CONNECTIONS back above the fold. Nothing is
+     hidden and nothing scrolls sideways in either mode.
+
+     The drag target stays the dial wrapper at 52px, comfortably above the
+     44px touch minimum. Perform is deliberately untouched — it is the
+     across-the-room surface and wants the bigger dial. */
+  body:not(.layout-a) .variable-control-section.knob-mode .knobs-container {
+    grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+    gap: 10px;
+  }
+  body:not(.layout-a) .variable-control-section.knob-mode .knob-item { gap: 5px; }
+  body:not(.layout-a) .variable-control-section.knob-mode .knob-dial-wrapper {
+    width: 52px;
+    height: 52px;
+  }
+  body:not(.layout-a) .variable-control-section.knob-mode .knob-value-label {
+    padding: 3px 7px;
+    font-size: 10px;
+    border-radius: 6px;
+    max-width: 100%;
+  }
+  body:not(.layout-a) .variable-control-section.knob-mode .knob-var-name {
+    font-size: 9px;
   }
 }
 

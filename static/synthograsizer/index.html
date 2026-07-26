@@ -9,7 +9,7 @@
     <script src="js/debug-log.js?v=1"></script>
     <link rel="stylesheet" href="css/style.css?v=6">
     <link rel="stylesheet" href="css/code-overlay.css?v=2">
-    <link rel="stylesheet" href="css/layout-options.css?v=13">
+    <link rel="stylesheet" href="css/layout-options.css?v=16">
     <link rel="stylesheet" href="css/synth-hardware-theme.css?v=11">
     <link rel="stylesheet" href="css/cel-pastel-theme.css?v=8">
     <link rel="stylesheet" href="css/storyboard-panel.css?v=3">
@@ -425,6 +425,15 @@
             </button>
           </div>
 
+          <!-- id="layout-switcher" kept so mode-switching JS (and av/demo strip
+               logic) can find this group; buttons bind via .layout-btn -->
+          <nav class="app-bar-seg layout-switcher" id="layout-switcher" role="group" aria-label="Mode">
+            <!-- Perform is first: it's the default layout (see the layout switcher script). -->
+            <button class="layout-btn" data-layout="a" data-tip="Perform — minimal live layout" data-tip-pos="down">Perform</button>
+            <button class="layout-btn" data-layout="default" data-tip="Studio — full toolkit" data-tip-pos="down">Studio</button>
+            <button class="layout-btn" data-mode="composer" data-tip="Composer — 4-room agent studio" data-tip-pos="down">Composer</button>
+          </nav>
+
           <!-- ── AI Studio Tools ─────────────────────────────────────────────
                Sits in the app-bar's LEFT zone, Studio mode only (hidden in
                Perform/Composer, like the button grid it replaced). Template Gen
@@ -475,14 +484,6 @@
             </div>
           </nav>
 
-          <!-- id="layout-switcher" kept so mode-switching JS (and av/demo strip
-               logic) can find this group; buttons bind via .layout-btn -->
-          <nav class="app-bar-seg layout-switcher" id="layout-switcher" role="group" aria-label="Mode">
-            <!-- Perform is first: it's the default layout (see the layout switcher script). -->
-            <button class="layout-btn" data-layout="a" data-tip="Perform — minimal live layout" data-tip-pos="down">Perform</button>
-            <button class="layout-btn" data-layout="default" data-tip="Studio — full toolkit" data-tip-pos="down">Studio</button>
-            <button class="layout-btn" data-mode="composer" data-tip="Composer — 4-room agent studio" data-tip-pos="down">Composer</button>
-          </nav>
 
           <div class="app-bar-utils">
             <!-- Service-mode account pill / sign-in button (auth.js; empty locally) -->
