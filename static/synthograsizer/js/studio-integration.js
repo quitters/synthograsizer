@@ -1953,6 +1953,19 @@ class StudioIntegration {
         });
     }
 
+    /**
+     * Modal titles carry a leading emoji ('🎬 Smart Video Options', '⚡ Workflows').
+     * That reads fine on screen but a screen reader announces the emoji by name,
+     * so strip it — and any quotes — before it goes into an aria-label attribute.
+     */
+    plainText(s) {
+        return String(s)
+            .replace(/[\p{Extended_Pictographic}\p{Emoji_Presentation}️]/gu, '')
+            .replace(/["'<>&]/g, '')
+            .replace(/\s+/g, ' ')
+            .trim();
+    }
+
     createModal(id, title, contentHTML) {
         // Prevent duplicates
         const existing = document.getElementById(id);
@@ -1963,11 +1976,22 @@ class StudioIntegration {
         const modal = document.createElement('div');
         modal.className = 'studio-modal';
         modal.id = id;
+        // Dialog semantics live here because this element is the box itself
+        // (position:fixed, centred) — .studio-modal-content is only its padding
+        // wrapper. Focus behaviour is handled centrally by shared/js/modal-a11y.js,
+        // which observes the `active` class rather than hooking openModal(), so
+        // the three modals that bypass openModal() are covered too.
+        // The × is decorative: without aria-hidden the button's whole accessible
+        // name was "×", which is what a screen reader read out for all 12 modals.
+        modal.setAttribute('role', 'dialog');
+        modal.setAttribute('aria-modal', 'true');
+        modal.setAttribute('aria-labelledby', `${id}-title`);
+        modal.setAttribute('tabindex', '-1');
         modal.innerHTML = `
             <div class="studio-modal-content">
                 <div class="studio-modal-header">
-                    <h3>${title}</h3>
-                    <button class="studio-close-modal">&times;</button>
+                    <h3 id="${id}-title">${title}</h3>
+                    <button class="studio-close-modal" type="button" aria-label="Close ${this.plainText(title)}"><span aria-hidden="true">&times;</span></button>
                 </div>
                 <div class="studio-modal-body">${contentHTML}</div>
             </div>

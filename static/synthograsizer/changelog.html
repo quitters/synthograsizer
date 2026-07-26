@@ -290,6 +290,16 @@
         <span class="version-date">In Progress — 2026-07-20</span>
       </div>
       <div class="version-panel">
+        <div class="panel-section-label">Accessibility</div>
+        <ul class="entry-list">
+          <li class="entry-item">
+            <span class="entry-badge badge-fix">fix</span>
+            <div>
+              <div class="entry-text">Every dialog can now be used with the keyboard</div>
+              <div class="entry-sub">Opening a panel like Smart Transform, Image Studio or Workflows used to leave your keyboard behind: focus stayed on the page underneath, and pressing Tab walked through the app <em>behind</em> the dialog instead of into it. We measured it — with Smart Transform open, forty-eight presses of Tab never once reached one of its controls, because the first of them sat 63rd in line. Escape did nothing either. Now opening a dialog moves you straight into it, Tab cycles within it and wraps around, Escape closes it, and closing returns you to whatever you opened it from. Screen readers announce each dialog by name — previously all twelve of them announced nothing at all, and every close button read out as "times". The one deliberate exception is the terms screen on first sign-in: it holds focus and ignores Escape, because it's a consent step you shouldn't be able to skip by accident.</div>
+            </div>
+          </li>
+        </ul>
         <div class="panel-section-label">Hosted Service — synthograsizer.com is live</div>
         <ul class="entry-list">
           <li class="entry-item">
