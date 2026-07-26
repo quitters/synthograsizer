@@ -17,7 +17,7 @@ The service is **live on Cloud Run**. Companion docs: **[DEPLOY_CLOUDRUN.md](DEP
   5xx scrubbing; DSAR export/delete self-serve; hourly retention incl. orphan-refund janitor.
 - **Public domain**: `synthograsizer.com` → Vercel rewrite → Cloud Run. Apex 307s to `www.`, so
   **www is the effective origin**; both are on the OAuth client alongside the run.app URL.
-- Local installs (`SYNTH_AUTH` unset) unchanged. Suite: 194 tests (`python -m pytest tests/`).
+- Local installs (`SYNTH_AUTH` unset) unchanged. Suite: 281 tests (`python -m pytest tests/`).
 
 ## Deploy lessons already learned (now folded into the runbook)
 1. Run deploy **from inside `~/synthograsizer`** (a home-dir deploy builds via Buildpacks and fails).
@@ -165,22 +165,101 @@ pre-caches ~50 templates, and the cached branch had been skipping `updateHeaderB
 picker's display name onto each template as it loads — so saves land in My creations as
 "Spring Physics v2" rather than the generic "Image", without editing 54 JSON files.
 
+## Status 2026-07-25 — UX pass, deck tooling, and the client engine proven live ✅ DEPLOYED
+Serving revision **`synthograsizer-00038-nnm`**. Everything through `cff12ba` is live
+(`d6dee20` is docs-only). 281 tests green. The whole batch was frontend-only apart from one
+additive `/api/me` field; no schema change.
+
+### The recurring bug this pass was really about
+A walkthrough as a genuinely new hosted account found the same failure five times over: **state
+the app still had, discarded because nothing pointed at it any more.** Worth naming, because it
+is a design habit rather than five separate defects.
+- Workflow results were unreachable after pressing back — `_stepResults` and the media store are
+  only cleared by the *next* run, so a finished run sat in memory, intact, with its only entrance
+  (“View Results”) hidden inside the progress panel. Fixed with a **View results** bar on the
+  browse screen that also survives closing and reopening the modal (`09cedb8`).
+- A running workflow had no exit but closing the modal, which cancels it **silently**. There is
+  now a **■ Stop run** button, and closing mid-run says what happened and that the finished steps
+  are still available (`cff12ba`).
+- Typed workflow parameters were lost by stepping back to the template list. Now cached per
+  template for the session.
+- Results and Smart Transform output could be looked at but not kept. **Download** (ungated —
+  nothing uploads) and **Save** (signed in) now appear on workflow results, batch tiles, Smart
+  Transform results, and entries restored from the RECENT strip.
+- The Studio's RECENT strip was the *precedent* worth copying: it always restored past output.
+  Workflows simply had no equivalent.
+
+### Also shipped
+- **Smart Transform** defaulted to 1:1 (a 923×576 input came back 1024×1024) and to the most
+  expensive model with no price shown. Now defaults to **Match input** (`aspect_ratio="auto"`,
+  which `_generate_image_gemini` already honoured) and to Flash; the picker and Run button quote
+  the cost (**“Run Smart Transform — ⚡6”**) from `pricing.client_rates()` on `/api/me`, and a
+  test asserts each quote equals what `pricing.resolve()` actually charges.
+- **p5 viewer unit bug**: the iframe reported `c.width/c.height` (backing store = logical ×
+  pixelDensity) while the parent scaled via CSS transform (layout box). On a 2× display FILL
+  rendered at ~39% of its own viewer and FIT sized the window to twice the canvas. Now reports
+  `offsetWidth/offsetHeight`. Same line fixed in `av.html` and `demo.html`.
+- **Upload consent** no longer makes you pick the file twice — it keeps the selection and replays
+  the change event after you accept. Only drops still need re-dropping.
+- **Two dead menu items hidden on hosted** (`Metadata Manager` 404s — it's a gitignored static
+  surface not in the container; `Agent Chat Room` 503s) via a new `synth-no-localtools` root
+  class. Local installs keep them, since they work there.
+- **Deck tooling** (`scripts/spritesheet.py`, `scripts/cardgen.py`) + a **Card Style Kit**
+  workflow — see “Card deck pipeline” below.
+
+### Verified live, with real spend
+- **The client-side workflow engine works against real Gemini** — previously only ever exercised
+  against mocked `/api/*`. Card Style Kit ran 5 steps, 5 calls, all
+  `gemini-3.1-flash-image-preview`, zero ChatRoom calls. Charged **⚡25**, exactly the price table
+  (229 → 204, confirmed server-side).
+- **Smoke step 7 is effectively done.** All five results saved to My creations with correct
+  per-step labels, real byte counts, and working thumbnails (`has_thumb: true`,
+  `/api/artifacts/{id}/thumb` → 200 `image/jpeg`). Not yet exercised: item delete and the
+  account-delete-empties-the-GCS-prefix tail.
+- `/api/me` on the live domain confirms `storage: true` and the `rates` block.
+
+### Known, unfixed
+- **The credits badge under-reports after a workflow.** It read ⚡209 while the server said ⚡204
+  — stale by one call, because concurrent steps race and the last `X-Credits-Balance` header to
+  land wins. Fix: refresh from `/api/me` when a run completes.
+- **`card_style_kit`'s `style` param collides with a reserved name.** `WORKFLOW_PARAM_META` maps
+  `style` to the 53-entry preset dropdown, so it renders as a picker, not free text, and the
+  preset *id* reaches the prompt verbatim (`"…playing card, art_nouveau, antique gold…"`). It
+  worked only because `art_nouveau` happens to exist. Rename to a non-reserved param.
+
+## Card deck pipeline (`scripts/`)
+Restyling a sprite sheet in one Smart Transform call **does not work** — verified on a real 13×6
+solitaire deck: the grid geometry and styling survived beautifully, the *identities* did not
+(spades lost every pip, clubs became one repeated pattern, ranks came back duplicated and
+nonsensical). One image call cannot hold 78 distinct identities at ~98×133px each.
+
+What does work is splitting the problem by what actually needs an artist's eye:
+1. `spritesheet.py slice|assemble` — pixel-lossless round trip, writes a `sheet.json` manifest
+   (grid, cell size, which cells are flat-colour filler).
+2. **Card Style Kit** workflow — generates the 5 reusable pieces (frame + 4 suits) in one style.
+3. `cardgen.py deck --assets kit/` — composites the **40 pip cards** in code, so they are
+   identical by construction rather than 40 samples that drift. Generation is reserved for the 12
+   courts and the back, where variation is wanted. ~18 generations instead of 52.
+
+Gotcha found in the live run: generated symbols come back on **cream**, not white, and
+`cardgen.key_white`'s 238 threshold won't key it (cream's blue ≈ 214). Sampling the corner colour
+instead of assuming white is the robust fix, and is not yet done.
+
 ## Next steps, in order
-1. **Finish smoke — everything left needs real credits and a signed-in browser.** Nothing here
-   can be done from a dev machine; all of it is unrun:
-   - **A real multi-step workflow on live Gemini** (highest value — newest code path, verified
-     only against mocks, and it bills per step).
-   - Runbook §4 **step 7** (gallery: generate → Save → thumbnail → View → Delete → account
-     delete leaves the GCS prefix empty).
+1. **Accessibility and simplicity are the current headline goal** — see the section below. The
+   2026-07-25 pass fixed a class of *forgiveness* bug; the next pass should widen that to who can
+   actually use the app and how much it asks of a newcomer. Nothing here needs credits.
+2. **Two known defects from the live run**, both small: the stale credits badge after concurrent
+   workflow steps, and `card_style_kit`'s reserved `style` param. Details under
+   “Known, unfixed” above.
+3. **Finish smoke** — what's left needs real credits and a signed-in browser:
+   - Runbook §4 **step 7 tail**: item delete, and account delete leaving the GCS prefix empty.
+     (Generate → Save → thumbnail is now proven; five real artifacts are in the account.)
    - Runbook §4 **steps 4** (admin ∞ / Veo end-to-end) **and 5** (DSAR delete → re-signup grants
      fresh 300 — wants a throwaway Google account, since it deletes one).
-2. **Next feature slice** — ~~Save buttons on batch-grid & Smart Transform results~~ **shipped
-   2026-07-24, not yet deployed** (frontend-only, no backend change). Each batch tile captures
-   its own `generation_id` rather than reusing `lastGenerationId`: the artifacts endpoint checks
-   the id belongs to this account and produced media of this kind, so a shared id would silently
-   attach every save to whichever generation finished last and still return 200. Next slice is
-   the Stripe paid tier. (The 2026-07-20 slice — download, thumbnails, saved templates — shipped
-   07-22 and is deployed; see [HANDOFF_CLOUD_STORAGE.md](HANDOFF_CLOUD_STORAGE.md#roadmap--next-slice-requested-2026-07-20).)
+4. **Next feature slice** — the Stripe paid tier. (Save buttons everywhere and the 07-20 gallery
+   slice are both shipped and deployed; see
+   [HANDOFF_CLOUD_STORAGE.md](HANDOFF_CLOUD_STORAGE.md#roadmap--next-slice-requested-2026-07-20).)
    **Standing note:** auto-saving templates conflicts with two claims in Terms v0.3 ("nothing is
    saved unless you click Save" and "prompt text is never stored server-side" — a template *is*
    prompt text). Explicit Save needs no terms change; auto-save needs v0.4 and sign-off.
@@ -205,6 +284,35 @@ picker's display name onto each template as it loads — so saves land in My cre
    against Gemini on its own — hosting it means hosting that spend, so its Gemini calls have to
    be routed through credit metering *first*, or it is an uncapped bill. It stays local-only,
    with an honest message on hosted.
+
+## Standing goal — accessibility and simplicity
+The service works. The open question is now **who can use it, and how much it asks of someone
+who has just arrived.** Two strands, neither started:
+
+**Accessibility (never audited).** No pass has been made for keyboard navigation, focus order,
+ARIA, contrast, or screen readers, and the codebase makes that likely to be poor: modal chrome,
+result grids and studio panels are assembled from inline-styled `<div>`s with emoji as the only
+label (`⬇ Download`, `💾 Save`, `■ Stop run`, `←`, `⋯`). Concretely worth checking first:
+- Can the whole Studio → Smart Transform → result → Save path be driven with the keyboard alone?
+- Do modals trap focus, restore it on close, and close on Escape? (The ⋯ menu does; others unverified.)
+- Do the icon-only buttons have accessible names? `←` and `⋯` almost certainly do not.
+- Contrast on the low-emphasis greys (`#888`, `#999` on `#fafafa`) — used for every result caption.
+- The knob rack is drag-driven; is there a keyboard path to change a variable at all?
+
+**Simplicity (measured, not guessed).** A brand-new account lands in **Perform** mode, where the
+AI Studio Tools menu bar is deliberately hidden — so the first screen offers Randomize / Generate
+/ Run Code and 13 knobs, and everything else depends on knowing to click STUDIO. GENERATE does go
+straight to an image, which rescues it. Beyond that the surface is wide: 17 workflows, 53 style
+presets, 50+ templates, four studios, a connections strip. Candidates:
+- Reconsider the first-run landing (Perform hides the tools; Studio shows them).
+- The Workflows grid is 17 undifferentiated cards — no grouping, no "start here".
+- Smart Transform's modal asks for model, aspect, two file inputs and intent before anything runs.
+- Onboarding exists (taste-profile) but is a separate surface a newcomer may never reach.
+
+**Method that has worked here, and should continue:** measure before believing a UI claim
+(a "Perform mode wastes vertical space" note turned out false when measured), verify visibility
+with `offsetParent` + bounding rect rather than computed `display`, and check the four cohorts
+every time — local install, anonymous hosted, free hosted, admin.
 
 ## Tuning knobs (env only, no code)
 `SYNTH_MONTHLY_CREDITS` · `SYNTH_DAILY_BUDGET_USD` · `RATE_LIMIT_USER_REQUESTS` ·

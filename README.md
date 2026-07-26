@@ -228,8 +228,14 @@ on the hosted service, the tier gate actually hides local-only and paid surfaces
 Tools became a menu bar — all live, see
 [docs/HANDOFF_SERVICE_LAUNCH.md](docs/HANDOFF_SERVICE_LAUNCH.md).
 
-Save buttons now sit on batch-grid and Smart Transform results too, so every generated
-image can be kept, not just single generates.
+Every generated image can now be kept, wherever it appears — single generates, batch tiles,
+Smart Transform results, workflow results, and past generations reopened from the RECENT strip
+all carry Download and (signed in) Save. Workflow runs stay recoverable after you navigate away,
+and a running workflow can be stopped deliberately rather than only by closing the window.
+
+The current focus is **accessibility and simplicity** — the app works; the open question is who
+can use it and how much it asks of a newcomer. Starting points are in
+[docs/HANDOFF_SERVICE_LAUNCH.md](docs/HANDOFF_SERVICE_LAUNCH.md).
 
 Next up:
 

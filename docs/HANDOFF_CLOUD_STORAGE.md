@@ -8,7 +8,7 @@ keep-until-deleted quota-bounded, image/video/music scope). Code: `backend/servi
 162 tests green. GCS bucket + IAM live (see §"GCP setup" below — already run).
 
 **Deployed to Cloud Run 2026-07-20** (`SYNTH_GCS_BUCKET` + `SYNTH_TERMS_VERSION=v0.3`).
-Runbook smoke step 7 still unrun end-to-end.
+Smoke step 7 substantially proven 2026-07-25 — see the deploy note in the Roadmap section.
 
 **Known gaps, not yet done:**
 - ~~Save button wired into the main Studio `runSingle()` flow (image + video) only.~~ **Closed
@@ -16,7 +16,8 @@ Runbook smoke step 7 still unrun end-to-end.
   frontend-only as predicted. The one non-obvious part was that a batch tile must capture its
   own `generation_id` — reusing `lastGenerationId` would have attached every save to the
   last-finished generation and still returned 200, since the endpoint's ownership + action check
-  passes for any of the account's own image generations. Awaiting deploy.
+  passes for any of the account's own image generations. Deployed 2026-07-24; Download now sits
+  beside Save on those surfaces too, plus workflow results and restored RECENT entries.
 - Terms v0.3 copy is written (`static/terms/index.html`) but — like v0.2 before it — is an
   unreviewed draft; counsel review is still on the launch handoff's open list.
 
@@ -221,8 +222,10 @@ full 200 MB quota = 20 GB ≈ **$0.50/mo** — noise next to Cloud SQL. Signing 
 > **Deploy note:** this was a normal §2 → §2b → §2c (done 2026-07-23 12:44, revisions
 > 00014/00015/00016). Schema v3 auto-migrated at boot; the prod DB is small, the ALTER is instant.
 > Smoke step 7 (gallery) now also covers a thumbnail rendering and a template save→Load
-> round-trip — **and is still unrun end-to-end**, because it needs real credits and a signed-in
-> browser. That the routes exist proves the code shipped, not that the feature works.
+> round-trip. **Substantially proven 2026-07-25**: five real Card Style Kit generations were saved
+> from the live service, each with the right per-step label, real byte counts and working
+> thumbnails (`has_thumb: true`, `/api/artifacts/{id}/thumb` → 200 `image/jpeg`). Still
+> unexercised: per-item delete, and the account-delete-empties-the-GCS-prefix tail.
 
 Three follow-ups, ordered smallest-effort first. **#1 and #2 need no terms change; #3 does —
 read its consent note before building it.** *(Original plan preserved below for the design record.)*
