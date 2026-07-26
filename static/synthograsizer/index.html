@@ -9,9 +9,9 @@
     <script src="js/debug-log.js?v=1"></script>
     <link rel="stylesheet" href="css/style.css?v=6">
     <link rel="stylesheet" href="css/code-overlay.css?v=2">
-    <link rel="stylesheet" href="css/layout-options.css?v=11">
+    <link rel="stylesheet" href="css/layout-options.css?v=12">
     <link rel="stylesheet" href="css/synth-hardware-theme.css?v=10">
-    <link rel="stylesheet" href="css/cel-pastel-theme.css?v=7">
+    <link rel="stylesheet" href="css/cel-pastel-theme.css?v=8">
     <link rel="stylesheet" href="css/storyboard-panel.css?v=3">
     <link rel="stylesheet" href="css/storyboard-panel-hardware-theme.css?v=3">
     <!-- Composer (third mode) — styles scoped via @scope (#composer-mount) so they don't leak into Studio/Perform -->
@@ -400,11 +400,21 @@
 <body>
     <div class="page-wrapper">
         <!-- ── App Bar — one row, three zones ──────────────────────────────
-             LEFT   identity + context: wordmark · template chip (the "open document")
+             LEFT   identity + context: wordmark · template chip (the "open
+                    document") · AI Studio Tools menus (Studio mode only)
              CENTER primary control:   Studio / Perform / Composer segment
              RIGHT  utilities:         profile pill · settings · ⋯ menu
-             The bar never wraps; labels collapse progressively at narrow widths.
-             Suite navigation (old floating navbar) now lives in the ⋯ menu. -->
+             Labels collapse progressively at narrow widths; the only thing that
+             wraps is the tools group, onto its own row below 1620px.
+             Suite navigation (old floating navbar) now lives in the ⋯ menu.
+
+             The tools menus used to be a second full-width band under this one.
+             Measured on the live service at 2174px, that band was 74% empty
+             (content ran to x569 of 2174) in the same colour as this bar with a
+             20px gap between — reading as a second row of chrome that mostly
+             wasn't there. Folding it in here removes a whole band and lets the
+             menus inherit this bar's type treatment instead of near-missing it
+             (they were 11.5px/400/0.92px against this bar's 11px/700/1.32px). -->
         <header class="app-bar">
           <div class="app-bar-brand">
             <span class="app-bar-logo">SYNTHOGRASIZER</span>
@@ -414,6 +424,56 @@
               <span class="app-bar-tpl-caret" aria-hidden="true">▾</span>
             </button>
           </div>
+
+          <!-- ── AI Studio Tools ─────────────────────────────────────────────
+               Sits in the app-bar's LEFT zone, Studio mode only (hidden in
+               Perform/Composer, like the button grid it replaced). Template Gen
+               keeps its featured accent treatment even though the primary
+               button row carries it too: the menus are the complete index of
+               what the app can do, the big buttons are fast paths to the common
+               ones, and that redundancy is deliberate. Every item keeps its
+               studio-*-btn id, so the bindSafe() wiring and the tier-gate CSS
+               rules apply unchanged — this is a relocation, not a rewrite. -->
+          <nav class="studio-menubar" id="studio-menubar" aria-label="AI Studio Tools">
+            <button type="button" class="smb-featured" id="studio-template-btn"
+                    data-tip="Generate a new template with AI" data-tip-pos="down">
+              <span class="smb-featured-icon" aria-hidden="true">🧩</span><span>Template Gen</span>
+            </button>
+            <span class="smb-sep" aria-hidden="true"></span>
+            <div class="smb-menus">
+              <div class="smb-menu" data-menu="generate">
+                <button type="button" class="smb-title" aria-haspopup="true" aria-expanded="false">Generate<span class="smb-caret" aria-hidden="true">▾</span></button>
+                <div class="smb-dropdown" role="menu" hidden>
+                  <button type="button" class="smb-item" id="studio-image-btn" role="menuitem"><span class="smb-i" aria-hidden="true">🎨</span>Image Studio</button>
+                  <button type="button" class="smb-item" id="studio-video-btn" role="menuitem"><span class="smb-i" aria-hidden="true">🎥</span>Video Studio</button>
+                  <button type="button" class="smb-item" id="studio-music-btn" role="menuitem"><span class="smb-i" aria-hidden="true">🎵</span>Music Studio</button>
+                </div>
+              </div>
+              <div class="smb-menu" data-menu="transform">
+                <button type="button" class="smb-title" aria-haspopup="true" aria-expanded="false">Transform<span class="smb-caret" aria-hidden="true">▾</span></button>
+                <div class="smb-dropdown" role="menu" hidden>
+                  <button type="button" class="smb-item" id="studio-transform-btn" role="menuitem"><span class="smb-i" aria-hidden="true">✨</span>Smart Transform</button>
+                  <button type="button" class="smb-item" id="studio-glitcher-btn" role="menuitem"><span class="smb-i" aria-hidden="true">✦</span>Glitcher Studio</button>
+                  <button type="button" class="smb-item" id="studio-analysis-btn" role="menuitem"><span class="smb-i" aria-hidden="true">🔍</span>Image Analysis</button>
+                </div>
+              </div>
+              <div class="smb-menu" data-menu="automate">
+                <button type="button" class="smb-title" aria-haspopup="true" aria-expanded="false">Automate<span class="smb-caret" aria-hidden="true">▾</span></button>
+                <div class="smb-dropdown" role="menu" hidden>
+                  <button type="button" class="smb-item" id="studio-workflow-btn" role="menuitem"><span class="smb-i" aria-hidden="true">⚡</span>Workflows</button>
+                  <button type="button" class="smb-item" id="studio-agent-btn" role="menuitem"><span class="smb-i" aria-hidden="true">🤖</span>Agent Studio</button>
+                  <button type="button" class="smb-item" id="studio-chat-btn" role="menuitem"><span class="smb-i" aria-hidden="true">💬</span>AI Chat</button>
+                </div>
+              </div>
+              <div class="smb-menu" data-menu="inspect">
+                <button type="button" class="smb-title" aria-haspopup="true" aria-expanded="false">Inspect<span class="smb-caret" aria-hidden="true">▾</span></button>
+                <div class="smb-dropdown" role="menu" hidden>
+                  <button type="button" class="smb-item" id="studio-metadata-btn" role="menuitem"><span class="smb-i" aria-hidden="true">📋</span>Metadata</button>
+                  <button type="button" class="smb-item" id="studio-trace-btn" role="menuitem"><span class="smb-i" aria-hidden="true">🔎</span>Trace Viewer</button>
+                </div>
+              </div>
+            </div>
+          </nav>
 
           <!-- id="layout-switcher" kept so mode-switching JS (and av/demo strip
                logic) can find this group; buttons bind via .layout-btn -->
@@ -462,52 +522,6 @@
           </div>
         </header>
 
-        <!-- ── AI Studio Tools menu bar ────────────────────────────────────
-             Classic menubar under the app-bar, Studio mode only (hidden in
-             Perform/Composer, like the button grid it replaces). Template Gen
-             is the featured accent button; the rest live in click-to-open
-             dropdowns. Every item keeps its studio-*-btn id so the existing
-             click bindings and the tier-gate hiding rules apply unchanged. -->
-        <nav class="studio-menubar" id="studio-menubar" aria-label="AI Studio Tools">
-          <button type="button" class="smb-featured" id="studio-template-btn"
-                  data-tip="Generate a new template with AI" data-tip-pos="down">
-            <span class="smb-featured-icon" aria-hidden="true">🧩</span><span>Template Gen</span>
-          </button>
-          <span class="smb-sep" aria-hidden="true"></span>
-          <div class="smb-menus">
-            <div class="smb-menu" data-menu="generate">
-              <button type="button" class="smb-title" aria-haspopup="true" aria-expanded="false">Generate<span class="smb-caret" aria-hidden="true">▾</span></button>
-              <div class="smb-dropdown" role="menu" hidden>
-                <button type="button" class="smb-item" id="studio-image-btn" role="menuitem"><span class="smb-i" aria-hidden="true">🎨</span>Image Studio</button>
-                <button type="button" class="smb-item" id="studio-video-btn" role="menuitem"><span class="smb-i" aria-hidden="true">🎥</span>Video Studio</button>
-                <button type="button" class="smb-item" id="studio-music-btn" role="menuitem"><span class="smb-i" aria-hidden="true">🎵</span>Music Studio</button>
-              </div>
-            </div>
-            <div class="smb-menu" data-menu="transform">
-              <button type="button" class="smb-title" aria-haspopup="true" aria-expanded="false">Transform<span class="smb-caret" aria-hidden="true">▾</span></button>
-              <div class="smb-dropdown" role="menu" hidden>
-                <button type="button" class="smb-item" id="studio-transform-btn" role="menuitem"><span class="smb-i" aria-hidden="true">✨</span>Smart Transform</button>
-                <button type="button" class="smb-item" id="studio-glitcher-btn" role="menuitem"><span class="smb-i" aria-hidden="true">✦</span>Glitcher Studio</button>
-                <button type="button" class="smb-item" id="studio-analysis-btn" role="menuitem"><span class="smb-i" aria-hidden="true">🔍</span>Image Analysis</button>
-              </div>
-            </div>
-            <div class="smb-menu" data-menu="automate">
-              <button type="button" class="smb-title" aria-haspopup="true" aria-expanded="false">Automate<span class="smb-caret" aria-hidden="true">▾</span></button>
-              <div class="smb-dropdown" role="menu" hidden>
-                <button type="button" class="smb-item" id="studio-workflow-btn" role="menuitem"><span class="smb-i" aria-hidden="true">⚡</span>Workflows</button>
-                <button type="button" class="smb-item" id="studio-agent-btn" role="menuitem"><span class="smb-i" aria-hidden="true">🤖</span>Agent Studio</button>
-                <button type="button" class="smb-item" id="studio-chat-btn" role="menuitem"><span class="smb-i" aria-hidden="true">💬</span>AI Chat</button>
-              </div>
-            </div>
-            <div class="smb-menu" data-menu="inspect">
-              <button type="button" class="smb-title" aria-haspopup="true" aria-expanded="false">Inspect<span class="smb-caret" aria-hidden="true">▾</span></button>
-              <div class="smb-dropdown" role="menu" hidden>
-                <button type="button" class="smb-item" id="studio-metadata-btn" role="menuitem"><span class="smb-i" aria-hidden="true">📋</span>Metadata</button>
-                <button type="button" class="smb-item" id="studio-trace-btn" role="menuitem"><span class="smb-i" aria-hidden="true">🔎</span>Trace Viewer</button>
-              </div>
-            </div>
-          </div>
-        </nav>
 
         <div class="synthograsizer-small">
             <!-- Header -->

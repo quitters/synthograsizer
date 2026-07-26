@@ -407,26 +407,31 @@ body.mode-composer .active-profile-pill { display: none; }
   color: #2e2418;
 }
 
-/* ── AI Studio Tools menu bar ─────────────────────────────────────────────
-   A classic desktop-style menubar directly under the app-bar, replacing the
-   old grid of large buttons. Shown in Studio mode only — hidden in Perform
-   (minimal live layout) and Composer, matching the grid it replaced. Base
-   look here (hardware theme); cel-pastel reskins in cel-pastel-theme.css. */
+/* ── AI Studio Tools ──────────────────────────────────────────────────────
+   Lives inside the app-bar's LEFT zone, after the brand. Shown in Studio mode
+   only — hidden in Perform (minimal live layout) and Composer, matching the
+   grid it replaced. Base look here (hardware theme); cel-pastel reskins in
+   cel-pastel-theme.css.
+
+   This was a second full-width band under the app-bar until 2026-07-25.
+   Measured on the live service at 2174px it was 74% empty — content ran to
+   x569 of 2174 — in the same colour as the app-bar with a 20px gap between,
+   so it read as a row of chrome that mostly wasn't there. Folding it into the
+   bar removes the band and, more importantly, lets these controls inherit the
+   bar's own type treatment: they had been 11.5px/400/0.92em-ish against the
+   bar's 11px/700/0.12em, near-miss values that read as sloppy rather than
+   deliberate. Geometry only — no id, binding or dropdown behaviour changed. */
 .studio-menubar {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 5px 20px;
-  /* Span the full frame width, flush under the app-bar. .page-wrapper centers
-     its children, so without this the bar shrinks to its content and floats. */
-  width: 100%;
-  box-sizing: border-box;
-  background: var(--hw-chassis, #cbb994);
-  border-bottom: 1px solid var(--hw-recessed, #a89575);
+  gap: 10px;
+  /* margin-right:auto collects the bar's slack to the right of the tools, so
+     brand+tools stay left-packed and .app-bar-utils stays right-packed. The
+     bar is justify-content:space-between, which would otherwise wedge the free
+     space between the brand and these menus. */
+  margin-right: auto;
+  min-width: 0;
   font-family: 'Share Tech Mono', monospace;
-  position: relative;
-  z-index: 40;
-  flex-wrap: wrap;
 }
 body.layout-a .studio-menubar,
 body.mode-composer .studio-menubar { display: none; }
@@ -435,7 +440,10 @@ body.mode-composer .studio-menubar { display: none; }
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  padding: 6px 14px;
+  height: var(--ab-h, 34px);       /* match every other control in the bar */
+  box-sizing: border-box;
+  flex-shrink: 0;
+  padding: 0 14px;
   background: var(--hw-accent, #3dbdad);
   color: #08201d;
   border: 1.5px solid rgba(0, 0, 0, 0.28);
@@ -460,7 +468,7 @@ body.mode-composer .studio-menubar { display: none; }
   opacity: 0.6;
 }
 
-.smb-menus { display: flex; align-items: center; gap: 2px; flex-wrap: wrap; }
+.smb-menus { display: flex; align-items: center; gap: 2px; min-width: 0; }
 .smb-menu { position: relative; }
 .smb-menu.smb-empty { display: none; }
 
@@ -468,13 +476,18 @@ body.mode-composer .studio-menubar { display: none; }
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 6px 12px;
+  height: var(--ab-h, 34px);
+  box-sizing: border-box;
+  padding: 0 13px;
   background: transparent;
   border: 1px solid transparent;
   border-radius: 4px;
-  font: inherit;
-  font-size: 11.5px;
-  letter-spacing: 0.08em;
+  /* Deliberately the app-bar segmented control's metrics, not near-misses of
+     them — these two groups sit on the same row and must read as one family. */
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--hw-text, #4a4030);
   cursor: pointer;
@@ -489,7 +502,12 @@ body.mode-composer .studio-menubar { display: none; }
 
 .smb-dropdown {
   position: absolute;
-  top: calc(100% + 4px);
+  /* Same offset as .app-bar-menu (the ⋯ dropdown) so the two dropdown families
+     on this bar behave identically. Both overlap the bar's lower edge slightly;
+     that is the established look here, and matching it beat making these flush,
+     which would have singled them out beside their own neighbour — and needed
+     per-theme border/shadow math to boot. */
+  top: calc(100% + 6px);
   left: 0;
   min-width: 190px;
   background: var(--hw-panel, #ede6d8);
@@ -530,8 +548,42 @@ body.mode-composer .studio-menubar { display: none; }
 .primary-btn.template-gen-btn:hover { filter: brightness(1.06); }
 body.layout-a #template-gen-featured-btn { display: none; }
 
-/* ── Collapse ladder — the bar NEVER wraps; labels shed instead ────────── */
+/* ── Collapse ladder — labels shed before anything else gives ───────────
+   The bar holds one row and sheds labels down to phone widths. The single
+   exception is the Studio tools group, which wraps onto its own row below
+   1620px rather than being crushed — see the rung directly below for why. */
 
+/* The tools share the bar's row only when there is genuinely room for them.
+   Measured for the widest cohort — hosted and signed in (account + profile
+   pills, calibrated against the live bar's 359px of utils) with a long template
+   name ("SVG FLOW PARTICLES") — the four zones need 1621px: brand 373 + tools
+   551 + seg 256 + utils 359 + 82 of padding and gaps. Below that the bar wraps
+   and the tools take their own full-width row: the band they used to be.
+   The single biggest term is the featured Template Gen chip at 145px; moving it
+   into the Generate dropdown would drop the requirement to ~1460px.
+
+   Two things this rung must not be lowered past without re-measuring. Letting
+   flexbox shrink the tools instead of wrapping them is not a graceful
+   degradation, it is a broken layout — at 560px the container crushed to 3px
+   while its buttons overflowed and drew straight over the mode switcher. And
+   the container's own rect reports "no collision" the whole time it happens,
+   so this has to be verified against the BUTTONS, not the wrapper.
+
+   The merge is therefore a wide-screen win specifically. That is the honest
+   scope of it: at these narrower widths the band was never the problem, since
+   a narrow screen leaves it no room to be 74% empty. */
+@media (max-width: 1620px) {
+  .app-bar { flex-wrap: wrap; row-gap: 8px; }
+  .studio-menubar {
+    order: 10;
+    flex-basis: 100%;
+    margin-right: 0;
+    flex-wrap: wrap;
+    row-gap: 6px;
+    border-top: 1px solid var(--hw-recessed, #c4bcac);
+    padding-top: 8px;
+  }
+}
 @media (max-width: 1180px) {
   .app-bar-tpl-name { max-width: 130px; }
   .active-profile-pill-name { max-width: 100px; }
