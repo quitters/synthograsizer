@@ -235,6 +235,21 @@
       line-height: 1.5;
     }
 
+    /* Inline code and key names. Both were unstyled, and since the body copy is
+       already monospace at this size they rendered indistinguishable from the
+       prose around them — a <kbd>T</kbd> read as the word T. */
+    .entry-sub code,
+    .entry-sub kbd {
+      background: var(--hw-panel);
+      border: 1px solid var(--hw-recessed);
+      border-radius: 3px;
+      padding: 0 4px;
+      font-family: inherit;
+      font-size: 0.95em;
+      white-space: nowrap;
+    }
+    .entry-sub kbd { box-shadow: 1px 1px 0 var(--hw-recessed); font-weight: 700; }
+
     /* Section divider inside a panel */
     .panel-section-label {
       font-family: var(--font-label);
@@ -302,6 +317,27 @@
         </ul>
         <div class="panel-section-label">Interface</div>
         <ul class="entry-list">
+          <li class="entry-item">
+            <span class="entry-badge badge-fix">fix</span>
+            <div>
+              <div class="entry-text">All your knobs are visible in Studio again — ten of thirteen were hidden</div>
+              <div class="entry-sub">In Studio the knob rack was laid out as one long row that didn't wrap, inside a column far too narrow to hold it. With a typical template that meant three knobs on screen and <strong>ten off the side</strong>, reachable only by scrolling sideways in a thin strip most people would never think to drag. They now wrap to fill the space, so every variable in your template is visible at once. Studio's knobs are a little smaller than Perform's — Studio is a workbench where the rack shares the column with everything else, while Perform is meant to be read from across a room. Simply wrapping them at Perform's size would have pushed the Connections panel off the bottom of the screen, so this trades a slightly smaller dial for being able to see the whole instrument.</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-fix">fix</span>
+            <div>
+              <div class="entry-text">Perform / Studio / Composer stays where you left it</div>
+              <div class="entry-sub">The mode switcher used to slide a long way across the top bar the moment you used it — several hundred pixels between Studio and Perform, and again into Composer — because it was being pushed around by whatever else happened to be in the bar for that mode. It now sits in a fixed spot next to the app name and doesn't move at all, so the button you just clicked is still under your cursor.</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-fix">fix</span>
+            <div>
+              <div class="entry-text">Small things in the top bar that didn't match</div>
+              <div class="entry-sub">Template Gen had a thinner outline and a paler shadow than every other control beside it, so it read as though it belonged to a different toolbar. The mode switcher's frame was a slightly lighter shade than its neighbours'. The settings and ⋯ buttons were quietly rendering in a different typeface from the rest of the app. And <strong>Template Gen never showed its keyboard shortcut</strong> — pressing <kbd>T</kbd> has always opened it, and every other button in that row advertises its key, so the one that stayed silent looked like it didn't have one. All four now match.</div>
+            </div>
+          </li>
           <li class="entry-item">
             <span class="entry-badge badge-fix">fix</span>
             <div>
