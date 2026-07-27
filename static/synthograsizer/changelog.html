@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Synthograsizer — Change Notes</title>
   <link rel="icon" type="image/png" href="assets/favicon.png">
-  <link rel="stylesheet" href="css/synth-hardware-theme.css?v=8">
+  <link rel="stylesheet" href="css/synth-hardware-theme.css?v=9">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Bungee&family=VT323&family=Share+Tech+Mono&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -310,8 +310,46 @@
           <li class="entry-item">
             <span class="entry-badge badge-fix">fix</span>
             <div>
+              <div class="entry-text">The app now tells you when a run has finished, and offers to take you to it</div>
+              <div class="entry-sub">Starting something in the Studio used to end in silence. You'd open Smart Transform, press Run, and the dialog would close — putting you back on the menu you came from while the picture appeared somewhere else entirely, with nothing said about it. If you couldn't see the screen, or you'd looked away during a run that takes the better part of a minute, there was no signal that it had finished at all, let alone where the output went. Now the output panel carries a line saying what happened — <em>"Smart Transform complete — 4 results"</em>, or what went wrong if it failed — screen readers announce it, and a <strong>Jump to results</strong> button appears one Tab press from wherever you are. Pressing it takes you to the output; ignoring it costs you nothing. Your place is never taken from you: we deliberately don't move you to the results by force, because there's nothing worse than being yanked somewhere else just as you'd started doing something else. The same goes for batches, workflows and failures.</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-fix">fix</span>
+            <div>
+              <div class="entry-text">The P5 canvas panel no longer catches your keyboard while it's closed</div>
+              <div class="entry-sub">The sketch panel was only ever hidden by being made transparent, which means that as far as the keyboard was concerned it was still there. Tabbing to the end of the page walked you through ten controls of a panel that wasn't on screen — Play, Stop, the effect sliders — with no way to tell where you were. That's fixed: while it's closed it's properly gone. And while it's open it now behaves like the dialogs do — opening it takes you into it, Escape closes it, and closing hands you back to whatever you opened it from. Unlike a dialog it doesn't hold onto you, so you can Tab back out to the rest of the app while your sketch keeps running, which is the whole point of it being a panel rather than a window.</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-fix">fix</span>
+            <div>
+              <div class="entry-text">The focus outline is thick enough to find</div>
+              <div class="entry-sub">The outline marking which control your keyboard is on was a single hairline, which on many screens rendered thinner than the width of one pixel. It's now twice that, matching what the Glitcher already used, so the Suite draws one outline rather than two.</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-fix">fix</span>
+            <div>
               <div class="entry-text">Every dialog can now be used with the keyboard</div>
               <div class="entry-sub">Opening a panel like Smart Transform, Image Studio or Workflows used to leave your keyboard behind: focus stayed on the page underneath, and pressing Tab walked through the app <em>behind</em> the dialog instead of into it. We measured it — with Smart Transform open, forty-eight presses of Tab never once reached one of its controls, because the first of them sat 63rd in line. Escape did nothing either. Now opening a dialog moves you straight into it, Tab cycles within it and wraps around, Escape closes it, and closing returns you to whatever you opened it from. Screen readers announce each dialog by name — previously all twelve of them announced nothing at all, and every close button read out as "times". The one deliberate exception is the terms screen on first sign-in: it holds focus and ignores Escape, because it's a consent step you shouldn't be able to skip by accident.</div>
+            </div>
+          </li>
+        </ul>
+        <div class="panel-section-label">Fixes</div>
+        <ul class="entry-list">
+          <li class="entry-item">
+            <span class="entry-badge badge-fix">fix</span>
+            <div>
+              <div class="entry-text">Your credit balance is correct again after a workflow</div>
+              <div class="entry-sub">A workflow runs several steps at once, and the badge was showing whichever step happened to answer last rather than the true remaining balance — so it could read five credits higher than what you actually had. It now re-checks with the server when a run finishes. Batches did the same thing, and are fixed too.</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-fix">fix</span>
+            <div>
+              <div class="entry-text">Card Style Kit asks for a deck style instead of showing the wrong menu</div>
+              <div class="entry-sub">This workflow wanted a description of the look you're after, but it was borrowing a field name reserved for the 53-item style-preset picker — so it offered you that menu instead of a text box, and then passed the preset's internal id straight into the prompt. Runs came out asking for <code>art_nouveau</code>, underscore and all. It's now its own field: type the look you want in plain words.</div>
             </div>
           </li>
         </ul>
