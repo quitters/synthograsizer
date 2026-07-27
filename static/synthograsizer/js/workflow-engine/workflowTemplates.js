@@ -1104,12 +1104,19 @@ register(
   {
     name: 'Card Style Kit',
     description: 'Generate the reusable pieces of a styled playing-card deck — a blank card frame and the four suit symbols — ready to composite into all 40 pip cards with scripts/cardgen.py.',
-    requiredParams: ['style'],
+    // `deck_style`, not `style`. `style` is a RESERVED param name: the runner's
+    // WORKFLOW_PARAM_META maps it to the 53-entry style-preset dropdown that
+    // style_transfer needs (it calls getPreset() and rejects anything else). A
+    // deck's look is free text, so borrowing the name rendered a picker instead
+    // of a text field AND pushed the preset *id* into the prompt verbatim —
+    // "…playing card, art_nouveau, …". It only ever looked fine because
+    // `art_nouveau` happens to read like English.
+    requiredParams: ['deck_style'],
     optionalParams: ['palette'],
   },
   (params) => {
-    const { style, palette = '' } = params;
-    const look = `${style}${palette ? `, ${palette} colour palette` : ''}`;
+    const { deck_style, palette = '' } = params;
+    const look = `${deck_style}${palette ? `, ${palette} colour palette` : ''}`;
 
     // Flat, centred, white-ground symbols: cardgen keys near-white out on load,
     // so a plain background is what makes the art droppable onto a frame.
@@ -1145,7 +1152,7 @@ register(
       symbol('diamond', 'diamond'),
     ];
 
-    return { name: `Card Style Kit: ${style}`, steps };
+    return { name: `Card Style Kit: ${deck_style}`, steps };
   }
 );
 
