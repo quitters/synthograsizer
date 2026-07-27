@@ -371,6 +371,112 @@ change, terms still v0.3. Verified: 4/4 changed static files MATCH the run.app o
   caption greys are still **3.4:1** and **2.7:1** against `#fafafa` (AA body text wants 4.5:1;
   `#767676` is the darkest grey that passes).
 
+## Status 2026-07-27 — the second accessibility slice: runs that say what happened ⏳ NOT YET DEPLOYED
+Frontend only. **Zero changes under `backend/`, `scripts/`, `requirements.txt` or the Dockerfile**,
+no schema change, terms unchanged at v0.3. 281 tests green. Written against the goal below; closes
+open item 1 and two of the small ones, plus both known defects from 2026-07-25.
+
+### The `→ result → Save` leg now announces (open item 1)
+Measured first: `#studio-result` had **no live region anywhere near it** — the page's only three
+were `error-message`, `json-status` and `knob-announcer`, none covering studio output. A run
+finished into silence.
+- **`announceResult(summary)`** on `studio-integration.js`, called from the five render choke
+  points (Smart Transform, single image, single video, both batch grids) plus `showError` and
+  `workflow_complete`. Choke points, not call sites — same reasoning as `modal-a11y.js`.
+- Three surfaces because they serve different people: a **visible** status line in the result
+  header, a polite `#studio-announcer` live region, and a **Jump to results** chip.
+- `#studio-announcer` is parked on `<body>`, deliberately **not** inside `#studio-result`: that
+  container is `display:none` until a run finishes, and a live region that is inside a
+  `display:none` subtree when its text changes is not reliably announced. `#knob-announcer` is the
+  existing precedent for this placement.
+- **Focus is never moved automatically** (Alexander's call, of three options offered). The region
+  is a named landmark, so a screen-reader user reaches it with one landmark keystroke; everyone
+  else gets an affordance they can ignore.
+- `showLoading()` clears the previous run's summary and chip, and updates the *visible* line only —
+  it is called once per item inside batch loops, so announcing there would talk over the run.
+
+### The jump chip's placement is measured, not modelled
+The chip is inserted in the DOM immediately after whatever has focus, so it is the **next Tab
+stop**, and is `position:fixed` so that placement costs no layout wherever it lands.
+- First attempt climbed out of the whole app-bar "to be safe" and put the chip **32 tab stops
+  away** — a chip in name only.
+- Second attempt guarded a hardcoded `.mode-toggle`; the element is actually
+  `.control-mode-toggle`, so the guard never fired. It only *looked* fine because the chip landed
+  *between* the two segmented buttons, leaving `:first-child`/`:last-child` intact by luck.
+- Now it **measures the consequence**: place the chip, compare the siblings' computed
+  radius/margin/border before and after, relocate if anything moved. A ladder — beside focus, then
+  past its container, then `<body>`. Verified both ways: ordinary app-bar button → distance 1;
+  last `.mode-toggle-btn` → relocated one rung, distance still 1, and the deliberate
+  `10 4 4 10` / `4 10 10 4` radii preserved. This cannot go stale when a class is renamed, which
+  the hardcoded version already had.
+
+### The p5 canvas panel (Alexander: it is a feature that pops up, treat it as one)
+- **It leaked 10 controls into the tab order while closed** — positions **42–51 of 51** on the
+  default screen. Hidden with `opacity:0; pointer-events:none` only, which does not affect
+  focusability. ⚠ The usual visibility probe does not catch this: the panel is `position:fixed`, so
+  an `offsetParent` test exempts it and calls it visible — `modal-a11y.js`'s own `visible()` helper
+  counts all ten as visible.
+- Fixed twice over: `visibility:hidden` in CSS, **and** `inert` set from observable state in
+  `modal-a11y.js`. The belt is not redundancy for its own sake — see the method note below.
+- `modal-a11y.js` grew a **panel** mode (`[data-a11y-panel]`): focus-in, Escape, focus-restore,
+  **but deliberately no focus trap**. Trapping a non-modal panel would strand you inside it, and
+  Tabbing back out to the app while a sketch keeps running is the whole point of a panel.
+  Focus-restore additionally only fires if focus is still inside the panel.
+- `p5-close-v6` and `close-studio-result` both named.
+
+### Also
+- **Focus ring 1px → 2px** in `synth-hardware-theme.css`. Promoted from nicety to prerequisite:
+  it is the answer to "where did my focus go" once the app starts inviting keyboard users to
+  travel somewhere. Matches the 2px the Glitcher sheets already used.
+- **Credits badge** (known defect 1): new `SynthAuth.refreshCredits()` — bare `GET /api/me` →
+  `updateCreditsBadge`, called on workflow and batch completion. ⚠ **Deliberately not
+  `SynthAuth.refresh`**, which is `boot()` and calls `patchFetch()` unconditionally: using it here
+  would wrap `window.fetch` in another interception layer on *every completed run* — nested
+  handlers, duplicate 401/402 toasts, growing without bound. Not documented anywhere before.
+- **`card_style_kit`** (known defect 2): `style` → `deck_style` in both copies of
+  `workflowTemplates.js` (`cmp`-verified identical after), plus a `WORKFLOW_PARAM_META` entry so it
+  renders as free text. Verified by building the template: the prompt now reads `art nouveau`, not
+  `art_nouveau`. **`style` stays reserved on purpose** — `style_transfer` calls `getPreset()` and
+  rejects anything not in the 53.
+- `auth.js` had **no cache-buster at all** on any page; it now has one, or the credits fix would
+  not have reached anyone.
+
+### Method notes (each cost real time)
+- **CSS transitions do not advance while the page is not compositing.** With the Browser pane
+  undisplayed, `opacity` and `visibility` sat frozen at their start values half a second after the
+  class changed, and `getAnimations()` showed three transitions permanently `running`. This is the
+  same family as the rAF lesson and it produced a *phantom bug*: it was diagnosed as a stuck
+  zero-duration-plus-delay transition and a CSS fix was written for it, with a comment asserting
+  that cause. Both were wrong. **The comment was corrected rather than left** — a false lesson in
+  the source is worse than no comment. The real lesson is the one now in `modal-a11y.js`: never let
+  correctness ride on a transition resolving, which is why `inert` is there.
+- **A negative test can be defeated by the same artifact.** Isolating the CSS half of the p5 fix by
+  neutralising it inline could not work either, because the inline change is itself transitioned.
+  `inert` alone was provable; the CSS half's isolated contribution was **not** verified — recorded
+  as unverified rather than claimed.
+- **A probe filtering on `outlineWidth` silently misses `outline:` shorthand**, which reports an
+  empty string. This briefly looked like the focus-ring rule not being loaded at all.
+- **Calling a render function directly skips what its caller always does.** Driving `runSingle()`
+  without the `showLoading()` that precedes it at every real call site produced "no chip appeared",
+  which was the test's fault, not the app's — `showJumpToResults()` correctly declines when the
+  result container is not active.
+
+### Verified
+On a local install, against **two real charged image generations** (not mocks): quiet during the
+run, `"Image ready in AI Studio Output."` in both the announcer and the visible line after it,
+chip present at **distance 1**, focus still on the launching control, chip click → focus lands in
+the region → chip removes itself. Closing the output clears both. 281 tests green.
+
+### ⏳ Still unverified — needs the Browser pane displayed
+Everything below was blocked by the non-compositing tab, **not** by a suspected defect:
+- Real Tab-traversal order after the fixes (the DOM-contract measurement is done and clean).
+- Rendered focus-ring width — `:focus-visible` does not match a scripted `.focus()`, so only the
+  cascade was confirmed (`outline: 2px solid var(--hw-accent)`).
+- The p5 panel's **open**-state behaviour: focus-in, Escape-closes, focus-restore. The closed-state
+  fix is verified; the open state could not be reached with transitions frozen.
+- Cohorts: local install done. Anonymous/free/admin hosted are unexercised — the changes are
+  auth-independent except `refreshCredits()`, which no-ops when signed out.
+
 ## Card deck pipeline (`scripts/`)
 Restyling a sprite sheet in one Smart Transform call **does not work** — verified on a real 13×6
 solitaire deck: the grid geometry and styling survived beautifully, the *identities* did not
@@ -393,9 +499,10 @@ instead of assuming white is the robust fix, and is not yet done.
 1. **Accessibility and simplicity are the current headline goal** — see the section below. The
    2026-07-25 pass fixed a class of *forgiveness* bug; the next pass should widen that to who can
    actually use the app and how much it asks of a newcomer. Nothing here needs credits.
-2. **Two known defects from the live run**, both small: the stale credits badge after concurrent
-   workflow steps, and `card_style_kit`'s reserved `style` param. Details under
-   “Known, unfixed” above.
+2. ~~**Two known defects from the live run**~~ — **both fixed 2026-07-27**, undeployed. The stale
+   credits badge now refreshes from `/api/me` on run completion, and `card_style_kit`'s `style`
+   param became `deck_style`. The third defect from that pass, cel-pastel's template chip keeping
+   the hardware shadow ink, is **still open and still unexplained** — deliberately not guessed at.
 3. **Finish smoke** — what's left needs real credits and a signed-in browser:
    - Runbook §4 **step 7 tail**: item delete, and account delete leaving the GCS prefix empty.
      (Generate → Save → thumbnail is now proven; five real artifacts are in the account.)
@@ -437,18 +544,29 @@ who has just arrived.** Two strands, neither started:
 which also corrects four of the guesses originally written below (`⋯` was already named, the
 Download/Save/Stop labels were never emoji-only, and there *is* a keyboard path to the knobs).
 The list is kept for the items still open:
-- ~~Can the Studio → Smart Transform → result → Save path be driven by keyboard alone?~~ The
-  **dialog** leg is fixed; the **result → Save** leg still announces nothing when a run finishes.
-- ~~Do modals trap focus, restore it on close, and close on Escape?~~ Done, all 12.
-- ~~Do the icon-only buttons have accessible names?~~ Close buttons done; `p5-close-v6` remains.
+- ~~Can the Studio → Smart Transform → result → Save path be driven by keyboard alone?~~ ~~The
+  **dialog** leg is fixed; the **result → Save** leg still announces nothing when a run finishes.~~
+  **Both legs done 2026-07-27** — see the status section above.
+- ~~Do modals trap focus, restore it on close, and close on Escape?~~ Done, all 12. The p5 canvas
+  **panel** got the same treatment minus the trap on 2026-07-27.
+- ~~Do the icon-only buttons have accessible names?~~ ~~Close buttons done; `p5-close-v6`
+  remains.~~ Done — `p5-close-v6` and `close-studio-result` both named 2026-07-27.
+- ~~Focus rings are the browser default (~0.67px)~~ — 2px as of 2026-07-27.
 - Contrast on the low-emphasis greys — **measured**: `#888` = 3.4:1, `#999` = 2.7:1 on `#fafafa`.
-  Both fail AA body text (4.5:1); `#999` fails even the 3:1 large-text bar. 77 occurrences.
+  Both fail AA body text (4.5:1); `#999` fails even the 3:1 large-text bar. **109 occurrences
+  across 16 files** (the 77 figure was scoped narrower). ⚠ Not a find-and-replace: some sit on
+  dark theme backgrounds where `#767676` would be *worse*, and four of the files are vendored
+  ChatRoom build artifacts or template JSON art content that must not be touched. Needs a
+  per-context measurement pass.
 - ~~Is there a keyboard path to the knob rack?~~ Yes — document-level arrow keys. It needs
   discoverability, a focus indicator and announcement, not building from scratch. Note
   `knob-controller.js` is an already-accessible implementation that nothing imports.
 - Still mouse-only: 13 knobs (`<div class="knob-item">`), 17 workflow cards
   (`<div class="wfr-template-card">`). Zero `tabindex` in workflow-runner, studio-integration or
-  auth.js.
+  auth.js. **This is the next slice.** Alexander's standing note (2026-07-27), to be carried into
+  it: the knobs must end up **visible and intuitive**, and the workflow cards want **a short
+  description of what each workflow actually accomplishes** — which also starts paying down the
+  "17 undifferentiated cards" simplicity item below.
 
 **Simplicity (measured, not guessed).** A brand-new account lands in **Perform** mode, where the
 AI Studio Tools menu bar is deliberately hidden — so the first screen offers Randomize / Generate
