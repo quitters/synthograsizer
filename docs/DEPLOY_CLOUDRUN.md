@@ -125,8 +125,10 @@ external ALB + serverless NEG instead (details in HANDOFF_SERVICE_LAUNCH.md step
    list checks this, and the failure is silent — a stale image serves fine, just as the previous
    release. Runs from a checkout of the deployed commit, no gcloud needed:
 ```bash
+cd ~/synthograsizer   # or your local clone — this check reads local files as well as the server
 RUN=https://synthograsizer-679278101913.northamerica-northeast1.run.app
 for f in $(git diff --name-only <last-deployed-sha>..HEAD -- static); do
+  [ -f "$f" ] || { echo "NO LOCAL FILE  $f   <- wrong directory, NOT a stale image"; continue; }
   curl -s -m 40 "$RUN${f#static}" | diff -q - <(tr -d '\r' < "$f") >/dev/null \
     && echo "MATCH  $f" || echo "STALE  $f"
 done
@@ -136,6 +138,20 @@ done
    and **strip `\r`** — the Windows working tree is CRLF and the container is LF, so a raw byte
    comparison reports a false mismatch of exactly one byte per line. `curl -w '%{size_download}'`
    against `wc -c` fails for the same reason; diff the content, don't compare sizes.
+
+   ⚠ **This check compares the server against your LOCAL files, so it fails in both directions
+   when the shell is in the wrong place — and both failures are quiet.** Run from `~` instead of
+   `~/synthograsizer` and every line prints `STALE`, because `diff` could not read the local side;
+   the `[ -f ]` guard above exists to say so out loud. Worse in the other direction: run it from a
+   checkout whose `<last-deployed-sha>` resolves to something older, and `git diff` yields a
+   *different, shorter* file list — printing a screen of reassuring `MATCH`es that never covered
+   the release you just shipped. Both happened on 2026-07-26, minutes apart.
+
+   Two habits that avoid it: `cd` into the clone as part of the command, and when the SHA is
+   awkward to resolve (a fresh Cloud Shell clone may not have it), **paste the file list literally**
+   rather than deriving it — `git diff --name-only <sha>..HEAD -- static` run once on the machine
+   that has the history, then hardcode the result into the loop. A literal list resolves nothing
+   and cannot silently shrink.
 
    This also answers "is the thing I'm looking at deployed?" *after* the fact — which is how the
    2026-07-24 deploy was confirmed when the handoff doc still claimed four commits were pending.
