@@ -475,10 +475,35 @@
     announce(); // 404 = local install: stay invisible
   }
 
+  /* Re-read the authoritative balance and repaint the badge.
+   *
+   * Exists because the badge is normally driven by the X-Credits-Balance header
+   * on each response, and concurrent requests race: a workflow fires several
+   * steps at once, and the header from whichever finished LAST wins rather than
+   * the lowest. Observed live on 2026-07-25 — the badge read ⚡209 while the
+   * server said ⚡204.
+   *
+   * Deliberately NOT `refresh` (= boot). boot() calls patchFetch()
+   * unconditionally, so calling it once per completed run would wrap
+   * window.fetch in another interception layer every time — nested handlers,
+   * duplicate 401/402 toasts, growing without bound. This does the one thing
+   * the caller actually wants, and is a no-op when signed out or unmetered. */
+  async function refreshCredits() {
+    if (!state.me) return;
+    try {
+      const r = await fetch('/api/me');
+      if (!r.ok) return;
+      const me = await r.json();
+      state.me = me;
+      if (me.credits && !me.credits.unlimited) updateCreditsBadge(me.credits.balance);
+    } catch (_) { /* a badge that stays stale is better than a thrown error */ }
+  }
+
   window.SynthAuth = {
     get me() { return state.me; },
     get active() { return !!(state.me || state.service); },
     refresh: boot,
+    refreshCredits: refreshCredits,
   };
 
   if (document.readyState === 'loading') {

@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="css/style.css?v=6">
     <link rel="stylesheet" href="css/code-overlay.css?v=2">
     <link rel="stylesheet" href="css/layout-options.css?v=16">
-    <link rel="stylesheet" href="css/synth-hardware-theme.css?v=11">
+    <link rel="stylesheet" href="css/synth-hardware-theme.css?v=12">
     <link rel="stylesheet" href="css/cel-pastel-theme.css?v=8">
     <link rel="stylesheet" href="css/storyboard-panel.css?v=3">
     <link rel="stylesheet" href="css/storyboard-panel-hardware-theme.css?v=3">
@@ -278,12 +278,27 @@
   box-shadow: 6px 6px 0 rgba(0,0,0,.15);
   border-radius: 4px;
   display: flex; flex-direction: column;
-  opacity: 0; pointer-events: none;
+  opacity: 0; pointer-events: none; visibility: hidden;
   transform: scale(.94) translateY(10px);
-  transition: opacity .18s, transform .18s;
+  /* visibility, not just opacity, is what takes this panel's controls out of
+     the tab order while it is closed. Measured 2026-07-27: opacity:0 leaves
+     them focusable, so a keyboard user walked 10 invisible controls at
+     positions 42-51 of 51 on the default screen. Note the usual probe does not
+     catch it either — the panel is position:fixed, so an offsetParent test
+     exempts it and calls it visible.
+     visibility is given a DURATION rather than a zero-duration-plus-delay.
+     Both hold the panel visible for the length of the fade; the duration form
+     is the better-trodden idiom and needs no per-state transition override,
+     since `visibility` interpolates as a step function and so reads `visible`
+     for the whole 180ms before flipping.
+     The tab order itself does NOT rest on this transition resolving — see the
+     `inert` handling in shared/js/modal-a11y.js. That belt exists because a
+     transition only advances while the page is compositing, so anything that
+     depends on one settling is a promise you cannot keep in a background tab. */
+  transition: opacity .18s, transform .18s, visibility .18s;
 }
 .p5-modal-v6.open {
-  opacity: 1; pointer-events: all;
+  opacity: 1; pointer-events: all; visibility: visible;
   transform: scale(1) translateY(0);
 }
 /* Titlebar */
@@ -1549,19 +1564,19 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
 
         <!-- Load app as ES6 module -->
-        <script src="/shared/js/auth.js" defer></script>
-        <script src="/shared/js/modal-a11y.js?v=1" defer></script>
+        <script src="/shared/js/auth.js?v=2" defer></script>
+        <script src="/shared/js/modal-a11y.js?v=3" defer></script>
         <script src="js/tier-gate.js" defer></script>
         <script type="module" src="js/app.js?v=23"></script>
         <script src="js/music-studio.js?v=2"></script>
         <script src="../metadata-manager/js/utils/metadata_extractor.js"></script>
         <script type="module" src="js/agent-profiles.js"></script>
         <script type="module" src="js/taste-profile-store.js"></script>
-        <script src="js/workflow-runner.js?v=6"></script>
+        <script src="js/workflow-runner.js?v=7"></script>
         <script src="js/trace-viewer.js?v=1"></script>
         <script src="js/agent-studio.js?v=5"></script>
         <script src="js/glitcher-studio.js?v=2"></script>
-        <script src="js/studio-integration.js?v=39"></script>
+        <script src="js/studio-integration.js?v=43"></script>
         <script src="js/backend-safety-panel.js?v=2"></script>
         <script src="js/upload-consent.js?v=1"></script>
         <script src="js/blob-bridge.js?v=2"></script>
@@ -1983,11 +1998,13 @@
         </script>
 
         <!-- ── P5.js In-Page Modal ── -->
-        <div class="p5-modal-v6" id="p5-modal-v6">
+        <div class="p5-modal-v6" id="p5-modal-v6"
+             data-a11y-panel role="region" aria-labelledby="p5-modal-title-v6">
             <div class="p5-titlebar-v6" id="p5-titlebar-v6">
                 <span class="p5-title-v6" id="p5-modal-title-v6">P5.js Canvas</span>
                 <span class="p5-badge-v6 stopped" id="p5-badge-v6">Stopped</span>
-                <button class="p5-close-v6" id="p5-close-v6">✕</button>
+                <button class="p5-close-v6" id="p5-close-v6" data-a11y-panel-close
+                        aria-label="Close P5.js Canvas"><span aria-hidden="true">✕</span></button>
             </div>
             <div class="p5-canvas-area-v6" id="p5-canvas-area-v6">
                 <div class="p5-placeholder-v6" id="p5-placeholder-v6">

@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="css/style.css?v=4">
     <link rel="stylesheet" href="css/code-overlay.css?v=2">
     <link rel="stylesheet" href="css/layout-options.css?v=7">
-    <link rel="stylesheet" href="css/synth-hardware-theme.css?v=7">
+    <link rel="stylesheet" href="css/synth-hardware-theme.css?v=8">
     <link rel="stylesheet" href="css/storyboard-panel.css?v=3">
     <link rel="stylesheet" href="css/storyboard-panel-hardware-theme.css?v=3">
     <link rel="stylesheet" href="css/av-mode.css?v=1">
@@ -248,12 +248,17 @@
   box-shadow: 6px 6px 0 rgba(0,0,0,.15);
   border-radius: 4px;
   display: flex; flex-direction: column;
-  opacity: 0; pointer-events: none;
+  opacity: 0; pointer-events: none; visibility: hidden;
   transform: scale(.94) translateY(10px);
-  transition: opacity .18s, transform .18s;
+  /* visibility, not just opacity, is what takes this panel's controls out of
+     the tab order while it is closed — opacity:0 leaves them focusable. The
+     tab order does not rest on this transition resolving, though; see the
+     `inert` handling in shared/js/modal-a11y.js and the fuller note in
+     index.html. */
+  transition: opacity .18s, transform .18s, visibility .18s;
 }
 .p5-modal-v6.open {
-  opacity: 1; pointer-events: all;
+  opacity: 1; pointer-events: all; visibility: visible;
   transform: scale(1) translateY(0);
 }
 /* Titlebar */
@@ -359,7 +364,7 @@
         <link rel="stylesheet" href="/shared/css/base.css">
         <div id="navbar-mount"></div>
         <script src="/shared/js/navbar.js?v=3"></script>
-        <script src="/shared/js/modal-a11y.js?v=1" defer></script>
+        <script src="/shared/js/modal-a11y.js?v=3" defer></script>
 
         <div class="synthograsizer-small">
             <!-- Header -->
@@ -1248,11 +1253,11 @@
         <script src="js/music-studio.js?v=2"></script>
         <script src="../metadata-manager/js/utils/metadata_extractor.js"></script>
         <script type="module" src="js/agent-profiles.js"></script>
-        <script src="js/workflow-runner.js?v=5"></script>
+        <script src="js/workflow-runner.js?v=6"></script>
         <script src="js/trace-viewer.js?v=1"></script>
         <script src="js/agent-studio.js?v=5"></script>
         <script src="js/glitcher-studio.js?v=2"></script>
-        <script src="js/studio-integration.js?v=37"></script>
+        <script src="js/studio-integration.js?v=41"></script>
         <script src="js/blob-bridge.js?v=2"></script>
 
         <!-- AV: layout locked to Perform (layout-a) + av-mode class -->
@@ -1270,11 +1275,13 @@
         <script src="js/av-mode.js?v=2"></script>
 
         <!-- ── P5.js In-Page Modal ── -->
-        <div class="p5-modal-v6" id="p5-modal-v6">
+        <div class="p5-modal-v6" id="p5-modal-v6"
+             data-a11y-panel role="region" aria-labelledby="p5-modal-title-v6">
             <div class="p5-titlebar-v6" id="p5-titlebar-v6">
                 <span class="p5-title-v6" id="p5-modal-title-v6">P5.js Canvas</span>
                 <span class="p5-badge-v6 stopped" id="p5-badge-v6">Stopped</span>
-                <button class="p5-close-v6" id="p5-close-v6">✕</button>
+                <button class="p5-close-v6" id="p5-close-v6" data-a11y-panel-close
+                        aria-label="Close P5.js Canvas"><span aria-hidden="true">✕</span></button>
             </div>
             <div class="p5-canvas-area-v6" id="p5-canvas-area-v6">
                 <div class="p5-placeholder-v6" id="p5-placeholder-v6">

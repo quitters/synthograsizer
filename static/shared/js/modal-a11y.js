@@ -34,6 +34,14 @@
   var CLOSE_SEL = '.studio-close-modal, .sy-gallery-close, [data-modal-close]';
   var FOCUS_SEL = 'a[href],button,input,select,textarea,[tabindex]:not([tabindex="-1"])';
 
+  /* Panels are the other kind of thing that pops up: the p5 canvas is the one
+   * that exists today. They are NOT modals — the app stays usable behind them,
+   * and a running sketch is the whole reason you would want to go back to it.
+   * So they get focus-in, Escape and focus-restore, but deliberately no focus
+   * trap: trapping a non-modal panel would strand you inside it. Marked in the
+   * markup with data-a11y-panel; open state is the `open` class. */
+  var PANEL_SEL = '[data-a11y-panel]';
+
   /* Visible = has a box AND is not display:none somewhere up the tree.
    * offsetParent is the cheap proxy for the latter, but it is also null for
    * position:fixed elements that are perfectly visible — hence the explicit
@@ -124,6 +132,50 @@
     }
   }
 
+  /* ── panels ────────────────────────────────────────────────────────────── */
+  var panelReturn = new WeakMap();   // panel -> element to restore focus to
+  var trackedPanels = [];
+
+  function openPanels() {
+    return Array.prototype.filter.call(document.querySelectorAll(PANEL_SEL), function (el) {
+      return el.isConnected && el.classList.contains('open');
+    });
+  }
+
+  function activatePanel(el) {
+    var prev = document.activeElement;
+    panelReturn.set(el, prev && prev !== document.body ? prev : null);
+    if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '-1');
+    el.inert = false;
+    /* Focus the panel itself, not its first control, so its name and role are
+     * announced before its contents — same reasoning as a dialog. Sync first,
+     * then one macrotask retry: the panel fades in via a CSS transition, and
+     * rAF would not fire at all in a hidden or throttled tab. */
+    if (!focusInto(el)) setTimeout(function () { focusInto(el); }, 0);
+  }
+
+  function deactivatePanel(el) {
+    var prev = panelReturn.get(el);
+    panelReturn['delete'](el);
+    /* Belt as well as braces. The CSS already takes a closed panel out of the
+     * tab order via visibility:hidden, but that correctness would then ride on
+     * a CSS transition resolving — and a transition only advances while the
+     * page is compositing. In a background or undisplayed tab it sits frozen at
+     * t=0 (measured: opacity and visibility both stuck at their start values
+     * half a second after the class changed), so a keyboard user in a tab that
+     * was never brought forward could still reach a panel that is not there.
+     * `inert` is the attribute meant for exactly this, is not transitionable,
+     * and resolves synchronously. The panel is pointer-events:none from the
+     * moment it starts fading, so going inert at once matches the mouse. */
+    el.inert = true;
+    /* Only pull focus back if it is still inside the panel we just closed.
+     * Unlike a modal, the user is free to Tab out and carry on working while
+     * the panel is open — if they did, focus is somewhere they chose and
+     * yanking it to the old trigger would be the rudeness this avoids. */
+    if (!el.contains(document.activeElement) && document.activeElement !== document.body) return;
+    if (prev && prev.isConnected && visible(prev)) focusInto(prev);
+  }
+
   /* Reconcile what is open against what we last saw. One pass handles opens,
    * closes, and several changing at once (openModal() closes all then opens
    * one, which lands here as a single batch). */
@@ -134,11 +186,40 @@
     tracked = now;
     closed.forEach(deactivate);
     opened.forEach(activate);
+
+    var pNow = openPanels();
+    var pOpened = pNow.filter(function (p) { return trackedPanels.indexOf(p) < 0; });
+    var pClosed = trackedPanels.filter(function (p) { return pNow.indexOf(p) < 0; });
+    trackedPanels = pNow;
+    pClosed.forEach(deactivatePanel);
+    pOpened.forEach(activatePanel);
+
+    /* Set inert from observable state on EVERY pass rather than only on the
+     * open->closed edge. A panel that starts closed and has never been opened
+     * has no edge to fire on, and that is the state the page loads in — which
+     * is precisely when the leak was measured. Idempotent, and one element. */
+    Array.prototype.forEach.call(document.querySelectorAll(PANEL_SEL), function (p) {
+      var shouldBeInert = pNow.indexOf(p) < 0;
+      if (p.inert !== shouldBeInert) p.inert = shouldBeInert;
+    });
   }
 
   /* ── keyboard ──────────────────────────────────────────────────────────── */
   document.addEventListener('keydown', function (e) {
     var open = openModals();
+
+    /* Panels only when no modal is open — a modal on top owns the keyboard.
+     * Escape is handled only while focus is actually inside the panel, so the
+     * app's other Escape handlers still see the key everywhere else. */
+    if (!open.length && e.key === 'Escape') {
+      var panels = openPanels();
+      for (var i = panels.length - 1; i >= 0; i--) {
+        if (!panels[i].contains(document.activeElement)) continue;
+        var pClose = closeControl(panels[i]) || panels[i].querySelector('[data-a11y-panel-close]');
+        if (pClose) { e.preventDefault(); e.stopPropagation(); pClose.click(); return; }
+      }
+    }
+
     if (!open.length) return;
     var top = open[open.length - 1];
 
@@ -183,5 +264,7 @@
   else document.addEventListener('DOMContentLoaded', start);
 
   // Exposed for the a11y probe / tests, not for app code.
-  window.SynthModalA11y = { sync: sync, openModals: openModals, focusables: focusables };
+  window.SynthModalA11y = {
+    sync: sync, openModals: openModals, openPanels: openPanels, focusables: focusables,
+  };
 })();

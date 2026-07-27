@@ -919,8 +919,13 @@ body,
 ::-webkit-scrollbar-thumb:hover { background: var(--hw-text-dim); }
 
 /* ── Focus rings ──────────────────────────────────────────────────────── */
+/* 2px, not 1px. WCAG 2.4.11 wants a focus indicator that is actually findable,
+   and this became load-bearing when the result region started being somewhere
+   a keyboard user is invited to travel to — a ring you have to hunt for is not
+   an answer to "where did my focus go". Matches the 2px the Glitcher sheets
+   already use, so the Suite is one treatment rather than two. */
 :focus-visible {
-  outline: 1px solid var(--hw-accent, #3dbdad);
+  outline: 2px solid var(--hw-accent, #3dbdad);
   outline-offset: 2px;
 }
 

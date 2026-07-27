@@ -478,6 +478,28 @@ class StudioIntegration {
             .studio-result-container.active { display: block; }
             .studio-result-image, .studio-result-video { max-width: 100%; border-radius: 8px; display: block; margin: 0 auto; }
 
+            /* Run status — the sighted half of the completion announcement.
+               The screen-reader half is #studio-announcer, which lives outside
+               this container: a live region inside a display:none subtree is
+               not reliably live when the subtree appears. */
+            .studio-run-status { font-size: 12px; color: #5a5a66; margin-right: auto; padding-left: 12px; }
+            .studio-run-status:empty { display: none; }
+
+            /* Jump-to-results chip. position:fixed so it costs no layout
+               anywhere — it is injected next to whatever has focus, and the
+               app-bar row in particular cannot afford another flow element
+               (exactly one child there may own an auto margin). Its DOM
+               position buys tab order; its CSS position keeps it harmless. */
+            .studio-jump-chip {
+                position: fixed; right: 20px; bottom: 84px; z-index: 9000;
+                display: inline-flex; align-items: center; gap: 8px;
+                padding: 9px 14px; border-radius: 8px; cursor: pointer;
+                background: #00695c; color: #fff; border: 1px solid #00897b;
+                font-size: 13px; font-weight: 600; font-family: inherit;
+                box-shadow: 0 4px 14px rgba(0,0,0,0.22);
+            }
+            .studio-jump-chip:hover { background: #00796b; }
+
             /* Batch Grid */
             .studio-result-grid {
                 display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px;
@@ -786,14 +808,22 @@ class StudioIntegration {
         const resultContainer = document.createElement('div');
         resultContainer.id = 'studio-result';
         resultContainer.className = 'studio-result-container';
+        // role/aria-labelledby/tabindex make this a named region a keyboard user
+        // can actually be sent to — see announceResult() and the jump chip. The
+        // heading needs the id because aria-labelledby is what gives the region
+        // its name; without it a screen reader announces an anonymous "region".
+        resultContainer.setAttribute('role', 'region');
+        resultContainer.setAttribute('aria-labelledby', 'studio-result-heading');
+        resultContainer.setAttribute('tabindex', '-1');
         resultContainer.innerHTML = `
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid #eee;">
-                <h4 style="margin:0; color:#555;">AI Studio Output</h4>
+                <h4 id="studio-result-heading" style="margin:0; color:#555;">AI Studio Output</h4>
+                <div id="studio-run-status" class="studio-run-status"></div>
                 <div style="display:flex; gap:10px; align-items:center;">
                     <button id="stop-batch-btn" style="display:none; color:red; border:1px solid red; background:white; border-radius:4px; padding:2px 8px; cursor:pointer;">Stop Batch</button>
                     <button id="retry-failed-btn" style="display:none; color:#e67e00; border:1px solid #e67e00; background:white; border-radius:4px; padding:2px 8px; cursor:pointer;">Retry Failed (0)</button>
                     <button id="discuss-with-agents-btn" style="color:#673ab7; border:1px solid #d8c4f5; background:#f8f4ff; border-radius:4px; padding:4px 10px; cursor:pointer; font-size:12px; font-weight:500;" title="Send this image to the Agent Studio for critique & refinement">→ Agents</button>
-                    <button id="close-studio-result" style="border:none; background:none; cursor:pointer; font-size:16px;">✕</button>
+                    <button id="close-studio-result" aria-label="Close AI Studio Output" style="border:none; background:none; cursor:pointer; font-size:16px;"><span aria-hidden="true">✕</span></button>
                 </div>
             </div>
             <div id="studio-content"></div>
@@ -806,6 +836,22 @@ class StudioIntegration {
             toastContainer.id = 'toast-container';
             toastContainer.className = 'toast-container';
             document.body.appendChild(toastContainer);
+        }
+
+        // 3b. Inject the run announcer — deliberately a sibling of <body>, not a
+        // child of #studio-result. #studio-result is display:none until a run
+        // finishes, and a live region that is inside a display:none subtree at
+        // the moment its text changes is not reliably announced; parking it here
+        // means it is present and live from page load. Same shape as the
+        // existing #knob-announcer, which is the precedent in this app.
+        if (!document.getElementById('studio-announcer')) {
+            const ann = document.createElement('div');
+            ann.id = 'studio-announcer';
+            ann.className = 'sr-only';
+            ann.setAttribute('role', 'status');
+            ann.setAttribute('aria-live', 'polite');
+            ann.setAttribute('aria-atomic', 'true');
+            document.body.appendChild(ann);
         }
 
         this.injectModals();
@@ -2782,6 +2828,11 @@ class StudioIntegration {
             if (result) result.classList.remove('active');
             const content = document.getElementById('studio-content');
             if (content) content.innerHTML = '';
+            // The output is gone, so a chip still offering to jump to it would
+            // be pointing at nothing — the stranded-state bug in miniature.
+            this.clearJumpToResults();
+            const statusLine = document.getElementById('studio-run-status');
+            if (statusLine) statusLine.textContent = '';
         });
 
         // Bridge to Agent Studio: send the current generated image to the
@@ -4098,6 +4149,13 @@ class StudioIntegration {
                 }
             }
             this.showToast(`Batch complete: ${succeeded} succeeded, ${failed} failed.`, failed > 0 ? 'warning' : 'success');
+            this.announceResult(
+                `Batch complete — ${succeeded} succeeded` + (failed ? `, ${failed} failed` : '') + '.'
+            );
+            // This batch runs its workers concurrently, so the credits badge has
+            // the same last-header-wins race a workflow does. Re-read the real
+            // balance rather than trusting whichever reply landed last.
+            window.SynthAuth?.refreshCredits?.();
         }
     }
 
@@ -4398,6 +4456,8 @@ class StudioIntegration {
             this.isBatchRunning = false;
             if (stopBtn) stopBtn.style.display = 'none';
             if (closeBtn) closeBtn.style.display = 'block';
+            this.announceResult('Batch workflow finished — results in AI Studio Output.');
+            window.SynthAuth?.refreshCredits?.();
         }
     }
 
@@ -4923,6 +4983,7 @@ class StudioIntegration {
                     html += `<div style="margin-top:10px; padding:10px; background:#f0f0f0; border-radius:5px; font-family:monospace; white-space:pre-wrap; max-height:200px; overflow-y:auto;"><strong>Thinking Process:</strong><br>${data.text}</div>`;
                 }
                 content.innerHTML = html;
+                this.announceResult('Image ready in AI Studio Output.');
             } else {
                 this.currentSingleVideoResult = data.video;
                 this.lastGenerationId = data.generation_id ?? null;
@@ -4938,6 +4999,7 @@ class StudioIntegration {
                     videoHtml += `</div>`;
                 }
                 content.innerHTML = videoHtml;
+                this.announceResult('Video ready in AI Studio Output.');
 
                 // Store the video URI for future extension (valid for 48h on Google's servers)
                 if (data.video_uri) {
@@ -5142,6 +5204,8 @@ class StudioIntegration {
         this.isBatchRunning = false;
         stopBtn.style.display = 'none';
         closeBtn.style.display = 'block';
+        const made = this.currentBatchResults?.length || 0;
+        this.announceResult(`Batch complete — ${made} of ${prompts.length} generated.`);
     }
 
     // ── Unified Create panel helpers ──────────────────────────────────────
@@ -6295,6 +6359,13 @@ class StudioIntegration {
         });
         const closeBtn = document.getElementById('close-studio-result');
         if (closeBtn) closeBtn.style.display = 'block';
+
+        const ok = results.filter(r => r.type === 'image').length;
+        const failed = results.length - ok;
+        this.announceResult(
+            `Smart Transform complete — ${ok} result${ok === 1 ? '' : 's'}` +
+            (failed ? `, ${failed} failed` : '') + '.'
+        );
     }
 
     openLightboxWithImage(src) {
@@ -6555,6 +6626,123 @@ class StudioIntegration {
     }
 
     /**
+     * Say that a run finished, and offer a way to reach what it produced.
+     *
+     * The gap this closes: a run is started from a modal, the modal closes,
+     * focus goes back to the menu item that opened it — and the output renders
+     * somewhere else entirely, announcing nothing. A keyboard or screen-reader
+     * user got no signal that the run had finished or where the result went.
+     *
+     * Three surfaces, because they serve different people:
+     *   - the visible status line in the result header (everyone),
+     *   - #studio-announcer, a polite live region (screen readers),
+     *   - the jump chip (sighted keyboard users, and anyone who'd rather click).
+     *
+     * Focus is deliberately NOT moved. The result region is a named landmark,
+     * so a screen-reader user reaches it with a single landmark keystroke, and
+     * everyone else gets an affordance they can ignore. Yanking focus out from
+     * under someone who has already moved on is the failure this is avoiding.
+     */
+    announceResult(summary, opts = {}) {
+        const line = document.getElementById('studio-run-status');
+        if (line) line.textContent = summary;
+
+        const ann = document.getElementById('studio-announcer');
+        if (ann) {
+            // Setting identical text is not a mutation, so it would not be
+            // announced — two runs of the same template summarise the same way.
+            // Clear first, then set on a macrotask. Deliberately not
+            // requestAnimationFrame: rAF does not run in a hidden or throttled
+            // tab, which is exactly where a long run is likely to finish.
+            ann.textContent = '';
+            setTimeout(() => { ann.textContent = summary; }, 60);
+        }
+
+        if (opts.jump !== false) this.showJumpToResults();
+    }
+
+    /** Put the chip in the DOM right after whatever has focus, so it is the very
+     *  next Tab stop. That adjacency is the entire point: an earlier version
+     *  climbed out of the whole app-bar "to be safe" and landed the chip 32 tab
+     *  stops away, which is no better than not having it.
+     *
+     *  The hazard is that an extra sibling can silently break a structural
+     *  selector. It is not hypothetical — appending after the last
+     *  `.mode-toggle-btn` takes its radius from `4px 10px 10px 4px` to `3px`,
+     *  destroying a segmented-group treatment that is deliberate and correct.
+     *
+     *  Rather than maintain a list of containers to avoid — the first attempt
+     *  named `.mode-toggle` when the element is actually `.control-mode-toggle`,
+     *  and a list like that goes stale the moment anything is renamed — this
+     *  measures the actual consequence: place the chip, compare the siblings'
+     *  computed geometry before and after, and relocate if anything moved. It
+     *  cannot be wrong about a selector it has never heard of.
+     *
+     *  The chip is position:fixed regardless, so it is never a flex item, adds
+     *  no gap, and takes no auto margin — the app-bar's one-auto-margin rule is
+     *  untouched wherever it lands. */
+    _placeJumpChip(chip) {
+        const at = document.activeElement;
+        // A chip between menu items reads as one of them — a judgement call, not
+        // a CSS risk, so it stays an explicit exclusion.
+        const inMenu = at && at.closest && at.closest('.app-bar-menu, .studio-menu, .abm-menu');
+        if (!at || at === document.body || !at.isConnected || !at.parentElement || inMenu) {
+            document.body.appendChild(chip);
+            return;
+        }
+        /* A ladder, best first: beside the focused control (1 Tab away), then
+         * just past its container, then the end of the document. Without the
+         * middle rung a rejected first choice fell all the way to <body> —
+         * measured at 860 tab stops, which is a chip in name only. */
+        for (const ref of [at, at.parentElement]) {
+            if (!ref || !ref.parentElement) continue;
+            const siblings = Array.from(ref.parentElement.children);
+            const signature = () => siblings
+                .map(k => { const s = getComputedStyle(k); return `${s.borderRadius}/${s.margin}/${s.borderWidth}`; })
+                .join('|');
+
+            const before = signature();
+            ref.insertAdjacentElement('afterend', chip);
+            if (signature() === before) return;   // nothing shifted — keep it here
+            chip.remove();
+        }
+        document.body.appendChild(chip);
+    }
+
+    /** A dismissible "jump to results" chip, placed in the DOM right after the
+     *  focused element so it is the next Tab stop, and position:fixed so that
+     *  placement costs no layout wherever it lands. */
+    showJumpToResults() {
+        this.clearJumpToResults();
+        const region = document.getElementById('studio-result');
+        if (!region || !region.classList.contains('active')) return;
+        // Already reading the output — there is nothing to jump to.
+        if (region.contains(document.activeElement)) return;
+
+        const chip = document.createElement('button');
+        chip.type = 'button';
+        chip.id = 'studio-jump-chip';
+        chip.className = 'studio-jump-chip';
+        chip.innerHTML = '<span aria-hidden="true">↓</span> Jump to results';
+
+        chip.addEventListener('click', () => {
+            region.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+            region.focus({ preventScroll: true });
+            this.clearJumpToResults();
+        });
+        // Escape dismisses it rather than trapping someone who does not want it.
+        chip.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') { e.stopPropagation(); this.clearJumpToResults(); }
+        });
+
+        this._placeJumpChip(chip);
+    }
+
+    clearJumpToResults() {
+        document.getElementById('studio-jump-chip')?.remove();
+    }
+
+    /**
      * Show a toast notification.
      * @param {string} message - The message to display
      * @param {'success'|'error'|'warning'|'info'} type - Toast type
@@ -6595,6 +6783,14 @@ class StudioIntegration {
     showLoading(type, subtitle = null) {
         const container = document.getElementById('studio-result');
         container.classList.add('active');
+        // A new run supersedes the last one's outcome: drop the stale summary
+        // and any chip still pointing at output that is about to be replaced.
+        // The visible line is updated but the live region deliberately is not —
+        // showLoading() is called once per item inside batch loops, so
+        // announcing here would talk over the whole run.
+        this.clearJumpToResults();
+        const statusLine = document.getElementById('studio-run-status');
+        if (statusLine) statusLine.textContent = `Running — ${type}…`;
         const subtitleHtml = subtitle ? `<br><span style="font-size:12px;color:#666;">${subtitle}</span>` : '';
         document.getElementById('studio-content').innerHTML = `
             <div style="padding:20px;text-align:center;">
@@ -6612,6 +6808,11 @@ class StudioIntegration {
         if (!content) return;
         const detail = ctx.detail || {};
         const isSafetyBlock = detail.error_type === 'safety_block';
+
+        // An error is an outcome too — the silent-completion gap this closes cuts
+        // both ways, and a failed run that says nothing is worse than a successful
+        // one that says nothing.
+        this.announceResult(isSafetyBlock ? 'Run blocked by safety filters.' : `Run failed — ${msg}`);
 
         let html = `<div style="color:red;padding:20px;text-align:center;">Error: ${this.escapeHtml(msg)}</div>`;
         if (isSafetyBlock) {

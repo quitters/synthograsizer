@@ -790,6 +790,27 @@ class WorkflowRunner {
         } else {
           this.studio.showToast('Workflow complete', 'success');
         }
+        // Say it out loud as well as showing it. A toast is a visual event with
+        // no accessible counterpart, and this run may have taken minutes — the
+        // user has had every reason to look somewhere else. jump:false because
+        // the workflow's own results live in this modal, not #studio-result, so
+        // a chip pointing at the studio output would send them to the wrong
+        // place; "View results" inside the panel is the right door.
+        const steps = (this._stepResults || []).length;
+        this.studio.announceResult?.(
+          data.status === 'failed'
+            ? `Workflow failed. ${steps} step${steps === 1 ? '' : 's'} finished and are under View results.`
+            : `Workflow complete — ${steps} step${steps === 1 ? '' : 's'}. Open View results to see them.`,
+          { jump: false }
+        );
+        // Known defect: the credits badge under-reports after a run. Steps are
+        // concurrent, each reply carries an X-Credits-Balance header, and the
+        // last one to land wins rather than the lowest — so the badge read ⚡209
+        // while the server said ⚡204. Re-read the authoritative balance now the
+        // run is over. Deliberately NOT SynthAuth.refresh: that is boot(), which
+        // calls patchFetch() unconditionally and would wrap window.fetch in
+        // another layer on every completed run.
+        window.SynthAuth?.refreshCredits?.();
         // Auto-save the run (both successful and failed — failed runs are
         // valuable for diagnostics). Image params have already been stripped.
         try {
@@ -1040,6 +1061,11 @@ const WORKFLOW_PARAM_META = {
   life_stage:        { type: 'select', label: 'Life Stage', default: 'childhood', options: [
     'childhood', 'adolescence', 'young_adult', 'middle_age', 'old_age',
   ]},
+  // Free text on purpose. `style` above is the reserved preset picker, and
+  // card_style_kit used to borrow it — which both showed the wrong control and
+  // sent the preset id ("art_nouveau") into the prompt as if it were prose.
+  deck_style:        { type: 'text', label: 'Deck Style',
+                       placeholder: 'e.g. art nouveau, antique gold on cream' },
 };
 
 // Expose globally
