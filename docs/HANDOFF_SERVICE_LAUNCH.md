@@ -278,6 +278,41 @@ share the bar and its exact metrics.
   Making these flush would have singled them out beside their own neighbour and needed per-theme
   border/shadow math.
 
+### Second deploy the same day — app-bar consistency, switcher drift, knob clipping ✅
+`4d060a6` · `fe53bc5` · `58155ba`, deployed after the batch above. Frontend only again, no schema
+change, terms still v0.3. Verified: 4/4 changed static files MATCH the run.app origin, good Origin
+→ `401`, bogus Origin → `403`, `/api/health` ok. (Revision ids not recorded — read them from
+`gcloud run revisions list` if needed; the triple after `00041-22r`.)
+- **The mode switcher no longer moves when you use it.** `.app-bar` used `justify-content:
+  space-between`, so free space was distributed *between* zones and the switcher's position
+  depended on what else was in the row — and the tools are Studio-only. Measured at 1800px: x1418
+  Studio → x986 Perform → x948 Composer. It now sits after the brand, the bar packs left, and
+  `.app-bar-utils` alone takes an auto margin. **Nothing else in that row may take an auto margin**
+  or the slack splits and the drift returns. Composer additionally hid the template chip with
+  `display:none` (212px more drift) — now `visibility:hidden`, which holds the box and keeps the
+  chip out of the tab order either way. Drift is 0 across all three modes.
+- **The knob rack was clipping 10 of 13 knobs in Studio**: 13 × 102px inside a 396px column,
+  nowrap, `overflow-x:auto`. The fix already existed — the auto-fill grid's `max-width:899px` copy
+  is deliberately unscoped ("the flex-row problem is identical" in Studio) but the
+  `min-width:900px` copy was scoped to `.layout-a`, so desktop Studio never got it. Unscoping it
+  was the fix. **Wrapping alone was not enough and looked finished**: at Perform's dimensions 13
+  knobs stand 719px tall and pushed CONNECTIONS to y938 in an 800px viewport — sideways clipping
+  traded for vertical. Studio therefore gets a denser knob (52px dial vs 68): 4×4 at 446px,
+  CONNECTIONS back at y684. Perform keeps the big dial deliberately; `av.html`/`demo.html` lock
+  themselves to `layout-a` so they are unaffected.
+- **Four app-bar controls did not match the set they sit in**: Template Gen had a 1.5px
+  black-alpha border and a `--hw-recessed` shadow against everyone else's 2px `--ab-ink`, plus
+  12px/600 type against the neighbours' 11px/700; the mode switcher drew from `--hw-border`
+  (#7a6e5e) not `--ab-ink` (#5a5040); ⚙ and ⋯ had no `font-family` and fell through to Arial; and
+  Template Gen in the primary row was the only button of four without its keybind badge, though
+  `T` works and Perform's equivalent advertised it.
+- **Checked and deliberately not changed**: the Knobs/D-Pad radii (`10 4 4 10` / `4 10 10 4`) look
+  wrong in isolation but are a correct segmented-group treatment.
+- **Found, not fixed**: in cel-pastel the template chip keeps the *hardware* shadow ink while its
+  neighbours use cel's. The cel rule has `!important`, sits in a later sheet, and its token
+  resolves correctly at the element — so it should win and does not. Cause not understood;
+  deliberately left alone rather than guessed at.
+
 ### Method notes worth keeping (each one caught a wrong answer)
 - **The browser harness cannot synthesise button activation from Enter.** A freshly-created plain
   `<button>` with a click listener received Enter with `defaultPrevented:false` and fired zero
@@ -298,6 +333,16 @@ share the bar and its exact metrics.
 - **Cohorts differ in bar geometry**: `.app-bar-utils` is 359px hosted-signed-in vs 219px on a
   local install (no account/profile pills). Simulating the pills by eye overshot by 86px and gave
   two wrong breakpoints before calibrating against the live measurement.
+- **A crushed container's rect is not the only liar — so is a collision probe aimed at wrappers.**
+  Related but distinct from the flex note above: when checking whether bar zones overlap, measure
+  the *buttons*. A zone can report "no collision" while its children are drawn on top of the next
+  zone.
+- **Smoke step 0b compares the server against LOCAL files, so the working directory is part of its
+  correctness.** Run from `~` instead of the clone and every line prints `STALE` (diff cannot read
+  the local side). Run it where `<last-deployed-sha>` resolves to something older and `git diff`
+  yields a shorter file list — a screen of reassuring `MATCH`es covering files that were never in
+  the release. Both happened on 2026-07-26. Runbook §4 step 0b now carries a `[ -f ]` guard and
+  the advice to paste the file list literally when the SHA is awkward to resolve.
 
 ### Corrections to earlier notes in this document
 - The `⋯` control **does** exist and already had a good accessible name (`app-bar-more-btn`,
