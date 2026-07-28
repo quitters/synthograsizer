@@ -371,7 +371,7 @@ change, terms still v0.3. Verified: 4/4 changed static files MATCH the run.app o
   caption greys are still **3.4:1** and **2.7:1** against `#fafafa` (AA body text wants 4.5:1;
   `#767676` is the darkest grey that passes).
 
-## Status 2026-07-27 — the second accessibility slice: runs that say what happened ⏳ NOT YET DEPLOYED
+## Status 2026-07-27 — the second accessibility slice: runs that say what happened ✅ DEPLOYED 07-28
 Frontend only. **Zero changes under `backend/`, `scripts/`, `requirements.txt` or the Dockerfile**,
 no schema change, terms unchanged at v0.3. 281 tests green. Written against the goal below; closes
 open item 1 and two of the small ones, plus both known defects from 2026-07-25.
@@ -513,8 +513,39 @@ the changes are auth-independent except `refreshCredits()`, which no-ops when si
 ⚠ **Note for whoever deploys this:** the live site currently serves the pre-change build, so the
 above live measurement is the *baseline*, not a regression.
 
-## Status 2026-07-28 — Gemini 3.6 Flash migration ⏳ NOT YET DEPLOYED
-Ships together with the 2026-07-27 accessibility slice. 282 tests green (281 + one new guard).
+## Status 2026-07-28 (evening) — accessibility slice + 3.6 Flash migration ✅ DEPLOYED
+Nine commits (`07191b3` … `5772e08`) live as **`synthograsizer-00047-87m`**, deployed 2026-07-28
+20:08–20:10 UTC as a clean triple (`00045` → `00046` → `00047`). First deploy since 2026-07-24 to
+carry **backend** changes (6 files), so a real image rebuild rather than a static push. Schema
+unchanged at v3, terms unchanged at v0.3 — nobody re-prompted. Env whole at 14 vars with both
+`SYNTH_PUBLIC_ORIGINS` and `SYNTH_GCS_BUCKET` present. `/api/health` ok, `hosted: true`. Good
+Origin → 401, bogus Origin → 403. Zero ERROR-severity log entries in the 10 minutes after.
+
+### Smoke 0b cried wolf — and the check was wrong, not the deploy
+One file of seventeen reported `STALE`: `agent-studio.js`. It was a **false positive**, and the
+runbook has been fixed. Served and local were **byte-identical at 243,395 bytes**; the check piped
+only the *local* side through `tr -d '\r'`, which manufactured a 4,067-byte difference.
+
+The assumption it rested on — "the working tree is CRLF, the container is LF" — is false for any
+file **git classifies as binary**, because git skips EOL normalisation on those and they keep CRLF
+all the way into the image. `agent-studio.js` is classified binary because it legitimately contains
+8 NUL bytes: it uses `\x00CB…\x00` as tokenizer sentinels, precisely because NUL cannot appear in
+user text. Not corruption, and not something to "fix" in the file.
+
+Fixed by normalising **both** sides (`curl … | tr -d '\r' | diff -q - <(tr -d '\r' < "$f")`),
+after which 17/17 MATCH. The lesson for the next deploy is in the runbook: **when one file reports
+STALE and everything else MATCHes, suspect the check before the deploy** — and settle it by
+grepping the *served* file for something the release actually changed, which is what proved this
+one good (new model id present, old id absent).
+
+### Also worth writing down: 403 on the bogus-Origin probe is the PASS
+It reads like a failure and was queried as one. A good Origin returning **401** means the request
+cleared CSRF and hit the auth wall; a bogus Origin returning **403** means it was stopped *before*
+the app. Both walls firing is the point. The failure to watch for is the inverse — a bogus Origin
+returning 401 would mean `SYNTH_PUBLIC_ORIGINS` had been wiped. Runbook step 2 now says so.
+
+## Status 2026-07-28 — Gemini 3.6 Flash migration (now deployed, see above)
+Shipped together with the 2026-07-27 accessibility slice as revision 00047-87m. 282 tests green (281 + one new guard).
 No schema change, no terms change.
 
 ### What moved

@@ -129,15 +129,31 @@ cd ~/synthograsizer   # or your local clone — this check reads local files as 
 RUN=https://synthograsizer-679278101913.northamerica-northeast1.run.app
 for f in $(git diff --name-only <last-deployed-sha>..HEAD -- static); do
   [ -f "$f" ] || { echo "NO LOCAL FILE  $f   <- wrong directory, NOT a stale image"; continue; }
-  curl -s -m 40 "$RUN${f#static}" | diff -q - <(tr -d '\r' < "$f") >/dev/null \
+  curl -s -m 40 "$RUN${f#static}" | tr -d '\r' | diff -q - <(tr -d '\r' < "$f") >/dev/null \
     && echo "MATCH  $f" || echo "STALE  $f"
 done
 ```
    Two things this depends on: hit the **run.app URL, not `synthograsizer.com`** (the domain is a
    Vercel proxy, so a failure there can't distinguish a stale container from a caching proxy),
-   and **strip `\r`** — the Windows working tree is CRLF and the container is LF, so a raw byte
-   comparison reports a false mismatch of exactly one byte per line. `curl -w '%{size_download}'`
+   and **strip `\r` from BOTH sides** — see the warning below. `curl -w '%{size_download}'`
    against `wc -c` fails for the same reason; diff the content, don't compare sizes.
+
+   ⚠ **Normalise BOTH sides, not just the local one.** This check used to pipe only the local file
+   through `tr -d '\r'`, on the assumption that the working tree is CRLF and the container is
+   always LF. That assumption is false for any file git classifies as **binary**: git skips EOL
+   normalisation on those, so they keep CRLF all the way into the container. On 2026-07-28 that
+   reported `STALE static/synthograsizer/js/agent-studio.js` on a perfectly good deploy — served
+   and local were *byte-identical at 243,395 bytes*, and stripping CR from one side alone
+   manufactured a 4,067-byte difference. That file is classified binary because it legitimately
+   contains 8 NUL bytes: it uses `\x00CB…\x00` as tokenizer sentinels precisely because NUL cannot
+   appear in user text. `git check-attr text eol -- <file>` tells you how git sees a file.
+
+   **When a single file reports STALE and everything else MATCHes, suspect this before suspecting
+   the deploy.** The decisive check costs one command — grep the *served* file for something the
+   release actually changed:
+```bash
+curl -s "$RUN/synthograsizer/js/agent-studio.js" | grep -c 'the-new-string-you-shipped'
+```
 
    ⚠ **This check compares the server against your LOCAL files, so it fails in both directions
    when the shell is in the wrong place — and both failures are quiet.** Run from `~` instead of
@@ -157,6 +173,13 @@ done
    2026-07-24 deploy was confirmed when the handoff doc still claimed four commits were pending.
 1. `GET <url>/api/health` → `service.auth_required: true`, `api_key_configured: true`.
 2. Anonymous `POST <url>/api/generate/text` → **401**.
+
+   ⚠ **Both walls are meant to fire, and they return different codes — neither is a failure.**
+   A good `Origin` → **401 `auth_required`**: the request cleared CSRF and hit the auth wall. A
+   bogus `Origin` → **403 `cross_origin_rejected`**: it was stopped *before* the app. Seeing 403 on
+   the bogus-Origin probe is the pass condition, not a regression — it is the whole point of the
+   probe. The failure mode being watched for is the opposite one: a bogus Origin returning 401
+   would mean `SYNTH_PUBLIC_ORIGINS` was wiped and CSRF is no longer enforced.
 3. Sign in with a NON-admin Google account → 300 credits, terms interstitial once, text gen
    decrements badge, Video/Music studios hidden, `/api/generate/video` → 403.
 4. Sign in as quittersarts@gmail.com → ∞ badge, Veo works end-to-end (≤ 600s).
