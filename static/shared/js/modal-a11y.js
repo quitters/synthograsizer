@@ -147,11 +147,33 @@
     panelReturn.set(el, prev && prev !== document.body ? prev : null);
     if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '-1');
     el.inert = false;
+
     /* Focus the panel itself, not its first control, so its name and role are
-     * announced before its contents — same reasoning as a dialog. Sync first,
-     * then one macrotask retry: the panel fades in via a CSS transition, and
-     * rAF would not fire at all in a hidden or throttled tab. */
-    if (!focusInto(el)) setTimeout(function () { focusInto(el); }, 0);
+     * announced before its contents — same reasoning as a dialog.
+     *
+     * A modal can be focused immediately because it is toggled with `display`,
+     * which resolves at once. This panel FADES IN, and it is `visibility:hidden`
+     * until that transition makes progress — so the browser refuses focus for
+     * the first frame or so. Measured: a synchronous attempt plus a
+     * setTimeout(0) retry BOTH landed inside that window and focus never moved,
+     * while the panel sat plainly visible on screen. Hence a ladder that
+     * outlasts the 180ms fade.
+     *
+     * Deliberately not requestAnimationFrame (does not run in a hidden or
+     * throttled tab) and not transitionend (does not fire there either — a
+     * transition only advances while the page composites). setTimeout runs in
+     * both cases, which is the whole reason it is the mechanism here. */
+    var delays = [0, 60, 220];
+    var i = 0;
+    (function attempt() {
+      /* Never yank focus back from somewhere the user chose to go. The panel is
+       * not modal, so Tabbing straight out of it is legitimate and common. */
+      var at = document.activeElement;
+      if (!el.classList.contains('open')) return;
+      if (at !== prev && at !== document.body && !el.contains(at)) return;
+      if (focusInto(el)) return;
+      if (i < delays.length) setTimeout(attempt, delays[i++]);
+    })();
   }
 
   function deactivatePanel(el) {

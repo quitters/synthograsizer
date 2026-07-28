@@ -136,9 +136,21 @@
 .code-textarea:focus {
   outline: none;
   border-color: var(--primary-purple);
-  box-shadow: 
+  box-shadow:
     inset 0 1px 3px rgba(0, 0, 0, 0.1),
     0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+/* Keyboard focus keeps a real ring. The rule above trades the outline for a
+   border tint plus a 3px glow, but that glow is 10% alpha on a near-white
+   field — close to invisible. Found by walking the default screen with 60 real
+   Tab presses: these three code editors were the ONLY controls that drew no
+   outline at all, every other control showing the 2px ring. Same specificity as
+   the rule above, so it wins on source order; mouse focus keeps the quieter
+   treatment, which is what :focus-visible is for. */
+.code-textarea:focus-visible {
+  outline: 2px solid var(--hw-accent, #3dbdad);
+  outline-offset: 2px;
 }
 
 .code-textarea[readonly] {

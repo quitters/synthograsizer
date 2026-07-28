@@ -4456,7 +4456,7 @@ class StudioIntegration {
             this.isBatchRunning = false;
             if (stopBtn) stopBtn.style.display = 'none';
             if (closeBtn) closeBtn.style.display = 'block';
-            this.announceResult('Batch workflow finished — results in AI Studio Output.');
+            this.announceResult('Batch workflow finished — results in AI Studio Output.', { visible: 'Batch workflow finished' });
             window.SynthAuth?.refreshCredits?.();
         }
     }
@@ -4983,7 +4983,7 @@ class StudioIntegration {
                     html += `<div style="margin-top:10px; padding:10px; background:#f0f0f0; border-radius:5px; font-family:monospace; white-space:pre-wrap; max-height:200px; overflow-y:auto;"><strong>Thinking Process:</strong><br>${data.text}</div>`;
                 }
                 content.innerHTML = html;
-                this.announceResult('Image ready in AI Studio Output.');
+                this.announceResult('Image ready in AI Studio Output.', { visible: 'Image ready' });
             } else {
                 this.currentSingleVideoResult = data.video;
                 this.lastGenerationId = data.generation_id ?? null;
@@ -4999,7 +4999,7 @@ class StudioIntegration {
                     videoHtml += `</div>`;
                 }
                 content.innerHTML = videoHtml;
-                this.announceResult('Video ready in AI Studio Output.');
+                this.announceResult('Video ready in AI Studio Output.', { visible: 'Video ready' });
 
                 // Store the video URI for future extension (valid for 48h on Google's servers)
                 if (data.video_uri) {
@@ -6644,8 +6644,13 @@ class StudioIntegration {
      * under someone who has already moved on is the failure this is avoiding.
      */
     announceResult(summary, opts = {}) {
+        /* The two surfaces want different words, which is half the reason they
+         * are separate. The live region is heard with no surroundings, so it has
+         * to name where the output went; the visible line sits directly beside a
+         * heading that already says "AI Studio Output", so repeating it there
+         * reads as "AI Studio Output — Image ready in AI Studio Output". */
         const line = document.getElementById('studio-run-status');
-        if (line) line.textContent = summary;
+        if (line) line.textContent = opts.visible || summary;
 
         const ann = document.getElementById('studio-announcer');
         if (ann) {
