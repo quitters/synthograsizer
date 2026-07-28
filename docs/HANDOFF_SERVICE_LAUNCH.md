@@ -456,6 +456,13 @@ stop**, and is `position:fixed` so that placement costs no layout wherever it la
   as unverified rather than claimed.
 - **A probe filtering on `outlineWidth` silently misses `outline:` shorthand**, which reports an
   empty string. This briefly looked like the focus-ring rule not being loaded at all.
+- **A non-compositing tab does not just slow a transition down — it stops it, and takes the whole
+  open state of anything animated out of reach.** Every conclusion about the p5 panel's *open*
+  behaviour from the first round was worthless, and two real defects were hiding behind it. The
+  cheap tell is `getAnimations()` reporting transitions permanently `running`. **Run the control
+  experiment (two plain buttons, one real Tab) before believing any tab-order or open-state
+  reading** — it is the only thing that distinguishes "the app is broken" from "the harness cannot
+  see it".
 - **Calling a render function directly skips what its caller always does.** Driving `runSingle()`
   without the `showLoading()` that precedes it at every real call site produced "no chip appeared",
   which was the test's fault, not the app's — `showJumpToResults()` correctly declines when the
@@ -467,15 +474,44 @@ run, `"Image ready in AI Studio Output."` in both the announcer and the visible 
 chip present at **distance 1**, focus still on the launching control, chip click → focus lands in
 the region → chip removes itself. Closing the output clears both. 281 tests green.
 
-### ⏳ Still unverified — needs the Browser pane displayed
-Everything below was blocked by the non-compositing tab, **not** by a suspected defect:
-- Real Tab-traversal order after the fixes (the DOM-contract measurement is done and clean).
-- Rendered focus-ring width — `:focus-visible` does not match a scripted `.focus()`, so only the
-  cascade was confirmed (`outline: 2px solid var(--hw-accent)`).
-- The p5 panel's **open**-state behaviour: focus-in, Escape-closes, focus-restore. The closed-state
-  fix is verified; the open state could not be reached with transitions frozen.
-- Cohorts: local install done. Anonymous/free/admin hosted are unexercised — the changes are
-  auth-independent except `refreshCredits()`, which no-ops when signed out.
+### Verified with real keys once the pane was displayed — and it found three more defects
+The earlier round was done in a non-compositing tab, which never advances a CSS transition, so the
+panel never actually became visible and **no measurement of its open state meant anything.** With
+the pane displayed (control experiment first: two plain buttons, one real Tab, focus moved — so
+the harness *can* measure tab order here), the picture changed.
+
+**Passed:**
+- **60 real Tab presses reach zero p5 controls** while the panel is closed. Baseline was 10, at
+  positions 42–51 of 51. 40 unique controls reached, none of them ghosts.
+- **Focus ring renders at 2px** on 57 of 60 stops, all 60 matching `:focus-visible`.
+- Open → focus enters the panel; **a real Escape** closes it and returns focus to the launcher;
+  closed again → `inert`, `visibility:hidden`, close button unfocusable.
+- **The non-trap works**: 25 Tab presses from inside the open panel leave it after 10 stops and the
+  panel stays open. A modal would have wrapped. This is the deliberate difference.
+- Announcement path re-confirmed on further real charged generations.
+
+**Found and fixed (`cd8fcdb`):**
+1. **Focus never entered the panel on open.** It is `visibility:hidden` until the 180ms fade makes
+   progress, and both the synchronous attempt and the `setTimeout(0)` retry landed inside that
+   window — a pattern inherited from the modal path, where it is correct because a modal toggles
+   `display`, which resolves at once. Now a 0/60/220ms ladder that bails if the panel closed or the
+   user moved focus themselves. Still `setTimeout`, not rAF or `transitionend` — neither fires in a
+   hidden tab, which is the entire reason for the choice.
+2. **The three code editors drew no focus ring at all** — `template-editor`, `variables-json`,
+   `p5-code-editor`. `.code-textarea:focus` trades the outline for a border tint plus a 3px glow at
+   **10% alpha on a near-white field**. Added a `:focus-visible` rule. Same defect the slice was
+   about, in three places the first pass never reached.
+3. The header read "AI Studio Output — Image ready in AI Studio Output". `announceResult()` now
+   takes a shorter `visible` string; the live region keeps the full sentence because it is heard
+   with no surroundings.
+
+**Cohorts:** local install fully exercised. The **anonymous hosted** cohort was measured on the
+live site and confirms the baseline there — `closedPanelButtonTakesFocus: true`, close button
+unnamed, no announcer, and `inert` supported by the browser. Free/admin hosted remain unexercised;
+the changes are auth-independent except `refreshCredits()`, which no-ops when signed out.
+
+⚠ **Note for whoever deploys this:** the live site currently serves the pre-change build, so the
+above live measurement is the *baseline*, not a regression.
 
 ## Card deck pipeline (`scripts/`)
 Restyling a sprite sheet in one Smart Transform call **does not work** — verified on a real 13×6
