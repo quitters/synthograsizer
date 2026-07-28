@@ -823,9 +823,11 @@ The FastAPI backend (`server.py`) defines Pydantic models for all API requests.
   "image_count": 1,
   "add_watermark": true,
   "use_google_search": false,
-  "temperature": null,                   // 0.0-2.0
-  "top_k": null,                         // 1-100
-  "top_p": null,                         // 0.0-1.0
+  // temperature / top_k / top_p were REMOVED in the Gemini 3.6 Flash migration.
+  // Google deprecated them from 3.6 Flash and 3.5 Flash-Lite onwards: ignored
+  // today, HTTP 400 in future model generations. Sending them is harmless (the
+  // field is simply unknown) but has no effect. Use an explicit system
+  // instruction to steer determinism instead.
   "tags": null                           // Provenance tags to embed in PNG metadata
 }
 ```
@@ -874,7 +876,7 @@ The FastAPI backend (`server.py`) defines Pydantic models for all API requests.
   "user_intent": "Make it look like a cyberpunk city",
   "input_image": "base64...",
   "reference_image": "base64...",       // Optional style reference
-  "model": "gemini-3-flash-preview",
+  "model": "gemini-3.6-flash",
   "aspect_ratio": "1:1"
 }
 
@@ -1592,14 +1594,14 @@ From `backend/config.py`:
 
 | Constant | Model ID | Usage |
 |----------|----------|-------|
-| `MODEL_TEXT_CHAT` | `gemini-3-flash-preview` | Text chat, fast tasks |
+| `MODEL_TEXT_CHAT` | `gemini-3.6-flash` | Text chat, fast tasks |
 | `MODEL_IMAGE_GEN_FAST` | `gemini-2.5-flash-image` | Fast image generation |
 | `MODEL_IMAGE_GEN_NB2` | `gemini-3.1-flash-image-preview` | Newer image gen |
 | `MODEL_IMAGE_GEN_HQ` | `gemini-3-pro-image-preview` | High-quality image gen |
 | `MODEL_VIDEO_GEN` | `veo-3.1-generate-preview` | Video generation |
-| `MODEL_ANALYSIS` | `gemini-3-flash-preview` | Image analysis |
+| `MODEL_ANALYSIS` | `gemini-3.6-flash` | Image analysis |
 | `MODEL_TEMPLATE_GEN` | `gemini-3.1-pro-preview` | Template generation (Pro for quality) |
-| `MODEL_FAST` | `gemini-3-flash-preview` | Narrative, variations, lightweight tasks |
+| `MODEL_FAST` | `gemini-3.6-flash` | Narrative, variations, lightweight tasks |
 
 ---
 

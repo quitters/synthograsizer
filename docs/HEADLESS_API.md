@@ -120,19 +120,19 @@ Exact strings from `backend/config.py`. Pass these as the `model` field.
 | `MODEL_IMAGE_GEN_HQ` | `gemini-3-pro-image-preview` | Highest-quality image gen (thinking always on) |
 | `MODEL_VIDEO_GEN` | `veo-3.1-generate-preview` | Video (local server only, long-poll) |
 | `MODEL_TEXT_CHAT` / `MODEL_ANALYSIS` / `MODEL_TEMPLATE_GEN` | `gemini-3.1-pro-preview` | Default text/chat, analysis, template gen (quality) |
-| `MODEL_FAST` / `MODEL_TEMPLATE_GEN_FAST` | `gemini-3-flash-preview` | Fast text, narrative, fast template gen |
-| `MODEL_ANALYSIS_QUICK` / `MODEL_NARRATIVE` | `gemini-3-flash-preview` | Default of analysis requests (= `MODEL_FAST`) |
-| `MODEL_DEMO` | `gemini-3.1-flash-lite-preview` | Cheapest; forced when `is_demo: true` |
+| `MODEL_FAST` / `MODEL_TEMPLATE_GEN_FAST` | `gemini-3.6-flash` | Fast text, narrative, fast template gen |
+| `MODEL_ANALYSIS_QUICK` / `MODEL_NARRATIVE` | `gemini-3.6-flash` | Default of analysis requests (= `MODEL_FAST`) |
+| `MODEL_DEMO` | `gemini-3.6-flash` | Forced when `is_demo: true`. Since the 3.6 Flash migration this is the SAME model as `MODEL_FAST`, so demo mode is a feature cap, not a cost cap. |
 
 Notes:
 - `ImageRequest.model` defaults to `gemini-2.5-flash-image`. For best quality
   pass `gemini-3-pro-image-preview`; a good middle option is
   `gemini-3.1-flash-image-preview`.
 - `TextRequest` / `BatchTextRequest` default to `gemini-3.1-pro-preview`. For
-  cheap/fast bulk text (e.g. QC verdicts) pass `gemini-3-flash-preview`.
-- `AnalyzeRequest` / `BatchAnalyzeRequest` default to `gemini-3-flash-preview`.
+  cheap/fast bulk text (e.g. QC verdicts) pass `gemini-3.6-flash`.
+- `AnalyzeRequest` / `BatchAnalyzeRequest` default to `gemini-3.6-flash`.
 - The legacy id `gemini-2.0-flash-exp` is silently rewritten to
-  `gemini-3-flash-preview` by `/api/generate/image`.
+  `gemini-3.6-flash` by `/api/generate/image`.
 
 ---
 
@@ -161,7 +161,6 @@ Body (`ImageRequest`) — key fields:
 | `media_resolution` | str? | null | `media_resolution_low/medium/high` (Gemini-3) |
 | `image_count` | int? | 1 | multi-image is reliable on Imagen only; single image on the Interactions Gemini path |
 | `safety_settings` | list[{category,threshold}]? | null | per-request override — enforced only in `legacy` API mode |
-| `temperature`/`top_k`/`top_p` | num? | null | sampling controls (`top_k` has no Interactions equivalent — ignored there) |
 | `is_demo` | bool? | false | forces `MODEL_DEMO` |
 
 Response: `{"status":"success", "image": "<base64 PNG>"}` for a single image.
@@ -228,7 +227,7 @@ Body (`AnalyzeRequest`):
 |---|---|---|
 | `image` | str (base64) | — |
 | `auto_generate` | bool? | false |
-| `model` | str? | `gemini-3-flash-preview` |
+| `model` | str? | `gemini-3.6-flash` |
 
 Response: `{"status":"success","analysis":"<description>"}`. If
 `auto_generate: true`, also returns `generated_image` (b64),
@@ -240,7 +239,7 @@ desc = requests.post(f"{BASE}/api/analyze/image-to-prompt",
 ```
 
 #### `POST /api/analyze/batch`  *(streaming NDJSON)*
-Body (`BatchAnalyzeRequest`): `{"images": ["<b64>",...], "auto_generate": false, "model": "gemini-3-flash-preview"}`.
+Body (`BatchAnalyzeRequest`): `{"images": ["<b64>",...], "auto_generate": false, "model": "gemini-3.6-flash"}`.
 Streams one JSON object per line: `{"index": i, "status":"success", "analysis":"..."}`
 (or `{"index": i, "status":"error", "error":"..."}`). Read line by line:
 
@@ -519,7 +518,7 @@ ask a cheap text model for a pass/fail verdict; reroll on fail.
 import base64, json, re, requests
 BASE = "http://127.0.0.1:8000"
 IMG_MODEL  = "gemini-3-pro-image-preview"
-TEXT_MODEL = "gemini-3-flash-preview"   # cheap, for QC verdicts
+TEXT_MODEL = "gemini-3.6-flash"   # cheap, for QC verdicts
 
 template = {
     "promptTemplate": "a {{subject}} in a {{setting}}, cinematic photo",

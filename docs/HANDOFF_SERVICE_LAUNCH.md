@@ -513,6 +513,69 @@ the changes are auth-independent except `refreshCredits()`, which no-ops when si
 ⚠ **Note for whoever deploys this:** the live site currently serves the pre-change build, so the
 above live measurement is the *baseline*, not a regression.
 
+## Status 2026-07-28 — Gemini 3.6 Flash migration ⏳ NOT YET DEPLOYED
+Ships together with the 2026-07-27 accessibility slice. 282 tests green (281 + one new guard).
+No schema change, no terms change.
+
+### What moved
+Every **non-Pro text** model → `gemini-3.6-flash`: `MODEL_FAST`, `MODEL_TEMPLATE_GEN_FAST`,
+`MODEL_DEMO`, the `GEMINI_MODELS` UI registry, the `gemini-2.0-flash-exp` legacy remap target, and
+the hardcoded ids in `agent-studio.js`, `studio-integration.js` and `demo-mode.js`. Pro models are
+untouched — no new Pro has been released.
+
+⚠ **The trap this migration sets, for whoever does the next one.** Three models have "flash" in the
+name and are **not** text models: `gemini-2.5-flash-image`, `gemini-3.1-flash-image-preview`, and
+(Pro) `gemini-3-pro-image-preview`. A literal "replace the non-Pro flash models" would point image
+generation at a text model and break it outright, because `gemini-3.6-flash` cannot generate
+images. They are deliberately unchanged, and `config.py` now carries a comment saying so.
+
+### `MODEL_DEMO` is no longer a cost cap
+The docs give Flash-Lite its own successor (`gemini-3.5-flash-lite`, $0.30/$2.50 per 1M).
+`MODEL_DEMO` was flash-lite and commented "cheapest allowed model". Alexander chose to standardise
+every non-Pro model on 3.6 Flash instead, so **demo mode now costs the same as a normal fast call**
+($1.50/$7.50) — it is a *feature* cap (locked model, locked settings), not a cost cap. Two knock-on
+effects, both handled: `TEXT_MODEL_CREDITS` collapses from three keys to two because `MODEL_DEMO`
+and `MODEL_TEMPLATE_GEN_FAST` are now the same string (both were 1 credit, so no value conflict),
+and the `HEADLESS_API.md` row that called it "cheapest" was corrected.
+
+### Deprecated sampling parameters removed
+`temperature`, `top_p`, `top_k` are deprecated from 3.6 Flash and 3.5 Flash-Lite onwards **and
+every model after them** — ignored now, HTTP 400 later. Removed from the Gemini path end to end:
+the Sampling Controls UI block, its slider bindings and its request fields; `models/requests.py`;
+`routers/generation.py`; `google_api.py` on **both** the Interactions and legacy generateContent
+paths; and `services/image_gen.py`.
+- **The legacy path was stripped too, on purpose.** The deprecation is per-*model*, not per-API, so
+  switching `google_api_mode` to `legacy` does not bring the knobs back. Leaving them there would
+  have produced a setting that silently did nothing in one mode and 400'd in the other.
+- **Deliberately NOT touched**: `music_manager.py` (Lyria's `temperature`/`top_k` — a different API
+  entirely, not covered by this deprecation), the Glitcher's colour-grading temperature, and the
+  taste-profile's warm/cool axis. All three merely share a word.
+- The UI now offers nothing in place of the sliders. That is the documented replacement: Google's
+  guidance is to steer determinism with an explicit system instruction, which the prompt already
+  is. Three sliders that quietly did nothing would have been worse than none.
+
+### Audited and already compliant
+- **No `candidate_count`** anywhere (unsupported in Gemini 3.x).
+- **No `thinking_budget`** — the app was already on the `thinking_level` string enum.
+- **No prefilled model turns.** `gen_chat()` appends a `user` turn last in *both* API modes, so the
+  new "last non-empty turn must not be `model`" validation cannot trip.
+
+### Verified
+- **A real text generation against `gemini-3.6-flash` on the live Google API returned successfully**
+  — the one check that proves the model id exists and answers, which no test can.
+- A real image generation still works end to end after the parameter removal (7.9s, rendered).
+- Sampling sliders absent from the DOM; Lyria's music sliders still present.
+- New guard `test_gen_image_sends_no_deprecated_sampling_params` asserts on the **outgoing request**
+  rather than the function signature, so it catches a caller re-adding them via `**kwargs` as well
+  as a future edit reinstating the config lines. **Verified to fail when the protection is removed.**
+
+### Found, not fixed
+`studio-integration.js`'s retired `injectChatWindow()` offers `gemini-3-pro-preview`, which is not
+the id `config.MODEL_TEXT_CHAT` uses (`gemini-3.1-pro-preview`) and would raise `InvalidModel` on
+hosted. Harmless today — that widget is dead code, explicitly retired in favour of Agent Studio Solo
+and no longer injected — and Pro ids were out of scope for this pass. Worth deleting the dead
+function outright next time it is touched.
+
 ## Card deck pipeline (`scripts/`)
 Restyling a sprite sheet in one Smart Transform call **does not work** — verified on a real 13×6
 solitaire deck: the grid geometry and styling survived beautifully, the *identities* did not
