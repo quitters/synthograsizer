@@ -446,9 +446,6 @@ def gen_image(client, model: str, blocks: List[Dict[str, Any]], *,
               response_modalities: Optional[List[str]] = None,
               thinking_level: Optional[str] = None,
               include_thoughts: bool = False,
-              temperature: Optional[float] = None,
-              top_k: Optional[int] = None,
-              top_p: Optional[float] = None,
               safety_settings: Optional[List[Dict[str, str]]] = None,
               use_google_search: bool = False,
               image_count: int = 1,
@@ -465,7 +462,6 @@ def gen_image(client, model: str, blocks: List[Dict[str, Any]], *,
             aspect_ratio=aspect_ratio, image_size=image_size,
             response_modalities=response_modalities,
             thinking_level=thinking_level, include_thoughts=include_thoughts,
-            temperature=temperature, top_k=top_k, top_p=top_p,
             safety_settings=safety_settings, use_google_search=use_google_search,
             image_count=image_count,
         )
@@ -476,9 +472,6 @@ def gen_image(client, model: str, blocks: List[Dict[str, Any]], *,
             "safety_settings are not supported by the Interactions API and were "
             "not sent; switch google_api_mode to 'legacy' to enforce thresholds.",
         )
-    if top_k is not None:
-        _warn_once("top_k-interactions",
-                   "top_k is not supported by the Interactions API; ignored.")
     if image_count and image_count > 1:
         _warn_once(
             "image_count-interactions",
@@ -499,10 +492,9 @@ def gen_image(client, model: str, blocks: List[Dict[str, Any]], *,
         generation_config["thinking_level"] = thinking_level.lower()
     if include_thoughts:
         generation_config["thinking_summaries"] = "auto"
-    if temperature is not None:
-        generation_config["temperature"] = max(0.0, min(2.0, temperature))
-    if top_p is not None:
-        generation_config["top_p"] = max(0.0, min(1.0, top_p))
+    # temperature / top_p / top_k are deliberately absent: deprecated from
+    # Gemini 3.6 Flash and 3.5 Flash-Lite onwards and every model after them.
+    # Ignored today, HTTP 400 later — see models/requests.py for the reasoning.
 
     modalities = [m.lower() for m in (response_modalities or ["image"])]
     tools = [{"type": "google_search"}] if use_google_search else None
@@ -541,11 +533,16 @@ def gen_image(client, model: str, blocks: List[Dict[str, Any]], *,
 
 def _legacy_gen_image(client, model: str, blocks: List[Dict[str, Any]], *,
                       aspect_ratio, image_size, response_modalities,
-                      thinking_level, include_thoughts, temperature, top_k,
-                      top_p, safety_settings, use_google_search, image_count,
+                      thinking_level, include_thoughts,
+                      safety_settings, use_google_search, image_count,
                       ) -> Tuple[Optional[bytes], Optional[str], Optional[str]]:
     """generateContent image path — semantics preserved from the pre-migration
-    services/image_gen implementation."""
+    services/image_gen implementation.
+
+    No sampling parameters here either. The deprecation is per-MODEL, not
+    per-API: switching google_api_mode to 'legacy' does not bring temperature /
+    top_p / top_k back, so keeping them on this path would only have produced a
+    setting that silently did nothing on one mode and 400'd on the other."""
     config_kwargs: Dict[str, Any] = {
         "response_modalities": response_modalities or ["Image"],
     }
@@ -579,12 +576,6 @@ def _legacy_gen_image(client, model: str, blocks: List[Dict[str, Any]], *,
         image_cfg = types.ImageConfig(**image_config_base)
     config_kwargs["image_config"] = image_cfg
 
-    if temperature is not None:
-        config_kwargs["temperature"] = max(0.0, min(2.0, temperature))
-    if top_k is not None:
-        config_kwargs["top_k"] = max(1, min(100, top_k))
-    if top_p is not None:
-        config_kwargs["top_p"] = max(0.0, min(1.0, top_p))
     if use_google_search:
         config_kwargs["tools"] = [types.Tool(google_search=types.GoogleSearch())]
 

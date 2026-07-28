@@ -161,7 +161,7 @@ class TestRequestShapes:
         google_api.gen_image(
             client, "m", [google_api.text_block("x")],
             aspect_ratio="16:9", image_size="512px", thinking_level="high",
-            include_thoughts=True, temperature=1.2, use_google_search=True,
+            include_thoughts=True, use_google_search=True,
         )
         call = client.interactions.calls[0]
         assert call["response_modalities"] == ["image"]
@@ -169,8 +169,28 @@ class TestRequestShapes:
         assert gc["image_config"] == {"aspect_ratio": "16:9", "image_size": "512"}
         assert gc["thinking_level"] == "high"
         assert gc["thinking_summaries"] == "auto"
-        assert gc["temperature"] == 1.2
         assert call["tools"] == [{"type": "google_search"}]
+
+    def test_gen_image_sends_no_deprecated_sampling_params(self, interactions_mode):
+        """temperature / top_p / top_k must never reach the wire.
+
+        Deprecated from Gemini 3.6 Flash and 3.5 Flash-Lite onwards: ignored
+        today, HTTP 400 in future model generations. This asserts on the
+        outgoing request rather than the function signature, because the failure
+        being guarded against is a caller re-adding them via **kwargs or a
+        future edit reinstating the config lines — a signature check would miss
+        both. Verified to fail if those lines are put back.
+        """
+        data = base64.b64encode(PNG).decode()
+        client = FakeClient(make_interaction(steps=[image_step(data)]))
+        google_api.gen_image(
+            client, "m", [google_api.text_block("x")],
+            aspect_ratio="1:1", thinking_level="high",
+        )
+        call = client.interactions.calls[0]
+        gc = call.get("generation_config") or {}
+        for banned in ("temperature", "top_p", "top_k"):
+            assert banned not in gc, f"{banned} was sent to the Interactions API"
 
 
 # ── extraction & block detection ─────────────────────────────────────────────

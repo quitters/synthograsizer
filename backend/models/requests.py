@@ -33,10 +33,14 @@ class ImageRequest(BaseModel):
     image_count: Optional[int] = 1
     add_watermark: Optional[bool] = True
     use_google_search: Optional[bool] = False
-    # Sampling controls
-    temperature: Optional[float] = None      # 0.0-2.0, higher = more creative
-    top_k: Optional[int] = None              # 1-100, limits token selection pool
-    top_p: Optional[float] = None            # 0.0-1.0, nucleus sampling
+    # Sampling controls (temperature / top_k / top_p) were removed in the
+    # Gemini 3.6 Flash migration: Google deprecated them from 3.6 Flash and
+    # 3.5 Flash-Lite onwards. They are ignored today and return HTTP 400 in
+    # future model generations, so carrying them forward would have been a
+    # scheduled outage. Determinism is now expressed through system
+    # instructions instead, which is Google's documented replacement.
+    # NOTE: Lyria (music_manager.py) keeps its own temperature/top_k — that is
+    # a different API and is not affected by this deprecation.
     # Provenance tags to embed in PNG metadata
     tags: Optional[List[Dict]] = None
 

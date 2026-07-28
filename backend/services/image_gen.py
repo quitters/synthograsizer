@@ -20,9 +20,6 @@ def generate_image(self, prompt: str, model_name: str = None, aspect_ratio: str 
                    image_count: int = 1,
                    add_watermark: bool = True,
                    use_google_search: bool = False,
-                   temperature: Optional[float] = None,
-                   top_k: Optional[int] = None,
-                   top_p: Optional[float] = None,
                    tags: list = None):
     """Generate image using Imagen 3 or Gemini."""
     if not self.genai_client:
@@ -40,7 +37,7 @@ def generate_image(self, prompt: str, model_name: str = None, aspect_ratio: str 
                 response_modalities, thinking_level, include_thoughts,
                 media_resolution, person_generation, safety_settings,
                 image_count, add_watermark, use_google_search,
-                temperature, top_k, top_p, tags=tags
+                tags=tags
             )
         else:
             # Use Imagen 3 — natively supports number_of_images, add_watermark,
@@ -69,17 +66,18 @@ def _generate_image_gemini(self, prompt: str, model_name: str, aspect_ratio: str
                            image_count: int = 1,
                            add_watermark: bool = True,
                            use_google_search: bool = False,
-                           temperature: Optional[float] = None,
-                           top_k: Optional[int] = None,
-                           top_p: Optional[float] = None,
                            tags: list = None):
     """Generate an image via Gemini (google_api dispatch: Interactions or legacy).
 
     Returns either a base64 string or a dict with 'image' and 'text' keys
     (when the model returns both modalities). Signature keeps the full set of
     public API parameters; ones without an Interactions equivalent
-    (top_k, image_count>1) are dropped there with a warning, and
+    (image_count>1) are dropped there with a warning, and
     `person_generation` / `add_watermark` remain Imagen-only as before.
+
+    temperature / top_k / top_p are gone as of the Gemini 3.6 Flash migration —
+    Google deprecated them from that model onwards and they return HTTP 400 in
+    future generations.
     """
     # Thinking gate:
     # NB2 (gemini-3.1-flash-image) supports configurable thinking_level (minimal/high).
@@ -121,9 +119,6 @@ def _generate_image_gemini(self, prompt: str, model_name: str, aspect_ratio: str
         response_modalities=response_modalities,
         thinking_level=thinking_level,
         include_thoughts=include_thoughts,
-        temperature=temperature,
-        top_k=top_k,
-        top_p=top_p,
         safety_settings=safety_settings,
         use_google_search=use_google_search,
         image_count=image_count,
