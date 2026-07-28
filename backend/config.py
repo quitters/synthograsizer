@@ -53,16 +53,26 @@ MODEL_ANALYSIS = "gemini-3.1-pro-preview"
 # Template generation (Pro for creative quality)
 MODEL_TEMPLATE_GEN = "gemini-3.1-pro-preview"
 # Fast alternative for template generation (lower quality, much faster)
-MODEL_TEMPLATE_GEN_FAST = "gemini-3-flash-preview"
+MODEL_TEMPLATE_GEN_FAST = "gemini-3.6-flash"
 # Lighter tasks: narrative, video variations, chat inside ai_manager
-MODEL_FAST = "gemini-3-flash-preview"
-# Demo mode — cheapest allowed model; backend enforces this when is_demo=True
-MODEL_DEMO = "gemini-3.1-flash-lite-preview"
+MODEL_FAST = "gemini-3.6-flash"
+# Demo mode — backend enforces this when is_demo=True.
+# ⚠ This is no longer a *cheaper* model than MODEL_FAST: it is the same one.
+# Gemini 3.5 Flash-Lite (gemini-3.5-flash-lite, $0.30/$2.50 per 1M) is the
+# documented successor to the 3.1 flash-lite this replaced, and would have kept
+# demo mode a genuinely cheap tier — Alexander chose to standardise every
+# non-Pro model on 3.6 Flash instead (2026-07-28). Demo mode is therefore now a
+# feature cap (locked model, locked settings), not a cost cap.
+MODEL_DEMO = "gemini-3.6-flash"
+
+# ⚠ NOT flash text models, despite the name — these are IMAGE models and must
+# never be pointed at MODEL_FAST. gemini-3.6-flash cannot generate images.
+# See MODEL_IMAGE_GEN_* above.
 
 # Registry for UI consumption
 GEMINI_MODELS = {
-    "gemini-3-flash-preview": {
-        "name": "Gemini 3 Flash",
+    "gemini-3.6-flash": {
+        "name": "Gemini 3.6 Flash",
         "description": "Fast and efficient for most tasks",
         "capability": "Vision, Audio, 1M Context"
     },
@@ -70,11 +80,6 @@ GEMINI_MODELS = {
         "name": "Gemini 3.1 Pro",
         "description": "Best quality for reasoning and complex analysis",
         "capability": "Advanced Reasoning, 2M Context"
-    },
-    "gemini-3.1-flash-lite-preview": {
-        "name": "Gemini 3.1 Flash Lite",
-        "description": "Ultra-fast, optimized for simple tasks",
-        "capability": "Efficiency"
     }
 }
 

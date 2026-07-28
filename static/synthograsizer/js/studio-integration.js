@@ -1013,28 +1013,14 @@ class StudioIntegration {
                         <div style="font-size:11px; color:#888; margin-top:5px;">Enable real-time data access for image generation</div>
                     </div>
 
-                    <!-- Sampling Controls -->
-                    <div class="studio-input-group">
-                        <label>Sampling Controls</label>
-                        <div style="display:flex; flex-direction:column; gap:10px;">
-                            <div style="display:flex; align-items:center; gap:10px;">
-                                <span style="font-size:12px; color:#555; min-width:85px;">Temperature</span>
-                                <input type="range" id="sampling-temperature" min="0" max="200" value="100" style="flex:1;">
-                                <span id="sampling-temperature-val" style="font-size:12px; color:#333; min-width:30px; text-align:right;">1.0</span>
-                            </div>
-                            <div style="display:flex; align-items:center; gap:10px;">
-                                <span style="font-size:12px; color:#555; min-width:85px;">Top-K</span>
-                                <input type="range" id="sampling-top-k" min="1" max="100" value="40" style="flex:1;">
-                                <span id="sampling-top-k-val" style="font-size:12px; color:#333; min-width:30px; text-align:right;">40</span>
-                            </div>
-                            <div style="display:flex; align-items:center; gap:10px;">
-                                <span style="font-size:12px; color:#555; min-width:85px;">Top-P</span>
-                                <input type="range" id="sampling-top-p" min="0" max="100" value="95" style="flex:1;">
-                                <span id="sampling-top-p-val" style="font-size:12px; color:#333; min-width:30px; text-align:right;">0.95</span>
-                            </div>
-                        </div>
-                        <div style="font-size:11px; color:#888; margin-top:5px;">Higher temperature = more creative. Lower Top-K/Top-P = more focused.</div>
-                    </div>
+                    <!-- Sampling Controls removed in the Gemini 3.6 Flash migration.
+                         Google deprecated temperature / top_k / top_p from 3.6 Flash
+                         and 3.5 Flash-Lite onwards: they are ignored now and return
+                         HTTP 400 in future model generations. Keeping the sliders
+                         would have meant three controls that quietly did nothing —
+                         worse than not offering them. Google's documented
+                         replacement for steering determinism is an explicit system
+                         instruction, which the prompt field already is. -->
 
                     <!-- Safety -->
                     <div class="studio-input-group">
@@ -1393,7 +1379,7 @@ class StudioIntegration {
             <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px; padding:8px 12px; background:rgba(63, 81, 181, 0.06); border-radius:6px; border:1px solid rgba(63, 81, 181, 0.15);">
                 <span style="font-size:12px; font-weight:600; color:#555;">AI Model:</span>
                 <label style="display:flex; align-items:center; gap:4px; font-size:12px; cursor:pointer; color:#3F51B5;">
-                    <input type="radio" name="analysis-model-choice" value="gemini-3-flash-preview" checked style="accent-color:#3F51B5;"> Flash <span style="color:#999; font-weight:normal;">(speed)</span>
+                    <input type="radio" name="analysis-model-choice" value="gemini-3.6-flash" checked style="accent-color:#3F51B5;"> Flash <span style="color:#999; font-weight:normal;">(speed)</span>
                 </label>
                 <label style="display:flex; align-items:center; gap:4px; font-size:12px; cursor:pointer; color:#009688;">
                     <input type="radio" name="analysis-model-choice" value="gemini-3.1-pro-preview" style="accent-color:#009688;"> Pro <span style="color:#999; font-weight:normal;">(quality)</span>
@@ -2056,7 +2042,7 @@ class StudioIntegration {
                 <div style="display:flex;align-items:center;">
                     <span>🤖 Chat</span>
                     <select id="chat-model-select" class="chat-model-select" onclick="event.stopPropagation()">
-                        <option value="gemini-3-flash-preview">Gemini 3 Flash</option>
+                        <option value="gemini-3.6-flash">Gemini 3.6 Flash</option>
                         <option value="gemini-3-pro-preview">Gemini 3 Pro</option>
                     </select>
                 </div>
@@ -2276,29 +2262,6 @@ class StudioIntegration {
                 const isHidden = advancedContent.style.display === 'none';
                 advancedContent.style.display = isHidden ? 'block' : 'none';
                 advancedArrow.textContent = isHidden ? '▲' : '▼';
-            });
-        }
-
-        // Sampling control slider bindings
-        const tempSlider = document.getElementById('sampling-temperature');
-        const tempVal = document.getElementById('sampling-temperature-val');
-        if (tempSlider && tempVal) {
-            tempSlider.addEventListener('input', () => {
-                tempVal.textContent = (tempSlider.value / 100).toFixed(2);
-            });
-        }
-        const topKSlider = document.getElementById('sampling-top-k');
-        const topKVal = document.getElementById('sampling-top-k-val');
-        if (topKSlider && topKVal) {
-            topKSlider.addEventListener('input', () => {
-                topKVal.textContent = topKSlider.value;
-            });
-        }
-        const topPSlider = document.getElementById('sampling-top-p');
-        const topPVal = document.getElementById('sampling-top-p-val');
-        if (topPSlider && topPVal) {
-            topPSlider.addEventListener('input', () => {
-                topPVal.textContent = (topPSlider.value / 100).toFixed(2);
             });
         }
 
@@ -3015,7 +2978,7 @@ class StudioIntegration {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     prompt: enhancementPrompt,
-                    model: 'gemini-3-flash-preview'
+                    model: 'gemini-3.6-flash'
                 })
             });
 
@@ -3906,7 +3869,7 @@ class StudioIntegration {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 prompt: enhancementPrompt,
-                model: 'gemini-3-flash-preview'
+                model: 'gemini-3.6-flash'
             })
         });
 
@@ -4723,14 +4686,6 @@ class StudioIntegration {
         const watermark = document.getElementById('gemini-watermark')?.checked;
         const useGoogleSearch = document.getElementById('gemini-use-google-search')?.checked;
 
-        // Sampling controls
-        const tempSlider = document.getElementById('sampling-temperature');
-        const topKSlider = document.getElementById('sampling-top-k');
-        const topPSlider = document.getElementById('sampling-top-p');
-        const temperature = tempSlider ? parseFloat(tempSlider.value) / 100 : null;
-        const topK = topKSlider ? parseInt(topKSlider.value) : null;
-        const topP = topPSlider ? parseFloat(topPSlider.value) / 100 : null;
-
         // Prepare input images
         const inputImages = this.selectedRefImages.map(img => img.base64);
 
@@ -4747,9 +4702,6 @@ class StudioIntegration {
             person_generation: personGen,
             add_watermark: watermark,
             use_google_search: useGoogleSearch,
-            temperature: temperature,
-            top_k: topK,
-            top_p: topP,
             tags: this.app?.currentTemplate?.tags || null
         };
 
@@ -4790,7 +4742,7 @@ class StudioIntegration {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     prompt: enhancementPrompt,
-                    model: 'gemini-3-flash-preview'
+                    model: 'gemini-3.6-flash'
                 })
             });
 

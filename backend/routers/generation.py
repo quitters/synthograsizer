@@ -185,9 +185,12 @@ async def generate_image(request: ImageRequest, http_request: Request):
             model_name = config.MODEL_DEMO
         else:
             model_name = request.model
-            # Override deprecated model if present
+            # Override deprecated model if present. Retargeted to 3.6 Flash with
+            # the rest of the non-Pro text models; a client still asking for
+            # gemini-2.0-flash-exp is old enough that it wants whatever "current
+            # fast model" means today.
             if model_name == "gemini-2.0-flash-exp":
-                model_name = "gemini-3-flash-preview"
+                model_name = config.MODEL_FAST
 
         if is_free_tier(http_request):
             request.image_count = min(max(1, request.image_count or 1), 4)
@@ -215,9 +218,6 @@ async def generate_image(request: ImageRequest, http_request: Request):
                 image_count=request.image_count,
                 add_watermark=request.add_watermark,
                 use_google_search=request.use_google_search,
-                temperature=request.temperature,
-                top_k=request.top_k,
-                top_p=request.top_p,
                 tags=request.tags
             )
             ch.commit()

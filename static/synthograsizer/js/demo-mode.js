@@ -6,12 +6,12 @@
  *   - Perform layout only; Studio toggle removed
  *   - Generate button replaced with Open Glitcher
  *   - Image / Video / Agent studio modals stubbed out
- *   - Every model selector locked to gemini-3.1-flash-lite-preview
+ *   - Every model selector locked to gemini-3.6-flash
  * ────────────────────────────────────────────────────────────────────── */
 (function () {
   if (!window.SYNTH_DEMO_MODE) return;
 
-  var DEMO_MODEL = 'gemini-3.1-flash-lite-preview';
+  var DEMO_MODEL = 'gemini-3.6-flash';
   var DEMO_MODEL_LABEL = 'Gemini 3.1 Flash Lite (DEMO)';
 
   // ── Lock a single <select> to the demo model ─────────────────────────

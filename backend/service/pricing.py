@@ -25,8 +25,11 @@ class InvalidModel(ValueError):
 
 # ── per-model credit prices (per call / per image) ─────────────────────────
 TEXT_MODEL_CREDITS = {
-    config.MODEL_DEMO: 1,               # gemini flash-lite
-    config.MODEL_TEMPLATE_GEN_FAST: 1,  # gemini flash (== MODEL_FAST)
+    # ⚠ Two keys, not three: since the 3.6 Flash migration MODEL_DEMO and
+    # MODEL_TEMPLATE_GEN_FAST are the SAME model id, so this literal collapses.
+    # That is intended — both were priced at 1 credit, so nothing is lost — but
+    # it does mean demo mode no longer costs less than a normal fast call.
+    config.MODEL_TEMPLATE_GEN_FAST: 1,  # gemini 3.6 flash (== MODEL_FAST == MODEL_DEMO)
     config.MODEL_TEXT_CHAT: 5,          # gemini pro (== MODEL_TEMPLATE_GEN / MODEL_ANALYSIS)
 }
 

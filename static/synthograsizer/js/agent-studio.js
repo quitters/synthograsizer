@@ -1246,7 +1246,7 @@ class AgentStudio {
                 <label class="as-settings-label">AI Model</label>
                 <div style="display:flex; gap:6px; margin-top:4px;">
                     <label style="flex:1; display:flex; align-items:center; gap:4px; font-size:10px; cursor:pointer; padding:4px 6px; background:rgba(0,0,0,0.05); border-radius:4px;">
-                        <input type="radio" name="as-model-choice" value="gemini-3-flash-preview" checked style="accent-color:#009688;"> Flash
+                        <input type="radio" name="as-model-choice" value="gemini-3.6-flash" checked style="accent-color:#009688;"> Flash
                     </label>
                     <label style="flex:1; display:flex; align-items:center; gap:4px; font-size:10px; cursor:pointer; padding:4px 6px; background:rgba(0,0,0,0.05); border-radius:4px;">
                         <input type="radio" name="as-model-choice" value="gemini-3.1-pro-preview" style="accent-color:#3f51b5;"> Pro
