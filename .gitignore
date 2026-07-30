@@ -82,3 +82,9 @@ ds-bundle/
 .design-sync/node_modules
 # Self-hosted webfonts are copied from the @fontsource dev deps at build time.
 design-system/fonts/files/
+
+# Generated documentation PDFs. The manual and the hosted guide are rebuilt from
+# screenshots by scripts/manual/ in about a minute, so the binaries are output,
+# not source — ~7 MB of them, easy to add and awkward to remove later. The build
+# scripts and the written copy they contain ARE committed.
+docs/*.pdf
