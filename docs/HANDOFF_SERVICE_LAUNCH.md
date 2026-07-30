@@ -656,6 +656,18 @@ reverted by re-measuring rather than by reading the diff.
 - **`getComputedStyle(el).marginLeft === 'auto'` is always false** — computed style returns the used
   value (`415.469px`). Checking the "exactly one auto margin in the app-bar" landmine that way
   reports zero owners on a perfectly healthy app-bar. Same family as `outlineWidth` vs `outline`.
+- **A centred heading's box is not its ink.** `h1.app-title` spans 120–1220 while its glyphs occupy
+  513–828, so a bounding-box overlap test finds *no* clear column anywhere on the page and a
+  glyph-level `Range` finds two. The first-run hint landed on top of the title because of this,
+  and the fix needed `document.createRange().selectNodeContents(el)` rather than
+  `el.getBoundingClientRect()`.
+- **Measuring an element's own size before webfonts land gives an answer that stops being true.**
+  The hint measured 51px tall at first paint, cleared the strapline on that reading, then grew into
+  it. Re-measured on a 0/60/260ms `setTimeout` ladder — same choice and same reason as the p5 focus
+  ladder, since rAF does not run in a backgrounded tab.
+- **A dodge that moves an element away from what it points at is not a fix.** An early version of
+  the hint slid sideways to find a clear column and parked at the screen edge, pointing at nothing.
+  It dodges vertically only, and keeps its horizontal anchor under the Studio button.
 - **The harness sends `e.key` literally.** `key: "Right"` produced no match against `ArrowRight` and
   looked exactly like a dead handler; `"ArrowRight"` worked first try. It cannot emit space at all
   (`e.key === ""` for both `"space"` and `"Space"`), so **Space activation on the workflow cards is
