@@ -262,7 +262,28 @@ class WorkflowRunner {
   async open() {
     this._showPhase('browse');
     this.studio.openModal('workflows-modal');
+
+    /* Say we are looking before we know the answer.
+     *
+     * Measured 2026-07-29 on a local install: with the ChatRoom backend up the
+     * cards appear in ~357ms, which nobody notices. With it DOWN the panel sat
+     * visibly empty for over 1.6 seconds before the offline message resolved —
+     * an empty box being the worst thing to show, because it reads as broken
+     * rather than busy. #wfr-status already existed for exactly this and was
+     * simply never used on this path.
+     *
+     * Cleared by _showPhase() on the next transition, and by the offline and
+     * loaded branches below, so it cannot outlive the probe. */
+    const status = document.getElementById('wfr-status');
+    const statusText = document.getElementById('wfr-status-text');
+    if (status && statusText) {
+      statusText.textContent = 'Looking for the workflow engine…';
+      status.style.display = '';
+    }
+
     await this._fetchTemplates();
+
+    if (status) status.style.display = 'none';
   }
 
   // ─── Phase management ─────────────────────────────────────────────────────
@@ -385,13 +406,13 @@ class WorkflowRunner {
       // by keyboard or a stray call either.
       const locked = !!t._locked;
       return `
-      <div class="wfr-template-card${locked ? ' wfr-locked' : ''}" data-id="${t.id}"${locked ? ' data-locked="1" aria-disabled="true"' : ''} style="
+      <div class="wfr-template-card${locked ? ' wfr-locked' : ''}" data-id="${t.id}"${locked ? ' data-locked="1" aria-disabled="true"' : ''} title="${(t.description || '').replace(/"/g, '&quot;')}" style="
         padding:14px; border:1px solid #eee; border-radius:8px; cursor:${locked ? 'not-allowed' : 'pointer'};
         transition:all 0.15s ease; background:#fafafa; ${locked ? 'opacity:0.55;' : ''}
       ">
         <div style="font-size:24px; margin-bottom:6px;">${locked ? '🔒' : (icons[t.id] || '⚡')}</div>
         <div style="font-size:13px; font-weight:600; margin-bottom:4px; color:#333;">${t.name}</div>
-        <div style="font-size:11px; color:#888; line-height:1.4;">${t.description?.slice(0, 80) || ''}${t.description?.length > 80 ? '…' : ''}</div>
+        <div style="font-size:11px; color:#666; line-height:1.4;">${t.description?.slice(0, 80) || ''}${t.description?.length > 80 ? '…' : ''}</div>
         ${locked ? '<div style="margin-top:8px; font-size:10.5px; color:#b26a00; background:rgba(230,126,0,0.10); border-radius:5px; padding:4px 6px; line-height:1.4;">Generates video — available on a local install, or to admins.</div>' : ''}
       </div>`;
     }).join('');

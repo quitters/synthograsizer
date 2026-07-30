@@ -88,10 +88,16 @@
 }
 
 [data-tip]:hover::before,
-[data-tip]:hover::after {
+[data-tip]:hover::after,
+[data-tip]:focus-visible::before,
+[data-tip]:focus-visible::after {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
 }
+/* :focus-visible, not just :hover. A tooltip that only answers a mouse is no
+   answer at all for someone arriving by Tab — and these tips are now the only
+   place several controls explain what they produce (Studio menu items, and
+   GENERATE vs TEMPLATE GEN, which are adjacent and both say "GEN"). */
 
 /* Tip that opens downward (add data-tip-down attribute) */
 [data-tip][data-tip-pos="down"]::before {
@@ -468,32 +474,32 @@
               <div class="smb-menu" data-menu="generate">
                 <button type="button" class="smb-title" aria-haspopup="true" aria-expanded="false">Generate<span class="smb-caret" aria-hidden="true">▾</span></button>
                 <div class="smb-dropdown" role="menu" hidden>
-                  <button type="button" class="smb-item" id="studio-image-btn" role="menuitem"><span class="smb-i" aria-hidden="true">🎨</span>Image Studio</button>
-                  <button type="button" class="smb-item" id="studio-video-btn" role="menuitem"><span class="smb-i" aria-hidden="true">🎥</span>Video Studio</button>
-                  <button type="button" class="smb-item" id="studio-music-btn" role="menuitem"><span class="smb-i" aria-hidden="true">🎵</span>Music Studio</button>
+                  <button type="button" class="smb-item" id="studio-image-btn" role="menuitem" data-tip="Make an image from the current prompt" data-tip-pos="down"><span class="smb-i" aria-hidden="true">🎨</span>Image Studio</button>
+                  <button type="button" class="smb-item" id="studio-video-btn" role="menuitem" data-tip="Make a video clip from the current prompt (local install only)" data-tip-pos="down"><span class="smb-i" aria-hidden="true">🎥</span>Video Studio</button>
+                  <button type="button" class="smb-item" id="studio-music-btn" role="menuitem" data-tip="Generate music with Lyria (local install only)" data-tip-pos="down"><span class="smb-i" aria-hidden="true">🎵</span>Music Studio</button>
                 </div>
               </div>
               <div class="smb-menu" data-menu="transform">
                 <button type="button" class="smb-title" aria-haspopup="true" aria-expanded="false">Transform<span class="smb-caret" aria-hidden="true">▾</span></button>
                 <div class="smb-dropdown" role="menu" hidden>
-                  <button type="button" class="smb-item" id="studio-transform-btn" role="menuitem"><span class="smb-i" aria-hidden="true">✨</span>Smart Transform</button>
-                  <button type="button" class="smb-item" id="studio-glitcher-btn" role="menuitem"><span class="smb-i" aria-hidden="true">✦</span>Glitcher Studio</button>
-                  <button type="button" class="smb-item" id="studio-analysis-btn" role="menuitem"><span class="smb-i" aria-hidden="true">🔍</span>Image Analysis</button>
+                  <button type="button" class="smb-item" id="studio-transform-btn" role="menuitem" data-tip="Restyle an image you already have, guided by another" data-tip-pos="down"><span class="smb-i" aria-hidden="true">✨</span>Smart Transform</button>
+                  <button type="button" class="smb-item" id="studio-glitcher-btn" role="menuitem" data-tip="Open the glitch-art editor on the latest output" data-tip-pos="down"><span class="smb-i" aria-hidden="true">✦</span>Glitcher Studio</button>
+                  <button type="button" class="smb-item" id="studio-analysis-btn" role="menuitem" data-tip="Read an image and describe it as a prompt" data-tip-pos="down"><span class="smb-i" aria-hidden="true">🔍</span>Image Analysis</button>
                 </div>
               </div>
               <div class="smb-menu" data-menu="automate">
                 <button type="button" class="smb-title" aria-haspopup="true" aria-expanded="false">Automate<span class="smb-caret" aria-hidden="true">▾</span></button>
                 <div class="smb-dropdown" role="menu" hidden>
-                  <button type="button" class="smb-item" id="studio-workflow-btn" role="menuitem"><span class="smb-i" aria-hidden="true">⚡</span>Workflows</button>
-                  <button type="button" class="smb-item" id="studio-agent-btn" role="menuitem"><span class="smb-i" aria-hidden="true">🤖</span>Agent Studio</button>
-                  <button type="button" class="smb-item" id="studio-chat-btn" role="menuitem"><span class="smb-i" aria-hidden="true">💬</span>AI Chat</button>
+                  <button type="button" class="smb-item" id="studio-workflow-btn" role="menuitem" data-tip="Run a multi-step chain — generate, analyse, regenerate" data-tip-pos="down"><span class="smb-i" aria-hidden="true">⚡</span>Workflows</button>
+                  <button type="button" class="smb-item" id="studio-agent-btn" role="menuitem" data-tip="Ask a panel of AI agents to critique your work" data-tip-pos="down"><span class="smb-i" aria-hidden="true">🤖</span>Agent Studio</button>
+                  <button type="button" class="smb-item" id="studio-chat-btn" role="menuitem" data-tip="One-off chat with the model" data-tip-pos="down"><span class="smb-i" aria-hidden="true">💬</span>AI Chat</button>
                 </div>
               </div>
               <div class="smb-menu" data-menu="inspect">
                 <button type="button" class="smb-title" aria-haspopup="true" aria-expanded="false">Inspect<span class="smb-caret" aria-hidden="true">▾</span></button>
                 <div class="smb-dropdown" role="menu" hidden>
-                  <button type="button" class="smb-item" id="studio-metadata-btn" role="menuitem"><span class="smb-i" aria-hidden="true">📋</span>Metadata</button>
-                  <button type="button" class="smb-item" id="studio-trace-btn" role="menuitem"><span class="smb-i" aria-hidden="true">🔎</span>Trace Viewer</button>
+                  <button type="button" class="smb-item" id="studio-metadata-btn" role="menuitem" data-tip="Read the prompt embedded in a generated PNG" data-tip-pos="down"><span class="smb-i" aria-hidden="true">📋</span>Metadata</button>
+                  <button type="button" class="smb-item" id="studio-trace-btn" role="menuitem" data-tip="Inspect what each step of a workflow actually did" data-tip-pos="down"><span class="smb-i" aria-hidden="true">🔎</span>Trace Viewer</button>
                 </div>
               </div>
             </div>
@@ -596,10 +602,12 @@
 
             <!-- Primary Action Buttons -->
             <section class="primary-actions-section">
-                <button id="randomize-button" class="primary-btn randomize-btn">
+                <button id="randomize-button" class="primary-btn randomize-btn"
+                        data-tip="Roll every variable to a random value" data-tip-pos="down">
                     <span class="label">RANDOMIZE</span><kbd class="keybind-badge">R</kbd>
                 </button>
-                <button id="generate-button" class="primary-btn generate-btn">
+                <button id="generate-button" class="primary-btn generate-btn"
+                        data-tip="Make an image from this prompt" data-tip-pos="down">
                     <span class="label">GENERATE</span><kbd class="keybind-badge">G</kbd>
                 </button>
                 <!-- Featured tool launcher — forwards to #studio-template-btn (see the
@@ -610,10 +618,11 @@
                      wearing an emoji and hiding its key. The teal fill is what marks it
                      as featured; it does not need a different shape of label too. -->
                 <button id="template-gen-featured-btn" class="primary-btn template-gen-btn"
-                        data-tip="Generate a new template with AI" data-tip-pos="down">
+                        data-tip="Write a whole new template with AI — not an image" data-tip-pos="down">
                     <span class="label">TEMPLATE GEN</span><kbd class="keybind-badge">T</kbd>
                 </button>
-                <button id="p5-run-main-btn" class="primary-btn p5-run-main-btn" style="display: none;">
+                <button id="p5-run-main-btn" class="primary-btn p5-run-main-btn" style="display: none;"
+                        data-tip="Run this template's p5.js sketch on the canvas" data-tip-pos="down">
                     <span class="label">RUN CODE</span><kbd class="keybind-badge">P</kbd>
                 </button>
             </section>
@@ -1572,7 +1581,7 @@
         <script src="../metadata-manager/js/utils/metadata_extractor.js"></script>
         <script type="module" src="js/agent-profiles.js"></script>
         <script type="module" src="js/taste-profile-store.js"></script>
-        <script src="js/workflow-runner.js?v=7"></script>
+        <script src="js/workflow-runner.js?v=8"></script>
         <script src="js/trace-viewer.js?v=1"></script>
         <script src="js/agent-studio.js?v=6"></script>
         <script src="js/glitcher-studio.js?v=2"></script>

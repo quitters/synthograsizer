@@ -91,10 +91,16 @@
 }
 
 [data-tip]:hover::before,
-[data-tip]:hover::after {
+[data-tip]:hover::after,
+[data-tip]:focus-visible::before,
+[data-tip]:focus-visible::after {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
 }
+/* :focus-visible, not just :hover. A tooltip that only answers a mouse is no
+   answer at all for someone arriving by Tab — and these tips are now the only
+   place several controls explain what they produce (Studio menu items, and
+   GENERATE vs TEMPLATE GEN, which are adjacent and both say "GEN"). */
 
 /* Tip that opens downward (add data-tip-down attribute) */
 [data-tip][data-tip-pos="down"]::before {
@@ -1253,7 +1259,7 @@
         <script src="js/music-studio.js?v=2"></script>
         <script src="../metadata-manager/js/utils/metadata_extractor.js"></script>
         <script type="module" src="js/agent-profiles.js"></script>
-        <script src="js/workflow-runner.js?v=6"></script>
+        <script src="js/workflow-runner.js?v=7"></script>
         <script src="js/trace-viewer.js?v=1"></script>
         <script src="js/agent-studio.js?v=6"></script>
         <script src="js/glitcher-studio.js?v=2"></script>

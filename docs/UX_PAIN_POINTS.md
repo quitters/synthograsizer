@@ -1,105 +1,106 @@
-# UX pain points — found while writing the user manual (2026-07-28)
+# UX pain points and how to fix them
 
-Collected by walking every surface of a **local install** to capture screenshots for
-[Synthograsizer-Manual.pdf](Synthograsizer-Manual.pdf). Writing a manual turns out to be a good
-audit: anywhere the manual needed a sentence to explain a control is somewhere the app could have
-said it itself.
+Collected by walking every surface of a local install and the hosted service to capture
+screenshots for the two guides (`scripts/manual/`). Writing a manual is a good audit: anywhere
+the manual needed a sentence to explain a control is somewhere the app could have said it itself.
 
 Feeds the standing **accessibility and simplicity** goal in
 [HANDOFF_SERVICE_LAUNCH.md](HANDOFF_SERVICE_LAUNCH.md).
 
-## The headline number
+---
 
-**11 of 60 visible controls carry a tooltip — 18%.** No control is *unnamed* any more (the
-2026-07-27 pass closed that), but a name is not an explanation: `Scope`, `Composer` and
-`Template Gen` are all correctly labelled and still tell a newcomer nothing.
+## ⚠ Correction to the first version of this document
 
-## Ranked by value per unit of work
+The first draft led with *"11 of 60 visible controls carry a tooltip — 18%"* and proposed adding
+a tooltip system. **Both were wrong.** A complete tooltip system already existed, inline in
+`index.html` (`<style id="v6-tooltip-styles">`): `[data-tip]::before` carries the text via
+`content: attr(data-tip)` and `::after` draws the arrow.
 
-### 1 · The Connections strip is four pieces of jargon, unexplained
-`MIDI · Scope · Display · API`, all dimmed when inactive, none with a tooltip. **Scope** is the
-worst offender — it means Daydream Scope, a separate third-party renderer, which no first-time
-reader can be expected to infer. **Display** sounds like a monitor setting rather than "open a
-clean output window for OBS".
+The measurement error: the probe checked the `title` attribute and then, on the second pass,
+`::after` — **the arrow** — and concluded from `content: ""` that nothing rendered. The text was
+on `::before` the whole time.
 
-*Fix:* one `title` each. ~4 lines.
+This is the "check whether the fix already exists" lesson for the third time in this project,
+after the knob-rack grid and the keyboard path to the knobs. **Before proposing a mechanism,
+check whether a working one is already in the file.**
 
-### 2 · `api-key-btn` is the most important control on a local install and says only "API"
-Nothing generates without a key, and the only affordance is a three-letter chip with no tooltip.
-It was the single control flagged by the icon-only-no-tooltip probe.
+What was *actually* missing is narrower and is now fixed — see Wave 1 below.
 
-*Fix:* `title="Your Google AI Studio key — nothing can generate without it"`, plus a stronger
-empty state when no key is set.
+---
 
-### 3 · Workflow card descriptions are truncated mid-word
-The cards already carry a real description — the data is there — but it is cut with an ellipsis
-(`"Analyzes the result a…"`). **This refines the standing note asking for workflow descriptions:
-they exist, they are just unreadable.**
+## Wave 1 — DONE (2026-07-29)
 
-*Fix:* `title` with the full text on each card. One line in the card template.
-
-### 4 · The Workflows panel sits blank for >1.6s when the backend is down
-Measured on a local install:
-
-| Backend state | Time to any visible text | Time to template cards |
+| # | Pain point | What was done |
 |---|---|---|
-| ChatRoom running | 357 ms | 358 ms (17 cards) |
-| ChatRoom down | **> 1600 ms** | — (offline message) |
+| 1 | **Studio menu items had no tooltip text.** 12 items, 0 with `data-tip`. `Smart Transform`, `Trace Viewer`, `Metadata` explained themselves nowhere. | `data-tip` on all 11 menu items, each naming what the tool **produces** rather than restating its label. |
+| 2 | **`GENERATE` vs `TEMPLATE GEN`** sit adjacent, both say "GEN", and do very different things. | Tooltips name the output: *"Make an image from this prompt"* vs *"Write a whole new template with AI — not an image"*. All four primary buttons tipped. |
+| 3 | **Tooltips answered the mouse only.** The system was `:hover`-only, so a keyboard user reached a control and got nothing — and these tips are now the only place several controls explain themselves. | `:focus-visible` added alongside `:hover` in all three pages. Verified with a real Tab press: opacity 1, text rendering. |
+| 4 | **Workflow descriptions truncate mid-word** (`"Analyzes the result a…"`). The full text was already in the data. | `title` on the card carries the untruncated description. Card text also went `#888` → `#666` (`#888` = 3.4:1, fails AA). |
+| 5 | **Workflows sat visibly blank for >1.6s when the backend was down.** Measured: 357 ms to cards when it is up; over 1600 ms of empty box when it is not, which reads as broken rather than busy. | `#wfr-status` already existed for this and was never used on the path — now shows *"Looking for the workflow engine…"* during the probe. |
 
-The offline message itself is good and honest — plug icon, what happened, the exact command to
-fix it, and a Retry button. The problem is only the silent gap before it. There is already a
-`#wfr-status` element in the markup sitting at `display:none`, so a "Connecting…" line has a home
-and no new markup is needed.
+Tooltip coverage went from **21 controls to 35**.
 
-> ⚠ I initially filed this as "Workflows renders completely empty" — a **wrong** reading, taken
-> from a downscaled screenshot caught inside that blank window. The offline state renders
-> correctly. Recorded because the mistake is instructive: a low-resolution screenshot is not
-> evidence about small text.
+---
 
-### 5 · `PERFORM / STUDIO / COMPOSER` have no tooltips, and Composer is genuinely unguessable
-Composer is an **agent-crew builder** (Library → Editor → Session), not a template or prompt
-composer as its name suggests. **I got this wrong myself while writing the manual** and only
-caught it when the screenshot showed a library of agent personas rather than anything about
-templates. If the person writing the documentation with the app open in front of them infers the
-wrong thing from the label, a user has no chance.
+## Wave 2 — open, needs copy or a small design call
 
-*Fix:* a tooltip per mode, and consider renaming Composer to something naming its subject
-(e.g. "Agents" or "Crew").
-
-### 6 · `GENERATE` vs `TEMPLATE GEN` sit side by side and do very different things
-One makes an image from the current prompt; the other writes an entirely new template with AI.
-Both are large, both are adjacent, both say "GEN". The keybind badges (`G` / `T`) are good and
-should stay — the gap is the explanation, not the discoverability.
-
-### 7 · The template chip shows `UNTITLED` with no unsaved-work signal
+### 6 · The `UNTITLED` chip gives no unsaved-work signal
 After editing a template the chip reads `UNTITLED`, which does not say "you have unsaved changes
-that switching templates will discard". This is the **stranded-state pattern** the project keeps
-rediscovering, in a new place.
+that switching templates will discard". This is the **stranded-state pattern** in a new place, and
+it bit for real: capturing screenshots would have destroyed the operator's unsaved prompt had it
+not been checked first.
 
-*Fix:* a dirty marker (`UNTITLED •`) plus a tooltip, and ideally a confirm when loading over
-unsaved edits. Worth noting this bit for real during this session: capturing screenshots would
-have destroyed the operator's unsaved prompt had it not been checked first.
+**Fix:** dirty marker (`UNTITLED •`) plus a tooltip, and a confirm when loading over unsaved edits.
+~20 lines.
 
-### 8 · Menu items are emoji + name with no one-line description
-`Smart Transform`, `Image Analysis`, `Trace Viewer`, `Metadata` — the Workflows grid gets
-descriptions (see #3) and the menus do not, though they carry the same kind of unfamiliar
-capability.
+### 7 · Caption greys fail AA
+`#888` = **3.4:1**, `#999` = **2.7:1** on `#fafafa`. AA body text wants 4.5:1; `#999` fails even
+the 3:1 large-text bar. **109 occurrences across 16 files.**
 
-### 9 · `PROMPT BATCH` and `LIKED PROMPTS` never say what they collect or where things go
-Both are nouns without verbs. Where does a liked prompt go? What does a batch produce, and how
-much does it cost?
+**Fix:** `#767676` is the darkest grey that passes — but this is **not** a find-and-replace. Some
+occurrences sit on dark theme backgrounds where `#767676` is *worse*, and four of the files are
+vendored ChatRoom build artifacts or template JSON art content that must not be touched. Needs a
+per-context pass with a contrast check per site.
 
-### 10 · First-run still lands in Perform, where the tools are hidden
-Unchanged from the standing note, now confirmed visually: the first screen offers Randomize /
-Generate / Run Code and 13 knobs, with nothing indicating that STUDIO holds four menus of tools.
-GENERATE going straight to an image is what rescues it.
+### 8 · 13 knobs and 17 workflow cards are unfocusable `<div>`s
+Zero `tabindex` in `workflow-runner.js`, `studio-integration.js`, `auth.js`.
 
-## Not a pain point — checked and correct
+**Fix:** the planned next slice. Note `knob-controller.js` is a **fully accessible knob
+implementation that nothing imports** — real `<button>`s, `aria-label`, Arrow/Home/End. The live
+rack is `app.js:renderKnobs()` building plain divs. Decide whether to wire the existing one in or
+add roles to the current markup; wiring it in risks visual change, so measure first.
 
-- **The Workflows offline message** is a model of the honest-error pattern: what broke, the exact
-  command to fix it, and a retry.
-- **Keybind badges** on the primary buttons are clear and consistent.
-- **Variable colour-coding** between the prompt text and the knob labels is genuinely good — it
-  makes "which knob controls which words" legible at a glance, with no explanation needed.
-- **The knob rack** now fits 13 knobs without clipping in Studio (4×4 grid), as intended by the
-  2026-07-26 fix.
+---
+
+## Wave 3 — genuine product decisions
+
+### 9 · "Composer" is unguessable
+It is an **agent-crew builder** (Library → Editor → Session), not a prompt or template composer.
+**The manual shipped a wrong description of it**, written with the app open, and the error was only
+caught from a screenshot showing a library of agent personas. If the person writing the
+documentation infers the wrong thing from the label, a user has no chance.
+
+**Fix:** a tooltip is the patch. The real fix is renaming it to name its subject — "Agents" or
+"Crew". User-visible, so it needs a decision.
+
+### 10 · First-run lands in Perform, where the tools are hidden
+A newcomer sees Randomize / Generate / Run Code and 13 knobs, with nothing indicating that STUDIO
+holds four menus of tools. GENERATE going straight to an image is what rescues it.
+
+**Options:** land in Studio; keep Perform but add a one-time pointer; or a real first-run tour.
+Each is a different bet on who the app is for.
+
+---
+
+## Checked and correct — do not "fix" these
+
+- **The Workflows offline message** is a model of the honest-error pattern: a plug icon, what
+  broke, the exact command to fix it, and a Retry button. It was initially filed as "renders
+  completely empty" — a misreading of a downscaled screenshot caught during the blank probe window.
+- **Variable colour-coding** between the prompt text and the knob labels makes "which knob controls
+  which words" legible at a glance, with no explanation needed.
+- **Cost quotes before you spend** — `Run Smart Transform — ⚡6`, and per-model prices in the picker.
+- **The tier gate**: on hosted, Video/Music Studio are absent from the menus, Scope is absent from
+  Connections, and the result panel's video/Scope buttons are `display:none`. Verified live.
+- **Keybind badges** on the primary buttons.
+- **The knob rack** fits 13 knobs without clipping in Studio (4×4), as the 2026-07-26 fix intended.
