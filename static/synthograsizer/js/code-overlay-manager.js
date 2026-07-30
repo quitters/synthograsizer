@@ -102,6 +102,15 @@ export class CodeOverlayManager {
       }
     });
 
+    // Keep the header chip's unsaved-work mark honest. Bound to the editors
+    // themselves rather than to the buttons that read them, so text that has
+    // been typed but not applied — the state that actually gets lost — counts
+    // as unsaved from the first keystroke. `input` also fires for paste and
+    // undo, which a keydown hook would miss.
+    ['templateEditor', 'variablesJson', 'p5CodeEditor'].forEach((k) => {
+      this.elements[k]?.addEventListener('input', () => this.app.refreshDirtyMark?.());
+    });
+
     // Apply template button
     this.elements.applyTemplateBtn?.addEventListener('click', () => this.applyTemplate());
 

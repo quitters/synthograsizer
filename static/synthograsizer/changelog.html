@@ -286,7 +286,7 @@
     </div>
     <nav class="app-bar-nav">
       <a href="index.html" class="nav-link">⊟ Studio</a>
-      <a href="agent-composer.html" class="nav-link">🧪 Composer</a>
+      <a href="agent-composer.html" class="nav-link">🧪 Agents</a>
       <a href="changelog.html" class="nav-link active">📋 What's New</a>
     </nav>
   </header>
@@ -307,6 +307,34 @@
       <div class="version-panel">
         <div class="panel-section-label">Accessibility</div>
         <ul class="entry-list">
+          <li class="entry-item">
+            <span class="entry-badge badge-fix">fix</span>
+            <div>
+              <div class="entry-text">The knobs and the workflow cards can be used without a mouse</div>
+              <div class="entry-sub">The thirteen knobs and the seventeen workflow cards were plain blocks of layout as far as the keyboard was concerned — you could look at them, but you could not reach them. The knob rack is now one stop on the Tab route rather than thirteen, because it is the main thing on the screen and nobody should have to press Tab thirteen times to get past it. Once you are on it, Left and Right change the value, Up and Down move between knobs, and Home and End jump to the first or last value. Screen readers now say the variable's name and read out the full value rather than the shortened one on the dial. Whichever knob you last used is the one Tab brings you back to. The workflow cards answer Enter and space, announce their name and then their description as two separate things rather than one long run-on, and the video ones you cannot run say so out loud and refuse the keyboard exactly as they already refused the mouse. Nothing about how any of it looks or behaves with a mouse has changed.</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-fix">fix</span>
+            <div>
+              <div class="entry-text">The small grey text is dark enough to read</div>
+              <div class="entry-sub">All the quiet grey captions — the "(optional)" notes beside form fields, hints under inputs, workflow step labels, the trace viewer's column headings — were set in a grey that does not carry enough contrast against the background behind it. On the tan chassis of the hardware theme some of them measured under 2 to 1, which is close to invisible in daylight or on a projector. Eighty-seven of them are now dark enough to clear the accessibility standard for body text, with the worst case measuring 4.6 to 1 and most far better. This was not a search-and-replace: the same grey is doing the opposite job on the dark surfaces — the Glitcher's chrome and the P5 filter drawer — where it already had plenty of contrast and darkening it would have made it worse, so those were measured individually and deliberately left alone. One subtitle in the Glitcher was failing not because of its colour but because it was being faded to 70 per cent on top of it; the fade is gone and the colour now says what it means.</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-fix">fix</span>
+            <div>
+              <div class="entry-text">The template name tells you when you have unsaved work</div>
+              <div class="entry-sub">If you rewrote a prompt in the template editor and then picked a different template, the work was gone, and nothing anywhere on screen had suggested it might be. The chip at the top left now grows a dot the moment you start typing — before you have applied anything, because that is exactly when the work is most easily lost — and hovering it says what the dot means. Loading another template over unsaved changes now asks first, and answering no leaves everything where it was. It only asks when there is genuinely something to lose: switching between templates you have not edited is as quiet as it ever was.</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-fix">fix</span>
+            <div>
+              <div class="entry-text">"Composer" is now called "Agents", and new arrivals are pointed at the tools</div>
+              <div class="entry-sub">The third mode builds a crew of AI personas and runs them together, which is not something the word "Composer" suggests to anybody — we know, because the person writing the manual had the app open and still described it as a prompt composer. It is now called <strong>Agents</strong>, and the tooltip says what it does. Separately: a brand new install opens in Perform, which shows knobs and a Generate button and hides the tool menus entirely, so there was nothing on the first screen hinting that four menus of tools existed one click away. On a genuinely first run only, a small note now points at the Studio button and says what is behind it. Dismiss it with the button, with Escape, or just by clicking Studio, and it never comes back. It does not take your keyboard or move you anywhere.</div>
+            </div>
+          </li>
           <li class="entry-item">
             <span class="entry-badge badge-fix">fix</span>
             <div>

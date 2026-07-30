@@ -549,7 +549,7 @@ class StudioIntegration {
                 color: #1565c0;
             }
             .skeuo-label-left, .skeuo-label-right {
-                flex: 1; text-align: center; font-size: 10px; font-weight: 600; color: #888; z-index: 1;
+                flex: 1; text-align: center; font-size: 10px; font-weight: 600; color: #565656; z-index: 1;
                 pointer-events: none; user-select: none;
             }
             .skeuo-switch.active .skeuo-label-right { opacity: 0; }
@@ -581,7 +581,7 @@ class StudioIntegration {
             /* Video Drop Zones */
             .vdrop-row { display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
             .vdrop-wrap { flex: 1; min-width: 80px; display: flex; flex-direction: column; gap: 4px; }
-            .vdrop-wrap > span { font-size: 10px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: .04em; }
+            .vdrop-wrap > span { font-size: 10px; font-weight: 700; color: #565656; text-transform: uppercase; letter-spacing: .04em; }
             .vdrop-zone {
                 position: relative; border: 2px dashed #ccc; border-radius: 8px;
                 padding: 12px 6px; text-align: center; cursor: pointer;
@@ -1010,7 +1010,7 @@ class StudioIntegration {
                         <label style="display:flex; align-items:center; gap:5px; font-size:12px; cursor:pointer;">
                             <input type="checkbox" id="gemini-use-google-search"> Use Google Search Grounding
                         </label>
-                        <div style="font-size:11px; color:#888; margin-top:5px;">Enable real-time data access for image generation</div>
+                        <div style="font-size:11px; color:#565656; margin-top:5px;">Enable real-time data access for image generation</div>
                     </div>
 
                     <!-- Sampling Controls removed in the Gemini 3.6 Flash migration.
@@ -1142,7 +1142,7 @@ class StudioIntegration {
             <div id="svo-input-section">
                 <div style="display:flex; gap:16px; align-items:flex-start; margin-bottom:16px;">
                     <div id="svo-reference-preview" style="width:120px; height:120px; border-radius:8px; overflow:hidden; flex-shrink:0; background:#f0f0f0; display:flex; align-items:center; justify-content:center;">
-                        <span style="color:#999; font-size:11px;">Reference</span>
+                        <span style="color:#565656; font-size:11px;">Reference</span>
                     </div>
                     <div style="flex:1;">
                         <div class="studio-input-group" style="margin-bottom:0;">
@@ -1225,10 +1225,10 @@ class StudioIntegration {
             <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px; padding:8px 12px; background:rgba(0,150,136,0.06); border-radius:6px; border:1px solid rgba(0,150,136,0.15);">
                 <span style="font-size:12px; font-weight:600; color:#555;">AI Model:</span>
                 <label style="display:flex; align-items:center; gap:4px; font-size:12px; cursor:pointer; color:#009688;">
-                    <input type="radio" name="tg-model-choice" value="pro" checked style="accent-color:#009688;"> Pro <span style="color:#999; font-weight:normal;">(quality)</span>
+                    <input type="radio" name="tg-model-choice" value="pro" checked style="accent-color:#009688;"> Pro <span style="color:#565656; font-weight:normal;">(quality)</span>
                 </label>
                 <label style="display:flex; align-items:center; gap:4px; font-size:12px; cursor:pointer; color:#FF9800;">
-                    <input type="radio" name="tg-model-choice" value="flash" style="accent-color:#FF9800;"> Flash <span style="color:#999; font-weight:normal;">(speed)</span>
+                    <input type="radio" name="tg-model-choice" value="flash" style="accent-color:#FF9800;"> Flash <span style="color:#565656; font-weight:normal;">(speed)</span>
                 </label>
             </div>
 
@@ -1239,12 +1239,12 @@ class StudioIntegration {
                 </div>
                 <div id="tg-mode-badge" style="margin-bottom:8px;font-size:12px;color:#009688;font-weight:600;">Mode: 📝 Text — enter a description below</div>
                 <div class="studio-input-group">
-                    <label>Description <span style="color:#999; font-weight:normal;">(optional with images)</span></label>
+                    <label>Description <span style="color:#565656; font-weight:normal;">(optional with images)</span></label>
                     <textarea id="tg-create-text" placeholder="e.g. A cyberpunk cityscape template with variables for weather, neon color, and time of day..." style="width:100%; height:90px; padding:8px; border:1px solid #ddd; border-radius:6px; resize:vertical; font-family:'Inter'"></textarea>
                 </div>
                 <div class="studio-input-group">
-                    <label>Images <span style="color:#999; font-weight:normal;">(optional — 1 for style reference, 2+ for pattern extraction)</span></label>
-                    <div id="tg-create-dropzone" style="position:relative; border:2px dashed #ccc; border-radius:6px; padding:14px; text-align:center; cursor:pointer; color:#888; font-size:13px; transition:border-color .2s; background:#fafafa;">
+                    <label>Images <span style="color:#565656; font-weight:normal;">(optional — 1 for style reference, 2+ for pattern extraction)</span></label>
+                    <div id="tg-create-dropzone" style="position:relative; border:2px dashed #ccc; border-radius:6px; padding:14px; text-align:center; cursor:pointer; color:#565656; font-size:13px; transition:border-color .2s; background:#fafafa;">
                         📎 Click or drag images here
                         <input type="file" id="tg-create-images" accept="image/*" multiple style="position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%;">
                     </div>
@@ -1265,15 +1265,15 @@ class StudioIntegration {
                      or prompt text. -->
                 <div id="tg-remix-scope" class="studio-input-group" style="display:none; padding:8px 12px; background:rgba(0,150,136,0.06); border-radius:6px; border:1px solid rgba(0,150,136,0.15); margin-bottom:10px;">
                     <label style="font-size:12px; font-weight:600; color:#555; margin-bottom:4px; display:block;">
-                        Edit scope <span style="color:#999; font-weight:normal; font-size:11px;">(p5.js template loaded)</span>
+                        Edit scope <span style="color:#565656; font-weight:normal; font-size:11px;">(p5.js template loaded)</span>
                     </label>
                     <label style="display:inline-flex; align-items:center; gap:4px; font-size:12px; cursor:pointer; margin-right:14px;">
                         <input type="radio" name="tg-remix-scope" value="p5_only" checked style="accent-color:#009688;">
-                        Sketch only <span style="color:#999;">(faster — touches p5.js code only)</span>
+                        Sketch only <span style="color:#565656;">(faster — touches p5.js code only)</span>
                     </label>
                     <label style="display:inline-flex; align-items:center; gap:4px; font-size:12px; cursor:pointer;">
                         <input type="radio" name="tg-remix-scope" value="full" style="accent-color:#FF9800;">
-                        Full template <span style="color:#999;">(variables + prompt + sketch)</span>
+                        Full template <span style="color:#565656;">(variables + prompt + sketch)</span>
                     </label>
                 </div>
                 <div class="studio-input-group">
@@ -1281,8 +1281,8 @@ class StudioIntegration {
                     <textarea id="tg-remix-instruction" placeholder="e.g. Add a 'time_of_day' variable with morning, noon, and night options" style="width:100%; height:80px; padding:8px; border:1px solid #ddd; border-radius:6px; resize:vertical; font-family:'Inter'"></textarea>
                 </div>
                 <div class="studio-input-group">
-                    <label>Reference Images <span style="color:#999; font-weight:normal;">(optional — up to 8)</span></label>
-                    <div id="tg-remix-dropzone" style="position:relative; border:2px dashed #ccc; border-radius:6px; padding:14px; text-align:center; cursor:pointer; color:#888; font-size:13px; transition:border-color .2s; background:#fafafa;">
+                    <label>Reference Images <span style="color:#565656; font-weight:normal;">(optional — up to 8)</span></label>
+                    <div id="tg-remix-dropzone" style="position:relative; border:2px dashed #ccc; border-radius:6px; padding:14px; text-align:center; cursor:pointer; color:#565656; font-size:13px; transition:border-color .2s; background:#fafafa;">
                         📎 Click or drag images here
                         <input type="file" id="tg-remix-images" accept="image/*" multiple style="position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%;">
                     </div>
@@ -1304,13 +1304,13 @@ class StudioIntegration {
                 </div>
                 <div id="tg-workflow-json-preview" class="tg-current-template" style="max-height:100px; overflow:auto; font-size:11px;">No workflow loaded</div>
                 <div class="studio-input-group">
-                    <label>Reference Image(s) <span style="font-weight:normal; color:#888;">(select multiple for batch curation)</span></label>
+                    <label>Reference Image(s) <span style="font-weight:normal; color:#565656;">(select multiple for batch curation)</span></label>
                     <input type="file" id="tg-workflow-image" accept="image/*" multiple>
                 </div>
                 <div id="tg-workflow-image-preview" class="tg-preview" style="display:flex; flex-wrap:wrap; gap:8px;"></div>
                 <div id="tg-workflow-image-count" class="tg-file-count" style="font-size:11px; color:#666; margin-top:4px;"></div>
                 <div class="studio-input-group">
-                    <label>Curation Guidance <span style="font-weight:normal; color:#888;">(optional)</span></label>
+                    <label>Curation Guidance <span style="font-weight:normal; color:#565656;">(optional)</span></label>
                     <textarea id="tg-workflow-guidance" placeholder="e.g. Focus on matching the color palette and mood rather than the subject..." style="width:100%; height:60px; padding:8px; border:1px solid #ddd; border-radius:6px; resize:vertical; font-family:'Inter'"></textarea>
                 </div>
                 <div style="display:flex; gap:10px; align-items:center; margin-bottom:10px;">
@@ -1332,16 +1332,16 @@ class StudioIntegration {
                 </div>
                 <div style="display:flex; gap:12px; flex-wrap:wrap;">
                     <div class="studio-input-group" style="flex:1; min-width:120px;">
-                        <label>Total Beats <span style="color:#999; font-weight:normal;">(clips)</span></label>
+                        <label>Total Beats <span style="color:#565656; font-weight:normal;">(clips)</span></label>
                         <input type="number" id="tg-story-beats" min="4" max="32" value="12" style="width:100%; padding:6px 8px; border:1px solid #ddd; border-radius:6px; font-family:'Inter'">
                     </div>
                     <div class="studio-input-group" style="flex:1; min-width:120px;">
-                        <label>Beat Duration <span style="color:#999; font-weight:normal;">(seconds)</span></label>
+                        <label>Beat Duration <span style="color:#565656; font-weight:normal;">(seconds)</span></label>
                         <input type="number" id="tg-story-beat-duration" min="2" max="30" value="8" style="width:100%; padding:6px 8px; border:1px solid #ddd; border-radius:6px; font-family:'Inter'">
                     </div>
                 </div>
                 <div class="studio-input-group">
-                    <label>Shot List Seeds <span style="color:#999; font-weight:normal;">(optional — comma-separated shot types to include)</span></label>
+                    <label>Shot List Seeds <span style="color:#565656; font-weight:normal;">(optional — comma-separated shot types to include)</span></label>
                     <input type="text" id="tg-story-shot-seeds" placeholder="e.g. wide establishing, close-up hands, POV, low-angle hero" style="width:100%; padding:6px 8px; border:1px solid #ddd; border-radius:6px; font-family:'Inter'">
                 </div>
             </div>
@@ -1356,7 +1356,7 @@ class StudioIntegration {
                     <textarea id="tg-p5-prompt" placeholder="e.g. Organic flowing particles that cluster into formations, with variables for color palette, density, flow speed, and formation shape..." style="width:100%; height:100px; padding:8px; border:1px solid #ddd; border-radius:6px; resize:vertical; font-family:'Inter'"></textarea>
                 </div>
                 <div class="studio-input-group">
-                    <label>Style Reference <span style="color:#999; font-weight:normal;">(optional — for color palette / aesthetic)</span></label>
+                    <label>Style Reference <span style="color:#565656; font-weight:normal;">(optional — for color palette / aesthetic)</span></label>
                     <input type="file" id="tg-p5-image" accept="image/*">
                     <div id="tg-p5-preview" class="tg-preview"></div>
                 </div>
@@ -1379,10 +1379,10 @@ class StudioIntegration {
             <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px; padding:8px 12px; background:rgba(63, 81, 181, 0.06); border-radius:6px; border:1px solid rgba(63, 81, 181, 0.15);">
                 <span style="font-size:12px; font-weight:600; color:#555;">AI Model:</span>
                 <label style="display:flex; align-items:center; gap:4px; font-size:12px; cursor:pointer; color:#3F51B5;">
-                    <input type="radio" name="analysis-model-choice" value="gemini-3.6-flash" checked style="accent-color:#3F51B5;"> Flash <span style="color:#999; font-weight:normal;">(speed)</span>
+                    <input type="radio" name="analysis-model-choice" value="gemini-3.6-flash" checked style="accent-color:#3F51B5;"> Flash <span style="color:#565656; font-weight:normal;">(speed)</span>
                 </label>
                 <label style="display:flex; align-items:center; gap:4px; font-size:12px; cursor:pointer; color:#009688;">
-                    <input type="radio" name="analysis-model-choice" value="gemini-3.1-pro-preview" style="accent-color:#009688;"> Pro <span style="color:#999; font-weight:normal;">(quality)</span>
+                    <input type="radio" name="analysis-model-choice" value="gemini-3.1-pro-preview" style="accent-color:#009688;"> Pro <span style="color:#565656; font-weight:normal;">(quality)</span>
                 </label>
             </div>
             
@@ -1557,7 +1557,7 @@ class StudioIntegration {
                     <div class="studio-input-group">
                         <label>Or paste a video URI directly</label>
                         <input type="text" id="video-extend-uri-input" placeholder="https://generativelanguage.googleapis.com/v1beta/files/..." style="width:100%; padding:8px; border:1px solid #ddd; border-radius:6px; font-family:'Inter'; box-sizing:border-box; font-size:12px;">
-                        <small style="color:#888; margin-top:4px; display:block;">The URI is returned after each generation and is valid for 48 hours.</small>
+                        <small style="color:#565656; margin-top:4px; display:block;">The URI is returned after each generation and is valid for 48 hours.</small>
                     </div>
                 </div>
             </div>
@@ -1573,11 +1573,11 @@ class StudioIntegration {
                 <!-- Prompts mode -->
                 <div id="vbatch-prompts-panel">
                     <div class="studio-input-group">
-                        <label>Prompts <span style="font-weight:normal;color:#888;">(one per line)</span></label>
+                        <label>Prompts <span style="font-weight:normal;color:#565656;">(one per line)</span></label>
                         <textarea id="video-batch-prompts" placeholder="A cinematic shot of a wave crashing at sunset\nAn astronaut floating through a neon nebula\n..." style="width:100%; height:110px; padding:8px; border:1px solid #ddd; border-radius:6px; resize:vertical; font-family:'Inter'; font-size:12px;"></textarea>
                     </div>
                     <div class="studio-input-group">
-                        <label>Or upload a .txt file <span style="font-weight:normal;color:#888;">(one prompt per line)</span></label>
+                        <label>Or upload a .txt file <span style="font-weight:normal;color:#565656;">(one prompt per line)</span></label>
                         <input type="file" id="video-batch-prompts-file" accept=".txt,.csv">
                     </div>
                 </div>
@@ -1585,7 +1585,7 @@ class StudioIntegration {
                 <!-- Images mode -->
                 <div id="vbatch-images-panel" style="display:none;">
                     <div class="studio-input-group">
-                        <label>Source Images <span style="font-weight:normal;color:#888;">(each animates as image-to-video)</span></label>
+                        <label>Source Images <span style="font-weight:normal;color:#565656;">(each animates as image-to-video)</span></label>
                         <div class="file-input-wrapper">
                             <input type="file" id="video-batch-images" accept="image/*" multiple webkitdirectory>
                             <button type="button" class="clear-file-btn" data-file-input="video-batch-images" data-preview-target="video-batch-images-preview">Remove</button>
@@ -1594,7 +1594,7 @@ class StudioIntegration {
                         <small style="color:#666; display:block; margin-top:4px;">Select a folder or pick multiple images. Each will become its own video clip.</small>
                     </div>
                     <div class="studio-input-group">
-                        <label>Shared Prompt <span style="font-weight:normal;color:#888;">(optional — applied to every clip)</span></label>
+                        <label>Shared Prompt <span style="font-weight:normal;color:#565656;">(optional — applied to every clip)</span></label>
                         <textarea id="video-batch-shared-prompt" placeholder="Cinematic slow motion, golden hour lighting..." style="width:100%; height:60px; padding:8px; border:1px solid #ddd; border-radius:6px; resize:vertical; font-family:'Inter'; font-size:12px;"></textarea>
                     </div>
                 </div>
@@ -1608,7 +1608,7 @@ class StudioIntegration {
                         <option value="4">4</option>
                         <option value="5">5</option>
                     </select>
-                    <small style="color:#888;">simultaneous generations</small>
+                    <small style="color:#565656;">simultaneous generations</small>
                 </div>
 
                 <div class="batch-progress-container" id="simple-batch-progress-ui" style="display:none;">
@@ -1670,7 +1670,7 @@ class StudioIntegration {
                     </select>
                 </div>
                 <!-- Shown when mode or resolution forces 8s -->
-                <div id="video-duration-locked-note" style="display:none; font-size:11px; color:#888; padding:5px 10px; background:#f5f5f5; border-radius:6px; margin-bottom:10px;">
+                <div id="video-duration-locked-note" style="display:none; font-size:11px; color:#565656; padding:5px 10px; background:#f5f5f5; border-radius:6px; margin-bottom:10px;">
                     Duration: 8 seconds (required for this mode or resolution)
                 </div>
 
@@ -1689,11 +1689,11 @@ class StudioIntegration {
                         <option value="1080p">1080p (8s only)</option>
                         <option value="4k" id="video-res-4k-option">4K (8s only &middot; Veo 3.1 only)</option>
                     </select>
-                    <small style="color:#888; display:block; margin-top:4px;">Audio is always included in Veo 3.1 outputs.</small>
+                    <small style="color:#565656; display:block; margin-top:4px;">Audio is always included in Veo 3.1 outputs.</small>
                 </div>
 
                 <!-- Shown only in Extend mode -->
-                <div id="video-extend-locked-note" style="display:none; font-size:11px; color:#888; padding:5px 10px; background:#f5f5f5; border-radius:6px; margin-bottom:10px;">
+                <div id="video-extend-locked-note" style="display:none; font-size:11px; color:#565656; padding:5px 10px; background:#f5f5f5; border-radius:6px; margin-bottom:10px;">
                     Duration, Aspect Ratio, and Resolution are inherited from the source video.
                 </div>
             
@@ -2147,7 +2147,7 @@ class StudioIntegration {
                     <label style="font-size:11px; min-width:auto;">Wt</label>
                     <input type="number" class="music-prompt-weight" id="music-weight-${idx}" value="1.0" min="0.1" max="3.0" step="0.1" style="width:55px; padding:4px; border:1px solid #ddd; border-radius:4px; font-size:12px;">
                 </div>
-                <button onclick="this.parentElement.remove()" style="background:none; border:none; cursor:pointer; font-size:18px; color:#999;" title="Remove">×</button>
+                <button onclick="this.parentElement.remove()" style="background:none; border:none; cursor:pointer; font-size:18px; color:#565656;" title="Remove">×</button>
             `;
             list.appendChild(row);
         });
@@ -3159,7 +3159,7 @@ class StudioIntegration {
                 slot.innerHTML = `
                     <div id="svo-img-box-${i}" style="width:100%; aspect-ratio:1; background:#f5f5f5; border-radius:8px; display:flex; flex-direction:column; align-items:center; justify-content:center; overflow:hidden; border:2px solid #e0e0e0;">
                         <span class="loader" style="width:24px; height:24px; border-width:2px; margin-bottom:8px;"></span>
-                        <span style="font-size:10px; color:#999; text-align:center; padding:0 4px;">Generating...</span>
+                        <span style="font-size:10px; color:#565656; text-align:center; padding:0 4px;">Generating...</span>
                     </div>
                     <p style="font-size:11px; font-weight:600; color:#333; margin:0; text-align:center; line-height:1.3;">${p.label}</p>
                 `;
@@ -3242,7 +3242,7 @@ class StudioIntegration {
         box.style.border = '2px solid #d32f2f';
         box.innerHTML = `
             <div style="color:#d32f2f; font-size:10px; text-align:center; padding:8px;">
-                Failed<br><span style="color:#999;">${message.substring(0, 60)}</span>
+                Failed<br><span style="color:#565656;">${message.substring(0, 60)}</span>
             </div>
         `;
         // Add retry button
@@ -3277,7 +3277,7 @@ class StudioIntegration {
             box.style.border = '2px solid #e0e0e0';
             box.innerHTML = `
                 <span class="loader" style="width:24px; height:24px; border-width:2px; margin-bottom:8px;"></span>
-                <span style="font-size:10px; color:#999;">Regenerating...</span>
+                <span style="font-size:10px; color:#565656;">Regenerating...</span>
             `;
         }
 
@@ -3348,7 +3348,7 @@ class StudioIntegration {
             slot.innerHTML = `
                 <div id="svo-vid-box-${i}" style="width:100%; aspect-ratio:${vidAspect}; background:#f5f5f5; border-radius:8px; display:flex; flex-direction:column; align-items:center; justify-content:center; overflow:hidden; border:2px solid #e0e0e0;">
                     <span class="loader" style="width:24px; height:24px; border-width:2px; margin-bottom:8px;"></span>
-                    <span style="font-size:10px; color:#999; text-align:center;">Generating video...</span>
+                    <span style="font-size:10px; color:#565656; text-align:center;">Generating video...</span>
                 </div>
                 <p style="font-size:11px; font-weight:600; color:#333; margin:0; text-align:center;">${p.label}</p>
             `;
@@ -3456,7 +3456,7 @@ class StudioIntegration {
         box.style.border = '2px solid #d32f2f';
         box.innerHTML = `
             <div style="color:#d32f2f; font-size:10px; text-align:center; padding:8px;">
-                Failed<br><span style="color:#999;">${message.substring(0, 80)}</span>
+                Failed<br><span style="color:#565656;">${message.substring(0, 80)}</span>
             </div>
         `;
         const slot = document.getElementById(`svo-vid-slot-${index}`);
@@ -3482,7 +3482,7 @@ class StudioIntegration {
             box.style.border = '2px solid #e0e0e0';
             box.innerHTML = `
                 <span class="loader" style="width:24px; height:24px; border-width:2px; margin-bottom:8px;"></span>
-                <span style="font-size:10px; color:#999;">Regenerating...</span>
+                <span style="font-size:10px; color:#565656;">Regenerating...</span>
             `;
         }
 
@@ -4273,7 +4273,7 @@ class StudioIntegration {
                 </div>
                 <p style="font-size:11px; margin-top:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Image ${i + 1}</p>
                 <details style="margin-top:4px; font-size:10px;">
-                    <summary style="cursor:pointer; color:#888;">Details</summary>
+                    <summary style="cursor:pointer; color:#565656;">Details</summary>
                     <p class="detail-analysis" style="margin:4px 0; color:#666; word-break:break-word; white-space:normal;"></p>
                     <p class="detail-prompt" style="margin:4px 0; color:#444; word-break:break-word; white-space:normal; font-style:italic;"></p>
                 </details>
@@ -5025,7 +5025,7 @@ class StudioIntegration {
             item.className = 'studio-result-item';
             item.innerHTML = `
                         <div style="height:150px; display:flex; align-items:center; justify-content:center; background:#f5f5f5;">
-                            <span style="font-size:12px; color:#999;">${shouldEnhance ? `Enhancing ${i + 1}/${prompts.length}...` : `Generating ${i + 1}/${prompts.length}...`}</span>
+                            <span style="font-size:12px; color:#565656;">${shouldEnhance ? `Enhancing ${i + 1}/${prompts.length}...` : `Generating ${i + 1}/${prompts.length}...`}</span>
                 </div>
                 <p style="font-size:11px; color:#666; max-height:40px; overflow:hidden;">${prompt.substring(0, 100)}...</p>
             `;
@@ -6754,7 +6754,7 @@ class StudioIntegration {
                 <div style="margin-bottom:10px;">Generating ${type}...</div>
                 <div class="loading-spinner" style="width:24px;height:24px;border:3px solid #e0e0e0;border-top-color:#009688;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto;"></div>
                 ${subtitleHtml}
-                <div style="margin-top:10px;font-size:11px;color:#999;">Please wait</div>
+                <div style="margin-top:10px;font-size:11px;color:#565656;">Please wait</div>
             </div>
             <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
         `;

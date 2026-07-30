@@ -330,8 +330,33 @@ export class TemplateLoader {
     const headerName = document.getElementById('app-bar-tpl-name');
     const headerIcon = document.getElementById('app-bar-tpl-icon');
     if (!headerName) return;
-    headerName.textContent = String(name || 'Untitled').toUpperCase();
+    headerName.dataset.cleanName = String(name || 'Untitled').toUpperCase();
+    headerName.textContent = headerName.dataset.cleanName;
     if (headerIcon && icon) headerIcon.textContent = icon;
+    TemplateLoader.setDirtyMark(false);
+  }
+
+  /**
+   * Show or clear the unsaved-work mark on the header chip.
+   *
+   * The chip previously read the same whether the template was untouched or
+   * had a prompt rewrite sitting in the editor, so nothing in the app said
+   * that switching template would throw that work away — and it nearly did,
+   * to a real operator, during the manual screenshot run. The bullet is the
+   * signal; the tooltip is the sentence, because a bullet alone teaches
+   * nobody what it means the first time they see it.
+   */
+  static setDirtyMark(dirty) {
+    const headerName = document.getElementById('app-bar-tpl-name');
+    const btn = document.getElementById('app-bar-tpl-btn');
+    if (!headerName) return;
+    const clean = headerName.dataset.cleanName || headerName.textContent.replace(/\s*•$/, '');
+    headerName.textContent = dirty ? `${clean} •` : clean;
+    if (btn) {
+      btn.dataset.tip = dirty
+        ? 'Unsaved changes — loading another template will discard them'
+        : 'Browse all templates';
+    }
   }
 
   showLoadError(message) {

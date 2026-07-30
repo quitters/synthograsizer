@@ -607,6 +607,65 @@ hosted. Harmless today — that widget is dead code, explicitly retired in favou
 and no longer injected — and Pro ids were out of scope for this pass. Worth deleting the dead
 function outright next time it is touched.
 
+## Status 2026-07-30 — Waves 2 and 3 of the UX queue ⚠ NOT DEPLOYED
+Frontend only. **Zero changes under `backend/`, `scripts/`, `requirements.txt` or the Dockerfile**,
+no schema change, terms unchanged at v0.3. **282 tests green.** Vendored `workflow-engine/`
+`cmp`-verified byte-identical to source, untouched. Closes every open item in
+[UX_PAIN_POINTS.md](UX_PAIN_POINTS.md) — full detail there; the load-bearing bits only here.
+
+**Undeployed as of writing**, together with `4acf368` and `cf8c22e` (Wave 1). Live is still
+`synthograsizer-00047-87m`.
+
+### The knobs and workflow cards are keyboard-operable (the "next slice")
+`knob-controller.js` was **deleted, not wired in.** It queries `.knob-button-up` /
+`.knob-button-down` — class names that exist nowhere else in the repo — so it targets an up/down
+button design the rotary dial replaced. Both `static/synthograsizer/README.md` and `CHANGELOG.md`
+already called it *"(Legacy, unused)"*. **Fourth time the answer was already in the file.**
+
+The rack is **one Tab stop, not thirteen** (roving tabindex, measured at position 13 of 42). It is
+the app's primary control surface; making a user Tab past all of it to reach anything else would
+have been the wrong trade. `aria-orientation="horizontal"` is what makes the key map honest —
+Left/Right adjust, which frees Up/Down to move between knobs, which is the map the document-level
+handler already taught. **Active follows focus** so the two selections cannot drift apart, and
+`#knob-announcer` is suppressed while a knob holds focus so the slider role and the live region do
+not both announce. Verified in both directions with real key presses.
+
+### The greys: the 109-occurrence figure was right, the reasoning behind it was not
+The standing note above measures `#888` at 3.4:1 **on `#fafafa`**. That is not the background that
+matters — the hardware theme's tan chassis is, and `#999` on `#d4ccbe` measures **1.79:1**.
+`#767676`, named there as "the darkest grey that passes", **still fails at 3.21:1** on that chassis.
+Landed on **`#565656`** across 87 sites: after, **zero failing**, 83 elements at 4.61–7.34:1.
+The dark surfaces were measured individually and **left at `#888`** (5.2–5.5:1) — the bulk pass
+broke one of them (`.p5-fx-row label`, `#111` background, 5.33 → 2.57) and it was caught and
+reverted by re-measuring rather than by reading the diff.
+
+### Two product decisions taken, both cheap to reverse
+- **"Composer" is now "Agents"** in the mode segment. `data-mode="composer"` deliberately unchanged
+  — the key is wired through layout JS, CSS `@scope`, shortcuts and `window.Composer`. One edit if
+  you prefer "Crew".
+- **First-run pointer at Studio**, rather than relanding everyone in Studio or building a tour.
+  Genuine first run only, never steals focus, `position:fixed` on `<body>` so the app-bar segment
+  gains no sibling and no layout.
+
+### Method notes
+- **Three contrast probes gave three different wrong answers.** Walking `backgroundColor` alone
+  treats a `linear-gradient` ancestor as transparent — a near-black Glitcher panel measured as
+  `#ffffff`, and the first edit made from that reading would have set dark-panel text to `#565656`
+  (about 1.5:1). Reverted before it shipped. Where the background could not be measured reliably,
+  the decision was taken from source instead of from a number.
+- **`getComputedStyle(el).marginLeft === 'auto'` is always false** — computed style returns the used
+  value (`415.469px`). Checking the "exactly one auto margin in the app-bar" landmine that way
+  reports zero owners on a perfectly healthy app-bar. Same family as `outlineWidth` vs `outline`.
+- **The harness sends `e.key` literally.** `key: "Right"` produced no match against `ArrowRight` and
+  looked exactly like a dead handler; `"ArrowRight"` worked first try. It cannot emit space at all
+  (`e.key === ""` for both `"space"` and `"Space"`), so **Space activation on the workflow cards is
+  verified synthetically only** — Enter was verified with a real press. Recorded rather than
+  claimed.
+- **A `role="button"` div's Enter *can* be driven by the harness** when the handler reads `e.key`
+  rather than relying on native activation. Narrows the older note in the 2026-07-27 section.
+- `#wfr-status` still holding *"Looking for the workflow engine…"* after the cards render is **not**
+  a leak — it is `display:none`, only the text remains. Nearly filed as a Wave 1 defect.
+
 ## Card deck pipeline (`scripts/`)
 Restyling a sprite sheet in one Smart Transform call **does not work** — verified on a real 13×6
 solitaire deck: the grid geometry and styling survived beautifully, the *identities* did not
@@ -626,9 +685,15 @@ Gotcha found in the live run: generated symbols come back on **cream**, not whit
 instead of assuming white is the robust fix, and is not yet done.
 
 ## Next steps, in order
-1. **Accessibility and simplicity are the current headline goal** — see the section below. The
-   2026-07-25 pass fixed a class of *forgiveness* bug; the next pass should widen that to who can
-   actually use the app and how much it asks of a newcomer. Nothing here needs credits.
+0. ⚠ **DEPLOY.** Three commits are pushed and not live: `4acf368`, `cf8c22e` (Wave 1) and the
+   2026-07-30 Waves 2+3 slice. All frontend — no backend, no schema, no terms change — so §2 needs
+   no image rebuild reasoning, but §2b and §2c are still mandatory straight after §2. Live is
+   `synthograsizer-00047-87m`.
+1. ~~**Accessibility and simplicity are the current headline goal**~~ — **the measured queue is now
+   empty.** Every item in [UX_PAIN_POINTS.md](UX_PAIN_POINTS.md) is closed as of 2026-07-30. The
+   remaining simplicity candidates in the standing-goal section below (the 17 undifferentiated
+   workflow cards, Smart Transform's up-front modal, taste-profile onboarding being a separate
+   surface) are unstarted and want a fresh measurement pass rather than inheriting these notes.
 2. ~~**Two known defects from the live run**~~ — **both fixed 2026-07-27**, undeployed. The stale
    credits badge now refreshes from `/api/me` on run completion, and `card_style_kit`'s `style`
    param became `deck_style`. The third defect from that pass, cel-pastel's template chip keeping
@@ -682,28 +747,37 @@ The list is kept for the items still open:
 - ~~Do the icon-only buttons have accessible names?~~ ~~Close buttons done; `p5-close-v6`
   remains.~~ Done — `p5-close-v6` and `close-studio-result` both named 2026-07-27.
 - ~~Focus rings are the browser default (~0.67px)~~ — 2px as of 2026-07-27.
-- Contrast on the low-emphasis greys — **measured**: `#888` = 3.4:1, `#999` = 2.7:1 on `#fafafa`.
+- ~~Contrast on the low-emphasis greys — **measured**: `#888` = 3.4:1, `#999` = 2.7:1 on `#fafafa`.
   Both fail AA body text (4.5:1); `#999` fails even the 3:1 large-text bar. **109 occurrences
   across 16 files** (the 77 figure was scoped narrower). ⚠ Not a find-and-replace: some sit on
   dark theme backgrounds where `#767676` would be *worse*, and four of the files are vendored
   ChatRoom build artifacts or template JSON art content that must not be touched. Needs a
-  per-context measurement pass.
+  per-context measurement pass.~~ **Done 2026-07-30**, 87 sites to `#565656`, zero failing after.
+  ⚠ **Two of the numbers above are wrong and were acted on:** `#fafafa` is not the background that
+  matters — the hardware theme's tan chassis is, where `#999` measures **1.79:1** and the
+  recommended `#767676` **still fails at 3.21:1**. The "not a find-and-replace" warning was right
+  and earned its keep.
 - ~~Is there a keyboard path to the knob rack?~~ Yes — document-level arrow keys. It needs
-  discoverability, a focus indicator and announcement, not building from scratch. Note
-  `knob-controller.js` is an already-accessible implementation that nothing imports.
-- Still mouse-only: 13 knobs (`<div class="knob-item">`), 17 workflow cards
-  (`<div class="wfr-template-card">`). Zero `tabindex` in workflow-runner, studio-integration or
-  auth.js. **This is the next slice.** Alexander's standing note (2026-07-27), to be carried into
-  it: the knobs must end up **visible and intuitive**, and the workflow cards want **a short
-  description of what each workflow actually accomplishes** — which also starts paying down the
-  "17 undifferentiated cards" simplicity item below.
+  discoverability, a focus indicator and announcement, not building from scratch. ~~Note
+  `knob-controller.js` is an already-accessible implementation that nothing imports.~~ ⚠ **That
+  note was wrong** — it targets `.knob-button-up`/`.knob-button-down`, class names that exist
+  nowhere else in the repo, and two files already labelled it "(Legacy, unused)". Deleted
+  2026-07-30; roles were added to the live rack instead.
+- ~~Still mouse-only: 13 knobs (`<div class="knob-item">`), 17 workflow cards
+  (`<div class="wfr-template-card">`).~~ **Done 2026-07-30** — see the status section above. The
+  knobs are one Tab stop with `role="slider"`; the cards answer Enter/Space and are named and
+  described separately. Card copy left as-is at Alexander's call: the truncated description plus
+  Wave 1's `title` is enough.
 
 **Simplicity (measured, not guessed).** A brand-new account lands in **Perform** mode, where the
 AI Studio Tools menu bar is deliberately hidden — so the first screen offers Randomize / Generate
 / Run Code and 13 knobs, and everything else depends on knowing to click STUDIO. GENERATE does go
 straight to an image, which rescues it. Beyond that the surface is wide: 17 workflows, 53 style
 presets, 50+ templates, four studios, a connections strip. Candidates:
-- Reconsider the first-run landing (Perform hides the tools; Studio shows them).
+- ~~Reconsider the first-run landing (Perform hides the tools; Studio shows them).~~ **Done
+  2026-07-30** — kept Perform, added a one-time pointer at the Studio button. The smallest of the
+  three bets: relanding everyone in Studio changes the app for returning users too, and a tour is a
+  build.
 - The Workflows grid is 17 undifferentiated cards — no grouping, no "start here".
 - Smart Transform's modal asks for model, aspect, two file inputs and intent before anything runs.
 - Onboarding exists (taste-profile) but is a separate surface a newcomer may never reach.

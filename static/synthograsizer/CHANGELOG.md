@@ -56,8 +56,7 @@ synthograsizer_mini/
 │   ├── text-renderer.js   # Output rendering
 │   ├── template-loader.js # Template management
 │   ├── batch-generator.js # Batch generation
-│   ├── code-overlay-manager.js # Code mode
-│   └── knob-controller.js # (Legacy, unused)
+│   └── code-overlay-manager.js # Code mode
 ├── templates/             # Built-in templates
 │   ├── synthograsizer-prompt.json
 │   ├── character-design.json

@@ -1548,12 +1548,12 @@ class AgentStudio {
       .as-recipes-card:hover { transform:translateY(-2px); box-shadow:0 4px 12px rgba(0,0,0,.08);
                                border-color:transparent; background:#fff; }
       .as-recipes-card-name { font-size:13px; font-weight:600; color:#333; margin-bottom:4px; }
-      .as-recipes-card-desc { font-size:11px; color:#888; line-height:1.4; margin-bottom:8px; }
+      .as-recipes-card-desc { font-size:11px; color:#565656; line-height:1.4; margin-bottom:8px; }
       .as-recipes-card-roles { display:flex; flex-wrap:wrap; gap:4px; }
       .as-recipes-card-role { font-size:10px; padding:2px 6px; background:#ede7f6;
                               color:#5e35b1; border-radius:4px; font-weight:500; }
       .as-recipes-loading { grid-column:1/-1; padding:14px; text-align:center;
-                            color:#999; font-size:12px; }
+                            color:#565656; font-size:12px; }
 
       .as-recipes-results { background:#fff; border:1px solid #eee; border-radius:10px;
                             padding:16px; }
@@ -1569,11 +1569,11 @@ class AgentStudio {
       .as-recipes-result-head { display:flex; justify-content:space-between;
                                 margin-bottom:6px; align-items:center; }
       .as-recipes-result-name { font-size:12px; font-weight:600; color:#5e35b1; }
-      .as-recipes-result-role { font-size:10px; color:#888; text-transform:uppercase;
+      .as-recipes-result-role { font-size:10px; color:#565656; text-transform:uppercase;
                                 letter-spacing:.06em; }
       .as-recipes-result-text { font-size:13px; line-height:1.5; color:#222;
                                 white-space:pre-wrap; word-wrap:break-word; }
-      .as-recipes-result-spinner { font-size:11px; color:#888; font-style:italic; }
+      .as-recipes-result-spinner { font-size:11px; color:#565656; font-style:italic; }
 
       /* ── Header strip ───────────────────────────────────────────────────── */
       .as-header { display:flex; gap:8px; padding:10px 14px; background:#e0d8ca;
@@ -1604,10 +1604,10 @@ class AgentStudio {
                     max-width:380px; max-height:60vh; overflow-y:auto; z-index:20; }
       .as-popover.open { display:block; }
       .as-pop-h { font-size:10px; text-transform:uppercase; letter-spacing:.5px;
-                  color:#888; margin:0 0 8px; font-weight:700;
+                  color:#565656; margin:0 0 8px; font-weight:700;
                   display:flex; align-items:center; justify-content:space-between; }
       .as-pop-divider { height:1px; background:#eee; margin:14px 0; }
-      .as-hint { font-size:10px; color:#999; text-transform:none; letter-spacing:0; font-weight:400; }
+      .as-hint { font-size:10px; color:#565656; text-transform:none; letter-spacing:0; font-weight:400; }
 
       /* Roster items inside popover */
       .as-agent-list { display:flex; flex-direction:column; gap:6px; }
@@ -1684,7 +1684,7 @@ class AgentStudio {
                          padding:7px 12px; background:#f5f5f5; border-bottom:1px solid #eee;
                          flex-shrink:0; }
       .as-artifact-hdr-title { font-size:9px; letter-spacing:.08em; font-weight:700;
-                                text-transform:uppercase; color:#888; }
+                                text-transform:uppercase; color:#565656; }
 
       .as-artifact-tabs { display:flex; gap:4px; padding:7px 10px 0; flex-shrink:0;
                           flex-wrap:wrap; border-bottom:1px solid #eee; padding-bottom:7px; }
@@ -1752,7 +1752,7 @@ class AgentStudio {
       .as-console-entry.info  .as-console-lv { background:#1e3a5f; color:#60a5fa; }
       .as-console-entry.warn  .as-console-lv { background:#451a03; color:#fbbf24; }
       .as-console-entry.error .as-console-lv { background:#450a0a; color:#f87171; }
-      .as-empty { text-align:center; color:#999; padding:80px 20px; line-height:1.6;
+      .as-empty { text-align:center; color:#565656; padding:80px 20px; line-height:1.6;
                   max-width:520px; margin:0 auto; }
       .as-empty-icon { font-size:48px; opacity:.4; margin-bottom:12px; }
       .as-empty h3 { margin:0 0 10px; color:#666; font-size:18px; font-weight:600; }
@@ -1847,7 +1847,7 @@ class AgentStudio {
       .as-gen-btn:hover { color:#5e35b1; border-color:#9575cd; background:#f3eaff; }
       .as-gen-btn.sent { color:#10b981; border-color:#6ee7b7; }
 
-      .as-msg-system { color:#888; font-style:italic; font-size:11px;
+      .as-msg-system { color:#565656; font-style:italic; font-size:11px;
                        padding:6px 12px; background:#f7f7f7; border-radius:14px;
                        margin:10px auto; text-align:center; max-width:480px;
                        border:1px dashed #e0e0e0; }
@@ -1895,7 +1895,7 @@ class AgentStudio {
                        font-family:'Consolas','Monaco','Courier New',monospace;
                        font-size:12px; line-height:1.5; position:relative; }
       .as-code-block[data-lang]::before { content:attr(data-lang); position:absolute;
-                       top:4px; right:8px; font-size:9px; color:#888; text-transform:uppercase;
+                       top:4px; right:8px; font-size:9px; color:#565656; text-transform:uppercase;
                        letter-spacing:.5px; }
       .as-code-block code { background:transparent; padding:0; color:inherit;
                             font-family:inherit; font-size:inherit; }
@@ -1912,7 +1912,7 @@ class AgentStudio {
                       box-shadow:0 1px 4px rgba(0,0,0,.12);
                       transition:transform .15s, box-shadow .15s; }
       .as-img-thumb:hover { transform:translateY(-2px); box-shadow:0 4px 12px rgba(0,0,0,.22); }
-      .as-img-thumb-label { font-size:10px; color:#888; max-width:88px; overflow:hidden;
+      .as-img-thumb-label { font-size:10px; color:#565656; max-width:88px; overflow:hidden;
                             text-overflow:ellipsis; white-space:nowrap; text-align:center; }
 
       /* ── Enhanced lightbox ──────────────────────────────────────────────── */
@@ -1974,7 +1974,7 @@ class AgentStudio {
       .as-gallery-agent { font-size:11px; font-weight:600; }
       .as-gallery-prompt { color:#bbb; font-size:11px; line-height:1.35;
                            display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
-      .as-gallery-lineage { color:#888; font-size:10px; font-family:monospace; }
+      .as-gallery-lineage { color:#565656; font-size:10px; font-family:monospace; }
       .as-gallery-lineage code { background:rgba(255,255,255,.08); padding:1px 4px; border-radius:3px; color:#aaa; }
       .as-gallery-lineage-children { color:#7c9ec4; }
 

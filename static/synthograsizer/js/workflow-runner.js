@@ -161,7 +161,7 @@ class WorkflowRunner {
       <!-- Offline banner -->
       <!-- Copy is swapped for hosted visitors in _showOffline(): telling someone
            on synthograsizer.com to run launch-all.bat is nonsense advice. -->
-      <div id="wfr-offline" style="display:none; padding:20px; text-align:center; color:#999; font-size:13px; line-height:1.7;">
+      <div id="wfr-offline" style="display:none; padding:20px; text-align:center; color:#565656; font-size:13px; line-height:1.7;">
         <div style="font-size:24px;">🔌</div>
         <div id="wfr-offline-msg">
           <strong>Workflow engine is offline.</strong><br>
@@ -194,7 +194,7 @@ class WorkflowRunner {
           <button id="wfr-back-btn" style="background:none; border:none; font-size:18px; cursor:pointer; padding:0; color:#666;">←</button>
           <h4 id="wfr-template-name" style="margin:0; font-size:14px; font-weight:600;"></h4>
         </div>
-        <p id="wfr-template-desc" style="font-size:12px; color:#888; margin:0 0 14px; line-height:1.5;"></p>
+        <p id="wfr-template-desc" style="font-size:12px; color:#565656; margin:0 0 14px; line-height:1.5;"></p>
         <div id="wfr-param-fields"></div>
         <button class="studio-btn-primary" id="wfr-run-btn" style="width:100%; margin-top:8px;">▶ Run Workflow</button>
       </div>
@@ -212,7 +212,7 @@ class WorkflowRunner {
         <div id="wfr-progress-running" style="display:none; text-align:center; margin-top:8px;">
           <button id="wfr-cancel-btn" style="background:none; border:1px solid #d9534f; color:#d9534f;
                   padding:5px 12px; border-radius:6px; cursor:pointer; font-size:12px;">■ Stop run</button>
-          <div style="font-size:10.5px; color:#999; margin-top:6px;">
+          <div style="font-size:10.5px; color:#565656; margin-top:6px;">
             Steps already finished stay available under “View results”.
           </div>
         </div>
@@ -405,29 +405,46 @@ class WorkflowRunner {
       // reason. The click handler below refuses it too, so it can't be driven
       // by keyboard or a stray call either.
       const locked = !!t._locked;
+      // The card names itself with aria-label and defers the description to
+      // aria-describedby, rather than letting the button's name be computed
+      // from its contents — that would read icon + name + description as one
+      // run-on label, seventeen times. Two tiers means AT can skip the second.
+      const descId = `wfr-desc-${t.id}`;
+      const lockId = `wfr-lock-${t.id}`;
       return `
-      <div class="wfr-template-card${locked ? ' wfr-locked' : ''}" data-id="${t.id}"${locked ? ' data-locked="1" aria-disabled="true"' : ''} title="${(t.description || '').replace(/"/g, '&quot;')}" style="
+      <div class="wfr-template-card${locked ? ' wfr-locked' : ''}" data-id="${t.id}"${locked ? ' data-locked="1" aria-disabled="true"' : ''} role="button" tabindex="0" aria-label="${(t.name || '').replace(/"/g, '&quot;')}" aria-describedby="${descId}${locked ? ' ' + lockId : ''}" title="${(t.description || '').replace(/"/g, '&quot;')}" style="
         padding:14px; border:1px solid #eee; border-radius:8px; cursor:${locked ? 'not-allowed' : 'pointer'};
         transition:all 0.15s ease; background:#fafafa; ${locked ? 'opacity:0.55;' : ''}
       ">
-        <div style="font-size:24px; margin-bottom:6px;">${locked ? '🔒' : (icons[t.id] || '⚡')}</div>
+        <div style="font-size:24px; margin-bottom:6px;" aria-hidden="true">${locked ? '🔒' : (icons[t.id] || '⚡')}</div>
         <div style="font-size:13px; font-weight:600; margin-bottom:4px; color:#333;">${t.name}</div>
-        <div style="font-size:11px; color:#666; line-height:1.4;">${t.description?.slice(0, 80) || ''}${t.description?.length > 80 ? '…' : ''}</div>
-        ${locked ? '<div style="margin-top:8px; font-size:10.5px; color:#b26a00; background:rgba(230,126,0,0.10); border-radius:5px; padding:4px 6px; line-height:1.4;">Generates video — available on a local install, or to admins.</div>' : ''}
+        <div id="${descId}" style="font-size:11px; color:#666; line-height:1.4;">${t.description?.slice(0, 80) || ''}${t.description?.length > 80 ? '…' : ''}</div>
+        ${locked ? `<div id="${lockId}" style="margin-top:8px; font-size:10.5px; color:#b26a00; background:rgba(230,126,0,0.10); border-radius:5px; padding:4px 6px; line-height:1.4;">Generates video — available on a local install, or to admins.</div>` : ''}
       </div>`;
     }).join('');
 
-    // Bind card interactions. Locked cards get no hover lift and refuse clicks.
+    // Bind card interactions. Locked cards get no hover lift and refuse both
+    // clicks and Enter/Space — a card that is inert to the mouse but runs from
+    // the keyboard would be the worse half of the old mouse-only bug.
     grid.querySelectorAll('.wfr-template-card').forEach(card => {
-      if (card.dataset.locked) {
-        card.onclick = () => this.studio.showToast(
-          'That workflow generates video, which isn’t available on the free tier. Run Synthograsizer locally for the full toolkit.',
-          'info', 4500);
-        return;
-      }
+      // role="button" is a promise the browser doesn't keep for a <div>:
+      // Enter/Space have to be wired by hand or the card is focusable and dead.
+      const activate = card.dataset.locked
+        ? () => this.studio.showToast(
+            'That workflow generates video, which isn’t available on the free tier. Run Synthograsizer locally for the full toolkit.',
+            'info', 4500)
+        : () => this._selectTemplate(card.dataset.id);
+
+      card.onclick = activate;
+      card.onkeydown = (e) => {
+        if (e.key !== 'Enter' && e.key !== ' ' && e.key !== 'Spacebar') return;
+        e.preventDefault(); // Space would scroll the grid
+        activate();
+      };
+
+      if (card.dataset.locked) return;
       card.onmouseenter = () => { card.style.transform = 'translateY(-2px)'; card.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)'; card.style.borderColor = 'transparent'; };
       card.onmouseleave = () => { card.style.transform = ''; card.style.boxShadow = ''; card.style.borderColor = '#eee'; };
-      card.onclick = () => this._selectTemplate(card.dataset.id);
     });
   }
 
@@ -488,7 +505,7 @@ class WorkflowRunner {
     const required = new Set(tpl.requiredParams || []);
 
     if (allParams.length === 0) {
-      container.innerHTML = '<p style="color:#999; font-size:12px;">This template has no configurable parameters.</p>';
+      container.innerHTML = '<p style="color:#565656; font-size:12px;">This template has no configurable parameters.</p>';
       return;
     }
 
@@ -560,7 +577,7 @@ class WorkflowRunner {
                   };
                   reader.readAsDataURL(file);
                 })(this)">
-              <div style="font-size:13px; color:#999; pointer-events:none;">Click to upload image</div>
+              <div style="font-size:13px; color:#565656; pointer-events:none;">Click to upload image</div>
             </div>
           </div>`;
       }
@@ -753,7 +770,7 @@ class WorkflowRunner {
             <div id="wfr-step-${s.id}" style="display:flex; align-items:center; gap:8px; padding:6px 0; border-bottom:1px solid #f5f5f5;">
               <span class="wfr-step-dot" style="width:8px; height:8px; border-radius:50%; background:#ddd; flex-shrink:0;"></span>
               <span style="font-size:12px; color:#666; flex:1;">${s.id}</span>
-              <span style="font-size:11px; color:#999;">${(s.type || '').replace('synth_', '')}</span>
+              <span style="font-size:11px; color:#565656;">${(s.type || '').replace('synth_', '')}</span>
               <span class="wfr-step-status" style="font-size:11px; color:#bbb;">pending</span>
             </div>
           `).join('');
@@ -900,14 +917,14 @@ class WorkflowRunner {
   async _showResults() {
     this._showPhase('results');
     const grid = document.getElementById('wfr-results-grid');
-    grid.innerHTML = '<p style="color:#999; font-size:12px; text-align:center;">Loading results…</p>';
+    grid.innerHTML = '<p style="color:#565656; font-size:12px; text-align:center;">Loading results…</p>';
 
     const results = this._stepResults || [];
     const mediaSteps = results.filter(s => s.mediaId);
     const textSteps = results.filter(s => !s.mediaId && (s.text || s.description || s.narrative));
 
     if (mediaSteps.length === 0 && textSteps.length === 0) {
-      grid.innerHTML = '<p style="color:#999; font-size:12px; text-align:center;">No viewable results.</p>';
+      grid.innerHTML = '<p style="color:#565656; font-size:12px; text-align:center;">No viewable results.</p>';
       return;
     }
 
@@ -946,7 +963,7 @@ class WorkflowRunner {
         html += `
           <div style="border-radius:8px; overflow:hidden; border:1px solid #eee;">
             <video src="${src}" controls muted style="width:100%; display:block;"></video>
-            <div style="padding:6px 8px; font-size:11px; color:#888;">${item.stepId}</div>
+            <div style="padding:6px 8px; font-size:11px; color:#565656;">${item.stepId}</div>
             ${actions}
           </div>`;
       } else {
@@ -954,7 +971,7 @@ class WorkflowRunner {
           <div style="border-radius:8px; overflow:hidden; border:1px solid #eee;">
             <img src="${src}" style="width:100%; height:140px; object-fit:cover; display:block; cursor:pointer;"
                  onclick="window.studioIntegrationInstance.openLightbox(${i})">
-            <div style="padding:6px 8px; font-size:11px; color:#888;">${item.stepId}</div>
+            <div style="padding:6px 8px; font-size:11px; color:#565656;">${item.stepId}</div>
             ${actions}
           </div>`;
       }
@@ -965,7 +982,7 @@ class WorkflowRunner {
       const text = step.text || step.description || step.narrative || '';
       html += `
         <div style="grid-column:1/-1; padding:12px; border:1px solid #eee; border-radius:8px; background:#fafafa;">
-          <div style="font-size:11px; font-weight:600; color:#888; margin-bottom:6px;">${step.stepId} (${(step.stepType || step.type || '').replace('synth_', '')})</div>
+          <div style="font-size:11px; font-weight:600; color:#565656; margin-bottom:6px;">${step.stepId} (${(step.stepType || step.type || '').replace('synth_', '')})</div>
           <div style="font-size:12px; color:#333; line-height:1.5; max-height:150px; overflow-y:auto; white-space:pre-wrap;">${text.slice(0, 1000)}${text.length > 1000 ? '…' : ''}</div>
         </div>`;
     }

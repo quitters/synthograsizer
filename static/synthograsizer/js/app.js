@@ -3,8 +3,8 @@
 import { DEFAULT_CONFIG, ERROR_MESSAGES } from './config.js';
 import { TextRenderer } from './text-renderer.js?v=2';
 import { BatchGenerator } from './batch-generator.js?v=2';
-import { TemplateLoader } from './template-loader.js';
-import { CodeOverlayManager } from './code-overlay-manager.js?v=6';
+import { TemplateLoader } from './template-loader.js?v=2';
+import { CodeOverlayManager } from './code-overlay-manager.js?v=7';
 import { normalizeTemplate, getValueText, getValueWeight, getWeightsArray, computeTemplateFingerprint, generateTagId } from './template-normalizer.js?v=2';
 import { MIDIController } from './midi-controller.js?v=4';
 import { OSCController } from './osc-controller.js?v=3';
@@ -444,8 +444,67 @@ export class SynthograsizerSmall {
    * @param {Object} template - Template object
    * @returns {boolean} Success status
    */
+  /**
+   * A fingerprint of everything a template load would overwrite. Compared
+   * against the snapshot taken at load time to answer "is there unsaved work
+   * here", which is a question about observable state rather than about which
+   * edit path the user happened to take.
+   */
+  templateFingerprint() {
+    const t = this.currentTemplate;
+    if (!t) return '';
+    return JSON.stringify({
+      promptTemplate: t.promptTemplate || '',
+      variables: this.variables || [],
+      p5Code: t.p5Code || '',
+      tags: t.tags || [],
+    });
+  }
+
+  /**
+   * True when the loaded template differs from what was loaded, OR when one of
+   * the three code editors holds text the user has not applied yet. The second
+   * half matters more than the first: typing a new prompt and switching
+   * template is exactly how the work gets lost, and at that moment the
+   * template object itself is still pristine.
+   */
+  isTemplateDirty() {
+    if (this._templateBaseline !== undefined
+        && this.templateFingerprint() !== this._templateBaseline) return true;
+    const t = this.currentTemplate;
+    if (!t) return false;
+    const ed = document.getElementById('template-editor');
+    if (ed && ed.value.trim() !== String(t.promptTemplate || '').trim()) return true;
+    const p5 = document.getElementById('p5-code-editor');
+    if (p5 && !p5.hasAttribute('readonly') && p5.value.trim() !== String(t.p5Code || '').trim()) return true;
+    return false;
+  }
+
+  /** Re-read the dirty state and update the chip. Cheap; safe to call often. */
+  refreshDirtyMark() {
+    if (typeof TemplateLoader === 'undefined') return;
+    TemplateLoader.setDirtyMark(this.isTemplateDirty());
+  }
+
   loadTemplate(template) {
     try {
+      // Guard the one action that silently destroys unsaved work. Placed on
+      // loadTemplate rather than on the picker, because the picker is only one
+      // of six paths in — restore-from-disk, My creations, a generated
+      // template and the JSON importer all land here too. Never fires on the
+      // boot load, since nothing is dirty yet.
+      // _loadingTemplate keeps the error path below — which re-enters with the
+      // fallback template — from asking a second time about work the user has
+      // already agreed to discard.
+      if (!this._loadingTemplate && this.isTemplateDirty()) {
+        const ok = window.confirm(
+          'You have unsaved changes to this template.\n\n' +
+          'Loading another one will discard them. Continue?'
+        );
+        if (!ok) return false;
+      }
+      this._loadingTemplate = true;
+
       // Normalize template to nested value-weight format (handles old + new formats)
       template = normalizeTemplate(template);
 
@@ -495,8 +554,12 @@ export class SynthograsizerSmall {
       // Refresh MIDI panel for new variable set
       this._onTemplateLoadedMidi();
 
-      // Update Run Code button visibility (show only when template has p5Code)
-      this.codeOverlayManager?.updateP5CodeEditor();
+      // Refill every editor, not just the p5 one. The template editor kept the
+      // previous template's prompt when the overlay was closed, which the new
+      // dirty check would have read as unsaved work the instant a template
+      // loaded — a false positive that would have trained people to click
+      // through the confirm.
+      this.codeOverlayManager?.updateContent();
 
       // Auto-save template to JSON directory (fire and forget - don't block UI)
       this.autoSaveTemplate(template);
@@ -507,6 +570,12 @@ export class SynthograsizerSmall {
       // Show/hide beat navigator based on template type
       this._updateBeatNavigator(template);
 
+      // Everything the guard above compares against. Taken after the editors
+      // have been refilled from the new template, so the freshly-loaded state
+      // reads clean rather than dirty against its own predecessor.
+      this._templateBaseline = this.templateFingerprint();
+      this.refreshDirtyMark();
+
       return true;
 
     } catch (error) {
@@ -516,10 +585,14 @@ export class SynthograsizerSmall {
       // Try fallback if this wasn't already the fallback
       if (template !== this.config.fallbackTemplate) {
         console.log('Loading fallback template...');
+        // _loadingTemplate deliberately left true across this call, so the
+        // fallback does not re-ask about work the user already discarded.
         return this.loadTemplate(this.config.fallbackTemplate);
       }
 
       return false;
+    } finally {
+      this._loadingTemplate = false;
     }
   }
 
@@ -609,8 +682,12 @@ export class SynthograsizerSmall {
       dot.classList.toggle('active', index === this.currentVariableIndex);
     });
 
-    // Announce change for screen readers
-    if (this.elements.announcer) {
+    // Announce change for screen readers — unless a knob has focus, in which
+    // case its role="slider" already announces the new aria-valuetext and the
+    // live region would say the same thing a second time. Keyed off observable
+    // state rather than the call site, since every value path lands here.
+    const knobHasFocus = document.activeElement?.classList?.contains('knob-item');
+    if (this.elements.announcer && !knobHasFocus) {
       this.elements.announcer.textContent = `${variable.name}: ${value}`;
     }
 
@@ -899,6 +976,23 @@ export class SynthograsizerSmall {
       item.style.setProperty('--knob-color', color);
       item.dataset.index = index;
 
+      // Keyboard access. Roving tabindex, so the rack costs ONE tab stop
+      // rather than thirteen — these are the app's primary control surface,
+      // and a user who doesn't want them shouldn't have to Tab past all of
+      // them. `aria-orientation: horizontal` is what makes the key map honest:
+      // for a horizontal slider Left/Right are the adjust keys, which leaves
+      // Up/Down legitimately free to move between knobs — exactly the model
+      // the document-level handler already taught. The two paths agree by
+      // construction rather than by being maintained in parallel.
+      item.setAttribute('role', 'slider');
+      item.setAttribute('aria-orientation', 'horizontal');
+      item.setAttribute('aria-label', variable.name);
+      item.setAttribute('aria-valuemin', '0');
+      item.setAttribute('aria-valuemax', String(Math.max(0, totalValues - 1)));
+      item.setAttribute('aria-valuenow', String(valueIndex));
+      item.setAttribute('aria-valuetext', valueText);
+      item.tabIndex = index === this.currentVariableIndex ? 0 : -1;
+
       item.innerHTML = `
         <div class="knob-dial-wrapper">
           <div class="knob-ring"></div>
@@ -916,6 +1010,16 @@ export class SynthograsizerSmall {
         this.jumpToVariable(index);
         this.highlightActiveKnob(index);
       });
+
+      // Active follows focus, so "the knob I'm on" and "the knob the arrows
+      // act on" can never drift apart.
+      item.addEventListener('focus', () => {
+        if (index === this.currentVariableIndex) return;
+        this.jumpToVariable(index);
+        this.highlightActiveKnob(index);
+      });
+
+      item.addEventListener('keydown', (e) => this.onKnobKeyDown(e, index));
 
       // Drag to change value (vertical — up = increase, down = decrease)
       const dial = item.querySelector('.knob-dial-wrapper');
@@ -953,12 +1057,83 @@ export class SynthograsizerSmall {
   }
 
   /**
+   * Keyboard on a focused knob. Deliberately the same map as the
+   * document-level arrow handling — Left/Right change the value, Up/Down move
+   * between knobs — so a knob behaves identically whether or not it holds
+   * focus. The difference is only that focus leads here, and the event is
+   * stopped so one press is not applied twice by both handlers.
+   */
+  onKnobKeyDown(e, index) {
+    const variable = this.variables[index];
+    if (!variable) return;
+
+    const total = variable.values.length;
+    let handled = true;
+
+    switch (e.key) {
+      case 'ArrowLeft':
+        this.cycleValue(-1);
+        break;
+      case 'ArrowRight':
+        this.cycleValue(1);
+        break;
+      case 'ArrowUp':
+        this.prevVariable();
+        this.focusKnob(this.currentVariableIndex);
+        break;
+      case 'ArrowDown':
+        this.nextVariable();
+        this.focusKnob(this.currentVariableIndex);
+        break;
+      case 'Home':
+        this.setVariableValueIndex(index, 0);
+        break;
+      case 'End':
+        this.setVariableValueIndex(index, total - 1);
+        break;
+      default:
+        handled = false;
+    }
+
+    if (handled) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  }
+
+  /**
+   * Set a variable to an absolute value index (Home/End). cycleValue() only
+   * steps relatively, and stepping N times would fire N renders.
+   */
+  setVariableValueIndex(index, valueIndex) {
+    const variable = this.variables[index];
+    if (!variable) return;
+    const clamped = Math.max(0, Math.min(valueIndex, variable.values.length - 1));
+    if (this.currentValues[variable.name] === clamped) return;
+    this.currentValues[variable.name] = clamped;
+    this.updateCenterControl();
+    this.generateOutput();
+  }
+
+  /**
+   * Move focus to a knob by index, if the rack is showing one.
+   */
+  focusKnob(index) {
+    const item = this.elements.knobsContainer?.children[index];
+    if (item) item.focus();
+  }
+
+  /**
    * Highlight the active knob and deactivate others
    */
   highlightActiveKnob(activeIndex) {
     const items = this.elements.knobsContainer?.querySelectorAll('.knob-item');
     items?.forEach((item, i) => {
-      item.classList.toggle('active', i === activeIndex);
+      const isActive = i === activeIndex;
+      item.classList.toggle('active', isActive);
+      // Roving tabindex moves with the highlight, so Tab always re-enters the
+      // rack at the knob the user last used rather than at the first one.
+      item.tabIndex = isActive ? 0 : -1;
     });
   }
 
@@ -989,6 +1164,12 @@ export class SynthograsizerSmall {
       label.textContent = this.truncateKnobValue(valueText);
       label.title = valueText;
     }
+
+    // The visible label is truncated; aria-valuetext carries the full value,
+    // which is what a focused slider announces on change.
+    item.setAttribute('aria-valuenow', String(valueIndex));
+    item.setAttribute('aria-valuetext', valueText);
+    item.setAttribute('aria-valuemax', String(Math.max(0, totalValues - 1)));
   }
 
   // ──── Knob Drag Interaction ────

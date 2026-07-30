@@ -3588,7 +3588,12 @@ body.studio-mode .studio-container {
   background: rgba(255,255,255,0.05);
   border: 1px solid rgba(255,255,255,0.1);
   border-radius: 3px;
-  color: #888;
+  /* #888 measured 4.47:1 against this button's resolved #21212e — the only
+     grey in this dark sheet that misses AA, and by 0.03. Two steps lighter
+     clears it at 4.60:1. The rest of the file's #888s measure 5.2-5.5:1 on
+     the darker chrome and are deliberately left alone: darkening them toward
+     the #565656 used on the app's light surfaces would break them. */
+  color: #8a8a8a;
   cursor: pointer;
   font-size: 12px;
   transition: all 0.2s;

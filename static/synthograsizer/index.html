@@ -44,6 +44,43 @@
             margin-top: 20px;
         }
     </style>
+    <style id="v6-first-run-hint-styles">
+/* ── First-run pointer at Studio ─────────────────────────────
+   position:fixed on purpose: it is injected into <body>, so it costs the
+   app-bar no layout and adds no sibling to the mode segment (whose children
+   are radius-styled by position elsewhere in the suite). Colours are the
+   tooltip system's ink so it reads as the same voice, at a body size rather
+   than the tooltip's 9px — this one is meant to be read, not glanced at. */
+#first-run-hint {
+  position: fixed;
+  z-index: 9995;
+  max-width: 330px;
+  background: rgba(15, 12, 8, 0.95);
+  color: #f0ebe0;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 12px;
+  line-height: 1.55;
+  padding: 12px 14px 10px;
+  border-radius: 6px;
+  box-shadow: 0 6px 24px rgba(0,0,0,.35);
+}
+#first-run-hint b { color: #6fd8c8; font-weight: 700; }
+#first-run-hint strong { display: block; margin-bottom: 4px; letter-spacing: .02em; }
+#first-run-hint button {
+  display: block;
+  margin: 10px 0 0 auto;
+  background: none;
+  border: 1px solid rgba(240, 235, 224, 0.45);
+  color: #f0ebe0;
+  font-family: inherit;
+  font-size: 11px;
+  padding: 4px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+#first-run-hint button:hover { background: rgba(240, 235, 224, 0.12); }
+    </style>
+
     <style id="v6-tooltip-styles">
 /* ── Custom tooltip system ──────────────────────────────────── */
 /* Usage: add data-tip="YOUR LABEL" to any element */
@@ -232,7 +269,7 @@
   font-family: 'Roboto Mono', monospace;
   font-size: 0.72rem;
   letter-spacing: 0.03em;
-  color: #888;
+  color: #565656;
   border-bottom: 1px solid rgba(0,0,0,0.07);
 }
 .beat-nav-arrow {
@@ -400,6 +437,9 @@
   font-size: 11px; color: #aaa;
 }
 .p5-fx-row label {
+  /* Stays #888: this drawer is background:#111, where #888 measures 5.33:1 and
+     the #565656 used on the app's light surfaces drops to 2.57:1. The one dark
+     island inside otherwise-light chrome. */
   width: 64px; flex-shrink: 0; color: #888;
   font-family: 'Roboto Mono', monospace; font-size: 10px; letter-spacing: .04em;
 }
@@ -452,7 +492,13 @@
             <!-- Perform is first: it's the default layout (see the layout switcher script). -->
             <button class="layout-btn" data-layout="a" data-tip="Perform — minimal live layout" data-tip-pos="down">Perform</button>
             <button class="layout-btn" data-layout="default" data-tip="Studio — full toolkit" data-tip-pos="down">Studio</button>
-            <button class="layout-btn" data-mode="composer" data-tip="Composer — 4-room agent studio" data-tip-pos="down">Composer</button>
+            <!-- Label is "Agents", data-mode stays "composer": the mode key is
+                 wired through layout JS, CSS @scope, keyboard shortcuts and the
+                 window.Composer API, none of which the user reads. "Composer"
+                 named nothing a newcomer could guess — the person writing the
+                 manual inferred "prompt/template composer" with the app open
+                 and shipped a wrong description. It builds crews of agents. -->
+            <button class="layout-btn" data-mode="composer" data-tip="Agents — build a crew of AI personas and run them together" data-tip-pos="down">Agents</button>
           </nav>
 
           <!-- ── AI Studio Tools ─────────────────────────────────────────────
@@ -714,7 +760,7 @@
                     </div>
 
                     <!-- Knobs Container (hidden by default) -->
-                    <div id="knobs-container" class="knobs-container" style="display: none;">
+                    <div id="knobs-container" class="knobs-container" role="group" aria-label="Variable knobs" style="display: none;">
                         <!-- Knob elements will be dynamically inserted here -->
                     </div>
                 </div>
@@ -1576,16 +1622,16 @@
         <script src="/shared/js/auth.js?v=2" defer></script>
         <script src="/shared/js/modal-a11y.js?v=4" defer></script>
         <script src="js/tier-gate.js" defer></script>
-        <script type="module" src="js/app.js?v=23"></script>
+        <script type="module" src="js/app.js?v=24"></script>
         <script src="js/music-studio.js?v=2"></script>
         <script src="../metadata-manager/js/utils/metadata_extractor.js"></script>
         <script type="module" src="js/agent-profiles.js"></script>
         <script type="module" src="js/taste-profile-store.js"></script>
-        <script src="js/workflow-runner.js?v=8"></script>
-        <script src="js/trace-viewer.js?v=1"></script>
-        <script src="js/agent-studio.js?v=6"></script>
+        <script src="js/workflow-runner.js?v=9"></script>
+        <script src="js/trace-viewer.js?v=2"></script>
+        <script src="js/agent-studio.js?v=7"></script>
         <script src="js/glitcher-studio.js?v=2"></script>
-        <script src="js/studio-integration.js?v=45"></script>
+        <script src="js/studio-integration.js?v=46"></script>
         <script src="js/backend-safety-panel.js?v=2"></script>
         <script src="js/upload-consent.js?v=1"></script>
         <script src="js/blob-bridge.js?v=2"></script>
@@ -1595,7 +1641,7 @@
              composer.js is compiled from composer.jsx — see its header. -->
         <script src="/shared/vendor/react.production.min.js"></script>
         <script src="/shared/vendor/react-dom.production.min.js"></script>
-        <script src="js/composer.js?v=3"></script>
+        <script src="js/composer.js?v=4"></script>
 
         <!-- Layout / mode switcher
              Two orthogonal dimensions on the same button row:
@@ -1652,6 +1698,12 @@
                 setActiveButtons();
             }
 
+            // Captured BEFORE applyLayout() writes the key, which it does on
+            // every load including the very first — so asking afterwards would
+            // always answer "returning user".
+            var isFirstRun = false;
+            try { isFirstRun = localStorage.getItem('synthograsizerLayout') === null; } catch (e) {}
+
             // Restore persisted choices — both layout and mode independently.
             // 'b' (docked layout) was removed; fall back to default.
             try {
@@ -1686,6 +1738,61 @@
                     });
                 }
             });
+
+            /* ── First-run pointer at Studio ────────────────────────────────
+               A new account lands in Perform, where the AI Studio tool menus
+               are deliberately hidden — so the first screen offers Randomize /
+               Generate / Run Code and thirteen knobs, and everything else
+               depends on already knowing to click STUDIO.
+
+               Of the three options on the table this is the smallest bet:
+               relanding everyone in Studio changes the app's character for
+               returning users too, and a full tour is a build. Pointing at
+               what already exists is also the answer this codebase keeps
+               arriving at for stranded state — say where the way out is
+               rather than move people through it.
+
+               Deliberately: shown once ever, never steals focus (same call as
+               the results announcer), and appended to <body> rather than into
+               #layout-switcher, so it adds no sibling to a segmented control
+               and costs the app-bar no layout. */
+            (function firstRunStudioHint() {
+                var SEEN = 'synthStudioHintSeen';
+                var seen = true;
+                try { seen = localStorage.getItem(SEEN) === '1'; } catch (e) {}
+                if (seen || !isFirstRun) return;
+
+                var studioBtn = document.querySelector('.layout-btn[data-layout="default"]');
+                if (!studioBtn) return;
+
+                var hint = document.createElement('div');
+                hint.id = 'first-run-hint';
+                hint.setAttribute('role', 'status');
+                hint.innerHTML =
+                    '<strong>New here?</strong> You are in <b>Perform</b> — knobs and a Generate button.' +
+                    '<br>Click <b>Studio</b> for the tools: image generation, Smart Transform, workflows and the studios.' +
+                    '<button type="button" id="first-run-hint-close" aria-label="Dismiss tip">Got it</button>';
+                document.body.appendChild(hint);
+
+                function place() {
+                    var r = studioBtn.getBoundingClientRect();
+                    hint.style.top = (r.bottom + 10) + 'px';
+                    hint.style.left = Math.max(8, Math.min(r.left - 40, window.innerWidth - hint.offsetWidth - 8)) + 'px';
+                }
+                place();
+                window.addEventListener('resize', place);
+
+                function dismiss() {
+                    try { localStorage.setItem(SEEN, '1'); } catch (e) {}
+                    window.removeEventListener('resize', place);
+                    document.removeEventListener('keydown', onKey);
+                    hint.remove();
+                }
+                function onKey(e) { if (e.key === 'Escape') dismiss(); }
+                document.getElementById('first-run-hint-close').addEventListener('click', dismiss);
+                studioBtn.addEventListener('click', dismiss, { once: true });
+                document.addEventListener('keydown', onKey);
+            })();
 
             // ── Theme picker (Hardware ↔ Cel-Pastel) ───────────────────
             // Persisted as `synthograsizerTheme` ∈ {'hardware','cel-pastel'}.
@@ -1931,11 +2038,11 @@
                 card.style.cssText = 'background:#fff;border-radius:10px;max-width:640px;width:100%;max-height:80vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 64px rgba(0,0,0,0.4);';
                 var header = document.createElement('div');
                 header.style.cssText = 'padding:14px 20px;border-bottom:1px solid #eee;display:flex;align-items:center;justify-content:space-between;';
-                header.innerHTML = '<div><strong style="font-size:14px;">Restore from Disk</strong><div style="font-size:11px;color:#888;margin-top:2px;">Synthograsizer_Output / JSON / ' + (kind === 'taste_profile' ? 'Taste Profiles' : 'Agent Profiles') + '</div></div><button type="button" style="background:none;border:none;font-size:20px;cursor:pointer;color:#888;" aria-label="Close">×</button>';
+                header.innerHTML = '<div><strong style="font-size:14px;">Restore from Disk</strong><div style="font-size:11px;color:#565656;margin-top:2px;">Synthograsizer_Output / JSON / ' + (kind === 'taste_profile' ? 'Taste Profiles' : 'Agent Profiles') + '</div></div><button type="button" style="background:none;border:none;font-size:20px;cursor:pointer;color:#565656;" aria-label="Close">×</button>';
                 header.querySelector('button').addEventListener('click', function () { document.body.removeChild(overlay); });
                 var listEl = document.createElement('div');
                 listEl.style.cssText = 'overflow-y:auto;padding:8px;flex:1;';
-                listEl.innerHTML = '<div style="padding:20px;text-align:center;color:#888;font-size:12px;">Loading…</div>';
+                listEl.innerHTML = '<div style="padding:20px;text-align:center;color:#565656;font-size:12px;">Loading…</div>';
                 card.appendChild(header);
                 card.appendChild(listEl);
                 overlay.appendChild(card);
@@ -1945,7 +2052,7 @@
                     .then(function (data) {
                         var items = (data && data.items) || [];
                         if (items.length === 0) {
-                            listEl.innerHTML = '<div style="padding:30px;text-align:center;color:#999;font-size:13px;">No files yet. Synthesize a profile and it\'ll appear here.</div>';
+                            listEl.innerHTML = '<div style="padding:30px;text-align:center;color:#565656;font-size:13px;">No files yet. Synthesize a profile and it\'ll appear here.</div>';
                             return;
                         }
                         listEl.innerHTML = '';

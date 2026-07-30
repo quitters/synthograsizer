@@ -99,7 +99,7 @@ class TraceViewer {
               <svg id="tv-canvas" class="tv-canvas" xmlns="http://www.w3.org/2000/svg"></svg>
               <div class="tv-empty" id="tv-empty">
                 <div style="font-size:38px; opacity:.3;">⊟</div>
-                <div style="margin-top:8px; font-size:13px; color:#888;">
+                <div style="margin-top:8px; font-size:13px; color:#565656;">
                   Pick a workflow from the lens below, or trigger one from the Agent Studio.
                 </div>
               </div>
@@ -148,7 +148,7 @@ class TraceViewer {
       .tv-pill.failed   { background:#ffebee; color:#c62828; }
       .tv-pill.cancelled{ background:#f3e5f5; color:#6a1b9a; }
       .tv-stat        { display:flex; flex-direction:column; align-items:flex-end; line-height:1.1; }
-      .tv-stat label  { font-size:9px; text-transform:uppercase; letter-spacing:.5px; color:#999; }
+      .tv-stat label  { font-size:9px; text-transform:uppercase; letter-spacing:.5px; color:#565656; }
       .tv-stat span   { font-size:13px; font-weight:600; color:#333; font-variant-numeric:tabular-nums; }
       .tv-stat-cost span { color:#2e7d32; }
       .tv-icon-btn    { background:none; border:1px solid #ddd; width:28px; height:28px;
@@ -177,16 +177,16 @@ class TraceViewer {
       .tv-edge.active  { stroke:#f0a500; stroke-width:2; }
 
       .tv-detail       { padding:14px 16px; }
-      .tv-empty-detail { color:#999; font-size:12px; padding:24px 8px; text-align:center; }
+      .tv-empty-detail { color:#565656; font-size:12px; padding:24px 8px; text-align:center; }
       .tv-detail-h     { font-size:13px; font-weight:700; color:#333; margin:0 0 4px;
                          display:flex; align-items:center; gap:8px; }
-      .tv-detail-meta  { font-size:11px; color:#888; margin-bottom:14px; }
+      .tv-detail-meta  { font-size:11px; color:#565656; margin-bottom:14px; }
       .tv-section      { margin-bottom:14px; }
       .tv-section-title{ font-size:10px; text-transform:uppercase; letter-spacing:.5px;
-                         color:#999; margin-bottom:4px; font-weight:600; }
+                         color:#565656; margin-bottom:4px; font-weight:600; }
       .tv-kv           { display:grid; grid-template-columns:auto 1fr; gap:4px 12px;
                          font-size:11px; }
-      .tv-kv label     { color:#888; }
+      .tv-kv label     { color:#565656; }
       .tv-kv span      { font-variant-numeric:tabular-nums; color:#333; }
       .tv-json         { background:#f5f5f7; border:1px solid #eee; border-radius:5px;
                          padding:8px 10px; font-family:'Roboto Mono',monospace; font-size:11px;
@@ -200,7 +200,7 @@ class TraceViewer {
       .tv-lens-header  { display:flex; justify-content:space-between; align-items:center;
                          padding:8px 14px; font-size:11px; text-transform:uppercase;
                          letter-spacing:.5px; color:#666; font-weight:600; flex-shrink:0; }
-      .tv-lens-hint    { font-size:10px; color:#999; text-transform:none; letter-spacing:0; }
+      .tv-lens-hint    { font-size:10px; color:#565656; text-transform:none; letter-spacing:0; }
       .tv-lens-body    { overflow-y:auto; padding:0 14px 12px; }
       .tv-lens-group   { margin-top:6px; }
       .tv-lens-group-h { font-size:10px; font-weight:700; color:#777; margin-bottom:4px;
@@ -212,8 +212,8 @@ class TraceViewer {
       .tv-lens-dot     { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
       .tv-lens-name    { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis;
                          white-space:nowrap; }
-      .tv-lens-meta    { font-size:10px; color:#999; font-variant-numeric:tabular-nums; }
-      .tv-lens-empty   { color:#999; font-size:12px; padding:14px; text-align:center; }
+      .tv-lens-meta    { font-size:10px; color:#565656; font-variant-numeric:tabular-nums; }
+      .tv-lens-empty   { color:#565656; font-size:12px; padding:14px; text-align:center; }
     `;
     document.head.appendChild(style);
   }

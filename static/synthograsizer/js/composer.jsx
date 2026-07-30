@@ -2625,7 +2625,7 @@ function App() {
     // after the user has built a whole session. The rest of the Composer
     // (agent profiles, template generation) works on hosted regardless.
     if (window.SynthAuth && window.SynthAuth.me) {
-      showToast('Live agent sessions run on local installs only — not on the hosted service. The rest of the Composer works here.', 'warn');
+      showToast('Live agent sessions run on local installs only — not on the hosted service. The rest of Agents works here.', 'warn');
       return;
     }
     showToast('Loading agents into chatroom…', 'ok');
@@ -2940,10 +2940,10 @@ class ComposerErrorBoundary extends React.Component {
         fontFamily: 'var(--font-label)', color: 'var(--hw-text)',
       }}>
         <div style={{ fontFamily: 'var(--font-brand)', fontSize: 16, letterSpacing: 2, marginBottom: 10 }}>
-          Composer crashed
+          Agents crashed
         </div>
         <div style={{ fontSize: 11, color: 'var(--hw-text-dim)', marginBottom: 12, lineHeight: 1.5 }}>
-          The Composer's React tree threw an error and couldn't render.
+          The Agents view's React tree threw an error and couldn't render.
           Your saved profiles and sessions are safe — they live in localStorage and on disk.
           Try switching back to Studio mode (top of page) and reloading.
         </div>
