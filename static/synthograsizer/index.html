@@ -1774,12 +1774,53 @@
                     '<button type="button" id="first-run-hint-close" aria-label="Dismiss tip">Got it</button>';
                 document.body.appendChild(hint);
 
-                function place() {
-                    var r = studioBtn.getBoundingClientRect();
-                    hint.style.top = (r.bottom + 10) + 'px';
-                    hint.style.left = Math.max(8, Math.min(r.left - 40, window.innerWidth - hint.offsetWidth - 8)) + 'px';
+                /* Placement measures what it would cover rather than trusting a
+                   hardcoded offset — the same approach as the Jump-to-results
+                   chip, and for the same reason: the first attempt here sat
+                   squarely on top of the page's own <h1>, which is a poor first
+                   thing to show someone on their first run. Note the h1's BOX
+                   is full-width while its glyphs are centred, so the ink is
+                   measured with a Range; a box test would find no clear side. */
+                function inkRects() {
+                    var out = [];
+                    document.querySelectorAll('.app-title, .app-tagline, .synthograsizer-small h1, .synthograsizer-small h2')
+                        .forEach(function (el) {
+                            if (!el.offsetParent || !el.textContent.trim()) return;
+                            var rng = document.createRange();
+                            rng.selectNodeContents(el);
+                            var b = rng.getBoundingClientRect();
+                            if (b.width && b.height) out.push(b);
+                        });
+                    return out;
                 }
+                function overlaps(a, b) {
+                    return a.right > b.left && a.left < b.right && a.bottom > b.top && a.top < b.bottom;
+                }
+                function place() {
+                    var sb = studioBtn.getBoundingClientRect();
+                    var w = hint.offsetWidth, h = hint.offsetHeight;
+                    var left = Math.max(8, Math.min(sb.left - 40, window.innerWidth - w - 8));
+                    var top = sb.bottom + 10;
+                    var ink = inkRects();
+                    // Two rungs, and both keep the same horizontal anchor: a
+                    // callout that says "click Studio" should stay under Studio.
+                    // Sliding sideways to dodge the title would park it at the
+                    // far edge of the screen, pointing at nothing.
+                    if (ink.some(function (b) {
+                        return overlaps({ left: left, right: left + w, top: top, bottom: top + h }, b);
+                    })) {
+                        top = ink.reduce(function (m, b) { return Math.max(m, b.bottom); }, top) + 12;
+                    }
+                    hint.style.top = top + 'px';
+                    hint.style.left = left + 'px';
+                }
+                // Re-place after layout settles: measured once at 51px tall
+                // before webfonts landed, cleared the tagline on that reading,
+                // then grew into it. setTimeout rather than rAF — rAF does not
+                // run in a backgrounded tab, which is where this gets measured.
                 place();
+                setTimeout(place, 60);
+                setTimeout(place, 260);
                 window.addEventListener('resize', place);
 
                 function dismiss() {
