@@ -82,8 +82,12 @@
           <div class="num">50+</div>
           <div class="lbl">Templates</div>
         </div>
+        <!-- 11 = the Studio menu items, counted from index.html: Image, Video,
+             Music, Smart Transform, Glitcher, Image Analysis, Workflows, Agent
+             Studio, AI Chat, Metadata, Trace Viewer. The about page said 7 and
+             this said 10+; both were guesses at the same number. -->
         <div class="stat">
-          <div class="num">10+</div>
+          <div class="num">11</div>
           <div class="lbl">Studio Tools</div>
         </div>
         <div class="stat">
@@ -206,12 +210,17 @@
           <p>Multi-agent Gemini orchestration with 46+ persona presets, configurable turn-order routing, autonomous turn-taking, structured artifact emission, live token streaming, and a per-turn agentic trace viewer for debugging consensus and tool use.</p>
         </div>
 
+        <!-- Tier honesty. tier-gate.js hides Video Studio, Music Studio, Scope
+             and the Videorama link on the hosted free tier, so several cards
+             below were advertising things a visitor to synthograsizer.com
+             cannot open. Same broken promise as the old "No account" line, and
+             ChatRoom's card was the only one that already said so. -->
         <div class="tool-card reveal">
           <div class="tool-head">
             <h3>Image &amp; Video Studio</h3>
             <span class="tool-badge teal">Built-in</span>
           </div>
-          <p>Gemini image generation, Veo 3 video with batch queuing, Smart Transform, reverse-prompt analysis, and metadata extraction.</p>
+          <p>Gemini image generation, Smart Transform, reverse-prompt analysis, and metadata extraction. Veo video with batch queuing is <strong>local install or admin</strong> — it is not on the free tier.</p>
         </div>
 
         <div class="tool-card reveal">
@@ -227,7 +236,7 @@
             <h3>P5.js Canvas</h3>
             <span class="tool-badge">Built-in</span>
           </div>
-          <p>In-page generative sketch runner with live variable sync, CSS FX drawer, and External Display output for OBS and Daydream Scope.</p>
+          <p>In-page generative sketch runner with live variable sync, CSS FX drawer, and an External Display window for OBS. Streaming the canvas to Daydream Scope needs a local install.</p>
         </div>
 
         <div class="tool-card reveal">
@@ -235,15 +244,15 @@
             <h3>MIDI &amp; OSC</h3>
             <span class="tool-badge teal">Built-in</span>
           </div>
-          <p>Map any MIDI controller to any template variable. Route OSC to TouchDesigner, VDMX, or Max — every parameter is a performable knob.</p>
+          <p>Map any MIDI controller to any template variable — works in any browser. Routing OSC to TouchDesigner, VDMX or Max needs a local install, since it sends UDP from your own machine.</p>
         </div>
 
         <div class="tool-card reveal">
           <div class="tool-head">
             <h3>Music Studio</h3>
-            <span class="tool-badge">Built-in</span>
+            <span class="tool-badge gray">Local install</span>
           </div>
-          <p>Lyria RealTime audio generation driven by the current prompt context — ambient scores, generative soundscapes, live to output.</p>
+          <p>Lyria RealTime audio generation driven by the current prompt context — ambient scores, generative soundscapes, live to output. Not available on the hosted free tier.</p>
         </div>
 
         <a href="/taste-profile/" class="tool-card reveal">
@@ -267,9 +276,9 @@
         <a href="/videorama/" class="tool-card reveal">
           <div class="tool-head">
             <h3>Videorama</h3>
-            <span class="tool-badge teal">New</span>
+            <span class="tool-badge gray">Local install</span>
           </div>
-          <p>Prompt → a whole stylized video set. A brief writer designs the format, Veo renders the clips, era-correct signal paths make them feel real — with checkpoints, QC grading, and one-click retakes.</p>
+          <p>Prompt → a whole stylized video set. A brief writer designs the format, Veo renders the clips, era-correct signal paths make them feel real — with checkpoints, QC grading, and one-click retakes. Needs ffmpeg and a local disk, so it runs on a local install only.</p>
           <span class="arrow">Open →</span>
         </a>
 
@@ -476,7 +485,12 @@
   <section class="cta-section">
     <div class="cta-box reveal">
       <h2>Ready to play with prompts?</h2>
-      <p>Open the suite in your browser. No install. No account. Just you, a template, and a canvas.</p>
+      <!-- "No install. No account." was true of a local checkout and false of
+           this site: generating on synthograsizer.com needs a Google sign-in
+           and spends credits. Broken about ten seconds after the click, which
+           is the worst place to be wrong. Default copy states the hosted
+           truth; the local-instance detection below swaps in the other one. -->
+      <p data-cta-sub>Open the suite in your browser — nothing to install. Sign in free for 300 credits a month, or run the whole thing locally with your own API key and no account at all.</p>
       <div class="hero-ctas">
         <a href="/synthograsizer/" class="btn btn-primary" data-launch>
           Launch Synthograsizer
@@ -520,6 +534,13 @@
         if (h && h.hosted === false) {
           document.querySelectorAll('[data-demo-alt]').forEach(el => {
             el.style.display = '';
+          });
+          // On a local install there genuinely is no account and no credit
+          // meter, so say so rather than making a local user read about a
+          // free tier that does not apply to them.
+          document.querySelectorAll('[data-cta-sub]').forEach(el => {
+            el.textContent = 'Open the suite in your browser. No install, no account, no credits — '
+              + 'this instance runs on your own API key. Just you, a template, and a canvas.';
           });
         }
       }).catch(() => { /* backend absent (pure static hosting) */ });
