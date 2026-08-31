@@ -302,11 +302,25 @@
       <div class="version-header">
         <span class="version-tag">NEXT</span>
         <span class="version-label unreleased">Unreleased</span>
-        <span class="version-date">In Progress — 2026-07-20</span>
+        <span class="version-date">In Progress — 2026-07-31</span>
       </div>
       <div class="version-panel">
         <div class="panel-section-label">Accessibility</div>
         <ul class="entry-list">
+          <li class="entry-item">
+            <span class="entry-badge badge-fix">fix</span>
+            <div>
+              <div class="entry-text">The first-run pointer no longer lands on top of the page title</div>
+              <div class="entry-sub">The callout that points new arrivals at the Studio button was landing squarely on the page's own heading — a poor first impression for a hint whose entire job is orientation. Both bugs were measurement, not styling: the heading's box is full-width while its letters are centred, so a box-based overlap check never finds a clear side, and it has to be measured against the actual ink instead. And placement ran once, before webfonts arrived, when the hint measured 51px tall and genuinely cleared the tagline beneath it — then grew into it once the real font loaded. Placement now re-runs on a short delay ladder after fonts settle, and the dodge only ever moves the callout down, never sideways, so it can't wander off pointing at nothing while technically avoiding the text it was clipping. Re-verified clear of both the title and the tagline, still anchored under Studio, and all three ways of dismissing it — the button, Escape, and clicking Studio itself — still remember that you saw it.</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-fix">fix</span>
+            <div>
+              <div class="entry-text">The Studio menu's tooltips say what a tool makes, and the keyboard can finally read them</div>
+              <div class="entry-sub">Twelve items in the Studio menu carried no tooltip text at all, and the two easiest to confuse — <strong>Generate</strong> and <strong>Template Gen</strong> — sit side by side both abbreviated to "gen," one making an image and the other writing a whole template. Each control's tooltip now says what it actually produces instead of restating its own label. Separately, every tooltip in the app had only ever answered a mouse: the system was hover-only, so a keyboard user could reach a control and get nothing back — for several of these that's now the <em>only</em> place the control explains itself. Tooltips now also appear on <code>:focus-visible</code>, verified with a real <kbd>Tab</kbd> press rather than a scripted focus call, which reports differently. Workflow card descriptions that used to truncate mid-word at 80 characters now carry the full text as a title attribute, and a workflow panel that sat blank for over a second and a half while the backend was still starting now says so instead of looking broken. Tooltip coverage: 21 controls to 35.</div>
+            </div>
+          </li>
           <li class="entry-item">
             <span class="entry-badge badge-fix">fix</span>
             <div>
@@ -431,6 +445,13 @@
         </ul>
         <div class="panel-section-label">Hosted Service — synthograsizer.com is live</div>
         <ul class="entry-list">
+          <li class="entry-item">
+            <span class="entry-badge badge-fix">fix</span>
+            <div>
+              <div class="entry-text">Landing page copy matches what the hosted tier actually does</div>
+              <div class="entry-sub">Three claims were being checked against old copy instead of the running app. <strong>"No install. No account."</strong> is true of a local checkout and was false on synthograsizer.com, where generating anything needs a Google sign-in and spends credits — a promise broken about ten seconds after the click. The hosted wording is now the default, and the same local-instance detection already used for the demo link swaps in the honest local version when it's warranted. The Studio Tools count had been guessed twice — 10+ on the landing page, 7 on the about page; counted straight from the Studio menu, it's 11. And the What's Inside grid was advertising four tools the hosted tier hides outright — Veo video, Music Studio, Videorama, and OSC/Scope routing — when only the ChatRoom card had ever said so. Each now carries a short qualifier, and the two that are entirely local-only got a "Local install" badge. Left alone on purpose: the "46+ Agent Personas" figure, which appears in three places and doesn't reconcile with any count found in the source — replacing an unverifiable number with another unverifiable number would be worse than flagging it.</div>
+            </div>
+          </li>
           <li class="entry-item">
             <span class="entry-badge badge-feat">feat</span>
             <div>
