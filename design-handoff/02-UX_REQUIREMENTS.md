@@ -10,7 +10,7 @@ The center of gravity. A prompt template engine wrapped in live-performance cont
 
 ### Current regions (top to bottom on wide viewports)
 
-- **App bar** (sticky) — brand mark + template picker dropdown on the left; on the right, three grouped control clusters: **Mode** (Studio / Perform / Composer), **Links** (Taste Profile, active-profile pill, What's New), and **Theme** (Hardware / Cel-Pastel picker). Currently styled as hardware bezel buttons. Groups wrap as whole units to a second right-aligned row at narrow widths.
+- **App bar** (sticky) — *redesigned 2026-07-11 into a single 53px row, three zones:* **left** brand wordmark + template chip (the "open document"); **center** Studio / Perform / Composer as one segmented control; **right** active-profile pill · ⚙ Settings · ⋯ menu (theme picker, Taste Profile, What's New, and suite navigation — the old floating suite-navbar pill no longer loads on this page). The bar never wraps; labels collapse progressively at narrow widths (template name → ellipsis → icon; wordmark hides ≤760px; pill → status dot ≤900px; controls grow to 40px touch height ≤560px). Geometry lives in `layout-options.css`; the two themes only reskin colors/typefaces.
 - **Output section** — header label + action buttons (Copy, Like, Code, Send to Chat); main scrollable `#output-container` showing the assembled prompt; tag badges; optional history strip with thumbnails of recent generations.
 - **Primary actions row** — three full-width buttons: **Randomize**, **Generate**, **Run Code**. A "beat navigator" appears here conditionally for story-mode templates.
 - **P5.js canvas section** (hidden until activated) — live sketch mount + Scope video overlay + control buttons (External Display, Send to Scope, Capture).
