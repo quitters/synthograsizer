@@ -1,0 +1,20 @@
+[
+  {
+    "event_type": "interaction.created",
+    "interaction": { "id": "int_tool_003", "status": "in_progress" }
+  },
+  { "event_type": "step.start", "step": { "type": "model_output" } },
+  { "event_type": "step.delta", "delta": { "type": "text", "text": "Saving the sketch." } },
+  { "event_type": "step.stop" },
+  {
+    "event_type": "step.start",
+    "step": { "type": "function_call", "id": "call_xyz789", "name": "write_artifact" }
+  },
+  { "event_type": "step.delta", "delta": { "type": "arguments_delta", "arguments": "{\"filename\":\"sketch.js\"," } },
+  { "event_type": "step.delta", "delta": { "type": "arguments_delta", "arguments": "\"content\":\"function setup(){}\"}" } },
+  { "event_type": "step.stop" },
+  {
+    "event_type": "interaction.completed",
+    "interaction": { "id": "int_tool_003", "status": "requires_action" }
+  }
+]

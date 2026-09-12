@@ -5,6 +5,9 @@ import { generateImage, generateImageWithReferences, parseImageRequests, parseRe
 import { parseToolRequests, executeToolRequests, stripToolTags, formatToolResults, parseSynthRequests, executeSynthRequests, stripSynthTags, formatSynthResults, parseWorkflowRequests, stripWorkflowTags, workflowEngine, parseSynthStyleRequests, parseWorkflowTemplateRequests, stripStyleAndTemplateTags } from './tools.js';
 import { countTokens, countMessageTokens } from '../utils/tokenCounter.js';
 import { DEFAULT_AGENT_MODEL, normalizeThinkingLevel, isKnownAgentModel } from '../config/models.js';
+import { isFunctionCallingEnabled, isKnownToolTier, DEFAULT_TOOL_TIER } from '../config/tools.js';
+import { buildToolsForAgent } from './toolDefinitions.js';
+import { createToolDispatcher } from './toolDispatch.js';
 import { mediaStore } from './mediaStore.js';
 import { artifactStore } from './artifactStore.js';
 import { synthClient, traceStore } from 'workflow-engine';
@@ -306,6 +309,8 @@ class ChatOrchestrator {
       color: this.generateColor(this.agents.length),
       model: isKnownAgentModel(options.model) ? options.model : null,
       thinkingLevel: normalizeThinkingLevel(options.thinkingLevel),
+      // Which function tools this agent may call (function-calling mode only).
+      tools: isKnownToolTier(options.tools) ? options.tools : DEFAULT_TOOL_TIER,
     };
     this.agents.push(agent);
     return agent;
@@ -333,6 +338,7 @@ class ChatOrchestrator {
     if (typeof fields.thinkingLevel === 'string') {
       agent.thinkingLevel = normalizeThinkingLevel(fields.thinkingLevel);
     }
+    if (isKnownToolTier(fields.tools)) agent.tools = fields.tools;
     return agent;
   }
 
@@ -1000,8 +1006,13 @@ class ChatOrchestrator {
         let responseTokens = 0;
         let turnUsage = null;
         let turnUsageReported = false;
+        // Media produced by function calls during this turn, for the message
+        // record. The tag path fills `images`/`synthMedia` further down.
+        const toolMedia = [];
+        const toolCallLog = [];
 
         const systemNotes = this._drainWorkflowOutcomes();
+        const functionTools = this._toolsForTurn(speaker);
         const generator = generateAgentResponse(
           speaker,
           this.agents,
@@ -1016,6 +1027,11 @@ class ChatOrchestrator {
             thinkingLevel: speaker.thinkingLevel,
             systemNotes,
             generatedImages: this.recentGenImages,
+            // Both must be present for the function-calling path to engage.
+            tools: functionTools,
+            dispatch: functionTools.length
+              ? this._createDispatcher(speaker, toolMedia)
+              : null,
           }
         );
 
@@ -1027,6 +1043,24 @@ class ChatOrchestrator {
             this.broadcast('chunk', {
               agentId: speaker.id,
               text: event.text
+            });
+          } else if (event.type === 'tool_call') {
+            this.broadcast('tool_executing', {
+              agentId: speaker.id,
+              type: event.name,
+              callId: event.id,
+              args: event.args,
+            });
+          } else if (event.type === 'tool_result') {
+            toolCallLog.push({ name: event.name, ok: event.ok, summary: event.summary });
+            this.broadcast('tool_result', {
+              agentId: speaker.id,
+              result: {
+                type: event.name,
+                ok: event.ok,
+                summary: event.summary,
+                mediaId: event.media?.id,
+              },
             });
           } else if (event.type === 'complete') {
             // Use cleaned response from completion event
@@ -1054,9 +1088,15 @@ class ChatOrchestrator {
 
         if (!this.isRunning || this.isPaused) break;
 
+        // In function-calling mode the bracket vocabulary was never taught, so
+        // nothing should be scraped out of the prose — and a legitimate
+        // [bracketed aside] must not be eaten by a parser. Feeding the tag
+        // parsers an empty string disables the whole legacy path in one place.
+        const tagSource = functionTools.length ? '' : fullResponse;
+
         // Check for image generation requests in the response
-        const imageRequests = parseImageRequests(fullResponse);
-        const remixRequests = parseRemixRequests(fullResponse);
+        const imageRequests = parseImageRequests(tagSource);
+        const remixRequests = parseRemixRequests(tagSource);
         const images = [];
 
         // Process standard image generation requests
@@ -1194,7 +1234,7 @@ class ChatOrchestrator {
         }
 
         // Check for tool requests (web search, URL analysis, research)
-        const toolRequests = parseToolRequests(fullResponse);
+        const toolRequests = parseToolRequests(tagSource);
         let toolResults = [];
 
         if (toolRequests.length > 0) {
@@ -1236,7 +1276,7 @@ class ChatOrchestrator {
         }
 
         // Check for Synthograsizer tool requests (SYNTH_* tags)
-        const synthRequests = parseSynthRequests(fullResponse);
+        const synthRequests = parseSynthRequests(tagSource);
         const synthMedia = []; // { id, type, data, mimeType, prompt }
         let synthResults = [];
 
@@ -1344,7 +1384,7 @@ class ChatOrchestrator {
         }
 
         // Check for Workflow tool requests (WORKFLOW / WORKFLOW_STATUS / WORKFLOW_CANCEL tags)
-        const workflowRequests = parseWorkflowRequests(fullResponse);
+        const workflowRequests = parseWorkflowRequests(tagSource);
         const workflowIds = []; // ids of newly submitted workflows
 
         if (workflowRequests.length > 0) {
@@ -1394,7 +1434,7 @@ class ChatOrchestrator {
         }
 
         // Check for SYNTH_STYLE tags (style preset image generation)
-        const styleRequests = parseSynthStyleRequests(fullResponse);
+        const styleRequests = parseSynthStyleRequests(tagSource);
         if (styleRequests.length > 0) {
           for (const req of styleRequests) {
             if (req.error) {
@@ -1450,7 +1490,7 @@ class ChatOrchestrator {
         }
 
         // Check for WORKFLOW_TEMPLATE tags (named workflow templates)
-        const templateRequests = parseWorkflowTemplateRequests(fullResponse);
+        const templateRequests = parseWorkflowTemplateRequests(tagSource);
         if (templateRequests.length > 0) {
           for (const req of templateRequests) {
             if (req.error) {
@@ -1489,7 +1529,7 @@ class ChatOrchestrator {
         }
 
         // ── Artifact tags ──────────────────────────────────────────────────
-        const artifactUpdates = parseArtifactTags(fullResponse);
+        const artifactUpdates = parseArtifactTags(tagSource);
         for (const { filename, content: artContent } of artifactUpdates) {
           const artifact = artifactStore.save(filename, artContent, speaker.id, speaker.name);
           this.broadcast('artifact_update', {
@@ -1505,9 +1545,15 @@ class ChatOrchestrator {
           fullResponse = stripArtifactTags(fullResponse);
         }
 
-        // Detect artifact hallucination (agent claims code changes without tags)
+        // Detect artifact hallucination (agent claims code changes without
+        // actually saving any). In function-calling mode a successful
+        // write_artifact call counts as having saved — otherwise every real
+        // tool-based edit would be flagged as a phantom one.
+        const savedArtifact =
+          artifactUpdates.length > 0 ||
+          toolCallLog.some(c => c.name === 'write_artifact' && c.ok);
         const artifactHallucinationNote = detectArtifactHallucination(
-          fullResponse, artifactUpdates.length > 0
+          fullResponse, savedArtifact
         );
 
         // Skip empty responses (no text, no images, no tool results, no synth, no workflows)
@@ -1518,8 +1564,12 @@ class ChatOrchestrator {
         const hasSynthResults = synthResults.length > 0;
         const hasWorkflows = workflowIds.length > 0;
         const hasArtifacts = artifactUpdates.length > 0;
+        // A turn that only called tools still happened — don't drop it.
+        const hasToolMedia = toolMedia.length > 0;
+        const hasToolCalls = toolCallLog.length > 0;
 
-        if (!hasContent && !hasImages && !hasToolResults && !hasSynthMedia && !hasSynthResults && !hasWorkflows && !hasArtifacts) {
+        if (!hasContent && !hasImages && !hasToolResults && !hasSynthMedia && !hasSynthResults &&
+            !hasWorkflows && !hasArtifacts && !hasToolMedia && !hasToolCalls) {
           console.warn(`Empty response from ${speaker.name}, skipping turn`);
           await this.delay(500);
           continue;
@@ -1534,7 +1584,10 @@ class ChatOrchestrator {
           content: fullResponse || '',
           images: hasImages ? images : undefined,
           toolResults: hasToolResults ? toolResults : undefined,
-          synthMedia: hasSynthMedia ? synthMedia : undefined,
+          // Function-calling mode surfaces its media the same way the SYNTH_*
+          // tags do, so ChatMessage.jsx renders both without a second branch.
+          synthMedia: hasSynthMedia ? synthMedia : (hasToolMedia ? toolMedia : undefined),
+          toolCalls: hasToolCalls ? toolCallLog : undefined,
           synthResults: hasSynthResults ? synthResults : undefined,
           workflowIds: hasWorkflows ? workflowIds : undefined,
           artifactHallucination: artifactHallucinationNote || undefined,
@@ -1590,6 +1643,55 @@ class ChatOrchestrator {
         await this.delay(2000);
       }
     }
+  }
+
+  /**
+   * Tool declarations for this speaker's turn, or [] when function calling is
+   * off — in which case generateAgentResponse takes the legacy tag path.
+   */
+  _toolsForTurn(speaker) {
+    if (!isFunctionCallingEnabled()) return [];
+    // Only offer write_artifact once the room is plausibly building something;
+    // otherwise it's a tool slot spent on a capability nobody asked for.
+    const goalLower = (this.goal ?? '').toLowerCase();
+    const allowArtifacts =
+      artifactStore.getAll().length > 0 ||
+      /\b(build|create|make|code|sketch|game|p5|html|website|app|artifact)\b/.test(goalLower);
+    return buildToolsForAgent(speaker, { allowArtifacts });
+  }
+
+  /**
+   * Build the per-turn function dispatcher. It owns the app-side consequences
+   * of a tool call — storing media, broadcasting, feeding the vision window —
+   * so gemini.js stays a stream parser and nothing more.
+   */
+  _createDispatcher(speaker, toolMedia) {
+    return createToolDispatcher({
+      agent: speaker,
+      mediaStore,
+      artifactStore,
+      onEvent: (event, data) => this.broadcast(event, data),
+      onMedia: (media) => {
+        toolMedia.push({
+          id: media.id,
+          type: media.type,
+          mimeType: media.mimeType,
+          prompt: media.prompt,
+          ...(media.referenceIds ? { referenceId: media.referenceIds[0] } : {}),
+        });
+        if (media.type === 'image' && media.data) {
+          // Subsequent speakers see the image, not just its prompt.
+          this.recentGenImages.push({
+            id: media.id,
+            data: media.data,
+            mimeType: media.mimeType,
+            prompt: media.prompt,
+            agentName: speaker.name,
+          });
+          if (this.recentGenImages.length > VISION_WINDOW) this.recentGenImages.shift();
+        }
+      },
+    });
   }
 
   /**

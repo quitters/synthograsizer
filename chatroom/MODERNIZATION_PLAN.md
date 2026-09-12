@@ -138,6 +138,26 @@ of dropping them. The delta types to watch for are `thought_summary` and `though
 
 ## 2. The main event: retire tag-parsing in favour of function calling
 
+> **Status: shipped behind `TOOL_MODE=functions`, off by default (2026-09-11).**
+> The media slice is done — `generate_image`, `compose_image`, `write_artifact`,
+> plus the `google_search` / `url_context` built-ins. The SYNTH_*/workflow
+> family is still tag-only.
+>
+> Two things the plan under-specified, resolved during implementation:
+> - **The continuation is stateless.** `previous_interaction_id` would have
+>   meant `store: true`, which is the §3 decision and not Phase 2's to make.
+>   The documented stateless path — echoing prior steps back in `input` as a
+>   Step array — keeps `store: false` and carries thought signatures, at the
+>   cost of re-sending the history each round. §3 can swap it.
+> - **Tool results can carry images.** `function_result.result` accepts image
+>   content, so the generated image goes back to the model, not just its ID.
+>   That is a bigger win than the plan claimed: the agent critiques the actual
+>   picture. It is also the main cost of the stateless echo, hence the
+>   `MAX_INLINE_RESULT_IMAGES` cap.
+>
+> Not yet validated against the live API — no key was available. Everything
+> below is the design record.
+
 ### 2.1 What the room does now
 
 Every tool in the chat room is a **regex over the model's prose, executed after the turn is over**:
@@ -571,7 +591,7 @@ public preview. Treat as a spike, not a roadmap item. Up to 1,000 managed agents
 |---|---|---|---|
 | ~~**0**~~ | ~~Model IDs → central config; `analyzeImage` off the image model; real `usage` accounting; `thinking_level`; raise `max_output_tokens`~~ **— done 2026-09-11, see CHANGELOG 1.2.0** | ~half a day | Low. No architecture change, immediate cost win |
 | ~~**1**~~ | ~~Fixture tests for the stream parser in `gemini.js`~~ **— done 2026-09-11, see CHANGELOG 1.3.0** | ~half a day | None — prerequisite for everything below |
-| **2** | Function calling behind `TOOL_MODE=functions`; start with the five media tools; keep regex parsers as fallback | 2–3 days | Medium. Biggest behavioural change; needs a real session to evaluate |
+| ~~**2**~~ | ~~Function calling behind `TOOL_MODE=functions`; start with the five media tools; keep regex parsers as fallback~~ **— shipped 2026-09-11 (off by default), see CHANGELOG 1.4.0** | 2–3 days | Medium. Biggest behavioural change; **still needs a real session to evaluate** |
 | **3** | Stateful chains + implicit caching; per-agent `previous_interaction_id`; prompt reordering; delete the summariser | 2–3 days | Medium. Gate behind `GEMINI_STORE_INTERACTIONS`; privacy posture change |
 | **4** | File Search for session media; then cross-session memory store | 2–3 days | Low-medium. Watch store lifecycle/quota |
 | **5** | Structured output for speaker selection + consensus; code execution tool | 1–2 days | Low |

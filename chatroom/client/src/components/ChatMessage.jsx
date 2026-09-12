@@ -311,6 +311,23 @@ export function ChatMessage({ message, isStreaming, onRemixImage }) {
         </div>
       )}
 
+      {/* Function-calling mode: a compact record of what the agent actually
+          ran this turn. Media it produced renders above via synthMedia; this
+          covers artifact writes and anything that failed. */}
+      {message.toolCalls && message.toolCalls.length > 0 && (
+        <div className="message-tool-calls">
+          {message.toolCalls.map((call, index) => (
+            <span
+              key={index}
+              className={`tool-call-chip${call.ok ? '' : ' tool-call-chip-error'}`}
+              title={call.summary}
+            >
+              {call.ok ? '✓' : '✕'} {call.name}
+            </span>
+          ))}
+        </div>
+      )}
+
       {message.tokenCount > 0 && (
         <div className="message-tokens">
           {message.tokenCount} tokens

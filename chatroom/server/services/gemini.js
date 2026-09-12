@@ -8,6 +8,7 @@ import {
   MAX_OUTPUT_TOKENS,
   DEFAULT_TEMPERATURE,
 } from '../config/models.js';
+import { MAX_TOOL_ROUNDS, MAX_CALLS_PER_ROUND } from '../config/tools.js';
 
 // Max attempts to continue a truncated response
 const MAX_CONTINUATION_ATTEMPTS = 2;
@@ -60,11 +61,14 @@ function escapeRegex(string) {
  * Async: checks Synthograsizer health once to decide whether to include SYNTH_* tools.
  */
 async function buildSystemPrompt(agent, allAgents, goal, options = {}) {
-  const { enableTools = true } = options;
+  // enableTagTools controls the bracket-tag vocabulary specifically. With
+  // function calling on it goes quiet: the tool contract arrives as `tools`
+  // declarations instead, and teaching both invites the model to mix them.
+  const { enableTools = true, enableTagTools = enableTools } = options;
 
   // Check Synthograsizer availability (uses 30 s cache, never throws)
   let synthAvailable = false;
-  if (enableTools) {
+  if (enableTagTools) {
     try {
       const health = await synthClient.healthCheck();
       synthAvailable = health?.status === 'ok';
@@ -98,7 +102,7 @@ CRITICAL RULES:
 6. Address other participants by name when responding to their points.
 7. Stay in character. Do not mention being an AI or break the fourth wall.`;
 
-  if (enableTools) {
+  if (enableTagTools) {
     prompt += `
 
 TOOLS (use sparingly, only when they add value):
@@ -183,7 +187,25 @@ ${listTemplatesForPrompt()}`;
 
   // ── Artifact context ───────────────────────────────────────────────────
   const artifacts = artifactStore.getAll();
-  if (artifacts.length > 0) {
+  if (artifacts.length > 0 && !enableTagTools) {
+    // Function-calling mode: the model already has write_artifact's schema and
+    // description, so all it needs here is the current state of the files.
+    prompt += `
+
+SHARED ARTIFACTS (collaborative code files the team is building together).
+Create or replace one by calling write_artifact with the COMPLETE file.
+Generated images can be embedded as <img src="/chatroom/api/chat/media/IMAGE_ID" />
+using the exact IDs returned by the image tools.
+
+CURRENT ARTIFACT STATE:`;
+    for (const art of artifacts) {
+      prompt += `
+--- ${art.filename} (v${art.versions.length}, last edited by ${art.lastEditBy}) ---
+\`\`\`${art.language}
+${art.content}
+\`\`\``;
+    }
+  } else if (artifacts.length > 0) {
     prompt += `
 
 SHARED ARTIFACTS (collaborative code files the team is building together):
@@ -216,6 +238,19 @@ CURRENT ARTIFACT STATE:`;
 \`\`\`${art.language}
 ${art.content}
 \`\`\``;
+    }
+  } else if (!enableTagTools) {
+    // No artifacts yet, function-calling mode. write_artifact's own schema
+    // carries the how; this only has to supply the nudge to actually build.
+    const goalLower = (goal ?? '').toLowerCase();
+    const goalWantsCode = /\b(build|create|make|code|sketch|game|p5|html|website|app|artifact)\b/.test(goalLower);
+    if (goalWantsCode) {
+      prompt += `
+
+IMPORTANT: The goal asks you to BUILD something. Do not just discuss ideas.
+Within the first 1-2 turns, someone MUST call write_artifact with working code.
+Start simple and iterate — a basic working prototype beats a perfect plan with
+no code. Skip preamble and flattery. Be direct, be constructive, and SHIP.`;
     }
   } else if (enableTools) {
     const goalLower = (goal ?? '').toLowerCase();
@@ -332,6 +367,14 @@ Please provide your opening statement to kick off the discussion. Remember, writ
         } else if (result.type === 'research') {
           transcript += `\n  [Research on "${result.query}": ${result.summary?.slice(0, 200)}...]`;
         }
+      }
+    }
+    // Tool calls made via function calling. Media already renders above via
+    // synthMedia; this covers everything else (artifact writes, failures) so
+    // the next speaker knows what was actually attempted and whether it worked.
+    if (msg.toolCalls && msg.toolCalls.length > 0) {
+      for (const call of msg.toolCalls) {
+        transcript += `\n  [${call.ok ? 'Tool' : 'Tool FAILED'}: ${call.name} — ${call.summary}]`;
       }
     }
     // Inject hallucination correction so the next agent knows the previous one didn't actually save code
@@ -502,8 +545,12 @@ function emptyUsage() {
  * Open an Interactions stream for an agent turn.
  * If the API rejects document (PDF) blocks, retry once without them rather
  * than failing the whole turn — the text preface still names the files.
+ *
+ * @param {Array<object>} [tools] Function + built-in tool declarations. When
+ *   present, tool_choice must be 'validated': the API does not support 'auto'
+ *   for built-ins combined with custom function declarations.
  */
-async function createAgentStream(model, systemPrompt, blocks, thinkingLevel) {
+async function createAgentStream(model, systemPrompt, blocks, thinkingLevel, tools = null) {
   const request = {
     model,
     system_instruction: systemPrompt,
@@ -513,10 +560,12 @@ async function createAgentStream(model, systemPrompt, blocks, thinkingLevel) {
       max_output_tokens: MAX_OUTPUT_TOKENS,
       temperature: DEFAULT_TEMPERATURE,
       thinking_level: thinkingLevel,
+      ...(tools?.length ? { tool_choice: 'validated' } : {}),
     },
     input: blocks,
     stream: true,
     store: false, // stateless — nothing retained server-side at Google
+    ...(tools?.length ? { tools } : {}),
   };
   try {
     return await genAI.interactions.create(request);
@@ -542,6 +591,209 @@ async function createAgentStream(model, systemPrompt, blocks, thinkingLevel) {
 }
 
 /**
+ * Consume one interaction stream, yielding chat chunks as they arrive and
+ * returning everything the caller needs to decide what happens next.
+ *
+ * Returned via the generator's `return` value:
+ *   { text, steps, usage, status, streamError }
+ *
+ * `steps` prefers the authoritative list on interaction.completed. That field
+ * is optional on streaming payloads, so a version assembled from step.start +
+ * arguments_delta is kept as a fallback — function-call arguments stream in as
+ * partial JSON fragments and are only whole once the step stops.
+ */
+async function* consumeStream(stream, agentName) {
+  let text = '';
+  let streamError = null;
+  let finalInteraction = null;
+  let currentStepType = null;
+  let currentStep = null;
+  let argsBuffer = '';
+  const assembled = [];
+
+  const closeStep = () => {
+    if (currentStep?.type === 'function_call' && argsBuffer) {
+      try {
+        currentStep.arguments = JSON.parse(argsBuffer);
+      } catch {
+        console.warn(`[${agentName}] could not parse streamed arguments for ${currentStep.name}`);
+      }
+    }
+    if (currentStep) assembled.push(currentStep);
+    currentStep = null;
+    currentStepType = null;
+    argsBuffer = '';
+  };
+
+  try {
+    for await (const event of stream) {
+      if (event.event_type === 'step.start') {
+        closeStep();
+        currentStepType = event.step?.type ?? null;
+        currentStep = event.step ? { ...event.step } : null;
+      } else if (event.event_type === 'step.stop') {
+        closeStep();
+      } else if (event.event_type === 'step.delta') {
+        const delta = event.delta;
+        if (delta?.type === 'arguments_delta' && typeof delta.arguments === 'string') {
+          argsBuffer += delta.arguments;
+        } else if (currentStepType !== 'thought' && delta?.type === 'text' && delta.text) {
+          // Thought-leak guard: only surface text from model output steps.
+          text += delta.text;
+          yield { type: 'chunk', text: delta.text };
+        }
+      } else if (event.event_type === 'interaction.completed') {
+        finalInteraction = event.interaction;
+      } else if (event.event_type === 'error') {
+        throw new Error(event.error?.message || 'Interactions stream error');
+      }
+    }
+    closeStep();
+  } catch (streamErr) {
+    console.error(`[${agentName}] Stream parse error: ${streamErr.message}`);
+    streamError = streamErr;
+    if (!text) throw streamErr;
+  }
+
+  const steps = finalInteraction?.steps?.length ? finalInteraction.steps : assembled;
+  return {
+    text,
+    steps,
+    usage: finalInteraction?.usage,
+    status: streamError ? 'STREAM_ERROR' : (finalInteraction?.status || 'completed'),
+    streamError,
+  };
+}
+
+/**
+ * A turn with real function calling.
+ *
+ * The model emits `function_call` steps; we execute them and hand back
+ * `function_result` blocks, so the agent reacts to what actually happened
+ * inside its own message rather than reading about it in the next speaker's
+ * transcript. That is the whole point of the exercise — see
+ * MODERNIZATION_PLAN.md §2.
+ *
+ * Continuation is STATELESS: the prior steps (thought signatures included) are
+ * echoed back in `input` as a Step array, because `store` is still false.
+ * Phase 3 can swap this for `previous_interaction_id`, which both shortens the
+ * request and makes the prefix cacheable — see `buildContinuationInput`.
+ */
+async function* runFunctionTurn(ctx) {
+  const { agent, modelId, systemPrompt, thinkingLevel, contentParts, tools, dispatch } = ctx;
+
+  let fullResponse = '';
+  let usage = emptyUsage();
+  let wasTruncated = false;
+  const toolCalls = [];
+  /** Model steps + our function_result steps, in order — the stateless history. */
+  const history = [];
+  let input = contentParts;
+  let round = 0;
+
+  while (round <= MAX_TOOL_ROUNDS) {
+    const stream = await createAgentStream(modelId, systemPrompt, input, thinkingLevel, tools);
+
+    const consumer = consumeStream(stream, agent.name);
+    let outcome;
+    while (true) {
+      const next = await consumer.next();
+      if (next.done) { outcome = next.value; break; }
+      fullResponse += next.value.text;
+      yield next.value;
+    }
+
+    usage = accumulateUsage(usage, outcome.usage);
+    history.push(...(outcome.steps || []));
+
+    const calls = (outcome.steps || []).filter(s => s.type === 'function_call');
+    console.log(
+      `[${agent.name}] round ${round}: status=${outcome.status}, calls=${calls.length}, ` +
+      `in/out/thought ${usage.inputTokens}/${usage.outputTokens}/${usage.thoughtTokens}`
+    );
+
+    if (outcome.status === 'incomplete') {
+      // Text truncation inside a tool turn: take what we have. Unlike the tag
+      // path we do not chase it with a continuation prompt — mixing that with
+      // tool rounds multiplies the states, and max_output_tokens is 16384 now.
+      wasTruncated = true;
+    }
+
+    if (calls.length === 0) break;
+
+    if (round === MAX_TOOL_ROUNDS) {
+      console.warn(`[${agent.name}] tool round limit reached; ${calls.length} call(s) left unrun`);
+      break;
+    }
+
+    const results = [];
+    for (const call of calls.slice(0, MAX_CALLS_PER_ROUND)) {
+      yield { type: 'tool_call', id: call.id, name: call.name, args: call.arguments };
+      const outcomeForCall = await dispatch(call);
+      toolCalls.push({ name: call.name, ok: outcomeForCall.ok, summary: outcomeForCall.summary });
+      yield {
+        type: 'tool_result',
+        id: call.id,
+        name: call.name,
+        ok: outcomeForCall.ok,
+        summary: outcomeForCall.summary,
+        media: outcomeForCall.media,
+      };
+      results.push({
+        type: 'function_result',
+        call_id: call.id,
+        name: call.name,
+        is_error: !outcomeForCall.ok,
+        result: outcomeForCall.result,
+      });
+    }
+
+    // Anything over the per-round cap is refused explicitly, so the model
+    // isn't left waiting on a result that never comes.
+    for (const call of calls.slice(MAX_CALLS_PER_ROUND)) {
+      results.push({
+        type: 'function_result',
+        call_id: call.id,
+        name: call.name,
+        is_error: true,
+        result: [{ type: 'text', text: `Not run: at most ${MAX_CALLS_PER_ROUND} tool calls per round.` }],
+      });
+    }
+
+    history.push(...results);
+    input = buildContinuationInput(contentParts, history);
+    round++;
+  }
+
+  const cleanedResponse = cleanResponse(fullResponse, agent.name);
+  const reportedProduced = usage.outputTokens + usage.thoughtTokens;
+
+  yield {
+    type: 'complete',
+    fullResponse: cleanedResponse,
+    tokenCount: reportedProduced > 0 ? reportedProduced : countTokens(cleanedResponse),
+    usage,
+    usageReported: reportedProduced > 0,
+    model: modelId,
+    thinkingLevel,
+    wasTruncated,
+    toolCalls,
+  };
+}
+
+/**
+ * Rebuild the full request input for a stateless continuation: the original
+ * prompt as a user_input step, then every step since.
+ *
+ * Echoing the model's own steps back verbatim is what preserves thought
+ * signatures across a tool round — drop them and Gemini 3 loses the reasoning
+ * thread it built before calling the tool.
+ */
+function buildContinuationInput(contentParts, history) {
+  return [{ type: 'user_input', content: contentParts }, ...history];
+}
+
+/**
  * Generate a streaming response from an agent
  * Includes truncation detection, auto-continuation, and session media support
  */
@@ -550,7 +802,12 @@ export async function* generateAgentResponse(agent, allAgents, messages, goal, s
     throw new Error('Gemini not initialized. Call initializeGemini first.');
   }
 
-  const systemPrompt = await buildSystemPrompt(agent, allAgents, goal);
+  // With function calling on, the bracket-tag vocabulary is suppressed —
+  // teaching both at once invites the model to mix them.
+  const useFunctions = Boolean(options?.tools?.length && options?.dispatch);
+  const systemPrompt = await buildSystemPrompt(agent, allAgents, goal, {
+    enableTagTools: !useFunctions,
+  });
   // Precedence: per-agent model → session-wide preference → registry default.
   const modelId = resolveAgentModel(agent, options?.model);
   const thinkingLevel = normalizeThinkingLevel(options?.thinkingLevel ?? agent?.thinkingLevel);
@@ -577,6 +834,21 @@ export async function* generateAgentResponse(agent, allAgents, messages, goal, s
     // Remind agents about available media without re-sending the data
     const mediaReminder = `\n[Note: ${sessionMedia.length} reference file(s) were provided at session start: ${sessionMedia.map(m => m.name).join(', ')}. Refer to them by name or ID if needed.]\n`;
     contentParts[0].text = mediaReminder + contentParts[0].text;
+  }
+
+  // Function-calling path (Phase 2). The legacy tag path below is unchanged
+  // and stays the default until TOOL_MODE=functions is switched on.
+  if (useFunctions) {
+    try {
+      yield* runFunctionTurn({
+        agent, modelId, systemPrompt, thinkingLevel, contentParts,
+        tools: options.tools,
+        dispatch: options.dispatch,
+      });
+    } catch (error) {
+      yield { type: 'error', error: error.message };
+    }
+    return;
   }
 
   try {

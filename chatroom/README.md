@@ -135,6 +135,21 @@ npm run dev
 
 5. Open http://localhost:5173 in your browser
 
+## Tool modes
+
+Agents reach tools one of two ways, selected by `TOOL_MODE`:
+
+| Mode | How it works |
+|---|---|
+| `tags` (default) | The agent writes `[IMAGE: a fox in snow]` in prose. The server regex-parses it after the turn ends, so the result reaches the **next** speaker as transcript text. |
+| `functions` | The agent emits a real function call. The server runs it mid-turn and hands the result back — including the generated image itself — so the agent reacts to what it actually made inside its own message. |
+
+`functions` is the intended destination but has not yet been exercised against
+the live API. In that mode each agent gets a **tool tier** (`none`, `research`,
+`visual`, `builder`, `full`) rather than the whole inventory, keeping the
+active set inside Google's 10–20 tool guidance. Tiers live in
+`server/config/tools.js`; declarations in `server/services/toolDefinitions.js`.
+
 ## Testing
 
 ```bash
@@ -156,9 +171,9 @@ to record a real one.
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | GET | `/api/agents` | List all agents |
-| GET | `/api/agents/models` | Model + deliberation options for the UI |
-| POST | `/api/agents` | Create agent `{name, bio, model?, thinkingLevel?}` |
-| PATCH | `/api/agents/:idOrName` | Update `{bio?, name?, model?, thinkingLevel?}` |
+| GET | `/api/agents/models` | Model, deliberation and tool-tier options for the UI |
+| POST | `/api/agents` | Create agent `{name, bio, model?, thinkingLevel?, tools?}` |
+| PATCH | `/api/agents/:idOrName` | Update `{bio?, name?, model?, thinkingLevel?, tools?}` |
 | DELETE | `/api/agents/:id` | Remove agent |
 
 ### Chat Control Endpoints

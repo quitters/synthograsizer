@@ -2,6 +2,60 @@
 
 All notable changes to the Agent Chat Room project are documented in this file.
 
+## [1.4.0] - 2026-09
+
+Phase 2 of `MODERNIZATION_PLAN.md` — real function calling, behind a flag.
+**Off by default.** Set `TOOL_MODE=functions` to opt in; `tags` remains the
+default until the new path has been exercised against the live API.
+
+### Added
+- **Function-calling tool layer.** Agents emit `function_call` steps; the
+  server executes them mid-turn and hands back `function_result` blocks, so an
+  agent reacts to what actually happened *inside its own message*. Under the
+  tag path a tool result only ever reached the NEXT speaker as transcript
+  text — that one-turn lag is the thing Phase 2 exists to remove.
+  - Generated images are returned to the model as image content, not just an
+    ID. An agent can now critique the picture it made rather than the prompt
+    it wrote. Capped per turn by `MAX_INLINE_RESULT_IMAGES`.
+  - Continuation is **stateless**: prior steps are echoed back in `input` as a
+    Step array, so `store` stays `false` and the privacy posture is unchanged.
+    Echoing the model's own thought steps verbatim is what preserves thought
+    signatures across a tool round.
+  - `tool_choice: 'validated'` is set whenever tools are present — the API
+    does not support `auto` for built-ins combined with custom functions.
+- `server/config/tools.js` — `TOOL_MODE`, round/call caps, and tool tiers.
+  Tools are handed out per agent role (`none`/`research`/`visual`/`builder`/
+  `full`) rather than all at once, per Google's 10–20 active tool guidance.
+  Agents carry a `tools` tier, settable via the agents API and the setup form.
+- `server/services/toolDefinitions.js` — JSON-Schema declarations for
+  `generate_image`, `compose_image`, `write_artifact`, plus the `google_search`
+  and `url_context` built-ins.
+- `server/services/toolDispatch.js` — executes calls and owns the app-side
+  consequences (media storage, broadcasts, vision window). Tool failures are
+  reported *to the model* with `is_error`, so an agent that knows generation
+  failed can say so instead of inventing success. A bad `compose_image` ID
+  comes back with the real recent IDs attached so the model can retry.
+- `tests/function-calling.test.js` (15 tests) and three tool fixtures,
+  covering the round trip, the stateless echo, argument assembly from
+  `arguments_delta` when `interaction.completed` omits `steps`, usage across
+  rounds, and both runaway caps.
+
+### Changed
+- In function mode the bracket-tag vocabulary is suppressed from the system
+  prompt and the tag parsers are fed an empty string. Teaching both dialects
+  at once invites the model to mix them, and it stops a legitimate
+  `[bracketed aside]` being eaten by a parser.
+- `detectArtifactHallucination` counts a successful `write_artifact` call as
+  having saved, so real tool-based edits are no longer flagged as phantom.
+- Messages carry `toolCalls`; the transcript renders them for later speakers
+  and `ChatMessage` shows them as chips.
+
+### Known limitations
+- Text truncation inside a tool turn is not chased with a continuation prompt
+  the way the tag path does it — the turn ends with `wasTruncated` set.
+- The SYNTH_*/workflow family is still tag-only. It is the largest part of the
+  inventory and depends on the Python backend; it moves in a later slice.
+
 ## [1.3.0] - 2026-09
 
 Phase 1 of `MODERNIZATION_PLAN.md` — the test safety net that has to exist

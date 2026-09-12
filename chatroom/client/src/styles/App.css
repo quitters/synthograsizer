@@ -267,6 +267,29 @@ body {
   font-family: inherit;
 }
 
+/* Function-call record on a message (TOOL_MODE=functions). */
+.message-tool-calls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: 0.4rem;
+}
+
+.tool-call-chip {
+  padding: 0.1rem 0.4rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 0.65rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.tool-call-chip-error {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
 /* Per-agent model + deliberation selectors in the add-agent form. */
 .agent-model-row {
   display: flex;

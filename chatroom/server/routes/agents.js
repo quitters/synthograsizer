@@ -7,6 +7,12 @@ import {
   THINKING_LEVELS,
   DEFAULT_THINKING_LEVEL,
 } from '../config/models.js';
+import {
+  TOOL_TIER_CHOICES,
+  DEFAULT_TOOL_TIER,
+  TOOL_MODE,
+  isFunctionCallingEnabled,
+} from '../config/tools.js';
 
 const router = Router();
 
@@ -24,7 +30,7 @@ router.get('/', (req, res) => {
  * Add a new agent
  */
 router.post('/', (req, res) => {
-  const { name, bio, model, thinkingLevel } = req.body;
+  const { name, bio, model, thinkingLevel, tools } = req.body;
 
   if (!name || !bio) {
     return res.status(400).json({ error: 'Name and bio are required' });
@@ -45,7 +51,7 @@ router.post('/', (req, res) => {
 
   // Unrecognised model / thinking values fall back to the registry defaults
   // rather than 400-ing — an agent with a typo'd model should still join.
-  const agent = orchestrator.addAgent(agentName.trim(), bio.trim(), { model, thinkingLevel });
+  const agent = orchestrator.addAgent(agentName.trim(), bio.trim(), { model, thinkingLevel, tools });
   res.status(201).json({ agent });
 });
 
@@ -59,6 +65,11 @@ router.get('/models', (req, res) => {
     defaultModel: DEFAULT_AGENT_MODEL,
     thinkingLevels: THINKING_LEVELS,
     defaultThinkingLevel: DEFAULT_THINKING_LEVEL,
+    // Tool tiers only mean anything when TOOL_MODE=functions; the UI hides
+    // the selector otherwise rather than offering a setting with no effect.
+    toolMode: TOOL_MODE,
+    toolTiers: isFunctionCallingEnabled() ? TOOL_TIER_CHOICES : [],
+    defaultToolTier: DEFAULT_TOOL_TIER,
   });
 });
 
@@ -79,16 +90,16 @@ router.delete('/:id', (req, res) => {
  * tweaks identify agents by name (the chatroom's uuids aren't surfaced),
  * so we fall back to that.
  *
- * Body: { bio?: string, name?: string, model?: string, thinkingLevel?: string }
+ * Body: { bio?: string, name?: string, model?: string, thinkingLevel?: string, tools?: string }
  */
 router.patch('/:idOrName', (req, res) => {
   const { idOrName } = req.params;
-  const { bio, name, model, thinkingLevel } = req.body || {};
+  const { bio, name, model, thinkingLevel, tools } = req.body || {};
   if (typeof bio !== 'string' && typeof name !== 'string' &&
-      typeof model !== 'string' && typeof thinkingLevel !== 'string') {
-    return res.status(400).json({ error: 'Provide at least one of: bio, name, model, thinkingLevel' });
+      typeof model !== 'string' && typeof thinkingLevel !== 'string' && typeof tools !== 'string') {
+    return res.status(400).json({ error: 'Provide at least one of: bio, name, model, thinkingLevel, tools' });
   }
-  const updated = orchestrator.updateAgent(idOrName, { bio, name, model, thinkingLevel });
+  const updated = orchestrator.updateAgent(idOrName, { bio, name, model, thinkingLevel, tools });
   if (!updated) return res.status(404).json({ error: `Agent not found: ${idOrName}` });
   res.json({ agent: updated });
 });

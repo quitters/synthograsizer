@@ -12,6 +12,9 @@ export function AgentSetup({ agents, onAddAgent, onRemoveAgent, onAvatarChange, 
   const [modelOptions, setModelOptions] = useState(null);
   const [model, setModel] = useState('');
   const [thinkingLevel, setThinkingLevel] = useState('');
+  // Empty unless the server is in function-calling mode — a tool tier means
+  // nothing on the tag path, so the selector stays hidden there.
+  const [toolTier, setToolTier] = useState('');
 
   useEffect(() => {
     let cancelled = false;
@@ -22,6 +25,7 @@ export function AgentSetup({ agents, onAddAgent, onRemoveAgent, onAvatarChange, 
         setModelOptions(data);
         setModel(data.defaultModel);
         setThinkingLevel(data.defaultThinkingLevel);
+        if (data.toolTiers?.length) setToolTier(data.defaultToolTier);
       })
       .catch(() => { /* selectors stay hidden; server defaults apply */ });
     return () => { cancelled = true; };
@@ -41,7 +45,11 @@ export function AgentSetup({ agents, onAddAgent, onRemoveAgent, onAvatarChange, 
       }
     }
 
-    await onAddAgent(agentName, bio.trim(), { model, thinkingLevel });
+    await onAddAgent(agentName, bio.trim(), {
+      model,
+      thinkingLevel,
+      ...(toolTier ? { tools: toolTier } : {}),
+    });
     setName('');
     setBio('');
     // Leave model/thinkingLevel as-is — adding a panel of similar agents is
@@ -134,6 +142,20 @@ STYLE: How they communicate..."
                       ))}
                     </select>
                   </label>
+                  {modelOptions.toolTiers?.length > 0 && (
+                    <label className="agent-model-field">
+                      <span className="agent-model-label">Tools</span>
+                      <select
+                        value={toolTier}
+                        onChange={(e) => setToolTier(e.target.value)}
+                        title={modelOptions.toolTiers.find(t => t.id === toolTier)?.blurb || ''}
+                      >
+                        {modelOptions.toolTiers.map(t => (
+                          <option key={t.id} value={t.id} title={t.blurb}>{t.label}</option>
+                        ))}
+                      </select>
+                    </label>
+                  )}
                 </div>
               )}
               <div className="form-actions">
