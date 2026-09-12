@@ -15,6 +15,10 @@ export function AgentSetup({ agents, onAddAgent, onRemoveAgent, onAvatarChange, 
   // Empty unless the server is in function-calling mode — a tool tier means
   // nothing on the tag path, so the selector stays hidden there.
   const [toolTier, setToolTier] = useState('');
+  // Voice used when the session is rendered to audio. Left blank so the
+  // server assigns a distinct default by roster position.
+  const [voices, setVoices] = useState([]);
+  const [voice, setVoice] = useState('');
 
   useEffect(() => {
     let cancelled = false;
@@ -28,6 +32,12 @@ export function AgentSetup({ agents, onAddAgent, onRemoveAgent, onAvatarChange, 
         if (data.toolTiers?.length) setToolTier(data.defaultToolTier);
       })
       .catch(() => { /* selectors stay hidden; server defaults apply */ });
+
+    fetch(`${API_BASE}/chat/voices`)
+      .then(res => (res.ok ? res.json() : null))
+      .then(data => { if (!cancelled && data?.voices) setVoices(data.voices); })
+      .catch(() => { /* picker stays hidden; server assigns a default */ });
+
     return () => { cancelled = true; };
   }, []);
 
@@ -49,7 +59,10 @@ export function AgentSetup({ agents, onAddAgent, onRemoveAgent, onAvatarChange, 
       model,
       thinkingLevel,
       ...(toolTier ? { tools: toolTier } : {}),
+      // Omitted when blank so the server picks a distinct default.
+      ...(voice ? { voice } : {}),
     });
+    setVoice('');
     setName('');
     setBio('');
     // Leave model/thinkingLevel as-is — adding a panel of similar agents is
@@ -116,8 +129,9 @@ STYLE: How they communicate..."
                 className="agent-bio-input"
                 rows={8}
               />
-              {modelOptions && (
+              {(modelOptions || voices.length > 0) && (
                 <div className="agent-model-row">
+                  {modelOptions && (<>
                   <label className="agent-model-field">
                     <span className="agent-model-label">Model</span>
                     <select
@@ -152,6 +166,22 @@ STYLE: How they communicate..."
                       >
                         {modelOptions.toolTiers.map(t => (
                           <option key={t.id} value={t.id} title={t.blurb}>{t.label}</option>
+                        ))}
+                      </select>
+                    </label>
+                  )}
+                  </>)}
+                  {voices.length > 0 && (
+                    <label className="agent-model-field">
+                      <span className="agent-model-label">Voice</span>
+                      <select
+                        value={voice}
+                        onChange={(e) => setVoice(e.target.value)}
+                        title="Used when the session is rendered to audio"
+                      >
+                        <option value="">Auto</option>
+                        {voices.map(v => (
+                          <option key={v.id} value={v.id}>{v.id} — {v.style}</option>
                         ))}
                       </select>
                     </label>

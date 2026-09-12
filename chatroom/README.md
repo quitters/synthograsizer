@@ -150,6 +150,21 @@ the live API. In that mode each agent gets a **tool tier** (`none`, `research`,
 active set inside Google's 10–20 tool guidance. Tiers live in
 `server/config/tools.js`; declarations in `server/services/toolDefinitions.js`.
 
+## Voices and session audio
+
+Every agent has a `voice`, defaulting by roster position so a new room
+already sounds like distinct people. 30 voices are available; pick one per
+agent in the setup form, or leave it on Auto.
+
+**Export → 🔊 Render as Audio** reads the whole transcript aloud and
+downloads a single WAV. It is an explicit action rather than automatic:
+audio bills at roughly $2.30 per hour of speech, and a long session takes
+minutes to render.
+
+Each contiguous run by one speaker is a separate single-speaker request,
+concatenated afterwards — multi-speaker TTS caps at two voices, which is no
+use to a room with four agents.
+
 ## Reference documents
 
 With `FILE_SEARCH=true`, uploaded documents are indexed once into a
@@ -202,8 +217,8 @@ to record a real one.
 |--------|----------|-------------|
 | GET | `/api/agents` | List all agents |
 | GET | `/api/agents/models` | Model, deliberation and tool-tier options for the UI |
-| POST | `/api/agents` | Create agent `{name, bio, model?, thinkingLevel?, tools?}` |
-| PATCH | `/api/agents/:idOrName` | Update `{bio?, name?, model?, thinkingLevel?, tools?}` |
+| POST | `/api/agents` | Create agent `{name, bio, model?, thinkingLevel?, tools?, voice?}` |
+| PATCH | `/api/agents/:idOrName` | Update `{bio?, name?, model?, thinkingLevel?, tools?, voice?}` |
 | DELETE | `/api/agents/:id` | Remove agent |
 
 ### Chat Control Endpoints

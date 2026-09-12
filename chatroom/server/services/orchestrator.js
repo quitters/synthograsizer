@@ -12,6 +12,7 @@ import {
   isSmartOrchestrationEnabled, SPEAKER_CONFIDENCE_FLOOR, CONSENSUS_CONFIDENCE_FLOOR,
 } from '../config/orchestration.js';
 import { selectSpeaker, assessCompletion, getJudgeUsage, resetJudgeUsage } from './judge.js';
+import { isKnownVoice, defaultVoiceForIndex } from '../config/voices.js';
 import { deleteInteractions } from './gemini.js';
 import {
   createSessionStore, indexMedia, destroySessionStore, fileSearchTool,
@@ -401,6 +402,11 @@ class ChatOrchestrator {
       thinkingLevel: normalizeThinkingLevel(options.thinkingLevel),
       // Which function tools this agent may call (function-calling mode only).
       tools: isKnownToolTier(options.tools) ? options.tools : DEFAULT_TOOL_TIER,
+      // Voice used when the session is rendered to audio. Defaults by roster
+      // position so a fresh room already sounds like distinct people.
+      voice: isKnownVoice(options.voice)
+        ? options.voice
+        : defaultVoiceForIndex(this.agents.length),
     };
     this.agents.push(agent);
     return agent;
@@ -435,6 +441,7 @@ class ChatOrchestrator {
       agent.thinkingLevel = normalizeThinkingLevel(fields.thinkingLevel);
     }
     if (isKnownToolTier(fields.tools)) agent.tools = fields.tools;
+    if (isKnownVoice(fields.voice)) agent.voice = fields.voice;
     return agent;
   }
 

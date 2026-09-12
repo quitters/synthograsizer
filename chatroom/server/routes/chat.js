@@ -4,6 +4,8 @@ import { mediaStore } from '../services/mediaStore.js';
 import { generateImageWithReferences } from '../services/imageGen.js';
 import { listOrphanedStores, destroySessionStore } from '../services/fileSearch.js';
 import { isFileSearchEnabled } from '../config/fileSearch.js';
+import { renderTranscript } from '../services/tts.js';
+import { VOICES, DEFAULT_VOICE } from '../config/voices.js';
 import { v4 as uuidv4 } from 'uuid';
 
 const router = Router();
@@ -187,6 +189,61 @@ router.delete('/file-search/orphans', async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
+});
+
+/**
+ * POST /api/chat/render-audio
+ * Render the transcript to a single WAV, one voice per agent.
+ *
+ * Explicitly user-triggered rather than automatic: audio output bills at
+ * $20/1M tokens (~32 tokens/second, so roughly $2.30 per hour of speech),
+ * and nobody wants that happening on every turn by surprise.
+ */
+router.post('/render-audio', async (req, res) => {
+  const messages = orchestrator.getHistory().filter(m => !m.isUser || req.body?.includeUser);
+  if (messages.length === 0) {
+    return res.status(400).json({ error: 'Nothing to render — the transcript is empty' });
+  }
+
+  const voiceByAgentId = new Map(
+    orchestrator.getAgents().map(a => [a.id, a.voice])
+  );
+
+  try {
+    const started = Date.now();
+    const result = await renderTranscript(messages, voiceByAgentId, (done, total, speaker) => {
+      orchestrator.broadcast('audio_progress', { done, total, speaker });
+    });
+
+    orchestrator.broadcast('audio_rendered', {
+      units: result.units,
+      failed: result.failed,
+      durationSeconds: result.durationSeconds,
+    });
+
+    res.json({
+      success: true,
+      // base64 so it drops straight into the existing JSZip export path.
+      audio: result.wav.toString('base64'),
+      mimeType: 'audio/wav',
+      units: result.units,
+      failed: result.failed,
+      durationSeconds: result.durationSeconds,
+      renderSeconds: Math.round((Date.now() - started) / 1000),
+    });
+  } catch (err) {
+    console.error('Audio render failed:', err);
+    orchestrator.broadcast('audio_error', { error: err.message });
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/**
+ * GET /api/chat/voices
+ * The voice catalogue for the UI picker.
+ */
+router.get('/voices', (req, res) => {
+  res.json({ voices: VOICES, defaultVoice: DEFAULT_VOICE });
 });
 
 /**

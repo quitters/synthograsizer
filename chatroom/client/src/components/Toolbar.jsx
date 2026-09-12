@@ -13,6 +13,8 @@ import {
 } from '../utils/export';
 import { listTemplates, getTemplate } from '../utils/agentTemplates';
 
+const API_BASE = '/chatroom/api';
+
 export function Toolbar({
   agents,
   messages,
@@ -30,6 +32,7 @@ export function Toolbar({
   const [sessionName, setSessionName] = useState('');
   const [savedSessions, setSavedSessions] = useState([]);
   const [isExportingMedia, setIsExportingMedia] = useState(false);
+  const [isRenderingAudio, setIsRenderingAudio] = useState(false);
   const fileInputRef = useRef(null);
 
   // Count images in messages
@@ -74,6 +77,45 @@ export function Toolbar({
       alert(`Failed to export media: ${err.message}`);
     } finally {
       setIsExportingMedia(false);
+    }
+  };
+
+  /**
+   * Render the transcript to a WAV, one voice per agent.
+   * Explicitly user-triggered: audio bills at roughly $2.30 per hour of
+   * speech, and rendering a long session takes a while.
+   */
+  const handleRenderAudio = async () => {
+    setShowMenu(null);
+    const minutes = Math.max(1, Math.round(messages.length * 0.2));
+    if (!confirm(
+      `Render ${messages.length} messages to audio?\n\n` +
+      `This calls the text-to-speech model once per speaker turn and may ` +
+      `take a few minutes. Rough cost: a few cents per ~${minutes} min of speech.`
+    )) return;
+
+    setIsRenderingAudio(true);
+    try {
+      const res = await fetch(`${API_BASE}/chat/render-audio`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Render failed');
+
+      // downloadFile wraps content in a Blob itself, so hand it the bytes.
+      const bytes = Uint8Array.from(atob(data.audio), c => c.charCodeAt(0));
+      downloadFile(bytes, `chatroom-${new Date().toISOString().slice(0, 10)}.wav`, 'audio/wav');
+
+      if (data.failed > 0) {
+        alert(`Rendered with ${data.failed} of ${data.units} segment(s) skipped.`);
+      }
+    } catch (err) {
+      console.error('Audio render failed:', err);
+      alert(`Failed to render audio: ${err.message}`);
+    } finally {
+      setIsRenderingAudio(false);
     }
   };
 
@@ -174,6 +216,13 @@ export function Toolbar({
             <hr />
             <button onClick={handleExportMedia} disabled={imageCount === 0 || isExportingMedia}>
               {isExportingMedia ? 'Exporting...' : `Download All Media (${imageCount})`}
+            </button>
+            <button
+              onClick={handleRenderAudio}
+              disabled={messages.length === 0 || isRenderingAudio}
+              title="Read the transcript aloud, one voice per agent"
+            >
+              {isRenderingAudio ? 'Rendering audio...' : '🔊 Render as Audio'}
             </button>
             <hr />
             <button onClick={handleExportAgents} disabled={agents.length === 0}>

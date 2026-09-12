@@ -450,6 +450,16 @@ Ship it as a verification tool, not an execution backend.
 
 ### 4.3 Multi-speaker TTS — give the room voices  ★ the most on-brand feature available
 
+> **Status: shipped 2026-09-12 (CHANGELOG 1.8.0), and actually verified against the
+> live API — 7 seconds of real audio, valid RIFF at 24 kHz mono 16-bit.**
+>
+> **The code below is wrong in one important way.** Multi-speaker TTS accepts at most
+> **two** speakers per request, so "a chunk can carry several speakers" does not hold
+> for a room with four agents. What shipped instead: one single-speaker request per
+> contiguous same-speaker run, with the PCM concatenated. That scales to any cast size
+> and gives exact per-agent voice control; the cost is cross-speaker prosody, because
+> the model never hears the previous line.
+
 This is a *chat room* with named personas, distinct colours, and avatars. It should be listenable.
 
 ```js
@@ -626,7 +636,7 @@ public preview. Treat as a spike, not a roadmap item. Up to 1,000 managed agents
 | ~~**3**~~ | ~~Stateful chains + implicit caching; per-agent `previous_interaction_id`; prompt reordering; delete the summariser~~ **— shipped 2026-09-12 (off by default), see CHANGELOG 1.5.0** | 2–3 days | Medium. Gated behind `GEMINI_STORE_INTERACTIONS`; **the privacy call is still yours to make** |
 | ~~**4**~~ | ~~File Search for session media~~ **— shipped 2026-09-12 (off by default), see CHANGELOG 1.6.0.** Cross-session memory store **not** built — see open question 4 | 2–3 days | Low-medium. Watch store lifecycle/quota |
 | ~~**5**~~ | ~~Structured output for speaker selection + consensus; code execution tool~~ **— shipped 2026-09-12 (off by default), see CHANGELOG 1.7.0.** Augments the heuristics rather than replacing them | 1–2 days | Low |
-| **6** | Per-agent voices + multi-speaker TTS session export | 2–3 days | Low. Self-contained, high delight |
+| ~~**6**~~ | ~~Per-agent voices + multi-speaker TTS session export~~ **— shipped 2026-09-12, CHANGELOG 1.8.0. Verified against the live API.** Per-run single-speaker, not multi-speaker (caps at 2) | 2–3 days | Low. Self-contained, high delight |
 | **7** | Deep Research agent on the existing background-workflow channel | 1–2 days | Low code risk, **real cost risk** — needs caps |
 | **8** | Spikes: Live API voice seat; Antigravity managed agents | open-ended | High |
 

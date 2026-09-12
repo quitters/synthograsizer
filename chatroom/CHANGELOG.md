@@ -2,6 +2,46 @@
 
 All notable changes to the Agent Chat Room project are documented in this file.
 
+## [1.8.0] - 2026-09
+
+Phase 6 of `MODERNIZATION_PLAN.md` §4.3 — per-agent voices and session audio.
+No env flag: rendering is an explicit user action, not a mode.
+
+### Added
+- **Every agent has a voice.** New `voice` field alongside `color` and
+  `avatar`, defaulting by roster position so a fresh room already sounds like
+  distinct people. 30 prebuilt voices with style labels, selectable per agent
+  in the setup form and settable via the agents API.
+- **Render the session as audio.** `POST /api/chat/render-audio` reads the
+  transcript aloud and returns one WAV; "🔊 Render as Audio" sits in the
+  Export menu behind a confirm, because audio output bills at $20/1M tokens
+  (~32 tokens/second ≈ $2.30 per hour of speech) and a long session takes
+  minutes to render.
+- `GET /api/chat/voices` serves the catalogue for the picker.
+- Progress is broadcast per segment as `audio_progress`.
+- `tests/tts.test.js` (25 tests, 125 total), including byte-level assertions
+  on the RIFF header — a malformed WAV header survives code review and then
+  fails silently in a media player.
+
+### A correction to the plan
+§4.3 assumed multi-speaker TTS could carry the whole cast in one request:
+*"Multi-speaker config takes a list, so a chunk can carry several speakers."*
+It caps at **two speakers**, which is no use to a room with four agents.
+
+So rendering is per contiguous same-speaker run using single-speaker config,
+with the PCM concatenated afterwards. That scales to any number of agents and
+gives exact per-agent voice control; the cost is cross-speaker prosody, since
+the model cannot hear the previous line. Long runs split on sentence
+boundaries so a seam never lands mid-word, and one failed segment is skipped
+rather than losing the whole recording.
+
+### Verified against the live API
+Unlike Phases 2–5, this one was actually exercised end to end: a two-message
+transcript rendered to 7 seconds of non-silent audio in 5 seconds, returning
+a valid RIFF/WAVE file at 24 kHz mono 16-bit. The sample rate and channel
+count are read from the response rather than assumed, and the live values
+matched the defaults.
+
 ## [1.7.0] - 2026-09
 
 Phase 5 of `MODERNIZATION_PLAN.md` — structured-output orchestration and code
