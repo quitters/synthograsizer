@@ -2,6 +2,37 @@
 
 All notable changes to the Agent Chat Room project are documented in this file.
 
+## [1.9.0] - 2026-09
+
+Phase 7 of `MODERNIZATION_PLAN.md` §4.5 — the Deep Research agent.
+**Off by default**; `DEEP_RESEARCH=true` opts in. This one costs real money.
+
+### Added
+- **`deep_research` function tool.** Commissions a multi-source report from
+  the Deep Research agent: `background: true`, polled to completion, and
+  delivered through the same submit-now/surface-later channel workflow
+  outcomes already use. The agent that asked gets an immediate "submitted,
+  carry on" acknowledgement rather than a blocked turn; the report reaches
+  whoever is speaking when it lands, minutes later.
+- **A server-enforced budget.** `DEEP_RESEARCH_MAX_TASKS` (default 2) caps
+  tasks per session. The cap lives in the orchestrator, not in the tool
+  description — a description is a request, and an autonomous room with an
+  uncapped $1–3 tool can spend real money while nobody is watching. A failed
+  submit refunds the budget.
+- **A separate `researcher` tool tier.** `deep_research` is deliberately NOT
+  in `full`, so an agent holds it only if someone chose that tier.
+- Reports are truncated to 6,000 characters before reaching a turn, and the
+  agent is told to attribute findings to the report rather than assert them
+  as prior knowledge. A failed task says so explicitly, so nothing is
+  invented in its place.
+- `tests/deep-research.test.js` (19 tests, 144 total), mostly about the cap
+  holding rather than the happy path.
+
+### Unchanged on purpose
+The existing `[RESEARCH:]` tag still maps to the cheap `google_search` +
+`url_context` call that returns in seconds. Silently upgrading it to a $3
+agent would have been a nasty surprise.
+
 ## [1.8.0] - 2026-09
 
 Phase 6 of `MODERNIZATION_PLAN.md` §4.3 — per-agent voices and session audio.

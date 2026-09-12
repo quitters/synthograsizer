@@ -13,6 +13,8 @@ import {
 } from '../config/orchestration.js';
 import { selectSpeaker, assessCompletion, getJudgeUsage, resetJudgeUsage } from './judge.js';
 import { isKnownVoice, defaultVoiceForIndex } from '../config/voices.js';
+import { isDeepResearchEnabled, MAX_TASKS_PER_SESSION, ESTIMATED_COST_USD } from '../config/research.js';
+import { submitResearch, pollToCompletion } from './deepResearch.js';
 import { deleteInteractions } from './gemini.js';
 import {
   createSessionStore, indexMedia, destroySessionStore, fileSearchTool,
@@ -119,6 +121,12 @@ class ChatOrchestrator {
     // first indexable upload. Null means "nothing indexed", which is the
     // normal state when FILE_SEARCH is off.
     this.fileSearchStoreName = null;
+    // Deep Research (Phase 7). Tasks cost $1-3 each and run for minutes, so
+    // the count is capped per session and the reports arrive asynchronously
+    // through the same channel workflow outcomes use.
+    this.researchTasksUsed = 0;
+    this.pendingResearchOutcomes = [];
+    this.activeResearchIds = new Set();
   }
 
   /**
@@ -165,6 +173,74 @@ class ChatOrchestrator {
         mediaId: mediaItem.id, name: mediaItem.name, error: result.error,
       });
     }
+  }
+
+  /**
+   * Submit a Deep Research task, enforcing the per-session budget.
+   *
+   * The cap lives here rather than in the tool description because a
+   * description is a request and this is a rule — an autonomous room with an
+   * uncapped $1-3 tool can spend real money while nobody is watching.
+   *
+   * @returns {Promise<{ok: boolean, error?: string}>}
+   */
+  async _startResearch(topic, opts, speaker) {
+    if (this.researchTasksUsed >= MAX_TASKS_PER_SESSION) {
+      return {
+        ok: false,
+        error: `the session limit of ${MAX_TASKS_PER_SESSION} research task(s) is already used. ` +
+               'Use google_search instead.',
+      };
+    }
+    this.researchTasksUsed += 1;
+
+    let submitted;
+    try {
+      submitted = await submitResearch(topic, opts);
+    } catch (err) {
+      this.researchTasksUsed -= 1; // never charge the budget for a failed submit
+      return { ok: false, error: err.message };
+    }
+
+    this.activeResearchIds.add(submitted.id);
+    this.broadcast('research_submitted', {
+      agentId: speaker.id,
+      agentName: speaker.name,
+      researchId: submitted.id,
+      topic,
+      thorough: Boolean(opts?.max),
+      tasksUsed: this.researchTasksUsed,
+      tasksAllowed: MAX_TASKS_PER_SESSION,
+      estimatedCostUsd: ESTIMATED_COST_USD,
+    });
+
+    // Poll in the background. The conversation keeps going; the report lands
+    // in pendingResearchOutcomes for whoever speaks next after it finishes.
+    pollToCompletion(submitted.id, (status, elapsed) => {
+      this.broadcast('research_progress', {
+        researchId: submitted.id, status, elapsedSeconds: Math.round(elapsed / 1000),
+      });
+    }).then(result => {
+      this.activeResearchIds.delete(submitted.id);
+      this.pendingResearchOutcomes.push({
+        topic,
+        agentName: speaker.name,
+        ok: result.ok,
+        text: result.text,
+        error: result.error,
+      });
+      this.broadcast(result.ok ? 'research_completed' : 'research_failed', {
+        researchId: submitted.id, topic, error: result.error,
+        chars: result.text?.length || 0,
+      });
+    }).catch(err => {
+      this.activeResearchIds.delete(submitted.id);
+      this.pendingResearchOutcomes.push({
+        topic, agentName: speaker.name, ok: false, error: err.message,
+      });
+    });
+
+    return { ok: true, id: submitted.id };
   }
 
   /**
@@ -701,19 +777,51 @@ class ChatOrchestrator {
    * Returns null if there are no outcomes to report.
    */
   _drainWorkflowOutcomes() {
-    if (this.pendingWorkflowOutcomes.length === 0) return null;
-    const items = this.pendingWorkflowOutcomes.splice(0);
-    const lines = items.map(o => {
-      if (o.status === 'succeeded') {
-        return `- "${o.label}" (submitted by ${o.agentName}) SUCCEEDED.`;
+    const sections = [];
+
+    if (this.pendingWorkflowOutcomes.length > 0) {
+      const items = this.pendingWorkflowOutcomes.splice(0);
+      const lines = items.map(o => {
+        if (o.status === 'succeeded') {
+          return `- "${o.label}" (submitted by ${o.agentName}) SUCCEEDED.`;
+        }
+        return `- "${o.label}" (submitted by ${o.agentName}) FAILED: ${o.error}.`;
+      });
+      sections.push([
+        'Workflow outcomes since the last turn:',
+        ...lines,
+        'Acknowledge these results in your reply. Do NOT pretend failed workflows succeeded.',
+      ].join('\n'));
+    }
+
+    // Deep Research reports land here minutes after being commissioned. They
+    // are long, so they are truncated — the agent is told the report exists
+    // and given enough of it to work with, rather than having a 20-page
+    // document dropped into a chat turn.
+    if (this.pendingResearchOutcomes.length > 0) {
+      const items = this.pendingResearchOutcomes.splice(0);
+      for (const r of items) {
+        if (!r.ok) {
+          sections.push(
+            `The research task on "${r.topic}" (commissioned by ${r.agentName}) FAILED: ` +
+            `${r.error}. Say so plainly rather than inventing findings.`
+          );
+          continue;
+        }
+        const MAX_REPORT_CHARS = 6000;
+        const body = (r.text || '').length > MAX_REPORT_CHARS
+          ? `${r.text.slice(0, MAX_REPORT_CHARS)}\n…[report truncated]`
+          : (r.text || '(empty report)');
+        sections.push([
+          `RESEARCH REPORT — "${r.topic}" (commissioned by ${r.agentName}) has completed:`,
+          body,
+          'Bring the relevant findings into the discussion. Attribute claims to the report ' +
+          'rather than asserting them as your own prior knowledge.',
+        ].join('\n'));
       }
-      return `- "${o.label}" (submitted by ${o.agentName}) FAILED: ${o.error}.`;
-    });
-    return [
-      'Workflow outcomes since the last turn:',
-      ...lines,
-      'Acknowledge these results in your reply. Do NOT pretend failed workflows succeeded.',
-    ].join('\n');
+    }
+
+    return sections.length > 0 ? sections.join('\n\n') : null;
   }
 
   selectNextSpeaker() {
@@ -1897,6 +2005,9 @@ class ChatOrchestrator {
       agent: speaker,
       mediaStore,
       artifactStore,
+      startResearch: isDeepResearchEnabled()
+        ? (topic, opts) => this._startResearch(topic, opts, speaker)
+        : null,
       onEvent: (event, data) => this.broadcast(event, data),
       onMedia: (media) => {
         toolMedia.push({

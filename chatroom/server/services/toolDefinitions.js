@@ -108,6 +108,36 @@ export const FUNCTION_DECLARATIONS = {
       required: ['filename', 'content'],
     },
   },
+
+  deep_research: {
+    type: 'function',
+    name: 'deep_research',
+    description:
+      'Commission a thorough, multi-source research report on a topic. This runs for ' +
+      'SEVERAL MINUTES in the background — the discussion continues without you and the ' +
+      'findings reach whoever is speaking when it lands. It is expensive and strictly ' +
+      'limited per session, so use it only for a question that genuinely needs dozens of ' +
+      'sources synthesised. For anything a couple of web searches would answer, use ' +
+      'google_search instead.',
+    parameters: {
+      type: 'object',
+      properties: {
+        topic: {
+          type: 'string',
+          description:
+            'The research question, stated in full. Be specific about scope and what a ' +
+            'useful answer would contain — the agent cannot ask you to clarify.',
+        },
+        thorough: {
+          type: 'boolean',
+          description:
+            'Roughly double the depth, cost and time. Default false; only set it when ' +
+            'the question genuinely warrants exhaustive coverage.',
+        },
+      },
+      required: ['topic'],
+    },
+  },
 };
 
 /** Tool names that Google executes server-side; declared by type alone. */

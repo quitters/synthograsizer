@@ -637,7 +637,7 @@ public preview. Treat as a spike, not a roadmap item. Up to 1,000 managed agents
 | ~~**4**~~ | ~~File Search for session media~~ **— shipped 2026-09-12 (off by default), see CHANGELOG 1.6.0.** Cross-session memory store **not** built — see open question 4 | 2–3 days | Low-medium. Watch store lifecycle/quota |
 | ~~**5**~~ | ~~Structured output for speaker selection + consensus; code execution tool~~ **— shipped 2026-09-12 (off by default), see CHANGELOG 1.7.0.** Augments the heuristics rather than replacing them | 1–2 days | Low |
 | ~~**6**~~ | ~~Per-agent voices + multi-speaker TTS session export~~ **— shipped 2026-09-12, CHANGELOG 1.8.0. Verified against the live API.** Per-run single-speaker, not multi-speaker (caps at 2) | 2–3 days | Low. Self-contained, high delight |
-| **7** | Deep Research agent on the existing background-workflow channel | 1–2 days | Low code risk, **real cost risk** — needs caps |
+| ~~**7**~~ | ~~Deep Research agent on the existing background-workflow channel~~ **— shipped 2026-09-12 (off by default), CHANGELOG 1.9.0. Capped server-side at 2 tasks/session** | 1–2 days | Low code risk, **real cost risk** — needs caps |
 | **8** | Spikes: Live API voice seat; Antigravity managed agents | open-ended | High |
 
 Phases 0 and 1 are worth doing regardless of whether anything else happens: they're cheap, they

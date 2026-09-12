@@ -15,6 +15,7 @@ import { initializeFileSearch } from './services/fileSearch.js';
 import { isFileSearchEnabled } from './config/fileSearch.js';
 import { initializeJudge } from './services/judge.js';
 import { initializeTTS } from './services/tts.js';
+import { initializeDeepResearch } from './services/deepResearch.js';
 import { mediaStore } from './services/mediaStore.js';
 import { orchestrator } from './services/orchestrator.js';
 
@@ -55,6 +56,7 @@ initializeTools(apiKey);
 initializeFileSearch(apiKey);
 initializeJudge(apiKey);
 initializeTTS(apiKey);
+initializeDeepResearch(apiKey);
 console.log(`Gemini API initialized (text, image, search, URL tools; file search ${isFileSearchEnabled() ? 'ON' : 'off'})`);
 
 // Configure shared workflow engine with chatroom's mediaStore

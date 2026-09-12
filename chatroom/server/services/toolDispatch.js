@@ -35,9 +35,14 @@ function textOutcome(ok, text) {
  * @param {object} deps.artifactStore
  * @param {(media: object) => void} [deps.onMedia]     new media was stored
  * @param {(event: string, data: object) => void} [deps.onEvent]  broadcast hook
+ * @param {(topic: string, opts: object) => Promise<{ok: boolean, error?: string}>} [deps.startResearch]
+ *   Submits a Deep Research task and enforces the per-session budget. Absent
+ *   when deep research is disabled, which makes the tool refuse cleanly.
  * @returns {(call: {id: string, name: string, arguments: object}) => Promise<ToolOutcome>}
  */
-export function createToolDispatcher({ agent, mediaStore, artifactStore, onMedia, onEvent }) {
+export function createToolDispatcher({
+  agent, mediaStore, artifactStore, onMedia, onEvent, startResearch,
+}) {
   // Budget for images handed back to the model inline this turn — see
   // MAX_INLINE_RESULT_IMAGES for why this is capped.
   let inlineImagesRemaining = MAX_INLINE_RESULT_IMAGES;
@@ -184,6 +189,29 @@ export function createToolDispatcher({ agent, mediaStore, artifactStore, onMedia
         true,
         `Saved ${artifact.filename} as version ${artifact.versions.length}. ` +
         'It is now live in the preview panel for everyone.'
+      );
+    },
+
+    async deep_research(args) {
+      const topic = String(args?.topic || '').trim();
+      if (!topic) return textOutcome(false, 'deep_research failed: topic was empty.');
+      if (!startResearch) {
+        return textOutcome(false, 'deep_research is not available in this session.');
+      }
+
+      // The budget is enforced here, server-side. The tool description asks
+      // the model to be sparing; that is a request, and this is the rule.
+      const submitted = await startResearch(topic, { max: Boolean(args?.thorough) });
+      if (!submitted.ok) return textOutcome(false, `deep_research declined: ${submitted.error}`);
+
+      // Returns immediately: the task runs for minutes and the report reaches
+      // whoever is speaking when it lands.
+      return textOutcome(
+        true,
+        `Research task submitted on "${topic.slice(0, 100)}". It runs in the background ` +
+        `for several minutes; the findings will be delivered to whoever is speaking when ` +
+        `it completes. Carry on with the discussion — do not wait, and do not invent ` +
+        `findings in the meantime.`
       );
     },
   };

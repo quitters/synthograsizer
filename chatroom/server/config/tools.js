@@ -58,6 +58,15 @@ export const TOOL_TIERS = {
   /** Look things up, but don't make anything. */
   research: ['google_search', 'url_context'],
 
+  /**
+   * As `research`, plus the ability to commission a Deep Research report.
+   * Deliberately its own tier rather than folded into `research` or `full`:
+   * deep_research costs $1–3 per call, so an agent should only hold it when
+   * someone decided it should. The tool is also filtered out entirely unless
+   * DEEP_RESEARCH=true.
+   */
+  researcher: ['deep_research', 'google_search', 'url_context'],
+
   /** Make pictures, and see what came back. */
   visual: ['generate_image', 'compose_image', 'google_search'],
 
@@ -93,6 +102,7 @@ export const TOOL_TIER_CHOICES = [
   { id: 'builder', label: 'Builder', blurb: 'Writes the shared artifact; runs Python; can research.' },
   { id: 'analyst', label: 'Analyst', blurb: 'Runs Python to check claims, plus search. Makes no media.' },
   { id: 'research', label: 'Research', blurb: 'Search and URL reading only — makes nothing.' },
+  { id: 'researcher', label: 'Deep Researcher', blurb: 'Can commission multi-minute research reports at $1–3 each. Capped per session.' },
   { id: 'none', label: 'No tools', blurb: 'Conversation only. Cheapest and most predictable.' },
 ];
 
