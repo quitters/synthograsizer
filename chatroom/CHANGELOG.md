@@ -2,6 +2,52 @@
 
 All notable changes to the Agent Chat Room project are documented in this file.
 
+## [2.0.0] - 2026-09
+
+Two product decisions, both Alexander's call, both closing questions left
+open since the modernization plan was written.
+
+### ⚠ BREAKING: conversation history is now retained at Google by default
+`GEMINI_STORE_INTERACTIONS` **defaults to `true`.** Each agent gets a
+server-side chain, so a turn sends only what is new since that agent last
+spoke and repeated prefix tokens bill at roughly a tenth of fresh input. In
+exchange Google retains the conversation for 55 days on the paid tier (1 day
+free; 7/14/28/55 configurable in AI Studio).
+
+The app previously advertised *"nothing retained server-side at Google"* as a
+feature. **That claim has been removed from the README, ARCHITECTURE.md and
+.env.example** rather than left to rot — a stale privacy claim is worse than
+no claim. Resetting the room still deletes the session's stored chains.
+
+Opt back out with `GEMINI_STORE_INTERACTIONS=false`. Only the literal string
+`false` opts out, so a typo keeps the documented behaviour instead of
+silently changing the posture.
+
+### Added: cross-session memory
+`CROSS_SESSION_MEMORY=true` (requires `FILE_SEARCH=true`) archives each
+finished session's transcript into one long-lived File Search store, and
+gives agents in later sessions a `file_search` tool over it. Rooms stop
+being amnesiac.
+
+- The store is found by **display name**, not a local file, so it survives a
+  restart, a fresh clone, or a wiped data directory. Memory that vanishes
+  with the process is not memory.
+- It is deliberately **not** cleared by `reset()`, and its name deliberately
+  does not carry the session prefix, so the orphan sweeper cannot delete it.
+  A test pins each of those.
+- Transcripts are archived as readable markdown rather than serialised
+  objects — retrieval over prose is markedly better than over JSON.
+- Sessions under 4 messages are not archived; a barely-started room is noise.
+- `GET /api/chat/memory` lists what is remembered, `DELETE` forgets all of
+  it. The store grows indefinitely and is otherwise invisible.
+- One tool over both stores (session uploads + long-term memory) rather than
+  two competing for the model's attention.
+- `tests/cross-session-memory.test.js` (10 tests, 161 total).
+
+### Fixed
+- `reset()` was clearing the long-term memory handle, which defeated the
+  entire feature. Caught by a test written for exactly that risk.
+
 ## [1.10.0] - 2026-09
 
 Phase 8 of `MODERNIZATION_PLAN.md` §4.7 — Live API groundwork.

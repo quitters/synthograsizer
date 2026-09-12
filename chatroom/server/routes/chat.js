@@ -2,8 +2,10 @@ import { Router } from 'express';
 import { orchestrator } from '../services/orchestrator.js';
 import { mediaStore } from '../services/mediaStore.js';
 import { generateImageWithReferences } from '../services/imageGen.js';
-import { listOrphanedStores, destroySessionStore } from '../services/fileSearch.js';
-import { isFileSearchEnabled } from '../config/fileSearch.js';
+import {
+  listOrphanedStores, destroySessionStore, listMemoryDocuments, forgetAllMemory,
+} from '../services/fileSearch.js';
+import { isFileSearchEnabled, isCrossSessionMemoryEnabled } from '../config/fileSearch.js';
 import { renderTranscript } from '../services/tts.js';
 import { VOICES, DEFAULT_VOICE } from '../config/voices.js';
 import { mintSessionToken, isLoopbackRequest } from '../services/liveSession.js';
@@ -188,6 +190,39 @@ router.delete('/file-search/orphans', async (req, res) => {
       if (result.ok) deleted++;
     }
     res.json({ enabled: true, deleted, skippedActive: Boolean(active) });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/**
+ * GET /api/chat/memory
+ * What previous sessions the room currently remembers.
+ *
+ * DELETE forgets all of it. Long-term memory accumulates indefinitely and is
+ * invisible in the UI otherwise, so it needs a way to be inspected and wiped.
+ */
+router.get('/memory', async (req, res) => {
+  if (!isCrossSessionMemoryEnabled()) {
+    return res.json({ enabled: false, documents: [] });
+  }
+  try {
+    const { storeName, documents } = await listMemoryDocuments();
+    res.json({ enabled: true, storeName, count: documents.length, documents });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.delete('/memory', async (req, res) => {
+  if (!isCrossSessionMemoryEnabled()) {
+    return res.json({ enabled: false, forgotten: false });
+  }
+  try {
+    const result = await forgetAllMemory();
+    // The running session holds a handle to the store just deleted.
+    orchestrator.memoryStoreName = null;
+    res.json({ enabled: true, forgotten: result.ok, error: result.error });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

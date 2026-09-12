@@ -43,7 +43,7 @@ An autonomous multi-agent chat room powered by Google's Gemini API. Create AI ag
 
 ### Backend
 - **Node.js** with Express.js
-- **Google GenAI SDK** (`@google/genai`, Interactions API; every call is stateless — `store: false`)
+- **Google GenAI SDK** (`@google/genai`, Interactions API; conversation history is retained server-side by default — see Conversation state)
 - **Server-Sent Events** for real-time streaming
 - **UUID** for unique identifiers
 
@@ -179,21 +179,36 @@ Stores are deleted on reset. If a crash leaves one behind (the quota is
 project-wide), `GET /api/chat/file-search/orphans` lists them and `DELETE` on
 the same path clears them.
 
+### Cross-session memory
+
+`CROSS_SESSION_MEMORY=true` (on top of `FILE_SEARCH=true`) archives each
+finished session into one long-lived store and lets agents in **later**
+sessions search it. Ask a returning room what it decided last time and it
+can actually look.
+
+The memory store survives resets and restarts by design — it is found by
+display name, not a local file — and the orphan sweeper skips it. Sessions
+under 4 messages are not archived. `GET /api/chat/memory` lists what is
+remembered; `DELETE /api/chat/memory` forgets all of it.
+
 ## Conversation state
 
 `GEMINI_STORE_INTERACTIONS` decides whether Google retains conversation
 history. This is a privacy trade, not a tuning knob.
 
-| | `false` (default) | `true` |
+| | `true` (**default**) | `false` |
 |---|---|---|
-| Retention at Google | none | 55 days paid / 1 day free (7/14/28/55 configurable in AI Studio) |
-| Per turn | full system prompt + windowed transcript | only what the agent has not seen |
-| Implicit caching | impossible — no chain to key on | engages once the chain grows past 4,096 tokens |
-| Reset | clears local state | also deletes the stored chains |
+| Retention at Google | 55 days paid / 1 day free (7/14/28/55 configurable in AI Studio) | none |
+| Per turn | only what the agent has not seen | full system prompt + windowed transcript |
+| Implicit caching | engages once the chain grows past 4,096 tokens | impossible — no chain to key on |
+| Reset | deletes the stored chains | clears local state only |
 
 Explicit caching is not available in the Interactions API, so chaining is the
 only route to cached input. Confirm it is working by watching **Cached** in
-the token meter — it stays at zero in stateless mode by definition.
+the token meter — it stays at zero when retention is off, by definition.
+
+Set `GEMINI_STORE_INTERACTIONS=false` to opt out. Resetting the room deletes
+the session's stored chains either way.
 
 ## Testing
 

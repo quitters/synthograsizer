@@ -7,7 +7,9 @@ import { countTokens, countMessageTokens } from '../utils/tokenCounter.js';
 import { DEFAULT_AGENT_MODEL, normalizeThinkingLevel, isKnownAgentModel } from '../config/models.js';
 import { isFunctionCallingEnabled, isKnownToolTier, DEFAULT_TOOL_TIER } from '../config/tools.js';
 import { isStatefulEnabled } from '../config/session.js';
-import { isFileSearchEnabled, shouldIndex } from '../config/fileSearch.js';
+import {
+  isFileSearchEnabled, shouldIndex, isCrossSessionMemoryEnabled, MIN_MESSAGES_TO_ARCHIVE,
+} from '../config/fileSearch.js';
 import {
   isSmartOrchestrationEnabled, SPEAKER_CONFIDENCE_FLOOR, CONSENSUS_CONFIDENCE_FLOOR,
 } from '../config/orchestration.js';
@@ -18,6 +20,7 @@ import { submitResearch, pollToCompletion } from './deepResearch.js';
 import { deleteInteractions } from './gemini.js';
 import {
   createSessionStore, indexMedia, destroySessionStore, fileSearchTool,
+  archiveSession, getOrCreateMemoryStore,
 } from './fileSearch.js';
 import { buildToolsForAgent } from './toolDefinitions.js';
 import { createToolDispatcher } from './toolDispatch.js';
@@ -121,6 +124,11 @@ class ChatOrchestrator {
     // first indexable upload. Null means "nothing indexed", which is the
     // normal state when FILE_SEARCH is off.
     this.fileSearchStoreName = null;
+    // Long-term memory store, shared across sessions. Initialised once and
+    // then deliberately left alone by reset() — memory that a reset wipes is
+    // not memory. Same pattern as sseClients above, which is also
+    // transport-level state that must outlive a session.
+    if (this.memoryStoreName === undefined) this.memoryStoreName = null;
     // Deep Research (Phase 7). Tasks cost $1-3 each and run for minutes, so
     // the count is capped per session and the reports arrive asynchronously
     // through the same channel workflow outcomes use.
@@ -612,6 +620,7 @@ class ChatOrchestrator {
     // sessionId groups all workflows + traces produced during this run.
     // The trace viewer's "session lens" pivots on this field.
     this.sessionId = uuidv4();
+    this._resolveMemoryStore();
 
     this.broadcast('session_start', {
       sessionId: this.sessionId,
@@ -640,6 +649,56 @@ class ChatOrchestrator {
       turnCount: this.turnCount,
       messages: this.messages.length
     });
+    this._archiveToMemory(reason);
+  }
+
+  /**
+   * Archive a finished session into long-term memory so later rooms can
+   * search it. Fire-and-forget: stop() is called from request handlers and
+   * from inside the conversation loop, and neither should wait on an upload.
+   */
+  _archiveToMemory(reason) {
+    if (!isCrossSessionMemoryEnabled()) return;
+    if (this.messages.length < MIN_MESSAGES_TO_ARCHIVE) {
+      // A room that barely got started is noise in the memory store.
+      return;
+    }
+    const snapshot = {
+      sessionId: this.sessionId,
+      goal: this.goal,
+      agents: this.agents.map(a => ({ name: a.name })),
+      // Copy: the live array is about to be reset out from under the upload.
+      messages: this.messages.map(m => ({ agentName: m.agentName, content: m.content })),
+      endedAt: new Date().toISOString(),
+      reason,
+    };
+    archiveSession(snapshot)
+      .then(result => {
+        this.broadcast(result.ok ? 'memory_archived' : 'memory_archive_failed', {
+          sessionId: snapshot.sessionId,
+          messages: snapshot.messages.length,
+          error: result.error,
+        });
+      })
+      .catch(err => console.warn(`[Orchestrator] memory archive failed: ${err.message}`));
+  }
+
+  /**
+   * Resolve the long-term memory store for this run, creating it on first
+   * use. Not awaited by start() — the first turn or two may go without it,
+   * which is better than delaying the room on a store lookup.
+   */
+  _resolveMemoryStore() {
+    if (!isCrossSessionMemoryEnabled()) {
+      this.memoryStoreName = null;
+      return;
+    }
+    getOrCreateMemoryStore()
+      .then(name => {
+        this.memoryStoreName = name;
+        this.broadcast('memory_available', { storeName: name });
+      })
+      .catch(err => console.warn(`[Orchestrator] memory store unavailable: ${err.message}`));
   }
 
   /**
@@ -1976,9 +2035,12 @@ class ChatOrchestrator {
     const tools = [];
 
     // file_search is a built-in: it needs no dispatcher, so it works in tag
-    // mode too, and is offered whenever this session has an indexed store.
-    if (this.fileSearchStoreName) {
-      tools.push(fileSearchTool(this.fileSearchStoreName));
+    // mode too. One tool over both stores rather than two competing for the
+    // model's attention — this session's uploads and, when cross-session
+    // memory is on, what previous rooms concluded.
+    const stores = [this.fileSearchStoreName, this.memoryStoreName].filter(Boolean);
+    if (stores.length > 0) {
+      tools.push(fileSearchTool(stores));
     }
 
     if (isFunctionCallingEnabled()) {

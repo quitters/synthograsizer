@@ -39,7 +39,23 @@ beforeEach(() => {
   initializeGemini(null, new FakeGenAI([{ throws: 'no fake installed' }]));
 });
 
-describe('stateless remains the default', () => {
+describe('the app default is retention ON', () => {
+  test('isStatefulEnabled() is true unless explicitly opted out', async () => {
+    // Flipped 2026-09-12: the operator accepted the 55-day retention in
+    // exchange for chaining and implicit caching. Only the literal string
+    // "false" opts out, so a typo cannot silently change the posture.
+    const { isStatefulEnabled } = await import('../server/config/session.js');
+    assert.equal(isStatefulEnabled(), process.env.GEMINI_STORE_INTERACTIONS !== 'false');
+    if (!process.env.GEMINI_STORE_INTERACTIONS) {
+      assert.equal(isStatefulEnabled(), true, 'retention should be on by default');
+    }
+  });
+});
+
+describe('generateAgentResponse stays stateless unless told otherwise', () => {
+  // The function-level default is still false: the orchestrator decides the
+  // session posture and passes it in, so a direct caller cannot accidentally
+  // create stored interactions.
   test('store is false and no chain is sent', { timeout: 15000 }, async () => {
     const { fake, complete } = await runTurn([{ fixture: 'simple-turn' }], {}, messagesFixture(5));
     const req = fake.request(0);

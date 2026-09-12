@@ -390,11 +390,14 @@ Ranked by (impact ÷ effort) for this specific app.
 
 ### 4.1 File Search — session media and cross-session memory  ★ highest value
 
-> **Status: session media shipped behind `FILE_SEARCH=true` (2026-09-12), see
-> CHANGELOG 1.6.0. Cross-session memory deliberately NOT built** — it changes what
-> a "session" means in the product, which is open question 4 below and yours to answer.
-> The store plumbing it would need (create / index / destroy / orphan-sweep) is already
-> in `server/services/fileSearch.js`, so it is a small addition once you decide.
+> **Status: BOTH halves shipped. Session media behind `FILE_SEARCH=true`
+> (CHANGELOG 1.6.0); cross-session memory behind `CROSS_SESSION_MEMORY=true`
+> (CHANGELOG 2.0.0), after Alexander answered open question 4 with "yes".**
+>
+> The memory store is found by display name rather than a local pointer, so it
+> survives restarts and fresh clones; it is exempt from `reset()` and from the orphan
+> sweeper. A test pins each of those, and one of them caught `reset()` wiping the
+> handle — which would have quietly defeated the whole feature.
 >
 > One design note from implementation: images stay inline rather than being indexed.
 > File Search would hand back retrieved *text about* a reference image, and an agent
@@ -681,12 +684,15 @@ reduce spend immediately, and phase 1 is the safety net for all the rest.
 
 ## 7. Open questions
 
-1. **`store: true` or not?** The privacy promise in `.env.example` is currently load-bearing for how
-   the hosted tier is described. Caching is a real saving, but this is a product call, not a
-   technical default.
+1. ~~**`store: true` or not?**~~ **ANSWERED 2026-09-12: yes.** Retention is now the default
+   (`GEMINI_STORE_INTERACTIONS=true`), and the "nothing retained at Google" claim has been
+   removed from the README, ARCHITECTURE and `.env.example`. **If the hosted tier's marketing
+   copy repeats that promise anywhere outside `chatroom/`, it needs the same correction** —
+   this sweep only covered the chat room.
 2. **Is the artifact panel staying JS/HTML-first?** If so, code execution is verification-only and
    managed agents are the only route to "the agent actually runs the thing."
 3. **What's the monthly ceiling on this room?** Deep Research at $1–3/task and grounded search at
    $14/1,000 queries change the design (hard caps vs. soft warnings) depending on the answer.
-4. **Cross-session agent memory — wanted, or scope creep?** File Search makes it cheap enough to be
-   tempting, but it changes what a "session" means in the product.
+4. ~~**Cross-session agent memory — wanted, or scope creep?**~~ **ANSWERED 2026-09-12: wanted.**
+   Shipped behind `CROSS_SESSION_MEMORY=true` — see §4.1. Note the store grows without bound;
+   `GET`/`DELETE /api/chat/memory` are the only way to see or clear it.

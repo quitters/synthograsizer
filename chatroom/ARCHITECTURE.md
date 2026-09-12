@@ -171,8 +171,9 @@ createBranchPoint(name) {
 ### 2. Gemini Service (`server/services/gemini.js`)
 
 Handles all LLM interactions via the Gemini **Interactions API** (`@google/genai`).
-Every call is stateless (`store: false`) — the full windowed transcript is
-resent each turn and nothing is retained server-side at Google.
+Conversation history is retained server-side by default (`store: true`), so a
+turn sends only what is new since that agent last spoke. See
+`server/config/session.js` for the retention trade and how to opt out.
 
 #### Request Configuration
 
@@ -188,7 +189,7 @@ const stream = await genAI.interactions.create({
   },
   input: blocks, // [{type:'text',...}, {type:'image',...}, {type:'document',...}]
   stream: true,
-  store: false,
+  store: true,        // default; GEMINI_STORE_INTERACTIONS=false opts out
 });
 ```
 
@@ -342,7 +343,7 @@ async function executeWebSearch(query) {
     model: 'gemini-3.5-flash-lite',   // TOOL_MODEL; see server/config/models.js
     input: query,
     tools: [{ type: 'google_search' }],
-    store: false,
+    store: true,      // default; GEMINI_STORE_INTERACTIONS=false opts out
   });
 
   // Extract sources from url_citation annotations on the output text

@@ -21,6 +21,28 @@ export const FILE_SEARCH_ENABLED = process.env.FILE_SEARCH === 'true';
 export const isFileSearchEnabled = () => FILE_SEARCH_ENABLED;
 
 /**
+ * Cross-session memory.
+ * ─────────────────────
+ * When on, a finished session's transcript is archived into ONE long-lived
+ * store, and agents in later sessions can search it. Rooms stop being
+ * amnesiac: "what did we decide about the palette last time" becomes a
+ * question with an answer.
+ *
+ * This changes what a "session" means, which is why it is its own flag
+ * rather than riding on FILE_SEARCH. It also accumulates indefinitely — see
+ * the memory routes for inspecting and clearing it.
+ *
+ * Requires FILE_SEARCH=true; the memory store uses the same machinery.
+ */
+export const CROSS_SESSION_MEMORY = process.env.CROSS_SESSION_MEMORY === 'true';
+
+export const isCrossSessionMemoryEnabled = () =>
+  FILE_SEARCH_ENABLED && CROSS_SESSION_MEMORY;
+
+/** Minimum messages before a session is worth remembering. */
+export const MIN_MESSAGES_TO_ARCHIVE = 4;
+
+/**
  * Embedding model used to index a store. Fixed at creation time — changing it
  * later means rebuilding the store, so it is pinned here rather than derived.
  */

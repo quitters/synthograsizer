@@ -137,11 +137,132 @@ export async function listOrphanedStores() {
   return found;
 }
 
-/** The tool declaration an agent turn uses to query a store. */
-export function fileSearchTool(storeName, topK = FILE_SEARCH_TOP_K) {
+/**
+ * The tool declaration an agent turn uses to query stores.
+ *
+ * Takes a list because a turn may search both this session's uploads and the
+ * long-term memory of previous sessions, and one tool over two stores beats
+ * two tools competing for the model's attention.
+ */
+export function fileSearchTool(storeNames, topK = FILE_SEARCH_TOP_K) {
+  const names = Array.isArray(storeNames) ? storeNames.filter(Boolean) : [storeNames];
   return {
     type: 'file_search',
-    file_search_store_names: [storeName],
+    file_search_store_names: names,
     top_k: topK,
   };
+}
+
+// ─────────────────────────── cross-session memory ───────────────────────────
+
+/** The one long-lived store. Distinct prefix so the orphan sweeper skips it. */
+export const MEMORY_STORE_NAME = 'chatroom-longterm-memory';
+
+let memoryStoreCache = null;
+
+/**
+ * Find the long-term memory store, creating it on first use.
+ *
+ * Looked up by display name rather than persisted locally, so the store
+ * survives a server restart, a fresh clone, or a wiped data directory —
+ * memory that vanishes when the process does is not memory.
+ */
+export async function getOrCreateMemoryStore() {
+  if (!genAI) throw new Error('File search not initialized');
+  if (memoryStoreCache) return memoryStoreCache;
+
+  const pager = await genAI.fileSearchStores.list({ config: { pageSize: 20 } });
+  for await (const store of pager) {
+    if (store.displayName === MEMORY_STORE_NAME) {
+      memoryStoreCache = store.name;
+      return memoryStoreCache;
+    }
+  }
+
+  const created = await genAI.fileSearchStores.create({
+    config: { displayName: MEMORY_STORE_NAME, embeddingModel: EMBEDDING_MODEL },
+  });
+  memoryStoreCache = created.name;
+  console.log(`[fileSearch] created long-term memory store ${created.name}`);
+  return memoryStoreCache;
+}
+
+/** Forget the cached handle (after deleting the store). */
+export function clearMemoryStoreCache() {
+  memoryStoreCache = null;
+}
+
+/**
+ * Render a finished session as a document for the memory store.
+ *
+ * Plain prose with a header, not JSON: this gets chunked and embedded, and
+ * retrieval works far better over readable text than over serialised objects.
+ */
+export function formatSessionForMemory({ sessionId, goal, agents, messages, endedAt }) {
+  const date = (endedAt || new Date().toISOString()).slice(0, 10);
+  const lines = [
+    `# Chat room session — ${date}`,
+    ``,
+    `Goal: ${goal || '(none stated)'}`,
+    `Participants: ${(agents || []).map(a => a.name).join(', ') || '(unknown)'}`,
+    `Session id: ${sessionId || '(unknown)'}`,
+    ``,
+    `## Transcript`,
+    ``,
+  ];
+  for (const m of messages || []) {
+    const text = (m.content || '').trim();
+    if (!text) continue;
+    lines.push(`**${m.agentName || 'Unknown'}:** ${text}`, ``);
+  }
+  return lines.join('\n');
+}
+
+/**
+ * Archive a finished session into long-term memory.
+ * @returns {Promise<{ok: boolean, error?: string, storeName?: string}>}
+ */
+export async function archiveSession(session) {
+  if (!genAI) return { ok: false, error: 'file search not initialized' };
+  try {
+    const storeName = await getOrCreateMemoryStore();
+    const text = formatSessionForMemory(session);
+    const date = (session.endedAt || new Date().toISOString()).slice(0, 10);
+
+    const result = await indexMedia(storeName, {
+      id: session.sessionId,
+      name: `session-${date}-${String(session.sessionId || '').slice(0, 8)}.md`,
+      mimeType: 'text/markdown',
+      data: Buffer.from(text, 'utf-8').toString('base64'),
+    });
+    if (!result.ok) return { ok: false, error: result.error };
+
+    console.log(`[fileSearch] archived session ${session.sessionId} to long-term memory`);
+    return { ok: true, storeName };
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+}
+
+/** What is currently remembered. */
+export async function listMemoryDocuments() {
+  if (!genAI) throw new Error('File search not initialized');
+  const storeName = await getOrCreateMemoryStore();
+  const docs = [];
+  const pager = await genAI.fileSearchStores.documents.list({
+    parent: storeName, config: { pageSize: 20 },
+  });
+  for await (const doc of pager) {
+    docs.push({ name: doc.name, displayName: doc.displayName });
+  }
+  return { storeName, documents: docs };
+}
+
+/** Delete the whole memory store. Irreversible — the room forgets everything. */
+export async function forgetAllMemory() {
+  if (!genAI) throw new Error('File search not initialized');
+  const storeName = await getOrCreateMemoryStore();
+  const result = await destroySessionStore(storeName);
+  clearMemoryStoreCache();
+  return result;
 }
