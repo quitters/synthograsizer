@@ -2,6 +2,50 @@
 
 All notable changes to the Agent Chat Room project are documented in this file.
 
+## [1.7.0] - 2026-09
+
+Phase 5 of `MODERNIZATION_PLAN.md` — structured-output orchestration and code
+execution. **Off by default**; set `SMART_ORCHESTRATION=true` to opt in.
+
+### Added
+- **Structured-output judgements** (`server/services/judge.js`) for the two
+  orchestrator decisions that are really language-understanding problems:
+  who speaks next, and whether the room has finished. Both run on
+  `gemini-3.5-flash-lite` with a JSON schema, `thinking_level: 'minimal'`,
+  and an 8-second timeout.
+  - Speaker choice uses an `enum` of the real candidate ids, so an invalid
+    speaker is structurally impossible rather than merely unlikely — and the
+    result is verified against the candidate list anyway.
+  - The verdict carries a `reason`, broadcast as `speaker_selected`, so the
+    UI can say *why* someone was picked instead of it looking arbitrary.
+  - Judgement spend is accumulated separately and exposed as `judgeUsage` on
+    session state. Orchestration is not free and should not hide inside the
+    agent totals.
+- **Code execution** added to the `builder` and `full` tiers, plus a new
+  `analyst` tier (`code_execution` + search + URL, makes no media). It is a
+  verification tool — Python only, 30-second cap, cannot return media files —
+  so it does not replace the artifact panel.
+- `tests/orchestration-judge.test.js` (18 tests, 100 total).
+
+### Deliberately not done as planned
+The plan said to **replace** the speaker-selection and consensus heuristics.
+That would have been a regression. The existing code encodes constraints
+learned from real sessions — a fairness floor that stops one agent
+dominating, a cooldown that stops an agent closing the room right after the
+user typed, and a consensus quorum. Those are policy, not judgement.
+
+So the judge only ever chooses between candidates the heuristics already
+accept, and never overrides them:
+
+- muted agents and the last speaker are filtered out before it is consulted;
+- if the fairness floor forced the pick, the judge is not asked at all;
+- a consensus verdict must clear a 0.75 confidence floor **and** still win
+  the same quorum vote an explicit `[CONSENSUS REACHED]` marker would;
+- timeout, malformed JSON, low confidence or an unknown id all fall back to
+  the heuristic result.
+
+Four tests exist specifically to pin that ordering.
+
 ## [1.6.0] - 2026-09
 
 Phase 4 of `MODERNIZATION_PLAN.md` §4.1 — File Search for uploaded reference

@@ -61,14 +61,24 @@ export const TOOL_TIERS = {
   /** Make pictures, and see what came back. */
   visual: ['generate_image', 'compose_image', 'google_search'],
 
-  /** Write the shared file the preview panel renders. */
-  builder: ['write_artifact', 'google_search', 'url_context'],
+  /** Write the shared file the preview panel renders, and check the maths. */
+  builder: ['write_artifact', 'code_execution', 'google_search', 'url_context'],
 
-  /** Everything in the Phase 2 slice. Keep an eye on the count. */
+  /**
+   * Run Python to check a claim before making it. Note that code execution
+   * does NOT replace the artifact panel: it is Python, capped at 30 seconds,
+   * and cannot return media files. It is a verification tool — the difference
+   * between an agent asserting "this runs at 60fps with 5,000 particles" and
+   * an agent checking.
+   */
+  analyst: ['code_execution', 'google_search', 'url_context'],
+
+  /** Everything in the current slice. Keep an eye on the count. */
   full: [
     'generate_image',
     'compose_image',
     'write_artifact',
+    'code_execution',
     'google_search',
     'url_context',
   ],
@@ -80,7 +90,8 @@ export const DEFAULT_TOOL_TIER = 'full';
 export const TOOL_TIER_CHOICES = [
   { id: 'full', label: 'All tools', blurb: 'Images, artifacts, search and URL reading.' },
   { id: 'visual', label: 'Visual', blurb: 'Image generation and composition, plus search.' },
-  { id: 'builder', label: 'Builder', blurb: 'Writes the shared artifact; can research.' },
+  { id: 'builder', label: 'Builder', blurb: 'Writes the shared artifact; runs Python; can research.' },
+  { id: 'analyst', label: 'Analyst', blurb: 'Runs Python to check claims, plus search. Makes no media.' },
   { id: 'research', label: 'Research', blurb: 'Search and URL reading only — makes nothing.' },
   { id: 'none', label: 'No tools', blurb: 'Conversation only. Cheapest and most predictable.' },
 ];

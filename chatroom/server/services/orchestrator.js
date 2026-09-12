@@ -8,6 +8,10 @@ import { DEFAULT_AGENT_MODEL, normalizeThinkingLevel, isKnownAgentModel } from '
 import { isFunctionCallingEnabled, isKnownToolTier, DEFAULT_TOOL_TIER } from '../config/tools.js';
 import { isStatefulEnabled } from '../config/session.js';
 import { isFileSearchEnabled, shouldIndex } from '../config/fileSearch.js';
+import {
+  isSmartOrchestrationEnabled, SPEAKER_CONFIDENCE_FLOOR, CONSENSUS_CONFIDENCE_FLOOR,
+} from '../config/orchestration.js';
+import { selectSpeaker, assessCompletion, getJudgeUsage, resetJudgeUsage } from './judge.js';
 import { deleteInteractions } from './gemini.js';
 import {
   createSessionStore, indexMedia, destroySessionStore, fileSearchTool,
@@ -518,6 +522,7 @@ class ChatOrchestrator {
     // Real usage is per-run spend. Unlike tokenCount it is NOT rewound by
     // branch restore or rewindToMessage — you can't un-spend tokens.
     this.usage = createEmptyUsage();
+    resetJudgeUsage();
     this.turnCount = 0;
     this.lastSpeakerId = null;
     this.modelPreference = options.model || null;
@@ -717,6 +722,62 @@ class ChatOrchestrator {
     } finally {
       this.agents = allAgents;
     }
+  }
+
+  /**
+   * Smart-orchestration wrapper around speaker selection.
+   *
+   * The hard rules still run first and still win: muting, the fairness floor,
+   * and "never twice in a row" are policy learned from real sessions, not
+   * things to hand to a model. The judge only picks between candidates the
+   * heuristics already consider valid, and any failure falls straight back to
+   * the heuristic's own answer.
+   */
+  async selectNextSpeakerSmart() {
+    const heuristic = this.selectNextSpeaker();
+    if (!heuristic) return null;
+    if (!isSmartOrchestrationEnabled()) return heuristic;
+    // Only 'dynamic' is a judgement call; the other modes are deterministic
+    // by definition and the user picked them on purpose.
+    if (this.speakingOrder !== 'dynamic') return heuristic;
+
+    // A starved agent is a fairness guarantee, not a preference — if the
+    // heuristic invoked the floor, do not second-guess it.
+    if (this._isStarvedPick(heuristic)) return heuristic;
+
+    const candidates = this.agents.filter(a => !a.muted && a.id !== this.lastSpeakerId);
+    if (candidates.length < 2) return heuristic;
+
+    try {
+      const verdict = await selectSpeaker({
+        candidates,
+        recentMessages: this.messages,
+        goal: this.goal,
+      });
+      if (!verdict || verdict.confidence < SPEAKER_CONFIDENCE_FLOOR) return heuristic;
+
+      const chosen = candidates.find(a => a.id === verdict.agentId);
+      if (!chosen) return heuristic;
+
+      this.broadcast('speaker_selected', {
+        agentId: chosen.id,
+        agentName: chosen.name,
+        reason: verdict.reason,
+        confidence: verdict.confidence,
+      });
+      return chosen;
+    } catch (err) {
+      console.warn(`[Orchestrator] smart speaker selection failed: ${err.message}`);
+      return heuristic;
+    }
+  }
+
+  /** Was this pick forced by the fairness floor rather than chosen freely? */
+  _isStarvedPick(agent) {
+    const threshold = this.agents.length * 2;
+    const everSpoke = this.messages.some(m => m.agentId === agent.id);
+    if (!everSpoke) return this.messages.length >= threshold;
+    return this.countTurnsSince(agent.id) >= threshold;
   }
 
   _selectNextSpeakerInternal() {
@@ -1013,6 +1074,14 @@ class ChatOrchestrator {
       }
     }
 
+    // Smart mode gets a second look: the phrase list above is a fixed set of
+    // strings and cannot recognise "I think we're done here" or "nothing
+    // further from me on this". Marked for the async pass in the loop, which
+    // still applies the cooldown and quorum rules around whatever it decides.
+    if (isSmartOrchestrationEnabled()) {
+      return 'needs_judgement';
+    }
+
     // High sensitivity: also check for sign-off patterns
     if (this.consensusSettings.sensitivity === 'high') {
       if (this.isConversationWindingDown(contentLower)) {
@@ -1080,7 +1149,7 @@ class ChatOrchestrator {
       }
 
       // Select next speaker
-      const speaker = this.selectNextSpeaker();
+      const speaker = await this.selectNextSpeakerSmart();
       if (!speaker) {
         this.stop('no_agents');
         break;
@@ -1737,7 +1806,10 @@ class ChatOrchestrator {
         });
 
         // Check for consensus/completion
-        const completionReason = this.checkForCompletion(fullResponse, speaker.id);
+        let completionReason = this.checkForCompletion(fullResponse, speaker.id);
+        if (completionReason === 'needs_judgement') {
+          completionReason = await this._judgeCompletion(fullResponse, speaker);
+        }
         if (completionReason) {
           this.stop(completionReason);
           break;
@@ -1843,6 +1915,51 @@ class ChatOrchestrator {
   }
 
   /**
+   * Ask the judge whether a message really declares the goal finished, and
+   * run the answer through the same quorum the explicit marker uses.
+   *
+   * Consensus ends the session, so a model's opinion alone is not enough:
+   * it has to clear a high confidence floor AND still win a vote among the
+   * agents, exactly as an explicit [CONSENSUS REACHED] would.
+   *
+   * @returns {Promise<string|null>} completion reason, or null to continue
+   */
+  async _judgeCompletion(content, speaker) {
+    let verdict;
+    try {
+      verdict = await assessCompletion({
+        content, goal: this.goal, agentName: speaker.name,
+      });
+    } catch (err) {
+      console.warn(`[Orchestrator] completion judgement failed: ${err.message}`);
+      return null;
+    }
+    if (!verdict?.complete || verdict.confidence < CONSENSUS_CONFIDENCE_FLOOR) return null;
+
+    // Same vote bookkeeping as the explicit marker path.
+    this.consensusVotes = this.consensusVotes.filter(v => v.agentId !== speaker.id);
+    this.consensusVotes.push({ agentId: speaker.id, turn: this.turnCount });
+    const window = this.consensusSettings.voteWindowTurns ?? 4;
+    this.consensusVotes = this.consensusVotes.filter(v => this.turnCount - v.turn <= window);
+
+    const distinctVoters = new Set(this.consensusVotes.map(v => v.agentId)).size;
+    const speakableCount = this.agents.filter(a => !a.muted).length;
+    const required = Math.max(2, Math.ceil((speakableCount || 0) / 2));
+
+    if (distinctVoters >= required) return 'consensus_reached';
+
+    this.broadcast('consensus_proposed', {
+      agentId: speaker.id,
+      votes: distinctVoters,
+      required,
+      inCooldown: false,
+      rationale: verdict.rationale,
+      judged: true,
+    });
+    return null;
+  }
+
+  /**
    * Fold one turn's reported usage into the session total.
    * Turns where the API didn't report usage are counted separately so the UI
    * can say how much of the figure is measured vs estimated.
@@ -1885,6 +2002,9 @@ class ChatOrchestrator {
       // Whether conversation history is being retained server-side at Google.
       // Surfaced so the UI can say so rather than leaving it to the .env.
       stateful: isStatefulEnabled(),
+      // Orchestration judgements are real spend, billed separately from the
+      // agent turns — surfaced so they can't hide.
+      judgeUsage: isSmartOrchestrationEnabled() ? getJudgeUsage() : null,
       turnCount: this.turnCount,
       messageCount: this.messages.length,
       agents: this.agents, // Include full agent data with bios

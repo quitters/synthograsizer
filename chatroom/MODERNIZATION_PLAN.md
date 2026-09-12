@@ -482,6 +482,19 @@ Achernar/soft, …). Implementation notes:
 
 ### 4.4 Structured output for the orchestrator's own decisions  ★ high value, low effort
 
+> **Status: shipped behind `SMART_ORCHESTRATION=true` (2026-09-12), CHANGELOG 1.7.0 —
+> but NOT as written below.** This section says "replace each with a cheap call." Doing
+> that would have thrown away behaviour the current code earned the hard way: the
+> fairness floor that stops one agent dominating, the cooldown that stops an agent
+> closing the room right after the user typed, and the consensus quorum. Those are
+> *policy*, and a model should not get a vote on them.
+>
+> What shipped: the judge chooses only between candidates the heuristics already
+> accept, is not consulted at all when the fairness floor forced the pick, and a
+> consensus verdict must clear 0.75 confidence *and* win the same quorum an explicit
+> marker would. Every failure path falls back to the heuristic. `isConversationWindingDown`
+> was left alone — it is a sign-off detector, not a judgement call.
+
 Three orchestrator behaviours are currently regex-and-heuristic over prose, and all three are the
 kind of thing that goes subtly wrong:
 
@@ -612,7 +625,7 @@ public preview. Treat as a spike, not a roadmap item. Up to 1,000 managed agents
 | ~~**2**~~ | ~~Function calling behind `TOOL_MODE=functions`; start with the five media tools; keep regex parsers as fallback~~ **— shipped 2026-09-11 (off by default), see CHANGELOG 1.4.0** | 2–3 days | Medium. Biggest behavioural change; **still needs a real session to evaluate** |
 | ~~**3**~~ | ~~Stateful chains + implicit caching; per-agent `previous_interaction_id`; prompt reordering; delete the summariser~~ **— shipped 2026-09-12 (off by default), see CHANGELOG 1.5.0** | 2–3 days | Medium. Gated behind `GEMINI_STORE_INTERACTIONS`; **the privacy call is still yours to make** |
 | ~~**4**~~ | ~~File Search for session media~~ **— shipped 2026-09-12 (off by default), see CHANGELOG 1.6.0.** Cross-session memory store **not** built — see open question 4 | 2–3 days | Low-medium. Watch store lifecycle/quota |
-| **5** | Structured output for speaker selection + consensus; code execution tool | 1–2 days | Low |
+| ~~**5**~~ | ~~Structured output for speaker selection + consensus; code execution tool~~ **— shipped 2026-09-12 (off by default), see CHANGELOG 1.7.0.** Augments the heuristics rather than replacing them | 1–2 days | Low |
 | **6** | Per-agent voices + multi-speaker TTS session export | 2–3 days | Low. Self-contained, high delight |
 | **7** | Deep Research agent on the existing background-workflow channel | 1–2 days | Low code risk, **real cost risk** — needs caps |
 | **8** | Spikes: Live API voice seat; Antigravity managed agents | open-ended | High |
