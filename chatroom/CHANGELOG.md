@@ -2,6 +2,62 @@
 
 All notable changes to the Agent Chat Room project are documented in this file.
 
+## [1.5.0] - 2026-09
+
+Phase 3 of `MODERNIZATION_PLAN.md` — stateful chains and prompt ordering.
+**Stateful mode is off by default.** Set `GEMINI_STORE_INTERACTIONS=true` to
+opt in; it is a privacy trade, not a tuning knob.
+
+### Added
+- **Per-agent server-side chains.** With `GEMINI_STORE_INTERACTIONS=true`,
+  each agent continues its own conversation via `previous_interaction_id` and
+  a turn sends only the messages that agent has not seen — not the whole
+  windowed transcript. This is the only route to implicit caching: explicit
+  cache objects are a `generateContent` feature and are unavailable here.
+  - `buildDeltaPrompt` renders just the new messages. When a chain is active
+    the lossy sliding-window summariser is bypassed entirely — the server
+    holds the real history rather than an 80-character-per-message gist.
+  - Tool turns chain too: in stateful mode a function-result round sends only
+    the results instead of echoing the whole step history, which is where the
+    Phase 2 inline result images stop being re-paid for every round.
+  - Only a `completed` interaction is chainable; chaining from one still
+    in progress is a documented 400, so a truncated or failed turn drops the
+    chain and the next turn re-sends the full transcript.
+- **Chain cleanup.** `reset()`, `start()`, branch restore, rewind, and agent
+  removal all delete the affected stored interactions via
+  `interactions.delete()`. Resetting the room has to mean something even when
+  the history lives on Google's side.
+- `stateful` is exposed on session state so the UI can say which mode it is in.
+- `tests/stateful-session.test.js` (13 tests, 69 total) covering the stateless
+  default, delta prompts, chainability rules, and cleanup.
+
+### Changed
+- **System prompt reordered stable-first** (unconditional, both tool modes):
+  room-shared tool documentation, presets and templates now precede the
+  per-agent persona, which precedes the volatile artifact state. Previously
+  the persona led, so five agents produced five prompts that diverged at
+  roughly byte 40 and shared no cacheable prefix.
+- `renderMessages` extracted so the full-transcript and delta prompts cannot
+  drift apart.
+
+### Measured, and a correction to the plan
+`MODERNIZATION_PLAN.md` §3.3 implied the reordering would be enough to reach
+the caching threshold. Measured on this machine, it is not:
+
+| | shared prefix |
+|---|---|
+| tag mode, Synthograsizer backend down | ~338 tokens |
+| tag mode, backend up (SYNTH tools + presets + templates) | ~2,518 tokens |
+| function mode (tag vocabulary suppressed) | ~62 tokens |
+
+Implicit caching needs **4,096** tokens on the 3.x Flash line, so reordering
+alone does not cross it. The threshold is crossed by the accumulated chain
+history once `previous_interaction_id` is on — which makes chaining, not
+reordering, the thing that actually buys the caching. Reordering is still
+worth having (it is free, and it is a precondition), but on its own it buys
+nothing. `usage.total_cached_tokens` in the token meter is the instrument;
+it should be non-zero in stateful mode and will stay at zero without it.
+
 ## [1.4.0] - 2026-09
 
 Phase 2 of `MODERNIZATION_PLAN.md` — real function calling, behind a flag.

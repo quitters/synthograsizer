@@ -6,6 +6,8 @@ import { parseToolRequests, executeToolRequests, stripToolTags, formatToolResult
 import { countTokens, countMessageTokens } from '../utils/tokenCounter.js';
 import { DEFAULT_AGENT_MODEL, normalizeThinkingLevel, isKnownAgentModel } from '../config/models.js';
 import { isFunctionCallingEnabled, isKnownToolTier, DEFAULT_TOOL_TIER } from '../config/tools.js';
+import { isStatefulEnabled } from '../config/session.js';
+import { deleteInteractions } from './gemini.js';
 import { buildToolsForAgent } from './toolDefinitions.js';
 import { createToolDispatcher } from './toolDispatch.js';
 import { mediaStore } from './mediaStore.js';
@@ -40,6 +42,11 @@ class ChatOrchestrator {
   }
 
   reset() {
+    // Stateful mode leaves conversation history on Google's side, so a reset
+    // has to reach out and delete it — otherwise "reset" only clears the UI
+    // while the transcript lives on for the retention window. Fire-and-forget:
+    // a network failure must not block the reset itself.
+    this._purgeStoredInteractions();
     this.agents = [];
     this.messages = [];
     this.goal = '';
@@ -91,6 +98,13 @@ class ChatOrchestrator {
     this.pendingWorkflowOutcomes = [];
     // Rolling window of recently generated images to pass as vision context
     this.recentGenImages = []; // [{ id, data, mimeType, prompt, agentName }]
+    // Stateful mode (Phase 3): per-agent server-side conversation chains.
+    //   agentChains[agentId]   → interaction id to continue from
+    //   agentSeenUpTo[agentId] → index into this.messages of the first message
+    //                            that agent has NOT yet been shown
+    // Both are only populated when GEMINI_STORE_INTERACTIONS=true.
+    this.agentChains = {};
+    this.agentSeenUpTo = {};
   }
 
   /**
@@ -321,6 +335,12 @@ class ChatOrchestrator {
    */
   removeAgent(agentId) {
     this.agents = this.agents.filter(a => a.id !== agentId);
+    const chainId = this.agentChains?.[agentId];
+    if (chainId) {
+      delete this.agentChains[agentId];
+      delete this.agentSeenUpTo[agentId];
+      deleteInteractions([chainId]).catch(() => { /* best effort */ });
+    }
   }
 
   /**
@@ -418,6 +438,9 @@ class ChatOrchestrator {
     // Solo mode pauses immediately — the first user inject drives the first turn.
     this.isPaused = mode === 'solo';
     this.completionReason = null;
+    // A new run means a new transcript, so the previous run's server-side
+    // chains are both stale and still retained at Google — drop them.
+    this._purgeStoredInteractions();
     this.messages = [];
     this.tokenCount = 0;
     // Real usage is per-run spend. Unlike tokenCount it is NOT rewound by
@@ -1006,6 +1029,7 @@ class ChatOrchestrator {
         let responseTokens = 0;
         let turnUsage = null;
         let turnUsageReported = false;
+        let turnInteractionId = null;
         // Media produced by function calls during this turn, for the message
         // record. The tag path fills `images`/`synthMedia` further down.
         const toolMedia = [];
@@ -1027,6 +1051,12 @@ class ChatOrchestrator {
             thinkingLevel: speaker.thinkingLevel,
             systemNotes,
             generatedImages: this.recentGenImages,
+            // Stateful chaining: continue this agent's server-side history and
+            // send only the messages it has not seen. Both are ignored when
+            // GEMINI_STORE_INTERACTIONS is off.
+            store: isStatefulEnabled(),
+            previousInteractionId: this.agentChains[speaker.id] || null,
+            sinceMessageIndex: this.agentSeenUpTo[speaker.id] ?? 0,
             // Both must be present for the function-calling path to engage.
             tools: functionTools,
             dispatch: functionTools.length
@@ -1073,6 +1103,7 @@ class ChatOrchestrator {
             responseTokens = event.tokenCount;
             turnUsage = event.usage || null;
             turnUsageReported = Boolean(event.usageReported);
+            turnInteractionId = event.interactionId || null;
             if (event.wasTruncated) {
               console.log(`[Orchestrator] ${speaker.name}'s response was auto-continued after truncation`);
             }
@@ -1603,6 +1634,19 @@ class ChatOrchestrator {
         this._accumulateUsage(turnUsage, turnUsageReported);
         this.lastSpeakerId = speaker.id;
 
+        // Advance this agent's chain. It has now seen everything up to and
+        // including its own turn, so the next one starts from here. If the
+        // turn produced no chainable id (stateless mode, or an interaction
+        // that never completed), the chain is dropped and the next turn
+        // falls back to sending the full transcript — correct, just costlier.
+        if (turnInteractionId) {
+          this.agentChains[speaker.id] = turnInteractionId;
+          this.agentSeenUpTo[speaker.id] = this.messages.length;
+        } else if (this.agentChains[speaker.id]) {
+          delete this.agentChains[speaker.id];
+          delete this.agentSeenUpTo[speaker.id];
+        }
+
         // Broadcast the message to all clients
         this.broadcast('message', message);
 
@@ -1643,6 +1687,21 @@ class ChatOrchestrator {
         await this.delay(2000);
       }
     }
+  }
+
+  /**
+   * Delete every stored interaction this session created, and forget the
+   * chains. No-op in stateless mode, where nothing was stored to begin with.
+   */
+  _purgeStoredInteractions() {
+    const ids = Object.values(this.agentChains || {}).filter(Boolean);
+    this.agentChains = {};
+    this.agentSeenUpTo = {};
+    if (ids.length === 0) return;
+    // Not awaited: reset() is synchronous and called from request handlers.
+    deleteInteractions(ids).catch(err =>
+      console.warn(`[Orchestrator] interaction purge failed: ${err.message}`)
+    );
   }
 
   /**
@@ -1734,6 +1793,9 @@ class ChatOrchestrator {
       tokenLimit: this.tokenLimit,
       tokenCount: this.tokenCount,
       usage: this.usage,
+      // Whether conversation history is being retained server-side at Google.
+      // Surfaced so the UI can say so rather than leaving it to the .env.
+      stateful: isStatefulEnabled(),
       turnCount: this.turnCount,
       messageCount: this.messages.length,
       agents: this.agents, // Include full agent data with bios
@@ -1829,6 +1891,10 @@ class ChatOrchestrator {
     }
 
     // Restore state from branch
+    // The server-side chains hold the history we are about to abandon, so
+    // they can no longer be continued from — drop them and let the next turn
+    // re-send the restored transcript in full.
+    this._purgeStoredInteractions();
     this.messages = JSON.parse(JSON.stringify(branch.state.messages));
     this.tokenCount = branch.state.tokenCount;
     this.turnCount = branch.state.turnCount;
@@ -1899,6 +1965,10 @@ class ChatOrchestrator {
 
     // Trim messages
     const removedMessages = this.messages.splice(messageIndex);
+
+    // Same as branch restore: the chains still hold the messages we just
+    // removed, so they cannot be continued from.
+    this._purgeStoredInteractions();
 
     // Recalculate token count
     this.tokenCount = this.messages.reduce((sum, m) => sum + (m.tokenCount || 0), 0);

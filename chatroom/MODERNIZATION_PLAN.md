@@ -334,6 +334,14 @@ Note the scoping rule from the docs: **only conversation history persists across
 regardless. So the system prompt is not saved by chaining — but it *is* the stable prefix that
 caching rewards, which leads to:
 
+> **Measured 2026-09-12 — this section was too optimistic.** After reordering, the prefix
+> genuinely shared across agents is **~2,518 tokens** with the Synthograsizer backend up
+> (~338 with it down, ~62 in function mode where the tag vocabulary is suppressed). The
+> implicit-caching minimum is **4,096**, so reordering *on its own does not reach it*.
+> What crosses the threshold is the accumulated chain history once
+> `previous_interaction_id` is on. Reordering is free and a precondition, but chaining is
+> the thing that buys the caching. Watch `usage.total_cached_tokens` to confirm.
+
 **Prompt reordering (do this regardless of which state model you pick).** Put the invariant material
 first and the volatile material last:
 
@@ -592,7 +600,7 @@ public preview. Treat as a spike, not a roadmap item. Up to 1,000 managed agents
 | ~~**0**~~ | ~~Model IDs → central config; `analyzeImage` off the image model; real `usage` accounting; `thinking_level`; raise `max_output_tokens`~~ **— done 2026-09-11, see CHANGELOG 1.2.0** | ~half a day | Low. No architecture change, immediate cost win |
 | ~~**1**~~ | ~~Fixture tests for the stream parser in `gemini.js`~~ **— done 2026-09-11, see CHANGELOG 1.3.0** | ~half a day | None — prerequisite for everything below |
 | ~~**2**~~ | ~~Function calling behind `TOOL_MODE=functions`; start with the five media tools; keep regex parsers as fallback~~ **— shipped 2026-09-11 (off by default), see CHANGELOG 1.4.0** | 2–3 days | Medium. Biggest behavioural change; **still needs a real session to evaluate** |
-| **3** | Stateful chains + implicit caching; per-agent `previous_interaction_id`; prompt reordering; delete the summariser | 2–3 days | Medium. Gate behind `GEMINI_STORE_INTERACTIONS`; privacy posture change |
+| ~~**3**~~ | ~~Stateful chains + implicit caching; per-agent `previous_interaction_id`; prompt reordering; delete the summariser~~ **— shipped 2026-09-12 (off by default), see CHANGELOG 1.5.0** | 2–3 days | Medium. Gated behind `GEMINI_STORE_INTERACTIONS`; **the privacy call is still yours to make** |
 | **4** | File Search for session media; then cross-session memory store | 2–3 days | Low-medium. Watch store lifecycle/quota |
 | **5** | Structured output for speaker selection + consensus; code execution tool | 1–2 days | Low |
 | **6** | Per-agent voices + multi-speaker TTS session export | 2–3 days | Low. Self-contained, high delight |

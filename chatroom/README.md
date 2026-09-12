@@ -150,6 +150,22 @@ the live API. In that mode each agent gets a **tool tier** (`none`, `research`,
 active set inside Google's 10–20 tool guidance. Tiers live in
 `server/config/tools.js`; declarations in `server/services/toolDefinitions.js`.
 
+## Conversation state
+
+`GEMINI_STORE_INTERACTIONS` decides whether Google retains conversation
+history. This is a privacy trade, not a tuning knob.
+
+| | `false` (default) | `true` |
+|---|---|---|
+| Retention at Google | none | 55 days paid / 1 day free (7/14/28/55 configurable in AI Studio) |
+| Per turn | full system prompt + windowed transcript | only what the agent has not seen |
+| Implicit caching | impossible — no chain to key on | engages once the chain grows past 4,096 tokens |
+| Reset | clears local state | also deletes the stored chains |
+
+Explicit caching is not available in the Interactions API, so chaining is the
+only route to cached input. Confirm it is working by watching **Cached** in
+the token meter — it stays at zero in stateless mode by definition.
+
 ## Testing
 
 ```bash

@@ -25,6 +25,35 @@ export function initializeGemini(apiKey, client = null) {
 }
 
 /**
+ * Delete stored interactions (stateful mode only).
+ *
+ * "Reset the room" has to mean something even when history lives on Google's
+ * side, so the orchestrator calls this with the session's chain heads. Each
+ * delete is independent and best-effort: a failure here must never block a
+ * reset, and an already-deleted id 404s harmlessly.
+ *
+ * @param {Array<string>} interactionIds
+ * @returns {Promise<{deleted: number, failed: number}>}
+ */
+export async function deleteInteractions(interactionIds = []) {
+  if (!genAI || interactionIds.length === 0) return { deleted: 0, failed: 0 };
+  let deleted = 0;
+  let failed = 0;
+  for (const id of interactionIds) {
+    if (!id) continue;
+    try {
+      await genAI.interactions.delete(id);
+      deleted++;
+    } catch (err) {
+      failed++;
+      console.warn(`[gemini] could not delete interaction ${id}: ${err.message}`);
+    }
+  }
+  console.log(`[gemini] deleted ${deleted} stored interaction(s), ${failed} failed`);
+  return { deleted, failed };
+}
+
+/**
  * Clean up response text - remove any accidental name prefixes
  */
 function cleanResponse(text, agentName) {
@@ -82,25 +111,25 @@ async function buildSystemPrompt(agent, allAgents, goal, options = {}) {
     .map(a => `- ${a.name}`)
     .join('\n');
 
-  let prompt = `You are roleplaying as ${agent.name} in a multi-agent conversation.
-
-YOUR CHARACTER BIO AND INSTRUCTIONS:
-${agent.bio}
-
-THE SHARED GOAL FOR THIS SESSION:
-${goal}
-
-OTHER PARTICIPANTS (you are NOT these people — they will speak for themselves):
-${otherAgents}
-
-CRITICAL RULES:
-1. You are ONLY ${agent.name}. NEVER write dialogue or responses for other participants.
-2. Do NOT prefix your response with your name or any name tag like "[${agent.name}]:" - just speak directly.
-3. Do NOT simulate a multi-person conversation. Write ONLY your single response.
-4. Response length and format: follow any explicit format rules in your character bio EXACTLY. If your bio specifies a strict output format, that overrides everything else. If no format is specified, default to 1-2 short paragraphs. Always complete your thought — never stop mid-sentence.
-5. Respond naturally to what others have said — build on, challenge, or refine ideas.
-6. Address other participants by name when responding to their points.
-7. Stay in character. Do not mention being an AI or break the fourth wall.`;
+  // ── Prompt ordering (Phase 3) ──────────────────────────────────────────
+  // Segments are assembled stable-first so that every agent in the room
+  // shares one identical prefix, which is what implicit caching keys on.
+  // Previously the per-agent persona led, so five agents produced five
+  // near-identical prompts that diverged at byte 40 and cached nothing.
+  //
+  //   [stable]   tool docs → presets → workflow templates   (identical per room)
+  //   [agent]    persona, bio, goal, participants, rules
+  //   [volatile] artifact state
+  //   [stable]   closing instruction
+  //
+  // Caching needs a ≥4096-token shared prefix to engage at all, so this only
+  // pays off when the tag vocabulary is active (it is ~2.5k tokens before
+  // presets and templates are appended). In function-calling mode the tag
+  // docs are suppressed and the stable head is short — the win there comes
+  // from stateful chaining instead. Measure with usage.total_cached_tokens.
+  let prompt = `You are one participant in a multi-agent conversation. The shared tooling
+reference comes first; YOUR CHARACTER is defined further down, and it governs
+how you speak.`;
 
   if (enableTagTools) {
     prompt += `
@@ -184,6 +213,30 @@ Available templates:
 ${listTemplatesForPrompt()}`;
     }
   }
+
+  // ── Per-agent identity (everything above this line is room-shared) ─────
+  prompt += `
+
+════════════════════════════════════════
+YOUR CHARACTER: you are roleplaying as ${agent.name}.
+
+YOUR CHARACTER BIO AND INSTRUCTIONS:
+${agent.bio}
+
+THE SHARED GOAL FOR THIS SESSION:
+${goal}
+
+OTHER PARTICIPANTS (you are NOT these people — they will speak for themselves):
+${otherAgents}
+
+CRITICAL RULES:
+1. You are ONLY ${agent.name}. NEVER write dialogue or responses for other participants.
+2. Do NOT prefix your response with your name or any name tag like "[${agent.name}]:" - just speak directly.
+3. Do NOT simulate a multi-person conversation. Write ONLY your single response.
+4. Response length and format: follow any explicit format rules in your character bio EXACTLY. If your bio specifies a strict output format, that overrides everything else. If no format is specified, default to 1-2 short paragraphs. Always complete your thought — never stop mid-sentence.
+5. Respond naturally to what others have said — build on, challenge, or refine ideas.
+6. Address other participants by name when responding to their points.
+7. Stay in character. Do not mention being an AI or break the fourth wall.`;
 
   // ── Artifact context ───────────────────────────────────────────────────
   const artifacts = artifactStore.getAll();
@@ -298,6 +351,97 @@ Remember: Write ONLY ${agent.name}'s response. One voice. One perspective.`;
  * Build conversation transcript with sliding window
  * Keeps recent messages in full, summarizes older ones to control input size
  */
+/**
+ * Render transcript messages, with the media IDs, tool outcomes and
+ * hallucination corrections later speakers need. Shared by the full-transcript
+ * and delta prompts so the two can never drift apart.
+ */
+function renderMessages(messages) {
+  let out = '';
+  for (const msg of messages) {
+    out += `[${msg.agentName}]: ${msg.content}`;
+    // Note if the message included images - include IDs for remix and artifact embedding
+    if (msg.images && msg.images.length > 0) {
+      for (const img of msg.images) {
+        out += `\n  [Image generated - ID: ${img.id} | Prompt: "${img.prompt || img.caption}"]`;
+        out += `\n    → Embed in artifact: <img src="/chatroom/api/chat/media/${img.id}" />`;
+        if (img.referenceId) {
+          out += ` (remixed from ${img.referenceId})`;
+        }
+      }
+    }
+    // Note synth media with embedding hints
+    if (msg.synthMedia && msg.synthMedia.length > 0) {
+      for (const sm of msg.synthMedia) {
+        out += `\n  [Synth ${sm.type} - ID: ${sm.id} | Prompt: "${sm.prompt || ''}"]`;
+        if (sm.type === 'image') {
+          out += `\n    → Embed in artifact: <img src="/chatroom/api/chat/media/${sm.id}" />`;
+        }
+      }
+    }
+    // Note if the message included tool results
+    if (msg.toolResults && msg.toolResults.length > 0) {
+      for (const result of msg.toolResults) {
+        if (result.type === 'search') {
+          out += `\n  [Web search for "${result.query}" returned: ${result.summary?.slice(0, 200)}...]`;
+          if (result.sources && result.sources.length > 0) {
+            out += `\n  [Sources: ${result.sources.map(s => s.title).join(', ')}]`;
+          }
+        } else if (result.type === 'url') {
+          out += `\n  [URL analysis of ${result.url}: ${result.summary?.slice(0, 200)}...]`;
+        } else if (result.type === 'research') {
+          out += `\n  [Research on "${result.query}": ${result.summary?.slice(0, 200)}...]`;
+        }
+      }
+    }
+    // Tool calls made via function calling. Media already renders above via
+    // synthMedia; this covers everything else (artifact writes, failures) so
+    // the next speaker knows what was actually attempted and whether it worked.
+    if (msg.toolCalls && msg.toolCalls.length > 0) {
+      for (const call of msg.toolCalls) {
+        out += `\n  [${call.ok ? 'Tool' : 'Tool FAILED'}: ${call.name} — ${call.summary}]`;
+      }
+    }
+    // Inject hallucination correction so the next agent knows the previous one didn't actually save code
+    if (msg.artifactHallucination) {
+      out += `\n${msg.artifactHallucination}`;
+    }
+    out += `\n\n`;
+  }
+  return out;
+}
+
+/**
+ * Prompt for a stateful turn: the server already holds everything this agent
+ * has seen, so send only what happened since it last spoke.
+ *
+ * This is the payoff of chaining — a 40-turn room stops re-sending 15
+ * messages per turn and sends the two or three that are actually new. It also
+ * removes the lossy sliding-window summariser from the picture entirely: the
+ * chain holds the real history rather than an 80-character-per-message gist.
+ *
+ * @param {Array} messages   full session transcript
+ * @param {number} fromIndex index of the first message this agent has not seen
+ */
+function buildDeltaPrompt(messages, fromIndex, goal, agentName) {
+  const fresh = messages.slice(fromIndex);
+
+  if (fresh.length === 0) {
+    return `Nothing new has been said since your last turn. The shared goal remains: ${goal}
+
+Continue the discussion as ${agentName} — advance it rather than restating yourself.`;
+  }
+
+  let transcript = `SINCE YOUR LAST TURN (${fresh.length} new message${fresh.length === 1 ? '' : 's'}):\n`;
+  transcript += `========================================\n`;
+  transcript += renderMessages(fresh);
+  transcript += `========================================\n\n`;
+  transcript += `Now it's YOUR turn to respond as ${agentName}.\n`;
+  transcript += `Write ONLY your response. Do NOT include a name prefix. Do NOT write responses for other panelists.\n`;
+  transcript += `Engage with what was said above and contribute your unique perspective. Complete your full thought.`;
+  return transcript;
+}
+
 function buildConversationPrompt(messages, goal, agentName) {
   if (messages.length === 0) {
     return `The discussion is just beginning. The shared goal is: ${goal}
@@ -333,57 +477,7 @@ Please provide your opening statement to kick off the discussion. Remember, writ
   }
 
   // Full recent messages
-  for (const msg of recentMessages) {
-    transcript += `[${msg.agentName}]: ${msg.content}`;
-    // Note if the message included images - include IDs for remix and artifact embedding
-    if (msg.images && msg.images.length > 0) {
-      for (const img of msg.images) {
-        transcript += `\n  [Image generated - ID: ${img.id} | Prompt: "${img.prompt || img.caption}"]`;
-        transcript += `\n    → Embed in artifact: <img src="/chatroom/api/chat/media/${img.id}" />`;
-        if (img.referenceId) {
-          transcript += ` (remixed from ${img.referenceId})`;
-        }
-      }
-    }
-    // Note synth media with embedding hints
-    if (msg.synthMedia && msg.synthMedia.length > 0) {
-      for (const sm of msg.synthMedia) {
-        transcript += `\n  [Synth ${sm.type} - ID: ${sm.id} | Prompt: "${sm.prompt || ''}"]`;
-        if (sm.type === 'image') {
-          transcript += `\n    → Embed in artifact: <img src="/chatroom/api/chat/media/${sm.id}" />`;
-        }
-      }
-    }
-    // Note if the message included tool results
-    if (msg.toolResults && msg.toolResults.length > 0) {
-      for (const result of msg.toolResults) {
-        if (result.type === 'search') {
-          transcript += `\n  [Web search for "${result.query}" returned: ${result.summary?.slice(0, 200)}...]`;
-          if (result.sources && result.sources.length > 0) {
-            transcript += `\n  [Sources: ${result.sources.map(s => s.title).join(', ')}]`;
-          }
-        } else if (result.type === 'url') {
-          transcript += `\n  [URL analysis of ${result.url}: ${result.summary?.slice(0, 200)}...]`;
-        } else if (result.type === 'research') {
-          transcript += `\n  [Research on "${result.query}": ${result.summary?.slice(0, 200)}...]`;
-        }
-      }
-    }
-    // Tool calls made via function calling. Media already renders above via
-    // synthMedia; this covers everything else (artifact writes, failures) so
-    // the next speaker knows what was actually attempted and whether it worked.
-    if (msg.toolCalls && msg.toolCalls.length > 0) {
-      for (const call of msg.toolCalls) {
-        transcript += `\n  [${call.ok ? 'Tool' : 'Tool FAILED'}: ${call.name} — ${call.summary}]`;
-      }
-    }
-    // Inject hallucination correction so the next agent knows the previous one didn't actually save code
-    if (msg.artifactHallucination) {
-      transcript += `\n${msg.artifactHallucination}`;
-    }
-
-    transcript += `\n\n`;
-  }
+  transcript += renderMessages(recentMessages);
 
   transcript += `========================================\n\n`;
   transcript += `Now it's YOUR turn to respond as ${agentName}.\n`;
@@ -550,7 +644,10 @@ function emptyUsage() {
  *   present, tool_choice must be 'validated': the API does not support 'auto'
  *   for built-ins combined with custom function declarations.
  */
-async function createAgentStream(model, systemPrompt, blocks, thinkingLevel, tools = null) {
+async function createAgentStream(model, systemPrompt, blocks, thinkingLevel, tools = null, state = {}) {
+  // `store` and `previousInteractionId` are the Phase 3 knobs. Default stays
+  // stateless: nothing retained at Google, no chain, no implicit caching.
+  const { store = false, previousInteractionId = null } = state;
   const request = {
     model,
     system_instruction: systemPrompt,
@@ -564,7 +661,8 @@ async function createAgentStream(model, systemPrompt, blocks, thinkingLevel, too
     },
     input: blocks,
     stream: true,
-    store: false, // stateless — nothing retained server-side at Google
+    store,
+    ...(previousInteractionId ? { previous_interaction_id: previousInteractionId } : {}),
     ...(tools?.length ? { tools } : {}),
   };
   try {
@@ -606,6 +704,7 @@ async function* consumeStream(stream, agentName) {
   let text = '';
   let streamError = null;
   let finalInteraction = null;
+  let interactionId = null;
   let currentStepType = null;
   let currentStep = null;
   let argsBuffer = '';
@@ -642,8 +741,13 @@ async function* consumeStream(stream, agentName) {
           text += delta.text;
           yield { type: 'chunk', text: delta.text };
         }
+      } else if (event.event_type === 'interaction.created') {
+        // Captured here as well as on completion: a chain needs the id even
+        // if the stream dies before the completed event arrives.
+        if (event.interaction?.id) interactionId = event.interaction.id;
       } else if (event.event_type === 'interaction.completed') {
         finalInteraction = event.interaction;
+        if (event.interaction?.id) interactionId = event.interaction.id;
       } else if (event.event_type === 'error') {
         throw new Error(event.error?.message || 'Interactions stream error');
       }
@@ -656,12 +760,16 @@ async function* consumeStream(stream, agentName) {
   }
 
   const steps = finalInteraction?.steps?.length ? finalInteraction.steps : assembled;
+  const status = streamError ? 'STREAM_ERROR' : (finalInteraction?.status || 'completed');
   return {
     text,
     steps,
     usage: finalInteraction?.usage,
-    status: streamError ? 'STREAM_ERROR' : (finalInteraction?.status || 'completed'),
+    status,
     streamError,
+    // Only a completed interaction is chainable — chaining from one still
+    // in_progress is a documented 400.
+    interactionId: status === 'completed' ? interactionId : null,
   };
 }
 
@@ -680,7 +788,10 @@ async function* consumeStream(stream, agentName) {
  * request and makes the prefix cacheable — see `buildContinuationInput`.
  */
 async function* runFunctionTurn(ctx) {
-  const { agent, modelId, systemPrompt, thinkingLevel, contentParts, tools, dispatch } = ctx;
+  const {
+    agent, modelId, systemPrompt, thinkingLevel, contentParts, tools, dispatch,
+    store = false, previousInteractionId = null,
+  } = ctx;
 
   let fullResponse = '';
   let usage = emptyUsage();
@@ -690,9 +801,16 @@ async function* runFunctionTurn(ctx) {
   const history = [];
   let input = contentParts;
   let round = 0;
+  // Chain head for this turn. Stateful mode advances it every round so the
+  // server keeps the history and we send only the new function results.
+  let chainId = previousInteractionId;
+  let lastCompletedId = previousInteractionId;
 
   while (round <= MAX_TOOL_ROUNDS) {
-    const stream = await createAgentStream(modelId, systemPrompt, input, thinkingLevel, tools);
+    const stream = await createAgentStream(modelId, systemPrompt, input, thinkingLevel, tools, {
+      store,
+      previousInteractionId: chainId,
+    });
 
     const consumer = consumeStream(stream, agent.name);
     let outcome;
@@ -705,11 +823,13 @@ async function* runFunctionTurn(ctx) {
 
     usage = accumulateUsage(usage, outcome.usage);
     history.push(...(outcome.steps || []));
+    if (outcome.interactionId) lastCompletedId = outcome.interactionId;
 
     const calls = (outcome.steps || []).filter(s => s.type === 'function_call');
     console.log(
       `[${agent.name}] round ${round}: status=${outcome.status}, calls=${calls.length}, ` +
-      `in/out/thought ${usage.inputTokens}/${usage.outputTokens}/${usage.thoughtTokens}`
+      `in/out/thought ${usage.inputTokens}/${usage.outputTokens}/${usage.thoughtTokens}, ` +
+      `cached ${usage.cachedTokens}`
     );
 
     if (outcome.status === 'incomplete') {
@@ -761,7 +881,24 @@ async function* runFunctionTurn(ctx) {
     }
 
     history.push(...results);
-    input = buildContinuationInput(contentParts, history);
+    if (store) {
+      // Stateful: the server already holds everything up to this point, so
+      // the next request carries only the new function results. This is where
+      // tool turns get dramatically cheaper — the stateless branch below
+      // re-sends the whole history, inline result images included, every round.
+      const chainable = outcome.interactionId || lastCompletedId;
+      if (chainable) {
+        chainId = chainable;
+        input = results;
+      } else {
+        // No chainable id (the round did not reach 'completed'). Fall back to
+        // the stateless echo rather than silently losing the history.
+        chainId = null;
+        input = buildContinuationInput(contentParts, history);
+      }
+    } else {
+      input = buildContinuationInput(contentParts, history);
+    }
     round++;
   }
 
@@ -778,6 +915,8 @@ async function* runFunctionTurn(ctx) {
     thinkingLevel,
     wasTruncated,
     toolCalls,
+    // Chain head for this agent's next turn (stateful mode only).
+    interactionId: store ? lastCompletedId : null,
   };
 }
 
@@ -812,8 +951,17 @@ export async function* generateAgentResponse(agent, allAgents, messages, goal, s
   const modelId = resolveAgentModel(agent, options?.model);
   const thinkingLevel = normalizeThinkingLevel(options?.thinkingLevel ?? agent?.thinkingLevel);
 
-  // Build the full prompt with conversation history
-  let promptText = buildConversationPrompt(messages, goal, agent.name);
+  // Stateful mode (Phase 3): the server already holds this agent's history,
+  // so the turn carries only what has happened since it last spoke instead of
+  // the whole windowed transcript.
+  const store = Boolean(options?.store);
+  const previousInteractionId = store ? (options?.previousInteractionId || null) : null;
+  const deltaFrom = previousInteractionId ? (options?.sinceMessageIndex ?? 0) : 0;
+
+  // Build the prompt with conversation history
+  let promptText = previousInteractionId
+    ? buildDeltaPrompt(messages, deltaFrom, goal, agent.name)
+    : buildConversationPrompt(messages, goal, agent.name);
 
   // Prepend any system notes (e.g. workflow outcomes from the previous turn)
   // so the agent reacts to real results instead of hallucinating success.
@@ -844,6 +992,7 @@ export async function* generateAgentResponse(agent, allAgents, messages, goal, s
         agent, modelId, systemPrompt, thinkingLevel, contentParts,
         tools: options.tools,
         dispatch: options.dispatch,
+        store, previousInteractionId,
       });
     } catch (error) {
       yield { type: 'error', error: error.message };
@@ -857,10 +1006,17 @@ export async function* generateAgentResponse(agent, allAgents, messages, goal, s
     let currentParts = contentParts;
     let wasTruncated = false;
     let usage = emptyUsage();
+    let chainedInteractionId = null;
 
     // Initial generation + continuation loop
     while (continuationAttempts <= MAX_CONTINUATION_ATTEMPTS) {
-      const stream = await createAgentStream(modelId, systemPrompt, currentParts, thinkingLevel);
+      const stream = await createAgentStream(modelId, systemPrompt, currentParts, thinkingLevel, null, {
+        store,
+        // Only the turn's first request chains from the previous turn. A
+        // truncation continuation re-sends the prompt plus the partial text,
+        // so anchoring it to a chain head would duplicate that history.
+        previousInteractionId: continuationAttempts === 0 ? previousInteractionId : null,
+      });
 
       let chunkText = '';
       let streamError = null;
@@ -901,6 +1057,11 @@ export async function* generateAgentResponse(agent, allAgents, messages, goal, s
       usage = accumulateUsage(usage, finalInteraction?.usage);
 
       const status = streamError ? 'STREAM_ERROR' : (finalInteraction?.status || 'completed');
+      // Only a completed interaction is chainable; chaining from one still
+      // in_progress is a documented 400.
+      if (store && status === 'completed' && finalInteraction?.id) {
+        chainedInteractionId = finalInteraction.id;
+      }
       console.log(
         `[${agent.name}] model: ${modelId}, status: ${status}, ` +
         `in/out/thought: ${usage.inputTokens}/${usage.outputTokens}/${usage.thoughtTokens}, ` +
@@ -949,7 +1110,9 @@ export async function* generateAgentResponse(agent, allAgents, messages, goal, s
       usageReported: reportedProduced > 0,
       model: modelId,
       thinkingLevel,
-      wasTruncated
+      wasTruncated,
+      // Chain head for this agent's next turn (stateful mode only).
+      interactionId: store ? chainedInteractionId : null,
     };
   } catch (error) {
     yield { type: 'error', error: error.message };
