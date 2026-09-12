@@ -1,8 +1,12 @@
 import { GoogleGenAI } from '@google/genai';
 import sharp from 'sharp';
 import { synthClient } from 'workflow-engine';
+import { MODELS } from '../config/models.js';
 
-const IMAGE_MODEL = 'gemini-3-pro-image-preview';
+// Reading an image and answering questions about it is image *understanding*,
+// which is a job for a normal multimodal text model. This used to point at
+// Nano Banana Pro — an image-output model — and read output_text off it.
+const IMAGE_UNDERSTANDING_MODEL = MODELS.IMAGE_UNDERSTANDING;
 
 /**
  * Ensure image data is PNG regardless of what Gemini returned.
@@ -66,7 +70,7 @@ export async function analyzeImage(prompt, imageData, mimeType) {
 
   try {
     const interaction = await genAI.interactions.create({
-      model: IMAGE_MODEL,
+      model: IMAGE_UNDERSTANDING_MODEL,
       generation_config: { temperature: 1.0 },
       input: [
         { type: 'image', data: imageData, mime_type: mimeType },
@@ -176,7 +180,7 @@ export async function generateImageWithReferences(prompt, referenceImages = [], 
     // Use synthClient which routes to the fastAPI backend and embeds metadata cleanly
     const result = await synthClient._post('/api/generate/image', {
       prompt,
-      model: 'gemini-3-pro-image-preview',
+      model: MODELS.IMAGE_GEN_HQ,
       input_images: imageList,
       temperature: options.temperature || 1.0,
       top_p: options.topP || 0.95

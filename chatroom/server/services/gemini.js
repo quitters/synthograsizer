@@ -2,9 +2,12 @@ import { GoogleGenAI } from '@google/genai';
 import { countTokens } from '../utils/tokenCounter.js';
 import { synthClient, listPresetsCompact, listTemplatesForPrompt } from 'workflow-engine';
 import { artifactStore } from './artifactStore.js';
-
-// Use a stable Gemini model
-const MODEL_NAME = 'gemini-3.1-pro-preview';
+import {
+  resolveAgentModel,
+  normalizeThinkingLevel,
+  MAX_OUTPUT_TOKENS,
+  DEFAULT_TEMPERATURE,
+} from '../config/models.js';
 
 // Max attempts to continue a truncated response
 const MAX_CONTINUATION_ATTEMPTS = 2;
@@ -463,17 +466,48 @@ function buildContentParts(promptText, sessionMedia = [], generatedImages = []) 
 }
 
 /**
+ * Merge the usage counters from one interaction into a running total.
+ * Continuation attempts each return their own usage object, and a turn's real
+ * cost is the sum across them.
+ */
+function accumulateUsage(total, usage) {
+  if (!usage) return total;
+  return {
+    inputTokens:   total.inputTokens   + (usage.total_input_tokens   || 0),
+    outputTokens:  total.outputTokens  + (usage.total_output_tokens  || 0),
+    thoughtTokens: total.thoughtTokens + (usage.total_thought_tokens || 0),
+    cachedTokens:  total.cachedTokens  + (usage.total_cached_tokens  || 0),
+    toolUseTokens: total.toolUseTokens + (usage.total_tool_use_tokens || 0),
+    totalTokens:   total.totalTokens   + (usage.total_tokens         || 0),
+  };
+}
+
+function emptyUsage() {
+  return {
+    inputTokens: 0,
+    outputTokens: 0,
+    thoughtTokens: 0,
+    cachedTokens: 0,
+    toolUseTokens: 0,
+    totalTokens: 0,
+  };
+}
+
+/**
  * Open an Interactions stream for an agent turn.
  * If the API rejects document (PDF) blocks, retry once without them rather
  * than failing the whole turn — the text preface still names the files.
  */
-async function createAgentStream(model, systemPrompt, blocks) {
+async function createAgentStream(model, systemPrompt, blocks, thinkingLevel) {
   const request = {
     model,
     system_instruction: systemPrompt,
     generation_config: {
-      max_output_tokens: 8192,
-      temperature: 1.0, // Gemini 3 recommends 1.0
+      // Hard cap on thinking + output COMBINED — thinking is spent first, so
+      // this needs headroom above the longest answer we actually want.
+      max_output_tokens: MAX_OUTPUT_TOKENS,
+      temperature: DEFAULT_TEMPERATURE,
+      thinking_level: thinkingLevel,
     },
     input: blocks,
     stream: true,
@@ -482,13 +516,21 @@ async function createAgentStream(model, systemPrompt, blocks) {
   try {
     return await genAI.interactions.create(request);
   } catch (err) {
+    const message = err.message || '';
     const hasDocs = blocks.some(b => b.type === 'document');
-    if (hasDocs && /document|pdf|mime/i.test(err.message || '')) {
-      console.warn(`[gemini] Interactions rejected document blocks (${err.message}); retrying without PDFs`);
+    if (hasDocs && /document|pdf|mime/i.test(message)) {
+      console.warn(`[gemini] Interactions rejected document blocks (${message}); retrying without PDFs`);
       return await genAI.interactions.create({
         ...request,
         input: blocks.filter(b => b.type !== 'document'),
       });
+    }
+    // Not every model accepts thinking_level (and the supported set per model
+    // changes). Losing the turn over a config knob isn't worth it.
+    if (/thinking/i.test(message)) {
+      console.warn(`[gemini] Model ${model} rejected thinking_level=${thinkingLevel} (${message}); retrying without it`);
+      const { thinking_level, ...restConfig } = request.generation_config;
+      return await genAI.interactions.create({ ...request, generation_config: restConfig });
     }
     throw err;
   }
@@ -504,7 +546,9 @@ export async function* generateAgentResponse(agent, allAgents, messages, goal, s
   }
 
   const systemPrompt = await buildSystemPrompt(agent, allAgents, goal);
-  const modelId = (typeof options !== 'undefined' ? options.model : null) || MODEL_NAME;
+  // Precedence: per-agent model → session-wide preference → registry default.
+  const modelId = resolveAgentModel(agent, options?.model);
+  const thinkingLevel = normalizeThinkingLevel(options?.thinkingLevel ?? agent?.thinkingLevel);
 
   // Build the full prompt with conversation history
   let promptText = buildConversationPrompt(messages, goal, agent.name);
@@ -535,10 +579,11 @@ export async function* generateAgentResponse(agent, allAgents, messages, goal, s
     let continuationAttempts = 0;
     let currentParts = contentParts;
     let wasTruncated = false;
+    let usage = emptyUsage();
 
     // Initial generation + continuation loop
     while (continuationAttempts <= MAX_CONTINUATION_ATTEMPTS) {
-      const stream = await createAgentStream(modelId, systemPrompt, currentParts);
+      const stream = await createAgentStream(modelId, systemPrompt, currentParts, thinkingLevel);
 
       let chunkText = '';
       let streamError = null;
@@ -572,8 +617,14 @@ export async function* generateAgentResponse(agent, allAgents, messages, goal, s
         }
       }
 
+      usage = accumulateUsage(usage, finalInteraction?.usage);
+
       const status = streamError ? 'STREAM_ERROR' : (finalInteraction?.status || 'completed');
-      console.log(`[${agent.name}] status: ${status}, tokens so far: ${countTokens(fullResponse)}, attempt: ${continuationAttempts}`);
+      console.log(
+        `[${agent.name}] model: ${modelId}, status: ${status}, ` +
+        `in/out/thought: ${usage.inputTokens}/${usage.outputTokens}/${usage.thoughtTokens}, ` +
+        `cached: ${usage.cachedTokens}, attempt: ${continuationAttempts}`
+      );
 
       // 'incomplete' is the Interactions equivalent of the old MAX_TOKENS
       // truncation; anything else means the model finished (or failed) — done.
@@ -603,13 +654,20 @@ export async function* generateAgentResponse(agent, allAgents, messages, goal, s
     // Clean up the response (remove any accidental name prefixes)
     const cleanedResponse = cleanResponse(fullResponse, agent.name);
 
-    // Calculate tokens for this response
-    const tokenCount = countTokens(cleanedResponse);
+    // The turn's budget cost is what the agent *produced* — visible output plus
+    // the thinking it was billed for. Fall back to the character estimate only
+    // when the API didn't report usage (stream error, older response shape).
+    const reportedProduced = usage.outputTokens + usage.thoughtTokens;
+    const tokenCount = reportedProduced > 0 ? reportedProduced : countTokens(cleanedResponse);
 
     yield {
       type: 'complete',
       fullResponse: cleanedResponse,
       tokenCount,
+      usage,
+      usageReported: reportedProduced > 0,
+      model: modelId,
+      thinkingLevel,
       wasTruncated
     };
   } catch (error) {

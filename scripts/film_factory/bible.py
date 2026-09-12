@@ -12,7 +12,7 @@ from . import costs
 
 log = logging.getLogger("filmfactory.bible")
 
-MODEL = config.MODEL_IMAGE_GEN_HQ  # gemini-3-pro-image-preview
+MODEL = config.MODEL_IMAGE_GEN_HQ  # gemini-3-pro-image
 
 
 def _sheet_prompts(film):

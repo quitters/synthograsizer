@@ -208,7 +208,7 @@ def _generate_image_imagen(
     # that opt into multi-image mode.
     return {"image": encoded[0], "images": encoded}
 
-def smart_transform(self, input_image_bytes: bytes, user_intent: str, ref_image_bytes: bytes = None, model_name: str = "gemini-3-pro-image-preview", aspect_ratio: str = "1:1"):
+def smart_transform(self, input_image_bytes: bytes, user_intent: str, ref_image_bytes: bytes = None, model_name: str = config.MODEL_IMAGE_GEN_HQ, aspect_ratio: str = "1:1"):
     """Execute the ComfyUI-style Smart Transform workflow.
 
     Pipeline: Analyze Input → Analyze Reference → Generate Prompt → Generate Image

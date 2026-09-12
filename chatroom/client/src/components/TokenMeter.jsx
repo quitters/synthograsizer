@@ -1,6 +1,12 @@
 import React from 'react';
 
-export function TokenMeter({ tokenCount, tokenLimit, turnCount, status }) {
+/**
+ * `tokenCount` is the budget counter — what the agents produced (output +
+ * thinking). `usage` is the full cost picture reported by the API, including
+ * input tokens, which dominate in this app because every turn re-sends the
+ * system prompt and transcript. The two measure different things on purpose.
+ */
+export function TokenMeter({ tokenCount, tokenLimit, turnCount, status, usage }) {
   const percentage = Math.min((tokenCount / tokenLimit) * 100, 100);
 
   const formatNumber = (num) => {
@@ -15,11 +21,19 @@ export function TokenMeter({ tokenCount, tokenLimit, turnCount, status }) {
     return '#4CAF50';
   };
 
+  const hasUsage = usage && usage.totalTokens > 0;
+  const cacheRate = hasUsage && usage.inputTokens > 0
+    ? (usage.cachedTokens / usage.inputTokens) * 100
+    : 0;
+  // A turn whose usage the API didn't report fell back to the character
+  // estimate, so the totals below understate that turn.
+  const isPartlyEstimated = hasUsage && usage.estimatedTurns > 0;
+
   return (
     <div className="token-meter">
       <div className="meter-stats">
         <div className="stat">
-          <span className="stat-label">Tokens</span>
+          <span className="stat-label">Generated</span>
           <span className="stat-value">
             {formatNumber(tokenCount)} / {formatNumber(tokenLimit)}
           </span>
@@ -48,6 +62,43 @@ export function TokenMeter({ tokenCount, tokenLimit, turnCount, status }) {
         />
       </div>
       <div className="meter-percentage">{percentage.toFixed(1)}%</div>
+
+      {hasUsage && (
+        <div
+          className="meter-usage"
+          title={
+            isPartlyEstimated
+              ? `${usage.estimatedTurns} turn(s) had no usage reported and are excluded from these totals`
+              : 'Reported by the Gemini API for this run'
+          }
+        >
+          <div className="usage-row">
+            <span className="usage-label">In</span>
+            <span className="usage-value">{formatNumber(usage.inputTokens)}</span>
+          </div>
+          <div className="usage-row">
+            <span className="usage-label">Out</span>
+            <span className="usage-value">{formatNumber(usage.outputTokens)}</span>
+          </div>
+          <div className="usage-row">
+            <span className="usage-label">Thought</span>
+            <span className="usage-value">{formatNumber(usage.thoughtTokens)}</span>
+          </div>
+          <div className="usage-row">
+            <span className="usage-label">Cached</span>
+            <span className="usage-value">
+              {formatNumber(usage.cachedTokens)}
+              {usage.inputTokens > 0 && ` (${cacheRate.toFixed(0)}%)`}
+            </span>
+          </div>
+          <div className="usage-row usage-total">
+            <span className="usage-label">Billed</span>
+            <span className="usage-value">
+              {formatNumber(usage.totalTokens)}{isPartlyEstimated ? '+' : ''}
+            </span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

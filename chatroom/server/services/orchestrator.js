@@ -4,9 +4,28 @@ import { generateAgentResponse } from './gemini.js';
 import { generateImage, generateImageWithReferences, parseImageRequests, parseRemixRequests, stripImageTags } from './imageGen.js';
 import { parseToolRequests, executeToolRequests, stripToolTags, formatToolResults, parseSynthRequests, executeSynthRequests, stripSynthTags, formatSynthResults, parseWorkflowRequests, stripWorkflowTags, workflowEngine, parseSynthStyleRequests, parseWorkflowTemplateRequests, stripStyleAndTemplateTags } from './tools.js';
 import { countTokens, countMessageTokens } from '../utils/tokenCounter.js';
+import { DEFAULT_AGENT_MODEL, normalizeThinkingLevel, isKnownAgentModel } from '../config/models.js';
 import { mediaStore } from './mediaStore.js';
 import { artifactStore } from './artifactStore.js';
 import { synthClient, traceStore } from 'workflow-engine';
+
+/**
+ * Zeroed usage accumulator. Field names mirror the shape yielded by
+ * gemini.js, which in turn mirrors `interaction.usage` minus the snake_case.
+ */
+function createEmptyUsage() {
+  return {
+    inputTokens: 0,
+    outputTokens: 0,
+    thoughtTokens: 0,
+    cachedTokens: 0,
+    toolUseTokens: 0,
+    totalTokens: 0,
+    /** Turns whose cost came from the API rather than the character estimate. */
+    reportedTurns: 0,
+    estimatedTurns: 0,
+  };
+}
 
 /**
  * Chat Orchestrator
@@ -22,7 +41,12 @@ class ChatOrchestrator {
     this.messages = [];
     this.goal = '';
     this.tokenLimit = 100000;
+    // tokenCount is the BUDGET counter: what the agents produced (real output
+    // + thought tokens when the API reports them, character estimate when it
+    // doesn't). It deliberately excludes input so the limit keeps its old
+    // calibration — `usage` below is the honest full-cost picture.
     this.tokenCount = 0;
+    this.usage = createEmptyUsage();
     this.turnCount = 0;
     this.isRunning = false;
     this.isPaused = false;
@@ -268,14 +292,20 @@ class ChatOrchestrator {
   }
 
   /**
-   * Add an agent to the chat room
+   * Add an agent to the chat room.
+   * `model` is left null unless explicitly chosen, so an agent added without
+   * one still honours a session-wide model preference (from /api/chat/start)
+   * before falling back to the registry default. Storing the default here
+   * would silently override that preference for every agent.
    */
-  addAgent(name, bio) {
+  addAgent(name, bio, options = {}) {
     const agent = {
       id: uuidv4(),
       name,
       bio,
-      color: this.generateColor(this.agents.length)
+      color: this.generateColor(this.agents.length),
+      model: isKnownAgentModel(options.model) ? options.model : null,
+      thinkingLevel: normalizeThinkingLevel(options.thinkingLevel),
     };
     this.agents.push(agent);
     return agent;
@@ -299,6 +329,10 @@ class ChatOrchestrator {
     if (!agent) return null;
     if (typeof fields.bio === 'string') agent.bio = fields.bio;
     if (typeof fields.name === 'string' && fields.name.trim()) agent.name = fields.name.trim();
+    if (isKnownAgentModel(fields.model)) agent.model = fields.model;
+    if (typeof fields.thinkingLevel === 'string') {
+      agent.thinkingLevel = normalizeThinkingLevel(fields.thinkingLevel);
+    }
     return agent;
   }
 
@@ -380,6 +414,9 @@ class ChatOrchestrator {
     this.completionReason = null;
     this.messages = [];
     this.tokenCount = 0;
+    // Real usage is per-run spend. Unlike tokenCount it is NOT rewound by
+    // branch restore or rewindToMessage — you can't un-spend tokens.
+    this.usage = createEmptyUsage();
     this.turnCount = 0;
     this.lastSpeakerId = null;
     this.modelPreference = options.model || null;
@@ -961,6 +998,8 @@ class ChatOrchestrator {
         // Generate response with streaming
         let fullResponse = '';
         let responseTokens = 0;
+        let turnUsage = null;
+        let turnUsageReported = false;
 
         const systemNotes = this._drainWorkflowOutcomes();
         const generator = generateAgentResponse(
@@ -969,7 +1008,15 @@ class ChatOrchestrator {
           this.messages,
           this.goal,
           this.sessionMedia,
-          { model: this.modelPreference, systemNotes, generatedImages: this.recentGenImages }
+          {
+            // A session-wide model preference still wins over the registry
+            // default, but a per-agent model wins over both (resolved inside
+            // generateAgentResponse).
+            model: this.modelPreference,
+            thinkingLevel: speaker.thinkingLevel,
+            systemNotes,
+            generatedImages: this.recentGenImages,
+          }
         );
 
         for await (const event of generator) {
@@ -990,6 +1037,8 @@ class ChatOrchestrator {
             }
             // If cleanedResponse is empty but we have chunks, keep the accumulated chunks
             responseTokens = event.tokenCount;
+            turnUsage = event.usage || null;
+            turnUsageReported = Boolean(event.usageReported);
             if (event.wasTruncated) {
               console.log(`[Orchestrator] ${speaker.name}'s response was auto-continued after truncation`);
             }
@@ -1491,11 +1540,14 @@ class ChatOrchestrator {
           artifactHallucination: artifactHallucinationNote || undefined,
           timestamp: new Date().toISOString(),
           isUser: false,
-          tokenCount: responseTokens
+          tokenCount: responseTokens,
+          usage: turnUsage || undefined,
+          model: speaker.model || this.modelPreference || DEFAULT_AGENT_MODEL
         };
 
         this.messages.push(message);
         this.tokenCount += responseTokens;
+        this._accumulateUsage(turnUsage, turnUsageReported);
         this.lastSpeakerId = speaker.id;
 
         // Broadcast the message to all clients
@@ -1506,6 +1558,7 @@ class ChatOrchestrator {
           agentId: speaker.id,
           message,
           totalTokens: this.tokenCount,
+          usage: this.usage,
           turnCount: this.turnCount
         });
 
@@ -1540,6 +1593,27 @@ class ChatOrchestrator {
   }
 
   /**
+   * Fold one turn's reported usage into the session total.
+   * Turns where the API didn't report usage are counted separately so the UI
+   * can say how much of the figure is measured vs estimated.
+   */
+  _accumulateUsage(usage, wasReported) {
+    if (!this.usage) this.usage = createEmptyUsage();
+    if (wasReported) {
+      this.usage.reportedTurns += 1;
+    } else {
+      this.usage.estimatedTurns += 1;
+    }
+    if (!usage) return;
+    this.usage.inputTokens   += usage.inputTokens   || 0;
+    this.usage.outputTokens  += usage.outputTokens  || 0;
+    this.usage.thoughtTokens += usage.thoughtTokens || 0;
+    this.usage.cachedTokens  += usage.cachedTokens  || 0;
+    this.usage.toolUseTokens += usage.toolUseTokens || 0;
+    this.usage.totalTokens   += usage.totalTokens   || 0;
+  }
+
+  /**
    * Utility delay function
    */
   delay(ms) {
@@ -1557,6 +1631,7 @@ class ChatOrchestrator {
       goal: this.goal,
       tokenLimit: this.tokenLimit,
       tokenCount: this.tokenCount,
+      usage: this.usage,
       turnCount: this.turnCount,
       messageCount: this.messages.length,
       agents: this.agents, // Include full agent data with bios

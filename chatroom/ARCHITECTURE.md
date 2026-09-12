@@ -179,11 +179,12 @@ resent each turn and nothing is retained server-side at Google.
 ```javascript
 // Streaming agent turn (text generation)
 const stream = await genAI.interactions.create({
-  model: 'gemini-3.1-pro-preview',
+  model: 'gemini-3.8-flash',        // per-agent; see server/config/models.js
   system_instruction: systemPrompt,
   generation_config: {
-    max_output_tokens: 8192,
+    max_output_tokens: 16384,       // caps thinking + output COMBINED
     temperature: 1.0,
+    thinking_level: 'low',          // per-agent; billed as output
   },
   input: blocks, // [{type:'text',...}, {type:'image',...}, {type:'document',...}]
   stream: true,
@@ -338,7 +339,7 @@ function parseRemixRequests(text) {
 async function executeWebSearch(query) {
   // Uses Gemini's grounding with Google Search (Interactions API)
   const interaction = await genAI.interactions.create({
-    model: 'gemini-3.1-pro-preview',
+    model: 'gemini-3.5-flash-lite',   // TOOL_MODEL; see server/config/models.js
     input: query,
     tools: [{ type: 'google_search' }],
     store: false,

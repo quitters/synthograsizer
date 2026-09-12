@@ -2,6 +2,49 @@
 
 All notable changes to the Agent Chat Room project are documented in this file.
 
+## [1.2.0] - 2026-09
+
+Phase 0 of `MODERNIZATION_PLAN.md` — model hygiene and honest cost reporting.
+No architectural change; the tag-parsing tool layer is untouched.
+
+### Added
+- `server/config/models.js` — single source of truth for model IDs, the
+  per-agent model choices, thinking levels, and output caps. Model IDs were
+  previously hard-coded across `gemini.js`, `tools.js` and `imageGen.js`.
+- **Per-agent model and deliberation level.** Agents carry `model` and
+  `thinkingLevel`; both are settable on `POST /api/agents` and
+  `PATCH /api/agents/:idOrName`, and selectable in the add-agent form.
+  `GET /api/agents/models` serves the available options.
+- **Real token accounting.** `interaction.usage` (input / output / thought /
+  cached / tool-use) is now captured per turn, accumulated per run, exposed on
+  session state and `agent_complete`, and broken out in the token meter.
+  Cached-token share is shown so caching work has a baseline to measure.
+
+### Changed
+- Default agent model is now `gemini-3.8-flash` (was `gemini-3.1-pro-preview`):
+  $0.75/$3.75 per 1M vs $2.00/$12.00, for turns that are mostly conversational.
+  3.1 Pro remains available as an opt-in per-agent tier.
+- Tool model (search / URL context) dropped to `gemini-3.5-flash-lite` — its
+  only job is running a grounded call and summarising the result.
+- `analyzeImage` now uses `gemini-3.8-flash`. It was pointed at Nano Banana
+  Pro, an image-*output* model, and reading `output_text` off it.
+- `thinking_level` is now set explicitly (default `low`) instead of inheriting
+  each model's default of `medium`. Thinking bills as output.
+- `max_output_tokens` raised 8192 → 16384. The cap covers thinking *and*
+  output combined, and thinking is spent first, so the old value was
+  truncating ordinary turns into the continuation path.
+- Token meter now labels the budget counter "Generated" and shows the real
+  usage breakdown beneath it. The budget still counts produced tokens only, so
+  existing `tokenLimit` values keep their calibration.
+
+### Fixed
+- Retired image model IDs. `gemini-3.1-flash-image-preview` and
+  `gemini-3-pro-image-preview` had a published shutdown date of 2026-06-25 and
+  were still pinned in `backend/config.py`, `backend/services/image_gen.py`
+  (as a function default), `chatroom/server/services/imageGen.js`, and the
+  `scripts/film_factory/costs.py` rate table — where a stale key silently fell
+  through to the default estimate. All now use the GA IDs.
+
 ## [1.1.0] - 2026-07
 
 ### Changed

@@ -10,7 +10,7 @@ from . import costs
 
 log = logging.getLogger("filmfactory.qc")
 
-MODEL = config.MODEL_FAST  # gemini-3-flash-preview
+MODEL = config.MODEL_FAST  # gemini-3.8-flash
 RUBRIC = """You are a film dailies QC grader. The attached frames are sampled
 from one 8-second AI-generated clip. Judge them against the shot brief below.
 Return ONLY JSON: {"adherence": 0-10, "characters": 0-10, "artifacts": 0-10,

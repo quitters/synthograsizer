@@ -1,5 +1,8 @@
 import { GoogleGenAI } from '@google/genai';
 import { synthClient, assertPlausiblePublicUrl } from 'workflow-engine';
+// TOOL_MODEL's only job is to run a search / URL fetch and summarise the
+// result, so it runs on the cheapest tier that supports both grounding tools.
+import { TOOL_MODEL } from '../config/models.js';
 export { parseWorkflowRequests, stripWorkflowTags, workflowEngine } from 'workflow-engine';
 export { getPreset, searchPresets, applyPreset, getCategories, getPresetsByCategory, listPresetsCompact } from 'workflow-engine';
 export { getTemplate, listTemplates, buildWorkflow, listTemplatesForPrompt, listStylesForPrompt } from 'workflow-engine';
@@ -9,8 +12,6 @@ export { getTemplate, listTemplates, buildWorkflow, listTemplatesForPrompt, list
  * Handles web search (Google Search grounding) and URL context capabilities
  * Follows the same tag-based pattern as image generation
  */
-
-const TOOL_MODEL = 'gemini-3.1-pro-preview';
 
 let genAI = null;
 

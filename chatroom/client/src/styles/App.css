@@ -210,6 +210,18 @@ body {
   -webkit-box-orient: vertical;
 }
 
+/* Which model this agent runs on, and its deliberation level if non-default. */
+.agent-model-badge {
+  display: inline-block;
+  margin-bottom: 0.25rem;
+  padding: 0.05rem 0.35rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
 .remove-btn {
   background: none;
   border: none;
@@ -253,6 +265,43 @@ body {
 .agent-bio-input {
   min-height: 120px;
   font-family: inherit;
+}
+
+/* Per-agent model + deliberation selectors in the add-agent form. */
+.agent-model-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.agent-model-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.agent-model-label {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.agent-model-field select {
+  width: 100%;
+  padding: 0.4rem 0.5rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-size: 0.8rem;
+}
+
+.agent-model-field select:focus {
+  outline: none;
+  border-color: var(--accent);
 }
 
 .form-actions {
@@ -416,6 +465,38 @@ body {
   color: var(--text-muted);
   text-align: right;
   margin-top: 0.25rem;
+}
+
+/* Real API usage breakdown — input/output/thought/cached for the run. */
+.meter-usage {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.usage-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+}
+
+.usage-label {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.usage-value {
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.usage-total .usage-value {
+  font-weight: 600;
 }
 
 /* Controls */

@@ -1,10 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AgentCard } from './AgentCard';
+
+const API_BASE = '/chatroom/api';
 
 export function AgentSetup({ agents, onAddAgent, onRemoveAgent, onAvatarChange, onStartChat, onOpenTemplates, disabled }) {
   const [name, setName] = useState('');
   const [bio, setBio] = useState('');
   const [isExpanded, setIsExpanded] = useState(true);
+  // Model / deliberation options come from the server so the registry stays
+  // in one place (server/config/models.js).
+  const [modelOptions, setModelOptions] = useState(null);
+  const [model, setModel] = useState('');
+  const [thinkingLevel, setThinkingLevel] = useState('');
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch(`${API_BASE}/agents/models`)
+      .then(res => (res.ok ? res.json() : null))
+      .then(data => {
+        if (cancelled || !data) return;
+        setModelOptions(data);
+        setModel(data.defaultModel);
+        setThinkingLevel(data.defaultThinkingLevel);
+      })
+      .catch(() => { /* selectors stay hidden; server defaults apply */ });
+    return () => { cancelled = true; };
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -20,9 +41,11 @@ export function AgentSetup({ agents, onAddAgent, onRemoveAgent, onAvatarChange, 
       }
     }
 
-    await onAddAgent(agentName, bio.trim());
+    await onAddAgent(agentName, bio.trim(), { model, thinkingLevel });
     setName('');
     setBio('');
+    // Leave model/thinkingLevel as-is — adding a panel of similar agents is
+    // the common case, and re-picking each time is tedious.
   };
 
   const canStart = agents.length >= 2;
@@ -85,6 +108,34 @@ STYLE: How they communicate..."
                 className="agent-bio-input"
                 rows={8}
               />
+              {modelOptions && (
+                <div className="agent-model-row">
+                  <label className="agent-model-field">
+                    <span className="agent-model-label">Model</span>
+                    <select
+                      value={model}
+                      onChange={(e) => setModel(e.target.value)}
+                      title={modelOptions.models.find(m => m.id === model)?.blurb || ''}
+                    >
+                      {modelOptions.models.map(m => (
+                        <option key={m.id} value={m.id} title={m.blurb}>{m.label}</option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="agent-model-field">
+                    <span className="agent-model-label">Deliberation</span>
+                    <select
+                      value={thinkingLevel}
+                      onChange={(e) => setThinkingLevel(e.target.value)}
+                      title="How much reasoning the model does before answering. Thinking is billed as output — keep it low for conversational personas."
+                    >
+                      {modelOptions.thinkingLevels.map(level => (
+                        <option key={level} value={level}>{level}</option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
+              )}
               <div className="form-actions">
                 <button
                   type="submit"

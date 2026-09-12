@@ -1,6 +1,12 @@
 import { Router } from 'express';
 import { orchestrator } from '../services/orchestrator.js';
 import { generateImage } from '../services/imageGen.js';
+import {
+  AGENT_MODEL_CHOICES,
+  DEFAULT_AGENT_MODEL,
+  THINKING_LEVELS,
+  DEFAULT_THINKING_LEVEL,
+} from '../config/models.js';
 
 const router = Router();
 
@@ -18,7 +24,7 @@ router.get('/', (req, res) => {
  * Add a new agent
  */
 router.post('/', (req, res) => {
-  const { name, bio } = req.body;
+  const { name, bio, model, thinkingLevel } = req.body;
 
   if (!name || !bio) {
     return res.status(400).json({ error: 'Name and bio are required' });
@@ -37,8 +43,23 @@ router.post('/', (req, res) => {
     }
   }
 
-  const agent = orchestrator.addAgent(agentName.trim(), bio.trim());
+  // Unrecognised model / thinking values fall back to the registry defaults
+  // rather than 400-ing — an agent with a typo'd model should still join.
+  const agent = orchestrator.addAgent(agentName.trim(), bio.trim(), { model, thinkingLevel });
   res.status(201).json({ agent });
+});
+
+/**
+ * GET /api/agents/models
+ * The model + deliberation options the UI should offer, and the defaults.
+ */
+router.get('/models', (req, res) => {
+  res.json({
+    models: AGENT_MODEL_CHOICES,
+    defaultModel: DEFAULT_AGENT_MODEL,
+    thinkingLevels: THINKING_LEVELS,
+    defaultThinkingLevel: DEFAULT_THINKING_LEVEL,
+  });
 });
 
 /**
@@ -58,15 +79,16 @@ router.delete('/:id', (req, res) => {
  * tweaks identify agents by name (the chatroom's uuids aren't surfaced),
  * so we fall back to that.
  *
- * Body: { bio?: string, name?: string }
+ * Body: { bio?: string, name?: string, model?: string, thinkingLevel?: string }
  */
 router.patch('/:idOrName', (req, res) => {
   const { idOrName } = req.params;
-  const { bio, name } = req.body || {};
-  if (typeof bio !== 'string' && typeof name !== 'string') {
-    return res.status(400).json({ error: 'Provide at least one of: bio, name' });
+  const { bio, name, model, thinkingLevel } = req.body || {};
+  if (typeof bio !== 'string' && typeof name !== 'string' &&
+      typeof model !== 'string' && typeof thinkingLevel !== 'string') {
+    return res.status(400).json({ error: 'Provide at least one of: bio, name, model, thinkingLevel' });
   }
-  const updated = orchestrator.updateAgent(idOrName, { bio, name });
+  const updated = orchestrator.updateAgent(idOrName, { bio, name, model, thinkingLevel });
   if (!updated) return res.status(404).json({ error: `Agent not found: ${idOrName}` });
   res.json({ agent: updated });
 });

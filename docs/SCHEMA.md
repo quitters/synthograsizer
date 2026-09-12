@@ -876,7 +876,7 @@ The FastAPI backend (`server.py`) defines Pydantic models for all API requests.
   "user_intent": "Make it look like a cyberpunk city",
   "input_image": "base64...",
   "reference_image": "base64...",       // Optional style reference
-  "model": "gemini-3.6-flash",
+  "model": "gemini-3.8-flash",
   "aspect_ratio": "1:1"
 }
 
@@ -1594,15 +1594,15 @@ From `backend/config.py`:
 
 | Constant | Model ID | Usage |
 |----------|----------|-------|
-| `MODEL_TEXT_CHAT` | `gemini-3.6-flash` | Text chat, fast tasks |
+| `MODEL_TEXT_CHAT` | `gemini-3.1-pro-preview` | Text chat, analysis, template gen (quality) |
 | `MODEL_IMAGE_GEN_FAST` | `gemini-2.5-flash-image` | Fast image generation |
-| `MODEL_IMAGE_GEN_NB2` | `gemini-3.1-flash-image-preview` | Newer image gen |
-| `MODEL_IMAGE_GEN_HQ` | `gemini-3-pro-image-preview` | High-quality image gen |
+| `MODEL_IMAGE_GEN_NB2` | `gemini-3.1-flash-image` | Newer image gen |
+| `MODEL_IMAGE_GEN_HQ` | `gemini-3-pro-image` | High-quality image gen |
 | `MODEL_VIDEO_GEN` | `veo-3.1-generate-preview` | Video generation |
-| `MODEL_ANALYSIS` | `gemini-3.6-flash` | Image analysis |
+| `MODEL_ANALYSIS` | `gemini-3.1-pro-preview` | Image analysis |
 | `MODEL_TEMPLATE_GEN` | `gemini-3.1-pro-preview` | Template generation (Pro for quality) |
-| `MODEL_FAST` | `gemini-3.6-flash` | Narrative, variations, lightweight tasks |
+| `MODEL_FAST` | `gemini-3.8-flash` | Narrative, variations, lightweight tasks |
 
 ---
 
-*Last updated: 2026-04-27*
+*Last updated: 2026-09-11*

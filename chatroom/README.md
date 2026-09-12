@@ -105,8 +105,9 @@ ChatRoom/
 ### Prerequisites
 - Node.js 20+
 - Google Gemini API key with access to:
-  - `gemini-3.1-pro-preview` (text generation, search/URL tools)
-  - `gemini-3-pro-image-preview` (image analysis; generation delegates to the Synthograsizer backend)
+  - `gemini-3.8-flash` (default agent turns, image understanding)
+  - `gemini-3.5-flash-lite` (search / URL-context tool calls)
+  - `gemini-3.1-pro-preview` (optional per-agent "deliberate" tier)
 
 ### Setup
 
@@ -141,7 +142,9 @@ npm run dev
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | GET | `/api/agents` | List all agents |
-| POST | `/api/agents` | Create agent `{name, bio}` |
+| GET | `/api/agents/models` | Model + deliberation options for the UI |
+| POST | `/api/agents` | Create agent `{name, bio, model?, thinkingLevel?}` |
+| PATCH | `/api/agents/:idOrName` | Update `{bio?, name?, model?, thinkingLevel?}` |
 | DELETE | `/api/agents/:id` | Remove agent |
 
 ### Chat Control Endpoints
