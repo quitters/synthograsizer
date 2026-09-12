@@ -2,6 +2,37 @@
 
 All notable changes to the Agent Chat Room project are documented in this file.
 
+## [1.3.0] - 2026-09
+
+Phase 1 of `MODERNIZATION_PLAN.md` — the test safety net that has to exist
+before the Phase 2 tool-layer rewrite.
+
+### Added
+- **Stream-parser regression suite** (`npm test`, via `node --test` — no new
+  dependency). `tests/gemini-stream.test.js` replays recorded Interactions SSE
+  sequences from `tests/fixtures/` through `generateAgentResponse` and pins the
+  event contract the orchestrator consumes: chunk ordering, thought-leak
+  filtering, usage mapping and summation, truncation/continuation (including
+  the give-up boundary), name-prefix cleanup, both error paths, and the
+  retry-without-thinking / retry-without-PDF fallbacks.
+- `tests/agent-config.test.js` — model registry invariants (notably: no
+  retired `-image-preview` alias can creep back in, and image *understanding*
+  can't be pointed at an image *generation* model), model/thinking-level
+  precedence, and the orchestrator's usage accumulator.
+- `initializeGemini(apiKey, client?)` takes an optional pre-built client, so
+  tests can inject a fake instead of reaching the network.
+
+### Fixed
+- **Thought filtering leaked past the end of a thought step.** `currentStepType`
+  was set on `step.start` but never cleared, so a text delta arriving after
+  `step.stop` and before the next `step.start` was still classified as
+  reasoning and silently dropped — losing part of the agent's actual reply.
+  Now cleared on `step.stop`.
+- One more retired image model: `workflow-engine/synthClient.js` hard-coded
+  `gemini-3.1-flash-image-preview` in `generateImage()`, which is the path the
+  chat room's `[IMAGE:]` tag actually takes. Now defaults to the GA
+  `gemini-3.1-flash-image` and accepts an `options.model` override.
+
 ## [1.2.0] - 2026-09
 
 Phase 0 of `MODERNIZATION_PLAN.md` — model hygiene and honest cost reporting.

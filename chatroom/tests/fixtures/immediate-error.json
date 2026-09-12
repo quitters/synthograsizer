@@ -1,0 +1,10 @@
+[
+  {
+    "event_type": "interaction.created",
+    "interaction": { "id": "int_err_002", "status": "in_progress" }
+  },
+  {
+    "event_type": "error",
+    "error": { "message": "model overloaded, please retry" }
+  }
+]

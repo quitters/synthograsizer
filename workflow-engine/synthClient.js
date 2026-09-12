@@ -22,6 +22,9 @@ const VIDEO_TIMEOUT_MS   = 120_000;
 // because the model writes complete self-contained sketch code with lookup maps.
 const TEMPLATE_TIMEOUT_MS = 300_000;
 const HEALTH_CACHE_MS = 30_000;
+// Nano Banana 2. The -preview alias this used to pin had a published shutdown
+// date of 2026-06-25. Callers can override per request via options.model.
+const DEFAULT_IMAGE_MODEL = 'gemini-3.1-flash-image';
 
 class SynthClient {
   constructor(baseUrl) {
@@ -108,12 +111,12 @@ class SynthClient {
   /**
    * POST /api/generate/image
    * @param {string} prompt
-   * @param {{ aspect_ratio?, negative_prompt?, style?, num_images? }} options
+   * @param {{ aspect_ratio?, negative_prompt?, style?, num_images?, model? }} options
    */
   async generateImage(prompt, options = {}) {
     const body = {
       prompt,
-      model: 'gemini-3.1-flash-image-preview',
+      model: options.model || DEFAULT_IMAGE_MODEL,
       aspect_ratio: options.aspect_ratio ?? '1:1',
     };
     if (options.negative_prompt) body.negative_prompt = options.negative_prompt;

@@ -252,10 +252,11 @@ Two constraints from the docs to design around:
 - Keep every `parse*` / `strip*` function behind a `TOOL_MODE=tags|functions` env flag for one
   release. They are also needed to replay saved sessions from `data/`, whose transcripts contain
   raw tags.
-- There is currently **no test coverage for `gemini.js`**. Before refactoring, record a handful of
-  real interaction responses as JSON fixtures and write tests that drive the stream parser off
-  them. This refactor touches the one code path where a regression is silent (the room just gets
-  subtly worse) rather than loud.
+- ~~There is currently **no test coverage for `gemini.js`**.~~ **Done (Phase 1, CHANGELOG 1.3.0).**
+  `npm test` replays recorded SSE fixtures through `generateAgentResponse`. Extend
+  `tests/fixtures/` with a `function_call` / `function_result` sequence as the first step of
+  Phase 2 — write the fixture before the dispatcher, so the new event handling has a target to
+  satisfy. The existing suite is the regression net for everything the rewrite must *not* change.
 - **Thought signatures.** Gemini 3 returns an encrypted `signature` on thought steps, and the
   tool-context `id`/`signature` fields on tool steps are what preserve reasoning continuity across
   a function-call round trip. The SDK handles these automatically **when you chain with
@@ -569,7 +570,7 @@ public preview. Treat as a spike, not a roadmap item. Up to 1,000 managed agents
 | Phase | Scope | Effort | Risk |
 |---|---|---|---|
 | ~~**0**~~ | ~~Model IDs → central config; `analyzeImage` off the image model; real `usage` accounting; `thinking_level`; raise `max_output_tokens`~~ **— done 2026-09-11, see CHANGELOG 1.2.0** | ~half a day | Low. No architecture change, immediate cost win |
-| **1** | Fixture tests for the stream parser in `gemini.js` | ~half a day | None — prerequisite for everything below |
+| ~~**1**~~ | ~~Fixture tests for the stream parser in `gemini.js`~~ **— done 2026-09-11, see CHANGELOG 1.3.0** | ~half a day | None — prerequisite for everything below |
 | **2** | Function calling behind `TOOL_MODE=functions`; start with the five media tools; keep regex parsers as fallback | 2–3 days | Medium. Biggest behavioural change; needs a real session to evaluate |
 | **3** | Stateful chains + implicit caching; per-agent `previous_interaction_id`; prompt reordering; delete the summariser | 2–3 days | Medium. Gate behind `GEMINI_STORE_INTERACTIONS`; privacy posture change |
 | **4** | File Search for session media; then cross-session memory store | 2–3 days | Low-medium. Watch store lifecycle/quota |

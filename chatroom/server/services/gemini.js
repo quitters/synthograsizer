@@ -14,8 +14,13 @@ const MAX_CONTINUATION_ATTEMPTS = 2;
 
 let genAI = null;
 
-export function initializeGemini(apiKey) {
-  genAI = new GoogleGenAI({ apiKey });
+/**
+ * @param {string} apiKey
+ * @param {object} [client] Pre-built client, used by tests to drive the stream
+ *   parser off recorded fixtures instead of the network.
+ */
+export function initializeGemini(apiKey, client = null) {
+  genAI = client || new GoogleGenAI({ apiKey });
 }
 
 /**
@@ -593,6 +598,10 @@ export async function* generateAgentResponse(agent, allAgents, messages, goal, s
         for await (const event of stream) {
           if (event.event_type === 'step.start') {
             currentStepType = event.step?.type ?? null;
+          } else if (event.event_type === 'step.stop') {
+            // Clear it, or the 'thought' classification leaks past the end of
+            // the thought step and swallows the model's actual reply.
+            currentStepType = null;
           } else if (event.event_type === 'step.delta') {
             // Thought-leak guard: only surface text deltas from model output,
             // never from thought steps / thinking summaries.

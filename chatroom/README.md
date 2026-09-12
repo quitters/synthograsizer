@@ -135,6 +135,20 @@ npm run dev
 
 5. Open http://localhost:5173 in your browser
 
+## Testing
+
+```bash
+npm test          # node --test tests/
+npm run test:watch
+```
+
+No API key or network access is needed. The stream-parser suite replays
+recorded Interactions SSE sequences from `tests/fixtures/` through a fake
+client, pinning the event contract the orchestrator consumes: chunk ordering,
+thought-leak filtering, usage accounting, truncation/continuation, and the
+retry fallbacks. `tests/fixtures/README.md` explains the event shapes and how
+to record a real one.
+
 ## API Reference
 
 ### Agent Endpoints
