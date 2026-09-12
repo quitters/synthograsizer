@@ -150,6 +150,20 @@ the live API. In that mode each agent gets a **tool tier** (`none`, `research`,
 active set inside Google's 10–20 tool guidance. Tiers live in
 `server/config/tools.js`; declarations in `server/services/toolDefinitions.js`.
 
+## Reference documents
+
+With `FILE_SEARCH=true`, uploaded documents are indexed once into a
+per-session File Search store and queried by the built-in `file_search` tool.
+Without it, a PDF is base64-inlined for the first couple of turns and then
+invisible, and a text file is truncated at 5,000 characters.
+
+Images are not indexed either way — an agent asked about a reference image
+needs to see it, not retrieve text about it.
+
+Stores are deleted on reset. If a crash leaves one behind (the quota is
+project-wide), `GET /api/chat/file-search/orphans` lists them and `DELETE` on
+the same path clears them.
+
 ## Conversation state
 
 `GEMINI_STORE_INTERACTIONS` decides whether Google retains conversation

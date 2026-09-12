@@ -390,6 +390,16 @@ Ranked by (impact ÷ effort) for this specific app.
 
 ### 4.1 File Search — session media and cross-session memory  ★ highest value
 
+> **Status: session media shipped behind `FILE_SEARCH=true` (2026-09-12), see
+> CHANGELOG 1.6.0. Cross-session memory deliberately NOT built** — it changes what
+> a "session" means in the product, which is open question 4 below and yours to answer.
+> The store plumbing it would need (create / index / destroy / orphan-sweep) is already
+> in `server/services/fileSearch.js`, so it is a small addition once you decide.
+>
+> One design note from implementation: images stay inline rather than being indexed.
+> File Search would hand back retrieved *text about* a reference image, and an agent
+> asked to critique one needs to see it.
+
 The room currently handles uploaded files by base64-inlining images/PDFs and pasting the first 5,000
 characters of text files into turn one, then never again. File Search replaces that with real RAG:
 
@@ -601,7 +611,7 @@ public preview. Treat as a spike, not a roadmap item. Up to 1,000 managed agents
 | ~~**1**~~ | ~~Fixture tests for the stream parser in `gemini.js`~~ **— done 2026-09-11, see CHANGELOG 1.3.0** | ~half a day | None — prerequisite for everything below |
 | ~~**2**~~ | ~~Function calling behind `TOOL_MODE=functions`; start with the five media tools; keep regex parsers as fallback~~ **— shipped 2026-09-11 (off by default), see CHANGELOG 1.4.0** | 2–3 days | Medium. Biggest behavioural change; **still needs a real session to evaluate** |
 | ~~**3**~~ | ~~Stateful chains + implicit caching; per-agent `previous_interaction_id`; prompt reordering; delete the summariser~~ **— shipped 2026-09-12 (off by default), see CHANGELOG 1.5.0** | 2–3 days | Medium. Gated behind `GEMINI_STORE_INTERACTIONS`; **the privacy call is still yours to make** |
-| **4** | File Search for session media; then cross-session memory store | 2–3 days | Low-medium. Watch store lifecycle/quota |
+| ~~**4**~~ | ~~File Search for session media~~ **— shipped 2026-09-12 (off by default), see CHANGELOG 1.6.0.** Cross-session memory store **not** built — see open question 4 | 2–3 days | Low-medium. Watch store lifecycle/quota |
 | **5** | Structured output for speaker selection + consensus; code execution tool | 1–2 days | Low |
 | **6** | Per-agent voices + multi-speaker TTS session export | 2–3 days | Low. Self-contained, high delight |
 | **7** | Deep Research agent on the existing background-workflow channel | 1–2 days | Low code risk, **real cost risk** — needs caps |

@@ -7,7 +7,11 @@ import { countTokens, countMessageTokens } from '../utils/tokenCounter.js';
 import { DEFAULT_AGENT_MODEL, normalizeThinkingLevel, isKnownAgentModel } from '../config/models.js';
 import { isFunctionCallingEnabled, isKnownToolTier, DEFAULT_TOOL_TIER } from '../config/tools.js';
 import { isStatefulEnabled } from '../config/session.js';
+import { isFileSearchEnabled, shouldIndex } from '../config/fileSearch.js';
 import { deleteInteractions } from './gemini.js';
+import {
+  createSessionStore, indexMedia, destroySessionStore, fileSearchTool,
+} from './fileSearch.js';
 import { buildToolsForAgent } from './toolDefinitions.js';
 import { createToolDispatcher } from './toolDispatch.js';
 import { mediaStore } from './mediaStore.js';
@@ -47,6 +51,7 @@ class ChatOrchestrator {
     // while the transcript lives on for the retention window. Fire-and-forget:
     // a network failure must not block the reset itself.
     this._purgeStoredInteractions();
+    this._destroyFileSearchStore();
     this.agents = [];
     this.messages = [];
     this.goal = '';
@@ -105,6 +110,10 @@ class ChatOrchestrator {
     // Both are only populated when GEMINI_STORE_INTERACTIONS=true.
     this.agentChains = {};
     this.agentSeenUpTo = {};
+    // File Search (Phase 4): one store per session, created lazily on the
+    // first indexable upload. Null means "nothing indexed", which is the
+    // normal state when FILE_SEARCH is off.
+    this.fileSearchStoreName = null;
   }
 
   /**
@@ -119,14 +128,76 @@ class ChatOrchestrator {
       throw err;
     }
     this.sessionMedia.push(mediaItem);
+
+    // Index documents into File Search rather than letting them ride inline.
+    // Deliberately not awaited: uploads arrive one HTTP request at a time and
+    // indexing takes seconds, so the response returns immediately and the
+    // item is marked `indexed` when it lands. Turns before that still see the
+    // file inline, which is the correct fallback rather than a gap.
+    if (isFileSearchEnabled() && shouldIndex(mediaItem.mimeType)) {
+      this._indexSessionMedia(mediaItem).catch(err =>
+        console.warn(`[Orchestrator] indexing "${mediaItem.name}" failed: ${err.message}`)
+      );
+    }
     return mediaItem;
+  }
+
+  /**
+   * Index one upload, creating the session store on first use.
+   */
+  async _indexSessionMedia(mediaItem) {
+    if (!this.fileSearchStoreName) {
+      this.fileSearchStoreName = await createSessionStore(this.sessionId || 'pending');
+    }
+    const result = await indexMedia(this.fileSearchStoreName, mediaItem);
+    if (result.ok) {
+      // Flip the flag on the live object; gemini.js reads it to decide what
+      // still needs to ride inline.
+      mediaItem.indexed = true;
+      this.broadcast('media_indexed', { mediaId: mediaItem.id, name: mediaItem.name });
+    } else {
+      this.broadcast('media_index_failed', {
+        mediaId: mediaItem.id, name: mediaItem.name, error: result.error,
+      });
+    }
+  }
+
+  /**
+   * Delete the session's File Search store. Best-effort and not awaited —
+   * called from synchronous reset paths — but a failure is logged because it
+   * leaves quota consumed.
+   */
+  _destroyFileSearchStore() {
+    const name = this.fileSearchStoreName;
+    this.fileSearchStoreName = null;
+    if (!name) return;
+    destroySessionStore(name).catch(err =>
+      console.warn(`[Orchestrator] file search store cleanup failed: ${err.message}`)
+    );
   }
 
   /**
    * Remove session media by ID
    */
   removeSessionMedia(mediaId) {
+    const removed = this.sessionMedia.find(m => m.id === mediaId);
     this.sessionMedia = this.sessionMedia.filter(m => m.id !== mediaId);
+
+    // A removed file must stop being retrievable, or agents keep citing a
+    // document the user deleted. Rather than tracking per-document resource
+    // names through the upload operation, drop the store and re-index what
+    // remains — removals are rare (usually before a session even starts) and
+    // this uses only the store-level calls, so it cannot half-work.
+    if (removed?.indexed) {
+      this._destroyFileSearchStore();
+      const survivors = this.sessionMedia.filter(m => m.indexed);
+      for (const m of survivors) m.indexed = false;
+      for (const m of survivors) {
+        this._indexSessionMedia(m).catch(err =>
+          console.warn(`[Orchestrator] re-indexing "${m.name}" failed: ${err.message}`)
+        );
+      }
+    }
   }
 
   /**
@@ -141,6 +212,7 @@ class ChatOrchestrator {
    */
   clearSessionMedia() {
     this.sessionMedia = [];
+    this._destroyFileSearchStore();
   }
 
   /**
@@ -1036,7 +1108,8 @@ class ChatOrchestrator {
         const toolCallLog = [];
 
         const systemNotes = this._drainWorkflowOutcomes();
-        const functionTools = this._toolsForTurn(speaker);
+        const turnTools = this._toolsForTurn(speaker);
+        const hasCustomFunctions = turnTools.some(t => t?.type === 'function');
         const generator = generateAgentResponse(
           speaker,
           this.agents,
@@ -1058,8 +1131,10 @@ class ChatOrchestrator {
             previousInteractionId: this.agentChains[speaker.id] || null,
             sinceMessageIndex: this.agentSeenUpTo[speaker.id] ?? 0,
             // Both must be present for the function-calling path to engage.
-            tools: functionTools,
-            dispatch: functionTools.length
+            tools: turnTools,
+            // Only custom function declarations need a dispatcher. A turn
+            // carrying just built-ins (file_search) stays on the tag path.
+            dispatch: hasCustomFunctions
               ? this._createDispatcher(speaker, toolMedia)
               : null,
           }
@@ -1123,7 +1198,9 @@ class ChatOrchestrator {
         // nothing should be scraped out of the prose — and a legitimate
         // [bracketed aside] must not be eaten by a parser. Feeding the tag
         // parsers an empty string disables the whole legacy path in one place.
-        const tagSource = functionTools.length ? '' : fullResponse;
+        // Keyed on custom functions, NOT on tools being present at all — a
+        // turn can carry file_search while still speaking the tag dialect.
+        const tagSource = hasCustomFunctions ? '' : fullResponse;
 
         // Check for image generation requests in the response
         const imageRequests = parseImageRequests(tagSource);
@@ -1709,14 +1786,26 @@ class ChatOrchestrator {
    * off — in which case generateAgentResponse takes the legacy tag path.
    */
   _toolsForTurn(speaker) {
-    if (!isFunctionCallingEnabled()) return [];
-    // Only offer write_artifact once the room is plausibly building something;
-    // otherwise it's a tool slot spent on a capability nobody asked for.
-    const goalLower = (this.goal ?? '').toLowerCase();
-    const allowArtifacts =
-      artifactStore.getAll().length > 0 ||
-      /\b(build|create|make|code|sketch|game|p5|html|website|app|artifact)\b/.test(goalLower);
-    return buildToolsForAgent(speaker, { allowArtifacts });
+    const tools = [];
+
+    // file_search is a built-in: it needs no dispatcher, so it works in tag
+    // mode too, and is offered whenever this session has an indexed store.
+    if (this.fileSearchStoreName) {
+      tools.push(fileSearchTool(this.fileSearchStoreName));
+    }
+
+    if (isFunctionCallingEnabled()) {
+      // Only offer write_artifact once the room is plausibly building
+      // something; otherwise it's a tool slot spent on a capability nobody
+      // asked for.
+      const goalLower = (this.goal ?? '').toLowerCase();
+      const allowArtifacts =
+        artifactStore.getAll().length > 0 ||
+        /\b(build|create|make|code|sketch|game|p5|html|website|app|artifact)\b/.test(goalLower);
+      tools.push(...buildToolsForAgent(speaker, { allowArtifacts }));
+    }
+
+    return tools;
   }
 
   /**

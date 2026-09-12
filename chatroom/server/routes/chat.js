@@ -2,6 +2,8 @@ import { Router } from 'express';
 import { orchestrator } from '../services/orchestrator.js';
 import { mediaStore } from '../services/mediaStore.js';
 import { generateImageWithReferences } from '../services/imageGen.js';
+import { listOrphanedStores, destroySessionStore } from '../services/fileSearch.js';
+import { isFileSearchEnabled } from '../config/fileSearch.js';
 import { v4 as uuidv4 } from 'uuid';
 
 const router = Router();
@@ -152,6 +154,39 @@ router.post('/reset', (req, res) => {
     message: 'Chat reset',
     state: orchestrator.getState()
   });
+});
+
+/**
+ * GET /api/chat/file-search/orphans
+ * File Search stores this app created that are still alive. A crash between
+ * create and destroy leaks one, and the quota is project-wide, so there has
+ * to be a way to see them.
+ *
+ * DELETE removes all of them except the running session's.
+ */
+router.get('/file-search/orphans', async (req, res) => {
+  if (!isFileSearchEnabled()) return res.json({ enabled: false, stores: [] });
+  try {
+    res.json({ enabled: true, stores: await listOrphanedStores() });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.delete('/file-search/orphans', async (req, res) => {
+  if (!isFileSearchEnabled()) return res.json({ enabled: false, deleted: 0 });
+  try {
+    const active = orchestrator.fileSearchStoreName;
+    let deleted = 0;
+    for (const store of await listOrphanedStores()) {
+      if (store.name === active) continue; // never pull the rug on a live session
+      const result = await destroySessionStore(store.name);
+      if (result.ok) deleted++;
+    }
+    res.json({ enabled: true, deleted, skippedActive: Boolean(active) });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 /**

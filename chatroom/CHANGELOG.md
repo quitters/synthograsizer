@@ -2,6 +2,43 @@
 
 All notable changes to the Agent Chat Room project are documented in this file.
 
+## [1.6.0] - 2026-09
+
+Phase 4 of `MODERNIZATION_PLAN.md` §4.1 — File Search for uploaded reference
+documents. **Off by default**; set `FILE_SEARCH=true` to opt in.
+
+### Added
+- **Per-session File Search store.** Uploaded documents are indexed once and
+  queried via the built-in `file_search` tool, instead of riding in the
+  prompt. This replaces two lossy behaviours: PDFs were base64-inlined on the
+  first couple of turns and then invisible, and text files were **truncated
+  at 5,000 characters** with the remainder silently dropped.
+  - Uploads go straight from the in-memory base64 to a `Blob` — no temp files.
+  - Indexing is a long-running operation and is awaited, because an agent
+    querying a half-indexed store gets nothing back and cannot tell why.
+  - Indexing runs off the request path; a turn taken before it finishes still
+    sees the file inline, which is the right fallback rather than a gap.
+  - Images and A/V deliberately stay inline: an agent asked to critique a
+    reference image needs to see it, not retrieve text about it.
+- **Store lifecycle.** Created lazily on the first indexable upload; deleted
+  on reset, start, and `clearSessionMedia`. Removing one indexed file drops
+  and rebuilds the store, so a deleted document stops being retrievable —
+  removals are rare, and this uses only store-level calls so it cannot
+  half-work.
+- `GET /api/chat/file-search/orphans` lists stores a crash left behind (the
+  quota is project-wide); `DELETE` on the same path clears them, skipping the
+  running session's.
+- `tests/file-search.test.js` (13 tests, 82 total).
+
+### Changed
+- **Built-in tools now work on the tag path.** `file_search` needs no
+  dispatcher, so the routing test changed from "are there tools?" to "are
+  there custom *function* declarations?". Only the latter takes the turn down
+  the function-calling loop or suppresses the bracket-tag vocabulary.
+  Correspondingly, `tool_choice: 'validated'` is set only when custom
+  functions are present — it is required for combining built-ins with custom
+  functions, not for built-ins alone.
+
 ## [1.5.0] - 2026-09
 
 Phase 3 of `MODERNIZATION_PLAN.md` — stateful chains and prompt ordering.

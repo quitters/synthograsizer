@@ -657,7 +657,9 @@ async function createAgentStream(model, systemPrompt, blocks, thinkingLevel, too
       max_output_tokens: MAX_OUTPUT_TOKENS,
       temperature: DEFAULT_TEMPERATURE,
       thinking_level: thinkingLevel,
-      ...(tools?.length ? { tool_choice: 'validated' } : {}),
+      // 'validated' is required only when built-ins are COMBINED with custom
+      // function declarations; a built-in-only request keeps the default.
+      ...(tools?.some(t => t?.type === 'function') ? { tool_choice: 'validated' } : {}),
     },
     input: blocks,
     stream: true,
@@ -941,9 +943,13 @@ export async function* generateAgentResponse(agent, allAgents, messages, goal, s
     throw new Error('Gemini not initialized. Call initializeGemini first.');
   }
 
-  // With function calling on, the bracket-tag vocabulary is suppressed —
-  // teaching both at once invites the model to mix them.
-  const useFunctions = Boolean(options?.tools?.length && options?.dispatch);
+  // Built-in tools (file_search, google_search…) need no dispatcher and work
+  // in either mode. Only a CUSTOM function declaration requires the
+  // function-calling turn loop — and only that suppresses the bracket-tag
+  // vocabulary, since teaching both dialects at once invites mixing them.
+  const allTools = options?.tools || [];
+  const hasCustomFunctions = allTools.some(t => t?.type === 'function');
+  const useFunctions = Boolean(hasCustomFunctions && options?.dispatch);
   const systemPrompt = await buildSystemPrompt(agent, allAgents, goal, {
     enableTagTools: !useFunctions,
   });
@@ -969,12 +975,29 @@ export async function* generateAgentResponse(agent, allAgents, messages, goal, s
     promptText = `[SYSTEM NOTE TO ${agent.name.toUpperCase()}]\n${options.systemNotes.trim()}\n\n${promptText}`;
   }
 
+  // Files indexed into File Search are not in the prompt, so the model has to
+  // be told they exist and are searchable — otherwise it has a tool it never
+  // thinks to reach for.
+  const indexedMedia = sessionMedia.filter(m => m.indexed);
+  if (indexedMedia.length > 0) {
+    promptText =
+      `SEARCHABLE REFERENCE DOCUMENTS (${indexedMedia.length} uploaded by the user):\n` +
+      indexedMedia.map(m => `- ${m.name}`).join('\n') +
+      `\nThese are indexed, not pasted below. Use the file search tool to look ` +
+      `inside them when they bear on the discussion; quote what you find.\n\n` +
+      promptText;
+  }
+
   const { generatedImages = [] } = options || {};
 
   // Only include session media on the first turn to avoid sending large payloads every turn
   // After the first turn, media context is carried via transcript references
   const includeMedia = messages.length === 0 || messages.length <= 2;
-  const contentParts = buildContentParts(promptText, includeMedia ? sessionMedia : [], generatedImages);
+  // Anything indexed into File Search is reachable by query, so it must not
+  // also ride along inline — that would pay for the payload twice and
+  // reintroduce the 5,000-character truncation this replaced.
+  const inlineMedia = sessionMedia.filter(m => !m.indexed);
+  const contentParts = buildContentParts(promptText, includeMedia ? inlineMedia : [], generatedImages);
 
   // For text files that were included inline, add a note to later turns too
   const hasTextMedia = sessionMedia.some(m => isTextMedia(m.mimeType));
@@ -1010,7 +1033,9 @@ export async function* generateAgentResponse(agent, allAgents, messages, goal, s
 
     // Initial generation + continuation loop
     while (continuationAttempts <= MAX_CONTINUATION_ATTEMPTS) {
-      const stream = await createAgentStream(modelId, systemPrompt, currentParts, thinkingLevel, null, {
+      // allTools here is built-ins only — a custom function declaration would
+      // have routed this turn to runFunctionTurn instead.
+      const stream = await createAgentStream(modelId, systemPrompt, currentParts, thinkingLevel, allTools, {
         store,
         // Only the turn's first request chains from the previous turn. A
         // truncation continuation re-sends the prompt plus the partial text,

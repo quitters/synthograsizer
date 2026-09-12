@@ -11,6 +11,8 @@ import { createWorkflowRoutes, createTraceRoutes, workflowEngine } from 'workflo
 import { initializeGemini } from './services/gemini.js';
 import { initializeImageGen } from './services/imageGen.js';
 import { initializeTools } from './services/tools.js';
+import { initializeFileSearch } from './services/fileSearch.js';
+import { isFileSearchEnabled } from './config/fileSearch.js';
 import { mediaStore } from './services/mediaStore.js';
 import { orchestrator } from './services/orchestrator.js';
 
@@ -48,7 +50,8 @@ if (!apiKey) {
 initializeGemini(apiKey);
 initializeImageGen(apiKey);
 initializeTools(apiKey);
-console.log('Gemini API initialized (text, image, search, and URL tools)');
+initializeFileSearch(apiKey);
+console.log(`Gemini API initialized (text, image, search, URL tools; file search ${isFileSearchEnabled() ? 'ON' : 'off'})`);
 
 // Configure shared workflow engine with chatroom's mediaStore
 workflowEngine.configure({ mediaStore });
