@@ -6,6 +6,8 @@ import { listOrphanedStores, destroySessionStore } from '../services/fileSearch.
 import { isFileSearchEnabled } from '../config/fileSearch.js';
 import { renderTranscript } from '../services/tts.js';
 import { VOICES, DEFAULT_VOICE } from '../config/voices.js';
+import { mintSessionToken, isLoopbackRequest } from '../services/liveSession.js';
+import { isLiveApiEnabled, ALLOW_REMOTE_TOKENS } from '../config/live.js';
 import { v4 as uuidv4 } from 'uuid';
 
 const router = Router();
@@ -234,6 +236,33 @@ router.post('/render-audio', async (req, res) => {
   } catch (err) {
     console.error('Audio render failed:', err);
     orchestrator.broadcast('audio_error', { error: err.message });
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/**
+ * POST /api/chat/live-token
+ * Mint a short-lived, single-use token so a browser can open a Live API
+ * session without ever holding the real API key.
+ *
+ * ⚠ This endpoint mints spend against your key and the chat room has no
+ * authentication of its own, so it is off by default and refuses non-local
+ * callers unless LIVE_API_ALLOW_REMOTE is also set.
+ */
+router.post('/live-token', async (req, res) => {
+  if (!isLiveApiEnabled()) {
+    return res.status(404).json({ error: 'Live API is not enabled on this server' });
+  }
+  if (!ALLOW_REMOTE_TOKENS && !isLoopbackRequest(req)) {
+    return res.status(403).json({
+      error: 'Live tokens are served to localhost only. Set LIVE_API_ALLOW_REMOTE=true ' +
+             'to change that, understanding it lets any caller spend your quota.',
+    });
+  }
+  try {
+    res.json(await mintSessionToken());
+  } catch (err) {
+    console.error('Live token mint failed:', err);
     res.status(500).json({ error: err.message });
   }
 });

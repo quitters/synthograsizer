@@ -2,6 +2,40 @@
 
 All notable changes to the Agent Chat Room project are documented in this file.
 
+## [1.10.0] - 2026-09
+
+Phase 8 of `MODERNIZATION_PLAN.md` §4.7 — Live API groundwork.
+**Off by default**; `LIVE_API=true` opts in. This is the server half only.
+
+### Added
+- **Ephemeral token brokering.** `POST /api/chat/live-token` mints a
+  single-use, short-lived token so a browser can open a Live API session
+  without ever holding the real API key. Verified against the live API.
+- **Two guards, because this endpoint mints spend.** The chat room has no
+  authentication of its own, so: it 404s unless `LIVE_API=true`, and it 403s
+  non-loopback callers unless `LIVE_API_ALLOW_REMOTE=true` as well. Tokens
+  are single-use, must be connected within 60 seconds, and cap the session
+  at 15 minutes — a leaked one is worth close to nothing.
+- `tests/live-session.test.js` (7 tests, 151 total), mostly asserting the
+  token stays tightly scoped.
+
+### Explicitly NOT built, and why
+- **The browser audio pipeline.** Microphone capture, PCM resampling to
+  16 kHz, playback of the 24 kHz return stream, barge-in, and negotiating
+  turns between a live human and the autonomous agent loop. This is the bulk
+  of §4.7 and it cannot be meaningfully verified without a real microphone
+  and ears — writing it blind would have produced several hundred lines of
+  plausible, untested code, which is the opposite of what the rest of this
+  work has been. The token endpoint is the prerequisite and it is done and
+  proven; the client is a deliberate handoff.
+- **Antigravity managed agents (§4.8).** The plan called this "a spike, not
+  a roadmap item" and that assessment holds: it is public preview, costs
+  100k–3M tokens per interaction, and provisions a persistent Linux VM per
+  agent. Building it speculatively would add real spend and real operational
+  surface for a capability nobody has asked for yet. `ai.agents` (create /
+  list / get / delete) exists in the SDK and the SDK itself warns the surface
+  is experimental and may change.
+
 ## [1.9.0] - 2026-09
 
 Phase 7 of `MODERNIZATION_PLAN.md` §4.5 — the Deep Research agent.

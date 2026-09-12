@@ -579,6 +579,25 @@ Resolution and aspect ratio move into `response_format` now:
 
 ### 4.7 Live API — a voice seat in the room  ★ big, phase it last
 
+> **Status: server half shipped and verified (2026-09-12, CHANGELOG 1.10.0). Client half
+> deliberately not built.**
+>
+> Done: `POST /api/chat/live-token` mints single-use, 15-minute, connect-within-60-seconds
+> ephemeral tokens. Confirmed working against the live API. Two independent flags guard it
+> (`LIVE_API`, then `LIVE_API_ALLOW_REMOTE` for non-loopback) because the room has no auth
+> of its own and the endpoint mints spend against the operator's key.
+>
+> **Remaining, and it is the bulk of it:** microphone capture, resampling to 16 kHz PCM,
+> playback of the 24 kHz return stream, barge-in handling, and — the genuinely hard part —
+> deciding how a live human speaking shares the floor with an autonomous agent loop that
+> is already taking turns on its own. None of that can be verified without a microphone
+> and a person listening. Everything else in this plan was either tested or explicitly
+> flagged as untested; writing a few hundred lines of blind audio plumbing would have been
+> a worse deal than handing over a working, proven prerequisite.
+>
+> Suggested next step, unchanged from the original advice: prototype **one** live agent
+> plus a human, with the rest of the room in text, before attempting the full thing.
+
 `gemini-3.1-flash-live-preview` over WebSocket: 16kHz PCM in, 24kHz PCM out, barge-in interruption,
 70 languages, function calling and Google Search inside the session. Ephemeral tokens exist
 specifically so a browser client can connect without holding the API key.
@@ -589,6 +608,20 @@ turn-taking negotiation between the live human and the autonomous agent loop. Wo
 "one live agent + a human, with the rest of the room in text" before attempting the full thing.
 
 ### 4.8 Managed agents (Antigravity) — the exploratory one
+
+> **Status: assessed, deliberately NOT built (2026-09-12).**
+>
+> `ai.agents` (create / list / get / delete) exists in `@google/genai` 2.10.0, and the SDK
+> itself prints *"Agents usage is experimental and may change in future versions"* on the
+> namespace. Combined with public-preview status, 100k–3M tokens per interaction, and a
+> persistent Linux VM per agent that lives 7 days, building this speculatively would mean
+> adding real recurring spend and real operational surface — sandbox lifecycle, network
+> allowlists, credential scoping — for a capability nobody has asked for yet.
+>
+> The honest recommendation stands: this is worth a deliberate afternoon of exploration
+> when there is a concrete use case (most likely "an agent that actually builds and runs
+> the artifact instead of emitting a file blob"), not a speculative subsystem bolted on
+> because it was next in a list.
 
 `antigravity-preview-05-2026` provisions a Linux sandbox (Ubuntu, Python 3.12, Node 22, outbound
 network with optional allowlist) per agent, persisting 7 days. An agent can genuinely build and run
@@ -639,6 +672,7 @@ public preview. Treat as a spike, not a roadmap item. Up to 1,000 managed agents
 | ~~**6**~~ | ~~Per-agent voices + multi-speaker TTS session export~~ **— shipped 2026-09-12, CHANGELOG 1.8.0. Verified against the live API.** Per-run single-speaker, not multi-speaker (caps at 2) | 2–3 days | Low. Self-contained, high delight |
 | ~~**7**~~ | ~~Deep Research agent on the existing background-workflow channel~~ **— shipped 2026-09-12 (off by default), CHANGELOG 1.9.0. Capped server-side at 2 tasks/session** | 1–2 days | Low code risk, **real cost risk** — needs caps |
 | **8** | Spikes: Live API voice seat; Antigravity managed agents | open-ended | High |
+| | **Live API: server half shipped 2026-09-12 (CHANGELOG 1.10.0) and verified — ephemeral token brokering. Browser audio pipeline NOT built.** Antigravity NOT built; assessment below. | | |
 
 Phases 0 and 1 are worth doing regardless of whether anything else happens: they're cheap, they
 reduce spend immediately, and phase 1 is the safety net for all the rest.
