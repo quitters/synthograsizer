@@ -48,8 +48,8 @@ export const MAX_INLINE_RESULT_IMAGES = 2;
  * out by role rather than all at once. An agent's `tools` field names a tier;
  * anything unrecognised falls back to DEFAULT_TOOL_TIER.
  *
- * Phase 2 ships the media slice only. The SYNTH_*/workflow family stays on
- * the tag path until this one has proven itself.
+ * Phase 2 ships the media slice only. The SYNTH_ and workflow families stay
+ * on the tag path until this one has proven itself.
  */
 export const TOOL_TIERS = {
   /** No tools — pure conversationalists. Cheapest, least to go wrong. */
