@@ -29,6 +29,13 @@ logger = logging.getLogger(__name__)
 
 # Everything that can spend on the operator's key. /ws/music is handled in
 # its endpoint; /api/videorama is already hosted-blocked by its own guard.
+# /api/thecommons/generate is the one Commons endpoint that can eventually
+# call a model (Stage 2's own generator spends nothing — see
+# thecommons_generate.py — but wiring the gate in now means terms/rate-limit/
+# budget enforcement is already in place before a later stage adds a live
+# provider call). Every other /api/thecommons/... route is a metadata read
+# or write with no model call, same category as artifacts.py, and stays out
+# of this list on purpose.
 AI_PREFIXES = (
     "/api/generate/",
     "/api/chat",
@@ -36,6 +43,7 @@ AI_PREFIXES = (
     "/api/batch/",
     "/api/music",
     "/api/video/",
+    "/api/thecommons/generate",
 )
 
 # Operator-disk persistence + local hardware bridges. On Cloud Run the disk

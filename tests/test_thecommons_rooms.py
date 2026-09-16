@@ -1,0 +1,283 @@
+"""Room CRUD/ownership tests for routers/thecommons.py.
+
+No Postgres: FakeCommonsPool is an in-memory relational store implementing
+exactly the SQL shapes thecommons_jobs.py/thecommons.py emit against
+commons_rooms/commons_room_state/commons_room_jobs — same philosophy as
+FakePool in test_service_credits.py. Auth/session helpers (_fake_user,
+_sign_in) are reused from their existing homes, matching test_service_dsar.py
+and test_service_artifacts.py's own convention.
+"""
+
+import uuid
+from datetime import datetime, timezone
+
+import pytest
+from fastapi.testclient import TestClient
+
+import backend.server as server
+from backend.service import db as service_db
+from backend.service import thecommons_relay
+from backend.service import thecommons_jobs
+
+from tests.test_service_auth import _fake_user
+from tests.test_service_credits import CLIENT_ID, _sign_in
+
+client = TestClient(server.app, raise_server_exceptions=False)
+
+
+# ── fake pool ────────────────────────────────────────────────────────────────
+
+class FakeCommonsPool:
+    def __init__(self):
+        self.rooms: dict[int, dict] = {}
+        self.room_state: dict[int, dict] = {}
+        self.room_jobs: dict[int, dict] = {}
+        self._next_room_id = 1
+        self._next_job_id = 1
+
+    @staticmethod
+    def _norm(sql):
+        return " ".join(sql.split())
+
+    # -- direct helpers for tests to seed/inspect state ----------------------
+    def seed_room(self, owner_user_id, join_code=None, name=None, status="active"):
+        rid = self._next_room_id
+        self._next_room_id += 1
+        self.rooms[rid] = {
+            "id": rid, "owner_user_id": owner_user_id, "join_code": join_code or f"code-{rid}",
+            "name": name, "status": status, "created_at": datetime.now(timezone.utc), "closed_at": None,
+        }
+        return rid
+
+    # -- asyncpg surface ------------------------------------------------------
+    async def fetchrow(self, sql, *args):
+        s = self._norm(sql)
+
+        if "INSERT INTO commons_rooms" in s:
+            owner_user_id, join_code, name = args
+            rid = self._next_room_id
+            self._next_room_id += 1
+            row = {"id": rid, "owner_user_id": owner_user_id, "join_code": join_code, "name": name,
+                   "status": "active", "created_at": datetime.now(timezone.utc), "closed_at": None}
+            self.rooms[rid] = row
+            return dict(row)
+
+        if "SELECT * FROM commons_rooms WHERE id = $1 AND owner_user_id = $2" in s:
+            room_id, owner_user_id = args
+            row = self.rooms.get(room_id)
+            return dict(row) if row and row["owner_user_id"] == owner_user_id else None
+
+        if "SELECT id, status FROM commons_rooms WHERE join_code = $1" in s:
+            (join_code,) = args
+            for row in self.rooms.values():
+                if row["join_code"] == join_code:
+                    return {"id": row["id"], "status": row["status"]}
+            return None
+
+        if "SELECT sketch, values, undo FROM commons_room_state" in s:
+            (room_id,) = args
+            row = self.room_state.get(room_id)
+            return dict(row) if row else None
+
+        if "SELECT sketch, values FROM commons_room_state" in s:
+            (room_id,) = args
+            row = self.room_state.get(room_id)
+            return {"sketch": row["sketch"], "values": row["values"]} if row else None
+
+        if "SELECT id FROM commons_room_jobs WHERE room_id = $1 AND status = 'generating'" in s:
+            (room_id,) = args
+            for row in self.room_jobs.values():
+                if row["room_id"] == room_id and row["status"] == "generating":
+                    return {"id": row["id"]}
+            return None
+
+        if "SELECT * FROM commons_room_jobs WHERE id = $1 AND room_id = $2" in s:
+            job_id, room_id = args
+            row = self.room_jobs.get(job_id)
+            return dict(row) if row and row["room_id"] == room_id else None
+
+        if "status = 'generating' ORDER BY id DESC LIMIT 1" in s:
+            (room_id,) = args
+            candidates = [r for r in self.room_jobs.values()
+                          if r["room_id"] == room_id and r["status"] == "generating"]
+            return dict(max(candidates, key=lambda r: r["id"])) if candidates else None
+
+        if "SELECT * FROM commons_room_jobs WHERE room_id = $1 AND client_request_id = $2" in s:
+            room_id, request_id = args
+            for row in self.room_jobs.values():
+                if row["room_id"] == room_id and row["client_request_id"] == request_id:
+                    return dict(row)
+            return None
+
+        if "INSERT INTO commons_room_jobs" in s and "RETURNING *" in s:
+            room_id, client_request_id, mode, prompt, source = args
+            jid = self._next_job_id
+            self._next_job_id += 1
+            row = {"id": jid, "room_id": room_id, "client_request_id": client_request_id,
+                   "status": "generating", "mode": mode, "prompt": prompt, "preset_name": None,
+                   "base_sketch_id": None, "source": source, "sketch": None, "values": None,
+                   "applied": False, "error": None, "generation_id": None,
+                   "created_at": datetime.now(timezone.utc), "finished_at": None}
+            self.room_jobs[jid] = row
+            return dict(row)
+
+        if "INSERT INTO commons_room_jobs" in s and "RETURNING id" in s:
+            room_id, client_request_id, preset_name, sketch, values = args
+            jid = self._next_job_id
+            self._next_job_id += 1
+            self.room_jobs[jid] = {
+                "id": jid, "room_id": room_id, "client_request_id": client_request_id,
+                "status": "preset", "mode": "create", "prompt": "", "preset_name": preset_name,
+                "base_sketch_id": None, "source": None, "sketch": sketch, "values": values,
+                "applied": True, "error": None, "generation_id": None,
+                "created_at": datetime.now(timezone.utc), "finished_at": datetime.now(timezone.utc),
+            }
+            return {"id": jid}
+
+        raise AssertionError(f"unexpected fetchrow: {s}")
+
+    async def fetch(self, sql, *args):
+        s = self._norm(sql)
+        if "SELECT * FROM commons_rooms WHERE owner_user_id = $1" in s:
+            (owner_user_id,) = args
+            rows = [r for r in self.rooms.values() if r["owner_user_id"] == owner_user_id]
+            rows.sort(key=lambda r: r["created_at"], reverse=True)
+            return [dict(r) for r in rows]
+        if "SELECT id, sketch, values, preset_name, status, finished_at FROM commons_room_jobs" in s:
+            (room_id,) = args
+            rows = [r for r in self.room_jobs.values()
+                    if r["room_id"] == room_id and r["status"] in ("completed", "preset")]
+            rows.sort(key=lambda r: r["finished_at"] or datetime.min.replace(tzinfo=timezone.utc), reverse=True)
+            return [dict(r) for r in rows]
+        raise AssertionError(f"unexpected fetch: {s}")
+
+    async def execute(self, sql, *args):
+        s = self._norm(sql)
+        if "UPDATE commons_room_jobs SET status = 'interrupted'" in s:
+            for row in self.room_jobs.values():
+                if row["status"] == "generating":
+                    row["status"] = "interrupted"
+                    row["error"] = "The server restarted during generation. Your prompt was saved; retry when ready."
+                    row["finished_at"] = datetime.now(timezone.utc)
+            return
+        if "UPDATE commons_room_jobs SET status = $1, sketch = $2::jsonb" in s:
+            status, sketch, values, applied, job_id = args
+            self.room_jobs[job_id].update(
+                status=status, sketch=sketch, values=values, applied=applied,
+                finished_at=datetime.now(timezone.utc))
+            return
+        if "UPDATE commons_room_jobs SET status = 'failed'" in s:
+            error, job_id = args
+            self.room_jobs[job_id].update(
+                status="failed", error=error, applied=False, finished_at=datetime.now(timezone.utc))
+            return
+        if "INSERT INTO commons_room_state" in s and "ON CONFLICT" in s:
+            room_id, sketch, values, undo = args
+            self.room_state[room_id] = {"room_id": room_id, "sketch": sketch, "values": values,
+                                         "undo": undo, "updated_at": datetime.now(timezone.utc)}
+            return
+        if "UPDATE commons_room_state SET sketch = $1::jsonb" in s:
+            sketch, values, room_id = args
+            self.room_state.setdefault(room_id, {"room_id": room_id})
+            self.room_state[room_id].update(sketch=sketch, values=values, undo=None,
+                                             updated_at=datetime.now(timezone.utc))
+            return
+        raise AssertionError(f"unexpected execute: {s}")
+
+
+@pytest.fixture
+def service_on(monkeypatch):
+    monkeypatch.setenv("SYNTH_AUTH", "1")
+    monkeypatch.setenv("GOOGLE_OAUTH_CLIENT_ID", CLIENT_ID)
+    monkeypatch.setenv("SYNTH_TERMS_VERSION", "v0.2")
+
+
+@pytest.fixture
+def fake_pool(monkeypatch):
+    pool = FakeCommonsPool()
+    monkeypatch.setattr(service_db, "_pool", pool)
+    return pool
+
+
+@pytest.fixture(autouse=True)
+def reset_thecommons_registries():
+    # The relay registry and job start-locks are process-global module state
+    # (by design — see thecommons_relay.py); clear them between tests so
+    # room_id reuse across FakeCommonsPool instances can't leak a relay
+    # object from one test into another.
+    thecommons_relay._relays.clear()
+    thecommons_relay._creation_locks.clear()
+    thecommons_jobs._start_locks.clear()
+    yield
+    thecommons_relay._relays.clear()
+    thecommons_relay._creation_locks.clear()
+    thecommons_jobs._start_locks.clear()
+
+
+# ── tests ────────────────────────────────────────────────────────────────────
+
+def test_create_room_requires_sign_in(service_on, fake_pool):
+    r = client.post("/api/thecommons/rooms", json={"name": "My room"})
+    assert r.status_code == 401
+
+
+def test_create_room_succeeds_for_any_signed_in_account(service_on, fake_pool, monkeypatch):
+    cookies = _sign_in(monkeypatch, _fake_user(id=7))
+    r = client.post("/api/thecommons/rooms", json={"name": "Owner7 Room"}, cookies=cookies)
+    assert r.status_code == 201
+    body = r.json()
+    assert body["name"] == "Owner7 Room"
+    assert body["status"] == "active"
+    assert isinstance(body["joinCode"], str) and len(body["joinCode"]) > 10
+
+
+def test_list_my_rooms_returns_only_own_rooms(service_on, fake_pool, monkeypatch):
+    fake_pool.seed_room(owner_user_id=1, name="mine")
+    fake_pool.seed_room(owner_user_id=2, name="not mine")
+    cookies = _sign_in(monkeypatch, _fake_user(id=1))
+    r = client.get("/api/me/thecommons/rooms", cookies=cookies)
+    assert r.status_code == 200
+    names = [room["name"] for room in r.json()["rooms"]]
+    assert names == ["mine"]
+
+
+def test_nonexistent_and_unowned_room_return_identical_404(service_on, fake_pool, monkeypatch):
+    owned_by_2 = fake_pool.seed_room(owner_user_id=2)
+    cookies = _sign_in(monkeypatch, _fake_user(id=1))
+
+    r_missing = client.get("/api/thecommons/rooms/999999", cookies=cookies)
+    r_unowned = client.get(f"/api/thecommons/rooms/{owned_by_2}", cookies=cookies)
+
+    assert r_missing.status_code == 404
+    assert r_unowned.status_code == 404
+    # The literal proof that a room_id can't be enumerated: identical bodies
+    # for "doesn't exist" and "exists but isn't yours".
+    assert r_missing.json() == r_unowned.json()
+
+
+def test_owner_can_read_own_room(service_on, fake_pool, monkeypatch):
+    room_id = fake_pool.seed_room(owner_user_id=1, name="my room")
+    cookies = _sign_in(monkeypatch, _fake_user(id=1))
+    r = client.get(f"/api/thecommons/rooms/{room_id}", cookies=cookies)
+    assert r.status_code == 200
+    assert r.json()["name"] == "my room"
+    assert r.json()["canUndo"] is False
+
+
+def test_cross_origin_write_is_rejected(service_on, fake_pool, monkeypatch):
+    cookies = _sign_in(monkeypatch, _fake_user(id=1))
+    r = client.post("/api/thecommons/rooms", json={"name": "x"}, cookies=cookies,
+                     headers={"Origin": "https://evil.example.com"})
+    assert r.status_code == 403
+    assert r.json()["error"] == "cross_origin_rejected"
+
+
+def test_telemetry_is_owner_only_not_public(service_on, fake_pool, monkeypatch):
+    room_id = fake_pool.seed_room(owner_user_id=1)
+    # Anonymous request (no cookie at all) must not see telemetry.
+    r_anon = client.get(f"/api/thecommons/rooms/{room_id}/telemetry")
+    assert r_anon.status_code == 401
+
+    other_cookies = _sign_in(monkeypatch, _fake_user(id=2))
+    r_other = client.get(f"/api/thecommons/rooms/{room_id}/telemetry", cookies=other_cookies)
+    assert r_other.status_code == 404

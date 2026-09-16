@@ -59,6 +59,7 @@ from backend.routers import videorama
 from backend.routers import account
 from backend.routers import admin
 from backend.routers import artifacts
+from backend.routers import thecommons
 
 app.include_router(chat.router)
 app.include_router(generation.router)
@@ -77,6 +78,7 @@ app.include_router(videorama.router)
 app.include_router(account.router)  # endpoints 404 unless SYNTH_AUTH=1
 app.include_router(admin.router)    # 404 unless SYNTH_AUTH=1 and caller is admin
 app.include_router(artifacts.router)  # endpoints 404 unless SYNTH_AUTH=1
+app.include_router(thecommons.router)  # endpoints 404 unless SYNTH_AUTH=1; /ws/thecommons/* is always anonymous
 
 # Videorama project media (local installs only): serves rendered takes,
 # tape-processed clips, and export reels for the review UI.
@@ -178,6 +180,16 @@ if _service_mode():
     async def _service_db_stop():
         from backend.service import db as _service_db
         await _service_db.close()
+
+    @app.on_event("startup")
+    async def _thecommons_sweep_interrupted():
+        # Runs after _service_db_start (registration order = execution
+        # order for FastAPI startup handlers) so the pool already exists.
+        # A job frozen mid-generation by a restart is honestly reported as
+        # interrupted, not left silently 'generating' forever.
+        from backend.service import db as _service_db
+        from backend.service import thecommons_jobs as _thecommons_jobs
+        await _thecommons_jobs.sweep_interrupted_jobs(_service_db.pool())
 
 
 
