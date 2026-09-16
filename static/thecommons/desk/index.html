@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#0a0b0f" />
+<title>The Commons — Creator desk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/thecommons/css/theme.css">
+<link rel="stylesheet" href="/thecommons/css/desk.css">
+</head>
+<body>
+<div class="shell">
+  <header class="masthead">
+    <a class="wordmark" href="/thecommons/">The <span>Commons</span></a>
+    <div id="synth-account-slot"></div>
+  </header>
+
+  <main>
+    <section class="intro">
+      <p class="eyebrow">Set the room in motion</p>
+      <h1 id="roomTitle">Creator desk</h1>
+      <p class="lede" id="currentPiece">Finding the canvas…</p>
+    </section>
+
+    <section id="deskUnavailable" class="panel" hidden>
+      <h2 id="unavailableTitle">Sign in to open this desk</h2>
+      <p class="section-help" id="unavailableHelp">Only the room's owner can steer it. Use the
+        sign-in button at the top right, or <a href="/thecommons/">go back to your rooms</a>.</p>
+    </section>
+
+    <section id="deskTools" hidden>
+      <div class="panel">
+        <div class="section-heading"><span class="section-number">01</span><div>
+          <p class="eyebrow">Invite the room</p><h2>Scan to join</h2></div></div>
+        <div class="invite">
+          <img id="joinQr" class="room-qr" alt="QR code to join this room">
+          <div>
+            <p class="section-help">Put the wall on a screen, then let people scan this.</p>
+            <p class="join-url" id="joinUrl"></p>
+            <p class="room-actions">
+              <a id="wallLink" class="primary-button" target="_blank" rel="noopener">Open the wall ↗</a>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="section-heading"><span class="section-number">02</span><div>
+          <p class="eyebrow">For everyone on the wall</p><h2>Shape what comes next</h2></div></div>
+        <p class="section-help">The current canvas keeps playing while the next piece is composed.
+          Your prompt and finished sketch are saved, even if you reload.</p>
+        <form id="promptForm">
+          <fieldset id="modeOptions">
+            <legend class="eyebrow">Choose a starting point</legend>
+            <label class="mode"><input type="radio" name="mode" value="remix" checked>
+              <span><strong>Remix this piece</strong> Build on the current code and settings. Tell us what to change.</span></label>
+            <label class="mode"><input type="radio" name="mode" value="create">
+              <span><strong>Create a new piece</strong> Start from a fresh idea, without the current sketch.</span></label>
+          </fieldset>
+          <label class="field">
+            <span class="eyebrow">What do you imagine?</span>
+            <textarea id="promptInput" rows="3" maxlength="2000" placeholder="slow orbits in deep blues, reacting to the bass"></textarea>
+          </label>
+          <button id="promptSend" type="submit" class="primary-button">Remix this piece ↗</button>
+        </form>
+        <p id="promptStatus" class="section-help" role="status" data-error="false"></p>
+        <button id="undoPiece" type="button" class="quiet-button">Undo last change</button>
+      </div>
+
+      <div class="panel">
+        <div class="section-heading"><span class="section-number">03</span><div>
+          <p class="eyebrow">Keep what works</p><h2>Saved looks</h2></div></div>
+        <div class="preset-row">
+          <select id="presetSelect" aria-label="Choose a piece"></select>
+          <button id="loadPreset" type="button" class="quiet-button">Put it on the wall</button>
+        </div>
+        <div class="preset-row">
+          <input id="presetName" type="text" maxlength="100" placeholder="Name this look (optional)" autocomplete="off">
+          <button id="savePreset" type="button" class="quiet-button">Save current look</button>
+        </div>
+        <p id="presetStatus" class="section-help" role="status"></p>
+      </div>
+    </section>
+  </main>
+
+  <footer><span class="eyebrow">The Commons / Creator desk</span><span><a href="/thecommons/">All your rooms</a></span></footer>
+</div>
+<script src="/shared/js/auth.js?v=2" defer></script>
+<script type="module" src="/thecommons/js/desk.js"></script>
+</body>
+</html>

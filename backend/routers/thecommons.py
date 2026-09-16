@@ -20,9 +20,10 @@ import json
 import logging
 import os
 import secrets
+from pathlib import Path
 
 from fastapi import APIRouter, HTTPException, Request, WebSocket, WebSocketDisconnect
-from fastapi.responses import JSONResponse, Response
+from fastapi.responses import FileResponse, JSONResponse, Response
 from pydantic import BaseModel
 
 from backend import config
@@ -157,6 +158,34 @@ async def get_room(room_id: int, request: Request):
         "canUndo": bool(state and state.get("undo")) and active_job is None,
         "activeJobId": active_job["id"] if active_job else None,
     }
+
+
+_PAGES = Path(__file__).resolve().parent.parent.parent / "static" / "thecommons"
+
+
+def _page(name: str) -> FileResponse:
+    """Serve one of the room-scoped pages by path.
+
+    StaticFiles can't route a path segment, and the join URL is a path
+    (/thecommons/join/{code}) rather than a query string because it's the
+    thing a QR encodes and people occasionally read aloud. These are
+    registered before the "/" static mount, so they win the match.
+
+    Deliberately no room lookup here: the page loads regardless and its
+    WebSocket reports an unknown or closed room, which also covers a room
+    closing while someone is already looking at it.
+    """
+    return FileResponse(_PAGES / name / "index.html")
+
+
+@router.get("/thecommons/join/{join_code}", include_in_schema=False)
+async def join_page(join_code: str):
+    return _page("join")
+
+
+@router.get("/thecommons/display/{join_code}", include_in_schema=False)
+async def display_page(join_code: str):
+    return _page("display")
 
 
 @router.get("/api/thecommons/qr/{join_code}")

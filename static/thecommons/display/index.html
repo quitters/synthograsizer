@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>The Commons — Display</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/thecommons/css/theme.css">
+<link rel="stylesheet" href="/thecommons/css/display.css">
+<link rel="stylesheet" href="/thecommons/css/join-qr.css">
+</head>
+<body tabindex="-1">
+<canvas id="c"></canvas>
+<div id="p5Mount" hidden></div>
+<div id="displayOverlays">
+<header class="display-header">
+  <div class="display-brand">The <span>Commons</span></div>
+  <div id="status" role="status"></div>
+</header>
+<details class="join-card join-card-floating" data-join-card open>
+  <summary>Scan to join</summary>
+  <a data-join-link><img data-join-image alt="QR code to join the live canvas"></a>
+  <p>Your phone. Your part of the canvas.</p>
+  <p class="join-url" data-join-url></p>
+</details>
+<section id="audioPanel" aria-labelledby="audioTitle">
+  <p class="eyebrow">Let the room in</p>
+  <h1 id="audioTitle">A canvas with a pulse.</h1>
+  <p id="audioHint">Use this display’s microphone to let the piece respond to the music. Or simply watch it unfold.</p>
+  <div class="audio-actions"><button id="enableAudio" class="primary-button">Enable microphone</button><button id="skipAudio" class="quiet-button">Just watch</button></div>
+  <p id="audioStatus" role="status"></p>
+</section>
+<div class="display-tools">
+  <button id="showAudio" class="audio-chip" hidden>Sound off · enable</button>
+  <button id="hideOverlays" class="audio-chip" aria-keyshortcuts="F" title="Show again with F, Escape, or a tap on the canvas">Hide overlays · F</button>
+</div>
+</div>
+<!-- p5 is only for inherited library content. Fresh generations use Canvas2D. -->
+<script src="https://cdn.jsdelivr.net/npm/p5@1.9.4/lib/p5.min.js"></script>
+<script type="module" src="/thecommons/js/display.js"></script>
+</body>
+</html>

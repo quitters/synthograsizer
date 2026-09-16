@@ -1,0 +1,152 @@
+/* Room list + creator desk. Uses theme.css's tokens throughout — no new
+ * colors or fonts, so these pages read as the same product as the wall and
+ * the station. */
+
+body { margin: 0; }
+
+/* Must outrank the explicit `display` values below: a bare [hidden] only
+ * carries the UA's `display: none`, which any class-level display wins. */
+[hidden] { display: none !important; }
+
+.shell {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px 20px 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  min-height: 100vh;
+}
+
+.masthead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.wordmark {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ink);
+  text-decoration: none;
+}
+.wordmark span { color: var(--coral); }
+
+.intro h1 {
+  font-family: var(--font-display);
+  font-size: clamp(30px, 6vw, 46px);
+  line-height: 1.08;
+  margin: 10px 0 14px;
+}
+.intro h1 span { color: var(--cyan); }
+.lede { color: var(--ink-dim); max-width: 54ch; margin: 0; line-height: 1.6; }
+
+main { display: flex; flex-direction: column; gap: 24px; flex: 1; }
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.panel h2 { font-family: var(--font-display); font-size: 20px; margin: 2px 0 0; }
+
+.section-heading { display: flex; gap: 14px; align-items: flex-start; }
+.section-number { font-family: var(--font-mono); font-size: 11px; color: var(--coral); padding-top: 4px; }
+.section-help { color: var(--ink-dim); font-size: 14px; line-height: 1.6; margin: 0; }
+.section-help[data-error="true"] { color: var(--coral); }
+.section-help a, footer a { color: var(--cyan); }
+
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field input, .field textarea, select, .preset-row input {
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--ink);
+  font: inherit;
+  padding: 11px 13px;
+  min-height: 46px;
+  width: 100%;
+}
+.field textarea { resize: vertical; line-height: 1.5; }
+.field input:focus-visible, .field textarea:focus-visible, select:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 2px;
+}
+
+.quiet-button {
+  min-height: 46px;
+  padding: 12px 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-2);
+  color: var(--ink);
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.quiet-button:hover:not(:disabled) { border-color: var(--cyan); }
+.primary-button { text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
+
+.create-row { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
+.create-row .field { flex: 1 1 260px; }
+
+#modeOptions { border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+#modeOptions legend { padding: 0 0 8px; }
+.mode { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; line-height: 1.5; font-size: 14px; color: var(--ink-dim); }
+.mode input { margin-top: 3px; accent-color: var(--coral); }
+.mode strong { display: block; color: var(--ink); font-weight: 600; }
+#modeOptions:disabled .mode { opacity: 0.5; cursor: default; }
+
+#promptForm { display: flex; flex-direction: column; gap: 16px; }
+.preset-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.preset-row select, .preset-row input { flex: 1 1 220px; width: auto; }
+
+.room-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+.room {
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.room-head { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+.room-head h3 { font-family: var(--font-display); font-size: 17px; margin: 0; }
+.room-body, .invite { display: flex; gap: 18px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+.room-body > div, .invite > div { flex: 1 1 260px; display: flex; flex-direction: column; gap: 12px; }
+.room-actions { display: flex; gap: 10px; flex-wrap: wrap; margin: 0; }
+.room-qr {
+  width: 132px;
+  height: 132px;
+  border-radius: 10px;
+  background: #fff;
+  padding: 7px;
+  flex: 0 0 auto;
+}
+.join-url { font-family: var(--font-mono); font-size: 12px; color: var(--cyan); margin: 0; word-break: break-all; }
+
+footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  color: var(--ink-dim);
+  font-size: 13px;
+}
+
+@media (max-width: 560px) {
+  .room-body, .invite { flex-direction: column; align-items: flex-start; }
+}

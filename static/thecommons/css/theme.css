@@ -1,0 +1,48 @@
+/* The Commons -- shared visual identity.
+ *
+ * Extracted from pitch.html so the actual product and the pitch deck read as
+ * one thing, not two unrelated projects. A single deliberate dark visual
+ * world -- a dim room lit by a shared screen -- not a light/dark toggle;
+ * both pages here commit to the same choice pitch.html already made.
+ *
+ * Anyone extending this UI (including a fresh model picking up this repo)
+ * should reach for these tokens rather than inventing new colors/fonts.
+ */
+
+:root {
+  --ground: #0a0b0f;
+  --surface: #14161d;
+  --surface-2: #1c1f29;
+  --line: #262a36;
+  --ink: #eef0f4;
+  --ink-dim: #8b90a0;
+  --coral: #ff6b6b;
+  --coral-dim: #ff6b6b66;
+  --cyan: #22b8cf;
+  --cyan-dim: #22b8cf66;
+
+  --font-display: 'Unbounded', system-ui, sans-serif;
+  --font-body: 'Hanken Grotesk', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--font-body);
+}
+
+::selection { background: var(--coral-dim); }
+button, textarea { font: inherit; }
+button { cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+button:focus-visible, a:focus-visible, textarea:focus-visible { outline: 2px solid var(--cyan); outline-offset: 4px; }
+button:disabled { cursor: default; opacity: 0.5; }
+.eyebrow { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em; line-height: 1.6; text-transform: uppercase; color: var(--ink-dim); }
+.primary-button { min-height: 46px; padding: 12px 18px; border: 1px solid var(--coral); border-radius: 8px; background: var(--coral); color: var(--ground); font-weight: 700; transition: filter 150ms, transform 150ms; }
+.primary-button:hover:not(:disabled) { filter: brightness(1.1); }
+.primary-button:active:not(:disabled) { transform: translateY(1px); }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}

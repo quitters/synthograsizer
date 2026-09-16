@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#0a0b0f" />
+<title>The Commons — Your rooms</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/thecommons/css/theme.css">
+<link rel="stylesheet" href="/thecommons/css/desk.css">
+</head>
+<body>
+<div class="shell">
+  <header class="masthead">
+    <span class="wordmark">The <span>Commons</span></span>
+    <div id="synth-account-slot"></div>
+  </header>
+
+  <main>
+    <section class="intro">
+      <p class="eyebrow">Many hands. One canvas.</p>
+      <h1>Make a room.<br>Let the room <span>make it.</span></h1>
+      <p class="lede">A shared generative canvas. You set the piece in motion; everyone who scans in
+        gets a control and steers it with you.</p>
+    </section>
+
+    <section id="signedOut" class="panel" hidden>
+      <h2>Sign in to make a room</h2>
+      <p class="section-help">Creating and running a room needs a Synthograsizer account — use the
+        sign-in button at the top right. Joining someone else's room never needs one.</p>
+    </section>
+
+    <section id="roomTools" hidden>
+      <div class="panel">
+        <div class="section-heading"><span class="section-number">01</span><div>
+          <p class="eyebrow">Start something</p><h2>A new room</h2></div></div>
+        <form id="createForm" class="create-row">
+          <label class="field">
+            <span class="eyebrow">Room name</span>
+            <input id="roomName" type="text" maxlength="100" placeholder="Friday night at the studio" autocomplete="off">
+          </label>
+          <button id="createRoom" type="submit" class="primary-button">Create room</button>
+        </form>
+        <p id="createStatus" class="section-help" role="status"></p>
+      </div>
+
+      <div class="panel">
+        <div class="section-heading"><span class="section-number">02</span><div>
+          <p class="eyebrow">Yours</p><h2 id="roomsTitle">Your rooms</h2></div></div>
+        <p id="roomsStatus" class="section-help" role="status">Loading your rooms…</p>
+        <ul id="roomList" class="room-list"></ul>
+      </div>
+    </section>
+  </main>
+
+  <footer><span class="eyebrow">The Commons</span><span>Nobody controls it alone.</span></footer>
+</div>
+<script src="/shared/js/auth.js?v=2" defer></script>
+<script type="module" src="/thecommons/js/rooms.js"></script>
+</body>
+</html>
