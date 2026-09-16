@@ -355,17 +355,20 @@ def test_qr_404s_for_unknown_and_closed_join_codes(service_on, fake_pool):
 
 
 def test_qr_encodes_the_configured_public_origin_not_the_internal_host(service_on, fake_pool, monkeypatch):
-    from backend.routers import thecommons as thecommons_router
+    # The router imports qrcode lazily (inside the endpoint), so patch the
+    # module itself — the lazy import resolves through sys.modules.
+    import qrcode
+
     fake_pool.seed_room(owner_user_id=1, join_code="scan-me-2")
     monkeypatch.setenv("SYNTH_PUBLIC_ORIGINS", "https://synthograsizer.com,https://www.synthograsizer.com")
     captured = {}
-    real_make = thecommons_router.qrcode.make
+    real_make = qrcode.make
 
     def spy_make(data, **kwargs):
         captured["data"] = data
         return real_make(data, **kwargs)
 
-    monkeypatch.setattr(thecommons_router.qrcode, "make", spy_make)
+    monkeypatch.setattr(qrcode, "make", spy_make)
     r = client.get("/api/thecommons/qr/scan-me-2")
     assert r.status_code == 200
     assert captured["data"] == "https://synthograsizer.com/thecommons/join/scan-me-2"

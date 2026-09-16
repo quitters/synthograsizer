@@ -21,7 +21,6 @@ import logging
 import os
 import secrets
 
-import qrcode
 from fastapi import APIRouter, HTTPException, Request, WebSocket, WebSocketDisconnect
 from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel
@@ -178,6 +177,11 @@ async def room_qr(join_code: str, request: Request):
         "SELECT id, status FROM commons_rooms WHERE join_code = $1", join_code)
     if room is None or room["status"] != "active":
         raise HTTPException(status_code=404, detail="Not found")
+
+    # Lazy, like db.py's asyncpg import and for the same reason: Commons is
+    # hosted-only, so a local install with stale deps shouldn't fail to boot
+    # the whole app over a dependency only this endpoint needs.
+    import qrcode
 
     img = qrcode.make(_join_url(request, join_code), error_correction=qrcode.constants.ERROR_CORRECT_M)
     buf = io.BytesIO()
