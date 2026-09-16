@@ -15,12 +15,15 @@ the decided product requirement that joining a room's live canvas needs no
 account at all.
 """
 
+import io
 import json
 import logging
+import os
 import secrets
 
+import qrcode
 from fastapi import APIRouter, HTTPException, Request, WebSocket, WebSocketDisconnect
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel
 
 from backend.service import service_mode
@@ -54,6 +57,30 @@ async def _require_owned_room(pool, room_id: int, user_id: int):
         # room_id's existence to a caller who doesn't own it.
         raise HTTPException(status_code=404, detail="Not found")
     return room
+
+
+def _public_origin(request: Request) -> str:
+    """The public-facing origin to embed in join/QR links.
+
+    Reuses SYNTH_PUBLIC_ORIGINS (already operator-set, non-secret — see
+    enforcement.py's _trusted_origins) rather than the request's own Host
+    header: synthograsizer.com is fronted by a Vercel proxy that dials Cloud
+    Run with Host: ...run.app, so request.base_url would bake the internal
+    run.app URL into every QR code instead of the public domain. Falls back
+    to the request's own origin when unset (local/dev — same-origin is
+    correct there).
+    """
+    configured = os.environ.get("SYNTH_PUBLIC_ORIGINS", "")
+    first = configured.split(",")[0].strip() if configured else ""
+    if first:
+        return first if "://" in first else f"https://{first}"
+    return str(request.base_url).rstrip("/")
+
+
+def _join_url(request: Request, join_code: str) -> str:
+    # /thecommons/join/:code isn't a built page yet (no client UI this
+    # stage) — this is the URL the QR/join link will resolve to once it is.
+    return f"{_public_origin(request)}/thecommons/join/{join_code}"
 
 
 def _room_summary(row) -> dict:
@@ -130,6 +157,32 @@ async def get_room(room_id: int, request: Request):
         "canUndo": bool(state and state.get("undo")) and active_job is None,
         "activeJobId": active_job["id"] if active_job else None,
     }
+
+
+@router.get("/api/thecommons/qr/{join_code}")
+async def room_qr(join_code: str, request: Request):
+    """The room's join QR, as a PNG. Public and unauthenticated by design —
+    same trust model as /ws/thecommons/{join_code}: this is exactly what a
+    room's public display page shows so people in the room can scan it, so
+    gating it behind the owner's session would defeat its purpose. Knowing a
+    join_code already lets anyone connect to the room's WS as a participant;
+    this adds nothing beyond that. The owner already has the join_code from
+    GET /api/thecommons/rooms/{room_id}, so no separate owner-scoped route.
+    """
+    if not service_mode():
+        raise HTTPException(status_code=404, detail="Not found")
+    from backend.service import db
+    pool = db.pool()
+    room = await pool.fetchrow(
+        "SELECT id, status FROM commons_rooms WHERE join_code = $1", join_code)
+    if room is None or room["status"] != "active":
+        raise HTTPException(status_code=404, detail="Not found")
+
+    img = qrcode.make(_join_url(request, join_code), error_correction=qrcode.constants.ERROR_CORRECT_M)
+    buf = io.BytesIO()
+    img.save(buf, format="PNG")
+    return Response(content=buf.getvalue(), media_type="image/png",
+                     headers={"Cache-Control": "public, max-age=3600"})
 
 
 @router.get("/api/thecommons/rooms/{room_id}/telemetry")

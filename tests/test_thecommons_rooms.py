@@ -136,6 +136,19 @@ class FakeCommonsPool:
 
         raise AssertionError(f"unexpected fetchrow: {s}")
 
+    async def fetchval(self, sql, *args):
+        s = self._norm(sql)
+        if "SUM(usd_est)" in s:
+            # The daily budget breaker (enforcement.py's AI_PREFIXES gate,
+            # which /api/thecommons/generate is in) queries this on every
+            # generate call. No Commons job ever writes usd_est today (no
+            # credit charging yet — see thecommons_generate.py), so there is
+            # always exactly 0 spend to report; returning it directly avoids
+            # budget.tripped()'s except-and-log-a-full-traceback fail-open
+            # path, which otherwise fires on every single generate call.
+            return 0.0
+        raise AssertionError(f"unexpected fetchval: {s}")
+
     async def fetch(self, sql, *args):
         s = self._norm(sql)
         if "SELECT * FROM commons_rooms WHERE owner_user_id = $1" in s:
@@ -270,6 +283,37 @@ def test_cross_origin_write_is_rejected(service_on, fake_pool, monkeypatch):
                      headers={"Origin": "https://evil.example.com"})
     assert r.status_code == 403
     assert r.json()["error"] == "cross_origin_rejected"
+
+
+def test_qr_returns_png_for_active_room_with_no_login_needed(service_on, fake_pool):
+    fake_pool.seed_room(owner_user_id=1, join_code="scan-me")
+    r = client.get("/api/thecommons/qr/scan-me")  # deliberately no cookies
+    assert r.status_code == 200
+    assert r.headers["content-type"] == "image/png"
+    assert r.content[:8] == b"\x89PNG\r\n\x1a\n"
+
+
+def test_qr_404s_for_unknown_and_closed_join_codes(service_on, fake_pool):
+    fake_pool.seed_room(owner_user_id=1, join_code="closed-code", status="closed")
+    assert client.get("/api/thecommons/qr/does-not-exist").status_code == 404
+    assert client.get("/api/thecommons/qr/closed-code").status_code == 404
+
+
+def test_qr_encodes_the_configured_public_origin_not_the_internal_host(service_on, fake_pool, monkeypatch):
+    from backend.routers import thecommons as thecommons_router
+    fake_pool.seed_room(owner_user_id=1, join_code="scan-me-2")
+    monkeypatch.setenv("SYNTH_PUBLIC_ORIGINS", "https://synthograsizer.com,https://www.synthograsizer.com")
+    captured = {}
+    real_make = thecommons_router.qrcode.make
+
+    def spy_make(data, **kwargs):
+        captured["data"] = data
+        return real_make(data, **kwargs)
+
+    monkeypatch.setattr(thecommons_router.qrcode, "make", spy_make)
+    r = client.get("/api/thecommons/qr/scan-me-2")
+    assert r.status_code == 200
+    assert captured["data"] == "https://synthograsizer.com/thecommons/join/scan-me-2"
 
 
 def test_telemetry_is_owner_only_not_public(service_on, fake_pool, monkeypatch):

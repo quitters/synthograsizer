@@ -34,9 +34,16 @@ def fake_pool(monkeypatch):
 
 
 @pytest.fixture(autouse=True)
-def reset_relay_registry():
+def reset_relay_registry(monkeypatch):
     thecommons_relay._relays.clear()
     thecommons_relay._creation_locks.clear()
+    # The real 30s disconnect-grace timer would otherwise leave a pending
+    # asyncio task per station connect/disconnect in this file's TestClient
+    # portal thread — harmless in a single-file run, but accumulates into a
+    # real multi-second-to-minutes wait when the full suite tears down
+    # several files' portals in one process. Tests here don't exercise the
+    # grace period itself (test_thecommons_relay.py does, directly).
+    monkeypatch.setattr(thecommons_relay, "DISCONNECT_GRACE_S", 0.01)
     yield
     thecommons_relay._relays.clear()
     thecommons_relay._creation_locks.clear()

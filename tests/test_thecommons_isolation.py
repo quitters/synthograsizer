@@ -30,9 +30,14 @@ client = TestClient(server.app, raise_server_exceptions=False)
 
 @pytest.fixture
 def service_on(monkeypatch):
+    from backend.service import budget as service_budget
     monkeypatch.setenv("SYNTH_AUTH", "1")
     monkeypatch.setenv("GOOGLE_OAUTH_CLIENT_ID", CLIENT_ID)
     monkeypatch.setenv("SYNTH_TERMS_VERSION", "v0.2")
+    # /api/thecommons/generate is in enforcement.AI_PREFIXES, so every
+    # generate call here runs the daily budget breaker — reset its 30s cache
+    # per test, matching test_service_enforcement.py's own convention.
+    monkeypatch.setattr(service_budget, "_cache", {"at": 0.0, "usd": 0.0})
 
 
 @pytest.fixture
@@ -43,10 +48,21 @@ def fake_pool(monkeypatch):
 
 
 @pytest.fixture(autouse=True)
-def reset_registries():
+def reset_registries(monkeypatch):
     thecommons_relay._relays.clear()
     thecommons_relay._creation_locks.clear()
     thecommons_jobs._start_locks.clear()
+    # This file drives /api/thecommons/generate over real HTTP, which calls
+    # the real thecommons_generate.generate_sketch() — unlike
+    # test_thecommons_jobs.py, which injects a fake `generate` callable
+    # directly. Forcing genai_client to None guarantees the "no key
+    # configured" fallback path (no network call) regardless of whether this
+    # machine happens to have a real Gemini key configured locally (it does
+    # — see REPO_MAP.md's ai_studio_config.json note). Keeping tests off paid
+    # providers is a hard invariant for this project; this was missing and
+    # caused a real, slow, unmocked Gemini call during this file's tests.
+    from backend.ai_manager import ai_manager
+    monkeypatch.setattr(ai_manager, "genai_client", None)
     yield
     thecommons_relay._relays.clear()
     thecommons_relay._creation_locks.clear()

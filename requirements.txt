@@ -10,3 +10,4 @@ python-osc
 asyncpg
 google-auth
 google-cloud-storage
+qrcode
