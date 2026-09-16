@@ -17,12 +17,15 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
 import secrets
 import uuid
 from typing import Any, Awaitable, Callable
 
 from backend.service.thecommons_builtin import BUILTIN_SKETCHES
 from backend.service.thecommons_templates import load_template_library
+
+logger = logging.getLogger(__name__)
 
 GenerateFn = Callable[..., Awaitable[dict]]
 
@@ -134,9 +137,35 @@ async def list_presets(pool, room_id: int) -> list[dict]:
     return [*own, *builtins, *inherited]
 
 
+async def _settle_charge(charge, model_answered: bool) -> None:
+    """Commit or refund the reservation taken at job start.
+
+    The charge stands whenever the model actually answered — that response
+    was billed by Google whether or not we could use it, and "the model
+    replied with something unusable" is the one outcome a user could provoke
+    on purpose, so refunding it would fund unlimited retries on the
+    operator's key. Everything else (no key, rejected input, transport
+    failure) refunds in full: nothing chargeable happened.
+
+    Settlement failures are logged, never raised — mirroring credits.py's own
+    charged.__aexit__, which does the same so a bookkeeping hiccup can't take
+    down the work it was accounting for.
+    """
+    if charge is None:
+        return
+    try:
+        if model_answered:
+            await charge.settle_ok()
+        else:
+            await charge.settle_refund("no_model_response")
+    except Exception:
+        logger.exception("[thecommons] credit settlement failed (gen_id=%s)",
+                         getattr(charge, "gen_id", None))
+
+
 async def start(pool, relay, room_id: int, prompt: str, request_id: str, *,
                  mode: str = "create", base_sketch_id: str | None = None,
-                 generate: GenerateFn) -> dict:
+                 generate: GenerateFn, charge=None) -> dict:
     if mode not in ("create", "remix"):
         raise ValueError("mode must be create or remix")
     try:
@@ -165,21 +194,36 @@ async def start(pool, relay, room_id: int, prompt: str, request_id: str, *,
         before_values = dict(relay.values)
         source = {"sketch": before_sketch, "values": before_values} if mode == "remix" else None
 
+        # Reserve LAST, once every rejection path above is cleared and this
+        # call is definitely going to dispatch — so an idempotent replay, a
+        # busy room, or a stale remix can never silently burn credits, and no
+        # refund-on-rejection dance is needed. Still inside the room lock, so
+        # the reserve and the insert can't interleave with a second request.
+        # Raises HTTPException(402) when the owner is short, which is the
+        # suite's own convention (credits.py raises it from the service
+        # layer too).
+        if charge is not None:
+            await charge.reserve()
+
         row = await pool.fetchrow(
-            "INSERT INTO commons_room_jobs (room_id, client_request_id, status, mode, prompt, source) "
-            "VALUES ($1, $2, 'generating', $3, $4, $5::jsonb) RETURNING *",
+            "INSERT INTO commons_room_jobs (room_id, client_request_id, status, mode, prompt, source, generation_id) "
+            "VALUES ($1, $2, 'generating', $3, $4, $5::jsonb, $6) RETURNING *",
             room_id, req_uuid, mode, prompt, json.dumps(source) if source is not None else None,
+            getattr(charge, "gen_id", None),
         )
 
     task = asyncio.create_task(
-        _run_job(pool, relay, room_id, row["id"], prompt, mode, before_sketch, before_values, generate))
+        _run_job(pool, relay, room_id, row["id"], prompt, mode, before_sketch, before_values,
+                 generate, charge))
     _background_tasks.add(task)
     task.add_done_callback(_background_tasks.discard)
     return _row_to_job(row)
 
 
 async def _run_job(pool, relay, room_id: int, job_id: int, prompt: str, mode: str,
-                    before_sketch: dict | None, before_values: dict, generate: GenerateFn) -> None:
+                    before_sketch: dict | None, before_values: dict, generate: GenerateFn,
+                    charge=None) -> None:
+    sketch = None
     try:
         source = {"sketch": before_sketch, "values": before_values} if mode == "remix" else None
         sketch = await generate(prompt, mode=mode, source=source)
@@ -214,6 +258,12 @@ async def _run_job(pool, relay, room_id: int, job_id: int, prompt: str, mode: st
             "WHERE id = $2",
             "Could not finish and save the remix. Your prompt is retained; try again.", job_id,
         )
+    finally:
+        # generate() is documented never to raise (it returns a tagged
+        # fallback instead), so a None sketch here means our own bookkeeping
+        # blew up before one existed — refund, since we can't attest the
+        # model answered.
+        await _settle_charge(charge, bool(sketch and sketch.get("modelAnswered")))
 
 
 async def undo(pool, relay, room_id: int) -> dict:

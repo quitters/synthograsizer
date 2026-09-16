@@ -119,8 +119,15 @@ def pick_fallback() -> dict:
     return {**sketch, "id": _random_id()}
 
 
-def _fallback(reason: str) -> dict:
-    return {**pick_fallback(), "fallback": True, "reason": reason}
+def _fallback(reason: str, *, model_answered: bool) -> dict:
+    """``model_answered`` drives credit settlement (see thecommons_jobs.py):
+    True means the model returned a response we then couldn't use, which was
+    really billed by Google and is also the one path a user could deliberately
+    provoke with an adversarial prompt — so the charge stands. False means no
+    usable response ever came back (no key, rejected input, transport
+    failure), which is refunded: nothing chargeable happened, and a user
+    can't provoke it on demand."""
+    return {**pick_fallback(), "fallback": True, "reason": reason, "modelAnswered": model_answered}
 
 
 def generation_prompt(prompt: str, *, mode: str = "create", source: dict | None = None) -> str:
@@ -195,18 +202,18 @@ async def generate_sketch(prompt: str, *, mode: str = "create",
     from backend.ai_manager import ai_manager
 
     if not ai_manager.genai_client:
-        return _fallback("no Gemini key configured")
+        return _fallback("no Gemini key configured", model_answered=False)
 
     try:
         request_text = generation_prompt(prompt, mode=mode, source=source)
     except ValueError as exc:
-        return _fallback(str(exc))
+        return _fallback(str(exc), model_answered=False)
 
     try:
         text = await _call_gemini(ai_manager.genai_client, request_text)
     except Exception as exc:
         logger.warning("[thecommons] Gemini call failed, falling back: %s", exc)
-        return _fallback(_redact(str(exc)))
+        return _fallback(_redact(str(exc)), model_answered=False)
 
     try:
         sketch = _parse_sketch(text)
@@ -215,17 +222,22 @@ async def generate_sketch(prompt: str, *, mode: str = "create",
         try:
             repaired_text = await _call_gemini(ai_manager.genai_client, _repair_text(text, str(invalid)))
         except Exception as exc:
+            # The first call DID answer (and was billed) even though the
+            # repair never landed — the charge stands.
             logger.warning("[thecommons] repair call failed, falling back: %s", exc)
-            return _fallback(_redact(str(exc)))
+            return _fallback(_redact(str(exc)), model_answered=True)
         try:
             sketch = _parse_sketch(repaired_text)
         except (InvalidSketchError, json.JSONDecodeError) as still_invalid:
             logger.warning("[thecommons] repair still failed validation, falling back: %s", still_invalid)
-            return _fallback(str(still_invalid))
-        return {**sketch, "id": _random_id(), "fallback": False,
-                "generation": {"provider": "gemini", "model": config.MODEL_TEMPLATE_GEN}}
+            return _fallback(str(still_invalid), model_answered=True)
+        return _succeeded(sketch)
 
-    return {**sketch, "id": _random_id(), "fallback": False,
+    return _succeeded(sketch)
+
+
+def _succeeded(sketch: dict) -> dict:
+    return {**sketch, "id": _random_id(), "fallback": False, "modelAnswered": True,
             "generation": {"provider": "gemini", "model": config.MODEL_TEMPLATE_GEN}}
 
 

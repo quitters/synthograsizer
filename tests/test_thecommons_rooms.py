@@ -28,12 +28,28 @@ client = TestClient(server.app, raise_server_exceptions=False)
 # ── fake pool ────────────────────────────────────────────────────────────────
 
 class FakeCommonsPool:
+    DEFAULT_BALANCE = 300
+
     def __init__(self):
         self.rooms: dict[int, dict] = {}
         self.room_state: dict[int, dict] = {}
         self.room_jobs: dict[int, dict] = {}
         self._next_room_id = 1
         self._next_job_id = 1
+        # Credit accounting — per user_id, unlike test_service_credits.py's
+        # single-balance FakePool, because Commons is multi-tenant and "one
+        # owner's spend never moves another's balance" is a property worth
+        # being able to assert.
+        self.balances: dict[int, int] = {}
+        self.generations: dict[int, dict] = {}
+        self.ledger: list[dict] = []
+        self._next_generation_id = 1
+
+    def balance_of(self, user_id: int) -> int:
+        return self.balances.setdefault(user_id, self.DEFAULT_BALANCE)
+
+    def ledger_reasons(self) -> list[str]:
+        return [entry["reason"] for entry in self.ledger]
 
     @staticmethod
     def _norm(sql):
@@ -110,13 +126,13 @@ class FakeCommonsPool:
             return None
 
         if "INSERT INTO commons_room_jobs" in s and "RETURNING *" in s:
-            room_id, client_request_id, mode, prompt, source = args
+            room_id, client_request_id, mode, prompt, source, generation_id = args
             jid = self._next_job_id
             self._next_job_id += 1
             row = {"id": jid, "room_id": room_id, "client_request_id": client_request_id,
                    "status": "generating", "mode": mode, "prompt": prompt, "preset_name": None,
                    "base_sketch_id": None, "source": source, "sketch": None, "values": None,
-                   "applied": False, "error": None, "generation_id": None,
+                   "applied": False, "error": None, "generation_id": generation_id,
                    "created_at": datetime.now(timezone.utc), "finished_at": None}
             self.room_jobs[jid] = row
             return dict(row)
@@ -138,6 +154,29 @@ class FakeCommonsPool:
 
     async def fetchval(self, sql, *args):
         s = self._norm(sql)
+
+        # ── credits.Charge's reserve/refund shapes ──────────────────────────
+        if "SET credits_balance = credits_balance -" in s:
+            cost, user_id = args
+            if self.balance_of(user_id) >= cost:
+                self.balances[user_id] -= cost
+                return self.balances[user_id]
+            return None  # insufficient → Charge.reserve raises 402
+        if "SET credits_balance = credits_balance +" in s:
+            cost, user_id = args
+            self.balances[user_id] = self.balance_of(user_id) + cost
+            return self.balances[user_id]
+        if "SELECT credits_balance FROM users" in s:
+            (user_id,) = args
+            return self.balance_of(user_id)
+        if "INSERT INTO generations" in s:
+            gid = self._next_generation_id
+            self._next_generation_id += 1
+            self.generations[gid] = {"user_id": args[0], "endpoint": args[1], "action": args[2],
+                                      "model": args[3], "credits": args[6], "usd": args[7],
+                                      "status": "failed", "error": None}
+            return gid
+
         if "SUM(usd_est)" in s:
             # The daily budget breaker (enforcement.py's AI_PREFIXES gate,
             # which /api/thecommons/generate is in) queries this on every
@@ -166,6 +205,22 @@ class FakeCommonsPool:
 
     async def execute(self, sql, *args):
         s = self._norm(sql)
+
+        # ── credits.Charge's ledger/settlement shapes ───────────────────────
+        if "INSERT INTO credit_ledger" in s:
+            user_id, delta, balance_after, generation_id = args
+            self.ledger.append({"user_id": user_id, "delta": delta, "generation_id": generation_id,
+                                 "reason": "refund" if delta > 0 else "charge"})
+            return
+        if "UPDATE generations SET status = 'ok'" in s:
+            _latency, error, gen_id = args
+            self.generations[gen_id].update(status="ok", error=error)
+            return
+        if "UPDATE generations SET status = 'refunded'" in s:
+            _latency, error, gen_id = args
+            self.generations[gen_id].update(status="refunded", error=error)
+            return
+
         if "UPDATE commons_room_jobs SET status = 'interrupted'" in s:
             for row in self.room_jobs.values():
                 if row["status"] == "generating":

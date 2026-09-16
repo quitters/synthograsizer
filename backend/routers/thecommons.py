@@ -26,7 +26,8 @@ from fastapi import APIRouter, HTTPException, Request, WebSocket, WebSocketDisco
 from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel
 
-from backend.service import service_mode
+from backend import config
+from backend.service import credits, service_mode
 from backend.service import thecommons_jobs as jobs
 from backend.service.thecommons_generate import generate_sketch
 from backend.service.thecommons_relay import get_or_create_relay
@@ -280,10 +281,19 @@ async def start_generation(body: GenerateRequest, request: Request):
     pool = db.pool()
     await _require_owned_room(pool, body.roomId, user["id"])
     relay = await get_or_create_relay(pool, body.roomId)
+
+    # Metered against the room owner's own suite credits, reserved before any
+    # provider dispatch (jobs.start takes it last, once every rejection path
+    # is cleared). Admins are exempt from the debit by Charge itself, exactly
+    # as they are everywhere else in the suite. A short balance surfaces as
+    # the standard 402 out_of_credits from Charge.reserve().
+    charge = credits.Charge(request, action="commons_sketch",
+                             model=config.MODEL_TEMPLATE_GEN, prompt_chars=len(body.prompt or ""))
     try:
         job = await jobs.start(
             pool, relay, body.roomId, body.prompt, body.requestId,
             mode=body.mode, base_sketch_id=body.baseSketchId, generate=generate_sketch,
+            charge=charge,
         )
     except jobs.ActiveJobError as exc:
         raise HTTPException(status_code=409, detail={"error": str(exc), "jobId": exc.job_id})
