@@ -97,8 +97,11 @@ RULES:
   the piece must remember belongs in room.state; everything else should be derived from frame.t
   and audio each time (or rely on the canvas's own existing pixel content for trail effects,
   e.g. a low-alpha fillRect before drawing).
-- Keep loops bounded and drawing self-contained. Use ctx.save()/ctx.restore() around
-  transforms, and fill the background unless trails are intentional. No DOM access, timers,
+- Keep loops bounded and drawing self-contained. The canvas context is REUSED between frames,
+  so wrap ctx.save()/ctx.restore() around anything you change on it -- transforms, but equally
+  globalCompositeOperation, globalAlpha, filter and line dash. Leaving one set will corrupt the
+  next frame's very first draw, including your own background. Fill the background unless trails
+  are intentional. No DOM access, timers,
   event listeners, imports, global state, or unfinished code. Do not emit a p5Code field."""
 
 
