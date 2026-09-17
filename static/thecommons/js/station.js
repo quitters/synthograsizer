@@ -1,6 +1,7 @@
 // Generic controls for either sketch contract. Display labels may replace
 // underscores, but the original values always travel over the relay.
 import { defaultValue, numericValue } from './parameters.js';
+import { resolveWsOrigin } from './ws-origin.js';
 
 // Served from /thecommons/join/{joinCode} — the URL the room's QR encodes.
 const joinCode = location.pathname.split('/').filter(Boolean).pop();
@@ -15,11 +16,10 @@ if (!table) {
   try { sessionStorage.setItem(tableKey, table); } catch {}
 }
 document.getElementById('tableName').textContent = `Table / ${table}`;
-const wsProto = location.protocol === 'https:' ? 'wss' : 'ws';
 const sessionKey = `commons-session-${joinCode}-${table}`;
 let session = '';
 try { session = sessionStorage.getItem(sessionKey) || ''; } catch {}
-const ws = new WebSocket(`${wsProto}://${location.host}/ws/thecommons/${encodeURIComponent(joinCode)}`
+const ws = new WebSocket(`${await resolveWsOrigin()}/ws/thecommons/${encodeURIComponent(joinCode)}`
   + `?role=station&table=${encodeURIComponent(table)}&session=${encodeURIComponent(session)}`);
 const knobsEl = document.getElementById('knobs');
 const connection = document.getElementById('connection');

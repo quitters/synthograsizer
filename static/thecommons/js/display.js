@@ -12,6 +12,7 @@
 //                        only to run these -- generation never produces p5 code.
 
 import { defaultValue } from './parameters.js';
+import { resolveWsOrigin } from './ws-origin.js';
 
 // Served from /thecommons/display/{joinCode} (a FileResponse route in
 // routers/thecommons.py — StaticFiles alone can't route a path segment).
@@ -105,8 +106,7 @@ for (const el of document.querySelectorAll('[data-join-link]')) el.href = joinLi
 for (const el of document.querySelectorAll('[data-join-image]')) el.src = `/api/thecommons/qr/${encodeURIComponent(joinCode)}`;
 for (const el of document.querySelectorAll('[data-join-url]')) el.textContent = joinLink.replace(/^https?:\/\//, '');
 
-const wsProto = location.protocol === 'https:' ? 'wss' : 'ws';
-const ws = new WebSocket(`${wsProto}://${location.host}/ws/thecommons/${encodeURIComponent(joinCode)}?role=display`);
+const ws = new WebSocket(`${await resolveWsOrigin()}/ws/thecommons/${encodeURIComponent(joinCode)}?role=display`);
 ws.onmessage = (ev) => {
   const msg = JSON.parse(ev.data);
   if (msg.type === 'sketch' && msg.sketch) {

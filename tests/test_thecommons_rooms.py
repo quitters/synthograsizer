@@ -374,6 +374,23 @@ def test_qr_encodes_the_configured_public_origin_not_the_internal_host(service_o
     assert captured["data"] == "https://synthograsizer.com/thecommons/join/scan-me-2"
 
 
+def test_ws_origin_config_defaults_to_same_origin(service_on, fake_pool, monkeypatch):
+    monkeypatch.delenv("SYNTH_WS_ORIGIN", raising=False)
+    r = client.get("/api/thecommons/config")
+    assert r.status_code == 200
+    # Empty means "same origin" — correct for local installs and for any
+    # fronting that passes WebSocket upgrades through.
+    assert r.json() == {"wsOrigin": ""}
+
+
+def test_ws_origin_config_reports_the_configured_origin(service_on, fake_pool, monkeypatch):
+    # synthograsizer.com's Vercel proxy 404s WebSocket upgrades, so the wall
+    # and station pages have to dial Cloud Run directly.
+    monkeypatch.setenv("SYNTH_WS_ORIGIN", "https://synthograsizer-679278101913.northamerica-northeast1.run.app")
+    r = client.get("/api/thecommons/config")
+    assert r.json()["wsOrigin"].endswith(".run.app")
+
+
 def test_telemetry_is_owner_only_not_public(service_on, fake_pool, monkeypatch):
     room_id = fake_pool.seed_room(owner_user_id=1)
     # Anonymous request (no cookie at all) must not see telemetry.

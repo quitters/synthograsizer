@@ -178,6 +178,26 @@ def _page(name: str) -> FileResponse:
     return FileResponse(_PAGES / name / "index.html")
 
 
+@router.get("/api/thecommons/config")
+async def commons_config():
+    """Where the realtime relay actually lives.
+
+    synthograsizer.com is fronted by a Vercel proxy that answers WebSocket
+    upgrade requests with its own 404 instead of forwarding them — verified
+    2026-09-17, when the identical upgrade returned 101 against Cloud Run
+    directly. So the wall and station pages are served from the domain but
+    must open their socket straight at Cloud Run, which browsers allow
+    (WebSockets aren't subject to CORS preflight, and this endpoint never
+    carried an origin check — a join code is the capability, as it already
+    was for same-origin connections).
+
+    Unset means same-origin, which is correct for local installs and for any
+    future fronting that does pass upgrades through (e.g. the ALB +
+    serverless NEG path DEPLOY_CLOUDRUN.md already anticipates for Veo).
+    """
+    return {"wsOrigin": os.environ.get("SYNTH_WS_ORIGIN", "")}
+
+
 @router.get("/thecommons/join/{join_code}", include_in_schema=False)
 async def join_page(join_code: str):
     return _page("join")
