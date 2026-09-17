@@ -175,12 +175,17 @@ function render(sketch, values = {}, nextOwners = owners) {
   updateOwnership(nextOwners);
   updateConnection();
 }
-ws.onopen = updateConnection;
+let everOpened = false;
+ws.onopen = () => { everOpened = true; updateConnection(); };
 ws.onerror = updateConnection;
 ws.onclose = (event) => {
-  // 4404 is the relay's "no such room, or it's closed" code — a reload will
-  // never fix that, so say so instead of inviting one.
-  if (event.code === 4404) {
+  // A socket that never opened means the handshake itself was rejected --
+  // which is how an unknown or closed room actually presents. The relay
+  // closes those BEFORE accepting, and a pre-accept close can't carry a
+  // close code to the browser (there's no connection to send a frame over),
+  // so the code arrives as a bare 1006 and checking for 4404 alone would
+  // never have fired. Reloading can't fix either case.
+  if (!everOpened || event.code === 4404) {
     document.getElementById('sketchName').textContent = 'This room isn’t open';
     document.getElementById('allocationStatus').textContent =
       'The link may have expired, or the room was closed. Ask whoever invited you for a fresh one.';
