@@ -42,11 +42,24 @@ gcloud run deploy synthograsizer \
 INSTANCE_CONNECTION_NAME=synthograsizer-app:northamerica-northeast1:synth-db,\
 DB_USER=postgres,DB_NAME=synth,\
 GOOGLE_OAUTH_CLIENT_ID=679278101913-k4am2o8gu3dhah9n08i40lpslb7m0afs.apps.googleusercontent.com,\
-ADMIN_EMAILS=quittersarts@gmail.com,SYNTH_MONTHLY_CREDITS=300,SYNTH_DAILY_BUDGET_USD=25" \
+ADMIN_EMAILS=quittersarts@gmail.com,SYNTH_MONTHLY_CREDITS=300,SYNTH_DAILY_BUDGET_USD=25,\
+SYNTH_WS_ORIGIN=https://synthograsizer-679278101913.northamerica-northeast1.run.app" \
   --min-instances 1 --max-instances 1 --timeout 600 --memory 1Gi --cpu 1 \
   --session-affinity
 ```
 First deploy prints the service URL (`https://synthograsizer-<hash>-<region>.a.run.app`).
+
+> ⚠ **`SYNTH_WS_ORIGIN` is load-bearing for The Commons and was missing from this list until
+> 2026-09-17.** It is set on the live service, so any §2 run from the old list would have
+> **silently wiped it** — the same class of incident as 2026-07-20, with a different variable.
+> The Vercel proxy answers WebSocket upgrades with its own 404 instead of forwarding them, so
+> without this every Commons wall and phone fails to connect while the rest of the site looks
+> perfectly healthy. It tells those pages to dial Cloud Run directly, which browsers allow
+> (WebSockets get no CORS preflight). Unset means same-origin, which is correct for local
+> installs and for the bare run.app URL — so this belongs here, not in a default.
+>
+> Verify after deploying: `curl -s https://synthograsizer.com/api/thecommons/config` must return
+> the run.app origin, **not** `{"wsOrigin":""}`.
 
 > **Keep `SYNTH_TERMS_VERSION` here in sync with the live terms.** It read `v0.2` until
 > 2026-07-20, one revision behind what §2c sets. Harmless only because §2c is mandatory and runs
