@@ -44,7 +44,12 @@ function roomCard(room) {
   display.target = '_blank';
   display.rel = 'noopener';
   display.textContent = 'Open the wall ↗';
-  actions.append(desk, display);
+  const remove = document.createElement('button');
+  remove.type = 'button';
+  remove.className = 'quiet-button danger-button';
+  remove.textContent = 'Delete room';
+  remove.addEventListener('click', () => deleteRoom(room, item, remove));
+  actions.append(desk, display, remove);
 
   const qr = document.createElement('img');
   qr.className = 'room-qr';
@@ -62,6 +67,47 @@ function roomCard(room) {
 
   item.append(head, body);
   return item;
+}
+
+async function deleteRoom(room, card, button) {
+  const label = room.name ? `“${room.name}”` : 'this room';
+  // Name the consequences rather than asking a bare "are you sure?". Saved
+  // looks live in the room's job history, so deleting takes them with it, and
+  // the join link stops working for anyone holding it or mid-session.
+  if (!confirm(
+    `Delete ${label}?\n\n`
+    + 'This is permanent. Its canvas, its saved looks, and its history are removed, '
+    + 'and the join link and QR stop working for anyone still in the room.\n\n'
+    + 'Credits you have already spent are not affected.')) return;
+
+  button.disabled = true;
+  button.textContent = 'Deleting…';
+  try {
+    const response = await fetch(`/api/thecommons/rooms/${encodeURIComponent(room.id)}`,
+                                 { method: 'DELETE' });
+    if (response.status === 401) { setSignedIn(false); return; }
+    if (!response.ok && response.status !== 404) {
+      roomsStatus.hidden = false;
+      roomsStatus.textContent = 'Couldn’t delete that room. Try again.';
+      button.disabled = false;
+      button.textContent = 'Delete room';
+      return;
+    }
+    // 404 means it is already gone — someone deleted it in another tab. The
+    // end state the person wanted is the end state they have, so treat it as
+    // success rather than showing an error for a room that no longer exists.
+    card.remove();
+    if (!roomList.children.length) {
+      roomsStatus.hidden = false;
+      roomsStatus.textContent =
+        'No rooms yet. Make one above — it takes a second and costs nothing until you generate.';
+    }
+  } catch {
+    roomsStatus.hidden = false;
+    roomsStatus.textContent = 'Couldn’t reach the server. Try again.';
+    button.disabled = false;
+    button.textContent = 'Delete room';
+  }
 }
 
 async function refreshRooms() {

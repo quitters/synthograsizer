@@ -375,6 +375,29 @@ class RoomRelay:
 
         person.disconnect_task = asyncio.create_task(_expire())
 
+    async def shutdown(self, code: int = 4404) -> None:
+        """Drop everyone attached to this room. Used when the room is deleted:
+        the registry is in-process and nothing else evicts a live relay, so
+        without this the wall and every phone would keep steering a room that
+        no longer exists. Uses the same 4404 the handshake sends for an unknown
+        room, which the station already words as "this room isn't open"."""
+        for ws in [*self.displays, *self.stations]:
+            try:
+                await ws.close(code=code)
+            except Exception:
+                pass  # already gone; its own disconnect handler will tidy up
+        self.displays.clear()
+        self.stations.clear()
+        # Cancel the 30s grace timers too, or they outlive the room and fire
+        # against a relay nobody can reach.
+        for person in self.participants.values():
+            if person.disconnect_task is not None:
+                person.disconnect_task.cancel()
+                person.disconnect_task = None
+        self.participants.clear()
+        self.assigned.clear()
+        self.holds.clear()
+
     async def handle_message(self, ws: Any, person: Participant, message: dict) -> None:
         kind = message.get("type")
         if kind not in ("var", "trigger") or not isinstance(message.get("varName"), str):
@@ -423,6 +446,12 @@ async def get_or_create_relay(pool, room_id: int) -> RoomRelay:
         relay.distribute()
         _relays[room_id] = relay
         return relay
+
+
+def peek_relay(room_id: int) -> RoomRelay | None:
+    """Look up a live relay without creating one. Deleting a room must not
+    hydrate a relay from the database purely in order to throw it away."""
+    return _relays.get(room_id)
 
 
 def discard_relay(room_id: int) -> None:

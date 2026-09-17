@@ -30,7 +30,7 @@ from backend import config
 from backend.service import credits, service_mode
 from backend.service import thecommons_jobs as jobs
 from backend.service.thecommons_generate import generate_sketch
-from backend.service.thecommons_relay import get_or_create_relay
+from backend.service.thecommons_relay import discard_relay, get_or_create_relay, peek_relay
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -142,6 +142,39 @@ async def list_my_rooms(request: Request):
     rows = await pool.fetch(
         "SELECT * FROM commons_rooms WHERE owner_user_id = $1 ORDER BY created_at DESC", user["id"])
     return {"rooms": [_room_summary(r) for r in rows]}
+
+
+@router.delete("/api/thecommons/rooms/{room_id}")
+async def delete_room(room_id: int, request: Request):
+    """Permanently delete a room the caller owns.
+
+    commons_room_state and commons_room_jobs go with it via ON DELETE CASCADE,
+    so the live canvas AND the room's saved presets are destroyed — presets are
+    job rows. The generations rows those jobs point at are NOT cascaded
+    (generation_id is ON DELETE SET NULL in the other direction), so the spend
+    ledger survives deleting a room, which is what billing integrity needs.
+
+    A generation already in flight is left to finish. Its room-state write will
+    fail its foreign key and be swallowed by _run_job's own handler, but that
+    handler's `finally` still settles the charge — so a room deleted mid-remix
+    still bills or refunds correctly rather than losing the reservation.
+    """
+    _require_service()
+    user = _current_user(request)
+    from backend.service import db
+    pool = db.pool()
+    await _require_owned_room(pool, room_id, user["id"])
+
+    # Row first, relay second. The other order leaves a window where a joining
+    # phone re-hydrates the relay we just discarded; with the row already gone,
+    # that join is refused at the handshake instead.
+    await pool.execute(
+        "DELETE FROM commons_rooms WHERE id = $1 AND owner_user_id = $2", room_id, user["id"])
+    relay = peek_relay(room_id)
+    if relay is not None:
+        await relay.shutdown()
+    discard_relay(room_id)
+    return Response(status_code=204)
 
 
 @router.get("/api/thecommons/rooms/{room_id}")

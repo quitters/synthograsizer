@@ -155,3 +155,9 @@ footer {
    generator writes against, not where the piece starts from. */
 .interactive-option { padding-top: 14px; margin-top: 2px; border-top: 1px solid var(--line); }
 .interactive-option input:disabled + span { opacity: 0.5; }
+
+/* Destructive action. Reads as quiet until you reach for it, so it never
+   competes with "Open creator desk" — the thing people actually want. */
+.danger-button { border-color: color-mix(in srgb, var(--coral) 45%, var(--line)); }
+.danger-button:hover:not(:disabled) { border-color: var(--coral); color: var(--coral); background: var(--surface); }
+.danger-button:disabled { opacity: 0.6; }

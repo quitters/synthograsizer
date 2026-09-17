@@ -13,6 +13,7 @@ from datetime import datetime, timezone
 
 import pytest
 from fastapi.testclient import TestClient
+from starlette.websockets import WebSocketDisconnect
 
 import backend.server as server
 from backend.service import db as service_db
@@ -205,6 +206,20 @@ class FakeCommonsPool:
 
     async def execute(self, sql, *args):
         s = self._norm(sql)
+
+        # ── room deletion, including what Postgres would CASCADE ────────────
+        if "DELETE FROM commons_rooms" in s:
+            room_id, owner_user_id = args
+            room = self.rooms.get(room_id)
+            if room is None or room["owner_user_id"] != owner_user_id:
+                return
+            del self.rooms[room_id]
+            # ON DELETE CASCADE on both child tables. generations rows are
+            # deliberately NOT touched — that FK points the other way.
+            self.room_state.pop(room_id, None)
+            for job_id in [j for j, row in self.room_jobs.items() if row["room_id"] == room_id]:
+                del self.room_jobs[job_id]
+            return
 
         # ── credits.Charge's ledger/settlement shapes ───────────────────────
         if "INSERT INTO credit_ledger" in s:
@@ -400,3 +415,102 @@ def test_telemetry_is_owner_only_not_public(service_on, fake_pool, monkeypatch):
     other_cookies = _sign_in(monkeypatch, _fake_user(id=2))
     r_other = client.get(f"/api/thecommons/rooms/{room_id}/telemetry", cookies=other_cookies)
     assert r_other.status_code == 404
+
+
+# ── deleting a room ─────────────────────────────────────────────────────────
+
+def test_delete_removes_the_room_and_its_children(service_on, fake_pool, monkeypatch):
+    room_id = fake_pool.seed_room(owner_user_id=1)
+    fake_pool.room_state[room_id] = {"sketch": {"id": "s"}, "values": {}, "undo": None}
+    fake_pool.room_jobs[1] = {"id": 1, "room_id": room_id, "status": "completed",
+                               "preset_name": "a saved look"}
+    cookies = _sign_in(monkeypatch, _fake_user(id=1))
+
+    r = client.delete(f"/api/thecommons/rooms/{room_id}", cookies=cookies,
+                      headers={"Origin": "http://testserver"})
+    assert r.status_code == 204
+    assert room_id not in fake_pool.rooms
+    # CASCADE takes the live canvas and the job history, saved presets included.
+    assert room_id not in fake_pool.room_state
+    assert fake_pool.room_jobs == {}
+
+
+def test_delete_leaves_the_spend_ledger_alone(service_on, fake_pool, monkeypatch):
+    """generation_id is ON DELETE SET NULL in the other direction, so deleting
+    a room must never erase what it cost."""
+    room_id = fake_pool.seed_room(owner_user_id=1)
+    fake_pool.generations[55] = {"id": 55, "user_id": 1, "status": "ok"}
+    fake_pool.room_jobs[1] = {"id": 1, "room_id": room_id, "status": "completed",
+                               "generation_id": 55}
+    cookies = _sign_in(monkeypatch, _fake_user(id=1))
+
+    client.delete(f"/api/thecommons/rooms/{room_id}", cookies=cookies,
+                  headers={"Origin": "http://testserver"})
+    assert fake_pool.generations[55]["status"] == "ok"
+
+
+def test_delete_requires_sign_in(service_on, fake_pool):
+    room_id = fake_pool.seed_room(owner_user_id=1)
+    r = client.delete(f"/api/thecommons/rooms/{room_id}",
+                      headers={"Origin": "http://testserver"})
+    assert r.status_code == 401
+    assert room_id in fake_pool.rooms
+
+
+def test_cannot_delete_someone_elses_room(service_on, fake_pool, monkeypatch):
+    """The 404 must be indistinguishable from "no such room", and — the part
+    that actually matters for a destructive verb — the room must survive."""
+    theirs = fake_pool.seed_room(owner_user_id=2)
+    cookies = _sign_in(monkeypatch, _fake_user(id=1))
+
+    r_unowned = client.delete(f"/api/thecommons/rooms/{theirs}", cookies=cookies,
+                              headers={"Origin": "http://testserver"})
+    r_missing = client.delete("/api/thecommons/rooms/999999", cookies=cookies,
+                              headers={"Origin": "http://testserver"})
+    assert r_unowned.status_code == r_missing.status_code == 404
+    assert r_unowned.json() == r_missing.json()
+    assert theirs in fake_pool.rooms
+
+
+def test_delete_is_rejected_cross_origin(service_on, fake_pool, monkeypatch):
+    room_id = fake_pool.seed_room(owner_user_id=1)
+    cookies = _sign_in(monkeypatch, _fake_user(id=1))
+    r = client.delete(f"/api/thecommons/rooms/{room_id}", cookies=cookies,
+                      headers={"Origin": "http://evil.example"})
+    assert r.status_code == 403
+    assert room_id in fake_pool.rooms
+
+
+def test_delete_drops_the_live_relay_and_its_sockets(service_on, fake_pool, monkeypatch):
+    """A relay is in-process and nothing else evicts it, so without an explicit
+    teardown the wall and every phone keep steering a deleted room."""
+    from backend.service import thecommons_relay
+
+    room_id = fake_pool.seed_room(owner_user_id=1, join_code="doomed")
+    cookies = _sign_in(monkeypatch, _fake_user(id=1))
+
+    with client.websocket_connect("/ws/thecommons/doomed?role=display") as display:
+        display.receive_json()  # hydrates the relay into the registry
+        assert room_id in thecommons_relay._relays
+        relay = thecommons_relay._relays[room_id]
+        assert relay.displays
+
+        r = client.delete(f"/api/thecommons/rooms/{room_id}", cookies=cookies,
+                          headers={"Origin": "http://testserver"})
+        assert r.status_code == 204
+
+    assert room_id not in thecommons_relay._relays
+    assert not relay.displays and not relay.stations and not relay.participants
+
+
+def test_deleted_rooms_join_code_stops_working(service_on, fake_pool, monkeypatch):
+    fake_pool.seed_room(owner_user_id=1, join_code="gone-soon")
+    cookies = _sign_in(monkeypatch, _fake_user(id=1))
+    client.delete("/api/thecommons/rooms/1", cookies=cookies,
+                  headers={"Origin": "http://testserver"})
+
+    # The QR and the socket both refuse it, exactly as for a code never issued.
+    assert client.get("/api/thecommons/qr/gone-soon").status_code == 404
+    with pytest.raises(WebSocketDisconnect):
+        with client.websocket_connect("/ws/thecommons/gone-soon?role=display") as ws:
+            ws.receive_json()
