@@ -111,6 +111,9 @@ class GenerateRequest(BaseModel):
     requestId: str
     mode: str = "create"
     baseSketchId: str | None = None
+    # Which system prompt to generate against. Orthogonal to `mode`: the
+    # creator picks it on the desk, so routing costs no classifier call.
+    interactive: bool = False
 
 
 # ── room CRUD ────────────────────────────────────────────────────────────────
@@ -346,7 +349,7 @@ async def start_generation(body: GenerateRequest, request: Request):
         job = await jobs.start(
             pool, relay, body.roomId, body.prompt, body.requestId,
             mode=body.mode, base_sketch_id=body.baseSketchId, generate=generate_sketch,
-            charge=charge,
+            charge=charge, interactive=body.interactive,
         )
     except jobs.ActiveJobError as exc:
         raise HTTPException(status_code=409, detail={"error": str(exc), "jobId": exc.job_id})

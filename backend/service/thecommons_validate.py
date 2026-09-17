@@ -44,6 +44,8 @@ def validate_native_sketch(sketch: dict) -> dict:
     _require(isinstance(variables_in, list) and 2 <= len(variables_in) <= 16, "expected 2-16 variables")
 
     names: set[str] = set()
+    valued_names: set[str] = set()  # select + number only; triggers carry no value
+    assignable = 0                  # controls distribute() can hand to one person
     variables = []
     for v in variables_in:
         _require(
@@ -56,7 +58,30 @@ def validate_native_sketch(sketch: dict) -> dict:
         names.add(name)
         label = v["label"] if _nonempty(v.get("label")) else name.replace("_", " ")
         vtype = v.get("type")
-        _require(vtype in (None, "select", "number"), "unknown control type")
+        _require(vtype in (None, "select", "number", "trigger"), "unknown control type")
+
+        # `share` is deliberately trigger-only. A shared slider or choice would
+        # be several people overwriting one value with no turn-taking — exactly
+        # what the relay's 4s hold exists to prevent. A trigger is the one
+        # control where simultaneous input is the point rather than a problem.
+        share = "one"
+        if "share" in v:
+            _require(vtype == "trigger", f"{name} cannot declare share — triggers only")
+            share = v["share"]
+            _require(share in ("one", "all"), f"{name} has an invalid share mode")
+        if share != "all":
+            assignable += 1
+
+        if vtype == "trigger":
+            _require("values" not in v, f"{name} cannot mix a trigger and choices")
+            _require(
+                not any(k in v for k in ("min", "max", "step", "default")),
+                f"{name} cannot mix a trigger and a numeric range",
+            )
+            variables.append({"name": name, "label": label, "type": "trigger", "share": share})
+            continue
+
+        valued_names.add(name)
 
         if vtype == "number":
             _require("values" not in v, f"{name} cannot mix a numeric range and choices")
@@ -93,10 +118,16 @@ def validate_native_sketch(sketch: dict) -> dict:
             values.append({"text": text, "weight": weight})
         variables.append({"name": name, "label": label, "values": values})
 
+    # At least one control must stay assignable, or distribute() has nothing to
+    # hand out and the room loses the "you own a knob" premise entirely.
+    _require(assignable >= 1, "at least one control must not be shared with everyone")
+
     prompt_template = sketch["promptTemplate"]
     placeholders = {m.group(1) for m in _PLACEHOLDER_RE.finditer(prompt_template)}
+    # Triggers are exempt: promptTemplate substitutes *values*, and a trigger
+    # has none, so {{shoot}} would render as nothing sensible.
     _require(
-        placeholders == names,
+        placeholders == valued_names,
         "prompt placeholders must match the controls",
     )
     stripped = _PLACEHOLDER_RE.sub("", prompt_template)

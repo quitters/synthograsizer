@@ -65,3 +65,23 @@ footer { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10
   .intro { padding: 32px 0; }
   #promptBox { padding: 20px; }
 }
+
+/* Momentary action controls. Deliberately unlike the choice chips above: a
+   trigger is a thing you hit, repeatedly, often without looking down. Sized
+   for a thumb, and it confirms the tap locally because the wall it affects
+   may be across the room. --mine is this participant's own room colour, set
+   from the welcome message; the coral fallback covers a stale session. */
+.trigger-control { clear: both; }
+.trigger { width: 100%; min-height: 92px; padding: 18px; border-radius: 14px; border: 1px solid var(--mine, var(--coral)); background: var(--surface); color: var(--ink); font-family: var(--font-mono); font-size: 17px; letter-spacing: 0.1em; text-transform: uppercase; overflow-wrap: anywhere; transition: transform 90ms, background 150ms; }
+.trigger:hover:not(:disabled) { background: var(--surface-2); }
+.trigger:active:not(:disabled) { transform: scale(0.98); }
+.trigger:disabled { opacity: 0.4; }
+.trigger.fired { animation: trigger-fired 320ms ease-out; }
+@keyframes trigger-fired {
+  0% { background: var(--mine, var(--coral)); color: var(--ground); box-shadow: 0 0 0 0 var(--coral-dim); }
+  100% { background: var(--surface); color: var(--ink); box-shadow: 0 0 0 20px transparent; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .trigger { transition: none; }
+  .trigger.fired { animation: none; background: var(--surface-2); }
+}

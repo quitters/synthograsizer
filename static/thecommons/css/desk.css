@@ -150,3 +150,8 @@ footer {
 @media (max-width: 560px) {
   .room-body, .invite { flex-direction: column; align-items: flex-start; }
 }
+
+/* Sits just outside the starting-point radios: it picks which contract the
+   generator writes against, not where the piece starts from. */
+.interactive-option { padding-top: 14px; margin-top: 2px; border-top: 1px solid var(--line); }
+.interactive-option input:disabled + span { opacity: 0.5; }

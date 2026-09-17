@@ -22,6 +22,7 @@ owner group is therefore a plain `list` used as an order-preserving set
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import secrets
 import time
 from dataclasses import dataclass, field
@@ -32,6 +33,21 @@ from backend.service.thecommons_parameters import default_value, numeric_value
 DISCONNECT_GRACE_S = 30.0
 HOLD_MS = 4000
 
+# Per-participant flood guard. The station socket is anonymous by design and
+# the message loop has no other throttle — client-side coalescing and the 4s
+# hold are advisory at best, and a mashable trigger button removes even that.
+# Over-limit messages are dropped silently, matching how this module already
+# treats an invalid value: no error reply, no new message type.
+MSG_BUCKET_CAPACITY = 40.0
+MSG_BUCKET_REFILL_PER_S = 40.0
+
+
+def _hue_for(participant_id: str) -> int:
+    """A stable 0-359 hue per participant, so a piece can colour each person's
+    contribution and a station can tell someone which colour is theirs."""
+    digest = hashlib.sha256(participant_id.encode()).digest()
+    return int.from_bytes(digest[:2], "big") % 360
+
 # A directed reply targets the specific socket that triggered it; "all"
 # means every display + station socket currently attached to the room.
 Target = Literal["all"] | Any  # Any = a specific websocket-like object
@@ -39,13 +55,15 @@ SendItem = tuple[Target, dict]
 
 
 class Participant:
-    __slots__ = ("id", "table", "sockets", "disconnect_task")
+    __slots__ = ("id", "table", "sockets", "disconnect_task", "tokens", "tokens_at")
 
     def __init__(self, participant_id: str, table: str):
         self.id = participant_id
         self.table = table
         self.sockets: set[Any] = set()
         self.disconnect_task: asyncio.Task | None = None
+        self.tokens: float = MSG_BUCKET_CAPACITY
+        self.tokens_at: float = time.monotonic()
 
 
 @dataclass
@@ -85,11 +103,22 @@ class RoomRelay:
 
     # ── pure queries ────────────────────────────────────────────────────────
 
+    def people(self) -> list[dict]:
+        """Who is attached right now — exposed to sketches as room.people so a
+        piece can draw the crowd itself, not just what the crowd is steering."""
+        return [
+            {"id": p.id, "table": p.table, "hue": _hue_for(p.id)}
+            for p in self.participants.values()
+        ]
+
     def ownership(self) -> dict:
         return {
             name: [{"id": p.id, "table": p.table} for p in group]
             for name, group in self.assigned.items()
         }
+
+    def _ownership_message(self) -> dict:
+        return {"type": "ownership", "owners": self.ownership(), "people": self.people()}
 
     def get_telemetry(self) -> dict:
         now = time.monotonic()
@@ -113,6 +142,10 @@ class RoomRelay:
         names_ordered: list[str] = []
         seen_names: set[str] = set()
         for v in variables:
+            # share:"all" controls belong to everyone, so they are never owned
+            # and must not consume a slot in the balancing.
+            if v.get("share") == "all":
+                continue
             if v["name"] not in seen_names:
                 seen_names.add(v["name"])
                 names_ordered.append(v["name"])
@@ -185,6 +218,11 @@ class RoomRelay:
         self.values.clear()
         self.holds.clear()
         for v in sketch.get("variables") or []:
+            # A trigger fires events; it has no value to seed, and letting one
+            # into self.values would persist a meaningless null into
+            # commons_room_state.values on the next save.
+            if v.get("type") == "trigger":
+                continue
             candidate = initial_values.get(v["name"])
             if v.get("type") == "number":
                 accepted = numeric_value(v, candidate) if candidate is not None else None
@@ -193,13 +231,52 @@ class RoomRelay:
                 accepted = candidate if any(c["text"] == candidate for c in choices) else None
             self.values[v["name"]] = accepted if accepted is not None else default_value(v)
         self.distribute()
-        return [("all", {"type": "sketch", "sketch": sketch, "values": dict(self.values), "owners": self.ownership()})]
+        return [("all", {"type": "sketch", "sketch": sketch, "values": dict(self.values),
+                          "owners": self.ownership(), "people": self.people()})]
+
+    def take_message_token(self, person: Participant) -> bool:
+        """Token bucket, one per participant. Returns False when this message
+        should be dropped on the floor."""
+        now = time.monotonic()
+        person.tokens = min(
+            MSG_BUCKET_CAPACITY,
+            person.tokens + (now - person.tokens_at) * MSG_BUCKET_REFILL_PER_S,
+        )
+        person.tokens_at = now
+        if person.tokens < 1.0:
+            return False
+        person.tokens -= 1.0
+        return True
+
+    def apply_trigger(self, ws: Any, person: Participant, var_name: str) -> list[SendItem]:
+        """A trigger says *something happened* rather than *a value is now X*.
+        It sets no value and takes no hold — for a control everyone can fire,
+        contention is the point, not a problem to be serialised."""
+        variables = (self.current_sketch or {}).get("variables") or []
+        variable = next((v for v in variables if v["name"] == var_name), None)
+        if variable is None or variable.get("type") != "trigger":
+            return []
+
+        if variable.get("share") != "all":
+            group = self.assigned.get(var_name)
+            if group is None or person not in group:
+                return [(ws, {"type": "not_owner", "varName": var_name,
+                               "value": None, "owners": self.ownership()})]
+
+        now = time.monotonic()
+        self.telemetry.last_activity = now
+        self.telemetry.table_seen[person.table] = now
+        self.telemetry.changes_by_table[person.table] = self.telemetry.changes_by_table.get(person.table, 0) + 1
+        return [("all", {"type": "event", "name": var_name,
+                          "participantId": person.id, "table": person.table})]
 
     def apply_var_update(self, ws: Any, person: Participant, var_name: str, value: Any) -> list[SendItem]:
         variables = (self.current_sketch or {}).get("variables") or []
         variable = next((v for v in variables if v["name"] == var_name), None)
         if variable is None:
             return []
+        if variable.get("type") == "trigger":
+            return []  # a trigger has no value; it is fired, not set
         group = self.assigned.get(var_name)
         if group is None or person not in group:
             return [(ws, {"type": "not_owner", "varName": var_name,
@@ -254,7 +331,8 @@ class RoomRelay:
         self.displays.add(ws)
         if self.current_sketch:
             await ws.send_json({"type": "sketch", "sketch": self.current_sketch,
-                                 "values": dict(self.values), "owners": self.ownership()})
+                                 "values": dict(self.values), "owners": self.ownership(),
+                                 "people": self.people()})
 
     async def disconnect_display(self, ws: Any) -> None:
         self.displays.discard(ws)
@@ -273,8 +351,9 @@ class RoomRelay:
         self.distribute()
         await ws.send_json({"type": "welcome", "table": person.table, "participantId": person.id,
                              "session": token, "sketch": self.current_sketch, "values": dict(self.values),
-                             "owners": self.ownership()})
-        await self._send_all(None, [("all", {"type": "ownership", "owners": self.ownership()})])
+                             "owners": self.ownership(), "people": self.people(),
+                             "hue": _hue_for(person.id)})
+        await self._send_all(None, [("all", self._ownership_message())])
         return person, token
 
     async def disconnect_station(self, ws: Any, person: Participant, token: str) -> None:
@@ -292,13 +371,20 @@ class RoomRelay:
                 return
             del self.participants[token]
             self.distribute()
-            await self._send_all(None, [("all", {"type": "ownership", "owners": self.ownership()})])
+            await self._send_all(None, [("all", self._ownership_message())])
 
         person.disconnect_task = asyncio.create_task(_expire())
 
     async def handle_message(self, ws: Any, person: Participant, message: dict) -> None:
-        if message.get("type") == "var" and isinstance(message.get("varName"), str):
+        kind = message.get("type")
+        if kind not in ("var", "trigger") or not isinstance(message.get("varName"), str):
+            return
+        if not self.take_message_token(person):
+            return  # silently dropped, same as an invalid value
+        if kind == "var":
             await self._send_all(None, self.apply_var_update(ws, person, message["varName"], message.get("value")))
+        else:
+            await self._send_all(None, self.apply_trigger(ws, person, message["varName"]))
 
 
 # ── per-room registry ────────────────────────────────────────────────────────

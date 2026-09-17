@@ -58,6 +58,33 @@ let p5Instance = null;   // p5 path
 const vars = {};
 function getVar(name) { return vars[name] ?? null; }
 
+// Shared room context handed to the sketch as a fifth argument. `state` is the
+// only way a piece can remember anything between frames, since the code body
+// re-runs from the top every frame.
+//
+// It is deliberately display-local: never serialised, never sent anywhere.
+// Syncing game state through the relay at 60fps would be absurd, and displays
+// are already unsynchronised anyway -- each one analyses its own microphone.
+// Two walls on one room will therefore diverge, which is the existing
+// trade-off, not a new one. State is cleared when the piece changes, so a new
+// sketch never inherits the last one's bullets.
+const EVENT_QUEUE_LIMIT = 64;
+const room = { state: {}, events: [], people: [] };
+let pendingEvents = [];
+
+function pushEvent(event) {
+  // requestAnimationFrame stops in a backgrounded tab, so nothing drains this
+  // queue while the display is hidden -- without a cap it would grow forever.
+  if (pendingEvents.length >= EVENT_QUEUE_LIMIT) pendingEvents.shift();
+  pendingEvents.push(event);
+}
+
+function drainEvents() {
+  const drained = pendingEvents;
+  pendingEvents = [];
+  return drained;
+}
+
 function setStatus() {
   statusEl.textContent = sketch ? `${sketch.name} · ${mode === 'p5' ? 'Library piece' : 'Live canvas'}` : 'Waiting for the canvas…';
   document.getElementById('audioHint').textContent = mode === 'p5'
@@ -73,8 +100,13 @@ function loadSketch(next, values = {}) {
   sketch = next;
   for (const name of Object.keys(vars)) delete vars[name];
   for (const v of sketch.variables || []) {
+    if (v.type === 'trigger') continue;  // fired, never set -- it holds no value
     vars[v.name] = values[v.name] ?? defaultValue(v);
   }
+  // A new piece starts from nothing: no inherited state, no stale events.
+  room.state = {};
+  room.events = [];
+  pendingEvents = [];
 
   if (sketch.p5Code) {
     mode = 'p5';
@@ -86,6 +118,12 @@ function loadSketch(next, values = {}) {
       // host-provided contract the inherited templates were written against
       p.getSynthVar = (name) => getVar(name);
       p.getRefImage = () => null; // no upstream image pipeline in this project -- see README
+      // Same room context as the native path, reached through host functions so
+      // neither contract borrows the other's shape. Inherited templates never
+      // call these; they were written long before any of it existed.
+      p.getRoomState = () => room.state;
+      p.getEvents = () => drainEvents();
+      p.getPeople = () => room.people;
       const body = new Function('p', sketch.p5Code);
       body(p);
     }, p5Mount);
@@ -109,11 +147,16 @@ for (const el of document.querySelectorAll('[data-join-url]')) el.textContent = 
 const ws = new WebSocket(`${await resolveWsOrigin()}/ws/thecommons/${encodeURIComponent(joinCode)}?role=display`);
 ws.onmessage = (ev) => {
   const msg = JSON.parse(ev.data);
+  if (msg.people) room.people = msg.people;
   if (msg.type === 'sketch' && msg.sketch) {
     loadSketch(msg.sketch, msg.values);
   } else if (msg.type === 'var') {
     vars[msg.varName] = msg.value;
     // p5 templates read getVar() themselves each draw() call -- nothing else to push
+  } else if (msg.type === 'event') {
+    // Same time origin as frame.t, so a sketch can compare the two directly.
+    pushEvent({ name: msg.name, participantId: msg.participantId, table: msg.table,
+                t: (performance.now() - start) / 1000 });
   }
 };
 ws.onclose = () => { statusEl.textContent = 'disconnected from relay — retry by reloading'; };
@@ -195,14 +238,17 @@ function frameLoop(now) {
   if (mode === 'native' && sketch) {
     if (!drawFn) {
       try {
-        drawFn = new Function('ctx', 'frame', 'getVar', 'audio', sketch.code);
+        drawFn = new Function('ctx', 'frame', 'getVar', 'audio', 'room', sketch.code);
       } catch (err) {
         console.error('sketch failed to compile, drawing nothing:', err);
         drawFn = () => {};
       }
     }
+    // Drained per frame, and only on this path -- in p5 mode the sketch drains
+    // it itself via getEvents(), so neither can steal the other's events.
+    room.events = drainEvents();
     try {
-      drawFn(ctx, { t, width: canvas.width, height: canvas.height, dt }, getVar, audioState);
+      drawFn(ctx, { t, width: canvas.width, height: canvas.height, dt }, getVar, audioState, room);
     } catch (err) {
       // one bad frame must never kill the animation loop
       console.error('sketch runtime error on this frame:', err);

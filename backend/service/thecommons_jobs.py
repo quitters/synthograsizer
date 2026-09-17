@@ -163,9 +163,13 @@ async def _settle_charge(charge, model_answered: bool) -> None:
                          getattr(charge, "gen_id", None))
 
 
+def _has_trigger(sketch: dict | None) -> bool:
+    return any((v or {}).get("type") == "trigger" for v in (sketch or {}).get("variables") or [])
+
+
 async def start(pool, relay, room_id: int, prompt: str, request_id: str, *,
                  mode: str = "create", base_sketch_id: str | None = None,
-                 generate: GenerateFn, charge=None) -> dict:
+                 generate: GenerateFn, charge=None, interactive: bool = False) -> dict:
     if mode not in ("create", "remix"):
         raise ValueError("mode must be create or remix")
     try:
@@ -194,6 +198,14 @@ async def start(pool, relay, room_id: int, prompt: str, request_id: str, *,
         before_values = dict(relay.values)
         source = {"sketch": before_sketch, "values": before_values} if mode == "remix" else None
 
+        # Remixing a piece that already has triggers forces the interactive
+        # prompt regardless of what the client asked for. Otherwise the model
+        # would never be told triggers exist and would quietly return a sketch
+        # without them — the buttons would vanish with nothing to explain it.
+        # Decided here, under the room lock, where before_sketch can't change.
+        if mode == "remix" and _has_trigger(before_sketch):
+            interactive = True
+
         # Reserve LAST, once every rejection path above is cleared and this
         # call is definitely going to dispatch — so an idempotent replay, a
         # busy room, or a stale remix can never silently burn credits, and no
@@ -214,7 +226,7 @@ async def start(pool, relay, room_id: int, prompt: str, request_id: str, *,
 
     task = asyncio.create_task(
         _run_job(pool, relay, room_id, row["id"], prompt, mode, before_sketch, before_values,
-                 generate, charge))
+                 generate, charge, interactive))
     _background_tasks.add(task)
     task.add_done_callback(_background_tasks.discard)
     return _row_to_job(row)
@@ -222,11 +234,11 @@ async def start(pool, relay, room_id: int, prompt: str, request_id: str, *,
 
 async def _run_job(pool, relay, room_id: int, job_id: int, prompt: str, mode: str,
                     before_sketch: dict | None, before_values: dict, generate: GenerateFn,
-                    charge=None) -> None:
+                    charge=None, interactive: bool = False) -> None:
     sketch = None
     try:
         source = {"sketch": before_sketch, "values": before_values} if mode == "remix" else None
-        sketch = await generate(prompt, mode=mode, source=source)
+        sketch = await generate(prompt, mode=mode, source=source, interactive=interactive)
         status = "fallback" if sketch.get("fallback") else "completed"
         # Applied only if the room's live sketch is still the exact object this
         # job started against — a reference-identity check, matching Node's

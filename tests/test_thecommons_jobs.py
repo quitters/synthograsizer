@@ -28,7 +28,7 @@ def _seeded_relay(room_id: int, sketch_id="base-1") -> RoomRelay:
 
 
 async def _ok_generate(name="Generated"):
-    async def gen(prompt, *, mode="create", source=None):
+    async def gen(prompt, *, mode="create", source=None, **_):
         return {"id": f"gen-{name}", "name": name, "fallback": False, "variables": [
             {"name": "a", "type": "number", "min": 0, "max": 10, "step": 1, "default": 5},
         ]}
@@ -74,7 +74,7 @@ def test_second_concurrent_job_in_same_room_is_rejected():
         pool = FakeCommonsPool()
         relay = _seeded_relay(1)
 
-        async def never_finishes(prompt, *, mode="create", source=None):
+        async def never_finishes(prompt, *, mode="create", source=None, **_):
             await asyncio.sleep(10)
             return {"id": "x", "name": "x", "fallback": False, "variables": []}
 
@@ -94,7 +94,7 @@ def test_two_rooms_run_active_jobs_simultaneously():
         pool = FakeCommonsPool()
         relay1, relay2 = _seeded_relay(1), _seeded_relay(2)
 
-        async def never_finishes(prompt, *, mode="create", source=None):
+        async def never_finishes(prompt, *, mode="create", source=None, **_):
             await asyncio.sleep(10)
             return {"id": "x", "name": "x", "fallback": False, "variables": []}
 
@@ -142,7 +142,7 @@ def test_failed_generation_marks_job_failed_without_touching_room_state():
         pool = FakeCommonsPool()
         relay = _seeded_relay(1)
 
-        async def boom(prompt, *, mode="create", source=None):
+        async def boom(prompt, *, mode="create", source=None, **_):
             raise RuntimeError("provider exploded")
 
         job = await jobs.start(pool, relay, 1, "make it", str(uuid.uuid4()), generate=boom)
@@ -178,7 +178,7 @@ def test_undo_blocked_while_a_job_is_active():
         pool = FakeCommonsPool()
         relay = _seeded_relay(1)
 
-        async def never_finishes(prompt, *, mode="create", source=None):
+        async def never_finishes(prompt, *, mode="create", source=None, **_):
             await asyncio.sleep(10)
             return {"id": "x", "name": "x", "fallback": False, "variables": []}
 
@@ -215,7 +215,7 @@ def test_load_preset_blocked_while_a_job_is_active():
         pool = FakeCommonsPool()
         relay = _seeded_relay(1)
 
-        async def never_finishes(prompt, *, mode="create", source=None):
+        async def never_finishes(prompt, *, mode="create", source=None, **_):
             await asyncio.sleep(10)
             return {"id": "x", "name": "x", "fallback": False, "variables": []}
 
@@ -247,7 +247,7 @@ def test_sweep_marks_orphaned_generating_jobs_interrupted():
         pool = FakeCommonsPool()
         relay = _seeded_relay(1)
 
-        async def never_finishes(prompt, *, mode="create", source=None):
+        async def never_finishes(prompt, *, mode="create", source=None, **_):
             await asyncio.sleep(10)
             return {"id": "x", "name": "x", "fallback": False, "variables": []}
 
@@ -260,4 +260,64 @@ def test_sweep_marks_orphaned_generating_jobs_interrupted():
         row = await jobs.get_job(pool, 1, job["id"])
         assert row["status"] == "interrupted"
         assert "restarted" in row["error"]
+    asyncio.run(body())
+
+
+# ── which system prompt a job asks for ──────────────────────────────────────
+
+def _recording_generate(seen: list):
+    async def gen(prompt, *, mode="create", source=None, interactive=False):
+        seen.append(interactive)
+        return {"id": "gen-1", "name": "Generated", "fallback": False, "variables": [
+            {"name": "a", "type": "number", "min": 0, "max": 10, "step": 1, "default": 5},
+        ]}
+    return gen
+
+
+def _drain():
+    """Let the fire-and-forget _run_job task reach its generate() call."""
+    return asyncio.sleep(0.05)
+
+
+def test_interactive_flag_reaches_the_generator():
+    async def body():
+        pool, relay, seen = FakeCommonsPool(), _seeded_relay(1), []
+        pool.seed_room(owner_user_id=1)
+        await jobs.start(pool, relay, 1, "space invaders", str(uuid.uuid4()),
+                          generate=_recording_generate(seen), interactive=True)
+        await _drain()
+        assert seen == [True]
+    asyncio.run(body())
+
+
+def test_remixing_a_piece_with_triggers_forces_the_interactive_prompt():
+    async def body():
+        pool, seen = FakeCommonsPool(), []
+        pool.seed_room(owner_user_id=1)
+        relay = RoomRelay(1)
+        relay.set_sketch({"id": "base-1", "name": "Game", "variables": [
+            {"name": "a", "type": "number", "min": 0, "max": 10, "step": 1, "default": 5},
+            {"name": "shoot", "type": "trigger", "share": "all"},
+        ]}, {})
+
+        # The client asked for ambient. Honouring that would hand the model a
+        # contract with no notion of triggers, and the buttons would quietly
+        # disappear from the remix with nothing to explain why.
+        await jobs.start(pool, relay, 1, "make it faster", str(uuid.uuid4()),
+                          mode="remix", base_sketch_id="base-1",
+                          generate=_recording_generate(seen), interactive=False)
+        await _drain()
+        assert seen == [True]
+    asyncio.run(body())
+
+
+def test_remixing_a_piece_without_triggers_leaves_the_choice_alone():
+    async def body():
+        pool, relay, seen = FakeCommonsPool(), _seeded_relay(1), []
+        pool.seed_room(owner_user_id=1)
+        await jobs.start(pool, relay, 1, "make it faster", str(uuid.uuid4()),
+                          mode="remix", base_sketch_id="base-1",
+                          generate=_recording_generate(seen), interactive=False)
+        await _drain()
+        assert seen == [False]
     asyncio.run(body())

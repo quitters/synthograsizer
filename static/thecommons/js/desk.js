@@ -19,6 +19,7 @@ const promptStatus = document.getElementById('promptStatus');
 const promptInput = document.getElementById('promptInput');
 const undoPiece = document.getElementById('undoPiece');
 const modeOptions = document.getElementById('modeOptions');
+const interactiveInput = document.getElementById('interactiveInput');
 const presetSelect = document.getElementById('presetSelect');
 const loadPreset = document.getElementById('loadPreset');
 const savePreset = document.getElementById('savePreset');
@@ -30,12 +31,17 @@ let canvas = null;
 
 const api = (path) => `/api/thecommons/rooms/${encodeURIComponent(roomId)}${path}`;
 const mode = () => document.querySelector('input[name="mode"]:checked').value;
+// Picks which system prompt the generator uses. The creator chooses, so
+// routing needs no classifier call — and an ambient piece is never told that
+// action buttons exist, which is what stops one appearing on a moiré study.
+const interactive = () => interactiveInput.checked;
 
 // Draft and in-flight job are remembered per room, so two rooms open in two
 // tabs can't inherit each other's prompt or reattach to each other's job.
 const draftKey = `commons-desk-draft-${roomId}`;
 const jobKey = `commons-desk-job-${roomId}`;
 const modeKey = `commons-desk-mode-${roomId}`;
+const interactiveKey = `commons-desk-interactive-${roomId}`;
 
 function remember(key, value) {
   try { if (value === null) localStorage.removeItem(key); else localStorage.setItem(key, value); } catch {}
@@ -45,6 +51,7 @@ function recalled(key) { try { return localStorage.getItem(key); } catch { retur
 function updateControls() {
   promptSend.disabled = !usable || remixing || (mode() === 'remix' && !canvas?.sketchId);
   modeOptions.disabled = remixing;
+  interactiveInput.disabled = remixing;
   undoPiece.disabled = !usable || remixing || !canvas?.canUndo;
   loadPreset.disabled = !usable || remixing || !presetSelect.value;
   savePreset.disabled = !usable || remixing;
@@ -133,6 +140,7 @@ async function followJob(request) {
             body: JSON.stringify({
               roomId: Number(roomId), prompt: request.prompt, requestId: request.id,
               mode: request.mode || 'create', baseSketchId: request.baseSketchId,
+              interactive: !!request.interactive,
             }),
             signal: AbortSignal.timeout(10_000),
           });
@@ -201,7 +209,8 @@ document.getElementById('promptForm').addEventListener('submit', (event) => {
   const prompt = promptInput.value.trim();
   if (!prompt || remixing || !usable) return;
   remember(draftKey, promptInput.value);
-  followJob({ id: requestId(), prompt, mode: mode(), baseSketchId: canvas?.sketchId });
+  followJob({ id: requestId(), prompt, mode: mode(), interactive: interactive(),
+              baseSketchId: canvas?.sketchId });
 });
 
 async function refreshPresets() {
@@ -288,8 +297,11 @@ modeOptions.addEventListener('change', () => {
   updateControls();
 });
 
+interactiveInput.addEventListener('change', () => remember(interactiveKey, interactive() ? '1' : '0'));
+
 promptInput.value = recalled(draftKey) || '';
 if (recalled(modeKey) === 'create') document.querySelector('input[value="create"]').checked = true;
+if (recalled(interactiveKey) === '1') interactiveInput.checked = true;
 promptInput.addEventListener('input', () => remember(draftKey, promptInput.value));
 
 function resumeJob() {

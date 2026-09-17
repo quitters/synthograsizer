@@ -133,3 +133,52 @@ def test_var_broadcast_never_crosses_rooms(service_on, fake_pool):
     assert relay_a.values.get(var_name) == new_value
     assert relay_b.values.get(var_name) != new_value
     assert relay_b.get_telemetry()["changesByTable"] == {}
+
+
+TRIGGER_SKETCH = {
+    "id": "trig-1", "name": "Trigger Piece",
+    "promptTemplate": "a {{palette}} field",
+    "code": "ctx.fillRect(0,0,frame.width,frame.height);",
+    "variables": [
+        {"name": "palette", "label": "Palette", "values": [
+            {"text": "warm", "weight": 1}, {"text": "cool", "weight": 1}, {"text": "mono", "weight": 1}]},
+        {"name": "shoot", "label": "Shoot", "type": "trigger", "share": "all"},
+    ],
+}
+
+
+def test_trigger_event_never_crosses_rooms(service_on, fake_pool):
+    """The transport-level twin of test_var_broadcast_never_crosses_rooms, for
+    the event channel. Both rooms hydrate from the SAME sketch, so anything
+    that shows up in room B came from room A's traffic and nowhere else."""
+    fake_pool.seed_room(owner_user_id=1, join_code="room-a")
+    fake_pool.seed_room(owner_user_id=1, join_code="room-b")
+    for room_id in (1, 2):
+        fake_pool.room_state[room_id] = {"sketch": TRIGGER_SKETCH, "values": {}, "undo": None}
+
+    with client.websocket_connect("/ws/thecommons/room-a?role=display") as display_a:
+        assert display_a.receive_json()["sketch"]["id"] == "trig-1"
+
+        with client.websocket_connect("/ws/thecommons/room-a?table=t1") as station_a:
+            welcome = station_a.receive_json()
+            # A shared trigger is owned by nobody, yet anyone may fire it.
+            assert "shoot" not in welcome["owners"]
+            assert welcome["people"][0]["table"] == "t1"
+            station_a.send_json({"type": "trigger", "varName": "shoot"})
+
+            display_a.receive_json()  # the ownership broadcast from station_a joining
+            event = display_a.receive_json()
+            assert event["type"] == "event"
+            assert event["name"] == "shoot"
+            assert event["table"] == "t1"
+
+    with client.websocket_connect("/ws/thecommons/room-b?role=display") as display_b:
+        display_b.receive_json()  # forces room-b's relay to hydrate
+
+    relay_a = thecommons_relay._relays[1]
+    relay_b = thecommons_relay._relays[2]
+    assert relay_a is not relay_b
+    assert relay_a.get_telemetry()["changesByTable"] == {"t1": 1}
+    assert relay_b.get_telemetry()["changesByTable"] == {}
+    # A trigger carries no value, so neither room's persisted state moved.
+    assert "shoot" not in relay_a.values and "shoot" not in relay_b.values

@@ -42,7 +42,7 @@ logger = logging.getLogger(__name__)
 # Deliberately narrow: this system prompt only ever asks for Canvas2D drawing
 # CODE, never an image or video generation call. Ported verbatim from
 # TheCommons' server/generate.js — see AGENTS.md / README.md there for why.
-SYSTEM_PROMPT = """You write short JavaScript Canvas2D drawing code for a live, shared
+_BASE_PROMPT = """You write short JavaScript Canvas2D drawing code for a live, shared
 generative art piece running at a public event. Multiple people steer it together via knobs
 mapped to your "variables", and it reacts to live music playing in the room.
 
@@ -53,13 +53,20 @@ VISUAL INTENT:
   on a distant wall, with a composed first frame and a visible animation even when audio is zero.
 
 RUNTIME CONTRACT -- your "code" field runs every animation frame as the BODY of a function
-(ctx, frame, getVar, audio) => { ...your code... }. Do not include the function wrapper itself.
+(ctx, frame, getVar, audio, room) => { ...your code... }. Do not include the function wrapper itself.
 - ctx: CanvasRenderingContext2D, already sized to frame.width x frame.height.
 - frame: { t (seconds elapsed), width, height, dt (seconds since last frame) }.
 - getVar(name): returns CURRENT selected text for a choice, a number for a numeric control, or null.
 - audio: { level, bass, mid, treble } each 0..1, plus audio.beat (boolean). Use these to make
   the piece visibly react to the music -- e.g. scale, rotate, spawn, or recolor on audio.bass
   or audio.beat, not just on frame.t.
+- room.state: an object you own and may mutate freely. It PERSISTS between frames and is
+  cleared only when a new piece loads -- it is the only way to remember anything. Initialise
+  once and reuse it: room.state.dots ??= []; then update that same array each frame. Keep it
+  BOUNDED -- cap anything you grow (around 200 entries) and drop the oldest, because this runs
+  for hours on a wall and an array that only grows will eventually stall the display.
+- room.people: everyone connected right now, as [{id, table, hue}] with hue 0-359. Optional,
+  but drawing one element per person makes the room itself part of the composition.
 
 RULES:
 - Pure Canvas2D only. No p5.js, no external libraries, no network calls, no image/video generation.
@@ -86,23 +93,68 @@ RULES:
   const speed = speeds[getVar('motion')] ?? speeds.calm;
 - Every knob must visibly affect a distinct part of the piece. Order choices coherently,
   from quieter to more expressive, and make the first choice an inviting starting point.
-- Code must run correctly on a fresh call every frame -- there is no persistent state between
-  calls, so derive everything from frame.t and audio each time (or rely on the canvas's own
-  existing pixel content for trail effects, e.g. a low-alpha fillRect before drawing).
+- Your code body re-runs from the top every frame, so local variables do NOT survive. Anything
+  the piece must remember belongs in room.state; everything else should be derived from frame.t
+  and audio each time (or rely on the canvas's own existing pixel content for trail effects,
+  e.g. a low-alpha fillRect before drawing).
 - Keep loops bounded and drawing self-contained. Use ctx.save()/ctx.restore() around
   transforms, and fill the background unless trails are intentional. No DOM access, timers,
-  event listeners, imports, global state, or unfinished code. Do not emit a p5Code field.
-- Respond with ONLY the JSON object below. No markdown fences, no commentary, no extra keys.
+  event listeners, imports, global state, or unfinished code. Do not emit a p5Code field."""
+
+
+# Appended only for an interactive piece. Kept out of the base deliberately:
+# a model reaches for whatever is in front of it, so a prompt that explains
+# SHOOT buttons will put one on a moire study. Dilution, not length, is what
+# degrades a long contract — so an ambient piece never sees these rules.
+_INTERACTIVE_RULES = """INTERACTIVE ACTIONS -- this piece reacts to deliberate actions, not only to knob settings.
+- room.events: the actions taken since the last frame, as [{name, participantId, table, t}].
+  Read it every frame; it is cleared for you afterwards. An event is MOMENTARY -- react to it
+  and store the consequence in room.state, which is the thing that actually persists.
+  Example: for (const e of room.events) if (e.name === 'shoot') room.state.shots.push({x: 0.5, t: frame.t});
+- Declare an action as a trigger control:
+    {"name": "shoot", "label": "Shoot", "type": "trigger", "share": "all"}
+  A trigger has NO values array, NO numeric range, and takes NO placeholder in promptTemplate.
+- "share" is valid ONLY on a trigger. "all" means everyone in the room can fire it -- use that
+  for the action you want the whole room doing together. "one" (the default) means only its
+  assigned owner can fire it, which suits a single decisive action like a reset or a view change.
+- Use 1-3 triggers, and keep at least three ordinary controls so a full room still has knobs to
+  divide between people. Make every fired action produce an immediate, visible result on screen."""
+
+
+_OUTPUT_TAIL = """- Respond with ONLY the JSON object below. No markdown fences, no commentary, no extra keys.
 
 {
   "name": "string",
-  "promptTemplate": "string with {{snake_case_var}} placeholders, one per variable",
+  "promptTemplate": "string with {{snake_case_var}} placeholders, PLACEHOLDER_NOTE",
   "code": "JavaScript source, the BODY only (see RUNTIME CONTRACT)",
   "variables": [
     {"name": "string", "label": "string", "type": "number", "min": 0, "max": 10, "step": 1, "default": 5},
-    {"name": "string", "label": "string", "values": [{"text": "string", "weight": 1}]}
+    {"name": "string", "label": "string", "values": [{"text": "string", "weight": 1}]}TRIGGER_LINE
   ]
 }"""
+
+
+def system_prompt(*, interactive: bool = False) -> str:
+    """One shared contract plus an optional block — not one monolith, and not
+    two prompts that drift apart. The creator picks the mode on the desk, so
+    nothing here costs a classifier call to route."""
+    tail = _OUTPUT_TAIL.replace(
+        "PLACEHOLDER_NOTE",
+        "one per select or number control (a trigger takes none)" if interactive else "one per variable",
+    ).replace(
+        "TRIGGER_LINE",
+        ',\n    {"name": "string", "label": "string", "type": "trigger", "share": "all"}'
+        if interactive else "",
+    )
+    parts = [_BASE_PROMPT]
+    if interactive:
+        parts.append("\n" + _INTERACTIVE_RULES)
+    parts.append(tail)
+    return "\n".join(parts)
+
+
+# Preserved for callers and tests that want the default (ambient) contract.
+SYSTEM_PROMPT = system_prompt()
 
 _FENCE_RE = re.compile(r"^```(?:json)?\s*|\s*```\s*$")
 
@@ -175,11 +227,11 @@ def _parse_sketch(text: str) -> dict:
     return validate_native_sketch(json.loads(cleaned))
 
 
-async def _call_gemini(genai_client, text: str) -> str:
+async def _call_gemini(genai_client, text: str, *, interactive: bool = False) -> str:
     return await asyncio.to_thread(
         google_api.gen_text, genai_client, config.MODEL_TEMPLATE_GEN,
         [google_api.text_block(text)],
-        system_instruction=SYSTEM_PROMPT, json_mode=True,
+        system_instruction=system_prompt(interactive=interactive), json_mode=True,
     )
 
 
@@ -194,11 +246,15 @@ def _repair_text(original_response: str, error: str) -> str:
 
 
 async def generate_sketch(prompt: str, *, mode: str = "create",
-                           source: dict[str, Any] | None = None) -> dict:
+                           source: dict[str, Any] | None = None,
+                           interactive: bool = False) -> dict:
     """Live Gemini generation with one validation-aware repair pass, falling
     back to the static pool on any network/HTTP/timeout error, an unusable
     key, or a repair that still fails validation. Never raises — a failed
-    generation is always a tagged fallback sketch, matching generate.js."""
+    generation is always a tagged fallback sketch, matching generate.js.
+
+    ``interactive`` selects the system prompt: it is orthogonal to ``mode``
+    (create/remix), since an interactive piece can be remixed like any other."""
     from backend.ai_manager import ai_manager
 
     if not ai_manager.genai_client:
@@ -210,7 +266,7 @@ async def generate_sketch(prompt: str, *, mode: str = "create",
         return _fallback(str(exc), model_answered=False)
 
     try:
-        text = await _call_gemini(ai_manager.genai_client, request_text)
+        text = await _call_gemini(ai_manager.genai_client, request_text, interactive=interactive)
     except Exception as exc:
         logger.warning("[thecommons] Gemini call failed, falling back: %s", exc)
         return _fallback(_redact(str(exc)), model_answered=False)
@@ -220,7 +276,8 @@ async def generate_sketch(prompt: str, *, mode: str = "create",
     except (InvalidSketchError, json.JSONDecodeError) as invalid:
         logger.warning("[thecommons] first attempt failed validation, retrying with a repair prompt: %s", invalid)
         try:
-            repaired_text = await _call_gemini(ai_manager.genai_client, _repair_text(text, str(invalid)))
+            repaired_text = await _call_gemini(
+                ai_manager.genai_client, _repair_text(text, str(invalid)), interactive=interactive)
         except Exception as exc:
             # The first call DID answer (and was billed) even though the
             # repair never landed — the charge stands.

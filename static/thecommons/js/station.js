@@ -36,18 +36,28 @@ let hintTimer;
 let participantId;
 let owners = {};
 const groups = new Map();
+// Controls declared share:"all" belong to everyone, so the relay never assigns
+// them and they never appear in `owners`. The station can tell on its own,
+// because it already receives the whole sketch -- no protocol change needed.
+const sharedAll = new Set();
+
+function ownsControl(name) {
+  return sharedAll.has(name) || !!owners[name]?.some((person) => person.id === participantId);
+}
 
 function updateOwnership(next = owners) {
   owners = next;
   let count = 0;
   for (const [name, group] of groups) {
-    const mine = owners[name]?.some((person) => person.id === participantId);
+    const mine = ownsControl(name);
     group.hidden = !mine;
     for (const input of group.querySelectorAll('input, button')) input.disabled = !mine || ws.readyState !== WebSocket.OPEN;
     if (!mine) pending.delete(name);
     if (mine) count++;
-    group.querySelector('.control-sharing').textContent = mine && owners[name].length > 1
-      ? `Shared with ${owners[name].length - 1} ${owners[name].length === 2 ? 'other person' : 'others'} · each turn holds for 4s` : 'Your control';
+    group.querySelector('.control-sharing').textContent = sharedAll.has(name)
+      ? 'Everyone in the room can use this'
+      : mine && owners[name].length > 1
+        ? `Shared with ${owners[name].length - 1} ${owners[name].length === 2 ? 'other person' : 'others'} · each turn holds for 4s` : 'Your control';
   }
   document.getElementById('allocationStatus').textContent = count
     ? `${count} ${count === 1 ? 'control is' : 'controls are'} yours. Others steer the rest of the canvas.`
@@ -88,6 +98,23 @@ function updateConnection() {
 
 }
 
+const TRIGGER_MIN_MS = 150;
+const lastFired = new Map();
+
+function fireTrigger(name, button) {
+  if (!ownsControl(name) || ws.readyState !== WebSocket.OPEN) return;
+  const now = performance.now();
+  // Be kind to the relay's per-participant budget: a mashing finger shouldn't
+  // spend its own allowance and start silently getting dropped.
+  if (now - (lastFired.get(name) ?? -Infinity) < TRIGGER_MIN_MS) return;
+  lastFired.set(name, now);
+  ws.send(JSON.stringify({ type: 'trigger', varName: name }));
+  // The wall may be across the room, so confirm the tap locally too.
+  button.classList.remove('fired');
+  void button.offsetWidth;  // restart the animation rather than skip it
+  button.classList.add('fired');
+}
+
 function render(sketch, values = {}, nextOwners = owners) {
   if (!sketch) return;
   document.getElementById('sketchName').textContent = sketch.name;
@@ -97,12 +124,15 @@ function render(sketch, values = {}, nextOwners = owners) {
   groups.clear();
   sliders.clear();
   pending.clear();
+  sharedAll.clear();
+  lastFired.clear();
   clearTimeout(sendTimer);
   sendTimer = null;
   clearTimeout(hintTimer);
   controlHint.textContent = 'Your controls are assigned automatically as people join the room.';
   for (const v of sketch.variables || []) {
-    selected.set(v.name, values[v.name] ?? defaultValue(v));
+    if (v.share === 'all') sharedAll.add(v.name);
+    if (v.type !== 'trigger') selected.set(v.name, values[v.name] ?? defaultValue(v));
     const wrap = document.createElement('fieldset');
     wrap.className = 'knob';
     groups.set(v.name, wrap);
@@ -113,6 +143,21 @@ function render(sketch, values = {}, nextOwners = owners) {
     const sharing = document.createElement('p');
     sharing.className = 'control-sharing';
     wrap.appendChild(sharing);
+    if (v.type === 'trigger') {
+      // A momentary action, not a value: it sends an event and changes nothing
+      // locally. The piece on the wall decides what it means.
+      const holder = document.createElement('div');
+      holder.className = 'trigger-control';
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'trigger';
+      btn.textContent = v.label || v.name.replaceAll('_', ' ');
+      btn.addEventListener('click', () => fireTrigger(v.name, btn));
+      holder.appendChild(btn);
+      wrap.appendChild(holder);
+      knobsEl.appendChild(wrap);
+      continue;
+    }
     if (v.type === 'number') {
       const controls = document.createElement('div');
       controls.className = 'numeric-control';
@@ -138,7 +183,7 @@ function render(sketch, values = {}, nextOwners = owners) {
       selectValue(v.name, selected.get(v.name));
       input.addEventListener('input', () => {
         const value = numericValue(v, input.valueAsNumber);
-        if (value === null || !owners[v.name]?.some((person) => person.id === participantId) || ws.readyState !== WebSocket.OPEN) return;
+        if (value === null || !ownsControl(v.name) || ws.readyState !== WebSocket.OPEN) return;
         selectValue(v.name, value);
         pending.set(v.name, value);
         // Coalesce a drag to ~30 updates/sec. Release and keyboard changes
@@ -162,7 +207,7 @@ function render(sketch, values = {}, nextOwners = owners) {
       btn.classList.toggle('active', selected.get(v.name) === val.text);
       btn.setAttribute('aria-pressed', String(selected.get(v.name) === val.text));
       btn.onclick = () => {
-        if (!owners[v.name]?.some((person) => person.id === participantId) || ws.readyState !== WebSocket.OPEN) return;
+        if (!ownsControl(v.name) || ws.readyState !== WebSocket.OPEN) return;
         // Preserve focus and touch feedback instead of rebuilding every knob.
         selectValue(v.name, val.text);
         ws.send(JSON.stringify({ type: 'var', varName: v.name, value: val.text }));
@@ -201,6 +246,11 @@ ws.onmessage = (ev) => {
   const msg = JSON.parse(ev.data);
   if (msg.type === 'welcome') {
     participantId = msg.participantId;
+    // The room's own colour for this person. A piece that draws per-participant
+    // uses the same hue, so you can pick your own mark out on a crowded wall.
+    if (typeof msg.hue === 'number') {
+      document.documentElement.style.setProperty('--mine', `hsl(${msg.hue} 72% 62%)`);
+    }
     try { sessionStorage.setItem(sessionKey, msg.session); } catch {}
   }
   if (msg.type === 'welcome' || msg.type === 'sketch') render(msg.sketch, msg.values, msg.owners);

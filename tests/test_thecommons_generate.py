@@ -124,3 +124,44 @@ def test_api_key_is_redacted_from_fallback_reason(gemini_configured, monkeypatch
     sketch = asyncio.run(gen.generate_sketch("swirling colors"))
     assert "secret-key-123" not in sketch["reason"]
     assert "[redacted]" in sketch["reason"]
+
+
+# ── which system prompt gets used ───────────────────────────────────────────
+
+def test_ambient_prompt_never_mentions_triggers():
+    ambient = gen.system_prompt()
+    # The whole point of splitting the prompt: a model reaches for whatever is
+    # in front of it, so an ambient piece must never be told buttons exist.
+    assert "trigger" not in ambient.lower()
+    assert "room.events" not in ambient
+    # Persistent state stays in the base, though — it is the headline
+    # improvement and an ambient piece wants it as much as a game does.
+    assert "room.state" in ambient
+
+
+def test_interactive_prompt_is_the_ambient_one_plus_a_block():
+    ambient, interactive = gen.system_prompt(), gen.system_prompt(interactive=True)
+    assert "room.events" in interactive
+    assert '"type": "trigger"' in interactive
+    # A shared base means the runtime contract can never drift between the two,
+    # which is the failure mode two independent prompts would have.
+    shared = ambient.split("- Respond with ONLY")[0]
+    assert interactive.startswith(shared)
+
+
+def test_generate_sketch_selects_the_prompt(gemini_configured, monkeypatch):
+    calls = _stub_calls(monkeypatch, [VALID_SKETCH_JSON, VALID_SKETCH_JSON])
+    asyncio.run(gen.generate_sketch("a quiet moire study"))
+    assert "trigger" not in calls[0]["system_instruction"].lower()
+    asyncio.run(gen.generate_sketch("space invaders", interactive=True))
+    assert "room.events" in calls[1]["system_instruction"]
+
+
+def test_repair_pass_keeps_the_same_prompt(gemini_configured, monkeypatch):
+    # If the repair fell back to the ambient contract, a first response that
+    # correctly used triggers would be "fixed" by a model that has never heard
+    # of them — silently stripping the buttons on the way through.
+    calls = _stub_calls(monkeypatch, ["not json at all", VALID_SKETCH_JSON])
+    asyncio.run(gen.generate_sketch("space invaders", interactive=True))
+    assert len(calls) == 2
+    assert all("room.events" in c["system_instruction"] for c in calls)

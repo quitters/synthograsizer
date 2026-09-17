@@ -107,3 +107,80 @@ def test_duplicate_variable_names_rejected():
             {"name": "a", "type": "number", "min": 0, "max": 10, "step": 1, "default": 5},
             {"name": "a", "values": [{"text": "x", "weight": 1}, {"text": "y", "weight": 1}, {"text": "z", "weight": 1}]},
         ], promptTemplate="{{a}}"))
+
+
+# ── trigger controls and the share hint ─────────────────────────────────────
+
+def _with_trigger(**over):
+    """The standard sketch plus a shared trigger. Note the promptTemplate is
+    unchanged: a trigger deliberately takes no placeholder."""
+    sketch = _valid_sketch()
+    sketch["variables"] = [*sketch["variables"],
+                            {"name": "shoot", "label": "Shoot", "type": "trigger", "share": "all"}]
+    sketch.update(over)
+    return sketch
+
+
+def test_trigger_is_accepted_and_normalised():
+    result = validate_native_sketch(_with_trigger())
+    trigger = [v for v in result["variables"] if v["name"] == "shoot"][0]
+    assert trigger == {"name": "shoot", "label": "Shoot", "type": "trigger", "share": "all"}
+
+
+def test_trigger_defaults_to_being_owned_by_one_person():
+    sketch = _with_trigger()
+    sketch["variables"][-1].pop("share")
+    trigger = [v for v in validate_native_sketch(sketch)["variables"] if v["name"] == "shoot"][0]
+    assert trigger["share"] == "one"
+
+
+def test_trigger_needs_no_placeholder_but_other_controls_still_do():
+    validate_native_sketch(_with_trigger())  # no {{shoot}} anywhere, and that is fine
+    # Referring to one anyway is still an error: there is no value to substitute.
+    with pytest.raises(InvalidSketchError):
+        validate_native_sketch(_with_trigger(promptTemplate="a {{speed}} {{palette}} {{shoot}} scene"))
+    # And a real control that loses its placeholder is still rejected.
+    with pytest.raises(InvalidSketchError):
+        validate_native_sketch(_with_trigger(promptTemplate="a {{speed}} scene"))
+
+
+def test_trigger_cannot_carry_choices_or_a_numeric_range():
+    for bad in ({"values": [{"text": "a", "weight": 1}]}, {"min": 0, "max": 1, "step": 1, "default": 0}):
+        sketch = _with_trigger()
+        sketch["variables"][-1].update(bad)
+        with pytest.raises(InvalidSketchError):
+            validate_native_sketch(sketch)
+
+
+def test_share_is_rejected_on_anything_but_a_trigger():
+    # A shared slider has no turn-taking at all — which is exactly what the
+    # relay's 4s hold exists to provide. Only a trigger may opt out.
+    for index in (0, 1):
+        sketch = _valid_sketch()
+        sketch["variables"][index]["share"] = "all"
+        with pytest.raises(InvalidSketchError):
+            validate_native_sketch(sketch)
+
+
+def test_share_rejects_an_unknown_mode():
+    sketch = _with_trigger()
+    sketch["variables"][-1]["share"] = "everyone"
+    with pytest.raises(InvalidSketchError):
+        validate_native_sketch(sketch)
+
+
+def test_at_least_one_control_must_stay_assignable():
+    # All-shared would leave distribute() nothing to hand out, so nobody in the
+    # room would own anything — the premise of the whole installation.
+    sketch = _valid_sketch(
+        promptTemplate="a scene",
+        variables=[
+            {"name": "shoot", "type": "trigger", "share": "all"},
+            {"name": "pulse", "type": "trigger", "share": "all"},
+        ],
+    )
+    with pytest.raises(InvalidSketchError):
+        validate_native_sketch(sketch)
+    # One owned trigger is enough to satisfy it.
+    sketch["variables"][1]["share"] = "one"
+    assert len(validate_native_sketch(sketch)["variables"]) == 2
