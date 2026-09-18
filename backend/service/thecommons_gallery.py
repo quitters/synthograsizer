@@ -1,28 +1,37 @@
-"""The Commons — the demo scene gallery: hand-written pieces a room can put on
-the wall for zero credits.
+"""The Commons — the gallery of ready-made pieces a room can put on the wall
+for zero credits.
 
 Each piece's drawing code lives in thecommons_data/gallery/<slug>.js, as the
 BODY of the native (ctx, frame, getVar, audio, room) contract. Python only
 stores and serves it; the browser runs it.
 
+Two kinds of piece, one bar:
+  - hand-written demo scene pieces, whose controls are declared below;
+  - pieces the Commons generator wrote live, which were then read in full,
+    fixed where they needed it, and committed. Their exact generated controls
+    and template live in <slug>.json beside the code, and the commit history
+    shows the verbatim original followed by each fix as its own diff.
+
 These pieces are TRUSTED in a way nothing else in Commons is: the creator desk
 runs them live as thumbnails, on the signed-in page, where same-origin code
 could make authenticated requests. That is acceptable only because every piece
-here is written by hand and shipped in this repository. The gallery endpoint
-serves this list and nothing else — never saved looks, never generated pieces —
-and that boundary is the reason it has its own endpoint rather than being a
-filter over the presets list.
+here has been reviewed and shipped in this repository — authorship doesn't
+matter, review does. The gallery endpoint serves this list and nothing else —
+never a room's saved looks, never anything generated at runtime — and that
+boundary is the reason it has its own endpoint rather than being a filter over
+the presets list.
 
 Every piece is also run through validate_native_sketch(), the same gate
 generated sketches face, so a curated piece can't ship with a malformed control
 surface either.
 """
 
+import json
 import logging
 from functools import lru_cache
 from pathlib import Path
 
-from backend.service.thecommons_validate import InvalidSketchError, validate_native_sketch
+from backend.service.thecommons_validate import validate_native_sketch
 
 logger = logging.getLogger(__name__)
 
@@ -36,9 +45,21 @@ def _choices(*texts: str) -> list[dict]:
 
 _RESOLUTION = {"name": "resolution", "label": "Resolution", "values": _choices("classic", "chunky", "fine")}
 
+SECTIONS = [
+    {"id": "demo", "title": "Demo scene",
+     "intro": "Hand-built in the spirit of 1990s PC demos."},
+    {"id": "games", "title": "Party games",
+     "intro": "Made for a room full of phones: everyone taps, and the wall reacts."},
+    {"id": "living", "title": "Living canvases",
+     "intro": "Pieces that grow, drift and remember everything that happened."},
+]
+
+_GENERATED_LINEAGE = "Generated in The Commons from the prompt below, then reviewed and tuned by hand."
+
 GALLERY: list[dict] = [
     {
         "slug": "cracktro",
+        "section": "demo",
         "name": "Cracktro",
         "blurb": "Starfield, copper bars, a chrome logo and a sine scroller that greets everyone in the room by name.",
         "lineage": "The intro crackers stamped on the front of a game, often more fun than the game itself.",
@@ -56,6 +77,7 @@ GALLERY: list[dict] = [
     },
     {
         "slug": "fire",
+        "section": "demo",
         "name": "Fire",
         "blurb": "Heat seeded along the bottom climbs and cools. Anyone can stoke it, and the sparks fly in their colour.",
         "lineage": "Every cell is the cooled average of the ones beneath it. Nothing more.",
@@ -74,6 +96,7 @@ GALLERY: list[dict] = [
     },
     {
         "slug": "metaballs",
+        "section": "demo",
         "name": "Metaballs",
         "blurb": "One glowing blob for every person in the room. Join and yours drifts in; blobs melt together where they meet.",
         "lineage": "Sum every blob's pull at every pixel, and colour whatever crosses the line.",
@@ -89,6 +112,7 @@ GALLERY: list[dict] = [
     },
     {
         "slug": "plasma",
+        "section": "demo",
         "name": "Plasma",
         "blurb": "Stacked sine waves, one colour per pixel, and a palette that cycles so the whole screen ripples.",
         "lineage": "The effect that turned a beige PC into a rave in 1993.",
@@ -105,6 +129,7 @@ GALLERY: list[dict] = [
     },
     {
         "slug": "tunnel",
+        "section": "demo",
         "name": "Tunnel",
         "blurb": "Rushing down a textured tube, looking around as you go. Flies faster when the music gets loud.",
         "lineage": "Not 3D at all: angle and depth are baked into lookup tables once, then a texture slides through them.",
@@ -120,6 +145,7 @@ GALLERY: list[dict] = [
     },
     {
         "slug": "starfield",
+        "section": "demo",
         "name": "Warp Field",
         "blurb": "Stars rushing past. Anyone can punch hyperspace, and the streaks take the colour of whoever did.",
         "lineage": "The hello-world of demo coding, behind nearly every intro ever made.",
@@ -137,6 +163,7 @@ GALLERY: list[dict] = [
     },
     {
         "slug": "rotozoomer",
+        "section": "demo",
         "name": "Rotozoomer",
         "blurb": "A texture spinning and zooming at once, the effect that closed out the 2D era of PC demos.",
         "lineage": "Two additions and a lookup per pixel. Combining rotate and zoom costs nothing extra.",
@@ -153,6 +180,7 @@ GALLERY: list[dict] = [
     },
     {
         "slug": "vector-balls",
+        "section": "demo",
         "name": "Vector Balls",
         "blurb": "A shape built from shaded balls, spun in 3D and painted back to front.",
         "lineage": "One pre-rendered ball, scaled by depth. That's how these ran on 90s hardware.",
@@ -168,6 +196,7 @@ GALLERY: list[dict] = [
     },
     {
         "slug": "interference",
+        "section": "demo",
         "name": "Interference",
         "blurb": "Sets of rings drifting over each other. Where they overlap, patterns appear that nobody drew.",
         "lineage": "Moiré: each ring set contributes one bit, and the bits are XORed.",
@@ -184,6 +213,7 @@ GALLERY: list[dict] = [
     },
     {
         "slug": "copper-bars",
+        "section": "demo",
         "name": "Copper Bars",
         "blurb": "Glowing bands weaving over and under each other, bouncing harder with the bass.",
         "lineage": "Named for the Amiga's copper chip, which changed colours mid-scanline to draw them for free.",
@@ -198,6 +228,90 @@ GALLERY: list[dict] = [
              "min": 10, "max": 80, "step": 2, "default": 36},
         ],
     },
+
+    # ── Generated in The Commons, reviewed and tuned ────────────────────────
+    # Name, controls and template come from <slug>.json, exactly as generated.
+    # `prompt` is what produced each one; the desk shows it, which doubles as
+    # a lesson in what a prompt can do.
+    {
+        "slug": "invaders",
+        "section": "games",
+        "blurb": "Space invaders for a whole room: one person steers the ship and everyone fires. "
+                 "Clear the swarm and a new one arrives.",
+        "prompt": "space invaders: one person steers a ship left and right along the bottom, and everybody "
+                  "in the room can fire a shot at the descending rows above",
+    },
+    {
+        "slug": "fireworks",
+        "section": "games",
+        "blurb": "Anyone can launch a shell that bursts in their own colour. One person steers the wind, "
+                 "and one person alone holds the grand finale.",
+        "prompt": "a co-operative fireworks night: anyone in the room can launch a shell that bursts in their own "
+                  "personal colour and leaves embers that linger and fall, one person steers the wind that drags "
+                  "the embers sideways, one person picks the sky palette, and one person alone can set off the "
+                  "grand finale",
+    },
+    {
+        "slug": "neon-defense",
+        "section": "games",
+        "blurb": "Shapes drift down and the whole room shoots them out of the sky. A live scoreboard keeps "
+                 "each table's tally in its own colour.",
+        "prompt": "a co-operative tower defence: waves of drifting shapes descend from the top, everyone in the "
+                  "room can fire at them, each person's shots burst in their own colour, and a live scoreboard "
+                  "along the edge shows each table's score as they rack up hits",
+    },
+    {
+        "slug": "pachinko",
+        "section": "games",
+        "blurb": "Everyone drops marbles through a field of pegs with real bouncing physics. One person tilts "
+                 "the board, and one can clear it.",
+        "prompt": "a marble machine: anyone can drop a marble that falls through a field of pegs with real "
+                  "bouncing physics, marbles knock into each other on the way down and pile up at the bottom in "
+                  "the colour of whoever dropped them, and one person tilts the whole board left and right",
+    },
+    {
+        "slug": "mural",
+        "section": "games",
+        "blurb": "Twenty seconds of everyone stamping marks together, then the mural shrinks into a gallery "
+                 "along the bottom and a fresh round begins.",
+        "prompt": "a round-based collaborative mural: for about twenty seconds everyone can stamp marks onto a "
+                  "shared canvas, then the mural freezes, shrinks down into a small tile that joins a growing "
+                  "gallery along the bottom of the screen, and a fresh blank round begins",
+    },
+    {
+        "slug": "spore-colonies",
+        "section": "living",
+        "blurb": "Coral-like patterns that grow and branch across the whole screen for as long as it runs. "
+                 "Every person in the room seeds their own colony.",
+        "prompt": "a reaction-diffusion field: coral-like Turing patterns that grow, branch and compete across the "
+                  "whole screen, evolving continuously for many minutes without ever resetting, so the pattern "
+                  "you see is the accumulated history of the piece",
+    },
+    {
+        "slug": "ecosystem",
+        "section": "living",
+        "blurb": "Release creatures in your own colour to wander, hunt, breed and starve. Anyone can scatter "
+                 "food; one person can call an extinction.",
+        "prompt": "a living ecosystem where every person in the room is their own species in their own colour: "
+                  "each can release creatures that wander, hunt for food, breed when well fed and die when they "
+                  "starve, while one person controls the climate that makes food scarce or abundant for everybody",
+    },
+    {
+        "slug": "constellations",
+        "section": "living",
+        "blurb": "Every person in the room is a star in their own colour, linked to their neighbours by faint lines.",
+        "prompt": "a living constellation where every person currently in the room is their own star in their "
+                  "own colour, linked by faint lines, drifting slowly",
+    },
+    {
+        "slug": "ink-drifts",
+        "section": "living",
+        "blurb": "A drop of ink lands every few seconds and stays, spreading and drifting, so the page keeps "
+                 "filling up over the night.",
+        "prompt": "a slow ink-drop study: every few seconds a drop of ink lands and stays, spreading and drifting "
+                  "for the rest of the piece, so the canvas keeps filling up over several minutes rather than "
+                  "resetting",
+    },
 ]
 
 
@@ -211,14 +325,16 @@ def load_gallery() -> tuple[dict, ...]:
     """
     pieces = []
     for meta in GALLERY:
-        path = _DIR / f"{meta['slug']}.js"
         try:
-            code = path.read_text(encoding="utf-8")
+            code = (_DIR / f"{meta['slug']}.js").read_text(encoding="utf-8")
+            # Generated pieces keep the generator's exact controls beside the code.
+            controls = meta if "variables" in meta else json.loads(
+                (_DIR / f"{meta['slug']}.json").read_text(encoding="utf-8"))
             sketch = validate_native_sketch({
-                "name": meta["name"], "promptTemplate": meta["promptTemplate"],
-                "variables": meta["variables"], "code": code,
+                "name": controls["name"], "promptTemplate": controls["promptTemplate"],
+                "variables": controls["variables"], "code": code,
             })
-        except (OSError, InvalidSketchError) as exc:
+        except (OSError, ValueError, KeyError) as exc:   # InvalidSketchError and JSON errors are ValueErrors
             logger.error("[thecommons] skipping gallery piece %s: %s", meta["slug"], exc)
             continue
         # `gallery` survives load_preset (it spreads the sketch), so the desk can
@@ -226,11 +342,15 @@ def load_gallery() -> tuple[dict, ...]:
         # a remix is no longer the curated piece.
         sketch["gallery"] = meta["slug"]
         variables = sketch["variables"]
+        generated = "prompt" in meta
         pieces.append({
             "slug": meta["slug"],
-            "name": meta["name"],
+            "section": meta["section"],
+            "name": sketch["name"],
             "blurb": meta["blurb"],
-            "lineage": meta["lineage"],
+            "lineage": _GENERATED_LINEAGE if generated else meta["lineage"],
+            "origin": "generated" if generated else "hand-written",
+            "prompt": meta.get("prompt"),
             # Derived from the piece itself, so a badge can never claim what the code doesn't do.
             "interactive": any(v.get("type") == "trigger" for v in variables),
             "usesPeople": "room.people" in code,

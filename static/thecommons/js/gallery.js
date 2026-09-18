@@ -11,8 +11,15 @@
 import { defaultValue } from './parameters.js';
 import { compileNative, resetContext } from './sketch-runtime.js';
 
-const THUMB_W = 256;
-const THUMB_H = 144;
+const THUMB_W = 320;
+const THUMB_H = 180;
+// Previews draw a 720p wall scaled down, not a tiny canvas. Generated pieces
+// size things in absolute pixels (150px drops, 100px margins); drawn straight
+// into a thumbnail those fill the frame or fold over themselves. 720p because
+// it's the most common projector at the kind of event this is for. At this
+// scale a 320-wide chunky-pixel piece also lands exactly one pixel per pixel.
+const VIRTUAL_W = 1280;
+const VIRTUAL_H = 720;
 const FPS = 30;
 
 // A pretend room, so pieces that draw the crowd have a crowd to draw.
@@ -21,6 +28,7 @@ const PREVIEW_PEOPLE = [
   { id: 'preview-b', table: 'BOB', hue: 145 },
   { id: 'preview-c', table: 'CARA', hue: 265 },
   { id: 'preview-d', table: 'DEV', hue: 48 },
+  { id: 'preview-e', table: 'EMI', hue: 320 },
 ];
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 
@@ -43,25 +51,31 @@ function makePreview(piece, canvas) {
   let draw;
   try { draw = compileNative(sketch.code); } catch { return null; }
 
-  let t = 0, nextFire = 1.2, who = 0, failures = 0;
+  // Everyone-taps actions fire often, from a rotating pretend person, so the
+  // preview shows what phones will actually do. One-person actions are the
+  // decisive ones -- clear the board, the grand finale -- so they fire rarely;
+  // firing them as often would wipe the board the moment anything landed.
+  const everyone = triggers.filter((v) => v.share === 'all');
+  const onePerson = triggers.filter((v) => v.share !== 'all');
+  let t = 0, nextEveryone = 1.2, nextOne = 7, who = 0, failures = 0;
   return {
     broken: false,
     step(dt) {
       t += dt;
-      // Fire each trigger every so often, from a rotating pretend person, so
-      // interactive pieces show off the thing phones will actually do.
       room.events = [];
-      if (triggers.length && t >= nextFire) {
+      const fire = (list) => {
         const person = PREVIEW_PEOPLE[who];
-        for (const trigger of triggers) {
+        for (const trigger of list) {
           room.events.push({ name: trigger.name, participantId: person.id, table: person.table, t });
         }
         who = (who + 1) % PREVIEW_PEOPLE.length;
-        nextFire = t + 1.4;
-      }
+      };
+      if (everyone.length && t >= nextEveryone) { fire(everyone); nextEveryone = t + 1.4; }
+      if (onePerson.length && t >= nextOne) { fire(onePerson); nextOne = t + 11; }
       resetContext(ctx);
+      ctx.setTransform(canvas.width / VIRTUAL_W, 0, 0, canvas.height / VIRTUAL_H, 0, 0);
       try {
-        draw(ctx, { t, dt, width: canvas.width, height: canvas.height }, getVar, previewAudio(t), room);
+        draw(ctx, { t, dt, width: VIRTUAL_W, height: VIRTUAL_H }, getVar, previewAudio(t), room);
         failures = 0;
       } catch {
         if (++failures > 30) this.broken = true;   // a piece that keeps throwing stops being previewed
@@ -93,7 +107,7 @@ function buildCard(piece, onPick) {
   screen.append(canvas, live, broken);
 
   const body = el('div', 'gallery-body');
-  body.append(el('h3', '', piece.name), el('p', 'gallery-blurb', piece.blurb), el('p', 'gallery-lineage', piece.lineage));
+  body.append(el('h4', '', piece.name), el('p', 'gallery-blurb', piece.blurb), el('p', 'gallery-lineage', piece.lineage));
 
   // Say plainly what the room will be able to do, so a host picks for the
   // crowd they have. Derived server-side from the piece itself.
@@ -107,6 +121,14 @@ function buildCard(piece, onPick) {
   const controls = piece.sketch.variables.filter((v) => v.type !== 'trigger').map((v) => v.label);
   body.append(el('p', 'gallery-controls', `Phones steer: ${controls.join(' · ')}`));
 
+  // Generated pieces show the one prompt that made them: the most direct way
+  // to show a host what they could make themselves.
+  if (piece.prompt) {
+    const details = el('details', 'gallery-prompt');
+    details.append(el('summary', '', 'The prompt that made it'), el('p', '', `“${piece.prompt}”`));
+    body.append(details);
+  }
+
   const button = el('button', 'quiet-button gallery-pick', 'Put it on the wall');
   button.type = 'button';
   button.setAttribute('aria-label', `Put ${piece.name} on the wall`);
@@ -117,12 +139,35 @@ function buildCard(piece, onPick) {
   return { piece, card, canvas, live, broken, button, preview: null, hover: false, warmed: false };
 }
 
-export async function mountGallery(list, { onPick }) {
+function sectionBlock(id, title, intro, cards) {
+  const block = el('section', 'gallery-section');
+  const heading = el('h3', 'gallery-section-title', title);
+  heading.id = `gallery-${id}`;
+  block.setAttribute('aria-labelledby', heading.id);
+  const grid = el('ul', 'gallery-grid');
+  grid.append(...cards.map((c) => c.card));
+  block.append(heading);
+  if (intro) block.append(el('p', 'gallery-section-intro', intro));
+  block.append(grid);
+  return block;
+}
+
+export async function mountGallery(root, { onPick }) {
   const response = await fetch('/api/thecommons/gallery');
   if (!response.ok) throw new Error(`gallery unavailable (${response.status})`);
-  const { pieces } = await response.json();
+  const { sections = [], pieces } = await response.json();
   const cards = pieces.map((piece) => buildCard(piece, onPick));
-  list.replaceChildren(...cards.map((c) => c.card));
+
+  // Sections in the server's order. Anything whose section isn't listed still
+  // shows, at the end, rather than silently vanishing from the desk.
+  const known = new Set(sections.map((s) => s.id));
+  const blocks = sections
+    .map((s) => [s, cards.filter((c) => c.piece.section === s.id)])
+    .filter(([, mine]) => mine.length)
+    .map(([s, mine]) => sectionBlock(s.id, s.title, s.intro, mine));
+  const strays = cards.filter((c) => !known.has(c.piece.section));
+  if (strays.length) blocks.push(sectionBlock('more', 'More pieces', '', strays));
+  root.replaceChildren(...blocks);
 
   const visible = new Set();
   const observer = new IntersectionObserver((entries) => {

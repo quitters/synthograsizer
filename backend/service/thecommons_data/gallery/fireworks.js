@@ -139,3 +139,8 @@ for (let i = room.state.embers.length - 1; i >= 0; i--) {
 if (room.state.embers.length > 800) {
   room.state.embers.splice(0, room.state.embers.length - 800);
 }
+
+// Curation fix: 'lighter' was never switched back off, so the NEXT frame's sky
+// wash ran additively and the wall saturated to solid cyan. The runtime now
+// resets this between frames too, but a curated piece shouldn't rely on that.
+ctx.globalCompositeOperation = 'source-over';

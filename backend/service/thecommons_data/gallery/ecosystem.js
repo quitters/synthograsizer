@@ -30,7 +30,10 @@ for (const e of room.events) {
     }
   }
   if (e.name === 'feed_burst') {
-    for(let i=0; i<25; i++) {
+    // Curation fix: natural growth stops at the climate's ceiling, but this
+    // bypassed it -- a room mashing Feed could pile up thousands of pellets.
+    // A burst may now at most double the climate's ceiling.
+    for(let i=0; i<25 && room.state.food.length < env.max * 2; i++) {
        room.state.food.push({
          x: Math.random() * frame.width,
          y: Math.random() * frame.height,
