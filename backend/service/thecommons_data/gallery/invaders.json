@@ -1,0 +1,66 @@
+{
+  "name": "Generative Invaders",
+  "promptTemplate": "A generative arcade space battle. Steer the ship with {{ship_position}}, while the swarm approaches at {{game_speed}} speed. The invaders morph in {{invader_style}} formations with a {{color_palette}} palette.",
+  "variables": [
+    {
+      "name": "ship_position",
+      "label": "Steer Ship",
+      "type": "number",
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "default": 0.5
+    },
+    {
+      "name": "fire",
+      "label": "Fire Laser",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "invader_style",
+      "label": "Invader Style",
+      "values": [
+        {
+          "text": "8-bit",
+          "weight": 2
+        },
+        {
+          "text": "vector",
+          "weight": 1
+        },
+        {
+          "text": "orbital",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "color_palette",
+      "label": "Color Palette",
+      "values": [
+        {
+          "text": "neon",
+          "weight": 2
+        },
+        {
+          "text": "phosphor",
+          "weight": 1
+        },
+        {
+          "text": "cyberpunk",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "game_speed",
+      "label": "Game Speed",
+      "type": "number",
+      "min": 0.5,
+      "max": 3.0,
+      "step": 0.1,
+      "default": 1.0
+    }
+  ]
+}

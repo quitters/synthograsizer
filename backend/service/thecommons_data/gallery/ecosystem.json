@@ -1,0 +1,73 @@
+{
+  "name": "Chromatic Ecosystem",
+  "promptTemplate": "A living ecosystem reacting to the music. The climate is currently {{climate}}, while creatures burn energy at a rate of {{metabolism}}. Through evolution, offspring inherit traits with {{mutation}} degrees of variance. Render species at a scale of {{boid_scale}}.",
+  "variables": [
+    {
+      "name": "climate",
+      "label": "Climate",
+      "values": [
+        {
+          "text": "Lush",
+          "weight": 2
+        },
+        {
+          "text": "Temperate",
+          "weight": 3
+        },
+        {
+          "text": "Harsh",
+          "weight": 2
+        },
+        {
+          "text": "Drought",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "metabolism",
+      "label": "Metabolism",
+      "type": "number",
+      "min": 0.5,
+      "max": 5.0,
+      "step": 0.5,
+      "default": 2.0
+    },
+    {
+      "name": "mutation",
+      "label": "Mutation Rate",
+      "type": "number",
+      "min": 0,
+      "max": 90,
+      "step": 5,
+      "default": 15
+    },
+    {
+      "name": "boid_scale",
+      "label": "Creature Size",
+      "type": "number",
+      "min": 5,
+      "max": 20,
+      "step": 1,
+      "default": 10
+    },
+    {
+      "name": "spawn_creature",
+      "label": "Release Species",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "feed_burst",
+      "label": "Drop Food",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "extinction",
+      "label": "Catastrophe",
+      "type": "trigger",
+      "share": "one"
+    }
+  ]
+}
