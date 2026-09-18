@@ -23,6 +23,7 @@ import uuid
 from typing import Any, Awaitable, Callable
 
 from backend.service.thecommons_builtin import BUILTIN_SKETCHES
+from backend.service.thecommons_gallery import gallery_preset_id, load_gallery
 from backend.service.thecommons_templates import load_template_library
 
 logger = logging.getLogger(__name__)
@@ -130,11 +131,15 @@ async def list_presets(pool, room_id: int) -> list[dict]:
             "savedAt": r["finished_at"].isoformat() if r["finished_at"] else None,
             "sketch": sketch, "values": _decode(r["values"]) or {},
         })
+    # Listed here so the existing presets/load route can put them on the wall
+    # unchanged. The desk shows them from the gallery endpoint instead.
+    gallery = [{"id": gallery_preset_id(p["slug"]), "name": p["name"], "kind": "Demo scene", "sketch": p["sketch"]}
+               for p in load_gallery()]
     builtins = [{"id": f"builtin-{i}", "name": s["name"], "kind": "Built-in pieces", "sketch": s}
                 for i, s in enumerate(BUILTIN_SKETCHES)]
     inherited = [{"id": f"inherited-{t['id']}", "name": t["name"], "kind": "Inherited library", "sketch": t}
                  for t in load_template_library()]
-    return [*own, *builtins, *inherited]
+    return [*own, *gallery, *builtins, *inherited]
 
 
 async def _settle_charge(charge, model_answered: bool) -> None:

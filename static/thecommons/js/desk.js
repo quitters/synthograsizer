@@ -8,6 +8,8 @@
 // suite's Google session plus a server-side ownership check on every request
 // is the only thing that opens this desk.
 
+import { mountGallery } from './gallery.js';
+
 const roomId = new URLSearchParams(location.search).get('room');
 
 const deskTools = document.getElementById('deskTools');
@@ -24,10 +26,13 @@ const presetSelect = document.getElementById('presetSelect');
 const loadPreset = document.getElementById('loadPreset');
 const savePreset = document.getElementById('savePreset');
 const presetStatus = document.getElementById('presetStatus');
+const galleryStatus = document.getElementById('galleryStatus');
 
 let usable = false;
 let remixing = false;
 let canvas = null;
+let gallery = null;
+let loadingGallery = false;
 
 const api = (path) => `/api/thecommons/rooms/${encodeURIComponent(roomId)}${path}`;
 const mode = () => document.querySelector('input[name="mode"]:checked').value;
@@ -55,6 +60,7 @@ function updateControls() {
   undoPiece.disabled = !usable || remixing || !canvas?.canUndo;
   loadPreset.disabled = !usable || remixing || !presetSelect.value;
   savePreset.disabled = !usable || remixing;
+  gallery?.setEnabled(usable && !remixing && !loadingGallery);
   promptSend.textContent = remixing ? 'Composing…' : mode() === 'remix' ? 'Remix this piece ↗' : 'Create a new piece ↗';
 }
 
@@ -76,6 +82,52 @@ function renderRoom(room) {
   document.getElementById('joinQr').src = `/api/thecommons/qr/${encodeURIComponent(room.joinCode)}`;
   document.getElementById('joinUrl').textContent = joinUrl.replace(/^https?:\/\//, '');
   document.getElementById('wallLink').href = `/thecommons/display/${encodeURIComponent(room.joinCode)}`;
+  gallery?.markLive(room.gallerySlug);
+}
+
+// Loading a gallery piece is an ordinary preset load: owner-checked, undoable
+// with "Undo last change", and never charged. That's why it needs no confirm.
+async function pickFromGallery(piece, button) {
+  if (!usable || remixing || loadingGallery) return;
+  loadingGallery = true;
+  updateControls();
+  button.textContent = 'Putting it up…';
+  galleryStatus.dataset.error = 'false';
+  try {
+    const response = await fetch(api('/presets/load'), {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ presetId: piece.presetId }),
+    });
+    const result = await response.json().catch(() => ({}));
+    if (response.ok) {
+      galleryStatus.textContent = `On the wall: ${piece.name}. “Undo last change” brings back what was there.`;
+    } else {
+      galleryStatus.dataset.error = 'true';
+      galleryStatus.textContent = typeof result.detail === 'string' ? result.detail : 'Couldn’t put that on the wall.';
+    }
+  } catch {
+    galleryStatus.dataset.error = 'true';
+    galleryStatus.textContent = 'Couldn’t reach the server. Try again.';
+  } finally {
+    loadingGallery = false;
+    button.textContent = 'Put it on the wall';
+    await refreshRoom();
+  }
+}
+
+let galleryStarted = false;
+async function startGallery() {
+  // boot() can run twice (auth-ready plus an already-known session), and
+  // `gallery` is only set after an await, so guard on the attempt itself.
+  if (galleryStarted) return;
+  galleryStarted = true;
+  try {
+    gallery = await mountGallery(document.getElementById('gallery'), { onPick: pickFromGallery });
+    gallery.markLive(canvas?.gallerySlug);
+    updateControls();
+  } catch {
+    galleryStatus.textContent = 'Couldn’t load the collection. Reload to try again.';
+  }
 }
 
 async function refreshRoom() {
@@ -223,6 +275,7 @@ async function refreshPresets() {
     presetSelect.replaceChildren(new Option('Choose a piece…', ''));
     const groups = new Map();
     for (const preset of presets) {
+      if (preset.id.startsWith('gallery-')) continue;   // shown, live, in the collection above
       if (!groups.has(preset.kind)) {
         const group = document.createElement('optgroup');
         group.label = preset.kind;
@@ -313,6 +366,7 @@ function resumeJob() {
 
 async function boot() {
   if (!(await refreshRoom())) return;
+  startGallery();
   await refreshPresets();
   if (!remixing) resumeJob();
 }

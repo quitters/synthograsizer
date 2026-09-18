@@ -29,6 +29,7 @@ from pydantic import BaseModel
 from backend import config
 from backend.service import credits, service_mode
 from backend.service import thecommons_jobs as jobs
+from backend.service.thecommons_gallery import gallery_preset_id, load_gallery
 from backend.service.thecommons_generate import generate_sketch
 from backend.service.thecommons_relay import discard_relay, get_or_create_relay, peek_relay
 
@@ -191,6 +192,8 @@ async def get_room(room_id: int, request: Request):
         **_room_summary(room),
         "sketchName": relay.current_sketch.get("name") if relay.current_sketch else None,
         "sketchId": relay.current_sketch.get("id") if relay.current_sketch else None,
+        # Set only while a gallery piece is live, unremixed — lets the desk mark its card.
+        "gallerySlug": relay.current_sketch.get("gallery") if relay.current_sketch else None,
         "canUndo": bool(state and state.get("undo")) and active_job is None,
         "activeJobId": active_job["id"] if active_job else None,
     }
@@ -212,6 +215,24 @@ def _page(name: str) -> FileResponse:
     closing while someone is already looking at it.
     """
     return FileResponse(_PAGES / name / "index.html")
+
+
+@router.get("/api/thecommons/gallery")
+async def commons_gallery():
+    """The demo scene gallery: hand-written pieces, with their code.
+
+    Deliberately public and deliberately separate from the presets list. The
+    desk runs every piece returned here live as a thumbnail, on the signed-in
+    page, so this endpoint must only ever return code shipped in the repo —
+    never a room's saved looks or generated pieces, which is what the presets
+    list mixes in. Keeping it a separate endpoint makes that boundary something
+    the server enforces, not something the client has to filter correctly.
+    Loading a piece still goes through the owner-only presets/load route.
+    """
+    return JSONResponse(
+        {"pieces": [{**piece, "presetId": gallery_preset_id(piece["slug"])} for piece in load_gallery()]},
+        headers={"Cache-Control": "public, max-age=300"},
+    )
 
 
 @router.get("/api/thecommons/config")

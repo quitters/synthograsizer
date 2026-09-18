@@ -12,6 +12,7 @@
 //                        only to run these -- generation never produces p5 code.
 
 import { defaultValue } from './parameters.js';
+import { compileNative, resetContext } from './sketch-runtime.js';
 import { resolveWsOrigin } from './ws-origin.js';
 
 // Served from /thecommons/display/{joinCode} (a FileResponse route in
@@ -238,25 +239,16 @@ function frameLoop(now) {
   if (mode === 'native' && sketch) {
     if (!drawFn) {
       try {
-        drawFn = new Function('ctx', 'frame', 'getVar', 'audio', 'room', sketch.code);
+        drawFn = compileNative(sketch.code);
       } catch (err) {
         console.error('sketch failed to compile, drawing nothing:', err);
         drawFn = () => {};
       }
     }
-    // The context OUTLIVES the frame, so anything a sketch leaves set silently
-    // applies to the next frame's very first draw -- including its own
-    // background wash. A live-generated piece set globalCompositeOperation to
-    // 'lighter' and never restored it, which turned its per-frame background
-    // dim into an additive one: the canvas saturated to solid cyan and every
-    // firework blew out to white. Nothing about that is invalid code, so no
-    // validator can catch it. Reset the cheap, high-blast-radius state here
-    // instead of hoping every generated sketch cleans up after itself.
-    ctx.globalCompositeOperation = 'source-over';
-    ctx.globalAlpha = 1;
-    ctx.filter = 'none';
-    ctx.setLineDash([]);
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    // A live-generated piece once set globalCompositeOperation to 'lighter'
+    // and never restored it, turning its own background dim additive: the
+    // wall saturated to solid cyan. See sketch-runtime.js for the full list.
+    resetContext(ctx);
 
     // Drained per frame, and only on this path -- in p5 mode the sketch drains
     // it itself via getEvents(), so neither can steal the other's events.
