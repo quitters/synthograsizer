@@ -1,8 +1,11 @@
 room.state.enemies ??= [];
 room.state.projectiles ??= [];
 room.state.particles ??= [];
-room.state.scores ??= {};
-room.state.baseHues ??= {};
+// Curation fix: keyed by table name, which participants choose. On a plain
+// object a table called "constructor" collided with Object's own property and
+// put garbage on the scoreboard; a prototype-less map has no such keys.
+room.state.scores ??= Object.create(null);
+room.state.baseHues ??= Object.create(null);
 room.state.lastSpawn ??= 0;
 
 const speedMult = getVar('enemy_speed') ?? 1.0;

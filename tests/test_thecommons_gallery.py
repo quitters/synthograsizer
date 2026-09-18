@@ -1,4 +1,4 @@
-"""The demo scene gallery: curated pieces, their endpoint, and loading them.
+"""The gallery of ready-made pieces: curation, the endpoint, and loading them.
 
 The node-driven test at the bottom is the one that matters most. The Python
 validator can check a piece's controls but cannot compile JavaScript, so
@@ -15,7 +15,7 @@ from fastapi.testclient import TestClient
 
 import backend.server as server
 from backend.service import thecommons_relay
-from backend.service.thecommons_gallery import _DIR, GALLERY, gallery_preset_id, load_gallery
+from backend.service.thecommons_gallery import _DIR, GALLERY, SECTIONS, gallery_preset_id, load_gallery
 from backend.service.thecommons_validate import validate_native_sketch
 
 from tests.test_service_auth import _fake_user
@@ -75,17 +75,42 @@ def test_gallery_marker_does_not_survive_validation():
     assert "gallery" not in validate_native_sketch(sketch)
 
 
+def test_every_piece_belongs_to_a_known_section():
+    ids = {section["id"] for section in SECTIONS}
+    for piece in load_gallery():
+        assert piece["section"] in ids, piece["slug"]
+
+
+def test_provenance_is_honest():
+    """A generated piece says so and shows the prompt that made it; a
+    hand-written one claims neither."""
+    for piece in load_gallery():
+        if piece["origin"] == "generated":
+            assert piece["prompt"], piece["slug"]
+            assert "Generated" in piece["lineage"], piece["slug"]
+        else:
+            assert piece["origin"] == "hand-written", piece["slug"]
+            assert piece["prompt"] is None, piece["slug"]
+
+
 # ── the endpoint ────────────────────────────────────────────────────────────
 
-def test_gallery_endpoint_is_public_and_cacheable():
+def test_gallery_endpoint_is_public_and_revalidates():
     r = client.get("/api/thecommons/gallery")   # deliberately no cookies
     assert r.status_code == 200
-    assert "max-age" in r.headers.get("cache-control", "")
+    # Revalidated, never cached for a fixed time: a max-age once hid newly
+    # added pieces from the desk for five minutes after a deploy.
+    assert r.headers["cache-control"] == "no-cache"
+    etag = r.headers["etag"]
+    again = client.get("/api/thecommons/gallery", headers={"If-None-Match": etag})
+    assert again.status_code == 304
+    assert client.get("/api/thecommons/gallery", headers={"If-None-Match": '"stale"'}).status_code == 200
     pieces = r.json()["pieces"]
     assert [p["slug"] for p in pieces] == [meta["slug"] for meta in GALLERY]
     for p in pieces:
         assert p["presetId"] == gallery_preset_id(p["slug"])
         assert p["sketch"]["code"]
+    assert [section["id"] for section in r.json()["sections"]] == [section["id"] for section in SECTIONS]
 
 
 def test_gallery_endpoint_serves_only_curated_code(service_on, fake_pool, monkeypatch):
@@ -148,7 +173,7 @@ def test_gallery_slug_is_null_for_anything_else(service_on, fake_pool, monkeypat
 
 _NODE_HARNESS = r"""
 const { readFileSync } = require('node:fs');
-const [dir, slugsJson] = process.argv.slice(2);
+const [dir, specJson] = process.argv.slice(2);
 // A plain object, not a Proxy: pieces make thousands of ctx calls a frame and
 // a Proxy trap on each one made this test ten times slower. A method missing
 // from this list fails loudly as "not a function" -- add it here if so.
@@ -171,25 +196,39 @@ function stub(canvas) {
 }
 globalThis.OffscreenCanvas = class { constructor(w, h) { this.width = w; this.height = h; }
                                      getContext() { return stub(this); } };
+// Numbers a piece keeps in state must stay numbers. One generated piece blew up
+// numerically, and NaN spreads through a simulation until the wall is blank for
+// good -- while every other check still passes.
+function nanIn(state) {
+  for (const [key, value] of Object.entries(state)) {
+    if (typeof value === 'number' && Number.isNaN(value)) return key;
+    if (value instanceof Float32Array || value instanceof Float64Array) {
+      for (let i = 0; i < value.length; i++) if (Number.isNaN(value[i])) return `${key}[${i}]`;
+    }
+  }
+  return null;
+}
 const failures = [];
-for (const slug of JSON.parse(slugsJson)) {
+for (const [slug, triggers] of Object.entries(JSON.parse(specJson))) {
   const code = readFileSync(`${dir}/${slug}.js`, 'utf8');
   let draw;
   try { draw = new Function('ctx', 'frame', 'getVar', 'audio', 'room', code); }
   catch (e) { failures.push(`${slug}: does not compile: ${e.message}`); continue; }
-  // Wall size and thumbnail size, a crowd and an empty room, with every
-  // trigger name firing now and then.
+  // Wall size and thumbnail size, a crowd and an empty room, with this piece's
+  // own triggers firing now and then. Ids are hex strings, like real ones.
   for (const [w, h, people] of [[1920, 1080, 3], [256, 144, 0], [1280, 720, 16]]) {
     const room = { state: {}, events: [],
-                   people: Array.from({ length: people }, (_, i) => ({ id: `p${i}`, table: `t${i}`, hue: i * 40 })) };
+                   people: Array.from({ length: people }, (_, i) => ({ id: `a3f9${i}c0e`, table: `t${i}`, hue: i * 40 })) };
     try {
       for (let i = 0; i < 90; i++) {
         room.events = i % 25 === 0
-          ? ['shout', 'stoke', 'hyperspace'].map((name) => ({ name, participantId: 'p0', table: 't0', t: i / 60 }))
+          ? triggers.map((name) => ({ name, participantId: 'a3f90c0e', table: 't0', t: i / 60 }))
           : [];
         draw(stub({ width: w, height: h }), { t: i / 60, dt: 1 / 60, width: w, height: h }, () => null,
              { level: 0.4, bass: 0.6, mid: 0.3, treble: 0.2, beat: i % 30 === 0 }, room);
       }
+      const bad = nanIn(room.state);
+      if (bad) failures.push(`${slug} @${w}x${h} with ${people} people: state went NaN at ${bad}`);
     } catch (e) { failures.push(`${slug} @${w}x${h} with ${people} people: ${e.message}`); }
   }
 }
@@ -201,7 +240,10 @@ if (failures.length) { console.log(failures.join('\n')); process.exit(1); }
 def test_every_piece_compiles_and_runs_in_a_javascript_engine(tmp_path):
     harness = tmp_path / "harness.cjs"
     harness.write_text(_NODE_HARNESS, encoding="utf-8")
-    slugs = json.dumps([meta["slug"] for meta in GALLERY])
-    result = subprocess.run(["node", str(harness), str(_DIR), slugs],
+    spec = json.dumps({
+        piece["slug"]: [v["name"] for v in piece["sketch"]["variables"] if v.get("type") == "trigger"]
+        for piece in load_gallery()
+    })
+    result = subprocess.run(["node", str(harness), str(_DIR), spec],
                             capture_output=True, text=True, timeout=120)
     assert result.returncode == 0, result.stdout + result.stderr

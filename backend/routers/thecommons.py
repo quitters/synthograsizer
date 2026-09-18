@@ -15,11 +15,13 @@ the decided product requirement that joining a room's live canvas needs no
 account at all.
 """
 
+import hashlib
 import io
 import json
 import logging
 import os
 import secrets
+from functools import lru_cache
 from pathlib import Path
 
 from fastapi import APIRouter, HTTPException, Request, WebSocket, WebSocketDisconnect
@@ -29,6 +31,7 @@ from pydantic import BaseModel
 from backend import config
 from backend.service import credits, service_mode
 from backend.service import thecommons_jobs as jobs
+from backend.service.thecommons_gallery import SECTIONS as GALLERY_SECTIONS
 from backend.service.thecommons_gallery import gallery_preset_id, load_gallery
 from backend.service.thecommons_generate import generate_sketch
 from backend.service.thecommons_relay import discard_relay, get_or_create_relay, peek_relay
@@ -217,22 +220,38 @@ def _page(name: str) -> FileResponse:
     return FileResponse(_PAGES / name / "index.html")
 
 
+@lru_cache(maxsize=1)
+def _gallery_payload() -> tuple[bytes, str]:
+    body = json.dumps({
+        "sections": GALLERY_SECTIONS,
+        "pieces": [{**piece, "presetId": gallery_preset_id(piece["slug"])} for piece in load_gallery()],
+    }).encode("utf-8")
+    return body, '"' + hashlib.sha256(body).hexdigest()[:20] + '"'
+
+
 @router.get("/api/thecommons/gallery")
-async def commons_gallery():
-    """The demo scene gallery: hand-written pieces, with their code.
+async def commons_gallery(request: Request):
+    """The gallery of ready-made pieces, with their code.
 
     Deliberately public and deliberately separate from the presets list. The
     desk runs every piece returned here live as a thumbnail, on the signed-in
     page, so this endpoint must only ever return code shipped in the repo —
-    never a room's saved looks or generated pieces, which is what the presets
-    list mixes in. Keeping it a separate endpoint makes that boundary something
-    the server enforces, not something the client has to filter correctly.
-    Loading a piece still goes through the owner-only presets/load route.
+    never a room's saved looks or anything generated at runtime, which is what
+    the presets list mixes in. Keeping it a separate endpoint makes that
+    boundary something the server enforces, not something the client has to
+    filter correctly. Loading a piece still goes through the owner-only
+    presets/load route.
+
+    Revalidated, not cached for a fixed time: this first shipped with
+    max-age=300, and after the gallery grew, browsers kept serving the old list
+    to the new page for five minutes, so new pieces simply weren't there. An
+    ETag costs a 304 when nothing changed and picks up a deploy immediately.
     """
-    return JSONResponse(
-        {"pieces": [{**piece, "presetId": gallery_preset_id(piece["slug"])} for piece in load_gallery()]},
-        headers={"Cache-Control": "public, max-age=300"},
-    )
+    body, etag = _gallery_payload()
+    headers = {"Cache-Control": "no-cache", "ETag": etag}
+    if request.headers.get("if-none-match") == etag:
+        return Response(status_code=304, headers=headers)
+    return Response(content=body, media_type="application/json", headers=headers)
 
 
 @router.get("/api/thecommons/config")

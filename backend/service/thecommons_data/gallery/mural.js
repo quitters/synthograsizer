@@ -60,6 +60,13 @@ activePeople.forEach((p) => {
     }
 });
 
+// Curation fix: cursors were never removed, so this grew with everyone who had
+// ever joined over the course of an event. Keep only the people still here.
+const present = new Set(activePeople.map((p) => String(p.id)));
+for (const id of Object.keys(room.state.cursors)) {
+    if (!present.has(id)) delete room.state.cursors[id];
+}
+
 for (const e of room.events) {
     if (e.name === 'action_stamp' && tRound < SHRINK_START) {
         const p = activePeople.find(px => px.id === e.participantId);
