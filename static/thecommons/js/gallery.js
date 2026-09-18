@@ -22,14 +22,12 @@ const VIRTUAL_W = 1280;
 const VIRTUAL_H = 720;
 const FPS = 30;
 
-// A pretend room, so pieces that draw the crowd have a crowd to draw.
-const PREVIEW_PEOPLE = [
-  { id: 'preview-a', table: 'ALICE', hue: 12 },
-  { id: 'preview-b', table: 'BOB', hue: 145 },
-  { id: 'preview-c', table: 'CARA', hue: 265 },
-  { id: 'preview-d', table: 'DEV', hue: 48 },
-  { id: 'preview-e', table: 'EMI', hue: 320 },
-];
+// A pretend room, so pieces that draw the crowd have a crowd to draw. Twelve,
+// because a smaller pretend room made every presence piece look sparse -- a
+// constellation of five people is five dots -- and no event is that small.
+// Hues step by the golden angle so neighbours never look alike.
+const PREVIEW_PEOPLE = ['ALICE', 'BOB', 'CARA', 'DEV', 'EMI', 'FIN', 'GUS', 'HANA', 'IKE', 'JUN', 'KAI', 'LEO']
+  .map((table, i) => ({ id: `preview-${i}`, table, hue: Math.round((i * 137.5) % 360) }));
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 
 // A steady 120bpm pulse stands in for the wall's microphone, so audio-reactive
