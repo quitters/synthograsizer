@@ -1,0 +1,82 @@
+{
+  "name": "Collaborative Mural",
+  "promptTemplate": "A collaborative mural where each round lasts 20 seconds. Use a {{color_theme}} palette and draw {{stamp_shape}}s of base size {{stamp_size}}. Add movement with {{chaos_amount}}. Fire the trigger to stamp!",
+  "variables": [
+    {
+      "name": "stamp_shape",
+      "label": "Shape",
+      "values": [
+        {
+          "text": "circle",
+          "weight": 2
+        },
+        {
+          "text": "square",
+          "weight": 2
+        },
+        {
+          "text": "triangle",
+          "weight": 2
+        },
+        {
+          "text": "star",
+          "weight": 1
+        },
+        {
+          "text": "splatter",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "color_theme",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "neon",
+          "weight": 3
+        },
+        {
+          "text": "pastel",
+          "weight": 2
+        },
+        {
+          "text": "monochrome",
+          "weight": 1
+        },
+        {
+          "text": "fiery",
+          "weight": 2
+        },
+        {
+          "text": "oceanic",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "stamp_size",
+      "label": "Stamp Size",
+      "type": "number",
+      "min": 10,
+      "max": 100,
+      "step": 5,
+      "default": 40
+    },
+    {
+      "name": "chaos_amount",
+      "label": "Chaos Drift",
+      "type": "number",
+      "min": 0,
+      "max": 60,
+      "step": 5,
+      "default": 10
+    },
+    {
+      "name": "action_stamp",
+      "label": "Stamp!",
+      "type": "trigger",
+      "share": "all"
+    }
+  ]
+}

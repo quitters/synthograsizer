@@ -1,0 +1,82 @@
+{
+  "name": "Living Constellations",
+  "promptTemplate": "A living constellation against a {{nebula_bg}} background, where stars are connected by {{line_style}} and drift at {{drift_speed}}x speed. Interaction distance is {{connection_radius}}px, stars are scaled by {{star_scale}}x, and they pull towards each other with a gravity factor of {{social_gravity}}.",
+  "variables": [
+    {
+      "name": "drift_speed",
+      "label": "Drift Speed",
+      "type": "number",
+      "min": 0.1,
+      "max": 3.0,
+      "step": 0.1,
+      "default": 1.0
+    },
+    {
+      "name": "connection_radius",
+      "label": "Connection Reach",
+      "type": "number",
+      "min": 50,
+      "max": 400,
+      "step": 10,
+      "default": 150
+    },
+    {
+      "name": "star_scale",
+      "label": "Star Size",
+      "type": "number",
+      "min": 0.5,
+      "max": 5.0,
+      "step": 0.1,
+      "default": 1.5
+    },
+    {
+      "name": "social_gravity",
+      "label": "Center Gravity",
+      "type": "number",
+      "min": -1.0,
+      "max": 2.0,
+      "step": 0.1,
+      "default": 0.5
+    },
+    {
+      "name": "line_style",
+      "label": "Line Style",
+      "values": [
+        {
+          "text": "delicate web",
+          "weight": 2
+        },
+        {
+          "text": "stardust trails",
+          "weight": 1
+        },
+        {
+          "text": "laser links",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "nebula_bg",
+      "label": "Nebula Background",
+      "values": [
+        {
+          "text": "dark matter",
+          "weight": 3
+        },
+        {
+          "text": "midnight blue",
+          "weight": 2
+        },
+        {
+          "text": "purple haze",
+          "weight": 1
+        },
+        {
+          "text": "deep trails",
+          "weight": 1
+        }
+      ]
+    }
+  ]
+}

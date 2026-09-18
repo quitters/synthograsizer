@@ -1,0 +1,79 @@
+{
+  "name": "Neon Defense",
+  "promptTemplate": "Co-operative tower defense! Swarms of {{enemy_shape}} descend at {{enemy_speed}}x speed. Difficulty is set to {{difficulty}}.\nWeapons are set to {{fire_mode}}, waiting for your command.",
+  "variables": [
+    {
+      "name": "enemy_speed",
+      "label": "Enemy Speed",
+      "type": "number",
+      "min": 0.5,
+      "max": 3.0,
+      "step": 0.1,
+      "default": 1.0
+    },
+    {
+      "name": "difficulty",
+      "label": "Difficulty",
+      "values": [
+        {
+          "text": "Calm",
+          "weight": 1
+        },
+        {
+          "text": "Standard",
+          "weight": 2
+        },
+        {
+          "text": "Swarm",
+          "weight": 2
+        },
+        {
+          "text": "Onslaught",
+          "weight": 3
+        }
+      ]
+    },
+    {
+      "name": "enemy_shape",
+      "label": "Enemy Form",
+      "values": [
+        {
+          "text": "Crystals",
+          "weight": 2
+        },
+        {
+          "text": "Drones",
+          "weight": 2
+        },
+        {
+          "text": "Asteroids",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "fire_mode",
+      "label": "Weapon Type",
+      "values": [
+        {
+          "text": "Homing",
+          "weight": 2
+        },
+        {
+          "text": "Straight",
+          "weight": 1
+        },
+        {
+          "text": "Spread",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "fire",
+      "label": "Fire Weapons!",
+      "type": "trigger",
+      "share": "all"
+    }
+  ]
+}
