@@ -64,7 +64,9 @@ export function contrast(a, b) {
 }
 
 export function resolvePanel(sketch) {
-  const variables = (sketch?.variables || []).filter((v) => v && typeof v.name === 'string');
+  // Host controls live on the owner's desk, never on a phone (the desk strips
+  // the flag from its own copy before drawing them).
+  const variables = (sketch?.variables || []).filter((v) => v && typeof v.name === 'string' && v.access !== 'host');
   const names = new Set(variables.map((v) => v.name));
   const ui = isObject(sketch?.ui) ? sketch.ui : {};
 

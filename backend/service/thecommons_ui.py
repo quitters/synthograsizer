@@ -115,6 +115,9 @@ def normalize_ui(ui, variables: list[dict]) -> dict | None:
     there is no spec at all. Never raises on bad input."""
     if not isinstance(ui, dict):
         return None
+    # A panel is what phones hold. Host controls live on the owner's desk and
+    # are never handed out, so they have no place in it.
+    variables = [v for v in variables if v.get("access") != "host"]
     by_name = {v["name"]: v for v in variables}
 
     # isinstance first: a list or dict here would be unhashable, and this
@@ -284,6 +287,8 @@ def panel_request(sketch: dict, prompt: str, source_ui: dict | None = None) -> s
     """The piece, as the panel designer sees it."""
     controls = []
     for v in sketch["variables"]:
+        if v.get("access") == "host":
+            continue  # the host's own, on the desk: not the phones' panel to design
         kind = control_type(v)
         control = {"name": v["name"], "label": v.get("label") or v["name"], "type": kind}
         if kind == "number":
