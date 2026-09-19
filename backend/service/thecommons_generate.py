@@ -63,11 +63,16 @@ RUNTIME CONTRACT -- your "code" field runs every animation frame as the BODY of 
   or audio.beat, not just on frame.t.
 - room.state: an object you own and may mutate freely. It PERSISTS between frames and is
   cleared only when a new piece loads -- it is the only way to remember anything. Initialise
-  once and reuse it: room.state.dots ??= []; then update that same array each frame. Keep it
+  once and reuse it: room.state.dots ??= []; then update that same array each frame. room.state
+  itself always exists already: give it fields, never replace it -- room.state ??= {...} does
+  nothing, so fields set that way stay undefined. Keep it
   BOUNDED -- cap anything you grow (around 200 entries) and drop the oldest, because this runs
   for hours on a wall and an array that only grows will eventually stall the display.
 - room.people: everyone connected right now, as [{id, table, hue}] with hue 0-359. Optional,
-  but drawing one element per person makes the room itself part of the composition.
+  but drawing one element per person makes the room itself part of the composition. id and
+  table are opaque STRINGS (like "a3f90c1e..." and "table-2"): compare them, never do arithmetic
+  on them -- p.id * 97 is NaN, and a NaN position draws nothing. For a number per person, use
+  their hue or their index in room.people.
 
 RULES:
 - Pure Canvas2D only. No p5.js, no external libraries, no network calls, no image/video generation.
@@ -102,7 +107,7 @@ RULES:
   so wrap ctx.save()/ctx.restore() around anything you change on it -- transforms, but equally
   globalCompositeOperation, globalAlpha, filter and line dash. Leaving one set will corrupt the
   next frame's very first draw, including your own background. Fill the background unless trails
-  are intentional. No DOM access, timers,
+  are intentional. For an offscreen buffer use new OffscreenCanvas(w, h). No DOM access, timers,
   event listeners, imports, global state, or unfinished code. Do not emit a p5Code field."""
 
 
@@ -115,6 +120,9 @@ _INTERACTIVE_RULES = """INTERACTIVE ACTIONS -- this piece reacts to deliberate a
   Read it every frame; it is cleared for you afterwards. An event is MOMENTARY -- react to it
   and store the consequence in room.state, which is the thing that actually persists.
   Example: for (const e of room.events) if (e.name === 'shoot') room.state.shots.push({x: 0.5, t: frame.t});
+- e.participantId and e.table are the same opaque strings as in room.people: find the person with
+  room.people.find(p => p.id === e.participantId) and use their hue or index, and allow for
+  not finding them (they may have just left).
 - Declare an action as a trigger control:
     {"name": "shoot", "label": "Shoot", "type": "trigger", "share": "all"}
   A trigger has NO values array, NO numeric range, and takes NO placeholder in promptTemplate.
