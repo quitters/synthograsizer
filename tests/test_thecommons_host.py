@@ -91,3 +91,11 @@ def test_a_runaway_desk_is_throttled(service_on, fake_pool, monkeypatch):
     codes = [client.post(f"/api/thecommons/rooms/{room_id}/host", json={"name": "mound", "value": 1 + i},
                          cookies=cookies).status_code for i in range(40)]
     assert 200 in codes and 429 in codes
+
+
+def test_the_phone_preview_leaves_host_controls_out_and_counts_them(service_on, fake_pool, monkeypatch):
+    room_id, cookies, relay, _ = _live_room(fake_pool, monkeypatch)
+    panel = client.get(f"/api/thecommons/rooms/{room_id}", cookies=cookies).json()["panel"]
+    assert [v["name"] for v in panel["variables"]] == ["speed"]
+    assert panel["hostCount"] == 3
+

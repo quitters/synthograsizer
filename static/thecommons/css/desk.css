@@ -264,3 +264,10 @@ footer {
 .phone-frame .control-sharing:empty { display: none; }
 .phone-frame .panel-head:first-child { margin-top: 18px; }
 .phone-preview figcaption { margin: 0; font-size: 12px; }
+
+/* The host's own controls, drawn by the phones' renderer on the skin's ground
+   so they read as the same instrument, just a wider one. */
+.host-controls { display: grid; gap: 14px; }
+.host-frame { padding: 2px 18px 18px; border: 1px solid var(--line); border-radius: 18px;
+  background: var(--p-ground); color: var(--p-ink); font-family: var(--p-font); }
+.host-frame .control-sharing:empty { display: none; }

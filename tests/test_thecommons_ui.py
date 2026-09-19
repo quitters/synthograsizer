@@ -15,7 +15,7 @@ import pytest
 
 from backend.service.thecommons_ui import (
     DENSITIES, GROUP_TITLE_CAP, HINT_CAP, MAX_GROUPS, MIN_ACCENT_CONTRAST, SKINS, TAGLINE_CAP, TITLE_CAP,
-    WIDGETS_BY_TYPE, contrast, normalize_ui,
+    WIDGETS_BY_TYPE, contrast, normalize_ui, panel_request,
 )
 from backend.service.thecommons_validate import validate_native_sketch
 
@@ -284,3 +284,32 @@ def test_the_client_mirror_agrees_on_toggles(tmp_path):
     client = _client_resolve(tmp_path, TOGGLE_VARIABLES, cases)
     for ui, resolved in zip(cases, client["out"]):
         assert resolved == normalize_ui(ui, TOGGLE_VARIABLES), ui
+
+
+# ── host controls are never on a phone's panel ──────────────────────────────
+
+HOST_VARIABLES = VARIABLES + [
+    {"name": "mound", "label": "Mound", "type": "number", "min": 1, "max": 9999, "step": 1, "default": 1, "access": "host"},
+]
+
+
+def test_a_host_control_never_reaches_a_phone_panel():
+    ui = normalize_ui({**GOOD, "groups": [{"title": "All", "controls": ["mound", "speed"]}],
+                       "controls": {"mound": {"widget": "knob"}}}, HOST_VARIABLES)
+    placed = [name for group in ui["groups"] for name in group["controls"]]
+    assert "mound" not in placed and "mound" not in ui["controls"]
+    assert sorted(placed) == sorted(v["name"] for v in VARIABLES)
+
+
+def test_the_panel_designer_never_hears_about_host_controls():
+    request = panel_request({"name": "Mounds", "variables": HOST_VARIABLES, "code": ""}, "a mound")
+    assert '"mound"' not in request and '"speed"' in request
+
+
+@pytest.mark.skipif(shutil.which("node") is None, reason="node is not installed")
+def test_the_client_mirror_also_leaves_host_controls_off(tmp_path):
+    cases = [{**GOOD, "groups": [{"title": "All", "controls": ["mound", "speed"]}]}, {}]
+    client = _client_resolve(tmp_path, HOST_VARIABLES, cases)
+    for ui, resolved in zip(cases, client["out"]):
+        assert resolved == normalize_ui(ui, HOST_VARIABLES), ui
+

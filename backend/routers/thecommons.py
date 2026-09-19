@@ -197,8 +197,10 @@ def _panel_preview(sketch: dict | None) -> dict | None:
     didn't come from the gallery endpoint."""
     if not sketch:
         return None
+    variables = sketch.get("variables") or []
     return {"id": sketch.get("id"), "name": sketch.get("name"),
-            "variables": sketch.get("variables") or [], "ui": sketch.get("ui")}
+            "variables": [v for v in variables if v.get("access") != "host"], "ui": sketch.get("ui"),
+            "hostCount": sum(1 for v in variables if v.get("access") == "host")}
 
 
 @router.get("/api/thecommons/rooms/{room_id}")

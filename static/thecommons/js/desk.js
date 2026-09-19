@@ -85,6 +85,87 @@ function renderRoom(room) {
   document.getElementById('wallLink').href = `/thecommons/display/${encodeURIComponent(room.joinCode)}`;
   gallery?.markLive(room.gallerySlug);
   renderPhonePreview(room.panel);
+  renderHostControls(room.host);
+}
+
+// The live piece's host-only controls -- the owner's alone, never on a phone.
+// The desk has no socket (the relay's origin never sees its session cookie),
+// so changes go over the owner-checked HTTP route: a drag is coalesced to ~10
+// a second, a committed value (a released knob, a switch) goes at once.
+let hostPanel = null;
+let hostFor = null;
+const hostPending = new Map();
+let hostTimer = null;
+const hostStatus = document.getElementById('hostStatus');
+
+function renderHostControls(host) {
+  const section = document.getElementById('hostControls');
+  const variables = host?.variables || [];
+  if (!variables.length) { section.hidden = true; hostFor = null; hostPanel = null; return; }
+  section.hidden = false;
+  // Rebuilt only when the piece changes, never under the host's fingers.
+  const key = `${canvas?.sketchId}|${variables.map((v) => v.name).join(',')}`;
+  if (key === hostFor) return;
+  hostFor = key;
+  hostPending.clear();
+  hostStatus.textContent = '';
+  // Drop the host flag from this copy: the renderer leaves host controls off
+  // phone panels, and this panel is the one place they belong.
+  const own = variables.map(({ access, ...control }) => control);
+  hostPanel = mountPanel(document.getElementById('hostPanel'), { name: canvas?.sketchName, variables: own },
+                         host.values || {}, {
+    showHead: false,
+    onVar: queueHost,
+    onCommit: flushHost,
+    onTrigger: (name) => { sendHost({ name, fire: true }); return true; },
+  });
+  applySkin(document.getElementById('hostFrame'), hostPanel.spec);
+  for (const name of hostPanel.names()) hostPanel.setControl(name, { visible: true, enabled: true, sharing: '' });
+  // A number the host owns is often a seed ("which mound"): offer a dice roll.
+  document.getElementById('hostRolls').replaceChildren(...variables.filter((v) => v.type === 'number').map((v) => {
+    const roll = document.createElement('button');
+    roll.type = 'button';
+    roll.className = 'quiet-button';
+    roll.textContent = `Roll ${v.label || v.name}`;
+    roll.onclick = () => {
+      const steps = Math.round((v.max - v.min) / v.step);
+      const value = Number((v.min + Math.floor(Math.random() * (steps + 1)) * v.step).toPrecision(12));
+      hostPanel?.select(v.name, value);
+      queueHost(v.name, value, true);
+    };
+    return roll;
+  }));
+}
+
+function queueHost(name, value, commit) {
+  hostPending.set(name, value);
+  if (commit) flushHost();
+  else if (!hostTimer) hostTimer = setTimeout(flushHost, 100);
+}
+
+function flushHost() {
+  clearTimeout(hostTimer);
+  hostTimer = null;
+  for (const [name, value] of hostPending) sendHost({ name, value });
+  hostPending.clear();
+}
+
+async function sendHost(body) {
+  try {
+    const response = await fetch(api('/host'), {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
+    });
+    if (response.ok) { hostStatus.textContent = ''; hostStatus.dataset.error = 'false'; return; }
+    const result = await response.json().catch(() => ({}));
+    hostStatus.dataset.error = 'true';
+    hostStatus.textContent = response.status === 404
+      ? 'The wall has moved on to another piece. Reload the desk for its controls.'
+      : result.detail || 'That change didn’t reach the wall. Try again.';
+    if (response.status === 404) await refreshRoom();
+  } catch {
+    hostStatus.dataset.error = 'true';
+    hostStatus.textContent = 'Couldn’t reach the server. Your last change may not be on the wall.';
+  }
 }
 
 // The phones' panel for whatever is on the wall, drawn by the same renderer
@@ -102,6 +183,9 @@ function renderPhonePreview(panel) {
   const mounted = mountPanel(root, panel, {});
   applySkin(frame, mounted.spec);
   for (const name of mounted.names()) mounted.setControl(name, { visible: true, enabled: true, sharing: '' });
+  const hosted = panel.hostCount || 0;
+  document.getElementById('phoneHostNote').textContent = hosted
+    ? ` Your ${hosted === 1 ? 'own control is' : `${hosted} own controls are`} below, on this desk only.` : '';
 }
 
 // Loading a gallery piece is an ordinary preset load: owner-checked, undoable
