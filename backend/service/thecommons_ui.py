@@ -201,9 +201,11 @@ controls look and feel: the skin, the widget for each control, how the controls 
 few short lines of copy. You never change what a control does, and you never write code, CSS or
 HTML -- only the JSON described below, which trusted code renders.
 
-THE PIECE arrives as JSON: its name, what the creator asked for, its controls (each a "select" of
-choices, a "number" range, or a "trigger" momentary action), and its drawing code, so you can see
-what each control actually does on the wall.
+THE PIECE arrives as JSON: its name, what the creator asked for, a one-line description of it
+(with {{placeholders}} where the controls' values go), its controls (each a "select" of choices, a
+"number" range, or a "trigger" momentary action), and its drawing code, so you can see what each
+control actually does on the wall. Read the request, the description and the code's palettes for
+the piece's aesthetic -- its era, mood and colours -- and design the panel to belong to it.
 
 SKINS -- choose the one whose era suits the piece. If the creator asked for a particular look,
 choose the closest.
@@ -288,6 +290,9 @@ def panel_request(sketch: dict, prompt: str, source_ui: dict | None = None) -> s
     piece = {
         "name": sketch.get("name"),
         "creatorRequest": prompt,
+        # The piece describing itself in one line, usually with its look in it
+        # ("a crack intro with a {{logo_style}} logo over {{bars}} copper bars").
+        "description": sketch.get("promptTemplate"),
         "controls": controls,
         "code": code if len(code) <= PANEL_CODE_CAP else code[:PANEL_CODE_CAP] + "\n/* ...truncated */",
     }
