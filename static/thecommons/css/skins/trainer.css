@@ -30,14 +30,21 @@
 
 /* ── the page ──────────────────────────────────────────────────────────── */
 
-/* The copper bars run edge to edge; clip, rather than let them scroll the page sideways. */
 body[data-skin="trainer"] { font-size: 11px; line-height: 1.9; overflow-x: clip; }
-body[data-skin="trainer"] .masthead { padding: 16px 0; }
-body[data-skin="trainer"] .wordmark { font-size: 12px; letter-spacing: 0.04em; }
-body[data-skin="trainer"] .station-meta, body[data-skin="trainer"] .connection { font-size: 9px; }
-body[data-skin="trainer"] h2 { font-size: 13px; line-height: 1.8; }
-body[data-skin="trainer"] .section-help { font-size: 10px; line-height: 2; }
-body[data-skin="trainer"] footer { font-size: 9px; }
+/* On the station the panel's head gives way to the bar, so the copper bars
+   run along the bar's foot instead. */
+body[data-skin="trainer"] .station-bar { border-bottom: 0; padding-bottom: 16px; }
+body[data-skin="trainer"] .station-bar::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 9px;
+  background: linear-gradient(to bottom, var(--c1) 0 12.5%, var(--c2) 0 25%, var(--c3) 0 37.5%, var(--c4) 0 62.5%,
+                              var(--c3) 0 75%, var(--c2) 0 87.5%, var(--c1) 0);
+  background-size: 100% 200%; animation: copper-drift 7s ease-in-out infinite alternate; }
+body[data-skin="trainer"] .bar-title { font-size: 12px; letter-spacing: 0.04em; color: var(--p-accent); }
+body[data-skin="trainer"] .connection { font-size: 9px; }
+body[data-skin="trainer"] .info-toggle { font-size: 10px; border: 2px solid var(--p-line); background: transparent; }
+body[data-skin="trainer"] .room-info h2 { font-size: 13px; line-height: 1.8; }
+body[data-skin="trainer"] .eyebrow { font-size: 9px; }
+body[data-skin="trainer"] .section-help, body[data-skin="trainer"] .empty-state,
+body[data-skin="trainer"] .toast { font-size: 10px; line-height: 2; }
 
 /* ── copper bars and the title ─────────────────────────────────────────── */
 
@@ -119,7 +126,8 @@ body[data-skin="trainer"] footer { font-size: 9px; }
 [data-skin="trainer"] .trigger.pad { border-width: 6px; border-style: double; }
 
 @media (prefers-reduced-motion: reduce) {
-  [data-skin="trainer"] .panel-head::before, [data-skin="trainer"] .panel-head::after { animation: none; }
+  [data-skin="trainer"] .panel-head::before, [data-skin="trainer"] .panel-head::after,
+  body[data-skin="trainer"] .station-bar::after { animation: none; }
 }
 
 /* The pixel font has no ◂ ▸, and the fallback draws them tiny: use its own

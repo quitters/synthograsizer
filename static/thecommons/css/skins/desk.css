@@ -51,18 +51,18 @@
 /* ── the screen ────────────────────────────────────────────────────────── */
 
 body[data-skin="desk"] { font-size: 16px; }
-body[data-skin="desk"] .station-shell { padding-top: 0; }
-body[data-skin="desk"] .masthead { padding: 6px 0; border: 0; box-shadow: 0 0 0 100vmax var(--title-bar), 0 2px 0 100vmax var(--bevel-dark); clip-path: inset(0 -100vmax -2px);
-  background: var(--title-bar); color: var(--title-ink); }
-body[data-skin="desk"] .masthead .wordmark,
-body[data-skin="desk"] .masthead .wordmark span,
-body[data-skin="desk"] .masthead .eyebrow,
-body[data-skin="desk"] .masthead .connection { color: var(--title-ink); font-size: 14px; letter-spacing: 0; }
-body[data-skin="desk"] .connection::before { background: var(--title-ink); box-shadow: none; }
-body[data-skin="desk"] h2 { font-size: 22px; }
-body[data-skin="desk"] .eyebrow, body[data-skin="desk"] .section-number { font-size: 13px; letter-spacing: 0.06em; }
-body[data-skin="desk"] .section-help { font-size: 15px; }
-body[data-skin="desk"] footer { font-size: 14px; }
+/* The screen's own title bar. */
+body[data-skin="desk"] .station-bar { background: var(--title-bar); border-bottom: 2px solid var(--bevel-dark); }
+body[data-skin="desk"] .bar-title,
+body[data-skin="desk"] .connection { color: var(--title-ink); font-size: 16px; font-weight: 600; letter-spacing: 0.02em; }
+body[data-skin="desk"] .connection::before { background: var(--title-ink); box-shadow: none; border-radius: 0; }
+body[data-skin="desk"] .info-toggle { border: 2px solid; border-color: var(--bevel-light) var(--bevel-dark) var(--bevel-dark) var(--bevel-light);
+  background: var(--title-bar); color: var(--title-ink); font-size: 15px; letter-spacing: 0; }
+body[data-skin="desk"] .info-toggle[aria-expanded="true"] { border-color: var(--bevel-dark) var(--bevel-light) var(--bevel-light) var(--bevel-dark); color: var(--title-ink); }
+body[data-skin="desk"] .room-info { border: 2px solid var(--p-line); border-top: 0; box-shadow: 6px 6px 0 var(--bevel-dark); }
+body[data-skin="desk"] .room-info h2 { font-size: 22px; }
+body[data-skin="desk"] .eyebrow { font-size: 13px; letter-spacing: 0.06em; }
+body[data-skin="desk"] .section-help, body[data-skin="desk"] .empty-state, body[data-skin="desk"] .toast { font-size: 15px; }
 
 /* ── windows ───────────────────────────────────────────────────────────── */
 

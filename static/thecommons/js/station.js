@@ -23,19 +23,59 @@ const ws = new WebSocket(`${await resolveWsOrigin()}/ws/thecommons/${encodeURICo
   + `?role=station&table=${encodeURIComponent(table)}&session=${encodeURIComponent(session)}`);
 const knobsEl = document.getElementById('knobs');
 const connection = document.getElementById('connection');
+const barTitle = document.getElementById('barTitle');
+const emptyState = document.getElementById('emptyState');
+const roomInfo = document.getElementById('roomInfo');
+const infoToggle = document.getElementById('infoToggle');
+const lastChange = document.getElementById('lastChange');
+const toastEl = document.getElementById('controlHint');
 
 let panel = null;
 const pending = new Map();
 let sendTimer;
-const controlHint = document.getElementById('controlHint');
-
-let hintTimer;
 let participantId;
+let everOpened = false;
 let owners = {};
 // Controls declared share:"all" belong to everyone, so the relay never assigns
 // them and they never appear in `owners`. The station can tell on its own,
 // because it already receives the whole sketch -- no protocol change needed.
 const sharedAll = new Set();
+
+// ── the info sheet: everything about the room, out of the controls' way ────
+
+// The sheet tucks under the bar, whose height depends on the skin's font.
+const bar = document.querySelector('.station-bar');
+const measureBar = () => document.documentElement.style.setProperty('--bar-h', `${bar.offsetHeight}px`);
+new ResizeObserver(measureBar).observe(bar);
+
+function setInfoOpen(open) {
+  roomInfo.hidden = !open;
+  infoToggle.setAttribute('aria-expanded', String(open));
+  if (open) roomInfo.focus({ preventScroll: true });
+}
+infoToggle.addEventListener('click', () => setInfoOpen(roomInfo.hidden));
+document.getElementById('infoClose').addEventListener('click', () => { setInfoOpen(false); infoToggle.focus(); });
+addEventListener('keydown', (event) => {
+  if (event.repeat || event.ctrlKey || event.metaKey || event.altKey
+    || event.target.closest?.('input, textarea, select, [contenteditable]')) return;
+  if (event.key.toLowerCase() === 'i') {
+    event.preventDefault();
+    setInfoOpen(roomInfo.hidden);
+  } else if (event.key === 'Escape' && !roomInfo.hidden) {
+    setInfoOpen(false);
+    infoToggle.focus();
+  }
+});
+
+// ── the toast: only what a person needs to act on, then it goes ────────────
+
+let toastTimer;
+function toast(message, { stay = false } = {}) {
+  clearTimeout(toastTimer);
+  toastEl.textContent = message;
+  toastEl.hidden = !message;
+  if (message && !stay) toastTimer = setTimeout(() => { toastEl.hidden = true; }, 4000);
+}
 
 function ownsControl(name) {
   return sharedAll.has(name) || !!owners[name]?.some((person) => person.id === participantId);
@@ -55,16 +95,21 @@ function updateOwnership(next = owners) {
     panel.setControl(name, {
       visible: mine,
       enabled: mine && ws.readyState === WebSocket.OPEN,
+      // Only said when it tells you something: every visible control is
+      // yours, so "Your control" under each one was just noise.
       sharing: sharedAll.has(name)
         ? 'Everyone in the room can use this'
         : mine && owners[name].length > 1
-          ? `Shared with ${owners[name].length - 1} ${owners[name].length === 2 ? 'other person' : 'others'} · each turn holds for 4s` : 'Your control',
+          ? `Shared with ${owners[name].length - 1} ${owners[name].length === 2 ? 'other person' : 'others'} · each turn holds for 4s` : '',
     });
   }
   panel?.refreshGroups();
   document.getElementById('allocationStatus').textContent = count
     ? `${count} ${count === 1 ? 'control is' : 'controls are'} yours. Others steer the rest of the canvas.`
     : 'You’re in the room. Waiting for a control to become available.';
+  // With nothing to hold, the page would be empty: say why, where the controls go.
+  emptyState.hidden = !panel || count > 0;
+  if (panel && !count) emptyState.textContent = 'You’re in the room. A control is yours as soon as one frees up.';
 }
 
 function flushSliders() {
@@ -78,11 +123,13 @@ function flushSliders() {
 
 function updateConnection() {
   const live = ws.readyState === WebSocket.OPEN;
-  connection.textContent = live ? 'Connected' : 'Disconnected · reload to rejoin';
+  connection.textContent = live ? 'Live' : 'Offline';
   connection.dataset.state = live ? 'live' : 'offline';
   updateOwnership();
-  if (!live) { clearTimeout(sendTimer); sendTimer = null; pending.clear(); }
-
+  if (!live) {
+    clearTimeout(sendTimer); sendTimer = null; pending.clear();
+    if (everOpened) toast('Disconnected. Reload the page to rejoin.', { stay: true });
+  }
 }
 
 const TRIGGER_MIN_MS = 150;
@@ -109,21 +156,27 @@ function sendValue(name, value, commit) {
 
 function render(sketch, values = {}, nextOwners = owners) {
   if (!sketch) return;
-  document.getElementById('sketchName').textContent = sketch.name;
   pending.clear();
   sharedAll.clear();
   lastFired.clear();
   clearTimeout(sendTimer);
   sendTimer = null;
-  clearTimeout(hintTimer);
-  controlHint.textContent = 'Your controls are assigned automatically as people join the room.';
+  lastChange.textContent = '';
   for (const v of sketch.variables || []) if (v.share === 'all') sharedAll.add(v.name);
   panel = mountPanel(knobsEl, sketch, values, {
+    showHead: false,
     canUse: usable,
     onVar: sendValue,
     onCommit: flushSliders,
     onTrigger: fireTrigger,
   });
+  // The panel's own title heads the page; the piece's name and the panel's
+  // tagline wait in the info sheet.
+  barTitle.textContent = panel.spec.title || sketch.name;
+  document.getElementById('sketchName').textContent = sketch.name;
+  const tagline = document.getElementById('panelTagline');
+  tagline.textContent = panel.spec.tagline;
+  tagline.hidden = !panel.spec.tagline;
   // A skinned panel dresses the whole page, not just the controls: on a phone
   // the panel IS the page. Wider screens get the same controls, laid out wider.
   applySkin(document.body, panel.spec);
@@ -131,8 +184,7 @@ function render(sketch, values = {}, nextOwners = owners) {
   updateOwnership(nextOwners);
   updateConnection();
 }
-let everOpened = false;
-ws.onopen = () => { everOpened = true; updateConnection(); };
+ws.onopen = () => { everOpened = true; toast(''); updateConnection(); };
 ws.onerror = updateConnection;
 ws.onclose = (event) => {
   // A socket that never opened means the handshake itself was rejected --
@@ -142,13 +194,16 @@ ws.onclose = (event) => {
   // so the code arrives as a bare 1006 and checking for 4404 alone would
   // never have fired. Reloading can't fix either case.
   if (!everOpened || event.code === 4404) {
+    barTitle.textContent = 'This room isn’t open';
     document.getElementById('sketchName').textContent = 'This room isn’t open';
-    document.getElementById('allocationStatus').textContent =
-      'The link may have expired, or the room was closed. Ask whoever invited you for a fresh one.';
-    controlHint.textContent = '';
+    document.getElementById('allocationStatus').textContent = '';
     knobsEl.replaceChildren();
     panel = null;
-    connection.textContent = 'Not connected';
+    emptyState.textContent = 'The link may have expired, or the room was closed. '
+      + 'Ask whoever invited you for a fresh one.';
+    emptyState.hidden = false;
+    toast('');
+    connection.textContent = 'Closed';
     connection.dataset.state = 'offline';
     return;
   }
@@ -172,13 +227,11 @@ ws.onmessage = (ev) => {
     if (msg.type !== 'var' || !pending.has(msg.varName)) panel?.select(msg.varName, msg.value);
     if (msg.type === 'held') pending.delete(msg.varName);
     if (msg.type === 'not_owner') { pending.delete(msg.varName); updateOwnership(msg.owners); }
-    clearTimeout(hintTimer);
-    controlHint.textContent = msg.type === 'not_owner'
-      ? 'This control now belongs to another participant. Your assigned controls are shown below.'
-      : msg.type === 'held' ? `Table ${msg.table} is taking a turn on this shared control. Try again in a moment.`
-      : msg.participantId === participantId ? 'Your turn is on the wall.' : 'Another participant changed the canvas.';
-    hintTimer = setTimeout(() => {
-      controlHint.textContent = 'Your controls are assigned automatically as people join the room.';
-    }, 4000);
+    // Only what someone must act on interrupts the controls. Everyday changes
+    // -- someone else moving their own knob -- are for the info sheet.
+    if (msg.type === 'not_owner') toast('That control has moved to someone else. Yours are below.');
+    else if (msg.type === 'held') toast(`Table ${msg.table} is taking a turn on this one. Try again in a moment.`);
+    else lastChange.textContent = msg.participantId === participantId
+      ? 'Your last change is on the wall.' : 'Someone else just changed the canvas.';
   }
 };
