@@ -90,6 +90,9 @@ RULES:
   limits for a shared display. Read numbers directly: const speed = getVar('speed') ?? 0.5;
   use ?? rather than || so zero remains a valid value.
 - Selectable controls have 3-10 weighted values and no numeric range fields.
+- A genuine on/off idea is a toggle: {"name": "trails", "label": "Trails", "type": "toggle",
+  "default": true} -- no values, no range. It needs its {{placeholder}} like any other control.
+  Read it with const trails = getVar('trails') ?? true; Never fake an on/off as three choices.
 - Give each variable a unique snake_case name and a short human label. Values are unique
   {text, weight} objects with weights 1, 2, or 3. Include every variable as a {{name}}
   placeholder in promptTemplate, and never refer to an undeclared placeholder.
@@ -141,7 +144,8 @@ _OUTPUT_TAIL = """- Respond with ONLY the JSON object below. No markdown fences,
   "code": "JavaScript source, the BODY only (see RUNTIME CONTRACT)",
   "variables": [
     {"name": "string", "label": "string", "type": "number", "min": 0, "max": 10, "step": 1, "default": 5},
-    {"name": "string", "label": "string", "values": [{"text": "string", "weight": 1}]}TRIGGER_LINE
+    {"name": "string", "label": "string", "values": [{"text": "string", "weight": 1}]},
+    {"name": "string", "label": "string", "type": "toggle", "default": true}TRIGGER_LINE
   ]
 }"""
 
@@ -152,7 +156,7 @@ def system_prompt(*, interactive: bool = False) -> str:
     nothing here costs a classifier call to route."""
     tail = _OUTPUT_TAIL.replace(
         "PLACEHOLDER_NOTE",
-        "one per select or number control (a trigger takes none)" if interactive else "one per variable",
+        "one per select, number or toggle control (a trigger takes none)" if interactive else "one per variable",
     ).replace(
         "TRIGGER_LINE",
         ',\n    {"name": "string", "label": "string", "type": "trigger", "share": "all"}'

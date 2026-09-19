@@ -180,6 +180,14 @@ def test_prompt_says_ids_are_strings_and_room_state_is_never_replaced():
     # The event half of the rule stays out of the ambient prompt, like the rest of the events contract.
     assert "e.participantId" in interactive and "e.participantId" not in ambient
 
+
+def test_both_prompts_offer_a_real_toggle():
+    for prompt in (gen.system_prompt(), gen.system_prompt(interactive=True)):
+        assert '"type": "toggle"' in prompt
+        assert "Never fake an on/off as three choices" in prompt
+    # The ambient prompt still never mentions triggers: a toggle is not an action.
+    assert "trigger" not in gen.system_prompt().lower()
+
 def test_generate_sketch_selects_the_prompt(gemini_configured, monkeypatch):
     calls = _stub_calls(monkeypatch, [VALID_SKETCH_JSON, VALID_SKETCH_JSON])
     asyncio.run(gen.generate_sketch("a quiet moire study"))
