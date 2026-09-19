@@ -337,6 +337,55 @@ const WIDGETS = {
     };
   },
 
+  // On or off. A real switch for assistive tech (role="switch" plus
+  // aria-checked); the visible On/Off is for eyes only, so it isn't read twice.
+  switch(v, io) {
+    const btn = button('switch');
+    btn.setAttribute('role', 'switch');
+    btn.setAttribute('aria-labelledby', io.labelId);
+    const track = el('span', 'switch-track');
+    track.append(el('span', 'switch-thumb'));
+    const state = el('span', 'switch-state');
+    state.setAttribute('aria-hidden', 'true');
+    btn.append(track, state);
+    let on = false;
+    function setValue(value) {
+      on = value === true;
+      btn.setAttribute('aria-checked', String(on));
+      state.textContent = on ? 'On' : 'Off';
+    }
+    btn.onclick = () => {
+      if (!io.canUse()) return;
+      setValue(!on);
+      io.emit(on, true);
+    };
+    return { el: btn, setValue, setEnabled: (enabled) => { btn.disabled = !enabled; } };
+  },
+
+  // The same on/off as a latching pad with a light: the drum-machine version,
+  // styled by every skin exactly as its choice pads are.
+  lamp(v, io) {
+    const row = el('div', 'values pads lamp');
+    const btn = button('pad-choice');
+    btn.setAttribute('aria-labelledby', io.labelId);
+    const label = el('span', 'pad-label');
+    btn.append(el('span', 'led'), label);
+    row.append(btn);
+    let on = false;
+    function setValue(value) {
+      on = value === true;
+      btn.classList.toggle('active', on);
+      btn.setAttribute('aria-pressed', String(on));
+      label.textContent = on ? 'On' : 'Off';
+    }
+    btn.onclick = () => {
+      if (!io.canUse()) return;
+      setValue(!on);
+      io.emit(on, true);
+    };
+    return { el: row, setValue, setEnabled: (enabled) => { btn.disabled = !enabled; } };
+  },
+
   // A momentary action, not a value: it reports a tap and changes nothing
   // locally. The piece on the wall decides what it means.
   button(v, io) {

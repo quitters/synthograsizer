@@ -120,6 +120,18 @@
 .menu-item.active::before { background: var(--p-accent); border-color: var(--p-accent); }
 .menu-item:focus-visible { outline: 2px solid var(--p-focus); outline-offset: -2px; }
 
+/* ── on/off: switch and lamp ──────────────────────────────────────────────
+   The lamp borrows the choice pads' body entirely (see .pads above), so every
+   skin that styles pads styles it too. */
+.switch { clear: both; display: inline-flex; align-items: center; gap: 12px; min-height: 44px; padding: 6px 16px 6px 6px; border-radius: 999px; border: 1px solid var(--p-line); background: var(--p-surface); color: var(--p-ink); font-size: var(--p-text-size); cursor: pointer; }
+.switch-track { position: relative; flex: none; width: 52px; height: 30px; border-radius: 999px; background: var(--p-line); transition: background 150ms; }
+.switch-thumb { position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: var(--p-ink); transition: transform 150ms, background 150ms; }
+.switch[aria-checked="true"] .switch-track { background: var(--p-accent); }
+.switch[aria-checked="true"] .switch-thumb { transform: translateX(22px); background: var(--p-on-accent); }
+.switch:disabled { opacity: 0.4; cursor: default; }
+.switch:focus-visible { outline: 2px solid var(--p-focus); outline-offset: 3px; }
+.lamp { grid-template-columns: minmax(78px, 104px); }
+
 /* ── actions: trigger button and pad ───────────────────────────────────────
    Deliberately unlike the choice chips: a trigger is a thing you hit,
    repeatedly, often without looking down. Sized for a thumb, and it confirms
@@ -140,6 +152,6 @@
 .values button:disabled, .step-button:disabled, .cycle-value:disabled, .menu-item:disabled { cursor: default; opacity: 0.5; }
 
 @media (prefers-reduced-motion: reduce) {
-  .trigger, .knob-face { transition: none; }
+  .trigger, .knob-face, .switch-track, .switch-thumb { transition: none; }
   .trigger.fired { animation: none; background: var(--p-surface-2); }
 }

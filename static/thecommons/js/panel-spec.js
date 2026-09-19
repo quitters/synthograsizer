@@ -21,6 +21,7 @@ export const DEFAULT_SKIN = 'commons';
 export const WIDGETS_BY_TYPE = {
   number: ['slider', 'knob', 'stepper'],
   select: ['buttons', 'list', 'cycle', 'pads'],
+  toggle: ['switch', 'lamp'],
   trigger: ['button', 'pad'],
 };
 export const DENSITIES = ['roomy', 'compact'];
@@ -34,7 +35,7 @@ const own = (obj, key) => Object.prototype.hasOwnProperty.call(obj, key);
 const isObject = (x) => x !== null && typeof x === 'object' && !Array.isArray(x);
 
 export function controlType(variable) {
-  return variable.type === 'number' || variable.type === 'trigger' ? variable.type : 'select';
+  return ['number', 'toggle', 'trigger'].includes(variable.type) ? variable.type : 'select';
 }
 
 function cleanText(value, cap) {

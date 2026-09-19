@@ -135,3 +135,11 @@ body[data-skin="trainer"] .toast { font-size: 10px; line-height: 2; }
 [data-skin="trainer"] .step-button { font-size: 0; }
 [data-skin="trainer"] .step-down::after, [data-skin="trainer"] .cycle-prev::after { content: '<'; font-size: 16px; }
 [data-skin="trainer"] .step-up::after, [data-skin="trainer"] .cycle-next::after { content: '>'; font-size: 16px; }
+
+/* on/off: a square switch, ON/OFF in the pixel font */
+[data-skin="trainer"] .switch { border-radius: 0; border: 2px solid var(--p-line); background: transparent; font-size: 10px; line-height: 1.6; text-transform: uppercase; }
+[data-skin="trainer"] .switch-track { border-radius: 0; height: 22px; width: 44px; background: transparent; border: 2px solid var(--p-dim); }
+[data-skin="trainer"] .switch-thumb { top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 0; background: var(--p-dim); }
+[data-skin="trainer"] .switch[aria-checked="true"] .switch-track { background: transparent; border-color: var(--p-accent); }
+[data-skin="trainer"] .switch[aria-checked="true"] .switch-thumb { transform: translateX(22px); background: var(--p-accent); }
+[data-skin="trainer"] .switch[aria-checked="true"] .switch-state { color: var(--p-accent); }
