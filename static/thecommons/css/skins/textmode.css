@@ -128,3 +128,10 @@ body[data-skin="textmode"] .toast { font-size: 20px; border: 4px double var(--p-
 [data-skin="textmode"] .step-button { font-size: 0; }
 [data-skin="textmode"] .step-down::after, [data-skin="textmode"] .cycle-prev::after { content: '◄'; font-size: 24px; }
 [data-skin="textmode"] .step-up::after, [data-skin="textmode"] .cycle-next::after { content: '►'; font-size: 24px; }
+
+/* on/off: [ ] and [X], in the text grid */
+[data-skin="textmode"] .switch { border: 0; border-radius: 0; background: transparent; padding: 6px 0; gap: 8px; }
+[data-skin="textmode"] .switch-track { display: none; }
+[data-skin="textmode"] .switch::before { content: '[ ]'; white-space: pre; }
+[data-skin="textmode"] .switch[aria-checked="true"]::before { content: '[X]'; color: var(--p-accent); }
+[data-skin="textmode"] .switch:focus-visible { outline: 0; background: var(--p-accent); color: var(--p-on-accent); }

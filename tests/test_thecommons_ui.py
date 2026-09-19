@@ -222,6 +222,17 @@ console.log(JSON.stringify({
 """
 
 
+def _client_resolve(tmp_path, variables, cases):
+    script = tmp_path / "diff.mjs"
+    script.write_text(_NODE_DIFF, encoding="utf-8")
+    case_file = tmp_path / "cases.json"
+    case_file.write_text(json.dumps({"variables": variables, "cases": cases}), encoding="utf-8")
+    result = subprocess.run(["node", str(script), str(_PANEL_SPEC), str(case_file)],
+                            capture_output=True, text=True, encoding="utf-8", timeout=60)
+    assert result.returncode == 0, result.stderr
+    return json.loads(result.stdout)
+
+
 @pytest.mark.skipif(shutil.which("node") is None, reason="node is not installed")
 def test_the_client_mirror_resolves_exactly_what_the_server_normalises(tmp_path):
     cases = [
@@ -237,15 +248,7 @@ def test_the_client_mirror_resolves_exactly_what_the_server_normalises(tmp_path)
         {"skin": ["x"], "variant": {"y": 1}, "groups": "all", "controls": ["speed"]},
         {},
     ]
-    script = tmp_path / "diff.mjs"
-    script.write_text(_NODE_DIFF, encoding="utf-8")
-    case_file = tmp_path / "cases.json"
-    case_file.write_text(json.dumps({"variables": VARIABLES, "cases": cases}), encoding="utf-8")
-    result = subprocess.run(["node", str(script), str(_PANEL_SPEC), str(case_file)],
-                            capture_output=True, text=True, encoding="utf-8", timeout=60)
-    assert result.returncode == 0, result.stderr
-    client = json.loads(result.stdout)
-
+    client = _client_resolve(tmp_path, VARIABLES, cases)
     for ui, resolved in zip(cases, client["out"]):
         assert resolved == normalize_ui(ui, VARIABLES), ui
 
@@ -255,3 +258,29 @@ def test_the_client_mirror_resolves_exactly_what_the_server_normalises(tmp_path)
     assert tuple(allow["densities"]) == DENSITIES
     assert allow["caps"] == {"groups": MAX_GROUPS, "title": TITLE_CAP, "tagline": TAGLINE_CAP,
                              "groupTitle": GROUP_TITLE_CAP, "hint": HINT_CAP, "accentContrast": MIN_ACCENT_CONTRAST}
+
+
+# ── toggle ───────────────────────────────────────────────────────────────────
+
+TOGGLE_VARIABLES = VARIABLES + [{"name": "trails", "label": "Trails", "type": "toggle", "default": True}]
+
+
+def test_a_toggle_takes_a_toggle_widget_and_nothing_else():
+    ui = normalize_ui({**GOOD, "controls": {"trails": {"widget": "lamp"}}}, TOGGLE_VARIABLES)
+    assert ui["controls"]["trails"]["widget"] == "lamp"
+    for wrong in ("knob", "pads", "button", "buttons", "slider"):
+        ui = normalize_ui({**GOOD, "controls": {"trails": {"widget": wrong}}}, TOGGLE_VARIABLES)
+        assert ui["controls"]["trails"]["widget"] == "switch"
+
+
+@pytest.mark.skipif(shutil.which("node") is None, reason="node is not installed")
+def test_the_client_mirror_agrees_on_toggles(tmp_path):
+    cases = [
+        {**GOOD, "controls": {"trails": {"widget": "lamp"}}},
+        {**GOOD, "controls": {"trails": {"widget": "knob"}}},
+        {**GOOD, "groups": [{"title": "Look", "controls": ["trails", "palette"]}]},
+        {},
+    ]
+    client = _client_resolve(tmp_path, TOGGLE_VARIABLES, cases)
+    for ui, resolved in zip(cases, client["out"]):
+        assert resolved == normalize_ui(ui, TOGGLE_VARIABLES), ui

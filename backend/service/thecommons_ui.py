@@ -49,6 +49,7 @@ DEFAULT_SKIN = "commons"
 WIDGETS_BY_TYPE: dict[str, tuple[str, ...]] = {
     "number": ("slider", "knob", "stepper"),
     "select": ("buttons", "list", "cycle", "pads"),
+    "toggle": ("switch", "lamp"),
     "trigger": ("button", "pad"),
 }
 
@@ -67,7 +68,7 @@ _LINKISH_RE = re.compile(r"://|www\.|@|\.(?:com|net|org|io|ly|app|xyz)\b", re.IG
 
 
 def control_type(variable: dict) -> str:
-    return variable.get("type") if variable.get("type") in ("number", "trigger") else "select"
+    return variable.get("type") if variable.get("type") in ("number", "toggle", "trigger") else "select"
 
 
 def default_widget(variable: dict) -> str:
@@ -207,7 +208,7 @@ HTML -- only the JSON described below, which trusted code renders.
 
 THE PIECE arrives as JSON: its name, what the creator asked for, a one-line description of it
 (with {{placeholders}} where the controls' values go), its controls (each a "select" of choices, a
-"number" range, or a "trigger" momentary action), and its drawing code, so you can see what each
+"number" range, a "toggle" that is on or off, or a "trigger" momentary action), and its drawing code, so you can see what each
 control actually does on the wall. Read the request, the description and the code's palettes for
 the piece's aesthetic -- its era, mood and colours -- and design the panel to belong to it.
 
@@ -232,6 +233,8 @@ WIDGETS -- how each control is operated. Choose from the control's own type only
 - select: "buttons" (two to four short choices, all visible), "list" (a menu read top to bottom:
   modes, presets), "cycle" (many choices, or long names, on a small screen; palettes especially),
   "pads" (three to six punchy choices you hit like a drum machine).
+- toggle: "switch" (a plain on/off, the calm default) or "lamp" (a latching pad with a light, for
+  the on/off that is part of the show).
 - trigger: "button" (wide) or "pad" (a big square pad for the action everyone mashes).
 
 GROUPS -- one to six, each with a short title and the names of its controls. Group by what the

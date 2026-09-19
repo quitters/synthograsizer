@@ -137,3 +137,10 @@ body[data-skin="desk"] .section-help, body[data-skin="desk"] .empty-state, body[
 
 [data-skin="desk"] .trigger { min-height: 84px; font-size: 20px; border-width: 3px; }
 [data-skin="desk"] .trigger.pad { border-width: 4px; }
+
+/* on/off: a bevelled checkbox with a label, the era's own switch */
+[data-skin="desk"] .switch { border: 0; border-radius: 0; background: transparent; padding: 6px 0; gap: 10px; }
+[data-skin="desk"] .switch-track { width: 24px; height: 24px; border-radius: 0; background: var(--p-surface); border: 2px solid; border-color: var(--bevel-dark) var(--bevel-light) var(--bevel-light) var(--bevel-dark); }
+[data-skin="desk"] .switch-thumb { display: none; }
+[data-skin="desk"] .switch[aria-checked="true"] .switch-track { background: var(--p-surface); }
+[data-skin="desk"] .switch[aria-checked="true"] .switch-thumb { display: block; top: 4px; left: 4px; width: 12px; height: 12px; border-radius: 0; transform: none; background: var(--p-ink); }
