@@ -255,3 +255,12 @@ footer {
 .gallery-prompt summary { cursor: pointer; color: var(--cyan); }
 .gallery-prompt summary:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
 .gallery-prompt p { margin: 6px 0 0; font-family: var(--font-mono); line-height: 1.55; }
+
+/* What phones see: the live piece's panel in a phone-sized frame. The frame
+   takes the skin's ground so the panel sits on its own background. */
+.phone-preview { flex: 0 1 340px; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+.phone-frame { height: 560px; overflow: hidden auto; overscroll-behavior: contain; padding: 0 16px 20px; border: 1px solid var(--line);
+  border-radius: 26px; background: var(--p-ground); color: var(--p-ink); font-family: var(--p-font); }
+.phone-frame .control-sharing:empty { display: none; }
+.phone-frame .panel-head:first-child { margin-top: 18px; }
+.phone-preview figcaption { margin: 0; font-size: 12px; }

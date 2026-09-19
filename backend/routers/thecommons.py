@@ -181,6 +181,17 @@ async def delete_room(room_id: int, request: Request):
     return Response(status_code=204)
 
 
+def _panel_preview(sketch: dict | None) -> dict | None:
+    """What the desk needs to preview the phones' panel: the controls and the
+    panel spec, and deliberately not the code. The desk only draws this, with
+    the same data-only renderer the phones use; it never runs a piece that
+    didn't come from the gallery endpoint."""
+    if not sketch:
+        return None
+    return {"id": sketch.get("id"), "name": sketch.get("name"),
+            "variables": sketch.get("variables") or [], "ui": sketch.get("ui")}
+
+
 @router.get("/api/thecommons/rooms/{room_id}")
 async def get_room(room_id: int, request: Request):
     _require_service()
@@ -197,6 +208,7 @@ async def get_room(room_id: int, request: Request):
         "sketchId": relay.current_sketch.get("id") if relay.current_sketch else None,
         # Set only while a gallery piece is live, unremixed — lets the desk mark its card.
         "gallerySlug": relay.current_sketch.get("gallery") if relay.current_sketch else None,
+        "panel": _panel_preview(relay.current_sketch),
         "canUndo": bool(state and state.get("undo")) and active_job is None,
         "activeJobId": active_job["id"] if active_job else None,
     }

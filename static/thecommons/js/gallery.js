@@ -114,6 +114,7 @@ function buildCard(piece, onPick) {
     tags.append(el('li', 'tag-action', `${v.share === 'all' ? 'Everyone taps' : 'One person taps'}: ${v.label}`));
   }
   if (piece.usesPeople) tags.append(el('li', 'tag-people', 'Knows who’s here'));
+  if (piece.panel) tags.append(el('li', 'tag-panel', `Phone panel: ${piece.panel}`));
   if (tags.children.length) body.append(tags);
 
   const controls = piece.sketch.variables.filter((v) => v.type !== 'trigger').map((v) => v.label);

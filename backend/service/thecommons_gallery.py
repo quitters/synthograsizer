@@ -31,6 +31,8 @@ import logging
 from functools import lru_cache
 from pathlib import Path
 
+from backend.service.thecommons_gallery_panels import PANELS
+from backend.service.thecommons_ui import SKINS
 from backend.service.thecommons_validate import validate_native_sketch
 
 logger = logging.getLogger(__name__)
@@ -332,7 +334,7 @@ def load_gallery() -> tuple[dict, ...]:
                 (_DIR / f"{meta['slug']}.json").read_text(encoding="utf-8"))
             sketch = validate_native_sketch({
                 "name": controls["name"], "promptTemplate": controls["promptTemplate"],
-                "variables": controls["variables"], "code": code,
+                "variables": controls["variables"], "code": code, "ui": PANELS.get(meta["slug"]),
             })
         except (OSError, ValueError, KeyError) as exc:   # InvalidSketchError and JSON errors are ValueErrors
             logger.error("[thecommons] skipping gallery piece %s: %s", meta["slug"], exc)
@@ -354,6 +356,8 @@ def load_gallery() -> tuple[dict, ...]:
             # Derived from the piece itself, so a badge can never claim what the code doesn't do.
             "interactive": any(v.get("type") == "trigger" for v in variables),
             "usesPeople": "room.people" in code,
+            # The phone panel's look, named for the card, e.g. "Trainer menu".
+            "panel": SKINS[sketch["ui"]["skin"]]["label"] if "ui" in sketch else None,
             "sketch": sketch,
         })
     return tuple(pieces)

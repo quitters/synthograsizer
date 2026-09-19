@@ -9,6 +9,7 @@
 // is the only thing that opens this desk.
 
 import { mountGallery } from './gallery.js';
+import { applySkin, mountPanel } from './panel.js';
 
 const roomId = new URLSearchParams(location.search).get('room');
 
@@ -83,6 +84,24 @@ function renderRoom(room) {
   document.getElementById('joinUrl').textContent = joinUrl.replace(/^https?:\/\//, '');
   document.getElementById('wallLink').href = `/thecommons/display/${encodeURIComponent(room.joinCode)}`;
   gallery?.markLive(room.gallerySlug);
+  renderPhonePreview(room.panel);
+}
+
+// The phones' panel for whatever is on the wall, drawn by the same renderer
+// the phones use. It is data only -- controls and a panel spec, never code --
+// so it is as safe on this signed-in page as on an anonymous phone. It sends
+// nothing: every control works locally so a host can try the feel of it.
+let previewedPanel;
+function renderPhonePreview(panel) {
+  const frame = document.getElementById('phonePreview');
+  if (!panel || panel.id === previewedPanel) return;
+  previewedPanel = panel.id;
+  const root = document.createElement('div');
+  root.className = 'phone-panel';
+  frame.replaceChildren(root);
+  const mounted = mountPanel(root, panel, {});
+  applySkin(frame, mounted.spec);
+  for (const name of mounted.names()) mounted.setControl(name, { visible: true, enabled: true, sharing: '' });
 }
 
 // Loading a gallery piece is an ordinary preset load: owner-checked, undoable

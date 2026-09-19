@@ -16,6 +16,8 @@ from fastapi.testclient import TestClient
 import backend.server as server
 from backend.service import thecommons_relay
 from backend.service.thecommons_gallery import _DIR, GALLERY, SECTIONS, gallery_preset_id, load_gallery
+from backend.service.thecommons_gallery_panels import PANELS
+from backend.service.thecommons_ui import SKINS, normalize_ui
 from backend.service.thecommons_validate import validate_native_sketch
 
 from tests.test_service_auth import _fake_user
@@ -93,6 +95,29 @@ def test_provenance_is_honest():
             assert piece["prompt"] is None, piece["slug"]
 
 
+def test_every_piece_has_a_panel_that_needed_no_patching():
+    """normalize_ui() quietly repairs a bad spec, which is right for model
+    output and wrong for a curated one: a panel fixed up on load is a panel
+    nobody actually reviewed. So every field written here must come through
+    exactly as written."""
+    assert set(PANELS) == {meta["slug"] for meta in GALLERY}
+    for piece in load_gallery():
+        written, served = PANELS[piece["slug"]], piece["sketch"]["ui"]
+        for field in ("skin", "variant", "title", "tagline", "mobile", "desktop"):
+            assert served[field] == written[field], (piece["slug"], field)
+        assert served["groups"] == written["groups"], piece["slug"]
+        for name, control in written["controls"].items():
+            assert served["controls"][name] == {"hint": "", **control}, (piece["slug"], name)
+        assert piece["panel"] == SKINS[written["skin"]]["label"]
+
+
+def test_the_gallery_shows_off_every_skin():
+    counts = {skin: 0 for skin in SKINS if skin != "commons"}
+    for piece in load_gallery():
+        counts[piece["sketch"]["ui"]["skin"]] += 1
+    assert all(n >= 4 for n in counts.values()), counts
+
+
 # ── the endpoint ────────────────────────────────────────────────────────────
 
 def test_gallery_endpoint_is_public_and_revalidates():
@@ -157,6 +182,10 @@ def test_loading_a_gallery_piece_puts_it_on_the_wall_for_free(service_on, fake_p
     room = client.get(f"/api/thecommons/rooms/{room_id}", cookies=cookies).json()
     assert room["gallerySlug"] == "fire"
     assert room["canUndo"] is True   # so a mis-click needs no confirmation dialog
+    # The desk previews the phones' panel from data alone -- never the code.
+    assert room["panel"]["ui"]["skin"] == PANELS["fire"]["skin"]
+    assert [v["name"] for v in room["panel"]["variables"]] == [v["name"] for v in relay.current_sketch["variables"]]
+    assert "code" not in room["panel"]
     # The whole point for hosts: a ready-made piece costs nothing.
     assert fake_pool.balance_of(1) == balance_before
     assert fake_pool.ledger == []
