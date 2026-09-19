@@ -10,7 +10,7 @@ from typing import Any
 
 
 def default_value(variable: dict) -> Any:
-    if variable.get("type") == "number":
+    if variable.get("type") in ("number", "toggle"):
         return variable.get("default")
     values = variable.get("values")
     return values[0]["text"] if values else None
@@ -30,3 +30,21 @@ def numeric_value(variable: dict, value: Any) -> float | None:
     # JS `Number(x.toPrecision(12))` — round to 12 significant digits, then clamp.
     snapped = float(f"{snapped:.12g}")
     return min(variable["max"], max(variable["min"], snapped))
+
+
+def accept_value(variable: dict, value: Any) -> Any:
+    """The value a control may take, normalised, or None when it may not.
+
+    One gate for every writer -- a participant's phone, the host's desk, a
+    saved look being loaded -- so they can never disagree about what's valid.
+    Callers must test `is None`: a toggle's False is a real value.
+    """
+    vtype = variable.get("type")
+    if vtype == "trigger":
+        return None  # a trigger is fired, never set
+    if vtype == "number":
+        return numeric_value(variable, value)
+    if vtype == "toggle":
+        return value if isinstance(value, bool) else None
+    choices = variable.get("values") or []
+    return value if any(c["text"] == value for c in choices) else None

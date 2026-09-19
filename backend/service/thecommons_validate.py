@@ -46,7 +46,7 @@ def validate_native_sketch(sketch: dict) -> dict:
     _require(isinstance(variables_in, list) and 2 <= len(variables_in) <= 16, "expected 2-16 variables")
 
     names: set[str] = set()
-    valued_names: set[str] = set()  # select + number only; triggers carry no value
+    valued_names: set[str] = set()  # select, number and toggle; triggers carry no value
     assignable = 0                  # controls distribute() can hand to one person
     variables = []
     for v in variables_in:
@@ -60,7 +60,7 @@ def validate_native_sketch(sketch: dict) -> dict:
         names.add(name)
         label = v["label"] if _nonempty(v.get("label")) else name.replace("_", " ")
         vtype = v.get("type")
-        _require(vtype in (None, "select", "number", "trigger"), "unknown control type")
+        _require(vtype in (None, "select", "number", "toggle", "trigger"), "unknown control type")
 
         # `share` is deliberately trigger-only. A shared slider or choice would
         # be several people overwriting one value with no turn-taking — exactly
@@ -84,6 +84,17 @@ def validate_native_sketch(sketch: dict) -> dict:
             continue
 
         valued_names.add(name)
+
+        # A genuine on/off. Before this, on/off had to be faked as a 3-choice
+        # select, because a choice needs at least three values.
+        if vtype == "toggle":
+            _require(
+                not any(k in v for k in ("values", "min", "max", "step")),
+                f"{name} is a toggle: it takes no choices and no numeric range",
+            )
+            _require(isinstance(v.get("default"), bool), f"{name} needs a true or false default")
+            variables.append({"name": name, "label": label, "type": "toggle", "default": v["default"]})
+            continue
 
         if vtype == "number":
             _require("values" not in v, f"{name} cannot mix a numeric range and choices")

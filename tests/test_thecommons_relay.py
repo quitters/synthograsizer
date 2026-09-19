@@ -193,3 +193,34 @@ def test_telemetry_counts_changes_per_table():
         assert telemetry["changesByTable"]["table-9"] == 2
         assert "table-9" in telemetry["activeTables"]
     asyncio.run(body())
+
+
+# ── toggle ───────────────────────────────────────────────────────────────────
+
+def _toggle_sketch(default=True):
+    return {"id": "s1", "name": "Test", "variables": [
+        {"name": "trails", "label": "Trails", "type": "toggle", "default": default}]}
+
+
+def test_toggle_seeds_from_its_default_and_from_a_saved_look():
+    relay = RoomRelay(room_id=1)
+    relay.set_sketch(_toggle_sketch(default=True), {})
+    assert relay.values["trails"] is True
+    relay.set_sketch(_toggle_sketch(default=True), {"trails": False})  # False is a real value, not "missing"
+    assert relay.values["trails"] is False
+    relay.set_sketch(_toggle_sketch(default=True), {"trails": "no"})    # junk falls back to the default
+    assert relay.values["trails"] is True
+
+
+def test_toggle_update_accepts_only_a_real_boolean():
+    async def body():
+        relay = RoomRelay(room_id=1)
+        relay.set_sketch(_toggle_sketch(default=True), {})
+        ws1, p1, _ = await _add_station(relay, "t1")
+        for junk in ("false", 0, 1, None, [], {}):
+            assert relay.apply_var_update(ws1, p1, "trails", junk) == []
+        assert relay.values["trails"] is True
+        items = relay.apply_var_update(ws1, p1, "trails", False)
+        assert items and items[0][1]["type"] == "var" and items[0][1]["value"] is False
+        assert relay.values["trails"] is False
+    asyncio.run(body())
