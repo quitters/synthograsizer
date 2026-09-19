@@ -188,7 +188,11 @@ def normalize_ui(ui, variables: list[dict]) -> dict | None:
 # turns a half-wrong answer into a working panel, and a failed call just means
 # the default one.
 
-PANEL_MODEL = config.MODEL_TEMPLATE_GEN_FAST
+PANEL_MODEL = config.MODEL_COMMONS_PANEL
+# 3.8 Flash thinks at "medium" by default and spends more tokens on longer
+# tasks by design; picking from a closed vocabulary doesn't need that. It
+# supports low/medium/high only -- "minimal" is an error, not a cheaper mode.
+PANEL_THINKING = "low"
 PANEL_TIMEOUT_S = 20
 # Enough code for the model to see what each control does, without paying to
 # send a very long sketch in full.
@@ -315,6 +319,7 @@ async def design_panel(sketch: dict, prompt: str, *, source_ui: dict | None = No
             google_api.gen_text, client, PANEL_MODEL,
             [google_api.text_block(panel_request(sketch, prompt, source_ui))],
             system_instruction=PANEL_PROMPT, json_mode=True,
+            generation_config={"thinking_level": PANEL_THINKING},
         ), timeout=PANEL_TIMEOUT_S)
         answer = json.loads(_FENCE_RE.sub("", text.strip()))
     except Exception as exc:  # noqa: BLE001 -- any failure means the default panel

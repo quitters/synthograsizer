@@ -11,7 +11,7 @@ import json
 import pytest
 
 from backend.ai_manager import ai_manager
-from backend import google_api
+from backend import config, google_api
 from backend.service import thecommons_generate as gen
 from backend.service import thecommons_ui
 from backend.service.thecommons_ui import PANEL_MODEL, PANEL_PROMPT, SKINS, WIDGETS_BY_TYPE
@@ -218,6 +218,22 @@ def test_a_successful_sketch_gets_its_panel_designed(gemini_configured, monkeypa
     assert piece["controls"][1] == {"name": "speed", "label": "speed", "type": "number",
                                     "min": 0, "max": 10, "step": 1, "default": 5}
     assert "previousPanel" not in piece
+
+
+def test_the_panel_runs_on_its_own_flash_model_at_low_thinking(gemini_configured, monkeypatch):
+    calls = _stub_calls(monkeypatch, [VALID_SKETCH_JSON], panel=PANEL_ANSWER)
+    sketch = asyncio.run(gen.generate_sketch("neon drift"))
+    assert PANEL_MODEL == config.MODEL_COMMONS_PANEL == "gemini-3.8-flash"
+    # Not the shared fast constant: that one is a price-table key for MODEL_FAST too.
+    assert PANEL_MODEL != config.MODEL_TEMPLATE_GEN_FAST
+    assert calls.panel[0]["model"] == "gemini-3.8-flash"
+    level = calls.panel[0]["generation_config"]["thinking_level"]
+    assert level == "low"
+    assert level in {"low", "medium", "high"}           # 3.8 Flash errors on "minimal"
+    assert sketch["generation"]["panelModel"] == "gemini-3.8-flash"
+    # The sketch call itself is unchanged: Pro, no thinking override.
+    assert calls[0]["model"] == config.MODEL_TEMPLATE_GEN
+    assert calls[0].get("generation_config") is None
 
 
 @pytest.mark.parametrize("answer", [
