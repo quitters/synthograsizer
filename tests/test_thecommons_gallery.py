@@ -1,9 +1,10 @@
 """The gallery of ready-made pieces: curation, the endpoint, and loading them.
 
 The node-driven test at the bottom is the one that matters most. The Python
-validator can check a piece's controls but cannot compile JavaScript, so
-without it a syntax error in a curated piece would only surface on someone's
-wall. It is skipped, not failed, where node isn't installed.
+validator now compiles each piece too, but only this test runs one, so it
+is the one that catches a piece that throws or goes NaN, which otherwise
+would only show up on someone's wall. It is skipped, not failed, where node
+isn't installed.
 """
 
 import json

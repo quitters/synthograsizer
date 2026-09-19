@@ -5,18 +5,33 @@ Canvas2D sketches pass through this gate; the inherited p5 library keeps its
 own contract and its verbatim source files. This checks structure and syntax,
 not runtime safety or artistic quality.
 
-Known gap vs. the JS original: validate-sketch.js's final step is
-`new Function('ctx','frame','getVar','audio', sketch.code)` — a JS *syntax*
-compile check with no Python equivalent. Stage 2 never serves model-generated
-code (only the static, pre-trusted fallback pool), so that check has zero
-practical exposure yet. Revisit once a live provider call can produce
-`code` here — likely via a `node --check`-equivalent subprocess check, since
-compiling JS from Python isn't otherwise meaningful.
+Like validate-sketch.js, the last step compiles the code exactly as the wall
+does, `new Function(...NATIVE_PARAMS, code)`, here in an embedded V8
+(mini-racer) because the Cloud Run image has no node. Only compiled, never
+run. Measured on gemini-3.8-flash: 2 of 30 sketches had a stray `)` after a
+template literal. Before this they passed and shipped as a blank wall; now
+they fail here, so generate_sketch's repair pass fixes them. A pure-Python
+parser was not an option: esprima rejected every gallery piece (no `??`,
+`?.`, class fields), and tree-sitter, which recovers from errors rather than
+reporting them, accepted `let ctx = 1;`, which V8 rejects.
 """
 
+import functools
+import logging
 import re
 
 from backend.service.thecommons_ui import normalize_ui
+
+logger = logging.getLogger(__name__)
+
+# Must match NATIVE_PARAMS in static/thecommons/js/sketch-runtime.js: a body
+# that redeclares a parameter (`let room = ...`) fails there and nowhere else.
+NATIVE_PARAMS = ("ctx", "frame", "getVar", "audio", "room")
+_COMPILE_JS = "(code) => { new Function(%s, code); }" % ", ".join(f"'{p}'" for p in NATIVE_PARAMS)
+# ECMA-262's LineTerminatorSequence, which is how V8 numbers lines.
+_JS_LINE_BREAK_RE = re.compile(r"\r\n|[\n\r\u2028\u2029]")
+# mini-racer's uncaught-error text: "<script>:<line>: SyntaxError: ...\n<that source line>\n   ^".
+_V8_LOCATED_RE = re.compile(r"[^\n]*?:(\d+): ([^\n]+)\n([^\n]*)")
 
 _NAME_RE = re.compile(r"^[a-z][a-z0-9_]*$")
 _PLACEHOLDER_RE = re.compile(r"\{\{\s*([a-z][a-z0-9_]*)\s*\}\}")
@@ -37,6 +52,62 @@ def _nonempty(value) -> bool:
 def _require(condition: bool, message: str) -> None:
     if not condition:
         raise InvalidSketchError(f"invalid native sketch: {message}")
+
+
+@functools.cache
+def _v8():
+    """py_mini_racer with V8 loaded, imported lazily like qrcode and asyncpg
+    so that a local install with stale dependencies still boots. If the
+    package is missing or its native library won't load, the compile check
+    is skipped, loudly, which leaves validation as it was before the check
+    existed -- rather than failing every generation and the whole gallery."""
+    try:
+        import py_mini_racer
+        py_mini_racer.init_mini_racer(ignore_duplicate_init=True)
+    except Exception:
+        logger.exception("[thecommons] V8 (mini-racer) is unavailable, so sketch code is NOT being compiled "
+                         "before it ships; pip install -r requirements.txt")
+        return None
+    return py_mini_racer
+
+
+def compile_error(code: str) -> str | None:
+    """None if the wall can compile `code`, otherwise V8's own error message.
+
+    A fresh context per call: it costs a few milliseconds, and a context
+    that is never closed keeps the interpreter from exiting. No timeout,
+    because mini-racer refuses one when called on a running event loop, which
+    is where generate_sketch validates. None is needed either: the code is
+    never run, and a 1 MB sketch compiles in ~75 ms."""
+    v8 = _v8()
+    if v8 is None:
+        return None
+    with v8.MiniRacer() as js:
+        try:
+            js.eval(_COMPILE_JS)(code)
+        except v8.JSEvalException as exc:
+            return _describe(str(exc), code)
+    return None
+
+
+def _describe(raw: str, code: str) -> str:
+    """V8's message, plus the offending line of `code` whenever V8's line
+    number verifiably points into it. The source V8 compiles is, per
+    ECMA-262's CreateDynamicFunction, "(function anonymous(<params>\\n) {\\n"
+    + code + "\\n})" -- so the code starts two lines down. The line quoted in
+    the error has to match that line of the code, or the location is dropped:
+    a RangeError from deeply nested code, for one, is located in the harness."""
+    match = _V8_LOCATED_RE.match(raw)
+    if not match:
+        return raw.strip().split("\n", 1)[0]
+    line_no, message, quoted = int(match.group(1)) - 2, match.group(2), match.group(3)
+    lines = _JS_LINE_BREAK_RE.split(code)
+    if 1 <= line_no <= len(lines) and lines[line_no - 1] == quoted:
+        where, text = f"{message} at line {line_no} of the code", quoted.strip()
+        return f"{where}: {text}" if len(text) <= 200 else where
+    if line_no == len(lines) + 1 and quoted == "})":
+        return f"{message} at the end of the code"
+    return message
 
 
 def validate_native_sketch(sketch: dict) -> dict:
@@ -165,6 +236,11 @@ def validate_native_sketch(sketch: dict) -> dict:
     )
     stripped = _PLACEHOLDER_RE.sub("", prompt_template)
     _require("{{" not in stripped, "malformed prompt placeholder")
+
+    # Last, as the costliest check. The message reaches the repair prompt
+    # verbatim, so it carries the parser's own words and the line.
+    error = compile_error(sketch["code"])
+    _require(error is None, f"code does not compile: {error}")
 
     validated = {
         "name": sketch["name"].strip(),

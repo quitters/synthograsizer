@@ -119,6 +119,35 @@ def test_repair_call_network_error_also_falls_back(gemini_configured, monkeypatc
     assert len(calls) == 2
 
 
+BROKEN_CODE = "ctx.fillRect(0, 0, frame.width, frame.height);\nctx.strokeStyle = `rgba(100, 240, 255, 0.4)`);"
+
+
+def _sketch_with_code(code: str) -> str:
+    return json.dumps({**json.loads(VALID_SKETCH_JSON), "code": code})
+
+
+def test_code_that_does_not_compile_is_sent_back_for_repair(gemini_configured, monkeypatch):
+    # Valid JSON, valid controls, and a stray `)` the wall can't compile -- 2 of
+    # 30 measured 3.8 Flash sketches. Without the compile check it shipped blank.
+    calls = _stub_calls(monkeypatch, [_sketch_with_code(BROKEN_CODE), VALID_SKETCH_JSON])
+    sketch = asyncio.run(gen.generate_sketch("neon lattice"))
+    assert sketch["fallback"] is False
+    assert sketch["code"] == json.loads(VALID_SKETCH_JSON)["code"]
+    assert len(calls) == 2
+    repair_text = calls[1]["blocks"][0]["text"]
+    assert ("code does not compile: SyntaxError: Unexpected token ')' at line 2 of the code: "
+            "ctx.strokeStyle = `rgba(100, 240, 255, 0.4)`);") in repair_text
+
+
+def test_code_that_still_does_not_compile_after_repair_falls_back(gemini_configured, monkeypatch):
+    calls = _stub_calls(monkeypatch, [_sketch_with_code(BROKEN_CODE)] * 2)
+    sketch = asyncio.run(gen.generate_sketch("neon lattice"))
+    assert sketch["fallback"] is True
+    assert "does not compile" in sketch["reason"]
+    assert sketch["modelAnswered"] is True   # both calls answered and were billed
+    assert len(calls) == 2
+
+
 def test_remix_with_no_source_falls_back_without_calling_the_model(gemini_configured, monkeypatch):
     calls = _stub_calls(monkeypatch, [VALID_SKETCH_JSON])
     sketch = asyncio.run(gen.generate_sketch("change it", mode="remix", source=None))
