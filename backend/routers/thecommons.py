@@ -429,7 +429,7 @@ async def start_generation(body: GenerateRequest, request: Request):
     # as they are everywhere else in the suite. A short balance surfaces as
     # the standard 402 out_of_credits from Charge.reserve().
     charge = credits.Charge(request, action="commons_sketch",
-                             model=config.MODEL_TEMPLATE_GEN, prompt_chars=len(body.prompt or ""))
+                             model=config.MODEL_COMMONS_SKETCH, prompt_chars=len(body.prompt or ""))
     try:
         job = await jobs.start(
             pool, relay, body.roomId, body.prompt, body.requestId,

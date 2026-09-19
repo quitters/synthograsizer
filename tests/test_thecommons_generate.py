@@ -79,7 +79,7 @@ def test_successful_generation_is_tagged_gemini_and_not_fallback(gemini_configur
     sketch = asyncio.run(gen.generate_sketch("swirling colors"))
     assert sketch["fallback"] is False
     assert sketch["name"] == "Neon Drift"
-    assert sketch["generation"] == {"provider": "gemini", "model": "gemini-3.1-pro-preview",
+    assert sketch["generation"] == {"provider": "gemini", "model": "gemini-3.8-flash",
                                     "panel": "default", "panelModel": PANEL_MODEL}
     assert len(calls) == 1
     assert calls[0]["json_mode"] is True
@@ -186,6 +186,23 @@ def test_repair_pass_keeps_the_same_prompt(gemini_configured, monkeypatch):
     assert all("room.events" in c["system_instruction"] for c in calls)
 
 
+def test_sketches_run_on_3_8_flash_and_the_repair_matches_the_first_call(gemini_configured, monkeypatch):
+    calls = _stub_calls(monkeypatch, ["not json at all", VALID_SKETCH_JSON])
+    sketch = asyncio.run(gen.generate_sketch("swirling colors"))
+    assert sketch["fallback"] is False and len(calls) == 2
+    assert config.MODEL_COMMONS_SKETCH == "gemini-3.8-flash"
+    # Its own constant: the template tools stay on Pro.
+    assert config.MODEL_TEMPLATE_GEN == "gemini-3.1-pro-preview"
+    first, repair = calls
+    # Same model, same system prompt, same thinking level -- a repair on a
+    # different setup could "fix" the piece into something else.
+    assert first["model"] == repair["model"] == "gemini-3.8-flash"
+    assert first["system_instruction"] == repair["system_instruction"]
+    assert first["generation_config"] == repair["generation_config"] == {"thinking_level": gen.SKETCH_THINKING}
+    assert gen.SKETCH_THINKING == "medium"                # 3.8 Flash errors on "minimal"
+    assert sketch["generation"]["model"] == "gemini-3.8-flash"
+
+
 # ── the panel designer: a second call, after a sketch succeeds ──────────────
 
 PANEL_ANSWER = json.dumps({
@@ -231,9 +248,8 @@ def test_the_panel_runs_on_its_own_flash_model_at_low_thinking(gemini_configured
     assert level == "low"
     assert level in {"low", "medium", "high"}           # 3.8 Flash errors on "minimal"
     assert sketch["generation"]["panelModel"] == "gemini-3.8-flash"
-    # The sketch call itself is unchanged: Pro, no thinking override.
-    assert calls[0]["model"] == config.MODEL_TEMPLATE_GEN
-    assert calls[0].get("generation_config") is None
+    # The sketch call thinks harder than the panel does.
+    assert calls[0]["generation_config"] == {"thinking_level": "medium"}
 
 
 @pytest.mark.parametrize("answer", [

@@ -25,12 +25,19 @@ class InvalidModel(ValueError):
 
 # ── per-model credit prices (per call / per image) ─────────────────────────
 TEXT_MODEL_CREDITS = {
-    # ⚠ Two keys, not three: since the 3.6 Flash migration MODEL_DEMO and
+    # ⚠ One key where there were two: since the 3.6 Flash migration MODEL_DEMO and
     # MODEL_TEMPLATE_GEN_FAST are the SAME model id, so this literal collapses.
     # That is intended — both were priced at 1 credit, so nothing is lost — but
     # it does mean demo mode no longer costs less than a normal fast call.
     config.MODEL_TEMPLATE_GEN_FAST: 1,  # gemini 3.6 flash (== MODEL_FAST == MODEL_DEMO)
     config.MODEL_TEXT_CHAT: 5,          # gemini pro (== MODEL_TEMPLATE_GEN / MODEL_ANALYSIS)
+    # gemini 3.8 flash (== MODEL_COMMONS_SKETCH == MODEL_COMMONS_PANEL), at its
+    # STANDARD rate ($1.50 in / $7.50 out per 1M, from 2027-01-01), not the
+    # introductory half price. A Commons sketch call at "medium" thinking
+    # measured $0.052 on average at that rate (p90 $0.079), so 5 per call.
+    # Being a key here also allowlists it for /chat and /generate text at
+    # 5 credits -- far above what a short call costs, so over- not under-.
+    config.MODEL_COMMONS_SKETCH: 5,
 }
 
 IMAGE_MODEL_CREDITS = {
@@ -58,13 +65,19 @@ TEMPLATE_IMAGE_CREDITS = 1              # per analyzed input image in template m
 # notion of. Unused reservations are NOT refunded when a provider call
 # actually happened — see _settle_charge in thecommons_jobs.py for why.
 #
-# Since 2026-09-18 a successful sketch also gets one FAST call to design its
-# control panel (service/thecommons_ui.py), which costs 1 credit and is not
-# priced separately. The average still clears the tariff comfortably: the
-# measured repair rate is 1 in 5, so the expected spend is about 6 credits of
-# Pro plus 1 of Flash, against 10 charged. The worst case (a repair AND a
-# panel) is 11, so "never under-charges" now holds on average rather than on
-# every single job, by one credit. Revisit if the repair rate climbs.
+# A successful sketch also gets one call to design its control panel
+# (service/thecommons_ui.py), not priced separately: about 1 credit.
+#
+# Measured 2026-09-19 by tokens, not by call count, on 11 prompts per model
+# (TheCommons/docs/HANDOFF.md has the table). Since then sketches run on
+# MODEL_COMMONS_SKETCH (3.8 Flash, medium thinking), priced at 5 per call, so
+# the charge is still 10. At the standard rate a generation -- repair and panel
+# included -- averaged 7.2 credits of real cost, and the worst of 11 was 13.3.
+# So this covers the average with room to spare but not every single job;
+# revisit if the repair rate (2 in 11) climbs. For the record, the same
+# measurement put the Pro model it replaced at 18 on average and 27 at worst:
+# Pro thinks ~8.8k tokens a call, so its flat 5-per-call price, and the older
+# "over-charges by 40%" reading, which counted calls, had it under-charging.
 COMMONS_SKETCH_CALLS = 2
 
 
@@ -138,5 +151,5 @@ def client_rates() -> dict:
         "analyze_per_image": ANALYZE_CREDITS_PER_IMAGE,
         "smart_transform_overhead": SMART_TRANSFORM_OVERHEAD,
         "template_image": TEMPLATE_IMAGE_CREDITS,
-        "commons_sketch": text_credits(config.MODEL_TEMPLATE_GEN) * COMMONS_SKETCH_CALLS,
+        "commons_sketch": text_credits(config.MODEL_COMMONS_SKETCH) * COMMONS_SKETCH_CALLS,
     }

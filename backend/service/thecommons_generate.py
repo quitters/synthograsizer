@@ -231,11 +231,22 @@ def _parse_sketch(text: str) -> dict:
     return validate_native_sketch(json.loads(cleaned))
 
 
+# "medium" is 3.8 Flash's default, sent explicitly so a change of default
+# upstream can't silently change what a generation costs or produces. Measured
+# against "low" on the same prompts: equally valid, but only medium grew a
+# working reaction-diffusion field, for ~1.6x the tokens. ("minimal" is not
+# supported and errors.)
+SKETCH_THINKING = "medium"
+
+
 async def _call_gemini(genai_client, text: str, *, interactive: bool = False) -> str:
+    # The repair pass comes through here too, so it always gets the same model,
+    # prompt and thinking level as the call it is repairing.
     return await asyncio.to_thread(
-        google_api.gen_text, genai_client, config.MODEL_TEMPLATE_GEN,
+        google_api.gen_text, genai_client, config.MODEL_COMMONS_SKETCH,
         [google_api.text_block(text)],
         system_instruction=system_prompt(interactive=interactive), json_mode=True,
+        generation_config={"thinking_level": SKETCH_THINKING},
     )
 
 
@@ -307,7 +318,7 @@ async def _succeeded(sketch: dict, prompt: str, *, mode: str, source: dict[str, 
     if ui is not None:
         sketch = {**sketch, "ui": ui}
     return {**sketch, "id": _random_id(), "fallback": False, "modelAnswered": True,
-            "generation": {"provider": "gemini", "model": config.MODEL_TEMPLATE_GEN,
+            "generation": {"provider": "gemini", "model": config.MODEL_COMMONS_SKETCH,
                            "panel": "designed" if ui is not None else "default", "panelModel": PANEL_MODEL}}
 
 
