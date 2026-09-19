@@ -17,7 +17,7 @@
 // it collapses into one grid of results -- filtering should look like
 // filtering, not like the same page with holes in it.
 import { defaultValue } from './parameters.js';
-import { compileNative, resetContext } from './sketch-runtime.js';
+import { clampFrameDt, compileNative, resetContext } from './sketch-runtime.js';
 
 const THUMB_W = 320;
 const THUMB_H = 180;
@@ -441,7 +441,7 @@ export async function mountLibrary({ root, search, tagBar, count, onPick }) {
         if (!preview) continue;
         if (preview.broken) { c.broken.hidden = false; continue; }
         if (reducedMotion.matches && !c.hover) continue;
-        preview.step(Math.min(dt, 0.1));
+        preview.step(clampFrameDt(dt));
       }
     }
     requestAnimationFrame(tick);

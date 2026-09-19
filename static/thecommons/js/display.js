@@ -12,7 +12,7 @@
 //                        only to run these -- generation never produces p5 code.
 
 import { defaultValue } from './parameters.js';
-import { compileNative, resetContext } from './sketch-runtime.js';
+import { compileNative, frameClock, resetContext } from './sketch-runtime.js';
 import { resolveWsOrigin } from './ws-origin.js';
 
 // Served from /thecommons/display/{joinCode} (a FileResponse route in
@@ -230,11 +230,10 @@ audioButton.addEventListener('click', async function enable() {
   }
 });
 
-let start = performance.now(), last = start;
+const start = performance.now();   // event.t counts from here too
+const clock = frameClock(start);
 function frameLoop(now) {
-  const t = (now - start) / 1000;
-  const dt = (now - last) / 1000;
-  last = now;
+  const { t, dt } = clock(now);
 
   if (mode === 'native' && sketch) {
     if (!drawFn) {
