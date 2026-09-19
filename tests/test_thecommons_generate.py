@@ -213,6 +213,7 @@ def test_a_successful_sketch_gets_its_panel_designed(gemini_configured, monkeypa
     request = panel_call["blocks"][0]["text"]
     piece = json.loads(request.split("PIECE:\n", 1)[1])
     assert piece["creatorRequest"] == "neon drift for a hacker party"
+    assert piece["description"] == "a {{palette}} drift with {{speed}}"   # the piece's own look, in its words
     assert [c["name"] for c in piece["controls"]] == ["palette", "speed"]
     assert piece["controls"][1] == {"name": "speed", "label": "speed", "type": "number",
                                     "min": 0, "max": 10, "step": 1, "default": 5}
