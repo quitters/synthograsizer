@@ -168,6 +168,18 @@ def test_interactive_prompt_is_the_ambient_one_plus_a_block():
     assert interactive.startswith(shared)
 
 
+
+def test_prompt_says_ids_are_strings_and_room_state_is_never_replaced():
+    # Both were real, measured failures (2026-09-19): `room.state ??= {...}` left every field
+    # undefined (a blank wall), and `p.id * 97` on a hex id made every action draw at NaN.
+    ambient, interactive = gen.system_prompt(), gen.system_prompt(interactive=True)
+    for prompt in (ambient, interactive):
+        assert "never replace it" in prompt and "room.state ??= {...} does" in prompt
+        assert "opaque STRINGS" in prompt and "never do arithmetic" in prompt
+        assert "OffscreenCanvas" in prompt
+    # The event half of the rule stays out of the ambient prompt, like the rest of the events contract.
+    assert "e.participantId" in interactive and "e.participantId" not in ambient
+
 def test_generate_sketch_selects_the_prompt(gemini_configured, monkeypatch):
     calls = _stub_calls(monkeypatch, [VALID_SKETCH_JSON, VALID_SKETCH_JSON])
     asyncio.run(gen.generate_sketch("a quiet moire study"))
