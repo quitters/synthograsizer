@@ -16,6 +16,8 @@ compiling JS from Python isn't otherwise meaningful.
 
 import re
 
+from backend.service.thecommons_ui import normalize_ui
+
 _NAME_RE = re.compile(r"^[a-z][a-z0-9_]*$")
 _PLACEHOLDER_RE = re.compile(r"\{\{\s*([a-z][a-z0-9_]*)\s*\}\}")
 _RESERVED_NAMES = {"constructor", "prototype"}
@@ -133,9 +135,17 @@ def validate_native_sketch(sketch: dict) -> dict:
     stripped = _PLACEHOLDER_RE.sub("", prompt_template)
     _require("{{" not in stripped, "malformed prompt placeholder")
 
-    return {
+    validated = {
         "name": sketch["name"].strip(),
         "promptTemplate": prompt_template,
         "variables": variables,
         "code": sketch["code"],
     }
+    # A control panel is optional and presentational, so it is normalised
+    # rather than validated: a bad one degrades to the default panel and never
+    # costs the piece. Dropping it here instead would strip every panel that
+    # passes through this gate, the gallery's included.
+    ui = normalize_ui(sketch.get("ui"), variables)
+    if ui is not None:
+        validated["ui"] = ui
+    return validated
