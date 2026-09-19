@@ -20,8 +20,16 @@ static/thecommons/js/panel-spec.js mirrors these allowlists on the client.
 tests/test_thecommons_ui.py keeps the two in step.
 """
 
+import asyncio
+import json
+import logging
 import re
 import unicodedata
+
+from backend import config
+from backend import google_api
+
+logger = logging.getLogger(__name__)
 
 # Each skin's variants map to the ground colour an accent has to stand out
 # against. The skins evoke their era without copying anyone's product: no
@@ -169,3 +177,146 @@ def normalize_ui(ui, variables: list[dict]) -> dict | None:
         "mobile": {"density": mobile.get("density") if mobile.get("density") in DENSITIES else DENSITIES[0]},
         "desktop": {"columns": columns},
     }
+
+
+# ── the panel designer ──────────────────────────────────────────────────────
+#
+# A second, separate prompt, not a section of the sketch prompt: its output is
+# a different contract, and the sketch prompt is already long enough that
+# every rule added to it dilutes the rest. It runs only after a sketch has
+# succeeded, on the fast model, with no repair pass -- normalize_ui() already
+# turns a half-wrong answer into a working panel, and a failed call just means
+# the default one.
+
+PANEL_MODEL = config.MODEL_TEMPLATE_GEN_FAST
+PANEL_TIMEOUT_S = 20
+# Enough code for the model to see what each control does, without paying to
+# send a very long sketch in full.
+PANEL_CODE_CAP = 8000
+
+PANEL_PROMPT = """You design the control panel people hold on their phones for a live, shared
+generative art piece at an event. A projector wall shows the piece; everyone in the room steers it
+from their own phone, and each person is handed a few of the piece's controls. You decide how those
+controls look and feel: the skin, the widget for each control, how the controls are grouped, and a
+few short lines of copy. You never change what a control does, and you never write code, CSS or
+HTML -- only the JSON described below, which trusted code renders.
+
+THE PIECE arrives as JSON: its name, what the creator asked for, its controls (each a "select" of
+choices, a "number" range, or a "trigger" momentary action), and its drawing code, so you can see
+what each control actually does on the wall.
+
+SKINS -- choose the one whose era suits the piece. If the creator asked for a particular look,
+choose the closest.
+- "trainer": the cheat menu a 1990s demo group put in front of a game. Black screen, copper bars,
+  a chunky pixel font, a cursor. Suits demo effects, arcade games, anything loud, rhythmic or neon.
+  Variants (the copper bar colours): "violet", "fire", "ice", "acid".
+- "desk": a late-1980s windowed desktop. Each group is a window with a striped title bar, and
+  buttons are bevelled and press in. Suits calm, constructive, systemic pieces: simulations, tools,
+  generative drawing, anything that feels like a program. Variants: "blue", "grey".
+- "textmode": an 80-column text program with double-line dialog boxes, [ bracketed ] buttons and a
+  highlight bar. Suits code-like, glitchy, terminal, data, matrix and strategy pieces. Variants:
+  "blue" (the classic application palette), "amber" and "green" (monochrome monitors).
+Let the piece pick the variant: a fire piece gets "fire", an ocean piece "ice", a hacker piece
+"green".
+
+WIDGETS -- how each control is operated. Choose from the control's own type only:
+- number: "slider" (precise, or a long range), "knob" (a continuous feel: speed, intensity,
+  rotation; best for the one or two headline quantities), "stepper" (a small whole-number range
+  or a count, like 1-8).
+- select: "buttons" (two to four short choices, all visible), "list" (a menu read top to bottom:
+  modes, presets), "cycle" (many choices, or long names, on a small screen; palettes especially),
+  "pads" (three to six punchy choices you hit like a drum machine).
+- trigger: "button" (wide) or "pad" (a big square pad for the action everyone mashes).
+
+GROUPS -- one to six, each with a short title and the names of its controls. Group by what the
+controls do on the wall (colour, motion, shape, the actions), put every control in exactly one
+group, and order each group from most to least important.
+
+COPY -- plain text, in the voice of the skin.
+- "title", up to 28 characters. A trainer title reads like a crack intro ("PLASMA +3 TRAINER"), a
+  desk title like a program ("Plasma Workshop"), a textmode title like a program file
+  ("PLASMA.EXE").
+- "tagline", up to 60 characters: one short line.
+- "hint", up to 60 characters, only for a control whose effect isn't obvious from its label: what
+  a person will see on the wall when they touch it ("Twist to heat the flames"). Never just repeat
+  the label.
+Never include links, addresses, handles, directions to go anywhere else, or anything that asks a
+person for information.
+
+LAYOUT -- "mobile": {"density": "roomy" or "compact"}; compact sets two small widgets side by side,
+so use it when most controls are knobs, steppers or cycles. "desktop": {"columns": 1 to 3}, how many
+groups sit side by side on a laptop screen.
+
+ACCENT -- optional "accent": "#rrggbb", one highlight colour taken from the piece's own palette. It
+must stay readable on the skin's background (trainer: black; desk blue: #0055aa; desk grey:
+#a8a8a8; textmode blue: #0000aa; amber and green: near-black), or it is discarded. Leave it out
+rather than guess.
+
+When a previous panel is included, the creator is remixing the piece: keep that panel's skin and
+variant unless the request asks for a different look, and carry over whatever still fits.
+
+Respond with ONLY this JSON object -- no markdown fences, no commentary:
+{
+  "skin": "trainer",
+  "variant": "violet",
+  "title": "string",
+  "tagline": "string",
+  "accent": "#rrggbb",
+  "groups": [{"title": "string", "controls": ["control_name"]}],
+  "controls": {"control_name": {"widget": "string", "hint": "string"}},
+  "mobile": {"density": "roomy"},
+  "desktop": {"columns": 2}
+}"""
+
+_FENCE_RE = re.compile(r"^```(?:json)?\s*|\s*```\s*$")
+
+
+def panel_request(sketch: dict, prompt: str, source_ui: dict | None = None) -> str:
+    """The piece, as the panel designer sees it."""
+    controls = []
+    for v in sketch["variables"]:
+        kind = control_type(v)
+        control = {"name": v["name"], "label": v.get("label") or v["name"], "type": kind}
+        if kind == "number":
+            control.update({k: v[k] for k in ("min", "max", "step", "default")})
+        elif kind == "select":
+            control["values"] = [value["text"] for value in v.get("values") or []]
+        else:
+            control["share"] = "everyone" if v.get("share") == "all" else "one person"
+        controls.append(control)
+    code = sketch.get("code") or ""
+    piece = {
+        "name": sketch.get("name"),
+        "creatorRequest": prompt,
+        "controls": controls,
+        "code": code if len(code) <= PANEL_CODE_CAP else code[:PANEL_CODE_CAP] + "\n/* ...truncated */",
+    }
+    if source_ui:
+        piece["previousPanel"] = source_ui
+    return "Design the control panel for this piece.\n\nPIECE:\n" + json.dumps(piece)
+
+
+async def design_panel(sketch: dict, prompt: str, *, source_ui: dict | None = None) -> dict | None:
+    """Ask the fast model for this sketch's panel. Returns a normalised spec,
+    or None whenever there's no usable answer -- which just means the default
+    panel. Never raises: a panel must never cost the room its piece."""
+    from backend.ai_manager import ai_manager
+
+    client = ai_manager.genai_client
+    if not client:
+        return None
+    try:
+        text = await asyncio.wait_for(asyncio.to_thread(
+            google_api.gen_text, client, PANEL_MODEL,
+            [google_api.text_block(panel_request(sketch, prompt, source_ui))],
+            system_instruction=PANEL_PROMPT, json_mode=True,
+        ), timeout=PANEL_TIMEOUT_S)
+        answer = json.loads(_FENCE_RE.sub("", text.strip()))
+    except Exception as exc:  # noqa: BLE001 -- any failure means the default panel
+        logger.warning("[thecommons] panel design failed, using the default panel: %s", type(exc).__name__)
+        return None
+    # An answer without a real skin isn't a design, whatever else it holds.
+    if not (isinstance(answer, dict) and isinstance(answer.get("skin"), str) and answer["skin"] in SKINS):
+        logger.warning("[thecommons] panel design had no usable skin, using the default panel")
+        return None
+    return normalize_ui(answer, sketch["variables"])

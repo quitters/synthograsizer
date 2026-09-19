@@ -57,6 +57,14 @@ TEMPLATE_IMAGE_CREDITS = 1              # per analyzed input image in template m
 # under-charge, and it needs no partial-refund mechanism, which Charge has no
 # notion of. Unused reservations are NOT refunded when a provider call
 # actually happened — see _settle_charge in thecommons_jobs.py for why.
+#
+# Since 2026-09-18 a successful sketch also gets one FAST call to design its
+# control panel (service/thecommons_ui.py), which costs 1 credit and is not
+# priced separately. The average still clears the tariff comfortably: the
+# measured repair rate is 1 in 5, so the expected spend is about 6 credits of
+# Pro plus 1 of Flash, against 10 charged. The worst case (a repair AND a
+# panel) is 11, so "never under-charges" now holds on average rather than on
+# every single job, by one credit. Revisit if the repair rate climbs.
 COMMONS_SKETCH_CALLS = 2
 
 

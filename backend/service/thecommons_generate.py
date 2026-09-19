@@ -35,6 +35,7 @@ from backend import config
 from backend import google_api
 from backend.service.thecommons_builtin import BUILTIN_SKETCHES
 from backend.service.thecommons_templates import load_template_library
+from backend.service.thecommons_ui import PANEL_MODEL, design_panel
 from backend.service.thecommons_validate import InvalidSketchError, validate_native_sketch
 
 logger = logging.getLogger(__name__)
@@ -291,14 +292,23 @@ async def generate_sketch(prompt: str, *, mode: str = "create",
         except (InvalidSketchError, json.JSONDecodeError) as still_invalid:
             logger.warning("[thecommons] repair still failed validation, falling back: %s", still_invalid)
             return _fallback(str(still_invalid), model_answered=True)
-        return _succeeded(sketch)
 
-    return _succeeded(sketch)
+    return await _succeeded(sketch, prompt, mode=mode, source=source)
 
 
-def _succeeded(sketch: dict) -> dict:
+async def _succeeded(sketch: dict, prompt: str, *, mode: str, source: dict[str, Any] | None) -> dict:
+    """A sketch that passed validation gets its control panel designed, by a
+    second and separate call. Only ever here: a fallback is a curated piece and
+    brings its own panel, or none. If the design fails, the sketch still ships
+    with the default panel -- and at the same charge, since the sketch itself,
+    which is what the price is for, was delivered."""
+    source_ui = ((source or {}).get("sketch") or {}).get("ui") if mode == "remix" else None
+    ui = await design_panel(sketch, prompt, source_ui=source_ui)
+    if ui is not None:
+        sketch = {**sketch, "ui": ui}
     return {**sketch, "id": _random_id(), "fallback": False, "modelAnswered": True,
-            "generation": {"provider": "gemini", "model": config.MODEL_TEMPLATE_GEN}}
+            "generation": {"provider": "gemini", "model": config.MODEL_TEMPLATE_GEN,
+                           "panel": "designed" if ui is not None else "default", "panelModel": PANEL_MODEL}}
 
 
 def _redact(message: str) -> str:
