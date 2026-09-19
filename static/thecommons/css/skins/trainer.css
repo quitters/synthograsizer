@@ -1,0 +1,129 @@
+/* Trainer menu -- the cheat screen a demo group bolted onto a game it had
+ * cracked: copper bars, a pixel font, a list of switches and a cursor.
+ *
+ * Nothing here flashes. The copper bars drift slowly and stop entirely under
+ * reduced motion; a trigger's tap feedback is a single, user-caused pulse.
+ */
+
+[data-skin="trainer"] {
+  --p-ground: #000000;
+  --p-surface: #000000;
+  --p-surface-2: #0c0c2a;
+  --p-line: #2a2f78;
+  --p-ink: #d4dcff;
+  --p-dim: #8b95ea;
+  --p-accent: #ffe45e;
+  --p-on-accent: #000000;
+  --p-focus: #ffffff;
+  --p-font: 'Press Start 2P', ui-monospace, monospace;
+  --p-font-label: var(--p-font);
+  --p-font-value: var(--p-font);
+  --p-radius: 0;
+  --p-radius-big: 0;
+  --p-label-size: 11px;
+  --p-text-size: 11px;
+  --c1: #2a0a5e; --c2: #5a1fb0; --c3: #b04ae0; --c4: #ff9ef0;
+}
+[data-skin="trainer"][data-variant="fire"] { --c1: #3a0800; --c2: #9a1c00; --c3: #ff5a00; --c4: #ffd000; }
+[data-skin="trainer"][data-variant="ice"] { --c1: #001a3a; --c2: #0050a0; --c3: #00a8e8; --c4: #c8f4ff; }
+[data-skin="trainer"][data-variant="acid"] { --c1: #0a2a00; --c2: #2f8a00; --c3: #8cff00; --c4: #f0ff9a; }
+
+/* ── the page ──────────────────────────────────────────────────────────── */
+
+/* The copper bars run edge to edge; clip, rather than let them scroll the page sideways. */
+body[data-skin="trainer"] { font-size: 11px; line-height: 1.9; overflow-x: clip; }
+body[data-skin="trainer"] .masthead { padding: 16px 0; }
+body[data-skin="trainer"] .wordmark { font-size: 12px; letter-spacing: 0.04em; }
+body[data-skin="trainer"] .station-meta, body[data-skin="trainer"] .connection { font-size: 9px; }
+body[data-skin="trainer"] h2 { font-size: 13px; line-height: 1.8; }
+body[data-skin="trainer"] .section-help { font-size: 10px; line-height: 2; }
+body[data-skin="trainer"] footer { font-size: 9px; }
+
+/* ── copper bars and the title ─────────────────────────────────────────── */
+
+[data-skin="trainer"] .panel-head { position: relative; margin: 18px 0 8px; padding: 30px 0; text-align: center; }
+[data-skin="trainer"] .panel-head::before,
+[data-skin="trainer"] .panel-head::after {
+  content: ''; position: absolute; left: -100vw; right: -100vw; height: 16px;
+  background: linear-gradient(to bottom, var(--c1) 0 12.5%, var(--c2) 0 25%, var(--c3) 0 37.5%, var(--c4) 0 62.5%,
+                              var(--c3) 0 75%, var(--c2) 0 87.5%, var(--c1) 0);
+  background-size: 100% 200%;
+  animation: copper-drift 7s ease-in-out infinite alternate;
+}
+[data-skin="trainer"] .panel-head::before { top: 0; }
+[data-skin="trainer"] .panel-head::after { bottom: 0; animation-delay: -3.5s; }
+@keyframes copper-drift { from { background-position: 0 0; } to { background-position: 0 100%; } }
+[data-skin="trainer"] .panel-title { font-size: 15px; line-height: 1.6; letter-spacing: 0.06em; color: var(--p-accent); }
+[data-skin="trainer"] .panel-tagline { margin-top: 10px; font-size: 10px; line-height: 1.8; color: var(--c4); }
+
+[data-skin="trainer"] .panel-group-title { margin: 28px 0 4px; text-align: center; font-size: 11px; letter-spacing: 0.08em; color: var(--c4); }
+[data-skin="trainer"] .panel-group-title::before { content: '-= '; color: var(--c3); }
+[data-skin="trainer"] .panel-group-title::after { content: ' =-'; color: var(--c3); }
+
+/* ── one menu line per control ─────────────────────────────────────────── */
+
+[data-skin="trainer"] .knob { padding: 18px 0; border-bottom: 2px dotted var(--p-line); }
+[data-skin="trainer"] .knob legend { letter-spacing: 0.04em; color: var(--p-ink); }
+[data-skin="trainer"] .knob legend::before { content: '+ '; color: var(--p-accent); }
+[data-skin="trainer"] .control-sharing { font-size: 9px; line-height: 1.9; }
+[data-skin="trainer"] .control-hint { font-size: 9px; line-height: 1.9; color: var(--c4); }
+[data-skin="trainer"] .numeric-value { font-size: 13px; }
+
+[data-skin="trainer"] .values button { border: 2px solid var(--p-line); background: transparent; font-size: 10px; line-height: 1.6; text-transform: uppercase; box-shadow: none; transform: none; }
+[data-skin="trainer"] .values button:hover:not(:disabled) { background: var(--p-surface-2); border-color: var(--p-dim); transform: none; }
+[data-skin="trainer"] .values button.active,
+[data-skin="trainer"] .values button.active:hover:not(:disabled) { background: var(--p-accent); border-color: var(--p-accent); color: var(--p-on-accent); box-shadow: none; }
+[data-skin="trainer"] .values button.active::before { content: '> '; }
+
+[data-skin="trainer"] .pad-choice .led { width: 10px; height: 10px; margin-left: -5px; border-radius: 0; }
+[data-skin="trainer"] .values .pad-choice.active { background: var(--p-surface-2); color: var(--p-accent); }
+[data-skin="trainer"] .values .pad-choice.active::before { content: none; }
+[data-skin="trainer"] .values .pad-choice.active .led { box-shadow: none; }
+[data-skin="trainer"] .pad-label { font-size: 9px; }
+
+[data-skin="trainer"] .menu-list { border: 0; }
+[data-skin="trainer"] .menu-item { border: 0; background: transparent; padding-left: 36px; font-size: 11px; line-height: 1.8; text-transform: uppercase; }
+[data-skin="trainer"] .menu-item::before { content: ''; border: 0; border-radius: 0; }
+[data-skin="trainer"] .menu-item.active { color: var(--p-on-accent); background: linear-gradient(to bottom, var(--c3), var(--c4) 50%, var(--c3)); }
+[data-skin="trainer"] .menu-item.active::before { content: '>'; background: none; width: auto; height: auto; left: 12px; margin-top: -0.6em; }
+
+/* Sliders become a row of blocks, filled to the value. */
+[data-skin="trainer"] .numeric-control input::-webkit-slider-runnable-track { height: 14px; border-radius: 0;
+  background: repeating-linear-gradient(to right, transparent 0 10px, #000 10px 14px),
+              linear-gradient(to right, var(--p-accent) var(--position), var(--p-line) var(--position)); }
+[data-skin="trainer"] .numeric-control input::-webkit-slider-thumb { width: 14px; height: 26px; margin-top: -6px; border-radius: 0; border: 0; background: var(--p-ink); box-shadow: none; }
+[data-skin="trainer"] .numeric-control input::-moz-range-track { height: 14px; border-radius: 0; background: var(--p-line); }
+[data-skin="trainer"] .numeric-control input::-moz-range-progress { height: 14px; background: var(--p-accent); }
+[data-skin="trainer"] .numeric-control input::-moz-range-thumb { width: 14px; height: 26px; border-radius: 0; border: 0; background: var(--p-ink); }
+[data-skin="trainer"] .range-bounds { font-size: 9px; }
+
+/* The knob's ring is segmented like an LED meter. The mask sits on a
+   pseudo-element: on the dial itself it would cut the face into stripes too. */
+[data-skin="trainer"] .knob-dial { position: relative; background: none; }
+[data-skin="trainer"] .knob-dial::before { content: ''; position: absolute; inset: 0; border-radius: 50%;
+  background: conic-gradient(from 225deg, var(--p-accent) 0 calc(var(--position) * 0.75), var(--p-line) 0 75%, transparent 0);
+  -webkit-mask: repeating-conic-gradient(#000 0 9deg, transparent 0 13.5deg); mask: repeating-conic-gradient(#000 0 9deg, transparent 0 13.5deg); }
+[data-skin="trainer"] .knob-face { background: var(--p-surface-2); border: 2px solid var(--p-dim); }
+[data-skin="trainer"] .knob-mark { width: 6px; margin-left: -3px; border-radius: 0; }
+[data-skin="trainer"] .knob-control .numeric-value { font-size: 18px; }
+
+[data-skin="trainer"] .step-button { border: 2px solid var(--p-line); background: transparent; font-family: var(--p-font); font-size: 14px; }
+[data-skin="trainer"] .step-value { border: 2px solid var(--p-line); font-size: 15px; }
+[data-skin="trainer"] .cycle-value { border: 2px solid var(--p-accent); background: transparent; font-size: 11px; text-transform: uppercase; color: var(--p-accent); }
+[data-skin="trainer"] .cycle-count { font-size: 9px; }
+
+[data-skin="trainer"] .trigger { border: 4px double var(--p-accent); font-size: 14px; letter-spacing: 0.08em; color: var(--p-accent); }
+[data-skin="trainer"] .trigger::before { content: '[ '; }
+[data-skin="trainer"] .trigger::after { content: ' ]'; }
+[data-skin="trainer"] .trigger.pad::before, [data-skin="trainer"] .trigger.pad::after { content: none; }
+[data-skin="trainer"] .trigger.pad { border-width: 6px; border-style: double; }
+
+@media (prefers-reduced-motion: reduce) {
+  [data-skin="trainer"] .panel-head::before, [data-skin="trainer"] .panel-head::after { animation: none; }
+}
+
+/* The pixel font has no ◂ ▸, and the fallback draws them tiny: use its own
+   angle brackets. The buttons keep their aria-labels either way. */
+[data-skin="trainer"] .step-button { font-size: 0; }
+[data-skin="trainer"] .step-down::after, [data-skin="trainer"] .cycle-prev::after { content: '<'; font-size: 16px; }
+[data-skin="trainer"] .step-up::after, [data-skin="trainer"] .cycle-next::after { content: '>'; font-size: 16px; }

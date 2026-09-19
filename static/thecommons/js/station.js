@@ -1,6 +1,6 @@
 // Generic controls for either sketch contract. Display labels may replace
 // underscores, but the original values always travel over the relay.
-import { mountPanel } from './panel.js';
+import { applySkin, mountPanel } from './panel.js';
 import { resolveWsOrigin } from './ws-origin.js';
 
 // Served from /thecommons/join/{joinCode} — the URL the room's QR encodes.
@@ -124,6 +124,10 @@ function render(sketch, values = {}, nextOwners = owners) {
     onCommit: flushSliders,
     onTrigger: fireTrigger,
   });
+  // A skinned panel dresses the whole page, not just the controls: on a phone
+  // the panel IS the page. Wider screens get the same controls, laid out wider.
+  applySkin(document.body, panel.spec);
+  document.body.dataset.columns = String(panel.spec.columns);
   updateOwnership(nextOwners);
   updateConnection();
 }
