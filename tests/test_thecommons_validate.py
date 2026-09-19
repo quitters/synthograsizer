@@ -221,3 +221,57 @@ def test_toggle_takes_no_choices_range_or_share():
 def test_toggle_needs_its_placeholder_like_any_valued_control():
     with pytest.raises(InvalidSketchError):
         validate_native_sketch(_with_toggle(promptTemplate="a {{speed}} {{palette}} scene"))
+
+
+# ── host-only controls ───────────────────────────────────────────────────────
+
+def _with_host(**over):
+    sketch = _with_toggle(promptTemplate="a {{speed}} {{palette}} scene, trails {{trails}}")
+    sketch["variables"][-1]["access"] = "host"
+    sketch.update(over)
+    return sketch
+
+
+def test_a_host_control_keeps_its_access_and_room_controls_stay_unmarked():
+    result = validate_native_sketch(_with_host())
+    by_name = {v["name"]: v for v in result["variables"]}
+    assert by_name["trails"]["access"] == "host"
+    assert "access" not in by_name["speed"] and "access" not in by_name["palette"]
+
+
+def test_access_must_be_room_or_host():
+    sketch = _with_host()
+    sketch["variables"][-1]["access"] = "admin"
+    with pytest.raises(InvalidSketchError):
+        validate_native_sketch(sketch)
+
+
+def test_a_host_trigger_cannot_also_be_shared():
+    sketch = _with_trigger()
+    sketch["variables"][-1]["access"] = "host"          # share: "all" is still on it
+    with pytest.raises(InvalidSketchError):
+        validate_native_sketch(sketch)
+    sketch["variables"][-1].pop("share")
+    trigger = [v for v in validate_native_sketch(sketch)["variables"] if v["name"] == "shoot"][0]
+    assert trigger["access"] == "host"
+
+
+def test_host_controls_never_count_as_the_rooms():
+    # Every control host-only would leave the phones with nothing at all.
+    sketch = _with_host()
+    for v in sketch["variables"]:
+        v["access"] = "host"
+    with pytest.raises(InvalidSketchError):
+        validate_native_sketch(sketch)
+
+
+def test_at_most_four_host_controls():
+    sketch = _valid_sketch(promptTemplate="{{speed}} {{palette}} " + " ".join(f"{{{{h{i}}}}}" for i in range(5)))
+    for i in range(5):
+        sketch["variables"].append({"name": f"h{i}", "type": "toggle", "default": False, "access": "host"})
+    with pytest.raises(InvalidSketchError):
+        validate_native_sketch(sketch)
+    sketch["variables"].pop()
+    sketch["promptTemplate"] = "{{speed}} {{palette}} " + " ".join(f"{{{{h{i}}}}}" for i in range(4))
+    validate_native_sketch(sketch)
+
