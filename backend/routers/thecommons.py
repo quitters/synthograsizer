@@ -23,6 +23,7 @@ import os
 import secrets
 from functools import lru_cache
 from pathlib import Path
+from typing import Any
 
 from fastapi import APIRouter, HTTPException, Request, WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse, JSONResponse, Response
@@ -34,7 +35,7 @@ from backend.service import thecommons_jobs as jobs
 from backend.service.thecommons_gallery import SECTIONS as GALLERY_SECTIONS
 from backend.service.thecommons_gallery import gallery_preset_id, load_gallery
 from backend.service.thecommons_generate import generate_sketch
-from backend.service.thecommons_relay import discard_relay, get_or_create_relay, peek_relay
+from backend.service.thecommons_relay import HostControlError, discard_relay, get_or_create_relay, peek_relay
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -99,6 +100,14 @@ def _room_summary(row) -> dict:
 
 class CreateRoomRequest(BaseModel):
     name: str | None = None
+
+
+class HostControlRequest(BaseModel):
+    name: str
+    # Any, not a union: pydantic would coerce true to 1 or "5" to 5, and the
+    # relay's own gate (accept_value) is the one place that decides validity.
+    value: Any = None
+    fire: bool = False
 
 
 class SavePresetRequest(BaseModel):
@@ -209,6 +218,8 @@ async def get_room(room_id: int, request: Request):
         # Set only while a gallery piece is live, unremixed — lets the desk mark its card.
         "gallerySlug": relay.current_sketch.get("gallery") if relay.current_sketch else None,
         "panel": _panel_preview(relay.current_sketch),
+        # The live piece's host-only controls and their values, for the desk.
+        "host": relay.host_controls(),
         "canUndo": bool(state and state.get("undo")) and active_job is None,
         "activeJobId": active_job["id"] if active_job else None,
     }
@@ -339,6 +350,36 @@ async def room_telemetry(room_id: int, request: Request):
     await _require_owned_room(pool, room_id, user["id"])
     relay = await get_or_create_relay(pool, room_id)
     return relay.get_telemetry()
+
+
+# ── host controls ────────────────────────────────────────────────────────────
+# The owner steers the live piece's "access": "host" controls from the desk.
+# HTTP rather than a socket on purpose: walls and phones dial Cloud Run
+# directly (SYNTH_WS_ORIGIN), where the desk's synthograsizer.com session
+# cookie never arrives -- this route reuses the ordinary owner check as is.
+
+_HOST_ERRORS = {
+    "unknown": (404, "The live piece has no host control by that name."),
+    "invalid": (400, "That value doesn't fit this control."),
+    "busy": (429, "Too many changes at once. Try again in a moment."),
+}
+
+
+@router.post("/api/thecommons/rooms/{room_id}/host")
+async def set_host_control(room_id: int, body: HostControlRequest, request: Request):
+    _require_service()
+    user = _current_user(request)
+    from backend.service import db
+    pool = db.pool()
+    await _require_owned_room(pool, room_id, user["id"])
+    relay = await get_or_create_relay(pool, room_id)
+    try:
+        items = relay.apply_host_trigger(body.name) if body.fire else relay.apply_host_update(body.name, body.value)
+    except HostControlError as exc:
+        status, message = _HOST_ERRORS[exc.code]
+        raise HTTPException(status_code=status, detail=message)
+    await relay.broadcast(items)
+    return {"name": body.name, "value": None if body.fire else relay.values.get(body.name)}
 
 
 # ── undo / presets ───────────────────────────────────────────────────────────

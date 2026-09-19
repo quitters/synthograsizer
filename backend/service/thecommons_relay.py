@@ -387,6 +387,9 @@ class RoomRelay:
             except Exception:
                 pass  # a dead socket is cleaned up by its own disconnect handler
 
+    async def broadcast(self, items: list[SendItem]) -> None:
+        await self._send_all(None, items)
+
     async def publish(self, sketch: dict, values: dict | None = None) -> None:
         await self._send_all(None, self.set_sketch(sketch, values))
 
