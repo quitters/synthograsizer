@@ -28,7 +28,7 @@ import time
 from dataclasses import dataclass, field
 from typing import Any, Literal
 
-from backend.service.thecommons_parameters import default_value, numeric_value
+from backend.service.thecommons_parameters import accept_value, default_value
 
 DISCONNECT_GRACE_S = 30.0
 HOLD_MS = 4000
@@ -224,11 +224,7 @@ class RoomRelay:
             if v.get("type") == "trigger":
                 continue
             candidate = initial_values.get(v["name"])
-            if v.get("type") == "number":
-                accepted = numeric_value(v, candidate) if candidate is not None else None
-            else:
-                choices = v.get("values") or []
-                accepted = candidate if any(c["text"] == candidate for c in choices) else None
+            accepted = accept_value(v, candidate) if candidate is not None else None
             self.values[v["name"]] = accepted if accepted is not None else default_value(v)
         self.distribute()
         return [("all", {"type": "sketch", "sketch": sketch, "values": dict(self.values),
@@ -282,14 +278,9 @@ class RoomRelay:
             return [(ws, {"type": "not_owner", "varName": var_name,
                            "value": self.values.get(var_name), "owners": self.ownership()})]
 
-        if variable.get("type") == "number":
-            value = numeric_value(variable, value)
-            if value is None:
-                return []
-        else:
-            choices = variable.get("values") or []
-            if not any(c["text"] == value for c in choices):
-                return []
+        value = accept_value(variable, value)
+        if value is None:
+            return []
 
         hold = self.holds.get(var_name)
         now = time.monotonic()

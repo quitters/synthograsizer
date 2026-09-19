@@ -1,7 +1,8 @@
 // A numeric control is explicitly declared, never inferred from its name or
 // numeric-looking choice labels. Inherited template values remain strings.
 export function defaultValue(variable) {
-  return variable.type === 'number' ? variable.default : variable.values?.[0]?.text ?? null;
+  if (variable.type === 'number' || variable.type === 'toggle') return variable.default;
+  return variable.values?.[0]?.text ?? null;
 }
 
 export function onStep(variable, value) {

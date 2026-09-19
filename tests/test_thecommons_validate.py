@@ -184,3 +184,40 @@ def test_at_least_one_control_must_stay_assignable():
     # One owned trigger is enough to satisfy it.
     sketch["variables"][1]["share"] = "one"
     assert len(validate_native_sketch(sketch)["variables"]) == 2
+
+
+# ── toggle ───────────────────────────────────────────────────────────────────
+
+def _with_toggle(**over):
+    sketch = _valid_sketch(promptTemplate="a {{speed}} {{palette}} scene, trails {{trails}}")
+    sketch["variables"].append({"name": "trails", "label": "Trails", "type": "toggle", "default": True})
+    sketch.update(over)
+    return sketch
+
+
+def test_toggle_is_accepted_and_normalised():
+    toggle = [v for v in validate_native_sketch(_with_toggle())["variables"] if v["name"] == "trails"][0]
+    assert toggle == {"name": "trails", "label": "Trails", "type": "toggle", "default": True}
+
+
+def test_toggle_default_must_be_a_real_boolean():
+    for bad in (None, 1, 0, "true", "on"):
+        sketch = _with_toggle()
+        sketch["variables"][-1]["default"] = bad
+        if bad is None:
+            sketch["variables"][-1].pop("default")
+        with pytest.raises(InvalidSketchError):
+            validate_native_sketch(sketch)
+
+
+def test_toggle_takes_no_choices_range_or_share():
+    for bad in ({"values": [{"text": "on", "weight": 1}]}, {"min": 0}, {"max": 1}, {"step": 1}, {"share": "all"}):
+        sketch = _with_toggle()
+        sketch["variables"][-1].update(bad)
+        with pytest.raises(InvalidSketchError):
+            validate_native_sketch(sketch)
+
+
+def test_toggle_needs_its_placeholder_like_any_valued_control():
+    with pytest.raises(InvalidSketchError):
+        validate_native_sketch(_with_toggle(promptTemplate="a {{speed}} {{palette}} scene"))
