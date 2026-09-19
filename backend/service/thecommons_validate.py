@@ -21,6 +21,9 @@ from backend.service.thecommons_ui import normalize_ui
 _NAME_RE = re.compile(r"^[a-z][a-z0-9_]*$")
 _PLACEHOLDER_RE = re.compile(r"\{\{\s*([a-z][a-z0-9_]*)\s*\}\}")
 _RESERVED_NAMES = {"constructor", "prototype"}
+# Host controls belong to the room's owner, on the desk. A few at most: the
+# room is the point, and every host control is one fewer for the phones.
+MAX_HOST_CONTROLS = 4
 
 
 class InvalidSketchError(ValueError):
@@ -48,6 +51,7 @@ def validate_native_sketch(sketch: dict) -> dict:
     names: set[str] = set()
     valued_names: set[str] = set()  # select, number and toggle; triggers carry no value
     assignable = 0                  # controls distribute() can hand to one person
+    host_controls = 0
     variables = []
     for v in variables_in:
         _require(
@@ -71,7 +75,17 @@ def validate_native_sketch(sketch: dict) -> dict:
             _require(vtype == "trigger", f"{name} cannot declare share — triggers only")
             share = v["share"]
             _require(share in ("one", "all"), f"{name} has an invalid share mode")
-        if share != "all":
+
+        # Who may set it: the room (handed to participants, the default) or the
+        # host alone, from the desk. A host control is never handed out, so it
+        # can't also be shared with everyone.
+        access = v.get("access", "room")
+        _require(access in ("room", "host"), f"{name} has an invalid access mode")
+        host = access == "host"
+        _require(not (host and "share" in v), f"{name} cannot be both host-only and shared")
+        if host:
+            host_controls += 1
+        elif share != "all":
             assignable += 1
 
         if vtype == "trigger":
@@ -80,7 +94,8 @@ def validate_native_sketch(sketch: dict) -> dict:
                 not any(k in v for k in ("min", "max", "step", "default")),
                 f"{name} cannot mix a trigger and a numeric range",
             )
-            variables.append({"name": name, "label": label, "type": "trigger", "share": share})
+            variables.append({"name": name, "label": label, "type": "trigger", "share": share,
+                              **({"access": "host"} if host else {})})
             continue
 
         valued_names.add(name)
@@ -93,7 +108,8 @@ def validate_native_sketch(sketch: dict) -> dict:
                 f"{name} is a toggle: it takes no choices and no numeric range",
             )
             _require(isinstance(v.get("default"), bool), f"{name} needs a true or false default")
-            variables.append({"name": name, "label": label, "type": "toggle", "default": v["default"]})
+            variables.append({"name": name, "label": label, "type": "toggle", "default": v["default"],
+                              **({"access": "host"} if host else {})})
             continue
 
         if vtype == "number":
@@ -114,6 +130,7 @@ def validate_native_sketch(sketch: dict) -> dict:
             variables.append({
                 "name": name, "label": label, "type": "number",
                 "min": vmin, "max": vmax, "step": vstep, "default": vdefault,
+                **({"access": "host"} if host else {}),
             })
             continue
 
@@ -129,11 +146,14 @@ def validate_native_sketch(sketch: dict) -> dict:
             weight = value.get("weight", 1)
             _require(not isinstance(weight, bool) and weight in (1, 2, 3), f"{name} has an invalid weight")
             values.append({"text": text, "weight": weight})
-        variables.append({"name": name, "label": label, "values": values})
+        variables.append({"name": name, "label": label, "values": values,
+                          **({"access": "host"} if host else {})})
 
+    _require(host_controls <= MAX_HOST_CONTROLS, f"at most {MAX_HOST_CONTROLS} host-only controls")
     # At least one control must stay assignable, or distribute() has nothing to
-    # hand out and the room loses the "you own a knob" premise entirely.
-    _require(assignable >= 1, "at least one control must not be shared with everyone")
+    # hand out and the room loses the "you own a knob" premise entirely. Host
+    # controls don't count: they are the owner's, not the room's.
+    _require(assignable >= 1, "at least one control must be handed to the room")
 
     prompt_template = sketch["promptTemplate"]
     placeholders = {m.group(1) for m in _PLACEHOLDER_RE.finditer(prompt_template)}
