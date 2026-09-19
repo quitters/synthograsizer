@@ -386,6 +386,8 @@ export function applySkin(target, spec) {
 }
 
 export function mountPanel(root, sketch, values = {}, {
+  // The station shows the title in its own bar, so the controls start at the top.
+  showHead = true,
   canUse = () => true,
   onVar = () => {},
   onCommit = () => {},
@@ -397,11 +399,12 @@ export function mountPanel(root, sketch, values = {}, {
   const sections = [];
   let index = 0;
   root.replaceChildren();
+  root.classList.add('panel-root');
   applySkin(root, spec);
   root.dataset.density = spec.density;
   root.style.setProperty('--columns', String(spec.columns));
 
-  if (spec.title || spec.tagline) {
+  if (showHead && (spec.title || spec.tagline)) {
     const head = el('header', 'panel-head');
     if (spec.title) head.append(el('p', 'panel-title', spec.title));
     if (spec.tagline) head.append(el('p', 'panel-tagline', spec.tagline));

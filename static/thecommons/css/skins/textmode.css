@@ -40,18 +40,19 @@
 /* ── the screen: a menu bar on top, a status bar below ─────────────────── */
 
 body[data-skin="textmode"] { font-size: 21px; line-height: 1.25; }
-body[data-skin="textmode"] .masthead { padding: 2px 0; border: 0; box-shadow: 0 0 0 100vmax var(--bar); clip-path: inset(0 -100vmax); background: var(--bar); }
-body[data-skin="textmode"] .masthead .wordmark,
-body[data-skin="textmode"] .masthead .wordmark span,
-body[data-skin="textmode"] .masthead .eyebrow,
-body[data-skin="textmode"] .masthead .connection { color: var(--bar-ink); font-size: 20px; letter-spacing: 0; text-transform: none; }
+/* The menu bar, with its hotkey letter picked out as menus did. */
+body[data-skin="textmode"] .station-bar { background: var(--bar); border: 0; }
+body[data-skin="textmode"] .bar-title,
+body[data-skin="textmode"] .connection { color: var(--bar-ink); font-size: 22px; font-weight: 400; letter-spacing: 0; }
 body[data-skin="textmode"] .connection::before { background: var(--bar-ink); box-shadow: none; border-radius: 0; }
-body[data-skin="textmode"] h2 { font-size: 28px; font-weight: 400; color: var(--title); }
-body[data-skin="textmode"] .section-number, body[data-skin="textmode"] .eyebrow { font-size: 19px; letter-spacing: 0.04em; }
-body[data-skin="textmode"] .section-help { font-size: 20px; line-height: 1.3; }
-body[data-skin="textmode"] footer { margin-top: 48px; padding: 2px 0; border: 0; box-shadow: 0 0 0 100vmax var(--bar); clip-path: inset(0 -100vmax);
-  background: var(--bar); color: var(--bar-ink); font-size: 20px; }
-body[data-skin="textmode"] footer .eyebrow { color: var(--bar-ink); font-size: 20px; letter-spacing: 0; text-transform: none; }
+body[data-skin="textmode"] .info-toggle { border: 0; background: transparent; color: var(--bar-ink); font-size: 22px; letter-spacing: 0; }
+body[data-skin="textmode"] .info-toggle::first-letter { color: #aa0000; }
+body[data-skin="textmode"] .info-toggle[aria-expanded="true"] { background: var(--bar-ink); color: var(--bar); }
+body[data-skin="textmode"] .room-info { border: 4px double var(--p-line); border-top: 0; box-shadow: 10px 10px 0 var(--drop); }
+body[data-skin="textmode"] .room-info h2 { font-size: 28px; font-weight: 400; color: var(--title); }
+body[data-skin="textmode"] .eyebrow { font-size: 19px; letter-spacing: 0.04em; }
+body[data-skin="textmode"] .section-help, body[data-skin="textmode"] .empty-state { font-size: 20px; line-height: 1.3; }
+body[data-skin="textmode"] .toast { font-size: 20px; border: 4px double var(--p-line); box-shadow: 10px 10px 0 var(--drop); }
 
 /* ── dialogs ───────────────────────────────────────────────────────────── */
 
