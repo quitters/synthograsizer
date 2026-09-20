@@ -34,6 +34,7 @@ from backend.service import credits, service_mode
 from backend.service import thecommons_jobs as jobs
 from backend.service.thecommons_gallery import SECTIONS as GALLERY_SECTIONS
 from backend.service.thecommons_gallery import gallery_preset_id, load_gallery
+from backend.service.thecommons_gallery_tags import tag_groups as gallery_tag_groups
 from backend.service.thecommons_generate import generate_sketch
 from backend.service.thecommons_relay import HostControlError, discard_relay, get_or_create_relay, peek_relay
 
@@ -249,6 +250,9 @@ def _page(name: str) -> FileResponse:
 def _gallery_payload() -> tuple[bytes, str]:
     body = json.dumps({
         "sections": GALLERY_SECTIONS,
+        # The chips the desk's library offers, with their labels, so the two
+        # sides can't drift on what a tag is called.
+        "tagGroups": gallery_tag_groups(GALLERY_SECTIONS),
         "pieces": [{**piece, "presetId": gallery_preset_id(piece["slug"])} for piece in load_gallery()],
     }).encode("utf-8")
     return body, '"' + hashlib.sha256(body).hexdigest()[:20] + '"'

@@ -8,7 +8,7 @@
 // suite's Google session plus a server-side ownership check on every request
 // is the only thing that opens this desk.
 
-import { mountGallery } from './gallery.js';
+import { mountLibrary } from './library.js';
 import { applySkin, mountPanel } from './panel.js';
 
 const roomId = new URLSearchParams(location.search).get('room');
@@ -23,8 +23,6 @@ const promptInput = document.getElementById('promptInput');
 const undoPiece = document.getElementById('undoPiece');
 const modeOptions = document.getElementById('modeOptions');
 const interactiveInput = document.getElementById('interactiveInput');
-const presetSelect = document.getElementById('presetSelect');
-const loadPreset = document.getElementById('loadPreset');
 const savePreset = document.getElementById('savePreset');
 const presetStatus = document.getElementById('presetStatus');
 const galleryStatus = document.getElementById('galleryStatus');
@@ -32,7 +30,7 @@ const galleryStatus = document.getElementById('galleryStatus');
 let usable = false;
 let remixing = false;
 let canvas = null;
-let gallery = null;
+let library = null;
 let loadingGallery = false;
 
 const api = (path) => `/api/thecommons/rooms/${encodeURIComponent(roomId)}${path}`;
@@ -59,9 +57,8 @@ function updateControls() {
   modeOptions.disabled = remixing;
   interactiveInput.disabled = remixing;
   undoPiece.disabled = !usable || remixing || !canvas?.canUndo;
-  loadPreset.disabled = !usable || remixing || !presetSelect.value;
   savePreset.disabled = !usable || remixing;
-  gallery?.setEnabled(usable && !remixing && !loadingGallery);
+  library?.setEnabled(usable && !remixing && !loadingGallery);
   promptSend.textContent = remixing ? 'Composing…' : mode() === 'remix' ? 'Remix this piece ↗' : 'Create a new piece ↗';
 }
 
@@ -83,7 +80,7 @@ function renderRoom(room) {
   document.getElementById('joinQr').src = `/api/thecommons/qr/${encodeURIComponent(room.joinCode)}`;
   document.getElementById('joinUrl').textContent = joinUrl.replace(/^https?:\/\//, '');
   document.getElementById('wallLink').href = `/thecommons/display/${encodeURIComponent(room.joinCode)}`;
-  gallery?.markLive(room.gallerySlug);
+  library?.markLive(room.gallerySlug);
   renderPhonePreview(room.panel);
   renderHostControls(room.host, room.panel?.ui);
 }
@@ -192,22 +189,25 @@ function renderPhonePreview(panel) {
     ? ` Your ${hosted === 1 ? 'own control is' : `${hosted} own controls are`} below, on this desk only.` : '';
 }
 
-// Loading a gallery piece is an ordinary preset load: owner-checked, undoable
-// with "Undo last change", and never charged. That's why it needs no confirm.
-async function pickFromGallery(piece, button) {
+// Anything in the library goes up the same way: an ordinary preset load,
+// owner-checked, undoable with "Undo last change", and never charged. That is
+// why a ready-made piece and one of this room's own looks share a handler, and
+// why neither needs a confirmation step.
+async function putOnTheWall(entry, button) {
   if (!usable || remixing || loadingGallery) return;
   loadingGallery = true;
   updateControls();
+  const wording = button.textContent;
   button.textContent = 'Putting it up…';
   galleryStatus.dataset.error = 'false';
   try {
     const response = await fetch(api('/presets/load'), {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ presetId: piece.presetId }),
+      body: JSON.stringify({ presetId: entry.presetId }),
     });
     const result = await response.json().catch(() => ({}));
     if (response.ok) {
-      galleryStatus.textContent = `On the wall: ${piece.name}. “Undo last change” brings back what was there.`;
+      galleryStatus.textContent = `On the wall: ${entry.name}. “Undo last change” brings back what was there.`;
     } else {
       galleryStatus.dataset.error = 'true';
       galleryStatus.textContent = typeof result.detail === 'string' ? result.detail : 'Couldn’t put that on the wall.';
@@ -217,23 +217,30 @@ async function pickFromGallery(piece, button) {
     galleryStatus.textContent = 'Couldn’t reach the server. Try again.';
   } finally {
     loadingGallery = false;
-    button.textContent = 'Put it on the wall';
+    button.textContent = wording;
     await refreshRoom();
   }
 }
 
-let galleryStarted = false;
-async function startGallery() {
+let libraryStarted = false;
+async function startLibrary() {
   // boot() can run twice (auth-ready plus an already-known session), and
-  // `gallery` is only set after an await, so guard on the attempt itself.
-  if (galleryStarted) return;
-  galleryStarted = true;
+  // `library` is only set after an await, so guard on the attempt itself.
+  if (libraryStarted) return;
+  libraryStarted = true;
   try {
-    gallery = await mountGallery(document.getElementById('gallery'), { onPick: pickFromGallery });
-    gallery.markLive(canvas?.gallerySlug);
+    library = await mountLibrary({
+      root: document.getElementById('library'),
+      search: document.getElementById('librarySearch'),
+      tagBar: document.getElementById('libraryTags'),
+      count: document.getElementById('libraryCount'),
+      onPick: putOnTheWall,
+    });
+    library.markLive(canvas?.gallerySlug);
+    if (lastPresets) library.setPresets(lastPresets);
     updateControls();
   } catch {
-    galleryStatus.textContent = 'Couldn’t load the collection. Reload to try again.';
+    galleryStatus.textContent = 'Couldn’t load the library. Reload to try again.';
   }
 }
 
@@ -372,53 +379,25 @@ document.getElementById('promptForm').addEventListener('submit', (event) => {
               baseSketchId: canvas?.sketchId });
 });
 
+// The room's own pieces go into the same library as the ready-made ones. The
+// gallery's own entries are dropped here because they arrive from the gallery
+// endpoint with their code, their tags and a live preview; this list carries
+// only a name, so a second card for them would be strictly worse.
+let lastPresets = null;
+
 async function refreshPresets() {
   if (!usable) return;
   try {
     const response = await fetch(api('/presets'));
     if (!response.ok) return;
     const { presets } = await response.json();
-    const selected = presetSelect.value;
-    presetSelect.replaceChildren(new Option('Choose a piece…', ''));
-    const groups = new Map();
-    for (const preset of presets) {
-      if (preset.id.startsWith('gallery-')) continue;   // shown, live, in the collection above
-      if (!groups.has(preset.kind)) {
-        const group = document.createElement('optgroup');
-        group.label = preset.kind;
-        groups.set(preset.kind, group);
-        presetSelect.append(group);
-      }
-      const stamp = preset.savedAt
-        ? new Date(preset.savedAt).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
-        : '';
-      groups.get(preset.kind).append(new Option(stamp ? `${preset.name} · ${stamp}` : preset.name, preset.id));
-    }
-    presetSelect.value = selected;
+    lastPresets = presets.filter((preset) => !preset.id.startsWith('gallery-'));
+    library?.setPresets(lastPresets);
     updateControls();
   } catch {
-    presetStatus.textContent = 'Couldn’t load the library. Reload to reconnect.';
+    presetStatus.textContent = 'Couldn’t load your saved looks. Reload to reconnect.';
   }
 }
-
-presetSelect.addEventListener('change', updateControls);
-
-loadPreset.addEventListener('click', async () => {
-  loadPreset.disabled = true;
-  try {
-    const response = await fetch(api('/presets/load'), {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ presetId: presetSelect.value }),
-    });
-    const result = await response.json();
-    presetStatus.textContent = response.ok
-      ? `On the wall: ${result.name}.`
-      : (result.detail || 'Couldn’t put that on the wall.');
-  } catch {
-    presetStatus.textContent = 'Couldn’t load this piece. Try again.';
-  }
-  await refreshRoom();
-});
 
 savePreset.addEventListener('click', async () => {
   savePreset.disabled = true;
@@ -428,7 +407,7 @@ savePreset.addEventListener('click', async () => {
       body: JSON.stringify({ name: document.getElementById('presetName').value || null }),
     });
     presetStatus.textContent = response.ok
-      ? 'Saved to this room’s library, including the current settings.'
+      ? 'Saved. It is in the library above, under your saved looks.'
       : 'Couldn’t save this look. Try again.';
   } catch {
     presetStatus.textContent = 'Couldn’t save this look. Try again.';
@@ -473,7 +452,7 @@ function resumeJob() {
 
 async function boot() {
   if (!(await refreshRoom())) return;
-  startGallery();
+  startLibrary();
   await refreshPresets();
   if (!remixing) resumeJob();
 }
