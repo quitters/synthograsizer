@@ -85,7 +85,7 @@ function renderRoom(room) {
   document.getElementById('wallLink').href = `/thecommons/display/${encodeURIComponent(room.joinCode)}`;
   gallery?.markLive(room.gallerySlug);
   renderPhonePreview(room.panel);
-  renderHostControls(room.host);
+  renderHostControls(room.host, room.panel?.ui);
 }
 
 // The live piece's host-only controls -- the owner's alone, never on a phone.
@@ -98,13 +98,13 @@ const hostPending = new Map();
 let hostTimer = null;
 const hostStatus = document.getElementById('hostStatus');
 
-function renderHostControls(host) {
+function renderHostControls(host, ui) {
   const section = document.getElementById('hostControls');
   const variables = host?.variables || [];
   if (!variables.length) { section.hidden = true; hostFor = null; hostPanel = null; return; }
   section.hidden = false;
   // Rebuilt only when the piece changes, never under the host's fingers.
-  const key = `${canvas?.sketchId}|${variables.map((v) => v.name).join(',')}`;
+  const key = `${canvas?.sketchId}|${variables.map((v) => v.name).join(',')}|${ui?.skin}|${ui?.variant}`;
   if (key === hostFor) return;
   hostFor = key;
   hostPending.clear();
@@ -112,7 +112,11 @@ function renderHostControls(host) {
   // Drop the host flag from this copy: the renderer leaves host controls off
   // phone panels, and this panel is the one place they belong.
   const own = variables.map(({ access, ...control }) => control);
-  hostPanel = mountPanel(document.getElementById('hostPanel'), { name: canvas?.sketchName, variables: own },
+  // Wear the piece's own skin, so the host's controls read as the same
+  // instrument the room is holding -- only the groups and titles are the
+  // phones', and those are left behind.
+  const skin = ui ? { skin: ui.skin, variant: ui.variant } : undefined;
+  hostPanel = mountPanel(document.getElementById('hostPanel'), { name: canvas?.sketchName, variables: own, ui: skin },
                          host.values || {}, {
     showHead: false,
     onVar: queueHost,
