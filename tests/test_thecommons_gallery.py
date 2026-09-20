@@ -84,15 +84,18 @@ def test_every_piece_belongs_to_a_known_section():
 
 
 def test_provenance_is_honest():
-    """A generated piece says so and shows the prompt that made it; a
-    hand-written one claims neither."""
+    """A generated piece says so and shows the prompt that made it; a piece
+    written here or ported from elsewhere claims neither, and a ported one
+    names what it was ported from."""
     for piece in load_gallery():
         if piece["origin"] == "generated":
             assert piece["prompt"], piece["slug"]
             assert "Generated" in piece["lineage"], piece["slug"]
         else:
-            assert piece["origin"] == "hand-written", piece["slug"]
+            assert piece["origin"] in ("hand-written", "ported"), piece["slug"]
             assert piece["prompt"] is None, piece["slug"]
+            if piece["origin"] == "ported":
+                assert "Ported from" in piece["lineage"], piece["slug"]
 
 
 def test_every_piece_has_a_panel_that_needed_no_patching():
