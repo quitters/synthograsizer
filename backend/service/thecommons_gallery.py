@@ -32,6 +32,7 @@ from functools import lru_cache
 from pathlib import Path
 
 from backend.service.thecommons_gallery_panels import PANELS
+from backend.service.thecommons_gallery_tags import tags_for
 from backend.service.thecommons_ui import SKINS
 from backend.service.thecommons_validate import validate_native_sketch
 
@@ -54,6 +55,8 @@ SECTIONS = [
      "intro": "Made for a room full of phones: everyone taps, and the wall reacts."},
     {"id": "living", "title": "Living canvases",
      "intro": "Pieces that grow, drift and remember everything that happened."},
+    {"id": "studio", "title": "From the studio",
+     "intro": "Ported from the generative pieces made next door, mark for mark."},
 ]
 
 _GENERATED_LINEAGE = "Generated in The Commons from the prompt below, then reviewed and tuned by hand."
@@ -314,6 +317,29 @@ GALLERY: list[dict] = [
                   "for the rest of the piece, so the canvas keeps filling up over several minutes rather than "
                   "resetting",
     },
+    # ── from the studio ─────────────────────────────────────────────────────
+    # Ported by hand from the owner's own generator, and checked against it
+    # pixel for pixel: the same random draws in the same order, so the wall
+    # paints the picture the explorer paints. The two differ in what the wall
+    # does with a finished one, not in how it is painted.
+    {
+        "slug": "flowmounds",
+        "section": "studio",
+        "origin": "ported",
+        "blurb": "A creature painted into a landscape, brush stroke by brush stroke, that opens its eyes "
+                 "when the painting is done.",
+        "lineage": "Ported from FlowMounds v0.25 (bootloader, 2026-09-06), the latest of the studio's own "
+                   "generative line, and checked against it pixel for pixel.",
+    },
+    {
+        "slug": "flowmounds-boil",
+        "section": "studio",
+        "origin": "ported",
+        "blurb": "The same creature, and the host's Boil: it is painted again for every frame of a loop, "
+                 "then played back the way a hand-drawn animation is shot on twos.",
+        "lineage": "Ported from FlowMounds v0.25 (bootloader, 2026-09-06). The boil is the original's own, "
+                   "put on a control instead of a key.",
+    },
 ]
 
 
@@ -351,13 +377,17 @@ def load_gallery() -> tuple[dict, ...]:
             "name": sketch["name"],
             "blurb": meta["blurb"],
             "lineage": _GENERATED_LINEAGE if generated else meta["lineage"],
-            "origin": "generated" if generated else "hand-written",
+            "origin": "generated" if generated else meta.get("origin", "hand-written"),
             "prompt": meta.get("prompt"),
             # Derived from the piece itself, so a badge can never claim what the code doesn't do.
             "interactive": any(v.get("type") == "trigger" for v in variables),
             "usesPeople": "room.people" in code,
             # The phone panel's look, named for the card, e.g. "Trainer menu".
             "panel": SKINS[sketch["ui"]["skin"]]["label"] if "ui" in sketch else None,
+            # What the desk's library filters and searches by.
+            "tags": tags_for(meta["slug"], meta["section"],
+                             "generated" if generated else meta.get("origin", "hand-written"),
+                             variables, code),
             "sketch": sketch,
         })
     return tuple(pieces)

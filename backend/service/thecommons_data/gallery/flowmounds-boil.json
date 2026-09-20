@@ -1,0 +1,214 @@
+{
+  "name": "FlowMounds on Twos",
+  "promptTemplate": "A painted creature standing in a landscape. The sky is {{palette}} and the creature is {{creature}}, held apart by {{contrast}} contrast at {{separation}}. It is painted in {{structure}} with {{marks}} marks, each {{mark_length}} long and {{mark_width}} wide. The horizon sits at {{horizon}}, the mound rises {{apex}} and spreads {{width}}, and its eyes are {{eye_size}} at shape {{eye_shape}}. Ground in front of it: {{ground}}. This is mound {{mound}}, painted again for every frame of the boil.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Sky",
+      "values": [
+        {
+          "text": "Aqua Gelato"
+        },
+        {
+          "text": "Blush Mint"
+        },
+        {
+          "text": "Harbour"
+        },
+        {
+          "text": "Chalk Pop"
+        },
+        {
+          "text": "Nocturne"
+        },
+        {
+          "text": "Deep Jade"
+        },
+        {
+          "text": "Cream Cobalt"
+        },
+        {
+          "text": "Peachy Parade"
+        },
+        {
+          "text": "Meadow Mirth"
+        },
+        {
+          "text": "Midnight Violet"
+        }
+      ]
+    },
+    {
+      "name": "creature",
+      "label": "Creature",
+      "values": [
+        {
+          "text": "Blush Mint"
+        },
+        {
+          "text": "Aqua Gelato"
+        },
+        {
+          "text": "Harbour"
+        },
+        {
+          "text": "Chalk Pop"
+        },
+        {
+          "text": "Nocturne"
+        },
+        {
+          "text": "Deep Jade"
+        },
+        {
+          "text": "Cream Cobalt"
+        },
+        {
+          "text": "Peachy Parade"
+        },
+        {
+          "text": "Meadow Mirth"
+        },
+        {
+          "text": "Midnight Violet"
+        }
+      ]
+    },
+    {
+      "name": "contrast",
+      "label": "Contrast",
+      "values": [
+        {
+          "text": "Value"
+        },
+        {
+          "text": "Chroma"
+        },
+        {
+          "text": "Density"
+        }
+      ]
+    },
+    {
+      "name": "separation",
+      "label": "Separation",
+      "type": "number",
+      "min": 0,
+      "max": 1,
+      "step": 0.02,
+      "default": 0.02
+    },
+    {
+      "name": "structure",
+      "label": "Structure",
+      "values": [
+        {
+          "text": "Radial"
+        },
+        {
+          "text": "Drift"
+        },
+        {
+          "text": "Contour"
+        },
+        {
+          "text": "Banded"
+        }
+      ]
+    },
+    {
+      "name": "marks",
+      "label": "Marks",
+      "type": "number",
+      "min": 550,
+      "max": 1800,
+      "step": 10,
+      "default": 1000
+    },
+    {
+      "name": "mark_length",
+      "label": "Mark length",
+      "type": "number",
+      "min": 12,
+      "max": 90,
+      "step": 1,
+      "default": 67
+    },
+    {
+      "name": "mark_width",
+      "label": "Mark width",
+      "type": "number",
+      "min": 0.3,
+      "max": 3.5,
+      "step": 0.05,
+      "default": 2.05
+    },
+    {
+      "name": "horizon",
+      "label": "Horizon",
+      "type": "number",
+      "min": 0.58,
+      "max": 0.82,
+      "step": 0.01,
+      "default": 0.74
+    },
+    {
+      "name": "apex",
+      "label": "Height",
+      "type": "number",
+      "min": 0.1,
+      "max": 0.65,
+      "step": 0.01,
+      "default": 0.64
+    },
+    {
+      "name": "width",
+      "label": "Width",
+      "type": "number",
+      "min": 0.26,
+      "max": 0.7,
+      "step": 0.01,
+      "default": 0.64
+    },
+    {
+      "name": "eye_size",
+      "label": "Eye size",
+      "type": "number",
+      "min": 0.076,
+      "max": 0.17,
+      "step": 0.002,
+      "default": 0.14
+    },
+    {
+      "name": "eye_shape",
+      "label": "Eye shape",
+      "type": "number",
+      "min": 0,
+      "max": 1,
+      "step": 0.02,
+      "default": 0.4
+    },
+    {
+      "name": "ground",
+      "label": "Ground in front",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "mound",
+      "label": "Mound",
+      "type": "number",
+      "min": 1,
+      "max": 9999,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "boil",
+      "label": "Boil",
+      "type": "trigger",
+      "access": "host"
+    }
+  ]
+}
