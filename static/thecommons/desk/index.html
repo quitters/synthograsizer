@@ -68,10 +68,19 @@
 
       <div class="panel gallery-panel">
         <div class="section-heading"><span class="section-number">02</span><div>
-          <p class="eyebrow">Ready in one click · costs no credits</p><h2>Ready-made pieces</h2></div></div>
-        <p class="section-help">Each one is running below as it will on the wall. Put one up, then remix it with a
-          prompt if you want to make it your own.</p>
-        <div id="gallery" class="gallery-sections"></div>
+          <p class="eyebrow">Ready in one click · costs no credits</p><h2>The library</h2></div></div>
+        <p class="section-help">Everything you can put on the wall: the ready-made pieces, each running below as it
+          will up there, your own saved looks, and the older library. Put one up, then remix it with a prompt if you
+          want to make it your own.</p>
+        <div class="library-find">
+          <label class="library-search">
+            <span class="eyebrow">Search</span>
+            <input id="librarySearch" type="search" placeholder="A name, a feeling, a control…" autocomplete="off">
+          </label>
+          <div id="libraryTags" class="library-tags"></div>
+        </div>
+        <p id="libraryCount" class="section-help" role="status"></p>
+        <div id="library" class="gallery-sections"></div>
         <p id="galleryStatus" class="section-help" role="status"></p>
       </div>
 
@@ -104,11 +113,9 @@
 
       <div class="panel">
         <div class="section-heading"><span class="section-number">04</span><div>
-          <p class="eyebrow">Keep what works</p><h2>Saved looks</h2></div></div>
-        <div class="preset-row">
-          <select id="presetSelect" aria-label="Choose a piece"></select>
-          <button id="loadPreset" type="button" class="quiet-button">Put it on the wall</button>
-        </div>
+          <p class="eyebrow">Keep what works</p><h2>Save this look</h2></div></div>
+        <p class="section-help">Keeps the piece exactly as it is now, settings and all. It joins the library above,
+          where you can find it again by name or under “your saved looks”.</p>
         <div class="preset-row">
           <input id="presetName" type="text" maxlength="100" placeholder="Name this look (optional)" autocomplete="off">
           <button id="savePreset" type="button" class="quiet-button">Save current look</button>

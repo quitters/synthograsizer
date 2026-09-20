@@ -256,6 +256,77 @@ footer {
 .gallery-prompt summary:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
 .gallery-prompt p { margin: 6px 0 0; font-family: var(--font-mono); line-height: 1.55; }
 
+/* ── finding something in the library ─────────────────────────────────────
+   Search and tags sit above the sections rather than beside them: a host
+   scans the collection first and narrows second, and a sidebar would take
+   the width the cards need to show a piece running. */
+.library-find {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 14px;
+  margin-bottom: 18px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface-2);
+}
+.library-search { display: flex; flex-direction: column; gap: 6px; }
+.library-search input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+}
+.library-search input:focus-visible { outline: 2px solid var(--cyan); outline-offset: 1px; }
+.library-tags { display: flex; flex-wrap: wrap; gap: 14px 22px; }
+.library-group { display: flex; flex-direction: column; gap: 6px; }
+.library-group-title {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+.library-group-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.library-tag {
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  transition: border-color 120ms, background 120ms, color 120ms;
+}
+.library-tag:hover { border-color: var(--ink-dim); }
+.library-tag.is-on { border-color: var(--coral); background: var(--coral); color: var(--ground); }
+.library-tag:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+#libraryCount { margin: 0 0 14px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.library-clear { padding: 4px 10px; font-size: 12px; }
+
+/* What a card carries in the library: its tags, and -- for anything the desk
+   may not run -- a drawn poster instead of a live preview. */
+.library-chips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 5px; }
+.library-chips li {
+  padding: 2px 7px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: var(--ink-dim);
+}
+.gallery-card.is-listed .gallery-screen::after { background: none; }
+.gallery-card.is-listed .gallery-screen canvas { image-rendering: auto; }
+@media (prefers-reduced-motion: reduce) {
+  .library-tag { transition: none; }
+}
+
 /* What phones see: the live piece's panel in a phone-sized frame. The frame
    takes the skin's ground so the panel sits on its own background. */
 .phone-preview { flex: 0 1 340px; margin: 0; display: flex; flex-direction: column; gap: 10px; }
