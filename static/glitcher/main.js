@@ -384,6 +384,10 @@ class GlitcherApp {
    * NEW: Toggle between classic and studio modes
    */
   toggleStudioMode() {
+    if (document.body.classList.contains('classic-workspace')) {
+      window.location.assign(new URL('./?workspace=studio', window.location.href));
+      return;
+    }
     this.studioMode = !this.studioMode;
     this.effectStudioManager.toggleStudioMode(this.studioMode);
     
