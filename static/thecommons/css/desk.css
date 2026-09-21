@@ -34,15 +34,16 @@ body { margin: 0; }
   color: var(--ink);
   text-decoration: none;
 }
-.wordmark span { color: var(--coral); }
+.wordmark span { color: var(--accent); }
 
 .intro h1 {
   font-family: var(--font-display);
-  font-size: clamp(30px, 6vw, 46px);
-  line-height: 1.08;
+  font-size: clamp(32px, 6vw, 50px);
+  line-height: 1.04;
+  letter-spacing: -0.025em;
   margin: 10px 0 14px;
 }
-.intro h1 span { color: var(--cyan); }
+.intro h1 span { color: var(--focus); }
 .lede { color: var(--ink-dim); max-width: 54ch; margin: 0; line-height: 1.6; }
 
 main { display: flex; flex-direction: column; gap: 24px; flex: 1; }
@@ -59,10 +60,10 @@ main { display: flex; flex-direction: column; gap: 24px; flex: 1; }
 .panel h2 { font-family: var(--font-display); font-size: 20px; margin: 2px 0 0; }
 
 .section-heading { display: flex; gap: 14px; align-items: flex-start; }
-.section-number { font-family: var(--font-mono); font-size: 11px; color: var(--coral); padding-top: 4px; }
+.section-number { font-family: var(--font-mono); font-size: 11px; color: var(--accent); padding-top: 4px; }
 .section-help { color: var(--ink-dim); font-size: 14px; line-height: 1.6; margin: 0; }
-.section-help[data-error="true"] { color: var(--coral); }
-.section-help a, footer a { color: var(--cyan); }
+.section-help[data-error="true"] { color: var(--accent); }
+.section-help a, footer a { color: var(--focus); }
 
 .field { display: flex; flex-direction: column; gap: 6px; }
 .field input, .field textarea, select, .preset-row input {
@@ -77,7 +78,7 @@ main { display: flex; flex-direction: column; gap: 24px; flex: 1; }
 }
 .field textarea { resize: vertical; line-height: 1.5; }
 .field input:focus-visible, .field textarea:focus-visible, select:focus-visible {
-  outline: 2px solid var(--cyan);
+  outline: 2px solid var(--focus);
   outline-offset: 2px;
 }
 
@@ -94,7 +95,7 @@ main { display: flex; flex-direction: column; gap: 24px; flex: 1; }
   align-items: center;
   justify-content: center;
 }
-.quiet-button:hover:not(:disabled) { border-color: var(--cyan); }
+.quiet-button:hover:not(:disabled) { border-color: var(--focus); }
 .primary-button { text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
 
 .create-row { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
@@ -103,7 +104,7 @@ main { display: flex; flex-direction: column; gap: 24px; flex: 1; }
 #modeOptions { border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
 #modeOptions legend { padding: 0 0 8px; }
 .mode { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; line-height: 1.5; font-size: 14px; color: var(--ink-dim); }
-.mode input { margin-top: 3px; accent-color: var(--coral); }
+.mode input { margin-top: 3px; accent-color: var(--accent); }
 .mode strong { display: block; color: var(--ink); font-weight: 600; }
 #modeOptions:disabled .mode { opacity: 0.5; cursor: default; }
 
@@ -134,7 +135,7 @@ main { display: flex; flex-direction: column; gap: 24px; flex: 1; }
   padding: 7px;
   flex: 0 0 auto;
 }
-.join-url { font-family: var(--font-mono); font-size: 12px; color: var(--cyan); margin: 0; word-break: break-all; }
+.join-url { font-family: var(--font-mono); font-size: 12px; color: var(--focus); margin: 0; word-break: break-all; }
 
 footer {
   display: flex;
@@ -158,8 +159,8 @@ footer {
 
 /* Destructive action. Reads as quiet until you reach for it, so it never
    competes with "Open creator desk" — the thing people actually want. */
-.danger-button { border-color: color-mix(in srgb, var(--coral) 45%, var(--line)); }
-.danger-button:hover:not(:disabled) { border-color: var(--coral); color: var(--coral); background: var(--surface); }
+.danger-button { border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
+.danger-button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); background: var(--surface); }
 .danger-button:disabled { opacity: 0.6; }
 
 /* ── Demo scene collection ───────────────────────────────────────────────
@@ -185,7 +186,7 @@ footer {
   transition: border-color 150ms, box-shadow 150ms;
 }
 .gallery-card:hover { border-color: var(--ink-dim); }
-.gallery-card.is-live { border-color: var(--coral); box-shadow: 0 0 0 1px var(--coral), 0 6px 24px var(--coral-dim); }
+.gallery-card.is-live { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 6px 24px var(--accent-soft); }
 .gallery-screen { position: relative; background: #000; border-bottom: 1px solid var(--line); }
 .gallery-screen canvas {
   display: block;
@@ -214,7 +215,7 @@ footer {
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
-.gallery-live { background: var(--coral); color: var(--ground); }
+.gallery-live { background: var(--accent); color: var(--ground); }
 .gallery-broken { background: var(--surface); color: var(--ink-dim); }
 .gallery-body { display: flex; flex-direction: column; gap: 8px; padding: 14px 14px 16px; flex: 1; }
 .gallery-body h4 { font-family: var(--font-display); font-size: 16px; margin: 0; color: var(--ink); }
@@ -228,12 +229,12 @@ footer {
   font-size: 12px;
   color: var(--ink);
 }
-.gallery-tags .tag-action { border-color: var(--coral); }
-.gallery-tags .tag-people { border-color: var(--cyan); }
+.gallery-tags .tag-action { border-color: var(--accent); }
+.gallery-tags .tag-people { border-color: var(--focus); }
 .gallery-controls { margin: 0; color: var(--ink-dim); font-size: 12px; line-height: 1.5; }
 .gallery-pick { margin-top: auto; align-self: flex-start; }
-.gallery-card.is-live .gallery-pick { border-color: var(--coral); }
-#galleryStatus[data-error="true"] { color: var(--coral); }
+.gallery-card.is-live .gallery-pick { border-color: var(--accent); }
+#galleryStatus[data-error="true"] { color: var(--accent); }
 @media (prefers-reduced-motion: reduce) {
   .gallery-card { transition: none; }
 }
@@ -247,13 +248,13 @@ footer {
   font-weight: 500;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--coral);
+  color: var(--accent);
 }
 .gallery-section-intro { margin: 4px 0 12px; color: var(--ink-dim); font-size: 14px; }
 /* The prompt that made a generated piece. Tucked away so cards stay scannable. */
 .gallery-prompt { font-size: 12px; color: var(--ink-dim); }
-.gallery-prompt summary { cursor: pointer; color: var(--cyan); }
-.gallery-prompt summary:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+.gallery-prompt summary { cursor: pointer; color: var(--focus); }
+.gallery-prompt summary:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 .gallery-prompt p { margin: 6px 0 0; font-family: var(--font-mono); line-height: 1.55; }
 
 /* ── finding something in the library ─────────────────────────────────────
@@ -280,7 +281,7 @@ footer {
   color: var(--ink);
   font: inherit;
 }
-.library-search input:focus-visible { outline: 2px solid var(--cyan); outline-offset: 1px; }
+.library-search input:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
 .library-tags { display: flex; flex-wrap: wrap; gap: 14px 22px; }
 .library-group { display: flex; flex-direction: column; gap: 6px; }
 .library-group-title {
@@ -304,8 +305,8 @@ footer {
   transition: border-color 120ms, background 120ms, color 120ms;
 }
 .library-tag:hover { border-color: var(--ink-dim); }
-.library-tag.is-on { border-color: var(--coral); background: var(--coral); color: var(--ground); }
-.library-tag:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+.library-tag.is-on { border-color: var(--accent); background: var(--accent); color: var(--ground); }
+.library-tag:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 #libraryCount { margin: 0 0 14px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
 .library-clear { padding: 4px 10px; font-size: 12px; }
 

@@ -17,9 +17,9 @@
   --p-line: var(--line);
   --p-ink: var(--ink);
   --p-dim: var(--ink-dim);
-  --p-accent: var(--coral);
+  --p-accent: var(--accent);
   --p-on-accent: var(--ground);
-  --p-focus: var(--cyan);
+  --p-focus: var(--focus);
   --p-font: var(--font-body);
   --p-font-label: var(--font-mono);
   --p-font-value: var(--font-mono);

@@ -1,29 +1,50 @@
 /* The Commons -- shared visual identity.
  *
- * Extracted from pitch.html so the actual product and the pitch deck read as
- * one thing, not two unrelated projects. A single deliberate dark visual
- * world -- a dim room lit by a shared screen -- not a light/dark toggle;
- * both pages here commit to the same choice pitch.html already made.
+ * One palette, two grounds. The tokens below are the suite's: warm ivory,
+ * sage green, a clay accent, and the DM Sans / DM Mono / Instrument Serif
+ * family the homepage and Glitcher use. Nothing here is a light/dark toggle
+ * a viewer can flip -- which ground a page gets is a property of where that
+ * page is used:
  *
- * Anyone extending this UI (including a fresh model picking up this repo)
- * should reach for these tokens rather than inventing new colors/fonts.
+ *   light (default)  the rooms list and the creator desk -- surfaces you sit
+ *                    at, on a desk, next to the rest of the suite.
+ *   body.stage       the wall and the phone that steers it. These live in a
+ *                    dim room around a projection, and the original rationale
+ *                    still holds: chrome recedes so the piece is the light.
+ *
+ * Every downstream sheet consumes these names only, so a page changes ground
+ * by adding one class. Anyone extending this UI should reach for these rather
+ * than inventing new colors or fonts.
  */
 
 :root {
-  --ground: #0a0b0f;
-  --surface: #14161d;
-  --surface-2: #1c1f29;
-  --line: #262a36;
-  --ink: #eef0f4;
-  --ink-dim: #8b90a0;
-  --coral: #ff6b6b;
-  --coral-dim: #ff6b6b66;
-  --cyan: #22b8cf;
-  --cyan-dim: #22b8cf66;
+  --font-display: 'Instrument Serif', Georgia, serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+  --font-mono: 'DM Mono', ui-monospace, monospace;
 
-  --font-display: 'Unbounded', system-ui, sans-serif;
-  --font-body: 'Hanken Grotesk', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --ground: #f7f7f2;
+  --surface: #fffefb;
+  --surface-2: #f1f3eb;
+  --line: #dce2d8;
+  --ink: #213f35;
+  --ink-dim: #616d66;
+  --accent: #a1502b;
+  --accent-soft: #a1502b33;
+  --focus: #46704d;
+  --focus-soft: #46704d33;
+}
+
+body.stage {
+  --ground: #10150f;
+  --surface: #19211b;
+  --surface-2: #212b22;
+  --line: #303c32;
+  --ink: #eef0e8;
+  --ink-dim: #9aa596;
+  --accent: #cc835c;
+  --accent-soft: #cc835c55;
+  --focus: #93b189;
+  --focus-soft: #93b18955;
 }
 
 * { box-sizing: border-box; }
@@ -34,13 +55,13 @@ body {
   font-family: var(--font-body);
 }
 
-::selection { background: var(--coral-dim); }
+::selection { background: var(--accent-soft); }
 button, textarea { font: inherit; }
 button { cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
-button:focus-visible, a:focus-visible, textarea:focus-visible { outline: 2px solid var(--cyan); outline-offset: 4px; }
+button:focus-visible, a:focus-visible, textarea:focus-visible { outline: 2px solid var(--focus); outline-offset: 4px; }
 button:disabled { cursor: default; opacity: 0.5; }
 .eyebrow { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em; line-height: 1.6; text-transform: uppercase; color: var(--ink-dim); }
-.primary-button { min-height: 46px; padding: 12px 18px; border: 1px solid var(--coral); border-radius: 8px; background: var(--coral); color: var(--ground); font-weight: 700; transition: filter 150ms, transform 150ms; }
+.primary-button { min-height: 46px; padding: 12px 18px; border: 1px solid var(--accent); border-radius: 8px; background: var(--accent); color: var(--ground); font-weight: 700; transition: filter 150ms, transform 150ms; }
 .primary-button:hover:not(:disabled) { filter: brightness(1.1); }
 .primary-button:active:not(:disabled) { transform: translateY(1px); }
 @media (prefers-reduced-motion: reduce) {
