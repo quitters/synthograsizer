@@ -57,10 +57,10 @@ export class CanvasManager {
     this.fileInput.addEventListener('change', (e) => this.handleFileSelect(e));
     
     // Set up drag and drop for both file upload area and canvas placeholder
-    const dropZones = [
+    const dropZones = [...new Set([
       document.querySelector('.file-upload-area'),
       document.getElementById('canvas-placeholder')
-    ].filter(Boolean); // Remove any null elements
+    ].filter(Boolean))]; // A single element can match both selectors.
     
     dropZones.forEach(dropZone => {
       if (dropZone) {

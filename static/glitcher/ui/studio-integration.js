@@ -313,6 +313,8 @@ function initializeIntegration() {
   
   // Add welcome message
   setTimeout(() => {
+    // The modern workspace has a single editing mode, so the toggle hint is moot.
+    if (document.body.classList.contains('light-workspace')) return;
     if (!localStorage.getItem('glitcherStudioWelcomeShown')) {
       showNotification('🎛️ Studio Mode Available! Press Ctrl+Shift+S to toggle', 'info');
       localStorage.setItem('glitcherStudioWelcomeShown', 'true');

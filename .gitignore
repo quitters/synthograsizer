@@ -88,3 +88,12 @@ design-system/fonts/files/
 # not source — ~7 MB of them, easy to add and awkward to remove later. The build
 # scripts and the written copy they contain ARE committed.
 docs/*.pdf
+
+# Runtime PID file written by the chatroom dev server on boot.
+chatroom/.run-pid
+
+# Homepage design studies. The approved direction (study 01) is implemented in
+# static/index.html + static/css/index.css, so these are reference, not source —
+# and committing them would serve them publicly at /design-preview/ inside the
+# Cloud Run image, noindex notwithstanding.
+static/design-preview/

@@ -36,7 +36,11 @@ export class EnhancedSelectionUI {
     }
     
     console.log('✨ Enhanced Selection UI initialized');
-    this.showNotification('Enhanced selection system loaded! Use Ctrl+R/B/W/L for quick tool access', 'success', 4000);
+    // The modern workspace shows its tools in the panel; a startup toast about
+    // legacy shortcuts only covers the header. Errors still surface normally.
+    if (!document.body.classList.contains('light-workspace')) {
+      this.showNotification('Enhanced selection system loaded! Use Ctrl+R/B/W/L for quick tool access', 'success', 4000);
+    }
   }
 
   setupEventListeners() {
