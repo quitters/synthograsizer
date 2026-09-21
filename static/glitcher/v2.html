@@ -1073,8 +1073,8 @@
             <option value="random">Random</option>
             <option value="colorRange">Color</option>
             <option value="brightness">Bright</option>
-            <option value="edge">Edge</option>
-            <option value="adaptive">Adapt</option>
+            <option value="edgeDetection">Edge</option>
+            <option value="contentAware">Adapt</option>
           </select>
         </div>
 
@@ -1082,10 +1082,10 @@
           <span class="anim-dot"></span>
           <label class="anim-label">Size</label>
           <select class="anim-select" id="v2-intensity">
-            <option value="low">Small</option>
+            <option value="small">Small</option>
             <option value="medium" selected>Med</option>
-            <option value="high">Large</option>
-            <option value="extreme">XL</option>
+            <option value="large">Large</option>
+            <option value="extraLarge">XL</option>
           </select>
         </div>
 
@@ -1240,9 +1240,11 @@
   <!-- Selection controls -->
   <input type="checkbox" id="manual-selection-mode">
   <select id="selection-method">
+    <option value="random" selected>Random</option>
+    <option value="colorRange">Color</option>
     <option value="brightness">Brightness</option>
-    <option value="color">Color</option>
-    <option value="edge">Edge</option>
+    <option value="edgeDetection">Edges</option>
+    <option value="contentAware">Adaptive</option>
   </select>
   <input type="range" id="selection-sensitivity" min="0" max="100" value="50">
   <input type="checkbox" id="selection-preview-checkbox">
@@ -1303,10 +1305,10 @@
 
   <!-- Selection animation controls (read by enhanced-selection-ui.js + main.js) -->
   <select id="intensity-select">
-    <option value="low">Low</option>
+    <option value="small">Small</option>
     <option value="medium" selected>Medium</option>
-    <option value="high">High</option>
-    <option value="extreme">Extreme</option>
+    <option value="large">Large</option>
+    <option value="extraLarge">Extra large</option>
   </select>
   <span id="concurrent-selections-value">3</span>
   <input type="range" id="concurrent-selections" min="1" max="10" value="3">
@@ -1351,8 +1353,8 @@
   })();
 </script>
 
-<script type="module" src="./main.js?v=2"></script>
-<script type="module" src="./ui/chain-bridge.js?v=20250501d"></script>
+<script type="module" src="./main.js"></script>
+<script type="module" src="./ui/chain-bridge.js"></script>
 
 </body>
 </html>

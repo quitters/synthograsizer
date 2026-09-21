@@ -969,6 +969,7 @@ function startHudUpdater() {
   const canvas = document.getElementById('canvas');
   const hudDims = document.getElementById('v2-hud-dims');
   const hudState = document.getElementById('v2-hud-state');
+  const hudAccum = document.getElementById('v2-hud-accum');
 
   function update() {
     const hasMedia = app?.canvasManager?.isImageLoaded();
@@ -981,6 +982,12 @@ function startHudUpdater() {
       const paused = app && app.isPaused;
       hudState.textContent = modernWorkspace ? (!hasMedia ? 'Ready when you are' : paused ? 'Paused' : 'Effects running') : paused ? 'PAUSED' : 'RUNNING';
       hudState.className = 'hud-state' + (paused ? ' paused' : ' running');
+    }
+    // Most effects build up frame by frame; without this a slow accumulation
+    // is indistinguishable from a frozen canvas.
+    if (hudAccum) {
+      const frames = hasMedia ? (app?.frameCount || 0) : 0;
+      hudAccum.textContent = frames ? `building up · ${frames} frames` : '';
     }
   }
 
@@ -1005,30 +1012,46 @@ function startHudUpdater() {
 // ─── Animation / clump controls ──────────────────────────────────────────────
 
 function wireAnimationControls() {
-  // Helper: mirror a v2 control to its hidden counterpart and clear active clumps
-  function mirror(v2Id, hiddenId, valueDisplayId, transform) {
+  // Use the same values in both interfaces; the hidden controls drive the engine.
+  function mirror(v2Id, hiddenId, valueDisplayId, afterSync) {
     const v2El = document.getElementById(v2Id);
     const hiddenEl = document.getElementById(hiddenId);
     const valEl = valueDisplayId ? document.getElementById(valueDisplayId) : null;
     if (!v2El || !hiddenEl) return;
-    v2El.addEventListener('input', () => {
-      const val = transform ? transform(v2El.value) : v2El.value;
-      hiddenEl.value = val;
-      hiddenEl.dispatchEvent(new Event('input', { bubbles: true }));
+    const eventType = v2El.tagName === 'SELECT' ? 'change' : 'input';
+    const sync = () => {
+      hiddenEl.value = v2El.value;
+      hiddenEl.dispatchEvent(new Event(eventType, { bubbles: true }));
       if (valEl) valEl.textContent = v2El.value;
-      // Reset clumps so new settings take effect immediately
+      if (afterSync) afterSync();
+      // Reset clumps so new settings take effect immediately.
       if (app) app.activeClumps = [];
-    });
-    v2El.addEventListener('change', () => {
-      const val = transform ? transform(v2El.value) : v2El.value;
-      hiddenEl.value = val;
-      hiddenEl.dispatchEvent(new Event('change', { bubbles: true }));
-      if (app) app.activeClumps = [];
-    });
+    };
+    v2El.addEventListener(eventType, sync);
+    // Also honor restored form values on page load, before the first selection.
+    sync();
   }
 
-  // Selection method
-  mirror('v2-sel-method', 'selection-method', null);
+  function syncRandomControls() {
+    const random = document.getElementById('v2-sel-method').value === 'random';
+    for (const id of ['v2-intensity', 'v2-concurrent']) {
+      const control = document.getElementById(id);
+      if (!control) continue;
+      control.disabled = !random;
+      control.title = random ? '' : 'Available when Find areas by is Random';
+    }
+  }
+
+  function constrainLifetime(changed) {
+    const min = document.getElementById('v2-minlife');
+    const max = document.getElementById('v2-maxlife');
+    if (!min || !max || Number(min.value) <= Number(max.value)) return;
+    const other = changed === 'min' ? max : min;
+    other.value = changed === 'min' ? min.value : max.value;
+    other.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+
+  mirror('v2-sel-method', 'selection-method', null, syncRandomControls);
 
   // Intensity (size)
   mirror('v2-intensity', 'intensity-select', null);
@@ -1037,10 +1060,10 @@ function wireAnimationControls() {
   mirror('v2-concurrent', 'concurrent-selections', 'v2-concurrent-val');
 
   // Min lifetime
-  mirror('v2-minlife', 'min-lifetime', 'v2-minlife-val');
+  mirror('v2-minlife', 'min-lifetime', 'v2-minlife-val', () => constrainLifetime('min'));
 
   // Max lifetime
-  mirror('v2-maxlife', 'max-lifetime', 'v2-maxlife-val');
+  mirror('v2-maxlife', 'max-lifetime', 'v2-maxlife-val', () => constrainLifetime('max'));
 }
 
 // ─── Canvas drag-and-drop for media loading ───────────────────────────────────
