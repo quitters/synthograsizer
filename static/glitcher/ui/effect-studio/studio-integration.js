@@ -369,7 +369,7 @@ export class EffectStudioIntegration {
     showIntegrationStatus() {
         // Mode synchronization is an internal detail of the classic/studio split,
         // and the modern workspace has no mode switch to explain.
-        if (document.body.classList.contains('light-workspace')) return;
+        if (document.body.matches('.light-workspace, .classic-workspace')) return;
         const statusMessage = this.createStatusMessage();
         document.body.appendChild(statusMessage);
         

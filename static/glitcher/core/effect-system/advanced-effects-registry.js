@@ -528,7 +528,7 @@ export function registerAdvancedFilterEffects(effectFactory, filterEffectsInstan
           imageData,
           'dithering',
           params.intensity,
-          options
+          { dithering: options }
         );
         if (result !== imageData) {
           imageData.data.set(result.data);

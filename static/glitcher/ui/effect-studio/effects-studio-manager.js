@@ -585,7 +585,9 @@ export class EffectStudioManager {
       // Show classic interface
       studio.style.display = 'none';
       if (classic) {
-        classic.style.display = 'grid';
+        // Clear, don't hardcode: classic-light.css stacks this to a column
+        // below 600px, and an inline `grid` outranks every media query.
+        classic.style.display = '';
       }
       
       // Move canvas back to classic

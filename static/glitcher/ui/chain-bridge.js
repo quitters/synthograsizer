@@ -4,6 +4,8 @@
  * Forces Studio mode on; no classic-mode fallback.
  */
 
+import { completeEffectCatalog } from './effect-catalog.js';
+
 const modernWorkspace = document.body.classList.contains('light-workspace');
 const CATS = [
   {
@@ -134,6 +136,11 @@ function boot(glitcherApp) {
   app = glitcherApp;
   ecm = app.effectChainManager;
   ef = app.effectFactory;
+  completeEffectCatalog(CATS, ef.getAvailableEffects());
+  CATS.forEach(cat => {
+    CAT_COLOR.set(cat.id, cat.color);
+    cat.effects.forEach(effect => EFFECT_LOOKUP.set(effect.id, { cat, effect }));
+  });
 
   // Force studio mode so render loop uses processChain
   app.studioMode = true;
