@@ -4,6 +4,7 @@
  * Forces Studio mode on; no classic-mode fallback.
  */
 
+const modernWorkspace = document.body.classList.contains('light-workspace');
 const CATS = [
   {
     id: 'movement', label: 'Movement', color: '#c97d68', icon: '↔',
@@ -145,8 +146,11 @@ function boot(glitcherApp) {
   ecm.on('chainCleared', renderChainStrip);
   ecm.on('effectEnabledChanged', renderChainStrip);
   ecm.on('soloChanged', renderChainStrip);
-  ecm.on('effectSelected', ({ effect }) => {
-    if (effect) showProperties(effect);
+  // EffectChainManager emits the effect itself, or null when the selection is
+  // cleared by a removal; older call sites passed { effect }.
+  ecm.on('effectSelected', payload => {
+    const effect = payload && (payload.effect || payload);
+    if (effect && effect.id) showProperties(effect);
   });
 
   // Wire header transport
@@ -168,21 +172,40 @@ function boot(glitcherApp) {
   showCategoryGrid();
   renderChainStrip();
   startHudUpdater();
+
+  if (modernWorkspace) window.dispatchEvent(new CustomEvent('glitcher:workspace-ready', { detail: app }));
 }
 
 // ─── Effect helpers ──────────────────────────────────────────────────────────
 
 function addEffect(effectId) {
   try {
+    if (modernWorkspace && ecm.getEffect(effectId)) {
+      currentEffectId = effectId;
+      ecm.selectEffect(effectId);
+      renderChainStrip();
+      return;
+    }
     const effect = ef.createEffect(effectId);
     if (!effect) {
       console.warn('[chain-bridge] createEffect returned null for:', effectId);
       return;
     }
     ecm.addEffect(effect);
+    if (modernWorkspace) {
+      currentEffectId = effect.id;
+      ecm.selectEffect(effect.id);
+      renderChainStrip();
+    }
   } catch (e) {
     console.warn('[chain-bridge] Failed to add effect:', effectId, e);
   }
+}
+
+// Announce to the modern workspace's live region; a no-op elsewhere.
+function announce(message) {
+  if (!modernWorkspace) return;
+  window.dispatchEvent(new CustomEvent('glitcher:workspace-status', { detail: message }));
 }
 
 // node can provide { id (effectId), type (category slug or effectId) }
@@ -214,7 +237,7 @@ function rpTitle(text, showBack = false) {
 function showCategoryGrid() {
   currentView = 'grid';
   currentCat = null;
-  rpTitle('EFFECTS');
+  rpTitle(modernWorkspace ? 'Explore effects' : 'EFFECTS');
   const el = document.getElementById('rp-content');
   if (!el) return;
 
@@ -225,6 +248,7 @@ function showCategoryGrid() {
     const tile = document.createElement('button');
     tile.className = 'cat-tile';
     tile.style.setProperty('--cat-color', cat.color);
+    tile.setAttribute('aria-label', `${cat.label}, ${cat.effects.length} effects`);
     tile.innerHTML = `<span class="cat-icon">${cat.icon}</span><span class="cat-name">${cat.label}</span><span class="cat-count">${cat.effects.length}</span>`;
     tile.addEventListener('click', () => showEffectList(cat));
     grid.appendChild(tile);
@@ -235,7 +259,7 @@ function showCategoryGrid() {
 function showEffectList(cat) {
   currentView = 'list';
   currentCat = cat;
-  rpTitle(cat.label.toUpperCase(), true);
+  rpTitle(modernWorkspace ? cat.label : cat.label.toUpperCase(), true);
   const el = document.getElementById('rp-content');
   if (!el) return;
 
@@ -252,6 +276,7 @@ function showEffectList(cat) {
       </div>
       <button class="fx-add-btn" data-id="${fx.id}" style="--cat-color:${cat.color}">+</button>
     `;
+    row.querySelector('.fx-add-btn').setAttribute('aria-label', `Add ${fx.name}`);
     row.querySelector('.fx-add-btn').addEventListener('click', (e) => {
       e.stopPropagation();
       addEffect(fx.id);
@@ -271,7 +296,8 @@ function showProperties(effect) {
   currentEffectId = effect.id;
 
   const meta = EFFECT_LOOKUP.get(effect.id);
-  rpTitle((meta ? meta.effect.name : effect.name || effect.id).toUpperCase(), true);
+  const effectTitle = meta ? meta.effect.name : effect.name || effect.id;
+  rpTitle(modernWorkspace ? effectTitle : effectTitle.toUpperCase(), true);
 
   const el = document.getElementById('rp-content');
   if (!el) return;
@@ -298,7 +324,9 @@ function showProperties(effect) {
 
     const label = document.createElement('label');
     label.className = 'prop-label';
-    label.textContent = schema.label || key;
+    label.textContent = schema.label || (modernWorkspace ? humanize(key) : key);
+    const controlId = `prop-${effect.id}-${key}`;
+    label.htmlFor = controlId;
 
     if (schema.type === 'range') {
       const val = params[key] ?? schema.default ?? schema.min ?? 0;
@@ -308,6 +336,8 @@ function showProperties(effect) {
 
       const input = document.createElement('input');
       input.type = 'range';
+      input.id = controlId;
+      input.setAttribute('aria-label', schema.label || key);
       input.className = 'prop-slider';
       input.min = schema.min ?? 0;
       input.max = schema.max ?? 100;
@@ -330,7 +360,9 @@ function showProperties(effect) {
     } else if (schema.type === 'select') {
       const val = params[key] ?? schema.default ?? (schema.options?.[0]?.value ?? schema.options?.[0]);
       const select = document.createElement('select');
+      select.id = controlId;
       select.className = 'prop-select';
+      select.setAttribute('aria-label', schema.label || key);
       (schema.options || []).forEach(opt => {
         const option = document.createElement('option');
         if (typeof opt === 'object') {
@@ -338,7 +370,8 @@ function showProperties(effect) {
           option.textContent = opt.label;
         } else {
           option.value = opt;
-          option.textContent = opt;
+          // Several effects list raw identifiers; show them as words.
+          option.textContent = modernWorkspace ? humanize(opt) : opt;
         }
         if (option.value == val) option.selected = true;
         select.appendChild(option);
@@ -360,6 +393,8 @@ function showProperties(effect) {
       wrapper.className = 'prop-check-row';
       const chk = document.createElement('input');
       chk.type = 'checkbox';
+      chk.id = controlId;
+      chk.setAttribute('aria-label', schema.label || key);
       chk.className = 'prop-check';
       chk.checked = !!val;
       chk.addEventListener('change', () => {
@@ -377,6 +412,16 @@ function showProperties(effect) {
   el.appendChild(form);
 }
 
+// "columnBrightness" / "edge_detect" -> "Column brightness" / "Edge detect"
+function humanize(value) {
+  return String(value)
+    .replace(/[_-]+/g, ' ')
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/^./, c => c.toUpperCase());
+}
+
 function formatValue(v, schema) {
   const rounded = schema.step && schema.step < 1 ? v.toFixed(2) : Math.round(v);
   return schema.unit ? `${rounded}${schema.unit}` : String(rounded);
@@ -384,7 +429,7 @@ function formatValue(v, schema) {
 
 function showSearchResults(query) {
   currentView = 'search';
-  rpTitle('SEARCH', true);
+  rpTitle(modernWorkspace ? 'Search results' : 'SEARCH', true);
   const el = document.getElementById('rp-content');
   if (!el) return;
 
@@ -419,6 +464,7 @@ function showSearchResults(query) {
       </div>
       <button class="fx-add-btn" data-id="${fx.id}" style="--cat-color:${cat.color}">+</button>
     `;
+    row.querySelector('.fx-add-btn').setAttribute('aria-label', `Add ${fx.name}`);
     row.querySelector('.fx-add-btn').addEventListener('click', (e) => {
       e.stopPropagation();
       addEffect(fx.id);
@@ -438,6 +484,12 @@ function renderChainStrip() {
   const container = document.getElementById('chain-nodes');
   if (!container) return;
 
+  // Rebuilding the strip drops keyboard focus; remember which control had it.
+  const focused = container.contains(document.activeElement) ? document.activeElement : null;
+  const focusedNodeId = focused ? focused.closest('.chain-node')?.dataset.id : null;
+  const focusedClass = focused ? focused.className.split(' ')[0] : null;
+  const focusedDirection = focused ? focused.getAttribute('aria-label') : null;
+
   const summary = ecm.getChainSummary ? ecm.getChainSummary() : [];
   container.innerHTML = '';
 
@@ -451,7 +503,7 @@ function renderChainStrip() {
     const empty = document.createElement('div');
     empty.className = 'chain-empty';
     // CSS pseudo-element renders "+ ADD EFFECT"; child <span> shows the hint text
-    empty.innerHTML = '<span>pick from library →</span>';
+    empty.innerHTML = modernWorkspace ? '<span>Your next happy accident starts here.<br>Add an effect from the library.</span>' : '<span>pick from library →</span>';
     container.appendChild(empty);
     return;
   }
@@ -493,9 +545,41 @@ function renderChainStrip() {
       <button class="node-delete" title="Remove" data-id="${node.id}">×</button>
     `;
 
+    if (modernWorkspace) {
+      const label = tile.querySelector('.node-label');
+      const select = document.createElement('button');
+      select.className = 'node-label';
+      select.textContent = displayName;
+      select.setAttribute('aria-label', `Adjust ${displayName}`);
+      select.setAttribute('aria-pressed', String(isSelected));
+      label.replaceWith(select);
+      const bypass = tile.querySelector('.node-bypass');
+      bypass.append(document.createTextNode(node.enabled ? 'On' : 'Off'));
+      bypass.setAttribute('aria-label', `Enable ${displayName}`);
+      bypass.setAttribute('aria-pressed', String(node.enabled));
+      const solo = tile.querySelector('.node-solo');
+      solo.textContent = 'Solo';
+      solo.setAttribute('aria-label', `Solo ${displayName}`);
+      solo.setAttribute('aria-pressed', String(isSoloed));
+      tile.querySelector('.node-delete').setAttribute('aria-label', `Remove ${displayName}`);
+      [-1, 1].forEach(direction => {
+        const move = document.createElement('button');
+        move.className = 'node-move';
+        move.textContent = direction < 0 ? '←' : '→';
+        move.setAttribute('aria-label', `Move ${displayName} ${direction < 0 ? 'earlier' : 'later'}`);
+        move.disabled = direction < 0 ? index === 0 : index === summary.length - 1;
+        move.addEventListener('click', event => {
+          event.stopPropagation();
+          // Manager takes an insertion boundary, including the removed slot.
+          ecm.moveEffect(node.id, direction < 0 ? index - 1 : index + 2);
+        });
+        tile.querySelector('.node-top').appendChild(move);
+      });
+    }
+
     // Click tile to select (show properties)
     tile.addEventListener('click', (e) => {
-      if (e.target.closest('.node-bypass, .node-solo, .node-delete')) return;
+      if (e.target.closest('.node-bypass, .node-solo, .node-delete, .node-move')) return;
       currentEffectId = node.id;
       const effect = ecm.getEffect(node.id);
       if (effect) {
@@ -554,12 +638,35 @@ function renderChainStrip() {
     tile.addEventListener('drop', (e) => {
       e.preventDefault();
       if (dragSrcId && dragSrcId !== node.id) {
-        ecm.moveEffect(dragSrcId, index);
+        const sourceIndex = ecm.getEffectPosition(dragSrcId);
+        ecm.moveEffect(dragSrcId, modernWorkspace && index > sourceIndex ? index + 1 : index);
       }
     });
 
     container.appendChild(tile);
   });
+
+  restoreChainFocus(container, focusedNodeId, focusedClass, focusedDirection);
+}
+
+// Put keyboard focus back on the equivalent control of the re-rendered strip.
+// A move button changes place, so match it by its label ("… earlier"/"… later").
+function restoreChainFocus(container, nodeId, className, ariaLabel) {
+  if (!nodeId || !className) return;
+  const tile = container.querySelector(`.chain-node[data-id="${CSS.escape(nodeId)}"]`);
+  if (!tile) return;
+  let target = null;
+  if (className === 'node-move' && ariaLabel) {
+    const wanted = / earlier$/.test(ariaLabel) ? ' earlier' : ' later';
+    target = [...tile.querySelectorAll('.node-move')]
+      .find(b => (b.getAttribute('aria-label') || '').endsWith(wanted));
+    if (target && target.disabled) {
+      target = [...tile.querySelectorAll('.node-move')].find(b => !b.disabled);
+    }
+  } else {
+    target = tile.querySelector('.' + className);
+  }
+  if (target && !target.disabled) target.focus();
 }
 
 // ─── Header transport ────────────────────────────────────────────────────────
@@ -606,7 +713,11 @@ function wireHeader() {
         speedInput.value = SPEEDS[speedIndex];
         speedInput.dispatchEvent(new Event('input', { bubbles: true }));
       }
+      applySourceSpeed();
+      announce(`Source playback at ${SPEEDS[speedIndex]}×.`);
     });
+    // Each new media load builds a fresh FrameTimer at 1×.
+    if (modernWorkspace) app.canvasManager.onImageLoad(applySourceSpeed);
   }
 
   // Snapshot
@@ -622,9 +733,17 @@ function wireHeader() {
   if (recBtn && hiddenRec) {
     recBtn.addEventListener('click', () => {
       hiddenRec.click();
-      recBtn.classList.toggle('recording');
+      if (!modernWorkspace) recBtn.classList.toggle('recording');
     });
   }
+}
+
+// main.js binds #source-speed only when #speed-value exists, which the modern
+// workspace deliberately omits, so apply the speed to the frame timer here.
+function applySourceSpeed() {
+  if (!modernWorkspace || !app) return;
+  app.sourcePlaybackSpeed = SPEEDS[speedIndex];
+  if (app.frameTimer) app.frameTimer.setSpeed(SPEEDS[speedIndex]);
 }
 
 function updateSpeedDisplay(btn) {
@@ -635,11 +754,11 @@ function updateSpeedDisplay(btn) {
 // ─── Toolbar ─────────────────────────────────────────────────────────────────
 
 const TOOLS = [
-  { id: 'auto', label: 'Auto', icon: '✦' },
-  { id: 'rect', label: 'Rect', icon: '▭' },
-  { id: 'brush', label: 'Brush', icon: '⊙' },
-  { id: 'wand', label: 'Wand', icon: '⋆' },
-  { id: 'lasso', label: 'Lasso', icon: '∮' },
+  { id: 'auto', label: 'Auto', name: 'Automatic', icon: '✦' },
+  { id: 'rect', label: 'Rect', name: 'Rectangle', icon: '▭' },
+  { id: 'brush', label: 'Brush', name: 'Brush', icon: '⊙' },
+  { id: 'wand', label: 'Wand', name: 'Magic wand', icon: '⋆' },
+  { id: 'lasso', label: 'Lasso', name: 'Lasso', icon: '∮' },
 ];
 
 function wireToolbar() {
@@ -653,15 +772,19 @@ function wireToolbar() {
   const allBtn = document.getElementById('v2-all-sel');
   if (allBtn) {
     allBtn.addEventListener('click', () => {
-      if (!currentEffectId) return;
-      const effect = ecm.getEffect(currentEffectId);
-      if (!effect) return;
+      const effect = currentEffectId ? ecm.getEffect(currentEffectId) : null;
+      if (!effect) {
+        announce('Select an effect card in your stack first, then choose where it applies.');
+        return;
+      }
       const canvas = document.getElementById('canvas');
-      if (!canvas) return;
-      const w = canvas.width || 1920;
-      const h = canvas.height || 1080;
-      effect.selectionMask = new Uint8ClampedArray(w * h).fill(255);
+      if (!canvas || !canvas.width || !canvas.height) {
+        announce('Load an image or video before assigning a selection.');
+        return;
+      }
+      effect.selectionMask = new Uint8ClampedArray(canvas.width * canvas.height).fill(255);
       renderChainStrip(); // update mask indicator
+      announce(`${effect.name || effect.id} now covers the whole image.`);
     });
   }
 
@@ -676,11 +799,13 @@ function wireToolbar() {
         if (effect && effect.selectionMask != null) {
           effect.selectionMask = null;
           renderChainStrip();
+          announce(`${effect.name || effect.id} is back to roaming the whole image.`);
           return; // don't also wipe the painted selection
         }
       }
       // Otherwise clear the painted selection as usual
       if (hiddenClear) hiddenClear.click();
+      announce('Selection cleared.');
     });
   }
 
@@ -718,7 +843,10 @@ function selectTool(toolId) {
   // Update UI
   TOOLS.forEach(t => {
     const btn = document.getElementById(`v2-tool-${t.id}`);
-    if (btn) btn.classList.toggle('active', t.id === toolId);
+    if (btn) {
+      btn.classList.toggle('active', t.id === toolId);
+      if (modernWorkspace) btn.setAttribute('aria-pressed', String(t.id === toolId));
+    }
   });
 
   const isManual = toolId !== 'auto';
@@ -758,7 +886,9 @@ function selectTool(toolId) {
   // Update status bar tool text
   const toolLabel = document.getElementById('v2-status-tool');
   const toolObj = TOOLS.find(t => t.id === toolId);
-  if (toolLabel && toolObj) toolLabel.textContent = toolObj.label.toUpperCase();
+  if (toolLabel && toolObj) {
+    toolLabel.textContent = modernWorkspace ? toolObj.name : toolObj.label.toUpperCase();
+  }
 }
 
 // Key effects quick-add buttons
@@ -834,14 +964,15 @@ function startHudUpdater() {
   const hudState = document.getElementById('v2-hud-state');
 
   function update() {
+    const hasMedia = app?.canvasManager?.isImageLoaded();
     if (canvas && hudDims) {
       const w = canvas.width || 0;
       const h = canvas.height || 0;
-      if (w && h) hudDims.textContent = `${w}×${h}`;
+      if (w && h) hudDims.textContent = modernWorkspace && !hasMedia ? 'No media loaded' : `${w}×${h}`;
     }
     if (hudState) {
       const paused = app && app.isPaused;
-      hudState.textContent = paused ? 'PAUSED' : 'RUNNING';
+      hudState.textContent = modernWorkspace ? (!hasMedia ? 'Ready when you are' : paused ? 'Paused' : 'Effects running') : paused ? 'PAUSED' : 'RUNNING';
       hudState.className = 'hud-state' + (paused ? ' paused' : ' running');
     }
   }
@@ -854,7 +985,7 @@ function startHudUpdater() {
       const isPaused = hiddenPlayBtn.textContent.includes('Play') ||
         hiddenPlayBtn.dataset.state === 'paused' ||
         (app && app.isPaused);
-      playBtn.textContent = isPaused ? '▶' : '⏸';
+      playBtn.textContent = modernWorkspace ? (isPaused ? '▶ Play' : 'Ⅱ Pause') : isPaused ? '▶' : '⏸';
       update();
     });
     obs.observe(hiddenPlayBtn, { characterData: true, childList: true, subtree: true, attributes: true });
@@ -933,7 +1064,6 @@ function wireCanvasDrop() {
 // ─── Bootstrap ────────────────────────────────────────────────────────────────
 
 document.addEventListener('DOMContentLoaded', () => {
-  wireCanvasDrop();
+  if (!modernWorkspace) wireCanvasDrop();
   waitForApp();
 });
-
