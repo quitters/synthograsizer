@@ -1,0 +1,99 @@
+{
+  "name": "Ink Drifts",
+  "promptTemplate": "A slow, meditative ink study on {{paper}}. Drops of {{palette}} ink fall every {{drop_rate}} seconds, expanding to size {{spread_size}}. The ink drifts in a {{drift_style}} motion at speed {{drift_speed}}, with audio reactivity adding ripples and splatters.",
+  "variables": [
+    {
+      "name": "paper",
+      "label": "Canvas",
+      "values": [
+        {
+          "text": "washi (white)",
+          "weight": 3
+        },
+        {
+          "text": "parchment",
+          "weight": 2
+        },
+        {
+          "text": "slate (dark)",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "palette",
+      "label": "Ink Color",
+      "values": [
+        {
+          "text": "sumi-e",
+          "weight": 3
+        },
+        {
+          "text": "indigo",
+          "weight": 2
+        },
+        {
+          "text": "crimson",
+          "weight": 2
+        },
+        {
+          "text": "mixed",
+          "weight": 1
+        },
+        {
+          "text": "people hues",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "drop_rate",
+      "label": "Spawn Rate (s)",
+      "type": "number",
+      "min": 0.5,
+      "max": 8.0,
+      "step": 0.5,
+      "default": 2.0
+    },
+    {
+      "name": "spread_size",
+      "label": "Spread Size",
+      "type": "number",
+      "min": 50,
+      "max": 300,
+      "step": 50,
+      "default": 150
+    },
+    {
+      "name": "drift_style",
+      "label": "Drift Style",
+      "values": [
+        {
+          "text": "swirl",
+          "weight": 3
+        },
+        {
+          "text": "sink",
+          "weight": 1
+        },
+        {
+          "text": "float",
+          "weight": 1
+        },
+        {
+          "text": "still",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "drift_speed",
+      "label": "Drift Speed",
+      "type": "number",
+      "min": 0,
+      "max": 60,
+      "step": 5,
+      "default": 15
+    }
+  ]
+}

@@ -290,6 +290,27 @@ class TestModeDispatch:
         config = client.models.calls[0]["config"]
         assert config.safety_settings[0].category == "HARM_CATEGORY_HARASSMENT"
 
+    def test_interactions_sends_thinking_level_flat(self, interactions_mode):
+        client = FakeClient(make_interaction(output_text="y"))
+        google_api.gen_text(client, "m", [google_api.text_block("x")],
+                            generation_config={"thinking_level": "low"})
+        assert client.interactions.calls[0]["generation_config"] == {"thinking_level": "low"}
+
+    def test_legacy_nests_thinking_level_under_thinking_config(self, legacy_mode):
+        # GenerateContentConfig rejects a top-level thinking_level outright,
+        # so passing the Interactions-shaped dict through used to raise.
+        response = NS(prompt_feedback=None,
+                      candidates=[NS(finish_reason="STOP", content=NS(parts=[NS(text="ok")]),
+                                     safety_ratings=[])],
+                      text="ok")
+        client = FakeClient(legacy_response=response)
+        out = google_api.gen_text(client, "m", [google_api.text_block("x")], json_mode=True,
+                                  generation_config={"thinking_level": "LOW"})
+        assert out == "ok"
+        config = client.models.calls[0]["config"]
+        assert config.thinking_config.thinking_level.value == "LOW"
+        assert config.response_mime_type == "application/json"
+
     def test_interactions_ignores_safety_settings(self, interactions_mode):
         client = FakeClient(make_interaction(output_text="y"))
         google_api.gen_text(client, "m", [google_api.text_block("x")],

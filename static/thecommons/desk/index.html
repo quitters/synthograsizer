@@ -7,8 +7,12 @@
 <title>The Commons — Creator desk</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;450;500;550;600;650;700&family=DM+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/thecommons/css/theme.css">
+<link rel="stylesheet" href="/thecommons/css/panel.css">
+<link rel="stylesheet" href="/thecommons/css/skins/trainer.css">
+<link rel="stylesheet" href="/thecommons/css/skins/desk.css">
+<link rel="stylesheet" href="/thecommons/css/skins/textmode.css">
 <link rel="stylesheet" href="/thecommons/css/desk.css">
 </head>
 <body>
@@ -44,11 +48,44 @@
               <a id="wallLink" class="primary-button" target="_blank" rel="noopener">Open the wall ↗</a>
             </p>
           </div>
+          <figure class="phone-preview">
+            <div id="phonePreview" class="phone-frame" aria-label="Preview of the controls on a phone"></div>
+            <figcaption class="section-help">What phones see: every control at once. In a full room,
+              each person gets a few of them.<span id="phoneHostNote"></span></figcaption>
+          </figure>
         </div>
       </div>
 
-      <div class="panel">
+      <div id="hostControls" class="panel host-controls" hidden>
+        <div class="section-heading"><div>
+          <p class="eyebrow">Only on your desk</p><h2>Your controls</h2></div></div>
+        <p class="section-help">This piece gives its host a few controls of their own. Phones never see
+          them, and every change goes straight to the wall.</p>
+        <div id="hostFrame" class="host-frame"><div id="hostPanel"></div></div>
+        <p id="hostRolls" class="room-actions"></p>
+        <p id="hostStatus" class="section-help" role="status"></p>
+      </div>
+
+      <div class="panel gallery-panel">
         <div class="section-heading"><span class="section-number">02</span><div>
+          <p class="eyebrow">Ready in one click · costs no credits</p><h2>The library</h2></div></div>
+        <p class="section-help">Everything you can put on the wall: the ready-made pieces, each running below as it
+          will up there, your own saved looks, and the older library. Put one up, then remix it with a prompt if you
+          want to make it your own.</p>
+        <div class="library-find">
+          <label class="library-search">
+            <span class="eyebrow">Search</span>
+            <input id="librarySearch" type="search" placeholder="A name, a feeling, a control…" autocomplete="off">
+          </label>
+          <div id="libraryTags" class="library-tags"></div>
+        </div>
+        <p id="libraryCount" class="section-help" role="status"></p>
+        <div id="library" class="gallery-sections"></div>
+        <p id="galleryStatus" class="section-help" role="status"></p>
+      </div>
+
+      <div class="panel">
+        <div class="section-heading"><span class="section-number">03</span><div>
           <p class="eyebrow">For everyone on the wall</p><h2>Shape what comes next</h2></div></div>
         <p class="section-help">The current canvas keeps playing while the next piece is composed.
           Your prompt and finished sketch are saved, even if you reload.</p>
@@ -75,12 +112,10 @@
       </div>
 
       <div class="panel">
-        <div class="section-heading"><span class="section-number">03</span><div>
-          <p class="eyebrow">Keep what works</p><h2>Saved looks</h2></div></div>
-        <div class="preset-row">
-          <select id="presetSelect" aria-label="Choose a piece"></select>
-          <button id="loadPreset" type="button" class="quiet-button">Put it on the wall</button>
-        </div>
+        <div class="section-heading"><span class="section-number">04</span><div>
+          <p class="eyebrow">Keep what works</p><h2>Save this look</h2></div></div>
+        <p class="section-help">Keeps the piece exactly as it is now, settings and all. It joins the library above,
+          where you can find it again by name or under “your saved looks”.</p>
         <div class="preset-row">
           <input id="presetName" type="text" maxlength="100" placeholder="Name this look (optional)" autocomplete="off">
           <button id="savePreset" type="button" class="quiet-button">Save current look</button>

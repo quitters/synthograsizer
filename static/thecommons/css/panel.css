@@ -1,0 +1,157 @@
+/* The Commons -- the control panel a participant holds (panel.js).
+ *
+ * Widgets are styled through --p-* tokens. Their defaults below are the
+ * Commons' own look, which is also the "commons" skin, so a piece with no
+ * panel spec looks exactly as The Commons always has. A skin
+ * (css/skins/*.css) restyles a panel by redefining tokens, plus whatever
+ * decoration its era needs, under [data-skin="..."].
+ *
+ * Only an allowlisted skin name and a re-checked #rrggbb accent ever reach
+ * this stylesheet from a spec. There is no way to inject a rule.
+ */
+
+:root {
+  --p-ground: var(--ground);
+  --p-surface: var(--surface);
+  --p-surface-2: var(--surface-2);
+  --p-line: var(--line);
+  --p-ink: var(--ink);
+  --p-dim: var(--ink-dim);
+  --p-accent: var(--accent);
+  --p-on-accent: var(--ground);
+  --p-focus: var(--focus);
+  --p-font: var(--font-body);
+  --p-font-label: var(--font-mono);
+  --p-font-value: var(--font-mono);
+  --p-radius: 8px;
+  --p-radius-big: 14px;
+  --p-label-size: 10px;
+  --p-text-size: 14px;
+}
+
+[data-skin] { --p-accent-dim: color-mix(in srgb, var(--p-accent) 40%, transparent); }
+
+/* ── structure ─────────────────────────────────────────────────────────── */
+
+.panel-head { padding: 18px 0 6px; }
+.panel-title { margin: 0; font-family: var(--p-font-label); font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--p-accent); overflow-wrap: anywhere; }
+.panel-tagline { margin: 6px 0 0; color: var(--p-dim); font-size: 13px; overflow-wrap: anywhere; }
+.panel-group-title { margin: 22px 0 0; font-family: var(--p-font-label); font-size: var(--p-label-size); letter-spacing: 0.14em; text-transform: uppercase; color: var(--p-accent); overflow-wrap: anywhere; }
+/* !important because layout rules (a compact grid, a skin's window) would
+   otherwise out-rank the hidden attribute and leave an empty group showing. */
+.panel-group[hidden], .knob[hidden] { display: none !important; }
+
+.knob { margin: 0; padding: 22px 0; border: 0; border-bottom: 1px solid var(--p-line); min-width: 0; }
+.knob legend { float: left; width: 100%; padding: 0; margin-bottom: 12px; font-family: var(--p-font-label); font-size: var(--p-label-size); line-height: 1.6; letter-spacing: 0.08em; text-transform: uppercase; color: var(--p-dim); }
+.control-sharing { clear: both; margin: 0 0 12px; color: var(--p-dim); font-size: 12px; }
+.control-hint { clear: both; margin: -6px 0 12px; color: var(--p-ink); font-size: 13px; line-height: 1.5; overflow-wrap: anywhere; }
+
+/* Compact: knobs and action pads pair up on a phone. Nothing else does --
+   a stepper or cycle in half a phone's width leaves its value ~20px wide. */
+[data-density="compact"] .panel-group { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 18px; }
+[data-density="compact"] .panel-group > :not(.widget-knob):not(.widget-pad) { grid-column: 1 / -1; }
+[data-density="compact"] .knob-control { flex-direction: column; align-items: flex-start; gap: 8px; }
+
+/* Desktop: the same controls, with groups side by side. Keyed to the panel's
+   own width rather than the window's, so a phone-sized preview on a wide
+   desk still lays out like a phone. */
+.panel-root { container-type: inline-size; }
+@container (min-width: 860px) {
+  .panel-groups { display: grid; grid-template-columns: repeat(var(--columns, 1), minmax(0, 1fr)); column-gap: 32px; align-items: start; }
+}
+
+/* ── numbers: slider ───────────────────────────────────────────────────── */
+
+.numeric-control { clear: both; position: relative; }
+.numeric-value { display: block; text-align: right; color: var(--p-accent); font-family: var(--p-font-value); font-size: 16px; font-variant-numeric: tabular-nums; margin-bottom: 4px; }
+.numeric-control input { --position: 0%; appearance: none; -webkit-appearance: none; display: block; width: 100%; height: 44px; margin: 0; cursor: ew-resize; background: transparent; touch-action: pan-y; }
+.numeric-control input::-webkit-slider-runnable-track { height: 4px; border-radius: 4px; background: linear-gradient(to right, var(--p-accent) var(--position), var(--p-line) var(--position)); }
+.numeric-control input::-webkit-slider-thumb { appearance: none; -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; margin-top: -9px; background: var(--p-ink); border: 3px solid var(--p-accent); box-shadow: 0 0 0 5px var(--p-accent-dim); }
+.numeric-control input::-moz-range-track { height: 4px; border-radius: 4px; background: var(--p-line); }
+.numeric-control input::-moz-range-progress { height: 4px; background: var(--p-accent); }
+.numeric-control input::-moz-range-thumb { width: 16px; height: 16px; border-radius: 50%; background: var(--p-ink); border: 3px solid var(--p-accent); }
+.numeric-control input:focus-visible { outline: 2px solid var(--p-focus); outline-offset: 3px; border-radius: 8px; }
+.numeric-control input:disabled { opacity: 0.5; cursor: default; }
+.range-bounds { display: flex; justify-content: space-between; font-family: var(--p-font-label); font-size: 10px; color: var(--p-dim); }
+
+/* ── numbers: knob ─────────────────────────────────────────────────────── */
+
+.knob-control { clear: both; display: flex; align-items: center; gap: 18px; }
+.knob-dial { --turn: -135deg; --position: 0%; flex: none; width: 88px; height: 88px; border-radius: 50%; display: grid; place-items: center; cursor: ns-resize; touch-action: none; user-select: none; -webkit-user-select: none;
+  background: conic-gradient(from 225deg, var(--p-accent) 0 calc(var(--position) * 0.75), var(--p-line) 0 75%, transparent 0); }
+.knob-face { position: relative; width: 70px; height: 70px; border-radius: 50%; background: var(--p-surface-2); border: 1px solid var(--p-line); transform: rotate(var(--turn)); transition: transform 60ms; }
+.knob-mark { position: absolute; left: 50%; top: 7px; width: 4px; height: 18px; margin-left: -2px; border-radius: 2px; background: var(--p-accent); }
+.knob-dial.turning .knob-face { transition: none; }
+.knob-dial:focus-visible { outline: 2px solid var(--p-focus); outline-offset: 4px; }
+.knob-dial[aria-disabled="true"] { opacity: 0.5; cursor: default; }
+.knob-control .numeric-value { margin: 0; text-align: left; font-size: 22px; }
+
+/* ── numbers: stepper, and the arrows cycle shares ─────────────────────── */
+
+.stepper, .cycle { clear: both; display: flex; align-items: stretch; gap: 8px; }
+.step-button { flex: none; min-width: 52px; min-height: 52px; border-radius: var(--p-radius); border: 1px solid var(--p-line); background: var(--p-surface); color: var(--p-ink); font-size: 18px; touch-action: manipulation; }
+.step-button:active:not(:disabled) { background: var(--p-surface-2); }
+.step-value { flex: 1; display: grid; place-items: center; margin: 0; min-height: 52px; border-radius: var(--p-radius); border: 1px solid var(--p-line); background: linear-gradient(to right, var(--p-accent-dim) var(--position, 0%), transparent var(--position, 0%)); font-size: 20px; text-align: center; }
+.cycle-value { flex: 1; min-width: 0; min-height: 52px; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 0 16px; border-radius: var(--p-radius); border: 1px solid var(--p-accent); background: var(--p-surface); color: var(--p-ink); font-size: 16px; text-align: left; }
+.cycle-text { overflow-wrap: anywhere; }
+.cycle-count { flex: none; font-family: var(--p-font-value); font-size: 11px; color: var(--p-dim); }
+
+/* ── choices: buttons, pads, list ──────────────────────────────────────── */
+
+.values { display: flex; flex-wrap: wrap; gap: 7px; clear: both; }
+.values button { min-height: 44px; padding: 10px 15px; border-radius: var(--p-radius); border: 1px solid var(--p-line); background: var(--p-surface); color: var(--p-ink); font-size: var(--p-text-size); overflow-wrap: anywhere; max-width: 100%; transition: background 150ms, border-color 150ms, transform 150ms, box-shadow 150ms; }
+.values button:hover:not(:disabled) { background: var(--p-surface-2); border-color: var(--p-dim); transform: translateY(-1px); }
+.values button:active:not(:disabled) { transform: translateY(1px); }
+.values button.active { background: var(--p-accent); border-color: var(--p-accent); color: var(--p-on-accent); box-shadow: 0 3px 16px var(--p-accent-dim); }
+.values button.active:hover:not(:disabled) { background: var(--p-accent); border-color: var(--p-accent); }
+
+.pads { display: grid; grid-template-columns: repeat(auto-fill, minmax(78px, 1fr)); gap: 8px; }
+.values .pad-choice { position: relative; aspect-ratio: 1; min-height: 72px; padding: 20px 6px 8px; display: flex; align-items: flex-end; justify-content: center; }
+.pad-choice .led { position: absolute; top: 9px; left: 50%; width: 9px; height: 9px; margin-left: -4.5px; border-radius: 50%; background: var(--p-line); }
+.values .pad-choice.active { background: var(--p-surface-2); border-color: var(--p-accent); color: var(--p-ink); }
+.values .pad-choice.active .led { background: var(--p-accent); box-shadow: 0 0 10px var(--p-accent); }
+.pad-label { font-size: 12px; line-height: 1.2; }
+
+.menu-list { clear: both; display: flex; flex-direction: column; border: 1px solid var(--p-line); border-radius: var(--p-radius); overflow: hidden; }
+.menu-item { min-height: 46px; padding: 10px 14px 10px 34px; position: relative; text-align: left; border: 0; border-bottom: 1px solid var(--p-line); background: var(--p-surface); color: var(--p-ink); font-size: var(--p-text-size); overflow-wrap: anywhere; }
+.menu-item:last-child { border-bottom: 0; }
+.menu-item::before { content: ''; position: absolute; left: 14px; top: 50%; width: 8px; height: 8px; margin-top: -4px; border-radius: 50%; border: 1px solid var(--p-dim); }
+.menu-item.active { background: var(--p-surface-2); color: var(--p-accent); }
+.menu-item.active::before { background: var(--p-accent); border-color: var(--p-accent); }
+.menu-item:focus-visible { outline: 2px solid var(--p-focus); outline-offset: -2px; }
+
+/* ── on/off: switch and lamp ──────────────────────────────────────────────
+   The lamp borrows the choice pads' body entirely (see .pads above), so every
+   skin that styles pads styles it too. */
+.switch { clear: both; display: inline-flex; align-items: center; gap: 12px; min-height: 44px; padding: 6px 16px 6px 6px; border-radius: 999px; border: 1px solid var(--p-line); background: var(--p-surface); color: var(--p-ink); font-size: var(--p-text-size); cursor: pointer; }
+.switch-track { position: relative; flex: none; width: 52px; height: 30px; border-radius: 999px; background: var(--p-line); transition: background 150ms; }
+.switch-thumb { position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: var(--p-ink); transition: transform 150ms, background 150ms; }
+.switch[aria-checked="true"] .switch-track { background: var(--p-accent); }
+.switch[aria-checked="true"] .switch-thumb { transform: translateX(22px); background: var(--p-on-accent); }
+.switch:disabled { opacity: 0.4; cursor: default; }
+.switch:focus-visible { outline: 2px solid var(--p-focus); outline-offset: 3px; }
+.lamp { grid-template-columns: minmax(78px, 104px); }
+
+/* ── actions: trigger button and pad ───────────────────────────────────────
+   Deliberately unlike the choice chips: a trigger is a thing you hit,
+   repeatedly, often without looking down. Sized for a thumb, and it confirms
+   the tap locally because the wall it affects may be across the room. --mine
+   is this participant's own room colour, set from the welcome message. */
+.trigger-control { clear: both; }
+.trigger { width: 100%; min-height: 92px; padding: 18px; border-radius: var(--p-radius-big); border: 1px solid var(--mine, var(--p-accent)); background: var(--p-surface); color: var(--p-ink); font-family: var(--p-font-label); font-size: 17px; letter-spacing: 0.1em; text-transform: uppercase; overflow-wrap: anywhere; transition: transform 90ms, background 150ms; }
+.trigger:hover:not(:disabled) { background: var(--p-surface-2); }
+.trigger:active:not(:disabled) { transform: scale(0.98); }
+.trigger:disabled { opacity: 0.4; }
+.trigger.pad { aspect-ratio: 1; max-width: 240px; min-height: 0; display: grid; place-items: center; margin: 0 auto; border-width: 3px; }
+.trigger.fired { animation: trigger-fired 320ms ease-out; }
+@keyframes trigger-fired {
+  0% { background: var(--mine, var(--p-accent)); color: var(--p-on-accent); box-shadow: 0 0 0 0 var(--p-accent-dim); }
+  100% { background: var(--p-surface); color: var(--p-ink); box-shadow: 0 0 0 20px transparent; }
+}
+
+.values button:disabled, .step-button:disabled, .cycle-value:disabled, .menu-item:disabled { cursor: default; opacity: 0.5; }
+
+@media (prefers-reduced-motion: reduce) {
+  .trigger, .knob-face, .switch-track, .switch-thumb { transition: none; }
+  .trigger.fired { animation: none; background: var(--p-surface-2); }
+}

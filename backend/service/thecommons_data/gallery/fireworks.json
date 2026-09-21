@@ -1,0 +1,76 @@
+{
+  "name": "Co-op Fireworks Night",
+  "promptTemplate": "A cooperative fireworks display set against a {{sky_palette}} sky. Shells burst into a {{shell_style}} pattern, leaving embers that linger for {{ember_life}} before fading, drifting horizontally on a wind of {{wind_speed}}.",
+  "variables": [
+    {
+      "name": "sky_palette",
+      "label": "Sky Color",
+      "values": [
+        {
+          "text": "Midnight Blue",
+          "weight": 3
+        },
+        {
+          "text": "Deep Purple",
+          "weight": 2
+        },
+        {
+          "text": "Pitch Black",
+          "weight": 2
+        },
+        {
+          "text": "Sunset Glow",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "shell_style",
+      "label": "Shell Type",
+      "values": [
+        {
+          "text": "Peony",
+          "weight": 3
+        },
+        {
+          "text": "Willow",
+          "weight": 2
+        },
+        {
+          "text": "Crossette",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "ember_life",
+      "label": "Ember Hang Time",
+      "type": "number",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "name": "wind_speed",
+      "label": "Wind Direction",
+      "type": "number",
+      "min": -10,
+      "max": 10,
+      "step": 1,
+      "default": 0
+    },
+    {
+      "name": "launch",
+      "label": "Launch Shell",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "finale",
+      "label": "Grand Finale",
+      "type": "trigger",
+      "share": "one"
+    }
+  ]
+}

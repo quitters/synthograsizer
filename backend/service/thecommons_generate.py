@@ -35,6 +35,7 @@ from backend import config
 from backend import google_api
 from backend.service.thecommons_builtin import BUILTIN_SKETCHES
 from backend.service.thecommons_templates import load_template_library
+from backend.service.thecommons_ui import PANEL_MODEL, design_panel
 from backend.service.thecommons_validate import InvalidSketchError, validate_native_sketch
 
 logger = logging.getLogger(__name__)
@@ -62,11 +63,16 @@ RUNTIME CONTRACT -- your "code" field runs every animation frame as the BODY of 
   or audio.beat, not just on frame.t.
 - room.state: an object you own and may mutate freely. It PERSISTS between frames and is
   cleared only when a new piece loads -- it is the only way to remember anything. Initialise
-  once and reuse it: room.state.dots ??= []; then update that same array each frame. Keep it
+  once and reuse it: room.state.dots ??= []; then update that same array each frame. room.state
+  itself always exists already: give it fields, never replace it -- room.state ??= {...} does
+  nothing, so fields set that way stay undefined. Keep it
   BOUNDED -- cap anything you grow (around 200 entries) and drop the oldest, because this runs
   for hours on a wall and an array that only grows will eventually stall the display.
 - room.people: everyone connected right now, as [{id, table, hue}] with hue 0-359. Optional,
-  but drawing one element per person makes the room itself part of the composition.
+  but drawing one element per person makes the room itself part of the composition. id and
+  table are opaque STRINGS (like "a3f90c1e..." and "table-2"): compare them, never do arithmetic
+  on them -- p.id * 97 is NaN, and a NaN position draws nothing. For a number per person, use
+  their hue or their index in room.people.
 
 RULES:
 - Pure Canvas2D only. No p5.js, no external libraries, no network calls, no image/video generation.
@@ -84,6 +90,9 @@ RULES:
   limits for a shared display. Read numbers directly: const speed = getVar('speed') ?? 0.5;
   use ?? rather than || so zero remains a valid value.
 - Selectable controls have 3-10 weighted values and no numeric range fields.
+- A genuine on/off idea is a toggle: {"name": "trails", "label": "Trails", "type": "toggle",
+  "default": true} -- no values, no range. It needs its {{placeholder}} like any other control.
+  Read it with const trails = getVar('trails') ?? true; Never fake an on/off as three choices.
 - Give each variable a unique snake_case name and a short human label. Values are unique
   {text, weight} objects with weights 1, 2, or 3. Include every variable as a {{name}}
   placeholder in promptTemplate, and never refer to an undeclared placeholder.
@@ -101,7 +110,7 @@ RULES:
   so wrap ctx.save()/ctx.restore() around anything you change on it -- transforms, but equally
   globalCompositeOperation, globalAlpha, filter and line dash. Leaving one set will corrupt the
   next frame's very first draw, including your own background. Fill the background unless trails
-  are intentional. No DOM access, timers,
+  are intentional. For an offscreen buffer use new OffscreenCanvas(w, h). No DOM access, timers,
   event listeners, imports, global state, or unfinished code. Do not emit a p5Code field."""
 
 
@@ -114,6 +123,9 @@ _INTERACTIVE_RULES = """INTERACTIVE ACTIONS -- this piece reacts to deliberate a
   Read it every frame; it is cleared for you afterwards. An event is MOMENTARY -- react to it
   and store the consequence in room.state, which is the thing that actually persists.
   Example: for (const e of room.events) if (e.name === 'shoot') room.state.shots.push({x: 0.5, t: frame.t});
+- e.participantId and e.table are the same opaque strings as in room.people: find the person with
+  room.people.find(p => p.id === e.participantId) and use their hue or index, and allow for
+  not finding them (they may have just left).
 - Declare an action as a trigger control:
     {"name": "shoot", "label": "Shoot", "type": "trigger", "share": "all"}
   A trigger has NO values array, NO numeric range, and takes NO placeholder in promptTemplate.
@@ -132,7 +144,8 @@ _OUTPUT_TAIL = """- Respond with ONLY the JSON object below. No markdown fences,
   "code": "JavaScript source, the BODY only (see RUNTIME CONTRACT)",
   "variables": [
     {"name": "string", "label": "string", "type": "number", "min": 0, "max": 10, "step": 1, "default": 5},
-    {"name": "string", "label": "string", "values": [{"text": "string", "weight": 1}]}TRIGGER_LINE
+    {"name": "string", "label": "string", "values": [{"text": "string", "weight": 1}]},
+    {"name": "string", "label": "string", "type": "toggle", "default": true}TRIGGER_LINE
   ]
 }"""
 
@@ -143,7 +156,7 @@ def system_prompt(*, interactive: bool = False) -> str:
     nothing here costs a classifier call to route."""
     tail = _OUTPUT_TAIL.replace(
         "PLACEHOLDER_NOTE",
-        "one per select or number control (a trigger takes none)" if interactive else "one per variable",
+        "one per select, number or toggle control (a trigger takes none)" if interactive else "one per variable",
     ).replace(
         "TRIGGER_LINE",
         ',\n    {"name": "string", "label": "string", "type": "trigger", "share": "all"}'
@@ -230,11 +243,22 @@ def _parse_sketch(text: str) -> dict:
     return validate_native_sketch(json.loads(cleaned))
 
 
+# "medium" is 3.8 Flash's default, sent explicitly so a change of default
+# upstream can't silently change what a generation costs or produces. Measured
+# against "low" on the same prompts: equally valid, but only medium grew a
+# working reaction-diffusion field, for ~1.6x the tokens. ("minimal" is not
+# supported and errors.)
+SKETCH_THINKING = "medium"
+
+
 async def _call_gemini(genai_client, text: str, *, interactive: bool = False) -> str:
+    # The repair pass comes through here too, so it always gets the same model,
+    # prompt and thinking level as the call it is repairing.
     return await asyncio.to_thread(
-        google_api.gen_text, genai_client, config.MODEL_TEMPLATE_GEN,
+        google_api.gen_text, genai_client, config.MODEL_COMMONS_SKETCH,
         [google_api.text_block(text)],
         system_instruction=system_prompt(interactive=interactive), json_mode=True,
+        generation_config={"thinking_level": SKETCH_THINKING},
     )
 
 
@@ -291,14 +315,23 @@ async def generate_sketch(prompt: str, *, mode: str = "create",
         except (InvalidSketchError, json.JSONDecodeError) as still_invalid:
             logger.warning("[thecommons] repair still failed validation, falling back: %s", still_invalid)
             return _fallback(str(still_invalid), model_answered=True)
-        return _succeeded(sketch)
 
-    return _succeeded(sketch)
+    return await _succeeded(sketch, prompt, mode=mode, source=source)
 
 
-def _succeeded(sketch: dict) -> dict:
+async def _succeeded(sketch: dict, prompt: str, *, mode: str, source: dict[str, Any] | None) -> dict:
+    """A sketch that passed validation gets its control panel designed, by a
+    second and separate call. Only ever here: a fallback is a curated piece and
+    brings its own panel, or none. If the design fails, the sketch still ships
+    with the default panel -- and at the same charge, since the sketch itself,
+    which is what the price is for, was delivered."""
+    source_ui = ((source or {}).get("sketch") or {}).get("ui") if mode == "remix" else None
+    ui = await design_panel(sketch, prompt, source_ui=source_ui)
+    if ui is not None:
+        sketch = {**sketch, "ui": ui}
     return {**sketch, "id": _random_id(), "fallback": False, "modelAnswered": True,
-            "generation": {"provider": "gemini", "model": config.MODEL_TEMPLATE_GEN}}
+            "generation": {"provider": "gemini", "model": config.MODEL_COMMONS_SKETCH,
+                           "panel": "designed" if ui is not None else "default", "panelModel": PANEL_MODEL}}
 
 
 def _redact(message: str) -> str:

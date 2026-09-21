@@ -11,3 +11,5 @@ asyncpg
 google-auth
 google-cloud-storage
 qrcode
+# The Commons: compiles generated sketch code in V8, as the wall does (no node in the image)
+mini-racer>=0.14

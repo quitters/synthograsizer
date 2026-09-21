@@ -8,6 +8,9 @@
 // suite's Google session plus a server-side ownership check on every request
 // is the only thing that opens this desk.
 
+import { mountLibrary } from './library.js';
+import { applySkin, mountPanel } from './panel.js';
+
 const roomId = new URLSearchParams(location.search).get('room');
 
 const deskTools = document.getElementById('deskTools');
@@ -20,14 +23,15 @@ const promptInput = document.getElementById('promptInput');
 const undoPiece = document.getElementById('undoPiece');
 const modeOptions = document.getElementById('modeOptions');
 const interactiveInput = document.getElementById('interactiveInput');
-const presetSelect = document.getElementById('presetSelect');
-const loadPreset = document.getElementById('loadPreset');
 const savePreset = document.getElementById('savePreset');
 const presetStatus = document.getElementById('presetStatus');
+const galleryStatus = document.getElementById('galleryStatus');
 
 let usable = false;
 let remixing = false;
 let canvas = null;
+let library = null;
+let loadingGallery = false;
 
 const api = (path) => `/api/thecommons/rooms/${encodeURIComponent(roomId)}${path}`;
 const mode = () => document.querySelector('input[name="mode"]:checked').value;
@@ -53,8 +57,8 @@ function updateControls() {
   modeOptions.disabled = remixing;
   interactiveInput.disabled = remixing;
   undoPiece.disabled = !usable || remixing || !canvas?.canUndo;
-  loadPreset.disabled = !usable || remixing || !presetSelect.value;
   savePreset.disabled = !usable || remixing;
+  library?.setEnabled(usable && !remixing && !loadingGallery);
   promptSend.textContent = remixing ? 'Composing…' : mode() === 'remix' ? 'Remix this piece ↗' : 'Create a new piece ↗';
 }
 
@@ -76,6 +80,168 @@ function renderRoom(room) {
   document.getElementById('joinQr').src = `/api/thecommons/qr/${encodeURIComponent(room.joinCode)}`;
   document.getElementById('joinUrl').textContent = joinUrl.replace(/^https?:\/\//, '');
   document.getElementById('wallLink').href = `/thecommons/display/${encodeURIComponent(room.joinCode)}`;
+  library?.markLive(room.gallerySlug);
+  renderPhonePreview(room.panel);
+  renderHostControls(room.host, room.panel?.ui);
+}
+
+// The live piece's host-only controls -- the owner's alone, never on a phone.
+// The desk has no socket (the relay's origin never sees its session cookie),
+// so changes go over the owner-checked HTTP route: a drag is coalesced to ~10
+// a second, a committed value (a released knob, a switch) goes at once.
+let hostPanel = null;
+let hostFor = null;
+const hostPending = new Map();
+let hostTimer = null;
+const hostStatus = document.getElementById('hostStatus');
+
+function renderHostControls(host, ui) {
+  const section = document.getElementById('hostControls');
+  const variables = host?.variables || [];
+  if (!variables.length) { section.hidden = true; hostFor = null; hostPanel = null; return; }
+  section.hidden = false;
+  // Rebuilt only when the piece changes, never under the host's fingers.
+  const key = `${canvas?.sketchId}|${variables.map((v) => v.name).join(',')}|${ui?.skin}|${ui?.variant}`;
+  if (key === hostFor) return;
+  hostFor = key;
+  hostPending.clear();
+  hostStatus.textContent = '';
+  // Drop the host flag from this copy: the renderer leaves host controls off
+  // phone panels, and this panel is the one place they belong.
+  const own = variables.map(({ access, ...control }) => control);
+  // Wear the piece's own skin, so the host's controls read as the same
+  // instrument the room is holding -- only the groups and titles are the
+  // phones', and those are left behind.
+  const skin = ui ? { skin: ui.skin, variant: ui.variant } : undefined;
+  hostPanel = mountPanel(document.getElementById('hostPanel'), { name: canvas?.sketchName, variables: own, ui: skin },
+                         host.values || {}, {
+    showHead: false,
+    onVar: queueHost,
+    onCommit: flushHost,
+    onTrigger: (name) => { sendHost({ name, fire: true }); return true; },
+  });
+  applySkin(document.getElementById('hostFrame'), hostPanel.spec);
+  for (const name of hostPanel.names()) hostPanel.setControl(name, { visible: true, enabled: true, sharing: '' });
+  // A number the host owns is often a seed ("which mound"): offer a dice roll.
+  document.getElementById('hostRolls').replaceChildren(...variables.filter((v) => v.type === 'number').map((v) => {
+    const roll = document.createElement('button');
+    roll.type = 'button';
+    roll.className = 'quiet-button';
+    roll.textContent = `Roll ${v.label || v.name}`;
+    roll.onclick = () => {
+      const steps = Math.round((v.max - v.min) / v.step);
+      const value = Number((v.min + Math.floor(Math.random() * (steps + 1)) * v.step).toPrecision(12));
+      hostPanel?.select(v.name, value);
+      queueHost(v.name, value, true);
+    };
+    return roll;
+  }));
+}
+
+function queueHost(name, value, commit) {
+  hostPending.set(name, value);
+  if (commit) flushHost();
+  else if (!hostTimer) hostTimer = setTimeout(flushHost, 100);
+}
+
+function flushHost() {
+  clearTimeout(hostTimer);
+  hostTimer = null;
+  for (const [name, value] of hostPending) sendHost({ name, value });
+  hostPending.clear();
+}
+
+async function sendHost(body) {
+  try {
+    const response = await fetch(api('/host'), {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
+    });
+    if (response.ok) { hostStatus.textContent = ''; hostStatus.dataset.error = 'false'; return; }
+    const result = await response.json().catch(() => ({}));
+    hostStatus.dataset.error = 'true';
+    hostStatus.textContent = response.status === 404
+      ? 'The wall has moved on to another piece. Reload the desk for its controls.'
+      : result.detail || 'That change didn’t reach the wall. Try again.';
+    if (response.status === 404) await refreshRoom();
+  } catch {
+    hostStatus.dataset.error = 'true';
+    hostStatus.textContent = 'Couldn’t reach the server. Your last change may not be on the wall.';
+  }
+}
+
+// The phones' panel for whatever is on the wall, drawn by the same renderer
+// the phones use. It is data only -- controls and a panel spec, never code --
+// so it is as safe on this signed-in page as on an anonymous phone. It sends
+// nothing: every control works locally so a host can try the feel of it.
+let previewedPanel;
+function renderPhonePreview(panel) {
+  const frame = document.getElementById('phonePreview');
+  if (!panel || panel.id === previewedPanel) return;
+  previewedPanel = panel.id;
+  const root = document.createElement('div');
+  root.className = 'phone-panel';
+  frame.replaceChildren(root);
+  const mounted = mountPanel(root, panel, {});
+  applySkin(frame, mounted.spec);
+  for (const name of mounted.names()) mounted.setControl(name, { visible: true, enabled: true, sharing: '' });
+  const hosted = panel.hostCount || 0;
+  document.getElementById('phoneHostNote').textContent = hosted
+    ? ` Your ${hosted === 1 ? 'own control is' : `${hosted} own controls are`} below, on this desk only.` : '';
+}
+
+// Anything in the library goes up the same way: an ordinary preset load,
+// owner-checked, undoable with "Undo last change", and never charged. That is
+// why a ready-made piece and one of this room's own looks share a handler, and
+// why neither needs a confirmation step.
+async function putOnTheWall(entry, button) {
+  if (!usable || remixing || loadingGallery) return;
+  loadingGallery = true;
+  updateControls();
+  const wording = button.textContent;
+  button.textContent = 'Putting it up…';
+  galleryStatus.dataset.error = 'false';
+  try {
+    const response = await fetch(api('/presets/load'), {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ presetId: entry.presetId }),
+    });
+    const result = await response.json().catch(() => ({}));
+    if (response.ok) {
+      galleryStatus.textContent = `On the wall: ${entry.name}. “Undo last change” brings back what was there.`;
+    } else {
+      galleryStatus.dataset.error = 'true';
+      galleryStatus.textContent = typeof result.detail === 'string' ? result.detail : 'Couldn’t put that on the wall.';
+    }
+  } catch {
+    galleryStatus.dataset.error = 'true';
+    galleryStatus.textContent = 'Couldn’t reach the server. Try again.';
+  } finally {
+    loadingGallery = false;
+    button.textContent = wording;
+    await refreshRoom();
+  }
+}
+
+let libraryStarted = false;
+async function startLibrary() {
+  // boot() can run twice (auth-ready plus an already-known session), and
+  // `library` is only set after an await, so guard on the attempt itself.
+  if (libraryStarted) return;
+  libraryStarted = true;
+  try {
+    library = await mountLibrary({
+      root: document.getElementById('library'),
+      search: document.getElementById('librarySearch'),
+      tagBar: document.getElementById('libraryTags'),
+      count: document.getElementById('libraryCount'),
+      onPick: putOnTheWall,
+    });
+    library.markLive(canvas?.gallerySlug);
+    if (lastPresets) library.setPresets(lastPresets);
+    updateControls();
+  } catch {
+    galleryStatus.textContent = 'Couldn’t load the library. Reload to try again.';
+  }
 }
 
 async function refreshRoom() {
@@ -213,52 +379,25 @@ document.getElementById('promptForm').addEventListener('submit', (event) => {
               baseSketchId: canvas?.sketchId });
 });
 
+// The room's own pieces go into the same library as the ready-made ones. The
+// gallery's own entries are dropped here because they arrive from the gallery
+// endpoint with their code, their tags and a live preview; this list carries
+// only a name, so a second card for them would be strictly worse.
+let lastPresets = null;
+
 async function refreshPresets() {
   if (!usable) return;
   try {
     const response = await fetch(api('/presets'));
     if (!response.ok) return;
     const { presets } = await response.json();
-    const selected = presetSelect.value;
-    presetSelect.replaceChildren(new Option('Choose a piece…', ''));
-    const groups = new Map();
-    for (const preset of presets) {
-      if (!groups.has(preset.kind)) {
-        const group = document.createElement('optgroup');
-        group.label = preset.kind;
-        groups.set(preset.kind, group);
-        presetSelect.append(group);
-      }
-      const stamp = preset.savedAt
-        ? new Date(preset.savedAt).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
-        : '';
-      groups.get(preset.kind).append(new Option(stamp ? `${preset.name} · ${stamp}` : preset.name, preset.id));
-    }
-    presetSelect.value = selected;
+    lastPresets = presets.filter((preset) => !preset.id.startsWith('gallery-'));
+    library?.setPresets(lastPresets);
     updateControls();
   } catch {
-    presetStatus.textContent = 'Couldn’t load the library. Reload to reconnect.';
+    presetStatus.textContent = 'Couldn’t load your saved looks. Reload to reconnect.';
   }
 }
-
-presetSelect.addEventListener('change', updateControls);
-
-loadPreset.addEventListener('click', async () => {
-  loadPreset.disabled = true;
-  try {
-    const response = await fetch(api('/presets/load'), {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ presetId: presetSelect.value }),
-    });
-    const result = await response.json();
-    presetStatus.textContent = response.ok
-      ? `On the wall: ${result.name}.`
-      : (result.detail || 'Couldn’t put that on the wall.');
-  } catch {
-    presetStatus.textContent = 'Couldn’t load this piece. Try again.';
-  }
-  await refreshRoom();
-});
 
 savePreset.addEventListener('click', async () => {
   savePreset.disabled = true;
@@ -268,7 +407,7 @@ savePreset.addEventListener('click', async () => {
       body: JSON.stringify({ name: document.getElementById('presetName').value || null }),
     });
     presetStatus.textContent = response.ok
-      ? 'Saved to this room’s library, including the current settings.'
+      ? 'Saved. It is in the library above, under your saved looks.'
       : 'Couldn’t save this look. Try again.';
   } catch {
     presetStatus.textContent = 'Couldn’t save this look. Try again.';
@@ -313,6 +452,7 @@ function resumeJob() {
 
 async function boot() {
   if (!(await refreshRoom())) return;
+  startLibrary();
   await refreshPresets();
   if (!remixing) resumeJob();
 }

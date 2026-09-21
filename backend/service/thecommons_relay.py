@@ -28,7 +28,7 @@ import time
 from dataclasses import dataclass, field
 from typing import Any, Literal
 
-from backend.service.thecommons_parameters import default_value, numeric_value
+from backend.service.thecommons_parameters import accept_value, default_value
 
 DISCONNECT_GRACE_S = 30.0
 HOLD_MS = 4000
@@ -40,6 +40,23 @@ HOLD_MS = 4000
 # treats an invalid value: no error reply, no new message type.
 MSG_BUCKET_CAPACITY = 40.0
 MSG_BUCKET_REFILL_PER_S = 40.0
+# The host's desk reaches the relay over HTTP, and the suite's own rate limiter
+# only covers generation, so the host gets a bucket of its own. Generous for a
+# person dragging a knob (the desk coalesces to ~10/s), tight for a runaway loop.
+HOST_BUCKET_CAPACITY = 20.0
+HOST_BUCKET_REFILL_PER_S = 10.0
+HOST = "host"  # participantId and table on everything the host does
+
+
+class HostControlError(Exception):
+    """Why a host change was refused: "unknown", "invalid" or "busy"."""
+    def __init__(self, code: str):
+        super().__init__(code)
+        self.code = code
+
+
+def is_host_control(variable: dict) -> bool:
+    return variable.get("access") == "host"
 
 
 def _hue_for(participant_id: str) -> int:
@@ -100,6 +117,8 @@ class RoomRelay:
         self.values: dict[str, Any] = dict(values or {})
         self.telemetry = Telemetry()
         self.current_sketch: dict | None = sketch
+        self.host_tokens = HOST_BUCKET_CAPACITY
+        self.host_tokens_at = time.monotonic()
 
     # ── pure queries ────────────────────────────────────────────────────────
 
@@ -143,8 +162,9 @@ class RoomRelay:
         seen_names: set[str] = set()
         for v in variables:
             # share:"all" controls belong to everyone, so they are never owned
-            # and must not consume a slot in the balancing.
-            if v.get("share") == "all":
+            # and must not consume a slot in the balancing. Host controls belong
+            # to the owner's desk and are never handed to a phone at all.
+            if v.get("share") == "all" or is_host_control(v):
                 continue
             if v["name"] not in seen_names:
                 seen_names.add(v["name"])
@@ -224,11 +244,7 @@ class RoomRelay:
             if v.get("type") == "trigger":
                 continue
             candidate = initial_values.get(v["name"])
-            if v.get("type") == "number":
-                accepted = numeric_value(v, candidate) if candidate is not None else None
-            else:
-                choices = v.get("values") or []
-                accepted = candidate if any(c["text"] == candidate for c in choices) else None
+            accepted = accept_value(v, candidate) if candidate is not None else None
             self.values[v["name"]] = accepted if accepted is not None else default_value(v)
         self.distribute()
         return [("all", {"type": "sketch", "sketch": sketch, "values": dict(self.values),
@@ -254,8 +270,8 @@ class RoomRelay:
         contention is the point, not a problem to be serialised."""
         variables = (self.current_sketch or {}).get("variables") or []
         variable = next((v for v in variables if v["name"] == var_name), None)
-        if variable is None or variable.get("type") != "trigger":
-            return []
+        if variable is None or variable.get("type") != "trigger" or is_host_control(variable):
+            return []  # a phone can never fire the host's action
 
         if variable.get("share") != "all":
             group = self.assigned.get(var_name)
@@ -275,21 +291,16 @@ class RoomRelay:
         variable = next((v for v in variables if v["name"] == var_name), None)
         if variable is None:
             return []
-        if variable.get("type") == "trigger":
-            return []  # a trigger has no value; it is fired, not set
+        if variable.get("type") == "trigger" or is_host_control(variable):
+            return []  # a trigger is fired, not set; a host control is never a phone's
         group = self.assigned.get(var_name)
         if group is None or person not in group:
             return [(ws, {"type": "not_owner", "varName": var_name,
                            "value": self.values.get(var_name), "owners": self.ownership()})]
 
-        if variable.get("type") == "number":
-            value = numeric_value(variable, value)
-            if value is None:
-                return []
-        else:
-            choices = variable.get("values") or []
-            if not any(c["text"] == value for c in choices):
-                return []
+        value = accept_value(variable, value)
+        if value is None:
+            return []
 
         hold = self.holds.get(var_name)
         now = time.monotonic()
@@ -304,6 +315,58 @@ class RoomRelay:
         self.telemetry.changes_by_table[person.table] = self.telemetry.changes_by_table.get(person.table, 0) + 1
         return [("all", {"type": "var", "varName": var_name, "value": value,
                           "table": person.table, "participantId": person.id})]
+
+    # ── the host, from the desk ─────────────────────────────────────────────
+
+    def _take_host_token(self) -> bool:
+        now = time.monotonic()
+        self.host_tokens = min(HOST_BUCKET_CAPACITY,
+                               self.host_tokens + (now - self.host_tokens_at) * HOST_BUCKET_REFILL_PER_S)
+        self.host_tokens_at = now
+        if self.host_tokens < 1.0:
+            return False
+        self.host_tokens -= 1.0
+        return True
+
+    def _host_variable(self, var_name: str) -> dict:
+        variables = (self.current_sketch or {}).get("variables") or []
+        variable = next((v for v in variables if v["name"] == var_name), None)
+        if variable is None or not is_host_control(variable):
+            raise HostControlError("unknown")
+        return variable
+
+    def host_controls(self) -> dict:
+        """The live piece's host controls and their values, for the desk."""
+        variables = [v for v in (self.current_sketch or {}).get("variables") or [] if is_host_control(v)]
+        return {"variables": variables,
+                "values": {v["name"]: self.values.get(v["name"]) for v in variables if v.get("type") != "trigger"}}
+
+    def apply_host_update(self, var_name: str, value: Any) -> list[SendItem]:
+        """The owner sets one of the piece's host controls. The same gate as a
+        phone's update (accept_value), no hold -- there is only one host."""
+        variable = self._host_variable(var_name)
+        if variable.get("type") == "trigger":
+            raise HostControlError("invalid")
+        accepted = accept_value(variable, value)
+        if accepted is None:
+            raise HostControlError("invalid")
+        if not self._take_host_token():
+            raise HostControlError("busy")
+        self.values[var_name] = accepted
+        self.telemetry.last_activity = time.monotonic()
+        return [("all", {"type": "var", "varName": var_name, "value": accepted,
+                          "table": HOST, "participantId": HOST})]
+
+    def apply_host_trigger(self, var_name: str) -> list[SendItem]:
+        variable = self._host_variable(var_name)
+        if variable.get("type") != "trigger":
+            raise HostControlError("invalid")
+        if not self._take_host_token():
+            raise HostControlError("busy")
+        self.telemetry.last_activity = time.monotonic()
+        # Sketches look the participant up in room.people and already allow for
+        # not finding them, which is exactly what "host" is.
+        return [("all", {"type": "event", "name": var_name, "participantId": HOST, "table": HOST})]
 
     # ── connection lifecycle (async: does socket I/O + timer scheduling) ────
 
@@ -323,6 +386,9 @@ class RoomRelay:
                 await ws.send_json(message)
             except Exception:
                 pass  # a dead socket is cleaned up by its own disconnect handler
+
+    async def broadcast(self, items: list[SendItem]) -> None:
+        await self._send_all(None, items)
 
     async def publish(self, sketch: dict, values: dict | None = None) -> None:
         await self._send_all(None, self.set_sketch(sketch, values))

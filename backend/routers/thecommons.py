@@ -15,12 +15,15 @@ the decided product requirement that joining a room's live canvas needs no
 account at all.
 """
 
+import hashlib
 import io
 import json
 import logging
 import os
 import secrets
+from functools import lru_cache
 from pathlib import Path
+from typing import Any
 
 from fastapi import APIRouter, HTTPException, Request, WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse, JSONResponse, Response
@@ -29,8 +32,11 @@ from pydantic import BaseModel
 from backend import config
 from backend.service import credits, service_mode
 from backend.service import thecommons_jobs as jobs
+from backend.service.thecommons_gallery import SECTIONS as GALLERY_SECTIONS
+from backend.service.thecommons_gallery import gallery_preset_id, load_gallery
+from backend.service.thecommons_gallery_tags import tag_groups as gallery_tag_groups
 from backend.service.thecommons_generate import generate_sketch
-from backend.service.thecommons_relay import discard_relay, get_or_create_relay, peek_relay
+from backend.service.thecommons_relay import HostControlError, discard_relay, get_or_create_relay, peek_relay
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -95,6 +101,14 @@ def _room_summary(row) -> dict:
 
 class CreateRoomRequest(BaseModel):
     name: str | None = None
+
+
+class HostControlRequest(BaseModel):
+    name: str
+    # Any, not a union: pydantic would coerce true to 1 or "5" to 5, and the
+    # relay's own gate (accept_value) is the one place that decides validity.
+    value: Any = None
+    fire: bool = False
 
 
 class SavePresetRequest(BaseModel):
@@ -177,6 +191,19 @@ async def delete_room(room_id: int, request: Request):
     return Response(status_code=204)
 
 
+def _panel_preview(sketch: dict | None) -> dict | None:
+    """What the desk needs to preview the phones' panel: the controls and the
+    panel spec, and deliberately not the code. The desk only draws this, with
+    the same data-only renderer the phones use; it never runs a piece that
+    didn't come from the gallery endpoint."""
+    if not sketch:
+        return None
+    variables = sketch.get("variables") or []
+    return {"id": sketch.get("id"), "name": sketch.get("name"),
+            "variables": [v for v in variables if v.get("access") != "host"], "ui": sketch.get("ui"),
+            "hostCount": sum(1 for v in variables if v.get("access") == "host")}
+
+
 @router.get("/api/thecommons/rooms/{room_id}")
 async def get_room(room_id: int, request: Request):
     _require_service()
@@ -191,6 +218,11 @@ async def get_room(room_id: int, request: Request):
         **_room_summary(room),
         "sketchName": relay.current_sketch.get("name") if relay.current_sketch else None,
         "sketchId": relay.current_sketch.get("id") if relay.current_sketch else None,
+        # Set only while a gallery piece is live, unremixed — lets the desk mark its card.
+        "gallerySlug": relay.current_sketch.get("gallery") if relay.current_sketch else None,
+        "panel": _panel_preview(relay.current_sketch),
+        # The live piece's host-only controls and their values, for the desk.
+        "host": relay.host_controls(),
         "canUndo": bool(state and state.get("undo")) and active_job is None,
         "activeJobId": active_job["id"] if active_job else None,
     }
@@ -212,6 +244,43 @@ def _page(name: str) -> FileResponse:
     closing while someone is already looking at it.
     """
     return FileResponse(_PAGES / name / "index.html")
+
+
+@lru_cache(maxsize=1)
+def _gallery_payload() -> tuple[bytes, str]:
+    body = json.dumps({
+        "sections": GALLERY_SECTIONS,
+        # The chips the desk's library offers, with their labels, so the two
+        # sides can't drift on what a tag is called.
+        "tagGroups": gallery_tag_groups(GALLERY_SECTIONS),
+        "pieces": [{**piece, "presetId": gallery_preset_id(piece["slug"])} for piece in load_gallery()],
+    }).encode("utf-8")
+    return body, '"' + hashlib.sha256(body).hexdigest()[:20] + '"'
+
+
+@router.get("/api/thecommons/gallery")
+async def commons_gallery(request: Request):
+    """The gallery of ready-made pieces, with their code.
+
+    Deliberately public and deliberately separate from the presets list. The
+    desk runs every piece returned here live as a thumbnail, on the signed-in
+    page, so this endpoint must only ever return code shipped in the repo —
+    never a room's saved looks or anything generated at runtime, which is what
+    the presets list mixes in. Keeping it a separate endpoint makes that
+    boundary something the server enforces, not something the client has to
+    filter correctly. Loading a piece still goes through the owner-only
+    presets/load route.
+
+    Revalidated, not cached for a fixed time: this first shipped with
+    max-age=300, and after the gallery grew, browsers kept serving the old list
+    to the new page for five minutes, so new pieces simply weren't there. An
+    ETag costs a 304 when nothing changed and picks up a deploy immediately.
+    """
+    body, etag = _gallery_payload()
+    headers = {"Cache-Control": "no-cache", "ETag": etag}
+    if request.headers.get("if-none-match") == etag:
+        return Response(status_code=304, headers=headers)
+    return Response(content=body, media_type="application/json", headers=headers)
 
 
 @router.get("/api/thecommons/config")
@@ -287,6 +356,36 @@ async def room_telemetry(room_id: int, request: Request):
     await _require_owned_room(pool, room_id, user["id"])
     relay = await get_or_create_relay(pool, room_id)
     return relay.get_telemetry()
+
+
+# ── host controls ────────────────────────────────────────────────────────────
+# The owner steers the live piece's "access": "host" controls from the desk.
+# HTTP rather than a socket on purpose: walls and phones dial Cloud Run
+# directly (SYNTH_WS_ORIGIN), where the desk's synthograsizer.com session
+# cookie never arrives -- this route reuses the ordinary owner check as is.
+
+_HOST_ERRORS = {
+    "unknown": (404, "The live piece has no host control by that name."),
+    "invalid": (400, "That value doesn't fit this control."),
+    "busy": (429, "Too many changes at once. Try again in a moment."),
+}
+
+
+@router.post("/api/thecommons/rooms/{room_id}/host")
+async def set_host_control(room_id: int, body: HostControlRequest, request: Request):
+    _require_service()
+    user = _current_user(request)
+    from backend.service import db
+    pool = db.pool()
+    await _require_owned_room(pool, room_id, user["id"])
+    relay = await get_or_create_relay(pool, room_id)
+    try:
+        items = relay.apply_host_trigger(body.name) if body.fire else relay.apply_host_update(body.name, body.value)
+    except HostControlError as exc:
+        status, message = _HOST_ERRORS[exc.code]
+        raise HTTPException(status_code=status, detail=message)
+    await relay.broadcast(items)
+    return {"name": body.name, "value": None if body.fire else relay.values.get(body.name)}
 
 
 # ── undo / presets ───────────────────────────────────────────────────────────
@@ -377,7 +476,7 @@ async def start_generation(body: GenerateRequest, request: Request):
     # as they are everywhere else in the suite. A short balance surfaces as
     # the standard 402 out_of_credits from Charge.reserve().
     charge = credits.Charge(request, action="commons_sketch",
-                             model=config.MODEL_TEMPLATE_GEN, prompt_chars=len(body.prompt or ""))
+                             model=config.MODEL_COMMONS_SKETCH, prompt_chars=len(body.prompt or ""))
     try:
         job = await jobs.start(
             pool, relay, body.roomId, body.prompt, body.requestId,

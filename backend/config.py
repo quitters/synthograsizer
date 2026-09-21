@@ -54,6 +54,18 @@ MODEL_ANALYSIS = "gemini-3.1-pro-preview"
 MODEL_TEMPLATE_GEN = "gemini-3.1-pro-preview"
 # Fast alternative for template generation (lower quality, much faster)
 MODEL_TEMPLATE_GEN_FAST = "gemini-3.6-flash"
+# The Commons' panel designer (service/thecommons_ui.py). Its own constant, not
+# MODEL_TEMPLATE_GEN_FAST: that id is also a key in pricing.TEXT_MODEL_CREDITS
+# shared with MODEL_FAST and MODEL_DEMO, so repointing it would leave those
+# unpriced. The panel call is absorbed into the commons_sketch price, so this
+# model needs no price-table entry of its own.
+MODEL_COMMONS_PANEL = "gemini-3.8-flash"
+# The Commons' sketch generator (service/thecommons_generate.py), first call and
+# repair pass alike. Moved off MODEL_TEMPLATE_GEN (Pro) on 2026-09-19 after a
+# measured A/B: same prompts, same validity and repair rate, no runtime crashes
+# (Pro had 2 in 11), steadier frame rates, ~40% of Pro's cost and ~7x faster.
+# Its own constant so the template tools keep Pro. See TheCommons/docs/HANDOFF.md.
+MODEL_COMMONS_SKETCH = "gemini-3.8-flash"
 # Lighter tasks: narrative, video variations, chat inside ai_manager
 MODEL_FAST = "gemini-3.6-flash"
 # Demo mode — backend enforces this when is_demo=True.

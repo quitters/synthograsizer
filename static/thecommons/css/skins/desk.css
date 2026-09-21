@@ -1,0 +1,146 @@
+/* Retro desktop -- a windowed desktop of the late eighties: a screen title
+ * bar, each group of controls in its own window with a striped title bar and
+ * gadgets, and bevelled buttons you press in. An era, not a product: no
+ * logos, no names.
+ *
+ * Accent contrast: the server only keeps a model's accent if it reaches 4.5:1
+ * against --p-ground, and text on an accent fill uses --p-on-accent, chosen
+ * per variant to clear any accent that passed.
+ */
+
+[data-skin="desk"] {
+  --p-ground: #0055aa;
+  --p-surface: #0055aa;
+  --p-surface-2: #1d6cc0;
+  --p-line: #ffffff;
+  --p-ink: #ffffff;
+  --p-dim: #cfe0ff;
+  --p-accent: #ffc44d;
+  --p-on-accent: #001b3a;
+  --p-focus: #ffc44d;
+  --p-font: 'Pixelify Sans', ui-monospace, monospace;
+  --p-font-label: var(--p-font);
+  --p-font-value: var(--p-font);
+  --p-radius: 0;
+  --p-radius-big: 0;
+  --p-label-size: 14px;
+  --p-text-size: 16px;
+  --bevel-light: #ffffff;
+  --bevel-dark: #000022;
+  --title-bar: #ffffff;
+  --title-ink: #0055aa;
+  --gadget: #ff8800;
+}
+[data-skin="desk"][data-variant="grey"] {
+  --p-ground: #a8a8a8;
+  --p-surface: #a8a8a8;
+  --p-surface-2: #bdbdbd;
+  --p-line: #000000;
+  --p-ink: #000000;
+  --p-dim: #262626;
+  --p-accent: #132c80;
+  --p-on-accent: #ffffff;
+  --p-focus: #000000;
+  --bevel-light: #ffffff;
+  --bevel-dark: #4a4a4a;
+  --title-bar: #6a86c4;
+  --title-ink: #000000;
+  --gadget: #ffffff;
+}
+
+/* ── the screen ────────────────────────────────────────────────────────── */
+
+body[data-skin="desk"] { font-size: 16px; }
+/* The screen's own title bar. */
+body[data-skin="desk"] .station-bar { background: var(--title-bar); border-bottom: 2px solid var(--bevel-dark); }
+body[data-skin="desk"] .bar-title,
+body[data-skin="desk"] .connection { color: var(--title-ink); font-size: 16px; font-weight: 600; letter-spacing: 0.02em; }
+body[data-skin="desk"] .connection::before { background: var(--title-ink); box-shadow: none; border-radius: 0; }
+body[data-skin="desk"] .info-toggle { border: 2px solid; border-color: var(--bevel-light) var(--bevel-dark) var(--bevel-dark) var(--bevel-light);
+  background: var(--title-bar); color: var(--title-ink); font-size: 15px; letter-spacing: 0; }
+body[data-skin="desk"] .info-toggle[aria-expanded="true"] { border-color: var(--bevel-dark) var(--bevel-light) var(--bevel-light) var(--bevel-dark); color: var(--title-ink); }
+body[data-skin="desk"] .room-info { border: 2px solid var(--p-line); border-top: 0; box-shadow: 6px 6px 0 var(--bevel-dark); }
+body[data-skin="desk"] .room-info h2 { font-size: 22px; }
+body[data-skin="desk"] .eyebrow { font-size: 13px; letter-spacing: 0.06em; }
+body[data-skin="desk"] .section-help, body[data-skin="desk"] .empty-state, body[data-skin="desk"] .toast { font-size: 15px; }
+
+/* ── windows ───────────────────────────────────────────────────────────── */
+
+[data-skin="desk"] .panel-head { margin: 22px 0 6px; padding: 10px 14px; border: 2px solid var(--p-line); background: var(--p-surface-2); }
+[data-skin="desk"] .panel-title { font-size: 20px; letter-spacing: 0.02em; text-transform: none; color: var(--p-ink); }
+[data-skin="desk"] .panel-tagline { font-size: 15px; color: var(--p-dim); }
+
+[data-skin="desk"] .panel-group { margin: 18px 0; border: 2px solid var(--p-line); background: var(--p-surface); box-shadow: 6px 6px 0 var(--bevel-dark); }
+[data-skin="desk"] .panel-group > .knob { padding: 16px 14px; }
+[data-skin="desk"] .panel-group > .knob:last-child { border-bottom: 0; }
+[data-skin="desk"] .panel-group-title { position: relative; margin: 0; padding: 4px 44px 4px 40px; font-size: 15px; letter-spacing: 0.02em; text-transform: none;
+  color: var(--title-ink); border-bottom: 2px solid var(--p-line);
+  background: repeating-linear-gradient(to bottom, var(--title-bar) 0 2px, var(--p-surface) 2px 4px); }
+/* The title sits on a solid patch cut out of the stripes, as it did. */
+[data-skin="desk"] .panel-group-title span { padding: 0 6px; background: var(--title-bar); }
+/* Close gadget on the left, depth gadget on the right. Decoration only. */
+[data-skin="desk"] .panel-group-title::before { content: ''; position: absolute; left: 8px; top: 50%; width: 18px; height: 14px; margin-top: -7px;
+  border: 2px solid var(--p-line); background: var(--p-surface); box-shadow: inset 0 0 0 3px var(--p-surface), inset 0 0 0 7px var(--gadget); }
+[data-skin="desk"] .panel-group-title::after { content: ''; position: absolute; right: 8px; top: 50%; width: 14px; height: 10px; margin-top: -8px;
+  border: 2px solid var(--p-line); background: var(--gadget); box-shadow: 6px 6px 0 -2px var(--p-surface), 6px 6px 0 0 var(--p-line); }
+[data-skin="desk"] .panel-group:not([role]) { box-shadow: none; }
+
+[data-skin="desk"] .knob { border-bottom: 2px solid var(--p-surface-2); }
+[data-skin="desk"] .knob legend { font-size: 14px; letter-spacing: 0.04em; color: var(--p-ink); }
+[data-skin="desk"] .control-sharing { font-size: 14px; }
+[data-skin="desk"] .control-hint { font-size: 15px; }
+
+/* ── bevelled gadgets ──────────────────────────────────────────────────── */
+
+[data-skin="desk"] .values button,
+[data-skin="desk"] .step-button,
+[data-skin="desk"] .cycle-value,
+[data-skin="desk"] .trigger {
+  border: 2px solid; border-color: var(--bevel-light) var(--bevel-dark) var(--bevel-dark) var(--bevel-light);
+  background: var(--p-surface-2); color: var(--p-ink); box-shadow: none; transform: none; font-size: 16px; text-transform: none; letter-spacing: 0.02em;
+}
+[data-skin="desk"] .values button:hover:not(:disabled) { background: var(--p-surface-2); border-color: var(--bevel-light) var(--bevel-dark) var(--bevel-dark) var(--bevel-light); transform: none; }
+[data-skin="desk"] .values button:active:not(:disabled),
+[data-skin="desk"] .step-button:active:not(:disabled),
+[data-skin="desk"] .cycle-value:active:not(:disabled),
+[data-skin="desk"] .trigger:active:not(:disabled) { border-color: var(--bevel-dark) var(--bevel-light) var(--bevel-light) var(--bevel-dark); transform: none; }
+[data-skin="desk"] .values button.active,
+[data-skin="desk"] .values button.active:hover:not(:disabled) { background: var(--p-accent); color: var(--p-on-accent); box-shadow: none;
+  border-color: var(--bevel-dark) var(--bevel-light) var(--bevel-light) var(--bevel-dark); }
+[data-skin="desk"] .values .pad-choice.active { background: var(--p-surface-2); color: var(--p-ink); }
+[data-skin="desk"] .pad-choice .led { width: 14px; height: 6px; margin-left: -7px; border-radius: 0; border: 1px solid var(--bevel-dark); }
+[data-skin="desk"] .values .pad-choice.active .led { box-shadow: none; }
+[data-skin="desk"] .pad-label { font-size: 14px; }
+[data-skin="desk"] .cycle-count { font-size: 13px; }
+
+[data-skin="desk"] .menu-list { border: 2px solid; border-color: var(--bevel-dark) var(--bevel-light) var(--bevel-light) var(--bevel-dark); background: var(--p-surface); }
+[data-skin="desk"] .menu-item { border: 0; background: transparent; font-size: 16px; padding-left: 38px; }
+[data-skin="desk"] .menu-item::before { border-radius: 0; border: 2px solid var(--p-ink); width: 12px; height: 12px; margin-top: -6px; }
+[data-skin="desk"] .menu-item.active { background: var(--p-accent); color: var(--p-on-accent); }
+[data-skin="desk"] .menu-item.active::before { background: var(--p-on-accent); border-color: var(--p-on-accent); box-shadow: inset 0 0 0 2px var(--p-accent); }
+
+/* Sliders are proportional gadgets: a sunken well with a raised block. */
+[data-skin="desk"] .numeric-control input::-webkit-slider-runnable-track { height: 22px; border-radius: 0; border: 2px solid;
+  border-color: var(--bevel-dark) var(--bevel-light) var(--bevel-light) var(--bevel-dark); background: var(--p-surface-2); }
+[data-skin="desk"] .numeric-control input::-webkit-slider-thumb { width: 34px; height: 18px; margin-top: 0; border-radius: 0; border: 2px solid;
+  border-color: var(--bevel-light) var(--bevel-dark) var(--bevel-dark) var(--bevel-light); background: var(--p-accent); box-shadow: none; }
+[data-skin="desk"] .numeric-control input::-moz-range-track { height: 22px; border-radius: 0; background: var(--p-surface-2); }
+[data-skin="desk"] .numeric-control input::-moz-range-progress { height: 22px; background: transparent; }
+[data-skin="desk"] .numeric-control input::-moz-range-thumb { width: 30px; height: 18px; border-radius: 0; border: 2px solid var(--bevel-dark); background: var(--p-accent); }
+[data-skin="desk"] .range-bounds { font-size: 13px; }
+[data-skin="desk"] .numeric-value { font-size: 18px; }
+
+[data-skin="desk"] .knob-dial { background: none; border: 3px solid; border-color: var(--bevel-light) var(--bevel-dark) var(--bevel-dark) var(--bevel-light); }
+[data-skin="desk"] .knob-face { width: 62px; height: 62px; background: var(--p-surface-2); border: 2px solid var(--p-line); }
+[data-skin="desk"] .knob-mark { background: var(--p-accent); outline: 1px solid var(--bevel-dark); }
+[data-skin="desk"] .step-value { border: 2px solid; border-color: var(--bevel-dark) var(--bevel-light) var(--bevel-light) var(--bevel-dark); font-size: 20px; }
+
+[data-skin="desk"] .trigger { min-height: 84px; font-size: 20px; border-width: 3px; }
+[data-skin="desk"] .trigger.pad { border-width: 4px; }
+
+/* on/off: a bevelled checkbox with a label, the era's own switch */
+[data-skin="desk"] .switch { border: 0; border-radius: 0; background: transparent; padding: 6px 0; gap: 10px; }
+[data-skin="desk"] .switch-track { width: 24px; height: 24px; border-radius: 0; background: var(--p-surface); border: 2px solid; border-color: var(--bevel-dark) var(--bevel-light) var(--bevel-light) var(--bevel-dark); }
+[data-skin="desk"] .switch-thumb { display: none; }
+[data-skin="desk"] .switch[aria-checked="true"] .switch-track { background: var(--p-surface); }
+[data-skin="desk"] .switch[aria-checked="true"] .switch-thumb { display: block; top: 4px; left: 4px; width: 12px; height: 12px; border-radius: 0; transform: none; background: var(--p-ink); }

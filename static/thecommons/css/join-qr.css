@@ -1,8 +1,8 @@
 .join-card { border: 1px solid var(--line); border-radius: 12px; padding: 18px; background: var(--surface); color: var(--ink); }
-.join-card summary { cursor: pointer; color: var(--cyan); font-weight: 600; }
+.join-card summary { cursor: pointer; color: var(--focus); font-weight: 600; }
 .join-card img { display: block; width: 240px; max-width: 100%; height: auto; margin: 16px auto; background: white; }
 .join-card p { font-size: 14px; line-height: 1.5; color: var(--ink-dim); }
-.join-card a { color: var(--cyan); }
+.join-card a { color: var(--focus); }
 .join-card-floating { position: fixed; z-index: 2; top: 84px; right: 28px; width: min(278px, calc(100vw - 32px)); }
 .join-card-floating p { margin-bottom: 0; }
 .join-card-admin { margin-bottom: 24px; }

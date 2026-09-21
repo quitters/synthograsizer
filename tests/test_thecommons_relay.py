@@ -8,7 +8,9 @@ logic directly" approach that file uses for _migrate().
 
 import asyncio
 
-from backend.service.thecommons_relay import RoomRelay
+import pytest
+
+from backend.service.thecommons_relay import HostControlError, RoomRelay
 
 
 class FakeSocket:
@@ -193,3 +195,106 @@ def test_telemetry_counts_changes_per_table():
         assert telemetry["changesByTable"]["table-9"] == 2
         assert "table-9" in telemetry["activeTables"]
     asyncio.run(body())
+
+
+# ── toggle ───────────────────────────────────────────────────────────────────
+
+def _toggle_sketch(default=True):
+    return {"id": "s1", "name": "Test", "variables": [
+        {"name": "trails", "label": "Trails", "type": "toggle", "default": default}]}
+
+
+def test_toggle_seeds_from_its_default_and_from_a_saved_look():
+    relay = RoomRelay(room_id=1)
+    relay.set_sketch(_toggle_sketch(default=True), {})
+    assert relay.values["trails"] is True
+    relay.set_sketch(_toggle_sketch(default=True), {"trails": False})  # False is a real value, not "missing"
+    assert relay.values["trails"] is False
+    relay.set_sketch(_toggle_sketch(default=True), {"trails": "no"})    # junk falls back to the default
+    assert relay.values["trails"] is True
+
+
+def test_toggle_update_accepts_only_a_real_boolean():
+    async def body():
+        relay = RoomRelay(room_id=1)
+        relay.set_sketch(_toggle_sketch(default=True), {})
+        ws1, p1, _ = await _add_station(relay, "t1")
+        for junk in ("false", 0, 1, None, [], {}):
+            assert relay.apply_var_update(ws1, p1, "trails", junk) == []
+        assert relay.values["trails"] is True
+        items = relay.apply_var_update(ws1, p1, "trails", False)
+        assert items and items[0][1]["type"] == "var" and items[0][1]["value"] is False
+        assert relay.values["trails"] is False
+    asyncio.run(body())
+
+
+# ── host-only controls ───────────────────────────────────────────────────────
+
+def _host_sketch():
+    return {"id": "s1", "name": "Test", "variables": [
+        {"name": "speed", "type": "number", "min": 0, "max": 10, "step": 1, "default": 5},
+        {"name": "mound", "type": "number", "min": 1, "max": 9999, "step": 1, "default": 1, "access": "host"},
+        {"name": "wander", "type": "toggle", "default": False, "access": "host"},
+        {"name": "reset", "type": "trigger", "share": "one", "access": "host"},
+    ]}
+
+
+def test_host_controls_are_never_handed_to_a_phone():
+    async def body():
+        relay = RoomRelay(room_id=1)
+        relay.set_sketch(_host_sketch(), {})
+        for i in range(6):
+            await _add_station(relay, f"t{i}")
+        assert set(relay.assigned) == {"speed"}
+        assert relay.values["mound"] == 1 and relay.values["wander"] is False
+    asyncio.run(body())
+
+
+def test_a_phone_can_never_set_or_fire_a_host_control():
+    async def body():
+        relay = RoomRelay(room_id=1)
+        relay.set_sketch(_host_sketch(), {})
+        ws1, p1, _ = await _add_station(relay, "t1")
+        assert relay.apply_var_update(ws1, p1, "mound", 42) == []
+        assert relay.apply_var_update(ws1, p1, "wander", True) == []
+        assert relay.apply_trigger(ws1, p1, "reset") == []
+        assert relay.values["mound"] == 1 and relay.values["wander"] is False
+    asyncio.run(body())
+
+
+def test_the_host_sets_its_controls_through_the_same_gate():
+    relay = RoomRelay(room_id=1)
+    relay.set_sketch(_host_sketch(), {})
+    items = relay.apply_host_update("mound", 42.4)            # snaps like any number
+    assert items == [("all", {"type": "var", "varName": "mound", "value": 42,
+                              "table": "host", "participantId": "host"})]
+    assert relay.values["mound"] == 42
+    relay.apply_host_update("wander", True)
+    assert relay.values["wander"] is True
+    for name, bad, code in (("mound", 0, "invalid"), ("wander", "yes", "invalid"), ("speed", 3, "unknown"),
+                            ("ghost", 1, "unknown"), ("reset", 1, "invalid")):
+        with pytest.raises(HostControlError) as err:
+            relay.apply_host_update(name, bad)
+        assert err.value.code == code
+    assert relay.host_controls()["values"] == {"mound": 42, "wander": True}
+
+
+def test_the_host_fires_its_trigger_as_host():
+    relay = RoomRelay(room_id=1)
+    relay.set_sketch(_host_sketch(), {})
+    assert relay.apply_host_trigger("reset") == [("all", {"type": "event", "name": "reset",
+                                                          "participantId": "host", "table": "host"})]
+    with pytest.raises(HostControlError):
+        relay.apply_host_trigger("mound")
+
+
+def test_the_host_has_a_rate_limit_of_its_own():
+    relay = RoomRelay(room_id=1)
+    relay.set_sketch(_host_sketch(), {})
+    sent = 0
+    with pytest.raises(HostControlError) as err:
+        for i in range(100):
+            relay.apply_host_update("mound", 1 + i)
+            sent += 1
+    assert err.value.code == "busy" and 15 <= sent <= 25
+

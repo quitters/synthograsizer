@@ -1,0 +1,85 @@
+{
+  "name": "Pachinko Party",
+  "promptTemplate": "A physical marble machine! Tilt the whole board with {{board_tilt}}, and adjust gravity using {{gravity_strength}}. Tweak the physics via {{bounciness}} and {{marble_size}}. Rearrange the obstacles using a {{peg_layout}} layout and size {{peg_size}} pegs.",
+  "variables": [
+    {
+      "name": "drop_marble",
+      "label": "Drop Marble",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "clear_board",
+      "label": "Clear Board",
+      "type": "trigger",
+      "share": "one"
+    },
+    {
+      "name": "board_tilt",
+      "label": "Board Tilt",
+      "type": "number",
+      "min": -1.0,
+      "max": 1.0,
+      "step": 0.1,
+      "default": 0.0
+    },
+    {
+      "name": "gravity_strength",
+      "label": "Gravity",
+      "type": "number",
+      "min": 500,
+      "max": 3000,
+      "step": 100,
+      "default": 1500
+    },
+    {
+      "name": "bounciness",
+      "label": "Bounciness",
+      "type": "number",
+      "min": 0.2,
+      "max": 0.9,
+      "step": 0.1,
+      "default": 0.6
+    },
+    {
+      "name": "marble_size",
+      "label": "Marble Size",
+      "type": "number",
+      "min": 10,
+      "max": 36,
+      "step": 2,
+      "default": 16
+    },
+    {
+      "name": "peg_size",
+      "label": "Peg Size",
+      "type": "number",
+      "min": 5,
+      "max": 25,
+      "step": 1,
+      "default": 10
+    },
+    {
+      "name": "peg_layout",
+      "label": "Peg Layout",
+      "values": [
+        {
+          "text": "pachinko",
+          "weight": 3
+        },
+        {
+          "text": "grid",
+          "weight": 2
+        },
+        {
+          "text": "funnel",
+          "weight": 2
+        },
+        {
+          "text": "sparse",
+          "weight": 1
+        }
+      ]
+    }
+  ]
+}

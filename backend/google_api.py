@@ -321,7 +321,15 @@ def gen_text(client, model: str, blocks: List[Dict[str, Any]], *,
         if safety:
             config_kwargs["safety_settings"] = safety
         if generation_config:
-            config_kwargs.update(generation_config)
+            extra = dict(generation_config)
+            # Interactions takes thinking_level flat in generation_config;
+            # generateContent nests it under thinking_config and rejects it at
+            # the top level. Same translation _legacy_gen_image does.
+            level = extra.pop("thinking_level", None)
+            if level:
+                extra["thinking_config"] = {**extra.get("thinking_config", {}),
+                                            "thinking_level": level.lower()}
+            config_kwargs.update(extra)
         response = client.models.generate_content(
             model=model,
             contents=_to_legacy_contents(blocks),

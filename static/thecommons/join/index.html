@@ -7,34 +7,44 @@
 <title>The Commons — Table Station</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;450;500;550;600;650;700&family=DM+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/thecommons/css/theme.css">
+<link rel="stylesheet" href="/thecommons/css/panel.css">
+<link rel="stylesheet" href="/thecommons/css/skins/trainer.css">
+<link rel="stylesheet" href="/thecommons/css/skins/desk.css">
+<link rel="stylesheet" href="/thecommons/css/skins/textmode.css">
 <link rel="stylesheet" href="/thecommons/css/station.css">
 </head>
-<body>
-<div class="station-shell">
-  <header class="masthead">
-    <span class="wordmark">The <span>Commons</span></span>
-    <div class="station-meta"><span id="tableName" class="eyebrow"></span><span id="connection" class="connection" role="status">Connecting…</span></div>
-  </header>
-  <main>
-    <section class="intro" aria-labelledby="stationTitle">
-      <p class="eyebrow">Many hands. One canvas.</p>
-      <h1 id="stationTitle">A little turn.<br>A shared <span>change.</span></h1>
-      <p>Choose a setting. Watch the wall respond.<br>Everyone in the room has a little pull.</p>
-    </section>
-    <div class="station-layout">
-      <section class="controls" aria-labelledby="sketchName">
-        <div class="section-heading"><span class="section-number">01</span><div><p class="eyebrow">On the wall</p><h2 id="sketchName">Finding the canvas…</h2></div></div>
-        <p class="section-help" id="allocationStatus" role="status">Finding your controls…</p>
-        <p class="section-help" id="controlHint" role="status">Your choices below steer the shared piece.</p>
-        <div id="knobs" aria-describedby="controlHint"></div>
-      </section>
-
-    </div>
-  </main>
-  <footer><span class="eyebrow">The Commons / Table station</span><span>Nobody controls it alone.</span></footer>
-</div>
+<body class="stage">
+<!-- The controls are the page. Everything about the room -- what's on the
+     wall, your table, how many controls are yours -- lives in the info sheet,
+     one tap (or the I key) away, the way the wall hides its own overlays. -->
+<header class="station-bar">
+  <h1 class="bar-title" id="barTitle">The Commons</h1>
+  <span id="connection" class="connection" role="status">Connecting…</span>
+  <button id="infoToggle" type="button" class="info-toggle" aria-expanded="false" aria-controls="roomInfo"
+          aria-keyshortcuts="I" title="About this room (I)">Info</button>
+</header>
+<section id="roomInfo" class="room-info" hidden tabindex="-1" aria-labelledby="roomInfoTitle">
+  <div class="room-info-inner">
+    <p class="eyebrow"><span class="wordmark">The <span>Commons</span></span> · Many hands. One canvas.</p>
+    <p class="eyebrow">On the wall</p>
+    <h2 id="roomInfoTitle"><span id="sketchName">Finding the canvas…</span></h2>
+    <p id="panelTagline" class="section-help" hidden></p>
+    <p id="allocationStatus" class="section-help" role="status">Finding your controls…</p>
+    <p class="section-help">Choose a setting and watch the wall respond. Controls are shared out automatically
+      as people join, so everyone in the room has a little pull.</p>
+    <p id="lastChange" class="section-help"></p>
+    <p class="room-info-foot"><span id="tableName" class="eyebrow"></span>
+      <button id="infoClose" type="button" class="info-toggle">Close</button></p>
+  </div>
+</section>
+<main class="station-shell">
+  <p id="emptyState" class="empty-state" role="status" hidden></p>
+  <div id="knobs" aria-labelledby="barTitle"></div>
+  <p class="station-foot eyebrow">The Commons · Nobody controls it alone.</p>
+</main>
+<p id="controlHint" class="toast" role="status" hidden></p>
 <script type="module" src="/thecommons/js/station.js"></script>
 </body>
 </html>

@@ -27,7 +27,7 @@ from tests.test_thecommons_rooms import FakeCommonsPool
 
 client = TestClient(server.app, raise_server_exceptions=False)
 
-# 5 credits for the Pro model × 2, covering the possible repair call.
+# 5 credits for the sketch model (3.8 Flash) × 2, covering the possible repair call.
 COMMONS_SKETCH_COST = 10
 
 VALID_SKETCH_JSON = json.dumps({

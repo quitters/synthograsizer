@@ -187,6 +187,15 @@ def test_pricing_resolution():
     assert pricing.resolve("video", config.MODEL_VIDEO_GEN, 8) == (320, 3.2, "sec")
 
 
+def test_commons_sketches_are_priced_on_their_own_model():
+    assert pricing.resolve("commons_sketch", config.MODEL_COMMONS_SKETCH) == (10, 0.1, "call")
+    assert pricing.client_rates()["commons_sketch"] == 10
+    # Adding 3.8 Flash left the shared fast id, and everything keyed on it, priced.
+    for model in (config.MODEL_FAST, config.MODEL_DEMO, config.MODEL_TEMPLATE_GEN_FAST):
+        assert pricing.text_credits(model) == 1
+    assert pricing.text_credits(config.MODEL_TEMPLATE_GEN) == 5
+
+
 def test_pricing_rejects_unknown_models():
     with pytest.raises(pricing.InvalidModel):
         pricing.resolve("text", "gemini-exp-9999")

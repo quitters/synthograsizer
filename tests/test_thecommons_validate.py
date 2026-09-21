@@ -5,9 +5,19 @@ see thecommons_generate.py), but ported now for when live generation lands,
 so it gets verified now rather than trusted blind.
 """
 
+import json
+import logging
+import re
+import sys
+from pathlib import Path
+
 import pytest
 
-from backend.service.thecommons_validate import InvalidSketchError, validate_native_sketch
+from backend.service import thecommons_validate
+from backend.service.thecommons_gallery import _DIR as GALLERY_DIR
+from backend.service.thecommons_validate import (
+    NATIVE_PARAMS, InvalidSketchError, compile_error, validate_native_sketch,
+)
 
 
 def _valid_sketch(**over):
@@ -184,3 +194,186 @@ def test_at_least_one_control_must_stay_assignable():
     # One owned trigger is enough to satisfy it.
     sketch["variables"][1]["share"] = "one"
     assert len(validate_native_sketch(sketch)["variables"]) == 2
+
+
+# ── toggle ───────────────────────────────────────────────────────────────────
+
+def _with_toggle(**over):
+    sketch = _valid_sketch(promptTemplate="a {{speed}} {{palette}} scene, trails {{trails}}")
+    sketch["variables"].append({"name": "trails", "label": "Trails", "type": "toggle", "default": True})
+    sketch.update(over)
+    return sketch
+
+
+def test_toggle_is_accepted_and_normalised():
+    toggle = [v for v in validate_native_sketch(_with_toggle())["variables"] if v["name"] == "trails"][0]
+    assert toggle == {"name": "trails", "label": "Trails", "type": "toggle", "default": True}
+
+
+def test_toggle_default_must_be_a_real_boolean():
+    for bad in (None, 1, 0, "true", "on"):
+        sketch = _with_toggle()
+        sketch["variables"][-1]["default"] = bad
+        if bad is None:
+            sketch["variables"][-1].pop("default")
+        with pytest.raises(InvalidSketchError):
+            validate_native_sketch(sketch)
+
+
+def test_toggle_takes_no_choices_range_or_share():
+    for bad in ({"values": [{"text": "on", "weight": 1}]}, {"min": 0}, {"max": 1}, {"step": 1}, {"share": "all"}):
+        sketch = _with_toggle()
+        sketch["variables"][-1].update(bad)
+        with pytest.raises(InvalidSketchError):
+            validate_native_sketch(sketch)
+
+
+def test_toggle_needs_its_placeholder_like_any_valued_control():
+    with pytest.raises(InvalidSketchError):
+        validate_native_sketch(_with_toggle(promptTemplate="a {{speed}} {{palette}} scene"))
+
+
+# ── host-only controls ───────────────────────────────────────────────────────
+
+def _with_host(**over):
+    sketch = _with_toggle(promptTemplate="a {{speed}} {{palette}} scene, trails {{trails}}")
+    sketch["variables"][-1]["access"] = "host"
+    sketch.update(over)
+    return sketch
+
+
+def test_a_host_control_keeps_its_access_and_room_controls_stay_unmarked():
+    result = validate_native_sketch(_with_host())
+    by_name = {v["name"]: v for v in result["variables"]}
+    assert by_name["trails"]["access"] == "host"
+    assert "access" not in by_name["speed"] and "access" not in by_name["palette"]
+
+
+def test_access_must_be_room_or_host():
+    sketch = _with_host()
+    sketch["variables"][-1]["access"] = "admin"
+    with pytest.raises(InvalidSketchError):
+        validate_native_sketch(sketch)
+
+
+def test_a_host_trigger_cannot_also_be_shared():
+    sketch = _with_trigger()
+    sketch["variables"][-1]["access"] = "host"          # share: "all" is still on it
+    with pytest.raises(InvalidSketchError):
+        validate_native_sketch(sketch)
+    sketch["variables"][-1].pop("share")
+    trigger = [v for v in validate_native_sketch(sketch)["variables"] if v["name"] == "shoot"][0]
+    assert trigger["access"] == "host"
+
+
+def test_host_controls_never_count_as_the_rooms():
+    # Every control host-only would leave the phones with nothing at all.
+    sketch = _with_host()
+    for v in sketch["variables"]:
+        v["access"] = "host"
+    with pytest.raises(InvalidSketchError):
+        validate_native_sketch(sketch)
+
+
+def test_at_most_four_host_controls():
+    sketch = _valid_sketch(promptTemplate="{{speed}} {{palette}} " + " ".join(f"{{{{h{i}}}}}" for i in range(5)))
+    for i in range(5):
+        sketch["variables"].append({"name": f"h{i}", "type": "toggle", "default": False, "access": "host"})
+    with pytest.raises(InvalidSketchError):
+        validate_native_sketch(sketch)
+    sketch["variables"].pop()
+    sketch["promptTemplate"] = "{{speed}} {{palette}} " + " ".join(f"{{{{h{i}}}}}" for i in range(4))
+    validate_native_sketch(sketch)
+
+# ── the code has to compile, exactly as the wall compiles it ────────────────
+
+# Verbatim from a gemini-3.8-flash sketch: 2 of 30 had this stray `)`, and it
+# passed every structural check, so it would have shipped as a blank wall.
+STRAY_PAREN = "const glow = 0.4;\nctx.strokeStyle = `rgba(100, 240, 255, 0.4)`);\nctx.stroke();"
+
+
+def test_a_known_good_gallery_piece_passes_with_its_own_controls():
+    code = (GALLERY_DIR / "fireworks.js").read_text(encoding="utf-8")
+    controls = json.loads((GALLERY_DIR / "fireworks.json").read_text(encoding="utf-8"))
+    assert validate_native_sketch({**controls, "code": code})["code"] == code
+
+
+@pytest.mark.parametrize("piece", sorted(GALLERY_DIR.glob("*.js")), ids=lambda p: p.stem)
+def test_every_gallery_piece_compiles(piece):
+    assert compile_error(piece.read_text(encoding="utf-8")) is None
+
+
+@pytest.mark.parametrize("code", [
+    "ctx.fillStyle = `hsl(${frame.t * 40 % 360}, 80%, 50%)`;",
+    "const speed = getVar('speed') ?? 0.5;",
+    "room.state.dots ??= []; room.state.n ||= 1;",
+    "const hue = room.people?.[0]?.hue ?? 0; audio?.beat;",
+    "const dots = room.state.dots ?? []; dots.forEach((d) => { d.x += 1; });",
+    "class Spark { #age = 0; static count = 0; tick() { return ++this.#age; } }",
+    "room.state.buf ??= new OffscreenCanvas(64, 36); const b = room.state.buf.getContext('2d');",
+    "if (!frame.width) return;\nctx.fillRect(0, 0, frame.width, frame.height);",
+])
+def test_modern_syntax_the_sketches_use_compiles(code):
+    assert compile_error(code) is None
+
+
+def test_a_stray_paren_after_a_template_literal_is_rejected_with_the_parsers_message():
+    with pytest.raises(InvalidSketchError) as exc:
+        validate_native_sketch(_valid_sketch(code=STRAY_PAREN))
+    assert str(exc.value) == (
+        "invalid native sketch: code does not compile: SyntaxError: Unexpected token ')' "
+        "at line 2 of the code: ctx.strokeStyle = `rgba(100, 240, 255, 0.4)`);"
+    )
+
+
+@pytest.mark.parametrize("code, message", [
+    # Valid on its own, but not beside the wall's own parameters.
+    ("let room = {};", "Identifier 'room' has already been declared"),
+    # Balanced by a naive wrapper, so a parser fed "(function(...){" + code + "})" accepts it.
+    ("}); (function () {", "Single function literal required"),
+    # The body is not async.
+    ("await frame;", "await is only valid in async functions"),
+])
+def test_errors_only_the_real_compile_catches_are_rejected(code, message):
+    with pytest.raises(InvalidSketchError, match=re.escape(message)):
+        validate_native_sketch(_valid_sketch(code=code))
+
+
+def test_the_location_is_given_only_where_it_points_into_the_code():
+    assert compile_error("const s = `unterminated;") == "SyntaxError: Unexpected end of input at the end of the code"
+    # Windows line endings count as one line break, as they do in V8.
+    assert compile_error("const a = 1;\r\nctx.fill());").endswith("at line 2 of the code: ctx.fill());")
+    # V8 locates this one in the harness, not the code, so no line is claimed.
+    nested = "x = " + "(" * 100_000 + "1" + ")" * 100_000 + ";"
+    assert compile_error(nested) == "RangeError: Maximum call stack size exceeded"
+
+
+def test_code_is_compiled_never_run():
+    # Run, this would throw, and come back as an error.
+    assert compile_error("throw new Error('ran');") is None
+
+
+def test_native_params_match_the_wall():
+    runtime = (Path(__file__).parents[1] / "static" / "thecommons" / "js" / "sketch-runtime.js").read_text(encoding="utf-8")
+    declared = re.search(r"NATIVE_PARAMS = \[([^\]]*)\]", runtime).group(1)
+    assert tuple(re.findall(r"'(\w+)'", declared)) == NATIVE_PARAMS
+
+
+class _V8WontLoad:
+    @staticmethod
+    def init_mini_racer(**_):
+        raise OSError("libmini_racer.so: cannot open shared object file")
+
+
+@pytest.mark.parametrize("engine", [None, _V8WontLoad], ids=["not installed", "native library won't load"])
+def test_without_the_engine_the_check_is_skipped_loudly(monkeypatch, caplog, engine):
+    # A stale local install, or a wheel whose V8 won't load, must still boot,
+    # generate and load the gallery -- but not quietly. None makes the import fail.
+    monkeypatch.setitem(sys.modules, "py_mini_racer", engine)
+    thecommons_validate._v8.cache_clear()
+    try:
+        with caplog.at_level(logging.ERROR, logger=thecommons_validate.__name__):
+            assert validate_native_sketch(_valid_sketch(code=STRAY_PAREN))["code"] == STRAY_PAREN
+        assert "NOT being compiled" in caplog.text
+    finally:
+        thecommons_validate._v8.cache_clear()
