@@ -23,6 +23,7 @@ import { ArtisticFilter } from './effects/non-destructive/new-filters/artistic-f
 import { FilterControlsUI } from './ui/filter-controls-ui.js';
 import { RecordingManager } from './core/recording-manager.js';
 import { copyImageData } from './utils/image-utils.js'; // Import copyImageData synchronously
+import { Logger } from './utils/logger.js';
 
 // NEW: Effect Studio System Imports
 import { EffectChainManager } from './core/effect-system/effect-chain-manager.js';
@@ -32,6 +33,9 @@ import { EffectStudioManager } from './ui/effect-studio/effects-studio-manager.j
 
 // NEW: Mode Synchronization System
 import './ui/effect-studio/studio-integration.js';
+
+// Progress chatter stays out of the console in production; see utils/logger.js.
+const logger = new Logger('Glitcher');
 
 class GlitcherApp {
   constructor() {
@@ -290,7 +294,7 @@ class GlitcherApp {
    */
   async init() {
     try {
-      console.log('🎨 Initializing Glitcher App with Enhanced Selection System...');
+      logger.debug('🎨 Initializing Glitcher App with Enhanced Selection System...');
       
       // Initialize canvas manager first
       this.canvasManager.init();
@@ -307,7 +311,7 @@ class GlitcherApp {
       this.recordingManager = new RecordingManager(this);
       
       // NEW: Initialize Effect Studio System
-      console.log('🎨 Initializing Effect Studio System...');
+      logger.debug('🎨 Initializing Effect Studio System...');
       
       // Create effect factory and register existing effects
       this.effectFactory = new EffectFactory();
@@ -322,7 +326,7 @@ class GlitcherApp {
       // Create studio manager (handles UI coordination)
       this.effectStudioManager = new EffectStudioManager(this);
       
-      console.log('✅ Effect Studio System initialized');
+      logger.debug('✅ Effect Studio System initialized');
       
       // Initialize selection system
       this.selectionManager = new SelectionManager(this.canvasManager);
@@ -333,7 +337,7 @@ class GlitcherApp {
       
       // Set up image load callback
       this.canvasManager.onImageLoad((imageData, width, height) => {
-        console.log(`✅ Image loaded: ${width}x${height}`);
+        logger.debug(`✅ Image loaded: ${width}x${height}`);
         
         // Initialize frame timer for animated media with multiple frames
         if (this.canvasManager.animationMode) {
@@ -362,7 +366,7 @@ class GlitcherApp {
       // Initialize panel state manager AFTER all UI setup
       this.panelStateManager = new PanelStateManager();
       
-      console.log('✅ Glitcher App with Enhanced Selection System & Filter Effects initialized successfully!');
+      logger.debug('✅ Glitcher App with Enhanced Selection System & Filter Effects initialized successfully!');
       
     } catch (error) {
       console.error('❌ Failed to initialize Glitcher App:', error);
@@ -377,7 +381,7 @@ class GlitcherApp {
     this.effectFactory.registerFilterEffectsWithApp(this.filterEffects);
     
     // The factory already has built-in destructive effects registered
-    console.log('✅ All effects registered with factory');
+    logger.debug('✅ All effects registered with factory');
   }
 
   /**
@@ -396,7 +400,7 @@ class GlitcherApp {
       this.migrateClassicSettingsToChain();
     }
     
-    console.log(`🎛️ Studio mode: ${this.studioMode ? 'ON' : 'OFF'}`);
+    logger.debug(`🎛️ Studio mode: ${this.studioMode ? 'ON' : 'OFF'}`);
     
     // Update UI to show current mode
     this.updateModeIndicator();
@@ -514,7 +518,7 @@ class GlitcherApp {
       }
     }
     
-    console.log(`🔄 Migrated ${this.effectChainManager.chain.length} effects to studio mode`);
+    logger.debug(`🔄 Migrated ${this.effectChainManager.chain.length} effects to studio mode`);
   }
 
   /**
@@ -635,7 +639,7 @@ class GlitcherApp {
     
     // Test if file input is functional
     fileInput.addEventListener('change', (e) => {
-      console.log('🎉 File input change event triggered:', e.target.files.length, 'files');
+      logger.debug('🎉 File input change event triggered:', e.target.files.length, 'files');
     });
     
     // Verify that the canvas manager has properly set up the drop zones
@@ -643,25 +647,25 @@ class GlitcherApp {
     const canvasDropZone = document.getElementById('canvas-placeholder');
     
     if (uploadArea) {
-      console.log('✅ Upload area found');
+      logger.debug('✅ Upload area found');
     } else {
       console.error('❌ Upload area not found!');
     }
     
     if (canvasDropZone) {
-      console.log('✅ Canvas drop zone found');
+      logger.debug('✅ Canvas drop zone found');
     } else {
       console.error('❌ Canvas drop zone not found!');
     }
     
     // Make sure canvas manager is initialized
     if (this.canvasManager && typeof this.canvasManager.setupEventListeners === 'function') {
-      console.log('✅ Canvas manager is properly initialized');
+      logger.debug('✅ Canvas manager is properly initialized');
     } else {
       console.warn('⚠️ Canvas manager may not be properly initialized');
     }
     
-    console.log('✅ File upload functionality verified');
+    logger.debug('✅ File upload functionality verified');
   }
 
   /**
@@ -670,7 +674,7 @@ class GlitcherApp {
   setupPresetControls() {
     // This will be implemented by the EffectPresets module
     // Just a placeholder for now to avoid errors
-    console.log('🎆 Preset controls setup skipped (to be implemented)');
+    logger.debug('🎆 Preset controls setup skipped (to be implemented)');
   }
   
   /**
@@ -1003,7 +1007,7 @@ class GlitcherApp {
 
       if (controlElement) {
         container.appendChild(controlElement);
-        console.log('✅ Added control for:', paramKey);
+        logger.debug('✅ Added control for:', paramKey);
       } else {
         console.error('❌ Failed to create control for:', paramKey);
       }
@@ -1158,7 +1162,7 @@ class GlitcherApp {
         this.filterOptions.liquify.centerX = x;
         this.filterOptions.liquify.centerY = y;
         
-        console.log(`🎯 Liquify center set to: (${x.toFixed(0)}, ${y.toFixed(0)})`);
+        logger.debug(`🎯 Liquify center set to: (${x.toFixed(0)}, ${y.toFixed(0)})`);
       }
     });
     
@@ -1300,7 +1304,7 @@ class GlitcherApp {
    * Handle filter control changes from dynamic UI
    */
   handleFilterControlChange(filterType, controlId, value) {
-    console.log(`🎛️ Filter control change: ${filterType} - ${controlId} = ${value}`);
+    logger.debug(`🎛️ Filter control change: ${filterType} - ${controlId} = ${value}`);
     
     // Map the control values to filter options
     const paramMap = {
@@ -1425,7 +1429,7 @@ class GlitcherApp {
    * Show/hide filter-specific controls based on selected filter
    */
   showFilterControls(filterType) {
-    console.log('🎨 showFilterControls called with:', filterType);
+    logger.debug('🎨 showFilterControls called with:', filterType);
     
     // Update UI visibility using the filter controls UI system
     FilterControlsUI.updateControlVisibility(filterType);
@@ -1449,7 +1453,7 @@ class GlitcherApp {
         const popArtControls = document.getElementById('pop-art-controls');
         if (popArtControls) {
           popArtControls.style.display = 'block';
-          console.log('  ✅ Showing pop-art-controls');
+          logger.debug('  ✅ Showing pop-art-controls');
         }
         break;
         
@@ -1457,7 +1461,7 @@ class GlitcherApp {
         const vintageControls = document.getElementById('vintage-controls');
         if (vintageControls) {
           vintageControls.style.display = 'block';
-          console.log('  ✅ Showing vintage-controls');
+          logger.debug('  ✅ Showing vintage-controls');
         }
         break;
         
@@ -1466,7 +1470,7 @@ class GlitcherApp {
         if (motionBlurControls) {
           motionBlurControls.style.display = 'block';
           this.showMotionBlurOptions(this.filterOptions.motionBlur.direction);
-          console.log('  ✅ Showing motion-blur-controls');
+          logger.debug('  ✅ Showing motion-blur-controls');
         }
         break;
         
@@ -1474,7 +1478,7 @@ class GlitcherApp {
         const halftoneControls = document.getElementById('halftone-controls');
         if (halftoneControls) {
           halftoneControls.style.display = 'block';
-          console.log('  ✅ Showing halftone-controls');
+          logger.debug('  ✅ Showing halftone-controls');
         }
         break;
         
@@ -1482,7 +1486,7 @@ class GlitcherApp {
         const liquifyControls = document.getElementById('liquify-controls');
         if (liquifyControls) {
           liquifyControls.style.display = 'block';
-          console.log('  ✅ Showing liquify-controls');
+          logger.debug('  ✅ Showing liquify-controls');
         }
         break;
         
@@ -1490,7 +1494,7 @@ class GlitcherApp {
         const colorGradingControls = document.getElementById('color-grading-controls');
         if (colorGradingControls) {
           colorGradingControls.style.display = 'block';
-          console.log('  ✅ Showing color-grading-controls');
+          logger.debug('  ✅ Showing color-grading-controls');
         }
         break;
         
@@ -1498,7 +1502,7 @@ class GlitcherApp {
         const noiseControls = document.getElementById('noise-controls');
         if (noiseControls) {
           noiseControls.style.display = 'block';
-          console.log('  ✅ Showing noise-controls');
+          logger.debug('  ✅ Showing noise-controls');
         }
         break;
         
@@ -1506,8 +1510,8 @@ class GlitcherApp {
         const artisticControls = document.getElementById('artistic-controls');
         if (artisticControls) {
           artisticControls.style.display = 'block';
-          console.log('  ✅ Showing artistic-controls');
-          console.log('  🎨 Filter type:', filterType, 'Base:', baseFilter, 'SubType:', subType);
+          logger.debug('  ✅ Showing artistic-controls');
+          logger.debug('  🎨 Filter type:', filterType, 'Base:', baseFilter, 'SubType:', subType);
           // Update the artistic style-specific controls
           if (subType) {
             this.updateArtisticStyleSpecificUI(subType);
@@ -1521,7 +1525,7 @@ class GlitcherApp {
         const embossControls = document.getElementById('emboss-controls');
         if (embossControls) {
           embossControls.style.display = 'block';
-          console.log('  ✅ Showing emboss-controls');
+          logger.debug('  ✅ Showing emboss-controls');
         }
         break;
         
@@ -1529,7 +1533,7 @@ class GlitcherApp {
         const edgeDetectControls = document.getElementById('edge-detect-controls');
         if (edgeDetectControls) {
           edgeDetectControls.style.display = 'block';
-          console.log('  ✅ Showing edge-detect-controls');
+          logger.debug('  ✅ Showing edge-detect-controls');
         }
         break;
         
@@ -1537,7 +1541,7 @@ class GlitcherApp {
         const vignetteControls = document.getElementById('vignette-controls');
         if (vignetteControls) {
           vignetteControls.style.display = 'block';
-          console.log('  ✅ Showing vignette-controls');
+          logger.debug('  ✅ Showing vignette-controls');
         }
         break;
         
@@ -1545,7 +1549,7 @@ class GlitcherApp {
         const cyberpunkControls = document.getElementById('cyberpunk-controls');
         if (cyberpunkControls) {
           cyberpunkControls.style.display = 'block';
-          console.log('  ✅ Showing cyberpunk-controls');
+          logger.debug('  ✅ Showing cyberpunk-controls');
         }
         break;
         
@@ -1553,7 +1557,7 @@ class GlitcherApp {
         const atmosphericControls = document.getElementById('atmospheric-controls');
         if (atmosphericControls) {
           atmosphericControls.style.display = 'block';
-          console.log('  ✅ Showing atmospheric-controls');
+          logger.debug('  ✅ Showing atmospheric-controls');
         }
         break;
         
@@ -1561,7 +1565,7 @@ class GlitcherApp {
         const experimentalControls = document.getElementById('experimental-controls');
         if (experimentalControls) {
           experimentalControls.style.display = 'block';
-          console.log('  ✅ Showing experimental-controls');
+          logger.debug('  ✅ Showing experimental-controls');
           // Generate the dynamic controls for experimental filters
           this.generateExperimentalControls(filterType, subType);
         }
@@ -1571,16 +1575,16 @@ class GlitcherApp {
         const ditheringControls = document.getElementById('dithering-controls');
         if (ditheringControls) {
           ditheringControls.style.display = 'block';
-          console.log('  ✅ Showing dithering-controls');
+          logger.debug('  ✅ Showing dithering-controls');
         }
         break;
         
       default:
-        console.log('ℹ️ No additional controls needed for:', filterType);
+        logger.debug('ℹ️ No additional controls needed for:', filterType);
         break;
     }
     
-    console.log('✅ showFilterControls completed for:', filterType);
+    logger.debug('✅ showFilterControls completed for:', filterType);
   }
   
   /**
@@ -1618,7 +1622,7 @@ class GlitcherApp {
    * @param {string} styleName - The name of the selected artistic style (e.g., 'oil_painting').
    */
   updateArtisticStyleSpecificUI(styleName) {
-    console.log('🎨 updateArtisticStyleSpecificUI called with style:', styleName);
+    logger.debug('🎨 updateArtisticStyleSpecificUI called with style:', styleName);
     const container = document.getElementById('artistic-style-controls-container');
     if (!container) {
       console.error('❌ artistic-style-controls-container not found!');
@@ -1631,7 +1635,7 @@ class GlitcherApp {
     const paramConfigs = this.artisticParamsConfig[styleName];
     if (!paramConfigs) {
       console.error('❌ No config found for artistic style:', styleName);
-      console.log('Available styles:', Object.keys(this.artisticParamsConfig));
+      logger.debug('Available styles:', Object.keys(this.artisticParamsConfig));
       return;
     }
 
@@ -1640,7 +1644,7 @@ class GlitcherApp {
       this.filterOptions.artisticParams[styleName] = {};
     }
     const targetOptionsObject = this.filterOptions.artisticParams[styleName];
-    console.log('🎯 Creating controls for', Object.keys(paramConfigs).length, 'parameters');
+    logger.debug('🎯 Creating controls for', Object.keys(paramConfigs).length, 'parameters');
 
     for (const paramKey in paramConfigs) {
       const config = paramConfigs[paramKey];
@@ -1885,7 +1889,7 @@ class GlitcherApp {
       container.appendChild(controlElement);
     });
     
-    console.log(`✅ Generated ${controls.length} experimental controls for ${filterType}`);
+    logger.debug(`✅ Generated ${controls.length} experimental controls for ${filterType}`);
   }
 
   /**
@@ -1961,7 +1965,7 @@ class GlitcherApp {
     this.frameCount = 0;
     this.lastFrameTime = 0;
     
-    console.log('🎬 Starting animation with selection system and filter effects...');
+    logger.debug('🎬 Starting animation with selection system and filter effects...');
     this.animate(0);
   }
 
@@ -2309,7 +2313,7 @@ class GlitcherApp {
       }
     }
     
-    console.log(`🎯 Spawned ${this.activeClumps.length} new clumps`);
+    logger.debug(`🎯 Spawned ${this.activeClumps.length} new clumps`);
   }
 
   /**
@@ -2333,7 +2337,7 @@ class GlitcherApp {
     };
     
     this.activeClumps.push(clump);
-    console.log(`🎯 Spawned fallback test clump at (${x}, ${y}) with direction: ${clump.clumpDirection}`);
+    logger.debug(`🎯 Spawned fallback test clump at (${x}, ${y}) with direction: ${clump.clumpDirection}`);
   }
 
   /**
@@ -2342,7 +2346,7 @@ class GlitcherApp {
   togglePlayPause() {
     this.isPaused = !this.isPaused;
     this.updatePlayPauseButton();
-    console.log(this.isPaused ? '⏸️ Paused' : '▶️ Playing');
+    logger.debug(this.isPaused ? '⏸️ Paused' : '▶️ Playing');
   }
 
   /**
@@ -2375,8 +2379,10 @@ class GlitcherApp {
   resetImage() {
     this.canvasManager.resetImage();
     this.activeClumps = [];
+    // Effects accumulate frame by frame, so the readout restarts with the pixels.
+    this.frameCount = 0;
     this.selectionManager.clearSelections();
-    console.log('🔄 Image reset to original state');
+    logger.debug('🔄 Image reset to original state');
   }
 
   /**
@@ -2401,7 +2407,7 @@ class GlitcherApp {
       playPauseSourceBtn.addEventListener('click', () => {
         this.isSourcePlaying = !this.isSourcePlaying;
         playPauseSourceBtn.textContent = this.isSourcePlaying ? 'Pause Source' : 'Play Source';
-        console.log(`🎬 Source animation ${this.isSourcePlaying ? 'playing' : 'paused'}`);
+        logger.debug(`🎬 Source animation ${this.isSourcePlaying ? 'playing' : 'paused'}`);
       });
     }
 
@@ -2414,7 +2420,7 @@ class GlitcherApp {
           this.canvasManager.setCurrentFrame(0);
           this.canvasManager.mediaManager.currentFrame = 0;
           this.canvasManager.updateMediaInfo();
-          console.log('🔄 Source animation reset');
+          logger.debug('🔄 Source animation reset');
         }
       });
     }
@@ -2426,7 +2432,7 @@ class GlitcherApp {
         if (this.frameTimer) {
           this.frameTimer.setPlaybackMode(e.target.value);
           this.canvasManager.mediaManager.playbackMode = e.target.value;
-          console.log(`🔄 Playback mode: ${e.target.value}`);
+          logger.debug(`🔄 Playback mode: ${e.target.value}`);
         }
       });
     }
@@ -2441,7 +2447,7 @@ class GlitcherApp {
         if (this.frameTimer) {
           this.frameTimer.setPlaybackSpeed(this.sourcePlaybackSpeed);
         }
-        console.log(`⏩ Source speed: ${this.sourcePlaybackSpeed}x`);
+        logger.debug(`⏩ Source speed: ${this.sourcePlaybackSpeed}x`);
       });
     }
 
@@ -2462,7 +2468,7 @@ class GlitcherApp {
         } else {
           this.canvasManager.feedbackBuffer = null;
         }
-        console.log(`🌀 Feedback buffer: ${this.canvasManager.feedbackEnabled ? 'ON' : 'OFF'}`);
+        logger.debug(`🌀 Feedback buffer: ${this.canvasManager.feedbackEnabled ? 'ON' : 'OFF'}`);
       });
     }
 

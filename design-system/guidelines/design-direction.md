@@ -38,7 +38,7 @@ These already exist and are the honest starting points — don't invent a palett
 
 **Cel-pastel theme** (`static/synthograsizer/css/cel-pastel-theme.css`) — 1990s animation pastels with navy-ink outlines and offset "sticker" shadows. This is the *loudest* pastel reference; borrow its warmth and the 8-pastel palette (bubblegum `#ffb6c8`, peach `#ffcb9a`, butter `#ffe79e`, mint `#b8e8c8`, sky `#b6dafd`, periwinkle `#c4c8f0`, lilac `#dbb8ec`, cherry `#ef7a7a`) over paper `#fff5e0` with ink `#1d2233`. Pull the coziness and palette; the heavy ink-outline "sticker" styling is optional — lean lighter/flatter for the "minimalist lo-fi" read.
 
-**Glitcher v2** (`static/glitcher/v2.html`) — an existing unlinked cream-toned alternate layout; a reference for a lighter Glitcher.
+**Glitcher v2** (`static/glitcher/v2.html`) — a cream-toned alternate layout, embedded in Synthograsizer via `glitcher-studio.js`; a reference for a lighter Glitcher.
 
 ### How this relates to the components in this DS
 The components here already carry the **warm-cream, teal-forward** identity by default (the tokens resolve to the light values; `data-theme="dark"` flips them to the suite's dark palette). Keep the component **structure and ergonomics** — panels, field rows, state chips, cards, meters, the two-column app shell — and lean the palette further toward the pastel seeds above where a surface wants more warmth or character. This light identity is a design-system decision layered on top of the app's still-dark real CSS; when a pastel skin lands in the repo as real CSS, a re-sync will reconcile the two.
