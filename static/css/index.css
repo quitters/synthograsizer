@@ -2,7 +2,7 @@
   color-scheme:light;
   --paper:#f8f7f2;
   --ink:#213f35;
-  --muted:#65716a;
+  --muted:#616d66;
   --line:#dcded4;
   --green:#284f3e;
   --sage:#e8ede2;
@@ -138,7 +138,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible{
   background:#183b2a
 }
 .button-outline{
-  border-color:#aeb9a8
+  border-color:#889083
 }
 .button-outline:hover{
   background:#e8ece3
@@ -355,7 +355,7 @@ canvas{
   display:flex;
   justify-content:space-between;
   font-size:9px;
-  color:#72796c;
+  color:#676d61;
   margin:10px 0 0;
   gap:12px
 }
@@ -379,7 +379,7 @@ canvas{
 .capabilities i{
   font-style:normal;
   padding:0 18px;
-  color:#8c9786
+  color:#6a7366
 }
 .commons{
   margin-top:60px;
@@ -443,7 +443,7 @@ canvas{
 .illustration-label{
   margin-left:auto;
   font-size:7px;
-  color:#737e69
+  color:#68725f
 }
 .shared-art canvas{
   height:220px
@@ -509,7 +509,7 @@ canvas{
 }
 .participant div>span{
   font-size:7px;
-  color:#6d7967;
+  color:#687462;
   display:block
 }
 .mini-control{
@@ -780,7 +780,7 @@ canvas{
 }
 .process li>span{
   font:11px var(--mono);
-  color:#8a957d;
+  color:#6a7360;
   padding-top:6px
 }
 .process h3{
@@ -833,7 +833,7 @@ footer nav{
 .footer-mark{
   font:8px var(--mono);
   letter-spacing:1px;
-  color:#7f8878
+  color:#6b7265
 }
 @media(min-width:1500px){
   .hero{
