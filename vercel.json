@@ -5,5 +5,8 @@
       "source": "/(.*)",
       "destination": "https://synthograsizer-679278101913.northamerica-northeast1.run.app/$1"
     }
-  ]
+  ],
+  "github": {
+    "silent": true
+  }
 }

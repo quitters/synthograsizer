@@ -110,6 +110,34 @@ gcloud run services update synthograsizer --region northamerica-northeast1 \
 Optional tuning in the same call: `SYNTH_STORAGE_QUOTA_MB` (default 200), `SYNTH_SIGNED_URL_TTL_S`
 (default 600, seconds a "View" link stays valid).
 
+## 2d · What Vercel does, and what its previews are not
+
+Vercel is a **pure proxy**. `vercel.json` rewrites `/(.*)` to the Cloud Run service
+and nothing else; there is no build step and no output directory, and the repo's
+static files live at `static/`, not at the root Vercel would serve from. So every
+path -- pages, CSS, JS, `/api` -- falls through the filesystem check and is served
+by the Cloud Run image. Cloud Run is the single source of truth for the site.
+
+Two consequences, both of which have already misled a reader:
+
+- **A Vercel preview deployment shows production, not the branch.** The preview
+  has the same rewrite, so it proxies to the same live service. A green Vercel
+  check on a pull request means "the proxy shell deployed", never "these changes
+  look right". Review branch UI by serving `static/` locally
+  (`python -m http.server 8765 --directory static`) or by running the app.
+- **`gcloud run deploy` is the whole deploy.** There is no second step on Vercel,
+  and redeploying Vercel does not ship a code change.
+
+`github.silent` is set so Vercel stops commenting its preview links on pull
+requests. The status checks themselves are a project-level setting: to stop
+preview deployments entirely, turn them off in the Vercel dashboard
+(Project → Settings → Git → Ignored Build Step / Preview Deployments).
+
+If branch previews are ever actually wanted, the change that fits this
+architecture is a **second Cloud Run service** as staging, not moving static
+hosting to Vercel -- that would split the site across two sources of truth that
+can drift, and quietly turn this runbook into two deploys instead of one.
+
 ## 3 · One-time: OAuth origin
 Console → Google Auth Platform → Clients → **Synthograsizer Web** → add the service URL to
 **Authorized JavaScript origins**. (Takes 5 min–few hours to propagate. ✓ run.app origin added
