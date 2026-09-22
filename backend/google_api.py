@@ -505,7 +505,14 @@ def gen_image(client, model: str, blocks: List[Dict[str, Any]], *,
     # Ignored today, HTTP 400 later — see models/requests.py for the reasoning.
 
     modalities = [m.lower() for m in (response_modalities or ["image"])]
-    tools = [{"type": "google_search"}] if use_google_search else None
+    # Grounding an image generation pays off most when the model can pull real
+    # reference images rather than recalling a style from memory, so ask for
+    # image_search alongside web_search. Interactions-only: the legacy
+    # types.GoogleSearch has no search_types field, and _legacy_gen_image
+    # keeps plain web grounding there.
+    tools = ([{"type": "google_search",
+               "search_types": ["web_search", "image_search"]}]
+             if use_google_search else None)
 
     request = dict(
         model=model,
