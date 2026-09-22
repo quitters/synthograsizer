@@ -319,27 +319,33 @@ def test_a_failed_panel_still_ships_the_sketch_at_the_same_charge(gemini_configu
 
 
 def test_a_slow_panel_is_abandoned_not_waited_for(gemini_configured, monkeypatch):
-    import time
+    """Proved by the panel call still being in flight when the sketch comes
+    back, not by a stopwatch: a wall-clock threshold is the one thing in this
+    file that a loaded CI box or a suspended laptop can fail on its own."""
+    import threading
     monkeypatch.setattr(thecommons_ui, "PANEL_TIMEOUT_S", 0.05)
+    release, answered = threading.Event(), threading.Event()
 
-    def slow_panel(client, model, blocks, **kwargs):
+    def blocking_panel(client, model, blocks, **kwargs):
         if kwargs.get("system_instruction") == PANEL_PROMPT:
-            time.sleep(0.5)
+            release.wait(5)  # a safety valve, never reached on the intended path
+            answered.set()
             return PANEL_ANSWER
         return VALID_SKETCH_JSON
 
-    monkeypatch.setattr(google_api, "gen_text", slow_panel)
+    monkeypatch.setattr(google_api, "gen_text", blocking_panel)
 
-    async def timed():
-        # Timed inside the loop: asyncio.run() itself waits for the abandoned
-        # worker thread on the way out, which a long-running server never does.
-        started = time.monotonic()
+    async def body():
         sketch = await gen.generate_sketch("swirling colors")
-        return sketch, time.monotonic() - started
+        abandoned = not answered.is_set()
+        # Released inside the loop: asyncio.run() joins the abandoned worker
+        # thread on the way out, which a long-running server never does.
+        release.set()
+        return sketch, abandoned
 
-    sketch, elapsed = asyncio.run(timed())
+    sketch, abandoned = asyncio.run(body())
+    assert abandoned, "generate_sketch waited for the panel call instead of abandoning it"
     assert sketch["generation"]["panel"] == "default"
-    assert elapsed < 0.45
 
 
 def test_no_panel_call_for_a_fallback(gemini_configured, monkeypatch):
