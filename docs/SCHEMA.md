@@ -1594,12 +1594,12 @@ From `backend/config.py`:
 
 | Constant | Model ID | Usage |
 |----------|----------|-------|
-| `MODEL_TEXT_CHAT` | `gemini-3.6-flash` | Text chat, fast tasks |
+| `MODEL_TEXT_CHAT` | `gemini-3.1-pro-preview` | Text chat (Pro for quality) |
 | `MODEL_IMAGE_GEN_FAST` | `gemini-2.5-flash-image` | Fast image generation |
-| `MODEL_IMAGE_GEN_NB2` | `gemini-3.1-flash-image-preview` | Newer image gen |
-| `MODEL_IMAGE_GEN_HQ` | `gemini-3-pro-image-preview` | High-quality image gen |
+| `MODEL_IMAGE_GEN_NB2` | `gemini-3.1-flash-image` | Newer image gen |
+| `MODEL_IMAGE_GEN_HQ` | `gemini-3-pro-image` | High-quality image gen |
 | `MODEL_VIDEO_GEN` | `veo-3.1-generate-preview` | Video generation |
-| `MODEL_ANALYSIS` | `gemini-3.6-flash` | Image analysis |
+| `MODEL_ANALYSIS_QUICK` | `gemini-3.6-flash` | Image analysis (= `MODEL_FAST`) |
 | `MODEL_TEMPLATE_GEN` | `gemini-3.1-pro-preview` | Template generation (Pro for quality) |
 | `MODEL_FAST` | `gemini-3.6-flash` | Narrative, variations, lightweight tasks |
 

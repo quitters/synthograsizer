@@ -44,11 +44,17 @@ def get_api_key() -> str | None:
 # Single source of truth — change model versions here, not in ai_manager.py.
 MODEL_TEXT_CHAT = "gemini-3.1-pro-preview"
 MODEL_IMAGE_GEN_FAST = "gemini-2.5-flash-image"
-MODEL_IMAGE_GEN_NB2 = "gemini-3.1-flash-image-preview"
-MODEL_IMAGE_GEN_HQ = "gemini-3-pro-image-preview"
+# Moved off the `-preview` ids on 2026-09-22: Google shut both preview
+# endpoints down on 2026-06-25 and these are the GA ids that replaced them
+# (same models -- Nano Banana 2 and Nano Banana Pro -- just promoted out of
+# preview). Nothing remaps a retired id on the way out: the only remap we have
+# is gemini-2.0-flash-exp in routers/generation.py, so a dead id here went
+# straight to the API. IMAGE_MODEL_CREDITS keys off these constants rather
+# than off literals, so the price table followed on its own.
+MODEL_IMAGE_GEN_NB2 = "gemini-3.1-flash-image"
+MODEL_IMAGE_GEN_HQ = "gemini-3-pro-image"
 MODEL_VIDEO_GEN = "veo-3.1-generate-preview"
 MODEL_MUSIC_REALTIME = "models/lyria-realtime-exp"
-MODEL_ANALYSIS = "gemini-3.1-pro-preview"
 
 # Template generation (Pro for creative quality)
 MODEL_TEMPLATE_GEN = "gemini-3.1-pro-preview"
@@ -80,20 +86,6 @@ MODEL_DEMO = "gemini-3.6-flash"
 # ⚠ NOT flash text models, despite the name — these are IMAGE models and must
 # never be pointed at MODEL_FAST. gemini-3.6-flash cannot generate images.
 # See MODEL_IMAGE_GEN_* above.
-
-# Registry for UI consumption
-GEMINI_MODELS = {
-    "gemini-3.6-flash": {
-        "name": "Gemini 3.6 Flash",
-        "description": "Fast and efficient for most tasks",
-        "capability": "Vision, Audio, 1M Context"
-    },
-    "gemini-3.1-pro-preview": {
-        "name": "Gemini 3.1 Pro",
-        "description": "Best quality for reasoning and complex analysis",
-        "capability": "Advanced Reasoning, 2M Context"
-    }
-}
 
 # Missing aliases
 MODEL_ANALYSIS_QUICK = MODEL_FAST

@@ -116,18 +116,18 @@ Exact strings from `backend/config.py`. Pass these as the `model` field.
 | Constant | String | Use for |
 |---|---|---|
 | `MODEL_IMAGE_GEN_FAST` | `gemini-2.5-flash-image` | Fast image gen (default of `ImageRequest`) |
-| `MODEL_IMAGE_GEN_NB2` | `gemini-3.1-flash-image-preview` | Image gen, configurable thinking |
-| `MODEL_IMAGE_GEN_HQ` | `gemini-3-pro-image-preview` | Highest-quality image gen (thinking always on) |
+| `MODEL_IMAGE_GEN_NB2` | `gemini-3.1-flash-image` | Image gen, configurable thinking |
+| `MODEL_IMAGE_GEN_HQ` | `gemini-3-pro-image` | Highest-quality image gen (thinking always on) |
 | `MODEL_VIDEO_GEN` | `veo-3.1-generate-preview` | Video (local server only, long-poll) |
-| `MODEL_TEXT_CHAT` / `MODEL_ANALYSIS` / `MODEL_TEMPLATE_GEN` | `gemini-3.1-pro-preview` | Default text/chat, analysis, template gen (quality) |
+| `MODEL_TEXT_CHAT` / `MODEL_TEMPLATE_GEN` | `gemini-3.1-pro-preview` | Default text/chat and template gen (quality) |
 | `MODEL_FAST` / `MODEL_TEMPLATE_GEN_FAST` | `gemini-3.6-flash` | Fast text, narrative, fast template gen |
 | `MODEL_ANALYSIS_QUICK` / `MODEL_NARRATIVE` | `gemini-3.6-flash` | Default of analysis requests (= `MODEL_FAST`) |
 | `MODEL_DEMO` | `gemini-3.6-flash` | Forced when `is_demo: true`. Since the 3.6 Flash migration this is the SAME model as `MODEL_FAST`, so demo mode is a feature cap, not a cost cap. |
 
 Notes:
 - `ImageRequest.model` defaults to `gemini-2.5-flash-image`. For best quality
-  pass `gemini-3-pro-image-preview`; a good middle option is
-  `gemini-3.1-flash-image-preview`.
+  pass `gemini-3-pro-image`; a good middle option is
+  `gemini-3.1-flash-image`.
 - `TextRequest` / `BatchTextRequest` default to `gemini-3.1-pro-preview`. For
   cheap/fast bulk text (e.g. QC verdicts) pass `gemini-3.6-flash`.
 - `AnalyzeRequest` / `BatchAnalyzeRequest` default to `gemini-3.6-flash`.
@@ -171,7 +171,7 @@ is present.
 ```python
 r = requests.post(f"{BASE}/api/generate/image", json={
     "prompt": "a red phone on a bone-cream desk, editorial product photo",
-    "model": "gemini-3-pro-image-preview",
+    "model": "gemini-3-pro-image",
     "aspect_ratio": "9:16",
     "response_modalities": ["Image"],
 }, timeout=180).json()
@@ -205,7 +205,7 @@ Response: `{"status":"success","prompts":[...]}`.
 
 #### `POST /api/generate/smart-transform`
 Image-to-image edit by intent.
-Body (`SmartTransformRequest`): `{"user_intent": str, "input_image": "<b64>", "reference_image": "<b64>?", "model": "gemini-3.1-flash-image-preview", "aspect_ratio": "1:1"}`.
+Body (`SmartTransformRequest`): `{"user_intent": str, "input_image": "<b64>", "reference_image": "<b64>?", "model": "gemini-3.1-flash-image", "aspect_ratio": "1:1"}`.
 Response: `{"status":"success","image":"<b64>","prompt": "..."}`.
 
 #### `POST /api/generate/image-variation-prompts`
@@ -476,7 +476,7 @@ BASE = "http://127.0.0.1:8000"
 
 resp = requests.post(f"{BASE}/api/generate/image", json={
     "prompt": "a single ripe orange on a bone-cream studio backdrop, soft light",
-    "model": "gemini-3-pro-image-preview",
+    "model": "gemini-3-pro-image",
     "aspect_ratio": "1:1",
     "response_modalities": ["Image"],
 }, timeout=180)
@@ -517,7 +517,7 @@ ask a cheap text model for a pass/fail verdict; reroll on fail.
 ```python
 import base64, json, re, requests
 BASE = "http://127.0.0.1:8000"
-IMG_MODEL  = "gemini-3-pro-image-preview"
+IMG_MODEL  = "gemini-3-pro-image"
 TEXT_MODEL = "gemini-3.6-flash"   # cheap, for QC verdicts
 
 template = {

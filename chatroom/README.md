@@ -106,7 +106,7 @@ ChatRoom/
 - Node.js 20+
 - Google Gemini API key with access to:
   - `gemini-3.1-pro-preview` (text generation, search/URL tools)
-  - `gemini-3-pro-image-preview` (image analysis; generation delegates to the Synthograsizer backend)
+  - `gemini-3-pro-image` (image analysis; generation delegates to the Synthograsizer backend)
 
 ### Setup
 

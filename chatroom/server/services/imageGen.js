@@ -2,7 +2,7 @@ import { GoogleGenAI } from '@google/genai';
 import sharp from 'sharp';
 import { synthClient } from 'workflow-engine';
 
-const IMAGE_MODEL = 'gemini-3-pro-image-preview';
+const IMAGE_MODEL = 'gemini-3-pro-image';
 
 /**
  * Ensure image data is PNG regardless of what Gemini returned.
@@ -176,7 +176,7 @@ export async function generateImageWithReferences(prompt, referenceImages = [], 
     // Use synthClient which routes to the fastAPI backend and embeds metadata cleanly
     const result = await synthClient._post('/api/generate/image', {
       prompt,
-      model: 'gemini-3-pro-image-preview',
+      model: 'gemini-3-pro-image',
       input_images: imageList,
       temperature: options.temperature || 1.0,
       top_p: options.topP || 0.95

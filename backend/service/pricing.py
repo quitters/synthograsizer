@@ -30,7 +30,7 @@ TEXT_MODEL_CREDITS = {
     # That is intended — both were priced at 1 credit, so nothing is lost — but
     # it does mean demo mode no longer costs less than a normal fast call.
     config.MODEL_TEMPLATE_GEN_FAST: 1,  # gemini 3.6 flash (== MODEL_FAST == MODEL_DEMO)
-    config.MODEL_TEXT_CHAT: 5,          # gemini pro (== MODEL_TEMPLATE_GEN / MODEL_ANALYSIS)
+    config.MODEL_TEXT_CHAT: 5,          # gemini pro (== MODEL_TEMPLATE_GEN)
     # gemini 3.8 flash (== MODEL_COMMONS_SKETCH == MODEL_COMMONS_PANEL), at its
     # STANDARD rate ($1.50 in / $7.50 out per 1M, from 2027-01-01), not the
     # introductory half price. A Commons sketch call at "medium" thinking
