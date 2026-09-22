@@ -933,7 +933,7 @@ class StudioIntegration {
                 <select id="image-model-select">
                     <option value="gemini-3.1-flash-image">Gemini 3.1 Flash (NB2)</option>
                     <option value="gemini-3-pro-image">Gemini 3 Pro (NB Pro)</option>
-                    <option value="gemini-2.5-flash-image">Gemini 2.5 Flash (NB)</option>
+                    <option value="gemini-3.1-flash-lite-image">Gemini 3.1 Flash Lite (NB2 Lite)</option>
                 </select>
             </div>
             <div class="studio-input-group">
@@ -1070,7 +1070,7 @@ class StudioIntegration {
                 <div class="studio-input-group">
                     <label>Model</label>
                     <select id="st-model-select">
-                        <option value="gemini-2.5-flash-image" selected>Gemini 2.5 Flash (NB)</option>
+                        <option value="gemini-3.1-flash-lite-image" selected>Gemini 3.1 Flash Lite (NB2 Lite)</option>
                         <option value="gemini-3.1-flash-image">Gemini 3.1 Flash (NB2)</option>
                         <option value="gemini-3-pro-image">Gemini 3 Pro (NB Pro)</option>
                     </select>

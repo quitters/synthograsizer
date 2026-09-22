@@ -43,7 +43,15 @@ def get_api_key() -> str | None:
 # ── Google GenAI Model Names ──
 # Single source of truth — change model versions here, not in ai_manager.py.
 MODEL_TEXT_CHAT = "gemini-3.1-pro-preview"
-MODEL_IMAGE_GEN_FAST = "gemini-2.5-flash-image"
+# Moved off gemini-2.5-flash-image on 2026-09-22. That id still works, but
+# it is a legacy model with access restricted for new projects, so the cheap
+# tier was one policy change from having no model. This is its GA successor
+# in the same niche (Nano Banana 2 Lite) and is cheaper: $0.0336 per 1K
+# image standard, against 2.5 Flash Image's $0.039. IMAGE_MODEL_CREDITS
+# stays at 4 (= $0.04), which still covers it and still over-reserves
+# slightly -- the trade pricing.py takes everywhere, since it can never
+# under-charge. Worth lowering to 3 if a measured batch supports it.
+MODEL_IMAGE_GEN_FAST = "gemini-3.1-flash-lite-image"
 # Moved off the `-preview` ids on 2026-09-22: Google shut both preview
 # endpoints down on 2026-06-25 and these are the GA ids that replaced them
 # (same models -- Nano Banana 2 and Nano Banana Pro -- just promoted out of

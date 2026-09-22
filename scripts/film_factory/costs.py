@@ -16,7 +16,7 @@ RATES = {
     "veo-3.1-fast-generate-preview": (0.15, "sec"),
     "gemini-3-pro-image": (0.15, "image"),
     "gemini-3.1-flash-image": (0.05, "image"),
-    "gemini-2.5-flash-image": (0.04, "image"),
+    "gemini-3.1-flash-lite-image": (0.035, "image"),
     # text calls: flat per-call estimates (they are rounding errors here)
     "gemini-3.1-pro-preview": (0.05, "call"),
     "gemini-3-flash-preview": (0.005, "call"),

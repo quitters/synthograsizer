@@ -115,7 +115,7 @@ Exact strings from `backend/config.py`. Pass these as the `model` field.
 
 | Constant | String | Use for |
 |---|---|---|
-| `MODEL_IMAGE_GEN_FAST` | `gemini-2.5-flash-image` | Fast image gen (default of `ImageRequest`) |
+| `MODEL_IMAGE_GEN_FAST` | `gemini-3.1-flash-lite-image` | Fast image gen (default of `ImageRequest`) |
 | `MODEL_IMAGE_GEN_NB2` | `gemini-3.1-flash-image` | Image gen, configurable thinking |
 | `MODEL_IMAGE_GEN_HQ` | `gemini-3-pro-image` | Highest-quality image gen (thinking always on) |
 | `MODEL_VIDEO_GEN` | `veo-3.1-generate-preview` | Video (local server only, long-poll) |
@@ -125,7 +125,7 @@ Exact strings from `backend/config.py`. Pass these as the `model` field.
 | `MODEL_DEMO` | `gemini-3.6-flash` | Forced when `is_demo: true`. Since the 3.6 Flash migration this is the SAME model as `MODEL_FAST`, so demo mode is a feature cap, not a cost cap. |
 
 Notes:
-- `ImageRequest.model` defaults to `gemini-2.5-flash-image`. For best quality
+- `ImageRequest.model` defaults to `gemini-3.1-flash-lite-image`. For best quality
   pass `gemini-3-pro-image`; a good middle option is
   `gemini-3.1-flash-image`.
 - `TextRequest` / `BatchTextRequest` default to `gemini-3.1-pro-preview`. For
@@ -152,7 +152,7 @@ Body (`ImageRequest`) — key fields:
 | field | type | default | notes |
 |---|---|---|---|
 | `prompt` | str | — | required |
-| `model` | str | `gemini-2.5-flash-image` | see model table |
+| `model` | str | `gemini-3.1-flash-lite-image` | see model table |
 | `aspect_ratio` | str | `"1:1"` | e.g. `"9:16"`, `"16:9"`, `"21:9"`, `"4:5"`, `"auto"` |
 | `negative_prompt` | str? | null | |
 | `input_images` | list[str]? | null | base64 reference images (image-to-image) |
