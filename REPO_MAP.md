@@ -268,7 +268,7 @@ what makes the `overnight*.py` drivers and the UI's **Resume** button safe.
 
 | Path | Purpose |
 |------|---------|
-| `tests/` | Pytest suite — backend only. Delegation + helpers, plus the tier system: `test_policy.py` (tier/hosted/safety precedence), `test_openai_compat.py` (local provider incl. the no-safety-params contract), `test_llm_router.py`, `test_system_config.py`, `test_feedback.py`, `test_google_api.py` (Interactions/legacy dispatch, store=False, thought-guard). Live smoke: `scripts/verify_interactions.py` |
+| `tests/` | Pytest suite — backend only. Delegation + helpers, plus the tier system: `test_policy.py` (tier/hosted/safety precedence), `test_openai_compat.py` (local provider incl. the no-safety-params contract), `test_llm_router.py`, `test_system_config.py`, `test_feedback.py`, `test_google_api.py` (Interactions/legacy dispatch, store=False, thought-guard). Live smoke: `scripts/verify_interactions.py`. **`tests/conftest.py` keeps each module's top-level `client` entered for the whole module** and drains outstanding Commons jobs between tests — `thecommons_jobs.start` dispatches work as a bare `asyncio.create_task`, and an un-entered TestClient tears its loop down per request, cancelling that task mid-flight. Asserting on a *finished* job still needs `drain_commons_jobs(client)` first. |
 | `requirements.txt` | Python deps |
 | `start.bat` / `launch-all.bat` | Windows launchers |
 | `.github/` | Issue/PR templates + `workflows/lint.yml` |
