@@ -564,6 +564,17 @@ with `last_event_id` after the 600-second connection timeout.
 
 ### 4.6 Grounded image generation
 
+> **Status: image-search grounding shipped 2026-09-22 (CHANGELOG 2.1.0).**
+> A grounded image call asks for `search_types: ['web_search', 'image_search']`
+> on the Interactions path, so references come from real image results rather
+> than recollection. Covered in tests/test_google_api.py.
+>
+> **Not built:** the richer composition interface below — 10 object + 4
+> character-consistency + 3 style slots. That is a typed replacement for a flat
+> `input_images` list and touches the request model, the routers, the chat
+> room and the UI, so it is its own piece of work rather than a rider on this.
+
+
 `gemini-3.1-flash-image` supports Google Search grounding including image search:
 
 ```js
@@ -612,7 +623,8 @@ turn-taking negotiation between the live human and the autonomous agent loop. Wo
 
 ### 4.8 Managed agents (Antigravity) — the exploratory one
 
-> **Status: assessed, deliberately NOT built (2026-09-12).**
+> **Status: assessed, deliberately NOT built (2026-09-12); confirmed closed
+> 2026-09-22 — Alexander's call, as it has no relevance to what the suite does.**
 >
 > `ai.agents` (create / list / get / delete) exists in `@google/genai` 2.10.0, and the SDK
 > itself prints *"Agents usage is experimental and may change in future versions"* on the
@@ -647,15 +659,13 @@ public preview. Treat as a spike, not a roadmap item. Up to 1,000 managed agents
 
 ## 5. Compliance and correctness items found along the way
 
-1. **Google Search display requirements.** The `google_search_result` step returns
-   `search_suggestions` as an HTML snippet, and the Grounding-with-Google-Search terms require it to
-   be rendered. `tools.js` reads annotations and search queries but discards `search_suggestions`,
-   and the client never renders it. Worth reading the current ToS text and, if it still requires
-   display, adding it to `ChatMessage.jsx`'s source chips.
-2. **Search billing changed shape.** On Gemini 3.x, grounding bills **per search query the model
-   executes**, not per prompt — multiple queries in one call are multiple billable units, at $14 per
-   1,000 after the free 5,000/month. An autonomous agent loop with an unrestricted search tool can
-   run that up quickly. Add a per-session search counter alongside the token meter.
+1. ~~**Google Search display requirements.**~~ **DONE 2026-09-22 (CHANGELOG 2.1.0).**
+   `search_suggestions` is carried through `runToolInteraction`, `webSearch`, `research` and
+   `formatToolResults`, and rendered by `ChatMessage.jsx`. Pinned by tests/grounding.test.js.
+2. ~~**Search billing changed shape.**~~ **DONE 2026-09-22 (CHANGELOG 2.1.0).**
+   Grounding bills per query executed, not per prompt, at $14 per 1,000 after the free
+   5,000/month. `createEmptyUsage` carries `searchQueries`, the orchestrator counts queries
+   (not tool calls) off each tool result, and `TokenMeter` shows them beside the token rows.
 3. **`countTokens` is on the wrong client surface.** The pre-flight counter is
    `client.models.countTokens({ model, contents })` — still the `models` namespace, not
    `interactions`. Fine, but don't expect a symmetrical API.
@@ -674,7 +684,7 @@ public preview. Treat as a spike, not a roadmap item. Up to 1,000 managed agents
 | ~~**5**~~ | ~~Structured output for speaker selection + consensus; code execution tool~~ **— shipped 2026-09-12 (off by default), see CHANGELOG 1.7.0.** Augments the heuristics rather than replacing them | 1–2 days | Low |
 | ~~**6**~~ | ~~Per-agent voices + multi-speaker TTS session export~~ **— shipped 2026-09-12, CHANGELOG 1.8.0. Verified against the live API.** Per-run single-speaker, not multi-speaker (caps at 2) | 2–3 days | Low. Self-contained, high delight |
 | ~~**7**~~ | ~~Deep Research agent on the existing background-workflow channel~~ **— shipped 2026-09-12 (off by default), CHANGELOG 1.9.0. Capped server-side at 2 tasks/session** | 1–2 days | Low code risk, **real cost risk** — needs caps |
-| **8** | Spikes: Live API voice seat; Antigravity managed agents | open-ended | High |
+| **8** | Spikes: Live API voice seat; ~~Antigravity managed agents~~ | open-ended | High |
 | | **Live API: server half shipped 2026-09-12 (CHANGELOG 1.10.0) and verified — ephemeral token brokering. Browser audio pipeline NOT built.** Antigravity NOT built; assessment below. | | |
 
 Phases 0 and 1 are worth doing regardless of whether anything else happens: they're cheap, they
@@ -689,10 +699,15 @@ reduce spend immediately, and phase 1 is the safety net for all the rest.
    removed from the README, ARCHITECTURE and `.env.example`. **If the hosted tier's marketing
    copy repeats that promise anywhere outside `chatroom/`, it needs the same correction** —
    this sweep only covered the chat room.
-2. **Is the artifact panel staying JS/HTML-first?** If so, code execution is verification-only and
-   managed agents are the only route to "the agent actually runs the thing."
-3. **What's the monthly ceiling on this room?** Deep Research at $1–3/task and grounded search at
-   $14/1,000 queries change the design (hard caps vs. soft warnings) depending on the answer.
+2. **Is the artifact panel staying JS/HTML-first?** If so, code execution is verification-only.
+   Managed agents were the other route and are now closed — see §4.8, declined 2026-09-22 as
+   having no fit with what the room does.
+3. ~~**What's the monthly ceiling on this room?**~~ **ANSWERED 2026-09-22: not the constraint.**
+   The spend runs against a grant expiring 2026-10-31, so the features that were waiting on a
+   budget answer are on by default (§6, CHANGELOG 2.1.0). Caps were kept anyway — the Deep
+   Research per-session ceiling went 2 → 10 rather than away — because their job is to stop an
+   unattended loop, not to economise. **This answer expires with the grant:** revisit every
+   default turned on here before the room runs on money that has to be earned.
 4. ~~**Cross-session agent memory — wanted, or scope creep?**~~ **ANSWERED 2026-09-12: wanted.**
    Shipped behind `CROSS_SESSION_MEMORY=true` — see §4.1. Note the store grows without bound;
    `GET`/`DELETE /api/chat/memory` are the only way to see or clear it.

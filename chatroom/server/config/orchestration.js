@@ -26,7 +26,7 @@
  * back to the heuristic path that ships today.
  */
 
-export const SMART_ORCHESTRATION = process.env.SMART_ORCHESTRATION === 'true';
+export const SMART_ORCHESTRATION = process.env.SMART_ORCHESTRATION !== 'false';
 
 export const isSmartOrchestrationEnabled = () => SMART_ORCHESTRATION;
 

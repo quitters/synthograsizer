@@ -12,11 +12,13 @@
  * With it, the file is uploaded and indexed ONCE and turns carry only the
  * chunks a query actually retrieves, with citations.
  *
- * Off by default: indexing costs embedding tokens, and a store is remote
- * state with a project-wide quota behind it (1 GB free, 10 GB tier 1).
+ * On by default: the truncation it removes is a correctness problem, not a
+ * luxury. Indexing costs embedding tokens and a store is remote state with a
+ * project-wide quota behind it (1 GB free, 10 GB tier 1), so FILE_SEARCH=false
+ * turns it off and listOrphanedStores exists to find what was left behind.
  */
 
-export const FILE_SEARCH_ENABLED = process.env.FILE_SEARCH === 'true';
+export const FILE_SEARCH_ENABLED = process.env.FILE_SEARCH !== 'false';
 
 export const isFileSearchEnabled = () => FILE_SEARCH_ENABLED;
 
@@ -33,8 +35,12 @@ export const isFileSearchEnabled = () => FILE_SEARCH_ENABLED;
  * the memory routes for inspecting and clearing it.
  *
  * Requires FILE_SEARCH=true; the memory store uses the same machinery.
+ *
+ * On by default, because an amnesiac room was the complaint this answers.
+ * The store grows without bound: GET/DELETE /api/chat/memory are the only way
+ * to see or clear it, and CROSS_SESSION_MEMORY=false stops new archiving.
  */
-export const CROSS_SESSION_MEMORY = process.env.CROSS_SESSION_MEMORY === 'true';
+export const CROSS_SESSION_MEMORY = process.env.CROSS_SESSION_MEMORY !== 'false';
 
 export const isCrossSessionMemoryEnabled = () =>
   FILE_SEARCH_ENABLED && CROSS_SESSION_MEMORY;

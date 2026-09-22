@@ -2,6 +2,50 @@
 
 All notable changes to the Agent Chat Room project are documented in this file.
 
+## [2.1.0] - 2026-09-22
+
+Closes the compliance and cost-visibility items the plan flagged in §5, adds
+image-search grounding (§4.6), and turns on the phases that were waiting on a
+budget decision.
+
+### Added: Search Suggestions are displayed (§5.1)
+Grounding with Google Search requires the `search_suggestions` snippet
+returned with a `google_search_result` step to be shown alongside the results
+it grounded. `tools.js` parsed past it and the client never rendered it. It is
+now carried through `webSearch`, `research` and `formatToolResults`, and
+rendered by `ChatMessage`. It is the one place in that component that injects
+HTML rather than escaping it; the markup comes from the API response.
+
+### Added: per-session search meter (§5.2)
+On Gemini 3.x, grounding bills **per query the model executes**, not per
+prompt, so one tool call can be several billable units and the token meter
+cannot show it. `TokenMeter` now reports searches beside the token rows,
+counting queries rather than tool calls.
+
+### Added: image-search grounding for image generation (§4.6)
+A grounded image call now asks for `search_types: ['web_search',
+'image_search']`, so the model composes from real reference images instead of
+recalling a style. Interactions path only — `types.GoogleSearch` in the legacy
+path has no equivalent field. An ungrounded call still sends no tools.
+
+### Changed: defaults opened up
+File Search, cross-session memory, smart orchestration and Deep Research now
+default **on**; each takes `=false` to opt out. The Deep Research per-session
+cap moves from 2 to 10 — still a ceiling so an unattended room cannot loop on
+a $1–3 tool forever, just not a frugal one.
+
+Two flags stay off deliberately. `TOOL_MODE=functions` changes how every tool
+call is parsed and the plan asks for a real session to evaluate it, which is a
+correctness question rather than a cost one. `LIVE_API` mints spend against
+the operator key for a browser audio pipeline that does not exist yet.
+
+### Fixed: a Commons sketch is priced by workload, not model id
+The 3.8 Flash standardisation made `MODEL_FAST` and `MODEL_COMMONS_SKETCH` the
+same id, which would have collapsed two `TEXT_MODEL_CREDITS` keys and charged
+every fast, demo and template call 5 credits instead of 1. The sketch rate
+moved to `COMMONS_SKETCH_CREDITS_PER_CALL`, charged through the
+`commons_sketch` action. A sketch still costs 10; a 3.8 chat turn costs 1.
+
 ## [2.0.0] - 2026-09
 
 Two product decisions, both Alexander's call, both closing questions left
