@@ -20,7 +20,7 @@ from backend.service import db as service_db
 from backend.service import thecommons_relay
 from backend.service import thecommons_jobs
 
-from tests.conftest import commons_job_loop, drain_commons_jobs
+from tests.conftest import drain_commons_jobs
 from tests.test_service_auth import _fake_user
 from tests.test_service_credits import CLIENT_ID
 from tests.test_thecommons_rooms import FakeCommonsPool
@@ -67,20 +67,6 @@ def reset_registries(monkeypatch):
     thecommons_relay._relays.clear()
     thecommons_relay._creation_locks.clear()
     thecommons_jobs._start_locks.clear()
-
-
-@pytest.fixture(autouse=True)
-def job_loop(monkeypatch):
-    """One event loop per test, draining the jobs it started before that loop
-    goes away — see tests/conftest.py. Without it a job dispatched by a 202
-    is cancelled as its own request's loop shuts down, so it never leaves
-    'generating' and _poll_job below times out.
-
-    Takes `monkeypatch` so it tears down first, while genai_client is still
-    forced to None and no in-flight job can reach a real provider.
-    """
-    with commons_job_loop(client):
-        yield
 
 
 def _multi_sign_in(monkeypatch, users_by_token: dict):

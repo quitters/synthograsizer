@@ -20,7 +20,7 @@ from backend.ai_manager import ai_manager
 from backend.service import db as service_db
 from backend.service import thecommons_relay, thecommons_jobs
 
-from tests.conftest import commons_job_loop, drain_commons_jobs
+from tests.conftest import drain_commons_jobs
 from tests.test_service_auth import _fake_user
 from tests.test_service_credits import CLIENT_ID, _sign_in
 from tests.test_thecommons_rooms import FakeCommonsPool
@@ -70,20 +70,6 @@ def reset_registries():
     thecommons_relay._relays.clear()
     thecommons_relay._creation_locks.clear()
     thecommons_jobs._start_locks.clear()
-
-
-@pytest.fixture(autouse=True)
-def job_loop(monkeypatch):
-    """One event loop per test, with every job it started drained before the
-    loop goes away — see tests/conftest.py for why a per-request loop makes
-    these assertions race the cancellation of their own job.
-
-    Takes `monkeypatch` so it is set up after it and therefore torn down
-    *before* it: the drain has to run while gen_text and genai_client are
-    still stubbed, or a job still in flight would reach the real provider.
-    """
-    with commons_job_loop(client):
-        yield
 
 
 def _model_answers(monkeypatch, response=VALID_SKETCH_JSON):
