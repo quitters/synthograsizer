@@ -43,6 +43,13 @@ function createEmptyUsage() {
     /** Turns whose cost came from the API rather than the character estimate. */
     reportedTurns: 0,
     estimatedTurns: 0,
+    /**
+     * Billable Google Search queries. On Gemini 3.x grounding bills per query
+     * the model executes, not per prompt, so one tool call can be several
+     * billable units. Tokens alone will not show that, and an autonomous loop
+     * with an unrestricted search tool is exactly where it runs away.
+     */
+    searchQueries: 0,
   };
 }
 
@@ -1609,6 +1616,7 @@ class ChatOrchestrator {
 
             // Broadcast tool results
             for (const result of toolResults) {
+              this.countSearchQueries(result);
               this.broadcast('tool_result', {
                 agentId: speaker.id,
                 result
@@ -2158,6 +2166,18 @@ class ChatOrchestrator {
     this.usage.cachedTokens  += usage.cachedTokens  || 0;
     this.usage.toolUseTokens += usage.toolUseTokens || 0;
     this.usage.totalTokens   += usage.totalTokens   || 0;
+  }
+
+  /**
+   * Add a tool result's grounding queries to the session's search meter.
+   * Counts the queries the model actually executed, which is the billable
+   * unit — not the number of tool calls, which understates it.
+   */
+  countSearchQueries(result) {
+    const queries = result?.searchQueries;
+    if (!Array.isArray(queries) || queries.length === 0) return;
+    if (!this.usage) this.usage = createEmptyUsage();
+    this.usage.searchQueries += queries.length;
   }
 
   /**

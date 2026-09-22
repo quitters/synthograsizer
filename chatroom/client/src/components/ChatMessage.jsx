@@ -504,6 +504,18 @@ function ToolResultDetails({ result }) {
           </ul>
         </div>
       )}
+
+      {result.searchSuggestions && (
+        // Grounding with Google Search requires this snippet to be displayed
+        // with the results it grounded, as the markup Google returns — so it
+        // is injected rather than parsed. The HTML comes from the Gemini API
+        // response, not from page content or any user, and it is the only
+        // place in this component that is not escaped.
+        <div
+          className="tool-search-suggestions"
+          dangerouslySetInnerHTML={{ __html: result.searchSuggestions }}
+        />
+      )}
     </div>
   );
 }

@@ -97,6 +97,15 @@ export function TokenMeter({ tokenCount, tokenLimit, turnCount, status, usage })
               {formatNumber(usage.totalTokens)}{isPartlyEstimated ? '+' : ''}
             </span>
           </div>
+          {usage.searchQueries > 0 && (
+            <div
+              className="usage-row usage-search"
+              title="Grounding bills per search query the model runs, not per prompt, so this is counted separately from tokens"
+            >
+              <span className="usage-label">Searches</span>
+              <span className="usage-value">{formatNumber(usage.searchQueries)}</span>
+            </div>
+          )}
         </div>
       )}
     </div>

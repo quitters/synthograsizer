@@ -15,8 +15,8 @@ export { getTemplate, listTemplates, buildWorkflow, listTemplatesForPrompt, list
 
 let genAI = null;
 
-export function initializeTools(apiKey) {
-  genAI = new GoogleGenAI({ apiKey });
+export function initializeTools(apiKey, client = null) {
+  genAI = client || new GoogleGenAI({ apiKey });
 }
 
 /**
@@ -34,6 +34,7 @@ async function runToolInteraction(input, tools) {
   const steps = interaction.steps || [];
   const annotations = [];
   const searchQueries = [];
+  let searchSuggestions = '';
   for (const step of steps) {
     if (step.type === 'model_output') {
       for (const block of step.content || []) {
@@ -43,6 +44,11 @@ async function runToolInteraction(input, tools) {
       }
     } else if (step.type === 'google_search_call') {
       searchQueries.push(...(step.arguments?.queries || []));
+    } else if (step.type === 'google_search_result') {
+      // Grounding with Google Search requires the returned Search Suggestions
+      // to be displayed alongside the results. Carry the snippet through
+      // rather than dropping it; ChatMessage renders it.
+      if (step.search_suggestions) searchSuggestions = step.search_suggestions;
     }
   }
 
@@ -51,6 +57,7 @@ async function runToolInteraction(input, tools) {
     text: interaction.output_text || '',
     annotations,
     searchQueries,
+    searchSuggestions,
     steps,
   };
 }
@@ -70,13 +77,14 @@ export async function webSearch(query) {
   }
 
   try {
-    const { text, annotations, searchQueries, steps } =
+    const { text, annotations, searchQueries, searchSuggestions, steps } =
       await runToolInteraction(query, [{ type: 'google_search' }]);
 
     return {
       text,
       sources: extractSources(annotations),
       searchQueries,
+      searchSuggestions,
       rawMetadata: { annotations, steps },
     };
   } catch (error) {
@@ -214,7 +222,7 @@ export async function research(query) {
   }
 
   try {
-    const { text, annotations, searchQueries, steps } = await runToolInteraction(
+    const { text, annotations, searchQueries, searchSuggestions, steps } = await runToolInteraction(
       query,
       [{ type: 'google_search' }, { type: 'url_context' }]
     );
@@ -225,6 +233,7 @@ export async function research(query) {
       text,
       sources: extractSources(annotations),
       searchQueries,
+      searchSuggestions,
       urlMetadata,
       rawMetadata: { annotations, steps, urlMetadata }
     };
@@ -404,7 +413,8 @@ export function formatToolResults(results) {
           query: result.query,
           summary: result.text,
           sources: result.sources,
-          searchQueries: result.searchQueries
+          searchQueries: result.searchQueries,
+          searchSuggestions: result.searchSuggestions
         };
 
       case 'url':
@@ -419,7 +429,9 @@ export function formatToolResults(results) {
           type: 'research',
           query: result.query,
           summary: result.text,
-          sources: result.sources
+          sources: result.sources,
+          searchQueries: result.searchQueries,
+          searchSuggestions: result.searchSuggestions
         };
 
       default:
