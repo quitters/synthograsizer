@@ -9,7 +9,6 @@ refund for an outcome a user could provoke on purpose.
 """
 
 import json
-import time
 import uuid
 
 import pytest
@@ -21,6 +20,7 @@ from backend.ai_manager import ai_manager
 from backend.service import db as service_db
 from backend.service import thecommons_relay, thecommons_jobs
 
+from tests.conftest import commons_job_loop, drain_commons_jobs
 from tests.test_service_auth import _fake_user
 from tests.test_service_credits import CLIENT_ID, _sign_in
 from tests.test_thecommons_rooms import FakeCommonsPool
@@ -72,6 +72,20 @@ def reset_registries():
     thecommons_jobs._start_locks.clear()
 
 
+@pytest.fixture(autouse=True)
+def job_loop(monkeypatch):
+    """One event loop per test, with every job it started drained before the
+    loop goes away — see tests/conftest.py for why a per-request loop makes
+    these assertions race the cancellation of their own job.
+
+    Takes `monkeypatch` so it is set up after it and therefore torn down
+    *before* it: the drain has to run while gen_text and genai_client are
+    still stubbed, or a job still in flight would reach the real provider.
+    """
+    with commons_job_loop(client):
+        yield
+
+
 def _model_answers(monkeypatch, response=VALID_SKETCH_JSON):
     """Gemini configured and answering — the charge-stands path."""
     monkeypatch.setattr(ai_manager, "genai_client", object())
@@ -89,22 +103,18 @@ def _generate(cookies, room_id, prompt="make something"):
                         cookies=cookies)
 
 
-def _await_settlement(pool, job_id, tries=200, delay=0.05):
-    """Wait for the generations row to reach a settled state.
+def _await_settlement(pool, job_id):
+    """Block until the job has run to completion and its charge is settled.
 
-    Deliberately not "wait for the job to leave 'generating'": the charge is
-    settled in _run_job's finally block, strictly *after* the job row is
-    updated, so polling job status leaves a window where the status is final
-    but the credits aren't settled yet — which flaked exactly once in a full
-    suite run before this waited on the right thing.
+    Waits on the job task itself rather than polling the row: settlement
+    happens in _run_job's finally block, strictly after the job row is
+    updated, so any poll on the row leaves a window where the status is final
+    but the credits are not settled yet.
     """
-    for _ in range(tries):
-        job = pool.room_jobs.get(job_id)
-        gen_id = job and job.get("generation_id")
-        if gen_id and pool.generations[gen_id]["status"] in ("ok", "refunded"):
-            return
-        time.sleep(delay)
-    raise AssertionError("charge never settled")
+    drain_commons_jobs(client)
+    job = pool.room_jobs.get(job_id)
+    gen_id = job and job.get("generation_id")
+    assert gen_id and pool.generations[gen_id]["status"] in ("ok", "refunded"), "charge never settled"
 
 
 def _new_room(cookies, name="Room"):
