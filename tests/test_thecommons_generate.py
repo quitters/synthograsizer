@@ -290,8 +290,12 @@ def test_the_panel_runs_on_its_own_flash_model_at_low_thinking(gemini_configured
     calls = _stub_calls(monkeypatch, [VALID_SKETCH_JSON], panel=PANEL_ANSWER)
     sketch = asyncio.run(gen.generate_sketch("neon drift"))
     assert PANEL_MODEL == config.MODEL_COMMONS_PANEL == "gemini-3.8-flash"
-    # Not the shared fast constant: that one is a price-table key for MODEL_FAST too.
-    assert PANEL_MODEL != config.MODEL_TEMPLATE_GEN_FAST
+    # This used to assert the panel model differed from MODEL_TEMPLATE_GEN_FAST,
+    # because a shared id would have collapsed two price-table keys. The prices
+    # no longer depend on the ids differing — the sketch is charged by its
+    # action, not its model — so that constraint is gone and the invariant it
+    # stood in for is pinned directly in tests/test_pricing.py. The Commons
+    # keeps its own constant so it can move off 3.8 independently.
     assert calls.panel[0]["model"] == "gemini-3.8-flash"
     level = calls.panel[0]["generation_config"]["thinking_level"]
     assert level == "low"

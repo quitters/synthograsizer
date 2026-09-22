@@ -24,20 +24,18 @@ class InvalidModel(ValueError):
 
 
 # ── per-model credit prices (per call / per image) ─────────────────────────
+# Keyed by model id. Constants that share an id collapse to one entry, so no
+# price may depend on two constants being different models — see
+# COMMONS_SKETCH_CREDITS_PER_CALL for the workload that used to.
 TEXT_MODEL_CREDITS = {
-    # ⚠ One key where there were two: since the 3.6 Flash migration MODEL_DEMO and
-    # MODEL_TEMPLATE_GEN_FAST are the SAME model id, so this literal collapses.
-    # That is intended — both were priced at 1 credit, so nothing is lost — but
-    # it does mean demo mode no longer costs less than a normal fast call.
-    config.MODEL_TEMPLATE_GEN_FAST: 1,  # gemini 3.6 flash (== MODEL_FAST == MODEL_DEMO)
+    # gemini 3.8 flash. Every non-Pro text constant is this one id since the
+    # 3.8 standardisation: MODEL_FAST, MODEL_DEMO, MODEL_TEMPLATE_GEN_FAST,
+    # MODEL_COMMONS_SKETCH and MODEL_COMMONS_PANEL. A short call is cheap
+    # whichever of them asked for it, so one entry at 1 is the honest rate, and
+    # being a key here allowlists the id for /chat and /generate.
+    # Demo mode is therefore a feature cap, not a cost cap.
+    config.MODEL_FAST: 1,
     config.MODEL_TEXT_CHAT: 5,          # gemini pro (== MODEL_TEMPLATE_GEN / MODEL_ANALYSIS)
-    # gemini 3.8 flash (== MODEL_COMMONS_SKETCH == MODEL_COMMONS_PANEL), at its
-    # STANDARD rate ($1.50 in / $7.50 out per 1M, from 2027-01-01), not the
-    # introductory half price. A Commons sketch call at "medium" thinking
-    # measured $0.052 on average at that rate (p90 $0.079), so 5 per call.
-    # Being a key here also allowlists it for /chat and /generate text at
-    # 5 credits -- far above what a short call costs, so over- not under-.
-    config.MODEL_COMMONS_SKETCH: 5,
 }
 
 IMAGE_MODEL_CREDITS = {
@@ -80,6 +78,15 @@ TEMPLATE_IMAGE_CREDITS = 1              # per analyzed input image in template m
 # "over-charges by 40%" reading, which counted calls, had it under-charging.
 COMMONS_SKETCH_CALLS = 2
 
+# A sketch call is a long, medium-thinking generation, not a short chat turn,
+# so it is priced by its workload rather than by TEXT_MODEL_CREDITS. At the
+# STANDARD 3.8 Flash rate ($1.50 in / $7.50 out per 1M, from 2027-01-01) — not
+# the introductory half price — one such call measured $0.052 on average
+# (p90 $0.079), so 5. Keeping this separate is what lets the Commons share a
+# model id with MODEL_FAST without a 1-credit chat turn and a 5-credit sketch
+# call fighting over the same table key.
+COMMONS_SKETCH_CREDITS_PER_CALL = 5
+
 
 def text_credits(model: str) -> int:
     try:
@@ -118,7 +125,7 @@ def resolve(action: str, model: str | None, units: float = 1) -> tuple[int, floa
         credits = text_credits(model) + TEMPLATE_IMAGE_CREDITS * int(units)
         kind = "call"
     elif action == "commons_sketch":
-        credits = text_credits(model) * COMMONS_SKETCH_CALLS
+        credits = COMMONS_SKETCH_CREDITS_PER_CALL * COMMONS_SKETCH_CALLS
         kind = "call"
     elif action == "video":
         per_sec = VIDEO_MODEL_CREDITS_PER_SEC.get(model)
@@ -151,5 +158,5 @@ def client_rates() -> dict:
         "analyze_per_image": ANALYZE_CREDITS_PER_IMAGE,
         "smart_transform_overhead": SMART_TRANSFORM_OVERHEAD,
         "template_image": TEMPLATE_IMAGE_CREDITS,
-        "commons_sketch": text_credits(config.MODEL_COMMONS_SKETCH) * COMMONS_SKETCH_CALLS,
+        "commons_sketch": COMMONS_SKETCH_CREDITS_PER_CALL * COMMONS_SKETCH_CALLS,
     }
