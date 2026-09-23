@@ -786,11 +786,15 @@ instead of assuming white is the robust fix, and is not yet done.
    §2. Live is `synthograsizer-00047-87m`.
    **Until this ships, hosted image generation on the NB2 and HQ tiers is still calling
    endpoints Google retired on 2026-06-25.**
-0b. **Catch upstream model retirements before users do.** Nothing in the suite can see that an id
-   was shut down — that is how `MODEL_IMAGE_GEN_NB2` and `MODEL_IMAGE_GEN_HQ` spent three months
-   pointing at endpoints retired on 2026-06-25. Wants a small script that lists the provider's
-   current models and flags any `config.MODEL_*` id that is missing or marked deprecated, run on
-   a schedule rather than trusted to a reading pass.
+0b. ~~**Catch upstream model retirements before users do.**~~ **Built 2026-09-22** —
+   `scripts/check_model_ids.py` lists the provider's models and flags any `config.MODEL_*` id
+   that is no longer served, naming the GA successor when the retired id is a `-preview` one
+   (the exact shape of the 2026-06-25 shutdown). Exits 1 on a retirement, so it works as a
+   scheduled job or a CI step. **Still needs scheduling** — it has only ever been run against
+   stubbed listings, because no API key is configured in the dev worktree. Run it once by hand
+   against the real key first. Absence is only called a retirement when other ids in the same
+   family *are* listed; a family the API does not enumerate at all (veo, lyria) reports
+   unverifiable and does not fail, unless `--strict`.
 1. ~~**Accessibility and simplicity are the current headline goal**~~ — **the measured queue is now
    empty.** Every item in [UX_PAIN_POINTS.md](UX_PAIN_POINTS.md) is closed as of 2026-07-30. The
    remaining simplicity candidates in the standing-goal section below (the 17 undifferentiated
