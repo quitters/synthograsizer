@@ -84,8 +84,23 @@
         <p id="galleryStatus" class="section-help" role="status"></p>
       </div>
 
-      <div class="panel">
+      <div class="panel" id="imagesPanel">
         <div class="section-heading"><span class="section-number">03</span><div>
+          <p class="eyebrow">Only on your wall</p><h2>Your images</h2></div></div>
+        <p class="section-help">Pieces that use images show these on the wall. Phones never see them. Every image
+          is re-made on the server before it’s stored, and what you put up here is yours to answer for.</p>
+        <div class="images-bar">
+          <button id="imagesAdd" type="button" class="primary-button" disabled>Add images</button>
+          <input id="imagesInput" type="file" accept="image/png,image/jpeg,image/webp,image/gif" multiple hidden>
+          <p id="imagesCount" class="section-help"></p>
+        </div>
+        <p id="imagesNote" class="section-help"></p>
+        <ol id="imagesGrid" class="images-grid" aria-label="Your images, in the order pieces see them"></ol>
+        <p id="imagesStatus" class="section-help" role="status" data-error="false"></p>
+      </div>
+
+      <div class="panel">
+        <div class="section-heading"><span class="section-number">04</span><div>
           <p class="eyebrow">For everyone on the wall</p><h2>Shape what comes next</h2></div></div>
         <p class="section-help">The current canvas keeps playing while the next piece is composed.
           Your prompt and finished sketch are saved, even if you reload.</p>
@@ -112,7 +127,7 @@
       </div>
 
       <div class="panel">
-        <div class="section-heading"><span class="section-number">04</span><div>
+        <div class="section-heading"><span class="section-number">05</span><div>
           <p class="eyebrow">Keep what works</p><h2>Save this look</h2></div></div>
         <p class="section-help">Keeps the piece exactly as it is now, settings and all. It joins the library above,
           where you can find it again by name or under “your saved looks”.</p>

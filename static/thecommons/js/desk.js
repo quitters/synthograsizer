@@ -10,6 +10,7 @@
 
 import { mountLibrary } from './library.js';
 import { applySkin, mountPanel } from './panel.js';
+import { mountImages } from './room-images-desk.js';
 
 const roomId = new URLSearchParams(location.search).get('room');
 
@@ -32,6 +33,7 @@ let remixing = false;
 let canvas = null;
 let library = null;
 let loadingGallery = false;
+let roomImages = null;
 
 const api = (path) => `/api/thecommons/rooms/${encodeURIComponent(roomId)}${path}`;
 const mode = () => document.querySelector('input[name="mode"]:checked').value;
@@ -59,6 +61,7 @@ function updateControls() {
   undoPiece.disabled = !usable || remixing || !canvas?.canUndo;
   savePreset.disabled = !usable || remixing;
   library?.setEnabled(usable && !remixing && !loadingGallery);
+  roomImages?.setEnabled(usable);
   promptSend.textContent = remixing ? 'Composing…' : mode() === 'remix' ? 'Remix this piece ↗' : 'Create a new piece ↗';
 }
 
@@ -452,6 +455,8 @@ function resumeJob() {
 
 async function boot() {
   if (!(await refreshRoom())) return;
+  roomImages ??= mountImages({ root: document.getElementById('imagesPanel'), api, onLost: refreshRoom });
+  roomImages.refresh();
   startLibrary();
   await refreshPresets();
   if (!remixing) resumeJob();
