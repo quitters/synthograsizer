@@ -1,0 +1,182 @@
+{
+  "name": "Stencil Vector Demoscene",
+  "promptTemplate": "Demoscene stencil vectors with {{palette}} palette, {{polygons}} geometry, moving in {{orbit_mode}} orbit with {{stripe_density}}px stripe density, {{grid_scale}}px checker grid, {{beat_kick}} beat kick, and {{wireframe_glow}}px glow.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "cyber_mono",
+          "weight": 2
+        },
+        {
+          "text": "laser_neon",
+          "weight": 2
+        },
+        {
+          "text": "electric_cmyk",
+          "weight": 1
+        },
+        {
+          "text": "solar_flare",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "polygons",
+      "label": "Polygon Pair",
+      "values": [
+        {
+          "text": "tri_and_quad",
+          "weight": 2
+        },
+        {
+          "text": "pent_and_hex",
+          "weight": 2
+        },
+        {
+          "text": "oct_and_tri",
+          "weight": 1
+        },
+        {
+          "text": "star_and_square",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "orbit_mode",
+      "label": "Motion Style",
+      "values": [
+        {
+          "text": "counter_spin",
+          "weight": 2
+        },
+        {
+          "text": "figure_eight",
+          "weight": 2
+        },
+        {
+          "text": "collision_pulse",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "stripe_density",
+      "label": "Stripe Width",
+      "type": "number",
+      "min": 8,
+      "max": 40,
+      "step": 4,
+      "default": 16
+    },
+    {
+      "name": "grid_scale",
+      "label": "Grid Cell Size",
+      "type": "number",
+      "min": 16,
+      "max": 56,
+      "step": 4,
+      "default": 28
+    },
+    {
+      "name": "beat_kick",
+      "label": "Beat Response",
+      "type": "number",
+      "min": 0.2,
+      "max": 2.0,
+      "step": 0.2,
+      "default": 1.0
+    },
+    {
+      "name": "wireframe_glow",
+      "label": "Glow Width",
+      "type": "number",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "default": 2
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "acid",
+    "title": "STENCIL.VEC +7",
+    "tagline": "Demoscene vector stencil synth",
+    "accent": "#00ff88",
+    "groups": [
+      {
+        "title": "Vectors",
+        "controls": [
+          "polygons",
+          "orbit_mode",
+          "beat_kick"
+        ]
+      },
+      {
+        "title": "Stencils",
+        "controls": [
+          "stripe_density",
+          "grid_scale"
+        ]
+      },
+      {
+        "title": "Optics",
+        "controls": [
+          "palette",
+          "wireframe_glow"
+        ]
+      }
+    ],
+    "controls": {
+      "palette": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "polygons": {
+        "widget": "pads",
+        "hint": "Swap stencil aperture geometries"
+      },
+      "orbit_mode": {
+        "widget": "buttons",
+        "hint": "Trajectory path for vector windows"
+      },
+      "stripe_density": {
+        "widget": "slider",
+        "hint": "Raster stripe pitch inside poly A"
+      },
+      "grid_scale": {
+        "widget": "slider",
+        "hint": "Checker size inside poly B"
+      },
+      "beat_kick": {
+        "widget": "knob",
+        "hint": "Pulse intensity on bass hits"
+      },
+      "wireframe_glow": {
+        "widget": "stepper",
+        "hint": "Vector boundary beam thickness"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "gallery": {
+    "section": "demo",
+    "blurb": "Stencil vectors: two rotating polygons act as windows between patterns, stripes inside one and a checkerboard inside the other, their overlap inverted, all moving on the beat.",
+    "prompt": "Stencil vectors: two rotating polygons act as windows between patterns, stripes inside one and a checkerboard inside the other, their overlap inverted, all moving on the beat. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "retro",
+      "geometric",
+      "energetic"
+    ],
+    "source": "scenes100/stencil-vectors~1"
+  }
+}

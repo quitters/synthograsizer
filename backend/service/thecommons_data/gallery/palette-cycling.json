@@ -1,0 +1,140 @@
+{
+  "name": "demoscene_palette_cycler",
+  "promptTemplate": "A nostalgic 90s pixel art landscape featuring {{palette_theme}} lighting, {{cycle_speed}} water rush speed, {{torch_glow}} torch flicker intensity, and {{sky_style}} skies.",
+  "variables": [
+    {
+      "name": "palette_theme",
+      "label": "Color Mood",
+      "values": [
+        {
+          "text": "twilight_ruins",
+          "weight": 2
+        },
+        {
+          "text": "cyber_lagoon",
+          "weight": 1
+        },
+        {
+          "text": "blood_moon",
+          "weight": 1
+        },
+        {
+          "text": "emerald_grotto",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "sky_style",
+      "label": "Sky Horizon",
+      "values": [
+        {
+          "text": "starry_dusk",
+          "weight": 2
+        },
+        {
+          "text": "aurora_borealis",
+          "weight": 1
+        },
+        {
+          "text": "vapor_dawn",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "cycle_speed",
+      "label": "Water Speed",
+      "values": [
+        {
+          "text": "relaxed",
+          "weight": 1
+        },
+        {
+          "text": "flowing",
+          "weight": 2
+        },
+        {
+          "text": "torrential",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "torch_glow",
+      "label": "Torch Flicker",
+      "values": [
+        {
+          "text": "subtle",
+          "weight": 1
+        },
+        {
+          "text": "flickering",
+          "weight": 2
+        },
+        {
+          "text": "roaring",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "acid",
+    "title": "CYCLE90 +4 TRAINER",
+    "tagline": "Realtime VGA palette cycling engine",
+    "accent": "#00b4a0",
+    "groups": [
+      {
+        "title": "Environment",
+        "controls": [
+          "palette_theme",
+          "sky_style"
+        ]
+      },
+      {
+        "title": "Cycle Motion",
+        "controls": [
+          "cycle_speed",
+          "torch_glow"
+        ]
+      }
+    ],
+    "controls": {
+      "palette_theme": {
+        "widget": "pads",
+        "hint": "Rotates VGA color tables across cliffs and waters"
+      },
+      "sky_style": {
+        "widget": "buttons",
+        "hint": "Swaps the horizon gradient and celestial glow"
+      },
+      "cycle_speed": {
+        "widget": "buttons",
+        "hint": "Speeds up waterfall cascade and lake ripples"
+      },
+      "torch_glow": {
+        "widget": "buttons",
+        "hint": "Sets brazier flicker frequency and radius"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "gallery": {
+    "section": "demo",
+    "blurb": "Colour cycling in the manner of 90s pixel art: a waterfall, a lake and flickering torches animated purely by rotating palette ranges over an indexed scene drawn once.",
+    "prompt": "Colour cycling in the manner of 90s pixel art: a waterfall, a lake and flickering torches animated purely by rotating palette ranges over an indexed scene drawn once. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "retro",
+      "nature",
+      "calm"
+    ],
+    "source": "scenes100/palette-cycling~1"
+  }
+}

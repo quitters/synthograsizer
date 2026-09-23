@@ -1,0 +1,130 @@
+{
+  "name": "Truchet Meander",
+  "promptTemplate": "Quarter-circle Truchet tiles with {{palette}} palette, {{tile_scale}} grid density, {{line_weight}} paths, and {{motion_tempo}} route morphing.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "electric_neon",
+          "weight": 3
+        },
+        {
+          "text": "amber_crt",
+          "weight": 2
+        },
+        {
+          "text": "spectral_void",
+          "weight": 2
+        },
+        {
+          "text": "cyan_blueprint",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "tile_scale",
+      "label": "Grid Scale",
+      "values": [
+        {
+          "text": "medium",
+          "weight": 3
+        },
+        {
+          "text": "compact",
+          "weight": 2
+        },
+        {
+          "text": "broad",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "line_weight",
+      "label": "Path Width",
+      "type": "number",
+      "min": 2,
+      "max": 14,
+      "step": 2,
+      "default": 6
+    },
+    {
+      "name": "motion_tempo",
+      "label": "Flip Rate",
+      "values": [
+        {
+          "text": "steady",
+          "weight": 3
+        },
+        {
+          "text": "calm",
+          "weight": 2
+        },
+        {
+          "text": "hyper",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "acid",
+    "title": "TRUCHET MEANDER // DEMO",
+    "tagline": "Realtime route morphing & connected path solver",
+    "accent": "#00ffcc",
+    "groups": [
+      {
+        "title": "Labyrinth",
+        "controls": [
+          "tile_scale",
+          "line_weight"
+        ]
+      },
+      {
+        "title": "Dynamics",
+        "controls": [
+          "motion_tempo",
+          "palette"
+        ]
+      }
+    ],
+    "controls": {
+      "palette": {
+        "widget": "pads",
+        "hint": "Recolors connected circuit runs"
+      },
+      "tile_scale": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "line_weight": {
+        "widget": "knob",
+        "hint": "Thickens arc traces across the canvas"
+      },
+      "motion_tempo": {
+        "widget": "buttons",
+        "hint": "Speed of random tile flips"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "gallery": {
+    "section": "generative",
+    "blurb": "Quarter-circle Truchet tiles: arcs in randomly rotated tiles join into endless meandering paths, tiles flipping one at a time so the paths re-route, each connected path in its own colour.",
+    "prompt": "Quarter-circle Truchet tiles: arcs in randomly rotated tiles join into endless meandering paths, tiles flipping one at a time so the paths re-route, each connected path in its own colour. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "geometric",
+      "calm"
+    ],
+    "source": "scenes100/truchet-arcs~3"
+  }
+}

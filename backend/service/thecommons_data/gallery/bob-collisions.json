@@ -1,0 +1,136 @@
+{
+  "name": "Amiga Bob Kinetic Box",
+  "promptTemplate": "A demoscene tribute featuring {{ball_count}} colliding spheres in a rotating 3D box with {{palette}} shading, {{bob_style}} styling, spinning at {{box_spin}} speed with {{bounciness}} elasticity.",
+  "variables": [
+    {
+      "name": "ball_count",
+      "label": "Ball Count",
+      "type": "number",
+      "min": 16,
+      "max": 48,
+      "step": 4,
+      "default": 32
+    },
+    {
+      "name": "palette",
+      "label": "Color Palette",
+      "values": [
+        {
+          "text": "copper_amiga",
+          "weight": 2
+        },
+        {
+          "text": "chrome_blue",
+          "weight": 2
+        },
+        {
+          "text": "cyber_neon",
+          "weight": 1
+        },
+        {
+          "text": "monochrome",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "bob_style",
+      "label": "Bob Texture",
+      "values": [
+        {
+          "text": "classic_specular",
+          "weight": 2
+        },
+        {
+          "text": "glossy_metal",
+          "weight": 2
+        },
+        {
+          "text": "stepped_dither",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "box_spin",
+      "label": "Box Spin",
+      "type": "number",
+      "min": 0.2,
+      "max": 2.0,
+      "step": 0.2,
+      "default": 0.8
+    },
+    {
+      "name": "bounciness",
+      "label": "Elasticity",
+      "type": "number",
+      "min": 0.6,
+      "max": 1.2,
+      "step": 0.1,
+      "default": 1.0
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "AMIGA BOB +5 TRAINER",
+    "tagline": "Elastic kinetic collision demo running at 60 FPS",
+    "accent": "#ffb446",
+    "groups": [
+      {
+        "title": "Kinetic Physics",
+        "controls": [
+          "box_spin",
+          "bounciness",
+          "ball_count"
+        ]
+      },
+      {
+        "title": "Bob Shading",
+        "controls": [
+          "palette",
+          "bob_style"
+        ]
+      }
+    ],
+    "controls": {
+      "ball_count": {
+        "widget": "stepper",
+        "hint": "Populate box with colliding spheres"
+      },
+      "palette": {
+        "widget": "cycle",
+        "hint": "Cycle classic Amiga palette registers"
+      },
+      "bob_style": {
+        "widget": "pads",
+        "hint": "Specular gradient, gloss or retro dither"
+      },
+      "box_spin": {
+        "widget": "knob",
+        "hint": "Tumble rate of the wireframe cage"
+      },
+      "bounciness": {
+        "widget": "slider",
+        "hint": "Coefficient of restitution on impact"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "gallery": {
+    "section": "demo",
+    "blurb": "Sphere collisions: a few dozen shaded balls bouncing inside a slowly rotating 3D box with elastic collisions, depth-sorted and shaded like classic Amiga bobs.",
+    "prompt": "Sphere collisions: a few dozen shaded balls bouncing inside a slowly rotating 3D box with elastic collisions, depth-sorted and shaded like classic Amiga bobs. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "3d",
+      "retro",
+      "energetic"
+    ],
+    "source": "scenes100/bob-collisions~1"
+  }
+}

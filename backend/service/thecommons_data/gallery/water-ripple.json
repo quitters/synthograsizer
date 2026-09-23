@@ -1,0 +1,159 @@
+{
+  "name": "Pool of Archimedes",
+  "promptTemplate": "A demoscene water pool with {{damping_style}} wave decay, a submerged {{tile_style}} mosaic, {{refraction_strength}} refraction depth, {{rain_density}} rain density, and {{palette_theme}} ambient illumination.",
+  "variables": [
+    {
+      "name": "damping_style",
+      "label": "Water Viscosity",
+      "values": [
+        {
+          "text": "mercury",
+          "weight": 1
+        },
+        {
+          "text": "springwater",
+          "weight": 3
+        },
+        {
+          "text": "viscous",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "tile_style",
+      "label": "Submerged Tile",
+      "values": [
+        {
+          "text": "moroccan",
+          "weight": 2
+        },
+        {
+          "text": "checker",
+          "weight": 2
+        },
+        {
+          "text": "greek_key",
+          "weight": 1
+        },
+        {
+          "text": "sunburst",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "refraction_strength",
+      "label": "Refraction",
+      "type": "number",
+      "min": 4,
+      "max": 20,
+      "step": 2,
+      "default": 10
+    },
+    {
+      "name": "palette_theme",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "deep_ocean",
+          "weight": 3
+        },
+        {
+          "text": "cyan_pool",
+          "weight": 2
+        },
+        {
+          "text": "golden_hour",
+          "weight": 1
+        },
+        {
+          "text": "midnight_synth",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "rain_density",
+      "label": "Rain Rate",
+      "type": "number",
+      "min": 1,
+      "max": 9,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "name": "drop_stone",
+      "label": "Drop Stone",
+      "type": "trigger",
+      "share": "all"
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "ice",
+    "title": "ARCHIMEDES +6 TRAINER",
+    "tagline": "Two-buffer wave refraction demotool",
+    "accent": "#40c8f0",
+    "groups": [
+      {
+        "title": "Surface Ripple",
+        "controls": [
+          "drop_stone",
+          "rain_density",
+          "damping_style"
+        ]
+      },
+      {
+        "title": "Optics & Floor",
+        "controls": [
+          "refraction_strength",
+          "tile_style",
+          "palette_theme"
+        ]
+      }
+    ],
+    "controls": {
+      "damping_style": {
+        "widget": "buttons",
+        "hint": "Controls wave decay and ripple lifetime"
+      },
+      "tile_style": {
+        "widget": "pads",
+        "hint": ""
+      },
+      "refraction_strength": {
+        "widget": "knob",
+        "hint": "Distortion depth through the water surface"
+      },
+      "palette_theme": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "rain_density": {
+        "widget": "slider",
+        "hint": "Frequency of ambient drops hitting water"
+      },
+      "drop_stone": {
+        "widget": "pad",
+        "hint": "Cast your stone into the pool"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "gallery": {
+    "section": "games",
+    "blurb": "A water surface using the classic two-buffer wave equation: ripples spread, reflect off the edges and interfere, refracting a tiled pattern beneath; raindrops fall now and then, and anyone can drop a stone of their own.",
+    "prompt": "A water surface using the classic two-buffer wave equation: ripples spread, reflect off the edges and interfere, refracting a tiled pattern beneath; raindrops fall now and then, and anyone can drop a stone of their own. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "nature",
+      "calm"
+    ],
+    "source": "scenes100/water-ripple~1"
+  }
+}

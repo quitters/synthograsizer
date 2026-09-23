@@ -1,0 +1,162 @@
+{
+  "name": "Infinite Droste Abyss",
+  "promptTemplate": "An infinite Droste zoom with {{geometry}} receding at speed {{zoom_speed}} with {{twist_rate}} twist, ratio {{ring_ratio}}, styled in {{palette}} with {{beat_kick}} audio reaction.",
+  "variables": [
+    {
+      "name": "zoom_speed",
+      "label": "Zoom Speed",
+      "type": "number",
+      "min": 0.2,
+      "max": 2.0,
+      "step": 0.1,
+      "default": 0.8
+    },
+    {
+      "name": "twist_rate",
+      "label": "Twist Rate",
+      "type": "number",
+      "min": 0.0,
+      "max": 0.5,
+      "step": 0.05,
+      "default": 0.15
+    },
+    {
+      "name": "ring_ratio",
+      "label": "Layer Spacing",
+      "type": "number",
+      "min": 1.15,
+      "max": 1.45,
+      "step": 0.05,
+      "default": 1.25
+    },
+    {
+      "name": "geometry",
+      "label": "Geometry",
+      "values": [
+        {
+          "text": "morph_hybrid",
+          "weight": 2
+        },
+        {
+          "text": "squares",
+          "weight": 2
+        },
+        {
+          "text": "circles",
+          "weight": 1
+        },
+        {
+          "text": "octagons",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "cyber_neon",
+          "weight": 2
+        },
+        {
+          "text": "golden_monolith",
+          "weight": 1
+        },
+        {
+          "text": "spectral_void",
+          "weight": 1
+        },
+        {
+          "text": "acid_retro",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "beat_kick",
+      "label": "Audio Kick",
+      "values": [
+        {
+          "text": "pulse",
+          "weight": 2
+        },
+        {
+          "text": "subtle",
+          "weight": 1
+        },
+        {
+          "text": "strobe_twist",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "violet",
+    "title": "DROSTE ABYSS +6",
+    "tagline": "Infinite recursive tunnel engine",
+    "accent": "#bf40ff",
+    "groups": [
+      {
+        "title": "VORTEX",
+        "controls": [
+          "zoom_speed",
+          "twist_rate",
+          "ring_ratio"
+        ]
+      },
+      {
+        "title": "FORM & SHADE",
+        "controls": [
+          "geometry",
+          "palette",
+          "beat_kick"
+        ]
+      }
+    ],
+    "controls": {
+      "zoom_speed": {
+        "widget": "knob",
+        "hint": "Speed of flight into the centre"
+      },
+      "twist_rate": {
+        "widget": "knob",
+        "hint": "Spirals each layer as it recedes"
+      },
+      "ring_ratio": {
+        "widget": "slider",
+        "hint": "Spreads or packs the nested rings"
+      },
+      "geometry": {
+        "widget": "pads",
+        "hint": ""
+      },
+      "palette": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "beat_kick": {
+        "widget": "buttons",
+        "hint": ""
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "gallery": {
+    "section": "demo",
+    "blurb": "An infinite Droste zoom: nested, slightly turned squares and circles recede into the centre forever, colours stepping through a palette so the zoom never visibly repeats.",
+    "prompt": "An infinite Droste zoom: nested, slightly turned squares and circles recede into the centre forever, colours stepping through a palette so the zoom never visibly repeats. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "psychedelic",
+      "geometric"
+    ],
+    "source": "scenes100/droste-zoom~1"
+  }
+}

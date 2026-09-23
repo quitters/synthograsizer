@@ -1,0 +1,140 @@
+{
+  "name": "Broadway Boogie Woogie",
+  "promptTemplate": "A Mondrian-inspired kinetic city grid running at {{traffic_speed}}x speed with {{traffic_density}} active traffic pulses in a {{palette_mode}} palette, reacting to music with {{pulse_style}} crossing flashes across a {{grid_complexity}} avenue network.",
+  "variables": [
+    {
+      "name": "traffic_speed",
+      "label": "Traffic Speed",
+      "type": "number",
+      "min": 0.5,
+      "max": 3.0,
+      "step": 0.5,
+      "default": 1.5
+    },
+    {
+      "name": "traffic_density",
+      "label": "Traffic Density",
+      "type": "number",
+      "min": 20,
+      "max": 80,
+      "step": 10,
+      "default": 50
+    },
+    {
+      "name": "palette_mode",
+      "label": "Color Palette",
+      "values": [
+        {
+          "text": "broadway",
+          "weight": 3
+        },
+        {
+          "text": "neon_night",
+          "weight": 1
+        },
+        {
+          "text": "monochrome",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "pulse_style",
+      "label": "Beat Pulse",
+      "values": [
+        {
+          "text": "syncopated",
+          "weight": 3
+        },
+        {
+          "text": "strobe",
+          "weight": 2
+        },
+        {
+          "text": "smooth",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "grid_complexity",
+      "label": "Grid Density",
+      "values": [
+        {
+          "text": "classic",
+          "weight": 3
+        },
+        {
+          "text": "dense",
+          "weight": 2
+        },
+        {
+          "text": "frenetic",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "BOOGIE WOOGIE +5",
+    "tagline": "Rhythmic De Stijl city grid synched to the sound",
+    "accent": "#ffd13b",
+    "groups": [
+      {
+        "title": "Traffic Flow",
+        "controls": [
+          "traffic_speed",
+          "traffic_density"
+        ]
+      },
+      {
+        "title": "Grid & Beat",
+        "controls": [
+          "grid_complexity",
+          "pulse_style",
+          "palette_mode"
+        ]
+      }
+    ],
+    "controls": {
+      "traffic_speed": {
+        "widget": "knob",
+        "hint": "Speed of blocks streaming through avenues"
+      },
+      "traffic_density": {
+        "widget": "slider",
+        "hint": "Number of active color pulses on the roads"
+      },
+      "palette_mode": {
+        "widget": "pads",
+        "hint": ""
+      },
+      "pulse_style": {
+        "widget": "buttons",
+        "hint": "Intersection flash dynamic on the audio beat"
+      },
+      "grid_complexity": {
+        "widget": "buttons",
+        "hint": "Subdivide the canvas into tighter street blocks"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "gallery": {
+    "section": "generative",
+    "blurb": "A city grid in the spirit of Mondrian's Broadway Boogie Woogie: yellow streets on white, small blocks of red, blue and grey travelling along them like traffic, flashing at crossings in time with the music.",
+    "prompt": "A city grid in the spirit of Mondrian's Broadway Boogie Woogie: yellow streets on white, small blocks of red, blue and grey travelling along them like traffic, flashing at crossings in time with the music. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "geometric",
+      "energetic"
+    ],
+    "source": "scenes100/boogie-grid~1"
+  }
+}

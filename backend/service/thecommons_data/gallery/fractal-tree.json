@@ -1,0 +1,144 @@
+{
+  "name": "Demoscene Moonlit Fractal Tree",
+  "promptTemplate": "A recursive fractal tree with {{tree_depth}} recursion depth and {{branch_spread}} spread, swayed by {{wind_force}} under a {{moon_style}} with a {{palette}} canopy.",
+  "variables": [
+    {
+      "name": "tree_depth",
+      "label": "Tree Depth",
+      "type": "number",
+      "min": 7,
+      "max": 11,
+      "step": 1,
+      "default": 9
+    },
+    {
+      "name": "branch_spread",
+      "label": "Branch Spread",
+      "type": "number",
+      "min": 0.3,
+      "max": 0.9,
+      "step": 0.1,
+      "default": 0.5
+    },
+    {
+      "name": "wind_force",
+      "label": "Wind Style",
+      "values": [
+        {
+          "text": "Gentle Sigh",
+          "weight": 2
+        },
+        {
+          "text": "Ocean Gale",
+          "weight": 1
+        },
+        {
+          "text": "Harmonic Pulse",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "moon_style",
+      "label": "Moon Tone",
+      "values": [
+        {
+          "text": "Full Moon",
+          "weight": 2
+        },
+        {
+          "text": "Blood Moon",
+          "weight": 1
+        },
+        {
+          "text": "Crescent Glow",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "palette",
+      "label": "Canopy Palette",
+      "values": [
+        {
+          "text": "Cherry Blossom",
+          "weight": 2
+        },
+        {
+          "text": "Bioluminescent",
+          "weight": 2
+        },
+        {
+          "text": "Golden Autumn",
+          "weight": 1
+        },
+        {
+          "text": "Ghostly Silver",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "ice",
+    "title": "FRACTAL TREE +5",
+    "tagline": "Demoscene moonlight & recursive canopy",
+    "accent": "#00ffee",
+    "groups": [
+      {
+        "title": "Geometry",
+        "controls": [
+          "tree_depth",
+          "branch_spread"
+        ]
+      },
+      {
+        "title": "Atmosphere",
+        "controls": [
+          "wind_force",
+          "palette",
+          "moon_style"
+        ]
+      }
+    ],
+    "controls": {
+      "tree_depth": {
+        "widget": "stepper",
+        "hint": "Sets recursion level and density of glowing leaves"
+      },
+      "branch_spread": {
+        "widget": "knob",
+        "hint": "Expands or narrows the branch fork angles"
+      },
+      "wind_force": {
+        "widget": "pads",
+        "hint": "Select wind sway speed and harmonic oscillation"
+      },
+      "moon_style": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "palette": {
+        "widget": "cycle",
+        "hint": "Changes leaf glow colors across the canopy"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "gallery": {
+    "section": "generative",
+    "blurb": "A recursive fractal tree whose branch angles sway in the wind with the music, leaves as glowing dots, a full moon behind.",
+    "prompt": "A recursive fractal tree whose branch angles sway in the wind with the music, leaves as glowing dots, a full moon behind. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "nature",
+      "calm"
+    ],
+    "source": "scenes100/fractal-tree~1"
+  }
+}

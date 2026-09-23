@@ -1,0 +1,194 @@
+{
+  "name": "Abelian Sandpile Mandala",
+  "promptTemplate": "An Abelian sandpile growing a 4-color fractal mandala in {{palette}} hues at {{zoom}}x scale with {{symmetry}} injection and {{render_style}} display, driven by {{drop_rate}} grains per frame reacting via {{audio_react}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "zenith",
+          "weight": 2
+        },
+        {
+          "text": "ember",
+          "weight": 2
+        },
+        {
+          "text": "veril",
+          "weight": 1
+        },
+        {
+          "text": "amethyst",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "symmetry",
+      "label": "Injection Pattern",
+      "values": [
+        {
+          "text": "center",
+          "weight": 2
+        },
+        {
+          "text": "cross",
+          "weight": 1
+        },
+        {
+          "text": "star",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "render_style",
+      "label": "Render Style",
+      "values": [
+        {
+          "text": "crisp",
+          "weight": 2
+        },
+        {
+          "text": "faceted",
+          "weight": 1
+        },
+        {
+          "text": "glow",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "audio_react",
+      "label": "Audio Reaction",
+      "values": [
+        {
+          "text": "avalanche",
+          "weight": 2
+        },
+        {
+          "text": "pulse",
+          "weight": 1
+        },
+        {
+          "text": "halo",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "drop_rate",
+      "label": "Drop Rate",
+      "type": "number",
+      "min": 16,
+      "max": 256,
+      "step": 16,
+      "default": 96
+    },
+    {
+      "name": "zoom",
+      "label": "Zoom Scale",
+      "type": "number",
+      "min": 0.5,
+      "max": 2.0,
+      "step": 0.25,
+      "default": 1.0
+    },
+    {
+      "name": "drop_handful",
+      "label": "Drop Grains",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "clear_pile",
+      "label": "Clear",
+      "type": "trigger",
+      "share": "one"
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "SANDPILE +5 TRAINER",
+    "tagline": "Abelian fractal avalanche generator",
+    "accent": "#df9e21",
+    "groups": [
+      {
+        "title": "Trigger",
+        "controls": [
+          "drop_handful",
+          "clear_pile"
+        ]
+      },
+      {
+        "title": "Dynamics",
+        "controls": [
+          "drop_rate",
+          "symmetry",
+          "audio_react"
+        ]
+      },
+      {
+        "title": "Display",
+        "controls": [
+          "palette",
+          "render_style",
+          "zoom"
+        ]
+      }
+    ],
+    "controls": {
+      "palette": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "symmetry": {
+        "widget": "pads",
+        "hint": "Center point, 4-way cross, or 8-way star injection"
+      },
+      "render_style": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "audio_react": {
+        "widget": "buttons",
+        "hint": "Bass avalanche surges, pulse scaling, or outer halo"
+      },
+      "drop_rate": {
+        "widget": "knob",
+        "hint": "Speed of continuous grain injection"
+      },
+      "zoom": {
+        "widget": "slider",
+        "hint": ""
+      },
+      "drop_handful": {
+        "widget": "pad",
+        "hint": "Blast 4000 grains from your perimeter angle"
+      },
+      "clear_pile": {
+        "widget": "button",
+        "hint": "Wipe the lattice clean and flash the wall"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "gallery": {
+    "section": "games",
+    "blurb": "An Abelian sandpile: grains added at the centre topple onto their neighbours, growing a four-colour fractal mandala; anyone can drop a handful of grains.",
+    "prompt": "An Abelian sandpile: grains added at the centre topple onto their neighbours, growing a four-colour fractal mandala; anyone can drop a handful of grains. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "geometric",
+      "psychedelic"
+    ],
+    "source": "scenes100/sandpile~1"
+  }
+}

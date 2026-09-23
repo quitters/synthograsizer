@@ -1,0 +1,190 @@
+{
+  "name": "Hilbert-Moore Demoscene Manifold",
+  "promptTemplate": "A precision demoscene study of space-filling curves at order {{order}}, running in {{morph_mode}} morph mode at speed {{draw_speed}}, styled with {{color_palette}} luminescence, line width {{line_width}}, {{bloom_glow}} bloom, and {{room_echo}} audience echoes.",
+  "variables": [
+    {
+      "name": "order",
+      "label": "Fractal Order",
+      "type": "number",
+      "min": 3,
+      "max": 6,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "name": "morph_mode",
+      "label": "Morph Dynamic",
+      "values": [
+        {
+          "text": "auto_cycle",
+          "weight": 3
+        },
+        {
+          "text": "hilbert",
+          "weight": 1
+        },
+        {
+          "text": "hybrid",
+          "weight": 1
+        },
+        {
+          "text": "moore",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "draw_speed",
+      "label": "Trace Speed",
+      "type": "number",
+      "min": 0.2,
+      "max": 3.0,
+      "step": 0.2,
+      "default": 1.0
+    },
+    {
+      "name": "color_palette",
+      "label": "Color Spectrum",
+      "values": [
+        {
+          "text": "cyber_neon",
+          "weight": 2
+        },
+        {
+          "text": "amber_phosphor",
+          "weight": 1
+        },
+        {
+          "text": "aurora_borealis",
+          "weight": 2
+        },
+        {
+          "text": "solar_flare",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "line_width",
+      "label": "Beam Width",
+      "type": "number",
+      "min": 1,
+      "max": 7,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "name": "bloom_glow",
+      "label": "Bloom Flare",
+      "values": [
+        {
+          "text": "intense",
+          "weight": 2
+        },
+        {
+          "text": "subtle",
+          "weight": 2
+        },
+        {
+          "text": "crisp",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "room_echo",
+      "label": "Audience Resonators",
+      "values": [
+        {
+          "text": "connected",
+          "weight": 2
+        },
+        {
+          "text": "minimal",
+          "weight": 1
+        },
+        {
+          "text": "off",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "ice",
+    "title": "HILBERT-MOORE +7",
+    "tagline": "Demoscene space-filling manifold engine",
+    "accent": "#00f0ff",
+    "groups": [
+      {
+        "title": "Manifold Geometry",
+        "controls": [
+          "order",
+          "morph_mode"
+        ]
+      },
+      {
+        "title": "Trace Dynamics",
+        "controls": [
+          "draw_speed",
+          "line_width"
+        ]
+      },
+      {
+        "title": "Optics & Crowd",
+        "controls": [
+          "color_palette",
+          "bloom_glow",
+          "room_echo"
+        ]
+      }
+    ],
+    "controls": {
+      "order": {
+        "widget": "stepper",
+        "hint": "Curve recursion depth and grid density"
+      },
+      "morph_mode": {
+        "widget": "pads",
+        "hint": "Blend topology between Hilbert and Moore"
+      },
+      "draw_speed": {
+        "widget": "knob",
+        "hint": "Speed of the leading neon spark"
+      },
+      "color_palette": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "line_width": {
+        "widget": "slider",
+        "hint": ""
+      },
+      "bloom_glow": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "room_echo": {
+        "widget": "buttons",
+        "hint": "Map attendee nodes onto curve vertices"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "gallery": {
+    "section": "generative",
+    "blurb": "Space-filling curves: a Hilbert curve drawn step by step at increasing orders, then morphing into a Moore curve, the line's colour sweeping a gradient along its length.",
+    "prompt": "Space-filling curves: a Hilbert curve drawn step by step at increasing orders, then morphing into a Moore curve, the line's colour sweeping a gradient along its length. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "geometric",
+      "calm"
+    ],
+    "source": "scenes100/space-filling~1"
+  }
+}

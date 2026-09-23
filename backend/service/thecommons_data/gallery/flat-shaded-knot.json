@@ -1,0 +1,168 @@
+{
+  "name": "Demoscene 16-Color Torus Knot",
+  "promptTemplate": "A demoscene flat-shaded {{knot_type}} torus knot lit in {{palette_theme}} tones with {{shading_style}} shading, rotating at speed {{rotation_speed}}, tube thickness {{tube_thickness}}, and bloom glow {{bloom_intensity}}.",
+  "variables": [
+    {
+      "name": "knot_type",
+      "label": "Knot Formula",
+      "values": [
+        {
+          "text": "trefoil_2_3",
+          "weight": 3
+        },
+        {
+          "text": "cinquefoil_2_5",
+          "weight": 2
+        },
+        {
+          "text": "star_3_4",
+          "weight": 2
+        },
+        {
+          "text": "septafoliate_3_5",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "palette_theme",
+      "label": "16-Color Palette",
+      "values": [
+        {
+          "text": "amiga_copper",
+          "weight": 3
+        },
+        {
+          "text": "cyber_neon",
+          "weight": 2
+        },
+        {
+          "text": "monochrome_amber",
+          "weight": 2
+        },
+        {
+          "text": "vga_twilight",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "shading_style",
+      "label": "Shading Style",
+      "values": [
+        {
+          "text": "flat_retro",
+          "weight": 3
+        },
+        {
+          "text": "wire_on_flat",
+          "weight": 2
+        },
+        {
+          "text": "dither_specular",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "rotation_speed",
+      "label": "Rotation Speed",
+      "type": "number",
+      "min": 0.2,
+      "max": 2.5,
+      "step": 0.1,
+      "default": 1.0
+    },
+    {
+      "name": "tube_thickness",
+      "label": "Tube Thickness",
+      "type": "number",
+      "min": 0.2,
+      "max": 0.8,
+      "step": 0.05,
+      "default": 0.45
+    },
+    {
+      "name": "bloom_intensity",
+      "label": "Retro Glow",
+      "type": "number",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.1,
+      "default": 0.4
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "TORUS KNOT +6",
+    "tagline": "16-color 3D demoscene knot rasterizer",
+    "accent": "#ec651b",
+    "groups": [
+      {
+        "title": "Geometry",
+        "controls": [
+          "knot_type",
+          "tube_thickness"
+        ]
+      },
+      {
+        "title": "Rasterizer",
+        "controls": [
+          "palette_theme",
+          "shading_style",
+          "bloom_intensity"
+        ]
+      },
+      {
+        "title": "Motion",
+        "controls": [
+          "rotation_speed"
+        ]
+      }
+    ],
+    "controls": {
+      "knot_type": {
+        "widget": "pads",
+        "hint": "Switch parametric knot winding"
+      },
+      "palette_theme": {
+        "widget": "cycle",
+        "hint": "Cycle 16-color indexed ramp"
+      },
+      "shading_style": {
+        "widget": "buttons",
+        "hint": "Switch flat, wireframe, or dither highlight"
+      },
+      "rotation_speed": {
+        "widget": "knob",
+        "hint": "Spin velocity across 3D axes"
+      },
+      "tube_thickness": {
+        "widget": "slider",
+        "hint": "Flesh out polygon tube profile"
+      },
+      "bloom_intensity": {
+        "widget": "slider",
+        "hint": "CRT phosphor bloom trail"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "gallery": {
+    "section": "demo",
+    "blurb": "A flat-shaded torus knot rotating in 3D, a few hundred polygons sorted back to front and lit by one directional light, in a limited 16-colour palette.",
+    "prompt": "A flat-shaded torus knot rotating in 3D, a few hundred polygons sorted back to front and lit by one directional light, in a limited 16-colour palette. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "3d",
+      "retro",
+      "geometric"
+    ],
+    "source": "scenes100/flat-shaded-knot~1"
+  }
+}

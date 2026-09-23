@@ -1,0 +1,141 @@
+{
+  "name": "Bioluminescent L-System Garden",
+  "promptTemplate": "An L-system garden in {{flora_theme}} hues with {{garden_density}} specimens swayed by {{breeze_intensity}} breeze, growing at {{growth_rate}} rate in a {{canopy_style}} arrangement.",
+  "variables": [
+    {
+      "name": "flora_theme",
+      "label": "Flora Palette",
+      "values": [
+        {
+          "text": "verdant",
+          "weight": 2
+        },
+        {
+          "text": "neon_twilight",
+          "weight": 2
+        },
+        {
+          "text": "golden_hour",
+          "weight": 1
+        },
+        {
+          "text": "bioluminescence",
+          "weight": 3
+        }
+      ]
+    },
+    {
+      "name": "garden_density",
+      "label": "Specimen Count",
+      "type": "number",
+      "min": 4,
+      "max": 16,
+      "step": 2,
+      "default": 10
+    },
+    {
+      "name": "breeze_intensity",
+      "label": "Breeze Force",
+      "type": "number",
+      "min": 0.2,
+      "max": 2.0,
+      "step": 0.2,
+      "default": 1.0
+    },
+    {
+      "name": "growth_rate",
+      "label": "Growth Rate",
+      "type": "number",
+      "min": 0.2,
+      "max": 2.0,
+      "step": 0.2,
+      "default": 1.0
+    },
+    {
+      "name": "canopy_style",
+      "label": "Canopy Archetype",
+      "values": [
+        {
+          "text": "wild_mix",
+          "weight": 3
+        },
+        {
+          "text": "ferns",
+          "weight": 2
+        },
+        {
+          "text": "flowering",
+          "weight": 2
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "acid",
+    "title": "BIOLUMEN GARDEN",
+    "tagline": "Demoscene L-system flora swaying in music",
+    "accent": "#48bb78",
+    "groups": [
+      {
+        "title": "Flora & Species",
+        "controls": [
+          "flora_theme",
+          "canopy_style"
+        ]
+      },
+      {
+        "title": "Growth & Colony",
+        "controls": [
+          "garden_density",
+          "growth_rate"
+        ]
+      },
+      {
+        "title": "Atmosphere",
+        "controls": [
+          "breeze_intensity"
+        ]
+      }
+    ],
+    "controls": {
+      "flora_theme": {
+        "widget": "cycle",
+        "hint": "Shifts glow and stem color spectrums"
+      },
+      "garden_density": {
+        "widget": "stepper",
+        "hint": "Total plant stalks rooted in soil"
+      },
+      "breeze_intensity": {
+        "widget": "slider",
+        "hint": "Wind sway deflection responding to beats"
+      },
+      "growth_rate": {
+        "widget": "knob",
+        "hint": "Speed of segment propagation"
+      },
+      "canopy_style": {
+        "widget": "pads",
+        "hint": "Filter specimens into ferns, bushes, or mixed"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "gallery": {
+    "section": "generative",
+    "blurb": "An L-system garden: bracketed L-system plants (ferns, weeds, a flowering bush) grow segment by segment from the ground, swaying in a breeze that rises with the music.",
+    "prompt": "An L-system garden: bracketed L-system plants (ferns, weeds, a flowering bush) grow segment by segment from the ground, swaying in a breeze that rises with the music. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "nature",
+      "organic",
+      "light"
+    ],
+    "source": "scenes100/l-system-garden~1"
+  }
+}

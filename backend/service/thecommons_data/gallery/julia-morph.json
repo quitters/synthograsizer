@@ -1,0 +1,149 @@
+{
+  "name": "Cardioid Julia Breath",
+  "promptTemplate": "A low-res demoscene Julia set breathing along the Mandelbrot cardioid with {{palette}} tones, running at {{tempo}} speed, with {{fractal_zoom}} zoom and {{iterations}} iterations under {{audio_reactivity}} music response.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Color Palette",
+      "values": [
+        {
+          "text": "neon_abyss",
+          "weight": 2
+        },
+        {
+          "text": "solar_flare",
+          "weight": 1
+        },
+        {
+          "text": "cyber_amethyst",
+          "weight": 1
+        },
+        {
+          "text": "phosphor_mono",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "tempo",
+      "label": "Orbit Pace",
+      "values": [
+        {
+          "text": "adagio",
+          "weight": 2
+        },
+        {
+          "text": "moderato",
+          "weight": 2
+        },
+        {
+          "text": "vivace",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "fractal_zoom",
+      "label": "Base Zoom",
+      "type": "number",
+      "min": 0.8,
+      "max": 2.0,
+      "step": 0.1,
+      "default": 1.2
+    },
+    {
+      "name": "iterations",
+      "label": "Max Iterations",
+      "type": "number",
+      "min": 24,
+      "max": 64,
+      "step": 8,
+      "default": 40
+    },
+    {
+      "name": "audio_reactivity",
+      "label": "Audio Drive",
+      "values": [
+        {
+          "text": "subtle",
+          "weight": 2
+        },
+        {
+          "text": "pulsing",
+          "weight": 2
+        },
+        {
+          "text": "overdrive",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "violet",
+    "title": "JULIA CARDIOID +5",
+    "tagline": "60FPS DEMO ENGINE // REALTIME FRACTAL SYNTH",
+    "accent": "#9d4edd",
+    "groups": [
+      {
+        "title": "Fractal Geometry",
+        "controls": [
+          "fractal_zoom",
+          "iterations"
+        ]
+      },
+      {
+        "title": "Orbit Dynamics",
+        "controls": [
+          "tempo",
+          "audio_reactivity"
+        ]
+      },
+      {
+        "title": "Phosphor Shading",
+        "controls": [
+          "palette"
+        ]
+      }
+    ],
+    "controls": {
+      "palette": {
+        "widget": "cycle",
+        "hint": "Direct color ramp for the 512-entry LUT"
+      },
+      "tempo": {
+        "widget": "pads",
+        "hint": "Cardioid orbital velocity"
+      },
+      "fractal_zoom": {
+        "widget": "knob",
+        "hint": "Scale viewport into the breathing border"
+      },
+      "iterations": {
+        "widget": "slider",
+        "hint": "Calculation depth: sharp dendrites or soft dust"
+      },
+      "audio_reactivity": {
+        "widget": "buttons",
+        "hint": "Bass-kick pulse displacement on the boundary"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "gallery": {
+    "section": "demo",
+    "blurb": "A Julia set whose constant travels slowly around the edge of the Mandelbrot cardioid, so the fractal breathes between dust, dendrites and spirals, rendered on a low-resolution buffer with smooth colouring.",
+    "prompt": "A Julia set whose constant travels slowly around the edge of the Mandelbrot cardioid, so the fractal breathes between dust, dendrites and spirals, rendered on a low-resolution buffer with smooth colouring. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "psychedelic",
+      "calm"
+    ],
+    "source": "scenes100/julia-morph~1"
+  }
+}

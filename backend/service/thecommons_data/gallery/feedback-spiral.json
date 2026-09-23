@@ -1,0 +1,162 @@
+{
+  "name": "Hyperspace Feedback Tunnel",
+  "promptTemplate": "Hypnotic demoscene video-feedback tunnel running at {{feedback_zoom}} zoom with {{twist_speed}} twist, {{trail_persistence}} persistence, {{symmetry_folds}} symmetry, {{color_scheme}} palette, and {{emitter_style}} emitters.",
+  "variables": [
+    {
+      "name": "feedback_zoom",
+      "label": "Feedback Zoom",
+      "type": "number",
+      "min": 0.95,
+      "max": 1.08,
+      "step": 0.01,
+      "default": 1.03
+    },
+    {
+      "name": "twist_speed",
+      "label": "Twist Rate",
+      "type": "number",
+      "min": -0.04,
+      "max": 0.04,
+      "step": 0.005,
+      "default": 0.015
+    },
+    {
+      "name": "trail_persistence",
+      "label": "Trail Persistence",
+      "type": "number",
+      "min": 0.9,
+      "max": 0.99,
+      "step": 0.01,
+      "default": 0.96
+    },
+    {
+      "name": "symmetry_folds",
+      "label": "Symmetry Folds",
+      "values": [
+        {
+          "text": "triad (3)",
+          "weight": 1
+        },
+        {
+          "text": "quad (4)",
+          "weight": 2
+        },
+        {
+          "text": "hex (6)",
+          "weight": 2
+        },
+        {
+          "text": "octa (8)",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "color_scheme",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "cyberpunk",
+          "weight": 2
+        },
+        {
+          "text": "hyper_gold",
+          "weight": 1
+        },
+        {
+          "text": "emerald_vector",
+          "weight": 1
+        },
+        {
+          "text": "deep_prism",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "emitter_style",
+      "label": "Emitter Shape",
+      "values": [
+        {
+          "text": "pulsing_polygons",
+          "weight": 2
+        },
+        {
+          "text": "orbital_sparks",
+          "weight": 1
+        },
+        {
+          "text": "harmonic_lissajous",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "violet",
+    "title": "HYPERSPACE +6 TUNNEL",
+    "tagline": "60FPS DEMOSCENE VIDEO FEEDBACK RIG",
+    "accent": "#bf00ff",
+    "groups": [
+      {
+        "title": "Warp Core",
+        "controls": [
+          "feedback_zoom",
+          "twist_speed",
+          "trail_persistence"
+        ]
+      },
+      {
+        "title": "Geometry & Glow",
+        "controls": [
+          "symmetry_folds",
+          "emitter_style",
+          "color_scheme"
+        ]
+      }
+    ],
+    "controls": {
+      "feedback_zoom": {
+        "widget": "knob",
+        "hint": "Zoom > 1 pulls into tunnel; < 1 collapses inward"
+      },
+      "twist_speed": {
+        "widget": "knob",
+        "hint": "Spirals the feedback vortex left or right"
+      },
+      "trail_persistence": {
+        "widget": "slider",
+        "hint": "Controls trail length and feedback decay"
+      },
+      "symmetry_folds": {
+        "widget": "pads",
+        "hint": ""
+      },
+      "color_scheme": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "emitter_style": {
+        "widget": "list",
+        "hint": ""
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "gallery": {
+    "section": "demo",
+    "blurb": "A video-feedback loop: each frame the previous frame is redrawn slightly zoomed and rotated, and a few simple shapes drawn on top grow into hypnotic spiralling tunnels of colour.",
+    "prompt": "A video-feedback loop: each frame the previous frame is redrawn slightly zoomed and rotated, and a few simple shapes drawn on top grow into hypnotic spiralling tunnels of colour. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "psychedelic",
+      "energetic"
+    ],
+    "source": "scenes100/feedback-spiral~1"
+  }
+}

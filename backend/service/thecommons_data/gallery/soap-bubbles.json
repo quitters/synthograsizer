@@ -1,0 +1,145 @@
+{
+  "name": "Thin-Film Soap Bubbles",
+  "promptTemplate": "Soap bubbles with thin-film {{film_thickness}} interference drifting in a {{draft}} breeze, displaying {{iridescence}} iridescence against {{lighting}}.",
+  "variables": [
+    {
+      "name": "draft",
+      "label": "Draft Motion",
+      "values": [
+        {
+          "text": "gentle",
+          "weight": 2
+        },
+        {
+          "text": "calm",
+          "weight": 1
+        },
+        {
+          "text": "breezy",
+          "weight": 2
+        },
+        {
+          "text": "turbulent",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "film_thickness",
+      "label": "Film Thickness",
+      "type": "number",
+      "min": 1,
+      "max": 5,
+      "step": 0.5,
+      "default": 2.5
+    },
+    {
+      "name": "iridescence",
+      "label": "Interference Spectrum",
+      "values": [
+        {
+          "text": "opal",
+          "weight": 2
+        },
+        {
+          "text": "oil_slick",
+          "weight": 2
+        },
+        {
+          "text": "neon_prism",
+          "weight": 1
+        },
+        {
+          "text": "hyper_pastel",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "lighting",
+      "label": "Background Tone",
+      "values": [
+        {
+          "text": "deep_void",
+          "weight": 2
+        },
+        {
+          "text": "dusk_indigo",
+          "weight": 1
+        },
+        {
+          "text": "midnight_teal",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "blow",
+      "label": "Blow Bubble",
+      "type": "trigger",
+      "share": "all"
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "violet",
+    "title": "THIN-FILM SOAP BUBBLES",
+    "tagline": "IRIDESCENT FLUID INTERFERENCE",
+    "accent": "#d466ff",
+    "groups": [
+      {
+        "title": "EMISSION",
+        "controls": [
+          "blow",
+          "draft"
+        ]
+      },
+      {
+        "title": "OPTICS",
+        "controls": [
+          "film_thickness",
+          "iridescence",
+          "lighting"
+        ]
+      }
+    ],
+    "controls": {
+      "draft": {
+        "widget": "pads",
+        "hint": "Regulate ambient wind velocity and turbulence"
+      },
+      "film_thickness": {
+        "widget": "knob",
+        "hint": "Multiplies swirling thin-film interference rings"
+      },
+      "iridescence": {
+        "widget": "cycle",
+        "hint": "Shift spectral palette of surface reflections"
+      },
+      "lighting": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "blow": {
+        "widget": "pad",
+        "hint": "Release a personal drifting bubble into the room"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "gallery": {
+    "section": "games",
+    "blurb": "Soap bubbles with thin-film interference: iridescent bands swirling on their surfaces as they drift, merge and pop over a dark background; anyone can blow a new bubble.",
+    "prompt": "Soap bubbles with thin-film interference: iridescent bands swirling on their surfaces as they drift, merge and pop over a dark background; anyone can blow a new bubble. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "light",
+      "calm"
+    ],
+    "source": "scenes100/soap-bubbles~1"
+  }
+}

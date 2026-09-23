@@ -1,0 +1,135 @@
+{
+  "name": "Sedimentary Fissures",
+  "promptTemplate": "Tectonic rectilinear cracks with {{palette}} minerals, {{grid_scale}} structural grain, branching rate {{branch_rate}}, sand drift spread {{sand_spread}}, and growth pacing {{growth_speed}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Drying Mud",
+          "weight": 3
+        },
+        {
+          "text": "Obsidian Gold",
+          "weight": 2
+        },
+        {
+          "text": "Blueprint Slate",
+          "weight": 2
+        },
+        {
+          "text": "Burnt Terracotta",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "grid_scale",
+      "label": "Grid Scale",
+      "values": [
+        {
+          "text": "Fine",
+          "weight": 2
+        },
+        {
+          "text": "Medium",
+          "weight": 3
+        },
+        {
+          "text": "Coarse",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "growth_speed",
+      "label": "Growth Speed",
+      "type": "number",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "default": 2
+    },
+    {
+      "name": "sand_spread",
+      "label": "Sand Spread",
+      "type": "number",
+      "min": 8,
+      "max": 40,
+      "step": 4,
+      "default": 20
+    },
+    {
+      "name": "branch_rate",
+      "label": "Branch Rate",
+      "type": "number",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "default": 3
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "FISSURE +5 TRAINER",
+    "tagline": "Rectilinear tectonic crack growth & sand drift",
+    "accent": "#d97d41",
+    "groups": [
+      {
+        "title": "Sediment",
+        "controls": [
+          "palette",
+          "sand_spread"
+        ]
+      },
+      {
+        "title": "Fracture Dynamics",
+        "controls": [
+          "growth_speed",
+          "branch_rate",
+          "grid_scale"
+        ]
+      }
+    ],
+    "controls": {
+      "palette": {
+        "widget": "cycle",
+        "hint": "Cycle mineral palette & wall tint"
+      },
+      "grid_scale": {
+        "widget": "buttons",
+        "hint": "Grid resolution; resets the tectonic plane"
+      },
+      "growth_speed": {
+        "widget": "knob",
+        "hint": "Steps advanced per frame"
+      },
+      "sand_spread": {
+        "widget": "slider",
+        "hint": "Distance sand grains drift along fissure edges"
+      },
+      "branch_rate": {
+        "widget": "slider",
+        "hint": "Likelihood of right-angle cleaving"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "gallery": {
+    "section": "generative",
+    "blurb": "Cracks that grow in straight lines, branch at right angles from existing cracks, and leave soft granular sand shading along one side, slowly filling the wall like drying mud or city blocks.",
+    "prompt": "Cracks that grow in straight lines, branch at right angles from existing cracks, and leave soft granular sand shading along one side, slowly filling the wall like drying mud or city blocks. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "organic",
+      "calm"
+    ],
+    "source": "scenes100/substrate-cracks~2"
+  }
+}

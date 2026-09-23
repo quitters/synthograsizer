@@ -1,0 +1,158 @@
+{
+  "name": "Mathematical Paper Marbling",
+  "promptTemplate": "Mathematical Ebru paper marbling in {{palette}} with {{comb_style}} combs, {{tine_density}} tines, viscous speed {{flow_speed}}, and {{drop_rhythm}} drops.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Mineral Palette",
+      "values": [
+        {
+          "text": "venetian_ebru",
+          "weight": 3
+        },
+        {
+          "text": "persian_lapis",
+          "weight": 2
+        },
+        {
+          "text": "suminagashi",
+          "weight": 2
+        },
+        {
+          "text": "malachite_gold",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "comb_style",
+      "label": "Comb Transformation",
+      "values": [
+        {
+          "text": "nonpareil",
+          "weight": 3
+        },
+        {
+          "text": "feather",
+          "weight": 2
+        },
+        {
+          "text": "bouquet",
+          "weight": 2
+        },
+        {
+          "text": "chevron",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "tine_density",
+      "label": "Comb Tooth Gauge",
+      "values": [
+        {
+          "text": "medium",
+          "weight": 3
+        },
+        {
+          "text": "dense",
+          "weight": 2
+        },
+        {
+          "text": "wide",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "flow_speed",
+      "label": "Bath Viscosity",
+      "type": "number",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.5,
+      "default": 1.0
+    },
+    {
+      "name": "drop_rhythm",
+      "label": "Ink Drop Rhythm",
+      "values": [
+        {
+          "text": "musical",
+          "weight": 3
+        },
+        {
+          "text": "continuous",
+          "weight": 2
+        },
+        {
+          "text": "gentle",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "skin": "desk",
+    "variant": "grey",
+    "title": "Ebru Marbling Studio",
+    "tagline": "Mathematical fluid deformation on sized bath",
+    "accent": "",
+    "groups": [
+      {
+        "title": "Bath & Ink",
+        "controls": [
+          "palette",
+          "flow_speed",
+          "drop_rhythm"
+        ]
+      },
+      {
+        "title": "Comb Mechanics",
+        "controls": [
+          "comb_style",
+          "tine_density"
+        ]
+      }
+    ],
+    "controls": {
+      "palette": {
+        "widget": "cycle",
+        "hint": "Shifts pigment mineral tones"
+      },
+      "comb_style": {
+        "widget": "list",
+        "hint": "Sets the mathematical rake distortion path"
+      },
+      "tine_density": {
+        "widget": "buttons",
+        "hint": "Width between raking comb needles"
+      },
+      "flow_speed": {
+        "widget": "knob",
+        "hint": "Bath drag cadence and step velocity"
+      },
+      "drop_rhythm": {
+        "widget": "buttons",
+        "hint": "Ink dispersal timing across the bath"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "gallery": {
+    "section": "generative",
+    "blurb": "Mathematical paper marbling: drops of ink placed in a bath and dragged by combs and tines using the exact marbling transforms, building feathered and nonpareil patterns.",
+    "prompt": "Mathematical paper marbling: drops of ink placed in a bath and dragged by combs and tines using the exact marbling transforms, building feathered and nonpareil patterns. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "painterly",
+      "organic",
+      "calm"
+    ],
+    "source": "scenes100/marbling~2"
+  }
+}

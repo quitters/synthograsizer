@@ -1,0 +1,154 @@
+{
+  "name": "Sand Splines",
+  "promptTemplate": "Ethereal closed sand-spline ribbons drifting in {{palette}} hues, with {{ribbon_count}} loops shedding {{grain_density}} grains under {{motion_feel}} kinematics, {{ribbon_spread}} spread, and {{persistence}} persistence.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "dune",
+          "weight": 2
+        },
+        {
+          "text": "aurora",
+          "weight": 2
+        },
+        {
+          "text": "spectral",
+          "weight": 1
+        },
+        {
+          "text": "monochrome",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "motion_feel",
+      "label": "Motion Style",
+      "values": [
+        {
+          "text": "drifting",
+          "weight": 2
+        },
+        {
+          "text": "surging",
+          "weight": 2
+        },
+        {
+          "text": "hypnotic",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "ribbon_count",
+      "label": "Ribbons",
+      "type": "number",
+      "min": 2,
+      "max": 5,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "name": "grain_density",
+      "label": "Grain Count",
+      "type": "number",
+      "min": 1000,
+      "max": 5000,
+      "step": 500,
+      "default": 3000
+    },
+    {
+      "name": "ribbon_spread",
+      "label": "Ribbon Width",
+      "type": "number",
+      "min": 10,
+      "max": 80,
+      "step": 5,
+      "default": 35
+    },
+    {
+      "name": "persistence",
+      "label": "Persistence",
+      "type": "number",
+      "min": 0.02,
+      "max": 0.16,
+      "step": 0.02,
+      "default": 0.06
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "SAND SPLINES +6",
+    "tagline": "Accumulative sand ribbon dynamics",
+    "accent": "#e59b4c",
+    "groups": [
+      {
+        "title": "Aesthetics",
+        "controls": [
+          "palette",
+          "motion_feel"
+        ]
+      },
+      {
+        "title": "Ribbon Geometry",
+        "controls": [
+          "ribbon_count",
+          "ribbon_spread"
+        ]
+      },
+      {
+        "title": "Particle Density",
+        "controls": [
+          "grain_density",
+          "persistence"
+        ]
+      }
+    ],
+    "controls": {
+      "palette": {
+        "widget": "pads",
+        "hint": "Cycle sand color gradients"
+      },
+      "motion_feel": {
+        "widget": "buttons",
+        "hint": "Modulate control point orbit speeds"
+      },
+      "ribbon_count": {
+        "widget": "stepper",
+        "hint": "Number of active closed spline loops"
+      },
+      "grain_density": {
+        "widget": "slider",
+        "hint": "Total sand points computed per frame"
+      },
+      "ribbon_spread": {
+        "widget": "knob",
+        "hint": "Width of perpendicular grain dispersal"
+      },
+      "persistence": {
+        "widget": "slider",
+        "hint": "Canvas fade trail length"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "gallery": {
+    "section": "generative",
+    "blurb": "Sand splines: smooth closed curves whose control points wander, drawn as thousands of faint grains that accumulate into delicate translucent ribbons.",
+    "prompt": "Sand splines: smooth closed curves whose control points wander, drawn as thousands of faint grains that accumulate into delicate translucent ribbons. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "organic",
+      "calm"
+    ],
+    "source": "scenes100/sand-splines~3"
+  }
+}

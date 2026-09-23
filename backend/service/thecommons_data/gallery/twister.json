@@ -1,0 +1,149 @@
+{
+  "name": "Demoscene Twister",
+  "promptTemplate": "A demoscene twister with {{slice_count}} slices, {{twist_turns}} full turns, {{column_width}} radius, in {{palette_mode}} palette with {{shading_style}} shading and {{flare_intensity}} glow flare.",
+  "variables": [
+    {
+      "name": "slice_count",
+      "label": "Slice Count",
+      "type": "number",
+      "min": 40,
+      "max": 200,
+      "step": 10,
+      "default": 120
+    },
+    {
+      "name": "twist_turns",
+      "label": "Twist Turns",
+      "type": "number",
+      "min": 1,
+      "max": 6,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "name": "column_width",
+      "label": "Column Width",
+      "type": "number",
+      "min": 80,
+      "max": 320,
+      "step": 20,
+      "default": 200
+    },
+    {
+      "name": "palette_mode",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "copper",
+          "weight": 3
+        },
+        {
+          "text": "cyber_neon",
+          "weight": 2
+        },
+        {
+          "text": "monolith_gold",
+          "weight": 2
+        },
+        {
+          "text": "toxic_acid",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "shading_style",
+      "label": "Shading Style",
+      "values": [
+        {
+          "text": "classic_gouraud",
+          "weight": 3
+        },
+        {
+          "text": "flat_faceted",
+          "weight": 2
+        },
+        {
+          "text": "scanline_wire",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "flare_intensity",
+      "label": "Flare Intensity",
+      "type": "number",
+      "min": 0,
+      "max": 10,
+      "step": 1,
+      "default": 5
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "TWISTER +5 TRAINER",
+    "tagline": "Pure raster sine-scroller hardware demo",
+    "accent": "#ff6e28",
+    "groups": [
+      {
+        "title": "Geometry",
+        "controls": [
+          "twist_turns",
+          "column_width",
+          "slice_count"
+        ]
+      },
+      {
+        "title": "Raster fx",
+        "controls": [
+          "palette_mode",
+          "shading_style",
+          "flare_intensity"
+        ]
+      }
+    ],
+    "controls": {
+      "slice_count": {
+        "widget": "slider",
+        "hint": "Raster scanline density from retro bars to silk"
+      },
+      "twist_turns": {
+        "widget": "knob",
+        "hint": "Crank to wind the column into tight coils"
+      },
+      "column_width": {
+        "widget": "slider",
+        "hint": ""
+      },
+      "palette_mode": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "shading_style": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "flare_intensity": {
+        "widget": "knob",
+        "hint": "Atmospheric beam glow behind the column"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "gallery": {
+    "section": "demo",
+    "blurb": "A twister: a tall column that twists around its vertical axis, drawn as horizontal slices where each slice shows the faces visible between four sine-driven edges, each face shaded by how far it turns towards the light, twisting faster on the beat.",
+    "prompt": "A twister: a tall column that twists around its vertical axis, drawn as horizontal slices where each slice shows the faces visible between four sine-driven edges, each face shaded by how far it turns towards the light, twisting faster on the beat. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "retro",
+      "3d"
+    ],
+    "source": "scenes100/twister~1"
+  }
+}

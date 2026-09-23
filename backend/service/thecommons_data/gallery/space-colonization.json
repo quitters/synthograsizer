@@ -1,0 +1,125 @@
+{
+  "name": "Colonization Arbor",
+  "promptTemplate": "A space-colonization generative tree with {{canopy_shape}} canopy growing at {{growth_rate}} rate in {{season_palette}} hues, with branch reach {{branch_spread}}.",
+  "variables": [
+    {
+      "name": "canopy_shape",
+      "label": "Canopy Shape",
+      "values": [
+        {
+          "text": "elm_dome",
+          "weight": 2
+        },
+        {
+          "text": "sprawling_oak",
+          "weight": 2
+        },
+        {
+          "text": "tall_pine",
+          "weight": 1
+        },
+        {
+          "text": "weeping_willow",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "growth_rate",
+      "label": "Growth Rate",
+      "type": "number",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "name": "season_palette",
+      "label": "Season Palette",
+      "values": [
+        {
+          "text": "verdant_spring",
+          "weight": 2
+        },
+        {
+          "text": "sakura_twilight",
+          "weight": 2
+        },
+        {
+          "text": "golden_autumn",
+          "weight": 1
+        },
+        {
+          "text": "bioluminescent",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "branch_spread",
+      "label": "Branch Reach",
+      "type": "number",
+      "min": 30,
+      "max": 90,
+      "step": 10,
+      "default": 60
+    }
+  ],
+  "ui": {
+    "skin": "desk",
+    "variant": "grey",
+    "title": "Arbor Studio",
+    "tagline": "Space-colonization growth simulator",
+    "accent": "",
+    "groups": [
+      {
+        "title": "Morphology",
+        "controls": [
+          "canopy_shape",
+          "branch_spread"
+        ]
+      },
+      {
+        "title": "Life Cycle",
+        "controls": [
+          "growth_rate",
+          "season_palette"
+        ]
+      }
+    ],
+    "controls": {
+      "canopy_shape": {
+        "widget": "cycle",
+        "hint": "Crown silhouette on next seasonal germination"
+      },
+      "growth_rate": {
+        "widget": "knob",
+        "hint": "Branch extension speed per frame"
+      },
+      "season_palette": {
+        "widget": "cycle",
+        "hint": "Foliage and atmosphere colorway"
+      },
+      "branch_spread": {
+        "widget": "slider",
+        "hint": "Reach distance toward attractor nodes"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "gallery": {
+    "section": "generative",
+    "blurb": "The space-colonization algorithm growing a tree towards scattered attraction points, branches thickening towards the trunk, leaves at the tips; then the season turns and it grows again.",
+    "prompt": "The space-colonization algorithm growing a tree towards scattered attraction points, branches thickening towards the trunk, leaves at the tips; then the season turns and it grows again. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "nature",
+      "organic"
+    ],
+    "source": "scenes100/space-colonization~1"
+  }
+}

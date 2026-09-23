@@ -1,0 +1,150 @@
+{
+  "name": "Density Wave Spiral Galaxy",
+  "promptTemplate": "A {{arm_count}} spiral galaxy rendered with {{galaxy_palette}} tones, rotating at {{rotation_speed}} speed, viewed at {{disk_tilt}} tilt with {{core_brilliance}} core glow and {{dust_depth}} dust lanes.",
+  "variables": [
+    {
+      "name": "arm_count",
+      "label": "Arm Morphology",
+      "values": [
+        {
+          "text": "two_armed",
+          "weight": 3
+        },
+        {
+          "text": "four_armed",
+          "weight": 2
+        },
+        {
+          "text": "barred_spiral",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "galaxy_palette",
+      "label": "Spectral Palette",
+      "values": [
+        {
+          "text": "andromeda_blue",
+          "weight": 3
+        },
+        {
+          "text": "aurora_nebula",
+          "weight": 2
+        },
+        {
+          "text": "golden_amber",
+          "weight": 2
+        },
+        {
+          "text": "cosmic_infrared",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "disk_tilt",
+      "label": "Viewing Tilt",
+      "type": "number",
+      "min": 15,
+      "max": 75,
+      "step": 5,
+      "default": 55
+    },
+    {
+      "name": "core_brilliance",
+      "label": "Core Brilliance",
+      "type": "number",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.1,
+      "default": 1.2
+    },
+    {
+      "name": "dust_depth",
+      "label": "Dust Lane Density",
+      "type": "number",
+      "min": 0,
+      "max": 1,
+      "step": 0.1,
+      "default": 0.6
+    },
+    {
+      "name": "rotation_speed",
+      "label": "Rotation Rate",
+      "type": "number",
+      "min": 0.2,
+      "max": 2,
+      "step": 0.1,
+      "default": 0.8
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "ice",
+    "title": "DENSITY WAVE +4 TRAINER",
+    "tagline": "Realtime orbital resonance and stellar density waves",
+    "accent": "#6ee4f8",
+    "groups": [
+      {
+        "title": "Galaxy Dynamics",
+        "controls": [
+          "arm_count",
+          "rotation_speed",
+          "disk_tilt"
+        ]
+      },
+      {
+        "title": "Stellar Optics",
+        "controls": [
+          "galaxy_palette",
+          "core_brilliance",
+          "dust_depth"
+        ]
+      }
+    ],
+    "controls": {
+      "arm_count": {
+        "widget": "buttons",
+        "hint": "Reform orbits into 2-arm, 4-arm, or barred spiral"
+      },
+      "galaxy_palette": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "disk_tilt": {
+        "widget": "slider",
+        "hint": "Incline galactic plane from face-on to edge-on"
+      },
+      "core_brilliance": {
+        "widget": "knob",
+        "hint": "Intensify bulge radiation and core flare"
+      },
+      "dust_depth": {
+        "widget": "slider",
+        "hint": "Dense dark absorption lanes obscuring stars"
+      },
+      "rotation_speed": {
+        "widget": "knob",
+        "hint": "Spins disk orbital propagation"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "gallery": {
+    "section": "generative",
+    "blurb": "A spiral galaxy from density waves: thousands of stars on tilted elliptical orbits whose turning makes spiral arms emerge, with a glowing core and dust lanes.",
+    "prompt": "A spiral galaxy from density waves: thousands of stars on tilted elliptical orbits whose turning makes spiral arms emerge, with a glowing core and dust lanes. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "space",
+      "light",
+      "calm"
+    ],
+    "source": "scenes100/spiral-galaxy~1"
+  }
+}

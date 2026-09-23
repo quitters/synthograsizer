@@ -1,0 +1,140 @@
+{
+  "name": "chromatic_divergence",
+  "promptTemplate": "A fan of {{pendulum_count}} double pendulums with {{chaos_spread}} divergence, rendered with {{trail_glow}} trails at {{speed_rate}} speed in a {{color_scheme}} spectrum.",
+  "variables": [
+    {
+      "name": "pendulum_count",
+      "label": "Pendulum Count",
+      "type": "number",
+      "min": 24,
+      "max": 96,
+      "step": 12,
+      "default": 60
+    },
+    {
+      "name": "chaos_spread",
+      "label": "Spread",
+      "type": "number",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "default": 2
+    },
+    {
+      "name": "speed_rate",
+      "label": "Simulation Speed",
+      "values": [
+        {
+          "text": "languid",
+          "weight": 1
+        },
+        {
+          "text": "brisk",
+          "weight": 3
+        },
+        {
+          "text": "hyper",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "trail_glow",
+      "label": "Trail Persistence",
+      "values": [
+        {
+          "text": "evanescent",
+          "weight": 1
+        },
+        {
+          "text": "phosphor",
+          "weight": 3
+        },
+        {
+          "text": "infinite",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "color_scheme",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "spectral",
+          "weight": 3
+        },
+        {
+          "text": "aurora",
+          "weight": 2
+        },
+        {
+          "text": "solar",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "violet",
+    "title": "DIVERGENCE +5",
+    "tagline": "CHAOTIC FAN DYNAMICS AT 60 FPS",
+    "accent": "#bf55ec",
+    "groups": [
+      {
+        "title": "SWARM",
+        "controls": [
+          "pendulum_count",
+          "chaos_spread",
+          "speed_rate"
+        ]
+      },
+      {
+        "title": "OPTICS",
+        "controls": [
+          "color_scheme",
+          "trail_glow"
+        ]
+      }
+    ],
+    "controls": {
+      "pendulum_count": {
+        "widget": "slider",
+        "hint": "Density of the ribbon array"
+      },
+      "chaos_spread": {
+        "widget": "knob",
+        "hint": "Initial angle offset before chaos erupts"
+      },
+      "speed_rate": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "trail_glow": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "color_scheme": {
+        "widget": "pads",
+        "hint": ""
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "gallery": {
+    "section": "generative",
+    "blurb": "A fan of double pendulums released from almost identical angles, each a hue of the rainbow, moving together at first and then diverging into chaos, then resetting.",
+    "prompt": "A fan of double pendulums released from almost identical angles, each a hue of the rainbow, moving together at first and then diverging into chaos, then resetting. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "geometric",
+      "energetic"
+    ],
+    "source": "scenes100/double-pendulums~3"
+  }
+}

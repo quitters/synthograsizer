@@ -1,0 +1,171 @@
+{
+  "name": "Sinusoidal Matrix Membrane",
+  "promptTemplate": "Sinusoidal landscape in {{palette}} palette with {{wave_complexity}} waves viewed from {{view_angle}}, rendering {{point_style}} at speed {{speed}} and elevation {{elevation}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Color Matrix",
+      "values": [
+        {
+          "text": "cyber_cyan",
+          "weight": 3
+        },
+        {
+          "text": "amber_crt",
+          "weight": 2
+        },
+        {
+          "text": "synthwave",
+          "weight": 2
+        },
+        {
+          "text": "matrix_emerald",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "wave_complexity",
+      "label": "Harmonic Pattern",
+      "values": [
+        {
+          "text": "smooth_ripple",
+          "weight": 3
+        },
+        {
+          "text": "standing_chladni",
+          "weight": 2
+        },
+        {
+          "text": "cross_swell",
+          "weight": 2
+        },
+        {
+          "text": "chaotic_surge",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "view_angle",
+      "label": "Camera Elevation",
+      "values": [
+        {
+          "text": "horizon",
+          "weight": 3
+        },
+        {
+          "text": "bird_eye",
+          "weight": 2
+        },
+        {
+          "text": "low_angle",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "point_style",
+      "label": "Phosphor Glyphs",
+      "values": [
+        {
+          "text": "phosphor_dot",
+          "weight": 3
+        },
+        {
+          "text": "square_voxel",
+          "weight": 2
+        },
+        {
+          "text": "ring_blip",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "speed",
+      "label": "Propagation Rate",
+      "type": "number",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.25,
+      "default": 1.0
+    },
+    {
+      "name": "elevation",
+      "label": "Wave Amplitude",
+      "type": "number",
+      "min": 0.5,
+      "max": 3.0,
+      "step": 0.5,
+      "default": 1.5
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "acid",
+    "title": "MATRIX MEMBRANE +6",
+    "tagline": "Demoscene 3D resonant phosphor landscape",
+    "accent": "#00e8b0",
+    "groups": [
+      {
+        "title": "Harmonics",
+        "controls": [
+          "wave_complexity",
+          "elevation",
+          "speed"
+        ]
+      },
+      {
+        "title": "Matrix Phosphor",
+        "controls": [
+          "palette",
+          "point_style",
+          "view_angle"
+        ]
+      }
+    ],
+    "controls": {
+      "palette": {
+        "widget": "cycle",
+        "hint": "Recomputes the 128-entry phosphor gradient LUT"
+      },
+      "wave_complexity": {
+        "widget": "pads",
+        "hint": "Switches the resonant wave equation on the grid"
+      },
+      "view_angle": {
+        "widget": "buttons",
+        "hint": "Alters camera pitch and elevation over the membrane"
+      },
+      "point_style": {
+        "widget": "buttons",
+        "hint": "Switch matrix glyph rendering primitive"
+      },
+      "speed": {
+        "widget": "slider",
+        "hint": "Cycle rate of the travelling sine waves"
+      },
+      "elevation": {
+        "widget": "knob",
+        "hint": "Scale wave peak amplitude and vertical displacement"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "gallery": {
+    "section": "demo",
+    "blurb": "A sinusoidal dot-matrix landscape: a grid of dots in perspective whose heights are sums of travelling sine waves, like a vibrating membrane, dots coloured by height, the waves driven by the music.",
+    "prompt": "A sinusoidal dot-matrix landscape: a grid of dots in perspective whose heights are sums of travelling sine waves, like a vibrating membrane, dots coloured by height, the waves driven by the music. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "3d",
+      "retro"
+    ],
+    "source": "scenes100/sine-dot-landscape~1"
+  }
+}

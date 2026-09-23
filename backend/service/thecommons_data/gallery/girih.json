@@ -1,0 +1,154 @@
+{
+  "name": "Girih Interlace in Lapis & Gold",
+  "promptTemplate": "An Islamic geometric girih tiling in {{palette_mode}} with {{pattern_scale}} scale and {{symmetry_order}} rosettes, strapwork width of {{strap_width}} and tracing speed {{trace_speed}} responding with {{pulse_intensity}} audio glow.",
+  "variables": [
+    {
+      "name": "palette_mode",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Lapis & Royal Gold",
+          "weight": 2
+        },
+        {
+          "text": "Midnight & Ochre",
+          "weight": 1
+        },
+        {
+          "text": "Persian Turquoise & Brass",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "pattern_scale",
+      "label": "Scale",
+      "values": [
+        {
+          "text": "Dense",
+          "weight": 1
+        },
+        {
+          "text": "Medium",
+          "weight": 2
+        },
+        {
+          "text": "Grand",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "symmetry_order",
+      "label": "Symmetry",
+      "values": [
+        {
+          "text": "6-Fold Hexagonal",
+          "weight": 1
+        },
+        {
+          "text": "8-Fold Rosette",
+          "weight": 2
+        },
+        {
+          "text": "12-Fold Star",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "strap_width",
+      "label": "Strap Width",
+      "type": "number",
+      "min": 6,
+      "max": 24,
+      "step": 2,
+      "default": 14
+    },
+    {
+      "name": "trace_speed",
+      "label": "Trace Speed",
+      "type": "number",
+      "min": 0.2,
+      "max": 2.0,
+      "step": 0.2,
+      "default": 0.8
+    },
+    {
+      "name": "pulse_intensity",
+      "label": "Pulse Intensity",
+      "type": "number",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.1,
+      "default": 0.5
+    }
+  ],
+  "ui": {
+    "skin": "desk",
+    "variant": "blue",
+    "title": "Girih Studio",
+    "tagline": "Interlaced star & polygon tilings in lapis and gold",
+    "accent": "",
+    "groups": [
+      {
+        "title": "Geometry",
+        "controls": [
+          "symmetry_order",
+          "pattern_scale",
+          "strap_width"
+        ]
+      },
+      {
+        "title": "Illumination",
+        "controls": [
+          "palette_mode",
+          "trace_speed",
+          "pulse_intensity"
+        ]
+      }
+    ],
+    "controls": {
+      "palette_mode": {
+        "widget": "list",
+        "hint": ""
+      },
+      "pattern_scale": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "symmetry_order": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "strap_width": {
+        "widget": "slider",
+        "hint": "Thickness of the woven ribbons"
+      },
+      "trace_speed": {
+        "widget": "knob",
+        "hint": "Speed of the line-drawing cycle"
+      },
+      "pulse_intensity": {
+        "widget": "knob",
+        "hint": "Bass beat expansion on rosette nodes"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "gallery": {
+    "section": "generative",
+    "blurb": "An Islamic geometric pattern: a star-and-polygon girih tiling drawn with interlaced strapwork passing over and under, lines tracing themselves on, in lapis and gold.",
+    "prompt": "An Islamic geometric pattern: a star-and-polygon girih tiling drawn with interlaced strapwork passing over and under, lines tracing themselves on, in lapis and gold. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "geometric",
+      "calm"
+    ],
+    "source": "scenes100/girih~2"
+  }
+}

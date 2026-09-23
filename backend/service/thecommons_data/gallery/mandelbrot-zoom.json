@@ -1,0 +1,121 @@
+{
+  "name": "Seahorse Void Demoloop",
+  "promptTemplate": "An endless Mandelbrot zoom into seahorse valley with {{palette_mode}} palette, {{zoom_speed}} zoom speed, {{iteration_depth}} iteration depth, and {{audio_reactivity}} audio modulation.",
+  "variables": [
+    {
+      "name": "palette_mode",
+      "label": "Palette Mode",
+      "values": [
+        {
+          "text": "electric_neon",
+          "weight": 2
+        },
+        {
+          "text": "cyber_amber",
+          "weight": 1
+        },
+        {
+          "text": "deep_void",
+          "weight": 1
+        },
+        {
+          "text": "acid_matrix",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "zoom_speed",
+      "label": "Zoom Speed",
+      "type": "number",
+      "min": 0.2,
+      "max": 2.0,
+      "step": 0.2,
+      "default": 1.0
+    },
+    {
+      "name": "iteration_depth",
+      "label": "Iteration Depth",
+      "type": "number",
+      "min": 32,
+      "max": 112,
+      "step": 16,
+      "default": 64
+    },
+    {
+      "name": "audio_reactivity",
+      "label": "Audio Reactivity",
+      "values": [
+        {
+          "text": "harmonic",
+          "weight": 2
+        },
+        {
+          "text": "surge",
+          "weight": 1
+        },
+        {
+          "text": "strobe",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "violet",
+    "title": "SEAHORSE VOID +4",
+    "tagline": "Demoscene Mandelbrot infinite dive",
+    "accent": "#9d4edd",
+    "groups": [
+      {
+        "title": "FRACTAL ENGINE",
+        "controls": [
+          "zoom_speed",
+          "iteration_depth"
+        ]
+      },
+      {
+        "title": "OPTICS & AUDIO",
+        "controls": [
+          "palette_mode",
+          "audio_reactivity"
+        ]
+      }
+    ],
+    "controls": {
+      "palette_mode": {
+        "widget": "pads",
+        "hint": ""
+      },
+      "zoom_speed": {
+        "widget": "knob",
+        "hint": "Crank to accelerate the dive into the valley"
+      },
+      "iteration_depth": {
+        "widget": "slider",
+        "hint": "Higher steps resolve denser spiral tendrils"
+      },
+      "audio_reactivity": {
+        "widget": "buttons",
+        "hint": "Amplifies bass pump and color cycle surge"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "gallery": {
+    "section": "demo",
+    "blurb": "An endless Mandelbrot zoom into seahorse valley, rendered progressively on a coarse buffer with smooth escape-time colouring, the palette cycling with the music.",
+    "prompt": "An endless Mandelbrot zoom into seahorse valley, rendered progressively on a coarse buffer with smooth escape-time colouring, the palette cycling with the music. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "psychedelic",
+      "retro"
+    ],
+    "source": "scenes100/mandelbrot-zoom~1"
+  }
+}

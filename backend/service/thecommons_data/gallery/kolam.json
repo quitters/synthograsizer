@@ -1,0 +1,190 @@
+{
+  "name": "Sikku Kolam Flour Knot",
+  "promptTemplate": "A {{pattern_style}} kolam drawn with {{flour_texture}} over {{floor_tone}} pavement on a {{grid_density}} with line weight {{line_weight}} at {{draw_speed}} speed, holding for {{hold_time}}s.",
+  "variables": [
+    {
+      "name": "pattern_style",
+      "label": "Pattern Style",
+      "values": [
+        {
+          "text": "brahma_mudi",
+          "weight": 3
+        },
+        {
+          "text": "kamala",
+          "weight": 2
+        },
+        {
+          "text": "nakshatra",
+          "weight": 2
+        },
+        {
+          "text": "ananta",
+          "weight": 1
+        },
+        {
+          "text": "sahasra",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "flour_texture",
+      "label": "Flour Powder",
+      "values": [
+        {
+          "text": "pure_rice",
+          "weight": 3
+        },
+        {
+          "text": "turmeric_gold",
+          "weight": 2
+        },
+        {
+          "text": "kumkum_tint",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "floor_tone",
+      "label": "Floor Ground",
+      "values": [
+        {
+          "text": "terracotta",
+          "weight": 3
+        },
+        {
+          "text": "temple_stone",
+          "weight": 2
+        },
+        {
+          "text": "twilight_indigo",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "grid_density",
+      "label": "Pulli Grid",
+      "values": [
+        {
+          "text": "classic_5",
+          "weight": 3
+        },
+        {
+          "text": "extended_7",
+          "weight": 2
+        },
+        {
+          "text": "dense_9",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "draw_speed",
+      "label": "Draw Speed",
+      "type": "number",
+      "min": 0.2,
+      "max": 2.0,
+      "step": 0.1,
+      "default": 0.8
+    },
+    {
+      "name": "line_weight",
+      "label": "Line Weight",
+      "type": "number",
+      "min": 2,
+      "max": 8,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "name": "hold_time",
+      "label": "Hold Seconds",
+      "type": "number",
+      "min": 1,
+      "max": 5,
+      "step": 0.5,
+      "default": 2.0
+    }
+  ],
+  "ui": {
+    "skin": "desk",
+    "variant": "grey",
+    "title": "Kolam Studio",
+    "tagline": "Continuous sacred rice flour knotwork",
+    "accent": "",
+    "groups": [
+      {
+        "title": "Knot Geometry",
+        "controls": [
+          "pattern_style",
+          "grid_density",
+          "line_weight"
+        ]
+      },
+      {
+        "title": "Ritual Timing",
+        "controls": [
+          "draw_speed",
+          "hold_time"
+        ]
+      },
+      {
+        "title": "Temple Ground",
+        "controls": [
+          "flour_texture",
+          "floor_tone"
+        ]
+      }
+    ],
+    "controls": {
+      "pattern_style": {
+        "widget": "list",
+        "hint": "Selects the harmonic symmetric knot motif"
+      },
+      "flour_texture": {
+        "widget": "buttons",
+        "hint": "Powder pigment: pure rice, turmeric, or kumkum"
+      },
+      "floor_tone": {
+        "widget": "buttons",
+        "hint": "Courtyard stone base colour"
+      },
+      "grid_density": {
+        "widget": "buttons",
+        "hint": "Density of the pulli dot matrix"
+      },
+      "draw_speed": {
+        "widget": "knob",
+        "hint": "Speed of rice flour tracing"
+      },
+      "line_weight": {
+        "widget": "slider",
+        "hint": "Width of flour trail and dot radius"
+      },
+      "hold_time": {
+        "widget": "knob",
+        "hint": "Pause duration on completed knot before redrawing"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "gallery": {
+    "section": "generative",
+    "blurb": "A kolam: a grid of dots around which a single continuous line loops and curves as if drawn in rice flour, reaching completion and then redrawn with a new pattern.",
+    "prompt": "A kolam: a grid of dots around which a single continuous line loops and curves as if drawn in rice flour, reaching completion and then redrawn with a new pattern. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "geometric",
+      "calm"
+    ],
+    "source": "scenes100/kolam~1"
+  }
+}

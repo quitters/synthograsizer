@@ -1,0 +1,175 @@
+{
+  "name": "DLA Coral Lattice",
+  "promptTemplate": "Diffusion-limited aggregation crystal in {{palette}} palette with {{branch_density}} structure and {{symmetry}} symmetry at {{sim_speed}} growth speed and {{glow_intensity}} glow",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "chromatic_flow",
+          "weight": 2
+        },
+        {
+          "text": "bioluminescent",
+          "weight": 2
+        },
+        {
+          "text": "solar_corona",
+          "weight": 1
+        },
+        {
+          "text": "electric_amethyst",
+          "weight": 1
+        },
+        {
+          "text": "room_echo",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "branch_density",
+      "label": "Branch Style",
+      "values": [
+        {
+          "text": "feathery",
+          "weight": 2
+        },
+        {
+          "text": "dense_coral",
+          "weight": 2
+        },
+        {
+          "text": "crystalline",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "symmetry",
+      "label": "Symmetry",
+      "values": [
+        {
+          "text": "organic",
+          "weight": 2
+        },
+        {
+          "text": "bilateral",
+          "weight": 1
+        },
+        {
+          "text": "radial_quad",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "sim_speed",
+      "label": "Growth Rate",
+      "type": "number",
+      "min": 10,
+      "max": 40,
+      "step": 5,
+      "default": 20
+    },
+    {
+      "name": "glow_intensity",
+      "label": "Branch Glow",
+      "type": "number",
+      "min": 0.2,
+      "max": 1.0,
+      "step": 0.1,
+      "default": 0.6
+    },
+    {
+      "name": "burst",
+      "label": "Release Burst",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "reseed",
+      "label": "New Seed",
+      "type": "trigger",
+      "share": "one"
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "ice",
+    "title": "DLA CORAL +5",
+    "tagline": "Demoscene crystal aggregation engine",
+    "accent": "#5ce6ff",
+    "groups": [
+      {
+        "title": "Inject",
+        "controls": [
+          "burst",
+          "reseed"
+        ]
+      },
+      {
+        "title": "Morphology",
+        "controls": [
+          "branch_density",
+          "symmetry"
+        ]
+      },
+      {
+        "title": "Dynamics",
+        "controls": [
+          "sim_speed",
+          "glow_intensity",
+          "palette"
+        ]
+      }
+    ],
+    "controls": {
+      "palette": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "branch_density": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "symmetry": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "sim_speed": {
+        "widget": "knob",
+        "hint": "Rate at which random walkers advance per frame"
+      },
+      "glow_intensity": {
+        "widget": "slider",
+        "hint": ""
+      },
+      "burst": {
+        "widget": "pad",
+        "hint": "Flood the aggregate with your walker pulse"
+      },
+      "reseed": {
+        "widget": "button",
+        "hint": "Clear the grid and drop a new central seed"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "gallery": {
+    "section": "games",
+    "blurb": "Diffusion-limited aggregation: random walkers stick to a growing crystal, building a branching coral from a seed at the centre, coloured by arrival time; anyone can release a burst of walkers in their colour.",
+    "prompt": "Diffusion-limited aggregation: random walkers stick to a growing crystal, building a branching coral from a seed at the centre, coloured by arrival time; anyone can release a burst of walkers in their colour. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "organic",
+      "nature"
+    ],
+    "source": "scenes100/dla-coral~1"
+  }
+}

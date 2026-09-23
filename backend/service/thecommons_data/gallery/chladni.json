@@ -1,0 +1,159 @@
+{
+  "name": "Chladni Resonance Plate",
+  "promptTemplate": "Chladni figures on a {{plate_material}} vibrating square plate with {{grain_palette}} sand, {{vibration_power}} drive strength, {{auto_switch}} progression, and {{particle_count}} sand grains.",
+  "variables": [
+    {
+      "name": "plate_material",
+      "label": "Plate Surface",
+      "values": [
+        {
+          "text": "Dark Slate",
+          "weight": 3
+        },
+        {
+          "text": "Obsidian Mirror",
+          "weight": 2
+        },
+        {
+          "text": "Aged Brass",
+          "weight": 2
+        },
+        {
+          "text": "Deep Indigo",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "grain_palette",
+      "label": "Sand Mineral",
+      "values": [
+        {
+          "text": "Fine Quartz",
+          "weight": 3
+        },
+        {
+          "text": "Burnished Gold",
+          "weight": 2
+        },
+        {
+          "text": "Phosphor Green",
+          "weight": 2
+        },
+        {
+          "text": "Bismuth Violet",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "particle_count",
+      "label": "Grain Count",
+      "type": "number",
+      "min": 1500,
+      "max": 4500,
+      "step": 500,
+      "default": 3000
+    },
+    {
+      "name": "vibration_power",
+      "label": "Vibration Drive",
+      "type": "number",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.25,
+      "default": 1.25
+    },
+    {
+      "name": "auto_switch",
+      "label": "Mode Advance",
+      "values": [
+        {
+          "text": "On Beat",
+          "weight": 3
+        },
+        {
+          "text": "Slow Drift",
+          "weight": 2
+        },
+        {
+          "text": "Manual Only",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "switch_mode",
+      "label": "Switch Mode",
+      "type": "trigger",
+      "share": "one"
+    }
+  ],
+  "ui": {
+    "skin": "desk",
+    "variant": "grey",
+    "title": "Chladni Studio",
+    "tagline": "Acoustic nodal sand resonance on a vibrating plate",
+    "accent": "",
+    "groups": [
+      {
+        "title": "Acoustic Drive",
+        "controls": [
+          "switch_mode",
+          "auto_switch",
+          "vibration_power"
+        ]
+      },
+      {
+        "title": "Substrate & Sand",
+        "controls": [
+          "plate_material",
+          "grain_palette",
+          "particle_count"
+        ]
+      }
+    ],
+    "controls": {
+      "plate_material": {
+        "widget": "list",
+        "hint": ""
+      },
+      "grain_palette": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "particle_count": {
+        "widget": "slider",
+        "hint": "Density of sand grains populating the plate"
+      },
+      "vibration_power": {
+        "widget": "knob",
+        "hint": "Boosts plate amplitude and flings grains toward nodal lines"
+      },
+      "auto_switch": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "switch_mode": {
+        "widget": "pad",
+        "hint": "Instantly shifts nodal lines into a new harmonic pattern"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "gallery": {
+    "section": "games",
+    "blurb": "Chladni figures: sand on a vibrating square plate gathers on the nodal lines of the current mode, drifting into a new figure whenever the mode changes on the beat; one person can switch the mode themselves.",
+    "prompt": "Chladni figures: sand on a vibrating square plate gathers on the nodal lines of the current mode, drifting into a new figure whenever the mode changes on the beat; one person can switch the mode themselves. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "geometric",
+      "calm"
+    ],
+    "source": "scenes100/chladni~1"
+  }
+}

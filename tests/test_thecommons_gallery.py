@@ -103,10 +103,15 @@ def test_every_piece_has_a_panel_that_needed_no_patching():
     """normalize_ui() quietly repairs a bad spec, which is right for model
     output and wrong for a curated one: a panel fixed up on load is a panel
     nobody actually reviewed. So every field written here must come through
-    exactly as written."""
-    assert set(PANELS) == {meta["slug"] for meta in GALLERY}
+    exactly as written. A piece that describes itself keeps its panel in its
+    own <slug>.json instead, and is held to the same rule."""
+    self_described = {meta["slug"] for meta in GALLERY if "look" in meta}
+    written_panels = {**PANELS, **{
+        slug: json.loads((_DIR / f"{slug}.json").read_text(encoding="utf-8"))["ui"] for slug in self_described}}
+    assert not set(PANELS) & self_described
+    assert set(written_panels) == {meta["slug"] for meta in GALLERY}
     for piece in load_gallery():
-        written, served = PANELS[piece["slug"]], piece["sketch"]["ui"]
+        written, served = written_panels[piece["slug"]], piece["sketch"]["ui"]
         for field in ("skin", "variant", "title", "tagline", "mobile", "desktop"):
             assert served[field] == written[field], (piece["slug"], field)
         assert served["groups"] == written["groups"], piece["slug"]
@@ -215,18 +220,23 @@ const noop = () => {};
 const METHODS = ['save', 'restore', 'beginPath', 'closePath', 'moveTo', 'lineTo', 'arc', 'arcTo', 'ellipse',
   'rect', 'fill', 'stroke', 'clip', 'fillRect', 'strokeRect', 'clearRect', 'translate', 'rotate', 'scale',
   'transform', 'setTransform', 'resetTransform', 'drawImage', 'putImageData', 'fillText', 'strokeText',
-  'setLineDash', 'bezierCurveTo', 'quadraticCurveTo'];
+  'setLineDash', 'bezierCurveTo', 'quadraticCurveTo', 'roundRect'];
 function stub(canvas) {
   const s = { canvas, globalCompositeOperation: 'source-over', globalAlpha: 1, imageSmoothingEnabled: true,
               fillStyle: '#000', strokeStyle: '#000', lineWidth: 1, font: '10px sans-serif' };
   for (const m of METHODS) s[m] = noop;
   s.createImageData = (w, h) => ({ data: new Uint8ClampedArray(w * h * 4), width: w, height: h });
+  s.getImageData = (x, y, w, h) => s.createImageData(w, h);
   s.createLinearGradient = s.createRadialGradient = s.createConicGradient = () => grad;
   s.createPattern = () => ({});
   s.measureText = (t) => ({ width: String(t).length * 7 });
   s.getLineDash = () => [];
   return s;
 }
+// Every browser has these, and pieces use them to cache a shape once.
+globalThis.Path2D = class { constructor() {} };
+for (const m of ['moveTo', 'lineTo', 'arc', 'arcTo', 'ellipse', 'rect', 'roundRect', 'closePath',
+                 'bezierCurveTo', 'quadraticCurveTo', 'addPath']) Path2D.prototype[m] = noop;
 globalThis.OffscreenCanvas = class { constructor(w, h) { this.width = w; this.height = h; }
                                      getContext() { return stub(this); } };
 // Numbers a piece keeps in state must stay numbers. One generated piece blew up

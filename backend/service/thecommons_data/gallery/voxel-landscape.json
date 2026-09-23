@@ -1,0 +1,155 @@
+{
+  "name": "Dusk Canyon Voxel Engine",
+  "promptTemplate": "A demoscene voxel landscape flyover through {{canyon_theme}} with {{altitude_mode}} elevation, {{fly_speed}} flight speed, {{fog_density}} fog density, {{fov_angle}} field of view, and {{audio_reactivity}} music modulation.",
+  "variables": [
+    {
+      "name": "canyon_theme",
+      "label": "Palette & Mood",
+      "values": [
+        {
+          "text": "Dusk Ochre",
+          "weight": 3
+        },
+        {
+          "text": "Violet Twilight",
+          "weight": 2
+        },
+        {
+          "text": "Cyber Neon",
+          "weight": 1
+        },
+        {
+          "text": "Glacial Basin",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "altitude_mode",
+      "label": "Flight Level",
+      "values": [
+        {
+          "text": "Valley Skimmer",
+          "weight": 3
+        },
+        {
+          "text": "Ridge Contour",
+          "weight": 2
+        },
+        {
+          "text": "High Overlook",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "fly_speed",
+      "label": "Flight Speed",
+      "type": "number",
+      "min": 0.4,
+      "max": 2.4,
+      "step": 0.2,
+      "default": 1.2
+    },
+    {
+      "name": "fog_density",
+      "label": "Atmospheric Fog",
+      "type": "number",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.2,
+      "default": 1.5
+    },
+    {
+      "name": "fov_angle",
+      "label": "FOV Angle",
+      "type": "number",
+      "min": 60,
+      "max": 110,
+      "step": 5,
+      "default": 80
+    },
+    {
+      "name": "audio_reactivity",
+      "label": "Audio Punch",
+      "type": "number",
+      "min": 0.0,
+      "max": 2.0,
+      "step": 0.2,
+      "default": 1.0
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "VOXEL FLYER +6",
+    "tagline": "1990s Comanche style heightmap chasm flight",
+    "accent": "#ff8833",
+    "groups": [
+      {
+        "title": "Atmosphere & Tone",
+        "controls": [
+          "canyon_theme",
+          "fog_density"
+        ]
+      },
+      {
+        "title": "Flight Deck",
+        "controls": [
+          "altitude_mode",
+          "fly_speed",
+          "fov_angle"
+        ]
+      },
+      {
+        "title": "Sound FX",
+        "controls": [
+          "audio_reactivity"
+        ]
+      }
+    ],
+    "controls": {
+      "canyon_theme": {
+        "widget": "pads",
+        "hint": "Swap shader lookup palette and sky gradient"
+      },
+      "altitude_mode": {
+        "widget": "buttons",
+        "hint": "Clearance above chasm peaks and gorge floors"
+      },
+      "fly_speed": {
+        "widget": "knob",
+        "hint": "Forward canyon thrust"
+      },
+      "fog_density": {
+        "widget": "slider",
+        "hint": "Distance haze blended into the horizon sky"
+      },
+      "fov_angle": {
+        "widget": "slider",
+        "hint": "Lens perspective widening"
+      },
+      "audio_reactivity": {
+        "widget": "knob",
+        "hint": "Bass bounce on flight deck altitude and speed"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "gallery": {
+    "section": "demo",
+    "blurb": "A voxel landscape flyover in the manner of early-90s heightmap engines: a procedural heightmap and colour map rendered column by column, front to back with a y-buffer, the camera gliding low over valleys at dusk with distance fog.",
+    "prompt": "A voxel landscape flyover in the manner of early-90s heightmap engines: a procedural heightmap and colour map rendered column by column, front to back with a y-buffer, the camera gliding low over valleys at dusk with distance fog. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "retro",
+      "3d",
+      "nature"
+    ],
+    "source": "scenes100/voxel-landscape~1"
+  }
+}

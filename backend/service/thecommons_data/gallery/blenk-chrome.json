@@ -1,0 +1,140 @@
+{
+  "name": "Blenk Chrome Star",
+  "promptTemplate": "A demoscene faceted chrome {{star_points}} rotating in real-time 3D with {{chrome_palette}} horizon reflection, {{depth_style}} extrusion depth, turning ambient lighting at {{spin_speed}} speed, and {{flare_intensity}} lens glints.",
+  "variables": [
+    {
+      "name": "star_points",
+      "label": "Geometry",
+      "values": [
+        {
+          "text": "5-Point",
+          "weight": 3
+        },
+        {
+          "text": "4-Point",
+          "weight": 1
+        },
+        {
+          "text": "6-Point",
+          "weight": 2
+        },
+        {
+          "text": "8-Point",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "chrome_palette",
+      "label": "Chrome Finish",
+      "values": [
+        {
+          "text": "horizon",
+          "weight": 3
+        },
+        {
+          "text": "mercury",
+          "weight": 2
+        },
+        {
+          "text": "cyberpunk",
+          "weight": 2
+        },
+        {
+          "text": "gold",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "depth_style",
+      "label": "Extrusion Depth",
+      "type": "number",
+      "min": 0.2,
+      "max": 1.4,
+      "step": 0.1,
+      "default": 0.6
+    },
+    {
+      "name": "spin_speed",
+      "label": "Rotation Speed",
+      "type": "number",
+      "min": 0.2,
+      "max": 2.0,
+      "step": 0.1,
+      "default": 0.8
+    },
+    {
+      "name": "flare_intensity",
+      "label": "Lens Glint",
+      "type": "number",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.1,
+      "default": 0.7
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "ice",
+    "title": "BLENK CHROME +5",
+    "tagline": "Realtime 3D Amiga chrome horizon ray-caster",
+    "accent": "#9be3ff",
+    "groups": [
+      {
+        "title": "Mesh & Finish",
+        "controls": [
+          "star_points",
+          "chrome_palette",
+          "depth_style"
+        ]
+      },
+      {
+        "title": "Motion & Flares",
+        "controls": [
+          "spin_speed",
+          "flare_intensity"
+        ]
+      }
+    ],
+    "controls": {
+      "star_points": {
+        "widget": "pads",
+        "hint": "Morphs star geometry and facet count"
+      },
+      "chrome_palette": {
+        "widget": "cycle",
+        "hint": "Cycles horizon reflection map"
+      },
+      "depth_style": {
+        "widget": "slider",
+        "hint": "Thickens 3D prism extrusion"
+      },
+      "spin_speed": {
+        "widget": "knob",
+        "hint": "Tumbles axes through camera space"
+      },
+      "flare_intensity": {
+        "widget": "knob",
+        "hint": "Boosts anamorphic star glints"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "gallery": {
+    "section": "demo",
+    "blurb": "Blenk: an extruded chrome star rotating in 3D, its faces reflecting a sky gradient mapped by their normals so it looks like polished metal, over a dark gradient with slowly turning light.",
+    "prompt": "Blenk: an extruded chrome star rotating in 3D, its faces reflecting a sky gradient mapped by their normals so it looks like polished metal, over a dark gradient with slowly turning light. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "3d",
+      "retro",
+      "light"
+    ],
+    "source": "scenes100/blenk-chrome~1"
+  }
+}

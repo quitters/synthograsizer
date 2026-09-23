@@ -1,0 +1,123 @@
+{
+  "name": "Earthy Non-Overlapping Flow",
+  "promptTemplate": "A flow-field painting in {{palette}} with scale {{field_scale}}, drift {{flow_speed}}, {{stroke_density}} tracers, and decay {{decay_rate}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "raw_terracotta",
+          "weight": 2
+        },
+        {
+          "text": "parchment_ink",
+          "weight": 2
+        },
+        {
+          "text": "mineral_slate",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "field_scale",
+      "label": "Noise Scale",
+      "type": "number",
+      "min": 0.001,
+      "max": 0.007,
+      "step": 0.001,
+      "default": 0.003
+    },
+    {
+      "name": "flow_speed",
+      "label": "Drift Speed",
+      "type": "number",
+      "min": 0.1,
+      "max": 1.5,
+      "step": 0.1,
+      "default": 0.4
+    },
+    {
+      "name": "stroke_density",
+      "label": "Tracers",
+      "type": "number",
+      "min": 100,
+      "max": 400,
+      "step": 50,
+      "default": 250
+    },
+    {
+      "name": "decay_rate",
+      "label": "Repaint Rate",
+      "type": "number",
+      "min": 1,
+      "max": 6,
+      "step": 1,
+      "default": 2
+    }
+  ],
+  "ui": {
+    "skin": "desk",
+    "variant": "grey",
+    "title": "Flow Field Studio",
+    "tagline": "Generative non-overlapping mineral currents",
+    "accent": "",
+    "groups": [
+      {
+        "title": "Pigment & Traces",
+        "controls": [
+          "palette",
+          "stroke_density",
+          "decay_rate"
+        ]
+      },
+      {
+        "title": "Field Dynamics",
+        "controls": [
+          "field_scale",
+          "flow_speed"
+        ]
+      }
+    ],
+    "controls": {
+      "palette": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "field_scale": {
+        "widget": "knob",
+        "hint": "Curl frequency and vortex tightness"
+      },
+      "flow_speed": {
+        "widget": "knob",
+        "hint": "Drift rate of the vector field"
+      },
+      "stroke_density": {
+        "widget": "slider",
+        "hint": "Active concurrent stream lines"
+      },
+      "decay_rate": {
+        "widget": "stepper",
+        "hint": "How quickly old trails fade"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "gallery": {
+    "section": "generative",
+    "blurb": "A flow-field painting: hundreds of curved strokes follow a slowly evolving noise field and never overlap, each stopping when it nears another, in a limited earthy palette, the field repainting gradually.",
+    "prompt": "A flow-field painting: hundreds of curved strokes follow a slowly evolving noise field and never overlap, each stopping when it nears another, in a limited earthy palette, the field repainting gradually. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "painterly",
+      "organic",
+      "calm"
+    ],
+    "source": "scenes100/flow-strokes~1"
+  }
+}

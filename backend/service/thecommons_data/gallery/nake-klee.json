@@ -1,0 +1,144 @@
+{
+  "name": "Nake's Hauptweg",
+  "promptTemplate": "Frieder Nake Klee homage with {{palette}} ink on textured ground, hatch spacing {{hatch_spacing}}px, jagged polyline shift {{jaggedness}}px, {{plotter_scan}} pen traversal, and {{symbol_density}} symbolic glyphs.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "parchment",
+          "weight": 3
+        },
+        {
+          "text": "bauhaus",
+          "weight": 2
+        },
+        {
+          "text": "blueprint",
+          "weight": 1
+        },
+        {
+          "text": "monochrome",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "hatch_spacing",
+      "label": "Hatch Spacing",
+      "type": "number",
+      "min": 4,
+      "max": 20,
+      "step": 2,
+      "default": 8
+    },
+    {
+      "name": "jaggedness",
+      "label": "Polyline Jitter",
+      "type": "number",
+      "min": 0,
+      "max": 40,
+      "step": 5,
+      "default": 20
+    },
+    {
+      "name": "plotter_scan",
+      "label": "Plotter Scan",
+      "values": [
+        {
+          "text": "continuous",
+          "weight": 3
+        },
+        {
+          "text": "band by band",
+          "weight": 2
+        },
+        {
+          "text": "staccato",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "symbol_density",
+      "label": "Symbol Density",
+      "values": [
+        {
+          "text": "sparse",
+          "weight": 1
+        },
+        {
+          "text": "balanced",
+          "weight": 3
+        },
+        {
+          "text": "abundant",
+          "weight": 2
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "skin": "desk",
+    "variant": "grey",
+    "title": "Nake Plotter v1.2",
+    "tagline": "Algorithmic Klee homage via simulated flatbed pen plotter",
+    "accent": "",
+    "groups": [
+      {
+        "title": "Plotter",
+        "controls": [
+          "plotter_scan",
+          "palette"
+        ]
+      },
+      {
+        "title": "Hatch & Field",
+        "controls": [
+          "hatch_spacing",
+          "jaggedness",
+          "symbol_density"
+        ]
+      }
+    ],
+    "controls": {
+      "palette": {
+        "widget": "cycle",
+        "hint": "Cycle historical paper stock and ink tones"
+      },
+      "hatch_spacing": {
+        "widget": "slider",
+        "hint": "Tighten or broaden parallel ink stroke spacing"
+      },
+      "jaggedness": {
+        "widget": "slider",
+        "hint": "Displace horizontal polyline band divisions"
+      },
+      "plotter_scan": {
+        "widget": "buttons",
+        "hint": "Set pen carriage traversal cadence across the bands"
+      },
+      "symbol_density": {
+        "widget": "buttons",
+        "hint": "Scatter Klee triangles, crosses, and glyphs"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "gallery": {
+    "section": "generative",
+    "blurb": "In the spirit of Frieder Nake's homage to Paul Klee: horizontal bands divided by jagged polylines, filled with vertical hatching and scattered circles and triangles, redrawn band by band as if by a pen plotter.",
+    "prompt": "In the spirit of Frieder Nake's homage to Paul Klee: horizontal bands divided by jagged polylines, filled with vertical hatching and scattered circles and triangles, redrawn band by band as if by a pen plotter. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "geometric",
+      "painterly"
+    ],
+    "source": "scenes100/nake-klee~1"
+  }
+}

@@ -1,0 +1,121 @@
+{
+  "name": "Refraction: Rain on Glass",
+  "promptTemplate": "Rain on a window at night in {{city_mood}} tones with {{rain_intensity}} sliding drops on {{glass_condensation}} glass under {{wind_angle}} degree wind.",
+  "variables": [
+    {
+      "name": "city_mood",
+      "label": "City Mood",
+      "values": [
+        {
+          "text": "tokyo_neon",
+          "weight": 2
+        },
+        {
+          "text": "midnight_blue",
+          "weight": 1
+        },
+        {
+          "text": "amber_dusk",
+          "weight": 1
+        },
+        {
+          "text": "cyber_rain",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "rain_intensity",
+      "label": "Drop Count",
+      "type": "number",
+      "min": 30,
+      "max": 130,
+      "step": 10,
+      "default": 70
+    },
+    {
+      "name": "wind_angle",
+      "label": "Wind Angle",
+      "type": "number",
+      "min": -15,
+      "max": 15,
+      "step": 1,
+      "default": 2
+    },
+    {
+      "name": "glass_condensation",
+      "label": "Condensation",
+      "values": [
+        {
+          "text": "steamy",
+          "weight": 2
+        },
+        {
+          "text": "clear",
+          "weight": 1
+        },
+        {
+          "text": "frosted",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "ice",
+    "title": "REFRACTION // RAIN",
+    "tagline": "Demoscene glass shader & sliding drops",
+    "accent": "#05d9e8",
+    "groups": [
+      {
+        "title": "Atmosphere",
+        "controls": [
+          "city_mood",
+          "glass_condensation"
+        ]
+      },
+      {
+        "title": "Precipitation",
+        "controls": [
+          "rain_intensity",
+          "wind_angle"
+        ]
+      }
+    ],
+    "controls": {
+      "city_mood": {
+        "widget": "cycle",
+        "hint": "Shifts background city skyline lights"
+      },
+      "rain_intensity": {
+        "widget": "knob",
+        "hint": "Spawns active beads on the pane"
+      },
+      "wind_angle": {
+        "widget": "slider",
+        "hint": "Tilts droplet runoff direction"
+      },
+      "glass_condensation": {
+        "widget": "buttons",
+        "hint": "Adjusts window haze opacity"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "gallery": {
+    "section": "generative",
+    "blurb": "Rain on a window at night: drops slide, merge and leave trails, each drop refracting the blurred city lights behind the glass.",
+    "prompt": "Rain on a window at night: drops slide, merge and leave trails, each drop refracting the blurred city lights behind the glass. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "light",
+      "calm"
+    ],
+    "source": "scenes100/rain-window~1"
+  }
+}

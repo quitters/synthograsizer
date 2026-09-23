@@ -1,0 +1,140 @@
+{
+  "name": "Albers Resonance",
+  "promptTemplate": "Homage to the Square with {{palette_theme}} tones across {{layer_count}} nested fields, drifting at {{drift_speed}} speed with {{contrast_tension}} contrast tension and {{frame_weight}} layout.",
+  "variables": [
+    {
+      "name": "palette_theme",
+      "label": "Palette Theme",
+      "values": [
+        {
+          "text": "amber_ochre",
+          "weight": 3
+        },
+        {
+          "text": "cyan_cadmium",
+          "weight": 2
+        },
+        {
+          "text": "mineral_slate",
+          "weight": 2
+        },
+        {
+          "text": "violet_citron",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "layer_count",
+      "label": "Layer Count",
+      "type": "number",
+      "min": 3,
+      "max": 6,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "name": "drift_speed",
+      "label": "Drift Speed",
+      "type": "number",
+      "min": 0.2,
+      "max": 2.0,
+      "step": 0.2,
+      "default": 0.8
+    },
+    {
+      "name": "contrast_tension",
+      "label": "Contrast Tension",
+      "type": "number",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.1,
+      "default": 0.5
+    },
+    {
+      "name": "frame_weight",
+      "label": "Frame Weight",
+      "values": [
+        {
+          "text": "bottom_heavy",
+          "weight": 3
+        },
+        {
+          "text": "balanced",
+          "weight": 2
+        },
+        {
+          "text": "floating",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "skin": "desk",
+    "variant": "grey",
+    "title": "Albers Studio",
+    "tagline": "Homage to the Square colour interaction study",
+    "accent": "",
+    "groups": [
+      {
+        "title": "Harmonics",
+        "controls": [
+          "palette_theme",
+          "contrast_tension"
+        ]
+      },
+      {
+        "title": "Structure",
+        "controls": [
+          "layer_count",
+          "frame_weight"
+        ]
+      },
+      {
+        "title": "Motion",
+        "controls": [
+          "drift_speed"
+        ]
+      }
+    ],
+    "controls": {
+      "palette_theme": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "layer_count": {
+        "widget": "stepper",
+        "hint": "Number of nested square fields"
+      },
+      "drift_speed": {
+        "widget": "knob",
+        "hint": "Rate of chromatic oscillation"
+      },
+      "contrast_tension": {
+        "widget": "slider",
+        "hint": "Heightens edge vibrato and optical color push"
+      },
+      "frame_weight": {
+        "widget": "buttons",
+        "hint": "Shifts squares downward or centers them"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "gallery": {
+    "section": "generative",
+    "blurb": "Colour interaction in the spirit of Josef Albers' Homage to the Square: nested squares set low in the frame whose colours slowly drift, so neighbouring colours seem to change one another.",
+    "prompt": "Colour interaction in the spirit of Josef Albers' Homage to the Square: nested squares set low in the frame whose colours slowly drift, so neighbouring colours seem to change one another. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "geometric",
+      "calm"
+    ],
+    "source": "scenes100/albers-squares~1"
+  }
+}

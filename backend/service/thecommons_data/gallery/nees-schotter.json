@@ -1,0 +1,135 @@
+{
+  "name": "Schotter Kinetics",
+  "promptTemplate": "A generative study of Georg Nees' Schotter with {{column_count}} columns in {{palette_mode}} palette, driven by {{render_style}} rendering, with chaos tuned to {{chaos_factor}} cycling at {{cycle_speed}} speed.",
+  "variables": [
+    {
+      "name": "column_count",
+      "label": "Columns",
+      "type": "number",
+      "min": 8,
+      "max": 24,
+      "step": 2,
+      "default": 14
+    },
+    {
+      "name": "chaos_factor",
+      "label": "Max Scatter",
+      "type": "number",
+      "min": 0.5,
+      "max": 3.0,
+      "step": 0.25,
+      "default": 1.5
+    },
+    {
+      "name": "cycle_speed",
+      "label": "Breathe Speed",
+      "type": "number",
+      "min": 0.1,
+      "max": 1.0,
+      "step": 0.1,
+      "default": 0.4
+    },
+    {
+      "name": "palette_mode",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "schotter_1968",
+          "weight": 3
+        },
+        {
+          "text": "phosphor_mono",
+          "weight": 2
+        },
+        {
+          "text": "constructivist",
+          "weight": 2
+        },
+        {
+          "text": "deep_spectral",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "render_style",
+      "label": "Square Style",
+      "values": [
+        {
+          "text": "fine_ink",
+          "weight": 3
+        },
+        {
+          "text": "nested_frames",
+          "weight": 2
+        },
+        {
+          "text": "ghost_fill",
+          "weight": 2
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "skin": "desk",
+    "variant": "grey",
+    "title": "Schotter Studio",
+    "tagline": "Stochastic grid dispersion after Georg Nees",
+    "accent": "",
+    "groups": [
+      {
+        "title": "Grid & Dynamics",
+        "controls": [
+          "chaos_factor",
+          "cycle_speed",
+          "column_count"
+        ]
+      },
+      {
+        "title": "Rendering",
+        "controls": [
+          "palette_mode",
+          "render_style"
+        ]
+      }
+    ],
+    "controls": {
+      "column_count": {
+        "widget": "stepper",
+        "hint": "Density of the vertical plotter matrix"
+      },
+      "chaos_factor": {
+        "widget": "knob",
+        "hint": "Controls maximum angle and displacement at the base"
+      },
+      "cycle_speed": {
+        "widget": "slider",
+        "hint": "Rate of the settling and scattering oscillation"
+      },
+      "palette_mode": {
+        "widget": "cycle",
+        "hint": "Switch between ink, CRT phosphor, and print palettes"
+      },
+      "render_style": {
+        "widget": "buttons",
+        "hint": ""
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "gallery": {
+    "section": "generative",
+    "blurb": "In the spirit of Georg Nees' Schotter: a column of squares whose rotation and displacement grow from orderly at the top to scattered at the bottom, the column slowly settling and scattering again.",
+    "prompt": "In the spirit of Georg Nees' Schotter: a column of squares whose rotation and displacement grow from orderly at the top to scattered at the bottom, the column slowly settling and scattering again. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "geometric",
+      "calm"
+    ],
+    "source": "scenes100/nees-schotter~1"
+  }
+}

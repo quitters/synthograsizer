@@ -1,0 +1,158 @@
+{
+  "name": "Resonance Waveform",
+  "promptTemplate": "A synchronized pendulum wave of {{pendulum_count}} tuned oscillators with a {{cycle_period}}s phase loop, viewed in {{view_mode}} with {{visual_style}} aesthetics and {{ribbon_link}} linkage at {{swing_depth}} amplitude.",
+  "variables": [
+    {
+      "name": "pendulum_count",
+      "label": "Oscillators",
+      "type": "number",
+      "min": 24,
+      "max": 64,
+      "step": 4,
+      "default": 40
+    },
+    {
+      "name": "cycle_period",
+      "label": "Cycle (s)",
+      "type": "number",
+      "min": 20,
+      "max": 90,
+      "step": 5,
+      "default": 45
+    },
+    {
+      "name": "swing_depth",
+      "label": "Amplitude",
+      "type": "number",
+      "min": 0.3,
+      "max": 1.2,
+      "step": 0.1,
+      "default": 0.8
+    },
+    {
+      "name": "view_mode",
+      "label": "Perspective",
+      "values": [
+        {
+          "text": "isometric",
+          "weight": 2
+        },
+        {
+          "text": "front",
+          "weight": 1
+        },
+        {
+          "text": "top_down",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "visual_style",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "vector_laser",
+          "weight": 2
+        },
+        {
+          "text": "neon_cyber",
+          "weight": 2
+        },
+        {
+          "text": "amber_crt",
+          "weight": 1
+        },
+        {
+          "text": "deep_void",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "ribbon_link",
+      "label": "Structure",
+      "values": [
+        {
+          "text": "glowing_ribbon",
+          "weight": 2
+        },
+        {
+          "text": "chasing_sparks",
+          "weight": 1
+        },
+        {
+          "text": "discrete_nodes",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "ice",
+    "title": "RESONANCE +6 TRAINER",
+    "tagline": "Tuned pendulum harmonics drifting in and out of phase",
+    "accent": "#3bf6ff",
+    "groups": [
+      {
+        "title": "Oscillation",
+        "controls": [
+          "swing_depth",
+          "cycle_period",
+          "pendulum_count"
+        ]
+      },
+      {
+        "title": "Optics & Form",
+        "controls": [
+          "view_mode",
+          "visual_style",
+          "ribbon_link"
+        ]
+      }
+    ],
+    "controls": {
+      "pendulum_count": {
+        "widget": "slider",
+        "hint": "Number of tuned nodes along the rack"
+      },
+      "cycle_period": {
+        "widget": "slider",
+        "hint": "Seconds until waves drift back into alignment"
+      },
+      "swing_depth": {
+        "widget": "knob",
+        "hint": "Turn up to widen pendulum arcs"
+      },
+      "view_mode": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "visual_style": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "ribbon_link": {
+        "widget": "list",
+        "hint": "Connects swinging bobs into a continuous trace"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "gallery": {
+    "section": "generative",
+    "blurb": "A pendulum wave: a row of pendulums whose lengths are tuned so their swings drift in and out of phase, forming snakes, waves and apparent chaos before realigning.",
+    "prompt": "A pendulum wave: a row of pendulums whose lengths are tuned so their swings drift in and out of phase, forming snakes, waves and apparent chaos before realigning. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "geometric",
+      "calm"
+    ],
+    "source": "scenes100/pendulum-wave~1"
+  }
+}

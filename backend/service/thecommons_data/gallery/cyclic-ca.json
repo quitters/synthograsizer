@@ -1,0 +1,135 @@
+{
+  "name": "Cyclic Demon Spirals",
+  "promptTemplate": "Cyclic cellular automaton with {{palette}} palette, {{states}} cycle states, threshold {{threshold}}, running at speed {{speed}} with {{inject_mode}} audio seeding.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "demon_fire",
+          "weight": 2
+        },
+        {
+          "text": "cyber_neon",
+          "weight": 2
+        },
+        {
+          "text": "emerald_matrix",
+          "weight": 1
+        },
+        {
+          "text": "spectral_prism",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "states",
+      "label": "Cycle States",
+      "type": "number",
+      "min": 6,
+      "max": 18,
+      "step": 2,
+      "default": 12
+    },
+    {
+      "name": "threshold",
+      "label": "Threshold",
+      "type": "number",
+      "min": 1,
+      "max": 3,
+      "step": 1,
+      "default": 1
+    },
+    {
+      "name": "speed",
+      "label": "Sim Speed",
+      "type": "number",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "default": 2
+    },
+    {
+      "name": "inject_mode",
+      "label": "Audio Seeding",
+      "values": [
+        {
+          "text": "bass_eruption",
+          "weight": 2
+        },
+        {
+          "text": "person_sparks",
+          "weight": 2
+        },
+        {
+          "text": "subtle_drift",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "CYCLIC DEMON +5",
+    "tagline": "Demoscene cellular automaton & spiral synthesizer",
+    "accent": "#ff7828",
+    "groups": [
+      {
+        "title": "Automaton Core",
+        "controls": [
+          "speed",
+          "states",
+          "threshold"
+        ]
+      },
+      {
+        "title": "Visuals & Audio",
+        "controls": [
+          "palette",
+          "inject_mode"
+        ]
+      }
+    ],
+    "controls": {
+      "palette": {
+        "widget": "cycle",
+        "hint": "Color ramp lookup table"
+      },
+      "states": {
+        "widget": "slider",
+        "hint": "Number of color phases; higher yields tighter spirals"
+      },
+      "threshold": {
+        "widget": "stepper",
+        "hint": "Advance requirement; 1 makes chaos, 3 locks solid"
+      },
+      "speed": {
+        "widget": "knob",
+        "hint": "Simulation steps per frame"
+      },
+      "inject_mode": {
+        "widget": "pads",
+        "hint": "Audio trigger mode to inject fresh seeds"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "gallery": {
+    "section": "generative",
+    "blurb": "A cyclic cellular automaton: each cell advances to the next of many colours when enough neighbours are one step ahead, growing spirals and demons out of noise.",
+    "prompt": "A cyclic cellular automaton: each cell advances to the next of many colours when enough neighbours are one step ahead, growing spirals and demons out of noise. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "psychedelic",
+      "organic"
+    ],
+    "source": "scenes100/cyclic-ca~1"
+  }
+}

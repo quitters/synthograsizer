@@ -1,0 +1,153 @@
+{
+  "name": "Dusk of the Strandbeests",
+  "promptTemplate": "A herd of walking machines built on the Jansen linkage with {{palette}} sky tones, {{link_style}} armature, herd size of {{herd_size}}, stride speed {{stride_speed}}, scale {{scale_size}}, and {{tide_reflection}} tidal mirror depth.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Dusk Atmosphere",
+      "values": [
+        {
+          "text": "Amber Dusk",
+          "weight": 3
+        },
+        {
+          "text": "Crimson Tide",
+          "weight": 2
+        },
+        {
+          "text": "Deep Twilight",
+          "weight": 2
+        },
+        {
+          "text": "Neon Horizon",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "link_style",
+      "label": "Armature Style",
+      "values": [
+        {
+          "text": "Shadow Silhouette",
+          "weight": 3
+        },
+        {
+          "text": "Brass Steampunk",
+          "weight": 2
+        },
+        {
+          "text": "Skeletal Wire",
+          "weight": 2
+        },
+        {
+          "text": "Luminous Ribs",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "herd_size",
+      "label": "Herd Size",
+      "type": "number",
+      "min": 2,
+      "max": 8,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "name": "stride_speed",
+      "label": "Stride Speed",
+      "type": "number",
+      "min": 0.4,
+      "max": 2.4,
+      "step": 0.2,
+      "default": 1.2
+    },
+    {
+      "name": "scale_size",
+      "label": "Beast Scale",
+      "type": "number",
+      "min": 0.6,
+      "max": 1.6,
+      "step": 0.1,
+      "default": 1.0
+    },
+    {
+      "name": "tide_reflection",
+      "label": "Tide Reflection",
+      "type": "number",
+      "min": 0.1,
+      "max": 0.9,
+      "step": 0.1,
+      "default": 0.5
+    }
+  ],
+  "ui": {
+    "skin": "desk",
+    "variant": "grey",
+    "title": "Strandbeest Lab",
+    "tagline": "Jansen linkage kinematic simulation at twilight",
+    "accent": "",
+    "groups": [
+      {
+        "title": "Kinematics",
+        "controls": [
+          "stride_speed",
+          "herd_size",
+          "scale_size"
+        ]
+      },
+      {
+        "title": "Aesthetics",
+        "controls": [
+          "palette",
+          "link_style",
+          "tide_reflection"
+        ]
+      }
+    ],
+    "controls": {
+      "palette": {
+        "widget": "cycle",
+        "hint": "Dusk sky gradient and atmospheric wash"
+      },
+      "link_style": {
+        "widget": "list",
+        "hint": "Rod rendering material and strut fills"
+      },
+      "herd_size": {
+        "widget": "stepper",
+        "hint": "Number of walking armatures on the beach"
+      },
+      "stride_speed": {
+        "widget": "knob",
+        "hint": "Crank rotational velocity across the sand"
+      },
+      "scale_size": {
+        "widget": "slider",
+        "hint": "Proportional linkage dimension"
+      },
+      "tide_reflection": {
+        "widget": "slider",
+        "hint": "Wet sand specular mirror opacity"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "gallery": {
+    "section": "generative",
+    "blurb": "A herd of walking machines built on the Jansen linkage: each leg's joints solved from its rod lengths every frame, the herd striding across a beach at dusk.",
+    "prompt": "A herd of walking machines built on the Jansen linkage: each leg's joints solved from its rod lengths every frame, the herd striding across a beach at dusk. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "nature",
+      "geometric"
+    ],
+    "source": "scenes100/strandbeest~1"
+  }
+}

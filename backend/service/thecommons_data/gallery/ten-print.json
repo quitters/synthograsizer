@@ -1,0 +1,154 @@
+{
+  "name": "10 PRINT Labyrinth",
+  "promptTemplate": "10 PRINT maze with {{cell_size}}px cells at {{type_rate}} chars/frame in {{palette_theme}} mode, {{maze_bias}} bias and {{crt_style}} display",
+  "variables": [
+    {
+      "name": "cell_size",
+      "label": "Cell Size",
+      "type": "number",
+      "min": 16,
+      "max": 48,
+      "step": 4,
+      "default": 24
+    },
+    {
+      "name": "type_rate",
+      "label": "Print Speed",
+      "type": "number",
+      "min": 2,
+      "max": 64,
+      "step": 2,
+      "default": 16
+    },
+    {
+      "name": "palette_theme",
+      "label": "Color Palette",
+      "values": [
+        {
+          "text": "c64_classic",
+          "weight": 3
+        },
+        {
+          "text": "vic20_cyan",
+          "weight": 1
+        },
+        {
+          "text": "amber_crt",
+          "weight": 1
+        },
+        {
+          "text": "matrix_green",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "maze_bias",
+      "label": "Slash Bias",
+      "values": [
+        {
+          "text": "classic_rnd",
+          "weight": 3
+        },
+        {
+          "text": "bass_skew",
+          "weight": 2
+        },
+        {
+          "text": "perlin_weave",
+          "weight": 2
+        },
+        {
+          "text": "diagonal_flow",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "crt_style",
+      "label": "CRT Display",
+      "values": [
+        {
+          "text": "subtle_scanlines",
+          "weight": 2
+        },
+        {
+          "text": "phosphor_bloom",
+          "weight": 2
+        },
+        {
+          "text": "clean_pixel",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "skin": "textmode",
+    "variant": "blue",
+    "title": "10PRINT.BAS",
+    "tagline": "READY. RUN the endless diagonal slash labyrinth.",
+    "accent": "#a4a2f7",
+    "groups": [
+      {
+        "title": "Interpreter",
+        "controls": [
+          "type_rate",
+          "cell_size"
+        ]
+      },
+      {
+        "title": "Algorithm",
+        "controls": [
+          "maze_bias"
+        ]
+      },
+      {
+        "title": "Display",
+        "controls": [
+          "palette_theme",
+          "crt_style"
+        ]
+      }
+    ],
+    "controls": {
+      "cell_size": {
+        "widget": "slider",
+        "hint": "Scale slash resolution; resets grid geometry"
+      },
+      "type_rate": {
+        "widget": "knob",
+        "hint": "Speed up the teletype cursor across the grid"
+      },
+      "palette_theme": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "maze_bias": {
+        "widget": "list",
+        "hint": "Change diagonal slash distribution logic"
+      },
+      "crt_style": {
+        "widget": "buttons",
+        "hint": ""
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "gallery": {
+    "section": "generative",
+    "blurb": "The 10 PRINT maze: diagonal slashes leaning either way, typed out cell by cell like the one-line BASIC program, forming labyrinths in blue on light blue, with a blinking cursor.",
+    "prompt": "The 10 PRINT maze: diagonal slashes leaning either way, typed out cell by cell like the one-line BASIC program, forming labyrinths in blue on light blue, with a blinking cursor. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "retro",
+      "text",
+      "geometric"
+    ],
+    "source": "scenes100/ten-print~1"
+  }
+}

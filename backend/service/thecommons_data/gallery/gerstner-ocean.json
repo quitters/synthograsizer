@@ -1,0 +1,136 @@
+{
+  "name": "Moonlit Gerstner Ocean",
+  "promptTemplate": "A rolling ocean of Gerstner waves in {{moon_mood}} under a {{glitter_width}} moon path, with {{swell_scale}} swell scale, {{steepness}} steepness, and {{ocean_speed}} current.",
+  "variables": [
+    {
+      "name": "moon_mood",
+      "label": "Moon Mood",
+      "values": [
+        {
+          "text": "Silver Mist",
+          "weight": 2
+        },
+        {
+          "text": "Arctic Cyan",
+          "weight": 1
+        },
+        {
+          "text": "Blood Moon",
+          "weight": 1
+        },
+        {
+          "text": "Deep Indigo",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "glitter_width",
+      "label": "Glitter Path",
+      "values": [
+        {
+          "text": "Glinting Path",
+          "weight": 2
+        },
+        {
+          "text": "Narrow Beam",
+          "weight": 1
+        },
+        {
+          "text": "Broad Shimmer",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "swell_scale",
+      "label": "Swell Height",
+      "type": "number",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.1,
+      "default": 1.2
+    },
+    {
+      "name": "steepness",
+      "label": "Crest Sharpness",
+      "type": "number",
+      "min": 0.2,
+      "max": 1.0,
+      "step": 0.1,
+      "default": 0.7
+    },
+    {
+      "name": "ocean_speed",
+      "label": "Flow Speed",
+      "type": "number",
+      "min": 0.4,
+      "max": 2.0,
+      "step": 0.2,
+      "default": 1.0
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "ice",
+    "title": "GERSTNER +5 TRAINER",
+    "tagline": "Realtime harmonic sea simulation",
+    "accent": "#d0fbff",
+    "groups": [
+      {
+        "title": "Night Sky",
+        "controls": [
+          "moon_mood",
+          "glitter_width"
+        ]
+      },
+      {
+        "title": "Wave Dynamics",
+        "controls": [
+          "swell_scale",
+          "steepness",
+          "ocean_speed"
+        ]
+      }
+    ],
+    "controls": {
+      "moon_mood": {
+        "widget": "cycle",
+        "hint": "Shifts sky lighting and water reflection"
+      },
+      "glitter_width": {
+        "widget": "pads",
+        "hint": "Spreads or focuses the specular moon trail"
+      },
+      "swell_scale": {
+        "widget": "knob",
+        "hint": "Drives vertical wave amplitude"
+      },
+      "steepness": {
+        "widget": "slider",
+        "hint": "Sharpens peaks into foam crests"
+      },
+      "ocean_speed": {
+        "widget": "slider",
+        "hint": "Sets wave harmonic velocity"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "gallery": {
+    "section": "generative",
+    "blurb": "A rolling ocean of Gerstner waves seen from a low angle, crests sharpening into foam, a moonlit path glittering across the water, the swell rising with the bass.",
+    "prompt": "A rolling ocean of Gerstner waves seen from a low angle, crests sharpening into foam, a moonlit path glittering across the water, the swell rising with the bass. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "nature",
+      "3d",
+      "calm"
+    ],
+    "source": "scenes100/gerstner-ocean~1"
+  }
+}

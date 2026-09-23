@@ -1,0 +1,176 @@
+{
+  "name": "Unlimited Bobs",
+  "promptTemplate": "Unlimited bobs tracing {{curve_pattern}} curves with {{buffer_count}} in {{copper_theme}} tones, size {{bob_size}} at {{snake_speed}}x speed and {{fade_length}}.",
+  "variables": [
+    {
+      "name": "curve_pattern",
+      "label": "Trajectory",
+      "values": [
+        {
+          "text": "Lissajous",
+          "weight": 3
+        },
+        {
+          "text": "Torus Knot",
+          "weight": 2
+        },
+        {
+          "text": "Figure Eight",
+          "weight": 1
+        },
+        {
+          "text": "Rose Petals",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "buffer_count",
+      "label": "Ring Depth",
+      "values": [
+        {
+          "text": "8 Buffers",
+          "weight": 1
+        },
+        {
+          "text": "12 Buffers",
+          "weight": 3
+        },
+        {
+          "text": "16 Buffers",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "copper_theme",
+      "label": "Copper Palette",
+      "values": [
+        {
+          "text": "Classic Copper",
+          "weight": 3
+        },
+        {
+          "text": "Molten Bronze",
+          "weight": 2
+        },
+        {
+          "text": "Amiga Sunset",
+          "weight": 2
+        },
+        {
+          "text": "Neon Oxide",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "bob_size",
+      "label": "Bob Diameter",
+      "type": "number",
+      "min": 24,
+      "max": 80,
+      "step": 4,
+      "default": 48
+    },
+    {
+      "name": "snake_speed",
+      "label": "Speed",
+      "type": "number",
+      "min": 0.2,
+      "max": 2.5,
+      "step": 0.1,
+      "default": 1.0
+    },
+    {
+      "name": "fade_length",
+      "label": "Trail Persistence",
+      "values": [
+        {
+          "text": "Tight Trail",
+          "weight": 1
+        },
+        {
+          "text": "Standard Snake",
+          "weight": 3
+        },
+        {
+          "text": "Endless Ribbon",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "UNLIMITED BOBS +6",
+    "tagline": "Classic Amiga blitter ring demo effect",
+    "accent": "#ff9a48",
+    "groups": [
+      {
+        "title": "Trajectory",
+        "controls": [
+          "curve_pattern",
+          "snake_speed"
+        ]
+      },
+      {
+        "title": "Blitter Ring",
+        "controls": [
+          "buffer_count",
+          "fade_length",
+          "bob_size"
+        ]
+      },
+      {
+        "title": "Copper Raster",
+        "controls": [
+          "copper_theme"
+        ]
+      }
+    ],
+    "controls": {
+      "curve_pattern": {
+        "widget": "pads",
+        "hint": "Switch the flightpath geometry"
+      },
+      "buffer_count": {
+        "widget": "buttons",
+        "hint": "Number of interleaved frame buffers"
+      },
+      "copper_theme": {
+        "widget": "cycle",
+        "hint": "Cycle the rainbow backdrop raster gradient"
+      },
+      "bob_size": {
+        "widget": "slider",
+        "hint": "Scale the pre-rendered chrome sphere"
+      },
+      "snake_speed": {
+        "widget": "knob",
+        "hint": "Accelerate the motion along the curve"
+      },
+      "fade_length": {
+        "widget": "buttons",
+        "hint": "Tail dissipation rate per buffer cycle"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "gallery": {
+    "section": "demo",
+    "blurb": "The unlimited-bobs trick: one sprite drawn each frame into a ring of hidden buffers shown in rotation, so a single ball becomes an endless snake of balls tracing looping curves, chrome over a copper gradient.",
+    "prompt": "The unlimited-bobs trick: one sprite drawn each frame into a ring of hidden buffers shown in rotation, so a single ball becomes an endless snake of balls tracing looping curves, chrome over a copper gradient. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "retro",
+      "energetic"
+    ],
+    "source": "scenes100/unlimited-bobs~1"
+  }
+}

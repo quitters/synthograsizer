@@ -1,0 +1,159 @@
+{
+  "name": "Dendrochronology",
+  "promptTemplate": "A cross-section of a {{species}} trunk growing year by year at {{growth_speed}}x speed with {{knots_count}} branch knots and {{climate_volatility}} climate volatility, revealing {{cracks_detail}} and {{bark_texture}}.",
+  "variables": [
+    {
+      "name": "species",
+      "label": "Wood Species",
+      "values": [
+        {
+          "text": "Ancient Oak",
+          "weight": 3
+        },
+        {
+          "text": "Bristlecone Pine",
+          "weight": 2
+        },
+        {
+          "text": "Giant Sequoia",
+          "weight": 2
+        },
+        {
+          "text": "Birch & Moss",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "growth_speed",
+      "label": "Growth Speed",
+      "type": "number",
+      "min": 0.2,
+      "max": 2.0,
+      "step": 0.1,
+      "default": 0.8
+    },
+    {
+      "name": "knots_count",
+      "label": "Branch Knots",
+      "type": "number",
+      "min": 1,
+      "max": 6,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "name": "climate_volatility",
+      "label": "Climate Volatility",
+      "type": "number",
+      "min": 0.1,
+      "max": 1.0,
+      "step": 0.05,
+      "default": 0.5
+    },
+    {
+      "name": "cracks_detail",
+      "label": "Heartwood Shakes",
+      "values": [
+        {
+          "text": "Subtle Heartshakes",
+          "weight": 2
+        },
+        {
+          "text": "Deep Lightning Cracks",
+          "weight": 2
+        },
+        {
+          "text": "Weathered Frost Fissures",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "bark_texture",
+      "label": "Bark Character",
+      "values": [
+        {
+          "text": "Rough Cork",
+          "weight": 3
+        },
+        {
+          "text": "Charred Fire-Scar",
+          "weight": 1
+        },
+        {
+          "text": "Lichen & Velvet",
+          "weight": 2
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "skin": "desk",
+    "variant": "grey",
+    "title": "Dendrochronology",
+    "tagline": "Botanical ring simulator and climate record",
+    "accent": "",
+    "groups": [
+      {
+        "title": "Species & Climate",
+        "controls": [
+          "species",
+          "growth_speed",
+          "climate_volatility"
+        ]
+      },
+      {
+        "title": "Wood Anatomy",
+        "controls": [
+          "knots_count",
+          "cracks_detail",
+          "bark_texture"
+        ]
+      }
+    ],
+    "controls": {
+      "species": {
+        "widget": "list",
+        "hint": "Sets wood hue, heartwood tones, and latewood density"
+      },
+      "growth_speed": {
+        "widget": "knob",
+        "hint": "Accelerates or slows annual radial expansion"
+      },
+      "knots_count": {
+        "widget": "stepper",
+        "hint": "Number of branch dipoles distorting grain path"
+      },
+      "climate_volatility": {
+        "widget": "slider",
+        "hint": "Exaggerates feast-and-drought ring thickness spikes"
+      },
+      "cracks_detail": {
+        "widget": "cycle",
+        "hint": "Pattern of radial heartshakes and frost fissures"
+      },
+      "bark_texture": {
+        "widget": "cycle",
+        "hint": "Outer perimeter ruggedness and rim coloration"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "gallery": {
+    "section": "generative",
+    "blurb": "Tree rings: a cross-section of a trunk growing year by year, each ring's width set by an invented climate, with knots, cracks and bark, growing slowly.",
+    "prompt": "Tree rings: a cross-section of a trunk growing year by year, each ring's width set by an invented climate, with knots, cracks and bark, growing slowly. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "nature",
+      "organic",
+      "calm"
+    ],
+    "source": "scenes100/tree-rings~1"
+  }
+}

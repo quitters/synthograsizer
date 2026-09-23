@@ -1,0 +1,170 @@
+{
+  "name": "Hitomezashi Sashiko",
+  "promptTemplate": "A continuous live Hitomezashi stitchwork woven in {{pattern_seed}} across indigo dyed linen, styled with {{stitch_style}} thread upon {{indigo_depth}} ground, running at density {{grid_density}} with tempo {{tempo_drift}} and stitch thickness {{thread_weight}}.",
+  "variables": [
+    {
+      "name": "pattern_seed",
+      "label": "Pattern Sequence",
+      "values": [
+        {
+          "text": "Thue-Morse",
+          "weight": 3
+        },
+        {
+          "text": "Fibonacci Woven",
+          "weight": 2
+        },
+        {
+          "text": "Rule 30 CA",
+          "weight": 2
+        },
+        {
+          "text": "Prime Parity",
+          "weight": 1
+        },
+        {
+          "text": "Audio Reactive",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "stitch_style",
+      "label": "Thread Style",
+      "values": [
+        {
+          "text": "Hand Stitched",
+          "weight": 3
+        },
+        {
+          "text": "Crisp Cotton",
+          "weight": 2
+        },
+        {
+          "text": "Luminescent Silk",
+          "weight": 1
+        },
+        {
+          "text": "Golden Sashiko",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "indigo_depth",
+      "label": "Indigo Ground",
+      "values": [
+        {
+          "text": "Deep Tokushima",
+          "weight": 3
+        },
+        {
+          "text": "Faded Kasuri",
+          "weight": 2
+        },
+        {
+          "text": "Night Denim",
+          "weight": 2
+        },
+        {
+          "text": "Black Ash",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "grid_density",
+      "label": "Grid Pitch",
+      "type": "number",
+      "min": 16,
+      "max": 40,
+      "step": 4,
+      "default": 24
+    },
+    {
+      "name": "tempo_drift",
+      "label": "Sewing Drift",
+      "type": "number",
+      "min": 0.1,
+      "max": 1.5,
+      "step": 0.1,
+      "default": 0.5
+    },
+    {
+      "name": "thread_weight",
+      "label": "Thread Weight",
+      "type": "number",
+      "min": 1.5,
+      "max": 4.5,
+      "step": 0.5,
+      "default": 2.5
+    }
+  ],
+  "ui": {
+    "skin": "desk",
+    "variant": "blue",
+    "title": "Hitomezashi Loom",
+    "tagline": "Binary stitched Sashiko on indigo linen",
+    "accent": "#8be9fd",
+    "groups": [
+      {
+        "title": "Weave Pattern",
+        "controls": [
+          "pattern_seed",
+          "grid_density",
+          "tempo_drift"
+        ]
+      },
+      {
+        "title": "Textile & Thread",
+        "controls": [
+          "stitch_style",
+          "indigo_depth",
+          "thread_weight"
+        ]
+      }
+    ],
+    "controls": {
+      "pattern_seed": {
+        "widget": "list",
+        "hint": "Mathematical rule steering row and column stitches"
+      },
+      "stitch_style": {
+        "widget": "cycle",
+        "hint": "Thread fiber sheen and tint"
+      },
+      "indigo_depth": {
+        "widget": "cycle",
+        "hint": "Ground dye shade and weave texture"
+      },
+      "grid_density": {
+        "widget": "slider",
+        "hint": "Pixel distance between needle punctures"
+      },
+      "tempo_drift": {
+        "widget": "knob",
+        "hint": "Rate of diagonal sewing progression"
+      },
+      "thread_weight": {
+        "widget": "knob",
+        "hint": "Stroke thickness of running stitches"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "gallery": {
+    "section": "generative",
+    "blurb": "Hitomezashi stitching: rows and columns of running stitches whose offsets come from binary sequences, forming interlocking patterns, stitched line by line in white thread on indigo.",
+    "prompt": "Hitomezashi stitching: rows and columns of running stitches whose offsets come from binary sequences, forming interlocking patterns, stitched line by line in white thread on indigo. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "geometric",
+      "calm"
+    ],
+    "source": "scenes100/sashiko~2"
+  }
+}

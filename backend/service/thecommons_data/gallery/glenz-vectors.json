@@ -1,0 +1,187 @@
+{
+  "name": "Glenz Vector Sanctum",
+  "promptTemplate": "A demoscene tribute featuring two nested translucent {{poly_shapes}} solids rotating in opposite directions with {{palette}} face shading and {{blend_style}} blending, dynamic {{rot_speed}} rotation, {{wire_glow}} edge highlights, {{beat_swell}} audio reactivity, and {{star_field}} background accents.",
+  "variables": [
+    {
+      "name": "poly_shapes",
+      "label": "Solid Pair",
+      "values": [
+        {
+          "text": "Octa & Icosa",
+          "weight": 3
+        },
+        {
+          "text": "Cube & Octa",
+          "weight": 2
+        },
+        {
+          "text": "Dual Icosa",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "palette",
+      "label": "Color Palette",
+      "values": [
+        {
+          "text": "Amiga Neon",
+          "weight": 3
+        },
+        {
+          "text": "Cyber Emerald",
+          "weight": 2
+        },
+        {
+          "text": "Vapor Glass",
+          "weight": 2
+        },
+        {
+          "text": "Solar Flare",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "blend_style",
+      "label": "Blend Mode",
+      "values": [
+        {
+          "text": "Glenz Glass",
+          "weight": 3
+        },
+        {
+          "text": "Additive Flare",
+          "weight": 2
+        },
+        {
+          "text": "Subtle Tint",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "rot_speed",
+      "label": "Rotation Speed",
+      "type": "number",
+      "min": 0.1,
+      "max": 2.5,
+      "step": 0.1,
+      "default": 0.8
+    },
+    {
+      "name": "wire_glow",
+      "label": "Wire Glow",
+      "type": "number",
+      "min": 0,
+      "max": 4,
+      "step": 0.5,
+      "default": 1.5
+    },
+    {
+      "name": "beat_swell",
+      "label": "Bass Swell",
+      "type": "number",
+      "min": 0,
+      "max": 1,
+      "step": 0.05,
+      "default": 0.35
+    },
+    {
+      "name": "star_field",
+      "label": "Backdrop Stars",
+      "values": [
+        {
+          "text": "Subtle Dust",
+          "weight": 3
+        },
+        {
+          "text": "Demoscene Warp",
+          "weight": 2
+        },
+        {
+          "text": "Off",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "violet",
+    "title": "GLENZ VECTORS +6",
+    "tagline": "Demoscene transparent faceted solids & copper sync",
+    "accent": "#44ffff",
+    "groups": [
+      {
+        "title": "Geometry",
+        "controls": [
+          "poly_shapes",
+          "blend_style"
+        ]
+      },
+      {
+        "title": "Palette & Stars",
+        "controls": [
+          "palette",
+          "star_field"
+        ]
+      },
+      {
+        "title": "Dynamics",
+        "controls": [
+          "rot_speed",
+          "beat_swell",
+          "wire_glow"
+        ]
+      }
+    ],
+    "controls": {
+      "poly_shapes": {
+        "widget": "buttons",
+        "hint": "Swap outer and inner nested polyhedra"
+      },
+      "palette": {
+        "widget": "cycle",
+        "hint": "Cycle classic Amiga and vapor shading"
+      },
+      "blend_style": {
+        "widget": "buttons",
+        "hint": "Set translucent face mixing algorithm"
+      },
+      "rot_speed": {
+        "widget": "knob",
+        "hint": "Counter-rotating tumble velocity"
+      },
+      "wire_glow": {
+        "widget": "slider",
+        "hint": "Faceted edge highlight intensity"
+      },
+      "beat_swell": {
+        "widget": "slider",
+        "hint": "Bass pulse scale burst on the outer shell"
+      },
+      "star_field": {
+        "widget": "buttons",
+        "hint": "Toggle copper-era starfield motion"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "gallery": {
+    "section": "demo",
+    "blurb": "Glenz vectors: two nested translucent faceted solids rotating in opposite directions, face colours mixing where they overlap like tinted glass, over a dark gradient, the outer solid swelling on the beat.",
+    "prompt": "Glenz vectors: two nested translucent faceted solids rotating in opposite directions, face colours mixing where they overlap like tinted glass, over a dark gradient, the outer solid swelling on the beat. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "3d",
+      "retro",
+      "geometric"
+    ],
+    "source": "scenes100/glenz-vectors~1"
+  }
+}

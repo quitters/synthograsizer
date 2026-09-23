@@ -1,0 +1,158 @@
+{
+  "name": "Chrome Cyan Wobbler",
+  "promptTemplate": "A demoscene sine wobbler rendering a {{emblem_style}} emblem in {{color_mode}} with {{glitch_burst}} distortion, running slice height {{slice_height}}, wave depth {{wave_depth}}, and wave speed {{wave_speed}}.",
+  "variables": [
+    {
+      "name": "emblem_style",
+      "label": "Emblem Motif",
+      "values": [
+        {
+          "text": "Vector Crest",
+          "weight": 2
+        },
+        {
+          "text": "Cyber Falcon",
+          "weight": 1
+        },
+        {
+          "text": "Solar Shard",
+          "weight": 1
+        },
+        {
+          "text": "Neon Sigil",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "color_mode",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Mercury Cyan",
+          "weight": 2
+        },
+        {
+          "text": "Deep Cobalt",
+          "weight": 1
+        },
+        {
+          "text": "Electric Mirror",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "glitch_burst",
+      "label": "Wobble Phase",
+      "values": [
+        {
+          "text": "Clean Wave",
+          "weight": 2
+        },
+        {
+          "text": "Raster Jitter",
+          "weight": 1
+        },
+        {
+          "text": "Dual Phase",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "slice_height",
+      "label": "Raster Step",
+      "type": "number",
+      "min": 2,
+      "max": 8,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "name": "wave_depth",
+      "label": "Wave Amplitude",
+      "type": "number",
+      "min": 20,
+      "max": 140,
+      "step": 5,
+      "default": 75
+    },
+    {
+      "name": "wave_speed",
+      "label": "Wave Speed",
+      "type": "number",
+      "min": 0.5,
+      "max": 3.0,
+      "step": 0.25,
+      "default": 1.5
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "ice",
+    "title": "CYAN WOBBLER +6",
+    "tagline": "Classic raster sine flag routine in pure chrome",
+    "accent": "#00f0ff",
+    "groups": [
+      {
+        "title": "WAVE MODULATION",
+        "controls": [
+          "wave_speed",
+          "wave_depth",
+          "glitch_burst"
+        ]
+      },
+      {
+        "title": "RASTER SHAPE",
+        "controls": [
+          "emblem_style",
+          "color_mode",
+          "slice_height"
+        ]
+      }
+    ],
+    "controls": {
+      "emblem_style": {
+        "widget": "cycle",
+        "hint": "Swap the chrome emblem rendered to the buffer"
+      },
+      "color_mode": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "glitch_burst": {
+        "widget": "pads",
+        "hint": "Select standard sine, alternate phase, or beat jitter"
+      },
+      "slice_height": {
+        "widget": "stepper",
+        "hint": "Raster scanline thickness in source pixels"
+      },
+      "wave_depth": {
+        "widget": "slider",
+        "hint": "Horizontal displacement of the raster slices"
+      },
+      "wave_speed": {
+        "widget": "knob",
+        "hint": "Dial up the sine ripple frequency"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "gallery": {
+    "section": "demo",
+    "blurb": "A sine wobbler: a bold geometric emblem drawn once offscreen, then redrawn row by row with each row shifted by layered sine waves so it ripples like a flag, in chrome and cyan.",
+    "prompt": "A sine wobbler: a bold geometric emblem drawn once offscreen, then redrawn row by row with each row shifted by layered sine waves so it ripples like a flag, in chrome and cyan. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "retro",
+      "geometric"
+    ],
+    "source": "scenes100/sine-wobbler~1"
+  }
+}

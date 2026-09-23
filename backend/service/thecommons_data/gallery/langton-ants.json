@@ -1,0 +1,175 @@
+{
+  "name": "Turmite Highway Assembler",
+  "promptTemplate": "Langton turmites running {{rule}} in {{palette}} palette at {{steps_per_frame}} steps with {{audio_boost}} audio boost and {{glow_intensity}} glow",
+  "variables": [
+    {
+      "name": "rule",
+      "label": "Turmite Rule",
+      "values": [
+        {
+          "text": "highway_9",
+          "weight": 3
+        },
+        {
+          "text": "chaos_4",
+          "weight": 2
+        },
+        {
+          "text": "crystal_6",
+          "weight": 2
+        },
+        {
+          "text": "labyrinth_12",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "palette",
+      "label": "Color Palette",
+      "values": [
+        {
+          "text": "amiga_copper",
+          "weight": 3
+        },
+        {
+          "text": "cyber_neon",
+          "weight": 2
+        },
+        {
+          "text": "matrix_phosphor",
+          "weight": 2
+        },
+        {
+          "text": "solar_plasma",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "steps_per_frame",
+      "label": "Simulation Steps",
+      "type": "number",
+      "min": 50,
+      "max": 800,
+      "step": 50,
+      "default": 300
+    },
+    {
+      "name": "audio_boost",
+      "label": "Audio Reaction",
+      "values": [
+        {
+          "text": "balanced",
+          "weight": 3
+        },
+        {
+          "text": "overdrive",
+          "weight": 2
+        },
+        {
+          "text": "subtle",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "glow_intensity",
+      "label": "Bloom Glow",
+      "type": "number",
+      "min": 0,
+      "max": 1,
+      "step": 0.1,
+      "default": 0.5
+    },
+    {
+      "name": "spawn_ant",
+      "label": "Release Ant",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "clear_nest",
+      "label": "Reset Nest",
+      "type": "trigger",
+      "share": "one"
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "TURMITE +7 TRAINER",
+    "tagline": "Demoscene Langton highway assembler & swarm injector",
+    "accent": "#ffb032",
+    "groups": [
+      {
+        "title": "Swarm Spawn",
+        "controls": [
+          "spawn_ant",
+          "clear_nest"
+        ]
+      },
+      {
+        "title": "Automaton Core",
+        "controls": [
+          "rule",
+          "steps_per_frame"
+        ]
+      },
+      {
+        "title": "Optics & Audio",
+        "controls": [
+          "palette",
+          "glow_intensity",
+          "audio_boost"
+        ]
+      }
+    ],
+    "controls": {
+      "rule": {
+        "widget": "pads",
+        "hint": "Switch cellular turning pattern and highways"
+      },
+      "palette": {
+        "widget": "cycle",
+        "hint": "Cycle demoscene color ramps"
+      },
+      "steps_per_frame": {
+        "widget": "knob",
+        "hint": "Crank simulation cycles per frame"
+      },
+      "audio_boost": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "glow_intensity": {
+        "widget": "slider",
+        "hint": "Phosphor bloom halo strength"
+      },
+      "spawn_ant": {
+        "widget": "pad",
+        "hint": "Launch your colored crawler into the hive"
+      },
+      "clear_nest": {
+        "widget": "button",
+        "hint": "Wipe grid tracks and reboot original scouts"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "gallery": {
+    "section": "games",
+    "blurb": "Langton's ants and multi-colour turmites: several ants turning on coloured cells, building chaos and then highways; anyone can release an ant of their own colour.",
+    "prompt": "Langton's ants and multi-colour turmites: several ants turning on coloured cells, building chaos and then highways; anyone can release an ant of their own colour. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "geometric",
+      "retro"
+    ],
+    "source": "scenes100/langton-ants~1"
+  }
+}

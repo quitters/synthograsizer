@@ -1,0 +1,130 @@
+{
+  "name": "labyrinth_pulse",
+  "promptTemplate": "A recursive backtracker maze carved in {{palette}} with {{wall_style}} aesthetics, running at {{cell_density}} resolution with {{glow_intensity}} glow bloom and reactive audio flood.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Color Theme",
+      "values": [
+        {
+          "text": "cyber_cyan",
+          "weight": 3
+        },
+        {
+          "text": "amber_crt",
+          "weight": 2
+        },
+        {
+          "text": "laser_magenta",
+          "weight": 2
+        },
+        {
+          "text": "emerald_matrix",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "wall_style",
+      "label": "Wall Style",
+      "values": [
+        {
+          "text": "neon_wire",
+          "weight": 3
+        },
+        {
+          "text": "solid_blocks",
+          "weight": 2
+        },
+        {
+          "text": "circuit_path",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "cell_density",
+      "label": "Grid Density",
+      "values": [
+        {
+          "text": "medium",
+          "weight": 3
+        },
+        {
+          "text": "coarse",
+          "weight": 2
+        },
+        {
+          "text": "dense",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "glow_intensity",
+      "label": "Glow Bloom",
+      "type": "number",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "default": 3
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "acid",
+    "title": "LABYRINTH +4 TRAINER",
+    "tagline": "Recursive backtracker maze and BFS flood solver",
+    "accent": "#00ffff",
+    "groups": [
+      {
+        "title": "Aesthetics",
+        "controls": [
+          "palette",
+          "wall_style",
+          "glow_intensity"
+        ]
+      },
+      {
+        "title": "Geometry",
+        "controls": [
+          "cell_density"
+        ]
+      }
+    ],
+    "controls": {
+      "palette": {
+        "widget": "cycle",
+        "hint": "Swaps neon scheme across walls, flood and spark"
+      },
+      "wall_style": {
+        "widget": "pads",
+        "hint": "Switches wireframe, solid fill or circuit nodes"
+      },
+      "cell_density": {
+        "widget": "buttons",
+        "hint": "Changes maze scale on next reset pass"
+      },
+      "glow_intensity": {
+        "widget": "knob",
+        "hint": "Amplifies neon bloom around solver and head"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "gallery": {
+    "section": "generative",
+    "blurb": "A maze carved by a recursive backtracker with the carving head visible, then solved by a glowing breadth-first flood that reveals the shortest path, then a new maze.",
+    "prompt": "A maze carved by a recursive backtracker with the carving head visible, then solved by a glowing breadth-first flood that reveals the shortest path, then a new maze. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "geometric",
+      "light"
+    ],
+    "source": "scenes100/maze-solver~1"
+  }
+}

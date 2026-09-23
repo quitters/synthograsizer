@@ -1,0 +1,144 @@
+{
+  "name": "Glitch Drift: Demoscene Pixel Sorter",
+  "promptTemplate": "Glitch-art pixel sorting over {{landscape_style}} in {{palette}} palette with {{sort_mode}} sorting, driven by {{glitch_intensity}} intensity and {{sweep_speed}} sweep speed.",
+  "variables": [
+    {
+      "name": "landscape_style",
+      "label": "Landscape Style",
+      "values": [
+        {
+          "text": "Neon Ridges",
+          "weight": 2
+        },
+        {
+          "text": "Polygonal Peaks",
+          "weight": 2
+        },
+        {
+          "text": "Stratified Canyons",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "palette",
+      "label": "Color Spectrum",
+      "values": [
+        {
+          "text": "Cyber Sunset",
+          "weight": 2
+        },
+        {
+          "text": "Emerald Matrix",
+          "weight": 2
+        },
+        {
+          "text": "Thermal Drift",
+          "weight": 1
+        },
+        {
+          "text": "Monochrome Void",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "sort_mode",
+      "label": "Sort Vector",
+      "values": [
+        {
+          "text": "Horizontal Drift",
+          "weight": 2
+        },
+        {
+          "text": "Vertical Cascade",
+          "weight": 2
+        },
+        {
+          "text": "Crosshatch Glitch",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "glitch_intensity",
+      "label": "Glitch Depth",
+      "type": "number",
+      "min": 0.1,
+      "max": 1.0,
+      "step": 0.1,
+      "default": 0.6
+    },
+    {
+      "name": "sweep_speed",
+      "label": "Sweep Rate",
+      "type": "number",
+      "min": 0.2,
+      "max": 2.0,
+      "step": 0.2,
+      "default": 1.0
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "violet",
+    "title": "GLITCH DRIFT +5",
+    "tagline": "Demoscene raster pixel sorter & landscape synth",
+    "accent": "#f43f5e",
+    "groups": [
+      {
+        "title": "Sorter",
+        "controls": [
+          "sort_mode",
+          "glitch_intensity",
+          "sweep_speed"
+        ]
+      },
+      {
+        "title": "World",
+        "controls": [
+          "landscape_style",
+          "palette"
+        ]
+      }
+    ],
+    "controls": {
+      "landscape_style": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "palette": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "sort_mode": {
+        "widget": "pads",
+        "hint": "Switch axis and pattern of the pixel sort"
+      },
+      "glitch_intensity": {
+        "widget": "knob",
+        "hint": "Broadens luminance runs to tear the frame"
+      },
+      "sweep_speed": {
+        "widget": "slider",
+        "hint": "Rate at which sorting bands ripple across"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "gallery": {
+    "section": "generative",
+    "blurb": "Glitch-art pixel sorting: a generated landscape whose rows are sorted by brightness in threshold-bounded runs, the sort sweeping across the image and re-sorting as the scene drifts.",
+    "prompt": "Glitch-art pixel sorting: a generated landscape whose rows are sorted by brightness in threshold-bounded runs, the sort sweeping across the image and re-sorting as the scene drifts. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "psychedelic",
+      "energetic"
+    ],
+    "source": "scenes100/pixel-sort~1"
+  }
+}

@@ -1,0 +1,139 @@
+{
+  "name": "Hexagonal Wavefield",
+  "promptTemplate": "A synchronized hexagonal grid pulsing in {{palette}} with {{render_style}} rendering, moving at {{wave_speed}} px/s with {{hex_size}} px hexes and {{decay_rate}} decay.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Neon Cyber",
+          "weight": 2
+        },
+        {
+          "text": "Deep Ocean",
+          "weight": 1
+        },
+        {
+          "text": "Solar Flare",
+          "weight": 1
+        },
+        {
+          "text": "Prism Acid",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "render_style",
+      "label": "Render Style",
+      "values": [
+        {
+          "text": "Filled Mosaic",
+          "weight": 2
+        },
+        {
+          "text": "Wire Pulse",
+          "weight": 2
+        },
+        {
+          "text": "Quantum Dots",
+          "weight": 1
+        },
+        {
+          "text": "Chroma Rings",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "hex_size",
+      "label": "Hex Size",
+      "type": "number",
+      "min": 16,
+      "max": 40,
+      "step": 4,
+      "default": 24
+    },
+    {
+      "name": "wave_speed",
+      "label": "Wave Speed",
+      "type": "number",
+      "min": 150,
+      "max": 600,
+      "step": 50,
+      "default": 350
+    },
+    {
+      "name": "decay_rate",
+      "label": "Wave Life",
+      "type": "number",
+      "min": 1.0,
+      "max": 3.0,
+      "step": 0.5,
+      "default": 2.0
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "acid",
+    "title": "HEXWAVE +5 TRAINER",
+    "tagline": "RIPPLE INTERFERENCE MATRIX // 60FPS",
+    "accent": "#00ffcc",
+    "groups": [
+      {
+        "title": "Visual Engine",
+        "controls": [
+          "palette",
+          "render_style"
+        ]
+      },
+      {
+        "title": "Wave Dynamics",
+        "controls": [
+          "wave_speed",
+          "hex_size",
+          "decay_rate"
+        ]
+      }
+    ],
+    "controls": {
+      "palette": {
+        "widget": "pads",
+        "hint": ""
+      },
+      "render_style": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "hex_size": {
+        "widget": "knob",
+        "hint": "Scale the honeycomb cell density"
+      },
+      "wave_speed": {
+        "widget": "slider",
+        "hint": "Velocity of beat ripple propagation"
+      },
+      "decay_rate": {
+        "widget": "slider",
+        "hint": "Ring persistence across the grid"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "gallery": {
+    "section": "generative",
+    "blurb": "A hexagonal grid rippling in colour waves: each beat drops a ring-shaped wave from a random cell that spreads across the hexes, colours mixing where waves meet.",
+    "prompt": "A hexagonal grid rippling in colour waves: each beat drops a ring-shaped wave from a random cell that spreads across the hexes, colours mixing where waves meet. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "geometric",
+      "energetic"
+    ],
+    "source": "scenes100/hex-waves~3"
+  }
+}

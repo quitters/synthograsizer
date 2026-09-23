@@ -1,0 +1,153 @@
+{
+  "name": "Pulsar CP 1919",
+  "promptTemplate": "A stacked ridgeline study of pulsar CP 1919 with {{line_count}} lines, {{peak_height}}px peak height, {{drift_speed}} drift speed, {{roughness}} harmonics, {{signal_style}} signal style, and {{palette}} palette.",
+  "variables": [
+    {
+      "name": "line_count",
+      "label": "Line Count",
+      "type": "number",
+      "min": 30,
+      "max": 80,
+      "step": 5,
+      "default": 50
+    },
+    {
+      "name": "peak_height",
+      "label": "Peak Height",
+      "type": "number",
+      "min": 40,
+      "max": 180,
+      "step": 10,
+      "default": 90
+    },
+    {
+      "name": "drift_speed",
+      "label": "Drift Speed",
+      "type": "number",
+      "min": 0.1,
+      "max": 2.0,
+      "step": 0.1,
+      "default": 0.6
+    },
+    {
+      "name": "roughness",
+      "label": "Harmonics",
+      "type": "number",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "name": "signal_style",
+      "label": "Signal Style",
+      "values": [
+        {
+          "text": "pulsar",
+          "weight": 3
+        },
+        {
+          "text": "turbulent",
+          "weight": 2
+        },
+        {
+          "text": "synthwave",
+          "weight": 2
+        },
+        {
+          "text": "crystalline",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "stark_white",
+          "weight": 3
+        },
+        {
+          "text": "cyan_glow",
+          "weight": 2
+        },
+        {
+          "text": "amber_phosphor",
+          "weight": 2
+        },
+        {
+          "text": "aurora",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "ice",
+    "title": "CP 1919 +6 TRAINER",
+    "tagline": "Arecibo radio pulsar ridgeline telemetry",
+    "accent": "#5ae1ff",
+    "groups": [
+      {
+        "title": "Signal",
+        "controls": [
+          "signal_style",
+          "peak_height",
+          "roughness"
+        ]
+      },
+      {
+        "title": "Sweep",
+        "controls": [
+          "drift_speed",
+          "line_count",
+          "palette"
+        ]
+      }
+    ],
+    "controls": {
+      "line_count": {
+        "widget": "slider",
+        "hint": "Vertical density of stacked plot traces"
+      },
+      "peak_height": {
+        "widget": "knob",
+        "hint": "Vertical amplitude scaling on audio kicks"
+      },
+      "drift_speed": {
+        "widget": "slider",
+        "hint": "Phase velocity of downward ridgeline drift"
+      },
+      "roughness": {
+        "widget": "stepper",
+        "hint": "Octaves of synthesized noise detail"
+      },
+      "signal_style": {
+        "widget": "pads",
+        "hint": "Morph the radio pulse shape across rows"
+      },
+      "palette": {
+        "widget": "cycle",
+        "hint": ""
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "gallery": {
+    "section": "generative",
+    "blurb": "Stacked ridgelines like the famous plot of pulsar CP 1919: dozens of white lines on black, each a noisy peak that hides the lines behind it, the peaks pulsing with the bass.",
+    "prompt": "Stacked ridgelines like the famous plot of pulsar CP 1919: dozens of white lines on black, each a noisy peak that hides the lines behind it, the peaks pulsing with the bass. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "space",
+      "calm"
+    ],
+    "source": "scenes100/pulsar-ridges~1"
+  }
+}

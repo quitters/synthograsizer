@@ -1,0 +1,135 @@
+{
+  "name": "Physarum Transport Network",
+  "promptTemplate": "A slime-mould simulation growing in {{structure}} patterns with {{palette}} illumination, sensing at {{sensor_angle}} degrees at speed {{agent_speed}} with decay {{decay_speed}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "bioluminescence",
+          "weight": 2
+        },
+        {
+          "text": "toxic_amber",
+          "weight": 1
+        },
+        {
+          "text": "cyber_fungus",
+          "weight": 1
+        },
+        {
+          "text": "crimson_vein",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "structure",
+      "label": "Structure",
+      "values": [
+        {
+          "text": "capillary_web",
+          "weight": 2
+        },
+        {
+          "text": "meandering_river",
+          "weight": 1
+        },
+        {
+          "text": "spiral_colony",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "sensor_angle",
+      "label": "Sensor Angle",
+      "type": "number",
+      "min": 20,
+      "max": 60,
+      "step": 5,
+      "default": 35
+    },
+    {
+      "name": "agent_speed",
+      "label": "Agent Speed",
+      "type": "number",
+      "min": 1,
+      "max": 4,
+      "step": 0.5,
+      "default": 2
+    },
+    {
+      "name": "decay_speed",
+      "label": "Decay Factor",
+      "type": "number",
+      "min": 0.88,
+      "max": 0.98,
+      "step": 0.02,
+      "default": 0.94
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "acid",
+    "title": "PHYSARUM +5 TRAINER",
+    "tagline": "Steer 5,500 slime-mould agents across the trail map",
+    "accent": "#96f0ff",
+    "groups": [
+      {
+        "title": "Colony Form",
+        "controls": [
+          "structure",
+          "palette"
+        ]
+      },
+      {
+        "title": "Agent Dynamics",
+        "controls": [
+          "agent_speed",
+          "sensor_angle",
+          "decay_speed"
+        ]
+      }
+    ],
+    "controls": {
+      "palette": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "structure": {
+        "widget": "pads",
+        "hint": "Morphs network flow between web, river and spiral"
+      },
+      "sensor_angle": {
+        "widget": "slider",
+        "hint": "Wider angles split trails into delicate webs"
+      },
+      "agent_speed": {
+        "widget": "knob",
+        "hint": "Speed of agent foraging and trail laying"
+      },
+      "decay_speed": {
+        "widget": "slider",
+        "hint": "Higher persistence keeps ghost routes glowing longer"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "gallery": {
+    "section": "generative",
+    "blurb": "A slime-mould simulation: thousands of agents sense and deposit a chemical trail that diffuses and decays, self-organising into glowing transport networks on a low-resolution trail map.",
+    "prompt": "A slime-mould simulation: thousands of agents sense and deposit a chemical trail that diffuses and decays, self-organising into glowing transport networks on a low-resolution trail map. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "organic",
+      "light"
+    ],
+    "source": "scenes100/physarum~1"
+  }
+}

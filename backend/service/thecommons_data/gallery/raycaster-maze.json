@@ -1,0 +1,135 @@
+{
+  "name": "Demoscene Corridor Raycaster",
+  "promptTemplate": "A demoscene pseudo-3D raycaster wandering a procedural maze rendered with {{theme}} styling at {{render_res}} resolution, cruising at speed {{move_speed}} with a {{fov}} degree field of view and depth fog set to {{fog_depth}}.",
+  "variables": [
+    {
+      "name": "theme",
+      "label": "Color Palette",
+      "values": [
+        {
+          "text": "amber_crt",
+          "weight": 3
+        },
+        {
+          "text": "neon_cyber",
+          "weight": 2
+        },
+        {
+          "text": "dungeon_stone",
+          "weight": 1
+        },
+        {
+          "text": "acid_green",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "render_res",
+      "label": "Resolution",
+      "values": [
+        {
+          "text": "chunky",
+          "weight": 3
+        },
+        {
+          "text": "crisp",
+          "weight": 2
+        },
+        {
+          "text": "retro_chunky",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "move_speed",
+      "label": "Cruising Speed",
+      "type": "number",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.1,
+      "default": 1.2
+    },
+    {
+      "name": "fov",
+      "label": "Field of View",
+      "type": "number",
+      "min": 50,
+      "max": 90,
+      "step": 5,
+      "default": 65
+    },
+    {
+      "name": "fog_depth",
+      "label": "Fog Distance",
+      "type": "number",
+      "min": 4,
+      "max": 14,
+      "step": 1,
+      "default": 8
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "acid",
+    "title": "RAYCAST +5 TRAINER",
+    "tagline": "DDA labyrinth raycaster engine",
+    "accent": "#46ff5a",
+    "groups": [
+      {
+        "title": "Renderer",
+        "controls": [
+          "theme",
+          "render_res",
+          "fog_depth"
+        ]
+      },
+      {
+        "title": "Camera",
+        "controls": [
+          "move_speed",
+          "fov"
+        ]
+      }
+    ],
+    "controls": {
+      "theme": {
+        "widget": "pads",
+        "hint": "Swaps wall tints and floor grid palettes"
+      },
+      "render_res": {
+        "widget": "buttons",
+        "hint": "Ray strip granularity on the wall"
+      },
+      "move_speed": {
+        "widget": "knob",
+        "hint": "Speed of autonomous maze navigation"
+      },
+      "fov": {
+        "widget": "slider",
+        "hint": "Lens width from tight corridor to fish-eye"
+      },
+      "fog_depth": {
+        "widget": "slider",
+        "hint": "Adjust corridor depth fade into shadow"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "gallery": {
+    "section": "demo",
+    "blurb": "A raycaster fly-through of a procedural maze in the manner of early first-person games: flat-shaded walls darkening with distance, a floor gradient, the camera walking the corridors on its own.",
+    "prompt": "A raycaster fly-through of a procedural maze in the manner of early first-person games: flat-shaded walls darkening with distance, a floor gradient, the camera walking the corridors on its own. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "retro",
+      "3d"
+    ],
+    "source": "scenes100/raycaster-maze~1"
+  }
+}

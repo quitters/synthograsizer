@@ -1,0 +1,172 @@
+{
+  "name": "Demoscene Shadebobs",
+  "promptTemplate": "High-speed shadebobs tracing {{lissajous_ratio}} Lissajous curves with {{color_scheme}} ribbons, tuned with {{bob_count}} bobs of {{bob_size}} radius, moving at {{orbit_speed}} speed and fading with {{ribbon_decay}} persistence.",
+  "variables": [
+    {
+      "name": "lissajous_ratio",
+      "label": "Harmonic Ratio",
+      "values": [
+        {
+          "text": "classic_3_4",
+          "weight": 2
+        },
+        {
+          "text": "clover_5_6",
+          "weight": 1
+        },
+        {
+          "text": "waltz_2_3",
+          "weight": 2
+        },
+        {
+          "text": "dense_7_9",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "color_scheme",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "amiga_copper",
+          "weight": 2
+        },
+        {
+          "text": "cyber_neon",
+          "weight": 2
+        },
+        {
+          "text": "solar_flare",
+          "weight": 1
+        },
+        {
+          "text": "deep_aurora",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "bob_count",
+      "label": "Bob Count",
+      "type": "number",
+      "min": 3,
+      "max": 12,
+      "step": 1,
+      "default": 6
+    },
+    {
+      "name": "bob_size",
+      "label": "Bob Radius",
+      "type": "number",
+      "min": 20,
+      "max": 80,
+      "step": 5,
+      "default": 45
+    },
+    {
+      "name": "orbit_speed",
+      "label": "Speed",
+      "type": "number",
+      "min": 0.4,
+      "max": 2.4,
+      "step": 0.2,
+      "default": 1.0
+    },
+    {
+      "name": "ribbon_decay",
+      "label": "Trail Decay",
+      "values": [
+        {
+          "text": "fast_wash",
+          "weight": 1
+        },
+        {
+          "text": "balanced",
+          "weight": 3
+        },
+        {
+          "text": "deep_glow",
+          "weight": 2
+        },
+        {
+          "text": "infinite_plasma",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "SHADEBOB +6 TRAINER",
+    "tagline": "Pure Amiga-style ribbon accumulator",
+    "accent": "#ff8c1e",
+    "groups": [
+      {
+        "title": "Oscillation",
+        "controls": [
+          "lissajous_ratio",
+          "orbit_speed"
+        ]
+      },
+      {
+        "title": "Plasma Ribbons",
+        "controls": [
+          "color_scheme",
+          "ribbon_decay"
+        ]
+      },
+      {
+        "title": "Bob Cluster",
+        "controls": [
+          "bob_count",
+          "bob_size"
+        ]
+      }
+    ],
+    "controls": {
+      "lissajous_ratio": {
+        "widget": "pads",
+        "hint": "Switches the harmonic loop geometry"
+      },
+      "color_scheme": {
+        "widget": "cycle",
+        "hint": "Re-bakes glowing gradient sprites"
+      },
+      "bob_count": {
+        "widget": "stepper",
+        "hint": "Adds or removes tracing orbs"
+      },
+      "bob_size": {
+        "widget": "slider",
+        "hint": "Expands luminous bob radius"
+      },
+      "orbit_speed": {
+        "widget": "knob",
+        "hint": "Accelerates trail tracing frequency"
+      },
+      "ribbon_decay": {
+        "widget": "buttons",
+        "hint": "Controls buffer clearing persistence"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "gallery": {
+    "section": "demo",
+    "blurb": "Shadebobs: a few bobs trace Lissajous paths over a buffer where every pass adds brightness, so their trails build into smooth saturated ribbons through a cycling palette, slowly fading so the pattern keeps renewing.",
+    "prompt": "Shadebobs: a few bobs trace Lissajous paths over a buffer where every pass adds brightness, so their trails build into smooth saturated ribbons through a cycling palette, slowly fading so the pattern keeps renewing. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "retro",
+      "psychedelic",
+      "light"
+    ],
+    "source": "scenes100/shadebobs~1"
+  }
+}
