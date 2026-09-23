@@ -58,7 +58,7 @@ First deploy prints the service URL (`https://synthograsizer-<hash>-<region>.a.r
 > (WebSockets get no CORS preflight). Unset means same-origin, which is correct for local
 > installs and for the bare run.app URL — so this belongs here, not in a default.
 >
-> Verify after deploying: `curl -s https://synthograsizer.com/api/thecommons/config` must return
+> Verify after deploying: `curl -sL https://synthograsizer.com/api/thecommons/config` must return
 > the run.app origin, **not** `{"wsOrigin":""}`.
 
 > **Keep `SYNTH_TERMS_VERSION` here in sync with the live terms.** It read `v0.2` until
@@ -147,7 +147,11 @@ external ALB + serverless NEG instead (details in HANDOFF_SERVICE_LAUNCH.md step
 
 ## 4 · Smoke checklist (each deploy)
 0. **If §2b/2c apply to this deployment**: confirm they survived —
-   `gcloud run services describe synthograsizer --region northamerica-northeast1 --format='value(spec.template.spec.containers[0].env.list())' | tr ';' '\n' | grep -iE 'PUBLIC_ORIGINS|GCS_BUCKET'`
+   `gcloud run services describe synthograsizer --region northamerica-northeast1 --format='value(spec.template.spec.containers[0].env.list())' | tr ',' '\n' | grep -iE 'PUBLIC_ORIGINS|GCS_BUCKET|WS_ORIGIN'`
+   (Split on `,`: that is what gcloud puts between entries. It read `;` until
+   2026-09-21, which never matched, so the check printed one unreadable blob and
+   looked like a pass no matter what was set. `SYNTH_PUBLIC_ORIGINS`' own value
+   contains a comma, so it wraps onto the next line; that is expected.)
    — then a domain POST with a mismatched Origin should 401/422 (reaches the app), **not 403
    `cross_origin_rejected`** (blocked before the app). Catches the exact §2-wipes-2b/2c failure
    mode from 2026-07-20 before it reaches a real user.
