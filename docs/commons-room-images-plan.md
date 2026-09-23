@@ -1,0 +1,294 @@
+# The Commons — room images: plan
+
+**Status:** plan, revised 2026-09-23. PR 1 built; PR 2 to PR 4 not started.
+**Decided:** images live in the GCS bucket; they belong to one room and are never used by gallery
+pieces; only the room's owner can upload them, and there is no automated moderation. A room with
+no uploads uses a set of default images, so image pieces can be tested before anyone uploads.
+**Builds on:** #8 (the stub-canvas harness, `library.js` listings, `scripts/commons_promote.py`)
+and #7 (the 24-control cap). PR 1 below is stacked on #8's branch while #8 is open; the rest
+follow in order.
+
+## What it is
+
+The owner of a room uploads a handful of images on the creator desk. The wall hands them to the
+running piece as ready-to-draw bitmaps in `room.images`, and the generator can be asked to write
+pieces that use them: images as sprites that float round the wall, glitch and slit-scan
+treatments, uploads that bleed into one another over time, photos that dissolve into particles,
+mosaics of every upload, a slideshow with transitions. Until the owner uploads anything, pieces get
+the suite's default images instead. Phones never see the images and never run code, exactly as
+today.
+
+## The safety model, in one paragraph
+
+The wall runs generated code in its own page with no sandbox, so a malformed or hostile image
+file must never reach the wall as a file. Every upload is decoded and **re-encoded on the
+server** with Pillow into a fresh WebP, capped in size, with metadata dropped; the original
+bytes are discarded and never stored. The wall only ever fetches that re-encoded file, or one of
+the suite's own default images, from the suite's own origin, and gives the piece a decoded
+`ImageBitmap`. Generated code gets pixels, never a URL or a file. Only the room's owner can
+upload, so the person accountable for what is on the wall is the only one who can put an image
+there. There is no automated content check: that is the owner's call, by design.
+
+## Shape of the feature
+
+```
+desk (owner)                      server                               wall
+────────────                      ──────                               ────
+upload file  ── multipart ──▶ decode + re-encode (Pillow)
+                              store  users/{uid}/rooms/{room}/{id}.webp  (GCS)
+                              row in commons_room_images
+                              relay ── {"type":"images", manifest} ──▶ uploads? fetch each one
+                                                                        none?    the default set
+                                                                        createImageBitmap ×2
+                                                                        room.images = [...]
+generate / remix ── "use this room's images" ──▶ image rules + manifest in the prompt
+```
+
+## The default images
+
+Three images ship with the suite in `static/thecommons/img/defaults/`, chosen to exercise what
+pieces have to handle:
+
+| File | Shape | Why |
+|---|---|---|
+| `harbour.webp` | 16:9 landscape, 1920×1080 | a full-frame photo-like scene: lots of colour and edges for glitch, pixel-sort and particle pieces |
+| `fox.webp` | 3:4 portrait, 1080×1440 | a clear subject on a plain ground, in the wrong shape for the wall, so fitting and cropping get tested |
+| `emblem.webp` | 1:1, 1024×1024, **transparent background** | a bold graphic with alpha, the natural sprite for floating-asset pieces |
+
+Three rather than one, so pieces that cycle, blend or tile several uploads have something to
+work with, and so aspect ratio and transparency are tested from the start.
+
+- **How they're made:** once, with the suite's own image model (`MODEL_IMAGE_GEN_NB2`), by a
+  small `scripts/commons_default_images.py`. The emblem is generated on a flat background that
+  the script keys out to transparency. The script then fits each image to the size above and
+  writes it with the same Pillow encoder uploads go through. Nothing depicts a real person, a
+  brand or a living artist's style. The prompts and model are recorded in a README beside the
+  files, and the images are committed, so builds never call the model.
+- **When they're used:** a room with **no uploads** hands pieces the three defaults. The first
+  upload replaces them entirely; they are never mixed with uploads, and deleting every upload
+  brings them back. Each entry carries `default: true`, so the desk can label it as a sample and
+  a piece can tell them apart if it wants to.
+- **Served** as static files from the suite's own origin with a long cache. They need no
+  bucket, no database and no upload, so the wall, the tests and the generator all work
+  locally and on a deployment with storage switched off.
+- **Everywhere a piece runs:** the wall, the Sketchbook's page, and the
+  manifest the generator is shown. The node harness uses stubs of the same three sizes.
+
+## PR 1 — the wall, the runtime contract and the default images
+
+No backend and no storage: this makes image pieces real, end to end, before uploads exist.
+
+**`room.images`**, set by `static/thecommons/js/display.js`: a stable array in the owner's
+order, of `{ id, width, height, bitmap, thumb, default }`.
+- `bitmap` is the full image (long edge at most 1920 px).
+- `thumb` is a second `ImageBitmap` of at most 256 px, made once at load with
+  `createImageBitmap(bitmap, {resizeWidth, resizeHeight})`, for per-pixel work (sampling
+  colours, particles, pixel sorting) that would be ruinous at full size.
+- **Always an array:** empty only for the moment before the first images decode, then the
+  room's uploads or the defaults. Replaced, never mutated, when the manifest changes, in one
+  assignment, so a piece never sees a half-loaded list. An image that fails to load is left out
+  rather than blocking the rest.
+- The wall fetches with `cache: 'force-cache'` and decodes off the frame loop, and only once a
+  piece whose code mentions `room.images` comes on, so a wall that never shows one downloads
+  nothing. In this PR it always loads the defaults; PR 2 adds the `images` message that swaps
+  in uploads.
+- A list that leaves the wall is dropped, **never closed**: a piece may still hold a bitmap from
+  a list it cached, and drawing a closed `ImageBitmap` throws.
+
+**Everywhere else a piece runs:**
+- **The desk** runs only gallery pieces live; saved looks and pieces made in the room get a
+  poster card. Gallery pieces never use images, so nothing on the desk needs images yet.
+- **The gallery's node harness** (`tests/test_thecommons_gallery.py`): stub images at the three
+  default sizes, in a fourth run of every piece. The Sketchbook's `evaluate.py` imports that
+  harness, so it inherits them.
+- **A reference piece** in `tests/fixtures/`: a small hand-written piece that floats the images
+  as sprites, with a fallback for an empty list. The harness runs it with no images and with
+  the stubs, and it is what the wall is checked with by hand before the generator can write
+  image pieces.
+
+**Per-room only, enforced:**
+- A gallery piece may not use room images: a test fails any gallery `.js` that mentions
+  `room.images`, and `scripts/commons_promote.py` refuses one.
+- Saved looks and "Made in this room" pieces are the only place an image piece lives.
+
+**Derived tag:** a saved look or room-made piece whose code mentions `room.images` carries a
+"Uses your images" tag on the desk, in the "What the room does" group, derived the way
+`usesPeople` is.
+
+**Verify** in the browser pane: the real `display.js`, fed the reference piece by a stand-in
+socket, fetches the three defaults and floats them; fed a piece without images, it fetches
+none.
+
+## PR 2 — upload, storage and API
+
+**Schema** (`backend/service/schema.sql`, next to the other `commons_` tables):
+
+```sql
+CREATE TABLE IF NOT EXISTS commons_room_images (
+  id            BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  room_id       BIGINT NOT NULL REFERENCES commons_rooms(id) ON DELETE CASCADE,
+  position      INT NOT NULL,            -- the order pieces see them in
+  storage_path  TEXT NOT NULL,           -- users/{owner}/rooms/{room}/{id}.webp
+  width         INT NOT NULL,
+  height        INT NOT NULL,
+  bytes         INT NOT NULL,            -- counts toward the owner's storage quota
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS commons_room_images_room_idx ON commons_room_images(room_id, position);
+```
+
+**Object path** `users/{owner_id}/rooms/{room_id}/{image_id}.webp`. Nothing user-controlled goes
+into it. Putting it under the owner's prefix means the existing account delete
+(`storage.delete_prefix("users/{id}/")` in `routers/account.py`) removes every room image with
+no new code. Room delete gains one `delete_prefix("users/{owner}/rooms/{room}/")`.
+
+**Sanitising** (new `backend/service/thecommons_images.py`; the one place that touches upload
+bytes, and the encoder the default-images script reuses):
+
+- Hard caps before decoding: 15 MB request, `Image.MAX_IMAGE_PIXELS` at about 40 MP, so a
+  decompression bomb fails early. Anything Pillow can't open is rejected; the file type is
+  decided by Pillow, never by the filename or the declared content type. PNG, JPEG, WebP and GIF
+  are accepted. An animated GIF or WebP keeps its first frame only. SVG is never decoded.
+- `ImageOps.exif_transpose` first, so phone photos come out upright. Then convert to RGB, or to
+  RGBA if the image has transparency.
+- Resize so the long edge is at most **1920 px**, the wall's resolution. That keeps a full set
+  of images to about 100 MB of decoded bitmaps on the wall.
+- Re-encode as WebP (quality about 85, alpha kept). No EXIF, ICC or XMP metadata is written.
+  What gets stored is only ever this output.
+
+**Endpoints** (owner-only through the existing `_require_owned_room`; CSRF and session checks
+come from the middleware as for every `/api/` path):
+
+| Method | Path | Does |
+|---|---|---|
+| `POST` | `/api/thecommons/rooms/{id}/images` | multipart upload of one file (`python-multipart` is already a dependency); sanitise, store, add a row at the end, rebroadcast the manifest |
+| `GET` | `/api/thecommons/rooms/{id}/images` | the manifest, for the desk: `[{id, position, width, height, bytes}]` plus count, limit and quota used |
+| `GET` | `/api/thecommons/rooms/{id}/images/{image_id}` | the bytes, for the desk's thumbnails |
+| `PUT` | `/api/thecommons/rooms/{id}/images/order` | a full list of ids in the new order |
+| `DELETE` | `/api/thecommons/rooms/{id}/images/{image_id}` | remove the object, the row, and rebroadcast |
+| `GET` | `/api/thecommons/display/{join_code}/images/{image_id}` | the bytes, for the wall, reached by the join code the wall already has |
+
+Content responses are served same-origin by proxying `storage.get()` (as `artifact_content`
+already does), with `Content-Type: image/webp`, `X-Content-Type-Options: nosniff` and
+`Cache-Control: private, max-age=86400`. Image ids are never reused, so caching is safe.
+
+**Limits:**
+- **12 images per room.**
+- **Quota:** room images count toward the same per-user storage quota as "My creations". The
+  quota query in `routers/artifacts.py` becomes a sum over both tables, shared through one
+  helper so the two can't disagree.
+- **Storage off:** with `SYNTH_GCS_BUCKET` unset every upload endpoint returns 503. Rooms keep
+  working with the default images.
+
+**Relay:** `get_or_create_relay` also loads the manifest. `connect_display` sends
+`{"type": "images", "images": [{id, width, height}]}` after the sketch (an empty list means
+"use the defaults"), and any upload, delete or reorder rebroadcasts it. It goes to **displays
+only**, so `_resolve_targets` gains a `"displays"` target next to `"all"`. Stations never
+receive it.
+
+**Local development:** tests fake `storage.put/get/delete` with an in-memory dict, the way
+`fake_pool` fakes Postgres. For trying it by hand, add an opt-in `SYNTH_STORAGE_DIR` directory
+backend to `storage.py`. It is refused whenever the app is in hosted mode, so it can never run
+on Cloud Run.
+
+**Tests:**
+- **Sanitiser:** a decompression bomb, an oversize upload, a non-image, and a polyglot (valid
+  PNG plus a trailing script) whose stored output doesn't contain the trailer. Also EXIF
+  orientation, alpha kept, animated GIF keeps its first frame, long edge capped, no metadata
+  written.
+- **Access:** non-owner gets 404, signed out gets 401, a participant token can't upload, and a
+  wrong join code gets 404 on the display route.
+- **Limits and cleanup:** the image-count limit, the shared quota, 503 when storage is off,
+  room delete removes the objects, and every upload, delete or reorder rebroadcasts the
+  manifest to displays only. Deleting the last upload sends an empty manifest, and the wall
+  goes back to the defaults.
+
+## PR 3 — the desk
+
+A new **Images** section in `static/thecommons/desk/index.html`, between the library and
+"Shape what comes next". Its eyebrow reads "Only on your wall", with help text saying phones
+never see the images and that the owner is responsible for what they upload:
+- **Upload:** an upload button (`accept="image/png,image/jpeg,image/webp,image/gif"`,
+  `multiple`) with per-file progress and errors in plain words ("That file isn't an image",
+  "This room already has 12 images", "You're out of storage space").
+- **The image grid:** thumbnails in the order pieces see them, each with Remove, plus move
+  earlier and move later buttons (buttons rather than drag and drop, so it works by keyboard).
+- **Before any upload:** the grid shows the three defaults labelled "Sample", with the line
+  "Pieces use these samples until you upload your own." They have no Remove or reorder.
+- **Count and storage:** "5 of 12" and storage used.
+- **"Use this room's images"** checkbox in the prompt form, beside "Let people act": always
+  available, since there are always images (uploads or samples), and ticked automatically when
+  remixing a piece that already uses them.
+- **Storage off:** the upload button is hidden and the section says the samples are in use.
+
+**Verify** in the browser pane against the `SYNTH_STORAGE_DIR` backend: samples show before
+any upload; upload, reorder and delete work; and the wall switches from samples to uploads and
+back without a reload.
+
+## PR 4 — the generator
+
+- **Asking for it:** `GenerateRequest` gains `use_images: bool`. The job reads the room's
+  manifest (the uploads, or the defaults when there are none) and passes it to
+  `generate_sketch(..., images=[{width, height}, ...])`. When the flag is set, the model is also
+  told how many images there are and their aspect ratios.
+- **Remix:** a source whose code uses `room.images` forces image mode on, as a source with
+  triggers already forces interactive mode (`thecommons_jobs.py`).
+- **Prompt:** `system_prompt(interactive=..., images=...)` appends an `_IMAGE_RULES` block only
+  when asked, so an ambient piece is never told images exist. The block says:
+  - `room.images` is `[{id, width, height, bitmap, thumb, default}]`. It can be **empty for a
+    moment** while images load and **can change while running** when the host uploads. Always
+    have a look for zero images, and re-read the array every frame.
+  - Draw with `ctx.drawImage(img.bitmap, ...)`, fitting or covering by each image's own aspect
+    ratio. Never assume a size.
+  - For per-pixel work, draw `img.thumb` into a small `OffscreenCanvas` **once per image id**,
+    cache the `ImageData` in `room.state` keyed by id, and drop entries whose id has gone. Never
+    call `getImageData` on the main canvas or on full-size images every frame.
+  - The piece cannot know what the images show, so it should suit any photo, logo or drawing.
+  - Controls cannot list the images as choices, because choices are fixed when the piece is
+    written. Use a number (which image, how many), a trigger ("next image") or time instead.
+- **Remix context:** `generation_prompt` includes the same manifest line for remixes.
+- **Panel designer:** it learns that a piece uses the room's images, so hints can say so.
+- **Tests:** the image block appears only when asked; the manifest is in the request (the
+  defaults' sizes for a room with no uploads); the remix forcing works; an ambient prompt never
+  mentions images.
+- **Sketchbook support:**
+  - `generate.py --images` passes the default set's manifest.
+  - `build_gallery.py` gives image pieces the default images.
+  - A first themed batch, **Uploads**, of about 40 prompts (see `commons-sketchbook/themes.md`):
+    floating sprite assets, glitch bleed across a gallery of uploads, slit-scan, pixel-sort,
+    photo-to-particles, mosaic of all uploads, Ken Burns slideshow, uploads mapped onto the
+    facade and flip-dot pieces, and crowd pieces where a person's button stamps, cycles or
+    scatters an image.
+
+## Deliberately not in this plan
+
+- **The model never sees the images.** Pieces are written without knowing what the images
+  show, which keeps generation text-only and cheap. Sending small thumbnails to the model for
+  composition-aware pieces is a possible later step, to judge after the Uploads batch.
+- **No switch to turn the samples off.** A piece that uses images always has something to show.
+- **No per-image captions, crops or focal points.** The piece does its own fitting.
+- **No participant uploads, ever.** That is the point of admin-only.
+
+## Known trade-offs
+
+- **The join code can fetch images.** The wall's image route is reached by the join code, and
+  the join link is also what phones use. So anyone who joined the room can fetch its images,
+  which are the ones shown on the public wall. Accepted: a separate wall-only token would mean
+  changing how the wall URL works, for little gain.
+- **Memory on the wall:** 12 images at 1920 px is about 100 MB of bitmaps, plus the 256 px
+  thumbnails. Fine on a laptop driving a projector; the per-room limit is what bounds it.
+- **Samples on a public wall:** a host who picks an image piece before uploading shows the
+  samples to the room. The desk's "Sample" label and help line make that visible.
+- **Terms:** the draft terms need a line that the room owner is responsible for the images
+  they put on their wall. Add it to the counsel-review list in `HANDOFF_SERVICE_LAUNCH.md`.
+
+## Order and size
+
+PR 1 → PR 2 → PR 3 → PR 4, each shippable on its own.
+- **PR 1** needs no backend: image pieces work on the wall with the defaults, testable locally.
+- **PR 2** is the largest (upload, storage and most of the tests).
+- **PR 3** is mostly front-end.
+- **PR 4** is small in the suite and pairs with the first Uploads batch in the Sketchbook.
+
+Uploads reach the wall at the end of PR 2 and the desk in PR 3. With the defaults, every step
+can be seen working before the next one starts.
