@@ -12,6 +12,7 @@
 //                        only to run these -- generation never produces p5 code.
 
 import { defaultValue } from './parameters.js';
+import { defaultEntries, loadImages } from './room-images.js';
 import { compileNative, frameClock, resetContext } from './sketch-runtime.js';
 import { resolveWsOrigin } from './ws-origin.js';
 
@@ -70,8 +71,17 @@ function getVar(name) { return vars[name] ?? null; }
 // trade-off, not a new one. State is cleared when the piece changes, so a new
 // sketch never inherits the last one's bullets.
 const EVENT_QUEUE_LIMIT = 64;
-const room = { state: {}, events: [], people: [] };
+const room = { state: {}, events: [], people: [], images: Object.freeze([]) };
 let pendingEvents = [];
+
+// room.images (see room-images.js): decoded only once a piece that uses images
+// comes on, so a wall that never shows one never downloads any. Until the
+// room's own uploads exist, that means the suite's sample images.
+let imagesLoading = null;
+function ensureImages() {
+  imagesLoading ??= loadImages(defaultEntries()).then((images) => { room.images = images; });
+  return imagesLoading;
+}
 
 function pushEvent(event) {
   // requestAnimationFrame stops in a backgrounded tab, so nothing drains this
@@ -130,6 +140,7 @@ function loadSketch(next, values = {}) {
     }, p5Mount);
   } else {
     mode = 'native';
+    if (sketch.code && sketch.code.includes('room.images')) ensureImages();
     teardownP5();
     p5Mount.hidden = true;
     canvas.style.display = 'block';

@@ -281,7 +281,7 @@ export async function mountLibrary({ root, search, tagBar, count, onPick }) {
       presetId: preset.id,
       name: preset.name || 'Untitled',
       blurb,
-      tags: [kind.tag, ...look],
+      tags: [kind.tag, ...look, ...(preset.usesImages ? ['images'] : [])],
       section: kind.tag,
       savedAt,
       haystack: [preset.name, preset.kind, blurb, ...look.map((tag) => labels.get(tag))].join(' ').toLowerCase(),
