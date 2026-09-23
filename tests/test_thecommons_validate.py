@@ -16,7 +16,7 @@ import pytest
 from backend.service import thecommons_validate
 from backend.service.thecommons_gallery import _DIR as GALLERY_DIR
 from backend.service.thecommons_validate import (
-    NATIVE_PARAMS, InvalidSketchError, compile_error, validate_native_sketch,
+    MAX_VARIABLES, NATIVE_PARAMS, InvalidSketchError, compile_error, validate_native_sketch,
 )
 
 
@@ -59,7 +59,7 @@ def test_rejects_too_few_variables():
         ], promptTemplate="{{only_one}}"))
 
 
-def test_accepts_sixteen_rejects_seventeen_variables():
+def test_accepts_the_cap_rejects_one_more_variable():
     def numeric_vars(n):
         return [{"name": f"v{i}", "type": "number", "min": 0, "max": 10, "step": 1, "default": 0}
                 for i in range(n)]
@@ -67,11 +67,11 @@ def test_accepts_sixteen_rejects_seventeen_variables():
     def prompt_for(n):
         return " ".join(f"{{{{v{i}}}}}" for i in range(n))
 
-    ok = validate_native_sketch(_valid_sketch(variables=numeric_vars(16), promptTemplate=prompt_for(16)))
-    assert len(ok["variables"]) == 16
+    ok = validate_native_sketch(_valid_sketch(variables=numeric_vars(MAX_VARIABLES), promptTemplate=prompt_for(MAX_VARIABLES)))
+    assert len(ok["variables"]) == MAX_VARIABLES
 
     with pytest.raises(InvalidSketchError):
-        validate_native_sketch(_valid_sketch(variables=numeric_vars(17), promptTemplate=prompt_for(17)))
+        validate_native_sketch(_valid_sketch(variables=numeric_vars(MAX_VARIABLES + 1), promptTemplate=prompt_for(MAX_VARIABLES + 1)))
 
 
 def test_numeric_range_must_be_finite_and_ordered():

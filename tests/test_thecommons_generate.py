@@ -15,6 +15,7 @@ from backend import config, google_api
 from backend.service import thecommons_generate as gen
 from backend.service import thecommons_ui
 from backend.service.thecommons_ui import PANEL_MODEL, PANEL_PROMPT, SKINS, WIDGETS_BY_TYPE
+from backend.service.thecommons_validate import MAX_VARIABLES
 
 
 VALID_SKETCH_JSON = json.dumps({
@@ -157,10 +158,10 @@ def test_remix_with_no_source_falls_back_without_calling_the_model(gemini_config
 
 def test_remix_prompt_flags_oversized_source_for_consolidation():
     source = {"sketch": {"id": "s1", "name": "Big", "variables": [
-        {"name": f"v{i}"} for i in range(20)
+        {"name": f"v{i}"} for i in range(MAX_VARIABLES + 1)
     ]}, "values": {}}
     prompt = gen.generation_prompt("simplify it", mode="remix", source=source)
-    assert "20 variables" in prompt
+    assert f"{MAX_VARIABLES + 1} variables" in prompt
     assert "consolidate" in prompt
 
 
