@@ -324,12 +324,17 @@ async def _succeeded(sketch: dict, prompt: str, *, mode: str, source: dict[str, 
     second and separate call. Only ever here: a fallback is a curated piece and
     brings its own panel, or none. If the design fails, the sketch still ships
     with the default panel -- and at the same charge, since the sketch itself,
-    which is what the price is for, was delivered."""
+    which is what the price is for, was delivered.
+
+    The same call writes the piece's `listing` (section, blurb, prompt, look
+    tags), which it always gets, so every generated piece arrives with what the
+    gallery needs besides review: promoting one is its code, controls, panel
+    and listing, copied out as they are."""
     source_ui = ((source or {}).get("sketch") or {}).get("ui") if mode == "remix" else None
-    ui = await design_panel(sketch, prompt, source_ui=source_ui)
+    ui, listing = await design_panel(sketch, prompt, source_ui=source_ui)
     if ui is not None:
         sketch = {**sketch, "ui": ui}
-    return {**sketch, "id": _random_id(), "fallback": False, "modelAnswered": True,
+    return {**sketch, "listing": listing, "id": _random_id(), "fallback": False, "modelAnswered": True,
             "generation": {"provider": "gemini", "model": config.MODEL_COMMONS_SKETCH,
                            "panel": "designed" if ui is not None else "default", "panelModel": PANEL_MODEL}}
 

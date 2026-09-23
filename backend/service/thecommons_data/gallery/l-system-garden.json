@@ -127,7 +127,7 @@
       "columns": 3
     }
   },
-  "gallery": {
+  "listing": {
     "section": "generative",
     "blurb": "An L-system garden: bracketed L-system plants (ferns, weeds, a flowering bush) grow segment by segment from the ground, swaying in a breeze that rises with the music.",
     "prompt": "An L-system garden: bracketed L-system plants (ferns, weeds, a flowering bush) grow segment by segment from the ground, swaying in a breeze that rises with the music. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",

@@ -268,6 +268,11 @@ export async function mountLibrary({ root, search, tagBar, count, onPick }) {
 
   const fromPreset = (preset) => {
     const kind = PRESET_KINDS[preset.kind] || { tag: 'saved', blurb: preset.kind };
+    // A piece generated since listings existed says what it is and how it
+    // looks, so it can be found by the same chips as a ready-made one.
+    const listing = preset.listing || {};
+    const look = (listing.look || []).filter((tag) => labels.has(tag));
+    const blurb = listing.blurb || kind.blurb;
     const savedAt = preset.savedAt
       ? new Date(preset.savedAt).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
       : '';
@@ -275,11 +280,11 @@ export async function mountLibrary({ root, search, tagBar, count, onPick }) {
       id: preset.id,
       presetId: preset.id,
       name: preset.name || 'Untitled',
-      blurb: kind.blurb,
-      tags: [kind.tag],
+      blurb,
+      tags: [kind.tag, ...look],
       section: kind.tag,
       savedAt,
-      haystack: [preset.name, preset.kind, kind.blurb].join(' ').toLowerCase(),
+      haystack: [preset.name, preset.kind, blurb, ...look.map((tag) => labels.get(tag))].join(' ').toLowerCase(),
     };
   };
 

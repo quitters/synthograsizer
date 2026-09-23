@@ -136,7 +136,7 @@
       "columns": 2
     }
   },
-  "gallery": {
+  "listing": {
     "section": "demo",
     "blurb": "A twister: a tall column that twists around its vertical axis, drawn as horizontal slices where each slice shows the faces visible between four sine-driven edges, each face shaded by how far it turns towards the light, twisting faster on the beat.",
     "prompt": "A twister: a tall column that twists around its vertical axis, drawn as horizontal slices where each slice shows the faces visible between four sine-driven edges, each face shaded by how far it turns towards the light, twisting faster on the beat. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",

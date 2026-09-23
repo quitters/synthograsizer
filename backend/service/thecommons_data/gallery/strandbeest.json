@@ -140,7 +140,7 @@
       "columns": 2
     }
   },
-  "gallery": {
+  "listing": {
     "section": "generative",
     "blurb": "A herd of walking machines built on the Jansen linkage: each leg's joints solved from its rod lengths every frame, the herd striding across a beach at dusk.",
     "prompt": "A herd of walking machines built on the Jansen linkage: each leg's joints solved from its rod lengths every frame, the herd striding across a beach at dusk. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",

@@ -132,7 +132,7 @@
       "columns": 2
     }
   },
-  "gallery": {
+  "listing": {
     "section": "games",
     "blurb": "Soap bubbles with thin-film interference: iridescent bands swirling on their surfaces as they drift, merge and pop over a dark background; anyone can blow a new bubble.",
     "prompt": "Soap bubbles with thin-film interference: iridescent bands swirling on their surfaces as they drift, merge and pop over a dark background; anyone can blow a new bubble. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",

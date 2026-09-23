@@ -112,7 +112,7 @@
       "columns": 2
     }
   },
-  "gallery": {
+  "listing": {
     "section": "generative",
     "blurb": "Differential growth: a single closed line of nodes that repel, cling to their neighbours and split when stretched, folding into a coral- or brain-like form that keeps growing within a fixed budget of nodes.",
     "prompt": "Differential growth: a single closed line of nodes that repel, cling to their neighbours and split when stretched, folding into a coral- or brain-like form that keeps growing within a fixed budget of nodes. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",

@@ -168,7 +168,7 @@
       "columns": 3
     }
   },
-  "gallery": {
+  "listing": {
     "section": "demo",
     "blurb": "Stencil vectors: two rotating polygons act as windows between patterns, stripes inside one and a checkerboard inside the other, their overlap inverted, all moving on the beat.",
     "prompt": "Stencil vectors: two rotating polygons act as windows between patterns, stripes inside one and a checkerboard inside the other, their overlap inverted, all moving on the beat. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",

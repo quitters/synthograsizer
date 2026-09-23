@@ -145,7 +145,7 @@
       "columns": 3
     }
   },
-  "gallery": {
+  "listing": {
     "section": "demo",
     "blurb": "A dot tunnel: rings of dots flying towards the viewer along a winding path so the tunnel snakes and turns, dots growing brighter and larger as they near, each ring's colour drifting through a palette.",
     "prompt": "A dot tunnel: rings of dots flying towards the viewer along a winding path so the tunnel snakes and turns, dots growing brighter and larger as they near, each ring's colour drifting through a palette. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",

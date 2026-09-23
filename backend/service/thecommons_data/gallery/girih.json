@@ -141,7 +141,7 @@
       "columns": 2
     }
   },
-  "gallery": {
+  "listing": {
     "section": "generative",
     "blurb": "An Islamic geometric pattern: a star-and-polygon girih tiling drawn with interlaced strapwork passing over and under, lines tracing themselves on, in lapis and gold.",
     "prompt": "An Islamic geometric pattern: a star-and-polygon girih tiling drawn with interlaced strapwork passing over and under, lines tracing themselves on, in lapis and gold. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",

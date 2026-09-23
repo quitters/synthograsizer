@@ -126,7 +126,7 @@
       "columns": 2
     }
   },
-  "gallery": {
+  "listing": {
     "section": "generative",
     "blurb": "A loom weaving a Jacquard pattern row by row: warp and weft threads interlace over and under, the shuttle crossing, the woven motif emerging, then cut off and begun again.",
     "prompt": "A loom weaving a Jacquard pattern row by row: warp and weft threads interlace over and under, the shuttle crossing, the woven motif emerging, then cut off and begun again. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",

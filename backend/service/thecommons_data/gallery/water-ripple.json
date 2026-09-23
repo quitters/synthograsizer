@@ -146,7 +146,7 @@
       "columns": 2
     }
   },
-  "gallery": {
+  "listing": {
     "section": "games",
     "blurb": "A water surface using the classic two-buffer wave equation: ripples spread, reflect off the edges and interfere, refracting a tiled pattern beneath; raindrops fall now and then, and anyone can drop a stone of their own.",
     "prompt": "A water surface using the classic two-buffer wave equation: ripples spread, reflect off the edges and interfere, refracting a tiled pattern beneath; raindrops fall now and then, and anyone can drop a stone of their own. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",

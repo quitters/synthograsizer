@@ -173,7 +173,7 @@
       "columns": 3
     }
   },
-  "gallery": {
+  "listing": {
     "section": "demo",
     "blurb": "Glenz vectors: two nested translucent faceted solids rotating in opposite directions, face colours mixing where they overlap like tinted glass, over a dark gradient, the outer solid swelling on the beat.",
     "prompt": "Glenz vectors: two nested translucent faceted solids rotating in opposite directions, face colours mixing where they overlap like tinted glass, over a dark gradient, the outer solid swelling on the beat. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",

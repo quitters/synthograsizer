@@ -145,7 +145,7 @@
       "columns": 2
     }
   },
-  "gallery": {
+  "listing": {
     "section": "demo",
     "blurb": "A 3D dot object morphing smoothly between a sphere, a torus, a cube and a double helix: a few hundred points rotating in perspective, sized and brightened by depth, changing shape every few beats.",
     "prompt": "A 3D dot object morphing smoothly between a sphere, a torus, a cube and a double helix: a few hundred points rotating in perspective, sized and brightened by depth, changing shape every few beats. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",

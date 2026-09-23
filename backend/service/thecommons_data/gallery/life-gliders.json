@@ -144,7 +144,7 @@
       "columns": 3
     }
   },
-  "gallery": {
+  "listing": {
     "section": "games",
     "blurb": "Conway's Game of Life on a large grid with fading trails where cells have died, seeded with oscillators and glider guns; anyone can drop a glider in their own colour, and the colony is reseeded if it dies out.",
     "prompt": "Conway's Game of Life on a large grid with fading trails where cells have died, seeded with oscillators and glider guns; anyone can drop a glider in their own colour, and the colony is reseeded if it dies out. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",

@@ -135,7 +135,7 @@
       "columns": 2
     }
   },
-  "gallery": {
+  "listing": {
     "section": "generative",
     "blurb": "Circle packing: circles grow from random points until they touch a neighbour, packing the screen with a mosaic of sizes and colours, then gently dissolving and packing again.",
     "prompt": "Circle packing: circles grow from random points until they touch a neighbour, packing the screen with a mosaic of sizes and colours, then gently dissolving and packing again. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",

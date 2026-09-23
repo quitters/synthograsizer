@@ -145,7 +145,7 @@
       "columns": 2
     }
   },
-  "gallery": {
+  "listing": {
     "section": "demo",
     "blurb": "Ordered dithering: a sunset over the sea with clouds, rendered through a Bayer matrix into just four colours at chunky resolution, the sun sinking and rising again in a loop.",
     "prompt": "Ordered dithering: a sunset over the sea with clouds, rendered through a Bayer matrix into just four colours at chunky resolution, the sun sinking and rising again in a loop. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",

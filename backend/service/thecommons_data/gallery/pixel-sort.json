@@ -131,7 +131,7 @@
       "columns": 2
     }
   },
-  "gallery": {
+  "listing": {
     "section": "generative",
     "blurb": "Glitch-art pixel sorting: a generated landscape whose rows are sorted by brightness in threshold-bounded runs, the sort sweeping across the image and re-sorting as the scene drifts.",
     "prompt": "Glitch-art pixel sorting: a generated landscape whose rows are sorted by brightness in threshold-bounded runs, the sort sweeping across the image and re-sorting as the scene drifts. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",

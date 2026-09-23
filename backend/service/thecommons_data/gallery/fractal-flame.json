@@ -162,7 +162,7 @@
       "columns": 3
     }
   },
-  "gallery": {
+  "listing": {
     "section": "generative",
     "blurb": "A fractal flame: a chaos game of a few nonlinear variations (swirl, sinusoidal, spherical) accumulated in a density buffer with log tone mapping and colour by transform, the transforms morphing slowly.",
     "prompt": "A fractal flame: a chaos game of a few nonlinear variations (swirl, sinusoidal, spherical) accumulated in a density buffer with log tone mapping and colour by transform, the transforms morphing slowly. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",

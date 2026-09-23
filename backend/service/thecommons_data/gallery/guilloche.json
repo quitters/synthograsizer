@@ -166,7 +166,7 @@
       "columns": 2
     }
   },
-  "gallery": {
+  "listing": {
     "section": "generative",
     "blurb": "Guilloche: fine interlaced rosettes of hypotrochoid lines like the security patterns on banknotes, many thin lines overlapping, the parameters drifting so the rosette slowly transforms.",
     "prompt": "Guilloche: fine interlaced rosettes of hypotrochoid lines like the security patterns on banknotes, many thin lines overlapping, the parameters drifting so the rosette slowly transforms. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",

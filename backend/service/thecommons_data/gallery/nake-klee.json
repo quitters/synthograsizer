@@ -131,7 +131,7 @@
       "columns": 2
     }
   },
-  "gallery": {
+  "listing": {
     "section": "generative",
     "blurb": "In the spirit of Frieder Nake's homage to Paul Klee: horizontal bands divided by jagged polylines, filled with vertical hatching and scattered circles and triangles, redrawn band by band as if by a pen plotter.",
     "prompt": "In the spirit of Frieder Nake's homage to Paul Klee: horizontal bands divided by jagged polylines, filled with vertical hatching and scattered circles and triangles, redrawn band by band as if by a pen plotter. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",

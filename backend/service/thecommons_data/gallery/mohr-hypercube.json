@@ -131,7 +131,7 @@
       "columns": 2
     }
   },
-  "gallery": {
+  "listing": {
     "section": "generative",
     "blurb": "In the spirit of Manfred Mohr: the edges of a rotating four-dimensional hypercube projected to 2D, with a changing subset of edges drawn as bold black lines on white, forming a sequence of abstract signs.",
     "prompt": "In the spirit of Manfred Mohr: the edges of a rotating four-dimensional hypercube projected to 2D, with a changing subset of edges drawn as bold black lines on white, forming a sequence of abstract signs. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",

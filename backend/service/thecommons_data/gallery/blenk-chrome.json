@@ -126,7 +126,7 @@
       "columns": 2
     }
   },
-  "gallery": {
+  "listing": {
     "section": "demo",
     "blurb": "Blenk: an extruded chrome star rotating in 3D, its faces reflecting a sky gradient mapped by their normals so it looks like polished metal, over a dark gradient with slowly turning light.",
     "prompt": "Blenk: an extruded chrome star rotating in 3D, its faces reflecting a sky gradient mapped by their normals so it looks like polished metal, over a dark gradient with slowly turning light. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",

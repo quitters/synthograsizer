@@ -186,7 +186,7 @@
       "columns": 3
     }
   },
-  "gallery": {
+  "listing": {
     "section": "generative",
     "blurb": "Animated halftone: a hidden, slowly moving image of soft shapes rendered as rotated cyan, magenta and yellow dot screens of varying size, sliding in and out of register like a print.",
     "prompt": "Animated halftone: a hidden, slowly moving image of soft shapes rendered as rotated cyan, magenta and yellow dot screens of varying size, sliding in and out of register like a print. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",

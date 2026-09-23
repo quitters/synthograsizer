@@ -117,7 +117,7 @@
       "columns": 2
     }
   },
-  "gallery": {
+  "listing": {
     "section": "games",
     "blurb": "An N-body system: planets with trails orbiting two or three suns under mutual gravity; anyone can launch a new planet in their own colour, and strays that fly too far are lost.",
     "prompt": "An N-body system: planets with trails orbiting two or three suns under mutual gravity; anyone can launch a new planet in their own colour, and strays that fly too far are lost. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",

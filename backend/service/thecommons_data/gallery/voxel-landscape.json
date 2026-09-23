@@ -141,7 +141,7 @@
       "columns": 2
     }
   },
-  "gallery": {
+  "listing": {
     "section": "demo",
     "blurb": "A voxel landscape flyover in the manner of early-90s heightmap engines: a procedural heightmap and colour map rendered column by column, front to back with a y-buffer, the camera gliding low over valleys at dusk with distance fog.",
     "prompt": "A voxel landscape flyover in the manner of early-90s heightmap engines: a procedural heightmap and colour map rendered column by column, front to back with a y-buffer, the camera gliding low over valleys at dusk with distance fog. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",

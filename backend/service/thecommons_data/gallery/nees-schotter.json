@@ -122,7 +122,7 @@
       "columns": 2
     }
   },
-  "gallery": {
+  "listing": {
     "section": "generative",
     "blurb": "In the spirit of Georg Nees' Schotter: a column of squares whose rotation and displacement grow from orderly at the top to scattered at the bottom, the column slowly settling and scattering again.",
     "prompt": "In the spirit of Georg Nees' Schotter: a column of squares whose rotation and displacement grow from orderly at the top to scattered at the bottom, the column slowly settling and scattering again. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",

@@ -158,7 +158,7 @@
       "columns": 2
     }
   },
-  "gallery": {
+  "listing": {
     "section": "demo",
     "blurb": "A sinusoidal dot-matrix landscape: a grid of dots in perspective whose heights are sums of travelling sine waves, like a vibrating membrane, dots coloured by height, the waves driven by the music.",
     "prompt": "A sinusoidal dot-matrix landscape: a grid of dots in perspective whose heights are sums of travelling sine waves, like a vibrating membrane, dots coloured by height, the waves driven by the music. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",

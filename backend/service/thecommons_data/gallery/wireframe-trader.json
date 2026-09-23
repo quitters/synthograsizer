@@ -145,7 +145,7 @@
       "columns": 2
     }
   },
-  "gallery": {
+  "listing": {
     "section": "demo",
     "blurb": "A tribute to 1980s vector space games: a wireframe trading ship with hidden-line removal turning slowly above an elliptical radar scope, a space station rotating in the distance, green lines on black.",
     "prompt": "A tribute to 1980s vector space games: a wireframe trading ship with hidden-line removal turning slowly above an elliptical radar scope, a space station rotating in the distance, green lines on black. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",

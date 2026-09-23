@@ -146,7 +146,7 @@
       "columns": 2
     }
   },
-  "gallery": {
+  "listing": {
     "section": "games",
     "blurb": "Chladni figures: sand on a vibrating square plate gathers on the nodal lines of the current mode, drifting into a new figure whenever the mode changes on the beat; one person can switch the mode themselves.",
     "prompt": "Chladni figures: sand on a vibrating square plate gathers on the nodal lines of the current mode, drifting into a new figure whenever the mode changes on the beat; one person can switch the mode themselves. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",

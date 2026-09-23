@@ -177,7 +177,7 @@
       "columns": 3
     }
   },
-  "gallery": {
+  "listing": {
     "section": "generative",
     "blurb": "Space-filling curves: a Hilbert curve drawn step by step at increasing orders, then morphing into a Moore curve, the line's colour sweeping a gradient along its length.",
     "prompt": "Space-filling curves: a Hilbert curve drawn step by step at increasing orders, then morphing into a Moore curve, the line's colour sweeping a gradient along its length. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",

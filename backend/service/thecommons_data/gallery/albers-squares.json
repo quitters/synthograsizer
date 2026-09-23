@@ -127,7 +127,7 @@
       "columns": 2
     }
   },
-  "gallery": {
+  "listing": {
     "section": "generative",
     "blurb": "Colour interaction in the spirit of Josef Albers' Homage to the Square: nested squares set low in the frame whose colours slowly drift, so neighbouring colours seem to change one another.",
     "prompt": "Colour interaction in the spirit of Josef Albers' Homage to the Square: nested squares set low in the frame whose colours slowly drift, so neighbouring colours seem to change one another. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",

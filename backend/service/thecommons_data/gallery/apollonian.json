@@ -150,7 +150,7 @@
       "columns": 3
     }
   },
-  "gallery": {
+  "listing": {
     "section": "generative",
     "blurb": "An Apollonian gasket: circles packed recursively with Descartes' theorem, revealed generation by generation and slowly rotating, gold lines on navy.",
     "prompt": "An Apollonian gasket: circles packed recursively with Descartes' theorem, revealed generation by generation and slowly rotating, gold lines on navy. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",

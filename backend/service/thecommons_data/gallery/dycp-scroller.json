@@ -126,7 +126,7 @@
       "columns": 2
     }
   },
-  "gallery": {
+  "listing": {
     "section": "demo",
     "blurb": "A DYCP scroller: a line of greetings to the room's tables where each character bounces on its own sine, over metallic raster bars, with a rippling mirror reflection below.",
     "prompt": "A DYCP scroller: a line of greetings to the room's tables where each character bounces on its own sine, over metallic raster bars, with a rippling mirror reflection below. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",

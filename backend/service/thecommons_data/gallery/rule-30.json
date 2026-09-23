@@ -174,7 +174,7 @@
       "columns": 3
     }
   },
-  "gallery": {
+  "listing": {
     "section": "generative",
     "blurb": "Elementary cellular automata: rules like 30, 90 and 110 unfold row by row and scroll up the screen, switching rule now and then, cells as rounded squares in a two-tone palette.",
     "prompt": "Elementary cellular automata: rules like 30, 90 and 110 unfold row by row and scroll up the screen, switching rule now and then, cells as rounded squares in a two-tone palette. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",

@@ -123,3 +123,19 @@ def tags_for(slug: str, section: str, origin: str, variables: list[dict], code: 
         tags.append("host")
     tags.extend(LOOK.get(slug, ()) if look is None else look)
     return tags
+
+
+# ── a generated piece's listing ─────────────────────────────────────────────
+# Everything a generated piece needs to join the gallery besides its code,
+# controls and panel: a section, a line for its card, the prompt it came from
+# and two or three adjectives. The panel designer writes the blurb and picks
+# the adjectives in the call it already makes; nothing here is a second billed
+# call. thecommons_ui.normalize_listing() holds an answer to these.
+
+# The sections a model may choose. Party games is not one of them: a piece is
+# a game exactly when the room has something to press, which the controls say.
+# The studio holds hand ports, never anything generated.
+GENERATED_SECTIONS: tuple[str, ...] = ("demo", "generative", "living")
+MAX_LOOK = 3
+BLURB_CAP = 280
+

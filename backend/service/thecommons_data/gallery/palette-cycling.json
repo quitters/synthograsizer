@@ -126,7 +126,7 @@
       "columns": 2
     }
   },
-  "gallery": {
+  "listing": {
     "section": "demo",
     "blurb": "Colour cycling in the manner of 90s pixel art: a waterfall, a lake and flickering torches animated purely by rotating palette ranges over an indexed scene drawn once.",
     "prompt": "Colour cycling in the manner of 90s pixel art: a waterfall, a lake and flickering torches animated purely by rotating palette ranges over an indexed scene drawn once. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",

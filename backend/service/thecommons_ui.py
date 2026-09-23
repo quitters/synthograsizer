@@ -28,6 +28,7 @@ import unicodedata
 
 from backend import config
 from backend import google_api
+from backend.service.thecommons_gallery_tags import BLURB_CAP, GENERATED_SECTIONS, LOOK_TAGS, MAX_LOOK
 
 logger = logging.getLogger(__name__)
 
@@ -183,6 +184,29 @@ def normalize_ui(ui, variables: list[dict]) -> dict | None:
     }
 
 
+def normalize_listing(answer, variables: list[dict], prompt: str) -> dict:
+    """A complete gallery listing for a generated piece -- section, blurb,
+    prompt and look tags -- from whatever the panel designer answered, or None
+    when it answered nothing usable. Normalised like a panel and for the same
+    reason: it is presentational, and a bad one must never cost the room its
+    piece. Never raises."""
+    answer = answer if isinstance(answer, dict) else {}
+    # A piece is a party game exactly when the room has something to press.
+    if any(v.get("type") == "trigger" for v in variables):
+        section = "games"
+    elif isinstance(answer.get("section"), str) and answer["section"] in GENERATED_SECTIONS:
+        section = answer["section"]
+    else:
+        section = "generative"
+    look: list[str] = []
+    for tag in answer.get("look") if isinstance(answer.get("look"), list) else []:
+        if isinstance(tag, str) and tag in LOOK_TAGS and tag not in look:
+            look.append(tag)
+    # What was asked for is a fair card line when the designer wrote none.
+    blurb = _clean_text(answer.get("blurb"), BLURB_CAP) or _clean_text(prompt, BLURB_CAP)
+    return {"section": section, "blurb": blurb, "prompt": prompt, "look": look[:MAX_LOOK]}
+
+
 # ── the panel designer ──────────────────────────────────────────────────────
 #
 # A second, separate prompt, not a section of the sketch prompt: its output is
@@ -264,6 +288,17 @@ must stay readable on the skin's background (trainer: black; desk blue: #0055aa;
 #a8a8a8; textmode blue: #0000aa; amber and green: near-black), or it is discarded. Leave it out
 rather than guess.
 
+LISTING -- the piece's card in the room's library, where a host browses for something to put on
+the wall. Written by you because you have just read the piece; nothing here changes the panel.
+- "blurb", up to 280 characters: one plain sentence saying what the wall shows and what the room
+  can do with it, in the present tense ("Rings of dots fly out of a winding tunnel, brightening as
+  they near"). Not the title again, and no hype.
+- "section": "demo" for the classic effects of 1990s demos (plasmas, tunnels, scrollers, copper
+  bars, vector objects); "living" for pieces that grow, drift and remember what happened;
+  "generative" for systems, simulations, automata and homages to artists who drew with code.
+- "look": one to three words from exactly this list, the ones a host would search for:
+  LOOK_WORDS.
+
 When a previous panel is included, the creator is remixing the piece: keep that panel's skin and
 variant unless the request asks for a different look, and carry over whatever still fits.
 
@@ -277,8 +312,11 @@ Respond with ONLY this JSON object -- no markdown fences, no commentary:
   "groups": [{"title": "string", "controls": ["control_name"]}],
   "controls": {"control_name": {"widget": "string", "hint": "string"}},
   "mobile": {"density": "roomy"},
-  "desktop": {"columns": 2}
-}"""
+  "desktop": {"columns": 2},
+  "blurb": "string",
+  "section": "generative",
+  "look": ["calm"]
+}""".replace("LOOK_WORDS", ", ".join(f'"{tag}"' for tag in LOOK_TAGS))
 
 _FENCE_RE = re.compile(r"^```(?:json)?\s*|\s*```\s*$")
 
@@ -313,10 +351,27 @@ def panel_request(sketch: dict, prompt: str, source_ui: dict | None = None) -> s
     return "Design the control panel for this piece.\n\nPIECE:\n" + json.dumps(piece)
 
 
-async def design_panel(sketch: dict, prompt: str, *, source_ui: dict | None = None) -> dict | None:
-    """Ask the fast model for this sketch's panel. Returns a normalised spec,
-    or None whenever there's no usable answer -- which just means the default
-    panel. Never raises: a panel must never cost the room its piece."""
+async def design_panel(sketch: dict, prompt: str, *,
+                       source_ui: dict | None = None) -> tuple[dict | None, dict]:
+    """Ask the fast model for this sketch's panel and its library listing.
+
+    Returns (panel, listing). The panel is a normalised spec, or None whenever
+    there's no usable answer -- which just means the default panel. The
+    listing is always complete: with no answer it is still the piece's
+    section, from its controls, and the prompt as its blurb. Never raises: a
+    panel must never cost the room its piece."""
+    answer = await _ask_designer(sketch, prompt, source_ui)
+    listing = normalize_listing(answer, sketch["variables"], prompt)
+    # An answer without a real skin isn't a design, whatever else it holds.
+    if not (isinstance(answer, dict) and isinstance(answer.get("skin"), str) and answer["skin"] in SKINS):
+        if answer is not None:
+            logger.warning("[thecommons] panel design had no usable skin, using the default panel")
+        return None, listing
+    return normalize_ui(answer, sketch["variables"]), listing
+
+
+async def _ask_designer(sketch: dict, prompt: str, source_ui: dict | None):
+    """The designer's parsed answer, or None when there isn't one."""
     from backend.ai_manager import ai_manager
 
     client = ai_manager.genai_client
@@ -333,8 +388,4 @@ async def design_panel(sketch: dict, prompt: str, *, source_ui: dict | None = No
     except Exception as exc:  # noqa: BLE001 -- any failure means the default panel
         logger.warning("[thecommons] panel design failed, using the default panel: %s", type(exc).__name__)
         return None
-    # An answer without a real skin isn't a design, whatever else it holds.
-    if not (isinstance(answer, dict) and isinstance(answer.get("skin"), str) and answer["skin"] in SKINS):
-        logger.warning("[thecommons] panel design had no usable skin, using the default panel")
-        return None
-    return normalize_ui(answer, sketch["variables"])
+    return answer

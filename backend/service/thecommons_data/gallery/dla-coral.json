@@ -162,7 +162,7 @@
       "columns": 3
     }
   },
-  "gallery": {
+  "listing": {
     "section": "games",
     "blurb": "Diffusion-limited aggregation: random walkers stick to a growing crystal, building a branching coral from a seed at the centre, coloured by arrival time; anyone can release a burst of walkers in their colour.",
     "prompt": "Diffusion-limited aggregation: random walkers stick to a growing crystal, building a branching coral from a seed at the centre, coloured by arrival time; anyone can release a burst of walkers in their colour. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",

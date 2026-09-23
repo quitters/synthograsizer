@@ -171,7 +171,7 @@
       "columns": 3
     }
   },
-  "gallery": {
+  "listing": {
     "section": "demo",
     "blurb": "A C64 sprite multiplexer showcase: sixty-four hardware-style sprites snaking along a sine wave over a character-mode background, in the 16-colour C64 palette, the border flashing on the beat.",
     "prompt": "A C64 sprite multiplexer showcase: sixty-four hardware-style sprites snaking along a sine wave over a character-mode background, in the 16-colour C64 palette, the border flashing on the beat. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",

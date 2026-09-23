@@ -348,12 +348,13 @@ GALLERY: list[dict] = [
 def _self_described() -> list[dict]:
     """Generated pieces that carry their own gallery entry.
 
-    A piece whose <slug>.json has a `gallery` block -- section, blurb, prompt
+    A piece whose <slug>.json has a `listing` block -- section, blurb, prompt
     and look tags -- needs no entry above, and its phone panel is the `ui`
     beside its controls rather than one in thecommons_gallery_panels.py. The
     100 Scenes batch came in this way; it is also the shape a generated piece
     can arrive in already, so promoting one is copying two files in and
-    reading them, not writing its paperwork by hand. Ordered by name, after
+    reading them, not writing its paperwork by hand. (Not `gallery`: on a
+    served sketch that key already names the curated piece it is.) Ordered by name, after
     the pieces listed above.
     """
     listed = {meta["slug"] for meta in GALLERY}
@@ -363,7 +364,7 @@ def _self_described() -> list[dict]:
             continue
         try:
             sidecar = json.loads(path.read_text(encoding="utf-8"))
-            meta = sidecar.get("gallery")
+            meta = sidecar.get("listing")
             if meta is None:
                 continue
             entries.append((sidecar["name"].casefold(), {

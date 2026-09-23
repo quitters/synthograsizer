@@ -126,7 +126,7 @@
       "columns": 2
     }
   },
-  "gallery": {
+  "listing": {
     "section": "generative",
     "blurb": "A hexagonal grid rippling in colour waves: each beat drops a ring-shaped wave from a random cell that spreads across the hexes, colours mixing where waves meet.",
     "prompt": "A hexagonal grid rippling in colour waves: each beat drops a ring-shaped wave from a random cell that spreads across the hexes, colours mixing where waves meet. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
