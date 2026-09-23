@@ -1,8 +1,9 @@
 """Room CRUD/ownership tests for routers/thecommons.py.
 
 No Postgres: FakeCommonsPool is an in-memory relational store implementing
-exactly the SQL shapes thecommons_jobs.py/thecommons.py emit against
-commons_rooms/commons_room_state/commons_room_jobs — same philosophy as
+exactly the SQL shapes thecommons_jobs.py/thecommons.py/thecommons_images.py
+emit against commons_rooms/commons_room_state/commons_room_jobs/
+commons_room_images — same philosophy as
 FakePool in test_service_credits.py. Auth/session helpers (_fake_user,
 _sign_in) are reused from their existing homes, matching test_service_dsar.py
 and test_service_artifacts.py's own convention.
@@ -35,8 +36,11 @@ class FakeCommonsPool:
         self.rooms: dict[int, dict] = {}
         self.room_state: dict[int, dict] = {}
         self.room_jobs: dict[int, dict] = {}
+        self.room_images: dict[int, dict] = {}
+        self.artifact_bytes: dict[int, int] = {}   # user_id -> bytes of saved creations, for the quota
         self._next_room_id = 1
         self._next_job_id = 1
+        self._next_image_id = 1
         # Credit accounting — per user_id, unlike test_service_credits.py's
         # single-balance FakePool, because Commons is multi-tenant and "one
         # owner's spend never moves another's balance" is a property worth
@@ -89,6 +93,13 @@ class FakeCommonsPool:
             for row in self.rooms.values():
                 if row["join_code"] == join_code:
                     return {"id": row["id"], "status": row["status"]}
+            return None
+
+        if "SELECT id, owner_user_id, status FROM commons_rooms WHERE join_code = $1" in s:
+            (join_code,) = args
+            for row in self.rooms.values():
+                if row["join_code"] == join_code:
+                    return {"id": row["id"], "owner_user_id": row["owner_user_id"], "status": row["status"]}
             return None
 
         if "SELECT sketch, values, undo FROM commons_room_state" in s:
@@ -151,6 +162,33 @@ class FakeCommonsPool:
             }
             return {"id": jid}
 
+        # ── room images ─────────────────────────────────────────────────────
+        if "INSERT INTO commons_room_images" in s and "HAVING COUNT(*) < $5" in s:
+            room_id, width, height, size, limit = args
+            mine = [r for r in self.room_images.values() if r["room_id"] == room_id]
+            if len(mine) >= limit:
+                return None
+            iid = self._next_image_id
+            self._next_image_id += 1
+            row = {"id": iid, "room_id": room_id, "width": width, "height": height, "bytes": size,
+                   "position": max((r["position"] for r in mine), default=-1) + 1,
+                   "created_at": datetime.now(timezone.utc)}
+            self.room_images[iid] = row
+            return {k: row[k] for k in ("id", "position", "width", "height", "bytes")}
+        if "FROM commons_room_images WHERE id = $1 AND room_id = $2" in s and s.startswith("SELECT"):
+            image_id, room_id = args
+            row = self.room_images.get(image_id)
+            if not row or row["room_id"] != room_id:
+                return None
+            return {k: row[k] for k in ("id", "position", "width", "height", "bytes")}
+        if "DELETE FROM commons_room_images WHERE id = $1 AND room_id = $2 RETURNING id" in s:
+            image_id, room_id = args
+            row = self.room_images.get(image_id)
+            if not row or row["room_id"] != room_id:
+                return None
+            del self.room_images[image_id]
+            return {"id": image_id}
+
         raise AssertionError(f"unexpected fetchrow: {s}")
 
     async def fetchval(self, sql, *args):
@@ -178,6 +216,12 @@ class FakeCommonsPool:
                                       "status": "failed", "error": None}
             return gid
 
+        if "FROM artifacts WHERE user_id = $1) + (SELECT COALESCE(SUM(i.bytes), 0) FROM commons_room_images" in s:
+            (user_id,) = args
+            owned = {rid for rid, room in self.rooms.items() if room["owner_user_id"] == user_id}
+            return self.artifact_bytes.get(user_id, 0) + sum(
+                r["bytes"] for r in self.room_images.values() if r["room_id"] in owned)
+
         if "SUM(usd_est)" in s:
             # The daily budget breaker (enforcement.py's AI_PREFIXES gate,
             # which /api/thecommons/generate is in) queries this on every
@@ -202,6 +246,11 @@ class FakeCommonsPool:
                     if r["room_id"] == room_id and r["status"] in ("completed", "preset")]
             rows.sort(key=lambda r: r["finished_at"] or datetime.min.replace(tzinfo=timezone.utc), reverse=True)
             return [dict(r) for r in rows]
+        if "FROM commons_room_images WHERE room_id = $1 ORDER BY position, id" in s:
+            (room_id,) = args
+            rows = [r for r in self.room_images.values() if r["room_id"] == room_id]
+            rows.sort(key=lambda r: (r["position"], r["id"]))
+            return [{k: r[k] for k in ("id", "position", "width", "height", "bytes")} for r in rows]
         raise AssertionError(f"unexpected fetch: {s}")
 
     async def execute(self, sql, *args):
@@ -219,6 +268,16 @@ class FakeCommonsPool:
             self.room_state.pop(room_id, None)
             for job_id in [j for j, row in self.room_jobs.items() if row["room_id"] == room_id]:
                 del self.room_jobs[job_id]
+            for image_id in [i for i, row in self.room_images.items() if row["room_id"] == room_id]:
+                del self.room_images[image_id]
+            return
+
+        if "UPDATE commons_room_images AS i SET position = o.pos - 1" in s:
+            room_id, ids = args
+            for pos, image_id in enumerate(ids):
+                row = self.room_images.get(image_id)
+                if row and row["room_id"] == room_id:
+                    row["position"] = pos
             return
 
         # ── credits.Charge's ledger/settlement shapes ───────────────────────

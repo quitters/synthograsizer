@@ -75,12 +75,39 @@ const room = { state: {}, events: [], people: [], images: Object.freeze([]) };
 let pendingEvents = [];
 
 // room.images (see room-images.js): decoded only once a piece that uses images
-// comes on, so a wall that never shows one never downloads any. Until the
-// room's own uploads exist, that means the suite's sample images.
-let imagesLoading = null;
+// comes on, so a wall that never shows one never downloads any. The relay says
+// which images the room has as soon as the wall connects, before the sketch,
+// and again whenever the owner changes them; an empty list means the suite's
+// sample images.
+const MANIFEST_WAIT_MS = 2000;
+let imageManifest = null;   // null until the relay has said
+let imagesWanted = false;
+let imageLoad = 0;          // only the newest load may land on room.images
+
+function imageEntries() {
+  if (!imageManifest || !imageManifest.length) return defaultEntries();
+  // Only ever this origin's own re-encoding of an upload, reached by this
+  // wall's join code; the piece gets the decoded pixels, never this URL.
+  return imageManifest.map((m) => ({
+    id: `upload-${m.id}`,
+    src: `/api/thecommons/display/${encodeURIComponent(joinCode)}/images/${encodeURIComponent(m.id)}`,
+  }));
+}
+
+async function refreshImages() {
+  if (!imagesWanted) return;
+  const load = ++imageLoad;
+  const images = await loadImages(imageEntries());
+  if (load === imageLoad) room.images = images;   // a newer list may have arrived meanwhile
+}
+
 function ensureImages() {
-  imagesLoading ??= loadImages(defaultEntries()).then((images) => { room.images = images; });
-  return imagesLoading;
+  if (imagesWanted) return;
+  imagesWanted = true;
+  if (imageManifest !== null) refreshImages();
+  // Normally the list is already here. If it never comes, the samples are
+  // better than a piece with nothing to show.
+  else setTimeout(() => { if (imageManifest === null) refreshImages(); }, MANIFEST_WAIT_MS);
 }
 
 function pushEvent(event) {
@@ -162,6 +189,9 @@ ws.onmessage = (ev) => {
   if (msg.people) room.people = msg.people;
   if (msg.type === 'sketch' && msg.sketch) {
     loadSketch(msg.sketch, msg.values);
+  } else if (msg.type === 'images') {
+    imageManifest = Array.isArray(msg.images) ? msg.images : [];
+    refreshImages();
   } else if (msg.type === 'var') {
     vars[msg.varName] = msg.value;
     // p5 templates read getVar() themselves each draw() call -- nothing else to push

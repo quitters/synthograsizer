@@ -18,7 +18,7 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
-SCHEMA_VERSION = 4
+SCHEMA_VERSION = 5
 
 # version → list of SQL statements upgrading an EXISTING database from
 # version-1 to version. Purely additive, and never run on a fresh database
@@ -46,6 +46,9 @@ _MIGRATIONS: dict[int, list[str]] = {
     # same case as v2. Nothing additive to replay; the version bump alone
     # records the change for databases that pre-date it.
     4: [],
+    # v5 (Commons room images, 2026-09-23): commons_room_images is a new table,
+    # fully expressed in schema.sql. Same case as v2 and v4.
+    5: [],
 }
 
 _pool = None

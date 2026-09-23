@@ -107,8 +107,12 @@ def _group_remove(group: list[Participant], person: Participant) -> None:
 
 
 class RoomRelay:
-    def __init__(self, room_id: int, sketch: dict | None = None, values: dict | None = None):
+    def __init__(self, room_id: int, sketch: dict | None = None, values: dict | None = None,
+                 images: list[dict] | None = None):
         self.room_id = room_id
+        # The room's uploads as the wall is told of them (thecommons_images.
+        # wall_manifest); empty means the wall uses the sample images.
+        self.images: list[dict] = list(images or [])
         self.displays: set[Any] = set()
         self.stations: set[Any] = set()
         self.participants: dict[str, Participant] = {}  # session token -> participant
@@ -376,6 +380,10 @@ class RoomRelay:
             if target == "all":
                 for ws in [*self.displays, *self.stations]:
                     resolved.append((ws, message))
+            elif target == "displays":
+                # Room images go to walls only: phones never see them.
+                for ws in self.displays:
+                    resolved.append((ws, message))
             else:
                 resolved.append((target, message))
         return resolved
@@ -393,8 +401,19 @@ class RoomRelay:
     async def publish(self, sketch: dict, values: dict | None = None) -> None:
         await self._send_all(None, self.set_sketch(sketch, values))
 
+    def images_message(self) -> dict:
+        return {"type": "images", "images": list(self.images)}
+
+    async def publish_images(self, images: list[dict]) -> None:
+        """The room's uploads changed: every wall swaps to the new list."""
+        self.images = list(images)
+        await self._send_all(None, [("displays", self.images_message())])
+
     async def connect_display(self, ws: Any) -> None:
         self.displays.add(ws)
+        # Images before the sketch, so a wall whose piece uses them never
+        # shows the samples for a moment before the room's own uploads.
+        await ws.send_json(self.images_message())
         if self.current_sketch:
             await ws.send_json({"type": "sketch", "sketch": self.current_sketch,
                                  "values": dict(self.values), "owners": self.ownership(),
@@ -508,7 +527,9 @@ async def get_or_create_relay(pool, room_id: int) -> RoomRelay:
             from backend.service.thecommons_generate import pick_fallback
             sketch = pick_fallback()
             values = {}
-        relay = RoomRelay(room_id, sketch=sketch, values=values)
+        from backend.service.thecommons_images import list_images, wall_manifest
+        images = wall_manifest(await list_images(pool, room_id))
+        relay = RoomRelay(room_id, sketch=sketch, values=values, images=images)
         relay.distribute()
         _relays[room_id] = relay
         return relay
