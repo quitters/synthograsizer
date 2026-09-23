@@ -196,6 +196,56 @@ def test_commons_sketches_are_priced_on_their_own_model():
     assert pricing.text_credits(config.MODEL_TEMPLATE_GEN) == 5
 
 
+# Classification of every model constant config declares. Membership is
+# asserted below, so adding a constant without deciding how it bills fails the
+# suite rather than surfacing as an HTTP 400 the first time a user picks it.
+_TEXT_MODELS = {
+    "MODEL_TEXT_CHAT", "MODEL_TEMPLATE_GEN", "MODEL_TEMPLATE_GEN_FAST",
+    "MODEL_FAST", "MODEL_DEMO", "MODEL_COMMONS_SKETCH", "MODEL_ANALYSIS_QUICK",
+    "MODEL_NARRATIVE", "MODEL_SMART_TRANSFORM_PROMPT", "MODEL_CURATION",
+}
+_IMAGE_MODELS = {"MODEL_IMAGE_GEN_FAST", "MODEL_IMAGE_GEN_NB2", "MODEL_IMAGE_GEN_HQ"}
+_VIDEO_MODELS = {"MODEL_VIDEO_GEN"}
+# Deliberately unpriced: the panel call is absorbed into the commons_sketch
+# price (see config.MODEL_COMMONS_PANEL), and music is admin-only at 0 credits.
+_UNPRICED_MODELS = {"MODEL_COMMONS_PANEL", "MODEL_MUSIC_REALTIME"}
+
+
+def test_every_model_constant_is_classified():
+    """A new model constant must be classified before it can ship.
+
+    Without this, a constant added to config and wired into a route is priced
+    only if someone remembers to key pricing.py off it too -- and if they
+    don't, the failure is InvalidModel -> HTTP 400 at request time.
+    """
+    declared = {n for n in dir(config) if n.startswith("MODEL_")}
+    classified = _TEXT_MODELS | _IMAGE_MODELS | _VIDEO_MODELS | _UNPRICED_MODELS
+    assert declared == classified, (
+        "model constants not classified in this test: "
+        f"{sorted(declared - classified)}; classified but no longer in config: "
+        f"{sorted(classified - declared)}")
+
+
+def test_every_priced_model_constant_resolves():
+    """Repointing a constant must not silently unprice it.
+
+    TEXT_MODEL_CREDITS names only three constants, but several config
+    constants collapse onto those ids. Repoint MODEL_FAST, MODEL_DEMO or
+    MODEL_TEMPLATE_GEN on its own and the new id is not a key any more, so
+    pricing.resolve raises InvalidModel -- an HTTP 400 that nothing catches
+    until a user hits the route.
+    """
+    for name in sorted(_TEXT_MODELS):
+        model = getattr(config, name)
+        assert pricing.text_credits(model) > 0, f"{name} ({model}) has no text price"
+    for name in sorted(_IMAGE_MODELS):
+        model = getattr(config, name)
+        assert pricing.image_credits(model) > 0, f"{name} ({model}) has no image price"
+    for name in sorted(_VIDEO_MODELS):
+        model = getattr(config, name)
+        assert pricing.VIDEO_MODEL_CREDITS_PER_SEC.get(model), f"{name} ({model}) has no video rate"
+
+
 def test_pricing_rejects_unknown_models():
     with pytest.raises(pricing.InvalidModel):
         pricing.resolve("text", "gemini-exp-9999")

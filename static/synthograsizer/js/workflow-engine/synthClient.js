@@ -124,7 +124,7 @@ class SynthClient {
   async generateImage(prompt, options = {}) {
     const body = {
       prompt,
-      model: 'gemini-3.1-flash-image-preview',
+      model: 'gemini-3.1-flash-image',
       aspect_ratio: options.aspect_ratio ?? '1:1',
     };
     if (options.negative_prompt) body.negative_prompt = options.negative_prompt;

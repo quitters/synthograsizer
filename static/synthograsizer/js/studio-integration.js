@@ -931,9 +931,9 @@ class StudioIntegration {
             <div class="studio-input-group">
                 <label>Model</label>
                 <select id="image-model-select">
-                    <option value="gemini-3.1-flash-image-preview">Gemini 3.1 Flash (NB2)</option>
-                    <option value="gemini-3-pro-image-preview">Gemini 3 Pro (NB Pro)</option>
-                    <option value="gemini-2.5-flash-image">Gemini 2.5 Flash (NB)</option>
+                    <option value="gemini-3.1-flash-image">Gemini 3.1 Flash (NB2)</option>
+                    <option value="gemini-3-pro-image">Gemini 3 Pro (NB Pro)</option>
+                    <option value="gemini-3.1-flash-lite-image">Gemini 3.1 Flash Lite (NB2 Lite)</option>
                 </select>
             </div>
             <div class="studio-input-group">
@@ -1070,9 +1070,9 @@ class StudioIntegration {
                 <div class="studio-input-group">
                     <label>Model</label>
                     <select id="st-model-select">
-                        <option value="gemini-2.5-flash-image" selected>Gemini 2.5 Flash (NB)</option>
-                        <option value="gemini-3.1-flash-image-preview">Gemini 3.1 Flash (NB2)</option>
-                        <option value="gemini-3-pro-image-preview">Gemini 3 Pro (NB Pro)</option>
+                        <option value="gemini-3.1-flash-lite-image" selected>Gemini 3.1 Flash Lite (NB2 Lite)</option>
+                        <option value="gemini-3.1-flash-image">Gemini 3.1 Flash (NB2)</option>
+                        <option value="gemini-3-pro-image">Gemini 3 Pro (NB Pro)</option>
                     </select>
                 </div>
                 <div class="studio-input-group">
@@ -2043,7 +2043,7 @@ class StudioIntegration {
                     <span>🤖 Chat</span>
                     <select id="chat-model-select" class="chat-model-select" onclick="event.stopPropagation()">
                         <option value="gemini-3.6-flash">Gemini 3.6 Flash</option>
-                        <option value="gemini-3-pro-preview">Gemini 3 Pro</option>
+                        <option value="gemini-3.1-pro-preview">Gemini 3.1 Pro</option>
                     </select>
                 </div>
                 <button style="background:none;border:none;color:white;cursor:pointer;" onclick="document.getElementById('chat-window').classList.remove('active')">▼</button>
@@ -3173,7 +3173,7 @@ class StudioIntegration {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         prompt: p.prompt,
-                        model: 'gemini-3.1-flash-image-preview',
+                        model: 'gemini-3.1-flash-image',
                         input_images: [this.svoState.sourceImageB64],
                         aspect_ratio: document.getElementById('svo-image-aspect').value
                     })
@@ -3292,7 +3292,7 @@ class StudioIntegration {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     prompt: prompt.prompt,
-                    model: 'gemini-3.1-flash-image-preview',
+                    model: 'gemini-3.1-flash-image',
                     input_images: [this.svoState.sourceImageB64],
                     aspect_ratio: document.getElementById('svo-image-aspect').value
                 })
@@ -4360,7 +4360,7 @@ class StudioIntegration {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         prompt: outpaintPrompt,
-                        model: 'gemini-3-pro-image-preview',
+                        model: 'gemini-3-pro-image',
                         aspect_ratio: selectedAspectRatio,
                         input_images: [originalBase64s[i]]
                     })

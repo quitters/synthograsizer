@@ -10,7 +10,6 @@ generator — no stubbing of thecommons_generate, since Stage 2's own
 generator is offline-safe by design (see thecommons_generate.py).
 """
 
-import time
 import uuid
 
 import pytest
@@ -21,6 +20,7 @@ from backend.service import db as service_db
 from backend.service import thecommons_relay
 from backend.service import thecommons_jobs
 
+from tests.conftest import drain_commons_jobs
 from tests.test_service_auth import _fake_user
 from tests.test_service_credits import CLIENT_ID
 from tests.test_thecommons_rooms import FakeCommonsPool
@@ -83,13 +83,12 @@ def _cookie_for(token: str) -> dict:
     return {service_auth.COOKIE_NAME: token}
 
 
-def _poll_job(cookies, room_id, job_id, tries=40, delay=0.05):
-    for _ in range(tries):
-        r = client.get(f"/api/thecommons/rooms/{room_id}/jobs/{job_id}", cookies=cookies)
-        if r.json()["status"] != "generating":
-            return r.json()
-        time.sleep(delay)
-    raise AssertionError("job never left 'generating'")
+def _poll_job(cookies, room_id, job_id):
+    """Wait on the job task itself, then read the row back over HTTP."""
+    drain_commons_jobs(client)
+    job = client.get(f"/api/thecommons/rooms/{room_id}/jobs/{job_id}", cookies=cookies).json()
+    assert job["status"] != "generating", "job never left 'generating'"
+    return job
 
 
 def test_two_owners_two_rooms_fully_independent_lifecycle(service_on, fake_pool, monkeypatch):

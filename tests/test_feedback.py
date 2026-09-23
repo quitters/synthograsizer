@@ -39,7 +39,7 @@ class TestFeedbackWrites:
             "error_message": "Content blocked for SAFETY. (DANGEROUS_CONTENT: HIGH)",
             "categories": ["DANGEROUS_CONTENT"],
             "backend_tier": "google",
-            "model": "gemini-3-pro-image-preview",
+            "model": "gemini-3-pro-image",
         })
         assert res.status_code == 200
         files = list((tmp_path / "feedback").glob("*.jsonl"))

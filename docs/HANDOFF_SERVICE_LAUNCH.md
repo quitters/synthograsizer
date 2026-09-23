@@ -607,6 +607,11 @@ hosted. Harmless today — that widget is dead code, explicitly retired in favou
 and no longer injected — and Pro ids were out of scope for this pass. Worth deleting the dead
 function outright next time it is touched.
 
+**Closed 2026-09-22** — id corrected to `gemini-3.1-pro-preview`. The dead function itself
+stays: `studio-integration.js`'s own comment keeps it for backward compat, which argues
+against deleting it inside a pass about model ids. `gemini-3-pro-preview` turned out to be
+shut down upstream as well, so this was two faults in one line. See the 2026-09-22 status.
+
 ## Status 2026-07-30 — Waves 2 and 3 of the UX queue ⚠ NOT DEPLOYED
 Frontend only. **Zero changes under `backend/`, `scripts/`, `requirements.txt` or the Dockerfile**,
 no schema change, terms unchanged at v0.3. **282 tests green.** Vendored `workflow-engine/`
@@ -678,6 +683,82 @@ reverted by re-measuring rather than by reading the diff.
 - `#wfr-status` still holding *"Looking for the workflow engine…"* after the cards render is **not**
   a leak — it is `display:none`, only the text remains. Nearly filed as a Wave 1 defect.
 
+## Status 2026-09-22 — two dead image models, and a test suite that was lying ⚠ NOT DEPLOYED
+**Touches `backend/` — unlike the 07-30 slice, this one needs an image rebuild to go live.**
+549 tests green. No schema change, terms unchanged at v0.3.
+
+### Two image models had been shut down for three months
+`MODEL_IMAGE_GEN_NB2` and `MODEL_IMAGE_GEN_HQ` pointed at
+`gemini-3.1-flash-image-preview` and `gemini-3-pro-image-preview`. Google shut both preview
+endpoints down on **2026-06-25**. Nothing remaps a retired id on the way out — the only remap we
+have is `gemini-2.0-flash-exp` in `routers/generation.py` — so those calls went to a dead
+endpoint. Both now use the GA ids that replaced them (`gemini-3.1-flash-image`,
+`gemini-3-pro-image`: same models, promoted out of preview).
+
+The ids were **not** only in `config.py`. Nine hardcoded literals carried them too — across
+`static/synthograsizer/js/`, the vendored `workflow-engine/`, ChatRoom, and `film_factory`'s rate
+table, which is keyed by literal id. Fixing the two constants alone would have left most callers
+still hitting the dead endpoints.
+
+`MODEL_IMAGE_GEN_FAST` also moved, by choice rather than necessity: `gemini-2.5-flash-image`
+still works but is legacy with access restricted for new projects, leaving the cheap tier one
+policy change from having no model. It is now `gemini-3.1-flash-lite-image` (Nano Banana 2 Lite),
+which is also cheaper — $0.0336 per 1K image against $0.039 — so its 4-credit price still covers
+the call and still over-reserves slightly. Worth lowering to 3 on a measured batch.
+
+`MODEL_FAST` deliberately **stays** on `gemini-3.6-flash`. Google now calls it
+previous-generation, but `gemini-3.8-flash` is already a `TEXT_MODEL_CREDITS` key at 5 credits
+against 3.6's 1, so repointing would quintuple every narrative, variation and demo call — far
+lighter calls than the Commons sketch that price was measured on. Wants its own measurement and
+its own price key.
+
+### Guards, and the one gap they cannot close
+Two new tests, each verified to fail on the hazard it describes:
+`test_every_model_constant_is_classified` fails when a `MODEL_*` constant is added without
+deciding how it bills, and `test_every_priced_model_constant_resolves` fails when a constant is
+repointed to an id that is not a price-table key. The second reproduces the trap `config.py`'s own
+comment warns about: `TEXT_MODEL_CREDITS` names three constants but several collapse onto those
+ids, so repointing `MODEL_FAST` alone unprices it — an HTTP 400 nothing catches until a user hits
+the route.
+
+**Neither guard can tell you a model was retired upstream.** Nothing offline can. That is exactly
+how three months passed with image generation pointing at dead endpoints, and it is the one thing
+here worth automating — see next steps.
+
+Also removed: `MODEL_ANALYSIS` (no code read it; the analysis routes default to
+`MODEL_ANALYSIS_QUICK`) and `GEMINI_MODELS` (a "registry for UI consumption" nothing consumed).
+`HEADLESS_API.md` had been telling callers to pass the retired ids; `SCHEMA.md` had
+`MODEL_TEXT_CHAT` and `MODEL_ANALYSIS` both wrong. Both corrected.
+
+### The Commons credit tests were passing by luck
+`tests/test_thecommons_credits.py` failed about one run in four in a multi-module batch, on a
+different test each time. Not a shared fixture — the event loop's lifetime.
+`thecommons_jobs.start` dispatches the job as a bare `asyncio.create_task` and returns 202;
+Starlette builds a throwaway portal per request when the TestClient context has not been entered,
+and tears its loop down as soon as the response returns, cancelling the task at its
+`asyncio.to_thread` suspension point. A cancelled `_run_job` skips both status UPDATEs
+(`CancelledError` is a `BaseException`, so `except Exception` never sees it) but still runs its
+`finally` — **so the charge was refunded and the row left `'generating'`**, silently, and only
+sometimes.
+
+`tests/conftest.py` now keeps each module's top-level `client` entered for the module and drains
+outstanding jobs between tests, so a new test file is covered by existing rather than by
+remembering a fixture. It does not excuse a test from waiting: asserting on a finished job still
+needs `drain_commons_jobs(client)`. What it removes is the silent, racy version of forgetting —
+measured on a module written the naive way, the failure went from an intermittent wrong-balance
+assertion to a deterministic "charge never settled" on every run. Cost: ~0.5ms per test, inside
+the noise, because the client context is module-scoped. Verified with 20 consecutive green runs of
+the batch that used to flake.
+
+A detector was tried first and **cannot** work: `_cancel_all_tasks` runs the loop while
+cancelling, so the done-callback fires and the task leaves `_background_tasks`. The evidence
+erases itself.
+
+One wall-clock assertion also went: `test_a_slow_panel_is_abandoned_not_waited_for` asserted
+`elapsed < 0.45`, which a loaded box or a suspended laptop can fail on its own. It now blocks the
+panel stub on an Event, so "the sketch came back while the panel call was still in flight" is the
+assertion itself.
+
 ## Card deck pipeline (`scripts/`)
 Restyling a sprite sheet in one Smart Transform call **does not work** — verified on a real 13×6
 solitaire deck: the grid geometry and styling survived beautifully, the *identities* did not
@@ -697,10 +778,23 @@ Gotcha found in the live run: generated symbols come back on **cream**, not whit
 instead of assuming white is the robust fix, and is not yet done.
 
 ## Next steps, in order
-0. ⚠ **DEPLOY.** Three commits are pushed and not live: `4acf368`, `cf8c22e` (Wave 1) and the
-   2026-07-30 Waves 2+3 slice. All frontend — no backend, no schema, no terms change — so §2 needs
-   no image rebuild reasoning, but §2b and §2c are still mandatory straight after §2. Live is
-   `synthograsizer-00047-87m`.
+0. ⚠ **DEPLOY.** Pushed and not live: `4acf368`, `cf8c22e` (Wave 1), the 2026-07-30 Waves 2+3
+   slice, and the 2026-09-22 model/test pass. The first three are frontend-only; **the
+   2026-09-22 pass is not** — it changes `backend/config.py`, `backend/service/pricing.py`,
+   `backend/services/image_gen.py` and `scripts/`, so §2 **does** need the image rebuild
+   reasoning this item used to say it could skip. §2b and §2c remain mandatory straight after
+   §2. Live is `synthograsizer-00047-87m`.
+   **Until this ships, hosted image generation on the NB2 and HQ tiers is still calling
+   endpoints Google retired on 2026-06-25.**
+0b. ~~**Catch upstream model retirements before users do.**~~ **Built 2026-09-22** —
+   `scripts/check_model_ids.py` lists the provider's models and flags any `config.MODEL_*` id
+   that is no longer served, naming the GA successor when the retired id is a `-preview` one
+   (the exact shape of the 2026-06-25 shutdown). Exits 1 on a retirement, so it works as a
+   scheduled job or a CI step. **Still needs scheduling** — it has only ever been run against
+   stubbed listings, because no API key is configured in the dev worktree. Run it once by hand
+   against the real key first. Absence is only called a retirement when other ids in the same
+   family *are* listed; a family the API does not enumerate at all (veo, lyria) reports
+   unverifiable and does not fail, unless `--strict`.
 1. ~~**Accessibility and simplicity are the current headline goal**~~ — **the measured queue is now
    empty.** Every item in [UX_PAIN_POINTS.md](UX_PAIN_POINTS.md) is closed as of 2026-07-30. The
    remaining simplicity candidates in the standing-goal section below (the 17 undifferentiated

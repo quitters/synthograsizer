@@ -1452,7 +1452,7 @@ export class SynthograsizerSmall {
       // Set model to Gemini 3.1 Flash
       const modelSelect = document.getElementById('image-model-select');
       if (modelSelect) {
-        modelSelect.value = 'gemini-3.1-flash-image-preview';
+        modelSelect.value = 'gemini-3.1-flash-image';
       }
 
       // Set aspect ratio to 1:1
