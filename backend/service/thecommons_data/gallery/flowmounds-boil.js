@@ -18,7 +18,8 @@
  * wall then plays those frames back the way a hand-drawn animation is shot on
  * twos -- the picture stays still and every mark in it crawls.
  *
- * The room steers the painting. The host picks which mound, and when it boils.
+ * The room steers the painting. The host picks which mound (or rerolls to a
+ * random one), and when it boils.
  */
 
 const FM = (room.state.flowmounds ??= (() => {
@@ -173,12 +174,13 @@ const LOOK = {
   // Raised from the look's own 0 so the room's Structure control actually
   // steers the marks: at zero the field alone decides, and the choice is dead.
   structStr: 0.55, flowJitter: 0.16, turbulence: 2.95, bands: 15,
-  accentBrush: 0.86, accentSpread: 24, paintRoll: 0.83,
+  accentSpread: 24, paintRoll: 0.83,
   markAlpha: 0.14, bristles: 2, brushDry: 0.34,
-  moundAccentOn: true, moundAccent: '#453bac', moundAccentRate: 0.35,
-  moundBaseSource: 'Accent',
-  profile: 2.55, lean: -0.06, wobble: 0.62, wobbleScale: 0.45, bodyTone: 0.74,
-  eyeRoll: 0.82, eyeSpacing: 0.105, eyeY: 0.35, eyeTilt: -15, eyeHand: 0.48,
+  moundAccentRate: 0.35,
+  // accentBrush, moundAccentOn/moundAccent, moundBaseSource, lean, wobble and
+  // eyeRoll are the room's: see TINTS, BODIES and EYES below.
+  profile: 2.55, wobbleScale: 0.45, bodyTone: 0.74,
+  eyeSpacing: 0.105, eyeY: 0.35, eyeTilt: -15, eyeHand: 0.48,
   eyeTint: 0.13, eyeInk: '#271f28',
   eyeShadow: true, shadowOpacity: 0.42, shadowShade: 0.72, shadowTint: 'Eye',
   shadowBlend: 'Exclusion', shadowOffset: 0.22, shadowSoft: 0.06, shadowAngle: 145,
@@ -186,12 +188,32 @@ const LOOK = {
   fieldSeed: 4165779, variation: 'bprprwnsodht',
   fieldDrift: 0.5, animFrames: 8, animFps: 12,
 };
+/*
+ * The creature's colour. The look this piece shipped with pinned its accent to
+ * one indigo (#453bac), painted the body's base coat in it and blended most of
+ * the creature's inks toward it -- so whatever the Creature control said, the
+ * creature came out purple. That indigo is still here, as one tint among
+ * several; "Its own" takes the accent from the creature's palette, and Tint
+ * strength decides how far its inks are pulled toward the tint at all.
+ */
+const TINTS = {
+  'Its own': null, 'Indigo': '#453bac', 'Coral': '#ff6f59', 'Gold': '#f2b134',
+  'Moss': '#5a8f3e', 'Sky': '#3da9fc', 'Rose': '#e84a8a', 'Soot': '#2b2d42',
+};
+// Which colour the body's base coat is laid in, under the marks.
+const BODIES = {
+  'Tint': 'Accent', 'Ink': 'Ink', 'Pastel': 'Tint', 'Ground': 'Ground', 'White': 'White', 'Black': 'Black',
+};
+// An eye-count roll that lands in each of eyeCountFrom()'s bands.
+const EYES = { 'One': 0.494, 'Two': 0.82, 'Three': 0.508, 'Four': 0.502 };
+
 // What the controls hold, repeated here because the gallery's harness and a
 // display that has lost its relay both hand getVar() nothing at all.
 const ROOM = {
   palette: 'Aqua Gelato', creature: 'Blush Mint', contrast: 'Value', separation: 0.02,
   structure: 'Radial', marks: 1000, mark_length: 67, mark_width: 2.05,
   horizon: 0.74, apex: 0.64, width: 0.64, eye_size: 0.14, eye_shape: 0.4, ground: true,
+  tint: 'Its own', tint_strength: 0.5, body: 'Tint', eyes: 'Two', lean: -0.06, wobble: 0.62,
   mound: 1, wander: false,
 };
 
@@ -210,6 +232,9 @@ function explorerParams(want, mound) {
     markLength: want.mark_length, markWidth: want.mark_width,
     horizon: want.horizon, apex: want.apex, moundWidth: want.width,
     eyeSize: want.eye_size, eyeShape: want.eye_shape, groundInFront: want.ground,
+    moundAccentOn: !!TINTS[want.tint], moundAccent: TINTS[want.tint] || '#453bac',
+    accentBrush: want.tint_strength, moundBaseSource: BODIES[want.body] || 'Ink',
+    eyeRoll: EYES[want.eyes] ?? EYES.Two, lean: want.lean, wobble: want.wobble,
   };
 }
 
@@ -1833,7 +1858,7 @@ let W = 0, H = 0, S = 0, ox = 0, oy = 0;
 let wallBg = null, wallKey = '';
 let prevShot = null, fadeAt = -1;
 let builtKey = '', pendingKey = '', pendingSince = 0, built = false;
-let moundNo = 1, wanderOffset = 0, lastMound = null, doneAt = 0, wanderAt = -1e9;
+let moundNo = 1, wanderOffset = 0, rollOffset = 0, lastMound = null, doneAt = 0, wanderAt = -1e9;
 const SETTLE = 0.8;       // seconds a change must hold before the piece repaints
 const FADE = 1.4;         // seconds to dissolve out of the old picture
 const BUDGET_MS = 6;      // painting time per frame, leaving the wall its own
@@ -1931,7 +1956,8 @@ function keepForFade(ctx, t) {
 // ── which picture the room has asked for ────────────────────────────────────
 const keyOf = (want, m) => [want.palette, want.creature, want.contrast, want.separation,
   want.structure, want.marks, want.mark_length, want.mark_width,
-  want.horizon, want.apex, want.width, want.ground, m].join('|');
+  want.horizon, want.apex, want.width, want.ground,
+  want.tint, want.tint_strength, want.body, want.eyes, want.lean, want.wobble, m].join('|');
 
 /**
  * The host's mound number, plus however far wandering has carried it. The
@@ -1940,14 +1966,18 @@ const keyOf = (want, m) => [want.palette, want.creature, want.contrast, want.sep
  */
 function mounded(want, t, wanderOn, wanderEvery) {
   if (!wanderOn && wanderOffset) wanderOffset = 0;
-  if (want.mound !== lastMound) { lastMound = want.mound; wanderOffset = 0; }
+  if (want.mound !== lastMound) {
+    if (lastMound !== null) rollOffset = 0;   // the host moved the control, not just the first read
+    lastMound = want.mound;
+    wanderOffset = 0;
+  }
   // Stepping once is enough: without marking the moment, every frame between
   // here and the repaint would step again and the picture would never settle.
   if (wanderOn && finished && t - Math.max(doneAt, wanderAt) > wanderEvery) {
     wanderOffset++;
     wanderAt = t;
   }
-  return ((Math.round(want.mound) - 1 + wanderOffset) % 9999 + 9999) % 9999 + 1;
+  return ((Math.round(want.mound) - 1 + wanderOffset + rollOffset) % 9999 + 9999) % 9999 + 1;
 }
 
 /**
@@ -2015,6 +2045,11 @@ function frame_(ctx, frame, getVar, audio, room) {
   if (w !== W || h !== H || !built) layout(w, h, ctx);
 
   const want = readRoom(getVar);
+  // The host's Reroll leaves the seeded mound for a random one. Like wandering,
+  // the jump is the wall's own: moving the Mound control brings it back.
+  for (const e of (room && room.events) || []) {
+    if (e && e.name === 'reroll') rollOffset = 1 + Math.floor(Math.random() * 9998);
+  }
   const m = mounded(want, t, false, 1e9);
   if (!built) startPicture(want, m, t);
   else repaintWhenSettled(ctx, want, m, t, startPicture);

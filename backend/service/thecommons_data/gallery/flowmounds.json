@@ -1,6 +1,6 @@
 {
   "name": "FlowMounds",
-  "promptTemplate": "A painted creature standing in a landscape. The sky is {{palette}} and the creature is {{creature}}, held apart by {{contrast}} contrast at {{separation}}. It is painted in {{structure}} with {{marks}} marks, each {{mark_length}} long and {{mark_width}} wide. The horizon sits at {{horizon}}, the mound rises {{apex}} and spreads {{width}}, and its eyes are {{eye_size}} at shape {{eye_shape}}. Ground in front of it: {{ground}}. This is mound {{mound}}, and it wanders: {{wander}}.",
+  "promptTemplate": "A painted creature standing in a landscape. The sky is {{palette}} and the creature is {{creature}}, held apart by {{contrast}} contrast at {{separation}}. It is painted in {{structure}} with {{marks}} marks, each {{mark_length}} long and {{mark_width}} wide. The horizon sits at {{horizon}}, the mound rises {{apex}} and spreads {{width}}, and its eyes are {{eye_size}} at shape {{eye_shape}}. Ground in front of it: {{ground}}. Its colours are tinted {{tint}} at {{tint_strength}}, over a {{body}} body; it has {{eyes}} eyes, leans {{lean}} and wobbles {{wobble}}. This is mound {{mound}}, and it wanders: {{wander}}.",
   "variables": [
     {
       "name": "palette",
@@ -195,6 +195,105 @@
       "default": true
     },
     {
+      "name": "tint",
+      "label": "Tint",
+      "values": [
+        {
+          "text": "Its own"
+        },
+        {
+          "text": "Indigo"
+        },
+        {
+          "text": "Coral"
+        },
+        {
+          "text": "Gold"
+        },
+        {
+          "text": "Moss"
+        },
+        {
+          "text": "Sky"
+        },
+        {
+          "text": "Rose"
+        },
+        {
+          "text": "Soot"
+        }
+      ]
+    },
+    {
+      "name": "tint_strength",
+      "label": "Tint strength",
+      "type": "number",
+      "min": 0,
+      "max": 1,
+      "step": 0.02,
+      "default": 0.5
+    },
+    {
+      "name": "body",
+      "label": "Body",
+      "values": [
+        {
+          "text": "Tint"
+        },
+        {
+          "text": "Ink"
+        },
+        {
+          "text": "Pastel"
+        },
+        {
+          "text": "Ground"
+        },
+        {
+          "text": "White"
+        },
+        {
+          "text": "Black"
+        }
+      ]
+    },
+    {
+      "name": "eyes",
+      "label": "Eyes",
+      "values": [
+        {
+          "text": "Two"
+        },
+        {
+          "text": "One"
+        },
+        {
+          "text": "Three"
+        },
+        {
+          "text": "Four"
+        }
+      ]
+    },
+    {
+      "name": "lean",
+      "label": "Lean",
+      "type": "number",
+      "min": -1,
+      "max": 1,
+      "step": 0.02,
+      "default": -0.06
+    },
+    {
+      "name": "wobble",
+      "label": "Wobble",
+      "type": "number",
+      "min": 0,
+      "max": 1.5,
+      "step": 0.02,
+      "default": 0.62
+    },
+    {
       "name": "mound",
       "label": "Mound",
       "type": "number",
@@ -209,6 +308,12 @@
       "label": "Wander",
       "type": "toggle",
       "default": false,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
       "access": "host"
     }
   ]
