@@ -1,5 +1,5 @@
 {
-  "name": "Sol LeWitt Wall Drawing No. 1978",
+  "name": "Wall Drawing, after LeWitt",
   "promptTemplate": "A conceptual wall drawing rendered in {{palette}} with {{drafting_order}} execution, drafted at density {{instruction_density}} at speed {{draw_speed}} with {{line_weight}}px pencil weight.",
   "variables": [
     {

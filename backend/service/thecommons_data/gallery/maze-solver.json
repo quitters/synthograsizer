@@ -1,5 +1,5 @@
 {
-  "name": "labyrinth_pulse",
+  "name": "Labyrinth Pulse",
   "promptTemplate": "A recursive backtracker maze carved in {{palette}} with {{wall_style}} aesthetics, running at {{cell_density}} resolution with {{glow_intensity}} glow bloom and reactive audio flood.",
   "variables": [
     {

@@ -1,5 +1,5 @@
 {
-  "name": "cubic_limit_signs",
+  "name": "Cubic Limit Signs",
   "promptTemplate": "Algorithmic Manfred Mohr signs from a rotating 4D tesseract in {{projection}} projection with {{sign_subset}} edge syntax, {{line_weight}}px strokes on {{paper_tone}} at speed {{rotation_speed}}.",
   "variables": [
     {

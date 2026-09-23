@@ -1,5 +1,5 @@
 {
-  "name": "copper_skies_16bit",
+  "name": "Copper Skies 16-Bit",
   "promptTemplate": "A 16-bit parallax title screen in {{palette_theme}} tones with a {{moon_phase}}, scrolling at speed {{scroll_speed}} with {{sky_bands}} raster sky bands and {{bird_count}} silhouetted birds.",
   "variables": [
     {

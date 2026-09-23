@@ -1,5 +1,5 @@
 {
-  "name": "differential_meander",
+  "name": "Differential Meander",
   "promptTemplate": "Differential growth coral loop shaped in {{form_style}} style with {{palette}} pigments, {{growth_speed}} expansion pace, and {{line_weight}}px contours.",
   "variables": [
     {

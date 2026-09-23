@@ -1,5 +1,5 @@
 {
-  "name": "Synthwave Outrun Horizon",
+  "name": "Synthwave Horizon",
   "promptTemplate": "A retro 80s synthwave horizon in {{theme}} colors rushing forward at speed {{speed}} with {{curvature}} grid geometry, {{mountain_height}}x jagged wireframe peaks, and a massive {{sun_style}} glowing on the horizon.",
   "variables": [
     {

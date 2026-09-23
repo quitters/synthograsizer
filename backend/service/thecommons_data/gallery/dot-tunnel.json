@@ -1,5 +1,5 @@
 {
-  "name": "Demoscene Dot Tunnel",
+  "name": "Dot Tunnel",
   "promptTemplate": "A demoscene dot tunnel pulsing to the beat with {{ring_count}} rings of {{dots_per_ring}} dots flying at speed {{tunnel_speed}}, snaking with {{snake_bend}} curvature, styled in {{palette}} and shaped as {{dot_style}}.",
   "variables": [
     {

@@ -1,5 +1,5 @@
 {
-  "name": "molnar_desordres",
+  "name": "(Des)Ordres",
   "promptTemplate": "A generative study of Vera Molnar's (Des)Ordres featuring {{grid_density}} grid density with {{concentric_rings}} nested rings per cell, drawn with {{line_weight}}px strokes in {{disorder_mode}} motion over {{paper_tone}} paper with {{perturbation_style}}.",
   "variables": [
     {

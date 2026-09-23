@@ -1,5 +1,5 @@
 {
-  "name": "demoscene_palette_cycler",
+  "name": "Palette Cycler",
   "promptTemplate": "A nostalgic 90s pixel art landscape featuring {{palette_theme}} lighting, {{cycle_speed}} water rush speed, {{torch_glow}} torch flicker intensity, and {{sky_style}} skies.",
   "variables": [
     {

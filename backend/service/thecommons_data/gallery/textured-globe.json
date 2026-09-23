@@ -1,5 +1,5 @@
 {
-  "name": "Orbital Sphere Demoscene",
+  "name": "Orbital Sphere",
   "promptTemplate": "A rotating {{planet_theme}} exoplanet with {{cloud_density}} cloud layers, orbiting at {{rotation_speed}} speed with {{atmosphere_glow}} halo and {{moon_system}} companions.",
   "variables": [
     {

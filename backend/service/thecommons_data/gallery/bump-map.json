@@ -1,5 +1,5 @@
 {
-  "name": "embossed_brushed_metal",
+  "name": "Brushed Metal Emboss",
   "promptTemplate": "An embossed relief of interlocking rings and grooves in {{metal_tone}} with {{ring_complexity}} lattice rings, depth {{relief_depth}}, {{light_motion}} light dynamics, and {{sheen_gloss}} sheen gloss.",
   "variables": [
     {

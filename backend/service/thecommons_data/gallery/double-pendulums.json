@@ -1,5 +1,5 @@
 {
-  "name": "chromatic_divergence",
+  "name": "Chromatic Divergence",
   "promptTemplate": "A fan of {{pendulum_count}} double pendulums with {{chaos_spread}} divergence, rendered with {{trail_glow}} trails at {{speed_rate}} speed in a {{color_scheme}} spectrum.",
   "variables": [
     {

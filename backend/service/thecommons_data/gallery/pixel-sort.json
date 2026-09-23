@@ -1,5 +1,5 @@
 {
-  "name": "Glitch Drift: Demoscene Pixel Sorter",
+  "name": "Glitch Drift",
   "promptTemplate": "Glitch-art pixel sorting over {{landscape_style}} in {{palette}} palette with {{sort_mode}} sorting, driven by {{glitch_intensity}} intensity and {{sweep_speed}} sweep speed.",
   "variables": [
     {

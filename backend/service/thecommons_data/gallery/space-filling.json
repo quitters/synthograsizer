@@ -1,5 +1,5 @@
 {
-  "name": "Hilbert-Moore Demoscene Manifold",
+  "name": "Hilbert-Moore Manifold",
   "promptTemplate": "A precision demoscene study of space-filling curves at order {{order}}, running in {{morph_mode}} morph mode at speed {{draw_speed}}, styled with {{color_palette}} luminescence, line width {{line_width}}, {{bloom_glow}} bloom, and {{room_echo}} audience echoes.",
   "variables": [
     {

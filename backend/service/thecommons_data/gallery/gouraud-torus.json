@@ -1,5 +1,5 @@
 {
-  "name": "Demoscene Gouraud Torus",
+  "name": "Gouraud Torus",
   "promptTemplate": "A smooth-shaded rotating torus with {{palette}} styling, {{shading_style}} shading with {{specular_shine}} specular hardness, moving at {{spin_speed}} speed, {{torus_fatness}} thickness, {{wire_overlay}} wireframe accents, reacting with {{audio_pulse}} pulse against a {{backdrop}} demoscene backdrop.",
   "variables": [
     {

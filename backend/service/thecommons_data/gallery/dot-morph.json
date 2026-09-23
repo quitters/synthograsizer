@@ -1,5 +1,5 @@
 {
-  "name": "morph_3d_demoscene",
+  "name": "Dot Morph",
   "promptTemplate": "A demoscene 3D point cloud morphing between geometric solids in {{palette}} with {{morph_style}} transitions, rendering {{dot_count}} points at {{rotation_speed}} rotation with {{point_style}} at {{depth_field}} focal depth.",
   "variables": [
     {

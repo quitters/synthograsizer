@@ -1,5 +1,5 @@
 {
-  "name": "Demoscene Text Zoomer",
+  "name": "Text Zoomer",
   "promptTemplate": "A demoscene text zoomer cycling words with {{color_scheme}} palette, {{glitch_style}} raster effects, {{zoom_speed}} speed, {{blur_passes}} radial blur passes, and {{star_count}} warp stars.",
   "variables": [
     {

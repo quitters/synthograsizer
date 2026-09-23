@@ -1,5 +1,5 @@
 {
-  "name": "Demoscene Automata: Life Trails",
+  "name": "Life Trails",
   "promptTemplate": "A Conway's Game of Life engine running in {{palette}} styling with {{trail_persistence}} phosphor persistence, evolving at {{sim_rate}} ticks per second with {{audio_mutation}} reactive bursts.",
   "variables": [
     {

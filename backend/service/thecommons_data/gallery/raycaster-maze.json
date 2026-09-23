@@ -1,5 +1,5 @@
 {
-  "name": "Demoscene Corridor Raycaster",
+  "name": "Corridor Raycaster",
   "promptTemplate": "A demoscene pseudo-3D raycaster wandering a procedural maze rendered with {{theme}} styling at {{render_res}} resolution, cruising at speed {{move_speed}} with a {{fov}} degree field of view and depth fog set to {{fog_depth}}.",
   "variables": [
     {

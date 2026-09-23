@@ -1,5 +1,5 @@
 {
-  "name": "Stencil Vector Demoscene",
+  "name": "Stencil Vectors",
   "promptTemplate": "Demoscene stencil vectors with {{palette}} palette, {{polygons}} geometry, moving in {{orbit_mode}} orbit with {{stripe_density}}px stripe density, {{grid_scale}}px checker grid, {{beat_kick}} beat kick, and {{wireframe_glow}}px glow.",
   "variables": [
     {

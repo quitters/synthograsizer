@@ -1,5 +1,5 @@
 {
-  "name": "Demoscene 16-Color Torus Knot",
+  "name": "16-Colour Torus Knot",
   "promptTemplate": "A demoscene flat-shaded {{knot_type}} torus knot lit in {{palette_theme}} tones with {{shading_style}} shading, rotating at speed {{rotation_speed}}, tube thickness {{tube_thickness}}, and bloom glow {{bloom_intensity}}.",
   "variables": [
     {

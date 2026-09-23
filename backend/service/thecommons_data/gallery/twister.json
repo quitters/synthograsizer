@@ -1,5 +1,5 @@
 {
-  "name": "Demoscene Twister",
+  "name": "Twister",
   "promptTemplate": "A demoscene twister with {{slice_count}} slices, {{twist_turns}} full turns, {{column_width}} radius, in {{palette_mode}} palette with {{shading_style}} shading and {{flare_intensity}} glow flare.",
   "variables": [
     {

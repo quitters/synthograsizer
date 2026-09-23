@@ -1,5 +1,5 @@
 {
-  "name": "Demoscene Shadebobs",
+  "name": "Shadebobs",
   "promptTemplate": "High-speed shadebobs tracing {{lissajous_ratio}} Lissajous curves with {{color_scheme}} ribbons, tuned with {{bob_count}} bobs of {{bob_size}} radius, moving at {{orbit_speed}} speed and fading with {{ribbon_decay}} persistence.",
   "variables": [
     {

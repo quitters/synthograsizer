@@ -1,5 +1,5 @@
 {
-  "name": "Demoscene Bayer Sunset",
+  "name": "Bayer Sunset",
   "promptTemplate": "Ordered {{bayer_size}} dithered sunset over ocean in {{palette}} at {{resolution}} with sun speed {{sun_speed}}, cloud cover {{cloud_cover}}, and water ripple {{water_ripple}}",
   "variables": [
     {

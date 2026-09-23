@@ -1,5 +1,5 @@
 {
-  "name": "Harmonic Apollonian Packing",
+  "name": "Harmonic Packing",
   "promptTemplate": "A generative circle packing mosaic with {{palette}} illumination, rendered in {{render_style}} style with {{growth_speed}} growth speed, {{density}} max spheres, and {{dissolve_mode}} dissolution.",
   "variables": [
     {

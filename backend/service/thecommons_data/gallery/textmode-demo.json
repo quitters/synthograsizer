@@ -1,5 +1,5 @@
 {
-  "name": "cga_demoscene_terminal",
+  "name": "CGA Terminal",
   "promptTemplate": "An authentic demoscene text-mode engine rendering an 80x25 grid in {{palette_mode}} with a rotating 3D {{shape_type}} over procedural plasma at speed {{plasma_speed}} with {{scanline_glow}} CRT styling and a live table scroller.",
   "variables": [
     {

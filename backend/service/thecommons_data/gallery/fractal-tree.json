@@ -1,5 +1,5 @@
 {
-  "name": "Demoscene Moonlit Fractal Tree",
+  "name": "Moonlit Fractal Tree",
   "promptTemplate": "A recursive fractal tree with {{tree_depth}} recursion depth and {{branch_spread}} spread, swayed by {{wind_force}} under a {{moon_style}} with a {{palette}} canopy.",
   "variables": [
     {
