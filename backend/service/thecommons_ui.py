@@ -293,9 +293,13 @@ the wall. Written by you because you have just read the piece; nothing here chan
 - "blurb", up to 280 characters: one plain sentence saying what the wall shows and what the room
   can do with it, in the present tense ("Rings of dots fly out of a winding tunnel, brightening as
   they near"). Not the title again, and no hype.
-- "section": "demo" for the classic effects of 1990s demos (plasmas, tunnels, scrollers, copper
-  bars, vector objects); "living" for pieces that grow, drift and remember what happened;
-  "generative" for systems, simulations, automata and homages to artists who drew with code.
+- "section", chosen by what the wall shows, never by how the code is written:
+  "demo" ONLY for a recreation of a classic 1980s-90s demo effect (plasmas, tunnels, scrollers,
+  copper bars, vector objects, rotozoomers). A piece is not a demo because its code is efficient,
+  its colours are neon or retro, or the request asks for "a demoscener's economy".
+  "living" for pieces that grow, drift and remember what happened on the wall.
+  "generative" for everything else: systems, simulations, natural phenomena, light installations
+  and public art, and homages to artists who drew with code or light.
 - "look": one to three words from exactly this list, the ones a host would search for:
   LOOK_WORDS.
 

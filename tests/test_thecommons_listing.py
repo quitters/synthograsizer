@@ -170,3 +170,34 @@ def test_every_gallery_listing_is_one_a_generated_piece_could_have():
         assert normalize_listing(listing, sidecar["variables"], listing["prompt"]) == listing, path.stem
         assert listing["look"], path.stem       # the desk's tag test needs one; say which piece lacks it
     assert listed >= 100
+
+
+# ── names and sections from a real batch ─────────────────────────────────────
+
+@pytest.mark.parametrize("name, readable", [
+    ("paik_cathode_wall", "Paik Cathode Wall"),
+    ("facade_lumina", "Facade Lumina"),
+    ("dot tunnel", "Dot Tunnel"),
+    ("CGA_demo", "CGA Demo"),
+    ("Arena of Lights", "Arena of Lights"),          # a real title is left exactly as written
+    ("(Des)Ordres", "(Des)Ordres"),
+    ("16-Colour Torus Knot", "16-Colour Torus Knot"),
+])
+def test_a_name_written_like_a_variable_becomes_a_title(name, readable):
+    assert gen.readable_name(name) == readable
+
+
+def test_a_generated_piece_and_its_panel_get_the_readable_name(gemini_configured, monkeypatch):
+    snake = json.dumps({**json.loads(VALID_SKETCH_JSON), "name": "neon_drift"})
+    calls = _stub_calls(monkeypatch, [snake], panel=PANEL_WITH_LISTING)
+    sketch = asyncio.run(gen.generate_sketch("neon drift"))
+    assert sketch["name"] == "Neon Drift"
+    piece = json.loads(calls.panel[0]["blocks"][0]["text"].split("PIECE:\n", 1)[1])
+    assert piece["name"] == "Neon Drift"
+
+
+def test_the_designer_is_told_efficient_code_does_not_make_a_demo():
+    # Lightworks filed drone shows and a black hole under Demo scene: every
+    # prompt asked for "a demoscener's economy", and the designer took the hint.
+    assert "demoscener's economy" in PANEL_PROMPT
+    assert "light installations" in PANEL_PROMPT
