@@ -1,6 +1,6 @@
 # The Commons — room images: plan
 
-**Status:** plan, revised 2026-09-23. PR 1 and PR 2 built; PR 3 and PR 4 not started.
+**Status:** plan, revised 2026-09-23. PR 1 to PR 3 built; PR 4 not started.
 **Decided:** images live in the GCS bucket; they belong to one room and are never used by gallery
 pieces; only the room's owner can upload them, and there is no automated moderation. A room with
 no uploads uses a set of default images, so image pieces can be tested before anyone uploads.
@@ -216,29 +216,42 @@ in-memory bucket) under the real app, which is how this PR was checked.
 
 ## PR 3 — the desk
 
-A new **Images** section in `static/thecommons/desk/index.html`, between the library and
-"Shape what comes next". Its eyebrow reads "Only on your wall", with help text saying phones
-never see the images and that the owner is responsible for what they upload:
-- **Upload:** an upload button (`accept="image/png,image/jpeg,image/webp,image/gif"`,
-  `multiple`) with per-file progress and errors in plain words ("That file isn't an image",
-  "This room already has 12 images", "You're out of storage space").
-- **The image grid:** thumbnails in the order pieces see them, each with Remove, plus move
-  earlier and move later buttons (buttons rather than drag and drop, so it works by keyboard).
-- **Before any upload:** the grid shows the three defaults labelled "Sample", with the line
-  "Pieces use these samples until you upload your own." They have no Remove or reorder.
-- **Count and storage:** "5 of 12" and storage used.
-- **"Use this room's images"** checkbox in the prompt form, beside "Let people act": always
-  available, since there are always images (uploads or samples), and ticked automatically when
-  remixing a piece that already uses them.
-- **Storage off:** the upload button is hidden and the section says the samples are in use.
+A new **Your images** section (03) in `static/thecommons/desk/index.html`, between the library
+and "Shape what comes next" (now 04; "Save this look" is 05), run by its own module,
+`static/thecommons/js/room-images-desk.js`. Its eyebrow reads "Only on your wall", with help
+text saying phones never see the images, that every image is re-made on the server, and that
+the owner answers for what they put up:
+- **Add images:** a button opening a file picker (`accept="image/png,image/jpeg,image/webp,image/gif"`,
+  `multiple`). Files upload one at a time with progress ("Adding 2 of 3: …"). A file over 15 MB
+  is skipped without sending it; everything else is the server's call, and each refusal is
+  shown in its words, next to the file's name.
+- **The image grid:** thumbnails in the order pieces see them, each fitted whole into a 4:3
+  frame over a checkerboard (so transparency shows), numbered with its size. Arrow buttons move
+  an image earlier or later (buttons rather than drag and drop, so it works by keyboard, and
+  focus follows the moved image). Remove takes a second click ("Really remove?"), since unlike
+  loading a piece it has no Undo.
+- **Before any upload:** the three samples, labelled "Sample", with "Pieces use these samples
+  until you add your own. The first image you add replaces them all." They have no buttons.
+- **Count and storage:** "2 of 12 images · 1.4 of 200 MB of your storage used" (the account's
+  whole quota, shared with "My creations").
+- **Storage off:** the Add button is hidden and the section says the samples are in use.
 
-**Verify** in the browser pane with the real app on the test fakes (see PR 2): samples show
-before any upload; upload, reorder and delete work; and the wall switches from samples to
-uploads and back without a reload.
+The "Use this room's images" checkbox moved to PR 4: until the generator knows about images it
+would do nothing, and a control that does nothing is worse than none.
+
+**Verified** in the browser pane with the real app on the test fakes (see PR 2): the samples
+show first; adding a wide PNG, a tall JPEG and a fake `.heic` in one go added the two images,
+refused the third in the server's words, and replaced the samples; reordering and two-click
+removal worked with the keyboard focus in the right place; a wall opened afterwards fetched
+exactly the remaining upload; and at phone width the section is one column with no sideways
+scroll. Not checked in the browser: the storage-off state.
 
 ## PR 4 — the generator
 
-- **Asking for it:** `GenerateRequest` gains `use_images: bool`. The job reads the room's
+- **Asking for it:** a "Use this room's images" checkbox in the desk's prompt form, beside "Give
+  the room actions to take": always available, since there are always images (uploads or
+  samples), and ticked automatically when remixing a piece that already uses them.
+  `GenerateRequest` gains `use_images: bool`. The job reads the room's
   manifest (the uploads, or the defaults when there are none) and passes it to
   `generate_sketch(..., images=[{width, height}, ...])`. When the flag is set, the model is also
   told how many images there are and their aspect ratios.
