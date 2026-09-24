@@ -39,6 +39,9 @@ _RESERVED_NAMES = {"constructor", "prototype"}
 # Host controls belong to the room's owner, on the desk. A few at most: the
 # room is the point, and every host control is one fewer for the phones.
 MAX_HOST_CONTROLS = 4
+# The most controls one piece may have. Raised from 16 so a rich piece like
+# FlowMounds can hand the room its colour, shape and eyes as well as its paint.
+MAX_VARIABLES = 24
 
 
 class InvalidSketchError(ValueError):
@@ -117,7 +120,8 @@ def validate_native_sketch(sketch: dict) -> dict:
     _require(_nonempty(sketch.get("promptTemplate")), "missing promptTemplate")
     _require(_nonempty(sketch.get("code")), "missing drawing code")
     variables_in = sketch.get("variables")
-    _require(isinstance(variables_in, list) and 2 <= len(variables_in) <= 16, "expected 2-16 variables")
+    _require(isinstance(variables_in, list) and 2 <= len(variables_in) <= MAX_VARIABLES,
+             f"expected 2-{MAX_VARIABLES} variables")
 
     names: set[str] = set()
     valued_names: set[str] = set()  # select, number and toggle; triggers carry no value

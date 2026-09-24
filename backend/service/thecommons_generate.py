@@ -36,7 +36,7 @@ from backend import google_api
 from backend.service.thecommons_builtin import BUILTIN_SKETCHES
 from backend.service.thecommons_templates import load_template_library
 from backend.service.thecommons_ui import PANEL_MODEL, design_panel
-from backend.service.thecommons_validate import InvalidSketchError, validate_native_sketch
+from backend.service.thecommons_validate import MAX_VARIABLES, InvalidSketchError, validate_native_sketch
 
 logger = logging.getLogger(__name__)
 
@@ -76,9 +76,9 @@ RUNTIME CONTRACT -- your "code" field runs every animation frame as the BODY of 
 
 RULES:
 - Pure Canvas2D only. No p5.js, no external libraries, no network calls, no image/video generation.
-- 2-16 variables. This is a hard limit that always applies, even if the request explicitly asks
+- 2-24 variables. This is a hard limit that always applies, even if the request explicitly asks
   for more -- satisfy that intent by combining related ideas into fewer, richer controls rather
-  than exceeding 16; a rejected sketch serves the room worse than a slightly consolidated one.
+  than exceeding 24; a rejected sketch serves the room worse than a slightly consolidated one.
   Use selectable choices for categorical ideas such as palette, shape family, or motion style.
   Use numeric sliders only for real quantities such as speed, count, scale, or line width.
   Choose controls that suit the requested piece; not every variable is numeric. More variables
@@ -207,12 +207,12 @@ def generation_prompt(prompt: str, *, mode: str = "create", source: dict | None 
     sketch = source["sketch"]
     source_count = len(sketch.get("variables") or [])
     cap_note = ""
-    if source_count > 16:
+    if source_count > MAX_VARIABLES:
         cap_note = (
-            f" The source below has {source_count} variables, more than your 2-16 output limit "
+            f" The source below has {source_count} variables, more than your 2-{MAX_VARIABLES} output limit "
             "allows -- you MUST consolidate, merge, or drop the least essential ones (keep "
             "whichever are most central to the piece's identity and to the requested change) "
-            "rather than returning all of them. Never exceed 16 variables."
+            f"rather than returning all of them. Never exceed {MAX_VARIABLES} variables."
         )
     p5_note = (
         "The source is an inherited p5 sketch, provided only as a visual/algorithm reference. "
