@@ -24,6 +24,8 @@ const promptInput = document.getElementById('promptInput');
 const undoPiece = document.getElementById('undoPiece');
 const modeOptions = document.getElementById('modeOptions');
 const interactiveInput = document.getElementById('interactiveInput');
+const useImagesInput = document.getElementById('useImagesInput');
+const useImagesForced = document.getElementById('useImagesForced');
 const savePreset = document.getElementById('savePreset');
 const presetStatus = document.getElementById('presetStatus');
 const galleryStatus = document.getElementById('galleryStatus');
@@ -41,6 +43,10 @@ const mode = () => document.querySelector('input[name="mode"]:checked').value;
 // routing needs no classifier call — and an ambient piece is never told that
 // action buttons exist, which is what stops one appearing on a moiré study.
 const interactive = () => interactiveInput.checked;
+// A remix of a piece that already uses the room's images keeps using them: the
+// server forces it, so the desk shows it forced rather than pretending to ask.
+const imagesForced = () => mode() === 'remix' && !!canvas?.usesImages;
+const useImages = () => imagesForced() || useImagesInput.checked;
 
 // Draft and in-flight job are remembered per room, so two rooms open in two
 // tabs can't inherit each other's prompt or reattach to each other's job.
@@ -48,6 +54,7 @@ const draftKey = `commons-desk-draft-${roomId}`;
 const jobKey = `commons-desk-job-${roomId}`;
 const modeKey = `commons-desk-mode-${roomId}`;
 const interactiveKey = `commons-desk-interactive-${roomId}`;
+const useImagesKey = `commons-desk-images-${roomId}`;
 
 function remember(key, value) {
   try { if (value === null) localStorage.removeItem(key); else localStorage.setItem(key, value); } catch {}
@@ -58,6 +65,10 @@ function updateControls() {
   promptSend.disabled = !usable || remixing || (mode() === 'remix' && !canvas?.sketchId);
   modeOptions.disabled = remixing;
   interactiveInput.disabled = remixing;
+  const forced = imagesForced();
+  useImagesInput.disabled = remixing || forced;
+  useImagesInput.checked = forced || recalled(useImagesKey) === '1';
+  useImagesForced.hidden = !forced;
   undoPiece.disabled = !usable || remixing || !canvas?.canUndo;
   savePreset.disabled = !usable || remixing;
   library?.setEnabled(usable && !remixing && !loadingGallery);
@@ -309,7 +320,7 @@ async function followJob(request) {
             body: JSON.stringify({
               roomId: Number(roomId), prompt: request.prompt, requestId: request.id,
               mode: request.mode || 'create', baseSketchId: request.baseSketchId,
-              interactive: !!request.interactive,
+              interactive: !!request.interactive, useImages: !!request.useImages,
             }),
             signal: AbortSignal.timeout(10_000),
           });
@@ -378,7 +389,7 @@ document.getElementById('promptForm').addEventListener('submit', (event) => {
   const prompt = promptInput.value.trim();
   if (!prompt || remixing || !usable) return;
   remember(draftKey, promptInput.value);
-  followJob({ id: requestId(), prompt, mode: mode(), interactive: interactive(),
+  followJob({ id: requestId(), prompt, mode: mode(), interactive: interactive(), useImages: useImages(),
               baseSketchId: canvas?.sketchId });
 });
 
@@ -440,6 +451,7 @@ modeOptions.addEventListener('change', () => {
 });
 
 interactiveInput.addEventListener('change', () => remember(interactiveKey, interactive() ? '1' : '0'));
+useImagesInput.addEventListener('change', () => remember(useImagesKey, useImagesInput.checked ? '1' : '0'));
 
 promptInput.value = recalled(draftKey) || '';
 if (recalled(modeKey) === 'create') document.querySelector('input[value="create"]').checked = true;

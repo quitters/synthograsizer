@@ -303,6 +303,9 @@ the wall. Written by you because you have just read the piece; nothing here chan
 - "look": one to three words from exactly this list, the ones a host would search for:
   LOOK_WORDS.
 
+When the piece has "usesRoomImages", it shows images the host uploaded to this room. A hint may
+refer to them as "the room's images" (never "your images": the phone belongs to a guest).
+
 When a previous panel is included, the creator is remixing the piece: keep that panel's skin and
 variant unless the request asks for a different look, and carry over whatever still fits.
 
@@ -350,6 +353,9 @@ def panel_request(sketch: dict, prompt: str, source_ui: dict | None = None) -> s
         "controls": controls,
         "code": code if len(code) <= PANEL_CODE_CAP else code[:PANEL_CODE_CAP] + "\n/* ...truncated */",
     }
+    if "room.images" in code:
+        # The piece shows images the host uploaded, so a hint can say so.
+        piece["usesRoomImages"] = True
     if source_ui:
         piece["previousPanel"] = source_ui
     return "Design the control panel for this piece.\n\nPIECE:\n" + json.dumps(piece)
