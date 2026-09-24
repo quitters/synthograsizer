@@ -106,6 +106,7 @@ main { display: flex; flex-direction: column; gap: 24px; flex: 1; }
 .mode { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; line-height: 1.5; font-size: 14px; color: var(--ink-dim); }
 .mode input { margin-top: 3px; accent-color: var(--accent); }
 .mode strong { display: block; color: var(--ink); font-weight: 600; }
+.mode em { display: block; margin-top: 4px; font-style: normal; color: var(--focus); }
 #modeOptions:disabled .mode { opacity: 0.5; cursor: default; }
 
 #promptForm { display: flex; flex-direction: column; gap: 16px; }

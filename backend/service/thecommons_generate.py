@@ -136,6 +136,34 @@ _INTERACTIVE_RULES = """INTERACTIVE ACTIONS -- this piece reacts to deliberate a
   divide between people. Make every fired action produce an immediate, visible result on screen."""
 
 
+# Appended only when the host asks for a piece that uses the room's images,
+# for the same reason as the interactive block: an ambient piece is never told
+# images exist, or every piece would grow a photo in the corner.
+_IMAGE_RULES = """ROOM IMAGES -- the host has given this room images, and this piece must use them.
+- room.images: an array of { id, width, height, bitmap, thumb, default }, in the host's order.
+  bitmap is a decoded ImageBitmap (long edge at most 1920 px); thumb is the same image at most
+  256 px on its long edge; id is a string; default is true for the suite's sample images, which
+  the room uses until the host uploads their own.
+- The array can be EMPTY for a moment while images load, and it is REPLACED (never edited) when
+  the host adds, removes or reorders images, even while the piece runs. Read room.images every
+  frame and always draw something worth seeing with zero images -- never touch room.images[0]
+  without checking the length. Pick an image with an index modulo room.images.length.
+- Draw with ctx.drawImage(img.bitmap, x, y, w, h), fitting or covering by that image's own
+  width and height. Never assume a shape: the images may be wide, tall, square or transparent.
+- Anything you work out per image goes in room.state, keyed by img.id, and entries whose id is
+  no longer in room.images must be dropped, so a replaced list never leaves stale work behind.
+- Per-pixel work (sampling colours, particles made of pixels, pixel sorting, slit-scan, mosaics):
+  draw img.thumb ONCE into an OffscreenCanvas of at most 256 px, read it with getImageData ONCE
+  per image id, and keep the result in room.state. Never call getImageData on the main canvas or
+  on a full-size bitmap, and never every frame.
+- You cannot see the images. They may be photos, logos, drawings or screenshots, so make the
+  piece work for any of them.
+- A control cannot list the images as choices, because choices are fixed when the piece is
+  written. Use a number (which image, how many), a trigger (next image, scatter) or time instead.
+- room.images is the only source of images. Never load, fetch or create an image yourself, and
+  never call close() on a bitmap."""
+
+
 _OUTPUT_TAIL = """- Respond with ONLY the JSON object below. No markdown fences, no commentary, no extra keys.
 
 {
@@ -150,7 +178,7 @@ _OUTPUT_TAIL = """- Respond with ONLY the JSON object below. No markdown fences,
 }"""
 
 
-def system_prompt(*, interactive: bool = False) -> str:
+def system_prompt(*, interactive: bool = False, images: bool = False) -> str:
     """One shared contract plus an optional block — not one monolith, and not
     two prompts that drift apart. The creator picks the mode on the desk, so
     nothing here costs a classifier call to route."""
@@ -165,6 +193,8 @@ def system_prompt(*, interactive: bool = False) -> str:
     parts = [_BASE_PROMPT]
     if interactive:
         parts.append("\n" + _INTERACTIVE_RULES)
+    if images:
+        parts.append("\n" + _IMAGE_RULES)
     parts.append(tail)
     return "\n".join(parts)
 
@@ -198,10 +228,25 @@ def _fallback(reason: str, *, model_answered: bool) -> dict:
     return {**pick_fallback(), "fallback": True, "reason": reason, "modelAnswered": model_answered}
 
 
-def generation_prompt(prompt: str, *, mode: str = "create", source: dict | None = None) -> str:
-    """Direct port of generate.js's generationPrompt()."""
+def images_line(images: list[dict] | None) -> str:
+    """What the model is told about the room's images right now: how many and
+    what shapes. Never what they show -- it can't see them."""
+    if not images:
+        return ""
+    sizes = ", ".join(f"{i['width']}x{i['height']}" for i in images)
+    samples = all(i.get("default") for i in images)
+    whose = ("the suite's sample images, until the host uploads their own" if samples
+             else "uploaded by the host")
+    return (f"\n\nROOM IMAGES RIGHT NOW: {len(images)} image{'s' if len(images) != 1 else ''} "
+            f"({sizes}), {whose}. The host can change them while the piece runs.")
+
+
+def generation_prompt(prompt: str, *, mode: str = "create", source: dict | None = None,
+                      images: list[dict] | None = None) -> str:
+    """Direct port of generate.js's generationPrompt(), plus the room's images
+    when the piece is to use them."""
     if mode != "remix":
-        return prompt
+        return prompt + images_line(images)
     if not source or not source.get("sketch"):
         raise ValueError("Remix requires a source sketch")
     sketch = source["sketch"]
@@ -235,6 +280,7 @@ def generation_prompt(prompt: str, *, mode: str = "create", source: dict | None 
         "promptTemplate too. Use current settings as numeric defaults and first choices where "
         "possible. Return a COMPLETE replacement native Canvas2D sketch, never a patch.\n"
         f"{p5_note}\n\nSOURCE DATA:\n{source_data}\n\nUSER CHANGE REQUEST:\n{prompt}"
+        f"{images_line(images)}"
     )
 
 
@@ -251,13 +297,13 @@ def _parse_sketch(text: str) -> dict:
 SKETCH_THINKING = "medium"
 
 
-async def _call_gemini(genai_client, text: str, *, interactive: bool = False) -> str:
+async def _call_gemini(genai_client, text: str, *, interactive: bool = False, images: bool = False) -> str:
     # The repair pass comes through here too, so it always gets the same model,
     # prompt and thinking level as the call it is repairing.
     return await asyncio.to_thread(
         google_api.gen_text, genai_client, config.MODEL_COMMONS_SKETCH,
         [google_api.text_block(text)],
-        system_instruction=system_prompt(interactive=interactive), json_mode=True,
+        system_instruction=system_prompt(interactive=interactive, images=images), json_mode=True,
         generation_config={"thinking_level": SKETCH_THINKING},
     )
 
@@ -274,26 +320,30 @@ def _repair_text(original_response: str, error: str) -> str:
 
 async def generate_sketch(prompt: str, *, mode: str = "create",
                            source: dict[str, Any] | None = None,
-                           interactive: bool = False) -> dict:
+                           interactive: bool = False, images: list[dict] | None = None) -> dict:
     """Live Gemini generation with one validation-aware repair pass, falling
     back to the static pool on any network/HTTP/timeout error, an unusable
     key, or a repair that still fails validation. Never raises — a failed
     generation is always a tagged fallback sketch, matching generate.js.
 
     ``interactive`` selects the system prompt: it is orthogonal to ``mode``
-    (create/remix), since an interactive piece can be remixed like any other."""
+    (create/remix), since an interactive piece can be remixed like any other.
+    ``images`` is the room's images as ``[{width, height, default}]`` when the
+    piece is to use them (thecommons_jobs decides); it adds the image rules
+    to the system prompt and their sizes to the request."""
     from backend.ai_manager import ai_manager
 
     if not ai_manager.genai_client:
         return _fallback("no Gemini key configured", model_answered=False)
 
     try:
-        request_text = generation_prompt(prompt, mode=mode, source=source)
+        request_text = generation_prompt(prompt, mode=mode, source=source, images=images)
     except ValueError as exc:
         return _fallback(str(exc), model_answered=False)
 
     try:
-        text = await _call_gemini(ai_manager.genai_client, request_text, interactive=interactive)
+        text = await _call_gemini(ai_manager.genai_client, request_text, interactive=interactive,
+                                  images=bool(images))
     except Exception as exc:
         logger.warning("[thecommons] Gemini call failed, falling back: %s", exc)
         return _fallback(_redact(str(exc)), model_answered=False)
@@ -304,7 +354,8 @@ async def generate_sketch(prompt: str, *, mode: str = "create",
         logger.warning("[thecommons] first attempt failed validation, retrying with a repair prompt: %s", invalid)
         try:
             repaired_text = await _call_gemini(
-                ai_manager.genai_client, _repair_text(text, str(invalid)), interactive=interactive)
+                ai_manager.genai_client, _repair_text(text, str(invalid)), interactive=interactive,
+                images=bool(images))
         except Exception as exc:
             # The first call DID answer (and was billed) even though the
             # repair never landed — the charge stands.

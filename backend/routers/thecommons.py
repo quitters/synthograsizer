@@ -135,6 +135,9 @@ class GenerateRequest(BaseModel):
     # Which system prompt to generate against. Orthogonal to `mode`: the
     # creator picks it on the desk, so routing costs no classifier call.
     interactive: bool = False
+    # Write a piece that uses the room's images (room.images). Forced on for a
+    # remix of a piece that already does.
+    useImages: bool = False
 
 
 # ── room CRUD ────────────────────────────────────────────────────────────────
@@ -233,6 +236,8 @@ async def get_room(room_id: int, request: Request):
         **_room_summary(room),
         "sketchName": relay.current_sketch.get("name") if relay.current_sketch else None,
         "sketchId": relay.current_sketch.get("id") if relay.current_sketch else None,
+        # Lets the desk keep "use this room's images" on when remixing a piece that does.
+        "usesImages": jobs.uses_images(relay.current_sketch),
         # Set only while a gallery piece is live, unremixed — lets the desk mark its card.
         "gallerySlug": relay.current_sketch.get("gallery") if relay.current_sketch else None,
         "panel": _panel_preview(relay.current_sketch),
@@ -518,7 +523,7 @@ async def start_generation(body: GenerateRequest, request: Request):
         job = await jobs.start(
             pool, relay, body.roomId, body.prompt, body.requestId,
             mode=body.mode, base_sketch_id=body.baseSketchId, generate=generate_sketch,
-            charge=charge, interactive=body.interactive,
+            charge=charge, interactive=body.interactive, use_images=body.useImages,
         )
     except jobs.ActiveJobError as exc:
         raise HTTPException(status_code=409, detail={"error": str(exc), "jobId": exc.job_id})
