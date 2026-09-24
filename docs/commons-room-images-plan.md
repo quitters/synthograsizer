@@ -1,6 +1,6 @@
 # The Commons — room images: plan
 
-**Status:** plan, revised 2026-09-23. PR 1 to PR 3 built; PR 4 not started.
+**Status:** plan, revised 2026-09-23. All four PRs built.
 **Decided:** images live in the GCS bucket; they belong to one room and are never used by gallery
 pieces; only the room's owner can upload them, and there is no automated moderation. A room with
 no uploads uses a set of default images, so image pieces can be tested before anyone uploads.
@@ -248,41 +248,42 @@ scroll. Not checked in the browser: the storage-off state.
 
 ## PR 4 — the generator
 
-- **Asking for it:** a "Use this room's images" checkbox in the desk's prompt form, beside "Give
-  the room actions to take": always available, since there are always images (uploads or
-  samples), and ticked automatically when remixing a piece that already uses them.
-  `GenerateRequest` gains `use_images: bool`. The job reads the room's
-  manifest (the uploads, or the defaults when there are none) and passes it to
-  `generate_sketch(..., images=[{width, height}, ...])`. When the flag is set, the model is also
-  told how many images there are and their aspect ratios.
-- **Remix:** a source whose code uses `room.images` forces image mode on, as a source with
-  triggers already forces interactive mode (`thecommons_jobs.py`).
+- **Asking for it:** a "Use this room's images" box in the desk's prompt form, beside "Give the
+  room actions to take", remembered per room. It sends `useImages` with the generate request.
+  When remixing a piece that already uses images it shows ticked and locked, with "This piece
+  already uses them, so a remix keeps them" (`GET /rooms/{id}` now says `usesImages`).
+- **The job** (`thecommons_jobs.start(use_images=...)`) hands the generator the room's images as
+  `[{width, height, default}]`: the uploads, or the samples when there are none, since that is
+  what the wall will show. A remix of a piece whose code uses `room.images` forces it on, as a
+  piece with triggers already forces the interactive prompt. `images` is only passed when set,
+  so a generate function that has never heard of it is called as before.
 - **Prompt:** `system_prompt(interactive=..., images=...)` appends an `_IMAGE_RULES` block only
-  when asked, so an ambient piece is never told images exist. The block says:
-  - `room.images` is `[{id, width, height, bitmap, thumb, default}]`. It can be **empty for a
-    moment** while images load and **can change while running** when the host uploads. Always
-    have a look for zero images, and re-read the array every frame.
-  - Draw with `ctx.drawImage(img.bitmap, ...)`, fitting or covering by each image's own aspect
-    ratio. Never assume a size.
-  - For per-pixel work, draw `img.thumb` into a small `OffscreenCanvas` **once per image id**,
-    cache the `ImageData` in `room.state` keyed by id, and drop entries whose id has gone. Never
-    call `getImageData` on the main canvas or on full-size images every frame.
-  - The piece cannot know what the images show, so it should suit any photo, logo or drawing.
-  - Controls cannot list the images as choices, because choices are fixed when the piece is
-    written. Use a number (which image, how many), a trigger ("next image") or time instead.
-- **Remix context:** `generation_prompt` includes the same manifest line for remixes.
-- **Panel designer:** it learns that a piece uses the room's images, so hints can say so.
-- **Tests:** the image block appears only when asked; the manifest is in the request (the
-  defaults' sizes for a room with no uploads); the remix forcing works; an ambient prompt never
-  mentions images.
-- **Sketchbook support:**
-  - `generate.py --images` passes the default set's manifest.
-  - `build_gallery.py` gives image pieces the default images.
-  - A first themed batch, **Uploads**, of about 40 prompts (see `commons-sketchbook/themes.md`):
-    floating sprite assets, glitch bleed across a gallery of uploads, slit-scan, pixel-sort,
-    photo-to-particles, mosaic of all uploads, Ken Burns slideshow, uploads mapped onto the
-    facade and flip-dot pieces, and crowd pieces where a person's button stamps, cycles or
-    scatters an image.
+  when asked, so an ambient piece is never told images exist. It says:
+  - `room.images` is `[{id, width, height, bitmap, thumb, default}]`, can be **empty for a
+    moment** and is **replaced while running**; read it every frame, pick by index modulo its
+    length, and always draw something worth seeing with zero images.
+  - Draw with `ctx.drawImage(img.bitmap, ...)`, fitting or covering by each image's own shape.
+  - Per-image work lives in `room.state` keyed by `img.id`, and entries for gone ids are dropped.
+  - Per-pixel work reads `img.thumb` **once per image id** through a small `OffscreenCanvas`;
+    never `getImageData` on the main canvas or a full-size bitmap, never every frame.
+  - The model can't see the images; controls can't list them as choices; never load, fetch,
+    create or `close()` an image.
+- **The request** (create and remix) ends with a line such as "ROOM IMAGES RIGHT NOW: 3 images
+  (1920x1080, 1080x1440, 1024x1024), the suite's sample images, until the host uploads their
+  own." The repair pass asks under the same rules.
+- **Panel designer:** told `usesRoomImages`, so a hint can mention "the room's images".
+- **Tests** (`tests/test_thecommons_image_generation.py`): the block appears only when asked,
+  alone or with the interactive block; the request line for samples and uploads; the repair
+  pass keeps the rules; the job passes samples, uploads, or nothing; the remix forcing; the
+  router passing `useImages`; the desk being told `usesImages`; the panel designer's flag.
+- **Sketchbook support** (outside the suite):
+  - `generate.py --images` asks with the samples as the room's images.
+  - `evaluate.py`'s 30-second soak hands every piece the stub images and swaps the list twice
+    while it runs (to none, then to two), as a host's uploads would.
+  - `build_gallery.py` embeds the three samples in the page and puts them on `room.images`.
+  - The first themed batch, **Uploads** (`commons-sketchbook/uploads/prompts.py`): forty prompts
+    in four families -- the images as things, treatments of an image, sequences of several, and
+    crowd pieces that act on them.
 
 ## Deliberately not in this plan
 
