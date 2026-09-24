@@ -1,0 +1,130 @@
+{
+  "name": "CGA Terminal",
+  "promptTemplate": "An authentic demoscene text-mode engine rendering an 80x25 grid in {{palette_mode}} with a rotating 3D {{shape_type}} over procedural plasma at speed {{plasma_speed}} with {{scanline_glow}} CRT styling and a live table scroller.",
+  "variables": [
+    {
+      "name": "palette_mode",
+      "label": "CGA Palette",
+      "values": [
+        {
+          "text": "Classic CGA",
+          "weight": 2
+        },
+        {
+          "text": "Cyberpunk Neon",
+          "weight": 2
+        },
+        {
+          "text": "Amber Phosphor",
+          "weight": 1
+        },
+        {
+          "text": "Green Phosphor",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "shape_type",
+      "label": "3D Object",
+      "values": [
+        {
+          "text": "Hypercube",
+          "weight": 2
+        },
+        {
+          "text": "Octahedron",
+          "weight": 2
+        },
+        {
+          "text": "Torus Ring",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "plasma_speed",
+      "label": "Plasma Speed",
+      "type": "number",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.5,
+      "default": 1.0
+    },
+    {
+      "name": "scanline_glow",
+      "label": "CRT Monitor FX",
+      "values": [
+        {
+          "text": "Arcade CRT",
+          "weight": 2
+        },
+        {
+          "text": "Soft Bloom",
+          "weight": 1
+        },
+        {
+          "text": "Crisp Glass",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "skin": "textmode",
+    "variant": "blue",
+    "title": "CGADEMO.EXE",
+    "tagline": "80x25 text-mode demoscene terminal console",
+    "accent": "#55ffff",
+    "groups": [
+      {
+        "title": "Vector Geometry",
+        "controls": [
+          "shape_type",
+          "plasma_speed"
+        ]
+      },
+      {
+        "title": "Display Adapter",
+        "controls": [
+          "palette_mode",
+          "scanline_glow"
+        ]
+      }
+    ],
+    "controls": {
+      "palette_mode": {
+        "widget": "list",
+        "hint": "Cycles 16-colour DAC lookup table"
+      },
+      "shape_type": {
+        "widget": "buttons",
+        "hint": "Swaps 3D wireframe mesh in the central buffer"
+      },
+      "plasma_speed": {
+        "widget": "knob",
+        "hint": "Accelerates procedural sin-table plasma"
+      },
+      "scanline_glow": {
+        "widget": "buttons",
+        "hint": "Adjusts simulated glass phosphor persistence"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "demo",
+    "blurb": "A text-mode demo: an 80 by 25 grid of monospace characters where a plasma and a rotating 3D shape are drawn as ASCII shading glyphs in CGA colours, with a greetings line to the room's tables scrolling along the bottom.",
+    "prompt": "A text-mode demo: an 80 by 25 grid of monospace characters where a plasma and a rotating 3D shape are drawn as ASCII shading glyphs in CGA colours, with a greetings line to the room's tables scrolling along the bottom. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "retro",
+      "text"
+    ],
+    "source": "scenes100/textmode-demo~1"
+  }
+}

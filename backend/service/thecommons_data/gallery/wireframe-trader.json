@@ -1,0 +1,159 @@
+{
+  "name": "Vector Flight 1984",
+  "promptTemplate": "A vector CRT wireframe tribute in {{phosphor_color}} with {{ship_type}} hull and {{scanner_mode}} scope, dialed to {{glow_intensity}} phosphor glow, detail {{vector_detail}}, at {{turn_speed}}x yaw.",
+  "variables": [
+    {
+      "name": "phosphor_color",
+      "label": "Phosphor CRT",
+      "values": [
+        {
+          "text": "p1_green",
+          "weight": 3
+        },
+        {
+          "text": "amber",
+          "weight": 2
+        },
+        {
+          "text": "cyan_vector",
+          "weight": 2
+        },
+        {
+          "text": "ice_white",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "ship_type",
+      "label": "Ship Class",
+      "values": [
+        {
+          "text": "trader_mk3",
+          "weight": 3
+        },
+        {
+          "text": "viper_interceptor",
+          "weight": 2
+        },
+        {
+          "text": "courier",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "scanner_mode",
+      "label": "Scanner Scope",
+      "values": [
+        {
+          "text": "classic_3d",
+          "weight": 3
+        },
+        {
+          "text": "tactical_grid",
+          "weight": 2
+        },
+        {
+          "text": "minimal",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "glow_intensity",
+      "label": "Beam Glow",
+      "type": "number",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "name": "vector_detail",
+      "label": "Vector Detail",
+      "type": "number",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "default": 2
+    },
+    {
+      "name": "turn_speed",
+      "label": "Turn Rate",
+      "type": "number",
+      "min": 0.2,
+      "max": 2.0,
+      "step": 0.2,
+      "default": 1.0
+    }
+  ],
+  "ui": {
+    "skin": "textmode",
+    "variant": "green",
+    "title": "",
+    "tagline": "Orbital wireframe flight telemetry & phosphor HUD",
+    "accent": "#39ff7a",
+    "groups": [
+      {
+        "title": "Vessel",
+        "controls": [
+          "ship_type",
+          "turn_speed",
+          "vector_detail"
+        ]
+      },
+      {
+        "title": "Avionics CRT",
+        "controls": [
+          "phosphor_color",
+          "scanner_mode",
+          "glow_intensity"
+        ]
+      }
+    ],
+    "controls": {
+      "phosphor_color": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "ship_type": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "scanner_mode": {
+        "widget": "list",
+        "hint": ""
+      },
+      "glow_intensity": {
+        "widget": "slider",
+        "hint": "Bloom intensity of the electron beam"
+      },
+      "vector_detail": {
+        "widget": "stepper",
+        "hint": "Cycle wireframe sub-facet density"
+      },
+      "turn_speed": {
+        "widget": "knob",
+        "hint": "Adjust hull yaw and roll rotation rate"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "demo",
+    "blurb": "A tribute to 1980s vector space games: a wireframe trading ship with hidden-line removal turning slowly above an elliptical radar scope, a space station rotating in the distance, green lines on black.",
+    "prompt": "A tribute to 1980s vector space games: a wireframe trading ship with hidden-line removal turning slowly above an elliptical radar scope, a space station rotating in the distance, green lines on black. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "retro",
+      "3d",
+      "space"
+    ],
+    "source": "scenes100/wireframe-trader~1"
+  }
+}

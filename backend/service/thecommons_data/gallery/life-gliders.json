@@ -1,0 +1,157 @@
+{
+  "name": "Life Trails",
+  "promptTemplate": "A Conway's Game of Life engine running in {{palette}} styling with {{trail_persistence}} phosphor persistence, evolving at {{sim_rate}} ticks per second with {{audio_mutation}} reactive bursts.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Phosphor Palette",
+      "values": [
+        {
+          "text": "cyber_green",
+          "weight": 2
+        },
+        {
+          "text": "amber_crt",
+          "weight": 2
+        },
+        {
+          "text": "biolum_cyan",
+          "weight": 2
+        },
+        {
+          "text": "synth_magenta",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "trail_persistence",
+      "label": "Phosphor Decay",
+      "values": [
+        {
+          "text": "brisk",
+          "weight": 1
+        },
+        {
+          "text": "long_glow",
+          "weight": 3
+        },
+        {
+          "text": "afterimage",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "sim_rate",
+      "label": "Simulation Rate",
+      "type": "number",
+      "min": 10,
+      "max": 60,
+      "step": 5,
+      "default": 30
+    },
+    {
+      "name": "audio_mutation",
+      "label": "Audio Mutation",
+      "values": [
+        {
+          "text": "subtle",
+          "weight": 2
+        },
+        {
+          "text": "pulse_sparks",
+          "weight": 2
+        },
+        {
+          "text": "cosmic_chaos",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "spawn_glider",
+      "label": "Launch Glider",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "reseed",
+      "label": "Reseed Colony",
+      "type": "trigger",
+      "share": "one"
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "acid",
+    "title": "LIFE TRAILS +6 TRAINER",
+    "tagline": "Demoscene cellular engine with phosphor memory",
+    "accent": "#00ff50",
+    "groups": [
+      {
+        "title": "Inject",
+        "controls": [
+          "spawn_glider",
+          "reseed"
+        ]
+      },
+      {
+        "title": "Engine",
+        "controls": [
+          "sim_rate",
+          "audio_mutation"
+        ]
+      },
+      {
+        "title": "Phosphor CRT",
+        "controls": [
+          "palette",
+          "trail_persistence"
+        ]
+      }
+    ],
+    "controls": {
+      "palette": {
+        "widget": "pads",
+        "hint": ""
+      },
+      "trail_persistence": {
+        "widget": "buttons",
+        "hint": "Length of glowing phosphor ghost trails"
+      },
+      "sim_rate": {
+        "widget": "knob",
+        "hint": "Clock speed in generation ticks per second"
+      },
+      "audio_mutation": {
+        "widget": "buttons",
+        "hint": "Spawns chaotic cell bursts on every bass hit"
+      },
+      "spawn_glider": {
+        "widget": "pad",
+        "hint": "Fires a glider stamped with your signature hue"
+      },
+      "reseed": {
+        "widget": "button",
+        "hint": "Wipes the grid and respawns Gosper guns"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "Conway's Game of Life on a large grid with fading trails where cells have died, seeded with oscillators and glider guns; anyone can drop a glider in their own colour, and the colony is reseeded if it dies out.",
+    "prompt": "Conway's Game of Life on a large grid with fading trails where cells have died, seeded with oscillators and glider guns; anyone can drop a glider in their own colour, and the colony is reseeded if it dies out. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "retro",
+      "organic"
+    ],
+    "source": "scenes100/life-gliders~1"
+  }
+}

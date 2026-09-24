@@ -1,0 +1,159 @@
+{
+  "name": "Prismatic Chamber",
+  "promptTemplate": "A {{mirrors}}-fold kaleidoscope of {{gem_shape}} shards in {{color_palette}} hues, {{chamber_motion}} drift at {{rotation_speed}} spin with {{shard_count}} jewels",
+  "variables": [
+    {
+      "name": "mirrors",
+      "label": "Mirror Planes",
+      "type": "number",
+      "min": 3,
+      "max": 12,
+      "step": 1,
+      "default": 6
+    },
+    {
+      "name": "rotation_speed",
+      "label": "Rotation Speed",
+      "type": "number",
+      "min": -2.0,
+      "max": 2.0,
+      "step": 0.2,
+      "default": 0.6
+    },
+    {
+      "name": "shard_count",
+      "label": "Jewel Count",
+      "type": "number",
+      "min": 30,
+      "max": 150,
+      "step": 15,
+      "default": 75
+    },
+    {
+      "name": "color_palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "stained_glass",
+          "weight": 2
+        },
+        {
+          "text": "opal_aurora",
+          "weight": 2
+        },
+        {
+          "text": "cyber_neon",
+          "weight": 1
+        },
+        {
+          "text": "solar_flare",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "gem_shape",
+      "label": "Shard Geometry",
+      "values": [
+        {
+          "text": "crystals",
+          "weight": 2
+        },
+        {
+          "text": "polyhedra",
+          "weight": 2
+        },
+        {
+          "text": "fragments",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "chamber_motion",
+      "label": "Chamber Drift",
+      "values": [
+        {
+          "text": "hypnotic",
+          "weight": 2
+        },
+        {
+          "text": "turbulent",
+          "weight": 1
+        },
+        {
+          "text": "vortex",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "violet",
+    "title": "PRISMA SCOPE +6",
+    "tagline": "Demoscene kaleidoscope chamber controller",
+    "accent": "#ff38aa",
+    "groups": [
+      {
+        "title": "Optics & Spin",
+        "controls": [
+          "mirrors",
+          "rotation_speed",
+          "chamber_motion"
+        ]
+      },
+      {
+        "title": "Gem Chamber",
+        "controls": [
+          "shard_count",
+          "gem_shape",
+          "color_palette"
+        ]
+      }
+    ],
+    "controls": {
+      "mirrors": {
+        "widget": "stepper",
+        "hint": "Multiplies mirrored wedges across the aperture"
+      },
+      "rotation_speed": {
+        "widget": "knob",
+        "hint": "Continuous spin rate and barrel direction"
+      },
+      "shard_count": {
+        "widget": "slider",
+        "hint": "Density of tumbling faceted jewels"
+      },
+      "color_palette": {
+        "widget": "cycle",
+        "hint": "Cycles chromatic crystal glaze sets"
+      },
+      "gem_shape": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "chamber_motion": {
+        "widget": "buttons",
+        "hint": "Switches the underlying shard velocity field"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "demo",
+    "blurb": "A kaleidoscope: a drifting field of coloured shards seen through mirrored wedges, the number of mirrors and the rotation controllable, the shards tumbling on the beat.",
+    "prompt": "A kaleidoscope: a drifting field of coloured shards seen through mirrored wedges, the number of mirrors and the rotation controllable, the shards tumbling on the beat. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "psychedelic",
+      "geometric",
+      "energetic"
+    ],
+    "source": "scenes100/kaleidoscope~2"
+  }
+}

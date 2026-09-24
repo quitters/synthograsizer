@@ -1,0 +1,141 @@
+{
+  "name": "OutRun Horizon",
+  "promptTemplate": "A pseudo-3D 80s arcade road blazing into a {{palette}} sunset at {{speed_base}} speed with {{hill_profile}} hills, {{curve_amount}} turns, and {{scenery_style}} roadside scenery.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Color Palette",
+      "values": [
+        {
+          "text": "outrun_sunset",
+          "weight": 3
+        },
+        {
+          "text": "neon_cyber",
+          "weight": 2
+        },
+        {
+          "text": "desert_dusk",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "speed_base",
+      "label": "Base Speed",
+      "type": "number",
+      "min": 60,
+      "max": 240,
+      "step": 20,
+      "default": 140
+    },
+    {
+      "name": "hill_profile",
+      "label": "Hills",
+      "values": [
+        {
+          "text": "rolling",
+          "weight": 3
+        },
+        {
+          "text": "steep",
+          "weight": 2
+        },
+        {
+          "text": "flat",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "curve_amount",
+      "label": "Curvature",
+      "type": "number",
+      "min": 0,
+      "max": 3,
+      "step": 0.5,
+      "default": 1.5
+    },
+    {
+      "name": "scenery_style",
+      "label": "Roadside Scenery",
+      "values": [
+        {
+          "text": "palms",
+          "weight": 3
+        },
+        {
+          "text": "city",
+          "weight": 2
+        },
+        {
+          "text": "chevrons",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "violet",
+    "title": "OUTRUN HORIZON +5",
+    "tagline": "SUPER SCALER TURBO ARCADE DRIVER",
+    "accent": "#ff1493",
+    "groups": [
+      {
+        "title": "TURBO ENGINE",
+        "controls": [
+          "speed_base",
+          "curve_amount",
+          "hill_profile"
+        ]
+      },
+      {
+        "title": "STAGE THEME",
+        "controls": [
+          "palette",
+          "scenery_style"
+        ]
+      }
+    ],
+    "controls": {
+      "palette": {
+        "widget": "pads",
+        "hint": ""
+      },
+      "speed_base": {
+        "widget": "knob",
+        "hint": "Crank baseline cruise speed"
+      },
+      "hill_profile": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "curve_amount": {
+        "widget": "slider",
+        "hint": "Tighten horizon curves and lateral camera drift"
+      },
+      "scenery_style": {
+        "widget": "cycle",
+        "hint": "Cycle roadside palms, towers, or race chevrons"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "demo",
+    "blurb": "A pseudo-3D racing road in the manner of 80s arcade racers: striped road segments curving and cresting hills towards a setting sun, roadside palms and signs scaling past, speed rising with the bass.",
+    "prompt": "A pseudo-3D racing road in the manner of 80s arcade racers: striped road segments curving and cresting hills towards a setting sun, roadside palms and signs scaling past, speed rising with the bass. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "retro",
+      "3d",
+      "energetic"
+    ],
+    "source": "scenes100/outrun-road~1"
+  }
+}

@@ -1,0 +1,149 @@
+{
+  "name": "Blue-Noise Engraving",
+  "promptTemplate": "Blue-noise stippling in {{palette}} with {{pattern}} interference, styled as {{engrave_style}}, dot scale {{dot_scale}} and reveal speed {{reveal_speed}}",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "copperplate",
+          "weight": 3
+        },
+        {
+          "text": "cyanotype",
+          "weight": 2
+        },
+        {
+          "text": "ink_and_paper",
+          "weight": 2
+        },
+        {
+          "text": "obsidian_gold",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "pattern",
+      "label": "Interference Pattern",
+      "values": [
+        {
+          "text": "concentric_harmonics",
+          "weight": 3
+        },
+        {
+          "text": "binary_orbit",
+          "weight": 2
+        },
+        {
+          "text": "wave_interference",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "engrave_style",
+      "label": "Engraving Cut",
+      "values": [
+        {
+          "text": "fine_stipple",
+          "weight": 3
+        },
+        {
+          "text": "mezzotint",
+          "weight": 2
+        },
+        {
+          "text": "bold_woodcut",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "dot_scale",
+      "label": "Dot Scale",
+      "type": "number",
+      "min": 2.0,
+      "max": 7.0,
+      "step": 0.5,
+      "default": 4.5
+    },
+    {
+      "name": "reveal_speed",
+      "label": "Reveal Speed",
+      "type": "number",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "default": 3
+    }
+  ],
+  "ui": {
+    "skin": "desk",
+    "variant": "grey",
+    "title": "Engraver Studio",
+    "tagline": "Poisson-disc stippling and wave interference",
+    "accent": "",
+    "groups": [
+      {
+        "title": "Print & Medium",
+        "controls": [
+          "palette",
+          "engrave_style"
+        ]
+      },
+      {
+        "title": "Stipple Tone",
+        "controls": [
+          "dot_scale",
+          "reveal_speed"
+        ]
+      },
+      {
+        "title": "Harmonics",
+        "controls": [
+          "pattern"
+        ]
+      }
+    ],
+    "controls": {
+      "palette": {
+        "widget": "cycle",
+        "hint": "Cycle ink and plate tonal recipes"
+      },
+      "pattern": {
+        "widget": "list",
+        "hint": "Interference orbits driving tonal fields"
+      },
+      "engrave_style": {
+        "widget": "buttons",
+        "hint": "Set dot tonal curve from fine to woodcut"
+      },
+      "dot_scale": {
+        "widget": "slider",
+        "hint": "Overall radius of engraving marks"
+      },
+      "reveal_speed": {
+        "widget": "stepper",
+        "hint": "Rate dots seed into the plate"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "generative",
+    "blurb": "Blue-noise stippling: Poisson-disc points fill the screen one at a time, their size set by an underlying moving image of circles, forming a stippled engraving.",
+    "prompt": "Blue-noise stippling: Poisson-disc points fill the screen one at a time, their size set by an underlying moving image of circles, forming a stippled engraving. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "painterly",
+      "calm"
+    ],
+    "source": "scenes100/poisson-stipple~1"
+  }
+}

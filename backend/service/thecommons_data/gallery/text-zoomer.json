@@ -1,0 +1,141 @@
+{
+  "name": "Text Zoomer",
+  "promptTemplate": "A demoscene text zoomer cycling words with {{color_scheme}} palette, {{glitch_style}} raster effects, {{zoom_speed}} speed, {{blur_passes}} radial blur passes, and {{star_count}} warp stars.",
+  "variables": [
+    {
+      "name": "zoom_speed",
+      "label": "Zoom Speed",
+      "type": "number",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.1,
+      "default": 1.2
+    },
+    {
+      "name": "blur_passes",
+      "label": "Radial Echoes",
+      "type": "number",
+      "min": 4,
+      "max": 12,
+      "step": 1,
+      "default": 8
+    },
+    {
+      "name": "star_count",
+      "label": "Warp Stars",
+      "type": "number",
+      "min": 100,
+      "max": 500,
+      "step": 50,
+      "default": 250
+    },
+    {
+      "name": "color_scheme",
+      "label": "Color Scheme",
+      "values": [
+        {
+          "text": "amiga_copper",
+          "weight": 2
+        },
+        {
+          "text": "cyberpunk",
+          "weight": 2
+        },
+        {
+          "text": "acid_matrix",
+          "weight": 1
+        },
+        {
+          "text": "vaporwave",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "glitch_style",
+      "label": "Glitch FX",
+      "values": [
+        {
+          "text": "scanlines",
+          "weight": 2
+        },
+        {
+          "text": "rgb_split",
+          "weight": 2
+        },
+        {
+          "text": "clean",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "TEXT ZOOMER +5 TRAINER",
+    "tagline": "Demoscene text burst & radial warp unit",
+    "accent": "#ffcc00",
+    "groups": [
+      {
+        "title": "Warp Engine",
+        "controls": [
+          "zoom_speed",
+          "star_count"
+        ]
+      },
+      {
+        "title": "Raster FX",
+        "controls": [
+          "blur_passes",
+          "glitch_style"
+        ]
+      },
+      {
+        "title": "Copper Palette",
+        "controls": [
+          "color_scheme"
+        ]
+      }
+    ],
+    "controls": {
+      "zoom_speed": {
+        "widget": "knob",
+        "hint": "Speed up the word zoom and explosion cycle"
+      },
+      "blur_passes": {
+        "widget": "stepper",
+        "hint": "Number of trailing ghost layers behind each letter"
+      },
+      "star_count": {
+        "widget": "slider",
+        "hint": "Density of the 3D warp tunnel"
+      },
+      "color_scheme": {
+        "widget": "pads",
+        "hint": ""
+      },
+      "glitch_style": {
+        "widget": "buttons",
+        "hint": ""
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "demo",
+    "blurb": "A text zoomer: huge block letters spelling HELLO, ROOM, DANCE and TOGETHER zoom in from far away to fill the screen and burst, one after another, with a radial speed blur behind.",
+    "prompt": "A text zoomer: huge block letters spelling HELLO, ROOM, DANCE and TOGETHER zoom in from far away to fill the screen and burst, one after another, with a radial speed blur behind. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "retro",
+      "text",
+      "energetic"
+    ],
+    "source": "scenes100/text-zoomer~2"
+  }
+}

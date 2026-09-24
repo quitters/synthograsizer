@@ -1,0 +1,130 @@
+{
+  "name": "WFC Circuit Substrate",
+  "promptTemplate": "A demoscene wave function collapse circuit board in {{pcb_palette}} with {{collapse_speed}} pacing, {{trace_style}} routing, and {{pulse_density}} signal bursts.",
+  "variables": [
+    {
+      "name": "pcb_palette",
+      "label": "PCB Palette",
+      "values": [
+        {
+          "text": "cyber_green",
+          "weight": 2
+        },
+        {
+          "text": "deep_navy",
+          "weight": 1
+        },
+        {
+          "text": "matte_black",
+          "weight": 2
+        },
+        {
+          "text": "amber_gold",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "collapse_speed",
+      "label": "Collapse Speed",
+      "values": [
+        {
+          "text": "methodical",
+          "weight": 1
+        },
+        {
+          "text": "overclocked",
+          "weight": 2
+        },
+        {
+          "text": "quantum_burst",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "trace_style",
+      "label": "Trace Style",
+      "values": [
+        {
+          "text": "clean_bus",
+          "weight": 2
+        },
+        {
+          "text": "dense_microchip",
+          "weight": 2
+        },
+        {
+          "text": "high_voltage",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "pulse_density",
+      "label": "Pulse Activity",
+      "type": "number",
+      "min": 1,
+      "max": 8,
+      "step": 1,
+      "default": 4
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "acid",
+    "title": "WFC SUBSTRATE +4",
+    "tagline": "Demoscene wave function collapse circuit engine",
+    "accent": "#00ff88",
+    "groups": [
+      {
+        "title": "Synthesis",
+        "controls": [
+          "collapse_speed",
+          "pulse_density"
+        ]
+      },
+      {
+        "title": "Hardware",
+        "controls": [
+          "pcb_palette",
+          "trace_style"
+        ]
+      }
+    ],
+    "controls": {
+      "pcb_palette": {
+        "widget": "pads",
+        "hint": "Swaps soldermask and copper substrate palette"
+      },
+      "collapse_speed": {
+        "widget": "buttons",
+        "hint": "Rate of entropy resolution across the board"
+      },
+      "trace_style": {
+        "widget": "buttons",
+        "hint": "Alters copper line width and bus routing"
+      },
+      "pulse_density": {
+        "widget": "knob",
+        "hint": "Controls active electrical packet bursts"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "generative",
+    "blurb": "Wave function collapse: a grid of circuit-board tiles collapsing cell by cell from the lowest entropy, traces and chips joining seamlessly, then dissolving and collapsing again.",
+    "prompt": "Wave function collapse: a grid of circuit-board tiles collapsing cell by cell from the lowest entropy, traces and chips joining seamlessly, then dissolving and collapsing again. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "geometric",
+      "retro"
+    ],
+    "source": "scenes100/wfc-circuits~2"
+  }
+}

@@ -1,0 +1,184 @@
+{
+  "name": "C64 64-Sprite Multiplexer",
+  "promptTemplate": "A C64 sprite multiplexer running {{wave_shape}} with {{sprite_style}} sprites in {{palette_tint}} palette, {{border_mode}} borders, at speed {{motion_speed}} and spread {{trail_spread}}",
+  "variables": [
+    {
+      "name": "wave_shape",
+      "label": "Wave Shape",
+      "values": [
+        {
+          "text": "Sine Ribbon",
+          "weight": 3
+        },
+        {
+          "text": "Lissajous",
+          "weight": 2
+        },
+        {
+          "text": "Raster Helix",
+          "weight": 2
+        },
+        {
+          "text": "Quad Bouncer",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "sprite_style",
+      "label": "Sprite Graphic",
+      "values": [
+        {
+          "text": "Shaded Sphere",
+          "weight": 3
+        },
+        {
+          "text": "Cyber Skull",
+          "weight": 2
+        },
+        {
+          "text": "C64 Star",
+          "weight": 2
+        },
+        {
+          "text": "Diamond Gem",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "border_mode",
+      "label": "Border FX",
+      "values": [
+        {
+          "text": "Beat Strobe",
+          "weight": 3
+        },
+        {
+          "text": "Raster Copper",
+          "weight": 2
+        },
+        {
+          "text": "Open Borders",
+          "weight": 2
+        },
+        {
+          "text": "Classic VIC",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "palette_tint",
+      "label": "Color Palette",
+      "values": [
+        {
+          "text": "Ocean Cyan",
+          "weight": 3
+        },
+        {
+          "text": "Sunset SID",
+          "weight": 2
+        },
+        {
+          "text": "Acid Phosphor",
+          "weight": 2
+        },
+        {
+          "text": "Full Spectrum",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "motion_speed",
+      "label": "Multiplex Speed",
+      "type": "number",
+      "min": 0.4,
+      "max": 2.4,
+      "step": 0.1,
+      "default": 1.0
+    },
+    {
+      "name": "trail_spread",
+      "label": "Trail Spread",
+      "type": "number",
+      "min": 1.0,
+      "max": 3.0,
+      "step": 0.2,
+      "default": 1.6
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "ice",
+    "title": "C64 MULTI+64 TRAINER",
+    "tagline": "64 hardware sprites on real-time VIC raster multiplexer",
+    "accent": "#0088ff",
+    "groups": [
+      {
+        "title": "Raster & Curve",
+        "controls": [
+          "wave_shape",
+          "motion_speed",
+          "trail_spread"
+        ]
+      },
+      {
+        "title": "VIC Sprites",
+        "controls": [
+          "sprite_style",
+          "palette_tint"
+        ]
+      },
+      {
+        "title": "Border FX",
+        "controls": [
+          "border_mode"
+        ]
+      }
+    ],
+    "controls": {
+      "wave_shape": {
+        "widget": "pads",
+        "hint": "Switches the 64-sprite multiplex trajectory"
+      },
+      "sprite_style": {
+        "widget": "pads",
+        "hint": "Swaps 24x21 hardware sprite bitmap pattern"
+      },
+      "border_mode": {
+        "widget": "buttons",
+        "hint": "Toggles border strobe and overscan raster bars"
+      },
+      "palette_tint": {
+        "widget": "cycle",
+        "hint": "Cycles 16-color C64 register color cycling"
+      },
+      "motion_speed": {
+        "widget": "knob",
+        "hint": "Raster cycle clock and wave scroll speed"
+      },
+      "trail_spread": {
+        "widget": "slider",
+        "hint": "Expands phase separation between multiplexed sprites"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "demo",
+    "blurb": "A C64 sprite multiplexer showcase: sixty-four hardware-style sprites snaking along a sine wave over a character-mode background, in the 16-colour C64 palette, the border flashing on the beat.",
+    "prompt": "A C64 sprite multiplexer showcase: sixty-four hardware-style sprites snaking along a sine wave over a character-mode background, in the 16-colour C64 palette, the border flashing on the beat. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "retro",
+      "energetic"
+    ],
+    "source": "scenes100/sprite-multiplexer~1"
+  }
+}

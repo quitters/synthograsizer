@@ -1,0 +1,163 @@
+{
+  "name": "Apollonian Gold",
+  "promptTemplate": "An Apollonian gasket with {{max_depth}} recursion levels in {{gold_tone}} upon deep navy, rotating with {{motion_style}}, unfolding via {{reveal_mode}}, rendered with {{line_weight}} line weight and {{glow_intensity}} aura glow.",
+  "variables": [
+    {
+      "name": "max_depth",
+      "label": "Detail Depth",
+      "type": "number",
+      "min": 3,
+      "max": 7,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "name": "gold_tone",
+      "label": "Gold Alloy",
+      "values": [
+        {
+          "text": "classic",
+          "weight": 3
+        },
+        {
+          "text": "champagne",
+          "weight": 2
+        },
+        {
+          "text": "rose_gold",
+          "weight": 1
+        },
+        {
+          "text": "sunfire",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "motion_style",
+      "label": "Rotation Flow",
+      "values": [
+        {
+          "text": "steady_drift",
+          "weight": 3
+        },
+        {
+          "text": "orbital_pulse",
+          "weight": 2
+        },
+        {
+          "text": "harmonic_spin",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "reveal_mode",
+      "label": "Generation Reveal",
+      "values": [
+        {
+          "text": "eternal_bloom",
+          "weight": 3
+        },
+        {
+          "text": "ripple_burst",
+          "weight": 2
+        },
+        {
+          "text": "clockwork",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "line_weight",
+      "label": "Line Weight",
+      "type": "number",
+      "min": 1,
+      "max": 4,
+      "step": 0.5,
+      "default": 1.5
+    },
+    {
+      "name": "glow_intensity",
+      "label": "Aura Glow",
+      "type": "number",
+      "min": 0,
+      "max": 10,
+      "step": 1,
+      "default": 5
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "APOLLONIAN GOLD +6",
+    "tagline": "Recursive Descartes circle packer in pure gold",
+    "accent": "#e8c468",
+    "groups": [
+      {
+        "title": "Recursion & Form",
+        "controls": [
+          "max_depth",
+          "line_weight"
+        ]
+      },
+      {
+        "title": "Kinetics",
+        "controls": [
+          "motion_style",
+          "reveal_mode"
+        ]
+      },
+      {
+        "title": "Illumination",
+        "controls": [
+          "gold_tone",
+          "glow_intensity"
+        ]
+      }
+    ],
+    "controls": {
+      "max_depth": {
+        "widget": "stepper",
+        "hint": "Expands recursive rings to sub-pixel density"
+      },
+      "gold_tone": {
+        "widget": "pads",
+        "hint": ""
+      },
+      "motion_style": {
+        "widget": "list",
+        "hint": "Sets how bass beats torque the orbit"
+      },
+      "reveal_mode": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "line_weight": {
+        "widget": "slider",
+        "hint": ""
+      },
+      "glow_intensity": {
+        "widget": "knob",
+        "hint": "Crank up the radial bloom and center aura"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "generative",
+    "blurb": "An Apollonian gasket: circles packed recursively with Descartes' theorem, revealed generation by generation and slowly rotating, gold lines on navy.",
+    "prompt": "An Apollonian gasket: circles packed recursively with Descartes' theorem, revealed generation by generation and slowly rotating, gold lines on navy. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "geometric",
+      "calm"
+    ],
+    "source": "scenes100/apollonian~3"
+  }
+}

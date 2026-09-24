@@ -1,0 +1,152 @@
+{
+  "name": "Fourier Epicycle Engine",
+  "promptTemplate": "Fourier epicycles tracing a {{shape_type}} outline with {{circle_order}} circles in {{color_palette}} tones, spinning at {{draw_speed}} speed with {{glow_intensity}} trail radiance.",
+  "variables": [
+    {
+      "name": "shape_type",
+      "label": "Target Outline",
+      "values": [
+        {
+          "text": "star",
+          "weight": 2
+        },
+        {
+          "text": "heart",
+          "weight": 2
+        },
+        {
+          "text": "musical_note",
+          "weight": 2
+        },
+        {
+          "text": "trefoil",
+          "weight": 1
+        },
+        {
+          "text": "infinity",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "circle_order",
+      "label": "Epicycles Count",
+      "type": "number",
+      "min": 8,
+      "max": 36,
+      "step": 2,
+      "default": 24
+    },
+    {
+      "name": "draw_speed",
+      "label": "Harmonic Velocity",
+      "type": "number",
+      "min": 0.4,
+      "max": 2.0,
+      "step": 0.2,
+      "default": 1.0
+    },
+    {
+      "name": "color_palette",
+      "label": "Resonance Palette",
+      "values": [
+        {
+          "text": "cyan_gold",
+          "weight": 2
+        },
+        {
+          "text": "neon_magenta",
+          "weight": 2
+        },
+        {
+          "text": "emerald_aurora",
+          "weight": 1
+        },
+        {
+          "text": "solar_amber",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "glow_intensity",
+      "label": "Tracer Radiance",
+      "values": [
+        {
+          "text": "subtle",
+          "weight": 1
+        },
+        {
+          "text": "radiant",
+          "weight": 2
+        },
+        {
+          "text": "ethereal",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "ice",
+    "title": "FOURIER +5 DEMO",
+    "tagline": "Realtime harmonic epicycle synthesizer",
+    "accent": "#50c8ff",
+    "groups": [
+      {
+        "title": "Harmonics",
+        "controls": [
+          "shape_type",
+          "circle_order",
+          "draw_speed"
+        ]
+      },
+      {
+        "title": "Optics",
+        "controls": [
+          "color_palette",
+          "glow_intensity"
+        ]
+      }
+    ],
+    "controls": {
+      "shape_type": {
+        "widget": "pads",
+        "hint": "Retunes epicycles to morph into a new geometry"
+      },
+      "circle_order": {
+        "widget": "slider",
+        "hint": "Adds high-frequency orbital wheels to sharpen the edge"
+      },
+      "draw_speed": {
+        "widget": "knob",
+        "hint": "Controls phase rotation frequency"
+      },
+      "color_palette": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "glow_intensity": {
+        "widget": "buttons",
+        "hint": "Switches tracer bloom and lighter composite pass"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "generative",
+    "blurb": "Fourier epicycles: a chain of rotating circles, each riding on the last, whose tip traces a closed outline (a star, a heart, a musical note); the outline changes and the circles re-tune.",
+    "prompt": "Fourier epicycles: a chain of rotating circles, each riding on the last, whose tip traces a closed outline (a star, a heart, a musical note); the outline changes and the circles re-tune. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "geometric",
+      "calm"
+    ],
+    "source": "scenes100/fourier-epicycles~1"
+  }
+}

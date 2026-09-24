@@ -1,0 +1,145 @@
+{
+  "name": "Boing! 1984 Tribute",
+  "promptTemplate": "A classic Amiga tribute featuring a {{grid_palette}} perspective grid, running at {{ball_speed}}x speed with {{bounce_boost}} bass bounce and {{trail_echo}} trails",
+  "variables": [
+    {
+      "name": "grid_palette",
+      "label": "Grid Palette",
+      "values": [
+        {
+          "text": "amiga_1984",
+          "weight": 3
+        },
+        {
+          "text": "neon_night",
+          "weight": 2
+        },
+        {
+          "text": "copper_glow",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "ball_speed",
+      "label": "Ball Speed",
+      "type": "number",
+      "min": 0.6,
+      "max": 2.4,
+      "step": 0.2,
+      "default": 1.2
+    },
+    {
+      "name": "bounce_boost",
+      "label": "Bass Bounce",
+      "type": "number",
+      "min": 0.0,
+      "max": 2.0,
+      "step": 0.2,
+      "default": 1.0
+    },
+    {
+      "name": "trail_echo",
+      "label": "Motion Trail",
+      "values": [
+        {
+          "text": "clean",
+          "weight": 3
+        },
+        {
+          "text": "ghosted",
+          "weight": 2
+        },
+        {
+          "text": "afterglow",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "kick",
+      "label": "Kick Ball",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "spin_flip",
+      "label": "Flip Spin",
+      "type": "trigger",
+      "share": "one"
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "violet",
+    "title": "BOING! 1984 TRAINER",
+    "tagline": "Classic Amiga demo engine tuned for the floor",
+    "accent": "#a861dd",
+    "groups": [
+      {
+        "title": "Actions",
+        "controls": [
+          "kick",
+          "spin_flip"
+        ]
+      },
+      {
+        "title": "Physics",
+        "controls": [
+          "ball_speed",
+          "bounce_boost"
+        ]
+      },
+      {
+        "title": "Graphics",
+        "controls": [
+          "grid_palette",
+          "trail_echo"
+        ]
+      }
+    ],
+    "controls": {
+      "grid_palette": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "ball_speed": {
+        "widget": "knob",
+        "hint": ""
+      },
+      "bounce_boost": {
+        "widget": "knob",
+        "hint": "How wildly the bass thump launches the rebound"
+      },
+      "trail_echo": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "kick": {
+        "widget": "pad",
+        "hint": "Smash ball upward with an audio shockwave"
+      },
+      "spin_flip": {
+        "widget": "button",
+        "hint": "Invert sphere rotation direction"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "A tribute to the 1984 bouncing-ball demo: a red and white checkered sphere spinning as it bounces across a purple perspective grid, a soft shadow on the back wall, the bounce kicked by the bass; anyone can give the ball an extra kick.",
+    "prompt": "A tribute to the 1984 bouncing-ball demo: a red and white checkered sphere spinning as it bounces across a purple perspective grid, a soft shadow on the back wall, the bounce kicked by the bass; anyone can give the ball an extra kick. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "retro",
+      "3d",
+      "energetic"
+    ],
+    "source": "scenes100/boing-ball~1"
+  }
+}

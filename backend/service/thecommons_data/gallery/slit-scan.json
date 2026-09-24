@@ -1,0 +1,172 @@
+{
+  "name": "Stargate Slit-Scan Corridor",
+  "promptTemplate": "A 1960s slit-scan light corridor in {{palette}} hues, channeling {{corridor_mode}} architecture with {{pattern_style}} optical film masks, flowing at speed {{flow_speed}} with slit warp {{slit_warp}} and persistence {{exposure_echo}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Light Gel Palette",
+      "values": [
+        {
+          "text": "stargate_amber",
+          "weight": 3
+        },
+        {
+          "text": "neon_cyber",
+          "weight": 2
+        },
+        {
+          "text": "monochrome_film",
+          "weight": 2
+        },
+        {
+          "text": "infrared_solar",
+          "weight": 2
+        },
+        {
+          "text": "acid_emerald",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "corridor_mode",
+      "label": "Corridor Geometry",
+      "values": [
+        {
+          "text": "dual_planes",
+          "weight": 3
+        },
+        {
+          "text": "quad_tunnel",
+          "weight": 3
+        },
+        {
+          "text": "vertical_crevasse",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "pattern_style",
+      "label": "Film Mask Pattern",
+      "values": [
+        {
+          "text": "moire_lattice",
+          "weight": 3
+        },
+        {
+          "text": "op_stripes",
+          "weight": 2
+        },
+        {
+          "text": "waveform_synth",
+          "weight": 2
+        },
+        {
+          "text": "fractal_shards",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "flow_speed",
+      "label": "Streak Velocity",
+      "type": "number",
+      "min": 0.2,
+      "max": 3.0,
+      "step": 0.2,
+      "default": 1.4
+    },
+    {
+      "name": "slit_warp",
+      "label": "Anamorphic Warp",
+      "type": "number",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.25,
+      "default": 1.25
+    },
+    {
+      "name": "exposure_echo",
+      "label": "Exposure Persistence",
+      "type": "number",
+      "min": 0.4,
+      "max": 0.95,
+      "step": 0.05,
+      "default": 0.85
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "STARGATE // SLITSCAN",
+    "tagline": "1968 Douglas Trumbull slit-scan optical tunnel engine",
+    "accent": "#ff8c14",
+    "groups": [
+      {
+        "title": "Optics & Gel",
+        "controls": [
+          "palette",
+          "pattern_style"
+        ]
+      },
+      {
+        "title": "Projection Rig",
+        "controls": [
+          "corridor_mode",
+          "flow_speed"
+        ]
+      },
+      {
+        "title": "Anamorphic Slit",
+        "controls": [
+          "slit_warp",
+          "exposure_echo"
+        ]
+      }
+    ],
+    "controls": {
+      "palette": {
+        "widget": "cycle",
+        "hint": "Shift color gel filter running through slit"
+      },
+      "corridor_mode": {
+        "widget": "buttons",
+        "hint": "Toggle between 2-plane horizon, 4-wall box, or chasm"
+      },
+      "pattern_style": {
+        "widget": "pads",
+        "hint": "Swap Kodalith optical mask pattern"
+      },
+      "flow_speed": {
+        "widget": "knob",
+        "hint": "Camera dolly velocity through the light slit"
+      },
+      "slit_warp": {
+        "widget": "slider",
+        "hint": "Distort slit center outward with anamorphic lens"
+      },
+      "exposure_echo": {
+        "widget": "slider",
+        "hint": "Increase phosphor persistence and film trailing"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "generative",
+    "blurb": "Slit-scan: a corridor of light built by shifting a narrow slice of a moving pattern outward each frame, the time-smeared tunnel of 1960s film effects.",
+    "prompt": "Slit-scan: a corridor of light built by shifting a narrow slice of a moving pattern outward each frame, the time-smeared tunnel of 1960s film effects. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "psychedelic",
+      "light",
+      "energetic"
+    ],
+    "source": "scenes100/slit-scan~1"
+  }
+}

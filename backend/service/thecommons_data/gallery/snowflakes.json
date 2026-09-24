@@ -1,0 +1,151 @@
+{
+  "name": "Hexagonal Dendrite Crystalliser",
+  "promptTemplate": "A winter wall of {{crystal_form}} snowflakes crystallising in {{palette}} tones with scale {{crystal_scale}}, floating down at speed {{drift_speed}} under {{wind_sway}} wind sway.",
+  "variables": [
+    {
+      "name": "crystal_form",
+      "label": "Crystal Form",
+      "values": [
+        {
+          "text": "dendrite",
+          "weight": 2
+        },
+        {
+          "text": "stellar",
+          "weight": 2
+        },
+        {
+          "text": "fern",
+          "weight": 1
+        },
+        {
+          "text": "needle",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "ice_and_aurora",
+          "weight": 2
+        },
+        {
+          "text": "deep_frost",
+          "weight": 2
+        },
+        {
+          "text": "ultraviolet",
+          "weight": 1
+        },
+        {
+          "text": "golden_hour",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "crystal_scale",
+      "label": "Flake Scale",
+      "type": "number",
+      "min": 0.6,
+      "max": 1.6,
+      "step": 0.1,
+      "default": 1.0
+    },
+    {
+      "name": "drift_speed",
+      "label": "Drift Speed",
+      "type": "number",
+      "min": 0.2,
+      "max": 2.0,
+      "step": 0.1,
+      "default": 0.8
+    },
+    {
+      "name": "wind_sway",
+      "label": "Wind Sway",
+      "type": "number",
+      "min": 0.0,
+      "max": 2.0,
+      "step": 0.2,
+      "default": 1.0
+    },
+    {
+      "name": "crystallise",
+      "label": "New Flake",
+      "type": "trigger",
+      "share": "all"
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "ice",
+    "title": "CRYSTAL +6 TRAINER",
+    "tagline": "Demoscene 60fps hexagonal snow synthesiser",
+    "accent": "#7ae5ff",
+    "groups": [
+      {
+        "title": "CHAMBER",
+        "controls": [
+          "crystallise",
+          "crystal_form",
+          "palette"
+        ]
+      },
+      {
+        "title": "DRIFT DYNAMICS",
+        "controls": [
+          "drift_speed",
+          "wind_sway",
+          "crystal_scale"
+        ]
+      }
+    ],
+    "controls": {
+      "crystal_form": {
+        "widget": "buttons",
+        "hint": "Morphs dendritic branching and plate geometry"
+      },
+      "palette": {
+        "widget": "cycle",
+        "hint": "Swaps thermal gradient and background vignette"
+      },
+      "crystal_scale": {
+        "widget": "slider",
+        "hint": "Size multiplier for subsequent crystal seeds"
+      },
+      "drift_speed": {
+        "widget": "knob",
+        "hint": "Downward descent rate across the wall"
+      },
+      "wind_sway": {
+        "widget": "knob",
+        "hint": "Lateral harmonic drift and flutter"
+      },
+      "crystallise": {
+        "widget": "pad",
+        "hint": "Instantly freeze and release a crystal in your hue"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "Snowflakes crystallising with six-fold symmetry from a simple growth model; anyone can start a new flake in their colour, and finished flakes drift down the wall.",
+    "prompt": "Snowflakes crystallising with six-fold symmetry from a simple growth model; anyone can start a new flake in their colour, and finished flakes drift down the wall. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "nature",
+      "geometric",
+      "calm"
+    ],
+    "source": "scenes100/snowflakes~2"
+  }
+}

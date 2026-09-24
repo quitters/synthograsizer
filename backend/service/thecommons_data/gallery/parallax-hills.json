@@ -1,0 +1,136 @@
+{
+  "name": "Copper Skies 16-Bit",
+  "promptTemplate": "A 16-bit parallax title screen in {{palette_theme}} tones with a {{moon_phase}}, scrolling at speed {{scroll_speed}} with {{sky_bands}} raster sky bands and {{bird_count}} silhouetted birds.",
+  "variables": [
+    {
+      "name": "palette_theme",
+      "label": "Color Palette",
+      "values": [
+        {
+          "text": "copper_sunset",
+          "weight": 3
+        },
+        {
+          "text": "fm_towns_twilight",
+          "weight": 2
+        },
+        {
+          "text": "cyber_dusk",
+          "weight": 2
+        },
+        {
+          "text": "emerald_dawn",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "moon_phase",
+      "label": "Celestial Body",
+      "values": [
+        {
+          "text": "full_orb",
+          "weight": 3
+        },
+        {
+          "text": "blood_crescent",
+          "weight": 2
+        },
+        {
+          "text": "giant_sol",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "scroll_speed",
+      "label": "Scroll Speed",
+      "type": "number",
+      "min": 0.2,
+      "max": 2.6,
+      "step": 0.2,
+      "default": 1
+    },
+    {
+      "name": "sky_bands",
+      "label": "Sky Raster Bands",
+      "type": "number",
+      "min": 6,
+      "max": 24,
+      "step": 2,
+      "default": 12
+    },
+    {
+      "name": "bird_count",
+      "label": "Bird Count",
+      "type": "number",
+      "min": 2,
+      "max": 14,
+      "step": 1,
+      "default": 6
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "COPPER SKIES +5",
+    "tagline": "16-BIT PARALLAX HORIZON GENERATOR",
+    "accent": "#f8ac52",
+    "groups": [
+      {
+        "title": "HORIZON & SKY",
+        "controls": [
+          "palette_theme",
+          "moon_phase",
+          "sky_bands"
+        ]
+      },
+      {
+        "title": "MOTION & FLOCK",
+        "controls": [
+          "scroll_speed",
+          "bird_count"
+        ]
+      }
+    ],
+    "controls": {
+      "palette_theme": {
+        "widget": "cycle",
+        "hint": "Cycle through 16-bit dusk & dawn palettes"
+      },
+      "moon_phase": {
+        "widget": "buttons",
+        "hint": "Switch celestial body & raster effects"
+      },
+      "scroll_speed": {
+        "widget": "knob",
+        "hint": "Turn to accelerate 5-layer parallax scroll"
+      },
+      "sky_bands": {
+        "widget": "slider",
+        "hint": "Set raster gradient step density"
+      },
+      "bird_count": {
+        "widget": "stepper",
+        "hint": "Release silhouetted birds into the sky"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "demo",
+    "blurb": "Old-school parallax scrolling: five layers of silhouetted hills, forest and clouds scrolling at different speeds under a banded sunset sky, with a moon and a few birds, like a 16-bit title screen.",
+    "prompt": "Old-school parallax scrolling: five layers of silhouetted hills, forest and clouds scrolling at different speeds under a banded sunset sky, with a moon and a few birds, like a 16-bit title screen. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "retro",
+      "nature",
+      "calm"
+    ],
+    "source": "scenes100/parallax-hills~1"
+  }
+}

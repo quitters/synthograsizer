@@ -1,0 +1,159 @@
+{
+  "name": "Dot Morph",
+  "promptTemplate": "A demoscene 3D point cloud morphing between geometric solids in {{palette}} with {{morph_style}} transitions, rendering {{dot_count}} points at {{rotation_speed}} rotation with {{point_style}} at {{depth_field}} focal depth.",
+  "variables": [
+    {
+      "name": "dot_count",
+      "label": "Point Count",
+      "type": "number",
+      "min": 150,
+      "max": 650,
+      "step": 50,
+      "default": 400
+    },
+    {
+      "name": "palette",
+      "label": "Color Palette",
+      "values": [
+        {
+          "text": "plasma",
+          "weight": 3
+        },
+        {
+          "text": "amber_glow",
+          "weight": 2
+        },
+        {
+          "text": "cyan_vector",
+          "weight": 2
+        },
+        {
+          "text": "monochrome",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "morph_style",
+      "label": "Morph Driver",
+      "values": [
+        {
+          "text": "smooth_cycle",
+          "weight": 3
+        },
+        {
+          "text": "beat_snap",
+          "weight": 2
+        },
+        {
+          "text": "audio_driven",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "point_style",
+      "label": "Point Style",
+      "values": [
+        {
+          "text": "glowing_discs",
+          "weight": 3
+        },
+        {
+          "text": "crisp_dots",
+          "weight": 2
+        },
+        {
+          "text": "ringed_nodes",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "rotation_speed",
+      "label": "Rotation Speed",
+      "type": "number",
+      "min": 0.2,
+      "max": 2.2,
+      "step": 0.1,
+      "default": 1.0
+    },
+    {
+      "name": "depth_field",
+      "label": "Focal Depth",
+      "type": "number",
+      "min": 350,
+      "max": 750,
+      "step": 50,
+      "default": 550
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "acid",
+    "title": "MORPH3D +6 TRAINER",
+    "tagline": "Realtime 3D dot cloud demoscene morpher",
+    "accent": "#00ffcc",
+    "groups": [
+      {
+        "title": "ENGINE",
+        "controls": [
+          "morph_style",
+          "rotation_speed",
+          "depth_field"
+        ]
+      },
+      {
+        "title": "RASTER",
+        "controls": [
+          "palette",
+          "point_style",
+          "dot_count"
+        ]
+      }
+    ],
+    "controls": {
+      "dot_count": {
+        "widget": "slider",
+        "hint": "Total active 3D vertices drawn"
+      },
+      "palette": {
+        "widget": "cycle",
+        "hint": "Cycle demoscene point color schemes"
+      },
+      "morph_style": {
+        "widget": "pads",
+        "hint": "Switches how geometric solids transition"
+      },
+      "point_style": {
+        "widget": "buttons",
+        "hint": "Switch glow aura, sharp dots, or wire rings"
+      },
+      "rotation_speed": {
+        "widget": "knob",
+        "hint": "Spin rate across 3D axes"
+      },
+      "depth_field": {
+        "widget": "slider",
+        "hint": "Adjusts perspective focal distance"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "demo",
+    "blurb": "A 3D dot object morphing smoothly between a sphere, a torus, a cube and a double helix: a few hundred points rotating in perspective, sized and brightened by depth, changing shape every few beats.",
+    "prompt": "A 3D dot object morphing smoothly between a sphere, a torus, a cube and a double helix: a few hundred points rotating in perspective, sized and brightened by depth, changing shape every few beats. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "3d",
+      "retro",
+      "geometric"
+    ],
+    "source": "scenes100/dot-morph~1"
+  }
+}

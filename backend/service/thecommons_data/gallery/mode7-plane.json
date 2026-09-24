@@ -1,0 +1,164 @@
+{
+  "name": "Mode 7 Retro Grand Prix",
+  "promptTemplate": "A Mode 7 perspective racetrack racing through {{theme}} during {{time_of_day}} with {{steering_mode}} steering at speed {{speed}}, camera height {{camera_height}}, and horizon at {{horizon}}",
+  "variables": [
+    {
+      "name": "theme",
+      "label": "Circuit Theme",
+      "values": [
+        {
+          "text": "f_zero",
+          "weight": 3
+        },
+        {
+          "text": "cyber_grid",
+          "weight": 2
+        },
+        {
+          "text": "desert_rally",
+          "weight": 2
+        },
+        {
+          "text": "toxic_sewer",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "time_of_day",
+      "label": "Sky Horizon",
+      "values": [
+        {
+          "text": "twilight_neon",
+          "weight": 3
+        },
+        {
+          "text": "high_noon",
+          "weight": 2
+        },
+        {
+          "text": "midnight_aurora",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "steering_mode",
+      "label": "Handling",
+      "values": [
+        {
+          "text": "smooth_banking",
+          "weight": 3
+        },
+        {
+          "text": "aggressive_drift",
+          "weight": 2
+        },
+        {
+          "text": "arcade_snap",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "speed",
+      "label": "Engine Speed",
+      "type": "number",
+      "min": 0.5,
+      "max": 3.0,
+      "step": 0.25,
+      "default": 1.5
+    },
+    {
+      "name": "camera_height",
+      "label": "Altitude",
+      "type": "number",
+      "min": 25,
+      "max": 65,
+      "step": 5,
+      "default": 40
+    },
+    {
+      "name": "horizon",
+      "label": "Pitch",
+      "type": "number",
+      "min": 0.25,
+      "max": 0.45,
+      "step": 0.05,
+      "default": 0.35
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "violet",
+    "title": "MODE-7 GRAND PRIX +6",
+    "tagline": "Super scaler perspective engine & racing simulator",
+    "accent": "#00f0ff",
+    "groups": [
+      {
+        "title": "RACE CRAFT",
+        "controls": [
+          "speed",
+          "steering_mode"
+        ]
+      },
+      {
+        "title": "CHOPPER CAM",
+        "controls": [
+          "camera_height",
+          "horizon"
+        ]
+      },
+      {
+        "title": "WORLD STAGE",
+        "controls": [
+          "theme",
+          "time_of_day"
+        ]
+      }
+    ],
+    "controls": {
+      "theme": {
+        "widget": "pads",
+        "hint": ""
+      },
+      "time_of_day": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "steering_mode": {
+        "widget": "buttons",
+        "hint": "Choose corner drift response"
+      },
+      "speed": {
+        "widget": "knob",
+        "hint": "Throttle up circuit velocity"
+      },
+      "camera_height": {
+        "widget": "slider",
+        "hint": "Chase cam elevation above track"
+      },
+      "horizon": {
+        "widget": "slider",
+        "hint": "Tilt ground plane perspective"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "demo",
+    "blurb": "A Mode 7 perspective plane: a tiled procedural racetrack map seen from above and behind, rotating and scrolling in perspective row by row as the camera swings around corners, a gradient horizon above.",
+    "prompt": "A Mode 7 perspective plane: a tiled procedural racetrack map seen from above and behind, rotating and scrolling in perspective row by row as the camera swings around corners, a gradient horizon above. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "retro",
+      "3d",
+      "energetic"
+    ],
+    "source": "scenes100/mode7-plane~1"
+  }
+}

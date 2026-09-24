@@ -1,0 +1,186 @@
+{
+  "name": "Book of Endless Weave",
+  "promptTemplate": "A hypnotic demoscene Celtic knotwork engine in {{palette}} hues, running an interlaced grid of scale {{knot_scale}} with {{band_width}}px ribbons in {{orientation}} orientation, morphing at {{mutation_rate}} pace with {{shimmer}} metallic sheen and {{inner_line}} detailing.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Book of Kells",
+          "weight": 3
+        },
+        {
+          "text": "Highland Bronze",
+          "weight": 2
+        },
+        {
+          "text": "Silver & Lapis",
+          "weight": 2
+        },
+        {
+          "text": "Obsidian Gold",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "knot_scale",
+      "label": "Grid Density",
+      "type": "number",
+      "min": 6,
+      "max": 14,
+      "step": 2,
+      "default": 10
+    },
+    {
+      "name": "band_width",
+      "label": "Band Width",
+      "type": "number",
+      "min": 10,
+      "max": 26,
+      "step": 2,
+      "default": 18
+    },
+    {
+      "name": "orientation",
+      "label": "Orientation",
+      "values": [
+        {
+          "text": "Diagonal",
+          "weight": 3
+        },
+        {
+          "text": "Orthogonal",
+          "weight": 2
+        },
+        {
+          "text": "Slow Spin",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "mutation_rate",
+      "label": "Re-knot Pace",
+      "values": [
+        {
+          "text": "Gentle Drift",
+          "weight": 2
+        },
+        {
+          "text": "Rhythmic Pulse",
+          "weight": 3
+        },
+        {
+          "text": "Kinetic Swarm",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "shimmer",
+      "label": "Sheen",
+      "type": "number",
+      "min": 0,
+      "max": 1,
+      "step": 0.1,
+      "default": 0.5
+    },
+    {
+      "name": "inner_line",
+      "label": "Ribbon Style",
+      "values": [
+        {
+          "text": "Double Thread",
+          "weight": 3
+        },
+        {
+          "text": "Solid Ribbon",
+          "weight": 2
+        },
+        {
+          "text": "Glowing Core",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "ENDLESS WEAVE +7",
+    "tagline": "Demoscene Celtic knotwork engine",
+    "accent": "#c89632",
+    "groups": [
+      {
+        "title": "Knotwork Grid",
+        "controls": [
+          "knot_scale",
+          "band_width",
+          "orientation"
+        ]
+      },
+      {
+        "title": "Mutation & Flow",
+        "controls": [
+          "mutation_rate",
+          "shimmer"
+        ]
+      },
+      {
+        "title": "Manuscript Finish",
+        "controls": [
+          "palette",
+          "inner_line"
+        ]
+      }
+    ],
+    "controls": {
+      "palette": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "knot_scale": {
+        "widget": "stepper",
+        "hint": "Adjust crossing density and lattice resolution"
+      },
+      "band_width": {
+        "widget": "knob",
+        "hint": "Girth of woven interlaced ribbons"
+      },
+      "orientation": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "mutation_rate": {
+        "widget": "pads",
+        "hint": "Frequency of symmetrical re-knotting flips"
+      },
+      "shimmer": {
+        "widget": "slider",
+        "hint": "Specular ripple strength across ribbons"
+      },
+      "inner_line": {
+        "widget": "buttons",
+        "hint": ""
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "generative",
+    "blurb": "Celtic knotwork: a grid of crossings joined into continuous interlaced bands that go over and under, the knot re-knotting as some crossings change.",
+    "prompt": "Celtic knotwork: a grid of crossings joined into continuous interlaced bands that go over and under, the knot re-knotting as some crossings change. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "geometric",
+      "calm"
+    ],
+    "source": "scenes100/celtic-knot~1"
+  }
+}

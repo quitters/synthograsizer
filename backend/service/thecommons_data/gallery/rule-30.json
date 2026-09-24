@@ -1,0 +1,187 @@
+{
+  "name": "Elementary Automata Scroll",
+  "promptTemplate": "Elementary cellular automata in {{rule_pack}} mode with {{palette}} palette, cell size {{cell_size}}px, rounded by {{cell_roundness}}px, scrolling at {{scroll_speed}} rows/sec with {{audio_glitch}} reactivity",
+  "variables": [
+    {
+      "name": "rule_pack",
+      "label": "CA Rule Set",
+      "values": [
+        {
+          "text": "curated_trio",
+          "weight": 3
+        },
+        {
+          "text": "fractal",
+          "weight": 2
+        },
+        {
+          "text": "chaotic",
+          "weight": 2
+        },
+        {
+          "text": "complex",
+          "weight": 2
+        },
+        {
+          "text": "rule_30",
+          "weight": 1
+        },
+        {
+          "text": "rule_90",
+          "weight": 1
+        },
+        {
+          "text": "rule_110",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "palette",
+      "label": "Phosphor Palette",
+      "values": [
+        {
+          "text": "amber_crt",
+          "weight": 2
+        },
+        {
+          "text": "phosphor_green",
+          "weight": 3
+        },
+        {
+          "text": "cyber_magenta",
+          "weight": 2
+        },
+        {
+          "text": "blueprint_ice",
+          "weight": 2
+        },
+        {
+          "text": "monochrome_chalk",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "cell_size",
+      "label": "Cell Dimension",
+      "type": "number",
+      "min": 8,
+      "max": 24,
+      "step": 2,
+      "default": 14
+    },
+    {
+      "name": "scroll_speed",
+      "label": "Scroll Rate",
+      "type": "number",
+      "min": 10,
+      "max": 60,
+      "step": 5,
+      "default": 30
+    },
+    {
+      "name": "cell_roundness",
+      "label": "Corner Radius",
+      "type": "number",
+      "min": 0,
+      "max": 8,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "name": "audio_glitch",
+      "label": "Audio Reaction",
+      "values": [
+        {
+          "text": "subtle_pulse",
+          "weight": 3
+        },
+        {
+          "text": "invert_beat",
+          "weight": 2
+        },
+        {
+          "text": "rule_hop",
+          "weight": 2
+        },
+        {
+          "text": "mutation",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "skin": "textmode",
+    "variant": "amber",
+    "title": "",
+    "tagline": "60fps elementary cellular rules scrolled row by row",
+    "accent": "#ff9d00",
+    "groups": [
+      {
+        "title": "Rule Logic",
+        "controls": [
+          "rule_pack",
+          "audio_glitch"
+        ]
+      },
+      {
+        "title": "Grid Geometry",
+        "controls": [
+          "scroll_speed",
+          "cell_size",
+          "cell_roundness"
+        ]
+      },
+      {
+        "title": "Display",
+        "controls": [
+          "palette"
+        ]
+      }
+    ],
+    "controls": {
+      "rule_pack": {
+        "widget": "list",
+        "hint": "Cycle classic Wolfram sets (30, 90, 110)"
+      },
+      "palette": {
+        "widget": "cycle",
+        "hint": "Select two-tone phosphor color scheme"
+      },
+      "cell_size": {
+        "widget": "slider",
+        "hint": "Cell size in pixels across the wall"
+      },
+      "scroll_speed": {
+        "widget": "knob",
+        "hint": "Lines generated per second"
+      },
+      "cell_roundness": {
+        "widget": "stepper",
+        "hint": "Round corners of phosphor cells"
+      },
+      "audio_glitch": {
+        "widget": "pads",
+        "hint": "Inject noise or trigger rule hops on audio beats"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "generative",
+    "blurb": "Elementary cellular automata: rules like 30, 90 and 110 unfold row by row and scroll up the screen, switching rule now and then, cells as rounded squares in a two-tone palette.",
+    "prompt": "Elementary cellular automata: rules like 30, 90 and 110 unfold row by row and scroll up the screen, switching rule now and then, cells as rounded squares in a two-tone palette. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "geometric",
+      "retro"
+    ],
+    "source": "scenes100/rule-30~3"
+  }
+}

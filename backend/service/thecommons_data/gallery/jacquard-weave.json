@@ -1,0 +1,139 @@
+{
+  "name": "Jacquard Loom",
+  "promptTemplate": "A precision Jacquard loom weaving {{pattern_type}} cloth row by row with {{palette}} silk threads, running at {{weave_speed}} rows/sec with a thread density of {{thread_count}} and {{shuttle_glow}} shuttle sheen.",
+  "variables": [
+    {
+      "name": "pattern_type",
+      "label": "Motif",
+      "values": [
+        {
+          "text": "Damask Floral",
+          "weight": 2
+        },
+        {
+          "text": "Houndstooth",
+          "weight": 1
+        },
+        {
+          "text": "Medallion",
+          "weight": 2
+        },
+        {
+          "text": "Labyrinth",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "palette",
+      "label": "Silk Palette",
+      "values": [
+        {
+          "text": "Silk & Gold",
+          "weight": 3
+        },
+        {
+          "text": "Indigo & Silver",
+          "weight": 2
+        },
+        {
+          "text": "Madder & Linen",
+          "weight": 2
+        },
+        {
+          "text": "Cyber Damask",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "thread_count",
+      "label": "Warp Density",
+      "type": "number",
+      "min": 48,
+      "max": 96,
+      "step": 8,
+      "default": 64
+    },
+    {
+      "name": "weave_speed",
+      "label": "Weaving Speed",
+      "type": "number",
+      "min": 10,
+      "max": 40,
+      "step": 5,
+      "default": 20
+    },
+    {
+      "name": "shuttle_glow",
+      "label": "Shuttle Sheen",
+      "type": "number",
+      "min": 0,
+      "max": 1,
+      "step": 0.1,
+      "default": 0.5
+    }
+  ],
+  "ui": {
+    "skin": "desk",
+    "variant": "grey",
+    "title": "Jacquard Loom Studio",
+    "tagline": "Automated punched-card silk weave synthesis",
+    "accent": "",
+    "groups": [
+      {
+        "title": "Textile Design",
+        "controls": [
+          "pattern_type",
+          "palette",
+          "thread_count"
+        ]
+      },
+      {
+        "title": "Loom Mechanics",
+        "controls": [
+          "weave_speed",
+          "shuttle_glow"
+        ]
+      }
+    ],
+    "controls": {
+      "pattern_type": {
+        "widget": "list",
+        "hint": "Swaps the punch-card pattern binding the warp"
+      },
+      "palette": {
+        "widget": "cycle",
+        "hint": "Changes raw silk dyes for warp and weft"
+      },
+      "thread_count": {
+        "widget": "stepper",
+        "hint": "Sets vertical warp reed density"
+      },
+      "weave_speed": {
+        "widget": "knob",
+        "hint": "Accelerates shuttle crossings per second"
+      },
+      "shuttle_glow": {
+        "widget": "slider",
+        "hint": "Intensifies radiant aura behind the flying boat"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "generative",
+    "blurb": "A loom weaving a Jacquard pattern row by row: warp and weft threads interlace over and under, the shuttle crossing, the woven motif emerging, then cut off and begun again.",
+    "prompt": "A loom weaving a Jacquard pattern row by row: warp and weft threads interlace over and under, the shuttle crossing, the woven motif emerging, then cut off and begun again. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "geometric",
+      "calm"
+    ],
+    "source": "scenes100/jacquard-weave~2"
+  }
+}

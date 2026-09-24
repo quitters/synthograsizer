@@ -34,6 +34,7 @@ from backend.service import credits, service_mode
 from backend.service import thecommons_jobs as jobs
 from backend.service.thecommons_gallery import SECTIONS as GALLERY_SECTIONS
 from backend.service.thecommons_gallery import gallery_preset_id, load_gallery
+from backend.service.thecommons_gallery_tags import LOOK_TAGS
 from backend.service.thecommons_gallery_tags import tag_groups as gallery_tag_groups
 from backend.service.thecommons_generate import generate_sketch
 from backend.service.thecommons_relay import HostControlError, discard_relay, get_or_create_relay, peek_relay
@@ -413,9 +414,27 @@ async def list_presets(room_id: int, request: Request):
     pool = db.pool()
     await _require_owned_room(pool, room_id, user["id"])
     presets = await jobs.list_presets(pool, room_id)
-    return {"presets": [
-        {"id": p["id"], "name": p["name"], "kind": p["kind"], "savedAt": p.get("savedAt")} for p in presets
-    ]}
+    return {"presets": [_preset_row(p) for p in presets]}
+
+
+def _preset_row(preset: dict) -> dict:
+    row = {"id": preset["id"], "name": preset["name"], "kind": preset["kind"], "savedAt": preset.get("savedAt")}
+    # A generated piece's card line and look tags, so the library can describe
+    # and filter it like a ready-made one. Pieces made before listings existed
+    # have none, and get the generic card they always had.
+    listing = _preset_listing(preset.get("sketch"))
+    if listing:
+        row["listing"] = listing
+    return row
+
+
+def _preset_listing(sketch) -> dict | None:
+    listing = sketch.get("listing") if isinstance(sketch, dict) else None
+    if not isinstance(listing, dict):
+        return None
+    blurb = listing.get("blurb") if isinstance(listing.get("blurb"), str) else ""
+    look = [t for t in listing.get("look") or [] if isinstance(t, str) and t in LOOK_TAGS]
+    return {"blurb": blurb, "look": look} if blurb or look else None
 
 
 @router.post("/api/thecommons/rooms/{room_id}/presets")

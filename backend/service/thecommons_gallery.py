@@ -50,11 +50,13 @@ _RESOLUTION = {"name": "resolution", "label": "Resolution", "values": _choices("
 
 SECTIONS = [
     {"id": "demo", "title": "Demo scene",
-     "intro": "Hand-built in the spirit of 1990s PC demos."},
+     "intro": "The classic effects of 1990s PC and Amiga demos."},
     {"id": "games", "title": "Party games",
      "intro": "Made for a room full of phones: everyone taps, and the wall reacts."},
     {"id": "living", "title": "Living canvases",
      "intro": "Pieces that grow, drift and remember everything that happened."},
+    {"id": "generative", "title": "Generative art",
+     "intro": "Systems, automata and homages to the artists who first drew with code."},
     {"id": "studio", "title": "From the studio",
      "intro": "Ported from the generative pieces made next door, mark for mark."},
 ]
@@ -343,6 +345,40 @@ GALLERY: list[dict] = [
 ]
 
 
+def _self_described() -> list[dict]:
+    """Generated pieces that carry their own gallery entry.
+
+    A piece whose <slug>.json has a `listing` block -- section, blurb, prompt
+    and look tags -- needs no entry above, and its phone panel is the `ui`
+    beside its controls rather than one in thecommons_gallery_panels.py. The
+    100 Scenes batch came in this way; it is also the shape a generated piece
+    can arrive in already, so promoting one is copying two files in and
+    reading them, not writing its paperwork by hand. (Not `gallery`: on a
+    served sketch that key already names the curated piece it is.) Ordered by name, after
+    the pieces listed above.
+    """
+    listed = {meta["slug"] for meta in GALLERY}
+    entries = []
+    for path in _DIR.glob("*.json"):
+        if path.stem in listed:
+            continue
+        try:
+            sidecar = json.loads(path.read_text(encoding="utf-8"))
+            meta = sidecar.get("listing")
+            if meta is None:
+                continue
+            entries.append((sidecar["name"].casefold(), {
+                "slug": path.stem, "section": meta["section"], "blurb": meta["blurb"],
+                "prompt": meta["prompt"], "look": tuple(meta["look"]),
+            }))
+        except (OSError, ValueError, KeyError, TypeError, AttributeError) as exc:
+            logger.error("[thecommons] skipping gallery piece %s: %s", path.stem, exc)
+    return [entry for _, entry in sorted(entries, key=lambda e: e[0])]
+
+
+GALLERY.extend(_self_described())
+
+
 @lru_cache(maxsize=1)
 def load_gallery() -> tuple[dict, ...]:
     """Every gallery piece that has code on disk and passes validation.
@@ -360,7 +396,8 @@ def load_gallery() -> tuple[dict, ...]:
                 (_DIR / f"{meta['slug']}.json").read_text(encoding="utf-8"))
             sketch = validate_native_sketch({
                 "name": controls["name"], "promptTemplate": controls["promptTemplate"],
-                "variables": controls["variables"], "code": code, "ui": PANELS.get(meta["slug"]),
+                "variables": controls["variables"], "code": code,
+                "ui": PANELS.get(meta["slug"], controls.get("ui")),
             })
         except (OSError, ValueError, KeyError) as exc:   # InvalidSketchError and JSON errors are ValueErrors
             logger.error("[thecommons] skipping gallery piece %s: %s", meta["slug"], exc)
@@ -387,7 +424,7 @@ def load_gallery() -> tuple[dict, ...]:
             # What the desk's library filters and searches by.
             "tags": tags_for(meta["slug"], meta["section"],
                              "generated" if generated else meta.get("origin", "hand-written"),
-                             variables, code),
+                             variables, code, look=meta.get("look")),
             "sketch": sketch,
         })
     return tuple(pieces)

@@ -1,0 +1,163 @@
+{
+  "name": "Rubber Vector Cube",
+  "promptTemplate": "A retro demoscene rubber vector cube with {{palette}} styling, rendered across {{slices}} slices with {{twist_lag}} twist lag, {{jelly_spring}} elasticity, and {{shading_style}} presentation at {{cube_scale}}x scale.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Color Palette",
+      "values": [
+        {
+          "text": "Amiga Copper",
+          "weight": 3
+        },
+        {
+          "text": "Cyberpunk Neon",
+          "weight": 2
+        },
+        {
+          "text": "Monochrome Phosphor",
+          "weight": 2
+        },
+        {
+          "text": "Sunburst Gold",
+          "weight": 1
+        },
+        {
+          "text": "Acid Emerald",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "slices",
+      "label": "Scanline Slices",
+      "type": "number",
+      "min": 24,
+      "max": 64,
+      "step": 8,
+      "default": 40
+    },
+    {
+      "name": "twist_lag",
+      "label": "Twist Lag",
+      "type": "number",
+      "min": 0.5,
+      "max": 3.5,
+      "step": 0.5,
+      "default": 2.0
+    },
+    {
+      "name": "jelly_spring",
+      "label": "Elastic Wobble",
+      "type": "number",
+      "min": 0.5,
+      "max": 3.0,
+      "step": 0.5,
+      "default": 1.5
+    },
+    {
+      "name": "shading_style",
+      "label": "Shading Style",
+      "values": [
+        {
+          "text": "Solid Shaded + Wire",
+          "weight": 3
+        },
+        {
+          "text": "Flat Facets",
+          "weight": 2
+        },
+        {
+          "text": "Vector Outlines",
+          "weight": 1
+        },
+        {
+          "text": "CRT Scanlines",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "cube_scale",
+      "label": "Scale",
+      "type": "number",
+      "min": 0.8,
+      "max": 2.0,
+      "step": 0.2,
+      "default": 1.2
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "violet",
+    "title": "RUBBER CUBE +6",
+    "tagline": "Demoscene vector elasticity engine",
+    "accent": "#ff38a8",
+    "groups": [
+      {
+        "title": "Elasticity",
+        "controls": [
+          "jelly_spring",
+          "twist_lag"
+        ]
+      },
+      {
+        "title": "Geometry",
+        "controls": [
+          "slices",
+          "cube_scale"
+        ]
+      },
+      {
+        "title": "Raster & Render",
+        "controls": [
+          "shading_style",
+          "palette"
+        ]
+      }
+    ],
+    "controls": {
+      "palette": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "slices": {
+        "widget": "stepper",
+        "hint": "Horizontal subdivision slice count"
+      },
+      "twist_lag": {
+        "widget": "knob",
+        "hint": "How far bottom slices lag behind top"
+      },
+      "jelly_spring": {
+        "widget": "knob",
+        "hint": "Crank for violent beat-reactive wobble"
+      },
+      "shading_style": {
+        "widget": "list",
+        "hint": ""
+      },
+      "cube_scale": {
+        "widget": "slider",
+        "hint": ""
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "demo",
+    "blurb": "A rubber vector cube: a flat-shaded cube whose rotation lags scanline by scanline, so the top leads and the bottom follows like jelly, wobbling hardest just after each beat.",
+    "prompt": "A rubber vector cube: a flat-shaded cube whose rotation lags scanline by scanline, so the top leads and the bottom follows like jelly, wobbling hardest just after each beat. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "retro",
+      "3d",
+      "energetic"
+    ],
+    "source": "scenes100/rubber-cube~1"
+  }
+}

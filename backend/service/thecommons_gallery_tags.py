@@ -15,7 +15,8 @@ rule for each group is different on purpose:
 
 A piece with no entry in LOOK below still gets every derived tag, so a new one
 appears in the library properly filtered on the day it lands, and someone can
-add its two adjectives later.
+add its two adjectives later. A piece that describes itself in its own
+<slug>.json brings its adjectives with it, and those are used instead.
 """
 
 # ── the vocabulary ───────────────────────────────────────────────────────────
@@ -104,7 +105,8 @@ def tag_groups(sections: list[dict]) -> list[dict]:
     ]
 
 
-def tags_for(slug: str, section: str, origin: str, variables: list[dict], code: str) -> list[str]:
+def tags_for(slug: str, section: str, origin: str, variables: list[dict], code: str,
+             look: tuple[str, ...] | None = None) -> list[str]:
     """Every tag a gallery piece carries: its section, what it lets the room
     do, its two or three adjectives, and where it came from."""
     tags = [section, "ready", origin]
@@ -119,5 +121,21 @@ def tags_for(slug: str, section: str, origin: str, variables: list[dict], code: 
         tags.append("music")
     if any(v.get("access") == "host" for v in variables):
         tags.append("host")
-    tags.extend(LOOK.get(slug, ()))
+    tags.extend(LOOK.get(slug, ()) if look is None else look)
     return tags
+
+
+# ── a generated piece's listing ─────────────────────────────────────────────
+# Everything a generated piece needs to join the gallery besides its code,
+# controls and panel: a section, a line for its card, the prompt it came from
+# and two or three adjectives. The panel designer writes the blurb and picks
+# the adjectives in the call it already makes; nothing here is a second billed
+# call. thecommons_ui.normalize_listing() holds an answer to these.
+
+# The sections a model may choose. Party games is not one of them: a piece is
+# a game exactly when the room has something to press, which the controls say.
+# The studio holds hand ports, never anything generated.
+GENERATED_SECTIONS: tuple[str, ...] = ("demo", "generative", "living")
+MAX_LOOK = 3
+BLURB_CAP = 280
+

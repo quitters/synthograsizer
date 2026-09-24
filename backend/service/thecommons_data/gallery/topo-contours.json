@@ -1,0 +1,139 @@
+{
+  "name": "Surveyor's Ridge",
+  "promptTemplate": "Topographic map with {{palette}} styling, {{contour_density}} contour lines, drift speed {{terrain_drift}}, relief shading at {{relief_shade}}, and {{survey_marks}} benchmark markings.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Cartography Palette",
+      "values": [
+        {
+          "text": "Swiss Topo",
+          "weight": 3
+        },
+        {
+          "text": "Vintage Parchment",
+          "weight": 2
+        },
+        {
+          "text": "Blueprint",
+          "weight": 2
+        },
+        {
+          "text": "Slate & Ochre",
+          "weight": 1
+        },
+        {
+          "text": "Phosphor Green",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "contour_density",
+      "label": "Contour Count",
+      "type": "number",
+      "min": 12,
+      "max": 36,
+      "step": 4,
+      "default": 24
+    },
+    {
+      "name": "terrain_drift",
+      "label": "Drift Speed",
+      "type": "number",
+      "min": 0.1,
+      "max": 1.5,
+      "step": 0.1,
+      "default": 0.5
+    },
+    {
+      "name": "relief_shade",
+      "label": "Hill Shading",
+      "type": "number",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.1,
+      "default": 0.7
+    },
+    {
+      "name": "survey_marks",
+      "label": "Survey Marks",
+      "values": [
+        {
+          "text": "Surveyor Grid",
+          "weight": 3
+        },
+        {
+          "text": "Benchmarks Only",
+          "weight": 2
+        },
+        {
+          "text": "Clean",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "skin": "desk",
+    "variant": "grey",
+    "title": "Topo Survey v2.4",
+    "tagline": "Topographic relief & marching squares survey engine",
+    "accent": "",
+    "groups": [
+      {
+        "title": "Cartography",
+        "controls": [
+          "palette",
+          "survey_marks"
+        ]
+      },
+      {
+        "title": "Elevation Model",
+        "controls": [
+          "contour_density",
+          "relief_shade",
+          "terrain_drift"
+        ]
+      }
+    ],
+    "controls": {
+      "palette": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "contour_density": {
+        "widget": "slider",
+        "hint": "Density of marching squares isolines"
+      },
+      "terrain_drift": {
+        "widget": "slider",
+        "hint": "Speed of shifting terrain noise"
+      },
+      "relief_shade": {
+        "widget": "knob",
+        "hint": "Directional hill-shading contrast"
+      },
+      "survey_marks": {
+        "widget": "buttons",
+        "hint": "Toggle surveyor coordinate grid and elevation markers"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "generative",
+    "blurb": "An animated topographic map: contour lines of a slowly shifting noise terrain traced with marching squares, every fifth line thicker, hill shading beneath, like a surveyor's map.",
+    "prompt": "An animated topographic map: contour lines of a slowly shifting noise terrain traced with marching squares, every fifth line thicker, hill shading beneath, like a surveyor's map. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "nature",
+      "calm"
+    ],
+    "source": "scenes100/topo-contours~1"
+  }
+}

@@ -1,0 +1,154 @@
+{
+  "name": "Magnetic Flux Chamber",
+  "promptTemplate": "Magnetic field lines in {{palette}} with {{field_topology}} topology, {{filing_density}} iron filings, {{tracer_count}} traced flux lines, orbit speed {{orbit_speed}}, and flux reach {{flux_reach}}",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Color Palette",
+      "values": [
+        {
+          "text": "aurora_borealis",
+          "weight": 2
+        },
+        {
+          "text": "phosphor_crt",
+          "weight": 1
+        },
+        {
+          "text": "ferro_slate",
+          "weight": 2
+        },
+        {
+          "text": "solar_plasma",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "field_topology",
+      "label": "Field Topology",
+      "values": [
+        {
+          "text": "dipolar_flux",
+          "weight": 2
+        },
+        {
+          "text": "vortex_curls",
+          "weight": 1
+        },
+        {
+          "text": "monopole_repel",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "filing_density",
+      "label": "Iron Filings",
+      "type": "number",
+      "min": 600,
+      "max": 2400,
+      "step": 300,
+      "default": 1500
+    },
+    {
+      "name": "tracer_count",
+      "label": "Flux Tracers",
+      "type": "number",
+      "min": 16,
+      "max": 64,
+      "step": 8,
+      "default": 32
+    },
+    {
+      "name": "orbit_speed",
+      "label": "Orbit Speed",
+      "type": "number",
+      "min": 0.2,
+      "max": 2.0,
+      "step": 0.2,
+      "default": 0.8
+    },
+    {
+      "name": "flux_reach",
+      "label": "Field Reach",
+      "type": "number",
+      "min": 0.6,
+      "max": 2.4,
+      "step": 0.2,
+      "default": 1.2
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "acid",
+    "title": "FLUX CHAMBER +6",
+    "tagline": "DEMOSCENE FIELD EMULATOR // LIVE 60FPS",
+    "accent": "#46f08c",
+    "groups": [
+      {
+        "title": "FIELD CONFIG",
+        "controls": [
+          "field_topology",
+          "palette"
+        ]
+      },
+      {
+        "title": "DYNAMICS",
+        "controls": [
+          "orbit_speed",
+          "flux_reach"
+        ]
+      },
+      {
+        "title": "PARTICLE DENSITY",
+        "controls": [
+          "filing_density",
+          "tracer_count"
+        ]
+      }
+    ],
+    "controls": {
+      "palette": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "field_topology": {
+        "widget": "pads",
+        "hint": "Switch between dipole loops, curls, and pure repulsion"
+      },
+      "filing_density": {
+        "widget": "slider",
+        "hint": "Adjust the sheer count of aligned iron needle streaks"
+      },
+      "tracer_count": {
+        "widget": "stepper",
+        "hint": "Streamlines emitted from each attendee's charge"
+      },
+      "orbit_speed": {
+        "widget": "knob",
+        "hint": "Speed up the orbital charge dance"
+      },
+      "flux_reach": {
+        "widget": "knob",
+        "hint": "Broaden the range and arc length of field curves"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "generative",
+    "blurb": "Magnetic field lines: iron-filing streaks and traced field lines around several moving charges, one charge per person in their colour, the lines bending as the charges orbit.",
+    "prompt": "Magnetic field lines: iron-filing streaks and traced field lines around several moving charges, one charge per person in their colour, the lines bending as the charges orbit. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "organic",
+      "calm"
+    ],
+    "source": "scenes100/field-lines~1"
+  }
+}

@@ -1,0 +1,135 @@
+{
+  "name": "Cathedral Voronoi",
+  "promptTemplate": "A stained-glass window of {{glass_style}} glass with {{lead_width}}px lead came, drifting at {{drift_speed}} speed under {{light_source}} with relaxation {{relaxation}}.",
+  "variables": [
+    {
+      "name": "glass_style",
+      "label": "Glass Palette",
+      "values": [
+        {
+          "text": "cathedral",
+          "weight": 3
+        },
+        {
+          "text": "chartres_blue",
+          "weight": 2
+        },
+        {
+          "text": "amber_glow",
+          "weight": 2
+        },
+        {
+          "text": "rose_window",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "lead_width",
+      "label": "Lead Width",
+      "type": "number",
+      "min": 4,
+      "max": 14,
+      "step": 2,
+      "default": 8
+    },
+    {
+      "name": "drift_speed",
+      "label": "Drift Speed",
+      "type": "number",
+      "min": 0.2,
+      "max": 2.0,
+      "step": 0.2,
+      "default": 0.8
+    },
+    {
+      "name": "relaxation",
+      "label": "Relaxation",
+      "type": "number",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.1,
+      "default": 0.5
+    },
+    {
+      "name": "light_source",
+      "label": "Light Angle",
+      "values": [
+        {
+          "text": "slanting_sun",
+          "weight": 3
+        },
+        {
+          "text": "rosette_center",
+          "weight": 2
+        },
+        {
+          "text": "drifting_prism",
+          "weight": 2
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "skin": "desk",
+    "variant": "blue",
+    "title": "Cathedral Glass",
+    "tagline": "Stained-glass Voronoi drifting under cathedral light",
+    "accent": "",
+    "groups": [
+      {
+        "title": "Glass & Came",
+        "controls": [
+          "glass_style",
+          "lead_width"
+        ]
+      },
+      {
+        "title": "Drift & Light",
+        "controls": [
+          "drift_speed",
+          "light_source",
+          "relaxation"
+        ]
+      }
+    ],
+    "controls": {
+      "glass_style": {
+        "widget": "pads",
+        "hint": "Recolour panes to Chartres blues, ambers, or rose wheel"
+      },
+      "lead_width": {
+        "widget": "slider",
+        "hint": "Thicken or narrow the dark lead came borders"
+      },
+      "drift_speed": {
+        "widget": "knob",
+        "hint": "Rate at which seed points glide across the pane"
+      },
+      "relaxation": {
+        "widget": "slider",
+        "hint": "Pull erratic shards towards balanced honeycomb cells"
+      },
+      "light_source": {
+        "widget": "cycle",
+        "hint": "Shift illumination angle and caustic glint"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "generative",
+    "blurb": "A stained-glass window from a Voronoi diagram: drifting seed points, one per person in their colour, cells filled with glowing glass and thick lead lines, relaxing gently towards even cells.",
+    "prompt": "A stained-glass window from a Voronoi diagram: drifting seed points, one per person in their colour, cells filled with glowing glass and thick lead lines, relaxing gently towards even cells. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "light",
+      "geometric"
+    ],
+    "source": "scenes100/voronoi-glass~1"
+  }
+}

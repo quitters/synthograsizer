@@ -1,0 +1,140 @@
+{
+  "name": "Brushed Metal Emboss",
+  "promptTemplate": "An embossed relief of interlocking rings and grooves in {{metal_tone}} with {{ring_complexity}} lattice rings, depth {{relief_depth}}, {{light_motion}} light dynamics, and {{sheen_gloss}} sheen gloss.",
+  "variables": [
+    {
+      "name": "metal_tone",
+      "label": "Metal Tone",
+      "values": [
+        {
+          "text": "warm_brass",
+          "weight": 2
+        },
+        {
+          "text": "aged_bronze",
+          "weight": 2
+        },
+        {
+          "text": "rose_copper",
+          "weight": 1
+        },
+        {
+          "text": "golden_amber",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "ring_complexity",
+      "label": "Lattice Rings",
+      "type": "number",
+      "min": 2,
+      "max": 6,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "name": "relief_depth",
+      "label": "Relief Depth",
+      "type": "number",
+      "min": 1,
+      "max": 5,
+      "step": 0.5,
+      "default": 2.5
+    },
+    {
+      "name": "light_motion",
+      "label": "Light Path",
+      "values": [
+        {
+          "text": "orbital",
+          "weight": 2
+        },
+        {
+          "text": "lissajous",
+          "weight": 2
+        },
+        {
+          "text": "pulse_chase",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "sheen_gloss",
+      "label": "Sheen Gloss",
+      "type": "number",
+      "min": 10,
+      "max": 60,
+      "step": 5,
+      "default": 35
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "BUMP RELIEF +5",
+    "tagline": "Realtime phong embossed metal demotool",
+    "accent": "#f0c36e",
+    "groups": [
+      {
+        "title": "Alloy & Specular",
+        "controls": [
+          "metal_tone",
+          "sheen_gloss"
+        ]
+      },
+      {
+        "title": "Relief Geometry",
+        "controls": [
+          "ring_complexity",
+          "relief_depth"
+        ]
+      },
+      {
+        "title": "Light Rig",
+        "controls": [
+          "light_motion"
+        ]
+      }
+    ],
+    "controls": {
+      "metal_tone": {
+        "widget": "pads",
+        "hint": "Swap alloy base and specular palette"
+      },
+      "ring_complexity": {
+        "widget": "stepper",
+        "hint": "Count of interlocking groove nodes"
+      },
+      "relief_depth": {
+        "widget": "slider",
+        "hint": "Extrusion height of the normal map"
+      },
+      "light_motion": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "sheen_gloss": {
+        "widget": "knob",
+        "hint": "Dial highlight sharpness and burn"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "demo",
+    "blurb": "Bump mapping: an embossed relief of interlocking rings and grooves lit per pixel by a moving point light, using a precomputed normal map on a low-resolution buffer, in warm brushed metal.",
+    "prompt": "Bump mapping: an embossed relief of interlocking rings and grooves lit per pixel by a moving point light, using a precomputed normal map on a low-resolution buffer, in warm brushed metal. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "retro",
+      "light"
+    ],
+    "source": "scenes100/bump-map~1"
+  }
+}

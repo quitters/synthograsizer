@@ -1,0 +1,163 @@
+{
+  "name": "(Des)Ordres",
+  "promptTemplate": "A generative study of Vera Molnar's (Des)Ordres featuring {{grid_density}} grid density with {{concentric_rings}} nested rings per cell, drawn with {{line_weight}}px strokes in {{disorder_mode}} motion over {{paper_tone}} paper with {{perturbation_style}}.",
+  "variables": [
+    {
+      "name": "grid_density",
+      "label": "Grid Density",
+      "type": "number",
+      "min": 5,
+      "max": 13,
+      "step": 2,
+      "default": 9
+    },
+    {
+      "name": "concentric_rings",
+      "label": "Concentric Rings",
+      "type": "number",
+      "min": 4,
+      "max": 12,
+      "step": 1,
+      "default": 7
+    },
+    {
+      "name": "line_weight",
+      "label": "Line Weight",
+      "type": "number",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.5,
+      "default": 1
+    },
+    {
+      "name": "disorder_mode",
+      "label": "Disorder Wave",
+      "values": [
+        {
+          "text": "traveling_wave",
+          "weight": 2
+        },
+        {
+          "text": "radial_pulse",
+          "weight": 2
+        },
+        {
+          "text": "chaotic_drift",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "paper_tone",
+      "label": "Paper Tone",
+      "values": [
+        {
+          "text": "bristol_cream",
+          "weight": 2
+        },
+        {
+          "text": "french_parchment",
+          "weight": 2
+        },
+        {
+          "text": "blueprint_slate",
+          "weight": 1
+        },
+        {
+          "text": "graphite_raw",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "perturbation_style",
+      "label": "Perturbation Style",
+      "values": [
+        {
+          "text": "corner_jitter",
+          "weight": 2
+        },
+        {
+          "text": "elastic_shear",
+          "weight": 2
+        },
+        {
+          "text": "fracture",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "skin": "desk",
+    "variant": "grey",
+    "title": "(Des)Ordres Studio",
+    "tagline": "Generative square studies after Vera Molnar",
+    "accent": "",
+    "groups": [
+      {
+        "title": "Grid & Form",
+        "controls": [
+          "grid_density",
+          "concentric_rings",
+          "line_weight"
+        ]
+      },
+      {
+        "title": "Entropy & Motion",
+        "controls": [
+          "disorder_mode",
+          "perturbation_style"
+        ]
+      },
+      {
+        "title": "Material",
+        "controls": [
+          "paper_tone"
+        ]
+      }
+    ],
+    "controls": {
+      "grid_density": {
+        "widget": "stepper",
+        "hint": "Adjust count of square modules across canvas"
+      },
+      "concentric_rings": {
+        "widget": "slider",
+        "hint": "Density of nested squares per module"
+      },
+      "line_weight": {
+        "widget": "slider",
+        "hint": "Stroke thickness of ink paths"
+      },
+      "disorder_mode": {
+        "widget": "buttons",
+        "hint": "Pattern of perturbation sweeping the grid"
+      },
+      "paper_tone": {
+        "widget": "cycle",
+        "hint": "Paper surface and plotting pigment"
+      },
+      "perturbation_style": {
+        "widget": "buttons",
+        "hint": "Method used to deform corners and edges"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "generative",
+    "blurb": "Concentric squares in the spirit of Vera Molnar's (Des)Ordres: a grid of cells each holding nested squares whose corners are jittered, the disorder rising and falling across the grid in a slow wave, fine dark lines on off-white.",
+    "prompt": "Concentric squares in the spirit of Vera Molnar's (Des)Ordres: a grid of cells each holding nested squares whose corners are jittered, the disorder rising and falling across the grid in a slow wave, fine dark lines on off-white. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "geometric",
+      "calm"
+    ],
+    "source": "scenes100/molnar-desordres~1"
+  }
+}

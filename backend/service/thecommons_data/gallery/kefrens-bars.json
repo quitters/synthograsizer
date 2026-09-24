@@ -1,0 +1,158 @@
+{
+  "name": "Kefrens Copper Cascade",
+  "promptTemplate": "Kefrens copper bars with {{bar_count}} ribbons of {{bar_width}}px in {{palette}} palette, woven via {{weave_mode}} sway at {{cascade_speed}}x cascade speed in {{render_style}} style",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "classic_copper",
+          "weight": 3
+        },
+        {
+          "text": "amiga_rainbow",
+          "weight": 2
+        },
+        {
+          "text": "ice_chrome",
+          "weight": 2
+        },
+        {
+          "text": "synth_cyber",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "bar_count",
+      "label": "Bar Count",
+      "type": "number",
+      "min": 3,
+      "max": 9,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "name": "bar_width",
+      "label": "Bar Width",
+      "type": "number",
+      "min": 16,
+      "max": 48,
+      "step": 4,
+      "default": 28
+    },
+    {
+      "name": "weave_mode",
+      "label": "Weave Mode",
+      "values": [
+        {
+          "text": "braid",
+          "weight": 3
+        },
+        {
+          "text": "unison",
+          "weight": 2
+        },
+        {
+          "text": "vortex",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "cascade_speed",
+      "label": "Cascade Speed",
+      "type": "number",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "default": 2
+    },
+    {
+      "name": "render_style",
+      "label": "Render Style",
+      "values": [
+        {
+          "text": "phosphor_bloom",
+          "weight": 3
+        },
+        {
+          "text": "crisp_amiga",
+          "weight": 2
+        },
+        {
+          "text": "pure_digital",
+          "weight": 2
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "KEFRENS COPPER +6",
+    "tagline": "AMIGA SCANLINE CASCADE ENGINE",
+    "accent": "#f57d23",
+    "groups": [
+      {
+        "title": "COPPER BARS",
+        "controls": [
+          "bar_count",
+          "bar_width",
+          "palette"
+        ]
+      },
+      {
+        "title": "MOTION & CRT",
+        "controls": [
+          "weave_mode",
+          "cascade_speed",
+          "render_style"
+        ]
+      }
+    ],
+    "controls": {
+      "palette": {
+        "widget": "cycle",
+        "hint": "Switch the Amiga colour gradient"
+      },
+      "bar_count": {
+        "widget": "stepper",
+        "hint": "Number of interleaving copper ribbons"
+      },
+      "bar_width": {
+        "widget": "slider",
+        "hint": "Girth of each curved copper cylinder"
+      },
+      "weave_mode": {
+        "widget": "pads",
+        "hint": "Sine phase choreography across bars"
+      },
+      "cascade_speed": {
+        "widget": "knob",
+        "hint": "Scanlines shifted downward per frame"
+      },
+      "render_style": {
+        "widget": "buttons",
+        "hint": "Phosphor bloom, pixel crisp or clean scan"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "demo",
+    "blurb": "Kefrens bars: a single row of vertical copper bars whose x positions follow a double sine, drawn so each scanline keeps what the one above left behind, building a woven cascade of shaded bars that sways down the screen in Amiga copper colours, the sway widening with the bass.",
+    "prompt": "Kefrens bars: a single row of vertical copper bars whose x positions follow a double sine, drawn so each scanline keeps what the one above left behind, building a woven cascade of shaded bars that sways down the screen in Amiga copper colours, the sway widening with the bass. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "retro",
+      "energetic"
+    ],
+    "source": "scenes100/kefrens-bars~1"
+  }
+}

@@ -1,0 +1,148 @@
+{
+  "name": "Harmonic Packing",
+  "promptTemplate": "A generative circle packing mosaic with {{palette}} illumination, rendered in {{render_style}} style with {{growth_speed}} growth speed, {{density}} max spheres, and {{dissolve_mode}} dissolution.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Color Palette",
+      "values": [
+        {
+          "text": "stained_glass",
+          "weight": 2
+        },
+        {
+          "text": "cyber_neon",
+          "weight": 2
+        },
+        {
+          "text": "monochrome_gold",
+          "weight": 1
+        },
+        {
+          "text": "solar_aurora",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "render_style",
+      "label": "Render Style",
+      "values": [
+        {
+          "text": "nested_rings",
+          "weight": 2
+        },
+        {
+          "text": "solid_mosaic",
+          "weight": 2
+        },
+        {
+          "text": "hollow_radar",
+          "weight": 1
+        },
+        {
+          "text": "halftone_dots",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "growth_speed",
+      "label": "Expansion Rate",
+      "type": "number",
+      "min": 0.5,
+      "max": 4.0,
+      "step": 0.5,
+      "default": 2.0
+    },
+    {
+      "name": "density",
+      "label": "Sphere Limit",
+      "type": "number",
+      "min": 60,
+      "max": 200,
+      "step": 20,
+      "default": 140
+    },
+    {
+      "name": "dissolve_mode",
+      "label": "Dissolve Flow",
+      "values": [
+        {
+          "text": "breathing_tide",
+          "weight": 2
+        },
+        {
+          "text": "age_cascade",
+          "weight": 2
+        },
+        {
+          "text": "beat_shock",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "acid",
+    "title": "APOLLONIAN +5 TRAINER",
+    "tagline": "60FPS DEMO PACKING ENGINE",
+    "accent": "#00ffd0",
+    "groups": [
+      {
+        "title": "Visuals",
+        "controls": [
+          "palette",
+          "render_style"
+        ]
+      },
+      {
+        "title": "Dynamics",
+        "controls": [
+          "growth_speed",
+          "density",
+          "dissolve_mode"
+        ]
+      }
+    ],
+    "controls": {
+      "palette": {
+        "widget": "cycle",
+        "hint": "Switch colour scheme across all spheres"
+      },
+      "render_style": {
+        "widget": "pads",
+        "hint": "Toggle between rings, solids, radar, and halftones"
+      },
+      "growth_speed": {
+        "widget": "knob",
+        "hint": "Dial up radial expansion speed"
+      },
+      "density": {
+        "widget": "slider",
+        "hint": "Total active sphere capacity"
+      },
+      "dissolve_mode": {
+        "widget": "buttons",
+        "hint": "Trigger method for sphere lifecycle and decay"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "generative",
+    "blurb": "Circle packing: circles grow from random points until they touch a neighbour, packing the screen with a mosaic of sizes and colours, then gently dissolving and packing again.",
+    "prompt": "Circle packing: circles grow from random points until they touch a neighbour, packing the screen with a mosaic of sizes and colours, then gently dissolving and packing again. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "geometric",
+      "calm"
+    ],
+    "source": "scenes100/circle-packing~1"
+  }
+}

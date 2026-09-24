@@ -1,0 +1,145 @@
+{
+  "name": "Synthwave Horizon",
+  "promptTemplate": "A retro 80s synthwave horizon in {{theme}} colors rushing forward at speed {{speed}} with {{curvature}} grid geometry, {{mountain_height}}x jagged wireframe peaks, and a massive {{sun_style}} glowing on the horizon.",
+  "variables": [
+    {
+      "name": "theme",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "outrun",
+          "weight": 3
+        },
+        {
+          "text": "miami",
+          "weight": 2
+        },
+        {
+          "text": "cyberpunk",
+          "weight": 2
+        },
+        {
+          "text": "solar_void",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "speed",
+      "label": "Grid Velocity",
+      "type": "number",
+      "min": 0.5,
+      "max": 3.0,
+      "step": 0.1,
+      "default": 1.2
+    },
+    {
+      "name": "mountain_height",
+      "label": "Peak Scale",
+      "type": "number",
+      "min": 0.5,
+      "max": 2.0,
+      "step": 0.1,
+      "default": 1.0
+    },
+    {
+      "name": "sun_style",
+      "label": "Sun Horizon",
+      "values": [
+        {
+          "text": "sliced",
+          "weight": 3
+        },
+        {
+          "text": "segmented",
+          "weight": 2
+        },
+        {
+          "text": "fine_stripes",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "curvature",
+      "label": "Terrain Warp",
+      "values": [
+        {
+          "text": "straight",
+          "weight": 3
+        },
+        {
+          "text": "warp",
+          "weight": 2
+        },
+        {
+          "text": "valley",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "violet",
+    "title": "OUTRUN HORIZON +5",
+    "tagline": "SYNTH VECTORS RUSHING INTO THE NEON DUSK",
+    "accent": "#ff00aa",
+    "groups": [
+      {
+        "title": "DUSK HIGHWAY",
+        "controls": [
+          "speed",
+          "curvature",
+          "theme"
+        ]
+      },
+      {
+        "title": "SKYLINE",
+        "controls": [
+          "sun_style",
+          "mountain_height"
+        ]
+      }
+    ],
+    "controls": {
+      "theme": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "speed": {
+        "widget": "knob",
+        "hint": "Crank up the grid rush speed"
+      },
+      "mountain_height": {
+        "widget": "slider",
+        "hint": "Scales the flanking wireframe peaks"
+      },
+      "sun_style": {
+        "widget": "buttons",
+        "hint": "Changes horizontal blind slicing on the sun"
+      },
+      "curvature": {
+        "widget": "buttons",
+        "hint": "Bends the wireframe plane into valleys or waves"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "demo",
+    "blurb": "A synthwave horizon: a neon magenta grid rushing towards a striped setting sun, wireframe mountains on either side, stars above, the grid pulsing on each beat.",
+    "prompt": "A synthwave horizon: a neon magenta grid rushing towards a striped setting sun, wireframe mountains on either side, stars above, the grid pulsing on each beat. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "retro",
+      "light",
+      "energetic"
+    ],
+    "source": "scenes100/synthwave-grid~1"
+  }
+}

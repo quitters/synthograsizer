@@ -1,0 +1,130 @@
+{
+  "name": "Orbital Choreography",
+  "promptTemplate": "N-body gravity simulation with {{suns_mode}} stellar core, {{trail_style}} trails, and {{gravity_strength}}x gravitational pull",
+  "variables": [
+    {
+      "name": "suns_mode",
+      "label": "Stellar Core",
+      "values": [
+        {
+          "text": "Binary Dance",
+          "weight": 2
+        },
+        {
+          "text": "Chaotic Trio",
+          "weight": 2
+        },
+        {
+          "text": "Pulsar Twins",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "trail_style",
+      "label": "Trail Style",
+      "values": [
+        {
+          "text": "Phosphor",
+          "weight": 2
+        },
+        {
+          "text": "Neon Starlight",
+          "weight": 2
+        },
+        {
+          "text": "Deep Ion",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "gravity_strength",
+      "label": "Gravity Scale",
+      "type": "number",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.25,
+      "default": 1.25
+    },
+    {
+      "name": "launch",
+      "label": "Launch Planet",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "shockwave",
+      "label": "Gravity Pulse",
+      "type": "trigger",
+      "share": "all"
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "acid",
+    "title": "ORBITAL DYNAMICS +4",
+    "tagline": "Demoscene N-body gravity engine & particle slinger",
+    "accent": "#00ffcc",
+    "groups": [
+      {
+        "title": "System Actions",
+        "controls": [
+          "launch",
+          "shockwave"
+        ]
+      },
+      {
+        "title": "Astrophysics",
+        "controls": [
+          "suns_mode",
+          "gravity_strength"
+        ]
+      },
+      {
+        "title": "Visuals",
+        "controls": [
+          "trail_style"
+        ]
+      }
+    ],
+    "controls": {
+      "suns_mode": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "trail_style": {
+        "widget": "pads",
+        "hint": ""
+      },
+      "gravity_strength": {
+        "widget": "knob",
+        "hint": "Scales sun mass and pull force"
+      },
+      "launch": {
+        "widget": "pad",
+        "hint": "Injects your colored planet into orbit"
+      },
+      "shockwave": {
+        "widget": "pad",
+        "hint": "Radiates a gravity wave from the core"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "An N-body system: planets with trails orbiting two or three suns under mutual gravity; anyone can launch a new planet in their own colour, and strays that fly too far are lost.",
+    "prompt": "An N-body system: planets with trails orbiting two or three suns under mutual gravity; anyone can launch a new planet in their own colour, and strays that fly too far are lost. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "space",
+      "light"
+    ],
+    "source": "scenes100/nbody-orbits~1"
+  }
+}

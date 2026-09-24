@@ -1,0 +1,122 @@
+{
+  "name": "Spacetime Singularity Grid",
+  "promptTemplate": "A relativistic {{grid_style}} spacetime grid warped by {{mass_count}} traveling singularities in a {{color_scheme}} palette, with {{warp_intensity}} curvature deepening under acoustic mass.",
+  "variables": [
+    {
+      "name": "grid_style",
+      "label": "Grid Style",
+      "values": [
+        {
+          "text": "checker",
+          "weight": 2
+        },
+        {
+          "text": "hybrid",
+          "weight": 3
+        },
+        {
+          "text": "wireframe",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "mass_count",
+      "label": "Singularities",
+      "type": "number",
+      "min": 1,
+      "max": 6,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "name": "color_scheme",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "pulsar",
+          "weight": 3
+        },
+        {
+          "text": "vector",
+          "weight": 2
+        },
+        {
+          "text": "monolith",
+          "weight": 2
+        },
+        {
+          "text": "supernova",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "warp_intensity",
+      "label": "Curvature",
+      "type": "number",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.25,
+      "default": 1.25
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "violet",
+    "title": "SINGULARITY +4 TRAINER",
+    "tagline": "RELATIVISTIC SPACETIME WARP ENGINE",
+    "accent": "#00ffee",
+    "groups": [
+      {
+        "title": "RELATIVITY",
+        "controls": [
+          "warp_intensity",
+          "mass_count"
+        ]
+      },
+      {
+        "title": "SURFACE",
+        "controls": [
+          "grid_style",
+          "color_scheme"
+        ]
+      }
+    ],
+    "controls": {
+      "grid_style": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "mass_count": {
+        "widget": "stepper",
+        "hint": "Spawn roaming black holes"
+      },
+      "color_scheme": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "warp_intensity": {
+        "widget": "knob",
+        "hint": "Deepen gravity wells plunging through the floor"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "demo",
+    "blurb": "A spacetime grid: a checkerboard floor bending around travelling points of mass like gravitational lensing, the wells deepening on the bass.",
+    "prompt": "A spacetime grid: a checkerboard floor bending around travelling points of mass like gravitational lensing, the wells deepening on the bass. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "space",
+      "3d",
+      "geometric"
+    ],
+    "source": "scenes100/grid-lens~3"
+  }
+}

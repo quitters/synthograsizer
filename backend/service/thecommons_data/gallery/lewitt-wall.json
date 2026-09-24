@@ -1,0 +1,135 @@
+{
+  "name": "Wall Drawing, after LeWitt",
+  "promptTemplate": "A conceptual wall drawing rendered in {{palette}} with {{drafting_order}} execution, drafted at density {{instruction_density}} at speed {{draw_speed}} with {{line_weight}}px pencil weight.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "gallery_chalk",
+          "weight": 3
+        },
+        {
+          "text": "linocut_ink",
+          "weight": 2
+        },
+        {
+          "text": "blueprint",
+          "weight": 2
+        },
+        {
+          "text": "monochrome",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "drafting_order",
+      "label": "Instruction Flow",
+      "values": [
+        {
+          "text": "sequential",
+          "weight": 3
+        },
+        {
+          "text": "composite",
+          "weight": 2
+        },
+        {
+          "text": "counterpoint",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "instruction_density",
+      "label": "Line Density",
+      "type": "number",
+      "min": 24,
+      "max": 64,
+      "step": 8,
+      "default": 40
+    },
+    {
+      "name": "draw_speed",
+      "label": "Drafting Speed",
+      "type": "number",
+      "min": 0.5,
+      "max": 3.0,
+      "step": 0.5,
+      "default": 1.5
+    },
+    {
+      "name": "line_weight",
+      "label": "Graphite Weight",
+      "type": "number",
+      "min": 1.0,
+      "max": 4.0,
+      "step": 0.5,
+      "default": 1.5
+    }
+  ],
+  "ui": {
+    "skin": "desk",
+    "variant": "grey",
+    "title": "Wall Drawing 1978",
+    "tagline": "Conceptual instruction draftsman",
+    "accent": "",
+    "groups": [
+      {
+        "title": "Score & Ink",
+        "controls": [
+          "palette",
+          "drafting_order"
+        ]
+      },
+      {
+        "title": "Pencil & Rule",
+        "controls": [
+          "instruction_density",
+          "line_weight",
+          "draw_speed"
+        ]
+      }
+    ],
+    "controls": {
+      "palette": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "drafting_order": {
+        "widget": "list",
+        "hint": "Order in which rays, arcs, and grids draft"
+      },
+      "instruction_density": {
+        "widget": "stepper",
+        "hint": "Number of rays, arcs, and crosshatch lines"
+      },
+      "draw_speed": {
+        "widget": "knob",
+        "hint": "Execution tempo of the drawing cycle"
+      },
+      "line_weight": {
+        "widget": "slider",
+        "hint": "Graphite line width on the wall"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "generative",
+    "blurb": "A wall drawing executed live from its instructions, in the spirit of Sol LeWitt: lines from the centre, arcs from the corners and grids in four directions drawn by an invisible hand, layer by layer, then erased and begun again.",
+    "prompt": "A wall drawing executed live from its instructions, in the spirit of Sol LeWitt: lines from the centre, arcs from the corners and grids in four directions drawn by an invisible hand, layer by layer, then erased and begun again. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "geometric",
+      "calm"
+    ],
+    "source": "scenes100/lewitt-wall~1"
+  }
+}

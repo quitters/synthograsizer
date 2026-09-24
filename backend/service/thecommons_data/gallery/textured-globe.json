@@ -1,0 +1,163 @@
+{
+  "name": "Orbital Sphere",
+  "promptTemplate": "A rotating {{planet_theme}} exoplanet with {{cloud_density}} cloud layers, orbiting at {{rotation_speed}} speed with {{atmosphere_glow}} halo and {{moon_system}} companions.",
+  "variables": [
+    {
+      "name": "planet_theme",
+      "label": "Planet Theme",
+      "values": [
+        {
+          "text": "earthlike",
+          "weight": 3
+        },
+        {
+          "text": "mars_desert",
+          "weight": 2
+        },
+        {
+          "text": "ice_world",
+          "weight": 2
+        },
+        {
+          "text": "alien_toxic",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "cloud_density",
+      "label": "Cloud Density",
+      "values": [
+        {
+          "text": "sparse",
+          "weight": 1
+        },
+        {
+          "text": "balanced",
+          "weight": 3
+        },
+        {
+          "text": "dense",
+          "weight": 2
+        },
+        {
+          "text": "stormy",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "rotation_speed",
+      "label": "Rotation Speed",
+      "type": "number",
+      "min": 0.2,
+      "max": 2.0,
+      "step": 0.1,
+      "default": 0.8
+    },
+    {
+      "name": "atmosphere_glow",
+      "label": "Atmosphere Halo",
+      "values": [
+        {
+          "text": "subtle",
+          "weight": 2
+        },
+        {
+          "text": "radiant",
+          "weight": 3
+        },
+        {
+          "text": "auroral",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "moon_system",
+      "label": "Moon System",
+      "values": [
+        {
+          "text": "binary_twins",
+          "weight": 2
+        },
+        {
+          "text": "inner_outer",
+          "weight": 3
+        },
+        {
+          "text": "distant_watchers",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "ice",
+    "title": "ORBITAL SPHERE +5",
+    "tagline": "Realtime procedural texture-mapped planetary demo",
+    "accent": "#6ed0ff",
+    "groups": [
+      {
+        "title": "World Genesis",
+        "controls": [
+          "planet_theme",
+          "cloud_density"
+        ]
+      },
+      {
+        "title": "Orbital Dynamics",
+        "controls": [
+          "rotation_speed",
+          "moon_system"
+        ]
+      },
+      {
+        "title": "Atmosphere",
+        "controls": [
+          "atmosphere_glow"
+        ]
+      }
+    ],
+    "controls": {
+      "planet_theme": {
+        "widget": "pads",
+        "hint": "Swaps procedural biomes and night lights"
+      },
+      "cloud_density": {
+        "widget": "cycle",
+        "hint": "Thickens storm fronts over terrain"
+      },
+      "rotation_speed": {
+        "widget": "knob",
+        "hint": "Spins planet surface and cloud layers"
+      },
+      "atmosphere_glow": {
+        "widget": "buttons",
+        "hint": "Tints the Fresnel rim illumination"
+      },
+      "moon_system": {
+        "widget": "buttons",
+        "hint": ""
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "demo",
+    "blurb": "A rotating planet drawn by per-pixel sphere mapping of a procedural texture on a low-resolution buffer: oceans, continents and cloud bands, a day-night terminator and an atmosphere rim, two moons orbiting.",
+    "prompt": "A rotating planet drawn by per-pixel sphere mapping of a procedural texture on a low-resolution buffer: oceans, continents and cloud bands, a day-night terminator and an atmosphere rim, two moons orbiting. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "space",
+      "3d",
+      "retro"
+    ],
+    "source": "scenes100/textured-globe~1"
+  }
+}

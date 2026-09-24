@@ -1,0 +1,163 @@
+{
+  "name": "Facet Horizon",
+  "promptTemplate": "A low-poly landscape bathed in {{palette}} light with {{mountain_height}} elevation scale, {{drift_speed}} facet drift, {{roughness}} ridge roughness, {{wireframe}} facet outlines, and a {{light_orbit}} sun",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "sunset",
+          "weight": 3
+        },
+        {
+          "text": "aurora",
+          "weight": 2
+        },
+        {
+          "text": "cyberpunk",
+          "weight": 2
+        },
+        {
+          "text": "desert",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "wireframe",
+      "label": "Facet Outlines",
+      "values": [
+        {
+          "text": "subtle",
+          "weight": 3
+        },
+        {
+          "text": "glow",
+          "weight": 2
+        },
+        {
+          "text": "none",
+          "weight": 1
+        },
+        {
+          "text": "bold",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "mountain_height",
+      "label": "Peak Height",
+      "type": "number",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.1,
+      "default": 1.2
+    },
+    {
+      "name": "drift_speed",
+      "label": "Drift Speed",
+      "type": "number",
+      "min": 0.1,
+      "max": 2.0,
+      "step": 0.1,
+      "default": 0.8
+    },
+    {
+      "name": "roughness",
+      "label": "Ridge Roughness",
+      "type": "number",
+      "min": 0.5,
+      "max": 2.0,
+      "step": 0.1,
+      "default": 1.0
+    },
+    {
+      "name": "light_orbit",
+      "label": "Sun Motion",
+      "values": [
+        {
+          "text": "sweeping",
+          "weight": 3
+        },
+        {
+          "text": "pulsing",
+          "weight": 2
+        },
+        {
+          "text": "overhead",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "violet",
+    "title": "FACET HORIZON // DTR",
+    "tagline": "Realtime Delaunay mesh generator & shader",
+    "accent": "#00f0ff",
+    "groups": [
+      {
+        "title": "Terrain Geometry",
+        "controls": [
+          "mountain_height",
+          "roughness",
+          "drift_speed"
+        ]
+      },
+      {
+        "title": "Shading & Lighting",
+        "controls": [
+          "palette",
+          "wireframe",
+          "light_orbit"
+        ]
+      }
+    ],
+    "controls": {
+      "palette": {
+        "widget": "pads",
+        "hint": "Cycle sky gradients and facet tint schemes"
+      },
+      "wireframe": {
+        "widget": "buttons",
+        "hint": "Toggle triangle boundary edges and glow intensity"
+      },
+      "mountain_height": {
+        "widget": "knob",
+        "hint": "Scale vertical relief across the mountain peaks"
+      },
+      "drift_speed": {
+        "widget": "knob",
+        "hint": "Rate at which vertex points oscillate and ripple"
+      },
+      "roughness": {
+        "widget": "slider",
+        "hint": "Sharpen jagged noise along the ridges"
+      },
+      "light_orbit": {
+        "widget": "buttons",
+        "hint": "Trajectory of the primary directional sun"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "generative",
+    "blurb": "A low-poly landscape: a Delaunay triangulation of scattered points, each triangle shaded from a sky-to-ground gradient and lit by a moving light, the points drifting so the facets shimmer.",
+    "prompt": "A low-poly landscape: a Delaunay triangulation of scattered points, each triangle shaded from a sky-to-ground gradient and lit by a moving light, the points drifting so the facets shimmer. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "geometric",
+      "3d",
+      "calm"
+    ],
+    "source": "scenes100/lowpoly-shimmer~1"
+  }
+}

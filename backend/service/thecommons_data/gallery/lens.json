@@ -1,0 +1,176 @@
+{
+  "name": "Refraction Demolens",
+  "promptTemplate": "A precision demoscene magnifying lens styled in {{palette}} glide-refracting a {{pattern_style}} field with {{refraction_mode}} distortion at zoom {{lens_zoom}}x, lens radius {{lens_radius}}px, chromatic aberration {{aberration}}, and traversal speed {{lens_speed}}x.",
+  "variables": [
+    {
+      "name": "pattern_style",
+      "label": "Background Pattern",
+      "values": [
+        {
+          "text": "circuit",
+          "weight": 2
+        },
+        {
+          "text": "islamic_grid",
+          "weight": 2
+        },
+        {
+          "text": "topography",
+          "weight": 2
+        },
+        {
+          "text": "moire_weave",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "palette",
+      "label": "Color Palette",
+      "values": [
+        {
+          "text": "cyber_amber",
+          "weight": 2
+        },
+        {
+          "text": "deep_emerald",
+          "weight": 2
+        },
+        {
+          "text": "sapphire_neon",
+          "weight": 2
+        },
+        {
+          "text": "solar_flare",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "refraction_mode",
+      "label": "Lens Optics",
+      "values": [
+        {
+          "text": "spherical_pinch",
+          "weight": 2
+        },
+        {
+          "text": "fisheye_bulge",
+          "weight": 3
+        },
+        {
+          "text": "prism_bubble",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "lens_radius",
+      "label": "Lens Radius",
+      "type": "number",
+      "min": 100,
+      "max": 200,
+      "step": 20,
+      "default": 140
+    },
+    {
+      "name": "lens_zoom",
+      "label": "Magnification",
+      "type": "number",
+      "min": 1.2,
+      "max": 2.8,
+      "step": 0.2,
+      "default": 1.8
+    },
+    {
+      "name": "aberration",
+      "label": "Chroma Split",
+      "type": "number",
+      "min": 0,
+      "max": 6,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "name": "lens_speed",
+      "label": "Drift Speed",
+      "type": "number",
+      "min": 0.2,
+      "max": 2.0,
+      "step": 0.2,
+      "default": 0.8
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "REFRACT DEMOLENS +7",
+    "tagline": "Realtime LUT ray-displacement engine",
+    "accent": "#ff9d00",
+    "groups": [
+      {
+        "title": "Optics",
+        "controls": [
+          "refraction_mode",
+          "lens_zoom",
+          "lens_radius",
+          "aberration"
+        ]
+      },
+      {
+        "title": "Substrate",
+        "controls": [
+          "pattern_style",
+          "palette",
+          "lens_speed"
+        ]
+      }
+    ],
+    "controls": {
+      "pattern_style": {
+        "widget": "buttons",
+        "hint": "Regenerate procedural background canvas"
+      },
+      "palette": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "refraction_mode": {
+        "widget": "pads",
+        "hint": "Switch between fisheye, spherical or bubble geometry"
+      },
+      "lens_radius": {
+        "widget": "slider",
+        "hint": "Expand glass aperture diameter"
+      },
+      "lens_zoom": {
+        "widget": "knob",
+        "hint": "Magnify the underlying grid pattern"
+      },
+      "aberration": {
+        "widget": "stepper",
+        "hint": "Split RGB color fringing around edges"
+      },
+      "lens_speed": {
+        "widget": "slider",
+        "hint": "Velocity along Lissajous path"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "demo",
+    "blurb": "A lens effect: a round magnifying lens glides over a detailed procedural pattern, bulging and refracting what lies beneath with a precomputed displacement table, a bright rim of light around its edge.",
+    "prompt": "A lens effect: a round magnifying lens glides over a detailed procedural pattern, bulging and refracting what lies beneath with a precomputed displacement table, a bright rim of light around its edge. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "retro",
+      "geometric"
+    ],
+    "source": "scenes100/lens~1"
+  }
+}

@@ -1,0 +1,208 @@
+{
+  "name": "Gouraud Torus",
+  "promptTemplate": "A smooth-shaded rotating torus with {{palette}} styling, {{shading_style}} shading with {{specular_shine}} specular hardness, moving at {{spin_speed}} speed, {{torus_fatness}} thickness, {{wire_overlay}} wireframe accents, reacting with {{audio_pulse}} pulse against a {{backdrop}} demoscene backdrop.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "chrome",
+          "weight": 2
+        },
+        {
+          "text": "synthwave",
+          "weight": 2
+        },
+        {
+          "text": "copper",
+          "weight": 1
+        },
+        {
+          "text": "emerald",
+          "weight": 1
+        },
+        {
+          "text": "amiga",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "shading_style",
+      "label": "Shading Style",
+      "values": [
+        {
+          "text": "smooth_gouraud",
+          "weight": 3
+        },
+        {
+          "text": "flat_specular",
+          "weight": 1
+        },
+        {
+          "text": "iridescent",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "spin_speed",
+      "label": "Spin Speed",
+      "type": "number",
+      "min": 0.2,
+      "max": 2.4,
+      "step": 0.2,
+      "default": 1.0
+    },
+    {
+      "name": "torus_fatness",
+      "label": "Tube Ratio",
+      "type": "number",
+      "min": 0.2,
+      "max": 0.65,
+      "step": 0.05,
+      "default": 0.45
+    },
+    {
+      "name": "specular_shine",
+      "label": "Specular Shine",
+      "type": "number",
+      "min": 8,
+      "max": 64,
+      "step": 4,
+      "default": 24
+    },
+    {
+      "name": "wire_overlay",
+      "label": "Wire Accent",
+      "values": [
+        {
+          "text": "off",
+          "weight": 2
+        },
+        {
+          "text": "subtle",
+          "weight": 2
+        },
+        {
+          "text": "bright",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "audio_pulse",
+      "label": "Audio Reactivity",
+      "type": "number",
+      "min": 0.0,
+      "max": 2.0,
+      "step": 0.2,
+      "default": 1.0
+    },
+    {
+      "name": "backdrop",
+      "label": "Backdrop",
+      "values": [
+        {
+          "text": "void",
+          "weight": 2
+        },
+        {
+          "text": "grid",
+          "weight": 2
+        },
+        {
+          "text": "horizon",
+          "weight": 1
+        },
+        {
+          "text": "nebula",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "GOURAUD TORUS +8",
+    "tagline": "60FPS DEMO ENGINE / ROTATING MESH",
+    "accent": "#e87024",
+    "groups": [
+      {
+        "title": "Shading & Color",
+        "controls": [
+          "palette",
+          "shading_style",
+          "specular_shine"
+        ]
+      },
+      {
+        "title": "Torus Geometry",
+        "controls": [
+          "spin_speed",
+          "torus_fatness",
+          "wire_overlay"
+        ]
+      },
+      {
+        "title": "Scene & Audio",
+        "controls": [
+          "audio_pulse",
+          "backdrop"
+        ]
+      }
+    ],
+    "controls": {
+      "palette": {
+        "widget": "pads",
+        "hint": "Cycle classic demoparty color ramps"
+      },
+      "shading_style": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "spin_speed": {
+        "widget": "knob",
+        "hint": "3-axis rotation velocity"
+      },
+      "torus_fatness": {
+        "widget": "slider",
+        "hint": "Inner-to-outer tube ratio"
+      },
+      "specular_shine": {
+        "widget": "slider",
+        "hint": "Tighten the Blinn-Phong specular glint"
+      },
+      "wire_overlay": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "audio_pulse": {
+        "widget": "knob",
+        "hint": "Bass kick torus expansion"
+      },
+      "backdrop": {
+        "widget": "cycle",
+        "hint": ""
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "demo",
+    "blurb": "A smooth-shaded torus rotating in space, its polygons filled with gradients to fake Gouraud shading, painter-sorted, a specular highlight sliding across it as it turns.",
+    "prompt": "A smooth-shaded torus rotating in space, its polygons filled with gradients to fake Gouraud shading, painter-sorted, a specular highlight sliding across it as it turns. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "3d",
+      "retro"
+    ],
+    "source": "scenes100/gouraud-torus~1"
+  }
+}

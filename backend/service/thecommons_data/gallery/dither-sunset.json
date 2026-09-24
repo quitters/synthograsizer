@@ -1,0 +1,158 @@
+{
+  "name": "Bayer Sunset",
+  "promptTemplate": "Ordered {{bayer_size}} dithered sunset over ocean in {{palette}} at {{resolution}} with sun speed {{sun_speed}}, cloud cover {{cloud_cover}}, and water ripple {{water_ripple}}",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "amber_dusk",
+          "weight": 3
+        },
+        {
+          "text": "synth_sunset",
+          "weight": 2
+        },
+        {
+          "text": "cga_glow",
+          "weight": 1
+        },
+        {
+          "text": "gameboy_retro",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "resolution",
+      "label": "Resolution",
+      "values": [
+        {
+          "text": "chunky_160x90",
+          "weight": 3
+        },
+        {
+          "text": "crisp_240x135",
+          "weight": 2
+        },
+        {
+          "text": "blocky_120x68",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "bayer_size",
+      "label": "Dither Matrix",
+      "values": [
+        {
+          "text": "bayer_2x2",
+          "weight": 1
+        },
+        {
+          "text": "bayer_4x4",
+          "weight": 3
+        },
+        {
+          "text": "bayer_8x8",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "sun_speed",
+      "label": "Sun Speed",
+      "type": "number",
+      "min": 0.2,
+      "max": 2.0,
+      "step": 0.2,
+      "default": 0.8
+    },
+    {
+      "name": "cloud_cover",
+      "label": "Cloud Cover",
+      "type": "number",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "name": "water_ripple",
+      "label": "Water Ripple",
+      "type": "number",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "default": 3
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "BAYER SUNSET +6",
+    "tagline": "Demoscene 4-color ordered dither matrix",
+    "accent": "#eb8c28",
+    "groups": [
+      {
+        "title": "Raster",
+        "controls": [
+          "palette",
+          "bayer_size",
+          "resolution"
+        ]
+      },
+      {
+        "title": "Atmosphere",
+        "controls": [
+          "sun_speed",
+          "water_ripple",
+          "cloud_cover"
+        ]
+      }
+    ],
+    "controls": {
+      "palette": {
+        "widget": "pads",
+        "hint": "4-colour hardware ramp"
+      },
+      "resolution": {
+        "widget": "buttons",
+        "hint": "Pixel grid buffer dimensions"
+      },
+      "bayer_size": {
+        "widget": "buttons",
+        "hint": "Crosshatch dither grain size"
+      },
+      "sun_speed": {
+        "widget": "knob",
+        "hint": "Orbit rate for day-night cycle"
+      },
+      "cloud_cover": {
+        "widget": "slider",
+        "hint": "Density of horizon cloud banks"
+      },
+      "water_ripple": {
+        "widget": "slider",
+        "hint": "Wave chop and ocean shimmer speed"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "demo",
+    "blurb": "Ordered dithering: a sunset over the sea with clouds, rendered through a Bayer matrix into just four colours at chunky resolution, the sun sinking and rising again in a loop.",
+    "prompt": "Ordered dithering: a sunset over the sea with clouds, rendered through a Bayer matrix into just four colours at chunky resolution, the sun sinking and rising again in a loop. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "retro",
+      "calm"
+    ],
+    "source": "scenes100/dither-sunset~1"
+  }
+}

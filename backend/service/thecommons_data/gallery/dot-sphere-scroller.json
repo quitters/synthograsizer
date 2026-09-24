@@ -1,0 +1,145 @@
+{
+  "name": "Sphere Scroller",
+  "promptTemplate": "A demoscene dot-matrix sphere scroller in {{palette}} with {{dot_style}} dots, scrolling at {{scroll_speed}}x speed on a {{sphere_tilt}}deg tilted {{grid_mode}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "CRT Palette",
+      "values": [
+        {
+          "text": "amber_crt",
+          "weight": 2
+        },
+        {
+          "text": "phosphor_cyan",
+          "weight": 2
+        },
+        {
+          "text": "cyber_magenta",
+          "weight": 1
+        },
+        {
+          "text": "laser_green",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "dot_style",
+      "label": "Dot Style",
+      "values": [
+        {
+          "text": "circles",
+          "weight": 3
+        },
+        {
+          "text": "squares",
+          "weight": 1
+        },
+        {
+          "text": "crosses",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "scroll_speed",
+      "label": "Scroll Speed",
+      "type": "number",
+      "min": 0.5,
+      "max": 3.5,
+      "step": 0.5,
+      "default": 1.5
+    },
+    {
+      "name": "sphere_tilt",
+      "label": "Axis Tilt",
+      "type": "number",
+      "min": -40,
+      "max": 40,
+      "step": 10,
+      "default": 20
+    },
+    {
+      "name": "grid_mode",
+      "label": "Globe Cage",
+      "values": [
+        {
+          "text": "full_globe",
+          "weight": 3
+        },
+        {
+          "text": "equator_band",
+          "weight": 1
+        },
+        {
+          "text": "minimal_cage",
+          "weight": 2
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "SPHERE SCROLLER +5",
+    "tagline": "DEMO OR DIE // 60FPS EQUATOR DOT MATRIX",
+    "accent": "#ffaa1e",
+    "groups": [
+      {
+        "title": "RASTER MOTION",
+        "controls": [
+          "scroll_speed",
+          "sphere_tilt"
+        ]
+      },
+      {
+        "title": "CRT DISPLAY",
+        "controls": [
+          "palette",
+          "dot_style",
+          "grid_mode"
+        ]
+      }
+    ],
+    "controls": {
+      "palette": {
+        "widget": "pads",
+        "hint": "Switch phosphor CRT beam glow"
+      },
+      "dot_style": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "scroll_speed": {
+        "widget": "knob",
+        "hint": "Speed up or slow message equator spin"
+      },
+      "sphere_tilt": {
+        "widget": "slider",
+        "hint": "Tilt globe polar axis up or down"
+      },
+      "grid_mode": {
+        "widget": "cycle",
+        "hint": "Toggle latitude wireframe cage density"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "demo",
+    "blurb": "A sphere scroller: greetings to the room written in dots on the surface of a rotating sphere, scrolling around its equator, dots on the far side dimmed.",
+    "prompt": "A sphere scroller: greetings to the room written in dots on the surface of a rotating sphere, scrolling around its equator, dots on the far side dimmed. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "3d",
+      "retro",
+      "text"
+    ],
+    "source": "scenes100/dot-sphere-scroller~1"
+  }
+}

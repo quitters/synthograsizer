@@ -1,0 +1,159 @@
+{
+  "name": "Dot Tunnel",
+  "promptTemplate": "A demoscene dot tunnel pulsing to the beat with {{ring_count}} rings of {{dots_per_ring}} dots flying at speed {{tunnel_speed}}, snaking with {{snake_bend}} curvature, styled in {{palette}} and shaped as {{dot_style}}.",
+  "variables": [
+    {
+      "name": "ring_count",
+      "label": "Ring Count",
+      "type": "number",
+      "min": 20,
+      "max": 60,
+      "step": 5,
+      "default": 40
+    },
+    {
+      "name": "dots_per_ring",
+      "label": "Dots Per Ring",
+      "type": "number",
+      "min": 12,
+      "max": 48,
+      "step": 4,
+      "default": 24
+    },
+    {
+      "name": "tunnel_speed",
+      "label": "Speed",
+      "type": "number",
+      "min": 0.4,
+      "max": 2.4,
+      "step": 0.2,
+      "default": 1.2
+    },
+    {
+      "name": "snake_bend",
+      "label": "Curvature",
+      "type": "number",
+      "min": 0.2,
+      "max": 2.0,
+      "step": 0.2,
+      "default": 1.0
+    },
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "synthwave",
+          "weight": 3
+        },
+        {
+          "text": "neon_cyan",
+          "weight": 2
+        },
+        {
+          "text": "solar_fire",
+          "weight": 2
+        },
+        {
+          "text": "emerald_matrix",
+          "weight": 1
+        },
+        {
+          "text": "monochrome",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "dot_style",
+      "label": "Dot Shape",
+      "values": [
+        {
+          "text": "discs",
+          "weight": 3
+        },
+        {
+          "text": "sparks",
+          "weight": 2
+        },
+        {
+          "text": "diamonds",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "violet",
+    "title": "DOT TUNNEL +6 TRAINER",
+    "tagline": "RUSH THROUGH THE SINUSOID HOLE",
+    "accent": "#00f0ff",
+    "groups": [
+      {
+        "title": "WARP FLIGHT",
+        "controls": [
+          "tunnel_speed",
+          "snake_bend"
+        ]
+      },
+      {
+        "title": "TUNNEL DENSITY",
+        "controls": [
+          "ring_count",
+          "dots_per_ring"
+        ]
+      },
+      {
+        "title": "RASTER STYLE",
+        "controls": [
+          "palette",
+          "dot_style"
+        ]
+      }
+    ],
+    "controls": {
+      "ring_count": {
+        "widget": "slider",
+        "hint": "Add concentric rings back into the void"
+      },
+      "dots_per_ring": {
+        "widget": "slider",
+        "hint": "Tighten the dot circle resolution"
+      },
+      "tunnel_speed": {
+        "widget": "knob",
+        "hint": "Accelerate depth travel into the screen"
+      },
+      "snake_bend": {
+        "widget": "knob",
+        "hint": "Crank path oscillation and curve swing"
+      },
+      "palette": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "dot_style": {
+        "widget": "buttons",
+        "hint": ""
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "demo",
+    "blurb": "A dot tunnel: rings of dots flying towards the viewer along a winding path so the tunnel snakes and turns, dots growing brighter and larger as they near, each ring's colour drifting through a palette.",
+    "prompt": "A dot tunnel: rings of dots flying towards the viewer along a winding path so the tunnel snakes and turns, dots growing brighter and larger as they near, each ring's colour drifting through a palette. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "3d",
+      "retro",
+      "energetic"
+    ],
+    "source": "scenes100/dot-tunnel~2"
+  }
+}

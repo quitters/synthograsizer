@@ -1,0 +1,179 @@
+{
+  "name": "Intaglio Guilloche",
+  "promptTemplate": "A precision banknote guilloche rendered in {{ink_palette}} with {{symmetry}} symmetry, weaving {{strand_count}} ribbon passes in {{geometry_mode}} geometry drifting at {{drift_speed}} speed with {{render_style}} finish.",
+  "variables": [
+    {
+      "name": "ink_palette",
+      "label": "Ink Palette",
+      "values": [
+        {
+          "text": "banknote_green",
+          "weight": 3
+        },
+        {
+          "text": "imperial_crimson",
+          "weight": 2
+        },
+        {
+          "text": "cobalt_security",
+          "weight": 2
+        },
+        {
+          "text": "aurum_gilt",
+          "weight": 2
+        },
+        {
+          "text": "monochrome_steel",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "symmetry",
+      "label": "Symmetry Petals",
+      "values": [
+        {
+          "text": "hexagonal_6",
+          "weight": 2
+        },
+        {
+          "text": "septenary_7",
+          "weight": 3
+        },
+        {
+          "text": "octagonal_8",
+          "weight": 2
+        },
+        {
+          "text": "hendecagonal_11",
+          "weight": 2
+        },
+        {
+          "text": "tridecagonal_13",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "strand_count",
+      "label": "Strand Density",
+      "type": "number",
+      "min": 12,
+      "max": 48,
+      "step": 6,
+      "default": 24
+    },
+    {
+      "name": "geometry_mode",
+      "label": "Geometry",
+      "values": [
+        {
+          "text": "hypotrochoid",
+          "weight": 3
+        },
+        {
+          "text": "epitrochoid",
+          "weight": 2
+        },
+        {
+          "text": "nested_compound",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "drift_speed",
+      "label": "Drift Speed",
+      "type": "number",
+      "min": 0.2,
+      "max": 2.0,
+      "step": 0.2,
+      "default": 0.6
+    },
+    {
+      "name": "render_style",
+      "label": "Engraving Finish",
+      "values": [
+        {
+          "text": "fine_intaglio",
+          "weight": 3
+        },
+        {
+          "text": "phosphor_bloom",
+          "weight": 2
+        },
+        {
+          "text": "spectral_moire",
+          "weight": 2
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "skin": "desk",
+    "variant": "grey",
+    "title": "Intaglio Studio",
+    "tagline": "Banknote security rosette generator",
+    "accent": "",
+    "groups": [
+      {
+        "title": "Plate Geometry",
+        "controls": [
+          "geometry_mode",
+          "symmetry",
+          "strand_count"
+        ]
+      },
+      {
+        "title": "Press & Motion",
+        "controls": [
+          "drift_speed",
+          "ink_palette",
+          "render_style"
+        ]
+      }
+    ],
+    "controls": {
+      "ink_palette": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "symmetry": {
+        "widget": "cycle",
+        "hint": "Cycle the rotational petal harmonics"
+      },
+      "strand_count": {
+        "widget": "slider",
+        "hint": "Dense ribbon passes etched onto plate"
+      },
+      "geometry_mode": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "drift_speed": {
+        "widget": "knob",
+        "hint": "Speed of continuous rosette morphing"
+      },
+      "render_style": {
+        "widget": "buttons",
+        "hint": "Switch between intaglio etch, bloom, and moiré"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "generative",
+    "blurb": "Guilloche: fine interlaced rosettes of hypotrochoid lines like the security patterns on banknotes, many thin lines overlapping, the parameters drifting so the rosette slowly transforms.",
+    "prompt": "Guilloche: fine interlaced rosettes of hypotrochoid lines like the security patterns on banknotes, many thin lines overlapping, the parameters drifting so the rosette slowly transforms. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "geometric",
+      "calm"
+    ],
+    "source": "scenes100/guilloche~1"
+  }
+}

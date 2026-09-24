@@ -1,0 +1,126 @@
+{
+  "name": "Differential Meander",
+  "promptTemplate": "Differential growth coral loop shaped in {{form_style}} style with {{palette}} pigments, {{growth_speed}} expansion pace, and {{line_weight}}px contours.",
+  "variables": [
+    {
+      "name": "form_style",
+      "label": "Morphology",
+      "values": [
+        {
+          "text": "brain_sulci",
+          "weight": 2
+        },
+        {
+          "text": "coral_reef",
+          "weight": 2
+        },
+        {
+          "text": "lichen_edge",
+          "weight": 1
+        },
+        {
+          "text": "deep_meander",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "palette",
+      "label": "Pigment",
+      "values": [
+        {
+          "text": "bioluminescence",
+          "weight": 2
+        },
+        {
+          "text": "cerebral",
+          "weight": 2
+        },
+        {
+          "text": "synth_coral",
+          "weight": 1
+        },
+        {
+          "text": "deep_sea",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "growth_speed",
+      "label": "Growth Rate",
+      "type": "number",
+      "min": 0.5,
+      "max": 2.0,
+      "step": 0.25,
+      "default": 1.0
+    },
+    {
+      "name": "line_weight",
+      "label": "Ridge Width",
+      "type": "number",
+      "min": 1.0,
+      "max": 6.0,
+      "step": 0.5,
+      "default": 2.5
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "ice",
+    "title": "DIFF MEANDER // 60FPS",
+    "tagline": "Differential growth loop simulator",
+    "accent": "#00ffa3",
+    "groups": [
+      {
+        "title": "Morphogenesis",
+        "controls": [
+          "form_style",
+          "growth_speed"
+        ]
+      },
+      {
+        "title": "Aesthetics",
+        "controls": [
+          "palette",
+          "line_weight"
+        ]
+      }
+    ],
+    "controls": {
+      "form_style": {
+        "widget": "pads",
+        "hint": "Swaps tension and spring physics for deep meanders"
+      },
+      "palette": {
+        "widget": "cycle",
+        "hint": "Tints the undulating spline and bioluminescent fill"
+      },
+      "growth_speed": {
+        "widget": "knob",
+        "hint": "Controls repulsion force and node splitting speed"
+      },
+      "line_weight": {
+        "widget": "slider",
+        "hint": "Adjusts perimeter ridge thickness on the wall"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "generative",
+    "blurb": "Differential growth: a single closed line of nodes that repel, cling to their neighbours and split when stretched, folding into a coral- or brain-like form that keeps growing within a fixed budget of nodes.",
+    "prompt": "Differential growth: a single closed line of nodes that repel, cling to their neighbours and split when stretched, folding into a coral- or brain-like form that keeps growing within a fixed budget of nodes. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "organic",
+      "nature",
+      "calm"
+    ],
+    "source": "scenes100/differential-growth~2"
+  }
+}

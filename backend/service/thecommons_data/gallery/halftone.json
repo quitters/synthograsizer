@@ -1,0 +1,199 @@
+{
+  "name": "Offset Rosette Halftone",
+  "promptTemplate": "Animated halftone of {{subject}} on {{paper_tone}} paper with {{dot_shape}} at {{dot_pitch}}px pitch in {{channel_palette}}, {{registration}} registration and {{audio_kick}} audio kick",
+  "variables": [
+    {
+      "name": "subject",
+      "label": "Subject Pattern",
+      "values": [
+        {
+          "text": "organic_blobs",
+          "weight": 2
+        },
+        {
+          "text": "orbital_rings",
+          "weight": 1
+        },
+        {
+          "text": "fluid_harmonics",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "paper_tone",
+      "label": "Paper Tone",
+      "values": [
+        {
+          "text": "newsprint",
+          "weight": 2
+        },
+        {
+          "text": "cream_vellum",
+          "weight": 1
+        },
+        {
+          "text": "bleached",
+          "weight": 1
+        },
+        {
+          "text": "riso_kraft",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "dot_shape",
+      "label": "Dot Shape",
+      "values": [
+        {
+          "text": "round_dots",
+          "weight": 2
+        },
+        {
+          "text": "diamond_screen",
+          "weight": 1
+        },
+        {
+          "text": "square_halftone",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "dot_pitch",
+      "label": "Dot Pitch",
+      "type": "number",
+      "min": 16,
+      "max": 48,
+      "step": 2,
+      "default": 26
+    },
+    {
+      "name": "channel_palette",
+      "label": "Plate Palette",
+      "values": [
+        {
+          "text": "classic_cmy",
+          "weight": 2
+        },
+        {
+          "text": "neon_punk",
+          "weight": 1
+        },
+        {
+          "text": "retro_screen",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "registration",
+      "label": "Registration Slip",
+      "values": [
+        {
+          "text": "tight",
+          "weight": 1
+        },
+        {
+          "text": "gentle_drift",
+          "weight": 2
+        },
+        {
+          "text": "press_slip",
+          "weight": 1
+        },
+        {
+          "text": "wild_offset",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "audio_kick",
+      "label": "Audio Slip Response",
+      "type": "number",
+      "min": 0,
+      "max": 2,
+      "step": 0.1,
+      "default": 1
+    }
+  ],
+  "ui": {
+    "skin": "desk",
+    "variant": "grey",
+    "title": "Rosette Halftone Desk",
+    "tagline": "3-color rotary screen press simulator",
+    "accent": "",
+    "groups": [
+      {
+        "title": "Screen Plate",
+        "controls": [
+          "dot_pitch",
+          "dot_shape",
+          "subject"
+        ]
+      },
+      {
+        "title": "Stock & Ink",
+        "controls": [
+          "channel_palette",
+          "paper_tone"
+        ]
+      },
+      {
+        "title": "Press Mechanics",
+        "controls": [
+          "registration",
+          "audio_kick"
+        ]
+      }
+    ],
+    "controls": {
+      "subject": {
+        "widget": "list",
+        "hint": ""
+      },
+      "paper_tone": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "dot_shape": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "dot_pitch": {
+        "widget": "knob",
+        "hint": "Dial dot raster spacing on the drum"
+      },
+      "channel_palette": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "registration": {
+        "widget": "list",
+        "hint": "Set mechanical plate misalignment"
+      },
+      "audio_kick": {
+        "widget": "slider",
+        "hint": "Beat vibration shaking the plates"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "generative",
+    "blurb": "Animated halftone: a hidden, slowly moving image of soft shapes rendered as rotated cyan, magenta and yellow dot screens of varying size, sliding in and out of register like a print.",
+    "prompt": "Animated halftone: a hidden, slowly moving image of soft shapes rendered as rotated cyan, magenta and yellow dot screens of varying size, sliding in and out of register like a print. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "geometric",
+      "calm"
+    ],
+    "source": "scenes100/halftone~3"
+  }
+}

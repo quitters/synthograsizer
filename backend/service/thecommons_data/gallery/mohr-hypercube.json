@@ -1,0 +1,144 @@
+{
+  "name": "Cubic Limit Signs",
+  "promptTemplate": "Algorithmic Manfred Mohr signs from a rotating 4D tesseract in {{projection}} projection with {{sign_subset}} edge syntax, {{line_weight}}px strokes on {{paper_tone}} at speed {{rotation_speed}}.",
+  "variables": [
+    {
+      "name": "sign_subset",
+      "label": "Sign Subset",
+      "values": [
+        {
+          "text": "algorithmic",
+          "weight": 3
+        },
+        {
+          "text": "diagonal_paths",
+          "weight": 2
+        },
+        {
+          "text": "sparse_glyphs",
+          "weight": 2
+        },
+        {
+          "text": "dense_polyhedron",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "projection",
+      "label": "4D Projection",
+      "values": [
+        {
+          "text": "axonometric",
+          "weight": 3
+        },
+        {
+          "text": "perspective",
+          "weight": 2
+        },
+        {
+          "text": "stereographic",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "paper_tone",
+      "label": "Ground & Ink",
+      "values": [
+        {
+          "text": "gallery_white",
+          "weight": 3
+        },
+        {
+          "text": "aged_vellum",
+          "weight": 2
+        },
+        {
+          "text": "inverted_void",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "line_weight",
+      "label": "Line Weight",
+      "type": "number",
+      "min": 2,
+      "max": 14,
+      "step": 1,
+      "default": 6
+    },
+    {
+      "name": "rotation_speed",
+      "label": "Rotation Speed",
+      "type": "number",
+      "min": 0.1,
+      "max": 2.0,
+      "step": 0.1,
+      "default": 0.6
+    }
+  ],
+  "ui": {
+    "skin": "desk",
+    "variant": "grey",
+    "title": "Cubic Limit Studio",
+    "tagline": "Manfred Mohr 4D sign generator",
+    "accent": "",
+    "groups": [
+      {
+        "title": "Geometry & Projectio",
+        "controls": [
+          "sign_subset",
+          "projection",
+          "rotation_speed"
+        ]
+      },
+      {
+        "title": "Graphic Drawing",
+        "controls": [
+          "paper_tone",
+          "line_weight"
+        ]
+      }
+    ],
+    "controls": {
+      "sign_subset": {
+        "widget": "list",
+        "hint": "Select algorithmic rule for active 4D edges"
+      },
+      "projection": {
+        "widget": "buttons",
+        "hint": "Switch 4D-to-2D geometric mapping"
+      },
+      "paper_tone": {
+        "widget": "buttons",
+        "hint": "Ground and ink tone pair"
+      },
+      "line_weight": {
+        "widget": "slider",
+        "hint": "Thickness of active constructivist strokes"
+      },
+      "rotation_speed": {
+        "widget": "knob",
+        "hint": "Crawl rate across 4D rotation planes"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "generative",
+    "blurb": "In the spirit of Manfred Mohr: the edges of a rotating four-dimensional hypercube projected to 2D, with a changing subset of edges drawn as bold black lines on white, forming a sequence of abstract signs.",
+    "prompt": "In the spirit of Manfred Mohr: the edges of a rotating four-dimensional hypercube projected to 2D, with a changing subset of edges drawn as bold black lines on white, forming a sequence of abstract signs. Build it with a demoscener's economy: one core technique done well, lookup tables and fixed-size buffers kept in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "geometric",
+      "3d"
+    ],
+    "source": "scenes100/mohr-hypercube~1"
+  }
+}

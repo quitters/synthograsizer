@@ -324,14 +324,32 @@ async def _succeeded(sketch: dict, prompt: str, *, mode: str, source: dict[str, 
     second and separate call. Only ever here: a fallback is a curated piece and
     brings its own panel, or none. If the design fails, the sketch still ships
     with the default panel -- and at the same charge, since the sketch itself,
-    which is what the price is for, was delivered."""
+    which is what the price is for, was delivered.
+
+    The same call writes the piece's `listing` (section, blurb, prompt, look
+    tags), which it always gets, so every generated piece arrives with what the
+    gallery needs besides review: promoting one is its code, controls, panel
+    and listing, copied out as they are."""
+    # Named before the designer sees it, so the panel's title reads the same.
+    sketch = {**sketch, "name": readable_name(sketch["name"])}
     source_ui = ((source or {}).get("sketch") or {}).get("ui") if mode == "remix" else None
-    ui = await design_panel(sketch, prompt, source_ui=source_ui)
+    ui, listing = await design_panel(sketch, prompt, source_ui=source_ui)
     if ui is not None:
         sketch = {**sketch, "ui": ui}
-    return {**sketch, "id": _random_id(), "fallback": False, "modelAnswered": True,
+    return {**sketch, "listing": listing, "id": _random_id(), "fallback": False, "modelAnswered": True,
             "generation": {"provider": "gemini", "model": config.MODEL_COMMONS_SKETCH,
                            "panel": "designed" if ui is not None else "default", "panelModel": PANEL_MODEL}}
+
+
+def readable_name(name: str) -> str:
+    """A title a host can read on a card. The model sometimes names a piece
+    like a variable -- one in eight of a 63-piece batch came back as
+    `paik_cathode_wall` or `facade_lumina` -- so an underscored or all-lowercase
+    name becomes words with capitals. Anything else is left exactly as written."""
+    if "_" not in name and name != name.lower():
+        return name
+    words = [w for w in re.split(r"[_\s]+", name.strip()) if w]
+    return " ".join(w[:1].upper() + w[1:] for w in words) or name
 
 
 def _redact(message: str) -> str:
