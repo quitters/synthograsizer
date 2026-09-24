@@ -419,10 +419,14 @@ async def list_presets(room_id: int, request: Request):
 
 def _preset_row(preset: dict) -> dict:
     row = {"id": preset["id"], "name": preset["name"], "kind": preset["kind"], "savedAt": preset.get("savedAt")}
+    sketch = preset.get("sketch")
+    code = sketch.get("code") if isinstance(sketch, dict) else None
+    if isinstance(code, str) and "room.images" in code:
+        row["usesImages"] = True
     # A generated piece's card line and look tags, so the library can describe
     # and filter it like a ready-made one. Pieces made before listings existed
     # have none, and get the generic card they always had.
-    listing = _preset_listing(preset.get("sketch"))
+    listing = _preset_listing(sketch)
     if listing:
         row["listing"] = listing
     return row

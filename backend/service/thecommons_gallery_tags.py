@@ -42,6 +42,9 @@ DOES_TAGS: dict[str, str] = {
     "crowd": "Knows who's here",
     "music": "Follows the music",
     "host": "Host controls",
+    # Only a room's own pieces carry this one: gallery pieces never use room
+    # images (tests/test_thecommons_gallery.py), so it marks what is yours.
+    "images": "Uses your images",
 }
 
 ORIGIN_TAGS: dict[str, str] = {

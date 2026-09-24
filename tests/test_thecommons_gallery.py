@@ -18,6 +18,7 @@ import backend.server as server
 from backend.service import thecommons_relay
 from backend.service.thecommons_gallery import _DIR, GALLERY, SECTIONS, gallery_preset_id, load_gallery
 from backend.service.thecommons_gallery_panels import PANELS
+from backend.service.thecommons_images import default_manifest
 from backend.service.thecommons_ui import SKINS, normalize_ui
 from backend.service.thecommons_validate import validate_native_sketch
 
@@ -251,6 +252,15 @@ function nanIn(state) {
   }
   return null;
 }
+// room.images as a wall hands it over: the three default sizes, each with a
+// full-size bitmap and a small thumb. Plain objects, since the stub context's
+// drawImage draws nothing; a piece must work with these AND with none.
+const STUB_IMAGES = Object.freeze(/*DEFAULT_IMAGES*/.map((d) => {
+  const s = Math.min(1, 256 / Math.max(d.width, d.height));
+  return Object.freeze({ id: d.id, width: d.width, height: d.height, default: true,
+                         bitmap: { width: d.width, height: d.height },
+                         thumb: { width: Math.round(d.width * s), height: Math.round(d.height * s) } });
+}));
 const failures = [];
 for (const [slug, triggers] of Object.entries(JSON.parse(specJson))) {
   const code = readFileSync(`${dir}/${slug}.js`, 'utf8');
@@ -258,10 +268,13 @@ for (const [slug, triggers] of Object.entries(JSON.parse(specJson))) {
   try { draw = new Function('ctx', 'frame', 'getVar', 'audio', 'room', code); }
   catch (e) { failures.push(`${slug}: does not compile: ${e.message}`); continue; }
   // Wall size and thumbnail size, a crowd and an empty room, with this piece's
-  // own triggers firing now and then. Ids are hex strings, like real ones.
-  for (const [w, h, people] of [[1920, 1080, 3], [256, 144, 0], [1280, 720, 16]]) {
-    const room = { state: {}, events: [],
+  // own triggers firing now and then. Ids are hex strings, like real ones. The
+  // last run hands the piece images; every other one hands it none.
+  for (const [w, h, people, images] of [[1920, 1080, 3, []], [256, 144, 0, []], [1280, 720, 16, []],
+                                        [1920, 1080, 3, STUB_IMAGES]]) {
+    const room = { state: {}, events: [], images: Object.freeze(images),
                    people: Array.from({ length: people }, (_, i) => ({ id: `a3f9${i}c0e`, table: `t${i}`, hue: i * 40 })) };
+    const where = `${slug} @${w}x${h} with ${people} people${images.length ? ' and images' : ''}`;
     try {
       for (let i = 0; i < 90; i++) {
         room.events = i % 25 === 0
@@ -271,12 +284,12 @@ for (const [slug, triggers] of Object.entries(JSON.parse(specJson))) {
              { level: 0.4, bass: 0.6, mid: 0.3, treble: 0.2, beat: i % 30 === 0 }, room);
       }
       const bad = nanIn(room.state);
-      if (bad) failures.push(`${slug} @${w}x${h} with ${people} people: state went NaN at ${bad}`);
-    } catch (e) { failures.push(`${slug} @${w}x${h} with ${people} people: ${e.message}`); }
+      if (bad) failures.push(`${where}: state went NaN at ${bad}`);
+    } catch (e) { failures.push(`${where}: ${e.message}`); }
   }
 }
 if (failures.length) { console.log(failures.join('\n')); process.exit(1); }
-"""
+""".replace("/*DEFAULT_IMAGES*/", json.dumps(default_manifest()))
 
 
 @pytest.mark.skipif(shutil.which("node") is None, reason="node is not installed")

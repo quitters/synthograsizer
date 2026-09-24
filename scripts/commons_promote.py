@@ -40,6 +40,8 @@ def gallery_files(piece: dict) -> tuple[str, dict]:
         raise ValueError("a fallback is already a curated piece, not a generated one")
     if not sketch.get("ui"):
         raise ValueError("no designed panel: a gallery piece needs one")
+    if "room.images" in (sketch.get("code") or ""):
+        raise ValueError("it uses room images, which belong to one room: it can't be a gallery piece")
     checked = validate_native_sketch(sketch)            # raises InvalidSketchError, a ValueError
     prompt = (record or {}).get("prompt") or (sketch.get("listing") or {}).get("prompt") or ""
     # Normalised again, so a hand-edited or older listing is held to the rules
