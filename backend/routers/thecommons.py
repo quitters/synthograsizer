@@ -15,6 +15,7 @@ the decided product requirement that joining a room's live canvas needs no
 account at all.
 """
 
+import asyncio
 import hashlib
 import io
 import json
@@ -25,12 +26,13 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
-from fastapi import APIRouter, HTTPException, Request, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, File, HTTPException, Request, UploadFile, WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse, JSONResponse, Response
 from pydantic import BaseModel
 
 from backend import config
-from backend.service import credits, service_mode
+from backend.service import credits, service_mode, storage, storage_quota
+from backend.service import thecommons_images as images
 from backend.service import thecommons_jobs as jobs
 from backend.service.thecommons_gallery import SECTIONS as GALLERY_SECTIONS
 from backend.service.thecommons_gallery import gallery_preset_id, load_gallery
@@ -120,6 +122,10 @@ class LoadPresetRequest(BaseModel):
     presetId: str
 
 
+class ReorderImagesRequest(BaseModel):
+    ids: list[int]
+
+
 class GenerateRequest(BaseModel):
     roomId: int
     prompt: str
@@ -189,6 +195,14 @@ async def delete_room(room_id: int, request: Request):
     if relay is not None:
         await relay.shutdown()
     discard_relay(room_id)
+    # The image rows went with the room (CASCADE); their objects go here. Best
+    # effort: a leftover object is still under the owner's prefix, so their
+    # account delete would take it, and it is never served without its row.
+    if storage.enabled():
+        try:
+            await asyncio.to_thread(storage.delete_prefix, images.room_prefix(user["id"], room_id))
+        except Exception:  # noqa: BLE001
+            logger.exception("[thecommons] room %s deleted, but its images were not", room_id)
     return Response(status_code=204)
 
 
@@ -536,6 +550,181 @@ async def get_job(room_id: int, job_id: int, request: Request):
     if job is None:
         raise HTTPException(status_code=404, detail="remix not found")
     return job
+
+
+# ── room images ──────────────────────────────────────────────────────────────
+# The owner uploads images for pieces on the wall to use (room.images). Every
+# upload is re-encoded by thecommons_images.sanitize() before anything is
+# stored, and the wall only ever fetches that output, from this origin -- see
+# that module's docstring for why. Owner-only, like the rest of the desk; the
+# wall's own route below is reached by the join code it already has.
+
+_IMAGE_HEADERS = {"Cache-Control": "private, max-age=86400", "X-Content-Type-Options": "nosniff"}
+
+
+def _images_unavailable() -> HTTPException:
+    return HTTPException(status_code=503, detail={
+        "error": "storage_disabled",
+        "message": "This deployment can't store images, so pieces use the sample images.",
+    })
+
+
+def _room_full() -> HTTPException:
+    return HTTPException(status_code=409, detail={
+        "error": "room_full", "message": f"This room already has {images.MAX_ROOM_IMAGES} images."})
+
+
+def _image_entry(room_id: int, row: dict) -> dict:
+    return {"id": row["id"], "position": row["position"], "width": row["width"], "height": row["height"],
+            "bytes": row["bytes"], "url": f"/api/thecommons/rooms/{room_id}/images/{row['id']}"}
+
+
+async def _images_payload(pool, room_id: int, user_id: int) -> dict:
+    rows = await images.list_images(pool, room_id)
+    used = await storage_quota.used_bytes(pool, user_id)
+    return {
+        "images": [_image_entry(room_id, r) for r in rows],
+        "limit": images.MAX_ROOM_IMAGES,
+        "storageEnabled": storage.enabled(),
+        "storageUsedMb": round(used / 1024 / 1024, 1),
+        "storageLimitMb": storage_quota.quota_bytes() // (1024 * 1024),
+        # What pieces use while the room has no uploads.
+        "samples": [{"id": d["id"], "width": d["width"], "height": d["height"],
+                     "url": f"{images.DEFAULTS_URL}/{d['file']}"} for d in images.DEFAULT_IMAGES],
+    }
+
+
+async def _rebroadcast_images(pool, room_id: int) -> None:
+    relay = peek_relay(room_id)
+    if relay is not None:
+        await relay.publish_images(images.wall_manifest(await images.list_images(pool, room_id)))
+
+
+async def _image_bytes(owner_user_id: int, room_id: int, image_id: int) -> Response:
+    try:
+        data = await asyncio.to_thread(storage.get, images.object_path(owner_user_id, room_id, image_id))
+    except Exception:  # noqa: BLE001 -- a missing object is a missing image
+        raise HTTPException(status_code=404, detail="Not found")
+    return Response(content=data, media_type=images.MIME, headers=_IMAGE_HEADERS)
+
+
+@router.get("/api/thecommons/rooms/{room_id}/images")
+async def list_room_images(room_id: int, request: Request):
+    _require_service()
+    user = _current_user(request)
+    from backend.service import db
+    pool = db.pool()
+    await _require_owned_room(pool, room_id, user["id"])
+    return await _images_payload(pool, room_id, user["id"])
+
+
+@router.post("/api/thecommons/rooms/{room_id}/images")
+async def upload_room_image(room_id: int, request: Request, file: UploadFile = File(...)):
+    _require_service()
+    user = _current_user(request)
+    from backend.service import db
+    pool = db.pool()
+    await _require_owned_room(pool, room_id, user["id"])
+    if not storage.enabled():
+        raise _images_unavailable()
+    # Cheap refusal first: a full room never pays for a decode.
+    if len(await images.list_images(pool, room_id)) >= images.MAX_ROOM_IMAGES:
+        raise _room_full()
+
+    data = await file.read(images.MAX_UPLOAD_BYTES + 1)
+    try:
+        # Decoding is CPU work; off the loop, so the room's relay keeps up.
+        webp, width, height = await asyncio.to_thread(images.sanitize, data)
+    except images.UnusableImage as refused:
+        status = 415 if refused.code == "not_an_image" else 413
+        raise HTTPException(status_code=status, detail={"error": refused.code, "message": str(refused)})
+
+    used = await storage_quota.used_bytes(pool, user["id"])
+    quota = storage_quota.quota_bytes()
+    if used + len(webp) > quota:
+        raise HTTPException(status_code=413, detail={
+            "error": "storage_quota", "message": "You're out of storage space.",
+            "used_mb": round(used / 1024 / 1024, 1), "limit_mb": quota // (1024 * 1024)})
+
+    row = await images.add_image(pool, room_id, width, height, len(webp))
+    if row is None:
+        raise _room_full()
+    try:
+        await asyncio.to_thread(storage.put, images.object_path(user["id"], room_id, row["id"]),
+                                webp, images.MIME)
+    except Exception:  # noqa: BLE001
+        logger.exception("[thecommons] storing image %s for room %s failed", row["id"], room_id)
+        await images.delete_image(pool, room_id, row["id"])
+        raise HTTPException(status_code=502, detail={
+            "error": "storage_failed", "message": "The image couldn't be stored. Try again."})
+    await _rebroadcast_images(pool, room_id)
+    return JSONResponse(status_code=201, content=_image_entry(room_id, row))
+
+
+@router.put("/api/thecommons/rooms/{room_id}/images/order")
+async def reorder_room_images(room_id: int, body: ReorderImagesRequest, request: Request):
+    _require_service()
+    user = _current_user(request)
+    from backend.service import db
+    pool = db.pool()
+    await _require_owned_room(pool, room_id, user["id"])
+    if not await images.reorder(pool, room_id, body.ids):
+        raise HTTPException(status_code=400, detail={
+            "error": "wrong_ids", "message": "The order must list every image in this room exactly once."})
+    await _rebroadcast_images(pool, room_id)
+    return await _images_payload(pool, room_id, user["id"])
+
+
+@router.get("/api/thecommons/rooms/{room_id}/images/{image_id}")
+async def room_image(room_id: int, image_id: int, request: Request):
+    """The bytes, for the desk's thumbnails."""
+    _require_service()
+    user = _current_user(request)
+    from backend.service import db
+    pool = db.pool()
+    await _require_owned_room(pool, room_id, user["id"])
+    if not storage.enabled():
+        raise _images_unavailable()
+    if await images.get_image(pool, room_id, image_id) is None:
+        raise HTTPException(status_code=404, detail="Not found")
+    return await _image_bytes(user["id"], room_id, image_id)
+
+
+@router.delete("/api/thecommons/rooms/{room_id}/images/{image_id}")
+async def delete_room_image(room_id: int, image_id: int, request: Request):
+    _require_service()
+    user = _current_user(request)
+    from backend.service import db
+    pool = db.pool()
+    await _require_owned_room(pool, room_id, user["id"])
+    if not await images.delete_image(pool, room_id, image_id):
+        raise HTTPException(status_code=404, detail="Not found")
+    if storage.enabled():
+        try:
+            await asyncio.to_thread(storage.delete, images.object_path(user["id"], room_id, image_id))
+        except Exception:  # noqa: BLE001 -- the row is gone, so the object is never served again
+            logger.exception("[thecommons] image %s's row was deleted but its object was not", image_id)
+    await _rebroadcast_images(pool, room_id)
+    return Response(status_code=204)
+
+
+@router.get("/api/thecommons/display/{join_code}/images/{image_id}")
+async def display_room_image(join_code: str, image_id: int):
+    """The bytes, for the wall, reached by the join code the wall already has.
+
+    Anyone with the join link can reach this, phones included. That is
+    accepted: these are the images the room's public wall shows."""
+    if not service_mode():
+        raise HTTPException(status_code=404, detail="Not found")
+    from backend.service import db
+    pool = db.pool()
+    room = await pool.fetchrow(
+        "SELECT id, owner_user_id, status FROM commons_rooms WHERE join_code = $1", join_code)
+    if room is None or room["status"] != "active" or not storage.enabled():
+        raise HTTPException(status_code=404, detail="Not found")
+    if await images.get_image(pool, room["id"], image_id) is None:
+        raise HTTPException(status_code=404, detail="Not found")
+    return await _image_bytes(room["owner_user_id"], room["id"], image_id)
 
 
 # ── realtime relay (fully anonymous, room-scoped by join_code) ─────────────

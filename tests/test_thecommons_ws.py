@@ -67,6 +67,9 @@ def test_closed_room_closes_4404(service_on, fake_pool):
 def test_display_receives_current_sketch_on_connect(service_on, fake_pool):
     fake_pool.seed_room(owner_user_id=1, join_code="room-a")
     with client.websocket_connect("/ws/thecommons/room-a?role=display") as ws:
+        # The room's images come first, so a wall never shows the samples for
+        # a moment before its own uploads; an empty list means the samples.
+        assert ws.receive_json() == {"type": "images", "images": []}
         message = ws.receive_json()
         assert message["type"] == "sketch"
         assert "variables" in message["sketch"]
@@ -106,6 +109,7 @@ def test_var_broadcast_never_crosses_rooms(service_on, fake_pool):
     fake_pool.seed_room(owner_user_id=1, join_code="room-b")
 
     with client.websocket_connect("/ws/thecommons/room-a?role=display") as display_a:
+        assert display_a.receive_json()["type"] == "images"
         sketch_a = display_a.receive_json()
         var_name = sketch_a["sketch"]["variables"][0]["name"]
         variable = next(v for v in sketch_a["sketch"]["variables"] if v["name"] == var_name)
@@ -157,6 +161,7 @@ def test_trigger_event_never_crosses_rooms(service_on, fake_pool):
         fake_pool.room_state[room_id] = {"sketch": TRIGGER_SKETCH, "values": {}, "undo": None}
 
     with client.websocket_connect("/ws/thecommons/room-a?role=display") as display_a:
+        assert display_a.receive_json()["type"] == "images"
         assert display_a.receive_json()["sketch"]["id"] == "trig-1"
 
         with client.websocket_connect("/ws/thecommons/room-a?table=t1") as station_a:

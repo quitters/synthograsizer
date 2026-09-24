@@ -42,7 +42,7 @@ class FakePool:
 
 def test_new_tables_present_in_schema_sql():
     schema = service_db._schema_sql_text()
-    for table in ("commons_rooms", "commons_room_state", "commons_room_jobs"):
+    for table in ("commons_rooms", "commons_room_state", "commons_room_jobs", "commons_room_images"):
         assert f"CREATE TABLE IF NOT EXISTS {table}" in schema
 
     assert "owner_user_id  BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE" in schema
@@ -51,11 +51,15 @@ def test_new_tables_present_in_schema_sql():
     assert "room_id            BIGINT NOT NULL REFERENCES commons_rooms(id) ON DELETE CASCADE" in schema
     assert "generation_id      BIGINT REFERENCES generations(id) ON DELETE SET NULL" in schema
     assert "commons_room_jobs_room_request_idx ON commons_room_jobs(room_id, client_request_id)" in schema
+    assert "room_id     BIGINT NOT NULL REFERENCES commons_rooms(id) ON DELETE CASCADE" in schema
+    assert "commons_room_images_room_idx ON commons_room_images(room_id, position)" in schema
 
 
-def test_schema_version_is_4():
-    assert service_db.SCHEMA_VERSION == 4
-    assert 4 in service_db._MIGRATIONS
+def test_schema_version_is_5():
+    # v4 added the rooms; v5 (2026-09-23) added room images. Both are new
+    # tables only, so neither carries migration SQL.
+    assert service_db.SCHEMA_VERSION == 5
+    assert service_db._MIGRATIONS[4] == [] and service_db._MIGRATIONS[5] == []
 
 
 def test_fresh_database_replays_no_commons_migration_steps():
@@ -75,3 +79,10 @@ def test_existing_v3_database_bumps_to_v4_with_no_additive_sql():
     assert any("UPDATE schema_version SET version" in s for s in pool.executed)
     assert not any("ALTER TABLE commons" in s or "CREATE TABLE commons" in s for s in pool.executed
                    if "IF NOT EXISTS" not in s)
+
+
+def test_existing_v4_database_bumps_to_v5_with_no_additive_sql():
+    pool = FakePool(existing_version=4)
+    asyncio.run(service_db._migrate(pool))
+    assert any("UPDATE schema_version SET version" in s for s in pool.executed)
+    assert not any("ALTER TABLE" in s for s in pool.executed)

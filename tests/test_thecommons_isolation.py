@@ -165,8 +165,10 @@ def test_stale_remix_in_one_room_never_touches_the_other(service_on, fake_pool, 
 
     # Force room A's relay to hydrate with a known sketch id via a display connect.
     with client.websocket_connect(f"/ws/thecommons/{room_a['joinCode']}?role=display") as ws:
+        assert ws.receive_json()["type"] == "images"
         current = ws.receive_json()
     with client.websocket_connect(f"/ws/thecommons/{room_b['joinCode']}?role=display") as ws:
+        assert ws.receive_json()["type"] == "images"
         room_b_sketch = ws.receive_json()
 
     stale_remix = client.post(

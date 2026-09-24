@@ -35,12 +35,11 @@ from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import Response
 from pydantic import BaseModel
 
-from backend.service import service_mode, storage
+from backend.service import service_mode, storage, storage_quota
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
-DEFAULT_QUOTA_MB = 200
 PAGE_SIZE = 50
 
 # kind -> generations.action values that could plausibly have produced it,
@@ -84,11 +83,6 @@ def _current_user(request: Request):
     return user
 
 
-def _quota_bytes() -> int:
-    mb = int(os.environ.get("SYNTH_STORAGE_QUOTA_MB", DEFAULT_QUOTA_MB))
-    return mb * 1024 * 1024
-
-
 def _storage_unavailable() -> HTTPException:
     return HTTPException(status_code=503, detail={
         "error": "storage_disabled",
@@ -128,10 +122,9 @@ async def save_artifact(body: SaveArtifactRequest, request: Request):
     if not data:
         raise HTTPException(status_code=400, detail="Empty upload.")
 
-    used = await pool.fetchval(
-        "SELECT COALESCE(SUM(bytes), 0) FROM artifacts WHERE user_id = $1", user["id"]
-    )
-    quota = _quota_bytes()
+    # Shared with the Commons' room images: one quota over the account's bucket.
+    used = await storage_quota.used_bytes(pool, user["id"])
+    quota = storage_quota.quota_bytes()
     if used + len(data) > quota:
         raise HTTPException(status_code=413, detail={
             "error": "storage_quota",
@@ -203,9 +196,7 @@ async def list_artifacts(request: Request, before_id: Optional[int] = None):
     )
     has_more = len(rows) > PAGE_SIZE
     rows = rows[:PAGE_SIZE]
-    used = await pool.fetchval(
-        "SELECT COALESCE(SUM(bytes), 0) FROM artifacts WHERE user_id = $1", user["id"]
-    )
+    used = await storage_quota.used_bytes(pool, user["id"])
     # has_thumb, not a URL: the client lazy-loads visible thumbs from the proxy
     # endpoint (one request each, only when scrolled into view), so the list
     # stays a single round-trip regardless of page size.
@@ -218,7 +209,7 @@ async def list_artifacts(request: Request, before_id: Optional[int] = None):
         ],
         "next_before_id": rows[-1]["id"] if has_more and rows else None,
         "storage_used_mb": round(used / 1024 / 1024, 1),
-        "storage_limit_mb": _quota_bytes() // (1024 * 1024),
+        "storage_limit_mb": storage_quota.quota_bytes() // (1024 * 1024),
     }
 
 

@@ -164,3 +164,19 @@ CREATE TABLE IF NOT EXISTS commons_room_jobs (
 );
 CREATE UNIQUE INDEX IF NOT EXISTS commons_room_jobs_room_request_idx ON commons_room_jobs(room_id, client_request_id);
 CREATE INDEX IF NOT EXISTS commons_room_jobs_room_created_idx ON commons_room_jobs(room_id, created_at DESC);
+
+-- Images a room's owner uploaded for pieces on the wall to use (room.images).
+-- Only ever the server's own re-encoding of an upload is stored, in GCS at
+-- users/{owner}/rooms/{room}/{id}.webp: derived from these integers, so there
+-- is no path column to trust. CASCADE with the room, like its state and jobs;
+-- the objects go with the room's delete_prefix, or with the owner's account.
+CREATE TABLE IF NOT EXISTS commons_room_images (
+  id          BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  room_id     BIGINT NOT NULL REFERENCES commons_rooms(id) ON DELETE CASCADE,
+  position    INT NOT NULL,       -- the order pieces see them in
+  width       INT NOT NULL,
+  height      INT NOT NULL,
+  bytes       INT NOT NULL,       -- counts toward the owner's storage quota
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS commons_room_images_room_idx ON commons_room_images(room_id, position);

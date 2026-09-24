@@ -1,6 +1,6 @@
 # The Commons — room images: plan
 
-**Status:** plan, revised 2026-09-23. PR 1 built; PR 2 to PR 4 not started.
+**Status:** plan, revised 2026-09-23. PR 1 and PR 2 built; PR 3 and PR 4 not started.
 **Decided:** images live in the GCS bucket; they belong to one room and are never used by gallery
 pieces; only the room's owner can upload them, and there is no automated moderation. A room with
 no uploads uses a set of default images, so image pieces can be tested before anyone uploads.
@@ -121,87 +121,98 @@ none.
 
 ## PR 2 — upload, storage and API
 
-**Schema** (`backend/service/schema.sql`, next to the other `commons_` tables):
+**Schema** (`backend/service/schema.sql`, schema v5):
 
 ```sql
 CREATE TABLE IF NOT EXISTS commons_room_images (
-  id            BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  room_id       BIGINT NOT NULL REFERENCES commons_rooms(id) ON DELETE CASCADE,
-  position      INT NOT NULL,            -- the order pieces see them in
-  storage_path  TEXT NOT NULL,           -- users/{owner}/rooms/{room}/{id}.webp
-  width         INT NOT NULL,
-  height        INT NOT NULL,
-  bytes         INT NOT NULL,            -- counts toward the owner's storage quota
-  created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
+  id          BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  room_id     BIGINT NOT NULL REFERENCES commons_rooms(id) ON DELETE CASCADE,
+  position    INT NOT NULL,       -- the order pieces see them in
+  width       INT NOT NULL,
+  height      INT NOT NULL,
+  bytes       INT NOT NULL,       -- counts toward the owner's storage quota
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 CREATE INDEX IF NOT EXISTS commons_room_images_room_idx ON commons_room_images(room_id, position);
 ```
 
-**Object path** `users/{owner_id}/rooms/{room_id}/{image_id}.webp`. Nothing user-controlled goes
-into it. Putting it under the owner's prefix means the existing account delete
+**Object path** `users/{owner_id}/rooms/{room_id}/{image_id}.webp`, derived from those three
+integers rather than stored, so there is no path column to trust and nothing user-controlled in
+it. Putting it under the owner's prefix means the existing account delete
 (`storage.delete_prefix("users/{id}/")` in `routers/account.py`) removes every room image with
-no new code. Room delete gains one `delete_prefix("users/{owner}/rooms/{room}/")`.
+no new code. Room delete gains one best-effort `delete_prefix("users/{owner}/rooms/{room}/")`.
 
-**Sanitising** (new `backend/service/thecommons_images.py`; the one place that touches upload
-bytes, and the encoder the default-images script reuses):
+**Sanitising** (`thecommons_images.sanitize()`; the one place that touches upload bytes):
 
-- Hard caps before decoding: 15 MB request, `Image.MAX_IMAGE_PIXELS` at about 40 MP, so a
-  decompression bomb fails early. Anything Pillow can't open is rejected; the file type is
-  decided by Pillow, never by the filename or the declared content type. PNG, JPEG, WebP and GIF
-  are accepted. An animated GIF or WebP keeps its first frame only. SVG is never decoded.
+- Caps before decoding: 15 MB, and 40 MP read from the header, so a decompression bomb costs a
+  few hundred bytes of reading. Pillow's own bomb refusal (far larger headers) is reported the
+  same way.
+- The file type is decided by Pillow from the bytes, never by the filename or declared content
+  type: PNG, JPEG, WebP and GIF. JPEG includes MPO, which is how many phones save a photo.
+  BMP, TIFF, SVG and anything else are refused. An animated GIF or WebP keeps its first frame.
 - `ImageOps.exif_transpose` first, so phone photos come out upright. Then convert to RGB, or to
   RGBA if the image has transparency.
-- Resize so the long edge is at most **1920 px**, the wall's resolution. That keeps a full set
-  of images to about 100 MB of decoded bitmaps on the wall.
-- Re-encode as WebP (quality about 85, alpha kept). No EXIF, ICC or XMP metadata is written.
-  What gets stored is only ever this output.
+- Resize so the long edge is at most **1920 px**, the wall's resolution.
+- Re-encode as WebP (quality 85, alpha kept), with no EXIF, ICC or XMP. What gets stored is only
+  ever this output. Decoding runs off the event loop, since the same process serves the relay.
 
 **Endpoints** (owner-only through the existing `_require_owned_room`; CSRF and session checks
 come from the middleware as for every `/api/` path):
 
 | Method | Path | Does |
 |---|---|---|
-| `POST` | `/api/thecommons/rooms/{id}/images` | multipart upload of one file (`python-multipart` is already a dependency); sanitise, store, add a row at the end, rebroadcast the manifest |
-| `GET` | `/api/thecommons/rooms/{id}/images` | the manifest, for the desk: `[{id, position, width, height, bytes}]` plus count, limit and quota used |
+| `POST` | `/api/thecommons/rooms/{id}/images` | multipart upload of one file; sanitise, check the quota, add a row at the end, store, rebroadcast |
+| `GET` | `/api/thecommons/rooms/{id}/images` | for the desk: `images` (`{id, position, width, height, bytes, url}`), `limit`, `storageEnabled`, storage used and limit, and the `samples` pieces use while there are none |
 | `GET` | `/api/thecommons/rooms/{id}/images/{image_id}` | the bytes, for the desk's thumbnails |
-| `PUT` | `/api/thecommons/rooms/{id}/images/order` | a full list of ids in the new order |
-| `DELETE` | `/api/thecommons/rooms/{id}/images/{image_id}` | remove the object, the row, and rebroadcast |
+| `PUT` | `/api/thecommons/rooms/{id}/images/order` | `{"ids": [...]}`, every image exactly once |
+| `DELETE` | `/api/thecommons/rooms/{id}/images/{image_id}` | remove the row and the object, and rebroadcast |
 | `GET` | `/api/thecommons/display/{join_code}/images/{image_id}` | the bytes, for the wall, reached by the join code the wall already has |
 
-Content responses are served same-origin by proxying `storage.get()` (as `artifact_content`
-already does), with `Content-Type: image/webp`, `X-Content-Type-Options: nosniff` and
+Content responses are served same-origin by proxying `storage.get()`, with
+`Content-Type: image/webp`, `X-Content-Type-Options: nosniff` and
 `Cache-Control: private, max-age=86400`. Image ids are never reused, so caching is safe.
 
+**Refusals**, each with an `error` code for the desk: `room_full` (409, checked before any
+decode), `not_an_image` (415), `too_large` and `too_many_pixels` (413), `storage_quota` (413).
+Storage off is 503 and a failed store 502. In service mode the server scrubs every 5xx body to
+a correlation id, so for those two the desk has the status code, and the list's
+`storageEnabled`.
+
 **Limits:**
-- **12 images per room.**
-- **Quota:** room images count toward the same per-user storage quota as "My creations". The
-  quota query in `routers/artifacts.py` becomes a sum over both tables, shared through one
-  helper so the two can't disagree.
-- **Storage off:** with `SYNTH_GCS_BUCKET` unset every upload endpoint returns 503. Rooms keep
-  working with the default images.
+- **12 images per room.** The count and the insert are one statement. Two uploads landing in
+  the same instant could still both pass at Postgres's default isolation; the quota bounds it.
+- **Quota:** room images count toward the same per-user storage quota as "My creations", through
+  one helper (`backend/service/storage_quota.py`) that both routers use.
+- **Storage off:** with `SYNTH_GCS_BUCKET` unset, uploads return 503. Rooms keep working with
+  the default images.
 
-**Relay:** `get_or_create_relay` also loads the manifest. `connect_display` sends
-`{"type": "images", "images": [{id, width, height}]}` after the sketch (an empty list means
-"use the defaults"), and any upload, delete or reorder rebroadcasts it. It goes to **displays
-only**, so `_resolve_targets` gains a `"displays"` target next to `"all"`. Stations never
-receive it.
+**Relay:** `get_or_create_relay` loads the manifest from the rows, so it survives a restart.
+`connect_display` sends `{"type": "images", "images": [{id, width, height}]}` **before** the
+sketch, so a wall never shows the samples for a moment before the room's own uploads; an empty
+list means "use the samples". Every upload, delete or reorder rebroadcasts it. It goes to
+**displays only**, through a new `"displays"` target; phones never receive it.
 
-**Local development:** tests fake `storage.put/get/delete` with an in-memory dict, the way
-`fake_pool` fakes Postgres. For trying it by hand, add an opt-in `SYNTH_STORAGE_DIR` directory
-backend to `storage.py`. It is refused whenever the app is in hosted mode, so it can never run
-on Cloud Run.
+**The wall** keeps the latest manifest and loads it whenever a piece that uses images is on.
+The newest list always wins over a slower earlier load, and if no manifest ever arrives it
+falls back to the samples after two seconds. Upload ids reach pieces as `upload-{id}`.
 
-**Tests:**
-- **Sanitiser:** a decompression bomb, an oversize upload, a non-image, and a polyglot (valid
-  PNG plus a trailing script) whose stored output doesn't contain the trailer. Also EXIF
-  orientation, alpha kept, animated GIF keeps its first frame, long edge capped, no metadata
-  written.
-- **Access:** non-owner gets 404, signed out gets 401, a participant token can't upload, and a
-  wrong join code gets 404 on the display route.
-- **Limits and cleanup:** the image-count limit, the shared quota, 503 when storage is off,
-  room delete removes the objects, and every upload, delete or reorder rebroadcasts the
-  manifest to displays only. Deleting the last upload sends an empty manifest, and the wall
-  goes back to the defaults.
+**Local development:** there is no local storage backend. Rooms need Postgres anyway, so the
+way to try the whole path by hand is the test suite's own fakes (`FakeCommonsPool` and an
+in-memory bucket) under the real app, which is how this PR was checked.
+
+**Tests** (`tests/test_thecommons_room_uploads.py`):
+- **Sanitiser:** a decompression bomb, an oversize upload, non-images (script, SVG, empty),
+  BMP and TIFF, a truncated JPEG, and a polyglot (valid PNG plus a trailing script) whose
+  stored output doesn't contain the trailer. Also EXIF orientation, metadata dropped, alpha
+  kept, a GIF's first frame, an MPO phone photo, and the long edge capped.
+- **Access:** signed out gets 401 and non-owner 404 on every route; the wall's route needs no
+  session but 404s for a wrong, closed or other room's join code.
+- **Limits and cleanup:** the image-count limit (refused without decoding), the shared quota,
+  503 when storage is off, a failed store leaving no row, reordering, delete, and room delete
+  clearing the bucket.
+- **The wall:** a connected wall hears each upload and delete (and gets the samples back when
+  the last one goes), a wall connecting after a restart is told the room's images first, and
+  phones never hear about images.
 
 ## PR 3 — the desk
 
@@ -221,9 +232,9 @@ never see the images and that the owner is responsible for what they upload:
   remixing a piece that already uses them.
 - **Storage off:** the upload button is hidden and the section says the samples are in use.
 
-**Verify** in the browser pane against the `SYNTH_STORAGE_DIR` backend: samples show before
-any upload; upload, reorder and delete work; and the wall switches from samples to uploads and
-back without a reload.
+**Verify** in the browser pane with the real app on the test fakes (see PR 2): samples show
+before any upload; upload, reorder and delete work; and the wall switches from samples to
+uploads and back without a reload.
 
 ## PR 4 — the generator
 
