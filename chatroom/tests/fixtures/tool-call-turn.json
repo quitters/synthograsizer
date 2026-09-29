@@ -1,0 +1,40 @@
+[
+  {
+    "event_type": "interaction.created",
+    "interaction": { "id": "int_tool_001", "status": "in_progress" }
+  },
+  { "event_type": "step.start", "step": { "type": "model_output" } },
+  { "event_type": "step.delta", "delta": { "type": "text", "text": "Let me sketch that. " } },
+  { "event_type": "step.stop" },
+  {
+    "event_type": "step.start",
+    "step": { "type": "function_call", "id": "call_abc123", "name": "generate_image", "arguments": {} }
+  },
+  { "event_type": "step.delta", "delta": { "type": "arguments_delta", "arguments": "{\"prompt\":\"a fox" } },
+  { "event_type": "step.delta", "delta": { "type": "arguments_delta", "arguments": " in deep snow\"}" } },
+  { "event_type": "step.stop" },
+  {
+    "event_type": "interaction.completed",
+    "interaction": {
+      "id": "int_tool_001",
+      "status": "requires_action",
+      "steps": [
+        { "type": "model_output", "content": [{ "type": "text", "text": "Let me sketch that. " }] },
+        {
+          "type": "function_call",
+          "id": "call_abc123",
+          "name": "generate_image",
+          "arguments": { "prompt": "a fox in deep snow" }
+        }
+      ],
+      "usage": {
+        "total_input_tokens": 4200,
+        "total_output_tokens": 30,
+        "total_thought_tokens": 60,
+        "total_cached_tokens": 0,
+        "total_tool_use_tokens": 180,
+        "total_tokens": 4470
+      }
+    }
+  }
+]

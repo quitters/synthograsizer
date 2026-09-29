@@ -42,6 +42,20 @@ export function AgentCard({ agent, onRemove, onAvatarChange, showRemove = true }
           </div>
           <div className="agent-info">
             <h4>{agent.name}</h4>
+            {/* Only shown when this agent overrides the room's model or runs
+                above the default deliberation — the badge marks the exception,
+                not the norm. */}
+            {(agent.model || (agent.thinkingLevel && agent.thinkingLevel !== 'low')) && (
+              <span
+                className="agent-model-badge"
+                title={`Model: ${agent.model || 'room default'} · Deliberation: ${agent.thinkingLevel || 'low'}`}
+              >
+                {/* "gemini-3.8-flash" → "3.8-flash" — the prefix is noise here */}
+                {agent.model && agent.model.replace(/^gemini-/, '')}
+                {agent.thinkingLevel && agent.thinkingLevel !== 'low' &&
+                  `${agent.model ? ' · ' : ''}${agent.thinkingLevel}`}
+              </span>
+            )}
             {agent.bio && (
               <p className="agent-preview">
                 {agent.bio.substring(0, 100)}...

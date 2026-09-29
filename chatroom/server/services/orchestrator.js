@@ -4,9 +4,54 @@ import { generateAgentResponse } from './gemini.js';
 import { generateImage, generateImageWithReferences, parseImageRequests, parseRemixRequests, stripImageTags } from './imageGen.js';
 import { parseToolRequests, executeToolRequests, stripToolTags, formatToolResults, parseSynthRequests, executeSynthRequests, stripSynthTags, formatSynthResults, parseWorkflowRequests, stripWorkflowTags, workflowEngine, parseSynthStyleRequests, parseWorkflowTemplateRequests, stripStyleAndTemplateTags } from './tools.js';
 import { countTokens, countMessageTokens } from '../utils/tokenCounter.js';
+import { DEFAULT_AGENT_MODEL, normalizeThinkingLevel, isKnownAgentModel } from '../config/models.js';
+import { isFunctionCallingEnabled, isKnownToolTier, DEFAULT_TOOL_TIER } from '../config/tools.js';
+import { isStatefulEnabled } from '../config/session.js';
+import {
+  isFileSearchEnabled, shouldIndex, isCrossSessionMemoryEnabled, MIN_MESSAGES_TO_ARCHIVE,
+} from '../config/fileSearch.js';
+import {
+  isSmartOrchestrationEnabled, SPEAKER_CONFIDENCE_FLOOR, CONSENSUS_CONFIDENCE_FLOOR,
+} from '../config/orchestration.js';
+import { selectSpeaker, assessCompletion, getJudgeUsage, resetJudgeUsage } from './judge.js';
+import { isKnownVoice, defaultVoiceForIndex } from '../config/voices.js';
+import { isDeepResearchEnabled, MAX_TASKS_PER_SESSION, ESTIMATED_COST_USD } from '../config/research.js';
+import { submitResearch, pollToCompletion } from './deepResearch.js';
+import { deleteInteractions } from './gemini.js';
+import {
+  createSessionStore, indexMedia, destroySessionStore, fileSearchTool,
+  archiveSession, getOrCreateMemoryStore,
+} from './fileSearch.js';
+import { buildToolsForAgent } from './toolDefinitions.js';
+import { createToolDispatcher } from './toolDispatch.js';
 import { mediaStore } from './mediaStore.js';
 import { artifactStore } from './artifactStore.js';
 import { synthClient, traceStore } from 'workflow-engine';
+
+/**
+ * Zeroed usage accumulator. Field names mirror the shape yielded by
+ * gemini.js, which in turn mirrors `interaction.usage` minus the snake_case.
+ */
+function createEmptyUsage() {
+  return {
+    inputTokens: 0,
+    outputTokens: 0,
+    thoughtTokens: 0,
+    cachedTokens: 0,
+    toolUseTokens: 0,
+    totalTokens: 0,
+    /** Turns whose cost came from the API rather than the character estimate. */
+    reportedTurns: 0,
+    estimatedTurns: 0,
+    /**
+     * Billable Google Search queries. On Gemini 3.x grounding bills per query
+     * the model executes, not per prompt, so one tool call can be several
+     * billable units. Tokens alone will not show that, and an autonomous loop
+     * with an unrestricted search tool is exactly where it runs away.
+     */
+    searchQueries: 0,
+  };
+}
 
 /**
  * Chat Orchestrator
@@ -18,11 +63,22 @@ class ChatOrchestrator {
   }
 
   reset() {
+    // Stateful mode leaves conversation history on Google's side, so a reset
+    // has to reach out and delete it — otherwise "reset" only clears the UI
+    // while the transcript lives on for the retention window. Fire-and-forget:
+    // a network failure must not block the reset itself.
+    this._purgeStoredInteractions();
+    this._destroyFileSearchStore();
     this.agents = [];
     this.messages = [];
     this.goal = '';
     this.tokenLimit = 100000;
+    // tokenCount is the BUDGET counter: what the agents produced (real output
+    // + thought tokens when the API reports them, character estimate when it
+    // doesn't). It deliberately excludes input so the limit keeps its old
+    // calibration — `usage` below is the honest full-cost picture.
     this.tokenCount = 0;
+    this.usage = createEmptyUsage();
     this.turnCount = 0;
     this.isRunning = false;
     this.isPaused = false;
@@ -64,6 +120,28 @@ class ChatOrchestrator {
     this.pendingWorkflowOutcomes = [];
     // Rolling window of recently generated images to pass as vision context
     this.recentGenImages = []; // [{ id, data, mimeType, prompt, agentName }]
+    // Stateful mode (Phase 3): per-agent server-side conversation chains.
+    //   agentChains[agentId]   → interaction id to continue from
+    //   agentSeenUpTo[agentId] → index into this.messages of the first message
+    //                            that agent has NOT yet been shown
+    // Both are only populated when GEMINI_STORE_INTERACTIONS=true.
+    this.agentChains = {};
+    this.agentSeenUpTo = {};
+    // File Search (Phase 4): one store per session, created lazily on the
+    // first indexable upload. Null means "nothing indexed", which is the
+    // normal state when FILE_SEARCH is off.
+    this.fileSearchStoreName = null;
+    // Long-term memory store, shared across sessions. Initialised once and
+    // then deliberately left alone by reset() — memory that a reset wipes is
+    // not memory. Same pattern as sseClients above, which is also
+    // transport-level state that must outlive a session.
+    if (this.memoryStoreName === undefined) this.memoryStoreName = null;
+    // Deep Research (Phase 7). Tasks cost $1-3 each and run for minutes, so
+    // the count is capped per session and the reports arrive asynchronously
+    // through the same channel workflow outcomes use.
+    this.researchTasksUsed = 0;
+    this.pendingResearchOutcomes = [];
+    this.activeResearchIds = new Set();
   }
 
   /**
@@ -78,14 +156,144 @@ class ChatOrchestrator {
       throw err;
     }
     this.sessionMedia.push(mediaItem);
+
+    // Index documents into File Search rather than letting them ride inline.
+    // Deliberately not awaited: uploads arrive one HTTP request at a time and
+    // indexing takes seconds, so the response returns immediately and the
+    // item is marked `indexed` when it lands. Turns before that still see the
+    // file inline, which is the correct fallback rather than a gap.
+    if (isFileSearchEnabled() && shouldIndex(mediaItem.mimeType)) {
+      this._indexSessionMedia(mediaItem).catch(err =>
+        console.warn(`[Orchestrator] indexing "${mediaItem.name}" failed: ${err.message}`)
+      );
+    }
     return mediaItem;
+  }
+
+  /**
+   * Index one upload, creating the session store on first use.
+   */
+  async _indexSessionMedia(mediaItem) {
+    if (!this.fileSearchStoreName) {
+      this.fileSearchStoreName = await createSessionStore(this.sessionId || 'pending');
+    }
+    const result = await indexMedia(this.fileSearchStoreName, mediaItem);
+    if (result.ok) {
+      // Flip the flag on the live object; gemini.js reads it to decide what
+      // still needs to ride inline.
+      mediaItem.indexed = true;
+      this.broadcast('media_indexed', { mediaId: mediaItem.id, name: mediaItem.name });
+    } else {
+      this.broadcast('media_index_failed', {
+        mediaId: mediaItem.id, name: mediaItem.name, error: result.error,
+      });
+    }
+  }
+
+  /**
+   * Submit a Deep Research task, enforcing the per-session budget.
+   *
+   * The cap lives here rather than in the tool description because a
+   * description is a request and this is a rule — an autonomous room with an
+   * uncapped $1-3 tool can spend real money while nobody is watching.
+   *
+   * @returns {Promise<{ok: boolean, error?: string}>}
+   */
+  async _startResearch(topic, opts, speaker) {
+    if (this.researchTasksUsed >= MAX_TASKS_PER_SESSION) {
+      return {
+        ok: false,
+        error: `the session limit of ${MAX_TASKS_PER_SESSION} research task(s) is already used. ` +
+               'Use google_search instead.',
+      };
+    }
+    this.researchTasksUsed += 1;
+
+    let submitted;
+    try {
+      submitted = await submitResearch(topic, opts);
+    } catch (err) {
+      this.researchTasksUsed -= 1; // never charge the budget for a failed submit
+      return { ok: false, error: err.message };
+    }
+
+    this.activeResearchIds.add(submitted.id);
+    this.broadcast('research_submitted', {
+      agentId: speaker.id,
+      agentName: speaker.name,
+      researchId: submitted.id,
+      topic,
+      thorough: Boolean(opts?.max),
+      tasksUsed: this.researchTasksUsed,
+      tasksAllowed: MAX_TASKS_PER_SESSION,
+      estimatedCostUsd: ESTIMATED_COST_USD,
+    });
+
+    // Poll in the background. The conversation keeps going; the report lands
+    // in pendingResearchOutcomes for whoever speaks next after it finishes.
+    pollToCompletion(submitted.id, (status, elapsed) => {
+      this.broadcast('research_progress', {
+        researchId: submitted.id, status, elapsedSeconds: Math.round(elapsed / 1000),
+      });
+    }).then(result => {
+      this.activeResearchIds.delete(submitted.id);
+      this.pendingResearchOutcomes.push({
+        topic,
+        agentName: speaker.name,
+        ok: result.ok,
+        text: result.text,
+        error: result.error,
+      });
+      this.broadcast(result.ok ? 'research_completed' : 'research_failed', {
+        researchId: submitted.id, topic, error: result.error,
+        chars: result.text?.length || 0,
+      });
+    }).catch(err => {
+      this.activeResearchIds.delete(submitted.id);
+      this.pendingResearchOutcomes.push({
+        topic, agentName: speaker.name, ok: false, error: err.message,
+      });
+    });
+
+    return { ok: true, id: submitted.id };
+  }
+
+  /**
+   * Delete the session's File Search store. Best-effort and not awaited —
+   * called from synchronous reset paths — but a failure is logged because it
+   * leaves quota consumed.
+   */
+  _destroyFileSearchStore() {
+    const name = this.fileSearchStoreName;
+    this.fileSearchStoreName = null;
+    if (!name) return;
+    destroySessionStore(name).catch(err =>
+      console.warn(`[Orchestrator] file search store cleanup failed: ${err.message}`)
+    );
   }
 
   /**
    * Remove session media by ID
    */
   removeSessionMedia(mediaId) {
+    const removed = this.sessionMedia.find(m => m.id === mediaId);
     this.sessionMedia = this.sessionMedia.filter(m => m.id !== mediaId);
+
+    // A removed file must stop being retrievable, or agents keep citing a
+    // document the user deleted. Rather than tracking per-document resource
+    // names through the upload operation, drop the store and re-index what
+    // remains — removals are rare (usually before a session even starts) and
+    // this uses only the store-level calls, so it cannot half-work.
+    if (removed?.indexed) {
+      this._destroyFileSearchStore();
+      const survivors = this.sessionMedia.filter(m => m.indexed);
+      for (const m of survivors) m.indexed = false;
+      for (const m of survivors) {
+        this._indexSessionMedia(m).catch(err =>
+          console.warn(`[Orchestrator] re-indexing "${m.name}" failed: ${err.message}`)
+        );
+      }
+    }
   }
 
   /**
@@ -100,6 +308,7 @@ class ChatOrchestrator {
    */
   clearSessionMedia() {
     this.sessionMedia = [];
+    this._destroyFileSearchStore();
   }
 
   /**
@@ -268,14 +477,27 @@ class ChatOrchestrator {
   }
 
   /**
-   * Add an agent to the chat room
+   * Add an agent to the chat room.
+   * `model` is left null unless explicitly chosen, so an agent added without
+   * one still honours a session-wide model preference (from /api/chat/start)
+   * before falling back to the registry default. Storing the default here
+   * would silently override that preference for every agent.
    */
-  addAgent(name, bio) {
+  addAgent(name, bio, options = {}) {
     const agent = {
       id: uuidv4(),
       name,
       bio,
-      color: this.generateColor(this.agents.length)
+      color: this.generateColor(this.agents.length),
+      model: isKnownAgentModel(options.model) ? options.model : null,
+      thinkingLevel: normalizeThinkingLevel(options.thinkingLevel),
+      // Which function tools this agent may call (function-calling mode only).
+      tools: isKnownToolTier(options.tools) ? options.tools : DEFAULT_TOOL_TIER,
+      // Voice used when the session is rendered to audio. Defaults by roster
+      // position so a fresh room already sounds like distinct people.
+      voice: isKnownVoice(options.voice)
+        ? options.voice
+        : defaultVoiceForIndex(this.agents.length),
     };
     this.agents.push(agent);
     return agent;
@@ -286,6 +508,12 @@ class ChatOrchestrator {
    */
   removeAgent(agentId) {
     this.agents = this.agents.filter(a => a.id !== agentId);
+    const chainId = this.agentChains?.[agentId];
+    if (chainId) {
+      delete this.agentChains[agentId];
+      delete this.agentSeenUpTo[agentId];
+      deleteInteractions([chainId]).catch(() => { /* best effort */ });
+    }
   }
 
   /**
@@ -299,6 +527,12 @@ class ChatOrchestrator {
     if (!agent) return null;
     if (typeof fields.bio === 'string') agent.bio = fields.bio;
     if (typeof fields.name === 'string' && fields.name.trim()) agent.name = fields.name.trim();
+    if (isKnownAgentModel(fields.model)) agent.model = fields.model;
+    if (typeof fields.thinkingLevel === 'string') {
+      agent.thinkingLevel = normalizeThinkingLevel(fields.thinkingLevel);
+    }
+    if (isKnownToolTier(fields.tools)) agent.tools = fields.tools;
+    if (isKnownVoice(fields.voice)) agent.voice = fields.voice;
     return agent;
   }
 
@@ -378,14 +612,22 @@ class ChatOrchestrator {
     // Solo mode pauses immediately — the first user inject drives the first turn.
     this.isPaused = mode === 'solo';
     this.completionReason = null;
+    // A new run means a new transcript, so the previous run's server-side
+    // chains are both stale and still retained at Google — drop them.
+    this._purgeStoredInteractions();
     this.messages = [];
     this.tokenCount = 0;
+    // Real usage is per-run spend. Unlike tokenCount it is NOT rewound by
+    // branch restore or rewindToMessage — you can't un-spend tokens.
+    this.usage = createEmptyUsage();
+    resetJudgeUsage();
     this.turnCount = 0;
     this.lastSpeakerId = null;
     this.modelPreference = options.model || null;
     // sessionId groups all workflows + traces produced during this run.
     // The trace viewer's "session lens" pivots on this field.
     this.sessionId = uuidv4();
+    this._resolveMemoryStore();
 
     this.broadcast('session_start', {
       sessionId: this.sessionId,
@@ -414,6 +656,56 @@ class ChatOrchestrator {
       turnCount: this.turnCount,
       messages: this.messages.length
     });
+    this._archiveToMemory(reason);
+  }
+
+  /**
+   * Archive a finished session into long-term memory so later rooms can
+   * search it. Fire-and-forget: stop() is called from request handlers and
+   * from inside the conversation loop, and neither should wait on an upload.
+   */
+  _archiveToMemory(reason) {
+    if (!isCrossSessionMemoryEnabled()) return;
+    if (this.messages.length < MIN_MESSAGES_TO_ARCHIVE) {
+      // A room that barely got started is noise in the memory store.
+      return;
+    }
+    const snapshot = {
+      sessionId: this.sessionId,
+      goal: this.goal,
+      agents: this.agents.map(a => ({ name: a.name })),
+      // Copy: the live array is about to be reset out from under the upload.
+      messages: this.messages.map(m => ({ agentName: m.agentName, content: m.content })),
+      endedAt: new Date().toISOString(),
+      reason,
+    };
+    archiveSession(snapshot)
+      .then(result => {
+        this.broadcast(result.ok ? 'memory_archived' : 'memory_archive_failed', {
+          sessionId: snapshot.sessionId,
+          messages: snapshot.messages.length,
+          error: result.error,
+        });
+      })
+      .catch(err => console.warn(`[Orchestrator] memory archive failed: ${err.message}`));
+  }
+
+  /**
+   * Resolve the long-term memory store for this run, creating it on first
+   * use. Not awaited by start() — the first turn or two may go without it,
+   * which is better than delaying the room on a store lookup.
+   */
+  _resolveMemoryStore() {
+    if (!isCrossSessionMemoryEnabled()) {
+      this.memoryStoreName = null;
+      return;
+    }
+    getOrCreateMemoryStore()
+      .then(name => {
+        this.memoryStoreName = name;
+        this.broadcast('memory_available', { storeName: name });
+      })
+      .catch(err => console.warn(`[Orchestrator] memory store unavailable: ${err.message}`));
   }
 
   /**
@@ -551,19 +843,51 @@ class ChatOrchestrator {
    * Returns null if there are no outcomes to report.
    */
   _drainWorkflowOutcomes() {
-    if (this.pendingWorkflowOutcomes.length === 0) return null;
-    const items = this.pendingWorkflowOutcomes.splice(0);
-    const lines = items.map(o => {
-      if (o.status === 'succeeded') {
-        return `- "${o.label}" (submitted by ${o.agentName}) SUCCEEDED.`;
+    const sections = [];
+
+    if (this.pendingWorkflowOutcomes.length > 0) {
+      const items = this.pendingWorkflowOutcomes.splice(0);
+      const lines = items.map(o => {
+        if (o.status === 'succeeded') {
+          return `- "${o.label}" (submitted by ${o.agentName}) SUCCEEDED.`;
+        }
+        return `- "${o.label}" (submitted by ${o.agentName}) FAILED: ${o.error}.`;
+      });
+      sections.push([
+        'Workflow outcomes since the last turn:',
+        ...lines,
+        'Acknowledge these results in your reply. Do NOT pretend failed workflows succeeded.',
+      ].join('\n'));
+    }
+
+    // Deep Research reports land here minutes after being commissioned. They
+    // are long, so they are truncated — the agent is told the report exists
+    // and given enough of it to work with, rather than having a 20-page
+    // document dropped into a chat turn.
+    if (this.pendingResearchOutcomes.length > 0) {
+      const items = this.pendingResearchOutcomes.splice(0);
+      for (const r of items) {
+        if (!r.ok) {
+          sections.push(
+            `The research task on "${r.topic}" (commissioned by ${r.agentName}) FAILED: ` +
+            `${r.error}. Say so plainly rather than inventing findings.`
+          );
+          continue;
+        }
+        const MAX_REPORT_CHARS = 6000;
+        const body = (r.text || '').length > MAX_REPORT_CHARS
+          ? `${r.text.slice(0, MAX_REPORT_CHARS)}\n…[report truncated]`
+          : (r.text || '(empty report)');
+        sections.push([
+          `RESEARCH REPORT — "${r.topic}" (commissioned by ${r.agentName}) has completed:`,
+          body,
+          'Bring the relevant findings into the discussion. Attribute claims to the report ' +
+          'rather than asserting them as your own prior knowledge.',
+        ].join('\n'));
       }
-      return `- "${o.label}" (submitted by ${o.agentName}) FAILED: ${o.error}.`;
-    });
-    return [
-      'Workflow outcomes since the last turn:',
-      ...lines,
-      'Acknowledge these results in your reply. Do NOT pretend failed workflows succeeded.',
-    ].join('\n');
+    }
+
+    return sections.length > 0 ? sections.join('\n\n') : null;
   }
 
   selectNextSpeaker() {
@@ -579,6 +903,62 @@ class ChatOrchestrator {
     } finally {
       this.agents = allAgents;
     }
+  }
+
+  /**
+   * Smart-orchestration wrapper around speaker selection.
+   *
+   * The hard rules still run first and still win: muting, the fairness floor,
+   * and "never twice in a row" are policy learned from real sessions, not
+   * things to hand to a model. The judge only picks between candidates the
+   * heuristics already consider valid, and any failure falls straight back to
+   * the heuristic's own answer.
+   */
+  async selectNextSpeakerSmart() {
+    const heuristic = this.selectNextSpeaker();
+    if (!heuristic) return null;
+    if (!isSmartOrchestrationEnabled()) return heuristic;
+    // Only 'dynamic' is a judgement call; the other modes are deterministic
+    // by definition and the user picked them on purpose.
+    if (this.speakingOrder !== 'dynamic') return heuristic;
+
+    // A starved agent is a fairness guarantee, not a preference — if the
+    // heuristic invoked the floor, do not second-guess it.
+    if (this._isStarvedPick(heuristic)) return heuristic;
+
+    const candidates = this.agents.filter(a => !a.muted && a.id !== this.lastSpeakerId);
+    if (candidates.length < 2) return heuristic;
+
+    try {
+      const verdict = await selectSpeaker({
+        candidates,
+        recentMessages: this.messages,
+        goal: this.goal,
+      });
+      if (!verdict || verdict.confidence < SPEAKER_CONFIDENCE_FLOOR) return heuristic;
+
+      const chosen = candidates.find(a => a.id === verdict.agentId);
+      if (!chosen) return heuristic;
+
+      this.broadcast('speaker_selected', {
+        agentId: chosen.id,
+        agentName: chosen.name,
+        reason: verdict.reason,
+        confidence: verdict.confidence,
+      });
+      return chosen;
+    } catch (err) {
+      console.warn(`[Orchestrator] smart speaker selection failed: ${err.message}`);
+      return heuristic;
+    }
+  }
+
+  /** Was this pick forced by the fairness floor rather than chosen freely? */
+  _isStarvedPick(agent) {
+    const threshold = this.agents.length * 2;
+    const everSpoke = this.messages.some(m => m.agentId === agent.id);
+    if (!everSpoke) return this.messages.length >= threshold;
+    return this.countTurnsSince(agent.id) >= threshold;
   }
 
   _selectNextSpeakerInternal() {
@@ -875,6 +1255,14 @@ class ChatOrchestrator {
       }
     }
 
+    // Smart mode gets a second look: the phrase list above is a fixed set of
+    // strings and cannot recognise "I think we're done here" or "nothing
+    // further from me on this". Marked for the async pass in the loop, which
+    // still applies the cooldown and quorum rules around whatever it decides.
+    if (isSmartOrchestrationEnabled()) {
+      return 'needs_judgement';
+    }
+
     // High sensitivity: also check for sign-off patterns
     if (this.consensusSettings.sensitivity === 'high') {
       if (this.isConversationWindingDown(contentLower)) {
@@ -942,7 +1330,7 @@ class ChatOrchestrator {
       }
 
       // Select next speaker
-      const speaker = this.selectNextSpeaker();
+      const speaker = await this.selectNextSpeakerSmart();
       if (!speaker) {
         this.stop('no_agents');
         break;
@@ -961,15 +1349,45 @@ class ChatOrchestrator {
         // Generate response with streaming
         let fullResponse = '';
         let responseTokens = 0;
+        let turnUsage = null;
+        let turnUsageReported = false;
+        let turnInteractionId = null;
+        // Media produced by function calls during this turn, for the message
+        // record. The tag path fills `images`/`synthMedia` further down.
+        const toolMedia = [];
+        const toolCallLog = [];
 
         const systemNotes = this._drainWorkflowOutcomes();
+        const turnTools = this._toolsForTurn(speaker);
+        const hasCustomFunctions = turnTools.some(t => t?.type === 'function');
         const generator = generateAgentResponse(
           speaker,
           this.agents,
           this.messages,
           this.goal,
           this.sessionMedia,
-          { model: this.modelPreference, systemNotes, generatedImages: this.recentGenImages }
+          {
+            // A session-wide model preference still wins over the registry
+            // default, but a per-agent model wins over both (resolved inside
+            // generateAgentResponse).
+            model: this.modelPreference,
+            thinkingLevel: speaker.thinkingLevel,
+            systemNotes,
+            generatedImages: this.recentGenImages,
+            // Stateful chaining: continue this agent's server-side history and
+            // send only the messages it has not seen. Both are ignored when
+            // GEMINI_STORE_INTERACTIONS is off.
+            store: isStatefulEnabled(),
+            previousInteractionId: this.agentChains[speaker.id] || null,
+            sinceMessageIndex: this.agentSeenUpTo[speaker.id] ?? 0,
+            // Both must be present for the function-calling path to engage.
+            tools: turnTools,
+            // Only custom function declarations need a dispatcher. A turn
+            // carrying just built-ins (file_search) stays on the tag path.
+            dispatch: hasCustomFunctions
+              ? this._createDispatcher(speaker, toolMedia)
+              : null,
+          }
         );
 
         for await (const event of generator) {
@@ -981,6 +1399,24 @@ class ChatOrchestrator {
               agentId: speaker.id,
               text: event.text
             });
+          } else if (event.type === 'tool_call') {
+            this.broadcast('tool_executing', {
+              agentId: speaker.id,
+              type: event.name,
+              callId: event.id,
+              args: event.args,
+            });
+          } else if (event.type === 'tool_result') {
+            toolCallLog.push({ name: event.name, ok: event.ok, summary: event.summary });
+            this.broadcast('tool_result', {
+              agentId: speaker.id,
+              result: {
+                type: event.name,
+                ok: event.ok,
+                summary: event.summary,
+                mediaId: event.media?.id,
+              },
+            });
           } else if (event.type === 'complete') {
             // Use cleaned response from completion event
             // But fall back to accumulated chunks if cleaned response is empty
@@ -990,6 +1426,9 @@ class ChatOrchestrator {
             }
             // If cleanedResponse is empty but we have chunks, keep the accumulated chunks
             responseTokens = event.tokenCount;
+            turnUsage = event.usage || null;
+            turnUsageReported = Boolean(event.usageReported);
+            turnInteractionId = event.interactionId || null;
             if (event.wasTruncated) {
               console.log(`[Orchestrator] ${speaker.name}'s response was auto-continued after truncation`);
             }
@@ -1005,9 +1444,17 @@ class ChatOrchestrator {
 
         if (!this.isRunning || this.isPaused) break;
 
+        // In function-calling mode the bracket vocabulary was never taught, so
+        // nothing should be scraped out of the prose — and a legitimate
+        // [bracketed aside] must not be eaten by a parser. Feeding the tag
+        // parsers an empty string disables the whole legacy path in one place.
+        // Keyed on custom functions, NOT on tools being present at all — a
+        // turn can carry file_search while still speaking the tag dialect.
+        const tagSource = hasCustomFunctions ? '' : fullResponse;
+
         // Check for image generation requests in the response
-        const imageRequests = parseImageRequests(fullResponse);
-        const remixRequests = parseRemixRequests(fullResponse);
+        const imageRequests = parseImageRequests(tagSource);
+        const remixRequests = parseRemixRequests(tagSource);
         const images = [];
 
         // Process standard image generation requests
@@ -1145,7 +1592,7 @@ class ChatOrchestrator {
         }
 
         // Check for tool requests (web search, URL analysis, research)
-        const toolRequests = parseToolRequests(fullResponse);
+        const toolRequests = parseToolRequests(tagSource);
         let toolResults = [];
 
         if (toolRequests.length > 0) {
@@ -1169,6 +1616,7 @@ class ChatOrchestrator {
 
             // Broadcast tool results
             for (const result of toolResults) {
+              this.countSearchQueries(result);
               this.broadcast('tool_result', {
                 agentId: speaker.id,
                 result
@@ -1187,7 +1635,7 @@ class ChatOrchestrator {
         }
 
         // Check for Synthograsizer tool requests (SYNTH_* tags)
-        const synthRequests = parseSynthRequests(fullResponse);
+        const synthRequests = parseSynthRequests(tagSource);
         const synthMedia = []; // { id, type, data, mimeType, prompt }
         let synthResults = [];
 
@@ -1295,7 +1743,7 @@ class ChatOrchestrator {
         }
 
         // Check for Workflow tool requests (WORKFLOW / WORKFLOW_STATUS / WORKFLOW_CANCEL tags)
-        const workflowRequests = parseWorkflowRequests(fullResponse);
+        const workflowRequests = parseWorkflowRequests(tagSource);
         const workflowIds = []; // ids of newly submitted workflows
 
         if (workflowRequests.length > 0) {
@@ -1345,7 +1793,7 @@ class ChatOrchestrator {
         }
 
         // Check for SYNTH_STYLE tags (style preset image generation)
-        const styleRequests = parseSynthStyleRequests(fullResponse);
+        const styleRequests = parseSynthStyleRequests(tagSource);
         if (styleRequests.length > 0) {
           for (const req of styleRequests) {
             if (req.error) {
@@ -1401,7 +1849,7 @@ class ChatOrchestrator {
         }
 
         // Check for WORKFLOW_TEMPLATE tags (named workflow templates)
-        const templateRequests = parseWorkflowTemplateRequests(fullResponse);
+        const templateRequests = parseWorkflowTemplateRequests(tagSource);
         if (templateRequests.length > 0) {
           for (const req of templateRequests) {
             if (req.error) {
@@ -1440,7 +1888,7 @@ class ChatOrchestrator {
         }
 
         // ── Artifact tags ──────────────────────────────────────────────────
-        const artifactUpdates = parseArtifactTags(fullResponse);
+        const artifactUpdates = parseArtifactTags(tagSource);
         for (const { filename, content: artContent } of artifactUpdates) {
           const artifact = artifactStore.save(filename, artContent, speaker.id, speaker.name);
           this.broadcast('artifact_update', {
@@ -1456,9 +1904,15 @@ class ChatOrchestrator {
           fullResponse = stripArtifactTags(fullResponse);
         }
 
-        // Detect artifact hallucination (agent claims code changes without tags)
+        // Detect artifact hallucination (agent claims code changes without
+        // actually saving any). In function-calling mode a successful
+        // write_artifact call counts as having saved — otherwise every real
+        // tool-based edit would be flagged as a phantom one.
+        const savedArtifact =
+          artifactUpdates.length > 0 ||
+          toolCallLog.some(c => c.name === 'write_artifact' && c.ok);
         const artifactHallucinationNote = detectArtifactHallucination(
-          fullResponse, artifactUpdates.length > 0
+          fullResponse, savedArtifact
         );
 
         // Skip empty responses (no text, no images, no tool results, no synth, no workflows)
@@ -1469,8 +1923,12 @@ class ChatOrchestrator {
         const hasSynthResults = synthResults.length > 0;
         const hasWorkflows = workflowIds.length > 0;
         const hasArtifacts = artifactUpdates.length > 0;
+        // A turn that only called tools still happened — don't drop it.
+        const hasToolMedia = toolMedia.length > 0;
+        const hasToolCalls = toolCallLog.length > 0;
 
-        if (!hasContent && !hasImages && !hasToolResults && !hasSynthMedia && !hasSynthResults && !hasWorkflows && !hasArtifacts) {
+        if (!hasContent && !hasImages && !hasToolResults && !hasSynthMedia && !hasSynthResults &&
+            !hasWorkflows && !hasArtifacts && !hasToolMedia && !hasToolCalls) {
           console.warn(`Empty response from ${speaker.name}, skipping turn`);
           await this.delay(500);
           continue;
@@ -1485,18 +1943,37 @@ class ChatOrchestrator {
           content: fullResponse || '',
           images: hasImages ? images : undefined,
           toolResults: hasToolResults ? toolResults : undefined,
-          synthMedia: hasSynthMedia ? synthMedia : undefined,
+          // Function-calling mode surfaces its media the same way the SYNTH_*
+          // tags do, so ChatMessage.jsx renders both without a second branch.
+          synthMedia: hasSynthMedia ? synthMedia : (hasToolMedia ? toolMedia : undefined),
+          toolCalls: hasToolCalls ? toolCallLog : undefined,
           synthResults: hasSynthResults ? synthResults : undefined,
           workflowIds: hasWorkflows ? workflowIds : undefined,
           artifactHallucination: artifactHallucinationNote || undefined,
           timestamp: new Date().toISOString(),
           isUser: false,
-          tokenCount: responseTokens
+          tokenCount: responseTokens,
+          usage: turnUsage || undefined,
+          model: speaker.model || this.modelPreference || DEFAULT_AGENT_MODEL
         };
 
         this.messages.push(message);
         this.tokenCount += responseTokens;
+        this._accumulateUsage(turnUsage, turnUsageReported);
         this.lastSpeakerId = speaker.id;
+
+        // Advance this agent's chain. It has now seen everything up to and
+        // including its own turn, so the next one starts from here. If the
+        // turn produced no chainable id (stateless mode, or an interaction
+        // that never completed), the chain is dropped and the next turn
+        // falls back to sending the full transcript — correct, just costlier.
+        if (turnInteractionId) {
+          this.agentChains[speaker.id] = turnInteractionId;
+          this.agentSeenUpTo[speaker.id] = this.messages.length;
+        } else if (this.agentChains[speaker.id]) {
+          delete this.agentChains[speaker.id];
+          delete this.agentSeenUpTo[speaker.id];
+        }
 
         // Broadcast the message to all clients
         this.broadcast('message', message);
@@ -1506,11 +1983,15 @@ class ChatOrchestrator {
           agentId: speaker.id,
           message,
           totalTokens: this.tokenCount,
+          usage: this.usage,
           turnCount: this.turnCount
         });
 
         // Check for consensus/completion
-        const completionReason = this.checkForCompletion(fullResponse, speaker.id);
+        let completionReason = this.checkForCompletion(fullResponse, speaker.id);
+        if (completionReason === 'needs_judgement') {
+          completionReason = await this._judgeCompletion(fullResponse, speaker);
+        }
         if (completionReason) {
           this.stop(completionReason);
           break;
@@ -1540,6 +2021,166 @@ class ChatOrchestrator {
   }
 
   /**
+   * Delete every stored interaction this session created, and forget the
+   * chains. No-op in stateless mode, where nothing was stored to begin with.
+   */
+  _purgeStoredInteractions() {
+    const ids = Object.values(this.agentChains || {}).filter(Boolean);
+    this.agentChains = {};
+    this.agentSeenUpTo = {};
+    if (ids.length === 0) return;
+    // Not awaited: reset() is synchronous and called from request handlers.
+    deleteInteractions(ids).catch(err =>
+      console.warn(`[Orchestrator] interaction purge failed: ${err.message}`)
+    );
+  }
+
+  /**
+   * Tool declarations for this speaker's turn, or [] when function calling is
+   * off — in which case generateAgentResponse takes the legacy tag path.
+   */
+  _toolsForTurn(speaker) {
+    const tools = [];
+
+    // file_search is a built-in: it needs no dispatcher, so it works in tag
+    // mode too. One tool over both stores rather than two competing for the
+    // model's attention — this session's uploads and, when cross-session
+    // memory is on, what previous rooms concluded.
+    const stores = [this.fileSearchStoreName, this.memoryStoreName].filter(Boolean);
+    if (stores.length > 0) {
+      tools.push(fileSearchTool(stores));
+    }
+
+    if (isFunctionCallingEnabled()) {
+      // Only offer write_artifact once the room is plausibly building
+      // something; otherwise it's a tool slot spent on a capability nobody
+      // asked for.
+      const goalLower = (this.goal ?? '').toLowerCase();
+      const allowArtifacts =
+        artifactStore.getAll().length > 0 ||
+        /\b(build|create|make|code|sketch|game|p5|html|website|app|artifact)\b/.test(goalLower);
+      tools.push(...buildToolsForAgent(speaker, { allowArtifacts }));
+    }
+
+    return tools;
+  }
+
+  /**
+   * Build the per-turn function dispatcher. It owns the app-side consequences
+   * of a tool call — storing media, broadcasting, feeding the vision window —
+   * so gemini.js stays a stream parser and nothing more.
+   */
+  _createDispatcher(speaker, toolMedia) {
+    return createToolDispatcher({
+      agent: speaker,
+      mediaStore,
+      artifactStore,
+      startResearch: isDeepResearchEnabled()
+        ? (topic, opts) => this._startResearch(topic, opts, speaker)
+        : null,
+      onEvent: (event, data) => this.broadcast(event, data),
+      onMedia: (media) => {
+        toolMedia.push({
+          id: media.id,
+          type: media.type,
+          mimeType: media.mimeType,
+          prompt: media.prompt,
+          ...(media.referenceIds ? { referenceId: media.referenceIds[0] } : {}),
+        });
+        if (media.type === 'image' && media.data) {
+          // Subsequent speakers see the image, not just its prompt.
+          this.recentGenImages.push({
+            id: media.id,
+            data: media.data,
+            mimeType: media.mimeType,
+            prompt: media.prompt,
+            agentName: speaker.name,
+          });
+          if (this.recentGenImages.length > VISION_WINDOW) this.recentGenImages.shift();
+        }
+      },
+    });
+  }
+
+  /**
+   * Ask the judge whether a message really declares the goal finished, and
+   * run the answer through the same quorum the explicit marker uses.
+   *
+   * Consensus ends the session, so a model's opinion alone is not enough:
+   * it has to clear a high confidence floor AND still win a vote among the
+   * agents, exactly as an explicit [CONSENSUS REACHED] would.
+   *
+   * @returns {Promise<string|null>} completion reason, or null to continue
+   */
+  async _judgeCompletion(content, speaker) {
+    let verdict;
+    try {
+      verdict = await assessCompletion({
+        content, goal: this.goal, agentName: speaker.name,
+      });
+    } catch (err) {
+      console.warn(`[Orchestrator] completion judgement failed: ${err.message}`);
+      return null;
+    }
+    if (!verdict?.complete || verdict.confidence < CONSENSUS_CONFIDENCE_FLOOR) return null;
+
+    // Same vote bookkeeping as the explicit marker path.
+    this.consensusVotes = this.consensusVotes.filter(v => v.agentId !== speaker.id);
+    this.consensusVotes.push({ agentId: speaker.id, turn: this.turnCount });
+    const window = this.consensusSettings.voteWindowTurns ?? 4;
+    this.consensusVotes = this.consensusVotes.filter(v => this.turnCount - v.turn <= window);
+
+    const distinctVoters = new Set(this.consensusVotes.map(v => v.agentId)).size;
+    const speakableCount = this.agents.filter(a => !a.muted).length;
+    const required = Math.max(2, Math.ceil((speakableCount || 0) / 2));
+
+    if (distinctVoters >= required) return 'consensus_reached';
+
+    this.broadcast('consensus_proposed', {
+      agentId: speaker.id,
+      votes: distinctVoters,
+      required,
+      inCooldown: false,
+      rationale: verdict.rationale,
+      judged: true,
+    });
+    return null;
+  }
+
+  /**
+   * Fold one turn's reported usage into the session total.
+   * Turns where the API didn't report usage are counted separately so the UI
+   * can say how much of the figure is measured vs estimated.
+   */
+  _accumulateUsage(usage, wasReported) {
+    if (!this.usage) this.usage = createEmptyUsage();
+    if (wasReported) {
+      this.usage.reportedTurns += 1;
+    } else {
+      this.usage.estimatedTurns += 1;
+    }
+    if (!usage) return;
+    this.usage.inputTokens   += usage.inputTokens   || 0;
+    this.usage.outputTokens  += usage.outputTokens  || 0;
+    this.usage.thoughtTokens += usage.thoughtTokens || 0;
+    this.usage.cachedTokens  += usage.cachedTokens  || 0;
+    this.usage.toolUseTokens += usage.toolUseTokens || 0;
+    this.usage.totalTokens   += usage.totalTokens   || 0;
+  }
+
+  /**
+   * Add a tool result's grounding queries to the session's search meter.
+   * Counts the queries the model actually executed, which is the billable
+   * unit — not the number of tool calls, which understates it.
+   */
+  countSearchQueries(result) {
+    const queries = result?.searchQueries;
+    if (!Array.isArray(queries) || queries.length === 0) return;
+    if (!this.usage) this.usage = createEmptyUsage();
+    this.usage.searchQueries += queries.length;
+  }
+
+  /**
    * Utility delay function
    */
   delay(ms) {
@@ -1557,6 +2198,13 @@ class ChatOrchestrator {
       goal: this.goal,
       tokenLimit: this.tokenLimit,
       tokenCount: this.tokenCount,
+      usage: this.usage,
+      // Whether conversation history is being retained server-side at Google.
+      // Surfaced so the UI can say so rather than leaving it to the .env.
+      stateful: isStatefulEnabled(),
+      // Orchestration judgements are real spend, billed separately from the
+      // agent turns — surfaced so they can't hide.
+      judgeUsage: isSmartOrchestrationEnabled() ? getJudgeUsage() : null,
       turnCount: this.turnCount,
       messageCount: this.messages.length,
       agents: this.agents, // Include full agent data with bios
@@ -1652,6 +2300,10 @@ class ChatOrchestrator {
     }
 
     // Restore state from branch
+    // The server-side chains hold the history we are about to abandon, so
+    // they can no longer be continued from — drop them and let the next turn
+    // re-send the restored transcript in full.
+    this._purgeStoredInteractions();
     this.messages = JSON.parse(JSON.stringify(branch.state.messages));
     this.tokenCount = branch.state.tokenCount;
     this.turnCount = branch.state.turnCount;
@@ -1722,6 +2374,10 @@ class ChatOrchestrator {
 
     // Trim messages
     const removedMessages = this.messages.splice(messageIndex);
+
+    // Same as branch restore: the chains still hold the messages we just
+    // removed, so they cannot be continued from.
+    this._purgeStoredInteractions();
 
     // Recalculate token count
     this.tokenCount = this.messages.reduce((sum, m) => sum + (m.tokenCount || 0), 0);

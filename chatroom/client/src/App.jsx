@@ -38,6 +38,9 @@ function App() {
   const [isPaused, setIsPaused] = useState(false);
   const [tokenCount, setTokenCount] = useState(0);
   const [tokenLimit, setTokenLimit] = useState(100000);
+  // Real per-run usage as reported by the API (input / output / thought /
+  // cached), as opposed to tokenCount, which is the budget counter.
+  const [usage, setUsage] = useState(null);
   const [turnCount, setTurnCount] = useState(0);
   const [error, setError] = useState(null);
   const [showStartModal, setShowStartModal] = useState(false);
@@ -200,6 +203,7 @@ function App() {
       setIsPaused(state.isPaused);
       setTokenCount(state.tokenCount);
       setTokenLimit(state.tokenLimit);
+      setUsage(state.usage || null);
       setTurnCount(state.turnCount);
       if (state.goal) {
         setCurrentGoal(state.goal);
@@ -215,6 +219,7 @@ function App() {
       setMessages([]);
       setStreamingMessage('');
       setTokenCount(0);
+      setUsage(null);
       setTurnCount(0);
       setTokenLimit(data.tokenLimit);
       if (data.goal) {
@@ -259,6 +264,7 @@ function App() {
       setStreamingMessage('');
       setCurrentSpeaker(null);
       setTokenCount(data.totalTokens);
+      if (data.usage) setUsage(data.usage);
       setTurnCount(data.turnCount);
     });
 
@@ -511,12 +517,13 @@ function App() {
     }
   };
 
-  const addAgent = async (name, bio) => {
+  const addAgent = async (name, bio, options = {}) => {
     try {
       const res = await fetch(`${API_BASE}/agents`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, bio })
+        // options carries the optional per-agent { model, thinkingLevel }
+        body: JSON.stringify({ name, bio, ...options })
       });
       const data = await res.json();
       if (data.agent) {
@@ -868,6 +875,7 @@ function App() {
           <TokenMeter
             tokenCount={tokenCount}
             tokenLimit={tokenLimit}
+            usage={usage}
             turnCount={turnCount}
             status={getStatus()}
           />

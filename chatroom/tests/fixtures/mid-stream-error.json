@@ -1,0 +1,12 @@
+[
+  {
+    "event_type": "interaction.created",
+    "interaction": { "id": "int_err_001", "status": "in_progress" }
+  },
+  { "event_type": "step.start", "step": { "type": "model_output" } },
+  { "event_type": "step.delta", "delta": { "type": "text", "text": "I got partway through the point before " } },
+  {
+    "event_type": "error",
+    "error": { "message": "upstream connection reset" }
+  }
+]

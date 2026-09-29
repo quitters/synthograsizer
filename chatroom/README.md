@@ -43,7 +43,7 @@ An autonomous multi-agent chat room powered by Google's Gemini API. Create AI ag
 
 ### Backend
 - **Node.js** with Express.js
-- **Google GenAI SDK** (`@google/genai`, Interactions API; every call is stateless — `store: false`)
+- **Google GenAI SDK** (`@google/genai`, Interactions API; conversation history is retained server-side by default — see Conversation state)
 - **Server-Sent Events** for real-time streaming
 - **UUID** for unique identifiers
 
@@ -105,8 +105,9 @@ ChatRoom/
 ### Prerequisites
 - Node.js 20+
 - Google Gemini API key with access to:
-  - `gemini-3.1-pro-preview` (text generation, search/URL tools)
-  - `gemini-3-pro-image` (image analysis; generation delegates to the Synthograsizer backend)
+  - `gemini-3.8-flash` (default agent turns, image understanding)
+  - `gemini-3.5-flash-lite` (search / URL-context tool calls)
+  - `gemini-3.1-pro-preview` (optional per-agent "deliberate" tier)
 
 ### Setup
 
@@ -134,6 +135,95 @@ npm run dev
 
 5. Open http://localhost:5173 in your browser
 
+## Tool modes
+
+Agents reach tools one of two ways, selected by `TOOL_MODE`:
+
+| Mode | How it works |
+|---|---|
+| `tags` (default) | The agent writes `[IMAGE: a fox in snow]` in prose. The server regex-parses it after the turn ends, so the result reaches the **next** speaker as transcript text. |
+| `functions` | The agent emits a real function call. The server runs it mid-turn and hands the result back — including the generated image itself — so the agent reacts to what it actually made inside its own message. |
+
+`functions` is the intended destination but has not yet been exercised against
+the live API. In that mode each agent gets a **tool tier** (`none`, `research`,
+`visual`, `builder`, `full`) rather than the whole inventory, keeping the
+active set inside Google's 10–20 tool guidance. Tiers live in
+`server/config/tools.js`; declarations in `server/services/toolDefinitions.js`.
+
+## Voices and session audio
+
+Every agent has a `voice`, defaulting by roster position so a new room
+already sounds like distinct people. 30 voices are available; pick one per
+agent in the setup form, or leave it on Auto.
+
+**Export → 🔊 Render as Audio** reads the whole transcript aloud and
+downloads a single WAV. It is an explicit action rather than automatic:
+audio bills at roughly $2.30 per hour of speech, and a long session takes
+minutes to render.
+
+Each contiguous run by one speaker is a separate single-speaker request,
+concatenated afterwards — multi-speaker TTS caps at two voices, which is no
+use to a room with four agents.
+
+## Reference documents
+
+With `FILE_SEARCH=true`, uploaded documents are indexed once into a
+per-session File Search store and queried by the built-in `file_search` tool.
+Without it, a PDF is base64-inlined for the first couple of turns and then
+invisible, and a text file is truncated at 5,000 characters.
+
+Images are not indexed either way — an agent asked about a reference image
+needs to see it, not retrieve text about it.
+
+Stores are deleted on reset. If a crash leaves one behind (the quota is
+project-wide), `GET /api/chat/file-search/orphans` lists them and `DELETE` on
+the same path clears them.
+
+### Cross-session memory
+
+`CROSS_SESSION_MEMORY=true` (on top of `FILE_SEARCH=true`) archives each
+finished session into one long-lived store and lets agents in **later**
+sessions search it. Ask a returning room what it decided last time and it
+can actually look.
+
+The memory store survives resets and restarts by design — it is found by
+display name, not a local file — and the orphan sweeper skips it. Sessions
+under 4 messages are not archived. `GET /api/chat/memory` lists what is
+remembered; `DELETE /api/chat/memory` forgets all of it.
+
+## Conversation state
+
+`GEMINI_STORE_INTERACTIONS` decides whether Google retains conversation
+history. This is a privacy trade, not a tuning knob.
+
+| | `true` (**default**) | `false` |
+|---|---|---|
+| Retention at Google | 55 days paid / 1 day free (7/14/28/55 configurable in AI Studio) | none |
+| Per turn | only what the agent has not seen | full system prompt + windowed transcript |
+| Implicit caching | engages once the chain grows past 4,096 tokens | impossible — no chain to key on |
+| Reset | deletes the stored chains | clears local state only |
+
+Explicit caching is not available in the Interactions API, so chaining is the
+only route to cached input. Confirm it is working by watching **Cached** in
+the token meter — it stays at zero when retention is off, by definition.
+
+Set `GEMINI_STORE_INTERACTIONS=false` to opt out. Resetting the room deletes
+the session's stored chains either way.
+
+## Testing
+
+```bash
+npm test          # node --test tests/
+npm run test:watch
+```
+
+No API key or network access is needed. The stream-parser suite replays
+recorded Interactions SSE sequences from `tests/fixtures/` through a fake
+client, pinning the event contract the orchestrator consumes: chunk ordering,
+thought-leak filtering, usage accounting, truncation/continuation, and the
+retry fallbacks. `tests/fixtures/README.md` explains the event shapes and how
+to record a real one.
+
 ## API Reference
 
 ### Agent Endpoints
@@ -141,7 +231,9 @@ npm run dev
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | GET | `/api/agents` | List all agents |
-| POST | `/api/agents` | Create agent `{name, bio}` |
+| GET | `/api/agents/models` | Model, deliberation and tool-tier options for the UI |
+| POST | `/api/agents` | Create agent `{name, bio, model?, thinkingLevel?, tools?, voice?}` |
+| PATCH | `/api/agents/:idOrName` | Update `{bio?, name?, model?, thinkingLevel?, tools?, voice?}` |
 | DELETE | `/api/agents/:id` | Remove agent |
 
 ### Chat Control Endpoints
