@@ -191,25 +191,37 @@ router.get('/media/export', (req, res) => {
  * POST /api/chat/generate-image
  * Generate a new image with optional reference images
  * Used by frontend for user-initiated image generation/remixing
+ *
+ * Body: { prompt, referenceIds?: string[], references?: { objects?, character?, style? } }
+ * `referenceIds` is the flat, untyped list and is unchanged. `references`
+ * assigns media ids to the model's typed composition slots; the two are
+ * additive.
  */
 router.post('/generate-image', async (req, res) => {
-  const { prompt, referenceIds = [] } = req.body;
+  const { prompt, referenceIds = [], references = {} } = req.body;
 
   if (!prompt) {
     return res.status(400).json({ error: 'Prompt is required' });
   }
 
   try {
-    // Gather reference images if provided
+    // Gather reference images if provided. Unknown media ids are skipped, the
+    // same way the flat path has always skipped them.
     const referenceImages = [];
-    for (const refId of referenceIds) {
-      const media = mediaStore.get(refId);
-      if (media) {
+    const collect = (ids, role) => {
+      for (const refId of ids || []) {
+        const media = mediaStore.get(refId);
+        if (!media) continue;
         referenceImages.push({
           imageData: media.data,
-          mimeType: media.mimeType
+          mimeType: media.mimeType,
+          ...(role ? { role } : {})
         });
       }
+    };
+    collect(referenceIds, null);
+    for (const slot of ['objects', 'character', 'style']) {
+      collect(references[slot], slot);
     }
 
     // Generate the image
@@ -225,7 +237,12 @@ router.post('/generate-image', async (req, res) => {
       prompt: prompt,
       agentId: 'user',
       agentName: 'User',
-      referenceIds: referenceIds.length > 0 ? referenceIds : undefined
+      referenceIds: referenceImages.length > 0
+        ? [
+            ...referenceIds,
+            ...['objects', 'character', 'style'].flatMap(s => references[s] || [])
+          ]
+        : undefined
     });
 
     res.json({
