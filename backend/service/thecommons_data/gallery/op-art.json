@@ -1,0 +1,108 @@
+{
+  "name": "Op Art",
+  "promptTemplate": "{{pattern}} op art in {{palette}} from {{layers}} layers at {{density}} density, moving at {{motion}} with {{ripple}} ripple at {{resolution}} resolution",
+  "variables": [
+    {
+      "name": "pattern",
+      "label": "Pattern",
+      "values": [
+        {
+          "text": "stripes",
+          "weight": 3
+        },
+        {
+          "text": "spokes",
+          "weight": 2
+        },
+        {
+          "text": "spiral",
+          "weight": 2
+        },
+        {
+          "text": "chevron",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "palette",
+      "label": "Tones",
+      "values": [
+        {
+          "text": "black and white",
+          "weight": 3
+        },
+        {
+          "text": "blueprint",
+          "weight": 2
+        },
+        {
+          "text": "infrared",
+          "weight": 2
+        },
+        {
+          "text": "gold",
+          "weight": 1
+        },
+        {
+          "text": "acid",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "layers",
+      "label": "Layers",
+      "type": "number",
+      "min": 2,
+      "max": 4,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "name": "density",
+      "label": "Density",
+      "type": "number",
+      "min": 0.5,
+      "max": 3,
+      "step": 0.1,
+      "default": 1.2
+    },
+    {
+      "name": "motion",
+      "label": "Motion",
+      "type": "number",
+      "min": 0,
+      "max": 2,
+      "step": 0.1,
+      "default": 0.6
+    },
+    {
+      "name": "ripple",
+      "label": "Ripple",
+      "type": "number",
+      "min": 0,
+      "max": 1,
+      "step": 0.05,
+      "default": 0.2
+    },
+    {
+      "name": "resolution",
+      "label": "Resolution",
+      "values": [
+        {
+          "text": "classic",
+          "weight": 3
+        },
+        {
+          "text": "chunky",
+          "weight": 2
+        },
+        {
+          "text": "fine",
+          "weight": 2
+        }
+      ]
+    }
+  ]
+}

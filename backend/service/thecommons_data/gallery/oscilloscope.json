@@ -1,0 +1,107 @@
+{
+  "name": "Oscilloscope",
+  "promptTemplate": "a {{figure}} on an oscilloscope at a {{ratio}} ratio, {{layers}} layers, {{phosphor}} phosphor, a {{palette}} beam drifting at {{drift}}",
+  "variables": [
+    {
+      "name": "figure",
+      "label": "Figure",
+      "values": [
+        {
+          "text": "lissajous",
+          "weight": 3
+        },
+        {
+          "text": "rose",
+          "weight": 2
+        },
+        {
+          "text": "spirograph",
+          "weight": 2
+        },
+        {
+          "text": "harmonograph",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "ratio",
+      "label": "Ratio",
+      "values": [
+        {
+          "text": "octave",
+          "weight": 3
+        },
+        {
+          "text": "unison",
+          "weight": 2
+        },
+        {
+          "text": "fifth",
+          "weight": 2
+        },
+        {
+          "text": "fourth",
+          "weight": 1
+        },
+        {
+          "text": "seventh",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "layers",
+      "label": "Layers",
+      "type": "number",
+      "min": 1,
+      "max": 12,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "name": "phosphor",
+      "label": "Phosphor",
+      "type": "number",
+      "min": 0,
+      "max": 1,
+      "step": 0.05,
+      "default": 0.5
+    },
+    {
+      "name": "palette",
+      "label": "Beam",
+      "values": [
+        {
+          "text": "phosphor green",
+          "weight": 3
+        },
+        {
+          "text": "amber",
+          "weight": 2
+        },
+        {
+          "text": "neon",
+          "weight": 2
+        },
+        {
+          "text": "laser",
+          "weight": 1
+        },
+        {
+          "text": "synthwave",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "drift",
+      "label": "Drift",
+      "type": "number",
+      "min": -1,
+      "max": 1,
+      "step": 0.1,
+      "default": 0.2
+    }
+  ]
+}
