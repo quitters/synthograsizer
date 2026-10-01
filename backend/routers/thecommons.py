@@ -17,6 +17,7 @@ account at all.
 
 import asyncio
 import hashlib
+import re
 import io
 import json
 import logging
@@ -477,7 +478,23 @@ def _preset_row(preset: dict) -> dict:
     listing = _preset_listing(sketch)
     if listing:
         row["listing"] = listing
+    # A picture for the card, where one was made (the built-in pieces and the
+    # inherited library: scripts/commons_library_thumbs.mjs). The desk never
+    # runs these pieces, so a photograph of the wall is the honest preview.
+    thumb = _preset_thumb(preset["id"])
+    if thumb:
+        row["thumb"] = thumb
     return row
+
+
+_THUMB_DIR = Path(__file__).resolve().parent.parent.parent / "static" / "thecommons" / "img" / "library"
+_THUMB_ID_RE = re.compile(r"^[A-Za-z0-9_-]{1,80}$")
+
+
+def _preset_thumb(preset_id) -> str | None:
+    if not (isinstance(preset_id, str) and _THUMB_ID_RE.match(preset_id)):
+        return None
+    return f"/thecommons/img/library/{preset_id}.jpg" if (_THUMB_DIR / f"{preset_id}.jpg").is_file() else None
 
 
 def _preset_listing(sketch) -> dict | None:

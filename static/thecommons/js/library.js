@@ -204,16 +204,18 @@ function buildCard(entry, labels, onPick) {
   broken.hidden = true;
   screen.append(canvas, live, broken);
   if (!entry.piece) poster(canvas, entry.name, hueOf(entry.id));
-  // An archive piece's card shows the work itself, as a picture its archive
-  // serves. It loads only when the card is on screen, and if it cannot be had
-  // the title card drawn underneath is what shows.
-  if (entry.piece && entry.piece.thumb) {
+  // A picture of the piece, for cards that have one: an archive piece (served
+  // by its archive) and the built-in and inherited pieces (photographs of a
+  // wall, shipped with the app). It loads only when the card is on screen, and
+  // if it cannot be had, what is drawn underneath is what shows.
+  const thumb = entry.piece ? entry.piece.thumb : entry.thumb;
+  if (thumb) {
     const picture = el('img', 'gallery-thumb');
     picture.alt = '';
     picture.loading = 'lazy';
     picture.decoding = 'async';
     picture.addEventListener('error', () => picture.remove());
-    picture.src = entry.piece.thumb;
+    picture.src = thumb;
     screen.append(picture);
   }
 
@@ -424,6 +426,7 @@ export async function mountLibrary({ root, search, tagBar, count, onPick }) {
       blurb,
       tags: [kind.tag, ...look, ...(preset.usesImages ? ['images'] : [])],
       section: kind.tag,
+      thumb: preset.thumb || null,
       savedAt,
       haystack: [preset.name, preset.kind, blurb, ...look.map((tag) => labels.get(tag))].join(' ').toLowerCase(),
     };
