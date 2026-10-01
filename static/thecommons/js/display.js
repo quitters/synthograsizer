@@ -2,7 +2,7 @@
 // state pushed by the relay over WebSocket, and (optionally) analyses this
 // machine's microphone input for a simple audio-reactivity signal.
 //
-// Two sketch contracts are supported, and they run through entirely separate
+// Three sketch contracts are supported, and they run through entirely separate
 // paths -- nothing about one leaks into the other:
 //   - `sketch.code`   -- native Canvas2D, documented in shared/contract.js.
 //                        Used by every freshly-generated sketch (server/generate.js).
@@ -10,6 +10,11 @@
 //                        default template library (server/templates.js) was
 //                        already written against. p5.js is loaded (index.html)
 //                        only to run these -- generation never produces p5 code.
+//   - `sketch.page`   -- another artist's work, running from its own code in a
+//                        page an archive serves (thecommons_archive.py). The wall
+//                        frames that page and tells it what the room chose; none
+//                        of its code runs in this document. It always comes with
+//                        `sketch.credit`, which stays on the wall while it plays.
 
 import { defaultValue } from './parameters.js';
 import { defaultEntries, loadImages } from './room-images.js';
@@ -23,6 +28,8 @@ const joinCode = location.pathname.split('/').filter(Boolean).pop();
 const canvas = document.getElementById('c');
 const ctx = canvas.getContext('2d');
 const p5Mount = document.getElementById('p5Mount');
+const pageMount = document.getElementById('pageMount');
+const creditEl = document.getElementById('credit');
 const statusEl = document.getElementById('status');
 const overlays = document.getElementById('displayOverlays');
 const hideOverlays = document.getElementById('hideOverlays');
@@ -54,7 +61,7 @@ addEventListener('resize', resizeCanvas);
 resizeCanvas();
 
 let sketch = null;
-let mode = null;        // 'native' | 'p5'
+let mode = null;        // 'native' | 'p5' | 'page'
 let drawFn = null;       // native path
 let p5Instance = null;   // p5 path
 const vars = {};
@@ -123,7 +130,56 @@ function drainEvents() {
   return drained;
 }
 
+// -- page pieces ----------------------------------------------------------
+// The framed page is another origin (the archive), so the only thing that
+// crosses is a message: the room's values going in, "ready" coming out. It is
+// told every value on every change -- the page decides what needs a new run.
+let pageFrame = null;
+let pageOrigin = null;
+let pageReady = false;
+
+function postToPage(message) {
+  if (pageFrame && pageReady) pageFrame.contentWindow.postMessage(message, pageOrigin);
+}
+
+function sendPageValues() { postToPage({ commons: 'values', values: { ...vars } }); }
+
+function teardownPage() {
+  if (pageFrame) { pageFrame.remove(); pageFrame = null; }
+  pageOrigin = null;
+  pageReady = false;
+  pageMount.hidden = true;
+}
+
+addEventListener('message', (event) => {
+  if (!pageFrame || event.source !== pageFrame.contentWindow || event.origin !== pageOrigin) return;
+  if (event.data && event.data.commons === 'ready') { pageReady = true; sendPageValues(); }
+});
+
+// Whose work is on the wall. Not one of the overlays: hiding those for a show
+// must never hide the credit, so it sits outside them and stays.
+function setCredit(credit) {
+  creditEl.replaceChildren();
+  creditEl.hidden = !credit;
+  if (!credit) return;
+  const line = (className, text) => {
+    const node = document.createElement('span');
+    node.className = className;
+    node.textContent = text;
+    creditEl.append(node);
+  };
+  line('credit-title', credit.title);
+  line('credit-artist', [credit.artist, credit.year].filter(Boolean).join(', '));
+  line('credit-terms', [credit.platform, credit.license && credit.license.text ? credit.license.name : null,
+                        'adapted: controls added'].filter(Boolean).join(' · '));
+}
+
 function setStatus() {
+  if (mode === 'page') {
+    statusEl.textContent = `${sketch.name} · ${sketch.credit ? sketch.credit.artist : 'From the archive'}`;
+    document.getElementById('audioHint').textContent = 'This piece runs from its artist’s own code and follows the tables. Enable the microphone now for audio-reactive pieces when they come on, or simply watch.';
+    return;
+  }
   statusEl.textContent = sketch ? `${sketch.name} · ${mode === 'p5' ? 'Library piece' : 'Live canvas'}` : 'Waiting for the canvas…';
   document.getElementById('audioHint').textContent = mode === 'p5'
     ? 'This library piece follows the tables. Enable the microphone now for audio-reactive pieces when they come on, or simply watch.'
@@ -146,7 +202,24 @@ function loadSketch(next, values = {}) {
   room.events = [];
   pendingEvents = [];
 
-  if (sketch.p5Code) {
+  teardownPage();
+  setCredit(sketch.credit || null);
+  if (sketch.page && typeof sketch.page.url === 'string') {
+    mode = 'page';
+    drawFn = null;
+    teardownP5();
+    p5Mount.hidden = true;
+    canvas.style.display = 'none';
+    pageOrigin = new URL(sketch.page.url).origin;
+    pageFrame = document.createElement('iframe');
+    // Its own origin, scripts, and nothing else: no top navigation, no popups,
+    // no forms. The work draws; it does not get to leave the wall.
+    pageFrame.setAttribute('sandbox', 'allow-scripts allow-same-origin');
+    pageFrame.setAttribute('title', `${sketch.name}, running from its original code`);
+    pageFrame.src = sketch.page.url;
+    pageMount.replaceChildren(pageFrame);
+    pageMount.hidden = false;
+  } else if (sketch.p5Code) {
     mode = 'p5';
     drawFn = null;
     canvas.style.display = 'none';
@@ -195,6 +268,10 @@ ws.onmessage = (ev) => {
   } else if (msg.type === 'var') {
     vars[msg.varName] = msg.value;
     // p5 templates read getVar() themselves each draw() call -- nothing else to push
+    if (mode === 'page') sendPageValues();
+  } else if (msg.type === 'event' && mode === 'page') {
+    // A page piece has one action: the host's Reroll, another edition at random.
+    if (msg.name === 'reroll') postToPage({ commons: 'reroll' });
   } else if (msg.type === 'event') {
     // Same time origin as frame.t, so a sketch can compare the two directly.
     pushEvent({ name: msg.name, participantId: msg.participantId, table: msg.table,

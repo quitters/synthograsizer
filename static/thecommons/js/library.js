@@ -156,6 +156,39 @@ function tagList(entry, labels) {
   return list;
 }
 
+// Another artist's work (an archive piece): who made it, where it lives, on
+// what terms, and the artist's own description of it, word for word. Links are
+// only ever the http(s) ones the server let through.
+function creditBlock(credit) {
+  const block = el('div', 'gallery-credit');
+  const link = (text, href) => {
+    const a = el('a', '', text);
+    a.href = href;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    return a;
+  };
+  const by = el('p', 'gallery-credit-by');
+  by.append(credit.url ? link(credit.title, credit.url) : credit.title, ' by ',
+            credit.artistUrl ? link(credit.artist, credit.artistUrl) : credit.artist,
+            [credit.year, credit.platform].filter(Boolean).length
+              ? ` (${[credit.year, credit.platform].filter(Boolean).join(', ')})` : '');
+  block.append(by);
+  const licence = el('p', 'gallery-credit-licence');
+  licence.append('Licence: ', credit.license.url ? link(credit.license.name, credit.license.url) : credit.license.name);
+  if (credit.license.terms.length) licence.append(`. ${credit.license.terms.join(' ')}`);
+  block.append(licence);
+  if (credit.description) {
+    const details = el('details', 'gallery-prompt');
+    details.append(el('summary', '', `In ${credit.artist}’s words`));
+    for (const para of credit.description.split(/\n\s*\n|\r\n\s*\r\n/)) {
+      if (para.trim()) details.append(el('p', '', para.trim()));
+    }
+    block.append(details);
+  }
+  return block;
+}
+
 function buildCard(entry, labels, onPick) {
   const card = el('li', `gallery-card${entry.piece ? '' : ' is-listed'}`);
   card.dataset.slug = entry.id;
@@ -176,6 +209,7 @@ function buildCard(entry, labels, onPick) {
   body.append(el('h4', '', entry.name));
   if (entry.blurb) body.append(el('p', 'gallery-blurb', entry.blurb));
   if (entry.lineage) body.append(el('p', 'gallery-lineage', entry.lineage));
+  if (entry.piece && entry.piece.credit) body.append(creditBlock(entry.piece.credit));
   body.append(tagList(entry, labels));
 
   if (entry.piece) {
@@ -259,6 +293,7 @@ export async function mountLibrary({ root, search, tagBar, count, onPick }) {
     // there finds it: the words, the tags, the controls, and the actions the
     // room gets -- "everyone taps" is a phrase people look for.
     haystack: [piece.name, piece.blurb, piece.lineage, piece.prompt,
+               piece.credit && piece.credit.artist, piece.credit && piece.credit.platform,
                ...(piece.tags || []).map((t) => labels.get(t) || t),
                ...piece.sketch.variables.map((v) => v.label),
                ...piece.sketch.variables.filter((v) => v.type === 'trigger')

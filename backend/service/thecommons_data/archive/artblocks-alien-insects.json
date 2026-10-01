@@ -1,0 +1,211 @@
+{
+  "name": "Alien Insects",
+  "promptTemplate": "A {{race}} {{type}} alien insect against a {{background}} background; anime: {{anime}}, ghost: {{ghost}}, elite: {{elite}}, power field: {{power_field}}, hypnotic: {{hypnotic}}, reinforced: {{reinforced}}, camouflage: {{camouflage}}, irradiated: {{irradiated}}, TBOA: {{tboa}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "race",
+      "label": "race",
+      "values": [
+        {
+          "text": "bwuzqr",
+          "weight": 3
+        },
+        {
+          "text": "xiurq",
+          "weight": 2
+        },
+        {
+          "text": "quairq",
+          "weight": 2
+        },
+        {
+          "text": "vtolmr",
+          "weight": 1
+        },
+        {
+          "text": "ptlmoerq",
+          "weight": 1
+        },
+        {
+          "text": "xcudlez",
+          "weight": 1
+        },
+        {
+          "text": "ubqagle",
+          "weight": 1
+        },
+        {
+          "text": "ffxang",
+          "weight": 1
+        },
+        {
+          "text": "yumg",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "type",
+      "label": "type",
+      "values": [
+        {
+          "text": "tank",
+          "weight": 3
+        },
+        {
+          "text": "reaper",
+          "weight": 2
+        },
+        {
+          "text": "scout",
+          "weight": 2
+        },
+        {
+          "text": "stalker",
+          "weight": 1
+        },
+        {
+          "text": "observer",
+          "weight": 1
+        },
+        {
+          "text": "seeker",
+          "weight": 1
+        },
+        {
+          "text": "carrier",
+          "weight": 1
+        },
+        {
+          "text": "interceptor",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "background",
+      "label": "background",
+      "values": [
+        {
+          "text": "canvas",
+          "weight": 3
+        },
+        {
+          "text": "rain",
+          "weight": 2
+        },
+        {
+          "text": "paper",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "anime",
+      "label": "anime",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "ghost",
+      "label": "ghost",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "elite",
+      "label": "elite",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "power_field",
+      "label": "powerField",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "hypnotic",
+      "label": "hypnotic",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "reinforced",
+      "label": "reinforced",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "camouflage",
+      "label": "camouflage",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "irradiated",
+      "label": "irradiated",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "tboa",
+      "label": "TBOA",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 1000,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:alien-insects",
+  "artist": "Shvembldr",
+  "credit": {
+    "title": "Alien Insects",
+    "artist": "Shvembldr",
+    "year": 2021,
+    "description": "These are the military alien insects. They are symmetrical and asymmetrical simultaneously for existence in several dimensions. Being in a team, they unite into a collective mind increasing each other's abilities.\n\n**Controls:**\n\nClick to change mode (standard, skeleton, avatar). Press 1 to 9 to set pixel density according to the numbers.\n\n Sometimes before a new Shvembldr release, there is an opportunity to win TBOA tokens in Alien Insects Battle: https://www.tboa.club/insect_battle.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/137",
+    "artistUrl": "https://www.shvembldr.com/",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 1000,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 137
+    },
+    "archiveId": "artblocks:alien-insects",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Alien Insects by Shvembldr, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints."
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Aalien-insects"
+  }
+}

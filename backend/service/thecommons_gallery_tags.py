@@ -53,6 +53,9 @@ ORIGIN_TAGS: dict[str, str] = {
     # Not "from the studio": that is the section's name, and one word
     # meaning two things in two groups of chips is a puzzle, not a filter.
     "ported": "Ported by hand",
+    # Another artist's work, running from their own code with controls added
+    # (thecommons_archive.py). Always shown with its credit.
+    "adapted": "Adapted, with credit",
 }
 
 # The desk adds these itself, for everything in the library that isn't a
