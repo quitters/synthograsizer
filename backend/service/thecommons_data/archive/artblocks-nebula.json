@@ -1,0 +1,320 @@
+{
+  "name": "Nebula",
+  "promptTemplate": "A {{complexity}}-lobed nebula of {{lines}} lines with {{line_density}} density on a {{background}} background, shifting from {{inner_color}} to {{outer_color}} with {{amplitude}} amplitude and {{rotation_x}} X / {{rotation_y}} Y rotation (alternate lines: {{alternate_lines}}). This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "background",
+      "label": "Background",
+      "values": [
+        {
+          "text": "Black",
+          "weight": 3
+        },
+        {
+          "text": "White",
+          "weight": 2
+        },
+        {
+          "text": "Dark",
+          "weight": 2
+        },
+        {
+          "text": "Light",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "complexity",
+      "label": "Complexity",
+      "values": [
+        {
+          "text": "6",
+          "weight": 3
+        },
+        {
+          "text": "5",
+          "weight": 2
+        },
+        {
+          "text": "4",
+          "weight": 2
+        },
+        {
+          "text": "2",
+          "weight": 1
+        },
+        {
+          "text": "3",
+          "weight": 1
+        },
+        {
+          "text": "7",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "lines",
+      "label": "Lines",
+      "values": [
+        {
+          "text": "Curved",
+          "weight": 3
+        },
+        {
+          "text": "Straight",
+          "weight": 2
+        },
+        {
+          "text": "Curly",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "inner_color",
+      "label": "Inner Color",
+      "values": [
+        {
+          "text": "Orange",
+          "weight": 3
+        },
+        {
+          "text": "Hot Pink",
+          "weight": 2
+        },
+        {
+          "text": "Silver",
+          "weight": 2
+        },
+        {
+          "text": "Dark Orange",
+          "weight": 1
+        },
+        {
+          "text": "Pink",
+          "weight": 1
+        },
+        {
+          "text": "Coral Red",
+          "weight": 1
+        },
+        {
+          "text": "Pistachio",
+          "weight": 1
+        },
+        {
+          "text": "Viking",
+          "weight": 1
+        },
+        {
+          "text": "Coral",
+          "weight": 1
+        },
+        {
+          "text": "Malachite",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "outer_color",
+      "label": "Outer Color",
+      "values": [
+        {
+          "text": "Pink",
+          "weight": 3
+        },
+        {
+          "text": "Coral",
+          "weight": 2
+        },
+        {
+          "text": "Hot Pink",
+          "weight": 2
+        },
+        {
+          "text": "Silver",
+          "weight": 1
+        },
+        {
+          "text": "Orange",
+          "weight": 1
+        },
+        {
+          "text": "Dark Orange",
+          "weight": 1
+        },
+        {
+          "text": "Viking",
+          "weight": 1
+        },
+        {
+          "text": "Malachite",
+          "weight": 1
+        },
+        {
+          "text": "Coral Red",
+          "weight": 1
+        },
+        {
+          "text": "Pistachio",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "amplitude",
+      "label": "Amplitude",
+      "values": [
+        {
+          "text": "Medium",
+          "weight": 3
+        },
+        {
+          "text": "Low",
+          "weight": 2
+        },
+        {
+          "text": "High",
+          "weight": 2
+        },
+        {
+          "text": "Very Low",
+          "weight": 1
+        },
+        {
+          "text": "Very High",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "line_density",
+      "label": "Line density",
+      "values": [
+        {
+          "text": "Medium",
+          "weight": 3
+        },
+        {
+          "text": "Low",
+          "weight": 2
+        },
+        {
+          "text": "High",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "rotation_x",
+      "label": "Rotation X",
+      "values": [
+        {
+          "text": "Very High",
+          "weight": 3
+        },
+        {
+          "text": "High",
+          "weight": 2
+        },
+        {
+          "text": "Low",
+          "weight": 2
+        },
+        {
+          "text": "Medium",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "rotation_y",
+      "label": "Rotation Y",
+      "values": [
+        {
+          "text": "Low",
+          "weight": 3
+        },
+        {
+          "text": "Very High",
+          "weight": 2
+        },
+        {
+          "text": "High",
+          "weight": 2
+        },
+        {
+          "text": "Medium",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "alternate_lines",
+      "label": "Alternate lines",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 154,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:nebula",
+  "artist": "RVig",
+  "credit": {
+    "title": "Nebula",
+    "artist": "RVig",
+    "year": 2021,
+    "description": "A Nebula is a distinct body of interstellar clouds. Originally, the term was used to describe any diffused astronomical object, including galaxies beyond the Milky Way. Nebula is now also an amazing, complex, twisted and nebulous shape you can contemplate while rotating, or grab and spin to explore its best profiles.\nShortcuts: [p] Pause, Pixel Resolution: [1] Very Low, [2] Low, [3] Native, [4] Print. Touch / click and move to rotate. Animation stops if device too slow.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/210",
+    "artistUrl": "https://rvig.art/Nebula.html",
+    "license": {
+      "text": "CC BY-NC-SA 4.0",
+      "name": "CC BY-NC-SA 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only.",
+        "Share the adaptation under the same licence."
+      ]
+    },
+    "editions": 154,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 210
+    },
+    "archiveId": "artblocks:nebula",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Nebula by RVig, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 28026
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Anebula"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Anebula"
+  }
+}

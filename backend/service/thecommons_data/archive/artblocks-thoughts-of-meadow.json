@@ -1,0 +1,195 @@
+{
+  "name": "Thoughts of Meadow",
+  "promptTemplate": "A {{palette}} pentimento grid of {{cell_size}} cells with {{outline_drift}} outline drift and {{drift_gradient}} gradient; alternating colors: {{alternating_colors}}, colored outlines: {{colored_outlines}}, border: {{border}}, flip horizontal: {{flip_horizontal}}, flip vertical: {{flip_vertical}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Charcoal & Gold",
+          "weight": 3
+        },
+        {
+          "text": "Rust & Sage",
+          "weight": 2
+        },
+        {
+          "text": "Seafoam & Grape",
+          "weight": 2
+        },
+        {
+          "text": "Teal & Peach",
+          "weight": 1
+        },
+        {
+          "text": "Deep Teal & Mist",
+          "weight": 1
+        },
+        {
+          "text": "Slate & Coral",
+          "weight": 1
+        },
+        {
+          "text": "Navy & Amber",
+          "weight": 1
+        },
+        {
+          "text": "Night Streetlights",
+          "weight": 1
+        },
+        {
+          "text": "Burnt Orange & Gold",
+          "weight": 1
+        },
+        {
+          "text": "Celadon & Crimson",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "cell_size",
+      "label": "Cell Size",
+      "type": "number",
+      "min": 16,
+      "max": 42,
+      "step": 1,
+      "default": 29
+    },
+    {
+      "name": "border",
+      "label": "Border",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "alternating_colors",
+      "label": "Alternating Colors",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "outline_drift",
+      "label": "Outline Drift",
+      "values": [
+        {
+          "text": "Subtle (10)",
+          "weight": 3
+        },
+        {
+          "text": "Subtle (15)",
+          "weight": 2
+        },
+        {
+          "text": "Sharp (30)",
+          "weight": 2
+        },
+        {
+          "text": "Sharp (40)",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "drift_gradient",
+      "label": "Drift Gradient",
+      "values": [
+        {
+          "text": "Uniform",
+          "weight": 3
+        },
+        {
+          "text": "Top to Bottom",
+          "weight": 2
+        },
+        {
+          "text": "Left to Right",
+          "weight": 2
+        },
+        {
+          "text": "Bottom to Top",
+          "weight": 1
+        },
+        {
+          "text": "Right to Left",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "colored_outlines",
+      "label": "Colored Outlines",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "flip_horizontal",
+      "label": "Flip Horizontal",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "flip_vertical",
+      "label": "Flip Vertical",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 150,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:thoughts-of-meadow",
+  "artist": "Eric Davidson",
+  "credit": {
+    "title": "Thoughts of Meadow",
+    "artist": "Eric Davidson",
+    "year": 2022,
+    "description": "These shapes are nothing more than rectangles and lines.\n\nAnd yet...\n\nThere is a concept in painting called 'pentimento', the presence of earlier forms or images that have been painted over. These could be changes that the artist made deliberately, or mistakes that they were able to cover. Sometimes as the paint fades, the pentimenti will be revealed, but often they will remain unseen.\n\nThe challenge is to recognize the pentimenti that influence the canvas, but cannot be found there even at the base layer. These are scattered throughout the years of the artist's life.\n\n'Thoughts of Meadow' is a generative system that distorts a chess-like grid into complex shapes. Many of the outputs give the illusion of immense three-dimensional structures using simple geometric principles. It is an attempt to represent the concept of 'pentimento' through the rendering process. Each layer builds upon the complexity of the previous one but also covers it. If you look closely through the gaps in the grid, you can see the incremental changes that took place.\n\nIn that sense, this project is a reminder for myself of where I'm from, an incredibly small town called Meadow, and the gratitude I feel for the years I spent there. The first layer of my life's pentimento.\n\nAs always, I doubt this project would exist without the work and observations of Vera Molnár. Squares were certainly made for her, I just appreciate being able to borrow them once in a while.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/355",
+    "artistUrl": "https://thoughtsofmeadow.com/",
+    "license": {
+      "text": "CC BY 4.0",
+      "name": "CC BY 4.0",
+      "url": "https://creativecommons.org/licenses/by/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how."
+      ]
+    },
+    "editions": 150,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 355
+    },
+    "archiveId": "artblocks:thoughts-of-meadow",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Thoughts of Meadow by Eric Davidson, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 118031
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Athoughts-of-meadow"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Athoughts-of-meadow"
+  }
+}

@@ -1,0 +1,247 @@
+{
+  "name": "The Blocks of Art",
+  "promptTemplate": "An isometric grid of generative art panels in a {{scheme}} layout with primary color {{color_1}}, background {{color_2}}, and accent {{color_3}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "scheme",
+      "label": "scheme",
+      "values": [
+        {
+          "text": "1-4-2-4-3",
+          "weight": 3
+        },
+        {
+          "text": "2-4-4-4-2",
+          "weight": 2
+        },
+        {
+          "text": "3-3-4-3-2",
+          "weight": 2
+        },
+        {
+          "text": "1-3-2-4-2",
+          "weight": 1
+        },
+        {
+          "text": "1-4-4-4-2",
+          "weight": 1
+        },
+        {
+          "text": "2-4-2-3-2",
+          "weight": 1
+        },
+        {
+          "text": "2-4-3-4-2",
+          "weight": 1
+        },
+        {
+          "text": "3-3-2-3-3",
+          "weight": 1
+        },
+        {
+          "text": "3-3-4-4-3",
+          "weight": 1
+        },
+        {
+          "text": "1-3-3-3-2",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "color_2",
+      "label": "color-2",
+      "values": [
+        {
+          "text": "#1d3557",
+          "weight": 3
+        },
+        {
+          "text": "#ffe066",
+          "weight": 2
+        },
+        {
+          "text": "#1e0521",
+          "weight": 2
+        },
+        {
+          "text": "#2b2d42",
+          "weight": 1
+        },
+        {
+          "text": "#e0fbfc",
+          "weight": 1
+        },
+        {
+          "text": "#e56b6f",
+          "weight": 1
+        },
+        {
+          "text": "#f4d58d",
+          "weight": 1
+        },
+        {
+          "text": "#f7dc09",
+          "weight": 1
+        },
+        {
+          "text": "#ffa100",
+          "weight": 1
+        },
+        {
+          "text": "#d80056",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "color_1",
+      "label": "color-1",
+      "values": [
+        {
+          "text": "#e0fbfc",
+          "weight": 3
+        },
+        {
+          "text": "#0d0b0b",
+          "weight": 2
+        },
+        {
+          "text": "#010b8b",
+          "weight": 2
+        },
+        {
+          "text": "#f4d58d",
+          "weight": 1
+        },
+        {
+          "text": "#010000",
+          "weight": 1
+        },
+        {
+          "text": "#f1faee",
+          "weight": 1
+        },
+        {
+          "text": "#d62828",
+          "weight": 1
+        },
+        {
+          "text": "#e5e5e5",
+          "weight": 1
+        },
+        {
+          "text": "#70c1b3",
+          "weight": 1
+        },
+        {
+          "text": "#ebebeb",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "color_3",
+      "label": "color-3",
+      "values": [
+        {
+          "text": "#001427",
+          "weight": 3
+        },
+        {
+          "text": "#d80056",
+          "weight": 2
+        },
+        {
+          "text": "#f1faee",
+          "weight": 2
+        },
+        {
+          "text": "#edf2f4",
+          "weight": 1
+        },
+        {
+          "text": "#197278",
+          "weight": 1
+        },
+        {
+          "text": "#ff6700",
+          "weight": 1
+        },
+        {
+          "text": "#0029c1",
+          "weight": 1
+        },
+        {
+          "text": "#403d39",
+          "weight": 1
+        },
+        {
+          "text": "#ee6c4d",
+          "weight": 1
+        },
+        {
+          "text": "#ffc857",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 500,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:the-blocks-of-art",
+  "artist": "Shvembldr",
+  "credit": {
+    "title": "The Blocks of Art",
+    "artist": "Shvembldr",
+    "year": 2021,
+    "description": "This project symbolizes generative artists united by the common idea of Art Blocks. Each panel on the block is a small generative art piece with several random parameters that live their own life while simultaneously being part of the composition. \n\nEach art contains one letter of the words ART BLOCKS. A collector who possesses all nine letters becomes a member of the TBOA club.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/74",
+    "artistUrl": "https://www.tboa.club/",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 500,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 74
+    },
+    "archiveId": "artblocks:the-blocks-of-art",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of The Blocks of Art by Shvembldr, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 7171259
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Athe-blocks-of-art"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Athe-blocks-of-art"
+  }
+}

@@ -1,0 +1,153 @@
+{
+  "name": "Empyrean",
+  "promptTemplate": "A {{color_scheme}} composition of {{line_amount}} {{line_style}} lines mapped across {{point_amount}} perimeter points; filled: {{filled}}, border: {{border}}, start point style: {{start_point_style}}, and random endpoints: {{random_endpoint}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "line_style",
+      "label": "Line style",
+      "values": [
+        {
+          "text": "Loopy",
+          "weight": 3
+        },
+        {
+          "text": "Neat loopy",
+          "weight": 2
+        },
+        {
+          "text": "Straight",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "color_scheme",
+      "label": "Color scheme",
+      "values": [
+        {
+          "text": "Grayscale",
+          "weight": 3
+        },
+        {
+          "text": "Monochromatic",
+          "weight": 2
+        },
+        {
+          "text": "Full spectrum",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "filled",
+      "label": "Filled",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "start_point_style",
+      "label": "Start point style",
+      "values": [
+        {
+          "text": "On circle edge",
+          "weight": 3
+        },
+        {
+          "text": "Random",
+          "weight": 2
+        },
+        {
+          "text": "Use previous endpoint",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "border",
+      "label": "Border",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "random_endpoint",
+      "label": "Random endpoint",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "line_amount",
+      "label": "Line Amount",
+      "type": "number",
+      "min": 20,
+      "max": 200,
+      "step": 1,
+      "default": 100
+    },
+    {
+      "name": "point_amount",
+      "label": "Point Amount",
+      "type": "number",
+      "min": 10,
+      "max": 500,
+      "step": 5,
+      "default": 250
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 500,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:empyrean",
+  "artist": "Generative Artworks",
+  "credit": {
+    "title": "Empyrean",
+    "artist": "Generative Artworks",
+    "year": 2021,
+    "description": "Empyrean - an exploration of form modeled after the highest heaven, domain of the fifth element. Each piece is unique and has many different attributes such as size, line style, color scheme, and some other features you'll have to discover. This piece is interactive, so mess around with your keyboard to find out what you can do.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/33",
+    "artistUrl": "https://www.instagram.com/generativeartworks/",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 500,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 33
+    },
+    "archiveId": "artblocks:empyrean",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Empyrean by Generative Artworks, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 356067
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Aempyrean"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Aempyrean"
+  }
+}

@@ -1,0 +1,149 @@
+{
+  "name": "Tangled",
+  "promptTemplate": "A tangled composition of {{strings}} strings in {{colors}} hues, floating across {{curve_count}} bezier curves with a fuzziness of {{fuzziness}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "colors",
+      "label": "Colors",
+      "values": [
+        {
+          "text": "Vice",
+          "weight": 3
+        },
+        {
+          "text": "Candy",
+          "weight": 2
+        },
+        {
+          "text": "Dusk",
+          "weight": 2
+        },
+        {
+          "text": "Treasure Hunt",
+          "weight": 1
+        },
+        {
+          "text": "Pastel",
+          "weight": 1
+        },
+        {
+          "text": "Plains",
+          "weight": 1
+        },
+        {
+          "text": "Myst",
+          "weight": 1
+        },
+        {
+          "text": "Ocean",
+          "weight": 1
+        },
+        {
+          "text": "Lush",
+          "weight": 1
+        },
+        {
+          "text": "Neon",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "strings",
+      "label": "Strings",
+      "values": [
+        {
+          "text": "Three",
+          "weight": 3
+        },
+        {
+          "text": "Two",
+          "weight": 2
+        },
+        {
+          "text": "Four",
+          "weight": 2
+        },
+        {
+          "text": "Five",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "curve_count",
+      "label": "Curve Count",
+      "type": "number",
+      "min": 15,
+      "max": 29,
+      "step": 1,
+      "default": 22
+    },
+    {
+      "name": "fuzziness",
+      "label": "Fuzziness",
+      "type": "number",
+      "min": 10,
+      "max": 24,
+      "step": 1,
+      "default": 17
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 384,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:tangled",
+  "artist": "Superblob",
+  "credit": {
+    "title": "Tangled",
+    "artist": "Superblob",
+    "year": 2021,
+    "description": "What would a transaction hash look like in space? This project explores the spatial properties of 32-byte hashes by intertwining bezier curves based on them. Floating on deformed blobs, both the curves and their companions are constructed by mapping parts of the hash to the screen. Forever yours to untie, slowly drifting in aether space - the metaverse is surely tangled. ——— Best enjoyed in live view - touch/click anywhere to stop the animation, press ’s’ to save an image.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/132",
+    "artistUrl": "https://www.instagram.com/superblob/",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 384,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 132
+    },
+    "archiveId": "artblocks:tangled",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Tangled by Superblob, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 334631
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Atangled"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Atangled"
+  }
+}

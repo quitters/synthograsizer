@@ -1,0 +1,205 @@
+{
+  "name": "Enigma",
+  "promptTemplate": "An isometric structure with {{span}} span rendered in {{style}} style and the {{palette}} palette from a {{viewpoint}} viewpoint, exhibiting {{transmutation}} transmutation; mirage: {{mirage}}, glitch: {{glitch}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Blaze",
+          "weight": 3
+        },
+        {
+          "text": "Coastal",
+          "weight": 2
+        },
+        {
+          "text": "Horizon",
+          "weight": 2
+        },
+        {
+          "text": "Corsa",
+          "weight": 1
+        },
+        {
+          "text": "Cyber",
+          "weight": 1
+        },
+        {
+          "text": "Lilac",
+          "weight": 1
+        },
+        {
+          "text": "Earthen",
+          "weight": 1
+        },
+        {
+          "text": "Harmony",
+          "weight": 1
+        },
+        {
+          "text": "Ardor",
+          "weight": 1
+        },
+        {
+          "text": "Mauve",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "style",
+      "label": "Style",
+      "values": [
+        {
+          "text": "Aperture",
+          "weight": 3
+        },
+        {
+          "text": "Delta",
+          "weight": 2
+        },
+        {
+          "text": "Standard",
+          "weight": 2
+        },
+        {
+          "text": "Sole",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "span",
+      "label": "Span",
+      "values": [
+        {
+          "text": "Medium",
+          "weight": 3
+        },
+        {
+          "text": "Small",
+          "weight": 2
+        },
+        {
+          "text": "Large",
+          "weight": 2
+        },
+        {
+          "text": "Mini",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "viewpoint",
+      "label": "Viewpoint",
+      "values": [
+        {
+          "text": "Skew",
+          "weight": 3
+        },
+        {
+          "text": "Steady",
+          "weight": 2
+        },
+        {
+          "text": "Proximal",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "transmutation",
+      "label": "Transmutation",
+      "values": [
+        {
+          "text": "Undulation",
+          "weight": 3
+        },
+        {
+          "text": "Whorl",
+          "weight": 2
+        },
+        {
+          "text": "Sand",
+          "weight": 2
+        },
+        {
+          "text": "None",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "mirage",
+      "label": "Mirage",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "glitch",
+      "label": "Glitch",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 32,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:enigma",
+  "artist": "RalenArc",
+  "credit": {
+    "title": "Enigma",
+    "artist": "RalenArc",
+    "year": 2023,
+    "description": "[https://ralenarc.com/blogs/enigma](https://ralenarc.com/blogs/enigma)\n\n**Beauty of Isometric Perspective**\nIsometric views have fascinated me because of their ability to create captivating illusions of three-dimensional space on a two-dimensional plane. I find isometric views appealing as they create a sense of order and balance in the composition. The use of clean lines and geometric shapes can create a sense of precision and harmony that is both aesthetically pleasing and conceptually interesting. I was able to incorporate these concepts into the structures formed in Enigma, which have a sense of balance, symmetry, and connection, creating a feeling of stability and order that can be particularly satisfying to look at.\n\n**Realism**\n*Mirage*\nA unique feature of Enigma is the “Mirage” effect, which creates a mirror reflection of the structure that gives the illusion of an invisible surface on which the structure is placed. This effect is an intentional and carefully crafted detail that enhances the overall design and depth of the structure. By incorporating this element, the artwork takes on a more realistic touch, almost as if the viewer is looking at a photograph of the structure situated in its actual environment. The reflection also adds a sense of dimension to the composition and creates an extra element of interest and immersion for the viewer as the structure appears to extend beyond the bounds of the artwork, as if it were a part of a larger scene.\n\n*Transmutations*\nEnigma uses a variety of transformations that are carefully crafted to add an intriguing layer to the structures. The transformations in the project are Undulation, Whorl, and Sand. Undulation transforms the structure in a way that creates an illusion of movement and motion, along with highlighting its fluidity. Whorl creates a small whirlpool-like shape around the edges of the structures, making them appear as if the structure is moving at a high speed. It also adds to the effect of motion-blur, which makes the structures look even more dynamic. Sand creates a visual effect that gives the impression of the structure breaking apart and scattering in all directions, reminiscent of the way sand behaves when thrown. In addition to the various transformations, there are also instances where no transformation is applied, allowing the focus to remain solely on the intricate structure itself.\n\n*Position and Point of View*\nThe deliberate placement of the structures in the Enigma is another key element of the project. They are positioned in a way that emphasizes their unique design and construction. Some structures appear to be resting on a surface, while others are positioned on their edges, almost balanced only on that, giving the artwork a sense of realism. Each structure features a ‘Viewpoint’ from a specific angle that has been chosen to showcase the connections and details of the structure. Depending on the chosen viewpoint, the structure can give the impression of being viewed from different angles, such as from below, the front, or above in an isometric view.\n\n*Style*\nThe structures featured in this project are uniquely designed with distinct styles and variations, completely transforming their appearance. \n* ‘Aperture’ refers to a gap within the structure’s shape, where the structure’s connecting lines are not present, creating an illusion of a free-standing form while still maintaining its shape. \n* ‘Sole’ refers to the structure constructed solely through interconnected lines, appearing as if they’re blending into one another without any clear joining points. \n* ‘Delta’ represents an offset in the structure’s connecting lines that creates an illusion of added depth and dimension. \n* ‘Standard’ refers to the form of the structure without any applied styles.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0x99a9b7c1116f9ceeb1652de04d5969cce509b069/439",
+    "artistUrl": "https://ralenarc.com/",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 32,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0x99a9b7c1116f9ceeb1652de04d5969cce509b069",
+      "projectId": 439
+    },
+    "archiveId": "artblocks:enigma",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Enigma by RalenArc, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 1812
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Aenigma"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Aenigma"
+  }
+}

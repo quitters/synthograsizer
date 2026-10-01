@@ -1,0 +1,190 @@
+{
+  "name": "SKEUOMORPHS",
+  "promptTemplate": "A {{flow}} composition in {{color_palette}} tones with {{gesture_length}} gestures and a {{margin_width}} margin; drop shadow: {{shadow}}; friction: {{friction}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "color_palette",
+      "label": "Color Palette",
+      "values": [
+        {
+          "text": "riso",
+          "weight": 3
+        },
+        {
+          "text": "poster",
+          "weight": 2
+        },
+        {
+          "text": "midcentury",
+          "weight": 2
+        },
+        {
+          "text": "fruity",
+          "weight": 1
+        },
+        {
+          "text": "hollywood",
+          "weight": 1
+        },
+        {
+          "text": "midnight",
+          "weight": 1
+        },
+        {
+          "text": "ancient",
+          "weight": 1
+        },
+        {
+          "text": "gameboy",
+          "weight": 1
+        },
+        {
+          "text": "inca",
+          "weight": 1
+        },
+        {
+          "text": "dreamy",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "flow",
+      "label": "Flow",
+      "values": [
+        {
+          "text": "smooth",
+          "weight": 3
+        },
+        {
+          "text": "figural",
+          "weight": 2
+        },
+        {
+          "text": "curl",
+          "weight": 2
+        },
+        {
+          "text": "flat",
+          "weight": 1
+        },
+        {
+          "text": "wiggle",
+          "weight": 1
+        },
+        {
+          "text": "sticks",
+          "weight": 1
+        },
+        {
+          "text": "stacked",
+          "weight": 1
+        },
+        {
+          "text": "rings",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "gesture_length",
+      "label": "Gesture Length",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "margin_width",
+      "label": "Margin Width",
+      "values": [
+        {
+          "text": "8px",
+          "weight": 3
+        },
+        {
+          "text": "4px",
+          "weight": 2
+        },
+        {
+          "text": "12px",
+          "weight": 2
+        },
+        {
+          "text": "18px",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "shadow",
+      "label": "Shadow",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "friction",
+      "label": "Friction",
+      "type": "number",
+      "min": 0.95,
+      "max": 0.99,
+      "step": 0.04,
+      "default": 0.99
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 300,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:skeuomorphs",
+  "artist": "itsgalo",
+  "credit": {
+    "title": "SKEUOMORPHS",
+    "artist": "itsgalo",
+    "year": 2023,
+    "description": "```\n░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░\n  ___ _  _____ _   _  ___  __  __  ___  ___ ___ _  _ ___ \n / __| |/ / __| | | |/ _ \\|  \\/  |/ _ \\| _ \\ _ \\ || / __|\n \\__ \\ ' <| _|| |_| | (_) | |\\/| | (_) |   /  _/ __ \\__ \\\n |___/_|\\_\\___|\\___/ \\___/|_|  |_|\\___/|_|_\\_| |_||_|___/\n\n░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░\n\n```\n\nA skeuomorph is a derivative object that retains ornamental design cues from structures that were necessary in the original. They are used widely in architecture, product design, and perhaps most familiarly in user interfaces. Think: desktop icons like trash cans or notepads. SKEUOMORPHS is a meditation on this digital tradition. \n\nSKEUOMORPHS picks up where RASTER left off as an another exploration of the materiality of pixels and rasterized imagery. Here the study of pixels narrows in on the shallow depth of on-screen interfaces and the play of low-res figure-ground effects. Moments of skeuomorphism where the 2-dimensional plane of the screen becomes slightly 3-dimensional through beveling or drop-shadows are extracted and used as abstract painterly details. These elements that are typically used to make computation and interfaces more familiar become unfamiliar on the canvas, suggesting the possibility of an aesthetic between abstraction and realism.\n\nSKEUOMORPHS employs recurring themes and techniques from my art practice: limited color palettes, low-res chunky pixels, dithering, and physics simulation. It uses a specific kind of dithering called R-sequence dither developed by Martin Roberts. Like traditional Bayer matrix-based dithering, this technique produces a patterned image akin to retro video games and early computer screens. In this project, the R-dither pattern results in a woven textile-like texture, which recalls the long relationship between computing and weaving. The canvas negotiates two scales simultaneously: that of the dithered pixel (rendered at 1/1024th of the canvas height) and the simulated particle that acts as a brush stroke (rendered at 1/256th of the canvas height). The two resolutions work together to produce a cohesive texture that is neither pretending to be a retrograde screen nor an analog material but something in between. Similar to RASTER, the goal is to investigate new avenues for digital aesthetics that rely on a combination of historical techniques and innovative practices.\n\nUse mouse or touch controls to interact.\nPress 's' to grab a still frame.\n\nCollectors will be eligible to receive a signed archival giclée print of their mint.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0x99a9b7c1116f9ceeb1652de04d5969cce509b069/422",
+    "artistUrl": "https://galocanizares.com/",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 300,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0x99a9b7c1116f9ceeb1652de04d5969cce509b069",
+      "projectId": 422
+    },
+    "archiveId": "artblocks:skeuomorphs",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of SKEUOMORPHS by itsgalo, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 67118
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Askeuomorphs"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Askeuomorphs"
+  }
+}

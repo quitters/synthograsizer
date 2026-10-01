@@ -1,0 +1,217 @@
+{
+  "name": "Semblance",
+  "promptTemplate": "A {{environment}} woven semblance in the {{palette}} palette with {{weave}} weave and {{diffusion}} diffusion, under {{suppression}} suppression toward {{focal_point}}; split: {{split}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "East Pole",
+          "weight": 3
+        },
+        {
+          "text": "Piedmont Blues",
+          "weight": 2
+        },
+        {
+          "text": "Jumpman",
+          "weight": 2
+        },
+        {
+          "text": "Sweetwater",
+          "weight": 1
+        },
+        {
+          "text": "Lemon Pepper",
+          "weight": 1
+        },
+        {
+          "text": "Dubble Bubble",
+          "weight": 1
+        },
+        {
+          "text": "Marta",
+          "weight": 1
+        },
+        {
+          "text": "Dear Basketball",
+          "weight": 1
+        },
+        {
+          "text": "Seadoo",
+          "weight": 1
+        },
+        {
+          "text": "Guava",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "suppression",
+      "label": "Suppression",
+      "values": [
+        {
+          "text": "None",
+          "weight": 3
+        },
+        {
+          "text": "Some",
+          "weight": 2
+        },
+        {
+          "text": "More",
+          "weight": 2
+        },
+        {
+          "text": "Heavy",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "focal_point",
+      "label": "Focal Point",
+      "values": [
+        {
+          "text": "Everything",
+          "weight": 3
+        },
+        {
+          "text": "Middle Center",
+          "weight": 2
+        },
+        {
+          "text": "Upper Center",
+          "weight": 2
+        },
+        {
+          "text": "Upper Left",
+          "weight": 1
+        },
+        {
+          "text": "Upper Right",
+          "weight": 1
+        },
+        {
+          "text": "Bottom Right",
+          "weight": 1
+        },
+        {
+          "text": "Bottom Left",
+          "weight": 1
+        },
+        {
+          "text": "Lower Center",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "weave",
+      "label": "Weave",
+      "values": [
+        {
+          "text": "Vertical",
+          "weight": 3
+        },
+        {
+          "text": "Horizontal",
+          "weight": 2
+        },
+        {
+          "text": "Crosshatch",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "diffusion",
+      "label": "Diffusion",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "environment",
+      "label": "Environment",
+      "values": [
+        {
+          "text": "Tinted",
+          "weight": 3
+        },
+        {
+          "text": "Tame",
+          "weight": 2
+        },
+        {
+          "text": "Inverted",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "split",
+      "label": "Split",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 185,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:semblance",
+  "artist": "rahul iyer",
+  "credit": {
+    "title": "Semblance",
+    "artist": "rahul iyer",
+    "year": 2023,
+    "description": "**sem·blance** (noun) – outward and often specious appearance or show.\n\nSemblance explores experiences of the self as sculpted by context. At times, one can experience their private, most expansive self as their true self. In other moments, a performative cutout is needed to conform to one’s environment. Through its various manifestations, the work dwells on the tension between displaying the private self as a form of liberation, and amplifying the performative self as a form of suppression.\n\nThe collection draws inspiration from my childhood as an Indian-American growing up in Atlanta, where I felt pressure to conform to the cultural norms and expectations of those around me. This nurtured conflicting perceptions of my public and private identify – a dilemma depicted in Semblance through a reimagination of the weavings and textiles from my childhood home.\n\nEach Semblance is a unique blend of color, diffusion, and environment. Its appearance is shaped by the suppression of a distinct focal point that dictates its context. Ultimately, the viewer is invited to toggle between the two states and explore that tension within themselves.\n\n**–– Controls ––**\n\n– **Press ‘m’** or **click/tap** to toggle between the selves. The output may take many seconds to load.\n\n– **Press ‘s’** to save a .png.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0x99a9b7c1116f9ceeb1652de04d5969cce509b069/447",
+    "artistUrl": "https://rahul.fun/semblance",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 185,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0x99a9b7c1116f9ceeb1652de04d5969cce509b069",
+      "projectId": 447
+    },
+    "archiveId": "artblocks:semblance",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Semblance by rahul iyer, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 72864
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Asemblance"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Asemblance"
+  }
+}

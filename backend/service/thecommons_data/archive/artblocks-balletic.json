@@ -1,0 +1,210 @@
+{
+  "name": "Balletic",
+  "promptTemplate": "A grid of {{grid_size}} blocks dancing to {{algorithm}} with {{easing_curve}} easing at {{speed}} speed, rotating {{rotation_y}} on Y and {{rotation_z}} on Z. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "algorithm",
+      "label": "Algorithm",
+      "values": [
+        {
+          "text": "Algorithm 1",
+          "weight": 3
+        },
+        {
+          "text": "Algorithm 2",
+          "weight": 2
+        },
+        {
+          "text": "Algorithm 3",
+          "weight": 2
+        },
+        {
+          "text": "Algorithm 4",
+          "weight": 1
+        },
+        {
+          "text": "Algorithm 5",
+          "weight": 1
+        },
+        {
+          "text": "Algorithm 6",
+          "weight": 1
+        },
+        {
+          "text": "Algorithm 7",
+          "weight": 1
+        },
+        {
+          "text": "Algorithm 8",
+          "weight": 1
+        },
+        {
+          "text": "Algorithm 9",
+          "weight": 1
+        },
+        {
+          "text": "Algorithm 10",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "grid_size",
+      "label": "GridSize",
+      "type": "number",
+      "min": 3,
+      "max": 64,
+      "step": 1,
+      "default": 37
+    },
+    {
+      "name": "easing_curve",
+      "label": "EasingCurve",
+      "values": [
+        {
+          "text": "InQuad",
+          "weight": 3
+        },
+        {
+          "text": "InOutExpo",
+          "weight": 2
+        },
+        {
+          "text": "InOutCirc",
+          "weight": 2
+        },
+        {
+          "text": "InOutBack",
+          "weight": 1
+        },
+        {
+          "text": "InOutQuint",
+          "weight": 1
+        },
+        {
+          "text": "OutCirc",
+          "weight": 1
+        },
+        {
+          "text": "OutSine",
+          "weight": 1
+        },
+        {
+          "text": "InOutBounce",
+          "weight": 1
+        },
+        {
+          "text": "InOutQuad",
+          "weight": 1
+        },
+        {
+          "text": "OutQuint",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "rotation_y",
+      "label": "RotationY",
+      "values": [
+        {
+          "text": "2π",
+          "weight": 3
+        },
+        {
+          "text": "0",
+          "weight": 2
+        },
+        {
+          "text": "π",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "rotation_z",
+      "label": "Rotation Z",
+      "values": [
+        {
+          "text": "0",
+          "weight": 3
+        },
+        {
+          "text": "π",
+          "weight": 2
+        },
+        {
+          "text": "2π",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "speed",
+      "label": "Speed",
+      "type": "number",
+      "min": 0.003,
+      "max": 0.007,
+      "step": 0.0005,
+      "default": 0.005
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 200,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:balletic",
+  "artist": "Motus Art",
+  "credit": {
+    "title": "Balletic",
+    "artist": "Motus Art",
+    "year": 2022,
+    "description": "Balletic is a generative art animation created by digital artist Owen McAteer, aka. Motus Art.\nIn this piece, a grid of rotating blocks move together in a mathematically choreographed dance to reveal hidden patterns, shapes and flowing figures.\n\nExploring soft fluid motion in a hard fixed grid of blocks to a two-tone minimalist design, the piece comes to life in dance, conducted by the combination of several algorithms, easing curves and timing modifiers all working together.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/343",
+    "artistUrl": "https://owenmcateer.com/balletic/",
+    "license": {
+      "text": "CC BY-NC-SA 4.0",
+      "name": "CC BY-NC-SA 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only.",
+        "Share the adaptation under the same licence."
+      ]
+    },
+    "editions": 200,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 343
+    },
+    "archiveId": "artblocks:balletic",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Balletic by Motus Art, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 133983
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Aballetic"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Aballetic"
+  }
+}

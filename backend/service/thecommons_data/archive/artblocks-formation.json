@@ -1,0 +1,139 @@
+{
+  "name": "Formation",
+  "promptTemplate": "A grid of {{forms}} painted forms in {{harmony}} colour harmony. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "forms",
+      "label": "Forms",
+      "values": [
+        {
+          "text": "3 (1×3)",
+          "weight": 3
+        },
+        {
+          "text": "4 (1×4)",
+          "weight": 2
+        },
+        {
+          "text": "5 (1×5)",
+          "weight": 2
+        },
+        {
+          "text": "6 (1×6)",
+          "weight": 1
+        },
+        {
+          "text": "4 (2×2)",
+          "weight": 1
+        },
+        {
+          "text": "6 (2×3)",
+          "weight": 1
+        },
+        {
+          "text": "8 (2×4)",
+          "weight": 1
+        },
+        {
+          "text": "3 (3×1)",
+          "weight": 1
+        },
+        {
+          "text": "6 (3×2)",
+          "weight": 1
+        },
+        {
+          "text": "4 (4×1)",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "harmony",
+      "label": "Harmony",
+      "values": [
+        {
+          "text": "Monochromatic",
+          "weight": 3
+        },
+        {
+          "text": "Anything Goes",
+          "weight": 2
+        },
+        {
+          "text": "Split-Complementary",
+          "weight": 2
+        },
+        {
+          "text": "Complementary",
+          "weight": 1
+        },
+        {
+          "text": "Analogous",
+          "weight": 1
+        },
+        {
+          "text": "Achromatic",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 100,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:formation",
+  "artist": "Jeff Davis",
+  "credit": {
+    "title": "Formation",
+    "artist": "Jeff Davis",
+    "year": 2022,
+    "description": "A return to first principles. Bright Moments London, July 2022.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0x0a1bbd57033f57e7b6743621b79fcb9eb2ce3676/11",
+    "artistUrl": "https://www.jeffgdavis.com/",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 100,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0x0a1bbd57033f57e7b6743621b79fcb9eb2ce3676",
+      "projectId": 11
+    },
+    "archiveId": "artblocks:formation",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Formation by Jeff Davis, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 92710
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Aformation"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Aformation"
+  }
+}

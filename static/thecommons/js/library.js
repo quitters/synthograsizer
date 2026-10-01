@@ -204,12 +204,24 @@ function buildCard(entry, labels, onPick) {
   broken.hidden = true;
   screen.append(canvas, live, broken);
   if (!entry.piece) poster(canvas, entry.name, hueOf(entry.id));
+  // An archive piece's card shows the work itself, as a picture its archive
+  // serves. It loads only when the card is on screen, and if it cannot be had
+  // the title card drawn underneath is what shows.
+  if (entry.piece && entry.piece.thumb) {
+    const picture = el('img', 'gallery-thumb');
+    picture.alt = '';
+    picture.loading = 'lazy';
+    picture.decoding = 'async';
+    picture.addEventListener('error', () => picture.remove());
+    picture.src = entry.piece.thumb;
+    screen.append(picture);
+  }
 
   const body = el('div', 'gallery-body');
   body.append(el('h4', '', entry.name));
   if (entry.blurb) body.append(el('p', 'gallery-blurb', entry.blurb));
   if (entry.lineage) body.append(el('p', 'gallery-lineage', entry.lineage));
-  if (entry.piece && entry.piece.credit) body.append(creditBlock(entry.piece.credit));
+  if (entry.piece && entry.piece.sketch.credit) body.append(creditBlock(entry.piece.sketch.credit));
   body.append(tagList(entry, labels));
 
   if (entry.piece) {
@@ -264,6 +276,55 @@ function sectionBlock(id, title, intro, cards) {
   return block;
 }
 
+// A section too long to lay out whole: a count, an order to pick, one page of
+// cards and a button for the next. `state` is kept by the caller so the order
+// and how far someone has read survive a re-render.
+const RESULTS_PAGE = 24;
+const ORDERS = {
+  collected: (a, b) => b.collected - a.collected,
+  newest: (a, b) => b.newest - a.newest,
+  title: (a, b) => a.title.localeCompare(b.title),
+  artist: (a, b) => a.artist.localeCompare(b.artist) || a.title.localeCompare(b.title),
+};
+
+function pagedBlock({ id, title, intro, cards, page, sorts = [], state, onChange }) {
+  const block = sectionBlock(id, title, intro, []);
+  const grid = block.querySelector('.gallery-grid');
+  const order = ORDERS[state.sort];
+  const ordered = order && cards.every((c) => c.entry.piece && c.entry.piece.order)
+    ? [...cards].sort((a, b) => order(a.entry.piece.order, b.entry.piece.order) || a.entry.name.localeCompare(b.entry.name))
+    : cards;
+  const shown = ordered.slice(0, Math.max(page, state.shown));
+  grid.append(...shown.map((c) => c.card));
+
+  const bar = el('div', 'gallery-paging');
+  bar.append(el('p', 'gallery-paging-count',
+    shown.length < ordered.length ? `Showing ${shown.length} of ${ordered.length}` : `${ordered.length} pieces`));
+  if (sorts.length > 1 && order) {
+    const label = el('label', 'gallery-paging-sort', 'Order ');
+    const select = el('select');
+    for (const sort of sorts) {
+      const option = el('option', '', sort.label);
+      option.value = sort.id;
+      option.selected = sort.id === state.sort;
+      select.append(option);
+    }
+    select.addEventListener('change', () => { state.sort = select.value; state.shown = page; onChange(); });
+    label.append(select);
+    bar.append(label);
+  }
+  block.insertBefore(bar, grid);
+
+  if (shown.length < ordered.length) {
+    const more = el('button', 'quiet-button gallery-more',
+      `Show ${Math.min(page, ordered.length - shown.length)} more`);
+    more.type = 'button';
+    more.addEventListener('click', () => { state.shown = shown.length + page; onChange(); });
+    block.append(more);
+  }
+  return block;
+}
+
 // ── the library ─────────────────────────────────────────────────────────────
 export async function mountLibrary({ root, search, tagBar, count, onPick }) {
   const response = await fetch('/api/thecommons/gallery');
@@ -278,6 +339,11 @@ export async function mountLibrary({ root, search, tagBar, count, onPick }) {
   let enabled = true;
   const chosen = new Map();          // group id -> Set of tag ids
   let terms = [];
+  const paging = new Map();          // section id -> { sort, shown }
+  const pagingFor = (id, sorts = [], page) => {
+    if (!paging.has(id)) paging.set(id, { sort: sorts.length ? sorts[0].id : null, shown: page });
+    return paging.get(id);
+  };
 
   // ── what the library holds ────────────────────────────────────────────────
   const fromPiece = (piece) => ({
@@ -293,7 +359,7 @@ export async function mountLibrary({ root, search, tagBar, count, onPick }) {
     // there finds it: the words, the tags, the controls, and the actions the
     // room gets -- "everyone taps" is a phrase people look for.
     haystack: [piece.name, piece.blurb, piece.lineage, piece.prompt,
-               piece.credit && piece.credit.artist, piece.credit && piece.credit.platform,
+               piece.sketch.credit && piece.sketch.credit.artist, piece.sketch.credit && piece.sketch.credit.platform,
                ...(piece.tags || []).map((t) => labels.get(t) || t),
                ...piece.sketch.variables.map((v) => v.label),
                ...piece.sketch.variables.filter((v) => v.type === 'trigger')
@@ -346,12 +412,22 @@ export async function mountLibrary({ root, search, tagBar, count, onPick }) {
     for (const c of cards) c.card.hidden = !shown.includes(c);
 
     if (filtering()) {
-      root.replaceChildren(sectionBlock('results', shown.length ? 'Matching pieces' : 'Nothing matches', '', shown));
+      // A search can match a hundred pieces now; a page of them at a time.
+      const title = shown.length ? 'Matching pieces' : 'Nothing matches';
+      root.replaceChildren(shown.length > RESULTS_PAGE
+        ? pagedBlock({ id: 'results', title, intro: '', cards: shown, page: RESULTS_PAGE,
+                       state: pagingFor('results', [], RESULTS_PAGE), onChange: render })
+        : sectionBlock('results', title, '', shown));
     } else {
+      paging.delete('results');   // the next search starts from its first page
       const blocks = [];
       for (const s of sections) {
         const mine = cards.filter((c) => c.entry.section === s.id);
-        if (mine.length) blocks.push(sectionBlock(s.id, s.title, s.intro, mine));
+        if (!mine.length) continue;
+        blocks.push(s.paged && mine.length > s.paged
+          ? pagedBlock({ id: s.id, title: s.title, intro: s.intro, cards: mine, page: s.paged, sorts: s.sorts,
+                         state: pagingFor(s.id, s.sorts, s.paged), onChange: render })
+          : sectionBlock(s.id, s.title, s.intro, mine));
       }
       for (const [kindName, kind] of Object.entries(PRESET_KINDS)) {
         const mine = cards.filter((c) => c.entry.section === kind.tag);

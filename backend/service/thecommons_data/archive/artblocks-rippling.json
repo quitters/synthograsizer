@@ -1,0 +1,172 @@
+{
+  "name": "Rippling",
+  "promptTemplate": "A view of rippling rain at tilt {{camera_angle}} under the {{colour_theme}} solar term with {{stroke_style}} strokes and {{zoom}} zoom; color style: {{color_style}}, typhoon: {{typhoon}}, stripe: {{stripe}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "colour_theme",
+      "label": "Colour Theme",
+      "values": [
+        {
+          "text": "大寒 Severe cold",
+          "weight": 3
+        },
+        {
+          "text": "秋分 Autumnal Equinox",
+          "weight": 2
+        },
+        {
+          "text": "穀雨 Corn Rain",
+          "weight": 2
+        },
+        {
+          "text": "立冬 Winter Commences",
+          "weight": 1
+        },
+        {
+          "text": "大暑 Great Heat",
+          "weight": 1
+        },
+        {
+          "text": "小雪 Light Snow",
+          "weight": 1
+        },
+        {
+          "text": "大雪 Heavy Snow",
+          "weight": 1
+        },
+        {
+          "text": "清明 Bright and Clean",
+          "weight": 1
+        },
+        {
+          "text": "夏至 Summer Solstice",
+          "weight": 1
+        },
+        {
+          "text": "冬至 Winter Solstice",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "camera_angle",
+      "label": "Camera Angle",
+      "type": "number",
+      "min": 0.5,
+      "max": 0.85,
+      "step": 0.35,
+      "default": 0.5
+    },
+    {
+      "name": "stroke_style",
+      "label": "Stroke Style",
+      "values": [
+        {
+          "text": "Mixed",
+          "weight": 3
+        },
+        {
+          "text": "Thin",
+          "weight": 2
+        },
+        {
+          "text": "Thick",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "zoom",
+      "label": "Zoom",
+      "values": [
+        {
+          "text": "Normal",
+          "weight": 3
+        },
+        {
+          "text": "Close",
+          "weight": 2
+        },
+        {
+          "text": "Far",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "color_style",
+      "label": "Color Style",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "typhoon",
+      "label": "Typhoon",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "stripe",
+      "label": "Stripe",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 128,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:rippling",
+  "artist": "Yi-Wen Lin",
+  "credit": {
+    "title": "Rippling",
+    "artist": "Yi-Wen Lin",
+    "year": 2023,
+    "description": "Rippling is a generative algorithm that recreates the impression of a raining day. It is a research for the balance between order and chaos. It is also a journey through time and light. Each token represents a different moment and space, creating a unique composition.\n\nI took great inspiration from Impressionism, focusing on capturing the light of a moment. The highlights of the ripples are calculated with a simulated 3D water surface combined with a directional light in order to achieve the realistic look of the reflection. The result of this then serves as a base for laying the strokes on the canvas. Light plays an important role in our memory. Through the light and the colour we travel back to different moments and places in our memory.\n\nThe colouring of Rippling is inspired by the 24 solar terms of the Traditional Chinese Calendar. Each term represents a different period in the year. Rippling uses these terms to represent not only the time but also the memories of the season.\n\nGrowing up on a subtropical island, rain was a big part of my childhood. I can vividly recall those heavy showers in the afternoon of the summer. It washed out the agitating heat and calmed the world. With Rippling, I'm seeking to use a generative algorithm to recreate the feeling of a rainy day or night at different moments. And perhaps, it could remind you of the sound of the rain drops, the scent of the dirt after the rain or that moment the sunset peek through the heavy cloud ...",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0x99a9b7c1116f9ceeb1652de04d5969cce509b069/421",
+    "artistUrl": "https://wensday.co/rippling",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 128,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0x99a9b7c1116f9ceeb1652de04d5969cce509b069",
+      "projectId": 421
+    },
+    "archiveId": "artblocks:rippling",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Rippling by Yi-Wen Lin, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 77757
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Arippling"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Arippling"
+  }
+}

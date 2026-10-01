@@ -1,0 +1,213 @@
+{
+  "name": "Assemblage",
+  "promptTemplate": "A 3D assemblage of {{type}} in {{color_palette}} with {{block_style}} detailing and sphere geometry: {{blockshape}}, rendered against a {{background}} background. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "type",
+      "label": "type",
+      "values": [
+        {
+          "text": "friends",
+          "weight": 3
+        },
+        {
+          "text": "art",
+          "weight": 2
+        },
+        {
+          "text": "conflict",
+          "weight": 2
+        },
+        {
+          "text": "energy",
+          "weight": 1
+        },
+        {
+          "text": "language",
+          "weight": 1
+        },
+        {
+          "text": "home",
+          "weight": 1
+        },
+        {
+          "text": "game",
+          "weight": 1
+        },
+        {
+          "text": "memory",
+          "weight": 1
+        },
+        {
+          "text": "faith",
+          "weight": 1
+        },
+        {
+          "text": "peace",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "color_palette",
+      "label": "Color Palette",
+      "values": [
+        {
+          "text": "Palette 1",
+          "weight": 3
+        },
+        {
+          "text": "Palette 2",
+          "weight": 2
+        },
+        {
+          "text": "Palette 3",
+          "weight": 2
+        },
+        {
+          "text": "Palette 4",
+          "weight": 1
+        },
+        {
+          "text": "Palette 5",
+          "weight": 1
+        },
+        {
+          "text": "Palette 6",
+          "weight": 1
+        },
+        {
+          "text": "Palette 7",
+          "weight": 1
+        },
+        {
+          "text": "Palette 8",
+          "weight": 1
+        },
+        {
+          "text": "Palette 9",
+          "weight": 1
+        },
+        {
+          "text": "Palette 10",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "blockshape",
+      "label": "blockshape",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "block_style",
+      "label": "Block Style",
+      "values": [
+        {
+          "text": "All None",
+          "weight": 3
+        },
+        {
+          "text": "Random",
+          "weight": 2
+        },
+        {
+          "text": "Three Sides",
+          "weight": 2
+        },
+        {
+          "text": "Only Border",
+          "weight": 1
+        },
+        {
+          "text": "Box",
+          "weight": 1
+        },
+        {
+          "text": "Stripes",
+          "weight": 1
+        },
+        {
+          "text": "No Border",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "background",
+      "label": "background",
+      "values": [
+        {
+          "text": "focus",
+          "weight": 3
+        },
+        {
+          "text": "flux",
+          "weight": 2
+        },
+        {
+          "text": "fill",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 361,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:assemblage",
+  "artist": "SAB & K2xL",
+  "credit": {
+    "title": "Assemblage",
+    "artist": "SAB & K2xL",
+    "year": 2022,
+    "description": "[a    **W**    t    h     b  g  n  **r**  i  s   p **e** p o l e **together?**](https://assemblage.live/info \"What brings people together?\")\n___\n*Orbit*: Drag\n*Change*: Double Click\n*Screenshot*: Spacebar\n\n5% of the proceeds will be donated to benefit victims in Ukraine",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/300",
+    "artistUrl": "https://assemblage.live/",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 361,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 300
+    },
+    "archiveId": "artblocks:assemblage",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Assemblage by SAB & K2xL, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 41386
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Aassemblage"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Aassemblage"
+  }
+}

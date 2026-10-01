@@ -44,9 +44,18 @@ logger = logging.getLogger(__name__)
 _DIR = Path(__file__).parent / "thecommons_data" / "archive"
 ORIGIN_ENV = "SYNTH_COMMONS_ARCHIVE_ORIGIN"
 
-SECTION = {"id": "archive", "title": "From the archive",
-           "intro": "Works by other artists, running from their own code with controls added. "
-                    "Each one carries its credit and its licence."}
+# A section of well over a hundred works is not a wall of cards: the desk shows
+# `paged` of them at a time, in the order the host picks from `sorts` (the first
+# is the default), and search and the tag chips still reach every one.
+SECTION = {"id": "archive", "title": "Creative Commons Generative Art",
+           "intro": "Works by other artists, released under Creative Commons licences that allow "
+                    "adaptation. Each runs from its artist's own code with controls added, and "
+                    "carries its credit and its licence.",
+           "paged": 12,
+           "sorts": [{"id": "collected", "label": "Most collected"},
+                     {"id": "newest", "label": "Newest"},
+                     {"id": "title", "label": "Title, A to Z"},
+                     {"id": "artist", "label": "Artist, A to Z"}]}
 
 _ADAPTATIONS = ("permitted", "not-permitted", "unclear")
 _PAGE_PATH_RE = re.compile(r"^/(?!/)[\w./?=&%:~-]+$")
@@ -193,6 +202,9 @@ def load_archive() -> list[dict]:
         except (OSError, ValueError, KeyError, TypeError, AttributeError) as exc:
             logger.error("[thecommons] skipping archive piece %s: %s", path.stem, exc)
             continue
+        thumb_path = (raw.get("thumb") or {}).get("path") if isinstance(raw.get("thumb"), dict) else None
+        listing = raw.get("listing") if isinstance(raw.get("listing"), dict) else {}
+        collected = listing.get("collected")
         slug = f"archive-{path.stem}"
         sketch["gallery"] = slug
         sketch["page"] = {"url": origin + page_path}
@@ -203,14 +215,25 @@ def load_archive() -> list[dict]:
             "section": SECTION["id"],
             "name": sketch["name"],
             "blurb": _first_sentences(credit["description"]) or credit_line(credit),
-            "lineage": credit_line(credit) + (f" {credit['adaptation']}" if credit["adaptation"] else ""),
+            # What was changed; who made it is the credit block the card shows beside this.
+            "lineage": credit["adaptation"] or credit_line(credit),
             "origin": "adapted",
             "prompt": None,
             "interactive": any(v.get("type") == "trigger" and v.get("access") != "host" for v in variables),
             "usesPeople": False,
             "panel": SKINS[sketch["ui"]["skin"]]["label"] if "ui" in sketch else None,
             "tags": tags_for(slug, SECTION["id"], "adapted", variables, code, look=()),
-            "credit": credit,
+            # The credit is on the sketch (sketch.credit): once, for the wall and the desk both.
+            # A picture of the work for its card, served by the archive like the
+            # page; without one the card shows the title card the sketch draws.
+            "thumb": origin + thumb_path if isinstance(thumb_path, str) and _PAGE_PATH_RE.match(thumb_path) else None,
+            # What SECTION["sorts"] order by.
+            "order": {
+                "collected": collected if isinstance(collected, (int, float)) and not isinstance(collected, bool) else 0,
+                "newest": credit["year"] or 0,
+                "title": credit["title"].casefold(),
+                "artist": credit["artist"].casefold(),
+            },
             "sketch": sketch,
         })
     return pieces

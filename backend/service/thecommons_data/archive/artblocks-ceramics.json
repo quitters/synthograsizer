@@ -1,0 +1,335 @@
+{
+  "name": "Ceramics",
+  "promptTemplate": "A {{material}} ceramic tile with {{glaze}} glaze, carved with a {{tool}} tool in a {{placement}} layout with {{layers}} layer(s) and {{density}} density; {{thickness}} thickness, {{scale}} scale, {{mishima}} mishima, and {{frame}} frame. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "material",
+      "label": "Material",
+      "values": [
+        {
+          "text": "Glazed Fire",
+          "weight": 3
+        },
+        {
+          "text": "Glazed Buff",
+          "weight": 2
+        },
+        {
+          "text": "Glazed Terracotta",
+          "weight": 2
+        },
+        {
+          "text": "Bisque Terracotta",
+          "weight": 1
+        },
+        {
+          "text": "Glazed Porcelain",
+          "weight": 1
+        },
+        {
+          "text": "Raw Terracotta",
+          "weight": 1
+        },
+        {
+          "text": "Bisque Fire",
+          "weight": 1
+        },
+        {
+          "text": "Bisque Buff",
+          "weight": 1
+        },
+        {
+          "text": "Raw Buff",
+          "weight": 1
+        },
+        {
+          "text": "Raw Porcelain",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "glaze",
+      "label": "Glaze",
+      "values": [
+        {
+          "text": "None",
+          "weight": 3
+        },
+        {
+          "text": "Clear",
+          "weight": 2
+        },
+        {
+          "text": "Jade",
+          "weight": 2
+        },
+        {
+          "text": "Midnight",
+          "weight": 1
+        },
+        {
+          "text": "White Pearl",
+          "weight": 1
+        },
+        {
+          "text": "White",
+          "weight": 1
+        },
+        {
+          "text": "Ruby",
+          "weight": 1
+        },
+        {
+          "text": "Black",
+          "weight": 1
+        },
+        {
+          "text": "Cosmic",
+          "weight": 1
+        },
+        {
+          "text": "Black Pearl",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "placement",
+      "label": "Placement",
+      "values": [
+        {
+          "text": "Chaos",
+          "weight": 3
+        },
+        {
+          "text": "Rows",
+          "weight": 2
+        },
+        {
+          "text": "Columns",
+          "weight": 2
+        },
+        {
+          "text": "Diamonds",
+          "weight": 1
+        },
+        {
+          "text": "Grid",
+          "weight": 1
+        },
+        {
+          "text": "Cross",
+          "weight": 1
+        },
+        {
+          "text": "Square",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "density",
+      "label": "Density",
+      "values": [
+        {
+          "text": "Compact",
+          "weight": 3
+        },
+        {
+          "text": "Dense",
+          "weight": 2
+        },
+        {
+          "text": "Loose",
+          "weight": 2
+        },
+        {
+          "text": "Sparse",
+          "weight": 1
+        },
+        {
+          "text": "Wild",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "tool",
+      "label": "Tool",
+      "values": [
+        {
+          "text": "Round",
+          "weight": 3
+        },
+        {
+          "text": "Pointed",
+          "weight": 2
+        },
+        {
+          "text": "Flat",
+          "weight": 2
+        },
+        {
+          "text": "Angled",
+          "weight": 1
+        },
+        {
+          "text": "Grooved",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "thickness",
+      "label": "Thickness",
+      "values": [
+        {
+          "text": "Medium",
+          "weight": 3
+        },
+        {
+          "text": "Thin",
+          "weight": 2
+        },
+        {
+          "text": "Thick",
+          "weight": 2
+        },
+        {
+          "text": "Fine",
+          "weight": 1
+        },
+        {
+          "text": "Chunky",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "mishima",
+      "label": "Mishima",
+      "values": [
+        {
+          "text": "None",
+          "weight": 3
+        },
+        {
+          "text": "White",
+          "weight": 2
+        },
+        {
+          "text": "Vermilion",
+          "weight": 2
+        },
+        {
+          "text": "Cobalt",
+          "weight": 1
+        },
+        {
+          "text": "Lustre",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "layers",
+      "label": "Layers",
+      "values": [
+        {
+          "text": "One",
+          "weight": 3
+        },
+        {
+          "text": "Two",
+          "weight": 2
+        },
+        {
+          "text": "Many",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "scale",
+      "label": "Scale",
+      "values": [
+        {
+          "text": "Medium",
+          "weight": 3
+        },
+        {
+          "text": "Macro",
+          "weight": 2
+        },
+        {
+          "text": "Micro",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "frame",
+      "label": "Frame",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 300,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:ceramics",
+  "artist": "Charlotte Dann",
+  "credit": {
+    "title": "Ceramics",
+    "artist": "Charlotte Dann",
+    "year": 2023,
+    "description": "Inside the computer there’s a digital hand. The hand selects a metal implement, cuts off a slab of clay, and carves into its surface. It wanders like your hand wanders; it carves imaginary contours, sinuous and exploratory. It doesn’t know the end result so it carves lines until it feels content, and then it numbers the piece and stamps its maker’s mark. It fires the slab in a digital kiln (it calls this “minting”) and through this act its art is preserved for millennia. The hand runs its fingers over the textured surface, feeling satisfaction at having spontaneously produced a piece of art so beautiful, expressive, and unique.\n\n---\n \nCeramics is a generative sculpture that mimics the physical expression of carving into clay. Through uncanny naturalistic rendering it challenges our notion of “handmade”. It asserts that the value of handmade isn’t the time it takes to make the work nor the physical materials consumed, but the endless small decisions and serendipitous details that appear along the way, as can be felt in each Ceramics mint.\n\nDespite the handmade nature of Ceramics the outputs cannot be touched. Highly tactile images enchant the viewer to imagine their tangible representations, and leave them to dwell on their perception of materiality — both in the experiential physical world and conceptually-infinite digital space.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0x99a9b7c1116f9ceeb1652de04d5969cce509b069/417",
+    "artistUrl": "https://charlottedann.com/ceramics",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 300,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0x99a9b7c1116f9ceeb1652de04d5969cce509b069",
+      "projectId": 417
+    },
+    "archiveId": "artblocks:ceramics",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Ceramics by Charlotte Dann, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 309727
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Aceramics"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Aceramics"
+  }
+}

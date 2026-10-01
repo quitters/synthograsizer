@@ -1,0 +1,142 @@
+{
+  "name": "Fragments of an Infinite Field",
+  "promptTemplate": "A {{seasons}} field with {{flowers}} flowers having {{flower_color}} colors and {{number_of_petals}} petal counts. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "seasons",
+      "label": "Seasons",
+      "values": [
+        {
+          "text": "Spring",
+          "weight": 3
+        },
+        {
+          "text": "Winter",
+          "weight": 2
+        },
+        {
+          "text": "Autumn",
+          "weight": 2
+        },
+        {
+          "text": "Summer",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "flowers",
+      "label": "Flowers",
+      "values": [
+        {
+          "text": "52",
+          "weight": 3
+        },
+        {
+          "text": "75",
+          "weight": 2
+        },
+        {
+          "text": "44",
+          "weight": 2
+        },
+        {
+          "text": "5",
+          "weight": 1
+        },
+        {
+          "text": "60",
+          "weight": 1
+        },
+        {
+          "text": "68",
+          "weight": 1
+        },
+        {
+          "text": "37",
+          "weight": 1
+        },
+        {
+          "text": "13",
+          "weight": 1
+        },
+        {
+          "text": "29",
+          "weight": 1
+        },
+        {
+          "text": "21",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "flower_color",
+      "label": "FlowerColor",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "number_of_petals",
+      "label": "NumberOfPetals",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 1024,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:fragments-of-an-infinite-field",
+  "artist": "Monica Rizzolli",
+  "credit": {
+    "title": "Fragments of an Infinite Field",
+    "artist": "Monica Rizzolli",
+    "year": 2021,
+    "description": "“Fragments of an infinite field” is a compositional system in which an idealized plant species is generated and arranged in a potentially infinite field of foliage. The main environmental parameter of the composition is the determination of a season of the year. The season determines the landscape’s colors and defines specific phenomena for each of them, such as rain in summer, snow in winter, petals falling in autumn, and pollen in spring. The flower has several possible variables, which can be macro aspects, affecting the entire population of the species, or micro, affecting each individual of the species differently. For example, the number of petals can be equal in all individuals or not. The number of filaments and other structures of the flower can undergo minor deviations, generating small mutations. The confusion between the figure (plant) and the background (earth, sky, other natural elements) is fascinating from a compositional point of view. The background colors are, most of the time, colors present in the figures, often breaking the boundary between them and, therefore, generating chromatic masses. In this project I also intend to research the following question: How to create parameters that resemble a living organism's growth? In this sense, the project approaches digital morphogenesis and the development of procedural organisms.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/159",
+    "artistUrl": null,
+    "license": {
+      "text": "CC BY",
+      "name": "CC BY 4.0",
+      "url": "https://creativecommons.org/licenses/by/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how."
+      ]
+    },
+    "editions": 1024,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 159
+    },
+    "archiveId": "artblocks:fragments-of-an-infinite-field",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Fragments of an Infinite Field by Monica Rizzolli, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 38026493
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Afragments-of-an-infinite-field"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Afragments-of-an-infinite-field"
+  }
+}

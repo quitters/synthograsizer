@@ -1,0 +1,142 @@
+{
+  "name": "Into the Light",
+  "promptTemplate": "An array of {{palette}} light bars drifting at {{speed}} speed with {{bar_density}} density and {{bar_segmentation}} segmentation; vertical: {{vertical_bar}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Glam",
+          "weight": 3
+        },
+        {
+          "text": "Halo",
+          "weight": 2
+        },
+        {
+          "text": "Neon",
+          "weight": 2
+        },
+        {
+          "text": "Aqua",
+          "weight": 1
+        },
+        {
+          "text": "Chill",
+          "weight": 1
+        },
+        {
+          "text": "Ocean",
+          "weight": 1
+        },
+        {
+          "text": "Mystic",
+          "weight": 1
+        },
+        {
+          "text": "Sunset",
+          "weight": 1
+        },
+        {
+          "text": "Glow",
+          "weight": 1
+        },
+        {
+          "text": "Serenity",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "bar_density",
+      "label": "Bar Density",
+      "type": "number",
+      "min": 1,
+      "max": 10,
+      "step": 0.1,
+      "default": 5.5
+    },
+    {
+      "name": "bar_segmentation",
+      "label": "Bar Segmentation",
+      "type": "number",
+      "min": 1,
+      "max": 10,
+      "step": 0.1,
+      "default": 5.5
+    },
+    {
+      "name": "vertical_bar",
+      "label": "Vertical Bar",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "speed",
+      "label": "Speed",
+      "type": "number",
+      "min": 0.15,
+      "max": 0.75,
+      "step": 0.01,
+      "default": 0.45
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 16,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:into-the-light",
+  "artist": "Jason Ting",
+  "credit": {
+    "title": "Into the Light",
+    "artist": "Jason Ting",
+    "year": 2025,
+    "description": "An ever-expanding array of lights spreads through space, illuminating the void with a meditative atmosphere of color.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0x0000f6bc84ab98fbd8fce1f6d047965c723f0000/0",
+    "artistUrl": null,
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 16,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0x0000f6bc84ab98fbd8fce1f6d047965c723f0000",
+      "projectId": 0
+    },
+    "archiveId": "artblocks:into-the-light",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Into the Light by Jason Ting, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 0
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Ainto-the-light"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Ainto-the-light"
+  }
+}

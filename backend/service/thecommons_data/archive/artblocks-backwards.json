@@ -1,0 +1,255 @@
+{
+  "name": "Backwards",
+  "promptTemplate": "A {{drawing}} backwards ink drawing in the {{palette}} palette with {{curve}} curves on a {{background}} background, with rotation: {{rotation}}, tilt {{tilt}}, and reverse flow: {{reverse_flow}}. Details include {{color_variations}} color variations, {{monochrome_chance}} monochrome chance, bump jitter: {{bump}}, and {{sketches_count}} background sketches of length {{sketch_length}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Freedom",
+          "weight": 3
+        },
+        {
+          "text": "Sunset",
+          "weight": 2
+        },
+        {
+          "text": "Luna Park",
+          "weight": 2
+        },
+        {
+          "text": "Magic",
+          "weight": 1
+        },
+        {
+          "text": "Beach",
+          "weight": 1
+        },
+        {
+          "text": "Adventure",
+          "weight": 1
+        },
+        {
+          "text": "Lollipop",
+          "weight": 1
+        },
+        {
+          "text": "Hideaway",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "drawing",
+      "label": "Drawing",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "curve",
+      "label": "Curve",
+      "values": [
+        {
+          "text": "Small",
+          "weight": 3
+        },
+        {
+          "text": "Large",
+          "weight": 2
+        },
+        {
+          "text": "None",
+          "weight": 2
+        },
+        {
+          "text": "Medium",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "rotation",
+      "label": "Rotation",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "background",
+      "label": "Background",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "tilt",
+      "label": "Tilt",
+      "values": [
+        {
+          "text": "1",
+          "weight": 3
+        },
+        {
+          "text": "2.5",
+          "weight": 2
+        },
+        {
+          "text": "5",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "monochrome_chance",
+      "label": "Monochrome Chance",
+      "values": [
+        {
+          "text": "0%",
+          "weight": 3
+        },
+        {
+          "text": "25%",
+          "weight": 2
+        },
+        {
+          "text": "50%",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "bump",
+      "label": "Bump Jitter",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "color_variations",
+      "label": "Color Variations",
+      "values": [
+        {
+          "text": "0",
+          "weight": 3
+        },
+        {
+          "text": "10",
+          "weight": 2
+        },
+        {
+          "text": "25",
+          "weight": 2
+        },
+        {
+          "text": "50",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "sketches_count",
+      "label": "Background Sketches",
+      "values": [
+        {
+          "text": "100",
+          "weight": 3
+        },
+        {
+          "text": "500",
+          "weight": 2
+        },
+        {
+          "text": "1000",
+          "weight": 2
+        },
+        {
+          "text": "2000",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "sketch_length",
+      "label": "Sketch Length",
+      "values": [
+        {
+          "text": "2",
+          "weight": 3
+        },
+        {
+          "text": "5",
+          "weight": 2
+        },
+        {
+          "text": "10",
+          "weight": 2
+        },
+        {
+          "text": "20",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "reverse_flow",
+      "label": "Reverse Flow",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 300,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:backwards",
+  "artist": "Asaf Slook",
+  "credit": {
+    "title": "Backwards",
+    "artist": "Asaf Slook",
+    "year": 2023,
+    "description": "A curious child, bored and uninspired,\nGrasped a pen and a blank sheet of paper.\nWith a flick of the wrist, he began to draw,\nMaking small dots upon the page, unsure of what was in store.\n\nBut as he connected each dot with a line,\nA diamond shape began to take form.\nHe smiled with pride as he looked upon his creation,\nA masterpiece born from idle exploration.\n\nYears passed and the boy grew into a man,\nSitting beside his computer, lost in thought.\nA flash of inspiration brought him back to that day,\nWhen he first discovered the beauty of the shape he had wrought.\n\nHe picked up his brush, and with a steady hand,\nBegan to recreate the shape once more.\nEach stroke a memory, each line a reminder,\nOf the wonder and joy he felt as a boy before.\n\nWith a final flourish, he sat back and admired,\nHis new creation, a work of art.\nAnd as he looked upon it, he felt a sense of triumph,\nFor he had captured the magic of the child in his heart.\n\nImagine holding a pen and drawing with it backwards,\nAs if each layer of ink would lay under the stroke before,\nA dance between past and present,\nA fusion of childhood wonder and adult mastery, forevermore.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0x99a9b7c1116f9ceeb1652de04d5969cce509b069/451",
+    "artistUrl": "https://www.asafslook.com/backwards",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 300,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0x99a9b7c1116f9ceeb1652de04d5969cce509b069",
+      "projectId": 451
+    },
+    "archiveId": "artblocks:backwards",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Backwards by Asaf Slook, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 28554
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Abackwards"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Abackwards"
+  }
+}

@@ -1,0 +1,201 @@
+{
+  "name": "Växt",
+  "promptTemplate": "A {{scale}} view of {{fill}} garden forms in the {{palette}} palette under {{weather}} weather with {{shading}} shading. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Mars",
+          "weight": 3
+        },
+        {
+          "text": "Serengeti",
+          "weight": 2
+        },
+        {
+          "text": "Deep Blue",
+          "weight": 2
+        },
+        {
+          "text": "Water Lilies",
+          "weight": 1
+        },
+        {
+          "text": "Hawaii",
+          "weight": 1
+        },
+        {
+          "text": "Tuscany",
+          "weight": 1
+        },
+        {
+          "text": "Lorkins",
+          "weight": 1
+        },
+        {
+          "text": "Falsterbo",
+          "weight": 1
+        },
+        {
+          "text": "Kyoto",
+          "weight": 1
+        },
+        {
+          "text": "Cap d'Antibes",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "scale",
+      "label": "Scale",
+      "values": [
+        {
+          "text": "Close (0.5)",
+          "weight": 3
+        },
+        {
+          "text": "Lagom (1)",
+          "weight": 2
+        },
+        {
+          "text": "Far (2.6)",
+          "weight": 2
+        },
+        {
+          "text": "Far (3.1)",
+          "weight": 1
+        },
+        {
+          "text": "Far (4.3)",
+          "weight": 1
+        },
+        {
+          "text": "Far (8.3)",
+          "weight": 1
+        },
+        {
+          "text": "Far (9.9)",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "fill",
+      "label": "Fill",
+      "values": [
+        {
+          "text": "Sparse",
+          "weight": 3
+        },
+        {
+          "text": "Dense",
+          "weight": 2
+        },
+        {
+          "text": "Balanced",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "weather",
+      "label": "Weather",
+      "values": [
+        {
+          "text": "Calm",
+          "weight": 3
+        },
+        {
+          "text": "Stormy (.31)",
+          "weight": 2
+        },
+        {
+          "text": "Stormy (.41)",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "shading",
+      "label": "Shading",
+      "values": [
+        {
+          "text": "Shallow (.011)",
+          "weight": 3
+        },
+        {
+          "text": "Shallow (.022)",
+          "weight": 2
+        },
+        {
+          "text": "Heavy (.037)",
+          "weight": 2
+        },
+        {
+          "text": "Heavy (.041)",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 150,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:vaxt",
+  "artist": "Tengil",
+  "credit": {
+    "title": "Växt",
+    "artist": "Tengil",
+    "year": 2024,
+    "description": "# Växt\n\n#### _Can an image invoke memories of scent?_\n\n**Växt** _(Growth/Plant)_ is an attempt at two things; on one hand capturing the emotion of walking in a garden, on another it is an exercise in combining micro and macro in a single canvas. With this series, I want to provoke your senses to associate the artworks with scents, flowers, plants, nature, gardens. \n\nCan it be done?\n\n#### _What is the essence of a garden?_\n\nThe visual expression of **Växt** is founded in exploration of shapes, colour and texture. How multiple shapes interact to create a composition greater than the sum of its parts, just like a planting of complementary flowers in a garden yields an inspiring composition or how light trickles through the leaves of a tree. How the colours ebb and flow over seasons and how combinations and shades cause our minds to fetch old memories as we create new ones. How texture can be used to provide depth and allow the eye to relax.\n\n#### _What if the motif fades into the distance when you lean in closer?_\n\n**Växt** is a continuation in the artistic journey of Tengil. Strong inspiration from nature combined with thoughts on the digital world combine to form thought-provoking artworks that give more the longer and closer one looks. From afar, the pieces explore the boundaries of abstraction. They provoke memories of scent using visual stimulus. Up close, there is a microcosmos of texture reminiscent of vast mountains aiming to bring balance and ground the scenes in familiar terrain.\n\nTechnically, the algorithm is a \"meta-algorithm\". Code (Javascript) writes code (webGL) which is executed to produce the final artworks.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0x99a9b7c1116f9ceeb1652de04d5969cce509b069/488",
+    "artistUrl": "https://www.tengil.art/art/vext",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 150,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0x99a9b7c1116f9ceeb1652de04d5969cce509b069",
+      "projectId": 488
+    },
+    "archiveId": "artblocks:vaxt",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Växt by Tengil, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 37446
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Avaxt"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Avaxt"
+  }
+}

@@ -1,0 +1,201 @@
+{
+  "name": "Center Pivot",
+  "promptTemplate": "A {{grid}} grid of center pivot irrigation fields on a {{background_color}} landscape with {{background_percent}}% wash tint, {{sprinkler_overspray}} overspray, and {{road_grid}} road grid. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "grid",
+      "label": "Grid",
+      "values": [
+        {
+          "text": "7X7",
+          "weight": 3
+        },
+        {
+          "text": "9X9",
+          "weight": 2
+        },
+        {
+          "text": "11X11",
+          "weight": 2
+        },
+        {
+          "text": "6X6",
+          "weight": 1
+        },
+        {
+          "text": "8X8",
+          "weight": 1
+        },
+        {
+          "text": "10X10",
+          "weight": 1
+        },
+        {
+          "text": "3X3",
+          "weight": 1
+        },
+        {
+          "text": "4X4",
+          "weight": 1
+        },
+        {
+          "text": "5X5",
+          "weight": 1
+        },
+        {
+          "text": "13X13",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "background_color",
+      "label": "Background color",
+      "values": [
+        {
+          "text": "Sky",
+          "weight": 3
+        },
+        {
+          "text": "Ochre",
+          "weight": 2
+        },
+        {
+          "text": "Charcoal",
+          "weight": 2
+        },
+        {
+          "text": "Sand",
+          "weight": 1
+        },
+        {
+          "text": "Rose",
+          "weight": 1
+        },
+        {
+          "text": "Concord",
+          "weight": 1
+        },
+        {
+          "text": "Pond",
+          "weight": 1
+        },
+        {
+          "text": "Wine",
+          "weight": 1
+        },
+        {
+          "text": "Ube",
+          "weight": 1
+        },
+        {
+          "text": "Mist",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "sprinkler_overspray",
+      "label": "Sprinkler overspray",
+      "values": [
+        {
+          "text": "None",
+          "weight": 3
+        },
+        {
+          "text": "Particles",
+          "weight": 2
+        },
+        {
+          "text": "Orbits",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "road_grid",
+      "label": "Road grid",
+      "values": [
+        {
+          "text": "Less",
+          "weight": 3
+        },
+        {
+          "text": "None",
+          "weight": 2
+        },
+        {
+          "text": "More",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "background_percent",
+      "label": "Background percent",
+      "type": "number",
+      "min": 3,
+      "max": 26,
+      "step": 1,
+      "default": 14
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 222,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:center-pivot",
+  "artist": "Craig Hughes & Eric Hughes",
+  "credit": {
+    "title": "Center Pivot",
+    "artist": "Craig Hughes & Eric Hughes",
+    "year": 2022,
+    "description": "Center pivot irrigation is a mainstay of the American farm. Like giant inkjet printers, they have painted verdant circles onto landscapes since the 1950s. The artists of this piece grew up in America’s breadbasket near the birthplace of the center pivot, surrounded by the nostalgia of the Family Farm. These were years of innocence – free from concerns of water shortages, chemical leaching, and economic controversy. The tension between childhood times and today’s environmental reality is a canvas for re-envisioning center pivots: they are fundamentally giant drawing machines. What happens when water is rationed? …when they are free to draw? …when they behave unexpectedly? Your token serves as the instructions for these machines—instructions that either constrain or liberate the machine to paint fantastical scenes.\n\nWatch the project teaser video, learn more about the rationale, and see example mints at https://centerpivot.art/\n\nAdditional controls interact with each other and have varying impacts during different periods of the animation. Experiment to create and save a new variation of your mint!\n'Arrow up' increases evaporation\n'Arrow down' decreases evaporation\n'Arrow right' increases overspray\n'Arrow left' decreases overspray\n'.' begins sunset; neon colors emerge depending on when initiated\n'/' shows pivot mechanisms only\n's' saves screenshot",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/297",
+    "artistUrl": "https://centerpivot.art/",
+    "license": {
+      "text": "CC BY-NC-SA 4.0",
+      "name": "CC BY-NC-SA 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only.",
+        "Share the adaptation under the same licence."
+      ]
+    },
+    "editions": 222,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 297
+    },
+    "archiveId": "artblocks:center-pivot",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Center Pivot by Craig Hughes & Eric Hughes, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 12869
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Acenter-pivot"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Acenter-pivot"
+  }
+}

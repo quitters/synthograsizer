@@ -1,0 +1,228 @@
+{
+  "name": "Haywire Café ",
+  "promptTemplate": "A {{palette}} surreal mid-century scene featuring {{pattern}} at {{pattern_scale}} scale, rotated {{pattern_rotation}} with {{pattern_skew}} skew, shaped by {{loop_scale}} loops; dusty: {{dusty}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Ocean",
+          "weight": 3
+        },
+        {
+          "text": "Haze",
+          "weight": 2
+        },
+        {
+          "text": "Intensity",
+          "weight": 2
+        },
+        {
+          "text": "Jester",
+          "weight": 1
+        },
+        {
+          "text": "Neon",
+          "weight": 1
+        },
+        {
+          "text": "Sproing",
+          "weight": 1
+        },
+        {
+          "text": "Toon",
+          "weight": 1
+        },
+        {
+          "text": "Citrus",
+          "weight": 1
+        },
+        {
+          "text": "Forest",
+          "weight": 1
+        },
+        {
+          "text": "Radioactive",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "pattern",
+      "label": "Pattern",
+      "values": [
+        {
+          "text": "Stripes",
+          "weight": 3
+        },
+        {
+          "text": "Checkers",
+          "weight": 2
+        },
+        {
+          "text": "Circle",
+          "weight": 2
+        },
+        {
+          "text": "Grid",
+          "weight": 1
+        },
+        {
+          "text": "Bubbles",
+          "weight": 1
+        },
+        {
+          "text": "Rings",
+          "weight": 1
+        },
+        {
+          "text": "Dots",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "loop_scale",
+      "label": "Loop Scale",
+      "type": "number",
+      "min": 0.75,
+      "max": 2.25,
+      "step": 0.05,
+      "default": 1.5
+    },
+    {
+      "name": "pattern_scale",
+      "label": "Pattern Scale",
+      "type": "number",
+      "min": 10,
+      "max": 20,
+      "step": 0.5,
+      "default": 15
+    },
+    {
+      "name": "pattern_rotation",
+      "label": "Pattern Rotation",
+      "values": [
+        {
+          "text": "0°",
+          "weight": 3
+        },
+        {
+          "text": "45°",
+          "weight": 2
+        },
+        {
+          "text": "225°",
+          "weight": 2
+        },
+        {
+          "text": "315°",
+          "weight": 1
+        },
+        {
+          "text": "135°",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "pattern_skew",
+      "label": "Pattern Skew",
+      "values": [
+        {
+          "text": "0%",
+          "weight": 3
+        },
+        {
+          "text": "75%",
+          "weight": 2
+        },
+        {
+          "text": "-75%",
+          "weight": 2
+        },
+        {
+          "text": "25%",
+          "weight": 1
+        },
+        {
+          "text": "-25%",
+          "weight": 1
+        },
+        {
+          "text": "50%",
+          "weight": 1
+        },
+        {
+          "text": "-50%",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "dusty",
+      "label": "Dusty",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 256,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:haywire-cafe",
+  "artist": "Jess Hewitt",
+  "credit": {
+    "title": "Haywire Café",
+    "artist": "Jess Hewitt",
+    "year": 2022,
+    "description": "Inspired by classic, mind-bending mid century cartoons, Haywire Café uses distorted patterns and dramatic shadows to create a surreal, nostalgic vibe. \n\nHaywire Café endeavors to honor the masters of animation whose works were so deeply influential to me. This series combines sleek retro-futuristic elements with fluid, organic forms and bold colors to transport the viewer to a world where the laws of cartoon physics prevail. \n\nThe series is animated by default, but requires a desktop browser for best performance. Click to toggle the animation on or off.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/262",
+    "artistUrl": "https://jesshewitt.github.io/haywire-cafe/",
+    "license": {
+      "text": "CC BY-NC-SA 4.0",
+      "name": "CC BY-NC-SA 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only.",
+        "Share the adaptation under the same licence."
+      ]
+    },
+    "editions": 256,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 262
+    },
+    "archiveId": "artblocks:haywire-cafe",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Haywire Café  by Jess Hewitt, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 51711
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Ahaywire-cafe"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Ahaywire-cafe"
+  }
+}

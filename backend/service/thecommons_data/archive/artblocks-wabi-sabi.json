@@ -1,0 +1,261 @@
+{
+  "name": "Wabi Sabi",
+  "promptTemplate": "A Japanese calligraphy composition of {{number_of_strokes}} strokes using algorithm {{stroke_algorithm}} on {{paper}} paper with {{brush_spread}} brush spread and hue {{hue}} in {{ink_palette_mode}} mode. The rendering features {{disturbance}} disturbance, {{ink_bleed}} ink bleed, scratch velocity {{ink_scratch_velocity}} of size {{ink_scratch_size}}, grid snap {{grid_snap}}; broken stroke: {{broken_stroke}}, broil: {{broil}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "stroke_algorithm",
+      "label": "Stroke algorithm",
+      "values": [
+        {
+          "text": "12",
+          "weight": 3
+        },
+        {
+          "text": "10",
+          "weight": 2
+        },
+        {
+          "text": "11",
+          "weight": 2
+        },
+        {
+          "text": "22",
+          "weight": 1
+        },
+        {
+          "text": "20",
+          "weight": 1
+        },
+        {
+          "text": "21",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "number_of_strokes",
+      "label": "Number of strokes",
+      "values": [
+        {
+          "text": "13",
+          "weight": 3
+        },
+        {
+          "text": "9",
+          "weight": 2
+        },
+        {
+          "text": "10",
+          "weight": 2
+        },
+        {
+          "text": "11",
+          "weight": 1
+        },
+        {
+          "text": "8",
+          "weight": 1
+        },
+        {
+          "text": "14",
+          "weight": 1
+        },
+        {
+          "text": "12",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "paper",
+      "label": "Paper",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "brush_spread",
+      "label": "Brush spread",
+      "type": "number",
+      "min": 0.4,
+      "max": 1,
+      "step": 0.1,
+      "default": 0.7
+    },
+    {
+      "name": "disturbance",
+      "label": "Disturbance",
+      "values": [
+        {
+          "text": "0.5",
+          "weight": 3
+        },
+        {
+          "text": "1",
+          "weight": 2
+        },
+        {
+          "text": "0",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "ink_bleed",
+      "label": "Ink bleed",
+      "values": [
+        {
+          "text": "Strong",
+          "weight": 3
+        },
+        {
+          "text": "Weak",
+          "weight": 2
+        },
+        {
+          "text": "Medium",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "broil",
+      "label": "Broil",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "broken_stroke",
+      "label": "Broken stroke",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "ink_scratch_size",
+      "label": "Ink scratch size",
+      "type": "number",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "default": 25
+    },
+    {
+      "name": "ink_scratch_velocity",
+      "label": "Ink scratch velocity",
+      "type": "number",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "name": "hue",
+      "label": "Hue",
+      "type": "number",
+      "min": -100,
+      "max": 200,
+      "step": 10,
+      "default": 50
+    },
+    {
+      "name": "ink_palette_mode",
+      "label": "Ink Palette Mode",
+      "values": [
+        {
+          "text": "Spectrum Subtle",
+          "weight": 3
+        },
+        {
+          "text": "Spectrum Variable",
+          "weight": 2
+        },
+        {
+          "text": "Spectrum Pure",
+          "weight": 2
+        },
+        {
+          "text": "Bicolor Static",
+          "weight": 1
+        },
+        {
+          "text": "Bicolor Variable",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "grid_snap",
+      "label": "Grid Snap",
+      "values": [
+        {
+          "text": "None",
+          "weight": 3
+        },
+        {
+          "text": "Moderate",
+          "weight": 2
+        },
+        {
+          "text": "Strict",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 205,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:wabi-sabi",
+  "artist": "Kazuhiro Tanimoto",
+  "credit": {
+    "title": "Wabi Sabi",
+    "artist": "Kazuhiro Tanimoto",
+    "year": 2022,
+    "description": "Wabi-sabi, an ancient Japanese aesthetic sense, refers to finding beauty in imperfect and lonely things.\nLife is irrational and ephemeral. \nPeace and happiness are illusory, built on a fragile balance. \nWabi-sabi is an immersion of the quality of loneliness within ourselves that accepts various nuances to be beautiful, through a sophisticated lens.\nThis work attempts to store the compelling concept of Wabi-sabi on the blockchain as the code dynamically generates brushstrokes based on motifs of Shodo (Japanese calligraphy)\n\nWabi-sabi begins with a deliberate movement in which an ink-soaked brush is plopped down onto the paper, causing the ink to splatter.\nThereafter, a unique algorithm assists in drawing brushstrokes. \nThe various forms that emerge from the balance of lines that are straight or curved, regular or irregular, strong or slight, complex or delicate, with varying speeds analogize a person’s will through the brushstrokes. The bleeding, scratching, and splattering of ink lend the modelling even more complexity. Wabi-sabi does not impose precision in creating Shodo strokes. You may notice how the colors always bleed in the same direction, which is impossible to generate in our physical reality. This is because even if the brush is impregnated with multiple hues of ink, the bristles rotate as the brushstrokes are drawn. It may also generate three-dimensional patterns, a feature that is absent in physical practice, offering the impression of depth, as if brushstrokes were drawn arbitrarily in space. This is achieved by controlling the focus.\n\nA key feature of each artwork is that it can be edited. A piece of art is usually completed by the artist and presented to the viewer. I intended to make this work as imperfect as the concept of Wabi-sabi, which can be infinitely edited by the viewer. This is impossible with conventional NFTs, with generated image data uploaded to a server. Such is the luxury in art created with on-chain generative art by code.\n\nFor each composition, the blank space as the foreground and background is a conscious and elemental choice in this work.\nWabi-sabi is to accept the lacking. Some artworks can have much of the space as blank, which may seem odd but is consistent with the narrative. Digitally native art often takes full advantage of the computing power to lay out complex patterns across the entire canvas. Wabi-sabi is minimal as a contemporary take on that trend. Through the bleeding and scratching of ink in each brushstroke along with the blank space represented in this work, we welcome imperfection. Conceptually, contrasts between movement and stillness, strength and weakness, audacity and delicacy, complexity and simplicity, vividness and fadedness reveal a melancholic beauty.\n\nThe search for beauty through imitation and slight modification, and the exploration of the techniques used to create traditional or innovative shapes, is akin to the training in Shodo. \nSimply said, you cannot do it well the first time. The Japanese word for Shodo (\"do\") means \"road\". It is by travelling down the long road involving hours of training and exploration, that the sensitive concept of Wabi-sabi may be understood.\n\nThe underlying intention is to facilitate partaking in the process of the artist's exploration. The viewer is the artist and the artist is the viewer, sharing a sense of camaraderie that lives forever on the blockchain\n\n[NOTE]\n-Move the mouse over the left edge of the canvas and press the Edit button. \n-To edit, press the ‘S’ key\n-To save the image press the ‘R’ key.\n-To redraw, modern hardware and browser hardware acceleration is recommended. The Chrome browser on a desktop with a high-end GPU is optimal. On iOS, the best experience is available on iOS 12 or later.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0x99a9b7c1116f9ceeb1652de04d5969cce509b069/375",
+    "artistUrl": "https://www.kazuhirotanimoto.com/works/wabi_sabi/",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 205,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0x99a9b7c1116f9ceeb1652de04d5969cce509b069",
+      "projectId": 375
+    },
+    "archiveId": "artblocks:wabi-sabi",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Wabi Sabi by Kazuhiro Tanimoto, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 415545
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Awabi-sabi"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Awabi-sabi"
+  }
+}

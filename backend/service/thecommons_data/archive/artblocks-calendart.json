@@ -1,0 +1,153 @@
+{
+  "name": "Calendart",
+  "promptTemplate": "A {{chaos}} calendar in the {{palette}} palette with a {{frame}} frame; dark mode: {{dark_mode}}, translucent: {{translucent}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Regatta",
+          "weight": 3
+        },
+        {
+          "text": "Feeling Grey",
+          "weight": 2
+        },
+        {
+          "text": "Retro",
+          "weight": 2
+        },
+        {
+          "text": "Energy",
+          "weight": 1
+        },
+        {
+          "text": "Modern",
+          "weight": 1
+        },
+        {
+          "text": "Coffee Shop",
+          "weight": 1
+        },
+        {
+          "text": "Blackout",
+          "weight": 1
+        },
+        {
+          "text": "Whiteout",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "chaos",
+      "label": "Chaos",
+      "values": [
+        {
+          "text": "The Usual",
+          "weight": 3
+        },
+        {
+          "text": "Busy",
+          "weight": 2
+        },
+        {
+          "text": "Jam Packed",
+          "weight": 2
+        },
+        {
+          "text": "Quiet",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "dark_mode",
+      "label": "Background",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "frame",
+      "label": "Frame",
+      "values": [
+        {
+          "text": "Matching",
+          "weight": 3
+        },
+        {
+          "text": "None",
+          "weight": 2
+        },
+        {
+          "text": "White",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "translucent",
+      "label": "Opacity",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 365,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:calendart",
+  "artist": "steen & n-e-o",
+  "credit": {
+    "title": "Calendart",
+    "artist": "steen & n-e-o",
+    "year": 2021,
+    "description": "For many of us, our calendars can be a source of dread and stress. Calendart is inspired by the chaos of events that populate our everyday virtual lives and reimagines them as art.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/125",
+    "artistUrl": "https://twitter.com/ssteeenn",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 365,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 125
+    },
+    "archiveId": "artblocks:calendart",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Calendart by steen & n-e-o, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 1077038
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Acalendart"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Acalendart"
+  }
+}

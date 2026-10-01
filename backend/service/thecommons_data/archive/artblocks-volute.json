@@ -1,0 +1,280 @@
+{
+  "name": "Volute",
+  "promptTemplate": "A {{sectors}}-fold volute in {{palette}} with {{structure}} structure and {{amplitude}} amplitude centered at {{position}}, with {{lens}} lens distortion. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Red Rose",
+          "weight": 3
+        },
+        {
+          "text": "Nymphaea",
+          "weight": 2
+        },
+        {
+          "text": "Lantana",
+          "weight": 2
+        },
+        {
+          "text": "Petunia",
+          "weight": 1
+        },
+        {
+          "text": "Rhone",
+          "weight": 1
+        },
+        {
+          "text": "Beaufort",
+          "weight": 1
+        },
+        {
+          "text": "Dahlia",
+          "weight": 1
+        },
+        {
+          "text": "Rudbeckia",
+          "weight": 1
+        },
+        {
+          "text": "Viburnum",
+          "weight": 1
+        },
+        {
+          "text": "Sardinia",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "structure",
+      "label": "Structure",
+      "values": [
+        {
+          "text": "2-2",
+          "weight": 3
+        },
+        {
+          "text": "2-1",
+          "weight": 2
+        },
+        {
+          "text": "2-3",
+          "weight": 2
+        },
+        {
+          "text": "3-2",
+          "weight": 1
+        },
+        {
+          "text": "1-2",
+          "weight": 1
+        },
+        {
+          "text": "3-3",
+          "weight": 1
+        },
+        {
+          "text": "1-1",
+          "weight": 1
+        },
+        {
+          "text": "1-3",
+          "weight": 1
+        },
+        {
+          "text": "3-1",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "sectors",
+      "label": "Sectors",
+      "values": [
+        {
+          "text": "4",
+          "weight": 3
+        },
+        {
+          "text": "3",
+          "weight": 2
+        },
+        {
+          "text": "2",
+          "weight": 2
+        },
+        {
+          "text": "5",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "position",
+      "label": "Position",
+      "values": [
+        {
+          "text": "Bottom Right",
+          "weight": 3
+        },
+        {
+          "text": "Top Left",
+          "weight": 2
+        },
+        {
+          "text": "Bottom Left",
+          "weight": 2
+        },
+        {
+          "text": "Top Right",
+          "weight": 1
+        },
+        {
+          "text": "Centre",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "lens",
+      "label": "Lens",
+      "values": [
+        {
+          "text": "None",
+          "weight": 3
+        },
+        {
+          "text": "Inner - low distortion",
+          "weight": 2
+        },
+        {
+          "text": "Centre - low distortion",
+          "weight": 2
+        },
+        {
+          "text": "Outer - low distortion",
+          "weight": 1
+        },
+        {
+          "text": "Outer - high distortion",
+          "weight": 1
+        },
+        {
+          "text": "Centre - high distortion",
+          "weight": 1
+        },
+        {
+          "text": "Inner - high distortion",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "amplitude",
+      "label": "Amplitude",
+      "values": [
+        {
+          "text": "2-2",
+          "weight": 3
+        },
+        {
+          "text": "3-2",
+          "weight": 2
+        },
+        {
+          "text": "2-3",
+          "weight": 2
+        },
+        {
+          "text": "1-2",
+          "weight": 1
+        },
+        {
+          "text": "3-1",
+          "weight": 1
+        },
+        {
+          "text": "3-4",
+          "weight": 1
+        },
+        {
+          "text": "3-3",
+          "weight": 1
+        },
+        {
+          "text": "2-4",
+          "weight": 1
+        },
+        {
+          "text": "4-2",
+          "weight": 1
+        },
+        {
+          "text": "1-3",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 200,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:volute",
+  "artist": "RVig",
+  "credit": {
+    "title": "Volute",
+    "artist": "RVig",
+    "year": 2022,
+    "description": "Volute is the result of different stages of my experience in Generative Art over many years put together, drawing on early and new techniques plus my recent forays into long form generative art.\n\nI set out to explore the essence of generative art, seeking, discovering, coaxing and exposing the variety of outputs from a simple system.\n\nThe soulless algorithm is counterbalanced by the exclusive use of colours from nature as prime sources. Brutal symmetries and complexities are softened by decentring and subtle layer transparencies. Pixel feedback loops generate radial symmetries and spirals, producing a variety of flower structures, volutes and arabesques. And when I view the results - their rhythm, their surprises, their flow - they justify for me my earlier choice of technical process.\n\nMy aim in Volute is to create, using gentle spiraling motion, the calming effect of marveling at flowers in nature.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0x99a9b7c1116f9ceeb1652de04d5969cce509b069/394",
+    "artistUrl": "https://rvig.art/Volute.html",
+    "license": {
+      "text": "CC-BY-NC-SA 4.0",
+      "name": "CC BY-NC-SA 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only.",
+        "Share the adaptation under the same licence."
+      ]
+    },
+    "editions": 200,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0x99a9b7c1116f9ceeb1652de04d5969cce509b069",
+      "projectId": 394
+    },
+    "archiveId": "artblocks:volute",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Volute by RVig, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 145014
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Avolute"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Avolute"
+  }
+}

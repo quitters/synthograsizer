@@ -1,0 +1,167 @@
+{
+  "name": "Flourish",
+  "promptTemplate": "An intricate architectural ornamentation in {{palette}} palette with {{base_shape}} symmetry and {{outer_details}} outer details; developmental stages: {{stages}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Chicago",
+          "weight": 3
+        },
+        {
+          "text": "Pale Nimbus",
+          "weight": 2
+        },
+        {
+          "text": "Blueprint",
+          "weight": 2
+        },
+        {
+          "text": "New York",
+          "weight": 1
+        },
+        {
+          "text": "Eggshell",
+          "weight": 1
+        },
+        {
+          "text": "Buffalo",
+          "weight": 1
+        },
+        {
+          "text": "Blacked Out",
+          "weight": 1
+        },
+        {
+          "text": "Bone",
+          "weight": 1
+        },
+        {
+          "text": "Tokyo",
+          "weight": 1
+        },
+        {
+          "text": "Hong Kong",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "base_shape",
+      "label": "Base Shape",
+      "values": [
+        {
+          "text": "Pentagon",
+          "weight": 3
+        },
+        {
+          "text": "Triangle",
+          "weight": 2
+        },
+        {
+          "text": "Hexagon",
+          "weight": 2
+        },
+        {
+          "text": "Square",
+          "weight": 1
+        },
+        {
+          "text": "Circle",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "outer_details",
+      "label": "OuterDetails",
+      "values": [
+        {
+          "text": "Clean",
+          "weight": 3
+        },
+        {
+          "text": "Dashes",
+          "weight": 2
+        },
+        {
+          "text": "Dots",
+          "weight": 2
+        },
+        {
+          "text": "Planes",
+          "weight": 1
+        },
+        {
+          "text": "Squares",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "stages",
+      "label": "Stages",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 270,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:flourish",
+  "artist": "Sterling Crispin",
+  "credit": {
+    "title": "Flourish",
+    "artist": "Sterling Crispin",
+    "year": 2023,
+    "description": "Flourish is the notebook of an algorithmic architect. \n\nThis speculative fiction presents an alternative timeline for architectural ornamentation, drawing inspiration from the late 1800s and early 1900s. By referencing historical precedents, Flourish produces designs that exist between the past and present, striking a balance between tradition and innovation.\n\nFlourish’s logic uses a linguistic structure that treats simple shapes like an alphabet and arranges geometry into phrases, establishing and dissolving symmetries. This logic is similar to a formal grammar system with rules that describe how words can be combined to form sentences. As a very simple example, a rule for the English language might be that a noun phrase can be followed by a verb phrase. So, a person dances, a cat sleeps, a bird sings. In the context of Flourish, pentagons can be subdivided into triangles, which can be enclosed by circles to create complex patterns. As geometry is combined and rearranged, the linguistic-like structure of the image changes, which also changes the next possible sets of geometric operations.\n\nThe palettes reflect various eras and mediums, invoking the feeling of aged archival drawings, woodblock prints, freshly inked illustrations, blueprints, and photocopies. The images resemble photographs of drawings rather than the drawings themselves, creating the impression of a carefully archived collection of artifacts that document a history just now coming into existence.\n\nIn my own history, I spent many years filling notebooks with abstract flowing drawings using very fine pens while studying painting and drawing. I would start by making one small curved mark, and then make thousands more while following the natural rhythm that my hand and wrist made. The density of marks and careful variations of spacing gave the drawings a meditative quality. Flourish's fine flowing lines draw from this meditative practice, imbuing each image with a sense of careful attention and intention.\n\nThe best architecture is a harmony of the natural and the constructed. And so the fine detailed marks are meant to feel natural, and to build up the constructed geometries with an emergent natural foundation.\n\nManipulating the arrangement of primary shapes to create complex patterns is a hallmark of both generative design and traditional architectural design. Flourish exists somewhere between this relationship. Rather than taking the historical path of contemporary parametric architecture, with its large sweeping forms and sci-fi aesthetics, Flourish creates an alternative history, a revivalist rebirth of the roaring twenties for the 2020s.\n\n------\nPrints on archival paper will be made available at a later date.\n\nA percentage of profits from the primary sale will be donated to the Hawaii Community Foundation's Maui Strong Fund to support Maui residents affected by the wildfires.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0x99a9b7c1116f9ceeb1652de04d5969cce509b069/454",
+    "artistUrl": "https://www.sterlingcrispin.com/flourish.html",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 270,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0x99a9b7c1116f9ceeb1652de04d5969cce509b069",
+      "projectId": 454
+    },
+    "archiveId": "artblocks:flourish",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Flourish by Sterling Crispin, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 57515
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Aflourish"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Aflourish"
+  }
+}

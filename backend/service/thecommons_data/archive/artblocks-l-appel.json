@@ -1,0 +1,163 @@
+{
+  "name": "L'Appel",
+  "promptTemplate": "A battlefield formation of {{unit}} units rendered in the {{palette}} palette with an {{action}} stance; horizontal cut: {{horizontal_cut}}, rough terrain: {{rough_terrain}}, silver medal: {{silver_medal}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Gulf",
+          "weight": 3
+        },
+        {
+          "text": "Time for Blood",
+          "weight": 2
+        },
+        {
+          "text": "Macha Strawberry",
+          "weight": 2
+        },
+        {
+          "text": "Black & White",
+          "weight": 1
+        },
+        {
+          "text": "Fantastic",
+          "weight": 1
+        },
+        {
+          "text": "Bloody Reds",
+          "weight": 1
+        },
+        {
+          "text": "Ocre Waves",
+          "weight": 1
+        },
+        {
+          "text": "T-Y Gamma",
+          "weight": 1
+        },
+        {
+          "text": "From the Forge",
+          "weight": 1
+        },
+        {
+          "text": "Smart Fox",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "unit",
+      "label": "Unit",
+      "values": [
+        {
+          "text": "Hex",
+          "weight": 3
+        },
+        {
+          "text": "Box",
+          "weight": 2
+        },
+        {
+          "text": "Box Shifted",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "action",
+      "label": "Action",
+      "values": [
+        {
+          "text": "Shot",
+          "weight": 3
+        },
+        {
+          "text": "Heavy Shot",
+          "weight": 2
+        },
+        {
+          "text": "At ease",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "horizontal_cut",
+      "label": "Cut",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "rough_terrain",
+      "label": "Terrain",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "silver_medal",
+      "label": "Medal",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 100,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:l-appel",
+  "artist": "Alexis André",
+  "credit": {
+    "title": "L'Appel",
+    "artist": "Alexis André",
+    "year": 2023,
+    "description": "When duty calls and the Departed need to form ranks, who will heed the call?\n\n\"L'appel\" explores order in the chaos of a battlefield - making sense of the unknown and fleeting world that lies beyond. Randomness, repetition, grids and overarching shapes pull the colors around, hoping to find a sense of wonder through the void.\n\nFollowing \"Décorés\", the final act of the Departed series reflects on the fleeting nature of existence, inviting viewers to contemplate how our struggles give shape and meaning to our time on earth.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0x0a1bbd57033f57e7b6743621b79fcb9eb2ce3676/42",
+    "artistUrl": null,
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 100,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0x0a1bbd57033f57e7b6743621b79fcb9eb2ce3676",
+      "projectId": 42
+    },
+    "archiveId": "artblocks:l-appel",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of L'Appel by Alexis André, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 7511
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Al-appel"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Al-appel"
+  }
+}

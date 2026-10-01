@@ -1,0 +1,255 @@
+{
+  "name": "Watercolor Dreams",
+  "promptTemplate": "A watercolor flow with {{composition}} composition in {{color_scheme}}, with noise scale {{noise_scale}} and angle amplitude {{angle_amplitude}}; symmetric: {{symmetric}}, striped: {{striped}}, inverted: {{color_inverted}}, wavey: {{wavey}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "composition",
+      "label": "Composition",
+      "values": [
+        {
+          "text": "horizontalCircles",
+          "weight": 3
+        },
+        {
+          "text": "star",
+          "weight": 2
+        },
+        {
+          "text": "cornerSquares",
+          "weight": 2
+        },
+        {
+          "text": "corner x",
+          "weight": 1
+        },
+        {
+          "text": "horizontalRectangles",
+          "weight": 1
+        },
+        {
+          "text": "cornerCircles",
+          "weight": 1
+        },
+        {
+          "text": "verticalCircles",
+          "weight": 1
+        },
+        {
+          "text": "x",
+          "weight": 1
+        },
+        {
+          "text": "verticalLines",
+          "weight": 1
+        },
+        {
+          "text": "edgeCircles",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "color_scheme",
+      "label": "Color Scheme",
+      "values": [
+        {
+          "text": "Graded Wash 1",
+          "weight": 3
+        },
+        {
+          "text": "Graded Wash 2",
+          "weight": 2
+        },
+        {
+          "text": "Graded Wash 3",
+          "weight": 2
+        },
+        {
+          "text": "Graded Wash 4",
+          "weight": 1
+        },
+        {
+          "text": "Graded Wash 5",
+          "weight": 1
+        },
+        {
+          "text": "Graded Wash 6",
+          "weight": 1
+        },
+        {
+          "text": "Graded Wash 7",
+          "weight": 1
+        },
+        {
+          "text": "Graded Wash 8",
+          "weight": 1
+        },
+        {
+          "text": "Graded Wash 9",
+          "weight": 1
+        },
+        {
+          "text": "Graded Wash 10",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "noise_scale",
+      "label": "Noise Scale",
+      "values": [
+        {
+          "text": "35",
+          "weight": 3
+        },
+        {
+          "text": "30",
+          "weight": 2
+        },
+        {
+          "text": "40",
+          "weight": 2
+        },
+        {
+          "text": "25",
+          "weight": 1
+        },
+        {
+          "text": "45",
+          "weight": 1
+        },
+        {
+          "text": "20",
+          "weight": 1
+        },
+        {
+          "text": "50",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "angle_amplitude",
+      "label": "Angle Amplitude",
+      "values": [
+        {
+          "text": "40",
+          "weight": 3
+        },
+        {
+          "text": "35",
+          "weight": 2
+        },
+        {
+          "text": "45",
+          "weight": 2
+        },
+        {
+          "text": "30",
+          "weight": 1
+        },
+        {
+          "text": "50",
+          "weight": 1
+        },
+        {
+          "text": "25",
+          "weight": 1
+        },
+        {
+          "text": "55",
+          "weight": 1
+        },
+        {
+          "text": "20",
+          "weight": 1
+        },
+        {
+          "text": "60",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "symmetric",
+      "label": "Symmetric",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "striped",
+      "label": "Striped",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "color_inverted",
+      "label": "Color Inverted",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "wavey",
+      "label": "Wavey",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 600,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:watercolor-dreams",
+  "artist": "NumbersInMotion",
+  "credit": {
+    "title": "Watercolor Dreams",
+    "artist": "NumbersInMotion",
+    "year": 2021,
+    "description": "Watercolor Dreams is an exploration in simulation, a meditation on traditional techniques in watercolor, and an ode to serendipity. Where will this curve end? When will this shade fade? How will the movement come alive? Sit back, relax, and watch the colors wash over the canvas.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/59",
+    "artistUrl": "https://www.instagram.com/numbersinmotion/",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 600,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 59
+    },
+    "archiveId": "artblocks:watercolor-dreams",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Watercolor Dreams by NumbersInMotion, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 5830356
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Awatercolor-dreams"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Awatercolor-dreams"
+  }
+}

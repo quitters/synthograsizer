@@ -1,0 +1,187 @@
+{
+  "name": "Tout tracé",
+  "promptTemplate": "A {{composition}} generative line drawing in {{palette}}, exhibiting {{evolution}} evolution with {{perturbations}} perturbations. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Palette 0",
+          "weight": 3
+        },
+        {
+          "text": "Palette 1",
+          "weight": 2
+        },
+        {
+          "text": "Palette 2",
+          "weight": 2
+        },
+        {
+          "text": "Palette 3",
+          "weight": 1
+        },
+        {
+          "text": "Palette 4",
+          "weight": 1
+        },
+        {
+          "text": "Palette 5",
+          "weight": 1
+        },
+        {
+          "text": "Palette 6",
+          "weight": 1
+        },
+        {
+          "text": "Palette 7",
+          "weight": 1
+        },
+        {
+          "text": "Palette 8",
+          "weight": 1
+        },
+        {
+          "text": "Palette 9",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "composition",
+      "label": "Composition",
+      "values": [
+        {
+          "text": "Balanced",
+          "weight": 3
+        },
+        {
+          "text": "Free",
+          "weight": 2
+        },
+        {
+          "text": "Unbalanced",
+          "weight": 2
+        },
+        {
+          "text": "Very minimalistic",
+          "weight": 1
+        },
+        {
+          "text": "Minimalistic",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "evolution",
+      "label": "Evolution",
+      "values": [
+        {
+          "text": "Small",
+          "weight": 3
+        },
+        {
+          "text": "Medium",
+          "weight": 2
+        },
+        {
+          "text": "Extreme",
+          "weight": 2
+        },
+        {
+          "text": "Big",
+          "weight": 1
+        },
+        {
+          "text": "Very small",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "perturbations",
+      "label": "Perturbations",
+      "values": [
+        {
+          "text": "None",
+          "weight": 3
+        },
+        {
+          "text": "Medium",
+          "weight": 2
+        },
+        {
+          "text": "Small",
+          "weight": 2
+        },
+        {
+          "text": "Strong",
+          "weight": 1
+        },
+        {
+          "text": "Extreme",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 300,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:tout-trace",
+  "artist": "Florian Zumbrunn",
+  "credit": {
+    "title": "Tout tracé",
+    "artist": "Florian Zumbrunn",
+    "year": 2023,
+    "description": "In 2022, as I was experiencing my first year as a father, I was often asking myself what impact I would have on my son, and how much my actions will be part of what will make him “him”. I started a slow introspection on the subject, and at the end of the year, I released “Foundations”, a series that focuses on the origins of our identity.\n\n“Tout tracé” is the second act, and its direct continuity. \nIn French, it means *“All mapped out”*, referring to the idea of an all planned future or *“a ready made path”.*\n\nThis series is the counterpoint of this vision. \n\nLife is full of surprises, good or bad, and each moment will have an impact on us, creating our set of experiences, many of them involuntary and embedded in our existence.\nAs humans, we are in constant evolution and therefore, on a quest of identity; of who we really are.\nWe are surrounded by expectations : from society, culture, religion, parents, friends, family… A list of rules that need to be followed and lived by; but, at the end of the day, I believe that only our choices matter.\n\nLike “Foundations”, the composition of “Tout tracé” is grid based: full of boxes expected to be filled.\nBut this series is about growth, evolution, expression and re-definition. It’s about fighting against the structure in place, finding our own voice and re-shaping our reality.\nIt is finding its uniqueness and identity that will be revealed through the millions of lines drawing each artwork, technically signing the idea of “Tout tracé”, that comes with a double meaning: *“All drawn”*.\n\n\n--\n- **Press ‘S’** to export a still image.\n- **Press ‘H’** to open a new tab of the artwork in HD (A3 format).\n\n-- \n\nOpening one output in fullscreen or in live view will run an animation revealing the artwork.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0x99a9b7c1116f9ceeb1652de04d5969cce509b069/409",
+    "artistUrl": "https://florianzumbrunn.com/",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 300,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0x99a9b7c1116f9ceeb1652de04d5969cce509b069",
+      "projectId": 409
+    },
+    "archiveId": "artblocks:tout-trace",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Tout tracé by Florian Zumbrunn, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 272574
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Atout-trace"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Atout-trace"
+  }
+}

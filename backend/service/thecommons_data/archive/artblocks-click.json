@@ -1,0 +1,165 @@
+{
+  "name": "Click",
+  "promptTemplate": "A {{layout}} sculpture with {{color_scheme}} {{palette}} coloring; X symmetry: {{x_symmetry}}, concave studs: {{concave_studs}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "layout",
+      "label": "Layout",
+      "values": [
+        {
+          "text": "Random",
+          "weight": 3
+        },
+        {
+          "text": "Compact",
+          "weight": 2
+        },
+        {
+          "text": "Small",
+          "weight": 2
+        },
+        {
+          "text": "Empty",
+          "weight": 1
+        },
+        {
+          "text": "Mushroom",
+          "weight": 1
+        },
+        {
+          "text": "Tiny",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Seventh",
+          "weight": 3
+        },
+        {
+          "text": "Sixth",
+          "weight": 2
+        },
+        {
+          "text": "Fifth",
+          "weight": 2
+        },
+        {
+          "text": "Fourth",
+          "weight": 1
+        },
+        {
+          "text": "Third",
+          "weight": 1
+        },
+        {
+          "text": "Second",
+          "weight": 1
+        },
+        {
+          "text": "First",
+          "weight": 1
+        },
+        {
+          "text": "Zeroth",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "color_scheme",
+      "label": "Color scheme",
+      "values": [
+        {
+          "text": "Textured",
+          "weight": 3
+        },
+        {
+          "text": "Not textured",
+          "weight": 2
+        },
+        {
+          "text": "Monochrome",
+          "weight": 2
+        },
+        {
+          "text": "Rainbow",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "x_symmetry",
+      "label": "Symmetry",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "concave_studs",
+      "label": "Studs",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 1024,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:click",
+  "artist": "Ivan Dianov",
+  "credit": {
+    "title": "Click",
+    "artist": "Ivan Dianov",
+    "year": 2022,
+    "description": "The project focuses on how easily one assigns meaning to seemingly random combinations of blocks, giving them personality and creating emotional connections.\n\nI was inspired by Ringers, in which people see animals and other characters. I wanted to amplify this quality, and the idea of sculptures made of blocks clicked! Endless combinations, funny characters, and my passion for cubes, voxels, and modular systems.\n\nTo make the sculptures, I used technique of hybrid voxel raymarching, so we can say, the sculptures are made of colored void in a reflected space. Some of them may seem impossible due to the lack of perspective, but sooner or later it all clicks! It helps to keep in mind that all shapes are symmetrical.\n\nThe script uses modern features of GPU so it's supposed to work only on desktop: Chrome, Firefox or Safari",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/263",
+    "artistUrl": "https://ivandianov.com/click/",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 1024,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 263
+    },
+    "archiveId": "artblocks:click",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Click by Ivan Dianov, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 72538
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Aclick"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Aclick"
+  }
+}

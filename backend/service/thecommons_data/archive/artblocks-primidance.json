@@ -1,0 +1,151 @@
+{
+  "name": "PrimiDance",
+  "promptTemplate": "A dance of {{amount}} orbiting primitive 3D shapes in a {{palette}} palette against a {{background}} background at speed {{speed}}, with wireframe rendering: {{wireframe}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "#Fe514e #FDBd21 #4461Cd",
+          "weight": 3
+        },
+        {
+          "text": "#996757 #eecb20 #4f9eb6",
+          "weight": 2
+        },
+        {
+          "text": "#f6b50f #15a16a #f1594b",
+          "weight": 2
+        },
+        {
+          "text": "#fff #000 #000",
+          "weight": 1
+        },
+        {
+          "text": "#819498 #e1990e #fcddc6",
+          "weight": 1
+        },
+        {
+          "text": "#e6ecce #c47c2a #586a7c",
+          "weight": 1
+        },
+        {
+          "text": "#BC99B7 #f1e8bd #7DD094",
+          "weight": 1
+        },
+        {
+          "text": "#fab58f #fa6556 #c8eec1",
+          "weight": 1
+        },
+        {
+          "text": "#465b61 #7b999d #faaf3d",
+          "weight": 1
+        },
+        {
+          "text": "#F99851 #583C39 #53C4C2",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "wireframe",
+      "label": "Wireframe",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "background",
+      "label": "Background",
+      "values": [
+        {
+          "text": "Tertiary",
+          "weight": 3
+        },
+        {
+          "text": "Secondary",
+          "weight": 2
+        },
+        {
+          "text": "Primary",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "amount",
+      "label": "Amount",
+      "type": "number",
+      "min": 20,
+      "max": 60,
+      "step": 1,
+      "default": 40
+    },
+    {
+      "name": "speed",
+      "label": "Speed",
+      "type": "number",
+      "min": 0.01,
+      "max": 0.2,
+      "step": 0.01,
+      "default": 0.1
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 256,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:primidance",
+  "artist": "wuwa",
+  "credit": {
+    "title": "PrimiDance",
+    "artist": "wuwa",
+    "year": 2021,
+    "description": "Dance of the primitive shapes - demonstrating my fascination and love of the basic building blocks for many types of computer generated imagery. \nIncorporating random chance with some strict design decisions, numerous sub variations and collectable series can be generated. \nControls: mouse to rotate and zoom in/out; r: reset position; p: play/pause; t: trails on/off;",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/84",
+    "artistUrl": "https://wuwa.org/art",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 256,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 84
+    },
+    "archiveId": "artblocks:primidance",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of PrimiDance by wuwa, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 1063434
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Aprimidance"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Aprimidance"
+  }
+}

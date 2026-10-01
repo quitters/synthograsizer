@@ -1,0 +1,167 @@
+{
+  "name": "Exstasis",
+  "promptTemplate": "An abstract pixel painting in the {{palette}} palette with {{flow_type}} motion, framed by a {{border_mode}} border; noise mode: {{mega_noise}}, form sizing: {{thin_forms}}, pixel mode: {{high_pixels}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Cocteau",
+          "weight": 3
+        },
+        {
+          "text": "Panton",
+          "weight": 2
+        },
+        {
+          "text": "(artbot, artbot)",
+          "weight": 2
+        },
+        {
+          "text": "Shacksbury Rosé",
+          "weight": 1
+        },
+        {
+          "text": "Another Green World",
+          "weight": 1
+        },
+        {
+          "text": "Mocha",
+          "weight": 1
+        },
+        {
+          "text": "Autumn",
+          "weight": 1
+        },
+        {
+          "text": "Van Gogh's Fields",
+          "weight": 1
+        },
+        {
+          "text": "Primary",
+          "weight": 1
+        },
+        {
+          "text": "Ice",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "flow_type",
+      "label": "Flow type",
+      "values": [
+        {
+          "text": "Van Gogh (Angle 1)",
+          "weight": 3
+        },
+        {
+          "text": "Van Gogh (Angle 2)",
+          "weight": 2
+        },
+        {
+          "text": "Uzumaki",
+          "weight": 2
+        },
+        {
+          "text": "Van Gogh (Angle 3)",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "border_mode",
+      "label": "Border mode",
+      "values": [
+        {
+          "text": "Normal",
+          "weight": 3
+        },
+        {
+          "text": "Wiiiide",
+          "weight": 2
+        },
+        {
+          "text": "Mini",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "mega_noise",
+      "label": "Noise mode",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "thin_forms",
+      "label": "Form sizing",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "high_pixels",
+      "label": "Pixel mode",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 111,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:exstasis",
+  "artist": "Grant Oesterling",
+  "credit": {
+    "title": "Exstasis",
+    "artist": "Grant Oesterling",
+    "year": 2023,
+    "description": "*Exstasis* is an exploration in abstract pixel painting. Inspired by the work 20th-century abstract expressionists like Miró and Kandinsky, along with 16-bit pixel art aesthetics, the algorithm filters organic curvilinear forms through digital noise and pixel dithering to achieve a uniquely fluid effect. *Exstasis* revels in ecstatic movement and rich patterns informed by the very colors that comprise it.\n\nCentral to the project is a pixelating technique known as Bayer dithering. This method of ordered dithering was invented to approximate shading and color tone when the available colors and number of pixels were limited by the hardware constraints of the time (think Sega Genesis, Commodore 64, etc). Although advancements in digital displays have since rendered this sort of technique all but obsolete, *Exstasis* employs the dither to deconstruct colors into their fundamental components, creating fascinating grid-like structures which weave throughout the artwork. \n\nThe dithering is paired with a more sophisticated form of digital noise called fractal Brownian motion to warp the forms in unexpected and compelling ways. By fusing pixel art's nostalgic allure with a more abstract futuristic technique, *Exstasis* manifests as a uniquely fresh and distinct artwork.\n\nAs a generative artist, I have always been most interested in exploring the facets of digital art which are unique to the medium, and *Exstasis* is my truest exploration to date. Constantly evolving and in motion, with a distinctly digital aesthetic, this work could not have been realized in any other medium.\n\n░░▒▒▓▓▓▓▒▒░░",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0x99a9b7c1116f9ceeb1652de04d5969cce509b069/460",
+    "artistUrl": "https://granto.xyz/exstasis",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 111,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0x99a9b7c1116f9ceeb1652de04d5969cce509b069",
+      "projectId": 460
+    },
+    "archiveId": "artblocks:exstasis",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Exstasis by Grant Oesterling, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 23323
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Aexstasis"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Aexstasis"
+  }
+}

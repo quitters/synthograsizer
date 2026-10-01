@@ -1,0 +1,221 @@
+{
+  "name": "Rinascita",
+  "promptTemplate": "A {{mode}} flow across a {{grid_cols}}×{{grid_rows}} grid in {{palette}} with {{padding}} padding, ribbon length {{ribbon_length}}, and jitter {{jitter}}; neutral background: {{neutral_background}}, duotone: {{duotone}}, gradient: {{gradient}}, noise scale: {{noise_scale}}, depth: {{noise_depth}}, speed: {{flow_speed}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Honey",
+          "weight": 3
+        },
+        {
+          "text": "Elemental",
+          "weight": 2
+        },
+        {
+          "text": "Tropicana",
+          "weight": 2
+        },
+        {
+          "text": "Gentle",
+          "weight": 1
+        },
+        {
+          "text": "Arctica",
+          "weight": 1
+        },
+        {
+          "text": "Nazionale",
+          "weight": 1
+        },
+        {
+          "text": "Terracotta",
+          "weight": 1
+        },
+        {
+          "text": "Polar",
+          "weight": 1
+        },
+        {
+          "text": "Feelings",
+          "weight": 1
+        },
+        {
+          "text": "Mono",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "mode",
+      "label": "Mode",
+      "values": [
+        {
+          "text": "Soft",
+          "weight": 3
+        },
+        {
+          "text": "Horizontal",
+          "weight": 2
+        },
+        {
+          "text": "Vertical",
+          "weight": 2
+        },
+        {
+          "text": "Harsh",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "duotone",
+      "label": "Duotone",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "gradient",
+      "label": "Gradient",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "neutral_background",
+      "label": "Neutral Background",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "padding",
+      "label": "Padding",
+      "type": "number",
+      "min": 0.1,
+      "max": 0.3,
+      "step": 0.01,
+      "default": 0.2
+    },
+    {
+      "name": "grid_rows",
+      "label": "Grid Rows",
+      "type": "number",
+      "min": 6,
+      "max": 30,
+      "step": 1,
+      "default": 18
+    },
+    {
+      "name": "grid_cols",
+      "label": "Grid Columns",
+      "type": "number",
+      "min": 6,
+      "max": 20,
+      "step": 1,
+      "default": 13
+    },
+    {
+      "name": "ribbon_length",
+      "label": "Ribbon Length",
+      "type": "number",
+      "min": 10,
+      "max": 80,
+      "step": 1,
+      "default": 45
+    },
+    {
+      "name": "noise_scale",
+      "label": "Noise Scale",
+      "type": "number",
+      "min": 50,
+      "max": 500,
+      "step": 10,
+      "default": 250
+    },
+    {
+      "name": "noise_depth",
+      "label": "Noise Depth",
+      "type": "number",
+      "min": 2,
+      "max": 80,
+      "step": 1,
+      "default": 40
+    },
+    {
+      "name": "jitter",
+      "label": "Jitter",
+      "type": "number",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "default": 50
+    },
+    {
+      "name": "flow_speed",
+      "label": "Flow Speed",
+      "type": "number",
+      "min": 100,
+      "max": 3000,
+      "step": 10,
+      "default": 1500
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 1111,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:rinascita",
+  "artist": "Stefano Contiero",
+  "credit": {
+    "title": "Rinascita",
+    "artist": "Stefano Contiero",
+    "year": 2021,
+    "description": "When feeling stuck, go back to your roots. Rinascita is the legacy of Essenza, rebirth through epiphany. A celebration of gratitude, joy, and family. In a sudden awareness of the raw greatness of life.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/121",
+    "artistUrl": "https://stefanocontiero.com/h",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 1111,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 121
+    },
+    "archiveId": "artblocks:rinascita",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Rinascita by Stefano Contiero, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 13608486
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Arinascita"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Arinascita"
+  }
+}

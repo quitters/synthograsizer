@@ -1,0 +1,117 @@
+{
+  "name": "Efflorescence",
+  "promptTemplate": "A complex, multilayered botanical composition revealed through semi-glitch strokes. The strokes have a length between {{stroke_len_min}} and {{stroke_len_max}}, a width from {{stroke_width_min}} to {{stroke_width_max}}, and are angled between {{stroke_angle_min}} and {{stroke_angle_max}} degrees from their path. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "stroke_len_max",
+      "label": "Stroke Max Length",
+      "type": "number",
+      "min": 5,
+      "max": 40,
+      "step": 1,
+      "default": 10
+    },
+    {
+      "name": "stroke_len_min",
+      "label": "Stroke Min Length",
+      "type": "number",
+      "min": 1,
+      "max": 20,
+      "step": 1,
+      "default": 6
+    },
+    {
+      "name": "stroke_width_max",
+      "label": "Stroke Max Width",
+      "type": "number",
+      "min": 2,
+      "max": 20,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "name": "stroke_width_min",
+      "label": "Stroke Min Width",
+      "type": "number",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "default": 2
+    },
+    {
+      "name": "stroke_angle_max",
+      "label": "Stroke Max Angle Variance",
+      "type": "number",
+      "min": 0,
+      "max": 45,
+      "step": 1,
+      "default": 10
+    },
+    {
+      "name": "stroke_angle_min",
+      "label": "Stroke Min Angle Variance",
+      "type": "number",
+      "min": -45,
+      "max": 0,
+      "step": 1,
+      "default": -10
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:efflorescence",
+  "artist": "Loren Bednar",
+  "credit": {
+    "title": "Efflorescence",
+    "artist": "Loren Bednar",
+    "year": 2023,
+    "description": "\"Efflorescence\" was made in response to the vibrant colors present in Harold Cohen's \"In AARON’s Garden\" series. It is my hope that Efflorescence feels like exploring AARON’s Garden from my perspective. I accentuated its multilayered relationships of color and applied motion techniques I've developed over the years to evoke a sense of curiosity.\n\nMy process to create this kinetic art series started with re-creating the core concepts of \"In AARON’s Garden\", including a weighted analysis of Cohen’s color palettes.  In each piece, five unique scenes are produced and layered together in varied depths; sometimes you’ll notice a detail-view of a branch or flower while other times you’ll see a larger expanse of foliage.  A wash of semi-glitch strokes partially reveals each scene based on color relationships.\n\nThe state of constant motion gives life and mystery to each layer, blending them together and highlighting different aspects as time progresses.  The scene also evolves based on the viewer’s time of day.  Subtle tints (derived from Cohen’s palettes) emerge to represent sunrise, day, sunset, and night.  \n\nThe title comes from the state of blooming of a flower; \"Efflorescence\" is an active word and emphasizes the importance of change within nature.  When I look at \"In AARON’s Garden\", I find a wonderful world of color and variety. I wanted to capture this and reinforce the importance of change, growth, and exploration.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa86cd4ecebd96085fce4697614d30600803455c4/1",
+    "artistUrl": null,
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 50,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa86cd4ecebd96085fce4697614d30600803455c4",
+      "projectId": 1
+    },
+    "archiveId": "artblocks:efflorescence",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Efflorescence by Loren Bednar, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 0
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Aefflorescence"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Aefflorescence"
+  }
+}

@@ -1,0 +1,275 @@
+{
+  "name": "Blind Spots",
+  "promptTemplate": "A {{camera_framing}} portrait of {{spots}} enveloped in sculpted glass with {{glass_ripple_amount}} ripples and {{glass_ripple_deform}} deformation against a {{base_color}} backdrop with {{saturation}} saturation, {{glass_stripe_effect}} stripe effect, and {{glass_halftone_effect}} halftone effect. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "spots",
+      "label": "Spot Shape",
+      "values": [
+        {
+          "text": "1 Tube (1D)",
+          "weight": 3
+        },
+        {
+          "text": "27 Tubes (3D)",
+          "weight": 2
+        },
+        {
+          "text": "125 Tubes (3D)",
+          "weight": 2
+        },
+        {
+          "text": "1 Sphere (1D)",
+          "weight": 1
+        },
+        {
+          "text": "27 Spheres (3D)",
+          "weight": 1
+        },
+        {
+          "text": "125 Spheres (3D)",
+          "weight": 1
+        },
+        {
+          "text": "1 Cube (1D)",
+          "weight": 1
+        },
+        {
+          "text": "3 Lines (2D)",
+          "weight": 1
+        },
+        {
+          "text": "5 Lines (2D)",
+          "weight": 1
+        },
+        {
+          "text": "10 Lines (2D)",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "base_color",
+      "label": "Base Color",
+      "values": [
+        {
+          "text": "#044D4B",
+          "weight": 3
+        },
+        {
+          "text": "#50566C",
+          "weight": 2
+        },
+        {
+          "text": "#143D21",
+          "weight": 2
+        },
+        {
+          "text": "#0C1D59",
+          "weight": 1
+        },
+        {
+          "text": "#3E1222",
+          "weight": 1
+        },
+        {
+          "text": "#A32014",
+          "weight": 1
+        },
+        {
+          "text": "#BE5A02",
+          "weight": 1
+        },
+        {
+          "text": "#BE7D02",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "camera_framing",
+      "label": "Camera Framing",
+      "values": [
+        {
+          "text": "Medium",
+          "weight": 3
+        },
+        {
+          "text": "Close-Up",
+          "weight": 2
+        },
+        {
+          "text": "Macro",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "glass_ripple_amount",
+      "label": "Glass Ripple Amount",
+      "values": [
+        {
+          "text": "25",
+          "weight": 3
+        },
+        {
+          "text": "15",
+          "weight": 2
+        },
+        {
+          "text": "9",
+          "weight": 2
+        },
+        {
+          "text": "7",
+          "weight": 1
+        },
+        {
+          "text": "101",
+          "weight": 1
+        },
+        {
+          "text": "51",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "glass_ripple_deform",
+      "label": "Glass Ripple Deform",
+      "values": [
+        {
+          "text": "Minimal",
+          "weight": 3
+        },
+        {
+          "text": "Low",
+          "weight": 2
+        },
+        {
+          "text": "Medium",
+          "weight": 2
+        },
+        {
+          "text": "Maximal",
+          "weight": 1
+        },
+        {
+          "text": "High",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "saturation",
+      "label": "Saturation",
+      "values": [
+        {
+          "text": "High",
+          "weight": 3
+        },
+        {
+          "text": "Medium",
+          "weight": 2
+        },
+        {
+          "text": "Low",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "glass_stripe_effect",
+      "label": "Glass Stripe Effect",
+      "values": [
+        {
+          "text": "High",
+          "weight": 3
+        },
+        {
+          "text": "Medium",
+          "weight": 2
+        },
+        {
+          "text": "Low",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "glass_halftone_effect",
+      "label": "Glass Halftone Effect",
+      "values": [
+        {
+          "text": "Low",
+          "weight": 3
+        },
+        {
+          "text": "Medium",
+          "weight": 2
+        },
+        {
+          "text": "High",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 400,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:blind-spots",
+  "artist": "Shaderism",
+  "credit": {
+    "title": "Blind Spots",
+    "artist": "Shaderism",
+    "year": 2023,
+    "description": "**Blind Spots** is a series of abstract intimate portraits that distill human existence into two elements, the hidden essence of consciousness and the tangible shell of personality.\n\nThese elements are represented in the form of a glass sculpture. The first element within the sculpture, akin to a black hole, is a shape that defines itself through the surrounding characteristics it draws in. This halo of characteristics, like a beautifully radiant glass cover, symbolizes the constructed personality. Casting light on these black shapes, shielded by the identities they exhibit, the algorithm invites us to question our perceptions of those we encounter. How deeply do we truly know the people in our lives? It challenges us to consider if changing the perspective could alter our perception of them, while also offering the opportunity to simulate such a change with the help of animation. Perhaps the nature of our identities is as varied as the angles from which they are viewed?\n\nBlind Spots serves as a depiction of my mental journey, transforming abstract thought patterns into a solidified artifact in the medium of generative art. The narrative is inspired by the diverse ways in which we perceive each other, a theme born from countless personal encounters. From a technical standpoint, it steps into uncharted territory for me, being the first artwork to emphasize high-resolution printing capabilities while maintaining real-time animation, a central element in my artwork. It is also my first on-chain project, prompting a restructure of the previous workflows.\n\nVisually inspired by *Iittala - Kaleidoscope* exhibition, which displayed a mesmerizing interplay of glass sculptures and light, Blind Spots features a gradient backdrop punctuated by black shapes that undulate under the influence of a transmission shader, mimicking the iridescent shimmer of pearls. The geometry of the glass cover is crafted through the algorithmic movement of two curves revolving around each other. To produce high-resolution images suitable for printing, a bucket rendering technique with overscan was developed.\n\nArticulated through two elements within each portrait, Blind Spots presents a visual metaphor for a human. This duality also echoes our presence on social media — carefully crafted showcases projecting a polished persona while concealing the authentic self. Together, the elements form a unique character from every point of view.\n\n## Controls\n- [ click ] - toggle animation\n- [ s ] - save the current frame as an image\n\n## URL parameters (see display notes)\n- [ ?animate ] - animation on by default\n- [ ?fill ] - responsive version to fill the browse\n- [ ?width=x ] - render image with x width\n- [ ?print ] - enable high-resolution mode (eg. ?print&width=10000)\n- [ ?grainSamples=x ] - between 1 - 10\n- [ ?refractSamples=x ] - between 1 - 5",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0x99a9b7c1116f9ceeb1652de04d5969cce509b069/484",
+    "artistUrl": "https://shaderism.com/blind-spots",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 400,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0x99a9b7c1116f9ceeb1652de04d5969cce509b069",
+      "projectId": 484
+    },
+    "archiveId": "artblocks:blind-spots",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Blind Spots by Shaderism, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 155749
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Ablind-spots"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Ablind-spots"
+  }
+}

@@ -1,0 +1,303 @@
+{
+  "name": "Zupermat",
+  "promptTemplate": "A {{manifest}} {{organization}} of {{ship_count}} cuboids with {{edges}} edges in a {{palette}} palette under {{time_of_day}} light with a {{backplane}} backplane (dark background: {{dark_background}}). Led by a {{flag_ship}} flagship (influenced: {{flag_ship_influenced}}), the fleet exhibits {{size_bias}} sizing, {{ship_bias}} structure, and {{angle_regime}} alignment with {{rotation_influence}} rotation influence. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "palette",
+      "values": [
+        {
+          "text": "primary sink",
+          "weight": 3
+        },
+        {
+          "text": "sliver",
+          "weight": 2
+        },
+        {
+          "text": "pure guava",
+          "weight": 2
+        },
+        {
+          "text": "soapbar mudbar",
+          "weight": 1
+        },
+        {
+          "text": "pasteleria",
+          "weight": 1
+        },
+        {
+          "text": "royalty++",
+          "weight": 1
+        },
+        {
+          "text": "royalty",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "angle_regime",
+      "label": "angle regime",
+      "values": [
+        {
+          "text": "piet",
+          "weight": 3
+        },
+        {
+          "text": "vich",
+          "weight": 2
+        },
+        {
+          "text": "von",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "organization",
+      "label": "organization",
+      "values": [
+        {
+          "text": "gang",
+          "weight": 3
+        },
+        {
+          "text": "anarchopanda",
+          "weight": 2
+        },
+        {
+          "text": "mob",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "ship_count",
+      "label": "ship count",
+      "values": [
+        {
+          "text": "25",
+          "weight": 3
+        },
+        {
+          "text": "37",
+          "weight": 2
+        },
+        {
+          "text": "17",
+          "weight": 2
+        },
+        {
+          "text": "33",
+          "weight": 1
+        },
+        {
+          "text": "22",
+          "weight": 1
+        },
+        {
+          "text": "13",
+          "weight": 1
+        },
+        {
+          "text": "9",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "time_of_day",
+      "label": "time of day",
+      "values": [
+        {
+          "text": "dusk",
+          "weight": 3
+        },
+        {
+          "text": "dawn",
+          "weight": 2
+        },
+        {
+          "text": "day",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "backplane",
+      "label": "backplane",
+      "values": [
+        {
+          "text": "nope",
+          "weight": 3
+        },
+        {
+          "text": "total",
+          "weight": 2
+        },
+        {
+          "text": "square",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "flag_ship",
+      "label": "flag ship",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "manifest",
+      "label": "manifest",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edges",
+      "label": "edges",
+      "values": [
+        {
+          "text": "tight",
+          "weight": 3
+        },
+        {
+          "text": "rounded",
+          "weight": 2
+        },
+        {
+          "text": "bubble",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "ship_bias",
+      "label": "ship bias",
+      "values": [
+        {
+          "text": "mixed",
+          "weight": 3
+        },
+        {
+          "text": "mostly solid",
+          "weight": 2
+        },
+        {
+          "text": "mostly hollow",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "size_bias",
+      "label": "size bias",
+      "values": [
+        {
+          "text": "mixed",
+          "weight": 3
+        },
+        {
+          "text": "mostly long",
+          "weight": 2
+        },
+        {
+          "text": "mostly small",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "rotation_influence",
+      "label": "rotation influence",
+      "values": [
+        {
+          "text": "irrelevant",
+          "weight": 3
+        },
+        {
+          "text": "moderate",
+          "weight": 2
+        },
+        {
+          "text": "minimal",
+          "weight": 2
+        },
+        {
+          "text": "total",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "flag_ship_influenced",
+      "label": "flag ship influenced",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "dark_background",
+      "label": "Dark Background",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 200,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:zupermat",
+  "artist": "0xphiiil",
+  "credit": {
+    "title": "Zupermat",
+    "artist": "0xphiiil",
+    "year": 2022,
+    "description": "Zupermat is the infinite documentary on the life of pseudo-random rectangular cuboids. Sometimes a deep dive into a particular side of their construction, other times a broad portrait of their organization as gangs, mob and anarcho-secret societies. \n\nThe smooth and transient aspects of Zupermat will let the collector cohabitate with the piece while softly populating his peripheral vision. A brief glance, while immersed in reflection, should provide the reassuring motion to dive deeper into thought - or emerge with a newfound sense of direction.\n\nA full description of the features is available on the [Zupermat page](https://0xphiiil.art/zupermat).\n\n[spacebar] pause and reflect",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/305",
+    "artistUrl": "https://0xphiiil.art/zupermat",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 200,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 305
+    },
+    "archiveId": "artblocks:zupermat",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Zupermat by 0xphiiil, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 17549
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Azupermat"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Azupermat"
+  }
+}

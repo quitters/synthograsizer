@@ -1,0 +1,147 @@
+{
+  "name": "Transitions",
+  "promptTemplate": "A {{size}} {{shape}} pegboard rendered in {{style}} style with {{peg_length}} pegs; monochrome: {{monochrome}}, lights on: {{lights_on}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "style",
+      "label": "Style",
+      "values": [
+        {
+          "text": "Gradient",
+          "weight": 3
+        },
+        {
+          "text": "Confetti",
+          "weight": 2
+        },
+        {
+          "text": "Target",
+          "weight": 2
+        },
+        {
+          "text": "Solar",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "shape",
+      "label": "Shape",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "size",
+      "label": "Size",
+      "values": [
+        {
+          "text": "Medium",
+          "weight": 3
+        },
+        {
+          "text": "Large",
+          "weight": 2
+        },
+        {
+          "text": "Small",
+          "weight": 2
+        },
+        {
+          "text": "Extra Large",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "lights_on",
+      "label": "Lights On",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "monochrome",
+      "label": "Monochrome",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "peg_length",
+      "label": "Peg Length",
+      "values": [
+        {
+          "text": "Medium",
+          "weight": 3
+        },
+        {
+          "text": "Long",
+          "weight": 2
+        },
+        {
+          "text": "Short",
+          "weight": 2
+        },
+        {
+          "text": "Extra Long",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 4712,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:transitions",
+  "artist": "Jason Ting x Matt Bilfield",
+  "credit": {
+    "title": "Transitions",
+    "artist": "Jason Ting x Matt Bilfield",
+    "year": 2021,
+    "description": "A collaborative project that transitions the visual aesthetic of a Matt Bilfield peg piece to the generative art world. “Pixels” from the physical world take on new life as the limitations of reality are removed and they are free to assemble and morph without the rigidity or permanence of wood, paint and glue. Round and square variants incorporate multiple color palettes into four unique styles, each with their own distinct attributes. Additional variety in dimensions, depth, color placement, animation, and light modes ensure no two are alike. Make sure to explore the intricacies of each piece by using the mouse to see all angles. Keyboard shortcuts: a: toggle animation, r: reset camera position, s: save screenshot.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/117",
+    "artistUrl": "https://mattbilfield.com/transitions-on-artblocks",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 4712,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 117
+    },
+    "archiveId": "artblocks:transitions",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Transitions by Jason Ting x Matt Bilfield, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 4748706
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Atransitions"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Atransitions"
+  }
+}

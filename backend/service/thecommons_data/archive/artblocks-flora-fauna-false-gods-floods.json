@@ -1,0 +1,190 @@
+{
+  "name": "flora, fauna, false gods & floods",
+  "promptTemplate": "A {{color_base}} {{form}} experiencing {{flood_map}} flooding with {{wind}} wind; storm mode: {{floods}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "form",
+      "label": "form",
+      "values": [
+        {
+          "text": "flora",
+          "weight": 3
+        },
+        {
+          "text": "false god",
+          "weight": 2
+        },
+        {
+          "text": "fauna",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "color_base",
+      "label": "color - base",
+      "values": [
+        {
+          "text": "light green",
+          "weight": 3
+        },
+        {
+          "text": "magenta",
+          "weight": 2
+        },
+        {
+          "text": "light blue",
+          "weight": 2
+        },
+        {
+          "text": "purple",
+          "weight": 1
+        },
+        {
+          "text": "orange",
+          "weight": 1
+        },
+        {
+          "text": "dark green",
+          "weight": 1
+        },
+        {
+          "text": "yellow",
+          "weight": 1
+        },
+        {
+          "text": "sea foam",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "flood_map",
+      "label": "flood map",
+      "values": [
+        {
+          "text": "south",
+          "weight": 3
+        },
+        {
+          "text": "north",
+          "weight": 2
+        },
+        {
+          "text": "east",
+          "weight": 2
+        },
+        {
+          "text": "north east + south west",
+          "weight": 1
+        },
+        {
+          "text": "west",
+          "weight": 1
+        },
+        {
+          "text": "none",
+          "weight": 1
+        },
+        {
+          "text": "all",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "floods",
+      "label": "floods",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "wind",
+      "label": "wind",
+      "values": [
+        {
+          "text": "swirl",
+          "weight": 3
+        },
+        {
+          "text": "south",
+          "weight": 2
+        },
+        {
+          "text": "northeast",
+          "weight": 2
+        },
+        {
+          "text": "north",
+          "weight": 1
+        },
+        {
+          "text": "northwest",
+          "weight": 1
+        },
+        {
+          "text": "none",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 400,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:flora-fauna-false-gods-floods",
+  "artist": "Ryan Green",
+  "credit": {
+    "title": "flora, fauna, false gods & floods",
+    "artist": "Ryan Green",
+    "year": 2022,
+    "description": "# eternity stirs\nmy finger stirred the pool. \niridescent specks at this distance. \nmolecules separated by infinities, \nattracted by a gentle gesture. \nmatter built on reducible complexity, \nremarkable what emerges from the soup.\n\nthe specks of light flash for a moment, \nthen flame out. \nthe arc of their burning wick \npainting pictures; \nheating arguments;\nbleeding in the darkness. \n\nhelpless to start or stop anything, \nbodies in motion, \ntending to stay in motion,\nuntil the fuel runs out.\n\n# can there be beauty in pain?\nFlora, Fauna, False gods & Floods continues a theme I began in Beauty in the Hurting. When turbulent acts of god subvert best-laid plans, is there beauty in the broken images of life we leave behind?\n\nLeft alone, these images would resolve to nearly symmetrical dreamlike ink blots of meaning:  a flower, a feathered creature, or a figure of worship. In fact, what is most beautiful in their image may lay outside the frame. \n\nThe final resting frame in each composition does not paint the whole picture. You must go looking for it. Interact with each composition by following the controls below.\n\n# **saving**\n* **a key** - download transparent uncropped print\n* **s key** - download print\n\n# **controls**\n* **f key** - toggle speed up / slow down at 5x speed\n* **h key** - toggle speed up / slow down at 20x speed\n* **r key** - reset the camera view\n* **click/touch** - while rendering, toggles between full view and follow view, when finished, cycles through zoom levels\n* **click/touch and drag** - change the cropping of the image\n* **click/touch again after dragging** - restore the default image crop for the current zoom level",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/361",
+    "artistUrl": "https://linktr.ee/ryangreen8",
+    "license": {
+      "text": "CC BY-NC-SA 4.0",
+      "name": "CC BY-NC-SA 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only.",
+        "Share the adaptation under the same licence."
+      ]
+    },
+    "editions": 400,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 361
+    },
+    "archiveId": "artblocks:flora-fauna-false-gods-floods",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of flora, fauna, false gods & floods by Ryan Green, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 111709
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Aflora-fauna-false-gods-floods"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Aflora-fauna-false-gods-floods"
+  }
+}

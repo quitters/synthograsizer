@@ -1,0 +1,185 @@
+{
+  "name": "Stroming",
+  "promptTemplate": "A {{view}} of {{scene}} in the {{palette}} palette with {{stream_shapes}} streams; inversed: {{inversed}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "scene",
+      "label": "Scene",
+      "values": [
+        {
+          "text": "Revolver",
+          "weight": 3
+        },
+        {
+          "text": "Compound",
+          "weight": 2
+        },
+        {
+          "text": "Bullseye",
+          "weight": 2
+        },
+        {
+          "text": "Asterisk",
+          "weight": 1
+        },
+        {
+          "text": "10PRINT",
+          "weight": 1
+        },
+        {
+          "text": "Arcs",
+          "weight": 1
+        },
+        {
+          "text": "Overload",
+          "weight": 1
+        },
+        {
+          "text": "Circle Arch",
+          "weight": 1
+        },
+        {
+          "text": "Stripes",
+          "weight": 1
+        },
+        {
+          "text": "Rects",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Futuristisch",
+          "weight": 3
+        },
+        {
+          "text": "Spoorwegen",
+          "weight": 2
+        },
+        {
+          "text": "Marmer",
+          "weight": 2
+        },
+        {
+          "text": "Mm.. Food",
+          "weight": 1
+        },
+        {
+          "text": "Lente",
+          "weight": 1
+        },
+        {
+          "text": "Schuurpapier",
+          "weight": 1
+        },
+        {
+          "text": "Zuurstokroze",
+          "weight": 1
+        },
+        {
+          "text": "Zonnedauw",
+          "weight": 1
+        },
+        {
+          "text": "Sterrenwacht",
+          "weight": 1
+        },
+        {
+          "text": "Oranjegevoel",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "view",
+      "label": "View",
+      "values": [
+        {
+          "text": "Single Scene",
+          "weight": 3
+        },
+        {
+          "text": "Split Scene",
+          "weight": 2
+        },
+        {
+          "text": "Quad Scene",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "inversed",
+      "label": "Inversed",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "stream_shapes",
+      "label": "Stream Shapes",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 256,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:stroming",
+  "artist": "Bart Simons",
+  "credit": {
+    "title": "Stroming",
+    "artist": "Bart Simons",
+    "year": 2021,
+    "description": "Stroming is a generative abstract project that wraps colorful streams around bold geometric shapes. The transaction hash is used to assign unique attributes to each Stroming, such as scene selection, colorscheme, intensity, modifiers and more.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/86",
+    "artistUrl": "https://www.instagram.com/unordered.list",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 256,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 86
+    },
+    "archiveId": "artblocks:stroming",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Stroming by Bart Simons, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 1358478
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Astroming"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Astroming"
+  }
+}

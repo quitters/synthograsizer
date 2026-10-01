@@ -1,0 +1,161 @@
+{
+  "name": "Memories of Digital Data",
+  "promptTemplate": "A {{tone}} submerged digital city in scene {{scene}} with {{block_color}} blocks, {{crepuscular_rays}} crepuscular rays, and level {{color_collapse}} color collapse. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "scene",
+      "label": "Scene",
+      "values": [
+        {
+          "text": "9",
+          "weight": 3
+        },
+        {
+          "text": "1",
+          "weight": 2
+        },
+        {
+          "text": "10",
+          "weight": 2
+        },
+        {
+          "text": "2",
+          "weight": 1
+        },
+        {
+          "text": "6",
+          "weight": 1
+        },
+        {
+          "text": "3",
+          "weight": 1
+        },
+        {
+          "text": "5",
+          "weight": 1
+        },
+        {
+          "text": "8",
+          "weight": 1
+        },
+        {
+          "text": "7",
+          "weight": 1
+        },
+        {
+          "text": "4",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "tone",
+      "label": "Tone",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "block_color",
+      "label": "Block color",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "crepuscular_rays",
+      "label": "Crepuscular rays",
+      "values": [
+        {
+          "text": "0",
+          "weight": 3
+        },
+        {
+          "text": "2",
+          "weight": 2
+        },
+        {
+          "text": "4",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "color_collapse",
+      "label": "Color collapse",
+      "values": [
+        {
+          "text": "1",
+          "weight": 3
+        },
+        {
+          "text": "2",
+          "weight": 2
+        },
+        {
+          "text": "0",
+          "weight": 2
+        },
+        {
+          "text": "3",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 450,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:memories-of-digital-data",
+  "artist": "Kazuhiro Tanimoto",
+  "credit": {
+    "title": "Memories of Digital Data",
+    "artist": "Kazuhiro Tanimoto",
+    "year": 2023,
+    "description": "When I started using a computer, I believed that digital data could be stored forever. I saved my favorite picture files and small free software files to floppy disks with a capacity of roughly 1 megabyte and stored them carefully. Those floppy disks were my treasure. Later, when the disks deteriorated and became unreadable or were lost, the data became memories with a deep feeling of loss.\n\nBlockchains have arisen. Are these truly persistent?\n\nAfter all, digital data are also a type of memories. They are stored in a person's mind, deteriorate, and one day will be lost with that person.\n\nI find the fragility and beauty in them.\n　\n\n\n\n\n\n　\nIn this work, I attempted to represent a fictional collapsed blockchain world with visuals and sound.\n　\nThe chain has already been abandoned, and the few nodes that remain barely alive are just maintaining their appearances. Visualizing the remnants of blocks that no longer serve their original purpose, they form something like a submerged city. Then, a large amount of data that has lost its connection to the blocks and has deteriorated to the point that it can no longer be opened, flutters through the sky. The countless remnants of data form a cloud, which undulates like a wave. The details of the data cannot be confirmed, however, they can be seen as glittering lights. As I try to recall the contents of the data that can no longer be opened, I am filled with vague memories and a sense of nostalgia.\n\nThis work started with generating sound by code. The sound of rippling waves can be heard by clicking on the screen. Since it would be impractical to store huge sound data on the blockchain, the sound was formed from white noise. In order to reproduce the sound of rippling waves, it was necessary to deepen my understanding of the structure of the sound by referring to academic papers. Then the sound was completed, and the visual imagination expanded from there.\n\nI like to visit the sea near my home and in other places. Different seascapes can be seen from different locations and angles. When I am there, idly gazing at the seascape and listening to the sound of the waves, I sometimes feel as if I am the only human there and the world has gone to ruin. If the world were ruined, this seascape and the sound of the waves would remain for a long time. This feeling and the fragility felt in digital data are the basis of this work. I imagine that the heaven or the graveyard where the lost data flies up in the sky and arrives may be a seascape like this.\n\nThe reason why I used data as lights and clouds drifting in the sky and moved them like waves is because I wanted to depict unrealistic behavior with a realistic subject matter and to express a beautiful and bizarre world in which these intertwine.\n\nFor the visual expression technique, I further pursued and evolved the drawing system that I have developed in \"GHOST IN THE CODE\" and my other works. Everything is composed of rectangles, indicating that this world is beginning to become low-resolution. Depth is linked to the size of the rectangles, and distant objects are represented by small rectangles as if they were in focus. Dispersion in the position and color of the rectangles indicate the degree of deterioration of the world. Moreover, the sky, blocks, and the surface of the water are identified and each has its own characteristics.\n\nAlgorithms generate various compositions, colors, and other features. I have attempted to make each output feel nostalgic and fresh at the same time. The blocks, which have lost their original meaning, are contrasted with the data, which exists in isolation from them, in stillness and movement. Occasional red clouds or blocks mean that they are corrected as red, the first color, due to missing information.\n\nThrough these integrations, I have attempted to create a work that can be stored on a blockchain, and that is both visually and sonically interactive.\n\n[NOTE]\n\n-To save the image press the 'S' key.\n-To change the flow velocity press the '↑' or '↓' key.\n\nModern hardware and browser hardware acceleration is recommended. The Chrome browser on a desktop with a high-end GPU is optimal. On iOS, the best experience is available on iOS 15 or later.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0x99a9b7c1116f9ceeb1652de04d5969cce509b069/428",
+    "artistUrl": "https://www.kazuhirotanimoto.com/works/memories_of_digital_data/",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 450,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0x99a9b7c1116f9ceeb1652de04d5969cce509b069",
+      "projectId": 428
+    },
+    "archiveId": "artblocks:memories-of-digital-data",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Memories of Digital Data by Kazuhiro Tanimoto, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 558877
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Amemories-of-digital-data"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Amemories-of-digital-data"
+  }
+}

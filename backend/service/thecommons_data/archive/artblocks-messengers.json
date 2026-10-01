@@ -1,0 +1,127 @@
+{
+  "name": "Messengers",
+  "promptTemplate": "A {{build}} structure rising in the {{time}}, inspired by {{movie}} with {{colors}} colors and {{spice}} spice, featuring {{blocks}} blocks, {{gradient}} gradient, and {{texture}} texture. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "time",
+      "label": "Time",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "build",
+      "label": "Build",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "movie",
+      "label": "Movie",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "colors",
+      "label": "Colors",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "spice",
+      "label": "Spice",
+      "values": [
+        {
+          "text": "Pepper",
+          "weight": 3
+        },
+        {
+          "text": "Salt",
+          "weight": 2
+        },
+        {
+          "text": "Vanilla",
+          "weight": 2
+        },
+        {
+          "text": "Salt&Pepper",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "blocks",
+      "label": "Blocks",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "gradient",
+      "label": "Gradient",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "texture",
+      "label": "Texture",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 350,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:messengers",
+  "artist": "Alexis André",
+  "credit": {
+    "title": "Messengers",
+    "artist": "Alexis André",
+    "year": 2021,
+    "description": "Those structures suddenly appeared, yet they don't talk to us. Yet.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/68",
+    "artistUrl": null,
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 350,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 68
+    },
+    "archiveId": "artblocks:messengers",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Messengers by Alexis André, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 1574334
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Amessengers"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Amessengers"
+  }
+}

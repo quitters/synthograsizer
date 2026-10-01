@@ -1,0 +1,292 @@
+{
+  "name": "Zoologic",
+  "promptTemplate": "A {{preset}} simulation in {{primary_color}} tones with {{starting_cell_count}} {{side_count}}-sided crobes of size {{crobe_size}}, featuring {{crobe_tails}} tails and {{space_warp}} space warp. The organism population evolves with {{reproductive_strategy}} on a world with toroidal topology: {{toroidal_topology}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "preset",
+      "label": "preset",
+      "values": [
+        {
+          "text": "off",
+          "weight": 3
+        },
+        {
+          "text": "preschool",
+          "weight": 2
+        },
+        {
+          "text": "petri plane",
+          "weight": 2
+        },
+        {
+          "text": "benzene dream",
+          "weight": 1
+        },
+        {
+          "text": "chain mail",
+          "weight": 1
+        },
+        {
+          "text": "neon",
+          "weight": 1
+        },
+        {
+          "text": "manuscript",
+          "weight": 1
+        },
+        {
+          "text": "connect the dots",
+          "weight": 1
+        },
+        {
+          "text": "inky manuscript",
+          "weight": 1
+        },
+        {
+          "text": "y not?",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "primary_color",
+      "label": "primary color",
+      "values": [
+        {
+          "text": "breeze",
+          "weight": 3
+        },
+        {
+          "text": "geomancer",
+          "weight": 2
+        },
+        {
+          "text": "oxbow",
+          "weight": 2
+        },
+        {
+          "text": "plumhoney",
+          "weight": 1
+        },
+        {
+          "text": "aphelion",
+          "weight": 1
+        },
+        {
+          "text": "forest floor",
+          "weight": 1
+        },
+        {
+          "text": "creamberry",
+          "weight": 1
+        },
+        {
+          "text": "ray of sunshine",
+          "weight": 1
+        },
+        {
+          "text": "G E N W A V E かっこいい",
+          "weight": 1
+        },
+        {
+          "text": "naranjas perdidas",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "side_count",
+      "label": "Side Count",
+      "values": [
+        {
+          "text": "3",
+          "weight": 3
+        },
+        {
+          "text": "4",
+          "weight": 2
+        },
+        {
+          "text": "5",
+          "weight": 2
+        },
+        {
+          "text": "6",
+          "weight": 1
+        },
+        {
+          "text": "7",
+          "weight": 1
+        },
+        {
+          "text": "8",
+          "weight": 1
+        },
+        {
+          "text": "various",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "crobe_tails",
+      "label": "Crobe Tails",
+      "values": [
+        {
+          "text": "angular",
+          "weight": 3
+        },
+        {
+          "text": "off",
+          "weight": 2
+        },
+        {
+          "text": "curvy (strength)",
+          "weight": 2
+        },
+        {
+          "text": "curvy (energy)",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "space_warp",
+      "label": "space warp",
+      "values": [
+        {
+          "text": "off",
+          "weight": 3
+        },
+        {
+          "text": "receding",
+          "weight": 2
+        },
+        {
+          "text": "corner",
+          "weight": 2
+        },
+        {
+          "text": "curve towards",
+          "weight": 1
+        },
+        {
+          "text": "approaching",
+          "weight": 1
+        },
+        {
+          "text": "curve away",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "reproductive_strategy",
+      "label": "reproductive strategy",
+      "values": [
+        {
+          "text": "always cell division",
+          "weight": 3
+        },
+        {
+          "text": "cell division and budding (small buds)",
+          "weight": 2
+        },
+        {
+          "text": "always budding (large buds)",
+          "weight": 2
+        },
+        {
+          "text": "always budding (small buds)",
+          "weight": 1
+        },
+        {
+          "text": "cell division and budding (large buds)",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "toroidal_topology",
+      "label": "Toroidal Topology",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "crobe_size",
+      "label": "Crobe Size",
+      "type": "number",
+      "min": 0.8,
+      "max": 4.6,
+      "step": 0.1,
+      "default": 1
+    },
+    {
+      "name": "starting_cell_count",
+      "label": "Starting Cell Count",
+      "type": "number",
+      "min": 20,
+      "max": 79,
+      "step": 1,
+      "default": 50
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 300,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:zoologic",
+  "artist": "ixnayokay",
+  "credit": {
+    "title": "Zoologic",
+    "artist": "ixnayokay",
+    "year": 2022,
+    "description": "---------\nzoologic (zō- ə- ˈlä- jik) - relating to the properties and vital phenomena exhibited by an animal, animal type, or group.\n---------\n\nWhy do animals evolve into different species? Why do they evolve to look or behave one way, and not another? Why do some animals have a few children, while others have many? What makes some animals better at surviving than others?\n\nZoologic is an exploration of these questions, and of forces that drive the evolution of life. It's a cellular automaton where small creatures (\"crobes\") compete for survival in a shared space, as their traits and reproductive strategies drift over time. Population dynamics and r/K selection theory play a role in their gradual evolution into new forms.\n\nLife for the bacteria-like crobes is a simple affair. Each explores their world — a hexagonal grid  — according to their own pre-coded movement strategy. Each step requires a little bit of “energy,” the fuel that powers movement. Running out of energy means a crobe can’t move, but more energy can be obtained by consuming the only available food source — other crobes! Crobes can detect their neighbors within a couple of spaces, identify them as predators or prey, and react according to their needs.\n\nCrobes consume each other for resources, then use those resources to reproduce -- but not perfectly. Each reproduction introduces new mutations, causing traits to change and new behaviors and appearances to emerge! The crobes’ neural nets learn over time, and only the fittest survive, making Zoologic an example of a neuroevolutionary algorithm. As neural nets are trained, they can be saved, loaded, and battled, shared with others. Train your crobes locally and compete with friends! Each output includes a fully on-chain, pre-trained neural net that has been generatively modified at the time of mint to give each set of crobes their own unique personality.\n\nKey controls: [A] Fullscreen (press a second time for edge-to-edge animation), [H] Help menu, [I] AI menu, [Space] change color palette, [D] Toggle Dark mode, [F+#] Adjust framerate, [X+#/arrows] Adjust detail level, [N] restart animation with different random seed. Please see Help menu for a more comprehensive explanation of available controls and settings, including some intended for improved presentation for longer periods of time.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/287",
+    "artistUrl": "https://www.ixnayokay.art/post/about-zoologic",
+    "license": {
+      "text": "CC BY-NC-SA 4.0",
+      "name": "CC BY-NC-SA 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only.",
+        "Share the adaptation under the same licence."
+      ]
+    },
+    "editions": 300,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 287
+    },
+    "archiveId": "artblocks:zoologic",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Zoologic by ixnayokay, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 58990
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Azoologic"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Azoologic"
+  }
+}

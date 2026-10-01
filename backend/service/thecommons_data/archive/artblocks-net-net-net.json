@@ -1,0 +1,84 @@
+{
+  "name": "Net Net Net",
+  "promptTemplate": "A {{shape_composition}} glitch collage composed of {{shape_frequency}} geometric {{shape_type}} shapes. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "shape_composition",
+      "label": "Shape Composition",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "shape_frequency",
+      "label": "Shape Frequency",
+      "type": "number",
+      "min": 12,
+      "max": 90,
+      "step": 1,
+      "default": 40
+    },
+    {
+      "name": "shape_type",
+      "label": "Shape Type",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 33,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:net-net-net",
+  "artist": "ilithya x Erin Wajufos",
+  "credit": {
+    "title": "Net Net Net",
+    "artist": "ilithya x Erin Wajufos",
+    "year": 2023,
+    "description": "This series is inspired by both net and glitch art.\n\nIt represents nostalgia from an era when the Internet was a mystical new space, where computer graphic cards had more limitations than what we know nowadays, where graphical user interfaces were beginning to shape as a result of a steep learning curve for command-line interfaces, and where artists started to test unfamiliar methods to make art.\n\nIt’s a juxtaposition of chaos and order. A disarray of colored geometric shapes, wrapped by orderly patterns, trying to find their place in a screenshot. Patterns depicting an intended path or miscalculation in a new domain. Infinite combination of rules within certain parameters creating distinct yet related architectural collages. A real-time static visual memory of what Web3 was in the now.\n\nFor interaction and animation please look at the display notes.\n\n👾 ilithya (@ilithya_rocks) is a multidisciplinary artist from México, based in Hamburg, Germany. \n👾 Erin Wajufos (@erinwajufos) is a generative artist, projectionist and curator based in Brooklyn, New York.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0x99a9b7c1116f9ceeb1652de04d5969cce509b069/441",
+    "artistUrl": "https://netnetnetgenproject.netlify.app/",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 33,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0x99a9b7c1116f9ceeb1652de04d5969cce509b069",
+      "projectId": 441
+    },
+    "archiveId": "artblocks:net-net-net",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Net Net Net by ilithya x Erin Wajufos, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 3824
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Anet-net-net"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Anet-net-net"
+  }
+}

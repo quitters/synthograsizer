@@ -1,0 +1,121 @@
+{
+  "name": "Neural Sediments",
+  "promptTemplate": "A {{palette}} neural sediment cliff formation; inverted background: {{diff_background}}, mirrored: {{right_to_left}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "conformity",
+          "weight": 3
+        },
+        {
+          "text": "apophenia",
+          "weight": 2
+        },
+        {
+          "text": "truthiness",
+          "weight": 2
+        },
+        {
+          "text": "framing effect",
+          "weight": 1
+        },
+        {
+          "text": "confirmation bias",
+          "weight": 1
+        },
+        {
+          "text": "logical fallacy",
+          "weight": 1
+        },
+        {
+          "text": "cognitive dissonance",
+          "weight": 1
+        },
+        {
+          "text": "extension neglect",
+          "weight": 1
+        },
+        {
+          "text": "prospect theory",
+          "weight": 1
+        },
+        {
+          "text": "egocentric bias",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "diff_background",
+      "label": "Invert Background",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "right_to_left",
+      "label": "Right to Left",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 300,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:neural-sediments",
+  "artist": "Eko33",
+  "credit": {
+    "title": "Neural Sediments",
+    "artist": "Eko33",
+    "year": 2023,
+    "description": "# Neural Sediments\n\n## “Before objectivity, there was truth to nature; after the advent of objectivity came trained judgment”\n\nLorraine Daston, Peter Galison\n\nImproving my decision-making process is how I would sum up my lifelong quest. Understanding yourself and the unlimited variables and actors surrounding us daily requires a radical yet utopian pursuit of objectivity.\n\nA prerequisite to an objective observation is identifying and eliminating cognitive and observational biases.\n\nMy obsession with objectivity started as a sociology student; while studying epistemology of science and pondering the works of Emile Durkheim, Max Weber, and Karl Popper.\n\nThis quest never left me and has been a cornerstone of my artistic practice for 25 years.\n\n“The map is not the territory” is a mainstream expression highlighting a potentially oversimplified version of reality. In this series called Neural Sediments, inspired by the works of Alberto Burri, František Kupka, and Swiss topography, I highlight the complexity of our brains and some of their biases.\n\nLooking at one Neural Sediment will deliver you a first broad impression; however, looking at it for a longer time will yield a never-ending and much more nuanced and delicate observation. Like Alberto Burri’s Cracks series, some things not obvious to the eye become real over time. Each Neural Sediment opens itself to the viewer in a unique way. The more you look at it, the more you can decipher it. \n\nLike Swiss alpine glacier sediments, this material appears only after a certain amount of time and a decent amount of gravity. Burri used a special technique to envision time with cracked canvas; František Kupka, in his Katedrála painting, opens the fourth dimension by looking at the vertical lines of the glass window.\n\nIn the Neural Sediments series, I used both as an inspiration to push the viewer’s eye to search for more details and a deeper perspective.\n\nChoosing color palettes for a long-form generative art collection is as demanding as solving technical algorithmic challenges. \n\nThe color palettes I create result from a process I've built into my practice over time. Each palette comes from my own algorithmic selection trained on classical masterpieces.\n\nAfter this first selection, each set of colors used in a Neural Sediment is re-arranged to be linked with endangered ecosystems such as dark blue waters, peach salmons, rare botanic species, or volcanos.\n\nLike Josef Albers, who highlighted the instability and deceptiveness of colors, my color sets are here to reinforce the question of objectivity in the art world and life in general.\n\nLooking at its overall structure, each Neural Sediment evokes a brutalist architecture. \n\nPrioritizing function over form, each Neural Sediment aims to be used as a tool to rediscover oneself, free from the cognitive constraints we put on ourselves and the world around us.\n\nPS: From a technical point of view, Neural Sediments require some heavy calculations, considering the very large number of intersections to compute prior to rendering.\n\nPPS: Pressing the letter “i” on your keyboard will generate a high resolution export for a large scale and print friendly format.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0x99a9b7c1116f9ceeb1652de04d5969cce509b069/418",
+    "artistUrl": "https://www.eko33.com/neural-sediments",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 300,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0x99a9b7c1116f9ceeb1652de04d5969cce509b069",
+      "projectId": 418
+    },
+    "archiveId": "artblocks:neural-sediments",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Neural Sediments by Eko33, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 357884
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Aneural-sediments"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Aneural-sediments"
+  }
+}

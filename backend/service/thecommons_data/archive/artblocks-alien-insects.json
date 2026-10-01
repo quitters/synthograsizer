@@ -203,9 +203,13 @@
   },
   "listing": {
     "origin": "adapted",
-    "lineage": "A remix of Alien Insects by Shvembldr, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints."
+    "lineage": "A remix of Alien Insects by Shvembldr, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 11756667
   },
   "page": {
     "path": "/__commons/wall.html?work=artblocks%3Aalien-insects"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Aalien-insects"
   }
 }

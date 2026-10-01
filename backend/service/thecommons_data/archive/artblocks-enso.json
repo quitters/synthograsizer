@@ -1,0 +1,285 @@
+{
+  "name": "Ensō",
+  "promptTemplate": "A {{brushstroke_size}} ensō stroke started {{brushstroke_start}} on {{paper_hue}} paper, rendered with brush size {{brush_size}}, bristle density {{bristle_density}}, ink density {{ink_density}}, and ink load {{ink_load}}. The circle has equal stretch: {{equal_stretch}} and clockwise direction: {{clockwise}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "paper_hue",
+      "label": "Paper Hue",
+      "values": [
+        {
+          "text": "Blue",
+          "weight": 3
+        },
+        {
+          "text": "Magenta",
+          "weight": 2
+        },
+        {
+          "text": "Yellow",
+          "weight": 2
+        },
+        {
+          "text": "Cyan",
+          "weight": 1
+        },
+        {
+          "text": "Green",
+          "weight": 1
+        },
+        {
+          "text": "White",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "brushstroke_size",
+      "label": "Brushstroke Size",
+      "values": [
+        {
+          "text": "Small",
+          "weight": 3
+        },
+        {
+          "text": "Large",
+          "weight": 2
+        },
+        {
+          "text": "Medium",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "brushstroke_start",
+      "label": "Brushstroke Start",
+      "values": [
+        {
+          "text": "Rotated 90 degrees",
+          "weight": 3
+        },
+        {
+          "text": "Rotated 324 degrees",
+          "weight": 2
+        },
+        {
+          "text": "Rotated 306 degrees",
+          "weight": 2
+        },
+        {
+          "text": "Rotated 36 degrees",
+          "weight": 1
+        },
+        {
+          "text": "Rotated 144 degrees",
+          "weight": 1
+        },
+        {
+          "text": "Rotated 108 degrees",
+          "weight": 1
+        },
+        {
+          "text": "Rotated 18 degrees",
+          "weight": 1
+        },
+        {
+          "text": "Rotated 162 degrees",
+          "weight": 1
+        },
+        {
+          "text": "Rotated 342 degrees",
+          "weight": 1
+        },
+        {
+          "text": "Rotated 270 degrees",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "brush_size",
+      "label": "Brush Size",
+      "values": [
+        {
+          "text": "6",
+          "weight": 3
+        },
+        {
+          "text": "3",
+          "weight": 2
+        },
+        {
+          "text": "2",
+          "weight": 2
+        },
+        {
+          "text": "4",
+          "weight": 1
+        },
+        {
+          "text": "1",
+          "weight": 1
+        },
+        {
+          "text": "5",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "equal_stretch",
+      "label": "X/Y Stretch",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "clockwise",
+      "label": "Direction",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "ink_density",
+      "label": "Ink Density",
+      "values": [
+        {
+          "text": "4",
+          "weight": 3
+        },
+        {
+          "text": "3",
+          "weight": 2
+        },
+        {
+          "text": "2",
+          "weight": 2
+        },
+        {
+          "text": "1",
+          "weight": 1
+        },
+        {
+          "text": "5",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "ink_load",
+      "label": "Ink Load",
+      "values": [
+        {
+          "text": "2",
+          "weight": 3
+        },
+        {
+          "text": "4",
+          "weight": 2
+        },
+        {
+          "text": "1",
+          "weight": 2
+        },
+        {
+          "text": "3",
+          "weight": 1
+        },
+        {
+          "text": "5",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "bristle_density",
+      "label": "Bristle Density",
+      "values": [
+        {
+          "text": "7",
+          "weight": 3
+        },
+        {
+          "text": "1",
+          "weight": 2
+        },
+        {
+          "text": "6",
+          "weight": 2
+        },
+        {
+          "text": "2",
+          "weight": 1
+        },
+        {
+          "text": "3",
+          "weight": 1
+        },
+        {
+          "text": "4",
+          "weight": 1
+        },
+        {
+          "text": "5",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 1000,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:enso",
+  "artist": "Matto",
+  "credit": {
+    "title": "Ensō",
+    "artist": "Matto",
+    "year": 2021,
+    "description": "In Zen, ensō is a symbol that represents elegance and enlightenment. It is typically painted by hand in an uninhibited way, allowing for unexpected and beautiful results. Inspired by sumi-e (ink wash painting), this project mimics the practice of painting an ensō in ink by utilizing p5.js. Each generated image uses values from a unique transaction hash to determine paper, brush, ink, the quantity of ink held by each bristle, how quickly the ink flows, and more—all with the goal of creating a simple yet serendipitous painting.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/34",
+    "artistUrl": "https://matto.xyz/project/enso/",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 1000,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 34
+    },
+    "archiveId": "artblocks:enso",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Ensō by Matto, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 672359
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Aenso"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Aenso"
+  }
+}

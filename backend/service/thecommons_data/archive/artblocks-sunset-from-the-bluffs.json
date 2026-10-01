@@ -1,0 +1,129 @@
+{
+  "name": "Sunset from the Bluffs",
+  "promptTemplate": "A {{landscape_shape}} coastal bluff with {{terrain_scale}} terrain scale, illuminated by a {{palette}} sky with sun angle {{sun_angle}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Teal & Peach",
+          "weight": 3
+        },
+        {
+          "text": "Lavender Dusk",
+          "weight": 2
+        },
+        {
+          "text": "Blue Hour",
+          "weight": 2
+        },
+        {
+          "text": "Golden Horizon",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "landscape_shape",
+      "label": "Landscape Shape",
+      "values": [
+        {
+          "text": "V-Valley",
+          "weight": 3
+        },
+        {
+          "text": "Smooth Valley",
+          "weight": 2
+        },
+        {
+          "text": "Mountain Ridge",
+          "weight": 2
+        },
+        {
+          "text": "Left Slope",
+          "weight": 1
+        },
+        {
+          "text": "Right Slope",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "terrain_scale",
+      "label": "Terrain Scale",
+      "type": "number",
+      "min": 0.3,
+      "max": 0.7,
+      "step": 0.05,
+      "default": 0.5
+    },
+    {
+      "name": "sun_angle",
+      "label": "Sun Angle",
+      "type": "number",
+      "min": -2.09,
+      "max": -1.05,
+      "step": 0.02,
+      "default": -1.57
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 100,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:sunset-from-the-bluffs",
+  "artist": "Nat Sarkissian",
+  "credit": {
+    "title": "Sunset from the Bluffs",
+    "artist": "Nat Sarkissian",
+    "year": 2023,
+    "description": "Cool air, warm dirt, lemonade berry perfume.\nAn amphitheater vignetted by the closing day.\nThe sun is the star of the show, and the ocean is the stage.\nImmense beauty tinged by a deep sense of uncertain anticipation for what is to come.\nThis is how my first days of adulthood closed. A mix of comfort and discomfort, peace and turmoil.\nMy intention with this work is to capture my memories of those nights, rendered in simulated oil pastels.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0x0a1bbd57033f57e7b6743621b79fcb9eb2ce3676/36",
+    "artistUrl": "http://natsarkissian.com/",
+    "license": {
+      "text": "CC BY-NC 2.0",
+      "name": "CC BY-NC 2.0",
+      "url": "https://creativecommons.org/licenses/by-nc/2.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 100,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0x0a1bbd57033f57e7b6743621b79fcb9eb2ce3676",
+      "projectId": 36
+    },
+    "archiveId": "artblocks:sunset-from-the-bluffs",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Sunset from the Bluffs by Nat Sarkissian, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 99924
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Asunset-from-the-bluffs"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Asunset-from-the-bluffs"
+  }
+}

@@ -1,0 +1,282 @@
+{
+  "name": "720 Minutes",
+  "promptTemplate": "A {{size}} {{brightness}} {{shape}} with {{wholeness}} wholeness in {{palette}}, featuring {{movement}} motion with {{fill}} fill and {{colors}} colors; personality: {{personality}}, speed: {{speed}}, sparkles: {{sparkles}}, spin: {{spin}}, energy: {{energy}}, double colors: {{see_double_colors}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "shape",
+      "label": "Shape",
+      "values": [
+        {
+          "text": "Circle",
+          "weight": 3
+        },
+        {
+          "text": "Hexagon",
+          "weight": 2
+        },
+        {
+          "text": "Triangle",
+          "weight": 2
+        },
+        {
+          "text": "Pentagon",
+          "weight": 1
+        },
+        {
+          "text": "Square",
+          "weight": 1
+        },
+        {
+          "text": "Shapeless",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Palette 1",
+          "weight": 3
+        },
+        {
+          "text": "Palette 2",
+          "weight": 2
+        },
+        {
+          "text": "Palette 3",
+          "weight": 2
+        },
+        {
+          "text": "Palette 4",
+          "weight": 1
+        },
+        {
+          "text": "Palette 5",
+          "weight": 1
+        },
+        {
+          "text": "Palette 6",
+          "weight": 1
+        },
+        {
+          "text": "Palette 7",
+          "weight": 1
+        },
+        {
+          "text": "Palette 8",
+          "weight": 1
+        },
+        {
+          "text": "Palette 9",
+          "weight": 1
+        },
+        {
+          "text": "Palette 10",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "movement",
+      "label": "Movement",
+      "values": [
+        {
+          "text": "Flow",
+          "weight": 3
+        },
+        {
+          "text": "Broken Loops",
+          "weight": 2
+        },
+        {
+          "text": "Loops",
+          "weight": 2
+        },
+        {
+          "text": "Ripples",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "fill",
+      "label": "Fill",
+      "values": [
+        {
+          "text": "Rings",
+          "weight": 3
+        },
+        {
+          "text": "Radial Lines",
+          "weight": 2
+        },
+        {
+          "text": "Spiral",
+          "weight": 2
+        },
+        {
+          "text": "Solid",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "colors",
+      "label": "Colors",
+      "values": [
+        {
+          "text": "Concentric",
+          "weight": 3
+        },
+        {
+          "text": "Spiral",
+          "weight": 2
+        },
+        {
+          "text": "Radial Lines",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "wholeness",
+      "label": "Wholeness",
+      "values": [
+        {
+          "text": "100%",
+          "weight": 3
+        },
+        {
+          "text": "Hole",
+          "weight": 2
+        },
+        {
+          "text": "Donut",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "personality",
+      "label": "Personality",
+      "values": [
+        {
+          "text": "Extrovert",
+          "weight": 3
+        },
+        {
+          "text": "Introvert",
+          "weight": 2
+        },
+        {
+          "text": "Warp",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "brightness",
+      "label": "Brightness",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "size",
+      "label": "Size",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "speed",
+      "label": "Speed",
+      "type": "number",
+      "min": 2,
+      "max": 4.5,
+      "step": 0.1,
+      "default": 3.2
+    },
+    {
+      "name": "sparkles",
+      "label": "Sparkles",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "spin",
+      "label": "Spin",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "energy",
+      "label": "Energy",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "see_double_colors",
+      "label": "See Double Colors",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 720,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:720-minutes",
+  "artist": "Alexis André",
+  "credit": {
+    "title": "720 Minutes",
+    "artist": "Alexis André",
+    "year": 2021,
+    "description": "A real-time live interactive piece that also acts as a clock. 720 unique ways to show the current time, one per minute over twelve hours. Each clock will activate on its given minute, giving you a special moment every twelve hours to consider what one minute means to you.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/27",
+    "artistUrl": null,
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 720,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 27
+    },
+    "archiveId": "artblocks:720-minutes",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of 720 Minutes by Alexis André, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 7809667
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3A720-minutes"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3A720-minutes"
+  }
+}

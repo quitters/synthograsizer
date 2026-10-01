@@ -1,0 +1,229 @@
+{
+  "name": "Atlas",
+  "promptTemplate": "An interactive field of {{cells}} cells rendered in {{style}} at {{cell_size}} cell size with {{initial_pattern}} initial seeding; inverted: {{invert_palette}}, horizontal bands: {{horizontal_mode}}, squareness {{squareness}}, and radial correlation {{radial_correlation}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "cells",
+      "label": "Cells",
+      "values": [
+        {
+          "text": "planetary",
+          "weight": 3
+        },
+        {
+          "text": "luminous",
+          "weight": 2
+        },
+        {
+          "text": "Escher",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "cell_size",
+      "label": "Cell Size",
+      "values": [
+        {
+          "text": "small",
+          "weight": 3
+        },
+        {
+          "text": "medium",
+          "weight": 2
+        },
+        {
+          "text": "large",
+          "weight": 2
+        },
+        {
+          "text": "tiny",
+          "weight": 1
+        },
+        {
+          "text": "jumbo",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "style",
+      "label": "Style Preset",
+      "values": [
+        {
+          "text": "Amalfi / Winter Dawn (0)",
+          "weight": 3
+        },
+        {
+          "text": "Palette 1",
+          "weight": 2
+        },
+        {
+          "text": "Palette 2",
+          "weight": 2
+        },
+        {
+          "text": "Palette 3",
+          "weight": 1
+        },
+        {
+          "text": "Palette 4",
+          "weight": 1
+        },
+        {
+          "text": "Palette 5",
+          "weight": 1
+        },
+        {
+          "text": "Nocturne (6)",
+          "weight": 1
+        },
+        {
+          "text": "Palette 7",
+          "weight": 1
+        },
+        {
+          "text": "Palette 8",
+          "weight": 1
+        },
+        {
+          "text": "Palette 9",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "invert_palette",
+      "label": "Invert Palette",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "initial_pattern",
+      "label": "Initial Pattern",
+      "values": [
+        {
+          "text": "Pattern 0",
+          "weight": 3
+        },
+        {
+          "text": "Pattern 1",
+          "weight": 2
+        },
+        {
+          "text": "Pattern 2",
+          "weight": 2
+        },
+        {
+          "text": "Pattern 3",
+          "weight": 1
+        },
+        {
+          "text": "Pattern 4",
+          "weight": 1
+        },
+        {
+          "text": "Pattern 6",
+          "weight": 1
+        },
+        {
+          "text": "Pattern 7",
+          "weight": 1
+        },
+        {
+          "text": "Pattern 8",
+          "weight": 1
+        },
+        {
+          "text": "Pattern 9",
+          "weight": 1
+        },
+        {
+          "text": "Pattern 11",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "horizontal_mode",
+      "label": "Horizontal Bands",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "squareness",
+      "label": "Squareness",
+      "type": "number",
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "default": 0.25
+    },
+    {
+      "name": "radial_correlation",
+      "label": "Radial Correlation",
+      "type": "number",
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "default": 0.5
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 333,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:atlas",
+  "artist": "Eric De Giuli",
+  "credit": {
+    "title": "Atlas",
+    "artist": "Eric De Giuli",
+    "year": 2023,
+    "description": "Atlas is a collection of interactive abstract kinetic paintings illustrating the paradoxical unity of living creatures. Beneath a dynamic but integrated whole, competing cells bubble in disquiet. As perhaps we all do.\n\nColour is used to represent the cellular dynamics, each piece evolving under its own laws.  Cells are rendered in various palettes and several shapes - from round to square, luminous, and Escher-like. Zooming in you can see the wild nature of individual elements.\n\n\"Do I contradict myself? Very well then, I contradict myself. I am large; I contain multitudes.\"\n\nControls:\n\nmouse wheel / z / x / pinch-drag - zoom\nclick-drag / a/w/s/d (iframe) / arrow keys (generator) - pan\ndouble-click / spacebar -pause\nf - toggle full-screen options\n\nAppend to generator links\n?frm=60 to change maximum frame rate (default = 30)\n?a=1.667 to fix the aspect ratio of cells \n?N=512 to change the number of cells",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xaf40b66072fe00cacf5a25cd1b7f1688cde20f2f/2",
+    "artistUrl": null,
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 333,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xaf40b66072fe00cacf5a25cd1b7f1688cde20f2f",
+      "projectId": 2
+    },
+    "archiveId": "artblocks:atlas",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Atlas by Eric De Giuli, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 104528
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Aatlas"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Aatlas"
+  }
+}

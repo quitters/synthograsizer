@@ -1,0 +1,327 @@
+{
+  "name": "Rotor",
+  "promptTemplate": "A rotor of {{shapes}} with {{partitions}} partitions in the {{palette}} palette, {{strokes}} strokes, and {{transparency}} transparency. Motion: {{dynamics}}; length divider: {{length_divider}}, decreasing displacement: {{decreasing_displacement}}, half moon: {{half_moon}}, decreasing moon: {{decreasing_moon}}, inverse rotation: {{inverse_rotation}}, negative rectangles: {{negative_rectangles}}, negative circles: {{negative_circles}}, negative triangles: {{negative_triangles}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "shapes",
+      "label": "Shapes",
+      "values": [
+        {
+          "text": "Triangles",
+          "weight": 3
+        },
+        {
+          "text": "Flowers",
+          "weight": 2
+        },
+        {
+          "text": "Saws",
+          "weight": 2
+        },
+        {
+          "text": "Ellipses",
+          "weight": 1
+        },
+        {
+          "text": "Circles",
+          "weight": 1
+        },
+        {
+          "text": "Arcs",
+          "weight": 1
+        },
+        {
+          "text": "Rectangles",
+          "weight": 1
+        },
+        {
+          "text": "Circlets",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Autumn Light",
+          "weight": 3
+        },
+        {
+          "text": "Sweet Peaches",
+          "weight": 2
+        },
+        {
+          "text": "Peaceful Dreams",
+          "weight": 2
+        },
+        {
+          "text": "Jungle Harmony",
+          "weight": 1
+        },
+        {
+          "text": "Autumn Leaves",
+          "weight": 1
+        },
+        {
+          "text": "Unicorn Light",
+          "weight": 1
+        },
+        {
+          "text": "Breezy Night",
+          "weight": 1
+        },
+        {
+          "text": "Purple Grail",
+          "weight": 1
+        },
+        {
+          "text": "Autumn Teals",
+          "weight": 1
+        },
+        {
+          "text": "Fire & Ice",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "partitions",
+      "label": "Partitions",
+      "values": [
+        {
+          "text": "5",
+          "weight": 3
+        },
+        {
+          "text": "3",
+          "weight": 2
+        },
+        {
+          "text": "6",
+          "weight": 2
+        },
+        {
+          "text": "7",
+          "weight": 1
+        },
+        {
+          "text": "4",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "strokes",
+      "label": "Strokes",
+      "values": [
+        {
+          "text": "Auto",
+          "weight": 3
+        },
+        {
+          "text": "None",
+          "weight": 2
+        },
+        {
+          "text": "Auto with transparency",
+          "weight": 2
+        },
+        {
+          "text": "White",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "transparency",
+      "label": "Transparency",
+      "values": [
+        {
+          "text": "Low",
+          "weight": 3
+        },
+        {
+          "text": "Medium",
+          "weight": 2
+        },
+        {
+          "text": "Very low",
+          "weight": 2
+        },
+        {
+          "text": "High",
+          "weight": 1
+        },
+        {
+          "text": "Very high",
+          "weight": 1
+        },
+        {
+          "text": "Lowest",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "dynamics",
+      "label": "Dynamics",
+      "values": [
+        {
+          "text": "None",
+          "weight": 3
+        },
+        {
+          "text": "Crazy",
+          "weight": 2
+        },
+        {
+          "text": "Loco",
+          "weight": 2
+        },
+        {
+          "text": "Shakes",
+          "weight": 1
+        },
+        {
+          "text": "Waves",
+          "weight": 1
+        },
+        {
+          "text": "Fade",
+          "weight": 1
+        },
+        {
+          "text": "Beats",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "length_divider",
+      "label": "Length Divider",
+      "values": [
+        {
+          "text": "2",
+          "weight": 3
+        },
+        {
+          "text": "1",
+          "weight": 2
+        },
+        {
+          "text": "1.5",
+          "weight": 2
+        },
+        {
+          "text": "4",
+          "weight": 1
+        },
+        {
+          "text": "10",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "decreasing_displacement",
+      "label": "Decreasing Displacement",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "half_moon",
+      "label": "Half Moon",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "decreasing_moon",
+      "label": "Decreasing Moon",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "inverse_rotation",
+      "label": "Inverse Rotation",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "negative_rectangles",
+      "label": "Negative Rectangles",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "negative_circles",
+      "label": "Negative Circles",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "negative_triangles",
+      "label": "Negative Triangles",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 285,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:rotor",
+  "artist": "Sebastián Brocher (CryptoArte)",
+  "credit": {
+    "title": "Rotor",
+    "artist": "Sebastián Brocher (CryptoArte)",
+    "year": 2022,
+    "description": "Inspired by the physics behind electrical motors and alternators, Rotor projects varied shapes in circular motions to convey the ever turning, invisible magnetic fields that make elements go around. At a more basic level the work also explores how polygonal shapes can morph into circular sections and vice-versa.\n\nWith a subtle hint to information theory, the animation automatically pauses at a very specific moment (depending on traits) whereas the evolution thus far is condensed and captured into the still thumbnail. While the thumbnail possesses lower entropy than the full animation, studying it can reveal many of the traits a mint has and, once familiar with the collection, enable imagining its plausible history and future.\n\nAfter clicking on the artwork, the following commands are available:\n\n* Press 'p' to resume the animation after automatic pause (there's more coming!). Press again to pause / resume.\n* Press 'a' / 's' to alter depth perception\n* Press 'z' / 'x' to bring elements closer or farther\n* Press 'c' to constrain the work\n* Press 'r' to restart\n\nBonus: put on some tunes, hit different patterns of a, s, z, x to the beats, and allow yourself to envision the rotor become vinyl.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/315",
+    "artistUrl": null,
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 285,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 315
+    },
+    "archiveId": "artblocks:rotor",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Rotor by Sebastián Brocher (CryptoArte), on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 36279
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Arotor"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Arotor"
+  }
+}

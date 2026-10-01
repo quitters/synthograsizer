@@ -95,9 +95,9 @@ def test_a_piece_carries_its_credit_and_its_page(archive_dir):
     # The credit rides with the sketch, so the wall and phones always have it.
     assert sketch["credit"]["artist"] == "Thomas Lin Pedersen"
     assert sketch["credit"]["license"]["adaptation"] == "permitted"
-    assert piece["credit"] == sketch["credit"]
-    assert piece["lineage"].startswith("Screens, Thomas Lin Pedersen, 2022. Art Blocks. CC BY-NC 4.0.")
-    assert "Adapted for The Commons" in piece["lineage"]
+    assert "credit" not in piece   # carried once, on the sketch
+    assert piece["lineage"].startswith("Adapted for The Commons")
+    assert archive.credit_line(sketch["credit"]) == "Screens, Thomas Lin Pedersen, 2022. Art Blocks. CC BY-NC 4.0."
     # The artist's own words open the card, unedited.
     assert piece["blurb"].startswith("Screens have been at the heart")
     # Phones are told whose work it is.
@@ -141,8 +141,9 @@ def test_a_credit_keeps_only_http_links_and_known_fields(archive_dir):
     _write(archive_dir, "screens", _piece(url="javascript:alert(1)", artistUrl="ftp://example.com/x",
                                            smuggled="<script>"))
     [piece] = archive.load_archive()
-    assert piece["credit"]["url"] is None and piece["credit"]["artistUrl"] is None
-    assert "smuggled" not in piece["credit"]
+    credit = piece["sketch"]["credit"]
+    assert credit["url"] is None and credit["artistUrl"] is None
+    assert "smuggled" not in credit
 
 
 def test_the_page_must_be_a_path_on_the_archive(archive_dir):
@@ -166,3 +167,26 @@ def test_the_shipped_archive_files_all_load(monkeypatch):
     files = sorted(archive._DIR.glob("*.json"))
     loaded = {p["slug"] for p in archive.load_archive()}
     assert loaded == {f"archive-{f.stem}" for f in files}
+
+
+def test_a_long_section_is_paged_and_sortable(archive_dir):
+    """The section tells the desk to show a page at a time and what it can be
+    ordered by; every piece carries the keys those orders need."""
+    assert archive.SECTION["title"] == "Creative Commons Generative Art"
+    assert archive.SECTION["paged"] >= 6
+    piece = _piece()
+    piece["listing"] = {"collected": 1234567}
+    piece["thumb"] = {"path": "/__commons/thumb?work=artblocks%3Ascreens"}
+    _write(archive_dir, "screens", piece)
+    [loaded] = archive.load_archive()
+    assert set(loaded["order"]) == {sort["id"] for sort in archive.SECTION["sorts"]}
+    assert loaded["order"]["collected"] == 1234567 and loaded["order"]["newest"] == 2022
+    assert loaded["thumb"] == ORIGIN + "/__commons/thumb?work=artblocks%3Ascreens"
+
+
+def test_a_thumbnail_anywhere_else_is_dropped(archive_dir):
+    piece = _piece()
+    piece["thumb"] = {"path": "https://evil.example/x.jpg"}
+    _write(archive_dir, "screens", piece)
+    [loaded] = archive.load_archive()
+    assert loaded["thumb"] is None

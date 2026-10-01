@@ -1,0 +1,100 @@
+{
+  "name": "Schema",
+  "promptTemplate": "A {{drawing_style}} schematic of {{flower_columns}} columns of mechanical flowers; night mode: {{night_mode}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "drawing_style",
+      "label": "Drawing Style",
+      "values": [
+        {
+          "text": "Diagram",
+          "weight": 3
+        },
+        {
+          "text": "Color Study",
+          "weight": 2
+        },
+        {
+          "text": "Sketch",
+          "weight": 2
+        },
+        {
+          "text": "Blueprint",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "night_mode",
+      "label": "Mode",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "flower_columns",
+      "label": "Flower Columns",
+      "type": "number",
+      "min": 14,
+      "max": 20,
+      "step": 1,
+      "default": 17
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 300,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:schema",
+  "artist": "DRIFT with Jeff Davis",
+  "credit": {
+    "title": "Schema",
+    "artist": "DRIFT with Jeff Davis",
+    "year": 2023,
+    "description": "DRIFT artists Lonneke Gordijn and Ralph Nauta—known for their explorations of natural phenomena through technologically minded artworks—and artist Jeff Davis, known for his explorations of color and form through algorithmic systems, have joined forces to produce a new generative art project titled Schema. Taking DRIFT’s widely exhibited Meadow installation as a point of departure, Schema comprises 300 unique, generative, and animated artworks uniting DRIFT and Davis’s artistic visions. \n\nThis collaborative new project is inspired by the beauty and simplicity of DRIFT’s two-dimensional schematic designs for Meadow, an upside-down landscape in which illuminated mechanical flowers open and close as part of a poetic choreography. Hung from a ceiling, this mesmeric work examines the impermanence of the changing seasons and the phenomenology of nature.\n\nAt its core, Schema is a love letter to the preliminary work that goes into realizing any large-scale art installation—in this case, diagram-making. Together, Gordijn, Nauta, and Davis developed a custom algorithm that brings the physical sculpture’s details and idiosyncrasies to life, recasting its diagrammatic origins in four possible styles: Diagram, the style that most closely resembles DRIFT’s preliminary diagrams for Meadow; Color Study, which strips out the structural elements of the diagrams and express the flowers as abstract rings of color; Sketch, which renders the flowers as line drawings with chalk-like accents; and Blueprint, which resembles the style of a blueprint.\n\nIn addition to these four different drawing styles, the project’s algorithmic system chooses two parent colors for each artwork, which may result in a wide spectrum of colors appearing across the composition from left to right or, alternatively, a more monochromatic scheme. The flowers themselves also have their own color systems that determine the relationship between their physical color and the color of their internal lights, creating gradient effects as the cast light blends with the local color. \n\nVariable traits in any given Schema artwork also include: the total number and location of the flowers; day and night modes that impact ambient light effects; each flower’s apparent position relative to the viewer; and the frequency and speed at which each flower opens and closes. Flowers in these artworks also run on their own cycles, deliberately avoiding synchronization and giving the whole scene a sense of organic motion. Once the viewer clicks on a static Schema composition to activate its motion, the animations in the artwork evolve endlessly.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xea698596b6009a622c3ed00dd5a8b5d1cae4fc36/7",
+    "artistUrl": "https://www.pacegallery.com/journal/drift-with-jeff-davis-schema/",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 300,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xea698596b6009a622c3ed00dd5a8b5d1cae4fc36",
+      "projectId": 7
+    },
+    "archiveId": "artblocks:schema",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Schema by DRIFT with Jeff Davis, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 333666
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Aschema"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Aschema"
+  }
+}

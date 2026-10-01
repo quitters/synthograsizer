@@ -1,0 +1,225 @@
+{
+  "name": "Elementals",
+  "promptTemplate": "A Bauhaus elemental composition with a {{background}} background and {{offset}} framing, featuring a {{top_grid}} top grid and {{base}} {{base_grid}} base grid; Candy palette: {{candy_palette}}, stroke: {{stroke}} on a {{stroke_grid}} grid, facing west: {{west_heading}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "candy_palette",
+      "label": "Palette",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "background",
+      "label": "Background",
+      "values": [
+        {
+          "text": "Full",
+          "weight": 3
+        },
+        {
+          "text": "Tint",
+          "weight": 2
+        },
+        {
+          "text": "Gray",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "base",
+      "label": "Base",
+      "values": [
+        {
+          "text": "Single",
+          "weight": 3
+        },
+        {
+          "text": "None",
+          "weight": 2
+        },
+        {
+          "text": "Double",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "top_grid",
+      "label": "Top Grid",
+      "values": [
+        {
+          "text": "3x3",
+          "weight": 3
+        },
+        {
+          "text": "4x4",
+          "weight": 2
+        },
+        {
+          "text": "5x5",
+          "weight": 2
+        },
+        {
+          "text": "6x6",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "base_grid",
+      "label": "Base Grid",
+      "values": [
+        {
+          "text": "4x4",
+          "weight": 3
+        },
+        {
+          "text": "5x5",
+          "weight": 2
+        },
+        {
+          "text": "2x2",
+          "weight": 2
+        },
+        {
+          "text": "3x3",
+          "weight": 1
+        },
+        {
+          "text": "6x6",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "offset",
+      "label": "Offset",
+      "values": [
+        {
+          "text": "Biggie",
+          "weight": 3
+        },
+        {
+          "text": "Smalls",
+          "weight": 2
+        },
+        {
+          "text": "Goldilocks",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "stroke",
+      "label": "Stroke",
+      "values": [
+        {
+          "text": "Black",
+          "weight": 3
+        },
+        {
+          "text": "White",
+          "weight": 2
+        },
+        {
+          "text": "None",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "stroke_grid",
+      "label": "Stroke Grid",
+      "values": [
+        {
+          "text": "3x3",
+          "weight": 3
+        },
+        {
+          "text": "5x5",
+          "weight": 2
+        },
+        {
+          "text": "4x4",
+          "weight": 2
+        },
+        {
+          "text": "2x2",
+          "weight": 1
+        },
+        {
+          "text": "6x6",
+          "weight": 1
+        },
+        {
+          "text": "7x7",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "west_heading",
+      "label": "Heading",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 600,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:elementals",
+  "artist": "Michael Connolly",
+  "credit": {
+    "title": "Elementals",
+    "artist": "Michael Connolly",
+    "year": 2021,
+    "description": "Elementals is inspired by physical printmaking techniques and early Bauhaus principles. It starts with a few basic coloured shapes and arranges them in varying frequencies, sizes, and positions based on a unique transaction hash. Multiple overlaid variable grids allow for myriad layouts and opportunities for colour interaction. The goal is to create pieces that feel both intentional in composition and part of the same family.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/41",
+    "artistUrl": "https://linktr.ee/_mconnolly_",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 600,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 41
+    },
+    "archiveId": "artblocks:elementals",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Elementals by Michael Connolly, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 4044670
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Aelementals"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Aelementals"
+  }
+}

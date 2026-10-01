@@ -1,0 +1,275 @@
+{
+  "name": "Lycorises",
+  "promptTemplate": "A {{height}}, {{width}} Lycoris blossom in the {{palette}} palette with {{sections}} sections and a {{surface}} surface, featuring a {{bottom_opening}} bottom opening and {{top_opening}} top opening with {{ridges}} ridges; spikes: {{spikes}}, {{feather_length}} feathers, and {{petal_type}} petals. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "volcano",
+          "weight": 3
+        },
+        {
+          "text": "desert",
+          "weight": 2
+        },
+        {
+          "text": "sunset",
+          "weight": 2
+        },
+        {
+          "text": "sky",
+          "weight": 1
+        },
+        {
+          "text": "cyberspace",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "sections",
+      "label": "Sections",
+      "type": "number",
+      "min": 3,
+      "max": 16,
+      "step": 1,
+      "default": 8
+    },
+    {
+      "name": "surface",
+      "label": "Surface",
+      "values": [
+        {
+          "text": "fuzzy feathers",
+          "weight": 3
+        },
+        {
+          "text": "fuzzy hair",
+          "weight": 2
+        },
+        {
+          "text": "feathers",
+          "weight": 2
+        },
+        {
+          "text": "naked",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "spikes",
+      "label": "Spikes",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "height",
+      "label": "Height",
+      "values": [
+        {
+          "text": "Short",
+          "weight": 3
+        },
+        {
+          "text": "Medium",
+          "weight": 2
+        },
+        {
+          "text": "Tall",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "width",
+      "label": "Width",
+      "values": [
+        {
+          "text": "Narrow",
+          "weight": 3
+        },
+        {
+          "text": "Medium",
+          "weight": 2
+        },
+        {
+          "text": "Wide",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "top_opening",
+      "label": "Top Opening",
+      "values": [
+        {
+          "text": "0.3",
+          "weight": 3
+        },
+        {
+          "text": "0.5",
+          "weight": 2
+        },
+        {
+          "text": "1.0",
+          "weight": 2
+        },
+        {
+          "text": "1.5",
+          "weight": 1
+        },
+        {
+          "text": "2.0",
+          "weight": 1
+        },
+        {
+          "text": "3.0",
+          "weight": 1
+        },
+        {
+          "text": "6.0",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "bottom_opening",
+      "label": "Bottom Opening",
+      "values": [
+        {
+          "text": "0.3",
+          "weight": 3
+        },
+        {
+          "text": "0.5",
+          "weight": 2
+        },
+        {
+          "text": "1.0",
+          "weight": 2
+        },
+        {
+          "text": "1.5",
+          "weight": 1
+        },
+        {
+          "text": "2.0",
+          "weight": 1
+        },
+        {
+          "text": "3.0",
+          "weight": 1
+        },
+        {
+          "text": "6.0",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "ridges",
+      "label": "Ridges",
+      "type": "number",
+      "min": 2,
+      "max": 6,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "name": "petal_type",
+      "label": "Petal Type",
+      "values": [
+        {
+          "text": "Spike",
+          "weight": 3
+        },
+        {
+          "text": "Tube",
+          "weight": 2
+        },
+        {
+          "text": "Leaf",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "feather_length",
+      "label": "Feather Length",
+      "values": [
+        {
+          "text": "Short",
+          "weight": 3
+        },
+        {
+          "text": "Medium",
+          "weight": 2
+        },
+        {
+          "text": "Long",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 99,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:lycorises",
+  "artist": "Xin Liu and Nan Zhao",
+  "credit": {
+    "title": "Lycorises",
+    "artist": "Xin Liu and Nan Zhao",
+    "year": 2023,
+    "description": "𝕃𝕪𝕔𝕠𝕣𝕚𝕤𝕖𝕤 is a series of generative artworks inspired by Ernst Haeckel‘s illuminating illustrations on biological evolutions. Combining the visual language of microscopic organisms and flowers, the Lycorises artworks aim to represent the intricacies of life and how it constantly evolves.  \nEach color palette reflects the unique structure of 𝕃𝕪𝕔𝕠𝕣𝕚𝕤𝕖𝕤 specifically evolved in its environments, including the volcano, alien desert, or cyberspace.  These environments encouraged the growth of characteristic features, such as spikes, feathers, and leaves, that protect the Lycoris seed.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0x1353fd9d3dc70d1a18149c8fb2adb4fb906de4e8/4",
+    "artistUrl": "https://slowimmediate.com/lycorises",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 1000000,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0x1353fd9d3dc70d1a18149c8fb2adb4fb906de4e8",
+      "projectId": 4
+    },
+    "archiveId": "artblocks:lycorises",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Lycorises by Xin Liu and Nan Zhao, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 0
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Alycorises"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Alycorises"
+  }
+}

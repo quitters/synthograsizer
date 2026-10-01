@@ -1,0 +1,169 @@
+{
+  "name": "Divenire",
+  "promptTemplate": "A generative field in the {{palette}} palette with dark background: {{dark_background}}, structured across a {{horizontal_genesis}}×{{vertical_genesis}} genesis grid with fill style: {{scribbles_fill}}, large spacing: {{large_spacing}}, and normal padding: {{normal_padding}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Passione",
+          "weight": 3
+        },
+        {
+          "text": "Tristezza",
+          "weight": 2
+        },
+        {
+          "text": "Serenità",
+          "weight": 2
+        },
+        {
+          "text": "Saggezza",
+          "weight": 1
+        },
+        {
+          "text": "Determinatezza",
+          "weight": 1
+        },
+        {
+          "text": "Onestà",
+          "weight": 1
+        },
+        {
+          "text": "Crescita",
+          "weight": 1
+        },
+        {
+          "text": "Meraviglia",
+          "weight": 1
+        },
+        {
+          "text": "Ansia",
+          "weight": 1
+        },
+        {
+          "text": "Contrasto",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "dark_background",
+      "label": "Background",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "scribbles_fill",
+      "label": "Fill",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "horizontal_genesis",
+      "label": "Horizontal Genesis",
+      "values": [
+        {
+          "text": "24",
+          "weight": 3
+        },
+        {
+          "text": "8",
+          "weight": 2
+        },
+        {
+          "text": "16",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "vertical_genesis",
+      "label": "Vertical Genesis",
+      "values": [
+        {
+          "text": "8",
+          "weight": 3
+        },
+        {
+          "text": "16",
+          "weight": 2
+        },
+        {
+          "text": "24",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "large_spacing",
+      "label": "Spacing",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "normal_padding",
+      "label": "Padding",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 222,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:divenire",
+  "artist": "Emanuele Pasin",
+  "credit": {
+    "title": "Divenire",
+    "artist": "Emanuele Pasin",
+    "year": 2022,
+    "description": "The mutability of life, the endless directions we can take, and the encounters that shape our existence. Divenire represents life as a constantly changing experience made of decisions, boundaries, and contaminations.\nAs human beings, we are what we feel, so each color palette embodies a state of mind.\n\nThe artwork is responsive, and the animation is endless.\n\nHit 's' during the live mode to save the exact frame you're seeing.\nRefresh the page to restart the animation.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/314",
+    "artistUrl": "https://www.pasin.io/",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 222,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 314
+    },
+    "archiveId": "artblocks:divenire",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Divenire by Emanuele Pasin, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 201065
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Adivenire"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Adivenire"
+  }
+}

@@ -1,0 +1,177 @@
+{
+  "name": "24 Heures",
+  "promptTemplate": "An endless chase of {{cars}} cars racing on a {{track}} track across a {{surface}} surface with {{flow}} flow and {{gravity}} gravity. The chase features {{depth}} depth, {{profile}} profile, {{burning}} burning, {{taste}} taste, Braque mode: {{braque}}, and lights: {{lights}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "track",
+      "label": "Track",
+      "values": [
+        {
+          "text": "Segment",
+          "weight": 3
+        },
+        {
+          "text": "Whole circuit",
+          "weight": 2
+        },
+        {
+          "text": "NASCAR",
+          "weight": 2
+        },
+        {
+          "text": "Triangle",
+          "weight": 1
+        },
+        {
+          "text": "Heptagon",
+          "weight": 1
+        },
+        {
+          "text": "Hexagon",
+          "weight": 1
+        },
+        {
+          "text": "Square",
+          "weight": 1
+        },
+        {
+          "text": "Pentagon",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "cars",
+      "label": "Cars",
+      "values": [
+        {
+          "text": "10",
+          "weight": 3
+        },
+        {
+          "text": "2",
+          "weight": 2
+        },
+        {
+          "text": "3",
+          "weight": 2
+        },
+        {
+          "text": "4",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "surface",
+      "label": "Surface",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "gravity",
+      "label": "Gravity",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "flow",
+      "label": "Flow",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "depth",
+      "label": "Depth",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "lights",
+      "label": "Lights",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "profile",
+      "label": "Profile",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "burning",
+      "label": "Burning",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "taste",
+      "label": "Taste",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "braque",
+      "label": "Braque",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 137,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:24-heures",
+  "artist": "Alexis André",
+  "credit": {
+    "title": "24 Heures",
+    "artist": "Alexis André",
+    "year": 2021,
+    "description": "A track. Some vehicles. An endless chase for lovers of loops.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/201",
+    "artistUrl": null,
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 137,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 201
+    },
+    "archiveId": "artblocks:24-heures",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of 24 Heures by Alexis André, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 9656
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3A24-heures"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3A24-heures"
+  }
+}

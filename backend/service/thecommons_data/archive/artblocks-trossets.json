@@ -1,0 +1,204 @@
+{
+  "name": "Trossets",
+  "promptTemplate": "A {{graella}} grid of {{color}} multiscale Truchet tiles (blocks: {{blocs}}, subdivision: {{divideix}}) with empty spaces: {{buit}}, crosses: {{creu}}, rings: {{aro}}, and arcs: {{arcs}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "color",
+      "label": "color",
+      "values": [
+        {
+          "text": "Altafulla",
+          "weight": 3
+        },
+        {
+          "text": "Buganvilea",
+          "weight": 2
+        },
+        {
+          "text": "Mallorca",
+          "weight": 2
+        },
+        {
+          "text": "Paella",
+          "weight": 1
+        },
+        {
+          "text": "Menorca",
+          "weight": 1
+        },
+        {
+          "text": "Beget",
+          "weight": 1
+        },
+        {
+          "text": "Tortilla",
+          "weight": 1
+        },
+        {
+          "text": "Salines",
+          "weight": 1
+        },
+        {
+          "text": "Barraca",
+          "weight": 1
+        },
+        {
+          "text": "Mar",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "graella",
+      "label": "graella",
+      "values": [
+        {
+          "text": "12x7",
+          "weight": 3
+        },
+        {
+          "text": "6x3",
+          "weight": 2
+        },
+        {
+          "text": "9x5",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "blocs",
+      "label": "Blocks",
+      "values": [
+        {
+          "text": "Set 0",
+          "weight": 3
+        },
+        {
+          "text": "Set 1",
+          "weight": 2
+        },
+        {
+          "text": "Set 2",
+          "weight": 2
+        },
+        {
+          "text": "Set 3",
+          "weight": 1
+        },
+        {
+          "text": "Set 4",
+          "weight": 1
+        },
+        {
+          "text": "Set 5",
+          "weight": 1
+        },
+        {
+          "text": "Set 6",
+          "weight": 1
+        },
+        {
+          "text": "Set 7",
+          "weight": 1
+        },
+        {
+          "text": "Set 8",
+          "weight": 1
+        },
+        {
+          "text": "Set 9",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "divideix",
+      "label": "divideix",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "buit",
+      "label": "buit",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "creu",
+      "label": "creu",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "aro",
+      "label": "aro",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "arcs",
+      "label": "arcs",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 1000,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:trossets",
+  "artist": "Anna Carreras",
+  "credit": {
+    "title": "Trossets",
+    "artist": "Anna Carreras",
+    "year": 2021,
+    "description": "Trossets explores the emergence of diversity. Combining twelve construction blocks the system generates endless patterns with a unique result each iteration. Trossets /trusɛts/ means parts, blocks, pieces and it's my particular homage to a classical generative system, the multiscale Truchet tiles. The systems plays an interlocking blocks game creating unexpected drawings with colors borrowed from the Mediterranean. To keep this colors alive 10% of the profits will be donated to Marilles Foundation, an NGO for marine conservation (https://marilles.org/en). And 15% of the minting profits will go to OpenArms, an NGO that helps refugees that try to cross the Mediterranean (https://www.openarms.es/en).",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/147",
+    "artistUrl": "https://www.annacarreras.com/",
+    "license": {
+      "text": "CC BY-NC-SA 4.0",
+      "name": "CC BY-NC-SA 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only.",
+        "Share the adaptation under the same licence."
+      ]
+    },
+    "editions": 1000,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 147
+    },
+    "archiveId": "artblocks:trossets",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Trossets by Anna Carreras, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 10038399
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Atrossets"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Atrossets"
+  }
+}

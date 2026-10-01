@@ -1,0 +1,239 @@
+{
+  "name": "Glow",
+  "promptTemplate": "An iridescent {{style}} structure with a {{gradient_direction}} gradient and {{translucency}} translucency, shaped with {{density}} density, height multiplier {{height_multiplier}}, attenuation {{attenuation}}, moving at {{speed}} speed; horizon: {{horizon}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "style",
+      "label": "Style",
+      "values": [
+        {
+          "text": "City",
+          "weight": 3
+        },
+        {
+          "text": "Caret",
+          "weight": 2
+        },
+        {
+          "text": "Crystal",
+          "weight": 2
+        },
+        {
+          "text": "Diamond",
+          "weight": 1
+        },
+        {
+          "text": "Intersect",
+          "weight": 1
+        },
+        {
+          "text": "Radar",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "gradient_direction",
+      "label": "Gradient Direction",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "translucency",
+      "label": "Translucency",
+      "values": [
+        {
+          "text": "Medium",
+          "weight": 3
+        },
+        {
+          "text": "High",
+          "weight": 2
+        },
+        {
+          "text": "Extra High",
+          "weight": 2
+        },
+        {
+          "text": "Low",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "density",
+      "label": "Density",
+      "values": [
+        {
+          "text": "Low",
+          "weight": 3
+        },
+        {
+          "text": "Medium",
+          "weight": 2
+        },
+        {
+          "text": "High",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "speed",
+      "label": "Speed",
+      "values": [
+        {
+          "text": "Medium",
+          "weight": 3
+        },
+        {
+          "text": "Fast",
+          "weight": 2
+        },
+        {
+          "text": "Slow",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "height_multiplier",
+      "label": "Height Multiplier",
+      "values": [
+        {
+          "text": "0.5",
+          "weight": 3
+        },
+        {
+          "text": "1",
+          "weight": 2
+        },
+        {
+          "text": "4",
+          "weight": 2
+        },
+        {
+          "text": "8",
+          "weight": 1
+        },
+        {
+          "text": "2",
+          "weight": 1
+        },
+        {
+          "text": "1.5",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "attenuation",
+      "label": "Attenuation",
+      "values": [
+        {
+          "text": "4",
+          "weight": 3
+        },
+        {
+          "text": "3",
+          "weight": 2
+        },
+        {
+          "text": "2",
+          "weight": 2
+        },
+        {
+          "text": "7",
+          "weight": 1
+        },
+        {
+          "text": "1",
+          "weight": 1
+        },
+        {
+          "text": "6",
+          "weight": 1
+        },
+        {
+          "text": "8",
+          "weight": 1
+        },
+        {
+          "text": "5",
+          "weight": 1
+        },
+        {
+          "text": "9",
+          "weight": 1
+        },
+        {
+          "text": "10",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "horizon",
+      "label": "Horizon",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 500,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:glow",
+  "artist": "Jason Ting",
+  "credit": {
+    "title": "Glow",
+    "artist": "Jason Ting",
+    "year": 2021,
+    "description": "In this meditative exploration of color and form, iridescent structures emerge from transformations to a flat plane, each emanating an ethereal glow. [Shortcuts] spacebar: pause/resume, q: toggle quality, s: save screenshot. This artwork is responsive and adapts to any screen size. Note: requires a WebGL2-enabled browser.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/230",
+    "artistUrl": "https://instagram.com/jzlabs",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 500,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 230
+    },
+    "archiveId": "artblocks:glow",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Glow by Jason Ting, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 334876
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Aglow"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Aglow"
+  }
+}

@@ -1,0 +1,235 @@
+{
+  "name": "Blaschke Ballet",
+  "promptTemplate": "A choreography of {{ballerines}} ballerinas performing {{ballet}} with {{fluidite}} fluidity and {{mouvement}} movement, composed in {{palette}} under {{rang}} rank. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "ballet",
+      "label": "Ballet",
+      "values": [
+        {
+          "text": "Le Casse-Noisette",
+          "weight": 3
+        },
+        {
+          "text": "Le Lac des cygnes",
+          "weight": 2
+        },
+        {
+          "text": "La Sylphide",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Palette 1",
+          "weight": 3
+        },
+        {
+          "text": "Palette 2",
+          "weight": 2
+        },
+        {
+          "text": "Palette 3",
+          "weight": 2
+        },
+        {
+          "text": "Palette 4",
+          "weight": 1
+        },
+        {
+          "text": "Palette 5",
+          "weight": 1
+        },
+        {
+          "text": "Palette 6",
+          "weight": 1
+        },
+        {
+          "text": "Palette 7",
+          "weight": 1
+        },
+        {
+          "text": "Palette 8",
+          "weight": 1
+        },
+        {
+          "text": "Palette 9",
+          "weight": 1
+        },
+        {
+          "text": "Palette 10",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "ballerines",
+      "label": "Ballerines",
+      "values": [
+        {
+          "text": "Dix",
+          "weight": 3
+        },
+        {
+          "text": "Vingt",
+          "weight": 2
+        },
+        {
+          "text": "Trente",
+          "weight": 2
+        },
+        {
+          "text": "Quarante",
+          "weight": 1
+        },
+        {
+          "text": "Cinquante",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "fluidite",
+      "label": "Fluidité",
+      "values": [
+        {
+          "text": "Adagio",
+          "weight": 3
+        },
+        {
+          "text": "Allongé",
+          "weight": 2
+        },
+        {
+          "text": "Allégro",
+          "weight": 2
+        },
+        {
+          "text": "Arabesque Adagio",
+          "weight": 1
+        },
+        {
+          "text": "Arabesque Allongée",
+          "weight": 1
+        },
+        {
+          "text": "Arabesque Allégro",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "mouvement",
+      "label": "Mouvement",
+      "values": [
+        {
+          "text": "Battement Jeté",
+          "weight": 3
+        },
+        {
+          "text": "Grand Battement",
+          "weight": 2
+        },
+        {
+          "text": "Battement Fondu",
+          "weight": 2
+        },
+        {
+          "text": "Battement Développé",
+          "weight": 1
+        },
+        {
+          "text": "Balloné",
+          "weight": 1
+        },
+        {
+          "text": "Balançoire",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "rang",
+      "label": "Rang",
+      "values": [
+        {
+          "text": "Coryphée",
+          "weight": 3
+        },
+        {
+          "text": "Chassé",
+          "weight": 2
+        },
+        {
+          "text": "Cambré",
+          "weight": 2
+        },
+        {
+          "text": "Croisé",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 600,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:blaschke-ballet",
+  "artist": "NumbersInMotion",
+  "credit": {
+    "title": "Blaschke Ballet",
+    "artist": "NumbersInMotion",
+    "year": 2021,
+    "description": "Blaschke Ballet is a reflection on movement, color, and mathematics - a juxtaposition of graceful motion and precise calculation. Observe the elegant ballerinas as they leap through the complex plane, the space between them constantly collapsing and reassembling.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/167",
+    "artistUrl": "https://www.instagram.com/numbersinmotion/",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 600,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 167
+    },
+    "archiveId": "artblocks:blaschke-ballet",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Blaschke Ballet by NumbersInMotion, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 656096
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Ablaschke-ballet"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Ablaschke-ballet"
+  }
+}

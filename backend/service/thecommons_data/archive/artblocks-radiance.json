@@ -1,0 +1,210 @@
+{
+  "name": "Radiance",
+  "promptTemplate": "A {{level}} geometric composition in {{palette}} with {{patterns}} patterns and {{rotations}} rotations, modulated by {{wave}} line spacing in a {{style}} style. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Classic Coral",
+          "weight": 3
+        },
+        {
+          "text": "Coral Soft",
+          "weight": 2
+        },
+        {
+          "text": "Electric",
+          "weight": 2
+        },
+        {
+          "text": "Coral Soft Extended",
+          "weight": 1
+        },
+        {
+          "text": "Soft",
+          "weight": 1
+        },
+        {
+          "text": "Coral",
+          "weight": 1
+        },
+        {
+          "text": "Classic",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "patterns",
+      "label": "Patterns",
+      "values": [
+        {
+          "text": "Arc, Arc, Zigzag, Square",
+          "weight": 3
+        },
+        {
+          "text": "Arc, Permutation, Duplo, Duplo",
+          "weight": 2
+        },
+        {
+          "text": "Arc, Arc, Arc, Arc",
+          "weight": 2
+        },
+        {
+          "text": "Arc, Square, Square, Square",
+          "weight": 1
+        },
+        {
+          "text": "Linear, Zigzag, Square, Square",
+          "weight": 1
+        },
+        {
+          "text": "Linear, Arc, Zigzag, Square",
+          "weight": 1
+        },
+        {
+          "text": "Linear, Linear, Linear, Linear",
+          "weight": 1
+        },
+        {
+          "text": "Linear, Linear, Linear, Arc",
+          "weight": 1
+        },
+        {
+          "text": "Arc, Permutation, Permutation, Permutation",
+          "weight": 1
+        },
+        {
+          "text": "Linear, Linear, Arc, Arc",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "level",
+      "label": "Level",
+      "values": [
+        {
+          "text": "Sparse",
+          "weight": 3
+        },
+        {
+          "text": "Dense",
+          "weight": 2
+        },
+        {
+          "text": "Normal",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "style",
+      "label": "Style",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "rotations",
+      "label": "Rotations",
+      "values": [
+        {
+          "text": "90°, 180°, 90°, 180°",
+          "weight": 3
+        },
+        {
+          "text": "0°, 0°, 180°, 180°",
+          "weight": 2
+        },
+        {
+          "text": "180°, 180°, 270°, 270°",
+          "weight": 2
+        },
+        {
+          "text": "0°, 0°, 0°, 0°",
+          "weight": 1
+        },
+        {
+          "text": "0°, 90°, 0°, 90°",
+          "weight": 1
+        },
+        {
+          "text": "0°, 90°, 180°, 270°",
+          "weight": 1
+        },
+        {
+          "text": "90°, 180°, 180°, 180°",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "wave",
+      "label": "Wave",
+      "type": "number",
+      "min": 0.25,
+      "max": 2,
+      "step": 0.05,
+      "default": 1
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 512,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:radiance",
+  "artist": "Julien Gachadoat",
+  "credit": {
+    "title": "Radiance",
+    "artist": "Julien Gachadoat",
+    "year": 2021,
+    "description": "Radiance explores the combination of simple line patterns structured at different scale to produce unique connected geometric forms. Resulting shapes can vary from minimal to organic and intricate with an underlying modulation of line spacing radiating from center.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/106",
+    "artistUrl": "https://www.instagram.com/julienv3ga/",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 512,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 106
+    },
+    "archiveId": "artblocks:radiance",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Radiance by Julien Gachadoat, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 1220194
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Aradiance"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Aradiance"
+  }
+}

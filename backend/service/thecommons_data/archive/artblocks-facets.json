@@ -1,0 +1,142 @@
+{
+  "name": "Facets",
+  "promptTemplate": "An intersecting composition of {{primitive}} polyhedra with symmetry order {{symmetry_order}} and {{entity_count}} entities per section; mirror symmetry: {{mirror_symmetry}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "primitive",
+      "label": "Primitive",
+      "values": [
+        {
+          "text": "Cube",
+          "weight": 3
+        },
+        {
+          "text": "Hexagonal Prism",
+          "weight": 2
+        },
+        {
+          "text": "Octahedron",
+          "weight": 2
+        },
+        {
+          "text": "Triangular Prism",
+          "weight": 1
+        },
+        {
+          "text": "Tetrahedron",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "symmetry_order",
+      "label": "Symmetry Order",
+      "values": [
+        {
+          "text": "1",
+          "weight": 3
+        },
+        {
+          "text": "2",
+          "weight": 2
+        },
+        {
+          "text": "4",
+          "weight": 2
+        },
+        {
+          "text": "3",
+          "weight": 1
+        },
+        {
+          "text": "6",
+          "weight": 1
+        },
+        {
+          "text": "5",
+          "weight": 1
+        },
+        {
+          "text": "8",
+          "weight": 1
+        },
+        {
+          "text": "7",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "mirror_symmetry",
+      "label": "Mirror Symmetry",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "entity_count",
+      "label": "Entity Count",
+      "type": "number",
+      "min": 6,
+      "max": 10,
+      "step": 1,
+      "default": 8
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 267,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:facets",
+  "artist": "conundrumer",
+  "credit": {
+    "title": "Facets",
+    "artist": "conundrumer",
+    "year": 2022,
+    "description": "\"Facets\" is a study in intersections of polyhedra and interactions of light.\n\nPolyhedra are distorted and duplicated around a symmetry axis, intersecting and merging into a great diversity of forms. These forms are rendered in a light simulation with different colors and material properties. The sharp edges of the shapes carve out light and space, casting soft shadows, glows, and reflections.\n\nWe can move the camera, zoom in and out, and change our perspective. From above, we may see a perfectly symmetrical figure. From below, we may see a grand constructivist sculpture. Zooming in, we see a geometric composition of polygons and gradients. Zooming out, we see the entirety of the form sitting in an endless void. We can turn on the animation and see the shapes shift and fold in on themselves. We can pause the animation and see a new permutation of the shapes. I invite you to manipulate the controls, reframe the composition, and share a new perspective.\n\n(During interaction, the image may appear grainy and blurry due to incomplete rendering. This is necessary to keep the renderer running as smoothly as possible for the best experience.)\n\n• Animate: Long press or three finger tap or press A\n• Rotate: Drag (TrackPad: scroll)\n• Zoom: Scroll or pinch (TP: pinch or ctrl+scroll)\n• Pan: Drag with middle button or two fingers (TP: shift+scroll)\n• Reset: Double press\n• Animation Speed: press 1-9\n\nHolders will have access to special minting features based on their tokens, please see project website for more details.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/249",
+    "artistUrl": "https://conundrumer.com/facets/",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 267,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 249
+    },
+    "archiveId": "artblocks:facets",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Facets by conundrumer, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 8168
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Afacets"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Afacets"
+  }
+}

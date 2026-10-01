@@ -1,0 +1,173 @@
+{
+  "name": "Marching Resonances",
+  "promptTemplate": "A {{palette}} resonance of recursive {{shape}} arcs with {{gradient}} gradient shading; circle packing: {{packing}}, sheared: {{shear}}, frame: {{frame}}, spots behind: {{spot_back}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Pearl and Dragon",
+          "weight": 3
+        },
+        {
+          "text": "Navy Lion Peony",
+          "weight": 2
+        },
+        {
+          "text": "Kara Ori",
+          "weight": 2
+        },
+        {
+          "text": "Bird and Flower",
+          "weight": 1
+        },
+        {
+          "text": "Phoenix Peony",
+          "weight": 1
+        },
+        {
+          "text": "Wisteria Spring",
+          "weight": 1
+        },
+        {
+          "text": "Fragrant Ground",
+          "weight": 1
+        },
+        {
+          "text": "Yu-Zen Dyeing",
+          "weight": 1
+        },
+        {
+          "text": "Charcoal Wind",
+          "weight": 1
+        },
+        {
+          "text": "Lagenaria Siceraria",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "shape",
+      "label": "Shape",
+      "values": [
+        {
+          "text": "Straight",
+          "weight": 3
+        },
+        {
+          "text": "Curve",
+          "weight": 2
+        },
+        {
+          "text": "Mix",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "gradient",
+      "label": "Gradient",
+      "values": [
+        {
+          "text": "Radial",
+          "weight": 3
+        },
+        {
+          "text": "Solid",
+          "weight": 2
+        },
+        {
+          "text": "Mix",
+          "weight": 2
+        },
+        {
+          "text": "Conic",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "packing",
+      "label": "Composition",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "shear",
+      "label": "Shear",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "spot_back",
+      "label": "Spot",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "frame",
+      "label": "Frame",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 100,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:marching-resonances",
+  "artist": "Shunsuke Takawo",
+  "credit": {
+    "title": "Marching Resonances",
+    "artist": "Shunsuke Takawo",
+    "year": 2023,
+    "description": "The central theme of this series, featuring recursive divisions of circles and polygons, originated from sketches in September 2022. As is often the case for me, my sketches begin without a vital purpose, taking on a fluid and undefined quality. They resemble malleable clay, combining and reworking multiple small ideas until mutable elements and immutable structures emerge. I have crafted the present collection of works by refining and developing these structures, pushing them as far away from the original image as possible while ensuring coherence.\n\nIncorporating a color palette inspired by traditional Japanese dyes, shading techniques mindful of harmony, and methods such as circle packing and transformation builds upon the foundation of my previous work. However, this new collection consciously explores the concepts of convergence and divergence within and beyond the canvas. Furthermore, I have created a unique and remarkable series by envisioning their display in a traditional Japanese residence, such as the historic Asakura House.\n\n* High-resolution images can be exported by pressing the \"S\" key.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0x0a1bbd57033f57e7b6743621b79fcb9eb2ce3676/51",
+    "artistUrl": "https://twitter.com/takawo",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 100,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0x0a1bbd57033f57e7b6743621b79fcb9eb2ce3676",
+      "projectId": 51
+    },
+    "archiveId": "artblocks:marching-resonances",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Marching Resonances by Shunsuke Takawo, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 11155
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Amarching-resonances"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Amarching-resonances"
+  }
+}

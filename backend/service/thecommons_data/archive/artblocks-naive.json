@@ -1,0 +1,188 @@
+{
+  "name": "Naïve",
+  "promptTemplate": "A generative particle field drawn from {{variation}} using noise factor {{noise_factor}}, painted with {{palette}}. It incorporates {{repellers_count}} repellers. Force negative: {{force_negative}}; shift DX negative: {{shift_dx_negative}}; shift DY negative: {{shift_dy_negative}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "variation",
+      "label": "Variation",
+      "values": [
+        {
+          "text": "Variation 0",
+          "weight": 3
+        },
+        {
+          "text": "Variation 1",
+          "weight": 2
+        },
+        {
+          "text": "Variation 2",
+          "weight": 2
+        },
+        {
+          "text": "Variation 3",
+          "weight": 1
+        },
+        {
+          "text": "Variation 4",
+          "weight": 1
+        },
+        {
+          "text": "Variation 6",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Palette 0",
+          "weight": 3
+        },
+        {
+          "text": "Palette 1",
+          "weight": 2
+        },
+        {
+          "text": "Palette 2",
+          "weight": 2
+        },
+        {
+          "text": "Palette 3",
+          "weight": 1
+        },
+        {
+          "text": "Palette 4",
+          "weight": 1
+        },
+        {
+          "text": "Palette 5",
+          "weight": 1
+        },
+        {
+          "text": "Palette 6",
+          "weight": 1
+        },
+        {
+          "text": "Palette 7",
+          "weight": 1
+        },
+        {
+          "text": "Palette 8",
+          "weight": 1
+        },
+        {
+          "text": "Palette 9",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "noise_factor",
+      "label": "Noise Factor",
+      "values": [
+        {
+          "text": "7000",
+          "weight": 3
+        },
+        {
+          "text": "10000",
+          "weight": 2
+        },
+        {
+          "text": "30000",
+          "weight": 2
+        },
+        {
+          "text": "45000",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "repellers_count",
+      "label": "Repellers Count",
+      "type": "number",
+      "min": 10,
+      "max": 42,
+      "step": 1,
+      "default": 20
+    },
+    {
+      "name": "force_negative",
+      "label": "Force Negative",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "shift_dx_negative",
+      "label": "Shift DX Negative",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "shift_dy_negative",
+      "label": "Shift DY Negative",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 300,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:naive",
+  "artist": "Olga Fradina",
+  "credit": {
+    "title": "Naïve",
+    "artist": "Olga Fradina",
+    "year": 2023,
+    "description": "Drawn from the intuitive nature of creativity, \"Naïve\" is a tribute to innate artistry. With inspiration from with the vibrant hues and raw forms of renowned Ukrainian primitivists, particularly Maria Prymachenko, whose work inspires in me the purity, simplicity, and fearlessness of a child's worldview. \n\nVenturing into generative art, I identify deeply with the naive artist's journey—entering uncharted territories with raw emotion and curiosity. Embracing this naïveté, I have merged the mathematical rigidity of coding with curiosity and play to form unexpected shapes, colors, and solutions. This work celebrates those delightful intersections of intuition with technical precision of generative art. \n\nInterestingly, the tumultuous events in Ukraine played a pivotal role in guiding me back to the arts. Generative art became that voice, a medium where I could channel my research, discoveries, and inspirations.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0x99a9b7c1116f9ceeb1652de04d5969cce509b069/483",
+    "artistUrl": null,
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 300,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0x99a9b7c1116f9ceeb1652de04d5969cce509b069",
+      "projectId": 483
+    },
+    "archiveId": "artblocks:naive",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Naïve by Olga Fradina, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 131513
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Anaive"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Anaive"
+  }
+}

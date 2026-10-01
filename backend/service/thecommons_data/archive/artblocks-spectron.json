@@ -1,0 +1,187 @@
+{
+  "name": "Spectron",
+  "promptTemplate": "A generative video synthesizer pattern; warm palette: {{palette_mode}}, flipped orientation: {{grid_orientation}}. Its overall structure is determined by a {{form_shift}} shift, a {{structural_variant}} structural variant, and a {{distortion}} distortion. The internal logic follows {{logic_phase}}, driven by a color frequency of {{color_frequency}}, with hue modulations set to {{primary_hue}}, {{secondary_hue}}, and {{tertiary_hue}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "palette_mode",
+      "label": "Palette Mode",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "grid_orientation",
+      "label": "Flip Orientation",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "form_shift",
+      "label": "Form Shift",
+      "values": [
+        {
+          "text": "Base",
+          "weight": 3
+        },
+        {
+          "text": "Shifted",
+          "weight": 2
+        },
+        {
+          "text": "Inverted",
+          "weight": 2
+        },
+        {
+          "text": "Maximal",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "structural_variant",
+      "label": "Structural Variant",
+      "values": [
+        {
+          "text": "Variant 1",
+          "weight": 3
+        },
+        {
+          "text": "Variant 2",
+          "weight": 2
+        },
+        {
+          "text": "Variant 3",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "logic_phase",
+      "label": "Logic & Phase",
+      "values": [
+        {
+          "text": "Mode A",
+          "weight": 3
+        },
+        {
+          "text": "Mode B",
+          "weight": 2
+        },
+        {
+          "text": "Mode C",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "distortion",
+      "label": "Distortion",
+      "values": [
+        {
+          "text": "Low",
+          "weight": 3
+        },
+        {
+          "text": "Medium",
+          "weight": 2
+        },
+        {
+          "text": "High",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "color_frequency",
+      "label": "Color Frequency",
+      "type": "number",
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "default": 0.5
+    },
+    {
+      "name": "primary_hue",
+      "label": "Primary Hue",
+      "type": "number",
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "default": 0.5
+    },
+    {
+      "name": "secondary_hue",
+      "label": "Secondary Hue",
+      "type": "number",
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "default": 0.5
+    },
+    {
+      "name": "tertiary_hue",
+      "label": "Tertiary Hue",
+      "type": "number",
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "default": 0.5
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 400,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:spectron",
+  "artist": "Simon De Mai",
+  "credit": {
+    "title": "Spectron",
+    "artist": "Simon De Mai",
+    "year": 2021,
+    "description": "This edition of video artworks is the result of my research in video art from the 60s and 70s, especially early analog video synthesizers. These were heavy hardware machines capable of generating shapes and patterns from the ground up, with no external visual input. How could these machines generate such complexity by just manipulating electronic voltage? I decided to investigate this process. Although with modern technologies, Spectron shares the procedural logic with its analog ancestors.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/17",
+    "artistUrl": "https://simondemai.xyz/spectron",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 400,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 17
+    },
+    "archiveId": "artblocks:spectron",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Spectron by Simon De Mai, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 4258396
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Aspectron"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Aspectron"
+  }
+}

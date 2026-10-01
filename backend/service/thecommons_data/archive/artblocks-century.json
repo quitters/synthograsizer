@@ -1,0 +1,135 @@
+{
+  "name": "CENTURY",
+  "promptTemplate": "A generative landscape in Palette {{palette}} with {{line_quantity}} lines across {{line_color_options}} color options, assembled in {{slice_order}} order; oculi: {{oculi}}, alpha: {{alpha}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "A",
+          "weight": 3
+        },
+        {
+          "text": "B",
+          "weight": 2
+        },
+        {
+          "text": "C",
+          "weight": 2
+        },
+        {
+          "text": "D",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "oculi",
+      "label": "Oculi",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "slice_order",
+      "label": "Slice Order",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "line_quantity",
+      "label": "Line Quantity",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "alpha",
+      "label": "Alpha",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "line_color_options",
+      "label": "Line Color Options",
+      "values": [
+        {
+          "text": "2",
+          "weight": 3
+        },
+        {
+          "text": "4",
+          "weight": 2
+        },
+        {
+          "text": "3",
+          "weight": 2
+        },
+        {
+          "text": "6",
+          "weight": 1
+        },
+        {
+          "text": "5",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 1000,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:century",
+  "artist": "Casey REAS",
+  "credit": {
+    "title": "CENTURY",
+    "artist": "Casey REAS",
+    "year": 2021,
+    "description": "CENTURY is my homage to paintings and drawings from the twentieth century and the countless hours I’ve spent looking at them. The references span the origins of concrete and non-objective art to color-field painting and minimalism. The strongest direct reference is a series of pictures created by Ellsworth Kelly in the 1950s where he cut his paintings into pieces and reassembled them in different orders. CENTURY creates a distinct picture for each unique transaction hash, and you can “cut” and “reassemble” it in different ways by pressing ‘1’ on your keyboard. Press ‘2’ to put the slices in the original order. These are landscapes; they look best large and in motion running as live code.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/100",
+    "artistUrl": "https://reas.com/",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 1000,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 100
+    },
+    "archiveId": "artblocks:century",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of CENTURY by Casey REAS, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 11565217
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Acentury"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Acentury"
+  }
+}

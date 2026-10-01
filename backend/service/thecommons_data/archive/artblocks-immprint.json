@@ -1,0 +1,189 @@
+{
+  "name": "immprint",
+  "promptTemplate": "A digital portrait of imma with a {{face}} expression, bathed in a {{palette}} glow across {{density}}, {{wave}} waves and {{pixel}} pixels. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "palette",
+      "values": [
+        {
+          "text": "Aura Warm",
+          "weight": 3
+        },
+        {
+          "text": "Aura Love",
+          "weight": 2
+        },
+        {
+          "text": "Aura Bliss",
+          "weight": 2
+        },
+        {
+          "text": "Aura Royality",
+          "weight": 1
+        },
+        {
+          "text": "Aura Calm",
+          "weight": 1
+        },
+        {
+          "text": "Aura Courage",
+          "weight": 1
+        },
+        {
+          "text": "Aura Mystery",
+          "weight": 1
+        },
+        {
+          "text": "Aura Spark",
+          "weight": 1
+        },
+        {
+          "text": "Aura Mirage",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "wave",
+      "label": "wave",
+      "values": [
+        {
+          "text": "Rippling",
+          "weight": 3
+        },
+        {
+          "text": "Oscillatory",
+          "weight": 2
+        },
+        {
+          "text": "Swirling",
+          "weight": 2
+        },
+        {
+          "text": "Undulating",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "density",
+      "label": "density",
+      "values": [
+        {
+          "text": "Dense",
+          "weight": 3
+        },
+        {
+          "text": "Balanced",
+          "weight": 2
+        },
+        {
+          "text": "Sparse",
+          "weight": 2
+        },
+        {
+          "text": "Super Sparse",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "pixel",
+      "label": "pixel",
+      "values": [
+        {
+          "text": "Mid",
+          "weight": 3
+        },
+        {
+          "text": "Small",
+          "weight": 2
+        },
+        {
+          "text": "Big",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "face",
+      "label": "face",
+      "values": [
+        {
+          "text": "Normal",
+          "weight": 3
+        },
+        {
+          "text": "Wink",
+          "weight": 2
+        },
+        {
+          "text": "OpenEyes",
+          "weight": 2
+        },
+        {
+          "text": "Smile",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 315,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:immprint",
+  "artist": "imma",
+  "credit": {
+    "title": "immprint",
+    "artist": "imma",
+    "year": 2023,
+    "description": "#### Who am I?\n#### Am I a series of pixels? Someone's creation? Or a product of nature's endless waves like you?\n&nbsp;\nimma, Japan's first virtual human, creates her first generative artwork \"immprint\" for Bright Moments. \nCreated in collaboration with creative coder Misaki Nakano, \"immprint\" explores the topic of imma's virtual identity. \nWhat does identity mean to a virtual human?\nUsing an original algorithm inspired by the Jacobi method used in Stable Fluids, the work examines the theme of the body as data and references motifs from brain scans to finger prints. \n\"immprint\" explores imma's own story: how she gained life from the pixels on our screen to her current existence that allows her to move between the virtual and physical worlds. \n&nbsp;\n###### About the collaborators:\n###### imma\nimma is Japan’s first virtual human. Easily identifiable by her signature pink bob, when she first appeared on social media in 2018, she shocked audiences as they were not easily able to tell if she was virtual or real. Always collaborating with top artists and brands, her realness and authenticity in a world of unreal social media cemented her status as an exciting new voice for the future. imma is Asia’s No.1 most influential virtual human and her actions have led to her being selected one of the Women of the Year 2020 by Forbes Women published by Forbes Poland and star in the Tokyo 2020 Paralympics closing ceremony. This is her first generative art project. \n[Instagram](https://www.instagram.com/imma.gram/) /  [Twitter (JP) ](https://twitter.com/imma__jp) / [Twitter  (EN) ](https://twitter.com/imma__en) / [Discord](https://discord.com/invite/ktHMAwkZ3D)  / [Opensea](https://opensea.io/imma) \n\n###### Misaki Nakano\nMisaki Nakano is a programmer and designer who creates visual arts with WebGL and develops interactive contents. She is also involved in R&D for webXR and physics simulations.\n [Twitter(EN)](https://twitter.com/misaki_mofu) / [Twitter(JP)](https://twitter.com/misaki_mofujp)",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0x0a1bbd57033f57e7b6743621b79fcb9eb2ce3676/40",
+    "artistUrl": "https://www.instagram.com/imma.gram/",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 315,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0x0a1bbd57033f57e7b6743621b79fcb9eb2ce3676",
+      "projectId": 40
+    },
+    "archiveId": "artblocks:immprint",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of immprint by imma, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 7519
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Aimmprint"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Aimmprint"
+  }
+}

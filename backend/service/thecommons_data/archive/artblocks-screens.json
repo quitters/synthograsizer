@@ -263,9 +263,13 @@
   },
   "listing": {
     "origin": "adapted",
-    "lineage": "A remix of Screens by Thomas Lin Pedersen, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints."
+    "lineage": "A remix of Screens by Thomas Lin Pedersen, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 11188443
   },
   "page": {
     "path": "/__commons/wall.html?work=artblocks%3Ascreens"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Ascreens"
   }
 }

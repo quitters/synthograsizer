@@ -1,0 +1,248 @@
+{
+  "name": "Fake Internet Money",
+  "promptTemplate": "A {{layout}} {{theme}} banknote of {{denomination}} denomination in hue {{hue}}, featuring {{rosette_style}} rosettes. Ornamental border: {{border}}; highlighted: {{highlight}}; numerals: {{numerals}}; {{serial_number}} serial; star note: {{star_note}}; authenticity: {{counterfeit}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "layout",
+      "label": "Layout",
+      "values": [
+        {
+          "text": "Classic",
+          "weight": 3
+        },
+        {
+          "text": "Modern",
+          "weight": 2
+        },
+        {
+          "text": "Ticket",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "theme",
+      "label": "Theme",
+      "values": [
+        {
+          "text": "Fiat",
+          "weight": 3
+        },
+        {
+          "text": "Crypto",
+          "weight": 2
+        },
+        {
+          "text": "Bullion",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "hue",
+      "label": "Hue",
+      "type": "number",
+      "min": 0,
+      "max": 359,
+      "step": 1,
+      "default": 180
+    },
+    {
+      "name": "denomination",
+      "label": "Denomination",
+      "values": [
+        {
+          "text": "1",
+          "weight": 3
+        },
+        {
+          "text": "5",
+          "weight": 2
+        },
+        {
+          "text": "10",
+          "weight": 2
+        },
+        {
+          "text": "20",
+          "weight": 1
+        },
+        {
+          "text": "50",
+          "weight": 1
+        },
+        {
+          "text": "100",
+          "weight": 1
+        },
+        {
+          "text": "2",
+          "weight": 1
+        },
+        {
+          "text": "None",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "rosette_style",
+      "label": "Rosette Style",
+      "values": [
+        {
+          "text": "Numismatic",
+          "weight": 3
+        },
+        {
+          "text": "Vintage",
+          "weight": 2
+        },
+        {
+          "text": "Checkered",
+          "weight": 2
+        },
+        {
+          "text": "Ribbed",
+          "weight": 1
+        },
+        {
+          "text": "Deco",
+          "weight": 1
+        },
+        {
+          "text": "Denomination",
+          "weight": 1
+        },
+        {
+          "text": "Line",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "border",
+      "label": "Border",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "highlight",
+      "label": "Highlight",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "numerals",
+      "label": "Numerals",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "counterfeit",
+      "label": "Authenticity",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "serial_number",
+      "label": "Serial Number",
+      "values": [
+        {
+          "text": "Normal",
+          "weight": 3
+        },
+        {
+          "text": "Decreasing",
+          "weight": 2
+        },
+        {
+          "text": "Binary",
+          "weight": 2
+        },
+        {
+          "text": "Repeater",
+          "weight": 1
+        },
+        {
+          "text": "High",
+          "weight": 1
+        },
+        {
+          "text": "Radar",
+          "weight": 1
+        },
+        {
+          "text": "Low",
+          "weight": 1
+        },
+        {
+          "text": "Increasing",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "star_note",
+      "label": "Star Note",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 1000,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:fake-internet-money",
+  "artist": "Steve Pikelny",
+  "credit": {
+    "title": "Fake Internet Money",
+    "artist": "Steve Pikelny",
+    "year": 2021,
+    "description": "Fake Internet Money is not legal tender, and may not be redeemable or exchangeable with other parties or markets following its initial offering. The Artist is not a licensed or registered money transmitter in any district, state, or country. The Money is not a financial security. The Artist makes no claims of adding any further value to the project. Owners of The Money have no reasonable expectation of profit. Any marketing statements made by The Artist should not be taken as investment advice. The secondary market value of The Money may be highly volatile, and The Artist makes no guarantees regarding its liquidity or stability relative to any crypto or fiat currency. All value derived from The Money is entirely subjective. All code is licensed under a Creative Commons Attribution-NonCommercial 4.0 License, and is provided without warranty of any kind. In no event shall The Artist be held liable for any damages arising from the code or resulting tokens. The typeface is derived from Shippori Mincho B1, which is licensed under a SIL Open Font License. 30% of proceeds were converted to real money and donated to Give Directly.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/152",
+    "artistUrl": "https://steviep.xyz/fake-internet-money",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 1000,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 152
+    },
+    "archiveId": "artblocks:fake-internet-money",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Fake Internet Money by Steve Pikelny, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 3454027
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Afake-internet-money"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Afake-internet-money"
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "name": "ilumz",
+  "promptTemplate": "An abstract choreography of organic shapes and painterly forms bathed in a {{mood}} palette. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "mood",
+      "label": "Mood",
+      "values": [
+        {
+          "text": "Morning",
+          "weight": 3
+        },
+        {
+          "text": "Noon",
+          "weight": 2
+        },
+        {
+          "text": "Night",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 57,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:ilumz",
+  "artist": "Wolffia Inc. & Motus Art",
+  "credit": {
+    "title": "ilumz",
+    "artist": "Wolffia Inc. & Motus Art",
+    "year": 2023,
+    "description": "[To learn more about the partnership between Motus and Wolffia, we invite you to watch the ilumz video](https://owenmcateer.com/ilumz/)\n\nCollaborators working in two opposing mediums create a unique expression of art that neither could create alone. Merging IRL artistic techniques with algorithmic generative coding. Holding focus on creations that are varied, organic and feature human characteristics of spontaneous art work.\n\nIn the era of the machine, harmony and humanity shine through ilumz. This is rooted in the artists’ contrasting disciplines, techniques and styles which meld to create a cohesive choreography of abstract, organic, generative art.\n\nThe creative spark was a chance meeting of opposites. An abstract multi media artist (Wolffia) with an intuitive, freeform, joyful flair and a keen eye for bold shapes, vibrant colours and varied textures. And a creative coder (Motus) who uses algorithms and mathematics to explore the hidden beauty within numbers. \n\nTheir ilumz brainchild is an algorithm with a human touch and the intelligence to not just replicate painted works but to redraw, reconfigure and recreate. Composition is at the core, so ilumz dynamically builds interaction and divergence into a symphony of shape. This fine balance creates a uniquely natural feel that isn’t overpowered by the algorithm for a distinct aesthetic – call it calm wonderment.\n\nIlumz is a journey from contrast to cohesion that blurs the boundary between physical art and digital craft. It fuses geometry with incidental imperfections of hand-drawn elements. And it’s full circle as Wolffia and Motus continue to catalyse (and challenge) each other’s thinking. You can see the humanity and the sense of partnership in every ilumz mint.\n\n*“Chance, mistakes, serendipity... from abstract to algorithm we wanted our hybrid physical-digital project to sing of human touch.”*\n*Wolffia Inc.*\n\n*“Working out the rules for how shapes interact, collide and overlap to create unpredictable complexity opens so many opportunities to explore.”*\n*Motus*",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0x99a9b7c1116f9ceeb1652de04d5969cce509b069/429",
+    "artistUrl": "https://owenmcateer.com/ilumz/",
+    "license": {
+      "text": "CC BY-NC-SA 4.0",
+      "name": "CC BY-NC-SA 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only.",
+        "Share the adaptation under the same licence."
+      ]
+    },
+    "editions": 57,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0x99a9b7c1116f9ceeb1652de04d5969cce509b069",
+      "projectId": 429
+    },
+    "archiveId": "artblocks:ilumz",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of ilumz by Wolffia Inc. & Motus Art, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 2718
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Ailumz"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Ailumz"
+  }
+}

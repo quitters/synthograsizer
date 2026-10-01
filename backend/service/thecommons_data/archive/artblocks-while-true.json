@@ -1,0 +1,124 @@
+{
+  "name": "while true",
+  "promptTemplate": "An unbounded geometric tessellation with {{structure}} structure, {{color_saturation}} saturation, and {{color_repetition}} color repetition; high entropy: {{high_entropy}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "structure",
+      "label": "Structure",
+      "values": [
+        {
+          "text": "High",
+          "weight": 3
+        },
+        {
+          "text": "Medium",
+          "weight": 2
+        },
+        {
+          "text": "Low",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "color_repetition",
+      "label": "Color Repetition",
+      "values": [
+        {
+          "text": "High",
+          "weight": 3
+        },
+        {
+          "text": "Low",
+          "weight": 2
+        },
+        {
+          "text": "Medium",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "color_saturation",
+      "label": "Color Saturation",
+      "values": [
+        {
+          "text": "High",
+          "weight": 3
+        },
+        {
+          "text": "Low",
+          "weight": 2
+        },
+        {
+          "text": "Medium",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "high_entropy",
+      "label": "Entropy",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 60,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:while-true",
+  "artist": "Lars Wander",
+  "credit": {
+    "title": "while true",
+    "artist": "Lars Wander",
+    "year": 2024,
+    "description": "while true is a meditation on the meaning of unboundedness. Infinity is a strange and paradoxical concept: nothing real can be “infinite”, yet the math and physics we use to describe and understand our universe is built on the concept of its existence. Take away infinity and the groundwork that ties together calculus, probability theory, differential equations and countless more fields begins to crumble. Throughout history, many philosophers have raised issues in including infinity in our metaphysical and mathematical reasoning: Brouwer and his school of intuitionism strongly rejected the idea of using impossible concepts in mathematics, arguing that math should be constructible. Aristotle rejected the idea of “actual” infinity, seeing it as something impossible. Kronecker, who famously said “God made the integers, all else is the work of man”, objected to the use of infinity and transfinite numbers in math. There is clearly truth to the fact that any infinite object is too large or impossible for our minds to truly comprehend, but infinity has clearly shown its undeniable effectiveness in helping construct models of reality. All this leaves the question: how do we explain the infinite?",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xab0000000000aa06f89b268d604a9c1c41524ac6/498",
+    "artistUrl": "https://larswander.com/",
+    "license": {
+      "text": "CC BY-NC-SA 4.0",
+      "name": "CC BY-NC-SA 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only.",
+        "Share the adaptation under the same licence."
+      ]
+    },
+    "editions": 60,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xab0000000000aa06f89b268d604a9c1c41524ac6",
+      "projectId": 498
+    },
+    "archiveId": "artblocks:while-true",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of while true by Lars Wander, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 33510
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Awhile-true"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Awhile-true"
+  }
+}

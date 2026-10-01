@@ -1,0 +1,209 @@
+{
+  "name": "Obicera",
+  "promptTemplate": "A {{feel}} {{style}} composition in the {{palette}} palette with {{time}} lighting and {{fill}} rings. Accented with {{spice}} spice; echoes: {{echoes}}, splits: {{splits}}, reception: {{reception}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Black and White",
+          "weight": 3
+        },
+        {
+          "text": "Spoiled Snow",
+          "weight": 2
+        },
+        {
+          "text": "Oxford in Orange",
+          "weight": 2
+        },
+        {
+          "text": "Ocre Waves",
+          "weight": 1
+        },
+        {
+          "text": "Ara Ararauna",
+          "weight": 1
+        },
+        {
+          "text": "Boy/Girl",
+          "weight": 1
+        },
+        {
+          "text": "Icy Blues",
+          "weight": 1
+        },
+        {
+          "text": "Smart Fox",
+          "weight": 1
+        },
+        {
+          "text": "It was actually not a long story",
+          "weight": 1
+        },
+        {
+          "text": "Warm and Cozy",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "feel",
+      "label": "Feel",
+      "values": [
+        {
+          "text": "Sunset",
+          "weight": 3
+        },
+        {
+          "text": "Flat",
+          "weight": 2
+        },
+        {
+          "text": "Spiral",
+          "weight": 2
+        },
+        {
+          "text": "Spiky",
+          "weight": 1
+        },
+        {
+          "text": "PowerSpin",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "style",
+      "label": "Style",
+      "values": [
+        {
+          "text": "Vert",
+          "weight": 3
+        },
+        {
+          "text": "Round and round",
+          "weight": 2
+        },
+        {
+          "text": "Needles",
+          "weight": 2
+        },
+        {
+          "text": "PowerSpin",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "time",
+      "label": "Time",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "fill",
+      "label": "Fill",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "spice",
+      "label": "Spice",
+      "values": [
+        {
+          "text": "Vanilla",
+          "weight": 3
+        },
+        {
+          "text": "Pepper",
+          "weight": 2
+        },
+        {
+          "text": "Salt",
+          "weight": 2
+        },
+        {
+          "text": "Salt&Pepper",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "echoes",
+      "label": "Echoes",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "splits",
+      "label": "Splits",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "reception",
+      "label": "Reception",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 529,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:obicera",
+  "artist": "Alexis André",
+  "credit": {
+    "title": "Obicera",
+    "artist": "Alexis André",
+    "year": 2021,
+    "description": "They answered. Will the message be one of peace?",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/130",
+    "artistUrl": null,
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 529,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 130
+    },
+    "archiveId": "artblocks:obicera",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Obicera by Alexis André, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 4310078
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Aobicera"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Aobicera"
+  }
+}

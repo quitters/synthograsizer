@@ -1,0 +1,211 @@
+{
+  "name": "Essenza",
+  "promptTemplate": "A {{palette}} flow field in a {{rows}}×{{columns}} {{container}} grid on a {{background}} background, rendered at {{resolution}} resolution; border: {{border}}, immersive: {{immersive}}, chaotic: {{chaotic}}, irregular: {{irregular}}, flowing: {{flowing}}, extra: {{extra}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Gentle",
+          "weight": 3
+        },
+        {
+          "text": "Polar",
+          "weight": 2
+        },
+        {
+          "text": "Honey",
+          "weight": 2
+        },
+        {
+          "text": "Arctica",
+          "weight": 1
+        },
+        {
+          "text": "Sole",
+          "weight": 1
+        },
+        {
+          "text": "Flamingo",
+          "weight": 1
+        },
+        {
+          "text": "Pulsione",
+          "weight": 1
+        },
+        {
+          "text": "Organismo",
+          "weight": 1
+        },
+        {
+          "text": "Paradise",
+          "weight": 1
+        },
+        {
+          "text": "Spiaggia",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "container",
+      "label": "Container",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "rows",
+      "label": "Rows",
+      "values": [
+        {
+          "text": "1",
+          "weight": 3
+        },
+        {
+          "text": "2",
+          "weight": 2
+        },
+        {
+          "text": "3",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "columns",
+      "label": "Columns",
+      "values": [
+        {
+          "text": "1",
+          "weight": 3
+        },
+        {
+          "text": "3",
+          "weight": 2
+        },
+        {
+          "text": "2",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "background",
+      "label": "Background",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "border",
+      "label": "Border",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "immersive",
+      "label": "Immersive",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "resolution",
+      "label": "Resolution",
+      "values": [
+        {
+          "text": "Standard",
+          "weight": 3
+        },
+        {
+          "text": "High",
+          "weight": 2
+        },
+        {
+          "text": "Low",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "chaotic",
+      "label": "Chaotic",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "irregular",
+      "label": "Irregular",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "flowing",
+      "label": "Flowing",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "extra",
+      "label": "Extra",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 444,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:essenza",
+  "artist": "Stefano Contiero",
+  "credit": {
+    "title": "Essenza",
+    "artist": "Stefano Contiero",
+    "year": 2022,
+    "description": "*The purpose of life is to live.*\n\n**Essenza** is a labor of love. The essence of Art in my eyes.\nAnd Art, sometimes, can haunt you. Can consume you.\n\nWhen you pour yourself into something, it's hard to let it go.\n\nBorn from a sketch made more than 3 years ago, this was intended to be my genesis on Art Blocks.\nIt took me another year and a half, countless refinements, Rinascita, more refinements, and a rewrite from scratch to finally be ready to share this with the rest of the world.\n\nIt's personal, and it's intense. A fragment of my story.\nThe end of an era, and hopefully, the beginning of a new one.\n\nNo matter how hard it can be. If you truly love something, you need to learn how to set it free.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/356",
+    "artistUrl": "https://stefanocontiero.com/essenza",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 444,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 356
+    },
+    "archiveId": "artblocks:essenza",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Essenza by Stefano Contiero, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 479006
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Aessenza"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Aessenza"
+  }
+}

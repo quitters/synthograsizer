@@ -1,0 +1,209 @@
+{
+  "name": "Alchimie",
+  "promptTemplate": "An alchemical composition of {{shapes}} flowing structures in {{color_a}} and {{color_b}} with {{complexity}} complexity; white background: {{white_background}}, high fluidity: {{high_fluidity}}, big size: {{big_size}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "color_a",
+      "label": "Color A",
+      "values": [
+        {
+          "text": "Silver",
+          "weight": 3
+        },
+        {
+          "text": "Viking",
+          "weight": 2
+        },
+        {
+          "text": "Green",
+          "weight": 2
+        },
+        {
+          "text": "Coral Red",
+          "weight": 1
+        },
+        {
+          "text": "Pink",
+          "weight": 1
+        },
+        {
+          "text": "Orange",
+          "weight": 1
+        },
+        {
+          "text": "Turquoise",
+          "weight": 1
+        },
+        {
+          "text": "Coral",
+          "weight": 1
+        },
+        {
+          "text": "Hot Pink",
+          "weight": 1
+        },
+        {
+          "text": "Malachite",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "color_b",
+      "label": "Color B",
+      "values": [
+        {
+          "text": "Dark Orange",
+          "weight": 3
+        },
+        {
+          "text": "Silver",
+          "weight": 2
+        },
+        {
+          "text": "Coral Red",
+          "weight": 2
+        },
+        {
+          "text": "Green",
+          "weight": 1
+        },
+        {
+          "text": "Pink",
+          "weight": 1
+        },
+        {
+          "text": "Malachite",
+          "weight": 1
+        },
+        {
+          "text": "Viking",
+          "weight": 1
+        },
+        {
+          "text": "Pistachio",
+          "weight": 1
+        },
+        {
+          "text": "Coral",
+          "weight": 1
+        },
+        {
+          "text": "Hot Pink",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "white_background",
+      "label": "Background",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "shapes",
+      "label": "Shapes",
+      "values": [
+        {
+          "text": "3",
+          "weight": 3
+        },
+        {
+          "text": "6",
+          "weight": 2
+        },
+        {
+          "text": "9",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "complexity",
+      "label": "Complexity",
+      "values": [
+        {
+          "text": "Medium",
+          "weight": 3
+        },
+        {
+          "text": "Low",
+          "weight": 2
+        },
+        {
+          "text": "High",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "high_fluidity",
+      "label": "Fluidity",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "big_size",
+      "label": "Size",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 80,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:alchimie",
+  "artist": "RVig",
+  "credit": {
+    "title": "Alchimie",
+    "artist": "RVig",
+    "year": 2024,
+    "description": "“Alchimie” is an enchanting display of colours and structures. Starting from the basic selection of two colours from a carefully curated palette and a series of random squares, the algorithm transforms these squares into complex, flowing, sophisticated structures with a rich spectrum of shades derived from the original colours.\n\nThe project mirrors the ancient art of alchemy, where simple base elements undergo a transformation into something refined and valuable. Through algorithmic artistry, the basic shapes and colours evolve into animated, organic-looking compositions that seem to breathe with life. It also marks a reconciliation between different styles for the artist: the interweaving lines seen in “Flowers” (2021) integrate elegantly with the characteristic pixel flows of “Volute” (2022), creating a work of exceptional coherence and beauty.\n\n\"Alchimie\" explores the beauty that can emerge from the simplest of elements through computational creation. It results in stunning, dynamic pieces that captivate and inspire, reminding us of the boundless creativity afforded by digital expression.\n\nMore info: <https://rvig.art/Alchimie.html>",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0x000000a6e6366baf7c98a2ab73d3df1092dd7bb0/0",
+    "artistUrl": "https://rvig.art/Alchimie.html",
+    "license": {
+      "text": "CC-BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 80,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0x000000a6e6366baf7c98a2ab73d3df1092dd7bb0",
+      "projectId": 0
+    },
+    "archiveId": "artblocks:alchimie",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Alchimie by RVig, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 423
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Aalchimie"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Aalchimie"
+  }
+}

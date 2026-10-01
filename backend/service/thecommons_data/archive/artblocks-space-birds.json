@@ -1,0 +1,217 @@
+{
+  "name": "Space Birds",
+  "promptTemplate": "A {{border}} {{orientation}} composition of spinning space birds rendered with {{forms}} in a {{color_palette}} palette with {{line}} linework; X-ray mode: {{x_ray_mode}}, twist radius {{twist_radius}}, offset {{offset}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "color_palette",
+      "label": "Color Palette",
+      "values": [
+        {
+          "text": "Spice Rack",
+          "weight": 3
+        },
+        {
+          "text": "Teal Eaves",
+          "weight": 2
+        },
+        {
+          "text": "Neon",
+          "weight": 2
+        },
+        {
+          "text": "Bubble Gum",
+          "weight": 1
+        },
+        {
+          "text": "Marfa",
+          "weight": 1
+        },
+        {
+          "text": "Stapler",
+          "weight": 1
+        },
+        {
+          "text": "Professor Longhair",
+          "weight": 1
+        },
+        {
+          "text": "Sea Salt Caramel",
+          "weight": 1
+        },
+        {
+          "text": "Varsity",
+          "weight": 1
+        },
+        {
+          "text": "Ed Paschke",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "orientation",
+      "label": "Orientation",
+      "values": [
+        {
+          "text": "Two Across",
+          "weight": 3
+        },
+        {
+          "text": "Nine Pack",
+          "weight": 2
+        },
+        {
+          "text": "Three Up",
+          "weight": 2
+        },
+        {
+          "text": "Four Pack",
+          "weight": 1
+        },
+        {
+          "text": "Three Across",
+          "weight": 1
+        },
+        {
+          "text": "Singular",
+          "weight": 1
+        },
+        {
+          "text": "Six Up",
+          "weight": 1
+        },
+        {
+          "text": "Two Up",
+          "weight": 1
+        },
+        {
+          "text": "Six Across",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "forms",
+      "label": "Forms",
+      "values": [
+        {
+          "text": "Triangles & Quadrilaterals",
+          "weight": 3
+        },
+        {
+          "text": "Triangles & Pentagons",
+          "weight": 2
+        },
+        {
+          "text": "Quadrilaterals & Pentagons",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "line",
+      "label": "Line",
+      "values": [
+        {
+          "text": "Picasso",
+          "weight": 3
+        },
+        {
+          "text": "Peter Max",
+          "weight": 2
+        },
+        {
+          "text": "Mucha",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "border",
+      "label": "Border",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "x_ray_mode",
+      "label": "X-ray Mode",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "twist_radius",
+      "label": "Twist Radius",
+      "type": "number",
+      "min": 0,
+      "max": 45,
+      "step": 1,
+      "default": 22
+    },
+    {
+      "name": "offset",
+      "label": "Offset",
+      "type": "number",
+      "min": 0,
+      "max": 20,
+      "step": 0.5,
+      "default": 10
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 48,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:space-birds",
+  "artist": "Mark Cotton",
+  "credit": {
+    "title": "Space Birds",
+    "artist": "Mark Cotton",
+    "year": 2021,
+    "description": "Space Birds begin with three simple polygon forms; triangles, quadrilaterals and pentagons. Combined and layered, they twist and morph their shapes as they rotate in space, mimicking the appearance of an unfolding bird-of-paradise flower while other objects orbit around them. Keyboard shortcuts: Hold the mouse button down to pause the animation. Type 's' or 'S' to save a screenshot. Drop Mechanic: Dutch Auction with a starting price of 2Ξ and price decreasing by 0.25Ξ every 5 minutes. \nPricing Tiers: 2Ξ > 1.75Ξ > 1.5Ξ > 1.25Ξ > 1Ξ >0.75Ξ > 0.5Ξ > 0.25Ξ \n\nTwenty-five percent (25%) of the artist’s proceeds from the minting of Space Birds will be divided among the following charities: Alex’s Lemonade Stand Foundation for Childhood Cancer, The Leukemia & Lymphoma Society, Lymphoma Research Foundation, The International Waldenstrom’s Macroglobulinemia Foundation, and the Ellis Fischel Cancer Center at University of Missouri Hospital.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/177",
+    "artistUrl": "https://medium.com/@markcotton_81658/inspiration-for-and-development-of-space-birds-on-artblocks-io-560af0d1a6a9",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 48,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 177
+    },
+    "archiveId": "artblocks:space-birds",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Space Birds by Mark Cotton, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 15512
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Aspace-birds"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Aspace-birds"
+  }
+}

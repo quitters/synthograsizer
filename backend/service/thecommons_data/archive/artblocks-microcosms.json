@@ -1,0 +1,182 @@
+{
+  "name": "Microcosms",
+  "promptTemplate": "A dollhouse cross-section in the {{palette}} palette with {{granularity}} granularity and {{margins}} margins, featuring {{stars}} star medallions curated by {{curator}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "City Apartment",
+          "weight": 3
+        },
+        {
+          "text": "Brooklyn Brownstone",
+          "weight": 2
+        },
+        {
+          "text": "Autumn Treehouse",
+          "weight": 2
+        },
+        {
+          "text": "Expedition to Pluto",
+          "weight": 1
+        },
+        {
+          "text": "Golden Palace",
+          "weight": 1
+        },
+        {
+          "text": "Desert Adobe",
+          "weight": 1
+        },
+        {
+          "text": "Seaside Cottage",
+          "weight": 1
+        },
+        {
+          "text": "Martian Colony",
+          "weight": 1
+        },
+        {
+          "text": "Ruins of Atlantis",
+          "weight": 1
+        },
+        {
+          "text": "The Metaverse",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "granularity",
+      "label": "Granularity",
+      "values": [
+        {
+          "text": "Medium",
+          "weight": 3
+        },
+        {
+          "text": "Small",
+          "weight": 2
+        },
+        {
+          "text": "Large",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "stars",
+      "label": "Stars",
+      "values": [
+        {
+          "text": "1",
+          "weight": 3
+        },
+        {
+          "text": "2",
+          "weight": 2
+        },
+        {
+          "text": "3",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "curator",
+      "label": "Curator",
+      "values": [
+        {
+          "text": "Artist",
+          "weight": 3
+        },
+        {
+          "text": "Hybrid",
+          "weight": 2
+        },
+        {
+          "text": "Machine",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "margins",
+      "label": "Margins",
+      "values": [
+        {
+          "text": "Standard",
+          "weight": 3
+        },
+        {
+          "text": "Wide",
+          "weight": 2
+        },
+        {
+          "text": "Narrow",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 161,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:microcosms",
+  "artist": "Fahad Karim",
+  "credit": {
+    "title": "Microcosms",
+    "artist": "Fahad Karim",
+    "year": 2023,
+    "description": "Microcosms is an on-chain generative art collection by Fahad Karim. The artwork has been created in connection with Consensus, CoinDesk’s yearly conference bringing together the Web3/crypto community. Ownership of an NFT in this collection unlocks rewards and multi-year access to the conference.\n\n—\n\nIn moments when we gather, each person is an ambassador of their perspective, a microcosm of the world from which they come. The artwork in the Microcosms collection takes the form of dynamic two-dimensional cross-sections into people’s homes, providing a dollhouse-style peek into these spaces. A home is the most intimate setting, a place where people can be themselves. Karim uses the symbolism of this setting to build a collection representing a community of unique perspectives coming together under a common roof.\n\nThe visuals of Microcosms are inspired by the geometric structures of technology fused with the traditional aesthetics of Indo-Persian miniatures. A trail of floating rectangles is simultaneously a set of paintings in someone’s home and a literal manifestation of a blockchain. The resulting blend, a sort of abstract sci-fi miniature, feels both high-tech and traditional - a common theme in Karim’s work.\n\nTo explore the temporal nature of our evolving perspectives, each artwork is generated as an animated triptych that is revealed over the course of three years. Within each set, all three homes share the same compositional blueprint but can vary greatly in details. The primary panel on display will cycle every year, accompanied with glimpses of the future flashing in and out through glitch-style animation. Each microcosm, though tempting to appreciate as a still frame, represents this ever-changing and unpredictable blend of influences.\n\n–\n\nUse arrow keys to navigate through revealed panels. Click to toggle animation. Press ‘p’ or ‘j’ to download the displayed image.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0x2b3c48be4fb33b0724214aff12b086b0214f8f15/0",
+    "artistUrl": "https://www.coindesk.com/consensusnft/",
+    "license": {
+      "text": "CC BY-NC-SA 4.0",
+      "name": "CC BY-NC-SA 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only.",
+        "Share the adaptation under the same licence."
+      ]
+    },
+    "editions": 1000,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0x2b3c48be4fb33b0724214aff12b086b0214f8f15",
+      "projectId": 0
+    },
+    "archiveId": "artblocks:microcosms",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Microcosms by Fahad Karim, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 15995
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Amicrocosms"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Amicrocosms"
+  }
+}

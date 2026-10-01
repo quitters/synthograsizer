@@ -1,0 +1,211 @@
+{
+  "name": "Orbifold",
+  "promptTemplate": "A {{signature}} maze in a {{grid}} grid using the {{palette}} palette; perspective: {{perspective}}, alternate colors: {{alternate_colors}}, alternate weights: {{alternate_weights}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Five Stars",
+          "weight": 3
+        },
+        {
+          "text": "Spring Vegetables",
+          "weight": 2
+        },
+        {
+          "text": "Circus",
+          "weight": 2
+        },
+        {
+          "text": "Candy Wrapper A",
+          "weight": 1
+        },
+        {
+          "text": "Spotlight",
+          "weight": 1
+        },
+        {
+          "text": "Sunday Stroll",
+          "weight": 1
+        },
+        {
+          "text": "Heirloom",
+          "weight": 1
+        },
+        {
+          "text": "Candy Wrapper B",
+          "weight": 1
+        },
+        {
+          "text": "Full Moon",
+          "weight": 1
+        },
+        {
+          "text": "System",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "signature",
+      "label": "Signature",
+      "values": [
+        {
+          "text": "o - monotropic",
+          "weight": 3
+        },
+        {
+          "text": "** - monoscopic",
+          "weight": 2
+        },
+        {
+          "text": "*2222 - discopic",
+          "weight": 2
+        },
+        {
+          "text": "*x - monorhombic",
+          "weight": 1
+        },
+        {
+          "text": "22* - digyro",
+          "weight": 1
+        },
+        {
+          "text": "2*22 - dirhombic",
+          "weight": 1
+        },
+        {
+          "text": "2222 - ditropic",
+          "weight": 1
+        },
+        {
+          "text": "xx - monoglide",
+          "weight": 1
+        },
+        {
+          "text": "22x - diglide",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "grid",
+      "label": "Grid",
+      "values": [
+        {
+          "text": "4x4",
+          "weight": 3
+        },
+        {
+          "text": "2x2",
+          "weight": 2
+        },
+        {
+          "text": "2x8",
+          "weight": 2
+        },
+        {
+          "text": "8x2",
+          "weight": 1
+        },
+        {
+          "text": "8x1",
+          "weight": 1
+        },
+        {
+          "text": "8x8",
+          "weight": 1
+        },
+        {
+          "text": "4x8",
+          "weight": 1
+        },
+        {
+          "text": "1x8",
+          "weight": 1
+        },
+        {
+          "text": "8x4",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "perspective",
+      "label": "Perspective",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "alternate_colors",
+      "label": "Alternate Colors",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "alternate_weights",
+      "label": "Alternate Weights",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 100,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:orbifold",
+  "artist": "Kjetil Golid",
+  "credit": {
+    "title": "Orbifold",
+    "artist": "Kjetil Golid",
+    "year": 2023,
+    "description": "One of the many intersections of art and mathematics is the field of patterns and symmetries. \n\nThis project explores the visual expression of various planar symmetries by using colourful, maze-like structures. The precision of these mathematical patterns are offset by a playful use of dimensionality and an imperfect grid as basis for the linework.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0x0a1bbd57033f57e7b6743621b79fcb9eb2ce3676/45",
+    "artistUrl": null,
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 100,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0x0a1bbd57033f57e7b6743621b79fcb9eb2ce3676",
+      "projectId": 45
+    },
+    "archiveId": "artblocks:orbifold",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Orbifold by Kjetil Golid, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 58652
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Aorbifold"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Aorbifold"
+  }
+}

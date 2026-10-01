@@ -1,0 +1,295 @@
+{
+  "name": "Geometry Runners",
+  "promptTemplate": "A {{arrangement}} pack of {{creature}} racers running in the {{palette}} palette with {{scale_type}} scaling and {{color_type}} coloring. The track features a {{bg_style}} layout on a {{bg_material}} surface; wireframe: {{wire}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "creature",
+      "label": "Creature",
+      "values": [
+        {
+          "text": "Varied",
+          "weight": 3
+        },
+        {
+          "text": "Angled Roller",
+          "weight": 2
+        },
+        {
+          "text": "Waddler Box",
+          "weight": 2
+        },
+        {
+          "text": "Impossible Board",
+          "weight": 1
+        },
+        {
+          "text": "Waddler Half Circle",
+          "weight": 1
+        },
+        {
+          "text": "Sliced Roller",
+          "weight": 1
+        },
+        {
+          "text": "Wobble Ball",
+          "weight": 1
+        },
+        {
+          "text": "Splits Half Circle",
+          "weight": 1
+        },
+        {
+          "text": "End Over End Impressive",
+          "weight": 1
+        },
+        {
+          "text": "Splits",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "arrangement",
+      "label": "Arrangement",
+      "values": [
+        {
+          "text": "Disorganized",
+          "weight": 3
+        },
+        {
+          "text": "Grid",
+          "weight": 2
+        },
+        {
+          "text": "Triangle",
+          "weight": 2
+        },
+        {
+          "text": "Line",
+          "weight": 1
+        },
+        {
+          "text": "Leader",
+          "weight": 1
+        },
+        {
+          "text": "Chaser",
+          "weight": 1
+        },
+        {
+          "text": "Single",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Original Flavor",
+          "weight": 3
+        },
+        {
+          "text": "Jr's Angels",
+          "weight": 2
+        },
+        {
+          "text": "Warriors from the Sun",
+          "weight": 2
+        },
+        {
+          "text": "Seaside Joggers",
+          "weight": 1
+        },
+        {
+          "text": "Pimp My Stride",
+          "weight": 1
+        },
+        {
+          "text": "Biology Department",
+          "weight": 1
+        },
+        {
+          "text": "Synchronized Swimming Club",
+          "weight": 1
+        },
+        {
+          "text": "The Library Cards",
+          "weight": 1
+        },
+        {
+          "text": "The Trotting Trotters Run Club",
+          "weight": 1
+        },
+        {
+          "text": "Midnight Streakers",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "wire",
+      "label": "Wire",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "scale_type",
+      "label": "Scale_Type",
+      "values": [
+        {
+          "text": "Disorganized",
+          "weight": 3
+        },
+        {
+          "text": "Distance Size",
+          "weight": 2
+        },
+        {
+          "text": "Bounding Box Type",
+          "weight": 2
+        },
+        {
+          "text": "Consistent Sync",
+          "weight": 1
+        },
+        {
+          "text": "Bounding Box Size",
+          "weight": 1
+        },
+        {
+          "text": "Distance Type",
+          "weight": 1
+        },
+        {
+          "text": "Consistent Wave",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "color_type",
+      "label": "Color_Type",
+      "values": [
+        {
+          "text": "Even",
+          "weight": 3
+        },
+        {
+          "text": "Pow",
+          "weight": 2
+        },
+        {
+          "text": "Single",
+          "weight": 2
+        },
+        {
+          "text": "Gradient",
+          "weight": 1
+        },
+        {
+          "text": "Bands",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "bg_material",
+      "label": "Bg_Material",
+      "values": [
+        {
+          "text": "Lino",
+          "weight": 3
+        },
+        {
+          "text": "Solid",
+          "weight": 2
+        },
+        {
+          "text": "Streaks",
+          "weight": 2
+        },
+        {
+          "text": "Checks/Stripes",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "bg_style",
+      "label": "Bg_Style",
+      "values": [
+        {
+          "text": "Square",
+          "weight": 3
+        },
+        {
+          "text": "Non-Square",
+          "weight": 2
+        },
+        {
+          "text": "Rows",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 1000,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:geometry-runners",
+  "artist": "Rich Lord",
+  "credit": {
+    "title": "Geometry Runners",
+    "artist": "Rich Lord",
+    "year": 2021,
+    "description": "The starting gun goes💥, and its happening. Packs of racers, proudly sporting their team colors, are competing in the race of their lives. Some are going for it. Others can't really be bothered. But you know this is where the action is at. Absolute drama around every corner. Who will be victorious, and who will stumble. Take a better look at the group by touch/click dragging the scene.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/138",
+    "artistUrl": "https://www.richlord.com/",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 1000,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 138
+    },
+    "archiveId": "artblocks:geometry-runners",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Geometry Runners by Rich Lord, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 27358900
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Ageometry-runners"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Ageometry-runners"
+  }
+}

@@ -1,0 +1,361 @@
+{
+  "name": "Flowers",
+  "promptTemplate": "A {{disposition}} arrangement of {{flowers}} flowers in {{colour_a}} and {{colour_b}} with {{gradient}} gradient set against a {{background}} background. Rendered with {{line_density}} line density, alternate lines {{alternate_lines}}, {{rings}} rings of {{rings_size}} size, {{rotation}} rotation, {{packing}} packing, and {{irregular_arrangement}} arrangement. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "disposition",
+      "label": "Disposition",
+      "values": [
+        {
+          "text": "Bunch",
+          "weight": 3
+        },
+        {
+          "text": "Single",
+          "weight": 2
+        },
+        {
+          "text": "Grid",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "flowers",
+      "label": "Flowers",
+      "values": [
+        {
+          "text": "1",
+          "weight": 3
+        },
+        {
+          "text": "6",
+          "weight": 2
+        },
+        {
+          "text": "4",
+          "weight": 2
+        },
+        {
+          "text": "7",
+          "weight": 1
+        },
+        {
+          "text": "8",
+          "weight": 1
+        },
+        {
+          "text": "16",
+          "weight": 1
+        },
+        {
+          "text": "9",
+          "weight": 1
+        },
+        {
+          "text": "22",
+          "weight": 1
+        },
+        {
+          "text": "19",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "colour_a",
+      "label": "Colour A",
+      "values": [
+        {
+          "text": "Coral Red",
+          "weight": 3
+        },
+        {
+          "text": "Dark Orange",
+          "weight": 2
+        },
+        {
+          "text": "Orange",
+          "weight": 2
+        },
+        {
+          "text": "Red",
+          "weight": 1
+        },
+        {
+          "text": "Coral",
+          "weight": 1
+        },
+        {
+          "text": "Pink",
+          "weight": 1
+        },
+        {
+          "text": "Hot Pink",
+          "weight": 1
+        },
+        {
+          "text": "Viking",
+          "weight": 1
+        },
+        {
+          "text": "Turquoise",
+          "weight": 1
+        },
+        {
+          "text": "Malachite",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "colour_b",
+      "label": "Colour B",
+      "values": [
+        {
+          "text": "Red",
+          "weight": 3
+        },
+        {
+          "text": "Orange",
+          "weight": 2
+        },
+        {
+          "text": "Coral Red",
+          "weight": 2
+        },
+        {
+          "text": "Dark Orange",
+          "weight": 1
+        },
+        {
+          "text": "Coral",
+          "weight": 1
+        },
+        {
+          "text": "Viking",
+          "weight": 1
+        },
+        {
+          "text": "Hot Pink",
+          "weight": 1
+        },
+        {
+          "text": "Turquoise",
+          "weight": 1
+        },
+        {
+          "text": "Pistachio",
+          "weight": 1
+        },
+        {
+          "text": "Malachite",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "gradient",
+      "label": "Gradient",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "background",
+      "label": "Background",
+      "values": [
+        {
+          "text": "Dark gradient",
+          "weight": 3
+        },
+        {
+          "text": "Black",
+          "weight": 2
+        },
+        {
+          "text": "Light gradient",
+          "weight": 2
+        },
+        {
+          "text": "Dark colour",
+          "weight": 1
+        },
+        {
+          "text": "White",
+          "weight": 1
+        },
+        {
+          "text": "Light colour",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "line_density",
+      "label": "Line density",
+      "values": [
+        {
+          "text": "High",
+          "weight": 3
+        },
+        {
+          "text": "Low",
+          "weight": 2
+        },
+        {
+          "text": "Medium",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "rings",
+      "label": "Rings",
+      "values": [
+        {
+          "text": "2",
+          "weight": 3
+        },
+        {
+          "text": "1",
+          "weight": 2
+        },
+        {
+          "text": "3",
+          "weight": 2
+        },
+        {
+          "text": "0",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "rings_size",
+      "label": "Rings size",
+      "values": [
+        {
+          "text": "Small",
+          "weight": 3
+        },
+        {
+          "text": "Medium",
+          "weight": 2
+        },
+        {
+          "text": "Large",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "rotation",
+      "label": "Rotation",
+      "values": [
+        {
+          "text": "High",
+          "weight": 3
+        },
+        {
+          "text": "Low",
+          "weight": 2
+        },
+        {
+          "text": "Medium",
+          "weight": 2
+        },
+        {
+          "text": "None",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "packing",
+      "label": "Packing",
+      "values": [
+        {
+          "text": "Standard",
+          "weight": 3
+        },
+        {
+          "text": "Loose",
+          "weight": 2
+        },
+        {
+          "text": "Tight",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "alternate_lines",
+      "label": "Alternate lines",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "irregular_arrangement",
+      "label": "Arrangement",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 6158,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:flowers",
+  "artist": "RVig",
+  "credit": {
+    "title": "Flowers",
+    "artist": "RVig",
+    "year": 2021,
+    "description": "Beautiful bouquets of generative flowers, with fascinating diversity in numbers, shapes and colour combinations. Each one has its own personality, its own character, and is always stunning and surprising, as you can expect with flowers in their natural form.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/116",
+    "artistUrl": "https://rvig.art/Flowers.html",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 6158,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 116
+    },
+    "archiveId": "artblocks:flowers",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Flowers by RVig, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 5868294
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Aflowers"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Aflowers"
+  }
+}

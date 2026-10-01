@@ -1,0 +1,267 @@
+{
+  "name": "Tentura",
+  "promptTemplate": "A {{distribution}} field of {{shape}} beams in a {{mode}} {{layout}} layout, drawn in {{palette}} palette with {{background}} background, {{fog}} fog, and {{grayscale}} grayscale; double layer: {{double_layer}}, round caps: {{round_caps}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "layout",
+      "label": "Layout",
+      "values": [
+        {
+          "text": "Radial",
+          "weight": 3
+        },
+        {
+          "text": "Centered",
+          "weight": 2
+        },
+        {
+          "text": "Bent",
+          "weight": 2
+        },
+        {
+          "text": "Straight",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "shape",
+      "label": "Shape",
+      "values": [
+        {
+          "text": "Triangle",
+          "weight": 3
+        },
+        {
+          "text": "Line",
+          "weight": 2
+        },
+        {
+          "text": "Square",
+          "weight": 2
+        },
+        {
+          "text": "Pentagon",
+          "weight": 1
+        },
+        {
+          "text": "Hexagon",
+          "weight": 1
+        },
+        {
+          "text": "Ring",
+          "weight": 1
+        },
+        {
+          "text": "Two lines",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "mode",
+      "label": "Mode",
+      "values": [
+        {
+          "text": "Standard",
+          "weight": 3
+        },
+        {
+          "text": "Spiral",
+          "weight": 2
+        },
+        {
+          "text": "Partial",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "distribution",
+      "label": "Distribution",
+      "values": [
+        {
+          "text": "Filled",
+          "weight": 3
+        },
+        {
+          "text": "Triangle",
+          "weight": 2
+        },
+        {
+          "text": "Square",
+          "weight": 2
+        },
+        {
+          "text": "Line",
+          "weight": 1
+        },
+        {
+          "text": "Pentagon",
+          "weight": 1
+        },
+        {
+          "text": "Circle",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Pastel",
+          "weight": 3
+        },
+        {
+          "text": "Curiosity",
+          "weight": 2
+        },
+        {
+          "text": "Sepia",
+          "weight": 2
+        },
+        {
+          "text": "Sky",
+          "weight": 1
+        },
+        {
+          "text": "Fig",
+          "weight": 1
+        },
+        {
+          "text": "Tulip",
+          "weight": 1
+        },
+        {
+          "text": "Pitahaya",
+          "weight": 1
+        },
+        {
+          "text": "Fire",
+          "weight": 1
+        },
+        {
+          "text": "Mangosteen",
+          "weight": 1
+        },
+        {
+          "text": "Dawn",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "background",
+      "label": "Background",
+      "values": [
+        {
+          "text": "Lighten",
+          "weight": 3
+        },
+        {
+          "text": "Darken",
+          "weight": 2
+        },
+        {
+          "text": "Black",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "fog",
+      "label": "Fog",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "grayscale",
+      "label": "Grayscale",
+      "values": [
+        {
+          "text": "None",
+          "weight": 3
+        },
+        {
+          "text": "Frame",
+          "weight": 2
+        },
+        {
+          "text": "Full",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "double_layer",
+      "label": "Double Layer",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "round_caps",
+      "label": "Round Caps",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 777,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:tentura",
+  "artist": "Stranger in the Q",
+  "credit": {
+    "title": "Tentura",
+    "artist": "Stranger in the Q",
+    "year": 2022,
+    "description": "Tentura - fundamental device of time and being.\n\nThe essence of the Tentura's work is that it breaks the connection between the body and soul of every living being under its influence.\nThe subject becomes bound to a global variable, which is calculated and controlled by the Tentura itself.\nThis is the work of Tentura, with the amendment that the object of its control is reality.\n\nClick/tap to play/pause animation",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/265",
+    "artistUrl": "https://strangerintheq.github.io/tentura",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 777,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 265
+    },
+    "archiveId": "artblocks:tentura",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Tentura by Stranger in the Q, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 191537
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Atentura"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Atentura"
+  }
+}

@@ -1,0 +1,171 @@
+{
+  "name": "phase",
+  "promptTemplate": "A {{resolution}} phased interference field with {{scanlines}} scanlines and {{radiation}} radiation; angular division: {{angular_division}}, palette stability: {{palette_stability}}, warp movement: {{warp_movement}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "resolution",
+      "label": "Resolution",
+      "values": [
+        {
+          "text": "1024 x 1024",
+          "weight": 3
+        },
+        {
+          "text": "128 x 128",
+          "weight": 2
+        },
+        {
+          "text": "16 x 16",
+          "weight": 2
+        },
+        {
+          "text": "32 x 32",
+          "weight": 1
+        },
+        {
+          "text": "64 x 64",
+          "weight": 1
+        },
+        {
+          "text": "512 x 512",
+          "weight": 1
+        },
+        {
+          "text": "256 x 256",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "radiation",
+      "label": "Radiation",
+      "values": [
+        {
+          "text": "Plus",
+          "weight": 3
+        },
+        {
+          "text": "Horizontal",
+          "weight": 2
+        },
+        {
+          "text": "Vertical",
+          "weight": 2
+        },
+        {
+          "text": "Diagonals",
+          "weight": 1
+        },
+        {
+          "text": "None",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "scanlines",
+      "label": "Scanlines",
+      "values": [
+        {
+          "text": "Checkered",
+          "weight": 3
+        },
+        {
+          "text": "Horizontal",
+          "weight": 2
+        },
+        {
+          "text": "Vertical",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "palette_stability",
+      "label": "Palette Stability",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "angular_division",
+      "label": "Angular Division",
+      "values": [
+        {
+          "text": "Single",
+          "weight": 3
+        },
+        {
+          "text": "Double",
+          "weight": 2
+        },
+        {
+          "text": "None",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "warp_movement",
+      "label": "Warp Movement",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 1024,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:phase",
+  "artist": "Loren Bednar",
+  "credit": {
+    "title": "phase",
+    "artist": "Loren Bednar",
+    "year": 2021,
+    "description": "This project is a visual representation of realities that are out of phase. Interference patterns, colorful echoes, and emerging secrets are explored. Mathematical functions produce constant motion, but rarely, a peaceful scene resolves within the chaos. Click or press any key to pause. *Photosensitive seizure warning: These artworks contain flashing colors and moving patterns.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/143",
+    "artistUrl": "https://twitter.com/LorenBednar",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 1024,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 143
+    },
+    "archiveId": "artblocks:phase",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of phase by Loren Bednar, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 24430106
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Aphase"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Aphase"
+  }
+}

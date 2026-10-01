@@ -1,0 +1,237 @@
+{
+  "name": "Ieva",
+  "promptTemplate": "A {{palette}} composition on a {{grid}}x{{grid}} grid with {{shapes}} shape density and {{fixed_shapes}} fixed shapes (every point: {{every_point}}, miniature: {{miniature}}, simple: {{simple}}, zoomed: {{zoomed}}). The shapes feature double strokes: {{double_strokes}}, triple strokes: {{triple_strokes}}, metro stations: {{metro}}, spirals: {{spirals}}, and bundle styling: {{bundle}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "palette",
+      "values": [
+        {
+          "text": "fortune",
+          "weight": 3
+        },
+        {
+          "text": "solitude",
+          "weight": 2
+        },
+        {
+          "text": "yang-yin",
+          "weight": 2
+        },
+        {
+          "text": "youth",
+          "weight": 1
+        },
+        {
+          "text": "solid",
+          "weight": 1
+        },
+        {
+          "text": "obviousness",
+          "weight": 1
+        },
+        {
+          "text": "pressure",
+          "weight": 1
+        },
+        {
+          "text": "bias",
+          "weight": 1
+        },
+        {
+          "text": "absolute",
+          "weight": 1
+        },
+        {
+          "text": "lightness",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "grid",
+      "label": "grid",
+      "values": [
+        {
+          "text": "4",
+          "weight": 3
+        },
+        {
+          "text": "5",
+          "weight": 2
+        },
+        {
+          "text": "3",
+          "weight": 2
+        },
+        {
+          "text": "6",
+          "weight": 1
+        },
+        {
+          "text": "2",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "shapes",
+      "label": "shapes",
+      "values": [
+        {
+          "text": "min",
+          "weight": 3
+        },
+        {
+          "text": "mid",
+          "weight": 2
+        },
+        {
+          "text": "max",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "fixed_shapes",
+      "label": "fixed shapes",
+      "values": [
+        {
+          "text": "false",
+          "weight": 3
+        },
+        {
+          "text": "2",
+          "weight": 2
+        },
+        {
+          "text": "3",
+          "weight": 2
+        },
+        {
+          "text": "4",
+          "weight": 1
+        },
+        {
+          "text": "5",
+          "weight": 1
+        },
+        {
+          "text": "6",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "every_point",
+      "label": "every point",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "miniature",
+      "label": "miniature",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "simple",
+      "label": "simple",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "zoomed",
+      "label": "zoomed",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "spirals",
+      "label": "spirals",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "metro",
+      "label": "metro",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "double_strokes",
+      "label": "double strokes",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "triple_strokes",
+      "label": "triple strokes",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "bundle",
+      "label": "bundle",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 500,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:ieva",
+  "artist": "Shvembldr",
+  "credit": {
+    "title": "Ieva",
+    "artist": "Shvembldr",
+    "year": 2022,
+    "description": "Ieva [iɛvʌ] is an algorithm that creates a shape in a specific sequence from a random point on the grid and smooths out its corners. Overlapping such shapes creates endless possibilities of combinations that will always remain balanced and aesthetically pleasing.\n\nThe title of this project is the name of the investigator who made a criminal case against me for making art. This name occupied a big part of my mind while working on this project. And I decided that it should be perpetuated in art.\n\nYou can do the \"investigation\" for Ieva (because she doesn't want to do it). To do so, you have to click on the art.\n\n**Controls:**\n\n- \"click\" = investigate\n- \"space\" = automatic investigation",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/339",
+    "artistUrl": "https://www.art-is-crime.com/articles/ieva",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 500,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 339
+    },
+    "archiveId": "artblocks:ieva",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Ieva by Shvembldr, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 2543742
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Aieva"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Aieva"
+  }
+}

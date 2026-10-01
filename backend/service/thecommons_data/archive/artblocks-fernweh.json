@@ -1,0 +1,304 @@
+{
+  "name": "Fernweh",
+  "promptTemplate": "A {{views}} landscape in {{seasons}} with a {{canopy}} canopy of trees showing {{periderm_colours}} periderm, {{bark_patterns}} bark in {{bark_pattern_shade}}, and {{leaf_size}} {{leaf_shape}} leaves. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "seasons",
+      "label": "Seasons",
+      "values": [
+        {
+          "text": "Spring",
+          "weight": 3
+        },
+        {
+          "text": "Autumn",
+          "weight": 2
+        },
+        {
+          "text": "Summer",
+          "weight": 2
+        },
+        {
+          "text": "Winter",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "canopy",
+      "label": "Canopy",
+      "values": [
+        {
+          "text": "Woodlands",
+          "weight": 3
+        },
+        {
+          "text": "Savanna",
+          "weight": 2
+        },
+        {
+          "text": "Jungle",
+          "weight": 2
+        },
+        {
+          "text": "Sparse",
+          "weight": 1
+        },
+        {
+          "text": "Bare",
+          "weight": 1
+        },
+        {
+          "text": "Barren",
+          "weight": 1
+        },
+        {
+          "text": "Desolate",
+          "weight": 1
+        },
+        {
+          "text": "Tropical",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "views",
+      "label": "Views",
+      "values": [
+        {
+          "text": "Deep",
+          "weight": 3
+        },
+        {
+          "text": "Meadow",
+          "weight": 2
+        },
+        {
+          "text": "Horizon",
+          "weight": 2
+        },
+        {
+          "text": "Up-close",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "periderm_colours",
+      "label": "Periderm Colours",
+      "values": [
+        {
+          "text": "Crema",
+          "weight": 3
+        },
+        {
+          "text": "Birch",
+          "weight": 2
+        },
+        {
+          "text": "Tinge",
+          "weight": 2
+        },
+        {
+          "text": "Smoky",
+          "weight": 1
+        },
+        {
+          "text": "Pastel",
+          "weight": 1
+        },
+        {
+          "text": "Murky",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "bark_patterns",
+      "label": "Barkpatterns",
+      "values": [
+        {
+          "text": "Lenticles",
+          "weight": 3
+        },
+        {
+          "text": "Furrows",
+          "weight": 2
+        },
+        {
+          "text": "Spots",
+          "weight": 2
+        },
+        {
+          "text": "Wild",
+          "weight": 1
+        },
+        {
+          "text": "Rings",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "bark_pattern_shade",
+      "label": "Barkpattern Shade",
+      "values": [
+        {
+          "text": "Ivory",
+          "weight": 3
+        },
+        {
+          "text": "Ecru",
+          "weight": 2
+        },
+        {
+          "text": "Sterling",
+          "weight": 2
+        },
+        {
+          "text": "Olive",
+          "weight": 1
+        },
+        {
+          "text": "Rust",
+          "weight": 1
+        },
+        {
+          "text": "Plume",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "leaf_shape",
+      "label": "Leafshape",
+      "values": [
+        {
+          "text": "Deltoid",
+          "weight": 3
+        },
+        {
+          "text": "Elliptic",
+          "weight": 2
+        },
+        {
+          "text": "Rhomboid",
+          "weight": 2
+        },
+        {
+          "text": "Linear",
+          "weight": 1
+        },
+        {
+          "text": "Truncate",
+          "weight": 1
+        },
+        {
+          "text": "Connate (Elliptic)",
+          "weight": 1
+        },
+        {
+          "text": "Orbicular (Elliptic)",
+          "weight": 1
+        },
+        {
+          "text": "None",
+          "weight": 1
+        },
+        {
+          "text": "Reniform",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "leaf_size",
+      "label": "Leafsize",
+      "values": [
+        {
+          "text": "Medium",
+          "weight": 3
+        },
+        {
+          "text": "Small",
+          "weight": 2
+        },
+        {
+          "text": "Large",
+          "weight": 2
+        },
+        {
+          "text": "xs",
+          "weight": 1
+        },
+        {
+          "text": "None",
+          "weight": 1
+        },
+        {
+          "text": "XL",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 121,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:fernweh",
+  "artist": "oliveskin",
+  "credit": {
+    "title": "Fernweh",
+    "artist": "oliveskin",
+    "year": 2022,
+    "description": "A yearning. For places we haven't been or seen.\nSeasons come, seasons go, and at times how the sun slants through those leaves on an autumn afternoon stays with us - we try to recollect that fleeting memory or imagination - an escape from the mundane. To places far away. \n\nFernweh is a window to that space , spaces we yearn to see. And as in nature, lines are never too straight, colours are as bright as they come.  \nGenerative art that anyone can relate to - there's something for everyone in Fernweh.\n-----------------------------------------------------------------------------------\nWhy Fernweh?\n\nFernweh is an attempt to strike a balance between the Figurative Art genre, the Generative Art medium and NFTs. Generative Art usually has very measured lines, intricate designs and a very well executed, \"clean\" and “sterile” feel to it. Figurative Art on the other hand is oft full of “Happy Little Accidents” as the legendary Bob Ross would have said - a smudge here, a blob there - relatable and human.\n\nTalking of humans, the most sold and easily relatable works of art, be it paintings or photographs, are figurative in nature and are of landscapes. With generative art, this is usually not common - there’s a tendency to lean towards the abstract - and yes, abstractness is beautiful, personally as an artist, I love it. That said, a lot many of us relate easily to figurative art than to the abstract. My personal theory is that humans are always looking for quick answers and the comfort of recognizable surroundings and figurative art gives it to us on a platter. \n\nFernweh tries to create that perfectly imperfect mix. Figurative art through procedural generation. Palettes with enough contrast and colour to be the living room’s focal point, art that anyone can relate to - an NFT that, hopefully, will not need a lot of explanations but complex and beautiful enough to attribute value to. Oh, and with one additional render each to satiate that abstract lover in us.\n\n-----------------------------------------------------------------------------------\nFeatures & Generation\n\nEach season's palette is drawn from random combinations of nearly 100K handpicked outcomes for Petal, Leaf, Veins, Connectors,  Leaf boundaries, Bark perforations and the background.\n\nThe rendered output transitions through 3 phases - Abstract, Original and Etched images. This means that each mint has three different renders that change based on the Transition attribute. Some will change everyday, some in a couple, some in a week's time and so on!  \n\nSee below how to Interact with Fernweh in Live View mode (full-screen): \n- In full-screen mode, watch your trees render and grow into a grove.\n- Click the mouse in live-view to toggle through the three renders (Abstract, Original and Etched). It may take a few seconds to toggle through the three rendered views.\n- Undisturbed, the transition of the renders reverts to Phase Attribute values.\n- Press the key - \"S\" - to download the render you want to save. \n\nPlease note that the render is a bit resource intensive and may take from 1 min to 2.5 mins to render and load.\n\nDigital Art Display Giveaway: 10 minting addresses will be randomly chosen to receive a Smart Digital Art Display and frame! Winners will be picked once the minting is complete (shipping costs will be borne by the artist).\n\nEnjoy your three renders!",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/254",
+    "artistUrl": null,
+    "license": {
+      "text": "CC BY-NC SA 4.0",
+      "name": "CC BY-NC-SA 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only.",
+        "Share the adaptation under the same licence."
+      ]
+    },
+    "editions": 121,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 254
+    },
+    "archiveId": "artblocks:fernweh",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Fernweh by oliveskin, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 14910
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Afernweh"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Afernweh"
+  }
+}

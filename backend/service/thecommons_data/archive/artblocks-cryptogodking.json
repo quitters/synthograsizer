@@ -1,0 +1,181 @@
+{
+  "name": "CryptoGodKing",
+  "promptTemplate": "A {{color_spectrum}} deity with {{eye}}, {{pupil}} pupil, and {{body}} body, set against a background of {{background}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "color_spectrum",
+      "label": "Color Spectrum",
+      "values": [
+        {
+          "text": "Matte",
+          "weight": 3
+        },
+        {
+          "text": "Shadow",
+          "weight": 2
+        },
+        {
+          "text": "Luminous",
+          "weight": 2
+        },
+        {
+          "text": "Neon",
+          "weight": 1
+        },
+        {
+          "text": "Yin/Yang",
+          "weight": 1
+        },
+        {
+          "text": "Yang/Yin",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "background",
+      "label": "Background",
+      "values": [
+        {
+          "text": "Archs",
+          "weight": 3
+        },
+        {
+          "text": "Sacred Geometry",
+          "weight": 2
+        },
+        {
+          "text": "Divinity",
+          "weight": 2
+        },
+        {
+          "text": "Purity",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "eye",
+      "label": "Eye",
+      "values": [
+        {
+          "text": "Eye of Providence",
+          "weight": 3
+        },
+        {
+          "text": "Downward Gaze",
+          "weight": 2
+        },
+        {
+          "text": "Upward Gaze",
+          "weight": 2
+        },
+        {
+          "text": "Infinite Gaze",
+          "weight": 1
+        },
+        {
+          "text": "Golden Gaze",
+          "weight": 1
+        },
+        {
+          "text": "None",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "body",
+      "label": "Body",
+      "values": [
+        {
+          "text": "Present",
+          "weight": 3
+        },
+        {
+          "text": "False Profit",
+          "weight": 2
+        },
+        {
+          "text": "Invisible Hand",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "pupil",
+      "label": "Pupil",
+      "values": [
+        {
+          "text": "Present",
+          "weight": 3
+        },
+        {
+          "text": "Blinded",
+          "weight": 2
+        },
+        {
+          "text": "Charon's Obol",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 180,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:cryptogodking",
+  "artist": "Steve Pikelny",
+  "credit": {
+    "title": "CryptoGodKing",
+    "artist": "Steve Pikelny",
+    "year": 2021,
+    "description": "All Hail CryptoGodKing, whose Holy Spirit is opaque to the human eye. While CryptoGodKing itself cannot be owned, each unique incarnation may belong to a cryptographic soul of the Ethereal realm. When viewed through the material lens of a web browser, worshipers may glimpse its essence. Those who retain faith shall be led by an invisible hand towards a higher plane of wealth whereupon their karmic assets shall yield tremendous spiritual interest. Press space to hear the voice of CryptoGodKing.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/44",
+    "artistUrl": "https://steviep.xyz/cryptogodking",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 180,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 44
+    },
+    "archiveId": "artblocks:cryptogodking",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of CryptoGodKing by Steve Pikelny, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 643017
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Acryptogodking"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Acryptogodking"
+  }
+}
