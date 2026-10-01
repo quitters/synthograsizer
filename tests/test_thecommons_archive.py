@@ -190,3 +190,78 @@ def test_a_thumbnail_anywhere_else_is_dropped(archive_dir):
     _write(archive_dir, "screens", piece)
     [loaded] = archive.load_archive()
     assert loaded["thumb"] is None
+
+
+# ── non-commercial: never part of anything paid ─────────────────────────────
+
+def test_every_archive_sketch_is_marked_non_commercial(archive_dir):
+    _write(archive_dir, "screens", _piece())
+    [piece] = archive.load_archive()
+    assert piece["sketch"]["nonCommercial"] is True
+    assert archive.is_non_commercial(piece["sketch"])
+    # A saved copy that lost the flag is still known by its page.
+    assert archive.is_non_commercial({"page": {"url": "http://x"}})
+    assert not archive.is_non_commercial({"code": "ctx.fillRect(0,0,1,1)"})
+    assert not archive.is_non_commercial(None)
+
+
+def test_showing_one_is_free_and_a_paid_remix_of_it_is_refused(archive_dir, monkeypatch):
+    import uuid
+
+    from fastapi.testclient import TestClient
+
+    import backend.server as server
+    from backend.routers import thecommons as router
+    from backend.service import db as service_db
+    from backend.service import thecommons_jobs, thecommons_relay
+    from backend.service.thecommons_gallery import gallery_preset_id
+    from tests.test_service_auth import CLIENT_ID, _fake_user
+    from tests.test_service_credits import _sign_in
+    from tests.test_thecommons_rooms import FakeCommonsPool
+
+    monkeypatch.setenv("SYNTH_AUTH", "1")
+    monkeypatch.setenv("GOOGLE_OAUTH_CLIENT_ID", CLIENT_ID)
+    monkeypatch.setenv("SYNTH_TERMS_VERSION", "v0.2")
+    monkeypatch.delenv("ADMIN_EMAILS", raising=False)   # otherwise the owner is never debited
+    pool = FakeCommonsPool()
+    monkeypatch.setattr(service_db, "_pool", pool)
+    for registry in (thecommons_relay._relays, thecommons_relay._creation_locks, thecommons_jobs._start_locks):
+        registry.clear()
+    router._gallery_payload.cache_clear()
+    router._gallery_section_payload.cache_clear()
+    _write(archive_dir, "screens", _piece())
+    client = TestClient(server.app, raise_server_exceptions=False)
+    try:
+        room_id = pool.seed_room(owner_user_id=1)
+        cookies = _sign_in(monkeypatch, _fake_user(id=1))
+        before = pool.balance_of(1)
+
+        loaded = client.post(f"/api/thecommons/rooms/{room_id}/presets/load", cookies=cookies,
+                             json={"presetId": gallery_preset_id("archive-screens")},
+                             headers={"Origin": "http://testserver"})
+        assert loaded.status_code == 200
+        live = thecommons_relay._relays[room_id].current_sketch
+        assert live["nonCommercial"] is True and live["credit"]["artist"] == "Thomas Lin Pedersen"
+        assert pool.balance_of(1) == before and pool.ledger == []
+
+        remix = client.post("/api/thecommons/generate", cookies=cookies, json={
+            "roomId": room_id, "prompt": "make it blue", "requestId": str(uuid.uuid4()),
+            "mode": "remix", "baseSketchId": live["id"]})
+        assert remix.status_code == 400
+        assert "non-commercial" in remix.json()["detail"]
+        assert pool.balance_of(1) == before and pool.ledger == []   # refused before any charge
+
+        # The library does not ship these with the page: a count, then on request.
+        gallery = client.get("/api/thecommons/gallery").json()
+        section = next(s for s in gallery["sections"] if s["id"] == "archive")
+        assert section["lazy"] is True and section["count"] == 1
+        assert not [p for p in gallery["pieces"] if p["section"] == "archive"]
+        pieces = client.get("/api/thecommons/gallery/archive").json()["pieces"]
+        assert [p["slug"] for p in pieces] == ["archive-screens"]
+        assert pieces[0]["presetId"] == gallery_preset_id("archive-screens")
+        assert client.get("/api/thecommons/gallery/demo").status_code == 404
+    finally:
+        router._gallery_payload.cache_clear()
+        router._gallery_section_payload.cache_clear()
+        for registry in (thecommons_relay._relays, thecommons_relay._creation_locks, thecommons_jobs._start_locks):
+            registry.clear()

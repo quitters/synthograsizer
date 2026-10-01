@@ -280,6 +280,9 @@ function sectionBlock(id, title, intro, cards) {
 // cards and a button for the next. `state` is kept by the caller so the order
 // and how far someone has read survive a re-render.
 const RESULTS_PAGE = 24;
+// Every section opens on one row or two, whatever its length: a room's page
+// should not lay out (or animate) a hundred cards nobody asked to see.
+const SECTION_PAGE = 6;
 const ORDERS = {
   collected: (a, b) => b.collected - a.collected,
   newest: (a, b) => b.newest - a.newest,
@@ -339,6 +342,43 @@ export async function mountLibrary({ root, search, tagBar, count, onPick }) {
   let enabled = true;
   const chosen = new Map();          // group id -> Set of tag ids
   let terms = [];
+  // Lazy sections (the server's word): their pieces are fetched when someone
+  // opens the section, or searches or filters, never with the page.
+  const lazy = new Map(sections.filter((s) => s.lazy).map((s) => [s.id, { state: 'idle' }]));
+  async function loadLazy(id) {
+    const entry = lazy.get(id);
+    if (!entry || entry.state !== 'idle') return;
+    entry.state = 'loading';
+    render();
+    try {
+      const res = await fetch(`/api/thecommons/gallery/${encodeURIComponent(id)}`);
+      if (!res.ok) throw new Error(String(res.status));
+      const more = (await res.json()).pieces.map((piece) => buildCard(fromPiece(piece), labels, onPick));
+      more.forEach(watch);
+      cards = [...cards, ...more];
+      entry.state = 'loaded';
+    } catch {
+      entry.state = 'idle';
+      entry.failed = true;
+    }
+    render();
+  }
+  const loadAllLazy = () => { for (const id of lazy.keys()) loadLazy(id); };
+
+  function lazyBlock(s) {
+    const entry = lazy.get(s.id);
+    const block = sectionBlock(s.id, s.title, s.intro, []);
+    block.querySelector('.gallery-grid').remove();
+    const open = el('button', 'quiet-button gallery-more',
+      entry.state === 'loading' ? 'Loading…' : `Browse ${s.count} works`);
+    open.type = 'button';
+    open.disabled = entry.state === 'loading';
+    open.addEventListener('click', () => loadLazy(s.id));
+    block.append(open);
+    if (entry.failed && entry.state === 'idle') block.append(el('p', 'gallery-section-intro', 'Couldn’t load these. Try again.'));
+    return block;
+  }
+
   const paging = new Map();          // section id -> { sort, shown }
   const pagingFor = (id, sorts = [], page) => {
     if (!paging.has(id)) paging.set(id, { sort: sorts.length ? sorts[0].id : null, shown: page });
@@ -421,27 +461,35 @@ export async function mountLibrary({ root, search, tagBar, count, onPick }) {
     } else {
       paging.delete('results');   // the next search starts from its first page
       const blocks = [];
+      const section = (id, title, intro, mine, page, sorts) => (mine.length > page
+        ? pagedBlock({ id, title, intro, cards: mine, page, sorts, state: pagingFor(id, sorts, page), onChange: render })
+        : sectionBlock(id, title, intro, mine));
       for (const s of sections) {
+        if (lazy.has(s.id) && lazy.get(s.id).state !== 'loaded') {
+          if (s.count) blocks.push(lazyBlock(s));
+          continue;
+        }
         const mine = cards.filter((c) => c.entry.section === s.id);
-        if (!mine.length) continue;
-        blocks.push(s.paged && mine.length > s.paged
-          ? pagedBlock({ id: s.id, title: s.title, intro: s.intro, cards: mine, page: s.paged, sorts: s.sorts,
-                         state: pagingFor(s.id, s.sorts, s.paged), onChange: render })
-          : sectionBlock(s.id, s.title, s.intro, mine));
+        if (mine.length) blocks.push(section(s.id, s.title, s.intro, mine, s.paged || SECTION_PAGE, s.sorts));
       }
       for (const [kindName, kind] of Object.entries(PRESET_KINDS)) {
         const mine = cards.filter((c) => c.entry.section === kind.tag);
-        if (mine.length) blocks.push(sectionBlock(kind.tag, kindName, '', mine));
+        if (mine.length) blocks.push(section(kind.tag, kindName, '', mine, SECTION_PAGE));
       }
-      const placed = new Set(blocks.flatMap((b) => [...b.querySelectorAll('.gallery-card')]));
-      const strays = cards.filter((c) => !placed.has(c.card));
+      // Only what belongs to no section at all -- not the cards a section is
+      // holding back for its next page, which is most of the library.
+      const known = new Set([...sections.map((s) => s.id), ...Object.values(PRESET_KINDS).map((k) => k.tag)]);
+      const strays = cards.filter((c) => !known.has(c.entry.section));
       if (strays.length) blocks.push(sectionBlock('more', 'More pieces', '', strays));
       root.replaceChildren(...blocks);
     }
 
+    const unloaded = sections.filter((s) => lazy.has(s.id) && lazy.get(s.id).state !== 'loaded')
+      .reduce((n, s) => n + (s.count || 0), 0);
+    const total = cards.length + unloaded;
     count.replaceChildren(filtering()
-      ? `${shown.length} of ${cards.length} pieces match.`
-      : `${cards.length} pieces. Search, or pick a tag to narrow it down.`);
+      ? `${shown.length} of ${total} pieces match${unloaded ? ' so far' : ''}.`
+      : `${total} pieces. Search, or pick a tag to narrow it down.`);
     if (filtering()) count.append(clearAll);
     markLive(liveSlug);
     setEnabled(enabled);
@@ -477,6 +525,7 @@ export async function mountLibrary({ root, search, tagBar, count, onPick }) {
           chosen.set(group.id, wanted);
           chip.setAttribute('aria-pressed', String(wanted.has(tag.id)));
           chip.classList.toggle('is-on', wanted.has(tag.id));
+          loadAllLazy();   // a filter reaches the whole library
           render();
         });
         list.append(chip);
@@ -490,6 +539,7 @@ export async function mountLibrary({ root, search, tagBar, count, onPick }) {
   search.addEventListener('input', () => {
     terms = search.value.trim().toLowerCase().split(/\s+/).filter(Boolean)
       .map((term) => new RegExp(`(^|[^a-z0-9])${escaped(term)}`));
+    if (terms.length) loadAllLazy();   // a search reaches the whole library
     render();
   });
 

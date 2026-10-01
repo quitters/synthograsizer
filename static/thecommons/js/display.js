@@ -171,7 +171,7 @@ function setCredit(credit) {
   line('credit-title', credit.title);
   line('credit-artist', [credit.artist, credit.year].filter(Boolean).join(', '));
   line('credit-terms', [credit.platform, credit.license && credit.license.text ? credit.license.name : null,
-                        'adapted: controls added'].filter(Boolean).join(' · '));
+                        'adapted: controls added', 'shown non-commercially'].filter(Boolean).join(' · '));
 }
 
 function setStatus() {

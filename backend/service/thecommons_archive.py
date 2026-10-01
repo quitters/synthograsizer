@@ -21,7 +21,14 @@ Three rules, enforced below rather than left to whoever adds a file:
      adaptations (Creative Commons without NoDerivatives, or CC0) are listed.
      A NoDerivatives work, an NFT licence, a bare copyright line or no recorded
      licence at all is skipped and logged: those need the artist's own yes.
-  3. Off unless a venue turns it on. The pieces exist only when
+  3. Non-commercial, always. Most of these licences are NonCommercial, and the
+     rule here is stricter and simpler than reading each one: no archive piece
+     is ever part of anything paid. Showing one costs nothing (gallery pieces
+     never do), and a sketch marked `nonCommercial` is refused by everything
+     that charges: it cannot be the source of a paid remix (thecommons_jobs
+     .start), and any paid feature added later must call is_non_commercial()
+     and leave these out. tests/test_thecommons_archive.py holds that line.
+  4. Off unless a venue turns it on. The pieces exist only when
      SYNTH_COMMONS_ARCHIVE_ORIGIN names the archive that serves the pages
      (http://localhost:8130 for the explorer on the same machine). Without it
      there is no section, no piece, and nothing in production changes.
@@ -50,7 +57,13 @@ ORIGIN_ENV = "SYNTH_COMMONS_ARCHIVE_ORIGIN"
 SECTION = {"id": "archive", "title": "Creative Commons Generative Art",
            "intro": "Works by other artists, released under Creative Commons licences that allow "
                     "adaptation. Each runs from its artist's own code with controls added, and "
-                    "carries its credit and its licence.",
+                    "carries its credit and its licence. Free to show, non-commercial only: "
+                    "never part of anything paid.",
+           # Not sent with the rest of the library: the desk asks for these
+           # pieces (/api/thecommons/gallery/archive) when someone opens the
+           # section or searches, so a room's page does not carry 164 works it
+           # may never look at.
+           "lazy": True,
            "paged": 12,
            "sorts": [{"id": "collected", "label": "Most collected"},
                      {"id": "newest", "label": "Newest"},
@@ -60,6 +73,12 @@ SECTION = {"id": "archive", "title": "Creative Commons Generative Art",
 _ADAPTATIONS = ("permitted", "not-permitted", "unclear")
 _PAGE_PATH_RE = re.compile(r"^/(?!/)[\w./?=&%:~-]+$")
 DESCRIPTION_CAP = 6000
+
+
+def is_non_commercial(sketch) -> bool:
+    """True for another artist's work shown under non-commercial terms. Every
+    paid path must refuse these; a saved copy keeps the mark (and its page)."""
+    return isinstance(sketch, dict) and bool(sketch.get("nonCommercial") or sketch.get("page"))
 
 
 def archive_origin() -> str | None:
@@ -209,6 +228,7 @@ def load_archive() -> list[dict]:
         sketch["gallery"] = slug
         sketch["page"] = {"url": origin + page_path}
         sketch["credit"] = credit
+        sketch["nonCommercial"] = True
         variables = sketch["variables"]
         pieces.append({
             "slug": slug,

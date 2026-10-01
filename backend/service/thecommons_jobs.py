@@ -22,6 +22,7 @@ import secrets
 import uuid
 from typing import Any, Awaitable, Callable
 
+from backend.service.thecommons_archive import is_non_commercial
 from backend.service.thecommons_builtin import BUILTIN_SKETCHES
 from backend.service.thecommons_gallery import gallery_preset_id, load_gallery
 from backend.service.thecommons_templates import load_template_library
@@ -216,6 +217,12 @@ async def start(pool, relay, room_id: int, prompt: str, request_id: str, *,
         before_sketch = relay.current_sketch
         if mode == "remix" and (not before_sketch or (base_sketch_id and base_sketch_id != before_sketch.get("id"))):
             raise StaleSourceError("The piece changed. Review the current canvas before remixing.")
+        # Another artist's work, shown under non-commercial terms, is never the
+        # material for a paid generation. Refused here, before any credit is
+        # reserved (thecommons_archive.py, rule 3).
+        if mode == "remix" and is_non_commercial(before_sketch):
+            raise ValueError("This piece is another artist's work, shown under a non-commercial licence, "
+                             "so it can't be remixed. Put a different piece on the wall to remix.")
         before_values = dict(relay.values)
         source = {"sketch": before_sketch, "values": before_values} if mode == "remix" else None
 
