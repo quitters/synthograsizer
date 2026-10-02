@@ -311,6 +311,23 @@ export function ChatMessage({ message, isStreaming, onRemixImage }) {
         </div>
       )}
 
+      {/* Function-calling mode: a compact record of what the agent actually
+          ran this turn. Media it produced renders above via synthMedia; this
+          covers artifact writes and anything that failed. */}
+      {message.toolCalls && message.toolCalls.length > 0 && (
+        <div className="message-tool-calls">
+          {message.toolCalls.map((call, index) => (
+            <span
+              key={index}
+              className={`tool-call-chip${call.ok ? '' : ' tool-call-chip-error'}`}
+              title={call.summary}
+            >
+              {call.ok ? '✓' : '✕'} {call.name}
+            </span>
+          ))}
+        </div>
+      )}
+
       {message.tokenCount > 0 && (
         <div className="message-tokens">
           {message.tokenCount} tokens
@@ -486,6 +503,18 @@ function ToolResultDetails({ result }) {
             ))}
           </ul>
         </div>
+      )}
+
+      {result.searchSuggestions && (
+        // Grounding with Google Search requires this snippet to be displayed
+        // with the results it grounded, as the markup Google returns — so it
+        // is injected rather than parsed. The HTML comes from the Gemini API
+        // response, not from page content or any user, and it is the only
+        // place in this component that is not escaped.
+        <div
+          className="tool-search-suggestions"
+          dangerouslySetInnerHTML={{ __html: result.searchSuggestions }}
+        />
       )}
     </div>
   );

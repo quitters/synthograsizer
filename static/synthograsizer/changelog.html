@@ -305,6 +305,23 @@
         <span class="version-date">In Progress — 2026-07-31</span>
       </div>
       <div class="version-panel">
+        <div class="panel-section-label">Privacy — correction to an earlier entry</div>
+        <ul class="entry-list">
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">change</span>
+            <div>
+              <div class="entry-text">ChatRoom now retains conversation history at Google by default</div>
+              <div class="entry-sub">An earlier entry below ("All Gemini calls migrated to Google's Interactions API — stateless by default") stated that every request is sent with <code>store=false</code> and nothing is retained server-side at Google. <strong>That is no longer true of the ChatRoom.</strong> ChatRoom now defaults to <code>store=true</code>, which lets each agent continue a server-side conversation chain — a turn sends only what is new, and repeated tokens bill at roughly a tenth of fresh input. The trade is retention: Google keeps the interaction for 55 days on the paid tier (1 day on free; 7/14/28/55 configurable in AI&nbsp;Studio). Resetting a room deletes that room's stored chains. Operators can restore the previous behaviour with <code>GEMINI_STORE_INTERACTIONS=false</code>. <strong>The rest of the suite is unchanged</strong> — the Python backend still sends <code>store=false</code> on every call, so the earlier entry remains accurate for text, vision, template and image generation.</div>
+            </div>
+          </li>
+          <li class="entry-item">
+            <span class="entry-badge badge-feat">feat</span>
+            <div>
+              <div class="entry-text">ChatRoom can remember previous sessions</div>
+              <div class="entry-sub">Opt-in (<code>CROSS_SESSION_MEMORY=true</code>): a finished session's transcript is archived into a long-lived searchable store, so agents in later rooms can look up what was decided before. Off by default. What is remembered can be listed and deleted at any time.</div>
+            </div>
+          </li>
+        </ul>
         <div class="panel-section-label">Accessibility</div>
         <ul class="entry-list">
           <li class="entry-item">

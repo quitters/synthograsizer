@@ -169,7 +169,23 @@ class TestRequestShapes:
         assert gc["image_config"] == {"aspect_ratio": "16:9", "image_size": "512"}
         assert gc["thinking_level"] == "high"
         assert gc["thinking_summaries"] == "auto"
-        assert call["tools"] == [{"type": "google_search"}]
+        # Grounded image generation asks for image_search too, so the model can
+        # use real reference images for style and subject instead of recalling
+        # them. Plain web grounding would defeat the point of grounding here.
+        assert call["tools"] == [
+            {"type": "google_search", "search_types": ["web_search", "image_search"]}
+        ]
+
+    def test_gen_image_sends_no_tools_when_grounding_is_off(self, interactions_mode):
+        """Image search must not ride along on an ungrounded call.
+
+        Grounding bills per query the model runs, so a tool nobody asked for is
+        a live cost, not a harmless default.
+        """
+        data = base64.b64encode(PNG).decode()
+        client = FakeClient(make_interaction(steps=[image_step(data)]))
+        google_api.gen_image(client, "m", [google_api.text_block("x")])
+        assert client.interactions.calls[0].get("tools") is None
 
     def test_gen_image_sends_no_deprecated_sampling_params(self, interactions_mode):
         """temperature / top_p / top_k must never reach the wire.

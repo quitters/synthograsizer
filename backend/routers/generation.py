@@ -185,7 +185,7 @@ async def generate_image(request: ImageRequest, http_request: Request):
             model_name = config.MODEL_DEMO
         else:
             model_name = request.model
-            # Override deprecated model if present. Retargeted to 3.6 Flash with
+            # Override deprecated model if present. Follows MODEL_FAST along with
             # the rest of the non-Pro text models; a client still asking for
             # gemini-2.0-flash-exp is old enough that it wants whatever "current
             # fast model" means today.
