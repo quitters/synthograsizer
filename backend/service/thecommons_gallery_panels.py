@@ -87,6 +87,45 @@ PANELS: dict[str, dict] = {
         {"bar_count": "stepper", "bar_height": "slider", "bounce": ("knob", "How hard the bars bounce"),
          "palette": "cycle", "orientation": "buttons"}),
 
+    # ── remastered from the p5 library ─────────────────────────────────────
+    "attractors": _panel(
+        "textmode", "blue", "CHAOS.EXE", "strange attractors, traced in light",
+        [("System", ["attractor", "streams"]), ("Light", ["palette", "linger"]), ("Motion", ["spin"])],
+        {"attractor": "list", "streams": ("stepper", "More streams of light"), "palette": "cycle",
+         "linger": ("slider", "How long each trail stays lit"), "spin": ("knob", "Turn the figure either way")},
+        columns=3),
+    "oscilloscope": _panel(
+        "textmode", "green", "SCOPE.EXE", "two sine waves, one screen",
+        [("Signal", ["figure", "ratio", "layers"]), ("Screen", ["palette", "phosphor", "drift"])],
+        {"figure": "pads", "ratio": ("list", "The ratio decides the shape"), "layers": "stepper",
+         "palette": "cycle", "phosphor": ("knob", "How long the beam's glow lasts"), "drift": "knob"},
+        density="compact"),
+    "op-art": _panel(
+        "desk", "grey", "Op Art Studio", "stripes that disagree",
+        [("Pattern", ["pattern", "layers", "density"]), ("Motion", ["motion", "ripple"]),
+         ("Display", ["palette", "resolution"])],
+        {"pattern": "pads", "layers": "stepper", "density": ("slider", "Finer or broader stripes"),
+         "motion": "knob", "ripple": "knob", "palette": "list", "resolution": "buttons"},
+        density="compact", columns=3),
+    "mandala": _panel(
+        "trainer", "violet", "MANDALA +5 TRAINER", "the golden angle, repeated",
+        [("Form", ["symmetry", "points", "web"]), ("Flow", ["motion", "palette"])],
+        {"symmetry": ("stepper", "How many times the wedge repeats"), "points": "slider",
+         "web": ("knob", "How far the threads reach"), "motion": "knob", "palette": "cycle"}),
+    "subdivisions": _panel(
+        "desk", "blue", "Composition", "split, and split, and split again",
+        [("Canvas", ["recompose", "tempo"]), ("Structure", ["depth", "split", "lines"]), ("Colour", ["palette", "fill"])],
+        {"recompose": ("button", "Wipe in a new composition now"), "tempo": "slider", "depth": "stepper",
+         "split": "pads", "lines": "stepper", "palette": "cycle", "fill": "buttons"},
+        columns=3),
+    "night-city": _panel(
+        "trainer", "ice", "NIGHT CITY +3 TRAINER", "the harbour never sleeps",
+        [("Sky", ["time", "weather"]), ("City", ["skyline", "drift"]), ("Water", ["ripple"])],
+        {"time": "cycle", "weather": "buttons", "skyline": "buttons",
+         "drift": ("knob", "How fast the city slides past"), "ripple": ("knob", "Calm or choppy water")},
+        density="compact", columns=3),
+
+
     # ── party games ─────────────────────────────────────────────────────────
     "invaders": _panel(
         "trainer", "acid", "INVADERS +2 TRAINER", "one of you steers, everyone shoots",

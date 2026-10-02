@@ -99,6 +99,23 @@ def test_provenance_is_honest():
             if piece["origin"] == "ported":
                 assert "Ported from" in piece["lineage"], piece["slug"]
 
+REMASTERED = ("attractors", "oscilloscope", "op-art", "mandala", "subdivisions", "night-city")
+
+
+def test_remastered_pieces_name_a_real_template_and_carry_no_p5_code():
+    """A remaster is a new native piece, never the p5 template in a wrapper:
+    the two sketch contracts stay separate. Its lineage names the template it
+    came from, which must exist."""
+    templates = _DIR.parent / "templates"
+    pieces = {p["slug"]: p for p in load_gallery() if p["section"] == "library"}
+    assert set(pieces) == set(REMASTERED)
+    for slug, piece in pieces.items():
+        assert piece["origin"] == "ported", slug
+        source = next(m for m in GALLERY if m["slug"] == slug)["lineage"].split("“")[1].split("”")[0]
+        assert (templates / f"{source}.json").is_file(), slug
+        assert "p5Code" not in piece["sketch"], slug
+        assert not any(tok in piece["sketch"]["code"] for tok in ("p.createCanvas", "p.draw", "getSynthVar")), slug
+
 
 def test_every_piece_has_a_panel_that_needed_no_patching():
     """normalize_ui() quietly repairs a bad spec, which is right for model

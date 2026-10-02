@@ -1,0 +1,113 @@
+{
+  "name": "Subdivisions",
+  "promptTemplate": "a {{palette}} composition split {{depth}} deep at {{split}} ratios with {{fill}} fills and {{lines}} lines, recomposing every {{tempo}} seconds",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "mondrian",
+          "weight": 3
+        },
+        {
+          "text": "bauhaus",
+          "weight": 2
+        },
+        {
+          "text": "pastel",
+          "weight": 2
+        },
+        {
+          "text": "neon",
+          "weight": 1
+        },
+        {
+          "text": "earth",
+          "weight": 1
+        },
+        {
+          "text": "jewel",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "depth",
+      "label": "Depth",
+      "type": "number",
+      "min": 2,
+      "max": 7,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "name": "split",
+      "label": "Split",
+      "values": [
+        {
+          "text": "golden",
+          "weight": 3
+        },
+        {
+          "text": "equal",
+          "weight": 2
+        },
+        {
+          "text": "thirds",
+          "weight": 2
+        },
+        {
+          "text": "random",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "fill",
+      "label": "Fill",
+      "values": [
+        {
+          "text": "solid",
+          "weight": 3
+        },
+        {
+          "text": "striped",
+          "weight": 2
+        },
+        {
+          "text": "dotted",
+          "weight": 2
+        },
+        {
+          "text": "mixed",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "lines",
+      "label": "Lines",
+      "type": "number",
+      "min": 0,
+      "max": 16,
+      "step": 2,
+      "default": 6
+    },
+    {
+      "name": "tempo",
+      "label": "Recompose every",
+      "type": "number",
+      "min": 4,
+      "max": 30,
+      "step": 1,
+      "default": 12
+    },
+    {
+      "name": "recompose",
+      "label": "Recompose",
+      "type": "trigger",
+      "share": "one"
+    }
+  ]
+}

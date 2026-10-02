@@ -1,0 +1,93 @@
+{
+  "name": "Attractors",
+  "promptTemplate": "a {{attractor}} attractor traced in {{palette}} light by {{streams}} streams, spinning at {{spin}} and lingering {{linger}}",
+  "variables": [
+    {
+      "name": "attractor",
+      "label": "Attractor",
+      "values": [
+        {
+          "text": "lorenz",
+          "weight": 3
+        },
+        {
+          "text": "aizawa",
+          "weight": 2
+        },
+        {
+          "text": "thomas",
+          "weight": 2
+        },
+        {
+          "text": "halvorsen",
+          "weight": 1
+        },
+        {
+          "text": "clifford",
+          "weight": 1
+        },
+        {
+          "text": "de jong",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "electric",
+          "weight": 3
+        },
+        {
+          "text": "fire",
+          "weight": 2
+        },
+        {
+          "text": "ice",
+          "weight": 2
+        },
+        {
+          "text": "aurora",
+          "weight": 1
+        },
+        {
+          "text": "vapor",
+          "weight": 1
+        },
+        {
+          "text": "per person",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "streams",
+      "label": "Streams",
+      "type": "number",
+      "min": 1,
+      "max": 24,
+      "step": 1,
+      "default": 8
+    },
+    {
+      "name": "spin",
+      "label": "Spin",
+      "type": "number",
+      "min": -1,
+      "max": 1,
+      "step": 0.1,
+      "default": 0.3
+    },
+    {
+      "name": "linger",
+      "label": "Linger",
+      "type": "number",
+      "min": 0,
+      "max": 1,
+      "step": 0.05,
+      "default": 0.6
+    }
+  ]
+}
