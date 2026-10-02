@@ -10,8 +10,9 @@ rule for each group is different on purpose:
   Look and feel   the only hand-written group. Nothing in the code says a piece
                   is calm, and a model guessing at it would be a second billed
                   call on something a human can answer in four words.
-  Where it's from a piece written by hand, generated here, or ported from the
-                  studio -- and, on the desk, whether it's yours at all.
+  Where it's from a piece written by hand, generated here, ported from the
+                  studio, or another artist's work adapted with its credit --
+                  and, on the desk, whether it's yours at all.
 
 A piece with no entry in LOOK below still gets every derived tag, so a new one
 appears in the library properly filtered on the day it lands, and someone can

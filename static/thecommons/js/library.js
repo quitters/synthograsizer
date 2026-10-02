@@ -12,6 +12,14 @@
 // button. The desk is never handed its code and never runs it. Saved looks and
 // generated pieces belong on the wall, not here.
 //
+// An archive piece (another artist's work) gets a live card too, but what runs
+// is only the title card the server wrote for it; the work itself is a picture
+// on the card and a framed page on the wall, never code handed to the desk.
+//
+// WEIGHT. No section is laid out whole: each opens on a page of cards with a
+// button for the next, and a lazy section (the archive's hundred-odd works) is
+// not even fetched until someone opens it, searches, or picks a tag.
+//
 // A collection of twenty is a list you read; sixty is one you search. So the
 // browse view keeps the sections, and the moment a host types or picks a tag
 // it collapses into one grid of results -- filtering should look like

@@ -12,7 +12,7 @@ control surface and the CREDIT, both written by the archive's own tooling
 (GenerativeArtArchive, tools/traits/commons.mjs --export) from its record of the
 original: nothing is typed in by hand, and nothing is written by a model.
 
-Three rules, enforced below rather than left to whoever adds a file:
+Four rules, enforced below rather than left to whoever adds a file:
 
   1. No credit, no piece. Title and artist are required, and the credit travels
      with the sketch (`sketch.credit`), so the wall and the desk can always
@@ -33,8 +33,17 @@ Three rules, enforced below rather than left to whoever adds a file:
      (http://localhost:8130 for the explorer on the same machine). Without it
      there is no section, no piece, and nothing in production changes.
 
-On the desk an archive piece's thumbnail and its fallback on an older display
-are the same small native sketch: a title card that draws the credit.
+The desk's card shows a picture of the work, served by the archive like the
+page (`thumb`). Underneath it, and on a display that predates `sketch.page`, is
+a small native sketch the loader writes: a title card that draws the credit.
+
+With well over a hundred works, the section is not sent with the rest of the
+library: the desk gets a count, and asks for the pieces when someone opens the
+section or searches (SECTION["lazy"], /api/thecommons/gallery/archive).
+
+To try it on one machine: scripts/commons_local.py. The files in
+thecommons_data/archive/ are rewritten from the archive, never edited here:
+    node tools/traits/commons.mjs --all --permitted --export <this repo>/backend/service/thecommons_data/archive
 """
 
 import json
