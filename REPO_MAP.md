@@ -107,8 +107,8 @@ static/
 │   └── *.md / *.txt      #   LLM template-authoring guides & system prompts (docs, not code)
 │
 ├── glitcher/             # ⭐ Glitch Art Studio — standalone pixel-effects app
-│   ├── index.html, v2.html, main.js
-│   ├── core/             #   canvas-manager, media-manager, recording, preset-manager,
+│   ├── index.html (studio), v2.html (embedded in Synthograsizer), main.js
+│   ├── core/             #   canvas-manager, media-manager, recording,
 │   │   └── effect-system/ #     effect-chain-manager, effect-factory, render-pipeline, registry
 │   ├── effects/
 │   │   ├── destructive/      #  color, direction, pixel-sort, slice, spiral

@@ -3,6 +3,20 @@
  * Provides improved UX with notifications, keyboard shortcuts, and visual feedback
  */
 
+/**
+ * Wire a control to its readout. Studio pages reuse this module but only render
+ * some of Classic's readouts, so a missing display must not break the control.
+ */
+function bindControl(controlId, displayId, { event = 'input', format = value => value, onChange } = {}) {
+  const control = document.getElementById(controlId);
+  if (!control) return;
+  control.addEventListener(event, (e) => {
+    const display = displayId ? document.getElementById(displayId) : null;
+    if (display) display.textContent = format(e.target.value);
+    if (onChange) onChange(e.target.value);
+  });
+}
+
 export class EnhancedSelectionUI {
   constructor(selectionManager, canvasInteraction) {
     this.selectionManager = selectionManager;
@@ -103,83 +117,37 @@ export class EnhancedSelectionUI {
   }
   
   setupMethodSpecificControls() {
+    const sizeNames = { small: 'Small', medium: 'Medium', large: 'Large', extraLarge: 'Extra Large' };
+    const whole = value => parseInt(value, 10);
+
     // Random controls
-    const intensitySelect = document.getElementById('intensity-select');
-    if (intensitySelect) {
-      intensitySelect.addEventListener('change', (e) => {
-        const displayMap = { 'medium': 'Medium', 'large': 'Large', 'extraLarge': 'Extra Large' };
-        document.getElementById('intensity-display').textContent = displayMap[e.target.value] || 'Medium';
-      });
-    }
-    
-    const concurrentSelections = document.getElementById('concurrent-selections');
-    if (concurrentSelections) {
-      concurrentSelections.addEventListener('input', (e) => {
-        document.getElementById('concurrent-selections-value').textContent = e.target.value;
-      });
-    }
-    
+    bindControl('intensity-select', 'intensity-display', {
+      event: 'change', format: value => sizeNames[value] || 'Medium'
+    });
+    bindControl('concurrent-selections', 'concurrent-selections-value');
+
     // Organic intensity controls
-    const organicIntensitySelect = document.getElementById('organic-intensity-select');
-    if (organicIntensitySelect) {
-      organicIntensitySelect.addEventListener('change', (e) => {
-        const displayMap = { 'medium': 'Medium', 'large': 'Large', 'extraLarge': 'Extra Large' };
-        document.getElementById('organic-intensity-display').textContent = displayMap[e.target.value] || 'Medium';
-      });
-    }
-    
+    bindControl('organic-intensity-select', 'organic-intensity-display', {
+      event: 'change', format: value => sizeNames[value] || 'Medium'
+    });
+
     // Color Range controls
-    const targetHue = document.getElementById('target-hue');
-    if (targetHue) {
-      targetHue.addEventListener('input', (e) => {
-        const value = parseInt(e.target.value);
-        document.getElementById('target-hue-value').textContent = value;
-        this.updateColorPreview();
-      });
-    }
-    
-    const colorTolerance = document.getElementById('color-tolerance');
-    if (colorTolerance) {
-      colorTolerance.addEventListener('input', (e) => {
-        const value = parseInt(e.target.value);
-        document.getElementById('color-tolerance-value').textContent = value;
-        this.updateColorPreview();
-      });
-    }
-    
-    const minRegionSize = document.getElementById('min-region-size');
-    if (minRegionSize) {
-      minRegionSize.addEventListener('input', (e) => {
-        const value = parseInt(e.target.value);
-        document.getElementById('min-region-size-value').textContent = value;
-      });
-    }
-    
+    bindControl('target-hue', 'target-hue-value', {
+      format: whole, onChange: () => this.updateColorPreview()
+    });
+    bindControl('color-tolerance', 'color-tolerance-value', {
+      format: whole, onChange: () => this.updateColorPreview()
+    });
+    bindControl('min-region-size', 'min-region-size-value', { format: whole });
+
     // Edge Detection controls
-    const edgeThreshold = document.getElementById('edge-threshold');
-    if (edgeThreshold) {
-      edgeThreshold.addEventListener('input', (e) => {
-        const value = parseInt(e.target.value);
-        document.getElementById('edge-threshold-value').textContent = value;
-      });
-    }
-    
+    bindControl('edge-threshold', 'edge-threshold-value', { format: whole });
+
     // Organic Shape controls
-    const shapeRandomness = document.getElementById('shape-randomness');
-    if (shapeRandomness) {
-      shapeRandomness.addEventListener('input', (e) => {
-        const value = parseFloat(e.target.value);
-        document.getElementById('shape-randomness-value').textContent = value.toFixed(1);
-      });
-    }
-    
-    const shapeCount = document.getElementById('shape-count');
-    if (shapeCount) {
-      shapeCount.addEventListener('input', (e) => {
-        const value = parseInt(e.target.value);
-        document.getElementById('shape-count-value').textContent = value;
-      });
-    }
+    bindControl('shape-randomness', 'shape-randomness-value', {
+      format: value => parseFloat(value).toFixed(1)
+    });
+    bindControl('shape-count', 'shape-count-value', { format: whole });
   }
 
   setupToolButtons() {
@@ -380,6 +348,7 @@ export class EnhancedSelectionUI {
   }
 
   handleSelectionMethodChange(method) {
+    if (method === this.currentSelectionMethod) return;
     this.currentSelectionMethod = method;
     console.log('🎯 Selection method changed to:', method);
     

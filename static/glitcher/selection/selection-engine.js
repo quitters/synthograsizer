@@ -7,6 +7,25 @@
 import { rgbToHsl, hslToRgb } from '../utils/color-utils.js';
 import { randomInt } from '../utils/math-utils.js';
 
+/** Smallest edge a random selection aims for, before the image caps it. */
+export const MIN_SELECTION_PX = 10;
+
+/**
+ * How far each named size divides the image. The UI reads these to show the
+ * region size it will actually produce, so the label can never drift from the
+ * engine the way "large"/"high" once did.
+ */
+export const SELECTION_SIZE_DIVISORS = { small: 12, medium: 6, large: 3, extraLarge: 2 };
+
+/** Largest region a size produces, clamped to fit inside the image. */
+export function maxSelectionSize(intensity, width, height) {
+  const divisor = SELECTION_SIZE_DIVISORS[intensity] || SELECTION_SIZE_DIVISORS.medium;
+  return {
+    w: Math.min(width, Math.max(1, Math.floor(width / divisor))),
+    h: Math.min(height, Math.max(1, Math.floor(height / divisor)))
+  };
+}
+
 export class SelectionEngine {
   constructor(imageData, width, height) {
     this.imageData = imageData;
@@ -530,33 +549,15 @@ export class SelectionEngine {
 
   /**
    * Pick a random selection clump (fallback method)
-   * @param {string} intensity - Selection intensity
+   * @param {string} intensity - Selection intensity, a key of SELECTION_SIZE_DIVISORS
    * @param {number} width - Image width
    * @param {number} height - Image height
    * @returns {Object} Random selection rectangle
    */
   pickRandomClump(intensity, width, height) {
-    let maxW, maxH;
-    switch (intensity) {
-      case 'medium':
-        maxW = Math.floor(width / 6);
-        maxH = Math.floor(height / 6);
-        break;
-      case 'large':
-        maxW = Math.floor(width / 3);
-        maxH = Math.floor(height / 3);
-        break;
-      case 'extraLarge':
-        maxW = Math.floor(width / 2);
-        maxH = Math.floor(height / 2);
-        break;
-      default:
-        maxW = Math.floor(width / 6);
-        maxH = Math.floor(height / 6);
-    }
-    
-    const w = randomInt(10, maxW);
-    const h = randomInt(10, maxH);
+    const { w: maxW, h: maxH } = maxSelectionSize(intensity, width, height);
+    const w = randomInt(Math.min(MIN_SELECTION_PX, maxW), maxW);
+    const h = randomInt(Math.min(MIN_SELECTION_PX, maxH), maxH);
     const x = randomInt(0, width - w);
     const y = randomInt(0, height - h);
 

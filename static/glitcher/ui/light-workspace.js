@@ -1,4 +1,5 @@
 // Standalone light workspace: the existing engine owns pixels and effects.
+import { maxSelectionSize, MIN_SELECTION_PX } from '../selection/selection-engine.js';
 const $ = id => document.getElementById(id);
 let app;
 let comparing = false;
@@ -36,6 +37,79 @@ function syncExportSettings() {
   $('workspace-duration').textContent = `${(Number(frames.value) / fps).toFixed(1)} seconds at ${fps} fps`;
 }
 
+
+// ─── Automatic behavior readout ──────────────────────────────────────────────
+
+// "Large" once silently produced medium regions and nothing on screen said so.
+// Showing the size the engine will actually use makes that class of bug visible.
+function updateRegionReadout() {
+  const readout = $('v2-region-size');
+  if (!readout) return;
+  if (!app?.canvasManager?.isImageLoaded()) {
+    readout.textContent = 'Import media to see the size';
+    return;
+  }
+  const { width, height } = app.canvasManager.getImageDimensions();
+  const { w, h } = maxSelectionSize($('v2-intensity').value, width, height);
+  readout.textContent = `Regions from ${Math.min(MIN_SELECTION_PX, w)}×${Math.min(MIN_SELECTION_PX, h)} up to ${w}×${h} px`;
+}
+
+// The panel only governs Automatic selection; say so rather than let it look broken.
+function updateAutoRelevance() {
+  const automatic = $('v2-tool-auto')?.getAttribute('aria-pressed') === 'true';
+  const note = $('v2-auto-note');
+  if (note) {
+    note.textContent = automatic
+      ? 'Where effects wander when no area is selected.'
+      : 'Applies when the selection mode is Automatic.';
+  }
+  $('v2-auto-settings')?.classList.toggle('inactive', !automatic);
+  // The mask tip only applies to the manual tools; hiding it in Automatic mode
+  // keeps the size and count controls above the fold, where they belong.
+  const tip = document.querySelector('.selection-tip');
+  if (tip) tip.hidden = automatic;
+}
+
+// ─── Focus mode ──────────────────────────────────────────────────────────────
+
+let hintTimer;
+
+function setFocusMode(on) {
+  document.body.classList.toggle('focus-mode', on);
+  const button = $('v2-focus-btn');
+  if (button) {
+    button.setAttribute('aria-pressed', String(on));
+    button.title = on ? 'Leave focus mode (F)' : 'Focus mode (F) — hide the panels';
+  }
+  const hint = $('v2-focus-hint');
+  clearTimeout(hintTimer);
+  if (hint) {
+    hint.classList.remove('faded');
+    if (on) hintTimer = setTimeout(() => hint.classList.add('faded'), 4000);
+  }
+  // The canvas fills a different box now; let the engine re-fit it.
+  window.dispatchEvent(new Event('resize'));
+}
+
+function setupFocusMode() {
+  $('v2-focus-btn')?.addEventListener('click', () => setFocusMode(!document.body.classList.contains('focus-mode')));
+  document.addEventListener('keydown', event => {
+    if (event.ctrlKey || event.metaKey || event.altKey) return;
+    // Never steal the key from a text field or an open dialog.
+    const tag = event.target.tagName;
+    if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA' || event.target.isContentEditable) return;
+    if (document.querySelector('dialog[open]')) return;
+    const focused = document.body.classList.contains('focus-mode');
+    if (event.key === 'f' || event.key === 'F') {
+      event.preventDefault();
+      setFocusMode(!focused);
+    } else if (event.key === 'Escape' && focused) {
+      event.preventDefault();
+      setFocusMode(false);
+    }
+  });
+}
+
 function init(instance) {
   if (app) return;
   app = instance;
@@ -58,6 +132,7 @@ function init(instance) {
     // Per-effect masks refer to dimensions of the previous media.
     app.effectChainManager.chain.forEach(effect => { effect.selectionMask = null; });
     app.effectChainManager.emit('chainUpdated', app.effectChainManager.chain);
+    updateRegionReadout();
     status('Media loaded. Add an effect to begin.');
   });
   $('workspace-import').addEventListener('click', () => $('image-input').click());
@@ -127,6 +202,12 @@ function init(instance) {
     }
     wasRecording = busy;
   }).observe(record, { attributes: true, childList: true, subtree: true, characterData: true });
+  $('v2-intensity').addEventListener('change', updateRegionReadout);
+  document.querySelectorAll('.tool-grid .tool-btn').forEach(button =>
+    button.addEventListener('click', () => requestAnimationFrame(updateAutoRelevance)));
+  setupFocusMode();
+  updateAutoRelevance();
+  updateRegionReadout();
   syncExportSettings();
 }
 

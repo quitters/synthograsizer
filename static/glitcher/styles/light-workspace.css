@@ -21,3 +21,29 @@ dialog{border:1px solid var(--line);border-radius:12px;background:var(--surface)
 body.light-workspace #loading-overlay{background:#f7f7f2f2!important;color:var(--ink)!important;font:400 15px/1.5 var(--sans)!important;letter-spacing:.2px;backdrop-filter:blur(2px)}
 body.light-workspace #coordinate-display{bottom:44px!important;left:26px!important;background:var(--surface)!important;color:var(--ink)!important;border:1px solid var(--line)!important;border-radius:4px!important;font:10px var(--mono)!important;padding:4px 7px!important;box-shadow:0 2px 6px #273b2514}
 @media (max-width:900px){body.light-workspace #coordinate-display{bottom:20px!important;left:16px!important}}
+
+/* Automatic behavior: the two knobs that most change the look stay visible. */
+.anim-hdr{font-size:11px;font-weight:550}.anim-note{font-size:9px;line-height:1.6;color:var(--muted);margin-top:5px}.anim-readout{grid-column:1/-1;font:9px var(--mono);color:var(--muted);margin-top:-6px}.anim-row select:disabled,.anim-row input:disabled{opacity:.45;cursor:not-allowed}.anim-row:has(:disabled) label{color:var(--muted)}.anim-timing{margin-top:16px;border-top:1px solid var(--line);padding-top:12px}.anim-timing summary{cursor:pointer;font-size:10px;color:var(--muted)}.anim-timing[open] summary{margin-bottom:2px}#v2-focus-btn{font-size:14px;line-height:1}#v2-focus-btn[aria-pressed=true]{background:var(--soft)}#v2-hud-accum{color:var(--muted)}
+
+/* Focus mode: panels collapse so the canvas gets the whole window. */
+body.focus-mode .hdr,body.focus-mode .document-bar,body.focus-mode .toolbar,body.focus-mode .rpanel,body.focus-mode .chain,body.focus-mode .sb{display:none}
+body.focus-mode .app{grid-template-rows:minmax(0,1fr)}
+body.focus-mode .body{grid-template-columns:minmax(0,1fr)}
+body.focus-mode .canvas-area{padding:44px}
+body.focus-mode #workspace-original{max-width:calc(100% - 88px);max-height:calc(100% - 88px)}
+.focus-hint{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:20;background:var(--surface);border:1px solid var(--line);border-radius:5px;padding:7px 12px;font:10px var(--mono);color:var(--muted);box-shadow:0 6px 20px #273b2518;opacity:0;visibility:hidden;transition:opacity .25s,visibility .25s}
+body.focus-mode .focus-hint{opacity:1;visibility:visible}
+body.focus-mode .focus-hint.faded{opacity:0;visibility:hidden}
+@media(prefers-reduced-motion:reduce){.focus-hint{transition:none}}
+@media(max-width:900px){body.focus-mode .app{height:100dvh}body.focus-mode .body{overflow:hidden}body.focus-mode .canvas-column{min-height:0;grid-column:1;grid-row:1}body.focus-mode .canvas-area{padding:18px}}
+.animation-settings.inactive .anim-row,.animation-settings.inactive .anim-timing{opacity:.55}
+.toolbar .tb-section{padding-block:18px}.animation-settings .anim-row:first-of-type{margin-top:12px}
+
+/* Automatic leads; the four manual tools pair up so the panel below stays reachable. */
+@media(min-width:601px){
+.tool-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:14px}
+.tool-btn.auto-btn{grid-column:1/-1}
+.tool-grid .tool-btn:not(.auto-btn){display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center;padding:9px 4px;font-size:10px}
+.tool-grid .tool-btn:not(.auto-btn) .tb-icon{font-size:16px}
+.tool-grid .tool-btn:not(.auto-btn){min-height:62px}
+}
