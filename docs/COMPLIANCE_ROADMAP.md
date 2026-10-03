@@ -192,8 +192,46 @@ never auto-included in reports).
 - [ ] EU AI Act Art. 50: C2PA manifests on generated media; visible AI-label option on display/output surfaces **(M)**
 - [ ] Per-user BYOK held in session only **(M)**
 - [ ] Accessibility audit to WCAG 2.1 AA **(M)**
+- [ ] Treaty layer (§8b): counsel confirms mapping; resolve the six Commons archive licence decisions before `SYNTH_COMMONS_ARCHIVE_ORIGIN` is set in production **[counsel]** **(M)**
+- [ ] Illegal-content floor stated for the `local` tier; DMCA agent + takedown procedure; hosted reporting path **(S)**
 
 ---
+
+## 8b · Treaty layer (added 2026-10-03)
+
+**Goal (the maintainer's):** be internationally compliant with the rigorous standards set out by legal treaties.
+
+Treaties bind states, not operators. The working method is: for each treaty, name the national laws that implement it in the places the service reaches, then map those laws to a Suite feature and a checklist item. Treaty status and article numbers below are from memory of the instruments, **not verified against the treaty texts or current ratification lists — [counsel] to confirm before anything here is relied on.**
+
+| Treaty | What it asks of an operator, in practice | Implementing law (examples) | Suite feature | Status |
+|---|---|---|---|---|
+| Berne Convention; WIPO Copyright Treaty; TRIPS | Respect authors' economic and moral rights (attribution, integrity); no formalities needed for protection | Canada Copyright Act (moral rights s.14.1, 28.2); EU InfoSoc; US Title 17 (moral rights narrow); CC licence terms as the contractual layer | Commons archive pieces (164 works by other artists) | Credit, licence link, change notice and non-commercial rule enforced in `thecommons_archive.py`. **Gaps: see audit below.** |
+| CoE Convention 108+ (data protection); ICCPR Art. 17; UDHR Art. 12 | Lawful basis, purpose limitation, data-subject rights, safeguards on transfers | PIPEDA, Quebec Law 25, GDPR, UK GDPR | Accounts, credit ledger, GCS media, taste profile | DSAR export/delete, retention janitor, breach playbook shipped (see HANDOFF_SERVICE_LAUNCH.md). Counsel review of Terms v0.3 pending. |
+| CoE Framework Convention on AI (opened 2024) | Transparency, accountability, non-discrimination, remedies for AI-system harms | Not yet domestic law in most signatories; EU AI Act Art. 50 is the nearest concrete obligation | Generated media marking; R1, R2, R6 | C2PA and visible AI-label still open (Phase 2). **Check which jurisdictions have ratified.** |
+| Budapest Convention; Optional Protocol to the CRC on sale of children / child sexual exploitation | Illegal-content floor, preservation and reporting channels, no CSAM | Criminal Code (Canada) s.163.1 and the federal mandatory-reporting Act for internet service providers; EU CSA rules; 18 USC 2258A (US) | Terms §6 floor; `local` tier applies no app filters | **Open:** state the floor explicitly for the local tier; document a reporting path for hosted. |
+| CRPD Art. 9 (accessibility) | Accessible information and ICT | AODA, EN 301 549 / European Accessibility Act, Section 508 | All surfaces | WCAG 2.1 AA audit still open (Phase 2). |
+| (Jurisdiction-specific, not treaty) US DMCA 512, COPPA; UK Online Safety Act | Notice-and-takedown agent; under-13 data; illegal-content duties for user-to-user services | | Commons desk uploads, 18+ gate | Designated-agent registration and a takedown procedure not yet written. |
+
+### Commons archive licence audit
+
+`python scripts/commons_license_audit.py` (read-only; `--markdown` for a table). As of 2026-10-03, 164 pieces:
+
+| Licence | Pieces | Flag |
+|---|---|---|
+| CC BY-NC 4.0 | 133 | none |
+| CC BY-NC-SA 4.0 | 21 | share-alike; 1 (`artblocks-thread`) has its version assumed |
+| CC BY 4.0 | 7 | 2 have no version in the artist's recorded text (the loader normalised to 4.0); 1 recorded text is a long sentence |
+| CC BY-SA 4.0 | 1 | share-alike; version assumed |
+| CC BY-NC 2.0 | 1 | pre-4.0 (`artblocks-sunset-from-the-bluffs`) |
+| CC0 1.0 | 1 | public domain; credit still shown |
+
+Decisions this raises (all **[counsel]**):
+1. **Share-alike (22 pieces).** The wall adds controls to the artist's code, an adaptation. Does the adapted layer have to be offered under the same licence, and does the wall say so? Cheapest safe option: hold these 22 back from any public venue until decided.
+2. **Assumed versions (4 pieces).** "CC BY" with no version was read as 4.0. Confirm each with the artist or the platform record, or drop to the unlisted set.
+3. **Pre-4.0 and moral rights.** CC 2.0 predates the licence wording about moral rights. Where integrity rights are inalienable (Canada, France, Germany), a controls-added adaptation that leaves the code otherwise unchanged is probably low risk, but this is the case Berne Art. 6bis exists for.
+4. **Free-text licence (1 piece, `artblocks-stations`).** Read the artist's sentence and decide whether it is a CC licence or a bespoke grant.
+5. **Non-commercial rule vs the hosted service.** The code already refuses these pieces in anything paid; check the credit ledger and Terms still describe that accurately now that the service charges credits.
+6. **Takedown path.** Any artist can ask for removal; there is no documented process. Add one before the archive is turned on in production.
 
 ## 9 · Open questions for counsel
 
@@ -202,6 +240,8 @@ never auto-included in reports).
 3. Quebec exposure threshold: at what point does a free hosted demo "carry on an enterprise" in Quebec for Law 25/Bill 96 purposes?
 4. GDPR Art. 3(2) exposure of a globally reachable free demo with no EU targeting.
 5. License split (MIT code / CC BY-NC content) — cleanest implementation.
+6. Treaty layer (§8b): confirm the treaty-to-statute mapping and ratification status for each jurisdiction the service reaches.
+7. Commons archive: the six decisions listed under §8b's licence audit.
 
 ## 10 · Watchlist
 
