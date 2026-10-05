@@ -1,0 +1,363 @@
+{
+  "name": "PrimiLife",
+  "promptTemplate": "A {{children}} primitive lifeform with a {{body}} body, {{core}} core, {{eyes}} eyes, {{mouth}} mouth, and {{hair}} hair with {{extras}} extras, set against a {{background}} background with {{debris}} debris; wireframe: {{wireframe}}, spinning {{spin}}, baby: {{baby}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "body",
+      "label": "Body",
+      "values": [
+        {
+          "text": "Fat Spike",
+          "weight": 3
+        },
+        {
+          "text": "Pyramid",
+          "weight": 2
+        },
+        {
+          "text": "Tilted Box",
+          "weight": 2
+        },
+        {
+          "text": "Double Plate",
+          "weight": 1
+        },
+        {
+          "text": "Disco Ball",
+          "weight": 1
+        },
+        {
+          "text": "Fat Stick",
+          "weight": 1
+        },
+        {
+          "text": "Puffy",
+          "weight": 1
+        },
+        {
+          "text": "Three Bagels",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "core",
+      "label": "Core",
+      "values": [
+        {
+          "text": "Nuclear",
+          "weight": 3
+        },
+        {
+          "text": "Wires",
+          "weight": 2
+        },
+        {
+          "text": "Double Ball",
+          "weight": 2
+        },
+        {
+          "text": "Diamond",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "eyes",
+      "label": "Eyes",
+      "values": [
+        {
+          "text": "On Spikes",
+          "weight": 3
+        },
+        {
+          "text": "Daft Punk",
+          "weight": 2
+        },
+        {
+          "text": "Megaphone",
+          "weight": 2
+        },
+        {
+          "text": "Jittering Along",
+          "weight": 1
+        },
+        {
+          "text": "Seesaw",
+          "weight": 1
+        },
+        {
+          "text": "Monitors",
+          "weight": 1
+        },
+        {
+          "text": "Boxy",
+          "weight": 1
+        },
+        {
+          "text": "Piercing",
+          "weight": 1
+        },
+        {
+          "text": "Huge",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "mouth",
+      "label": "Mouth",
+      "values": [
+        {
+          "text": "Boxy Teeth",
+          "weight": 3
+        },
+        {
+          "text": "Bagel",
+          "weight": 2
+        },
+        {
+          "text": "Round Teeth",
+          "weight": 2
+        },
+        {
+          "text": "Tire Stack",
+          "weight": 1
+        },
+        {
+          "text": "Hot Dogs",
+          "weight": 1
+        },
+        {
+          "text": "Tongue",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "hair",
+      "label": "Hair",
+      "values": [
+        {
+          "text": "Spikes",
+          "weight": 3
+        },
+        {
+          "text": "Clouds",
+          "weight": 2
+        },
+        {
+          "text": "Spinner",
+          "weight": 2
+        },
+        {
+          "text": "Cross",
+          "weight": 1
+        },
+        {
+          "text": "Antenna",
+          "weight": 1
+        },
+        {
+          "text": "Periscope",
+          "weight": 1
+        },
+        {
+          "text": "Fan",
+          "weight": 1
+        },
+        {
+          "text": "Eth",
+          "weight": 1
+        },
+        {
+          "text": "Resistor",
+          "weight": 1
+        },
+        {
+          "text": "Covid",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "extras",
+      "label": "Extras",
+      "values": [
+        {
+          "text": "Nope",
+          "weight": 3
+        },
+        {
+          "text": "Stick Arms",
+          "weight": 2
+        },
+        {
+          "text": "Fluffy",
+          "weight": 2
+        },
+        {
+          "text": "Eyebrows",
+          "weight": 1
+        },
+        {
+          "text": "Peacock",
+          "weight": 1
+        },
+        {
+          "text": "Sword",
+          "weight": 1
+        },
+        {
+          "text": "Pinocchio",
+          "weight": 1
+        },
+        {
+          "text": "Wheel",
+          "weight": 1
+        },
+        {
+          "text": "Hula Hoop",
+          "weight": 1
+        },
+        {
+          "text": "Wings",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "background",
+      "label": "Background",
+      "values": [
+        {
+          "text": "Primary",
+          "weight": 3
+        },
+        {
+          "text": "Secondary",
+          "weight": 2
+        },
+        {
+          "text": "Tertiary",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "debris",
+      "label": "Debris",
+      "values": [
+        {
+          "text": "Nope",
+          "weight": 3
+        },
+        {
+          "text": "Few",
+          "weight": 2
+        },
+        {
+          "text": "Bunch",
+          "weight": 2
+        },
+        {
+          "text": "Too much",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "children",
+      "label": "Children",
+      "values": [
+        {
+          "text": "Single",
+          "weight": 3
+        },
+        {
+          "text": "Siblings",
+          "weight": 2
+        },
+        {
+          "text": "Twins",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "wireframe",
+      "label": "Wireframe",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "spin",
+      "label": "Spin",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "baby",
+      "label": "Baby",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 1024,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:primilife",
+  "artist": "wuwa",
+  "credit": {
+    "title": "PrimiLife",
+    "artist": "wuwa",
+    "year": 2021,
+    "description": "The second chapter in the Primitive Trilogy. Out of the primordial soup of PrimiDance some life forms began emerging... Drag with mouse/touch to get better views; 🌪️ p: play/pause orbit 🐌 t: trails on/off 🔄 r: reset view ⏯️ 0: play/pause parts⚡⚡ o: primitive view from the top ⚡⚡",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/150",
+    "artistUrl": "https://wuwa.org/primitives",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 1024,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 150
+    },
+    "archiveId": "artblocks:primilife",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of PrimiLife by wuwa, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 462998
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Aprimilife"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Aprimilife"
+  }
+}

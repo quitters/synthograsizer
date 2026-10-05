@@ -1,0 +1,161 @@
+{
+  "name": "Anticyclone",
+  "promptTemplate": "An anticyclone weather phenomenon rendered in {{name}} at night: {{night}}, guided by {{guide}} lines on {{cold_pressed}} paper; graphite: {{graphite}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "name",
+      "label": "Name",
+      "values": [
+        {
+          "text": "Sonia",
+          "weight": 3
+        },
+        {
+          "text": "Junko",
+          "weight": 2
+        },
+        {
+          "text": "Ellen",
+          "weight": 2
+        },
+        {
+          "text": "Billie",
+          "weight": 1
+        },
+        {
+          "text": "Emmeline",
+          "weight": 1
+        },
+        {
+          "text": "Yvonne",
+          "weight": 1
+        },
+        {
+          "text": "Hedy",
+          "weight": 1
+        },
+        {
+          "text": "Madeleine",
+          "weight": 1
+        },
+        {
+          "text": "Margaret",
+          "weight": 1
+        },
+        {
+          "text": "Nzinga",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "night",
+      "label": "Time",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "guide",
+      "label": "Guide",
+      "values": [
+        {
+          "text": "3",
+          "weight": 3
+        },
+        {
+          "text": "4",
+          "weight": 2
+        },
+        {
+          "text": "5",
+          "weight": 2
+        },
+        {
+          "text": "10",
+          "weight": 1
+        },
+        {
+          "text": "1",
+          "weight": 1
+        },
+        {
+          "text": "30",
+          "weight": 1
+        },
+        {
+          "text": "100",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "graphite",
+      "label": "Graphite",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "cold_pressed",
+      "label": "Paper",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 800,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:anticyclone",
+  "artist": "William Mapan",
+  "credit": {
+    "title": "Anticyclone",
+    "artist": "William Mapan",
+    "year": 2022,
+    "description": "Anticyclones are a weather phenomena.\nThey pierce through darkness to instill peace and calm. Their planetary scale reminds us of how little we are and how powerful they can be.\n\nHigh pressure, rotation, air flow… The \"Anticyclone\" series is an artistic exploration and interpretation of those concepts.\n\nThe rendering borrows its aesthetics from traditional and organic media like paper and crayons, to lend an analog/archival look.\n\n\"Can a computer draw like a human?\"\nThe question is asked and challenged once more through \"Anticyclone\".\n\n[Press the left/right keys to explore the different steps building the final image. Bottom/top for the first/last step. Can be intense for your machine]",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/304",
+    "artistUrl": "https://twitter.com/williamapan",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 800,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 304
+    },
+    "archiveId": "artblocks:anticyclone",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Anticyclone by William Mapan, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 18617321
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Aanticyclone"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Aanticyclone"
+  }
+}

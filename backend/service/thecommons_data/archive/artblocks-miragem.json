@@ -1,0 +1,258 @@
+{
+  "name": "Miragem",
+  "promptTemplate": "A {{group_type}} composition of {{nr_of_groups}} groups with {{dash_type}} dashes following pattern {{pattern}}, set against background {{background}} in dash color {{dash_color}} (wavy path: {{wavy_path}}, constrained: {{constrained_dashes}}). This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "group_type",
+      "label": "Group Type",
+      "values": [
+        {
+          "text": "horizontal",
+          "weight": 3
+        },
+        {
+          "text": "vertical",
+          "weight": 2
+        },
+        {
+          "text": "diagonal",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "dash_type",
+      "label": "Dash Type",
+      "values": [
+        {
+          "text": "mixed",
+          "weight": 3
+        },
+        {
+          "text": "rotating",
+          "weight": 2
+        },
+        {
+          "text": "horizontal",
+          "weight": 2
+        },
+        {
+          "text": "vertical",
+          "weight": 1
+        },
+        {
+          "text": "diagonal",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "pattern",
+      "label": "Pattern",
+      "values": [
+        {
+          "text": "#15",
+          "weight": 3
+        },
+        {
+          "text": "#2",
+          "weight": 2
+        },
+        {
+          "text": "#6",
+          "weight": 2
+        },
+        {
+          "text": "#22",
+          "weight": 1
+        },
+        {
+          "text": "#1",
+          "weight": 1
+        },
+        {
+          "text": "#12",
+          "weight": 1
+        },
+        {
+          "text": "#13",
+          "weight": 1
+        },
+        {
+          "text": "#0",
+          "weight": 1
+        },
+        {
+          "text": "#9",
+          "weight": 1
+        },
+        {
+          "text": "#11",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "nr_of_groups",
+      "label": "Groups",
+      "type": "number",
+      "min": 16,
+      "max": 55,
+      "step": 1,
+      "default": 35
+    },
+    {
+      "name": "background",
+      "label": "Background",
+      "values": [
+        {
+          "text": "#13",
+          "weight": 3
+        },
+        {
+          "text": "#0",
+          "weight": 2
+        },
+        {
+          "text": "#2",
+          "weight": 2
+        },
+        {
+          "text": "#4",
+          "weight": 1
+        },
+        {
+          "text": "#17",
+          "weight": 1
+        },
+        {
+          "text": "#16",
+          "weight": 1
+        },
+        {
+          "text": "#7",
+          "weight": 1
+        },
+        {
+          "text": "#3",
+          "weight": 1
+        },
+        {
+          "text": "#6",
+          "weight": 1
+        },
+        {
+          "text": "#1",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "dash_color",
+      "label": "Dash Color",
+      "values": [
+        {
+          "text": "#3",
+          "weight": 3
+        },
+        {
+          "text": "#1",
+          "weight": 2
+        },
+        {
+          "text": "#2",
+          "weight": 2
+        },
+        {
+          "text": "#5",
+          "weight": 1
+        },
+        {
+          "text": "#6",
+          "weight": 1
+        },
+        {
+          "text": "#8",
+          "weight": 1
+        },
+        {
+          "text": "#4",
+          "weight": 1
+        },
+        {
+          "text": "#7",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "wavy_path",
+      "label": "Wavy Path",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "constrained_dashes",
+      "label": "Constrained Dashes",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 256,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:miragem",
+  "artist": "Third Vision",
+  "credit": {
+    "title": "Miragem",
+    "artist": "Third Vision",
+    "year": 2022,
+    "description": "Computation is one of the most powerful tools for our age. It opens up a whole world of possibilities. Some people use its power to solve the mysteries of our universe through science. I’m using it to explore our relationship with beauty and perception.\n\n“Miragem” *(Mirage in Portuguese)* is a generative project that requires your slow attention. It’s an exploration of rhythm, balance, and texture. Just simple elements in a coordinated dance, ruled by math and randomness.\n\n**It’s an invitation for the eyes and mind to wander.**\n\n\n >>  ‎  \n>> ## “Beauty is the mystery of life. It is not in the eye, it is in my mind. In our minds there is awareness of perfection.”\n>> Agnes Martin\n\n ‎\n*Please check the project website to know more about the composition and features.*",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0x99a9b7c1116f9ceeb1652de04d5969cce509b069/389",
+    "artistUrl": "https://www.thirdvision.xyz/miragem",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 256,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0x99a9b7c1116f9ceeb1652de04d5969cce509b069",
+      "projectId": 389
+    },
+    "archiveId": "artblocks:miragem",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Miragem by Third Vision, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 329079
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Amiragem"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Amiragem"
+  }
+}

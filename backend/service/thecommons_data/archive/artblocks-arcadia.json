@@ -1,0 +1,343 @@
+{
+  "name": "Arcadia",
+  "promptTemplate": "A {{palette}} scribble landscape with {{scribble_pressure}} pressure and {{scribble_type}} scribbles, framed by a {{border}} border and alternate paper: {{alternate_paper_color}}. Features a {{mountain_type}} mountain with {{mountain_jaggedness}} jaggedness above a {{land_type}} foreground with {{rock_size}} rocks at {{rock_density}} density (has rocks: {{has_rocks}}), under a {{sun_type}} sun with {{cloud_density}} {{cloud_type}} clouds. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Evergreen",
+          "weight": 3
+        },
+        {
+          "text": "Rockies",
+          "weight": 2
+        },
+        {
+          "text": "Playdate",
+          "weight": 2
+        },
+        {
+          "text": "Springtide",
+          "weight": 1
+        },
+        {
+          "text": "Bird Dog",
+          "weight": 1
+        },
+        {
+          "text": "Crystalline",
+          "weight": 1
+        },
+        {
+          "text": "Ice Palace",
+          "weight": 1
+        },
+        {
+          "text": "Monochrome",
+          "weight": 1
+        },
+        {
+          "text": "Lapland",
+          "weight": 1
+        },
+        {
+          "text": "Old Salt",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "land_type",
+      "label": "Land Type",
+      "values": [
+        {
+          "text": "none",
+          "weight": 3
+        },
+        {
+          "text": "road",
+          "weight": 2
+        },
+        {
+          "text": "path",
+          "weight": 2
+        },
+        {
+          "text": "creek",
+          "weight": 1
+        },
+        {
+          "text": "lake",
+          "weight": 1
+        },
+        {
+          "text": "hills",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "mountain_type",
+      "label": "Mountain Type",
+      "values": [
+        {
+          "text": "normal",
+          "weight": 3
+        },
+        {
+          "text": "valley",
+          "weight": 2
+        },
+        {
+          "text": "plateau",
+          "weight": 2
+        },
+        {
+          "text": "volcano",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "mountain_jaggedness",
+      "label": "Mountain Jaggedness",
+      "values": [
+        {
+          "text": "medium",
+          "weight": 3
+        },
+        {
+          "text": "high",
+          "weight": 2
+        },
+        {
+          "text": "low",
+          "weight": 2
+        },
+        {
+          "text": "very high",
+          "weight": 1
+        },
+        {
+          "text": "very low",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "sun_type",
+      "label": "Sun Type",
+      "values": [
+        {
+          "text": "none",
+          "weight": 3
+        },
+        {
+          "text": "normal",
+          "weight": 2
+        },
+        {
+          "text": "moon",
+          "weight": 2
+        },
+        {
+          "text": "eclipse",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "cloud_type",
+      "label": "Cloud Type",
+      "values": [
+        {
+          "text": "none",
+          "weight": 3
+        },
+        {
+          "text": "cumulus",
+          "weight": 2
+        },
+        {
+          "text": "stratus",
+          "weight": 2
+        },
+        {
+          "text": "altocumulus",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "cloud_density",
+      "label": "Cloud Density",
+      "values": [
+        {
+          "text": "low",
+          "weight": 3
+        },
+        {
+          "text": "medium",
+          "weight": 2
+        },
+        {
+          "text": "high",
+          "weight": 2
+        },
+        {
+          "text": "single cloud",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "alternate_paper_color",
+      "label": "Alternate Paper Color",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "border",
+      "label": "Border",
+      "values": [
+        {
+          "text": "normal",
+          "weight": 3
+        },
+        {
+          "text": "none",
+          "weight": 2
+        },
+        {
+          "text": "thick",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "scribble_type",
+      "label": "Scribble Type",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "scribble_pressure",
+      "label": "Scribble Pressure",
+      "values": [
+        {
+          "text": "medium",
+          "weight": 3
+        },
+        {
+          "text": "high",
+          "weight": 2
+        },
+        {
+          "text": "low",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "has_rocks",
+      "label": "Has Rocks",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "rock_size",
+      "label": "Rock Size",
+      "values": [
+        {
+          "text": "medium",
+          "weight": 3
+        },
+        {
+          "text": "small",
+          "weight": 2
+        },
+        {
+          "text": "big",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "rock_density",
+      "label": "Rock Density",
+      "values": [
+        {
+          "text": "medium",
+          "weight": 3
+        },
+        {
+          "text": "low",
+          "weight": 2
+        },
+        {
+          "text": "high",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 256,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:arcadia",
+  "artist": "Zachariah Watson",
+  "credit": {
+    "title": "Arcadia",
+    "artist": "Zachariah Watson",
+    "year": 2022,
+    "description": "*Arcadia* is a homage to the fridge-worthy landscape art of our youth. Childhood techniques of creating art are re-imagined by the scribbles of a nostalgic, computer-assisted mind.\n\n**Spacebar**: Skip animation and load final image (useful when rendering in high resolutions)\n**Up arrow**: Speed scribbles up (default speed is the highest)\n**Down arrow**: Slow scribbles down",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/358",
+    "artistUrl": "https://zchwtsn.com/work/arcadia",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 256,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 358
+    },
+    "archiveId": "artblocks:arcadia",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Arcadia by Zachariah Watson, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 301362
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Aarcadia"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Aarcadia"
+  }
+}

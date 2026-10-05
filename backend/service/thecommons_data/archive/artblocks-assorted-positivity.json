@@ -1,0 +1,243 @@
+{
+  "name": "Assorted Positivity",
+  "promptTemplate": "A {{form}} generative pixel-sorted composition in a {{style}} style with {{surrounding_style}} surroundings, framed as {{sectional}} and {{symmetrical}} symmetry. Features an uplifting telegraph of {{uplifting_word}}; epic: {{epic}}, E.T.: {{et}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "form",
+      "label": "Form",
+      "values": [
+        {
+          "text": "well-rounded",
+          "weight": 3
+        },
+        {
+          "text": "inspirational",
+          "weight": 2
+        },
+        {
+          "text": "efflorescent",
+          "weight": 2
+        },
+        {
+          "text": "fundamental",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "style",
+      "label": "Style",
+      "values": [
+        {
+          "text": "harmonious",
+          "weight": 3
+        },
+        {
+          "text": "cooperative",
+          "weight": 2
+        },
+        {
+          "text": "coordinated",
+          "weight": 2
+        },
+        {
+          "text": "ecstatic",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "surrounding_style",
+      "label": "Surrounding Style",
+      "values": [
+        {
+          "text": "n/a",
+          "weight": 3
+        },
+        {
+          "text": "cooperative",
+          "weight": 2
+        },
+        {
+          "text": "coordinated",
+          "weight": 2
+        },
+        {
+          "text": "harmonious",
+          "weight": 1
+        },
+        {
+          "text": "forthright",
+          "weight": 1
+        },
+        {
+          "text": "distinguished",
+          "weight": 1
+        },
+        {
+          "text": "ecstatic",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "sectional",
+      "label": "Sectional",
+      "values": [
+        {
+          "text": "multifaceted",
+          "weight": 3
+        },
+        {
+          "text": "boundless",
+          "weight": 2
+        },
+        {
+          "text": "singular",
+          "weight": 2
+        },
+        {
+          "text": "singular b/w",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "symmetrical",
+      "label": "Symmetrical",
+      "values": [
+        {
+          "text": "spontaneous",
+          "weight": 3
+        },
+        {
+          "text": "positively",
+          "weight": 2
+        },
+        {
+          "text": "well-rounded: upfront",
+          "weight": 2
+        },
+        {
+          "text": "well-rounded: surrounding",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "epic",
+      "label": "Epic",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "et",
+      "label": "E.T.",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "uplifting_word",
+      "label": "Uplifting Word",
+      "values": [
+        {
+          "text": "accomplished",
+          "weight": 3
+        },
+        {
+          "text": "admirable",
+          "weight": 2
+        },
+        {
+          "text": "amazing",
+          "weight": 2
+        },
+        {
+          "text": "appreciative",
+          "weight": 1
+        },
+        {
+          "text": "awesome",
+          "weight": 1
+        },
+        {
+          "text": "brilliant",
+          "weight": 1
+        },
+        {
+          "text": "captivating",
+          "weight": 1
+        },
+        {
+          "text": "confident",
+          "weight": 1
+        },
+        {
+          "text": "cooperative",
+          "weight": 1
+        },
+        {
+          "text": "coordinated",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 400,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:assorted-positivity",
+  "artist": "steganon",
+  "credit": {
+    "title": "Assorted Positivity",
+    "artist": "steganon",
+    "year": 2022,
+    "description": "This series delves into a glitch style technique called pixel sorting, which is generally known to be used as a post-processing method in photography. Pixel sorting is a procedure that isolates segments of pixels and sorts their positions based on any number of criteria (i.e. luminosity, hue, saturation). \n\nAssorted Positivity is a generative approach to making pixel sorting art without any photographic base. The algorithm uses several types of noise to generate an initial design, each one unique to the token and specifically conducive to pixel-sorting. The sorting displaces pixels in various directions based on their grayscale value; and hues determine how the sorting ends. Sometimes the sorting lends itself to a sort of drip look and other times it presents itself as depth and shading.\n\nThis project was initially influenced by my desire to sort past the ubiquitous negativity online and focus on the positivity, generosity, and genuine thoughtfulness that I have witnessed around this genart space--with collectors, artists, and people who simply appreciate the community.\n\nIntegrated into each piece is an uplifting adjective that is visible, yet blended into the art. At a glance, the viewer may not notice the steganographic message that is conveyed by an international visual method of telegraphing words. Each word is one that I imagine being used to describe people in the community, their actions, artists, and/or their work.\n\nEvery output brings me joy, and is a reminder to treat others with kindness and positivity.\n\nWatch as the pixels sort themselves out. \n\nRendering is best viewed in Chrome on a desktop with a high end GPU.\n\nA portion of the proceeds will go toward the international Make-A-Wish Foundation in the hopes of bringing some joy to critically ill children around the globe.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/319",
+    "artistUrl": "https://steganon.com/ap.html",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 400,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 319
+    },
+    "archiveId": "artblocks:assorted-positivity",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Assorted Positivity by steganon, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 365149
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Aassorted-positivity"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Aassorted-positivity"
+  }
+}

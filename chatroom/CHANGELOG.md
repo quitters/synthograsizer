@@ -2,6 +2,38 @@
 
 All notable changes to the Agent Chat Room project are documented in this file.
 
+## [Unreleased]
+
+### Added
+- **Typed composition slots for image generation** (MODERNIZATION_PLAN §4.6).
+  `gemini-3.1-flash-image` accepts 10 object + 4 character-consistency + 3 style
+  references, each treated differently; the suite previously flattened all of
+  them into one undifferentiated `input_images` list. References can now carry a
+  `role` of `object` / `character` / `style` and are sent as slot-tagged image
+  blocks. Character slots are the point: they hold a recurring character steady
+  across storyboard beats, which `memory_visualization` and `cinematic_short`
+  both want.
+  - `POST /api/chat/generate-image` takes `references: { objects, character, style }`
+    of media ids alongside the existing flat `referenceIds`.
+  - `generateImageWithReferences(prompt, refs)` reads `role` off each reference;
+    un-roled references keep the exact flat shape they had before.
+  - Backend: `ImageRequest.references` (per-slot caps enforced at validation),
+    threaded through `services/image_gen` into `google_api.image_block`'s new
+    `reference_type`. Slots are an Interactions-API feature — on
+    `google_api_mode=legacy` the images still send, just untagged.
+  - Over-cap slots trim with a warning client-side; over-cap HTTP requests 422.
+
+### Fixed
+- `generateImageWithReferences` no longer sends `temperature` / `top_p`.
+  Both were deprecated from Gemini 3.6 Flash onwards and the backend already
+  dropped them, so they were dead weight on the wire.
+
+### Changed (with per-visitor rooms)
+- Long-term memory is **per visitor**: `chatroom-longterm-memory-<room id>` instead of one store shared by every browser. A store from before rooms existed belongs to no visitor and is no longer searched.
+- `DELETE /api/chat/file-search/orphans` no longer deletes stores that any live room is using; `GET`/`DELETE /api/chat/memory` act on the caller's memory only.
+- The judge's token usage is counted per room, not in one module-level counter.
+- The rolling summary of older messages is only built for stateless turns; reference files are not re-sent to an agent whose chain already holds them.
+
 ## [2.1.0] - 2026-09-22
 
 Closes the compliance and cost-visibility items the plan flagged in §5, adds

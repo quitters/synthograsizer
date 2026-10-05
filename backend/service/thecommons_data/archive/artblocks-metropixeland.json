@@ -1,0 +1,162 @@
+{
+  "name": "Metropixeland",
+  "promptTemplate": "A {{palette}} voxel metropolis with {{trees}} trees and {{traffic}} traffic on {{drive}} roads; Routemaster: {{the_routemaster}}, Rainbow Train: {{rainbow_train}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Random",
+          "weight": 3
+        },
+        {
+          "text": "Black",
+          "weight": 2
+        },
+        {
+          "text": "Violet",
+          "weight": 2
+        },
+        {
+          "text": "Rainbow",
+          "weight": 1
+        },
+        {
+          "text": "White",
+          "weight": 1
+        },
+        {
+          "text": "Red",
+          "weight": 1
+        },
+        {
+          "text": "Green",
+          "weight": 1
+        },
+        {
+          "text": "Blue",
+          "weight": 1
+        },
+        {
+          "text": "Gold",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "trees",
+      "label": "Trees",
+      "values": [
+        {
+          "text": "Regular",
+          "weight": 3
+        },
+        {
+          "text": "Random",
+          "weight": 2
+        },
+        {
+          "text": "Sakura",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "traffic",
+      "label": "Traffic",
+      "values": [
+        {
+          "text": "Very low",
+          "weight": 3
+        },
+        {
+          "text": "Dense",
+          "weight": 2
+        },
+        {
+          "text": "Low",
+          "weight": 2
+        },
+        {
+          "text": "Medium",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "drive",
+      "label": "Drive",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "the_routemaster",
+      "label": "The Routemaster",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "rainbow_train",
+      "label": "Rainbow Train",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 450,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:metropixeland",
+  "artist": "Fernando Jerez",
+  "credit": {
+    "title": "Metropixeland",
+    "artist": "Fernando Jerez",
+    "year": 2022,
+    "description": "**\"A nice place to live if you are made of pixels\"**\n\nAs digital beings, we have been playing, working, making friends in a virtual world for many years. \nMetropixeland is a vibrant metropolis where our pixels can live in peace.\n\nEnjoy a relaxing experience with nostalgic vibes.\n\nLearn more in the project site. \n\n                      ~         \n                        __     ~\n             ~         |::| ~  ~\n            __ __      |::|     \n           |..| .|   __| :|     \n        ___|n_|__|__|n_|__|_____\n\n**Interaction**\n**Click & Drag** mouse for camera control.\n**Keys: 1,2,3** changes to different 2D projections. Any other key or mouse-click goes back to Isometric.\n**Key '0' (zero)** swaps between transparent background and default sky. Useful for screenshoting and editing.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/331",
+    "artistUrl": "https://www.fernandojerez.com/site/metropixeland/",
+    "license": {
+      "text": "CC BY 4.0",
+      "name": "CC BY 4.0",
+      "url": "https://creativecommons.org/licenses/by/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how."
+      ]
+    },
+    "editions": 450,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 331
+    },
+    "archiveId": "artblocks:metropixeland",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Metropixeland by Fernando Jerez, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 192806
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Ametropixeland"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Ametropixeland"
+  }
+}

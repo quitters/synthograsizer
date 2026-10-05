@@ -1,0 +1,156 @@
+{
+  "name": "Thread",
+  "promptTemplate": "An embroidery sampler in {{palette}} with {{bands}} bands, {{density_mode}} stitch density, and cellular automata: {{cellular_automata}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Azure & Green",
+          "weight": 3
+        },
+        {
+          "text": "Earth & Azure",
+          "weight": 2
+        },
+        {
+          "text": "Earth & Gold",
+          "weight": 2
+        },
+        {
+          "text": "Blues & Earth",
+          "weight": 1
+        },
+        {
+          "text": "Red & Green",
+          "weight": 1
+        },
+        {
+          "text": "Azure & Taupe",
+          "weight": 1
+        },
+        {
+          "text": "Red & Taupe",
+          "weight": 1
+        },
+        {
+          "text": "Earthy Monochrome",
+          "weight": 1
+        },
+        {
+          "text": "Pastel Multi",
+          "weight": 1
+        },
+        {
+          "text": "Vibrant Multi",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "bands",
+      "label": "Bands",
+      "values": [
+        {
+          "text": "6",
+          "weight": 3
+        },
+        {
+          "text": "8",
+          "weight": 2
+        },
+        {
+          "text": "10",
+          "weight": 2
+        },
+        {
+          "text": "14",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "density_mode",
+      "label": "Density Mode",
+      "values": [
+        {
+          "text": "Uniform",
+          "weight": 3
+        },
+        {
+          "text": "Varied",
+          "weight": 2
+        },
+        {
+          "text": "Varied (Fine)",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "cellular_automata",
+      "label": "Cellular Automata",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 111,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:thread",
+  "artist": "Anna Lucia",
+  "credit": {
+    "title": "Thread",
+    "artist": "Anna Lucia",
+    "year": 2025,
+    "description": "Thread is the long-form generative token collection that compliments Anna Lucia's project \"Oefenstof\". \n\nEmbroidery is one of the oldest decorative crafts, practiced since the invention of the needle and thread. At some point, embroidery artists realized they needed a way to record and reference different designs. The solution was the creation of the sampler, a piece of cloth decorated with different motifs. Samplers often featured scattered motifs, bands of geometric and decorative borders, animals, floral motifs, and alphabets. Although found across diverse cultures and timelines, similarities can be found across different samplers, often executed in the binary form of a cross-stitch. This duality, stitch or no stitch, resonates with the binary logic of computation. \n\nAnna Lucia has examined the patterns and representations found in embroidery samplers, the act of recording embroidery work, and the transformation of traditional patterns through algorithmic processes. Exploring the overlap between traditional embroidery motifs and computer algorithms. This resulted in Anna Lucia building her own library of embroidery samplers using custom code and an embroidery machine, that were recorded with her project \"Oefenstof\". \n\nIn her experimentation, Anna Lucia applied well-known algorithms such as cellular automata and XOR patterns. Yet, their typical digital aesthetics were obscured by the constraints of the embroidery machine and the unpredictable dialogue between the artist and the computer. Thread makes the underlying patterns visible again.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0x8ce22a649a0ea5008900740028007278038d0023/0",
+    "artistUrl": "https://annalucia.io/oefenstof.html",
+    "license": {
+      "text": "CC BY-NC-SA",
+      "name": "CC BY-NC-SA 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only.",
+        "Share the adaptation under the same licence."
+      ]
+    },
+    "editions": 111,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0x8ce22a649a0ea5008900740028007278038d0023",
+      "projectId": 0
+    },
+    "archiveId": "artblocks:thread",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Thread by Anna Lucia, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 380
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Athread"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Athread"
+  }
+}

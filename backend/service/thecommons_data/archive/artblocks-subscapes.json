@@ -1,0 +1,111 @@
+{
+  "name": "Subscapes",
+  "promptTemplate": "A generative landscape with patchwork: {{patchwork}} and grid: {{grid}}, featuring river: {{river}}, wireframe: {{wireframe}}, stippled: {{stippled}}, brushed: {{brushed}}, lattice: {{lattice}}, blended: {{blended}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "patchwork",
+      "label": "Patchwork",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "grid",
+      "label": "Grid",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "river",
+      "label": "River",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "wireframe",
+      "label": "Wireframe",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "stippled",
+      "label": "Stippled",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "brushed",
+      "label": "Brushed",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "lattice",
+      "label": "Lattice",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "blended",
+      "label": "Blended",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 650,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:subscapes",
+  "artist": "Matt DesLauriers",
+  "credit": {
+    "title": "Subscapes",
+    "artist": "Matt DesLauriers",
+    "year": 2021,
+    "description": "A generative algorithm that draws the impression of a landscape from a multitude of possibilities. The unique seed from each token drives the parametric assortment of lines, colors, and forms into a constructed composition.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/53",
+    "artistUrl": "https://mattdesl.com/",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 650,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 53
+    },
+    "archiveId": "artblocks:subscapes",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Subscapes by Matt DesLauriers, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 21633401
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Asubscapes"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Asubscapes"
+  }
+}

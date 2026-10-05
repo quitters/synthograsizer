@@ -1,0 +1,283 @@
+{
+  "name": "ORI",
+  "promptTemplate": "An abstract origami fold of {{geometry}} geometry using {{fold_strategy}} folds in the {{palette}} palette with {{fill_direction}} spray fill, featuring {{reversion_level}} reversion, {{backfilled}} backfill; color mutation: {{color_mutation}}, complexified: {{complexify}}, border: {{border}}, final fold: {{one_last_fold}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "skull",
+          "weight": 3
+        },
+        {
+          "text": "amused",
+          "weight": 2
+        },
+        {
+          "text": "briss",
+          "weight": 2
+        },
+        {
+          "text": "cloud",
+          "weight": 1
+        },
+        {
+          "text": "cloak",
+          "weight": 1
+        },
+        {
+          "text": "exodus",
+          "weight": 1
+        },
+        {
+          "text": "gum",
+          "weight": 1
+        },
+        {
+          "text": "feint",
+          "weight": 1
+        },
+        {
+          "text": "zest",
+          "weight": 1
+        },
+        {
+          "text": "dove",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "geometry",
+      "label": "Geometry",
+      "values": [
+        {
+          "text": "doubleSquare",
+          "weight": 3
+        },
+        {
+          "text": "geoPack",
+          "weight": 2
+        },
+        {
+          "text": "threeCircles",
+          "weight": 2
+        },
+        {
+          "text": "circleArray",
+          "weight": 1
+        },
+        {
+          "text": "writer",
+          "weight": 1
+        },
+        {
+          "text": "flock",
+          "weight": 1
+        },
+        {
+          "text": "sixPack",
+          "weight": 1
+        },
+        {
+          "text": "megaPack",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "fold_strategy",
+      "label": "Fold Strategy",
+      "values": [
+        {
+          "text": "megaBigSkews",
+          "weight": 3
+        },
+        {
+          "text": "equalBigSkews",
+          "weight": 2
+        },
+        {
+          "text": "smallSmallSheers",
+          "weight": 2
+        },
+        {
+          "text": "manyLittleBentSlices",
+          "weight": 1
+        },
+        {
+          "text": "radial",
+          "weight": 1
+        },
+        {
+          "text": "sequentialSlices",
+          "weight": 1
+        },
+        {
+          "text": "foldOver",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "reversion_level",
+      "label": "Reversion level",
+      "values": [
+        {
+          "text": "double",
+          "weight": 3
+        },
+        {
+          "text": "none",
+          "weight": 2
+        },
+        {
+          "text": "single",
+          "weight": 2
+        },
+        {
+          "text": "minimal",
+          "weight": 1
+        },
+        {
+          "text": "negminimal",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "fill_direction",
+      "label": "Fill Direction",
+      "values": [
+        {
+          "text": "flippy",
+          "weight": 3
+        },
+        {
+          "text": "centered",
+          "weight": 2
+        },
+        {
+          "text": "random",
+          "weight": 2
+        },
+        {
+          "text": "uniform",
+          "weight": 1
+        },
+        {
+          "text": "down",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "backfilled",
+      "label": "Backfilled",
+      "values": [
+        {
+          "text": "minimal",
+          "weight": 3
+        },
+        {
+          "text": "none",
+          "weight": 2
+        },
+        {
+          "text": "down",
+          "weight": 2
+        },
+        {
+          "text": "center-in",
+          "weight": 1
+        },
+        {
+          "text": "center-out",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "border",
+      "label": "Border",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "complexify",
+      "label": "Complexify",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "one_last_fold",
+      "label": "One Last Fold, though?",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "color_mutation",
+      "label": "Color Mutation",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 450,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:ori",
+  "artist": "James Merrill",
+  "credit": {
+    "title": "ORI",
+    "artist": "James Merrill",
+    "year": 2022,
+    "description": "Ori is an art series that draws inspiration from paper folding to create deeply abstract and highly contrasting imagery. The loose interpretation of origami dynamics quickly dissolves as physical rules are bent and reimagined.\n\nAn artifact of this process is the distinctive fold lines, which symbolize the Yoshizawa-Randlett diagrams that serve as instructions for Origami. The practice of Kirigami (folding and cutting paper) is also represented and is occasionally visible as highly destructured forms.\n\nContrasting the precision of the folding engine is a spray paint simulation that gives the image its color. Paint is applied with a wandering nozzle, sometimes overflowing past boundaries and dripping downwards. Inspired by the freeform nature of graffiti, the spray paint layers are chaotic and unrefined.\n\nNote: The spray paint simulation may take many seconds to fully render.\n\nAfter the render is complete, press any key to destroy the artwork.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0x99a9b7c1116f9ceeb1652de04d5969cce509b069/379",
+    "artistUrl": "http://www.lostpixels.io/art/ori",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 450,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0x99a9b7c1116f9ceeb1652de04d5969cce509b069",
+      "projectId": 379
+    },
+    "archiveId": "artblocks:ori",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of ORI by James Merrill, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 3456594
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Aori"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Aori"
+  }
+}

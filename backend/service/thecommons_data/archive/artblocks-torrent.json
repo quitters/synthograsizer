@@ -1,0 +1,202 @@
+{
+  "name": "Torrent",
+  "promptTemplate": "A {{style}} composition featuring {{stripe}} stripes, {{slash}} slashes, and {{splotch}} splotches. Details include {{veins}} veins and a fade of {{fade}}, with colored strokes ({{colored_strokes}}) and color variance at {{color_variance}} over a rainbow palette ({{rainbow_palette}}). Settings: sideways is {{sideways}}, dark is {{dark}}, thick is {{thick}}, bleached is {{bleached}}, and monochrome is {{mono}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "style",
+      "label": "Style",
+      "values": [
+        {
+          "text": "Collage",
+          "weight": 3
+        },
+        {
+          "text": "Roller",
+          "weight": 2
+        },
+        {
+          "text": "Drip",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "dark",
+      "label": "Dark",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "mono",
+      "label": "Mono",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "sideways",
+      "label": "Sideways",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "bleached",
+      "label": "Bleached",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "thick",
+      "label": "Thick",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "stripe",
+      "label": "Stripe",
+      "type": "number",
+      "min": 0,
+      "max": 6,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "name": "slash",
+      "label": "Slash",
+      "values": [
+        {
+          "text": "3",
+          "weight": 3
+        },
+        {
+          "text": "2",
+          "weight": 2
+        },
+        {
+          "text": "4",
+          "weight": 2
+        },
+        {
+          "text": "1",
+          "weight": 1
+        },
+        {
+          "text": "6",
+          "weight": 1
+        },
+        {
+          "text": "0",
+          "weight": 1
+        },
+        {
+          "text": "5",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "splotch",
+      "label": "Splotch",
+      "type": "number",
+      "min": 0,
+      "max": 9,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "name": "veins",
+      "label": "Veins",
+      "type": "number",
+      "min": 1,
+      "max": 12,
+      "step": 1,
+      "default": 6
+    },
+    {
+      "name": "fade",
+      "label": "Fade",
+      "type": "number",
+      "min": 1,
+      "max": 3,
+      "step": 1,
+      "default": 1
+    },
+    {
+      "name": "rainbow_palette",
+      "label": "Rainbow Palette",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "colored_strokes",
+      "label": "Colored Strokes",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "color_variance",
+      "label": "Color Variance",
+      "type": "number",
+      "min": 0,
+      "max": 5,
+      "step": 1,
+      "default": 2
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 300,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:torrent",
+  "artist": "Jeres",
+  "credit": {
+    "title": "Torrent",
+    "artist": "Jeres",
+    "year": 2023,
+    "description": "Torrent is about being washed away but not lost.\n\nInspired by residual evidence of torrential downpours, floods and derailed rivers as well as thrown paint and ink, cathartically applied for the purpose of merely having watched it land, streak, smear and drip; just to leave a mark.\n\nTextures of fabric, concrete, paper and marble fused by a tempest... now desiccated and faded, bleached and marred by debris washed on after exposing moments of life. Moments lost; etched incomplete into the landscape.\n\nA nostalgic and possibly misguided love song fusing frantic rhythmic action, erosion and history in a way only time can compose after the violence has long ceased and we are left to excavate the damage and beauty of what can't be harnessed, only experienced or interpreted after the fact, even if any resulting conclusions are fictions filled with contradiction.\n\nLess about truth, more about just having a story that we believe makes sense of it all. Rarely are things black and white.\n\nTorrent is about coming to terms with the past so we can understand the present and navigate the future. In a sense, we're talking about trauma processing, the imperfection of memory and how history changes with time and reflection.\n\nTorrent was created using p5js and a shader. Make sure your GPU is enabled.\n\n**Key Commands:**\nS : Save the current frame as a png\nP : Play/Pause animation\nA : Advance a frame\nZ : Go back a frame\nF : Speed up animation\nD : Slow down animation\n\n**URL Parameters:**\n?fullscreen=true : Fill entire window\n?animated=true : Animate by default\n?width=x : Render image with x width (read notes below)\n?print=true : Use with \"width\" to render larger than 5000px wide\n?frame=x : Start at frame x\n?speed=x : Start at speed x, default is 10, 1 is fastest, higher numbers are slower\n\nSee display notes or website for more discussion on rendering high resolution images for printing.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0x99a9b7c1116f9ceeb1652de04d5969cce509b069/466",
+    "artistUrl": "https://jeres.xyz/torrent",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 300,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0x99a9b7c1116f9ceeb1652de04d5969cce509b069",
+      "projectId": 466
+    },
+    "archiveId": "artblocks:torrent",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Torrent by Jeres, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 648307
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Atorrent"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Atorrent"
+  }
+}

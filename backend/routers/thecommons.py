@@ -17,6 +17,7 @@ account at all.
 
 import asyncio
 import hashlib
+import re
 import io
 import json
 import logging
@@ -266,16 +267,45 @@ def _page(name: str) -> FileResponse:
     return FileResponse(_PAGES / name / "index.html")
 
 
+def _etagged(payload: dict) -> tuple[bytes, str]:
+    body = json.dumps(payload).encode("utf-8")
+    return body, '"' + hashlib.sha256(body).hexdigest()[:20] + '"'
+
+
 @lru_cache(maxsize=1)
 def _gallery_payload() -> tuple[bytes, str]:
-    body = json.dumps({
-        "sections": GALLERY_SECTIONS,
+    # A lazy section's pieces are not sent with the rest: the desk is told how
+    # many there are and fetches them when someone opens it or searches.
+    lazy = {s["id"] for s in GALLERY_SECTIONS if s.get("lazy")}
+    pieces = load_gallery()
+    return _etagged({
+        "sections": [{**s, "count": sum(p["section"] == s["id"] for p in pieces)} if s["id"] in lazy else s
+                     for s in GALLERY_SECTIONS],
         # The chips the desk's library offers, with their labels, so the two
         # sides can't drift on what a tag is called.
         "tagGroups": gallery_tag_groups(GALLERY_SECTIONS),
-        "pieces": [{**piece, "presetId": gallery_preset_id(piece["slug"])} for piece in load_gallery()],
-    }).encode("utf-8")
-    return body, '"' + hashlib.sha256(body).hexdigest()[:20] + '"'
+        "pieces": [{**piece, "presetId": gallery_preset_id(piece["slug"])}
+                   for piece in pieces if piece["section"] not in lazy],
+    })
+
+
+@lru_cache(maxsize=8)
+def _gallery_section_payload(section_id: str) -> tuple[bytes, str]:
+    return _etagged({"pieces": [{**piece, "presetId": gallery_preset_id(piece["slug"])}
+                                for piece in load_gallery() if piece["section"] == section_id]})
+
+
+@router.get("/api/thecommons/gallery/{section_id}")
+async def commons_gallery_section(section_id: str, request: Request):
+    """One lazy section's pieces (see _gallery_payload). The same trust
+    boundary as the gallery itself: only what load_gallery() returns."""
+    if not any(s["id"] == section_id and s.get("lazy") for s in GALLERY_SECTIONS):
+        raise HTTPException(status_code=404, detail="Not found")
+    body, etag = _gallery_section_payload(section_id)
+    headers = {"Cache-Control": "no-cache", "ETag": etag}
+    if request.headers.get("if-none-match") == etag:
+        return Response(status_code=304, headers=headers)
+    return Response(content=body, media_type="application/json", headers=headers)
 
 
 @router.get("/api/thecommons/gallery")
@@ -448,7 +478,23 @@ def _preset_row(preset: dict) -> dict:
     listing = _preset_listing(sketch)
     if listing:
         row["listing"] = listing
+    # A picture for the card, where one was made (the built-in pieces and the
+    # inherited library: scripts/commons_library_thumbs.mjs). The desk never
+    # runs these pieces, so a photograph of the wall is the honest preview.
+    thumb = _preset_thumb(preset["id"])
+    if thumb:
+        row["thumb"] = thumb
     return row
+
+
+_THUMB_DIR = Path(__file__).resolve().parent.parent.parent / "static" / "thecommons" / "img" / "library"
+_THUMB_ID_RE = re.compile(r"^[A-Za-z0-9_-]{1,80}$")
+
+
+def _preset_thumb(preset_id) -> str | None:
+    if not (isinstance(preset_id, str) and _THUMB_ID_RE.match(preset_id)):
+        return None
+    return f"/thecommons/img/library/{preset_id}.jpg" if (_THUMB_DIR / f"{preset_id}.jpg").is_file() else None
 
 
 def _preset_listing(sketch) -> dict | None:

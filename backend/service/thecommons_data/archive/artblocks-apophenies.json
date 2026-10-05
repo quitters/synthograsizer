@@ -1,0 +1,265 @@
+{
+  "name": "Apophenies",
+  "promptTemplate": "An apophenic composition in the {{palette}} palette with {{shape_count}} {{shape_transparency}} shapes of {{base_size}} base size and {{shape_aspect}} aspect ratio. The forms feature {{shape_roundness}} roundness, {{stroke_scattering}} stroke scattering, and color blending level {{color_blending}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Ra",
+          "weight": 3
+        },
+        {
+          "text": "Neptune",
+          "weight": 2
+        },
+        {
+          "text": "Thoth",
+          "weight": 2
+        },
+        {
+          "text": "Vulcan",
+          "weight": 1
+        },
+        {
+          "text": "Eros",
+          "weight": 1
+        },
+        {
+          "text": "Elysia",
+          "weight": 1
+        },
+        {
+          "text": "Nyx",
+          "weight": 1
+        },
+        {
+          "text": "Gaia",
+          "weight": 1
+        },
+        {
+          "text": "Anubis",
+          "weight": 1
+        },
+        {
+          "text": "Helios",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "shape_count",
+      "label": "Number of Random Shapes",
+      "values": [
+        {
+          "text": "150",
+          "weight": 3
+        },
+        {
+          "text": "1000",
+          "weight": 2
+        },
+        {
+          "text": "650",
+          "weight": 2
+        },
+        {
+          "text": "750",
+          "weight": 1
+        },
+        {
+          "text": "550",
+          "weight": 1
+        },
+        {
+          "text": "350",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "base_size",
+      "label": "Base Size",
+      "values": [
+        {
+          "text": "130px",
+          "weight": 3
+        },
+        {
+          "text": "170px",
+          "weight": 2
+        },
+        {
+          "text": "210px",
+          "weight": 2
+        },
+        {
+          "text": "250px",
+          "weight": 1
+        },
+        {
+          "text": "300px",
+          "weight": 1
+        },
+        {
+          "text": "350px",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "shape_aspect",
+      "label": "Shape Aspect Ratio",
+      "values": [
+        {
+          "text": "Wide (-2)",
+          "weight": 3
+        },
+        {
+          "text": "Wide (-1)",
+          "weight": 2
+        },
+        {
+          "text": "Square (0)",
+          "weight": 2
+        },
+        {
+          "text": "Tall (+1)",
+          "weight": 1
+        },
+        {
+          "text": "Tall (+2)",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "shape_transparency",
+      "label": "Shape Transparency",
+      "values": [
+        {
+          "text": "Extremely Transparent",
+          "weight": 3
+        },
+        {
+          "text": "Not Transparent",
+          "weight": 2
+        },
+        {
+          "text": "Slightly Transparent",
+          "weight": 2
+        },
+        {
+          "text": "Very Transparent",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "shape_roundness",
+      "label": "Shape Roundness",
+      "values": [
+        {
+          "text": "100",
+          "weight": 3
+        },
+        {
+          "text": "150",
+          "weight": 2
+        },
+        {
+          "text": "200",
+          "weight": 2
+        },
+        {
+          "text": "250",
+          "weight": 1
+        },
+        {
+          "text": "300",
+          "weight": 1
+        },
+        {
+          "text": "400",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "stroke_scattering",
+      "label": "Stroke Scattering",
+      "type": "number",
+      "min": 4,
+      "max": 8,
+      "step": 1,
+      "default": 6
+    },
+    {
+      "name": "color_blending",
+      "label": "Color Blending",
+      "type": "number",
+      "min": 1,
+      "max": 2,
+      "step": 1,
+      "default": 2
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 100,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:apophenies",
+  "artist": "Cory Haber",
+  "credit": {
+    "title": "Apophenies",
+    "artist": "Cory Haber",
+    "year": 2023,
+    "description": "*Apophenies* is an exploration of our innate human drive to find patterns - even in places where they might not exist.  Our brains, remarkably efficient, sift through vast amounts of information on just a few watts of electricity. Yet, this efficiency sometimes leads us to perceive connections that might only exist in our individual perceptions. Consider the moments when you've gazed at a cloud and had an apophenia: a face or some other familiar shape suddenly became clear to you, but the person next to you sees something entirely different. An apophenia, like art, is personal.  No two people experience or interpret it in the same way. \n\n*Apophenies*, an adaptation of the word “Apophenia,” underscores the series' theme of subjective interpretation. Each artwork is composed of randomly overlapping shapes. When these shapes intersect, they occasionally form patterns that will seem vaguely familiar. It's a testament to our inherent need to derive meaning from the world around us, even in pure randomness. \n\nThis series isn't just about what you see, but how you interpret. It's a call to reflect on our individual and collective tendencies to create meaning, even when faced with nothingness. \n\n**Key Commands**:\n1 : Reload the animation\n2 : View the x-axis edge gradient\n3 : View the y-axis edge gradient\n4 : View the offscreen buffer composition\nS : Save JPG \n\n**URL Parameters:**\n?highres=6 : Pass higher numbers for higher resolutions, then press 's' to save",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0x0a1bbd57033f57e7b6743621b79fcb9eb2ce3676/61",
+    "artistUrl": "https://www.coryhaber.com/",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 100,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0x0a1bbd57033f57e7b6743621b79fcb9eb2ce3676",
+      "projectId": 61
+    },
+    "archiveId": "artblocks:apophenies",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Apophenies by Cory Haber, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 381
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Aapophenies"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Aapophenies"
+  }
+}

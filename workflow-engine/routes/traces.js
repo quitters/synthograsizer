@@ -16,13 +16,19 @@
 import { Router } from 'express';
 import { traceStore } from '../traceStore.js';
 
-export function createTraceRoutes() {
+/**
+ * @param {{ resolve?: (req) => { ownerId?: string } }} [deps] — when given, every
+ *   request is scoped to the owner it returns, so one visitor cannot list, read
+ *   or delete another's traces. Without it all traces are visible (single user).
+ */
+export function createTraceRoutes({ resolve } = {}) {
   const router = Router();
+  const ownerOf = (req) => (resolve ? resolve(req).ownerId : undefined);
 
   router.get('/', async (req, res) => {
     try {
       const limit = Math.min(Number(req.query.limit) || 50, 200);
-      res.json(await traceStore.list(limit));
+      res.json(await traceStore.list(limit, ownerOf(req)));
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
@@ -31,7 +37,10 @@ export function createTraceRoutes() {
   router.get('/:id', async (req, res) => {
     try {
       const trace = await traceStore.get(req.params.id);
-      if (!trace) return res.status(404).json({ error: 'Trace not found' });
+      const owner = ownerOf(req);
+      if (!trace || (owner !== undefined && (trace.ownerId || null) !== owner)) {
+        return res.status(404).json({ error: 'Trace not found' });
+      }
       res.json(trace);
     } catch (err) {
       res.status(500).json({ error: err.message });
@@ -40,6 +49,7 @@ export function createTraceRoutes() {
 
   router.delete('/:id', async (req, res) => {
     try {
+      if (!(await traceStore.canAccess(req.params.id, ownerOf(req)))) return res.json({ success: false });
       const ok = await traceStore.delete(req.params.id);
       res.json({ success: ok });
     } catch (err) {

@@ -1,0 +1,178 @@
+{
+  "name": "mono no aware",
+  "promptTemplate": "A cellular automaton on a {{topology}} manifold with {{blur}} blur. Cell color cycle rates: life {{life_speed_multiplier}}x, trail {{trail_speed_multiplier}}x with modifier {{trail_color_modifier}}; glitched: {{glitched_out}}, rotated: {{rotated}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "topology",
+      "label": "topology",
+      "values": [
+        {
+          "text": "bounded",
+          "weight": 3
+        },
+        {
+          "text": "real projective plane",
+          "weight": 2
+        },
+        {
+          "text": "klein",
+          "weight": 2
+        },
+        {
+          "text": "torroidal",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "blur",
+      "label": "blur",
+      "values": [
+        {
+          "text": "off",
+          "weight": 3
+        },
+        {
+          "text": "normal",
+          "weight": 2
+        },
+        {
+          "text": "dreamy",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "trail_color_modifier",
+      "label": "trail color modifier",
+      "values": [
+        {
+          "text": "2",
+          "weight": 3
+        },
+        {
+          "text": "4",
+          "weight": 2
+        },
+        {
+          "text": "3",
+          "weight": 2
+        },
+        {
+          "text": "1",
+          "weight": 1
+        },
+        {
+          "text": "0",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "trail_speed_multiplier",
+      "label": "trail speed multiplier",
+      "values": [
+        {
+          "text": "1",
+          "weight": 3
+        },
+        {
+          "text": "10",
+          "weight": 2
+        },
+        {
+          "text": "0.1",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "life_speed_multiplier",
+      "label": "life speed multiplier",
+      "values": [
+        {
+          "text": "1",
+          "weight": 3
+        },
+        {
+          "text": "0.1",
+          "weight": 2
+        },
+        {
+          "text": "10",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "glitched_out",
+      "label": "glitched out",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "rotated",
+      "label": "rotated",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 414,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:mono-no-aware",
+  "artist": "ixnayokay",
+  "credit": {
+    "title": "mono no aware",
+    "artist": "ixnayokay",
+    "year": 2021,
+    "description": "“mono no aware” is an exploration of change at the borders between existence and emptiness. Shapes and colors appear, twisting and fading gradually into new forms. The evolution of the system creates unpredictable and surprising emergent patterns, as deviations from neat symmetry quickly evolve into chaos. The animation is a cellular automaton running with no pre-defined end — but some patterns don’t have what it takes to survive indefinitely. That’s okay; not everything lasts forever (but the pieces will restart in this case).\n\n[Click] to restart. The Level of Detail (LOD) on each animation can be adjusted using [Left Arrow] for less, or [Right Arrow] for more, to allow a customized visual experience and achieve the desired framerate for various devices. Note that while different LODs all follow the same animation rules, they may exhibit slightly different behaviors from each other due to size-dependent resonance — much as the same guitar string plays different notes at different lengths. Each token contains a family of several closely-related animations to choose from.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/175",
+    "artistUrl": "http://ixnayokay.art/",
+    "license": {
+      "text": "CC BY-NC-SA 4.0",
+      "name": "CC BY-NC-SA 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only.",
+        "Share the adaptation under the same licence."
+      ]
+    },
+    "editions": 414,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 175
+    },
+    "archiveId": "artblocks:mono-no-aware",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of mono no aware by ixnayokay, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 43370
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Amono-no-aware"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Amono-no-aware"
+  }
+}

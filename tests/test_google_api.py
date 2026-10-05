@@ -187,6 +187,64 @@ class TestRequestShapes:
         google_api.gen_image(client, "m", [google_api.text_block("x")])
         assert client.interactions.calls[0].get("tools") is None
 
+    def test_typed_reference_blocks_carry_reference_type(self, interactions_mode):
+        """Composition slots reach the wire as per-image reference_type tags."""
+        data = base64.b64encode(PNG).decode()
+        client = FakeClient(make_interaction(steps=[image_step(data)]))
+        google_api.gen_image(client, "m", [
+            google_api.image_block(PNG),  # untyped — the flat input_images shape
+            google_api.image_block(PNG, reference_type=google_api.REFERENCE_OBJECT),
+            google_api.image_block(PNG, reference_type=google_api.REFERENCE_CHARACTER),
+            google_api.image_block(PNG, reference_type=google_api.REFERENCE_STYLE),
+            google_api.text_block("x"),
+        ])
+        sent = client.interactions.calls[0]["input"]
+        assert [b.get("reference_type") for b in sent[:4]] == [
+            None, "object", "character", "style",
+        ]
+        # Slot tagging must not disturb the existing image encoding contract.
+        assert all(base64.b64decode(b["data"]) == PNG for b in sent[:4])
+        assert "reference_type" not in sent[0]
+
+    def test_untyped_image_blocks_are_unchanged(self, interactions_mode):
+        """The flat list must serialize exactly as it did before slots existed."""
+        data = base64.b64encode(PNG).decode()
+        client = FakeClient(make_interaction(steps=[image_step(data)]))
+        google_api.gen_image(client, "m", [google_api.image_block(PNG),
+                                           google_api.text_block("x")])
+        assert client.interactions.calls[0]["input"][0] == {
+            "type": "image", "data": data, "mime_type": "image/png",
+        }
+
+    def test_image_block_rejects_unknown_reference_type(self):
+        with pytest.raises(ValueError):
+            google_api.image_block(PNG, reference_type="background")
+
+    def test_reference_slot_limits_match_the_model(self):
+        assert google_api.REFERENCE_SLOT_LIMITS == {
+            "object": 10, "character": 4, "style": 3,
+        }
+
+    def test_legacy_mode_drops_slot_tags_but_keeps_the_images(self, legacy_mode):
+        """generateContent Parts have no slot field — degrade, do not fail."""
+        response = NS(
+            prompt_feedback=None,
+            candidates=[NS(
+                finish_reason="STOP",
+                safety_ratings=[],
+                content=NS(parts=[NS(inline_data=NS(data=PNG, mime_type="image/png"),
+                                     text=None)]),
+            )],
+        )
+        client = FakeClient(legacy_response=response)
+        google_api.gen_image(client, "m", [
+            google_api.image_block(PNG, reference_type=google_api.REFERENCE_CHARACTER),
+            google_api.text_block("x"),
+        ])
+        contents = client.models.calls[0]["contents"]
+        assert len(contents) == 2  # image survived the trip
+        assert not hasattr(contents[0], "reference_type")
+
     def test_gen_image_sends_no_deprecated_sampling_params(self, interactions_mode):
         """temperature / top_p / top_k must never reach the wire.
 

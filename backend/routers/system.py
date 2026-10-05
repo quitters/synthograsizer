@@ -136,13 +136,29 @@ async def proxy_chatroom(request: Request, path: str):
 
     # Handle SSE streaming (GET /chatroom/api/chat/stream)
     if request.method == "GET" and "text/event-stream" in request.headers.get("accept", ""):
+        # Open the upstream stream first, so its Set-Cookie (a first-time visitor's chat
+        # room cookie) can go out with the response headers.
+        client = httpx.AsyncClient()
+        try:
+            upstream = await client.send(
+                client.build_request("GET", url, headers=headers, timeout=None), stream=True)
+        except httpx.HTTPError as e:
+            await client.aclose()
+            raise HTTPException(status_code=502, detail=f"ChatRoom backend unreachable: {e}")
+
         async def stream_sse():
-            async with httpx.AsyncClient() as client:
-                async with client.stream("GET", url, headers=headers, timeout=None) as resp:
-                    async for chunk in resp.aiter_bytes():
-                        yield chunk
-        return StreamingResponse(stream_sse(), media_type="text/event-stream",
-                                headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
+            try:
+                async for chunk in upstream.aiter_bytes():
+                    yield chunk
+            finally:
+                await upstream.aclose()
+                await client.aclose()
+
+        response = StreamingResponse(stream_sse(), media_type="text/event-stream",
+                                     headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
+        for cookie in upstream.headers.get_list("set-cookie"):
+            response.headers.append("set-cookie", cookie)
+        return response
 
     # Standard request proxy
     async with httpx.AsyncClient() as client:
@@ -155,7 +171,11 @@ async def proxy_chatroom(request: Request, path: str):
             params=dict(request.query_params),
             timeout=60.0,
         )
-        # Filter out hop-by-hop headers
-        excluded = {"transfer-encoding", "content-encoding", "content-length", "connection"}
+        # Filter out hop-by-hop headers. Set-Cookie is copied separately: a dict would keep
+        # only one of several, and it carries the visitor's chat room cookie.
+        excluded = {"transfer-encoding", "content-encoding", "content-length", "connection", "set-cookie"}
         resp_headers = {k: v for k, v in resp.headers.items() if k.lower() not in excluded}
-        return Response(content=resp.content, status_code=resp.status_code, headers=resp_headers)
+        out = Response(content=resp.content, status_code=resp.status_code, headers=resp_headers)
+        for cookie in resp.headers.get_list("set-cookie"):
+            out.headers.append("set-cookie", cookie)
+        return out

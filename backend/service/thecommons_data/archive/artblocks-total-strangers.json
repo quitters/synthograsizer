@@ -1,0 +1,449 @@
+{
+  "name": "Total Strangers",
+  "promptTemplate": "A portrait drawn in {{main_brush}} with a {{filter}} filter, featuring {{hair}} hair, {{brows}} brows, {{eyes}} eyes, a {{nose}} nose, {{ear}} ears, a {{mouth}} mouth, and a {{chin}} chin. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "hair",
+      "label": "Hair",
+      "values": [
+        {
+          "text": "Fro",
+          "weight": 3
+        },
+        {
+          "text": "Pompodour",
+          "weight": 2
+        },
+        {
+          "text": "Mess top",
+          "weight": 2
+        },
+        {
+          "text": "Choppy",
+          "weight": 1
+        },
+        {
+          "text": "Chrome",
+          "weight": 1
+        },
+        {
+          "text": "Mohawk",
+          "weight": 1
+        },
+        {
+          "text": "Fade",
+          "weight": 1
+        },
+        {
+          "text": "Fringe",
+          "weight": 1
+        },
+        {
+          "text": "Messy mo",
+          "weight": 1
+        },
+        {
+          "text": "Bun",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "eyes",
+      "label": "Eyes",
+      "values": [
+        {
+          "text": "Blank",
+          "weight": 3
+        },
+        {
+          "text": "Hypno",
+          "weight": 2
+        },
+        {
+          "text": "Dizzy",
+          "weight": 2
+        },
+        {
+          "text": "Weepy",
+          "weight": 1
+        },
+        {
+          "text": "Lidded",
+          "weight": 1
+        },
+        {
+          "text": "Suave",
+          "weight": 1
+        },
+        {
+          "text": "Close",
+          "weight": 1
+        },
+        {
+          "text": "Dots",
+          "weight": 1
+        },
+        {
+          "text": "Squint",
+          "weight": 1
+        },
+        {
+          "text": "Round",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "mouth",
+      "label": "Mouth",
+      "values": [
+        {
+          "text": "Smile",
+          "weight": 3
+        },
+        {
+          "text": "Unimpressed",
+          "weight": 2
+        },
+        {
+          "text": "Tongue",
+          "weight": 2
+        },
+        {
+          "text": "Teeth",
+          "weight": 1
+        },
+        {
+          "text": "Parted",
+          "weight": 1
+        },
+        {
+          "text": "Bottom",
+          "weight": 1
+        },
+        {
+          "text": "Sucker",
+          "weight": 1
+        },
+        {
+          "text": "Canines",
+          "weight": 1
+        },
+        {
+          "text": "Duck",
+          "weight": 1
+        },
+        {
+          "text": "Stache",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "main_brush",
+      "label": "Main Brush",
+      "values": [
+        {
+          "text": "Calligraphy pen",
+          "weight": 3
+        },
+        {
+          "text": "Crayon",
+          "weight": 2
+        },
+        {
+          "text": "6B pencil",
+          "weight": 2
+        },
+        {
+          "text": "Ballpoint pen",
+          "weight": 1
+        },
+        {
+          "text": "Whiteout",
+          "weight": 1
+        },
+        {
+          "text": "Thick marker",
+          "weight": 1
+        },
+        {
+          "text": "Highlighter",
+          "weight": 1
+        },
+        {
+          "text": "Opaque brush tip",
+          "weight": 1
+        },
+        {
+          "text": "Oil Pastel",
+          "weight": 1
+        },
+        {
+          "text": "Ink",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "chin",
+      "label": "Chin",
+      "values": [
+        {
+          "text": "Cheeks",
+          "weight": 3
+        },
+        {
+          "text": "Big Chonk",
+          "weight": 2
+        },
+        {
+          "text": "Cleft",
+          "weight": 2
+        },
+        {
+          "text": "Heart",
+          "weight": 1
+        },
+        {
+          "text": "Jutted",
+          "weight": 1
+        },
+        {
+          "text": "Elliptic",
+          "weight": 1
+        },
+        {
+          "text": "Scraggly",
+          "weight": 1
+        },
+        {
+          "text": "Milano",
+          "weight": 1
+        },
+        {
+          "text": "Old Salt",
+          "weight": 1
+        },
+        {
+          "text": "Tip",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "brows",
+      "label": "Brows",
+      "values": [
+        {
+          "text": "Surprised",
+          "weight": 3
+        },
+        {
+          "text": "Relax",
+          "weight": 2
+        },
+        {
+          "text": "Quizzical",
+          "weight": 2
+        },
+        {
+          "text": "Strong",
+          "weight": 1
+        },
+        {
+          "text": "Raised",
+          "weight": 1
+        },
+        {
+          "text": "Furrowed",
+          "weight": 1
+        },
+        {
+          "text": "Plunging",
+          "weight": 1
+        },
+        {
+          "text": "Wonder",
+          "weight": 1
+        },
+        {
+          "text": "Bushman",
+          "weight": 1
+        },
+        {
+          "text": "Flowy",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "nose",
+      "label": "Nose",
+      "values": [
+        {
+          "text": "Long",
+          "weight": 3
+        },
+        {
+          "text": "Angular",
+          "weight": 2
+        },
+        {
+          "text": "Bulbous",
+          "weight": 2
+        },
+        {
+          "text": "Sharp",
+          "weight": 1
+        },
+        {
+          "text": "Wide",
+          "weight": 1
+        },
+        {
+          "text": "Point",
+          "weight": 1
+        },
+        {
+          "text": "Straight",
+          "weight": 1
+        },
+        {
+          "text": "Subtle",
+          "weight": 1
+        },
+        {
+          "text": "Soft",
+          "weight": 1
+        },
+        {
+          "text": "Nostril",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "ear",
+      "label": "Ear",
+      "values": [
+        {
+          "text": "Imp",
+          "weight": 3
+        },
+        {
+          "text": "Diamond",
+          "weight": 2
+        },
+        {
+          "text": "Triangle",
+          "weight": 2
+        },
+        {
+          "text": "Oval",
+          "weight": 1
+        },
+        {
+          "text": "Dumbo",
+          "weight": 1
+        },
+        {
+          "text": "Lobe",
+          "weight": 1
+        },
+        {
+          "text": "Cauliflower",
+          "weight": 1
+        },
+        {
+          "text": "Wee",
+          "weight": 1
+        },
+        {
+          "text": "Elfin",
+          "weight": 1
+        },
+        {
+          "text": "Petite",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "filter",
+      "label": "Filter",
+      "values": [
+        {
+          "text": "None",
+          "weight": 3
+        },
+        {
+          "text": "Warm",
+          "weight": 2
+        },
+        {
+          "text": "Gray",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 555,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:total-strangers",
+  "artist": "Artem Verkhovskiy x Andy Shaw",
+  "credit": {
+    "title": "Total Strangers",
+    "artist": "Artem Verkhovskiy x Andy Shaw",
+    "year": 2022,
+    "description": "In the right hand, a pen can effortlessly reveal the most characteristic features of a person, inside and out. Following the twist and turn of the line, echoes of practice and repetition, the path becomes a walk through the recesses of a subconscious human mind. Total Strangers pays tribute to this time-honoured flight of the human creativity, generating a rogue’s gallery of faces from a continuous fluid line and a virtual pencil case of select drawing tools. We invite you to follow the line as it goes for a walk. Watch it unfold and give life a cast of unique characters, reflections of those around us.\n\n[P] - Pause\n[B] - Toggle transparent background\n[F] - Performance-agnostic desired frame rate. Switch between 30 (default) and 60.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/326",
+    "artistUrl": "https://linktr.ee/LowTideAB",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 555,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 326
+    },
+    "archiveId": "artblocks:total-strangers",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Total Strangers by Artem Verkhovskiy x Andy Shaw, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 418032
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Atotal-strangers"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Atotal-strangers"
+  }
+}

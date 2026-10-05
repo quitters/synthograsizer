@@ -1,0 +1,153 @@
+{
+  "name": "Traversals",
+  "promptTemplate": "A {{mystery_feature}} structure of {{horizontal_lines}} horizontal and {{vertical_lines}} vertical paths; density is {{density}}, thick stroke: {{thick_stroke}}, against a {{background}} background. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "mystery_feature",
+      "label": "Mystery Feature",
+      "values": [
+        {
+          "text": "Grounded",
+          "weight": 3
+        },
+        {
+          "text": "Desaturated",
+          "weight": 2
+        },
+        {
+          "text": "Solid",
+          "weight": 2
+        },
+        {
+          "text": "Flying",
+          "weight": 1
+        },
+        {
+          "text": "Coloring Book",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "density",
+      "label": "Density",
+      "values": [
+        {
+          "text": "1",
+          "weight": 3
+        },
+        {
+          "text": "3",
+          "weight": 2
+        },
+        {
+          "text": "2",
+          "weight": 2
+        },
+        {
+          "text": "4",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "background",
+      "label": "Background",
+      "values": [
+        {
+          "text": "Light",
+          "weight": 3
+        },
+        {
+          "text": "Dark",
+          "weight": 2
+        },
+        {
+          "text": "Black",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "horizontal_lines",
+      "label": "Horizontal Lines",
+      "type": "number",
+      "min": 4,
+      "max": 14,
+      "step": 2,
+      "default": 8
+    },
+    {
+      "name": "vertical_lines",
+      "label": "Vertical Lines",
+      "type": "number",
+      "min": 4,
+      "max": 10,
+      "step": 2,
+      "default": 6
+    },
+    {
+      "name": "thick_stroke",
+      "label": "Thick Stroke",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 150,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:traversals",
+  "artist": "Loren Bednar",
+  "credit": {
+    "title": "Traversals",
+    "artist": "Loren Bednar",
+    "year": 2021,
+    "description": "This series explores color in layered intersections. The unique hash determines the procedure of each traversal; endpoints, divergences, elevations, and color immersion. Left click or press any key for coruscation.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/65",
+    "artistUrl": "https://twitter.com/LorenBednar",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 150,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 65
+    },
+    "archiveId": "artblocks:traversals",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Traversals by Loren Bednar, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 951933
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Atraversals"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Atraversals"
+  }
+}

@@ -1,0 +1,470 @@
+{
+  "name": "Beauty in the Hurting",
+  "promptTemplate": "A field of {{flock_count}} digital sheep moving at {{sheep_speed}} speed, driven by a {{wash_intensity}} wash. The flock shows {{sheep_creativity}} creativity, born in a {{sheep_born}} setting, and lives a {{sheep_life_span}} lifespan. They interact as {{sheep_need_eachother}} with {{sheep_independence}} independence, {{sheep_agree}} alignment, {{sheep_stubbornness}} stubbornness, and {{sheep_ambition}} ambition. Wolves exhibit {{wolf_stubbornness}} stubbornness, against a color palette defined by a {{hue_band}} hue band and {{hue_offset}} offset. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "flock_count",
+      "label": "Flock Count",
+      "values": [
+        {
+          "text": "410",
+          "weight": 3
+        },
+        {
+          "text": "340",
+          "weight": 2
+        },
+        {
+          "text": "235",
+          "weight": 2
+        },
+        {
+          "text": "515",
+          "weight": 1
+        },
+        {
+          "text": "445",
+          "weight": 1
+        },
+        {
+          "text": "200",
+          "weight": 1
+        },
+        {
+          "text": "305",
+          "weight": 1
+        },
+        {
+          "text": "480",
+          "weight": 1
+        },
+        {
+          "text": "375",
+          "weight": 1
+        },
+        {
+          "text": "270",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "sheep_speed",
+      "label": "Sheep Speed",
+      "values": [
+        {
+          "text": "Trotter",
+          "weight": 3
+        },
+        {
+          "text": "Sprinter",
+          "weight": 2
+        },
+        {
+          "text": "Grazer",
+          "weight": 2
+        },
+        {
+          "text": "Walker",
+          "weight": 1
+        },
+        {
+          "text": "Runner",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "wash_intensity",
+      "label": "Wash Intensity",
+      "values": [
+        {
+          "text": "None",
+          "weight": 3
+        },
+        {
+          "text": "Light",
+          "weight": 2
+        },
+        {
+          "text": "Moderate",
+          "weight": 2
+        },
+        {
+          "text": "High",
+          "weight": 1
+        },
+        {
+          "text": "Intense",
+          "weight": 1
+        },
+        {
+          "text": "Whirlwind",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "sheep_creativity",
+      "label": "Sheep Creativity",
+      "values": [
+        {
+          "text": "Crafty",
+          "weight": 3
+        },
+        {
+          "text": "None, life is beautiful!",
+          "weight": 2
+        },
+        {
+          "text": "Artisen",
+          "weight": 2
+        },
+        {
+          "text": "Kitsch",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "sheep_life_span",
+      "label": "Sheep Life Span",
+      "values": [
+        {
+          "text": "Youth",
+          "weight": 3
+        },
+        {
+          "text": "Retired",
+          "weight": 2
+        },
+        {
+          "text": "Middle-Aged",
+          "weight": 2
+        },
+        {
+          "text": "Young Adult",
+          "weight": 1
+        },
+        {
+          "text": "Fully Retired",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "sheep_born",
+      "label": "Sheep Born",
+      "values": [
+        {
+          "text": "Neighborhood",
+          "weight": 3
+        },
+        {
+          "text": "Village",
+          "weight": 2
+        },
+        {
+          "text": "Country",
+          "weight": 2
+        },
+        {
+          "text": "Home",
+          "weight": 1
+        },
+        {
+          "text": "Deep Country",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "sheep_need_eachother",
+      "label": "Sheep Need Each Other",
+      "values": [
+        {
+          "text": "Absolute Strangers",
+          "weight": 3
+        },
+        {
+          "text": "Strangers",
+          "weight": 2
+        },
+        {
+          "text": "Acquaintances",
+          "weight": 2
+        },
+        {
+          "text": "Friends",
+          "weight": 1
+        },
+        {
+          "text": "Close Friends",
+          "weight": 1
+        },
+        {
+          "text": "Family",
+          "weight": 1
+        },
+        {
+          "text": "Inseparable",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "sheep_agree",
+      "label": "Sheep Agree",
+      "values": [
+        {
+          "text": "Rebels",
+          "weight": 3
+        },
+        {
+          "text": "Disagree",
+          "weight": 2
+        },
+        {
+          "text": "Independent",
+          "weight": 2
+        },
+        {
+          "text": "Mostly Agree",
+          "weight": 1
+        },
+        {
+          "text": "Aligned",
+          "weight": 1
+        },
+        {
+          "text": "Lockstep",
+          "weight": 1
+        },
+        {
+          "text": "Hivemind",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "sheep_independence",
+      "label": "Sheep Independence",
+      "values": [
+        {
+          "text": "Tight",
+          "weight": 3
+        },
+        {
+          "text": "Close",
+          "weight": 2
+        },
+        {
+          "text": "Standard",
+          "weight": 2
+        },
+        {
+          "text": "Spaced",
+          "weight": 1
+        },
+        {
+          "text": "Maximum Spread",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "wolf_stubbornness",
+      "label": "Wolf Stubbornness",
+      "values": [
+        {
+          "text": "Minimal",
+          "weight": 3
+        },
+        {
+          "text": "Low",
+          "weight": 2
+        },
+        {
+          "text": "Medium",
+          "weight": 2
+        },
+        {
+          "text": "High",
+          "weight": 1
+        },
+        {
+          "text": "Maximum",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "sheep_stubbornness",
+      "label": "Sheep Stubbornness",
+      "values": [
+        {
+          "text": "Zero",
+          "weight": 3
+        },
+        {
+          "text": "Level 1",
+          "weight": 2
+        },
+        {
+          "text": "Level 2",
+          "weight": 2
+        },
+        {
+          "text": "Level 3",
+          "weight": 1
+        },
+        {
+          "text": "Level 4",
+          "weight": 1
+        },
+        {
+          "text": "Level 5",
+          "weight": 1
+        },
+        {
+          "text": "Level 6",
+          "weight": 1
+        },
+        {
+          "text": "Level 7",
+          "weight": 1
+        },
+        {
+          "text": "Level 8",
+          "weight": 1
+        },
+        {
+          "text": "Level 9",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "sheep_ambition",
+      "label": "Sheep Ambition",
+      "values": [
+        {
+          "text": "Lowest",
+          "weight": 3
+        },
+        {
+          "text": "Very Low",
+          "weight": 2
+        },
+        {
+          "text": "Low",
+          "weight": 2
+        },
+        {
+          "text": "Below Average",
+          "weight": 1
+        },
+        {
+          "text": "Average",
+          "weight": 1
+        },
+        {
+          "text": "Keep Moving",
+          "weight": 1
+        },
+        {
+          "text": "Above Average",
+          "weight": 1
+        },
+        {
+          "text": "High",
+          "weight": 1
+        },
+        {
+          "text": "Go Getter",
+          "weight": 1
+        },
+        {
+          "text": "Very High",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "hue_band",
+      "label": "Hue Band",
+      "type": "number",
+      "min": 0.4,
+      "max": 0.8,
+      "step": 0.01,
+      "default": 0.6
+    },
+    {
+      "name": "hue_offset",
+      "label": "Hue Offset",
+      "type": "number",
+      "min": 0,
+      "max": 0.5,
+      "step": 0.01,
+      "default": 0.25
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 1024,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:beauty-in-the-hurting",
+  "artist": "Ryan Green",
+  "credit": {
+    "title": "Beauty in the Hurting",
+    "artist": "Ryan Green",
+    "year": 2021,
+    "description": "I find the patterns which emerge from the herding of sheep and the murmuration of starlings an apt metaphor for our own journeys of searching for truth, beauty and love while we're here. These pieces are best viewed live to witness how the path of these digital creatures' lives paint their tiny planet. ***\nI behold the sleeping planet ​| Plucked from the sky | Rolled around in my hands. | “My Word formed it.” | Time worn, | Life stained, | Soil rinsed and washed. | “Our story in repose.” | Love lost, | Wanderlust, | Loud surrender. | “It must have been painful.” | Placed in my collection, | Delicate and beautiful, | When viewed from this distance. | Selah. | I return my gaze to the heavens. *** \n25% of sales above resting price will be used to fund The Playability Initiative whose mission is to design free, fun video games and creative digital tools to kids with disabilities.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/178",
+    "artistUrl": "https://linktr.ee/ryangreen8",
+    "license": {
+      "text": "CC BY-NC-SA 4.0",
+      "name": "CC BY-NC-SA 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only.",
+        "Share the adaptation under the same licence."
+      ]
+    },
+    "editions": 1024,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 178
+    },
+    "archiveId": "artblocks:beauty-in-the-hurting",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Beauty in the Hurting by Ryan Green, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 276350
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Abeauty-in-the-hurting"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Abeauty-in-the-hurting"
+  }
+}

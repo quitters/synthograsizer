@@ -1,0 +1,221 @@
+{
+  "name": "RASTER",
+  "promptTemplate": "A {{color_palette}} pixel overpainting with {{warped_subdivisions}} warped subdivisions at {{feedback_resolution}} resolution, animated with {{chaos_x}} by {{chaos_y}} chaos; margin: {{margin}}, saturated border: {{saturated_border}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "color_palette",
+      "label": "Color Palette",
+      "values": [
+        {
+          "text": "library",
+          "weight": 3
+        },
+        {
+          "text": "airport",
+          "weight": 2
+        },
+        {
+          "text": "garden",
+          "weight": 2
+        },
+        {
+          "text": "party",
+          "weight": 1
+        },
+        {
+          "text": "beach",
+          "weight": 1
+        },
+        {
+          "text": "museum",
+          "weight": 1
+        },
+        {
+          "text": "lounge",
+          "weight": 1
+        },
+        {
+          "text": "desert",
+          "weight": 1
+        },
+        {
+          "text": "gallery",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "warped_subdivisions",
+      "label": "Warped Subdivisions",
+      "values": [
+        {
+          "text": "1",
+          "weight": 3
+        },
+        {
+          "text": "4",
+          "weight": 2
+        },
+        {
+          "text": "2",
+          "weight": 2
+        },
+        {
+          "text": "3",
+          "weight": 1
+        },
+        {
+          "text": "6",
+          "weight": 1
+        },
+        {
+          "text": "8",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "feedback_resolution",
+      "label": "Feedback Resolution",
+      "values": [
+        {
+          "text": "256",
+          "weight": 3
+        },
+        {
+          "text": "64",
+          "weight": 2
+        },
+        {
+          "text": "128",
+          "weight": 2
+        },
+        {
+          "text": "512",
+          "weight": 1
+        },
+        {
+          "text": "640",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "chaos_x",
+      "label": "Chaos X",
+      "values": [
+        {
+          "text": "3",
+          "weight": 3
+        },
+        {
+          "text": "9",
+          "weight": 2
+        },
+        {
+          "text": "6",
+          "weight": 2
+        },
+        {
+          "text": "12",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "chaos_y",
+      "label": "Chaos Y",
+      "values": [
+        {
+          "text": "16",
+          "weight": 3
+        },
+        {
+          "text": "32",
+          "weight": 2
+        },
+        {
+          "text": "2",
+          "weight": 2
+        },
+        {
+          "text": "4",
+          "weight": 1
+        },
+        {
+          "text": "8",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "margin",
+      "label": "Margin",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "saturated_border",
+      "label": "Saturated Border",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 400,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:raster",
+  "artist": "itsgalo",
+  "credit": {
+    "title": "RASTER",
+    "artist": "itsgalo",
+    "year": 2022,
+    "description": "```\n░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░\n\n ██▀███   ▄▄▄        ██████ ▄▄▄█████▓▓█████  ██▀███  \n▓██ ▒ ██▒▒████▄    ▒██    ▒ ▓  ██▒ ▓▒▓█   ▀ ▓██ ▒ ██▒\n▓██ ░▄█ ▒▒██  ▀█▄  ░ ▓██▄   ▒ ▓██░ ▒░▒███   ▓██ ░▄█ ▒\n▒██▀▀█▄  ░██▄▄▄▄██   ▒   ██▒░ ▓██▓ ░ ▒▓█  ▄ ▒██▀▀█▄  \n░██▓ ▒██▒ ▓█   ▓██▒▒██████▒▒  ▒██▒ ░ ░▒████▒░██▓ ▒██▒\n░ ▒▓ ░▒▓░ ▒▒   ▓▒█░▒ ▒▓▒ ▒ ░  ▒ ░░   ░░ ▒░ ░░ ▒▓ ░▒▓░\n  ░▒ ░ ▒░  ▒   ▒▒ ░░ ░▒  ░ ░    ░     ░ ░  ░  ░▒ ░ ▒░\n                                              \n░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░\n```\n\n*Screens no longer only frame and display virtual spacetime. Connected together and surrounding us on all sides, their framings and displays have also opened, activated, and added another spatiotemporal dimension to the four in which all of us live.*\n—Vivian Sobchack, *From Screen-Scape to Screen-Sphere: A Meditation in Medias Res*\n\nAn exploration of a technical concept I call \"pixel overpainting.\"\n\nRasterized procedural brush strokes with low transparency slowly layer themselves over each other in a rhythmic loop until they achieve colorful equilibrium. They continue to overpaint themselves endlessly. The resulting color mixtures are then quantized and dithered to separate them into patches of pixels that recall the discrete materiality of the screen: a strictly digital variation on color field painting. The resulting texture is not a skeuomorphic grain but an overt reference to the universe of screens that surround us every day. Electric light arranged in a grid, fluttering and flickering everywhere all the time.\n\nPlease allow a few minutes for the colors to reach equilibrium.\nFor best results use Chrome browser with enabled webGL and hardware acceleration. Though it is encouraged to explore the subtleties in viewing the same pixels on different hardware and software to reflect on the subjectivity of contemporary computer graphics and the materiality of CPUs, GPUs, resolutions, pixel densities, browser APIs, and other medium-specific entropy.\n\nPress '1', '2', '4', '8' to change pixel sizes.\nPress 'p' or click canvas to pause/resume.\nPress 's' to grab a still frame.\nPress 'r' to re-paint.\n\nCollectors will be eligible to receive a signed giclée print of a still frame of their mint as well as high-resolution looping media in GIF or lossless video format.\n```\n░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░\n```",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/341",
+    "artistUrl": "https://www.raster.club/",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 400,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 341
+    },
+    "archiveId": "artblocks:raster",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of RASTER by itsgalo, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 1675693
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Araster"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Araster"
+  }
+}

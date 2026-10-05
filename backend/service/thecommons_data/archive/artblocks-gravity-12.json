@@ -1,0 +1,191 @@
+{
+  "name": "Gravity 12",
+  "promptTemplate": "A gravitational field in {{shape}} framing with {{color}} color harmony, {{density}} density, {{mass}} mass, and {{gravity}} gravity; dark mode: {{dark_mode}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "dark_mode",
+      "label": "Mode",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "color",
+      "label": "Color",
+      "values": [
+        {
+          "text": "Multi",
+          "weight": 3
+        },
+        {
+          "text": "Legacy",
+          "weight": 2
+        },
+        {
+          "text": "Quadtone",
+          "weight": 2
+        },
+        {
+          "text": "Tritone",
+          "weight": 1
+        },
+        {
+          "text": "Duotone Green Pink",
+          "weight": 1
+        },
+        {
+          "text": "Duotone Green Yellow",
+          "weight": 1
+        },
+        {
+          "text": "Duotone Blue Pink",
+          "weight": 1
+        },
+        {
+          "text": "Duotone Blue Green",
+          "weight": 1
+        },
+        {
+          "text": "Monotone Red",
+          "weight": 1
+        },
+        {
+          "text": "Monotone Pink",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "shape",
+      "label": "Shape",
+      "values": [
+        {
+          "text": "Circle",
+          "weight": 3
+        },
+        {
+          "text": "Square",
+          "weight": 2
+        },
+        {
+          "text": "Bleed",
+          "weight": 2
+        },
+        {
+          "text": "Border",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "gravity",
+      "label": "Gravity",
+      "values": [
+        {
+          "text": "Low",
+          "weight": 3
+        },
+        {
+          "text": "High",
+          "weight": 2
+        },
+        {
+          "text": "Mid",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "density",
+      "label": "Density",
+      "values": [
+        {
+          "text": "Low",
+          "weight": 3
+        },
+        {
+          "text": "Mid",
+          "weight": 2
+        },
+        {
+          "text": "High",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "mass",
+      "label": "Mass",
+      "values": [
+        {
+          "text": "High",
+          "weight": 3
+        },
+        {
+          "text": "Mid",
+          "weight": 2
+        },
+        {
+          "text": "Low",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 512,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:gravity-12",
+  "artist": "Jimmy Herdberg",
+  "credit": {
+    "title": "Gravity 12",
+    "artist": "Jimmy Herdberg",
+    "year": 2021,
+    "description": "GRAVITY 12 is an exploration of the connection between math, art and nature. A network of nodes creates a gravitational field through which energy flows.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/96",
+    "artistUrl": "https://jmy.art/",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 512,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 96
+    },
+    "archiveId": "artblocks:gravity-12",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Gravity 12 by Jimmy Herdberg, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 1567535
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Agravity-12"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Agravity-12"
+  }
+}

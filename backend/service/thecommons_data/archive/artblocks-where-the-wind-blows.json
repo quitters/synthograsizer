@@ -1,0 +1,178 @@
+{
+  "name": "Where The Wind Blows",
+  "promptTemplate": "A maritime artwork featuring sail design #{{sail_design}} (rotated {{sail_rotation}}°, scaled {{sail_scale}}x). It uses the {{palette}} palette with colors inverted: {{color_inverted}}. The hull has a {{hull_stripe}} and {{hull_shape}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "sail_design",
+      "label": "Sail Design",
+      "type": "number",
+      "min": 1,
+      "max": 40,
+      "step": 1,
+      "default": 1
+    },
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Dawn",
+          "weight": 3
+        },
+        {
+          "text": "Solstice",
+          "weight": 2
+        },
+        {
+          "text": "Dusk",
+          "weight": 2
+        },
+        {
+          "text": "Swan",
+          "weight": 1
+        },
+        {
+          "text": "Palmeiras",
+          "weight": 1
+        },
+        {
+          "text": "LunaRossa",
+          "weight": 1
+        },
+        {
+          "text": "Matador",
+          "weight": 1
+        },
+        {
+          "text": "Pearl",
+          "weight": 1
+        },
+        {
+          "text": "Horizonte",
+          "weight": 1
+        },
+        {
+          "text": "Miami",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "color_inverted",
+      "label": "Color Inverted",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "hull_stripe",
+      "label": "Hull Stripe",
+      "values": [
+        {
+          "text": "Top Stripe",
+          "weight": 3
+        },
+        {
+          "text": "Mid Stripe",
+          "weight": 2
+        },
+        {
+          "text": "Bottom Stripe",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "hull_shape",
+      "label": "Hull Shape",
+      "values": [
+        {
+          "text": "Band",
+          "weight": 3
+        },
+        {
+          "text": "Sphere",
+          "weight": 2
+        },
+        {
+          "text": "Stripes",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "sail_rotation",
+      "label": "Sail Rotation",
+      "type": "number",
+      "min": 0,
+      "max": 80,
+      "step": 1,
+      "default": 0
+    },
+    {
+      "name": "sail_scale",
+      "label": "Sail Scale",
+      "type": "number",
+      "min": 0.2,
+      "max": 3,
+      "step": 0.1,
+      "default": 1
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 170,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:where-the-wind-blows",
+  "artist": "MODNAR WOLF",
+  "credit": {
+    "title": "Where The Wind Blows",
+    "artist": "MODNAR WOLF",
+    "year": 2022,
+    "description": "Where The Wind Blows explores gradient maps and patterns on an unconventional canvas. It features the international maritime signal flags and a wild mix of color palettes and shapes. Some are high-contrast and playful while others are subdued and calm. Some are more realistic, staying true  to the nautical theme.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/290",
+    "artistUrl": "https://modnarwolf.xyz/pages/0x002.html",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 177,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 290
+    },
+    "archiveId": "artblocks:where-the-wind-blows",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Where The Wind Blows by MODNAR WOLF, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 7928
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Awhere-the-wind-blows"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Awhere-the-wind-blows"
+  }
+}

@@ -1,0 +1,297 @@
+{
+  "name": "Attraction",
+  "promptTemplate": "A {{palette}} chaos-game particle field in a {{layout}} layout and {{composition}} composition, with {{item_count}} attraction items, switch rate {{switch}}, and wave displacement ({{displacement_x}}, {{displacement_y}}). This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Color Palette",
+      "values": [
+        {
+          "text": "Lilli",
+          "weight": 3
+        },
+        {
+          "text": "Imran",
+          "weight": 2
+        },
+        {
+          "text": "Skin",
+          "weight": 2
+        },
+        {
+          "text": "Barn",
+          "weight": 1
+        },
+        {
+          "text": "Vera",
+          "weight": 1
+        },
+        {
+          "text": "Ada",
+          "weight": 1
+        },
+        {
+          "text": "Caldero",
+          "weight": 1
+        },
+        {
+          "text": "Tranco",
+          "weight": 1
+        },
+        {
+          "text": "Amira",
+          "weight": 1
+        },
+        {
+          "text": "Brenda",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "layout",
+      "label": "Layout",
+      "values": [
+        {
+          "text": "Strip",
+          "weight": 3
+        },
+        {
+          "text": "Default",
+          "weight": 2
+        },
+        {
+          "text": "Full Canvas",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "composition",
+      "label": "Composition",
+      "values": [
+        {
+          "text": "Solo",
+          "weight": 3
+        },
+        {
+          "text": "Quartet",
+          "weight": 2
+        },
+        {
+          "text": "Duet",
+          "weight": 2
+        },
+        {
+          "text": "Sextet",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "displacement_x",
+      "label": "Displacement Type (X)",
+      "values": [
+        {
+          "text": "6",
+          "weight": 3
+        },
+        {
+          "text": "4",
+          "weight": 2
+        },
+        {
+          "text": "3",
+          "weight": 2
+        },
+        {
+          "text": "5",
+          "weight": 1
+        },
+        {
+          "text": "0",
+          "weight": 1
+        },
+        {
+          "text": "1",
+          "weight": 1
+        },
+        {
+          "text": "2",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "displacement_y",
+      "label": "Displacement Type (Y)",
+      "values": [
+        {
+          "text": "9",
+          "weight": 3
+        },
+        {
+          "text": "7",
+          "weight": 2
+        },
+        {
+          "text": "8",
+          "weight": 2
+        },
+        {
+          "text": "6",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "item_count",
+      "label": "Item Count",
+      "values": [
+        {
+          "text": "80 (Small)",
+          "weight": 3
+        },
+        {
+          "text": "100 (Small)",
+          "weight": 2
+        },
+        {
+          "text": "140 (Small)",
+          "weight": 2
+        },
+        {
+          "text": "380 (Medium)",
+          "weight": 1
+        },
+        {
+          "text": "400 (Medium)",
+          "weight": 1
+        },
+        {
+          "text": "700 (Large)",
+          "weight": 1
+        },
+        {
+          "text": "800 (Large)",
+          "weight": 1
+        },
+        {
+          "text": "900 (Large)",
+          "weight": 1
+        },
+        {
+          "text": "999 (Large)",
+          "weight": 1
+        },
+        {
+          "text": "1100 (Large)",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "switch",
+      "label": "Switch",
+      "values": [
+        {
+          "text": "10",
+          "weight": 3
+        },
+        {
+          "text": "3",
+          "weight": 2
+        },
+        {
+          "text": "4",
+          "weight": 2
+        },
+        {
+          "text": "8",
+          "weight": 1
+        },
+        {
+          "text": "12",
+          "weight": 1
+        },
+        {
+          "text": "7",
+          "weight": 1
+        },
+        {
+          "text": "9",
+          "weight": 1
+        },
+        {
+          "text": "5",
+          "weight": 1
+        },
+        {
+          "text": "15",
+          "weight": 1
+        },
+        {
+          "text": "6",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 444,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:attraction",
+  "artist": "Jos Vromans",
+  "credit": {
+    "title": "Attraction",
+    "artist": "Jos Vromans",
+    "year": 2021,
+    "description": "\"Attraction\" is a system that draws single pixels, one by one, according to a set of rules inspired by the 'Chaos Game'.\nAdditionally, trigonometric functions may be used to displace pixels, resulting in wave patterns.\n\nAll unique properties of each artwork are defined by the token's hash. This hash will set all the parameters: the color palette, the positioning of objects and the rules by which pixels are drawn.\n\nBy the nature of this system, several well known patterns from computing and math may appear in the artworks.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/229",
+    "artistUrl": "https://www.josvromans.com/",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 444,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 229
+    },
+    "archiveId": "artblocks:attraction",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Attraction by Jos Vromans, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 74682
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Aattraction"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Aattraction"
+  }
+}

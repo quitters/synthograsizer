@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator
 from typing import Optional, List, Dict
 from backend import config
 
@@ -16,6 +16,32 @@ class TextRequest(BaseModel):
     prompt: str
     model: str = config.MODEL_TEXT_CHAT
 
+class ImageReferences(BaseModel):
+    """Typed composition slots for gemini-3.1-flash-image.
+
+    The model accepts up to 10 object images, 4 character-consistency images
+    and 3 style references, and treats each slot differently — character slots
+    in particular are what let a storyboard hold a recurring character across
+    beats. Slots are additive with ImageRequest.input_images, which stays the
+    untyped list every existing caller already sends.
+
+    Each entry is a base64 image, same encoding as input_images.
+    """
+    objects: Optional[List[str]] = Field(default=None, max_length=10)
+    character: Optional[List[str]] = Field(default=None, max_length=4)
+    style: Optional[List[str]] = Field(default=None, max_length=3)
+
+    @field_validator("objects", "character", "style")
+    @classmethod
+    def _reject_empty_entries(cls, value):
+        if value and any(not entry for entry in value):
+            raise ValueError("reference slot entries must be non-empty base64 images")
+        return value
+
+    def is_empty(self) -> bool:
+        return not (self.objects or self.character or self.style)
+
+
 class ImageRequest(BaseModel):
     prompt: str
     model: str = config.MODEL_IMAGE_GEN_FAST
@@ -24,6 +50,10 @@ class ImageRequest(BaseModel):
     negative_prompt: Optional[str] = None
     reference_image: Optional[str] = None  # Kept for backwards compatibility
     input_images: Optional[List[str]] = None  # List of base64 images (new)
+    # Typed composition slots. Additive with input_images: flat images are sent
+    # as untyped references, slot images carry their reference_type. Gemini
+    # image models only — Imagen takes no reference images and ignores both.
+    references: Optional[ImageReferences] = None
     response_modalities: Optional[List[str]] = None  # e.g., ["Image"], ["Text", "Image"]
     thinking_level: Optional[str] = None  # "low", "high" for Gemini 3 models
     include_thoughts: Optional[bool] = False # Return internal monologue

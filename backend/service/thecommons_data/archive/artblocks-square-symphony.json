@@ -1,0 +1,122 @@
+{
+  "name": "Square Symphony",
+  "promptTemplate": "A {{color_palette}} animated square composition running at {{speed}} speed; grid: {{grid}}, offset: {{offset}}, navy background: {{navy_background}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "color_palette",
+      "label": "ColorPalette",
+      "values": [
+        {
+          "text": "Seaside",
+          "weight": 3
+        },
+        {
+          "text": "Bubblegum",
+          "weight": 2
+        },
+        {
+          "text": "Forest",
+          "weight": 2
+        },
+        {
+          "text": "Firecracker",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "navy_background",
+      "label": "Background",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "grid",
+      "label": "Grid",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "offset",
+      "label": "Offset",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "speed",
+      "label": "Speed",
+      "values": [
+        {
+          "text": "Middle",
+          "weight": 3
+        },
+        {
+          "text": "High",
+          "weight": 2
+        },
+        {
+          "text": "Low",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 100,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:square-symphony",
+  "artist": "Okazz",
+  "credit": {
+    "title": "Square Symphony",
+    "artist": "Okazz",
+    "year": 2023,
+    "description": "Square Symphony is an art series inspired by \"origins\". This grid structure inside of a grid goes back to my earliest memories of being an artist. Each piece may seem simple, but within the eight motions, exploring “joy” and “comfort”. Returning to my \"origin\" as an artist for a moment and looking back at what I have built up over the years was somewhat like being a little kid again building up the blocks.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0x0a1bbd57033f57e7b6743621b79fcb9eb2ce3676/54",
+    "artistUrl": "https://kumaleon.com/",
+    "license": {
+      "text": "CC BY-NC-SA 4.0",
+      "name": "CC BY-NC-SA 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only.",
+        "Share the adaptation under the same licence."
+      ]
+    },
+    "editions": 100,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0x0a1bbd57033f57e7b6743621b79fcb9eb2ce3676",
+      "projectId": 54
+    },
+    "archiveId": "artblocks:square-symphony",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Square Symphony by Okazz, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 9797
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Asquare-symphony"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Asquare-symphony"
+  }
+}

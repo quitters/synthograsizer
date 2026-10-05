@@ -9,8 +9,54 @@ from google.genai import types
 
 logger = logging.getLogger(__name__)
 
+def _clamp_reference_slots(
+    reference_slots: Optional[Dict[str, List[bytes]]]
+) -> Dict[str, List[bytes]]:
+    """Normalize and cap a typed composition payload.
+
+    Accepts ``{"objects"|"object": [...], "character": [...], "style": [...]}``
+    and returns it keyed by google_api's canonical slot names, trimmed to the
+    per-slot caps gemini-3.1-flash-image documents (10 / 4 / 3). The HTTP layer
+    rejects over-cap requests outright; this is the defensive trim for direct
+    Python callers, which would otherwise get an opaque API error.
+    """
+    if not reference_slots:
+        return {}
+    aliases = {
+        "objects": google_api.REFERENCE_OBJECT,
+        "object": google_api.REFERENCE_OBJECT,
+        "characters": google_api.REFERENCE_CHARACTER,
+        "character": google_api.REFERENCE_CHARACTER,
+        "styles": google_api.REFERENCE_STYLE,
+        "style": google_api.REFERENCE_STYLE,
+    }
+    out: Dict[str, List[bytes]] = {}
+    for key, images in reference_slots.items():
+        if not images:
+            continue
+        slot = aliases.get(key)
+        if slot is None:
+            raise ValueError(
+                f"Unknown reference slot {key!r}; expected objects / character / style"
+            )
+        cap = google_api.REFERENCE_SLOT_LIMITS[slot]
+        kept = list(images)
+        if len(kept) > cap:
+            logger.warning(
+                "Reference slot %r got %d images but the model accepts %d; "
+                "dropping the extras.", slot, len(kept), cap,
+            )
+            kept = kept[:cap]
+        out.setdefault(slot, []).extend(kept)
+    # Re-apply caps after alias merging (e.g. "object" + "objects" both given).
+    for slot, images in out.items():
+        out[slot] = images[: google_api.REFERENCE_SLOT_LIMITS[slot]]
+    return out
+
+
 def generate_image(self, prompt: str, model_name: str = None, aspect_ratio: str = "1:1",
                    negative_prompt: str = None, input_images: Optional[List[bytes]] = None,
+                   reference_slots: Optional[Dict[str, List[bytes]]] = None,
                    response_modalities: Optional[List[str]] = None,
                    thinking_level: Optional[str] = None,
                    include_thoughts: bool = False,
@@ -21,7 +67,15 @@ def generate_image(self, prompt: str, model_name: str = None, aspect_ratio: str 
                    add_watermark: bool = True,
                    use_google_search: bool = False,
                    tags: list = None):
-    """Generate image using Imagen 3 or Gemini."""
+    """Generate image using Imagen 3 or Gemini.
+
+    ``input_images`` is the historical flat, untyped reference list and keeps
+    working unchanged. ``reference_slots`` is the typed composition interface —
+    ``{"objects": [...], "character": [...], "style": [...]}`` — which the
+    Gemini path sends as slot-tagged image blocks. The two are additive: flat
+    images go in first (preserving existing ordering), typed slots after.
+    Imagen takes no reference images at all and ignores both, as before.
+    """
     if not self.genai_client:
         raise ValueError("API Key not configured")
 
@@ -30,6 +84,7 @@ def generate_image(self, prompt: str, model_name: str = None, aspect_ratio: str 
         reference_images: List[bytes] = []
         if input_images:
             reference_images.extend(input_images)
+        slots = _clamp_reference_slots(reference_slots)
 
         if "gemini" in model_name.lower():
             return self._generate_image_gemini(
@@ -37,7 +92,7 @@ def generate_image(self, prompt: str, model_name: str = None, aspect_ratio: str 
                 response_modalities, thinking_level, include_thoughts,
                 media_resolution, person_generation, safety_settings,
                 image_count, add_watermark, use_google_search,
-                tags=tags
+                tags=tags, reference_slots=slots
             )
         else:
             # Use Imagen 3 — natively supports number_of_images, add_watermark,
@@ -66,7 +121,8 @@ def _generate_image_gemini(self, prompt: str, model_name: str, aspect_ratio: str
                            image_count: int = 1,
                            add_watermark: bool = True,
                            use_google_search: bool = False,
-                           tags: list = None):
+                           tags: list = None,
+                           reference_slots: Optional[Dict[str, List[bytes]]] = None):
     """Generate an image via Gemini (google_api dispatch: Interactions or legacy).
 
     Returns either a base64 string or a dict with 'image' and 'text' keys
@@ -104,10 +160,16 @@ def _generate_image_gemini(self, prompt: str, model_name: str, aspect_ratio: str
         }
         image_size = res_map.get(media_resolution)
 
+    # Untyped references first (unchanged ordering for existing callers), then
+    # the typed composition slots in a stable object → character → style order
+    # so the same request always serializes the same way.
     blocks = []
-    if reference_images:
-        for image_bytes in reference_images:
-            blocks.append(google_api.image_block(image_bytes))
+    for image_bytes in reference_images or []:
+        blocks.append(google_api.image_block(image_bytes))
+    for slot in (google_api.REFERENCE_OBJECT, google_api.REFERENCE_CHARACTER,
+                 google_api.REFERENCE_STYLE):
+        for image_bytes in (reference_slots or {}).get(slot, []):
+            blocks.append(google_api.image_block(image_bytes, reference_type=slot))
     blocks.append(google_api.text_block(prompt))
 
     image_bytes, _mime, text_out = google_api.gen_image(

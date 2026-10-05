@@ -1,0 +1,133 @@
+{
+  "name": "Primordial",
+  "promptTemplate": "A triptych of emergent {{origin}} structures with {{mapping}} mapping along a {{axis}} axis. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "origin",
+      "label": "Origin",
+      "values": [
+        {
+          "text": "Cloud",
+          "weight": 3
+        },
+        {
+          "text": "Sphere",
+          "weight": 2
+        },
+        {
+          "text": "Column",
+          "weight": 2
+        },
+        {
+          "text": "Cube",
+          "weight": 1
+        },
+        {
+          "text": "Vortex",
+          "weight": 1
+        },
+        {
+          "text": "Rings",
+          "weight": 1
+        },
+        {
+          "text": "Nova",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "mapping",
+      "label": "Mapping",
+      "values": [
+        {
+          "text": "Layered",
+          "weight": 3
+        },
+        {
+          "text": "Inscribed",
+          "weight": 2
+        },
+        {
+          "text": "Circumscribed",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "axis",
+      "label": "Axis",
+      "values": [
+        {
+          "text": "Hidden",
+          "weight": 3
+        },
+        {
+          "text": "Horizontal",
+          "weight": 2
+        },
+        {
+          "text": "Vertical",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 333,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:primordial",
+  "artist": "Jacob Gold",
+  "credit": {
+    "title": "Primordial",
+    "artist": "Jacob Gold",
+    "year": 2022,
+    "description": "Primordial presents forms as diverse as those found in the natural world. The emergent system powering Primordial is capable of generating this diversity but is hard to control. After the initial generation there is a curation step; forms must meet certain criteria or the algorithm replaces them.\n\nThe forms produced by Primordial are presented in a triptych, as comparing multiple outputs is fundamental to understanding a generative algorithm. Primordial attempts to generate triptychs where the individual forms are related, and the results can be surprisingly harmonious or discordant.\n\nOnce the triptych is finalized, click on one of the forms to redraw a previous image. Press s to save the entire triptych, or 1-3 to save an individual image.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/302",
+    "artistUrl": null,
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 333,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 302
+    },
+    "archiveId": "artblocks:primordial",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Primordial by Jacob Gold, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 30259
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Aprimordial"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Aprimordial"
+  }
+}

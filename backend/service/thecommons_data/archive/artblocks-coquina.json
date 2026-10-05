@@ -1,0 +1,133 @@
+{
+  "name": "Coquina",
+  "promptTemplate": "Organic forms gathered in a {{shape}} arrangement with {{flow}} flow, rendered in the {{palette}} palette. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Tropic",
+          "weight": 3
+        },
+        {
+          "text": "Paradise",
+          "weight": 2
+        },
+        {
+          "text": "Shell",
+          "weight": 2
+        },
+        {
+          "text": "Horizon",
+          "weight": 1
+        },
+        {
+          "text": "Tidepool",
+          "weight": 1
+        },
+        {
+          "text": "Reef",
+          "weight": 1
+        },
+        {
+          "text": "Diatom",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "shape",
+      "label": "Shape",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "flow",
+      "label": "Flow",
+      "values": [
+        {
+          "text": "Gentle",
+          "weight": 3
+        },
+        {
+          "text": "Outward",
+          "weight": 2
+        },
+        {
+          "text": "Structured",
+          "weight": 2
+        },
+        {
+          "text": "Convergent",
+          "weight": 1
+        },
+        {
+          "text": "Inward",
+          "weight": 1
+        },
+        {
+          "text": "Stratified",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 387,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:coquina",
+  "artist": "Jacob Gold",
+  "credit": {
+    "title": "Coquina",
+    "artist": "Jacob Gold",
+    "year": 2021,
+    "description": "Organic forms gather and intersect to create distinct arrangements. Each one is a captured moment, like a plankton on a microscope slide. Coquina explores the balance between stochasticity and structure in what makes a shape.\n\nPrice: 0.1Ξ\n\n25% of primary proceeds will be donated to a donor-advised fund on Endaoment.org, with the first intended grant recipient being the National Women's Law Center.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/198",
+    "artistUrl": "https://twitter.com/jacobgoldart",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 387,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 198
+    },
+    "archiveId": "artblocks:coquina",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Coquina by Jacob Gold, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 40325
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Acoquina"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Acoquina"
+  }
+}

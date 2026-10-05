@@ -1,0 +1,193 @@
+{
+  "name": "Divergence",
+  "promptTemplate": "An abstract generative motion field in {{palette}} with {{distortion_mode}} distortion and {{spread}} spread; contoured: {{contours}}, inclined: {{incline}}, mirrored: {{mirror_x}} horizontal / {{mirror_y}} vertical, folded: {{fold_x}} / {{fold_y}}, repeated: {{repeat_x}} / {{repeat_y}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Outlook",
+          "weight": 3
+        },
+        {
+          "text": "Delve",
+          "weight": 2
+        },
+        {
+          "text": "Balance",
+          "weight": 2
+        },
+        {
+          "text": "Spring",
+          "weight": 1
+        },
+        {
+          "text": "Concept",
+          "weight": 1
+        },
+        {
+          "text": "Syncronize",
+          "weight": 1
+        },
+        {
+          "text": "Adventure",
+          "weight": 1
+        },
+        {
+          "text": "Romantic",
+          "weight": 1
+        },
+        {
+          "text": "Wheat",
+          "weight": 1
+        },
+        {
+          "text": "Appeal",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "distortion_mode",
+      "label": "Distortion Mode",
+      "values": [
+        {
+          "text": "Radial",
+          "weight": 3
+        },
+        {
+          "text": "Vertical Wave",
+          "weight": 2
+        },
+        {
+          "text": "Interference",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "contours",
+      "label": "Contours",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "spread",
+      "label": "Spread",
+      "values": [
+        {
+          "text": "Tight (5)",
+          "weight": 3
+        },
+        {
+          "text": "Medium (10)",
+          "weight": 2
+        },
+        {
+          "text": "Wide (20)",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "incline",
+      "label": "Incline",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "mirror_x",
+      "label": "Mirror X",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "mirror_y",
+      "label": "Mirror Y",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "fold_x",
+      "label": "Fold X",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "fold_y",
+      "label": "Fold Y",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "repeat_x",
+      "label": "Repeat X",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "repeat_y",
+      "label": "Repeat Y",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 100,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:divergence",
+  "artist": "Loren Bednar",
+  "credit": {
+    "title": "Divergence",
+    "artist": "Loren Bednar",
+    "year": 2023,
+    "description": "DIVERGENCE\nDivergence, a never-ending abstract motion work, reacts to audio and touch inputs.  Dive into stacks of deterministic layers to explore emerging patterns, and fine-tune the audio reactivity to your preferences.  \n\nYou may wish to use the controls to wander within Divergence until the aesthetic feels right to you, or complements your audio input.  Navigating the art in this way gives a tangible window into my artistic process.  My aesthetic is influenced by the music I listen to as I code. I enjoy experimenting and looking for the art in the algorithm.  This can mean playing with overarching ideas, but also making many small changes until I find consistent visual appeal over a range of outputs.  \n\nDivergence exhibits animations changing over time in expanding, textural layers.  It elaborates on concepts I’ve developed in previous works: my approach to color in phase; linear motion in Parade; interlacing lines and expansion/contraction in Kaleidoscope; and the noise textures of Sift.  Newly explored is continuous animation with touch and audio inputs, which affect the viewing position in time and space.  \n\nA common quip in the Art Blocks community is that motion art has a penalty. Many enjoy a final product that is printable to frame at home.  As technology advances, I believe it is equally important to create work that can only exist on a screen, and is unique to digital art. Larger displays are catching up to the artistic space and becoming more accessible, but I also want my work to be approachable immediately.  Keeping the code lean and performant allows it to run well on a range of screen sizes and processor powers, from mobile devices to multi-story displays.  There has been discussion that a body of motion work takes a long time to sift through, as it needs to be viewed live.  In consideration of this, I made Divergence immersive, rather than a static experience. I want the extra time spent with it to be fun and entertaining.  \n\nUsage: Navigate left/right to traverse the timeline; navigate up/down to travel through the layers and expand/contract the patterns.  Please see “Display Notes” for further instructions (user input, audio reactivity, url parameters).  Accessibility is important to me, so Divergence accepts inputs from touch, keyboard, mouse, and gaming controllers with an analog stick.  \n\n*Photosensitive seizure warning: These artworks contain flashing colors and moving patterns.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0x99a9b7c1116f9ceeb1652de04d5969cce509b069/432",
+    "artistUrl": "https://twitter.com/LorenBednar",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 100,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0x99a9b7c1116f9ceeb1652de04d5969cce509b069",
+      "projectId": 432
+    },
+    "archiveId": "artblocks:divergence",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Divergence by Loren Bednar, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 45986
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Adivergence"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Adivergence"
+  }
+}

@@ -1,0 +1,182 @@
+{
+  "name": "Stations",
+  "promptTemplate": "A {{class}} station rendered with {{palette}} colors in {{mode}}. Negative mode (white lines): {{negative_mode}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "class",
+      "label": "Class",
+      "values": [
+        {
+          "text": "Tristation",
+          "weight": 3
+        },
+        {
+          "text": "Ringstation",
+          "weight": 2
+        },
+        {
+          "text": "Pentastation",
+          "weight": 2
+        },
+        {
+          "text": "Hexastation",
+          "weight": 1
+        },
+        {
+          "text": "Quadstation",
+          "weight": 1
+        },
+        {
+          "text": "Core",
+          "weight": 1
+        },
+        {
+          "text": "Hexastick",
+          "weight": 1
+        },
+        {
+          "text": "Pentastick",
+          "weight": 1
+        },
+        {
+          "text": "Main Core",
+          "weight": 1
+        },
+        {
+          "text": "Cubestation",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "mode",
+      "label": "Mode",
+      "values": [
+        {
+          "text": "Standard",
+          "weight": 3
+        },
+        {
+          "text": "Blueprinters (Blue)",
+          "weight": 2
+        },
+        {
+          "text": "Blueprinters (Gray)",
+          "weight": 2
+        },
+        {
+          "text": "Sketchers (Blue)",
+          "weight": 1
+        },
+        {
+          "text": "Sketchers (Gray)",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Utopians (0)",
+          "weight": 3
+        },
+        {
+          "text": "Palette 1",
+          "weight": 2
+        },
+        {
+          "text": "Palette 2",
+          "weight": 2
+        },
+        {
+          "text": "Palette 3",
+          "weight": 1
+        },
+        {
+          "text": "Palette 4",
+          "weight": 1
+        },
+        {
+          "text": "Palette 5",
+          "weight": 1
+        },
+        {
+          "text": "Palette 6",
+          "weight": 1
+        },
+        {
+          "text": "Palette 7",
+          "weight": 1
+        },
+        {
+          "text": "Palette 8",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "negative_mode",
+      "label": "Negative Mode",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 900,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:stations",
+  "artist": "Fernando Jerez",
+  "credit": {
+    "title": "Stations",
+    "artist": "Fernando Jerez",
+    "year": 2022,
+    "description": "Nine factions populate the virtual space. While Utopians develop the main net, the others work on their nodes building an economy system over the secondary chains.\nEach station is focusing on one activity but there’s some dangers out there: Scammers and Hackers trying to survive doing obscure things.\nThere are also some drafts and blueprints of stations waiting for a faction to buy and build them. Who knows what its final purpose will be.\n\nThis project plays with procedural architectonic structures. I’m using a sci-fi style to present a virtual world populated by space station-like structures.\n\nUse Mouse to Control the Camera.\nClick: Stop Rotation.\nDouble Click: Reset Auto Rotation.\nPress Any Key to Change Background Mode. Space -> Stripped -> Fog -> Transparent",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/246",
+    "artistUrl": "https://fernandojerez.com/stations/",
+    "license": {
+      "text": "CC BY 4.0 Attribution required. Free to share, adapt or use commercially",
+      "name": "CC BY 4.0",
+      "url": "https://creativecommons.org/licenses/by/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how."
+      ]
+    },
+    "editions": 900,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 246
+    },
+    "archiveId": "artblocks:stations",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Stations by Fernando Jerez, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 95083
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Astations"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Astations"
+  }
+}

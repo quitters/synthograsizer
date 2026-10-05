@@ -1,0 +1,199 @@
+{
+  "name": "Primavera",
+  "promptTemplate": "A {{formati}} composition in the {{palette}} palette and {{epoch}} epoch, featuring {{estetiche}} flow with a {{disposizione_dei_fiori}} layout; prime forms: {{forme_prime}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Primavera",
+          "weight": 3
+        },
+        {
+          "text": "Botticelli",
+          "weight": 2
+        },
+        {
+          "text": "Rose",
+          "weight": 2
+        },
+        {
+          "text": "Oro",
+          "weight": 1
+        },
+        {
+          "text": "Azzurri",
+          "weight": 1
+        },
+        {
+          "text": "Scala Di Grigi",
+          "weight": 1
+        },
+        {
+          "text": "Verdi",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "formati",
+      "label": "Formati",
+      "values": [
+        {
+          "text": "9:16 - Verticale Esteso",
+          "weight": 3
+        },
+        {
+          "text": "10:12 - Verticale Morbido",
+          "weight": 2
+        },
+        {
+          "text": "12:10 - Orizzontale Morbido",
+          "weight": 2
+        },
+        {
+          "text": "16:9 - Panoramico Contemporaneo",
+          "weight": 1
+        },
+        {
+          "text": "1:1 - Quadrato Perfetto",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "epoch",
+      "label": "Epoch",
+      "values": [
+        {
+          "text": "7/9: The Language of the Second Layer",
+          "weight": 3
+        },
+        {
+          "text": "2/9: The Network Awakens",
+          "weight": 2
+        },
+        {
+          "text": "8/9: Culture on the Chain",
+          "weight": 2
+        },
+        {
+          "text": "4/9: Harmonic Expansion",
+          "weight": 1
+        },
+        {
+          "text": "9/9: Bitcoin Renaissance",
+          "weight": 1
+        },
+        {
+          "text": "6/9: Trust Scales",
+          "weight": 1
+        },
+        {
+          "text": "3/9: The First Exchange",
+          "weight": 1
+        },
+        {
+          "text": "1/9: Genesis Era",
+          "weight": 1
+        },
+        {
+          "text": "5/9: The Elegance of Efficiency",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "estetiche",
+      "label": "Estetiche",
+      "values": [
+        {
+          "text": "Deriva",
+          "weight": 3
+        },
+        {
+          "text": "Intreccio",
+          "weight": 2
+        },
+        {
+          "text": "Fioritura",
+          "weight": 2
+        },
+        {
+          "text": "Bacino",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "disposizione_dei_fiori",
+      "label": "Disposizione Dei Fiori",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "forme_prime",
+      "label": "Forme Prime",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 70,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:primavera",
+  "artist": "Baret LaVida",
+  "credit": {
+    "title": "Primavera",
+    "artist": "Baret LaVida",
+    "year": 2026,
+    "description": "*Primavera* is a generative art project that explores the idea of **rebirth** and the deep connection between art, nature, and technology. Inspired by Botticelli’s *Primavera* and *The Birth of Venus*, it transforms the flowing hair of their protagonists into brushes that trace life onto the canvas. Each stroke is both organic and structural, evoking the movement of wind and water while revealing the hidden geometry that sustains the artwork, a reflection of how art and technology intertwine.\n\nThe project creates a bridge between the Renaissance and the blockchain era, two moments in history when **human creativity and innovation** redefined the boundaries of what was possible. While Ethereum gave birth to the generative art movement that reshaped digital creation, *Primavera* pays tribute to Bitcoin, the origin that made this new ecosystem possible. The collection celebrates a new blossoming of on-chain art, a contemporary spring where beauty, code, and meaning converge.\n\nEach piece unfolds gradually, inviting a calm, attentive viewing. Lines accumulate, forms settle into place, and the composition reveals itself at a measured pace, more like a slow emergence than an instant image.\n\nThe collection also aims to serve as an impulse for a new renaissance, in the art world and within each of us. *Primavera* is built around the idea that renewal is not a single event but a discipline... a return, a recalibration, a willingness to begin again. Every cycle carries the possibility of change, and every viewer can find in that rhythm a personal invitation to **rebirth**.\n\n*Primavera* invites us to contemplate the cycles of art, technology, and life itself, and to recognize in the dialogue between past and future the enduring power of **renewal**.\n\nEach piece follows its own unique daily process of expansion and rest, a natural pulse unfolding throughout the day. As the flowers of the *Floral Mantle* shift in size, the work recombines its colors at every stage, renewing its chromatic balance again and again. The landscape changes gently over time, continuous and sometimes barely perceptible, allowing the artwork to remain coherent while perpetually re-forming itself... a quiet, endless return to spring.\n\nFor more information about the project, its inspiration, and the traits, visit artbaret.com/primavera",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0x000019bd92633e9e00dc08adb0d0dffb00a1fe2a/0",
+    "artistUrl": "https://www.artbaret.com/primavera",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 100000,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0x000019bd92633e9e00dc08adb0d0dffb00a1fe2a",
+      "projectId": 0
+    },
+    "archiveId": "artblocks:primavera",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Primavera by Baret LaVida, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 724
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Aprimavera"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Aprimavera"
+  }
+}

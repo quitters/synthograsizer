@@ -1,6 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
 const VISION_WINDOW = 5; // max recent generated images passed as inlineData to models
-import { generateAgentResponse } from './gemini.js';
+import { generateAgentResponse, generateText } from './gemini.js';
+import { createStreamTagFilter } from './streamTagFilter.js';
+import { foldIntoSummary, needsRefresh, agedRange, summaryIsValid, MAX_FOLD_MESSAGES } from './summarizer.js';
 import { generateImage, generateImageWithReferences, parseImageRequests, parseRemixRequests, stripImageTags } from './imageGen.js';
 import { parseToolRequests, executeToolRequests, stripToolTags, formatToolResults, parseSynthRequests, executeSynthRequests, stripSynthTags, formatSynthResults, parseWorkflowRequests, stripWorkflowTags, workflowEngine, parseSynthStyleRequests, parseWorkflowTemplateRequests, stripStyleAndTemplateTags } from './tools.js';
 import { countTokens, countMessageTokens } from '../utils/tokenCounter.js';
@@ -13,7 +15,7 @@ import {
 import {
   isSmartOrchestrationEnabled, SPEAKER_CONFIDENCE_FLOOR, CONSENSUS_CONFIDENCE_FLOOR,
 } from '../config/orchestration.js';
-import { selectSpeaker, assessCompletion, getJudgeUsage, resetJudgeUsage } from './judge.js';
+import { selectSpeaker, assessCompletion, createJudgeUsage } from './judge.js';
 import { isKnownVoice, defaultVoiceForIndex } from '../config/voices.js';
 import { isDeepResearchEnabled, MAX_TASKS_PER_SESSION, ESTIMATED_COST_USD } from '../config/research.js';
 import { submitResearch, pollToCompletion } from './deepResearch.js';
@@ -24,8 +26,8 @@ import {
 } from './fileSearch.js';
 import { buildToolsForAgent } from './toolDefinitions.js';
 import { createToolDispatcher } from './toolDispatch.js';
-import { mediaStore } from './mediaStore.js';
-import { artifactStore } from './artifactStore.js';
+import { mediaStore as defaultMediaStore } from './mediaStore.js';
+import { artifactStore as defaultArtifactStore } from './artifactStore.js';
 import { synthClient, traceStore } from 'workflow-engine';
 
 /**
@@ -57,8 +59,30 @@ function createEmptyUsage() {
  * Chat Orchestrator
  * Manages the autonomous conversation between agents
  */
-class ChatOrchestrator {
-  constructor() {
+// A turn that fails (API error, empty reply) is retried with a growing pause; this
+// many in a row stops the session instead of calling the API for ever. Errors that
+// retrying cannot fix (a rejected key) stop it on the first one.
+const MAX_CONSECUTIVE_FAILURES = 5;
+const FATAL_ERROR_PATTERN = /API key not valid|API_KEY_INVALID|invalid api key|PERMISSION_DENIED|UNAUTHENTICATED/i;
+
+/**
+ * One chat room. The server keeps one per visitor (see sessionRegistry.js); the
+ * exported `orchestrator` below is the default room, used by scripts and tests.
+ */
+export class ChatOrchestrator {
+  /**
+   * @param {{ ownerId?: string, mediaStore?: object, artifactStore?: object }} [options]
+   *   ownerId tags this room's workflow traces and runs; the stores hold what its
+   *   agents generate and write, so rooms never see each other's files.
+   */
+  constructor(options = {}) {
+    this.ownerId = options.ownerId || null;
+    this.mediaStore = options.mediaStore || defaultMediaStore;
+    this.artifactStore = options.artifactStore || defaultArtifactStore;
+    // Overridable so tests can drive the conversation loop without the network.
+    this._generate = generateAgentResponse;
+    // Overridable so tests can run the rolling summary without the network.
+    this._summarize = generateText;
     this.reset();
   }
 
@@ -142,6 +166,14 @@ class ChatOrchestrator {
     this.researchTasksUsed = 0;
     this.pendingResearchOutcomes = [];
     this.activeResearchIds = new Set();
+    // Turns that failed one after another, and the last failure's message
+    this.consecutiveFailures = 0;
+    this.lastError = null;
+    // Running notes on the messages that have aged out of the prompt window
+    // ({ text, upTo, lastId }, see summarizer.js) and whether a refresh is in flight.
+    this.summary = null;
+    this._summaryBusy = false;
+    this.judgeUsage = createJudgeUsage();
   }
 
   /**
@@ -155,6 +187,9 @@ class ChatOrchestrator {
       err.current = this.sessionMedia.length;
       throw err;
     }
+    // Remember how far into the conversation this arrived, so agents are shown a fresh
+    // upload even when it comes long after the opening turns (see mediaContext.js).
+    if (mediaItem.addedAtMessage === undefined) mediaItem.addedAtMessage = this.messages.length;
     this.sessionMedia.push(mediaItem);
 
     // Index documents into File Search rather than letting them ride inline.
@@ -577,7 +612,7 @@ class ChatOrchestrator {
    * (chunks, agent_start, etc.) is filtered there rather than here.
    */
   broadcast(event, data) {
-    try { traceStore.record(event, data); }
+    try { traceStore.record(event, this.ownerId && data ? { ...data, ownerId: this.ownerId } : data); }
     catch (err) { console.error('[traceStore] record failed:', err.message); }
 
     const message = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
@@ -620,9 +655,11 @@ class ChatOrchestrator {
     // Real usage is per-run spend. Unlike tokenCount it is NOT rewound by
     // branch restore or rewindToMessage — you can't un-spend tokens.
     this.usage = createEmptyUsage();
-    resetJudgeUsage();
+    this.judgeUsage = createJudgeUsage();
     this.turnCount = 0;
     this.lastSpeakerId = null;
+    this.consecutiveFailures = 0;
+    this.lastError = null;
     this.modelPreference = options.model || null;
     // sessionId groups all workflows + traces produced during this run.
     // The trace viewer's "session lens" pivots on this field.
@@ -654,7 +691,9 @@ class ChatOrchestrator {
       reason,
       totalTokens: this.tokenCount,
       turnCount: this.turnCount,
-      messages: this.messages.length
+      messages: this.messages.length,
+      // Why a session ended by failing, so the UI can say more than "stopped"
+      error: reason === 'error_limit_reached' ? this.lastError : undefined
     });
     this._archiveToMemory(reason);
   }
@@ -676,6 +715,7 @@ class ChatOrchestrator {
       agents: this.agents.map(a => ({ name: a.name })),
       // Copy: the live array is about to be reset out from under the upload.
       messages: this.messages.map(m => ({ agentName: m.agentName, content: m.content })),
+      ownerId: this.ownerId,   // whose memory this goes into (see fileSearch.memoryStoreNameFor)
       endedAt: new Date().toISOString(),
       reason,
     };
@@ -700,12 +740,34 @@ class ChatOrchestrator {
       this.memoryStoreName = null;
       return;
     }
-    getOrCreateMemoryStore()
+    getOrCreateMemoryStore(this.ownerId)
       .then(name => {
         this.memoryStoreName = name;
         this.broadcast('memory_available', { storeName: name });
       })
       .catch(err => console.warn(`[Orchestrator] memory store unavailable: ${err.message}`));
+  }
+
+  /**
+   * Note a failed turn. Returns true when the session was stopped because of it.
+   * Solo chats are not stopped: they wait for the user, who can simply try again.
+   */
+  _recordFailure(message) {
+    this.consecutiveFailures++;
+    this.lastError = message || 'unknown error';
+    if (this.mode === 'solo') return false;
+    const fatal = FATAL_ERROR_PATTERN.test(this.lastError);
+    if (fatal || this.consecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
+      console.error(`[Orchestrator] stopping after ${this.consecutiveFailures} failed turn(s): ${this.lastError}`);
+      this.stop('error_limit_reached');
+      return true;
+    }
+    return false;
+  }
+
+  /** Pause before retrying after a failed turn: 1 s, 2 s, 4 s, 8 s ... up to 30 s. */
+  _backoffMs() {
+    return Math.min(30000, 1000 * 2 ** Math.max(0, this.consecutiveFailures - 1));
   }
 
   /**
@@ -748,6 +810,8 @@ class ChatOrchestrator {
     // closed out by an in-flight consensus marker from a previous turn.
     this.lastUserMessageTurn = this.turnCount;
     this.consensusVotes = [];
+    // The user is acting, so earlier failures should not count against the next turn.
+    this.consecutiveFailures = 0;
 
     this.broadcast('message', message);
 
@@ -931,6 +995,7 @@ class ChatOrchestrator {
 
     try {
       const verdict = await selectSpeaker({
+        usage: this.judgeUsage,
         candidates,
         recentMessages: this.messages,
         goal: this.goal,
@@ -1176,6 +1241,13 @@ class ChatOrchestrator {
 
     const contentLower = content.toLowerCase();
     const hasMarker = content.includes('[CONSENSUS REACHED]') || contentLower.includes('[consensus reached]');
+    // A completion phrase ("that's a wrap", "final document") from ONE agent used to end
+    // the whole session. It is now a vote like the explicit marker, so it takes the same
+    // quorum. Sensitivity 'low' and "require explicit marker" ignore phrases entirely.
+    const phraseHit = !hasMarker
+      && !this.consensusSettings.requireExplicitMarker
+      && this.consensusSettings.sensitivity !== 'low'
+      && this._completionPhrases().some(p => contentLower.includes(p));
 
     // Cooldown: a single user prompt cannot be closed out within N turns of
     // being submitted. Required to prevent premature shutdown observed in
@@ -1185,8 +1257,8 @@ class ChatOrchestrator {
     const turnsSinceUser = this.turnCount - (this.lastUserMessageTurn ?? -Infinity);
     const inCooldown = Number.isFinite(this.lastUserMessageTurn) && turnsSinceUser < cooldown;
 
-    // Explicit consensus marker — record as a vote, then require quorum.
-    if (hasMarker) {
+    // Explicit consensus marker or completion phrase — record as a vote, then require quorum.
+    if (hasMarker || phraseHit) {
       if (speakerId) {
         // De-dupe: one vote per agent per active window.
         this.consensusVotes = this.consensusVotes.filter(v => v.agentId !== speakerId);
@@ -1231,34 +1303,12 @@ class ChatOrchestrator {
       return null;
     }
 
-    // Check for consensus/completion phrases (medium and high sensitivity)
-    const completionPhrases = [
-      'we have consensus',
-      'consensus reached',
-      'brief is complete',
-      'final document',
-      'that\'s a wrap',
-      'session complete',
-      'we\'re aligned',
-      'unanimous agreement',
-      'brief and deck are locked',
-      'goal has been achieved',
-      'mission accomplished',
-      'we\'ve accomplished our goal',
-      // Add custom phrases
-      ...this.consensusSettings.customPhrases
-    ];
+    // Completion phrases were handled above, as votes.
 
-    for (const phrase of completionPhrases) {
-      if (contentLower.includes(phrase)) {
-        return 'consensus_reached';
-      }
-    }
-
-    // Smart mode gets a second look: the phrase list above is a fixed set of
-    // strings and cannot recognise "I think we're done here" or "nothing
-    // further from me on this". Marked for the async pass in the loop, which
-    // still applies the cooldown and quorum rules around whatever it decides.
+    // Smart mode gets a second look: the phrase list is a fixed set of strings and cannot
+    // recognise "I think we're done here" or "nothing further from me on this". Marked for the
+    // async pass in the loop, which still applies the cooldown and quorum rules around whatever
+    // it decides.
     if (isSmartOrchestrationEnabled()) {
       return 'needs_judgement';
     }
@@ -1271,6 +1321,25 @@ class ChatOrchestrator {
     }
 
     return null;
+  }
+
+  /** Phrases that count as one agent voting to finish (lower case), plus the user's own. */
+  _completionPhrases() {
+    return [
+      'we have consensus',
+      'consensus reached',
+      'brief is complete',
+      'final document',
+      'that\'s a wrap',
+      'session complete',
+      'we\'re aligned',
+      'unanimous agreement',
+      'brief and deck are locked',
+      'goal has been achieved',
+      'mission accomplished',
+      'we\'ve accomplished our goal',
+      ...(this.consensusSettings.customPhrases || []).map(p => String(p).toLowerCase())
+    ];
   }
 
   /**
@@ -1349,6 +1418,9 @@ class ChatOrchestrator {
         // Generate response with streaming
         let fullResponse = '';
         let responseTokens = 0;
+        let turnError = null;
+        // Control tags are acted on at the end of the turn; keep them out of the live stream.
+        const tagFilter = createStreamTagFilter();
         let turnUsage = null;
         let turnUsageReported = false;
         let turnInteractionId = null;
@@ -1360,7 +1432,7 @@ class ChatOrchestrator {
         const systemNotes = this._drainWorkflowOutcomes();
         const turnTools = this._toolsForTurn(speaker);
         const hasCustomFunctions = turnTools.some(t => t?.type === 'function');
-        const generator = generateAgentResponse(
+        const generator = this._generate(
           speaker,
           this.agents,
           this.messages,
@@ -1387,6 +1459,9 @@ class ChatOrchestrator {
             dispatch: hasCustomFunctions
               ? this._createDispatcher(speaker, toolMedia)
               : null,
+            // This room's own files, and the notes on its older messages.
+            artifactStore: this.artifactStore,
+            summary: this._summaryForPrompt(),
           }
         );
 
@@ -1395,10 +1470,13 @@ class ChatOrchestrator {
 
           if (event.type === 'chunk') {
             fullResponse += event.text;
-            this.broadcast('chunk', {
-              agentId: speaker.id,
-              text: event.text
-            });
+            const visible = tagFilter.push(event.text);
+            if (visible) {
+              this.broadcast('chunk', {
+                agentId: speaker.id,
+                text: visible
+              });
+            }
           } else if (event.type === 'tool_call') {
             this.broadcast('tool_executing', {
               agentId: speaker.id,
@@ -1437,12 +1515,24 @@ class ChatOrchestrator {
               agentId: speaker.id,
               error: event.error
             });
-            // Continue to next turn despite error
+            turnError = event.error || 'unknown error';
             break;
           }
         }
 
         if (!this.isRunning || this.isPaused) break;
+
+        if (turnError) {
+          // Back off and try again, but give up after repeated failures (see _recordFailure)
+          if (this._recordFailure(turnError)) break;
+          if (this.mode === 'solo') {
+            this.isPaused = true;
+            this.broadcast('session_waiting_user', {});
+            break;
+          }
+          await this.delay(this._backoffMs());
+          continue;
+        }
 
         // In function-calling mode the bracket vocabulary was never taught, so
         // nothing should be scraped out of the prose — and a legitimate
@@ -1480,7 +1570,7 @@ class ChatOrchestrator {
               images.push(imageItem);
 
               // Store in media store for later retrieval/export
-              mediaStore.add({
+              this.mediaStore.add({
                 id: imageId,
                 type: 'image',
                 data: imageResult.imageData,
@@ -1515,7 +1605,7 @@ class ChatOrchestrator {
           for (const request of remixRequests) {
             try {
               // Get the reference image from media store
-              const referenceMedia = mediaStore.get(request.referenceImageId);
+              const referenceMedia = this.mediaStore.get(request.referenceImageId);
 
               if (!referenceMedia) {
                 console.warn(`Reference image ${request.referenceImageId} not found`);
@@ -1553,7 +1643,7 @@ class ChatOrchestrator {
               images.push(imageItem);
 
               // Store in media store
-              mediaStore.add({
+              this.mediaStore.add({
                 id: imageId,
                 type: 'image',
                 data: imageResult.imageData,
@@ -1653,7 +1743,7 @@ class ChatOrchestrator {
             // mediaStore.get lets agents reference images/videos by ID
             const rawSynthResults = await executeSynthRequests(
               synthRequests,
-              (id) => mediaStore.get(id)
+              (id) => this.mediaStore.get(id)
             );
             synthResults = formatSynthResults(rawSynthResults);
 
@@ -1675,7 +1765,7 @@ class ChatOrchestrator {
               if (raw.image) {
                 const mediaId = uuidv4();
                 const mimeType = 'image/png';
-                mediaStore.add({
+                this.mediaStore.add({
                   id: mediaId,
                   type: 'image',
                   data: raw.image,
@@ -1703,7 +1793,7 @@ class ChatOrchestrator {
               if (raw.video) {
                 const mediaId = uuidv4();
                 const mimeType = 'video/mp4';
-                mediaStore.add({
+                this.mediaStore.add({
                   id: mediaId,
                   type: 'video',
                   data: raw.video,
@@ -1757,6 +1847,8 @@ class ChatOrchestrator {
                 agentName: speaker.name,
                 agentColor: speaker.color,
                 sessionId: this.sessionId,
+                mediaStore: this.mediaStore,
+                ownerId: this.ownerId,
               });
               workflowIds.push(wfId);
               this.broadcast('workflow_submitted', {
@@ -1767,14 +1859,16 @@ class ChatOrchestrator {
                 steps: (req.definition.steps || []).map(s => ({ id: s.id, type: s.type })),
               });
             } else if (req.type === 'workflow_status') {
-              const status = workflowEngine.getStatus(req.workflowId);
+              // An agent can only ask about runs from its own room
+              const found = workflowEngine.getStatus(req.workflowId);
+              const status = found && (this.ownerId === null || found.ownerId === this.ownerId) ? found : null;
               this.broadcast('workflow_status', {
                 agentId: speaker.id,
                 workflowId: req.workflowId,
                 status: status || { error: 'Workflow not found' },
               });
             } else if (req.type === 'workflow_cancel') {
-              const cancelled = workflowEngine.cancel(req.workflowId);
+              const cancelled = workflowEngine.cancel(req.workflowId, this.ownerId ?? undefined);
               this.broadcast('workflow_cancel_result', {
                 agentId: speaker.id,
                 workflowId: req.workflowId,
@@ -1819,7 +1913,7 @@ class ChatOrchestrator {
 
               if (result.image) {
                 const mediaId = uuidv4();
-                mediaStore.add({
+                this.mediaStore.add({
                   id: mediaId,
                   type: 'image',
                   data: result.image,
@@ -1866,6 +1960,8 @@ class ChatOrchestrator {
               agentName: speaker.name,
               agentColor: speaker.color,
               sessionId: this.sessionId,
+              mediaStore: this.mediaStore,
+              ownerId: this.ownerId,
             });
             workflowIds.push(wfId);
             this.broadcast('workflow_submitted', {
@@ -1890,7 +1986,7 @@ class ChatOrchestrator {
         // ── Artifact tags ──────────────────────────────────────────────────
         const artifactUpdates = parseArtifactTags(tagSource);
         for (const { filename, content: artContent } of artifactUpdates) {
-          const artifact = artifactStore.save(filename, artContent, speaker.id, speaker.name);
+          const artifact = this.artifactStore.save(filename, artContent, speaker.id, speaker.name);
           this.broadcast('artifact_update', {
             filename:     artifact.filename,
             language:     artifact.language,
@@ -1930,7 +2026,13 @@ class ChatOrchestrator {
         if (!hasContent && !hasImages && !hasToolResults && !hasSynthMedia && !hasSynthResults &&
             !hasWorkflows && !hasArtifacts && !hasToolMedia && !hasToolCalls) {
           console.warn(`Empty response from ${speaker.name}, skipping turn`);
-          await this.delay(500);
+          if (this._recordFailure(`${speaker.name} returned an empty response`)) break;
+          if (this.mode === 'solo') {
+            this.isPaused = true;
+            this.broadcast('session_waiting_user', {});
+            break;
+          }
+          await this.delay(this._backoffMs());
           continue;
         }
 
@@ -1961,6 +2063,7 @@ class ChatOrchestrator {
         this.tokenCount += responseTokens;
         this._accumulateUsage(turnUsage, turnUsageReported);
         this.lastSpeakerId = speaker.id;
+        this.consecutiveFailures = 0;
 
         // Advance this agent's chain. It has now seen everything up to and
         // including its own turn, so the next one starts from here. If the
@@ -1977,6 +2080,9 @@ class ChatOrchestrator {
 
         // Broadcast the message to all clients
         this.broadcast('message', message);
+
+        // Keep the notes on older messages up to date (in the background)
+        this._maybeRefreshSummary();
 
         // Broadcast completion
         this.broadcast('agent_complete', {
@@ -2014,8 +2120,13 @@ class ChatOrchestrator {
           agentId: speaker.id,
           error: error.message
         });
-        // Continue despite errors
-        await this.delay(2000);
+        if (this._recordFailure(error.message)) break;
+        if (this.mode === 'solo') {
+          this.isPaused = true;
+          this.broadcast('session_waiting_user', {});
+          break;
+        }
+        await this.delay(this._backoffMs());
       }
     }
   }
@@ -2057,7 +2168,7 @@ class ChatOrchestrator {
       // asked for.
       const goalLower = (this.goal ?? '').toLowerCase();
       const allowArtifacts =
-        artifactStore.getAll().length > 0 ||
+        this.artifactStore.getAll().length > 0 ||
         /\b(build|create|make|code|sketch|game|p5|html|website|app|artifact)\b/.test(goalLower);
       tools.push(...buildToolsForAgent(speaker, { allowArtifacts }));
     }
@@ -2073,8 +2184,8 @@ class ChatOrchestrator {
   _createDispatcher(speaker, toolMedia) {
     return createToolDispatcher({
       agent: speaker,
-      mediaStore,
-      artifactStore,
+      mediaStore: this.mediaStore,
+      artifactStore: this.artifactStore,
       startResearch: isDeepResearchEnabled()
         ? (topic, opts) => this._startResearch(topic, opts, speaker)
         : null,
@@ -2116,7 +2227,7 @@ class ChatOrchestrator {
     let verdict;
     try {
       verdict = await assessCompletion({
-        content, goal: this.goal, agentName: speaker.name,
+        content, goal: this.goal, agentName: speaker.name, usage: this.judgeUsage,
       });
     } catch (err) {
       console.warn(`[Orchestrator] completion judgement failed: ${err.message}`);
@@ -2180,6 +2291,50 @@ class ChatOrchestrator {
     this.usage.searchQueries += queries.length;
   }
 
+  /** Does the server hold each agent's history (stateful chains), rather than us re-sending it? */
+  _usesServerHistory() {
+    return isStatefulEnabled();
+  }
+
+  /**
+   * The rolling summary to give the next speaker, or null. It is dropped, never trusted,
+   * once the messages it describes have changed (rewind, branch restore, reset).
+   */
+  _summaryForPrompt() {
+    return summaryIsValid(this.summary, this.messages) ? this.summary : null;
+  }
+
+  /**
+   * Fold messages that have just aged out of the window into the running summary.
+   * Runs in the background and never blocks or fails a turn: if the model call fails,
+   * the older one-line notes are used a while longer and it is tried again next turn.
+   */
+  _maybeRefreshSummary() {
+    // In stateful mode the server already holds each agent's real history (a chain), so the
+    // notes would only add cost; they are for stateless turns (GEMINI_STORE_INTERACTIONS=false).
+    if (this._usesServerHistory()) return;
+    if (this._summaryBusy || !needsRefresh(this.messages, this.summary)) return;
+
+    const range = agedRange(this.messages, this.summary);
+    const from = range.from;
+    const to = Math.min(range.to, from + MAX_FOLD_MESSAGES);
+    const batch = this.messages.slice(from, to);
+    const lastId = batch[batch.length - 1].id;
+    const previous = summaryIsValid(this.summary, this.messages) ? this.summary.text : '';
+    const goal = this.goal;
+
+    this._summaryBusy = true;
+    foldIntoSummary({ goal, previous, messages: batch, generate: (prompt) => this._summarize(prompt) })
+      .then((text) => {
+        // Only keep it if the conversation is still the one it was written about.
+        if (this.messages[to - 1]?.id !== lastId) return;
+        this.summary = { text, upTo: to, lastId };
+        this.broadcast('summary_updated', { upTo: to, chars: text.length });
+      })
+      .catch((err) => console.warn(`[Orchestrator] summary refresh failed (will retry): ${err.message}`))
+      .finally(() => { this._summaryBusy = false; });
+  }
+
   /**
    * Utility delay function
    */
@@ -2204,9 +2359,11 @@ class ChatOrchestrator {
       stateful: isStatefulEnabled(),
       // Orchestration judgements are real spend, billed separately from the
       // agent turns — surfaced so they can't hide.
-      judgeUsage: isSmartOrchestrationEnabled() ? getJudgeUsage() : null,
+      judgeUsage: isSmartOrchestrationEnabled() ? { ...this.judgeUsage } : null,
       turnCount: this.turnCount,
       messageCount: this.messages.length,
+      // How many of the oldest messages the rolling summary currently covers
+      summarizedMessages: this._summaryForPrompt()?.upTo ?? 0,
       agents: this.agents, // Include full agent data with bios
       completionReason: this.completionReason,
       speakingOrder: this.speakingOrder,

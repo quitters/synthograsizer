@@ -1,0 +1,149 @@
+{
+  "name": "Sonoran Roadways",
+  "promptTemplate": "A {{quilt_size}} stippled Sonoran roadway under the {{color_palette}} palette with a \"{{trip_status}}\" mood; flat colors: {{flat_colors}}, double-quilted: {{double_quilted}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "color_palette",
+      "label": "Color Palette",
+      "values": [
+        {
+          "text": "Preserves",
+          "weight": 3
+        },
+        {
+          "text": "Poppy",
+          "weight": 2
+        },
+        {
+          "text": "Omelet",
+          "weight": 2
+        },
+        {
+          "text": "Salmon",
+          "weight": 1
+        },
+        {
+          "text": "Lenny",
+          "weight": 1
+        },
+        {
+          "text": "Bubblegum",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "quilt_size",
+      "label": "Quilt Size",
+      "values": [
+        {
+          "text": "4x4",
+          "weight": 3
+        },
+        {
+          "text": "2x2",
+          "weight": 2
+        },
+        {
+          "text": "10x10",
+          "weight": 2
+        },
+        {
+          "text": "8x8",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "trip_status",
+      "label": "Trip Status",
+      "values": [
+        {
+          "text": "Are we there yet?",
+          "weight": 3
+        },
+        {
+          "text": "What a beautiful view",
+          "weight": 2
+        },
+        {
+          "text": "Lost in thought",
+          "weight": 2
+        },
+        {
+          "text": "Should have offline'd this podcast",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "flat_colors",
+      "label": "Flat Colors",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "double_quilted",
+      "label": "Double-quilted",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 54,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:sonoran-roadways",
+  "artist": "Jake Rockland",
+  "credit": {
+    "title": "Sonoran Roadways",
+    "artist": "Jake Rockland",
+    "year": 2023,
+    "description": "Long drives can be seen as a monotonous chore, or a peaceful solace. \"Sonoran Roadways\" is a prompt to see the road as a conduit for joyous return to places we find special. The project continues my reflection on physical and significant spaces, which started with previous projects \"Stipple Sunsets\", \"Patchwork Saguaros\", and \"Speckled Summits\". \n\nIn these three prior works, I looked to capture the essence of the \"escape of the beach\", the \"home I grew up in\" of the Sonoran desert, and the \"home I find now\" in the Rocky Mountains. \"Sonoran Roadways\" continues this arc, reflecting similar active appreciation of space and place found in the transition of travel.\n\nThe style and technique of \"Sonoran Roadways\" is homage to stencil-like qualities of silkscreen printmaking. As the grandson of two artists who worked in the mediums of printmaking, paper cutting, and quilt making, I strive to incorporate the qualities of these mediums into my stipple-based digital paintings.\n\nAdditional approaches are pulled from my abstract experimentation in \"Dot Matrix Gradient Study\" with distortion and \"digital misprinting\" applied to the stipple matrices, but with a return to a figurative form.\n\nPalettes used in \"Sonoran Roadways\" are largely inspired by Arizona's scenic drives and fantastical multi-colored sunsets – peaceful and familiar to me. \n\n\"Sonoran Roadways\" is a call to appreciate the potentially mundane, and get lost in the imagination of the journey back to somewhere called home or the fantasy of an exploration to somewhere new.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0x99a9b7c1116f9ceeb1652de04d5969cce509b069/461",
+    "artistUrl": "https://jakerockland.com/sonoran-roadways",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 54,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0x99a9b7c1116f9ceeb1652de04d5969cce509b069",
+      "projectId": 461
+    },
+    "archiveId": "artblocks:sonoran-roadways",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Sonoran Roadways by Jake Rockland, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 31514
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Asonoran-roadways"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Asonoran-roadways"
+  }
+}

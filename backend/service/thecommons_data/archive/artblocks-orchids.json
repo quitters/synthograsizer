@@ -1,0 +1,133 @@
+{
+  "name": "Orchids",
+  "promptTemplate": "A {{palette}} generative orchid with door: {{door}}; pollinated by people: {{people}}, birds: {{birds}}, suffused with hearts: {{hearts}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "glow",
+          "weight": 3
+        },
+        {
+          "text": "blood",
+          "weight": 2
+        },
+        {
+          "text": "bees",
+          "weight": 2
+        },
+        {
+          "text": "wall",
+          "weight": 1
+        },
+        {
+          "text": "peonies",
+          "weight": 1
+        },
+        {
+          "text": "monoflower",
+          "weight": 1
+        },
+        {
+          "text": "grief",
+          "weight": 1
+        },
+        {
+          "text": "garden",
+          "weight": 1
+        },
+        {
+          "text": "crown",
+          "weight": 1
+        },
+        {
+          "text": "butterfly",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "door",
+      "label": "Door",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "people",
+      "label": "People",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "birds",
+      "label": "Birds",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "hearts",
+      "label": "Hearts",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 401,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:orchids",
+  "artist": "Luke Shannon",
+  "credit": {
+    "title": "Orchids",
+    "artist": "Luke Shannon",
+    "year": 2022,
+    "description": "If an orchid looks within itself, it realizes that its presence depends on the bugs, birds, and people that pollinate it. The orchid realizes the rain and the sun are within itself. Together, they endlessly change, bloom, and decay, suffused with light, energy, and love.\n\nBy examining herself, the orchid forgets herself, and therefore is verified by all things.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0x0a1bbd57033f57e7b6743621b79fcb9eb2ce3676/16",
+    "artistUrl": "https://twitter.com/luke_shannon_",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 440,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0x0a1bbd57033f57e7b6743621b79fcb9eb2ce3676",
+      "projectId": 16
+    },
+    "archiveId": "artblocks:orchids",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Orchids by Luke Shannon, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 91817
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Aorchids"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Aorchids"
+  }
+}

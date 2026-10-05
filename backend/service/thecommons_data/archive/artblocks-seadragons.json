@@ -1,0 +1,231 @@
+{
+  "name": "Seadragons",
+  "promptTemplate": "A {{seadragon}} seadragon in {{theme}} styling with {{variation}} patterns on a {{background}} background in pose {{pose}}, with seaweed: {{seaweed}}, superdragon: {{superdragon}}, belly: {{belly}}, dual: {{dual}}, parent: {{parent}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "seadragon",
+      "label": "seadragon",
+      "values": [
+        {
+          "text": "leafy",
+          "weight": 3
+        },
+        {
+          "text": "ribboned",
+          "weight": 2
+        },
+        {
+          "text": "weedy",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "theme",
+      "label": "theme",
+      "values": [
+        {
+          "text": "noir",
+          "weight": 3
+        },
+        {
+          "text": "zebra",
+          "weight": 2
+        },
+        {
+          "text": "frog",
+          "weight": 2
+        },
+        {
+          "text": "noir-color",
+          "weight": 1
+        },
+        {
+          "text": "classic",
+          "weight": 1
+        },
+        {
+          "text": "vintage",
+          "weight": 1
+        },
+        {
+          "text": "debug",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "variation",
+      "label": "variation",
+      "values": [
+        {
+          "text": "complimentary",
+          "weight": 3
+        },
+        {
+          "text": "mono",
+          "weight": 2
+        },
+        {
+          "text": "analogous",
+          "weight": 2
+        },
+        {
+          "text": "zebra-stripes",
+          "weight": 1
+        },
+        {
+          "text": "zebra-dots",
+          "weight": 1
+        },
+        {
+          "text": "vintage-dots",
+          "weight": 1
+        },
+        {
+          "text": "vintage-stripes",
+          "weight": 1
+        },
+        {
+          "text": "analogous-saturated",
+          "weight": 1
+        },
+        {
+          "text": "bold",
+          "weight": 1
+        },
+        {
+          "text": "calm",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "superdragon",
+      "label": "superdragon",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "background",
+      "label": "background",
+      "values": [
+        {
+          "text": "dark",
+          "weight": 3
+        },
+        {
+          "text": "white",
+          "weight": 2
+        },
+        {
+          "text": "light",
+          "weight": 2
+        },
+        {
+          "text": "black",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "seaweed",
+      "label": "seaweed",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "pose",
+      "label": "pose",
+      "values": [
+        {
+          "text": "0",
+          "weight": 3
+        },
+        {
+          "text": "2",
+          "weight": 2
+        },
+        {
+          "text": "1",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "dual",
+      "label": "dual",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "parent",
+      "label": "parent",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "belly",
+      "label": "belly",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 1000,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:seadragons",
+  "artist": "Marcin Ignac",
+  "credit": {
+    "title": "Seadragons",
+    "artist": "Marcin Ignac",
+    "year": 2021,
+    "description": "\"Seadragons\" is a generative catalogue of imaginary sea creatures from Syngnathidae family. Each seadragon belongs to one of the real Weedy, Leafy or Ribboned species, while the patterns and the small leaf-like appendages are an artistic interpretation. The dragons are rendered in real-time allowing you to watch them slowly drifting in the water or moving your mouse to nudge them slightly.\n\nThis project is a continuation of my long term fascination with using code to recreate forms and patterns occurring in nature. By using a range of non-photorealistic rendering techniques I strive to document those explorations as if they were actual sketches, posters or biological illustrations of the encountered specimens. Algorithmic variations of their patterns, sizes, colors, poses, complexity and surrounding seaweed present in each artwork are only a minor drop compared to the diversity observed in natural environments. \n\n15% of profits will be donated to oceana.org for protecting and restoring the world’s oceans on a global scale. Another 10% will be donated to givewell.org.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/160",
+    "artistUrl": "http://marcinignac.com/projects/seadragons/",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 1000,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 160
+    },
+    "archiveId": "artblocks:seadragons",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Seadragons by Marcin Ignac, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 1022213
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Aseadragons"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Aseadragons"
+  }
+}

@@ -1,0 +1,891 @@
+{
+  "name": "Gizmobotz",
+  "promptTemplate": "A 3×3 cluster of Gizmobotz: {{middle_center_bot}} in {{middle_center_color}} at center, flanked by {{top_left_bot}} ({{top_left_color}}), {{top_center_bot}} ({{top_center_color}}), {{top_right_bot}} ({{top_right_color}}), {{middle_left_bot}} ({{middle_left_color}}), {{middle_right_bot}} ({{middle_right_color}}), {{bottom_left_bot}} ({{bottom_left_color}}), {{bottom_center_bot}} ({{bottom_center_color}}), and {{bottom_right_bot}} ({{bottom_right_color}}). This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "middle_center_bot",
+      "label": "Middle Center Bot",
+      "values": [
+        {
+          "text": "Cyclotron",
+          "weight": 3
+        },
+        {
+          "text": "SquareDance",
+          "weight": 2
+        },
+        {
+          "text": "Lattitudes",
+          "weight": 2
+        },
+        {
+          "text": "FourEyes",
+          "weight": 1
+        },
+        {
+          "text": "BoxDance",
+          "weight": 1
+        },
+        {
+          "text": "Giza",
+          "weight": 1
+        },
+        {
+          "text": "Trapeze",
+          "weight": 1
+        },
+        {
+          "text": "Bowtie",
+          "weight": 1
+        },
+        {
+          "text": "PolloLoco",
+          "weight": 1
+        },
+        {
+          "text": "Bloopy",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "top_center_bot",
+      "label": "Top Center Bot",
+      "values": [
+        {
+          "text": "Luxor",
+          "weight": 3
+        },
+        {
+          "text": "Vinyl",
+          "weight": 2
+        },
+        {
+          "text": "Bloopy",
+          "weight": 2
+        },
+        {
+          "text": "Twisty",
+          "weight": 1
+        },
+        {
+          "text": "Tumblers",
+          "weight": 1
+        },
+        {
+          "text": "Atomic",
+          "weight": 1
+        },
+        {
+          "text": "Wiperbot",
+          "weight": 1
+        },
+        {
+          "text": "Trapeze",
+          "weight": 1
+        },
+        {
+          "text": "SquarePeg",
+          "weight": 1
+        },
+        {
+          "text": "PolloLoco",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "middle_left_bot",
+      "label": "Middle Left Bot",
+      "values": [
+        {
+          "text": "Daddio",
+          "weight": 3
+        },
+        {
+          "text": "Tumblers",
+          "weight": 2
+        },
+        {
+          "text": "Luxor",
+          "weight": 2
+        },
+        {
+          "text": "PolloLoco",
+          "weight": 1
+        },
+        {
+          "text": "CircleDance",
+          "weight": 1
+        },
+        {
+          "text": "Conveyor",
+          "weight": 1
+        },
+        {
+          "text": "FourWalls",
+          "weight": 1
+        },
+        {
+          "text": "Angrybot",
+          "weight": 1
+        },
+        {
+          "text": "Bloopy",
+          "weight": 1
+        },
+        {
+          "text": "SquareDance",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "middle_right_bot",
+      "label": "Middle Right Bot",
+      "values": [
+        {
+          "text": "Atomic",
+          "weight": 3
+        },
+        {
+          "text": "Conveyor",
+          "weight": 2
+        },
+        {
+          "text": "Plus3",
+          "weight": 2
+        },
+        {
+          "text": "Grimbot",
+          "weight": 1
+        },
+        {
+          "text": "FourWalls",
+          "weight": 1
+        },
+        {
+          "text": "Cyclotron",
+          "weight": 1
+        },
+        {
+          "text": "SquarePeg",
+          "weight": 1
+        },
+        {
+          "text": "Bloopy",
+          "weight": 1
+        },
+        {
+          "text": "GridFace",
+          "weight": 1
+        },
+        {
+          "text": "Daddio",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "bottom_center_bot",
+      "label": "Bottom Center Bot",
+      "values": [
+        {
+          "text": "Daddio",
+          "weight": 3
+        },
+        {
+          "text": "Flo",
+          "weight": 2
+        },
+        {
+          "text": "Waterpump",
+          "weight": 2
+        },
+        {
+          "text": "PieFace",
+          "weight": 1
+        },
+        {
+          "text": "Bones",
+          "weight": 1
+        },
+        {
+          "text": "BoxDance",
+          "weight": 1
+        },
+        {
+          "text": "Vinyl",
+          "weight": 1
+        },
+        {
+          "text": "Tumblers",
+          "weight": 1
+        },
+        {
+          "text": "GridFace",
+          "weight": 1
+        },
+        {
+          "text": "Conveyor",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "top_left_bot",
+      "label": "Top Left Bot",
+      "values": [
+        {
+          "text": "Tumblers",
+          "weight": 3
+        },
+        {
+          "text": "SquareDance",
+          "weight": 2
+        },
+        {
+          "text": "Twisty",
+          "weight": 2
+        },
+        {
+          "text": "Vinyl",
+          "weight": 1
+        },
+        {
+          "text": "Plus3",
+          "weight": 1
+        },
+        {
+          "text": "Flo",
+          "weight": 1
+        },
+        {
+          "text": "Spike",
+          "weight": 1
+        },
+        {
+          "text": "Giza",
+          "weight": 1
+        },
+        {
+          "text": "FourEyes",
+          "weight": 1
+        },
+        {
+          "text": "Waterpump",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "top_right_bot",
+      "label": "Top Right Bot",
+      "values": [
+        {
+          "text": "SquarePeg",
+          "weight": 3
+        },
+        {
+          "text": "Conveyor",
+          "weight": 2
+        },
+        {
+          "text": "Tumblers",
+          "weight": 2
+        },
+        {
+          "text": "FourEyes",
+          "weight": 1
+        },
+        {
+          "text": "Trapeze",
+          "weight": 1
+        },
+        {
+          "text": "Atomic",
+          "weight": 1
+        },
+        {
+          "text": "Lunar",
+          "weight": 1
+        },
+        {
+          "text": "Luxor",
+          "weight": 1
+        },
+        {
+          "text": "Daddio",
+          "weight": 1
+        },
+        {
+          "text": "Clockwork",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "bottom_left_bot",
+      "label": "Bottom Left Bot",
+      "values": [
+        {
+          "text": "Flo",
+          "weight": 3
+        },
+        {
+          "text": "Grimbot",
+          "weight": 2
+        },
+        {
+          "text": "Bloopy",
+          "weight": 2
+        },
+        {
+          "text": "CircleDance",
+          "weight": 1
+        },
+        {
+          "text": "Plus3",
+          "weight": 1
+        },
+        {
+          "text": "Cyclotron",
+          "weight": 1
+        },
+        {
+          "text": "Tumblers",
+          "weight": 1
+        },
+        {
+          "text": "FourEyes",
+          "weight": 1
+        },
+        {
+          "text": "Lattitudes",
+          "weight": 1
+        },
+        {
+          "text": "Wiperbot",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "bottom_right_bot",
+      "label": "Bottom Right Bot",
+      "values": [
+        {
+          "text": "Angrybot",
+          "weight": 3
+        },
+        {
+          "text": "GridFace",
+          "weight": 2
+        },
+        {
+          "text": "CircleDance",
+          "weight": 2
+        },
+        {
+          "text": "Flo",
+          "weight": 1
+        },
+        {
+          "text": "Giza",
+          "weight": 1
+        },
+        {
+          "text": "Atomic",
+          "weight": 1
+        },
+        {
+          "text": "Vinyl",
+          "weight": 1
+        },
+        {
+          "text": "Waterpump",
+          "weight": 1
+        },
+        {
+          "text": "Conveyor",
+          "weight": 1
+        },
+        {
+          "text": "Cyclotron",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "middle_center_color",
+      "label": "Middle Center Color",
+      "values": [
+        {
+          "text": "#e8c251",
+          "weight": 3
+        },
+        {
+          "text": "#b999ff",
+          "weight": 2
+        },
+        {
+          "text": "#00c254",
+          "weight": 2
+        },
+        {
+          "text": "#ff59d6",
+          "weight": 1
+        },
+        {
+          "text": "#acc700",
+          "weight": 1
+        },
+        {
+          "text": "#e8a7a7",
+          "weight": 1
+        },
+        {
+          "text": "#0ff",
+          "weight": 1
+        },
+        {
+          "text": "#a44aff",
+          "weight": 1
+        },
+        {
+          "text": "#cbffb3",
+          "weight": 1
+        },
+        {
+          "text": "#ff0",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "top_center_color",
+      "label": "Top Center Color",
+      "values": [
+        {
+          "text": "#5177e8",
+          "weight": 3
+        },
+        {
+          "text": "#fa0",
+          "weight": 2
+        },
+        {
+          "text": "#0095f2",
+          "weight": 2
+        },
+        {
+          "text": "#80ff00",
+          "weight": 1
+        },
+        {
+          "text": "#e5a8ed",
+          "weight": 1
+        },
+        {
+          "text": "#00c254",
+          "weight": 1
+        },
+        {
+          "text": "#52cca3",
+          "weight": 1
+        },
+        {
+          "text": "#0ff",
+          "weight": 1
+        },
+        {
+          "text": "#acc700",
+          "weight": 1
+        },
+        {
+          "text": "#cbffb3",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "middle_left_color",
+      "label": "Middle Left Color",
+      "values": [
+        {
+          "text": "#0095f2",
+          "weight": 3
+        },
+        {
+          "text": "#adb2f7",
+          "weight": 2
+        },
+        {
+          "text": "#20f",
+          "weight": 2
+        },
+        {
+          "text": "#e5a8ed",
+          "weight": 1
+        },
+        {
+          "text": "#e312d5",
+          "weight": 1
+        },
+        {
+          "text": "#19faaf",
+          "weight": 1
+        },
+        {
+          "text": "#5177e8",
+          "weight": 1
+        },
+        {
+          "text": "#ff59d6",
+          "weight": 1
+        },
+        {
+          "text": "#fa005c",
+          "weight": 1
+        },
+        {
+          "text": "#d9943b",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "middle_right_color",
+      "label": "Middle Right Color",
+      "values": [
+        {
+          "text": "#00c254",
+          "weight": 3
+        },
+        {
+          "text": "#f00",
+          "weight": 2
+        },
+        {
+          "text": "#e312d5",
+          "weight": 2
+        },
+        {
+          "text": "#73e5ff",
+          "weight": 1
+        },
+        {
+          "text": "#d9943b",
+          "weight": 1
+        },
+        {
+          "text": "#e8c251",
+          "weight": 1
+        },
+        {
+          "text": "#80ff00",
+          "weight": 1
+        },
+        {
+          "text": "#c6d9c3",
+          "weight": 1
+        },
+        {
+          "text": "#a44aff",
+          "weight": 1
+        },
+        {
+          "text": "#0ff",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "bottom_center_color",
+      "label": "Bottom Center Color",
+      "values": [
+        {
+          "text": "#20f",
+          "weight": 3
+        },
+        {
+          "text": "#acc700",
+          "weight": 2
+        },
+        {
+          "text": "#0ff",
+          "weight": 2
+        },
+        {
+          "text": "#d10026",
+          "weight": 1
+        },
+        {
+          "text": "#e8c251",
+          "weight": 1
+        },
+        {
+          "text": "#b999ff",
+          "weight": 1
+        },
+        {
+          "text": "#0095f2",
+          "weight": 1
+        },
+        {
+          "text": "#ff8000",
+          "weight": 1
+        },
+        {
+          "text": "#19faaf",
+          "weight": 1
+        },
+        {
+          "text": "#ff0",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "top_left_color",
+      "label": "Top Left Color",
+      "values": [
+        {
+          "text": "#cbffb3",
+          "weight": 3
+        },
+        {
+          "text": "#d9943b",
+          "weight": 2
+        },
+        {
+          "text": "#acc700",
+          "weight": 2
+        },
+        {
+          "text": "#00c254",
+          "weight": 1
+        },
+        {
+          "text": "#52cca3",
+          "weight": 1
+        },
+        {
+          "text": "#19faaf",
+          "weight": 1
+        },
+        {
+          "text": "#5177e8",
+          "weight": 1
+        },
+        {
+          "text": "#a44aff",
+          "weight": 1
+        },
+        {
+          "text": "#ffcbbf",
+          "weight": 1
+        },
+        {
+          "text": "#c6d9c3",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "top_right_color",
+      "label": "Top Right Color",
+      "values": [
+        {
+          "text": "#a44aff",
+          "weight": 3
+        },
+        {
+          "text": "#d10026",
+          "weight": 2
+        },
+        {
+          "text": "#e5a8ed",
+          "weight": 2
+        },
+        {
+          "text": "#52cca3",
+          "weight": 1
+        },
+        {
+          "text": "#c6d9c3",
+          "weight": 1
+        },
+        {
+          "text": "#19faaf",
+          "weight": 1
+        },
+        {
+          "text": "#d9943b",
+          "weight": 1
+        },
+        {
+          "text": "#e8c251",
+          "weight": 1
+        },
+        {
+          "text": "#0095f2",
+          "weight": 1
+        },
+        {
+          "text": "#5177e8",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "bottom_left_color",
+      "label": "Bottom Left Color",
+      "values": [
+        {
+          "text": "#73e5ff",
+          "weight": 3
+        },
+        {
+          "text": "#b999ff",
+          "weight": 2
+        },
+        {
+          "text": "#5177e8",
+          "weight": 2
+        },
+        {
+          "text": "#d10026",
+          "weight": 1
+        },
+        {
+          "text": "#fa0",
+          "weight": 1
+        },
+        {
+          "text": "#c6d9c3",
+          "weight": 1
+        },
+        {
+          "text": "#b77ff0",
+          "weight": 1
+        },
+        {
+          "text": "#19faaf",
+          "weight": 1
+        },
+        {
+          "text": "#a44aff",
+          "weight": 1
+        },
+        {
+          "text": "#adb2f7",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "bottom_right_color",
+      "label": "Bottom Right Color",
+      "values": [
+        {
+          "text": "#00c254",
+          "weight": 3
+        },
+        {
+          "text": "#a44aff",
+          "weight": 2
+        },
+        {
+          "text": "#fa0",
+          "weight": 2
+        },
+        {
+          "text": "#e8c251",
+          "weight": 1
+        },
+        {
+          "text": "#e8a7a7",
+          "weight": 1
+        },
+        {
+          "text": "#73e5ff",
+          "weight": 1
+        },
+        {
+          "text": "#006fff",
+          "weight": 1
+        },
+        {
+          "text": "#f00",
+          "weight": 1
+        },
+        {
+          "text": "#cbffb3",
+          "weight": 1
+        },
+        {
+          "text": "#adb2f7",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 1000,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:gizmobotz",
+  "artist": "Mark Cotton",
+  "credit": {
+    "title": "Gizmobotz",
+    "artist": "Mark Cotton",
+    "year": 2021,
+    "description": "Gizmobotz live on the Ethereum Blockchain, assembled in clusters of 9. Each Gizmobot runs its individual algorithm in coordination with the other bots within the cluster. Gizmobotz are assigned their colors and arranged in clusters based on the transaction hash string. Be sure to check out the Live View to see the Gizmobotz at work!",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/105",
+    "artistUrl": "https://www.instagram.com/cottonchipper/",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 1000,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 105
+    },
+    "archiveId": "artblocks:gizmobotz",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Gizmobotz by Mark Cotton, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 1005085
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Agizmobotz"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Agizmobotz"
+  }
+}

@@ -1,6 +1,4 @@
 import { Router } from 'express';
-import { orchestrator } from '../services/orchestrator.js';
-import { mediaStore } from '../services/mediaStore.js';
 import { generateImageWithReferences } from '../services/imageGen.js';
 import {
   listOrphanedStores, destroySessionStore, listMemoryDocuments, forgetAllMemory,
@@ -11,6 +9,7 @@ import { VOICES, DEFAULT_VOICE } from '../config/voices.js';
 import { mintSessionToken, isLoopbackRequest } from '../services/liveSession.js';
 import { isLiveApiEnabled, ALLOW_REMOTE_TOKENS } from '../config/live.js';
 import { v4 as uuidv4 } from 'uuid';
+import { activeFileSearchStores } from '../services/sessionRegistry.js';
 
 const router = Router();
 
@@ -25,14 +24,23 @@ router.get('/stream', (req, res) => {
   res.setHeader('Connection', 'keep-alive');
   res.setHeader('Access-Control-Allow-Origin', '*');
 
+  // A first visit opens this stream at the same moment as the page's other requests,
+  // and each cookie-less request would be given its own room. Hand over the cookie
+  // and close at once: the browser reconnects after `retry`, by which time it has
+  // settled on one cookie, and joins that room's stream.
+  if (req.roomIsNew) {
+    res.write('retry: 300\n\n');
+    return res.end();
+  }
+
   // Send initial connection event
   res.write(`event: connected\ndata: ${JSON.stringify({ message: 'Connected to chat stream' })}\n\n`);
 
   // Register client
-  const removeClient = orchestrator.addClient(res);
+  const removeClient = req.room.orchestrator.addClient(res);
 
   // Send current state
-  res.write(`event: state\ndata: ${JSON.stringify(orchestrator.getState())}\n\n`);
+  res.write(`event: state\ndata: ${JSON.stringify(req.room.orchestrator.getState())}\n\n`);
 
   // Handle client disconnect
   req.on('close', () => {
@@ -53,7 +61,7 @@ router.post('/start', async (req, res) => {
 
   const normalizedMode = mode === 'solo' ? 'solo' : 'group';
   const minAgents = normalizedMode === 'solo' ? 1 : 2;
-  const agents = orchestrator.getAgents();
+  const agents = req.room.orchestrator.getAgents();
   if (agents.length < minAgents) {
     return res.status(400).json({
       error: `Need at least ${minAgents} agent${minAgents > 1 ? 's' : ''} to start a ${normalizedMode} chat`
@@ -62,11 +70,11 @@ router.post('/start', async (req, res) => {
 
   try {
     // Start is async but returns immediately
-    orchestrator.start(goal, tokenLimit, { model, mode: normalizedMode });
+    req.room.orchestrator.start(goal, tokenLimit, { model, mode: normalizedMode });
     res.json({
       success: true,
       message: 'Chat started',
-      state: orchestrator.getState()
+      state: req.room.orchestrator.getState()
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -78,11 +86,11 @@ router.post('/start', async (req, res) => {
  * Stop the chat
  */
 router.post('/stop', (req, res) => {
-  orchestrator.stop('user_stopped');
+  req.room.orchestrator.stop('user_stopped');
   res.json({
     success: true,
     message: 'Chat stopped',
-    state: orchestrator.getState()
+    state: req.room.orchestrator.getState()
   });
 });
 
@@ -91,11 +99,11 @@ router.post('/stop', (req, res) => {
  * Pause the chat
  */
 router.post('/pause', (req, res) => {
-  orchestrator.pause();
+  req.room.orchestrator.pause();
   res.json({
     success: true,
     message: 'Chat paused',
-    state: orchestrator.getState()
+    state: req.room.orchestrator.getState()
   });
 });
 
@@ -104,11 +112,11 @@ router.post('/pause', (req, res) => {
  * Resume the chat
  */
 router.post('/resume', (req, res) => {
-  orchestrator.resume();
+  req.room.orchestrator.resume();
   res.json({
     success: true,
     message: 'Chat resumed',
-    state: orchestrator.getState()
+    state: req.room.orchestrator.getState()
   });
 });
 
@@ -123,7 +131,7 @@ router.post('/inject', (req, res) => {
     return res.status(400).json({ error: 'Content is required' });
   }
 
-  const message = orchestrator.injectMessage(content, senderName);
+  const message = req.room.orchestrator.injectMessage(content, senderName);
   res.json({
     success: true,
     message
@@ -135,7 +143,7 @@ router.post('/inject', (req, res) => {
  * Get conversation history
  */
 router.get('/history', (req, res) => {
-  const history = orchestrator.getHistory();
+  const history = req.room.orchestrator.getHistory();
   res.json({ history });
 });
 
@@ -144,7 +152,7 @@ router.get('/history', (req, res) => {
  * Get current state
  */
 router.get('/state', (req, res) => {
-  const state = orchestrator.getState();
+  const state = req.room.orchestrator.getState();
   res.json(state);
 });
 
@@ -153,12 +161,12 @@ router.get('/state', (req, res) => {
  * Reset everything
  */
 router.post('/reset', (req, res) => {
-  orchestrator.reset();
-  mediaStore.clear();
+  req.room.orchestrator.reset();
+  req.room.mediaStore.clear();
   res.json({
     success: true,
     message: 'Chat reset',
-    state: orchestrator.getState()
+    state: req.room.orchestrator.getState()
   });
 });
 
@@ -168,7 +176,7 @@ router.post('/reset', (req, res) => {
  * create and destroy leaks one, and the quota is project-wide, so there has
  * to be a way to see them.
  *
- * DELETE removes all of them except the running session's.
+ * DELETE removes all of them except the ones live rooms are using.
  */
 router.get('/file-search/orphans', async (req, res) => {
   if (!isFileSearchEnabled()) return res.json({ enabled: false, stores: [] });
@@ -182,14 +190,16 @@ router.get('/file-search/orphans', async (req, res) => {
 router.delete('/file-search/orphans', async (req, res) => {
   if (!isFileSearchEnabled()) return res.json({ enabled: false, deleted: 0 });
   try {
-    const active = orchestrator.fileSearchStoreName;
+    // Every live room's store is off limits, not just the caller's: this sweeps the whole
+    // project, and other visitors' chats are running in it.
+    const active = new Set(activeFileSearchStores());
     let deleted = 0;
     for (const store of await listOrphanedStores()) {
-      if (store.name === active) continue; // never pull the rug on a live session
+      if (active.has(store.name)) continue; // never pull the rug on a live session
       const result = await destroySessionStore(store.name);
       if (result.ok) deleted++;
     }
-    res.json({ enabled: true, deleted, skippedActive: Boolean(active) });
+    res.json({ enabled: true, deleted, skippedActive: active.size > 0 });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -197,7 +207,8 @@ router.delete('/file-search/orphans', async (req, res) => {
 
 /**
  * GET /api/chat/memory
- * What previous sessions the room currently remembers.
+ * What previous sessions this visitor's room currently remembers (each visitor has their
+ * own long-term memory; nobody can list or wipe another's).
  *
  * DELETE forgets all of it. Long-term memory accumulates indefinitely and is
  * invisible in the UI otherwise, so it needs a way to be inspected and wiped.
@@ -207,7 +218,7 @@ router.get('/memory', async (req, res) => {
     return res.json({ enabled: false, documents: [] });
   }
   try {
-    const { storeName, documents } = await listMemoryDocuments();
+    const { storeName, documents } = await listMemoryDocuments(req.room.id);
     res.json({ enabled: true, storeName, count: documents.length, documents });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -219,9 +230,9 @@ router.delete('/memory', async (req, res) => {
     return res.json({ enabled: false, forgotten: false });
   }
   try {
-    const result = await forgetAllMemory();
+    const result = await forgetAllMemory(req.room.id);
     // The running session holds a handle to the store just deleted.
-    orchestrator.memoryStoreName = null;
+    req.room.orchestrator.memoryStoreName = null;
     res.json({ enabled: true, forgotten: result.ok, error: result.error });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -237,22 +248,22 @@ router.delete('/memory', async (req, res) => {
  * and nobody wants that happening on every turn by surprise.
  */
 router.post('/render-audio', async (req, res) => {
-  const messages = orchestrator.getHistory().filter(m => !m.isUser || req.body?.includeUser);
+  const messages = req.room.orchestrator.getHistory().filter(m => !m.isUser || req.body?.includeUser);
   if (messages.length === 0) {
     return res.status(400).json({ error: 'Nothing to render — the transcript is empty' });
   }
 
   const voiceByAgentId = new Map(
-    orchestrator.getAgents().map(a => [a.id, a.voice])
+    req.room.orchestrator.getAgents().map(a => [a.id, a.voice])
   );
 
   try {
     const started = Date.now();
     const result = await renderTranscript(messages, voiceByAgentId, (done, total, speaker) => {
-      orchestrator.broadcast('audio_progress', { done, total, speaker });
+      req.room.orchestrator.broadcast('audio_progress', { done, total, speaker });
     });
 
-    orchestrator.broadcast('audio_rendered', {
+    req.room.orchestrator.broadcast('audio_rendered', {
       units: result.units,
       failed: result.failed,
       durationSeconds: result.durationSeconds,
@@ -270,7 +281,7 @@ router.post('/render-audio', async (req, res) => {
     });
   } catch (err) {
     console.error('Audio render failed:', err);
-    orchestrator.broadcast('audio_error', { error: err.message });
+    req.room.orchestrator.broadcast('audio_error', { error: err.message });
     res.status(500).json({ error: err.message });
   }
 });
@@ -315,7 +326,7 @@ router.get('/voices', (req, res) => {
  * Get all stored media summary
  */
 router.get('/media', (req, res) => {
-  const summary = mediaStore.getSummary();
+  const summary = req.room.mediaStore.getSummary();
   res.json(summary);
 });
 
@@ -324,7 +335,7 @@ router.get('/media', (req, res) => {
  * Get a specific media item by ID
  */
 router.get('/media/:id', (req, res) => {
-  const media = mediaStore.get(req.params.id);
+  const media = req.room.mediaStore.get(req.params.id);
   if (!media) {
     return res.status(404).json({ error: 'Media not found' });
   }
@@ -336,7 +347,7 @@ router.get('/media/:id', (req, res) => {
  * Get all media prepared for ZIP export
  */
 router.get('/media/export', (req, res) => {
-  const exports = mediaStore.exportForZip();
+  const exports = req.room.mediaStore.exportForZip();
   res.json({
     count: exports.length,
     items: exports
@@ -347,25 +358,37 @@ router.get('/media/export', (req, res) => {
  * POST /api/chat/generate-image
  * Generate a new image with optional reference images
  * Used by frontend for user-initiated image generation/remixing
+ *
+ * Body: { prompt, referenceIds?: string[], references?: { objects?, character?, style? } }
+ * `referenceIds` is the flat, untyped list and is unchanged. `references`
+ * assigns media ids to the model's typed composition slots; the two are
+ * additive.
  */
 router.post('/generate-image', async (req, res) => {
-  const { prompt, referenceIds = [] } = req.body;
+  const { prompt, referenceIds = [], references = {} } = req.body;
 
   if (!prompt) {
     return res.status(400).json({ error: 'Prompt is required' });
   }
 
   try {
-    // Gather reference images if provided
+    // Gather reference images if provided. Unknown media ids are skipped, the
+    // same way the flat path has always skipped them.
     const referenceImages = [];
-    for (const refId of referenceIds) {
-      const media = mediaStore.get(refId);
-      if (media) {
+    const collect = (ids, role) => {
+      for (const refId of ids || []) {
+        const media = req.room.mediaStore.get(refId);
+        if (!media) continue;
         referenceImages.push({
           imageData: media.data,
-          mimeType: media.mimeType
+          mimeType: media.mimeType,
+          ...(role ? { role } : {})
         });
       }
+    };
+    collect(referenceIds, null);
+    for (const slot of ['objects', 'character', 'style']) {
+      collect(references[slot], slot);
     }
 
     // Generate the image
@@ -373,7 +396,7 @@ router.post('/generate-image', async (req, res) => {
     const imageId = uuidv4();
 
     // Store in media store
-    mediaStore.add({
+    req.room.mediaStore.add({
       id: imageId,
       type: 'image',
       data: imageResult.imageData,
@@ -381,7 +404,12 @@ router.post('/generate-image', async (req, res) => {
       prompt: prompt,
       agentId: 'user',
       agentName: 'User',
-      referenceIds: referenceIds.length > 0 ? referenceIds : undefined
+      referenceIds: referenceImages.length > 0
+        ? [
+            ...referenceIds,
+            ...['objects', 'character', 'style'].flatMap(s => references[s] || [])
+          ]
+        : undefined
     });
 
     res.json({
@@ -415,7 +443,7 @@ router.post('/session-media', (req, res) => {
     return res.status(400).json({ error: 'files array is required' });
   }
 
-  const currentMedia = orchestrator.getSessionMedia();
+  const currentMedia = req.room.orchestrator.getSessionMedia();
   if (currentMedia.length + files.length > 14) {
     return res.status(400).json({
       error: `Cannot add ${files.length} files. ${currentMedia.length}/14 slots used. ${14 - currentMedia.length} remaining.`
@@ -438,11 +466,11 @@ router.post('/session-media', (req, res) => {
         uploadedAt: new Date().toISOString()
       };
 
-      orchestrator.addSessionMedia(mediaItem);
+      req.room.orchestrator.addSessionMedia(mediaItem);
 
       // Also store images in mediaStore for remix capability
       if (file.mimeType.startsWith('image/')) {
-        mediaStore.add({
+        req.room.mediaStore.add({
           id: mediaItem.id,
           type: 'image',
           data: file.data,
@@ -464,7 +492,7 @@ router.post('/session-media', (req, res) => {
     res.json({
       success: true,
       added,
-      totalCount: orchestrator.getSessionMedia().length
+      totalCount: req.room.orchestrator.getSessionMedia().length
     });
   } catch (error) {
     const body = { error: error.message };
@@ -479,10 +507,10 @@ router.post('/session-media', (req, res) => {
  * Remove a session media file
  */
 router.delete('/session-media/:id', (req, res) => {
-  orchestrator.removeSessionMedia(req.params.id);
+  req.room.orchestrator.removeSessionMedia(req.params.id);
   res.json({
     success: true,
-    totalCount: orchestrator.getSessionMedia().length
+    totalCount: req.room.orchestrator.getSessionMedia().length
   });
 });
 
@@ -491,7 +519,7 @@ router.delete('/session-media/:id', (req, res) => {
  * Clear all session media (used before starting a new chat)
  */
 router.post('/session-media/clear', (req, res) => {
-  orchestrator.clearSessionMedia();
+  req.room.orchestrator.clearSessionMedia();
   res.json({
     success: true,
     totalCount: 0
@@ -503,7 +531,7 @@ router.post('/session-media/clear', (req, res) => {
  * List all session media (metadata only, no data)
  */
 router.get('/session-media', (req, res) => {
-  const media = orchestrator.getSessionMedia().map(m => ({
+  const media = req.room.orchestrator.getSessionMedia().map(m => ({
     id: m.id,
     name: m.name,
     mimeType: m.mimeType,
@@ -520,7 +548,7 @@ router.get('/session-media', (req, res) => {
  * Get current speaking order settings
  */
 router.get('/speaking-order', (req, res) => {
-  const settings = orchestrator.getSpeakingOrderSettings();
+  const settings = req.room.orchestrator.getSpeakingOrderSettings();
   res.json(settings);
 });
 
@@ -538,11 +566,11 @@ router.post('/speaking-order', (req, res) => {
     });
   }
 
-  orchestrator.setSpeakingOrder(mode);
+  req.room.orchestrator.setSpeakingOrder(mode);
   res.json({
     success: true,
     mode,
-    settings: orchestrator.getSpeakingOrderSettings()
+    settings: req.room.orchestrator.getSpeakingOrderSettings()
   });
 });
 
@@ -561,12 +589,12 @@ router.post('/speaking-order/priority', (req, res) => {
     return res.status(400).json({ error: 'priority must be a non-negative number' });
   }
 
-  orchestrator.setAgentPriority(agentId, priority);
+  req.room.orchestrator.setAgentPriority(agentId, priority);
   res.json({
     success: true,
     agentId,
     priority,
-    settings: orchestrator.getSpeakingOrderSettings()
+    settings: req.room.orchestrator.getSpeakingOrderSettings()
   });
 });
 
@@ -577,7 +605,7 @@ router.post('/speaking-order/priority', (req, res) => {
  * List all branch points
  */
 router.get('/branches', (req, res) => {
-  const branches = orchestrator.getBranchPoints();
+  const branches = req.room.orchestrator.getBranchPoints();
   res.json({ branches });
 });
 
@@ -589,7 +617,7 @@ router.post('/branches', (req, res) => {
   const { name } = req.body;
 
   try {
-    const branch = orchestrator.createBranchPoint(name);
+    const branch = req.room.orchestrator.createBranchPoint(name);
     res.json({
       success: true,
       branch: {
@@ -610,11 +638,11 @@ router.post('/branches', (req, res) => {
  */
 router.post('/branches/:id/restore', (req, res) => {
   try {
-    const result = orchestrator.restoreBranch(req.params.id);
+    const result = req.room.orchestrator.restoreBranch(req.params.id);
     res.json({
       success: true,
       ...result,
-      state: orchestrator.getState()
+      state: req.room.orchestrator.getState()
     });
   } catch (error) {
     res.status(404).json({ error: error.message });
@@ -627,7 +655,7 @@ router.post('/branches/:id/restore', (req, res) => {
  */
 router.delete('/branches/:id', (req, res) => {
   try {
-    orchestrator.deleteBranch(req.params.id);
+    req.room.orchestrator.deleteBranch(req.params.id);
     res.json({
       success: true,
       message: 'Branch deleted'
@@ -649,7 +677,7 @@ router.patch('/branches/:id', (req, res) => {
   }
 
   try {
-    const branch = orchestrator.renameBranch(req.params.id, name);
+    const branch = req.room.orchestrator.renameBranch(req.params.id, name);
     res.json({
       success: true,
       branch: {
@@ -674,11 +702,11 @@ router.post('/rewind', (req, res) => {
   }
 
   try {
-    const result = orchestrator.rewindToMessage(messageIndex);
+    const result = req.room.orchestrator.rewindToMessage(messageIndex);
     res.json({
       success: true,
       ...result,
-      state: orchestrator.getState()
+      state: req.room.orchestrator.getState()
     });
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -692,7 +720,7 @@ router.post('/rewind', (req, res) => {
  * Get current consensus detection settings
  */
 router.get('/consensus-settings', (req, res) => {
-  const settings = orchestrator.getConsensusSettings();
+  const settings = req.room.orchestrator.getConsensusSettings();
   res.json(settings);
 });
 
@@ -710,7 +738,7 @@ router.post('/consensus-settings', (req, res) => {
   } = req.body;
 
   try {
-    orchestrator.updateConsensusSettings({
+    req.room.orchestrator.updateConsensusSettings({
       enabled,
       sensitivity,
       requireExplicitMarker,
@@ -720,7 +748,7 @@ router.post('/consensus-settings', (req, res) => {
 
     res.json({
       success: true,
-      settings: orchestrator.getConsensusSettings()
+      settings: req.room.orchestrator.getConsensusSettings()
     });
   } catch (error) {
     res.status(400).json({ error: error.message });

@@ -8,13 +8,11 @@
  */
 
 import { Router } from 'express';
-import { artifactStore } from '../services/artifactStore.js';
-import { orchestrator } from '../services/orchestrator.js';
 
 const router = Router();
 
 router.get('/', (req, res) => {
-  res.json(artifactStore.list());
+  res.json(req.room.artifactStore.list());
 });
 
 router.post('/', (req, res) => {
@@ -26,7 +24,7 @@ router.post('/', (req, res) => {
     return res.status(400).json({ error: 'content (string) is required' });
   }
 
-  const artifact = artifactStore.save(
+  const artifact = req.room.artifactStore.save(
     filename,
     content,
     agentId || null,
@@ -36,7 +34,7 @@ router.post('/', (req, res) => {
   // Mirror the orchestrator's broadcast shape so clients on the SSE
   // stream pick this up identically to agent-authored saves.
   try {
-    orchestrator.broadcast('artifact_update', {
+    req.room.orchestrator.broadcast('artifact_update', {
       filename:   artifact.filename,
       language:   artifact.language,
       content:    artifact.content,
@@ -59,7 +57,7 @@ router.post('/', (req, res) => {
 });
 
 router.get('/:filename', (req, res) => {
-  const art = artifactStore.get(req.params.filename);
+  const art = req.room.artifactStore.get(req.params.filename);
   if (!art) return res.status(404).json({ error: 'Artifact not found' });
   res.json({
     filename: art.filename,
@@ -76,13 +74,13 @@ router.get('/:filename', (req, res) => {
 });
 
 router.get('/:filename/version/:version', (req, res) => {
-  const content = artifactStore.getVersion(req.params.filename, Number(req.params.version));
+  const content = req.room.artifactStore.getVersion(req.params.filename, Number(req.params.version));
   if (content === null) return res.status(404).json({ error: 'Version not found' });
   res.json({ content });
 });
 
 router.delete('/:filename', (req, res) => {
-  artifactStore.delete(req.params.filename);
+  req.room.artifactStore.delete(req.params.filename);
   res.json({ ok: true });
 });
 

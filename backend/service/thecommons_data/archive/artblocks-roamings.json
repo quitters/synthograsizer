@@ -1,0 +1,224 @@
+{
+  "name": "Roamings",
+  "promptTemplate": "A {{band_course}}, {{band_spacing}} flow of {{band_size}} bands with {{band_movement}} movement on {{background_color}}, exploring {{color_space_leaps}} leaps across a {{saturation}} {{palette_size}} palette in {{palette_order}} order. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "background_color",
+      "label": "Background Color",
+      "values": [
+        {
+          "text": "Almost Black",
+          "weight": 3
+        },
+        {
+          "text": "Foam",
+          "weight": 2
+        },
+        {
+          "text": "White",
+          "weight": 2
+        },
+        {
+          "text": "Silk",
+          "weight": 1
+        },
+        {
+          "text": "Napkin",
+          "weight": 1
+        },
+        {
+          "text": "Frost",
+          "weight": 1
+        },
+        {
+          "text": "Ink",
+          "weight": 1
+        },
+        {
+          "text": "Platinum",
+          "weight": 1
+        },
+        {
+          "text": "Stone",
+          "weight": 1
+        },
+        {
+          "text": "Purple",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "palette_size",
+      "label": "Palette Size",
+      "values": [
+        {
+          "text": "Small",
+          "weight": 3
+        },
+        {
+          "text": "Medium",
+          "weight": 2
+        },
+        {
+          "text": "Large",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "saturation",
+      "label": "Saturation",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "color_space_leaps",
+      "label": "Color Space Leaps",
+      "values": [
+        {
+          "text": "Determined",
+          "weight": 3
+        },
+        {
+          "text": "Undecided",
+          "weight": 2
+        },
+        {
+          "text": "Enormous",
+          "weight": 2
+        },
+        {
+          "text": "Colossal",
+          "weight": 1
+        },
+        {
+          "text": "Balanced",
+          "weight": 1
+        },
+        {
+          "text": "Curageous",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "band_size",
+      "label": "Band Size",
+      "values": [
+        {
+          "text": "Thick",
+          "weight": 3
+        },
+        {
+          "text": "Medium",
+          "weight": 2
+        },
+        {
+          "text": "Thin",
+          "weight": 2
+        },
+        {
+          "text": "Way Too Big",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "band_movement",
+      "label": "Band Movement",
+      "type": "number",
+      "min": 0.5,
+      "max": 10,
+      "step": 0.5,
+      "default": 5
+    },
+    {
+      "name": "palette_order",
+      "label": "Palette Order",
+      "values": [
+        {
+          "text": "Ordered",
+          "weight": 3
+        },
+        {
+          "text": "Unordered",
+          "weight": 2
+        },
+        {
+          "text": "Semi-Ordered",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "band_course",
+      "label": "Band Course",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "band_spacing",
+      "label": "Band Spacing",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 128,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:roamings",
+  "artist": "Luca Ionescu",
+  "credit": {
+    "title": "Roamings",
+    "artist": "Luca Ionescu",
+    "year": 2022,
+    "description": "An exploration of color interaction and movement. Each piece unfolds its uniquely generated palette, carefully picked while roaming through the color space.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/252",
+    "artistUrl": "https://twitter.com/ioan1x",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 128,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 252
+    },
+    "archiveId": "artblocks:roamings",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Roamings by Luca Ionescu, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 21446
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Aroamings"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Aroamings"
+  }
+}

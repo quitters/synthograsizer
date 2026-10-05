@@ -1,0 +1,177 @@
+{
+  "name": "Maps for grief",
+  "promptTemplate": "A {{palette}} map across {{region_count}} region(s) rendered with {{tip_size}} tip lines of {{stroke_length}} stroke length and {{coping}} motifs; radial: {{radial}}, persistent lines: {{persistent_lines}}, no dots: {{no_dots}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Witching hour",
+          "weight": 3
+        },
+        {
+          "text": "Parched",
+          "weight": 2
+        },
+        {
+          "text": "Winter forest",
+          "weight": 2
+        },
+        {
+          "text": "IKEA Showroom",
+          "weight": 1
+        },
+        {
+          "text": "Nebula",
+          "weight": 1
+        },
+        {
+          "text": "Terminal",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "region_count",
+      "label": "Region count",
+      "type": "number",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "default": 1
+    },
+    {
+      "name": "coping",
+      "label": "Coping",
+      "values": [
+        {
+          "text": "Spiritual",
+          "weight": 3
+        },
+        {
+          "text": "Mystical",
+          "weight": 2
+        },
+        {
+          "text": "Raw",
+          "weight": 2
+        },
+        {
+          "text": "Nature",
+          "weight": 1
+        },
+        {
+          "text": "Confused",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "tip_size",
+      "label": "Tip size",
+      "values": [
+        {
+          "text": "Average",
+          "weight": 3
+        },
+        {
+          "text": "Fine",
+          "weight": 2
+        },
+        {
+          "text": "Thick",
+          "weight": 2
+        },
+        {
+          "text": "Fat marker",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "stroke_length",
+      "label": "Stroke length",
+      "type": "number",
+      "min": 0.0625,
+      "max": 0.125,
+      "step": 0.0025,
+      "default": 0.09
+    },
+    {
+      "name": "radial",
+      "label": "Radial",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "persistent_lines",
+      "label": "Persistent lines",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "no_dots",
+      "label": "No dots",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 500,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:maps-for-grief",
+  "artist": "Louis-André Labadie",
+  "credit": {
+    "title": "Maps for grief",
+    "artist": "Louis-André Labadie",
+    "year": 2022,
+    "description": "Maps for Grief explores the hyper-connected existence, filled with individuals who share common intents, ideals and feelings, but tend to live their sentiments in isolation. Its compositions oppose areas of fluid movement and immobility, revealing the structure of the piece itself: two interacting force fields that dictate the direction, as well as the strength – or absence – of movement.\n\nOn the keyboard: Press A to have the lines gently animate. Use the 1/2/3 keys to inspect the fields that make up each iteration.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/235",
+    "artistUrl": "https://louis-andre.net/journal/maps-for-grief",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 500,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 235
+    },
+    "archiveId": "artblocks:maps-for-grief",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Maps for grief by Louis-André Labadie, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 163184
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Amaps-for-grief"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Amaps-for-grief"
+  }
+}

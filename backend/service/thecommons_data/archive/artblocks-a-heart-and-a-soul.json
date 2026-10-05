@@ -1,0 +1,177 @@
+{
+  "name": "a heart and a soul",
+  "promptTemplate": "A {{heart_type}} geometric heart carved into {{target_regions}} target chambers, rendered in the {{palette}} palette. It is framed by a radiating soul of {{soul_beams}} beams with {{soul_deviation}} deviation, gauge {{soul_gauge}}, {{soul_echoes}} echoes, and dark echo: {{dark_echo}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Fresco",
+          "weight": 3
+        },
+        {
+          "text": "Ice Cream and Candy",
+          "weight": 2
+        },
+        {
+          "text": "Strong and Colorful",
+          "weight": 2
+        },
+        {
+          "text": "Ski Jacket",
+          "weight": 1
+        },
+        {
+          "text": "Playful Bagpacker",
+          "weight": 1
+        },
+        {
+          "text": "Jungle",
+          "weight": 1
+        },
+        {
+          "text": "Snow and Dirt",
+          "weight": 1
+        },
+        {
+          "text": "Dark Heart",
+          "weight": 1
+        },
+        {
+          "text": "Poison Cherry",
+          "weight": 1
+        },
+        {
+          "text": "Snowlands",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "heart_type",
+      "label": "Heart Type",
+      "values": [
+        {
+          "text": "Regular",
+          "weight": 3
+        },
+        {
+          "text": "Big",
+          "weight": 2
+        },
+        {
+          "text": "Lonely",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "dark_echo",
+      "label": "Dark Echo",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "soul_echoes",
+      "label": "Soul Echoes",
+      "type": "number",
+      "min": 1,
+      "max": 3,
+      "step": 1,
+      "default": 2
+    },
+    {
+      "name": "soul_beams",
+      "label": "Soul Beams",
+      "type": "number",
+      "min": 20,
+      "max": 34,
+      "step": 2,
+      "default": 26
+    },
+    {
+      "name": "soul_deviation",
+      "label": "Soul Deviation",
+      "type": "number",
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "default": 0.5
+    },
+    {
+      "name": "target_regions",
+      "label": "Target Regions",
+      "type": "number",
+      "min": 3,
+      "max": 6,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "name": "soul_gauge",
+      "label": "Soul Gauge",
+      "type": "number",
+      "min": 0.1,
+      "max": 0.3,
+      "step": 0.01,
+      "default": 0.2
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 1024,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:a-heart-and-a-soul",
+  "artist": "Roman Janajev",
+  "credit": {
+    "title": "a heart and a soul",
+    "artist": "Roman Janajev",
+    "year": 2021,
+    "description": "A geometric composition of a contrasting middle \"heart\" and an outer \"soul\". The seed of the symmetrical heart is broken into varying amount of chambers that are calculated to keep its corridors at the exact constant width in order to preserve its rigid mathematical character, yet provide enough space for variety for interesting geometrical patterns. The composition is balanced by a contrasting loose intertwining soul spreading to the borders of the passepartout that, along with the lining, give the piece a feeling of antiqueness. Heart and soul may also contain anomalies and unusual palettes.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/158",
+    "artistUrl": "https://twitter.com/sirdiekblak",
+    "license": {
+      "text": "CC BY 4.0",
+      "name": "CC BY 4.0",
+      "url": "https://creativecommons.org/licenses/by/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how."
+      ]
+    },
+    "editions": 1024,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 158
+    },
+    "archiveId": "artblocks:a-heart-and-a-soul",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of a heart and a soul by Roman Janajev, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 145209
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Aa-heart-and-a-soul"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Aa-heart-and-a-soul"
+  }
+}

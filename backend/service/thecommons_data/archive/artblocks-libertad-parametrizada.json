@@ -1,0 +1,205 @@
+{
+  "name": "Libertad Parametrizada",
+  "promptTemplate": "A composition of {{density}} {{door_shape}} doors with {{fill_style}} styling in {{palette}}, bordered by {{framing}} (circular: {{circle_frame}}). The scene is shaped by tilt {{tilt}}, wind {{wind}}, and gravity {{gravity}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "framing",
+      "label": "Framing",
+      "values": [
+        {
+          "text": "Passe-partout with french line",
+          "weight": 3
+        },
+        {
+          "text": "French line",
+          "weight": 2
+        },
+        {
+          "text": "None",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "door_shape",
+      "label": "Door Shape",
+      "values": [
+        {
+          "text": "Sharp",
+          "weight": 3
+        },
+        {
+          "text": "Space ship",
+          "weight": 2
+        },
+        {
+          "text": "Submarine",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "fill_style",
+      "label": "Fill Style",
+      "values": [
+        {
+          "text": "Wireframes",
+          "weight": 3
+        },
+        {
+          "text": "Filled",
+          "weight": 2
+        },
+        {
+          "text": "Translucent",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Palette 1",
+          "weight": 3
+        },
+        {
+          "text": "Palette 2",
+          "weight": 2
+        },
+        {
+          "text": "Palette 3",
+          "weight": 2
+        },
+        {
+          "text": "Palette 4",
+          "weight": 1
+        },
+        {
+          "text": "Palette 5",
+          "weight": 1
+        },
+        {
+          "text": "Palette 6",
+          "weight": 1
+        },
+        {
+          "text": "Palette 7",
+          "weight": 1
+        },
+        {
+          "text": "Palette 8",
+          "weight": 1
+        },
+        {
+          "text": "Palette 9",
+          "weight": 1
+        },
+        {
+          "text": "Palette 10",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "density",
+      "label": "Density",
+      "type": "number",
+      "min": 2,
+      "max": 60,
+      "step": 1,
+      "default": 30
+    },
+    {
+      "name": "wind",
+      "label": "Wind",
+      "type": "number",
+      "min": -0.6,
+      "max": 0.6,
+      "step": 0.05,
+      "default": 0
+    },
+    {
+      "name": "gravity",
+      "label": "Gravity",
+      "type": "number",
+      "min": -0.6,
+      "max": 0.6,
+      "step": 0.05,
+      "default": 0
+    },
+    {
+      "name": "tilt",
+      "label": "Tilt",
+      "type": "number",
+      "min": -1.5,
+      "max": 1.5,
+      "step": 0.1,
+      "default": 0.5
+    },
+    {
+      "name": "circle_frame",
+      "label": "Circle Frame",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 243,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:libertad-parametrizada",
+  "artist": "zJorge",
+  "credit": {
+    "title": "Libertad Parametrizada",
+    "artist": "zJorge",
+    "year": 2021,
+    "description": "Leaving a room doesn't free you, it only shifts you to a newly constrained space. Your freedom is bound by parameters. This is Parametric Freedom. Use arrows to control wind and gravity and space bar to stop animation. Type M or L to increase or decrease density. Would you like a PNG?  Just hit S.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/92",
+    "artistUrl": "https://ledezma.art/art-blocks/",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 243,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 92
+    },
+    "archiveId": "artblocks:libertad-parametrizada",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Libertad Parametrizada by zJorge, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 872201
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Alibertad-parametrizada"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Alibertad-parametrizada"
+  }
+}

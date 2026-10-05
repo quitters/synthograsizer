@@ -1,0 +1,179 @@
+{
+  "name": "Bubble Blobby",
+  "promptTemplate": "A {{style}} composition of translucent {{large}} bubbles in {{palette}}, rotating {{rotation}} at {{slow}} speed, with chameleon colors: {{chameleon}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "style",
+      "label": "Style",
+      "values": [
+        {
+          "text": "Lava Lamp",
+          "weight": 3
+        },
+        {
+          "text": "Scattered",
+          "weight": 2
+        },
+        {
+          "text": "Breathe",
+          "weight": 2
+        },
+        {
+          "text": "Spacey",
+          "weight": 1
+        },
+        {
+          "text": "Noisy",
+          "weight": 1
+        },
+        {
+          "text": "Orb",
+          "weight": 1
+        },
+        {
+          "text": "Saucer",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Neon",
+          "weight": 3
+        },
+        {
+          "text": "Wisteria",
+          "weight": 2
+        },
+        {
+          "text": "Flame",
+          "weight": 2
+        },
+        {
+          "text": "Silver & Gold",
+          "weight": 1
+        },
+        {
+          "text": "Seafoam",
+          "weight": 1
+        },
+        {
+          "text": "Ice",
+          "weight": 1
+        },
+        {
+          "text": "Blood Cells",
+          "weight": 1
+        },
+        {
+          "text": "Ghost",
+          "weight": 1
+        },
+        {
+          "text": "Deep Sea",
+          "weight": 1
+        },
+        {
+          "text": "Pride",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "large",
+      "label": "Size",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "chameleon",
+      "label": "Chameleon",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "rotation",
+      "label": "Rotation",
+      "values": [
+        {
+          "text": "Clockwise",
+          "weight": 3
+        },
+        {
+          "text": "None",
+          "weight": 2
+        },
+        {
+          "text": "Counterclockwise",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "slow",
+      "label": "Speed",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 500,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:bubble-blobby",
+  "artist": "Jason Ting",
+  "credit": {
+    "title": "Bubble Blobby",
+    "artist": "Jason Ting",
+    "year": 2021,
+    "description": "Translucent color bubbles playfully mix and morph to create organic and ephemeral blobby forms. [Shortcuts] spacebar: pause/resume, s: save screenshot, 1→5: high→low resolution. If needed, please adjust resolution or window size for optimal performance.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/62",
+    "artistUrl": "https://instagram.com/jzlabs",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 500,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 62
+    },
+    "archiveId": "artblocks:bubble-blobby",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Bubble Blobby by Jason Ting, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 3704000
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Abubble-blobby"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Abubble-blobby"
+  }
+}

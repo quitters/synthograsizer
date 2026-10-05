@@ -1,0 +1,156 @@
+{
+  "name": "Spiromorphs",
+  "promptTemplate": "A {{theme}} theme spiromorph with {{circles}} chained circles, featuring {{symmetry}}-fold symmetry, {{opacity}}% opacity, and {{speed}} speed. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "theme",
+      "label": "Theme",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "symmetry",
+      "label": "Symmetry",
+      "values": [
+        {
+          "text": "1",
+          "weight": 3
+        },
+        {
+          "text": "4",
+          "weight": 2
+        },
+        {
+          "text": "3",
+          "weight": 2
+        },
+        {
+          "text": "2",
+          "weight": 1
+        },
+        {
+          "text": "6",
+          "weight": 1
+        },
+        {
+          "text": "5",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "circles",
+      "label": "Circles",
+      "type": "number",
+      "min": 5,
+      "max": 18,
+      "step": 1,
+      "default": 12
+    },
+    {
+      "name": "opacity",
+      "label": "Opacity",
+      "values": [
+        {
+          "text": "30",
+          "weight": 3
+        },
+        {
+          "text": "40",
+          "weight": 2
+        },
+        {
+          "text": "50",
+          "weight": 2
+        },
+        {
+          "text": "20",
+          "weight": 1
+        },
+        {
+          "text": "60",
+          "weight": 1
+        },
+        {
+          "text": "70",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "speed",
+      "label": "Speed",
+      "values": [
+        {
+          "text": "Slow",
+          "weight": 3
+        },
+        {
+          "text": "Medium",
+          "weight": 2
+        },
+        {
+          "text": "High",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 200,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:spiromorphs",
+  "artist": "SAB",
+  "credit": {
+    "title": "Spiromorphs",
+    "artist": "SAB",
+    "year": 2021,
+    "description": "Spiromorphs are procedural roulette figures that investigate aesthetic relationships between form, symmetry and rotary motion. Variations are plotted using chained circles that overlay periodic continuous curves on an empty universe. The dynamic engine generates emergent morphologies of different colors and types while producing irregular yet harmonic forms. Charity: 5% of sales will be donated to National Alzheimer’s Foundation, a nonprofit organization helping families who suffer from neurological diseases.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/221",
+    "artistUrl": "https://www.sabrigokmen.com/spiromorphs",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 200,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 221
+    },
+    "archiveId": "artblocks:spiromorphs",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Spiromorphs by SAB, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 40518
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Aspiromorphs"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Aspiromorphs"
+  }
+}

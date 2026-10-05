@@ -12,6 +12,14 @@
 // button. The desk is never handed its code and never runs it. Saved looks and
 // generated pieces belong on the wall, not here.
 //
+// An archive piece (another artist's work) gets a live card too, but what runs
+// is only the title card the server wrote for it; the work itself is a picture
+// on the card and a framed page on the wall, never code handed to the desk.
+//
+// WEIGHT. No section is laid out whole: each opens on a page of cards with a
+// button for the next, and a lazy section (the archive's hundred-odd works) is
+// not even fetched until someone opens it, searches, or picks a tag.
+//
 // A collection of twenty is a list you read; sixty is one you search. So the
 // browse view keeps the sections, and the moment a host types or picks a tag
 // it collapses into one grid of results -- filtering should look like
@@ -156,6 +164,39 @@ function tagList(entry, labels) {
   return list;
 }
 
+// Another artist's work (an archive piece): who made it, where it lives, on
+// what terms, and the artist's own description of it, word for word. Links are
+// only ever the http(s) ones the server let through.
+function creditBlock(credit) {
+  const block = el('div', 'gallery-credit');
+  const link = (text, href) => {
+    const a = el('a', '', text);
+    a.href = href;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    return a;
+  };
+  const by = el('p', 'gallery-credit-by');
+  by.append(credit.url ? link(credit.title, credit.url) : credit.title, ' by ',
+            credit.artistUrl ? link(credit.artist, credit.artistUrl) : credit.artist,
+            [credit.year, credit.platform].filter(Boolean).length
+              ? ` (${[credit.year, credit.platform].filter(Boolean).join(', ')})` : '');
+  block.append(by);
+  const licence = el('p', 'gallery-credit-licence');
+  licence.append('Licence: ', credit.license.url ? link(credit.license.name, credit.license.url) : credit.license.name);
+  if (credit.license.terms.length) licence.append(`. ${credit.license.terms.join(' ')}`);
+  block.append(licence);
+  if (credit.description) {
+    const details = el('details', 'gallery-prompt');
+    details.append(el('summary', '', `In ${credit.artist}’s words`));
+    for (const para of credit.description.split(/\n\s*\n|\r\n\s*\r\n/)) {
+      if (para.trim()) details.append(el('p', '', para.trim()));
+    }
+    block.append(details);
+  }
+  return block;
+}
+
 function buildCard(entry, labels, onPick) {
   const card = el('li', `gallery-card${entry.piece ? '' : ' is-listed'}`);
   card.dataset.slug = entry.id;
@@ -171,11 +212,26 @@ function buildCard(entry, labels, onPick) {
   broken.hidden = true;
   screen.append(canvas, live, broken);
   if (!entry.piece) poster(canvas, entry.name, hueOf(entry.id));
+  // A picture of the piece, for cards that have one: an archive piece (served
+  // by its archive) and the built-in and inherited pieces (photographs of a
+  // wall, shipped with the app). It loads only when the card is on screen, and
+  // if it cannot be had, what is drawn underneath is what shows.
+  const thumb = entry.piece ? entry.piece.thumb : entry.thumb;
+  if (thumb) {
+    const picture = el('img', 'gallery-thumb');
+    picture.alt = '';
+    picture.loading = 'lazy';
+    picture.decoding = 'async';
+    picture.addEventListener('error', () => picture.remove());
+    picture.src = thumb;
+    screen.append(picture);
+  }
 
   const body = el('div', 'gallery-body');
   body.append(el('h4', '', entry.name));
   if (entry.blurb) body.append(el('p', 'gallery-blurb', entry.blurb));
   if (entry.lineage) body.append(el('p', 'gallery-lineage', entry.lineage));
+  if (entry.piece && entry.piece.sketch.credit) body.append(creditBlock(entry.piece.sketch.credit));
   body.append(tagList(entry, labels));
 
   if (entry.piece) {
@@ -230,6 +286,58 @@ function sectionBlock(id, title, intro, cards) {
   return block;
 }
 
+// A section too long to lay out whole: a count, an order to pick, one page of
+// cards and a button for the next. `state` is kept by the caller so the order
+// and how far someone has read survive a re-render.
+const RESULTS_PAGE = 24;
+// Every section opens on one row or two, whatever its length: a room's page
+// should not lay out (or animate) a hundred cards nobody asked to see.
+const SECTION_PAGE = 6;
+const ORDERS = {
+  collected: (a, b) => b.collected - a.collected,
+  newest: (a, b) => b.newest - a.newest,
+  title: (a, b) => a.title.localeCompare(b.title),
+  artist: (a, b) => a.artist.localeCompare(b.artist) || a.title.localeCompare(b.title),
+};
+
+function pagedBlock({ id, title, intro, cards, page, sorts = [], state, onChange }) {
+  const block = sectionBlock(id, title, intro, []);
+  const grid = block.querySelector('.gallery-grid');
+  const order = ORDERS[state.sort];
+  const ordered = order && cards.every((c) => c.entry.piece && c.entry.piece.order)
+    ? [...cards].sort((a, b) => order(a.entry.piece.order, b.entry.piece.order) || a.entry.name.localeCompare(b.entry.name))
+    : cards;
+  const shown = ordered.slice(0, Math.max(page, state.shown));
+  grid.append(...shown.map((c) => c.card));
+
+  const bar = el('div', 'gallery-paging');
+  bar.append(el('p', 'gallery-paging-count',
+    shown.length < ordered.length ? `Showing ${shown.length} of ${ordered.length}` : `${ordered.length} pieces`));
+  if (sorts.length > 1 && order) {
+    const label = el('label', 'gallery-paging-sort', 'Order ');
+    const select = el('select');
+    for (const sort of sorts) {
+      const option = el('option', '', sort.label);
+      option.value = sort.id;
+      option.selected = sort.id === state.sort;
+      select.append(option);
+    }
+    select.addEventListener('change', () => { state.sort = select.value; state.shown = page; onChange(); });
+    label.append(select);
+    bar.append(label);
+  }
+  block.insertBefore(bar, grid);
+
+  if (shown.length < ordered.length) {
+    const more = el('button', 'quiet-button gallery-more',
+      `Show ${Math.min(page, ordered.length - shown.length)} more`);
+    more.type = 'button';
+    more.addEventListener('click', () => { state.shown = shown.length + page; onChange(); });
+    block.append(more);
+  }
+  return block;
+}
+
 // ── the library ─────────────────────────────────────────────────────────────
 export async function mountLibrary({ root, search, tagBar, count, onPick }) {
   const response = await fetch('/api/thecommons/gallery');
@@ -244,6 +352,48 @@ export async function mountLibrary({ root, search, tagBar, count, onPick }) {
   let enabled = true;
   const chosen = new Map();          // group id -> Set of tag ids
   let terms = [];
+  // Lazy sections (the server's word): their pieces are fetched when someone
+  // opens the section, or searches or filters, never with the page.
+  const lazy = new Map(sections.filter((s) => s.lazy).map((s) => [s.id, { state: 'idle' }]));
+  async function loadLazy(id) {
+    const entry = lazy.get(id);
+    if (!entry || entry.state !== 'idle') return;
+    entry.state = 'loading';
+    render();
+    try {
+      const res = await fetch(`/api/thecommons/gallery/${encodeURIComponent(id)}`);
+      if (!res.ok) throw new Error(String(res.status));
+      const more = (await res.json()).pieces.map((piece) => buildCard(fromPiece(piece), labels, onPick));
+      more.forEach(watch);
+      cards = [...cards, ...more];
+      entry.state = 'loaded';
+    } catch {
+      entry.state = 'idle';
+      entry.failed = true;
+    }
+    render();
+  }
+  const loadAllLazy = () => { for (const id of lazy.keys()) loadLazy(id); };
+
+  function lazyBlock(s) {
+    const entry = lazy.get(s.id);
+    const block = sectionBlock(s.id, s.title, s.intro, []);
+    block.querySelector('.gallery-grid').remove();
+    const open = el('button', 'quiet-button gallery-more',
+      entry.state === 'loading' ? 'Loading…' : `Browse ${s.count} works`);
+    open.type = 'button';
+    open.disabled = entry.state === 'loading';
+    open.addEventListener('click', () => loadLazy(s.id));
+    block.append(open);
+    if (entry.failed && entry.state === 'idle') block.append(el('p', 'gallery-section-intro', 'Couldn’t load these. Try again.'));
+    return block;
+  }
+
+  const paging = new Map();          // section id -> { sort, shown }
+  const pagingFor = (id, sorts = [], page) => {
+    if (!paging.has(id)) paging.set(id, { sort: sorts.length ? sorts[0].id : null, shown: page });
+    return paging.get(id);
+  };
 
   // ── what the library holds ────────────────────────────────────────────────
   const fromPiece = (piece) => ({
@@ -259,6 +409,7 @@ export async function mountLibrary({ root, search, tagBar, count, onPick }) {
     // there finds it: the words, the tags, the controls, and the actions the
     // room gets -- "everyone taps" is a phrase people look for.
     haystack: [piece.name, piece.blurb, piece.lineage, piece.prompt,
+               piece.sketch.credit && piece.sketch.credit.artist, piece.sketch.credit && piece.sketch.credit.platform,
                ...(piece.tags || []).map((t) => labels.get(t) || t),
                ...piece.sketch.variables.map((v) => v.label),
                ...piece.sketch.variables.filter((v) => v.type === 'trigger')
@@ -283,6 +434,7 @@ export async function mountLibrary({ root, search, tagBar, count, onPick }) {
       blurb,
       tags: [kind.tag, ...look, ...(preset.usesImages ? ['images'] : [])],
       section: kind.tag,
+      thumb: preset.thumb || null,
       savedAt,
       haystack: [preset.name, preset.kind, blurb, ...look.map((tag) => labels.get(tag))].join(' ').toLowerCase(),
     };
@@ -311,26 +463,44 @@ export async function mountLibrary({ root, search, tagBar, count, onPick }) {
     for (const c of cards) c.card.hidden = !shown.includes(c);
 
     if (filtering()) {
-      root.replaceChildren(sectionBlock('results', shown.length ? 'Matching pieces' : 'Nothing matches', '', shown));
+      // A search can match a hundred pieces now; a page of them at a time.
+      const title = shown.length ? 'Matching pieces' : 'Nothing matches';
+      root.replaceChildren(shown.length > RESULTS_PAGE
+        ? pagedBlock({ id: 'results', title, intro: '', cards: shown, page: RESULTS_PAGE,
+                       state: pagingFor('results', [], RESULTS_PAGE), onChange: render })
+        : sectionBlock('results', title, '', shown));
     } else {
+      paging.delete('results');   // the next search starts from its first page
       const blocks = [];
+      const section = (id, title, intro, mine, page, sorts) => (mine.length > page
+        ? pagedBlock({ id, title, intro, cards: mine, page, sorts, state: pagingFor(id, sorts, page), onChange: render })
+        : sectionBlock(id, title, intro, mine));
       for (const s of sections) {
+        if (lazy.has(s.id) && lazy.get(s.id).state !== 'loaded') {
+          if (s.count) blocks.push(lazyBlock(s));
+          continue;
+        }
         const mine = cards.filter((c) => c.entry.section === s.id);
-        if (mine.length) blocks.push(sectionBlock(s.id, s.title, s.intro, mine));
+        if (mine.length) blocks.push(section(s.id, s.title, s.intro, mine, s.paged || SECTION_PAGE, s.sorts));
       }
       for (const [kindName, kind] of Object.entries(PRESET_KINDS)) {
         const mine = cards.filter((c) => c.entry.section === kind.tag);
-        if (mine.length) blocks.push(sectionBlock(kind.tag, kindName, '', mine));
+        if (mine.length) blocks.push(section(kind.tag, kindName, '', mine, SECTION_PAGE));
       }
-      const placed = new Set(blocks.flatMap((b) => [...b.querySelectorAll('.gallery-card')]));
-      const strays = cards.filter((c) => !placed.has(c.card));
+      // Only what belongs to no section at all -- not the cards a section is
+      // holding back for its next page, which is most of the library.
+      const known = new Set([...sections.map((s) => s.id), ...Object.values(PRESET_KINDS).map((k) => k.tag)]);
+      const strays = cards.filter((c) => !known.has(c.entry.section));
       if (strays.length) blocks.push(sectionBlock('more', 'More pieces', '', strays));
       root.replaceChildren(...blocks);
     }
 
+    const unloaded = sections.filter((s) => lazy.has(s.id) && lazy.get(s.id).state !== 'loaded')
+      .reduce((n, s) => n + (s.count || 0), 0);
+    const total = cards.length + unloaded;
     count.replaceChildren(filtering()
-      ? `${shown.length} of ${cards.length} pieces match.`
-      : `${cards.length} pieces. Search, or pick a tag to narrow it down.`);
+      ? `${shown.length} of ${total} pieces match${unloaded ? ' so far' : ''}.`
+      : `${total} pieces. Search, or pick a tag to narrow it down.`);
     if (filtering()) count.append(clearAll);
     markLive(liveSlug);
     setEnabled(enabled);
@@ -366,6 +536,7 @@ export async function mountLibrary({ root, search, tagBar, count, onPick }) {
           chosen.set(group.id, wanted);
           chip.setAttribute('aria-pressed', String(wanted.has(tag.id)));
           chip.classList.toggle('is-on', wanted.has(tag.id));
+          loadAllLazy();   // a filter reaches the whole library
           render();
         });
         list.append(chip);
@@ -379,6 +550,7 @@ export async function mountLibrary({ root, search, tagBar, count, onPick }) {
   search.addEventListener('input', () => {
     terms = search.value.trim().toLowerCase().split(/\s+/).filter(Boolean)
       .map((term) => new RegExp(`(^|[^a-z0-9])${escaped(term)}`));
+    if (terms.length) loadAllLazy();   // a search reaches the whole library
     render();
   });
 

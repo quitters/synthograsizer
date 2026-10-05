@@ -9,9 +9,14 @@ import {
   DEFAULT_TEMPERATURE,
 } from '../config/models.js';
 import { MAX_TOOL_ROUNDS, MAX_CALLS_PER_ROUND } from '../config/tools.js';
+import { RECENT_WINDOW, SUMMARY_BATCH, summaryIsValid } from './summarizer.js';
+import { planSessionMedia, isVisualMedia } from './mediaContext.js';
 
 // Max attempts to continue a truncated response
 const MAX_CONTINUATION_ATTEMPTS = 2;
+
+// Folding old messages into the running summary is a small, frequent job: a fast model.
+const SUMMARY_MODEL = process.env.CHATROOM_SUMMARY_MODEL || 'gemini-3.8-flash';
 
 let genAI = null;
 
@@ -51,6 +56,28 @@ export async function deleteInteractions(interactionIds = []) {
   }
   console.log(`[gemini] deleted ${deleted} stored interaction(s), ${failed} failed`);
   return { deleted, failed };
+}
+
+/** Swap the API client (tests give it a fake one). Returns the previous client. */
+export function setGeminiClient(client) {
+  const previous = genAI;
+  genAI = client;
+  return previous;
+}
+
+/**
+ * One non-streaming text completion on the fast model, for background jobs such as the
+ * rolling summary. Stateless: nothing is retained at Google.
+ */
+export async function generateText(prompt, { model = SUMMARY_MODEL, maxOutputTokens = 4096 } = {}) {
+  if (!genAI) throw new Error('Gemini not initialized. Call initializeGemini first.');
+  const interaction = await genAI.interactions.create({
+    model,
+    input: prompt,
+    generation_config: { max_output_tokens: maxOutputTokens },
+    store: false,
+  });
+  return interaction.output_text || '';
 }
 
 /**
@@ -239,7 +266,7 @@ CRITICAL RULES:
 7. Stay in character. Do not mention being an AI or break the fourth wall.`;
 
   // ── Artifact context ───────────────────────────────────────────────────
-  const artifacts = artifactStore.getAll();
+  const artifacts = (options.artifactStore || artifactStore).getAll();
   if (artifacts.length > 0 && !enableTagTools) {
     // Function-calling mode: the model already has write_artifact's schema and
     // description, so all it needs here is the current state of the files.
@@ -442,24 +469,35 @@ Continue the discussion as ${agentName} — advance it rather than restating you
   return transcript;
 }
 
-function buildConversationPrompt(messages, goal, agentName) {
+export function buildConversationPrompt(messages, goal, agentName, summary = null) {
   if (messages.length === 0) {
     return `The discussion is just beginning. The shared goal is: ${goal}
 
 Please provide your opening statement to kick off the discussion. Remember, write ONLY your response - do not simulate other participants.`;
   }
 
-  // Sliding window: keep last 15 messages in full, summarize older ones
-  const WINDOW_SIZE = 15;
-  const recentMessages = messages.slice(-WINDOW_SIZE);
-  const olderMessages = messages.length > WINDOW_SIZE ? messages.slice(0, -WINDOW_SIZE) : [];
+  // Sliding window: the last RECENT_WINDOW messages in full. Older ones are covered by the
+  // rolling summary when there is a valid one, and by one-line notes otherwise.
+  const useSummary = summaryIsValid(summary, messages);
+  const windowStart = Math.max(0, messages.length - RECENT_WINDOW);
+  // Messages the summary has not caught up with yet are shown in full too -- but only a
+  // batch's worth: if the summary has fallen far behind, the rest get one-line notes.
+  const fullFrom = useSummary ? Math.max(summary.upTo, windowStart - SUMMARY_BATCH) : windowStart;
+  const recentMessages = messages.slice(fullFrom);
+  const olderMessages = messages.slice(useSummary ? summary.upTo : 0, fullFrom);
 
   let transcript = `CONVERSATION TRANSCRIPT:\n`;
   transcript += `========================================\n`;
 
+  if (useSummary) {
+    transcript += `[Earlier discussion - notes on the first ${summary.upTo} messages]\n${summary.text}\n\n`;
+  }
+
   // Summarize older messages if any
   if (olderMessages.length > 0) {
-    transcript += `[Earlier discussion - ${olderMessages.length} messages summarized]\n`;
+    transcript += useSummary
+      ? `[Between those notes and the recent messages - ${olderMessages.length} messages, briefly]\n`
+      : `[Earlier discussion - ${olderMessages.length} messages summarized]\n`;
     // Group by speaker and note their key contributions
     const speakerSummaries = {};
     for (const msg of olderMessages) {
@@ -488,35 +526,6 @@ Please provide your opening statement to kick off the discussion. Remember, writ
 }
 
 /**
- * Check if a MIME type is a visual/image type that Gemini can view inline
- */
-function isVisualMedia(mimeType) {
-  return mimeType && (
-    mimeType.startsWith('image/') ||
-    mimeType === 'video/mp4' ||
-    mimeType === 'video/webm'
-  );
-}
-
-/**
- * Check if a MIME type is a text-based file that can be included as text content
- */
-function isTextMedia(mimeType) {
-  return mimeType && (
-    mimeType === 'application/json' ||
-    mimeType === 'text/plain' ||
-    mimeType === 'text/csv' ||
-    mimeType === 'text/html' ||
-    mimeType === 'text/markdown' ||
-    mimeType === 'text/xml' ||
-    mimeType === 'application/xml' ||
-    mimeType === 'text/css' ||
-    mimeType === 'text/javascript' ||
-    mimeType === 'application/javascript'
-  );
-}
-
-/**
  * Map an inline media file onto an Interactions content block.
  * Images → image blocks, video → video blocks, PDFs → document blocks.
  * `data` stays base64 (the media store already holds base64).
@@ -532,48 +541,59 @@ function mediaToBlock(media) {
 }
 
 /**
- * Build Interactions content blocks including session media.
- * Returns an array of content blocks: text blocks + inline media blocks.
+ * Build Interactions content blocks including session media: text blocks + inline media blocks.
+ * @param {string} promptText
+ * @param {Array}  mediaPlan  from planSessionMedia(): which reference files to attach, inline or just list
+ * @param {Array}  generatedImages
  */
-function buildContentParts(promptText, sessionMedia = [], generatedImages = []) {
+export function buildContentParts(promptText, fullMediaPlan = [], generatedImages = []) {
   const parts = [];
+  // Files this agent's history already holds are not repeated (see planSessionMedia).
+  const mediaPlan = fullMediaPlan.filter(entry => !entry.seen);
 
-  if (sessionMedia.length > 0) {
+  if (mediaPlan.length > 0) {
     // Add a text preface about the uploaded media
-    let mediaPreface = `\nSESSION REFERENCE MATERIALS (${sessionMedia.length} files uploaded by the user):\n`;
+    let mediaPreface = `\nSESSION REFERENCE MATERIALS (${mediaPlan.length} files uploaded by the user):\n`;
+    let anyNotAttached = false;
 
-    for (const media of sessionMedia) {
-      if (isVisualMedia(media.mimeType)) {
-        // Add description text
-        mediaPreface += `- [Image/Media: "${media.name}" - ID: ${media.id}] (attached below, can be remixed with [REMIX: ${media.id} | changes])\n`;
-      } else if (isTextMedia(media.mimeType)) {
-        // Decode and include text content inline
-        try {
-          const textContent = Buffer.from(media.data, 'base64').toString('utf-8');
-          // Truncate very large text files
-          const maxTextLen = 5000;
-          const truncated = textContent.length > maxTextLen
-            ? textContent.slice(0, maxTextLen) + `\n... [truncated, ${textContent.length} chars total]`
-            : textContent;
-          mediaPreface += `- [File: "${media.name}" (${media.mimeType})]:\n\`\`\`\n${truncated}\n\`\`\`\n`;
-        } catch {
+    for (const { media, kind, attached, reason, text, truncated, totalChars, undecodable } of mediaPlan) {
+      const visual = isVisualMedia(media.mimeType);
+      const isPdf = media.mimeType === 'application/pdf';
+      if (kind === 'text') {
+        if (undecodable) {
           mediaPreface += `- [File: "${media.name}" - could not decode]\n`;
+        } else {
+          const shown = truncated ? text + `\n... [truncated, ${totalChars} chars total]` : text;
+          mediaPreface += `- [File: "${media.name}" (${media.mimeType})]:\n\`\`\`\n${shown}\n\`\`\`\n`;
         }
-      } else if (media.mimeType === 'application/pdf') {
-        mediaPreface += `- [PDF: "${media.name}" - ID: ${media.id}] (attached below)\n`;
+      } else if (visual || isPdf) {
+        const label = visual ? `[Image/Media: "${media.name}" - ID: ${media.id}]` : `[PDF: "${media.name}" - ID: ${media.id}]`;
+        if (attached) {
+          mediaPreface += visual
+            ? `- ${label} (attached below, can be remixed with [REMIX: ${media.id} | changes])\n`
+            : `- ${label} (attached below)\n`;
+        } else {
+          anyNotAttached = true;
+          const remix = media.mimeType.startsWith('image/') ? `; you can still remix it with [REMIX: ${media.id} | changes]` : '';
+          mediaPreface += `- ${label} (not attached this turn: ${reason}${remix})\n`;
+        }
       } else {
         mediaPreface += `- [File: "${media.name}" (${media.mimeType}) - ID: ${media.id}]\n`;
       }
     }
 
     mediaPreface += `\nYou may reference, analyze, critique, or remix these materials in your response.\n`;
+    if (anyNotAttached) {
+      mediaPreface += `Files marked "not attached this turn" are still part of the session: refer to them by name, ` +
+                      `or ask the user to share one again if you need to look at it.\n`;
+    }
 
     // Add the preface + main prompt as text
     parts.push({ type: 'text', text: mediaPreface + '\n' + promptText });
 
     // Attach visual media / PDFs as content blocks
-    for (const media of sessionMedia) {
-      if (isVisualMedia(media.mimeType) || media.mimeType === 'application/pdf') {
+    for (const { media, kind, attached } of mediaPlan) {
+      if (attached && kind !== 'text') {
         parts.push(mediaToBlock(media));
       }
     }
@@ -952,6 +972,7 @@ export async function* generateAgentResponse(agent, allAgents, messages, goal, s
   const useFunctions = Boolean(hasCustomFunctions && options?.dispatch);
   const systemPrompt = await buildSystemPrompt(agent, allAgents, goal, {
     enableTagTools: !useFunctions,
+    artifactStore: options?.artifactStore,
   });
   // Precedence: per-agent model → session-wide preference → registry default.
   const modelId = resolveAgentModel(agent, options?.model);
@@ -967,7 +988,7 @@ export async function* generateAgentResponse(agent, allAgents, messages, goal, s
   // Build the prompt with conversation history
   let promptText = previousInteractionId
     ? buildDeltaPrompt(messages, deltaFrom, goal, agent.name)
-    : buildConversationPrompt(messages, goal, agent.name);
+    : buildConversationPrompt(messages, goal, agent.name, options?.summary);
 
   // Prepend any system notes (e.g. workflow outcomes from the previous turn)
   // so the agent reacts to real results instead of hallucinating success.
@@ -990,22 +1011,19 @@ export async function* generateAgentResponse(agent, allAgents, messages, goal, s
 
   const { generatedImages = [] } = options || {};
 
-  // Only include session media on the first turn to avoid sending large payloads every turn
-  // After the first turn, media context is carried via transcript references
-  const includeMedia = messages.length === 0 || messages.length <= 2;
-  // Anything indexed into File Search is reachable by query, so it must not
-  // also ride along inline — that would pay for the payload twice and
-  // reintroduce the 5,000-character truncation this replaced.
+  // Reference files: images and text every turn, video and PDF while fresh, within size
+  // budgets (see mediaContext.js). Anything left out is still listed, with the reason.
+  // Documents indexed into File Search are reachable by query, so they must not also ride
+  // along inline -- that would pay for the payload twice.
   const inlineMedia = sessionMedia.filter(m => !m.indexed);
-  const contentParts = buildContentParts(promptText, includeMedia ? inlineMedia : [], generatedImages);
-
-  // For text files that were included inline, add a note to later turns too
-  const hasTextMedia = sessionMedia.some(m => isTextMedia(m.mimeType));
-  if (!includeMedia && sessionMedia.length > 0) {
-    // Remind agents about available media without re-sending the data
-    const mediaReminder = `\n[Note: ${sessionMedia.length} reference file(s) were provided at session start: ${sessionMedia.map(m => m.name).join(', ')}. Refer to them by name or ID if needed.]\n`;
-    contentParts[0].text = mediaReminder + contentParts[0].text;
-  }
+  // A chained turn continues the agent's own server-side history, which already holds
+  // whatever it was shown before, so only files it has not had are sent.
+  const mediaPlan = planSessionMedia(inlineMedia, {
+    messageCount: messages.length,
+    agentCount: allAgents.length,
+    seenUpTo: previousInteractionId ? deltaFrom : undefined,
+  });
+  const contentParts = buildContentParts(promptText, mediaPlan, generatedImages);
 
   // Function-calling path (Phase 2). The legacy tag path below is unchanged
   // and stays the default until TOOL_MODE=functions is switched on.

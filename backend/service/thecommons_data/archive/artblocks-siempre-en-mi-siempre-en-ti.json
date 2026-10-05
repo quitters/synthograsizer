@@ -1,0 +1,184 @@
+{
+  "name": "siempre en mí, siempre en ti",
+  "promptTemplate": "A portrait fading with {{oblivion}} oblivion and {{distorted_perception}} distorted perception against a {{the_tint_of_your_memories_is}} memory tint, accompanied by {{alternate_lives}} alternate lives, with {{haze}} haze; quantized: {{quantized_existence}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "the_tint_of_your_memories_is",
+      "label": "the tint of your memories is",
+      "values": [
+        {
+          "text": "dark",
+          "weight": 3
+        },
+        {
+          "text": "blue",
+          "weight": 2
+        },
+        {
+          "text": "violet",
+          "weight": 2
+        },
+        {
+          "text": "red",
+          "weight": 1
+        },
+        {
+          "text": "green",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "alternate_lives",
+      "label": "alternate lives",
+      "values": [
+        {
+          "text": "0",
+          "weight": 3
+        },
+        {
+          "text": "1",
+          "weight": 2
+        },
+        {
+          "text": "2",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "oblivion",
+      "label": "oblivion",
+      "values": [
+        {
+          "text": "light",
+          "weight": 3
+        },
+        {
+          "text": "moderate",
+          "weight": 2
+        },
+        {
+          "text": "strong",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "distorted_perception",
+      "label": "distorted perception",
+      "values": [
+        {
+          "text": "light (0.05)",
+          "weight": 3
+        },
+        {
+          "text": "light (0.25)",
+          "weight": 2
+        },
+        {
+          "text": "moderate (0.5)",
+          "weight": 2
+        },
+        {
+          "text": "moderate (1.0)",
+          "weight": 1
+        },
+        {
+          "text": "strong (1.5)",
+          "weight": 1
+        },
+        {
+          "text": "strong (2.0)",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "quantized_existence",
+      "label": "quantized existence",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "haze",
+      "label": "haze",
+      "values": [
+        {
+          "text": "almost none",
+          "weight": 3
+        },
+        {
+          "text": "strong",
+          "weight": 2
+        },
+        {
+          "text": "moderate",
+          "weight": 2
+        },
+        {
+          "text": "some",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 200,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:siempre-en-mi-siempre-en-ti",
+  "artist": "Marcelo Soria-Rodríguez",
+  "credit": {
+    "title": "siempre en mí, siempre en ti",
+    "artist": "Marcelo Soria-Rodríguez",
+    "year": 2023,
+    "description": "siempre en mi, siempre en ti (“always in me, always in you”) is released as part of reGEN, a special charitable auction of generative art to raise funds for Cure Alzheimer’s Fund, curated by Alex Estorick and Foteini Valeonti in collaboration with The Giving Block.  100% of primary proceeds of this project go to the cause.\n\nsiempre en mí, siempre en ti (always in me, always in you) is a personal reflection on how Alzheimer's affects the lives of patients and those around them. The illness is in my family and in that of close friends of mine, and this work is more of a raw expression of emotion than anything else. Holding hands with a person who is fading away is a strong experience, one that allows oneself to recalibrate and to, in a way, regenerate one's vision of what life is, what a person is, what relationships are. It's commonplace to hear that a loved one who is already gone is still alive \"in our memory\". The truth is that this is the case when we are all alive and good as well, but only take notice when there is a crossing over event. We don't see the person almost anymore, but there's a body there that sometimes still reacts. How much of what we ignore that is going on is relevant? Is this song we just played relevant? What do emotions look like when the brain that processes them is failing? Are we ready to understand those, with our limited knowledge of what we are? Is the person still there when there is no sign of them? And when they are not there, why can we not cut the cord? The simple touch of their skin is enough to make the person come alive in that instant in our very memories. Maybe we are in theirs, in that moment, in a shape we don't comprehend.\n\nVisually, the project merely projects faces. Fading, waving. Unstable, some smiling, some sad. A diversity of lives emerges in the piece, exploring with generative techniques the emotions of you, the experiencer of the piece. Maybe it does not resonate with you, but maybe it gives you a chance to connect with those feelings that are otherwise hard to get close to. We see a person and their dreams, their ideas, their memories as dancing colorful geometries. Their fears, ther recurring thoughts. But sometimes they look like a nightmare. Sometimes they are mute. We see some lines where the faces are enclosed. These are a template for a human, the lines that dictate where our facial features should be. But they dance with the memories as time passes by - is our notion of human also a moving target? Sometimes you will see more than one face, an expression of the many lives we might have lived. And at any time, we can summon a view of the piece where we see you in me. _You in me_.\n\nAllowing ourselves to be a companion of someone else's difficult passage is a window into our own humanity. An occasion for regeneration.\n\nWorks best on Chromium browsers. Firefox macos has some problem with geometries drawn with p5.js in webGL mode. The piece is graphics intensive and requires a powerful setup to experience it best.\n\npress s to save image\npress v to start recording video, v again to finish and download (webm format)\npress f to fast forward 100 frames\nclick mouse, tap on screen or press l (as in loop) to pause/resume the motion\ntype youinme to see how we all carry each other within ourselves\n\nURL parameters - add a trailing ? if it's the 1st parameter you add, then & for the rest; e.g. \nhttps://generator.artblocks.io/0x99a9b7c1116f9ceeb1652de04d5969cce509b069/477000000?pd=4&fs=1&fM=6\n\npd=N in live view URL to set pixel density to N (N>2 increase resolution)\nfs=1 in live view URL to set the artwork to render adaptively to the current viewport size, instead of the default square aspect ratio\nfM=x with x any number to make the animation stop at that frame number\n\npd=N in live view URL to set pixel density to N (N>2 increase resolution)\nfs=1 in live view URL to set the artwork to render adaptively to the current viewport size, instead of the default square aspect ratio\nfM=x with x any number to make the animation stop at that frame number",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0x99a9b7c1116f9ceeb1652de04d5969cce509b069/477",
+    "artistUrl": null,
+    "license": {
+      "text": "CC BY-NC-SA 4.0",
+      "name": "CC BY-NC-SA 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only.",
+        "Share the adaptation under the same licence."
+      ]
+    },
+    "editions": 200,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0x99a9b7c1116f9ceeb1652de04d5969cce509b069",
+      "projectId": 477
+    },
+    "archiveId": "artblocks:siempre-en-mi-siempre-en-ti",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of siempre en mí, siempre en ti by Marcelo Soria-Rodríguez, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 56052
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Asiempre-en-mi-siempre-en-ti"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Asiempre-en-mi-siempre-en-ti"
+  }
+}

@@ -1,0 +1,161 @@
+{
+  "name": "Calian",
+  "promptTemplate": "An ecosystem of lifelike forms in {{style}} tones, unfolding across a {{geometry}} geometry with {{growth}} growth. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "style",
+      "label": "Style",
+      "values": [
+        {
+          "text": "abalone",
+          "weight": 3
+        },
+        {
+          "text": "liquid circuit",
+          "weight": 2
+        },
+        {
+          "text": "bouquet",
+          "weight": 2
+        },
+        {
+          "text": "zabriskie point",
+          "weight": 1
+        },
+        {
+          "text": "nocturne",
+          "weight": 1
+        },
+        {
+          "text": "embers in half light",
+          "weight": 1
+        },
+        {
+          "text": "the forest path to the spring",
+          "weight": 1
+        },
+        {
+          "text": "constellation",
+          "weight": 1
+        },
+        {
+          "text": "spectral",
+          "weight": 1
+        },
+        {
+          "text": "kind of blue",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "geometry",
+      "label": "Geometry",
+      "values": [
+        {
+          "text": "micron a",
+          "weight": 3
+        },
+        {
+          "text": "solid",
+          "weight": 2
+        },
+        {
+          "text": "micron b",
+          "weight": 2
+        },
+        {
+          "text": "abyss",
+          "weight": 1
+        },
+        {
+          "text": "protoglyph b",
+          "weight": 1
+        },
+        {
+          "text": "codex",
+          "weight": 1
+        },
+        {
+          "text": "archipelago",
+          "weight": 1
+        },
+        {
+          "text": "toriglyph a",
+          "weight": 1
+        },
+        {
+          "text": "toriglyph b",
+          "weight": 1
+        },
+        {
+          "text": "portal",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "growth",
+      "label": "Growth",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 256,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:calian",
+  "artist": "Eric De Giuli",
+  "credit": {
+    "title": "Calian",
+    "artist": "Eric De Giuli",
+    "year": 2023,
+    "description": "The contemporary moment is defined by the appearance of artificial systems that mimic intelligent behaviours with uncanny skill: bots that you can converse with, machines that can act as pets, and even the algorithms that recommend ads to you. At times they appear as strange beings; alive. To make sense of this phenomenon, we are forced to reconsider our notion of the living state beyond what we are familiar with on Earth. \n\nCalian is an infinitely zoomable and scrollable exploration of lifelike behaviour. It exhibits ambiguous natural-digital forms in a dynamic rendering. Species grow and compete; they get carried by the elements; they face boom, bust, and echo. \n\nWhat makes something alive? To go beyond recognition of terrestrial biology we need to delineate general principles and apply them to new intelligent systems. Calian uses the fruits of my research into the origin of life to create persistent, complex systems that we can experience and study (*). We can identify properties of living matter but these fall short of a satisfactory and succinct criterion. When does agency begin? Or identity? Calian asks you to ponder this as you wander through its ecosystems. \n\nFeel free to explore but be careful: although life is pervasive, living things are delicate. Your interactions affect the ecosystem, obliquely. \n\nCalian continues a thread of my work probing deep scientific questions with artistic means. It furthermore connects to my previous Artblocks projects Mazinaw and Glass through the theme of ambiguity: while Mazinaw suggested the hand of an unknown creator, and Glass visualized the intrinsic ambiguity of our quantum mechanical universe, Calian's amorphous forms bear characteristics both of familiar organic matter and digital technology. \n\nInteractive features allow you to explore each ecosystem, infinitely, both in depth and in scope. As you wander, the shader repopulates the world from its initial condition, while the physical laws governing the dynamics themselves evolve.\n\nSee Display Notes for Controls.\n\n(*) For more on Calian's dynamics and its grounding in my research, see the Calian page on my website.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0x99a9b7c1116f9ceeb1652de04d5969cce509b069/416",
+    "artistUrl": "https://eeedg.ca/Calian-1",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 256,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0x99a9b7c1116f9ceeb1652de04d5969cce509b069",
+      "projectId": 416
+    },
+    "archiveId": "artblocks:calian",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Calian by Eric De Giuli, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 742671
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Acalian"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Acalian"
+  }
+}

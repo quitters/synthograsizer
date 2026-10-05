@@ -1,0 +1,179 @@
+{
+  "name": "Voyager",
+  "promptTemplate": "A view of a distant planetary system in {{palette}} with {{grain}} grain and a {{margin}} margin, illuminated in {{moon_phase}} phase ({{bichromatic}}), gravitational wave: {{gravitational_wave}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Paper",
+          "weight": 3
+        },
+        {
+          "text": "Black",
+          "weight": 2
+        },
+        {
+          "text": "Ivory",
+          "weight": 2
+        },
+        {
+          "text": "BlackDalhia",
+          "weight": 1
+        },
+        {
+          "text": "Blue",
+          "weight": 1
+        },
+        {
+          "text": "Soft",
+          "weight": 1
+        },
+        {
+          "text": "Green",
+          "weight": 1
+        },
+        {
+          "text": "Petrole",
+          "weight": 1
+        },
+        {
+          "text": "Jungle",
+          "weight": 1
+        },
+        {
+          "text": "Bistre",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "moon_phase",
+      "label": "Moon Phase",
+      "values": [
+        {
+          "text": "Quarter",
+          "weight": 3
+        },
+        {
+          "text": "Full",
+          "weight": 2
+        },
+        {
+          "text": "Crescent",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "bichromatic",
+      "label": "Color Style",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "gravitational_wave",
+      "label": "Gravitational Wave",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "grain",
+      "label": "Grain",
+      "values": [
+        {
+          "text": "Delicate",
+          "weight": 3
+        },
+        {
+          "text": "Soft",
+          "weight": 2
+        },
+        {
+          "text": "Coarse",
+          "weight": 2
+        },
+        {
+          "text": "Grainy",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "margin",
+      "label": "Margin",
+      "values": [
+        {
+          "text": "Standard",
+          "weight": 3
+        },
+        {
+          "text": "Small",
+          "weight": 2
+        },
+        {
+          "text": "None",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 300,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:voyager",
+  "artist": "DisruptedStar",
+  "credit": {
+    "title": "Voyager",
+    "artist": "DisruptedStar",
+    "year": 2023,
+    "description": "INTRODUCTION\n\nVoyager 1 and 2 have been launched in 1977. They are the farthest man crafted objects from Earth. It will take tens to hundreds thousands years for them to reach other stars and planetary systems despite a velocity of 17km/s... \nThe on-board camera, mysteriously, sends back images of the remote planets and their moons...\n\nDo not go gentle into that good night.\nRage, rage against the dying of the light.\nDylan Thomas (Do not go gentle into that good night)\n\nARTWORK DESCRIPTION\n\nThe artwork represents a planet and its moons. There is an important variety of planet/moons types, different perspectives (far or near the planet and moons), different space environments (stars, Milky Way, star clusters,  comet, eclipse, Einstein cross and ring, Magellanic Clouds...). A very rare Gravitational Wave affecting space properties can occur. Usually Monochromatic, there is a variation with the addition of one color. In \"live view\" use the interaction possibilities to explore a given planetary system...\n\nTECHNICAL DETAILS\n\nIn the same way photons hit the CCD camera, tiny squares hit the canvas.\nThe algorithm is minimalist : pick a random position in the canvas and decide if a monochromatic tiny square has to be drawn or not (rarely, squares can be drawn in 2 colors). The light parts are drawn only through the absence of drawing. The whole complexity resides in the decision to draw or not to draw. Mathematical functions are underneath each decision, like space and time are underneath all of our world. \n\n\nINTERACTIONS\n\nYou can interact with keyboard commands or through URL parameters.\n- press S : to save the current image in png\n- press 2, 3... 9 (URL, add DP=2) : change resolution. Increase the value step by step. Can be very long to draw, but it's worth it for printing. Very High Resolution can be achieved. The file is saved automatically when finished.\n- press L (URL, add liveMode=true) : to discover different views of your planetary system (images will be drawn one after the other, with the same parameters for the main planet and the space environment).\n- press F (URL, add fitToScreen=true) : to adapt the artwork to any screen size (artwork is changed but parameters remain the same)\n- press M (URL, add monoChromatic=true) : to force the artwork to be monochromatic\n- press G (URL, add GW=false) : to remove the gravitational wave effect\n- URL, add offset=<Number>, to offset the image production (same planet parameters and space environment)\n- URL, add grainy=true, to change the size of the grain (useful for displays to speed up the creation process)\n\nURL Parameters are added to the end of a URL after a ‘?’ symbol, and multiple parameters can be included when separated by the ‘&’ symbol.\nYou can combine \"?liveMode=true&fitToScreen=true&grainy=true\" in the URL for display purpose (TV, Art show...). \nCombining liveMode and DP for resolution allows you to save all the images produced.\n\n\nEXTERNAL LICENSE\n\nVoyager is built with p5js and a simplex noise library under MIT license: simplex-noise.js.\n\n\nDISRUPTED STAR\n\nI am a French astrophysicist (PhD) working in high energy astrophysics.\nMy artist name is related to an astrophysical event in which a star, a pretty common object in the Universe,  comes too close to a Super Massive Black Hole (SMBH), is torn apart and finally tidally disrupted...\nThe Generative Art plays the role of the SMBH that has changed my life in many ways in the past years...",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0x99a9b7c1116f9ceeb1652de04d5969cce509b069/434",
+    "artistUrl": "https://sites.google.com/view/tidally-disrupted-star/voyager",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 300,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0x99a9b7c1116f9ceeb1652de04d5969cce509b069",
+      "projectId": 434
+    },
+    "archiveId": "artblocks:voyager",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Voyager by DisruptedStar, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 168947
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Avoyager"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Avoyager"
+  }
+}

@@ -1,0 +1,170 @@
+{
+  "name": "Squares and Triangles",
+  "promptTemplate": "A {{rarity_tier}} symphony of squares (RGB: {{square_red_amount}}, {{square_green_amount}}, {{square_blue_amount}}) and triangles (RGB: {{triangle_red_amount}}, {{triangle_green_amount}}, {{triangle_blue_amount}}). Drawn with {{line_thickness}} line width across a {{main_drawing_area_size}} area, scaling at {{shape_scaling_speed}} and rotating at {{angle_modification_speed}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "rarity_tier",
+      "label": "Rarity tier",
+      "values": [
+        {
+          "text": "Tier 1 (Normal)",
+          "weight": 3
+        },
+        {
+          "text": "Tier 3 (Legendary)",
+          "weight": 2
+        },
+        {
+          "text": "Tier 2 (Rare)",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "line_thickness",
+      "label": "Line thickness",
+      "type": "number",
+      "min": 0.4,
+      "max": 1,
+      "step": 0.05,
+      "default": 0.4
+    },
+    {
+      "name": "main_drawing_area_size",
+      "label": "Main drawing area size",
+      "type": "number",
+      "min": 0.25,
+      "max": 0.6,
+      "step": 0.01,
+      "default": 0.42
+    },
+    {
+      "name": "shape_scaling_speed",
+      "label": "Shape scaling speed",
+      "type": "number",
+      "min": -2047,
+      "max": 2048,
+      "step": 1,
+      "default": 1000
+    },
+    {
+      "name": "angle_modification_speed",
+      "label": "Angle modification speed",
+      "type": "number",
+      "min": -12.5,
+      "max": 13,
+      "step": 0.1,
+      "default": 0.5
+    },
+    {
+      "name": "square_red_amount",
+      "label": "Square red amount",
+      "type": "number",
+      "min": 0,
+      "max": 255,
+      "step": 1,
+      "default": 128
+    },
+    {
+      "name": "square_green_amount",
+      "label": "Square green amount",
+      "type": "number",
+      "min": 0,
+      "max": 255,
+      "step": 1,
+      "default": 128
+    },
+    {
+      "name": "square_blue_amount",
+      "label": "Square blue amount",
+      "type": "number",
+      "min": 0,
+      "max": 255,
+      "step": 1,
+      "default": 128
+    },
+    {
+      "name": "triangle_red_amount",
+      "label": "Triangle red amount",
+      "type": "number",
+      "min": 0,
+      "max": 255,
+      "step": 1,
+      "default": 128
+    },
+    {
+      "name": "triangle_green_amount",
+      "label": "Triangle green amount",
+      "type": "number",
+      "min": 0,
+      "max": 255,
+      "step": 1,
+      "default": 128
+    },
+    {
+      "name": "triangle_blue_amount",
+      "label": "Triangle blue amount",
+      "type": "number",
+      "min": 0,
+      "max": 255,
+      "step": 1,
+      "default": 128
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 80,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:squares-and-triangles",
+  "artist": "Maksim Hapeyenka",
+  "credit": {
+    "title": "Squares and Triangles",
+    "artist": "Maksim Hapeyenka",
+    "year": 2021,
+    "description": "A symphony of nothing but squares and triangles to create something beautiful.\n\nThis is a project I made when I was just getting started with generative art.\nI decided to revive it despite all its flaws to preserve this piece of my humble history.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/218",
+    "artistUrl": "https://twitter.com/BirthCreator",
+    "license": {
+      "text": "CC BY",
+      "name": "CC BY 4.0",
+      "url": "https://creativecommons.org/licenses/by/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how."
+      ]
+    },
+    "editions": 80,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 218
+    },
+    "archiveId": "artblocks:squares-and-triangles",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Squares and Triangles by Maksim Hapeyenka, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 5591
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Asquares-and-triangles"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Asquares-and-triangles"
+  }
+}

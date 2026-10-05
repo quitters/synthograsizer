@@ -1,0 +1,153 @@
+{
+  "name": "Inprecision",
+  "promptTemplate": "A {{density}} density watercolor composition rendered in the {{palette}} palette on a {{background}} background, with overlay {{overlay}} and sketching {{sketching}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Autumn",
+          "weight": 3
+        },
+        {
+          "text": "🏳️‍🌈",
+          "weight": 2
+        },
+        {
+          "text": "After the Future",
+          "weight": 2
+        },
+        {
+          "text": "Dreams of a Distant Memory",
+          "weight": 1
+        },
+        {
+          "text": "Dessau",
+          "weight": 1
+        },
+        {
+          "text": "Dusk in the City",
+          "weight": 1
+        },
+        {
+          "text": "Lemonade",
+          "weight": 1
+        },
+        {
+          "text": "Forgotten Spring",
+          "weight": 1
+        },
+        {
+          "text": "Rhino",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "background",
+      "label": "Background",
+      "values": [
+        {
+          "text": "Checkered",
+          "weight": 3
+        },
+        {
+          "text": "Split",
+          "weight": 2
+        },
+        {
+          "text": "Solid",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "density",
+      "label": "Density",
+      "values": [
+        {
+          "text": "Normal",
+          "weight": 3
+        },
+        {
+          "text": "Low",
+          "weight": 2
+        },
+        {
+          "text": "High",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "overlay",
+      "label": "Overlay",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "sketching",
+      "label": "Sketching",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 100,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:inprecision",
+  "artist": "Thomas Lin Pedersen",
+  "credit": {
+    "title": "Inprecision",
+    "artist": "Thomas Lin Pedersen",
+    "year": 2022,
+    "description": "*Inprecision* is exploring the tension between the precision offered by computers and the imperfections inherent in classic art production approaches. The generative system is based on circles and triangles, perfectly aligned with each other and placed on a grid, but rendered with a technique inspired by the look of water color giving a high degree of imperfection in the rendered output. The precision of the underlying system is then again accentuated by a layer of hyper precise line drawings, outlining the used geometries and providing a scaffold for the underlying colors.\n\n*Inprecision* further builds upon my quest to explore emergent compositions in generative systems. The system started with completely random placements of the different geometries, and gradually evolved by putting in the most minimal constraints to ensure an engaging final composition. In that way, *Inprecision* is an exercise in light-touch control with the aim to explore surprising compositions arising from randomness.\n\nThis series takes inspiration from both the color and line work of Wassily Kandinsky and the theories in the Suprematism movement. It asks the viewer to meditate on the texture of the paint and paper through its embrace of simple geometry and compositions devoid of literal interpretation.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0x0a1bbd57033f57e7b6743621b79fcb9eb2ce3676/9",
+    "artistUrl": "https://data-imaginist.com/inprecision",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 100,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0x0a1bbd57033f57e7b6743621b79fcb9eb2ce3676",
+      "projectId": 9
+    },
+    "archiveId": "artblocks:inprecision",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Inprecision by Thomas Lin Pedersen, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 162050
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Ainprecision"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Ainprecision"
+  }
+}

@@ -239,6 +239,10 @@ function App() {
         showNotification('Chat Complete', 'The agents have reached consensus!');
       } else if (data.reason === 'token_limit_reached') {
         showNotification('Chat Complete', 'Token limit reached.');
+      } else if (data.reason === 'error_limit_reached') {
+        const why = data.error || 'unknown error';
+        setError(`Chat stopped after repeated errors: ${why}`);
+        showNotification('Chat stopped', `The model kept failing: ${why}`);
       }
     });
 

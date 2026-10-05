@@ -1,0 +1,210 @@
+{
+  "name": "Fushi No Reality - フシノゲンジツ",
+  "promptTemplate": "A {{color_mode}} meditative landscape terrain ({{terrain_size_x}}×{{terrain_size_y}}) with bend {{bend_level}}, distortion {{distort_dimension}}, age {{age}}, and shadow {{shadow_level}}, observed at zoom {{zoom_level}} (vertical: {{vertical}}, overflow: {{overflow}}). Across the scene fly {{voyager_level}} spirits against background: {{background}}, framed by window: {{hyper_window}}, flipped horizontally: {{reverse_x}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "color_mode",
+      "label": "COLOR_MODE",
+      "values": [
+        {
+          "text": "Reverie",
+          "weight": 3
+        },
+        {
+          "text": "Pacifist",
+          "weight": 2
+        },
+        {
+          "text": "Immersion",
+          "weight": 2
+        },
+        {
+          "text": "Universe",
+          "weight": 1
+        },
+        {
+          "text": "Tranquility",
+          "weight": 1
+        },
+        {
+          "text": "Trust",
+          "weight": 1
+        },
+        {
+          "text": "Tolerance",
+          "weight": 1
+        },
+        {
+          "text": "Cosmetic",
+          "weight": 1
+        },
+        {
+          "text": "Reality",
+          "weight": 1
+        },
+        {
+          "text": "Serenity",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "vertical",
+      "label": "VERTICAL",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "background",
+      "label": "BACKGROUND",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "distort_dimension",
+      "label": "DISTORT_DIMENSION",
+      "type": "number",
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "default": 0.5
+    },
+    {
+      "name": "bend_level",
+      "label": "BEND_LEVEL",
+      "type": "number",
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "default": 0.5
+    },
+    {
+      "name": "terrain_size_y",
+      "label": "TERRAIN_SIZE_Y",
+      "type": "number",
+      "min": 270,
+      "max": 449,
+      "step": 1,
+      "default": 360
+    },
+    {
+      "name": "terrain_size_x",
+      "label": "TERRAIN_SIZE_X",
+      "type": "number",
+      "min": 189,
+      "max": 314,
+      "step": 1,
+      "default": 252
+    },
+    {
+      "name": "zoom_level",
+      "label": "ZOOM_LEVEL",
+      "type": "number",
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "default": 0.5
+    },
+    {
+      "name": "shadow_level",
+      "label": "SHADOW_LEVEL",
+      "type": "number",
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "default": 0.5
+    },
+    {
+      "name": "age",
+      "label": "AGE",
+      "type": "number",
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "default": 0.5
+    },
+    {
+      "name": "hyper_window",
+      "label": "HYPER_WINDOW",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "overflow",
+      "label": "OVERFLOW",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "voyager_level",
+      "label": "VOYAGER_LEVEL",
+      "type": "number",
+      "min": 0,
+      "max": 1600,
+      "step": 10,
+      "default": 800
+    },
+    {
+      "name": "reverse_x",
+      "label": "REVERSE_X",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 255,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:fushi-no-reality",
+  "artist": "Samsy",
+  "credit": {
+    "title": "Fushi No Reality - フシノゲンジツ",
+    "artist": "Samsy",
+    "year": 2023,
+    "description": "Fushi ( Japanese for immortality / eternal life ) is a concentration study to help those who might need help to slow down in their lives, those who get lost in their thoughts, and those who need a focus point to stand up.\n\nNo Reality is an invitation to contemplation. \n\nIt acts as a support to our emotional levels and aims to enhance our environment by guiding us into a meditation state. Both contemplation and meditation have proven to have a positive impact on improving mental and physical health.  \n\nConsciousness, Healing arts, and spirituality, Fushi No Reality is a window through surrealities. A procedural immortal healing ritual unlocking our capacity to cure ourselves.  \n\nEach surreality is forged from a real-time organic system running in an infinite and perpetual movement, crafted from chaos and noise-domain explorations. From a computing point of view, there is no distinction between visually random noise and mastered noise. They are both an output of the same algorithm perceived by our brain as a signal. From a soul point of view, the difference is the perception and what we, humans, do qualify as pleasing, perceptible, or intriguing.\n\nExploration, observation, and modulation are key to this vast pandemonium of chaos. A creative process to re-forge shapes we already observe in our world’s best inspiration: Nature.\n\nThis inspiration directed Fushi No reality towards Landscape art/cloth art mixed with vaporware aesthetics, slow movement, and peaceful color palettes.  A light beam travels through each surreality to guide a few voyaging spirits across the landscape. Portrait or landscape,  the surrealities are meant to be displayed in both ways, viewers may look at generative cloth swirling and sci-fi planetary landscapes.  \n\nThe more adventurous may move their cursor to the top or bottom to live a faster healing experience.\n\nNo one can bring you peace but yourself, but this time, let’s travel together.\n\nフシハ、セイカツノナカデスローダウンスルテダスケガヒツヨウカモシレナイヒト、シコウ二マヨッテシマウヒト、タチアガルタメノフォーカスポイントガヒツヨウナヒトノタメノシュウチュウリョクガクシュウデス。\n\n[Fushi no reality / フシノゲンジツ]ハ、シサクへノショウタイジョウデス。\nワタシタチノカンジョウレベルヲサポートスルヤクワリヲハタシ、メイソウジョウタイヘトミチビクコトデ、ワタシタチノカンキョウヲヨリイイモノ二スルコトヲモクテキトシテイマス。メイソウトジュクコウハドチラモ、シンシンノケンコウゾウシン二イイエイキョウヲアタエルコトガショウメイサレテイマス。\n\nイシキ、ヒーリングアート、スピリチュアリティ、フシギノリアリティハチョウゲンジツヲトウシテノマドデス。フメツノイヤシノギシキハ、ワタシタチジシンノチユノウリョクヲトキハナツタメノテズクリデス。\n \nソレゾレノチョウゲンジツハ、カオストノイズリョウイキノタンキュカラツクラレタ、ムゲンカツエイゾクテキナハタラキデハタラクリアルタイムノユウキテキナシステムカラツクラレテイマス。コンピューティングノカンテンカラハ、シカクテキ二ランダムナノイズトマスタリングサレタノイズノアイダニクベツハナイ。ドチラモ、ワタシタチノノウガシンゴウトシテニンシキスルオナジアルゴリズムノシュツリョクデアル。タマシイノカンテンカラハ、ソノチガイハチカクノチガイデアリ、ワタシタチニンゲンガナニヲモッテ「タノシイ」「チカクデキル」「キョウミヲソソラレル」トハンダンスルカトイウコトデス。\n\nコノコウダイナカオスノパンデモニウム二ハ、タンサク、カンサツ、ソシテモジュレーションガジュウヨウナカギトナリマス。コノセカイサイコウノインスピレーションノナカデ、ワタシタチガスデニカンサツシテルカタチヲサイケイセイスルタメノソウゾウテキナプロセス。シゼン。\n\nコノインスピレーションハ、[Fushi no reality / フシノゲンジツ]ヲ、ジョウキセンノビガク、ユックリトシタハタラキ、オダヤカナシキチョウヲマゼタフウケイガヤクロスアートニムカワセマシタ。コウセンハソレゾレノチョウゲンジツヲトオリヌケ、フウケイヲヨコギルスウジンノコウカイタマシイヲミチビキマス。ポートレートヤフウケイナド、チョウゲンジツハリョウホウノホウホウデテンジサレルコトヲイトシテアリ、カンショウシャハジェネレーティブナヌノノウズマキヤSFテキナワクセイノフウケイヲナガメルコトガデキマス。\n\nヨリボウケンテキナヒトハ、カーソルノウエカシタカニハタラカシテ、ヨリハヤイイヤシノタイケンヲスルコトモデキマス。\nヘイワヲモタラスノハジブンジシンダケデスガ、コンカイハイッショニタビヲシテミマショウ。",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0x99a9b7c1116f9ceeb1652de04d5969cce509b069/430",
+    "artistUrl": "http://samsy.ninja/",
+    "license": {
+      "text": "CC BY 4.0",
+      "name": "CC BY 4.0",
+      "url": "https://creativecommons.org/licenses/by/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how."
+      ]
+    },
+    "editions": 255,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0x99a9b7c1116f9ceeb1652de04d5969cce509b069",
+      "projectId": 430
+    },
+    "archiveId": "artblocks:fushi-no-reality",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Fushi No Reality - フシノゲンジツ by Samsy, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 11835
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Afushi-no-reality"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Afushi-no-reality"
+  }
+}

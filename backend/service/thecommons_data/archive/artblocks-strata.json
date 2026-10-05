@@ -1,0 +1,224 @@
+{
+  "name": "Strata",
+  "promptTemplate": "A {{view}} of rock layering in {{palette}} with a {{surface}} surface and {{density}} spacing, flowing {{direction}}; {{coloring_strategy}} color strategy, {{color_change}} color change, {{palette_composition}} composition; outlined: {{outlined}}, no fill: {{no_fill}}, overhanging cliff: {{overhanging_cliff}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Magma",
+          "weight": 3
+        },
+        {
+          "text": "Kayenta",
+          "weight": 2
+        },
+        {
+          "text": "Redwall",
+          "weight": 2
+        },
+        {
+          "text": "Sunken",
+          "weight": 1
+        },
+        {
+          "text": "Cañón",
+          "weight": 1
+        },
+        {
+          "text": "Gneiss",
+          "weight": 1
+        },
+        {
+          "text": "Blue mineral",
+          "weight": 1
+        },
+        {
+          "text": "Ruby",
+          "weight": 1
+        },
+        {
+          "text": "Limestone",
+          "weight": 1
+        },
+        {
+          "text": "Lava",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "view",
+      "label": "View",
+      "values": [
+        {
+          "text": "Cross section 2",
+          "weight": 3
+        },
+        {
+          "text": "Cross section",
+          "weight": 2
+        },
+        {
+          "text": "Mountainside",
+          "weight": 2
+        },
+        {
+          "text": "Mountainside 2",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "surface",
+      "label": "Surface",
+      "values": [
+        {
+          "text": "Standard",
+          "weight": 3
+        },
+        {
+          "text": "Uneven",
+          "weight": 2
+        },
+        {
+          "text": "Even",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "density",
+      "label": "Density",
+      "type": "number",
+      "min": 2,
+      "max": 32,
+      "step": 1,
+      "default": 17
+    },
+    {
+      "name": "direction",
+      "label": "Direction",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "palette_composition",
+      "label": "Palette composition",
+      "values": [
+        {
+          "text": "Full",
+          "weight": 3
+        },
+        {
+          "text": "Derived (single)",
+          "weight": 2
+        },
+        {
+          "text": "Derived (duo)",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "coloring_strategy",
+      "label": "Coloring strategy",
+      "values": [
+        {
+          "text": "Group",
+          "weight": 3
+        },
+        {
+          "text": "Sequential",
+          "weight": 2
+        },
+        {
+          "text": "Random",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "color_change",
+      "label": "Color change",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "no_fill",
+      "label": "No fill",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "outlined",
+      "label": "Outlined",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "overhanging_cliff",
+      "label": "Overhanging cliff",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 650,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:strata",
+  "artist": "Vebjørn Isaksen",
+  "credit": {
+    "title": "Strata",
+    "artist": "Vebjørn Isaksen",
+    "year": 2022,
+    "description": "Strata explores the field of geology and more specifically rock layering. In the physical world, layered rocks form when particles settle from water or air. These layers of sedimentary rock are called strata. In the digital world, the Strata algorithm generates layer upon layer of colors to draw the impression of rock layering. Each token hash decides the unique path Strata takes through the generative space to the final output.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/276",
+    "artistUrl": "https://vebits.codes/",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 650,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 276
+    },
+    "archiveId": "artblocks:strata",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Strata by Vebjørn Isaksen, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 571906
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Astrata"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Astrata"
+  }
+}

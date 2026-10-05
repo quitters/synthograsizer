@@ -1,0 +1,176 @@
+{
+  "name": "autoRAD",
+  "promptTemplate": "A {{mood}} composition in palette {{palette}} with a {{scene}} background, centered {{shape}}, and vibing flourish: {{vibing_flourish}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "mood",
+      "label": "Mood",
+      "values": [
+        {
+          "text": "Light",
+          "weight": 3
+        },
+        {
+          "text": "Dark",
+          "weight": 2
+        },
+        {
+          "text": "Based",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "scene",
+      "label": "Scene",
+      "values": [
+        {
+          "text": "Grid",
+          "weight": 3
+        },
+        {
+          "text": "90's Notebook",
+          "weight": 2
+        },
+        {
+          "text": "Vibing Grid",
+          "weight": 2
+        },
+        {
+          "text": "Dots",
+          "weight": 1
+        },
+        {
+          "text": "3D Grid",
+          "weight": 1
+        },
+        {
+          "text": "Retrowave",
+          "weight": 1
+        },
+        {
+          "text": "Memphis",
+          "weight": 1
+        },
+        {
+          "text": "Sprinkles",
+          "weight": 1
+        },
+        {
+          "text": "Vibing Sprinkles",
+          "weight": 1
+        },
+        {
+          "text": "Uniform",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "shape",
+      "label": "Shape",
+      "values": [
+        {
+          "text": "Triangle",
+          "weight": 3
+        },
+        {
+          "text": "Vibing Triangle",
+          "weight": 2
+        },
+        {
+          "text": "Vibing Circle",
+          "weight": 2
+        },
+        {
+          "text": "Square",
+          "weight": 1
+        },
+        {
+          "text": "Circle",
+          "weight": 1
+        },
+        {
+          "text": "Grid Triangle",
+          "weight": 1
+        },
+        {
+          "text": "90's Notebook Circle",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "vibing_flourish",
+      "label": "Vibing Flourish",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "palette",
+      "label": "Palette",
+      "type": "number",
+      "min": 1,
+      "max": 25,
+      "step": 1,
+      "default": 1
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 1000,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:autorad",
+  "artist": "sgt_slaughtermelon & Tartaria Archivist",
+  "credit": {
+    "title": "autoRAD",
+    "artist": "sgt_slaughtermelon & Tartaria Archivist",
+    "year": 2021,
+    "description": "The 1980's and 1990's as an iterative dream, computer-aided RAD designs. Essentially, an expanded iterative Memphis/Neo-Memphis style project meant to emulate the free-flowing and fun spirit of the movement in tight compositions that surprise with each combination and position generation.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/144",
+    "artistUrl": "http://www.sgtslaughtermelon.com/art",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 1000,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 144
+    },
+    "archiveId": "artblocks:autorad",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of autoRAD by sgt_slaughtermelon & Tartaria Archivist, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 1827303
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Aautorad"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Aautorad"
+  }
+}

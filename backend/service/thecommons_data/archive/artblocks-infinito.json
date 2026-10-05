@@ -1,0 +1,109 @@
+{
+  "name": "Infinito",
+  "promptTemplate": "An unfolding audio-visual flow in the {{palette}} palette. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Gentle",
+          "weight": 3
+        },
+        {
+          "text": "Honey",
+          "weight": 2
+        },
+        {
+          "text": "Paradise",
+          "weight": 2
+        },
+        {
+          "text": "Organismo",
+          "weight": 1
+        },
+        {
+          "text": "Terracotta",
+          "weight": 1
+        },
+        {
+          "text": "Nazionale",
+          "weight": 1
+        },
+        {
+          "text": "Intreccio",
+          "weight": 1
+        },
+        {
+          "text": "Sole",
+          "weight": 1
+        },
+        {
+          "text": "Impeto",
+          "weight": 1
+        },
+        {
+          "text": "Tropicana",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 100,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:infinito",
+  "artist": "Stefano Contiero",
+  "credit": {
+    "title": "Infinito",
+    "artist": "Stefano Contiero",
+    "year": 2022,
+    "description": "**What is reality?\nWhere does it start, and where does it end?\nReflecting on the perception of time, space, and self-existence.\nFeeling abundance, spreading gratitude.**\n\n--\n\nInstructions:\n- _Click to start audio/visual experience_\n- _Press 'i' to toggle infinite mode (default on)_\n- _Press 's' to save current frame_\n- _Press 'm' to toggle mute_",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0x0a1bbd57033f57e7b6743621b79fcb9eb2ce3676/21",
+    "artistUrl": "https://stefanocontiero.com/",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 100,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0x0a1bbd57033f57e7b6743621b79fcb9eb2ce3676",
+      "projectId": 21
+    },
+    "archiveId": "artblocks:infinito",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Infinito by Stefano Contiero, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 32643
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Ainfinito"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Ainfinito"
+  }
+}

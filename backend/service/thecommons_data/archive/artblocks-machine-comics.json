@@ -1,0 +1,205 @@
+{
+  "name": "Machine Comics",
+  "promptTemplate": "A generative comic book page with a {{page_background_color}} background, {{gutters}} gutters, and {{border_thickness}} frames; margins: {{margins}}. Halftone patterns are drawn with {{dot_size}} dots across a layout with recursive layout: {{recursive_layout}} at {{panel_density}} panel density. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "page_background_color",
+      "label": "Page background color",
+      "values": [
+        {
+          "text": "White",
+          "weight": 3
+        },
+        {
+          "text": "Black",
+          "weight": 2
+        },
+        {
+          "text": "Yellow",
+          "weight": 2
+        },
+        {
+          "text": "Red",
+          "weight": 1
+        },
+        {
+          "text": "Blue",
+          "weight": 1
+        },
+        {
+          "text": "Green",
+          "weight": 1
+        },
+        {
+          "text": "Gray",
+          "weight": 1
+        },
+        {
+          "text": "Purple",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "dot_size",
+      "label": "Dot size",
+      "values": [
+        {
+          "text": "M",
+          "weight": 3
+        },
+        {
+          "text": "S",
+          "weight": 2
+        },
+        {
+          "text": "Varying",
+          "weight": 2
+        },
+        {
+          "text": "L",
+          "weight": 1
+        },
+        {
+          "text": "XL",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "border_thickness",
+      "label": "Border thickness",
+      "values": [
+        {
+          "text": "Normal",
+          "weight": 3
+        },
+        {
+          "text": "No border",
+          "weight": 2
+        },
+        {
+          "text": "Thin",
+          "weight": 2
+        },
+        {
+          "text": "Thick",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "gutters",
+      "label": "Gutters",
+      "values": [
+        {
+          "text": "Normal",
+          "weight": 3
+        },
+        {
+          "text": "Thin",
+          "weight": 2
+        },
+        {
+          "text": "Thick",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "recursive_layout",
+      "label": "Recursive layout",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "panel_density",
+      "label": "Panel density",
+      "values": [
+        {
+          "text": "Very low",
+          "weight": 3
+        },
+        {
+          "text": "Low",
+          "weight": 2
+        },
+        {
+          "text": "Medium",
+          "weight": 2
+        },
+        {
+          "text": "High",
+          "weight": 1
+        },
+        {
+          "text": "Maximum",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "margins",
+      "label": "Margins",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 96,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:machine-comics",
+  "artist": "Roni Block",
+  "credit": {
+    "title": "Machine Comics",
+    "artist": "Roni Block",
+    "year": 2022,
+    "description": "Zoom in, zoom out. Machine Comics is an experiment in generative storytelling, an abstract graphic novel drawn by an algorithm and revealed as it is minted. Paying homage to pop art and classic comic book aesthetics, saturated colors and halftone dots create unexpected patterns and vibrant textures in each unique page. The plot is yours to project, dear reader. What do you see?",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/257",
+    "artistUrl": "https://twitter.com/BlockRoni",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 96,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 257
+    },
+    "archiveId": "artblocks:machine-comics",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Machine Comics by Roni Block, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 27108
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Amachine-comics"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Amachine-comics"
+  }
+}

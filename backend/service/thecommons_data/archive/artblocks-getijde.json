@@ -1,0 +1,87 @@
+{
+  "name": "Getijde",
+  "promptTemplate": "A {{scene}} tide with {{wave_spacing}} wave spacing, {{wave_distribution}} distribution, and {{linebreaks}} linebreaks. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "scene",
+      "label": "Scene",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "wave_spacing",
+      "label": "Wave Spacing",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "linebreaks",
+      "label": "Linebreaks",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "wave_distribution",
+      "label": "Wave Distribution",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 222,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:getijde",
+  "artist": "Bart Simons",
+  "credit": {
+    "title": "Getijde",
+    "artist": "Bart Simons",
+    "year": 2021,
+    "description": "The algorithm that was built for Getijde (Dutch for 'Tide') was meticulously designed. It's the result of spending most of the year cooped up inside four walls with a strong desire to escape. Countless hours were spent perfecting details to guarantee that each mint will be of high enough quality to be exhibited on screens and in print.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/226",
+    "artistUrl": "https://www.bartsimons.com/",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 222,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 226
+    },
+    "archiveId": "artblocks:getijde",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Getijde by Bart Simons, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 850290
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Agetijde"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Agetijde"
+  }
+}

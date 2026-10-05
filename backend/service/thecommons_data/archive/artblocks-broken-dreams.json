@@ -1,0 +1,167 @@
+{
+  "name": "Broken Dreams",
+  "promptTemplate": "A {{color_palette}} composition with {{cutting_axis_lines}} cutting axis lines, {{pixel_line_number}} pixel lines, and {{circle_count}} focal circles; dense: {{dream_density}}, extra big: {{dream_size}}, clustered: {{distribution_type}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "color_palette",
+      "label": "Color Palette",
+      "values": [
+        {
+          "text": "Unforgettable Summers",
+          "weight": 3
+        },
+        {
+          "text": "Muddy Monday",
+          "weight": 2
+        },
+        {
+          "text": "Chalk & Salt",
+          "weight": 2
+        },
+        {
+          "text": "Happy Sunset",
+          "weight": 1
+        },
+        {
+          "text": "Siesta",
+          "weight": 1
+        },
+        {
+          "text": "Midsummer",
+          "weight": 1
+        },
+        {
+          "text": "Sarasota",
+          "weight": 1
+        },
+        {
+          "text": "Umbrella Bonding",
+          "weight": 1
+        },
+        {
+          "text": "Good Morning",
+          "weight": 1
+        },
+        {
+          "text": "Coast",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "dream_size",
+      "label": "Dream Size",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "dream_density",
+      "label": "Dream Density",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "distribution_type",
+      "label": "Distribution Type",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "pixel_line_number",
+      "label": "Pixel Line number",
+      "type": "number",
+      "min": 3,
+      "max": 8,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "name": "cutting_axis_lines",
+      "label": "Cutting Axis Lines",
+      "type": "number",
+      "min": 0,
+      "max": 5,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "name": "circle_count",
+      "label": "Circle Count",
+      "values": [
+        {
+          "text": "1",
+          "weight": 3
+        },
+        {
+          "text": "2",
+          "weight": 2
+        },
+        {
+          "text": "3",
+          "weight": 2
+        },
+        {
+          "text": "4",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 104,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:broken-dreams",
+  "artist": "Manuel Larino x The Generative Art Museum",
+  "credit": {
+    "title": "Broken Dreams",
+    "artist": "Manuel Larino x The Generative Art Museum",
+    "year": 2025,
+    "description": "**Broken Dreams · TIMED EDITION**  \nAvailable until October 31st, then never again.\n\nThe work will be exhibited in Barcelona at the Responsive Dreams Festival, and in Marfa during Art Blocks Weekend 2025. Once the show closes, so does the edition.  \n  \n- - -  \n\\\n**Broken Dreams** explores the fragility of dreams.\n\nIn the fractured world we live in, dreams can be interrupted, even broken, yet they may remain alive if we hold on to them.\n\nAs they shift and change, they can surprise us in new forms, sparking joy, fueling imagination, pushing us to reach new heights, or returning as colorful memories that make us smile.  \n\\\n**On-chain Evolution**  \nLeveraging Art Blocks’ PostParams, Broken Dreams taps directly into Ethereum’s block data, allowing each dream to evolve in sync with the living network it inhabits. With each new block, the dream changes almost imperceptibly. Over time, these subtle transformations accumulate, reshaping the dream in a continuous evolution.  \n\\\n**Triangular Color Sampling Technique**  \nFor the colors of this piece, I developed a system that generates thousands of unique and harmonious tones from a single palette.\n\nFirst, a base layer is created, where the colors of the palette flow in an organic pattern. On top of this, each triangle samples five key points: the center, the three vertices, and the midpoint of its longest side. The algorithm calculates an average of these values to define the triangle’s final color.\n\nIn this way, each shape acquires a unique nuance, always derived from the same palette — infinite variations held together by a common harmony.  \n\\\n⎻ ⎻ ⎻\n\n**Keys:**  \n[S] – Save image. \n\n[V] – Save 15-second video. \n\n[L] – Toggle cutting axis lines visibility. \n\n[R] – Disable Forecast owners Easter egg. \n\n⎻ ⎻ ⎻  \n\\\n**Prints:**  \nPrints will be available for Broken Dreams owners. A small collection of OOB outputs will also be available. For more details, [visit this link](https://www.mlarino.com/work/broken-dreams \"order prints\").  \n\\\n⎻ ⎻ ⎻\n\nPart of Responsive Dreams 2025 Festival by The Generative Art Museum\n19/20/21 September 2025\nNau Dents de Serra, Roca Umbert Fàbrica de les Arts, Granollers, Barcelona\nMore info: [responsivedreams.com/2025](https://responsivedreams.com/2025).\n\n⎻ ⎻ ⎻",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0x000000dc68934ed27fd11e32491cdf6717acaf21/0",
+    "artistUrl": "https://mlarino.com/work/broken-dreams",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 104,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0x000000dc68934ed27fd11e32491cdf6717acaf21",
+      "projectId": 0
+    },
+    "archiveId": "artblocks:broken-dreams",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Broken Dreams by Manuel Larino x The Generative Art Museum, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 12457
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Abroken-dreams"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Abroken-dreams"
+  }
+}

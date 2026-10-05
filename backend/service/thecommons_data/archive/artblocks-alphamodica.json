@@ -1,0 +1,212 @@
+{
+  "name": "AlphaModica",
+  "promptTemplate": "A {{band_type}} Modica form with {{number_of_bands}} bands and {{blob_lobes}} lobes in {{palette_foreground}} against a {{palette_background}} energy field with size {{background_triangle_size}} triangles, grid size {{grid_size}}, {{field_mode}} field mode, and outer radius {{outer_radius}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "band_type",
+      "label": "Band Type",
+      "values": [
+        {
+          "text": "Solid",
+          "weight": 3
+        },
+        {
+          "text": "Radianized",
+          "weight": 2
+        },
+        {
+          "text": "Outline",
+          "weight": 2
+        },
+        {
+          "text": "Aqua Band",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "palette_foreground",
+      "label": "Foreground Palette",
+      "values": [
+        {
+          "text": "Mucha Warm",
+          "weight": 3
+        },
+        {
+          "text": "Pastel Lilac",
+          "weight": 2
+        },
+        {
+          "text": "Blue Mauve",
+          "weight": 2
+        },
+        {
+          "text": "Solar Gold",
+          "weight": 1
+        },
+        {
+          "text": "Mint Teal",
+          "weight": 1
+        },
+        {
+          "text": "Monochromatic",
+          "weight": 1
+        },
+        {
+          "text": "Seattle Navy",
+          "weight": 1
+        },
+        {
+          "text": "Vibrant Azure",
+          "weight": 1
+        },
+        {
+          "text": "Earth Brown",
+          "weight": 1
+        },
+        {
+          "text": "Slate Grey",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "palette_background",
+      "label": "Palette Background",
+      "values": [
+        {
+          "text": "White",
+          "weight": 3
+        },
+        {
+          "text": "Cream",
+          "weight": 2
+        },
+        {
+          "text": "Stormy",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "number_of_bands",
+      "label": "Number of Bands",
+      "type": "number",
+      "min": 1,
+      "max": 6,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "name": "outer_radius",
+      "label": "Outer Radius",
+      "type": "number",
+      "min": 1.2,
+      "max": 1.4,
+      "step": 0.01,
+      "default": 1.3
+    },
+    {
+      "name": "grid_size",
+      "label": "Grid Size",
+      "type": "number",
+      "min": 3,
+      "max": 16,
+      "step": 0.5,
+      "default": 8
+    },
+    {
+      "name": "background_triangle_size",
+      "label": "Background Triangle Size",
+      "type": "number",
+      "min": 6,
+      "max": 12,
+      "step": 1,
+      "default": 9
+    },
+    {
+      "name": "blob_lobes",
+      "label": "Band Lobes",
+      "type": "number",
+      "min": 3,
+      "max": 12,
+      "step": 1,
+      "default": 6
+    },
+    {
+      "name": "field_mode",
+      "label": "Field Mode",
+      "values": [
+        {
+          "text": "Dual Angle",
+          "weight": 3
+        },
+        {
+          "text": "Radial Align",
+          "weight": 2
+        },
+        {
+          "text": "Direct Align",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 137,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:alphamodica",
+  "artist": "Danooka",
+  "credit": {
+    "title": "AlphaModica",
+    "artist": "Danooka",
+    "year": 2021,
+    "description": "AlphaModica explores the nature of our reality, helping us ground ourselves at a time when the answers aren’t so clear. The primary shapes in this work are known as Modica bands and are inspired by particle physics and string theory. Each mint produces a completely unique form for the bands drawn from several possible types, each with a deeper meaning. The bands are further customized by dozens of parameters that are uniquely derived from the token hash making each mint 100% unique. \n\nThe background is a tangent field computed from angles in the foreground shapes. It represents an energy field permeating the universe. This unusual arrangement -- a background created by the foreground was done to hint at questions of causality. \n\nColors for the foreground shapes are selected from twenty hand tuned color palettes. The background palette is seeded by the foreground but also has elements that are produced by the field itself. This combination of hand selection and random generation speaks to questions of choice in the universe and asks the question of how even under high randomness there can be symmetry, and connectedness.\n\nDanooka, the artist behind AlphaModica is a technologist and metaverse based artist. Danooka’s previous NFT projects includes the successful RIBONZ trilogy. \n\nA portion of the mint proceeds will be allocated to support Girls Who Code.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/238",
+    "artistUrl": "https://twitter.com/DanookaN",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 137,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 238
+    },
+    "archiveId": "artblocks:alphamodica",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of AlphaModica by Danooka, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 14646
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Aalphamodica"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Aalphamodica"
+  }
+}

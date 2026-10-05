@@ -1,0 +1,126 @@
+{
+  "name": "Alien Clock",
+  "promptTemplate": "An alien cosmic clock across {{dimensions}} dimensions with The Eye: {{the_eye}}, squaring: {{squaring}}, spiral galaxy: {{spiral_galaxy}}, and sectors: {{sectors}}. The vision features alt reality: {{alt_reality}}, horizontal vision: {{horizontal_vision}}, continuity: {{continuity}}, return homage: {{return_homage}}, and bugz: {{bugz}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "the_eye",
+      "label": "The Eye",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "alt_reality",
+      "label": "Alt Reality",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "dimensions",
+      "label": "Dimensions",
+      "type": "number",
+      "min": 30,
+      "max": 49,
+      "step": 1,
+      "default": 40
+    },
+    {
+      "name": "squaring",
+      "label": "Squaring",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "spiral_galaxy",
+      "label": "Spiral Galaxy",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "horizontal_vision",
+      "label": "Horizontal vision",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "continuity",
+      "label": "Continuity",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "return_homage",
+      "label": "Return Homage",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "sectors",
+      "label": "Sectors",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "bugz",
+      "label": "Bugz",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 362,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:alien-clock",
+  "artist": "Shvembldr",
+  "credit": {
+    "title": "Alien Clock",
+    "artist": "Shvembldr",
+    "year": 2021,
+    "description": "_Somewhere in a galaxy far away, a multidimensional being is looking at this clock and thinking about the impermanence of existence and the infinity of the universe. This art is endless and deterministic._ \n\n**Use full screen for total immersion.**\n\nControls: \n\n- Click/tap or use keys 1 to 9 to switch speed. \n- s = toggle starts. \n- t = toggle hyperspace. \n- Space = pause.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/112",
+    "artistUrl": "https://www.theblocksofart.com/",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 362,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 112
+    },
+    "archiveId": "artblocks:alien-clock",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Alien Clock by Shvembldr, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 5202943
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Aalien-clock"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Aalien-clock"
+  }
+}

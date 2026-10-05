@@ -1,0 +1,254 @@
+{
+  "name": "The Eternal Pump",
+  "promptTemplate": "A {{view}} view of {{rings}} concentric {{shape}} forms positioned at the {{position}} with {{wall}} walls and {{vibe}} motion, pulsing at {{speed}} speed with {{amplitude}} amplitude in {{palette}} on {{background}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Shimmering",
+          "weight": 3
+        },
+        {
+          "text": "Flamingo",
+          "weight": 2
+        },
+        {
+          "text": "Chill",
+          "weight": 2
+        },
+        {
+          "text": "Golden",
+          "weight": 1
+        },
+        {
+          "text": "Riso",
+          "weight": 1
+        },
+        {
+          "text": "Rainbow",
+          "weight": 1
+        },
+        {
+          "text": "Flourescent",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "shape",
+      "label": "Shape",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "rings",
+      "label": "Rings",
+      "type": "number",
+      "min": 4,
+      "max": 11,
+      "step": 1,
+      "default": 8
+    },
+    {
+      "name": "background",
+      "label": "Background",
+      "values": [
+        {
+          "text": "Bright White",
+          "weight": 3
+        },
+        {
+          "text": "Pink",
+          "weight": 2
+        },
+        {
+          "text": "Canary",
+          "weight": 2
+        },
+        {
+          "text": "Orchid",
+          "weight": 1
+        },
+        {
+          "text": "Warm White",
+          "weight": 1
+        },
+        {
+          "text": "Pastel Blue",
+          "weight": 1
+        },
+        {
+          "text": "Ivory",
+          "weight": 1
+        },
+        {
+          "text": "Tan",
+          "weight": 1
+        },
+        {
+          "text": "Pastel Green",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "position",
+      "label": "Position",
+      "values": [
+        {
+          "text": "Bottom",
+          "weight": 3
+        },
+        {
+          "text": "Top",
+          "weight": 2
+        },
+        {
+          "text": "Left",
+          "weight": 2
+        },
+        {
+          "text": "Bottom Right",
+          "weight": 1
+        },
+        {
+          "text": "Bottom Left",
+          "weight": 1
+        },
+        {
+          "text": "Top Left",
+          "weight": 1
+        },
+        {
+          "text": "Right",
+          "weight": 1
+        },
+        {
+          "text": "Top Right",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "amplitude",
+      "label": "Amplitude",
+      "values": [
+        {
+          "text": "Extra",
+          "weight": 3
+        },
+        {
+          "text": "Normal",
+          "weight": 2
+        },
+        {
+          "text": "Less",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "view",
+      "label": "View",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "speed",
+      "label": "Speed",
+      "values": [
+        {
+          "text": "Normal",
+          "weight": 3
+        },
+        {
+          "text": "Fast",
+          "weight": 2
+        },
+        {
+          "text": "Crawl",
+          "weight": 2
+        },
+        {
+          "text": "Slow",
+          "weight": 1
+        },
+        {
+          "text": "Quick",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "wall",
+      "label": "Wall",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "vibe",
+      "label": "Vibe",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 50,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:the-eternal-pump",
+  "artist": "Dmitri Cherniak",
+  "credit": {
+    "title": "The Eternal Pump",
+    "artist": "Dmitri Cherniak",
+    "year": 2021,
+    "description": "Don't fight it. Just respect it. Made by Dmitri Cherniak with Javascript and GLSL.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/22",
+    "artistUrl": "https://twitter.com/dmitricherniak",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 50,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 22
+    },
+    "archiveId": "artblocks:the-eternal-pump",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of The Eternal Pump by Dmitri Cherniak, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 10522673
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Athe-eternal-pump"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Athe-eternal-pump"
+  }
+}

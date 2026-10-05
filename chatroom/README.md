@@ -182,14 +182,22 @@ the same path clears them.
 ### Cross-session memory
 
 `CROSS_SESSION_MEMORY=true` (on top of `FILE_SEARCH=true`) archives each
-finished session into one long-lived store and lets agents in **later**
+finished session into a long-lived store and lets agents in **later**
 sessions search it. Ask a returning room what it decided last time and it
 can actually look.
 
+**Memory is per visitor** (see *Rooms*): each visitor's room has its own store, named
+`chatroom-longterm-memory-<room id>`, so one visitor's agents can never search, list or
+wipe another's past conversations. It follows the browser's `cr_sid` cookie, so clearing
+cookies starts a fresh memory (the old store stays in the project until you delete it).
+A store from before rooms existed, named plain `chatroom-longterm-memory`, belongs to no
+visitor and is no longer searched.
+
 The memory store survives resets and restarts by design — it is found by
 display name, not a local file — and the orphan sweeper skips it. Sessions
-under 4 messages are not archived. `GET /api/chat/memory` lists what is
-remembered; `DELETE /api/chat/memory` forgets all of it.
+under 4 messages are not archived. `GET /api/chat/memory` lists what the
+caller's room remembers; `DELETE /api/chat/memory` forgets all of it. Each
+visitor's store counts against the project's File Search quota.
 
 ## Conversation state
 
@@ -223,6 +231,40 @@ client, pinning the event contract the orchestrator consumes: chunk ordering,
 thought-leak filtering, usage accounting, truncation/continuation, and the
 retry fallbacks. `tests/fixtures/README.md` explains the event shapes and how
 to record a real one.
+
+## Rooms: one per visitor
+
+Every browser gets its own chat room: its own agents, conversation, live stream, generated media, shared files (artifacts), and workflow runs and traces. Nothing is shared between visitors, so one person starting, stopping or resetting a chat never affects another's.
+
+- A room is found by the `cr_sid` cookie (an unguessable 128-bit id; `HttpOnly`, `SameSite=Lax`, set for the whole origin). A browser without one is issued one on its first request and starts with an empty room; a cookie that is not an id this server issued is ignored. Every page of the suite that uses the chat room API (Agent Studio, the trace viewer, the workflow runner) shares the cookie, so they share the room.
+- Rooms live in memory only. A room nobody has used is dropped after 10 minutes, one with a conversation after 6 hours without activity, and the oldest idle rooms go first above 200. A room with a running chat or an open browser tab is never dropped. Restarting the server clears every room.
+- The first request a new browser makes may be the event stream; the server then sends the cookie and closes the stream, and the browser reconnects a moment later. `backend/routers/system.py` forwards `Set-Cookie` for this.
+- Also per room: the long-term memory store, the judge's token usage, and the File Search store for a session. `DELETE /api/chat/file-search/orphans` sweeps the whole project but never deletes a store any live room is using.
+- Not isolated: the saved workflow library (`/api/workflows` list, get, save, delete) is shared on disk. Workflow checkpoints and traces written before rooms existed belong to no room and are not listed.
+
+## Long conversations: the rolling summary
+
+Each agent turn sends the last 15 messages in full. Older messages used to be cut to their first 80 characters, which kept a topic's name and lost what was decided, who disagreed and what was still open. Now a fast model (`gemini-3.8-flash`, override with `CHATROOM_SUMMARY_MODEL`) keeps running notes on everything older.
+
+- Once 6 or more messages have aged out of the window, they are folded into the notes in the background, a few at a time (at most 30 per call). The call never blocks or fails a turn; if it fails, the one-line notes are used a little longer and it is tried again after the next message.
+- The notes are capped at about 3,000 characters, attribute by name, keep decisions, positions, concrete details and open questions, and mark earlier open questions as resolved when they are.
+- They describe a specific run of messages and are dropped the moment those change: rewinding, restoring a branch or resetting discards them, and they are rebuilt from the messages that remain.
+- `GET /api/chat/state` reports `summarizedMessages`, and a `summary_updated` event is sent on the stream whenever the notes grow.
+- Cost: roughly one small flash call per 6 messages once a conversation passes 20 messages.
+- Not used when `GEMINI_STORE_INTERACTIONS` is on (the default): there the server keeps each agent's real history, so no notes are built or sent. They are for stateless turns (`GEMINI_STORE_INTERACTIONS=false`) and for an agent's first turn.
+
+## Reference files: what agents see
+
+Files uploaded to a session (up to 14) are re-sent with every agent turn, so what is attached is budgeted (`server/services/mediaContext.js`):
+
+| Kind | When an agent sees it |
+|---|---|
+| Images | Every turn: the 8 newest, within about 6 MB of base64 |
+| Text, JSON, CSV, Markdown... | Every turn, inline: up to 8,000 characters each and 30,000 across all files (a longer file says how long it was) |
+| Video and PDF | In the opening turns and for the turns right after they are added (one per agent, plus one, so each agent gets a look). They are heavy in tokens and bytes, so after that they are only listed |
+| Other types | Listed by name |
+
+On a chained turn (see *Conversation state*) the agent's server-side history already holds every file it was shown, so only files added since it last spoke are sent. Documents indexed into File Search are never sent inline. Anything not attached on a turn is still listed with the reason, and an image can still be remixed by ID. Before this, reference files were shown only while the chat had two messages or fewer: after that an agent was told the file names and nothing else, so an uploaded notes file or reference image was invisible for the rest of the session and a file added mid-conversation was never shown at all.
 
 ## API Reference
 

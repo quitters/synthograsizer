@@ -12,8 +12,14 @@ import { JUDGE_TIMEOUT_MS } from '../config/orchestration.js';
 
 let genAI = null;
 
-/** Usage accumulated by judgement calls, so the meter stays honest. */
-let judgeUsage = { inputTokens: 0, outputTokens: 0, totalTokens: 0, calls: 0 };
+/** A fresh usage counter. Each chat room keeps its own, so one room's judgement calls
+ *  never show up in (or get reset by) another's. */
+export function createJudgeUsage() {
+  return { inputTokens: 0, outputTokens: 0, totalTokens: 0, calls: 0 };
+}
+
+/** Usage for callers that pass no counter (scripts, older tests). */
+let judgeUsage = createJudgeUsage();
 
 export function initializeJudge(apiKey, client = null) {
   genAI = client || new GoogleGenAI({ apiKey });
@@ -24,22 +30,22 @@ export function getJudgeUsage() {
 }
 
 export function resetJudgeUsage() {
-  judgeUsage = { inputTokens: 0, outputTokens: 0, totalTokens: 0, calls: 0 };
+  judgeUsage = createJudgeUsage();
 }
 
-function recordUsage(usage) {
-  judgeUsage.calls += 1;
+function recordUsage(usage, counter = judgeUsage) {
+  counter.calls += 1;
   if (!usage) return;
-  judgeUsage.inputTokens += usage.total_input_tokens || 0;
-  judgeUsage.outputTokens += usage.total_output_tokens || 0;
-  judgeUsage.totalTokens += usage.total_tokens || 0;
+  counter.inputTokens += usage.total_input_tokens || 0;
+  counter.outputTokens += usage.total_output_tokens || 0;
+  counter.totalTokens += usage.total_tokens || 0;
 }
 
 /**
  * One schema-constrained call, with a hard timeout.
  * @returns {Promise<object|null>} parsed JSON, or null on any failure
  */
-async function ask(prompt, schema, label) {
+async function ask(prompt, schema, label, counter) {
   if (!genAI) return null;
 
   const call = genAI.interactions.create({
@@ -69,7 +75,7 @@ async function ask(prompt, schema, label) {
       console.warn(`[judge] ${label} timed out after ${JUDGE_TIMEOUT_MS}ms; using heuristic`);
       return null;
     }
-    recordUsage(result.usage);
+    recordUsage(result.usage, counter);
     const text = result.output_text;
     if (!text) return null;
     return JSON.parse(text);
@@ -91,7 +97,7 @@ async function ask(prompt, schema, label) {
  *
  * @returns {Promise<{agentId: string, reason: string, confidence: number}|null>}
  */
-export async function selectSpeaker({ candidates, recentMessages, goal }) {
+export async function selectSpeaker({ candidates, recentMessages, goal, usage }) {
   if (!candidates?.length) return null;
   if (candidates.length === 1) {
     return { agentId: candidates[0].id, reason: 'only eligible speaker', confidence: 1 };
@@ -140,7 +146,7 @@ handled elsewhere.`;
     required: ['agentId', 'reason', 'confidence'],
   };
 
-  const result = await ask(prompt, schema, 'selectSpeaker');
+  const result = await ask(prompt, schema, 'selectSpeaker', usage);
   if (!result) return null;
   // Defence in depth: trust the enum, verify anyway.
   if (!candidates.some(a => a.id === result.agentId)) return null;
@@ -155,7 +161,7 @@ handled elsewhere.`;
  *
  * @returns {Promise<{complete: boolean, confidence: number, rationale: string}|null>}
  */
-export async function assessCompletion({ content, goal, agentName }) {
+export async function assessCompletion({ content, goal, agentName, usage }) {
   if (!content?.trim()) return null;
 
   const prompt =
@@ -183,5 +189,5 @@ is NOT completion. Saying goodbye is not completion unless the goal is met.`;
     required: ['complete', 'confidence', 'rationale'],
   };
 
-  return ask(prompt, schema, 'assessCompletion');
+  return ask(prompt, schema, 'assessCompletion', usage);
 }

@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import { orchestrator } from '../services/orchestrator.js';
 import { generateImage } from '../services/imageGen.js';
 import {
   AGENT_MODEL_CHOICES,
@@ -21,7 +20,7 @@ const router = Router();
  * List all agents
  */
 router.get('/', (req, res) => {
-  const agents = orchestrator.getAgents();
+  const agents = req.room.orchestrator.getAgents();
   res.json({ agents });
 });
 
@@ -45,13 +44,13 @@ router.post('/', (req, res) => {
     if (match) {
       agentName = match[1];
     } else {
-      agentName = `Agent ${orchestrator.getAgents().length + 1}`;
+      agentName = `Agent ${req.room.orchestrator.getAgents().length + 1}`;
     }
   }
 
   // Unrecognised model / thinking values fall back to the registry defaults
   // rather than 400-ing — an agent with a typo'd model should still join.
-  const agent = orchestrator.addAgent(agentName.trim(), bio.trim(), { model, thinkingLevel, tools });
+  const agent = req.room.orchestrator.addAgent(agentName.trim(), bio.trim(), { model, thinkingLevel, tools });
   res.status(201).json({ agent });
 });
 
@@ -79,7 +78,7 @@ router.get('/models', (req, res) => {
  */
 router.delete('/:id', (req, res) => {
   const { id } = req.params;
-  orchestrator.removeAgent(id);
+  req.room.orchestrator.removeAgent(id);
   res.json({ success: true });
 });
 
@@ -99,7 +98,7 @@ router.patch('/:idOrName', (req, res) => {
       typeof model !== 'string' && typeof thinkingLevel !== 'string' && typeof tools !== 'string') {
     return res.status(400).json({ error: 'Provide at least one of: bio, name, model, thinkingLevel, tools' });
   }
-  const updated = orchestrator.updateAgent(idOrName, { bio, name, model, thinkingLevel, tools });
+  const updated = req.room.orchestrator.updateAgent(idOrName, { bio, name, model, thinkingLevel, tools });
   if (!updated) return res.status(404).json({ error: `Agent not found: ${idOrName}` });
   res.json({ agent: updated });
 });
@@ -109,7 +108,7 @@ router.patch('/:idOrName', (req, res) => {
  * Remove all agents (reset)
  */
 router.delete('/', (req, res) => {
-  orchestrator.reset();
+  req.room.orchestrator.reset();
   res.json({ success: true });
 });
 
@@ -125,7 +124,7 @@ router.post('/:id/avatar', (req, res) => {
     return res.status(400).json({ error: 'Image data and mime type are required' });
   }
 
-  const success = orchestrator.setAgentAvatar(id, { imageData, mimeType });
+  const success = req.room.orchestrator.setAgentAvatar(id, { imageData, mimeType });
 
   if (success) {
     res.json({ success: true });
@@ -142,7 +141,7 @@ router.post('/:id/avatar/generate', async (req, res) => {
   const { id } = req.params;
   const { prompt } = req.body;
 
-  const agent = orchestrator.getAgents().find(a => a.id === id);
+  const agent = req.room.orchestrator.getAgents().find(a => a.id === id);
   if (!agent) {
     return res.status(404).json({ error: 'Agent not found' });
   }
@@ -159,7 +158,7 @@ router.post('/:id/avatar/generate', async (req, res) => {
         mimeType: result.mimeType || 'image/png'
       };
 
-      orchestrator.setAgentAvatar(id, avatar);
+      req.room.orchestrator.setAgentAvatar(id, avatar);
       res.json({ success: true, avatar });
     } else {
       res.status(500).json({ error: 'Failed to generate image' });
@@ -176,7 +175,7 @@ router.post('/:id/avatar/generate', async (req, res) => {
  */
 router.delete('/:id/avatar', (req, res) => {
   const { id } = req.params;
-  const success = orchestrator.setAgentAvatar(id, null);
+  const success = req.room.orchestrator.setAgentAvatar(id, null);
 
   if (success) {
     res.json({ success: true });
@@ -191,7 +190,7 @@ router.delete('/:id/avatar', (req, res) => {
  */
 router.get('/:id/context', (req, res) => {
   const { id } = req.params;
-  const context = orchestrator.getAgentContext(id);
+  const context = req.room.orchestrator.getAgentContext(id);
 
   if (context) {
     res.json(context);

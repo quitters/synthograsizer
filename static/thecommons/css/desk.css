@@ -222,6 +222,20 @@ footer {
 .gallery-body h4 { font-family: var(--font-display); font-size: 16px; margin: 0; color: var(--ink); }
 .gallery-blurb { margin: 0; color: var(--ink); font-size: 14px; line-height: 1.5; }
 .gallery-lineage { margin: 0; color: var(--ink-dim); font-family: var(--font-mono); font-size: 11px; line-height: 1.55; }
+/* An archive piece's picture, over the title card its sketch draws. */
+.gallery-screen .gallery-thumb { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+/* A long section: its count, its order, and the button for the next page. */
+.gallery-paging { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; margin: 0 0 12px; }
+.gallery-paging-count { margin: 0; color: var(--ink-dim); font-family: var(--font-mono); font-size: 11px; }
+.gallery-paging-sort { color: var(--ink-dim); font-size: 13px; display: flex; align-items: center; gap: 8px; }
+.gallery-paging-sort select { font: inherit; color: var(--ink); background: transparent; border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; }
+.gallery-paging-sort select option { color: #111; }
+.gallery-more { display: block; margin: 16px auto 0; }
+/* An archive piece's credit: who made it, where it lives, on what terms. */
+.gallery-credit { display: flex; flex-direction: column; gap: 4px; padding: 8px 10px; border-left: 2px solid var(--line); }
+.gallery-credit p { margin: 0; font-size: 13px; line-height: 1.5; color: var(--ink); }
+.gallery-credit .gallery-credit-licence { color: var(--ink-dim); font-size: 12px; }
+.gallery-credit a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
 .gallery-tags { list-style: none; margin: 2px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
 .gallery-tags li {
   padding: 3px 8px;

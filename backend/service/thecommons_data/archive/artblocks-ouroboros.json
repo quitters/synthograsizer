@@ -1,0 +1,235 @@
+{
+  "name": "Ouroboros",
+  "promptTemplate": "A {{grid}} grid of spinning rounded forms in {{palette}} palette with {{blend}} blend mode, {{border}} borders, shadow: {{shadow}}, and {{margin}} margin. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Vint",
+          "weight": 3
+        },
+        {
+          "text": "Unicorn",
+          "weight": 2
+        },
+        {
+          "text": "Murica",
+          "weight": 2
+        },
+        {
+          "text": "Capri",
+          "weight": 1
+        },
+        {
+          "text": "Forest",
+          "weight": 1
+        },
+        {
+          "text": "Amoeba",
+          "weight": 1
+        },
+        {
+          "text": "Gather",
+          "weight": 1
+        },
+        {
+          "text": "PomPom",
+          "weight": 1
+        },
+        {
+          "text": "Mistress",
+          "weight": 1
+        },
+        {
+          "text": "Candy",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "grid",
+      "label": "Grid",
+      "values": [
+        {
+          "text": "2x2",
+          "weight": 3
+        },
+        {
+          "text": "3x3",
+          "weight": 2
+        },
+        {
+          "text": "4x4",
+          "weight": 2
+        },
+        {
+          "text": "5x5",
+          "weight": 1
+        },
+        {
+          "text": "6x6",
+          "weight": 1
+        },
+        {
+          "text": "7x7",
+          "weight": 1
+        },
+        {
+          "text": "8x8",
+          "weight": 1
+        },
+        {
+          "text": "9x9",
+          "weight": 1
+        },
+        {
+          "text": "10x10",
+          "weight": 1
+        },
+        {
+          "text": "11x11",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "blend",
+      "label": "Blend",
+      "values": [
+        {
+          "text": "Soft Light",
+          "weight": 3
+        },
+        {
+          "text": "Difference",
+          "weight": 2
+        },
+        {
+          "text": "Hard Light",
+          "weight": 2
+        },
+        {
+          "text": "Initial",
+          "weight": 1
+        },
+        {
+          "text": "Multiply",
+          "weight": 1
+        },
+        {
+          "text": "Overlay",
+          "weight": 1
+        },
+        {
+          "text": "Color Burn",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "border",
+      "label": "Border",
+      "values": [
+        {
+          "text": "Inset",
+          "weight": 3
+        },
+        {
+          "text": "Double",
+          "weight": 2
+        },
+        {
+          "text": "Solid",
+          "weight": 2
+        },
+        {
+          "text": "Outset",
+          "weight": 1
+        },
+        {
+          "text": "Ridge",
+          "weight": 1
+        },
+        {
+          "text": "Groove",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "shadow",
+      "label": "Shadow",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "margin",
+      "label": "Margin",
+      "type": "number",
+      "min": 1,
+      "max": 20,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 1024,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:ouroboros",
+  "artist": "Shane Rich | raregonzo",
+  "credit": {
+    "title": "Ouroboros",
+    "artist": "Shane Rich | raregonzo",
+    "year": 2021,
+    "description": "\"Ouroboros\" is inspired from the idea that we as humans must continually devour ourselves to be reborn with new understanding. The algorithm is a grid of rounded squares, continuously spinning, an eternal cycle which expresses unity of matter and spirit which never disappear but perpetually change form through this cycle of destruction and re-creation. A multitude of color palettes, grid sizes, blend modes, border styles and shadows allow this project to generate some beautifully mesmerizing outputs. Click for enlightenment.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/166",
+    "artistUrl": "https://shanerichardson.art/",
+    "license": {
+      "text": "CC BY-NC-SA 4.0",
+      "name": "CC BY-NC-SA 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only.",
+        "Share the adaptation under the same licence."
+      ]
+    },
+    "editions": 1024,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 166
+    },
+    "archiveId": "artblocks:ouroboros",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Ouroboros by Shane Rich | raregonzo, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 172771
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Aouroboros"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Aouroboros"
+  }
+}

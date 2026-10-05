@@ -113,14 +113,14 @@ function buildWaves(steps) {
  * Given a step type and interpolated params, call the correct synthClient method.
  * Returns the raw API response, augmented with mediaId if media was stored.
  */
-async function dispatchSynth(type, params, agentId = null, agentName = null, onChunk = null) {
+async function dispatchSynth(type, params, agentId = null, agentName = null, onChunk = null, mediaStore = _mediaStore) {
   switch (type) {
     case 'synth_image': {
       const { prompt, ...opts } = params;
       const res = await synthClient.generateImage(prompt || '', opts);
       if (res.image) {
         const mediaId = uuidv4();
-        _mediaStore.add({
+        mediaStore.add({
           id: mediaId, type: 'image', data: res.image, mimeType: 'image/png',
           prompt: prompt || '', agentId, agentName
         });
@@ -137,7 +137,7 @@ async function dispatchSynth(type, params, agentId = null, agentName = null, onC
       // hand the raw base64 to the backend.
       const resolveOne = (idLike) => {
         if (!idLike) return null;
-        const m = _mediaStore.get(idLike);
+        const m = mediaStore.get(idLike);
         return m?.data || (typeof idLike === 'string' && idLike.length > 200 ? idLike : null);
       };
       if (opts.start_frame_id) {
@@ -158,7 +158,7 @@ async function dispatchSynth(type, params, agentId = null, agentName = null, onC
       const res = await synthClient.generateVideo(prompt || '', opts);
       if (res.video) {
         const mediaId = uuidv4();
-        _mediaStore.add({
+        mediaStore.add({
           id: mediaId, type: 'video', data: res.video, mimeType: 'video/mp4',
           prompt: prompt || '', agentId, agentName
         });
@@ -244,7 +244,7 @@ async function dispatchSynth(type, params, agentId = null, agentName = null, onC
       if (!imageRef || imageRef === 'null') {
         return { description: '[image unavailable — upstream step skipped]', skipped: true };
       }
-      const media = _mediaStore.get(imageRef);
+      const media = mediaStore.get(imageRef);
       const imageBase64 = media?.data || imageRef;
       const res = await synthClient.analyzeImage(imageBase64);
       // Normalize: backend returns { status, analysis } but templates reference {{step.description}}
@@ -253,13 +253,13 @@ async function dispatchSynth(type, params, agentId = null, agentName = null, onC
 
     case 'synth_transform': {
       const imageRef = params.image_id || params.image || '';
-      const media = _mediaStore.get(imageRef);
+      const media = mediaStore.get(imageRef);
       const imageBase64 = media?.data || imageRef;
       const intent = params.intent || '';
       const res = await synthClient.smartTransform(imageBase64, intent);
       if (res.image) {
         const mediaId = uuidv4();
-        _mediaStore.add({
+        mediaStore.add({
           id: mediaId, type: 'image', data: res.image, mimeType: 'image/png',
           prompt: intent, agentId, agentName
         });
@@ -317,6 +317,8 @@ class WorkflowEngine {
    * @param {Function} options.broadcast      - fn(event, data) for SSE
    * @param {string}   [options.agentId]      - originating agent (for media attribution)
    * @param {string}   [options.agentName]
+   * @param {object}   [options.mediaStore] - store for media this run produces (default: the configured one)
+   * @param {string}   [options.ownerId]    - who the run belongs to; scopes listActive/cancel/traces/checkpoints
    * @returns {string} workflowId
    */
   submit(workflowDef, {
@@ -326,6 +328,8 @@ class WorkflowEngine {
     agentColor = null,
     sessionId = null,
     messageId = null,
+    mediaStore = null,
+    ownerId = null,
   } = {}) {
     const id = uuidv4();
 
@@ -340,6 +344,8 @@ class WorkflowEngine {
       agentColor,
       sessionId,
       messageId,
+      mediaStore,
+      ownerId,
       cancelled: false,
       startedAt: new Date().toISOString(),
       completedAt: null,
@@ -381,6 +387,7 @@ class WorkflowEngine {
       id: state.id,
       name: state.name,
       status: state.status,
+      ownerId: state.ownerId ?? null,
       startedAt: state.startedAt,
       completedAt: state.completedAt,
       steps: state.steps.map(s => ({
@@ -405,11 +412,13 @@ class WorkflowEngine {
   /**
    * Cancel a running workflow.
    * @param {string} workflowId
+   * @param {string} [ownerId] — when given, only that owner's runs can be cancelled
    * @returns {boolean} true if found and cancelled
    */
-  cancel(workflowId) {
+  cancel(workflowId, ownerId) {
     const state = this._workflows.get(workflowId);
     if (!state || state.status !== 'running') return false;
+    if (ownerId !== undefined && (state.ownerId ?? null) !== ownerId) return false;
     state.cancelled = true;
     state.status = 'cancelled';
     state.broadcast('workflow_cancelled', { workflowId });
@@ -417,11 +426,14 @@ class WorkflowEngine {
   }
 
   /**
-   * List all tracked workflows (active + recently completed).
+   * List tracked workflows (active + recently completed).
+   * @param {string} [ownerId] — when given, only that owner's runs
    * @returns {Array}
    */
-  listActive() {
-    return [...this._workflows.values()].map(state => ({
+  listActive(ownerId) {
+    const all = [...this._workflows.values()];
+    const mine = ownerId === undefined ? all : all.filter(s => (s.ownerId ?? null) === ownerId);
+    return mine.map(state => ({
       id:          state.id,
       name:        state.name,
       status:      state.status,
@@ -445,11 +457,15 @@ class WorkflowEngine {
     const state = this._workflows.get(workflowId);
     if (!state) throw new Error(`Workflow ${workflowId} not found`);
     if (state.status === 'running') throw new Error('Workflow is still running');
+    if (options.ownerId !== undefined && (state.ownerId ?? null) !== options.ownerId) {
+      throw new Error(`Workflow ${workflowId} not found`);
+    }
 
     // Merge new broadcast / agent options
     if (options.broadcast) state.broadcast = options.broadcast;
     if (options.agentId)   state.agentId   = options.agentId;
     if (options.agentName) state.agentName = options.agentName;
+    if (options.mediaStore) state.mediaStore = options.mediaStore;
 
     // Reset failed and pending steps only
     for (const step of state.steps) {
@@ -501,6 +517,10 @@ class WorkflowEngine {
       throw new Error(`No checkpoint found for workflow ${workflowId}`);
     }
 
+    if (options.ownerId !== undefined && (checkpoint.ownerId ?? null) !== options.ownerId) {
+      throw new Error(`No checkpoint found for workflow ${workflowId}`);
+    }
+
     const { workflowDef, stepResults, completedSteps } = checkpoint;
     const completedSet = new Set(completedSteps || []);
 
@@ -518,6 +538,8 @@ class WorkflowEngine {
       broadcast:   options.broadcast || (() => {}),
       agentId:     options.agentId   || null,
       agentName:   options.agentName || null,
+      mediaStore:  options.mediaStore || null,
+      ownerId:     checkpoint.ownerId ?? (options.ownerId ?? null),
       cancelled:   false,
       startedAt:   new Date().toISOString(),
       completedAt: null,
@@ -613,7 +635,7 @@ class WorkflowEngine {
       for (const innerDef of innerStepDefs) {
         const innerParams = interpolate(innerDef.params || {}, miniResults);
         const innerResult = await dispatchSynth(
-          innerDef.type, innerParams, state.agentId, state.agentName
+          innerDef.type, innerParams, state.agentId, state.agentName, null, state.mediaStore || _mediaStore
         );
         iterResult[innerDef.id] = innerResult;
         miniResults.set(innerDef.id, innerResult);
@@ -744,7 +766,7 @@ class WorkflowEngine {
         });
         const result = step.type === 'loop'
           ? await this._executeLoop(state, step, resolvedParams)
-          : await dispatchSynth(step.type, resolvedParams, state.agentId, state.agentName, onChunk);
+          : await dispatchSynth(step.type, resolvedParams, state.agentId, state.agentName, onChunk, state.mediaStore || _mediaStore);
 
         step.result = result;
         step.status = 'complete';

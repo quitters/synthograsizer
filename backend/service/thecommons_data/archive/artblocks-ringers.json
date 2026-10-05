@@ -1,0 +1,215 @@
+{
+  "name": "Ringers",
+  "promptTemplate": "A {{size}} {{wrap_style}} ringer with {{body}} fill on a {{background}} ground, looping through a {{peg_layout}} with {{peg_scaling}} scaling and {{peg_style}} pegs in a {{wrap_orientation}} orientation. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "peg_layout",
+      "label": "Peg layout",
+      "values": [
+        {
+          "text": "3x3 grid",
+          "weight": 3
+        },
+        {
+          "text": "5x5 grid",
+          "weight": 2
+        },
+        {
+          "text": "4x4 grid",
+          "weight": 2
+        },
+        {
+          "text": "Recursive grid",
+          "weight": 1
+        },
+        {
+          "text": "Tiled 3,2",
+          "weight": 1
+        },
+        {
+          "text": "Tiled 5,4",
+          "weight": 1
+        },
+        {
+          "text": "Tiled 3,4",
+          "weight": 1
+        },
+        {
+          "text": "Tiled 4,5",
+          "weight": 1
+        },
+        {
+          "text": "Tiled 2,3",
+          "weight": 1
+        },
+        {
+          "text": "Tiled 4,3",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "wrap_style",
+      "label": "Wrap style",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "background",
+      "label": "Background",
+      "values": [
+        {
+          "text": "White",
+          "weight": 3
+        },
+        {
+          "text": "Yellow",
+          "weight": 2
+        },
+        {
+          "text": "Red",
+          "weight": 2
+        },
+        {
+          "text": "Beige",
+          "weight": 1
+        },
+        {
+          "text": "Black",
+          "weight": 1
+        },
+        {
+          "text": "Blue",
+          "weight": 1
+        },
+        {
+          "text": "Green",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "body",
+      "label": "Body",
+      "values": [
+        {
+          "text": "White",
+          "weight": 3
+        },
+        {
+          "text": "Black",
+          "weight": 2
+        },
+        {
+          "text": "Yellow",
+          "weight": 2
+        },
+        {
+          "text": "Red",
+          "weight": 1
+        },
+        {
+          "text": "Blue",
+          "weight": 1
+        },
+        {
+          "text": "Green",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "peg_scaling",
+      "label": "Peg scaling",
+      "values": [
+        {
+          "text": "Uniform",
+          "weight": 3
+        },
+        {
+          "text": "Bigger near center",
+          "weight": 2
+        },
+        {
+          "text": "Smaller near center",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "wrap_orientation",
+      "label": "Wrap orientation",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "peg_style",
+      "label": "Peg style",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "size",
+      "label": "Size",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 1000,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:ringers",
+  "artist": "Dmitri Cherniak",
+  "credit": {
+    "title": "Ringers",
+    "artist": "Dmitri Cherniak",
+    "year": 2021,
+    "description": "There are an almost infinite number of ways to wrap a string around a set of pegs. On the surface it may seem like a simple concept but prepare to be surprised and delighted at the variety of combinations the algorithm can produce. Each output from 'Ringers' is derived from a unique transaction hash and generated in Javascript in the browser. Feature variations include peg count, sizing, layout, wrap orientation, and a few colorful flourishes for good measure.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/13",
+    "artistUrl": "https://twitter.com/dmitricherniak",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 1000,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 13
+    },
+    "archiveId": "artblocks:ringers",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Ringers by Dmitri Cherniak, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 90322986
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Aringers"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Aringers"
+  }
+}

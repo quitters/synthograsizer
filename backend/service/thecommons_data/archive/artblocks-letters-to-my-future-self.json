@@ -1,0 +1,156 @@
+{
+  "name": "Letters to My Future Self",
+  "promptTemplate": "A {{orientation}} {{form}} rendered with {{implement}} and {{censor_mode}} redaction; straight censor: {{straight_censor}}, detail: {{detail}}, inverted: {{inverted}}, special: {{special}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "implement",
+      "label": "Implement",
+      "values": [
+        {
+          "text": "Fountain pen",
+          "weight": 3
+        },
+        {
+          "text": "Calligraphy pen",
+          "weight": 2
+        },
+        {
+          "text": "Lining pen",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "censor_mode",
+      "label": "Censor Mode",
+      "values": [
+        {
+          "text": "normal",
+          "weight": 3
+        },
+        {
+          "text": "nothing",
+          "weight": 2
+        },
+        {
+          "text": "shape-in",
+          "weight": 2
+        },
+        {
+          "text": "shape-out",
+          "weight": 1
+        },
+        {
+          "text": "everything",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "orientation",
+      "label": "Orientation",
+      "values": [
+        {
+          "text": "ltr",
+          "weight": 3
+        },
+        {
+          "text": "vertical",
+          "weight": 2
+        },
+        {
+          "text": "rtl",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "straight_censor",
+      "label": "Straight Censor",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "form",
+      "label": "Form",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "detail",
+      "label": "Detail",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "inverted",
+      "label": "Inverted",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "special",
+      "label": "Special",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 1000,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:letters-to-my-future-self",
+  "artist": "Ryan Struhl",
+  "credit": {
+    "title": "Letters to My Future Self",
+    "artist": "Ryan Struhl",
+    "year": 2021,
+    "description": "Letters to My Future Self is a series looking at communication through time. There is so much I want to tell my future self that words can't express: from the fear and anger I've felt in lockdown isolation to the joy in finding new friends and community. Each piece in this series becomes a small part of a much bigger story -- letters sent into the future expressing our collective hopes, fears, sadness, and love. A moment in time captured in perpetuity on the blockchain for future generations to find and reflect on. 25% of proceeds will support future artists through art education grants via Donors Choose.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/174",
+    "artistUrl": "https://www.instagram.com/rwstruhl/",
+    "license": {
+      "text": "CC BY-NC-SA 4.0",
+      "name": "CC BY-NC-SA 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only.",
+        "Share the adaptation under the same licence."
+      ]
+    },
+    "editions": 1000,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 174
+    },
+    "archiveId": "artblocks:letters-to-my-future-self",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Letters to My Future Self by Ryan Struhl, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 2080026
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Aletters-to-my-future-self"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Aletters-to-my-future-self"
+  }
+}

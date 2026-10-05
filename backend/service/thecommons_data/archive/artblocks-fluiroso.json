@@ -1,0 +1,180 @@
+{
+  "name": "Fluiroso",
+  "promptTemplate": "A {{draw_mode}} fluid dynamics painting with {{color_mode}} coloring, {{brush_density}} brush density, and {{step}} step. Features {{velocity_sources}} velocity sources; dark background: {{dark_background}}, walled boundaries: {{walls}}, circles: {{circles}}, bezier deltas: {{bezier_deltas}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "draw_mode",
+      "label": "Draw Mode",
+      "values": [
+        {
+          "text": "Lines",
+          "weight": 3
+        },
+        {
+          "text": "Bézier Curves",
+          "weight": 2
+        },
+        {
+          "text": "Filled Bézier Curves",
+          "weight": 2
+        },
+        {
+          "text": "Filled Boxy Curves",
+          "weight": 1
+        },
+        {
+          "text": "Boxy Curves",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "color_mode",
+      "label": "Color Mode",
+      "values": [
+        {
+          "text": "Density",
+          "weight": 3
+        },
+        {
+          "text": "Speed",
+          "weight": 2
+        },
+        {
+          "text": "Direction",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "dark_background",
+      "label": "Dark Background",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "step",
+      "label": "Step",
+      "values": [
+        {
+          "text": "Small",
+          "weight": 3
+        },
+        {
+          "text": "Medium",
+          "weight": 2
+        },
+        {
+          "text": "Very small",
+          "weight": 2
+        },
+        {
+          "text": "Large",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "brush_density",
+      "label": "Brush Density",
+      "values": [
+        {
+          "text": "Medium",
+          "weight": 3
+        },
+        {
+          "text": "High",
+          "weight": 2
+        },
+        {
+          "text": "Low",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "walls",
+      "label": "Walls",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "velocity_sources",
+      "label": "Velocity Sources",
+      "type": "number",
+      "min": 0,
+      "max": 10,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "name": "circles",
+      "label": "Circles",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "bezier_deltas",
+      "label": "Bezier Deltas",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 106,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:fluiroso",
+  "artist": "Sebastián Brocher (CryptoArte)",
+  "credit": {
+    "title": "Fluiroso",
+    "artist": "Sebastián Brocher (CryptoArte)",
+    "year": 2023,
+    "description": "Drawing inspiration from the intricacies of nature and the physics theories that model it, \"Fluiroso\" (derived from \"Fluidos Ruidosos\") delves into the mesmerizing depths of Fluid Dynamics. This is achieved by implementing an accelerated solver for the Navier–Stokes partial differential equations.\n\nInitial density and velocity are placed leveraging Perlin noise, and a selection of up to ten random velocity sources are positioned throughout the area. Augmented by other parameters such as boundary conditions and viscosity, the algorithm embarks on a dynamic journey tracing the solver's outputs over time. \n\nThe resulting animation renders a delicate dance of brush strokes where the fluid becomes painter. The culmination is a repertoire of abstract pieces that evoke movement and invite viewers to discern emerging shapes and silhouettes.\n\nOnce the animation pauses to spotlight the artwork, viewers can engage with the piece and press 'p' to restart the movement. While many pieces continually evolve, others settle into a graceful equilibrium.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0x99a9b7c1116f9ceeb1652de04d5969cce509b069/473",
+    "artistUrl": "https://twitter.com/CryptoArte",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 106,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0x99a9b7c1116f9ceeb1652de04d5969cce509b069",
+      "projectId": 473
+    },
+    "archiveId": "artblocks:fluiroso",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Fluiroso by Sebastián Brocher (CryptoArte), on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 5636
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Afluiroso"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Afluiroso"
+  }
+}

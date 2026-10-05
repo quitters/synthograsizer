@@ -31,6 +31,8 @@ import logging
 from functools import lru_cache
 from pathlib import Path
 
+from backend.service.thecommons_archive import SECTION as ARCHIVE_SECTION
+from backend.service.thecommons_archive import load_archive
 from backend.service.thecommons_gallery_panels import PANELS
 from backend.service.thecommons_gallery_tags import tags_for
 from backend.service.thecommons_ui import SKINS
@@ -59,6 +61,9 @@ SECTIONS = [
      "intro": "Systems, automata and homages to the artists who first drew with code."},
     {"id": "studio", "title": "From the studio",
      "intro": "Ported from the generative pieces made next door, mark for mark."},
+    # Works by other artists, framed from an archive (thecommons_archive.py).
+    # Holds nothing unless a venue names the archive that serves them.
+    ARCHIVE_SECTION,
 ]
 
 _GENERATED_LINEAGE = "Generated in The Commons from the prompt below, then reviewed and tuned by hand."
@@ -427,6 +432,8 @@ def load_gallery() -> tuple[dict, ...]:
                              variables, code, look=meta.get("look")),
             "sketch": sketch,
         })
+    # Other artists' works, with their credits; none unless a venue turned them on.
+    pieces.extend(load_archive())
     return tuple(pieces)
 
 

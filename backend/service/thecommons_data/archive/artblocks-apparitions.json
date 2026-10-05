@@ -1,0 +1,245 @@
+{
+  "name": "Apparitions",
+  "promptTemplate": "A {{haunting}} apparition facing {{facing}} with {{positioning}} positioning, {{stretch}} stretch, {{reach}} reach, and {{altitude}} altitude; characterized by a {{spook}} mood, {{brush_style}} brush style, and {{bands}} bands against a {{background_color}} background with a {{backdrop_style}} {{backdrop}} (sync: {{backdrop_sync}}). This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "positioning",
+      "label": "Positioning",
+      "values": [
+        {
+          "text": "Floating",
+          "weight": 3
+        },
+        {
+          "text": "Horizontal",
+          "weight": 2
+        },
+        {
+          "text": "Vertical",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "stretch",
+      "label": "Stretch",
+      "values": [
+        {
+          "text": "Smooth",
+          "weight": 3
+        },
+        {
+          "text": "Compressed",
+          "weight": 2
+        },
+        {
+          "text": "Taffy",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "haunting",
+      "label": "Haunting",
+      "values": [
+        {
+          "text": "Periodic",
+          "weight": 3
+        },
+        {
+          "text": "Premonition",
+          "weight": 2
+        },
+        {
+          "text": "Persistent",
+          "weight": 2
+        },
+        {
+          "text": "Poltergeist",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "facing",
+      "label": "Facing",
+      "values": [
+        {
+          "text": "East",
+          "weight": 3
+        },
+        {
+          "text": "West",
+          "weight": 2
+        },
+        {
+          "text": "You",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "bands",
+      "label": "Bands",
+      "values": [
+        {
+          "text": "FM",
+          "weight": 3
+        },
+        {
+          "text": "Solid",
+          "weight": 2
+        },
+        {
+          "text": "Narrow",
+          "weight": 2
+        },
+        {
+          "text": "Broad",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "brush_style",
+      "label": "Brush Style",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "background_color",
+      "label": "Background Color",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "backdrop",
+      "label": "Backdrop",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "backdrop_style",
+      "label": "Backdrop Style",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "backdrop_sync",
+      "label": "Backdrop Sync",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "spook",
+      "label": "Spook",
+      "values": [
+        {
+          "text": "Don't Panic",
+          "weight": 3
+        },
+        {
+          "text": "Calm",
+          "weight": 2
+        },
+        {
+          "text": "Panic",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "reach",
+      "label": "Reach",
+      "values": [
+        {
+          "text": "Arm's Length",
+          "weight": 3
+        },
+        {
+          "text": "Far",
+          "weight": 2
+        },
+        {
+          "text": "Near",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "altitude",
+      "label": "Altitude",
+      "values": [
+        {
+          "text": "Troposhere",
+          "weight": 3
+        },
+        {
+          "text": "Sea Level",
+          "weight": 2
+        },
+        {
+          "text": "Stratosphere",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 1500,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:apparitions",
+  "artist": "Aaron Penne",
+  "credit": {
+    "title": "Apparitions",
+    "artist": "Aaron Penne",
+    "year": 2021,
+    "description": "“Apparitions” is an exploration of the space between algorithmic and organic. Each “Apparition” is unique to the transaction that originated it. Created by Aaron Penne",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/28",
+    "artistUrl": "https://twitter.com/aaronpenne",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 1500,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 28
+    },
+    "archiveId": "artblocks:apparitions",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Apparitions by Aaron Penne, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 8791917
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Aapparitions"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Aapparitions"
+  }
+}

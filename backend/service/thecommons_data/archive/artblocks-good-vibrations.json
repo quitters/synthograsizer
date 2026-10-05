@@ -1,0 +1,175 @@
+{
+  "name": "Good Vibrations",
+  "promptTemplate": "A {{surface}} composition with {{melody_num}} oscillators in a {{geo_pos}} grid; rectangular motifs: {{bg_obj_shape}}, special background: {{bg_special}}, ring: {{ring}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "surface",
+      "label": "Surface",
+      "values": [
+        {
+          "text": "Ocean",
+          "weight": 3
+        },
+        {
+          "text": "Sunset",
+          "weight": 2
+        },
+        {
+          "text": "Forest",
+          "weight": 2
+        },
+        {
+          "text": "Cosmological",
+          "weight": 1
+        },
+        {
+          "text": "Monochromical",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "melody_num",
+      "label": "MelodyNum",
+      "values": [
+        {
+          "text": "2",
+          "weight": 3
+        },
+        {
+          "text": "4",
+          "weight": 2
+        },
+        {
+          "text": "5",
+          "weight": 2
+        },
+        {
+          "text": "3",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "geo_pos",
+      "label": "GeoPos",
+      "values": [
+        {
+          "text": "1-2",
+          "weight": 3
+        },
+        {
+          "text": "3-4",
+          "weight": 2
+        },
+        {
+          "text": "4-4",
+          "weight": 2
+        },
+        {
+          "text": "2-2",
+          "weight": 1
+        },
+        {
+          "text": "2-1",
+          "weight": 1
+        },
+        {
+          "text": "2-3",
+          "weight": 1
+        },
+        {
+          "text": "3-1",
+          "weight": 1
+        },
+        {
+          "text": "1-1",
+          "weight": 1
+        },
+        {
+          "text": "1-3",
+          "weight": 1
+        },
+        {
+          "text": "4-1",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "bg_special",
+      "label": "BgSpecial",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "bg_obj_shape",
+      "label": "BgObjShape",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "ring",
+      "label": "Ring",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 1024,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:good-vibrations",
+  "artist": "Aluan Wang",
+  "credit": {
+    "title": "Good Vibrations",
+    "artist": "Aluan Wang",
+    "year": 2021,
+    "description": "Good Vibrations is a kind of philosophy from our culture. It's not just a graphic, or melody. It mentions our journey through all of our lives. Inspired by Minimalism and some works of Ligeti György Sándor and Steve Reich, Good Vibrations creates unique geometries by each unique transaction hash. \"Everything in Life is Vibration\" Albert Einstein's states. The universal law of nature states that everything has its vibration, and all vibrations will make their voice audible or inaudible. It’s all of our events in the totality of our life, from every dimension—and we cannot determine if they are good or bad, dark, or light.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/140",
+    "artistUrl": "https://twitter.com/IOivm",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 1024,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 140
+    },
+    "archiveId": "artblocks:good-vibrations",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Good Vibrations by Aluan Wang, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 1668021
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Agood-vibrations"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Agood-vibrations"
+  }
+}

@@ -1,0 +1,155 @@
+{
+  "name": "Systems Madness",
+  "promptTemplate": "A {{palette}} wallpaper pattern blooming with {{flower}} blossoms. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Peach & Coral",
+          "weight": 3
+        },
+        {
+          "text": "Gold & Amber",
+          "weight": 2
+        },
+        {
+          "text": "Sky & Tangerine",
+          "weight": 2
+        },
+        {
+          "text": "Lilac & Sand",
+          "weight": 1
+        },
+        {
+          "text": "Lavender & Rose",
+          "weight": 1
+        },
+        {
+          "text": "Espresso & Rust",
+          "weight": 1
+        },
+        {
+          "text": "Obsidian & Garnet",
+          "weight": 1
+        },
+        {
+          "text": "Olive & Mauve",
+          "weight": 1
+        },
+        {
+          "text": "Sage & Orchid",
+          "weight": 1
+        },
+        {
+          "text": "Turquoise & Crimson",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "flower",
+      "label": "Flower",
+      "values": [
+        {
+          "text": "Chrysanthemum (I)",
+          "weight": 3
+        },
+        {
+          "text": "Hydrangea (I)",
+          "weight": 2
+        },
+        {
+          "text": "Poet's Narcissus (I)",
+          "weight": 2
+        },
+        {
+          "text": "Poppy (I)",
+          "weight": 1
+        },
+        {
+          "text": "Foxglove (I)",
+          "weight": 1
+        },
+        {
+          "text": "Chrysanthemum (II)",
+          "weight": 1
+        },
+        {
+          "text": "Hydrangea (II)",
+          "weight": 1
+        },
+        {
+          "text": "Poet's Narcissus (II)",
+          "weight": 1
+        },
+        {
+          "text": "Poppy (II)",
+          "weight": 1
+        },
+        {
+          "text": "Foxglove (II)",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 42,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:systems-madness",
+  "artist": "Claudia Hart and Andrew Blanton",
+  "credit": {
+    "title": "Systems Madness",
+    "artist": "Claudia Hart and Andrew Blanton",
+    "year": 2023,
+    "description": "'Systems Madness' is a collaborative project by Claudia Hart and Andrew Blanton that explores what happens when reason meets unreason. Inspired by the short story \"The Yellow Wallpaper\" (1892) by Charlotte Perkins Gilman, the project uses AI tools to transform literary language into a library of visual tropes, a translation of emotional expression into code. Together Hart and Blanton reconstruct the pattern language of romantic era wallpapers using warm, off-primary colors, noises, gradients, blurrings, layerings, and apply different fractal formations, repeated irregularly, pushing beyond the human desire to create order out of chaos. 'Systems Madness' is a mesmerizing interactive artwork that extends ‘beyond the wallet’ into our domestic spaces.\n\nExhibition Description: ‘Systems Madness’ from Claudia Hart is a conceptual artwork that extends beyond the screen. Collectors can interact with the work minted on Art Blocks, and they can also access a set of instructions for how to install the artwork as an interactive floor-to-ceiling wallpaper at home or in a public exhibition.\n\nArtist Statement:\n\"Together we framed a question - what happens when reason meets unreason? The response: the all too human desire to create order out of the chaos of this world; and identically - the truth - that too much order can actually drive you mad!\"\n\nMore information at https://madness.systems\n\nAfter the allowlisted fixed price sale ends, there will be an auction starting at 1pm ET with a starting price of 2 ETH, and decreasing over the span of 30 mins to a final resting price of .1 ETH\n\nThe artists will donate a percentage of profits from the sale of this collection to the Center for Reproductive Rights.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0x99a9b7c1116f9ceeb1652de04d5969cce509b069/442",
+    "artistUrl": "https://www.madness.systems/",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 42,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0x99a9b7c1116f9ceeb1652de04d5969cce509b069",
+      "projectId": 442
+    },
+    "archiveId": "artblocks:systems-madness",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Systems Madness by Claudia Hart and Andrew Blanton, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 3121
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Asystems-madness"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Asystems-madness"
+  }
+}

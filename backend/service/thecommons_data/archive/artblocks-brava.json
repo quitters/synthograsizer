@@ -1,0 +1,141 @@
+{
+  "name": "Brava",
+  "promptTemplate": "A fluid composition of waves in {{colors}} palette with {{horitzo}} orientation, layered with {{r1}} primary and {{r2}} secondary wave bands. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "colors",
+      "label": "colors",
+      "values": [
+        {
+          "text": "mar profund",
+          "weight": 3
+        },
+        {
+          "text": "quan el sol pica",
+          "weight": 2
+        },
+        {
+          "text": "quan trenquen onades suaus amb escuma",
+          "weight": 2
+        },
+        {
+          "text": "pensant en parasols i platja",
+          "weight": 1
+        },
+        {
+          "text": "com un llac en un dia ennuvolat",
+          "weight": 1
+        },
+        {
+          "text": "quan es pon el sol",
+          "weight": 1
+        },
+        {
+          "text": "arran de penyasegats sorrencs",
+          "weight": 1
+        },
+        {
+          "text": "coves i racons amb algues",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "horitzo",
+      "label": "horitzo",
+      "values": [
+        {
+          "text": "estribor",
+          "weight": 3
+        },
+        {
+          "text": "babor",
+          "weight": 2
+        },
+        {
+          "text": "quilla",
+          "weight": 2
+        },
+        {
+          "text": "capbussada",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "r1",
+      "label": "r1",
+      "type": "number",
+      "min": 8,
+      "max": 14,
+      "step": 1,
+      "default": 11
+    },
+    {
+      "name": "r2",
+      "label": "r2",
+      "type": "number",
+      "min": 10,
+      "max": 16,
+      "step": 1,
+      "default": 13
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 100,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:brava",
+  "artist": "Anna Carreras",
+  "credit": {
+    "title": "Brava",
+    "artist": "Anna Carreras",
+    "year": 2024,
+    "description": "Brava meaning strong, fierce or spicy is a project about fragility. Fragility in various domains, including code, algorithms, systems, technology, and human experiences. The project visually represents fragility by showcasing how subtle changes to the algorithm and the technology running it can significantly impact shapes and the overall composition.\nThe dynamics and the final image mirrors the experience of jumping into the vast open water, where the act of diving into its expanse is both a reminder of our vulnerability and exhilarating.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0x0a1bbd57033f57e7b6743621b79fcb9eb2ce3676/80",
+    "artistUrl": null,
+    "license": {
+      "text": "CC BY-SA",
+      "name": "CC BY-SA 4.0",
+      "url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Share the adaptation under the same licence."
+      ]
+    },
+    "editions": 100,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0x0a1bbd57033f57e7b6743621b79fcb9eb2ce3676",
+      "projectId": 80
+    },
+    "archiveId": "artblocks:brava",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Brava by Anna Carreras, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 3945
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Abrava"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Abrava"
+  }
+}

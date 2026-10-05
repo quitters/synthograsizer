@@ -1,0 +1,221 @@
+{
+  "name": "Spaghetti Bones",
+  "promptTemplate": "Differential growth ribbons with {{node_connections}} connections and {{size_range}} size range under {{containment}} containment; depth: {{depth}}, sketched: {{sketched}}, pocked: {{pocked}}, deep ocean: {{deep_ocean}}, obstacles: {{obstacles}}. Dynamics feature {{physics_damping}} damping, {{curve_simplification}} simplification, {{curve_complexity}} complexity, {{radiation_levels}} radiation, and evolving color: {{evolving_color}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "node_connections",
+      "label": "Node Connections",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "containment",
+      "label": "Containment",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "sketched",
+      "label": "Sketched",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "depth",
+      "label": "Depth",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "obstacles",
+      "label": "Obstacles",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "size_range",
+      "label": "Size Range",
+      "values": [
+        {
+          "text": "Anything",
+          "weight": 3
+        },
+        {
+          "text": "Medium",
+          "weight": 2
+        },
+        {
+          "text": "Large",
+          "weight": 2
+        },
+        {
+          "text": "Small",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "curve_simplification",
+      "label": "Curve Simplification",
+      "values": [
+        {
+          "text": "Low",
+          "weight": 3
+        },
+        {
+          "text": "Medium",
+          "weight": 2
+        },
+        {
+          "text": "High",
+          "weight": 2
+        },
+        {
+          "text": "Anything",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "curve_complexity",
+      "label": "Curve Complexity",
+      "values": [
+        {
+          "text": "Low",
+          "weight": 3
+        },
+        {
+          "text": "Medium",
+          "weight": 2
+        },
+        {
+          "text": "Anything",
+          "weight": 2
+        },
+        {
+          "text": "High",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "physics_damping",
+      "label": "Physics Damping",
+      "values": [
+        {
+          "text": "High",
+          "weight": 3
+        },
+        {
+          "text": "Anything",
+          "weight": 2
+        },
+        {
+          "text": "Medium",
+          "weight": 2
+        },
+        {
+          "text": "Low",
+          "weight": 1
+        },
+        {
+          "text": "???",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "deep_ocean",
+      "label": "Deep Ocean",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "pocked",
+      "label": "Pocked",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "evolving_color",
+      "label": "Evolving Color",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "radiation_levels",
+      "label": "Radiation Levels",
+      "values": [
+        {
+          "text": "Normal",
+          "weight": 3
+        },
+        {
+          "text": "Falling",
+          "weight": 2
+        },
+        {
+          "text": "Rising",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 600,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:spaghetti-bones",
+  "artist": "Joshua Bagley",
+  "credit": {
+    "title": "Spaghetti Bones",
+    "artist": "Joshua Bagley",
+    "year": 2023,
+    "description": "Spaghetti Bones is a celebration of my adaptation and exploration of the differential growth technique. The idea is simple. You start with a string of nodes connected to one another to form a shape. Each node feels 3 forces:\n - A repulsion force from all other nodes\n - An attraction force towards its immediate neighbors\n - An attraction force towards the midpoint between its neighbors\n\nAs you add more nodes into the shape, these 3 rules cause the shape to curve into itself, growing into a complex form of layered undulating lines. The goal is to create a shape that fills as much space as possible while maintaining a rigid form and avoiding overlapping itself. By focusing specifically on where and when you add more nodes, and how you interpret those nodes into a shape, there is much variety to be found in this simple algorithm.\n\nSince I first learned about this technique, and wrote my own version based off these rules, I have been continuing to iterate, evolve, and optimize my code. It's an algorithm I always find myself coming back to, and has become my most researched topic and longest running experiment. I love its use of real life physics, and I find its outputs aesthetically pleasing on a deeper, almost instinctual level. \n\nEach output of 'Spaghetti Bones' starts with a simple shape as a seed for the differential growth algorithm. Throughout the rendering process, the shape is fed more nodes, and grows until it cannot find any empty space to fill. As it grows, a form is interpreted from the nodes of the growth and drawn onto the screen, creating a snapshot of the growth at that particular moment. There are many rules that govern how the shape grows, and how its form is interpreted, and these rules often evolve throughout the rendering process. When the render is complete, the resulting image is a full catalog of the history of the shape's life. \n\nThe name of this project was created by Nicole, my girlfriend and an art wizard. Early on in the development of this project, I asked her to name an output I was sharing, and she chose to call it ‘Spaghetti Bones’ because that’s what it looked like. Since then, the name has stuck with me. I decided to keep the name for the final project in order to highlight the playfulness of each output, to encourage imagination when viewing this abstract art, and to thank Nicole for being tremendously supportive and helpful throughout my exploration of the art world.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0x99a9b7c1116f9ceeb1652de04d5969cce509b069/456",
+    "artistUrl": "https://joshua-bagley.com/spaghetti-bones/",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 600,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0x99a9b7c1116f9ceeb1652de04d5969cce509b069",
+      "projectId": 456
+    },
+    "archiveId": "artblocks:spaghetti-bones",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Spaghetti Bones by Joshua Bagley, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 127028
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Aspaghetti-bones"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Aspaghetti-bones"
+  }
+}

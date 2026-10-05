@@ -1,0 +1,155 @@
+{
+  "name": "Dot Matrix Gradient Study",
+  "promptTemplate": "A stippled dot matrix with {{gradient_style}} gradient patches of quilting size {{quilting_size}}; compact: {{compact}}, zoom: {{zoom}}, feathers: {{feathers}}, color sync: {{color_sync}}, zip: {{zip}}, diffuse: {{diffuse}}, zang: {{zang}}, zong: {{zong}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "quilting_size",
+      "label": "Quilting Size",
+      "values": [
+        {
+          "text": "50",
+          "weight": 3
+        },
+        {
+          "text": "100",
+          "weight": 2
+        },
+        {
+          "text": "10",
+          "weight": 2
+        },
+        {
+          "text": "20",
+          "weight": 1
+        },
+        {
+          "text": "200",
+          "weight": 1
+        },
+        {
+          "text": "2",
+          "weight": 1
+        },
+        {
+          "text": "500",
+          "weight": 1
+        },
+        {
+          "text": "1",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "gradient_style",
+      "label": "Gradient Style",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "compact",
+      "label": "Compact",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "color_sync",
+      "label": "Color Sync",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "diffuse",
+      "label": "Diffuse",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "feathers",
+      "label": "Feathers",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "zoom",
+      "label": "Zoom",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "zip",
+      "label": "Zip",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "zang",
+      "label": "Zang",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "zong",
+      "label": "Zong",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 540,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:dot-matrix-gradient-study",
+  "artist": "Jake Rockland",
+  "credit": {
+    "title": "Dot Matrix Gradient Study",
+    "artist": "Jake Rockland",
+    "year": 2021,
+    "description": "Dot Matrix Gradient Study takes my approach of splitting the canvas into \"patches\", which each have their own stipple sizing, density, and layering, and distorts this process to create outputs which blur the lines of recognizable stippling. This piece is an exploration of creating abstract forms with stippling rather than depicting figurative ones. All pieces in this series are composed purely with dots. Some more than others. 50% of sales proceeds from Dot Matrix Gradient Study were donated on-chain at the time of mint to GiveDirectly, where the funds will be directed to helping those in poverty.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/149",
+    "artistUrl": "https://jakerockland.com/",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 540,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 149
+    },
+    "archiveId": "artblocks:dot-matrix-gradient-study",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Dot Matrix Gradient Study by Jake Rockland, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 2043260
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Adot-matrix-gradient-study"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Adot-matrix-gradient-study"
+  }
+}

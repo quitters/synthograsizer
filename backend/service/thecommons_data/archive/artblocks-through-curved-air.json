@@ -1,0 +1,187 @@
+{
+  "name": "Through Curved Air",
+  "promptTemplate": "A {{stroke}} {{palette}} composition of {{sides}}-sided forms painted with {{brush}} brushes as a {{performers}} in {{articulation}} articulation; size {{size}}, fortissimo: {{fortissimo}}, margin: {{margin}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "In the Treetops",
+          "weight": 3
+        },
+        {
+          "text": "Rainbow",
+          "weight": 2
+        },
+        {
+          "text": "Beacon",
+          "weight": 2
+        },
+        {
+          "text": "Joan",
+          "weight": 1
+        },
+        {
+          "text": "Murmuration",
+          "weight": 1
+        },
+        {
+          "text": "Ruins",
+          "weight": 1
+        },
+        {
+          "text": "Starfire",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "stroke",
+      "label": "Stroke",
+      "values": [
+        {
+          "text": "expressive",
+          "weight": 3
+        },
+        {
+          "text": "balanced",
+          "weight": 2
+        },
+        {
+          "text": "freeform",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "performers",
+      "label": "Performers",
+      "values": [
+        {
+          "text": "trio",
+          "weight": 3
+        },
+        {
+          "text": "quintet",
+          "weight": 2
+        },
+        {
+          "text": "solo",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "brush",
+      "label": "Brush",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "articulation",
+      "label": "Articulation",
+      "values": [
+        {
+          "text": "regular touch",
+          "weight": 3
+        },
+        {
+          "text": "staccato",
+          "weight": 2
+        },
+        {
+          "text": "legato",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "margin",
+      "label": "Margin",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "sides",
+      "label": "Sides",
+      "type": "number",
+      "min": 4,
+      "max": 12,
+      "step": 1,
+      "default": 8
+    },
+    {
+      "name": "size",
+      "label": "Size",
+      "type": "number",
+      "min": -2.5,
+      "max": 2.5,
+      "step": 0.05,
+      "default": 0
+    },
+    {
+      "name": "fortissimo",
+      "label": "Fortissimo",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 186,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:through-curved-air",
+  "artist": "Jacob Gold",
+  "credit": {
+    "title": "Through Curved Air",
+    "artist": "Jacob Gold",
+    "year": 2022,
+    "description": "How can intent be communicated when ideas are filtered through a pseudorandom number generator? Simply looking at the output does not make it clear whether a stroke is placed on the canvas because of a decision by the artist or by a roll of the dice. The artist’s hand is more present in the process than the result; they choose the algorithms, tune the parameters, and prune the features. As I experimented with my code, I held a particular idea in mind, but I was uncertain how it would finally manifest. I pursued a visual composition that made me feel a certain way, and the visuals I landed on communicate my feeling better than anything I can put into words. Through Curved Air is about the challenge of communication. Regardless of the medium, I can never be certain that the message I intend to send is the message that is received.\n\nThrough Curved Air takes inspiration from musical minimalism, where repetition is used to highlight changes in rhythm and harmony. Every output is created by repeatedly copying a single shape. Each copy only has meaning in relation to the other shapes nearby, and that meaning changes with the context around it. Delicate structures form and are subsequently obscured by further layers, and though they may be hidden, they still affect the perception of the final image. Clicking on the canvas will start or stop the looping mode, where the image is recreated in a slightly different way. New facets are exposed as the composition changes yet remains the same. Just as I spend my days trying to share my inner experience through my art, Through Curved Air uses each shape and each loop and each token hash to attempt to create a common feeling between myself and the viewer.\n\nThrough Curved Air also takes inspiration from the paintings of Joan Mitchell. I was drawn to her expressive strokes, vibrant colors, and use of negative space, all of which come together to give a more intense feeling of looking at a landscape than just looking at a painting of a landscape. Her energetic marks clearly communicate that there is a human being behind the art. The marks of generative works are often similarly representative of the underlying process, but instead of drawing focus to the artist behind the piece, they draw attention to the algorithm. To convey human emotion in the way I intended, I had to use a subtler algorithm.\n\nThe technical tools to convey this emotion are tools I have been consistently developing in my practice. I love making generative art because I can design a system where I understand how all the components work, but they can still come together to produce a result that surprises me. The algorithm behind the compositional variation in my earlier works Coquina and Primordial is one I continued to evolve, and it rests at the heart of Through Curved Air. In fact, I pushed it further than ever, using it to create the individual shapes that form the building block of each output. This emergent variation permeates the work and results in surprising images that more closely resemble paintings than anything I made previously. I believe the potential for surprise is key to conveying emotion through code. When the possibility space of the algorithm grows too large to understand, the mind wanders to the person behind the algorithm. Perhaps the human element is the struggle to understand, or the struggle to be understood.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0x99a9b7c1116f9ceeb1652de04d5969cce509b069/397",
+    "artistUrl": "https://www.jacobgold.art/",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 186,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0x99a9b7c1116f9ceeb1652de04d5969cce509b069",
+      "projectId": 397
+    },
+    "archiveId": "artblocks:through-curved-air",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of Through Curved Air by Jacob Gold, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 106189
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Athrough-curved-air"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Athrough-curved-air"
+  }
+}

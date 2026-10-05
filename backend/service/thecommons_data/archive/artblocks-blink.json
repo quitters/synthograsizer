@@ -1,0 +1,158 @@
+{
+  "name": "BLINK",
+  "promptTemplate": "A vanitas bubble shifted {{bubble_shift}} at elevation {{bubble_elevation}}, viewed from distance {{camera_distance}} against background fields: {{fields}} with stream speed {{stream_speed}} and field speed {{field_speed}}. The scene is lit by sun power {{atmosphere_sun_power}} and {{light_flare_intensity}} flare intensity, over a {{ground_hue}} hue ground reflection. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "fields",
+      "label": "Fields",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "bubble_shift",
+      "label": "Bubble Shift",
+      "values": [
+        {
+          "text": "Far Left",
+          "weight": 3
+        },
+        {
+          "text": "Left",
+          "weight": 2
+        },
+        {
+          "text": "Center",
+          "weight": 2
+        },
+        {
+          "text": "Right",
+          "weight": 1
+        },
+        {
+          "text": "Far Right",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "bubble_elevation",
+      "label": "Bubble Elevation",
+      "type": "number",
+      "min": 0.001,
+      "max": 0.4,
+      "step": 0.001,
+      "default": 0.201
+    },
+    {
+      "name": "camera_distance",
+      "label": "Camera Distance",
+      "type": "number",
+      "min": 2.5,
+      "max": 5.5,
+      "step": 0.1,
+      "default": 4
+    },
+    {
+      "name": "ground_hue",
+      "label": "Ground Hue",
+      "type": "number",
+      "min": 0.2,
+      "max": 1,
+      "step": 0.01,
+      "default": 0.6
+    },
+    {
+      "name": "atmosphere_sun_power",
+      "label": "Sun Power",
+      "type": "number",
+      "min": 8,
+      "max": 15,
+      "step": 0.5,
+      "default": 11.5
+    },
+    {
+      "name": "light_flare_intensity",
+      "label": "Flare Intensity",
+      "type": "number",
+      "min": 0.001,
+      "max": 3.001,
+      "step": 0.05,
+      "default": 1.501
+    },
+    {
+      "name": "stream_speed",
+      "label": "Stream Speed",
+      "type": "number",
+      "min": 0.25,
+      "max": 2,
+      "step": 0.05,
+      "default": 1
+    },
+    {
+      "name": "field_speed",
+      "label": "Field Speed",
+      "type": "number",
+      "min": 0.25,
+      "max": 0.9,
+      "step": 0.05,
+      "default": 0.55
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 70,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:blink",
+  "artist": "Patricio Gonzalez Vivo & Jen Lowe",
+  "credit": {
+    "title": "BLINK",
+    "artist": "Patricio Gonzalez Vivo & Jen Lowe",
+    "year": 2023,
+    "description": "*BLINK* originally grew from our fascination with Baroque vanitas paintings, 17th century still life artworks filled with symbolic objects chosen to remind us of our mortality: hourglasses, skulls, burning candles, butterflies, bubbles. From this inspiration, we distilled the bubble as our object of fascination: the bubble as a symbol of both ephemerality and joy.  *BLINK* is in conversation with our other work, which often plays with time and scale. Here we display the bubble at a large scale, with background streams and fields that reference some of our most well-known examples from *The Book of Shaders*. The effect is the delicacy of a bubble shown at planetary scale.\n\nThe color and speed variation within this series are intentionally chosen to create a wide range of pieces. We are particularly interested in outliers and push the edges here, giving the code freedom to wander through a wide range of outcomes. Some pieces are calm and reflective, like the quiet surface of a pond, or a candle’s flame, while others evoke the energy of a city flying by.\n\nWe want to invite people experiencing *BLINK* into a moment of presence. Viewing the bubble at this scale is both planetary and fleeting: in ictu oculi — in the blink of an eye.",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0x0a1bbd57033f57e7b6743621b79fcb9eb2ce3676/68",
+    "artistUrl": "https://patriciogonzalezvivo.com/2023/blink/",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 100,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0x0a1bbd57033f57e7b6743621b79fcb9eb2ce3676",
+      "projectId": 68
+    },
+    "archiveId": "artblocks:blink",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of BLINK by Patricio Gonzalez Vivo & Jen Lowe, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 761
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Ablink"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Ablink"
+  }
+}

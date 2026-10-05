@@ -1,0 +1,280 @@
+{
+  "name": "PrimiEnd",
+  "promptTemplate": "A {{helix}} helix of {{size}} {{primitive}} forms in {{tone}} {{palette}} with {{variance}} variance on a {{background}} background, spinning at {{speed}} speed (reverse: {{reverse_spin}}); {{amount}} primitives, wireframe: {{wireframe}}. This is edition {{edition}}.",
+  "variables": [
+    {
+      "name": "primitive",
+      "label": "Primitive",
+      "values": [
+        {
+          "text": "Sphere",
+          "weight": 3
+        },
+        {
+          "text": "Mixed",
+          "weight": 2
+        },
+        {
+          "text": "Disc",
+          "weight": 2
+        },
+        {
+          "text": "Tetrahedron",
+          "weight": 1
+        },
+        {
+          "text": "Octahedron",
+          "weight": 1
+        },
+        {
+          "text": "Cylinder",
+          "weight": 1
+        },
+        {
+          "text": "Box",
+          "weight": 1
+        },
+        {
+          "text": "Cross",
+          "weight": 1
+        },
+        {
+          "text": "Stick",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "#Fe514e/#FDBd21/#4461Cd",
+          "weight": 3
+        },
+        {
+          "text": "#996757/#eecb20/#4f9eb6",
+          "weight": 2
+        },
+        {
+          "text": "#f6b50f/#15a16a/#f1594b",
+          "weight": 2
+        },
+        {
+          "text": "#eeeeee/#2c2c2c/#1c1c1c",
+          "weight": 1
+        },
+        {
+          "text": "#819498/#e1990e/#fcddc6",
+          "weight": 1
+        },
+        {
+          "text": "#e6ecce/#c47c2a/#586a7c",
+          "weight": 1
+        },
+        {
+          "text": "#BC99B7/#f1e8bd/#7DD094",
+          "weight": 1
+        },
+        {
+          "text": "#fab58f/#fa6556/#c8eec1",
+          "weight": 1
+        },
+        {
+          "text": "#465b61/#7b999d/#faaf3d",
+          "weight": 1
+        },
+        {
+          "text": "#F99851/#583C39/#53C4C2",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "amount",
+      "label": "Amount",
+      "values": [
+        {
+          "text": "Too much",
+          "weight": 3
+        },
+        {
+          "text": "Bunch",
+          "weight": 2
+        },
+        {
+          "text": "Normal",
+          "weight": 2
+        },
+        {
+          "text": "Many",
+          "weight": 1
+        },
+        {
+          "text": "Few",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "helix",
+      "label": "Helix",
+      "values": [
+        {
+          "text": "Single",
+          "weight": 3
+        },
+        {
+          "text": "Double",
+          "weight": 2
+        },
+        {
+          "text": "Triple",
+          "weight": 2
+        },
+        {
+          "text": "Quadruple",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "tone",
+      "label": "Tone",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "size",
+      "label": "Size",
+      "values": [
+        {
+          "text": "Normal",
+          "weight": 3
+        },
+        {
+          "text": "Large",
+          "weight": 2
+        },
+        {
+          "text": "Tiny",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "background",
+      "label": "Background",
+      "values": [
+        {
+          "text": "Primary",
+          "weight": 3
+        },
+        {
+          "text": "Tertiary",
+          "weight": 2
+        },
+        {
+          "text": "Secondary",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "variance",
+      "label": "Variance",
+      "values": [
+        {
+          "text": "Small",
+          "weight": 3
+        },
+        {
+          "text": "Large",
+          "weight": 2
+        },
+        {
+          "text": "Average",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "wireframe",
+      "label": "Wireframe",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "speed",
+      "label": "Speed",
+      "type": "number",
+      "min": 0.1,
+      "max": 1,
+      "step": 0.05,
+      "default": 0.55
+    },
+    {
+      "name": "reverse_spin",
+      "label": "Reverse Spin",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "edition",
+      "label": "Edition",
+      "type": "number",
+      "min": 1,
+      "max": 256,
+      "step": 1,
+      "default": 1,
+      "access": "host"
+    },
+    {
+      "name": "reroll",
+      "label": "Reroll",
+      "type": "trigger",
+      "access": "host"
+    }
+  ],
+  "work": "artblocks:primiend",
+  "artist": "wuwa",
+  "credit": {
+    "title": "PrimiEnd",
+    "artist": "wuwa",
+    "year": 2022,
+    "description": "The final chapter in the Primitive Trilogy. The shapes kept evolving, and out of the chaotic turmoil some complex patterns started to emerge.\nThe same basic geometric primitives are randomly scattered in 3D space, but follow their movement for a while and some beauty will emerge from the chaos. \nThese kinetic sculptures can be re-generated from different angles by interacting with a mouse, while exposing the underlying basic primitives.\n● mouse drag - render different view\n● b - boost\n● p - play/pause\n● r - reset view",
+    "platform": "Art Blocks",
+    "url": "https://www.artblocks.io/collections/curated/projects/0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270/268",
+    "artistUrl": "https://wuwa.org/primitives",
+    "license": {
+      "text": "CC BY-NC 4.0",
+      "name": "CC BY-NC 4.0",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "adaptation": "permitted",
+      "terms": [
+        "Credit the artist and name the licence.",
+        "Say that the work was changed, and how.",
+        "Non-commercial use only."
+      ]
+    },
+    "editions": 256,
+    "onChain": {
+      "network": "ethereum mainnet",
+      "contract": "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270",
+      "projectId": 268
+    },
+    "archiveId": "artblocks:primiend",
+    "adaptation": "Adapted for The Commons: controls were added at the lines where the code chooses each trait, so a room can choose them. The artist's code is otherwise unchanged, and with nothing chosen it paints exactly what the original paints."
+  },
+  "listing": {
+    "origin": "adapted",
+    "lineage": "A remix of PrimiEnd by wuwa, on Art Blocks. The artist's own code runs, untouched; the controls hook the lines where it chooses each trait, and with none set it paints exactly what the original paints.",
+    "collected": 40615
+  },
+  "page": {
+    "path": "/__commons/wall.html?work=artblocks%3Aprimiend"
+  },
+  "thumb": {
+    "path": "/__commons/thumb?work=artblocks%3Aprimiend"
+  }
+}
