@@ -9,7 +9,7 @@
 
 import { v4 as uuidv4 } from 'uuid';
 
-class ArtifactStore {
+export class ArtifactStore {
   constructor() {
     /** @type {Map<string, Artifact>} filename → artifact */
     this.artifacts = new Map();

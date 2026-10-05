@@ -134,6 +134,15 @@ npm run dev
 
 5. Open http://localhost:5173 in your browser
 
+## Rooms: one per visitor
+
+Every browser gets its own chat room: its own agents, conversation, live stream, generated media, shared files (artifacts), and workflow runs and traces. Nothing is shared between visitors, so one person starting, stopping or resetting a chat never affects another's.
+
+- A room is found by the `cr_sid` cookie (an unguessable 128-bit id; `HttpOnly`, `SameSite=Lax`, set for the whole origin). A browser without one is issued one on its first request and starts with an empty room; a cookie that is not an id this server issued is ignored. Every page of the suite that uses the chat room API (Agent Studio, the trace viewer, the workflow runner) shares the cookie, so they share the room.
+- Rooms live in memory only. A room nobody has used is dropped after 10 minutes, one with a conversation after 6 hours without activity, and the oldest idle rooms go first above 200. A room with a running chat or an open browser tab is never dropped. Restarting the server clears every room.
+- The first request a new browser makes may be the event stream; the server then sends the cookie and closes the stream, and the browser reconnects a moment later. `backend/routers/system.py` forwards `Set-Cookie` for this.
+- Not isolated: the saved workflow library (`/api/workflows` list, get, save, delete) is shared on disk. Workflow checkpoints and traces written before rooms existed belong to no room and are not listed.
+
 ## API Reference
 
 ### Agent Endpoints

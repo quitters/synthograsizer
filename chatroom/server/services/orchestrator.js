@@ -5,8 +5,8 @@ import { createStreamTagFilter } from './streamTagFilter.js';
 import { generateImage, generateImageWithReferences, parseImageRequests, parseRemixRequests, stripImageTags } from './imageGen.js';
 import { parseToolRequests, executeToolRequests, stripToolTags, formatToolResults, parseSynthRequests, executeSynthRequests, stripSynthTags, formatSynthResults, parseWorkflowRequests, stripWorkflowTags, workflowEngine, parseSynthStyleRequests, parseWorkflowTemplateRequests, stripStyleAndTemplateTags } from './tools.js';
 import { countTokens, countMessageTokens } from '../utils/tokenCounter.js';
-import { mediaStore } from './mediaStore.js';
-import { artifactStore } from './artifactStore.js';
+import { mediaStore as defaultMediaStore } from './mediaStore.js';
+import { artifactStore as defaultArtifactStore } from './artifactStore.js';
 import { synthClient, traceStore } from 'workflow-engine';
 
 /**
@@ -19,8 +19,20 @@ import { synthClient, traceStore } from 'workflow-engine';
 const MAX_CONSECUTIVE_FAILURES = 5;
 const FATAL_ERROR_PATTERN = /API key not valid|API_KEY_INVALID|invalid api key|PERMISSION_DENIED|UNAUTHENTICATED/i;
 
-class ChatOrchestrator {
-  constructor() {
+/**
+ * One chat room. The server keeps one per visitor (see sessionRegistry.js); the
+ * exported `orchestrator` below is the default room, used by scripts and tests.
+ */
+export class ChatOrchestrator {
+  /**
+   * @param {{ ownerId?: string, mediaStore?: object, artifactStore?: object }} [options]
+   *   ownerId tags this room's workflow traces and runs; the stores hold what its
+   *   agents generate and write, so rooms never see each other's files.
+   */
+  constructor(options = {}) {
+    this.ownerId = options.ownerId || null;
+    this.mediaStore = options.mediaStore || defaultMediaStore;
+    this.artifactStore = options.artifactStore || defaultArtifactStore;
     // Overridable so tests can drive the conversation loop without the network.
     this._generate = generateAgentResponse;
     this.reset();
@@ -355,7 +367,7 @@ class ChatOrchestrator {
    * (chunks, agent_start, etc.) is filtered there rather than here.
    */
   broadcast(event, data) {
-    try { traceStore.record(event, data); }
+    try { traceStore.record(event, this.ownerId && data ? { ...data, ownerId: this.ownerId } : data); }
     catch (err) { console.error('[traceStore] record failed:', err.message); }
 
     const message = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
@@ -1016,7 +1028,7 @@ class ChatOrchestrator {
           this.messages,
           this.goal,
           this.sessionMedia,
-          { model: this.modelPreference, systemNotes, generatedImages: this.recentGenImages }
+          { model: this.modelPreference, systemNotes, generatedImages: this.recentGenImages, artifactStore: this.artifactStore }
         );
 
         for await (const event of generator) {
@@ -1095,7 +1107,7 @@ class ChatOrchestrator {
               images.push(imageItem);
 
               // Store in media store for later retrieval/export
-              mediaStore.add({
+              this.mediaStore.add({
                 id: imageId,
                 type: 'image',
                 data: imageResult.imageData,
@@ -1130,7 +1142,7 @@ class ChatOrchestrator {
           for (const request of remixRequests) {
             try {
               // Get the reference image from media store
-              const referenceMedia = mediaStore.get(request.referenceImageId);
+              const referenceMedia = this.mediaStore.get(request.referenceImageId);
 
               if (!referenceMedia) {
                 console.warn(`Reference image ${request.referenceImageId} not found`);
@@ -1168,7 +1180,7 @@ class ChatOrchestrator {
               images.push(imageItem);
 
               // Store in media store
-              mediaStore.add({
+              this.mediaStore.add({
                 id: imageId,
                 type: 'image',
                 data: imageResult.imageData,
@@ -1267,7 +1279,7 @@ class ChatOrchestrator {
             // mediaStore.get lets agents reference images/videos by ID
             const rawSynthResults = await executeSynthRequests(
               synthRequests,
-              (id) => mediaStore.get(id)
+              (id) => this.mediaStore.get(id)
             );
             synthResults = formatSynthResults(rawSynthResults);
 
@@ -1289,7 +1301,7 @@ class ChatOrchestrator {
               if (raw.image) {
                 const mediaId = uuidv4();
                 const mimeType = 'image/png';
-                mediaStore.add({
+                this.mediaStore.add({
                   id: mediaId,
                   type: 'image',
                   data: raw.image,
@@ -1317,7 +1329,7 @@ class ChatOrchestrator {
               if (raw.video) {
                 const mediaId = uuidv4();
                 const mimeType = 'video/mp4';
-                mediaStore.add({
+                this.mediaStore.add({
                   id: mediaId,
                   type: 'video',
                   data: raw.video,
@@ -1371,6 +1383,8 @@ class ChatOrchestrator {
                 agentName: speaker.name,
                 agentColor: speaker.color,
                 sessionId: this.sessionId,
+                mediaStore: this.mediaStore,
+                ownerId: this.ownerId,
               });
               workflowIds.push(wfId);
               this.broadcast('workflow_submitted', {
@@ -1381,14 +1395,16 @@ class ChatOrchestrator {
                 steps: (req.definition.steps || []).map(s => ({ id: s.id, type: s.type })),
               });
             } else if (req.type === 'workflow_status') {
-              const status = workflowEngine.getStatus(req.workflowId);
+              // An agent can only ask about runs from its own room
+              const found = workflowEngine.getStatus(req.workflowId);
+              const status = found && (this.ownerId === null || found.ownerId === this.ownerId) ? found : null;
               this.broadcast('workflow_status', {
                 agentId: speaker.id,
                 workflowId: req.workflowId,
                 status: status || { error: 'Workflow not found' },
               });
             } else if (req.type === 'workflow_cancel') {
-              const cancelled = workflowEngine.cancel(req.workflowId);
+              const cancelled = workflowEngine.cancel(req.workflowId, this.ownerId ?? undefined);
               this.broadcast('workflow_cancel_result', {
                 agentId: speaker.id,
                 workflowId: req.workflowId,
@@ -1433,7 +1449,7 @@ class ChatOrchestrator {
 
               if (result.image) {
                 const mediaId = uuidv4();
-                mediaStore.add({
+                this.mediaStore.add({
                   id: mediaId,
                   type: 'image',
                   data: result.image,
@@ -1480,6 +1496,8 @@ class ChatOrchestrator {
               agentName: speaker.name,
               agentColor: speaker.color,
               sessionId: this.sessionId,
+              mediaStore: this.mediaStore,
+              ownerId: this.ownerId,
             });
             workflowIds.push(wfId);
             this.broadcast('workflow_submitted', {
@@ -1504,7 +1522,7 @@ class ChatOrchestrator {
         // ── Artifact tags ──────────────────────────────────────────────────
         const artifactUpdates = parseArtifactTags(fullResponse);
         for (const { filename, content: artContent } of artifactUpdates) {
-          const artifact = artifactStore.save(filename, artContent, speaker.id, speaker.name);
+          const artifact = this.artifactStore.save(filename, artContent, speaker.id, speaker.name);
           this.broadcast('artifact_update', {
             filename:     artifact.filename,
             language:     artifact.language,

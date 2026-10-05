@@ -168,6 +168,7 @@ class WorkflowLibrary {
           id: s.id, error: s.error,
         })),
         stepResults,
+        ownerId:        state.ownerId || null,
         savedAt:        new Date().toISOString(),
       };
 
@@ -211,7 +212,7 @@ class WorkflowLibrary {
    * List all available checkpoints (resumable workflows).
    * @returns {Promise<Array<{workflowId, name, completedSteps, failedSteps, savedAt}>>}
    */
-  async listCheckpoints() {
+  async listCheckpoints(ownerId) {
     await this._wait();
     let files;
     try { files = await readdir(this._checkpointDir); }
@@ -223,6 +224,8 @@ class WorkflowLibrary {
       try {
         const raw = await readFile(join(this._checkpointDir, file), 'utf8');
         const cp  = JSON.parse(raw);
+        // With an owner, only theirs; a checkpoint with no owner belongs to nobody.
+        if (ownerId !== undefined && (cp.ownerId || null) !== ownerId) continue;
         results.push({
           workflowId:     cp.workflowId,
           name:           cp.name,
