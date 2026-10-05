@@ -1,7 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
 const VISION_WINDOW = 5; // max recent generated images passed as inlineData to models
-import { generateAgentResponse } from './gemini.js';
+import { generateAgentResponse, generateText } from './gemini.js';
 import { createStreamTagFilter } from './streamTagFilter.js';
+import { foldIntoSummary, needsRefresh, agedRange, summaryIsValid, MAX_FOLD_MESSAGES } from './summarizer.js';
 import { generateImage, generateImageWithReferences, parseImageRequests, parseRemixRequests, stripImageTags } from './imageGen.js';
 import { parseToolRequests, executeToolRequests, stripToolTags, formatToolResults, parseSynthRequests, executeSynthRequests, stripSynthTags, formatSynthResults, parseWorkflowRequests, stripWorkflowTags, workflowEngine, parseSynthStyleRequests, parseWorkflowTemplateRequests, stripStyleAndTemplateTags } from './tools.js';
 import { countTokens, countMessageTokens } from '../utils/tokenCounter.js';
@@ -35,6 +36,8 @@ export class ChatOrchestrator {
     this.artifactStore = options.artifactStore || defaultArtifactStore;
     // Overridable so tests can drive the conversation loop without the network.
     this._generate = generateAgentResponse;
+    // Overridable so tests can run the rolling summary without the network.
+    this._summarize = generateText;
     this.reset();
   }
 
@@ -88,6 +91,10 @@ export class ChatOrchestrator {
     // Turns that failed one after another, and the last failure's message
     this.consecutiveFailures = 0;
     this.lastError = null;
+    // Running notes on the messages that have aged out of the prompt window
+    // ({ text, upTo, lastId }, see summarizer.js) and whether a refresh is in flight.
+    this.summary = null;
+    this._summaryBusy = false;
   }
 
   /**
@@ -1028,7 +1035,7 @@ export class ChatOrchestrator {
           this.messages,
           this.goal,
           this.sessionMedia,
-          { model: this.modelPreference, systemNotes, generatedImages: this.recentGenImages, artifactStore: this.artifactStore }
+          { model: this.modelPreference, systemNotes, generatedImages: this.recentGenImages, artifactStore: this.artifactStore, summary: this._summaryForPrompt() }
         );
 
         for await (const event of generator) {
@@ -1588,6 +1595,9 @@ export class ChatOrchestrator {
         // Broadcast the message to all clients
         this.broadcast('message', message);
 
+        // Keep the notes on older messages up to date (in the background)
+        this._maybeRefreshSummary();
+
         // Broadcast completion
         this.broadcast('agent_complete', {
           agentId: speaker.id,
@@ -1632,6 +1642,42 @@ export class ChatOrchestrator {
   }
 
   /**
+   * The rolling summary to give the next speaker, or null. It is dropped, never trusted,
+   * once the messages it describes have changed (rewind, branch restore, reset).
+   */
+  _summaryForPrompt() {
+    return summaryIsValid(this.summary, this.messages) ? this.summary : null;
+  }
+
+  /**
+   * Fold messages that have just aged out of the window into the running summary.
+   * Runs in the background and never blocks or fails a turn: if the model call fails,
+   * the older one-line notes are used a while longer and it is tried again next turn.
+   */
+  _maybeRefreshSummary() {
+    if (this._summaryBusy || !needsRefresh(this.messages, this.summary)) return;
+
+    const range = agedRange(this.messages, this.summary);
+    const from = range.from;
+    const to = Math.min(range.to, from + MAX_FOLD_MESSAGES);
+    const batch = this.messages.slice(from, to);
+    const lastId = batch[batch.length - 1].id;
+    const previous = summaryIsValid(this.summary, this.messages) ? this.summary.text : '';
+    const goal = this.goal;
+
+    this._summaryBusy = true;
+    foldIntoSummary({ goal, previous, messages: batch, generate: (prompt) => this._summarize(prompt) })
+      .then((text) => {
+        // Only keep it if the conversation is still the one it was written about.
+        if (this.messages[to - 1]?.id !== lastId) return;
+        this.summary = { text, upTo: to, lastId };
+        this.broadcast('summary_updated', { upTo: to, chars: text.length });
+      })
+      .catch((err) => console.warn(`[Orchestrator] summary refresh failed (will retry): ${err.message}`))
+      .finally(() => { this._summaryBusy = false; });
+  }
+
+  /**
    * Utility delay function
    */
   delay(ms) {
@@ -1651,6 +1697,8 @@ export class ChatOrchestrator {
       tokenCount: this.tokenCount,
       turnCount: this.turnCount,
       messageCount: this.messages.length,
+      // How many of the oldest messages the rolling summary currently covers
+      summarizedMessages: this._summaryForPrompt()?.upTo ?? 0,
       agents: this.agents, // Include full agent data with bios
       completionReason: this.completionReason,
       speakingOrder: this.speakingOrder,
