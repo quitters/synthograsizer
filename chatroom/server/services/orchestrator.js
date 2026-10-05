@@ -108,6 +108,9 @@ export class ChatOrchestrator {
       err.current = this.sessionMedia.length;
       throw err;
     }
+    // Remember how far into the conversation this arrived, so agents are shown a fresh
+    // upload even when it comes long after the opening turns (see mediaContext.js).
+    if (mediaItem.addedAtMessage === undefined) mediaItem.addedAtMessage = this.messages.length;
     this.sessionMedia.push(mediaItem);
     return mediaItem;
   }

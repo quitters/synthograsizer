@@ -153,6 +153,19 @@ Each agent turn sends the last 15 messages in full. Older messages used to be cu
 - `GET /api/chat/state` reports `summarizedMessages`, and a `summary_updated` event is sent on the stream whenever the notes grow.
 - Cost: roughly one small flash call per 6 messages once a conversation passes 20 messages.
 
+## Reference files: what agents see
+
+Files uploaded to a session (up to 14) are re-sent with every agent turn, so what is attached is budgeted (`server/services/mediaContext.js`):
+
+| Kind | When an agent sees it |
+|---|---|
+| Images | Every turn: the 8 newest, within about 6 MB of base64 |
+| Text, JSON, CSV, Markdown... | Every turn, inline: up to 8,000 characters each and 30,000 across all files (a longer file says how long it was) |
+| Video and PDF | In the opening turns and for the turns right after they are added (one per agent, plus one, so each agent gets a look). They are heavy in tokens and bytes, so after that they are only listed |
+| Other types | Listed by name |
+
+Anything not attached on a turn is still listed with the reason, and an image can still be remixed by ID. Before this, reference files were shown only while the chat had two messages or fewer: after that an agent was told the file names and nothing else, so an uploaded notes file or reference image was invisible for the rest of the session and a file added mid-conversation was never shown at all.
+
 ## API Reference
 
 ### Agent Endpoints
