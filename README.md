@@ -18,7 +18,7 @@
 | **Videorama** | Prompt → a finished set of stylized Veo video clips — brief writer, checkpointed shot-by-shot pipeline, per-shot Inspector (retake, extend, reimagine), QC grading, budget caps. Local-only. |
 | **Scope Plugin** | [`scope-synthograsizer`](scope-synthograsizer/) — pip-installable Daydream Scope preprocessor pipeline |
 
-**See it first:** a [narrated, captioned video tour](https://github.com/quitters/synthograsizer/wiki/Demo-Tour) of every tool, about 9 minutes, with chapter timestamps, a full transcript and the videos to download.
+**See it first:** the [demo tour](https://github.com/quitters/synthograsizer/wiki/Demo-Tour): a short narrated, captioned video for each major section (Perform, Template Gen, Generate and Automate, Agents, Glitcher, The Commons), each on its own page with a chapter table and transcript.
 
 ---
 

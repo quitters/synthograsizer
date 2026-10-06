@@ -1,0 +1,103 @@
+WEBVTT
+
+00:00:03.955 --> 00:00:06.599
+Start with an idea in plain language.
+
+00:00:06.984 --> 00:00:09.735
+Here, a retro-futurist greenhouse becomes
+
+00:00:09.735 --> 00:00:12.554
+a reusable template, with separate controls
+
+00:00:12.554 --> 00:00:15.749
+for architecture, plants, lighting, and colour.
+
+00:00:15.952 --> 00:00:18.408
+Choose a model, generate the template,
+
+00:00:18.408 --> 00:00:20.195
+and explore its variables.
+
+00:00:20.487 --> 00:00:23.114
+Text, reference images, or a combination
+
+00:00:23.114 --> 00:00:25.739
+of both can guide the creation process.
+
+00:00:37.147 --> 00:00:41.390
+Remix lets you reshape a template with a simple instruction.
+
+00:00:41.447 --> 00:00:44.227
+Here, a fantasy scene gains a camera view,
+
+00:00:44.227 --> 00:00:47.915
+with a wide shot, a close-up, and a symmetrical corridor.
+
+00:00:47.935 --> 00:00:50.532
+The existing structure stays intact
+
+00:00:50.532 --> 00:00:54.317
+and becomes the starting point for a new variation.
+
+00:00:54.503 --> 00:00:56.748
+Reference images can guide the change too.
+
+00:01:11.982 --> 00:01:14.658
+Story mode expands a narrative concept
+
+00:01:14.658 --> 00:01:17.126
+into a sequence of distinct shots.
+
+00:01:17.327 --> 00:01:19.826
+Set the number of beats and their duration,
+
+00:01:19.826 --> 00:01:22.497
+then suggest the framing you want to include.
+
+00:01:22.824 --> 00:01:27.201
+Shared character and world details help the sequence stay connected,
+
+00:01:27.201 --> 00:01:30.216
+while each beat has its own action and composition.
+
+00:01:42.876 --> 00:01:45.913
+The p5.js generator turns a visual idea
+
+00:01:45.913 --> 00:01:49.829
+into an animated sketch with adjustable variables.
+
+00:01:50.128 --> 00:01:53.446
+Describe the movement, palette, and structure you want,
+
+00:01:53.446 --> 00:01:55.592
+then run the result in the live viewer.
+
+00:01:56.103 --> 00:01:59.965
+The built-in library also offers ready-made systems to explore.
+
+00:02:00.197 --> 00:02:03.194
+Change the controls and watch the artwork respond.
+
+00:02:21.962 --> 00:02:24.261
+Workflow mode uses a reference image
+
+00:02:24.261 --> 00:02:27.045
+to choose values from an existing template.
+
+00:02:27.167 --> 00:02:29.307
+Load the template, add the image,
+
+00:02:29.307 --> 00:02:32.914
+and describe what matters most, such as palette or mood.
+
+00:02:33.103 --> 00:02:35.015
+The preview explains the suggested
+
+00:02:35.015 --> 00:02:36.987
+selections before you import them.
+
+00:02:37.091 --> 00:02:39.449
+It is a way to connect visual inspiration
+
+00:02:39.449 --> 00:02:41.374
+with structured prompt controls.
