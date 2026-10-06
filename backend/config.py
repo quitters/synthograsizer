@@ -67,32 +67,33 @@ MODEL_MUSIC_REALTIME = "models/lyria-realtime-exp"
 # Template generation (Pro for creative quality)
 MODEL_TEMPLATE_GEN = "gemini-3.1-pro-preview"
 # Fast alternative for template generation (lower quality, much faster)
-MODEL_TEMPLATE_GEN_FAST = "gemini-3.6-flash"
-# The Commons' panel designer (service/thecommons_ui.py). Its own constant, not
-# MODEL_TEMPLATE_GEN_FAST: that id is also a key in pricing.TEXT_MODEL_CREDITS
-# shared with MODEL_FAST and MODEL_DEMO, so repointing it would leave those
-# unpriced. The panel call is absorbed into the commons_sketch price, so this
-# model needs no price-table entry of its own.
+MODEL_TEMPLATE_GEN_FAST = "gemini-3.8-flash"
+# The Commons' panel designer (service/thecommons_ui.py) and sketch generator
+# (service/thecommons_generate.py, first call and repair pass alike). These are
+# the same id as MODEL_FAST since the 3.8 standardisation, and that is fine:
+# a Commons sketch costs more than a short chat call because of its workload,
+# not its model, so pricing.py charges it through the commons_sketch action
+# rather than through TEXT_MODEL_CREDITS. They keep their own constants so the
+# Commons can move off 3.8 without dragging the whole suite with it.
+# Sketches moved off MODEL_TEMPLATE_GEN (Pro) on 2026-09-19 after a measured
+# A/B: same prompts, same validity and repair rate, no runtime crashes (Pro had
+# 2 in 11), steadier frame rates, ~40% of Pro's cost and ~7x faster.
+# See TheCommons/docs/HANDOFF.md.
 MODEL_COMMONS_PANEL = "gemini-3.8-flash"
-# The Commons' sketch generator (service/thecommons_generate.py), first call and
-# repair pass alike. Moved off MODEL_TEMPLATE_GEN (Pro) on 2026-09-19 after a
-# measured A/B: same prompts, same validity and repair rate, no runtime crashes
-# (Pro had 2 in 11), steadier frame rates, ~40% of Pro's cost and ~7x faster.
-# Its own constant so the template tools keep Pro. See TheCommons/docs/HANDOFF.md.
 MODEL_COMMONS_SKETCH = "gemini-3.8-flash"
 # Lighter tasks: narrative, video variations, chat inside ai_manager
-MODEL_FAST = "gemini-3.6-flash"
+MODEL_FAST = "gemini-3.8-flash"
 # Demo mode — backend enforces this when is_demo=True.
-# ⚠ This is no longer a *cheaper* model than MODEL_FAST: it is the same one.
-# Gemini 3.5 Flash-Lite (gemini-3.5-flash-lite, $0.30/$2.50 per 1M) is the
-# documented successor to the 3.1 flash-lite this replaced, and would have kept
-# demo mode a genuinely cheap tier — Alexander chose to standardise every
-# non-Pro model on 3.6 Flash instead (2026-07-28). Demo mode is therefore now a
-# feature cap (locked model, locked settings), not a cost cap.
-MODEL_DEMO = "gemini-3.6-flash"
+# ⚠ This is not a *cheaper* model than MODEL_FAST: it is the same one.
+# Gemini 3.5 Flash-Lite (gemini-3.5-flash-lite, $0.30/$2.50 per 1M) remains the
+# genuinely cheap tier and would make demo mode a cost cap — Alexander chose to
+# standardise every non-Pro model on one flash model instead (3.6 on
+# 2026-07-28, moved to 3.8 on 2026-09-11 as the newest). Demo mode is therefore
+# a feature cap (locked model, locked settings), not a cost cap.
+MODEL_DEMO = "gemini-3.8-flash"
 
 # ⚠ NOT flash text models, despite the name — these are IMAGE models and must
-# never be pointed at MODEL_FAST. gemini-3.6-flash cannot generate images.
+# never be pointed at MODEL_FAST. gemini-3.8-flash cannot generate images.
 # See MODEL_IMAGE_GEN_* above.
 
 # Missing aliases

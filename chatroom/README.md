@@ -43,7 +43,7 @@ An autonomous multi-agent chat room powered by Google's Gemini API. Create AI ag
 
 ### Backend
 - **Node.js** with Express.js
-- **Google GenAI SDK** (`@google/genai`, Interactions API; every call is stateless — `store: false`)
+- **Google GenAI SDK** (`@google/genai`, Interactions API; conversation history is retained server-side by default — see Conversation state)
 - **Server-Sent Events** for real-time streaming
 - **UUID** for unique identifiers
 
@@ -105,8 +105,9 @@ ChatRoom/
 ### Prerequisites
 - Node.js 20+
 - Google Gemini API key with access to:
-  - `gemini-3.1-pro-preview` (text generation, search/URL tools)
-  - `gemini-3-pro-image` (image analysis; generation delegates to the Synthograsizer backend)
+  - `gemini-3.8-flash` (default agent turns, image understanding)
+  - `gemini-3.5-flash-lite` (search / URL-context tool calls)
+  - `gemini-3.1-pro-preview` (optional per-agent "deliberate" tier)
 
 ### Setup
 
@@ -134,6 +135,103 @@ npm run dev
 
 5. Open http://localhost:5173 in your browser
 
+## Tool modes
+
+Agents reach tools one of two ways, selected by `TOOL_MODE`:
+
+| Mode | How it works |
+|---|---|
+| `tags` (default) | The agent writes `[IMAGE: a fox in snow]` in prose. The server regex-parses it after the turn ends, so the result reaches the **next** speaker as transcript text. |
+| `functions` | The agent emits a real function call. The server runs it mid-turn and hands the result back — including the generated image itself — so the agent reacts to what it actually made inside its own message. |
+
+`functions` is the intended destination but has not yet been exercised against
+the live API. In that mode each agent gets a **tool tier** (`none`, `research`,
+`visual`, `builder`, `full`) rather than the whole inventory, keeping the
+active set inside Google's 10–20 tool guidance. Tiers live in
+`server/config/tools.js`; declarations in `server/services/toolDefinitions.js`.
+
+## Voices and session audio
+
+Every agent has a `voice`, defaulting by roster position so a new room
+already sounds like distinct people. 30 voices are available; pick one per
+agent in the setup form, or leave it on Auto.
+
+**Export → 🔊 Render as Audio** reads the whole transcript aloud and
+downloads a single WAV. It is an explicit action rather than automatic:
+audio bills at roughly $2.30 per hour of speech, and a long session takes
+minutes to render.
+
+Each contiguous run by one speaker is a separate single-speaker request,
+concatenated afterwards — multi-speaker TTS caps at two voices, which is no
+use to a room with four agents.
+
+## Reference documents
+
+With `FILE_SEARCH=true`, uploaded documents are indexed once into a
+per-session File Search store and queried by the built-in `file_search` tool.
+Without it, a PDF is base64-inlined for the first couple of turns and then
+invisible, and a text file is truncated at 5,000 characters.
+
+Images are not indexed either way — an agent asked about a reference image
+needs to see it, not retrieve text about it.
+
+Stores are deleted on reset. If a crash leaves one behind (the quota is
+project-wide), `GET /api/chat/file-search/orphans` lists them and `DELETE` on
+the same path clears them.
+
+### Cross-session memory
+
+`CROSS_SESSION_MEMORY=true` (on top of `FILE_SEARCH=true`) archives each
+finished session into a long-lived store and lets agents in **later**
+sessions search it. Ask a returning room what it decided last time and it
+can actually look.
+
+**Memory is per visitor** (see *Rooms*): each visitor's room has its own store, named
+`chatroom-longterm-memory-<room id>`, so one visitor's agents can never search, list or
+wipe another's past conversations. It follows the browser's `cr_sid` cookie, so clearing
+cookies starts a fresh memory (the old store stays in the project until you delete it).
+A store from before rooms existed, named plain `chatroom-longterm-memory`, belongs to no
+visitor and is no longer searched.
+
+The memory store survives resets and restarts by design — it is found by
+display name, not a local file — and the orphan sweeper skips it. Sessions
+under 4 messages are not archived. `GET /api/chat/memory` lists what the
+caller's room remembers; `DELETE /api/chat/memory` forgets all of it. Each
+visitor's store counts against the project's File Search quota.
+
+## Conversation state
+
+`GEMINI_STORE_INTERACTIONS` decides whether Google retains conversation
+history. This is a privacy trade, not a tuning knob.
+
+| | `true` (**default**) | `false` |
+|---|---|---|
+| Retention at Google | 55 days paid / 1 day free (7/14/28/55 configurable in AI Studio) | none |
+| Per turn | only what the agent has not seen | full system prompt + windowed transcript |
+| Implicit caching | engages once the chain grows past 4,096 tokens | impossible — no chain to key on |
+| Reset | deletes the stored chains | clears local state only |
+
+Explicit caching is not available in the Interactions API, so chaining is the
+only route to cached input. Confirm it is working by watching **Cached** in
+the token meter — it stays at zero when retention is off, by definition.
+
+Set `GEMINI_STORE_INTERACTIONS=false` to opt out. Resetting the room deletes
+the session's stored chains either way.
+
+## Testing
+
+```bash
+npm test          # node --test tests/
+npm run test:watch
+```
+
+No API key or network access is needed. The stream-parser suite replays
+recorded Interactions SSE sequences from `tests/fixtures/` through a fake
+client, pinning the event contract the orchestrator consumes: chunk ordering,
+thought-leak filtering, usage accounting, truncation/continuation, and the
+retry fallbacks. `tests/fixtures/README.md` explains the event shapes and how
+to record a real one.
+
 ## Rooms: one per visitor
 
 Every browser gets its own chat room: its own agents, conversation, live stream, generated media, shared files (artifacts), and workflow runs and traces. Nothing is shared between visitors, so one person starting, stopping or resetting a chat never affects another's.
@@ -141,6 +239,7 @@ Every browser gets its own chat room: its own agents, conversation, live stream,
 - A room is found by the `cr_sid` cookie (an unguessable 128-bit id; `HttpOnly`, `SameSite=Lax`, set for the whole origin). A browser without one is issued one on its first request and starts with an empty room; a cookie that is not an id this server issued is ignored. Every page of the suite that uses the chat room API (Agent Studio, the trace viewer, the workflow runner) shares the cookie, so they share the room.
 - Rooms live in memory only. A room nobody has used is dropped after 10 minutes, one with a conversation after 6 hours without activity, and the oldest idle rooms go first above 200. A room with a running chat or an open browser tab is never dropped. Restarting the server clears every room.
 - The first request a new browser makes may be the event stream; the server then sends the cookie and closes the stream, and the browser reconnects a moment later. `backend/routers/system.py` forwards `Set-Cookie` for this.
+- Also per room: the long-term memory store, the judge's token usage, and the File Search store for a session. `DELETE /api/chat/file-search/orphans` sweeps the whole project but never deletes a store any live room is using.
 - Not isolated: the saved workflow library (`/api/workflows` list, get, save, delete) is shared on disk. Workflow checkpoints and traces written before rooms existed belong to no room and are not listed.
 
 ## Long conversations: the rolling summary
@@ -152,6 +251,7 @@ Each agent turn sends the last 15 messages in full. Older messages used to be cu
 - They describe a specific run of messages and are dropped the moment those change: rewinding, restoring a branch or resetting discards them, and they are rebuilt from the messages that remain.
 - `GET /api/chat/state` reports `summarizedMessages`, and a `summary_updated` event is sent on the stream whenever the notes grow.
 - Cost: roughly one small flash call per 6 messages once a conversation passes 20 messages.
+- Not used when `GEMINI_STORE_INTERACTIONS` is on (the default): there the server keeps each agent's real history, so no notes are built or sent. They are for stateless turns (`GEMINI_STORE_INTERACTIONS=false`) and for an agent's first turn.
 
 ## Reference files: what agents see
 
@@ -164,7 +264,7 @@ Files uploaded to a session (up to 14) are re-sent with every agent turn, so wha
 | Video and PDF | In the opening turns and for the turns right after they are added (one per agent, plus one, so each agent gets a look). They are heavy in tokens and bytes, so after that they are only listed |
 | Other types | Listed by name |
 
-Anything not attached on a turn is still listed with the reason, and an image can still be remixed by ID. Before this, reference files were shown only while the chat had two messages or fewer: after that an agent was told the file names and nothing else, so an uploaded notes file or reference image was invisible for the rest of the session and a file added mid-conversation was never shown at all.
+On a chained turn (see *Conversation state*) the agent's server-side history already holds every file it was shown, so only files added since it last spoke are sent. Documents indexed into File Search are never sent inline. Anything not attached on a turn is still listed with the reason, and an image can still be remixed by ID. Before this, reference files were shown only while the chat had two messages or fewer: after that an agent was told the file names and nothing else, so an uploaded notes file or reference image was invisible for the rest of the session and a file added mid-conversation was never shown at all.
 
 ## API Reference
 
@@ -173,7 +273,9 @@ Anything not attached on a turn is still listed with the reason, and an image ca
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | GET | `/api/agents` | List all agents |
-| POST | `/api/agents` | Create agent `{name, bio}` |
+| GET | `/api/agents/models` | Model, deliberation and tool-tier options for the UI |
+| POST | `/api/agents` | Create agent `{name, bio, model?, thinkingLevel?, tools?, voice?}` |
+| PATCH | `/api/agents/:idOrName` | Update `{bio?, name?, model?, thinkingLevel?, tools?, voice?}` |
 | DELETE | `/api/agents/:id` | Remove agent |
 
 ### Chat Control Endpoints

@@ -876,7 +876,7 @@ The FastAPI backend (`server.py`) defines Pydantic models for all API requests.
   "user_intent": "Make it look like a cyberpunk city",
   "input_image": "base64...",
   "reference_image": "base64...",       // Optional style reference
-  "model": "gemini-3.6-flash",
+  "model": "gemini-3.8-flash",
   "aspect_ratio": "1:1"
 }
 
@@ -1599,10 +1599,10 @@ From `backend/config.py`:
 | `MODEL_IMAGE_GEN_NB2` | `gemini-3.1-flash-image` | Newer image gen |
 | `MODEL_IMAGE_GEN_HQ` | `gemini-3-pro-image` | High-quality image gen |
 | `MODEL_VIDEO_GEN` | `veo-3.1-generate-preview` | Video generation |
-| `MODEL_ANALYSIS_QUICK` | `gemini-3.6-flash` | Image analysis (= `MODEL_FAST`) |
+| `MODEL_ANALYSIS_QUICK` | `gemini-3.8-flash` | Image analysis (= `MODEL_FAST`) |
 | `MODEL_TEMPLATE_GEN` | `gemini-3.1-pro-preview` | Template generation (Pro for quality) |
-| `MODEL_FAST` | `gemini-3.6-flash` | Narrative, variations, lightweight tasks |
+| `MODEL_FAST` | `gemini-3.8-flash` | Narrative, variations, lightweight tasks |
 
 ---
 
-*Last updated: 2026-09-22*
+*Last updated: 2026-09-29*

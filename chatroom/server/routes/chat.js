@@ -1,6 +1,15 @@
 import { Router } from 'express';
 import { generateImageWithReferences } from '../services/imageGen.js';
+import {
+  listOrphanedStores, destroySessionStore, listMemoryDocuments, forgetAllMemory,
+} from '../services/fileSearch.js';
+import { isFileSearchEnabled, isCrossSessionMemoryEnabled } from '../config/fileSearch.js';
+import { renderTranscript } from '../services/tts.js';
+import { VOICES, DEFAULT_VOICE } from '../config/voices.js';
+import { mintSessionToken, isLoopbackRequest } from '../services/liveSession.js';
+import { isLiveApiEnabled, ALLOW_REMOTE_TOKENS } from '../config/live.js';
 import { v4 as uuidv4 } from 'uuid';
+import { activeFileSearchStores } from '../services/sessionRegistry.js';
 
 const router = Router();
 
@@ -159,6 +168,157 @@ router.post('/reset', (req, res) => {
     message: 'Chat reset',
     state: req.room.orchestrator.getState()
   });
+});
+
+/**
+ * GET /api/chat/file-search/orphans
+ * File Search stores this app created that are still alive. A crash between
+ * create and destroy leaks one, and the quota is project-wide, so there has
+ * to be a way to see them.
+ *
+ * DELETE removes all of them except the ones live rooms are using.
+ */
+router.get('/file-search/orphans', async (req, res) => {
+  if (!isFileSearchEnabled()) return res.json({ enabled: false, stores: [] });
+  try {
+    res.json({ enabled: true, stores: await listOrphanedStores() });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.delete('/file-search/orphans', async (req, res) => {
+  if (!isFileSearchEnabled()) return res.json({ enabled: false, deleted: 0 });
+  try {
+    // Every live room's store is off limits, not just the caller's: this sweeps the whole
+    // project, and other visitors' chats are running in it.
+    const active = new Set(activeFileSearchStores());
+    let deleted = 0;
+    for (const store of await listOrphanedStores()) {
+      if (active.has(store.name)) continue; // never pull the rug on a live session
+      const result = await destroySessionStore(store.name);
+      if (result.ok) deleted++;
+    }
+    res.json({ enabled: true, deleted, skippedActive: active.size > 0 });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/**
+ * GET /api/chat/memory
+ * What previous sessions this visitor's room currently remembers (each visitor has their
+ * own long-term memory; nobody can list or wipe another's).
+ *
+ * DELETE forgets all of it. Long-term memory accumulates indefinitely and is
+ * invisible in the UI otherwise, so it needs a way to be inspected and wiped.
+ */
+router.get('/memory', async (req, res) => {
+  if (!isCrossSessionMemoryEnabled()) {
+    return res.json({ enabled: false, documents: [] });
+  }
+  try {
+    const { storeName, documents } = await listMemoryDocuments(req.room.id);
+    res.json({ enabled: true, storeName, count: documents.length, documents });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.delete('/memory', async (req, res) => {
+  if (!isCrossSessionMemoryEnabled()) {
+    return res.json({ enabled: false, forgotten: false });
+  }
+  try {
+    const result = await forgetAllMemory(req.room.id);
+    // The running session holds a handle to the store just deleted.
+    req.room.orchestrator.memoryStoreName = null;
+    res.json({ enabled: true, forgotten: result.ok, error: result.error });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/**
+ * POST /api/chat/render-audio
+ * Render the transcript to a single WAV, one voice per agent.
+ *
+ * Explicitly user-triggered rather than automatic: audio output bills at
+ * $20/1M tokens (~32 tokens/second, so roughly $2.30 per hour of speech),
+ * and nobody wants that happening on every turn by surprise.
+ */
+router.post('/render-audio', async (req, res) => {
+  const messages = req.room.orchestrator.getHistory().filter(m => !m.isUser || req.body?.includeUser);
+  if (messages.length === 0) {
+    return res.status(400).json({ error: 'Nothing to render — the transcript is empty' });
+  }
+
+  const voiceByAgentId = new Map(
+    req.room.orchestrator.getAgents().map(a => [a.id, a.voice])
+  );
+
+  try {
+    const started = Date.now();
+    const result = await renderTranscript(messages, voiceByAgentId, (done, total, speaker) => {
+      req.room.orchestrator.broadcast('audio_progress', { done, total, speaker });
+    });
+
+    req.room.orchestrator.broadcast('audio_rendered', {
+      units: result.units,
+      failed: result.failed,
+      durationSeconds: result.durationSeconds,
+    });
+
+    res.json({
+      success: true,
+      // base64 so it drops straight into the existing JSZip export path.
+      audio: result.wav.toString('base64'),
+      mimeType: 'audio/wav',
+      units: result.units,
+      failed: result.failed,
+      durationSeconds: result.durationSeconds,
+      renderSeconds: Math.round((Date.now() - started) / 1000),
+    });
+  } catch (err) {
+    console.error('Audio render failed:', err);
+    req.room.orchestrator.broadcast('audio_error', { error: err.message });
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/**
+ * POST /api/chat/live-token
+ * Mint a short-lived, single-use token so a browser can open a Live API
+ * session without ever holding the real API key.
+ *
+ * ⚠ This endpoint mints spend against your key and the chat room has no
+ * authentication of its own, so it is off by default and refuses non-local
+ * callers unless LIVE_API_ALLOW_REMOTE is also set.
+ */
+router.post('/live-token', async (req, res) => {
+  if (!isLiveApiEnabled()) {
+    return res.status(404).json({ error: 'Live API is not enabled on this server' });
+  }
+  if (!ALLOW_REMOTE_TOKENS && !isLoopbackRequest(req)) {
+    return res.status(403).json({
+      error: 'Live tokens are served to localhost only. Set LIVE_API_ALLOW_REMOTE=true ' +
+             'to change that, understanding it lets any caller spend your quota.',
+    });
+  }
+  try {
+    res.json(await mintSessionToken());
+  } catch (err) {
+    console.error('Live token mint failed:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/**
+ * GET /api/chat/voices
+ * The voice catalogue for the UI picker.
+ */
+router.get('/voices', (req, res) => {
+  res.json({ voices: VOICES, defaultVoice: DEFAULT_VOICE });
 });
 
 /**

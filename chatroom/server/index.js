@@ -8,6 +8,12 @@ import { workflowEngine } from 'workflow-engine';
 import { initializeGemini } from './services/gemini.js';
 import { initializeImageGen } from './services/imageGen.js';
 import { initializeTools } from './services/tools.js';
+import { initializeFileSearch } from './services/fileSearch.js';
+import { isFileSearchEnabled } from './config/fileSearch.js';
+import { initializeJudge } from './services/judge.js';
+import { initializeTTS } from './services/tts.js';
+import { initializeDeepResearch } from './services/deepResearch.js';
+import { initializeLive } from './services/liveSession.js';
 import { mediaStore } from './services/mediaStore.js';
 
 // Load environment variables from parent directory
@@ -37,7 +43,12 @@ if (!apiKey) {
 initializeGemini(apiKey);
 initializeImageGen(apiKey);
 initializeTools(apiKey);
-console.log('Gemini API initialized (text, image, search, and URL tools)');
+initializeFileSearch(apiKey);
+initializeJudge(apiKey);
+initializeTTS(apiKey);
+initializeDeepResearch(apiKey);
+initializeLive(apiKey);
+console.log(`Gemini API initialized (text, image, search, URL tools; file search ${isFileSearchEnabled() ? 'ON' : 'off'})`);
 
 // The workflow engine's fallback store, for runs that name none. Every visitor's runs
 // carry their own room's store (see resolveRoom below).

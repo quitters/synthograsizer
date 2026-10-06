@@ -1,0 +1,13 @@
+[
+  {
+    "event_type": "interaction.created",
+    "interaction": { "id": "int_nousage_001", "status": "in_progress" }
+  },
+  { "event_type": "step.start", "step": { "type": "model_output" } },
+  { "event_type": "step.delta", "delta": { "type": "text", "text": "Twelve characters exactly here, give or take a few." } },
+  { "event_type": "step.stop" },
+  {
+    "event_type": "interaction.completed",
+    "interaction": { "id": "int_nousage_001", "status": "completed" }
+  }
+]

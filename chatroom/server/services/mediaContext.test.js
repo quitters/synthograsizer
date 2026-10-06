@@ -126,3 +126,37 @@ test('other file types are only listed', () => {
 test('no files, no plan', () => {
   assert.deepEqual(planSessionMedia([], late), []);
 });
+
+// ── chained (stateful) turns ─────────────────────────────────────────────────
+
+test('on a chained turn, files the agent was already shown are not sent again', () => {
+  const media = [image('old', 100, 0), image('mid', 100, 8), text('notes', 'hi', 0), video('clip', 100, 3)];
+  const plan = byId(planSessionMedia(media, { messageCount: 12, agentCount: 3, seenUpTo: 10 }));
+  for (const id of ['old', 'mid', 'notes', 'clip']) {
+    assert.equal(plan[id].seen, true, id);
+    assert.equal(plan[id].attached, false, id);
+  }
+});
+
+test('a file added since the agent last spoke is sent, including one added during its own last turn', () => {
+  const media = [image('during', 100, 9), image('after', 100, 11), text('late', 'new notes', 10)];
+  const plan = byId(planSessionMedia(media, { messageCount: 12, agentCount: 3, seenUpTo: 10 }));
+  assert.equal(plan.during.seen, false);
+  assert.equal(plan.during.attached, true);
+  assert.equal(plan.after.attached, true);
+  assert.equal(plan.late.attached, true);
+  assert.equal(plan.late.text, 'new notes');
+});
+
+test('files already in the history do not use up the budget for new ones', () => {
+  const old = Array.from({ length: 8 }, (_, i) => image(`old${i}`, 100, 0));
+  const plan = byId(planSessionMedia([...old, image('fresh', 100, 11)], { messageCount: 12, agentCount: 3, seenUpTo: 10 }));
+  assert.equal(plan.fresh.attached, true);
+  assert.ok(old.every(m => plan[m.id].seen));
+});
+
+test('without seenUpTo (a first or stateless turn) nothing counts as already seen', () => {
+  const plan = planSessionMedia([image('a', 100, 0)], { messageCount: 12, agentCount: 3 });
+  assert.equal(plan[0].seen, false);
+  assert.equal(plan[0].attached, true);
+});

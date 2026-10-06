@@ -19,6 +19,10 @@
  * Anything not attached is still listed with the reason, so an agent can tell the user
  * what it cannot see rather than guessing.
  *
+ * Chained (stateful) turns are different: the server already holds everything that agent
+ * was shown, so re-sending a file would pile a second copy into its history every turn.
+ * Pass `seenUpTo` and files the agent has already had are left out entirely.
+ *
  * This module is pure: it only decides. gemini.js turns the plan into request blocks.
  */
 
@@ -57,15 +61,23 @@ export function isFresh(media, { messageCount, agentCount }) {
 
 /**
  * @param {Array} sessionMedia   [{ id, name, mimeType, data (base64), addedAtMessage? }]
- * @param {{ messageCount: number, agentCount: number, limits?: object }} ctx
+ * @param {{ messageCount: number, agentCount: number, limits?: object,
+ *           seenUpTo?: number }} ctx
+ *   seenUpTo: for a chained turn, the index of the first message this agent has not seen;
+ *   files added before that are already in its server-side history
  * @returns {Array} one entry per file, in upload order:
  *   { media, kind: 'image'|'heavy'|'text'|'other', attached: boolean,
+ *     seen: boolean,              // chained turn only: already in this agent's history, send nothing
  *     reason?: string,            // why a visual file or PDF was not attached
  *     text?: string, truncated?: boolean, totalChars?: number, undecodable?: boolean }  // text files
  */
-export function planSessionMedia(sessionMedia, { messageCount, agentCount, limits = MEDIA_LIMITS }) {
+export function planSessionMedia(sessionMedia, { messageCount, agentCount, limits = MEDIA_LIMITS, seenUpTo }) {
+  // A file added during the agent's own last turn is not counted as seen: sending it twice
+  // is harmless, missing it is not.
+  const alreadyHas = (media) => seenUpTo !== undefined && (media.addedAtMessage ?? 0) < seenUpTo - 1;
   const entries = sessionMedia.map((media) => ({
     media,
+    seen: alreadyHas(media),
     kind: isImage(media) ? 'image' : (isVideo(media) || isPdf(media)) ? 'heavy' : isTextMedia(media.mimeType) ? 'text' : 'other',
     attached: false,
   }));
@@ -74,7 +86,7 @@ export function planSessionMedia(sessionMedia, { messageCount, agentCount, limit
   // Images: newest first until the count or the byte budget runs out.
   let count = 0;
   let used = 0;
-  for (const entry of entries.filter(e => e.kind === 'image').sort(newestFirst)) {
+  for (const entry of entries.filter(e => e.kind === 'image' && !e.seen).sort(newestFirst)) {
     const size = entry.media.data?.length || 0;
     if (count >= limits.maxImages) { entry.reason = `only the ${limits.maxImages} newest images are attached each turn`; continue; }
     if (used + size > limits.imageBudgetChars) { entry.reason = 'over the size budget for images attached each turn'; continue; }
@@ -85,7 +97,7 @@ export function planSessionMedia(sessionMedia, { messageCount, agentCount, limit
 
   // Video and PDF: only while fresh, within their own budget.
   used = 0;
-  for (const entry of entries.filter(e => e.kind === 'heavy').sort(newestFirst)) {
+  for (const entry of entries.filter(e => e.kind === 'heavy' && !e.seen).sort(newestFirst)) {
     const size = entry.media.data?.length || 0;
     if (!isFresh(entry.media, { messageCount, agentCount })) {
       entry.reason = 'video and PDF files are only attached for a few turns after they are added, to keep each turn small';
@@ -98,7 +110,7 @@ export function planSessionMedia(sessionMedia, { messageCount, agentCount, limit
   }
 
   // Text: always included, sharing one budget.
-  const textEntries = entries.filter(e => e.kind === 'text');
+  const textEntries = entries.filter(e => e.kind === 'text' && !e.seen);
   const perFile = Math.min(limits.textPerFileChars,
     Math.max(limits.minTextPerFileChars, Math.floor(limits.textBudgetChars / Math.max(1, textEntries.length))));
   for (const entry of textEntries) {

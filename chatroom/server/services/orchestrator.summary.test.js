@@ -24,6 +24,8 @@ beforeEach(() => {
   orchestrator.goal = 'plan a launch';
   orchestrator.broadcast = (event, data) => { events.push([event, data]); };
   orchestrator._summarize = async (prompt) => { prompts.push(prompt); return `NOTES v${prompts.length}`; };
+  // The notes are for stateless turns; stateful chains hold the real history (see the last tests).
+  orchestrator._usesServerHistory = () => false;
 });
 
 test('no model call is made until a batch of messages has aged out of the window', async () => {
@@ -180,4 +182,15 @@ test('in a live chat the notes are built after enough turns and reach a later sp
   } finally {
     setGeminiClient(previous);
   }
+});
+
+// ── stateful chains ──────────────────────────────────────────────────────────
+
+test('where the server keeps the agents history, no notes are built (they would only cost)', async () => {
+  orchestrator._usesServerHistory = () => true;
+  fill(RECENT_WINDOW + SUMMARY_BATCH * 3);
+  orchestrator._maybeRefreshSummary();
+  await settled();
+  assert.equal(prompts.length, 0);
+  assert.equal(orchestrator.summary, null);
 });

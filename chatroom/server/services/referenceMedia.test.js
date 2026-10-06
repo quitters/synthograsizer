@@ -120,11 +120,11 @@ const chat = (n) => Array.from({ length: n }, (_, i) => ({ id: `m${i}`, agentId:
 const ann = { id: 'a', name: 'Ann', bio: 'You are Ann.' };
 const ben = { id: 'b', name: 'Ben', bio: 'You are Ben.' };
 
-async function requestFor(messages, media) {
+async function requestFor(messages, media, options = {}) {
   const client = fakeClient();
   const previous = setGeminiClient(client);
   try {
-    for await (const e of generateAgentResponse(ann, [ann, ben], messages, 'a goal', media, {})) {
+    for await (const e of generateAgentResponse(ann, [ann, ben], messages, 'a goal', media, options)) {
       if (e.type === 'error') throw new Error(e.error);
     }
     return client.requests[0].input;
@@ -164,4 +164,28 @@ test('a file added to the session is stamped with how far into the chat it arriv
   const given = orchestrator.addSessionMedia({ id: 'y', name: 'y.png', mimeType: 'image/png', data: 'AAAA', addedAtMessage: 2 });
   assert.equal(given.addedAtMessage, 2, 'an explicit position is kept');
   orchestrator.reset();
+});
+
+// ── stateful chains ──────────────────────────────────────────────────────────
+
+test('a chained turn does not re-send files that agent already holds, but sends new ones once', async () => {
+  const chained = { store: true, previousInteractionId: 'int-1', sinceMessageIndex: 10 };
+  const old = [png('ref', 2000, 0), notes('codes', 'The codeword is PERIWINKLE-42.', 0)];
+
+  const quiet = await requestFor(chat(12), old, chained);
+  assert.equal(blocks(quiet, 'image').length, 0, 'the chain already has the image');
+  assert.doesNotMatch(JSON.stringify(quiet), /PERIWINKLE/, 'and the notes');
+  assert.doesNotMatch(JSON.stringify(quiet), /SESSION REFERENCE MATERIALS/, 'no preface for nothing');
+
+  const withNew = await requestFor(chat(12), [...old, png('added', 2000, 11)], chained);
+  assert.equal(blocks(withNew, 'image').length, 1);
+  assert.match(withNew[0].text, /added\.png.*attached below/);
+  assert.doesNotMatch(withNew[0].text, /ref\.png/);
+});
+
+test('the same files are sent in full to an agent that has no chain yet', async () => {
+  const input = await requestFor(chat(12), [png('ref', 2000, 0), notes('codes', 'The codeword is PERIWINKLE-42.', 0)],
+    { store: true, previousInteractionId: null });
+  assert.equal(blocks(input, 'image').length, 1);
+  assert.match(input[0].text, /PERIWINKLE-42/);
 });

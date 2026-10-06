@@ -90,6 +90,11 @@ export function getRoom(id) {
   return room;
 }
 
+/** Names of the File Search stores that live rooms are using right now; never to be swept. */
+export function activeFileSearchStores() {
+  return [...rooms.values()].map(r => r.orchestrator.fileSearchStoreName).filter(Boolean);
+}
+
 export const roomCount = () => rooms.size;
 export const hasRoom = (id) => rooms.has(id);
 
