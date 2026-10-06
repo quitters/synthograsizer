@@ -1,0 +1,47 @@
+1
+00:00:03,447 --> 00:00:07,449
+The Synthograsizer turns a prompt into an instrument.
+
+2
+00:00:07,584 --> 00:00:10,785
+Each knob controls a variable, so you can explore
+
+3
+00:00:10,785 --> 00:00:13,795
+new combinations without rewriting your idea.
+
+4
+00:00:13,978 --> 00:00:18,286
+Switch to the D-pad for focused navigation, or browse the built-in
+
+5
+00:00:18,286 --> 00:00:22,211
+library for generative art, characters, stories, and music.
+
+6
+00:00:22,586 --> 00:00:25,306
+Start with a template, then make it your own.
+
+7
+00:00:29,192 --> 00:00:31,405
+Prompt Batch turns one template
+
+8
+00:00:31,405 --> 00:00:33,948
+into a whole collection of prompts.
+
+9
+00:00:34,108 --> 00:00:37,583
+For each variable, choose whether to lock it, randomise
+
+10
+00:00:37,583 --> 00:00:40,995
+it, step through its values in order, or repeat them.
+
+11
+00:00:41,438 --> 00:00:44,916
+Set the batch size and an output format, then generate.
+
+12
+00:00:45,478 --> 00:00:49,294
+Review the list, copy it all, or download it for another tool.

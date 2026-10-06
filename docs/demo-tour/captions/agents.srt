@@ -1,0 +1,55 @@
+1
+00:00:04,139 --> 00:00:05,880
+Agents begin with a description.
+
+2
+00:00:06,054 --> 00:00:08,736
+Type a sentence about the character you want,
+
+3
+00:00:08,736 --> 00:00:11,700
+and the Agent Studio drafts a name, a bio template,
+
+4
+00:00:11,700 --> 00:00:13,701
+and variables that become knobs.
+
+5
+00:00:14,048 --> 00:00:16,913
+Tune the personality live, try a test message,
+
+6
+00:00:16,913 --> 00:00:20,483
+then save the profile to your library or add it straight to a session.
+
+7
+00:00:34,736 --> 00:00:36,925
+Agents work together in a session.
+
+8
+00:00:37,080 --> 00:00:39,782
+In the Session room, pick a quick-start template,
+
+9
+00:00:39,782 --> 00:00:43,705
+such as the Creative Brainstorm Panel, and give the team a shared goal.
+
+10
+00:00:44,222 --> 00:00:46,151
+Launch Session opens Agent Studio,
+
+11
+00:00:46,151 --> 00:00:48,995
+where all four agents start talking straight away.
+
+12
+00:00:49,360 --> 00:00:51,381
+Nudge the conversation whenever you like,
+
+13
+00:00:51,381 --> 00:00:53,482
+since your message reaches them as the user,
+
+14
+00:00:53,482 --> 00:00:55,937
+and stop the session when you have what you need.

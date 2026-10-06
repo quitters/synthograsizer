@@ -1,0 +1,15 @@
+1
+00:00:01,010 --> 00:00:04,735
+Welcome to the Synthograsizer, a suite of creative
+
+2
+00:00:04,735 --> 00:00:07,210
+tools for turning ideas into prompts,
+
+3
+00:00:07,210 --> 00:00:10,934
+images, video, agents, and shared live visuals.
+
+4
+00:00:10,954 --> 00:00:13,973
+Here is a quick tour of what it can do.
