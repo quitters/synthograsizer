@@ -53,6 +53,8 @@ _RESOLUTION = {"name": "resolution", "label": "Resolution", "values": _choices("
 SECTIONS = [
     {"id": "demo", "title": "Demo scene",
      "intro": "The classic effects of 1990s PC and Amiga demos."},
+    {"id": "library", "title": "Remastered",
+     "intro": "The best of Synthograsizer's p5 library, rebuilt as demo effects that hold their frame rate on any wall."},
     {"id": "games", "title": "Party games",
      "intro": "Made for a room full of phones: everyone taps, and the wall reacts."},
     {"id": "living", "title": "Living canvases",
@@ -323,6 +325,52 @@ GALLERY: list[dict] = [
         "prompt": "a slow ink-drop study: every few seconds a drop of ink lands and stays, spreading and drifting "
                   "for the rest of the piece, so the canvas keeps filling up over several minutes rather than "
                   "resetting",
+    },
+    # ── remastered from the p5 library ─────────────────────────────────────
+    # Hand-written native ports of the strongest inherited p5 templates, each
+    # rebuilt around a demo-scene technique so its cost per frame is fixed. The
+    # p5 templates in thecommons_data/templates/ are untouched.
+    {
+        "slug": "attractors",
+        "section": "library",
+        "origin": "ported",
+        "blurb": "Chaotic systems traced in light: Lorenz's butterfly, Aizawa's shell, and Clifford's clouds of dust.",
+        "lineage": "Ported from the Synthograsizer template “strange-attractors”, rebuilt by hand around a demo-scene technique so it holds its frame rate.",
+    },
+    {
+        "slug": "oscilloscope",
+        "section": "library",
+        "origin": "ported",
+        "blurb": "Two sine waves on an XY scope. Their ratio draws the figure; the phosphor remembers where the beam has been.",
+        "lineage": "Ported from the Synthograsizer template “lissajous-lab”, rebuilt by hand around a demo-scene technique so it holds its frame rate.",
+    },
+    {
+        "slug": "op-art",
+        "section": "library",
+        "origin": "ported",
+        "blurb": "Striped layers that turn against each other. Where they disagree, the moiré swims.",
+        "lineage": "Ported from the Synthograsizer template “moire-waves”, rebuilt by hand around a demo-scene technique so it holds its frame rate.",
+    },
+    {
+        "slug": "mandala",
+        "section": "library",
+        "origin": "ported",
+        "blurb": "A golden-angle spiral, breathing, threaded to its neighbours and repeated round the centre.",
+        "lineage": "Ported from the Synthograsizer template “sacred-geometry”, rebuilt by hand around a demo-scene technique so it holds its frame rate.",
+    },
+    {
+        "slug": "subdivisions",
+        "section": "library",
+        "origin": "ported",
+        "blurb": "The wall split and split again, Mondrian style. A new composition wipes in every few seconds.",
+        "lineage": "Ported from the Synthograsizer template “recursive-subdivisions”, rebuilt by hand around a demo-scene technique so it holds its frame rate.",
+    },
+    {
+        "slug": "night-city",
+        "section": "library",
+        "origin": "ported",
+        "blurb": "A skyline drifting past a harbour that mirrors it. Everyone in the room has a window lit in their colour.",
+        "lineage": "Ported from the Synthograsizer template “urban-skyline”, rebuilt by hand around a demo-scene technique so it holds its frame rate.",
     },
     # ── from the studio ─────────────────────────────────────────────────────
     # Ported by hand from the owner's own generator, and checked against it

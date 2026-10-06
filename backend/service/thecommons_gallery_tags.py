@@ -92,6 +92,12 @@ LOOK: dict[str, tuple[str, ...]] = {
     "ink-drifts": ("painterly", "organic", "calm"),
     "flowmounds": ("painterly", "organic", "calm"),
     "flowmounds-boil": ("painterly", "organic"),
+    "attractors": ("light", "space", "calm"),
+    "oscilloscope": ("retro", "light", "geometric"),
+    "op-art": ("geometric", "psychedelic"),
+    "mandala": ("geometric", "psychedelic", "calm"),
+    "subdivisions": ("geometric", "energetic"),
+    "night-city": ("light", "calm"),
 }
 
 

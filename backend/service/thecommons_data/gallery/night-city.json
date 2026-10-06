@@ -1,0 +1,86 @@
+{
+  "name": "Night City",
+  "promptTemplate": "a {{time}} city skyline, {{weather}}, with a {{skyline}} skyline drifting at {{drift}} over water with {{ripple}} ripple",
+  "variables": [
+    {
+      "name": "time",
+      "label": "Time",
+      "values": [
+        {
+          "text": "twilight",
+          "weight": 3
+        },
+        {
+          "text": "midnight",
+          "weight": 2
+        },
+        {
+          "text": "neon",
+          "weight": 2
+        },
+        {
+          "text": "dawn",
+          "weight": 1
+        },
+        {
+          "text": "sunset",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "weather",
+      "label": "Weather",
+      "values": [
+        {
+          "text": "clear",
+          "weight": 3
+        },
+        {
+          "text": "foggy",
+          "weight": 2
+        },
+        {
+          "text": "rainy",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "skyline",
+      "label": "Skyline",
+      "values": [
+        {
+          "text": "medium",
+          "weight": 3
+        },
+        {
+          "text": "sparse",
+          "weight": 2
+        },
+        {
+          "text": "dense",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "drift",
+      "label": "Drift",
+      "type": "number",
+      "min": 0,
+      "max": 2,
+      "step": 0.1,
+      "default": 0.5
+    },
+    {
+      "name": "ripple",
+      "label": "Ripple",
+      "type": "number",
+      "min": 0,
+      "max": 1,
+      "step": 0.05,
+      "default": 0.4
+    }
+  ]
+}
