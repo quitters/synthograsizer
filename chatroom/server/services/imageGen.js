@@ -1,6 +1,7 @@
 import { GoogleGenAI } from '@google/genai';
 import sharp from 'sharp';
 import { synthClient } from 'workflow-engine';
+import { buildReferencePayload } from './imageReferences.js';
 
 const IMAGE_MODEL = 'gemini-3-pro-image';
 
@@ -163,23 +164,32 @@ export function stripImageTags(text) {
 }
 
 /**
- * Generate an image using reference images for style/content guidance
+ * Generate an image using reference images for style/content guidance.
+ *
+ * References may be untyped (the historical shape) or carry a `role` of
+ * 'object' | 'character' | 'style', which routes them into the model's typed
+ * composition slots. Character references are the ones worth reaching for on a
+ * storyboard — they hold a recurring character steady across beats.
+ *
  * @param {string} prompt - The generation prompt
- * @param {Array<{imageData: string, mimeType: string}>} referenceImages - Reference images
- * @param {Object} options - Generation options
+ * @param {Array<{imageData: string, mimeType?: string, role?: string}>} referenceImages
+ * @param {{model?: string, aspect_ratio?: string}} options - Generation options
  * @returns {Promise<{imageData: string, mimeType: string, text?: string}>}
  */
 export async function generateImageWithReferences(prompt, referenceImages = [], options = {}) {
   try {
-    // Collect reference image data into Array<string>
-    const imageList = referenceImages.map(r => r.imageData);
+    // Typed slots need a model that has them; untyped references work anywhere.
+    const defaultModel = referenceImages.some(r => r && r.role)
+      ? 'gemini-3.1-flash-image'
+      : 'gemini-3-pro-image';
     // Use synthClient which routes to the fastAPI backend and embeds metadata cleanly
     const result = await synthClient._post('/api/generate/image', {
       prompt,
-      model: 'gemini-3-pro-image',
-      input_images: imageList,
-      temperature: options.temperature || 1.0,
-      top_p: options.topP || 0.95
+      model: options.model || defaultModel,
+      ...(options.aspect_ratio ? { aspect_ratio: options.aspect_ratio } : {}),
+      ...buildReferencePayload(referenceImages)
+      // No temperature / top_p: deprecated from Gemini 3.6 Flash onwards, and
+      // the backend drops them on the floor rather than sending them on.
     });
 
     let imageData = result.image || result.imageData;

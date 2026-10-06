@@ -69,13 +69,42 @@ def text_block(text: str) -> Dict[str, Any]:
     return {"type": "text", "text": text}
 
 
-def image_block(data: bytes, mime_type: Optional[str] = None) -> Dict[str, Any]:
-    """Image input block. ``data`` is raw bytes; encoding happens at dispatch."""
-    return {
+# Composition slots accepted by gemini-3.1-flash-image, with the per-slot caps
+# Google documents. ``None`` (no reference_type) stays the untyped input image
+# the flat ``input_images`` list has always produced.
+REFERENCE_OBJECT = "object"
+REFERENCE_CHARACTER = "character"
+REFERENCE_STYLE = "style"
+
+REFERENCE_SLOT_LIMITS: Dict[str, int] = {
+    REFERENCE_OBJECT: 10,
+    REFERENCE_CHARACTER: 4,
+    REFERENCE_STYLE: 3,
+}
+
+
+def image_block(data: bytes, mime_type: Optional[str] = None,
+                reference_type: Optional[str] = None) -> Dict[str, Any]:
+    """Image input block. ``data`` is raw bytes; encoding happens at dispatch.
+
+    ``reference_type`` tags the image with the composition slot it fills —
+    one of ``REFERENCE_OBJECT`` / ``REFERENCE_CHARACTER`` / ``REFERENCE_STYLE``.
+    Omitting it produces a plain input image, which is what every pre-existing
+    caller (and the flat ``input_images`` list) gets.
+    """
+    if reference_type is not None and reference_type not in REFERENCE_SLOT_LIMITS:
+        raise ValueError(
+            f"Unknown reference_type {reference_type!r}; expected one of "
+            f"{sorted(REFERENCE_SLOT_LIMITS)}"
+        )
+    block = {
         "type": "image",
         "data": data,
         "mime_type": mime_type or sniff_mime_type(data),
     }
+    if reference_type:
+        block["reference_type"] = reference_type
+    return block
 
 
 def user_step(content: List[Dict[str, Any]]) -> Dict[str, Any]:
@@ -91,11 +120,14 @@ def _to_interactions_input(blocks: List[Dict[str, Any]]) -> List[Dict[str, Any]]
     out = []
     for b in blocks:
         if b.get("type") == "image" and isinstance(b.get("data"), (bytes, bytearray)):
-            out.append({
+            sent = {
                 "type": "image",
                 "data": base64.b64encode(b["data"]).decode("ascii"),
                 "mime_type": b["mime_type"],
-            })
+            }
+            if b.get("reference_type"):
+                sent["reference_type"] = b["reference_type"]
+            out.append(sent)
         else:
             out.append(b)
     return out
@@ -111,6 +143,16 @@ def _to_legacy_contents(blocks: List[Dict[str, Any]]) -> List[Any]:
             data = b["data"]
             if isinstance(data, str):
                 data = base64.b64decode(data)
+            if b.get("reference_type"):
+                # generateContent Parts carry no slot field. The images still go
+                # through — they just arrive as an undifferentiated reference
+                # list, which is exactly the pre-composition behavior.
+                _warn_once(
+                    "reference-type-legacy",
+                    "Typed composition slots (object/character/style) are an "
+                    "Interactions-API feature; on google_api_mode='legacy' the "
+                    "images are sent as plain untyped references.",
+                )
             out.append(types.Part.from_bytes(data=data, mime_type=b["mime_type"]))
         else:
             raise TypeError(f"Unsupported block type for legacy contents: {b.get('type')!r}")

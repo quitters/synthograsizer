@@ -176,6 +176,21 @@ async def generate_image(request: ImageRequest, http_request: Request):
         elif request.reference_image:
             decoded_images = [decode_base64_image(request.reference_image)]
 
+        # Typed composition slots (objects / character / style). Additive with
+        # the flat list above; per-slot caps are enforced by ImageReferences,
+        # so an over-cap request 422s at validation rather than here.
+        decoded_slots = None
+        if request.references and not request.references.is_empty():
+            decoded_slots = {
+                slot: [decode_base64_image(img) for img in images]
+                for slot, images in (
+                    ("objects", request.references.objects or []),
+                    ("character", request.references.character or []),
+                    ("style", request.references.style or []),
+                )
+                if images
+            }
+
         # Call generate_image with all parameters
 
         # Demo requests are capped at MODEL_DEMO regardless of what the client
@@ -209,6 +224,7 @@ async def generate_image(request: ImageRequest, http_request: Request):
                 aspect_ratio=request.aspect_ratio,
                 negative_prompt=request.negative_prompt,
                 input_images=decoded_images,
+                reference_slots=decoded_slots,
                 response_modalities=request.response_modalities,
                 thinking_level=request.thinking_level,
                 include_thoughts=request.include_thoughts,
