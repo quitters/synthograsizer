@@ -8,36 +8,38 @@ A narrated, captioned walkthrough of the suite, recorded from the running app. I
 - **What it shows:** a local install, where everything is unlocked and nothing needs a sign-in. The hosted service at synthograsizer.com spends credits on AI calls and keeps Video and Music for the operator; see the [README](../README.md).
 - **Not shown:** the Commons archive library (its licence decisions are still open, see [COMPLIANCE_ROADMAP.md](COMPLIANCE_ROADMAP.md)) and anything that needs the hosted service's account screens.
 
-## Watch
+## Download
+
+GitHub serves these files as downloads rather than streams, so save one and open it in a video player. Two versions of the same tour:
 
 | File | Size | What it is |
 |---|---|---|
-| [Synthograsizer_Demo_Full.captioned.mp4](https://github.com/quitters/synthograsizer/releases/download/demo-tour-2026-10-05/Synthograsizer_Demo_Full.captioned.mp4) | 63 MB | Captions burned into the picture. Plays in any browser, and the timestamps below open this file at the right moment. |
-| [Synthograsizer_Demo_Full.mp4](https://github.com/quitters/synthograsizer/releases/download/demo-tour-2026-10-05/Synthograsizer_Demo_Full.mp4) | 69 MB | No burned-in text. Carries an English caption track and chapter markers, for VLC, QuickTime and Windows players. Most browsers' built-in players ignore both. |
+| [Synthograsizer_Demo_Full.captioned.mp4](https://raw.githubusercontent.com/wiki/quitters/synthograsizer/tour/Synthograsizer_Demo_Full.captioned.mp4) | 63 MB | Captions burned into the picture. Plays anywhere. |
+| [Synthograsizer_Demo_Full.mp4](https://raw.githubusercontent.com/wiki/quitters/synthograsizer/tour/Synthograsizer_Demo_Full.mp4) | 69 MB | No burned-in text. Carries an English caption track and 17 chapter markers, which VLC, QuickTime and Windows players show in their chapter and subtitle menus. |
 
 ## Chapters
 
-Click a time to jump to it.
+Times are measured from the start of the full tour. Seek to them in the player, or use the chapter menu of the second file.
 
 | Time | Chapter | What it shows | Length | Recorded |
 |---|---|---|---|---|
-| [0:00](https://github.com/quitters/synthograsizer/releases/download/demo-tour-2026-10-05/Synthograsizer_Demo_Full.captioned.mp4#t=0.0) | Introduction | Title card | 0:16 | 2026-09-29, `8e7204a` |
-| [0:16](https://github.com/quitters/synthograsizer/releases/download/demo-tour-2026-10-05/Synthograsizer_Demo_Full.captioned.mp4#t=15.8) | The prompt playground | Knobs, the D-pad and the template library | 0:28 | 2026-09-29, `8e7204a` |
-| [0:44](https://github.com/quitters/synthograsizer/releases/download/demo-tour-2026-10-05/Synthograsizer_Demo_Full.captioned.mp4#t=43.5) | Export prompt variations | Batch prompt generation: lock, random, sequential or repeat each variable, then export | 0:24 | 2026-09-29, `8e7204a` |
-| [1:08](https://github.com/quitters/synthograsizer/releases/download/demo-tour-2026-10-05/Synthograsizer_Demo_Full.captioned.mp4#t=67.9) | Create a template with AI | Template Gen, Create: a plain-language idea becomes a template | 0:35 | 2026-09-29, `8e7204a` |
-| [1:43](https://github.com/quitters/synthograsizer/releases/download/demo-tour-2026-10-05/Synthograsizer_Demo_Full.captioned.mp4#t=103.1) | Remix without starting over | Template Gen, Remix: add a camera_view variable to Fantasy Scene | 0:33 | 2026-09-29, `8e7204a` |
-| [2:16](https://github.com/quitters/synthograsizer/releases/download/demo-tour-2026-10-05/Synthograsizer_Demo_Full.captioned.mp4#t=136.5) | Turn a story into shots | Template Gen, Story: a narrative becomes four shots | 0:31 | 2026-09-29, `8e7204a` |
-| [2:47](https://github.com/quitters/synthograsizer/releases/download/demo-tour-2026-10-05/Synthograsizer_Demo_Full.captioned.mp4#t=167.1) | Generative art, live | Template Gen, p5.js: a generated sketch running live | 0:42 | 2026-09-29, `8e7204a` |
-| [3:29](https://github.com/quitters/synthograsizer/releases/download/demo-tour-2026-10-05/Synthograsizer_Demo_Full.captioned.mp4#t=208.8) | Curate a template from an image | Template Gen, Workflow: pick values from a reference image | 0:31 | 2026-09-29, `8e7204a` |
-| [4:00](https://github.com/quitters/synthograsizer/releases/download/demo-tour-2026-10-05/Synthograsizer_Demo_Full.captioned.mp4#t=239.7) | Give your work a signature style | Workflows: Style Transfer with its 53 style presets | 0:33 | 2026-09-29, `8e7204a` |
-| [4:33](https://github.com/quitters/synthograsizer/releases/download/demo-tour-2026-10-05/Synthograsizer_Demo_Full.captioned.mp4#t=273.1) | Generate a series of images | Image Studio batch: three images from three prompts | 0:31 | 2026-09-29, `8e7204a` |
-| [5:04](https://github.com/quitters/synthograsizer/releases/download/demo-tour-2026-10-05/Synthograsizer_Demo_Full.captioned.mp4#t=304.2) | From prompts to moving images | Video Studio batch: two Veo 3.1 Fast clips | 0:34 | 2026-09-29, `8e7204a` |
-| [5:39](https://github.com/quitters/synthograsizer/releases/download/demo-tour-2026-10-05/Synthograsizer_Demo_Full.captioned.mp4#t=338.7) | Chain creative steps together | Workflows: Generate, Analyze, Regenerate | 0:41 | 2026-09-29, `8e7204a` |
-| [6:20](https://github.com/quitters/synthograsizer/releases/download/demo-tour-2026-10-05/Synthograsizer_Demo_Full.captioned.mp4#t=379.6) | Build a creative agent | Agent Studio: create an agent from a description, tune its knobs, test it | 0:33 | 2026-09-29, `8e7204a` |
-| [6:52](https://github.com/quitters/synthograsizer/releases/download/demo-tour-2026-10-05/Synthograsizer_Demo_Full.captioned.mp4#t=412.3) | Let the team discuss the idea | The chat room: a private room per visitor, four agents, a reference image sent mid-chat | 0:45 | 2026-10-05, `3bb2e34` |
-| [7:37](https://github.com/quitters/synthograsizer/releases/download/demo-tour-2026-10-05/Synthograsizer_Demo_Full.captioned.mp4#t=457.1) | Push the image into glitch art | Glitcher: the redesigned studio, an effect confined to a drawn selection, before and after, focus mode | 0:39 | 2026-10-05, `3bb2e34` |
-| [8:16](https://github.com/quitters/synthograsizer/releases/download/demo-tour-2026-10-05/Synthograsizer_Demo_Full.captioned.mp4#t=495.9) | The Commons — shared visual play | The Commons: desk, wall and a guest's phone live together, then a generated piece | 0:33 | 2026-10-05, `3bb2e34` |
-| [8:49](https://github.com/quitters/synthograsizer/releases/download/demo-tour-2026-10-05/Synthograsizer_Demo_Full.captioned.mp4#t=529.2) | Closing | Closing card | 0:15 | 2026-09-29, `8e7204a` |
+| 0:00 | Introduction | Title card | 0:16 | 2026-09-29, `8e7204a` |
+| 0:16 | The prompt playground | Knobs, the D-pad and the template library | 0:28 | 2026-09-29, `8e7204a` |
+| 0:44 | Export prompt variations | Batch prompt generation: lock, random, sequential or repeat each variable, then export | 0:24 | 2026-09-29, `8e7204a` |
+| 1:08 | Create a template with AI | Template Gen, Create: a plain-language idea becomes a template | 0:35 | 2026-09-29, `8e7204a` |
+| 1:43 | Remix without starting over | Template Gen, Remix: add a camera_view variable to Fantasy Scene | 0:33 | 2026-09-29, `8e7204a` |
+| 2:16 | Turn a story into shots | Template Gen, Story: a narrative becomes four shots | 0:31 | 2026-09-29, `8e7204a` |
+| 2:47 | Generative art, live | Template Gen, p5.js: a generated sketch running live | 0:42 | 2026-09-29, `8e7204a` |
+| 3:29 | Curate a template from an image | Template Gen, Workflow: pick values from a reference image | 0:31 | 2026-09-29, `8e7204a` |
+| 4:00 | Give your work a signature style | Workflows: Style Transfer with its 53 style presets | 0:33 | 2026-09-29, `8e7204a` |
+| 4:33 | Generate a series of images | Image Studio batch: three images from three prompts | 0:31 | 2026-09-29, `8e7204a` |
+| 5:04 | From prompts to moving images | Video Studio batch: two Veo 3.1 Fast clips | 0:34 | 2026-09-29, `8e7204a` |
+| 5:39 | Chain creative steps together | Workflows: Generate, Analyze, Regenerate | 0:41 | 2026-09-29, `8e7204a` |
+| 6:20 | Build a creative agent | Agent Studio: create an agent from a description, tune its knobs, test it | 0:33 | 2026-09-29, `8e7204a` |
+| 6:52 | Let the team discuss the idea | The chat room: a private room per visitor, four agents, a reference image sent mid-chat | 0:45 | 2026-10-05, `3bb2e34` |
+| 7:37 | Push the image into glitch art | Glitcher: the redesigned studio, an effect confined to a drawn selection, before and after, focus mode | 0:39 | 2026-10-05, `3bb2e34` |
+| 8:16 | The Commons — shared visual play | The Commons: desk, wall and a guest's phone live together, then a generated piece | 0:33 | 2026-10-05, `3bb2e34` |
+| 8:49 | Closing | Closing card | 0:15 | 2026-09-29, `8e7204a` |
 
 ## Captions
 

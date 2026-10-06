@@ -3,7 +3,7 @@
 | File | Contents |
 |------|----------|
 | [SCHEMA.md](SCHEMA.md) | Full template JSON schema specification |
-| [DEMO_TOUR.md](DEMO_TOUR.md) | Narrated, captioned video tour of every tool: chapter timestamps, transcript, and the caption files in `demo-tour/captions/`. A dated snapshot, not a spec. |
+| [DEMO_TOUR.md](DEMO_TOUR.md) | Narrated, captioned video tour of every tool: chapter timestamps, transcript, and the caption files in `demo-tour/captions/`. Mirrors the [wiki page](https://github.com/quitters/synthograsizer/wiki/Demo-Tour), which hosts the videos. A dated snapshot, not a spec. |
 | [HEADLESS_API.md](HEADLESS_API.md) | Driving the backend entirely over HTTP with no browser UI — endpoint reference, model IDs, recipes. Includes the Videorama batch-video API. |
 | [videorama-guide/README.md](videorama-guide/README.md) | User guide for Videorama — prompt → finished video set, the Shot Inspector, Cast & Locations panel, and scripting unattended batches via the CLI. |
 | [COMPLIANCE_ROADMAP.md](COMPLIANCE_ROADMAP.md) | Risk self-assessment + phased path to compliance (PIPEDA, Quebec Law 25, GDPR, EU AI Act) and ethics commitments. Pairs with the live [Terms & Privacy page](../static/terms/index.html) at `/terms/`. |
