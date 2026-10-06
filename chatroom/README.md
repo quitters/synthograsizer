@@ -143,6 +143,16 @@ Every browser gets its own chat room: its own agents, conversation, live stream,
 - The first request a new browser makes may be the event stream; the server then sends the cookie and closes the stream, and the browser reconnects a moment later. `backend/routers/system.py` forwards `Set-Cookie` for this.
 - Not isolated: the saved workflow library (`/api/workflows` list, get, save, delete) is shared on disk. Workflow checkpoints and traces written before rooms existed belong to no room and are not listed.
 
+## Long conversations: the rolling summary
+
+Each agent turn sends the last 15 messages in full. Older messages used to be cut to their first 80 characters, which kept a topic's name and lost what was decided, who disagreed and what was still open. Now a fast model (`gemini-3.8-flash`, override with `CHATROOM_SUMMARY_MODEL`) keeps running notes on everything older.
+
+- Once 6 or more messages have aged out of the window, they are folded into the notes in the background, a few at a time (at most 30 per call). The call never blocks or fails a turn; if it fails, the one-line notes are used a little longer and it is tried again after the next message.
+- The notes are capped at about 3,000 characters, attribute by name, keep decisions, positions, concrete details and open questions, and mark earlier open questions as resolved when they are.
+- They describe a specific run of messages and are dropped the moment those change: rewinding, restoring a branch or resetting discards them, and they are rebuilt from the messages that remain.
+- `GET /api/chat/state` reports `summarizedMessages`, and a `summary_updated` event is sent on the stream whenever the notes grow.
+- Cost: roughly one small flash call per 6 messages once a conversation passes 20 messages.
+
 ## API Reference
 
 ### Agent Endpoints

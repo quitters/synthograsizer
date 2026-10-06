@@ -2,6 +2,7 @@ import { GoogleGenAI } from '@google/genai';
 import { countTokens } from '../utils/tokenCounter.js';
 import { synthClient, listPresetsCompact, listTemplatesForPrompt } from 'workflow-engine';
 import { artifactStore } from './artifactStore.js';
+import { RECENT_WINDOW, SUMMARY_BATCH, summaryIsValid } from './summarizer.js';
 
 // Use a stable Gemini model
 const MODEL_NAME = 'gemini-3.1-pro-preview';
@@ -9,10 +10,35 @@ const MODEL_NAME = 'gemini-3.1-pro-preview';
 // Max attempts to continue a truncated response
 const MAX_CONTINUATION_ATTEMPTS = 2;
 
+// Folding old messages into the running summary is a small, frequent job: a fast model.
+const SUMMARY_MODEL = process.env.CHATROOM_SUMMARY_MODEL || 'gemini-3.8-flash';
+
 let genAI = null;
 
 export function initializeGemini(apiKey) {
   genAI = new GoogleGenAI({ apiKey });
+}
+
+/** Swap the API client (tests give it a fake one). Returns the previous client. */
+export function setGeminiClient(client) {
+  const previous = genAI;
+  genAI = client;
+  return previous;
+}
+
+/**
+ * One non-streaming text completion on the fast model, for background jobs such as the
+ * rolling summary. Stateless: nothing is retained at Google.
+ */
+export async function generateText(prompt, { model = SUMMARY_MODEL, maxOutputTokens = 4096 } = {}) {
+  if (!genAI) throw new Error('Gemini not initialized. Call initializeGemini first.');
+  const interaction = await genAI.interactions.create({
+    model,
+    input: prompt,
+    generation_config: { max_output_tokens: maxOutputTokens },
+    store: false,
+  });
+  return interaction.output_text || '';
 }
 
 /**
@@ -255,24 +281,35 @@ Remember: Write ONLY ${agent.name}'s response. One voice. One perspective.`;
  * Build conversation transcript with sliding window
  * Keeps recent messages in full, summarizes older ones to control input size
  */
-function buildConversationPrompt(messages, goal, agentName) {
+export function buildConversationPrompt(messages, goal, agentName, summary = null) {
   if (messages.length === 0) {
     return `The discussion is just beginning. The shared goal is: ${goal}
 
 Please provide your opening statement to kick off the discussion. Remember, write ONLY your response - do not simulate other participants.`;
   }
 
-  // Sliding window: keep last 15 messages in full, summarize older ones
-  const WINDOW_SIZE = 15;
-  const recentMessages = messages.slice(-WINDOW_SIZE);
-  const olderMessages = messages.length > WINDOW_SIZE ? messages.slice(0, -WINDOW_SIZE) : [];
+  // Sliding window: the last RECENT_WINDOW messages in full. Older ones are covered by the
+  // rolling summary when there is a valid one, and by one-line notes otherwise.
+  const useSummary = summaryIsValid(summary, messages);
+  const windowStart = Math.max(0, messages.length - RECENT_WINDOW);
+  // Messages the summary has not caught up with yet are shown in full too -- but only a
+  // batch's worth: if the summary has fallen far behind, the rest get one-line notes.
+  const fullFrom = useSummary ? Math.max(summary.upTo, windowStart - SUMMARY_BATCH) : windowStart;
+  const recentMessages = messages.slice(fullFrom);
+  const olderMessages = messages.slice(useSummary ? summary.upTo : 0, fullFrom);
 
   let transcript = `CONVERSATION TRANSCRIPT:\n`;
   transcript += `========================================\n`;
 
+  if (useSummary) {
+    transcript += `[Earlier discussion - notes on the first ${summary.upTo} messages]\n${summary.text}\n\n`;
+  }
+
   // Summarize older messages if any
   if (olderMessages.length > 0) {
-    transcript += `[Earlier discussion - ${olderMessages.length} messages summarized]\n`;
+    transcript += useSummary
+      ? `[Between those notes and the recent messages - ${olderMessages.length} messages, briefly]\n`
+      : `[Earlier discussion - ${olderMessages.length} messages summarized]\n`;
     // Group by speaker and note their key contributions
     const speakerSummaries = {};
     for (const msg of olderMessages) {
@@ -507,7 +544,7 @@ export async function* generateAgentResponse(agent, allAgents, messages, goal, s
   const modelId = (typeof options !== 'undefined' ? options.model : null) || MODEL_NAME;
 
   // Build the full prompt with conversation history
-  let promptText = buildConversationPrompt(messages, goal, agent.name);
+  let promptText = buildConversationPrompt(messages, goal, agent.name, options?.summary);
 
   // Prepend any system notes (e.g. workflow outcomes from the previous turn)
   // so the agent reacts to real results instead of hallucinating success.
