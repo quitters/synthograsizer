@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 const VISION_WINDOW = 5; // max recent generated images passed as inlineData to models
 import { generateAgentResponse } from './gemini.js';
+import { createStreamTagFilter } from './streamTagFilter.js';
 import { generateImage, generateImageWithReferences, parseImageRequests, parseRemixRequests, stripImageTags } from './imageGen.js';
 import { parseToolRequests, executeToolRequests, stripToolTags, formatToolResults, parseSynthRequests, executeSynthRequests, stripSynthTags, formatSynthResults, parseWorkflowRequests, stripWorkflowTags, workflowEngine, parseSynthStyleRequests, parseWorkflowTemplateRequests, stripStyleAndTemplateTags } from './tools.js';
 import { countTokens, countMessageTokens } from '../utils/tokenCounter.js';
@@ -12,8 +13,16 @@ import { synthClient, traceStore } from 'workflow-engine';
  * Chat Orchestrator
  * Manages the autonomous conversation between agents
  */
+// A turn that fails (API error, empty reply) is retried with a growing pause; this
+// many in a row stops the session instead of calling the API for ever. Errors that
+// retrying cannot fix (a rejected key) stop it on the first one.
+const MAX_CONSECUTIVE_FAILURES = 5;
+const FATAL_ERROR_PATTERN = /API key not valid|API_KEY_INVALID|invalid api key|PERMISSION_DENIED|UNAUTHENTICATED/i;
+
 class ChatOrchestrator {
   constructor() {
+    // Overridable so tests can drive the conversation loop without the network.
+    this._generate = generateAgentResponse;
     this.reset();
   }
 
@@ -64,6 +73,9 @@ class ChatOrchestrator {
     this.pendingWorkflowOutcomes = [];
     // Rolling window of recently generated images to pass as vision context
     this.recentGenImages = []; // [{ id, data, mimeType, prompt, agentName }]
+    // Turns that failed one after another, and the last failure's message
+    this.consecutiveFailures = 0;
+    this.lastError = null;
   }
 
   /**
@@ -382,6 +394,8 @@ class ChatOrchestrator {
     this.tokenCount = 0;
     this.turnCount = 0;
     this.lastSpeakerId = null;
+    this.consecutiveFailures = 0;
+    this.lastError = null;
     this.modelPreference = options.model || null;
     // sessionId groups all workflows + traces produced during this run.
     // The trace viewer's "session lens" pivots on this field.
@@ -412,8 +426,32 @@ class ChatOrchestrator {
       reason,
       totalTokens: this.tokenCount,
       turnCount: this.turnCount,
-      messages: this.messages.length
+      messages: this.messages.length,
+      // Why a session ended by failing, so the UI can say more than "stopped"
+      error: reason === 'error_limit_reached' ? this.lastError : undefined
     });
+  }
+
+  /**
+   * Note a failed turn. Returns true when the session was stopped because of it.
+   * Solo chats are not stopped: they wait for the user, who can simply try again.
+   */
+  _recordFailure(message) {
+    this.consecutiveFailures++;
+    this.lastError = message || 'unknown error';
+    if (this.mode === 'solo') return false;
+    const fatal = FATAL_ERROR_PATTERN.test(this.lastError);
+    if (fatal || this.consecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
+      console.error(`[Orchestrator] stopping after ${this.consecutiveFailures} failed turn(s): ${this.lastError}`);
+      this.stop('error_limit_reached');
+      return true;
+    }
+    return false;
+  }
+
+  /** Pause before retrying after a failed turn: 1 s, 2 s, 4 s, 8 s ... up to 30 s. */
+  _backoffMs() {
+    return Math.min(30000, 1000 * 2 ** Math.max(0, this.consecutiveFailures - 1));
   }
 
   /**
@@ -456,6 +494,8 @@ class ChatOrchestrator {
     // closed out by an in-flight consensus marker from a previous turn.
     this.lastUserMessageTurn = this.turnCount;
     this.consensusVotes = [];
+    // The user is acting, so earlier failures should not count against the next turn.
+    this.consecutiveFailures = 0;
 
     this.broadcast('message', message);
 
@@ -796,6 +836,13 @@ class ChatOrchestrator {
 
     const contentLower = content.toLowerCase();
     const hasMarker = content.includes('[CONSENSUS REACHED]') || contentLower.includes('[consensus reached]');
+    // A completion phrase ("that's a wrap", "final document") from ONE agent used to end
+    // the whole session. It is now a vote like the explicit marker, so it takes the same
+    // quorum. Sensitivity 'low' and "require explicit marker" ignore phrases entirely.
+    const phraseHit = !hasMarker
+      && !this.consensusSettings.requireExplicitMarker
+      && this.consensusSettings.sensitivity !== 'low'
+      && this._completionPhrases().some(p => contentLower.includes(p));
 
     // Cooldown: a single user prompt cannot be closed out within N turns of
     // being submitted. Required to prevent premature shutdown observed in
@@ -805,8 +852,8 @@ class ChatOrchestrator {
     const turnsSinceUser = this.turnCount - (this.lastUserMessageTurn ?? -Infinity);
     const inCooldown = Number.isFinite(this.lastUserMessageTurn) && turnsSinceUser < cooldown;
 
-    // Explicit consensus marker — record as a vote, then require quorum.
-    if (hasMarker) {
+    // Explicit consensus marker or completion phrase — record as a vote, then require quorum.
+    if (hasMarker || phraseHit) {
       if (speakerId) {
         // De-dupe: one vote per agent per active window.
         this.consensusVotes = this.consensusVotes.filter(v => v.agentId !== speakerId);
@@ -851,8 +898,21 @@ class ChatOrchestrator {
       return null;
     }
 
-    // Check for consensus/completion phrases (medium and high sensitivity)
-    const completionPhrases = [
+    // Completion phrases were handled above, as votes.
+
+    // High sensitivity: also check for sign-off patterns
+    if (this.consensusSettings.sensitivity === 'high') {
+      if (this.isConversationWindingDown(contentLower)) {
+        return 'conversation_concluded';
+      }
+    }
+
+    return null;
+  }
+
+  /** Phrases that count as one agent voting to finish (lower case), plus the user's own. */
+  _completionPhrases() {
+    return [
       'we have consensus',
       'consensus reached',
       'brief is complete',
@@ -865,24 +925,8 @@ class ChatOrchestrator {
       'goal has been achieved',
       'mission accomplished',
       'we\'ve accomplished our goal',
-      // Add custom phrases
-      ...this.consensusSettings.customPhrases
+      ...(this.consensusSettings.customPhrases || []).map(p => String(p).toLowerCase())
     ];
-
-    for (const phrase of completionPhrases) {
-      if (contentLower.includes(phrase)) {
-        return 'consensus_reached';
-      }
-    }
-
-    // High sensitivity: also check for sign-off patterns
-    if (this.consensusSettings.sensitivity === 'high') {
-      if (this.isConversationWindingDown(contentLower)) {
-        return 'conversation_concluded';
-      }
-    }
-
-    return null;
   }
 
   /**
@@ -961,9 +1005,12 @@ class ChatOrchestrator {
         // Generate response with streaming
         let fullResponse = '';
         let responseTokens = 0;
+        let turnError = null;
+        // Control tags are acted on at the end of the turn; keep them out of the live stream.
+        const tagFilter = createStreamTagFilter();
 
         const systemNotes = this._drainWorkflowOutcomes();
-        const generator = generateAgentResponse(
+        const generator = this._generate(
           speaker,
           this.agents,
           this.messages,
@@ -977,10 +1024,13 @@ class ChatOrchestrator {
 
           if (event.type === 'chunk') {
             fullResponse += event.text;
-            this.broadcast('chunk', {
-              agentId: speaker.id,
-              text: event.text
-            });
+            const visible = tagFilter.push(event.text);
+            if (visible) {
+              this.broadcast('chunk', {
+                agentId: speaker.id,
+                text: visible
+              });
+            }
           } else if (event.type === 'complete') {
             // Use cleaned response from completion event
             // But fall back to accumulated chunks if cleaned response is empty
@@ -998,12 +1048,24 @@ class ChatOrchestrator {
               agentId: speaker.id,
               error: event.error
             });
-            // Continue to next turn despite error
+            turnError = event.error || 'unknown error';
             break;
           }
         }
 
         if (!this.isRunning || this.isPaused) break;
+
+        if (turnError) {
+          // Back off and try again, but give up after repeated failures (see _recordFailure)
+          if (this._recordFailure(turnError)) break;
+          if (this.mode === 'solo') {
+            this.isPaused = true;
+            this.broadcast('session_waiting_user', {});
+            break;
+          }
+          await this.delay(this._backoffMs());
+          continue;
+        }
 
         // Check for image generation requests in the response
         const imageRequests = parseImageRequests(fullResponse);
@@ -1472,7 +1534,13 @@ class ChatOrchestrator {
 
         if (!hasContent && !hasImages && !hasToolResults && !hasSynthMedia && !hasSynthResults && !hasWorkflows && !hasArtifacts) {
           console.warn(`Empty response from ${speaker.name}, skipping turn`);
-          await this.delay(500);
+          if (this._recordFailure(`${speaker.name} returned an empty response`)) break;
+          if (this.mode === 'solo') {
+            this.isPaused = true;
+            this.broadcast('session_waiting_user', {});
+            break;
+          }
+          await this.delay(this._backoffMs());
           continue;
         }
 
@@ -1497,6 +1565,7 @@ class ChatOrchestrator {
         this.messages.push(message);
         this.tokenCount += responseTokens;
         this.lastSpeakerId = speaker.id;
+        this.consecutiveFailures = 0;
 
         // Broadcast the message to all clients
         this.broadcast('message', message);
@@ -1533,8 +1602,13 @@ class ChatOrchestrator {
           agentId: speaker.id,
           error: error.message
         });
-        // Continue despite errors
-        await this.delay(2000);
+        if (this._recordFailure(error.message)) break;
+        if (this.mode === 'solo') {
+          this.isPaused = true;
+          this.broadcast('session_waiting_user', {});
+          break;
+        }
+        await this.delay(this._backoffMs());
       }
     }
   }
