@@ -1,0 +1,23 @@
+1
+00:00:03,355 --> 00:00:06,926
+The Synthograsizer turns a prompt into an instrument.
+
+2
+00:00:07,109 --> 00:00:10,233
+Each knob controls a variable, so you can explore
+
+3
+00:00:10,233 --> 00:00:13,171
+new combinations without rewriting your idea.
+
+4
+00:00:13,591 --> 00:00:18,058
+Switch to the D-pad for focused navigation, or browse the built-in
+
+5
+00:00:18,058 --> 00:00:22,123
+library for generative art, characters, stories, and music.
+
+6
+00:00:22,488 --> 00:00:25,111
+Start with a template, then make it your own.

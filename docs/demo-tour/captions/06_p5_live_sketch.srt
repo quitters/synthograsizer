@@ -1,0 +1,23 @@
+1
+00:00:03,642 --> 00:00:06,679
+The p5.js generator turns a visual idea
+
+2
+00:00:06,679 --> 00:00:10,595
+into an animated sketch with adjustable variables.
+
+3
+00:00:10,894 --> 00:00:14,212
+Describe the movement, palette, and structure you want,
+
+4
+00:00:14,212 --> 00:00:16,358
+then run the result in the live viewer.
+
+5
+00:00:16,869 --> 00:00:20,731
+The built-in library also offers ready-made systems to explore.
+
+6
+00:00:20,963 --> 00:00:23,960
+Change the controls and watch the artwork respond.

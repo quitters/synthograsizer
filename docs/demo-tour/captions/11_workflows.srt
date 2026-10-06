@@ -1,0 +1,31 @@
+1
+00:00:03,874 --> 00:00:07,848
+Workflows chain several creative steps into one recipe.
+
+2
+00:00:07,958 --> 00:00:10,130
+This one generates a draft image,
+
+3
+00:00:10,130 --> 00:00:13,856
+analyses it to extract a rich description, then regenerates
+
+4
+00:00:13,856 --> 00:00:16,833
+from that enriched prompt for higher quality.
+
+5
+00:00:16,986 --> 00:00:18,810
+Fill in a prompt, an aspect ratio,
+
+6
+00:00:18,810 --> 00:00:20,543
+and what to avoid, then run it.
+
+7
+00:00:20,610 --> 00:00:22,864
+When it finishes, both the draft
+
+8
+00:00:22,864 --> 00:00:25,776
+and the final image are ready to compare.

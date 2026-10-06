@@ -1,0 +1,31 @@
+1
+00:00:03,955 --> 00:00:06,599
+Start with an idea in plain language.
+
+2
+00:00:06,984 --> 00:00:09,735
+Here, a retro-futurist greenhouse becomes
+
+3
+00:00:09,735 --> 00:00:12,554
+a reusable template, with separate controls
+
+4
+00:00:12,554 --> 00:00:15,749
+for architecture, plants, lighting, and colour.
+
+5
+00:00:15,952 --> 00:00:18,408
+Choose a model, generate the template,
+
+6
+00:00:18,408 --> 00:00:20,195
+and explore its variables.
+
+7
+00:00:20,487 --> 00:00:23,114
+Text, reference images, or a combination
+
+8
+00:00:23,114 --> 00:00:25,739
+of both can guide the creation process.
