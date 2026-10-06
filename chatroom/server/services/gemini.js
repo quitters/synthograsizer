@@ -3,6 +3,7 @@ import { countTokens } from '../utils/tokenCounter.js';
 import { synthClient, listPresetsCompact, listTemplatesForPrompt } from 'workflow-engine';
 import { artifactStore } from './artifactStore.js';
 import { RECENT_WINDOW, SUMMARY_BATCH, summaryIsValid } from './summarizer.js';
+import { planSessionMedia, isVisualMedia } from './mediaContext.js';
 
 // Use a stable Gemini model
 const MODEL_NAME = 'gemini-3.1-pro-preview';
@@ -380,35 +381,6 @@ Please provide your opening statement to kick off the discussion. Remember, writ
 }
 
 /**
- * Check if a MIME type is a visual/image type that Gemini can view inline
- */
-function isVisualMedia(mimeType) {
-  return mimeType && (
-    mimeType.startsWith('image/') ||
-    mimeType === 'video/mp4' ||
-    mimeType === 'video/webm'
-  );
-}
-
-/**
- * Check if a MIME type is a text-based file that can be included as text content
- */
-function isTextMedia(mimeType) {
-  return mimeType && (
-    mimeType === 'application/json' ||
-    mimeType === 'text/plain' ||
-    mimeType === 'text/csv' ||
-    mimeType === 'text/html' ||
-    mimeType === 'text/markdown' ||
-    mimeType === 'text/xml' ||
-    mimeType === 'application/xml' ||
-    mimeType === 'text/css' ||
-    mimeType === 'text/javascript' ||
-    mimeType === 'application/javascript'
-  );
-}
-
-/**
  * Map an inline media file onto an Interactions content block.
  * Images → image blocks, video → video blocks, PDFs → document blocks.
  * `data` stays base64 (the media store already holds base64).
@@ -424,48 +396,57 @@ function mediaToBlock(media) {
 }
 
 /**
- * Build Interactions content blocks including session media.
- * Returns an array of content blocks: text blocks + inline media blocks.
+ * Build Interactions content blocks including session media: text blocks + inline media blocks.
+ * @param {string} promptText
+ * @param {Array}  mediaPlan  from planSessionMedia(): which reference files to attach, inline or just list
+ * @param {Array}  generatedImages
  */
-function buildContentParts(promptText, sessionMedia = [], generatedImages = []) {
+export function buildContentParts(promptText, mediaPlan = [], generatedImages = []) {
   const parts = [];
 
-  if (sessionMedia.length > 0) {
+  if (mediaPlan.length > 0) {
     // Add a text preface about the uploaded media
-    let mediaPreface = `\nSESSION REFERENCE MATERIALS (${sessionMedia.length} files uploaded by the user):\n`;
+    let mediaPreface = `\nSESSION REFERENCE MATERIALS (${mediaPlan.length} files uploaded by the user):\n`;
+    let anyNotAttached = false;
 
-    for (const media of sessionMedia) {
-      if (isVisualMedia(media.mimeType)) {
-        // Add description text
-        mediaPreface += `- [Image/Media: "${media.name}" - ID: ${media.id}] (attached below, can be remixed with [REMIX: ${media.id} | changes])\n`;
-      } else if (isTextMedia(media.mimeType)) {
-        // Decode and include text content inline
-        try {
-          const textContent = Buffer.from(media.data, 'base64').toString('utf-8');
-          // Truncate very large text files
-          const maxTextLen = 5000;
-          const truncated = textContent.length > maxTextLen
-            ? textContent.slice(0, maxTextLen) + `\n... [truncated, ${textContent.length} chars total]`
-            : textContent;
-          mediaPreface += `- [File: "${media.name}" (${media.mimeType})]:\n\`\`\`\n${truncated}\n\`\`\`\n`;
-        } catch {
+    for (const { media, kind, attached, reason, text, truncated, totalChars, undecodable } of mediaPlan) {
+      const visual = isVisualMedia(media.mimeType);
+      const isPdf = media.mimeType === 'application/pdf';
+      if (kind === 'text') {
+        if (undecodable) {
           mediaPreface += `- [File: "${media.name}" - could not decode]\n`;
+        } else {
+          const shown = truncated ? text + `\n... [truncated, ${totalChars} chars total]` : text;
+          mediaPreface += `- [File: "${media.name}" (${media.mimeType})]:\n\`\`\`\n${shown}\n\`\`\`\n`;
         }
-      } else if (media.mimeType === 'application/pdf') {
-        mediaPreface += `- [PDF: "${media.name}" - ID: ${media.id}] (attached below)\n`;
+      } else if (visual || isPdf) {
+        const label = visual ? `[Image/Media: "${media.name}" - ID: ${media.id}]` : `[PDF: "${media.name}" - ID: ${media.id}]`;
+        if (attached) {
+          mediaPreface += visual
+            ? `- ${label} (attached below, can be remixed with [REMIX: ${media.id} | changes])\n`
+            : `- ${label} (attached below)\n`;
+        } else {
+          anyNotAttached = true;
+          const remix = media.mimeType.startsWith('image/') ? `; you can still remix it with [REMIX: ${media.id} | changes]` : '';
+          mediaPreface += `- ${label} (not attached this turn: ${reason}${remix})\n`;
+        }
       } else {
         mediaPreface += `- [File: "${media.name}" (${media.mimeType}) - ID: ${media.id}]\n`;
       }
     }
 
     mediaPreface += `\nYou may reference, analyze, critique, or remix these materials in your response.\n`;
+    if (anyNotAttached) {
+      mediaPreface += `Files marked "not attached this turn" are still part of the session: refer to them by name, ` +
+                      `or ask the user to share one again if you need to look at it.\n`;
+    }
 
     // Add the preface + main prompt as text
     parts.push({ type: 'text', text: mediaPreface + '\n' + promptText });
 
     // Attach visual media / PDFs as content blocks
-    for (const media of sessionMedia) {
-      if (isVisualMedia(media.mimeType) || media.mimeType === 'application/pdf') {
+    for (const { media, kind, attached } of mediaPlan) {
+      if (attached && kind !== 'text') {
         parts.push(mediaToBlock(media));
       }
     }
@@ -554,18 +535,10 @@ export async function* generateAgentResponse(agent, allAgents, messages, goal, s
 
   const { generatedImages = [] } = options || {};
 
-  // Only include session media on the first turn to avoid sending large payloads every turn
-  // After the first turn, media context is carried via transcript references
-  const includeMedia = messages.length === 0 || messages.length <= 2;
-  const contentParts = buildContentParts(promptText, includeMedia ? sessionMedia : [], generatedImages);
-
-  // For text files that were included inline, add a note to later turns too
-  const hasTextMedia = sessionMedia.some(m => isTextMedia(m.mimeType));
-  if (!includeMedia && sessionMedia.length > 0) {
-    // Remind agents about available media without re-sending the data
-    const mediaReminder = `\n[Note: ${sessionMedia.length} reference file(s) were provided at session start: ${sessionMedia.map(m => m.name).join(', ')}. Refer to them by name or ID if needed.]\n`;
-    contentParts[0].text = mediaReminder + contentParts[0].text;
-  }
+  // Reference files: images and text every turn, video and PDF while fresh, within size
+  // budgets (see mediaContext.js). Anything left out is still listed, with the reason.
+  const mediaPlan = planSessionMedia(sessionMedia, { messageCount: messages.length, agentCount: allAgents.length });
+  const contentParts = buildContentParts(promptText, mediaPlan, generatedImages);
 
   try {
     let fullResponse = '';
