@@ -3,7 +3,7 @@
  * Provides retrieval by ID and export functionality
  */
 
-class MediaStore {
+export class MediaStore {
   constructor() {
     this.media = new Map();
     this.sessionId = null;

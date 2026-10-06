@@ -190,6 +190,7 @@ class TraceStore {
         agentName: data.agentName || null,
         agentColor: data.agentColor || null,    // tint trace nodes by which agent triggered it
         sessionId: data.sessionId || null,      // group traces by chat session
+        ownerId: data.ownerId || null,          // which visitor's room produced it (isolation)
         messageId: data.messageId || null,      // back-link to the originating chat message
         startedAt: new Date().toISOString(),
         completedAt: null,
@@ -261,7 +262,7 @@ class TraceStore {
    * List trace summaries (most recent first), merging in-flight + persisted.
    * Returns lightweight rows for the trace browser UI.
    */
-  async list(limit = 50) {
+  async list(limit = 50, ownerId) {
     await this._wait();
     const rows = [];
 
@@ -274,6 +275,7 @@ class TraceStore {
         agentName: t.meta.agentName,
         agentColor: t.meta.agentColor,
         sessionId: t.meta.sessionId,
+        ownerId: t.meta.ownerId,
         startedAt: t.meta.startedAt,
         completedAt: t.meta.completedAt,
         durationMs: t.totals.durationMs,
@@ -303,6 +305,7 @@ class TraceStore {
           agentName: t.agentName,
           agentColor: t.agentColor,
           sessionId: t.sessionId,
+          ownerId: t.ownerId || null,
           startedAt: t.startedAt,
           completedAt: t.completedAt,
           durationMs: t.totals?.durationMs ?? 0,
@@ -320,7 +323,17 @@ class TraceStore {
       return bT - aT;
     });
 
-    return rows.slice(0, limit);
+    // With an owner, only that owner's traces: a trace with no owner (written before
+    // isolation existed) belongs to nobody.
+    const visible = ownerId === undefined ? rows : rows.filter(r => r.ownerId === ownerId);
+    return visible.slice(0, limit);
+  }
+
+  /** True when `ownerId` may see this trace (always true when no owner is given). */
+  async canAccess(workflowId, ownerId) {
+    if (ownerId === undefined) return true;
+    const trace = await this.get(workflowId);
+    return !!trace && (trace.ownerId || null) === ownerId;
   }
 
   async delete(workflowId) {

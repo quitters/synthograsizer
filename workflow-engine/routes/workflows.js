@@ -28,11 +28,26 @@ import { stylePresets } from '../stylePresets.js';
 
 /**
  * Create workflow routes with injected broadcast function.
- * @param {{ broadcast: Function }} deps — broadcast(event, data) for SSE
+ *
+ * With `resolve`, each request is scoped to one owner: the host returns that
+ * owner's broadcast function, media store and id, and the routes then only list,
+ * read, cancel, retry, resume and delete runs and checkpoints that owner made.
+ * Without it every caller sees everything (a single-user install). The saved
+ * workflow library is shared either way.
+ *
+ * @param {{ broadcast?: Function,
+ *           resolve?: (req) => { broadcast?: Function, mediaStore?: object, ownerId?: string } }} deps
+ *   broadcast(event, data) pushes an SSE event
  * @returns {Router}
  */
-export function createWorkflowRoutes({ broadcast }) {
+export function createWorkflowRoutes({ broadcast, resolve } = {}) {
   const router = Router();
+
+  /** What this request may touch: { broadcast, mediaStore, ownerId } (ownerId undefined = unscoped). */
+  function scope(req) {
+    const r = resolve ? resolve(req) : {};
+    return { broadcast: r.broadcast || broadcast, mediaStore: r.mediaStore, ownerId: r.ownerId };
+  }
 
   // ── Saved definitions ───────────────────────────────────────────────────────
 
@@ -46,7 +61,7 @@ export function createWorkflowRoutes({ broadcast }) {
 
   router.get('/checkpoints', async (req, res) => {
     try {
-      res.json(await workflowLibrary.listCheckpoints());
+      res.json(await workflowLibrary.listCheckpoints(scope(req).ownerId));
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
@@ -62,20 +77,23 @@ export function createWorkflowRoutes({ broadcast }) {
 
   router.get('/active', (req, res) => {
     try {
-      res.json(workflowEngine.listActive());
+      res.json(workflowEngine.listActive(scope(req).ownerId));
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
   });
 
   router.get('/active/:id', (req, res) => {
+    const { ownerId } = scope(req);
     const status = workflowEngine.getStatus(req.params.id);
-    if (!status) return res.status(404).json({ error: 'Workflow not found' });
+    if (!status || (ownerId !== undefined && status.ownerId !== ownerId)) {
+      return res.status(404).json({ error: 'Workflow not found' });
+    }
     res.json(status);
   });
 
   router.post('/active/:id/cancel', (req, res) => {
-    const ok = workflowEngine.cancel(req.params.id);
+    const ok = workflowEngine.cancel(req.params.id, scope(req).ownerId);
     if (!ok) return res.status(404).json({ error: 'Workflow not found or not running' });
     res.json({ success: true });
   });
@@ -107,10 +125,13 @@ export function createWorkflowRoutes({ broadcast }) {
     }
 
     try {
-      const workflowId = workflowEngine.submit(wfDef, { broadcast });
+      const mine = scope(req);
+      const workflowId = workflowEngine.submit(wfDef, {
+        broadcast: mine.broadcast, mediaStore: mine.mediaStore, ownerId: mine.ownerId,
+      });
 
       // Notify all SSE clients
-      broadcast('workflow_submitted', {
+      mine.broadcast('workflow_submitted', {
         workflowId,
         workflowName: wfDef.name || 'Unnamed Workflow',
         stepCount: wfDef.steps.length,
@@ -126,7 +147,10 @@ export function createWorkflowRoutes({ broadcast }) {
 
   router.post('/active/:id/retry', async (req, res) => {
     try {
-      const id = await workflowEngine.retry(req.params.id, { broadcast });
+      const mine = scope(req);
+      const id = await workflowEngine.retry(req.params.id, {
+        broadcast: mine.broadcast, mediaStore: mine.mediaStore, ownerId: mine.ownerId,
+      });
       res.json({ workflowId: id });
     } catch (err) {
       res.status(400).json({ error: err.message });
@@ -138,7 +162,10 @@ export function createWorkflowRoutes({ broadcast }) {
     if (!workflowId) return res.status(400).json({ error: 'workflowId required' });
 
     try {
-      const id = await workflowEngine.resume(workflowId, { broadcast });
+      const mine = scope(req);
+      const id = await workflowEngine.resume(workflowId, {
+        broadcast: mine.broadcast, mediaStore: mine.mediaStore, ownerId: mine.ownerId,
+      });
       res.json({ workflowId: id });
     } catch (err) {
       res.status(400).json({ error: err.message });
@@ -146,6 +173,11 @@ export function createWorkflowRoutes({ broadcast }) {
   });
 
   router.delete('/checkpoints/:id', async (req, res) => {
+    const { ownerId } = scope(req);
+    if (ownerId !== undefined) {
+      const cp = await workflowLibrary.loadCheckpoint(req.params.id);
+      if (!cp || (cp.ownerId ?? null) !== ownerId) return res.json({ success: false });
+    }
     await workflowLibrary.deleteCheckpoint(req.params.id);
     res.json({ success: true });
   });

@@ -1,18 +1,14 @@
 import express from 'express';
-import cors from 'cors';
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
-import agentsRouter from './routes/agents.js';
-import chatRouter from './routes/chat.js';
-import artifactsRouter from './routes/artifacts.js';
-import { createWorkflowRoutes, createTraceRoutes, workflowEngine } from 'workflow-engine';
+import { createApp } from './app.js';
+import { workflowEngine } from 'workflow-engine';
 import { initializeGemini } from './services/gemini.js';
 import { initializeImageGen } from './services/imageGen.js';
 import { initializeTools } from './services/tools.js';
 import { mediaStore } from './services/mediaStore.js';
-import { orchestrator } from './services/orchestrator.js';
 
 // Load environment variables from parent directory
 dotenv.config({ path: join(dirname(fileURLToPath(import.meta.url)), '../.env') });
@@ -28,15 +24,8 @@ process.on('unhandledRejection', (reason) => {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const app = express();
+const app = createApp();
 const PORT = process.env.PORT || 3001;
-
-// Middleware
-app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:3000', 'http://localhost:8000'],
-  credentials: true
-}));
-app.use(express.json({ limit: '100mb' })); // Large limit for media uploads (up to 14 files)
 
 // Initialize Gemini with API key
 const apiKey = process.env.GEMINI_API_KEY;
@@ -50,24 +39,9 @@ initializeImageGen(apiKey);
 initializeTools(apiKey);
 console.log('Gemini API initialized (text, image, search, and URL tools)');
 
-// Configure shared workflow engine with chatroom's mediaStore
+// The workflow engine's fallback store, for runs that name none. Every visitor's runs
+// carry their own room's store (see resolveRoom below).
 workflowEngine.configure({ mediaStore });
-
-// Routes — traceStore.record is invoked from inside orchestrator.broadcast
-// (the chokepoint) so every workflow path (route-triggered, agent-triggered,
-// retry, resume) is observed without per-call-site wrapping.
-app.use('/api/agents', agentsRouter);
-app.use('/api/chat', chatRouter);
-app.use('/api/workflows', createWorkflowRoutes({
-  broadcast: orchestrator.broadcast.bind(orchestrator),
-}));
-app.use('/api/traces', createTraceRoutes());
-app.use('/api/artifacts', artifactsRouter);
-
-// Health check
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
-});
 
 // Serve static files in production
 if (process.env.NODE_ENV === 'production') {

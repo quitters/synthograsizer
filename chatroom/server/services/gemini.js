@@ -174,7 +174,7 @@ ${listTemplatesForPrompt()}`;
   }
 
   // ── Artifact context ───────────────────────────────────────────────────
-  const artifacts = artifactStore.getAll();
+  const artifacts = (options.artifactStore || artifactStore).getAll();
   if (artifacts.length > 0) {
     prompt += `
 
@@ -503,7 +503,7 @@ export async function* generateAgentResponse(agent, allAgents, messages, goal, s
     throw new Error('Gemini not initialized. Call initializeGemini first.');
   }
 
-  const systemPrompt = await buildSystemPrompt(agent, allAgents, goal);
+  const systemPrompt = await buildSystemPrompt(agent, allAgents, goal, options);
   const modelId = (typeof options !== 'undefined' ? options.model : null) || MODEL_NAME;
 
   // Build the full prompt with conversation history
