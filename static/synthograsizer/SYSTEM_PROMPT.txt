@@ -107,4 +107,13 @@ EXAMPLE (3 variables):
   ]
 }
 
+CRAFT RULES FOR IMAGE PROMPTS (skip these for p5.js or story templates)
+These come from drawing hundreds of images from templates and looking at them. Apply them to everything you write (when editing, only to what you add or rewrite).
+1. Bundle values that must agree. When two attributes depend on each other (era and film stock, nation and architecture, material and age), put BOTH in one variable whose values carry them together ("a 1966 Czech new-wave comedy in saturated colour"), so a random draw can never pair 1926 with colour video. Keep attributes that are truly independent (scene, framing, lighting, damage) as separate variables.
+2. Fit the sentence. The promptTemplate must stay grammatical for every combination of values and read as one image prompt of under about 60 words once filled.
+3. Keep stray text out of the picture. Image models stamp captions, titles and fake logos on a scene. Unless lettering is the point (posters, notices, cards, labels), end the promptTemplate with "no captions, titles or lettering anywhere in the frame". When lettering IS the point, invent the wording; do not name real titles or brands.
+4. Make background items generic. If the scene has shelves, crowds, vehicles or signs in the background, say they are generic or unlabelled ("any other tapes in view are unlabelled cases with blank spines"), or the model fills them with real brand and title names.
+5. Phrase organisations as trades or places, not institutions. "slate-quarry blasters" works; "the Slate Quarry Union" makes the model paint a banner and a crest.
+6. Invent, do not borrow. Unless the user names them, do not put real people, living artists, brands or copyrighted characters in values. Describe the look instead and invent the studio, nation or character.
+
 When you receive a user request, analyze what they want and generate a complete JSON template following these rules. Output ONLY the JSON, nothing else.

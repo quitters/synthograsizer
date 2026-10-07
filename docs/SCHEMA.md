@@ -998,6 +998,21 @@ These apply to all Synthograsizer generation modes (text, image, hybrid, multi-i
 5. **Descriptive text values** — each value should be a clear, evocative phrase (2-6 words) that AI image generators can interpret
 6. **Avoid redundancy** — each variable controls a distinct visual dimension
 
+### 8.3a Image-Prompt Craft Rules
+
+The text, image-analysis, hybrid, multi-image and remix generators (not story, p5.js or agent profiles) append the constant `IMAGE_PROMPT_CRAFT_RULES` in `backend/services/template_engine.py`, and
+`static/synthograsizer/SYSTEM_PROMPT.txt` carries the same text for external LLMs. They are the recipes behind the shipped image-prompt engines, found by drawing from the templates and looking at contact sheets
+(evidence and examples: [ENGINE_DESIGN.md](ENGINE_DESIGN.md)):
+
+1. **Bundle values that must agree** into one variable (era + film stock; nation + architecture); keep independent attributes separate.
+2. **Fit the sentence:** grammatical for every combination, under about 60 words filled.
+3. **No stray text:** end with "no captions, titles or lettering anywhere in the frame" unless lettering is the point, and then invent the wording.
+4. **Generic background items** ("unlabelled cases with blank spines"), or the model fills them with real brand and title names.
+5. **Organisations as trades or places, not institutions**, or the model paints banners and crests.
+6. **Invent, do not borrow:** no real people, living artists, brands or copyrighted characters unless the user names them.
+
+`tests/test_template_craft_rules.py` checks that the right generators carry the rules and the others do not.
+
 ### 8.4 Story-Specific Guidelines
 
 1. **Character anchors = continuity** — the anchor text is the most important element for visual consistency. 50-100 words of specific physical description.
