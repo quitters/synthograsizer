@@ -1,0 +1,337 @@
+{
+  "promptTemplate": "An archival medium-shot photograph of an alpine sanatorium pneumatic dispatch station mounted on {{mounting_surface}}, featuring {{tube_manifold}} controlled by {{routing_mechanism}}, receiving {{canister_shell}} distinguished by {{tactile_index}}, weathered with {{institutional_wear}}; no captions, titles, lettering or numerals anywhere in the frame",
+  "variables": [
+    {
+      "name": "mounting_surface",
+      "feature_name": "Mounting Surface",
+      "values": [
+        {
+          "text": "whitewashed limestone masonry weeping mineral salt efflorescence",
+          "weight": 3
+        },
+        {
+          "text": "scrubbed larch planks darkened by winter soot",
+          "weight": 3
+        },
+        {
+          "text": "glazed bottle-green vitrified ceramic sanitary tiles",
+          "weight": 3
+        },
+        {
+          "text": "pitted terrazzo panel flecked with granite chips",
+          "weight": 3
+        },
+        {
+          "text": "ribbed zinc damp-proofing secured with lead washers",
+          "weight": 2
+        },
+        {
+          "text": "bevelled milk-glass tiles set in bitumen mastic",
+          "weight": 2
+        },
+        {
+          "text": "split-faced gneiss ashlar mortared with river sand",
+          "weight": 2
+        },
+        {
+          "text": "vulcanized rubber dado panel scarred by gurneys",
+          "weight": 2
+        },
+        {
+          "text": "unreinforced concrete bearing rough timber shuttering grain",
+          "weight": 1
+        },
+        {
+          "text": "lead-backed acoustic felt clamped under iron battens",
+          "weight": 1
+        },
+        {
+          "text": "wax-sealed cork slabs pitted with condensation tracks",
+          "weight": 1
+        },
+        {
+          "text": "tallow-cured rawhide lining held by iron hobnails",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "tube_manifold",
+      "feature_name": "Tube Manifold",
+      "values": [
+        {
+          "text": "dual drawn-copper conduits joined by ring flanges",
+          "weight": 3
+        },
+        {
+          "text": "matte-black cast-iron intake pipe wrapped in hemp",
+          "weight": 3
+        },
+        {
+          "text": "tarnished brass receiving tube terminating in dashpot",
+          "weight": 3
+        },
+        {
+          "text": "paired zinc pneumatic trunks linked by unions",
+          "weight": 3
+        },
+        {
+          "text": "nickel-plated intake shaft flared into drop chamber",
+          "weight": 2
+        },
+        {
+          "text": "triple bronze delivery conduits braced with yoke",
+          "weight": 2
+        },
+        {
+          "text": "vulcanized hard-rubber feed tube ribbed with steel",
+          "weight": 2
+        },
+        {
+          "text": "tin-plated pneumatic column sealed with wiping sleeves",
+          "weight": 2
+        },
+        {
+          "text": "massive vertical drop-column wrapped in bitumen tape",
+          "weight": 1
+        },
+        {
+          "text": "curved wrought-iron intake goose-neck with reinforcing ribs",
+          "weight": 1
+        },
+        {
+          "text": "paired cold-drawn brass tubes in stuffing boxes",
+          "weight": 1
+        },
+        {
+          "text": "antler coupling spliced into lead tubing",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "routing_mechanism",
+      "feature_name": "Routing Mechanism",
+      "values": [
+        {
+          "text": "spring-loaded brass switch with ebony teardrop handle",
+          "weight": 3
+        },
+        {
+          "text": "counterweighted iron diverter lever in quadrant gate",
+          "weight": 3
+        },
+        {
+          "text": "knurled gunmetal bypass valve with index rim",
+          "weight": 3
+        },
+        {
+          "text": "forged-steel blast gate actuated by lead bob",
+          "weight": 3
+        },
+        {
+          "text": "sliding brass guillotine shuttles linked by gear",
+          "weight": 2
+        },
+        {
+          "text": "exterior bronze cam-plate driving twin follower pins",
+          "weight": 2
+        },
+        {
+          "text": "polished boxwood lever arm riding sector plate",
+          "weight": 2
+        },
+        {
+          "text": "slide-valve assembly driven by knurled rack",
+          "weight": 2
+        },
+        {
+          "text": "cast-bronze toggle fork dropping onto leather valves",
+          "weight": 1
+        },
+        {
+          "text": "routing pawl resetting against exposed helical spring",
+          "weight": 1
+        },
+        {
+          "text": "salvaged porcelain knob wired to iron toggle",
+          "weight": 1
+        },
+        {
+          "text": "weighted iron pendular bypass lever with horn",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "canister_shell",
+      "feature_name": "Canister Shell",
+      "values": [
+        {
+          "text": "nickel-plated copper capsule ringed by rubber bumper",
+          "weight": 3
+        },
+        {
+          "text": "spun-brass cylinder reinforced with bronze wear-strips",
+          "weight": 3
+        },
+        {
+          "text": "opaque milk-glass ampoule encased in zinc cage",
+          "weight": 3
+        },
+        {
+          "text": "turned ash-wood torpedo capsule banded with iron",
+          "weight": 3
+        },
+        {
+          "text": "blued-steel canister fitted with brass nosecone",
+          "weight": 2
+        },
+        {
+          "text": "tinned-iron cylinder lined with bitumenized insulating paper",
+          "weight": 2
+        },
+        {
+          "text": "folded-sheet-zinc capsule joined by lead-soldered seams",
+          "weight": 2
+        },
+        {
+          "text": "vulcanized black ebonite tube with bronze end-caps",
+          "weight": 2
+        },
+        {
+          "text": "hammered pewter carrier shell bearing structural dimples",
+          "weight": 1
+        },
+        {
+          "text": "vulcanized fibre canister reinforced with copper eyelets",
+          "weight": 1
+        },
+        {
+          "text": "heavy cast-gunmetal torpedo capsule scarred by lathe",
+          "weight": 1
+        },
+        {
+          "text": "rigid drawn-lead carrier cylinder sealed with tin",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "tactile_index",
+      "feature_name": "Tactile Index",
+      "values": [
+        {
+          "text": "baked-vermilion enamel bands ringed with copper rivets",
+          "weight": 3
+        },
+        {
+          "text": "diamond-knurled brass collar bearing filed triangular notches",
+          "weight": 3
+        },
+        {
+          "text": "cobalt-blue sealing wax stamped with hatch marks",
+          "weight": 3
+        },
+        {
+          "text": "five raised pewter annular ribs cast forward",
+          "weight": 3
+        },
+        {
+          "text": "braided emerald-green wool cord in knotted loops",
+          "weight": 2
+        },
+        {
+          "text": "two milled circumferential grooves inlaid with solder",
+          "weight": 2
+        },
+        {
+          "text": "punched round blind holes backed by fiber",
+          "weight": 2
+        },
+        {
+          "text": "cinched rawhide collar bands with lead tokens",
+          "weight": 2
+        },
+        {
+          "text": "alternating blued-steel and polished-nickel fluted rings",
+          "weight": 1
+        },
+        {
+          "text": "serrated brass band with six thumb-detent dimples",
+          "weight": 1
+        },
+        {
+          "text": "vulcanized yellow sulfur-cured rubber held by wire",
+          "weight": 1
+        },
+        {
+          "text": "stamped diamond detents filled with white gesso",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "institutional_wear",
+      "feature_name": "Institutional Wear",
+      "values": [
+        {
+          "text": "streaks of dried carbolic acid bleaching metalwork",
+          "weight": 3
+        },
+        {
+          "text": "amber droplets of boiled linseed oil weeping",
+          "weight": 3
+        },
+        {
+          "text": "scuffed zinc corners and chalky lime-scour paste",
+          "weight": 3
+        },
+        {
+          "text": "dark greasy thumb-rubs polished into lever handle",
+          "weight": 3
+        },
+        {
+          "text": "green verdigris crusting along sweating tube joint",
+          "weight": 2
+        },
+        {
+          "text": "powdered sulfur dusting caught in flange recesses",
+          "weight": 2
+        },
+        {
+          "text": "chipped industrial lacquer exposing dull grey primer",
+          "weight": 2
+        },
+        {
+          "text": "heavy condensation droplets beading along intake collar",
+          "weight": 2
+        },
+        {
+          "text": "yellowish formalin splash stains running down timber",
+          "weight": 1
+        },
+        {
+          "text": "hairline impact dents and scratches around mouth",
+          "weight": 1
+        },
+        {
+          "text": "dried pine pitch sealing a hairline fracture",
+          "weight": 1
+        },
+        {
+          "text": "matte soapstone scrub powder lodged in crevices",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "tags": [
+    {
+      "id": "tag_sanatorium_dispatch_01",
+      "type": "custom",
+      "label": "Designed by an agent swarm",
+      "description": "Concept, variables and values written by a crew of agents in the Agent Studio chat room (writers-room-02), checked by a validator, then judged on a contact sheet. Written for the Atelier residency, 2026-10-06."
+    }
+  ]
+}
