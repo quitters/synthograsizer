@@ -726,7 +726,8 @@ router.get('/consensus-settings', (req, res) => {
 
 /**
  * POST /api/chat/consensus-settings
- * Update consensus detection settings
+ * Update how the session ends: consensus detection, and the other ways out
+ * (closeBy 'vote'|'lead' with leadAgent, minTurns, maxTurns)
  */
 router.post('/consensus-settings', (req, res) => {
   const {
@@ -734,7 +735,11 @@ router.post('/consensus-settings', (req, res) => {
     sensitivity,
     requireExplicitMarker,
     minSignoffCount,
-    customPhrases
+    customPhrases,
+    closeBy,
+    leadAgent,
+    minTurns,
+    maxTurns
   } = req.body;
 
   try {
@@ -743,7 +748,11 @@ router.post('/consensus-settings', (req, res) => {
       sensitivity,
       requireExplicitMarker,
       minSignoffCount,
-      customPhrases
+      customPhrases,
+      closeBy,
+      leadAgent,
+      minTurns,
+      maxTurns
     });
 
     res.json({

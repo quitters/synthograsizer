@@ -133,8 +133,26 @@ export class ChatOrchestrator {
       // Cooldown (in turns) after a user message before consensus can fire
       userCooldownTurns: 2,
       // Sliding window (in turns) for collecting consensus votes
-      voteWindowTurns: 4
+      voteWindowTurns: 4,
+      // ── How a session ends, besides the vote ────────────────────────────────
+      // 'vote': a quorum of agents saying [CONSENSUS REACHED] ends it (the long-standing
+      //         behaviour). 'lead': only the lead agent's own [CONSENSUS REACHED] or
+      //         [END SESSION] ends it; everyone else's marker is a recommendation the
+      //         lead sees. Exists because a vote is cheap to win: two agents echoing a third
+      //         can close a room whose deliverable was never produced.
+      closeBy: 'vote',
+      // The lead's name ('' = the first agent that can speak). An unknown name falls
+      // back to the vote rather than leaving a room nobody can end.
+      leadAgent: '',
+      // No consensus or lead close before this many turns have been taken (0 = no floor)
+      minTurns: 0,
+      // End the session after this many turns, whatever else has happened (0 = no limit).
+      // The agents are warned in the last round so the work is finished, not cut off.
+      maxTurns: 0
     };
+    // Turn count at which the current run began (a restart after the session ended
+    // starts a new segment, so a turn limit gives it a fresh allowance)
+    this.segmentStartTurn = 0;
     // Track consensus votes: { agentId, turn } per emission of [CONSENSUS REACHED]
     this.consensusVotes = [];
     // Turn count at which the last user message was injected (for cooldown)
@@ -508,7 +526,118 @@ export class ChatOrchestrator {
     if (Array.isArray(settings.customPhrases)) {
       this.consensusSettings.customPhrases = settings.customPhrases.map(p => String(p).toLowerCase());
     }
+    if (settings.closeBy && ['vote', 'lead'].includes(settings.closeBy)) {
+      this.consensusSettings.closeBy = settings.closeBy;
+    }
+    if (typeof settings.leadAgent === 'string') {
+      this.consensusSettings.leadAgent = settings.leadAgent.trim();
+    }
+    if (settings.minTurns !== undefined && Number.isFinite(Number(settings.minTurns))) {
+      this.consensusSettings.minTurns = Math.max(0, Math.min(Math.floor(Number(settings.minTurns)), 1000));
+    }
+    if (settings.maxTurns !== undefined && Number.isFinite(Number(settings.maxTurns))) {
+      this.consensusSettings.maxTurns = Math.max(0, Math.min(Math.floor(Number(settings.maxTurns)), 5000));
+    }
     return this.consensusSettings;
+  }
+
+  /**
+   * The agent who alone may end the session when closeBy is 'lead': the one named in
+   * the settings, else the first agent that can speak. Null when the vote applies
+   * (closeBy 'vote', or the named lead is not in the room), so a misspelt name
+   * degrades to the old behaviour instead of a room nobody can close.
+   */
+  _leadAgent() {
+    if (this.consensusSettings.closeBy !== 'lead') return null;
+    const speakable = this.agents.filter(a => !a.muted);
+    const wanted = (this.consensusSettings.leadAgent || '').toLowerCase();
+    if (!wanted) return speakable[0] || null;
+    return speakable.find(a => a.name.toLowerCase() === wanted) || null;
+  }
+
+  /** True while the room is still below the minimum number of turns for an ending. */
+  _tooEarly() {
+    const floor = this.consensusSettings.minTurns || 0;
+    return floor > 0 && this.turnCount < floor;
+  }
+
+  /**
+   * One agent's call to finish the session, run through whichever ending applies.
+   *
+   * 'vote': it is a vote; a quorum within the window ends the session.
+   * 'lead': it ends the session only when it is the lead's own EXPLICIT call; anyone else's
+   * is recorded as a recommendation (and shown to the lead on their next turn).
+   * Either way, nothing ends before minTurns, and a user message still starts a cooldown.
+   *
+   * @returns {string|null} 'consensus_reached' | 'lead_closed' | null (and a consensus_proposed event)
+   */
+  _tallyClose(speakerId, { inCooldown = false, explicit = true, extra = {} } = {}) {
+    if (speakerId) {
+      // De-dupe: one vote per agent per active window.
+      this.consensusVotes = this.consensusVotes.filter(v => v.agentId !== speakerId);
+      this.consensusVotes.push({ agentId: speakerId, turn: this.turnCount });
+    }
+    const window = this.consensusSettings.voteWindowTurns ?? 4;
+    this.consensusVotes = this.consensusVotes.filter(v => this.turnCount - v.turn <= window);
+    const distinctVoters = new Set(this.consensusVotes.map(v => v.agentId)).size;
+    // Use unmuted agent count — muted agents can never vote, so including them
+    // in the denominator can make quorum unreachable.
+    const speakableCount = this.agents.filter(a => !a.muted).length;
+    const required = Math.max(2, Math.ceil((speakableCount || 0) / 2));
+    const tooEarly = this._tooEarly();
+
+    const lead = this._leadAgent();
+    if (lead) {
+      if (speakerId === lead.id && explicit && !inCooldown && !tooEarly) return 'lead_closed';
+      this.broadcast('consensus_proposed', {
+        agentId: speakerId, votes: distinctVoters, required, inCooldown, tooEarly,
+        leadRequired: true, lead: lead.name, ...extra
+      });
+      return null;
+    }
+
+    if (!inCooldown && !tooEarly && distinctVoters >= required) return 'consensus_reached';
+    // Surface a "proposed" event so the UI can show progress without ending.
+    this.broadcast('consensus_proposed', { agentId: speakerId, votes: distinctVoters, required, inCooldown, tooEarly, ...extra });
+    return null;
+  }
+
+  /**
+   * What the prompt says about ending, for one speaker (see endingInstructions in gemini.js).
+   */
+  _endingForPrompt(speaker) {
+    const lead = this._leadAgent();
+    if (!lead) return { mode: 'vote' };
+    return { mode: 'lead', leadName: lead.name, isLead: lead.id === speaker.id };
+  }
+
+  /**
+   * Notes about the ending for the speaker's next turn: the lead is told who has said they are
+   * ready to close; everyone is warned in the last round of a turn limit, so the work is finished
+   * rather than cut off.
+   */
+  _closingNotes(speaker) {
+    const notes = [];
+    const lead = this._leadAgent();
+    if (lead && lead.id === speaker.id) {
+      const names = [...new Set(this.consensusVotes.filter(v => v.agentId !== lead.id).map(v => v.agentId))]
+        .map(id => this.agents.find(a => a.id === id)?.name).filter(Boolean);
+      if (names.length > 0) {
+        notes.push(`Ready to close, they say: ${names.join(', ')}. That is a recommendation, not a decision: you alone close the session. ` +
+          'Close only if what the goal asks for exists in this conversation, in that form, and no objection is open; otherwise say what is missing.');
+      }
+    }
+    const limit = this.consensusSettings.maxTurns || 0;
+    if (limit > 0) {
+      const taken = this.turnCount - this.segmentStartTurn;           // includes the turn about to be spoken
+      const left = limit - taken;
+      if (left <= Math.max(2, this.agents.length - 1)) {
+        notes.push(`TURN LIMIT: this session stops after ${limit} turns and this is turn ${taken}` +
+          (left <= 0 ? ', the LAST one. ' : `, with ${left} more after it. `) +
+          'Whatever the goal asks for must be complete in this conversation by then: finish it now, do not open new threads.');
+      }
+    }
+    return notes.length ? notes.join('\n\n') : null;
   }
 
   /**
@@ -657,6 +786,7 @@ export class ChatOrchestrator {
     this.usage = createEmptyUsage();
     this.judgeUsage = createJudgeUsage();
     this.turnCount = 0;
+    this.segmentStartTurn = 0;
     this.lastSpeakerId = null;
     this.consecutiveFailures = 0;
     this.lastError = null;
@@ -827,6 +957,7 @@ export class ChatOrchestrator {
       this.isRunning = true;
       this.isPaused = false;
       this.completionReason = null;
+      this.segmentStartTurn = this.turnCount;       // a turn limit gives the restarted run its own allowance
       this.broadcast('session_resumed', { continued: true });
       this.runConversationLoop();
     }
@@ -1257,39 +1388,24 @@ export class ChatOrchestrator {
     const turnsSinceUser = this.turnCount - (this.lastUserMessageTurn ?? -Infinity);
     const inCooldown = Number.isFinite(this.lastUserMessageTurn) && turnsSinceUser < cooldown;
 
-    // Explicit consensus marker or completion phrase — record as a vote, then require quorum.
-    if (hasMarker || phraseHit) {
-      if (speakerId) {
-        // De-dupe: one vote per agent per active window.
-        this.consensusVotes = this.consensusVotes.filter(v => v.agentId !== speakerId);
-        this.consensusVotes.push({ agentId: speakerId, turn: this.turnCount });
-      }
-      // Drop votes older than the window
-      const window = this.consensusSettings.voteWindowTurns ?? 4;
-      this.consensusVotes = this.consensusVotes.filter(
-        v => this.turnCount - v.turn <= window
-      );
-      const distinctVoters = new Set(this.consensusVotes.map(v => v.agentId)).size;
-      // Use unmuted agent count — muted agents can never vote, so including them
-      // in the denominator can make quorum unreachable.
-      const speakableCount = this.agents.filter(a => !a.muted).length;
-      const required = Math.max(2, Math.ceil((speakableCount || 0) / 2));
+    // [END SESSION] is the lead's own, unmistakable call (only meaningful when the lead closes the room)
+    const lead = this._leadAgent();
+    const hasEnd = Boolean(lead && speakerId && speakerId === lead.id && contentLower.includes('[end session]'));
 
-      if (!inCooldown && distinctVoters >= required) {
-        return 'consensus_reached';
-      }
-      // Surface a "proposed" event so the UI can show progress without ending.
-      this.broadcast('consensus_proposed', {
-        agentId: speakerId,
-        votes: distinctVoters,
-        required,
-        inCooldown
-      });
-      return null;
+    // Explicit consensus marker or completion phrase — record as a vote, then require quorum
+    // (or, when a lead closes the room, the lead's explicit call).
+    if (hasMarker || phraseHit || hasEnd) {
+      return this._tallyClose(speakerId, { inCooldown, explicit: hasMarker || hasEnd });
     }
 
     // If require explicit marker is set, only the above check applies
     if (this.consensusSettings.requireExplicitMarker) {
+      return null;
+    }
+
+    // With a lead, nothing but the lead's explicit call ends the session: no phrase
+    // patterns, no judge, no sign-off detection.
+    if (lead) {
       return null;
     }
 
@@ -1398,6 +1514,13 @@ export class ChatOrchestrator {
         break;
       }
 
+      // Check turn limit (an ending that does not depend on the agents agreeing about anything)
+      const maxTurns = this.consensusSettings.maxTurns || 0;
+      if (maxTurns > 0 && this.turnCount - this.segmentStartTurn >= maxTurns) {
+        this.stop('turn_limit_reached');
+        break;
+      }
+
       // Select next speaker
       const speaker = await this.selectNextSpeakerSmart();
       if (!speaker) {
@@ -1429,7 +1552,7 @@ export class ChatOrchestrator {
         const toolMedia = [];
         const toolCallLog = [];
 
-        const systemNotes = this._drainWorkflowOutcomes();
+        const systemNotes = [this._drainWorkflowOutcomes(), this._closingNotes(speaker)].filter(Boolean).join('\n\n') || null;
         const turnTools = this._toolsForTurn(speaker);
         const hasCustomFunctions = turnTools.some(t => t?.type === 'function');
         const generator = this._generate(
@@ -1445,6 +1568,8 @@ export class ChatOrchestrator {
             model: this.modelPreference,
             thinkingLevel: speaker.thinkingLevel,
             systemNotes,
+            // How this room ends (a vote, or the lead alone), so each agent's prompt says so
+            ending: this._endingForPrompt(speaker),
             generatedImages: this.recentGenImages,
             // Stateful chaining: continue this agent's server-side history and
             // send only the messages it has not seen. Both are ignored when
@@ -2235,27 +2360,9 @@ export class ChatOrchestrator {
     }
     if (!verdict?.complete || verdict.confidence < CONSENSUS_CONFIDENCE_FLOOR) return null;
 
-    // Same vote bookkeeping as the explicit marker path.
-    this.consensusVotes = this.consensusVotes.filter(v => v.agentId !== speaker.id);
-    this.consensusVotes.push({ agentId: speaker.id, turn: this.turnCount });
-    const window = this.consensusSettings.voteWindowTurns ?? 4;
-    this.consensusVotes = this.consensusVotes.filter(v => this.turnCount - v.turn <= window);
-
-    const distinctVoters = new Set(this.consensusVotes.map(v => v.agentId)).size;
-    const speakableCount = this.agents.filter(a => !a.muted).length;
-    const required = Math.max(2, Math.ceil((speakableCount || 0) / 2));
-
-    if (distinctVoters >= required) return 'consensus_reached';
-
-    this.broadcast('consensus_proposed', {
-      agentId: speaker.id,
-      votes: distinctVoters,
-      required,
-      inCooldown: false,
-      rationale: verdict.rationale,
-      judged: true,
-    });
-    return null;
+    // Same vote bookkeeping as the explicit marker path (the judge's opinion is never an
+    // explicit lead call, which is why checkForCompletion does not ask it when a lead closes).
+    return this._tallyClose(speaker.id, { explicit: false, extra: { rationale: verdict.rationale, judged: true } });
   }
 
   /**

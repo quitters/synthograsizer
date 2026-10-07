@@ -366,12 +366,32 @@ If you say "here's the updated code" or "I've added a function" without wrapping
 
   prompt += `
 
-ENDING THE CONVERSATION:
-When the goal is achieved, say "[CONSENSUS REACHED]" in your message.
+${endingInstructions(options.ending)}
 
 Remember: Write ONLY ${agent.name}'s response. One voice. One perspective.`;
 
   return prompt;
+}
+
+/**
+ * What an agent is told about ending the conversation. By default any agent may say
+ * [CONSENSUS REACHED] and a quorum ends it. When one agent (the lead) closes the room, the
+ * lead is told it alone decides and what counts as done, and the others are told their marker
+ * is only a recommendation and they must keep working until the lead closes.
+ *
+ * @param {{mode?: 'vote'|'lead', leadName?: string, isLead?: boolean}} [ending]
+ */
+export function endingInstructions(ending = {}) {
+  if (ending?.mode !== 'lead') {
+    return `ENDING THE CONVERSATION:
+When the goal is achieved, say "[CONSENSUS REACHED]" in your message.`;
+  }
+  if (ending.isLead) {
+    return `ENDING THE CONVERSATION:
+You are the lead, and only you can end this session. Other agents may say "[CONSENSUS REACHED]" to tell you they think the goal is met; that is a recommendation, not a decision, and agreeable agents are not evidence. Close the session only when what the goal asks for actually exists in this conversation, in the form the goal asks for, and no objection is still open. Then say "[CONSENSUS REACHED]" (or "[END SESSION]") in your message. If it is not done, say what is missing and who should supply it. Claims that something was saved, filed or committed are not evidence unless the thing itself is posted here.`;
+  }
+  return `ENDING THE CONVERSATION:
+Only ${ending.leadName || 'the lead'} can end this session. When you think the goal is achieved, say "[CONSENSUS REACHED]" to tell them you are ready; that will not end the session by itself. Until ${ending.leadName || 'the lead'} closes it, keep working: raise any problem you can see, and do not repeat what has already been said.`;
 }
 
 /**
@@ -973,6 +993,7 @@ export async function* generateAgentResponse(agent, allAgents, messages, goal, s
   const systemPrompt = await buildSystemPrompt(agent, allAgents, goal, {
     enableTagTools: !useFunctions,
     artifactStore: options?.artifactStore,
+    ending: options?.ending,
   });
   // Precedence: per-agent model → session-wide preference → registry default.
   const modelId = resolveAgentModel(agent, options?.model);

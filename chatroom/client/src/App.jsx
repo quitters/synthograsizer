@@ -237,6 +237,10 @@ function App() {
       // Browser notification
       if (data.reason === 'consensus_reached') {
         showNotification('Chat Complete', 'The agents have reached consensus!');
+      } else if (data.reason === 'lead_closed') {
+        showNotification('Chat Complete', 'The lead agent closed the session.');
+      } else if (data.reason === 'turn_limit_reached') {
+        showNotification('Chat Complete', 'Turn limit reached.');
       } else if (data.reason === 'token_limit_reached') {
         showNotification('Chat Complete', 'Token limit reached.');
       } else if (data.reason === 'error_limit_reached') {
