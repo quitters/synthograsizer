@@ -1,0 +1,164 @@
+{
+  "promptTemplate": "A scrolling automaton with {{strata_rule}} geometry, mapped as {{growth_warp}}, punctuated by {{mutation_bleed}}, rendered in {{fossil_palette}}, moving at {{scroll_tempo}}.",
+  "variables": [
+    {
+      "name": "strata_rule",
+      "feature_name": "Strata Rule",
+      "values": [
+        {
+          "text": "Sierpinski nested pyramids",
+          "weight": 3
+        },
+        {
+          "text": "Crystalline diagonal fabric",
+          "weight": 3
+        },
+        {
+          "text": "Cascading chevron weave",
+          "weight": 2
+        },
+        {
+          "text": "Aperiodic chaotic drift",
+          "weight": 2
+        },
+        {
+          "text": "Soliton particle collisions",
+          "weight": 1
+        },
+        {
+          "text": "Dense turbulent static",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "growth_warp",
+      "feature_name": "Growth Warp",
+      "values": [
+        {
+          "text": "Direct vertical strata",
+          "weight": 3
+        },
+        {
+          "text": "Gentle geological tilt",
+          "weight": 3
+        },
+        {
+          "text": "Curving barrel folds",
+          "weight": 2
+        },
+        {
+          "text": "Toroidal magnetic shear",
+          "weight": 2
+        },
+        {
+          "text": "Vortex spiral unwind",
+          "weight": 1
+        },
+        {
+          "text": "Logarithmic helix crawl",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "mutation_bleed",
+      "feature_name": "Mutation Bleed",
+      "values": [
+        {
+          "text": "Pure pristine logic",
+          "weight": 3
+        },
+        {
+          "text": "Faint drift sparks",
+          "weight": 3
+        },
+        {
+          "text": "Leaking neon fissures",
+          "weight": 2
+        },
+        {
+          "text": "Pollen cloud dispersal",
+          "weight": 2
+        },
+        {
+          "text": "Violent rule shearing",
+          "weight": 1
+        },
+        {
+          "text": "Total cascade breakdown",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "fossil_palette",
+      "feature_name": "Fossil Palette",
+      "values": [
+        {
+          "text": "Midnight basalt and emerald",
+          "weight": 3
+        },
+        {
+          "text": "Deep ocean bioluminescence",
+          "weight": 3
+        },
+        {
+          "text": "Oxidized copper patina",
+          "weight": 2
+        },
+        {
+          "text": "Solar flare amber",
+          "weight": 2
+        },
+        {
+          "text": "Iridescent oil slick",
+          "weight": 1
+        },
+        {
+          "text": "Monochrome bone fossil",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "scroll_tempo",
+      "feature_name": "Scroll Tempo",
+      "values": [
+        {
+          "text": "Sub-surface creep",
+          "weight": 3
+        },
+        {
+          "text": "Glacial sedimentation",
+          "weight": 3
+        },
+        {
+          "text": "Steady mechanical feed",
+          "weight": 3
+        },
+        {
+          "text": "Rhythmic pulsing surge",
+          "weight": 2
+        },
+        {
+          "text": "Rapid arterial flow",
+          "weight": 2
+        },
+        {
+          "text": "Torrential cascade",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "p5Code": "const RULE_MAP = {\n  \"Sierpinski nested pyramids\": 90,\n  \"Crystalline diagonal fabric\": 18,\n  \"Cascading chevron weave\": 22,\n  \"Aperiodic chaotic drift\": 30,\n  \"Soliton particle collisions\": 110,\n  \"Dense turbulent static\": 73\n};\nconst WARP_MAP = {\n  \"Direct vertical strata\": 0,\n  \"Gentle geological tilt\": 1,\n  \"Curving barrel folds\": 2,\n  \"Toroidal magnetic shear\": 3,\n  \"Vortex spiral unwind\": 4,\n  \"Logarithmic helix crawl\": 5\n};\nconst MUTATION_MAP = {\n  \"Pure pristine logic\": 0.0,\n  \"Faint drift sparks\": 0.005,\n  \"Leaking neon fissures\": 0.02,\n  \"Pollen cloud dispersal\": 0.05,\n  \"Violent rule shearing\": 0.1,\n  \"Total cascade breakdown\": 0.2\n};\nconst PALETTE_MAP = {\n  \"Midnight basalt and emerald\": ['#050510', '#00ff66'],\n  \"Deep ocean bioluminescence\": ['#001122', '#00aaff'],\n  \"Oxidized copper patina\": ['#332211', '#44cca8'],\n  \"Solar flare amber\": ['#220500', '#ff6600'],\n  \"Iridescent oil slick\": ['#111111', '#ff00ff'],\n  \"Monochrome bone fossil\": ['#1a1a1a', '#e6e4d5']\n};\nconst TEMPO_MAP = {\n  \"Sub-surface creep\": 0.1,\n  \"Glacial sedimentation\": 0.25,\n  \"Steady mechanical feed\": 1.0,\n  \"Rhythmic pulsing surge\": 2.0,\n  \"Rapid arterial flow\": 3.0,\n  \"Torrential cascade\": 4.0\n};\n\np.setup = function() {\n  p.createCanvas(800, 800);\n  p.caBuf = p.createGraphics(200, 200);\n  p.caBuf.noSmooth();\n  \n  p.history = new Uint8Array(200 * 200);\n  p.cells = new Array(200).fill(0);\n  p.cells[100] = 1;\n  \n  let bg = p.color('#050510');\n  let fg = p.color('#00ff66');\n  p.caBuf.background(bg);\n  p.caBuf.fill(fg);\n  p.caBuf.noStroke();\n  \n  for(let y = 0; y < 200; y++) {\n    let nextCells = new Array(200).fill(0);\n    for(let i = 0; i < 200; i++) {\n      let left = p.cells[(i - 1 + 200) % 200];\n      let me = p.cells[i];\n      let right = p.cells[(i + 1) % 200];\n      let state = (left << 2) | (me << 1) | right;\n      let newState = (90 >> state) & 1;\n      \n      nextCells[i] = newState;\n      p.history[y * 200 + i] = newState;\n      if (newState === 1) p.caBuf.rect(i, y, 1, 1);\n    }\n    p.cells = nextCells;\n  }\n  \n  p.yHead = 0;\n  p.accum = 0;\n  p.lastRule = \"Sierpinski nested pyramids\";\n  p.lastPalette = \"Midnight basalt and emerald\";\n};\n\np.draw = function() {\n  const ruleText = p.getSynthVar('strata_rule') || \"Sierpinski nested pyramids\";\n  const warpText = p.getSynthVar('growth_warp') || \"Direct vertical strata\";\n  const mutText = p.getSynthVar('mutation_bleed') || \"Pure pristine logic\";\n  const palText = p.getSynthVar('fossil_palette') || \"Midnight basalt and emerald\";\n  const tempoText = p.getSynthVar('scroll_tempo') || \"Sub-surface creep\";\n\n  const rule = RULE_MAP[ruleText];\n  const warp = WARP_MAP[warpText];\n  const mut = MUTATION_MAP[mutText];\n  const pal = PALETTE_MAP[palText];\n  let speed = TEMPO_MAP[tempoText];\n\n  if (tempoText === \"Rhythmic pulsing surge\") {\n     speed = (p.frameCount % 60 < 20) ? 3.0 : 0.5;\n  }\n\n  if (palText !== p.lastPalette) {\n    let bgCol = p.color(pal[0]);\n    let fgCol = p.color(pal[1]);\n    p.caBuf.loadPixels();\n    for (let i = 0; i < 40000; i++) {\n      let col = p.history[i] ? fgCol : bgCol;\n      let idx = i * 4;\n      p.caBuf.pixels[idx] = p.red(col);\n      p.caBuf.pixels[idx+1] = p.green(col);\n      p.caBuf.pixels[idx+2] = p.blue(col);\n      p.caBuf.pixels[idx+3] = 255;\n    }\n    p.caBuf.updatePixels();\n    p.lastPalette = palText;\n  }\n\n  if (ruleText !== p.lastRule && p.lastRule !== null) {\n    for(let i = 0; i < 200; i++) {\n      if(p.random() < 0.3) p.cells[i] = 1;\n    }\n    p.lastRule = ruleText;\n  }\n\n  p.accum += speed;\n  let updates = p.floor(p.accum);\n  p.accum -= updates;\n\n  if (updates > 0) {\n    p.caBuf.noStroke();\n    for (let k = 0; k < updates; k++) {\n      p.caBuf.fill(pal[0]);\n      p.caBuf.rect(0, p.yHead, 200, 1);\n      \n      p.caBuf.fill(pal[1]);\n      let nextCells = new Array(200).fill(0);\n      for (let i = 0; i < 200; i++) {\n        let left = p.cells[(i - 1 + 200) % 200];\n        let me = p.cells[i];\n        let right = p.cells[(i + 1) % 200];\n        let state = (left << 2) | (me << 1) | right;\n        let newState = (rule >> state) & 1;\n        \n        if (mut > 0 && p.random() < mut) newState = 1 - newState;\n        \n        nextCells[i] = newState;\n        p.history[p.yHead * 200 + i] = newState;\n        if (newState === 1) p.caBuf.rect(i, p.yHead, 1, 1);\n      }\n      p.cells = nextCells;\n      p.yHead = (p.yHead + 1) % 200;\n    }\n  }\n\n  p.background(pal[0]);\n  p.push();\n  p.translate(400, 400);\n  \n  for (let i = 0; i < 200; i++) {\n    let bufY = (p.yHead + i) % 200;\n    let normY = i / 200;\n    let logY = (i - 100) * 4; \n    \n    p.push();\n    if (warp === 0) {\n      p.translate(0, logY);\n      p.scale(4, 4);\n    } else if (warp === 1) {\n      p.rotate(p.PI / 8);\n      p.translate(0, logY * 1.2);\n      p.scale(5, 5);\n    } else if (warp === 2) {\n      let xOff = p.sin(normY * p.PI * 4 + p.frameCount * 0.05) * 80;\n      p.translate(xOff, logY);\n      p.scale(4, 4);\n    } else if (warp === 3) {\n      let theta = p.frameCount * 0.01 + normY * p.PI * 4;\n      p.rotate(theta);\n      p.translate(0, normY * 300 - 100);\n      p.scale(4 + normY * 2, 4);\n    } else if (warp === 4) {\n      p.rotate(normY * p.PI * 6 + p.frameCount * 0.02);\n      p.translate(0, logY * (0.5 + normY));\n      p.scale(1 + normY * 8, 4);\n    } else if (warp === 5) {\n      p.rotate(p.log(normY + 0.1) * 8 - p.frameCount * 0.03);\n      p.translate(0, logY * 1.5);\n      p.scale(2 + normY * 6, 4);\n    }\n    \n    p.image(p.caBuf, -100, -0.5, 200, 1.5, 0, bufY, 200, 1);\n    p.pop();\n  }\n  p.pop();\n};\n",
+  "tags": [
+    {
+      "id": "tag_cellular_garden_01",
+      "type": "custom",
+      "label": "Designed and written by an agent swarm",
+      "description": "Concept, variables and code written by a crew of agents in the Agent Studio chat room (x2-rule-garden) and played by the harness before it was accepted. Atelier residency, 2026-10-07."
+    }
+  ]
+}

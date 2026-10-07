@@ -1,0 +1,268 @@
+{
+  "promptTemplate": "{{figure}} drawn by {{circles}} of turning circles, shown as {{machinery}}, traced as {{trace}} in {{palette}}, at a {{speed}} pace, {{wobble}}",
+  "variables": [
+    {
+      "name": "figure",
+      "feature_name": "Figure",
+      "values": [
+        {
+          "text": "a heart",
+          "weight": 3
+        },
+        {
+          "text": "a five-pointed star",
+          "weight": 3
+        },
+        {
+          "text": "a trefoil knot",
+          "weight": 3
+        },
+        {
+          "text": "a butterfly",
+          "weight": 2
+        },
+        {
+          "text": "a hypotrochoid bloom",
+          "weight": 2
+        },
+        {
+          "text": "an infinity sign",
+          "weight": 2
+        },
+        {
+          "text": "a five-petal rose",
+          "weight": 2
+        },
+        {
+          "text": "a crescent moon",
+          "weight": 1
+        },
+        {
+          "text": "a lightning bolt",
+          "weight": 1
+        },
+        {
+          "text": "a cat's head",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "circles",
+      "feature_name": "Circles",
+      "values": [
+        {
+          "text": "two dozen",
+          "weight": 3
+        },
+        {
+          "text": "a dozen",
+          "weight": 3
+        },
+        {
+          "text": "fifty",
+          "weight": 3
+        },
+        {
+          "text": "half a dozen",
+          "weight": 2
+        },
+        {
+          "text": "a hundred",
+          "weight": 2
+        },
+        {
+          "text": "a handful",
+          "weight": 1
+        },
+        {
+          "text": "a hundred and sixty",
+          "weight": 1
+        },
+        {
+          "text": "every last circle",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "machinery",
+      "feature_name": "Machinery",
+      "values": [
+        {
+          "text": "bare circles",
+          "weight": 3
+        },
+        {
+          "text": "ghost circles",
+          "weight": 3
+        },
+        {
+          "text": "spokes only",
+          "weight": 2
+        },
+        {
+          "text": "pearls on spokes",
+          "weight": 2
+        },
+        {
+          "text": "gear teeth",
+          "weight": 2
+        },
+        {
+          "text": "glass discs",
+          "weight": 2
+        },
+        {
+          "text": "invisible machinery",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "trace",
+      "feature_name": "Trace",
+      "values": [
+        {
+          "text": "thin wire",
+          "weight": 3
+        },
+        {
+          "text": "neon glow",
+          "weight": 3
+        },
+        {
+          "text": "comet",
+          "weight": 2
+        },
+        {
+          "text": "ribbon",
+          "weight": 2
+        },
+        {
+          "text": "beside its ideal",
+          "weight": 2
+        },
+        {
+          "text": "dotted",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "palette",
+      "feature_name": "Palette",
+      "values": [
+        {
+          "text": "chalk on slate",
+          "weight": 3
+        },
+        {
+          "text": "ink on vellum",
+          "weight": 3
+        },
+        {
+          "text": "neon on black",
+          "weight": 3
+        },
+        {
+          "text": "blueprint",
+          "weight": 2
+        },
+        {
+          "text": "gold on oxblood",
+          "weight": 2
+        },
+        {
+          "text": "jade and cream",
+          "weight": 2
+        },
+        {
+          "text": "sunset duotone",
+          "weight": 2
+        },
+        {
+          "text": "ultraviolet",
+          "weight": 2
+        },
+        {
+          "text": "sodium lamp",
+          "weight": 1
+        },
+        {
+          "text": "seaglass",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "speed",
+      "feature_name": "Speed",
+      "values": [
+        {
+          "text": "walking",
+          "weight": 3
+        },
+        {
+          "text": "slow",
+          "weight": 3
+        },
+        {
+          "text": "brisk",
+          "weight": 3
+        },
+        {
+          "text": "glacial",
+          "weight": 2
+        },
+        {
+          "text": "fast",
+          "weight": 2
+        },
+        {
+          "text": "frenzied",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "wobble",
+      "feature_name": "Wobble",
+      "values": [
+        {
+          "text": "steady",
+          "weight": 3
+        },
+        {
+          "text": "a gentle sway",
+          "weight": 3
+        },
+        {
+          "text": "breathing",
+          "weight": 2
+        },
+        {
+          "text": "detuned",
+          "weight": 2
+        },
+        {
+          "text": "a slow spin",
+          "weight": 2
+        },
+        {
+          "text": "drunk",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "p5Code": "// EPICYCLE ATELIER\n// Any closed curve is a stack of turning circles: take the curve's Fourier transform, sort the terms by size, and chain them,\n// each circle riding on the rim of the one before. The end of the chain draws the curve. Few circles give a soft, rounded\n// ghost of the figure; more circles sharpen it; the last few hundred give the corners back. The wobble knob detunes the\n// machine so the drawing drifts, sways, or spins while it draws.\n// Variables are re-read every frame; changing the figure re-takes the transform.\n\nconst CX = 400, CY = 400, SCALE = 330, M = 480;\n\nconst FIGURES = ['a heart', 'a five-pointed star', 'a trefoil knot', 'a butterfly', 'a hypotrochoid bloom', 'an infinity sign',\n                 'a lightning bolt', 'a crescent moon', 'a five-petal rose', 'a cat\\'s head'];\n\nconst COUNTS = { 'a handful': 5, 'half a dozen': 8, 'a dozen': 12, 'two dozen': 24, 'fifty': 50, 'a hundred': 100, 'a hundred and sixty': 160, 'every last circle': 300 };\nconst LOOPS_PER_SECOND = { 'glacial': 1 / 60, 'slow': 1 / 36, 'walking': 1 / 22, 'brisk': 1 / 14, 'fast': 1 / 8, 'frenzied': 1 / 4 };\n\nconst PALETTES = {\n  'chalk on slate':  { bg: ['#2a3037', '#0d0f12'], trace: '#f4f1e8', ring: 'rgba(244,241,232,', accent: '#ffcf66' },\n  'ink on vellum':   { bg: ['#f4ecd6', '#d8cba8'], trace: '#1a1612', ring: 'rgba(40,30,20,',    accent: '#b3392b' },\n  'neon on black':   { bg: ['#090a12', '#000000'], trace: '#46f0d8', ring: 'rgba(70,240,216,',  accent: '#ff4fd8' },\n  'blueprint':       { bg: ['#10357a', '#06183d'], trace: '#ffffff', ring: 'rgba(190,220,255,', accent: '#ffd36b' },\n  'gold on oxblood': { bg: ['#4a1019', '#16040a'], trace: '#f0c869', ring: 'rgba(240,200,105,', accent: '#fff2c4' },\n  'jade and cream':  { bg: ['#f1ead8', '#cfc5a8'], trace: '#0f6b57', ring: 'rgba(15,107,87,',   accent: '#d6563a' },\n  'sunset duotone':  { bg: ['#2b1650', '#0e0720'], trace: '#ff8a5c', ring: 'rgba(255,138,92,',  accent: '#ffd6a5' },\n  'ultraviolet':     { bg: ['#12062e', '#030010'], trace: '#b57bff', ring: 'rgba(181,123,255,', accent: '#ff7bd5' },\n  'sodium lamp':     { bg: ['#1b1204', '#060401'], trace: '#ffb43b', ring: 'rgba(255,180,59,',  accent: '#ffe39a' },\n  'seaglass':        { bg: ['#0c3a40', '#031316'], trace: '#9ff2d8', ring: 'rgba(159,242,216,', accent: '#ffffff' }\n};\n\nlet figureKey = null, prefillKey = null, terms = [], contour = [];\nlet t = 0;\nconst TRAIL = 6000;\nconst tx = new Float32Array(TRAIL), ty = new Float32Array(TRAIL);\nlet head = 0, filled = 0;\nlet wander = [];\n\n// ---- the figures ---------------------------------------------------------------------------------------------------\nfunction raw(name) {\n  const pts = [];\n  const poly = (v) => { for (let i = 0; i < v.length; i++) { const a = v[i], b = v[(i + 1) % v.length]; for (let k = 0; k < 40; k++) pts.push([a[0] + (b[0] - a[0]) * k / 40, a[1] + (b[1] - a[1]) * k / 40]); } };\n  if (name === 'a heart') for (let i = 0; i < 400; i++) { const a = i / 400 * 6.2832; pts.push([16 * Math.pow(Math.sin(a), 3), -(13 * Math.cos(a) - 5 * Math.cos(2 * a) - 2 * Math.cos(3 * a) - Math.cos(4 * a))]); }\n  else if (name === 'a five-pointed star') { const v = []; for (let i = 0; i < 10; i++) { const r = i % 2 ? 0.42 : 1, a = -1.5708 + i * 0.6283; v.push([Math.cos(a) * r, Math.sin(a) * r]); } poly(v); }\n  else if (name === 'a trefoil knot') for (let i = 0; i < 400; i++) { const a = i / 400 * 6.2832; pts.push([Math.sin(a) + 2 * Math.sin(2 * a), Math.cos(a) - 2 * Math.cos(2 * a)]); }\n  else if (name === 'a butterfly') for (let i = 0; i < 1200; i++) { const a = i / 1200 * 37.699, r = Math.exp(Math.cos(a)) - 2 * Math.cos(4 * a) + Math.pow(Math.sin((2 * a - 3.1416) / 24), 5); pts.push([Math.sin(a) * r, -Math.cos(a) * r]); }\n  else if (name === 'a hypotrochoid bloom') for (let i = 0; i < 800; i++) { const a = i / 800 * 6.2832 * 3, R = 5, r = 3, d = 5; pts.push([(R - r) * Math.cos(a) + d * Math.cos((R - r) / r * a), (R - r) * Math.sin(a) - d * Math.sin((R - r) / r * a)]); }\n  else if (name === 'an infinity sign') for (let i = 0; i < 400; i++) { const a = i / 400 * 6.2832, d = 1 + Math.sin(a) * Math.sin(a); pts.push([Math.cos(a) / d, Math.sin(a) * Math.cos(a) / d]); }\n  else if (name === 'a lightning bolt') poly([[0.15, -1], [-0.6, 0.05], [-0.08, 0.05], [-0.32, 1], [0.62, -0.12], [0.1, -0.12], [0.55, -1]]);\n  else if (name === 'a crescent moon') { for (let i = 0; i <= 120; i++) { const a = (0.7 + i / 120 * 4.88); pts.push([Math.cos(a), Math.sin(a)]); } for (let i = 0; i <= 120; i++) { const a = (5.5 - i / 120 * 4.8); pts.push([0.42 + 0.78 * Math.cos(a) * 0.82, 0.78 * Math.sin(a)]); } }\n  else if (name === 'a five-petal rose') for (let i = 0; i < 500; i++) { const a = i / 500 * 3.1416, r = Math.cos(5 * a); pts.push([r * Math.cos(a), r * Math.sin(a)]); }\n  else poly([[-0.9, -0.95], [-0.5, -0.45], [0, -0.5], [0.5, -0.45], [0.9, -0.95], [0.95, 0], [0.6, 0.7], [0, 0.95], [-0.6, 0.7], [-0.95, 0]]);   // a cat's head\n  return pts;\n}\n\n// resample to M points evenly along the curve, centre on the centroid, scale to fit\nfunction prepare(name) {\n  const pts = raw(name);\n  const seg = [0];\n  for (let i = 1; i <= pts.length; i++) { const a = pts[i - 1], b = pts[i % pts.length]; seg.push(seg[i - 1] + Math.hypot(b[0] - a[0], b[1] - a[1])); }\n  const total = seg[seg.length - 1], out = [];\n  let j = 0;\n  for (let n = 0; n < M; n++) {\n    const d = total * n / M;\n    while (seg[j + 1] < d) j++;\n    const a = pts[j], b = pts[(j + 1) % pts.length], f = (d - seg[j]) / Math.max(1e-9, seg[j + 1] - seg[j]);\n    out.push([a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f]);\n  }\n  let mx = 0, my = 0;\n  for (const q of out) { mx += q[0]; my += q[1]; }\n  mx /= M; my /= M;\n  let big = 0;\n  for (const q of out) { q[0] -= mx; q[1] -= my; big = Math.max(big, Math.hypot(q[0], q[1])); }\n  for (const q of out) { q[0] /= big; q[1] /= big; }\n  return out;\n}\n\n// discrete Fourier transform, terms sorted by size (the mean sits at the centre and is dropped)\nfunction transform(pts) {\n  const res = [];\n  for (let k = -M / 2; k < M / 2; k++) {\n    if (k === 0) continue;\n    let re = 0, im = 0;\n    for (let n = 0; n < M; n++) {\n      const a = -6.2832 * k * n / M, c = Math.cos(a), s = Math.sin(a);\n      re += pts[n][0] * c - pts[n][1] * s; im += pts[n][0] * s + pts[n][1] * c;\n    }\n    re /= M; im /= M;\n    res.push({ k: k, amp: Math.hypot(re, im), ph: Math.atan2(im, re) });\n  }\n  res.sort((a, b) => b.amp - a.amp);\n  return res;\n}\n\np.setup = function () {\n  p.createCanvas(800, 800);\n  p.pixelDensity(1);\n  p.frameRate(60);\n};\n\nfunction rgba(base, a) { return base + a + ')'; }\n\np.draw = function () {\n  const fig = p.getSynthVar('figure') || 'a heart';\n  const circles = p.getSynthVar('circles') || 'two dozen';\n  const machinery = p.getSynthVar('machinery') || 'bare circles';\n  const trace = p.getSynthVar('trace') || 'thin wire';\n  const palName = p.getSynthVar('palette') || 'chalk on slate';\n  const speed = p.getSynthVar('speed') || 'walking';\n  const wobble = p.getSynthVar('wobble') || 'steady';\n\n  if (fig !== figureKey) {\n    contour = prepare(FIGURES.indexOf(fig) >= 0 ? fig : 'a heart');\n    terms = transform(contour); figureKey = fig;\n    head = 0; filled = 0; wander = terms.map(() => 0);\n  }\n  const N = Math.min(COUNTS[circles] || 24, terms.length);\n  const pal = PALETTES[palName] || PALETTES['chalk on slate'];\n  const lps = LOOPS_PER_SECOND[speed] || 1 / 22;\n  const SUB = lps < 1 / 30 ? 1 : lps < 1 / 12 ? 2 : 3;      // trace points per frame: fewer when slow, so a whole loop fits the buffer\n\n  // When the figure or the number of circles changes (and on load) the whole figure is drawn at once, from the circles' own positions over\n  // the last full loop, so there is something to see immediately instead of a few centimetres of line growing for twenty seconds.\n  const fillKey = fig + '|' + N;\n  if (fillKey !== prefillKey) {\n    prefillKey = fillKey;\n    head = 0; filled = 0;\n    const back = Math.min(TRAIL - 2, Math.round(60 * SUB / lps));\n    const dt = lps / 60 / SUB;\n    for (let n = back; n >= 1; n--) {\n      const tt = t - n * dt;\n      let hx = 0, hy = 0;\n      for (let i = 0; i < N; i++) {\n        const a0 = 6.2832 * terms[i].k * tt + terms[i].ph;\n        hx += terms[i].amp * Math.cos(a0); hy += terms[i].amp * Math.sin(a0);\n      }\n      tx[head] = CX + hx * SCALE; ty[head] = CY + hy * SCALE;\n      head = (head + 1) % TRAIL; filled = Math.min(TRAIL, filled + 1);\n    }\n  }\n\n  // advance the clock and lay down trace points\n  let cur = null;\n  for (let s = 0; s < SUB; s++) {\n    t += lps / 60 / SUB;\n    const sec = p.frameCount / 60;\n    let x = 0, y = 0;\n    const joints = [];\n    for (let i = 0; i < N; i++) {\n      const tm = terms[i];\n      let amp = tm.amp, ph = tm.ph, fk = tm.k;\n      if (wobble === 'a gentle sway') ph += 0.35 * Math.sin(sec * 0.4 + i * 1.3);\n      else if (wobble === 'drunk') { wander[i] += (Math.random() - 0.5) * 0.03; wander[i] *= 0.998; ph += wander[i] * 3; }\n      else if (wobble === 'breathing') amp *= 1 + 0.16 * Math.sin(sec * 0.8 + i * 0.9);\n      else if (wobble === 'detuned') fk = tm.k * (1 + 0.0035);\n      const a = 6.2832 * fk * t + ph + (wobble === 'a slow spin' ? sec * 0.12 : 0);\n      x += amp * Math.cos(a); y += amp * Math.sin(a);\n      joints.push([x, y, amp]);\n    }\n    cur = joints;\n    tx[head] = CX + x * SCALE; ty[head] = CY + y * SCALE;\n    head = (head + 1) % TRAIL; filled = Math.min(TRAIL, filled + 1);\n  }\n\n  // ---- paint ----\n  const ctx = p.drawingContext;\n  const g = ctx.createRadialGradient(CX, CY, 40, CX, CY, 620);\n  g.addColorStop(0, pal.bg[0]); g.addColorStop(1, pal.bg[1]);\n  ctx.setLineDash([]); ctx.lineCap = 'round'; ctx.lineJoin = 'round';\n  ctx.fillStyle = g; ctx.fillRect(0, 0, 800, 800);\n\n  if (trace === 'beside its ideal') {\n    ctx.strokeStyle = rgba(pal.ring, 0.28); ctx.lineWidth = 1.2; ctx.beginPath();\n    for (let i = 0; i <= M; i++) { const q = contour[i % M]; if (i === 0) ctx.moveTo(CX + q[0] * SCALE, CY + q[1] * SCALE); else ctx.lineTo(CX + q[0] * SCALE, CY + q[1] * SCALE); }\n    ctx.stroke();\n  }\n\n  // the machinery\n  if (machinery !== 'invisible machinery' && cur) {\n    let px = 0, py = 0;\n    for (let i = 0; i < cur.length; i++) {\n      const jx = CX + cur[i][0] * SCALE, jy = CY + cur[i][1] * SCALE, r = cur[i][2] * SCALE;\n      if (machinery === 'bare circles') {\n        ctx.strokeStyle = rgba(pal.ring, 0.6); ctx.lineWidth = 1.2; ctx.beginPath();\n        ctx.arc(CX + px, CY + py, r, 0, 6.2832); ctx.stroke();\n        ctx.beginPath(); ctx.moveTo(CX + px, CY + py); ctx.lineTo(jx, jy); ctx.stroke();\n      } else if (machinery === 'ghost circles') {\n        ctx.strokeStyle = rgba(pal.ring, 0.16); ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(CX + px, CY + py, r, 0, 6.2832); ctx.stroke();\n      } else if (machinery === 'spokes only') {\n        ctx.strokeStyle = rgba(pal.ring, 0.55); ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(CX + px, CY + py); ctx.lineTo(jx, jy); ctx.stroke();\n      } else if (machinery === 'pearls on spokes') {\n        ctx.strokeStyle = rgba(pal.ring, 0.35); ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(CX + px, CY + py); ctx.lineTo(jx, jy); ctx.stroke();\n        ctx.fillStyle = pal.accent; ctx.beginPath(); ctx.arc(jx, jy, Math.max(1.6, Math.min(5, r * 0.12)), 0, 6.2832); ctx.fill();\n      } else if (machinery === 'gear teeth') {\n        ctx.strokeStyle = rgba(pal.ring, 0.55); ctx.lineWidth = Math.max(1.5, Math.min(6, r * 0.12));\n        ctx.setLineDash([2, Math.max(2, Math.min(9, r * 0.25))]); ctx.beginPath(); ctx.arc(CX + px, CY + py, r, 0, 6.2832); ctx.stroke(); ctx.setLineDash([]);\n      } else if (machinery === 'glass discs') {\n        ctx.fillStyle = rgba(pal.ring, 0.06); ctx.strokeStyle = rgba(pal.ring, 0.25); ctx.lineWidth = 1;\n        ctx.beginPath(); ctx.arc(CX + px, CY + py, r, 0, 6.2832); ctx.fill(); ctx.stroke();\n      }\n      px = cur[i][0] * SCALE; py = cur[i][1] * SCALE;\n    }\n  }\n\n  // the trace\n  const loop = Math.round(60 * SUB / lps);                                          // trace points in one full loop\n  const want = trace === 'comet' ? Math.round(loop * 0.12) : trace === 'ribbon' ? Math.round(loop * 0.5)\n             : trace === 'neon glow' ? Math.round(loop * 0.7) : Math.round(loop * 1.02);\n  const L = Math.min(filled, want, TRAIL - 1);\n  const at = (n) => { const idx = (head - 1 - n + TRAIL * 2) % TRAIL; return [tx[idx], ty[idx]]; };\n  ctx.setLineDash([]);\n  if (L > 2) {\n    if (trace === 'dotted') {\n      ctx.fillStyle = pal.trace;\n      ctx.beginPath();\n      for (let n = 0; n < L; n += 5) { const q = at(n); ctx.moveTo(q[0] + 2, q[1]); ctx.arc(q[0], q[1], 2, 0, 6.2832); }\n      ctx.fill();\n    } else if (trace === 'comet' || trace === 'ribbon') {\n      const w = trace === 'comet' ? 4.2 : 7.5, step = Math.max(1, Math.floor(L / 60));\n      for (let n = 0; n + step < L; n += step) {\n        const a = at(n), b = at(n + step), f = 1 - n / L;\n        ctx.strokeStyle = pal.trace; ctx.globalAlpha = Math.max(0.03, f * f); ctx.lineWidth = Math.max(0.8, w * f);\n        ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke();\n      }\n      ctx.globalAlpha = 1;\n    } else {\n      const passes = trace === 'neon glow' ? [[10, 0.12], [4.5, 0.28], [2.2, 0.95]] : [[2.2, 0.95]];\n      for (const ps of passes) {\n        ctx.strokeStyle = pal.trace; ctx.lineWidth = ps[0]; ctx.globalAlpha = ps[1]; ctx.beginPath();\n        for (let n = 0; n < L; n++) { const q = at(n); if (n === 0) ctx.moveTo(q[0], q[1]); else ctx.lineTo(q[0], q[1]); }\n        ctx.stroke();\n      }\n      ctx.globalAlpha = 1;\n    }\n    const h = at(0);\n    ctx.fillStyle = pal.accent; ctx.beginPath(); ctx.arc(h[0], h[1], 5.5, 0, 6.2832); ctx.fill();\n  }\n  ctx.lineCap = 'butt';\n};\n",
+  "tags": [
+    {
+      "id": "tag_epicycle_atelier_01",
+      "type": "source",
+      "label": "Fourier epicycles",
+      "description": "A closed curve as a chain of turning circles: the discrete Fourier transform of the sampled curve, terms sorted by size. Figures are hand-built parametric curves and polygons (heart, trefoil, Fay's butterfly, hypotrochoid, lemniscate, rose). Written for the Atelier residency, 2026-10-06."
+    }
+  ]
+}

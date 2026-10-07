@@ -1,0 +1,164 @@
+{
+  "promptTemplate": "A cathedral window bathed in {{cathedral_light}} with {{fracture_density}}, its {{lead_came}} vibrating to release {{light_leak}} and {{shiver_splinters}}.",
+  "variables": [
+    {
+      "name": "cathedral_light",
+      "feature_name": "Window Illumination",
+      "values": [
+        {
+          "text": "Morning Rose",
+          "weight": 3
+        },
+        {
+          "text": "Golden Nave",
+          "weight": 3
+        },
+        {
+          "text": "Cobalt Chancel",
+          "weight": 3
+        },
+        {
+          "text": "Emerald Cloister",
+          "weight": 2
+        },
+        {
+          "text": "Obsidian Twilight",
+          "weight": 2
+        },
+        {
+          "text": "Blinding Supernova",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "fracture_density",
+      "feature_name": "Cell Grid Scale",
+      "values": [
+        {
+          "text": "Intact Rose Window",
+          "weight": 3
+        },
+        {
+          "text": "Hairline Fissures",
+          "weight": 3
+        },
+        {
+          "text": "Branching Faults",
+          "weight": 3
+        },
+        {
+          "text": "Spiderweb Fractures",
+          "weight": 3
+        },
+        {
+          "text": "Shattered Mosaic",
+          "weight": 2
+        },
+        {
+          "text": "Crystalline Powder",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "lead_came",
+      "feature_name": "Came Thickness",
+      "values": [
+        {
+          "text": "Heavy Iron Came",
+          "weight": 3
+        },
+        {
+          "text": "Tarnished Ribbon",
+          "weight": 3
+        },
+        {
+          "text": "Trembling Grooves",
+          "weight": 3
+        },
+        {
+          "text": "Quivering Seams",
+          "weight": 3
+        },
+        {
+          "text": "Volt Spasms",
+          "weight": 2
+        },
+        {
+          "text": "Molten Silver Rupture",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "light_leak",
+      "feature_name": "Seam Bloom",
+      "values": [
+        {
+          "text": "Subdued Wax Candle",
+          "weight": 3
+        },
+        {
+          "text": "Slanted Sunbeams",
+          "weight": 3
+        },
+        {
+          "text": "Bleeding Edges",
+          "weight": 3
+        },
+        {
+          "text": "Flaring Fractures",
+          "weight": 3
+        },
+        {
+          "text": "Blown Highlights",
+          "weight": 2
+        },
+        {
+          "text": "Solar Flare Breach",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "shiver_splinters",
+      "feature_name": "Drifting Embers",
+      "values": [
+        {
+          "text": "Settled Dust",
+          "weight": 3
+        },
+        {
+          "text": "Stray Flakes",
+          "weight": 3
+        },
+        {
+          "text": "Drifting Embers",
+          "weight": 3
+        },
+        {
+          "text": "Spalling Swarm",
+          "weight": 3
+        },
+        {
+          "text": "Glass Squall",
+          "weight": 2
+        },
+        {
+          "text": "Glass Tempest",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "p5Code": "const DICT_LIGHT = {\n    \"Morning Rose\": [[255,140,160], [255,80,100], [160,30,60]],\n    \"Golden Nave\": [[255,200,80], [220,130,30], [140,70,15]],\n    \"Cobalt Chancel\": [[80,130,255], [30,70,220], [15,30,140]],\n    \"Emerald Cloister\": [[100,255,130], [30,200,70], [15,120,35]],\n    \"Obsidian Twilight\": [[60,40,80], [30,20,50], [15,10,25]],\n    \"Blinding Supernova\": [[255,255,255], [255,240,200], [220,200,255]]\n};\n\nconst DICT_DENSITY = {\n    \"Intact Rose Window\": 24,\n    \"Hairline Fissures\": 36,\n    \"Branching Faults\": 52,\n    \"Spiderweb Fractures\": 75,\n    \"Shattered Mosaic\": 110,\n    \"Crystalline Powder\": 150\n};\n\nconst DICT_CAME = {\n    \"Heavy Iron Came\": {w: 6, jit: 0},\n    \"Tarnished Ribbon\": {w: 4.5, jit: 0.8},\n    \"Trembling Grooves\": {w: 3.5, jit: 1.8},\n    \"Quivering Seams\": {w: 2.5, jit: 3.2},\n    \"Volt Spasms\": {w: 1.8, jit: 5.5},\n    \"Molten Silver Rupture\": {w: 1.2, jit: 9.0}\n};\n\nconst DICT_LEAK = {\n    \"Subdued Wax Candle\": {b: 0.05, p: 1},\n    \"Slanted Sunbeams\": {b: 0.15, p: 2},\n    \"Bleeding Edges\": {b: 0.30, p: 3},\n    \"Flaring Fractures\": {b: 0.45, p: 3.5},\n    \"Blown Highlights\": {b: 0.65, p: 4.5},\n    \"Solar Flare Breach\": {b: 1.0, p: 6.0}\n};\n\nconst DICT_SPLINTERS = {\n    \"Settled Dust\": 0,\n    \"Stray Flakes\": 30,\n    \"Drifting Embers\": 65,\n    \"Spalling Swarm\": 105,\n    \"Glass Squall\": 150,\n    \"Glass Tempest\": 200\n};\n\nlet pts = [];\nlet splinters = [];\n\nfunction clipPoly(polyX, polyY, len, pAx, pAy, pBx, pBy) {\n    let nx = pBx - pAx, ny = pBy - pAy;\n    let midX = (pAx + pBx) * 0.5, midY = (pAy + pBy) * 0.5;\n    let outX = [], outY = [];\n    for (let i = 0; i < len; i++) {\n        let j = (i + 1) % len;\n        let p1x = polyX[i], p1y = polyY[i];\n        let p2x = polyX[j], p2y = polyY[j];\n        let d1 = (p1x - midX) * nx + (p1y - midY) * ny;\n        let d2 = (p2x - midX) * nx + (p2y - midY) * ny;\n        \n        if (d1 <= 0) {\n            outX.push(p1x);\n            outY.push(p1y);\n        }\n        if (d1 * d2 < 0) {\n            let t = d1 / (d1 - d2);\n            outX.push(p1x + t * (p2x - p1x));\n            outY.push(p1y + t * (p2y - p1y));\n        }\n    }\n    for (let i = 0; i < outX.length; i++) {\n        polyX[i] = outX[i];\n        polyY[i] = outY[i];\n    }\n    return outX.length;\n}\n\np.setup = function() {\n    p.createCanvas(800, 800);\n    for (let i = 0; i < 150; i++) {\n        pts.push({\n            x: p.random(-50, 850),\n            y: p.random(-50, 850),\n            vx: p.random(-0.3, 0.3),\n            vy: p.random(-0.3, 0.3),\n            cIdx: p.floor(p.random(3))\n        });\n    }\n    for (let i = 0; i < 200; i++) {\n        splinters.push({\n            x: p.random(800),\n            y: p.random(800),\n            vx: p.random(-2, 2),\n            vy: p.random(-3, -1),\n            life: p.random(1)\n        });\n    }\n};\n\np.draw = function() {\n    const vLight = p.getSynthVar('cathedral_light') || \"Morning Rose\";\n    const vDen = p.getSynthVar('fracture_density') || \"Intact Rose Window\";\n    const vCame = p.getSynthVar('lead_came') || \"Heavy Iron Came\";\n    const vLeak = p.getSynthVar('light_leak') || \"Subdued Wax Candle\";\n    const vSplint = p.getSynthVar('shiver_splinters') || \"Settled Dust\";\n\n    const colors = DICT_LIGHT[vLight];\n    const maxPts = DICT_DENSITY[vDen];\n    const came = DICT_CAME[vCame];\n    const leak = DICT_LEAK[vLeak];\n    const splintCount = DICT_SPLINTERS[vSplint];\n\n    p.background(15);\n    p.drawingContext.globalCompositeOperation = 'source-over';\n\n    let edgesX1 = [], edgesY1 = [], edgesX2 = [], edgesY2 = [];\n    \n    p.noStroke();\n    for (let i = 0; i < maxPts; i++) {\n        pts[i].x += pts[i].vx;\n        pts[i].y += pts[i].vy;\n        \n        if (pts[i].x < -50 || pts[i].x > 850) pts[i].vx *= -1;\n        if (pts[i].y < -50 || pts[i].y > 850) pts[i].vy *= -1;\n\n        let px = [0, 800, 800, 0];\n        let py = [0, 0, 800, 800];\n        let plen = 4;\n        \n        for (let j = 0; j < maxPts; j++) {\n            if (i === j) continue;\n            plen = clipPoly(px, py, plen, pts[i].x, pts[i].y, pts[j].x, pts[j].y);\n            if (plen === 0) break;\n        }\n\n        if (plen > 2) {\n            let c = colors[pts[i].cIdx];\n            p.fill(c[0], c[1], c[2]);\n            p.beginShape();\n            for (let k = 0; k < plen; k++) {\n                p.vertex(px[k], py[k]);\n                let kNext = (k + 1) % plen;\n                edgesX1.push(px[k]);\n                edgesY1.push(py[k]);\n                edgesX2.push(px[kNext]);\n                edgesY2.push(py[kNext]);\n            }\n            p.endShape(p.CLOSE);\n        }\n    }\n\n    p.strokeCap(p.ROUND);\n    p.strokeJoin(p.ROUND);\n    p.stroke(0);\n    p.strokeWeight(came.w);\n    p.beginShape(p.LINES);\n    for (let i = 0; i < edgesX1.length; i++) {\n        let jitX1 = p.random(-came.jit, came.jit);\n        let jitY1 = p.random(-came.jit, came.jit);\n        let jitX2 = p.random(-came.jit, came.jit);\n        let jitY2 = p.random(-came.jit, came.jit);\n        p.vertex(edgesX1[i] + jitX1, edgesY1[i] + jitY1);\n        p.vertex(edgesX2[i] + jitX2, edgesY2[i] + jitY2);\n    }\n    p.endShape();\n\n    p.drawingContext.globalCompositeOperation = 'lighter';\n\n    if (leak.b > 0) {\n        p.strokeWeight(leak.p * 2);\n        p.stroke(255, 255, 255, leak.b * 255);\n        p.beginShape(p.LINES);\n        for (let i = 0; i < edgesX1.length; i += 2) {\n            p.vertex(edgesX1[i], edgesY1[i]);\n            p.vertex(edgesX2[i], edgesY2[i]);\n        }\n        p.endShape();\n    }\n\n    if (splintCount > 0 && edgesX1.length > 0) {\n        p.noStroke();\n        for (let i = 0; i < splintCount; i++) {\n            let s = splinters[i];\n            s.x += s.vx;\n            s.y += s.vy;\n            s.life -= 0.015;\n            \n            if (s.life <= 0) {\n                let eIdx = p.floor(p.random(edgesX1.length));\n                s.x = edgesX1[eIdx];\n                s.y = edgesY1[eIdx];\n                s.life = 1.0;\n            }\n            let alpha = s.life * 255;\n            p.fill(255, 220, 150, alpha);\n            p.circle(s.x, s.y, 2.5);\n        }\n    }\n};\n",
+  "tags": [
+    {
+      "id": "tag_shattered_stained_glass_01",
+      "type": "custom",
+      "label": "Designed and written by an agent swarm",
+      "description": "Concept, variables and code written by a crew of agents in the Agent Studio chat room (x2b-stained-glass-eyes) and played by the harness before it was accepted. Atelier residency, 2026-10-07."
+    }
+  ]
+}

@@ -173,3 +173,17 @@ def test_legacy_p5_templates_report_lookup_gaps(capsys):
     with capsys.disabled():
         print(f"\n[template contract] {len(gaps)} of {len(P5) - len(STRICT)} older p5 templates have variable values that are "
               f"not lookup keys in their sketch (not enforced): " + ", ".join(f"{k}={v}" for k, v in sorted(gaps.items())[:8]) + (" ..." if len(gaps) > 8 else ""))
+
+
+# -- hosts that run p5 templates must offer every helper a shipped template calls ----------------------------------------------
+
+P5_HOSTS = ["index.html", "av.html", "demo.html", "display.html"]
+
+
+def test_hosts_provide_getRefImage_for_pedal_style_templates():
+    """signalchain-Bouncing_Squish_Blob samples p.getRefImage(); a host without it throws on every frame."""
+    users = [n for n, t in P5.items() if "getRefImage" in t["p5Code"]]
+    assert users, "no template uses getRefImage any more; delete this test"
+    for host in P5_HOSTS:
+        text = (ROOT / "static" / "synthograsizer" / host).read_text(encoding="utf-8")
+        assert "p.getRefImage" in text, f"{host} runs p5 templates but does not define p.getRefImage ({users} call it)"
