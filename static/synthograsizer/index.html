@@ -364,6 +364,7 @@
   background: #10b981; color: #fff;
 }
 .p5-badge-v6.paused { background: #f59e0b; }
+.p5-badge-v6.error { background: #dc2626; }
 .p5-badge-v6.stopped { background: rgba(0,0,0,.12); color: rgba(0,0,0,.5); }
 .p5-close-v6 {
   font-family: 'Roboto Mono', monospace; font-size: 10px;
@@ -2300,6 +2301,14 @@
             /* ── Receive canvas native dimensions from iframe ── */
             window.addEventListener('message', function(e) {
                 if (e.source !== iframe.contentWindow) return;
+                if (e.data && e.data.p5Error) {
+                    // The sketch failed to start or threw while drawing: say so instead of leaving RUNNING over a blank or frozen frame.
+                    badge.textContent = 'Error';
+                    badge.className = 'p5-badge-v6 error';
+                    badge.title = 'The sketch reported: ' + e.data.p5Error;
+                    console.warn('[p5 viewer] sketch error:', e.data.p5Error);
+                    return;
+                }
                 if (!e.data || !e.data.p5CanvasSize) return;
                 var sz = e.data.p5CanvasSize;
                 if (!sz.w || !sz.h) return;
@@ -2356,7 +2365,12 @@
                     'canvas{display:block;flex-shrink:0;}' +
                     '<\/style>' +
                     '<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"><\/script>' +
+                    // Own script element, so a syntax error in the sketch (which stops the whole script it is in) still reaches it.
+                    // Tells the parent about the first error only: a draw() that throws would otherwise report at 60 fps.
                     '</head><body><script>' +
+                    'var __rep=false;window.addEventListener("error",function(e){if(__rep)return;__rep=true;' +
+                    'try{window.parent.postMessage({p5Error:String((e&&e.message)||e).slice(0,300)},"*");}catch(_){}});' +
+                    '<\/script><script>' +
                     'var __sv=' + varJson + ';' +
                     'window.addEventListener("message",function(e){' +
                     '  if(!e.data)return;' +
@@ -2403,6 +2417,7 @@
                 ph.style.display = 'none';
                 badge.textContent = 'Running';
                 badge.className = 'p5-badge-v6';
+                badge.title = '';
                 btnPlay.style.display = 'none';
                 btnPause.style.display = '';
                 btnPlay.textContent = '▶ Play';
