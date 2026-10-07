@@ -304,6 +304,24 @@
               : null;
           };
 
+          // A stand-in reference image for pedal-style sketches that sample p.getRefImage()
+          // (the SignalChain ports); this host has no image pipeline, so it is a built-in test card.
+          let refCard = null;
+          p.getRefImage = () => {
+            if (!refCard) {
+              const g = refCard = p.createGraphics(160, 120);
+              g.noStroke();
+              for (let i = 0; i < 160; i++) {
+                g.fill(p.lerpColor(p.color(255, 70, 120), p.color(40, 120, 255), i / 159));
+                g.rect(i, 0, 1, 120);
+              }
+              g.fill(255, 230, 90); g.circle(50, 40, 44);
+              g.fill(30, 220, 170); g.circle(110, 80, 56);
+              g.fill(255, 255, 255, 200); g.rect(20, 86, 70, 10);
+            }
+            return refCard;
+          };
+
           // Execute the user's sketch code in the p5 instance context
           try {
             new Function('p', code)(p);

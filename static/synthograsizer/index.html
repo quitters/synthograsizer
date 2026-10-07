@@ -2389,6 +2389,7 @@
                     '});' +
                     'new p5(function(p){' +
                     'p.getSynthVar=function(k){return(__sv&&k in __sv)?__sv[k]:null;};' +
+                    'var __ref=null;p.getRefImage=function(){if(!__ref){var g=__ref=p.createGraphics(160,120);g.noStroke();for(var i=0;i<160;i++){g.fill(p.lerpColor(p.color(255,70,120),p.color(40,120,255),i/159));g.rect(i,0,1,120);}g.fill(255,230,90);g.circle(50,40,44);g.fill(30,220,170);g.circle(110,80,56);g.fill(255,255,255,200);g.rect(20,86,70,10);}return __ref;};' +
                     code + '\n' +   // a sketch that ends in a // comment must not swallow the closing '});'
                     '});' +
                     // After p5 setup runs, post canvas native dimensions to parent
