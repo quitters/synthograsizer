@@ -177,7 +177,10 @@ def test_legacy_p5_templates_report_lookup_gaps(capsys):
 
 # -- hosts that run p5 templates must offer every helper a shipped template calls ----------------------------------------------
 
-P5_HOSTS = ["index.html", "av.html", "demo.html", "display.html"]
+P5_HOSTS = [
+    "static/synthograsizer/index.html", "static/synthograsizer/av.html", "static/synthograsizer/demo.html", "static/synthograsizer/display.html",
+    "static/thecommons/js/display.js",           # The Commons wall runs the same templates
+]
 
 
 def test_hosts_provide_getRefImage_for_pedal_style_templates():
@@ -185,5 +188,5 @@ def test_hosts_provide_getRefImage_for_pedal_style_templates():
     users = [n for n, t in P5.items() if "getRefImage" in t["p5Code"]]
     assert users, "no template uses getRefImage any more; delete this test"
     for host in P5_HOSTS:
-        text = (ROOT / "static" / "synthograsizer" / host).read_text(encoding="utf-8")
+        text = (ROOT / host).read_text(encoding="utf-8")
         assert "p.getRefImage" in text, f"{host} runs p5 templates but does not define p.getRefImage ({users} call it)"
