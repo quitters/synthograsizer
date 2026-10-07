@@ -3,6 +3,7 @@
 | File | Contents |
 |------|----------|
 | [SCHEMA.md](SCHEMA.md) | Full template JSON schema specification |
+| [ENGINE_DESIGN.md](ENGINE_DESIGN.md) | How the image-prompt "engines" (Lost Cinema, Tape Shelf, Specimen Plates...) are designed: bundling dependent attributes, prompt hygiene found from real renders, judging on a contact sheet, and the style-reference recipe for decks. |
 | [DEMO_TOUR.md](DEMO_TOUR.md) | Index of the demo tour: one captioned video per major section, each with its own page in the [wiki](https://github.com/quitters/synthograsizer/wiki/Demo-Tour). The caption files are in `demo-tour/captions/`. A dated snapshot, not a spec. |
 | [HEADLESS_API.md](HEADLESS_API.md) | Driving the backend entirely over HTTP with no browser UI — endpoint reference, model IDs, recipes. Includes the Videorama batch-video API. |
 | [videorama-guide/README.md](videorama-guide/README.md) | User guide for Videorama — prompt → finished video set, the Shot Inspector, Cast & Locations panel, and scripting unattended batches via the CLI. |
