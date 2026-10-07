@@ -1,0 +1,241 @@
+{
+  "promptTemplate": "A photograph of {{game}}, an arcade cabinet from {{era}} by {{maker}}, decorated with {{art_style}}, in {{location}}, with {{wear}}; any other machines in view are unbranded and generic",
+  "variables": [
+    {
+      "name": "game",
+      "feature_name": "Game",
+      "values": [
+        {
+          "text": "a fishing game with a sentient tackle box",
+          "weight": 3
+        },
+        {
+          "text": "a maze chase set in a haunted laundromat",
+          "weight": 3
+        },
+        {
+          "text": "a cow-launching physics shooter",
+          "weight": 3
+        },
+        {
+          "text": "a submarine rhythm game",
+          "weight": 2
+        },
+        {
+          "text": "an aerobic dance machine for robots",
+          "weight": 2
+        },
+        {
+          "text": "a tiny knight fighting a vending machine",
+          "weight": 2
+        },
+        {
+          "text": "pizza delivery on a space freeway",
+          "weight": 2
+        },
+        {
+          "text": "a pachinko-style game set in a library",
+          "weight": 2
+        },
+        {
+          "text": "a two-player tank duel on a chessboard",
+          "weight": 1
+        },
+        {
+          "text": "a skateboarding pigeon",
+          "weight": 1
+        },
+        {
+          "text": "a lighthouse defence game",
+          "weight": 1
+        },
+        {
+          "text": "a bowling and bumper-car hybrid",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "era",
+      "feature_name": "Era",
+      "values": [
+        {
+          "text": "1979",
+          "weight": 2
+        },
+        {
+          "text": "1981",
+          "weight": 3
+        },
+        {
+          "text": "1983",
+          "weight": 3
+        },
+        {
+          "text": "1986",
+          "weight": 3
+        },
+        {
+          "text": "1989",
+          "weight": 2
+        },
+        {
+          "text": "1992",
+          "weight": 2
+        },
+        {
+          "text": "1995",
+          "weight": 1
+        },
+        {
+          "text": "1997",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "maker",
+      "feature_name": "Maker",
+      "values": [
+        {
+          "text": "Nova Amusements",
+          "weight": 3
+        },
+        {
+          "text": "Kestrel Coin-Op",
+          "weight": 3
+        },
+        {
+          "text": "Magnetron Games",
+          "weight": 2
+        },
+        {
+          "text": "Bluebird Electronics",
+          "weight": 2
+        },
+        {
+          "text": "Ostrich Interactive",
+          "weight": 2
+        },
+        {
+          "text": "Sunset Coin-Op",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "art_style",
+      "feature_name": "Art Style",
+      "values": [
+        {
+          "text": "airbrushed side-art and chrome lettering",
+          "weight": 3
+        },
+        {
+          "text": "a hand-painted marquee in loud gouache",
+          "weight": 3
+        },
+        {
+          "text": "a photo-collage marquee",
+          "weight": 2
+        },
+        {
+          "text": "a pixel-art attract screen glowing behind scratched glass",
+          "weight": 2
+        },
+        {
+          "text": "neon tubing around the marquee",
+          "weight": 2
+        },
+        {
+          "text": "a vinyl wrap in bold geometric shapes",
+          "weight": 2
+        },
+        {
+          "text": "hand-drawn wood-panel art",
+          "weight": 1
+        },
+        {
+          "text": "a futuristic cockpit-style housing",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "location",
+      "feature_name": "Location",
+      "values": [
+        {
+          "text": "a mall arcade at closing time",
+          "weight": 3
+        },
+        {
+          "text": "the back room of a pizza parlour",
+          "weight": 3
+        },
+        {
+          "text": "a ferry terminal waiting area",
+          "weight": 2
+        },
+        {
+          "text": "the corner of a bowling alley",
+          "weight": 2
+        },
+        {
+          "text": "a roadside motel lobby",
+          "weight": 2
+        },
+        {
+          "text": "a laundromat",
+          "weight": 2
+        },
+        {
+          "text": "a skating-rink snack bar",
+          "weight": 1
+        },
+        {
+          "text": "an empty warehouse after the arcade closed",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "wear",
+      "feature_name": "Wear",
+      "values": [
+        {
+          "text": "a cigarette-burned control panel",
+          "weight": 3
+        },
+        {
+          "text": "a joystick mended with tape",
+          "weight": 3
+        },
+        {
+          "text": "sun-faded decals",
+          "weight": 2
+        },
+        {
+          "text": "a hand-lettered OUT OF ORDER sign",
+          "weight": 2
+        },
+        {
+          "text": "a scratched CRT bezel",
+          "weight": 2
+        },
+        {
+          "text": "a flickering marquee",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "tags": [
+    {
+      "id": "tag_arcade_archaeology_01",
+      "type": "custom",
+      "label": "Arcade cabinets that never shipped",
+      "description": "Photographs of imaginary coin-op cabinets from fictional makers. No real games, makers or characters. Written for the Atelier residency, 2026-10-06."
+    }
+  ]
+}

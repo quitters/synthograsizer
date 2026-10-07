@@ -1,0 +1,281 @@
+{
+  "promptTemplate": "A tarot-style card of the machine age titled \"{{arcanum}}\", drawn in {{style}}, in {{palette}}, with {{border}} and {{companion}} in the corner, {{material}}",
+  "variables": [
+    {
+      "name": "arcanum",
+      "feature_name": "Arcanum",
+      "values": [
+        {
+          "text": "THE FOREMAN",
+          "weight": 3
+        },
+        {
+          "text": "THE SWITCHBOARD",
+          "weight": 3
+        },
+        {
+          "text": "THE LIGHTHOUSE",
+          "weight": 3
+        },
+        {
+          "text": "THE ENGINE",
+          "weight": 3
+        },
+        {
+          "text": "THE CLOCKMAKER'S DAUGHTER",
+          "weight": 2
+        },
+        {
+          "text": "THE RAIL JUNCTION",
+          "weight": 2
+        },
+        {
+          "text": "THE WEAVER",
+          "weight": 2
+        },
+        {
+          "text": "THE DYNAMO",
+          "weight": 2
+        },
+        {
+          "text": "THE SCAFFOLD",
+          "weight": 2
+        },
+        {
+          "text": "THE FURNACE",
+          "weight": 2
+        },
+        {
+          "text": "THE TIN MOON",
+          "weight": 2
+        },
+        {
+          "text": "THE BELLOWS",
+          "weight": 2
+        },
+        {
+          "text": "THE LOOM",
+          "weight": 1
+        },
+        {
+          "text": "THE PENDULUM",
+          "weight": 1
+        },
+        {
+          "text": "THE ASSEMBLY LINE",
+          "weight": 1
+        },
+        {
+          "text": "THE RADIO TOWER",
+          "weight": 1
+        },
+        {
+          "text": "THE BEACON",
+          "weight": 1
+        },
+        {
+          "text": "THE BLUEPRINT",
+          "weight": 1
+        },
+        {
+          "text": "THE GEARWHEEL",
+          "weight": 1
+        },
+        {
+          "text": "THE SMOKESTACK",
+          "weight": 1
+        },
+        {
+          "text": "THE DRAWBRIDGE",
+          "weight": 1
+        },
+        {
+          "text": "THE WORLD'S FAIR",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "style",
+      "feature_name": "Style",
+      "values": [
+        {
+          "text": "gilded art deco",
+          "weight": 3
+        },
+        {
+          "text": "Russian constructivist",
+          "weight": 3
+        },
+        {
+          "text": "Dada photomontage",
+          "weight": 2
+        },
+        {
+          "text": "Bauhaus geometric",
+          "weight": 2
+        },
+        {
+          "text": "Vorticist angles",
+          "weight": 2
+        },
+        {
+          "text": "streamline moderne chrome",
+          "weight": 2
+        },
+        {
+          "text": "Futurist motion lines",
+          "weight": 1
+        },
+        {
+          "text": "Vienna Secession ornament",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "palette",
+      "feature_name": "Palette",
+      "values": [
+        {
+          "text": "gold on midnight blue",
+          "weight": 3
+        },
+        {
+          "text": "red, black and cream",
+          "weight": 3
+        },
+        {
+          "text": "teal and brass",
+          "weight": 2
+        },
+        {
+          "text": "silver on charcoal",
+          "weight": 2
+        },
+        {
+          "text": "vermilion on ivory",
+          "weight": 2
+        },
+        {
+          "text": "emerald and copper",
+          "weight": 2
+        },
+        {
+          "text": "ultramarine and sodium yellow",
+          "weight": 1
+        },
+        {
+          "text": "bone and oxblood",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "border",
+      "feature_name": "Border",
+      "values": [
+        {
+          "text": "an ornate gilded border",
+          "weight": 3
+        },
+        {
+          "text": "a thin double rule",
+          "weight": 3
+        },
+        {
+          "text": "a riveted iron frame",
+          "weight": 2
+        },
+        {
+          "text": "a ribbon of cogs",
+          "weight": 2
+        },
+        {
+          "text": "no border, full bleed",
+          "weight": 2
+        },
+        {
+          "text": "a theatre-curtain frame",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "companion",
+      "feature_name": "Companion",
+      "values": [
+        {
+          "text": "a single tiny star",
+          "weight": 3
+        },
+        {
+          "text": "a pair of crossed wrenches",
+          "weight": 3
+        },
+        {
+          "text": "an eye set in a gear",
+          "weight": 2
+        },
+        {
+          "text": "a lantern",
+          "weight": 2
+        },
+        {
+          "text": "a moth",
+          "weight": 2
+        },
+        {
+          "text": "a spool of thread",
+          "weight": 2
+        },
+        {
+          "text": "a key",
+          "weight": 1
+        },
+        {
+          "text": "a crescent moon",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "material",
+      "feature_name": "Material",
+      "values": [
+        {
+          "text": "printed on aged card stock",
+          "weight": 3
+        },
+        {
+          "text": "foil-stamped",
+          "weight": 3
+        },
+        {
+          "text": "as a linocut with visible carving",
+          "weight": 2
+        },
+        {
+          "text": "as a silkscreen with slight misregistration",
+          "weight": 2
+        },
+        {
+          "text": "engraved on a copper plate",
+          "weight": 2
+        },
+        {
+          "text": "painted in gouache",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "tags": [
+    {
+      "id": "tag_arcana_machina_01",
+      "type": "custom",
+      "label": "Arcana Machina",
+      "description": "A tarot-style deck of the machine age. The arcanum variable has 22 values, one per major arcanum, so cycling it while holding the style, palette, border, companion and material gives a matched deck. Written for the Atelier residency, 2026-10-06."
+    }
+  ]
+}

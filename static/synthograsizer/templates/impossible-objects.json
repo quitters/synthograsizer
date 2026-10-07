@@ -1,0 +1,227 @@
+{
+  "promptTemplate": "{{presentation}} of {{object}}, {{culture}}, made of {{material}}, {{condition}}",
+  "variables": [
+    {
+      "name": "object",
+      "feature_name": "Object",
+      "values": [
+        {
+          "text": "a ceremonial astrolabe for measuring grief",
+          "weight": 3
+        },
+        {
+          "text": "a mourning spoon",
+          "weight": 3
+        },
+        {
+          "text": "a rain-calling instrument with seven reeds",
+          "weight": 3
+        },
+        {
+          "text": "a lock with three keyholes and no key",
+          "weight": 2
+        },
+        {
+          "text": "a map of a street that moves",
+          "weight": 2
+        },
+        {
+          "text": "a clock that tells the mood of the day",
+          "weight": 2
+        },
+        {
+          "text": "a lantern for reading silence",
+          "weight": 2
+        },
+        {
+          "text": "a tuning fork for rooms",
+          "weight": 2
+        },
+        {
+          "text": "a chair made for being forgotten in",
+          "weight": 1
+        },
+        {
+          "text": "a compass that points to the nearest apology",
+          "weight": 1
+        },
+        {
+          "text": "a bridge folded into a travelling case",
+          "weight": 1
+        },
+        {
+          "text": "a bell that rings only for the absent",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "material",
+      "feature_name": "Material",
+      "values": [
+        {
+          "text": "pale bone and brass",
+          "weight": 3
+        },
+        {
+          "text": "obsidian inlaid with copper wire",
+          "weight": 3
+        },
+        {
+          "text": "lacquered cedar with mother-of-pearl",
+          "weight": 3
+        },
+        {
+          "text": "stained glass and lead",
+          "weight": 2
+        },
+        {
+          "text": "cast iron and glass beads",
+          "weight": 2
+        },
+        {
+          "text": "woven grass and silver thread",
+          "weight": 2
+        },
+        {
+          "text": "meteoric iron and walnut",
+          "weight": 2
+        },
+        {
+          "text": "ceramic glaze with gold repair",
+          "weight": 2
+        },
+        {
+          "text": "bakelite and chrome",
+          "weight": 1
+        },
+        {
+          "text": "clear resin with visible circuitry",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "culture",
+      "feature_name": "Culture",
+      "values": [
+        {
+          "text": "from the salt-pan kingdoms",
+          "weight": 3
+        },
+        {
+          "text": "of the river-guild confederacy",
+          "weight": 3
+        },
+        {
+          "text": "of the lighthouse monks",
+          "weight": 2
+        },
+        {
+          "text": "from the cloud-farming republics",
+          "weight": 2
+        },
+        {
+          "text": "of the glassblowers' archipelago",
+          "weight": 2
+        },
+        {
+          "text": "of the long-night tundra courts",
+          "weight": 2
+        },
+        {
+          "text": "from the tidal markets",
+          "weight": 1
+        },
+        {
+          "text": "of the desert observatory-cities",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "presentation",
+      "feature_name": "Presentation",
+      "values": [
+        {
+          "text": "A museum vitrine photograph in raking light",
+          "weight": 3
+        },
+        {
+          "text": "An archaeological field photograph with a scale bar",
+          "weight": 3
+        },
+        {
+          "text": "A nineteenth-century catalogue engraving",
+          "weight": 2
+        },
+        {
+          "text": "An auction-house plate on grey paper",
+          "weight": 2
+        },
+        {
+          "text": "An x-ray composite photograph",
+          "weight": 2
+        },
+        {
+          "text": "A conservator's bench photograph with tools around the piece",
+          "weight": 2
+        },
+        {
+          "text": "A flat-lay specimen photograph on linen",
+          "weight": 1
+        },
+        {
+          "text": "A hand-drawn accession-card illustration",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "condition",
+      "feature_name": "Condition",
+      "values": [
+        {
+          "text": "in pristine condition",
+          "weight": 3
+        },
+        {
+          "text": "cracked and mended with gold",
+          "weight": 3
+        },
+        {
+          "text": "half buried in sand",
+          "weight": 2
+        },
+        {
+          "text": "scorched along one side",
+          "weight": 2
+        },
+        {
+          "text": "furred with salt crystals",
+          "weight": 2
+        },
+        {
+          "text": "missing its central piece",
+          "weight": 2
+        },
+        {
+          "text": "wrapped in conservators' tissue",
+          "weight": 1
+        },
+        {
+          "text": "mid-restoration, pinned and labelled",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "tags": [
+    {
+      "id": "tag_impossible_objects_01",
+      "type": "custom",
+      "label": "Museum of Impossible Objects",
+      "description": "Catalogue photographs and plates of objects from invented material cultures. Written for the Atelier residency, 2026-10-06."
+    }
+  ]
+}

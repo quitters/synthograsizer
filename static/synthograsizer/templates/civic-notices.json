@@ -1,0 +1,257 @@
+{
+  "promptTemplate": "A {{poster_style}} public-information poster reading \"{{campaign}}\", {{authority}}, showing {{figure}}, in {{palette}}, {{condition}}",
+  "variables": [
+    {
+      "name": "campaign",
+      "feature_name": "Campaign",
+      "values": [
+        {
+          "text": "WASH YOUR MOON WEEKLY",
+          "weight": 3
+        },
+        {
+          "text": "REPORT SUSPICIOUS CLOUDS",
+          "weight": 3
+        },
+        {
+          "text": "PLANT SOMETHING BEFORE NOON",
+          "weight": 3
+        },
+        {
+          "text": "YOUR SHADOW IS A PUBLIC ASSET",
+          "weight": 2
+        },
+        {
+          "text": "KEEP THE LIGHTHOUSE FED",
+          "weight": 2
+        },
+        {
+          "text": "NO WHISTLING AFTER DUSK",
+          "weight": 2
+        },
+        {
+          "text": "RETURN BORROWED SILENCES",
+          "weight": 2
+        },
+        {
+          "text": "LOWER YOUR VOICE NEAR THE BRIDGE",
+          "weight": 2
+        },
+        {
+          "text": "MIND THE GAP BETWEEN SEASONS",
+          "weight": 1
+        },
+        {
+          "text": "THE CENSUS OF DREAMS BEGINS FRIDAY",
+          "weight": 1
+        },
+        {
+          "text": "TELL YOUR NEIGHBOUR THE TIDE TABLES",
+          "weight": 1
+        },
+        {
+          "text": "WALK ON THE LEFT SIDE OF TIME",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "poster_style",
+      "feature_name": "Poster Style",
+      "values": [
+        {
+          "text": "1930s screenprinted",
+          "weight": 3
+        },
+        {
+          "text": "Swiss international typographic style",
+          "weight": 3
+        },
+        {
+          "text": "mid-century gouache-illustrated",
+          "weight": 3
+        },
+        {
+          "text": "constructivist-layout",
+          "weight": 2
+        },
+        {
+          "text": "1960s Japanese modernist graphic",
+          "weight": 2
+        },
+        {
+          "text": "Art Nouveau lithograph",
+          "weight": 2
+        },
+        {
+          "text": "1970s safety-campaign",
+          "weight": 2
+        },
+        {
+          "text": "two-colour risograph",
+          "weight": 2
+        },
+        {
+          "text": "bold flat-colour woodblock",
+          "weight": 1
+        },
+        {
+          "text": "Bauhaus geometric",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "authority",
+      "feature_name": "Authority",
+      "values": [
+        {
+          "text": "issued by the Ministry of Tides",
+          "weight": 3
+        },
+        {
+          "text": "issued by the Bureau of Small Weather",
+          "weight": 3
+        },
+        {
+          "text": "issued by the Department of Lost Umbrellas",
+          "weight": 2
+        },
+        {
+          "text": "issued by the Office of Public Dreams",
+          "weight": 2
+        },
+        {
+          "text": "issued by the Lighthouse Authority",
+          "weight": 2
+        },
+        {
+          "text": "issued by the Committee on Shadows",
+          "weight": 2
+        },
+        {
+          "text": "issued by the Ministry of Quiet",
+          "weight": 1
+        },
+        {
+          "text": "issued by the Bureau of Borrowed Time",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "figure",
+      "feature_name": "Figure",
+      "values": [
+        {
+          "text": "a stern lighthouse keeper pointing at the viewer",
+          "weight": 3
+        },
+        {
+          "text": "a cheerful child holding a kite",
+          "weight": 3
+        },
+        {
+          "text": "a crowd of identical hats",
+          "weight": 2
+        },
+        {
+          "text": "a giant hand holding a tiny city",
+          "weight": 2
+        },
+        {
+          "text": "a heron in a waistcoat",
+          "weight": 2
+        },
+        {
+          "text": "a woman with a lantern on a bridge",
+          "weight": 2
+        },
+        {
+          "text": "two figures sharing a ladder",
+          "weight": 1
+        },
+        {
+          "text": "a clock with legs",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "palette",
+      "feature_name": "Palette",
+      "values": [
+        {
+          "text": "red, cream and black",
+          "weight": 3
+        },
+        {
+          "text": "teal, mustard and cream",
+          "weight": 3
+        },
+        {
+          "text": "navy and orange",
+          "weight": 3
+        },
+        {
+          "text": "two shades of green and ivory",
+          "weight": 2
+        },
+        {
+          "text": "fluorescent pink and blue",
+          "weight": 2
+        },
+        {
+          "text": "ochre, brown and bone",
+          "weight": 2
+        },
+        {
+          "text": "black and a single red",
+          "weight": 1
+        },
+        {
+          "text": "pale blue, grey and yellow",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "condition",
+      "feature_name": "Condition",
+      "values": [
+        {
+          "text": "in mint condition",
+          "weight": 3
+        },
+        {
+          "text": "wheat-pasted and peeling on a brick wall",
+          "weight": 3
+        },
+        {
+          "text": "folded and creased",
+          "weight": 2
+        },
+        {
+          "text": "sun-bleached at a tram stop",
+          "weight": 2
+        },
+        {
+          "text": "with a torn corner",
+          "weight": 2
+        },
+        {
+          "text": "pinned on a crowded corkboard",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "tags": [
+    {
+      "id": "tag_civic_notices_01",
+      "type": "custom",
+      "label": "Public information from nations that never were",
+      "description": "Cheerful, bureaucratic posters for imaginary civic campaigns: tides, shadows, silence, weather. Written for the Atelier residency, 2026-10-06."
+    }
+  ]
+}

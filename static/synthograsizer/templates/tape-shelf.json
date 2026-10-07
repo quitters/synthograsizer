@@ -1,0 +1,257 @@
+{
+  "promptTemplate": "A photograph of the cover of a rental videotape for {{pitch}}, designed as {{cover_art}}, released by {{studio}} in {{year}}, with {{wear}}, seen {{setting}}; any other tapes in view are unlabelled generic cases with blank spines",
+  "variables": [
+    {
+      "name": "pitch",
+      "feature_name": "Pitch",
+      "values": [
+        {
+          "text": "an action thriller about a retired lifeguard who must save a shopping mall",
+          "weight": 3
+        },
+        {
+          "text": "a family comedy about a talking dishwasher",
+          "weight": 3
+        },
+        {
+          "text": "a martial-arts epic set on a space station",
+          "weight": 3
+        },
+        {
+          "text": "a low-budget horror about a haunted tanning bed",
+          "weight": 2
+        },
+        {
+          "text": "a workout tape led by friendly robots",
+          "weight": 2
+        },
+        {
+          "text": "a cooking show hosted by a puppet chef",
+          "weight": 2
+        },
+        {
+          "text": "an educational tape about the water cycle with a dramatic score",
+          "weight": 2
+        },
+        {
+          "text": "a courtroom drama in which the defendant is a goat",
+          "weight": 2
+        },
+        {
+          "text": "a road-trip comedy about two night-shift bakers",
+          "weight": 2
+        },
+        {
+          "text": "a fantasy quest about a knight and a delivery van",
+          "weight": 1
+        },
+        {
+          "text": "a disaster movie where the disaster is a very large cake",
+          "weight": 1
+        },
+        {
+          "text": "a nature documentary narrated by a retired sea captain",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "cover_art",
+      "feature_name": "Cover Art",
+      "values": [
+        {
+          "text": "an airbrushed painted cover with a lightning-bolt title",
+          "weight": 3
+        },
+        {
+          "text": "a photo collage of floating heads and explosions",
+          "weight": 3
+        },
+        {
+          "text": "a neon grid sunset with chrome lettering",
+          "weight": 3
+        },
+        {
+          "text": "a moody blue-lit portrait with a tiny tagline",
+          "weight": 2
+        },
+        {
+          "text": "a hand-drawn cartoon wrap",
+          "weight": 2
+        },
+        {
+          "text": "a minimalist photograph under a bold sans-serif title",
+          "weight": 2
+        },
+        {
+          "text": "a foil-stamped embossed slipcase",
+          "weight": 1
+        },
+        {
+          "text": "a hand-lettered homemade sleeve",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "studio",
+      "feature_name": "Studio",
+      "values": [
+        {
+          "text": "Starlight Home Video",
+          "weight": 3
+        },
+        {
+          "text": "Obelisk Pictures Home Entertainment",
+          "weight": 3
+        },
+        {
+          "text": "Videovision Express",
+          "weight": 2
+        },
+        {
+          "text": "Kingfisher Family Video",
+          "weight": 2
+        },
+        {
+          "text": "Nightowl Releasing",
+          "weight": 2
+        },
+        {
+          "text": "Prism Direct-to-Video",
+          "weight": 2
+        },
+        {
+          "text": "Pacific Rim Video Library",
+          "weight": 1
+        },
+        {
+          "text": "Lantern Tape Company",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "year",
+      "feature_name": "Year",
+      "values": [
+        {
+          "text": "1983",
+          "weight": 2
+        },
+        {
+          "text": "1985",
+          "weight": 3
+        },
+        {
+          "text": "1987",
+          "weight": 3
+        },
+        {
+          "text": "1989",
+          "weight": 3
+        },
+        {
+          "text": "1991",
+          "weight": 2
+        },
+        {
+          "text": "1993",
+          "weight": 2
+        },
+        {
+          "text": "1995",
+          "weight": 2
+        },
+        {
+          "text": "1997",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "wear",
+      "feature_name": "Wear",
+      "values": [
+        {
+          "text": "a sun-faded spine",
+          "weight": 3
+        },
+        {
+          "text": "a rental-shop sticker and a price tag",
+          "weight": 3
+        },
+        {
+          "text": "a cracked clamshell case",
+          "weight": 2
+        },
+        {
+          "text": "a water-stained corner",
+          "weight": 2
+        },
+        {
+          "text": "a handwritten title in marker on the spine",
+          "weight": 2
+        },
+        {
+          "text": "a barcode label over the artwork",
+          "weight": 2
+        },
+        {
+          "text": "a torn cardboard edge",
+          "weight": 1
+        },
+        {
+          "text": "greasy fingerprints on the plastic",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "setting",
+      "feature_name": "Setting",
+      "values": [
+        {
+          "text": "on a rental-shop shelf among other tapes",
+          "weight": 3
+        },
+        {
+          "text": "flat on a thrift-store table",
+          "weight": 3
+        },
+        {
+          "text": "in a stacked cardboard box",
+          "weight": 2
+        },
+        {
+          "text": "beside a VCR on shag carpet",
+          "weight": 2
+        },
+        {
+          "text": "on a motel nightstand",
+          "weight": 2
+        },
+        {
+          "text": "in a bargain bin",
+          "weight": 2
+        },
+        {
+          "text": "held up against a window",
+          "weight": 1
+        },
+        {
+          "text": "in a lit shop display",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "tags": [
+    {
+      "id": "tag_tape_shelf_01",
+      "type": "custom",
+      "label": "Imaginary rental-shop shelf",
+      "description": "Covers of videotapes that do not exist, from fictional studios. No real titles, studios or people. Written for the Atelier residency, 2026-10-06."
+    }
+  ]
+}

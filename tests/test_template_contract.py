@@ -24,6 +24,12 @@ STRICT = [
     "orbital-resonance", "truchet-cathedral", "epicycle-atelier",
 ]
 
+# image-prompt engines: no p5 code, a promptTemplate that reads as one image prompt, and variables with real depth
+ENGINES = [
+    "lost-cinema", "tape-shelf", "impossible-objects", "civic-notices",
+    "arcade-archaeology", "brutalist-utopias", "arcana-machina", "specimen-plates",
+]
+
 # calls the sandboxed p5 viewer cannot use (no network, no assets, no storage, no console)
 FORBIDDEN = ["console.log", "alert(", "fetch(", "loadImage(", "loadFont(", "import ", "require(", "XMLHttpRequest", "localStorage"]
 
@@ -119,6 +125,40 @@ def test_strict_instrument_falls_back_when_a_variable_is_missing(name):
 def test_strict_instrument_is_in_the_p5_picker(name):
     html = INDEX_HTML.read_text(encoding="utf-8")
     assert re.search(rf'data-template="{re.escape(name)}"[^>]*data-category="P5"', html), f"{name} has no P5 picker button"
+
+
+@pytest.mark.parametrize("name", ENGINES)
+def test_engine_uses_every_variable_and_has_depth(name):
+    t = ALL[name]
+    names = [v["name"] for v in t["variables"]]
+    holders = re.findall(r"\{\{(\w+)\}\}", t["promptTemplate"])
+    assert set(holders) == set(names), f"{name}: placeholders and variables differ"
+    assert len(holders) == len(set(holders)), f"{name}: a placeholder is used twice"
+    assert 5 <= len(names) <= 9, f"{name}: {len(names)} variables"
+    assert "p5Code" not in t
+    for v in t["variables"]:
+        texts = value_texts(v)
+        assert len(texts) >= 6, f"{name}.{v['name']}: only {len(texts)} values"
+        assert len(set(texts)) == len(texts), f"{name}.{v['name']}: duplicate values"
+        assert not any("{{" in x or "}}" in x for x in texts), f"{name}.{v['name']}: a value contains a placeholder"
+        assert all(isinstance(x, dict) and x.get("weight", 1) in (1, 2, 3) for x in v["values"]), f"{name}.{v['name']}: bad weights"
+
+
+@pytest.mark.parametrize("name", ENGINES)
+def test_engine_fills_into_a_clean_prompt(name):
+    t = ALL[name]
+    for pick in (0, -1):
+        combo = {v["name"]: value_texts(v)[pick] for v in t["variables"]}
+        prompt = re.sub(r"\{\{(\w+)\}\}", lambda m: combo[m.group(1)], t["promptTemplate"])
+        assert "{{" not in prompt and "}}" not in prompt
+        assert 80 <= len(prompt) <= 700, f"{name}: prompt is {len(prompt)} characters"
+        assert "  " not in prompt, f"{name}: double space in the filled prompt"
+
+
+@pytest.mark.parametrize("name", ENGINES)
+def test_engine_is_in_the_prompt_picker(name):
+    html = INDEX_HTML.read_text(encoding="utf-8")
+    assert re.search(rf'data-template="{re.escape(name)}"[^>]*data-category="PROMPT"', html), f"{name} has no PROMPT picker button"
 
 
 def test_legacy_p5_templates_report_lookup_gaps(capsys):
