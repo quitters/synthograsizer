@@ -1,5 +1,5 @@
 {
-  "promptTemplate": "A photograph of the cover of a rental videotape for {{pitch}}, designed as {{cover_art}}, released by {{studio}} in {{year}}, with {{wear}}, seen {{setting}}; any other tapes in view are unlabelled generic cases with blank spines",
+  "promptTemplate": "A photograph of the cover of a rental videotape for {{pitch}}, designed as {{cover_art}}, released by {{studio}} in {{year}}, with {{wear}}, seen {{setting}}; stickers and labels carry only generic text and no real store, studio or brand names, and any other tapes in view are unlabelled generic cases with blank spines",
   "variables": [
     {
       "name": "pitch",
