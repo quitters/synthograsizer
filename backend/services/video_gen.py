@@ -7,10 +7,12 @@ from functools import partial
 from typing import Optional
 from backend import config
 from backend.helpers import decode_base64_image
+from backend.utils.keep_awake import keeps_awake
 from google.genai import types
 
 logger = logging.getLogger(__name__)
 
+@keeps_awake("video generation")   # a render takes minutes; a machine that sleeps meanwhile drops the request
 async def generate_video(self, prompt: str, model_name: str = config.MODEL_VIDEO_GEN,
                   duration_seconds: int = None, aspect_ratio: str = None,
                   end_frame_image: str = None, start_frame_image: str = None,

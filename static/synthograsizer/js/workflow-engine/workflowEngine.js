@@ -12,6 +12,9 @@ import { safeFetchText } from './urlGuard.js';
 
 // mediaStore is injected at runtime via workflowEngine.configure({ mediaStore })
 let _mediaStore = null;
+// keepAwake(reason) => release: held while a workflow runs, so a laptop does not sleep in the middle of a Veo render.
+// The host provides it (the chat server: keepAwake.js; the browser: a screen wake lock). Without one a run simply proceeds.
+let _keepAwake = null;
 
 /**
  * WorkflowEngine — executes multi-step creative pipelines.
@@ -406,10 +409,11 @@ class WorkflowEngine {
   /**
    * Inject external dependencies (mediaStore) that are provided by the host application.
    * Must be called before any workflow is submitted.
-   * @param {{ mediaStore: { add: Function, get: Function } }} deps
+   * @param {{ mediaStore?: { add: Function, get: Function }, keepAwake?: (reason: string) => (() => void) | Promise<() => void> }} deps
    */
-  configure({ mediaStore }) {
+  configure({ mediaStore, keepAwake } = {}) {
     if (mediaStore) _mediaStore = mediaStore;
+    if (typeof keepAwake === 'function') _keepAwake = keepAwake;
   }
 
   // --------------------------------------------------------------------------
@@ -776,6 +780,16 @@ class WorkflowEngine {
   }
 
   async _execute(state) {
+    let release = null;
+    try { release = (await _keepAwake?.(`workflow: ${state.name}`)) || null; } catch (_) { /* no hold, carry on */ }
+    try {
+      return await this._executeWaves(state);
+    } finally {
+      try { release?.(); } catch (_) { /* already released */ }
+    }
+  }
+
+  async _executeWaves(state) {
     const waves = buildWaves(state.steps);
 
     for (const wave of waves) {

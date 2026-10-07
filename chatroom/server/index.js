@@ -4,7 +4,7 @@ import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
 import { createApp } from './app.js';
-import { workflowEngine } from 'workflow-engine';
+import { workflowEngine, keepAwake } from 'workflow-engine';
 import { initializeGemini } from './services/gemini.js';
 import { initializeImageGen } from './services/imageGen.js';
 import { initializeTools } from './services/tools.js';
@@ -52,7 +52,7 @@ console.log(`Gemini API initialized (text, image, search, URL tools; file search
 
 // The workflow engine's fallback store, for runs that name none. Every visitor's runs
 // carry their own room's store (see resolveRoom below).
-workflowEngine.configure({ mediaStore });
+workflowEngine.configure({ mediaStore, keepAwake });
 
 // Serve static files in production
 if (process.env.NODE_ENV === 'production') {

@@ -41,6 +41,9 @@ export { traceStore, estimateStepCost } from './traceStore.js';
 // API client
 export { synthClient } from './synthClient.js';
 
+// Hold the machine awake while long work runs
+export { keepAwake, createKeepAwake } from './keepAwake.js';
+
 // SSRF guard for server-side fetches of model/user-supplied URLs
 export { safeFetchText, assertSafeUrl, assertPlausiblePublicUrl, isHostedInstance } from './urlGuard.js';
 

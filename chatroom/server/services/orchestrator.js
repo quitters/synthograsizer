@@ -28,7 +28,7 @@ import { buildToolsForAgent } from './toolDefinitions.js';
 import { createToolDispatcher } from './toolDispatch.js';
 import { mediaStore as defaultMediaStore } from './mediaStore.js';
 import { artifactStore as defaultArtifactStore } from './artifactStore.js';
-import { synthClient, traceStore } from 'workflow-engine';
+import { synthClient, traceStore, keepAwake } from 'workflow-engine';
 
 /**
  * Zeroed usage accumulator. Field names mirror the shape yielded by
@@ -1508,6 +1508,16 @@ export class ChatOrchestrator {
    * Main conversation loop
    */
   async runConversationLoop() {
+    // A laptop that sleeps in the middle of a session cuts every model call it was waiting on. Held only while the loop runs.
+    const release = keepAwake('chat session');
+    try {
+      return await this._conversationLoop();
+    } finally {
+      release();
+    }
+  }
+
+  async _conversationLoop() {
     while (this.isRunning && !this.isPaused) {
       // Check token limit
       if (this.tokenCount >= this.tokenLimit) {

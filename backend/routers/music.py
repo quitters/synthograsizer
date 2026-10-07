@@ -17,6 +17,7 @@ from typing import Optional, List, Dict
 from backend.ai_manager import ai_manager, normalize_template
 from backend.osc_bridge import osc_bridge
 from backend.music_manager import get_music_manager
+from backend.utils.keep_awake import keeps_awake
 from backend import config
 from backend.models.requests import *
 from backend.helpers import decode_base64_image, parse_llm_json
@@ -35,6 +36,7 @@ async def music_status():
 
 
 @router.websocket("/ws/music")
+@keeps_awake("music session")   # a live set should not be interrupted by the machine sleeping
 async def ws_music(websocket: WebSocket):
     """WebSocket endpoint for Lyria RealTime music streaming.
 
