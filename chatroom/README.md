@@ -10,7 +10,8 @@ An autonomous multi-agent chat room powered by Google's Gemini API. Create AI ag
 - **Real-time Streaming**: Server-Sent Events (SSE) for live message streaming
 - **Token Management**: Configurable token limits with live usage tracking
 - **Consensus Detection**: Automatic conversation completion when agents reach agreement
-- **Other ways to end a session** (Settings → Consensus, or `POST /api/chat/consensus-settings`): `closeBy: "lead"` with `leadAgent` — only the lead agent's own `[CONSENSUS REACHED]` / `[END SESSION]` ends it, the others' markers are recommendations (stops agents echoing each other into an early finish; ends as `lead_closed`); `minTurns` — nothing ends the session before that turn; `maxTurns` — the session ends after that many turns whatever the agents say (`turn_limit_reached`), with a warning in the last round
+- **A lead agent ends the session (the default)**: only the lead's own `[CONSENSUS REACHED]` / `[END SESSION]` ends a group chat (reason `lead_closed`); the other agents' markers are recommendations the lead is shown. The lead is the first agent unless you name one (Settings → Consensus → "Who ends the session", or `leadAgent` in `POST /api/chat/consensus-settings`). Agreeable agents echoing each other used to close sessions early. `closeBy: "vote"` restores the old quorum vote; solo chats always use it.
+- **Limits** (same settings, default off): `minTurns` — nothing ends the session before that turn; `maxTurns` — the session ends after that many turns whatever the agents say (`turn_limit_reached`), with a warning in the last round
 
 ### Agent Capabilities
 - **Image Generation**: Agents can generate images using `[IMAGE: prompt]` syntax (Gemini Image Pro)

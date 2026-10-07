@@ -135,12 +135,13 @@ export class ChatOrchestrator {
       // Sliding window (in turns) for collecting consensus votes
       voteWindowTurns: 4,
       // ── How a session ends, besides the vote ────────────────────────────────
-      // 'vote': a quorum of agents saying [CONSENSUS REACHED] ends it (the long-standing
-      //         behaviour). 'lead': only the lead agent's own [CONSENSUS REACHED] or
-      //         [END SESSION] ends it; everyone else's marker is a recommendation the
-      //         lead sees. Exists because a vote is cheap to win: two agents echoing a third
-      //         can close a room whose deliverable was never produced.
-      closeBy: 'vote',
+      // 'lead' (the default): only the lead agent's own [CONSENSUS REACHED] or [END SESSION]
+      //         ends it; everyone else's marker is a recommendation the lead sees. A vote is
+      //         cheap to win: two agents echoing a third can close a room whose deliverable
+      //         was never produced, and sessions were ending too early.
+      // 'vote': a quorum of agents saying [CONSENSUS REACHED] ends it (the old behaviour,
+      //         still available). Solo chats (one agent) always use it, since there is no one to vote.
+      closeBy: 'lead',
       // The lead's name ('' = the first agent that can speak). An unknown name falls
       // back to the vote rather than leaving a room nobody can end.
       leadAgent: '',
@@ -548,7 +549,7 @@ export class ChatOrchestrator {
    * degrades to the old behaviour instead of a room nobody can close.
    */
   _leadAgent() {
-    if (this.consensusSettings.closeBy !== 'lead') return null;
+    if (this.consensusSettings.closeBy !== 'lead' || this.mode === 'solo') return null;
     const speakable = this.agents.filter(a => !a.muted);
     const wanted = (this.consensusSettings.leadAgent || '').toLowerCase();
     if (!wanted) return speakable[0] || null;

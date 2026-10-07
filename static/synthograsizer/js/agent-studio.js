@@ -944,7 +944,7 @@ class AgentStudio {
     this._tokenLimit = 100000;
 
     // Local mirror of consensus settings (synced from server on open)
-    this._consensus = { enabled: true, sensitivity: 'medium' };
+    this._consensus = { enabled: true, sensitivity: 'medium', closeBy: 'lead', leadAgent: '', maxTurns: 0 };
 
     // workflowId → { status, label, messageIndex }
     this._workflowChipMap = new Map();
@@ -1259,7 +1259,7 @@ class AgentStudio {
               <div class="as-settings-row as-solo-hide">
                 <label class="as-settings-label" for="as-consensus-enabled">
                   Auto-consensus
-                  <span class="as-hint" style="display:block;font-size:10px;margin-top:1px;">Stop when agents agree</span>
+                  <span class="as-hint" style="display:block;font-size:10px;margin-top:1px;">Let the session end when the goal is met</span>
                 </label>
                 <label class="as-toggle">
                   <input type="checkbox" id="as-consensus-enabled" checked/>
@@ -1275,6 +1275,30 @@ class AgentStudio {
                   <option value="high">High — winding-down tone</option>
                   <option value="manual">Manual — never auto-stop</option>
                 </select>
+              </div>
+
+              <div class="as-settings-row as-solo-hide" id="as-closeby-row">
+                <label class="as-settings-label" for="as-close-by">
+                  Who ends it
+                  <span class="as-hint" style="display:block;font-size:10px;margin-top:1px;">The others only recommend</span>
+                </label>
+                <select id="as-close-by" class="as-input-sm">
+                  <option value="lead" selected>Lead agent (default)</option>
+                  <option value="vote">Agents vote</option>
+                </select>
+              </div>
+
+              <div class="as-settings-row as-solo-hide" id="as-lead-row">
+                <label class="as-settings-label" for="as-lead-agent">Lead</label>
+                <select id="as-lead-agent" class="as-input-sm"></select>
+              </div>
+
+              <div class="as-settings-row as-solo-hide">
+                <label class="as-settings-label" for="as-max-turns">
+                  Stop after
+                  <span class="as-hint" style="display:block;font-size:10px;margin-top:1px;">turns (0 = no limit)</span>
+                </label>
+                <input id="as-max-turns" type="number" class="as-input-sm" min="0" max="5000" step="1" value="0"/>
               </div>
             </div>
           </div>
@@ -2071,6 +2095,21 @@ class AgentStudio {
       this._pushConsensusSettings();
     });
 
+    // How the session ends: a lead agent (default) or a vote, who the lead is, and an optional turn limit
+    document.getElementById('as-close-by').addEventListener('change', (e) => {
+      this._consensus.closeBy = e.target.value;
+      this._syncEndingRows();
+      this._pushConsensusSettings();
+    });
+    document.getElementById('as-lead-agent').addEventListener('change', (e) => {
+      this._consensus.leadAgent = e.target.value;
+      this._pushConsensusSettings();
+    });
+    document.getElementById('as-max-turns').addEventListener('change', (e) => {
+      this._consensus.maxTurns = Math.max(0, parseInt(e.target.value, 10) || 0);
+      this._pushConsensusSettings();
+    });
+
     // Stop click-bubble inside popovers from closing them
     document.querySelectorAll('.as-popover').forEach(p => {
       p.addEventListener('click', e => e.stopPropagation());
@@ -2151,6 +2190,7 @@ class AgentStudio {
       const json = await res.json();
       this.agents = json.agents || [];
       this._renderAgents();
+      this._syncEndingRows();
       // Keep the recipes-mode roster summary in sync if the panel has been opened
       if (this._recipesInitialized) this._updateRecipesRoster();
     } catch (err) {
@@ -2360,6 +2400,14 @@ class AgentStudio {
       const settings = await res.json();
       this._consensus.enabled     = settings.enabled !== false;
       this._consensus.sensitivity = settings.sensitivity || 'medium';
+      this._consensus.closeBy     = settings.closeBy || 'lead';
+      this._consensus.leadAgent   = settings.leadAgent || '';
+      this._consensus.maxTurns    = settings.maxTurns || 0;
+      const closeEl = document.getElementById('as-close-by');
+      const turnsEl = document.getElementById('as-max-turns');
+      if (closeEl) closeEl.value = this._consensus.closeBy;
+      if (turnsEl) turnsEl.value = String(this._consensus.maxTurns);
+      this._syncEndingRows();
       // Populate UI
       const enabledEl  = document.getElementById('as-consensus-enabled');
       const sensEl     = document.getElementById('as-consensus-sensitivity');
@@ -2380,12 +2428,28 @@ class AgentStudio {
         body: JSON.stringify({
           enabled:     this._consensus.enabled,
           sensitivity: this._consensus.sensitivity,
+          closeBy:     this._consensus.closeBy,
+          leadAgent:   this._consensus.leadAgent,
+          maxTurns:    this._consensus.maxTurns,
         }),
       });
       this._renderConsensusBadge();
     } catch (err) {
       console.warn('[AgentStudio] pushConsensusSettings failed', err);
     }
+  }
+
+  /** Show the lead picker only when a lead closes the session, and keep its options in step with the roster. */
+  _syncEndingRows() {
+    const leadRow = document.getElementById('as-lead-row');
+    const leadSel = document.getElementById('as-lead-agent');
+    if (leadRow) leadRow.style.display = this._consensus.closeBy === 'lead' ? '' : 'none';
+    if (!leadSel) return;
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    const first = (this.agents || [])[0];
+    leadSel.innerHTML = `<option value="">First agent${first ? ` (${esc(first.name)})` : ''}</option>` +
+      (this.agents || []).map(a => `<option value="${esc(a.name)}">${esc(a.name)}</option>`).join('');
+    leadSel.value = this._consensus.leadAgent || '';
   }
 
   _renderConsensusBadge() {
@@ -3048,7 +3112,8 @@ class AgentStudio {
       session_end: (d) => {
         this.state.isRunning = false;
         this._renderControls();
-        this._appendSystem(`Session ended (${d.reason || 'complete'})`);
+        const why = { lead_closed: 'the lead closed it', consensus_reached: 'consensus', turn_limit_reached: 'turn limit reached', token_limit_reached: 'token limit reached' }[d.reason];
+        this._appendSystem(`Session ended (${why || d.reason || 'complete'})`);
       },
       session_paused:  () => { this.state.isPaused = true;  this._renderControls(); },
       session_resumed: () => { this.state.isPaused = false; this._renderControls(); },

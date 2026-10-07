@@ -145,7 +145,7 @@ Or use `chatroom/start.bat` to launch both at once.
 ### ChatRoom
 - Multiple Gemini-backed agents with distinct system prompts and memory
 - Autonomous turn-taking with configurable speaking order
-- Consensus detection — agents stop when they converge; adjustable sensitivity; or a lead agent alone closes the session, with a minimum and a maximum number of turns
+- Session endings — by default a lead agent alone closes a group chat (the others only recommend), so agents echoing each other cannot end it early; the old consensus vote (adjustable sensitivity) is one setting away; optional minimum and maximum number of turns
 - Image attachment support — agents see and discuss images in context
 
 ---

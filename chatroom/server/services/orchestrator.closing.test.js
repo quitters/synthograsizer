@@ -48,20 +48,39 @@ function replying(reply) {
 
 // ── settings ─────────────────────────────────────────────────────────────────
 
-test('the defaults keep the old behaviour: a vote, no floor, no limit', () => {
+test('by default the first agent is the lead: others cannot end the room, the lead can', () => {
   const s = orchestrator.getConsensusSettings();
-  assert.equal(s.closeBy, 'vote');
+  assert.equal(s.closeBy, 'lead');
+  assert.equal(s.leadAgent, '');
   assert.equal(s.minTurns, 0);
   assert.equal(s.maxTurns, 0);
+  assert.equal(orchestrator._leadAgent().name, 'Ann Test');
+  orchestrator.turnCount = 6;
+  assert.equal(orchestrator.checkForCompletion('[CONSENSUS REACHED]', ben()), null);
+  assert.equal(orchestrator.checkForCompletion('[CONSENSUS REACHED]', cy()), null, 'a quorum of non-leads does not end it');
+  assert.equal(orchestrator.checkForCompletion('[CONSENSUS REACHED]', ann()), 'lead_closed');
+});
+
+test('the vote is still one setting away, and behaves as it always did', () => {
+  orchestrator.updateConsensusSettings({ closeBy: 'vote' });
+  assert.equal(orchestrator._leadAgent(), null);
   orchestrator.turnCount = 6;
   assert.equal(orchestrator.checkForCompletion('[CONSENSUS REACHED]', ann()), null);
   assert.equal(orchestrator.checkForCompletion('[CONSENSUS REACHED]', ben()), 'consensus_reached');
 });
 
+test('a solo chat always uses the vote: there is no one to be lead or to vote, and a marker must not end a chat that is waiting for the next message', () => {
+  orchestrator.mode = 'solo';
+  assert.equal(orchestrator._leadAgent(), null);
+  assert.deepEqual(orchestrator._endingForPrompt(orchestrator.agents[0]), { mode: 'vote' });
+  orchestrator.turnCount = 6;
+  assert.equal(orchestrator.checkForCompletion('[CONSENSUS REACHED]', ann()), null, 'one vote is never a quorum of two');
+});
+
 test('the new settings are validated and clamped', () => {
   orchestrator.updateConsensusSettings({ closeBy: 'dictator', leadAgent: '  Ben Test ', minTurns: -4, maxTurns: 'abc' });
   const s = orchestrator.getConsensusSettings();
-  assert.equal(s.closeBy, 'vote', 'an unknown method is ignored');
+  assert.equal(s.closeBy, 'lead', 'an unknown method is ignored, the default stays');
   assert.equal(s.leadAgent, 'Ben Test');
   assert.equal(s.minTurns, 0, 'negative clamps to zero');
   assert.equal(s.maxTurns, 0, 'junk is ignored');
@@ -94,6 +113,7 @@ test("the lead's explicit marker, or [END SESSION], ends it", () => {
 test('[END SESSION] from anyone but the lead, or without a lead, means nothing', () => {
   orchestrator.turnCount = 8;
   orchestrator.consensusSettings.requireExplicitMarker = true;      // so nothing falls through to the judge or the phrase list
+  orchestrator.updateConsensusSettings({ closeBy: 'vote' });
   assert.equal(orchestrator.checkForCompletion('[END SESSION]', ann()), null, 'vote mode ignores it');
   orchestrator.updateConsensusSettings({ closeBy: 'lead', leadAgent: 'Ann Test' });
   assert.equal(orchestrator.checkForCompletion('[END SESSION]', ben()), null);
@@ -140,16 +160,16 @@ test('the prompt says who ends the session', () => {
   const other = endingInstructions({ mode: 'lead', leadName: 'Ann Test', isLead: false });
   assert.match(other, /Only Ann Test can end this session/);
   assert.match(other, /will not end the session by itself/);
-  assert.deepEqual(orchestrator._endingForPrompt(orchestrator.agents[1]), { mode: 'vote' });
-  orchestrator.updateConsensusSettings({ closeBy: 'lead', leadAgent: 'Ann Test' });
-  assert.deepEqual(orchestrator._endingForPrompt(orchestrator.agents[1]), { mode: 'lead', leadName: 'Ann Test', isLead: false });
+  assert.deepEqual(orchestrator._endingForPrompt(orchestrator.agents[1]), { mode: 'lead', leadName: 'Ann Test', isLead: false }, 'the default');
   assert.equal(orchestrator._endingForPrompt(orchestrator.agents[0]).isLead, true);
+  orchestrator.updateConsensusSettings({ closeBy: 'vote' });
+  assert.deepEqual(orchestrator._endingForPrompt(orchestrator.agents[1]), { mode: 'vote' });
 });
 
 // ── the floor ────────────────────────────────────────────────────────────────
 
 test('minTurns holds off both the vote and the lead until enough turns have been taken', () => {
-  orchestrator.updateConsensusSettings({ minTurns: 10 });
+  orchestrator.updateConsensusSettings({ minTurns: 10, closeBy: 'vote' });
   orchestrator.turnCount = 4;
   assert.equal(orchestrator.checkForCompletion('[CONSENSUS REACHED]', ann()), null);
   assert.equal(orchestrator.checkForCompletion('[CONSENSUS REACHED]', ben()), null, 'quorum met, still too early');

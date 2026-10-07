@@ -17,7 +17,7 @@ export function SettingsPanel({ agents, isRunning, onBranchRestored }) {
     requireExplicitMarker: false,
     minSignoffCount: 2,
     customPhrases: [],
-    closeBy: 'vote',   // 'vote' | 'lead'
+    closeBy: 'lead',   // 'lead' (default) | 'vote'
     leadAgent: '',
     minTurns: 0,
     maxTurns: 0
@@ -313,15 +313,15 @@ export function SettingsPanel({ agents, isRunning, onBranchRestored }) {
                   <label>Who ends the session</label>
                   <div className="sensitivity-options">
                     {[
-                      { value: 'vote', label: 'The agents, by vote', desc: 'Enough agents saying [CONSENSUS REACHED] ends it' },
-                      { value: 'lead', label: 'A lead agent', desc: 'Only the lead can end it; the others only recommend. Stops agents echoing each other into an early finish' }
+                      { value: 'lead', label: 'A lead agent (default)', desc: 'Only the lead can end it; the others only recommend. Stops agents echoing each other into an early finish' },
+                      { value: 'vote', label: 'The agents, by vote', desc: 'Enough agents saying [CONSENSUS REACHED] ends it (the old behaviour)' }
                     ].map(opt => (
                       <label key={opt.value} className="sensitivity-option">
                         <input
                           type="radio"
                           name="closeBy"
                           value={opt.value}
-                          checked={(consensusSettings.closeBy || 'vote') === opt.value}
+                          checked={(consensusSettings.closeBy || 'lead') === opt.value}
                           onChange={() => updateConsensusSetting('closeBy', opt.value)}
                           disabled={isRunning}
                         />
@@ -332,7 +332,7 @@ export function SettingsPanel({ agents, isRunning, onBranchRestored }) {
                       </label>
                     ))}
                   </div>
-                  {consensusSettings.closeBy === 'lead' && (
+                  {(consensusSettings.closeBy || 'lead') === 'lead' && (
                     <select
                       value={consensusSettings.leadAgent || ''}
                       onChange={(e) => updateConsensusSetting('leadAgent', e.target.value)}
