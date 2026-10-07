@@ -141,6 +141,7 @@ Or use `chatroom/start.bat` to launch both at once.
 - Static image mode accumulates effects destructively across frames
 - GIF/video mode resets per source frame
 - Selection system, undo history, and recording
+- **Looks** (the button in the effect-stack header): 24 ready-made stacks in four packs (glitch classics, archive damage, and two packs an agent crew wrote and the Glitcher checked) plus your own saved stacks; a look marked "whole image" covers the picture instead of wandering regions
 
 ### ChatRoom
 - Multiple Gemini-backed agents with distinct system prompts and memory

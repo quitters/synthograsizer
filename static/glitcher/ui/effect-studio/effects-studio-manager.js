@@ -6,6 +6,7 @@ import { EffectChainUI } from './effect-chain-ui.js';
 import { EffectLibraryUI } from './effect-library-ui.js';
 import { PropertiesPanel } from './properties-panel.js';
 import { PresetManager } from './preset-manager.js';
+import { applyPreset } from '../presets.js';
 import { createLogger } from '../../utils/logger.js';
 import { tooltipManager } from '../../utils/tooltip-manager.js';
 
@@ -798,26 +799,15 @@ export class EffectStudioManager {
   loadPreset(presetName) {
     const preset = this.presetManager.loadPreset(presetName);
     if (!preset || !this.app.effectChainManager) return;
-    
-    // Clear current chain
-    this.app.effectChainManager.clearChain();
-    
-    // Load effects from preset
-    preset.chain.forEach(effectConfig => {
-      try {
-        const effect = this.app.effectFactory.createEffect(effectConfig.type || effectConfig.id);
-        if (effect) {
-          effect.mode = effectConfig.mode || 'destructive';
-          effect.enabled = effectConfig.enabled !== false;
-          Object.assign(effect.parameters, effectConfig.parameters);
-          this.app.effectChainManager.addEffect(effect);
-        }
-      } catch (error) {
-        console.warn(`Failed to load effect from preset: ${effectConfig.type || effectConfig.id}`, error);
-      }
-    });
-    
-    this.showNotification(`Loaded preset "${presetName}"`, 'success');
+
+    // Replaces the stack; presets that name an effect this version lacks load without it
+    const { loaded, failed } = applyPreset(preset, this.app.effectChainManager, this.app.effectFactory);
+
+    if (failed.length) {
+      this.showNotification(`Loaded "${presetName}" without ${failed.length} effect(s) this version does not have`, 'warning');
+    } else {
+      this.showNotification(`Loaded preset "${presetName}" (${loaded} effects)`, 'success');
+    }
   }
 
   handleKeyboardShortcut(e) {
