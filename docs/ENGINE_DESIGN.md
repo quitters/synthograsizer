@@ -46,6 +46,8 @@ transfers its **subject** too: in a 22-card test the reference's steam-engine an
 > Use the attached reference image only for its border, foil finish, palette and lettering style. Draw an entirely new subject for this card; do not
 > reuse the reference's machinery, composition, star or numeral.
 
+In a workflow this is the `look_locked_deck` template (`workflow-engine/workflowTemplates.js`): `synth_image` takes `references: {style: [ids]}` and adds the clause itself. A style reference still leaks a little (a ghost lighthouse in a card about a camera in fog) so look at the set.
+
 With that clause the 22 cards shared the frame and finish and had 22 different subjects. Without any reference the look held from the text alone but the
 framing drifted (some cards came back photographed in a hand).
 

@@ -268,6 +268,46 @@ Files uploaded to a session (up to 14) are re-sent with every agent turn, so wha
 
 On a chained turn (see *Conversation state*) the agent's server-side history already holds every file it was shown, so only files added since it last spoke are sent. Documents indexed into File Search are never sent inline. Anything not attached on a turn is still listed with the reason, and an image can still be remixed by ID. Before this, reference files were shown only while the chat had two messages or fewer: after that an agent was told the file names and nothing else, so an uploaded notes file or reference image was invisible for the rest of the session and a file added mid-conversation was never shown at all.
 
+## Saved sessions
+
+A room lives in the server's memory, so closing the tab or restarting the server used to lose the conversation. Now every message is appended to disk the moment it is said:
+`chatroom/data/rooms/<room id>/<session>/` holds `session.json` (the goal, the agents with their bios, the settings, how and when it ended), `transcript.jsonl`, `media/`, `uploads/` and `artifacts/` (the latest version
+of each file, and every version under `.versions/`). **On for a local install; off on a hosted instance** (`SYNTH_HOSTED=1`) unless `CHATROOM_AUTOSAVE=1`; `CHATROOM_AUTOSAVE=0` turns it off anywhere. Sessions are deleted after
+`CHATROOM_AUTOSAVE_DAYS` (default 30; 0 keeps them), `CHATROOM_DATA_DIR` moves the folder, and `chatroom/data/rooms/` is git-ignored. A room only ever sees its own folder (the folder name is the room's secret id).
+The Agent Studio's 🗂 button lists them (reopen, download, delete); a reopened session keeps writing into its own folder, and the next message from the user carries on exactly as after a session ends.
+`POST /api/chat/import` loads a session file: the one the Studio's Export button writes (`{goal, mode, agents, messages, artifacts}`), or a saved session downloaded from `GET /api/chat/saved/:id/download`. Import works even where saving is off.
+
+## Done when: a machine-checked end
+
+A lead agent stops premature endings but is not a verifier: in one experiment the room's only failure was an agent who wrote "the checks are complete, six variables, twelve values each" about a block with a wrong count, and the lead
+believed it. Models cannot count to twelve. `POST /api/chat/done-when` (or `doneWhen` on `/start`, or the Studio's Settings) sets checks the **server** runs every time anyone tries to end, lead or vote, and on each new artifact version:
+
+```
+artifact: engine.json                                   the artifact exists and is not empty
+regex: /FINAL ANSWER/i in last_message                  (or any_message, or artifact:<name>)
+json: engine.json {"type":"object","required":["promptTemplate"],"properties":{"variables":{"type":"array","minItems":6,"maxItems":6}}}
+url: http://localhost:8000/api/health 200               an address that answers
+```
+
+`json:` takes `type`, `required`, `properties`, `items`, `minItems`/`maxItems`, `uniqueItems`, `minLength`/`maxLength`, `pattern`, `enum`, `const`, `minimum`/`maximum` and `additionalProperties: false`, and says what is wrong in words an
+agent can act on (`$.variables[0].values: 11 items, needs exactly 12`). A failed check refuses the ending: a Producer note lists what passes and what fails, the ending in progress is cleared, and the room carries on; a new artifact
+version is judged the same way, announced when the verdict changes. Every agent is told the checks. A check nobody can pass would loop until the token limit, so after 8 refusals (`maxBlocks`; 0 = never) the room ends anyway with the reason
+`done_check_unmet`. Turn and token limits are never held back by the checks.
+
+## The independent critic
+
+Alone, even the smallest model scored a photograph that had drifted into a painting 2 to 3 out of 10, against about 9 for good frames; in a room, the supervisor said MATCH to it. The weakness is social. The critic is a blind scoring
+call (`services/judge.js`, `critiqueImage`) that sees only the pictures (a reference or a description, and the candidate), never the conversation, and answers 1 to 10 (a MATCH/RETAKE checklist made every model reject nearly everything; the
+score discriminates). `POST /api/chat/critic` turns it on (`referenceId` is an attached file's name or a picture id, `criteria` what must stay the same, `minScore` the bar, `maxCalls` the budget). Agents ask with
+`[CRITIC: <picture id> | reference=<id> | criteria=...]` (or the `critique_image` function); with a reference set, pictures an agent makes are scored automatically and the room is told in one note. `POST /api/chat/critic/score` scores one now.
+
+## Showing the room, and rendering
+
+Crews that could see what their code drew fixed a pond made of moire, a stained glass of flat primaries and a chain that was confetti; without a picture the same crews shipped them. `POST /api/chat/show {images, caption, sender}` puts pictures in the
+conversation as a note (and in the vision window, so the next speaker is shown them). Agents ask to see what they wrote with `[RENDER: engine.json | draws=3]` (or `render_artifact`): an image-prompt template is drawn a few times with random
+values; an instrument (`.json` with `p5Code`) or a page (`.html`, `.js`) is rendered by a browser attached to the room. The Agent Studio opens the event stream with `?renders=1`, receives `render_request`, draws the thing in a hidden frame and
+answers `POST /api/chat/render-result`; the standalone chat page does not render. `POST /api/chat/render` does it on the host's request. Limits: 4 draws per render, 12 renders per session.
+
 ## API Reference
 
 ### Agent Endpoints
@@ -293,6 +333,18 @@ On a chained turn (see *Conversation state*) the agent's server-side history alr
 | POST | `/api/chat/resume` | Resume chat |
 | POST | `/api/chat/inject` | Inject user message `{content, senderName}` |
 | POST | `/api/chat/reset` | Reset everything |
+| GET, POST | `/api/chat/done-when` | The checks the room must pass before it may end `{text}` or `{criteria}`, `maxBlocks?` |
+| POST | `/api/chat/done-when/check` | Run the checks now |
+| GET, POST | `/api/chat/critic` | The independent critic's settings |
+| POST | `/api/chat/critic/score` | Score a picture now `{imageId, referenceId?, criteria?, post?}` |
+| POST | `/api/chat/show` | Show the room pictures `{images: [{dataUrl}], caption?, sender?}` |
+| POST | `/api/chat/render` | Render an artifact for the room `{artifact, draws?}` |
+| POST | `/api/chat/render-result` | A browser's answer to a `render_request` |
+| GET | `/api/chat/saved` | Saved sessions for this room (and whether saving is on) |
+| GET | `/api/chat/saved/:id/download` | A saved session as a Studio session file |
+| POST | `/api/chat/saved/:id/reopen` | Put a saved session back in the room |
+| DELETE | `/api/chat/saved/:id`, `/api/chat/saved` | Delete one, or all |
+| POST | `/api/chat/import` | Load a session file into the room |
 
 ### Speaking Order Endpoints
 
@@ -345,6 +397,10 @@ The `/api/chat/stream` endpoint emits these events:
 | `branch_created` | `{id, name, messageIndex}` | Branch saved |
 | `branch_restored` | `{id, name, messageCount}` | Branch restored |
 | `speaking_order_changed` | `{mode}` | Speaking order updated |
+| `session_restored` | `{source, archiveId, goal, mode, messageCount, agents}` | A saved session or a file was loaded |
+| `done_check` | `{passed, results, blocks, attempted?, candidate?}` | The done-when checks ran |
+| `critic_score` | `{imageId, referenceId, score, differs, minScore, below, source}` | The critic scored a picture |
+| `render_request` | `{requestId, kind, filename, content, p5Code?, samples?}` | The server wants a browser to render an artifact |
 
 ## Agent Tool Syntax
 
@@ -357,6 +413,8 @@ Agents can use these tools in their responses:
 [URL: https://example.com/article]
 [RESEARCH: quantum computing applications in medicine]
 [CONSENSUS REACHED] - Signals conversation completion
+[CRITIC: image-id | reference=sheet.png | criteria=same coat and braid]   (when the critic is on)
+[RENDER: engine.json | draws=3]   (shows the room what an artifact looks like)
 ```
 
 ## Keyboard Shortcuts
@@ -378,6 +436,10 @@ Agents can use these tools in their responses:
 |----------|-------------|----------|
 | `GEMINI_API_KEY` | Google Gemini API key | Yes |
 | `PORT` | Server port (default: 3001) | No |
+| `CHATROOM_AUTOSAVE` | `1` saves conversations to disk even when hosted, `0` never (default: on locally, off when `SYNTH_HOSTED=1`) | No |
+| `CHATROOM_AUTOSAVE_DAYS` | Days a saved session is kept (default 30; 0 keeps them) | No |
+| `CHATROOM_DATA_DIR` | Where saved sessions go (default `chatroom/data`) | No |
+| `SYNTH_KEEP_AWAKE` | `0` stops the server asking the OS not to sleep while a session runs | No |
 
 ### Agent Templates
 
