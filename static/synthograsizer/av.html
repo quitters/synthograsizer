@@ -1466,7 +1466,7 @@
                     '});' +
                     'new p5(function(p){' +
                     'p.getSynthVar=function(k){return(__sv&&k in __sv)?__sv[k]:null;};' +
-                    code +
+                    code + '\n' +   // a sketch that ends in a // comment must not swallow the closing '});'
                     '});' +
                     // After p5 setup runs, post canvas native dimensions to parent
                     '(function(){var _tries=0;function _poll(){' +
