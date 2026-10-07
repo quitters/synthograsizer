@@ -34,6 +34,7 @@ const COST_TABLE = {
   synth_transform:{ perCall: 0.0420, label: 'Vision + Imagen' },
   synth_remix_template: { perCall: 0.0010, label: 'Gemini text' },
   synth_fetch:    { perCall: 0.0000, label: 'HTTP fetch (no LLM)' },
+  synth_combine:  { perCall: 0.0000, label: 'ffmpeg join (no model)' },
   loop:           { perCall: 0.0000, label: 'Control-flow only' },
 };
 

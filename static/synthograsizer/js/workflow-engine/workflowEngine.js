@@ -4,7 +4,7 @@
 // exposing the same v4 export. workflowLibrary.js and urlGuard.js resolve to
 // browser shims sitting alongside this file under the same module names, so
 // they need no edit here. Keep this file otherwise byte-identical to the Node
-// original so the two do not drift.
+// original so the two do not drift (scripts/sync_workflow_engine.py regenerates it).
 import { v4 as uuidv4 } from './uuid.js';
 import { synthClient } from './synthClient.js';
 import { workflowLibrary } from './workflowLibrary.js';
@@ -23,7 +23,7 @@ let _mediaStore = null;
  *     {
  *       id: string,          — unique within this workflow
  *       type: string,        — synth_image | synth_video | synth_template | synth_story |
- *                               synth_narrative | synth_analyze | synth_transform
+ *                               synth_narrative | synth_analyze | synth_transform | synth_combine
  *       params: object,      — tool-specific params; may contain {{stepId.field}} templates
  *       dependsOn?: string[] — step ids this step waits for (default: [])
  *     },
@@ -114,24 +114,94 @@ function buildWaves(steps) {
   return waves;
 }
 
+// ─── Media references (images that condition a generation, clips that make a film) ──
+
+// Slot sizes of the image model's typed composition slots (backend ImageReferences).
+const REFERENCE_SLOT_LIMITS = { objects: 10, character: 4, style: 3 };
+const INPUT_IMAGE_LIMIT = 10;
+
+// A bare style reference leaks its SUBJECT into the new picture: in a 22-card deck test the reference's machinery and
+// numeral turned up in most cards. This clause (docs/ENGINE_DESIGN.md) keeps only the look. Added to a synth_image prompt
+// that has a style reference, unless the step says look_only: false.
+export const LOOK_ONLY_CLAUSE = " Use the attached style reference image only for its look: its palette, finish, framing and lettering style. "
+  + "Draw an entirely new subject; do not reuse the reference's subject, composition or text.";
+
+/** An array or a comma-joined string of ids (or base64 strings) as a clean array. */
+function toIdList(value) {
+  if (Array.isArray(value)) return value.map(v => (typeof v === 'string' ? v.trim() : v)).filter(Boolean);
+  if (typeof value === 'string') return value.split(',').map(s => s.trim()).filter(Boolean);
+  return [];
+}
+
+/** The base64 behind a media id; a long string is taken to be base64 (or a data URI) already. Null when it is neither. */
+function resolveMedia(idLike, mediaStore) {
+  if (!idLike) return null;
+  const m = mediaStore.get(idLike);
+  if (m?.data) return m.data;
+  return typeof idLike === 'string' && idLike.length > 200 ? idLike : null;
+}
+
+function resolveAll(ids, label, limit, mediaStore) {
+  if (ids.length > limit) throw new Error(`synth_image: at most ${limit} ${label}, got ${ids.length}`);
+  return ids.map(id => {
+    const data = resolveMedia(id, mediaStore);
+    // Dropping a reference silently would break the thing it is for (a character that holds, a look that matches).
+    if (!data) throw new Error(`synth_image: ${label} "${String(id).slice(0, 40)}" is not in the media store`);
+    return data;
+  });
+}
+
+/**
+ * Turn a synth_image step's reference params into what the image endpoint takes.
+ *   reference_image_ids: ids (array or comma-joined) of ordinary reference images
+ *   references: { objects: [ids], character: [ids], style: [ids] } the typed slots (up to 10 / 4 / 3)
+ * Every id is a media id from an earlier step ({{step.mediaId}}) or base64. An id that cannot be found throws.
+ * @returns {{ input_images?: string[], references?: object }}
+ */
+export function resolveImageReferences({ references, reference_image_ids } = {}, mediaStore) {
+  const out = {};
+  const flat = toIdList(reference_image_ids);
+  if (flat.length) out.input_images = resolveAll(flat, 'reference image', INPUT_IMAGE_LIMIT, mediaStore);
+  if (references && typeof references === 'object') {
+    const unknown = Object.keys(references).find(k => !(k in REFERENCE_SLOT_LIMITS));
+    if (unknown) throw new Error(`synth_image: unknown reference slot "${unknown}" (use objects, character or style)`);
+    const slots = {};
+    for (const [slot, limit] of Object.entries(REFERENCE_SLOT_LIMITS)) {
+      const ids = toIdList(references[slot]);
+      if (ids.length) slots[slot] = resolveAll(ids, `${slot} reference`, limit, mediaStore);
+    }
+    if (Object.keys(slots).length) out.references = slots;
+  }
+  return out;
+}
+
 // ─── Synth call dispatcher ────────────────────────────────────────────────────
 
 /**
  * Given a step type and interpolated params, call the correct synthClient method.
  * Returns the raw API response, augmented with mediaId if media was stored.
  */
-async function dispatchSynth(type, params, agentId = null, agentName = null, onChunk = null) {
+async function dispatchSynth(type, params, agentId = null, agentName = null, onChunk = null, mediaStore = _mediaStore) {
   switch (type) {
     case 'synth_image': {
-      const { prompt, ...opts } = params;
-      const res = await synthClient.generateImage(prompt || '', opts);
+      const { prompt, references, reference_image_ids, look_only, ...opts } = params;
+      // Reference images: ids of earlier results, never bytes in the workflow JSON. See resolveImageReferences.
+      const refs = resolveImageReferences({ references, reference_image_ids }, mediaStore);
+      let text = prompt || '';
+      const lookOnly = refs.references?.style?.length && look_only !== false && look_only !== 'false';
+      if (lookOnly) text += LOOK_ONLY_CLAUSE;
+      const res = await synthClient.generateImage(text, { ...opts, ...refs });
       if (res.image) {
         const mediaId = uuidv4();
-        _mediaStore.add({
+        mediaStore.add({
           id: mediaId, type: 'image', data: res.image, mimeType: 'image/png',
-          prompt: prompt || '', agentId, agentName
+          prompt: text, agentId, agentName
         });
-        return { ...res, mediaId, mediaType: 'image' };
+        const used = {
+          input_images: refs.input_images?.length || 0,
+          ...Object.fromEntries(Object.entries(refs.references || {}).map(([k, v]) => [k, v.length])),
+        };
+        return { ...res, mediaId, mediaType: 'image', ...(Object.values(used).some(Boolean) ? { references_used: used, look_only: !!lookOnly } : {}) };
       }
       return res;
     }
@@ -144,7 +214,7 @@ async function dispatchSynth(type, params, agentId = null, agentName = null, onC
       // hand the raw base64 to the backend.
       const resolveOne = (idLike) => {
         if (!idLike) return null;
-        const m = _mediaStore.get(idLike);
+        const m = mediaStore.get(idLike);
         return m?.data || (typeof idLike === 'string' && idLike.length > 200 ? idLike : null);
       };
       if (opts.start_frame_id) {
@@ -165,11 +235,40 @@ async function dispatchSynth(type, params, agentId = null, agentName = null, onC
       const res = await synthClient.generateVideo(prompt || '', opts);
       if (res.video) {
         const mediaId = uuidv4();
-        _mediaStore.add({
+        mediaStore.add({
           id: mediaId, type: 'video', data: res.video, mimeType: 'video/mp4',
           prompt: prompt || '', agentId, agentName
         });
         return { ...res, mediaId, mediaType: 'video' };
+      }
+      return res;
+    }
+
+    case 'synth_combine': {
+      // Join clips into one film, in order. params: { video_ids: [ids] | "id,id", audio_id?, audio_volume? }.
+      // audio_id is an audio clip (a recorded score) mixed UNDER the clips' own sound at audio_volume (0 to 1, default 0.35).
+      const ids = toIdList(params.video_ids ?? params.videos);
+      if (!ids.length) throw new Error('synth_combine requires video_ids');
+      const clips = ids.map(id => {
+        const data = resolveMedia(id, mediaStore);
+        if (!data) throw new Error(`synth_combine: clip "${String(id).slice(0, 40)}" is not in the media store`);
+        return data;
+      });
+      let audio = null;
+      if (params.audio_id) {
+        audio = resolveMedia(params.audio_id, mediaStore);
+        if (!audio) throw new Error(`synth_combine: audio "${String(params.audio_id).slice(0, 40)}" is not in the media store`);
+      }
+      // One clip and no score is already the film.
+      if (clips.length === 1 && !audio) return { video: clips[0], mediaId: ids[0], mediaType: 'video', clips: 1 };
+      const res = await synthClient.combineVideos(clips, { audio, audio_volume: params.audio_volume });
+      if (res.video) {
+        const mediaId = uuidv4();
+        mediaStore.add({
+          id: mediaId, type: 'video', data: res.video, mimeType: 'video/mp4',
+          prompt: `film of ${clips.length} clip${clips.length === 1 ? '' : 's'}`, agentId, agentName
+        });
+        return { ...res, mediaId, mediaType: 'video', clips: clips.length, scored: !!audio };
       }
       return res;
     }
@@ -251,7 +350,7 @@ async function dispatchSynth(type, params, agentId = null, agentName = null, onC
       if (!imageRef || imageRef === 'null') {
         return { description: '[image unavailable — upstream step skipped]', skipped: true };
       }
-      const media = _mediaStore.get(imageRef);
+      const media = mediaStore.get(imageRef);
       const imageBase64 = media?.data || imageRef;
       const res = await synthClient.analyzeImage(imageBase64);
       // Normalize: backend returns { status, analysis } but templates reference {{step.description}}
@@ -260,13 +359,13 @@ async function dispatchSynth(type, params, agentId = null, agentName = null, onC
 
     case 'synth_transform': {
       const imageRef = params.image_id || params.image || '';
-      const media = _mediaStore.get(imageRef);
+      const media = mediaStore.get(imageRef);
       const imageBase64 = media?.data || imageRef;
       const intent = params.intent || '';
       const res = await synthClient.smartTransform(imageBase64, intent);
       if (res.image) {
         const mediaId = uuidv4();
-        _mediaStore.add({
+        mediaStore.add({
           id: mediaId, type: 'image', data: res.image, mimeType: 'image/png',
           prompt: intent, agentId, agentName
         });
@@ -324,6 +423,8 @@ class WorkflowEngine {
    * @param {Function} options.broadcast      - fn(event, data) for SSE
    * @param {string}   [options.agentId]      - originating agent (for media attribution)
    * @param {string}   [options.agentName]
+   * @param {object}   [options.mediaStore] - store for media this run produces (default: the configured one)
+   * @param {string}   [options.ownerId]    - who the run belongs to; scopes listActive/cancel/traces/checkpoints
    * @returns {string} workflowId
    */
   submit(workflowDef, {
@@ -333,6 +434,8 @@ class WorkflowEngine {
     agentColor = null,
     sessionId = null,
     messageId = null,
+    mediaStore = null,
+    ownerId = null,
   } = {}) {
     const id = uuidv4();
 
@@ -347,6 +450,8 @@ class WorkflowEngine {
       agentColor,
       sessionId,
       messageId,
+      mediaStore,
+      ownerId,
       cancelled: false,
       startedAt: new Date().toISOString(),
       completedAt: null,
@@ -388,6 +493,7 @@ class WorkflowEngine {
       id: state.id,
       name: state.name,
       status: state.status,
+      ownerId: state.ownerId ?? null,
       startedAt: state.startedAt,
       completedAt: state.completedAt,
       steps: state.steps.map(s => ({
@@ -412,11 +518,13 @@ class WorkflowEngine {
   /**
    * Cancel a running workflow.
    * @param {string} workflowId
+   * @param {string} [ownerId] — when given, only that owner's runs can be cancelled
    * @returns {boolean} true if found and cancelled
    */
-  cancel(workflowId) {
+  cancel(workflowId, ownerId) {
     const state = this._workflows.get(workflowId);
     if (!state || state.status !== 'running') return false;
+    if (ownerId !== undefined && (state.ownerId ?? null) !== ownerId) return false;
     state.cancelled = true;
     state.status = 'cancelled';
     state.broadcast('workflow_cancelled', { workflowId });
@@ -424,11 +532,14 @@ class WorkflowEngine {
   }
 
   /**
-   * List all tracked workflows (active + recently completed).
+   * List tracked workflows (active + recently completed).
+   * @param {string} [ownerId] — when given, only that owner's runs
    * @returns {Array}
    */
-  listActive() {
-    return [...this._workflows.values()].map(state => ({
+  listActive(ownerId) {
+    const all = [...this._workflows.values()];
+    const mine = ownerId === undefined ? all : all.filter(s => (s.ownerId ?? null) === ownerId);
+    return mine.map(state => ({
       id:          state.id,
       name:        state.name,
       status:      state.status,
@@ -452,11 +563,15 @@ class WorkflowEngine {
     const state = this._workflows.get(workflowId);
     if (!state) throw new Error(`Workflow ${workflowId} not found`);
     if (state.status === 'running') throw new Error('Workflow is still running');
+    if (options.ownerId !== undefined && (state.ownerId ?? null) !== options.ownerId) {
+      throw new Error(`Workflow ${workflowId} not found`);
+    }
 
     // Merge new broadcast / agent options
     if (options.broadcast) state.broadcast = options.broadcast;
     if (options.agentId)   state.agentId   = options.agentId;
     if (options.agentName) state.agentName = options.agentName;
+    if (options.mediaStore) state.mediaStore = options.mediaStore;
 
     // Reset failed and pending steps only
     for (const step of state.steps) {
@@ -508,6 +623,10 @@ class WorkflowEngine {
       throw new Error(`No checkpoint found for workflow ${workflowId}`);
     }
 
+    if (options.ownerId !== undefined && (checkpoint.ownerId ?? null) !== options.ownerId) {
+      throw new Error(`No checkpoint found for workflow ${workflowId}`);
+    }
+
     const { workflowDef, stepResults, completedSteps } = checkpoint;
     const completedSet = new Set(completedSteps || []);
 
@@ -525,6 +644,8 @@ class WorkflowEngine {
       broadcast:   options.broadcast || (() => {}),
       agentId:     options.agentId   || null,
       agentName:   options.agentName || null,
+      mediaStore:  options.mediaStore || null,
+      ownerId:     checkpoint.ownerId ?? (options.ownerId ?? null),
       cancelled:   false,
       startedAt:   new Date().toISOString(),
       completedAt: null,
@@ -620,7 +741,7 @@ class WorkflowEngine {
       for (const innerDef of innerStepDefs) {
         const innerParams = interpolate(innerDef.params || {}, miniResults);
         const innerResult = await dispatchSynth(
-          innerDef.type, innerParams, state.agentId, state.agentName
+          innerDef.type, innerParams, state.agentId, state.agentName, null, state.mediaStore || _mediaStore
         );
         iterResult[innerDef.id] = innerResult;
         miniResults.set(innerDef.id, innerResult);
@@ -751,7 +872,7 @@ class WorkflowEngine {
         });
         const result = step.type === 'loop'
           ? await this._executeLoop(state, step, resolvedParams)
-          : await dispatchSynth(step.type, resolvedParams, state.agentId, state.agentName, onChunk);
+          : await dispatchSynth(step.type, resolvedParams, state.agentId, state.agentName, onChunk, state.mediaStore || _mediaStore);
 
         step.result = result;
         step.status = 'complete';

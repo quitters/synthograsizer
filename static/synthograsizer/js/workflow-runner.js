@@ -394,7 +394,7 @@ class WorkflowRunner {
     // Icon map for template types
     const icons = {
       style_transfer: '🎨', refinement_loop: '🔄', style_comparison: '⚖️',
-      narrative_dreamscape: '🌌', progressive_transform: '🔀', img_to_video: '🎬',
+      narrative_dreamscape: '🌌', progressive_transform: '🔀', img_to_video: '🎬', look_locked_deck: '🃏', storyboard_film: '🎞',
       memory_visualization: '🧠', multi_image_composite: '🖼️', branching_narrative: '📖',
       cinematic_short: '🎞️', polar_opposite: '🔁',
     };
@@ -1023,6 +1023,11 @@ const WORKFLOW_PARAM_META = {
   scenario:          { type: 'textarea', label: 'Scenario', placeholder: 'Starting scenario…' },
   memory:            { type: 'textarea', label: 'Memory', placeholder: 'A vivid memory to visualize…' },
   subjects:          { type: 'textarea', label: 'Subjects', placeholder: 'Comma-separated subjects' },
+  deck_look:         { type: 'text', label: 'Deck look', placeholder: 'gilded border, midnight-blue ground…' },
+  reference:         { type: 'text', label: 'Reference image id (optional)', placeholder: 'a media id; empty draws the first card as the reference' },
+  frames:            { type: 'text', label: 'Frames (media ids)', placeholder: 'comma-separated, one per scene' },
+  motions:           { type: 'textarea', label: 'Motion lines', placeholder: 'one per frame, separated by ||' },
+  score:             { type: 'text', label: 'Score (audio media id, optional)', placeholder: 'mixed under the film' },
   scene:             { type: 'textarea', label: 'Scene', placeholder: 'Scene description…' },
   negative_prompt:   { type: 'textarea', label: 'Negative Prompt', placeholder: 'What to avoid in the image…' },
   refinement_instruction: { type: 'textarea', label: 'Refinement Instruction', default: 'enhance detail, improve composition, increase visual coherence', placeholder: 'How to refine the image…' },

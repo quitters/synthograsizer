@@ -111,7 +111,11 @@ class SynthClient {
   /**
    * POST /api/generate/image
    * @param {string} prompt
-   * @param {{ aspect_ratio?, negative_prompt?, style?, num_images?, model? }} options
+   * @param {{ aspect_ratio?, negative_prompt?, style?, num_images?, model?,
+   *           input_images?: string[],
+   *           references?: { objects?: string[], character?: string[], style?: string[] } }} options
+   *   input_images are untyped reference images; references are the typed composition slots (Gemini image models).
+   *   Both are base64 strings, already resolved from media ids by the engine.
    */
   async generateImage(prompt, options = {}) {
     const body = {
@@ -121,6 +125,8 @@ class SynthClient {
     };
     if (options.negative_prompt) body.negative_prompt = options.negative_prompt;
     if (options.num_images)      body.image_count = Number(options.num_images);
+    if (options.input_images?.length) body.input_images = options.input_images;
+    if (options.references && Object.values(options.references).some(list => list?.length)) body.references = options.references;
     // 'style' has no direct server param; fold it into the prompt if provided
     if (options.style) body.prompt = `${prompt} — style: ${options.style}`;
 
@@ -262,9 +268,16 @@ class SynthClient {
   /**
    * POST /api/video/combine
    * @param {string[]} videoList  array of base64-encoded MP4s
+   * @param {{ audio?: string, audio_volume?: number }} [options]  a base64 audio clip (a score) to mix under the clips' own
+   *   sound, and its level from 0 to 1 (the server defaults to 0.35)
    */
-  async combineVideos(videoList) {
-    return this._post('/api/video/combine', { videos: videoList }, VIDEO_TIMEOUT_MS);
+  async combineVideos(videoList, options = {}) {
+    const body = { videos: videoList };
+    if (options.audio) body.audio = options.audio;
+    if (options.audio_volume !== undefined && options.audio_volume !== null && options.audio_volume !== '') {
+      body.audio_volume = Number(options.audio_volume);
+    }
+    return this._post('/api/video/combine', body, VIDEO_TIMEOUT_MS);
   }
 }
 

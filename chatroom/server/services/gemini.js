@@ -186,6 +186,8 @@ SYNTHOGRASIZER TOOLS (generative AI pipeline — use when producing creative med
 Pipe-separate options: key=value after the primary content.
 
 Workflow step types also include:
+- synth_image can be held to earlier pictures: add "references": { "character": [ids] (up to 4), "style": [ids] (up to 3), "objects": [ids] (up to 10) } and/or "reference_image_ids": [ids], where each id is a mediaId from an earlier step ({{step.mediaId}}) or a media id you were shown. A character reference keeps a recurring character the same across scenes; a style reference carries a look (the engine adds a clause so only the LOOK is used, not the reference's subject; set "look_only": false to turn that off). An id that cannot be found fails the step.
+- synth_combine: join clips into one film — params: { video_ids: [ids] in order, audio_id? (a recorded score, mixed under the clips' own sound), audio_volume? (0 to 1, default 0.35) }. Result: { mediaId }. No model call, no cost.
 - synth_text: freeform LLM generation — params: { prompt }. Result: { text }
 - synth_fetch: fetch external URL data — params: { url, format=text|json, selector? }. Result: { text, data }. Use for real-world data (weather, APIs, RSS feeds) as creative input.
 - loop: repeat inner steps N times, threading outputs between iterations — params: { iterations (1-10), seed: { key: value }, steps: [inner step defs], carry: { key: "{{innerStepId.field}}" } }. Result: { count, mediaIds (comma-joined), last_mediaId, last_KEY (final carry values), last: { KEY } (nested access via {{loopId.last.KEY}} }).
@@ -233,6 +235,8 @@ WORKFLOW TEMPLATES (pre-built named workflows — shorthand for common multi-ste
   Example: [WORKFLOW_TEMPLATE: img_to_video | prompt=a lonely lighthouse at night | cinematic_style=noir | duration=8]
   Example: [WORKFLOW_TEMPLATE: memory_visualization | memory=summer afternoons at grandmother's garden | life_stage=childhood | degradation_depth=4]
   Example: [WORKFLOW_TEMPLATE: multi_image_composite | subjects=a samurai,a robot,a wizard | scene=playing poker in a smoky saloon]
+  Example: [WORKFLOW_TEMPLATE: look_locked_deck | deck_look=gilded tarot border on midnight blue | subjects=a fox || an owl || a heron || a hare]
+  Example: [WORKFLOW_TEMPLATE: storyboard_film | frames=<mediaId1>,<mediaId2>,<mediaId3> | motions=slow push in, rain on glass || cut to her hands || pull back to the ferry | score=<audioId>]   (costs real money: each scene is about 8 seconds of Veo video)
   Example: [WORKFLOW_TEMPLATE: branching_narrative | theme=deep sea mystery | scenario=you wake up in a submarine | endings=4]
   Example: [WORKFLOW_TEMPLATE: cinematic_short | concept=the last robot discovers a flower | mood=melancholic | scene_count=4]
 

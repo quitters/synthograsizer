@@ -16,7 +16,7 @@ let _mediaStore = null;
  *     {
  *       id: string,          — unique within this workflow
  *       type: string,        — synth_image | synth_video | synth_template | synth_story |
- *                               synth_narrative | synth_analyze | synth_transform
+ *                               synth_narrative | synth_analyze | synth_transform | synth_combine
  *       params: object,      — tool-specific params; may contain {{stepId.field}} templates
  *       dependsOn?: string[] — step ids this step waits for (default: [])
  *     },
@@ -107,6 +107,67 @@ function buildWaves(steps) {
   return waves;
 }
 
+// ─── Media references (images that condition a generation, clips that make a film) ──
+
+// Slot sizes of the image model's typed composition slots (backend ImageReferences).
+const REFERENCE_SLOT_LIMITS = { objects: 10, character: 4, style: 3 };
+const INPUT_IMAGE_LIMIT = 10;
+
+// A bare style reference leaks its SUBJECT into the new picture: in a 22-card deck test the reference's machinery and
+// numeral turned up in most cards. This clause (docs/ENGINE_DESIGN.md) keeps only the look. Added to a synth_image prompt
+// that has a style reference, unless the step says look_only: false.
+export const LOOK_ONLY_CLAUSE = " Use the attached style reference image only for its look: its palette, finish, framing and lettering style. "
+  + "Draw an entirely new subject; do not reuse the reference's subject, composition or text.";
+
+/** An array or a comma-joined string of ids (or base64 strings) as a clean array. */
+function toIdList(value) {
+  if (Array.isArray(value)) return value.map(v => (typeof v === 'string' ? v.trim() : v)).filter(Boolean);
+  if (typeof value === 'string') return value.split(',').map(s => s.trim()).filter(Boolean);
+  return [];
+}
+
+/** The base64 behind a media id; a long string is taken to be base64 (or a data URI) already. Null when it is neither. */
+function resolveMedia(idLike, mediaStore) {
+  if (!idLike) return null;
+  const m = mediaStore.get(idLike);
+  if (m?.data) return m.data;
+  return typeof idLike === 'string' && idLike.length > 200 ? idLike : null;
+}
+
+function resolveAll(ids, label, limit, mediaStore) {
+  if (ids.length > limit) throw new Error(`synth_image: at most ${limit} ${label}, got ${ids.length}`);
+  return ids.map(id => {
+    const data = resolveMedia(id, mediaStore);
+    // Dropping a reference silently would break the thing it is for (a character that holds, a look that matches).
+    if (!data) throw new Error(`synth_image: ${label} "${String(id).slice(0, 40)}" is not in the media store`);
+    return data;
+  });
+}
+
+/**
+ * Turn a synth_image step's reference params into what the image endpoint takes.
+ *   reference_image_ids: ids (array or comma-joined) of ordinary reference images
+ *   references: { objects: [ids], character: [ids], style: [ids] } the typed slots (up to 10 / 4 / 3)
+ * Every id is a media id from an earlier step ({{step.mediaId}}) or base64. An id that cannot be found throws.
+ * @returns {{ input_images?: string[], references?: object }}
+ */
+export function resolveImageReferences({ references, reference_image_ids } = {}, mediaStore) {
+  const out = {};
+  const flat = toIdList(reference_image_ids);
+  if (flat.length) out.input_images = resolveAll(flat, 'reference image', INPUT_IMAGE_LIMIT, mediaStore);
+  if (references && typeof references === 'object') {
+    const unknown = Object.keys(references).find(k => !(k in REFERENCE_SLOT_LIMITS));
+    if (unknown) throw new Error(`synth_image: unknown reference slot "${unknown}" (use objects, character or style)`);
+    const slots = {};
+    for (const [slot, limit] of Object.entries(REFERENCE_SLOT_LIMITS)) {
+      const ids = toIdList(references[slot]);
+      if (ids.length) slots[slot] = resolveAll(ids, `${slot} reference`, limit, mediaStore);
+    }
+    if (Object.keys(slots).length) out.references = slots;
+  }
+  return out;
+}
+
 // ─── Synth call dispatcher ────────────────────────────────────────────────────
 
 /**
@@ -116,15 +177,24 @@ function buildWaves(steps) {
 async function dispatchSynth(type, params, agentId = null, agentName = null, onChunk = null, mediaStore = _mediaStore) {
   switch (type) {
     case 'synth_image': {
-      const { prompt, ...opts } = params;
-      const res = await synthClient.generateImage(prompt || '', opts);
+      const { prompt, references, reference_image_ids, look_only, ...opts } = params;
+      // Reference images: ids of earlier results, never bytes in the workflow JSON. See resolveImageReferences.
+      const refs = resolveImageReferences({ references, reference_image_ids }, mediaStore);
+      let text = prompt || '';
+      const lookOnly = refs.references?.style?.length && look_only !== false && look_only !== 'false';
+      if (lookOnly) text += LOOK_ONLY_CLAUSE;
+      const res = await synthClient.generateImage(text, { ...opts, ...refs });
       if (res.image) {
         const mediaId = uuidv4();
         mediaStore.add({
           id: mediaId, type: 'image', data: res.image, mimeType: 'image/png',
-          prompt: prompt || '', agentId, agentName
+          prompt: text, agentId, agentName
         });
-        return { ...res, mediaId, mediaType: 'image' };
+        const used = {
+          input_images: refs.input_images?.length || 0,
+          ...Object.fromEntries(Object.entries(refs.references || {}).map(([k, v]) => [k, v.length])),
+        };
+        return { ...res, mediaId, mediaType: 'image', ...(Object.values(used).some(Boolean) ? { references_used: used, look_only: !!lookOnly } : {}) };
       }
       return res;
     }
@@ -163,6 +233,35 @@ async function dispatchSynth(type, params, agentId = null, agentName = null, onC
           prompt: prompt || '', agentId, agentName
         });
         return { ...res, mediaId, mediaType: 'video' };
+      }
+      return res;
+    }
+
+    case 'synth_combine': {
+      // Join clips into one film, in order. params: { video_ids: [ids] | "id,id", audio_id?, audio_volume? }.
+      // audio_id is an audio clip (a recorded score) mixed UNDER the clips' own sound at audio_volume (0 to 1, default 0.35).
+      const ids = toIdList(params.video_ids ?? params.videos);
+      if (!ids.length) throw new Error('synth_combine requires video_ids');
+      const clips = ids.map(id => {
+        const data = resolveMedia(id, mediaStore);
+        if (!data) throw new Error(`synth_combine: clip "${String(id).slice(0, 40)}" is not in the media store`);
+        return data;
+      });
+      let audio = null;
+      if (params.audio_id) {
+        audio = resolveMedia(params.audio_id, mediaStore);
+        if (!audio) throw new Error(`synth_combine: audio "${String(params.audio_id).slice(0, 40)}" is not in the media store`);
+      }
+      // One clip and no score is already the film.
+      if (clips.length === 1 && !audio) return { video: clips[0], mediaId: ids[0], mediaType: 'video', clips: 1 };
+      const res = await synthClient.combineVideos(clips, { audio, audio_volume: params.audio_volume });
+      if (res.video) {
+        const mediaId = uuidv4();
+        mediaStore.add({
+          id: mediaId, type: 'video', data: res.video, mimeType: 'video/mp4',
+          prompt: `film of ${clips.length} clip${clips.length === 1 ? '' : 's'}`, agentId, agentName
+        });
+        return { ...res, mediaId, mediaType: 'video', clips: clips.length, scored: !!audio };
       }
       return res;
     }

@@ -97,3 +97,6 @@ chatroom/.run-pid
 # and committing them would serve them publicly at /design-preview/ inside the
 # Cloud Run image, noindex notwithstanding.
 static/design-preview/
+
+# workflow engine checkpoints and traces written when it runs from its own folder
+workflow-engine/data/

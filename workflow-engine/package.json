@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Shared workflow orchestration engine for Synthograsizer Suite",
   "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs"
+  },
   "exports": {
     ".": "./index.js",
     "./routes": "./routes/workflows.js"

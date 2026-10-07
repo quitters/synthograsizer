@@ -158,6 +158,10 @@ class ImageVariationPromptsRequest(BaseModel):
 
 class CombineVideosRequest(BaseModel):
     videos: List[str]  # List of base64-encoded MP4 videos
+    # A score to mix UNDER the clips' own sound (base64 audio of any type ffmpeg reads: wav, mp3, m4a...). With a score, one
+    # clip is enough. audio_volume is the score's level against the clips' sound, 0 to 1.
+    audio: Optional[str] = None
+    audio_volume: float = Field(default=0.35, ge=0.0, le=1.0)
 
 class OSCSendPromptRequest(BaseModel):
     prompt: str
