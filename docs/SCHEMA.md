@@ -62,7 +62,7 @@ All tiers share the same base structure. The `story` and `_promptcraft` blocks a
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `promptTemplate` | `string` | Yes | Natural language sentence with `{{variable_name}}` placeholders. Must read naturally with any combination of substituted values. |
-| `variables` | `Variable[]` | Yes | Array of variable definitions. Can be empty for blank templates. Maximum 20 variables (configurable via `maxKnobs`). |
+| `variables` | `Variable[]` | Yes | Array of variable definitions. Can be empty for blank templates. Maximum 35 variables by default (`maxKnobs` in `static/synthograsizer/js/config.js`); a larger template is rejected with "Template has N variables. Maximum is 35." and the app falls back to its default template. |
 | `tags` | `Tag[]` | No | Provenance metadata for lineage tracking. See [Section 2.4](#24-tags-and-provenance). |
 | `p5Code` | `string` | No | Embedded p5.js sketch code. When present, the template runs a live animated canvas in the P5 viewer rather than producing AI image prompts. The sketch reads variable values in real time via `p.getSynthVar()`. See [Section 8.8](#88-p5js-mode-system-prompt--runtime-contract) for the code contract. |
 | `story` | `object` | No | Story Engine narrative structure. See [Section 4](#4-story-template-schema). |
@@ -1374,7 +1374,7 @@ Rules from `SynthograsizerSmall.validateTemplate()` in `app.js`:
 | Template exists | `template` is not null/undefined |
 | Has promptTemplate | `"promptTemplate" in template` |
 | Has variables array | `template.variables` is an array |
-| Variable count limit | `variables.length <= maxKnobs` (default 20) |
+| Variable count limit | `variables.length <= maxKnobs` (default 35) |
 | Variables have names | Each variable has a `name` field |
 | No duplicate names | No two variables share the same name (case-insensitive) |
 | Values exist | Each variable has a `values` array |
