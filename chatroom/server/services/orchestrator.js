@@ -758,9 +758,9 @@ export class ChatOrchestrator {
     }
 
     // a browser does the rendering
-    if (this.sseClients.size === 0) {
+    if (![...this.sseClients].some(c => c.renderCapable)) {
       rs.used -= 1;
-      return { ok: false, text: `no browser is attached to this room to render ${art.filename}; open the room in the Agent Studio and try again` };
+      return { ok: false, text: `no browser that can render is attached to this room, so ${art.filename} cannot be rendered; open the room in the Agent Studio and try again` };
     }
     const requestId = uuidv4();
     const samples = kind.kind === 'p5-template' ? Array.from({ length: count }, () => drawValues(kind.template.variables)) : [];

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { DoneWhenSettings, SavedSessions } from './RoomTools.jsx';
 
 const API_BASE = '/chatroom/api';
 
@@ -206,9 +207,23 @@ export function SettingsPanel({ agents, isRunning, onBranchRestored }) {
         >
           Branches
         </button>
+        <button
+          className={`settings-tab ${activeTab === 'done' ? 'active' : ''}`}
+          onClick={() => setActiveTab('done')}
+        >
+          Done when
+        </button>
+        <button
+          className={`settings-tab ${activeTab === 'saved' ? 'active' : ''}`}
+          onClick={() => setActiveTab('saved')}
+        >
+          Saved
+        </button>
       </div>
 
       <div className="settings-content">
+        {activeTab === 'done' && <DoneWhenSettings isRunning={isRunning} />}
+        {activeTab === 'saved' && <SavedSessions isRunning={isRunning} />}
         {activeTab === 'order' && (
           <div className="speaking-order-settings">
             <h4>Speaking Order Mode</h4>

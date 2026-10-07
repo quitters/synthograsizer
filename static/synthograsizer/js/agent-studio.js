@@ -945,6 +945,8 @@ class AgentStudio {
 
     // Local mirror of consensus settings (synced from server on open)
     this._consensus = { enabled: true, sensitivity: 'medium', closeBy: 'lead', leadAgent: '', maxTurns: 0 };
+    // Saved sessions (kept on disk by the chat server) and the room's critic settings
+    this._saved = { enabled: false, sessions: [] };
 
     // workflowId → { status, label, messageIndex }
     this._workflowChipMap = new Map();
@@ -998,6 +1000,9 @@ class AgentStudio {
     this._refreshState();
     this._refreshArtifacts();
     this._fetchConsensusSettings();
+    this._fetchDoneWhen();
+    this._fetchCritic();
+    this._refreshSaved();
     // Hide the back-to-composer pill on plain opens; openWithSession will
     // re-show it after toggling _fromComposer=true.
     const pill = document.getElementById('as-back-composer');
@@ -1230,6 +1235,16 @@ class AgentStudio {
           <button id="as-stop-btn"   class="as-btn" disabled>■ Stop</button>
           <button id="as-reset-btn"  class="as-btn" title="Clear conversation">↺</button>
           <button id="as-export-btn" class="as-btn" title="Download conversation as JSON">⤓</button>
+          <button id="as-load-btn" class="as-btn" title="Load a session file: a conversation exported from here, or a saved session you downloaded">⤒</button>
+          <input id="as-load-input" type="file" accept=".json,application/json" style="display:none"/>
+          <div class="as-popover-anchor">
+            <button id="as-saved-btn" class="as-btn" title="Sessions saved on this computer as they happened">🗂 <span id="as-saved-count" class="as-pill" style="display:none">0</span></button>
+            <div id="as-saved-popover" class="as-popover as-popover-saved">
+              <div class="as-pop-h">Saved sessions <span class="as-hint" id="as-saved-note"></span></div>
+              <div id="as-saved-list" class="as-saved-list"></div>
+              <div id="as-saved-foot" class="as-saved-foot"></div>
+            </div>
+          </div>
 
           <div class="as-popover-anchor">
             <button id="as-settings-btn" class="as-btn" title="Session settings">⚙</button>
@@ -1299,6 +1314,50 @@ class AgentStudio {
                   <span class="as-hint" style="display:block;font-size:10px;margin-top:1px;">turns (0 = no limit)</span>
                 </label>
                 <input id="as-max-turns" type="number" class="as-input-sm" min="0" max="5000" step="1" value="0"/>
+              </div>
+
+              <div class="as-pop-divider as-solo-hide"></div>
+
+              <div class="as-settings-row as-solo-hide" style="flex-direction:column; align-items:stretch;">
+                <label class="as-settings-label" for="as-done-when">
+                  Done when
+                  <span class="as-hint" style="display:block;font-size:10px;margin-top:1px;">The server will not let the session end until every line passes. One check per line:<br/>
+                    <code>artifact: engine.json</code> · <code>regex: /FINAL/ in last_message</code> · <code>json: engine.json {"type":"object"}</code> · <code>url: http://localhost:8000/api/health 200</code></span>
+                </label>
+                <textarea id="as-done-when" class="as-input-sm as-done-when" rows="3" spellcheck="false" placeholder="artifact: engine.json"></textarea>
+                <div style="display:flex;gap:6px;align-items:center;margin-top:4px;">
+                  <button id="as-done-check-btn" class="as-btn-sm" type="button">Check now</button>
+                  <span id="as-done-status" class="as-hint"></span>
+                </div>
+                <div id="as-done-result" class="as-done-result"></div>
+              </div>
+
+              <div class="as-pop-divider"></div>
+
+              <div class="as-settings-row">
+                <label class="as-settings-label" for="as-critic-enabled">
+                  Independent critic
+                  <span class="as-hint" style="display:block;font-size:10px;margin-top:1px;">Scores pictures 1 to 10 seeing only the pictures, never the conversation</span>
+                </label>
+                <label class="as-toggle">
+                  <input type="checkbox" id="as-critic-enabled"/>
+                  <span class="as-toggle-track"></span>
+                </label>
+              </div>
+              <div id="as-critic-rows" style="display:none;">
+                <div class="as-settings-row">
+                  <label class="as-settings-label" for="as-critic-ref">Reference<span class="as-hint" style="display:block;font-size:10px;margin-top:1px;">an attached picture's name</span></label>
+                  <input id="as-critic-ref" class="as-input-sm" list="as-critic-ref-list" placeholder="sheet.png" style="max-width:140px"/>
+                  <datalist id="as-critic-ref-list"></datalist>
+                </div>
+                <div class="as-settings-row">
+                  <label class="as-settings-label" for="as-critic-criteria">Must stay the same</label>
+                  <input id="as-critic-criteria" class="as-input-sm" placeholder="face, braid, coat" style="max-width:140px"/>
+                </div>
+                <div class="as-settings-row">
+                  <label class="as-settings-label" for="as-critic-min">Bar<span class="as-hint" style="display:block;font-size:10px;margin-top:1px;">below this, do not accept</span></label>
+                  <input id="as-critic-min" type="number" class="as-input-sm as-token-limit-input" min="1" max="10" step="1" value="6"/>
+                </div>
               </div>
             </div>
           </div>
@@ -1805,6 +1864,22 @@ class AgentStudio {
       }
       @keyframes as-blink { 0%,100%{opacity:1} 50%{opacity:0} }
 
+      /* ── Saved sessions, done when ──────────────────────────────────────── */
+      .as-popover-saved { min-width:340px; max-width:420px; }
+      .as-saved-item { padding:8px 0; border-bottom:1px solid #eee; }
+      .as-saved-item:last-child { border-bottom:none; }
+      .as-saved-goal { font-size:12px; font-weight:600; color:#222; line-height:1.3; }
+      .as-saved-meta { font-size:10px; color:#565656; margin:2px 0 6px; }
+      .as-saved-actions { display:flex; gap:6px; }
+      .as-saved-empty { font-size:12px; color:#565656; padding:6px 0; line-height:1.5; }
+      .as-saved-foot { font-size:10px; color:#565656; margin-top:8px; display:flex; justify-content:space-between; align-items:center; gap:8px; }
+      .as-done-when { font-family:'JetBrains Mono',monospace; font-size:11px; resize:vertical; min-height:56px; }
+      .as-done-result { font-size:11px; line-height:1.45; margin-top:4px; }
+      .as-done-result .pass { color:#2e7d32; }
+      .as-done-result .fail { color:#c62828; }
+      .as-done-result .detail { color:#565656; margin-left:14px; }
+      .as-hint code { font-size:10px; background:#f3f3f3; padding:0 3px; border-radius:3px; }
+
       /* ── Settings popover ───────────────────────────────────────────────── */
       .as-popover-settings { min-width:280px; max-width:340px; }
       .as-settings-row {
@@ -2030,6 +2105,17 @@ class AgentStudio {
     document.getElementById('as-stop-btn').onclick    = () => this._stop();
     document.getElementById('as-reset-btn').onclick   = () => this._reset();
     document.getElementById('as-export-btn').onclick  = () => this._export();
+    document.getElementById('as-load-btn').onclick    = () => document.getElementById('as-load-input').click();
+    document.getElementById('as-load-input').addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (file) this._loadSessionFile(file);
+      e.target.value = '';
+    });
+    document.getElementById('as-saved-btn').onclick   = (e) => {
+      e.stopPropagation();
+      this._refreshSaved();
+      this._togglePopover('as-saved-popover');
+    };
     document.getElementById('as-add-agent-btn').onclick = () => this._addAgent();
     const composeBtn = document.getElementById('as-compose-new-btn');
     if (composeBtn) composeBtn.onclick = () => {
@@ -2061,6 +2147,9 @@ class AgentStudio {
 
     // Listen for postMessage from artifact iframes (console logs + screenshots)
     this._msgHandler = (e) => {
+      // only the visible preview speaks to the console and the screenshot box; hidden render frames answer the room's render requests themselves
+      const visible = document.querySelector('#as-artifact-content iframe');
+      if (!visible || e.source !== visible.contentWindow) return;
       if (e.data?.type === 'artifact-console') this._appendConsoleEntry(e.data);
       if (e.data?.type === 'artifact-screenshot') this._receiveScreenshot(e.data.dataUrl);
     };
@@ -2109,6 +2198,18 @@ class AgentStudio {
       this._consensus.maxTurns = Math.max(0, parseInt(e.target.value, 10) || 0);
       this._pushConsensusSettings();
     });
+
+    // Done when: checks the server runs before it lets the session end
+    document.getElementById('as-done-when').addEventListener('change', () => this._pushDoneWhen());
+    document.getElementById('as-done-check-btn').onclick = () => this._checkDoneNow();
+
+    // Independent critic
+    document.getElementById('as-critic-enabled').addEventListener('change', (e) => {
+      document.getElementById('as-critic-rows').style.display = e.target.checked ? '' : 'none';
+      this._pushCritic();
+    });
+    ['as-critic-ref', 'as-critic-criteria', 'as-critic-min'].forEach(id =>
+      document.getElementById(id).addEventListener('change', () => this._pushCritic()));
 
     // Stop click-bubble inside popovers from closing them
     document.querySelectorAll('.as-popover').forEach(p => {
@@ -2437,6 +2538,234 @@ class AgentStudio {
     } catch (err) {
       console.warn('[AgentStudio] pushConsensusSettings failed', err);
     }
+  }
+
+  // ─── Saved sessions, loading a file ───────────────────────────────────────
+
+  async _refreshSaved() {
+    try {
+      const res = await fetch(`${this.CHATROOM_API}/chat/saved`);
+      if (!res.ok) return;
+      this._saved = await res.json();
+      this._renderSaved();
+    } catch (err) {
+      console.warn('[AgentStudio] refreshSaved failed', err);
+    }
+  }
+
+  _renderSaved() {
+    const list = document.getElementById('as-saved-list');
+    const foot = document.getElementById('as-saved-foot');
+    const note = document.getElementById('as-saved-note');
+    const count = document.getElementById('as-saved-count');
+    if (!list) return;
+    const sessions = this._saved.sessions || [];
+    if (count) { count.textContent = String(sessions.length); count.style.display = sessions.length ? '' : 'none'; }
+    if (note) note.textContent = this._saved.enabled ? '' : '(off on this server)';
+    if (!this._saved.enabled) {
+      list.innerHTML = `<div class="as-saved-empty">${escapeHtml(this._saved.reason || 'Saving to disk is off.')}<br/>You can still load a session file with ⤒.</div>`;
+      if (foot) foot.innerHTML = '';
+      return;
+    }
+    if (!sessions.length) {
+      list.innerHTML = '<div class="as-saved-empty">Nothing saved yet. Every conversation is saved here as it happens, so closing the tab or restarting the server does not lose it.</div>';
+    } else {
+      const why = { lead_closed: 'closed by the lead', consensus_reached: 'consensus', turn_limit_reached: 'turn limit', token_limit_reached: 'token limit', user_stopped: 'stopped', done_check_unmet: 'ended with checks failing' };
+      list.innerHTML = sessions.map(s => `
+        <div class="as-saved-item" data-id="${escapeAttr(s.id)}">
+          <div class="as-saved-goal">${escapeHtml((s.goal || '(no goal)').slice(0, 110))}</div>
+          <div class="as-saved-meta">${escapeHtml(new Date(s.startedAt).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }))} · ${s.messageCount} message${s.messageCount === 1 ? '' : 's'} · ${escapeHtml((s.agents || []).slice(0, 4).join(', '))}${s.endedAt ? ' · ' + escapeHtml(why[s.endReason] || s.endReason || 'ended') : ' · not closed (the session was interrupted)'}</div>
+          <div class="as-saved-actions">
+            <button class="as-btn-sm" data-act="reopen" type="button" title="Put this conversation back, ready to carry on">↻ Reopen</button>
+            <button class="as-btn-sm" data-act="download" type="button" title="Download as a session file">⤓</button>
+            <button class="as-btn-sm" data-act="delete" type="button" title="Delete this saved session">✕</button>
+          </div>
+        </div>`).join('');
+      list.querySelectorAll('.as-saved-item').forEach(item => {
+        item.querySelector('[data-act="reopen"]').onclick = () => this._reopenSaved(item.dataset.id);
+        item.querySelector('[data-act="download"]').onclick = () => this._downloadSaved(item.dataset.id);
+        item.querySelector('[data-act="delete"]').onclick = () => this._deleteSaved(item.dataset.id);
+      });
+    }
+    if (foot) {
+      foot.innerHTML = `<span>Kept ${this._saved.retentionDays ? this._saved.retentionDays + ' days' : 'until deleted'}, on this computer only.</span>${sessions.length ? '<button class="as-btn-sm" id="as-saved-clear" type="button">Delete all</button>' : ''}`;
+      document.getElementById('as-saved-clear')?.addEventListener('click', async () => {
+        if (!confirm(`Delete all ${sessions.length} saved sessions? This cannot be undone.`)) return;
+        await fetch(`${this.CHATROOM_API}/chat/saved`, { method: 'DELETE' });
+        this._refreshSaved();
+      });
+    }
+  }
+
+  /** After a session has been put back (reopened or loaded from a file): bring the screen in line with the room. */
+  async _afterRestore(result, { toast = true } = {}) {
+    const goal = document.getElementById('as-goal');
+    if (goal && result?.state?.goal !== undefined) goal.value = result.state.goal || '';
+    await this._refreshAgents();
+    await this._refreshState();
+    this._refreshArtifacts();
+    this._fetchConsensusSettings();
+    this._fetchDoneWhen();
+    this._refreshSaved();
+    document.querySelectorAll('.as-popover.open').forEach(p => p.classList.remove('open'));
+    if (toast) this.studio.showToast?.(`Loaded ${result?.messageCount ?? 0} messages. Type a message to carry on.`, 'success');
+  }
+
+  _confirmReplace() {
+    if (this.state.isRunning) {
+      this.studio.showToast?.('A session is running. Stop it first.', 'error');
+      return false;
+    }
+    return !this.messages.length || confirm('Replace the conversation on screen with this one?');
+  }
+
+  async _reopenSaved(id) {
+    if (!this._confirmReplace()) return;
+    try {
+      const res = await fetch(`${this.CHATROOM_API}/chat/saved/${encodeURIComponent(id)}/reopen`, { method: 'POST' });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || `HTTP ${res.status}`);
+      await this._afterRestore(json);
+    } catch (err) {
+      this.studio.showToast?.(`Reopen failed: ${err.message}`, 'error');
+    }
+  }
+
+  async _downloadSaved(id) {
+    try {
+      const res = await fetch(`${this.CHATROOM_API}/chat/saved/${encodeURIComponent(id)}/download`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = `agent-session-${id}.json`;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch (err) {
+      this.studio.showToast?.(`Download failed: ${err.message}`, 'error');
+    }
+  }
+
+  async _deleteSaved(id) {
+    if (!confirm('Delete this saved session? This cannot be undone.')) return;
+    await fetch(`${this.CHATROOM_API}/chat/saved/${encodeURIComponent(id)}`, { method: 'DELETE' });
+    this._refreshSaved();
+  }
+
+  /** Load a session file: what the export button writes, or a saved session downloaded from here. */
+  async _loadSessionFile(file) {
+    if (!this._confirmReplace()) return;
+    try {
+      let data;
+      try { data = JSON.parse(await file.text()); } catch { throw new Error('that file is not JSON'); }
+      const res = await fetch(`${this.CHATROOM_API}/chat/import`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || `HTTP ${res.status}`);
+      await this._afterRestore(json);
+    } catch (err) {
+      this.studio.showToast?.(`Could not load that file: ${err.message}`, 'error');
+    }
+  }
+
+  // ─── Done when, the independent critic ────────────────────────────────────
+
+  async _fetchDoneWhen() {
+    try {
+      const res = await fetch(`${this.CHATROOM_API}/chat/done-when`);
+      if (!res.ok) return;
+      const dw = await res.json();
+      const el = document.getElementById('as-done-when');
+      if (el && document.activeElement !== el) el.value = dw.text || '';
+      this._renderDoneStatus(dw);
+    } catch (err) { console.warn('[AgentStudio] fetchDoneWhen failed', err); }
+  }
+
+  _renderDoneStatus(dw) {
+    const status = document.getElementById('as-done-status');
+    if (!status) return;
+    const n = (dw.criteria || []).length;
+    status.style.color = '';
+    status.textContent = n ? `${n} check${n === 1 ? '' : 's'}; refused ${dw.blocks || 0}×, then it ends anyway after ${dw.maxBlocks || '∞'}` : 'no checks: the lead or the vote decides';
+  }
+
+  async _pushDoneWhen() {
+    const text = document.getElementById('as-done-when').value;
+    const status = document.getElementById('as-done-status');
+    try {
+      const res = await fetch(`${this.CHATROOM_API}/chat/done-when`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text }) });
+      const json = await res.json();
+      if (!res.ok) {
+        if (status) { status.style.color = '#c62828'; status.textContent = (json.errors || [json.error]).join(' · '); }
+        return;
+      }
+      this._renderDoneStatus(json);
+    } catch (err) { console.warn('[AgentStudio] pushDoneWhen failed', err); }
+  }
+
+  async _checkDoneNow() {
+    await this._pushDoneWhen();
+    try {
+      const res = await fetch(`${this.CHATROOM_API}/chat/done-when/check`, { method: 'POST' });
+      this._renderDoneResult(await res.json());
+    } catch (err) { console.warn('[AgentStudio] checkDoneNow failed', err); }
+  }
+
+  _renderDoneResult(d) {
+    const out = document.getElementById('as-done-result');
+    if (!out) return;
+    const results = d.results || [];
+    if (!results.length) { out.innerHTML = d.note ? `<span class="as-hint">${escapeHtml(d.note)}</span>` : ''; return; }
+    out.innerHTML = results.map(r => `<div><span class="${r.passed ? 'pass' : 'fail'}">${r.passed ? '✓' : '✗'}</span> ${escapeHtml(r.label)}${r.passed ? '' : `<div class="detail">${escapeHtml(r.detail)}</div>`}</div>`).join('');
+  }
+
+  async _fetchCritic() {
+    try {
+      const res = await fetch(`${this.CHATROOM_API}/chat/critic`);
+      if (!res.ok) return;
+      const c = await res.json();
+      document.getElementById('as-critic-enabled').checked = !!c.enabled;
+      document.getElementById('as-critic-rows').style.display = c.enabled ? '' : 'none';
+      document.getElementById('as-critic-ref').value = c.referenceId || '';
+      document.getElementById('as-critic-criteria').value = c.criteria || '';
+      document.getElementById('as-critic-min').value = c.minScore || 6;
+      // offer the attached pictures by name
+      const media = await (await fetch(`${this.CHATROOM_API}/chat/session-media`)).json().catch(() => ({}));
+      const list = document.getElementById('as-critic-ref-list');
+      if (list) list.innerHTML = ((media.media || media.files || media || []).filter?.(m => String(m.mimeType || '').startsWith('image/')) || []).map(m => `<option value="${escapeAttr(m.name)}"></option>`).join('');
+    } catch (err) { console.warn('[AgentStudio] fetchCritic failed', err); }
+  }
+
+  async _pushCritic() {
+    try {
+      await fetch(`${this.CHATROOM_API}/chat/critic`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          enabled: document.getElementById('as-critic-enabled').checked,
+          referenceId: document.getElementById('as-critic-ref').value.trim() || null,
+          criteria: document.getElementById('as-critic-criteria').value.trim(),
+          minScore: parseInt(document.getElementById('as-critic-min').value, 10) || 6,
+        }),
+      });
+    } catch (err) { console.warn('[AgentStudio] pushCritic failed', err); }
+  }
+
+  /** The server asked for a render of an artifact; draw it here, in a hidden frame, and send the pictures back. */
+  async _answerRender(d) {
+    const answer = (body) => fetch(`${this.CHATROOM_API}/chat/render-result`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ requestId: d.requestId, ...body }) });
+    try {
+      this._appendSystem(`Rendering ${d.filename} for the room…`);
+      const mod = await import('/shared/js/room-render.js');
+      const out = await mod.handleRenderRequest(d, { buildPageDoc: (filename, content) => this._buildPreviewDoc(filename, content) });
+      await answer(out.error ? { error: out.error } : { images: out.images, note: out.note });
+    } catch (err) {
+      await answer({ error: `the Studio could not render it: ${err.message}` }).catch(() => {});
+    }
+  }
+
+  /** Show the room a picture: it joins the conversation and the next speaker sees it. */
+  async _showRoom(dataUrl, caption, sender = 'Preview') {
+    const res = await fetch(`${this.CHATROOM_API}/chat/show`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ images: [{ dataUrl, label: caption }], caption, sender }) });
+    if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || `HTTP ${res.status}`);
   }
 
   /** Show the lead picker only when a lead closes the session, and keep its options in step with the roster. */
@@ -3088,7 +3417,7 @@ class AgentStudio {
   _connectStream() {
     this._disconnectStream();
     try {
-      this.eventSource = new EventSource(`${this.CHATROOM_API}/chat/stream`);
+      this.eventSource = new EventSource(`${this.CHATROOM_API}/chat/stream?renders=1`);
     } catch (err) {
       console.warn('[AgentStudio] SSE unavailable', err);
       return;
@@ -3112,9 +3441,13 @@ class AgentStudio {
       session_end: (d) => {
         this.state.isRunning = false;
         this._renderControls();
-        const why = { lead_closed: 'the lead closed it', consensus_reached: 'consensus', turn_limit_reached: 'turn limit reached', token_limit_reached: 'token limit reached' }[d.reason];
+        const why = { lead_closed: 'the lead closed it', consensus_reached: 'consensus', turn_limit_reached: 'turn limit reached', token_limit_reached: 'token limit reached', done_check_unmet: 'ended with the done-when checks still failing' }[d.reason];
         this._appendSystem(`Session ended (${why || d.reason || 'complete'})`);
       },
+      // (the page that asked for the load shows its own toast; this keeps every other open page in step)
+      session_restored: (d) => { this._afterRestore({ messageCount: d.messageCount, state: { goal: d.goal } }, { toast: false }); },
+      done_check: (d) => { this._renderDoneResult(d); this._fetchDoneWhen(); },
+      render_request: (d) => { this._answerRender(d); },
       session_paused:  () => { this.state.isPaused = true;  this._renderControls(); },
       session_resumed: () => { this.state.isPaused = false; this._renderControls(); },
       chunk:   (d) => this._appendChunk(d),
@@ -3752,13 +4085,10 @@ ${HARNESS}
     box.querySelector('#as-ss-share').onclick = async (e) => {
       e.stopPropagation();
       const art = this._activeArtifact && this._artifacts[this._activeArtifact];
-      const msg = `[SCREENSHOT captured from ${art?.filename ?? 'preview'}]\nThe canvas rendered successfully. Here is what it looks like (screenshot taken at ${new Date().toLocaleTimeString()}). Review the visual output and suggest improvements or continue with the next task.`;
       try {
-        await fetch(`${this.CHATROOM_API}/chat/inject`, {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ content: msg, senderName: 'Preview' }),
-        });
-        this.studio.showToast?.('Screenshot description shared to chat', 'success');
+        // the room is shown the picture itself (it used to be told that the canvas rendered, and never saw it)
+        await this._showRoom(dataUrl, `Screenshot of ${art?.filename ?? 'the preview'} at ${new Date().toLocaleTimeString()}. This is what it actually looks like. Review what you see and say what to change.`);
+        this.studio.showToast?.('Screenshot shared with the room', 'success');
         box.remove();
       } catch (err) {
         this.studio.showToast?.(`Share failed: ${err.message}`, 'error');
@@ -3921,7 +4251,8 @@ ${HARNESS}
   _prefetchThumbnails(thumbs) {
     thumbs.forEach(async (thumb) => {
       const id = thumb.dataset.img;
-      if (!id || thumb.src) return;
+      // getAttribute, not .src: an <img src=""> reports the page's own address from .src, so every thumbnail looked already loaded
+      if (!id || thumb.getAttribute('src')) return;
       try {
         let media = this._mediaCache.get(id);
         if (!media) {

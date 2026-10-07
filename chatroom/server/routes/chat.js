@@ -46,6 +46,9 @@ router.get('/stream', (req, res) => {
   // Send initial connection event
   res.write(`event: connected\ndata: ${JSON.stringify({ message: 'Connected to chat stream' })}\n\n`);
 
+  // A page that can render artifacts (the Agent Studio) says so with ?renders=1; render requests go only to those
+  res.renderCapable = req.query.renders === '1';
+
   // Register client
   const removeClient = req.room.orchestrator.addClient(res);
 

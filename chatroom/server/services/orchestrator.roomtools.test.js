@@ -283,7 +283,7 @@ test('a render says plainly what it cannot do: no such artifact, not renderable,
   assert.match((await orchestrator.render({ artifact: 'thing.json' })).text, /JSON but not a template/);
   orchestrator.artifactStore.save('sketch.js', 'p.setup=()=>{}', 'a', 'Ann');
   const noBrowser = await orchestrator.render({ artifact: 'sketch.js' });
-  assert.match(noBrowser.text, /no browser is attached/);
+  assert.match(noBrowser.text, /no browser that can render is attached/);
   assert.equal(orchestrator.renderState.used, 0, 'a render that could not start is not charged');
   orchestrator.renderState.max = 1;
   orchestrator.artifactStore.save('engine.json', ENGINE, 'a', 'Ann');
@@ -295,7 +295,7 @@ test('a render says plainly what it cannot do: no such artifact, not renderable,
 test('an instrument is rendered by a browser attached to the room, which is asked over the event stream and answers with pictures', async () => {
   const template = JSON.stringify({ promptTemplate: 'x {{a}}', variables: [{ name: 'a', values: ['one', 'two'] }], p5Code: 'p.setup=()=>{p.createCanvas(10,10)};p.draw=()=>{p.background(1)}' });
   orchestrator.artifactStore.save('inst.json', template, 'a', 'Ann Test');
-  orchestrator.sseClients.add({ write() {} });
+  orchestrator.sseClients.add({ write() {}, renderCapable: true });
   const pending = orchestrator.render({ artifact: 'inst.json', draws: 2, speaker: orchestrator.agents[0] });
   await until(() => named('render_request').length === 1);
   const req = named('render_request')[0];
@@ -314,7 +314,7 @@ test('an instrument is rendered by a browser attached to the room, which is aske
 
 test('a browser that does not answer, or answers with an error or nothing usable, is reported, not waited for', async () => {
   orchestrator.artifactStore.save('page.html', '<canvas></canvas>', 'a', 'Ann');
-  orchestrator.sseClients.add({ write() {} });
+  orchestrator.sseClients.add({ write() {}, renderCapable: true });
   const slow = await orchestrator.render({ artifact: 'page.html', timeoutMs: 30 });
   assert.match(slow.text, /no browser answered within/);
   const latest = () => named('render_request').at(-1).requestId;
@@ -330,7 +330,7 @@ test('a browser that does not answer, or answers with an error or nothing usable
 
 test('a reset releases a render that was waiting', async () => {
   orchestrator.artifactStore.save('page.html', '<canvas></canvas>', 'a', 'Ann');
-  orchestrator.sseClients.add({ write() {} });
+  orchestrator.sseClients.add({ write() {}, renderCapable: true });
   const p = orchestrator.render({ artifact: 'page.html', timeoutMs: 5000 });
   await until(() => named('render_request').length === 1);
   orchestrator.reset();

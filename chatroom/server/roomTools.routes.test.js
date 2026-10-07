@@ -171,7 +171,7 @@ test('render-result: a browser answers a request over HTTP; an answer to nothing
   await v.call('GET', '/api/agents');
   const room = getRoom(v.roomId);
   room.artifactStore.save('sketch.js', 'p.setup=()=>{}', 'a', 'Ann');
-  room.orchestrator.sseClients.add({ write() {} });
+  room.orchestrator.sseClients.add({ write() {}, renderCapable: true });
   const seen = [];
   const inner = room.orchestrator.broadcast.bind(room.orchestrator);
   room.orchestrator.broadcast = (event, data) => { if (event === 'render_request') seen.push(data); inner(event, data); };
@@ -192,7 +192,7 @@ test('one visitor\'s render request is never answered by another visitor', async
   await b.call('GET', '/api/agents');
   const roomA = getRoom(a.roomId);
   roomA.artifactStore.save('sketch.js', 'x', 'a', 'Ann');
-  roomA.orchestrator.sseClients.add({ write() {} });
+  roomA.orchestrator.sseClients.add({ write() {}, renderCapable: true });
   const seen = [];
   const inner = roomA.orchestrator.broadcast.bind(roomA.orchestrator);
   roomA.orchestrator.broadcast = (event, data) => { if (event === 'render_request') seen.push(data); inner(event, data); };
