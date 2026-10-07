@@ -368,6 +368,8 @@ If you say "here's the updated code" or "I've added a function" without wrapping
     }
   }
 
+  if (enableTools && options.roomTools) prompt += roomToolsInstructions(options.roomTools);
+
   prompt += `
 
 ${endingInstructions(options.ending)}
@@ -375,6 +377,30 @@ ${endingInstructions(options.ending)}
 Remember: Write ONLY ${agent.name}'s response. One voice. One perspective.`;
 
   return prompt;
+}
+
+/**
+ * Documentation for the room's own tools, only for the ones this room has switched on.
+ * @param {{ critic?: boolean, criticReference?: string|null, criticMinScore?: number, render?: boolean }} tools
+ */
+export function roomToolsInstructions(tools = {}) {
+  let out = '';
+  if (tools.critic) {
+    out += `
+
+INDEPENDENT CRITIC: a critic that sees only pictures, never this conversation, will score any picture 1 to 10 for you:
+  [CRITIC: <picture id> | reference=<picture id> | criteria=what must stay the same]
+${tools.criticReference ? 'The room has a default reference picture, so reference= may be left out.' : 'Give reference=<id> (a picture the host attached or one made earlier).'} Its scores are not up for debate and agreeing with them is not optional: below ${tools.criticMinScore ?? 6} means the picture does not match, so do not accept it.`;
+  }
+  if (tools.render) {
+    out += `
+
+SEEING WHAT YOU MADE: numbers cannot see taste. To show the whole room what an artifact looks like:
+  [RENDER: engine.json | draws=3]   (a template is drawn a few times with random values)
+  [RENDER: sketch.js]               (a page or p5 instrument is rendered by a browser attached to the room)
+The pictures arrive in the conversation. Look at them before you call the work finished.`;
+  }
+  return out;
 }
 
 /**
@@ -442,6 +468,10 @@ function renderMessages(messages) {
           out += `\n  [URL analysis of ${result.url}: ${result.summary?.slice(0, 200)}...]`;
         } else if (result.type === 'research') {
           out += `\n  [Research on "${result.query}": ${result.summary?.slice(0, 200)}...]`;
+        } else if (result.type === 'critic') {
+          out += `\n  [Independent critic on picture ${result.imageId}: ${result.text}]`;
+        } else if (result.type === 'render') {
+          out += `\n  [Render of ${result.artifact}: ${result.text}]`;
         }
       }
     }
@@ -998,6 +1028,7 @@ export async function* generateAgentResponse(agent, allAgents, messages, goal, s
     enableTagTools: !useFunctions,
     artifactStore: options?.artifactStore,
     ending: options?.ending,
+    roomTools: options?.roomTools,
   });
   // Precedence: per-agent model → session-wide preference → registry default.
   const modelId = resolveAgentModel(agent, options?.model);

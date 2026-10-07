@@ -109,6 +109,41 @@ export const FUNCTION_DECLARATIONS = {
     },
   },
 
+  critique_image: {
+    type: 'function',
+    name: 'critique_image',
+    description:
+      'Ask an independent critic to score a picture from 1 to 10. The critic sees only the pictures, never this conversation, so ' +
+      'it cannot be talked into agreeing and its score is not up for debate. Use it before you accept a frame as matching a ' +
+      'reference, or a render as good. Scores below the room\'s bar mean: do not accept it.',
+    parameters: {
+      type: 'object',
+      properties: {
+        image_id: { type: 'string', description: 'ID of the picture to score, exactly as it appears in the transcript.' },
+        reference_id: { type: 'string', description: 'ID of the reference picture it should match. Omit to use the room\'s default reference.' },
+        criteria: { type: 'string', description: 'What must stay the same (or, with no reference, the description the picture must match).' },
+      },
+      required: ['image_id'],
+    },
+  },
+
+  render_artifact: {
+    type: 'function',
+    name: 'render_artifact',
+    description:
+      'Render an artifact you wrote and show the whole room what it looks like. A template (.json) with promptTemplate and variables ' +
+      'is drawn a few times with random values; an instrument (.json with p5Code) or a page (.html, .js) is rendered by a browser ' +
+      'attached to the room. Numbers cannot see taste: look at what you made before you call it finished. Limited per session.',
+    parameters: {
+      type: 'object',
+      properties: {
+        artifact: { type: 'string', description: 'The artifact file name, e.g. "engine.json" or "sketch.js".' },
+        draws: { type: 'integer', minimum: 1, maximum: 4, description: 'How many different renders (default 3).' },
+      },
+      required: ['artifact'],
+    },
+  },
+
   deep_research: {
     type: 'function',
     name: 'deep_research',
@@ -161,12 +196,14 @@ export function isDispatchableTool(name) {
  * @returns {Array<object>} tool declarations, or [] if the tier is empty.
  */
 export function buildToolsForAgent(agent, opts = {}) {
-  const { allowArtifacts = true } = opts;
+  const { allowArtifacts = true, allowCritic = true, allowRender = true } = opts;
   const names = TOOL_TIERS[resolveToolTier(agent)] || [];
 
   const tools = [];
   for (const name of names) {
     if (name === 'write_artifact' && !allowArtifacts) continue;
+    if (name === 'critique_image' && !allowCritic) continue;
+    if (name === 'render_artifact' && !allowRender) continue;
     if (isBuiltinTool(name)) {
       tools.push({ type: name });
     } else if (isDispatchableTool(name)) {

@@ -25,6 +25,7 @@ export const STREAM_TAG_NAMES = [
   'SYNTH_NARRATIVE', 'SYNTH_TRANSFORM', 'SYNTH_ANALYZE', 'SYNTH_STYLE',
   'WORKFLOW_TEMPLATE', 'WORKFLOW',
   'ARTIFACT',
+  'CRITIC', 'RENDER',
 ];
 
 // A tag that never closes (an unbalanced "[") must not swallow the rest of the

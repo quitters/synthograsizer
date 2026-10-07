@@ -9,6 +9,7 @@
 import { GoogleGenAI } from '@google/genai';
 import { MODELS } from '../config/models.js';
 import { JUDGE_TIMEOUT_MS } from '../config/orchestration.js';
+import { CRITIC_SCHEMA, buildCriticPrompt } from './roomTools.js';
 
 let genAI = null;
 
@@ -190,4 +191,49 @@ is NOT completion. Saying goodbye is not completion unless the goal is met.`;
   };
 
   return ask(prompt, schema, 'assessCompletion', usage);
+}
+
+/** A vision judgement takes longer than the text ones above; still bounded, never stalling a room. */
+export const CRITIC_TIMEOUT_MS = 60_000;
+
+/**
+ * An independent critic: scores a candidate picture 1 to 10 against a reference picture (sameness) or a description, seeing ONLY the
+ * pictures and the question, never the conversation, so it cannot be talked into agreeing. In the experiments that motivated it (the
+ * atelier's notes/wave2.md, X6) every model alone scored a photograph that had drifted into a painting 2 to 3 out of 10 against 9 or 10
+ * for good frames, while a supervisor inside the room said MATCH to it; and a checklist prompt (MATCH or RETAKE) made every model
+ * reject nearly everything, where the 1 to 10 form discriminates.
+ *
+ * @param {{ candidate: {data: string, mimeType: string}, reference?: {data: string, mimeType: string}|null, criteria?: string, model?: string, usage?: object }} args
+ * @returns {Promise<{ score: number, differs: string, model: string }|null>} null on any failure (the caller says the critic could not be reached)
+ */
+export async function critiqueImage({ candidate, reference = null, criteria = '', model = null, usage }) {
+  if (!genAI || !candidate?.data) return null;
+  const useModel = model || MODELS.FAST;
+  const input = [{ type: 'text', text: buildCriticPrompt({ hasReference: !!reference, criteria }) }];
+  if (reference?.data) input.push({ type: 'image', data: reference.data, mime_type: reference.mimeType || 'image/png' });
+  input.push({ type: 'image', data: candidate.data, mime_type: candidate.mimeType || 'image/png' });
+
+  let timer;
+  try {
+    const call = genAI.interactions.create({
+      model: useModel,
+      input,
+      store: false,
+      generation_config: { thinking_level: 'medium', max_output_tokens: 1024 },
+      response_format: { type: 'text', mime_type: 'application/json', schema: CRITIC_SCHEMA },
+    });
+    const timeout = new Promise(resolve => { timer = setTimeout(() => resolve(Symbol.for('timeout')), CRITIC_TIMEOUT_MS); });
+    const result = await Promise.race([call, timeout]);
+    if (result === Symbol.for('timeout')) { console.warn(`[judge] critic timed out after ${CRITIC_TIMEOUT_MS}ms`); return null; }
+    recordUsage(result.usage, usage);
+    const parsed = JSON.parse(result.output_text || 'null');
+    const score = Number(parsed?.score);
+    if (!Number.isFinite(score)) return null;
+    return { score: Math.max(1, Math.min(10, Math.round(score))), differs: String(parsed.differs || '').slice(0, 300), model: useModel };
+  } catch (err) {
+    console.warn(`[judge] critic failed (${err.message})`);
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
 }

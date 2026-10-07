@@ -100,3 +100,6 @@ static/design-preview/
 
 # workflow engine checkpoints and traces written when it runs from its own folder
 workflow-engine/data/
+
+# saved chat-room conversations (private: never commit)
+chatroom/data/rooms/

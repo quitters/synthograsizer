@@ -8,6 +8,7 @@ import cors from 'cors';
 
 import agentsRouter from './routes/agents.js';
 import chatRouter from './routes/chat.js';
+import savedRouter from './routes/savedSessions.js';
 import artifactsRouter from './routes/artifacts.js';
 import { createWorkflowRoutes, createTraceRoutes } from 'workflow-engine';
 import { roomMiddleware } from './middleware/session.js';
@@ -36,6 +37,7 @@ export function createApp() {
   });
 
   app.use('/api/agents', agentsRouter);
+  app.use('/api/chat', savedRouter);
   app.use('/api/chat', chatRouter);
   app.use('/api/workflows', createWorkflowRoutes({ resolve: resolveRoom }));
   app.use('/api/traces', createTraceRoutes({ resolve: resolveRoom }));

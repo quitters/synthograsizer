@@ -15,7 +15,8 @@ import {
 import {
   isSmartOrchestrationEnabled, SPEAKER_CONFIDENCE_FLOOR, CONSENSUS_CONFIDENCE_FLOOR,
 } from '../config/orchestration.js';
-import { selectSpeaker, assessCompletion, createJudgeUsage } from './judge.js';
+import { selectSpeaker, assessCompletion, createJudgeUsage, critiqueImage } from './judge.js';
+import { readShownImage, MAX_SHOWN_IMAGES, describeScore, parseRoomRequests, stripRoomTags, drawValues, fillTemplate, classifyArtifact } from './roomTools.js';
 import { isKnownVoice, defaultVoiceForIndex } from '../config/voices.js';
 import { isDeepResearchEnabled, MAX_TASKS_PER_SESSION, ESTIMATED_COST_USD } from '../config/research.js';
 import { submitResearch, pollToCompletion } from './deepResearch.js';
@@ -29,6 +30,7 @@ import { createToolDispatcher } from './toolDispatch.js';
 import { mediaStore as defaultMediaStore } from './mediaStore.js';
 import { artifactStore as defaultArtifactStore } from './artifactStore.js';
 import { synthClient, traceStore, keepAwake } from 'workflow-engine';
+import { evaluate as evaluateDoneWhen, describeCriterion, describeResult, criteriaToText, normalizeCriteria } from './doneWhen.js';
 
 /**
  * Zeroed usage accumulator. Field names mirror the shape yielded by
@@ -83,6 +85,13 @@ export class ChatOrchestrator {
     this._generate = generateAgentResponse;
     // Overridable so tests can run the rolling summary without the network.
     this._summarize = generateText;
+    // Things that want to see everything that happens in the room (the session archive): fn(event, data).
+    // Like sseClients this is transport-level state that reset() leaves alone.
+    this._observers = new Set();
+    this._archiveId = null;
+    // Overridable so tests can run the critic and the image draws without the network.
+    this._critique = critiqueImage;
+    this._draw = generateImage;
     this.reset();
   }
 
@@ -193,6 +202,77 @@ export class ChatOrchestrator {
     this.summary = null;
     this._summaryBusy = false;
     this.judgeUsage = createJudgeUsage();
+    // "Done when": checks the server runs on the deliverable before it lets the room end (see doneWhen.js).
+    // blocks counts endings refused so far. After maxBlocks refusals (default 8; 0 = never give up) the room ends anyway, saying so,
+    // because a check nobody can pass would otherwise loop until the token limit.
+    this.doneWhen = { criteria: [], blocks: 0, maxBlocks: 8, lastNoteKey: null, lastResult: null };
+    // An independent critic that sees only pictures (see roomTools.js). Off until a host turns it on; a budget of scores per session.
+    this.critic = { enabled: false, auto: true, referenceId: null, criteria: '', model: null, minScore: 6, maxCalls: 30, calls: 0 };
+    // Renders asked for by agents or the host. Browser renders wait here for the page to answer (resolveRender).
+    for (const pending of this.renderState?.pending?.values?.() ?? []) pending.settle({ ok: false, error: 'the room was reset' });
+    this.renderState = { used: 0, max: 12, pending: new Map() };
+    this._emitToObservers('reset', {});
+  }
+
+  /** Watch every event in this room (what clients get over SSE, plus 'reset' and 'session_media'). Returns a function that stops watching. */
+  addObserver(fn) {
+    this._observers.add(fn);
+    return () => this._observers.delete(fn);
+  }
+
+  _emitToObservers(event, data) {
+    for (const fn of this._observers) {
+      try { fn(event, data); } catch (err) { console.warn(`[orchestrator] observer failed on ${event}: ${err.message}`); }
+    }
+  }
+
+  /**
+   * Put a saved session (or an imported session file) back into this room, ready to carry on: the next message from the user
+   * restarts the conversation exactly as it does after a session ends. Replaces whatever the room held.
+   * @param {{ meta: object, messages: object[], artifacts?: object[], media?: object[], archiveId?: string|null, source?: string }} saved
+   */
+  restoreSession({ meta, messages, artifacts = [], media = [], archiveId = null, source = 'saved' }) {
+    this.reset();
+    this.mediaStore.clear?.();
+    this.artifactStore.clear?.();
+    this.goal = meta.goal || '';
+    this.mode = meta.mode === 'solo' ? 'solo' : 'group';
+    this.tokenLimit = Number.isFinite(meta.tokenLimit) ? meta.tokenLimit : 100000;
+    this.agents = (meta.agents || []).map((a, i) => ({
+      id: a.id || uuidv4(),
+      name: a.name,
+      bio: a.bio || '',
+      color: a.color || this.generateColor(i),
+      model: isKnownAgentModel(a.model) ? a.model : null,
+      thinkingLevel: normalizeThinkingLevel(a.thinkingLevel),
+      tools: isKnownToolTier(a.tools) ? a.tools : DEFAULT_TOOL_TIER,
+      voice: isKnownVoice(a.voice) ? a.voice : defaultVoiceForIndex(i),
+      ...(a.muted ? { muted: true } : {}),
+    }));
+    this.messages = messages.map(m => ({ ...m }));
+    for (const m of this.messages) {
+      for (const img of m.images || []) {
+        if (img.imageData) this.mediaStore.add({ id: img.id, type: 'image', data: img.imageData, mimeType: img.mimeType, prompt: img.prompt || '', agentId: m.agentId, agentName: m.agentName });
+      }
+    }
+    for (const item of media) this.mediaStore.add({ ...item, agentId: null, agentName: null });
+    this.tokenCount = Number.isFinite(meta.tokenCount) ? meta.tokenCount : this.messages.reduce((n, m) => n + (m.tokenCount || 0), 0);
+    this.turnCount = Number.isFinite(meta.turnCount) ? meta.turnCount : this.messages.filter(m => !m.isUser).length;
+    this.segmentStartTurn = this.turnCount;
+    this.lastSpeakerId = [...this.messages].reverse().find(m => !m.isUser)?.agentId || null;
+    this.completionReason = meta.endReason || null;
+    this.sessionId = uuidv4();
+    if (meta.settings?.consensus) this.updateConsensusSettings(meta.settings.consensus);
+    if (meta.settings?.doneWhen?.length) this.setDoneWhen(meta.settings.doneWhen);
+    for (const a of artifacts) {
+      const versions = a.versions?.length ? a.versions : [{ version: 1, content: a.content }];
+      for (const v of versions) this.artifactStore.save(a.filename, v.content, null, 'restored');
+    }
+    this.broadcast('session_restored', {
+      source, archiveId, goal: this.goal, mode: this.mode, messageCount: this.messages.length,
+      agents: this.agents.map(a => ({ id: a.id, name: a.name, color: a.color })),
+    });
+    return { messageCount: this.messages.length, agents: this.agents.length, artifacts: artifacts.length };
   }
 
   /**
@@ -210,6 +290,7 @@ export class ChatOrchestrator {
     // upload even when it comes long after the opening turns (see mediaContext.js).
     if (mediaItem.addedAtMessage === undefined) mediaItem.addedAtMessage = this.messages.length;
     this.sessionMedia.push(mediaItem);
+    this._emitToObservers('session_media', mediaItem);
 
     // Index documents into File Search rather than letting them ride inline.
     // Deliberately not awaited: uploads arrive one HTTP request at a time and
@@ -542,6 +623,268 @@ export class ChatOrchestrator {
     return this.consensusSettings;
   }
 
+  // ==================== SHOW THE ROOM, THE CRITIC, RENDERING ====================
+
+  /**
+   * Show the room pictures: they join the conversation as a note from the Producer (or whoever is named), are kept in the media store,
+   * and enter the vision window, so the next speaker SEES them. Used by the host, by tools, and by renders.
+   * @param {{ images: object[], caption?: string, sender?: string }} args  images are { data | dataUrl, mimeType?, label? }
+   * @returns {{ ok: boolean, error?: string, messageId?: string, imageIds?: string[] }}
+   */
+  showToRoom({ images, caption = '', sender = 'Producer' } = {}) {
+    if (!Array.isArray(images) || images.length === 0) return { ok: false, error: 'show needs at least one image' };
+    if (images.length > MAX_SHOWN_IMAGES) return { ok: false, error: `at most ${MAX_SHOWN_IMAGES} images at a time` };
+    const items = [];
+    for (const raw of images) {
+      const img = readShownImage(raw);
+      if (img.error) return { ok: false, error: img.error };
+      items.push(img);
+    }
+    const shown = items.map(img => this._registerImage({ imageData: img.data, mimeType: img.mimeType, prompt: img.label || caption || 'shown to the room', agentName: sender }));
+    const note = this._postNote(String(caption || '').slice(0, 4000) || `${sender} shows the room ${shown.length === 1 ? 'a picture' : `${shown.length} pictures`}.`, {
+      sender,
+      images: shown.map(s => ({ id: s.id, prompt: s.prompt, caption: s.prompt, imageData: s.imageData, mimeType: s.mimeType })),
+    });
+    return { ok: true, messageId: note.id, imageIds: shown.map(s => s.id) };
+  }
+
+  /** Keep a picture: media store, and the window of recent pictures every speaker is shown. */
+  _registerImage({ imageData, mimeType, prompt, agentId = null, agentName = null }) {
+    const id = uuidv4();
+    this.mediaStore.add({ id, type: 'image', data: imageData, mimeType, prompt, agentId, agentName });
+    this.recentGenImages.push({ id, data: imageData, mimeType, prompt, agentName });
+    if (this.recentGenImages.length > VISION_WINDOW) this.recentGenImages.shift();
+    return { id, imageData, mimeType, prompt };
+  }
+
+  getCritic() {
+    return { ...this.critic };
+  }
+
+  /** Configure the independent critic. referenceId is a picture in the room (an upload or a generated image). */
+  setCritic(settings = {}) {
+    const c = this.critic;
+    if (settings.enabled !== undefined) c.enabled = !!settings.enabled;
+    if (settings.auto !== undefined) c.auto = !!settings.auto;
+    if (settings.referenceId !== undefined) c.referenceId = settings.referenceId ? String(settings.referenceId).slice(0, 120) : null;
+    if (typeof settings.criteria === 'string') c.criteria = settings.criteria.slice(0, 1000);
+    if (settings.model !== undefined) c.model = settings.model ? String(settings.model).slice(0, 80) : null;
+    if (Number.isFinite(Number(settings.minScore))) c.minScore = Math.max(1, Math.min(10, Math.round(Number(settings.minScore))));
+    if (Number.isFinite(Number(settings.maxCalls))) c.maxCalls = Math.max(0, Math.min(500, Math.floor(Number(settings.maxCalls))));
+    return this.getCritic();
+  }
+
+  /** A picture by id: something generated, or a file the host attached (matched by id or by name). */
+  _pictureById(id) {
+    const m = this.mediaStore.get(id);
+    if (m?.data && (m.type === 'image' || String(m.mimeType || '').startsWith('image/'))) return { data: m.data, mimeType: m.mimeType || 'image/png' };
+    const u = this.sessionMedia.find(x => (x.id === id || x.name === id) && String(x.mimeType || '').startsWith('image/'));
+    return u?.data ? { data: u.data, mimeType: u.mimeType } : null;
+  }
+
+  /**
+   * Score a picture with the independent critic. It sees the reference (or the description in `criteria`) and the candidate, never the
+   * conversation. Counts against the session's budget of scores.
+   * @returns {Promise<{ ok: boolean, score?: number, differs?: string, text?: string, below?: boolean, error?: string }>}
+   */
+  async critique({ imageId, referenceId = null, criteria = '', source = 'agent' } = {}) {
+    const c = this.critic;
+    if (c.calls >= c.maxCalls) return { ok: false, error: `the critic's budget of ${c.maxCalls} scores for this session is used up` };
+    const candidate = this._pictureById(imageId);
+    if (!candidate) return { ok: false, error: `there is no picture "${imageId}" in this room` };
+    const refId = referenceId || c.referenceId;
+    const reference = refId ? this._pictureById(refId) : null;
+    if (refId && !reference) return { ok: false, error: `there is no reference picture "${refId}" in this room` };
+    const holds = criteria || c.criteria;
+    if (!reference && !holds) return { ok: false, error: 'the critic needs a reference picture or a description to judge against' };
+    c.calls += 1;
+    const result = await this._critique({ candidate, reference, criteria: holds, model: c.model, usage: this.judgeUsage });
+    if (!result) return { ok: false, error: 'the critic could not be reached' };
+    const below = result.score < c.minScore;
+    this.broadcast('critic_score', { imageId, referenceId: refId, score: result.score, differs: result.differs, minScore: c.minScore, below, source });
+    return { ok: true, score: result.score, differs: result.differs, below, text: describeScore(result, { minScore: c.minScore }) };
+  }
+
+  /** After a turn that made pictures: the critic scores each (a few at most) and the room is told, in one note. */
+  async _autoCritique(imageIds) {
+    const c = this.critic;
+    if (!c.enabled || !c.auto || !imageIds.length) return;
+    if (!c.referenceId && !c.criteria) return;
+    const lines = [];
+    for (const id of imageIds.slice(0, 3)) {
+      if (id === c.referenceId) continue;
+      const r = await this.critique({ imageId: id, source: 'auto' });
+      lines.push(`- picture ${String(id).slice(0, 8)}: ${r.ok ? r.text : `not scored (${r.error})`}`);
+    }
+    if (lines.length) this._postNote(`INDEPENDENT CRITIC (it saw only the pictures, not this conversation; its scores are not up for debate):\n${lines.join('\n')}`);
+  }
+
+  /**
+   * Render something an agent wrote and show the room what it looks like.
+   *  - an image-prompt template (.json with promptTemplate and variables): draws a few combinations with the image model;
+   *  - a p5 instrument (.json with p5Code) or a page (.html, .js): a browser attached to the room does the rendering and answers
+   *    through resolveRender (see the render_request event).
+   * Bounded: draws per render, renders per session, seconds to wait for a browser.
+   * @returns {Promise<{ ok: boolean, text: string, images?: object[] }>}
+   */
+  async render({ artifact, draws, speaker = null, timeoutMs = 45_000 } = {}) {
+    const rs = this.renderState;
+    if (rs.used >= rs.max) return { ok: false, text: `the session's limit of ${rs.max} renders is used up` };
+    const art = this.artifactStore.get(String(artifact || ''));
+    if (!art) return { ok: false, text: `there is no artifact named "${artifact}" (the artifacts are: ${this.artifactStore.list().map(a => a.filename).join(', ') || 'none yet'})` };
+    const kind = classifyArtifact(art);
+    if (kind.error) return { ok: false, text: kind.error };
+    rs.used += 1;
+    const count = Math.max(1, Math.min(4, Math.floor(Number(draws)) || 3));
+    const who = speaker?.name || 'Producer';
+
+    if (kind.kind === 'prompt-template') {
+      const samples = Array.from({ length: count }, () => drawValues(kind.template.variables));
+      const made = [];
+      const failed = [];
+      for (const values of samples) {
+        const prompt = fillTemplate(kind.template.promptTemplate, values);
+        try {
+          const result = await this._draw(prompt);
+          if (!result?.imageData) throw new Error('no image came back');
+          const img = this._registerImage({ imageData: result.imageData, mimeType: result.mimeType || 'image/png', prompt, agentId: speaker?.id || null, agentName: who });
+          made.push({ id: img.id, prompt, imageData: img.imageData, mimeType: img.mimeType, caption: prompt });
+        } catch (err) {
+          failed.push(err.message);
+        }
+      }
+      if (!made.length) return { ok: false, text: `no draws came back (${failed[0] || 'unknown error'})` };
+      return { ok: true, images: made, text: `${made.length} draw${made.length === 1 ? '' : 's'} from ${art.filename}, each a random combination of its values: ${made.map(m => `"${m.prompt.slice(0, 160)}"`).join(' | ')}` };
+    }
+
+    // a browser does the rendering
+    if (this.sseClients.size === 0) {
+      rs.used -= 1;
+      return { ok: false, text: `no browser is attached to this room to render ${art.filename}; open the room in the Agent Studio and try again` };
+    }
+    const requestId = uuidv4();
+    const samples = kind.kind === 'p5-template' ? Array.from({ length: count }, () => drawValues(kind.template.variables)) : [];
+    const outcome = await new Promise(resolve => {
+      const timer = setTimeout(() => resolve({ ok: false, error: `no browser answered within ${Math.round(timeoutMs / 1000)} seconds` }), timeoutMs);
+      rs.pending.set(requestId, { settle: (r) => { clearTimeout(timer); rs.pending.delete(requestId); resolve(r); } });
+      this.broadcast('render_request', {
+        requestId, kind: kind.kind, filename: art.filename, content: art.content,
+        ...(kind.kind === 'p5-template' ? { p5Code: kind.template.p5Code, samples } : {}),
+      });
+    });
+    if (!outcome.ok) return { ok: false, text: `rendering ${art.filename} failed: ${outcome.error}` };
+    const made = (outcome.images || []).slice(0, 4).map(raw => readShownImage(raw)).filter(img => !img.error)
+      .map(img => ({ ...img, ...this._registerImage({ imageData: img.data, mimeType: img.mimeType, prompt: img.label || art.filename, agentId: speaker?.id || null, agentName: who }) }));
+    if (!made.length) return { ok: false, text: `the browser rendered ${art.filename} but sent no usable picture${outcome.note ? ` (${outcome.note})` : ''}` };
+    return {
+      ok: true,
+      images: made.map(m => ({ id: m.id, prompt: m.label || art.filename, imageData: m.imageData, mimeType: m.mimeType, caption: m.label || art.filename })),
+      text: `${made.length} render${made.length === 1 ? '' : 's'} of ${art.filename}${samples.length ? ` with different settings: ${samples.slice(0, made.length).map(v => JSON.stringify(v).slice(0, 200)).join(' | ')}` : ''}${outcome.note ? `. Browser note: ${outcome.note}` : ''}`,
+    };
+  }
+
+  /** The browser's answer to a render_request. Returns false when nothing was waiting for it. */
+  resolveRender(requestId, result) {
+    const pending = this.renderState.pending.get(requestId);
+    if (!pending) return false;
+    pending.settle(result);
+    return true;
+  }
+
+  // ==================== DONE WHEN ====================
+
+  /** Set the checks the room must pass before it may end (an empty list turns the gate off). Returns the stored state. */
+  setDoneWhen(criteria, { maxBlocks } = {}) {
+    const { criteria: ok } = normalizeCriteria(Array.isArray(criteria) ? criteria : []);
+    this.doneWhen.criteria = ok;
+    this.doneWhen.blocks = 0;
+    this.doneWhen.lastNoteKey = null;
+    this.doneWhen.lastResult = null;
+    if (maxBlocks !== undefined && Number.isFinite(Number(maxBlocks))) this.doneWhen.maxBlocks = Math.max(0, Math.min(Math.floor(Number(maxBlocks)), 100));
+    return this.getDoneWhen();
+  }
+
+  getDoneWhen() {
+    const { criteria, blocks, maxBlocks, lastResult } = this.doneWhen;
+    return { criteria: criteria.map(c => ({ ...c })), text: criteriaToText(criteria), blocks, maxBlocks, lastResult };
+  }
+
+  /** Which room tools this room offers its agents (see the documentation in gemini.js). */
+  _roomToolsForPrompt() {
+    return {
+      critic: this.critic.enabled,
+      criticReference: this.critic.referenceId,
+      criticMinScore: this.critic.minScore,
+      render: this.artifactStore.getAll().length > 0,
+    };
+  }
+
+  /** Run the checks now. Broadcasts the outcome as 'done_check'; returns { passed, results }. */
+  async checkDoneWhen(context = {}) {
+    const result = await evaluateDoneWhen(this.doneWhen.criteria, { messages: this.messages, artifactStore: this.artifactStore });
+    this.doneWhen.lastResult = { passed: result.passed, at: new Date().toISOString(), results: result.results.map(r => ({ label: r.label, passed: r.passed, detail: r.detail })) };
+    this.broadcast('done_check', { ...this.doneWhen.lastResult, blocks: this.doneWhen.blocks, ...context });
+    return result;
+  }
+
+  /**
+   * A note from the Producer, in the conversation where every agent sees it. It is the room's way to tell agents something true that
+   * none of them said (the result of a check, what a render looked like). With resetClose it also clears any ending in progress, so
+   * the next attempt to end is a fresh decision made with the note in view.
+   */
+  _postNote(content, { resetClose = false, sender = 'Producer', images } = {}) {
+    const message = {
+      id: uuidv4(),
+      agentId: 'user',
+      agentName: sender,
+      content,
+      timestamp: new Date().toISOString(),
+      isUser: true,
+      isNote: true,
+      ...(images?.length ? { images } : {}),
+      tokenCount: countTokens(content),
+    };
+    this.messages.push(message);
+    this.tokenCount += message.tokenCount;
+    if (resetClose) {
+      this.lastUserMessageTurn = this.turnCount;
+      this.consensusVotes = [];
+    }
+    this.broadcast('message', message);
+    return message;
+  }
+
+  /**
+   * The gate every ending passes: with no checks it lets the room end. With checks it runs them, and when one fails it refuses the
+   * ending, tells the room which and why, and the conversation goes on.
+   * @returns {Promise<{ allowed: boolean, reason?: string }>}
+   */
+  async _runDoneGate(attempted) {
+    if (!this.doneWhen.criteria.length) return { allowed: true };
+    const result = await this.checkDoneWhen({ attempted });
+    if (result.passed) return { allowed: true };
+    this.doneWhen.blocks += 1;
+    const { maxBlocks, blocks } = this.doneWhen;
+    if (maxBlocks > 0 && blocks >= maxBlocks) {
+      this._postNote(describeResult(result, { heading: `DONE-WHEN CHECK: still failing after ${blocks} attempts to end; the session ends now anyway.` }));
+      return { allowed: true, reason: 'done_check_unmet' };
+    }
+    this._postNote(describeResult(result, { heading: `DONE-WHEN CHECK: the session cannot end yet (refused ${blocks === 1 ? 'once' : `${blocks} times`}). Fix what is listed, then close again.` }), { resetClose: true });
+    return { allowed: false };
+  }
+
+  /** After an artifact is saved: say so when the checks' verdict changed, so each new version is judged without anyone asking. */
+  async _noteCandidate(filenames) {
+    const result = await this.checkDoneWhen({ candidate: filenames });
+    const key = JSON.stringify(result.results.map(r => [r.passed, r.passed ? '' : r.detail]));
+    if (key === this.doneWhen.lastNoteKey) return;
+    this.doneWhen.lastNoteKey = key;
+    const heading = result.passed
+      ? `DONE-WHEN CHECK after ${filenames.join(', ')}: every check passes. The lead may close when the rest of the goal is met.`
+      : `DONE-WHEN CHECK after ${filenames.join(', ')}:`;
+    this._postNote(describeResult(result, { heading }));
+  }
+
   /**
    * The agent who alone may end the session when closeBy is 'lead': the one named in
    * the settings, else the first agent that can speak. Null when the vote applies
@@ -619,6 +962,10 @@ export class ChatOrchestrator {
    */
   _closingNotes(speaker) {
     const notes = [];
+    if (this.doneWhen.criteria.length) {
+      notes.push('DONE WHEN: the server will not let this session end until every check below passes. It runs them itself each time anyone tries to end, ' +
+        'so saying they pass changes nothing; make them pass.\n' + this.doneWhen.criteria.map(c => `- ${describeCriterion(c)}`).join('\n'));
+    }
     const lead = this._leadAgent();
     if (lead && lead.id === speaker.id) {
       const names = [...new Set(this.consensusVotes.filter(v => v.agentId !== lead.id).map(v => v.agentId))]
@@ -745,6 +1092,8 @@ export class ChatOrchestrator {
     try { traceStore.record(event, this.ownerId && data ? { ...data, ownerId: this.ownerId } : data); }
     catch (err) { console.error('[traceStore] record failed:', err.message); }
 
+    this._emitToObservers(event, data);
+
     const message = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
     const clientCount = this.sseClients.size;
     console.log(`[orchestrator] broadcast: ${event}, clients: ${clientCount}`);
@@ -791,6 +1140,8 @@ export class ChatOrchestrator {
     this.lastSpeakerId = null;
     this.consecutiveFailures = 0;
     this.lastError = null;
+    this.doneWhen.blocks = 0;
+    this.doneWhen.lastNoteKey = null;
     this.modelPreference = options.model || null;
     // sessionId groups all workflows + traces produced during this run.
     // The trace viewer's "session lens" pivots on this field.
@@ -1581,6 +1932,7 @@ export class ChatOrchestrator {
             systemNotes,
             // How this room ends (a vote, or the lead alone), so each agent's prompt says so
             ending: this._endingForPrompt(speaker),
+            roomTools: this._roomToolsForPrompt(),
             generatedImages: this.recentGenImages,
             // Stateful chaining: continue this agent's server-side history and
             // send only the messages it has not seen. Both are ignored when
@@ -1858,6 +2210,23 @@ export class ChatOrchestrator {
 
           // Strip tool tags from the text response
           fullResponse = stripToolTags(fullResponse);
+        }
+
+        // Room tools: [CRITIC: image | reference=id] scores a picture with a critic that sees nothing else;
+        // [RENDER: file.json] shows the room what an artifact looks like.
+        const roomRequests = parseRoomRequests(tagSource);
+        if (roomRequests.length > 0) {
+          for (const req of roomRequests) {
+            if (req.type === 'critic') {
+              const r = await this.critique({ imageId: req.imageId, referenceId: req.referenceId, criteria: req.criteria });
+              toolResults.push({ type: 'critic', imageId: req.imageId, ok: r.ok, text: r.ok ? r.text : r.error });
+            } else {
+              const r = await this.render({ artifact: req.artifact, draws: req.draws, speaker });
+              for (const img of r.images || []) images.push(img);
+              toolResults.push({ type: 'render', artifact: req.artifact, ok: r.ok, text: r.text });
+            }
+          }
+          fullResponse = stripRoomTags(fullResponse);
         }
 
         // Check for Synthograsizer tool requests (SYNTH_* tags)
@@ -2229,14 +2598,31 @@ export class ChatOrchestrator {
           turnCount: this.turnCount
         });
 
+        // The independent critic scores what this turn made, so the room hears it before anyone can talk each other round
+        const madeImageIds = [
+          ...(hasImages ? images.map(i => i.id) : []),
+          ...(hasSynthMedia ? synthMedia.filter(m => m.type === 'image').map(m => m.id) : []),
+          ...(hasToolMedia ? toolMedia.filter(m => m.type === 'image').map(m => m.id) : []),
+        ].filter(Boolean);
+        if (madeImageIds.length > 0) await this._autoCritique(madeImageIds);
+
         // Check for consensus/completion
         let completionReason = this.checkForCompletion(fullResponse, speaker.id);
         if (completionReason === 'needs_judgement') {
           completionReason = await this._judgeCompletion(fullResponse, speaker);
         }
         if (completionReason) {
-          this.stop(completionReason);
+          const gate = await this._runDoneGate(completionReason);
+          if (!gate.allowed) {
+            await this.delay(1500);
+            continue;
+          }
+          this.stop(gate.reason || completionReason);
           break;
+        }
+        // Not ending: judge each new artifact version against the checks, so a revision is never left unanswered
+        if (artifactUpdates.length > 0 && this.doneWhen.criteria.length > 0) {
+          await this._noteCandidate([...new Set(artifactUpdates.map(a => a.filename))]);
         }
 
         // Solo mode: one agent reply per user message. Pause after the turn
@@ -2306,7 +2692,11 @@ export class ChatOrchestrator {
       const allowArtifacts =
         this.artifactStore.getAll().length > 0 ||
         /\b(build|create|make|code|sketch|game|p5|html|website|app|artifact)\b/.test(goalLower);
-      tools.push(...buildToolsForAgent(speaker, { allowArtifacts }));
+      tools.push(...buildToolsForAgent(speaker, {
+        allowArtifacts,
+        allowCritic: this.critic.enabled,
+        allowRender: this.artifactStore.getAll().length > 0,
+      }));
     }
 
     return tools;
@@ -2326,6 +2716,8 @@ export class ChatOrchestrator {
         ? (topic, opts) => this._startResearch(topic, opts, speaker)
         : null,
       onEvent: (event, data) => this.broadcast(event, data),
+      critique: (args) => this.critique({ ...args }),
+      render: (args) => this.render({ ...args, speaker }),
       onMedia: (media) => {
         toolMedia.push({
           id: media.id,
@@ -2484,6 +2876,8 @@ export class ChatOrchestrator {
       summarizedMessages: this._summaryForPrompt()?.upTo ?? 0,
       agents: this.agents, // Include full agent data with bios
       completionReason: this.completionReason,
+      doneWhen: { checks: this.doneWhen.criteria.length, blocks: this.doneWhen.blocks, lastResult: this.doneWhen.lastResult },
+      critic: { enabled: this.critic.enabled, calls: this.critic.calls, maxCalls: this.critic.maxCalls, minScore: this.critic.minScore },
       speakingOrder: this.speakingOrder,
       speakingPriorities: this.speakingPriorities,
       sessionMedia: this.sessionMedia.map(m => ({
