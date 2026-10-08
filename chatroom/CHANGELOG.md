@@ -26,6 +26,8 @@ All notable changes to the Agent Chat Room project are documented in this file.
 - While a session runs the server asks the OS not to sleep (`SYNTH_KEEP_AWAKE=0` turns it off).
 
 ### Fixed
+- A turn that carries `google_search` or `url_context` goes without `file_search` (the model API refuses to combine them): once a memory store existed, every agent on a search tier failed its turns and a company's room stopped after five failures in a row. An error event now carries the reason the API gave instead of the SDK's generic "400 API error occurred", and a block that line concealed is treated as the refusal it is.
+- `PATCH /api/company/:id` sets the dials and ceilings it names and keeps the others (it replaced the whole object, which put every unnamed ceiling back to the operator's default: a looser value than the company chose).
 - Agent Studio thumbnails never loaded in current Chrome (`img.src` of an empty `src` is the page address); the `/chatroom/api` proxy dropped the query string on the event stream.
 
 ### Added

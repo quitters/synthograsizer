@@ -71,6 +71,8 @@ The answer to a create or update says what was asked, what applies and what was 
 - **Least privilege.** Every agent starts with tier `none`. A company starts with the research tools (`google_search`, `url_context`) and its owner widens the grant, up to the operator's set. An agent's tier must fit inside the grant (checked on tool *names*, so a new
   tier cannot slip past): `visual` is refused until `generate_image`, `compose_image` and `critique_image` are granted. Narrowing the grant narrows rooms already running. The dispatcher also refuses a tool the agent was not given, whatever the model asks for.
   A company's room never uses the bracket-tag dialect (`[IMAGE: ...]`, `[SEARCH: ...]`): tags typed into a message do nothing, so a tier cannot be bypassed through the old path.
+  The model API refuses a request that carries `file_search` (the company's memory store, and a session's uploads) together with `google_search` or `url_context`. A turn that carries a search tool therefore goes without the stores: an archivist on the research tier
+  has her search and does not read the company's memory, and an agent with no search tool reads both. (Found by the pilot team's first session, where it stopped the room; the unit tests and the live smoke test had used agents with no tools.)
 - **Caps** (operator defaults; a company can lower them): 8 agents per room, 200 turns, 200,000 tokens, \$10 estimated spend per session, 3 withheld turns in a row before the room pauses for a person, 20 proposals waiting at once. "No limit" on turns means the ceiling.
   Spend is an estimate from list prices (`config/models.js`) rounded up, counting the agents, the screen and the tools.
 - **No secrets in prompts.** Missions, character sheets, goals, host messages, names and proposals are scanned for credential-shaped text (Google keys, `sk-` keys, GitHub tokens, AWS ids, private-key blocks, JWTs, `password = ...`) and refused, naming the kind and never echoing it.
@@ -106,7 +108,7 @@ The answer to a create or update says what was asked, what applies and what was 
 
 Every control a person has is an API call with a machine-readable schema, so an agent can build or change a company with the same actions (`GET /api/company/schema`: JSON Schema 2020-12 built from the constants the rules use, so it cannot drift from what the server accepts; plus
 what is fixed, the dials and the endpoints). Endpoints and operator settings are tabulated in [`chatroom/README.md`](../chatroom/README.md#agent-companies-the-safety-layer). Two properties worth stating: an agent can build or change a company only through the owner's
-cookie (the owner), never through a tool; and the only thing an agent can do about publishing is offer.
+cookie (the owner), never through a tool; and the only thing an agent can do about publishing is offer. A `PATCH` names the dials and ceilings it changes and leaves the rest (it used to replace the whole object, which put every unnamed ceiling back to the operator's default: a looser value than the company had chosen).
 
 ## Tests
 
@@ -153,7 +155,7 @@ Not yet measured: a control for Pro, a canary stronger than a style rule that is
 
 ## What changed in existing code
 
-`gemini.js`: `buildSystemPrompt` takes a `policy` (exported); refusal events (`refusal`) alongside `error`; look-alike transcript lines rewritten for company rooms; `getGeminiClient`. `orchestrator.js`: `policy`, `attachPolicy`, `memoryOwnerId`, admission in
+`gemini.js`: `buildSystemPrompt` takes a `policy` (exported); refusal events (`refusal`) alongside `error`, and an error event carries the reason the API gave (`describeApiError`, in `company/refusal.js`) instead of the SDK's generic line; look-alike transcript lines rewritten for company rooms; `getGeminiClient`. `orchestrator.js`: `policy`, `attachPolicy`, `memoryOwnerId`, `_toolsForTurn` drops `file_search` when a search tool is on the turn, admission in
 `addAgent`/`updateAgent`/`restoreSession`, run gating in `start`/`resume`/`injectMessage`, the turn loop (buffering, refusal, screen, strikes, spend), `_guardDispatch`, `_propose`, `getState().policy`. `toolDefinitions.js`/`toolDispatch.js`: `propose_publish`; `buildToolsForAgent` takes
 `only` and `extra`. `sessionRegistry.js`: room initializers, `peekRoom`, `dropRoom`. `middleware/session.js`: room by id for an owner. `app.js`: the company services and router. `routes/chat.js`: `/start` awaits. `config/models.js`: list prices.
 
