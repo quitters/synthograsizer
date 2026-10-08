@@ -33,6 +33,7 @@ import { mediaStore as defaultMediaStore } from './mediaStore.js';
 import { artifactStore as defaultArtifactStore } from './artifactStore.js';
 import { synthClient, traceStore, keepAwake } from 'workflow-engine';
 import { evaluate as evaluateDoneWhen, describeCriterion, describeResult, criteriaToText, normalizeCriteria } from './doneWhen.js';
+import { RoomLedger } from './roomLedger.js';
 import { PolicyError } from '../company/errors.js';
 import { textCostUsd, toolCostUsd } from '../company/spend.js';
 import { looksLikeSafetyBlock } from '../company/refusal.js';
@@ -217,6 +218,10 @@ export class ChatOrchestrator {
     // blocks counts endings refused so far. After maxBlocks refusals (default 8; 0 = never give up) the room ends anyway, saying so,
     // because a check nobody can pass would otherwise loop until the token limit.
     this.doneWhen = { criteria: [], blocks: 0, maxBlocks: 8, lastNoteKey: null, lastResult: null };
+    // What the server saw happen (saves, tools that ran), in order: the checks that look at facts and not at claims read it (roomLedger.js).
+    this.ledger = new RoomLedger();
+    // Review hand-offs: after a save, the named agent speaks next (a dissenter's say made structural; see _dueHandoff).
+    this.handoffs = [];
     // An independent critic that sees only pictures (see roomTools.js). Off until a host turns it on; a budget of scores per session.
     this.critic = { enabled: false, auto: true, referenceId: null, criteria: '', model: null, minScore: 6, maxCalls: 30, calls: 0 };
     // Renders asked for by agents or the host. Browser renders wait here for the page to answer (resolveRender).
@@ -357,7 +362,10 @@ export class ChatOrchestrator {
     for (const a of artifacts) {
       const versions = a.versions?.length ? a.versions : [{ version: 1, content: a.content }];
       for (const v of versions) this.artifactStore.save(a.filename, v.content, null, 'restored');
+      // (restored files were saved before everything now said in this room: the last restored message is their "carrier")
+      this.ledger.record('save', { artifact: a.filename, version: this.artifactStore.get(a.filename)?.versions.length ?? null, messageCount: this.messages.length - 1, agentId: null, restored: true });
     }
+    if (Array.isArray(meta.settings?.handoffs)) this.setHandoffs(meta.settings.handoffs);
     this.broadcast('session_restored', {
       source, archiveId, goal: this.goal, mode: this.mode, messageCount: this.messages.length,
       agents: this.agents.map(a => ({ id: a.id, name: a.name, color: a.color })),
@@ -819,7 +827,14 @@ export class ChatOrchestrator {
    * Bounded: draws per render, renders per session, seconds to wait for a browser.
    * @returns {Promise<{ ok: boolean, text: string, images?: object[] }>}
    */
-  async render({ artifact, draws, speaker = null, timeoutMs = 45_000 } = {}) {
+  async render(args = {}) {
+    const result = await this._render(args);
+    // The ledger notes what the server saw: a render that gave pictures, or one that did not (the checks read both)
+    this.ledger.record('tool', { tool: 'render_artifact', ok: Boolean(result?.ok), agent: args.speaker?.name || 'Producer', artifact: String(args.artifact || '') });
+    return result;
+  }
+
+  async _render({ artifact, draws, speaker = null, timeoutMs = 45_000 } = {}) {
     const rs = this.renderState;
     if (rs.used >= rs.max) return { ok: false, text: `the session's limit of ${rs.max} renders is used up` };
     const art = this.artifactStore.get(String(artifact || ''));
@@ -913,7 +928,13 @@ export class ChatOrchestrator {
 
   /** Run the checks now. Broadcasts the outcome as 'done_check'; returns { passed, results }. */
   async checkDoneWhen(context = {}) {
-    const result = await evaluateDoneWhen(this.doneWhen.criteria, { messages: this.messages, artifactStore: this.artifactStore });
+    const result = await evaluateDoneWhen(this.doneWhen.criteria, {
+      messages: this.messages,
+      artifactStore: this.artifactStore,
+      ledger: this.ledger,
+      // The room's publish queue (a company's room only): the "proposal" check reads what has been offered from this room
+      proposals: this.policy?.publish ? () => this.policy.publish.list(this.policy.companyId).filter(p => p.roomId === this.policy.roomId) : null,
+    });
     this.doneWhen.lastResult = { passed: result.passed, at: new Date().toISOString(), results: result.results.map(r => ({ label: r.label, passed: r.passed, detail: r.detail })) };
     this.broadcast('done_check', { ...this.doneWhen.lastResult, blocks: this.doneWhen.blocks, ...context });
     return result;
@@ -1054,6 +1075,10 @@ export class ChatOrchestrator {
    */
   _closingNotes(speaker) {
     const notes = [];
+    const review = this._dueHandoff([speaker]);
+    if (review) {
+      notes.push(`REVIEW: a new version of "${review.artifact}" was saved${review.version ? ` (version ${review.version})` : ''} and you are the reviewer this company named for it. Before anything else, check it against the goal and the checks, then say plainly what is wrong, or that you have no objection and what you checked.`);
+    }
     if (this.doneWhen.criteria.length) {
       notes.push('DONE WHEN: the server will not let this session end until every check below passes. It runs them itself each time anyone tries to end, ' +
         'so saying they pass changes nothing; make them pass.\n' + this.doneWhen.criteria.map(c => `- ${describeCriterion(c)}`).join('\n'));
@@ -1192,6 +1217,11 @@ export class ChatOrchestrator {
   broadcast(event, data) {
     try { traceStore.record(event, this.ownerId && data ? { ...data, ownerId: this.ownerId } : data); }
     catch (err) { console.error('[traceStore] record failed:', err.message); }
+
+    // Every save (an agent's tool, the tag dialect, the host's own edit) is announced here, which makes this the one place to note it
+    if (event === 'artifact_update' && data?.filename) {
+      this.ledger.record('save', { artifact: data.filename, version: data.version ?? null, messageCount: this.messages.length, agentId: data.agentId ?? null });
+    }
 
     this._emitToObservers(event, data);
 
@@ -1558,10 +1588,50 @@ export class ChatOrchestrator {
     return sections.length > 0 ? sections.join('\n\n') : null;
   }
 
+  // ==================== REVIEW HAND-OFFS ====================
+
+  /**
+   * After a save, a named agent speaks next. The pilot company's dissenter spoke three times in thirty-five messages, all in the first
+   * third, and was silent when the file was called finished: dissent at the start is a trait, and dissent at the lock has to be a rule.
+   * @param {{ next: string, on?: 'save', artifact?: string }[]} list  `next` is an agent's name or first name; `artifact` narrows it to one file
+   */
+  setHandoffs(list) {
+    const ok = [];
+    for (const h of Array.isArray(list) ? list.slice(0, 8) : []) {
+      if (!h || typeof h.next !== 'string' || !h.next.trim()) continue;
+      ok.push({ on: 'save', next: h.next.trim().slice(0, 80), ...(typeof h.artifact === 'string' && h.artifact ? { artifact: h.artifact.slice(0, 200) } : {}) });
+    }
+    this.handoffs = ok;
+    return this.getHandoffs();
+  }
+
+  getHandoffs() {
+    return this.handoffs.map(h => ({ ...h }));
+  }
+
+  /** The agent a hand-off says must speak now, and about what, or null. A reviewer who saved the file herself does not review it again. */
+  _dueHandoff(candidates = this.agents.filter(a => !a.muted)) {
+    for (const h of this.handoffs) {
+      const who = h.next.toLowerCase();
+      const reviewer = candidates.find(a => a.name.toLowerCase() === who || a.name.split(' ')[0].toLowerCase() === who);
+      if (!reviewer || reviewer.id === this.lastSpeakerId) continue;
+      const save = h.artifact ? this.ledger.latestSave(h.artifact) : this.ledger.latest('save');
+      if (!save || (save.agentId && save.agentId === reviewer.id)) continue;
+      // The message that carries the save sits at index messageCount; until it is posted the save is not "over" yet
+      if (this.messages.length <= save.messageCount) continue;
+      const spoken = this.messages.slice(save.messageCount + 1).some(m => m.agentId === reviewer.id && !m.isUser);
+      if (!spoken) return { agent: reviewer, artifact: save.artifact, version: save.version };
+    }
+    return null;
+  }
+
   selectNextSpeaker() {
     // Filter out muted agents up front — they are never selected regardless of mode.
     const speakable = this.agents.filter(a => !a.muted);
     if (speakable.length === 0) return null;
+    // A review hand-off outranks every speaking order
+    const due = this._dueHandoff(speakable);
+    if (due) return due.agent;
     // Temporarily swap agents -> speakable for the strategy methods that read
     // `this.agents`. Cleanest path is to delegate via a saved reference.
     const allAgents = this.agents;
@@ -1585,6 +1655,7 @@ export class ChatOrchestrator {
   async selectNextSpeakerSmart() {
     const heuristic = this.selectNextSpeaker();
     if (!heuristic) return null;
+    if (this._dueHandoff()?.agent.id === heuristic.id) return heuristic;       // a hand-off is a rule, not a judgement call
     if (!isSmartOrchestrationEnabled()) return heuristic;
     // Only 'dynamic' is a judgement call; the other modes are deterministic
     // by definition and the user picked them on purpose.
@@ -3011,7 +3082,16 @@ export class ChatOrchestrator {
         }
       },
     });
-    return this.policy ? this._guardDispatch(speaker, inner) : inner;
+    const dispatch = this.policy ? this._guardDispatch(speaker, inner) : inner;
+    // What the agent experienced is what is noted. (render_artifact is noted by render() itself, which also serves the host and the tag dialect.)
+    return async (call) => {
+      const outcome = await dispatch(call);
+      if (call?.name && call.name !== 'render_artifact') {
+        const file = call.arguments?.filename ?? call.arguments?.artifact;
+        this.ledger.record('tool', { tool: String(call.name).slice(0, 40), ok: Boolean(outcome?.ok), agent: speaker.name, ...(typeof file === 'string' && file ? { artifact: file } : {}) });
+      }
+      return outcome;
+    };
   }
 
   /** An agent offers work for publication: queued for a person, screened first, never published by anything in the room. */
@@ -3019,7 +3099,7 @@ export class ChatOrchestrator {
     try {
       const item = await this.policy.propose(args, this._publishSources(), speaker.name);
       this.broadcast('publish_proposed', { agentId: speaker.id, agentName: speaker.name, id: item.id, status: item.status, title: item.title });
-      return { ok: true, id: item.id, status: item.status };
+      return { ok: true, id: item.id, status: item.status, superseded: item.superseded || [] };
     } catch (err) {
       return { ok: false, error: err.message };
     }

@@ -443,8 +443,8 @@ The pictures arrive in the conversation. Look at them before you call the work f
 /**
  * What an agent is told about ending the conversation. By default any agent may say
  * [CONSENSUS REACHED] and a quorum ends it. When one agent (the lead) closes the room, the
- * lead is told it alone decides and what counts as done, and the others are told their marker
- * is only a recommendation and they must keep working until the lead closes.
+ * lead is told it alone decides and what counts as done, and the others are told not to write
+ * the marker at all: they say in words what they think is met, and keep working until the lead closes.
  *
  * @param {{mode?: 'vote'|'lead', leadName?: string, isLead?: boolean}} [ending]
  */
@@ -457,8 +457,11 @@ When the goal is achieved, say "[CONSENSUS REACHED]" in your message.`;
     return `ENDING THE CONVERSATION:
 You are the lead, and only you can end this session. Other agents may say "[CONSENSUS REACHED]" to tell you they think the goal is met; that is a recommendation, not a decision, and agreeable agents are not evidence. Close the session only when what the goal asks for actually exists in this conversation, in the form the goal asks for, and no objection is still open. Then say "[CONSENSUS REACHED]" (or "[END SESSION]") in your message. If it is not done, say what is missing and who should supply it. Claims that something was saved, filed or committed are not evidence unless the thing itself is posted here.`;
   }
+  // The closing marker is the lead's alone. The pilot company's others wrote it in five of ten messages near the end, which is noise for the room and
+  // pressure on the lead; what a lead can use is a sentence saying what was checked and what is still open.
+  const lead = ending.leadName || 'the lead';
   return `ENDING THE CONVERSATION:
-Only ${ending.leadName || 'the lead'} can end this session. When you think the goal is achieved, say "[CONSENSUS REACHED]" to tell them you are ready; that will not end the session by itself. Until ${ending.leadName || 'the lead'} closes it, keep working: raise any problem you can see, and do not repeat what has already been said.`;
+Only ${lead} can end this session, and only ${lead} writes the closing marker: do not write "[CONSENSUS REACHED]" or "[END SESSION]" yourself. If you think the goal is achieved, say so in a plain sentence that names what you checked and anything still open; ${lead} decides. Until ${lead} closes it, keep working: raise any problem you can see, and do not repeat what has already been said.`;
 }
 
 /**

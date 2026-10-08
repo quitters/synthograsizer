@@ -231,6 +231,7 @@ export function createToolDispatcher({
       return textOutcome(
         true,
         `Proposal ${r.id} is waiting for a person to review (${r.status}). It has not been published, and nothing you do will publish it. ` +
+        (r.superseded?.length ? `It replaces ${r.superseded.length === 1 ? 'your earlier offer' : `${r.superseded.length} earlier offers`} of this file. ` : '') +
         'Carry on with the work; do not claim it has been published.'
       );
     },

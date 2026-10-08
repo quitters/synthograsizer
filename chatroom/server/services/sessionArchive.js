@@ -371,7 +371,7 @@ export function snapshotRoom(o) {
     tokenCount: o.tokenCount,
     turnCount: o.turnCount,
     agents: o.agents.map(agentSnapshot),
-    settings: { consensus: { ...o.consensusSettings }, doneWhen: o.doneWhen ? o.doneWhen.criteria : [] },
+    settings: { consensus: { ...o.consensusSettings }, doneWhen: o.doneWhen ? o.doneWhen.criteria : [], handoffs: o.handoffs ? o.handoffs.map(h => ({ ...h })) : [] },
     messageCount: o.messages.length,
   };
 }

@@ -13,6 +13,7 @@ import { MANDATE_DIALS } from './mandate.js';
 import { CEILING_FIELDS } from './ceilings.js';
 import { KNOWN_TOOLS } from './toolGrants.js';
 import { MISSION_MAX_CHARS } from './mission.js';
+import { HOUSE_RULES_MAX_CHARS } from './houseRules.js';
 
 const typeOf = (v) => (v === null ? 'null' : Array.isArray(v) ? 'array' : Number.isInteger(v) ? 'integer' : typeof v);
 const isType = (v, t) => (t === 'number' ? typeof v === 'number' && Number.isFinite(v) : t === 'integer' ? Number.isInteger(v) : typeOf(v) === t);
@@ -95,6 +96,7 @@ const companyCreate = {
   properties: {
     name,
     mission: { type: 'string', minLength: 1, maxLength: MISSION_MAX_CHARS, description: 'Defaults to a humanist mission (GET /api/company/mission). Editable; it can never add an exception to a hard limit.' },
+    houseRules: { type: 'string', maxLength: HOUSE_RULES_MAX_CHARS, description: 'How the people in this company carry themselves at work (GET /api/company/house-rules for the default, which new companies start with). It goes into the fixed layer of every agent, outranks a character sheet and can never add an exception to a hard limit. An empty string means none.' },
     mandate, ceilings, tools,
     departments: { type: 'array', maxItems: 40, items: name, description: 'Department names. Each gets its own isolated room when you create it.' },
   },
@@ -102,7 +104,7 @@ const companyCreate = {
 
 const companyPatch = {
   type: 'object', additionalProperties: false,
-  properties: { name, mission: companyCreate.properties.mission, mandate, ceilings, tools },
+  properties: { name, mission: companyCreate.properties.mission, houseRules: companyCreate.properties.houseRules, mandate, ceilings, tools },
 };
 
 const roomCreate = {

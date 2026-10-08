@@ -10,6 +10,7 @@
 import { Router } from 'express';
 import { SCHEMAS, schemaDocument, validate } from '../company/schema.js';
 import { DEFAULT_MISSION } from '../company/mission.js';
+import { DEFAULT_HOUSE_RULES, HOUSE_RULES_MAX_CHARS } from '../company/houseRules.js';
 import { HARD_LIMITS, PUBLISHING_FLOOR, PUBLISHING_REQUIREMENTS } from '../company/hardLimits.js';
 import { MANDATE_DIALS } from '../company/mandate.js';
 import { PolicyError, isPolicyError } from '../company/errors.js';
@@ -20,10 +21,11 @@ const ENDPOINTS = [
   ['GET', '/api/company/schema', 'This document.'],
   ['GET', '/api/company/operator', 'What this server\'s operator allows: the defaults no request can loosen.'],
   ['GET', '/api/company/mission', 'The default mission statement.'],
+  ['GET', '/api/company/house-rules', 'The default house rules: how the people in a company carry themselves at work.'],
   ['POST', '/api/company', 'Create a company (paused). Body: companyCreate.'],
   ['GET', '/api/company', 'Your companies.'],
   ['GET', '/api/company/:id', 'One company: what you asked for, what applies, what was clamped.'],
-  ['PATCH', '/api/company/:id', 'Change name, mission, mandate, ceilings or tools. Body: companyPatch.'],
+  ['PATCH', '/api/company/:id', 'Change name, mission, house rules, mandate, ceilings or tools. Body: companyPatch.'],
   ['DELETE', '/api/company/:id', 'Delete the company, its audit log, its publish queue and its rooms\' saved sessions.'],
   ['POST', '/api/company/:id/go', 'Let the company run. Nothing runs, spends or publishes until you do.'],
   ['POST', '/api/company/:id/pause', 'Stop it. Running rooms pause.'],
@@ -88,6 +90,7 @@ export function createCompanyRouter(services) {
 
   router.get('/operator', (req, res) => res.json(operator.snapshot()));
   router.get('/mission', (req, res) => res.json(DEFAULT_MISSION));
+  router.get('/house-rules', (req, res) => res.json({ ...DEFAULT_HOUSE_RULES, maxChars: HOUSE_RULES_MAX_CHARS }));
 
   // ── companies ───────────────────────────────────────────────────────────────
 
@@ -165,14 +168,16 @@ export function createCompanyRouter(services) {
   router.post('/:id/publish', handle(async (req, res) => {
     const company = store.getOwned(req.params.id, req.visitorId);
     checkBody(SCHEMAS.proposal, req.body);
-    const roomId = req.body.roomId || null;
+    // Made from inside a department's room (an X-Room-Id header, which the room middleware has already checked belongs to this visitor),
+    // the room is known without being named again, as the schema says. A roomId in the body still wins.
+    const roomId = req.body.roomId || (req.company?.id === company.id ? req.room?.id : null) || null;
     if (roomId && store.roomOwner(roomId)?.company.id !== company.id) {
       throw new PolicyError('That room does not belong to this company.', { status: 400, code: 'bad_proposal', field: 'roomId' });
     }
     // The work comes from the room it is in; a room that is not loaded has nothing to offer but text
     const room = roomId ? peekRoom(roomId) : null;
     const sources = room ? { artifact: (n) => room.artifactStore.get(n) || null, media: (id) => room.mediaStore.get(id) || null } : {};
-    const item = await publish.propose(company.id, { ...req.body, by: 'owner' }, sources);
+    const item = await publish.propose(company.id, { ...req.body, ...(roomId ? { roomId } : {}), by: 'owner' }, sources);
     res.status(201).json({ proposal: item });
   }));
 

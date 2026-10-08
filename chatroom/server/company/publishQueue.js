@@ -11,6 +11,8 @@
  *              until it passes (a reviewer asked again and again is a coin tossed until it lands). Revise the work and propose it
  *              again. A screen that could not run leaves the proposal "unavailable", which also cannot be approved.
  *   APPROVAL   only the company's owner can approve, through the API. No agent tool reaches it. Approval is bound to the hash.
+ *   SUPERSEDE  a new proposal of the same file from the same room replaces the earlier ones that are still waiting (status "superseded", never
+ *              decided by a person). In the pilot three drafts of one engine used the whole queue, and only the last one meant anything.
  *   LABEL      every export says it is AI-generated, in a manifest and in the work itself where its format has room for a line.
  */
 import fs from 'node:fs';
@@ -105,6 +107,7 @@ export class PublishQueue {
     return {
       id: item.id, kind: item.kind, title: item.title, note: item.note || '', by: item.by, roomId: item.roomId, status: item.status,
       createdAt: item.createdAt, decidedAt: item.decidedAt || null, decidedBy: item.decidedBy || null, rejectedBecause: item.rejectedBecause || null,
+      supersededBy: item.supersededBy || null,
       filename: item.filename || null, bytes: item.content.bytes, sha256: item.content.sha256,
       screen: item.screen ? { verdict: item.screen.verdict, findings: item.screen.findings, stage: 'publishing', model: item.screen.model || null, at: item.screen.at } : null,
       label: AI_LABEL,
@@ -129,9 +132,14 @@ export class PublishQueue {
     if (errors.length) throw new PolicyError(errors.join('; '), { status: 400, code: 'bad_proposal' });
 
     const eff = effectivePolicy(company, this.operator);
-    const waiting = this.list(companyId).filter(i => WAITING.has(i.status)).length;
+    const waitingItems = this.list(companyId).filter(i => WAITING.has(i.status));
+    // An earlier offer of the same file from the same room that is still waiting is replaced by this one, so it does not count against the cap
+    const replaced = body.kind === 'artifact' && body.roomId && body.ref
+      ? waitingItems.filter(i => i.kind === 'artifact' && i.roomId === body.roomId && i.filename === safeName(body.ref, 'work.txt'))
+      : [];
+    const waiting = waitingItems.length - replaced.length;
     if (waiting >= eff.ceilings.maxPendingProposals) {
-      throw new PolicyError(`${waiting} proposals are already waiting for a person; the limit is ${eff.ceilings.maxPendingProposals}. Review some first.`, { status: 403, code: 'proposal_cap' });
+      throw new PolicyError(`${waitingItems.length} proposals are already waiting for a person; the limit is ${eff.ceilings.maxPendingProposals}. Review some first.`, { status: 403, code: 'proposal_cap' });
     }
 
     assertNoSecrets(body.title, 'The title', 'title');
@@ -177,7 +185,26 @@ export class PublishQueue {
     await this._screen(item, bytes);
     this._write(item);
     this._log(item, 'publish_proposed', { status: item.status, rules: item.screen.findings.map(f => f.rule), verdict: item.screen.verdict });
-    return this.summary(item);
+    // A newer version that the screen blocked does not retire the older one: the older stays a screened, reviewable snapshot until a person decides
+    const superseded = [];
+    if (item.status !== 'blocked') {
+      for (const old of replaced) {
+        try {
+          const earlier = this._read(companyId, old.id);
+          if (!WAITING.has(earlier.status)) continue;
+          earlier.status = 'superseded';
+          earlier.supersededBy = item.id;
+          earlier.decidedAt = this.now().toISOString();
+          earlier.decidedBy = 'system';
+          this._write(earlier);
+          this._log(earlier, 'publish_superseded', { by: item.id });
+          superseded.push(earlier.id);
+        } catch (err) {
+          console.warn(`[publish] could not retire ${old.id}: ${err.message}`);
+        }
+      }
+    }
+    return { ...this.summary(item), superseded };
   }
 
   async _screen(item, bytes) {

@@ -17,6 +17,7 @@ import path from 'node:path';
 import { newId, isId, clone, isPlainObject } from './util.js';
 import { PolicyError } from './errors.js';
 import { validateMission, DEFAULT_MISSION } from './mission.js';
+import { validateHouseRules, DEFAULT_HOUSE_RULES } from './houseRules.js';
 import { validateMandate, resolveMandate } from './mandate.js';
 import { validateCeilings, resolveCeilings } from './ceilings.js';
 import { validateToolList, resolveToolGrant, DEFAULT_COMPANY_GRANT } from './toolGrants.js';
@@ -56,6 +57,7 @@ export function effectivePolicy(company, operator) {
   const t = resolveToolGrant(operator.tools, company.tools || []);
   return {
     mission: company.mission,
+    houseRules: company.houseRules || '',
     mandate: m.effective,
     ceilings: c.effective,
     tools: t.effective,
@@ -119,6 +121,7 @@ export class CompanyStore {
     const out = {};
     if (body.name !== undefined) out.name = cleanName(body.name, 'The company name', 'name');
     if (body.mission !== undefined) out.mission = validateMission(body.mission);
+    if (body.houseRules !== undefined) out.houseRules = validateHouseRules(body.houseRules);
     if (body.mandate !== undefined) { const r = validateMandate(body.mandate); errors.push(...r.errors); out.mandate = r.value; }
     if (body.ceilings !== undefined) { const r = validateCeilings(body.ceilings); errors.push(...r.errors); out.ceilings = r.value; }
     if (body.tools !== undefined) { const r = validateToolList(body.tools); errors.push(...r.errors); out.tools = r.value; }
@@ -149,6 +152,7 @@ export class CompanyStore {
       updatedAt: now,
       state: 'paused',
       mission: checked.mission ?? DEFAULT_MISSION.text,
+      houseRules: checked.houseRules ?? DEFAULT_HOUSE_RULES.text,
       mandate: checked.mandate ?? {},
       ceilings: checked.ceilings ?? {},
       tools: checked.tools ?? [...DEFAULT_COMPANY_GRANT],
@@ -177,7 +181,7 @@ export class CompanyStore {
     const company = this.getOwned(id, ownerId);
     const checked = this._checked(body, { creating: false });
     const before = effectivePolicy(company, this.operator);
-    for (const key of ['name', 'mission', 'tools']) if (checked[key] !== undefined) company[key] = checked[key];
+    for (const key of ['name', 'mission', 'houseRules', 'tools']) if (checked[key] !== undefined) company[key] = checked[key];
     // A patch names the dials and ceilings it changes and leaves the rest. Replacing the whole object would put every setting it did not name back to
     // the operator's default, which for a ceiling is a looser value than the company chose (raising one cap would quietly lift the others).
     for (const key of ['mandate', 'ceilings']) if (checked[key] !== undefined) company[key] = mergeSettings(company[key], checked[key]);
@@ -240,6 +244,7 @@ export class CompanyStore {
       createdAt: company.createdAt,
       updatedAt: company.updatedAt,
       mission: company.mission,
+      houseRules: company.houseRules || '',
       requested: clone({ mandate: company.mandate, ceilings: company.ceilings, tools: company.tools }),
       effective: { mandate: eff.mandate, ceilings: eff.ceilings, tools: eff.tools },
       clamped: eff.clamped,

@@ -159,7 +159,8 @@ test('the prompt says who ends the session', () => {
   assert.match(endingInstructions({ mode: 'lead', leadName: 'Ann Test', isLead: true }), /not evidence/);
   const other = endingInstructions({ mode: 'lead', leadName: 'Ann Test', isLead: false });
   assert.match(other, /Only Ann Test can end this session/);
-  assert.match(other, /will not end the session by itself/);
+  assert.match(other, /only Ann Test writes the closing marker/);
+  assert.doesNotMatch(other, /say "\[CONSENSUS REACHED\]" to tell them/, 'the others are not asked to write the marker');
   assert.deepEqual(orchestrator._endingForPrompt(orchestrator.agents[1]), { mode: 'lead', leadName: 'Ann Test', isLead: false }, 'the default');
   assert.equal(orchestrator._endingForPrompt(orchestrator.agents[0]).isLead, true);
   orchestrator.updateConsensusSettings({ closeBy: 'vote' });

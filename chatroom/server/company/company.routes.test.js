@@ -439,6 +439,43 @@ test('publishing: a proposal cannot carry its own approval, and a room that is n
   assert.equal((await v.call('GET', base)).json.proposals.length, 0);
 });
 
+test('publishing: made from inside a department room the work is found without naming the room again, as the schema says', async () => {
+  const { v, company, roomId, inRoom } = await withCompany();
+  await v.call('POST', '/api/artifacts', { filename: 'engine.json', content: '{"v":1}' }, inRoom);
+  const base = `/api/company/${company.id}/publish`;
+
+  const offered = await v.call('POST', base, { kind: 'artifact', title: 'The engine', ref: 'engine.json' }, inRoom);
+  assert.equal(offered.status, 201, JSON.stringify(offered.json));
+  assert.equal(offered.json.proposal.roomId, roomId);
+  assert.equal(offered.json.proposal.filename, 'engine.json');
+
+  // a newer version offered the same way replaces it
+  await v.call('POST', '/api/artifacts', { filename: 'engine.json', content: '{"v":2}' }, inRoom);
+  const again = await v.call('POST', base, { kind: 'artifact', title: 'The engine', ref: 'engine.json' }, inRoom);
+  assert.deepEqual(again.json.proposal.superseded, [offered.json.proposal.id]);
+
+  // outside the room the file is not found, as before
+  const outside = await v.call('POST', base, { kind: 'artifact', title: 'The engine', ref: 'engine.json' });
+  assert.equal(outside.status, 404);
+});
+
+test('house rules: the default is readable, a company starts with it, the owner changes it, and a secret in it is refused', async () => {
+  const v = visitor();
+  const dflt = await v.call('GET', '/api/company/house-rules');
+  assert.equal(dflt.status, 200);
+  assert.match(dflt.json.text, /short messages/);
+  assert.equal(dflt.json.maxChars, 2000);
+
+  const { company } = await withCompany(v);
+  assert.equal(company.houseRules, dflt.json.text);
+  const patched = await v.call('PATCH', `/api/company/${company.id}`, { houseRules: 'Say it in one line.' });
+  assert.equal(patched.json.company.houseRules, 'Say it in one line.');
+  assert.equal((await v.call('GET', `/api/company/${company.id}`)).json.company.houseRules, 'Say it in one line.');
+  assert.equal((await v.call('PATCH', `/api/company/${company.id}`, { houseRules: 'key AIzaSyA1234567890abcdefghijklmnopqrstuvw' })).status, 400);
+  assert.equal((await v.call('PATCH', `/api/company/${company.id}`, { houseRules: 5 })).status, 400);
+  assert.ok((await v.call('GET', '/api/company/schema')).json['x-endpoints'].some(e => e.path === '/api/company/house-rules'));
+});
+
 // ── the audit log, deleting ──────────────────────────────────────────────────
 
 test('the audit log lists decisions in order and never the words', async () => {

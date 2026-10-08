@@ -787,6 +787,27 @@ router.post('/consensus-settings', (req, res) => {
   }
 });
 
+// ==================== REVIEW HAND-OFFS ====================
+
+/**
+ * GET /api/chat/handoffs
+ * POST /api/chat/handoffs   { handoffs: [{ next: "Kasia", artifact?: "engine.json" }] }
+ * After a file is saved (any file, or the one named), the agent named in `next` speaks next, and the "done when" check
+ * `said_after` can hold the lead to hearing from them before closing. An empty list turns it off.
+ */
+router.get('/handoffs', (req, res) => {
+  res.json({ handoffs: req.room.orchestrator.getHandoffs() });
+});
+
+router.post('/handoffs', (req, res) => {
+  const list = Array.isArray(req.body) ? req.body : req.body?.handoffs;
+  if (!Array.isArray(list)) return res.status(400).json({ error: 'Send { "handoffs": [{ "next": "Kasia" }] }' });
+  if (list.length > 8) return res.status(400).json({ error: 'At most 8 hand-offs' });
+  const bad = list.findIndex(h => !h || typeof h.next !== 'string' || !h.next.trim());
+  if (bad >= 0) return res.status(400).json({ error: `Hand-off ${bad + 1} needs "next": an agent's name` });
+  res.json({ success: true, handoffs: req.room.orchestrator.setHandoffs(list) });
+});
+
 // ==================== DONE WHEN ====================
 
 /**

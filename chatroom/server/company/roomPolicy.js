@@ -88,10 +88,10 @@ export class RoomPolicy {
 
   /** The fixed layer for an agent's system prompt (head and tail are identical for every agent in the room; the nonce is the agent's). */
   layerFor(agent) {
-    const { mission, mandate } = this.effective;
-    const key = JSON.stringify([mission, mandate]);
+    const { mission, mandate, houseRules } = this.effective;
+    const key = JSON.stringify([mission, mandate, houseRules]);
     if (key !== this._layerKey) {
-      this._layer = buildLayer({ mission, mandate, canPropose: true, extraHardLimits: this.extraHardLimits, extraPreamble: this.extraPreamble });
+      this._layer = buildLayer({ mission, mandate, houseRules, canPropose: true, extraHardLimits: this.extraHardLimits, extraPreamble: this.extraPreamble });
       this._layerKey = key;
     }
     return { head: this._layer.head, tail: this._layer.tail, nonce: fenceNonce(this.secret, agent.id) };

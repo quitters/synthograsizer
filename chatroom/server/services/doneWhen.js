@@ -10,13 +10,29 @@
  *   { type: 'json', in: 'artifact:engine.json' | 'last_json', schema }   the JSON validates against a small JSON-Schema subset
  *   { type: 'url', url: 'http://localhost:8000/api/health', status: 200, contains?: 'ok' }   a URL that answers
  *
+ * Three more look at what the SERVER saw happen in the room (its ledger, roomLedger.js) and not at what anyone said happened. The pilot
+ * company's lead skipped "look at the pictures" on day one and "make the proposal" on day two, and no check above can express either:
+ *
+ *   { type: 'tool_used', tool: 'render_artifact', artifact?: 'engine.json', after?: 'artifact:engine.json', times?: 1 }
+ *        the tool SUCCEEDED (that many times), and with `after`, since the latest save of that file
+ *   { type: 'proposal', artifact: 'engine.json' }
+ *        the latest version of the file is in the publish queue (pending, waiting for the screen, or approved)
+ *   { type: 'said_after', agent: 'Kasia', after: 'artifact:engine.json', minChars?: 20 }
+ *        the named agent has posted a message after the message that carried the latest save (dissent made structural: the lead
+ *        cannot close over the person whose job is to object without hearing from them)
+ *
  * Every criterion may carry a `label`. `evaluate` returns { passed, results }; each result says what was wrong in words the agents
  * can act on ("variables: 5 items, needs exactly 6"). parseCriteriaText reads the one-line-per-check form the settings screens use.
  * Nothing here talks to a model.
  */
+import crypto from 'node:crypto';
 import { safeFetchText } from 'workflow-engine';
+import { safeName } from './sessionArchive.js';
 
 const MAX_ERRORS = 8;
+const OFFERED = new Set(['pending', 'unavailable', 'approved']);
+const sha256Hex = (text) => crypto.createHash('sha256').update(String(text), 'utf8').digest('hex');
+const fileOf = (after) => String(after || '').replace(/^artifact:/, '');
 
 // ── a small JSON-Schema subset ────────────────────────────────────────────────
 
@@ -93,6 +109,14 @@ export function lastJsonIn(messages) {
   return null;
 }
 
+/** The newest save of a file from the ledger. A file that is in the store but was never announced (loaded some other way) counts as saved before everything. */
+function saveOf(ctx, name) {
+  const found = ctx.ledger?.latestSave(name);
+  if (found) return found;
+  const art = ctx.artifactStore?.get?.(name) || ctx.artifactStore?.artifacts?.get?.(name);
+  return art ? { seq: 0, artifact: name, version: art.versions?.length ?? null, messageCount: -1 } : null;
+}
+
 function artifactText(artifactStore, name) {
   const a = artifactStore?.get?.(name) || artifactStore?.artifacts?.get?.(name);
   return a ? String(a.content ?? '') : null;
@@ -107,6 +131,10 @@ export function describeCriterion(c) {
     case 'regex': return `${c.in && c.in !== 'last_message' ? c.in.replace('_', ' ') : 'the last message'} matches /${c.pattern}/${c.flags || ''}`;
     case 'json': return `${c.in === 'last_json' || !c.in ? 'the last JSON an agent posted' : c.in.replace('artifact:', 'the artifact ')} is valid: ${JSON.stringify(c.schema).slice(0, 120)}`;
     case 'url': return `${c.url} answers${c.status ? ` with ${c.status}` : ''}`;
+    case 'tool_used':
+      return `${c.tool} has succeeded${c.artifact ? ` on "${c.artifact}"` : ''}${c.after ? ` since "${fileOf(c.after)}" was last saved` : ''}${(c.times ?? 1) > 1 ? ` (${c.times} times)` : ''}`;
+    case 'proposal': return `the latest version of "${c.artifact}" has been offered for publication`;
+    case 'said_after': return `${c.agent} has spoken since "${fileOf(c.after)}" was last saved`;
     default: return JSON.stringify(c);
   }
 }
@@ -166,6 +194,61 @@ async function evaluateOne(c, ctx) {
         return { passed: false, detail: `${c.url} did not answer: ${String(e.message).slice(0, 100)}` };
       }
     }
+    case 'tool_used': {
+      const ledger = ctx.ledger;
+      if (!ledger) return { passed: false, detail: 'this room keeps no record of tool use, so this check cannot be met' };
+      const times = c.times ?? 1;
+      const onFile = (e) => !c.artifact || e.artifact === c.artifact;
+      let save = null;
+      if (c.after) {
+        const name = fileOf(c.after);
+        save = saveOf(ctx, name);
+        if (!save) return { passed: false, detail: `no artifact named "${name}" has been saved, so ${c.tool} cannot have been run on a saved version` };
+      }
+      const since = (e) => !save || e.seq > save.seq;
+      const worked = ledger.all('tool', e => e.tool === c.tool && e.ok && onFile(e) && since(e));
+      if (worked.length >= times) return { passed: true, detail: `${c.tool} ran${save ? ` after version ${save.version} of "${save.artifact}"` : ''}` };
+      const failed = ledger.latest('tool', e => e.tool === c.tool && !e.ok && onFile(e) && since(e));
+      const where = `${c.artifact ? ` on "${c.artifact}"` : ''}${save ? ` since "${save.artifact}" was last saved (version ${save.version})` : ''}`;
+      return {
+        passed: false,
+        detail: `${c.tool} has not succeeded${where}${times > 1 ? ` (${worked.length} of ${times})` : ''}${failed ? '; the last attempt failed' : ''}. Run it, look at what it gives, then close`,
+      };
+    }
+    case 'proposal': {
+      const text = artifactText(ctx.artifactStore, c.artifact);
+      if (text === null) return { passed: false, detail: `no artifact named "${c.artifact}" has been saved` };
+      const list = typeof ctx.proposals === 'function' ? await ctx.proposals() : ctx.proposals;
+      if (!Array.isArray(list)) return { passed: false, detail: 'this room has no publish queue, so nothing can be offered from it' };
+      const file = safeName(c.artifact, 'work.txt');
+      const sha = sha256Hex(text);
+      const forFile = list.filter(p => p.kind === 'artifact' && p.filename === file);
+      const current = forFile.filter(p => p.sha256 === sha);
+      const offered = current.find(p => OFFERED.has(p.status));
+      if (offered) return { passed: true, detail: `proposal ${String(offered.id).slice(0, 8)} offers the latest version of "${c.artifact}" (${offered.status})` };
+      if (current.length) return { passed: false, detail: `the latest version of "${c.artifact}" was offered but the proposal is ${current[current.length - 1].status}; revise the work and offer it again (propose_publish)` };
+      return {
+        passed: false,
+        detail: forFile.length
+          ? `${forFile.length} earlier version${forFile.length === 1 ? '' : 's'} of "${c.artifact}" ${forFile.length === 1 ? 'was' : 'were'} offered, not the latest; offer the latest (propose_publish)`
+          : `"${c.artifact}" has not been offered for publication yet (propose_publish)`,
+      };
+    }
+    case 'said_after': {
+      const ledger = ctx.ledger;
+      if (!ledger) return { passed: false, detail: 'this room keeps no record of saves, so this check cannot be met' };
+      const name = fileOf(c.after);
+      const save = saveOf(ctx, name);
+      if (!save) return { passed: false, detail: `no artifact named "${name}" has been saved` };
+      const who = String(c.agent).toLowerCase();
+      const isThem = (m) => { const n = String(m.agentName || '').toLowerCase(); return n === who || n.split(' ')[0] === who; };
+      const minChars = c.minChars ?? 20;
+      // (the message that carried the save sits at index messageCount; "after" starts one past it)
+      const spoke = (ctx.messages || []).slice(save.messageCount + 1).find(m => !m.isUser && !m.isNote && isThem(m) && String(m.content || '').trim().length >= minChars);
+      return spoke
+        ? { passed: true, detail: `${c.agent} spoke after version ${save.version} of "${name}"` }
+        : { passed: false, detail: `${c.agent} has not spoken since "${name}" was last saved (version ${save.version}); the lead may not close until they have reviewed it` };
+    }
     default:
       return { passed: false, detail: `unknown check type "${c.type}"` };
   }
@@ -174,7 +257,8 @@ async function evaluateOne(c, ctx) {
 /**
  * Run every criterion. Never throws: a check that blows up counts as failed, with the reason.
  * @param {object[]} criteria
- * @param {{ messages: object[], artifactStore?: object, fetchText?: Function }} ctx
+ * @param {{ messages: object[], artifactStore?: object, fetchText?: Function, ledger?: import('./roomLedger.js').RoomLedger, proposals?: object[] | (() => object[] | Promise<object[]>) }} ctx
+ *   ledger and proposals are what the room's server saw (see the top of this file); without them the checks that need them cannot pass.
  * @returns {Promise<{ passed: boolean, results: {criterion: object, label: string, passed: boolean, detail: string}[] }>}
  */
 export async function evaluate(criteria, ctx) {
@@ -202,6 +286,9 @@ export function describeResult({ passed, results }, { heading } = {}) {
  *   regex: /FINAL ANSWER/i in last_message           (the "in ..." part is optional: last_message, any_message, artifact:<name>)
  *   json: engine.json {"type":"object","required":["promptTemplate"]}     (engine.json, or "last", then a schema)
  *   url: http://localhost:8000/api/health 200
+ *   tool: render_artifact on engine.json after engine.json x2     (the tool succeeded; "on", "after" and "x<times>" are each optional)
+ *   proposal: engine.json                                         (the latest version of the file has been offered for publication)
+ *   said: Kasia after engine.json                                 (the named agent has spoken since the file was last saved)
  * @returns {{ criteria: object[], errors: string[] }}
  */
 export function parseCriteriaText(text) {
@@ -211,8 +298,8 @@ export function parseCriteriaText(text) {
     const line = raw.trim();
     if (!line || line.startsWith('#')) return;
     const bad = (msg) => errors.push(`line ${i + 1}: ${msg}`);
-    const m = /^(artifact|regex|json|url)\s*:\s*(.*)$/i.exec(line);
-    if (!m) return bad('start with artifact:, regex:, json: or url:');
+    const m = /^(artifact|regex|json|url|tool|proposal|said)\s*:\s*(.*)$/i.exec(line);
+    if (!m) return bad('start with artifact:, regex:, json:, url:, tool:, proposal: or said:');
     const kind = m[1].toLowerCase();
     const rest = m[2].trim();
     if (kind === 'artifact') {
@@ -229,6 +316,17 @@ export function parseCriteriaText(text) {
       let schema;
       try { schema = JSON.parse(r[2]); } catch (e) { return bad(`the schema is not valid JSON (${e.message.slice(0, 60)})`); }
       criteria.push({ type: 'json', in: r[1] === 'last' ? 'last_json' : `artifact:${r[1]}`, schema });
+    } else if (kind === 'tool') {
+      const r = /^([a-z][a-z_]{2,40})(?:\s+on\s+(\S+))?(?:\s+after\s+(\S+))?(?:\s+x(\d{1,2}))?$/i.exec(rest);
+      if (!r) return bad('tool: needs a tool name, then optionally "on <file>", "after <file>" and "x<times>" in that order');
+      criteria.push({ type: 'tool_used', tool: r[1].toLowerCase(), ...(r[2] ? { artifact: r[2] } : {}), ...(r[3] ? { after: `artifact:${r[3]}` } : {}), ...(r[4] ? { times: Number(r[4]) } : {}) });
+    } else if (kind === 'proposal') {
+      if (!rest || /\s/.test(rest)) return bad('proposal: needs one file name');
+      criteria.push({ type: 'proposal', artifact: rest });
+    } else if (kind === 'said') {
+      const r = /^(.+?)\s+after\s+(\S+)$/i.exec(rest);
+      if (!r) return bad('said: needs "<agent name> after <file>"');
+      criteria.push({ type: 'said_after', agent: r[1].trim(), after: `artifact:${r[2]}` });
     } else {
       const r = /^(https?:\/\/\S+)(?:\s+(\d{3}))?$/i.exec(rest);
       if (!r) return bad('url: needs an http(s) address and optionally a status such as 200');
@@ -246,6 +344,9 @@ export function criteriaToText(criteria) {
       case 'regex': return `regex: /${c.pattern}/${c.flags || ''}${c.in ? ` in ${c.in}` : ''}`;
       case 'json': return `json: ${c.in === 'last_json' || !c.in ? 'last' : c.in.replace('artifact:', '')} ${JSON.stringify(c.schema)}`;
       case 'url': return `url: ${c.url}${c.status ? ` ${c.status}` : ''}`;
+      case 'tool_used': return `tool: ${c.tool}${c.artifact ? ` on ${c.artifact}` : ''}${c.after ? ` after ${fileOf(c.after)}` : ''}${c.times > 1 ? ` x${c.times}` : ''}`;
+      case 'proposal': return `proposal: ${c.artifact}`;
+      case 'said_after': return `said: ${c.agent} after ${fileOf(c.after)}`;
       default: return `# ${JSON.stringify(c)}`;
     }
   }).join('\n');
@@ -269,7 +370,21 @@ export function normalizeCriteria(list) {
       keep({ type: 'regex', pattern: c.pattern.slice(0, 500), flags, ...(c.in ? { in: String(c.in) } : {}) });
     } else if (c.type === 'json' && c.schema && typeof c.schema === 'object') keep({ type: 'json', in: String(c.in || 'last_json'), schema: c.schema });
     else if (c.type === 'url' && /^https?:\/\//i.test(c.url || '')) keep({ type: 'url', url: String(c.url).slice(0, 500), ...(c.status ? { status: Number(c.status) } : {}), ...(c.contains ? { contains: String(c.contains).slice(0, 200) } : {}) });
-    else bad(`unrecognised or incomplete check (${JSON.stringify(c).slice(0, 60)})`);
+    else if (c.type === 'tool_used') {
+      if (typeof c.tool !== 'string' || !/^[a-z][a-z_]{2,40}$/.test(c.tool)) return bad('tool_used needs a tool name like "render_artifact"');
+      if (c.after !== undefined && !/^artifact:\S{1,200}$/.test(String(c.after))) return bad('tool_used "after" must look like "artifact:engine.json"');
+      if (c.artifact !== undefined && (typeof c.artifact !== 'string' || !c.artifact || c.artifact.length > 200)) return bad('tool_used "artifact" must be a file name');
+      if (c.times !== undefined && !(Number.isInteger(c.times) && c.times >= 1 && c.times <= 20)) return bad('tool_used "times" must be a whole number from 1 to 20');
+      keep({ type: 'tool_used', tool: c.tool, ...(c.artifact ? { artifact: c.artifact } : {}), ...(c.after ? { after: String(c.after) } : {}), ...(c.times > 1 ? { times: c.times } : {}) });
+    } else if (c.type === 'proposal') {
+      if (typeof c.artifact !== 'string' || !c.artifact || c.artifact.length > 200) return bad('proposal needs the artifact (file) name');
+      keep({ type: 'proposal', artifact: c.artifact });
+    } else if (c.type === 'said_after') {
+      if (typeof c.agent !== 'string' || !c.agent.trim() || c.agent.length > 80) return bad('said_after needs the agent\'s name');
+      if (!/^artifact:\S{1,200}$/.test(String(c.after || ''))) return bad('said_after "after" must look like "artifact:engine.json"');
+      if (c.minChars !== undefined && !(Number.isInteger(c.minChars) && c.minChars >= 1 && c.minChars <= 2000)) return bad('said_after "minChars" must be a whole number from 1 to 2000');
+      keep({ type: 'said_after', agent: c.agent.trim(), after: String(c.after), ...(c.minChars ? { minChars: c.minChars } : {}) });
+    } else bad(`unrecognised or incomplete check (${JSON.stringify(c).slice(0, 60)})`);
   });
   return { criteria, errors };
 }
