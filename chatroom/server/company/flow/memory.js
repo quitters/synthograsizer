@@ -16,6 +16,7 @@
  * It is conservative on purpose: a sentence that is negated, hypothetical or about the future is not a claim. What the record cannot answer is "unchecked".
  */
 import { refreshDepartment } from './admit.js';
+import { chooseKnobs } from './sheet.js';
 
 export const MEMORY_SCHEMA = {
   type: 'object',
@@ -175,6 +176,14 @@ export async function closeOutRoom({ ask, roster, ownerId, company, department, 
       });
     });
     people.push({ employeeId: seat.employeeId, name: seat.name, entries });
+  }
+  // What changes from one session to the next is small: each person's three settings (tempo, candor, push) are drawn again, within the band their casting allows,
+  // so the other phrases the sheet holds for them are used and a person is not the same on every day.
+  for (const seat of seats) {
+    try {
+      const casting = roster.getCandidate(ownerId, seat.candidateId).casting || {};
+      roster.setKnobs(ownerId, seat.employeeId, chooseKnobs(casting, `${seat.employeeId}:${seat.sessions + 1}`));
+    } catch { /* a person who has since left */ }
   }
   refreshDepartment({ roster, ownerId, companyId: company.id, departmentId: department.id, orchestrator });
   return { session: label, record, people, flagged: people.flatMap(p => p.entries.filter(e => e.verified === 'contradicted').map(e => ({ name: p.name, text: e.text, note: e.note }))) };

@@ -22,7 +22,7 @@ const THIRD_PERSON_FIELDS = ['upbringing', 'career', 'touchstones', 'working_sty
 const MOTIF_FIELDS = ['habits', 'touchstones', 'upbringing', 'career', 'voice', 'working_style', 'off_clock'];
 
 // Ordinary words that a lot of sheets share without it meaning anything
-const STOP = new Set(`about above after again against also another because been before being between both could does doing down during each every from have having here into itself just like made make many more most much must never only other over same should since some such than that their them then there these they this those through under until very what when where which while will with without would your yours years year first still often always really
+const STOP = new Set(`parent three design about above after again against also another because been before being between both could does doing down during each every from have having here into itself just like made make many more most much must never only other over same should since some such than that their them then there these they this those through under until very what when where which while will with without would your yours years year first still often always really
 where whose whom whether among along around behind beyond across toward towards within upon onto once even ever else either neither
 impressed impress genuinely genuine simply whisper whispers
 learned taught teaching early family household spent spend spends career team teams worked working work works started start moved move left later eventually finally became become becomes known person people thing things time times day days long short small large little great good well best better
@@ -34,8 +34,8 @@ const tokens = (s) => new Set((String(s).toLowerCase().match(/[a-z]+/g) || []));
 const jaccard = (a, b) => { const A = tokens(a); const B = tokens(b); const i = [...A].filter(x => B.has(x)).length; return i / (A.size + B.size - i || 1); };
 const firstWord = (s) => stem((String(s).match(/^[A-Za-z]+/) || [''])[0]);
 
-/** What the other people on the team have already used: names, habit verbs, signature phrases, the stems of the words their sheets share. */
-export function takenFrom(profiles) {
+/** What the other people on the team have already used: names, habit verbs, signature phrases, the stems of the words their sheets share (`roomMates`: whose words count). */
+export function takenFrom(profiles, { ignore = null, roomMates = null } = {}) {
   const out = { names: [], firstNames: [], habitVerbs: {}, firstHabitVerbs: [], signatures: [], voiceOpeners: [], words: new Map(), touchstones: [] };
   profiles.forEach((p, idx) => {
     const a = p.anchors || {};
@@ -47,16 +47,31 @@ export function takenFrom(profiles) {
     if (a.signature) out.signatures.push(String(a.signature));
     out.voiceOpeners.push(String(a.voice || '').toLowerCase().split(/\s+/).slice(0, 2).join(' '));
     out.touchstones.push(...String(a.touchstones || '').split(/;\s*/).filter(Boolean));
-    for (const w of sheetWords(a)) { if (!out.words.has(w)) out.words.set(w, new Set()); out.words.get(w).add(idx); }
+  });
+  // Names, signature phrases and habit verbs must be different across the whole company. Words are held to the people in the same room: with a dozen sheets in the
+  // company, a plain word turns up in three of them by chance, and what a room would hear as the writer repeating itself is the people it talks to.
+  (roomMates || profiles).forEach((p, idx) => {
+    for (const w of sheetWords(p.anchors || {}, ignore)) { if (!out.words.has(w)) out.words.set(w, new Set()); out.words.get(w).add(idx); }
   });
   return out;
 }
 
 /** The stems of the uncommon words in a sheet's habits, touchstones, upbringing, career, voice, working style and off-the-clock section (not the person's own name). */
-export function sheetWords(anchors) {
+export function sheetWords(anchors, ignore = null) {
   const own = new Set(String(anchors.agent_name || '').toLowerCase().split(/\W+/).map(stem));
   const set = new Set();
-  for (const k of MOTIF_FIELDS) for (const w of String(anchors[k] || '').toLowerCase().match(/[a-z][a-z'-]{4,}/g) || []) if (!STOP.has(w) && !STOP.has(stem(w)) && !own.has(stem(w))) set.add(stem(w));
+  for (const k of MOTIF_FIELDS) for (const w of String(anchors[k] || '').toLowerCase().match(/[a-z][a-z'-]{4,}/g) || []) if (!STOP.has(w) && !STOP.has(stem(w)) && !own.has(stem(w)) && !(ignore && ignore.has(stem(w)))) set.add(stem(w));
+  return set;
+}
+
+/**
+ * The words of the place a person works (the company's name and purpose, the room's name and purpose): everyone's sheet is written for the same place, so
+ * everyone's sheet will use them, and that is not a motif to avoid.
+ * @returns {Set<string>} their stems
+ */
+export function contextWords(...texts) {
+  const set = new Set();
+  for (const t of texts) for (const w of String(t || '').toLowerCase().match(/[a-z][a-z'-]{3,}/g) || []) set.add(stem(w));
   return set;
 }
 
@@ -66,7 +81,7 @@ export const EMPTY_TAKEN = Object.freeze(takenFrom([]));
  * @param {{ profile: object, casting: object, taken?: ReturnType<typeof takenFrom>, year?: number }} input
  * @returns {{ bio: string, problems: string[], notes: string[] }}
  */
-export function lintSheet({ profile, casting, taken = EMPTY_TAKEN, year = new Date().getFullYear() }) {
+export function lintSheet({ profile, casting, taken = EMPTY_TAKEN, year = new Date().getFullYear(), ignore = null }) {
   const problems = [];
   const notes = [];
   const a = profile.anchors;
@@ -138,7 +153,7 @@ export function lintSheet({ profile, casting, taken = EMPTY_TAKEN, year = new Da
   if (/^[^.]{0,80}\bshort\b/i.test(String(a.voice || ''))) notes.push('the voice is described as "short"');
 
   // Words three people would share
-  const shared = [...sheetWords(a)].filter(w => (taken.words.get(w)?.size || 0) >= 2);
+  const shared = [...sheetWords(a, ignore)].filter(w => (taken.words.get(w)?.size || 0) >= 2);
   if (shared.length >= 3) problems.push(`words that two or more teammates' sheets already use: ${shared.slice(0, 6).join(', ')}; find your own`);
   else if (shared.length) notes.push(`words shared with two or more teammates: ${shared.join(', ')}`);
 

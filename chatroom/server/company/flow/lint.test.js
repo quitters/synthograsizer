@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { lintSheet, takenFrom, sheetWords, EMPTY_TAKEN } from './lint.js';
+import { lintSheet, takenFrom, sheetWords, contextWords, EMPTY_TAKEN } from './lint.js';
 import { assembleProfile, BIO_TEMPLATE, bornLine, chooseKnobs } from './sheet.js';
 import { fakeSheet, fakeSeed, castFor } from './flowKit.js';
 
@@ -133,4 +133,28 @@ test('what a team has used is read from the sheets: stems of the uncommon words,
   for (const w of String(p.anchors.agent_name).toLowerCase().split(/\W+/)) assert.ok(!words.has(w), w);
   assert.ok([...words].every(w => !['years', 'person', 'people', 'family'].includes(w)));
   assert.equal(EMPTY_TAKEN.names.length, 0);
+});
+
+test('the words of the place everyone works in are not a motif to avoid: a company called "Sunken Spire" does not make "sunken" and "spire" a repeated word', () => {
+  const sheet = { career: 'Spent years at the Sunken Spire archive, where the sunken stairs and the spire keys were their whole world and design was the daily business.' };
+  const crowd = (opts) => takenFrom([make({ i: 0, cast: castFor(0), sheet }), make({ i: 0, cast: castFor(1), seed: { name: 'Zed Twin' }, sheet }), make({ i: 0, cast: castFor(3), seed: { name: 'Yan Twin' }, sheet })], opts);
+  const mine = make({ i: 0, cast: castFor(0), seed: { name: 'Quin Third' }, sheet });
+  assert.ok(has(lint(mine, { taken: crowd() }), /words that two or more teammates' sheets already use/), 'without the context they are flagged');
+  const ignore = contextWords('Sunken Spire Studios', 'Designs prompt engines for artists.', 'Concept Desk', '');
+  assert.ok(ignore.has('sunken') && ignore.has('spire') && ignore.has('design') && ignore.has('studio'));
+  const res = lint(mine, { taken: crowd({ ignore }), ignore });
+  assert.ok(!has(res, /sunken|spire|design/), `the place's own words are fine: ${res.problems.join('; ')}`);
+});
+
+test('names and phrases are held against the whole company, repeated words against the people in the same room', () => {
+  const everyone = [make({ i: 0, cast: castFor(0) }), make({ i: 0, cast: castFor(1), seed: { name: 'Zed Twin' } }), make({ i: 0, cast: castFor(3), seed: { name: 'Yan Twin' } })];
+  const mine = make({ i: 0, cast: castFor(0), seed: { name: 'Quin Third' } });
+  const wholeCompany = takenFrom(everyone);
+  assert.ok(has(lint(mine, { taken: wholeCompany }), /words that two or more teammates' sheets already use/), 'three people in the room share these words');
+  const otherRoom = takenFrom(everyone, { roomMates: [everyone[0]] });
+  assert.ok(!has(lint(mine, { taken: otherRoom }), /words that two or more teammates/), 'only one of them is in this room');
+  assert.deepEqual(otherRoom.names, ['mara quill', 'zed twin', 'yan twin'], 'but a name is taken company-wide');
+  assert.equal(otherRoom.signatures.length, 3);
+  const nameClash = lint(make({ i: 5, seed: { name: 'Yan Twin' } }), { taken: otherRoom });
+  assert.ok(has(nameClash, /the name is already a teammate's/), 'a name in another room is still a clash');
 });

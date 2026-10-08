@@ -16,7 +16,7 @@
 import { MODELS } from '../../config/models.js';
 import { archetype as getArchetype } from './archetypes.js';
 import { SEED_SCHEMA, SHEET_SCHEMA, assembleProfile, bornLine } from './sheet.js';
-import { lintSheet, takenFrom } from './lint.js';
+import { lintSheet, takenFrom, contextWords } from './lint.js';
 import { blindReview, adviceFrom, hardFindings, admissionScreen } from './review.js';
 
 export const MAX_SHEET_ATTEMPTS = 3;          // the first, and up to two regenerations
@@ -133,7 +133,8 @@ export async function writeSeed({ ask, model = MODELS.FAST, ...ctx }) {
  * @param {{ id: string }} input.id  the profile id to give
  * @param {{ name: string, purpose?: string }} input.company
  * @param {{ name: string, purpose?: string }} input.department
- * @param {object[]} [input.others]  profiles already written for this team, so this one is different
+ * @param {object[]} [input.others]  profiles already written for this company, so this one is different (names, phrases, habits)
+ * @param {object[]} [input.roomMates]  those of them in the same room: the words the writer repeats are counted against these (default: all of them)
  * @param {{ text: string }[]} [input.lessons]
  * @param {object} [input.seed]  a seed the owner has already chosen or edited (not rewritten)
  * @param {import('../screen.js').Screen} [input.screen]
@@ -141,9 +142,11 @@ export async function writeSeed({ ask, model = MODELS.FAST, ...ctx }) {
  * @param {number} [input.year]
  * @returns {Promise<{ profile: object, bio: string, status: 'ready'|'draft', seed: object, checks: object }>}
  */
-export async function writePerson({ ask, casting, id, company, department, others = [], lessons = [], seed: given = null, screen = null, mandate = null, year = new Date().getFullYear(), models = {}, review = true, avoidNames = [] }) {
+export async function writePerson({ ask, casting, id, company, department, others = [], roomMates = null, lessons = [], seed: given = null, screen = null, mandate = null, year = new Date().getFullYear(), models = {}, review = true, avoidNames = [] }) {
   const sheetModel = models.sheet || MODELS.SMART;
-  const taken = takenFrom(others);
+  // (the words of the place they all work in are not a motif to avoid)
+  const ignore = contextWords(company.name, company.purpose, department.name, department.purpose);
+  const taken = takenFrom(others, { ignore, roomMates });
   // names already in the roster are as taken as a teammate's: the seed is told, and the check holds the sheet to it
   for (const n of avoidNames) { const k = String(n).toLowerCase(); if (k && !taken.names.includes(k)) taken.names.push(k); }
   const team = others.map(p => `${p.name}: ${p.anchors?.role || ''}; ${p.anchors?.born || ''}`);
@@ -166,7 +169,7 @@ export async function writePerson({ ask, casting, id, company, department, other
         prompt: sheetPrompt({ ...ctx, seed, year, problems: [...carried, ...problems] }),
       });
       profile = assembleProfile({ id, casting, seed, sheet, writtenBy: sheetModel });
-      lint = lintSheet({ profile, casting, taken, year });
+      lint = lintSheet({ profile, casting, taken, year, ignore });
       problems = lint.problems;
       if (!problems.length) break;
       // a name that is a teammate's (or is in the roster already) is the seed's fault, not the sheet's: the sheet cannot fix it, so choose the name again

@@ -4,6 +4,18 @@ All notable changes to the Agent Chat Room project are documented in this file.
 
 ## [Unreleased]
 
+### Added: the creation flow, the roster, the Hall and the owner's console
+- **A company from one prompt** (`server/company/flow/`, `/api/company/flow`, [COMPANY_CREATION_FLOW.md](../docs/COMPANY_CREATION_FLOW.md)). Propose (a cent or two; creates nothing), edit, cast (writes the people; the money goes here, capped), create (all or nothing; the company is paused). Anything the owner fixes is theirs
+  and no later step changes it; every field of a proposal says whether it is the owner's, the model's or a default. Code decides the shape (size, one lead and a reviewer a room, someone who can save files in each room that makes one) and the model writes the words.
+- **Casting by code**: eleven archetypes, attribute tables, org layouts by size and a seeded sampler scored against the diversity targets; the writer pipeline (seed, sheet, code checks with up to two regenerations, a blind review that is advice, the company's own screen, a quiz that detects drift); lessons kept per archetype.
+- **The roster** (`company.sqlite`, `node:sqlite`; Node 22.12 needs `--experimental-sqlite`, 22.13+ does not; absent, rooms work as before): candidates, the employees they become at a company (one memory each, none shared across companies), seats in rooms.
+- **The Hall**: a mailbox for each person, forums, a shared workspace, a task board with task teams, working agreements the owner approves. Everything the people write to each other reaches a model fenced, labelled as information, and is read by the screen before it is written; the owner reads all of it.
+- **Rooms start with a brief that is assembled, not trimmed** (the fixed parts, including the shape of the file, are never cut), with done-when checks the server runs (a tool used after the last save, a proposal made, the reviewer heard) and review hand-offs. Rooms that build on another room's file meet in the workspace and wait for it.
+- **Memory** written by each person after a session, record first and then checked against what the server saw; a claim the record contradicts is kept, flagged and not handed back.
+- **The owner's console** at `/company`: describe, edit, cast, create, go, start, close out, approve, read the Hall and the record, browse the roster. It can only put text on the page, under a policy that lets no other script run.
+- New done-when checks `tool_used`, `proposal`, `said_after`; a new proposal of a file supersedes the earlier waiting ones; company house rules; `renderBio` is one pure module shared by the Composer, scripts and the server.
+- Operator settings: `COMPANY_FLOW`, `COMPANY_FLOW_MAX_PEOPLE`, `COMPANY_FLOW_MAX_SPEND_USD`, `COMPANY_HALL`, `COMPANY_MAX_MESSAGES`, `COMPANY_MAX_WORKSPACE_WRITES`.
+
 ### Added: agent companies, the safety layer
 - **`server/company/` and `/api/company`.** A company is a set of department rooms under one policy: a humanist mission, six hard limits, a mandate with two stages (drafting permissive, publishing stricter), caps, least-privilege tools,
   an independent screen, and a publish queue that needs the owner. Created paused. Design, defences and red-team results: `docs/COMPANY_SAFETY_LAYER.md`; compliance row R7.

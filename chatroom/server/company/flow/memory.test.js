@@ -151,3 +151,38 @@ test('closing out a session: each person who spoke writes their memory, it is ch
   assert.ok(orchestrator.agents[0].bio.includes('Close only with pictures.'));
   roster.close();
 });
+
+test('closing out draws each person\'s three settings again for the next session, within the band their casting allows, the same way every time', { skip }, async () => {
+  const roster = RosterStore.open({ file: ':memory:' });
+  const ownerId = newId();
+  const company = { id: newId() };
+  const department = { id: 'abcd1234' };
+  const names = ['Rima Haddad-Boudreau', 'Kasia Wójcik-Lindqvist'];
+  const dissent = { 'Rima Haddad-Boudreau': 'low', 'Kasia Wójcik-Lindqvist': 'high' };
+  for (const name of names) {
+    const c = roster.addCandidate(ownerId, { profile: { id: `p_${name}`, name, bioTemplate: '{{agent_name}}, a person.', variables: [], anchors: { agent_name: name }, tags: [] }, casting: { dissent: dissent[name] }, archetype: 'steward', role: 'x', status: 'ready' });
+    roster.hire(ownerId, { companyId: company.id, departmentId: department.id, candidateId: c.id, position: 'x', knobs: { tempo: 0, candor: 0, push: 0 } });
+  }
+  const orchestrator = new ChatOrchestrator({ mediaStore: new MediaStore(), artifactStore: new ArtifactStore() });
+  orchestrator.delay = () => Promise.resolve();
+  orchestrator.broadcast = () => {};
+  admitDepartment({ roster, ownerId, companyId: company.id, departmentId: department.id, orchestrator });
+  orchestrator.messages.push({ id: '1', agentId: orchestrator.agents[0].id, agentName: orchestrator.agents[0].name, content: 'Hello.', isUser: false });
+  const ask = async () => ({ summary: 'We began.', lesson: '', relationships: [] });
+  const bands = { low: { candor: [0, 1], push: [0, 2], tempo: [0, 2] }, high: { candor: [2, 3], push: [2, 3], tempo: [1, 2] } };
+  const before = roster.employeesOf(ownerId, company.id).map(e => e.knobs);
+  assert.deepEqual(before, [{ tempo: 0, candor: 0, push: 0 }, { tempo: 0, candor: 0, push: 0 }]);
+  await closeOutRoom({ ask, roster, ownerId, company, department, orchestrator });
+  const after = roster.employeesOf(ownerId, company.id);
+  for (const e of after) {
+    const band = bands[dissent[e.name]];
+    for (const [k, [lo, hi]] of Object.entries(band)) assert.ok(e.knobs[k] >= lo && e.knobs[k] <= hi, `${e.name} ${k}=${e.knobs[k]} is inside ${lo}-${hi}`);
+  }
+  assert.ok(after[1].knobs.candor >= 2, 'a person cast to disagree is not drawn gentle');
+  // and the next session's draw is inside the band too
+  await closeOutRoom({ ask, roster, ownerId, company, department, orchestrator });
+  for (const e of roster.employeesOf(ownerId, company.id)) {
+    for (const [k, [lo, hi]] of Object.entries(bands[dissent[e.name]])) assert.ok(e.knobs[k] >= lo && e.knobs[k] <= hi, `${e.name} ${k}=${e.knobs[k]} (second session)`);
+  }
+  roster.close();
+});

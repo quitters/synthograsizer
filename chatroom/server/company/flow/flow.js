@@ -335,7 +335,7 @@ export class FlowService {
     const roomOf = (key) => plan.departments.find(d => d.key === positions.find(p => p.key === key).deptKey);
     Object.assign(ctx, {
       roster, year: this.now().getFullYear(), mandate: this._mandate(plan), company: { name: plan.company.name, purpose: plan.company.purpose },
-      stop: () => job.cancel, consecutive: 0, rows: {}, profiles: [],
+      stop: () => job.cancel, consecutive: 0, rows: {}, profiles: [], byRoom: new Map(),
     });
 
     // 1. Who is in place already (an earlier run, or an earlier edit): still in the roster, still ready, and read by the screen under the mandate as it is now
@@ -393,7 +393,7 @@ export class FlowService {
     // What is placed counts toward the diversity of the whole, and the new people are told about them so they come out different
     for (const [key, c] of inPlace) {
       ctx.rows[key] = { ...c.casting, department: roomOf(key).name, measuredType: c.measuredType, intendedType: c.intendedType || c.casting?.intendedType };
-      if (c.profile) ctx.profiles.push(c.profile);
+      if (c.profile) { ctx.profiles.push(c.profile); (ctx.byRoom.get(roomOf(key).key) || ctx.byRoom.set(roomOf(key).key, []).get(roomOf(key).key)).push(c.profile); }
     }
 
     // 4. The rest are drawn and written
@@ -473,7 +473,7 @@ export class FlowService {
       try {
         out = await writePerson({
           ask, casting, id: `${position.key}-${flow.id.slice(0, 6)}-${entry.tries}`, company: ctx.company, department: { name: room.name, purpose: room.purpose },
-          others: [...ctx.profiles], lessons: roster.lessonsFor(ownerId, casting.archetype), screen: this.screen, mandate: ctx.mandate, year: ctx.year, avoidNames: ctx.avoid,
+          others: [...ctx.profiles], roomMates: [...(ctx.byRoom.get(position.deptKey) || [])], lessons: roster.lessonsFor(ownerId, casting.archetype), screen: this.screen, mandate: ctx.mandate, year: ctx.year, avoidNames: ctx.avoid,
         });
       } catch (err) {
         if (err.code === 'model_refused') {
@@ -512,6 +512,8 @@ export class FlowService {
       ctx.avoid.push(out.profile.name);                                  // (a draft keeps its name in the roster too)
       if (out.status === 'ready') {                                      // only people who will be hired are teammates, counted and compared against
         ctx.profiles.push(out.profile);
+        if (!ctx.byRoom.has(position.deptKey)) ctx.byRoom.set(position.deptKey, []);
+        ctx.byRoom.get(position.deptKey).push(out.profile);
         ctx.rows[position.key] = { ...casting, department: room.name, measuredType: quiz?.type || null };
         Object.assign(entry, this._entry(candidate, position, 'new'), { tries: entry.tries, error: undefined });
         delete entry.error;
