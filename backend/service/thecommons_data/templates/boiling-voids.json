@@ -1,0 +1,164 @@
+{
+  "promptTemplate": "A high-contrast cellular mass with {{nucleation_rate}} and {{growth_velocity}}, popping at {{burst_threshold}} amid a {{vortex_torque}} rendered as {{render_viscosity}}.",
+  "variables": [
+    {
+      "name": "nucleation_rate",
+      "feature_name": "Spawn Rate",
+      "values": [
+        {
+          "text": "Sparse trickle",
+          "weight": 3
+        },
+        {
+          "text": "Steady bubbling",
+          "weight": 3
+        },
+        {
+          "text": "Dense churn",
+          "weight": 3
+        },
+        {
+          "text": "Furious boiling",
+          "weight": 2
+        },
+        {
+          "text": "Hyperactive swarm",
+          "weight": 1
+        },
+        {
+          "text": "Rupturing flood",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "growth_velocity",
+      "feature_name": "Expansion",
+      "values": [
+        {
+          "text": "Glacial crawl",
+          "weight": 3
+        },
+        {
+          "text": "Organic pulse",
+          "weight": 3
+        },
+        {
+          "text": "Brisk swelling",
+          "weight": 3
+        },
+        {
+          "text": "Volatile surge",
+          "weight": 2
+        },
+        {
+          "text": "Explosive frenzy",
+          "weight": 1
+        },
+        {
+          "text": "Instantaneous blast",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "burst_threshold",
+      "feature_name": "Pop Scale",
+      "values": [
+        {
+          "text": "Microscopic speckles",
+          "weight": 3
+        },
+        {
+          "text": "Pebble fractures",
+          "weight": 3
+        },
+        {
+          "text": "Chamber ruptures",
+          "weight": 3
+        },
+        {
+          "text": "Giant cauldrons",
+          "weight": 2
+        },
+        {
+          "text": "Monolithic voids",
+          "weight": 1
+        },
+        {
+          "text": "Cataclysmic collapse",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "vortex_torque",
+      "feature_name": "Pim's Whirlpool",
+      "values": [
+        {
+          "text": "Zero drift",
+          "weight": 3
+        },
+        {
+          "text": "Subtle eddy",
+          "weight": 3
+        },
+        {
+          "text": "Winding spiral",
+          "weight": 3
+        },
+        {
+          "text": "Torqued gyre",
+          "weight": 2
+        },
+        {
+          "text": "Furious maelstrom",
+          "weight": 1
+        },
+        {
+          "text": "Tearing cyclone",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "render_viscosity",
+      "feature_name": "Visual Style",
+      "values": [
+        {
+          "text": "High contrast monochrome",
+          "weight": 3
+        },
+        {
+          "text": "Inverted stark voids",
+          "weight": 3
+        },
+        {
+          "text": "Bioluminescent rims",
+          "weight": 3
+        },
+        {
+          "text": "Deep chromatic halos",
+          "weight": 2
+        },
+        {
+          "text": "X-ray radiogram",
+          "weight": 1
+        },
+        {
+          "text": "Molten thermals",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "p5Code": "const NUCLEATION = { \"Sparse trickle\": 3, \"Steady bubbling\": 6, \"Dense churn\": 12, \"Furious boiling\": 20, \"Hyperactive swarm\": 35, \"Rupturing flood\": 50 };\nconst GROWTH = { \"Glacial crawl\": 0.2, \"Organic pulse\": 0.5, \"Brisk swelling\": 1.0, \"Volatile surge\": 1.8, \"Explosive frenzy\": 3.0, \"Instantaneous blast\": 5.0 };\nconst THRESHOLD = { \"Microscopic speckles\": 60, \"Pebble fractures\": 85, \"Chamber ruptures\": 110, \"Giant cauldrons\": 150, \"Monolithic voids\": 210, \"Cataclysmic collapse\": 290 };\nconst VORTEX = { \"Zero drift\": 0, \"Subtle eddy\": 0.002, \"Winding spiral\": 0.006, \"Torqued gyre\": 0.015, \"Furious maelstrom\": 0.03, \"Tearing cyclone\": 0.06 };\nconst STYLES = {\n    \"High contrast monochrome\": { bg: [20], fill: [240, 240, 240, 255], stroke: [20, 20, 20, 255], weight: 2 },\n    \"Inverted stark voids\": { bg: [240], fill: [20, 20, 20, 255], stroke: [240, 240, 240, 255], weight: 2 },\n    \"Bioluminescent rims\": { bg: [5, 10, 15], fill: [0, 50, 40, 150], stroke: [0, 255, 200, 255], weight: 3 },\n    \"Deep chromatic halos\": { bg: [10, 5, 30], fill: [255, 50, 150, 100], stroke: [50, 200, 255, 255], weight: 2 },\n    \"X-ray radiogram\": { bg: [0], fill: [50, 70, 100, 80], stroke: [200, 220, 255, 255], weight: 2 },\n    \"Molten thermals\": { bg: [30, 0, 0], fill: [200, 50, 0, 200], stroke: [255, 200, 0, 255], weight: 2 }\n};\n\nlet bubbles = [];\nlet gridSize = 60;\nlet cols, rows;\n\np.setup = function() {\n    p.createCanvas(800, 800);\n    cols = Math.ceil(p.width / gridSize);\n    rows = Math.ceil(p.height / gridSize);\n    p.noStroke();\n    \n    for (let i = 0; i < 120; i++) {\n        bubbles.push({\n            x: p.random(p.width),\n            y: p.random(p.height),\n            r: p.random(15, 35),\n            vx: 0,\n            vy: 0,\n            gridX: 0,\n            gridY: 0\n        });\n    }\n};\n\np.draw = function() {\n    const nuc = p.getSynthVar('nucleation_rate') || 'Steady bubbling';\n    const gro = p.getSynthVar('growth_velocity') || 'Brisk swelling';\n    const thr = p.getSynthVar('burst_threshold') || 'Chamber ruptures';\n    const vor = p.getSynthVar('vortex_torque') || 'Winding spiral';\n    const ren = p.getSynthVar('render_viscosity') || 'Inverted stark voids';\n\n    const spawnCount = NUCLEATION[nuc];\n    const growthRate = GROWTH[gro];\n    const maxRadius = THRESHOLD[thr];\n    const torque = VORTEX[vor];\n    const style = STYLES[ren];\n\n    let grid = new Array(cols * rows).fill(null).map(() => []);\n\n    for (let i = bubbles.length - 1; i >= 0; i--) {\n        let b = bubbles[i];\n        b.r += growthRate;\n        \n        if (b.r > maxRadius) {\n            bubbles.splice(i, 1);\n            continue;\n        }\n\n        b.x += b.vx;\n        b.y += b.vy;\n        b.vx *= 0.85;\n        b.vy *= 0.85;\n        \n        if (torque > 0) {\n            let dx = b.x - p.width / 2;\n            let dy = b.y - p.height / 2;\n            b.vx -= dy * torque;\n            b.vy += dx * torque;\n        }\n\n        if (b.x < 0) { b.x = 0; b.vx *= -0.5; }\n        if (b.x > p.width) { b.x = p.width; b.vx *= -0.5; }\n        if (b.y < 0) { b.y = 0; b.vy *= -0.5; }\n        if (b.y > p.height) { b.y = p.height; b.vy *= -0.5; }\n\n        let cx = Math.floor(b.x / gridSize);\n        let cy = Math.floor(b.y / gridSize);\n        if (cx >= 0 && cx < cols && cy >= 0 && cy < rows) {\n            grid[cx + cy * cols].push(b);\n            b.gridX = cx;\n            b.gridY = cy;\n        }\n    }\n\n    for (let i = 0; i < bubbles.length; i++) {\n        let b = bubbles[i];\n        for (let ox = -1; ox <= 1; ox++) {\n            for (let oy = -1; oy <= 1; oy++) {\n                let nx = b.gridX + ox;\n                let ny = b.gridY + oy;\n                if (nx >= 0 && nx < cols && ny >= 0 && ny < rows) {\n                    let cell = grid[nx + ny * cols];\n                    for (let j = 0; j < cell.length; j++) {\n                        let other = cell[j];\n                        if (other !== b) {\n                            let dx = b.x - other.x;\n                            let dy = b.y - other.y;\n                            let distSq = dx * dx + dy * dy;\n                            let minDist = b.r + other.r;\n                            if (distSq < minDist * minDist && distSq > 0) {\n                                let dist = Math.sqrt(distSq);\n                                let overlap = (minDist - dist) * 0.5;\n                                let fx = (dx / dist) * overlap * 0.5;\n                                let fy = (dy / dist) * overlap * 0.5;\n                                b.vx += fx;\n                                b.vy += fy;\n                            }\n                        }\n                    }\n                }\n            }\n        }\n    }\n\n    let requiredSpawns = Math.max(spawnCount, 60 - bubbles.length);\n    for (let i = 0; i < requiredSpawns; i++) {\n        if (bubbles.length < 180) {\n            bubbles.push({\n                x: p.random(p.width),\n                y: p.random(p.height),\n                r: p.random(15, 35),\n                vx: 0,\n                vy: 0,\n                gridX: 0,\n                gridY: 0\n            });\n        }\n    }\n\n    p.drawingContext.globalCompositeOperation = 'source-over';\n    p.background(...style.bg);\n    \n    p.fill(...style.fill);\n    p.stroke(...style.stroke);\n    p.strokeWeight(style.weight);\n    \n    p.drawingContext.beginPath();\n    for (let i = 0; i < bubbles.length; i++) {\n        let b = bubbles[i];\n        p.drawingContext.moveTo(b.x + b.r, b.y);\n        p.drawingContext.arc(b.x, b.y, b.r, 0, Math.PI * 2);\n    }\n    p.drawingContext.fill();\n    p.drawingContext.stroke();\n};\n",
+  "tags": [
+    {
+      "id": "tag_boiling_voids_01",
+      "type": "custom",
+      "label": "Designed and written by an agent swarm",
+      "description": "Concept, variables and code written by a crew of agents in the Agent Studio chat room (pressure-foam-packing) and played by the harness before it was accepted. Teamcrafter residency, 2026-10-08."
+    }
+  ]
+}

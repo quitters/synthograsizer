@@ -1,0 +1,168 @@
+{
+  "promptTemplate": "A {{sun_trajectory}} sun casts light through a {{canopy_density}} of {{geometry_style}} with {{beam_scatter}} in a {{atmosphere_palette}}.",
+  "variables": [
+    {
+      "name": "sun_trajectory",
+      "feature_name": "Sun Trajectory",
+      "values": [
+        {
+          "text": "slow circular orbit",
+          "weight": 3
+        },
+        {
+          "text": "wide oval sweep",
+          "weight": 3
+        },
+        {
+          "text": "pendulum sway",
+          "weight": 2
+        },
+        {
+          "text": "figure eight loop",
+          "weight": 2
+        },
+        {
+          "text": "lissajous knot",
+          "weight": 2
+        },
+        {
+          "text": "hyperbolic drift",
+          "weight": 1
+        },
+        {
+          "text": "erratic quantum hop",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "canopy_density",
+      "feature_name": "Canopy Density",
+      "values": [
+        {
+          "text": "sparse pillars",
+          "weight": 3
+        },
+        {
+          "text": "scattered monoliths",
+          "weight": 3
+        },
+        {
+          "text": "interlocking lattices",
+          "weight": 2
+        },
+        {
+          "text": "nested polyhedra",
+          "weight": 2
+        },
+        {
+          "text": "dense brutalist forest",
+          "weight": 2
+        },
+        {
+          "text": "labyrinthine maze",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "geometry_style",
+      "feature_name": "Geometry Style",
+      "values": [
+        {
+          "text": "rounded monoliths",
+          "weight": 3
+        },
+        {
+          "text": "chiseled prisms",
+          "weight": 3
+        },
+        {
+          "text": "faceted crystals",
+          "weight": 2
+        },
+        {
+          "text": "slender needle spires",
+          "weight": 2
+        },
+        {
+          "text": "segmented rings",
+          "weight": 2
+        },
+        {
+          "text": "fractured polyhedra",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "beam_scatter",
+      "feature_name": "Beam Scatter",
+      "values": [
+        {
+          "text": "clean sharp shafts",
+          "weight": 3
+        },
+        {
+          "text": "soft diffused glow",
+          "weight": 3
+        },
+        {
+          "text": "luminous mist",
+          "weight": 2
+        },
+        {
+          "text": "drifting amber embers",
+          "weight": 2
+        },
+        {
+          "text": "swirling ash cloud",
+          "weight": 2
+        },
+        {
+          "text": "blinding radiant flare",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "atmosphere_palette",
+      "feature_name": "Atmosphere Palette",
+      "values": [
+        {
+          "text": "dawn silver mist",
+          "weight": 3
+        },
+        {
+          "text": "cathedral amber gold",
+          "weight": 3
+        },
+        {
+          "text": "incandescent solar white",
+          "weight": 2
+        },
+        {
+          "text": "twilight amethyst violet",
+          "weight": 2
+        },
+        {
+          "text": "dusk copper crimson",
+          "weight": 2
+        },
+        {
+          "text": "deep obsidian emerald",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "p5Code": "const trajectoryMap = {\n    \"slow circular orbit\": 0, \"wide oval sweep\": 1, \"pendulum sway\": 2,\n    \"figure eight loop\": 3, \"lissajous knot\": 4, \"hyperbolic drift\": 5, \"erratic quantum hop\": 6\n};\nconst densityMap = {\n    \"sparse pillars\": 8, \"scattered monoliths\": 14, \"interlocking lattices\": 22,\n    \"nested polyhedra\": 30, \"dense brutalist forest\": 40, \"labyrinthine maze\": 55\n};\nconst styleMap = {\n    \"rounded monoliths\": 0, \"chiseled prisms\": 1, \"faceted crystals\": 2,\n    \"slender needle spires\": 3, \"segmented rings\": 4, \"fractured polyhedra\": 5\n};\nconst scatterMap = {\n    \"clean sharp shafts\": 0, \"soft diffused glow\": 1, \"luminous mist\": 2,\n    \"drifting amber embers\": 3, \"swirling ash cloud\": 4, \"blinding radiant flare\": 5\n};\nconst paletteMap = {\n    \"dawn silver mist\": {c: [200, 220, 255], a: 0.85},\n    \"cathedral amber gold\": {c: [255, 180, 50], a: 0.95},\n    \"incandescent solar white\": {c: [255, 255, 255], a: 1.0},\n    \"twilight amethyst violet\": {c: [180, 100, 255], a: 0.9},\n    \"dusk copper crimson\": {c: [255, 70, 25], a: 0.95},\n    \"deep obsidian emerald\": {c: [50, 255, 120], a: 0.8}\n};\n\nlet prevDensity = null;\nlet prevStyle = null;\n\nlet shapes = [];\nlet particles = [];\nlet lightLayer;\nlet errX = 400, errY = 400;\n\np.setup = function() {\n    p.createCanvas(800, 800);\n    p.noStroke();\n    lightLayer = p.createGraphics(400, 400);\n    lightLayer.noStroke();\n    for(let i=0; i<100; i++) particles.push({x:0, y:0, vx:0, vy:0, life:0, maxLife:1});\n};\n\nfunction buildShapes(dStr, sStr) {\n    let count = densityMap[dStr];\n    let style = styleMap[sStr];\n    shapes = [];\n    p.randomSeed(42); \n    \n    let targetArea = 180000 / count;\n    let baseR = Math.sqrt(targetArea / Math.PI);\n    \n    for(let i=0; i<count; i++) {\n        let cx = p.random(50, 750);\n        let cy = p.random(50, 750);\n        let r = p.random(0.7, 1.3) * baseR;\n        let poly = [];\n        let sides = 3;\n\n        if (style === 0) sides = 12; \n        else if (style === 1) sides = 3; \n        else if (style === 2) sides = 6; \n        else if (style === 3) { sides = 4; r *= 0.6; } \n        else if (style === 4) sides = 10; \n        else if (style === 5) sides = p.floor(p.random(5, 8));\n\n        let rot = p.random(p.TWO_PI);\n        for(let j=0; j<sides; j++) {\n            let ang = rot + j * p.TWO_PI / sides;\n            let rad = r;\n            if (style === 5) rad *= p.random(0.6, 1.4);\n            if (style === 3 && (j===0 || j===2)) rad *= 3.5; \n            if (style === 4 && j%2===0) rad *= 0.5; \n            poly.push({x: cx + p.cos(ang)*rad, y: cy + p.sin(ang)*rad});\n        }\n        shapes.push({poly: poly, cx: cx, cy: cy, rotDir: p.random(-0.015, 0.015)});\n    }\n}\n\np.draw = function() {\n    let trajStr = p.getSynthVar(\"sun_trajectory\") || \"slow circular orbit\";\n    let dStr = p.getSynthVar(\"canopy_density\") || \"sparse pillars\";\n    let sStr = p.getSynthVar(\"geometry_style\") || \"rounded monoliths\";\n    let scStr = p.getSynthVar(\"beam_scatter\") || \"clean sharp shafts\";\n    let palStr = p.getSynthVar(\"atmosphere_palette\") || \"dawn silver mist\";\n\n    if (dStr !== prevDensity || sStr !== prevStyle) {\n        buildShapes(dStr, sStr);\n        prevDensity = dStr; prevStyle = sStr;\n    }\n\n    let t = p.frameCount * 0.01;\n    let sunX = 400, sunY = 400;\n    let traj = trajectoryMap[trajStr];\n    \n    if (traj === 0) { sunX += 300*p.cos(t); sunY += 300*p.sin(t); }\n    else if (traj === 1) { sunX += 350*p.cos(t); sunY += 150*p.sin(t); }\n    else if (traj === 2) { sunX += 250*p.cos(t); sunY += -200 + 150*p.sin(t*2); }\n    else if (traj === 3) { sunX += 300*p.sin(t); sunY += 200*p.sin(t*2); }\n    else if (traj === 4) { sunX += 300*p.sin(3*t*0.5); sunY += 300*p.cos(2*t*0.5); }\n    else if (traj === 5) { sunX += 350*p.sin(t*0.5); sunY += p.constrain(300*Math.tan(p.sin(t*0.5)*1.2), -350, 350); }\n    else if (traj === 6) {\n        if (p.frameCount % 30 === 0) { errX = p.random(180, 620); errY = p.random(180, 620); }\n        sunX = p.lerp(sunX, errX, 0.15); sunY = p.lerp(sunY, errY, 0.15);\n    }\n    \n    sunX = p.constrain(sunX, 180, 620);\n    sunY = p.constrain(sunY, 180, 620);\n\n    for (let sh of shapes) {\n        for (let v of sh.poly) {\n            let dx = v.x - sh.cx; let dy = v.y - sh.cy;\n            v.x = sh.cx + dx * p.cos(sh.rotDir) - dy * p.sin(sh.rotDir);\n            v.y = sh.cy + dx * p.sin(sh.rotDir) + dy * p.cos(sh.rotDir);\n        }\n    }\n\n    let lCtx = lightLayer.drawingContext;\n    lCtx.save();\n    lCtx.scale(0.5, 0.5);\n    lCtx.globalCompositeOperation = 'source-over';\n    \n    let pal = paletteMap[palStr];\n    let sc = scatterMap[scStr];\n    let grad = lCtx.createRadialGradient(sunX, sunY, 0, sunX, sunY, 1200);\n    let core = \"rgba(255,255,255,1)\";\n    let mid = `rgba(${pal.c[0]},${pal.c[1]},${pal.c[2]},${pal.a})`;\n    let edge = `rgba(${pal.c[0]},${pal.c[1]},${pal.c[2]},0)`;\n    \n    if (sc === 0) { grad.addColorStop(0, core); grad.addColorStop(0.25, mid); grad.addColorStop(1, edge); }\n    else if (sc === 5) { grad.addColorStop(0, core); grad.addColorStop(0.6, mid); grad.addColorStop(1, edge); }\n    else { grad.addColorStop(0, core); grad.addColorStop(0.4, mid); grad.addColorStop(1, edge); }\n    \n    lCtx.fillStyle = grad;\n    lCtx.fillRect(0, 0, 800, 800);\n\n    lCtx.globalCompositeOperation = 'destination-out';\n    lCtx.fillStyle = 'rgba(0,0,0,0.7)';\n    lCtx.beginPath();\n    for (let sh of shapes) {\n        let pts = sh.poly;\n        lCtx.moveTo(pts[0].x, pts[0].y);\n        for (let i=1; i<pts.length; i++) lCtx.lineTo(pts[i].x, pts[i].y);\n        lCtx.closePath();\n\n        for (let i=0; i<pts.length; i++) {\n            let v1 = pts[i];\n            let v2 = pts[(i+1)%pts.length];\n            let edgeX = v2.x - v1.x; let edgeY = v2.y - v1.y;\n            let toLightX = sunX - v1.x; let toLightY = sunY - v1.y;\n            if (edgeX * toLightY - edgeY * toLightX > 0) {\n                lCtx.moveTo(v1.x, v1.y);\n                lCtx.lineTo(v2.x, v2.y);\n                lCtx.lineTo(v2.x + (v2.x - sunX)*15, v2.y + (v2.y - sunY)*15);\n                lCtx.lineTo(v1.x + (v1.x - sunX)*15, v1.y + (v1.y - sunY)*15);\n                lCtx.closePath();\n            }\n        }\n    }\n    lCtx.fill();\n    lCtx.restore();\n\n    p.background(12, 10, 15);\n    p.drawingContext.globalCompositeOperation = 'lighter';\n    p.image(lightLayer, 0, 0, 800, 800);\n\n    if (sc >= 2) {\n        p.fill(pal.c[0], pal.c[1], pal.c[2], 180);\n        let spawnCount = (sc === 3) ? 3 : (sc === 4 ? 5 : 1);\n        for(let i=0; i<particles.length; i++) {\n            let pt = particles[i];\n            if (pt.life <= 0 && spawnCount > 0) {\n                pt.x = p.random(800); pt.y = p.random(800);\n                pt.vx = p.random(-1.5, 1.5); pt.vy = p.random(-3, -1);\n                pt.life = p.random(60, 160); pt.maxLife = pt.life;\n                spawnCount--;\n            }\n            if (pt.life > 0) {\n                pt.x += pt.vx; pt.y += pt.vy;\n                if (sc===4) pt.vx += p.random(-0.15, 0.15); \n                pt.life--;\n                p.fill(pal.c[0], pal.c[1], pal.c[2], (pt.life / pt.maxLife) * 255);\n                p.ellipse(pt.x, pt.y, (sc===3)?3.5:2, (sc===3)?3.5:2);\n            }\n        }\n    }\n\n    let dCtx = p.drawingContext;\n    dCtx.globalCompositeOperation = 'source-over';\n    dCtx.fillStyle = '#000000';\n    dCtx.strokeStyle = `rgba(${pal.c[0]},${pal.c[1]},${pal.c[2]},0.4)`;\n    dCtx.lineWidth = 1.5;\n    \n    dCtx.beginPath();\n    for (let sh of shapes) {\n        let pts = sh.poly;\n        dCtx.moveTo(pts[0].x, pts[0].y);\n        for (let i=1; i<pts.length; i++) dCtx.lineTo(pts[i].x, pts[i].y);\n        dCtx.closePath();\n    }\n    dCtx.fill();\n    dCtx.stroke();\n};\n",
+  "tags": [
+    {
+      "id": "tag_cathedral_of_light_01",
+      "type": "custom",
+      "label": "Designed and written by an agent swarm",
+      "description": "Concept, variables and code written by a crew of agents in the Agent Studio chat room (revise-cathedral-of-light) and played by the harness before it was accepted. Teamcrafter residency, 2026-10-08."
+    }
+  ]
+}

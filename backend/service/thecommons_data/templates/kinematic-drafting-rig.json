@@ -1,0 +1,164 @@
+{
+  "promptTemplate": "An intricate kinematic drafting rig running {{linkage_rig}} at {{crank_tempo}} with {{joint_proportions}}, projecting {{tracer_anchors}} in {{ink_viscosity}}.",
+  "variables": [
+    {
+      "name": "linkage_rig",
+      "feature_name": "Skeletal Complexity",
+      "values": [
+        {
+          "text": "dual crank anchor",
+          "weight": 3
+        },
+        {
+          "text": "triad scissor arm",
+          "weight": 3
+        },
+        {
+          "text": "five tier lattice",
+          "weight": 3
+        },
+        {
+          "text": "seven bar pantograph",
+          "weight": 2
+        },
+        {
+          "text": "nine node spider",
+          "weight": 2
+        },
+        {
+          "text": "twelve bar web",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "crank_tempo",
+      "feature_name": "Drive Cadence",
+      "values": [
+        {
+          "text": "deliberate bronze crawl",
+          "weight": 3
+        },
+        {
+          "text": "steady clockwork hum",
+          "weight": 3
+        },
+        {
+          "text": "syncopated cam pulse",
+          "weight": 3
+        },
+        {
+          "text": "clutch slip surge",
+          "weight": 2
+        },
+        {
+          "text": "frantic flywheel blur",
+          "weight": 2
+        },
+        {
+          "text": "whiplash torque cycle",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "joint_proportions",
+      "feature_name": "Harmonic Geometry",
+      "values": [
+        {
+          "text": "balanced golden fold",
+          "weight": 3
+        },
+        {
+          "text": "elongated needle reach",
+          "weight": 3
+        },
+        {
+          "text": "tiered nesting loop",
+          "weight": 3
+        },
+        {
+          "text": "asymmetric canted reach",
+          "weight": 2
+        },
+        {
+          "text": "fractured wide throw",
+          "weight": 2
+        },
+        {
+          "text": "resonant orbit spread",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "tracer_anchors",
+      "feature_name": "Pen Emitters",
+      "values": [
+        {
+          "text": "lone end stylus",
+          "weight": 3
+        },
+        {
+          "text": "opposed dual nibs",
+          "weight": 3
+        },
+        {
+          "text": "outer triad pins",
+          "weight": 3
+        },
+        {
+          "text": "alternating joint tips",
+          "weight": 2
+        },
+        {
+          "text": "all articulating pivots",
+          "weight": 2
+        },
+        {
+          "text": "total skeleton bath",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "ink_viscosity",
+      "feature_name": "Trail Luminance & Decay",
+      "values": [
+        {
+          "text": "ghostly hairline drafting",
+          "weight": 3
+        },
+        {
+          "text": "phosphor vapor streak",
+          "weight": 3
+        },
+        {
+          "text": "molten amber ribbon",
+          "weight": 3
+        },
+        {
+          "text": "electric cobalt flare",
+          "weight": 2
+        },
+        {
+          "text": "saturated laser scar",
+          "weight": 2
+        },
+        {
+          "text": "hyperdense incandescent wake",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "p5Code": "const RIG_MAP = {\n  'dual crank anchor': 2,\n  'triad scissor arm': 3,\n  'five tier lattice': 5,\n  'seven bar pantograph': 7,\n  'nine node spider': 9,\n  'twelve bar web': 12\n};\n\nconst TEMPO_MAP = {\n  'deliberate bronze crawl': { base: 0.015, slip: 0 },\n  'steady clockwork hum': { base: 0.03, slip: 0 },\n  'syncopated cam pulse': { base: 0.05, slip: 1 },\n  'clutch slip surge': { base: 0.04, slip: 2 },\n  'frantic flywheel blur': { base: 0.15, slip: 0 },\n  'whiplash torque cycle': { base: 0.2, slip: 3 }\n};\n\nconst PROP_MAP = {\n  'balanced golden fold': [0.618, 0.618],\n  'elongated needle reach': [0.85, 0.45],\n  'tiered nesting loop': [0.55, 0.85],\n  'asymmetric canted reach': [0.95, 0.35],\n  'fractured wide throw': [1.1, 0.5],\n  'resonant orbit spread': [0.75, 0.75]\n};\n\nconst ANCHOR_MAP = {\n  'lone end stylus': 1,\n  'opposed dual nibs': 2,\n  'outer triad pins': 3,\n  'alternating joint tips': -1,\n  'all articulating pivots': 0,\n  'total skeleton bath': -2\n};\n\nconst INK_MAP = {\n  'ghostly hairline drafting': { c: [200, 220, 255], w: 2, fade: 2 },\n  'phosphor vapor streak': { c: [100, 255, 150], w: 2.5, fade: 3 },\n  'molten amber ribbon': { c: [255, 150, 50], w: 3, fade: 2 },\n  'electric cobalt flare': { c: [50, 150, 255], w: 3.5, fade: 4 },\n  'saturated laser scar': { c: [255, 50, 100], w: 4, fade: 3 },\n  'hyperdense incandescent wake': { c: [255, 255, 255], w: 5, fade: 1 }\n};\n\nlet pg;\nlet time = 0;\nlet prevPositions = [];\nlet cx = 400, cy = 400;\n\np.setup = function() {\n  p.createCanvas(800, 800);\n  pg = p.createGraphics(800, 800);\n  pg.background(12, 14, 18);\n};\n\np.draw = function() {\n  const rigKey = p.getSynthVar('linkage_rig') || 'dual crank anchor';\n  const tempoKey = p.getSynthVar('crank_tempo') || 'deliberate bronze crawl';\n  const propKey = p.getSynthVar('joint_proportions') || 'balanced golden fold';\n  const anchorKey = p.getSynthVar('tracer_anchors') || 'lone end stylus';\n  const inkKey = p.getSynthVar('ink_viscosity') || 'ghostly hairline drafting';\n  \n  const tiers = RIG_MAP[rigKey];\n  const tempo = TEMPO_MAP[tempoKey];\n  const props = PROP_MAP[propKey];\n  const anchor = ANCHOR_MAP[anchorKey];\n  const ink = INK_MAP[inkKey];\n  \n  // Crank Kinematics - uncoupled from time to prevent feedback lock\n  let currentSpeed = tempo.base;\n  if (tempo.slip > 0) {\n    let phase = p.frameCount * 0.05;\n    let slipFactor = p.sin(phase * tempo.slip * 1.5);\n    if (tempo.slip === 2 && slipFactor > 0.85) {\n       currentSpeed *= 6.0; // explosive starburst snap\n    } else if (tempo.slip === 3) {\n       currentSpeed *= p.cos(phase * 4.0); // backwards reverse\n    } else {\n       currentSpeed *= (1.0 + slipFactor * 0.5);\n    }\n  }\n  \n  // Motion constraint\n  if (Math.abs(currentSpeed) < 0.02) {\n    currentSpeed = (currentSpeed >= 0 ? 0.02 : -0.02);\n  }\n  time += currentSpeed;\n  \n  // Fade Buffer\n  pg.blendMode(p.BLEND);\n  pg.noStroke();\n  pg.fill(12, 14, 18, ink.fade);\n  pg.rect(0, 0, 800, 800);\n  \n  p.background(12, 14, 18);\n  \n  let baseLen = 180; \n  let nodes = [];\n  \n  for (let arm = 0; arm < 6; arm++) {\n    let armNodes = [{x: cx, y: cy}];\n    let currentAngle = (p.TWO_PI / 6) * arm;\n    \n    for (let i = 1; i <= tiers; i++) {\n      let prev = armNodes[i-1];\n      let len = baseLen * (i === 1 ? 1 : Math.pow(props[(i%2)], i-1)) * 1.2;\n      len = p.constrain(len, 15, 350); \n      \n      let spin = currentAngle + (time * i * (i % 2 === 0 ? -1.5 : 1.2));\n      let nx = prev.x + p.cos(spin) * len;\n      let ny = prev.y + p.sin(spin) * len;\n      armNodes.push({x: nx, y: ny});\n    }\n    nodes.push(armNodes);\n  }\n  \n  // Buffer structure reset check\n  if (!prevPositions.length || prevPositions.length !== 6 || prevPositions[0].length !== (tiers + 1)) {\n    prevPositions = nodes.map(arm => arm.map(n => ({...n})));\n  }\n  \n  // Batch Trace Drawing\n  pg.stroke(ink.c[0], ink.c[1], ink.c[2]);\n  pg.strokeWeight(ink.w);\n  pg.beginShape(p.LINES);\n  for (let arm = 0; arm < 6; arm++) {\n    for (let i = 1; i <= tiers; i++) {\n      let isTracer = false;\n      if (anchor === 1 && i === tiers) isTracer = true;\n      else if (anchor === 2 && i >= tiers - 1) isTracer = true;\n      else if (anchor === 3 && i >= tiers - 2) isTracer = true;\n      else if (anchor === -1 && i % 2 === 1) isTracer = true;\n      else if (anchor === 0 || anchor === -2) isTracer = true;\n      \n      if (isTracer) {\n        let curr = nodes[arm][i];\n        let prev = prevPositions[arm][i];\n        pg.vertex(prev.x, prev.y);\n        pg.vertex(curr.x, curr.y);\n      }\n    }\n  }\n  pg.endShape();\n  \n  if (anchor === -2) {\n    pg.strokeWeight(ink.w * 2.5);\n    pg.beginShape(p.POINTS);\n    for (let arm = 0; arm < 6; arm++) {\n      for (let i = 1; i <= tiers; i++) {\n        pg.vertex(nodes[arm][i].x, nodes[arm][i].y);\n      }\n    }\n    pg.endShape();\n  }\n  \n  prevPositions = nodes.map(arm => arm.map(n => ({...n})));\n  \n  p.image(pg, 0, 0);\n  \n  // Draft Geometry UI\n  p.stroke(255, 75);\n  p.strokeWeight(1.5);\n  p.noFill();\n  \n  for (let arm = 0; arm < 6; arm++) {\n    p.beginShape();\n    for (let i = 0; i <= tiers; i++) {\n      p.vertex(nodes[arm][i].x, nodes[arm][i].y);\n    }\n    p.endShape();\n    \n    // Draw joints\n    p.stroke(255, 120);\n    p.beginShape(p.POINTS);\n    p.strokeWeight(4);\n    for (let i = 0; i <= tiers; i++) {\n      p.vertex(nodes[arm][i].x, nodes[arm][i].y);\n    }\n    p.endShape();\n    p.strokeWeight(1.5);\n    p.stroke(255, 75);\n    \n    // Web lattice constraints\n    if (tiers >= 3) {\n       p.beginShape(p.LINES);\n       for (let i = 2; i <= tiers; i+=2) {\n          let nextArm = (arm + 1) % 6;\n          p.vertex(nodes[arm][i].x, nodes[arm][i].y);\n          p.vertex(nodes[nextArm][i].x, nodes[nextArm][i].y);\n       }\n       p.endShape();\n    }\n  }\n};\n",
+  "tags": [
+    {
+      "id": "tag_kinematic_drafting_rig_01",
+      "type": "custom",
+      "label": "Designed and written by an agent swarm",
+      "description": "Concept, variables and code written by a crew of agents in the Agent Studio chat room (pantograph-kinematics) and played by the harness before it was accepted. Teamcrafter residency, 2026-10-08."
+    }
+  ]
+}

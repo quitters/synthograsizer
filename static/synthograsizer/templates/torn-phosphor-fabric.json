@@ -1,0 +1,164 @@
+{
+  "promptTemplate": "A glowing wireframe fabric of {{weave_density}} and {{thread_elasticity}} weathers a {{shear_vortex}}, healing via {{mending_tempo}} under {{phosphor_bloom}}.",
+  "variables": [
+    {
+      "name": "weave_density",
+      "feature_name": "Grid Topology",
+      "values": [
+        {
+          "text": "coarse mesh",
+          "weight": 3
+        },
+        {
+          "text": "sparse gauze",
+          "weight": 3
+        },
+        {
+          "text": "open linen",
+          "weight": 3
+        },
+        {
+          "text": "taut muslin",
+          "weight": 3
+        },
+        {
+          "text": "fine cambric",
+          "weight": 2
+        },
+        {
+          "text": "dense silk",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "thread_elasticity",
+      "feature_name": "Spring Tension",
+      "values": [
+        {
+          "text": "slack cord",
+          "weight": 3
+        },
+        {
+          "text": "braided cotton",
+          "weight": 3
+        },
+        {
+          "text": "tempered nylon",
+          "weight": 3
+        },
+        {
+          "text": "drawn wire",
+          "weight": 3
+        },
+        {
+          "text": "brittle tungsten",
+          "weight": 2
+        },
+        {
+          "text": "glass filament",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "shear_vortex",
+      "feature_name": "Tearing Force",
+      "values": [
+        {
+          "text": "gentle thermals",
+          "weight": 3
+        },
+        {
+          "text": "meandering drift",
+          "weight": 3
+        },
+        {
+          "text": "surging gusts",
+          "weight": 3
+        },
+        {
+          "text": "twisting vortex",
+          "weight": 3
+        },
+        {
+          "text": "shearing cyclone",
+          "weight": 2
+        },
+        {
+          "text": "violent squall",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "mending_tempo",
+      "feature_name": "Regeneration",
+      "values": [
+        {
+          "text": "creeping scar",
+          "weight": 1
+        },
+        {
+          "text": "sluggish knit",
+          "weight": 2
+        },
+        {
+          "text": "steady weave",
+          "weight": 3
+        },
+        {
+          "text": "swift knitting",
+          "weight": 3
+        },
+        {
+          "text": "instant suture",
+          "weight": 3
+        },
+        {
+          "text": "hypertrophic fuse",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "phosphor_bloom",
+      "feature_name": "Luminescence",
+      "values": [
+        {
+          "text": "electric cyan",
+          "weight": 3
+        },
+        {
+          "text": "radium emerald",
+          "weight": 3
+        },
+        {
+          "text": "solar amber",
+          "weight": 3
+        },
+        {
+          "text": "charged violet",
+          "weight": 2
+        },
+        {
+          "text": "crimson corona",
+          "weight": 2
+        },
+        {
+          "text": "ghost white",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "p5Code": "const densityMap = {\n  'coarse mesh': 12,\n  'sparse gauze': 15,\n  'open linen': 18,\n  'taut muslin': 22,\n  'fine cambric': 26,\n  'dense silk': 30\n};\n\nconst elasticityMap = {\n  'slack cord': { k: 0.05, damp: 0.96, snap: 85 },\n  'braided cotton': { k: 0.12, damp: 0.93, snap: 70 },\n  'tempered nylon': { k: 0.25, damp: 0.88, snap: 55 },\n  'drawn wire': { k: 0.50, damp: 0.82, snap: 42 },\n  'brittle tungsten': { k: 0.80, damp: 0.70, snap: 30 },\n  'glass filament': { k: 1.05, damp: 0.60, snap: 18 }\n};\n\nconst shearMap = {\n  'gentle thermals': { f: 1.5, v: 1, r: 150 },\n  'meandering drift': { f: 2.5, v: 1, r: 200 },\n  'surging gusts': { f: 4.0, v: 2, r: 250 },\n  'twisting vortex': { f: 5.5, v: 2, r: 300 },\n  'shearing cyclone': { f: 7.5, v: 3, r: 350 },\n  'violent squall': { f: 9.5, v: 4, r: 400 }\n};\n\nconst mendMap = {\n  'creeping scar': 380,\n  'sluggish knit': 240,\n  'steady weave': 150,\n  'swift knitting': 60,\n  'instant suture': 12,\n  'hypertrophic fuse': 1\n};\n\nconst colorMap = {\n  'electric cyan': { base: '#005599', strain: '#00E5FF', spark: '#FFFFFF' },\n  'radium emerald': { base: '#006633', strain: '#39FF14', spark: '#A8FFB2' },\n  'solar amber': { base: '#663300', strain: '#FF9E00', spark: '#FFF4CC' },\n  'charged violet': { base: '#550088', strain: '#B829DD', spark: '#FF80DF' },\n  'crimson corona': { base: '#770011', strain: '#FF1744', spark: '#FFB3BA' },\n  'ghost white': { base: '#555555', strain: '#8E99A4', spark: '#FFFFFF' }\n};\n\nlet currentDensity = 0;\nlet nodes = [];\nlet springs = [];\n\np.setup = function() {\n  p.createCanvas(800, 800);\n};\n\nfunction initGrid(dim, width, height) {\n  nodes = [];\n  springs = [];\n  const spacingX = width / (dim - 1);\n  const spacingY = height / (dim - 1);\n  \n  for(let y = 0; y < dim; y++) {\n    for(let x = 0; x < dim; x++) {\n      nodes.push({\n        x: x * spacingX,\n        y: y * spacingY,\n        vx: 0, \n        vy: 0,\n        nx: 0,\n        ny: 0,\n        pinned: (x === 0 || x === dim - 1 || y === 0 || y === dim - 1)\n      });\n    }\n  }\n  \n  for(let y = 0; y < dim; y++) {\n    for(let x = 0; x < dim; x++) {\n      let i = y * dim + x;\n      if(x < dim - 1) springs.push({a: i, b: i + 1, rest: spacingX, active: true, timer: 0, stretch: 0});\n      if(y < dim - 1) springs.push({a: i, b: i + dim, rest: spacingY, active: true, timer: 0, stretch: 0});\n    }\n  }\n  currentDensity = dim;\n}\n\np.draw = function() {\n  const vDen = p.getSynthVar('weave_density') || 'taut muslin';\n  const vEla = p.getSynthVar('thread_elasticity') || 'tempered nylon';\n  const vShe = p.getSynthVar('shear_vortex') || 'twisting vortex';\n  const vMen = p.getSynthVar('mending_tempo') || 'swift knitting';\n  const vCol = p.getSynthVar('phosphor_bloom') || 'electric cyan';\n\n  let dim = densityMap[vDen] || 22;\n  if(dim !== currentDensity) {\n    initGrid(dim, p.width, p.height);\n  }\n\n  let ela = elasticityMap[vEla];\n  let she = shearMap[vShe];\n  let men = mendMap[vMen];\n  let cols = colorMap[vCol];\n\n  let ctx = p.drawingContext;\n  ctx.globalCompositeOperation = 'source-over';\n  p.background(5, 5, 10, 255);\n  ctx.globalCompositeOperation = 'lighter';\n\n  let t = p.frameCount * 0.01;\n  let pulseSpeed = p.frameCount * 2.5;\n\n  // Pre-calculate noise per node once per frame\n  for(let i = 0; i < nodes.length; i++) {\n    let n = nodes[i];\n    if(!n.pinned) {\n      n.nx = p.noise(n.x * 0.01, n.y * 0.01, t) - 0.5;\n      n.ny = p.noise(n.x * 0.01 + 100, n.y * 0.01 + 100, t) - 0.5;\n    }\n  }\n  \n  for(let step = 0; step < 2; step++) {\n    for(let i = 0; i < nodes.length; i++) {\n      let n = nodes[i];\n      if(n.pinned) continue;\n      \n      n.vx += n.nx * (she.f * 0.2 + 0.8);\n      n.vy += n.ny * (she.f * 0.2 + 0.8);\n\n      for(let v = 0; v < she.v; v++) {\n        let cx = p.width / 2 + Math.sin(t * (1.1 + v)) * (p.width * 0.4);\n        let cy = p.height / 2 + Math.cos(t * (0.9 + v)) * (p.height * 0.4);\n        let dx = cx - n.x;\n        let dy = cy - n.y;\n        let d = Math.sqrt(dx * dx + dy * dy);\n        \n        if(d > 0 && d < she.r) {\n          let force = (1 - d / she.r) * she.f * 0.2;\n          n.vx += (-dy / d) * force;\n          n.vy += (dx / d) * force;\n          n.vx += (dx / d) * force * 0.2;\n          n.vy += (dy / d) * force * 0.2;\n        }\n      }\n    }\n\n    for(let i = 0; i < springs.length; i++) {\n      let s = springs[i];\n      if(!s.active) continue;\n      let a = nodes[s.a];\n      let b = nodes[s.b];\n      \n      let dx = b.x - a.x;\n      let dy = b.y - a.y;\n      let d = Math.sqrt(dx * dx + dy * dy);\n      \n      if(d > s.rest + ela.snap) {\n        s.active = false;\n        s.timer = men;\n        continue;\n      }\n      \n      let diff = (d - s.rest) / Math.max(d, 0.01);\n      let fx = dx * diff * ela.k * 0.5;\n      let fy = dy * diff * ela.k * 0.5;\n      if(!a.pinned) { a.vx += fx; a.vy += fy; }\n      if(!b.pinned) { b.vx -= fx; b.vy -= fy; }\n    }\n\n    for(let i = 0; i < nodes.length; i++) {\n      let n = nodes[i];\n      if(n.pinned) continue;\n      n.vx *= ela.damp;\n      n.vy *= ela.damp;\n      \n      n.vx = Math.max(-25, Math.min(25, n.vx));\n      n.vy = Math.max(-25, Math.min(25, n.vy));\n      \n      n.x += n.vx;\n      n.y += n.vy;\n    }\n  }\n\n  // Pre-calculate rendering distances once per spring\n  for(let i = 0; i < springs.length; i++) {\n    let s = springs[i];\n    if(s.active) {\n      let a = nodes[s.a];\n      let b = nodes[s.b];\n      let dx = b.x - a.x;\n      let dy = b.y - a.y;\n      s.stretch = Math.abs(Math.sqrt(dx * dx + dy * dy) - s.rest);\n    }\n  }\n\n  let sparkPoints = [];\n  \n  ctx.beginPath();\n  for(let i = 0; i < springs.length; i++) {\n    let s = springs[i];\n    let a = nodes[s.a];\n    let b = nodes[s.b];\n    \n    if(!s.active) {\n      s.timer--;\n      if(s.timer <= 0) s.active = true;\n      else {\n        let shrink = s.timer / men;\n        let midX = (a.x + b.x) * 0.5;\n        let midY = (a.y + b.y) * 0.5;\n        ctx.moveTo(a.x, a.y);\n        ctx.lineTo(a.x + (midX - a.x) * (1 - shrink), a.y + (midY - a.y) * (1 - shrink));\n        ctx.moveTo(b.x, b.y);\n        ctx.lineTo(b.x + (midX - b.x) * (1 - shrink), b.y + (midY - b.y) * (1 - shrink));\n        \n        if(s.timer > men - 15) {\n          sparkPoints.push(a, b);\n        }\n      }\n      continue;\n    }\n    \n    if (s.stretch <= ela.snap * 0.5) {\n      ctx.moveTo(a.x, a.y);\n      ctx.lineTo(b.x, b.y);\n    }\n  }\n  ctx.lineWidth = 2.5;\n  ctx.strokeStyle = cols.base;\n  ctx.stroke();\n\n  ctx.beginPath();\n  for(let i = 0; i < springs.length; i++) {\n    let s = springs[i];\n    if(!s.active) continue;\n    let a = nodes[s.a];\n    if ((a.x + a.y - pulseSpeed) % 250 < 40) {\n      let b = nodes[s.b];\n      ctx.moveTo(a.x, a.y);\n      ctx.lineTo(b.x, b.y);\n    }\n  }\n  ctx.lineWidth = 3.5;\n  ctx.strokeStyle = cols.spark;\n  ctx.stroke();\n\n  ctx.beginPath();\n  for(let i = 0; i < springs.length; i++) {\n    let s = springs[i];\n    if(!s.active) continue;\n    \n    if (s.stretch > ela.snap * 0.5) {\n      let a = nodes[s.a];\n      let b = nodes[s.b];\n      ctx.moveTo(a.x, a.y);\n      ctx.lineTo(b.x, b.y);\n    }\n  }\n  ctx.lineWidth = 4.0;\n  ctx.strokeStyle = cols.strain;\n  ctx.stroke();\n\n  if (sparkPoints.length > 0) {\n    ctx.fillStyle = cols.spark;\n    for(let i = 0; i < sparkPoints.length; i++) {\n      ctx.fillRect(sparkPoints[i].x - 1.5, sparkPoints[i].y - 1.5, 4, 4);\n    }\n  }\n};\n",
+  "tags": [
+    {
+      "id": "tag_torn_phosphor_fabric_01",
+      "type": "custom",
+      "label": "Designed and written by an agent swarm",
+      "description": "Concept, variables and code written by a crew of agents in the Agent Studio chat room (revise-torn-phosphor-fabric) and played by the harness before it was accepted. Teamcrafter residency, 2026-10-08."
+    }
+  ]
+}

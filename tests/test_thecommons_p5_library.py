@@ -18,6 +18,7 @@ COMMONS = ROOT / "backend" / "service" / "thecommons_data" / "templates"
 INSTRUMENTS = [
     "reaction-loom", "physarum-dreams", "chladni-plates", "orbital-resonance", "truchet-cathedral", "epicycle-atelier",
     "ferrofluid-magnetics", "murmuration", "cellular-garden", "shattered-stained-glass",
+    "aperiodic-stained-glass", "hyperbolic-fractal-eye", "kinematic-drafting-rig", "camshaft-pillars", "cathedral-of-light", "chaos-ribbons", "boiling-voids", "torn-phosphor-fabric",
 ]
 
 
