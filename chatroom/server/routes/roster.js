@@ -13,6 +13,7 @@ import { SCHEMAS } from '../company/schema.js';
 import { PolicyError } from '../company/errors.js';
 import { checkAgentTier } from '../company/toolGrants.js';
 import { admitDepartment } from '../company/flow/admit.js';
+import { archetypeId, normalizeCasting } from '../company/flow/archetypes.js';
 import { admissionScreen } from '../company/flow/review.js';
 import { renderBio } from '../company/profileBio.js';
 import { peekRoom } from '../services/sessionRegistry.js';
@@ -39,7 +40,8 @@ export function createRosterRouter(services) {
     const body = checkBody(SCHEMAS.candidateImport, req.body);
     const profile = body.profile;
     const candidate = services.roster.addCandidate(req.visitorId, {
-      profile, casting: body.casting || profile.x_pilot?.casting || {}, archetype: body.archetype || profile.x_pilot?.archetype || 'imported',
+      profile, casting: normalizeCasting(body.casting || profile.x_pilot?.casting || profile.x_roster?.casting || {}),
+      archetype: archetypeId(body.archetype || profile.x_pilot?.archetype || profile.x_roster?.archetype) || String(body.archetype || 'imported').slice(0, 40),
       role: body.role || profile.anchors?.role || profile.description || 'colleague', status: body.status || 'draft', skills: body.skills,
       run: profile.x_pilot?.run, writtenBy: 'import',
     });

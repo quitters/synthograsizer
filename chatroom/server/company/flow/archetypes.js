@@ -139,6 +139,23 @@ export const ARCHETYPES = Object.freeze([
 export const ARCHETYPE_IDS = Object.freeze(ARCHETYPES.map(a => a.id));
 export const archetype = (id) => ARCHETYPES.find(a => a.id === id) || null;
 
+/** An archetype's id from how a person might have written it ("The Steward", "steward"): what an imported profile calls its archetype. Null if it is none of ours. */
+export function archetypeId(value) {
+  const t = String(value || '').trim().toLowerCase();
+  if (!t) return null;
+  return ARCHETYPES.find(a => a.id === t || a.name.toLowerCase() === t || a.name.toLowerCase().replace(/^the /, '') === t)?.id || null;
+}
+
+/** The facts about a person as the roster keeps them, from how an imported profile wrote them (a birthplace as "City, Country" becomes { city, country }). */
+export function normalizeCasting(casting) {
+  const c = { ...(casting && typeof casting === 'object' ? casting : {}) };
+  if (typeof c.birthplace === 'string') {
+    const parts = c.birthplace.split(',').map(x => x.trim()).filter(Boolean);
+    c.birthplace = { city: parts[0] || undefined, country: parts.slice(1).join(', ') || undefined, ...(c.region ? { region: c.region } : {}) };
+  }
+  return c;
+}
+
 /** The archetype whose roles best match this title: an exact role first, else the longest role that appears in it (or that it appears in). */
 export function archetypeForRole(title) {
   const t = String(title || '').toLowerCase().trim();

@@ -709,3 +709,20 @@ test('a room with nothing to start from has no hand-off in its brief', { skip },
     assert.ok(!d.doneWhen.some(c => c.tool === 'workspace'));
   }
 });
+
+test('what a flow has spent shows while it is casting, not only when it ends', { skip }, async () => {
+  let release;
+  const gate = new Promise(r => { release = r; });
+  const s = setup({ handlers: { sheet: async (call, n) => { if (n === 2) await gate; } } });
+  const f = await s.flow.propose(s.owner, { prompt: PROMPT });
+  s.flow.cast(s.owner, f.id);
+  while (steps(s.log, 'sheet') < 2) await new Promise(r => setTimeout(r, 2));         // the first person is finished and the second is being written
+  const mid = s.flow.get(s.owner, f.id);
+  assert.equal(mid.state, 'casting');
+  assert.ok(mid.spend.usd > f.spend.usd, `${mid.spend.usd} should be more than ${f.spend.usd}`);
+  assert.ok(mid.spend.calls >= f.spend.calls + 4, 'the first person\'s seed, sheet, review and quiz are counted');
+  assert.equal(mid.estimate.ready, 1);
+  release();
+  await s.flow.settled(f.id);
+  assert.ok(s.flow.get(s.owner, f.id).spend.usd > mid.spend.usd);
+});

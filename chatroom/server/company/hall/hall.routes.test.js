@@ -371,3 +371,16 @@ test('hiring: the company\'s own screen reads the sheet before the person takes 
   assert.equal(audit[0].agent, 'Sheet Withheld');
   void company;
 });
+
+test('importing a profile from the pilot: its archetype and birthplace are read the way the roster keeps them, so the person can be found for a position', { skip }, async () => {
+  const v = visitor();
+  await v.call('GET', '/api/agents');
+  const pilot = { ...profile('Kasia Pilot', 'skeptic'), x_pilot: { archetype: 'The Contrarian', casting: { bornYear: 1989, birthplace: 'Gdańsk, Poland', region: 'Europe', dissent: 'high', intendedType: 'INTP' }, run: { tier: 'none', model: 'gemini-3.1-pro-preview', thinkingLevel: 'medium' } } };
+  const r = await v.call('POST', '/api/company/roster', { profile: pilot, status: 'ready' });
+  assert.equal(r.status, 201, JSON.stringify(r.json));
+  const c = r.json.candidate;
+  assert.deepEqual([c.archetype, c.birth.city, c.birth.country, c.region, c.dissent, c.intendedType, c.bornYear, c.status], ['contrarian', 'Gdańsk', 'Poland', 'Europe', 'high', 'INTP', 1989, 'ready']);
+  assert.equal((await v.call('GET', '/api/company/roster?archetype=contrarian')).json.candidates.length, 1, 'found by the id the flow asks for');
+  const own = await v.call('POST', '/api/company/roster', { profile: profile('Odd One', 'x'), archetype: 'wizard' });
+  assert.equal(own.json.candidate.archetype, 'wizard', 'a name that is none of ours is kept as written');
+});

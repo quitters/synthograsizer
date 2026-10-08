@@ -455,6 +455,7 @@ export class FlowService {
   /** Write one person: the draw, the sheet, the checks, the quiz, and into the roster. A sheet that does not pass is tried once more with a different draw. */
   async _castPerson(ctx, position) {
     const { ownerId, flow, ask, roster } = ctx;
+    const say = (text) => { flow.spend = ctx.spend.snapshot(); this._say(flow, text); };         // (what has been spent shows as the job goes, not only when it ends)
     const people = flow.cast.people;
     const room = flow.plan.departments.find(d => d.key === position.deptKey);
     const entry = people[position.key] = { status: 'writing', source: 'new', title: position.title, archetype: position.archetype, tries: people[position.key]?.tries || 0 };
@@ -468,7 +469,7 @@ export class FlowService {
         casting = castPositions({ positions: [position], seed: `${flow.cast.seed}:${position.key}:t${entry.tries}`, year: ctx.year, existing: Object.values(ctx.rows) }).rows[0];
         flow.cast.castings[position.key] = casting;
       }
-      this._say(flow, `Writing ${position.title} for ${room.name}${attempt > 1 ? ' (a second try, with a different draw)' : ''}.`);
+      say(`Writing ${position.title} for ${room.name}${attempt > 1 ? ' (a second try, with a different draw)' : ''}.`);
       let out;
       try {
         out = await writePerson({
@@ -479,13 +480,13 @@ export class FlowService {
         if (err.code === 'model_refused') {
           Object.assign(entry, { status: 'failed', error: 'The model service declined to write this person. That answer is final: change the position and cast again.' });
           ctx.consecutive = 0;
-          this._say(flow, `${position.title}: the model service declined. Not tried again.`);
+          say(`${position.title}: the model service declined. Not tried again.`);
           return;
         }
         if (err.code === 'model_failed') {
           Object.assign(entry, { status: 'failed', error: err.message });
           ctx.consecutive += 1;
-          this._say(flow, `${position.title}: ${err.message}`);
+          say(`${position.title}: ${err.message}`);
           if (ctx.consecutive >= MAX_CONSECUTIVE_MODEL_FAILURES) throw err;
           return;
         }
@@ -517,12 +518,12 @@ export class FlowService {
         ctx.rows[position.key] = { ...casting, department: room.name, measuredType: quiz?.type || null };
         Object.assign(entry, this._entry(candidate, position, 'new'), { tries: entry.tries, error: undefined });
         delete entry.error;
-        this._say(flow, `${candidate.name} is ready${entry.advice ? ` (${entry.advice} ${entry.advice === 1 ? 'note' : 'notes'} from the reviewer)` : ''}${entry.drifted ? ' (answered the quiz unlike the cast)' : ''}.`);
+        say(`${candidate.name} is ready${entry.advice ? ` (${entry.advice} ${entry.advice === 1 ? 'note' : 'notes'} from the reviewer)` : ''}${entry.drifted ? ' (answered the quiz unlike the cast)' : ''}.`);
         return;
       }
       const why = [...(out.checks.problems || []), ...(out.checks.review?.hard || []), ...(out.checks.screen && !out.checks.screen.ok ? [`the safety screen: ${out.checks.screen.verdict}`] : [])].join('; ');
       Object.assign(entry, { status: 'draft', candidateId: candidate.id, name: candidate.name, error: why || 'the sheet did not pass its checks' });
-      this._say(flow, `${candidate.name} (${position.title}) did not pass: ${why.slice(0, 160)}.`);
+      say(`${candidate.name} (${position.title}) did not pass: ${why.slice(0, 160)}.`);
       if (attempt < MAX_PERSON_TRIES) {                                  // the failed draft is not kept when another try follows
         try { roster.deleteCandidate(ownerId, candidate.id); entry.candidateId = null; } catch { /* kept as a draft */ }
       }

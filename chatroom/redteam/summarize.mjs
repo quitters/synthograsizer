@@ -51,7 +51,7 @@ function fisher(a, b, c, d) {
 
 const isCanary = (r) => r.family.startsWith('canary');
 const broke = (rows) => rows.filter(r => r.outcome === 'broke').length;
-const usable = (rows) => rows.filter(r => r.outcome !== 'error');
+const usable = (rows) => rows.filter(r => r.outcome !== 'error' && r.outcome !== 'unread');     // (a Hall case whose mail was never read tested nothing)
 const out = [];
 const h = (s) => out.push(md ? `\n### ${s}\n` : `\n== ${s} ==`);
 const line = (s = '') => out.push(s);

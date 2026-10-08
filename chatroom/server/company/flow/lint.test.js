@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { lintSheet, takenFrom, sheetWords, contextWords, EMPTY_TAKEN } from './lint.js';
+import { lintSheet, takenFrom, sheetWords, contextWords, EMPTY_TAKEN, SHARED_WORDS_LIMIT } from './lint.js';
 import { assembleProfile, BIO_TEMPLATE, bornLine, chooseKnobs } from './sheet.js';
 import { fakeSheet, fakeSeed, castFor } from './flowKit.js';
 
@@ -157,4 +157,18 @@ test('names and phrases are held against the whole company, repeated words again
   assert.equal(otherRoom.signatures.length, 3);
   const nameClash = lint(make({ i: 5, seed: { name: 'Yan Twin' } }), { taken: otherRoom });
   assert.ok(has(nameClash, /the name is already a teammate's/), 'a name in another room is still a clash');
+});
+
+test('a handful of shared words is a note for the person who reads the sheet; only a sheet that copies its room-mates is sent back', () => {
+  const mine = make({ i: 5 });
+  const words = [...sheetWords(mine.anchors)];
+  assert.ok(words.length > SHARED_WORDS_LIMIT + 4);
+  const taken = (n) => ({ ...EMPTY_TAKEN, words: new Map(words.slice(0, n).map(w => [w, new Set([0, 1])])) });
+  const few = lint(mine, { taken: taken(5) });
+  assert.ok(!has(few, /words that two or more/), 'five plain words in common is not a reason to rewrite a person');
+  assert.ok(few.notes.some(n => /words that two or more teammates' sheets already use: /.test(n)), 'but it is shown');
+  assert.ok(!has(lint(mine, { taken: taken(SHARED_WORDS_LIMIT - 1) }), /words that two or more/));
+  const copy = lint(mine, { taken: taken(SHARED_WORDS_LIMIT) });
+  assert.ok(has(copy, /words that two or more teammates' sheets already use: .* and \d+ more; find your own/));
+  assert.equal(SHARED_WORDS_LIMIT, 12);
 });
