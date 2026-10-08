@@ -55,11 +55,17 @@ class ApiError extends Error {
 
 /** One API call. JSON in, JSON out; a refusal comes back as an ApiError carrying the server's own words. */
 async function api(method, path, body) {
-  const res = await fetch(path, {
-    method, credentials: 'same-origin',
-    headers: body === undefined ? {} : { 'content-type': 'application/json' },
-    body: body === undefined ? undefined : JSON.stringify(body),
-  });
+  let res;
+  try {
+    res = await fetch(path, {
+      method, credentials: 'same-origin',
+      headers: body === undefined ? {} : { 'content-type': 'application/json' },
+      body: body === undefined ? undefined : JSON.stringify(body),
+    });
+  } catch {
+    // fetch throws only when nothing answered: the server is stopped or restarting, or the page was opened from a server that has gone
+    throw new ApiError(`The chat server at ${location.host} is not answering. Start it again (npm run server in the chatroom folder) and reload this page.`, 0, 'unreachable');
+  }
   let json = null;
   try { json = await res.json(); } catch { /* not JSON */ }
   if (!res.ok) throw new ApiError(json?.error || `${method} ${path} answered ${res.status}`, res.status, json?.code, json?.field);
@@ -114,7 +120,8 @@ async function route() {
     else fill(app, h('div', { class: 'empty' }, h('h2', {}, 'Nothing here'), h('a', { href: '#/' }, 'Back to your companies')));
   } catch (e) {
     fail(e);
-    fill(app, h('div', { class: 'empty' }, h('h2', {}, e instanceof ApiError && e.status === 404 ? 'Not found' : 'That did not load'), h('p', {}, e.message), h('a', { href: '#/' }, 'Back to your companies')));
+    fill(app, h('div', { class: 'empty' }, h('h2', {}, e instanceof ApiError && e.status === 404 ? 'Not found' : 'That did not load'), h('p', {}, e.message),
+      e instanceof ApiError && e.code === 'unreachable' ? h('button', { onclick: route }, 'Try again') : h('a', { href: '#/' }, 'Back to your companies')));
   }
 }
 window.addEventListener('hashchange', route);
