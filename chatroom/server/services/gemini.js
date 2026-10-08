@@ -860,10 +860,16 @@ async function* consumeStream(stream, agentName, { strict = false } = {}) {
         const delta = event.delta;
         if (delta?.type === 'arguments_delta' && typeof delta.arguments === 'string') {
           argsBuffer += delta.arguments;
+        } else if (typeof delta?.signature === 'string' && currentStep) {
+          // A thought's signature arrives as a delta, not on step.start. The stateless replay sends the thought back with it:
+          // Pro refuses a function turn whose thought has none (HTTP 400, with the reason lost), Flash does not mind.
+          currentStep.signature = (currentStep.signature || '') + delta.signature;
         } else if (currentStepType !== 'thought' && delta?.type === 'text' && delta.text) {
           // Thought-leak guard: only surface text from model output steps.
           text += delta.text;
           yield { type: 'chunk', text: delta.text };
+          // The replayed step carries what the model said, not an empty shell
+          if (currentStep && currentStepType === 'model_output') currentStep.content = [{ type: 'text', text: (currentStep.content?.[0]?.text || '') + delta.text }];
         }
       } else if (event.event_type === 'interaction.created') {
         // Captured here as well as on completion: a chain needs the id even

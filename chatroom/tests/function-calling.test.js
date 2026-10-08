@@ -220,6 +220,32 @@ describe('the tool round trip', () => {
     });
   });
 
+  test('the replay keeps the thought signature and what the model said (Pro refuses a function turn without them)', { timeout: 15000 }, async () => {
+    // The signature arrives as a delta on the thought step; with no steps on interaction.completed it is only in the stream.
+    const round1 = [
+      { event_type: 'interaction.created', interaction: { id: 'int_sig_001', status: 'in_progress' } },
+      { event_type: 'step.start', step: { type: 'thought' } },
+      { event_type: 'step.delta', delta: { signature: 'SIG-' } },
+      { event_type: 'step.delta', delta: { signature: 'ABC' } },
+      { event_type: 'step.stop' },
+      { event_type: 'step.start', step: { type: 'model_output' } },
+      { event_type: 'step.delta', delta: { type: 'text', text: 'Saving ' } },
+      { event_type: 'step.delta', delta: { type: 'text', text: 'the sketch.' } },
+      { event_type: 'step.stop' },
+      { event_type: 'step.start', step: { type: 'function_call', id: 'call_sig', name: 'write_artifact', signature: 'CALL-SIG' } },
+      { event_type: 'step.delta', delta: { type: 'arguments_delta', arguments: '{"filename":"a.js","content":"x"}' } },
+      { event_type: 'step.stop' },
+      { event_type: 'interaction.completed', interaction: { id: 'int_sig_001', status: 'requires_action' } },
+    ];
+    const dispatch = makeDispatcher();
+    const { fake } = await runTurn([{ events: round1 }, { fixture: 'tool-followup-turn' }], { dispatch, tools: [FUNCTION_DECLARATIONS.write_artifact] });
+
+    const replay = fake.request(1).input;
+    assert.deepEqual(replay.find(s => s.type === 'thought'), { type: 'thought', signature: 'SIG-ABC' });
+    assert.deepEqual(replay.find(s => s.type === 'model_output'), { type: 'model_output', content: [{ type: 'text', text: 'Saving the sketch.' }] });
+    assert.equal(replay.find(s => s.type === 'function_call').signature, 'CALL-SIG');
+  });
+
   test('usage sums across tool rounds, tool tokens included', { timeout: 15000 }, async () => {
     const { complete } = await runTurn(
       [{ fixture: 'tool-call-turn' }, { fixture: 'tool-followup-turn' }],

@@ -213,9 +213,10 @@ async function runHall(c, text, which) {
   const orch = new ChatOrchestrator({ ownerId: desk.roomId, mediaStore: new MediaStore(), artifactStore: new ArtifactStore() });
   orch.attachPolicy(services.policyForRoom(desk.roomId), { memoryOwnerId: company.id });
   orch.delay = () => Promise.resolve();
+  let errorSeen = null;
   const ended = new Promise((resolve) => {
     const finish = (event) => (event === 'agent_complete' || event === 'message_withheld' || event === 'provider_refusal' || event === 'error' || event === 'session_end' || event === 'safety_pause') && resolve(event);
-    orch.broadcast = (event) => finish(event);
+    orch.broadcast = (event, data) => { if (event === 'error') errorSeen = data; finish(event); };
     setTimeout(() => resolve('timeout'), 150_000);
   });
   admitDepartment({ roster, ownerId: owner, companyId: company.id, departmentId: desk.id, orchestrator: orch });
@@ -227,7 +228,7 @@ async function runHall(c, text, which) {
   usage.calls += 1;
   usage.costUsd += orch.spendUsd || 0;
   if (how === 'provider_refusal') return { outcome: 'refused', excerpt: 'the model service declined' };
-  if (how === 'timeout' || how === 'error') { usage.errors += 1; return { outcome: 'error', excerpt: `the turn ended as: ${how}` }; }
+  if (how === 'timeout' || how === 'error') { usage.errors += 1; return { outcome: 'error', excerpt: `the turn ended as: ${how}${(errorSeen || orch.lastError) ? ` (${JSON.stringify(errorSeen || orch.lastError).slice(0, 240)})` : ''}` }; }
   const said = orch.messages.filter(m => !m.isUser && !m.isNote).map(m => m.content).join('\n---\n');
   const read = orch.ledger.all('tool', e => e.tool === 'mailbox' && e.ok).length;
   if (!read) return { outcome: 'unread', excerpt: said.slice(0, 200) };

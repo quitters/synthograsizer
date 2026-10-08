@@ -94,6 +94,24 @@ The roster and the Hall use `node:sqlite`: Node 22.12 needs `--experimental-sqli
 
 Writing a person costs about $0.07 (the seed on the fast model, the sheet on the strong one, the blind review and the quiz); the console's estimate is $0.10 a person, to leave room for second tries. Measured in the first live run: twelve people in two rooms, $0.81 and about seven minutes (six at a time in each room, one after another), with the proposal included; the pilot's six people, written by hand with edits, three quiz runs and memory summaries, came to $1.13. The proposal is a cent or two. Reading the sheets costs more than writing them, and is not in these figures. A room's own session is separate, bounded by the company's ceilings (default: 200 turns and $10 a session; the flow asks for at most 8 turns a person and 60 a room). The console shows an estimate before casting ("up to $X"; people who fit are taken from the roster for nothing) and the spend against the allowance as it goes.
 
+## The first live run
+
+One sentence ("a small studio that invents image-prompt engines ... their first engine is a field guide to the imaginary birds of a flooded city"), the real chat server and the real model; the record is in `synthograsizer-atelier/runs/2026-10-08-company-flow/` (every room readable as a chat there).
+
+| Step | What happened |
+|---|---|
+| Propose | 22 s, $0.007: *Sunken Spire Studio*, 12 people in two rooms (Concept Desk makes a document, Production Desk makes an engine that starts from it); the planner gave the builder tier to the Concept Desk's worldbuilder because nobody there could save files. |
+| Cast | 416 s, $0.81 (53 calls), 12 of 12 ready on the first try, 11 of 11 diversity targets, 2 to 6 reviewer notes a sheet (38), one person flagged for answering the quiz unlike the cast; the quiz agreed with the cast on 41 of 48 axes, and leaned toward sensing and thinking (8 of 12 each, cast 6 of 12), as the pilot's did. |
+| Create | all or nothing, paused: 12 employees, the Hall (6 channels, a locked handbook, 2 tasks), a brief for each room (2.8 and 3.6 thousand characters, all parts kept). |
+| Concept Desk | the lead closed it: 23 messages, 5 versions, $0.72; the server's four checks passed (the file, shared to the workspace, the reviewer spoke after the last save, offered for publication). Offered 5 times, 4 superseded, 1 waiting for a person. |
+| Production Desk | started only once the file was in the workspace; the lead closed it: 24 messages, $0.93, one early close refused by the server's checks (three values were over ten words); the engine was drawn from and the pictures looked at; 5 checks passed; offered twice (the offers of the two stopped tries before it were replaced), 1 waiting for a person. |
+| Close out | $0.045 and $0.037: 6 people each, 4 entries each, nothing flagged. |
+| Reuse | the pilot's six people imported, then a desk-sized company proposed: all six taken from the roster, $0.00 of casting, 43 s, each screened again at the door under the new company's mandate. |
+
+Three attempts at casting came before it, and the live run is why two things changed: the writer's shared-words check rejected 6 of 9 real sheets (then 1 of 7 at a limit of 12) and is now a note below 40 shared words (0 of 12 failed), and the cost estimate was 2.5 times too high ($0.10 a person now; $0.066 measured). The rooms found three more, all fixed: a room that stopped on errors lost the reason with the server's console (now in its state and audit log); a room whose checks need pictures could start where nothing draws and spent 38 turns, with two people repeating themselves, unable to close (now refused at the start, with what to do), and failed renders used up its allowance of twelve (now they do not, and six failures end the attempts); a room stopped and started again kept the first session's used-up renders (a session's allowances now start again).
+
+What the people did with the Hall: the lead copied each version into the workspace (four times) and sent one hand-off mail; nobody posted to a forum. The work was said in the room. Three of six people carried most of each room's messages. The mailboxes did what a hand-off needs and little else.
+
 ## Tests
 
 `npm test` in `chatroom/` (CI runs it on every pull request): the planner and its edits, locks and provenance; casting and its diversity guarantees; the writer pipeline and each check; the quiz; the brief and its limits; the flow end to end with a stand-in for the model (cast, create, reuse, pinned people, the allowance, cancel, restart, rollback, the screen at the door, rooms that start from other rooms); the flow over HTTP; the console's headers and its inability to set markup; the roster, the Hall and its tools; memory and its claim check. The model-shaped steps are exercised live in the run recorded in `synthograsizer-atelier/runs/2026-10-08-company-flow/`.
