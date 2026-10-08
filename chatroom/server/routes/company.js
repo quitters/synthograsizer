@@ -8,14 +8,17 @@
  * A company belongs to the visitor who made it. Another visitor's company is "no such company", never "not yours".
  */
 import { Router } from 'express';
-import { SCHEMAS, schemaDocument, validate } from '../company/schema.js';
+import { SCHEMAS, schemaDocument } from '../company/schema.js';
 import { DEFAULT_MISSION } from '../company/mission.js';
 import { DEFAULT_HOUSE_RULES, HOUSE_RULES_MAX_CHARS } from '../company/houseRules.js';
 import { HARD_LIMITS, PUBLISHING_FLOOR, PUBLISHING_REQUIREMENTS } from '../company/hardLimits.js';
 import { MANDATE_DIALS } from '../company/mandate.js';
-import { PolicyError, isPolicyError } from '../company/errors.js';
+import { PolicyError } from '../company/errors.js';
 import { tiersThatFit, KNOWN_TOOLS } from '../company/toolGrants.js';
 import { peekRoom, dropRoom } from '../services/sessionRegistry.js';
+import { handle, checkBody, jsonOnlyChanges } from './httpUtil.js';
+import { createHallRouter } from './hall.js';
+import { createRosterRouter, createPeopleRouter } from './roster.js';
 
 const ENDPOINTS = [
   ['GET', '/api/company/schema', 'This document.'],
@@ -38,25 +41,53 @@ const ENDPOINTS = [
   ['POST', '/api/company/:id/publish/:item/reject', 'Reject it. Body: { reason? }.'],
   ['POST', '/api/company/:id/publish/:item/rescreen', 'Review it again (only if it is waiting for a person or the screen could not run; a block is final).'],
   ['GET', '/api/company/:id/publish/:item/export', 'The approved work, labelled AI-generated.'],
+  // the roster: the library of invented people
+  ['GET', '/api/company/roster', 'The roster: your library of invented people. ?status= &archetype= &region= &tier= &q= &limit= &offset='],
+  ['GET', '/api/company/roster/spread', 'How the ready people spread over region, age, pronoun, archetype, tier, dissent and type.'],
+  ['POST', '/api/company/roster', 'Import one person as an Agent Profile (a draft until you mark it ready). Body: candidateImport.'],
+  ['GET', '/api/company/roster/:candidate', 'One person: the sheet, the facts, the checks, the quiz.'],
+  ['GET', '/api/company/roster/:candidate/export', 'The person as an Agent Profile JSON file.'],
+  ['PATCH', '/api/company/roster/:candidate', 'Edit a person, or retire them. Body: candidatePatch.'],
+  ['DELETE', '/api/company/roster/:candidate', 'Delete a person from the roster (not while they work at a company).'],
+  // the people of a company
+  ['GET', '/api/company/:id/people', 'Who works at this company, and the seats they hold. ?left=1 includes people who left.'],
+  ['POST', '/api/company/:id/people', 'Hire a person from the roster into a department. Body: hire.'],
+  ['GET', '/api/company/:id/people/:employee', 'One person at this company, with their seats.'],
+  ['DELETE', '/api/company/:id/people/:employee', 'Let a person go (their memory of this company is kept until you delete it).'],
+  ['POST', '/api/company/:id/people/:employee/seats', 'Give a person another seat (a second department, or a task team). Body: seat.'],
+  ['DELETE', '/api/company/:id/people/seats/:assignment', 'End one seat; the person stays.'],
+  ['GET', '/api/company/:id/people/:employee/memory', 'What a person remembers at this company, to read.'],
+  ['POST', '/api/company/:id/people/:employee/memory', 'Add a note to what a person remembers. Body: memoryEntry.'],
+  ['PATCH', '/api/company/:id/people/:employee/memory/:entry', 'Correct a memory, or mark it contradicted. Body: memoryPatch.'],
+  ['DELETE', '/api/company/:id/people/:employee/memory/:entry', 'Delete a memory. It is deleted.'],
+  // the Hall: how the people reach each other between rooms
+  ['GET', '/api/company/:id/hall', 'The Hall at a glance: people with their mail counts, channels, files, tasks, working agreements.'],
+  ['GET', '/api/company/:id/hall/directory', 'Who works here, in which rooms, reporting to whom.'],
+  ['GET', '/api/company/:id/hall/mail', 'Every mailbox, or one person\'s. ?employee= &state= &thread= &limit='],
+  ['POST', '/api/company/:id/hall/mail', 'Send a notice to some of the people. Body: ownerMail.'],
+  ['GET', '/api/company/:id/hall/forums', 'The forum channels.'],
+  ['POST', '/api/company/:id/hall/forums', 'Add a channel. Body: forumChannel.'],
+  ['GET', '/api/company/:id/hall/forums/:channel', 'A channel\'s threads.'],
+  ['GET', '/api/company/:id/hall/forums/:channel/threads/:thread', 'One thread.'],
+  ['POST', '/api/company/:id/hall/forums/:channel/threads', 'Start a thread as the owner. Body: forumThread.'],
+  ['POST', '/api/company/:id/hall/forums/:channel/threads/:thread/replies', 'Reply as the owner. Body: forumReply.'],
+  ['POST', '/api/company/:id/hall/forums/posts/:post/pin', 'Pin or unpin a thread. Body: { pinned? }.'],
+  ['DELETE', '/api/company/:id/hall/forums/posts/:post', 'Remove a post (a thread\'s first post removes the thread).'],
+  ['GET', '/api/company/:id/hall/workspace', 'The shared files.'],
+  ['GET', '/api/company/:id/hall/workspace/file', 'One file and its versions. ?path= &version='],
+  ['PUT', '/api/company/:id/hall/workspace/file', 'Write a file as the owner (locked ones too). Body: workspaceWrite.'],
+  ['POST', '/api/company/:id/hall/workspace/lock', 'Lock or unlock a file. Body: workspaceLock.'],
+  ['DELETE', '/api/company/:id/hall/workspace/file', 'Remove a file. ?path='],
+  ['GET', '/api/company/:id/hall/board', 'The tasks. ?status= &closed=1'],
+  ['POST', '/api/company/:id/hall/board', 'Add a task as the owner. Body: boardCreate.'],
+  ['PATCH', '/api/company/:id/hall/board/:task', 'Change a task. Body: boardPatch.'],
+  ['DELETE', '/api/company/:id/hall/board/:task', 'Remove a task.'],
+  ['POST', '/api/company/:id/hall/board/:task/team', 'Make a room (a task team) for a task: its lead and members are seated in it. Only you can.'],
+  ['GET', '/api/company/:id/hall/norms', 'The working agreements people proposed. ?status='],
+  ['POST', '/api/company/:id/hall/norms/:norm/approve', 'Approve one: it joins everyone\'s fixed layer under the house rules.'],
+  ['POST', '/api/company/:id/hall/norms/:norm/reject', 'Reject one.'],
+  ['POST', '/api/company/:id/hall/norms/:norm/withdraw', 'End an approved one.'],
 ].map(([method, path, description]) => ({ method, path, description }));
-
-function checkBody(schema, body) {
-  const errors = validate(schema, body ?? {});
-  if (errors.length) throw new PolicyError(errors.join('; '), { status: 400, code: 'bad_request' });
-  return body ?? {};
-}
-
-const handle = (fn) => async (req, res) => {
-  try {
-    await fn(req, res);
-  } catch (err) {
-    if (isPolicyError(err)) {
-      return res.status(err.status).json({ error: err.message, code: err.code, ...(err.field ? { field: err.field } : {}) });
-    }
-    console.error('[company]', err);
-    res.status(500).json({ error: 'Something went wrong.' });
-  }
-};
 
 /** @param {ReturnType<import('../company/index.js').createCompanyServices>} services */
 export function createCompanyRouter(services) {
@@ -65,11 +96,7 @@ export function createCompanyRouter(services) {
 
   // Every change is a JSON request. A page on another origin cannot send one without a preflight (which the CORS list refuses), so a
   // hostile page cannot press "approve" for the owner with a plain form post or a text/plain fetch.
-  router.use((req, res, next) => {
-    if (req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS') return next();
-    if (/^application\/json\b/i.test(req.headers['content-type'] || '')) return next();
-    return res.status(415).json({ error: 'Send changes as application/json.', code: 'json_required' });
-  });
+  router.use(jsonOnlyChanges);
 
   // ── things anyone may read ──────────────────────────────────────────────────
 
@@ -91,6 +118,13 @@ export function createCompanyRouter(services) {
   router.get('/operator', (req, res) => res.json(operator.snapshot()));
   router.get('/mission', (req, res) => res.json(DEFAULT_MISSION));
   router.get('/house-rules', (req, res) => res.json({ ...DEFAULT_HOUSE_RULES, maxChars: HOUSE_RULES_MAX_CHARS }));
+
+  // ── the roster, the people, the Hall ───────────────────────────────────────
+  // (mounted before the routes of a single company, so that "roster" is never read as a company id)
+
+  router.use('/roster', createRosterRouter(services));
+  router.use('/:id/people', createPeopleRouter(services));
+  router.use('/:id/hall', createHallRouter(services));
 
   // ── companies ───────────────────────────────────────────────────────────────
 
@@ -121,6 +155,9 @@ export function createCompanyRouter(services) {
   router.delete('/:id', handle((req, res) => {
     const { roomIds } = store.remove(req.params.id, req.visitorId);
     for (const roomId of roomIds) dropRoom(roomId);
+    // the people who worked there, what they remembered there, and everything the Hall kept for it (nothing is created by asking)
+    const hall = services.tryHall();
+    if (hall) { hall.removeCompany(req.visitorId, req.params.id); hall.roster.removeCompany(req.visitorId, req.params.id); }
     res.json({ deleted: true });
   }));
 

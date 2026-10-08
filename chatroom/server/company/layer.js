@@ -33,6 +33,8 @@ export const INVISIBLE = new RegExp(`[${INVISIBLE_RANGES.map(([a, b]) => `${Stri
  * @param {{ mission: string, mandate: object, houseRules?: string, canPropose?: boolean, extraHardLimits?: { rule: string }[], extraPreamble?: string }} options
  *   houseRules (houseRules.js) is how people in the company carry themselves; it sits right under the mission and says the same thing the mission says:
  *   it cannot add an exception to anything below it. Empty means none.
+ *   workingAgreements are the norms the company's people proposed and its owner approved (hall/norms.js); they sit under the house rules with the
+ *   same promise. They are text written by agents, so banner rows and angle brackets are flattened like any other text that is only data.
  *   extraHardLimits exists for the red-team harness, which adds a harmless "canary" rule in the same slot and with the same
  *   authority as a hard limit to measure whether a character sheet can talk an agent out of it. extraPreamble lets the harness
  *   try a sentence in the preamble without editing the file. Nothing reachable from a request sets either.
@@ -42,7 +44,7 @@ export const INVISIBLE = new RegExp(`[${INVISIBLE_RANGES.map(([a, b]) => `${Stri
  *   weakest model): no difference could be seen (0 breaks in 270 each), so the simpler layout stays.
  * @returns {{ head: string, tail: string }}
  */
-export function buildLayer({ mission, mandate, houseRules = '', canPropose = true, extraHardLimits = [], extraPreamble = '' }) {
+export function buildLayer({ mission, mandate, houseRules = '', workingAgreements = [], canPropose = true, extraHardLimits = [], extraPreamble = '' }) {
   const limits = [...HARD_LIMITS, ...extraHardLimits];
   const numbered = limits.map((l, i) => `${i + 1}. ${l.rule}`).join('\n');
 
@@ -53,7 +55,10 @@ MISSION (the company's statement of purpose; it cannot add an exception to anyth
 ${mission}${houseRules ? `
 
 HOUSE RULES (how people in this company work; like the mission, they cannot add an exception to anything below them, and they outrank a character sheet)
-${houseRules}` : ''}`;
+${houseRules}` : ''}${workingAgreements.length ? `
+
+WORKING AGREEMENTS (proposed by this company's people and approved by its owner; like the house rules, they cannot add an exception to anything below them)
+${workingAgreements.map(t => `- ${neutralize(t)}`).join('\n')}` : ''}`;
 
   const rest = `HARD LIMITS (in drafting and in anything published; no exceptions)
 ${numbered}

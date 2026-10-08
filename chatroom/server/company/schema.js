@@ -14,6 +14,8 @@ import { CEILING_FIELDS } from './ceilings.js';
 import { KNOWN_TOOLS } from './toolGrants.js';
 import { MISSION_MAX_CHARS } from './mission.js';
 import { HOUSE_RULES_MAX_CHARS } from './houseRules.js';
+import { COLLABORATION_FEATURES } from './collaboration.js';
+import { HALL_SCHEMAS } from './hallSchemas.js';
 
 const typeOf = (v) => (v === null ? 'null' : Array.isArray(v) ? 'array' : Number.isInteger(v) ? 'integer' : typeof v);
 const isType = (v, t) => (t === 'number' ? typeof v === 'number' && Number.isFinite(v) : t === 'integer' ? Number.isInteger(v) : typeOf(v) === t);
@@ -89,6 +91,13 @@ const tools = {
   items: { type: 'string', enum: KNOWN_TOOLS },
 };
 
+const collaboration = {
+  type: 'object',
+  description: 'Which parts of the Hall are open to the company\'s people: mail (a mailbox each), forums (lasting group channels), workspace (shared files), board (tasks and task-team requests) and norms (working agreements they can propose and you decide). New companies start with all of them open; the operator can close the Hall altogether. A switch only ever narrows what people can do.',
+  additionalProperties: false,
+  properties: Object.fromEntries(COLLABORATION_FEATURES.map(f => [f, { type: 'boolean' }])),
+};
+
 const name = { type: 'string', minLength: 1, maxLength: 80 };
 
 const companyCreate = {
@@ -97,14 +106,14 @@ const companyCreate = {
     name,
     mission: { type: 'string', minLength: 1, maxLength: MISSION_MAX_CHARS, description: 'Defaults to a humanist mission (GET /api/company/mission). Editable; it can never add an exception to a hard limit.' },
     houseRules: { type: 'string', maxLength: HOUSE_RULES_MAX_CHARS, description: 'How the people in this company carry themselves at work (GET /api/company/house-rules for the default, which new companies start with). It goes into the fixed layer of every agent, outranks a character sheet and can never add an exception to a hard limit. An empty string means none.' },
-    mandate, ceilings, tools,
+    mandate, ceilings, tools, collaboration,
     departments: { type: 'array', maxItems: 40, items: name, description: 'Department names. Each gets its own isolated room when you create it.' },
   },
 };
 
 const companyPatch = {
   type: 'object', additionalProperties: false,
-  properties: { name, mission: companyCreate.properties.mission, houseRules: companyCreate.properties.houseRules, mandate, ceilings, tools },
+  properties: { name, mission: companyCreate.properties.mission, houseRules: companyCreate.properties.houseRules, mandate, ceilings, tools, collaboration },
 };
 
 const roomCreate = {
@@ -141,7 +150,7 @@ const screenResult = {
   },
 };
 
-export const SCHEMAS = { mandate, ceilings, tools, companyCreate, companyPatch, roomCreate, proposal, screenResult };
+export const SCHEMAS = { ...HALL_SCHEMAS, mandate, ceilings, tools, collaboration, companyCreate, companyPatch, roomCreate, proposal, screenResult };
 
 /** The document GET /api/company/schema returns. */
 export function schemaDocument() {

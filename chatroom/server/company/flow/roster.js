@@ -136,7 +136,7 @@ export class RosterStore {
   }
 
   /**
-   * The candidates, newest first (by when they were added). `q` matches name, role, culture or skills. `employed` is how many companies the person works in now.
+   * The candidates, newest first (by when they were added). `q` matches name, role, culture, skills, birthplace or archetype. `employed` is how many companies the person works in now.
    * @param {string} ownerId
    * @param {{ status?: string, archetype?: string, region?: string, tier?: string, q?: string, limit?: number, offset?: number, full?: boolean }} [filter]
    */
@@ -150,8 +150,9 @@ export class RosterStore {
     if (tier) { where.push('c.tier = ?'); args.push(tier); }
     if (q) {
       const like = `%${String(q).replace(/[%_\\]/g, m => `\\${m}`)}%`;
-      where.push("(c.name LIKE ? ESCAPE '\\' OR c.role LIKE ? ESCAPE '\\' OR c.culture LIKE ? ESCAPE '\\' OR c.skills LIKE ? ESCAPE '\\')");
-      args.push(like, like, like, like);
+      const fields = ['c.name', 'c.role', 'c.culture', 'c.skills', 'c.birth_city', 'c.birth_country', 'c.archetype'];
+      where.push(`(${fields.map(f => `${f} LIKE ? ESCAPE '\\'`).join(' OR ')})`);
+      args.push(...fields.map(() => like));
     }
     const rows = this.db.prepare(
       `SELECT c.*, (SELECT COUNT(*) FROM employees e WHERE e.candidate_id = c.id AND e.left_at IS NULL) AS employed
@@ -251,12 +252,14 @@ export class RosterStore {
     };
   }
 
-  // ── employees ──────────────────────────────────────────────────────────────
+  // ── employees and their seats ─────────────────────────────────────────────
 
   /**
-   * Give a candidate a seat in a company's department.
+   * Hire a candidate into a company. That makes an EMPLOYEE (the person at work there: one mailbox, one memory, a standing title) and a first
+   * SEAT (an assignment: the person's place in one department's room). A person can take more seats later (assign), for a task team.
    * @param {string} ownerId
    * @param {{ companyId: string, departmentId: string, candidateId: string, position: string, reportsTo?: string|null, isLead?: boolean, reviewerOf?: string|null, tier?: string, model?: string, thinking?: string, knobs?: object }} input
+   * @returns {object} the seat (see _seatShape): employeeId and assignmentId both
    */
   hire(ownerId, input) {
     needOwner(ownerId);
@@ -266,25 +269,63 @@ export class RosterStore {
     if (typeof position !== 'string' || !position.trim()) throw bad('A hire needs a position.', { field: 'position' });
     const cand = this._row(ownerId, candidateId);
     if (cand.status !== 'ready') throw new PolicyError(`${cand.name} is ${cand.status}, not ready to hire. Approve the sheet first.`, { status: 409, code: 'candidate_not_ready' });
-    const row = {
-      id: rid(), owner_id: ownerId, company_id: companyId, department_id: departmentId, candidate_id: cand.id,
-      position: position.trim().slice(0, 80), reports_to: input.reportsTo || null, is_lead: input.isLead ? 1 : 0, reviewer_of: input.reviewerOf || null,
-      tier: input.tier || cand.tier, model: input.model ?? cand.model, thinking: input.thinking ?? cand.thinking,
+    const emp = {
+      id: rid(), owner_id: ownerId, company_id: companyId, candidate_id: cand.id, title: position.trim().slice(0, 80),
       knobs: json(input.knobs || {}), sessions: 0, hired_at: this._stamp(), left_at: null,
     };
+    let seatId;
+    transaction(this.db, () => {
+      try {
+        this.db.prepare(`INSERT INTO employees (${Object.keys(emp).join(', ')}) VALUES (${Object.keys(emp).map(() => '?').join(', ')})`).run(...Object.values(emp));
+      } catch (err) {
+        if (/UNIQUE/.test(String(err.message))) throw new PolicyError(`${cand.name} already works at this company.`, { status: 409, code: 'already_hired' });
+        throw err;
+      }
+      seatId = this._insertSeat(ownerId, emp.id, companyId, { ...input, tier: input.tier || cand.tier, model: input.model ?? cand.model, thinking: input.thinking ?? cand.thinking });
+    });
+    return this.getSeat(ownerId, seatId);
+  }
+
+  _insertSeat(ownerId, employeeId, companyId, input) {
+    const row = {
+      id: rid(), owner_id: ownerId, company_id: companyId, employee_id: employeeId, department_id: input.departmentId, position: String(input.position).trim().slice(0, 80),
+      reports_to: input.reportsTo || null, is_lead: input.isLead ? 1 : 0, reviewer_of: input.reviewerOf || null,
+      tier: input.tier || 'none', model: input.model ?? null, thinking: input.thinking ?? null, task_id: input.taskId || null, created_at: this._stamp(), ended_at: null,
+    };
     try {
-      this.db.prepare(`INSERT INTO employees (${Object.keys(row).join(', ')}) VALUES (${Object.keys(row).map(() => '?').join(', ')})`).run(...Object.values(row));
+      this.db.prepare(`INSERT INTO assignments (${Object.keys(row).join(', ')}) VALUES (${Object.keys(row).map(() => '?').join(', ')})`).run(...Object.values(row));
     } catch (err) {
-      if (/UNIQUE/.test(String(err.message))) throw new PolicyError(`${cand.name} already works at this company.`, { status: 409, code: 'already_hired' });
+      if (/UNIQUE/.test(String(err.message))) throw new PolicyError('That person already has a seat in that department.', { status: 409, code: 'already_seated' });
       throw err;
     }
-    return this.getEmployee(ownerId, row.id);
+    return row.id;
+  }
+
+  /** Give an employee another seat (a task team's room, or a second department). */
+  assign(ownerId, employeeId, input) {
+    const e = this._employeeRow(ownerId, employeeId);
+    if (e.left_at) throw new PolicyError(`${e.name} has left this company.`, { status: 409, code: 'employee_left' });
+    if (typeof input?.departmentId !== 'string' || !/^[a-f0-9]{8}$/.test(input.departmentId)) throw bad('A seat needs the department id.', { field: 'departmentId' });
+    if (typeof input?.position !== 'string' || !input.position.trim()) throw bad('A seat needs a position.', { field: 'position' });
+    // A second seat runs the way the first does (tier, model, thinking) unless it says otherwise
+    const home = this._seats(ownerId, { employeeId: e.id })[0];
+    const seat = this._insertSeat(ownerId, e.id, e.company_id, { tier: home?.tier ?? e.tier, model: home?.model ?? null, thinking: home?.thinking ?? null, ...input });
+    return this.getSeat(ownerId, seat);
+  }
+
+  /** End a seat. The person stays an employee, with their mailbox and memory, and any other seat they hold. */
+  unassign(ownerId, assignmentId) {
+    needOwner(ownerId);
+    const row = this.db.prepare('SELECT id, ended_at FROM assignments WHERE id = ? AND owner_id = ?').get(String(assignmentId), ownerId);
+    if (!row) throw missing('seat');
+    if (!row.ended_at) this.db.prepare('UPDATE assignments SET ended_at = ? WHERE id = ?').run(this._stamp(), row.id);
+    return this.getSeat(ownerId, row.id);
   }
 
   _employeeRow(ownerId, id) {
     needOwner(ownerId);
     const row = this.db.prepare(
-      `SELECT e.*, c.name AS name, c.role AS role, c.archetype AS archetype, c.profile AS profile
+      `SELECT e.*, c.name AS name, c.role AS role, c.archetype AS archetype, c.tier AS tier, c.profile AS profile
        FROM employees e JOIN candidates c ON c.id = e.candidate_id WHERE e.id = ? AND e.owner_id = ?`,
     ).get(String(id), ownerId);
     if (!row) throw missing('employee');
@@ -293,37 +334,83 @@ export class RosterStore {
 
   _employeeShape(row, { profile = false } = {}) {
     return {
-      id: row.id, companyId: row.company_id, departmentId: row.department_id, candidateId: row.candidate_id,
-      name: row.name, role: row.role, archetype: row.archetype, position: row.position, reportsTo: row.reports_to, isLead: Boolean(row.is_lead), reviewerOf: row.reviewer_of,
-      tier: row.tier, model: row.model, thinking: row.thinking, knobs: parse(row.knobs, {}), sessions: row.sessions, hiredAt: row.hired_at, leftAt: row.left_at,
+      id: row.id, companyId: row.company_id, candidateId: row.candidate_id, name: row.name, role: row.role, archetype: row.archetype, title: row.title,
+      knobs: parse(row.knobs, {}), sessions: row.sessions, hiredAt: row.hired_at, leftAt: row.left_at,
       ...(profile ? { profile: parse(row.profile, null) } : {}),
     };
   }
 
-  getEmployee(ownerId, id, opts) { return this._employeeShape(this._employeeRow(ownerId, id), opts); }
-
-  /** The people who work in a company (or one of its departments), in the order they were hired. */
-  employeesOf(ownerId, companyId, { departmentId = null, includeLeft = false, profile = false } = {}) {
-    needOwner(ownerId);
-    const where = ['e.owner_id = ?', 'e.company_id = ?'];
-    const args = [ownerId, companyId];
-    if (departmentId) { where.push('e.department_id = ?'); args.push(departmentId); }
-    if (!includeLeft) where.push('e.left_at IS NULL');
-    return this.db.prepare(
-      `SELECT e.*, c.name AS name, c.role AS role, c.archetype AS archetype, c.profile AS profile
-       FROM employees e JOIN candidates c ON c.id = e.candidate_id WHERE ${where.join(' AND ')} ORDER BY e.rowid`,
-    ).all(...args).map(r => this._employeeShape(plain(r), { profile }));
+  /** One person at a company, with the seats they hold now. */
+  getEmployee(ownerId, id, opts = {}) {
+    const e = this._employeeShape(this._employeeRow(ownerId, id), opts);
+    return { ...e, seats: this._seats(ownerId, { employeeId: e.id, includeEnded: Boolean(e.leftAt) }) };
   }
 
-  /** The person leaves the company. Their memory of it is kept until the owner deletes it (forgetEmployee) or the company is deleted. */
+  /** The people who work at a company, one row each, in the order they were hired. */
+  employeesOf(ownerId, companyId, { includeLeft = false, profile = false } = {}) {
+    needOwner(ownerId);
+    return this.db.prepare(
+      `SELECT e.*, c.name AS name, c.role AS role, c.archetype AS archetype, c.tier AS tier, c.profile AS profile
+       FROM employees e JOIN candidates c ON c.id = e.candidate_id
+       WHERE e.owner_id = ? AND e.company_id = ? ${includeLeft ? '' : 'AND e.left_at IS NULL'} ORDER BY e.rowid`,
+    ).all(ownerId, companyId).map(r => this._employeeShape(plain(r), { profile }));
+  }
+
+  _seats(ownerId, { companyId, departmentId, employeeId, assignmentId, includeEnded = false, profile = false } = {}) {
+    const where = ['a.owner_id = ?'];
+    const args = [ownerId];
+    if (companyId) { where.push('a.company_id = ?'); args.push(companyId); }
+    if (departmentId) { where.push('a.department_id = ?'); args.push(departmentId); }
+    if (employeeId) { where.push('a.employee_id = ?'); args.push(employeeId); }
+    if (assignmentId) { where.push('a.id = ?'); args.push(assignmentId); }
+    if (!includeEnded) where.push('a.ended_at IS NULL AND e.left_at IS NULL');
+    return this.db.prepare(
+      `SELECT a.id AS assignment_id, a.employee_id, a.company_id, a.department_id, a.position, a.reports_to, a.is_lead, a.reviewer_of,
+              a.tier, a.model, a.thinking, a.task_id, a.created_at AS seated_at, a.ended_at,
+              e.candidate_id, e.title, e.knobs, e.sessions, e.hired_at, e.left_at,
+              c.name, c.role, c.archetype, c.profile
+       FROM assignments a JOIN employees e ON e.id = a.employee_id JOIN candidates c ON c.id = e.candidate_id
+       WHERE ${where.join(' AND ')} ORDER BY a.rowid`,
+    ).all(...args).map(r => this._seatShape(plain(r), { profile }));
+  }
+
+  _seatShape(r, { profile = false } = {}) {
+    return {
+      assignmentId: r.assignment_id, employeeId: r.employee_id, companyId: r.company_id, departmentId: r.department_id, candidateId: r.candidate_id,
+      name: r.name, role: r.role, archetype: r.archetype, title: r.title, position: r.position, reportsTo: r.reports_to, isLead: Boolean(r.is_lead), reviewerOf: r.reviewer_of,
+      tier: r.tier, model: r.model, thinking: r.thinking, taskId: r.task_id, knobs: parse(r.knobs, {}), sessions: r.sessions,
+      hiredAt: r.hired_at, leftAt: r.left_at, seatedAt: r.seated_at, endedAt: r.ended_at,
+      ...(profile ? { profile: parse(r.profile, null) } : {}),
+    };
+  }
+
+  getSeat(ownerId, assignmentId, opts = {}) {
+    needOwner(ownerId);
+    const seat = this._seats(ownerId, { assignmentId: String(assignmentId), includeEnded: true, ...opts })[0];
+    if (!seat) throw missing('seat');
+    return seat;
+  }
+
+  /** The seats in a department's room (or all of a company's), in the order they were taken. This is who the room is made of. */
+  seatsOf(ownerId, companyId, { departmentId = null, includeEnded = false, profile = false } = {}) {
+    needOwner(ownerId);
+    return this._seats(ownerId, { companyId, departmentId, includeEnded, profile });
+  }
+
+  /** The person leaves the company: every seat ends. Their memory of it is kept until the owner deletes it (forgetEmployee) or the company is deleted. */
   leave(ownerId, employeeId) {
     const e = this._employeeRow(ownerId, employeeId);
-    if (e.left_at) return this._employeeShape(e);
-    this.db.prepare('UPDATE employees SET left_at = ? WHERE id = ? AND owner_id = ?').run(this._stamp(), e.id, ownerId);
+    if (!e.left_at) {
+      transaction(this.db, () => {
+        const now = this._stamp();
+        this.db.prepare('UPDATE employees SET left_at = ? WHERE id = ? AND owner_id = ?').run(now, e.id, ownerId);
+        this.db.prepare('UPDATE assignments SET ended_at = ? WHERE employee_id = ? AND ended_at IS NULL').run(now, e.id);
+      });
+    }
     return this.getEmployee(ownerId, employeeId);
   }
 
-  /** Delete a leaver's seat and everything they remembered there. */
+  /** Delete a leaver's record and everything they remembered there (and, with the hall, their mailbox). */
   forgetEmployee(ownerId, employeeId) {
     const e = this._employeeRow(ownerId, employeeId);
     if (!e.left_at) throw new PolicyError('Take the person out of the company before deleting what they remember there.', { status: 409, code: 'still_employed' });
@@ -341,7 +428,7 @@ export class RosterStore {
     this.db.prepare('UPDATE employees SET sessions = sessions + 1 WHERE id = ? AND owner_id = ?').run(e.id, ownerId);
   }
 
-  /** A company was deleted: its seats go, and with them every memory anyone kept there. */
+  /** A company was deleted: its people go, and with them every seat and every memory anyone kept there. */
   removeCompany(ownerId, companyId) {
     needOwner(ownerId);
     const n = this.db.prepare('DELETE FROM employees WHERE owner_id = ? AND company_id = ?').run(ownerId, companyId).changes;

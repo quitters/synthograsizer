@@ -13,6 +13,8 @@ export const CEILING_FIELDS = deepFreeze({
   spendLimitUsd: { title: 'Most estimated spend in a session, in US dollars', min: 0, max: 10_000, integer: false },
   maxScreenStrikes: { title: 'Withheld turns in a row before the room pauses for a person', min: 1, max: 50, integer: true },
   maxPendingProposals: { title: 'Publication proposals that may wait for a person at once', min: 0, max: 500, integer: true },
+  maxMessagesPerPerson: { title: 'Mail and forum posts one person may write in a session', min: 0, max: 500, integer: true },
+  maxWorkspaceWritesPerPerson: { title: 'Workspace files one person may write in a session', min: 0, max: 200, integer: true },
 });
 
 export const CEILING_NAMES = Object.freeze(Object.keys(CEILING_FIELDS));
@@ -25,6 +27,8 @@ export const DEFAULT_OPERATOR_CEILINGS = deepFreeze({
   spendLimitUsd: 10,
   maxScreenStrikes: 3,
   maxPendingProposals: 20,
+  maxMessagesPerPerson: 30,
+  maxWorkspaceWritesPerPerson: 20,
 });
 
 /**

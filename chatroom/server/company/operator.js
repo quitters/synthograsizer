@@ -37,6 +37,7 @@ export function loadOperator({ env = process.env, dataDir, readFile = (p) => fs.
   let ceilings = clone(DEFAULT_OPERATOR_CEILINGS);
   let tools = [...DEFAULT_OPERATOR_TOOLS];
   let screen = { drafts: true, model: MODELS.FAST };
+  let hall = { enabled: true };
   let file = null;
 
   // ── the file (local installs only) ────────────────────────────────────────
@@ -46,7 +47,7 @@ export function loadOperator({ env = process.env, dataDir, readFile = (p) => fs.
       try {
         const parsed = JSON.parse(readFile(candidate));
         if (!isPlainObject(parsed)) throw new Error('it must be a JSON object');
-        const known = ['mandate', 'ceilings', 'tools', 'screen'];
+        const known = ['mandate', 'ceilings', 'tools', 'screen', 'hall'];
         const stray = Object.keys(parsed).filter(k => !known.includes(k));
         if (stray.length) throw new Error(`unknown section(s): ${stray.join(', ')}`);
 
@@ -67,6 +68,10 @@ export function loadOperator({ env = process.env, dataDir, readFile = (p) => fs.
         ceilings = { ...ceilings, ...c.value };
         if (parsed.tools !== undefined) tools = t.value;
         if (parsed.screen) screen = { ...screen, ...parsed.screen };
+        if (parsed.hall !== undefined) {
+          if (!isPlainObject(parsed.hall) || Object.keys(parsed.hall).some(k => k !== 'enabled') || typeof parsed.hall.enabled !== 'boolean') throw new Error('hall takes only "enabled": true or false');
+          hall = { enabled: parsed.hall.enabled };
+        }
         file = candidate;
         sources.push(`file ${candidate}`);
       } catch (err) {
@@ -90,6 +95,7 @@ export function loadOperator({ env = process.env, dataDir, readFile = (p) => fs.
   const envCeilings = {
     maxAgents: 'COMPANY_MAX_AGENTS', maxTurns: 'COMPANY_MAX_TURNS', tokenLimit: 'COMPANY_TOKEN_LIMIT', spendLimitUsd: 'COMPANY_SPEND_LIMIT_USD',
     maxScreenStrikes: 'COMPANY_MAX_SCREEN_STRIKES', maxPendingProposals: 'COMPANY_MAX_PENDING',
+    maxMessagesPerPerson: 'COMPANY_MAX_MESSAGES', maxWorkspaceWritesPerPerson: 'COMPANY_MAX_WORKSPACE_WRITES',
   };
   for (const name of CEILING_NAMES) {
     const raw = env[envCeilings[name]];
@@ -107,6 +113,7 @@ export function loadOperator({ env = process.env, dataDir, readFile = (p) => fs.
     if (t.ok) { tools = t.value; sources.push('env COMPANY_TOOLS'); } else warnings.push(`COMPANY_TOOLS was ignored (${t.errors[0]})`);
   }
 
+  if (env.COMPANY_HALL === '0') { hall = { enabled: false }; sources.push('env COMPANY_HALL'); }
   if (env.COMPANY_SCREEN_MODEL) { screen = { ...screen, model: env.COMPANY_SCREEN_MODEL }; sources.push('env COMPANY_SCREEN_MODEL'); }
 
   if (env.COMPANY_SCREEN_DRAFTS === '0') {
@@ -127,12 +134,13 @@ export function loadOperator({ env = process.env, dataDir, readFile = (p) => fs.
     ceilings: deepFreeze(ceilings),
     tools: deepFreeze(tools),
     screen: deepFreeze(screen),
+    hall: deepFreeze(hall),
     file,
     warnings: deepFreeze(warnings),
     sources: deepFreeze(sources),
   };
   operator.snapshot = () => ({
-    hosted, mandate: clone(mandate), ceilings: clone(ceilings), tools: [...tools], screen: { ...screen }, file, warnings: [...warnings], sources: [...sources],
+    hosted, mandate: clone(mandate), ceilings: clone(ceilings), tools: [...tools], screen: { ...screen }, hall: { ...hall }, file, warnings: [...warnings], sources: [...sources],
     fixed: 'The hard limits, the publishing floor, human approval of every publication and the AI-generated label are not settings; nothing here can change them.',
   });
   return Object.freeze(operator);

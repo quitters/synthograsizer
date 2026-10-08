@@ -222,6 +222,8 @@ export class ChatOrchestrator {
     this.ledger = new RoomLedger();
     // Review hand-offs: after a save, the named agent speaks next (a dissenter's say made structural; see _dueHandoff).
     this.handoffs = [];
+    // What each person has written to the Hall this session (agent id -> { messages, workspace }), against the company's ceilings
+    this.hallUse = new Map();
     // An independent critic that sees only pictures (see roomTools.js). Off until a host turns it on; a budget of scores per session.
     this.critic = { enabled: false, auto: true, referenceId: null, criteria: '', model: null, minScore: 6, maxCalls: 30, calls: 0 };
     // Renders asked for by agents or the host. Browser renders wait here for the page to answer (resolveRender).
@@ -341,6 +343,7 @@ export class ChatOrchestrator {
       thinkingLevel: normalizeThinkingLevel(a.thinkingLevel),
       // an agent with no tier is given the widest by default in a plain room, and the narrowest in a company's
       tools: isKnownToolTier(a.tools) ? a.tools : (this.policy ? 'none' : DEFAULT_TOOL_TIER),
+      employeeId: typeof a.employeeId === 'string' && a.employeeId ? a.employeeId : null,
       voice: isKnownVoice(a.voice) ? a.voice : defaultVoiceForIndex(i),
       ...(a.muted ? { muted: true } : {}),
     }));
@@ -1075,6 +1078,8 @@ export class ChatOrchestrator {
    */
   _closingNotes(speaker) {
     const notes = [];
+    const hallNote = this.policy?.hallNote?.(speaker);
+    if (hallNote) notes.push(hallNote);
     const review = this._dueHandoff([speaker]);
     if (review) {
       notes.push(`REVIEW: a new version of "${review.artifact}" was saved${review.version ? ` (version ${review.version})` : ''} and you are the reviewer this company named for it. Before anything else, check it against the goal and the checks, then say plainly what is wrong, or that you have no objection and what you checked.`);
@@ -1129,6 +1134,8 @@ export class ChatOrchestrator {
       thinkingLevel: normalizeThinkingLevel(options.thinkingLevel),
       // Which function tools this agent may call (function-calling mode only).
       tools,
+      // Who they are at the company, when they came from its roster (company/flow/admit.js): the Hall's mailbox, forums and board are theirs through this
+      employeeId: typeof options.employeeId === 'string' && options.employeeId ? options.employeeId : null,
       // Voice used when the session is rendered to audio. Defaults by roster
       // position so a fresh room already sounds like distinct people.
       voice: isKnownVoice(options.voice)
@@ -1284,6 +1291,7 @@ export class ChatOrchestrator {
     this.lastError = null;
     this.doneWhen.blocks = 0;
     this.doneWhen.lastNoteKey = null;
+    this.hallUse = new Map();
     this.modelPreference = options.model || null;
     // sessionId groups all workflows + traces produced during this run.
     // The trace viewer's "session lens" pivots on this field.
@@ -2954,7 +2962,7 @@ export class ChatOrchestrator {
         allowArtifacts,
         allowCritic: this.critic.enabled,
         allowRender: this.artifactStore.getAll().length > 0,
-        ...(this.policy ? { only: this.policy.toolNamesFor(speaker), extra: ['propose_publish'] } : {}),
+        ...(this.policy ? { only: this.policy.toolNamesFor(speaker), extra: ['propose_publish', ...this.policy.hallToolNames(speaker)] } : {}),
       }));
     }
 
@@ -2994,7 +3002,7 @@ export class ChatOrchestrator {
    * to act on, then the tool, then a refusal from the model service treated as final.
    */
   _guardDispatch(speaker, inner) {
-    const allowed = new Set([...this.policy.toolNamesFor(speaker), 'propose_publish']);
+    const allowed = new Set([...this.policy.toolNamesFor(speaker), 'propose_publish', ...this.policy.hallToolNames(speaker)]);
     // Once the model service declines a media request, the media tools stay closed for the rest of the turn
     let declinedByService = false;
     const refuse = (text, summary = text) => ({ ok: false, result: [{ type: 'text', text }], summary });
@@ -3061,6 +3069,8 @@ export class ChatOrchestrator {
       render: (args) => this.render({ ...args, speaker }),
       // Only a company's room can offer work for publication; the answer is a queued proposal, never a publication
       propose: this.policy ? (args) => this._propose(args, speaker) : null,
+      // The company's Hall for this person (mailbox, forum, workspace, board, norms), bound to who the server says they are
+      hall: this.policy ? this.policy.hallHandlersFor(speaker, { use: this._hallUseFor(speaker) }) : null,
       onMedia: (media) => {
         toolMedia.push({
           id: media.id,
@@ -3091,6 +3101,18 @@ export class ChatOrchestrator {
         this.ledger.record('tool', { tool: String(call.name).slice(0, 40), ok: Boolean(outcome?.ok), agent: speaker.name, ...(typeof file === 'string' && file ? { artifact: file } : {}) });
       }
       return outcome;
+    };
+  }
+
+  /** One person's budget of writes to the Hall for this session, against the company's ceilings. */
+  _hallUseFor(speaker) {
+    const policy = this.policy;
+    const used = this.hallUse.get(speaker.id) || { messages: 0, workspace: 0 };
+    this.hallUse.set(speaker.id, used);
+    const ceiling = (kind) => (kind === 'workspace' ? policy.ceilings.maxWorkspaceWritesPerPerson : policy.ceilings.maxMessagesPerPerson);
+    return {
+      left: (kind) => Math.max(0, ceiling(kind) - used[kind]),
+      commit: (kind) => { used[kind] += 1; },
     };
   }
 

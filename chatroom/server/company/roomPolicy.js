@@ -18,6 +18,9 @@ import { effectivePolicy } from './store.js';
 import { checkAgentTier, toolsOfTier } from './toolGrants.js';
 import { PolicyError } from './errors.js';
 import { assertNoSecrets } from './secrets.js';
+import { createHallTools } from './hall/tools.js';
+import { FEATURE_TOOL, HALL_TOOL_NAMES } from './collaboration.js';
+import { neutralize } from './layer.js';
 
 export const BIO_MAX_CHARS = 12_000;
 export const GOAL_MAX_CHARS = 4_000;
@@ -28,16 +31,33 @@ export const MESSAGE_MAX_CHARS = 20_000;
 const NAME_RE = /^[\p{L}\p{N}][\p{L}\p{N} .,'’-]{0,59}$/u;
 const stripControls = (s) => String(s).replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, '');
 
+/** The words a Hall tool call is about to write, which the independent screen reads before the write happens (null for a read). */
+function hallText(name, a) {
+  const join = (...parts) => parts.filter(p => typeof p === 'string' && p.trim()).join('\n');
+  switch (name) {
+    case 'mailbox': return a.action === 'send' || a.action === 'reply' ? join(a.subject, a.body, a.ref) : null;
+    case 'forum': return a.action === 'post' || a.action === 'reply' ? join(a.title, a.body) : null;
+    case 'workspace': return a.action === 'write' ? join(a.path, a.content, a.note) : null;
+    case 'board': return a.action === 'create' || a.action === 'update' ? join(a.title, a.description, a.note, a.deliverable) : null;
+    case 'propose_norm': return join(a.text, a.why);
+    default: return null;
+  }
+}
+
 export class RoomPolicy {
   /**
    * @param {{
    *   store: import('./store.js').CompanyStore, companyId: string, departmentId: string, roomId: string, operator: object,
    *   screen: import('./screen.js').Screen|null, audit: import('./audit.js').AuditLog|null, publish?: object|null,
+   *   getHall?: () => (import('./hall/hall.js').Hall|null), getRoster?: () => (import('./flow/roster.js').RosterStore|null),
    *   extraHardLimits?: object[], extraScreenRules?: object[],
-   * }} options  extraHardLimits and extraScreenRules exist for the red-team harness only; nothing reachable from a request sets them
+   * }} options
+   *   getHall and getRoster are looked up when used, and answer null where this server has no SQLite: a room then has no Hall, and works as it did.  extraHardLimits and extraScreenRules exist for the red-team harness only; nothing reachable from a request sets them
    */
-  constructor({ store, companyId, departmentId, roomId, operator, screen, audit, publish = null, extraHardLimits = [], extraScreenRules = [], extraPreamble = '' }) {
+  constructor({ store, companyId, departmentId, roomId, operator, screen, audit, publish = null, getHall = null, getRoster = null, extraHardLimits = [], extraScreenRules = [], extraPreamble = '' }) {
     this.extraPreamble = extraPreamble;
+    this.getHall = getHall;
+    this.getRoster = getRoster;
     this.store = store;
     this.companyId = companyId;
     this.departmentId = departmentId;
@@ -89,9 +109,10 @@ export class RoomPolicy {
   /** The fixed layer for an agent's system prompt (head and tail are identical for every agent in the room; the nonce is the agent's). */
   layerFor(agent) {
     const { mission, mandate, houseRules } = this.effective;
-    const key = JSON.stringify([mission, mandate, houseRules]);
+    const workingAgreements = this.workingAgreements();
+    const key = JSON.stringify([mission, mandate, houseRules, workingAgreements]);
     if (key !== this._layerKey) {
-      this._layer = buildLayer({ mission, mandate, houseRules, canPropose: true, extraHardLimits: this.extraHardLimits, extraPreamble: this.extraPreamble });
+      this._layer = buildLayer({ mission, mandate, houseRules, workingAgreements, canPropose: true, extraHardLimits: this.extraHardLimits, extraPreamble: this.extraPreamble });
       this._layerKey = key;
     }
     return { head: this._layer.head, tail: this._layer.tail, nonce: fenceNonce(this.secret, agent.id) };
@@ -210,7 +231,7 @@ export class RoomPolicy {
   async screenToolCall(name, args = {}) {
     if (!this.screensDrafts) return null;
     const a = args && typeof args === 'object' ? args : {};
-    const text = {
+    const text = HALL_TOOL_NAMES.includes(name) ? hallText(name, a) : {
       generate_image: a.prompt,
       compose_image: a.prompt,
       critique_image: a.criteria,
@@ -224,6 +245,76 @@ export class RoomPolicy {
       parts: [{ type: 'text', text, label: `the ${name} request` }],
       extraRules: this.extraScreenRules,
     });
+  }
+
+  // ── the Hall ───────────────────────────────────────────────────────────────
+
+  /** The parts of the Hall that are open: the operator's master switch and the company's own. */
+  get hallFeatures() { return this.effective.collaboration || {}; }
+
+  /** The working agreements the owner has approved, for the fixed layer (none where the norms are closed or there is no Hall). */
+  workingAgreements() {
+    const hall = this.hallFeatures.norms ? this.getHall?.() : null;
+    if (!hall) return [];
+    try { return hall.norms.approvedTexts(this.company.ownerId, this.companyId); } catch { return []; }
+  }
+
+  /** Who the server knows this agent to be at this company, or null: an agent added by hand, or one whose person has left, has no mailbox. */
+  _employeeOf(agent) {
+    const roster = this.getRoster?.();
+    if (!roster || !agent?.employeeId) return null;
+    try {
+      const e = roster.getEmployee(this.company.ownerId, agent.employeeId);
+      return e.companyId === this.companyId && !e.leftAt ? e : null;
+    } catch { return null; }
+  }
+
+  /** The Hall tools this agent holds: the open parts, and only if the server knows who they are. */
+  hallToolNames(agent) {
+    if (!this.getHall?.()) return [];
+    const open = Object.entries(FEATURE_TOOL).filter(([feature]) => this.hallFeatures[feature]).map(([, tool]) => tool);
+    return open.length && this._employeeOf(agent) ? open : [];
+  }
+
+  /**
+   * The Hall's handlers for one speaker, bound to the person the server found for them. Nothing in a tool's arguments can name the sender or the company.
+   * @param {{ left: (kind: string) => number, commit: (kind: string) => void }} use  the speaker's budget for this session
+   */
+  hallHandlersFor(agent, { use }) {
+    const hall = this.getHall?.();
+    const me = this._employeeOf(agent);
+    const roster = this.getRoster?.();
+    if (!hall || !me || !roster) return null;
+    const company = this.company;
+    const isLead = roster.seatsOf(company.ownerId, company.id).some(s => s.employeeId === me.id && s.isLead);
+    return createHallTools({
+      hall, ownerId: company.ownerId, company: { id: company.id, name: company.name, departments: company.departments.map(d => ({ id: d.id, name: d.name })) },
+      me: { id: me.id, name: me.name }, isLead, nonce: this.layerFor(agent).nonce, features: this.hallFeatures, use,
+      record: (type, data) => this.record(type, data), now: () => this.store.now(),
+    });
+  }
+
+  /** Who works at the company, for the prompt of someone who can reach them. Empty when this agent has no Hall. */
+  hallDirectory(agent) {
+    const hall = this.getHall?.();
+    const me = this._employeeOf(agent);
+    if (!hall || !me || !Object.values(this.hallFeatures).some(Boolean)) return '';
+    const company = this.company;
+    return neutralize(hall.directoryText(company.ownerId, { id: company.id, name: company.name, departments: company.departments.map(d => ({ id: d.id, name: d.name })) }, me.id));
+  }
+
+  /** What is waiting for this person, to put at the top of their turn (fenced as data). Empty when there is nothing to say. */
+  hallNote(agent) {
+    const hall = this.getHall?.();
+    const me = this._employeeOf(agent);
+    if (!hall || !me || !Object.values(this.hallFeatures).some(Boolean)) return '';
+    const company = this.company;
+    try {
+      return hall.digestText(company.ownerId, { id: company.id, name: company.name, departments: company.departments.map(d => ({ id: d.id, name: d.name })) }, me.id, { nonce: this.layerFor(agent).nonce });
+    } catch (err) {
+      console.warn(`[company] could not read the Hall for ${agent.name}: ${err.message}`);
+      return '';
+    }
   }
 
   // ── publishing ─────────────────────────────────────────────────────────────

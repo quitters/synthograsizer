@@ -38,7 +38,7 @@ export function markerClassifier(markers = { 'FORBIDDEN-X': 'deception' }) {
 export function makeServices({ classify = markerClassifier(), env = {}, ...rest } = {}) {
   const dir = tempDir();
   const services = createCompanyServices({ dataDir: dir, env: { ...env }, classify, ...rest });
-  return { services, dir, classify, cleanup: () => fs.rmSync(dir, { recursive: true, force: true }) };
+  return { services, dir, classify, cleanup: () => { services.close?.(); fs.rmSync(dir, { recursive: true, force: true }); } };
 }
 
 /**

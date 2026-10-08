@@ -18,6 +18,7 @@ import { newId, isId, clone, isPlainObject } from './util.js';
 import { PolicyError } from './errors.js';
 import { validateMission, DEFAULT_MISSION } from './mission.js';
 import { validateHouseRules, DEFAULT_HOUSE_RULES } from './houseRules.js';
+import { assertCollaboration, resolveCollaboration, DEFAULT_COLLABORATION } from './collaboration.js';
 import { validateMandate, resolveMandate } from './mandate.js';
 import { validateCeilings, resolveCeilings } from './ceilings.js';
 import { validateToolList, resolveToolGrant, DEFAULT_COMPANY_GRANT } from './toolGrants.js';
@@ -55,13 +56,15 @@ export function effectivePolicy(company, operator) {
   const m = resolveMandate(operator.mandate, company.mandate || {});
   const c = resolveCeilings(operator.ceilings, company.ceilings || {});
   const t = resolveToolGrant(operator.tools, company.tools || []);
+  const h = resolveCollaboration(operator.hall || { enabled: false }, company.collaboration || {});
   return {
     mission: company.mission,
     houseRules: company.houseRules || '',
     mandate: m.effective,
     ceilings: c.effective,
     tools: t.effective,
-    clamped: { mandate: m.clamped, ceilings: c.clamped, tools: t.clamped },
+    collaboration: h.effective,
+    clamped: { mandate: m.clamped, ceilings: c.clamped, tools: t.clamped, collaboration: h.clamped },
   };
 }
 
@@ -122,6 +125,7 @@ export class CompanyStore {
     if (body.name !== undefined) out.name = cleanName(body.name, 'The company name', 'name');
     if (body.mission !== undefined) out.mission = validateMission(body.mission);
     if (body.houseRules !== undefined) out.houseRules = validateHouseRules(body.houseRules);
+    if (body.collaboration !== undefined) out.collaboration = assertCollaboration(body.collaboration);
     if (body.mandate !== undefined) { const r = validateMandate(body.mandate); errors.push(...r.errors); out.mandate = r.value; }
     if (body.ceilings !== undefined) { const r = validateCeilings(body.ceilings); errors.push(...r.errors); out.ceilings = r.value; }
     if (body.tools !== undefined) { const r = validateToolList(body.tools); errors.push(...r.errors); out.tools = r.value; }
@@ -153,6 +157,7 @@ export class CompanyStore {
       state: 'paused',
       mission: checked.mission ?? DEFAULT_MISSION.text,
       houseRules: checked.houseRules ?? DEFAULT_HOUSE_RULES.text,
+      collaboration: { ...DEFAULT_COLLABORATION, ...(checked.collaboration || {}) },
       mandate: checked.mandate ?? {},
       ceilings: checked.ceilings ?? {},
       tools: checked.tools ?? [...DEFAULT_COMPANY_GRANT],
@@ -184,7 +189,7 @@ export class CompanyStore {
     for (const key of ['name', 'mission', 'houseRules', 'tools']) if (checked[key] !== undefined) company[key] = checked[key];
     // A patch names the dials and ceilings it changes and leaves the rest. Replacing the whole object would put every setting it did not name back to
     // the operator's default, which for a ceiling is a looser value than the company chose (raising one cap would quietly lift the others).
-    for (const key of ['mandate', 'ceilings']) if (checked[key] !== undefined) company[key] = mergeSettings(company[key], checked[key]);
+    for (const key of ['mandate', 'ceilings', 'collaboration']) if (checked[key] !== undefined) company[key] = mergeSettings(company[key], checked[key]);
     this._save(company);
     const after = effectivePolicy(company, this.operator);
     return { company, before, after, changed: Object.keys(checked) };
@@ -245,8 +250,8 @@ export class CompanyStore {
       updatedAt: company.updatedAt,
       mission: company.mission,
       houseRules: company.houseRules || '',
-      requested: clone({ mandate: company.mandate, ceilings: company.ceilings, tools: company.tools }),
-      effective: { mandate: eff.mandate, ceilings: eff.ceilings, tools: eff.tools },
+      requested: clone({ mandate: company.mandate, ceilings: company.ceilings, tools: company.tools, collaboration: company.collaboration || {} }),
+      effective: { mandate: eff.mandate, ceilings: eff.ceilings, tools: eff.tools, collaboration: eff.collaboration },
       clamped: eff.clamped,
       departments: company.departments.map(d => ({ id: d.id, name: d.name, roomId: d.roomId })),
     };

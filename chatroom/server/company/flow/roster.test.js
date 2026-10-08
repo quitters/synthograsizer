@@ -40,17 +40,18 @@ test('migrations run once, in order, and opening a current database changes noth
   try {
     const file = path.join(dir, 'roster.sqlite');
     const db = openDatabase(file, MIGRATIONS);
-    assert.equal(versionOf(db), 1);
+    assert.equal(versionOf(db), MIGRATIONS.length);
     assert.deepEqual(migrate(db, MIGRATIONS), [], 'a current database has nothing to run');
     const tables = db.prepare("SELECT name FROM sqlite_master WHERE type = 'table'").all().map(r => r.name);
-    for (const t of ['candidates', 'employees', 'memory_entries', 'archetype_lessons']) assert.ok(tables.includes(t), t);
+    for (const t of ['candidates', 'employees', 'assignments', 'memory_entries', 'archetype_lessons', 'mail', 'forum_channels', 'forum_posts', 'forum_reads', 'workspace_files', 'workspace_versions', 'board_tasks', 'norms']) assert.ok(tables.includes(t), t);
     db.close();
     const again = openDatabase(file, MIGRATIONS);
-    assert.equal(versionOf(again), 1);
+    assert.equal(versionOf(again), MIGRATIONS.length);
     // a newer migration is applied to an old file, and a failing one rolls back whole
-    assert.deepEqual(migrate(again, [...MIGRATIONS, { version: 2, name: 'later', sql: 'CREATE TABLE later (id TEXT);' }]), [2]);
-    assert.throws(() => migrate(again, [...MIGRATIONS, { version: 3, name: 'broken', sql: 'CREATE TABLE half (id TEXT); NOT SQL AT ALL;' }]), /migration 3 \(broken\) failed/);
-    assert.equal(versionOf(again), 2);
+    const next = MIGRATIONS.length + 1;
+    assert.deepEqual(migrate(again, [...MIGRATIONS, { version: next, name: 'later', sql: 'CREATE TABLE later (id TEXT);' }]), [next]);
+    assert.throws(() => migrate(again, [...MIGRATIONS, { version: next + 1, name: 'broken', sql: 'CREATE TABLE half (id TEXT); NOT SQL AT ALL;' }]), /migration \d+ \(broken\) failed/);
+    assert.equal(versionOf(again), next);
     assert.equal(again.prepare("SELECT COUNT(*) AS n FROM sqlite_master WHERE name = 'half'").get().n, 0, 'the half-made table was rolled back');
     again.close();
   } finally {
@@ -183,7 +184,7 @@ test('the spread counts people over each attribute, for the diversity report', {
   store.close();
 });
 
-test('hiring: a ready person gets one seat in a company; the same person can work in two, as two employees', { skip }, () => {
+test('hiring: a ready person becomes one employee with a first seat; the same person can work at two companies, as two employees', { skip }, () => {
   const store = open();
   const draft = add(store, 'Dee Draft', { status: 'draft' });
   const ann = add(store, 'Ann One');
@@ -193,44 +194,92 @@ test('hiring: a ready person gets one seat in a company; the same person can wor
   assert.throws(() => store.hire(OWNER, { companyId: COMPANY_A, departmentId: DEPT, candidateId: ann.id, position: ' ' }), (e) => e.status === 400);
   assert.throws(() => store.hire(OTHER, { companyId: COMPANY_A, departmentId: DEPT, candidateId: ann.id, position: 'Editor' }), (e) => e.status === 404);
 
-  const e1 = store.hire(OWNER, { companyId: COMPANY_A, departmentId: DEPT, candidateId: ann.id, position: 'Lead editor', isLead: true, reviewerOf: 'engine.json', knobs: { tempo: 1 } });
-  assert.deepEqual([e1.name, e1.position, e1.isLead, e1.reviewerOf, e1.knobs, e1.tier, e1.sessions], ['Ann One', 'Lead editor', true, 'engine.json', { tempo: 1 }, 'none', 0]);
+  const s1 = store.hire(OWNER, { companyId: COMPANY_A, departmentId: DEPT, candidateId: ann.id, position: 'Lead editor', isLead: true, reviewerOf: 'engine.json', knobs: { tempo: 1 } });
+  assert.deepEqual([s1.name, s1.position, s1.title, s1.isLead, s1.reviewerOf, s1.knobs, s1.tier, s1.sessions, s1.departmentId], ['Ann One', 'Lead editor', 'Lead editor', true, 'engine.json', { tempo: 1 }, 'none', 0, DEPT]);
+  assert.ok(s1.employeeId && s1.assignmentId && s1.employeeId !== s1.assignmentId);
   assert.throws(() => store.hire(OWNER, { companyId: COMPANY_A, departmentId: DEPT, candidateId: ann.id, position: 'Again' }), (e) => e.code === 'already_hired');
-  const e2 = store.hire(OWNER, { companyId: COMPANY_B, departmentId: DEPT, candidateId: ann.id, position: 'Editor', tier: 'research' });
-  assert.notEqual(e1.id, e2.id);
-  assert.equal(e2.tier, 'research', 'the seat\'s run settings can differ from the candidate\'s own');
+  const s2 = store.hire(OWNER, { companyId: COMPANY_B, departmentId: DEPT, candidateId: ann.id, position: 'Editor', tier: 'research' });
+  assert.notEqual(s1.employeeId, s2.employeeId);
+  assert.equal(s2.tier, 'research', "the seat's run settings can differ from the candidate's own");
   assert.equal(store.getCandidate(OWNER, ann.id).employed, 2);
-  assert.deepEqual(store.employeesOf(OWNER, COMPANY_A).map(e => e.name), ['Ann One']);
-  assert.deepEqual(store.employeesOf(OWNER, COMPANY_A, { departmentId: 'ffffffff' }), []);
+  assert.deepEqual(store.employeesOf(OWNER, COMPANY_A).map(e => [e.name, e.title]), [['Ann One', 'Lead editor']]);
+  assert.deepEqual(store.seatsOf(OWNER, COMPANY_A, { departmentId: 'ffffffff' }), []);
+  assert.deepEqual(store.seatsOf(OWNER, COMPANY_A, { departmentId: DEPT }).map(x => x.name), ['Ann One']);
   assert.deepEqual(store.employeesOf(OTHER, COMPANY_A), []);
+  assert.deepEqual(store.seatsOf(OTHER, COMPANY_A), []);
   assert.throws(() => store.deleteCandidate(OWNER, ann.id), (e) => e.code === 'candidate_employed');
   store.close();
 });
 
-test('someone who leaves keeps nothing in the room; their memories stay until the owner deletes them; they can be hired again', { skip }, () => {
+test('seats: a person can take a second seat for a task team without becoming a second person, and give it up without leaving', { skip }, () => {
   const store = open();
   const ann = add(store, 'Ann One');
-  const e = store.hire(OWNER, { companyId: COMPANY_A, departmentId: DEPT, candidateId: ann.id, position: 'Editor' });
-  store.addMemory(OWNER, e.id, { text: 'We chose the Archive concept.', session: 'day-1' });
-  assert.throws(() => store.forgetEmployee(OWNER, e.id), (err) => err.code === 'still_employed');
-  const left = store.leave(OWNER, e.id);
+  const ben = add(store, 'Ben Two');
+  const home = store.hire(OWNER, { companyId: COMPANY_A, departmentId: DEPT, candidateId: ann.id, position: 'Editor' });
+  store.hire(OWNER, { companyId: COMPANY_A, departmentId: DEPT, candidateId: ben.id, position: 'Engineer', tier: 'builder' });
+  const TEAM = 'beef0001';
+
+  assert.throws(() => store.assign(OWNER, home.employeeId, { departmentId: DEPT, position: 'Again' }), (e) => e.code === 'already_seated');
+  assert.throws(() => store.assign(OWNER, home.employeeId, { departmentId: 'x', position: 'Reviewer' }), (e) => e.status === 400);
+  assert.throws(() => store.assign(OWNER, home.employeeId, { departmentId: TEAM, position: '' }), (e) => e.status === 400);
+  assert.throws(() => store.assign(OTHER, home.employeeId, { departmentId: TEAM, position: 'Reviewer' }), (e) => e.status === 404);
+
+  const second = store.assign(OWNER, home.employeeId, { departmentId: TEAM, position: 'Reviewer for the engine task', isLead: true, taskId: 'task-1', tier: 'research' });
+  assert.equal(second.employeeId, home.employeeId, 'the same person');
+  assert.notEqual(second.assignmentId, home.assignmentId);
+  assert.deepEqual([second.departmentId, second.isLead, second.taskId, second.tier, second.title], [TEAM, true, 'task-1', 'research', 'Editor']);
+  assert.equal(store.employeesOf(OWNER, COMPANY_A).length, 2, 'two people, three seats');
+  assert.equal(store.seatsOf(OWNER, COMPANY_A).length, 3);
+  assert.deepEqual(store.seatsOf(OWNER, COMPANY_A, { departmentId: TEAM }).map(x => x.name), ['Ann One']);
+  assert.equal(store.getEmployee(OWNER, home.employeeId).seats.length, 2);
+  assert.equal(store.getCandidate(OWNER, ann.id).employed, 1, 'still one job');
+
+  // the memory is the person's, in whichever room they are
+  const m = store.addMemory(OWNER, home.employeeId, { text: 'We chose the Archive concept.' });
+  assert.equal(store.listMemory(OWNER, second.employeeId)[0].id, m.id);
+
+  const ended = store.unassign(OWNER, second.assignmentId);
+  assert.ok(ended.endedAt);
+  assert.deepEqual(store.seatsOf(OWNER, COMPANY_A, { departmentId: TEAM }), []);
+  assert.equal(store.seatsOf(OWNER, COMPANY_A, { departmentId: TEAM, includeEnded: true }).length, 1);
+  assert.equal(store.getEmployee(OWNER, home.employeeId).leftAt, null, 'still works here');
+  assert.equal(store.unassign(OWNER, second.assignmentId).endedAt, ended.endedAt, 'ending it twice changes nothing');
+  assert.throws(() => store.unassign(OTHER, second.assignmentId), (e) => e.status === 404);
+  // the same person can be seated there again later
+  assert.ok(store.assign(OWNER, home.employeeId, { departmentId: TEAM, position: 'Reviewer' }).assignmentId);
+  store.close();
+});
+
+test('someone who leaves loses every seat; their memories stay until the owner deletes them; they can be hired again, with a new record', { skip }, () => {
+  const store = open();
+  const ann = add(store, 'Ann One');
+  const seat = store.hire(OWNER, { companyId: COMPANY_A, departmentId: DEPT, candidateId: ann.id, position: 'Editor' });
+  store.assign(OWNER, seat.employeeId, { departmentId: 'beef0001', position: 'Reviewer' });
+  const id = seat.employeeId;
+  store.addMemory(OWNER, id, { text: 'We chose the Archive concept.', session: 'day-1' });
+  assert.throws(() => store.forgetEmployee(OWNER, id), (err) => err.code === 'still_employed');
+  const left = store.leave(OWNER, id);
   assert.ok(left.leftAt);
+  assert.equal(left.seats.length, 2);
+  assert.ok(left.seats.every(x => x.endedAt), 'every seat ended with them');
   assert.deepEqual(store.employeesOf(OWNER, COMPANY_A), []);
+  assert.deepEqual(store.seatsOf(OWNER, COMPANY_A), []);
   assert.equal(store.employeesOf(OWNER, COMPANY_A, { includeLeft: true }).length, 1);
-  assert.equal(store.listMemory(OWNER, e.id).length, 1, 'kept');
+  assert.equal(store.listMemory(OWNER, id).length, 1, 'kept');
   assert.equal(store.getCandidate(OWNER, ann.id).employed, 0);
+  assert.throws(() => store.assign(OWNER, id, { departmentId: 'beef0002', position: 'X' }), (err) => err.code === 'employee_left');
   const again = store.hire(OWNER, { companyId: COMPANY_A, departmentId: DEPT, candidateId: ann.id, position: 'Editor' });
-  assert.notEqual(again.id, e.id, 'a new seat, with no memory of the old one');
-  assert.deepEqual(store.listMemory(OWNER, again.id), []);
-  store.forgetEmployee(OWNER, e.id);
-  assert.throws(() => store.listMemory(OWNER, e.id), (err) => err.status === 404);
+  assert.notEqual(again.employeeId, id, 'a new record, with no memory of the old one');
+  assert.deepEqual(store.listMemory(OWNER, again.employeeId), []);
+  store.forgetEmployee(OWNER, id);
+  assert.throws(() => store.listMemory(OWNER, id), (err) => err.status === 404);
   store.close();
 });
 
 test('memory: written, read, edited by the owner, deleted for good, capped, and checked for secrets', { skip }, () => {
   const store = open();
   const ann = add(store, 'Ann One');
-  const e = store.hire(OWNER, { companyId: COMPANY_A, departmentId: DEPT, candidateId: ann.id, position: 'Editor' });
+  const e = { id: store.hire(OWNER, { companyId: COMPANY_A, departmentId: DEPT, candidateId: ann.id, position: 'Editor' }).employeeId };
 
   const m = store.addMemory(OWNER, e.id, { text: '  The team approved publishing.  ', session: 'day-2', kind: 'summary' });
   assert.deepEqual([m.text, m.source, m.verified, m.kind, m.session], ['The team approved publishing.', 'agent', 'unchecked', 'summary', 'day-2']);
@@ -262,8 +311,8 @@ test('memory: written, read, edited by the owner, deleted for good, capped, and 
 test('no memory crosses a company or an owner: the same person hired twice remembers each job separately', { skip }, () => {
   const store = open();
   const ann = add(store, 'Ann One');
-  const inA = store.hire(OWNER, { companyId: COMPANY_A, departmentId: DEPT, candidateId: ann.id, position: 'Editor' });
-  const inB = store.hire(OWNER, { companyId: COMPANY_B, departmentId: DEPT, candidateId: ann.id, position: 'Editor' });
+  const inA = { id: store.hire(OWNER, { companyId: COMPANY_A, departmentId: DEPT, candidateId: ann.id, position: 'Editor' }).employeeId };
+  const inB = { id: store.hire(OWNER, { companyId: COMPANY_B, departmentId: DEPT, candidateId: ann.id, position: 'Editor' }).employeeId };
   const secret = store.addMemory(OWNER, inA.id, { text: 'Company A\'s plan is the harbour series.' });
   assert.deepEqual(store.listMemory(OWNER, inB.id), []);
   assert.deepEqual(store.memoryForBio(OWNER, inB.id), []);
@@ -280,8 +329,8 @@ test('deleting a company takes its seats and every memory kept there; deleting a
   const store = open();
   const ann = add(store, 'Ann One');
   const ben = add(store, 'Ben Two');
-  const a = store.hire(OWNER, { companyId: COMPANY_A, departmentId: DEPT, candidateId: ann.id, position: 'Editor' });
-  const b = store.hire(OWNER, { companyId: COMPANY_B, departmentId: DEPT, candidateId: ben.id, position: 'Editor' });
+  const a = { id: store.hire(OWNER, { companyId: COMPANY_A, departmentId: DEPT, candidateId: ann.id, position: 'Editor' }).employeeId };
+  const b = { id: store.hire(OWNER, { companyId: COMPANY_B, departmentId: DEPT, candidateId: ben.id, position: 'Editor' }).employeeId };
   store.addMemory(OWNER, a.id, { text: 'in A' });
   store.addMemory(OWNER, b.id, { text: 'in B' });
   store.addLesson(OWNER, 'craftsman', 'Do not give him a camera shop.');
@@ -320,11 +369,11 @@ test('what has been learned about casting an archetype is kept, once, and shown 
 test('sessions are counted per seat', { skip }, () => {
   const store = open();
   const ann = add(store, 'Ann One');
-  const e = store.hire(OWNER, { companyId: COMPANY_A, departmentId: DEPT, candidateId: ann.id, position: 'Editor' });
+  const e = { id: store.hire(OWNER, { companyId: COMPANY_A, departmentId: DEPT, candidateId: ann.id, position: 'Editor' }).employeeId };
   store.bumpSessions(OWNER, e.id);
   store.bumpSessions(OWNER, e.id);
   store.setKnobs(OWNER, e.id, { tempo: 2 });
   const got = store.getEmployee(OWNER, e.id, { profile: true });
-  assert.deepEqual([got.sessions, got.knobs, got.profile.name], [2, { tempo: 2 }, 'Ann One']);
+  assert.deepEqual([got.sessions, got.knobs, got.profile.name, got.seats.length], [2, { tempo: 2 }, 'Ann One', 1]);
   store.close();
 });

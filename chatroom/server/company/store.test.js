@@ -228,7 +228,7 @@ test('the effective policy is computed from the request and the operator, never 
   const c = store.create(owner(), { name: 'Plain' });
   const onDisk = JSON.parse(fs.readFileSync(path.join(rootDir, 'companies', c.id, 'company.json'), 'utf8'));
   assert.equal(onDisk.effective, undefined);
-  assert.deepEqual(Object.keys(onDisk).sort(), ['ceilings', 'createdAt', 'departments', 'houseRules', 'id', 'mandate', 'mission', 'name', 'ownerId', 'state', 'tools', 'updatedAt', 'version']);
+  assert.deepEqual(Object.keys(onDisk).sort(), ['ceilings', 'collaboration', 'createdAt', 'departments', 'houseRules', 'id', 'mandate', 'mission', 'name', 'ownerId', 'state', 'tools', 'updatedAt', 'version']);
   const { op } = makeStore();
   assert.deepEqual(effectivePolicy(c, op).ceilings, DEFAULT_OPERATOR_CEILINGS);
 });
