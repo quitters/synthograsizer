@@ -363,3 +363,15 @@ test('the audit log keeps decisions and drops content: fields that mean "the tex
   assert.equal(e.nested.ok, 1);
   assert.ok(e.long.length <= 301);
 });
+
+test('two saves in one millisecond still look different, so a running room never keeps the grant an edit just narrowed', () => {
+  const rootDir = dir();
+  const frozen = new Date('2026-10-08T12:00:00.000Z');
+  const store = new CompanyStore({ rootDir, operator: operatorFor({}, rootDir), now: () => frozen });
+  const ownerId = owner();
+  const company = store.create(ownerId, { name: 'Fast Co', departments: ['Desk'], tools: ['google_search', 'code_execution'] });
+  const stamps = [company.updatedAt];
+  for (const tools of [['google_search'], []]) { store.update(company.id, ownerId, { tools }); stamps.push(store.getOwned(company.id, ownerId).updatedAt); }
+  assert.equal(new Set(stamps).size, 3, 'every save has its own stamp even though the clock did not move');
+  assert.deepEqual([...stamps].sort(), stamps, 'and they only go forward');
+});

@@ -113,7 +113,10 @@ export class CompanyStore {
   }
 
   _save(company) {
-    company.updatedAt = this.now().toISOString();
+    // Strictly later than the last save, whatever the clock says: a running room caches what it worked out from this company by this stamp
+    // (roomPolicy.effective), so two saves in one millisecond must not look like one, or an edit that narrows the grant would not reach it.
+    const now = this.now().toISOString();
+    company.updatedAt = company.updatedAt && now <= company.updatedAt ? new Date(Date.parse(company.updatedAt) + 1).toISOString() : now;
     writeJsonAtomic(this._file(company.id), company);
     this._index(company);
   }
