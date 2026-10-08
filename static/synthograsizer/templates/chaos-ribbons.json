@@ -1,0 +1,164 @@
+{
+  "promptTemplate": "A {{equation_family}} mathematical flower, generating {{chaos_degree}}, rendered with {{symmetry_folds}} radial symmetry using {{ribbon_thickness}} strokes in a {{velocity_palette}} palette.",
+  "variables": [
+    {
+      "name": "equation_family",
+      "feature_name": "Equation",
+      "values": [
+        {
+          "text": "Pure Clifford Fold",
+          "weight": 3
+        },
+        {
+          "text": "Clifford Hybrid",
+          "weight": 3
+        },
+        {
+          "text": "De Jong Balanced",
+          "weight": 3
+        },
+        {
+          "text": "De Jong Asymmetric",
+          "weight": 2
+        },
+        {
+          "text": "Svensson Swirl",
+          "weight": 2
+        },
+        {
+          "text": "Svensson Turbulent",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "chaos_degree",
+      "feature_name": "Chaos",
+      "values": [
+        {
+          "text": "Gentle Harmonic Drift",
+          "weight": 3
+        },
+        {
+          "text": "Slow Tidal Unspooling",
+          "weight": 3
+        },
+        {
+          "text": "Brisk Chaotic Weave",
+          "weight": 3
+        },
+        {
+          "text": "Restless Vortex",
+          "weight": 2
+        },
+        {
+          "text": "Turbulent Whiplash",
+          "weight": 2
+        },
+        {
+          "text": "Electric Jitter Storm",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "symmetry_folds",
+      "feature_name": "Symmetry",
+      "values": [
+        {
+          "text": "Single Asymmetric Knot",
+          "weight": 3
+        },
+        {
+          "text": "Bilateral Mirror",
+          "weight": 3
+        },
+        {
+          "text": "Trifold Rosette",
+          "weight": 3
+        },
+        {
+          "text": "Quad Mandala",
+          "weight": 2
+        },
+        {
+          "text": "Hexagonal Bloom",
+          "weight": 2
+        },
+        {
+          "text": "Octagonal Lotus",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "ribbon_thickness",
+      "feature_name": "Thickness",
+      "values": [
+        {
+          "text": "Gossamer Filament",
+          "weight": 3
+        },
+        {
+          "text": "Fine Silk Thread",
+          "weight": 3
+        },
+        {
+          "text": "Translucent Ribbon",
+          "weight": 3
+        },
+        {
+          "text": "Broad Satin Band",
+          "weight": 2
+        },
+        {
+          "text": "Dense Velvet Strip",
+          "weight": 2
+        },
+        {
+          "text": "Heavy Opaque Beam",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "velocity_palette",
+      "feature_name": "Palette",
+      "values": [
+        {
+          "text": "Smoldering Ember",
+          "weight": 3
+        },
+        {
+          "text": "Solar Flare",
+          "weight": 3
+        },
+        {
+          "text": "Neon Synthwave",
+          "weight": 3
+        },
+        {
+          "text": "Bioluminescent Coral",
+          "weight": 2
+        },
+        {
+          "text": "Deep Abyssal Blue",
+          "weight": 2
+        },
+        {
+          "text": "Spectral Prismatic",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "p5Code": "const NUM_RIBBONS = 6;\nconst STEPS = 60;\nlet cacheX = new Float32Array(NUM_RIBBONS * STEPS);\nlet cacheY = new Float32Array(NUM_RIBBONS * STEPS);\nlet heads = [];\nlet params = { a: 1.5, b: -1.8, c: 1.6, d: 0.9 };\nlet baseT = 0;\n\nconst eqMap = {\n  \"Pure Clifford Fold\": 0,\n  \"Clifford Hybrid\": 1,\n  \"De Jong Balanced\": 2,\n  \"De Jong Asymmetric\": 3,\n  \"Svensson Swirl\": 4,\n  \"Svensson Turbulent\": 5\n};\n\nconst chaosMap = {\n  \"Gentle Harmonic Drift\": 0.0005,\n  \"Slow Tidal Unspooling\": 0.0015,\n  \"Brisk Chaotic Weave\": 0.003,\n  \"Restless Vortex\": 0.006,\n  \"Turbulent Whiplash\": 0.01,\n  \"Electric Jitter Storm\": 0.015\n};\n\nconst symMap = {\n  \"Single Asymmetric Knot\": 1,\n  \"Bilateral Mirror\": 2,\n  \"Trifold Rosette\": 3,\n  \"Quad Mandala\": 4,\n  \"Hexagonal Bloom\": 6,\n  \"Octagonal Lotus\": 8\n};\n\nconst thickMap = {\n  \"Gossamer Filament\": 0.7,\n  \"Fine Silk Thread\": 0.8,\n  \"Translucent Ribbon\": 1.5,\n  \"Broad Satin Band\": 3.0,\n  \"Dense Velvet Strip\": 5.0,\n  \"Heavy Opaque Beam\": 8.0\n};\n\nconst palMap = {\n  \"Smoldering Ember\": [\"#550000\", \"#990000\", \"#dd3300\", \"#ff7700\", \"#ffcc00\"],\n  \"Solar Flare\": [\"#990000\", \"#ee4400\", \"#ff9900\", \"#ffee00\", \"#ffffff\"],\n  \"Neon Synthwave\": [\"#330055\", \"#9900ff\", \"#ff0099\", \"#00ffff\", \"#ffffff\"],\n  \"Bioluminescent Coral\": [\"#003344\", \"#009977\", \"#00ffbb\", \"#ff00bb\", \"#ffccff\"],\n  \"Deep Abyssal Blue\": [\"#000022\", \"#000055\", \"#003399\", \"#0077ff\", \"#00ddff\"],\n  \"Spectral Prismatic\": [\"#ff0000\", \"#ffbb00\", \"#00ff00\", \"#0099ff\", \"#dd00ff\"]\n};\n\np.setup = function() {\n  p.createCanvas(800, 800);\n  p.background(0);\n  for (let i = 0; i < NUM_RIBBONS; i++) {\n    heads.push({ x: p.random(-2, 2), y: p.random(-2, 2) });\n  }\n};\n\np.draw = function() {\n  const eqName = p.getSynthVar(\"equation_family\") || \"Pure Clifford Fold\";\n  const chaosName = p.getSynthVar(\"chaos_degree\") || \"Gentle Harmonic Drift\";\n  const symName = p.getSynthVar(\"symmetry_folds\") || \"Single Asymmetric Knot\";\n  const thickName = p.getSynthVar(\"ribbon_thickness\") || \"Gossamer Filament\";\n  const palName = p.getSynthVar(\"velocity_palette\") || \"Smoldering Ember\";\n\n  const eqType = eqMap[eqName] || 0;\n  const chaosSpeed = chaosMap[chaosName] || 0.0005;\n  const folds = symMap[symName] || 1;\n  const thickness = thickMap[thickName] || 0.7;\n  const colors = palMap[palName] || palMap[\"Smoldering Ember\"];\n\n  let jitter = 0;\n  if (chaosName === \"Electric Jitter Storm\" && p.frameCount % 20 < 4) {\n    jitter = p.random(0.5, 2.0);\n  } else if (chaosName === \"Turbulent Whiplash\") {\n    jitter = p.sin(p.frameCount * 0.5) * 0.2;\n  }\n\n  baseT += chaosSpeed;\n  params.a = p.sin(baseT * 1.1) * 2.0 + jitter;\n  params.b = p.cos(baseT * 1.3) * 2.0 - jitter;\n  params.c = p.sin(baseT * 0.7) * 2.0 + jitter;\n  params.d = p.cos(baseT * 0.9) * 2.0 - jitter;\n\n  for (let r = 0; r < NUM_RIBBONS; r++) {\n    let px = heads[r].x;\n    let py = heads[r].y;\n    let offset = r * STEPS;\n\n    for (let s = 0; s < STEPS; s++) {\n      let vx, vy;\n      if (eqType === 0) {\n        vx = p.sin(params.a * py) + params.c * p.cos(params.a * px);\n        vy = p.sin(params.b * px) + params.d * p.cos(params.b * py);\n      } else if (eqType === 1) {\n        vx = p.sin(params.a * py) - params.c * p.cos(params.a * px);\n        vy = p.sin(params.b * px) - params.d * p.cos(params.b * py);\n      } else if (eqType === 2) {\n        vx = p.sin(params.a * py) - p.cos(params.b * px);\n        vy = p.sin(params.c * px) - p.cos(params.d * py);\n      } else if (eqType === 3) {\n        vx = p.sin(params.b * py) - p.cos(params.c * px);\n        vy = p.sin(params.d * px) - p.cos(params.a * py);\n      } else if (eqType === 4) {\n        vx = p.sin(params.a * py) + params.c * p.sin(params.a * px);\n        vy = p.cos(params.b * px) + params.d * p.cos(params.b * py);\n      } else {\n        vx = p.sin(params.a * py) - params.c * p.sin(params.b * px);\n        vy = p.cos(params.d * px) + params.b * p.cos(params.c * py);\n      }\n\n      let nx = px + vx * 0.08;\n      let ny = py + vy * 0.08;\n\n      let velSq = vx * vx + vy * vy;\n      if (velSq < 0.0001 || p.abs(nx) > 6 || p.abs(ny) > 6 || isNaN(nx) || isNaN(ny)) {\n        nx = p.random(-2, 2);\n        ny = p.random(-2, 2);\n      }\n\n      cacheX[offset + s] = nx;\n      cacheY[offset + s] = ny;\n      px = nx;\n      py = ny;\n    }\n    heads[r].x = px;\n    heads[r].y = py;\n  }\n\n  const ctx = p.drawingContext;\n  let fadeAlpha = (thickness < 1.0 && folds <= 2) ? 0.015 : 0.04;\n  ctx.fillStyle = `rgba(0, 0, 0, ${fadeAlpha})`;\n  ctx.fillRect(0, 0, p.width, p.height);\n\n  ctx.lineCap = \"round\";\n  ctx.lineJoin = \"round\";\n  ctx.lineWidth = thickness;\n  \n  const ribbonAlpha = p.floor(p.map(thickness, 0.7, 8.0, 255, 60)).toString(16).padStart(2, '0');\n  \n  const cx = p.width / 2;\n  const cy = p.height / 2;\n  const scale = p.width / 4.2;\n\n  for (let f = 0; f < folds; f++) {\n    ctx.save();\n    ctx.translate(cx, cy);\n    ctx.rotate((p.TWO_PI / folds) * f);\n    \n    for (let r = 0; r < NUM_RIBBONS; r++) {\n      let offset = r * STEPS;\n      ctx.beginPath();\n      ctx.strokeStyle = colors[r % colors.length] + ribbonAlpha;\n      ctx.moveTo(cacheX[offset] * scale, cacheY[offset] * scale);\n      \n      for (let s = 1; s < STEPS; s++) {\n        ctx.lineTo(cacheX[offset + s] * scale, cacheY[offset + s] * scale);\n      }\n      ctx.stroke();\n    }\n    ctx.restore();\n  }\n};\n",
+  "tags": [
+    {
+      "id": "tag_chaos_ribbons_01",
+      "type": "custom",
+      "label": "Designed and written by an agent swarm",
+      "description": "Concept, variables and code written by a crew of agents in the Agent Studio chat room (revise2-chaos-ribbons) and played by the harness before it was accepted. Atelier residency, 2026-10-08."
+    }
+  ]
+}

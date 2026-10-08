@@ -1,0 +1,164 @@
+{
+  "promptTemplate": "A hypnotic aperiodic stained-glass floor plunging through {{tile_geometry}} at a {{dive_tempo}} pace, framed by {{vertex_profile}} and colored in {{chroma_logic}}, drifting with {{drift_wander}}.",
+  "variables": [
+    {
+      "name": "tile_geometry",
+      "feature_name": "Lattice Species",
+      "values": [
+        {
+          "text": "Golden Penrose Rhomb",
+          "weight": 3
+        },
+        {
+          "text": "Ammann Beenker Octagons",
+          "weight": 3
+        },
+        {
+          "text": "Robinson Golden Triangles",
+          "weight": 2
+        },
+        {
+          "text": "Danzer Sevenfold Stars",
+          "weight": 1
+        },
+        {
+          "text": "Pinwheel Radical Fractures",
+          "weight": 1
+        },
+        {
+          "text": "Conway Biparabola Shards",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "dive_tempo",
+      "feature_name": "Zoom Velocity",
+      "values": [
+        {
+          "text": "Glacial Glide",
+          "weight": 3
+        },
+        {
+          "text": "Languid Float",
+          "weight": 3
+        },
+        {
+          "text": "Brisk Submersion",
+          "weight": 2
+        },
+        {
+          "text": "Centrifuge Plunge",
+          "weight": 2
+        },
+        {
+          "text": "Hyperbolic Abyss",
+          "weight": 1
+        },
+        {
+          "text": "Relativistic Warp",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "vertex_profile",
+      "feature_name": "Rendering Structure",
+      "values": [
+        {
+          "text": "Cathedral Lead Came",
+          "weight": 3
+        },
+        {
+          "text": "Beveled Prism Edges",
+          "weight": 3
+        },
+        {
+          "text": "Skeletal Ribbon Insets",
+          "weight": 2
+        },
+        {
+          "text": "Breathing Optical Warp",
+          "weight": 2
+        },
+        {
+          "text": "Filigree Caustic Spines",
+          "weight": 1
+        },
+        {
+          "text": "Dissolving Wire Web",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "chroma_logic",
+      "feature_name": "Color Algorithm",
+      "values": [
+        {
+          "text": "Sainte Chapelle Ruby",
+          "weight": 3
+        },
+        {
+          "text": "Cobalt Nave Twilight",
+          "weight": 3
+        },
+        {
+          "text": "Alchemical Emerald Glow",
+          "weight": 2
+        },
+        {
+          "text": "Orientation Phase Prism",
+          "weight": 2
+        },
+        {
+          "text": "Inflation Depth Opal",
+          "weight": 1
+        },
+        {
+          "text": "Monochrome Obsidian Flare",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "drift_wander",
+      "feature_name": "Camera Trajectory",
+      "values": [
+        {
+          "text": "Dead Center Orbit",
+          "weight": 3
+        },
+        {
+          "text": "Gentle Precession",
+          "weight": 3
+        },
+        {
+          "text": "Spiral Fibonacci Eddy",
+          "weight": 2
+        },
+        {
+          "text": "Erratic Tidal Shear",
+          "weight": 1
+        },
+        {
+          "text": "Vortical Edge Skim",
+          "weight": 1
+        },
+        {
+          "text": "Chaotic Brownian Tremor",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "p5Code": "const TILE_GEOMETRY = {\n    \"Golden Penrose Rhomb\": { N: 10, K: 0.381966 },\n    \"Ammann Beenker Octagons\": { N: 8, K: 0.414213 },\n    \"Robinson Golden Triangles\": { N: 6, K: 0.333333 },\n    \"Danzer Sevenfold Stars\": { N: 7, K: 0.400000 },\n    \"Pinwheel Radical Fractures\": { N: 5, K: 0.381966 },\n    \"Conway Biparabola Shards\": { N: 12, K: 0.267949 }\n};\n\nconst DIVE_TEMPO = {\n    \"Glacial Glide\": 0.001,\n    \"Languid Float\": 0.003,\n    \"Brisk Submersion\": 0.008,\n    \"Centrifuge Plunge\": 0.015,\n    \"Hyperbolic Abyss\": 0.025,\n    \"Relativistic Warp\": 0.040\n};\n\nconst VERTEX_PROFILE = {\n    \"Cathedral Lead Came\": { w: 4, warp: 0, alpha: 1.0 },\n    \"Beveled Prism Edges\": { w: 2, warp: 0, alpha: 0.9 },\n    \"Skeletal Ribbon Insets\": { w: 1, warp: 0.5, alpha: 0.85 },\n    \"Breathing Optical Warp\": { w: 2, warp: 2.0, alpha: 0.85 },\n    \"Filigree Caustic Spines\": { w: 1.2, warp: 1.0, alpha: 0.9 },\n    \"Dissolving Wire Web\": { w: 1.0, warp: 3.0, alpha: 0.85 }\n};\n\nconst CHROMA_LOGIC = {\n    \"Sainte Chapelle Ruby\": [\"#4a0000\", \"#7a0010\", \"#c21807\", \"#002a54\", \"#d4af37\"],\n    \"Cobalt Nave Twilight\": [\"#00102a\", \"#002050\", \"#003a8c\", \"#4a0080\", \"#101010\"],\n    \"Alchemical Emerald Glow\": [\"#001a00\", \"#003311\", \"#006622\", \"#33cc33\", \"#ccff00\"],\n    \"Orientation Phase Prism\": [\"#ff0040\", \"#00ff40\", \"#4000ff\", \"#ffcc00\", \"#00ffff\"],\n    \"Inflation Depth Opal\": [\"#ffcccc\", \"#ccffcc\", \"#ccccff\", \"#ffffcc\", \"#ffccff\"],\n    \"Monochrome Obsidian Flare\": [\"#050505\", \"#151515\", \"#252525\", \"#404040\", \"#ffffff\"]\n};\n\nconst DRIFT_WANDER = {\n    \"Dead Center Orbit\": { x: 0, y: 0 },\n    \"Gentle Precession\": { x: 0.1, y: 0.05 },\n    \"Spiral Fibonacci Eddy\": { x: 0.3, y: 0.3 },\n    \"Erratic Tidal Shear\": { x: 0.5, y: 0.8 },\n    \"Vortical Edge Skim\": { x: 0.8, y: 0.2 },\n    \"Chaotic Brownian Tremor\": { x: 1.2, y: 1.5 }\n};\n\nlet colorBuckets = [[], [], [], [], []];\n\np.setup = function() {\n    p.createCanvas(800, 800);\n};\n\np.draw = function() {\n    let geomStr = p.getSynthVar('tile_geometry') || 'Golden Penrose Rhomb';\n    let tempoStr = p.getSynthVar('dive_tempo') || 'Glacial Glide';\n    let profileStr = p.getSynthVar('vertex_profile') || 'Cathedral Lead Came';\n    let chromaStr = p.getSynthVar('chroma_logic') || 'Sainte Chapelle Ruby';\n    let driftStr = p.getSynthVar('drift_wander') || 'Dead Center Orbit';\n\n    let geom = TILE_GEOMETRY[geomStr];\n    let speed = DIVE_TEMPO[tempoStr];\n    let profile = VERTEX_PROFILE[profileStr];\n    let colors = CHROMA_LOGIC[chromaStr];\n    let drift = DRIFT_WANDER[driftStr];\n\n    p.background('#000000');\n\n    let time = p.frameCount;\n    let cx = 800 / 2 + Math.sin(time * 0.01) * drift.x * (800 / 3);\n    let cy = 800 / 2 + Math.cos(time * 0.013) * drift.y * (800 / 3);\n\n    let zoomProgress = (time * speed) % 1.0;\n    let scaleFactor = Math.pow(1 / geom.K, zoomProgress);\n    let baseR = 1800 * scaleFactor;\n\n    colorBuckets = [[], [], [], [], []];\n\n    let currentR = baseR;\n    let depth = 0;\n    while (currentR > 2) {\n        let outV = [];\n        let inV = [];\n        for (let i = 0; i < geom.N; i++) {\n            let a = (i * Math.PI * 2) / geom.N;\n            outV.push({ x: cx + currentR * Math.cos(a), y: cy + currentR * Math.sin(a) });\n            inV.push({ x: cx + currentR * geom.K * Math.cos(a), y: cy + currentR * geom.K * Math.sin(a) });\n        }\n\n        for (let i = 0; i < geom.N; i++) {\n            let next = (i + 1) % geom.N;\n            let subDepth = 0;\n            if (currentR > 800) subDepth = 3;\n            else if (currentR > 200) subDepth = 2;\n            else if (currentR > 40) subDepth = 1;\n\n            subdivideQuad(outV[i], outV[next], inV[next], inV[i], 0, subDepth, i + depth);\n        }\n        currentR *= geom.K;\n        depth++;\n    }\n\n    let centerPoly = [];\n    for (let i = 0; i < geom.N; i++) {\n        let a = (i * Math.PI * 2) / geom.N;\n        centerPoly.push({ x: cx + currentR * Math.cos(a), y: cy + currentR * Math.sin(a) });\n    }\n    colorBuckets[depth % 5].push(centerPoly);\n\n    let ctx = p.drawingContext;\n    ctx.lineJoin = 'bevel';\n    ctx.lineWidth = profile.w;\n    ctx.strokeStyle = '#000000';\n    if (profile.alpha < 1.0) ctx.globalAlpha = profile.alpha;\n\n    let warpTime = time * 0.05;\n\n    for (let i = 0; i < 5; i++) {\n        if (colorBuckets[i].length === 0) continue;\n        ctx.fillStyle = colors[i];\n        ctx.beginPath();\n        for (let poly of colorBuckets[i]) {\n            if (profile.warp > 0) {\n                let wx0 = poly[0].x + Math.sin(poly[0].y * 0.01 + warpTime) * profile.warp * 4;\n                let wy0 = poly[0].y + Math.cos(poly[0].x * 0.01 + warpTime) * profile.warp * 4;\n                ctx.moveTo(wx0, wy0);\n                for (let j = 1; j < poly.length; j++) {\n                    let wx = poly[j].x + Math.sin(poly[j].y * 0.01 + warpTime) * profile.warp * 4;\n                    let wy = poly[j].y + Math.cos(poly[j].x * 0.01 + warpTime) * profile.warp * 4;\n                    ctx.lineTo(wx, wy);\n                }\n                ctx.closePath();\n            } else {\n                ctx.moveTo(poly[0].x, poly[0].y);\n                for (let j = 1; j < poly.length; j++) {\n                    ctx.lineTo(poly[j].x, poly[j].y);\n                }\n                ctx.closePath();\n            }\n        }\n        ctx.fill();\n        if (profile.w > 0) ctx.stroke();\n    }\n    ctx.globalAlpha = 1.0;\n};\n\nfunction subdivideQuad(A, B, C, D, depth, maxDepth, colOffset) {\n    let minX = Math.min(A.x, B.x, C.x, D.x);\n    let maxX = Math.max(A.x, B.x, C.x, D.x);\n    let minY = Math.min(A.y, B.y, C.y, D.y);\n    let maxY = Math.max(A.y, B.y, C.y, D.y);\n    \n    if (maxX < -50 || minX > 850 || maxY < -50 || minY > 850) return;\n\n    if (depth >= maxDepth || (maxX - minX < 12 && maxY - minY < 12)) {\n        colorBuckets[(depth + colOffset) % 5].push([A, B, C, D]);\n        return;\n    }\n\n    let E = { x: (A.x+B.x+C.x+D.x)/4, y: (A.y+B.y+C.y+D.y)/4 };\n    let MAB = { x: (A.x+B.x)/2, y: (A.y+B.y)/2 };\n    let MBC = { x: (B.x+C.x)/2, y: (B.y+C.y)/2 };\n    let MCD = { x: (C.x+D.x)/2, y: (C.y+D.y)/2 };\n    let MDA = { x: (D.x+A.x)/2, y: (D.y+A.y)/2 };\n\n    subdivideQuad(A, MAB, E, MDA, depth+1, maxDepth, colOffset);\n    subdivideQuad(MAB, B, MBC, E, depth+1, maxDepth, colOffset+1);\n    subdivideQuad(E, MBC, C, MCD, depth+1, maxDepth, colOffset+2);\n    subdivideQuad(MDA, E, MCD, D, depth+1, maxDepth, colOffset+3);\n}\n",
+  "tags": [
+    {
+      "id": "tag_aperiodic_stained_glass_01",
+      "type": "custom",
+      "label": "Designed and written by an agent swarm",
+      "description": "Concept, variables and code written by a crew of agents in the Agent Studio chat room (aperiodic-crystal) and played by the harness before it was accepted. Atelier residency, 2026-10-08."
+    }
+  ]
+}

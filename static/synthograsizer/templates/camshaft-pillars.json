@@ -1,0 +1,164 @@
+{
+  "promptTemplate": "A mechanical landscape driven by a {{cam_profile}} across a {{wave_topology}}, topped with a {{piston_cap}} under a {{cast_illumination}}, moving at a {{cadence_pace}}.",
+  "variables": [
+    {
+      "name": "cam_profile",
+      "feature_name": "Motion transfer curve",
+      "values": [
+        {
+          "text": "harmonic sine roll",
+          "weight": 3
+        },
+        {
+          "text": "canted teardrop sweep",
+          "weight": 3
+        },
+        {
+          "text": "asymmetric ratchet jerk",
+          "weight": 2
+        },
+        {
+          "text": "triangular chisel pulse",
+          "weight": 2
+        },
+        {
+          "text": "stepped dwell snap",
+          "weight": 2
+        },
+        {
+          "text": "brutal square shock",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "wave_topology",
+      "feature_name": "Phase offset & ripple spatial grid",
+      "values": [
+        {
+          "text": "parallel surging rollers",
+          "weight": 3
+        },
+        {
+          "text": "intersecting cross wakes",
+          "weight": 3
+        },
+        {
+          "text": "concentric radial swell",
+          "weight": 2
+        },
+        {
+          "text": "spiraling vortex drift",
+          "weight": 2
+        },
+        {
+          "text": "checkerboard shear weave",
+          "weight": 2
+        },
+        {
+          "text": "stochastic turbulent churn",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "piston_cap",
+      "feature_name": "Cap geometry & crown extrusion",
+      "values": [
+        {
+          "text": "sheared flat slab",
+          "weight": 3
+        },
+        {
+          "text": "canted beveled chisel",
+          "weight": 3
+        },
+        {
+          "text": "fluted cylindrical socket",
+          "weight": 2
+        },
+        {
+          "text": "recessed square core",
+          "weight": 2
+        },
+        {
+          "text": "stepped telescope crown",
+          "weight": 2
+        },
+        {
+          "text": "pronged castellated tooth",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "cast_illumination",
+      "feature_name": "Light sweep & isometric shadow rake",
+      "values": [
+        {
+          "text": "high noon crest",
+          "weight": 3
+        },
+        {
+          "text": "oblique morning rake",
+          "weight": 3
+        },
+        {
+          "text": "sharp twilight skim",
+          "weight": 2
+        },
+        {
+          "text": "grazing dusk silhouette",
+          "weight": 2
+        },
+        {
+          "text": "low amber eclipse",
+          "weight": 2
+        },
+        {
+          "text": "contrasting split beacon",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "cadence_pace",
+      "feature_name": "Drive speed",
+      "values": [
+        {
+          "text": "glacial hydraulic heave",
+          "weight": 3
+        },
+        {
+          "text": "steady monolithic stroke",
+          "weight": 3
+        },
+        {
+          "text": "brisk mechanical cadence",
+          "weight": 2
+        },
+        {
+          "text": "throbbing diesel gallop",
+          "weight": 2
+        },
+        {
+          "text": "urgent pneumatic pulse",
+          "weight": 2
+        },
+        {
+          "text": "feverish rattle tremor",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "p5Code": "const CAM_MAP = {\n  \"harmonic sine roll\": 0,\n  \"canted teardrop sweep\": 1,\n  \"asymmetric ratchet jerk\": 2,\n  \"triangular chisel pulse\": 3,\n  \"stepped dwell snap\": 4,\n  \"brutal square shock\": 5\n};\n\nconst TOPO_MAP = {\n  \"parallel surging rollers\": 0,\n  \"intersecting cross wakes\": 1,\n  \"concentric radial swell\": 2,\n  \"spiraling vortex drift\": 3,\n  \"checkerboard shear weave\": 4,\n  \"stochastic turbulent churn\": 5\n};\n\nconst CAP_MAP = {\n  \"sheared flat slab\": 0,\n  \"canted beveled chisel\": 1,\n  \"fluted cylindrical socket\": 2,\n  \"recessed square core\": 3,\n  \"stepped telescope crown\": 4,\n  \"pronged castellated tooth\": 5\n};\n\nconst ILLUM_MAP = {\n  \"high noon crest\": 0,\n  \"oblique morning rake\": 1,\n  \"sharp twilight skim\": 2,\n  \"grazing dusk silhouette\": 3,\n  \"low amber eclipse\": 4,\n  \"contrasting split beacon\": 5\n};\n\nconst PACE_MAP = {\n  \"glacial hydraulic heave\": 0.002,\n  \"steady monolithic stroke\": 0.0073,\n  \"brisk mechanical cadence\": 0.0191,\n  \"throbbing diesel gallop\": 0.0387,\n  \"urgent pneumatic pulse\": 0.0613,\n  \"feverish rattle tremor\": 0.0937\n};\n\nconst GRID_SIZE = 22;\nconst TILE_W = 24;\nconst TILE_H = 12;\nconst BASE_Y = 550;\nlet time = 0;\n\np.setup = function() {\n  p.createCanvas(800, 800);\n  p.noStroke();\n};\n\np.draw = function() {\n  const camStr = p.getSynthVar(\"cam_profile\") || \"harmonic sine roll\";\n  const topoStr = p.getSynthVar(\"wave_topology\") || \"parallel surging rollers\";\n  const capStr = p.getSynthVar(\"piston_cap\") || \"sheared flat slab\";\n  const illumStr = p.getSynthVar(\"cast_illumination\") || \"high noon crest\";\n  const paceStr = p.getSynthVar(\"cadence_pace\") || \"glacial hydraulic heave\";\n\n  const camMode = CAM_MAP[camStr] ?? 0;\n  const topoMode = TOPO_MAP[topoStr] ?? 0;\n  const capMode = CAP_MAP[capStr] ?? 0;\n  const illumMode = ILLUM_MAP[illumStr] ?? 0;\n  const speed = PACE_MAP[paceStr] ?? 0.0073;\n\n  time += speed * (1 + 0.03 * Math.sin(p.frameCount * 0.071));\n\n  let cBg, cTop, cLeft, cRight;\n  switch (illumMode) {\n    case 0: cBg = '#a1b5c2'; cTop = '#f0f4f8'; cLeft = '#b6c6d3'; cRight = '#8e9eab'; break;\n    case 1: cBg = '#d9c6b0'; cTop = '#ffeacc'; cLeft = '#d6b797'; cRight = '#a38a74'; break;\n    case 2: cBg = '#2a3b4c'; cTop = '#718fa6'; cLeft = '#43586b'; cRight = '#202a35'; break;\n    case 3: cBg = '#141115'; cTop = '#845749'; cLeft = '#4d322b'; cRight = '#1a110e'; break;\n    case 4: cBg = '#4a2c11'; cTop = '#f2a65a'; cLeft = '#a86122'; cRight = '#4a2408'; break;\n    case 5: cBg = '#111'; cTop = '#fff'; cLeft = '#00a8ff'; cRight = '#e84118'; break;\n  }\n\n  p.background(cBg);\n  p.push();\n  p.translate(p.width / 2, BASE_Y);\n\n  const ctx = p.drawingContext;\n\n  for (let depth = 0; depth < GRID_SIZE * 2; depth++) {\n    let layerPillars = [];\n    for (let x = 0; x < GRID_SIZE; x++) {\n      let y = depth - x;\n      if (y >= 0 && y < GRID_SIZE) {\n        layerPillars.push({x, y});\n      }\n    }\n    \n    if (layerPillars.length === 0) continue;\n\n    ctx.fillStyle = cRight;\n    ctx.beginPath();\n    for (let pos of layerPillars) {\n      let d = getPillarData(pos.x, pos.y, topoMode, camMode);\n      drawRightFace(ctx, d.sx, d.sy, d.h);\n    }\n    ctx.fill();\n\n    ctx.fillStyle = cLeft;\n    ctx.beginPath();\n    for (let pos of layerPillars) {\n      let d = getPillarData(pos.x, pos.y, topoMode, camMode);\n      drawLeftFace(ctx, d.sx, d.sy, d.h);\n    }\n    ctx.fill();\n\n    for (let pos of layerPillars) {\n      let d = getPillarData(pos.x, pos.y, topoMode, camMode);\n      drawTopCap(ctx, d.sx, d.sy, d.h, capMode, cTop, cLeft, cRight, d.rawZ);\n    }\n  }\n  p.pop();\n};\n\nfunction getPillarData(x, y, topoMode, camMode) {\n  let cx = GRID_SIZE / 2, cy = GRID_SIZE / 2;\n  let phase = 0;\n  \n  if (topoMode === 0) phase = x * 0.15 + time;\n  else if (topoMode === 1) phase = (x * 0.15 + time) + (y * 0.15 + time);\n  else if (topoMode === 2) phase = p.dist(x, y, cx, cy) * 0.15 - time;\n  else if (topoMode === 3) phase = p.atan2(y-cy, x-cx)/p.TWO_PI + p.dist(x, y, cx, cy)*0.1 - time;\n  else if (topoMode === 4) phase = (x*0.4 + y*0.4 + time);\n  else if (topoMode === 5) phase = p.noise(x*0.15, y*0.15, time*0.5) * 4;\n\n  let tPhase = phase % 1.0;\n  if (tPhase < 0) tPhase += 1.0;\n  let z = 0;\n\n  if (camMode === 0) z = 0.5 - 0.5 * p.cos(tPhase * p.TWO_PI);\n  else if (camMode === 1) z = Math.pow(p.sin(tPhase * p.PI), 2.5);\n  else if (camMode === 2) z = tPhase < 0.8 ? (tPhase/0.8) : (1 - (tPhase-0.8)/0.2);\n  else if (camMode === 3) z = 1.0 - Math.abs((tPhase * 2) - 1.0);\n  else if (camMode === 4) z = p.lerp(Math.floor(tPhase * 4) / 3, Math.floor((tPhase+0.1) * 4) / 3, 0.5);\n  else if (camMode === 5) z = tPhase < 0.5 ? 0 : 1;\n\n  if (camMode === 4 || camMode === 5) {\n    z = z * 0.8 + 0.1;\n  }\n\n  const h = 20 + z * 180;\n  const sx = (x - y) * TILE_W;\n  const sy = (x + y) * TILE_H * 0.5;\n  return { sx, sy, h, rawZ: z };\n}\n\nfunction drawRightFace(ctx, sx, sy, h) {\n  ctx.moveTo(sx, sy - h);\n  ctx.lineTo(sx + TILE_W, sy + TILE_H * 0.5 - h);\n  ctx.lineTo(sx + TILE_W, sy + TILE_H * 0.5);\n  ctx.lineTo(sx, sy);\n  ctx.closePath();\n}\n\nfunction drawLeftFace(ctx, sx, sy, h) {\n  ctx.moveTo(sx, sy - h);\n  ctx.lineTo(sx - TILE_W, sy + TILE_H * 0.5 - h);\n  ctx.lineTo(sx - TILE_W, sy + TILE_H * 0.5);\n  ctx.lineTo(sx, sy);\n  ctx.closePath();\n}\n\nfunction drawTopCap(ctx, sx, sy, h, capMode, cTop, cLeft, cRight, rawZ) {\n  ctx.fillStyle = cTop;\n  let ty = sy - h;\n  \n  if (capMode === 0) {\n    ctx.beginPath();\n    ctx.moveTo(sx, ty - TILE_H * 0.5); ctx.lineTo(sx + TILE_W, ty); ctx.lineTo(sx, ty + TILE_H * 0.5); ctx.lineTo(sx - TILE_W, ty);\n    ctx.fill();\n  } else if (capMode === 1) {\n    ctx.beginPath();\n    ctx.moveTo(sx, ty - TILE_H); ctx.lineTo(sx + TILE_W, ty); ctx.lineTo(sx, ty + TILE_H * 0.5); ctx.lineTo(sx - TILE_W, ty);\n    ctx.fill();\n  } else if (capMode === 2) {\n    ctx.beginPath();\n    ctx.moveTo(sx, ty - TILE_H * 0.5); ctx.lineTo(sx + TILE_W, ty); ctx.lineTo(sx, ty + TILE_H * 0.5); ctx.lineTo(sx - TILE_W, ty);\n    ctx.fill();\n    ctx.fillStyle = cRight;\n    ctx.beginPath();\n    ctx.ellipse(sx, ty, TILE_W*0.6, TILE_H*0.6, 0, 0, p.TWO_PI);\n    ctx.fill();\n  } else if (capMode === 3) {\n    ctx.beginPath();\n    ctx.moveTo(sx, ty - TILE_H * 0.5); ctx.lineTo(sx + TILE_W, ty); ctx.lineTo(sx, ty + TILE_H * 0.5); ctx.lineTo(sx - TILE_W, ty);\n    ctx.fill();\n    ctx.fillStyle = cRight;\n    ctx.beginPath();\n    ctx.moveTo(sx, ty - TILE_H*0.25); ctx.lineTo(sx + TILE_W*0.5, ty); ctx.lineTo(sx, ty + TILE_H*0.25); ctx.lineTo(sx - TILE_W*0.5, ty);\n    ctx.fill();\n  } else if (capMode === 4) {\n    ctx.beginPath();\n    ctx.moveTo(sx, ty - TILE_H * 0.5); ctx.lineTo(sx + TILE_W, ty); ctx.lineTo(sx, ty + TILE_H * 0.5); ctx.lineTo(sx - TILE_W, ty);\n    ctx.fill();\n    let th = rawZ * 20;\n    ctx.fillStyle = cRight;\n    ctx.beginPath(); ctx.moveTo(sx, ty - th); ctx.lineTo(sx+TILE_W*0.6, ty+TILE_H*0.3 - th); ctx.lineTo(sx+TILE_W*0.6, ty+TILE_H*0.3); ctx.lineTo(sx, ty); ctx.fill();\n    ctx.fillStyle = cLeft;\n    ctx.beginPath(); ctx.moveTo(sx, ty - th); ctx.lineTo(sx-TILE_W*0.6, ty+TILE_H*0.3 - th); ctx.lineTo(sx-TILE_W*0.6, ty+TILE_H*0.3); ctx.lineTo(sx, ty); ctx.fill();\n    ctx.fillStyle = cTop;\n    ctx.beginPath(); ctx.moveTo(sx, ty - TILE_H*0.3 - th); ctx.lineTo(sx+TILE_W*0.6, ty - th); ctx.lineTo(sx, ty+TILE_H*0.3 - th); ctx.lineTo(sx-TILE_W*0.6, ty - th); ctx.fill();\n  } else if (capMode === 5) {\n    ctx.beginPath();\n    ctx.moveTo(sx, ty - TILE_H * 0.5); ctx.lineTo(sx + TILE_W, ty); ctx.lineTo(sx, ty + TILE_H * 0.5); ctx.lineTo(sx - TILE_W, ty);\n    ctx.fill();\n    if (rawZ > 0.8) {\n      let pop = (rawZ - 0.8) * 50;\n      ctx.fillStyle = cLeft; ctx.beginPath(); ctx.rect(sx - 4, ty - pop, 4, pop); ctx.fill();\n      ctx.fillStyle = cRight; ctx.beginPath(); ctx.rect(sx, ty - pop, 4, pop); ctx.fill();\n      ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.rect(sx - 4, ty - pop - 4, 8, 4); ctx.fill();\n    }\n  }\n}\n",
+  "tags": [
+    {
+      "id": "tag_camshaft_pillars_01",
+      "type": "custom",
+      "label": "Designed and written by an agent swarm",
+      "description": "Concept, variables and code written by a crew of agents in the Agent Studio chat room (revise2-camshaft-pillars) and played by the harness before it was accepted. Atelier residency, 2026-10-08."
+    }
+  ]
+}

@@ -1,0 +1,164 @@
+{
+  "promptTemplate": "A breathing hyperbolic fractal eye built from {{generator_rings}} with an inversion depth of {{inversion_depth}}, patterned with {{base_motif}} and warped by a {{gravitational_warp}}, colored in {{chromatic_banding}}.",
+  "variables": [
+    {
+      "name": "generator_rings",
+      "feature_name": "Generator Rings",
+      "values": [
+        {
+          "text": "triad core",
+          "weight": 3
+        },
+        {
+          "text": "tetrad cross",
+          "weight": 3
+        },
+        {
+          "text": "pentagram web",
+          "weight": 3
+        },
+        {
+          "text": "hexagonal crown",
+          "weight": 2
+        },
+        {
+          "text": "septagram cage",
+          "weight": 2
+        },
+        {
+          "text": "octahedral lattice",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "inversion_depth",
+      "feature_name": "Inversion Depth",
+      "values": [
+        {
+          "text": "shallow prism",
+          "weight": 3
+        },
+        {
+          "text": "stepped echo",
+          "weight": 3
+        },
+        {
+          "text": "nested filigree",
+          "weight": 3
+        },
+        {
+          "text": "dense lacework",
+          "weight": 2
+        },
+        {
+          "text": "fractal haze",
+          "weight": 2
+        },
+        {
+          "text": "infinite dust",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "base_motif",
+      "feature_name": "Base Motif",
+      "values": [
+        {
+          "text": "cartesian lattice",
+          "weight": 3
+        },
+        {
+          "text": "radiating spokes",
+          "weight": 3
+        },
+        {
+          "text": "spiral phyllotaxis",
+          "weight": 3
+        },
+        {
+          "text": "rosette rings",
+          "weight": 2
+        },
+        {
+          "text": "concentric ripples",
+          "weight": 2
+        },
+        {
+          "text": "droplet swarm",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "gravitational_warp",
+      "feature_name": "Gravitational Warp",
+      "values": [
+        {
+          "text": "gentle camber",
+          "weight": 3
+        },
+        {
+          "text": "convex swell",
+          "weight": 3
+        },
+        {
+          "text": "pinched vortex",
+          "weight": 3
+        },
+        {
+          "text": "black hole funnel",
+          "weight": 2
+        },
+        {
+          "text": "astigmatic shear",
+          "weight": 2
+        },
+        {
+          "text": "singularity rip",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "chromatic_banding",
+      "feature_name": "Chromatic Banding",
+      "values": [
+        {
+          "text": "obsidian gold",
+          "weight": 3
+        },
+        {
+          "text": "sapphire refraction",
+          "weight": 3
+        },
+        {
+          "text": "emerald opal",
+          "weight": 3
+        },
+        {
+          "text": "amethyst flare",
+          "weight": 2
+        },
+        {
+          "text": "prismatic spectral",
+          "weight": 2
+        },
+        {
+          "text": "hyper-violet void",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "p5Code": "const RINGS_MAP = {\n  \"triad core\": 3, \"tetrad cross\": 4, \"pentagram web\": 5,\n  \"hexagonal crown\": 6, \"septagram cage\": 7, \"octahedral lattice\": 8\n};\nconst DEPTH_MAP = {\n  \"shallow prism\": 1, \"stepped echo\": 2, \"nested filigree\": 3,\n  \"dense lacework\": 4, \"fractal haze\": 5, \"infinite dust\": 6\n};\nconst MOTIF_MAP = {\n  \"cartesian lattice\": 0, \"radiating spokes\": 1, \"spiral phyllotaxis\": 2,\n  \"rosette rings\": 3, \"concentric ripples\": 4, \"droplet swarm\": 5\n};\nconst WARP_MAP = {\n  \"gentle camber\": 0.2, \"convex swell\": 0.5, \"pinched vortex\": 0.8,\n  \"black hole funnel\": 1.2, \"astigmatic shear\": 1.5, \"singularity rip\": 2.0\n};\nconst PALETTE_MAP = {\n  \"obsidian gold\": [\"#000000\", \"#3a2a0d\", \"#8c6c23\", \"#d4af37\", \"#fef1b5\"],\n  \"sapphire refraction\": [\"#011126\", \"#042c59\", \"#0c57a6\", \"#3d8ee6\", \"#b5d8ff\"],\n  \"emerald opal\": [\"#021c11\", \"#084027\", \"#137a4b\", \"#47c286\", \"#b8f7d8\"],\n  \"amethyst flare\": [\"#160224\", \"#3e0b5e\", \"#7016a6\", \"#b342f5\", \"#ebc4ff\"],\n  \"prismatic spectral\": [\"#111111\", \"#ff2a2a\", \"#ffaa00\", \"#00ffaa\", \"#2a2aff\"],\n  \"hyper-violet void\": [\"#050014\", \"#1a0040\", \"#4800b3\", \"#8800ff\", \"#d980ff\"]\n};\n\nfunction invertCircle(cx, cy, cr, ix, iy, ir, p) {\n  let dx = cx - ix;\n  let dy = cy - iy;\n  let d2 = dx * dx + dy * dy;\n  let denom = d2 - cr * cr;\n  if (p.abs(denom) < 0.001) return null;\n  let s = (ir * ir) / denom;\n  return { x: ix + dx * s, y: iy + dy * s, r: p.abs(cr * s) };\n}\n\nfunction getRgba(hex, alpha) {\n  let r = parseInt(hex.slice(1, 3), 16);\n  let g = parseInt(hex.slice(3, 5), 16);\n  let b = parseInt(hex.slice(5, 7), 16);\n  return `rgba(${r},${g},${b},${alpha})`;\n}\n\np.setup = function() {\n  p.createCanvas(800, 800);\n  p.pixelDensity(1);\n};\n\np.draw = function() {\n  const ringsStr = p.getSynthVar('generator_rings') || 'triad core';\n  const depthStr = p.getSynthVar('inversion_depth') || 'shallow prism';\n  const motifStr = p.getSynthVar('base_motif') || 'cartesian lattice';\n  const warpStr = p.getSynthVar('gravitational_warp') || 'gentle camber';\n  const paletteStr = p.getSynthVar('chromatic_banding') || 'obsidian gold';\n\n  const numGens = RINGS_MAP[ringsStr];\n  const maxDepth = DEPTH_MAP[depthStr];\n  const motifType = MOTIF_MAP[motifStr];\n  const warpForce = WARP_MAP[warpStr];\n  const palette = PALETTE_MAP[paletteStr];\n\n  let gens = [];\n  let breath = 150 * p.sin(p.frameCount * 0.02) + 200; \n  for (let i = 0; i < numGens; i++) {\n    let a = i * p.TWO_PI / numGens + p.frameCount * 0.005;\n    gens.push({ x: p.cos(a) * breath, y: p.sin(a) * breath, r: 180 });\n  }\n\n  let baseCircles = [];\n  if (motifType === 0) {\n    for (let x = -200; x <= 200; x += 100) for (let y = -200; y <= 200; y += 100) baseCircles.push({ x, y, r: 40 });\n  } else if (motifType === 1) {\n    for (let i = 0; i < 8; i++) { let a = i * p.PI / 4; baseCircles.push({ x: p.cos(a) * 150, y: p.sin(a) * 150, r: 35 }); baseCircles.push({ x: p.cos(a) * 50, y: p.sin(a) * 50, r: 15 }); }\n  } else if (motifType === 2) {\n    for (let i = 1; i < 20; i++) { let a = i * 2.3999; let r = i * 12; baseCircles.push({ x: p.cos(a) * r, y: p.sin(a) * r, r: 10 + i }); }\n  } else if (motifType === 3) {\n    for (let i = 0; i < 12; i++) { let a = i * p.PI / 6; baseCircles.push({ x: p.cos(a) * 100, y: p.sin(a) * 100, r: 60 }); }\n  } else if (motifType === 4) {\n    for (let i = 1; i <= 4; i++) { baseCircles.push({ x: 0, y: 0, r: i * 60 }); }\n  } else {\n    for (let i = 0; i < 15; i++) {\n      let a = i * 0.4 + p.frameCount * 0.03;\n      let rad = 150 + 100 * p.sin(p.frameCount * 0.05 + i);\n      baseCircles.push({ x: p.cos(a) * rad, y: p.sin(a) * rad, r: 18 + 12 * p.cos(i * 2) });\n    }\n  }\n\n  let queue = baseCircles.map(c => ({ ...c, depth: 0 }));\n  let all = [...queue];\n  let head = 0;\n\n  while (head < queue.length && all.length < 350) {\n    let c = queue[head++];\n    if (c.depth >= maxDepth) continue;\n    for (let g of gens) {\n      let inv = invertCircle(c.x, c.y, c.r, g.x, g.y, g.r, p);\n      if (inv && inv.r > 1.5) {\n        let d2 = inv.x * inv.x + inv.y * inv.y;\n        if (d2 < 160000) { \n          inv.depth = c.depth + 1;\n          queue.push(inv);\n          all.push(inv);\n        }\n      }\n    }\n  }\n\n  let layers = [];\n  for (let i = 0; i <= maxDepth; i++) layers[i] = [];\n\n  for (let c of all) {\n    let d = p.dist(0, 0, c.x, c.y);\n    let a = p.atan2(c.y, c.x);\n    let nd = d / (1.0 + warpForce * p.exp(-d * d / 200000.0));\n    a += warpForce * p.exp(-d / 300.0);\n    \n    let wr = c.r * (nd / (d + 0.001));\n    if (wr > 0.5 && wr < 1000) {\n      layers[c.depth].push({ x: p.cos(a) * nd, y: p.sin(a) * nd, r: wr });\n    }\n  }\n\n  let ctx = p.drawingContext;\n  p.background(palette[0]);\n  \n  p.push();\n  p.translate(p.width / 2, p.height / 2);\n  \n  ctx.globalCompositeOperation = 'screen';\n  for (let i = 0; i <= maxDepth; i++) {\n    if (!layers[i] || layers[i].length === 0) continue;\n    \n    ctx.strokeStyle = palette[(i + 1) % palette.length];\n    ctx.fillStyle = getRgba(palette[(i + 2) % palette.length], 0.12);\n    ctx.lineWidth = 2.5;\n    \n    ctx.beginPath();\n    for (let c of layers[i]) {\n      ctx.moveTo(c.x + c.r, c.y);\n      ctx.arc(c.x, c.y, c.r, 0, p.TWO_PI);\n    }\n    ctx.fill();\n    ctx.stroke();\n  }\n\n  ctx.globalCompositeOperation = 'source-over';\n  let pupilRad = 35 + 10 * p.sin(p.frameCount * 0.04);\n  \n  ctx.strokeStyle = palette[1];\n  ctx.lineWidth = 4;\n  ctx.beginPath();\n  ctx.arc(0, 0, pupilRad + 2, 0, p.TWO_PI);\n  ctx.stroke();\n\n  ctx.fillStyle = palette[0];\n  ctx.beginPath();\n  ctx.arc(0, 0, pupilRad, 0, p.TWO_PI);\n  ctx.fill();\n  p.pop();\n\n  let grad = ctx.createRadialGradient(400, 400, 200, 400, 400, 400);\n  grad.addColorStop(0, \"rgba(0,0,0,0.0)\");\n  grad.addColorStop(1, \"rgba(0,0,0,0.85)\");\n  ctx.fillStyle = grad;\n  ctx.fillRect(0, 0, 800, 800);\n};\n",
+  "tags": [
+    {
+      "id": "tag_hyperbolic_fractal_eye_01",
+      "type": "custom",
+      "label": "Designed and written by an agent swarm",
+      "description": "Concept, variables and code written by a crew of agents in the Agent Studio chat room (revise-hyperbolic-fractal-eye) and played by the harness before it was accepted. Atelier residency, 2026-10-08."
+    }
+  ]
+}
