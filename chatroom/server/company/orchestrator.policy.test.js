@@ -488,6 +488,23 @@ test('tools: a turn in which a tool was blocked counts as a strike; a clean turn
   assert.equal(named(events, 'safety_pause')[0].code, 'strikes');
 });
 
+// ── a room that fails ────────────────────────────────────────────────────────
+
+test('a company room that stops on errors writes why into its audit log', async () => {
+  const { orchestrator, services, company } = setup();
+  two(orchestrator);
+  orchestrator.delay = () => Promise.resolve();
+  scripted(orchestrator, () => ({ error: '503 backend unavailable' }));
+  await orchestrator.start('Make a poster', 100000);
+  await until(() => !orchestrator.isRunning);
+  assert.equal(orchestrator.completionReason, 'error_limit_reached');
+  const entry = services.audit.read(company.id).find(e => e.type === 'room_failed');
+  assert.ok(entry, 'the audit log says the room failed');
+  assert.equal(entry.turns, 5);
+  assert.match(entry.reason, /503/);
+  assert.match(orchestrator.getState().error, /503/);
+});
+
 // ── money ────────────────────────────────────────────────────────────────────
 
 test('spend: a session ends when its estimated cost reaches the ceiling, and the audit log says so', async () => {

@@ -1391,6 +1391,8 @@ export class ChatOrchestrator {
     const fatal = FATAL_ERROR_PATTERN.test(this.lastError);
     if (fatal || this.consecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
       console.error(`[Orchestrator] stopping after ${this.consecutiveFailures} failed turn(s): ${this.lastError}`);
+      // A company's audit log keeps the reason: a live run lost it with the server's console and could not say why a room stopped.
+      this.policy?.record('room_failed', { turns: this.consecutiveFailures, reason: String(this.lastError).slice(0, 300) });
       this.stop('error_limit_reached');
       return true;
     }
@@ -3263,6 +3265,8 @@ export class ChatOrchestrator {
       summarizedMessages: this._summaryForPrompt()?.upTo ?? 0,
       agents: this.agents, // Include full agent data with bios
       completionReason: this.completionReason,
+      // Why a room stopped by failing (the last error the model service gave), so it can be read after the fact; null otherwise.
+      error: this.completionReason === 'error_limit_reached' ? this.lastError : null,
       doneWhen: { checks: this.doneWhen.criteria.length, blocks: this.doneWhen.blocks, lastResult: this.doneWhen.lastResult },
       critic: { enabled: this.critic.enabled, calls: this.critic.calls, maxCalls: this.critic.maxCalls, minScore: this.critic.minScore },
       // A company's room: which company, what applies, and how the safety layer has acted this session. Null for a plain room.
