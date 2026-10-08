@@ -233,7 +233,7 @@
       "type": "source",
       "label": "Gray-Scott reaction-diffusion",
       "url": "https://www.karlsims.com/rd.html",
-      "description": "Feed/kill regimes from Pearson's 1993 parameter map; update rule and kernel weights as in Karl Sims' tutorial. Written for the Atelier residency, 2026-10-06."
+      "description": "Feed/kill regimes from Pearson's 1993 parameter map; update rule and kernel weights as in Karl Sims' tutorial. Written for the Teamcrafter residency, 2026-10-06."
     }
   ]
 }

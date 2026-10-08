@@ -275,7 +275,7 @@
       "id": "tag_arcana_machina_01",
       "type": "custom",
       "label": "Arcana Machina",
-      "description": "A tarot-style deck of the machine age. The arcanum variable has 22 values, one per major arcanum, so cycling it while holding the style, palette, border, companion and material gives a matched deck. Written for the Atelier residency, 2026-10-06."
+      "description": "A tarot-style deck of the machine age. The arcanum variable has 22 values, one per major arcanum, so cycling it while holding the style, palette, border, companion and material gives a matched deck. Written for the Teamcrafter residency, 2026-10-06."
     }
   ]
 }

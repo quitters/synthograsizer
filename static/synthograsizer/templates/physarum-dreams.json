@@ -252,7 +252,7 @@
       "id": "tag_physarum_dreams_01",
       "type": "source",
       "label": "Physarum transport network model",
-      "description": "Agent-based slime-mould model after Jeff Jones, 'Characteristics of pattern formation and evolution in approximations of Physarum transport networks', Artificial Life 16(2), 2010: sense, rotate, move, deposit, then diffuse and decay the shared trail. Written for the Atelier residency, 2026-10-06."
+      "description": "Agent-based slime-mould model after Jeff Jones, 'Characteristics of pattern formation and evolution in approximations of Physarum transport networks', Artificial Life 16(2), 2010: sense, rotate, move, deposit, then diffuse and decay the shared trail. Written for the Teamcrafter residency, 2026-10-06."
     }
   ]
 }

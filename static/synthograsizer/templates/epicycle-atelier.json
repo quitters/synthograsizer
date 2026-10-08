@@ -262,7 +262,7 @@
       "id": "tag_epicycle_atelier_01",
       "type": "source",
       "label": "Fourier epicycles",
-      "description": "A closed curve as a chain of turning circles: the discrete Fourier transform of the sampled curve, terms sorted by size. Figures are hand-built parametric curves and polygons (heart, trefoil, Fay's butterfly, hypotrochoid, lemniscate, rose). Written for the Atelier residency, 2026-10-06."
+      "description": "A closed curve as a chain of turning circles: the discrete Fourier transform of the sampled curve, terms sorted by size. Figures are hand-built parametric curves and polygons (heart, trefoil, Fay's butterfly, hypotrochoid, lemniscate, rose). Written for the Teamcrafter residency, 2026-10-06."
     }
   ]
 }
