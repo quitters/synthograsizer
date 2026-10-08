@@ -5,10 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "server": "node server/index.js",
+    "server": "node --experimental-sqlite server/index.js",
     "client": "npm run dev --prefix client",
-    "test": "node --test \"tests/**/*.test.js\" \"server/**/*.test.js\"",
-    "test:watch": "node --test --watch \"tests/**/*.test.js\" \"server/**/*.test.js\"",
+    "test": "node --experimental-sqlite --test \"tests/**/*.test.js\" \"server/**/*.test.js\"",
+    "test:watch": "node --experimental-sqlite --test --watch \"tests/**/*.test.js\" \"server/**/*.test.js\"",
     "test:redteam": "node redteam/run.mjs",
     "install-all": "npm install && cd client && npm install"
   },
