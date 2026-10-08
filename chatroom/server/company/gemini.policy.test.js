@@ -9,7 +9,7 @@ const { FakeGenAI, makeAgent, drain } = await import('../../tests/helpers/fakeGe
 const { FUNCTION_DECLARATIONS } = await import('../services/toolDefinitions.js');
 const { makeServices, makeRoom } = await import('./testKit.js');
 const { ATTACKS, withAsk } = await import('./attackCorpus.js');
-const { looksLikeSafetyBlock, refusalFromOutcome, stepErrorMessages, SAFETY_MARKERS } = await import('./refusal.js');
+const { looksLikeSafetyBlock, refusalFromOutcome, stepErrorMessages, describeApiError, SAFETY_MARKERS } = await import('./refusal.js');
 
 const ann = makeAgent({ id: 'agent-ann', name: 'Ann Test', bio: 'Ann is a careful editor from Lisbon.' });
 const ben = makeAgent({ id: 'agent-ben', name: 'Ben Test', bio: 'Ben is a curious designer.' });
@@ -207,6 +207,33 @@ test('an error event that says the service blocked the request is a refusal, not
   assert.match(out.events[0].detail, /safety filters/);
   const net = await run([created, { event_type: 'error', error: { message: 'upstream connection reset' } }]);
   assert.deepEqual(net.events.map(e => e.type), ['error']);
+});
+
+test('a rejected request says why: the reason the API gave, not the generic line the SDK makes; and a block that line concealed is still a refusal, asked once', async () => {
+  const generic = '400 API error occurred: {"httpMeta":{"response":{},"request":{}}}';
+  const rejected = Object.assign(new Error(generic), { status: 400, error: { message: "'google_search' and 'file_search' cannot be combined in the same request.", code: 'invalid_request' } });
+  initializeGemini(null, new FakeGenAI([{ throws: rejected }]));
+  const out = await drain(generateAgentResponse(ann, ALL, [], 'g', [], {}));
+  assert.deepEqual(out.events.map(e => e.type), ['error']);
+  assert.match(out.events[0].error, /cannot be combined/);
+  assert.doesNotMatch(out.events[0].error, /httpMeta/);
+
+  const hidden = Object.assign(new Error(generic), { status: 400, error: { message: 'Request blocked by safety filters' } });
+  const fake = new FakeGenAI([{ throws: hidden }]);
+  initializeGemini(null, fake);
+  const blocked = await drain(generateAgentResponse(ann, ALL, [], 'g', [], {}));
+  assert.deepEqual(blocked.events.map(e => e.type), ['refusal']);
+  assert.equal(fake.callCount, 1);
+});
+
+test('describeApiError keeps a message that already holds the reason, and copes with errors of any shape', () => {
+  assert.equal(describeApiError(new Error('upstream connection reset')), 'upstream connection reset');
+  assert.equal(describeApiError(Object.assign(new Error('400 bad: nope'), { status: 400, error: { message: 'nope' } })), '400 bad: nope');
+  assert.equal(describeApiError(Object.assign(new Error('x'), { status: 429, error: { message: 'quota used up' } })), '429 quota used up');
+  assert.equal(describeApiError(Object.assign(new Error('x'), { error: { message: 'no status here' } })), 'no status here');
+  assert.equal(describeApiError('plain text'), 'plain text');
+  assert.equal(describeApiError(undefined), 'unknown error');
+  assert.equal(describeApiError({ error: {} }), '[object Object]');
 });
 
 test('a finished-but-failed interaction whose step says it was blocked is a refusal', async () => {

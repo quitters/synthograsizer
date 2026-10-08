@@ -11,6 +11,19 @@
  */
 export const SAFETY_MARKERS = Object.freeze(['safety', 'prohibited', 'blocked', 'harm_category', 'harmful']);
 
+/**
+ * What the model service actually said, when the SDK's own message hides it. A rejected request comes back as
+ * "400 API error occurred: {"httpMeta":...}" with the reason only in `error.error.message`; the first real mixed-tier company session
+ * lost an hour to "'google_search' and 'file_search' cannot be combined" because the room's log held only the generic line.
+ * Reading the reason also lets looksLikeSafetyBlock see a block the generic line concealed (a refusal is final; it must not be retried as a failure).
+ */
+export function describeApiError(error) {
+  const message = String(error?.message ?? error ?? 'unknown error');
+  const reason = error?.error?.message;
+  if (typeof reason !== 'string' || !reason || message.includes(reason)) return message;
+  return `${error.status ? `${error.status} ` : ''}${reason}`;
+}
+
 /** Interaction states that mean the turn did not produce an answer. */
 export const FAILED_STATUSES = Object.freeze(['failed', 'cancelled', 'budget_exceeded']);
 

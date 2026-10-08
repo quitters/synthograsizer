@@ -377,6 +377,23 @@ test('tools: an agent is handed only what its tier holds AND the company has bee
   assert.deepEqual(names(analyst), ['propose_publish']);
 });
 
+test('tools: the model API cannot combine file_search with google_search or url_context, so a turn that carries a search tool goes without the stores', () => {
+  const { orchestrator, services, company, ownerId } = setup({ room: { body: { tools: ['google_search', 'url_context', 'code_execution', 'write_artifact', 'render_artifact'] } } });
+  const none = orchestrator.addAgent('Nia Test', 'x');
+  const research = orchestrator.addAgent('Rae Test', 'x', { tools: 'research' });
+  const builder = orchestrator.addAgent('Ben Test', 'x', { tools: 'builder' });
+  orchestrator.memoryStoreName = 'fileSearchStores/memory-1';
+  orchestrator.fileSearchStoreName = 'fileSearchStores/session-1';
+  const names = (agent) => orchestrator._toolsForTurn(agent).map(t => t.name || t.type);
+
+  assert.deepEqual(names(none), ['file_search', 'propose_publish'], 'no search tool: the stores stay');
+  assert.deepEqual(names(research), ['google_search', 'url_context', 'propose_publish'], 'the research tools win over the stores');
+  assert.ok(!names(builder).includes('file_search') && names(builder).includes('google_search'));
+
+  services.store.update(company.id, ownerId, { tools: ['code_execution'] });          // code_execution can be combined with the stores
+  assert.deepEqual(names(builder), ['file_search', 'code_execution', 'propose_publish']);
+});
+
 test('tools: the dispatcher refuses a tool the agent was not given, even if the model asks for it by name', async () => {
   const { orchestrator, services, company } = setup();
   const nia = orchestrator.addAgent('Nia Test', 'x');

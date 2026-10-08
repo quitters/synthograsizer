@@ -2887,6 +2887,11 @@ export class ChatOrchestrator {
       }));
     }
 
+    // The model API refuses a request that carries file_search together with google_search or url_context ("cannot be combined in the same
+    // request"). An agent that was handed a search tool for its work keeps it, and its turn goes without the stores: the first mixed-tier company
+    // session lost every turn of its archivist and its engineer to this, and the room stopped after five failures in a row.
+    if (tools.some(t => t?.type === 'google_search' || t?.type === 'url_context')) return tools.filter(t => t?.type !== 'file_search');
+
     return tools;
   }
 

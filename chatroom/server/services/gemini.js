@@ -12,7 +12,7 @@ import { MAX_TOOL_ROUNDS, MAX_CALLS_PER_ROUND } from '../config/tools.js';
 import { RECENT_WINDOW, SUMMARY_BATCH, summaryIsValid } from './summarizer.js';
 import { planSessionMedia, isVisualMedia } from './mediaContext.js';
 import { characterBlock, goalBlock, defangSpeakerLines } from '../company/layer.js';
-import { looksLikeSafetyBlock, refusalFromOutcome, stepErrorMessages } from '../company/refusal.js';
+import { looksLikeSafetyBlock, refusalFromOutcome, stepErrorMessages, describeApiError } from '../company/refusal.js';
 
 // Max attempts to continue a truncated response
 const MAX_CONTINUATION_ATTEMPTS = 2;
@@ -1149,9 +1149,10 @@ export async function* generateAgentResponse(agent, allAgents, messages, goal, s
         strict: Boolean(options?.policy),
       });
     } catch (error) {
-      yield looksLikeSafetyBlock(error.message)
-        ? { type: 'refusal', detail: error.message }
-        : { type: 'error', error: error.message };
+      const said = describeApiError(error);
+      yield looksLikeSafetyBlock(said)
+        ? { type: 'refusal', detail: said }
+        : { type: 'error', error: said };
     }
     return;
   }
@@ -1282,8 +1283,9 @@ export async function* generateAgentResponse(agent, allAgents, messages, goal, s
       interactionId: store ? chainedInteractionId : null,
     };
   } catch (error) {
-    yield looksLikeSafetyBlock(error.message)
-      ? { type: 'refusal', detail: error.message }
-      : { type: 'error', error: error.message };
+    const said = describeApiError(error);
+    yield looksLikeSafetyBlock(said)
+      ? { type: 'refusal', detail: said }
+      : { type: 'error', error: said };
   }
 }
