@@ -11,12 +11,18 @@ on:
     paths:
       - 'chatroom/**'
       - 'workflow-engine/**'
+      - 'static/synthograsizer/js/profile-bio.js'
+      - 'static/synthograsizer/js/template-normalizer.js'
+      - 'static/synthograsizer/js/agent-profiles.js'
       - '.github/workflows/chatroom-tests.yml'
   pull_request:
     branches: [main]
     paths:
       - 'chatroom/**'
       - 'workflow-engine/**'
+      - 'static/synthograsizer/js/profile-bio.js'
+      - 'static/synthograsizer/js/template-normalizer.js'
+      - 'static/synthograsizer/js/agent-profiles.js'
       - '.github/workflows/chatroom-tests.yml'
 
 jobs:
