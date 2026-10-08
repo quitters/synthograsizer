@@ -269,7 +269,7 @@ export class CompanyStore {
       plan: company.plan ? {
         flowId: company.plan.flowId,
         createdAt: company.plan.createdAt,
-        departments: company.plan.departments.map(d => ({ id: d.id, name: d.name, makes: d.deliverable.file, lead: d.lead, reviewers: d.reviewers, checks: d.doneWhen.length, briefChars: d.goal.length })),
+        departments: company.plan.departments.map(d => ({ id: d.id, name: d.name, makes: d.deliverable.file, needs: d.needs ? { name: d.needs.name, file: d.needs.file } : null, lead: d.lead, reviewers: d.reviewers, checks: d.doneWhen.length, briefChars: d.goal.length })),
       } : null,
     };
   }

@@ -3097,7 +3097,8 @@ export class ChatOrchestrator {
     return async (call) => {
       const outcome = await dispatch(call);
       if (call?.name && call.name !== 'render_artifact') {
-        const file = call.arguments?.filename ?? call.arguments?.artifact;
+        // (the file a call is about: an artifact's name, or the path of a file in the company workspace, which is how a done-when check names a hand-off)
+        const file = call.arguments?.filename ?? call.arguments?.artifact ?? call.arguments?.path;
         this.ledger.record('tool', { tool: String(call.name).slice(0, 40), ok: Boolean(outcome?.ok), agent: speaker.name, ...(typeof file === 'string' && file ? { artifact: file } : {}) });
       }
       return outcome;

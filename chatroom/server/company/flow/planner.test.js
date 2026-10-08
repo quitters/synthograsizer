@@ -99,7 +99,7 @@ test('the operator\'s people cap holds for every way in: a size, a headcount, a 
   await assert.rejects(() => propose({ locks: { people: 20 }, limits: { maxPeople: 12 } }), (e) => e.code === 'flow_people_cap');
   const room = (n) => ({ name: 'R', positions: Array.from({ length: n }, (_, i) => ({ title: i ? 'Writer' : 'Producer', lead: i === 0 })) });
   await assert.rejects(() => propose({ locks: { departments: [room(8), room(8)] }, limits: { maxPeople: 12 } }), (e) => e.code === 'flow_people_cap');
-  const ask = fakeAsk({ shape: () => ({ size: 'large', style: 'studio', people: null, reason: 'big' }) });
+  const ask = fakeAsk({ shape: () => ({ size: 'large', style: 'studio', people: 0, reason: 'big' }) });
   const plan = await propose({ limits: { maxPeople: 12 } }, ask);
   assert.equal(plan.settings.size, 'small', 'the largest size that fits');
   assert.match(plan.warnings.join(' '), /suggested "large", which is more than this server allows/);
@@ -377,4 +377,59 @@ test('a room that grows to three people gets someone whose job is to object, and
   // an owner who names the reviewer is not overruled
   const r3 = applyEdits(plan, { departments: [{ key: 'd1', positions: [{ title: 'Skeptic', archetype: 'contrarian' }, { key: 'd1p2', reviewer: true }] }] });
   assert.deepEqual(r3.plan.departments[0].positions.filter(p => p.reviewer).map(p => p.title), ['Writer']);
+});
+
+// ── rooms that start from another room's file ────────────────────────────────
+
+const withNeeds = (needs) => fakeAsk({ plan: (call) => { const a = fakePlanAnswer(call); Object.entries(needs).forEach(([i, n]) => { a.departments[i].needs = n; }); return a; } });
+
+test('the model can say a room starts from another room\'s file; code keeps only an answer that makes sense', async () => {
+  const plan = await propose({ locks: { size: 'medium' } }, withNeeds({ 1: 'd1', 2: 'd2' }));
+  assert.equal(plan.departments[1].needs, 'd1');
+  assert.equal(plan.departments[2].needs, 'd2', 'a chain is fine');
+  assert.equal(plan.departments[0].needs, undefined);
+  assert.equal(plan.provenance['departments.d2.needs'], 'ai');
+  assert.deepEqual(planProblems(plan), []);
+  const bad = await propose({ locks: { size: 'medium' } }, withNeeds({ 0: 'd1', 1: 'd2', 2: 'nowhere', 3: 'd9' }));
+  assert.ok(bad.departments.every(d => d.needs === undefined), 'itself, a room that does not exist: ignored, not an error');
+});
+
+test('a ring of rooms waiting on each other is broken, with a line saying so', async () => {
+  const plan = await propose({ locks: { size: 'small' } }, withNeeds({ 0: 'd2', 1: 'd1' }));
+  assert.equal(plan.departments[0].needs, 'd2');
+  assert.equal(plan.departments[1].needs, undefined, 'the edge that closed the circle was dropped');
+  assert.match(plan.warnings.join(' '), /would go round in a circle, so it starts alone/);
+  assert.deepEqual(planProblems(plan), []);
+});
+
+test('a start the owner chose is theirs: a re-fill does not take it away', async () => {
+  const plan = await propose({ locks: { size: 'small', departments: [{ name: 'A' }, { name: 'B', needs: 'd1' }] } }, withNeeds({}));
+  assert.equal(plan.departments[1].needs, 'd1');
+  assert.equal(plan.provenance['departments.d2.needs'], 'user');
+  const again = await fillPlan({ ask: withNeeds({ 1: '' }), prompt: PROMPT, plan });
+  assert.equal(again.departments[1].needs, 'd1');
+  assert.match(planPrompt({ prompt: PROMPT, plan }), /Starts from the file of room "d1" \(fixed by the owner: keep it\)/);
+  assert.throws(() => checkLocks({ departments: [{ name: 'A', needs: 'first' }] }), /needs is the key of another room/);
+});
+
+test('editing which room starts from which: set it, clear it, and a circle is refused whole', async () => {
+  const plan = await propose({ locks: { size: 'small' } });
+  const set = applyEdits(plan, { departments: [{ key: 'd2', needs: 'd1' }] });
+  assert.equal(set.plan.departments[1].needs, 'd1');
+  assert.equal(set.plan.provenance['departments.d2.needs'], 'user');
+  assert.deepEqual(set.invalidated, [], 'who is cast is not touched');
+  const cleared = applyEdits(set.plan, { departments: [{ key: 'd2', needs: null }] });
+  assert.equal(cleared.plan.departments[1].needs, undefined);
+  assert.throws(() => applyEdits(set.plan, { departments: [{ key: 'd1', needs: 'd2' }] }), /starts from a room that starts from it/);
+  assert.throws(() => applyEdits(plan, { departments: [{ key: 'd1', needs: 'd1' }] }), /starts from a room that starts from it/);
+  assert.throws(() => applyEdits(plan, { departments: [{ key: 'd1', needs: 'd9' }] }), /does not exist \(d9\)/);
+});
+
+test('a room that others start from can be removed: they start alone, and the plan says so', async () => {
+  const plan = await propose({ locks: { size: 'small' } }, withNeeds({ 1: 'd1' }));
+  const r = applyEdits(plan, { departments: [{ key: 'd1', remove: true }] });
+  assert.equal(r.plan.departments.length, 1);
+  assert.equal(r.plan.departments[0].needs, undefined);
+  assert.match(r.plan.warnings.join(' '), /was to start from Room 1 Works, which is gone, so it starts alone/);
+  assert.equal(r.plan.provenance['departments.d2.needs'], undefined);
 });

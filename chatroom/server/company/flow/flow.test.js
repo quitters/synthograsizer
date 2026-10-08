@@ -7,7 +7,7 @@ import { createCompanyServices } from '../index.js';
 import { FlowStore } from './flowStore.js';
 import { FlowService, ESTIMATE_PER_PERSON_USD } from './flow.js';
 import { sqliteAvailable } from './sqlite.js';
-import { fakeAsk, fakeSheet, uniqueSheet, castingFrom, castFor } from './flowKit.js';
+import { fakeAsk, fakePlanAnswer, fakeSheet, uniqueSheet, castingFrom, castFor } from './flowKit.js';
 import { PolicyError } from '../errors.js';
 import { MODELS } from '../../config/models.js';
 import { newId } from '../util.js';
@@ -646,4 +646,66 @@ test('the screen reads people under the company\'s mandate: change it and everyo
   assert.equal(steps(s.log, 'sheet'), sheets, 'nobody was written again, only read');
   assert.ok(s.ask.calls.length >= seen);
   assert.equal(s.flow.create(s.owner, f.id).flow.state, 'created');
+});
+
+// ── rooms that start from another room's file ────────────────────────────────
+
+const needsPlan = (call) => { const a = fakePlanAnswer(call); a.departments[1].needs = 'd1'; return a; };
+
+test('a company whose second room starts from the first: both briefs, the checks, the board and the handbook say so', { skip }, async () => {
+  const s = setup({ handlers: { plan: needsPlan } });
+  const f = await s.flow.propose(s.owner, { prompt: PROMPT, size: 'small' });
+  assert.equal(f.plan.departments[1].needs, 'd1');
+  await castAndWait(s, s.owner, f.id);
+  const made = s.flow.create(s.owner, f.id);
+  const company = s.services.store.getOwned(made.company.id, s.owner);
+  const [first, second] = company.plan.departments;
+  assert.equal(first.needs, null);
+  assert.deepEqual(first.sharesWith, ['Room 2 Works']);
+  assert.deepEqual(second.needs, { id: company.departments[0].id, name: 'Room 1 Works', file: 'engine.json' });
+  assert.match(second.goal, /START FROM ROOM 1 WORKS'S WORK\. Room 1 Works shares its finished engine\.json in the company workspace\./);
+  assert.ok(second.goal.includes(`say so to ${first.lead} with the mailbox tool`), 'it names who to ask');
+  assert.match(first.goal, /SHARE WHAT YOU MAKE\. Room 2 Works will start from your engine\.json\./);
+  assert.ok(first.goal.includes(`sends ${second.lead} a handoff by mail`));
+  assert.ok(first.doneWhen.some(c => c.tool === 'workspace' && c.after === 'artifact:engine.json'), 'the room that makes the file must share it after its last save');
+  assert.ok(second.doneWhen.some(c => c.tool === 'workspace' && c.artifact === 'engine.json' && !c.after), 'the room that starts from it must have read it');
+  assert.equal(s.services.store.describe(company).plan.departments[1].needs.name, 'Room 1 Works');
+  const hall = s.services.hall;
+  assert.match(hall.workspace.read(s.owner, company.id, 'README.md').content, /Room 2 Works\*\*: .* Makes notes\.md, starting from Room 1 Works's engine\.json \(shared in the workspace\)\./);
+  const tasks = hall.board.list(s.owner, company.id);
+  assert.match(tasks.find(t => t.title.startsWith('Room 2 Works')).description, /Starts from Room 1 Works's engine\.json, which that room shares in the workspace\./);
+  const brief = s.flow.briefFor(s.owner, company.id, company.departments[1].id);
+  assert.deepEqual(brief.needs, { name: 'Room 1 Works', file: 'engine.json', ready: false });
+  assert.equal(s.flow.briefFor(s.owner, company.id, company.departments[0].id).needs, null);
+  assert.deepEqual(s.flow.briefFor(s.owner, company.id, company.departments[0].id).sharesWith, ['Room 2 Works']);
+  hall.workspace.write(s.owner, company.id, { id: null, name: 'Owner', system: true }, { path: 'engine.json', content: '{"name":"x"}', note: 'by hand' });
+  assert.equal(s.flow.briefFor(s.owner, company.id, company.departments[1].id).needs.ready, true, 'it is ready the moment the file is in the workspace');
+});
+
+test('rooms that start from another room cannot be made where the shared workspace is closed', { skip }, async () => {
+  for (const [label, env, locks] of [['the operator closed the Hall', { COMPANY_HALL: '0' }, {}], ['the owner closed the workspace', {}, { collaboration: { workspace: false } }]]) {
+    const s = setup({ env, handlers: { plan: needsPlan } });
+    const f = await s.flow.propose(s.owner, { prompt: PROMPT, size: 'small', locks });
+    await castAndWait(s, s.owner, f.id);
+    assert.throws(() => s.flow.create(s.owner, f.id), (e) => e.code === 'needs_workspace' && /Room 2 Works starts from another room's file.*shared workspace, which is closed/.test(e.message), label);
+    assert.equal(s.services.store.listFor(s.owner).length, 0, label);
+    // and the way out is to have that room start alone
+    const alone = await s.flow.edit(s.owner, f.id, { departments: [{ key: 'd2', needs: null }] });
+    assert.equal(alone.plan.departments[1].needs, undefined);
+    assert.equal(s.flow.create(s.owner, f.id).flow.state, 'created', label);
+  }
+});
+
+test('a room with nothing to start from has no hand-off in its brief', { skip }, async () => {
+  const s = setup();
+  const f = await s.flow.propose(s.owner, { prompt: PROMPT, size: 'small' });
+  await castAndWait(s, s.owner, f.id);
+  const made = s.flow.create(s.owner, f.id);
+  const company = s.services.store.getOwned(made.company.id, s.owner);
+  for (const d of company.plan.departments) {
+    assert.doesNotMatch(d.goal, /START FROM|SHARE WHAT YOU MAKE/);
+    assert.equal(d.needs, null);
+    assert.deepEqual(d.sharesWith, []);
+    assert.ok(!d.doneWhen.some(c => c.tool === 'workspace'));
+  }
 });

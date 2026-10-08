@@ -2,7 +2,7 @@ import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { makeServices, markerClassifier, scripted, until } from '../testKit.js';
 import { sqliteAvailable } from './sqlite.js';
-import { fakeAsk } from './flowKit.js';
+import { fakeAsk, fakePlanAnswer } from './flowKit.js';
 import { PolicyError } from '../errors.js';
 import { MODELS } from '../../config/models.js';
 import { newId } from '../util.js';
@@ -45,8 +45,8 @@ function setup({ handlers = {}, script = () => 'The file looks right to me, and 
   return { ...kit, ask, flow: kit.services.flow, owner: newId(), roomsMade };
 }
 
-async function created(s) {
-  const f = await s.flow.propose(s.owner, { prompt: PROMPT });
+async function created(s, extra = {}) {
+  const f = await s.flow.propose(s.owner, { prompt: PROMPT, ...extra });
   s.flow.cast(s.owner, f.id);
   await s.flow.settled(f.id);
   const made = s.flow.create(s.owner, f.id);
@@ -186,4 +186,22 @@ test('the owner can read what a room will be told before saying go', { skip }, a
   assert.throws(() => s.flow.briefFor(newId(), company.id, dept.id), (e) => e.status === 404);
   const added = s.services.store.addDepartment(company.id, s.owner, 'By Hand');
   assert.throws(() => s.flow.briefFor(s.owner, company.id, added.id), (e) => e.code === 'no_plan');
+});
+
+test('a room that starts from another room\'s file waits for it: refused until the file is in the workspace, then it starts', { skip }, async () => {
+  const s = setup({ handlers: { plan: (call) => { const a = fakePlanAnswer(call); a.departments[1].needs = 'd1'; return a; } } });
+  const { company } = await created(s, { size: 'small' });
+  s.services.store.setState(company.id, s.owner, 'active');
+  const [first, second] = company.departments;
+  await assert.rejects(() => s.flow.startDepartment(s.owner, company.id, second.id), (e) => e.status === 409 && e.code === 'needs_upstream' && /Room 1 Works has to finish first: its engine\.json is not in the company's shared workspace yet/.test(e.message));
+  assert.equal(peekRoom(second.roomId), undefined, 'the room was not even made');
+  // the owner can unblock it by putting the file there (the way an upstream room does it with the workspace tool)
+  s.services.hall.workspace.write(s.owner, company.id, { id: null, name: 'Owner', system: true }, { path: 'engine.json', content: '{"name":"By hand"}', note: 'by hand' });
+  const r = await s.flow.startDepartment(s.owner, company.id, second.id);
+  assert.equal(r.started, true);
+  peekRoom(second.roomId).orchestrator.stop('user_stopped');
+  // the room that starts alone was never held up
+  const r1 = await s.flow.startDepartment(s.owner, company.id, first.id);
+  assert.equal(r1.started, true);
+  peekRoom(first.roomId).orchestrator.stop('user_stopped');
 });

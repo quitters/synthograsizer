@@ -49,6 +49,20 @@ function whoLines(team, { terse = false } = {}) {
   });
 }
 
+/** How a room meets the others: rooms work separately and meet in the company workspace, so each hand-off names the file and who reads or writes it. */
+function linkText(link, deliverable, lead) {
+  if (!link) return '';
+  const parts = [];
+  const leadName = lead ? first(lead.name) : 'The lead';
+  if (link.needs) {
+    parts.push(`START FROM ${link.needs.room.toUpperCase()}'S WORK. ${link.needs.room} shares its finished ${link.needs.file} in the company workspace. Before anyone proposes anything, ${leadName} reads it (workspace tool: action read, path "${link.needs.file}") and the room builds on it. Do not invent it. If it is not there yet, say so to ${link.needs.lead} with the mailbox tool and wait for it.`);
+  }
+  if (link.shares?.length) {
+    parts.push(`SHARE WHAT YOU MAKE. ${link.shares.map(s => s.room).join(' and ')} will start from your ${deliverable.file}. When it is final, ${leadName} writes the COMPLETE file to the company workspace (workspace tool: action write, path "${deliverable.file}", and a one-line note) and sends ${link.shares.map(s => s.lead).join(' and ')} a handoff by mail naming the file.`);
+  }
+  return parts.join(' ');
+}
+
 /**
  * @param {object} input
  * @param {{ name: string }} input.company
@@ -57,10 +71,11 @@ function whoLines(team, { terse = false } = {}) {
  * @param {{ kind: string, file: string, [k: string]: any }} input.deliverable  from resolveDeliverable
  * @param {{ name: string, title: string, isLead?: boolean, isReviewer?: boolean, canSave?: boolean, canSearch?: boolean, unique?: string }[]} input.team
  * @param {object[]} input.criteria  the done-when checks (deliverables.doneWhenFor)
+ * @param {{ needs?: { room: string, file: string, lead: string }, shares?: { room: string, lead: string }[] }} [input.link]  how this room meets the others: the file it starts from, and who starts from its own
  * @param {number} [input.budget]
  * @returns {{ goal: string, length: number, trimmed: boolean, parts: Record<string, string> }}
  */
-export function buildBrief({ company, department, assignment, deliverable, team, criteria, budget = BRIEF_BUDGET }) {
+export function buildBrief({ company, department, assignment, deliverable, team, criteria, link = null, budget = BRIEF_BUDGET }) {
   const d = DELIVERABLES[deliverable.kind];
   if (!d) throw new Error(`no such deliverable kind: ${deliverable.kind}`);
   const lead = team.find(p => p.isLead);
@@ -73,7 +88,8 @@ export function buildBrief({ company, department, assignment, deliverable, team,
     const how = `HOW TO WORK. Messages under 120 words, except when posting the file itself. ${builder ? `(1) ${first(builder.name)} saves a first version early${d.looks ? ' and draws from it before anyone discusses anything' : ''}. ` : ''}(${builder ? 2 : 1}) Each of the others says what they SEE or READ, in one message, not what they expect. ${reviewers.length ? `${reviewers.map(r => first(r.name)).join(' and ')} say${reviewers.length > 1 ? '' : 's'} what is wrong, by name. ` : ''}(${builder ? 3 : 2}) ${lead ? first(lead.name) : 'The lead'} picks at most two changes at a time. (${builder ? 4 : 3}) ${lead ? first(lead.name) : 'The lead'} closes with [CONSENSUS REACHED] only after every check below passes: the server runs them itself, so saying they pass changes nothing. Do not claim a check you did not run this turn; if a tool fails, say exactly what it reported and fix that.`;
     const done = `WHEN IT IS DONE. ${criteria.map(c => `${describeCriterion(c)}.`).join(' ')} A person decides what leaves the room; nothing here publishes anything.`;
     const rules = 'RULES. No real people as a subject; no real brands, films, songs, books, artworks or studios; no copyrighted characters; no living artist named as a style; nothing cruel or deceptive.';
-    return { what, who, how, done, rules };
+    const linked = linkText(link, deliverable, lead);
+    return { what, who, how, ...(linked ? { link: linked } : {}), done, rules };
   };
 
   let fixed = compose(false);
@@ -91,6 +107,6 @@ export function buildBrief({ company, department, assignment, deliverable, team,
   const clean = String(assignment || '').replace(/\s+/g, ' ').trim();
   const cut = cutAtSentence(clean, room);
   const assignmentPart = head(cut);
-  const goal = [assignmentPart, fixed.what, fixed.who, fixed.how, fixed.done, fixed.rules].join('\n\n');
+  const goal = [assignmentPart, fixed.what, fixed.who, fixed.how, fixed.link, fixed.done, fixed.rules].filter(Boolean).join('\n\n');
   return { goal, length: goal.length, trimmed: cut.length < clean.length, parts: { assignment: assignmentPart, ...fixed } };
 }

@@ -68,7 +68,7 @@ export function fakePlanAnswer(call, over = {}) {
     name: 'Parallax Works', purpose: 'Makes small invented worlds for people who like to draw them.',
     departments: keys.map((key, i) => ({
       key, name: `Room ${i + 1} Works`, purpose: `Makes the ${i + 1}th thing.`, deliverable: i % 2 ? 'document' : 'engine', file: i % 2 ? 'notes.md' : 'engine.json',
-      assignment: `Make something worth keeping in room ${i + 1}. It should be specific, strange and checked. It must not resemble anything that exists. Say plainly what is wrong with it.`,
+      needs: '', assignment: `Make something worth keeping in room ${i + 1}. It should be specific, strange and checked. It must not resemble anything that exists. Say plainly what is wrong with it.`,
       titles: Array.from({ length: 8 }, (_, j) => `Title ${i + 1}-${j + 1}`),
     })),
     ...over,
@@ -140,7 +140,7 @@ export function fakeAsk(handlers = {}, { casting = null, castings = null } = {})
         return fakeSheet(casting || castFor(i), fakeSeed(casting || castFor(i), i), k);
       }
       case 'memory': return { summary: 'I took part in the session and said what I saw in the work.', lesson: 'Say what is wrong sooner.', relationships: [] };
-      case 'shape': return { size: 'desk', style: 'studio', people: null, reason: 'a small job' };
+      case 'shape': return { size: 'desk', style: 'studio', people: 0, reason: 'a small job' };
       case 'plan': return fakePlanAnswer(call);
       case 'blind_review': return CLEAN_REVIEW;
       case 'quiz': return { answers: layout(call.personId || 'x').map(r => ({ n: r.n, choice: 'A', reason: 'because' })) };

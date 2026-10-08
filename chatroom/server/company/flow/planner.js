@@ -48,7 +48,7 @@ export const SHAPE_SCHEMA = {
   properties: {
     size: { type: 'string', enum: [...SIZE_IDS], description: 'The smallest size that can do the job.' },
     style: { type: 'string', enum: Object.keys(ORG_STYLES), description: 'How the rooms are organised.' },
-    people: { type: ['integer', 'null'], description: 'The exact number of people if the request states one; otherwise null.' },
+    people: { type: 'integer', minimum: 0, description: 'The exact number of people if the request states one; otherwise 0.' },
     reason: { type: 'string', description: 'One sentence.' },
   },
   required: ['size', 'style', 'people', 'reason'],
@@ -71,8 +71,9 @@ export const PLAN_SCHEMA = {
           file: { type: 'string', description: 'The file name, e.g. "engine.json" for an engine or "handbook.md" for a document.' },
           assignment: { type: 'string', description: 'Three to five sentences, addressed to the room: what to make, what makes it good, what it must not resemble, and any limits. Concrete.' },
           titles: { type: 'array', items: { type: 'string' }, description: 'A plain job title for each position listed, in order.' },
+          needs: { type: 'string', description: 'The key of the ONE other room whose finished file this room must start from, or an empty string if it can start alone. Rooms work separately and see each other only through files shared in the company workspace, so name a room only when this room\'s work really builds on that room\'s file.' },
         },
-        required: ['key', 'name', 'purpose', 'deliverable', 'file', 'assignment', 'titles'],
+        required: ['key', 'name', 'purpose', 'deliverable', 'file', 'assignment', 'titles', 'needs'],
       },
     },
   },
@@ -81,7 +82,7 @@ export const PLAN_SCHEMA = {
 
 export function shapePrompt({ prompt, maxPeople }) {
   const sizes = SIZE_IDS.filter(id => SIZES[id].people <= maxPeople).map(id => `- ${id}: ${SIZES[id].label} (${SIZES[id].people} people)`).join('\n');
-  return `Someone wants a small company of invented creative professionals, who work in rooms and make things together. Choose its size from the request. Choose the SMALLEST that can do what is asked: every person costs money to write. If the request names a number of people, set "people" to it; otherwise null.
+  return `Someone wants a small company of invented creative professionals, who work in rooms and make things together. Choose its size from the request. Choose the SMALLEST that can do what is asked: every person costs money to write. If the request names a number of people, set "people" to it; otherwise 0.
 
 THE REQUEST
 """
@@ -101,7 +102,7 @@ export function planPrompt({ prompt, plan }) {
   const fixedWhen = (path) => (prov[path] === 'user' ? ' (fixed by the owner: keep it)' : '');
   const rooms = plan.departments.map((d, i) => {
     const positions = d.positions.map(p => `${p.title}${prov[`departments.${d.key}.positions.${p.key}.title`] === 'user' ? ' (fixed)' : ''}${p.lead ? ', leads' : ''}${p.reviewer ? ', reviews' : ''} [${archetype(p.archetype)?.name || p.archetype}]`);
-    return `Room ${i + 1}, key "${d.key}": current name "${d.name}"${fixedWhen(`departments.${d.key}.name`)}. Current purpose: ${d.purpose || '(none yet)'}${fixedWhen(`departments.${d.key}.purpose`)}.${d.assignment ? ` Current assignment: ${d.assignment}${fixedWhen(`departments.${d.key}.assignment`)}` : ''}${d.deliverable ? `\n  Makes: ${d.deliverable.kind} (${d.deliverable.file})${fixedWhen(`departments.${d.key}.deliverable`)}.` : ''}
+    return `Room ${i + 1}, key "${d.key}": current name "${d.name}"${fixedWhen(`departments.${d.key}.name`)}. Current purpose: ${d.purpose || '(none yet)'}${fixedWhen(`departments.${d.key}.purpose`)}.${d.assignment ? ` Current assignment: ${d.assignment}${fixedWhen(`departments.${d.key}.assignment`)}` : ''}${d.deliverable ? `\n  Makes: ${d.deliverable.kind} (${d.deliverable.file})${fixedWhen(`departments.${d.key}.deliverable`)}.` : ''}${d.needs ? `\n  Starts from the file of room "${d.needs}"${fixedWhen(`departments.${d.key}.needs`)}.` : ''}
   Positions in order: ${positions.join('; ')}.`;
   }).join('\n');
   const company = [`name${prov['company.name'] === 'user' ? ` (fixed by the owner: "${plan.company.name}")` : ''}`, `purpose${prov['company.purpose'] === 'user' ? ' (fixed by the owner)' : ''}`].join(', ');
@@ -119,6 +120,7 @@ What to write
 - Company: ${company}. Where a field is fixed, repeat it as given.
 - For each room, keyed as above: a name, a one-sentence purpose, what it makes first ("engine" or "document"), the file name, a three-to-five sentence assignment, and a plain job title for each position, in the order listed. Keep anything marked fixed.
 - An "engine" is an image-prompt template for the Synthograsizer (a sentence with placeholders and weighted values): right only for a company that makes those. For anything else choose "document". The file name ends .json for an engine and .md for a document.
+- Rooms work separately: a room sees another's work only through a file that room shares in the company workspace. Give each room an assignment it can do with what it has. Where a room really must build on another's finished file, put that other room's key in "needs" (a room can start from at most one other, and rooms cannot wait on each other in a circle); otherwise leave "needs" empty. Prefer rooms that start alone.
 - Plain, concrete words. No real company, brand, person or artist is named. Rooms must differ from each other: each makes something of its own.`;
 }
 
@@ -201,6 +203,10 @@ function checkRoomLock(d, where, { creating = false } = {}) {
   if (d.purpose !== undefined) { out.purpose = clean(d.purpose, 300); assertNoSecrets(out.purpose, 'A purpose', 'purpose'); }
   if (d.assignment !== undefined) { out.assignment = clean(d.assignment, 1500); assertNoSecrets(out.assignment, 'An assignment', 'assignment'); }
   if (d.deliverable !== undefined) out.deliverable = checkDeliverable(d.deliverable, `${where}.deliverable`);
+  if (d.needs !== undefined) {
+    if (d.needs !== null && !(typeof d.needs === 'string' && /^d\d{1,3}$/.test(d.needs))) throw bad('needs is the key of another room (like "d1"), or null.', `${where}.needs`);
+    out.needs = d.needs;
+  }
   if (d.positions !== undefined) {
     if (!Array.isArray(d.positions) || d.positions.length > MAX_PER_ROOM) throw bad(`A room's positions are a list of at most ${MAX_PER_ROOM}.`, `${where}.positions`);
     out.positions = d.positions.map((p, j) => {
@@ -213,6 +219,26 @@ function checkRoomLock(d, where, { creating = false } = {}) {
   }
   return out;
 }
+
+// ── which room starts from which ────────────────────────────────────────────
+
+/** Does following "needs" from this room ever lead back to it (a room waiting on itself, or a ring of rooms waiting on each other)? */
+export function needsCycle(plan, startKey) {
+  const seen = new Set();
+  let cur = plan.departments.find(d => d.key === startKey);
+  while (cur?.needs) {
+    if (cur.needs === startKey || seen.has(cur.key)) return true;
+    seen.add(cur.key);
+    cur = plan.departments.find(d => d.key === cur.needs);
+  }
+  return false;
+}
+
+/** The room a room starts from, or null. */
+export const upstreamOf = (plan, room) => (room.needs ? plan.departments.find(d => d.key === room.needs) || null : null);
+
+/** The rooms that start from this room's file. */
+export const downstreamOf = (plan, key) => plan.departments.filter(d => d.needs === key);
 
 // ── the structure: what code decides ────────────────────────────────────────
 
@@ -331,7 +357,8 @@ export function structureFor({ size, style, locks, people = null }) {
   }
   const out = departments.map(d => {
     const lk = d._locks || {};
-    const room = { key: d.key, name: d.name, purpose: d.purpose, ...(d.assignment ? { assignment: d.assignment } : {}), ...(d.deliverable ? { deliverable: d.deliverable } : {}), positions: d.positions.map(({ _own, ...p }) => p) };
+    const room = { key: d.key, name: d.name, purpose: d.purpose, ...(d.assignment ? { assignment: d.assignment } : {}), ...(d.deliverable ? { deliverable: d.deliverable } : {}), ...(lk.needs ? { needs: lk.needs } : {}), positions: d.positions.map(({ _own, ...p }) => p) };
+    if (room.needs) provenance[`departments.${d.key}.needs`] = 'user';
     provenance[`departments.${d.key}`] = d._own ? 'user' : 'default';
     provenance[`departments.${d.key}.name`] = lk.name ? 'user' : 'default';
     provenance[`departments.${d.key}.purpose`] = lk.purpose ? 'user' : 'default';
@@ -366,6 +393,10 @@ export function planProblems(plan, { maxPeople = 32, complete = false } = {}) {
     if (names.has(k)) problems.push(`Two rooms are called "${d.name}"; give each its own name.`);
     names.add(k);
     if (d.deliverable && DELIVERABLES[d.deliverable.kind]?.needsBuilder && !d.positions.some(p => effectiveTier(p) === 'builder')) problems.push(`${d.name} makes ${d.deliverable.file}, but nobody in it can save files or draw: give one position the builder tier.`);
+    if (d.needs !== undefined) {
+      if (!plan.departments.some(x => x.key === d.needs)) problems.push(`${d.name} is to start from a room that does not exist (${d.needs}).`);
+      else if (needsCycle(plan, d.key)) problems.push(`${d.name} starts from a room that starts from it: rooms cannot wait on each other in a circle.`);
+    }
     if (complete && !String(d.assignment || '').trim()) problems.push(`${d.name} has no assignment yet: write one, or ask for the blanks to be filled.`);
     if (complete && !d.deliverable) problems.push(`${d.name} has not been told what to make.`);
   }
@@ -443,6 +474,19 @@ export async function fillPlan({ ask, prompt, plan: given }) {
       const t = clean(titles[j], 80);
       if (t) { p.title = t; prov[path] = 'ai'; }
     });
+  });
+  // which rooms start from another room's file: the model says, and code checks the room exists, is not itself, and that no chain comes back round
+  plan.departments.forEach((d, i) => {
+    const path = `departments.${d.key}.needs`;
+    if (prov[path] === 'user') return;
+    const ai = answers.find(a => a?.key === d.key) || answers[i] || {};
+    const want = clean(ai.needs, 20);
+    delete d.needs;
+    delete prov[path];
+    if (!want || want === d.key || !plan.departments.some(x => x.key === want)) return;
+    d.needs = want;
+    if (needsCycle(plan, d.key)) { delete d.needs; warnings.push(`${d.name} was to start from another room's file, but that would go round in a circle, so it starts alone.`); return; }
+    prov[path] = 'ai';
   });
   if (missed) warnings.push(`The model named ${plan.departments.length - missed} of ${plan.departments.length} rooms; the rest keep their default names and tasks.`);
   warnings.push(...ensureBuilders(plan));
@@ -558,6 +602,7 @@ export function applyEdits(plan, patch, limits = {}) {
   const prov = next.provenance;
   const changed = [];
   const invalidated = new Set();
+  const dropped = [];
   const own = (path) => { prov[path] = 'user'; changed.push(path); };
 
   if (patch.company !== undefined) {
@@ -592,7 +637,8 @@ export function applyEdits(plan, patch, limits = {}) {
         }
         if (!positions.some(p => p.lead)) positions[0].lead = true;
         if (positions.length >= 3 && !positions.some(p => p.reviewer)) { const r = positions.find(p => !p.lead); if (r) r.reviewer = true; }
-        next.departments.push({ key, name: e.name, purpose: e.purpose || '', ...(e.assignment ? { assignment: e.assignment } : {}), ...(e.deliverable ? { deliverable: e.deliverable } : {}), positions });
+        next.departments.push({ key, name: e.name, purpose: e.purpose || '', ...(e.assignment ? { assignment: e.assignment } : {}), ...(e.deliverable ? { deliverable: e.deliverable } : {}), ...(e.needs ? { needs: e.needs } : {}), positions });
+        if (e.needs) prov[`departments.${key}.needs`] = 'user';
         prov[`departments.${key}`] = 'user';
         prov[`departments.${key}.name`] = 'user';
         if (e.purpose) prov[`departments.${key}.purpose`] = 'user';
@@ -605,6 +651,7 @@ export function applyEdits(plan, patch, limits = {}) {
         for (const p of room.positions) invalidated.add(p.key);
         retire(next, room.key, ...room.positions.map(p => p.key));
         next.departments = next.departments.filter(d => d !== room);
+        for (const d2 of next.departments) if (d2.needs === room.key) { delete d2.needs; delete prov[`departments.${d2.key}.needs`]; dropped.push(`${d2.name} was to start from ${room.name}, which is gone, so it starts alone.`); }
         for (const k of Object.keys(prov)) if (k === `departments.${room.key}` || k.startsWith(`departments.${room.key}.`)) delete prov[k];
         changed.push(`departments.${room.key}`);
         return;
@@ -613,6 +660,10 @@ export function applyEdits(plan, patch, limits = {}) {
         if (e[f] === undefined) continue;
         room[f] = e[f];
         own(`departments.${room.key}.${f}`);
+      }
+      if (e.needs !== undefined) {
+        if (e.needs === null) delete room.needs; else room.needs = e.needs;
+        own(`departments.${room.key}.needs`);
       }
       for (const [j, pe] of (e.positions || []).entries()) {
         const pos = pe.key ? room.positions.find(p => p.key === pe.key) : null;
@@ -655,7 +706,7 @@ export function applyEdits(plan, patch, limits = {}) {
     });
   }
 
-  const notes = [...ensureReviewers(next), ...ensureBuilders(next)];
+  const notes = [...dropped, ...ensureReviewers(next), ...ensureBuilders(next)];
   next.warnings = [...new Set([...(next.warnings || []), ...notes])];
   next.settings = { ...next.settings, people: headcount({ departments: next.departments }) };
   const problems = planProblems(next, { maxPeople: limits.maxPeople ?? 32 });

@@ -48,6 +48,7 @@ export function buildFlowSchemas({ mandate, ceilings, tools, collaboration }) {
     properties: {
       key: text(20, 'The room\'s key, from the proposal.'), remove: { type: 'boolean' },
       name: text(80), purpose: { type: 'string', maxLength: 300 }, assignment: { type: 'string', maxLength: 1500, description: 'What the room is asked to make first, and what makes it good. It becomes the opening of the room\'s brief.' },
+      needs: { type: ['string', 'null'], pattern: '^d\\d{1,3}$', description: 'The key of the ONE other room whose finished file this room starts from (rooms meet in the company workspace), or null to start alone.' },
       deliverable, positions: { type: 'array', maxItems: 8, items: position },
     },
   };

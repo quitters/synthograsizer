@@ -19,6 +19,7 @@ import { newId } from '../util.js';
 import { PolicyError, isPolicyError } from '../errors.js';
 import { resolveMandate } from '../mandate.js';
 import { resolveCeilings } from '../ceilings.js';
+import { resolveCollaboration, DEFAULT_COLLABORATION } from '../collaboration.js';
 import { resolveToolGrant, tierFitsGrant, toolsOfTier, DEFAULT_COMPANY_GRANT } from '../toolGrants.js';
 import { DEFAULT_README } from '../hall/hall.js';
 import { Spend } from './model.js';
@@ -35,7 +36,7 @@ import { describeCriterion } from '../../services/doneWhen.js';
 import { admitDepartment } from './admit.js';
 import { admissionScreen } from './review.js';
 import { renderBio } from '../profileBio.js';
-import { checkLocks, proposeCompany, fillPlan, applyEdits, planProblems, positionsOf, effectiveTier, planText, screenWords, PROMPT_MAX_CHARS } from './planner.js';
+import { checkLocks, proposeCompany, fillPlan, applyEdits, planProblems, positionsOf, effectiveTier, planText, screenWords, upstreamOf, downstreamOf, PROMPT_MAX_CHARS } from './planner.js';
 
 /** What writing one person costs, in round numbers: the pilot's six people (sheet, review, screen, quiz, memory) came to $1.13. */
 export const ESTIMATE_PER_PERSON_USD = 0.25;
@@ -591,6 +592,11 @@ export class FlowService {
     const ceilings = resolveCeilings(this.operator.ceilings, plan.company.ceilings || {}).effective;
     const biggest = Math.max(...plan.departments.map(d => d.positions.length));
     if (biggest > ceilings.maxAgents) throw fail(`A room here holds at most ${ceilings.maxAgents} agents and this plan has a room of ${biggest}. Make the room smaller${plan.provenance['company.ceilings'] === 'user' ? ', or raise the ceiling you set' : ''}.`, 409, 'agent_cap');
+    // Rooms meet in the company's shared workspace: a room that starts from another's file cannot, where the workspace is closed
+    const starters = plan.departments.filter(d => d.needs);
+    if (starters.length && !(this.getHall() && this.operator.hall.enabled && resolveCollaboration(this.operator.hall, { ...DEFAULT_COLLABORATION, ...(plan.company.collaboration || {}) }).effective.workspace)) {
+      throw fail(`${starters.map(d => d.name).join(' and ')} ${starters.length === 1 ? 'starts' : 'start'} from another room's file, and rooms meet in the company's shared workspace, which is closed here (the operator or the company has turned it off). Open the workspace, or have ${starters.length === 1 ? 'that room' : 'those rooms'} start alone.`, 409, 'needs_workspace');
+    }
 
     flow.state = 'creating';
     flow.error = null;
@@ -631,10 +637,16 @@ export class FlowService {
           return { name: seat[p.key].name, title: seat[p.key].position, isLead: p.lead, isReviewer: Boolean(p.reviewer && !p.lead), canSave: tools.includes('write_artifact'), canSearch: tools.includes('google_search'), unique: person[p.key].profile?.x_flow?.unique || '' };
         });
         const reviewers = team.filter(t => t.isReviewer).map(t => t.name);
-        const criteria = doneWhenFor(d.deliverable, { reviewers });
-        const brief = buildBrief({ company: { name: plan.company.name }, department: { name: d.name }, assignment: d.assignment, deliverable: d.deliverable, team, criteria });
+        // how this room meets the others: the file it starts from, and who starts from its own
+        const up = upstreamOf(plan, d);
+        const downs = downstreamOf(plan, d.key);
+        const leadOf = (room) => seat[room.positions.find(p => p.lead).key].name;
+        const link = up || downs.length ? { ...(up ? { needs: { room: up.name, file: up.deliverable.file, lead: leadOf(up) } } : {}), ...(downs.length ? { shares: downs.map(x => ({ room: x.name, lead: leadOf(x) })) } : {}) } : null;
+        const criteria = doneWhenFor(d.deliverable, { reviewers, shares: downs.length > 0, needs: up ? { room: up.name, file: up.deliverable.file } : null });
+        const brief = buildBrief({ company: { name: plan.company.name }, department: { name: d.name }, assignment: d.assignment, deliverable: d.deliverable, team, criteria, link });
         stored.departments.push({
           id: dept.id, key: d.key, name: d.name, deliverable: d.deliverable, goal: brief.goal, trimmed: brief.trimmed, lead: team.find(t => t.isLead).name, reviewers,
+          needs: up ? { id: company.departments[plan.departments.indexOf(up)].id, name: up.name, file: up.deliverable.file } : null, sharesWith: downs.map(x => x.name),
           doneWhen: criteria, handoffs: handoffsFor(d.deliverable, { reviewers }), minTurns: Math.max(8, 2 * team.length), maxTurns: Math.min(60, 8 * team.length), tokenLimit: DEFAULT_TOKEN_LIMIT,
         });
       });
@@ -649,8 +661,9 @@ export class FlowService {
           plan.departments.forEach((d, i) => {
             const mine = d.positions.map(p => seat[p.key]);
             const lead = seat[d.positions.find(p => p.lead).key];
+            const up = upstreamOf(plan, d);
             hall.board.create(ownerId, company.id, OWNER, {
-              title: `${d.name}: make ${d.deliverable.file}`, description: d.assignment, lead: lead.employeeId, members: mine.filter(s => s !== lead).map(s => s.employeeId),
+              title: `${d.name}: make ${d.deliverable.file}`, description: `${d.assignment}${up ? `\n\nStarts from ${up.name}'s ${up.deliverable.file}, which that room shares in the workspace.` : ''}`.slice(0, 2000), lead: lead.employeeId, members: mine.filter(s => s !== lead).map(s => s.employeeId),
               departmentId: company.departments[i].id, deliverable: d.deliverable.file,
             });
           });
@@ -693,6 +706,8 @@ export class FlowService {
     const plan = company.plan?.departments.find(d => d.id === dept.id);
     if (!plan) throw fail('This room was not set up by the creation flow, so it has no brief; start it by hand (POST /api/chat/start with its X-Room-Id).', 409, 'no_plan');
     if (company.state !== 'active') throw fail('This company is paused. Nothing runs, spends or publishes until its owner says go (POST /api/company/:id/go).', 409, 'company_paused');
+    const link = this._linkStatus(ownerId, company, plan);
+    if (link && !link.ready) throw fail(`${link.name} has to finish first: its ${link.file} is not in the company's shared workspace yet, and this room starts from it. Start ${link.name}, or put the file in the workspace yourself (PUT /api/company/:id/hall/workspace/file).`, 409, 'needs_upstream');
     const room = this.getRoom(dept.roomId);
     const o = room.orchestrator;
     if (!o.policy) throw fail('This room is not under its company\'s policy, so it will not be started.', 500, 'no_policy');
@@ -718,7 +733,16 @@ export class FlowService {
       department: { id: dept.id, name: dept.name, roomId: dept.roomId }, makes: plan.deliverable, goal: plan.goal, goalChars: plan.goal.length, trimmed: plan.trimmed,
       lead: plan.lead, reviewers: plan.reviewers, minTurns: plan.minTurns, maxTurns: plan.maxTurns, tokenLimit: plan.tokenLimit,
       checks: plan.doneWhen.map(c => ({ ...c, label: describeCriterion(c) })), handoffs: plan.handoffs,
+      needs: this._linkStatus(ownerId, company, plan), sharesWith: plan.sharesWith || [],
     };
+  }
+
+  /** Whether the file a room starts from is in the company's workspace yet (null for a room that starts alone). */
+  _linkStatus(ownerId, company, plan) {
+    if (!plan.needs) return null;
+    let ready = false;
+    try { ready = Boolean(this.getHall()?.workspace.list(ownerId, company.id).some(f => f.path === plan.needs.file)); } catch { ready = false; }
+    return { name: plan.needs.name, file: plan.needs.file, ready };
   }
 
   /** After a session: each person who spoke writes down what they remember, checked against the record. Costs a few cents; never runs by itself. */
@@ -741,7 +765,7 @@ export class FlowService {
 function readmeFor(company, plan, stored) {
   const rooms = plan.departments.map((d) => {
     const s = stored.departments.find(x => x.key === d.key);
-    return `- **${d.name}**: ${d.purpose || 'a room'}. Makes ${d.deliverable.file}. ${s.lead} leads${s.reviewers.length ? `; ${s.reviewers.join(' and ')} review${s.reviewers.length === 1 ? 's' : ''} every saved version` : ''}.`;
+    return `- **${d.name}**: ${d.purpose || 'a room'}. Makes ${d.deliverable.file}${s.needs ? `, starting from ${s.needs.name}'s ${s.needs.file} (shared in the workspace)` : ''}. ${s.lead} leads${s.reviewers.length ? `; ${s.reviewers.join(' and ')} review${s.reviewers.length === 1 ? 's' : ''} every saved version` : ''}.`;
   });
   return `${DEFAULT_README(company)}
 ## What we are for

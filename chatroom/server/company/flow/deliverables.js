@@ -96,10 +96,13 @@ export function resolveDeliverable({ kind = 'engine', file, variables, values, m
  * @param {{ kind: string, file: string }} deliverable  from resolveDeliverable
  * @param {{ reviewers: string[], builders?: number }} team  names of the people whose job is to object
  */
-export function doneWhenFor(deliverable, { reviewers = [] } = {}) {
+export function doneWhenFor(deliverable, { reviewers = [], shares = false, needs = null } = {}) {
   const d = DELIVERABLES[deliverable.kind];
   const list = [...d.criteria(deliverable)];
   if (d.looks) list.push({ type: 'tool_used', tool: 'render_artifact', artifact: deliverable.file, after: `artifact:${deliverable.file}`, label: `${deliverable.file} has been rendered, and the pictures looked at, since it was last saved` });
+  // a room that starts from another's file must have read it; a room whose file another room starts from must have shared it (the workspace is where rooms meet)
+  if (needs) list.push({ type: 'tool_used', tool: 'workspace', artifact: needs.file, label: `the company workspace has been used to read ${needs.file}, which ${needs.room} shared for this room to start from` });
+  if (shares) list.push({ type: 'tool_used', tool: 'workspace', artifact: deliverable.file, after: `artifact:${deliverable.file}`, label: `the final ${deliverable.file} has been written to the company workspace, where the next room will look for it` });
   for (const name of reviewers) list.push({ type: 'said_after', agent: name, after: `artifact:${deliverable.file}`, label: `${name} has reviewed ${deliverable.file} since it was last saved` });
   list.push({ type: 'proposal', artifact: deliverable.file, label: `the latest ${deliverable.file} has been offered for publication (a person decides)` });
   return list;

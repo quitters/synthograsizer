@@ -278,6 +278,12 @@ async function flowView(id) {
       h('div', { class: 'row', style: 'gap:.3rem' }, entry.screened ? badge('screened', 'ok') : badge('not screened', 'warn'), entry.advice ? badge(`${plural(entry.advice, 'note')} from the reviewer`, 'warn') : null, entry.drifted ? badge('drifted from the cast', 'warn') : null));
   }
 
+  function needsSelect(room, editable) {
+    return h('select', { disabled: !editable, 'aria-label': 'The room this one starts from', onchange: (e) => patch({ departments: [{ key: room.key, needs: e.target.value || null }] }) },
+      h('option', { value: '', selected: !room.needs }, 'Nothing: it starts alone'),
+      flow.plan.departments.filter(d => d.key !== room.key).map(d => h('option', { value: d.key, selected: room.needs === d.key }, `${d.name}'s ${d.deliverable?.file || 'file'}`)));
+  }
+
   function roomCard(room) {
     const editable = ['proposed', 'cast', 'failed'].includes(flow.state);
     const name = h('input', { type: 'text', value: room.name, maxlength: '80', disabled: !editable, 'aria-label': 'Room name' });
@@ -297,6 +303,7 @@ async function flowView(id) {
         h('button', { class: 'quiet danger', disabled: !editable || flow.plan.departments.length < 2, onclick: () => { if (confirm(`Remove the room "${room.name}" and its ${plural(room.positions.length, 'position')}?`)) patch({ departments: [{ key: room.key, remove: true }] }); } }, 'Remove the room')),
       field('What it is for', purpose),
       h('div', { class: 'cols' }, field('What it makes', kind), field('File', file, 'An engine is a .json file; a piece is a .md file.')),
+      field('Starts from', needsSelect(room, editable), 'Rooms work separately and meet in the company\'s shared workspace. A room that starts from another waits for that room\'s finished file.'),
       h('div', {}, h('div', { class: 'row' }, h('span', { class: 'hint' }, 'First assignment'), prov(flow, `departments.${room.key}.assignment`)), assignment),
       h('div', {}, h('h3', {}, plural(room.positions.length, 'person', 'people')), room.positions.map(p => positionRow(room, p)),
         h('div', { class: 'row', style: 'margin-top:.6rem' }, newTitle, newArch, add)));
@@ -392,6 +399,11 @@ async function companyView(id, tab) {
 
 async function roomsPanel(body, company) {
   const running = company.state === 'active';
+  // a room that starts from another room's file can start only once that file is in the workspace
+  const links = new Map();
+  await Promise.all((company.plan?.departments || []).filter(d => d.needs).map(async (d) => {
+    try { links.set(d.id, (await api('GET', `/api/company/${company.id}/run/${d.id}/brief`)).needs); } catch { /* the room still shows; starting says why not */ }
+  }));
   const notice = running ? null : h('div', { class: 'card warn' }, h('strong', {}, 'This company is paused. '), 'Say Go (top right) to let it run. A room starts only when you start it.');
   const eff = company.effective;
   const settings = h('details', {}, h('summary', {}, 'The limits that apply to this company'), h('div', { class: 'cols' },
@@ -409,13 +421,14 @@ async function roomsPanel(body, company) {
     const card = h('section', { class: 'card stack' },
       h('div', { class: 'row' }, h('h3', {}, d.name), planned ? badge(`makes ${planned.makes}`, 'accent') : badge('built by hand'), h('span', { class: 'grow' }), h('span', { class: 'hint mono', title: 'Send this as X-Room-Id to use the room through the API' }, `room ${d.roomId.slice(0, 8)}…`)),
       planned ? h('p', { class: 'sub' }, `Led by ${planned.lead}${planned.reviewers.length ? `; ${planned.reviewers.join(' and ')} ${planned.reviewers.length === 1 ? 'reviews' : 'review'} every saved version` : ''}. ${plural(planned.checks, 'check')} must pass before it may close.`) : h('p', { class: 'sub' }, 'This room has no brief from the creation flow; start it from the chat room.'),
+      planned?.needs ? h('div', { class: `card tight ${links.get(d.id)?.ready ? 'ok' : 'warn'}` }, `Starts from ${planned.needs.name}'s ${planned.needs.file}: ${links.get(d.id)?.ready ? 'it is in the shared workspace.' : `not in the shared workspace yet. Start ${planned.needs.name} first; it shares the file when it is done.`}`) : null,
       h('div', { class: 'row' },
         planned ? h('button', { onclick: async () => {
           if (brief.childElementCount) { fill(brief); return; }
           const b = await attempt(() => api('GET', `/api/company/${company.id}/run/${d.id}/brief`));
           if (b) fill(brief, h('p', { class: 'small muted' }, `${b.goalChars} characters. This is what every person in the room is told at the start.`), h('pre', { class: 'text' }, b.goal), h('h4', {}, 'It may close only when'), h('ul', { class: 'plain small' }, b.checks.map(c => h('li', {}, c.label || c.type))));
         } }, 'Read the brief') : null,
-        planned ? h('button', { class: 'primary', disabled: !running, title: running ? '' : 'The company is paused', onclick: async () => {
+        planned ? h('button', { class: 'primary', disabled: !running || (links.get(d.id) && !links.get(d.id).ready), title: !running ? 'The company is paused' : links.get(d.id) && !links.get(d.id).ready ? `${links.get(d.id).name} has to finish first` : '', onclick: async () => {
           if (!confirm(`Start ${d.name}? The people begin talking and the room spends (at most ${money(eff.ceilings.spendLimitUsd)}) until it closes or you stop it.`)) return;
           const r = await attempt(() => api('POST', `/api/company/${company.id}/run/${d.id}/start`, {}));
           if (r) fill(out, h('div', { class: 'card ok' }, h('strong', {}, 'Started. '), `${plural(r.people.length, 'person', 'people')} are talking; ${r.lead} will close it when ${plural(r.checks, 'check')} pass. Watch it in the chat room with the room id above, and come back to close it out afterwards.`));

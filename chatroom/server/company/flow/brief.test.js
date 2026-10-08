@@ -146,3 +146,43 @@ test('cutting at a sentence', () => {
   assert.ok(cutAtSentence('A single sentence that runs on and on without any full stop whatsoever', 30).length <= 30);
   assert.equal(cutAtSentence('', 10), '');
 });
+
+test('a room that starts from another\'s file is told where it is and not to invent it; the room that makes the file is told to share it', () => {
+  const needs = { room: 'Concept Desk', file: 'birds.md', lead: 'Mara Quill' };
+  const shares = [{ room: 'Production Desk', lead: 'Odel Brandt' }];
+  const downstream = buildBrief({ company, department, assignment, deliverable: engine, team, criteria, link: { needs } });
+  assert.match(downstream.goal, /START FROM CONCEPT DESK'S WORK\. Concept Desk shares its finished birds\.md in the company workspace\./);
+  assert.match(downstream.goal, /workspace tool: action read, path "birds\.md"/);
+  assert.match(downstream.goal, /Do not invent it\. If it is not there yet, say so to Mara Quill with the mailbox tool and wait for it\./);
+  assert.doesNotMatch(downstream.goal, /SHARE WHAT YOU MAKE/);
+  const upstream = buildBrief({ company, department, assignment, deliverable: engine, team, criteria, link: { shares } });
+  assert.match(upstream.goal, /SHARE WHAT YOU MAKE\. Production Desk will start from your engine\.json\./);
+  assert.match(upstream.goal, /Rima writes the COMPLETE file to the company workspace \(workspace tool: action write, path "engine\.json"/);
+  assert.match(upstream.goal, /sends Odel Brandt a handoff by mail naming the file/);
+  const both = buildBrief({ company, department, assignment, deliverable: engine, team, criteria, link: { needs, shares: [...shares, { room: 'Print Desk', lead: 'Ines Okafor' }] } });
+  assert.match(both.goal, /START FROM[\s\S]*SHARE WHAT YOU MAKE\. Production Desk and Print Desk will start from/);
+  assert.ok(both.goal.indexOf('HOW TO WORK') < both.goal.indexOf('START FROM') && both.goal.indexOf('START FROM') < both.goal.indexOf('WHEN IT IS DONE'), 'between how to work and when it is done');
+  assert.equal(buildBrief({ company, department, assignment, deliverable: engine, team, criteria, link: null }).goal.includes('START FROM'), false);
+  for (const b of [downstream, upstream, both]) assert.ok(b.length <= GOAL_MAX_CHARS, `${b.length}`);
+});
+
+test('the hand-off part is a fixed part: a long assignment is cut before it is, and the shape of the file still stays', () => {
+  const long = 'Make something remarkable and specific and strange, and make it again. '.repeat(80);
+  const b = buildBrief({ company, department, assignment: long, deliverable: engine, team, criteria, link: { needs: { room: 'Concept Desk', file: 'birds.md', lead: 'Mara Quill' }, shares: [{ room: 'Production Desk', lead: 'Odel Brandt' }] } });
+  assert.equal(b.trimmed, true);
+  assert.match(b.goal, /START FROM CONCEPT DESK/);
+  assert.match(b.goal, /SHARE WHAT YOU MAKE/);
+  assert.match(b.goal, /one JSON object/);
+  assert.ok(b.length <= GOAL_MAX_CHARS);
+});
+
+test('the checks for hand-offs: the room that shares must have written the file after its last save; the room that starts from it must have read it', () => {
+  const up = doneWhenFor(engine, { reviewers: [], shares: true });
+  assert.deepEqual(up.find(c => c.tool === 'workspace'), { type: 'tool_used', tool: 'workspace', artifact: 'engine.json', after: 'artifact:engine.json', label: up.find(c => c.tool === 'workspace').label });
+  const down = doneWhenFor(engine, { reviewers: [], needs: { room: 'Concept Desk', file: 'birds.md' } });
+  const read = down.find(c => c.tool === 'workspace');
+  assert.equal(read.artifact, 'birds.md');
+  assert.equal(read.after, undefined, 'a read of someone else\'s file is not tied to this room\'s saves');
+  assert.equal(down.at(-1).type, 'proposal', 'the offer for publication is still the last thing');
+  assert.equal(doneWhenFor(engine, { reviewers: [] }).some(c => c.tool === 'workspace'), false);
+});
