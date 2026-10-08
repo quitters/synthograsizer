@@ -244,7 +244,7 @@ test('companies persist: a new store on the same folder finds them, their rooms 
   assert.equal(reopened.listFor(o).length, 1);
 });
 
-test('an update replaces what was requested, ignores what a company may not set from a request, and changes nothing if any part is bad', () => {
+test('an update sets what it names and keeps the rest, ignores what a company may not set from a request, and changes nothing if any part is bad', () => {
   const { store } = makeStore();
   const o = owner();
   const c = store.create(o, { name: 'Edit Me', mandate: { drafting: { themes: 'careful' } } });
@@ -253,6 +253,16 @@ test('an update replaces what was requested, ignores what a company may not set 
   assert.equal(store.get(c.id).mission, 'We make small, honest things.');
   assert.deepEqual(store.get(c.id).ceilings, { maxAgents: 4 });
   assert.deepEqual(store.get(c.id).mandate, { drafting: { themes: 'careful' } }, 'what was not named is kept');
+
+  // raising one ceiling must not loosen the others (a patch used to replace the whole object, putting every unnamed ceiling back to the operator's)
+  store.update(c.id, o, { ceilings: { maxTurns: 50 }, mandate: { publishing: { audience: 'general' } } });
+  assert.deepEqual(store.get(c.id).ceilings, { maxAgents: 4, maxTurns: 50 });
+  assert.deepEqual(store.get(c.id).mandate, { drafting: { themes: 'careful' }, publishing: { audience: 'general' } });
+  store.update(c.id, o, { ceilings: { maxAgents: 3 }, mandate: { drafting: { themes: 'avoid' } } });
+  assert.deepEqual(store.get(c.id).ceilings, { maxAgents: 3, maxTurns: 50 }, 'a named ceiling can still be changed');
+  assert.deepEqual(store.get(c.id).mandate, { drafting: { themes: 'avoid' }, publishing: { audience: 'general' } });
+  assert.equal(store.describe(store.get(c.id)).effective.ceilings.maxAgents, 3);
+  assert.equal(store.describe(store.get(c.id)).effective.ceilings.spendLimitUsd, DEFAULT_OPERATOR_CEILINGS.spendLimitUsd, 'and a ceiling never named is the one the operator set');
 
   store.update(c.id, o, { state: 'active', ownerId: owner(), id: newId(), departments: [{ name: 'x' }], createdAt: 'then' });
   const now = store.get(c.id);

@@ -14,7 +14,7 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import { newId, isId, clone } from './util.js';
+import { newId, isId, clone, isPlainObject } from './util.js';
 import { PolicyError } from './errors.js';
 import { validateMission, DEFAULT_MISSION } from './mission.js';
 import { validateMandate, resolveMandate } from './mandate.js';
@@ -43,6 +43,13 @@ function writeJsonAtomic(file, data) {
 }
 
 /** What a company is allowed right now: its requests, held to the operator's policy. */
+/** The settings with `patch` laid over them, field by field (a dial or ceiling the patch does not name keeps its value). */
+function mergeSettings(current = {}, patch = {}) {
+  const out = { ...current };
+  for (const [key, value] of Object.entries(patch)) out[key] = isPlainObject(value) && isPlainObject(out[key]) ? mergeSettings(out[key], value) : value;
+  return out;
+}
+
 export function effectivePolicy(company, operator) {
   const m = resolveMandate(operator.mandate, company.mandate || {});
   const c = resolveCeilings(operator.ceilings, company.ceilings || {});
@@ -170,7 +177,10 @@ export class CompanyStore {
     const company = this.getOwned(id, ownerId);
     const checked = this._checked(body, { creating: false });
     const before = effectivePolicy(company, this.operator);
-    for (const key of ['name', 'mission', 'mandate', 'ceilings', 'tools']) if (checked[key] !== undefined) company[key] = checked[key];
+    for (const key of ['name', 'mission', 'tools']) if (checked[key] !== undefined) company[key] = checked[key];
+    // A patch names the dials and ceilings it changes and leaves the rest. Replacing the whole object would put every setting it did not name back to
+    // the operator's default, which for a ceiling is a looser value than the company chose (raising one cap would quietly lift the others).
+    for (const key of ['mandate', 'ceilings']) if (checked[key] !== undefined) company[key] = mergeSettings(company[key], checked[key]);
     this._save(company);
     const after = effectivePolicy(company, this.operator);
     return { company, before, after, changed: Object.keys(checked) };
