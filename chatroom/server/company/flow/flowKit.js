@@ -12,13 +12,15 @@ const NOUNS = ['harbour', 'ledger', 'lantern', 'bellows', 'compass', 'quarry', '
 const VERBS = ['keeps', 'sketches', 'counts', 'hums', 'reads', 'sorts', 'labels', 'lists', 'folds', 'walks', 'repairs', 'collects', 'tunes', 'paces', 'rehearses', 'borrows', 'mends', 'copies', 'circles', 'whittles', 'stacks', 'trims', 'weighs', 'draws'];
 const SIGNATURES = ['Good. That one stays', 'Now we are getting somewhere', 'Fine. Move on', 'That will do nicely', 'There it is', 'Leave it exactly there', 'Not bad at all', 'I would sign that'];
 
-const n = (i, k) => NOUNS[(i * 11 + k * 3) % NOUNS.length];
-const v = (i, k) => VERBS[(i * 5 + k * 7) % VERBS.length];
+const nWord = (i, k) => NOUNS[(i * 11 + k * 3) % NOUNS.length];
+const vWord = (i, k) => VERBS[(i * 5 + k * 7) % VERBS.length];
+const n = nWord;
+const v = vWord;
 
 const knob = (i, name) => ({ values: [`${name} one and unhurried, number ${i}`, `${name} two and steady, number ${i}`, `${name} three and brisk, number ${i}`, `${name} four and insistent, number ${i}`] });
 
 /** A valid sheet for a casting, different for each `i`, long enough to pass the length check. */
-export function fakeSheet(casting, seed, i = 0, over = {}) {
+export function fakeSheet(casting, seed, i = 0, over = {}, { word: n = nWord, verb: v = vWord } = {}) {
   const c = casting;
   const sheet = {
     identity_line: `Known on the team for the ${n(i, 1)} and the ${n(i, 2)} they bring to every ${c.title.toLowerCase()} decision.`,
@@ -43,8 +45,16 @@ export function fakeSheet(casting, seed, i = 0, over = {}) {
   return sheet;
 }
 
+const FIRST = ['Mara', 'Odel', 'Ines', 'Teodor', 'Lien', 'Sefa', 'Anouk', 'Dmitri', 'Rosa', 'Kwame', 'Noor', 'Yuki', 'Bastien', 'Ilse', 'Tomas', 'Wanjiru', 'Pavel', 'Haruka', 'Soledad', 'Emeka', 'Aino', 'Rahul', 'Greta', 'Joaquin', 'Mihail', 'Nadia', 'Osei', 'Petra', 'Quentin', 'Rangi', 'Saoirse', 'Tariq'];
+const LAST = ['Quill', 'Brandt', 'Okafor', 'Ruiz', 'Park', 'Tuilagi', 'Meer', 'Vale', 'Ibarra', 'Asare', 'Haddad', 'Arai', 'Lindqvist', 'Mbeki', 'Kovac', 'Duarte', 'Nakamura', 'Fallon', 'Szabo', 'Oyelaran', 'Varga', 'Moreau', 'Eriksen', 'Tanaka', 'Bianchi', 'Hollis', 'Pereira', 'Wójcik', 'Aldana', 'Rautio', 'Dlamini', 'Castellan'];
+
+/** A person for the i-th seed: the first twelve are fixed (tests name them); after that the names are made up from two lists, never repeating inside 96. */
+export const fakeName = (i) => (i < 12
+  ? ['Mara Quill', 'Odel Brandt', 'Ines Okafor', 'Teodor Ruiz', 'Lien Park', 'Sefa Tuilagi', 'Anouk Meer', 'Dmitri Vale', 'Rosa Ibarra', 'Kwame Asare', 'Noor Haddad', 'Yuki Arai'][i]
+  : `${FIRST[i % FIRST.length]} ${LAST[(Math.floor(i / FIRST.length) + i * 5) % LAST.length]}`);
+
 export const fakeSeed = (casting, i = 0, over = {}) => ({
-  name: ['Mara Quill', 'Odel Brandt', 'Ines Okafor', 'Teodor Ruiz', 'Lien Park', 'Sefa Tuilagi', 'Anouk Meer', 'Dmitri Vale', 'Rosa Ibarra', 'Kwame Asare', 'Noor Haddad', 'Yuki Arai'][i % 12],
+  name: fakeName(i),
   seed: `${casting.title} with ${casting.yearsInField} years behind them. Came up ${casting.path}. Known for a steady hand.`,
   unique: `knows how to keep a ${n(i, 40)} from jamming`,
   skills: ['one skill', 'another skill', 'a third skill'],
@@ -70,22 +80,66 @@ export const CLEAN_REVIEW = {
   most_generic_detail: 'the flask', most_specific_detail: 'the spare in every drawer', harmful_pushes: [],
 };
 
+const SYLLABLES = ['bu', 'ko', 'lu', 'mi', 'ne', 'po', 'ra', 'si', 'tu', 've', 'wa', 'xo', 'yi', 'zu', 'da', 'fe', 'gi', 'ho', 'ju', 'ka'];
+/** A made-up word (no syllable that could spell a trade the lint watches for, such as "bak"), different for every (i, k): sheets written with these share no words, so the lint's "words your teammates already use" never fires. */
+export const pseudo = (i, k) => { const x = i * 97 + k * 13 + 7; return SYLLABLES[x % 20] + SYLLABLES[Math.floor(x / 20) % 20] + SYLLABLES[Math.floor(x / 400) % 20] + SYLLABLES[Math.floor(x / 8000) % 20]; };
+
+const run = (i, k0, count) => Array.from({ length: count }, (_, j) => pseudo(i, k0 + j)).join(' ');
+
+/**
+ * A valid sheet that shares no word, habit verb or signature with any other \`uniqueSheet\` of a different i, so a whole team of them passes the checks
+ * (the lint holds a sheet to the words its teammates already use, and a template shares most of its words). Only the facts the checks read are kept
+ * (the born line, who raised them, the years); everything else is made-up words and words of four letters or fewer.
+ */
+export const uniqueSheet = (c, seed, i = 0, over = {}) => fakeSheet(c, seed, i, {
+  identity_line: `Known on the team for the ${pseudo(i, 1)} and the ${pseudo(i, 2)} they bring to every ${c.title.toLowerCase()} decision.`,
+  upbringing: `Grew up in ${c.birthplace.city}, with ${c.siblings} of kin, where ${c.carers[0]} set the day. ${run(i, 3, 44)}.`,
+  career: `Started out in ${c.bornYear + 22} and has kept at it for ${c.yearsInField} years. ${run(i, 50, 44)}.`,
+  touchstones: [`${pseudo(i, 10)} ${pseudo(i, 11)}`, `${pseudo(i, 12)}`, `${pseudo(i, 13)} ${pseudo(i, 14)}`, `${pseudo(i, 15)}`, `${pseudo(i, 16)} ${pseudo(i, 17)}`],
+  off_clock: `On a free day they go out with no plan. ${run(i, 90, 48)}.`,
+  working_style: `Works from the ${pseudo(i, 20)} out, one ${pseudo(i, 26)} at a time. Says what they will do next, then does it.`,
+  habits: [`${pseudo(i, 100)} a ${pseudo(i, 21)} near the ${pseudo(i, 22)}`, `${pseudo(i, 101)} the ${pseudo(i, 23)} each day`, `${pseudo(i, 102)} every ${pseudo(i, 27)} on the desk`],
+  voice: `${pseudo(i, 24)} first, ${pseudo(i, 25)} after, and calm.`,
+  signature: `${pseudo(i, 200)} and ${pseudo(i, 201)}, then rest`,
+  ...over,
+});
+
+const BORN_FACT = /- Born (\d{4}) in (.+?), (.+?) \(/;
+/** Which of the flow's drawn people a seed or sheet prompt is about, read from the facts the prompt states. */
+export function castingFrom(prompt, castings) {
+  const m = BORN_FACT.exec(prompt);
+  return m ? castings().find(c => String(c.bornYear) === m[1] && c.birthplace.city === m[2] && c.birthplace.country === m[3]) || null : null;
+}
+
 /**
  * A stand-in for model.askJson. `handlers` maps a step to a function (call, count) => answer; the defaults write a valid person for every step.
- * Every call is recorded in `calls`.
+ * With `castings` (a function returning the people the flow drew), the seed and sheet are written for the person the prompt is about, and every sheet is
+ * different from every other. Every call is recorded in `calls`.
  */
-export function fakeAsk(handlers = {}, { casting = null } = {}) {
+export function fakeAsk(handlers = {}, { casting = null, castings = null } = {}) {
   const calls = [];
   const counts = {};
   const ask = async (call) => {
     calls.push(call);
     counts[call.step] = (counts[call.step] || 0) + 1;
     const h = handlers[call.step];
-    if (h) return h(call, counts[call.step]);
+    if (h) {                                                            // a handler that answers nothing (it only waited, or counted) leaves the default to answer
+      const answer = await h(call, counts[call.step]);
+      if (answer !== undefined) return answer;
+    }
     const i = (counts[call.step] || 1) - 1;
     switch (call.step) {
-      case 'seed': return fakeSeed(casting || { title: 'Editor', yearsInField: 9, path: 'at a small press' }, calls.filter(c => c.step === 'seed').length - 1);
-      case 'sheet': return fakeSheet(casting || castFor(i), fakeSeed(casting || castFor(i), i), calls.filter(c => c.step === 'sheet').length - 1);
+      case 'seed': {
+        const drawn = castings && castingFrom(call.prompt, castings);
+        return fakeSeed(drawn || casting || { title: 'Editor', yearsInField: 9, path: 'at a small press' }, calls.filter(c => c.step === 'seed').length - 1);
+      }
+      case 'sheet': {
+        const drawn = castings && castingFrom(call.prompt, castings);
+        const k = calls.filter(c => c.step === 'sheet').length - 1;
+        if (drawn) return uniqueSheet(drawn, null, k);
+        return fakeSheet(casting || castFor(i), fakeSeed(casting || castFor(i), i), k);
+      }
+      case 'memory': return { summary: 'I took part in the session and said what I saw in the work.', lesson: 'Say what is wrong sooner.', relationships: [] };
       case 'shape': return { size: 'desk', style: 'studio', people: null, reason: 'a small job' };
       case 'plan': return fakePlanAnswer(call);
       case 'blind_review': return CLEAN_REVIEW;

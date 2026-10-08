@@ -78,7 +78,7 @@ Rules.
 - The signature phrase is something they say when a thing is right, in their own words, and they say it rarely.
 - Plain, concrete English. No lists inside text fields.`;
 
-const BEHAVES = {
+export const BEHAVES = {
   E: 'gets energy from other people, thinks aloud, starts conversations with strangers',
   I: 'gets energy from time alone, thinks before speaking, prefers one deep conversation to a crowd',
   S: 'notices concrete particulars, trusts what has been tested, likes things step by step',
@@ -141,13 +141,15 @@ export async function writeSeed({ ask, model = MODELS.FAST, ...ctx }) {
  * @param {number} [input.year]
  * @returns {Promise<{ profile: object, bio: string, status: 'ready'|'draft', seed: object, checks: object }>}
  */
-export async function writePerson({ ask, casting, id, company, department, others = [], lessons = [], seed: given = null, screen = null, mandate = null, year = new Date().getFullYear(), models = {}, review = true }) {
+export async function writePerson({ ask, casting, id, company, department, others = [], lessons = [], seed: given = null, screen = null, mandate = null, year = new Date().getFullYear(), models = {}, review = true, avoidNames = [] }) {
   const sheetModel = models.sheet || MODELS.SMART;
   const taken = takenFrom(others);
+  // names already in the roster are as taken as a teammate's: the seed is told, and the check holds the sheet to it
+  for (const n of avoidNames) { const k = String(n).toLowerCase(); if (k && !taken.names.includes(k)) taken.names.push(k); }
   const team = others.map(p => `${p.name}: ${p.anchors?.role || ''}; ${p.anchors?.born || ''}`);
   const ctx = { casting, company, department, taken, team, lessons };
 
-  const seed = given || await writeSeed({ ask, model: models.seed, ...ctx });
+  let seed = given || await writeSeed({ ask, model: models.seed, ...ctx });
 
   let profile = null;
   let lint = null;
@@ -167,6 +169,12 @@ export async function writePerson({ ask, casting, id, company, department, other
       lint = lintSheet({ profile, casting, taken, year });
       problems = lint.problems;
       if (!problems.length) break;
+      // a name that is a teammate's (or is in the roster already) is the seed's fault, not the sheet's: the sheet cannot fix it, so choose the name again
+      if (!given && problems.some(p => /^the (first )?name\b/i.test(p)) && attempt < MAX_SHEET_ATTEMPTS) {
+        taken.names.push(seed.name.toLowerCase());
+        taken.firstNames.push(seed.name.split(/[ -]/)[0].toLowerCase());
+        seed = await writeSeed({ ask, model: models.seed, ...ctx });
+      }
     }
     if (problems.length || !review) break;
     reviewed = await blindReview({ ask, bio: lint.bio });

@@ -19,6 +19,7 @@ import { peekRoom, dropRoom } from '../services/sessionRegistry.js';
 import { handle, checkBody, jsonOnlyChanges } from './httpUtil.js';
 import { createHallRouter } from './hall.js';
 import { createRosterRouter, createPeopleRouter } from './roster.js';
+import { createFlowRouter, createRunRouter } from './flow.js';
 
 const ENDPOINTS = [
   ['GET', '/api/company/schema', 'This document.'],
@@ -87,6 +88,19 @@ const ENDPOINTS = [
   ['POST', '/api/company/:id/hall/norms/:norm/approve', 'Approve one: it joins everyone\'s fixed layer under the house rules.'],
   ['POST', '/api/company/:id/hall/norms/:norm/reject', 'Reject one.'],
   ['POST', '/api/company/:id/hall/norms/:norm/withdraw', 'End an approved one.'],
+  // the creation flow: one prompt becomes a company
+  ['GET', '/api/company/flow/options', 'What the flow offers: sizes, ways to organise, archetypes, what a room can make, what you can fix, the limits and a rough price per person.'],
+  ['POST', '/api/company/flow', 'Level 0: propose a company from a prompt. Anything in "locks" is fixed; the rest is filled in. Body: flowPropose. Creates nothing.'],
+  ['GET', '/api/company/flow', 'Your flows.'],
+  ['GET', '/api/company/flow/:flow', 'One flow: the proposal and where every field came from, who is cast, the estimate and what it has spent, what blocks creating.'],
+  ['PATCH', '/api/company/flow/:flow', 'Level 1: edit the proposal. What you change is yours; a re-fill never overwrites it. Body: flowEdit.'],
+  ['POST', '/api/company/flow/:flow/replan', 'Have the model fill the blanks again (never what you fixed, never the title of someone already cast).'],
+  ['POST', '/api/company/flow/:flow/cast', 'Write the people (from the roster where they fit, new where not). Runs in the background; this is where the money goes. Body: flowCast.'],
+  ['POST', '/api/company/flow/:flow/cancel', 'Stop casting, or drop a proposal. People already written stay in the roster.'],
+  ['POST', '/api/company/flow/:flow/create', 'Create the company, its rooms and its people from the proposal. All or nothing. The company is paused.'],
+  ['DELETE', '/api/company/flow/:flow', 'Delete a flow (not the company it made, not the people it wrote).'],
+  ['POST', '/api/company/:id/run/:department/start', 'Start a room of a company the flow made, with the brief, checks and way of closing the flow wrote for it. The company must be running.'],
+  ['POST', '/api/company/:id/run/:department/close-out', 'After a session: each person who spoke writes down what they remember, checked against the record. Body: flowCloseOut.'],
 ].map(([method, path, description]) => ({ method, path, description }));
 
 /** @param {ReturnType<import('../company/index.js').createCompanyServices>} services */
@@ -123,6 +137,8 @@ export function createCompanyRouter(services) {
   // (mounted before the routes of a single company, so that "roster" is never read as a company id)
 
   router.use('/roster', createRosterRouter(services));
+  router.use('/flow', createFlowRouter(services));
+  router.use('/:id/run', createRunRouter(services));
   router.use('/:id/people', createPeopleRouter(services));
   router.use('/:id/hall', createHallRouter(services));
 

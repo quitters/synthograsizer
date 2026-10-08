@@ -29,6 +29,17 @@ export class Spend {
     return usd;
   }
 
+  /** A spend carried over from a saved snapshot (a flow that was stopped and is going on). */
+  static restore(snapshot) {
+    const s = new Spend();
+    if (snapshot && Number.isFinite(snapshot.usd)) {
+      s.usd = snapshot.usd;
+      s.calls = Number.isInteger(snapshot.calls) ? snapshot.calls : 0;
+      s.byStep = Object.fromEntries(Object.entries(snapshot.byStep || {}).map(([k, v]) => [k, { calls: v.calls || 0, usd: v.usd || 0 }]));
+    }
+    return s;
+  }
+
   /** A copy for an API answer: dollars to a tenth of a cent. */
   snapshot() {
     const round = (x) => Math.round(x * 1000) / 1000;

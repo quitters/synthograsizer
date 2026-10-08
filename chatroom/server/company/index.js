@@ -25,14 +25,20 @@ import { Hall } from './hall/hall.js';
 import { sqliteAvailable, sqliteProblem, openDatabase } from './flow/sqlite.js';
 import { MIGRATIONS } from './flow/migrations.js';
 import { admitDepartment } from './flow/admit.js';
+import { FlowStore } from './flow/flowStore.js';
+import { FlowService } from './flow/flow.js';
+import { createModel } from './flow/model.js';
+import { getRoom as defaultGetRoom } from '../services/sessionRegistry.js';
 
 /**
- * @param {{ dataDir?: string, env?: object, classify?: Function, getClient?: Function, now?: () => Date, extraHardLimits?: object[], extraScreenRules?: object[] }} [options]
- *   classify replaces the Gemini-backed reviewer (tests). extraHardLimits and extraScreenRules are for the red-team harness only.
+ * @param {{ dataDir?: string, env?: object, classify?: Function, getClient?: Function, now?: () => Date, extraHardLimits?: object[], extraScreenRules?: object[], makeAsk?: Function, getRoom?: Function }} [options]
+ *   classify replaces the Gemini-backed reviewer (tests). extraHardLimits and extraScreenRules are for the red-team harness only. makeAsk replaces the model
+ *   the creation flow writes with (tests), and getRoom the registry it starts rooms in.
  */
 export function createCompanyServices({
   dataDir = defaultDataDir(), env = process.env, classify = null, getClient = getGeminiClient, now = () => new Date(),
   extraHardLimits = [], extraScreenRules = [], extraPreamble = '',
+  makeAsk = ({ spend, limitUsd }) => createModel({ getClient, spend, limitUsd }).askJson, getRoom = defaultGetRoom,
 } = {}) {
   const operator = loadOperator({ env, dataDir });
   for (const warning of operator.warnings) console.warn(`[company] ${warning}`);
@@ -71,6 +77,12 @@ export function createCompanyServices({
     try { open(); return roster; } catch (err) { console.warn(`[company] the roster could not be opened: ${err.message}`); return null; }
   };
   const tryHall = (options) => (tryRoster(options) ? hall : null);
+  // The creation flow: propose, cast, create. Its proposals are files under <data>/flow; the people it writes go to the roster, the company to the store.
+  const flow = new FlowService({
+    store: new FlowStore({ rootDir: dataDir, now }), companies: store, operator, audit, screen,
+    getRoster: needRoster, getHall: tryHall, makeAsk, getRoom, listProposals: (companyId) => publish.list(companyId), now,
+  });
+
   /** Close the database (tests, and a server shutting down). */
   const close = () => { try { roster?.close(); } finally { roster = null; hall = null; } };
 
@@ -101,5 +113,5 @@ export function createCompanyServices({
     }
   }
 
-  return { dataDir, operator, audit, store, screen, publish, policyForRoom, attach, get roster() { return needRoster(); }, get hall() { return needHall(); }, tryRoster, tryHall, close };
+  return { dataDir, operator, audit, store, screen, publish, flow, policyForRoom, attach, get roster() { return needRoster(); }, get hall() { return needHall(); }, tryRoster, tryHall, close };
 }

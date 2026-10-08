@@ -330,6 +330,23 @@ test('two people fixed to the same name are caught before anyone is written', as
   assert.throws(() => applyEdits(plan, { departments: [{ key: 'd1', positions: [{ key: 'd1p1', locked: { name: 'Mara Quill' } }, { key: 'd1p2', locked: { name: 'mara quill' } }] }] }), /fixed to the name "mara quill"/);
 });
 
+test('a position can be fixed to a person already in the roster; the same person cannot fill two', async () => {
+  const id = 'a'.repeat(16);
+  const plan = await propose({ locks: { departments: [{ name: 'R', positions: [{ title: 'Producer', lead: true, candidateId: id }, { title: 'Writer' }] }] } });
+  assert.equal(plan.departments[0].positions[0].candidateId, id);
+  assert.equal(positionsOf(plan)[0].candidateId, id);
+  assert.throws(() => checkLocks({ departments: [{ name: 'R', positions: [{ title: 'Producer', candidateId: 'not an id' }] }] }), /candidateId is the id of someone in the roster/);
+  const other = 'b'.repeat(16);
+  const r = applyEdits(plan, { departments: [{ key: 'd1', positions: [{ key: 'd1p2', candidateId: other }] }] });
+  assert.equal(r.plan.departments[0].positions[1].candidateId, other);
+  assert.deepEqual(r.invalidated, ['d1p2']);
+  assert.equal(r.plan.provenance['departments.d1.positions.d1p2.candidateId'], 'user');
+  assert.throws(() => applyEdits(plan, { departments: [{ key: 'd1', positions: [{ key: 'd1p2', candidateId: id }] }] }), /same person from the roster is chosen for two positions/);
+  const unpinned = applyEdits(r.plan, { departments: [{ key: 'd1', positions: [{ key: 'd1p2', candidateId: null }] }] });
+  assert.equal(unpinned.plan.departments[0].positions[1].candidateId, undefined);
+  assert.deepEqual(unpinned.invalidated, ['d1p2']);
+});
+
 test('positionsOf is what the casting step takes: keys, rooms, flags, the owner\'s facts', async () => {
   const plan = await propose({ locks: { departments: [{ name: 'R', positions: [{ title: 'Producer', lead: true, locked: { name: 'Mara Quill' } }, { title: 'Writer' }] }] } });
   const ps = positionsOf(plan);

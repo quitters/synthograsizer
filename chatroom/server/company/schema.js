@@ -16,6 +16,7 @@ import { MISSION_MAX_CHARS } from './mission.js';
 import { HOUSE_RULES_MAX_CHARS } from './houseRules.js';
 import { COLLABORATION_FEATURES } from './collaboration.js';
 import { HALL_SCHEMAS } from './hallSchemas.js';
+import { buildFlowSchemas } from './flowSchemas.js';
 
 const typeOf = (v) => (v === null ? 'null' : Array.isArray(v) ? 'array' : Number.isInteger(v) ? 'integer' : typeof v);
 const isType = (v, t) => (t === 'number' ? typeof v === 'number' && Number.isFinite(v) : t === 'integer' ? Number.isInteger(v) : typeOf(v) === t);
@@ -150,7 +151,7 @@ const screenResult = {
   },
 };
 
-export const SCHEMAS = { ...HALL_SCHEMAS, mandate, ceilings, tools, collaboration, companyCreate, companyPatch, roomCreate, proposal, screenResult };
+export const SCHEMAS = { ...HALL_SCHEMAS, ...buildFlowSchemas({ mandate, ceilings, tools, collaboration }), mandate, ceilings, tools, collaboration, companyCreate, companyPatch, roomCreate, proposal, screenResult };
 
 /** The document GET /api/company/schema returns. */
 export function schemaDocument() {

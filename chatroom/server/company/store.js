@@ -204,6 +204,17 @@ export class CompanyStore {
     return company;
   }
 
+  /**
+   * Keep what the creation flow wrote for a company's rooms: the brief, the checks, the hand-offs and the way of closing each room starts with. Only
+   * the flow calls this, and only for the company it just made; nothing here is a setting (the policy never reads it).
+   */
+  setPlan(id, ownerId, plan) {
+    const company = this.getOwned(id, ownerId);
+    company.plan = plan;
+    this._save(company);
+    return company;
+  }
+
   addDepartment(id, ownerId, name) {
     const company = this.getOwned(id, ownerId);
     if (company.departments.length >= MAX_DEPARTMENTS) throw new PolicyError(`A company has at most ${MAX_DEPARTMENTS} departments.`, { status: 403, code: 'department_cap' });
@@ -254,6 +265,12 @@ export class CompanyStore {
       effective: { mandate: eff.mandate, ceilings: eff.ceilings, tools: eff.tools, collaboration: eff.collaboration },
       clamped: eff.clamped,
       departments: company.departments.map(d => ({ id: d.id, name: d.name, roomId: d.roomId })),
+      // set by the creation flow: which flow made this company and what each room was given to do (the brief itself is read with the room)
+      plan: company.plan ? {
+        flowId: company.plan.flowId,
+        createdAt: company.plan.createdAt,
+        departments: company.plan.departments.map(d => ({ id: d.id, name: d.name, makes: d.deliverable.file, lead: d.lead, reviewers: d.reviewers, checks: d.doneWhen.length, briefChars: d.goal.length })),
+      } : null,
     };
   }
 }

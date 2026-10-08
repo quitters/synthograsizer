@@ -34,6 +34,7 @@ export const PROMPT_MAX_CHARS = 2000;
 export const MAX_ROOMS = 12;
 export const MAX_PER_ROOM = 8;
 const COMPANY_KEYS = ['name', 'purpose', 'mission', 'houseRules', 'mandate', 'ceilings', 'tools', 'collaboration'];
+const CANDIDATE_ID = /^[a-f0-9]{16}$/;
 
 const bad = (message, field, extra = {}) => new PolicyError(message, { status: 400, code: 'bad_request', ...(field ? { field } : {}), ...extra });
 const clean = (v, max) => String(v ?? '').replace(/[\u0000-\u001f\u007f]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, max);
@@ -177,6 +178,10 @@ function checkPositionLock(p, where) {
   if (p.archetype !== undefined) { if (!ARCHETYPE_IDS.includes(p.archetype)) throw bad(`archetype must be one of ${ARCHETYPE_IDS.join(', ')}.`, where); out.archetype = p.archetype; }
   for (const f of ['lead', 'reviewer']) if (p[f] !== undefined) { if (typeof p[f] !== 'boolean') throw bad(`${f} is true or false.`, where); out[f] = p[f]; }
   if (p.tier !== undefined) { if (typeof p.tier !== 'string') throw bad('tier is text.', where); out.tier = p.tier; }
+  if (p.candidateId !== undefined) {                                    // a person from the roster, chosen by the owner (null: not any more)
+    if (p.candidateId !== null && !(typeof p.candidateId === 'string' && CANDIDATE_ID.test(p.candidateId))) throw bad('candidateId is the id of someone in the roster (or null).', where);
+    out.candidateId = p.candidateId;
+  }
   if (p.locked !== undefined) {
     if (!p.locked || typeof p.locked !== 'object' || Array.isArray(p.locked)) throw bad('locked is an object of the facts about the person that you fix.', where);
     const strays = Object.keys(p.locked).filter(k => !LOCKABLE.includes(k));
@@ -293,7 +298,7 @@ export function structureFor({ size, style, locks, people = null }) {
       const positions = (own ? d.positions : fallback.positions).map((p) => {
         const a = archetype(p.archetype) || archetypeForRole(p.title);
         if (!a) throw bad(`I do not know which archetype "${p.title}" is; give "archetype" (one of ${ARCHETYPE_IDS.join(', ')}).`, 'locks.departments');
-        return { title: clean(p.title, 80), archetype: a.id, lead: Boolean(p.lead), reviewer: Boolean(p.reviewer), ...(p.tier ? { tier: p.tier } : {}), locked: p.locked || {}, _own: own };
+        return { title: clean(p.title, 80), archetype: a.id, lead: Boolean(p.lead), reviewer: Boolean(p.reviewer), ...(p.tier ? { tier: p.tier } : {}), ...(p.candidateId ? { candidateId: p.candidateId } : {}), locked: p.locked || {}, _own: own };
       });
       return { name: d.name || fallback.name, purpose: d.purpose || fallback.purpose, ...(d.assignment ? { assignment: d.assignment } : {}), ...(d.deliverable ? { deliverable: d.deliverable } : {}), positions, _own: true, _locks: d };
     });
@@ -353,6 +358,8 @@ export function planProblems(plan, { maxPeople = 32, complete = false } = {}) {
   const fixed = plan.departments.flatMap(d => d.positions.map(p => p.locked?.name).filter(Boolean)).map(n => n.toLowerCase());
   const dupe = fixed.find((n, i) => fixed.indexOf(n) !== i);
   if (dupe) problems.push(`Two people are fixed to the name "${dupe}".`);
+  const pinned = plan.departments.flatMap(d => d.positions.map(p => p.candidateId).filter(Boolean));
+  if (pinned.some((id, i) => pinned.indexOf(id) !== i)) problems.push('The same person from the roster is chosen for two positions; choose a different person for one of them.');
   if (complete && !plan.company.name) problems.push('The company has no name yet.');
   return problems;
 }
@@ -564,7 +571,7 @@ export function applyEdits(plan, patch, limits = {}) {
           const a = archetype(p.archetype) || archetypeForRole(p.title);
           if (!a) throw bad(`I do not know which archetype "${p.title}" is; give "archetype" (one of ${ARCHETYPE_IDS.join(', ')}).`, `departments[${i}].positions[${j}]`);
           const pk = `${key}p${j + 1}`;
-          positions.push({ key: pk, title: p.title, archetype: a.id, lead: Boolean(p.lead), reviewer: Boolean(p.reviewer), ...(p.tier ? { tier: p.tier } : {}), locked: p.locked || {} });
+          positions.push({ key: pk, title: p.title, archetype: a.id, lead: Boolean(p.lead), reviewer: Boolean(p.reviewer), ...(p.tier ? { tier: p.tier } : {}), ...(p.candidateId ? { candidateId: p.candidateId } : {}), locked: p.locked || {} });
           prov[`departments.${key}.positions.${pk}`] = 'user';
           prov[`departments.${key}.positions.${pk}.title`] = 'user';
           invalidated.add(pk);
@@ -601,7 +608,7 @@ export function applyEdits(plan, patch, limits = {}) {
           const a = archetype(pe.archetype) || archetypeForRole(pe.title);
           if (!a) throw bad(`I do not know which archetype "${pe.title}" is; give "archetype" (one of ${ARCHETYPE_IDS.join(', ')}).`, `departments[${i}].positions[${j}]`);
           const pk = nextKey(new Set([...room.positions.map(p => p.key), ...(next.retired || [])]), `${room.key}p`);
-          room.positions.push({ key: pk, title: pe.title, archetype: a.id, lead: Boolean(pe.lead), reviewer: Boolean(pe.reviewer), ...(pe.tier ? { tier: pe.tier } : {}), locked: pe.locked || {} });
+          room.positions.push({ key: pk, title: pe.title, archetype: a.id, lead: Boolean(pe.lead), reviewer: Boolean(pe.reviewer), ...(pe.tier ? { tier: pe.tier } : {}), ...(pe.candidateId ? { candidateId: pe.candidateId } : {}), locked: pe.locked || {} });
           prov[`departments.${room.key}.positions.${pk}`] = 'user';
           prov[`departments.${room.key}.positions.${pk}.title`] = 'user';
           invalidated.add(pk);
@@ -621,6 +628,11 @@ export function applyEdits(plan, patch, limits = {}) {
         if (pe.archetype !== undefined && pe.archetype !== pos.archetype) { pos.archetype = pe.archetype; own(`${base}.archetype`); invalidated.add(pos.key); }
         if (pe.tier !== undefined && pe.tier !== pos.tier) { pos.tier = pe.tier; own(`${base}.tier`); invalidated.add(pos.key); }
         if (pe.locked !== undefined) { pos.locked = pe.locked; own(`${base}.locked`); invalidated.add(pos.key); }
+        if (pe.candidateId !== undefined && (pe.candidateId ?? undefined) !== pos.candidateId) {
+          if (pe.candidateId === null) delete pos.candidateId; else pos.candidateId = pe.candidateId;
+          own(`${base}.candidateId`);
+          invalidated.add(pos.key);
+        }
         for (const f of ['lead', 'reviewer']) if (pe[f] !== undefined && pe[f] !== pos[f]) { pos[f] = pe[f]; own(`${base}.${f}`); }
       }
       // naming one new lead moves the title: the others in that room are not leads any more
@@ -641,6 +653,6 @@ export function applyEdits(plan, patch, limits = {}) {
 export function positionsOf(plan) {
   return plan.departments.flatMap(d => d.positions.map(p => ({
     key: p.key, deptKey: d.key, department: d.name, title: p.title, archetype: p.archetype, lead: Boolean(p.lead), reviewer: Boolean(p.reviewer),
-    ...(p.tier ? { tier: p.tier } : {}), locked: p.locked || {},
+    ...(p.tier ? { tier: p.tier } : {}), ...(p.candidateId ? { candidateId: p.candidateId } : {}), locked: p.locked || {},
   })));
 }

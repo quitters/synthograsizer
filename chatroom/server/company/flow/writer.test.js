@@ -169,3 +169,27 @@ test('the screen helper reports a pass as ok and anything else as not', async ()
   assert.equal((await admissionScreen({ screen: mk('block'), mandate, bio: 'x' })).ok, false);
   assert.equal((await admissionScreen({ screen: mk('unavailable', { error: 'down' }), mandate, bio: 'x' })).error, 'down');
 });
+
+test('names already in the roster are as taken as a teammate\'s: the seed is told, and a name that clashes is chosen again, not just rewritten', async () => {
+  const names = ['Mara Quill', 'Odel Brandt'];
+  let seeds = 0;
+  const ask = fakeAsk({
+    seed: () => { seeds += 1; return { ...fakeSeed(casting, 3), name: seeds === 1 ? 'Odel Brandt' : 'Teodor Ruiz' }; },
+    sheet: (call) => fakeSheet(casting, { ...fakeSeed(casting, 3), name: /Name: Odel Brandt/.test(call.prompt) ? 'Odel Brandt' : 'Teodor Ruiz' }, 3),
+  }, { casting });
+  const r = await write({ ask, avoidNames: names, review: false });
+  assert.equal(seeds, 2, 'the seed was written again');
+  assert.equal(r.profile.name, 'Teodor Ruiz');
+  assert.equal(r.status, 'ready');
+  assert.match(ask.calls[0].prompt, /Names in use: mara quill, odel brandt\./);
+  assert.match(ask.calls.filter(c => c.step === 'seed')[1].prompt, /Names in use: mara quill, odel brandt, odel brandt\./, 'the clashing name is added for the second try');
+});
+
+test('an owner\'s seed is never rewritten, even when its name clashes: the sheet stays a draft with the reason', async () => {
+  const given = { ...fakeSeed(casting, 2), name: 'Mara Quill' };
+  const ask = fakeAsk({}, { casting });
+  const r = await write({ ask, seed: given, avoidNames: ['Mara Quill'], review: false });
+  assert.equal(r.status, 'draft');
+  assert.ok(r.checks.problems.some(p => /name is already a teammate/.test(p)));
+  assert.equal(ask.calls.filter(c => c.step === 'seed').length, 0);
+});
