@@ -3,7 +3,7 @@
  * wrote. This file is the pure part (parsing the tags agents write, picking sample values, building the critic's question,
  * checking pictures people send); the orchestrator does the acting.
  *
- * Why these exist (docs in the atelier, notes/wave2.md):
+ * Why these exist (docs in Teamcrafter, notes/wave2.md):
  *  - A critic inside the conversation drifts toward agreeing with it: a supervisor said MATCH to a frame that a judge alone scored
  *    2 out of 10. A critic that sees only the pictures, and scores 1 to 10 instead of ticking a checklist, does not.
  *  - Crews that could SEE what their code drew fixed a pond made of moire, a stained glass of flat primaries and a chain that was

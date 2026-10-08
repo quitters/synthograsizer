@@ -28,7 +28,7 @@ STRICT = [
 ENGINES = [
     "lost-cinema", "tape-shelf", "impossible-objects", "civic-notices",
     "arcade-archaeology", "brutalist-utopias", "arcana-machina", "specimen-plates",
-    "sanatorium-dispatch",   # designed by an agent swarm session, see the atelier log
+    "sanatorium-dispatch",   # designed by an agent swarm session, see the Teamcrafter log
 ]
 
 # calls the sandboxed p5 viewer cannot use (no network, no assets, no storage, no console)

@@ -2,7 +2,7 @@
 // Plain data, no DOM, so a Node test can check every effect id and parameter against the real registry
 // (static/glitcher/tests/presets.test.mjs). A preset with "selection": "all" covers the whole image
 // instead of the small wandering regions effects get by default.
-// Generated from the atelier's chain files; edit freely, nothing regenerates this.
+// Generated from Teamcrafter's chain files; edit freely, nothing regenerates this.
 export const PRESET_PACKS = [
   {
     "id": "classics",

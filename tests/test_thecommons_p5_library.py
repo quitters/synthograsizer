@@ -1,7 +1,7 @@
 """The Commons' inherited p5 library (backend/service/thecommons_data/templates) against the suite's own templates.
 
 The library is copied from static/synthograsizer/templates, so a template present in both must have the same content, and the
-instruments written in the atelier residency must all be in it. A copy that drifts would show a different piece on the wall than in the app.
+instruments written in the Teamcrafter residency must all be in it. A copy that drifts would show a different piece on the wall than in the app.
 """
 import json
 import re

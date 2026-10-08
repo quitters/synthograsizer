@@ -199,7 +199,7 @@ export const CRITIC_TIMEOUT_MS = 60_000;
 /**
  * An independent critic: scores a candidate picture 1 to 10 against a reference picture (sameness) or a description, seeing ONLY the
  * pictures and the question, never the conversation, so it cannot be talked into agreeing. In the experiments that motivated it (the
- * atelier's notes/wave2.md, X6) every model alone scored a photograph that had drifted into a painting 2 to 3 out of 10 against 9 or 10
+ * Teamcrafter's notes/wave2.md, X6) every model alone scored a photograph that had drifted into a painting 2 to 3 out of 10 against 9 or 10
  * for good frames, while a supervisor inside the room said MATCH to it; and a checklist prompt (MATCH or RETAKE) made every model
  * reject nearly everything, where the 1 to 10 form discriminates.
  *
