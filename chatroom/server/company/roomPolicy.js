@@ -36,7 +36,8 @@ export class RoomPolicy {
    *   extraHardLimits?: object[], extraScreenRules?: object[],
    * }} options  extraHardLimits and extraScreenRules exist for the red-team harness only; nothing reachable from a request sets them
    */
-  constructor({ store, companyId, departmentId, roomId, operator, screen, audit, publish = null, extraHardLimits = [], extraScreenRules = [] }) {
+  constructor({ store, companyId, departmentId, roomId, operator, screen, audit, publish = null, extraHardLimits = [], extraScreenRules = [], extraPreamble = '' }) {
+    this.extraPreamble = extraPreamble;
     this.store = store;
     this.companyId = companyId;
     this.departmentId = departmentId;
@@ -90,7 +91,7 @@ export class RoomPolicy {
     const { mission, mandate } = this.effective;
     const key = JSON.stringify([mission, mandate]);
     if (key !== this._layerKey) {
-      this._layer = buildLayer({ mission, mandate, canPropose: true, extraHardLimits: this.extraHardLimits });
+      this._layer = buildLayer({ mission, mandate, canPropose: true, extraHardLimits: this.extraHardLimits, extraPreamble: this.extraPreamble });
       this._layerKey = key;
     }
     return { head: this._layer.head, tail: this._layer.tail, nonce: fenceNonce(this.secret, agent.id) };

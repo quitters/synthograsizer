@@ -84,7 +84,11 @@ export class CompanyStore {
       if (!isId(name)) continue;
       try {
         const company = JSON.parse(fs.readFileSync(path.join(base, name, 'company.json'), 'utf8'));
-        if (company?.id === name && isId(company.ownerId) && Array.isArray(company.departments)) this._index(company);
+        // Every id in the file is later used to build a path, so a file that holds anything but ids is skipped, not trusted
+        const sound = company?.id === name && isId(company.ownerId) && Array.isArray(company.departments)
+          && company.departments.every(d => d && /^[a-f0-9]{8}$/.test(d.id) && isId(d.roomId) && typeof d.name === 'string');
+        if (sound) this._index(company);
+        else console.warn(`[company] skipped ${name}: company.json is not in the expected shape`);
       } catch (err) {
         console.warn(`[company] skipped ${name}: ${err.message}`);
       }

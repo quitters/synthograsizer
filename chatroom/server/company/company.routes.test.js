@@ -105,6 +105,26 @@ test('the schema, the operator\'s policy and the default mission are readable, a
   assert.match(mission.json.text, /Dignity/);
 });
 
+test('every change must be a JSON request, so a plain form post or a text/plain fetch from another page cannot press approve for the owner', async () => {
+  const { v, company } = await withCompany();
+  const item = (await v.call('POST', `/api/company/${company.id}/publish`, { kind: 'text', title: 'T', text: 'hello' })).json.proposal;
+  for (const [method, route] of [
+    ['POST', `/api/company/${company.id}/publish/${item.id}/approve`],
+    ['POST', `/api/company/${company.id}/go`],
+    ['PATCH', `/api/company/${company.id}`],
+    ['DELETE', `/api/company/${company.id}`],
+    ['POST', '/api/company'],
+  ]) {
+    for (const type of ['text/plain', 'application/x-www-form-urlencoded', undefined]) {
+      const res = await fetch(base + route, { method, headers: { cookie: `${COOKIE_NAME}=${v.id}`, ...(type ? { 'content-type': type } : {}) }, body: method === 'DELETE' ? undefined : '{}' });
+      assert.equal(res.status, 415, `${method} ${route} as ${type}`);
+    }
+  }
+  const after = (await v.call('GET', `/api/company/${company.id}/publish/${item.id}`)).json.proposal;
+  assert.equal(after.status, 'pending', 'nothing was approved');
+  assert.equal((await v.call('GET', `/api/company/${company.id}`)).json.company.state, 'paused', 'nothing was started');
+});
+
 // ── making and reading companies ─────────────────────────────────────────────
 
 test('a company is created paused, with the mission, the research tools and what applies; the answer says to say go', async () => {

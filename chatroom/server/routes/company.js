@@ -61,6 +61,14 @@ export function createCompanyRouter(services) {
   const { store, audit, publish, operator } = services;
   const router = Router();
 
+  // Every change is a JSON request. A page on another origin cannot send one without a preflight (which the CORS list refuses), so a
+  // hostile page cannot press "approve" for the owner with a plain form post or a text/plain fetch.
+  router.use((req, res, next) => {
+    if (req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS') return next();
+    if (/^application\/json\b/i.test(req.headers['content-type'] || '')) return next();
+    return res.status(415).json({ error: 'Send changes as application/json.', code: 'json_required' });
+  });
+
   // ── things anyone may read ──────────────────────────────────────────────────
 
   router.get('/schema', (req, res) => {

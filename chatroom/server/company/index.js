@@ -24,7 +24,7 @@ import { RoomPolicy } from './roomPolicy.js';
  */
 export function createCompanyServices({
   dataDir = defaultDataDir(), env = process.env, classify = null, getClient = getGeminiClient, now = () => new Date(),
-  extraHardLimits = [], extraScreenRules = [],
+  extraHardLimits = [], extraScreenRules = [], extraPreamble = '',
 } = {}) {
   const operator = loadOperator({ env, dataDir });
   for (const warning of operator.warnings) console.warn(`[company] ${warning}`);
@@ -39,7 +39,7 @@ export function createCompanyServices({
     const owner = store.roomOwner(roomId);
     if (!owner) return null;
     return new RoomPolicy({
-      store, companyId: owner.company.id, departmentId: owner.department.id, roomId, operator, screen, audit, publish, extraHardLimits, extraScreenRules,
+      store, companyId: owner.company.id, departmentId: owner.department.id, roomId, operator, screen, audit, publish, extraHardLimits, extraScreenRules, extraPreamble,
     });
   }
 

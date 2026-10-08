@@ -308,6 +308,19 @@ test('a company folder that cannot be read is skipped, not fatal', () => {
   assert.equal(store.get(bad), null);
 });
 
+test('a company file holding anything but ids where ids are used to build paths is skipped, never trusted (deleting a company removes folders)', () => {
+  const { store, rootDir, op } = makeStore();
+  const o = owner();
+  const c = store.create(o, { name: 'Tampered', departments: ['Desk'] });
+  const file = path.join(rootDir, 'companies', c.id, 'company.json');
+  const doc = JSON.parse(fs.readFileSync(file, 'utf8'));
+  doc.departments[0].roomId = '../../../important';
+  fs.writeFileSync(file, JSON.stringify(doc));
+  const reopened = new CompanyStore({ rootDir, operator: op });
+  assert.equal(reopened.get(c.id), null, 'skipped');
+  assert.equal(reopened.roomOwner('../../../important'), null);
+});
+
 // ── the audit log ────────────────────────────────────────────────────────────
 
 test('the audit log appends decisions in order, filters, limits, and survives a torn last line', () => {

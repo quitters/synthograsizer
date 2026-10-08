@@ -32,9 +32,10 @@ jobs:
         with:
           node-version: '22'
 
+      # (--ignore-scripts, as the lint workflow does: nothing here needs an install script; sharp ships prebuilt binaries)
       - name: Install the workflow engine
         working-directory: workflow-engine
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Workflow engine tests
         working-directory: workflow-engine
@@ -42,7 +43,7 @@ jobs:
 
       - name: Install chat room deps
         working-directory: chatroom
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Chat room tests
         working-directory: chatroom
