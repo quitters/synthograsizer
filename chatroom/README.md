@@ -308,6 +308,55 @@ conversation as a note (and in the vision window, so the next speaker is shown t
 values; an instrument (`.json` with `p5Code`) or a page (`.html`, `.js`) is rendered by a browser attached to the room. The Agent Studio opens the event stream with `?renders=1`, receives `render_request`, draws the thing in a hidden frame and
 answers `POST /api/chat/render-result`; the standalone chat page does not render. `POST /api/chat/render` does it on the host's request. Limits: 4 draws per render, 12 renders per session.
 
+## Agent companies: the safety layer
+
+A **company** is a set of department rooms under one policy (`server/company/`, `/api/company`). The safety layer is the foundation the rest of the company tool is built on; the full design,
+what each defence covers, and the red-team method and results are in [docs/COMPANY_SAFETY_LAYER.md](../docs/COMPANY_SAFETY_LAYER.md). In short:
+
+- **Fixed rules every agent gets**: a humanist mission (editable), six hard limits no setting can lower, two stages (drafting is permissive; anything that leaves the room is stricter and needs a person), honesty about being an AI. They lead the
+  system prompt and close it; the character sheet and goal are fenced and are told they cannot outrank it.
+- **An independent screen** reads each turn, and each tool request that carries words, before it is shown, saved or acted on. If it cannot run, nothing is passed. The model service's own refusals are final for the turn.
+- **Nothing is published without the owner**: agents can only `propose_publish`; the queue snapshots the work, screens it at the publishing stage, waits for the owner's approval, and exports it labelled AI-generated. A block is final.
+- **Secure instances**: a company is created paused; caps on agents, turns, tokens, spend and strikes; every agent starts with no tools and a company with the research tools; companies and their memory are isolated; no secrets in prompts.
+- **Requests tighten, never loosen**: the operator's policy (environment on a hosted instance, a local file or environment elsewhere) is the ceiling.
+
+A company's room is reached with `X-Room-Id: <roomId>` (or `?room=` for the event stream) on the ordinary `/api/agents` and `/api/chat` endpoints, and only by the visitor who owns the company. A room that belongs to no company behaves exactly as before.
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/company/schema` | JSON Schemas for every control, what is fixed, the dials, the endpoints |
+| GET | `/api/company/operator` | What the operator allows (the defaults nothing can loosen) |
+| POST / GET | `/api/company`, `/api/company/:id` | Create (paused) / read; the answer shows what was asked, what applies and what was clamped |
+| PATCH / DELETE | `/api/company/:id` | Name, mission, mandate, ceilings, tools / delete everything |
+| POST | `/api/company/:id/go`, `/pause` | Let it run / stop it. Nothing runs, spends or publishes until `go` |
+| POST | `/api/company/:id/rooms` | Add a department with its own isolated room |
+| GET | `/api/company/:id/audit` | What the layer did: decisions, never content |
+| POST / GET | `/api/company/:id/publish` | Offer work / the queue |
+| POST | `/api/company/:id/publish/:item/approve`, `/reject`, `/rescreen` | The owner decides (a block cannot be approved or re-screened) |
+| GET | `/api/company/:id/publish/:item/export` | The approved work with its AI-generated label |
+
+Events a company's room adds: `message_withheld`, `provider_refusal`, `safety_pause`, `safety_notice`, `publish_proposed`. Operator settings: `COMPANY_DRAFTING_THEMES`, `COMPANY_PUBLISHING_AUDIENCE`, `COMPANY_MAX_AGENTS`, `COMPANY_MAX_TURNS`,
+`COMPANY_TOKEN_LIMIT`, `COMPANY_SPEND_LIMIT_USD`, `COMPANY_MAX_SCREEN_STRIKES`, `COMPANY_MAX_PENDING`, `COMPANY_TOOLS`, `COMPANY_SCREEN_MODEL`, `COMPANY_SCREEN_DRAFTS=0` (local only), `COMPANY_OPERATOR_POLICY` (a policy file; ignored when hosted).
+`npm run test:redteam` runs the live red team (see [redteam/README.md](redteam/README.md)).
+
+## Agent companies: people, a shared space, and the console
+
+Describe a company in a sentence and get one: a proposal (a name, a mission, rooms with a first assignment each, who is in them), then the people written (from the roster where they fit), then the company, **created paused**. Open the owner's
+console at **`http://localhost:3001/company/`** (the chat server serves it; run it with `npm run server`, which passes `--experimental-sqlite` for the roster on Node 22.12; 22.13+ does not need the flag). Everything the page does is also an API with a JSON Schema
+(`GET /api/company/schema`). Design, costs, what it does not do: [docs/COMPANY_CREATION_FLOW.md](../docs/COMPANY_CREATION_FLOW.md); what it adds to the safety story: "People, a shared space and a console" in the safety doc.
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/company/flow/options` | Sizes, ways to organise, archetypes, what a room can make, what can be fixed, the limits and a rough price per person |
+| POST / GET | `/api/company/flow`, `/api/company/flow/:id` | Propose a company from a prompt (nothing is created; about a cent) / read the proposal, where each field came from, who is cast, what has been spent |
+| PATCH | `/api/company/flow/:id` | Edit the proposal: what you change is yours, and a re-fill never overwrites it |
+| POST | `/api/company/flow/:id/replan`, `/cast`, `/cancel`, `/create` | Fill the blanks again / write the people (background; this is where the money goes) / stop / create the company (paused) |
+| POST / GET | `/api/company/:id/run/:department/start`, `/brief`, `/close-out` | Start a room with the brief and checks written for it / read them / have each person write down what they remember |
+| GET / POST / PATCH / DELETE | `/api/company/roster`, `/api/company/:id/people` | The library of invented people; who works at a company, their seats, and what each remembers (the owner can read, correct and delete it) |
+| GET / POST / PUT / PATCH / DELETE | `/api/company/:id/hall/...` | The Hall: mailboxes, forums, the shared workspace, the board, working agreements (the owner reads everything and approves agreements) |
+
+Operator settings: `COMPANY_FLOW=0` (off), `COMPANY_FLOW_MAX_PEOPLE` (32), `COMPANY_FLOW_MAX_SPEND_USD` (8), `COMPANY_HALL=0`, `COMPANY_MAX_MESSAGES`, `COMPANY_MAX_WORKSPACE_WRITES`.
+
 ## API Reference
 
 ### Agent Endpoints

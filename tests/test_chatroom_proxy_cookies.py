@@ -87,6 +87,31 @@ def test_an_unreachable_chat_room_is_a_502_not_a_crash(monkeypatch):
     assert r.status_code == 502
 
 
+def test_patch_and_the_company_room_header_get_through(monkeypatch):
+    """A company's controls are PATCHed (/api/company/:id, /api/agents/:id), and a department room is named by an X-Room-Id header
+    or ?room= (an event stream cannot set headers). The proxy must pass all three or the company API is unreachable from the pages."""
+    seen = {}
+
+    def handler(request: httpx.Request):
+        seen["method"] = request.method
+        seen["room_header"] = request.headers.get("x-room-id")
+        seen["url"] = str(request.url)
+        seen["body"] = request.content
+        return httpx.Response(200, json={"ok": True})
+
+    _upstream(monkeypatch, handler)
+    room = "0123456789abcdef0123456789abcdef"
+    r = client.patch("/chatroom/api/company/abc", json={"name": "Renamed"}, headers={"x-room-id": room})
+    assert r.status_code == 200
+    assert seen["method"] == "PATCH"
+    assert seen["room_header"] == room
+    assert seen["url"].endswith("/api/company/abc")
+    assert b"Renamed" in seen["body"]
+
+    client.get(f"/chatroom/api/agents?room={room}")
+    assert seen["url"].endswith(f"/api/agents?room={room}")
+
+
 def test_the_event_stream_forwards_its_query_string(monkeypatch):
     """The Agent Studio opens the stream with ?renders=1 to say it can render artifacts for the room; the proxy used to drop it."""
     seen = {}

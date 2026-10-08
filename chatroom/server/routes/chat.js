@@ -11,6 +11,7 @@ import { isLiveApiEnabled, ALLOW_REMOTE_TOKENS } from '../config/live.js';
 import { v4 as uuidv4 } from 'uuid';
 import { activeFileSearchStores } from '../services/sessionRegistry.js';
 import { parseCriteriaText, normalizeCriteria } from '../services/doneWhen.js';
+import { isPolicyError } from '../company/errors.js';
 
 const router = Router();
 
@@ -89,14 +90,16 @@ router.post('/start', async (req, res) => {
   }
 
   try {
-    // Start is async but returns immediately
-    req.room.orchestrator.start(goal, tokenLimit, { model, mode: normalizedMode });
+    // Start returns as soon as the conversation loop is going. It is awaited so a refusal (a company that is paused, a goal that
+    // holds a secret) reaches the caller instead of vanishing as an unhandled rejection after "Chat started".
+    await req.room.orchestrator.start(goal, tokenLimit, { model, mode: normalizedMode });
     res.json({
       success: true,
       message: 'Chat started',
       state: req.room.orchestrator.getState()
     });
   } catch (error) {
+    if (isPolicyError(error)) return res.status(error.status).json({ error: error.message, code: error.code, ...(error.field ? { field: error.field } : {}) });
     res.status(500).json({ error: error.message });
   }
 });
@@ -782,6 +785,27 @@ router.post('/consensus-settings', (req, res) => {
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
+});
+
+// ==================== REVIEW HAND-OFFS ====================
+
+/**
+ * GET /api/chat/handoffs
+ * POST /api/chat/handoffs   { handoffs: [{ next: "Kasia", artifact?: "engine.json" }] }
+ * After a file is saved (any file, or the one named), the agent named in `next` speaks next, and the "done when" check
+ * `said_after` can hold the lead to hearing from them before closing. An empty list turns it off.
+ */
+router.get('/handoffs', (req, res) => {
+  res.json({ handoffs: req.room.orchestrator.getHandoffs() });
+});
+
+router.post('/handoffs', (req, res) => {
+  const list = Array.isArray(req.body) ? req.body : req.body?.handoffs;
+  if (!Array.isArray(list)) return res.status(400).json({ error: 'Send { "handoffs": [{ "next": "Kasia" }] }' });
+  if (list.length > 8) return res.status(400).json({ error: 'At most 8 hand-offs' });
+  const bad = list.findIndex(h => !h || typeof h.next !== 'string' || !h.next.trim());
+  if (bad >= 0) return res.status(400).json({ error: `Hand-off ${bad + 1} needs "next": an agent's name` });
+  res.json({ success: true, handoffs: req.room.orchestrator.setHandoffs(list) });
 });
 
 // ==================== DONE WHEN ====================

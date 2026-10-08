@@ -4,6 +4,29 @@ All notable changes to the Agent Chat Room project are documented in this file.
 
 ## [Unreleased]
 
+### Added: the creation flow, the roster, the Hall and the owner's console
+- **A company from one prompt** (`server/company/flow/`, `/api/company/flow`, [COMPANY_CREATION_FLOW.md](../docs/COMPANY_CREATION_FLOW.md)). Propose (a cent or two; creates nothing), edit, cast (writes the people; the money goes here, capped), create (all or nothing; the company is paused). Anything the owner fixes is theirs
+  and no later step changes it; every field of a proposal says whether it is the owner's, the model's or a default. Code decides the shape (size, one lead and a reviewer a room, someone who can save files in each room that makes one) and the model writes the words.
+- **Casting by code**: eleven archetypes, attribute tables, org layouts by size and a seeded sampler scored against the diversity targets; the writer pipeline (seed, sheet, code checks with up to two regenerations, a blind review that is advice, the company's own screen, a quiz that detects drift); lessons kept per archetype.
+- **The roster** (`company.sqlite`, `node:sqlite`; Node 22.12 needs `--experimental-sqlite`, 22.13+ does not; absent, rooms work as before): candidates, the employees they become at a company (one memory each, none shared across companies), seats in rooms.
+- **The Hall**: a mailbox for each person, forums, a shared workspace, a task board with task teams, working agreements the owner approves. Everything the people write to each other reaches a model fenced, labelled as information, and is read by the screen before it is written; the owner reads all of it.
+- **Rooms start with a brief that is assembled, not trimmed** (the fixed parts, including the shape of the file, are never cut), with done-when checks the server runs (a tool used after the last save, a proposal made, the reviewer heard) and review hand-offs. Rooms that build on another room's file meet in the workspace and wait for it.
+- **Memory** written by each person after a session, record first and then checked against what the server saw; a claim the record contradicts is kept, flagged and not handed back.
+- **The owner's console** at `/company`: describe, edit, cast, create, go, start, close out, approve, read the Hall and the record, browse the roster. It can only put text on the page, under a policy that lets no other script run.
+- New done-when checks `tool_used`, `proposal`, `said_after`; a new proposal of a file supersedes the earlier waiting ones; company house rules; `renderBio` is one pure module shared by the Composer, scripts and the server.
+- Operator settings: `COMPANY_FLOW`, `COMPANY_FLOW_MAX_PEOPLE`, `COMPANY_FLOW_MAX_SPEND_USD`, `COMPANY_HALL`, `COMPANY_MAX_MESSAGES`, `COMPANY_MAX_WORKSPACE_WRITES`.
+
+### Added: agent companies, the safety layer
+- **`server/company/` and `/api/company`.** A company is a set of department rooms under one policy: a humanist mission, six hard limits, a mandate with two stages (drafting permissive, publishing stricter), caps, least-privilege tools,
+  an independent screen, and a publish queue that needs the owner. Created paused. Design, defences and red-team results: `docs/COMPANY_SAFETY_LAYER.md`; compliance row R7.
+- A company's room carries a policy (`orchestrator.policy`); a room without one is unchanged. The prompt builder (`buildSystemPrompt`) puts the fixed layer first and last, fences the sheet and goal, never teaches the bracket-tag dialect and amends the two
+  rules that would let a sheet outrank the layer. The orchestrator admits agents within the caps (names, secrets, tool tiers), gates run/resume on the company being active, shows a turn only after the screen has passed it, pauses after repeated strikes, treats a
+  refusal from the model service as final, guards tool dispatch (grants, spend, screen), and estimates spend.
+- Rooms by id for a company's owner only (`X-Room-Id`, or `?room=` for the event stream); anyone else gets the same 404 as for an id that does not exist.
+- The tool `propose_publish` (company rooms only). `config/models.js` gains list prices for the spend estimate. `sessionRegistry` gains room initializers and `dropRoom`.
+- `POST /api/chat/start` now awaits the start, so a refusal reaches the caller instead of vanishing as an unhandled rejection after "Chat started".
+- `npm run test:redteam` and `redteam/`: the live red team (harmless canary rules in the hard limits' slot, 45 attack framings on five surfaces); `.github/workflows/chatroom-tests.yml` runs the suite on every pull request.
+
 ### Added: saved sessions, done when, the independent critic, showing the room
 - **Saved sessions.** Every message is appended to `chatroom/data/rooms/<room>/<session>/` as it is said, with media, uploads and every artifact version; list, download, reopen and delete from the Agent Studio (🗂), `/api/chat/saved`, and
   `POST /api/chat/import` loads a Studio export file. On locally, off when hosted unless `CHATROOM_AUTOSAVE=1`; 30 days; git-ignored.
@@ -15,6 +38,8 @@ All notable changes to the Agent Chat Room project are documented in this file.
 - While a session runs the server asks the OS not to sleep (`SYNTH_KEEP_AWAKE=0` turns it off).
 
 ### Fixed
+- A turn that carries `google_search` or `url_context` goes without `file_search` (the model API refuses to combine them): once a memory store existed, every agent on a search tier failed its turns and a company's room stopped after five failures in a row. An error event now carries the reason the API gave instead of the SDK's generic "400 API error occurred", and a block that line concealed is treated as the refusal it is.
+- `PATCH /api/company/:id` sets the dials and ceilings it names and keeps the others (it replaced the whole object, which put every unnamed ceiling back to the operator's default: a looser value than the company chose).
 - Agent Studio thumbnails never loaded in current Chrome (`img.src` of an empty `src` is the page address); the `/chatroom/api` proxy dropped the query string on the event stream.
 
 ### Added

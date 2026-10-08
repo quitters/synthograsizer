@@ -360,7 +360,7 @@ export function hydrateSaved(archive, id) {
   return { meta: saved.meta, messages, artifacts: saved.artifacts, media, archiveId: id };
 }
 
-const agentSnapshot = a => ({ id: a.id, name: a.name, bio: a.bio, color: a.color, model: a.model ?? null, thinkingLevel: a.thinkingLevel ?? null, tools: a.tools ?? null, voice: a.voice ?? null, muted: !!a.muted });
+const agentSnapshot = a => ({ id: a.id, name: a.name, bio: a.bio, color: a.color, model: a.model ?? null, thinkingLevel: a.thinkingLevel ?? null, tools: a.tools ?? null, voice: a.voice ?? null, muted: !!a.muted, employeeId: a.employeeId ?? null });
 
 /** What a session folder records about the room at a moment: enough to rebuild it. */
 export function snapshotRoom(o) {
@@ -371,7 +371,7 @@ export function snapshotRoom(o) {
     tokenCount: o.tokenCount,
     turnCount: o.turnCount,
     agents: o.agents.map(agentSnapshot),
-    settings: { consensus: { ...o.consensusSettings }, doneWhen: o.doneWhen ? o.doneWhen.criteria : [] },
+    settings: { consensus: { ...o.consensusSettings }, doneWhen: o.doneWhen ? o.doneWhen.criteria : [], handoffs: o.handoffs ? o.handoffs.map(h => ({ ...h })) : [] },
     messageCount: o.messages.length,
   };
 }

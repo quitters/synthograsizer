@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Companies</title>
+<link rel="stylesheet" href="console.css">
+</head>
+<body>
+<header class="bar">
+  <a class="brand" href="#/">Company console</a>
+  <nav aria-label="Main">
+    <a href="#/" data-nav="home">Companies</a>
+    <a href="#/new" data-nav="new">New company</a>
+    <a href="#/roster" data-nav="roster">Roster</a>
+  </nav>
+  <span class="grow"></span>
+  <span class="hint" id="whoami"></span>
+</header>
+<main id="app" aria-live="polite"><p class="muted">Loading…</p></main>
+<div id="toasts" class="toasts" role="status" aria-live="polite"></div>
+<noscript><p class="muted" style="padding:1rem">This page needs JavaScript. Everything it does is also an API: GET /api/company/schema lists it.</p></noscript>
+<script type="module" src="console.js"></script>
+</body>
+</html>

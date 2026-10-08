@@ -10,7 +10,7 @@
  * missing valueIdx, no icon/color, etc.) are normalised to the canonical v5 shape.
  */
 
-import { normalizeVariable } from './template-normalizer.js';
+import { renderBio } from './profile-bio.js';
 
 // ─── Canonical v5 schema ────────────────────────────────────────────────────
 //
@@ -152,19 +152,20 @@ export function migrateProfileSchema(raw) {
 
 /**
  * Resolves an agent profile template into a flat bio string.
- * Anchors first, then variables (using session overrides → UI knob lock → weighted random).
+ * Anchors first, then variables (using session overrides → UI knob lock → the profile's own valueIdx → weighted random).
  * Anti-repetition: when using weighted random, avoids picking the same value
  * that was chosen on the previous call for this profile (up to 3 re-rolls).
+ *
+ * The rendering itself is in profile-bio.js (pure: scripts and the chat room's server use it too). This wrapper adds the two things that
+ * belong to a page: the active taste profile's anchors and variables as a fallback pool, and the memory of the last pick per profile.
  */
 const _lastPickMemory = {}; // profileId → { varName → lastChosenText }
 
 export function resolveProfileBio(profile, sessionConfig = {}, uiVariableStates = {}) {
   if (!profile || !profile.bioTemplate) return profile?.bio || '';
 
-  let bio = profile.bioTemplate;
   const memKey = profile.id || '__anon__';
   if (!_lastPickMemory[memKey]) _lastPickMemory[memKey] = {};
-  const memory = _lastPickMemory[memKey];
 
   // Pull the active taste-profile context if available. Provides synthetic
   // anchors (taste_profile_name, taste_tagline, taste_palette_*) and synthetic
@@ -175,87 +176,12 @@ export function resolveProfileBio(profile, sessionConfig = {}, uiVariableStates 
     ? window.TasteProfileStore.asBioContext()
     : null;
 
-  // 1. Anchor substitution (taste-profile anchors first, then session-wide,
-  // profile-level anchors win on top — most specific wins).
-  const anchors = {
-    ...(tasteCtx?.anchors || {}),
-    ...(sessionConfig.sharedAnchors || {}),
-    ...(profile.anchors || {}),
-  };
-  for (const [key, value] of Object.entries(anchors)) {
-    const regex = new RegExp(`{{\\s*${escapeRegExp(key)}\\s*}}`, 'gi');
-    bio = bio.replace(regex, value);
-  }
-
-  // 2. Variable resolution. Merge taste-profile synthetic variables in as a
-  // fallback pool — the profile's own variables shadow them by name so that
-  // a deliberately-pinned {{taste_tendency}} on a custom agent still wins.
-  const profileVarNames = new Set((profile.variables || []).map(v => v?.name).filter(Boolean));
-  const tasteVars = (tasteCtx?.variables || []).filter(v => !profileVarNames.has(v.name));
-  const allVars = [...(profile.variables || []), ...tasteVars];
-
-  if (allVars.length) {
-    for (const rawVar of allVars) {
-      const variable = normalizeVariable(JSON.parse(JSON.stringify(rawVar)));
-      const varName = variable.name;
-      let chosenValue = '';
-
-      const overrideVal = sessionConfig.agents?.find(a => a.profileId === profile.id)?.overrides?.[varName];
-
-      if (overrideVal) {
-        chosenValue = overrideVal;
-      } else if (variable.values && variable.values.length > 0) {
-        const uiKnob = uiVariableStates[varName];
-        let valuesToConsider = variable.values;
-
-        if (uiKnob && typeof uiKnob.index === 'number' && valuesToConsider[uiKnob.index]) {
-          chosenValue = valuesToConsider[uiKnob.index].text;
-        } else if (typeof rawVar.valueIdx === 'number' && valuesToConsider[rawVar.valueIdx]) {
-          // Honour the profile's own valueIdx (set by the editor's knobs)
-          chosenValue = valuesToConsider[rawVar.valueIdx].text;
-        } else {
-          // Weighted random with anti-repetition
-          let totalWeight = 0;
-          const weightedValues = valuesToConsider.map((v, idx) => {
-            const weight = uiKnob?.weights?.[idx] !== undefined ? uiKnob.weights[idx] : (v.weight ?? 1);
-            totalWeight += weight;
-            return { text: v.text, weight };
-          });
-
-          const MAX_REROLLS = 3;
-          const prevPick = memory[varName];
-
-          for (let attempt = 0; attempt <= MAX_REROLLS; attempt++) {
-            if (totalWeight > 0) {
-              let r = Math.random() * totalWeight;
-              for (const v of weightedValues) {
-                r -= v.weight;
-                if (r <= 0) { chosenValue = v.text; break; }
-              }
-            } else {
-              chosenValue = valuesToConsider[Math.floor(Math.random() * valuesToConsider.length)].text;
-            }
-            // Accept if different from last pick, or if only 1 option, or last attempt
-            if (chosenValue !== prevPick || valuesToConsider.length <= 1 || attempt === MAX_REROLLS) break;
-          }
-
-          memory[varName] = chosenValue;
-        }
-      }
-
-      const regex = new RegExp(`{{\\s*${escapeRegExp(varName)}\\s*}}`, 'gi');
-      bio = bio.replace(regex, chosenValue);
-    }
-  }
-
-  // 3. Drop any remaining unresolved placeholders so they don't leak to the LLM
-  bio = bio.replace(/{{[^}]+}}/g, '');
-
-  return bio.trim();
-}
-
-function escapeRegExp(string) {
-  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return renderBio(profile, {
+    sessionConfig,
+    uiVariableStates,
+    extra: { anchors: tasteCtx?.anchors, variables: tasteCtx?.variables },
+    pickMemory: _lastPickMemory[memKey],
+  });
 }
 
 // ─── Profile Storage (IndexedDB-backed with sync cache) ─────────────────────

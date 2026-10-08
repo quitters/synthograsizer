@@ -128,7 +128,7 @@ async def list_local_models():
 CHATROOM_BACKEND = "http://localhost:3001"
 
 
-@router.api_route("/chatroom/api/{path:path}", methods=["GET", "POST", "PUT", "DELETE"])
+@router.api_route("/chatroom/api/{path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE"])
 async def proxy_chatroom(request: Request, path: str):
     """Reverse proxy for ChatRoom Node.js backend."""
     url = f"{CHATROOM_BACKEND}/api/{path}"

@@ -1,5 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 const VISION_WINDOW = 5; // max recent generated images passed as inlineData to models
+// Tools whose requests go to the image model; once the model service declines one, they stay closed for the rest of the turn
+const MEDIA_TOOLS = new Set(['generate_image', 'compose_image']);
 import { generateAgentResponse, generateText } from './gemini.js';
 import { createStreamTagFilter } from './streamTagFilter.js';
 import { foldIntoSummary, needsRefresh, agedRange, summaryIsValid, MAX_FOLD_MESSAGES } from './summarizer.js';
@@ -31,6 +33,11 @@ import { mediaStore as defaultMediaStore } from './mediaStore.js';
 import { artifactStore as defaultArtifactStore } from './artifactStore.js';
 import { synthClient, traceStore, keepAwake } from 'workflow-engine';
 import { evaluate as evaluateDoneWhen, describeCriterion, describeResult, criteriaToText, normalizeCriteria } from './doneWhen.js';
+import { RoomLedger } from './roomLedger.js';
+import { PolicyError } from '../company/errors.js';
+import { textCostUsd, toolCostUsd } from '../company/spend.js';
+import { looksLikeSafetyBlock } from '../company/refusal.js';
+import { describeFindings } from '../company/screen.js';
 
 /**
  * Zeroed usage accumulator. Field names mirror the shape yielded by
@@ -81,6 +88,11 @@ export class ChatOrchestrator {
     this.ownerId = options.ownerId || null;
     this.mediaStore = options.mediaStore || defaultMediaStore;
     this.artifactStore = options.artifactStore || defaultArtifactStore;
+    // A company's room carries a RoomPolicy (company/roomPolicy.js): the fixed layer, caps, least-privilege tools, the
+    // independent screen. A room without one behaves exactly as it always has.
+    this.policy = options.policy || null;
+    // Whose long-term memory this room reads and writes (a company's rooms share the company's, and nobody else's).
+    this.memoryOwnerId = options.memoryOwnerId || null;
     // Overridable so tests can drive the conversation loop without the network.
     this._generate = generateAgentResponse;
     // Overridable so tests can run the rolling summary without the network.
@@ -206,12 +218,93 @@ export class ChatOrchestrator {
     // blocks counts endings refused so far. After maxBlocks refusals (default 8; 0 = never give up) the room ends anyway, saying so,
     // because a check nobody can pass would otherwise loop until the token limit.
     this.doneWhen = { criteria: [], blocks: 0, maxBlocks: 8, lastNoteKey: null, lastResult: null };
+    // What the server saw happen (saves, tools that ran), in order: the checks that look at facts and not at claims read it (roomLedger.js).
+    this.ledger = new RoomLedger();
+    // Review hand-offs: after a save, the named agent speaks next (a dissenter's say made structural; see _dueHandoff).
+    this.handoffs = [];
+    // What each person has written to the Hall this session (agent id -> { messages, workspace }), against the company's ceilings
+    this.hallUse = new Map();
     // An independent critic that sees only pictures (see roomTools.js). Off until a host turns it on; a budget of scores per session.
     this.critic = { enabled: false, auto: true, referenceId: null, criteria: '', model: null, minScore: 6, maxCalls: 30, calls: 0 };
     // Renders asked for by agents or the host. Browser renders wait here for the page to answer (resolveRender).
     for (const pending of this.renderState?.pending?.values?.() ?? []) pending.settle({ ok: false, error: 'the room was reset' });
-    this.renderState = { used: 0, max: 12, pending: new Map() };
+    this.renderState = { used: 0, max: 12, failed: 0, maxFailed: 6, pending: new Map() };
+    // Company rooms: estimated spend this session, and how the safety layer has acted (see _withholdTurn). `consecutive` counts
+    // turns in a row in which something was withheld, refused or blocked; reaching the company's limit pauses the room for a person.
+    this.spendUsd = 0;
+    this.safety = { withheld: 0, refusals: 0, toolBlocks: 0, consecutive: 0, pausedFor: null };
+    this._turnFlags = { blocked: 0 };
     this._emitToObservers('reset', {});
+  }
+
+  /**
+   * Put this room under a company's policy. The room's own settings are brought inside it straight away: a turn limit is
+   * always in force, and agents already here are checked against the caps and the tool grant.
+   * @param {import('../company/roomPolicy.js').RoomPolicy} policy
+   * @param {{ memoryOwnerId?: string }} [options]
+   */
+  attachPolicy(policy, { memoryOwnerId = null } = {}) {
+    this.policy = policy;
+    if (memoryOwnerId) this.memoryOwnerId = memoryOwnerId;
+    this.consensusSettings.maxTurns = policy.clampMaxTurns(this.consensusSettings.maxTurns);
+    return this;
+  }
+
+  /** The turn limit in force: a company room always has one. */
+  _maxTurns() {
+    return this.policy ? this.policy.clampMaxTurns(this.consensusSettings.maxTurns) : (this.consensusSettings.maxTurns || 0);
+  }
+
+  _chargeSpend(usd) {
+    if (this.policy && Number.isFinite(usd) && usd > 0) this.spendUsd += usd;
+  }
+
+  /** Stop the loop and ask a person to look: nothing carries on until someone resumes the room. */
+  _safetyPause(code, message, extra = {}) {
+    if (this.safety.pausedFor) return;
+    this.safety.pausedFor = code;
+    this.policy?.record('safety_pause', { code, ...extra });
+    this._postNote(`The room is paused: ${message}`, { sender: 'Safety' });
+    this.broadcast('safety_pause', { code, message, ...extra });
+    this.pause();
+  }
+
+  /**
+   * A turn did not become part of the conversation because of a safety decision. The agent and the room are told in plain words (never
+   * the content), it is counted, and at the company's limit the room pauses for a person.
+   */
+  _noteSafetyStrike(speaker, { kind, text, rules = [], detail = null }) {
+    this.safety.consecutive += 1;
+    this.policy.record(kind, { agent: speaker.name, rules, detail });
+    this._postNote(text, { sender: 'Safety' });
+    if (this.safety.consecutive >= this.policy.strikeLimit) {
+      this._safetyPause('strikes', `${this.safety.consecutive} turns in a row were held back by the safety layer. A person needs to look before anyone carries on.`, { strikes: this.safety.consecutive });
+    }
+  }
+
+  /** A turn the independent screen would not pass (or could not review): nothing from it is shown, saved or acted on. */
+  _withholdTurn(speaker, result) {
+    this.safety.withheld += 1;
+    const unavailable = result.verdict === 'unavailable';
+    const why = unavailable ? 'the safety screen could not be reached, so nothing was passed' : describeFindings(result.findings);
+    this.broadcast('message_withheld', { agentId: speaker.id, agentName: speaker.name, rules: result.findings.map(f => f.rule), reason: why });
+    this._noteSafetyStrike(speaker, {
+      kind: unavailable ? 'screen_unavailable' : 'turn_withheld',
+      rules: result.findings.map(f => f.rule),
+      detail: unavailable ? result.error : why,
+      text: `${speaker.name}'s last message was withheld by the company's safety screen (${why}). Its words were not shown or saved. Do not repeat it or work around it: carry on a different way, or leave it for a person.`,
+    });
+  }
+
+  /** The model service declined a turn. That is final: no retry, no rewording, no other model. */
+  _refuseTurn(speaker, detail) {
+    this.safety.refusals += 1;
+    this.broadcast('provider_refusal', { agentId: speaker.id, agentName: speaker.name });
+    this._noteSafetyStrike(speaker, {
+      kind: 'provider_refusal',
+      detail,
+      text: `The model service declined ${speaker.name}'s turn. That answer is final for this turn: it will not be retried, reworded or sent to another model.`,
+    });
   }
 
   /** Watch every event in this room (what clients get over SSE, plus 'reset' and 'session_media'). Returns a function that stops watching. */
@@ -232,6 +325,9 @@ export class ChatOrchestrator {
    * @param {{ meta: object, messages: object[], artifacts?: object[], media?: object[], archiveId?: string|null, source?: string }} saved
    */
   restoreSession({ meta, messages, artifacts = [], media = [], archiveId = null, source = 'saved' }) {
+    // A company room takes a saved or imported session only if its agents meet the same rules as agents added by hand
+    // (the caps, clean names and sheets, tool tiers the company has granted). Checked before anything is replaced.
+    if (this.policy) this.policy.checkRestore(meta.agents);
     this.reset();
     this.mediaStore.clear?.();
     this.artifactStore.clear?.();
@@ -245,7 +341,9 @@ export class ChatOrchestrator {
       color: a.color || this.generateColor(i),
       model: isKnownAgentModel(a.model) ? a.model : null,
       thinkingLevel: normalizeThinkingLevel(a.thinkingLevel),
-      tools: isKnownToolTier(a.tools) ? a.tools : DEFAULT_TOOL_TIER,
+      // an agent with no tier is given the widest by default in a plain room, and the narrowest in a company's
+      tools: isKnownToolTier(a.tools) ? a.tools : (this.policy ? 'none' : DEFAULT_TOOL_TIER),
+      employeeId: typeof a.employeeId === 'string' && a.employeeId ? a.employeeId : null,
       voice: isKnownVoice(a.voice) ? a.voice : defaultVoiceForIndex(i),
       ...(a.muted ? { muted: true } : {}),
     }));
@@ -267,7 +365,10 @@ export class ChatOrchestrator {
     for (const a of artifacts) {
       const versions = a.versions?.length ? a.versions : [{ version: 1, content: a.content }];
       for (const v of versions) this.artifactStore.save(a.filename, v.content, null, 'restored');
+      // (restored files were saved before everything now said in this room: the last restored message is their "carrier")
+      this.ledger.record('save', { artifact: a.filename, version: this.artifactStore.get(a.filename)?.versions.length ?? null, messageCount: this.messages.length - 1, agentId: null, restored: true });
     }
+    if (Array.isArray(meta.settings?.handoffs)) this.setHandoffs(meta.settings.handoffs);
     this.broadcast('session_restored', {
       source, archiveId, goal: this.goal, mode: this.mode, messageCount: this.messages.length,
       agents: this.agents.map(a => ({ id: a.id, name: a.name, color: a.color })),
@@ -620,6 +721,8 @@ export class ChatOrchestrator {
     if (settings.maxTurns !== undefined && Number.isFinite(Number(settings.maxTurns))) {
       this.consensusSettings.maxTurns = Math.max(0, Math.min(Math.floor(Number(settings.maxTurns)), 5000));
     }
+    // A company's turn limit can be lowered from here and never raised past its ceiling (0, "no limit", means the ceiling)
+    if (this.policy) this.consensusSettings.maxTurns = this.policy.clampMaxTurns(this.consensusSettings.maxTurns);
     return this.consensusSettings;
   }
 
@@ -727,9 +830,17 @@ export class ChatOrchestrator {
    * Bounded: draws per render, renders per session, seconds to wait for a browser.
    * @returns {Promise<{ ok: boolean, text: string, images?: object[] }>}
    */
-  async render({ artifact, draws, speaker = null, timeoutMs = 45_000 } = {}) {
+  async render(args = {}) {
+    const result = await this._render(args);
+    // The ledger notes what the server saw: a render that gave pictures, or one that did not (the checks read both)
+    this.ledger.record('tool', { tool: 'render_artifact', ok: Boolean(result?.ok), agent: args.speaker?.name || 'Producer', artifact: String(args.artifact || '') });
+    return result;
+  }
+
+  async _render({ artifact, draws, speaker = null, timeoutMs = 45_000 } = {}) {
     const rs = this.renderState;
     if (rs.used >= rs.max) return { ok: false, text: `the session's limit of ${rs.max} renders is used up` };
+    if (rs.failed >= rs.maxFailed) return { ok: false, text: `the picture service has failed ${rs.failed} times this session and is not answering: stop trying, say so plainly in your next message, and carry on with what does not need a picture` };
     const art = this.artifactStore.get(String(artifact || ''));
     if (!art) return { ok: false, text: `there is no artifact named "${artifact}" (the artifacts are: ${this.artifactStore.list().map(a => a.filename).join(', ') || 'none yet'})` };
     const kind = classifyArtifact(art);
@@ -753,7 +864,12 @@ export class ChatOrchestrator {
           failed.push(err.message);
         }
       }
-      if (!made.length) return { ok: false, text: `no draws came back (${failed[0] || 'unknown error'})` };
+      if (!made.length) {
+        // nothing was drawn and nothing was billed: an outage must not use up the allowance, but it has a limit of its own
+        rs.used -= 1;
+        rs.failed += 1;
+        return { ok: false, text: `no draws came back (${failed[0] || 'unknown error'})` };
+      }
       return { ok: true, images: made, text: `${made.length} draw${made.length === 1 ? '' : 's'} from ${art.filename}, each a random combination of its values: ${made.map(m => `"${m.prompt.slice(0, 160)}"`).join(' | ')}` };
     }
 
@@ -821,7 +937,13 @@ export class ChatOrchestrator {
 
   /** Run the checks now. Broadcasts the outcome as 'done_check'; returns { passed, results }. */
   async checkDoneWhen(context = {}) {
-    const result = await evaluateDoneWhen(this.doneWhen.criteria, { messages: this.messages, artifactStore: this.artifactStore });
+    const result = await evaluateDoneWhen(this.doneWhen.criteria, {
+      messages: this.messages,
+      artifactStore: this.artifactStore,
+      ledger: this.ledger,
+      // The room's publish queue (a company's room only): the "proposal" check reads what has been offered from this room
+      proposals: this.policy?.publish ? () => this.policy.publish.list(this.policy.companyId).filter(p => p.roomId === this.policy.roomId) : null,
+    });
     this.doneWhen.lastResult = { passed: result.passed, at: new Date().toISOString(), results: result.results.map(r => ({ label: r.label, passed: r.passed, detail: r.detail })) };
     this.broadcast('done_check', { ...this.doneWhen.lastResult, blocks: this.doneWhen.blocks, ...context });
     return result;
@@ -962,6 +1084,12 @@ export class ChatOrchestrator {
    */
   _closingNotes(speaker) {
     const notes = [];
+    const hallNote = this.policy?.hallNote?.(speaker);
+    if (hallNote) notes.push(hallNote);
+    const review = this._dueHandoff([speaker]);
+    if (review) {
+      notes.push(`REVIEW: a new version of "${review.artifact}" was saved${review.version ? ` (version ${review.version})` : ''} and you are the reviewer this company named for it. Before anything else, check it against the goal and the checks, then say plainly what is wrong, or that you have no objection and what you checked.`);
+    }
     if (this.doneWhen.criteria.length) {
       notes.push('DONE WHEN: the server will not let this session end until every check below passes. It runs them itself each time anyone tries to end, ' +
         'so saying they pass changes nothing; make them pass.\n' + this.doneWhen.criteria.map(c => `- ${describeCriterion(c)}`).join('\n'));
@@ -996,6 +1124,13 @@ export class ChatOrchestrator {
    * would silently override that preference for every agent.
    */
   addAgent(name, bio, options = {}) {
+    // In a company room an agent is admitted only within the caps, with a clean name and sheet, at a tool tier the company has
+    // granted (the narrowest, `none`, unless asked). Anything else throws a PolicyError and nothing is added.
+    let tools = isKnownToolTier(options.tools) ? options.tools : DEFAULT_TOOL_TIER;
+    if (this.policy) {
+      const spec = this.policy.checkNewAgent({ name, bio, tools: options.tools }, this.agents.length);
+      ({ name, bio, tools } = spec);
+    }
     const agent = {
       id: uuidv4(),
       name,
@@ -1004,7 +1139,9 @@ export class ChatOrchestrator {
       model: isKnownAgentModel(options.model) ? options.model : null,
       thinkingLevel: normalizeThinkingLevel(options.thinkingLevel),
       // Which function tools this agent may call (function-calling mode only).
-      tools: isKnownToolTier(options.tools) ? options.tools : DEFAULT_TOOL_TIER,
+      tools,
+      // Who they are at the company, when they came from its roster (company/flow/admit.js): the Hall's mailbox, forums and board are theirs through this
+      employeeId: typeof options.employeeId === 'string' && options.employeeId ? options.employeeId : null,
       // Voice used when the session is rendered to audio. Defaults by roster
       // position so a fresh room already sounds like distinct people.
       voice: isKnownVoice(options.voice)
@@ -1037,6 +1174,8 @@ export class ChatOrchestrator {
     let agent = this.agents.find(a => a.id === idOrName);
     if (!agent) agent = this.agents.find(a => a.name === idOrName);
     if (!agent) return null;
+    // Company rooms: the same checks as adding an agent, before anything is changed
+    if (this.policy) fields = { ...fields, ...this.policy.checkAgentFields(fields, agent) };
     if (typeof fields.bio === 'string') agent.bio = fields.bio;
     if (typeof fields.name === 'string' && fields.name.trim()) agent.name = fields.name.trim();
     if (isKnownAgentModel(fields.model)) agent.model = fields.model;
@@ -1092,6 +1231,11 @@ export class ChatOrchestrator {
     try { traceStore.record(event, this.ownerId && data ? { ...data, ownerId: this.ownerId } : data); }
     catch (err) { console.error('[traceStore] record failed:', err.message); }
 
+    // Every save (an agent's tool, the tag dialect, the host's own edit) is announced here, which makes this the one place to note it
+    if (event === 'artifact_update' && data?.filename) {
+      this.ledger.record('save', { artifact: data.filename, version: data.version ?? null, messageCount: this.messages.length, agentId: data.agentId ?? null });
+    }
+
     this._emitToObservers(event, data);
 
     const message = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
@@ -1118,6 +1262,17 @@ export class ChatOrchestrator {
     if (this.agents.length < minAgents) {
       throw new Error(`Need at least ${minAgents} agent${minAgents > 1 ? 's' : ''} to start a ${mode} chat`);
     }
+    if (this.policy) {
+      // A paused company does not run. The goal is held to the same rules as a message, and the caps apply whatever was asked.
+      const run = this.policy.canRun();
+      if (!run.ok) throw new PolicyError(run.message, { status: 409, code: run.code });
+      this.policy.checkGoal(goal);
+      tokenLimit = this.policy.startLimits({ tokenLimit }).tokenLimit;
+      this.consensusSettings.maxTurns = this.policy.clampMaxTurns(this.consensusSettings.maxTurns);
+      this.spendUsd = 0;
+      this.safety = { withheld: 0, refusals: 0, toolBlocks: 0, consecutive: 0, pausedFor: null };
+      this.policy.record('session_start', { agents: this.agents.length, tokenLimit, maxTurns: this.consensusSettings.maxTurns });
+    }
 
     this.mode = mode;
     this.goal = goal;
@@ -1142,6 +1297,13 @@ export class ChatOrchestrator {
     this.lastError = null;
     this.doneWhen.blocks = 0;
     this.doneWhen.lastNoteKey = null;
+    this.hallUse = new Map();
+    // What is allowed "per session" starts again with a session: a room stopped and started again (a company's second day) carried the first
+    // session's used-up renders into the next, and could not draw at all.
+    this.renderState.used = 0;
+    this.renderState.failed = 0;
+    this.critic.calls = 0;
+    this.researchTasksUsed = 0;
     this.modelPreference = options.model || null;
     // sessionId groups all workflows + traces produced during this run.
     // The trace viewer's "session lens" pivots on this field.
@@ -1197,7 +1359,7 @@ export class ChatOrchestrator {
       agents: this.agents.map(a => ({ name: a.name })),
       // Copy: the live array is about to be reset out from under the upload.
       messages: this.messages.map(m => ({ agentName: m.agentName, content: m.content })),
-      ownerId: this.ownerId,   // whose memory this goes into (see fileSearch.memoryStoreNameFor)
+      ownerId: this.memoryOwnerId ?? this.ownerId,   // whose memory this goes into (see fileSearch.memoryStoreNameFor); a company's rooms share the company's
       endedAt: new Date().toISOString(),
       reason,
     };
@@ -1222,7 +1384,7 @@ export class ChatOrchestrator {
       this.memoryStoreName = null;
       return;
     }
-    getOrCreateMemoryStore(this.ownerId)
+    getOrCreateMemoryStore(this.memoryOwnerId ?? this.ownerId)
       .then(name => {
         this.memoryStoreName = name;
         this.broadcast('memory_available', { storeName: name });
@@ -1241,6 +1403,8 @@ export class ChatOrchestrator {
     const fatal = FATAL_ERROR_PATTERN.test(this.lastError);
     if (fatal || this.consecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
       console.error(`[Orchestrator] stopping after ${this.consecutiveFailures} failed turn(s): ${this.lastError}`);
+      // A company's audit log keeps the reason: a live run lost it with the server's console and could not say why a room stopped.
+      this.policy?.record('room_failed', { turns: this.consecutiveFailures, reason: String(this.lastError).slice(0, 300) });
       this.stop('error_limit_reached');
       return true;
     }
@@ -1265,6 +1429,13 @@ export class ChatOrchestrator {
    */
   resume() {
     if (this.isPaused) {
+      if (this.policy) {
+        // A person resuming a room that the safety layer paused is the "look" it asked for; the count starts again.
+        const run = this.policy.canRun();
+        if (!run.ok) { this.broadcast('safety_notice', { code: run.code, message: run.message }); return; }
+        this.safety.pausedFor = null;
+        this.safety.consecutive = 0;
+      }
       this.isPaused = false;
       this.broadcast('session_resumed', {});
       this.runConversationLoop();
@@ -1275,6 +1446,8 @@ export class ChatOrchestrator {
    * Inject a user message into the conversation
    */
   injectMessage(content, senderName = 'User') {
+    // Company rooms: the host's words go into prompts, so they are held to the same rules as a character sheet (no secrets, a sane length)
+    if (this.policy) this.policy.checkHostText(content, 'The message');
     const message = {
       id: uuidv4(),
       agentId: 'user',
@@ -1305,7 +1478,7 @@ export class ChatOrchestrator {
     // If chat ended (not running but has messages and agents), restart the conversation.
     // Solo mode needs only 1 agent; group needs 2.
     const minAgents = this.mode === 'solo' ? 1 : 2;
-    if (!this.isRunning && this.messages.length > 0 && this.agents.length >= minAgents && this.goal) {
+    if (!this.isRunning && this.messages.length > 0 && this.agents.length >= minAgents && this.goal && (!this.policy || this.policy.canRun().ok)) {
       this.isRunning = true;
       this.isPaused = false;
       this.completionReason = null;
@@ -1437,10 +1610,50 @@ export class ChatOrchestrator {
     return sections.length > 0 ? sections.join('\n\n') : null;
   }
 
+  // ==================== REVIEW HAND-OFFS ====================
+
+  /**
+   * After a save, a named agent speaks next. The pilot company's dissenter spoke three times in thirty-five messages, all in the first
+   * third, and was silent when the file was called finished: dissent at the start is a trait, and dissent at the lock has to be a rule.
+   * @param {{ next: string, on?: 'save', artifact?: string }[]} list  `next` is an agent's name or first name; `artifact` narrows it to one file
+   */
+  setHandoffs(list) {
+    const ok = [];
+    for (const h of Array.isArray(list) ? list.slice(0, 8) : []) {
+      if (!h || typeof h.next !== 'string' || !h.next.trim()) continue;
+      ok.push({ on: 'save', next: h.next.trim().slice(0, 80), ...(typeof h.artifact === 'string' && h.artifact ? { artifact: h.artifact.slice(0, 200) } : {}) });
+    }
+    this.handoffs = ok;
+    return this.getHandoffs();
+  }
+
+  getHandoffs() {
+    return this.handoffs.map(h => ({ ...h }));
+  }
+
+  /** The agent a hand-off says must speak now, and about what, or null. A reviewer who saved the file herself does not review it again. */
+  _dueHandoff(candidates = this.agents.filter(a => !a.muted)) {
+    for (const h of this.handoffs) {
+      const who = h.next.toLowerCase();
+      const reviewer = candidates.find(a => a.name.toLowerCase() === who || a.name.split(' ')[0].toLowerCase() === who);
+      if (!reviewer || reviewer.id === this.lastSpeakerId) continue;
+      const save = h.artifact ? this.ledger.latestSave(h.artifact) : this.ledger.latest('save');
+      if (!save || (save.agentId && save.agentId === reviewer.id)) continue;
+      // The message that carries the save sits at index messageCount; until it is posted the save is not "over" yet
+      if (this.messages.length <= save.messageCount) continue;
+      const spoken = this.messages.slice(save.messageCount + 1).some(m => m.agentId === reviewer.id && !m.isUser);
+      if (!spoken) return { agent: reviewer, artifact: save.artifact, version: save.version };
+    }
+    return null;
+  }
+
   selectNextSpeaker() {
     // Filter out muted agents up front — they are never selected regardless of mode.
     const speakable = this.agents.filter(a => !a.muted);
     if (speakable.length === 0) return null;
+    // A review hand-off outranks every speaking order
+    const due = this._dueHandoff(speakable);
+    if (due) return due.agent;
     // Temporarily swap agents -> speakable for the strategy methods that read
     // `this.agents`. Cleanest path is to delegate via a saved reference.
     const allAgents = this.agents;
@@ -1464,6 +1677,7 @@ export class ChatOrchestrator {
   async selectNextSpeakerSmart() {
     const heuristic = this.selectNextSpeaker();
     if (!heuristic) return null;
+    if (this._dueHandoff()?.agent.id === heuristic.id) return heuristic;       // a hand-off is a rule, not a judgement call
     if (!isSmartOrchestrationEnabled()) return heuristic;
     // Only 'dynamic' is a judgement call; the other modes are deterministic
     // by definition and the user picked them on purpose.
@@ -1876,8 +2090,19 @@ export class ChatOrchestrator {
         break;
       }
 
+      // A company's room stops while its company is paused, and when its estimated spend reaches the ceiling
+      if (this.policy) {
+        const run = this.policy.canRun();
+        if (!run.ok) { this._safetyPause(run.code, run.message); break; }
+        if (this.spendUsd >= this.policy.spendLimitUsd) {
+          this.policy.record('spend_limit', { spendUsd: Math.round(this.spendUsd * 100) / 100, limitUsd: this.policy.spendLimitUsd });
+          this.stop('spend_limit_reached');
+          break;
+        }
+      }
+
       // Check turn limit (an ending that does not depend on the agents agreeing about anything)
-      const maxTurns = this.consensusSettings.maxTurns || 0;
+      const maxTurns = this._maxTurns();
       if (maxTurns > 0 && this.turnCount - this.segmentStartTurn >= maxTurns) {
         this.stop('turn_limit_reached');
         break;
@@ -1906,6 +2131,11 @@ export class ChatOrchestrator {
         let turnError = null;
         // Control tags are acted on at the end of the turn; keep them out of the live stream.
         const tagFilter = createStreamTagFilter();
+        // A company room shows nothing of a turn until the independent screen has passed all of it (`held` is what waits).
+        const buffering = Boolean(this.policy?.screensDrafts);
+        let held = '';
+        let turnRefusal = null;
+        this._turnFlags = { blocked: 0 };
         let turnUsage = null;
         let turnUsageReported = false;
         let turnInteractionId = null;
@@ -1932,7 +2162,9 @@ export class ChatOrchestrator {
             systemNotes,
             // How this room ends (a vote, or the lead alone), so each agent's prompt says so
             ending: this._endingForPrompt(speaker),
-            roomTools: this._roomToolsForPrompt(),
+            // (a company room documents its room tools as function declarations, never as tags)
+            roomTools: this.policy ? null : this._roomToolsForPrompt(),
+            policy: this.policy,
             generatedImages: this.recentGenImages,
             // Stateful chaining: continue this agent's server-side history and
             // send only the messages it has not seen. Both are ignored when
@@ -1958,13 +2190,21 @@ export class ChatOrchestrator {
 
           if (event.type === 'chunk') {
             fullResponse += event.text;
-            const visible = tagFilter.push(event.text);
+            // (tags are inert in a company room, so nothing is hidden from the stream there)
+            const visible = this.policy ? event.text : tagFilter.push(event.text);
             if (visible) {
-              this.broadcast('chunk', {
-                agentId: speaker.id,
-                text: visible
-              });
+              if (buffering) held += visible;
+              else {
+                this.broadcast('chunk', {
+                  agentId: speaker.id,
+                  text: visible
+                });
+              }
             }
+          } else if (event.type === 'refusal') {
+            // The model service declined. Final for this turn: no second attempt (see company/refusal.js).
+            turnRefusal = event.detail || 'declined';
+            break;
           } else if (event.type === 'tool_call') {
             this.broadcast('tool_executing', {
               agentId: speaker.id,
@@ -2010,6 +2250,22 @@ export class ChatOrchestrator {
 
         if (!this.isRunning || this.isPaused) break;
 
+        if (turnRefusal) {
+          if (!this.policy) {
+            // A plain room treats a refusal like any failed turn, as it always did
+            turnError = `The model service's safety filters declined this turn (${turnRefusal})`;
+          } else {
+            this._refuseTurn(speaker, turnRefusal);
+            if (this.mode === 'solo') {
+              this.isPaused = true;
+              this.broadcast('session_waiting_user', {});
+              break;
+            }
+            await this.delay(1500);
+            continue;
+          }
+        }
+
         if (turnError) {
           // Back off and try again, but give up after repeated failures (see _recordFailure)
           if (this._recordFailure(turnError)) break;
@@ -2022,13 +2278,32 @@ export class ChatOrchestrator {
           continue;
         }
 
+        // A company's room: the independent screen reads the whole turn before any of it is shown, saved or acted on.
+        if (this.policy) {
+          const screened = await this.policy.screenTurn({ text: fullResponse, agentName: speaker.name });
+          this._chargeSpend(textCostUsd(screened.usage, screened.model));
+          if (!this.isRunning || this.isPaused) break;       // stopped or paused while the screen was reading
+          if (screened.verdict !== 'pass') {
+            this._withholdTurn(speaker, screened);
+            if (this.mode === 'solo') {
+              this.isPaused = true;
+              this.broadcast('session_waiting_user', {});
+              break;
+            }
+            await this.delay(1500);
+            continue;
+          }
+          if (held) this.broadcast('chunk', { agentId: speaker.id, text: held });
+        }
+
         // In function-calling mode the bracket vocabulary was never taught, so
         // nothing should be scraped out of the prose — and a legitimate
         // [bracketed aside] must not be eaten by a parser. Feeding the tag
         // parsers an empty string disables the whole legacy path in one place.
         // Keyed on custom functions, NOT on tools being present at all — a
         // turn can carry file_search while still speaking the tag dialect.
-        const tagSource = hasCustomFunctions ? '' : fullResponse;
+        // A company's room never uses the tag dialect: its tools are the declarations it was granted and nothing else.
+        const tagSource = (hasCustomFunctions || this.policy) ? '' : fullResponse;
 
         // Check for image generation requests in the response
         const imageRequests = parseImageRequests(tagSource);
@@ -2569,6 +2844,10 @@ export class ChatOrchestrator {
         this._accumulateUsage(turnUsage, turnUsageReported);
         this.lastSpeakerId = speaker.id;
         this.consecutiveFailures = 0;
+        if (this.policy) {
+          this._chargeSpend(textCostUsd(turnUsage, message.model));
+          this._closeTurnSafety();
+        }
 
         // Advance this agent's chain. It has now seen everything up to and
         // including its own turn, so the next one starts from here. If the
@@ -2684,7 +2963,8 @@ export class ChatOrchestrator {
       tools.push(fileSearchTool(stores));
     }
 
-    if (isFunctionCallingEnabled()) {
+    // A company's room always uses declared tools (never the tag dialect), and a tier hands out no more than the company was granted.
+    if (isFunctionCallingEnabled() || this.policy) {
       // Only offer write_artifact once the room is plausibly building
       // something; otherwise it's a tool slot spent on a capability nobody
       // asked for.
@@ -2696,10 +2976,93 @@ export class ChatOrchestrator {
         allowArtifacts,
         allowCritic: this.critic.enabled,
         allowRender: this.artifactStore.getAll().length > 0,
+        ...(this.policy ? { only: this.policy.toolNamesFor(speaker), extra: ['propose_publish', ...this.policy.hallToolNames(speaker)] } : {}),
       }));
     }
 
+    // The model API refuses a request that carries file_search together with google_search or url_context ("cannot be combined in the same
+    // request"). An agent that was handed a search tool for its work keeps it, and its turn goes without the stores: the first mixed-tier company
+    // session lost every turn of its archivist and its engineer to this, and the room stopped after five failures in a row.
+    if (tools.some(t => t?.type === 'google_search' || t?.type === 'url_context')) return tools.filter(t => t?.type !== 'file_search');
+
     return tools;
+  }
+
+  /** What a proposal can be made from: this room's files and pictures. */
+  _publishSources() {
+    return {
+      artifact: (name) => this.artifactStore.get(name) || null,
+      media: (id) => this.mediaStore.get(id) || null,
+    };
+  }
+
+  /**
+   * At the end of a committed turn: one in which a tool was blocked or the model service declined a tool request counts as a
+   * strike; a clean turn clears the count. Reaching the company's limit pauses the room for a person.
+   */
+  _closeTurnSafety() {
+    if (this._turnFlags.blocked > 0) {
+      this.safety.consecutive += 1;
+      if (this.safety.consecutive >= this.policy.strikeLimit) {
+        this._safetyPause('strikes', `${this.safety.consecutive} turns in a row had something held back by the safety layer. A person needs to look before anyone carries on.`, { strikes: this.safety.consecutive });
+      }
+    } else {
+      this.safety.consecutive = 0;
+    }
+  }
+
+  /**
+   * A company's tool dispatcher: least privilege first, then the money, then the independent screen on the words a tool is about
+   * to act on, then the tool, then a refusal from the model service treated as final.
+   */
+  _guardDispatch(speaker, inner) {
+    const allowed = new Set([...this.policy.toolNamesFor(speaker), 'propose_publish', ...this.policy.hallToolNames(speaker)]);
+    // Once the model service declines a media request, the media tools stay closed for the rest of the turn
+    let declinedByService = false;
+    const refuse = (text, summary = text) => ({ ok: false, result: [{ type: 'text', text }], summary });
+    const blocked = () => { this._turnFlags.blocked += 1; this.safety.toolBlocks += 1; };
+
+    return async (call) => {
+      const name = call?.name;
+      if (!allowed.has(name)) {
+        blocked();
+        this.policy.record('tool_refused', { agent: speaker.name, tool: String(name).slice(0, 60), reason: 'not granted' });
+        return refuse(`The tool "${name}" is not available to you.`);
+      }
+      if (declinedByService && MEDIA_TOOLS.has(name)) {
+        return refuse('The model service declined an earlier request this turn. That answer is final: do not retry it or a reworded version.');
+      }
+      const cost = toolCostUsd(name);
+      if (cost > 0 && this.spendUsd + cost > this.policy.spendLimitUsd) {
+        this.policy.record('spend_limit', { agent: speaker.name, tool: name, spendUsd: Math.round(this.spendUsd * 100) / 100, limitUsd: this.policy.spendLimitUsd });
+        return refuse('Not run: it would take this session past its spend ceiling. Carry on without it.');
+      }
+
+      const screened = await this.policy.screenToolCall(name, call.arguments);
+      if (screened) {
+        this._chargeSpend(textCostUsd(screened.usage, screened.model));
+        if (screened.verdict !== 'pass') {
+          blocked();
+          const unavailable = screened.verdict === 'unavailable';
+          const why = unavailable ? 'the safety screen could not be reached' : describeFindings(screened.findings);
+          this.policy.record(unavailable ? 'screen_unavailable' : 'tool_blocked', { agent: speaker.name, tool: name, rules: screened.findings.map(f => f.rule) });
+          return refuse(`Not run: ${why}. Do not try again with other words; carry on without it.`, `${name} blocked by the safety screen`);
+        }
+      }
+
+      const outcome = await inner(call);
+      if (outcome.ok) {
+        this._chargeSpend(cost);
+        return outcome;
+      }
+      if (looksLikeSafetyBlock(outcome.summary)) {
+        declinedByService = true;
+        blocked();
+        this.policy.record('provider_refusal', { agent: speaker.name, tool: name });
+        return refuse('The model service declined this request. That answer is final for this turn: do not retry it, reword it or ask another participant to.', `${name} declined by the model service`);
+      }
+      return outcome;
+    };
   }
 
   /**
@@ -2708,7 +3071,7 @@ export class ChatOrchestrator {
    * so gemini.js stays a stream parser and nothing more.
    */
   _createDispatcher(speaker, toolMedia) {
-    return createToolDispatcher({
+    const inner = createToolDispatcher({
       agent: speaker,
       mediaStore: this.mediaStore,
       artifactStore: this.artifactStore,
@@ -2718,6 +3081,10 @@ export class ChatOrchestrator {
       onEvent: (event, data) => this.broadcast(event, data),
       critique: (args) => this.critique({ ...args }),
       render: (args) => this.render({ ...args, speaker }),
+      // Only a company's room can offer work for publication; the answer is a queued proposal, never a publication
+      propose: this.policy ? (args) => this._propose(args, speaker) : null,
+      // The company's Hall for this person (mailbox, forum, workspace, board, norms), bound to who the server says they are
+      hall: this.policy ? this.policy.hallHandlersFor(speaker, { use: this._hallUseFor(speaker) }) : null,
       onMedia: (media) => {
         toolMedia.push({
           id: media.id,
@@ -2739,6 +3106,40 @@ export class ChatOrchestrator {
         }
       },
     });
+    const dispatch = this.policy ? this._guardDispatch(speaker, inner) : inner;
+    // What the agent experienced is what is noted. (render_artifact is noted by render() itself, which also serves the host and the tag dialect.)
+    return async (call) => {
+      const outcome = await dispatch(call);
+      if (call?.name && call.name !== 'render_artifact') {
+        // (the file a call is about: an artifact's name, or the path of a file in the company workspace, which is how a done-when check names a hand-off)
+        const file = call.arguments?.filename ?? call.arguments?.artifact ?? call.arguments?.path;
+        this.ledger.record('tool', { tool: String(call.name).slice(0, 40), ok: Boolean(outcome?.ok), agent: speaker.name, ...(typeof file === 'string' && file ? { artifact: file } : {}) });
+      }
+      return outcome;
+    };
+  }
+
+  /** One person's budget of writes to the Hall for this session, against the company's ceilings. */
+  _hallUseFor(speaker) {
+    const policy = this.policy;
+    const used = this.hallUse.get(speaker.id) || { messages: 0, workspace: 0 };
+    this.hallUse.set(speaker.id, used);
+    const ceiling = (kind) => (kind === 'workspace' ? policy.ceilings.maxWorkspaceWritesPerPerson : policy.ceilings.maxMessagesPerPerson);
+    return {
+      left: (kind) => Math.max(0, ceiling(kind) - used[kind]),
+      commit: (kind) => { used[kind] += 1; },
+    };
+  }
+
+  /** An agent offers work for publication: queued for a person, screened first, never published by anything in the room. */
+  async _propose(args, speaker) {
+    try {
+      const item = await this.policy.propose(args, this._publishSources(), speaker.name);
+      this.broadcast('publish_proposed', { agentId: speaker.id, agentName: speaker.name, id: item.id, status: item.status, title: item.title });
+      return { ok: true, id: item.id, status: item.status, superseded: item.superseded || [] };
+    } catch (err) {
+      return { ok: false, error: err.message };
+    }
   }
 
   /**
@@ -2876,8 +3277,14 @@ export class ChatOrchestrator {
       summarizedMessages: this._summaryForPrompt()?.upTo ?? 0,
       agents: this.agents, // Include full agent data with bios
       completionReason: this.completionReason,
+      // Why a room stopped by failing (the last error the model service gave), so it can be read after the fact; null otherwise.
+      error: this.completionReason === 'error_limit_reached' ? this.lastError : null,
       doneWhen: { checks: this.doneWhen.criteria.length, blocks: this.doneWhen.blocks, lastResult: this.doneWhen.lastResult },
       critic: { enabled: this.critic.enabled, calls: this.critic.calls, maxCalls: this.critic.maxCalls, minScore: this.critic.minScore },
+      // A company's room: which company, what applies, and how the safety layer has acted this session. Null for a plain room.
+      policy: this.policy
+        ? { ...this.policy.summary(), spendUsd: Math.round(this.spendUsd * 10000) / 10000, safety: { ...this.safety } }
+        : null,
       speakingOrder: this.speakingOrder,
       speakingPriorities: this.speakingPriorities,
       sessionMedia: this.sessionMedia.map(m => ({

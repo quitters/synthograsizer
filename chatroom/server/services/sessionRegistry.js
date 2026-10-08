@@ -27,6 +27,16 @@ const SWEEP_EVERY_MS = 10 * 60 * 1000;
 const rooms = new Map();
 let sweeper = null;
 
+// Things that need to set up a room the moment it is created (a company's room takes its company's policy). Each is called
+// with the new room before anyone can use it; one that throws leaves the room unusable rather than half set up.
+const initializers = new Set();
+
+/** Run `fn(room)` on every room created from now on. Returns a function that stops doing so. */
+export function registerRoomInitializer(fn) {
+  initializers.add(fn);
+  return () => initializers.delete(fn);
+}
+
 /** A fresh room id: 128 random bits as 32 hex characters. */
 export function newRoomId() {
   return crypto.randomBytes(16).toString('hex');
@@ -95,6 +105,7 @@ export function getRoom(id) {
       archive,
       lastSeen: Date.now(),
     };
+    for (const init of initializers) init(room);
     rooms.set(id, room);
     if (!sweeper) {
       sweeper = setInterval(() => sweep(), SWEEP_EVERY_MS);
@@ -113,7 +124,24 @@ export function activeFileSearchStores() {
 export const roomCount = () => rooms.size;
 export const hasRoom = (id) => rooms.has(id);
 
+/** The room if it is in memory right now, without creating or touching it. */
+export const peekRoom = (id) => rooms.get(id);
+
+/** Forget a room that is in memory (its company was deleted): stop its conversation first. */
+export function dropRoom(id) {
+  const room = rooms.get(id);
+  if (!room) return false;
+  try { if (room.orchestrator.isRunning) room.orchestrator.stop('room_deleted'); } catch { /* a room being dropped has nothing left to protect */ }
+  rooms.delete(id);
+  return true;
+}
+
 /** For tests: forget every room. */
 export function clearRooms() {
   rooms.clear();
+}
+
+/** For tests: stop initializing new rooms. */
+export function clearRoomInitializers() {
+  initializers.clear();
 }

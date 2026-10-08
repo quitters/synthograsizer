@@ -38,10 +38,12 @@ function textOutcome(ok, text) {
  * @param {(topic: string, opts: object) => Promise<{ok: boolean, error?: string}>} [deps.startResearch]
  *   Submits a Deep Research task and enforces the per-session budget. Absent
  *   when deep research is disabled, which makes the tool refuse cleanly.
+ * @param {Record<string, (args: object) => Promise<{ok: boolean, text: string, summary?: string}>>} [deps.hall]
+ *   A company room's Hall tools for this speaker (company/hall/tools.js): mailbox, forum, workspace, board, propose_norm. Absent everywhere else.
  * @returns {(call: {id: string, name: string, arguments: object}) => Promise<ToolOutcome>}
  */
 export function createToolDispatcher({
-  agent, mediaStore, artifactStore, onMedia, onEvent, startResearch, critique, render,
+  agent, mediaStore, artifactStore, onMedia, onEvent, startResearch, critique, render, propose, hall,
 }) {
   // Budget for images handed back to the model inline this turn — see
   // MAX_INLINE_RESULT_IMAGES for why this is capped.
@@ -95,6 +97,13 @@ export function createToolDispatcher({
     }
 
     return { ok: true, result: blocks, summary: `Generated image ${id}`, media };
+  }
+
+  /** Run one of the Hall's tools; the answer is text, and a long read is summarised in a line for the UI. */
+  async function viaHall(name, args) {
+    if (!hall?.[name]) return textOutcome(false, `${name} is not available to you.`);
+    const r = await hall[name](args);
+    return { ok: Boolean(r.ok), result: [{ type: 'text', text: r.text }], summary: r.summary || String(r.text).slice(0, 160) };
   }
 
   const handlers = {
@@ -216,6 +225,32 @@ export function createToolDispatcher({
       }
       return { ok: true, result: blocks, summary: `Rendered ${artifact}` };
     },
+
+    // A company's room only (the `propose` dependency is absent everywhere else). It queues a proposal for a person; it cannot approve one.
+    async propose_publish(args) {
+      if (!propose) return textOutcome(false, 'propose_publish is not available in this session.');
+      const r = await propose({
+        kind: String(args?.kind || ''),
+        title: String(args?.title || '').trim(),
+        ...(args?.ref ? { ref: String(args.ref) } : {}),
+        ...(args?.text ? { text: String(args.text) } : {}),
+        ...(args?.note ? { note: String(args.note) } : {}),
+      });
+      if (!r.ok) return textOutcome(false, `propose_publish declined: ${r.error}`);
+      return textOutcome(
+        true,
+        `Proposal ${r.id} is waiting for a person to review (${r.status}). It has not been published, and nothing you do will publish it. ` +
+        (r.superseded?.length ? `It replaces ${r.superseded.length === 1 ? 'your earlier offer' : `${r.superseded.length} earlier offers`} of this file. ` : '') +
+        'Carry on with the work; do not claim it has been published.'
+      );
+    },
+
+    // The Hall (a company's room only): the handlers are the company's, bound to the person the server found for this speaker
+    async mailbox(args) { return viaHall('mailbox', args); },
+    async forum(args) { return viaHall('forum', args); },
+    async workspace(args) { return viaHall('workspace', args); },
+    async board(args) { return viaHall('board', args); },
+    async propose_norm(args) { return viaHall('propose_norm', args); },
 
     async deep_research(args) {
       const topic = String(args?.topic || '').trim();

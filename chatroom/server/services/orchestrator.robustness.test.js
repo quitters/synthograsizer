@@ -61,6 +61,15 @@ test('repeated API errors stop the session after five failed turns', async () =>
   const end = named('session_end')[0];
   assert.equal(end.reason, 'error_limit_reached');
   assert.match(end.error, /503/);
+  // readable afterwards, not only on the broadcast: a page opened later, or a script polling, has to be able to say why
+  assert.match(orchestrator.getState().error, /503/);
+});
+
+test('a room that ended any other way reports no error', async () => {
+  orchestrator._generate = scripted(['fine'], () => orchestrator.stop());
+  await orchestrator.start('say hi', 100000);
+  await until(() => !orchestrator.isRunning);
+  assert.equal(orchestrator.getState().error, null);
 });
 
 test('a rejected API key stops the session on the first failure', async () => {
