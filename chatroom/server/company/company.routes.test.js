@@ -290,6 +290,22 @@ test('agents are admitted within the caps, at granted tiers, with clean names an
   assert.equal((await v.call('GET', '/api/agents', undefined, inRoom)).json.agents.length, 3);
 });
 
+test('the agent options a company room offers are the tiers its company has been granted, starting from none', async () => {
+  const { v, company, inRoom } = await withCompany();
+  const offered = async () => (await v.call('GET', '/api/agents/models', undefined, inRoom)).json;
+  let models = await offered();
+  assert.equal(models.toolMode, 'functions');
+  assert.equal(models.defaultToolTier, 'none');
+  assert.deepEqual(models.toolTiers.map(t => t.id).sort(), ['none', 'research']);
+
+  await v.call('PATCH', `/api/company/${company.id}`, { tools: ['google_search', 'url_context', 'code_execution'] });
+  models = await offered();
+  assert.deepEqual(models.toolTiers.map(t => t.id).sort(), ['analyst', 'none', 'research']);
+
+  const plain = (await v.call('GET', '/api/agents/models')).json;
+  assert.equal(plain.defaultToolTier, 'full', 'a visitor\'s own room is unchanged');
+});
+
 test('changing an agent\'s tier goes through the same checks', async () => {
   const { v, inRoom } = await withCompany();
   const ann = (await v.call('POST', '/api/agents', { name: 'Ann Test', bio: 'x' }, inRoom)).json.agent;

@@ -83,7 +83,8 @@ The answer to a create or update says what was asked, what applies and what was 
 
 1. The speaker is chosen and generates, streaming. **In a company room the stream is held**: nothing is shown until the screen has passed the whole turn.
 2. If the model service **declined** (a safety block as an error event, a failed interaction whose step says so, or a cut-off stream): that is final. No retry, no rewording, no other model. A note tells the room; it counts as a strike.
-3. The **screen** reads the turn. *Block*: the turn is not shown, saved or acted on; a note from "Safety" says which rule (by title) and never repeats the content; the audit log records the rule ids; a strike. *Unavailable* (error, timeout, unreadable answer, too long to
+3. The **screen** reads the turn. *Block*: the turn's words are not shown or saved; a note from "Safety" says which rule (by title) and never repeats the content; the audit log records the rule ids; a strike. (Tool requests the same turn made were each screened before they ran, step 4, so a turn
+   can have done permitted work and still have its words withheld.) *Unavailable* (error, timeout, unreadable answer, too long to
    review): treated as a block. *Pass*: the held text is shown as one piece, then the message is committed.
 4. **Tool requests** go through a guard first: is the tool granted; would it pass the spend ceiling; does the screen pass the words it will act on (an image prompt, a file's contents, a research topic); then the tool runs. If the model service declines a picture request,
    the picture tools stay closed for the rest of that turn.
@@ -123,6 +124,7 @@ cookie (the owner), never through a tool; and the only thing an agent can do abo
 - It does not make a prompt unbreakable. The layer is advice to a model; the screen, the model service's filters and a person are why a break in it is survivable. The residual break rate in the table above is the layer's, not the system's.
 - **Drafted images are not screened**, only the prompts that make them (the model service filters images; the picture itself is reviewed at publishing). A jailbroken agent can see an image it made.
 - Search results and pages read by `google_search` / `url_context` are executed and summarised by Google; text inside them that tries to steer an agent is covered by the layer's "tool results" sentence and by nothing else.
+- The spend ceiling counts what the agents do (their turns, the screen, the tools they call). Anything the owner runs directly on the same server (a workflow, a render, a generation through the other endpoints) is the owner's and is not counted.
 - Cookie = owner. Anything that holds the visitor's cookie (a script, an agent given it) is the owner. The protection is that no *tool* does.
 - A company's `memoryOwnerId` scopes long-term memory to the company; it is only as private as cross-session memory is (it is off by default and has not been through the hosted privacy review).
 - The operator is trusted. Locally the operator is the person at the machine, who can edit the policy file or turn draft screening off (`COMPANY_SCREEN_DRAFTS=0`, refused on a hosted instance, with a loud warning).

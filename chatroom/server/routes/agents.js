@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { generateImage } from '../services/imageGen.js';
+import { tierFitsGrant, DEFAULT_AGENT_TIER } from '../company/toolGrants.js';
 import {
   AGENT_MODEL_CHOICES,
   DEFAULT_AGENT_MODEL,
@@ -59,6 +60,8 @@ router.post('/', (req, res) => {
  * The model + deliberation options the UI should offer, and the defaults.
  */
 router.get('/models', (req, res) => {
+  // In a company's room tiers are always in force (never the tag dialect), and only the ones the company has been granted can be used
+  const policy = req.room.orchestrator.policy;
   res.json({
     models: AGENT_MODEL_CHOICES,
     defaultModel: DEFAULT_AGENT_MODEL,
@@ -66,9 +69,11 @@ router.get('/models', (req, res) => {
     defaultThinkingLevel: DEFAULT_THINKING_LEVEL,
     // Tool tiers only mean anything when TOOL_MODE=functions; the UI hides
     // the selector otherwise rather than offering a setting with no effect.
-    toolMode: TOOL_MODE,
-    toolTiers: isFunctionCallingEnabled() ? TOOL_TIER_CHOICES : [],
-    defaultToolTier: DEFAULT_TOOL_TIER,
+    toolMode: policy ? 'functions' : TOOL_MODE,
+    toolTiers: policy
+      ? TOOL_TIER_CHOICES.filter(t => tierFitsGrant(t.id, policy.toolGrant).ok)
+      : (isFunctionCallingEnabled() ? TOOL_TIER_CHOICES : []),
+    defaultToolTier: policy ? DEFAULT_AGENT_TIER : DEFAULT_TOOL_TIER,
   });
 });
 

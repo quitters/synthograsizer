@@ -285,7 +285,7 @@ export class ChatOrchestrator {
       kind: unavailable ? 'screen_unavailable' : 'turn_withheld',
       rules: result.findings.map(f => f.rule),
       detail: unavailable ? result.error : why,
-      text: `${speaker.name}'s last message was withheld by the company's safety screen (${why}). It was not shown, saved or acted on. Do not repeat it or work around it: carry on a different way, or leave it for a person.`,
+      text: `${speaker.name}'s last message was withheld by the company's safety screen (${why}). Its words were not shown or saved. Do not repeat it or work around it: carry on a different way, or leave it for a person.`,
     });
   }
 
