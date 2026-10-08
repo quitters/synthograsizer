@@ -339,6 +339,24 @@ Events a company's room adds: `message_withheld`, `provider_refusal`, `safety_pa
 `COMPANY_TOKEN_LIMIT`, `COMPANY_SPEND_LIMIT_USD`, `COMPANY_MAX_SCREEN_STRIKES`, `COMPANY_MAX_PENDING`, `COMPANY_TOOLS`, `COMPANY_SCREEN_MODEL`, `COMPANY_SCREEN_DRAFTS=0` (local only), `COMPANY_OPERATOR_POLICY` (a policy file; ignored when hosted).
 `npm run test:redteam` runs the live red team (see [redteam/README.md](redteam/README.md)).
 
+## Agent companies: people, a shared space, and the console
+
+Describe a company in a sentence and get one: a proposal (a name, a mission, rooms with a first assignment each, who is in them), then the people written (from the roster where they fit), then the company, **created paused**. Open the owner's
+console at **`http://localhost:3001/company/`** (the chat server serves it; run it with `npm run server`, which passes `--experimental-sqlite` for the roster on Node 22.12; 22.13+ does not need the flag). Everything the page does is also an API with a JSON Schema
+(`GET /api/company/schema`). Design, costs, what it does not do: [docs/COMPANY_CREATION_FLOW.md](../docs/COMPANY_CREATION_FLOW.md); what it adds to the safety story: "People, a shared space and a console" in the safety doc.
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/company/flow/options` | Sizes, ways to organise, archetypes, what a room can make, what can be fixed, the limits and a rough price per person |
+| POST / GET | `/api/company/flow`, `/api/company/flow/:id` | Propose a company from a prompt (nothing is created; about a cent) / read the proposal, where each field came from, who is cast, what has been spent |
+| PATCH | `/api/company/flow/:id` | Edit the proposal: what you change is yours, and a re-fill never overwrites it |
+| POST | `/api/company/flow/:id/replan`, `/cast`, `/cancel`, `/create` | Fill the blanks again / write the people (background; this is where the money goes) / stop / create the company (paused) |
+| POST / GET | `/api/company/:id/run/:department/start`, `/brief`, `/close-out` | Start a room with the brief and checks written for it / read them / have each person write down what they remember |
+| GET / POST / PATCH / DELETE | `/api/company/roster`, `/api/company/:id/people` | The library of invented people; who works at a company, their seats, and what each remembers (the owner can read, correct and delete it) |
+| GET / POST / PUT / PATCH / DELETE | `/api/company/:id/hall/...` | The Hall: mailboxes, forums, the shared workspace, the board, working agreements (the owner reads everything and approves agreements) |
+
+Operator settings: `COMPANY_FLOW=0` (off), `COMPANY_FLOW_MAX_PEOPLE` (32), `COMPANY_FLOW_MAX_SPEND_USD` (8), `COMPANY_HALL=0`, `COMPANY_MAX_MESSAGES`, `COMPANY_MAX_WORKSPACE_WRITES`.
+
 ## API Reference
 
 ### Agent Endpoints

@@ -74,6 +74,7 @@ export function buildFlowSchemas({ mandate, ceilings, tools, collaboration }) {
       },
       budgetUsd: { type: 'number', minimum: 0, description: 'The most this flow may spend in all. It can only lower the operator\'s ceiling.' },
       reuse: { type: 'boolean', description: 'Take people from the roster where they fit (default true). false writes everyone new.' },
+      auto: { type: 'boolean', description: 'Do it all without stopping: propose, write the people and create the company (still paused). It spends up to the allowance and stops at the first thing a person has to decide.' },
     },
   };
 

@@ -38,8 +38,12 @@ import { admissionScreen } from './review.js';
 import { renderBio } from '../profileBio.js';
 import { checkLocks, proposeCompany, fillPlan, applyEdits, planProblems, positionsOf, effectiveTier, planText, screenWords, upstreamOf, downstreamOf, PROMPT_MAX_CHARS } from './planner.js';
 
-/** What writing one person costs, in round numbers: the pilot's six people (sheet, review, screen, quiz, memory) came to $1.13. */
-export const ESTIMATE_PER_PERSON_USD = 0.25;
+/**
+ * What writing one person costs, in round numbers, with room for a second try. Measured in the first live run (2026-10-08): twelve people, two rooms, $0.81 in
+ * all with the proposal ($0.07 each: the seed, the sheet on the strong model, the blind review and the quiz) and no second tries; the pilot's six people, written by hand with
+ * edits, three quiz runs and memory summaries, came to $1.13. Reading the sheets is the larger cost, and it is not in this figure.
+ */
+export const ESTIMATE_PER_PERSON_USD = 0.10;
 export const MAX_PERSON_TRIES = 2;
 export const CAST_CONCURRENCY = 3;
 export const MAX_CONSECUTIVE_MODEL_FAILURES = 3;
@@ -107,6 +111,7 @@ export class FlowService {
       if (flow.state !== 'failed' || !flow.created?.partial) continue;
       this._rollback(flow.ownerId, flow.created.companyId);
       flow.created = null;
+      flow.failedAt = 'create';
       this.store.note(flow, 'A company that was half built when the server stopped was taken apart. Run create again.');
       this.store.save(flow);
     }
@@ -192,9 +197,11 @@ export class FlowService {
    */
   async propose(ownerId, body = {}) {
     this._enabled();
-    const { prompt, locks, size, style, budgetUsd, reuse } = body;
+    const { prompt, locks, size, style, budgetUsd, reuse, auto } = body;
     if (budgetUsd !== undefined && (!Number.isFinite(budgetUsd) || budgetUsd < 0)) throw fail('budgetUsd must be a number of dollars, 0 or more.', 400, 'bad_request', 'budgetUsd');
     if (reuse !== undefined && typeof reuse !== 'boolean') throw fail('reuse is true or false.', 400, 'bad_request', 'reuse');
+    if (auto !== undefined && typeof auto !== 'boolean') throw fail('auto is true or false.', 400, 'bad_request', 'auto');
+    if (auto === true) this.getRoster();                                  // a 503 now, before anything is spent, where there is no database to write people into
     const spend = new Spend();
     const limitUsd = Number.isFinite(budgetUsd) ? Math.min(budgetUsd, this.operator.flow.maxSpendUsd) : this.operator.flow.maxSpendUsd;
     const ask = this.makeAsk({ spend, limitUsd });
@@ -205,12 +212,17 @@ export class FlowService {
     });
     const flow = this.store.create(ownerId, {
       prompt: prompt.trim(), locks: checked, plan,
-      settings: { budgetUsd: Number.isFinite(budgetUsd) ? budgetUsd : null, reuse: reuse !== false },
+      settings: { budgetUsd: Number.isFinite(budgetUsd) ? budgetUsd : null, reuse: reuse !== false, auto: auto === true },
       spend: spend.snapshot(), cast: { seed: newId().slice(0, 12), people: {}, castings: {}, report: null, startedAt: null, finishedAt: null },
       created: null, error: null, failedAt: null,
     });
     const people = positionsOf(plan).length;
     this._say(flow, `Proposed ${people} ${people === 1 ? 'person' : 'people'} in ${plan.departments.length} ${plan.departments.length === 1 ? 'room' : 'rooms'}.`);
+    // "If the user stops after the first prompt, the company is still completed": with auto, the people are written and the company created straight away (still paused).
+    // It stops at the first thing a person has to decide: a position nobody could be found or written for, or an allowance reached.
+    if (flow.settings.auto) {
+      try { return this.cast(ownerId, flow.id, {}); } catch (err) { this._say(flow, `It could not start writing the people: ${err.message}`); }
+    }
     return this.describe(flow);
   }
 
@@ -313,6 +325,7 @@ export class FlowService {
     const { ask, spend } = this._model(flow);
     try {
       await this._castAll({ ownerId, flow, job, ask, spend });
+      if (flow.state === 'cast' && flow.settings.auto) await this._autoCreate(ownerId, flow, spend);
     } catch (err) {
       flow.state = 'failed';
       flow.failedAt = 'cast';
@@ -323,6 +336,16 @@ export class FlowService {
       flow.spend = spend.snapshot();
       flow.cast.finishedAt = this.now().toISOString();
       this.store.save(flow);
+    }
+  }
+
+  /** The last step of an automatic flow: create the company. Whatever the reason it cannot, the flow is left for its owner with the reason in the log. */
+  async _autoCreate(ownerId, flow, spend) {
+    flow.spend = spend.snapshot();
+    try {
+      this.create(ownerId, flow.id);
+    } catch (err) {
+      this.store.note(flow, `The company could not be created automatically: ${isPolicyError(err) ? err.message : 'an unexpected error'}. Everything written is kept; fix it and create it yourself.`);
     }
   }
 

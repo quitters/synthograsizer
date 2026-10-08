@@ -236,3 +236,18 @@ test('the seeded source: repeatable, shuffles without loss, bags cycle through e
   for (let i = 0; i < 2000; i++) counts[weighted(w, [['heavy', 9], ['light', 1]])]++;
   assert.ok(counts.heavy > 1650 && counts.light > 100, JSON.stringify(counts));
 });
+
+test('an imported profile\'s archetype and birthplace are read the way the roster keeps them', async () => {
+  const { archetypeId, normalizeCasting } = await import('./archetypes.js');
+  assert.equal(archetypeId('The Steward'), 'steward');
+  assert.equal(archetypeId('  the CONTRARIAN '), 'contrarian');
+  assert.equal(archetypeId('machinist'), 'machinist');
+  assert.equal(archetypeId('Craftsman'), 'craftsman', 'without the article');
+  assert.equal(archetypeId('wizard'), null);
+  assert.equal(archetypeId(undefined), null);
+  assert.deepEqual(normalizeCasting({ birthplace: 'Gdańsk, Poland', region: 'Europe', dissent: 'high' }), { birthplace: { city: 'Gdańsk', country: 'Poland', region: 'Europe' }, region: 'Europe', dissent: 'high' });
+  assert.deepEqual(normalizeCasting({ birthplace: 'Lagos, Lagos State, Nigeria' }).birthplace, { city: 'Lagos', country: 'Lagos State, Nigeria' });
+  const given = { birthplace: { city: 'Lisbon', country: 'Portugal', region: 'Europe' } };
+  assert.deepEqual(normalizeCasting(given), given, 'a birthplace that is already an object is left as it is');
+  assert.deepEqual(normalizeCasting(null), {});
+});

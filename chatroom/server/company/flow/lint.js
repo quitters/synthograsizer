@@ -76,7 +76,7 @@ export function contextWords(...texts) {
 }
 
 /** How many words a sheet may share with two or more of its room-mates before it is sent back. */
-export const SHARED_WORDS_LIMIT = 12;
+export const SHARED_WORDS_LIMIT = 40;
 
 export const EMPTY_TAKEN = Object.freeze(takenFrom([]));
 
@@ -155,9 +155,9 @@ export function lintSheet({ profile, casting, taken = EMPTY_TAKEN, year = new Da
   if (opener && taken.voiceOpeners.includes(opener)) notes.push(`the voice begins "${opener}", as a teammate's does`);
   if (/^[^.]{0,80}\bshort\b/i.test(String(a.voice || ''))) notes.push('the voice is described as "short"');
 
-  // Words the room's other sheets already use. A few are only chance: real sheets of three or four thousand characters share plain words (the first live run sent
-  // people back for "mother", "table" and "heavy"), so a handful is a note for the person who reads the sheet, and only a sheet that copies its room-mates (a dozen
-  // or more) is sent back to the writer.
+  // Words the room's other sheets already use. Most are only chance: real sheets of three or four thousand characters share plain words (the first live run sent
+  // people back for "mother", "table" and "heavy", and a limit of twelve still sent back four in five: "monitor", "precise", "local", "frequently"), so a few are a
+  // note for the person who reads the sheet, and only a sheet that copies its room-mates (forty or more: a copy shares hundreds) is sent back to the writer.
   const shared = [...sheetWords(a, ignore)].filter(w => (taken.words.get(w)?.size || 0) >= 2);
   if (shared.length >= SHARED_WORDS_LIMIT) problems.push(`words that two or more teammates' sheets already use: ${shared.slice(0, 8).join(', ')} and ${shared.length - 8} more; find your own`);
   else if (shared.length >= 3) notes.push(`words that two or more teammates' sheets already use: ${shared.join(', ')}`);

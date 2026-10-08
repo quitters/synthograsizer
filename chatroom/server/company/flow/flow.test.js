@@ -63,7 +63,7 @@ test('one prompt becomes a proposal: nothing exists but the proposal, and almost
   assert.equal(f.plan.company.name, 'Parallax Works');
   assert.equal(f.estimate.people, 6);
   assert.equal(f.estimate.open, 6);
-  assert.equal(f.estimate.upToUsd, 6 * ESTIMATE_PER_PERSON_USD);
+  assert.equal(f.estimate.upToUsd, Math.round(6 * ESTIMATE_PER_PERSON_USD * 1000) / 1000);
   assert.deepEqual(s.log.map(c => c.step), ['shape', 'plan']);
   assert.equal(s.services.store.listFor(s.owner).length, 0, 'no company');
   assert.equal(s.services.tryRoster(), null, 'no database was even created');
@@ -570,6 +570,7 @@ test('a company half built when the server stopped is taken apart on start', { s
   assert.equal(s.services.store.listFor(s.owner).length, 0);
   assert.equal(s.flow.get(s.owner, f.id).created, null);
   assert.match(s.flow.get(s.owner, f.id).progress.at(-1).text, /half built/);
+  assert.equal(s.flow.get(s.owner, f.id).next, 'create', 'the way on is to create it again');
 });
 
 test('a visitor keeps at most twenty flows: a new one retires the oldest finished, and none is made if all are busy', { skip }, async () => {
@@ -725,4 +726,55 @@ test('what a flow has spent shows while it is casting, not only when it ends', {
   release();
   await s.flow.settled(f.id);
   assert.ok(s.flow.get(s.owner, f.id).spend.usd > mid.spend.usd);
+});
+
+// ── "if the user stops after the first prompt, the company is still completed" ───
+
+test('auto: one prompt, and the company is made: the people are written and it is created, still paused', { skip }, async () => {
+  const s = setup();
+  const f = await s.flow.propose(s.owner, { prompt: PROMPT, auto: true });
+  assert.equal(f.state, 'casting', 'it answers at once, writing the people');
+  assert.equal(f.settings.auto, undefined, 'the setting is the flow\'s own, not part of the answer');
+  await s.flow.settled(f.id);
+  const done = s.flow.get(s.owner, f.id);
+  assert.equal(done.state, 'created');
+  const company = s.services.store.getOwned(done.created.companyId, s.owner);
+  assert.equal(company.state, 'paused', 'completed, and left paused: nothing runs until its owner says go');
+  assert.equal(s.services.roster.seatsOf(s.owner, company.id).length, 6);
+  assert.ok(done.progress.some(p => /was created, paused/.test(p.text)));
+  assert.equal(s.services.store.listFor(s.owner).length, 1);
+});
+
+test('auto stops at the first thing a person has to decide: a position that could not be filled leaves the proposal, the people written and no company', { skip }, async () => {
+  const s = setup({ handlers: { sheet: (call, n) => { if (n === 3) throw new PolicyError('The model service declined this request. That answer is final: it will not be tried again or reworded.', { status: 422, code: 'model_refused' }); } } });
+  const f = await s.flow.propose(s.owner, { prompt: PROMPT, auto: true });
+  await s.flow.settled(f.id);
+  const done = s.flow.get(s.owner, f.id);
+  assert.equal(done.state, 'proposed');
+  assert.equal(s.services.store.listFor(s.owner).length, 0);
+  assert.equal(Object.values(done.cast.people).filter(p => p.status === 'ready').length, 5);
+  assert.equal(done.next, 'cast');
+});
+
+test('auto: a company that cannot be created (the people need tools the server does not allow) is left, with the reason in the log', { skip }, async () => {
+  const dir = tempDir();
+  fs.writeFileSync(path.join(dir, 'operator-policy.json'), JSON.stringify({ tools: ['google_search', 'url_context'] }));
+  const s = setup({ dataDir: dir });
+  const f = await s.flow.propose(s.owner, { prompt: PROMPT, auto: true });
+  await s.flow.settled(f.id);
+  const done = s.flow.get(s.owner, f.id);
+  assert.equal(done.state, 'cast', 'everyone is written; only the last step is refused');
+  assert.match(done.progress.at(-1).text, /could not be created automatically: .*would hold tools that this server does not allow/);
+  assert.equal(s.services.store.listFor(s.owner).length, 0);
+});
+
+test('auto needs a database to write people into, and says so before anything is spent', { skip }, async () => {
+  const s = setup();
+  const original = s.services.flow.getRoster;
+  s.services.flow.getRoster = () => { throw new PolicyError('node:sqlite is not available', { status: 503, code: 'no_sqlite' }); };
+  await assert.rejects(() => s.flow.propose(s.owner, { prompt: PROMPT, auto: true }), (e) => e.status === 503 && e.code === 'no_sqlite');
+  assert.equal(s.log.length, 0, 'no model call was made');
+  assert.equal(s.flow.list(s.owner).length, 0);
+  s.services.flow.getRoster = original;
+  await assert.rejects(() => s.flow.propose(s.owner, { prompt: PROMPT, auto: 'yes' }), (e) => e.status === 400 && e.field === 'auto');
 });

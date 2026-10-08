@@ -13,6 +13,7 @@
 | **Level 2** | Fix everything yourself up front: every room, every position, facts about a person (birth year, country, name...), the exact headcount, the tools the company is granted, a mission of your own. | `POST /api/company/flow { prompt, locks }` |
 | **Cast** | "Write the people". Runs in the background; shows what it has spent against its allowance; can be cancelled. | `POST .../cast`, then poll `GET .../:id` |
 | **Create** | "Create the company (it starts paused)". All or nothing. | `POST .../create` |
+| **Do it all** | "Do it all, paused": propose, write the people and create the company without stopping ("if the user stops after the first prompt, the company is still completed"). It stops at the first thing a person has to decide (a position nobody could be found or written for, an allowance reached, a safety setting that does not fit) and leaves the proposal, with everyone written so far. | `POST /api/company/flow { prompt, auto: true }` |
 | **Run** | Go. Start a room: it is given the brief, the checks and the way of closing that were written for it. After a session: close out (each person writes down what they remember). Approve or reject what a room offers. | `POST /:id/go`, `POST /:id/run/:dept/start`, `.../close-out`, `.../publish/:item/approve` |
 
 Every control a person has is also a documented API with a JSON Schema (`GET /api/company/schema`), so an agent can do what a person can, and no more: there is no way, in either, to start a company running from a prompt, to approve a publication, or to change a hard limit.
@@ -91,7 +92,7 @@ The roster and the Hall use `node:sqlite`: Node 22.12 needs `--experimental-sqli
 
 ## Cost
 
-Writing a person costs about $0.25 in round numbers (the seed, the sheet, the review, the screen, the quiz); the pilot's six people, with review, screen, three quiz runs and the memory summaries, came to $1.13. The proposal is a cent or two. A room's own session is separate, bounded by the company's ceilings (default: 60 turns, $10 a session). The console shows an estimate before casting ("up to $X"; people who fit are taken from the roster for nothing) and the spend against the allowance as it goes.
+Writing a person costs about $0.07 (the seed on the fast model, the sheet on the strong one, the blind review and the quiz); the console's estimate is $0.10 a person, to leave room for second tries. Measured in the first live run: twelve people in two rooms, $0.81 and about seven minutes (six at a time in each room, one after another), with the proposal included; the pilot's six people, written by hand with edits, three quiz runs and memory summaries, came to $1.13. The proposal is a cent or two. Reading the sheets costs more than writing them, and is not in these figures. A room's own session is separate, bounded by the company's ceilings (default: 200 turns and $10 a session; the flow asks for at most 8 turns a person and 60 a room). The console shows an estimate before casting ("up to $X"; people who fit are taken from the roster for nothing) and the spend against the allowance as it goes.
 
 ## Tests
 

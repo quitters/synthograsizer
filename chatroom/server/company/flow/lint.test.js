@@ -170,5 +170,5 @@ test('a handful of shared words is a note for the person who reads the sheet; on
   assert.ok(!has(lint(mine, { taken: taken(SHARED_WORDS_LIMIT - 1) }), /words that two or more/));
   const copy = lint(mine, { taken: taken(SHARED_WORDS_LIMIT) });
   assert.ok(has(copy, /words that two or more teammates' sheets already use: .* and \d+ more; find your own/));
-  assert.equal(SHARED_WORDS_LIMIT, 12);
+  assert.equal(SHARED_WORDS_LIMIT, 40);
 });

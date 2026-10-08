@@ -168,9 +168,9 @@ async function newView() {
   const reuse = h('input', { type: 'checkbox', checked: true });
   const locks = h('textarea', { rows: '8', class: 'mono', placeholder: '{ "departments": [ { "name": "Print Room", "positions": [ { "title": "Producer", "lead": true } ] } ] }' });
   const submit = h('button', { class: 'primary', type: 'submit' }, 'Propose a company');
+  const doAll = h('button', { type: 'button', title: 'Propose it, write its people and create it without stopping. It still starts paused.', onclick: () => { if (!prompt.value.trim()) { toast('Say what the company is for.', 'bad'); return; } send(true); } }, 'Do it all, paused');
 
-  const form = h('form', { class: 'stack', onsubmit: async (ev) => {
-    ev.preventDefault();
+  const send = async (auto) => {
     const body = { prompt: prompt.value.trim() };
     const fixed = {};
     if (size.value) body.size = size.value;
@@ -184,13 +184,19 @@ async function newView() {
     if (Object.keys(fixed).length) body.locks = fixed;
     if (budget.value !== '') body.budgetUsd = Number(budget.value);
     if (!reuse.checked) body.reuse = false;
-    submit.disabled = true;
+    if (auto) {
+      const cap = budget.value !== '' ? Math.min(Number(budget.value), o.limits.maxSpendUsd) : o.limits.maxSpendUsd;
+      if (!confirm(`Propose the company, write all of its people and create it, without stopping for you? Each new person costs about ${money(o.estimate.perPersonUsd)} (a company of twelve, about ${money(12 * o.estimate.perPersonUsd)}); it stops at ${money(cap)}. People already in the roster who fit are used first. The company is created paused: nothing runs until you say go.`)) return;
+      body.auto = true;
+    }
+    for (const b of [submit, doAll]) b.disabled = true;
     submit.textContent = 'Proposing…';
     const r = await attempt(() => api('POST', '/api/company/flow', body));
-    submit.disabled = false;
+    for (const b of [submit, doAll]) b.disabled = false;
     submit.textContent = 'Propose a company';
     if (r) location.hash = `#/flow/${r.flow.id}`;
-  } },
+  };
+  const form = h('form', { class: 'stack', onsubmit: (ev) => { ev.preventDefault(); if (!prompt.value.trim()) { toast('Say what the company is for.', 'bad'); return; } send(false); } },
   h('section', { class: 'card stack' },
     h('div', {}, h('h2', {}, 'What is the company for?'), h('p', { class: 'muted' }, 'A sentence or two: what it makes, and for whom. You will read a proposal before anything is made, and what is made starts out paused. Proposing costs about a cent.')),
     field('Describe it', prompt), h('div', { class: 'row' }, count)),
@@ -201,7 +207,7 @@ async function newView() {
       field('Mission', mission),
       h('label', { class: 'inline' }, reuse, 'Take people from the roster where they fit (they cost nothing). Untick to write everyone new.'),
       field('Fix more yourself (JSON)', locks, 'The same shape as "locks" in the API: rooms, positions, people. GET /api/company/schema describes it.'))),
-  h('div', { class: 'row' }, submit, h('span', { class: 'hint' }, `It writes at most ${o.limits.maxPeople} people per company; each new person costs about ${money(o.estimate.perPersonUsd)}.`)));
+  h('div', { class: 'row' }, submit, doAll, h('span', { class: 'hint' }, `It writes at most ${o.limits.maxPeople} people per company; each new person costs about ${money(o.estimate.perPersonUsd)}.`)));
   fill(app, h('div', { class: 'head' }, h('h1', {}, 'New company')), form);
   prompt.focus();
 }
