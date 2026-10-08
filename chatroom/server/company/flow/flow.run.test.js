@@ -205,3 +205,26 @@ test('a room that starts from another room\'s file waits for it: refused until t
   assert.equal(r1.started, true);
   peekRoom(first.roomId).orchestrator.stop('user_stopped');
 });
+
+test('a room that has to draw is not started where nothing draws; a room that does not is never held back', { skip }, async () => {
+  const s = setup({ handlers: { plan: (call) => { const a = fakePlanAnswer(call); a.departments[1].deliverable = { kind: 'document', file: 'notes.md' }; return a; } } });
+  const { company } = await created(s, { size: 'small' });
+  s.services.store.setState(company.id, s.owner, 'active');
+  const needsPictures = (id) => company.plan.departments.find(d => d.id === id).doneWhen.some(c => c.type === 'tool_used' && c.tool === 'render_artifact');
+  const [engine, plain] = [company.departments.find(d => needsPictures(d.id)), company.departments.find(d => !needsPictures(d.id))];
+  assert.ok(engine && plain, 'one room draws and one does not');
+
+  s.flow.checkRenderer = async () => { throw new Error('fetch failed'); };
+  await assert.rejects(() => s.flow.startDepartment(s.owner, company.id, engine.id), (e) => e.status === 409 && e.code === 'needs_renderer' && /picture service does not answer \(fetch failed\)/.test(e.message) && /Start the Synthograsizer backend/.test(e.message));
+  assert.equal(peekRoom(engine.roomId), undefined, 'the room was not even made');
+  s.flow.checkRenderer = async () => false;
+  await assert.rejects(() => s.flow.startDepartment(s.owner, company.id, engine.id), (e) => e.code === 'needs_renderer' && /not ready/.test(e.message));
+
+  const r = await s.flow.startDepartment(s.owner, company.id, plain.id);
+  assert.equal(r.started, true, 'a room with no drawing check starts although nothing draws');
+  peekRoom(plain.roomId).orchestrator.stop('user_stopped');
+
+  s.flow.checkRenderer = async () => true;
+  assert.equal((await s.flow.startDepartment(s.owner, company.id, engine.id)).started, true);
+  peekRoom(engine.roomId).orchestrator.stop('user_stopped');
+});

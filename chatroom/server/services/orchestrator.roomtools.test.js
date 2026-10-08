@@ -292,6 +292,33 @@ test('a render says plainly what it cannot do: no such artifact, not renderable,
   assert.match((await orchestrator.render({ artifact: 'engine.json' })).text, /limit of 1 renders/);
 });
 
+test('a render that drew nothing is not charged against the allowance, but an outage has a limit of its own', async () => {
+  orchestrator.artifactStore.save('engine.json', ENGINE, 'a', 'Ann Test');
+  orchestrator._draw = async () => { throw new Error('fetch failed'); };
+  for (let i = 0; i < orchestrator.renderState.maxFailed; i++) {
+    const r = await orchestrator.render({ artifact: 'engine.json', draws: 1 });
+    assert.equal(r.ok, false);
+    assert.match(r.text, /no draws came back \(fetch failed\)/);
+  }
+  assert.equal(orchestrator.renderState.used, 0, 'nothing was drawn, so nothing was used');
+  const stopped = await orchestrator.render({ artifact: 'engine.json', draws: 1 });
+  assert.match(stopped.text, /picture service has failed 6 times/);
+  assert.match(stopped.text, /stop trying/);
+});
+
+test('what is allowed per session starts again with the next session of the same room', async () => {
+  scripted(() => 'hello');
+  await orchestrator.start('first day', 100000);
+  orchestrator.stop();
+  Object.assign(orchestrator.renderState, { used: 12, failed: 6 });
+  orchestrator.critic.calls = 30;
+  orchestrator.researchTasksUsed = 2;
+  scripted(() => 'hello again');
+  await orchestrator.start('second day', 100000);
+  orchestrator.stop();
+  assert.deepEqual([orchestrator.renderState.used, orchestrator.renderState.failed, orchestrator.critic.calls, orchestrator.researchTasksUsed], [0, 0, 0, 0]);
+});
+
 test('an instrument is rendered by a browser attached to the room, which is asked over the event stream and answers with pictures', async () => {
   const template = JSON.stringify({ promptTemplate: 'x {{a}}', variables: [{ name: 'a', values: ['one', 'two'] }], p5Code: 'p.setup=()=>{p.createCanvas(10,10)};p.draw=()=>{p.background(1)}' });
   orchestrator.artifactStore.save('inst.json', template, 'a', 'Ann Test');

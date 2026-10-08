@@ -13,7 +13,7 @@ import chatRouter from './routes/chat.js';
 import savedRouter from './routes/savedSessions.js';
 import artifactsRouter from './routes/artifacts.js';
 import { createCompanyRouter } from './routes/company.js';
-import { createWorkflowRoutes, createTraceRoutes } from 'workflow-engine';
+import { createWorkflowRoutes, createTraceRoutes, synthClient } from 'workflow-engine';
 import { createRoomMiddleware } from './middleware/session.js';
 import { registerRoomInitializer } from './services/sessionRegistry.js';
 import { createCompanyServices } from './company/index.js';
@@ -32,7 +32,10 @@ const PUBLIC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), 'publ
  */
 export const CONSOLE_CSP = "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'";
 
-export function createApp({ company = createCompanyServices() } = {}) {
+/** Whether the Synthograsizer backend, which draws for the chat server, answers. */
+const pictureServiceAnswers = async () => (await synthClient.healthCheck())?.status === 'ok';
+
+export function createApp({ company = createCompanyServices({ checkRenderer: pictureServiceAnswers }) } = {}) {
   const app = express();
   app.locals.company = company;
 

@@ -78,8 +78,8 @@ export class FlowService {
    * @param {(companyId: string) => object[]} [deps.listProposals]
    * @param {() => Date} [deps.now]
    */
-  constructor({ store, companies, operator, audit, screen, getRoster, getHall, makeAsk, getRoom, listProposals = () => [], now = () => new Date() }) {
-    Object.assign(this, { store, companies, operator, audit, screen, getRoster, getHall, makeAsk, getRoom, listProposals, now });
+  constructor({ store, companies, operator, audit, screen, getRoster, getHall, makeAsk, getRoom, listProposals = () => [], checkRenderer = null, now = () => new Date() }) {
+    Object.assign(this, { store, companies, operator, audit, screen, getRoster, getHall, makeAsk, getRoom, listProposals, checkRenderer, now });
     this.jobs = new Map();
     this._recover();
   }
@@ -734,6 +734,7 @@ export class FlowService {
     if (company.state !== 'active') throw fail('This company is paused. Nothing runs, spends or publishes until its owner says go (POST /api/company/:id/go).', 409, 'company_paused');
     const link = this._linkStatus(ownerId, company, plan);
     if (link && !link.ready) throw fail(`${link.name} has to finish first: its ${link.file} is not in the company's shared workspace yet, and this room starts from it. Start ${link.name}, or put the file in the workspace yourself (PUT /api/company/:id/hall/workspace/file).`, 409, 'needs_upstream');
+    await this._rendererReady(dept, plan);
     const room = this.getRoom(dept.roomId);
     const o = room.orchestrator;
     if (!o.policy) throw fail('This room is not under its company\'s policy, so it will not be started.', 500, 'no_policy');
@@ -747,6 +748,18 @@ export class FlowService {
     await o.start(plan.goal, plan.tokenLimit, { mode: 'group' });
     this.audit.append(company.id, { type: 'flow_room_started', department: dept.name, people: o.agents.length, checks: plan.doneWhen.length });
     return { started: true, department: { id: dept.id, name: dept.name, roomId: dept.roomId }, people: o.agents.map(a => a.name), lead: plan.lead, checks: plan.doneWhen.length, goalChars: plan.goal.length, state: o.getState() };
+  }
+
+  /** A room whose checks need pictures cannot pass them where nothing draws: a live run let one start without the picture service and it spent 38 turns unable to close. */
+  async _rendererReady(dept, plan) {
+    if (!this.checkRenderer || !plan.doneWhen.some(c => c.type === 'tool_used' && c.tool === 'render_artifact')) return;
+    let why = null;
+    try {
+      if ((await this.checkRenderer()) === false) why = 'it says it is not ready';
+    } catch (err) {
+      why = String(err?.message || err).slice(0, 120);
+    }
+    if (why) throw fail(`${dept.name} has to draw its file and look at the pictures before it can finish, and the picture service does not answer (${why}). Start the Synthograsizer backend (it draws for the chat server) and start the room again.`, 409, 'needs_renderer');
   }
 
   /** What a room will be told when it starts: the brief, the checks in words, who reviews, how it closes. For the owner to read before saying go. */

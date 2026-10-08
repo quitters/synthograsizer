@@ -33,12 +33,13 @@ import { getRoom as defaultGetRoom } from '../services/sessionRegistry.js';
 /**
  * @param {{ dataDir?: string, env?: object, classify?: Function, getClient?: Function, now?: () => Date, extraHardLimits?: object[], extraScreenRules?: object[], makeAsk?: Function, getRoom?: Function }} [options]
  *   classify replaces the Gemini-backed reviewer (tests). extraHardLimits and extraScreenRules are for the red-team harness only. makeAsk replaces the model
- *   the creation flow writes with (tests), and getRoom the registry it starts rooms in.
+ *   the creation flow writes with (tests), and getRoom the registry it starts rooms in. checkRenderer answers whether the service that draws pictures is up
+ *   (the server passes one; without it a room that draws is not held back).
  */
 export function createCompanyServices({
   dataDir = defaultDataDir(), env = process.env, classify = null, getClient = getGeminiClient, now = () => new Date(),
   extraHardLimits = [], extraScreenRules = [], extraPreamble = '',
-  makeAsk = ({ spend, limitUsd }) => createModel({ getClient, spend, limitUsd }).askJson, getRoom = defaultGetRoom,
+  makeAsk = ({ spend, limitUsd }) => createModel({ getClient, spend, limitUsd }).askJson, getRoom = defaultGetRoom, checkRenderer = null,
 } = {}) {
   const operator = loadOperator({ env, dataDir });
   for (const warning of operator.warnings) console.warn(`[company] ${warning}`);
@@ -80,7 +81,7 @@ export function createCompanyServices({
   // The creation flow: propose, cast, create. Its proposals are files under <data>/flow; the people it writes go to the roster, the company to the store.
   const flow = new FlowService({
     store: new FlowStore({ rootDir: dataDir, now }), companies: store, operator, audit, screen,
-    getRoster: needRoster, getHall: tryHall, makeAsk, getRoom, listProposals: (companyId) => publish.list(companyId), now,
+    getRoster: needRoster, getHall: tryHall, makeAsk, getRoom, listProposals: (companyId) => publish.list(companyId), checkRenderer, now,
   });
 
   /** Close the database (tests, and a server shutting down). */

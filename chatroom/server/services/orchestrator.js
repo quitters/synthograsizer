@@ -228,7 +228,7 @@ export class ChatOrchestrator {
     this.critic = { enabled: false, auto: true, referenceId: null, criteria: '', model: null, minScore: 6, maxCalls: 30, calls: 0 };
     // Renders asked for by agents or the host. Browser renders wait here for the page to answer (resolveRender).
     for (const pending of this.renderState?.pending?.values?.() ?? []) pending.settle({ ok: false, error: 'the room was reset' });
-    this.renderState = { used: 0, max: 12, pending: new Map() };
+    this.renderState = { used: 0, max: 12, failed: 0, maxFailed: 6, pending: new Map() };
     // Company rooms: estimated spend this session, and how the safety layer has acted (see _withholdTurn). `consecutive` counts
     // turns in a row in which something was withheld, refused or blocked; reaching the company's limit pauses the room for a person.
     this.spendUsd = 0;
@@ -840,6 +840,7 @@ export class ChatOrchestrator {
   async _render({ artifact, draws, speaker = null, timeoutMs = 45_000 } = {}) {
     const rs = this.renderState;
     if (rs.used >= rs.max) return { ok: false, text: `the session's limit of ${rs.max} renders is used up` };
+    if (rs.failed >= rs.maxFailed) return { ok: false, text: `the picture service has failed ${rs.failed} times this session and is not answering: stop trying, say so plainly in your next message, and carry on with what does not need a picture` };
     const art = this.artifactStore.get(String(artifact || ''));
     if (!art) return { ok: false, text: `there is no artifact named "${artifact}" (the artifacts are: ${this.artifactStore.list().map(a => a.filename).join(', ') || 'none yet'})` };
     const kind = classifyArtifact(art);
@@ -863,7 +864,12 @@ export class ChatOrchestrator {
           failed.push(err.message);
         }
       }
-      if (!made.length) return { ok: false, text: `no draws came back (${failed[0] || 'unknown error'})` };
+      if (!made.length) {
+        // nothing was drawn and nothing was billed: an outage must not use up the allowance, but it has a limit of its own
+        rs.used -= 1;
+        rs.failed += 1;
+        return { ok: false, text: `no draws came back (${failed[0] || 'unknown error'})` };
+      }
       return { ok: true, images: made, text: `${made.length} draw${made.length === 1 ? '' : 's'} from ${art.filename}, each a random combination of its values: ${made.map(m => `"${m.prompt.slice(0, 160)}"`).join(' | ')}` };
     }
 
@@ -1292,6 +1298,12 @@ export class ChatOrchestrator {
     this.doneWhen.blocks = 0;
     this.doneWhen.lastNoteKey = null;
     this.hallUse = new Map();
+    // What is allowed "per session" starts again with a session: a room stopped and started again (a company's second day) carried the first
+    // session's used-up renders into the next, and could not draw at all.
+    this.renderState.used = 0;
+    this.renderState.failed = 0;
+    this.critic.calls = 0;
+    this.researchTasksUsed = 0;
     this.modelPreference = options.model || null;
     // sessionId groups all workflows + traces produced during this run.
     // The trace viewer's "session lens" pivots on this field.
