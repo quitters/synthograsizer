@@ -41,7 +41,7 @@ function textOutcome(ok, text) {
  * @returns {(call: {id: string, name: string, arguments: object}) => Promise<ToolOutcome>}
  */
 export function createToolDispatcher({
-  agent, mediaStore, artifactStore, onMedia, onEvent, startResearch,
+  agent, mediaStore, artifactStore, onMedia, onEvent, startResearch, critique, render,
 }) {
   // Budget for images handed back to the model inline this turn — see
   // MAX_INLINE_RESULT_IMAGES for why this is capped.
@@ -190,6 +190,31 @@ export function createToolDispatcher({
         `Saved ${artifact.filename} as version ${artifact.versions.length}. ` +
         'It is now live in the preview panel for everyone.'
       );
+    },
+
+    async critique_image(args) {
+      const imageId = String(args?.image_id || '').trim();
+      if (!imageId) return textOutcome(false, 'critique_image failed: image_id was empty.');
+      if (!critique) return textOutcome(false, 'critique_image is not available in this session.');
+      const r = await critique({ imageId, referenceId: args?.reference_id ? String(args.reference_id) : null, criteria: args?.criteria ? String(args.criteria) : '' });
+      return r.ok ? textOutcome(true, `Independent critic: ${r.text}`) : textOutcome(false, `critique_image failed: ${r.error}`);
+    },
+
+    async render_artifact(args) {
+      const artifact = String(args?.artifact || '').trim();
+      if (!artifact) return textOutcome(false, 'render_artifact failed: artifact was empty.');
+      if (!render) return textOutcome(false, 'render_artifact is not available in this session.');
+      const r = await render({ artifact, draws: args?.draws });
+      if (!r.ok) return textOutcome(false, `render_artifact failed: ${r.text}`);
+      const blocks = [{ type: 'text', text: r.text }];
+      for (const img of r.images || []) {
+        onMedia?.({ id: img.id, type: 'image', mimeType: img.mimeType, prompt: img.prompt, data: img.imageData });
+        if (inlineImagesRemaining > 0) {
+          inlineImagesRemaining -= 1;
+          blocks.push({ type: 'image', data: img.imageData, mime_type: img.mimeType });
+        }
+      }
+      return { ok: true, result: blocks, summary: `Rendered ${artifact}` };
     },
 
     async deep_research(args) {

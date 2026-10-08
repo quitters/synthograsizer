@@ -1,0 +1,281 @@
+{
+  "promptTemplate": "A film still from {{film}}: {{scene}}, featuring {{cast}}, {{framing}}, lit by {{lighting}}, the print showing {{damage}}; no captions, titles or lettering anywhere in the frame",
+  "variables": [
+    {
+      "name": "film",
+      "feature_name": "Film",
+      "values": [
+        {
+          "text": "a 1926 Soviet montage picture on nitrate black-and-white stock",
+          "weight": 3
+        },
+        {
+          "text": "a 1966 Czech new-wave comedy in saturated colour",
+          "weight": 3
+        },
+        {
+          "text": "a 1972 Italian thriller shot on grainy 35mm with candy-coloured gels",
+          "weight": 3
+        },
+        {
+          "text": "a 1990 Hong Kong crime film with neon, smeared highlights and slow shutter",
+          "weight": 3
+        },
+        {
+          "text": "a 1952 Hollywood adventure in three-strip Technicolor",
+          "weight": 3
+        },
+        {
+          "text": "a 1998 Lagos home-video drama shot on camcorder tape",
+          "weight": 2
+        },
+        {
+          "text": "a 1948 Mexican melodrama in glowing high-contrast black and white",
+          "weight": 2
+        },
+        {
+          "text": "a 1971 Japanese studio programmer in faded colour with wide lenses",
+          "weight": 2
+        },
+        {
+          "text": "a 1924 German expressionist fantasy with painted shadows",
+          "weight": 2
+        },
+        {
+          "text": "a 1997 Iranian road film in naturalistic daylight on 16mm",
+          "weight": 2
+        },
+        {
+          "text": "a 1983 Bombay adventure epic in lurid saturated colour",
+          "weight": 2
+        },
+        {
+          "text": "a 1964 Brazilian drama in harsh sun, handheld 16mm",
+          "weight": 1
+        },
+        {
+          "text": "a 1981 Polish allegory in muted smoky colour",
+          "weight": 1
+        },
+        {
+          "text": "a 1979 Soviet science-fiction film in desaturated colour with practical effects",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "scene",
+      "feature_name": "Scene",
+      "values": [
+        {
+          "text": "a wedding procession that has lost its bride",
+          "weight": 3
+        },
+        {
+          "text": "two strangers sharing an umbrella on a railway platform",
+          "weight": 3
+        },
+        {
+          "text": "a dinner party where every chair faces the wall",
+          "weight": 3
+        },
+        {
+          "text": "a chase through a covered market",
+          "weight": 2
+        },
+        {
+          "text": "a seance in a crowded kitchen",
+          "weight": 2
+        },
+        {
+          "text": "a boxing match in an empty stadium",
+          "weight": 2
+        },
+        {
+          "text": "a funeral held on a ferry",
+          "weight": 2
+        },
+        {
+          "text": "a bank clerk discovering a door in the vault",
+          "weight": 2
+        },
+        {
+          "text": "a children's choir in a flooded church",
+          "weight": 1
+        },
+        {
+          "text": "a night shift at a lighthouse",
+          "weight": 1
+        },
+        {
+          "text": "a tailor measuring a ghost",
+          "weight": 1
+        },
+        {
+          "text": "a village raising a giant radio mast",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "cast",
+      "feature_name": "Cast",
+      "values": [
+        {
+          "text": "a lone figure in a long coat",
+          "weight": 3
+        },
+        {
+          "text": "a crowd of extras in period dress",
+          "weight": 3
+        },
+        {
+          "text": "three siblings in matching hats",
+          "weight": 2
+        },
+        {
+          "text": "an elderly couple in their Sunday best",
+          "weight": 2
+        },
+        {
+          "text": "a masked performer",
+          "weight": 2
+        },
+        {
+          "text": "a uniformed official with a clipboard",
+          "weight": 2
+        },
+        {
+          "text": "a child holding an enormous umbrella",
+          "weight": 1
+        },
+        {
+          "text": "two rival brass bands",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "framing",
+      "feature_name": "Framing",
+      "values": [
+        {
+          "text": "a frontal symmetrical tableau on a wide lens",
+          "weight": 3
+        },
+        {
+          "text": "a low-angle hero shot",
+          "weight": 3
+        },
+        {
+          "text": "a long-lens two-shot",
+          "weight": 2
+        },
+        {
+          "text": "an overhead god's-eye view",
+          "weight": 2
+        },
+        {
+          "text": "a deep-focus shot through a doorway",
+          "weight": 2
+        },
+        {
+          "text": "a tilted handheld close shot",
+          "weight": 2
+        },
+        {
+          "text": "a medium shot seen through a dirty window",
+          "weight": 1
+        },
+        {
+          "text": "a silhouette against a lit window",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "lighting",
+      "feature_name": "Lighting",
+      "values": [
+        {
+          "text": "hard window light",
+          "weight": 3
+        },
+        {
+          "text": "tungsten practicals and deep shadow",
+          "weight": 3
+        },
+        {
+          "text": "a single bare bulb",
+          "weight": 2
+        },
+        {
+          "text": "overcast flat daylight",
+          "weight": 2
+        },
+        {
+          "text": "neon spill from a street sign",
+          "weight": 2
+        },
+        {
+          "text": "firelight and moonlight",
+          "weight": 2
+        },
+        {
+          "text": "fluorescent office tubes",
+          "weight": 1
+        },
+        {
+          "text": "headlights through dust",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "damage",
+      "feature_name": "Damage",
+      "values": [
+        {
+          "text": "faded dye layers",
+          "weight": 3
+        },
+        {
+          "text": "vertical scratches and dust",
+          "weight": 3
+        },
+        {
+          "text": "mould blooms at the edges",
+          "weight": 2
+        },
+        {
+          "text": "a burnt frame edge and a splice mark",
+          "weight": 2
+        },
+        {
+          "text": "vinegar-syndrome warping",
+          "weight": 2
+        },
+        {
+          "text": "softened focus from a worn print",
+          "weight": 2
+        },
+        {
+          "text": "a projectionist's cue mark in the corner",
+          "weight": 1
+        },
+        {
+          "text": "water damage rippling across the frame",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "tags": [
+    {
+      "id": "tag_lost_cinema_01",
+      "type": "custom",
+      "label": "Imaginary film archive",
+      "description": "Stills from films that do not exist, grouped by national cinema, era and stock so each draw stays coherent. No real people, no real titles. Written for the Teamcrafter residency, 2026-10-06."
+    }
+  ]
+}

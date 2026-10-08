@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { DoneWhenSettings, SavedSessions } from './RoomTools.jsx';
 
 const API_BASE = '/chatroom/api';
 
@@ -16,7 +17,11 @@ export function SettingsPanel({ agents, isRunning, onBranchRestored }) {
     sensitivity: 'medium', // 'low', 'medium', 'high', 'manual'
     requireExplicitMarker: false,
     minSignoffCount: 2,
-    customPhrases: []
+    customPhrases: [],
+    closeBy: 'lead',   // 'lead' (default) | 'vote'
+    leadAgent: '',
+    minTurns: 0,
+    maxTurns: 0
   });
   const [newPhrase, setNewPhrase] = useState('');
 
@@ -202,9 +207,23 @@ export function SettingsPanel({ agents, isRunning, onBranchRestored }) {
         >
           Branches
         </button>
+        <button
+          className={`settings-tab ${activeTab === 'done' ? 'active' : ''}`}
+          onClick={() => setActiveTab('done')}
+        >
+          Done when
+        </button>
+        <button
+          className={`settings-tab ${activeTab === 'saved' ? 'active' : ''}`}
+          onClick={() => setActiveTab('saved')}
+        >
+          Saved
+        </button>
       </div>
 
       <div className="settings-content">
+        {activeTab === 'done' && <DoneWhenSettings isRunning={isRunning} />}
+        {activeTab === 'saved' && <SavedSessions isRunning={isRunning} />}
         {activeTab === 'order' && (
           <div className="speaking-order-settings">
             <h4>Speaking Order Mode</h4>
@@ -304,6 +323,42 @@ export function SettingsPanel({ agents, isRunning, onBranchRestored }) {
                   </div>
                 </div>
 
+                {/* Who ends the session */}
+                <div className="setting-group">
+                  <label>Who ends the session</label>
+                  <div className="sensitivity-options">
+                    {[
+                      { value: 'lead', label: 'A lead agent (default)', desc: 'Only the lead can end it; the others only recommend. Stops agents echoing each other into an early finish' },
+                      { value: 'vote', label: 'The agents, by vote', desc: 'Enough agents saying [CONSENSUS REACHED] ends it (the old behaviour)' }
+                    ].map(opt => (
+                      <label key={opt.value} className="sensitivity-option">
+                        <input
+                          type="radio"
+                          name="closeBy"
+                          value={opt.value}
+                          checked={(consensusSettings.closeBy || 'lead') === opt.value}
+                          onChange={() => updateConsensusSetting('closeBy', opt.value)}
+                          disabled={isRunning}
+                        />
+                        <div className="option-content">
+                          <span className="option-label">{opt.label}</span>
+                          <span className="option-desc">{opt.desc}</span>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                  {(consensusSettings.closeBy || 'lead') === 'lead' && (
+                    <select
+                      value={consensusSettings.leadAgent || ''}
+                      onChange={(e) => updateConsensusSetting('leadAgent', e.target.value)}
+                      disabled={isRunning}
+                    >
+                      <option value="">The first agent{agents[0] ? ` (${agents[0].name})` : ''}</option>
+                      {agents.map(a => <option key={a.id} value={a.name}>{a.name}</option>)}
+                    </select>
+                  )}
+                </div>
+
                 {/* Require Explicit Marker */}
                 <label className="toggle-setting">
                   <input
@@ -373,6 +428,36 @@ export function SettingsPanel({ agents, isRunning, onBranchRestored }) {
                 </div>
               </>
             )}
+
+            {/* Limits: these work whether or not consensus detection is on */}
+            <div className="setting-group">
+              <label>Never end before turn</label>
+              <input
+                type="number"
+                min="0"
+                max="1000"
+                value={consensusSettings.minTurns ?? 0}
+                onChange={(e) => updateConsensusSetting('minTurns', parseInt(e.target.value, 10) || 0)}
+                disabled={isRunning}
+              />
+              <p className="help-text">
+                Agreement before this many turns is ignored, so a session cannot be closed out before it has really started. 0 = no minimum.
+              </p>
+            </div>
+            <div className="setting-group">
+              <label>Stop after this many turns</label>
+              <input
+                type="number"
+                min="0"
+                max="5000"
+                value={consensusSettings.maxTurns ?? 0}
+                onChange={(e) => updateConsensusSetting('maxTurns', parseInt(e.target.value, 10) || 0)}
+                disabled={isRunning}
+              />
+              <p className="help-text">
+                Ends the session whatever else has happened, so it never depends on the agents agreeing. The agents are warned in the last round so the work is finished. 0 = no limit.
+              </p>
+            </div>
 
             {/* Built-in Phrases Reference */}
             <details className="builtin-phrases">

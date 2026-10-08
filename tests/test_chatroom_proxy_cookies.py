@@ -85,3 +85,17 @@ def test_an_unreachable_chat_room_is_a_502_not_a_crash(monkeypatch):
     _upstream(monkeypatch, handler)
     r = client.get("/chatroom/api/chat/stream", headers={"accept": "text/event-stream"})
     assert r.status_code == 502
+
+
+def test_the_event_stream_forwards_its_query_string(monkeypatch):
+    """The Agent Studio opens the stream with ?renders=1 to say it can render artifacts for the room; the proxy used to drop it."""
+    seen = {}
+
+    def handler(request: httpx.Request):
+        seen["url"] = str(request.url)
+        return httpx.Response(200, headers=[("content-type", "text/event-stream")], stream=httpx.ByteStream(b"retry: 300\n\n"))
+
+    _upstream(monkeypatch, handler)
+    with client.stream("GET", "/chatroom/api/chat/stream?renders=1", headers={"accept": "text/event-stream"}) as r:
+        b"".join(r.iter_bytes())
+    assert seen["url"].endswith("/api/chat/stream?renders=1")

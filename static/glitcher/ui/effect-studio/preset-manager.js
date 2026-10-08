@@ -2,148 +2,27 @@
  * Preset Manager
  * Handles saving, loading, and managing effect chain presets
  */
+import { PRESET_PACKS, presetFromChain } from '../presets.js';
+
 export class PresetManager {
   constructor() {
     this.presets = this.loadPresetsFromStorage();
     this.defaultPresets = this.createDefaultPresets();
   }
 
+  // The built-in presets are the packs in ../preset-data.js. (The four that used to be written out here named effect
+  // ids that no longer exist, so three of them loaded empty.)
   createDefaultPresets() {
-    return {
-      'Classic Glitch': {
-        name: 'Classic Glitch',
-        description: 'Traditional glitch art effects',
-        version: '1.0',
-        chain: [
-          {
-            type: 'direction',
-            mode: 'destructive',
-            enabled: true,
-            parameters: {
-              direction: 'down',
-              speed: 3,
-              selectionAware: true
-            }
-          },
-          {
-            type: 'slice',
-            mode: 'destructive',
-            enabled: true,
-            parameters: {
-              mode: 'horizontal',
-              offset: 20
-            }
-          }
-        ]
-      },
-      'Psychedelic': {
-        name: 'Psychedelic',
-        description: 'Trippy color effects',
-        version: '1.0',
-        chain: [
-          {
-            type: 'spiral',
-            mode: 'non-destructive',
-            enabled: true,
-            parameters: {
-              type: 'spiral',
-              strength: 0.08,
-              opacity: 0.7,
-              blendMode: 'overlay'
-            }
-          },
-          {
-            type: 'color',
-            mode: 'non-destructive',
-            enabled: true,
-            parameters: {
-              effect: 'hue-shift',
-              intensity: 0.8,
-              opacity: 0.6,
-              blendMode: 'screen'
-            }
-          }
-        ]
-      },
-      'Datamosh': {
-        name: 'Datamosh',
-        description: 'Digital compression artifacts',
-        version: '1.0',
-        chain: [
-          {
-            type: 'pixel-sort',
-            mode: 'destructive',
-            enabled: true,
-            parameters: {
-              method: 'column-brightness',
-              threshold: 0.3
-            }
-          },
-          {
-            type: 'slice',
-            mode: 'destructive',
-            enabled: true,
-            parameters: {
-              mode: 'both',
-              offset: 30
-            }
-          },
-          {
-            type: 'color',
-            mode: 'non-destructive',
-            enabled: true,
-            parameters: {
-              effect: 'chromatic-aberration',
-              intensity: 0.5,
-              opacity: 0.8,
-              blendMode: 'normal'
-            }
-          }
-        ]
-      },
-      'Retro VHS': {
-        name: 'Retro VHS',
-        description: 'VHS tape degradation effects',
-        version: '1.0',
-        chain: [
-          {
-            type: 'filter',
-            mode: 'non-destructive',
-            enabled: true,
-            parameters: {
-              filter: 'vintage-film',
-              style: 'vhs',
-              grain: 0.4,
-              opacity: 0.9,
-              blendMode: 'normal'
-            }
-          },
-          {
-            type: 'slice',
-            mode: 'destructive',
-            enabled: true,
-            parameters: {
-              mode: 'horizontal',
-              offset: 15
-            }
-          },
-          {
-            type: 'color',
-            mode: 'non-destructive',
-            enabled: true,
-            parameters: {
-              effect: 'color-noise',
-              intensity: 0.3,
-              opacity: 0.5,
-              blendMode: 'screen'
-            }
-          }
-        ]
-      }
-    };
+    const presets = {};
+    for (const pack of PRESET_PACKS) {
+      for (const preset of pack.presets) presets[preset.name] = { version: '1.0', pack: pack.id, ...preset };
+    }
+    return presets;
   }
 
   savePreset(name, effectChain, options = {}) {
+    // type is the effect id (what applyPreset reads); effect.type is only the category, which loaded as an unknown effect
+    const { selection, chain } = presetFromChain(name, effectChain);
     const preset = {
       name: name,
       description: options.description || '',
@@ -153,14 +32,9 @@ export class PresetManager {
       author: options.author || 'User',
       tags: options.tags || [],
       thumbnail: options.thumbnail || null,
-      chain: effectChain.map(effect => ({
-        type: effect.type,
-        name: effect.name,
-        mode: effect.mode,
-        enabled: effect.enabled,
-        parameters: { ...effect.parameters }
-      }))
+      chain
     };
+    if (selection) preset.selection = selection;
     
     this.presets[name] = preset;
     this.savePresetsToStorage();

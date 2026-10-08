@@ -1,0 +1,233 @@
+{
+  "promptTemplate": "{{plate_style}} of {{creature}} {{habitat}}, {{layout}}, {{labels}}, {{paper}}",
+  "variables": [
+    {
+      "name": "creature",
+      "feature_name": "Specimen",
+      "values": [
+        {
+          "text": "a moth whose abdomen is a lantern",
+          "weight": 3
+        },
+        {
+          "text": "a fern that grows in steps",
+          "weight": 3
+        },
+        {
+          "text": "a fish that carries its own pond",
+          "weight": 3
+        },
+        {
+          "text": "a bird made of small bells",
+          "weight": 2
+        },
+        {
+          "text": "a tree that walks with the seasons",
+          "weight": 2
+        },
+        {
+          "text": "a jellyfish shaped like a library",
+          "weight": 2
+        },
+        {
+          "text": "a beetle shaped like a pocket watch",
+          "weight": 2
+        },
+        {
+          "text": "a flower that blooms in response to sound",
+          "weight": 2
+        },
+        {
+          "text": "a colony of mushrooms arranged as a city",
+          "weight": 1
+        },
+        {
+          "text": "a snail whose shell holds a spiral staircase",
+          "weight": 1
+        },
+        {
+          "text": "a lichen that grows maps",
+          "weight": 1
+        },
+        {
+          "text": "a moss that holds echoes",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "plate_style",
+      "feature_name": "Plate Style",
+      "values": [
+        {
+          "text": "A Victorian chromolithograph plate",
+          "weight": 3
+        },
+        {
+          "text": "A nineteenth-century monograph engraving with hand-colouring",
+          "weight": 3
+        },
+        {
+          "text": "An Edo-period woodblock natural-history print",
+          "weight": 2
+        },
+        {
+          "text": "A mid-century school-textbook diagram",
+          "weight": 2
+        },
+        {
+          "text": "A modern field-guide illustration",
+          "weight": 2
+        },
+        {
+          "text": "A museum cabinet photograph",
+          "weight": 2
+        },
+        {
+          "text": "A scientific cross-section diagram",
+          "weight": 1
+        },
+        {
+          "text": "An expedition artist's watercolour sheet",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "habitat",
+      "feature_name": "Habitat",
+      "values": [
+        {
+          "text": "from a dry salt flat",
+          "weight": 3
+        },
+        {
+          "text": "from a deep cave pool",
+          "weight": 3
+        },
+        {
+          "text": "from a cloud forest",
+          "weight": 2
+        },
+        {
+          "text": "from a tidal pool",
+          "weight": 2
+        },
+        {
+          "text": "from a rooftop garden",
+          "weight": 2
+        },
+        {
+          "text": "from a derelict greenhouse",
+          "weight": 2
+        },
+        {
+          "text": "from an alpine meadow",
+          "weight": 1
+        },
+        {
+          "text": "from a night market",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "layout",
+      "feature_name": "Layout",
+      "values": [
+        {
+          "text": "a single large specimen centred on the sheet",
+          "weight": 3
+        },
+        {
+          "text": "a grid of its life stages",
+          "weight": 3
+        },
+        {
+          "text": "the specimen with a cross-section inset",
+          "weight": 2
+        },
+        {
+          "text": "a pair side by side",
+          "weight": 2
+        },
+        {
+          "text": "the specimen ringed by leaves",
+          "weight": 2
+        },
+        {
+          "text": "three views of the same specimen",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "labels",
+      "feature_name": "Labels",
+      "values": [
+        {
+          "text": "with Latin-style captions and fine numerals",
+          "weight": 3
+        },
+        {
+          "text": "with a handwritten field note",
+          "weight": 3
+        },
+        {
+          "text": "with a scale bar",
+          "weight": 2
+        },
+        {
+          "text": "with lettered callouts",
+          "weight": 2
+        },
+        {
+          "text": "with a pinned specimen label",
+          "weight": 2
+        },
+        {
+          "text": "with marginal sketches of the same species",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "paper",
+      "feature_name": "Paper",
+      "values": [
+        {
+          "text": "on foxed cream paper",
+          "weight": 3
+        },
+        {
+          "text": "on blue-grey paper",
+          "weight": 3
+        },
+        {
+          "text": "on tea-stained vellum",
+          "weight": 2
+        },
+        {
+          "text": "on bright white card",
+          "weight": 2
+        },
+        {
+          "text": "on dark kraft paper",
+          "weight": 2
+        },
+        {
+          "text": "on aged green paper",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "tags": [
+    {
+      "id": "tag_specimen_plates_01",
+      "type": "custom",
+      "label": "Natural history of impossible species",
+      "description": "Scientific plates of species that do not exist, in the visual languages of natural-history illustration. Written for the Teamcrafter residency, 2026-10-06."
+    }
+  ]
+}

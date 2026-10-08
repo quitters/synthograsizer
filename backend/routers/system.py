@@ -141,7 +141,8 @@ async def proxy_chatroom(request: Request, path: str):
         client = httpx.AsyncClient()
         try:
             upstream = await client.send(
-                client.build_request("GET", url, headers=headers, timeout=None), stream=True)
+                client.build_request("GET", url, headers=headers, params=dict(request.query_params), timeout=None),
+                stream=True)
         except httpx.HTTPError as e:
             await client.aclose()
             raise HTTPException(status_code=502, detail=f"ChatRoom backend unreachable: {e}")

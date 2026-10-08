@@ -1,0 +1,164 @@
+{
+  "promptTemplate": "A dynamic magnetic field shaped by {{pole_topology}}, its texture shifting to {{field_viscosity}} as {{flux_density}} flows with a {{kinetic_surge}} bathed in {{chroma_temper}}.",
+  "variables": [
+    {
+      "name": "pole_topology",
+      "feature_name": "Pole Topology",
+      "values": [
+        {
+          "text": "Single Dipole",
+          "weight": 3
+        },
+        {
+          "text": "Opposing Pair",
+          "weight": 3
+        },
+        {
+          "text": "Triangular Vortex",
+          "weight": 3
+        },
+        {
+          "text": "Quadrupole Cross",
+          "weight": 2
+        },
+        {
+          "text": "Pentagonal Ring",
+          "weight": 2
+        },
+        {
+          "text": "Chaotic Multipole",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "field_viscosity",
+      "feature_name": "Field Viscosity",
+      "values": [
+        {
+          "text": "Silk Streamlines",
+          "weight": 3
+        },
+        {
+          "text": "Viscous Honey",
+          "weight": 3
+        },
+        {
+          "text": "Tense Membrane",
+          "weight": 2
+        },
+        {
+          "text": "Brittle Spikes",
+          "weight": 2
+        },
+        {
+          "text": "Ferro Needles",
+          "weight": 2
+        },
+        {
+          "text": "Fractured Shards",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "flux_density",
+      "feature_name": "Flux Density",
+      "values": [
+        {
+          "text": "Sparse Filaments",
+          "weight": 3
+        },
+        {
+          "text": "Woven Strands",
+          "weight": 3
+        },
+        {
+          "text": "Braided Ribbons",
+          "weight": 3
+        },
+        {
+          "text": "Dense Currents",
+          "weight": 2
+        },
+        {
+          "text": "Solid Saturation",
+          "weight": 2
+        },
+        {
+          "text": "Total Eclipse",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "kinetic_surge",
+      "feature_name": "Kinetic Surge",
+      "values": [
+        {
+          "text": "Drifting Orbit",
+          "weight": 3
+        },
+        {
+          "text": "Pulsing Tide",
+          "weight": 3
+        },
+        {
+          "text": "Turbulent Swirl",
+          "weight": 2
+        },
+        {
+          "text": "Whipping Shear",
+          "weight": 2
+        },
+        {
+          "text": "Resonant Flutter",
+          "weight": 2
+        },
+        {
+          "text": "Seismic Roar",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "chroma_temper",
+      "feature_name": "Chroma Temper",
+      "values": [
+        {
+          "text": "Iron Hematite",
+          "weight": 3
+        },
+        {
+          "text": "Cobalt Steel",
+          "weight": 3
+        },
+        {
+          "text": "Bismuth Sheen",
+          "weight": 2
+        },
+        {
+          "text": "Copper Patina",
+          "weight": 2
+        },
+        {
+          "text": "Molten Magma",
+          "weight": 2
+        },
+        {
+          "text": "Solar Flare",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "p5Code": "const POLE_TOPOLOGY = {\n    \"Single Dipole\": 2,\n    \"Opposing Pair\": 4,\n    \"Triangular Vortex\": 3,\n    \"Quadrupole Cross\": 4,\n    \"Pentagonal Ring\": 5,\n    \"Chaotic Multipole\": 8\n};\n\nconst FIELD_VISCOSITY = {\n    \"Silk Streamlines\": { steps: 16, spike: 0.0, stepSize: 8 },\n    \"Viscous Honey\": { steps: 12, spike: 0.2, stepSize: 10 },\n    \"Tense Membrane\": { steps: 8, spike: 0.5, stepSize: 15 },\n    \"Brittle Spikes\": { steps: 5, spike: 1.2, stepSize: 24 },\n    \"Ferro Needles\": { steps: 3, spike: 2.5, stepSize: 36 },\n    \"Fractured Shards\": { steps: 2, spike: 4.0, stepSize: 50 }\n};\n\nconst FLUX_DENSITY = {\n    \"Sparse Filaments\": 220,\n    \"Woven Strands\": 320,\n    \"Braided Ribbons\": 440,\n    \"Dense Currents\": 580,\n    \"Solid Saturation\": 720,\n    \"Total Eclipse\": 880\n};\n\nconst KINETIC_SURGE = {\n    \"Drifting Orbit\": 0.002,\n    \"Pulsing Tide\": 0.005,\n    \"Turbulent Swirl\": 0.01,\n    \"Whipping Shear\": 0.02,\n    \"Resonant Flutter\": 0.035,\n    \"Seismic Roar\": 0.06\n};\n\nconst CHROMA_TEMPER = {\n    \"Iron Hematite\": { bg: \"#080808\", c1: \"#3b3b3b\", c2: \"#8a8a8a\" },\n    \"Cobalt Steel\": { bg: \"#040811\", c1: \"#1a467b\", c2: \"#4c8de6\" },\n    \"Bismuth Sheen\": { bg: \"#0c0312\", c1: \"#8a2be2\", c2: \"#00ffcc\" },\n    \"Copper Patina\": { bg: \"#0d0603\", c1: \"#b87333\", c2: \"#45a27d\" },\n    \"Molten Magma\": { bg: \"#140300\", c1: \"#cc2900\", c2: \"#ffb300\" },\n    \"Solar Flare\": { bg: \"#171300\", c1: \"#ffaa00\", c2: \"#ffffff\" }\n};\n\nlet particles = [];\nlet poles = [];\nlet currentDensity = 0;\nlet currentTopology = \"\";\n\np.setup = function() {\n    p.createCanvas(800, 800);\n    p.noFill();\n};\n\np.draw = function() {\n    const topologyStr = p.getSynthVar('pole_topology') || \"Single Dipole\";\n    const viscosityStr = p.getSynthVar('field_viscosity') || \"Silk Streamlines\";\n    const fluxStr = p.getSynthVar('flux_density') || \"Sparse Filaments\";\n    const surgeStr = p.getSynthVar('kinetic_surge') || \"Drifting Orbit\";\n    const chromaStr = p.getSynthVar('chroma_temper') || \"Iron Hematite\";\n\n    const poleCount = POLE_TOPOLOGY[topologyStr];\n    const viscConfig = FIELD_VISCOSITY[viscosityStr];\n    const targetDensity = FLUX_DENSITY[fluxStr];\n    const surgeSpeed = KINETIC_SURGE[surgeStr];\n    const palette = CHROMA_TEMPER[chromaStr];\n\n    if (topologyStr !== currentTopology) {\n        poles = [];\n        for (let i = 0; i < poleCount; i++) {\n            poles.push({\n                angle: (p.TWO_PI / poleCount) * i,\n                radius: p.random(120, 280),\n                polarity: (i % 2 === 0) ? 1 : -1,\n                phase: p.random(p.TWO_PI)\n            });\n        }\n        currentTopology = topologyStr;\n    }\n\n    if (targetDensity !== currentDensity) {\n        if (targetDensity > currentDensity) {\n            for (let i = currentDensity; i < targetDensity; i++) {\n                particles.push({\n                    x: p.random(p.width),\n                    y: p.random(p.height),\n                    life: p.random(50, 150)\n                });\n            }\n        } else {\n            particles.splice(targetDensity);\n        }\n        currentDensity = targetDensity;\n    }\n\n    let t = p.frameCount * surgeSpeed;\n    for (let i = 0; i < poles.length; i++) {\n        poles[i].x = 400 + p.cos(poles[i].angle + t + poles[i].phase) * poles[i].radius * (1 + 0.2 * p.sin(t * 1.5));\n        poles[i].y = 400 + p.sin(poles[i].angle + t * 1.2 + poles[i].phase) * poles[i].radius * (1 + 0.2 * p.cos(t * 1.5));\n    }\n\n    p.background(palette.bg);\n    \n    p.strokeWeight(p.map(currentDensity, 220, 880, 4.0, 0.8));\n    \n    let grad = p.drawingContext.createLinearGradient(0, 0, 800, 800);\n    grad.addColorStop(0, palette.c1);\n    grad.addColorStop(1, palette.c2);\n    p.drawingContext.strokeStyle = grad;\n    \n    p.drawingContext.beginPath();\n    let batchCount = 0;\n    \n    for (let i = 0; i < currentDensity; i++) {\n        let pt = particles[i];\n        let cx = pt.x;\n        let cy = pt.y;\n        \n        p.drawingContext.moveTo(cx, cy);\n\n        for (let step = 0; step < viscConfig.steps; step++) {\n            let fx = 0;\n            let fy = 0;\n            \n            for (let p_idx = 0; p_idx < poles.length; p_idx++) {\n                let pl = poles[p_idx];\n                let dx = cx - pl.x;\n                let dy = cy - pl.y;\n                let distSq = dx * dx + dy * dy + 200; \n                let force = (1200 * pl.polarity) / distSq;\n                fx += dx * force;\n                fy += dy * force;\n            }\n            \n            let mag = p.sqrt(fx * fx + fy * fy) + 0.0001;\n            \n            if (viscConfig.spike > 0) {\n                let jitterX = p.sin(cx * 0.05 + t * 10) * p.cos(cy * 0.05);\n                let jitterY = p.cos(cx * 0.05 - t * 10) * p.sin(cy * 0.05);\n                fx += jitterX * viscConfig.spike * mag;\n                fy += jitterY * viscConfig.spike * mag;\n                mag = p.sqrt(fx * fx + fy * fy) + 0.0001;\n            }\n\n            cx += (fx / mag) * viscConfig.stepSize;\n            cy += (fy / mag) * viscConfig.stepSize;\n            \n            p.drawingContext.lineTo(cx, cy);\n        }\n\n        batchCount++;\n        if (batchCount % 200 === 0) {\n            p.drawingContext.stroke();\n            p.drawingContext.beginPath();\n        }\n\n        pt.life--;\n        if (pt.life <= 0 || pt.x < 0 || pt.x > p.width || pt.y < 0 || pt.y > p.height) {\n            pt.x = p.random(p.width);\n            pt.y = p.random(p.height);\n            pt.life = p.random(50, 150);\n        } else {\n            pt.x += p.sin(pt.y * 0.02 + t * 2) * 2;\n            pt.y += p.cos(pt.x * 0.02 + t * 2) * 2;\n        }\n    }\n\n    if (batchCount % 200 !== 0) {\n        p.drawingContext.stroke();\n    }\n};\n",
+  "tags": [
+    {
+      "id": "tag_ferrofluid_magnetics_01",
+      "type": "custom",
+      "label": "Designed and written by an agent swarm",
+      "description": "Concept, variables and code written by a crew of agents in the Agent Studio chat room (instrument-lab-06-polish) and played by the harness before it was accepted. Teamcrafter residency, 2026-10-07 (drafted in instrument-lab-03, made fast in -05, made striking everywhere in -06)."
+    }
+  ]
+}

@@ -16,6 +16,7 @@ import crypto from 'node:crypto';
 import { ChatOrchestrator } from './orchestrator.js';
 import { MediaStore } from './mediaStore.js';
 import { ArtifactStore } from './artifactStore.js';
+import { SessionArchive, attachArchive, autosaveEnabled, dataDir, retentionDays } from './sessionArchive.js';
 
 export const EMPTY_ROOM_TTL_MS = 10 * 60 * 1000;          // never used
 export const IDLE_ROOM_TTL_MS = 6 * 60 * 60 * 1000;       // used, then abandoned
@@ -73,11 +74,25 @@ export function getRoom(id) {
     sweep();
     const mediaStore = new MediaStore();
     const artifactStore = new ArtifactStore();
+    const orchestrator = new ChatOrchestrator({ ownerId: id, mediaStore, artifactStore });
+    // Saved to disk as it talks (see sessionArchive.js): on for a local install, off on a hosted one
+    let archive = null;
+    if (autosaveEnabled()) {
+      try {
+        archive = new SessionArchive({ rootDir: dataDir(), roomId: id, retentionDays: retentionDays() });
+        archive.prune();
+        attachArchive(orchestrator, archive);
+      } catch (err) {
+        console.warn(`[sessionRegistry] saving to disk is unavailable: ${err.message}`);
+        archive = null;
+      }
+    }
     room = {
       id,
       mediaStore,
       artifactStore,
-      orchestrator: new ChatOrchestrator({ ownerId: id, mediaStore, artifactStore }),
+      orchestrator,
+      archive,
       lastSeen: Date.now(),
     };
     rooms.set(id, room);

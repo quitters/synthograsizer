@@ -70,6 +70,21 @@ def normalize_template(template: dict) -> dict:
 
     return normalized
 
+# Craft rules for templates whose output is an IMAGE prompt (the text, analysis, hybrid, multi-image and remix generators). They are the
+# recipes behind the shipped image-prompt engines, found by drawing from them and looking at contact sheets; the full write-up with the
+# evidence is docs/ENGINE_DESIGN.md. Appended to those system prompts; the story, p5.js and agent generators have their own rules.
+IMAGE_PROMPT_CRAFT_RULES = """
+
+## CRAFT RULES FOR IMAGE PROMPTS
+These come from drawing hundreds of images from templates and looking at them. Apply them to everything you write (when editing, only to what you add or rewrite).
+1. **Bundle values that must agree.** When two attributes depend on each other (era and film stock, nation and architecture, material and age), put BOTH in one variable whose values carry them together ("a 1966 Czech new-wave comedy in saturated colour"), so a random draw can never pair 1926 with colour video. Keep attributes that are truly independent (scene, framing, lighting, damage) as separate variables.
+2. **Fit the sentence.** The promptTemplate must stay grammatical for every combination of values and read as one image prompt of under about 60 words once filled.
+3. **Keep stray text out of the picture.** Image models stamp captions, titles and fake logos on a scene. Unless lettering is the point (posters, notices, cards, labels), end the promptTemplate with "no captions, titles or lettering anywhere in the frame". When lettering IS the point, invent the wording; do not name real titles or brands.
+4. **Make background items generic.** If the scene has shelves, crowds, vehicles or signs in the background, say they are generic or unlabelled ("any other tapes in view are unlabelled cases with blank spines"), or the model fills them with real brand and title names.
+5. **Phrase organisations as trades or places, not institutions.** "slate-quarry blasters" works; "the Slate Quarry Union" makes the model paint a banner and a crest.
+6. **Invent, do not borrow.** Unless the user names them, do not put real people, living artists, brands or copyrighted characters in values. Describe the look instead and invent the studio, nation or character.
+"""
+
 def generate_template(self, user_prompt: str, model_override: str = None) -> str:
     """
     Generates a Synthograsizer JSON template based on user prompt.
@@ -146,7 +161,7 @@ WRONG (parallel arrays — NEVER use this):
     
     try:
          return self.llm_text(
-            [system_prompt, f"User Request: {user_prompt}"],
+            [system_prompt + IMAGE_PROMPT_CRAFT_RULES, f"User Request: {user_prompt}"],
             model,
             json_mode=True,
          )
@@ -213,7 +228,7 @@ Each entry in "values" is: {"text": "the value string", "weight": N}
 
     try:
          return self.llm_text(
-            [system_prompt, f"Image Analysis: {analysis_text}"],
+            [system_prompt + IMAGE_PROMPT_CRAFT_RULES, f"Image Analysis: {analysis_text}"],
             model,
             json_mode=True,
          )
@@ -283,7 +298,7 @@ Each entry in "values" is: {"text": "the value string", "weight": N}
         # Image analysis above used Google (multimodal); this final step is
         # text-only and follows the active backend tier.
         return self.llm_text(
-            [system_prompt, f"IMAGE ANALYSIS:\n{analysis}\n\nUSER DIRECTION:\n{direction}"],
+            [system_prompt + IMAGE_PROMPT_CRAFT_RULES, f"IMAGE ANALYSIS:\n{analysis}\n\nUSER DIRECTION:\n{direction}"],
             model,
             json_mode=True,
         )
@@ -372,7 +387,7 @@ Each entry in "values" is: {"text": "the value string", "weight": N}
     try:
         # Per-image analyses above used Google (multimodal); this synthesis
         # step is text-only and follows the active backend tier.
-        return self.llm_text([system_prompt, combined], model, json_mode=True)
+        return self.llm_text([system_prompt + IMAGE_PROMPT_CRAFT_RULES, combined], model, json_mode=True)
     except SafetyBlockedError:
         raise  # keep the type — routers emit a structured 422 for these
     except Exception as e:
@@ -438,7 +453,7 @@ Each entry in "values" is: {"text": "the value string", "weight": N}
     template_json = json.dumps(current_template, indent=2)
 
     try:
-        contents = [system_prompt, f"CURRENT TEMPLATE:\n{template_json}\n\nINSTRUCTIONS:\n{instruction}"]
+        contents = [system_prompt + IMAGE_PROMPT_CRAFT_RULES, f"CURRENT TEMPLATE:\n{template_json}\n\nINSTRUCTIONS:\n{instruction}"]
 
         if not reference_images:
             # Text-only remix follows the active backend tier.

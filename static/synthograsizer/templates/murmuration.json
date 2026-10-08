@@ -1,0 +1,164 @@
+{
+  "promptTemplate": "A murmuration with {{flock_density}}, driven by a {{predator_fury}} through {{aerial_current}}, glowing like {{plumage_glow}} made of {{wing_geometry}}.",
+  "variables": [
+    {
+      "name": "flock_density",
+      "feature_name": "Flock Mass",
+      "values": [
+        {
+          "text": "drifting mist",
+          "weight": 3
+        },
+        {
+          "text": "compact cluster",
+          "weight": 3
+        },
+        {
+          "text": "surging river",
+          "weight": 3
+        },
+        {
+          "text": "dense smoke",
+          "weight": 2
+        },
+        {
+          "text": "swarming vortex",
+          "weight": 2
+        },
+        {
+          "text": "black hole",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "predator_fury",
+      "feature_name": "Predator Drive",
+      "values": [
+        {
+          "text": "lazy circling",
+          "weight": 3
+        },
+        {
+          "text": "curious stalker",
+          "weight": 3
+        },
+        {
+          "text": "slicing passes",
+          "weight": 3
+        },
+        {
+          "text": "relentless dive",
+          "weight": 2
+        },
+        {
+          "text": "frenzied raptor",
+          "weight": 2
+        },
+        {
+          "text": "shattering bolt",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "aerial_current",
+      "feature_name": "Atmosphere",
+      "values": [
+        {
+          "text": "still dusk",
+          "weight": 3
+        },
+        {
+          "text": "gentle thermals",
+          "weight": 3
+        },
+        {
+          "text": "crosswind gust",
+          "weight": 3
+        },
+        {
+          "text": "choppy gale",
+          "weight": 2
+        },
+        {
+          "text": "whirling squall",
+          "weight": 2
+        },
+        {
+          "text": "tornadic shear",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "plumage_glow",
+      "feature_name": "Bioluminescence",
+      "values": [
+        {
+          "text": "ink silhouettes",
+          "weight": 3
+        },
+        {
+          "text": "graphite shimmer",
+          "weight": 3
+        },
+        {
+          "text": "dusk embers",
+          "weight": 3
+        },
+        {
+          "text": "phosphor trails",
+          "weight": 2
+        },
+        {
+          "text": "neon ionization",
+          "weight": 2
+        },
+        {
+          "text": "solar flare",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "wing_geometry",
+      "feature_name": "Flock Formation",
+      "values": [
+        {
+          "text": "soft grains",
+          "weight": 3
+        },
+        {
+          "text": "needle strokes",
+          "weight": 3
+        },
+        {
+          "text": "chevron darts",
+          "weight": 3
+        },
+        {
+          "text": "filament ribbons",
+          "weight": 2
+        },
+        {
+          "text": "faceted prisms",
+          "weight": 2
+        },
+        {
+          "text": "shards of glass",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "p5Code": "const densityMap = {\n  \"drifting mist\": 600,\n  \"compact cluster\": 800,\n  \"surging river\": 1000,\n  \"dense smoke\": 1200,\n  \"swarming vortex\": 1500,\n  \"black hole\": 1800\n};\n\nconst predatorMap = {\n  \"lazy circling\": { speed: 3, radius: 60, scatter: 0.5 },\n  \"curious stalker\": { speed: 4, radius: 90, scatter: 1.0 },\n  \"slicing passes\": { speed: 6, radius: 120, scatter: 1.5 },\n  \"relentless dive\": { speed: 8, radius: 150, scatter: 2.5 },\n  \"frenzied raptor\": { speed: 11, radius: 200, scatter: 4.0 },\n  \"shattering bolt\": { speed: 15, radius: 300, scatter: 6.0 }\n};\n\nconst currentMap = {\n  \"still dusk\": { force: 0.01, twitch: 0 },\n  \"gentle thermals\": { force: 0.05, twitch: 0.05 },\n  \"crosswind gust\": { force: 0.1, twitch: 0.1 },\n  \"choppy gale\": { force: 0.2, twitch: 0.2 },\n  \"whirling squall\": { force: 0.4, twitch: 0.5 },\n  \"tornadic shear\": { force: 0.8, twitch: 0.9 }\n};\n\nconst glowMap = {\n  \"ink silhouettes\": { bg: [240, 240, 245, 255], fg: \"#111\", trail: 255, ring: \"#333\" },\n  \"graphite shimmer\": { bg: [200, 205, 210, 200], fg: \"#445\", trail: 150, ring: \"#667\" },\n  \"dusk embers\": { bg: [30, 20, 25, 100], fg: \"#f63\", trail: 80, ring: \"#f31\" },\n  \"phosphor trails\": { bg: [5, 10, 15, 40], fg: \"#0f8\", trail: 40, ring: \"#0fa\" },\n  \"neon ionization\": { bg: [10, 5, 20, 20], fg: \"#f0f\", trail: 20, ring: \"#0ff\" },\n  \"solar flare\": { bg: [255, 250, 240, 15], fg: \"#fa0\", trail: 10, ring: \"#f00\" }\n};\n\nconst geoMap = {\n  \"soft grains\": \"circle\",\n  \"needle strokes\": \"line\",\n  \"chevron darts\": \"chevron\",\n  \"filament ribbons\": \"ribbon\",\n  \"faceted prisms\": \"prism\",\n  \"shards of glass\": \"shard\"\n};\n\nlet boids = [];\nlet maxBoids = 1800;\nlet predator = { x: 400, y: 400, vx: 0, vy: 0, tx: 400, ty: 400 };\n\nconst cols = 20;\nconst rows = 20;\nconst cellSize = 40;\nlet gridHeads = new Int16Array(cols * rows);\nlet gridNext = new Int16Array(maxBoids);\n\np.setup = function() {\n  p.createCanvas(800, 800);\n  p.noSmooth();\n  for (let i = 0; i < maxBoids; i++) {\n    boids.push({\n      x: p.random(800), y: p.random(800),\n      vx: p.random(-2, 2), vy: p.random(-2, 2)\n    });\n  }\n};\n\np.draw = function() {\n  const dVal = p.getSynthVar(\"flock_density\") || \"drifting mist\";\n  const pVal = p.getSynthVar(\"predator_fury\") || \"lazy circling\";\n  const cVal = p.getSynthVar(\"aerial_current\") || \"still dusk\";\n  const gVal = p.getSynthVar(\"plumage_glow\") || \"ink silhouettes\";\n  const wVal = p.getSynthVar(\"wing_geometry\") || \"soft grains\";\n\n  const activeBoids = densityMap[dVal];\n  const predConfig = predatorMap[pVal];\n  const currConfig = currentMap[cVal];\n  const glowConfig = glowMap[gVal];\n  const geoConfig = geoMap[wVal];\n  \n  const ctx = p.drawingContext;\n  \n  ctx.fillStyle = `rgba(${glowConfig.bg[0]}, ${glowConfig.bg[1]}, ${glowConfig.bg[2]}, ${glowConfig.trail / 255})`;\n  ctx.fillRect(0, 0, 800, 800);\n\n  predator.tx = p.mouseX > 0 ? p.mouseX : p.noise(p.frameCount * 0.01) * 800;\n  predator.ty = p.mouseY > 0 ? p.mouseY : p.noise(p.frameCount * 0.01 + 100) * 800;\n  let pdx = predator.tx - predator.x;\n  let pdy = predator.ty - predator.y;\n  let plen = Math.sqrt(pdx*pdx + pdy*pdy) || 1;\n  predator.vx += (pdx / plen) * 0.5;\n  predator.vy += (pdy / plen) * 0.5;\n  predator.vx *= 0.95; predator.vy *= 0.95;\n  \n  let pSpd = Math.sqrt(predator.vx*predator.vx + predator.vy*predator.vy) || 1;\n  if (pSpd > predConfig.speed) {\n    predator.vx = (predator.vx / pSpd) * predConfig.speed;\n    predator.vy = (predator.vy / pSpd) * predConfig.speed;\n  }\n  predator.x += predator.vx;\n  predator.y += predator.vy;\n  if (predator.x < 0) predator.x = 800;\n  if (predator.x > 800) predator.x = 0;\n  if (predator.y < 0) predator.y = 800;\n  if (predator.y > 800) predator.y = 0;\n\n  gridHeads.fill(-1);\n  for (let i = 0; i < activeBoids; i++) {\n    let b = boids[i];\n    let cx = Math.floor(b.x / cellSize);\n    let cy = Math.floor(b.y / cellSize);\n    cx = Math.max(0, Math.min(cols - 1, cx));\n    cy = Math.max(0, Math.min(rows - 1, cy));\n    let idx = cx + cy * cols;\n    gridNext[i] = gridHeads[idx];\n    gridHeads[idx] = i;\n  }\n\n  ctx.beginPath();\n  ctx.strokeStyle = glowConfig.fg;\n  ctx.fillStyle = glowConfig.fg;\n  ctx.lineWidth = 1.5;\n\n  let twitchPhase = p.frameCount * 0.5;\n  \n  for (let i = 0; i < activeBoids; i++) {\n    let b = boids[i];\n    \n    let cx = Math.floor(b.x / cellSize);\n    let cy = Math.floor(b.y / cellSize);\n    let alignX = 0, alignY = 0, sepX = 0, sepY = 0, cohX = 0, cohY = 0, count = 0;\n    \n    for (let y = Math.max(0, cy - 1); y <= Math.min(rows - 1, cy + 1); y++) {\n      for (let x = Math.max(0, cx - 1); x <= Math.min(cols - 1, cx + 1); x++) {\n        let curr = gridHeads[x + y * cols];\n        while (curr !== -1) {\n          if (curr !== i) {\n            let ob = boids[curr];\n            let dx = b.x - ob.x;\n            let dy = b.y - ob.y;\n            let dsq = dx*dx + dy*dy;\n            if (dsq < 1600) { \n              alignX += ob.vx; alignY += ob.vy;\n              cohX += ob.x; cohY += ob.y;\n              if (dsq < 400 && dsq > 0) { \n                sepX += dx / dsq; sepY += dy / dsq;\n              }\n              count++;\n            }\n          }\n          curr = gridNext[curr];\n        }\n      }\n    }\n    \n    if (count > 0) {\n      alignX /= count; alignY /= count;\n      cohX /= count; cohY /= count;\n      b.vx += (alignX - b.vx) * 0.05;\n      b.vy += (alignY - b.vy) * 0.05;\n      b.vx += (cohX - b.x) * 0.005;\n      b.vy += (cohY - b.y) * 0.005;\n      b.vx += sepX * 2.0;\n      b.vy += sepY * 2.0;\n    }\n\n    let pfdx = b.x - predator.x;\n    let pfdy = b.y - predator.y;\n    let pfd = Math.sqrt(pfdx*pfdx + pfdy*pfdy) || 0.001;\n    if (pfd < predConfig.radius) {\n      b.vx += (pfdx / pfd) * predConfig.scatter;\n      b.vy += (pfdy / pfd) * predConfig.scatter;\n      if (Math.random() < 0.05 && glowConfig.trail < 100) {\n        ctx.moveTo(b.x + 5, b.y);\n        ctx.arc(b.x, b.y, 5, 0, Math.PI * 2);\n      }\n    }\n\n    let wind = Math.sin(b.y * 0.01 + p.frameCount * 0.02);\n    b.vx += wind * currConfig.force;\n    if (currConfig.twitch > 0 && Math.random() < 0.1) {\n      b.vx += Math.sin(twitchPhase + b.x) * currConfig.twitch;\n      b.vy += Math.cos(twitchPhase + b.y) * currConfig.twitch;\n    }\n\n    let margin = 50, turn = 0.5;\n    if (b.x < margin) b.vx += turn;\n    if (b.x > 800 - margin) b.vx -= turn;\n    if (b.y < margin) b.vy += turn;\n    if (b.y > 800 - margin) b.vy -= turn;\n\n    let speed = Math.sqrt(b.vx*b.vx + b.vy*b.vy) || 1;\n    let limit = 4;\n    if (speed > limit) {\n      b.vx = (b.vx / speed) * limit;\n      b.vy = (b.vy / speed) * limit;\n    }\n    \n    b.x += b.vx;\n    b.y += b.vy;\n\n    let dir = Math.atan2(b.vy, b.vx);\n    let size = 4;\n    \n    if (geoConfig === \"circle\") {\n      ctx.moveTo(b.x, b.y);\n      ctx.rect(b.x - 1.5, b.y - 1.5, 3, 3);\n    } else if (geoConfig === \"line\") {\n      ctx.moveTo(b.x, b.y);\n      ctx.lineTo(b.x - b.vx * 2, b.y - b.vy * 2);\n    } else if (geoConfig === \"chevron\") {\n      let nx = Math.cos(dir + 2.5) * size;\n      let ny = Math.sin(dir + 2.5) * size;\n      ctx.moveTo(b.x + Math.cos(dir)*size, b.y + Math.sin(dir)*size);\n      ctx.lineTo(b.x + nx, b.y + ny);\n      ctx.lineTo(b.x + Math.cos(dir - 2.5)*size, b.y + Math.sin(dir - 2.5)*size);\n    } else if (geoConfig === \"ribbon\") {\n      ctx.moveTo(b.x, b.y);\n      ctx.bezierCurveTo(b.x - b.vx*2, b.y - b.vy*2 + 5, b.x - b.vx*4, b.y - b.vy*4 - 5, b.x - b.vx*5, b.y - b.vy*5);\n    } else if (geoConfig === \"prism\") {\n      ctx.moveTo(b.x - size, b.y - size);\n      ctx.lineTo(b.x + size, b.y - size);\n      ctx.lineTo(b.x, b.y + size);\n      ctx.lineTo(b.x - size, b.y - size);\n    } else { \n      ctx.moveTo(b.x + Math.cos(dir)*size*1.5, b.y + Math.sin(dir)*size*1.5);\n      ctx.lineTo(b.x + Math.cos(dir + 2.0)*size*0.5, b.y + Math.sin(dir + 2.0)*size*0.5);\n      ctx.lineTo(b.x + Math.cos(dir - 2.0)*size*0.5, b.y + Math.sin(dir - 2.0)*size*0.5);\n    }\n  }\n  \n  if (geoConfig === \"circle\") {\n    ctx.fill();\n    ctx.stroke();\n  } else {\n    ctx.stroke();\n  }\n\n  ctx.beginPath();\n  ctx.fillStyle = glowConfig.ring;\n  ctx.arc(predator.x, predator.y, 6, 0, Math.PI * 2);\n  ctx.fill();\n};\n",
+  "tags": [
+    {
+      "id": "tag_murmuration_01",
+      "type": "custom",
+      "label": "Designed and written by an agent swarm",
+      "description": "Concept, variables and code written by a crew of agents in the Agent Studio chat room (x2-murmuration) and played by the harness before it was accepted. Teamcrafter residency, 2026-10-07."
+    }
+  ]
+}

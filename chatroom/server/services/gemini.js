@@ -186,6 +186,8 @@ SYNTHOGRASIZER TOOLS (generative AI pipeline — use when producing creative med
 Pipe-separate options: key=value after the primary content.
 
 Workflow step types also include:
+- synth_image can be held to earlier pictures: add "references": { "character": [ids] (up to 4), "style": [ids] (up to 3), "objects": [ids] (up to 10) } and/or "reference_image_ids": [ids], where each id is a mediaId from an earlier step ({{step.mediaId}}) or a media id you were shown. A character reference keeps a recurring character the same across scenes; a style reference carries a look (the engine adds a clause so only the LOOK is used, not the reference's subject; set "look_only": false to turn that off). An id that cannot be found fails the step.
+- synth_combine: join clips into one film — params: { video_ids: [ids] in order, audio_id? (a recorded score, mixed under the clips' own sound), audio_volume? (0 to 1, default 0.35) }. Result: { mediaId }. No model call, no cost.
 - synth_text: freeform LLM generation — params: { prompt }. Result: { text }
 - synth_fetch: fetch external URL data — params: { url, format=text|json, selector? }. Result: { text, data }. Use for real-world data (weather, APIs, RSS feeds) as creative input.
 - loop: repeat inner steps N times, threading outputs between iterations — params: { iterations (1-10), seed: { key: value }, steps: [inner step defs], carry: { key: "{{innerStepId.field}}" } }. Result: { count, mediaIds (comma-joined), last_mediaId, last_KEY (final carry values), last: { KEY } (nested access via {{loopId.last.KEY}} }).
@@ -233,6 +235,8 @@ WORKFLOW TEMPLATES (pre-built named workflows — shorthand for common multi-ste
   Example: [WORKFLOW_TEMPLATE: img_to_video | prompt=a lonely lighthouse at night | cinematic_style=noir | duration=8]
   Example: [WORKFLOW_TEMPLATE: memory_visualization | memory=summer afternoons at grandmother's garden | life_stage=childhood | degradation_depth=4]
   Example: [WORKFLOW_TEMPLATE: multi_image_composite | subjects=a samurai,a robot,a wizard | scene=playing poker in a smoky saloon]
+  Example: [WORKFLOW_TEMPLATE: look_locked_deck | deck_look=gilded tarot border on midnight blue | subjects=a fox || an owl || a heron || a hare]
+  Example: [WORKFLOW_TEMPLATE: storyboard_film | frames=<mediaId1>,<mediaId2>,<mediaId3> | motions=slow push in, rain on glass || cut to her hands || pull back to the ferry | score=<audioId>]   (costs real money: each scene is about 8 seconds of Veo video)
   Example: [WORKFLOW_TEMPLATE: branching_narrative | theme=deep sea mystery | scenario=you wake up in a submarine | endings=4]
   Example: [WORKFLOW_TEMPLATE: cinematic_short | concept=the last robot discovers a flower | mood=melancholic | scene_count=4]
 
@@ -364,14 +368,60 @@ If you say "here's the updated code" or "I've added a function" without wrapping
     }
   }
 
+  if (enableTools && options.roomTools) prompt += roomToolsInstructions(options.roomTools);
+
   prompt += `
 
-ENDING THE CONVERSATION:
-When the goal is achieved, say "[CONSENSUS REACHED]" in your message.
+${endingInstructions(options.ending)}
 
 Remember: Write ONLY ${agent.name}'s response. One voice. One perspective.`;
 
   return prompt;
+}
+
+/**
+ * Documentation for the room's own tools, only for the ones this room has switched on.
+ * @param {{ critic?: boolean, criticReference?: string|null, criticMinScore?: number, render?: boolean }} tools
+ */
+export function roomToolsInstructions(tools = {}) {
+  let out = '';
+  if (tools.critic) {
+    out += `
+
+INDEPENDENT CRITIC: a critic that sees only pictures, never this conversation, will score any picture 1 to 10 for you:
+  [CRITIC: <picture id> | reference=<picture id> | criteria=what must stay the same]
+${tools.criticReference ? 'The room has a default reference picture, so reference= may be left out.' : 'Give reference=<id> (a picture the host attached or one made earlier).'} Its scores are not up for debate and agreeing with them is not optional: below ${tools.criticMinScore ?? 6} means the picture does not match, so do not accept it.`;
+  }
+  if (tools.render) {
+    out += `
+
+SEEING WHAT YOU MADE: numbers cannot see taste. To show the whole room what an artifact looks like:
+  [RENDER: engine.json | draws=3]   (a template is drawn a few times with random values)
+  [RENDER: sketch.js]               (a page or p5 instrument is rendered by a browser attached to the room)
+The pictures arrive in the conversation. Look at them before you call the work finished.`;
+  }
+  return out;
+}
+
+/**
+ * What an agent is told about ending the conversation. By default any agent may say
+ * [CONSENSUS REACHED] and a quorum ends it. When one agent (the lead) closes the room, the
+ * lead is told it alone decides and what counts as done, and the others are told their marker
+ * is only a recommendation and they must keep working until the lead closes.
+ *
+ * @param {{mode?: 'vote'|'lead', leadName?: string, isLead?: boolean}} [ending]
+ */
+export function endingInstructions(ending = {}) {
+  if (ending?.mode !== 'lead') {
+    return `ENDING THE CONVERSATION:
+When the goal is achieved, say "[CONSENSUS REACHED]" in your message.`;
+  }
+  if (ending.isLead) {
+    return `ENDING THE CONVERSATION:
+You are the lead, and only you can end this session. Other agents may say "[CONSENSUS REACHED]" to tell you they think the goal is met; that is a recommendation, not a decision, and agreeable agents are not evidence. Close the session only when what the goal asks for actually exists in this conversation, in the form the goal asks for, and no objection is still open. Then say "[CONSENSUS REACHED]" (or "[END SESSION]") in your message. If it is not done, say what is missing and who should supply it. Claims that something was saved, filed or committed are not evidence unless the thing itself is posted here.`;
+  }
+  return `ENDING THE CONVERSATION:
+Only ${ending.leadName || 'the lead'} can end this session. When you think the goal is achieved, say "[CONSENSUS REACHED]" to tell them you are ready; that will not end the session by itself. Until ${ending.leadName || 'the lead'} closes it, keep working: raise any problem you can see, and do not repeat what has already been said.`;
 }
 
 /**
@@ -418,6 +468,10 @@ function renderMessages(messages) {
           out += `\n  [URL analysis of ${result.url}: ${result.summary?.slice(0, 200)}...]`;
         } else if (result.type === 'research') {
           out += `\n  [Research on "${result.query}": ${result.summary?.slice(0, 200)}...]`;
+        } else if (result.type === 'critic') {
+          out += `\n  [Independent critic on picture ${result.imageId}: ${result.text}]`;
+        } else if (result.type === 'render') {
+          out += `\n  [Render of ${result.artifact}: ${result.text}]`;
         }
       }
     }
@@ -973,6 +1027,8 @@ export async function* generateAgentResponse(agent, allAgents, messages, goal, s
   const systemPrompt = await buildSystemPrompt(agent, allAgents, goal, {
     enableTagTools: !useFunctions,
     artifactStore: options?.artifactStore,
+    ending: options?.ending,
+    roomTools: options?.roomTools,
   });
   // Precedence: per-agent model → session-wide preference → registry default.
   const modelId = resolveAgentModel(agent, options?.model);

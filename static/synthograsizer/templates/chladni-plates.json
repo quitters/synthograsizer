@@ -1,0 +1,230 @@
+{
+  "promptTemplate": "{{grain}} on a {{plate}} of {{finish}}, singing {{pitch}} under {{excitation}}, {{sweep}}",
+  "variables": [
+    {
+      "name": "plate",
+      "feature_name": "Plate",
+      "values": [
+        {
+          "text": "square plate",
+          "weight": 3
+        },
+        {
+          "text": "round drum",
+          "weight": 3
+        },
+        {
+          "text": "hexagonal lattice",
+          "weight": 3
+        },
+        {
+          "text": "five-fold quasicrystal",
+          "weight": 2
+        },
+        {
+          "text": "spiral chime",
+          "weight": 2
+        },
+        {
+          "text": "ripple tank",
+          "weight": 2
+        },
+        {
+          "text": "square lattice",
+          "weight": 1
+        },
+        {
+          "text": "seven-fold quasicrystal",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "pitch",
+      "feature_name": "Pitch",
+      "values": [
+        {
+          "text": "a song",
+          "weight": 3
+        },
+        {
+          "text": "a murmur",
+          "weight": 3
+        },
+        {
+          "text": "a hum",
+          "weight": 3
+        },
+        {
+          "text": "a shimmer",
+          "weight": 2
+        },
+        {
+          "text": "a whistle",
+          "weight": 2
+        },
+        {
+          "text": "a low hum",
+          "weight": 2
+        },
+        {
+          "text": "a keen",
+          "weight": 1
+        },
+        {
+          "text": "a shriek",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "grain",
+      "feature_name": "Grain",
+      "values": [
+        {
+          "text": "fine sand",
+          "weight": 3
+        },
+        {
+          "text": "salt",
+          "weight": 3
+        },
+        {
+          "text": "iron filings",
+          "weight": 3
+        },
+        {
+          "text": "glitter",
+          "weight": 2
+        },
+        {
+          "text": "rice",
+          "weight": 2
+        },
+        {
+          "text": "pollen",
+          "weight": 2
+        },
+        {
+          "text": "sugar crystals",
+          "weight": 1
+        },
+        {
+          "text": "ink droplets",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "finish",
+      "feature_name": "Finish",
+      "values": [
+        {
+          "text": "brass",
+          "weight": 3
+        },
+        {
+          "text": "slate",
+          "weight": 3
+        },
+        {
+          "text": "black mirror",
+          "weight": 3
+        },
+        {
+          "text": "copper",
+          "weight": 2
+        },
+        {
+          "text": "water",
+          "weight": 2
+        },
+        {
+          "text": "cobalt glass",
+          "weight": 2
+        },
+        {
+          "text": "paper drum",
+          "weight": 1
+        },
+        {
+          "text": "bone",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "excitation",
+      "feature_name": "Excitation",
+      "values": [
+        {
+          "text": "a hum",
+          "weight": 3
+        },
+        {
+          "text": "a whisper",
+          "weight": 3
+        },
+        {
+          "text": "a shiver",
+          "weight": 3
+        },
+        {
+          "text": "hush",
+          "weight": 2
+        },
+        {
+          "text": "a rattle",
+          "weight": 2
+        },
+        {
+          "text": "a storm",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "sweep",
+      "feature_name": "Sweep",
+      "values": [
+        {
+          "text": "held steady",
+          "weight": 3
+        },
+        {
+          "text": "a slow drift",
+          "weight": 3
+        },
+        {
+          "text": "a rising sweep",
+          "weight": 2
+        },
+        {
+          "text": "a falling sweep",
+          "weight": 2
+        },
+        {
+          "text": "a wobble",
+          "weight": 2
+        },
+        {
+          "text": "a stepped arpeggio",
+          "weight": 1
+        },
+        {
+          "text": "a random walk",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "p5Code": "// CHLADNI PLATES\n// Grains on a vibrating plate hop about in proportion to how hard the plate is moving under them, so they pile up\n// where it is not: the nodal lines. The plate's standing wave is a sum of waves (a square plate's modes, a drum's,\n// five- and seven-fold quasicrystals, spirals, ripple interference), and the pitch glides rather than jumps, so\n// turning the pitch knob makes the patterns flow into each other while the sand chases them.\n// Variables are re-read every frame.\n\nconst DOM = 1;                    // plate coordinates run -1..1\nconst SQUARE_MODES = [[1,2],[1,3],[2,3],[1,4],[2,5],[3,4],[3,5],[2,7],[4,5],[3,7],[4,7],[5,6],[5,8],[6,7],[4,9],[7,8],[6,11],[7,10],[8,9],[9,10],[10,11]];\nconst DRUM_MODES = [[0,1],[1,1],[2,1],[0,2],[3,1],[1,2],[4,1],[2,2],[0,3],[5,1],[3,2],[1,3],[6,1],[4,2],[2,3],[0,4],[5,2],[3,3],[1,4],[7,1],[4,3]];\n\nconst PITCH = { 'a low hum': 0.6, 'a hum': 1.4, 'a murmur': 2.2, 'a song': 3.0, 'a shimmer': 3.9, 'a whistle': 4.8, 'a keen': 5.8, 'a shriek': 7.0 };\nconst SHAKE = { 'hush': 0.35, 'a whisper': 0.6, 'a hum': 1.0, 'a shiver': 1.5, 'a rattle': 2.3, 'a storm': 3.6 };\n\n// bg: centre and rim of the plate; pos / neg: haze where the plate is up / down; ink: the grains; light: draws dark grains on a pale plate\nconst FINISH = {\n  'brass':        { bg: ['#33270f', '#0f0b05'], pos: [217, 164, 65],  neg: [107, 63, 18],   ink: [246, 236, 208], light: false },\n  'slate':        { bg: ['#2d333a', '#0f1215'], pos: [122, 160, 196], neg: [58, 74, 90],    ink: [232, 237, 242], light: false },\n  'black mirror': { bg: ['#0b0c11', '#000000'], pos: [106, 124, 255], neg: [255, 90, 122],  ink: [255, 255, 255], light: false },\n  'paper drum':   { bg: ['#f1e9d6', '#c9bd9c'], pos: [214, 165, 106], neg: [138, 166, 184], ink: [42, 33, 24],    light: true },\n  'copper':       { bg: ['#42200f', '#150a06'], pos: [224, 130, 74],  neg: [47, 107, 106],  ink: [255, 231, 208], light: false },\n  'water':        { bg: ['#0c3040', '#041018'], pos: [111, 208, 232], neg: [28, 90, 122],   ink: [232, 251, 255], light: false },\n  'bone':         { bg: ['#ece6d8', '#c4baa4'], pos: [184, 166, 138], neg: [138, 143, 152], ink: [58, 52, 43],    light: true },\n  'cobalt glass': { bg: ['#0b1659', '#030725'], pos: [106, 140, 255], neg: [176, 76, 255],  ink: [240, 244, 255], light: false }\n};\n\n// n: how many grains are in play; size: pixels\nconst GRAINS = {\n  'fine sand':      { n: 16000, size: 1.9 },\n  'salt':           { n: 9000,  size: 2.7 },\n  'iron filings':   { n: 8000,  size: 6.5 },\n  'glitter':        { n: 6500,  size: 3.4 },\n  'rice':           { n: 7000,  size: 4.8 },\n  'pollen':         { n: 8000,  size: 3.6 },\n  'sugar crystals': { n: 7000,  size: 3.2 },\n  'ink droplets':   { n: 4500,  size: 3.8 }\n};\n\nconst MAXG = 16000;\nconst gx = new Float32Array(MAXG), gy = new Float32Array(MAXG), gAngle = new Float32Array(MAXG), gHue = new Float32Array(MAXG);\nlet hazeCanvas, hazeCtx, hazeImg;\nconst FG = 160;                      // the plate's wave is worked out once a frame on this grid; grains and haze both read it\nconst fa = new Float32Array(FG * FG);\nconst H = 2 / (FG - 1);\nlet plateA = 'square plate', plateB = 'square plate', mix = 1;\nlet q = 3.0, phase = 0, walk = 0, arp = 0;\n\n// the standing wave of one plate at (x, y), pitch q, phase ph, scaled to about -1..1\nfunction wave(plate, x, y, qv, ph) {\n  const kappa = Math.PI * (1.5 + 1.15 * qv);\n  if (plate === 'square plate') {\n    const f = Math.max(0, Math.min(SQUARE_MODES.length - 1.001, qv * 2.2)), i = Math.floor(f), t = f - i;\n    const u = (x + 1) / 2, v = (y + 1) / 2;\n    const m0 = SQUARE_MODES[i], m1 = SQUARE_MODES[i + 1];\n    // the two ways of combining the pair: s = -1 is the classic antisymmetric mode (it always has a diagonal node),\n    // s = +1 the symmetric one; the phase slides between them so the same pitch keeps showing new figures\n    const s = Math.cos(ph * 0.25 + 0.9);\n    const a0 = Math.cos(m0[0] * Math.PI * u) * Math.cos(m0[1] * Math.PI * v) + s * Math.cos(m0[1] * Math.PI * u) * Math.cos(m0[0] * Math.PI * v);\n    const a1 = Math.cos(m1[0] * Math.PI * u) * Math.cos(m1[1] * Math.PI * v) + s * Math.cos(m1[1] * Math.PI * u) * Math.cos(m1[0] * Math.PI * v);\n    return (a0 * (1 - t) + a1 * t) * 0.55;\n  }\n  if (plate === 'round drum') {\n    const r = Math.sqrt(x * x + y * y);\n    if (r > 1) return 1;\n    const f = Math.max(0, Math.min(DRUM_MODES.length - 1.001, qv * 2.2)), i = Math.floor(f), t = f - i;\n    const th = Math.atan2(y, x) + ph * 0.05;\n    const d0 = DRUM_MODES[i], d1 = DRUM_MODES[i + 1];\n    const a0 = Math.cos(d0[0] * th) * Math.cos(Math.PI * (d0[1] + 0.25) * r);\n    const a1 = Math.cos(d1[0] * th) * Math.cos(Math.PI * (d1[1] + 0.25) * r);\n    return a0 * (1 - t) + a1 * t;\n  }\n  if (plate === 'spiral chime') {\n    const r = Math.sqrt(x * x + y * y);\n    if (r > 1) return 1;\n    const arms = 1 + Math.floor(qv * 0.8);\n    return Math.cos(arms * Math.atan2(y, x) + kappa * r * 1.3 - ph * 0.6);\n  }\n  if (plate === 'ripple tank') {\n    const s = [[-0.55, -0.35], [0.6, -0.3], [0.0, 0.62]];\n    let a = 0;\n    for (let k = 0; k < 3; k++) { const dx = x - s[k][0], dy = y - s[k][1]; a += Math.cos(kappa * 1.4 * Math.sqrt(dx * dx + dy * dy) - ph * 0.5 * (k + 1) * 0.5); }\n    return a / 3 * 1.1;\n  }\n  let dirs = 4;                               // the lattice and quasicrystal plates: plane waves at equal angles\n  if (plate === 'square lattice') dirs = 2;\n  else if (plate === 'hexagonal lattice') dirs = 3;\n  else if (plate === 'five-fold quasicrystal') dirs = 5;\n  else if (plate === 'seven-fold quasicrystal') dirs = 7;\n  let a = 0;\n  for (let j = 0; j < dirs; j++) {\n    const ang = (j * Math.PI) / dirs + ph * 0.02;\n    a += Math.cos(kappa * (x * Math.cos(ang) + y * Math.sin(ang)) + (ph * 0.7) * (j % 2 ? 1 : -1));\n  }\n  return a / dirs * (dirs > 3 ? 1.5 : 1.15);\n}\n\nfunction field(x, y) {\n  if (mix >= 1) return wave(plateB, x, y, q, phase);\n  return wave(plateA, x, y, q, phase) * (1 - mix) + wave(plateB, x, y, q, phase) * mix;\n}\n\nfunction scatter() {\n  for (let i = 0; i < MAXG; i++) { gx[i] = Math.random() * 2 - 1; gy[i] = Math.random() * 2 - 1; gAngle[i] = Math.random() * 3.1416; gHue[i] = Math.random(); }\n}\n\np.setup = function () {\n  p.createCanvas(800, 800);\n  p.pixelDensity(1);\n  p.frameRate(60);\n  hazeCanvas = document.createElement('canvas'); hazeCanvas.width = FG; hazeCanvas.height = FG;\n  hazeCtx = hazeCanvas.getContext('2d'); hazeImg = hazeCtx.createImageData(FG, FG);\n  scatter();\n};\n\np.draw = function () {\n  const plate = p.getSynthVar('plate') || 'square plate';\n  const pitch = p.getSynthVar('pitch') || 'a song';\n  const grain = p.getSynthVar('grain') || 'fine sand';\n  const finish = p.getSynthVar('finish') || 'brass';\n  const shake = p.getSynthVar('excitation') || 'a hum';\n  const sweep = p.getSynthVar('sweep') || 'held steady';\n\n  // plate changes crossfade over a second\n  if (plate !== plateB) { plateA = plateB; plateB = plate; mix = 0; }\n  if (mix < 1) mix = Math.min(1, mix + 0.02);\n\n  // pitch glides toward its target; the sweep moves the target about\n  const t = p.frameCount / 60;\n  let target = PITCH[pitch] !== undefined ? PITCH[pitch] : 3.0;\n  if (sweep === 'a slow drift') { target += Math.sin(t * 0.21) * 0.5; phase += 0.012; }\n  else if (sweep === 'a rising sweep') target += (t % 24) / 24 * 3.4;\n  else if (sweep === 'a falling sweep') target += 3.4 - (t % 24) / 24 * 3.4;\n  else if (sweep === 'a wobble') target += Math.sin(t * 1.9) * 0.55;\n  else if (sweep === 'a stepped arpeggio') { arp = Math.floor(t / 2.5) % 4; target += [0, 1.1, 2.3, 1.1][arp]; }\n  else if (sweep === 'a random walk') { walk += (Math.random() - 0.5) * 0.06; walk *= 0.995; target += walk * 4; }\n  q += (target - q) * 0.035;\n  if (sweep !== 'a slow drift') phase += 0.004;\n\n  const G = GRAINS[grain] || GRAINS['fine sand'];\n  const F = FINISH[finish] || FINISH['brass'];\n  const S = SHAKE[shake] !== undefined ? SHAKE[shake] : 1.0;\n  const ctx = p.drawingContext;\n\n  // plate and haze\n  const bgGrad = ctx.createRadialGradient(400, 400, 40, 400, 400, 620);\n  bgGrad.addColorStop(0, F.bg[0]); bgGrad.addColorStop(1, F.bg[1]);\n  ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;\n  ctx.fillStyle = bgGrad; ctx.fillRect(0, 0, 800, 800);\n  for (let j = 0; j < FG; j++) {\n    const y = j * H - 1;\n    for (let i = 0; i < FG; i++) fa[j * FG + i] = field(i * H - 1, y);\n  }\n  const d = hazeImg.data;\n  for (let i = 0; i < FG * FG; i++) {\n    const a = fa[i], tone = Math.min(1, Math.abs(a)) * 0.34, c = a > 0 ? F.pos : F.neg, o = i * 4;\n    d[o] = c[0]; d[o + 1] = c[1]; d[o + 2] = c[2]; d[o + 3] = tone * 255;\n  }\n  hazeCtx.putImageData(hazeImg, 0, 0);\n  ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';\n  ctx.drawImage(hazeCanvas, 0, 0, 800, 800);\n\n  // grains: hop about in proportion to the plate's motion under them, and slide down the amplitude hill toward stillness\n  const n = G.n, noise = 0.011 * S, slide = 0.0021 * Math.min(S, 2.2), wantAngle = grain === 'iron filings';\n  const ink = F.ink;\n  for (let i = 0; i < n; i++) {\n    let x = gx[i], y = gy[i];\n    const fx = (x + 1) / H, fy = (y + 1) / H;\n    let ci = fx | 0, cj = fy | 0;\n    if (ci < 0) ci = 0; else if (ci > FG - 2) ci = FG - 2;\n    if (cj < 0) cj = 0; else if (cj > FG - 2) cj = FG - 2;\n    const tx = fx - ci, ty = fy - cj, o = cj * FG + ci;\n    const a00 = fa[o], a10 = fa[o + 1], a01 = fa[o + FG], a11 = fa[o + FG + 1];\n    const a = (a00 * (1 - tx) + a10 * tx) * (1 - ty) + (a01 * (1 - tx) + a11 * tx) * ty;\n    const gxv = ((a10 - a00) * (1 - ty) + (a11 - a01) * ty) / H, gyv = ((a01 - a00) * (1 - tx) + (a11 - a10) * tx) / H;\n    let dx = -slide * a * gxv, dy = -slide * a * gyv;\n    const dm = Math.abs(dx) + Math.abs(dy);\n    if (dm > 0.03) { dx *= 0.03 / dm; dy *= 0.03 / dm; }\n    const k = noise * (0.12 + 5 * (a < 0 ? -a : a));\n    x += dx + (Math.random() - 0.5) * k; y += dy + (Math.random() - 0.5) * k;\n    if (x < -DOM) x = -DOM + (-DOM - x); else if (x > DOM) x = DOM - (x - DOM);\n    if (y < -DOM) y = -DOM + (-DOM - y); else if (y > DOM) y = DOM - (y - DOM);\n    gx[i] = x; gy[i] = y;\n    if (wantAngle) gAngle[i] = Math.atan2(gyv, gxv) + 1.5708;\n  }\n\n  const px = (x) => (x + 1) * 400, py = (y) => (y + 1) * 400, sz = G.size;\n  if (grain === 'iron filings') {\n    ctx.strokeStyle = `rgba(${ink[0]},${ink[1]},${ink[2]},0.8)`; ctx.lineWidth = 1.1; ctx.beginPath();\n    for (let i = 0; i < n; i++) {\n      const ang = gAngle[i], cx = px(gx[i]), cy = py(gy[i]), l = sz * 0.5;\n      ctx.moveTo(cx - Math.cos(ang) * l, cy - Math.sin(ang) * l); ctx.lineTo(cx + Math.cos(ang) * l, cy + Math.sin(ang) * l);\n    }\n    ctx.stroke();\n  } else if (grain === 'rice') {\n    ctx.strokeStyle = `rgba(${ink[0]},${ink[1]},${ink[2]},0.85)`; ctx.lineWidth = 1.7; ctx.lineCap = 'round'; ctx.beginPath();\n    for (let i = 0; i < n; i++) {\n      const cx = px(gx[i]), cy = py(gy[i]), ang = gAngle[i], l = sz * 0.5;\n      ctx.moveTo(cx - Math.cos(ang) * l, cy - Math.sin(ang) * l); ctx.lineTo(cx + Math.cos(ang) * l, cy + Math.sin(ang) * l);\n    }\n    ctx.stroke(); ctx.lineCap = 'butt';\n  } else if (grain === 'glitter') {\n    ctx.globalCompositeOperation = F.light ? 'source-over' : 'lighter';\n    const tw = p.frameCount * 0.09;\n    for (let b = 0; b < 6; b++) {\n      ctx.fillStyle = `hsla(${b * 60 + (F.light ? 20 : 0)},${F.light ? 75 : 90}%,${F.light ? 42 : 66}%,${F.light ? 0.9 : 0.7})`;\n      ctx.beginPath();\n      for (let i = b; i < n; i += 6) {\n        const s = sz * (0.55 + 0.45 * Math.sin(tw + gHue[i] * 40));\n        ctx.rect(px(gx[i]) - s / 2, py(gy[i]) - s / 2, s, s);\n      }\n      ctx.fill();\n    }\n    ctx.globalCompositeOperation = 'source-over';\n  } else if (grain === 'sugar crystals') {\n    for (let b = 0; b < 4; b++) {\n      const hue = [330, 200, 50, 150][b];\n      ctx.fillStyle = F.light ? `hsla(${hue},55%,45%,0.9)` : `hsla(${hue},70%,80%,0.88)`;\n      ctx.beginPath();\n      for (let i = b; i < n; i += 4) ctx.rect(px(gx[i]) - sz / 2, py(gy[i]) - sz / 2, sz, sz);\n      ctx.fill();\n    }\n  } else if (grain === 'pollen') {\n    ctx.globalCompositeOperation = F.light ? 'source-over' : 'lighter';\n    ctx.fillStyle = F.light ? 'rgba(190,120,0,0.85)' : 'rgba(255,214,90,0.7)'; ctx.beginPath();\n    for (let i = 0; i < n; i++) { const cx = px(gx[i]), cy = py(gy[i]); ctx.moveTo(cx + sz / 2, cy); ctx.arc(cx, cy, sz / 2, 0, 6.2832); }\n    ctx.fill(); ctx.globalCompositeOperation = 'source-over';\n  } else if (grain === 'ink droplets') {\n    ctx.fillStyle = `rgba(${ink[0]},${ink[1]},${ink[2]},0.8)`; ctx.beginPath();\n    for (let i = 0; i < n; i++) { const cx = px(gx[i]), cy = py(gy[i]); ctx.moveTo(cx + sz / 2, cy); ctx.arc(cx, cy, sz / 2, 0, 6.2832); }\n    ctx.fill();\n  } else {                                      // 'fine sand' and 'salt'\n    ctx.fillStyle = `rgba(${ink[0]},${ink[1]},${ink[2]},${grain === 'salt' ? 0.9 : 0.8})`; ctx.beginPath();\n    for (let i = 0; i < n; i++) ctx.rect(px(gx[i]) - sz / 2, py(gy[i]) - sz / 2, sz, sz);\n    ctx.fill();\n  }\n\n  // a round plate gets a rim\n  if (plateB === 'round drum' || plateB === 'spiral chime') {\n    ctx.strokeStyle = `rgba(${ink[0]},${ink[1]},${ink[2]},0.35)`; ctx.lineWidth = 3;\n    ctx.beginPath(); ctx.arc(400, 400, 398, 0, 6.2832); ctx.stroke();\n  }\n};\n",
+  "tags": [
+    {
+      "id": "tag_chladni_plates_01",
+      "type": "source",
+      "label": "Chladni figures and Faraday-wave quasicrystals",
+      "description": "Sand settles on the nodal lines of a vibrating plate (E. F. F. Chladni, 1787). The lattice and quasicrystal plates are sums of plane waves at equal angles, the shape of Faraday-wave superlattices. Written for the Teamcrafter residency, 2026-10-06."
+    }
+  ]
+}

@@ -5,6 +5,7 @@
  */
 
 import { completeEffectCatalog } from './effect-catalog.js';
+import { initPresetPicker } from './preset-picker.js';
 
 const modernWorkspace = document.body.classList.contains('light-workspace');
 const CATS = [
@@ -538,7 +539,7 @@ function renderChainStrip() {
 
     // Check for a stored per-effect selection mask
     const effectObj = ecm.getEffect(node.id);
-    const hasMask = effectObj && effectObj.selectionMask != null;
+    const hasMask = effectObj && (effectObj.selectionMask != null || effectObj.wholeImage);
 
     tile.innerHTML = `
       <div class="node-top">
@@ -548,7 +549,7 @@ function renderChainStrip() {
         <button class="node-solo ${isSoloed ? 'active' : ''}" title="Solo" data-id="${node.id}">S</button>
       </div>
       <div class="node-label">${displayName}</div>
-      ${hasMask ? `<div class="node-mask-dot" title="Has custom selection mask">▣</div>` : ''}
+      ${hasMask ? `<div class="node-mask-dot" title="${effectObj.selectionMask != null ? 'Has custom selection mask' : 'Covers the whole image'}">▣</div>` : ''}
       <button class="node-delete" title="Remove" data-id="${node.id}">×</button>
     `;
 
@@ -790,6 +791,7 @@ function wireToolbar() {
         return;
       }
       effect.selectionMask = new Uint8ClampedArray(canvas.width * canvas.height).fill(255);
+      effect.wholeImage = true;
       renderChainStrip(); // update mask indicator
       announce(`${effect.name || effect.id} now covers the whole image.`);
     });
@@ -803,8 +805,9 @@ function wireToolbar() {
       // If a node is selected and has a stored mask, clear just that mask
       if (currentEffectId) {
         const effect = ecm.getEffect(currentEffectId);
-        if (effect && effect.selectionMask != null) {
+        if (effect && (effect.selectionMask != null || effect.wholeImage)) {
           effect.selectionMask = null;
+          effect.wholeImage = false;
           renderChainStrip();
           announce(`${effect.name || effect.id} is back to roaming the whole image.`);
           return; // don't also wipe the painted selection
@@ -959,6 +962,17 @@ function wireChainHeader() {
       }
     });
   }
+
+  initPresetPicker({
+    getApp: () => app,
+    announce,
+    onLoaded: () => {
+      // the stack was replaced: forget the selected card and go back to the library
+      currentEffectId = null;
+      showCategoryGrid();
+      renderChainStrip();
+    }
+  });
 
   wireKeyEffects();
 }

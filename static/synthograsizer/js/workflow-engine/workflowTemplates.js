@@ -1156,6 +1156,109 @@ register(
   }
 );
 
+// ─── Look-locked deck ────────────────────────────────────────────────────────
+
+/** A list from an array, a JSON array string, or a string split on `sep`. */
+function asList(value, sep) {
+  if (Array.isArray(value)) return value.map(v => String(v).trim()).filter(Boolean);
+  if (typeof value !== 'string') return [];
+  const text = value.trim();
+  if (text.startsWith('[')) {
+    try { const parsed = JSON.parse(text); if (Array.isArray(parsed)) return parsed.map(v => String(v).trim()).filter(Boolean); } catch (_) { /* fall through */ }
+  }
+  return text.split(sep).map(v => v.trim()).filter(Boolean);
+}
+
+register(
+  'look_locked_deck',
+  {
+    name: 'Look-Locked Deck',
+    description: 'A set of cards, posters or plates that share one look but each show a different subject. One reference picture is made (or supplied) and every other card is drawn with it as a style reference, with the clause that keeps only its look and not its subject.',
+    requiredParams: ['subjects'],
+    optionalParams: ['deck_look', 'reference', 'aspect_ratio'],
+  },
+  (params) => {
+    const { deck_look = '', reference = '', aspect_ratio = '3:4' } = params;
+    const subjects = asList(params.subjects, '||').length > 1 ? asList(params.subjects, '||') : asList(params.subjects, ',');
+    if (subjects.length < 1 || subjects.length > 12) throw new Error('look_locked_deck needs 1 to 12 subjects');
+    const look = deck_look ? `${deck_look}. ` : '';
+    const draw = (id, subject, extra = {}) => ({
+      id,
+      type: 'synth_image',
+      params: { prompt: `${look}${subject}`, aspect_ratio, ...extra },
+    });
+    const steps = [];
+    let styleId = reference;
+    let rest = subjects;
+    if (!styleId) {
+      // The first subject is drawn alone and becomes the look every other card is held to.
+      steps.push(draw('card1', subjects[0]));
+      styleId = '{{card1.mediaId}}';
+      rest = subjects.slice(1);
+    }
+    rest.forEach((subject, i) => {
+      const n = (reference ? 1 : 2) + i;
+      steps.push({
+        ...draw(`card${n}`, subject, { references: { style: [styleId] } }),
+        ...(reference ? {} : { dependsOn: ['card1'] }),
+      });
+    });
+    return { name: `Look-Locked Deck: ${subjects.length} cards`, steps };
+  }
+);
+
+// ─── Storyboard to film ──────────────────────────────────────────────────────
+
+register(
+  'storyboard_film',
+  {
+    name: 'Storyboard to Film',
+    description: 'Turn a series of approved frames into a film. Each scene is a frame and a motion line; every frame is animated into a clip (Veo, the only expensive step: about 8 seconds of video per scene), the clips are joined in order, and an optional recorded score is mixed under the sound.',
+    // frames: media ids (comma-separated or an array); motions: one line per frame, separated by || (motion lines contain commas).
+    // scenes: [{ frame, motion }] as an alternative to the two lists.
+    requiredParams: [],
+    optionalParams: ['frames', 'motions', 'scenes', 'score', 'score_volume', 'aspect_ratio', 'duration', 'model'],
+  },
+  (params) => {
+    let frames, motions;
+    if (params.scenes) {
+      let scenes = params.scenes;
+      if (typeof scenes === 'string') { try { scenes = JSON.parse(scenes); } catch (_) { throw new Error('storyboard_film: scenes is not valid JSON'); } }
+      if (!Array.isArray(scenes)) throw new Error('storyboard_film: scenes must be a list of { frame, motion }');
+      frames = scenes.map(sc => String(sc?.frame ?? '').trim());
+      motions = scenes.map(sc => String(sc?.motion ?? '').trim());
+    } else {
+      frames = asList(params.frames, ',');
+      motions = asList(params.motions, '||');
+    }
+    if (!frames.length) throw new Error('storyboard_film needs frames (media ids of the approved frames) and motions, or scenes');
+    if (frames.length > 12) throw new Error('storyboard_film: at most 12 scenes');
+    if (frames.some(f => !f)) throw new Error('storyboard_film: a scene has no frame');
+    if (motions.length !== frames.length) {
+      throw new Error(`storyboard_film: ${frames.length} frame${frames.length === 1 ? '' : 's'} but ${motions.length} motion line${motions.length === 1 ? '' : 's'}; each frame needs one (separate motion lines with ||)`);
+    }
+    if (motions.some(m => !m)) throw new Error('storyboard_film: a scene has an empty motion line');
+
+    const { aspect_ratio = '16:9', duration = 8, model } = params;
+    const steps = frames.map((frame, i) => ({
+      id: `clip${i + 1}`,
+      type: 'synth_video',
+      params: { prompt: motions[i], start_frame_id: frame, aspect_ratio, duration, ...(model ? { model } : {}) },
+    }));
+    steps.push({
+      id: 'film',
+      type: 'synth_combine',
+      params: {
+        video_ids: frames.map((_, i) => `{{clip${i + 1}.mediaId}}`),
+        ...(params.score ? { audio_id: params.score } : {}),
+        ...(params.score_volume !== undefined && params.score_volume !== '' ? { audio_volume: params.score_volume } : {}),
+      },
+      dependsOn: frames.map((_, i) => `clip${i + 1}`),
+    });
+    return { name: `Storyboard Film: ${frames.length} scene${frames.length === 1 ? '' : 's'}`, steps };
+  }
+);
+
 // ─── Public API ──────────────────────────────────────────────────────────────
 
 /**

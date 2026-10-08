@@ -1,0 +1,249 @@
+{
+  "promptTemplate": "{{rendering}} of {{typology}}, built in {{materials}}, {{site}}, {{weather}}, {{life}}",
+  "variables": [
+    {
+      "name": "typology",
+      "feature_name": "Building",
+      "values": [
+        {
+          "text": "a public bathhouse",
+          "weight": 3
+        },
+        {
+          "text": "a university library",
+          "weight": 3
+        },
+        {
+          "text": "a funicular station",
+          "weight": 3
+        },
+        {
+          "text": "a hospital for sleepers",
+          "weight": 2
+        },
+        {
+          "text": "a post office the size of a cathedral",
+          "weight": 2
+        },
+        {
+          "text": "a housing block for migratory birds",
+          "weight": 2
+        },
+        {
+          "text": "a municipal observatory",
+          "weight": 2
+        },
+        {
+          "text": "a covered market hall",
+          "weight": 2
+        },
+        {
+          "text": "a pilgrimage hostel",
+          "weight": 1
+        },
+        {
+          "text": "a national data archive",
+          "weight": 1
+        },
+        {
+          "text": "a swimming stadium",
+          "weight": 1
+        },
+        {
+          "text": "a weather-forecasting tower",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "materials",
+      "feature_name": "Materials",
+      "values": [
+        {
+          "text": "board-formed concrete",
+          "weight": 3
+        },
+        {
+          "text": "pale travertine and concrete",
+          "weight": 3
+        },
+        {
+          "text": "weathering steel",
+          "weight": 2
+        },
+        {
+          "text": "pink granite aggregate",
+          "weight": 2
+        },
+        {
+          "text": "glass bricks and concrete",
+          "weight": 2
+        },
+        {
+          "text": "terracotta-clad concrete",
+          "weight": 2
+        },
+        {
+          "text": "raw concrete with timber louvres",
+          "weight": 2
+        },
+        {
+          "text": "sprayed concrete tinted ochre",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "site",
+      "feature_name": "Site",
+      "values": [
+        {
+          "text": "on a fog-bound cliff",
+          "weight": 3
+        },
+        {
+          "text": "on a desert plateau",
+          "weight": 3
+        },
+        {
+          "text": "above a tidal estuary",
+          "weight": 2
+        },
+        {
+          "text": "in a dense hillside town",
+          "weight": 2
+        },
+        {
+          "text": "beside a frozen lake",
+          "weight": 2
+        },
+        {
+          "text": "in a terraced jungle valley",
+          "weight": 2
+        },
+        {
+          "text": "on an artificial island",
+          "weight": 1
+        },
+        {
+          "text": "at the edge of a glacier",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "rendering",
+      "feature_name": "Rendering",
+      "values": [
+        {
+          "text": "A 1970s gouache architectural rendering",
+          "weight": 3
+        },
+        {
+          "text": "An axonometric cutaway drawing",
+          "weight": 3
+        },
+        {
+          "text": "A black-and-white documentary photograph",
+          "weight": 3
+        },
+        {
+          "text": "A competition board with plan, section and elevation",
+          "weight": 2
+        },
+        {
+          "text": "A construction-site photograph with cranes",
+          "weight": 2
+        },
+        {
+          "text": "An aerial survey photograph",
+          "weight": 2
+        },
+        {
+          "text": "A photograph of a plaster model under a desk lamp",
+          "weight": 1
+        },
+        {
+          "text": "A hand-tinted postcard",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "weather",
+      "feature_name": "Weather",
+      "values": [
+        {
+          "text": "under a low pearl-grey sky",
+          "weight": 3
+        },
+        {
+          "text": "in hard noon sun with black shadows",
+          "weight": 3
+        },
+        {
+          "text": "at blue dusk with every window lit",
+          "weight": 2
+        },
+        {
+          "text": "in driving rain",
+          "weight": 2
+        },
+        {
+          "text": "in thin morning mist",
+          "weight": 2
+        },
+        {
+          "text": "under a dramatic storm front",
+          "weight": 2
+        },
+        {
+          "text": "in fresh snow",
+          "weight": 1
+        },
+        {
+          "text": "at golden hour",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "life",
+      "feature_name": "Life",
+      "values": [
+        {
+          "text": "with tiny figures on its terraces",
+          "weight": 3
+        },
+        {
+          "text": "with washing lines and plants softening its edges",
+          "weight": 3
+        },
+        {
+          "text": "with an empty plaza in front",
+          "weight": 2
+        },
+        {
+          "text": "with a crowd at the entrance",
+          "weight": 2
+        },
+        {
+          "text": "with flags and banners",
+          "weight": 2
+        },
+        {
+          "text": "with scaffolding half finished",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "tags": [
+    {
+      "id": "tag_brutalist_utopias_01",
+      "type": "custom",
+      "label": "Brutalist utopias",
+      "description": "Architectural renderings and documentary photographs of civic buildings that were never built. Written for the Teamcrafter residency, 2026-10-06."
+    }
+  ]
+}

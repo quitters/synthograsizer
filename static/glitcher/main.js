@@ -2100,9 +2100,11 @@ class GlitcherApp {
         // Clump-aware effects (direction, spiral) localize themselves via
         // context.clumps — masking them again would clip their shift trails
         // at the clump edge, which is exactly what classic mode doesn't do.
+        // wholeImage (set by a preset with "selection": "all", or by an effect saved that way) means no
+        // masking at all: the effect covers the full canvas whatever the size of the media.
         const effectMask = (effect.selectionMask != null)
           ? effect.selectionMask
-          : (effect.clumpAware ? null : globalMask);
+          : ((effect.clumpAware || effect.wholeImage) ? null : globalMask);
 
         if (effectMask) {
           // Snapshot the buffer before this effect so we can composite masked regions only

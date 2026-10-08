@@ -16,6 +16,8 @@ beforeEach(() => {
   orchestrator.delay = () => Promise.resolve();          // no real waiting between turns
   orchestrator.addAgent('Ann Test', 'You are Ann.');
   orchestrator.addAgent('Ben Test', 'You are Ben.');
+  // these tests are about the vote; the default is now a lead agent (see orchestrator.closing.test.js)
+  orchestrator.updateConsensusSettings({ closeBy: 'vote' });
 });
 
 const named = (name) => events.filter(([e]) => e === name).map(([, d]) => d);

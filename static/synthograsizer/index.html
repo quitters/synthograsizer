@@ -364,6 +364,7 @@
   background: #10b981; color: #fff;
 }
 .p5-badge-v6.paused { background: #f59e0b; }
+.p5-badge-v6.error { background: #dc2626; }
 .p5-badge-v6.stopped { background: rgba(0,0,0,.12); color: rgba(0,0,0,.5); }
 .p5-close-v6 {
   font-family: 'Roboto Mono', monospace; font-size: 10px;
@@ -1055,6 +1056,16 @@
                             <button class="template-option" data-template="matrix-rain" data-category="P5">💻 Matrix Rain</button>
                             <button class="template-option" data-template="glorpy_heads" data-category="P5">👾 Glorpy Heads</button>
                             <button class="template-option" data-template="harmonic-waves" data-category="P5">🎶 Harmonic Waves</button>
+                            <button class="template-option" data-template="shattered-stained-glass" data-category="P5">🪟 Shattered Stained Glass</button>
+                            <button class="template-option" data-template="cellular-garden" data-category="P5">🌿 Cellular Garden</button>
+                            <button class="template-option" data-template="murmuration" data-category="P5">🦅 Murmuration</button>
+                            <button class="template-option" data-template="ferrofluid-magnetics" data-category="P5">🧲 Ferrofluid Magnetics</button>
+                            <button class="template-option" data-template="epicycle-atelier" data-category="P5">🎡 Epicycle Atelier</button>
+                            <button class="template-option" data-template="truchet-cathedral" data-category="P5">⛪ Truchet Cathedral</button>
+                            <button class="template-option" data-template="orbital-resonance" data-category="P5">🪐 Orbital Resonance</button>
+                            <button class="template-option" data-template="chladni-plates" data-category="P5">🔔 Chladni Plates</button>
+                            <button class="template-option" data-template="physarum-dreams" data-category="P5">🍄 Physarum Dreams</button>
+                            <button class="template-option" data-template="reaction-loom" data-category="P5">🧪 Reaction Loom</button>
                             
                             <button class="template-option" data-template="synthograsizer-prompt" data-category="PROMPT">🎨 Art Prompt</button>
                             <button class="template-option" data-template="character-design" data-category="PROMPT">👤 Character Design</button>
@@ -1068,6 +1079,15 @@
                             <button class="template-option" data-template="img2vid-cinematographer" data-category="PROMPT">🎥 img2vid Cinematographer</button>
                             <button class="template-option" data-template="the-idea-machine" data-category="PROMPT">⚙️ The Idea Machine</button>
                             <button class="template-option" data-template="synesthetic_singularity" data-category="PROMPT">🌈 Synesthetic Singularity</button>
+                            <button class="template-option" data-template="sanatorium-dispatch" data-category="PROMPT">🗜️ Sanatorium Dispatch</button>
+                            <button class="template-option" data-template="specimen-plates" data-category="PROMPT">🦋 Specimen Plates</button>
+                            <button class="template-option" data-template="arcana-machina" data-category="PROMPT">🃏 Arcana Machina</button>
+                            <button class="template-option" data-template="brutalist-utopias" data-category="PROMPT">🏛️ Brutalist Utopias</button>
+                            <button class="template-option" data-template="arcade-archaeology" data-category="PROMPT">🕹️ Arcade Archaeology</button>
+                            <button class="template-option" data-template="civic-notices" data-category="PROMPT">📢 Civic Notices</button>
+                            <button class="template-option" data-template="impossible-objects" data-category="PROMPT">🏺 Impossible Objects</button>
+                            <button class="template-option" data-template="tape-shelf" data-category="PROMPT">📼 Tape Shelf</button>
+                            <button class="template-option" data-template="lost-cinema" data-category="PROMPT">🎞️ Lost Cinema</button>
                             <button class="template-option" data-template="empty" data-category="PROMPT">📄 Empty Template</button>
 
                             <button class="template-option" data-template="movie-logline" data-category="STORY">🎬 Movie Logline</button>
@@ -2286,6 +2306,14 @@
             /* ── Receive canvas native dimensions from iframe ── */
             window.addEventListener('message', function(e) {
                 if (e.source !== iframe.contentWindow) return;
+                if (e.data && e.data.p5Error) {
+                    // The sketch failed to start or threw while drawing: say so instead of leaving RUNNING over a blank or frozen frame.
+                    badge.textContent = 'Error';
+                    badge.className = 'p5-badge-v6 error';
+                    badge.title = 'The sketch reported: ' + e.data.p5Error;
+                    console.warn('[p5 viewer] sketch error:', e.data.p5Error);
+                    return;
+                }
                 if (!e.data || !e.data.p5CanvasSize) return;
                 var sz = e.data.p5CanvasSize;
                 if (!sz.w || !sz.h) return;
@@ -2342,7 +2370,12 @@
                     'canvas{display:block;flex-shrink:0;}' +
                     '<\/style>' +
                     '<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"><\/script>' +
+                    // Own script element, so a syntax error in the sketch (which stops the whole script it is in) still reaches it.
+                    // Tells the parent about the first error only: a draw() that throws would otherwise report at 60 fps.
                     '</head><body><script>' +
+                    'var __rep=false;window.addEventListener("error",function(e){if(__rep)return;__rep=true;' +
+                    'try{window.parent.postMessage({p5Error:String((e&&e.message)||e).slice(0,300)},"*");}catch(_){}});' +
+                    '<\/script><script>' +
                     'var __sv=' + varJson + ';' +
                     'window.addEventListener("message",function(e){' +
                     '  if(!e.data)return;' +
@@ -2356,7 +2389,8 @@
                     '});' +
                     'new p5(function(p){' +
                     'p.getSynthVar=function(k){return(__sv&&k in __sv)?__sv[k]:null;};' +
-                    code +
+                    'var __ref=null;p.getRefImage=function(){if(!__ref){var g=__ref=p.createGraphics(160,120);g.noStroke();for(var i=0;i<160;i++){g.fill(p.lerpColor(p.color(255,70,120),p.color(40,120,255),i/159));g.rect(i,0,1,120);}g.fill(255,230,90);g.circle(50,40,44);g.fill(30,220,170);g.circle(110,80,56);g.fill(255,255,255,200);g.rect(20,86,70,10);}return __ref;};' +
+                    code + '\n' +   // a sketch that ends in a // comment must not swallow the closing '});'
                     '});' +
                     // After p5 setup runs, post canvas native dimensions to parent
                     // Report the canvas LAYOUT size, not c.width/c.height. Those are
@@ -2389,6 +2423,7 @@
                 ph.style.display = 'none';
                 badge.textContent = 'Running';
                 badge.className = 'p5-badge-v6';
+                badge.title = '';
                 btnPlay.style.display = 'none';
                 btnPause.style.display = '';
                 btnPlay.textContent = '▶ Play';

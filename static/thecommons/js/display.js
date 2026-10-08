@@ -228,7 +228,23 @@ function loadSketch(next, values = {}) {
     p5Instance = new window.p5((p) => {
       // host-provided contract the inherited templates were written against
       p.getSynthVar = (name) => getVar(name);
-      p.getRefImage = () => null; // no upstream image pipeline in this project -- see README
+      // No upstream image pipeline in this project (see README), so pedal-style pieces that sample p.getRefImage() (the SignalChain
+      // ports) get a built-in test card instead of nothing: the same card the Synthograsizer's own viewers give them.
+      let refCard = null;
+      p.getRefImage = () => {
+        if (!refCard) {
+          const g = refCard = p.createGraphics(160, 120);
+          g.noStroke();
+          for (let i = 0; i < 160; i++) {
+            g.fill(p.lerpColor(p.color(255, 70, 120), p.color(40, 120, 255), i / 159));
+            g.rect(i, 0, 1, 120);
+          }
+          g.fill(255, 230, 90); g.circle(50, 40, 44);
+          g.fill(30, 220, 170); g.circle(110, 80, 56);
+          g.fill(255, 255, 255, 200); g.rect(20, 86, 70, 10);
+        }
+        return refCard;
+      };
       // Same room context as the native path, reached through host functions so
       // neither contract borrows the other's shape. Inherited templates never
       // call these; they were written long before any of it existed.

@@ -1,0 +1,244 @@
+{
+  "promptTemplate": "{{family}} tiled {{grid}} with {{scale_mix}}, {{line}} lines in {{palette}} coloured {{colour_logic}}, turning as {{motion}}",
+  "variables": [
+    {
+      "name": "family",
+      "feature_name": "Family",
+      "values": [
+        {
+          "text": "quarter arcs",
+          "weight": 3
+        },
+        {
+          "text": "double arcs",
+          "weight": 3
+        },
+        {
+          "text": "diagonals",
+          "weight": 2
+        },
+        {
+          "text": "triple arcs",
+          "weight": 2
+        },
+        {
+          "text": "fat tubes",
+          "weight": 2
+        },
+        {
+          "text": "dotted arcs",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "scale_mix",
+      "feature_name": "Scales",
+      "values": [
+        {
+          "text": "one scale",
+          "weight": 3
+        },
+        {
+          "text": "two scales",
+          "weight": 3
+        },
+        {
+          "text": "three scales",
+          "weight": 3
+        },
+        {
+          "text": "small at the centre",
+          "weight": 2
+        },
+        {
+          "text": "large at the centre",
+          "weight": 2
+        },
+        {
+          "text": "a patchwork",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "grid",
+      "feature_name": "Grid",
+      "values": [
+        {
+          "text": "ten across",
+          "weight": 3
+        },
+        {
+          "text": "eight across",
+          "weight": 3
+        },
+        {
+          "text": "fourteen across",
+          "weight": 3
+        },
+        {
+          "text": "six across",
+          "weight": 2
+        },
+        {
+          "text": "eighteen across",
+          "weight": 2
+        },
+        {
+          "text": "twenty-four across",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "motion",
+      "feature_name": "Motion",
+      "values": [
+        {
+          "text": "ripple from the centre",
+          "weight": 3
+        },
+        {
+          "text": "a wind sweep",
+          "weight": 3
+        },
+        {
+          "text": "a travelling wave of rows",
+          "weight": 2
+        },
+        {
+          "text": "random flips",
+          "weight": 2
+        },
+        {
+          "text": "breathing",
+          "weight": 2
+        },
+        {
+          "text": "a slow turn of the whole lattice",
+          "weight": 1
+        },
+        {
+          "text": "perfect stillness",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "palette",
+      "feature_name": "Palette",
+      "values": [
+        {
+          "text": "cathedral glass",
+          "weight": 3
+        },
+        {
+          "text": "terrazzo",
+          "weight": 3
+        },
+        {
+          "text": "bauhaus primaries",
+          "weight": 3
+        },
+        {
+          "text": "gilt on black",
+          "weight": 2
+        },
+        {
+          "text": "cyanotype",
+          "weight": 2
+        },
+        {
+          "text": "sunset risograph",
+          "weight": 2
+        },
+        {
+          "text": "mint and coral",
+          "weight": 2
+        },
+        {
+          "text": "moss and brick",
+          "weight": 2
+        },
+        {
+          "text": "celadon and ink",
+          "weight": 1
+        },
+        {
+          "text": "monochrome ink",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "colour_logic",
+      "feature_name": "Colour",
+      "values": [
+        {
+          "text": "by distance from the centre",
+          "weight": 3
+        },
+        {
+          "text": "by diagonal bands",
+          "weight": 3
+        },
+        {
+          "text": "by scale",
+          "weight": 2
+        },
+        {
+          "text": "by noise cloud",
+          "weight": 2
+        },
+        {
+          "text": "by orientation",
+          "weight": 2
+        },
+        {
+          "text": "single ink",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "line",
+      "feature_name": "Line",
+      "values": [
+        {
+          "text": "medium",
+          "weight": 3
+        },
+        {
+          "text": "fine",
+          "weight": 3
+        },
+        {
+          "text": "bold",
+          "weight": 3
+        },
+        {
+          "text": "hairline",
+          "weight": 2
+        },
+        {
+          "text": "heavy",
+          "weight": 2
+        },
+        {
+          "text": "fat",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "p5Code": "// TRUCHET CATHEDRAL\n// Truchet tiles: each square holds two quarter-circle arcs (or a diagonal) and may sit either way round; laid side by side\n// they close into rivers, rings and knots. Here the tiling is multi-scale (squares split into four, up to three times),\n// and tiles turn by quarter-turns in waves that ripple outward, sweep across, fall in rows, or fire at random,\n// so the pattern re-knots itself as the waves pass.\n// Variables are re-read every frame; changing the grid or the scale mix rebuilds the tiling.\n\nconst SIZE = 800;\n\nconst PALETTES = {\n  'cathedral glass':  { bg: '#0b0f24', ink: ['#2c5fd0', '#d63b4a', '#f1b93a', '#3aa57a', '#8d5bd0'] },\n  'terrazzo':         { bg: '#efe7da', ink: ['#c0563a', '#2f6b6a', '#e0a84b', '#3a3a46', '#a8b8a0'] },\n  'bauhaus primaries':{ bg: '#f2ede2', ink: ['#d6342c', '#1f4aa8', '#f2c230', '#161616', '#e8e0cf'] },\n  'celadon and ink':  { bg: '#e6efe6', ink: ['#7fb5a0', '#2f6b5e', '#14252b', '#a9cdbd', '#4d8a7a'] },\n  'sunset risograph': { bg: '#fbe9d5', ink: ['#f4506a', '#ff9a3c', '#6b3fa0', '#2a2d6b', '#ffc4a1'] },\n  'moss and brick':   { bg: '#1d2118', ink: ['#7a9a4a', '#b5523a', '#d9c590', '#4d6a3a', '#8a3a2a'] },\n  'monochrome ink':   { bg: '#f4f1ea', ink: ['#111111', '#333333', '#555555', '#777777', '#999999'] },\n  'mint and coral':   { bg: '#12303a', ink: ['#7ee0c3', '#ff7a6b', '#ffd9a8', '#3aa6a0', '#f2f0e4'] },\n  'cyanotype':        { bg: '#0b2a5b', ink: ['#e8f1ff', '#9cc2f2', '#5d94d8', '#c8dcf7', '#ffffff'] },\n  'gilt on black':    { bg: '#08080a', ink: ['#e7c36b', '#b8893a', '#f6e3a6', '#8a6a2a', '#fff4cf'] }\n};\n\nconst GRID = { 'six across': 6, 'eight across': 8, 'ten across': 10, 'fourteen across': 14, 'eighteen across': 18, 'twenty-four across': 24 };\nconst WEIGHT = { 'hairline': 0.012, 'fine': 0.03, 'medium': 0.07, 'bold': 0.12, 'heavy': 0.18, 'fat': 0.26 };\n\nlet tiles = [], builtKey = null;\n\nfunction rng(seed) {                                   // small deterministic generator so a rebuilt tiling is stable\n  return function () { seed |= 0; seed = (seed + 0x6D2B79F5) | 0; let t = Math.imul(seed ^ (seed >>> 15), 1 | seed); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };\n}\n\nfunction build(gridName, mix) {\n  const G = GRID[gridName] || 10, s0 = SIZE / G, rand = rng(1234 + G * 7);\n  p.noiseSeed(11);\n  tiles = [];\n  const maxLevel = G >= 18 ? 0 : (G >= 14 ? 1 : 2);\n  function chance(x, y, level) {\n    const d = Math.hypot(x - SIZE / 2, y - SIZE / 2) / (SIZE * 0.7);\n    if (mix === 'one scale') return 0;\n    if (mix === 'two scales') return level === 0 ? 0.35 : 0;\n    if (mix === 'three scales') return 0.4;\n    if (mix === 'small at the centre') return Math.max(0, 1.05 - d * 1.7) * (level === 0 ? 1 : 0.7);\n    if (mix === 'large at the centre') return Math.max(0, d * 1.5 - 0.35) * (level === 0 ? 1 : 0.6);\n    if (mix === 'a patchwork') return p.noise(x * 0.004, y * 0.004) > 0.5 ? 0.9 : 0.04;\n    return 0;\n  }\n  function add(x, y, s, level) {\n    if (level < maxLevel && rand() < chance(x + s / 2, y + s / 2, level)) {\n      const h = s / 2;\n      add(x, y, h, level + 1); add(x + h, y, h, level + 1); add(x, y + h, h, level + 1); add(x + h, y + h, h, level + 1);\n    } else {\n      tiles.push({ x: x + s / 2, y: y + s / 2, s: s, level: level, o: rand() < 0.5 ? 0 : 1, r: rand(), k: rand() });\n    }\n  }\n  for (let j = 0; j < G; j++) for (let i = 0; i < G; i++) add(i * s0, j * s0, s0, 0);\n}\n\nfunction ease(x) { x = x < 0 ? 0 : x > 1 ? 1 : x; return x * x * (3 - 2 * x); }\n\n// how far this tile has turned (in quarter-turns) at time t\nfunction turn(tile, motion, t) {\n  const cx = tile.x - SIZE / 2, cy = tile.y - SIZE / 2, d = Math.hypot(cx, cy);\n  let u;\n  if (motion === 'ripple from the centre') u = d * 0.011 - t * 0.55;\n  else if (motion === 'a wind sweep') u = (tile.x + tile.y) * 0.0065 - t * 0.5;\n  else if (motion === 'a travelling wave of rows') u = tile.y * 0.012 - t * 0.7;\n  else if (motion === 'random flips') u = tile.r * 40 + t * (0.12 + tile.k * 0.25);\n  else if (motion === 'breathing') return 0.18 * Math.sin(t * 0.9 + d * 0.012);\n  else return 0;                                      // 'perfect stillness' and 'a slow turn of the whole lattice'\n  const f = Math.floor(u);\n  return f + ease((u - f - 0.4) / 0.2);          // a tile spends most of its time at rest, so the knots hold between waves\n}\n\np.setup = function () {\n  p.createCanvas(SIZE, SIZE);\n  p.pixelDensity(1);\n  p.frameRate(60);\n};\n\np.draw = function () {\n  const family = p.getSynthVar('family') || 'quarter arcs';\n  const mix = p.getSynthVar('scale_mix') || 'two scales';\n  const gridName = p.getSynthVar('grid') || 'ten across';\n  const motion = p.getSynthVar('motion') || 'ripple from the centre';\n  const palName = p.getSynthVar('palette') || 'cathedral glass';\n  const logic = p.getSynthVar('colour_logic') || 'by distance from the centre';\n  const lineName = p.getSynthVar('line') || 'medium';\n\n  const key = gridName + '|' + mix;\n  if (key !== builtKey) { build(gridName, mix); builtKey = key; }\n  const pal = PALETTES[palName] || PALETTES['cathedral glass'];\n  const wFac = WEIGHT[lineName] || 0.07;\n  const t = p.frameCount / 60, ctx = p.drawingContext;\n\n  ctx.setLineDash([]); ctx.lineCap = 'butt';\n  ctx.fillStyle = pal.bg; ctx.fillRect(0, 0, SIZE, SIZE);\n  ctx.save();\n  if (motion === 'a slow turn of the whole lattice') {\n    ctx.translate(SIZE / 2, SIZE / 2); ctx.rotate(Math.sin(t * 0.2) * 0.6 + t * 0.03); ctx.scale(1.5, 1.5); ctx.translate(-SIZE / 2, -SIZE / 2);\n  }\n\n  // work out colour and angle for every tile, then draw them grouped by (colour, level) so each group is one stroke\n  const groups = {};\n  for (let i = 0; i < tiles.length; i++) {\n    const tile = tiles[i], cx = tile.x - SIZE / 2, cy = tile.y - SIZE / 2;\n    const q = turn(tile, motion, t);\n    const phi = (tile.o + q) * 1.5708;\n    let ci;\n    if (logic === 'by scale') ci = tile.level * 2 + (tile.r > 0.5 ? 1 : 0);\n    else if (logic === 'by diagonal bands') ci = Math.floor((tile.x + tile.y) / 150 + t * 0.35);\n    else if (logic === 'by orientation') ci = Math.floor(q + tile.o * 2 + 1) & 3;\n    else if (logic === 'by noise cloud') ci = Math.floor(p.noise(tile.x * 0.004, tile.y * 0.004, t * 0.12) * 5);\n    else if (logic === 'single ink') ci = 0;\n    else ci = Math.floor(Math.hypot(cx, cy) / 85 - t * 0.3);                    // 'by distance from the centre'\n    ci = ((ci % 5) + 5) % 5;\n    const gk = ci * 4 + tile.level;\n    (groups[gk] = groups[gk] || []).push(tile, phi);\n  }\n\n  for (const gk in groups) {\n    const list = groups[gk], ci = Math.floor(gk / 4), color = pal.ink[ci];\n    const s = list[0].s;                                                          // all tiles in a group share a level, so a size\n    const passes = family === 'double arcs' ? [-0.22, 0.22] : family === 'triple arcs' ? [-0.3, 0, 0.3] : [0];\n    const lw = s * wFac * (passes.length > 1 ? (passes.length === 3 ? 0.4 : 0.55) : 1);\n    ctx.strokeStyle = color; ctx.lineWidth = Math.max(0.6, lw);\n    if (family === 'dotted arcs') { ctx.lineCap = 'round'; ctx.lineWidth = Math.max(1, s * 0.07); ctx.setLineDash([0.1, s * 0.14]); } else { ctx.lineCap = 'butt'; ctx.setLineDash([]); }\n    ctx.beginPath();\n    for (let n = 0; n < list.length; n += 2) {\n      const tile = list[n], phi = list[n + 1], h = tile.s / 2, c = Math.cos(phi), sn = Math.sin(phi);\n      if (family === 'diagonals') {\n        ctx.moveTo(tile.x + (-h * c + h * sn), tile.y + (-h * sn - h * c));\n        ctx.lineTo(tile.x + (h * c - h * sn), tile.y + (h * sn + h * c));\n      } else {\n        for (let k = 0; k < passes.length; k++) {\n          const r = h * (1 + passes[k]);\n          // arc centred on the top-left corner, then the one on the bottom-right, both turned by phi\n          const ax = tile.x + (-h * c + h * sn), ay = tile.y + (-h * sn - h * c);\n          const bx = tile.x + (h * c - h * sn), by = tile.y + (h * sn + h * c);\n          ctx.moveTo(ax + r * Math.cos(phi), ay + r * Math.sin(phi));\n          ctx.arc(ax, ay, r, phi, phi + 1.5708);\n          ctx.moveTo(bx + r * Math.cos(phi + 3.1416), by + r * Math.sin(phi + 3.1416));\n          ctx.arc(bx, by, r, phi + 3.1416, phi + 4.7124);\n        }\n      }\n    }\n    ctx.stroke();\n    if (family === 'fat tubes') {                                                  // a pale highlight down the middle of each tube\n      ctx.strokeStyle = 'rgba(255,255,255,0.22)'; ctx.lineWidth = Math.max(0.6, lw * 0.28); ctx.stroke();\n    }\n  }\n  ctx.restore();\n  ctx.setLineDash([]); ctx.lineCap = 'butt';\n  const vg = ctx.createRadialGradient(400, 400, 300, 400, 400, 600);\n  vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,0.28)');\n  ctx.fillStyle = vg; ctx.fillRect(0, 0, SIZE, SIZE);\n};\n",
+  "tags": [
+    {
+      "id": "tag_truchet_cathedral_01",
+      "type": "source",
+      "label": "Truchet tiles (S. Truchet, 1704) and multi-scale Truchet tilings",
+      "description": "Quarter-arc tiles that close into rivers and rings whichever way each square is set; the multi-scale form subdivides squares into four. Written for the Teamcrafter residency, 2026-10-06."
+    }
+  ]
+}

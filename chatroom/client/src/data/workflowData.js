@@ -14,6 +14,7 @@ export const STEP_GLYPHS = {
   synth_story:          '📖',
   synth_narrative:      '🗣',
   synth_remix_template: '🔀',
+  synth_combine:        '🎞',
   loop:                 '↻',
 };
 
@@ -121,6 +122,41 @@ export const PARAM_META = {
     label: 'Degradation Depth (stages of decay)',
     min: 1, max: 5,
     defaultValue: 4,
+  },
+
+  // ── Look-Locked Deck ──────────────────────────────────────────────────────
+  deck_look: {
+    type: 'text',
+    label: 'Deck Look (shared by every card)',
+    placeholder: 'gilded border, midnight-blue ground, engraved linework…',
+  },
+  reference: {
+    type: 'text',
+    label: 'Reference image id (optional)',
+    placeholder: 'a media id; leave empty to draw the first card as the reference',
+  },
+
+  // ── Storyboard to Film ────────────────────────────────────────────────────
+  frames: {
+    type: 'text',
+    label: 'Frames (media ids, comma-separated)',
+    placeholder: 'the approved frames, one per scene, in order',
+  },
+  motions: {
+    type: 'textarea',
+    label: 'Motion lines (one per frame, separated by ||)',
+    placeholder: 'slow push in, rain on glass || cut to her hands on the rail || pull back to the ferry',
+  },
+  score: {
+    type: 'text',
+    label: 'Score (audio media id, optional)',
+    placeholder: 'a recorded score to mix under the film',
+  },
+  score_volume: {
+    type: 'number',
+    label: 'Score level (0 to 1)',
+    min: 0, max: 1,
+    defaultValue: 0.35,
   },
 
   // ── Multi-Image Composite ─────────────────────────────────────────────────

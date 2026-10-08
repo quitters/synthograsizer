@@ -68,10 +68,10 @@ export const TOOL_TIERS = {
   researcher: ['deep_research', 'google_search', 'url_context'],
 
   /** Make pictures, and see what came back. */
-  visual: ['generate_image', 'compose_image', 'google_search'],
+  visual: ['generate_image', 'compose_image', 'critique_image', 'google_search'],
 
   /** Write the shared file the preview panel renders, and check the maths. */
-  builder: ['write_artifact', 'code_execution', 'google_search', 'url_context'],
+  builder: ['write_artifact', 'render_artifact', 'code_execution', 'google_search', 'url_context'],
 
   /**
    * Run Python to check a claim before making it. Note that code execution
@@ -86,7 +86,9 @@ export const TOOL_TIERS = {
   full: [
     'generate_image',
     'compose_image',
+    'critique_image',
     'write_artifact',
+    'render_artifact',
     'code_execution',
     'google_search',
     'url_context',

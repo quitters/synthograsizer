@@ -4,6 +4,19 @@ All notable changes to the Agent Chat Room project are documented in this file.
 
 ## [Unreleased]
 
+### Added: saved sessions, done when, the independent critic, showing the room
+- **Saved sessions.** Every message is appended to `chatroom/data/rooms/<room>/<session>/` as it is said, with media, uploads and every artifact version; list, download, reopen and delete from the Agent Studio (🗂), `/api/chat/saved`, and
+  `POST /api/chat/import` loads a Studio export file. On locally, off when hosted unless `CHATROOM_AUTOSAVE=1`; 30 days; git-ignored.
+- **Done when.** Checks the server runs before it lets a room end (an artifact exists, a regex, JSON against a schema subset, a URL that answers), on every attempt to end (lead or vote) and on each new artifact version; a failure is a Producer
+  note and the room carries on; after 8 refusals it ends anyway as `done_check_unmet`.
+- **Independent critic.** A blind 1 to 10 score from a call that sees only the pictures; `[CRITIC: ...]`, `critique_image`, optional auto-scoring.
+- **Show the room.** `POST /api/chat/show`; `[RENDER: file]` / `render_artifact` draws an engine or has an attached browser render an instrument or page (`render_request`, `/api/chat/render-result`); the Studio's Share to Chat shows the picture itself.
+- Agent Studio: load a session file, saved sessions, Done when and critic settings; the standalone page gets Done when and Saved tabs.
+- While a session runs the server asks the OS not to sleep (`SYNTH_KEEP_AWAKE=0` turns it off).
+
+### Fixed
+- Agent Studio thumbnails never loaded in current Chrome (`img.src` of an empty `src` is the page address); the `/chatroom/api` proxy dropped the query string on the event stream.
+
 ### Added
 - **Typed composition slots for image generation** (MODERNIZATION_PLAN §4.6).
   `gemini-3.1-flash-image` accepts 10 object + 4 character-consistency + 3 style

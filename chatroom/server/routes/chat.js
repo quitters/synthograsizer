@@ -10,8 +10,18 @@ import { mintSessionToken, isLoopbackRequest } from '../services/liveSession.js'
 import { isLiveApiEnabled, ALLOW_REMOTE_TOKENS } from '../config/live.js';
 import { v4 as uuidv4 } from 'uuid';
 import { activeFileSearchStores } from '../services/sessionRegistry.js';
+import { parseCriteriaText, normalizeCriteria } from '../services/doneWhen.js';
 
 const router = Router();
+
+/** Checks from a request body: { criteria: [...] } or { text: "one check per line" } (or the bare list / text). */
+function readDoneWhen(body) {
+  if (typeof body === 'string') return parseCriteriaText(body);
+  if (Array.isArray(body)) return normalizeCriteria(body);
+  if (Array.isArray(body?.criteria)) return normalizeCriteria(body.criteria);
+  if (typeof body?.text === 'string') return parseCriteriaText(body.text);
+  return { criteria: [], errors: [] };
+}
 
 /**
  * GET /api/chat/stream
@@ -36,6 +46,9 @@ router.get('/stream', (req, res) => {
   // Send initial connection event
   res.write(`event: connected\ndata: ${JSON.stringify({ message: 'Connected to chat stream' })}\n\n`);
 
+  // A page that can render artifacts (the Agent Studio) says so with ?renders=1; render requests go only to those
+  res.renderCapable = req.query.renders === '1';
+
   // Register client
   const removeClient = req.room.orchestrator.addClient(res);
 
@@ -53,10 +66,17 @@ router.get('/stream', (req, res) => {
  * Start the autonomous chat
  */
 router.post('/start', async (req, res) => {
-  const { goal, tokenLimit = 100000, model, mode } = req.body;
+  const { goal, tokenLimit = 100000, model, mode, doneWhen } = req.body;
 
   if (!goal) {
     return res.status(400).json({ error: 'Goal is required' });
+  }
+
+  // Optional checks the room must pass before it may end (see /done-when)
+  if (doneWhen) {
+    const parsed = readDoneWhen(doneWhen);
+    if (parsed.errors.length) return res.status(400).json({ error: 'Bad done-when checks', errors: parsed.errors });
+    req.room.orchestrator.setDoneWhen(parsed.criteria, { maxBlocks: doneWhen.maxBlocks });
   }
 
   const normalizedMode = mode === 'solo' ? 'solo' : 'group';
@@ -726,7 +746,8 @@ router.get('/consensus-settings', (req, res) => {
 
 /**
  * POST /api/chat/consensus-settings
- * Update consensus detection settings
+ * Update how the session ends: consensus detection, and the other ways out
+ * (closeBy 'vote'|'lead' with leadAgent, minTurns, maxTurns)
  */
 router.post('/consensus-settings', (req, res) => {
   const {
@@ -734,7 +755,11 @@ router.post('/consensus-settings', (req, res) => {
     sensitivity,
     requireExplicitMarker,
     minSignoffCount,
-    customPhrases
+    customPhrases,
+    closeBy,
+    leadAgent,
+    minTurns,
+    maxTurns
   } = req.body;
 
   try {
@@ -743,7 +768,11 @@ router.post('/consensus-settings', (req, res) => {
       sensitivity,
       requireExplicitMarker,
       minSignoffCount,
-      customPhrases
+      customPhrases,
+      closeBy,
+      leadAgent,
+      minTurns,
+      maxTurns
     });
 
     res.json({
@@ -753,6 +782,100 @@ router.post('/consensus-settings', (req, res) => {
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
+});
+
+// ==================== DONE WHEN ====================
+
+/**
+ * GET /api/chat/done-when
+ * The checks the room must pass before it may end, as a list and as one line per check, with the last result.
+ */
+router.get('/done-when', (req, res) => {
+  res.json(req.room.orchestrator.getDoneWhen());
+});
+
+/**
+ * POST /api/chat/done-when   { criteria: [...] } or { text: "artifact: engine.json\nregex: /FINAL/ in last_message" }, optional maxBlocks
+ * Set the checks (an empty list turns the gate off). The server runs them each time the room tries to end, and
+ * each time an artifact is saved, and tells the room what failed.
+ */
+router.post('/done-when', (req, res) => {
+  const parsed = readDoneWhen(req.body || {});
+  if (parsed.errors.length) return res.status(400).json({ error: 'Bad done-when checks', errors: parsed.errors });
+  res.json({ success: true, ...req.room.orchestrator.setDoneWhen(parsed.criteria, { maxBlocks: req.body?.maxBlocks }) });
+});
+
+/**
+ * POST /api/chat/done-when/check
+ * Run the checks now and say what passes and what does not. Changes nothing in the conversation.
+ */
+router.post('/done-when/check', async (req, res) => {
+  const o = req.room.orchestrator;
+  if (!o.doneWhen.criteria.length) return res.json({ passed: true, results: [], note: 'no checks are set' });
+  const result = await o.checkDoneWhen({ manual: true });
+  res.json({ passed: result.passed, results: result.results.map(r => ({ label: r.label, passed: r.passed, detail: r.detail })) });
+});
+
+// ==================== SHOW THE ROOM, CRITIC, RENDER ====================
+
+/**
+ * POST /api/chat/show   { images: [{ dataUrl | data, mimeType?, label? }], caption?, sender? }
+ * Show the room pictures. They join the conversation as a note (from the Producer unless sender is given) and the
+ * next speaker sees them. This is how a host or a tool lets a room look at something: a render, a contact sheet, a
+ * screenshot of the preview.
+ */
+router.post('/show', (req, res) => {
+  const { images, caption, sender } = req.body || {};
+  const result = req.room.orchestrator.showToRoom({ images, caption, sender: typeof sender === 'string' && sender.trim() ? sender.trim().slice(0, 40) : 'Producer' });
+  res.status(result.ok ? 200 : 400).json(result);
+});
+
+/**
+ * GET /api/chat/critic        the independent critic's settings
+ * POST /api/chat/critic       { enabled, auto, referenceId, criteria, model, minScore, maxCalls }
+ * The critic sees only pictures (a reference, or a description, and the candidate), never the conversation, and scores 1 to 10.
+ */
+router.get('/critic', (req, res) => res.json(req.room.orchestrator.getCritic()));
+router.post('/critic', (req, res) => {
+  res.json({ success: true, settings: req.room.orchestrator.setCritic(req.body || {}) });
+});
+
+/**
+ * POST /api/chat/critic/score   { imageId, referenceId?, criteria?, post? }
+ * Score one picture now. With post: true the room is told, as a note from the Producer.
+ */
+router.post('/critic/score', async (req, res) => {
+  const { imageId, referenceId, criteria, post } = req.body || {};
+  if (!imageId) return res.status(400).json({ error: 'imageId is required' });
+  const o = req.room.orchestrator;
+  const r = await o.critique({ imageId, referenceId, criteria, source: 'host' });
+  if (r.ok && post) o._postNote(`INDEPENDENT CRITIC on picture ${String(imageId).slice(0, 8)} (it saw only the pictures, not this conversation): ${r.text}`);
+  res.status(r.ok ? 200 : 400).json(r);
+});
+
+/**
+ * POST /api/chat/render   { artifact, draws? }
+ * Render an artifact (a template, an instrument, a page) and show the room the result.
+ */
+router.post('/render', async (req, res) => {
+  const { artifact, draws } = req.body || {};
+  if (!artifact) return res.status(400).json({ error: 'artifact is required' });
+  const o = req.room.orchestrator;
+  const r = await o.render({ artifact, draws });
+  if (!r.ok) return res.status(400).json({ ok: false, error: r.text });
+  o._postNote(`Producer rendered ${artifact}: ${r.text}`, { images: r.images });
+  res.json({ ok: true, text: r.text, imageIds: r.images.map(i => i.id) });
+});
+
+/**
+ * POST /api/chat/render-result   { requestId, images: [{ dataUrl | data, mimeType?, label? }], error?, note? }
+ * A browser's answer to a render_request event.
+ */
+router.post('/render-result', (req, res) => {
+  const { requestId, images, error, note } = req.body || {};
+  const accepted = req.room.orchestrator.resolveRender(String(requestId || ''),
+    error ? { ok: false, error: String(error).slice(0, 300) } : { ok: true, images: Array.isArray(images) ? images : [], note: note ? String(note).slice(0, 300) : undefined });
+  res.status(accepted ? 200 : 404).json({ accepted });
 });
 
 export default router;

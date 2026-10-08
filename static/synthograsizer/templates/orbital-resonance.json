@@ -1,0 +1,280 @@
+{
+  "promptTemplate": "{{bodies}} in {{resonance}} resonance, woven as {{weave}} in {{ink}} on {{sky}}, remembered for {{memory}}, {{tempo}}",
+  "variables": [
+    {
+      "name": "resonance",
+      "feature_name": "Resonance",
+      "values": [
+        {
+          "text": "13:8 pentagram",
+          "weight": 3
+        },
+        {
+          "text": "3:2 trefoil",
+          "weight": 3
+        },
+        {
+          "text": "5:3 wheel",
+          "weight": 3
+        },
+        {
+          "text": "8:5 rose",
+          "weight": 2
+        },
+        {
+          "text": "7:4 lattice",
+          "weight": 2
+        },
+        {
+          "text": "4:1 clover",
+          "weight": 2
+        },
+        {
+          "text": "5:2 star",
+          "weight": 2
+        },
+        {
+          "text": "2:1 oval",
+          "weight": 1
+        },
+        {
+          "text": "9:7 meander",
+          "weight": 1
+        },
+        {
+          "text": "golden drift",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "bodies",
+      "feature_name": "Bodies",
+      "values": [
+        {
+          "text": "a pair",
+          "weight": 3
+        },
+        {
+          "text": "a trio",
+          "weight": 3
+        },
+        {
+          "text": "a quartet",
+          "weight": 3
+        },
+        {
+          "text": "a quintet",
+          "weight": 2
+        },
+        {
+          "text": "a sextet",
+          "weight": 2
+        },
+        {
+          "text": "a septet",
+          "weight": 1
+        },
+        {
+          "text": "an octet",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "weave",
+      "feature_name": "Weave",
+      "values": [
+        {
+          "text": "chords between neighbours",
+          "weight": 3
+        },
+        {
+          "text": "every chord",
+          "weight": 3
+        },
+        {
+          "text": "a closed polygon",
+          "weight": 2
+        },
+        {
+          "text": "triangles",
+          "weight": 2
+        },
+        {
+          "text": "a string of pearls",
+          "weight": 2
+        },
+        {
+          "text": "a spirograph arm",
+          "weight": 2
+        },
+        {
+          "text": "comet trails",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "ink",
+      "feature_name": "Ink",
+      "values": [
+        {
+          "text": "gold leaf",
+          "weight": 3
+        },
+        {
+          "text": "chalk",
+          "weight": 3
+        },
+        {
+          "text": "neon",
+          "weight": 2
+        },
+        {
+          "text": "oil slick",
+          "weight": 2
+        },
+        {
+          "text": "blueprint",
+          "weight": 2
+        },
+        {
+          "text": "vermilion",
+          "weight": 2
+        },
+        {
+          "text": "starlight",
+          "weight": 1
+        },
+        {
+          "text": "etching",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "sky",
+      "feature_name": "Sky",
+      "values": [
+        {
+          "text": "midnight blue",
+          "weight": 3
+        },
+        {
+          "text": "black lacquer",
+          "weight": 3
+        },
+        {
+          "text": "slate",
+          "weight": 2
+        },
+        {
+          "text": "deep teal",
+          "weight": 2
+        },
+        {
+          "text": "oxblood",
+          "weight": 2
+        },
+        {
+          "text": "vellum",
+          "weight": 2
+        },
+        {
+          "text": "bone",
+          "weight": 1
+        },
+        {
+          "text": "dawn",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "memory",
+      "feature_name": "Memory",
+      "values": [
+        {
+          "text": "a season",
+          "weight": 3
+        },
+        {
+          "text": "an hour",
+          "weight": 3
+        },
+        {
+          "text": "a day",
+          "weight": 3
+        },
+        {
+          "text": "a breath",
+          "weight": 2
+        },
+        {
+          "text": "a minute",
+          "weight": 2
+        },
+        {
+          "text": "a flicker",
+          "weight": 2
+        },
+        {
+          "text": "a century",
+          "weight": 1
+        },
+        {
+          "text": "forever",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "tempo",
+      "feature_name": "Tempo",
+      "values": [
+        {
+          "text": "andante",
+          "weight": 3
+        },
+        {
+          "text": "moderato",
+          "weight": 3
+        },
+        {
+          "text": "allegro",
+          "weight": 3
+        },
+        {
+          "text": "adagio",
+          "weight": 2
+        },
+        {
+          "text": "vivace",
+          "weight": 2
+        },
+        {
+          "text": "presto",
+          "weight": 2
+        },
+        {
+          "text": "largo",
+          "weight": 1
+        },
+        {
+          "text": "prestissimo",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "p5Code": "// ORBITAL RESONANCE\n// Bodies circle a common centre with periods in simple ratios, and the lines drawn between them weave closed figures: the\n// Venus-Earth pentagram is 13:8, a trefoil is 3:2, and a golden-ratio pair never closes at all. The ink lives on its own\n// layer that fades at the speed of the memory knob, so the figures can flicker, linger, or pile up for good.\n// Variables are re-read every frame.\n\nconst CX = 400, CY = 400, R = 360;\n\n// eight frequencies per family; the first n are used for n bodies\nconst FAMILIES = {\n  '13:8 pentagram': [8, 13, 21, 34, 55, 89, 144, 233],\n  '3:2 trefoil':    [2, 3, 4, 6, 8, 12, 16, 24],\n  '5:3 wheel':      [3, 5, 6, 10, 9, 15, 12, 20],\n  '4:1 clover':     [1, 4, 2, 8, 3, 12, 4, 16],\n  '7:4 lattice':    [4, 7, 8, 14, 12, 21, 16, 28],\n  '8:5 rose':       [5, 8, 10, 16, 15, 24, 20, 32],\n  '2:1 oval':       [1, 2, 3, 4, 5, 6, 7, 8],\n  '5:2 star':       [2, 5, 4, 10, 6, 15, 8, 20],\n  '9:7 meander':    [7, 9, 14, 18, 21, 27, 28, 36],\n  'golden drift':   [1, 1.618, 2.618, 4.236, 6.854, 11.09, 17.944, 29.034]\n};\n\nconst BODIES = { 'a pair': 2, 'a trio': 3, 'a quartet': 4, 'a quintet': 5, 'a sextet': 6, 'a septet': 7, 'an octet': 8 };\n\n// bg: centre and rim; light: pale sky, so ink is drawn dark and there is no glow\nconst SKY = {\n  'midnight blue': { bg: ['#0c1436', '#02030b'], light: false, stars: true },\n  'vellum':        { bg: ['#f4ecd6', '#d8cba8'], light: true,  stars: false },\n  'slate':         { bg: ['#2c333b', '#0b0d10'], light: false, stars: false },\n  'black lacquer': { bg: ['#121214', '#000000'], light: false, stars: true },\n  'oxblood':       { bg: ['#451018', '#12040a'], light: false, stars: false },\n  'bone':          { bg: ['#ece6d8', '#c0b7a0'], light: true,  stars: false },\n  'deep teal':     { bg: ['#0c4248', '#021013'], light: false, stars: true },\n  'dawn':          { bg: ['#f2c3a4', '#5b4d86'], light: false, stars: false }\n};\n\nconst MEMORY = { 'a flicker': 0.22, 'a breath': 0.07, 'a minute': 0.04, 'an hour': 0.022, 'a day': 0.012, 'a season': 0.007, 'a century': 0.003, 'forever': 0.0009 };\nconst TEMPO = { 'largo': 0.2, 'adagio': 0.4, 'andante': 0.8, 'moderato': 1.1, 'allegro': 1.4, 'vivace': 1.9, 'presto': 2.4, 'prestissimo': 4.0 };\n\nlet ink, ictx, bloom, bctx, dust = [];\nlet th = [0.3, 1.0, 1.7, 2.4, 3.1, 3.8, 4.5, 5.2];\nlet prev = [];\nlet clock = 0;\n\nfunction inkColor(kind, i, t, a, light) {\n  if (kind === 'gold leaf') return `rgba(${light ? '150,100,20' : '244,196,98'},${a})`;\n  if (kind === 'chalk') return `rgba(${light ? '70,66,60' : '246,246,238'},${a})`;\n  if (kind === 'neon') return `hsla(${(t * 40 + i * 47) % 360},100%,${light ? 40 : 62}%,${a})`;\n  if (kind === 'etching') return `rgba(${light ? '34,28,22' : '210,200,180'},${a})`;\n  if (kind === 'blueprint') return `rgba(${light ? '24,60,140' : '170,208,255'},${a})`;\n  if (kind === 'vermilion') return `rgba(${light ? '190,40,20' : '255,92,60'},${a})`;\n  if (kind === 'oil slick') return `hsla(${(i * 55 + t * 14 + 180) % 360},85%,${light ? 38 : 60}%,${a})`;\n  if (kind === 'starlight') return `rgba(${light ? '40,50,90' : (i % 2 ? '255,246,210' : '210,226,255')},${a})`;\n  return `rgba(255,255,255,${a})`;\n}\n\np.setup = function () {\n  p.createCanvas(800, 800);\n  p.pixelDensity(1);\n  p.frameRate(60);\n  ink = document.createElement('canvas'); ink.width = 800; ink.height = 800; ictx = ink.getContext('2d');\n  bloom = document.createElement('canvas'); bloom.width = 100; bloom.height = 100; bctx = bloom.getContext('2d');\n  for (let i = 0; i < 90; i++) dust.push([Math.random() * 800, Math.random() * 800, Math.random() * 1.4 + 0.3, Math.random()]);\n};\n\nfunction positions(n, freq, spiro) {\n  const pts = [];\n  if (spiro) {\n    let x = CX, y = CY, rad = R * 0.36;\n    for (let i = 0; i < n; i++) {\n      x += Math.cos(th[i]) * rad; y += Math.sin(th[i]) * rad; rad *= 0.62;\n      pts.push([x, y]);\n    }\n  } else {\n    for (let i = 0; i < n; i++) {\n      const r = R * Math.max(0.14, 0.92 * Math.pow(0.76, n - 1 - i));\n      pts.push([CX + Math.cos(th[i]) * r, CY + Math.sin(th[i]) * r, r]);\n    }\n  }\n  return pts;\n}\n\np.draw = function () {\n  const family = p.getSynthVar('resonance') || '13:8 pentagram';\n  const bodiesKey = p.getSynthVar('bodies') || 'a pair';\n  const weave = p.getSynthVar('weave') || 'chords between neighbours';\n  const inkKey = p.getSynthVar('ink') || 'gold leaf';\n  const skyKey = p.getSynthVar('sky') || 'midnight blue';\n  const memKey = p.getSynthVar('memory') || 'a season';\n  const tempoKey = p.getSynthVar('tempo') || 'andante';\n\n  const n = BODIES[bodiesKey] || 2;\n  const fr = (FAMILIES[family] || FAMILIES['13:8 pentagram']).slice(0, n);\n  const sky = SKY[skyKey] || SKY['midnight blue'];\n  let fade = MEMORY[memKey] !== undefined ? MEMORY[memKey] : 0.007;\n  const speed = TEMPO[tempoKey] || 0.8;\n  const spiro = weave === 'a spirograph arm';\n  if (weave === 'comet trails') fade = Math.max(fade, 0.045);          // a comet needs a tail, not a ring\n  // Line strength follows the fade (a long memory lays thin ink, a short one thick) and the number of lines drawn per\n  // frame, so the picture settles at a steady exposure whatever the weave, instead of burning out to a solid disc.\n  // load is in 'full chords' per sub-step; pearls and short arcs cover far less of the page than a chord does.\n  const load = weave === 'chords between neighbours' ? n - 1\n    : weave === 'every chord' ? n * (n - 1) / 2\n    : weave === 'a closed polygon' ? n\n    : weave === 'triangles' ? 3 * Math.max(1, n - 2)\n    : weave === 'a string of pearls' ? 0.1 * (n - 1) : 1;\n  const alpha = Math.max(0.006, Math.min(0.42, 500 * fade / (3 * load)));\n  const fmax = Math.max.apply(null, fr);\n\n  // fade the ink, then lay down this frame's lines over a few sub-steps so fast bodies still draw unbroken curves\n  ictx.globalCompositeOperation = 'destination-out';\n  ictx.fillStyle = `rgba(0,0,0,${fade})`; ictx.fillRect(0, 0, 800, 800);\n  ictx.globalCompositeOperation = 'source-over';\n  ictx.lineWidth = weave === 'comet trails' ? 1.8 : 1.15; ictx.lineCap = 'round';\n\n  const SUB = 3;\n  for (let s = 0; s < SUB; s++) {\n    for (let i = 0; i < n; i++) {\n      const sign = spiro && (i % 2) ? -1 : 1;\n      th[i] += sign * 0.2 * (fr[i] / fmax) * speed / SUB * 0.6;\n    }\n    clock += speed / SUB;\n    const cur = positions(n, fr, spiro);\n    const t = clock * 0.5;\n    if (prev.length === cur.length) {\n      if (weave === 'chords between neighbours') {\n        for (let i = 0; i < n - 1; i++) { ictx.strokeStyle = inkColor(inkKey, i, t, alpha, sky.light); ictx.beginPath(); ictx.moveTo(cur[i][0], cur[i][1]); ictx.lineTo(cur[i + 1][0], cur[i + 1][1]); ictx.stroke(); }\n      } else if (weave === 'every chord') {\n        for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) { ictx.strokeStyle = inkColor(inkKey, i + j, t, alpha * 0.8, sky.light); ictx.beginPath(); ictx.moveTo(cur[i][0], cur[i][1]); ictx.lineTo(cur[j][0], cur[j][1]); ictx.stroke(); }\n      } else if (weave === 'a closed polygon') {\n        ictx.strokeStyle = inkColor(inkKey, 0, t, alpha, sky.light); ictx.beginPath(); ictx.moveTo(cur[0][0], cur[0][1]);\n        for (let i = 1; i < n; i++) ictx.lineTo(cur[i][0], cur[i][1]);\n        ictx.closePath(); ictx.stroke();\n      } else if (weave === 'triangles') {\n        for (let i = 0; i < Math.max(1, n - 2); i++) {\n          const a = cur[i], b = cur[Math.min(n - 1, i + 1)], c = cur[Math.min(n - 1, i + 2)];\n          ictx.strokeStyle = inkColor(inkKey, i, t, alpha, sky.light); ictx.beginPath(); ictx.moveTo(a[0], a[1]); ictx.lineTo(b[0], b[1]); ictx.lineTo(c[0], c[1]); ictx.closePath(); ictx.stroke();\n        }\n      } else if (weave === 'a string of pearls') {\n        for (let i = 0; i < n - 1; i++) {\n          ictx.fillStyle = inkColor(inkKey, i, t, Math.min(0.9, alpha * 2.4), sky.light); ictx.beginPath();\n          for (let k = 1; k <= 7; k++) {\n            const f = k / 8, x = cur[i][0] + (cur[i + 1][0] - cur[i][0]) * f, y = cur[i][1] + (cur[i + 1][1] - cur[i][1]) * f;\n            ictx.moveTo(x + 1.2, y); ictx.arc(x, y, 1.2, 0, 6.2832);\n          }\n          ictx.fill();\n        }\n      } else if (weave === 'a spirograph arm') {\n        ictx.strokeStyle = inkColor(inkKey, n, t, 0.85, sky.light); ictx.lineWidth = 1.5; ictx.beginPath();\n        ictx.moveTo(prev[n - 1][0], prev[n - 1][1]); ictx.lineTo(cur[n - 1][0], cur[n - 1][1]); ictx.stroke();\n      } else {                                      // 'comet trails'\n        for (let i = 0; i < n; i++) { ictx.strokeStyle = inkColor(inkKey, i, t, 0.9, sky.light); ictx.beginPath(); ictx.moveTo(prev[i][0], prev[i][1]); ictx.lineTo(cur[i][0], cur[i][1]); ictx.stroke(); }\n      }\n    }\n    prev = cur;\n  }\n\n  // sky\n  const ctx = p.drawingContext;\n  ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;\n  const g = ctx.createRadialGradient(CX, CY, 30, CX, CY, 600);\n  g.addColorStop(0, sky.bg[0]); g.addColorStop(1, sky.bg[1]);\n  ctx.fillStyle = g; ctx.fillRect(0, 0, 800, 800);\n  if (sky.stars) {\n    for (let i = 0; i < dust.length; i++) {\n      const d = dust[i], tw = 0.4 + 0.6 * Math.abs(Math.sin(p.frameCount * 0.02 + d[3] * 30));\n      ctx.fillStyle = `rgba(255,255,255,${0.35 * tw})`; ctx.fillRect(d[0], d[1], d[2], d[2]);\n    }\n  }\n\n  // the structure the ink is woven from: rings and arms, drawn faintly\n  const cur = prev;\n  ctx.lineWidth = 1;\n  if (!spiro) {\n    ctx.strokeStyle = sky.light ? 'rgba(40,30,20,0.12)' : 'rgba(255,255,255,0.09)';\n    for (let i = 0; i < cur.length; i++) { ctx.beginPath(); ctx.arc(CX, CY, cur[i][2], 0, 6.2832); ctx.stroke(); }\n  } else {\n    ctx.strokeStyle = sky.light ? 'rgba(40,30,20,0.35)' : 'rgba(255,255,255,0.3)';\n    ctx.beginPath(); ctx.moveTo(CX, CY);\n    for (let i = 0; i < cur.length; i++) ctx.lineTo(cur[i][0], cur[i][1]);\n    ctx.stroke();\n  }\n\n  // ink over the sky, with a cheap bloom on dark skies\n  ctx.drawImage(ink, 0, 0);\n  if (!sky.light) {\n    bctx.clearRect(0, 0, 100, 100); bctx.imageSmoothingEnabled = true; bctx.imageSmoothingQuality = 'high';\n    bctx.drawImage(ink, 0, 0, 100, 100);\n    ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.9;\n    ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';\n    ctx.drawImage(bloom, 0, 0, 800, 800);\n    ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;\n  }\n\n  // the bodies themselves\n  for (let i = 0; i < cur.length; i++) {\n    ctx.fillStyle = sky.light ? 'rgba(30,24,18,0.9)' : 'rgba(255,248,230,0.95)';\n    ctx.beginPath(); ctx.arc(cur[i][0], cur[i][1], i === cur.length - 1 ? 4.5 : 3.2, 0, 6.2832); ctx.fill();\n  }\n};\n",
+  "tags": [
+    {
+      "id": "tag_orbital_resonance_01",
+      "type": "source",
+      "label": "Orbital resonance figures",
+      "description": "Lines drawn between bodies whose periods are in small integer ratios, as in the Venus-Earth pentagram (13 Venus years to 8 Earth years). Written for the Teamcrafter residency, 2026-10-06."
+    }
+  ]
+}

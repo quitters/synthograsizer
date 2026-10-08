@@ -19,7 +19,7 @@
 // Two edits, both here at the top: the base URL defaults to same-origin ('')
 // instead of a hardcoded localhost, and process.env is not read (it does not
 // exist in a browser and would throw on construction). Everything below is
-// unchanged.
+// unchanged (scripts/sync_workflow_engine.py regenerates it).
 //
 // Same-origin matters for more than convenience: the request then carries the
 // user's session cookie, so every workflow step is metered, rate-limited and
@@ -33,6 +33,9 @@ const VIDEO_TIMEOUT_MS   = 120_000;
 // because the model writes complete self-contained sketch code with lookup maps.
 const TEMPLATE_TIMEOUT_MS = 300_000;
 const HEALTH_CACHE_MS = 30_000;
+// Nano Banana 2. The -preview alias this used to pin had a published shutdown
+// date of 2026-06-25. Callers can override per request via options.model.
+const DEFAULT_IMAGE_MODEL = 'gemini-3.1-flash-image';
 
 class SynthClient {
   constructor(baseUrl) {
@@ -119,16 +122,22 @@ class SynthClient {
   /**
    * POST /api/generate/image
    * @param {string} prompt
-   * @param {{ aspect_ratio?, negative_prompt?, style?, num_images? }} options
+   * @param {{ aspect_ratio?, negative_prompt?, style?, num_images?, model?,
+   *           input_images?: string[],
+   *           references?: { objects?: string[], character?: string[], style?: string[] } }} options
+   *   input_images are untyped reference images; references are the typed composition slots (Gemini image models).
+   *   Both are base64 strings, already resolved from media ids by the engine.
    */
   async generateImage(prompt, options = {}) {
     const body = {
       prompt,
-      model: 'gemini-3.1-flash-image',
+      model: options.model || DEFAULT_IMAGE_MODEL,
       aspect_ratio: options.aspect_ratio ?? '1:1',
     };
     if (options.negative_prompt) body.negative_prompt = options.negative_prompt;
     if (options.num_images)      body.image_count = Number(options.num_images);
+    if (options.input_images?.length) body.input_images = options.input_images;
+    if (options.references && Object.values(options.references).some(list => list?.length)) body.references = options.references;
     // 'style' has no direct server param; fold it into the prompt if provided
     if (options.style) body.prompt = `${prompt} — style: ${options.style}`;
 
@@ -270,9 +279,16 @@ class SynthClient {
   /**
    * POST /api/video/combine
    * @param {string[]} videoList  array of base64-encoded MP4s
+   * @param {{ audio?: string, audio_volume?: number }} [options]  a base64 audio clip (a score) to mix under the clips' own
+   *   sound, and its level from 0 to 1 (the server defaults to 0.35)
    */
-  async combineVideos(videoList) {
-    return this._post('/api/video/combine', { videos: videoList }, VIDEO_TIMEOUT_MS);
+  async combineVideos(videoList, options = {}) {
+    const body = { videos: videoList };
+    if (options.audio) body.audio = options.audio;
+    if (options.audio_volume !== undefined && options.audio_volume !== null && options.audio_volume !== '') {
+      body.audio_volume = Number(options.audio_volume);
+    }
+    return this._post('/api/video/combine', body, VIDEO_TIMEOUT_MS);
   }
 }
 

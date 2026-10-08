@@ -141,11 +141,15 @@ Or use `chatroom/start.bat` to launch both at once.
 - Static image mode accumulates effects destructively across frames
 - GIF/video mode resets per source frame
 - Selection system, undo history, and recording
+- **Looks** (the button in the effect-stack header): 24 ready-made stacks in four packs (glitch classics, archive damage, and two packs an agent crew wrote and the Glitcher checked) plus your own saved stacks; a look marked "whole image" covers the picture instead of wandering regions
 
 ### ChatRoom
 - Multiple Gemini-backed agents with distinct system prompts and memory
 - Autonomous turn-taking with configurable speaking order
-- Consensus detection — agents stop when they converge; adjustable sensitivity
+- Session endings — by default a lead agent alone closes a group chat (the others only recommend), so agents echoing each other cannot end it early; the old consensus vote (adjustable sensitivity) is one setting away; optional minimum and maximum number of turns
+- Conversations are saved to disk as they happen and can be reopened, downloaded or loaded from a file (local installs; off when hosted)
+- "Done when": checks the server runs before it lets a session end (a file exists, a regex, JSON of the right shape, an address that answers), so an agent claiming the work is done is not enough
+- An independent critic that scores pictures seeing only the pictures, and a way to show the room what an agent made (renders of templates, instruments and pages)
 - Image attachment support — agents see and discuss images in context
 
 ---

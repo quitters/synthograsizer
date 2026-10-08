@@ -1,0 +1,239 @@
+{
+  "promptTemplate": "{{regime}} reaction-diffusion seeded from {{seed_layout}}, painted in {{palette}} as {{relief}}, stirred by {{stir}}, at a {{tempo}} pace",
+  "variables": [
+    {
+      "name": "regime",
+      "feature_name": "Regime",
+      "values": [
+        {
+          "text": "coral growth",
+          "weight": 3
+        },
+        {
+          "text": "labyrinth",
+          "weight": 3
+        },
+        {
+          "text": "fingerprint",
+          "weight": 3
+        },
+        {
+          "text": "wandering spots",
+          "weight": 2
+        },
+        {
+          "text": "solitons",
+          "weight": 2
+        },
+        {
+          "text": "holes",
+          "weight": 2
+        },
+        {
+          "text": "ribbon coral",
+          "weight": 2
+        },
+        {
+          "text": "spiral waves",
+          "weight": 2
+        },
+        {
+          "text": "skate world",
+          "weight": 1
+        },
+        {
+          "text": "ferment",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "seed_layout",
+      "feature_name": "Seed",
+      "values": [
+        {
+          "text": "a single drop",
+          "weight": 3
+        },
+        {
+          "text": "scattered flecks",
+          "weight": 3
+        },
+        {
+          "text": "a ring",
+          "weight": 2
+        },
+        {
+          "text": "a diagonal scar",
+          "weight": 2
+        },
+        {
+          "text": "a pinprick grid",
+          "weight": 2
+        },
+        {
+          "text": "twin drops",
+          "weight": 2
+        },
+        {
+          "text": "a frame",
+          "weight": 1
+        },
+        {
+          "text": "a spiral",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "palette",
+      "feature_name": "Palette",
+      "values": [
+        {
+          "text": "ink and bone",
+          "weight": 3
+        },
+        {
+          "text": "verdigris and oxide",
+          "weight": 3
+        },
+        {
+          "text": "kiln glaze",
+          "weight": 3
+        },
+        {
+          "text": "ultraviolet lab",
+          "weight": 2
+        },
+        {
+          "text": "deep sea phosphor",
+          "weight": 2
+        },
+        {
+          "text": "solar print",
+          "weight": 2
+        },
+        {
+          "text": "bruise bloom",
+          "weight": 2
+        },
+        {
+          "text": "coal and ember",
+          "weight": 2
+        },
+        {
+          "text": "milk glass",
+          "weight": 1
+        },
+        {
+          "text": "acid garden",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "relief",
+      "feature_name": "Relief",
+      "values": [
+        {
+          "text": "embossed relief",
+          "weight": 3
+        },
+        {
+          "text": "flat colour",
+          "weight": 3
+        },
+        {
+          "text": "glazed ceramic",
+          "weight": 2
+        },
+        {
+          "text": "etched outlines",
+          "weight": 2
+        },
+        {
+          "text": "contour lines",
+          "weight": 2
+        },
+        {
+          "text": "a woodcut print",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "stir",
+      "feature_name": "Stir",
+      "values": [
+        {
+          "text": "still air",
+          "weight": 3
+        },
+        {
+          "text": "raindrops",
+          "weight": 3
+        },
+        {
+          "text": "a slow breath",
+          "weight": 2
+        },
+        {
+          "text": "a heartbeat",
+          "weight": 2
+        },
+        {
+          "text": "a conducting stylus",
+          "weight": 2
+        },
+        {
+          "text": "a tremor",
+          "weight": 1
+        },
+        {
+          "text": "a sweeping blade",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "tempo",
+      "feature_name": "Tempo",
+      "values": [
+        {
+          "text": "steady",
+          "weight": 3
+        },
+        {
+          "text": "slow",
+          "weight": 3
+        },
+        {
+          "text": "glacial",
+          "weight": 2
+        },
+        {
+          "text": "fast",
+          "weight": 2
+        },
+        {
+          "text": "dreamlike",
+          "weight": 1
+        },
+        {
+          "text": "frantic",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "p5Code": "// REACTION LOOM\n// Gray-Scott reaction-diffusion played as an instrument. Two chemicals share a torus: U (food) and V (the pattern).\n// Each frame runs a few diffusion steps, then paints V through a gradient with optional relief shading.\n// Variables are re-read every frame: the regime morphs the living pattern in place, a new seed layout restarts it.\n\nconst N = 220;                 // simulation grid, upscaled to the canvas\nconst W = N + 2;               // one cell of halo so the field wraps around\n\n// feed f, kill k (Pearson's map; diffusion 1.0 / 0.5 as in Karl Sims' notes)\nconst REGIMES = {\n  'coral growth':   [0.0545, 0.0620],\n  'labyrinth':      [0.0290, 0.0570],\n  'wandering spots':[0.0140, 0.0540],\n  'solitons':       [0.0300, 0.0620],\n  'holes':          [0.0390, 0.0580],\n  'fingerprint':    [0.0370, 0.0600],\n  'skate world':    [0.0620, 0.0609],\n  'spiral waves':   [0.0180, 0.0510],\n  'ferment':        [0.0260, 0.0510],\n  'ribbon coral':   [0.0500, 0.0615]\n};\n\nconst PALETTES = {\n  'ink and bone':       ['#0b0a0f', '#2b2630', '#8f8678', '#f1ead9'],\n  'verdigris and oxide':['#0d1412', '#1f4d47', '#5fa391', '#d9d08c', '#b5532c'],\n  'ultraviolet lab':    ['#07040f', '#2a0d5c', '#7a2fd0', '#e45bff', '#ffe1ff'],\n  'kiln glaze':         ['#150d0a', '#4a1f14', '#b4532a', '#e9a23b', '#fff0c8'],\n  'deep sea phosphor':  ['#020509', '#04293a', '#0a7a8c', '#3de0c5', '#d6fff2'],\n  'solar print':        ['#fdf3dd', '#f4c86a', '#e0662c', '#9b1f2e', '#2b0b1c'],\n  'bruise bloom':       ['#0f0a14', '#3b1d4a', '#8a3a6a', '#d77a6d', '#f3d6a2'],\n  'coal and ember':     ['#050404', '#2a0e08', '#8a2610', '#f06a1a', '#ffe28a'],\n  'milk glass':         ['#e9edf0', '#bcc9d3', '#7e93a6', '#44566b', '#1b2533'],\n  'acid garden':        ['#06130a', '#0f4a1a', '#52b81f', '#d9f23a', '#fff9c2']\n};\n\nconst TEMPO = { 'dreamlike': 1, 'glacial': 2, 'slow': 4, 'steady': 8, 'fast': 14, 'frantic': 22 };\n\nlet U = new Float32Array(W * W), V = new Float32Array(W * W);\nlet U2 = new Float32Array(W * W), V2 = new Float32Array(W * W);\nlet off, octx, img;\nconst lut = new Uint8ClampedArray(256 * 3);\nlet lutKey = null, seedKey = null, quiet = 0, sinceSeed = 0, hiS = 0.3;\n\nfunction wrap(a) {\n  for (let y = 1; y <= N; y++) { a[y * W] = a[y * W + N]; a[y * W + N + 1] = a[y * W + 1]; }\n  for (let x = 0; x < W; x++) { a[x] = a[N * W + x]; a[(N + 1) * W + x] = a[W + x]; }\n}\n\nfunction step(f, k) {\n  for (let y = 1; y <= N; y++) {\n    let i = y * W + 1;\n    for (let x = 1; x <= N; x++, i++) {\n      const u = U[i], v = V[i];\n      const lu = 0.2 * (U[i - 1] + U[i + 1] + U[i - W] + U[i + W]) +\n                 0.05 * (U[i - W - 1] + U[i - W + 1] + U[i + W - 1] + U[i + W + 1]) - u;\n      const lv = 0.2 * (V[i - 1] + V[i + 1] + V[i - W] + V[i + W]) +\n                 0.05 * (V[i - W - 1] + V[i - W + 1] + V[i + W - 1] + V[i + W + 1]) - v;\n      const r = u * v * v;\n      let nu = u + lu - r + f * (1 - u);\n      let nv = v + 0.5 * lv + r - (k + f) * v;\n      U2[i] = nu < 0 ? 0 : nu > 1 ? 1 : nu;\n      V2[i] = nv < 0 ? 0 : nv > 1 ? 1 : nv;\n    }\n  }\n  let t = U; U = U2; U2 = t;\n  t = V; V = V2; V2 = t;\n  wrap(U); wrap(V);\n}\n\n// a seed of the kind these regimes like: half the food gone, a quarter of the pattern chemical, a little noise\nfunction blob(cx, cy, r) {\n  for (let dy = -r; dy <= r; dy++) {\n    for (let dx = -r; dx <= r; dx++) {\n      if (dx * dx + dy * dy > r * r) continue;\n      const x = (((cx + dx) % N) + N) % N + 1, y = (((cy + dy) % N) + N) % N + 1;\n      V[y * W + x] = 0.25 + p.random(-0.01, 0.01); U[y * W + x] = 0.5;\n    }\n  }\n}\n\nfunction seed(kind) {\n  U.fill(1); V.fill(0);\n  const c = N >> 1;\n  if (kind === 'a single drop') blob(c, c, 12);\n  else if (kind === 'scattered flecks') for (let i = 0; i < 22; i++) blob(p.floor(p.random(N)), p.floor(p.random(N)), 7);\n  else if (kind === 'a ring') for (let a = 0; a < 6.283; a += 0.04) blob(c + p.cos(a) * N * 0.3, c + p.sin(a) * N * 0.3, 5);\n  else if (kind === 'a diagonal scar') for (let t = 0; t < N; t += 3) blob(t, t, 5);\n  else if (kind === 'a pinprick grid') for (let gy = 1; gy < 6; gy++) for (let gx = 1; gx < 6; gx++) blob((gx * N) / 6, (gy * N) / 6, 6);\n  else if (kind === 'twin drops') { blob(c - 42, c, 10); blob(c + 42, c + 8, 10); }\n  else if (kind === 'a frame') { for (let t = 24; t < N - 24; t += 3) { blob(t, 24, 5); blob(t, N - 24, 5); blob(24, t, 5); blob(N - 24, t, 5); } }\n  else if (kind === 'a spiral') for (let a = 0; a < 18; a += 0.12) blob(c + p.cos(a) * a * 5, c + p.sin(a) * a * 5, 5);\n  else blob(c, c, 12);\n  // a sprinkle of single-cell specks across the dish helps the touchier regimes catch\n  for (let i = 0; i < W * W; i++) if (p.random() < 0.004) { V[i] = 0.5; U[i] = 0.5; }\n  wrap(U); wrap(V);\n  quiet = 0; sinceSeed = 0;\n}\n\nfunction buildLut(stops) {\n  const cols = stops.map(h => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)]);\n  for (let i = 0; i < 256; i++) {\n    const t = (i / 255) * (cols.length - 1), a = Math.floor(t), b = Math.min(cols.length - 1, a + 1), m = t - a;\n    for (let ch = 0; ch < 3; ch++) lut[i * 3 + ch] = cols[a][ch] + (cols[b][ch] - cols[a][ch]) * m;\n  }\n}\n\nfunction paint(relief) {\n  const d = img.data;\n  const ink = [lut[0], lut[1], lut[2]];\n  for (let y = 0; y < N; y++) {\n    for (let x = 0; x < N; x++) {\n      const i = (y + 1) * W + x + 1;\n      let t = V[i] / hiS; if (t > 1) t = 1;\n      const gx = V[i + 1] - V[i - 1], gy = V[i + W] - V[i - W];\n      let r, g, b;\n      if (relief === 'a woodcut print') {\n        const lv = Math.min(3, Math.floor(t * 4)) / 3, c = ((lv * 255) | 0) * 3;\n        r = lut[c]; g = lut[c + 1]; b = lut[c + 2];\n        if (Math.abs(gx) + Math.abs(gy) > 0.07) { r = ink[0]; g = ink[1]; b = ink[2]; }\n      } else {\n        const c = ((t * 255) | 0) * 3;\n        r = lut[c]; g = lut[c + 1]; b = lut[c + 2];\n        if (relief === 'embossed relief') {\n          let m = 1 + (-0.6 * gx - 0.8 * gy) * 7; m = m < 0.45 ? 0.45 : m > 1.6 ? 1.6 : m;\n          r *= m; g *= m; b *= m;\n        } else if (relief === 'glazed ceramic') {\n          const s = (-0.6 * gx - 0.8 * gy) * 7;\n          let m = 0.85 + (s < -0.5 ? -0.5 : s > 0.5 ? 0.5 : s) * 0.5;\n          const spec = s > 0.45 ? (s - 0.45) * 520 : 0;\n          r = r * m + spec; g = g * m + spec; b = b * m + spec;\n        } else if (relief === 'etched outlines') {\n          let e = (Math.abs(gx) + Math.abs(gy)) * 15; e = e > 1 ? 1 : e;\n          r += (ink[0] - r) * e * 0.9; g += (ink[1] - g) * e * 0.9; b += (ink[2] - b) * e * 0.9;\n        } else if (relief === 'contour lines') {\n          if ((t * 14) % 1 < 0.13) { r += (ink[0] - r) * 0.7; g += (ink[1] - g) * 0.7; b += (ink[2] - b) * 0.7; }\n        } else if (relief === 'flat colour') {\n          // the gradient exactly as it is\n        }\n      }\n      const o = (y * N + x) * 4;\n      d[o] = r; d[o + 1] = g; d[o + 2] = b; d[o + 3] = 255;\n    }\n  }\n  octx.putImageData(img, 0, 0);\n}\n\np.setup = function () {\n  p.createCanvas(800, 800);\n  p.pixelDensity(1);\n  p.frameRate(60);\n  off = document.createElement('canvas'); off.width = N; off.height = N;\n  octx = off.getContext('2d'); img = octx.createImageData(N, N);\n  buildLut(PALETTES['ink and bone']); lutKey = 'ink and bone';\n  seed('a single drop'); seedKey = 'a single drop';\n};\n\np.draw = function () {\n  const regime = p.getSynthVar('regime') || 'coral growth';\n  const layout = p.getSynthVar('seed_layout') || 'a single drop';\n  const palette = p.getSynthVar('palette') || 'ink and bone';\n  const relief = p.getSynthVar('relief') || 'embossed relief';\n  const stir = p.getSynthVar('stir') || 'still air';\n  const tempo = p.getSynthVar('tempo') || 'steady';\n\n  if (layout !== seedKey) { seed(layout); seedKey = layout; }\n  if (palette !== lutKey) { buildLut(PALETTES[palette] || PALETTES['ink and bone']); lutKey = palette; }\n  const rk = REGIMES[regime] || REGIMES['coral growth'];\n  let f = rk[0];\n  const k = rk[1];\n  if (stir === 'a slow breath') f += 0.0016 * Math.sin(p.frameCount * 0.015);\n\n  // a freshly planted seed runs ahead of the clock for a moment, so there is something to look at straight away\n  sinceSeed++;\n  const boost = 1 + 5 * Math.exp(-sinceSeed / 40);\n  const steps = Math.min(40, Math.round((TEMPO[tempo] || 8) * boost));\n  for (let s = 0; s < steps; s++) step(f, k);\n\n  // stirring: things dropped into the dish while it runs\n  const c = N >> 1, fc = p.frameCount;\n  if (stir === 'raindrops' && fc % 24 === 0) blob(p.floor(p.random(N)), p.floor(p.random(N)), 5);\n  else if (stir === 'a heartbeat' && fc % 100 === 0) { for (let a = 0; a < 6.283; a += 0.05) blob(c + Math.cos(a) * N * 0.2, c + Math.sin(a) * N * 0.2, 3); }\n  else if (stir === 'a conducting stylus') blob(c + p.cos(fc * 0.021) * N * 0.34, c + p.sin(fc * 0.034) * N * 0.34, 5);\n  else if (stir === 'a tremor') { for (let n = 0; n < 40; n++) { const i = (1 + p.floor(p.random(N))) * W + 1 + p.floor(p.random(N)); V[i] = Math.min(1, V[i] + 0.25); } }\n  else if (stir === 'a sweeping blade') {\n    const a = fc * 0.008;\n    for (let t = -N; t < N; t += 1) {\n      const x = Math.round(c + Math.cos(a) * t), y = Math.round(c + Math.sin(a) * t);\n      if (x > 0 && x <= N && y > 0 && y <= N) { const j = y * W + x; V[j] *= 0.25; U[j] = 1; }\n    }\n  }\n\n  // keep it alive: if the pattern dies out, plant the seed again\n  if (fc % 20 === 0) {\n    let sum = 0, mx = 0;\n    for (let i = W + 1; i < W * W - W - 1; i += 7) { const v = V[i]; sum += v; if (v > mx) mx = v; }\n    quiet = sum < 0.6 ? quiet + 1 : 0;\n    if (quiet > 3) seed(layout);\n    hiS += (Math.max(0.2, mx) - hiS) * 0.4;   // brightness follows the field, so every regime fills the gradient\n  }\n\n  paint(relief);\n  const ctx = p.drawingContext;\n  ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';\n  ctx.drawImage(off, 0, 0, p.width, p.height);\n  const vg = ctx.createRadialGradient(400, 400, 260, 400, 400, 580);\n  vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,0.38)');\n  ctx.fillStyle = vg; ctx.fillRect(0, 0, 800, 800);\n};\n",
+  "tags": [
+    {
+      "id": "tag_reaction_loom_01",
+      "type": "source",
+      "label": "Gray-Scott reaction-diffusion",
+      "url": "https://www.karlsims.com/rd.html",
+      "description": "Feed/kill regimes from Pearson's 1993 parameter map; update rule and kernel weights as in Karl Sims' tutorial. Written for the Teamcrafter residency, 2026-10-06."
+    }
+  ]
+}
