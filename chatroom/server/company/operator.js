@@ -38,6 +38,7 @@ export function loadOperator({ env = process.env, dataDir, readFile = (p) => fs.
   let tools = [...DEFAULT_OPERATOR_TOOLS];
   let screen = { drafts: true, model: MODELS.FAST };
   let hall = { enabled: true };
+  let flow = { enabled: true, maxPeople: 32, maxSpendUsd: 8 };
   let file = null;
 
   // ── the file (local installs only) ────────────────────────────────────────
@@ -47,7 +48,7 @@ export function loadOperator({ env = process.env, dataDir, readFile = (p) => fs.
       try {
         const parsed = JSON.parse(readFile(candidate));
         if (!isPlainObject(parsed)) throw new Error('it must be a JSON object');
-        const known = ['mandate', 'ceilings', 'tools', 'screen', 'hall'];
+        const known = ['mandate', 'ceilings', 'tools', 'screen', 'hall', 'flow'];
         const stray = Object.keys(parsed).filter(k => !known.includes(k));
         if (stray.length) throw new Error(`unknown section(s): ${stray.join(', ')}`);
 
@@ -68,6 +69,15 @@ export function loadOperator({ env = process.env, dataDir, readFile = (p) => fs.
         ceilings = { ...ceilings, ...c.value };
         if (parsed.tools !== undefined) tools = t.value;
         if (parsed.screen) screen = { ...screen, ...parsed.screen };
+        if (parsed.flow !== undefined) {
+          const f = parsed.flow;
+          const ok = isPlainObject(f) && Object.keys(f).every(k => ['enabled', 'maxPeople', 'maxSpendUsd'].includes(k))
+            && (f.enabled === undefined || typeof f.enabled === 'boolean')
+            && (f.maxPeople === undefined || (Number.isInteger(f.maxPeople) && f.maxPeople >= 1 && f.maxPeople <= 200))
+            && (f.maxSpendUsd === undefined || (typeof f.maxSpendUsd === 'number' && f.maxSpendUsd >= 0 && f.maxSpendUsd <= 1000));
+          if (!ok) throw new Error('flow takes only "enabled" (true or false), "maxPeople" (1 to 200) and "maxSpendUsd" (0 to 1000)');
+          flow = { ...flow, ...f };
+        }
         if (parsed.hall !== undefined) {
           if (!isPlainObject(parsed.hall) || Object.keys(parsed.hall).some(k => k !== 'enabled') || typeof parsed.hall.enabled !== 'boolean') throw new Error('hall takes only "enabled": true or false');
           hall = { enabled: parsed.hall.enabled };
@@ -114,6 +124,14 @@ export function loadOperator({ env = process.env, dataDir, readFile = (p) => fs.
   }
 
   if (env.COMPANY_HALL === '0') { hall = { enabled: false }; sources.push('env COMPANY_HALL'); }
+  if (env.COMPANY_FLOW === '0') { flow = { ...flow, enabled: false }; sources.push('env COMPANY_FLOW'); }
+  for (const [name, key, lo, hi, whole] of [['COMPANY_FLOW_MAX_PEOPLE', 'maxPeople', 1, 200, true], ['COMPANY_FLOW_MAX_SPEND_USD', 'maxSpendUsd', 0, 1000, false]]) {
+    const n = numberFromEnv(env[name]);
+    if (n === undefined) continue;
+    if (!Number.isFinite(n) || n < lo || n > hi || (whole && !Number.isInteger(n))) { warnings.push(`${name}=${env[name]} was ignored (it must be ${whole ? 'a whole number ' : 'a number '}from ${lo} to ${hi})`); continue; }
+    flow = { ...flow, [key]: n };
+    sources.push(`env ${name}`);
+  }
   if (env.COMPANY_SCREEN_MODEL) { screen = { ...screen, model: env.COMPANY_SCREEN_MODEL }; sources.push('env COMPANY_SCREEN_MODEL'); }
 
   if (env.COMPANY_SCREEN_DRAFTS === '0') {
@@ -135,12 +153,13 @@ export function loadOperator({ env = process.env, dataDir, readFile = (p) => fs.
     tools: deepFreeze(tools),
     screen: deepFreeze(screen),
     hall: deepFreeze(hall),
+    flow: deepFreeze(flow),
     file,
     warnings: deepFreeze(warnings),
     sources: deepFreeze(sources),
   };
   operator.snapshot = () => ({
-    hosted, mandate: clone(mandate), ceilings: clone(ceilings), tools: [...tools], screen: { ...screen }, hall: { ...hall }, file, warnings: [...warnings], sources: [...sources],
+    hosted, mandate: clone(mandate), ceilings: clone(ceilings), tools: [...tools], screen: { ...screen }, hall: { ...hall }, flow: { ...flow }, file, warnings: [...warnings], sources: [...sources],
     fixed: 'The hard limits, the publishing floor, human approval of every publication and the AI-generated label are not settings; nothing here can change them.',
   });
   return Object.freeze(operator);

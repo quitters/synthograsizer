@@ -49,7 +49,7 @@ export const SEED_SCHEMA = {
   properties: {
     name: { type: 'string', description: 'Their full name as they would give it: two to four words, plausible for their origin, year of birth and family. Not the name of any famous real person.' },
     seed: { type: 'string', description: 'Three plain sentences: who they are at work and how they got here. Use the facts given.' },
-    unique: { type: 'string', description: 'The one thing only this person knows or can do that the others on the team cannot, as a phrase that completes "knows how to ...".' },
+    unique: { type: 'string', description: 'The one thing only this person knows or can do that the others on the team cannot, as a short clause that begins "knows how to ..." or "can ...".' },
     skills: { type: 'array', minItems: 3, maxItems: 5, items: { type: 'string' }, description: 'Skills, as short phrases.' },
   },
   required: ['name', 'seed', 'unique', 'skills'],

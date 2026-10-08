@@ -51,6 +51,20 @@ export const fakeSeed = (casting, i = 0, over = {}) => ({
   ...over,
 });
 
+/** An answer to the plan step: names for every room the prompt lists (by key), a title for every position, engines and documents in turn. */
+export function fakePlanAnswer(call, over = {}) {
+  const keys = [...call.prompt.matchAll(/key "(d\d+)"/g)].map(m => m[1]);
+  return {
+    name: 'Parallax Works', purpose: 'Makes small invented worlds for people who like to draw them.',
+    departments: keys.map((key, i) => ({
+      key, name: `Room ${i + 1} Works`, purpose: `Makes the ${i + 1}th thing.`, deliverable: i % 2 ? 'document' : 'engine', file: i % 2 ? 'notes.md' : 'engine.json',
+      assignment: `Make something worth keeping in room ${i + 1}. It should be specific, strange and checked. It must not resemble anything that exists. Say plainly what is wrong with it.`,
+      titles: Array.from({ length: 8 }, (_, j) => `Title ${i + 1}-${j + 1}`),
+    })),
+    ...over,
+  };
+}
+
 export const CLEAN_REVIEW = {
   recognizable_real_person: false, real_people_named: [], name_is_famous_person: false, stereotypes: [], inconsistencies: [], particular_vs_type: 4,
   most_generic_detail: 'the flask', most_specific_detail: 'the spare in every drawer', harmful_pushes: [],
@@ -72,6 +86,8 @@ export function fakeAsk(handlers = {}, { casting = null } = {}) {
     switch (call.step) {
       case 'seed': return fakeSeed(casting || { title: 'Editor', yearsInField: 9, path: 'at a small press' }, calls.filter(c => c.step === 'seed').length - 1);
       case 'sheet': return fakeSheet(casting || castFor(i), fakeSeed(casting || castFor(i), i), calls.filter(c => c.step === 'sheet').length - 1);
+      case 'shape': return { size: 'desk', style: 'studio', people: null, reason: 'a small job' };
+      case 'plan': return fakePlanAnswer(call);
       case 'blind_review': return CLEAN_REVIEW;
       case 'quiz': return { answers: layout(call.personId || 'x').map(r => ({ n: r.n, choice: 'A', reason: 'because' })) };
       default: throw new Error(`fakeAsk: no answer for step "${call.step}"`);
