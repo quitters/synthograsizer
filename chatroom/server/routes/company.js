@@ -47,6 +47,7 @@ const ENDPOINTS = [
   ['GET', '/api/company/roster/spread', 'How the ready people spread over region, age, pronoun, archetype, tier, dissent and type.'],
   ['POST', '/api/company/roster', 'Import one person as an Agent Profile (a draft until you mark it ready). Body: candidateImport.'],
   ['GET', '/api/company/roster/:candidate', 'One person: the sheet, the facts, the checks, the quiz.'],
+  ['GET', '/api/company/roster/:candidate/bio', 'The sheet as the room will read it, with the person\'s settings filled in.'],
   ['GET', '/api/company/roster/:candidate/export', 'The person as an Agent Profile JSON file.'],
   ['PATCH', '/api/company/roster/:candidate', 'Edit a person, or retire them. Body: candidatePatch.'],
   ['DELETE', '/api/company/roster/:candidate', 'Delete a person from the roster (not while they work at a company).'],
@@ -99,6 +100,7 @@ const ENDPOINTS = [
   ['POST', '/api/company/flow/:flow/cancel', 'Stop casting, or drop a proposal. People already written stay in the roster.'],
   ['POST', '/api/company/flow/:flow/create', 'Create the company, its rooms and its people from the proposal. All or nothing. The company is paused.'],
   ['DELETE', '/api/company/flow/:flow', 'Delete a flow (not the company it made, not the people it wrote).'],
+  ['GET', '/api/company/:id/run/:department/brief', 'What the room will be told when it starts: the brief, the checks in words, who reviews, how it closes.'],
   ['POST', '/api/company/:id/run/:department/start', 'Start a room of a company the flow made, with the brief, checks and way of closing the flow wrote for it. The company must be running.'],
   ['POST', '/api/company/:id/run/:department/close-out', 'After a session: each person who spoke writes down what they remember, checked against the record. Body: flowCloseOut.'],
 ].map(([method, path, description]) => ({ method, path, description }));

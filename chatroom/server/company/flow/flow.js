@@ -31,7 +31,10 @@ import { diversityReport, describeReport } from './diversity.js';
 import { writePerson, BEHAVES } from './writer.js';
 import { takeQuiz } from './quiz.js';
 import { closeOutRoom } from './memory.js';
+import { describeCriterion } from '../../services/doneWhen.js';
 import { admitDepartment } from './admit.js';
+import { admissionScreen } from './review.js';
+import { renderBio } from '../profileBio.js';
 import { checkLocks, proposeCompany, fillPlan, applyEdits, planProblems, positionsOf, effectiveTier, planText, screenWords, PROMPT_MAX_CHARS } from './planner.js';
 
 /** What writing one person costs, in round numbers: the pilot's six people (sheet, review, screen, quiz, memory) came to $1.13. */
@@ -139,7 +142,7 @@ export class FlowService {
   // ── reading ────────────────────────────────────────────────────────────────
 
   _filled(flow) {
-    return positionsOf(flow.plan).filter(p => flow.cast.people[p.key]?.status === 'ready').length;
+    return positionsOf(flow.plan).filter(p => flow.cast.people[p.key]?.status === 'ready' && flow.cast.people[p.key].screened === true).length;
   }
 
   _next(flow) {
@@ -227,6 +230,8 @@ export class FlowService {
     // Wherever a position was changed, the person written for it is no longer for it. They stay in the roster, available for another seat.
     for (const key of invalidated) { delete flow.cast.people[key]; delete flow.cast.castings[key]; }
     flow.plan = plan;
+    // the screen judges by the company's mandate: if the owner changed it, the people placed have to be read again under the new one
+    if (changed.includes('company.mandate')) for (const e of Object.values(flow.cast.people)) if (e.status === 'ready') e.screened = false;
     if (flow.state === 'cast' && positionsOf(plan).length !== this._filled(flow)) flow.state = 'proposed';
     if (flow.state === 'failed' && flow.failedAt === 'create') flow.error = null;
     this._say(flow, `Edited: ${changed.length ? changed.slice(0, 6).join(', ') + (changed.length > 6 ? ` and ${changed.length - 6} more` : '') : 'nothing changed'}${invalidated.length ? `. ${invalidated.length} ${invalidated.length === 1 ? 'person needs' : 'people need'} to be cast again` : ''}.`);
@@ -332,15 +337,18 @@ export class FlowService {
       stop: () => job.cancel, consecutive: 0, rows: {}, profiles: [],
     });
 
-    // 1. Who is in place already (an earlier run, or an earlier edit): still in the roster, still ready
+    // 1. Who is in place already (an earlier run, or an earlier edit): still in the roster, still ready, and read by the screen under the mandate as it is now
     const inPlace = new Map();
     for (const p of positions) {
       const e = people[p.key];
       if (e?.status !== 'ready' || !e.candidateId) continue;
-      try {
-        const c = roster.getCandidate(ownerId, e.candidateId);
-        if (c.status === 'ready') { inPlace.set(p.key, c); continue; }
-      } catch { /* the person has been deleted from the roster */ }
+      let c = null;
+      try { c = roster.getCandidate(ownerId, e.candidateId); } catch { /* the person has been deleted from the roster */ }
+      if (c && c.status === 'ready') {
+        const seen = e.screened === true ? { ok: true } : await this._screenSeat(ctx, c);
+        if (seen.ok) { e.screened = true; inPlace.set(p.key, c); } else people[p.key] = { status: 'failed', source: e.source, title: p.title, name: c.name, candidateId: c.id, error: seen.why };
+        continue;
+      }
       delete people[p.key];
       delete flow.cast.castings[p.key];
     }
@@ -353,6 +361,8 @@ export class FlowService {
       try { c = roster.getCandidate(ownerId, p.candidateId); } catch { /* not there */ }
       const problem = !c ? `The person chosen for ${p.title} is not in the roster (any more).` : c.status !== 'ready' ? `${c.name} is ${c.status}, not ready: read the sheet and mark them ready first.` : used.has(c.id) ? `${c.name} already fills another position.` : null;
       if (problem) { people[p.key] = { status: 'failed', source: 'pinned', title: p.title, error: problem }; continue; }
+      const seen = await this._screenSeat(ctx, c);
+      if (!seen.ok) { people[p.key] = { status: 'failed', source: 'pinned', title: p.title, name: c.name, candidateId: c.id, error: seen.why }; continue; }
       inPlace.set(p.key, c); used.add(c.id);
       people[p.key] = this._entry(c, p, 'pinned');
     }
@@ -371,6 +381,8 @@ export class FlowService {
           hit = fits.find(f => f.why.includes('archetype') && (!p.reviewer || f.candidate.dissent !== 'low'))?.candidate || null;
         }
         if (!hit) continue;
+        const seen = await this._screenSeat(ctx, hit);
+        if (!seen.ok) { used.add(hit.id); this._say(flow, `${hit.name} fits ${p.title}, but the company's screen would not admit them: someone new will be written.`); continue; }
         inPlace.set(p.key, hit); used.add(hit.id);
         people[p.key] = this._entry(hit, p, 'roster');
         this._say(flow, `${hit.name} was already in the roster and fits ${p.title}: taken from there.`);
@@ -427,8 +439,16 @@ export class FlowService {
     return {
       status: 'ready', source, candidateId: candidate.id, name: candidate.name, title: position.title, role: candidate.role, archetype: candidate.archetype,
       intendedType: candidate.intendedType, measuredType: candidate.measuredType, tier: candidate.tier,
-      advice: candidate.checks?.review?.advice?.length ?? 0, drifted: Boolean(candidate.quiz?.drifted),
+      advice: candidate.checks?.review?.advice?.length ?? 0, drifted: Boolean(candidate.quiz?.drifted), screened: true,
     };
+  }
+
+  /** The company's own screen reads a person's sheet under THIS company's mandate before they take a seat in it, whoever wrote the sheet and whenever. */
+  async _screenSeat(ctx, candidate) {
+    const r = await admissionScreen({ screen: this.screen, mandate: ctx.mandate, bio: renderBio(candidate.profile) });
+    if (r.ok) return { ok: true };
+    const why = r.verdict === 'block' ? (r.findings.map(f => f.why).filter(Boolean).join('; ') || 'it crosses a rule this company works under') : 'the screen could not be reached just now';
+    return { ok: false, why: `The company's safety screen would not admit ${candidate.name} (${why.slice(0, 200)}). Edit the sheet in the roster, or choose someone else.` };
   }
 
   /** Write one person: the draw, the sheet, the checks, the quiz, and into the roster. A sheet that does not pass is tried once more with a different draw. */
@@ -546,14 +566,18 @@ export class FlowService {
     const positions = positionsOf(plan);
     const person = {};
     const missing = [];
+    const unseen = [];
     for (const p of positions) {
       const e = flow.cast.people[p.key];
       let c = null;
       if (e?.status === 'ready' && e.candidateId) { try { c = roster.getCandidate(ownerId, e.candidateId); } catch { c = null; } }
-      if (c && c.status === 'ready') person[p.key] = c;
+      if (c && c.status === 'ready' && e.screened === true) person[p.key] = c;
+      else if (c && c.status === 'ready') unseen.push(`${c.name} (${p.title})`);
       else missing.push(`${p.title} in ${p.department}`);
     }
-    if (missing.length) throw fail(`These positions have no person who is ready yet: ${missing.join('; ')}. Cast the flow, or choose someone for them.`, 409, 'flow_not_cast');
+    if (missing.length || unseen.length) {
+      throw fail(`${missing.length ? `These positions have no person who is ready yet: ${missing.join('; ')}. ` : ''}${unseen.length ? `The company's screen has not read these people under its present mandate: ${unseen.join('; ')}. ` : ''}Cast the flow again (nobody already written is written twice), or choose someone for them.`, 409, 'flow_not_cast');
+    }
 
     // What the company must be allowed, checked before anything is made
     const seatTier = (p) => p.locked?.tier ?? p.tier ?? person[p.key].tier ?? 'none';
@@ -682,6 +706,19 @@ export class FlowService {
     await o.start(plan.goal, plan.tokenLimit, { mode: 'group' });
     this.audit.append(company.id, { type: 'flow_room_started', department: dept.name, people: o.agents.length, checks: plan.doneWhen.length });
     return { started: true, department: { id: dept.id, name: dept.name, roomId: dept.roomId }, people: o.agents.map(a => a.name), lead: plan.lead, checks: plan.doneWhen.length, goalChars: plan.goal.length, state: o.getState() };
+  }
+
+  /** What a room will be told when it starts: the brief, the checks in words, who reviews, how it closes. For the owner to read before saying go. */
+  briefFor(ownerId, companyId, ref) {
+    const company = this.companies.getOwned(companyId, ownerId);
+    const dept = this._department(company, ref);
+    const plan = company.plan?.departments.find(d => d.id === dept.id);
+    if (!plan) throw fail('This room was not set up by the creation flow, so it has no brief.', 404, 'no_plan');
+    return {
+      department: { id: dept.id, name: dept.name, roomId: dept.roomId }, makes: plan.deliverable, goal: plan.goal, goalChars: plan.goal.length, trimmed: plan.trimmed,
+      lead: plan.lead, reviewers: plan.reviewers, minTurns: plan.minTurns, maxTurns: plan.maxTurns, tokenLimit: plan.tokenLimit,
+      checks: plan.doneWhen.map(c => ({ ...c, label: describeCriterion(c) })), handoffs: plan.handoffs,
+    };
   }
 
   /** After a session: each person who spoke writes down what they remember, checked against the record. Costs a few cents; never runs by itself. */

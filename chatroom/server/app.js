@@ -5,6 +5,8 @@
  */
 import express from 'express';
 import cors from 'cors';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import agentsRouter from './routes/agents.js';
 import chatRouter from './routes/chat.js';
@@ -22,9 +24,25 @@ import { isPolicyError } from './company/errors.js';
  *   company is the safety layer's services (the store of companies, the screen, the publish queue). Tests pass their own, built
  *   against a temp folder and a stand-in screen.
  */
+const PUBLIC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), 'public');
+
+/**
+ * The owner's console is plain files, and it shows text that models and other people wrote. So the page is sent with a policy that lets no script run but
+ * its own file, no style but its own sheet, and nothing be framed, embedded or sent anywhere but back to this server.
+ */
+export const CONSOLE_CSP = "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'";
+
 export function createApp({ company = createCompanyServices() } = {}) {
   const app = express();
   app.locals.company = company;
+
+  app.use('/company', (req, res, next) => {
+    res.setHeader('Content-Security-Policy', CONSOLE_CSP);
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('Referrer-Policy', 'no-referrer');
+    res.setHeader('Cache-Control', 'no-cache');
+    next();
+  }, express.static(path.join(PUBLIC_DIR, 'company'), { index: 'index.html', dotfiles: 'deny', redirect: true }));
 
   app.use(cors({
     origin: ['http://localhost:5173', 'http://localhost:3000', 'http://localhost:8000'],

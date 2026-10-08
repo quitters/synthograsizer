@@ -13,6 +13,8 @@ import { SCHEMAS } from '../company/schema.js';
 import { PolicyError } from '../company/errors.js';
 import { checkAgentTier } from '../company/toolGrants.js';
 import { admitDepartment } from '../company/flow/admit.js';
+import { admissionScreen } from '../company/flow/review.js';
+import { renderBio } from '../company/profileBio.js';
 import { peekRoom } from '../services/sessionRegistry.js';
 import { handle, checkBody } from './httpUtil.js';
 
@@ -46,6 +48,11 @@ export function createRosterRouter(services) {
 
   router.get('/:cid', handle((req, res) => {
     res.json({ candidate: services.roster.getCandidate(req.visitorId, req.params.cid) });
+  }));
+
+  router.get('/:cid/bio', handle((req, res) => {
+    const c = services.roster.getCandidate(req.visitorId, req.params.cid);
+    res.json({ name: c.name, bio: renderBio(c.profile) });
   }));
 
   router.get('/:cid/export', handle((req, res) => {
@@ -133,12 +140,20 @@ export function createPeopleRouter(services) {
     res.json({ employees: roster.employeesOf(ownerId, id, { includeLeft }), seats: roster.seatsOf(ownerId, id, { includeEnded: includeLeft }) });
   }));
 
-  router.post('/', handle((req, res) => {
+  router.post('/', handle(async (req, res) => {
     const { company, roster, ownerId, id } = open(req);
     const body = checkBody(SCHEMAS.hire, req.body);
     const department = departmentOf(company, body.department);
-    const candidate = roster.getCandidate(ownerId, body.candidateId, { full: false });
+    const candidate = roster.getCandidate(ownerId, body.candidateId);
     checkSeat(company, department, body.tier || candidate.tier, roster, ownerId);
+    // The company's own screen reads the sheet under THIS company's mandate before the person takes a seat: whoever wrote it, whenever it was written.
+    const seen = await admissionScreen({ screen: services.screen, mandate: store.describe(company).effective.mandate, bio: renderBio(candidate.profile) });
+    if (!seen.ok) {
+      audit.append(id, { type: 'sheet_not_admitted', agent: candidate.name, verdict: seen.verdict });
+      throw new PolicyError(seen.verdict === 'block'
+        ? `The company's safety screen would not admit ${candidate.name} (${seen.findings.map(f => f.why).join('; ').slice(0, 200) || 'it crosses a rule this company works under'}). Edit the sheet in the roster, or choose someone else.`
+        : 'The safety screen could not read the sheet just now, so no one was hired. Try again in a moment.', { status: seen.verdict === 'block' ? 422 : 503, code: seen.verdict === 'block' ? 'sheet_blocked' : 'screen_unavailable' });
+    }
     const seat = roster.hire(ownerId, {
       companyId: id, departmentId: department.id, candidateId: body.candidateId, position: body.position,
       reportsTo: colleague(roster, ownerId, id, body.reportsTo, 'reportsTo'), isLead: body.isLead, reviewerOf: body.reviewerOf,

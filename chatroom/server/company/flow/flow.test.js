@@ -599,3 +599,51 @@ test('options tell a person or an agent what can be asked for, and what it costs
   assert.deepEqual(capped.sizes.map(x => x.allowed), [true, true, false, false]);
   assert.ok(new Spend().snapshot().usd === 0);
 });
+
+// ── the screen at the door ───────────────────────────────────────────────────
+
+const rosterProfile = (name, role, extra = '') => ({
+  id: `p_${name}`, name, icon: '🙂', color: '#336699', category: 'roleplay', bioTemplate: `{{agent_name}}, the {{role}}. ${extra}`.trim(), variables: [],
+  anchors: { agent_name: name, role }, tags: [],
+});
+
+test('a person in the roster whose sheet the screen would not admit is not taken from it: someone new is written instead', { skip }, async () => {
+  const s = setup({ classify: markerClassifier({ 'MARKER-IN-SHEET': 'deception' }) });
+  s.services.roster.addCandidate(s.owner, { profile: rosterProfile('Blocked Person', 'producer', 'MARKER-IN-SHEET'), casting: { dissent: 'low' }, archetype: 'steward', role: 'Producer', status: 'ready' });
+  const f = await s.flow.propose(s.owner, { prompt: PROMPT, locks: { departments: [{ name: 'Solo', positions: [{ title: 'Producer', lead: true }] }] } });
+  const done = await castAndWait(s, s.owner, f.id);
+  assert.equal(done.state, 'cast');
+  assert.equal(done.cast.people.d1p1.source, 'new');
+  assert.notEqual(done.cast.people.d1p1.name, 'Blocked Person');
+  assert.ok(done.progress.some(p => /Blocked Person fits Producer, but the company's screen would not admit them/.test(p.text)));
+});
+
+test('a person the owner chose, whose sheet the screen would not admit, is refused with the reason', { skip }, async () => {
+  const s = setup({ classify: markerClassifier({ 'MARKER-IN-SHEET': 'deception' }) });
+  const c = s.services.roster.addCandidate(s.owner, { profile: rosterProfile('Blocked Person', 'producer', 'MARKER-IN-SHEET'), casting: {}, archetype: 'steward', role: 'Producer', status: 'ready' });
+  const f = await s.flow.propose(s.owner, { prompt: PROMPT, locks: { departments: [{ name: 'Solo', positions: [{ title: 'Producer', lead: true, candidateId: c.id }] }] } });
+  const done = await castAndWait(s, s.owner, f.id);
+  assert.equal(done.state, 'proposed');
+  assert.equal(done.cast.people.d1p1.status, 'failed');
+  assert.match(done.cast.people.d1p1.error, /safety screen would not admit Blocked Person/);
+  assert.throws(() => s.flow.create(s.owner, f.id), (e) => e.code === 'flow_not_cast');
+});
+
+test('the screen reads people under the company\'s mandate: change it and everyone is read again before the company can be created', { skip }, async () => {
+  const s = setup();
+  const f = await s.flow.propose(s.owner, { prompt: PROMPT });
+  const done = await castAndWait(s, s.owner, f.id);
+  assert.ok(Object.values(done.cast.people).every(p => p.screened === true));
+  const seen = s.ask.calls.length;
+  const edited = await s.flow.edit(s.owner, f.id, { company: { mandate: { publishing: { audience: 'general' } } } });
+  assert.equal(edited.state, 'proposed', 'nobody has been read under the new mandate');
+  assert.ok(Object.values(edited.cast.people).every(p => p.screened === false));
+  assert.throws(() => s.flow.create(s.owner, f.id), (e) => e.code === 'flow_not_cast' && /has not read these people under its present mandate/.test(e.message));
+  const sheets = steps(s.log, 'sheet');
+  const again = await castAndWait(s, s.owner, f.id);
+  assert.equal(again.state, 'cast');
+  assert.ok(Object.values(again.cast.people).every(p => p.screened === true));
+  assert.equal(steps(s.log, 'sheet'), sheets, 'nobody was written again, only read');
+  assert.ok(s.ask.calls.length >= seen);
+  assert.equal(s.flow.create(s.owner, f.id).flow.state, 'created');
+});

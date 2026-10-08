@@ -171,3 +171,19 @@ test('closing out a room that never spoke is refused', { skip }, async () => {
   const { company } = await created(s);
   await assert.rejects(() => s.flow.closeOutDepartment(s.owner, company.id, company.departments[0].id), (e) => e.code === 'nothing_said');
 });
+
+test('the owner can read what a room will be told before saying go', { skip }, async () => {
+  const s = setup();
+  const { company } = await created(s);
+  const dept = company.departments[0];
+  const b = s.flow.briefFor(s.owner, company.id, dept.name);
+  assert.equal(b.goal, company.plan.departments[0].goal);
+  assert.equal(b.makes.file, 'engine.json');
+  assert.deepEqual(b.checks.map(c => c.type), ['json', 'tool_used', 'said_after', 'proposal']);
+  assert.ok(b.checks.every(c => typeof c.label === 'string' && c.label.length > 10));
+  assert.equal(b.lead, company.plan.departments[0].lead);
+  assert.equal(b.reviewers.length, 1);
+  assert.throws(() => s.flow.briefFor(newId(), company.id, dept.id), (e) => e.status === 404);
+  const added = s.services.store.addDepartment(company.id, s.owner, 'By Hand');
+  assert.throws(() => s.flow.briefFor(s.owner, company.id, added.id), (e) => e.code === 'no_plan');
+});

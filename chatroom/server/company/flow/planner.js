@@ -271,6 +271,20 @@ export function ensureBuilders(plan) {
   return added;
 }
 
+/** A room of three or more has someone whose job is to object. If an edit left one without, the fittest non-lead is given the job, and the plan says so. */
+export function ensureReviewers(plan) {
+  const added = [];
+  for (const d of plan.departments) {
+    if (d.positions.length < 3 || d.positions.some(p => p.reviewer)) continue;
+    const pick = d.positions.find(p => !p.lead && p.archetype === 'contrarian') || d.positions.find(p => !p.lead && archetype(p.archetype)?.reviewer) || d.positions.find(p => !p.lead);
+    if (!pick) continue;
+    pick.reviewer = true;
+    plan.provenance[`departments.${d.key}.positions.${pick.key}.reviewer`] = 'default';
+    added.push(`${d.name}: nobody's job was to object, so ${pick.title} was made the reviewer.`);
+  }
+  return added;
+}
+
 /** Every position and room gets a stable key, so an edit or a re-fill can name it later. */
 function assignKeys(departments) {
   const used = new Set(departments.map(d => d.key).filter(Boolean));
@@ -641,7 +655,7 @@ export function applyEdits(plan, patch, limits = {}) {
     });
   }
 
-  const notes = ensureBuilders(next);
+  const notes = [...ensureReviewers(next), ...ensureBuilders(next)];
   next.warnings = [...new Set([...(next.warnings || []), ...notes])];
   next.settings = { ...next.settings, people: headcount({ departments: next.departments }) };
   const problems = planProblems(next, { maxPeople: limits.maxPeople ?? 32 });

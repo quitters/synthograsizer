@@ -356,3 +356,18 @@ test('the schema document lists the new endpoints and the shapes of their bodies
   const paths = schema['x-endpoints'].map(e => `${e.method} ${e.path}`);
   for (const p of ['GET /api/company/roster', 'POST /api/company/:id/people', 'GET /api/company/:id/hall/mail', 'POST /api/company/:id/hall/board/:task/team', 'POST /api/company/:id/hall/norms/:norm/approve']) assert.ok(paths.includes(p), p);
 });
+
+test('hiring: the company\'s own screen reads the sheet before the person takes a seat, whoever wrote it', { skip }, async () => {
+  const { v, base: b, company } = await withCompany();
+  const bad = await v.call('POST', '/api/company/roster', { profile: { ...profile('Sheet Withheld', 'producer'), bioTemplate: `{{agent_name}}, the {{role}}. ${FORBIDDEN}` }, role: 'producer', archetype: 'steward', status: 'ready', casting: {} });
+  assert.equal(bad.status, 201, 'the roster is a library: it holds what an owner imports');
+  const r = await v.call('POST', `${b}/people`, { candidateId: bad.json.candidate.id, department: 'Archive Desk', position: 'Producer' });
+  assert.equal(r.status, 422, JSON.stringify(r.json));
+  assert.equal(r.json.code, 'sheet_blocked');
+  assert.match(r.json.error, /safety screen would not admit Sheet Withheld/);
+  assert.equal((await v.call('GET', `${b}/people`)).json.employees.length, 0, 'no seat was made');
+  const audit = (await v.call('GET', `${b}/audit?type=sheet_not_admitted`)).json.entries;
+  assert.equal(audit.length, 1);
+  assert.equal(audit[0].agent, 'Sheet Withheld');
+  void company;
+});

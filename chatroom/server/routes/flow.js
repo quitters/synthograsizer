@@ -69,6 +69,10 @@ export function createRunRouter(services) {
   const router = Router({ mergeParams: true });
   const { flow } = services;
 
+  router.get('/:dept/brief', handle((req, res) => {
+    res.json(flow.briefFor(req.visitorId, req.params.id, req.params.dept));
+  }));
+
   router.post('/:dept/start', handle(async (req, res) => {
     res.json(await flow.startDepartment(req.visitorId, req.params.id, req.params.dept));
   }));

@@ -365,3 +365,16 @@ test('fitHeadcount keeps one lead a room however hard it trims', () => {
   const s = structureFor({ size: 'desk', style: 'studio', locks: {}, people: 3 });
   assert.equal(s.departments[0].positions.length, 3);
 });
+
+test('a room that grows to three people gets someone whose job is to object, and the plan says who', async () => {
+  const plan = await propose({ locks: { departments: [{ name: 'Pair', positions: [{ title: 'Producer', lead: true }, { title: 'Writer' }] }] } });
+  const r = applyEdits(plan, { departments: [{ key: 'd1', positions: [{ title: 'Skeptic', archetype: 'contrarian' }] }] });
+  assert.equal(r.plan.departments[0].positions.filter(p => p.reviewer).length, 1);
+  assert.equal(r.plan.departments[0].positions.find(p => p.reviewer).title, 'Skeptic', 'the contrarian is the natural reviewer');
+  assert.match(r.plan.warnings.join(' '), /nobody's job was to object, so Skeptic was made the reviewer/);
+  const r2 = applyEdits(plan, { departments: [{ key: 'd1', positions: [{ title: 'Editor', archetype: 'editor' }] }] });
+  assert.equal(r2.plan.departments[0].positions.find(p => p.reviewer).title, 'Editor', 'an archetype that reviews will do');
+  // an owner who names the reviewer is not overruled
+  const r3 = applyEdits(plan, { departments: [{ key: 'd1', positions: [{ title: 'Skeptic', archetype: 'contrarian' }, { key: 'd1p2', reviewer: true }] }] });
+  assert.deepEqual(r3.plan.departments[0].positions.filter(p => p.reviewer).map(p => p.title), ['Writer']);
+});
