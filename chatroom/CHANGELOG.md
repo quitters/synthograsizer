@@ -4,6 +4,17 @@ All notable changes to the Agent Chat Room project are documented in this file.
 
 ## [Unreleased]
 
+### Added: agent companies, the safety layer
+- **`server/company/` and `/api/company`.** A company is a set of department rooms under one policy: a humanist mission, six hard limits, a mandate with two stages (drafting permissive, publishing stricter), caps, least-privilege tools,
+  an independent screen, and a publish queue that needs the owner. Created paused. Design, defences and red-team results: `docs/COMPANY_SAFETY_LAYER.md`; compliance row R7.
+- A company's room carries a policy (`orchestrator.policy`); a room without one is unchanged. The prompt builder (`buildSystemPrompt`) puts the fixed layer first and last, fences the sheet and goal, never teaches the bracket-tag dialect and amends the two
+  rules that would let a sheet outrank the layer. The orchestrator admits agents within the caps (names, secrets, tool tiers), gates run/resume on the company being active, shows a turn only after the screen has passed it, pauses after repeated strikes, treats a
+  refusal from the model service as final, guards tool dispatch (grants, spend, screen), and estimates spend.
+- Rooms by id for a company's owner only (`X-Room-Id`, or `?room=` for the event stream); anyone else gets the same 404 as for an id that does not exist.
+- The tool `propose_publish` (company rooms only). `config/models.js` gains list prices for the spend estimate. `sessionRegistry` gains room initializers and `dropRoom`.
+- `POST /api/chat/start` now awaits the start, so a refusal reaches the caller instead of vanishing as an unhandled rejection after "Chat started".
+- `npm run test:redteam` and `redteam/`: the live red team (harmless canary rules in the hard limits' slot, 45 attack framings on five surfaces); `.github/workflows/chatroom-tests.yml` runs the suite on every pull request.
+
 ### Added: saved sessions, done when, the independent critic, showing the room
 - **Saved sessions.** Every message is appended to `chatroom/data/rooms/<room>/<session>/` as it is said, with media, uploads and every artifact version; list, download, reopen and delete from the Agent Studio (🗂), `/api/chat/saved`, and
   `POST /api/chat/import` loads a Studio export file. On locally, off when hosted unless `CHATROOM_AUTOSAVE=1`; 30 days; git-ignored.

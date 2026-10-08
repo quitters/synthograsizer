@@ -1,0 +1,52 @@
+name: Chat room tests
+
+# The chat room's test suite, including the company safety layer's deterministic tests: the fixed rules stay first and last whatever a
+# character sheet says, a request can tighten the mandate and never loosen it, tools stay at the granted tier, nothing is published without
+# a person, and no attack framing moves any of that. A break fails this check. (The live red team, which needs an API key and costs money,
+# is run by hand before a change to the layer ships: see chatroom/redteam/README.md.)
+
+on:
+  push:
+    branches: [main, dev]
+    paths:
+      - 'chatroom/**'
+      - 'workflow-engine/**'
+      - '.github/workflows/chatroom-tests.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'chatroom/**'
+      - 'workflow-engine/**'
+      - '.github/workflows/chatroom-tests.yml'
+
+jobs:
+  test:
+    name: Node tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # node --test with glob patterns needs Node 21 or later
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install the workflow engine
+        working-directory: workflow-engine
+        run: npm ci
+
+      - name: Workflow engine tests
+        working-directory: workflow-engine
+        run: npm test
+
+      - name: Install chat room deps
+        working-directory: chatroom
+        run: npm ci
+
+      - name: Chat room tests
+        working-directory: chatroom
+        run: npm test
+        env:
+          # no API key here on purpose: every test runs against stand-ins
+          GEMINI_API_KEY: ''

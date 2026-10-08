@@ -9,6 +9,7 @@
     "client": "npm run dev --prefix client",
     "test": "node --test \"tests/**/*.test.js\" \"server/**/*.test.js\"",
     "test:watch": "node --test --watch \"tests/**/*.test.js\" \"server/**/*.test.js\"",
+    "test:redteam": "node redteam/run.mjs",
     "install-all": "npm install && cd client && npm install"
   },
   "dependencies": {
