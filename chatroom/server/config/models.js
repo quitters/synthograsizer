@@ -56,6 +56,16 @@ export const MODELS = {
 /** Model used for an agent turn when neither the agent nor the session overrides it. */
 export const DEFAULT_AGENT_MODEL = MODELS.FAST;
 
+/**
+ * List prices in US dollars per million tokens, from the notes on MODELS above. Used only to ESTIMATE spend for a company's
+ * spend ceiling (company/spend.js), never to bill anyone; thinking tokens count as output. Revisit when prices move.
+ */
+export const MODEL_PRICING_USD_PER_M = {
+  [MODELS.FAST]: { in: 0.75, out: 3.75 },
+  [MODELS.SMART]: { in: 2.0, out: 12.0 },
+  [MODELS.LITE]: { in: 0.3, out: 2.5 },
+};
+
 /** Model used by tools.js for search / URL-context / research calls. */
 export const TOOL_MODEL = MODELS.LITE;
 

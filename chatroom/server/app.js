@@ -10,11 +10,21 @@ import agentsRouter from './routes/agents.js';
 import chatRouter from './routes/chat.js';
 import savedRouter from './routes/savedSessions.js';
 import artifactsRouter from './routes/artifacts.js';
+import { createCompanyRouter } from './routes/company.js';
 import { createWorkflowRoutes, createTraceRoutes } from 'workflow-engine';
-import { roomMiddleware } from './middleware/session.js';
+import { createRoomMiddleware } from './middleware/session.js';
+import { registerRoomInitializer } from './services/sessionRegistry.js';
+import { createCompanyServices } from './company/index.js';
+import { isPolicyError } from './company/errors.js';
 
-export function createApp() {
+/**
+ * @param {{ company?: ReturnType<typeof createCompanyServices> }} [options]
+ *   company is the safety layer's services (the store of companies, the screen, the publish queue). Tests pass their own, built
+ *   against a temp folder and a stand-in screen.
+ */
+export function createApp({ company = createCompanyServices() } = {}) {
   const app = express();
+  app.locals.company = company;
 
   app.use(cors({
     origin: ['http://localhost:5173', 'http://localhost:3000', 'http://localhost:8000'],
@@ -22,9 +32,13 @@ export function createApp() {
   }));
   app.use(express.json({ limit: '100mb' })); // Large limit for media uploads (up to 14 files)
 
+  // A company's department rooms take their company's policy the moment they are created
+  registerRoomInitializer(company.attach);
+
   // Every /api request belongs to one visitor's room (cookie-identified), so one
   // browser can no longer see or steer another's conversation, media or files.
-  app.use('/api', roomMiddleware);
+  // A visitor's own company rooms are reachable too, by id, and only by their owner.
+  app.use('/api', createRoomMiddleware({ roomOwner: (id) => company.store.roomOwner(id) }));
 
   // What the shared workflow engine needs to act for this request's visitor only.
   // traceStore.record is invoked from inside orchestrator.broadcast (the chokepoint),
@@ -36,6 +50,7 @@ export function createApp() {
     ownerId: req.room.id,
   });
 
+  app.use('/api/company', createCompanyRouter(company));
   app.use('/api/agents', agentsRouter);
   app.use('/api/chat', savedRouter);
   app.use('/api/chat', chatRouter);
@@ -46,6 +61,14 @@ export function createApp() {
   // Health check
   app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  });
+
+  // A refusal from the safety layer thrown by any route above is an answer, not a crash
+  app.use((err, req, res, next) => {
+    if (isPolicyError(err)) {
+      return res.status(err.status).json({ error: err.message, code: err.code, ...(err.field ? { field: err.field } : {}) });
+    }
+    return next(err);
   });
 
   return app;

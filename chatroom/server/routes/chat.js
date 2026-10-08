@@ -11,6 +11,7 @@ import { isLiveApiEnabled, ALLOW_REMOTE_TOKENS } from '../config/live.js';
 import { v4 as uuidv4 } from 'uuid';
 import { activeFileSearchStores } from '../services/sessionRegistry.js';
 import { parseCriteriaText, normalizeCriteria } from '../services/doneWhen.js';
+import { isPolicyError } from '../company/errors.js';
 
 const router = Router();
 
@@ -89,14 +90,16 @@ router.post('/start', async (req, res) => {
   }
 
   try {
-    // Start is async but returns immediately
-    req.room.orchestrator.start(goal, tokenLimit, { model, mode: normalizedMode });
+    // Start returns as soon as the conversation loop is going. It is awaited so a refusal (a company that is paused, a goal that
+    // holds a secret) reaches the caller instead of vanishing as an unhandled rejection after "Chat started".
+    await req.room.orchestrator.start(goal, tokenLimit, { model, mode: normalizedMode });
     res.json({
       success: true,
       message: 'Chat started',
       state: req.room.orchestrator.getState()
     });
   } catch (error) {
+    if (isPolicyError(error)) return res.status(error.status).json({ error: error.message, code: error.code, ...(error.field ? { field: error.field } : {}) });
     res.status(500).json({ error: error.message });
   }
 });

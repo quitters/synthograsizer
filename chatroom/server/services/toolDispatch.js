@@ -41,7 +41,7 @@ function textOutcome(ok, text) {
  * @returns {(call: {id: string, name: string, arguments: object}) => Promise<ToolOutcome>}
  */
 export function createToolDispatcher({
-  agent, mediaStore, artifactStore, onMedia, onEvent, startResearch, critique, render,
+  agent, mediaStore, artifactStore, onMedia, onEvent, startResearch, critique, render, propose,
 }) {
   // Budget for images handed back to the model inline this turn — see
   // MAX_INLINE_RESULT_IMAGES for why this is capped.
@@ -215,6 +215,24 @@ export function createToolDispatcher({
         }
       }
       return { ok: true, result: blocks, summary: `Rendered ${artifact}` };
+    },
+
+    // A company's room only (the `propose` dependency is absent everywhere else). It queues a proposal for a person; it cannot approve one.
+    async propose_publish(args) {
+      if (!propose) return textOutcome(false, 'propose_publish is not available in this session.');
+      const r = await propose({
+        kind: String(args?.kind || ''),
+        title: String(args?.title || '').trim(),
+        ...(args?.ref ? { ref: String(args.ref) } : {}),
+        ...(args?.text ? { text: String(args.text) } : {}),
+        ...(args?.note ? { note: String(args.note) } : {}),
+      });
+      if (!r.ok) return textOutcome(false, `propose_publish declined: ${r.error}`);
+      return textOutcome(
+        true,
+        `Proposal ${r.id} is waiting for a person to review (${r.status}). It has not been published, and nothing you do will publish it. ` +
+        'Carry on with the work; do not claim it has been published.'
+      );
     },
 
     async deep_research(args) {

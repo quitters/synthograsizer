@@ -173,6 +173,27 @@ export const FUNCTION_DECLARATIONS = {
       required: ['topic'],
     },
   },
+
+  // A company's tool, not part of any tier: every agent in a company room can OFFER work for publication, and nothing more.
+  // It only ever queues a proposal for a person to review; no tool can approve one.
+  propose_publish: {
+    type: 'function',
+    name: 'propose_publish',
+    description:
+      'Offer a finished piece of work for publication. A person reviews it and decides; nothing leaves this room because you proposed it. ' +
+      'The work is checked first, and it is labelled AI-generated if it is ever published. Propose only finished work, one piece at a time.',
+    parameters: {
+      type: 'object',
+      properties: {
+        kind: { type: 'string', enum: ['text', 'artifact', 'image'], description: 'What is being offered: text you pass in, a file in the room (artifact), or a picture in the room (image).' },
+        title: { type: 'string', description: 'A short title for the reviewer.' },
+        ref: { type: 'string', description: 'For an artifact, its file name; for an image, its id exactly as it appears in the transcript.' },
+        text: { type: 'string', description: 'For kind "text": the text itself.' },
+        note: { type: 'string', description: 'What the reviewer should know: where it came from, what to check.' },
+      },
+      required: ['kind', 'title'],
+    },
+  },
 };
 
 /** Tool names that Google executes server-side; declared by type alone. */
@@ -193,14 +214,17 @@ export function isDispatchableTool(name) {
  * @param {object} [opts]
  * @param {boolean} [opts.allowArtifacts=true]  Drop write_artifact when the
  *   room isn't building anything — one fewer way for the model to go wrong.
+ * @param {string[]} [opts.only]  A company room: keep only these tool names, so a tier hands out no more than the company has
+ *   been granted. Absent in a plain room.
+ * @param {string[]} [opts.extra]  Tools outside any tier to add (a company's propose_publish).
  * @returns {Array<object>} tool declarations, or [] if the tier is empty.
  */
 export function buildToolsForAgent(agent, opts = {}) {
-  const { allowArtifacts = true, allowCritic = true, allowRender = true } = opts;
-  const names = TOOL_TIERS[resolveToolTier(agent)] || [];
+  const { allowArtifacts = true, allowCritic = true, allowRender = true, only = null, extra = [] } = opts;
+  const names = [...(TOOL_TIERS[resolveToolTier(agent)] || [])].filter(n => !only || only.includes(n));
 
   const tools = [];
-  for (const name of names) {
+  for (const name of [...names, ...extra]) {
     if (name === 'write_artifact' && !allowArtifacts) continue;
     if (name === 'critique_image' && !allowCritic) continue;
     if (name === 'render_artifact' && !allowRender) continue;
