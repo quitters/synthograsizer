@@ -1,6 +1,6 @@
 # Agent companies: the safety layer
 
-> **Status:** built and tested on a branch (`atelier/company-safety-1`, stacked on `atelier/residency-1`); not merged, not deployed. Local-first: the chat server that
+> **Status:** built and tested on a branch (`teamcrafter/company-safety-1`, stacked on `atelier/residency-1`); not merged, not deployed. Local-first: the chat server that
 > hosts it is not deployed anywhere (compliance roadmap R3). Row **R7** of [COMPLIANCE_ROADMAP.md](COMPLIANCE_ROADMAP.md) is this feature.
 > Code: [`chatroom/server/company/`](../chatroom/server/company/), [`chatroom/server/routes/company.js`](../chatroom/server/routes/company.js), the hooks in
 > `chatroom/server/services/{gemini,orchestrator,sessionRegistry,toolDefinitions,toolDispatch}.js`. Live red team: [`chatroom/redteam/`](../chatroom/redteam/README.md).

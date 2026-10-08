@@ -96,7 +96,7 @@ Writing a person costs about $0.07 (the seed on the fast model, the sheet on the
 
 ## The first live run
 
-One sentence ("a small studio that invents image-prompt engines ... their first engine is a field guide to the imaginary birds of a flooded city"), the real chat server and the real model; the record is in `synthograsizer-atelier/runs/2026-10-08-company-flow/` (every room readable as a chat there).
+One sentence ("a small studio that invents image-prompt engines ... their first engine is a field guide to the imaginary birds of a flooded city"), the real chat server and the real model; the record is in `synthograsizer-teamcrafter/runs/2026-10-08-company-flow/` (every room readable as a chat there).
 
 | Step | What happened |
 |---|---|
@@ -114,7 +114,7 @@ What the people did with the Hall: the lead copied each version into the workspa
 
 ## Tests
 
-`npm test` in `chatroom/` (CI runs it on every pull request): the planner and its edits, locks and provenance; casting and its diversity guarantees; the writer pipeline and each check; the quiz; the brief and its limits; the flow end to end with a stand-in for the model (cast, create, reuse, pinned people, the allowance, cancel, restart, rollback, the screen at the door, rooms that start from other rooms); the flow over HTTP; the console's headers and its inability to set markup; the roster, the Hall and its tools; memory and its claim check. The model-shaped steps are exercised live in the run recorded in `synthograsizer-atelier/runs/2026-10-08-company-flow/`.
+`npm test` in `chatroom/` (CI runs it on every pull request): the planner and its edits, locks and provenance; casting and its diversity guarantees; the writer pipeline and each check; the quiz; the brief and its limits; the flow end to end with a stand-in for the model (cast, create, reuse, pinned people, the allowance, cancel, restart, rollback, the screen at the door, rooms that start from other rooms); the flow over HTTP; the console's headers and its inability to set markup; the roster, the Hall and its tools; memory and its claim check. The model-shaped steps are exercised live in the run recorded in `synthograsizer-teamcrafter/runs/2026-10-08-company-flow/`.
 
 ## What this does not do
 

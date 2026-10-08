@@ -6,7 +6,7 @@
  */
 import { MODEL_PRICING_USD_PER_M } from '../config/models.js';
 
-// Known unit costs of the things an agent can ask for that are not text. Estimates from the atelier's ledger
+// Known unit costs of the things an agent can ask for that are not text. Estimates from Teamcrafter's ledger
 // (an image is about $0.07 on the fast image model), rounded up.
 export const TOOL_COST_USD = Object.freeze({
   generate_image: 0.08,
