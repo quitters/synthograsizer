@@ -91,6 +91,7 @@ The answer to a create or update says what was asked, what applies and what was 
 4. **Tool requests** go through a guard first: is the tool granted; would it pass the spend ceiling; does the screen pass the words it will act on (an image prompt, a file's contents, a research topic); then the tool runs. If the model service declines a picture request,
    the picture tools stay closed for the rest of that turn.
 5. A turn in which anything was withheld, refused or blocked is a **strike**; a clean turn clears the count; at the company's limit the room **pauses** and asks a person. Resuming starts the count again.
+6. A **repeat check** (`services/repeatDetector.js`, always on in a company's room): when one person's last three messages say almost the same thing and nothing new came of them (no file saved or rendered, no picture, no workspace write), the room pauses for the owner, naming who, and the audit log records `repeat_pause` with the name and the count, never the words. It is not a strike: the safety layer did nothing. It exists because no other limit sees a loop in which every turn "works" (one live room spent 38 turns and $0.71 waiting on a tool that could not answer).
 
 ## Publishing
 
