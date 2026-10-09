@@ -152,7 +152,7 @@ Not yet measured: a control for Pro, a canary stronger than a style rule that is
 - Cookie = owner. Anything that holds the visitor's cookie (a script, an agent given it) is the owner. The protection is that no *tool* does.
 - A company's `memoryOwnerId` scopes long-term memory to the company; it is only as private as cross-session memory is (it is off by default and has not been through the hosted privacy review).
 - The operator is trusted. Locally the operator is the person at the machine, who can edit the policy file or turn draft screening off (`COMPANY_SCREEN_DRAFTS=0`, refused on a hosted instance, with a loud warning).
-- Plain rooms are unchanged, including their handling of a refusal (a failed turn, retried). Extending finality, and the hard-limit layer, to plain rooms is an open proposal.
+- Plain rooms have two of the layer's behaviours and not the rest. A declined turn is final in a plain room too (the room is told, nobody is asked again, the person declined is not the next asked; the declines count with failed turns, so a room in which everyone is declined stops after five in a row), and the repeat check applies (it can be turned off there). The hard-limit layer, the independent screen, least-privilege tools (which `TOOL_MODE=tags` ignores), the caps and the model allowlist do not: giving them to plain rooms by default is an open proposal.
 - Nothing here is legal advice; items marked **[counsel]** in the roadmap row need it.
 
 ## What changed in existing code
