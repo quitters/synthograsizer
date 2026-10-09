@@ -91,7 +91,10 @@ export const AGENT_MODEL_CHOICES = [
   },
 ];
 
-const VALID_AGENT_MODELS = new Set(AGENT_MODEL_CHOICES.map(m => m.id));
+/** The ids of those models, cheapest tier last. */
+export const AGENT_MODEL_IDS = Object.freeze(AGENT_MODEL_CHOICES.map(m => m.id));
+
+const VALID_AGENT_MODELS = new Set(AGENT_MODEL_IDS);
 
 /**
  * Reasoning effort. Gemini bills thinking tokens as output, so leaving every

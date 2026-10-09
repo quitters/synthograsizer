@@ -261,6 +261,18 @@ export class ChatOrchestrator {
     return this.policy ? this.policy.clampMaxTurns(this.consensusSettings.maxTurns) : (this.consensusSettings.maxTurns || 0);
   }
 
+  /**
+   * The model a speaker's turn runs on: the agent's own, else the session's, else the registry default. In a company's room only a model
+   * the operator allows: one that is not (an agent admitted when the list was wider, or a model since taken out) is moved to the nearest
+   * allowed one, and the audit log says so once.
+   */
+  _turnModel(speaker) {
+    const asked = speaker.model || this.modelPreference || DEFAULT_AGENT_MODEL;
+    if (!this.policy) return asked;
+    if (speaker.model) speaker.model = this.policy.modelFor(speaker.model, speaker);
+    return this.policy.modelFor(asked, speaker);
+  }
+
   /** How many alike messages in a row trip the repeat check: 0 is off, except in a company's room, which always has it. */
   _repeatWindow() {
     const window = clampWindow(this.consensusSettings.repeatWindow);
@@ -806,7 +818,11 @@ export class ChatOrchestrator {
     if (settings.auto !== undefined) c.auto = !!settings.auto;
     if (settings.referenceId !== undefined) c.referenceId = settings.referenceId ? String(settings.referenceId).slice(0, 120) : null;
     if (typeof settings.criteria === 'string') c.criteria = settings.criteria.slice(0, 1000);
-    if (settings.model !== undefined) c.model = settings.model ? String(settings.model).slice(0, 80) : null;
+    if (settings.model !== undefined) {
+      const model = settings.model ? String(settings.model).slice(0, 80) : null;
+      if (model && this.policy) this.policy.checkModel(model);
+      c.model = model;
+    }
     if (Number.isFinite(Number(settings.minScore))) c.minScore = Math.max(1, Math.min(10, Math.round(Number(settings.minScore))));
     if (Number.isFinite(Number(settings.maxCalls))) c.maxCalls = Math.max(0, Math.min(500, Math.floor(Number(settings.maxCalls))));
     return this.getCritic();
@@ -1163,7 +1179,7 @@ export class ChatOrchestrator {
     // granted (the narrowest, `none`, unless asked). Anything else throws a PolicyError and nothing is added.
     let tools = isKnownToolTier(options.tools) ? options.tools : DEFAULT_TOOL_TIER;
     if (this.policy) {
-      const spec = this.policy.checkNewAgent({ name, bio, tools: options.tools }, this.agents.length);
+      const spec = this.policy.checkNewAgent({ name, bio, tools: options.tools, model: options.model }, this.agents.length);
       ({ name, bio, tools } = spec);
     }
     const agent = {
@@ -1302,6 +1318,7 @@ export class ChatOrchestrator {
       const run = this.policy.canRun();
       if (!run.ok) throw new PolicyError(run.message, { status: 409, code: run.code });
       this.policy.checkGoal(goal);
+      if (options.model) this.policy.checkModel(options.model);
       tokenLimit = this.policy.startLimits({ tokenLimit }).tokenLimit;
       this.consensusSettings.maxTurns = this.policy.clampMaxTurns(this.consensusSettings.maxTurns);
       this.spendUsd = 0;
@@ -2202,8 +2219,9 @@ export class ChatOrchestrator {
           {
             // A session-wide model preference still wins over the registry
             // default, but a per-agent model wins over both (resolved inside
-            // generateAgentResponse).
-            model: this.modelPreference,
+            // generateAgentResponse). In a company's room the model is always
+            // one the operator allows (see _turnModel).
+            model: this.policy ? this._turnModel(speaker) : this.modelPreference,
             thinkingLevel: speaker.thinkingLevel,
             systemNotes,
             // How this room ends (a vote, or the lead alone), so each agent's prompt says so
@@ -2884,7 +2902,7 @@ export class ChatOrchestrator {
           isUser: false,
           tokenCount: responseTokens,
           usage: turnUsage || undefined,
-          model: speaker.model || this.modelPreference || DEFAULT_AGENT_MODEL
+          model: this._turnModel(speaker)
         };
 
         this.messages.push(message);

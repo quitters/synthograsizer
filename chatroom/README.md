@@ -337,7 +337,7 @@ A company's room is reached with `X-Room-Id: <roomId>` (or `?room=` for the even
 | GET | `/api/company/:id/publish/:item/export` | The approved work with its AI-generated label |
 
 Events a company's room adds: `message_withheld`, `provider_refusal`, `safety_pause`, `safety_notice`, `publish_proposed`. (Any room: `repeat_pause`.) Operator settings: `COMPANY_DRAFTING_THEMES`, `COMPANY_PUBLISHING_AUDIENCE`, `COMPANY_MAX_AGENTS`, `COMPANY_MAX_TURNS`,
-`COMPANY_TOKEN_LIMIT`, `COMPANY_SPEND_LIMIT_USD`, `COMPANY_MAX_SCREEN_STRIKES`, `COMPANY_MAX_PENDING`, `COMPANY_TOOLS`, `COMPANY_SCREEN_MODEL`, `COMPANY_SCREEN_DRAFTS=0` (local only), `COMPANY_OPERATOR_POLICY` (a policy file; ignored when hosted).
+`COMPANY_TOKEN_LIMIT`, `COMPANY_SPEND_LIMIT_USD`, `COMPANY_MAX_SCREEN_STRIKES`, `COMPANY_MAX_PENDING`, `COMPANY_TOOLS`, `COMPANY_MODELS` (the model ids company agents may run on, comma-separated; all three locally, the default and the deliberate one when hosted), `COMPANY_SCREEN_MODEL`, `COMPANY_SCREEN_DRAFTS=0` (local only), `COMPANY_OPERATOR_POLICY` (a policy file; ignored when hosted).
 `npm run test:redteam` runs the live red team (see [redteam/README.md](redteam/README.md)).
 
 ## Agent companies: people, a shared space, and the console

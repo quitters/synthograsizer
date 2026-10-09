@@ -31,7 +31,9 @@ export function renderSeat(seat, memory = []) {
 
 /** Admit one rendered seat through the room's add-agent call. Throws the PolicyError the room's rules throw. */
 export function admitSeat(orchestrator, rendered) {
-  return orchestrator.addAgent(rendered.name, rendered.bio, { model: rendered.model, thinkingLevel: rendered.thinkingLevel, tools: rendered.tools, employeeId: rendered.employeeId });
+  // A seat cast on a model the operator no longer allows is seated on the nearest allowed one: the people are the owner's, the models are the operator's
+  const model = rendered.model && orchestrator.policy ? orchestrator.policy.modelFor(rendered.model, { name: rendered.name }) : rendered.model;
+  return orchestrator.addAgent(rendered.name, rendered.bio, { model, thinkingLevel: rendered.thinkingLevel, tools: rendered.tools, employeeId: rendered.employeeId });
 }
 
 /**

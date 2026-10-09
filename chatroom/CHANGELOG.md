@@ -4,6 +4,9 @@ All notable changes to the Agent Chat Room project are documented in this file.
 
 ## [Unreleased]
 
+### Added: a model allowlist for company agents
+- **`COMPANY_MODELS`** (or `models` in the operator policy file): the models a company's agents may run on. Locally all three the registry offers; hosted, the default and the deliberate one (the cheapest model gave way to the red team's attacks 5.6% of the time against 0.4% for Flash, and 0.2% with the safety layer on all three, so the layer closes most of the gap and an operator who wants fewer misses can leave the cheap one out). Asked for an agent, a session's model preference, the critic or a saved session, a model that is not on the list is refused (403 `model_not_allowed`); a person already admitted on one that is not (the list was wider, or a model was taken out) moves to the nearest allowed one at the next turn, the audit log says so once (`model_replaced`), and a seat from the roster is seated on an allowed model instead of failing. A request or a company cannot widen it.
+
 ### Changed: workflow steps (`workflow-engine/`, and its browser copy)
 - **A step takes `retries`** (0 to 3, a failed step is tried again that many times, 3 seconds apart). The default is 1, as before, except for a Veo (`synth_video`) step, which now defaults to 0 and cannot ask for more than 1: a request the model service blocked was charged a second time by the automatic retry. The step events report the attempts actually made.
 - **Fixed: `continueOnError` did nothing.** The runner read the flag but the step it built never carried it, so a step marked to continue still failed. It now ends "skipped" with a stub result and the run goes on, as the templates that set it intended.
