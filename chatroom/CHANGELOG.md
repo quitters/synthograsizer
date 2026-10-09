@@ -4,6 +4,9 @@ All notable changes to the Agent Chat Room project are documented in this file.
 
 ## [Unreleased]
 
+### Changed: a turn the model service declines is final in every room
+- A safety block from the model service used to be treated as a failed turn in a plain room and asked again, up to five times (the compliance roadmap says such blocks are "surfaced as failures, not retried around"; a company's room already did). Now it is final for the turn everywhere: the room is told in plain words (a note from the Producer, and the `provider_refusal` event), nothing is retried, reworded or sent to another model, and the person who was declined is not the next asked. The refusals still count with failed turns, so a room in which everyone is declined stops after five in a row (`error_limit_reached`, reason in `error`); a solo chat waits for the person. A good turn clears the count.
+
 ### Added: the AI-generated label inside exported PNG and JPEG files
 - An export used to carry the label in the manifest, a note beside the work, and inside text and code, but not inside a picture: copy the picture out of its folder and the label stayed behind. `server/company/imageLabel.js` now writes it into the file: an XMP packet with the IPTC digital-source value `trainedAlgorithmicMedia` and a description, plus a PNG text chunk or a JPEG comment. No decoding or re-compression, so the pixels are the approved ones (tested; libvips reads the packet back). The manifest gains `labelInFile` (where the label is, or null for JSON, WebP, GIF) and `fileSha256` (the exported file; `sha256` stays the approved bytes). Angle brackets and control characters are taken out of the text, the packet escapes the rest.
 

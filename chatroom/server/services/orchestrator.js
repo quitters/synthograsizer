@@ -351,6 +351,18 @@ export class ChatOrchestrator {
     });
   }
 
+  /**
+   * The model service declined a turn in a room with no company policy. Final for this turn like a company's (no retry, no backoff, no
+   * other model); the room is told in plain words, and the refusal counts with the failed turns, so a room in which everyone is declined
+   * stops after five (`error_limit_reached`, with the reason in `error`) instead of asking for ever.
+   */
+  _refuseTurnPlain(speaker, detail) {
+    this.safety.refusals += 1;
+    this.broadcast('provider_refusal', { agentId: speaker.id, agentName: speaker.name });
+    this._postNote(`The model service declined ${speaker.name}'s turn. That answer is final for this turn: it will not be retried, reworded or sent to another model.`);
+    this._recordFailure(`The model service's safety filters declined ${speaker.name}'s turn (${String(detail).slice(0, 160)})`);
+  }
+
   /** Watch every event in this room (what clients get over SSE, plus 'reset' and 'session_media'). Returns a function that stops watching. */
   addObserver(fn) {
     this._observers.add(fn);
@@ -2317,19 +2329,20 @@ export class ChatOrchestrator {
         if (!this.isRunning || this.isPaused) break;
 
         if (turnRefusal) {
-          if (!this.policy) {
-            // A plain room treats a refusal like any failed turn, as it always did
-            turnError = `The model service's safety filters declined this turn (${turnRefusal})`;
-          } else {
-            this._refuseTurn(speaker, turnRefusal);
-            if (this.mode === 'solo') {
-              this.isPaused = true;
-              this.broadcast('session_waiting_user', {});
-              break;
-            }
-            await this.delay(1500);
-            continue;
+          // The model service declined. That is final for this turn in every room: no retry, no rewording, no other model (the compliance
+          // roadmap: such blocks are "surfaced as failures, not retried around"). A company's room counts it as a strike and pauses for its
+          // owner at the limit; a plain room tells the room, counts it with its failed turns and stops after five in a row.
+          if (this.policy) this._refuseTurn(speaker, turnRefusal);
+          else this._refuseTurnPlain(speaker, turnRefusal);
+          // (the declined person has had their turn: the next is someone else, not the same request asked of the same person again)
+          this.lastSpeakerId = speaker.id;
+          if (this.mode === 'solo') {
+            this.isPaused = true;
+            this.broadcast('session_waiting_user', {});
+            break;
           }
+          await this.delay(1500);
+          continue;
         }
 
         if (turnError) {
