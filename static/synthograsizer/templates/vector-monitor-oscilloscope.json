@@ -1,0 +1,164 @@
+{
+  "promptTemplate": "A vector oscilloscope displaying a {{carrier_ratio}} driven by a {{modulation_depth}} with a {{blanking_cadence}} tracing through a {{phosphor_decay}} ending in a {{beam_astigmatism}}.",
+  "variables": [
+    {
+      "name": "carrier_ratio",
+      "feature_name": "Carrier Ratio",
+      "values": [
+        {
+          "text": "1:1 Unison Ring",
+          "weight": 3
+        },
+        {
+          "text": "3:2 Fifth Torus",
+          "weight": 3
+        },
+        {
+          "text": "4:3 Quartic Cage",
+          "weight": 3
+        },
+        {
+          "text": "5:2 Pentagram Mesh",
+          "weight": 2
+        },
+        {
+          "text": "7:4 Septic Braid",
+          "weight": 2
+        },
+        {
+          "text": "9:5 Anharmonic Knot",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "modulation_depth",
+      "feature_name": "Modulation Depth",
+      "values": [
+        {
+          "text": "Pure Sine Sweep",
+          "weight": 3
+        },
+        {
+          "text": "Subtle Ripple",
+          "weight": 3
+        },
+        {
+          "text": "Folded Ribbons",
+          "weight": 3
+        },
+        {
+          "text": "Deep Waveform Shear",
+          "weight": 2
+        },
+        {
+          "text": "Spastic Churn",
+          "weight": 2
+        },
+        {
+          "text": "Turbulent Rupture",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "blanking_cadence",
+      "feature_name": "Blanking Cadence",
+      "values": [
+        {
+          "text": "Continuous Trace",
+          "weight": 3
+        },
+        {
+          "text": "Stitched Dashes",
+          "weight": 3
+        },
+        {
+          "text": "Segmented Strobe",
+          "weight": 3
+        },
+        {
+          "text": "Syncopated Bursts",
+          "weight": 2
+        },
+        {
+          "text": "Needle Spikes",
+          "weight": 2
+        },
+        {
+          "text": "Sparse Photon Ticks",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "phosphor_decay",
+      "feature_name": "Phosphor Decay",
+      "values": [
+        {
+          "text": "Crisp Monochrome Strike",
+          "weight": 3
+        },
+        {
+          "text": "Short Retinal Ghost",
+          "weight": 3
+        },
+        {
+          "text": "Luminous Afterglow",
+          "weight": 3
+        },
+        {
+          "text": "Dense Smear Reservoir",
+          "weight": 2
+        },
+        {
+          "text": "Saturated Phosphor Fog",
+          "weight": 1
+        },
+        {
+          "text": "Infinite Trace Burn",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "beam_astigmatism",
+      "feature_name": "Beam Astigmatism",
+      "values": [
+        {
+          "text": "Razor Focus Needle",
+          "weight": 3
+        },
+        {
+          "text": "Tuned Gaussian Core",
+          "weight": 3
+        },
+        {
+          "text": "Soft Electron Halo",
+          "weight": 3
+        },
+        {
+          "text": "Overdriven Line Bloom",
+          "weight": 2
+        },
+        {
+          "text": "Deflection Jitter Blur",
+          "weight": 2
+        },
+        {
+          "text": "Cathode Corona Spill",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "p5Code": "const RATIOS = {\n  \"1:1 Unison Ring\": [1, 1],\n  \"3:2 Fifth Torus\": [3, 2],\n  \"4:3 Quartic Cage\": [4, 3],\n  \"5:2 Pentagram Mesh\": [5, 2],\n  \"7:4 Septic Braid\": [7, 4],\n  \"9:5 Anharmonic Knot\": [9, 5]\n};\n\nconst MOD_DEPTH = {\n  \"Pure Sine Sweep\": 0,\n  \"Subtle Ripple\": 0.1,\n  \"Folded Ribbons\": 0.3,\n  \"Deep Waveform Shear\": 0.6,\n  \"Spastic Churn\": 1.0,\n  \"Turbulent Rupture\": 1.8\n};\n\nconst BLANKING = {\n  \"Continuous Trace\": [],\n  \"Stitched Dashes\": [40, 20],\n  \"Segmented Strobe\": [10, 50],\n  \"Syncopated Bursts\": [50, 10, 10, 10, 10, 10],\n  \"Needle Spikes\": [2, 40],\n  \"Sparse Photon Ticks\": [4, 80]\n};\n\nconst DECAY = {\n  \"Crisp Monochrome Strike\": 255,\n  \"Short Retinal Ghost\": 120,\n  \"Luminous Afterglow\": 45,\n  \"Dense Smear Reservoir\": 15,\n  \"Saturated Phosphor Fog\": 12,\n  \"Infinite Trace Burn\": 8\n};\n\nconst ASTIGMATISM = {\n  \"Razor Focus Needle\": { weight: 2, jitter: 0 },\n  \"Tuned Gaussian Core\": { weight: 2, jitter: 0 },\n  \"Soft Electron Halo\": { weight: 3, jitter: 0 },\n  \"Overdriven Line Bloom\": { weight: 5, jitter: 0 },\n  \"Deflection Jitter Blur\": { weight: 3, jitter: 8 },\n  \"Cathode Corona Spill\": { weight: 7, jitter: 15 }\n};\n\np.setup = function() {\n  p.createCanvas(800, 800);\n  p.background(0);\n};\n\np.draw = function() {\n  const vRatio = p.getSynthVar('carrier_ratio') || '1:1 Unison Ring';\n  const vMod = p.getSynthVar('modulation_depth') || 'Pure Sine Sweep';\n  const vBlank = p.getSynthVar('blanking_cadence') || 'Continuous Trace';\n  const vDecay = p.getSynthVar('phosphor_decay') || 'Crisp Monochrome Strike';\n  const vAstig = p.getSynthVar('beam_astigmatism') || 'Razor Focus Needle';\n\n  const rx = RATIOS[vRatio][0];\n  const ry = RATIOS[vRatio][1];\n  const mod = MOD_DEPTH[vMod];\n  const dash = BLANKING[vBlank];\n  const decayAlpha = DECAY[vDecay];\n  const astig = ASTIGMATISM[vAstig];\n\n  p.drawingContext.setLineDash([]);\n  p.drawingContext.shadowBlur = 0;\n  p.fill(0, decayAlpha);\n  p.noStroke();\n  p.rect(0, 0, p.width, p.height);\n\n  p.push();\n  p.translate(p.width / 2, p.height / 2);\n  \n  if (astig.jitter > 0) {\n    p.translate(p.random(-astig.jitter, astig.jitter), p.random(-astig.jitter, astig.jitter));\n  }\n\n  const numPoints = 140;\n  const time = p.frameCount * 0.025;\n  const vertices = [];\n\n  for (let i = 0; i < numPoints; i++) {\n    let t = i * 0.34; \n    \n    let bx = p.sin(t * rx + time);\n    let by = p.cos(t * ry + time * 0.85);\n    \n    let mx = p.sin(t * rx * 2.5 - time * 1.5) * mod;\n    let my = p.cos(t * ry * 2.5 - time * 1.5) * mod;\n\n    let baseX = (bx + mx) * 220;\n    let baseY = (by + my) * 220;\n\n    let z = p.sin(t * (rx + ry) * 0.4 + time) * 120;\n    let scale = 350 / (350 - z);\n\n    vertices.push({ x: baseX * scale, y: baseY * scale });\n  }\n\n  p.noFill();\n  p.strokeWeight(astig.weight);\n\n  // Faint continuous baseline trace to guarantee 1.2% canvas coverage\n  p.drawingContext.setLineDash([]);\n  p.stroke(180, 255, 180, 30);\n  p.beginShape();\n  for (let i = 0; i < numPoints; i++) {\n    p.vertex(vertices[i].x, vertices[i].y);\n  }\n  p.endShape();\n\n  // Sharp core dashed stroke\n  p.drawingContext.setLineDash(dash);\n  p.stroke(180, 255, 180, 220);\n  p.beginShape();\n  for (let i = 0; i < numPoints; i++) {\n    p.vertex(vertices[i].x, vertices[i].y);\n  }\n  p.endShape();\n\n  p.pop();\n};\n",
+  "tags": [
+    {
+      "id": "tag_vector_monitor_oscilloscope_01",
+      "type": "custom",
+      "label": "Designed and written by an agent swarm",
+      "description": "Concept, variables and code written by a crew of agents in the Agent Studio chat room (auto1-vector-monitor-oscilloscope) and played by the harness before it was accepted. Teamcrafter residency, 2026-10-09."
+    }
+  ]
+}
