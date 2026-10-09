@@ -1312,6 +1312,9 @@ export class ChatOrchestrator {
     this.mode = mode;
     this.goal = goal;
     this.tokenLimit = tokenLimit;
+    // A new session starts with no one counted as repeating themselves (a room stopped and started again keeps its object)
+    this.repeat.reset();
+    this.repeatPause = null;
     this.isRunning = true;
     // Solo mode pauses immediately — the first user inject drives the first turn.
     this.isPaused = mode === 'solo';

@@ -104,6 +104,23 @@ test('a message from the host starts the count again and carries the room on', a
   orchestrator.stop();
 });
 
+test('a room stopped and started again counts from nothing: the last session\'s repeats are not held against the next', async () => {
+  const first = annRepeatsBenDoesNot();
+  orchestrator._generate = first;
+  await orchestrator.start('keep going', 1000000);
+  await until(() => orchestrator.isPaused);
+  assert.equal(first.counts.Ann, 3);
+  orchestrator.stop();
+
+  const second = annRepeatsBenDoesNot();
+  orchestrator._generate = second;
+  await orchestrator.start('keep going', 1000000);
+  assert.equal(orchestrator.getState().repeatPause, null, 'the old pause is not carried over');
+  await until(() => orchestrator.isPaused);
+  assert.equal(second.counts.Ann, 3, 'three of hers in this session, not one');
+  orchestrator.stop();
+});
+
 test('people who say new things are never paused', async () => {
   let n = 0;
   orchestrator._generate = async function* () {
