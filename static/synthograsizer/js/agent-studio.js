@@ -944,7 +944,7 @@ class AgentStudio {
     this._tokenLimit = 100000;
 
     // Local mirror of consensus settings (synced from server on open)
-    this._consensus = { enabled: true, sensitivity: 'medium', closeBy: 'lead', leadAgent: '', maxTurns: 0 };
+    this._consensus = { enabled: true, sensitivity: 'medium', closeBy: 'lead', leadAgent: '', maxTurns: 0, repeatWindow: 3 };
     // Saved sessions (kept on disk by the chat server) and the room's critic settings
     this._saved = { enabled: false, sessions: [] };
 
@@ -1314,6 +1314,14 @@ class AgentStudio {
                   <span class="as-hint" style="display:block;font-size:10px;margin-top:1px;">turns (0 = no limit)</span>
                 </label>
                 <input id="as-max-turns" type="number" class="as-input-sm" min="0" max="5000" step="1" value="0"/>
+              </div>
+
+              <div class="as-settings-row as-solo-hide">
+                <label class="as-settings-label" for="as-repeat-window">
+                  Pause on repeats
+                  <span class="as-hint" style="display:block;font-size:10px;margin-top:1px;">when one agent's last N messages say almost the same and nothing new came of them (0 = never)</span>
+                </label>
+                <input id="as-repeat-window" type="number" class="as-input-sm" min="0" max="10" step="1" value="3"/>
               </div>
 
               <div class="as-pop-divider as-solo-hide"></div>
@@ -2198,6 +2206,10 @@ class AgentStudio {
       this._consensus.maxTurns = Math.max(0, parseInt(e.target.value, 10) || 0);
       this._pushConsensusSettings();
     });
+    document.getElementById('as-repeat-window').addEventListener('change', (e) => {
+      this._consensus.repeatWindow = Math.max(0, Math.min(10, parseInt(e.target.value, 10) || 0));
+      this._pushConsensusSettings();
+    });
 
     // Done when: checks the server runs before it lets the session end
     document.getElementById('as-done-when').addEventListener('change', () => this._pushDoneWhen());
@@ -2504,10 +2516,13 @@ class AgentStudio {
       this._consensus.closeBy     = settings.closeBy || 'lead';
       this._consensus.leadAgent   = settings.leadAgent || '';
       this._consensus.maxTurns    = settings.maxTurns || 0;
+      this._consensus.repeatWindow = Number.isFinite(settings.repeatWindow) ? settings.repeatWindow : 3;
       const closeEl = document.getElementById('as-close-by');
       const turnsEl = document.getElementById('as-max-turns');
+      const repeatEl = document.getElementById('as-repeat-window');
       if (closeEl) closeEl.value = this._consensus.closeBy;
       if (turnsEl) turnsEl.value = String(this._consensus.maxTurns);
+      if (repeatEl) repeatEl.value = String(this._consensus.repeatWindow);
       this._syncEndingRows();
       // Populate UI
       const enabledEl  = document.getElementById('as-consensus-enabled');
@@ -2532,6 +2547,7 @@ class AgentStudio {
           closeBy:     this._consensus.closeBy,
           leadAgent:   this._consensus.leadAgent,
           maxTurns:    this._consensus.maxTurns,
+          repeatWindow: this._consensus.repeatWindow,
         }),
       });
       this._renderConsensusBadge();
