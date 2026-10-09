@@ -13,7 +13,9 @@
  *   APPROVAL   only the company's owner can approve, through the API. No agent tool reaches it. Approval is bound to the hash.
  *   SUPERSEDE  a new proposal of the same file from the same room replaces the earlier ones that are still waiting (status "superseded", never
  *              decided by a person). In the pilot three drafts of one engine used the whole queue, and only the last one meant anything.
- *   LABEL      every export says it is AI-generated, in a manifest and in the work itself where its format has room for a line.
+ *   LABEL      every export says it is AI-generated, in a manifest and in the work itself where its format has room for a line: a line in
+ *              text and code, metadata in a PNG or JPEG (imageLabel.js: XMP with the IPTC digital-source value, the pixels untouched).
+ *              `sha256` in the manifest is the approved bytes; `fileSha256` is the exported file, which differs only by the label.
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -24,6 +26,7 @@ import { describeFindings } from './screen.js';
 import { effectivePolicy } from './store.js';
 import { SCHEMAS, validate } from './schema.js';
 import { safeName } from '../services/sessionArchive.js';
+import { labelImage } from './imageLabel.js';
 
 export const AI_LABEL = 'AI-generated';
 export const MAX_TEXT_CHARS = 100_000;
@@ -41,9 +44,11 @@ function writeJsonAtomic(file, data) {
 const slug = (s) => String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 48) || 'work';
 const extOf = (mime) => ({ 'image/png': 'png', 'image/jpeg': 'jpg', 'image/webp': 'webp', 'image/gif': 'gif' }[mime] || 'bin');
 
+const labelSentence = (dateIso, company) => `${AI_LABEL}: made by an AI agent company (${company}) and approved by a person on ${dateIso.slice(0, 10)}.`;
+
 /** The label as a line the work itself can carry, in a form its format allows (null when it has no room for one, e.g. JSON). */
 function labelLine(filename, dateIso, company) {
-  const text = `${AI_LABEL}: made by an AI agent company (${company}) and approved by a person on ${dateIso.slice(0, 10)}.`;
+  const text = labelSentence(dateIso, company);
   const ext = path.extname(filename).toLowerCase();
   if (['.html', '.htm', '.svg', '.xml'].includes(ext)) return { where: 'top', text: `<!-- ${text} -->` };
   if (['.js', '.mjs', '.css', '.ts'].includes(ext)) return { where: 'top', text: `/* ${text} */` };
@@ -314,14 +319,22 @@ export class PublishQueue {
     const approvedAt = item.decidedAt;
     const base = slug(item.title);
     const files = [];
+    let labelInFile = null;                                              // where the label is inside the work's own file, null when its format has no room for it
+    let fileSha256 = item.content.sha256;                                // the exported file's bytes (the approved bytes, plus the label when it is written in)
 
     if (item.kind === 'image') {
-      files.push({ name: `${base}.${extOf(item.mimeType)}`, mimeType: item.mimeType, encoding: 'base64', data: bytes.toString('base64') });
+      // The label goes into the picture's own file as metadata (XMP with the IPTC "made by a generative model" value, and a text chunk); its pixels are untouched
+      const labelled = labelImage(bytes, item.mimeType, labelSentence(approvedAt, company?.name || 'an AI agent company'));
+      const out = labelled ? labelled.bytes : bytes;
+      labelInFile = labelled ? labelled.format : null;
+      fileSha256 = sha256(out);
+      files.push({ name: `${base}.${extOf(item.mimeType)}`, mimeType: item.mimeType, encoding: 'base64', data: out.toString('base64') });
     } else {
       const name = item.filename || `${base}.txt`;
       let text = bytes.toString('utf8');
       const line = labelLine(name, approvedAt, company?.name || 'an AI agent company');
-      if (line) text = line.where === 'top' ? `${line.text}\n${text}` : `${text}${line.text}`;
+      if (line) { text = line.where === 'top' ? `${line.text}\n${text}` : `${text}${line.text}`; labelInFile = 'text-line'; }
+      fileSha256 = sha256(Buffer.from(text, 'utf8'));
       files.push({ name, mimeType: item.mimeType === 'text/plain' ? 'text/plain; charset=utf-8' : item.mimeType, encoding: 'utf8', data: text });
     }
 
@@ -336,6 +349,8 @@ export class PublishQueue {
       approvedBy: 'a person (the company owner)',
       approvedAt,
       sha256: item.content.sha256,
+      labelInFile,
+      fileSha256,
       screen: { verdict: item.screen?.verdict, stage: 'publishing', checkedAt: item.screen?.at },
       note: 'This work was made by AI agents and reviewed and approved by a person before it left the room. It does not depict real people or events unless it says so.',
     };

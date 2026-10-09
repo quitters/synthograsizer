@@ -22,6 +22,9 @@ let _keepAwake = null;
  *                               synth_narrative | synth_analyze | synth_transform | synth_combine
  *       params: object,      — tool-specific params; may contain {{stepId.field}} templates
  *       dependsOn?: string[] — step ids this step waits for (default: [])
+ *       retries?: number,    — times a failed step is tried again, 0 to 3 (default 1; 0 for synth_video, which also cannot ask for more than 1:
+ *                               a blocked Veo request would be charged again). Tries are 3 seconds apart.
+ *       continueOnError?: boolean — a step that still fails is marked skipped and the run goes on with a stub result
  *     },
  *     ...
  *   ]
@@ -377,12 +380,29 @@ async function dispatchSynth(type, params, agentId = null, agentName = null, onC
 
 // ─── WorkflowState helpers ────────────────────────────────────────────────────
 
+/**
+ * How many times a step is tried again after it fails. A failed step is tried once more by default; a Veo clip is not (a request the model
+ * service blocked would be charged a second time), and an author can raise or lower it per step: `retries: 0` to try once only.
+ * A step cannot ask for more than 3 retries (1 for a video: a request that keeps failing should not keep costing).
+ */
+export const DEFAULT_RETRIES = 1;
+export function retriesFor(def) {
+  const cap = def.type === 'synth_video' ? 1 : 3;
+  const asked = def.retries;
+  if (asked === undefined || asked === null || asked === '') return def.type === 'synth_video' ? 0 : DEFAULT_RETRIES;
+  const n = Math.floor(Number(asked));
+  return Number.isFinite(n) ? Math.max(0, Math.min(n, cap)) : (def.type === 'synth_video' ? 0 : DEFAULT_RETRIES);
+}
+
 function makeStep(def) {
   return {
     id: def.id,
     type: def.type,
     params: def.params || {},
     dependsOn: def.dependsOn || [],
+    // (this flag was read by the runner but never copied here, so a step marked continueOnError still failed the run)
+    continueOnError: def.continueOnError === true,
+    retries: retriesFor(def),
     status: 'pending', // pending | running | complete | failed
     result: null,
     error: null,
@@ -397,6 +417,8 @@ class WorkflowEngine {
   constructor() {
     /** @type {Map<string, object>} workflowId → state */
     this._workflows = new Map();
+    /** Pause before a failed step is tried again (a test shortens it). */
+    this.retryDelayMs = 3000;
   }
 
   /**
@@ -869,7 +891,8 @@ class WorkflowEngine {
       inputs: resolvedParams,
     });
 
-    const MAX_ATTEMPTS = 2;
+    // (a step carries its own retries; one rebuilt from an old checkpoint may not)
+    const MAX_ATTEMPTS = 1 + (Number.isInteger(step.retries) ? step.retries : retriesFor(step));
     let lastErr;
 
     for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
@@ -912,7 +935,7 @@ class WorkflowEngine {
           state.broadcast('workflow_step_retry', {
             workflowId: state.id, stepId, stepType: step.type, attempt, error: err.message,
           });
-          await new Promise(r => setTimeout(r, 3000));
+          await new Promise(r => setTimeout(r, this.retryDelayMs));
         }
       }
     }

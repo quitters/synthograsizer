@@ -19,9 +19,26 @@ import { DEFAULT_OPERATOR_MANDATE, assertOperatorMandate, validateMandate, MANDA
 import { DEFAULT_OPERATOR_CEILINGS, validateCeilings, CEILING_NAMES } from './ceilings.js';
 import { DEFAULT_OPERATOR_TOOLS, validateToolList } from './toolGrants.js';
 import { clone, deepFreeze, isPlainObject, setPath } from './util.js';
-import { MODELS } from '../config/models.js';
+import { MODELS, AGENT_MODEL_IDS } from '../config/models.js';
 
 export const OPERATOR_FILE_NAME = 'operator-policy.json';
+
+/**
+ * The models a company's agents may run on. Locally all three the registry offers; hosted, the two that cost what a company can plan
+ * around (a red-team run found the cheapest model gave way to attacks 5.6% of the time against 0.4% for Flash, 0.2% with the safety layer on
+ * all three, so the layer closes most of the gap and an operator who wants fewer misses can leave the cheap one out).
+ */
+export const DEFAULT_LOCAL_MODELS = Object.freeze([...AGENT_MODEL_IDS]);
+export const DEFAULT_HOSTED_MODELS = Object.freeze([MODELS.FAST, MODELS.SMART]);
+
+/** @returns {{ ok: boolean, value?: string[], errors: string[] }} a non-empty list of models the registry offers, each once */
+export function validateModelList(list) {
+  if (list === undefined) return { ok: true, value: undefined, errors: [] };
+  if (!Array.isArray(list) || !list.length) return { ok: false, errors: ['models must be a non-empty list of model ids'] };
+  const unknown = list.filter(m => !AGENT_MODEL_IDS.includes(m));
+  if (unknown.length) return { ok: false, errors: [`unknown model(s): ${unknown.map(String).join(', ')} (known: ${AGENT_MODEL_IDS.join(', ')})`] };
+  return { ok: true, value: [...new Set(list)], errors: [] };
+}
 
 const numberFromEnv = (raw) => (raw === undefined || raw === '' ? undefined : Number(raw));
 
@@ -39,6 +56,7 @@ export function loadOperator({ env = process.env, dataDir, readFile = (p) => fs.
   let screen = { drafts: true, model: MODELS.FAST };
   let hall = { enabled: true };
   let flow = { enabled: true, maxPeople: 32, maxSpendUsd: 8 };
+  let models = [...(hosted ? DEFAULT_HOSTED_MODELS : DEFAULT_LOCAL_MODELS)];
   let file = null;
 
   // ── the file (local installs only) ────────────────────────────────────────
@@ -48,7 +66,7 @@ export function loadOperator({ env = process.env, dataDir, readFile = (p) => fs.
       try {
         const parsed = JSON.parse(readFile(candidate));
         if (!isPlainObject(parsed)) throw new Error('it must be a JSON object');
-        const known = ['mandate', 'ceilings', 'tools', 'screen', 'hall', 'flow'];
+        const known = ['mandate', 'ceilings', 'tools', 'screen', 'hall', 'flow', 'models'];
         const stray = Object.keys(parsed).filter(k => !known.includes(k));
         if (stray.length) throw new Error(`unknown section(s): ${stray.join(', ')}`);
 
@@ -58,6 +76,8 @@ export function loadOperator({ env = process.env, dataDir, readFile = (p) => fs.
         if (!c.ok) throw new Error(c.errors.join('; '));
         const t = validateToolList(parsed.tools);
         if (!t.ok) throw new Error(t.errors.join('; '));
+        const mo = validateModelList(parsed.models);
+        if (!mo.ok) throw new Error(mo.errors.join('; '));
         if (parsed.screen !== undefined) {
           if (!isPlainObject(parsed.screen) || Object.keys(parsed.screen).some(k => !['drafts', 'model'].includes(k))) throw new Error('screen takes only "drafts" and "model"');
           if (parsed.screen.drafts !== undefined && typeof parsed.screen.drafts !== 'boolean') throw new Error('screen.drafts must be true or false');
@@ -68,6 +88,7 @@ export function loadOperator({ env = process.env, dataDir, readFile = (p) => fs.
         mandate = overlay(mandate, m.value);
         ceilings = { ...ceilings, ...c.value };
         if (parsed.tools !== undefined) tools = t.value;
+        if (mo.value) models = mo.value;
         if (parsed.screen) screen = { ...screen, ...parsed.screen };
         if (parsed.flow !== undefined) {
           const f = parsed.flow;
@@ -123,6 +144,12 @@ export function loadOperator({ env = process.env, dataDir, readFile = (p) => fs.
     if (t.ok) { tools = t.value; sources.push('env COMPANY_TOOLS'); } else warnings.push(`COMPANY_TOOLS was ignored (${t.errors[0]})`);
   }
 
+  if (env.COMPANY_MODELS !== undefined && env.COMPANY_MODELS !== '') {
+    const list = String(env.COMPANY_MODELS).split(',').map(s => s.trim()).filter(Boolean);
+    const mo = validateModelList(list);
+    if (mo.ok) { models = mo.value; sources.push('env COMPANY_MODELS'); } else warnings.push(`COMPANY_MODELS was ignored (${mo.errors[0]})`);
+  }
+
   if (env.COMPANY_HALL === '0') { hall = { enabled: false }; sources.push('env COMPANY_HALL'); }
   if (env.COMPANY_FLOW === '0') { flow = { ...flow, enabled: false }; sources.push('env COMPANY_FLOW'); }
   for (const [name, key, lo, hi, whole] of [['COMPANY_FLOW_MAX_PEOPLE', 'maxPeople', 1, 200, true], ['COMPANY_FLOW_MAX_SPEND_USD', 'maxSpendUsd', 0, 1000, false]]) {
@@ -154,12 +181,13 @@ export function loadOperator({ env = process.env, dataDir, readFile = (p) => fs.
     screen: deepFreeze(screen),
     hall: deepFreeze(hall),
     flow: deepFreeze(flow),
+    models: deepFreeze(models),
     file,
     warnings: deepFreeze(warnings),
     sources: deepFreeze(sources),
   };
   operator.snapshot = () => ({
-    hosted, mandate: clone(mandate), ceilings: clone(ceilings), tools: [...tools], screen: { ...screen }, hall: { ...hall }, flow: { ...flow }, file, warnings: [...warnings], sources: [...sources],
+    hosted, mandate: clone(mandate), ceilings: clone(ceilings), tools: [...tools], screen: { ...screen }, hall: { ...hall }, flow: { ...flow }, models: [...models], file, warnings: [...warnings], sources: [...sources],
     fixed: 'The hard limits, the publishing floor, human approval of every publication and the AI-generated label are not settings; nothing here can change them.',
   });
   return Object.freeze(operator);

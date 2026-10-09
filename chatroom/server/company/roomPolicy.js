@@ -21,6 +21,8 @@ import { assertNoSecrets } from './secrets.js';
 import { createHallTools } from './hall/tools.js';
 import { FEATURE_TOOL, HALL_TOOL_NAMES } from './collaboration.js';
 import { neutralize } from './layer.js';
+import { DEFAULT_LOCAL_MODELS } from './operator.js';
+import { MODELS, isKnownAgentModel } from '../config/models.js';
 
 export const BIO_MAX_CHARS = 12_000;
 export const GOAL_MAX_CHARS = 4_000;
@@ -136,12 +138,45 @@ export class RoomPolicy {
     return clean;
   }
 
+  // ── models ──────────────────────────────────────────────────────────────────
+
+  /** The models this server lets a company's agents run on (the operator's list; never a company's or a request's to widen). */
+  get allowedModels() { return this.operator.models ?? DEFAULT_LOCAL_MODELS; }
+
+  modelAllowed(id) { return this.allowedModels.includes(id); }
+
+  /** A model a person asked for, refused unless the operator allows it. Nothing is changed when it throws. */
+  checkModel(id, field = 'model') {
+    if (!this.modelAllowed(id)) {
+      throw new PolicyError(`The model "${String(id).slice(0, 80)}" is not allowed on this server. Allowed: ${this.allowedModels.join(', ')}.`, { status: 403, code: 'model_not_allowed', field });
+    }
+    return id;
+  }
+
+  /**
+   * The model a turn runs on: what was asked for when the operator allows it, otherwise the nearest allowed one (the default model
+   * first, then the deliberate one, then the cheap one), with the audit log saying so once for each person. A person admitted when the
+   * list was wider, or a model the operator has since taken out, must not keep spending on it.
+   */
+  modelFor(asked, agent = null) {
+    if (this.modelAllowed(asked)) return asked;
+    const instead = [MODELS.FAST, MODELS.SMART, MODELS.LITE].find(m => this.modelAllowed(m)) ?? this.allowedModels[0];
+    const key = `${agent?.id ?? ''}|${asked}|${instead}`;
+    this._modelNotes ??= new Set();
+    if (!this._modelNotes.has(key)) {
+      this._modelNotes.add(key);
+      this.record('model_replaced', { agent: agent?.name ?? null, from: String(asked).slice(0, 80), to: instead });
+    }
+    return instead;
+  }
+
   /** Validate a new agent for this room. Returns the cleaned fields (tier defaults to the narrowest). */
-  checkNewAgent({ name, bio, tools }, currentCount) {
+  checkNewAgent({ name, bio, tools, model }, currentCount) {
     const { ceilings, tools: grant } = this.effective;
     if (currentCount >= ceilings.maxAgents) {
       throw new PolicyError(`This room is full: a company room holds at most ${ceilings.maxAgents} agents.`, { status: 403, code: 'agent_cap', field: 'agents' });
     }
+    if (isKnownAgentModel(model)) this.checkModel(model);
     const spec = { name: this.cleanName(name), bio: this.cleanBio(bio), tools: checkAgentTier(tools, grant) };
     this.record('agent_added', { agent: spec.name, tier: spec.tools });
     return spec;
@@ -152,6 +187,7 @@ export class RoomPolicy {
     const out = {};
     if (typeof fields.name === 'string') out.name = this.cleanName(fields.name);
     if (typeof fields.bio === 'string') out.bio = this.cleanBio(fields.bio);
+    if (isKnownAgentModel(fields.model)) this.checkModel(fields.model);
     if (fields.tools !== undefined && fields.tools !== null) {
       out.tools = checkAgentTier(fields.tools, this.effective.tools);
       if (out.tools !== agent.tools) this.record('agent_tier_changed', { agent: agent.name, from: agent.tools, to: out.tools });
@@ -170,6 +206,7 @@ export class RoomPolicy {
       this.cleanName(a?.name);
       this.cleanBio(a?.bio);
       checkAgentTier(a?.tools, grant);
+      if (isKnownAgentModel(a?.model)) this.checkModel(a.model);
     }
   }
 

@@ -261,6 +261,18 @@ export class ChatOrchestrator {
     return this.policy ? this.policy.clampMaxTurns(this.consensusSettings.maxTurns) : (this.consensusSettings.maxTurns || 0);
   }
 
+  /**
+   * The model a speaker's turn runs on: the agent's own, else the session's, else the registry default. In a company's room only a model
+   * the operator allows: one that is not (an agent admitted when the list was wider, or a model since taken out) is moved to the nearest
+   * allowed one, and the audit log says so once.
+   */
+  _turnModel(speaker) {
+    const asked = speaker.model || this.modelPreference || DEFAULT_AGENT_MODEL;
+    if (!this.policy) return asked;
+    if (speaker.model) speaker.model = this.policy.modelFor(speaker.model, speaker);
+    return this.policy.modelFor(asked, speaker);
+  }
+
   /** How many alike messages in a row trip the repeat check: 0 is off, except in a company's room, which always has it. */
   _repeatWindow() {
     const window = clampWindow(this.consensusSettings.repeatWindow);
@@ -337,6 +349,18 @@ export class ChatOrchestrator {
       detail,
       text: `The model service declined ${speaker.name}'s turn. That answer is final for this turn: it will not be retried, reworded or sent to another model.`,
     });
+  }
+
+  /**
+   * The model service declined a turn in a room with no company policy. Final for this turn like a company's (no retry, no backoff, no
+   * other model); the room is told in plain words, and the refusal counts with the failed turns, so a room in which everyone is declined
+   * stops after five (`error_limit_reached`, with the reason in `error`) instead of asking for ever.
+   */
+  _refuseTurnPlain(speaker, detail) {
+    this.safety.refusals += 1;
+    this.broadcast('provider_refusal', { agentId: speaker.id, agentName: speaker.name });
+    this._postNote(`The model service declined ${speaker.name}'s turn. That answer is final for this turn: it will not be retried, reworded or sent to another model.`);
+    this._recordFailure(`The model service's safety filters declined ${speaker.name}'s turn (${String(detail).slice(0, 160)})`);
   }
 
   /** Watch every event in this room (what clients get over SSE, plus 'reset' and 'session_media'). Returns a function that stops watching. */
@@ -806,7 +830,11 @@ export class ChatOrchestrator {
     if (settings.auto !== undefined) c.auto = !!settings.auto;
     if (settings.referenceId !== undefined) c.referenceId = settings.referenceId ? String(settings.referenceId).slice(0, 120) : null;
     if (typeof settings.criteria === 'string') c.criteria = settings.criteria.slice(0, 1000);
-    if (settings.model !== undefined) c.model = settings.model ? String(settings.model).slice(0, 80) : null;
+    if (settings.model !== undefined) {
+      const model = settings.model ? String(settings.model).slice(0, 80) : null;
+      if (model && this.policy) this.policy.checkModel(model);
+      c.model = model;
+    }
     if (Number.isFinite(Number(settings.minScore))) c.minScore = Math.max(1, Math.min(10, Math.round(Number(settings.minScore))));
     if (Number.isFinite(Number(settings.maxCalls))) c.maxCalls = Math.max(0, Math.min(500, Math.floor(Number(settings.maxCalls))));
     return this.getCritic();
@@ -1163,7 +1191,7 @@ export class ChatOrchestrator {
     // granted (the narrowest, `none`, unless asked). Anything else throws a PolicyError and nothing is added.
     let tools = isKnownToolTier(options.tools) ? options.tools : DEFAULT_TOOL_TIER;
     if (this.policy) {
-      const spec = this.policy.checkNewAgent({ name, bio, tools: options.tools }, this.agents.length);
+      const spec = this.policy.checkNewAgent({ name, bio, tools: options.tools, model: options.model }, this.agents.length);
       ({ name, bio, tools } = spec);
     }
     const agent = {
@@ -1302,6 +1330,7 @@ export class ChatOrchestrator {
       const run = this.policy.canRun();
       if (!run.ok) throw new PolicyError(run.message, { status: 409, code: run.code });
       this.policy.checkGoal(goal);
+      if (options.model) this.policy.checkModel(options.model);
       tokenLimit = this.policy.startLimits({ tokenLimit }).tokenLimit;
       this.consensusSettings.maxTurns = this.policy.clampMaxTurns(this.consensusSettings.maxTurns);
       this.spendUsd = 0;
@@ -2202,8 +2231,9 @@ export class ChatOrchestrator {
           {
             // A session-wide model preference still wins over the registry
             // default, but a per-agent model wins over both (resolved inside
-            // generateAgentResponse).
-            model: this.modelPreference,
+            // generateAgentResponse). In a company's room the model is always
+            // one the operator allows (see _turnModel).
+            model: this.policy ? this._turnModel(speaker) : this.modelPreference,
             thinkingLevel: speaker.thinkingLevel,
             systemNotes,
             // How this room ends (a vote, or the lead alone), so each agent's prompt says so
@@ -2299,19 +2329,20 @@ export class ChatOrchestrator {
         if (!this.isRunning || this.isPaused) break;
 
         if (turnRefusal) {
-          if (!this.policy) {
-            // A plain room treats a refusal like any failed turn, as it always did
-            turnError = `The model service's safety filters declined this turn (${turnRefusal})`;
-          } else {
-            this._refuseTurn(speaker, turnRefusal);
-            if (this.mode === 'solo') {
-              this.isPaused = true;
-              this.broadcast('session_waiting_user', {});
-              break;
-            }
-            await this.delay(1500);
-            continue;
+          // The model service declined. That is final for this turn in every room: no retry, no rewording, no other model (the compliance
+          // roadmap: such blocks are "surfaced as failures, not retried around"). A company's room counts it as a strike and pauses for its
+          // owner at the limit; a plain room tells the room, counts it with its failed turns and stops after five in a row.
+          if (this.policy) this._refuseTurn(speaker, turnRefusal);
+          else this._refuseTurnPlain(speaker, turnRefusal);
+          // (the declined person has had their turn: the next is someone else, not the same request asked of the same person again)
+          this.lastSpeakerId = speaker.id;
+          if (this.mode === 'solo') {
+            this.isPaused = true;
+            this.broadcast('session_waiting_user', {});
+            break;
           }
+          await this.delay(1500);
+          continue;
         }
 
         if (turnError) {
@@ -2884,7 +2915,7 @@ export class ChatOrchestrator {
           isUser: false,
           tokenCount: responseTokens,
           usage: turnUsage || undefined,
-          model: speaker.model || this.modelPreference || DEFAULT_AGENT_MODEL
+          model: this._turnModel(speaker)
         };
 
         this.messages.push(message);

@@ -24,5 +24,5 @@ def test_browser_copy_is_up_to_date():
 
 @pytest.mark.skipif(not shutil.which("node"), reason="node not installed")
 def test_workflow_engine_node_tests_pass():
-    result = subprocess.run(["node", "--test", "tests/media.test.mjs"], cwd=ROOT / "workflow-engine", capture_output=True, text=True, timeout=120)
+    result = subprocess.run(["node", "--test", "tests/media.test.mjs", "tests/retries.test.mjs"], cwd=ROOT / "workflow-engine", capture_output=True, text=True, timeout=120)
     assert result.returncode == 0, result.stdout[-1500:] + result.stderr[-500:]
