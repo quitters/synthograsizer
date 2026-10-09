@@ -570,9 +570,13 @@ body {
     inset 0 1px 0 rgba(255, 255, 255, 0.8),
     inset 0 -1px 3px rgba(0, 0, 0, 0.06);
   transition: transform 0.1s ease;
+  /* A size container, so the indicator below can be placed and pivoted in the dial's OWN units (cqh) and stay on it at any size */
+  container-type: size;
 }
 
-/* Indicator dot on the knob */
+/* Indicator dot on the knob. app.js sets its transform (translateX(-50%) rotate(...)); the dot swings round the pivot below, which must be the
+   dial's centre. It used to be a fixed `center calc(50% + 20px)`, right for one dial size only: in a layout whose dial is 40px (a 52px wrapper)
+   the pivot sat 12px below the centre and the dot swung out of the ring. */
 .knob-indicator {
   position: absolute;
   width: 8px;
@@ -582,8 +586,14 @@ body {
   top: 8px;
   left: 50%;
   transform: translateX(-50%);
-  transform-origin: center calc(50% + 20px);
-  /* Rotate around knob center */
+  transform-origin: center calc(50% + 16px);   /* (the centre of a 56px dial, for a browser without container units) */
+}
+
+@supports (height: 1cqh) {
+  .knob-indicator {
+    top: 14cqh;                       /* a gap to the rim that grows with the dial */
+    transform-origin: 50% 36cqh;      /* from the dot's top to the dial's centre: 50cqh - 14cqh, whatever the dot's own size */
+  }
 }
 
 .knob-item.active .knob-indicator {
