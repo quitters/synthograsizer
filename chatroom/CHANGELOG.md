@@ -4,6 +4,9 @@ All notable changes to the Agent Chat Room project are documented in this file.
 
 ## [Unreleased]
 
+### Added: the AI-generated label inside exported PNG and JPEG files
+- An export used to carry the label in the manifest, a note beside the work, and inside text and code, but not inside a picture: copy the picture out of its folder and the label stayed behind. `server/company/imageLabel.js` now writes it into the file: an XMP packet with the IPTC digital-source value `trainedAlgorithmicMedia` and a description, plus a PNG text chunk or a JPEG comment. No decoding or re-compression, so the pixels are the approved ones (tested; libvips reads the packet back). The manifest gains `labelInFile` (where the label is, or null for JSON, WebP, GIF) and `fileSha256` (the exported file; `sha256` stays the approved bytes). Angle brackets and control characters are taken out of the text, the packet escapes the rest.
+
 ### Added: a model allowlist for company agents
 - **`COMPANY_MODELS`** (or `models` in the operator policy file): the models a company's agents may run on. Locally all three the registry offers; hosted, the default and the deliberate one (the cheapest model gave way to the red team's attacks 5.6% of the time against 0.4% for Flash, and 0.2% with the safety layer on all three, so the layer closes most of the gap and an operator who wants fewer misses can leave the cheap one out). Asked for an agent, a session's model preference, the critic or a saved session, a model that is not on the list is refused (403 `model_not_allowed`); a person already admitted on one that is not (the list was wider, or a model was taken out) moves to the nearest allowed one at the next turn, the audit log says so once (`model_replaced`), and a seat from the roster is seated on an allowed model instead of failing. A request or a company cannot widen it.
 

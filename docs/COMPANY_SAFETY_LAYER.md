@@ -104,7 +104,7 @@ The answer to a create or update says what was asked, what applies and what was 
   run: not approvable until a review succeeds), `approved`, `rejected`;
 - **approval** only by the company's owner through the API, bound to the hash. A proposal waiting for a person only ever gets stricter on a second look: a block applies, an outage changes nothing;
 - **export** only for an approved proposal, with a manifest (`label: "AI-generated"`, the company, who proposed, who approved, when, the hash), an `AI-GENERATED.txt` beside it, and the label inside the work where its format has room for a line (a comment at the top of
-  HTML, SVG, JS and CSS, a line at the end of text and Markdown). JSON and pictures are not altered; the manifest carries the label. *Not yet:* the label inside image files.
+  HTML, SVG, JS and CSS, a line at the end of text and Markdown). JSON has no room for one, so the manifest carries the label. **A PNG or JPEG carries it inside its own file** (`imageLabel.js`): an XMP packet whose `Iptc4xmpExt:DigitalSourceType` is `trainedAlgorithmicMedia` (the IPTC value for media made by a generative model) and a description, plus a PNG text chunk or a JPEG comment for viewers that show only those. Nothing is decoded or re-compressed, so the pixels are exactly the approved ones (a test compares them; libvips, an independent reader, finds the packet). WebP and GIF have no room for it here and bytes that are not the image they claim are left alone; the manifest's `labelInFile` says where the label is (`png-xmp`, `png-text`, `jpeg-xmp`, `jpeg-comment`, `text-line`, or null) and its `fileSha256` is the exported file's hash, next to `sha256`, the approved bytes.
 
 ## The controls
 
