@@ -27,6 +27,7 @@ import { MIGRATIONS } from './flow/migrations.js';
 import { admitDepartment } from './flow/admit.js';
 import { FlowStore } from './flow/flowStore.js';
 import { FlowService } from './flow/flow.js';
+import { OwnerAuth } from './ownerAuth.js';
 import { createModel } from './flow/model.js';
 import { getRoom as defaultGetRoom } from '../services/sessionRegistry.js';
 
@@ -43,6 +44,10 @@ export function createCompanyServices({
 } = {}) {
   const operator = loadOperator({ env, dataDir });
   for (const warning of operator.warnings) console.warn(`[company] ${warning}`);
+  // Who the owner is: the visitor cookie (the default) or, with COMPANY_OWNER_AUTH=key, an account that signs in with a key
+  const ownerAuth = new OwnerAuth({ dataDir, env, now, hosted: operator.hosted });
+  for (const warning of ownerAuth.warnings) console.warn(`[company] ${warning}`);
+  if (ownerAuth.enabled && ownerAuth.justCreated) console.warn(`[company] Owner sign-in is on and this is its first start: the owner key is in ${ownerAuth.keyFile}. Paste it into the console's sign-in page.`);
 
   const audit = new AuditLog({ rootDir: dataDir, now });
   const store = new CompanyStore({ rootDir: dataDir, operator, now });
@@ -114,5 +119,5 @@ export function createCompanyServices({
     }
   }
 
-  return { dataDir, operator, audit, store, screen, publish, flow, policyForRoom, attach, get roster() { return needRoster(); }, get hall() { return needHall(); }, tryRoster, tryHall, close };
+  return { dataDir, operator, ownerAuth, audit, store, screen, publish, flow, policyForRoom, attach, get roster() { return needRoster(); }, get hall() { return needHall(); }, tryRoster, tryHall, close };
 }

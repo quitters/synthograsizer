@@ -20,12 +20,16 @@ import { handle, checkBody, jsonOnlyChanges } from './httpUtil.js';
 import { createHallRouter } from './hall.js';
 import { createRosterRouter, createPeopleRouter } from './roster.js';
 import { createFlowRouter, createRunRouter } from './flow.js';
+import { createOwnerRouter, requireOwner } from './owner.js';
 
 const ENDPOINTS = [
   ['GET', '/api/company/schema', 'This document.'],
   ['GET', '/api/company/operator', 'What this server\'s operator allows: the defaults no request can loosen.'],
   ['GET', '/api/company/mission', 'The default mission statement.'],
   ['GET', '/api/company/house-rules', 'The default house rules: how the people in a company carry themselves at work.'],
+  ['GET', '/api/company/owner', 'Whether owner sign-in is on (COMPANY_OWNER_AUTH=key) and whether this browser is signed in. Never a key or a token.'],
+  ['POST', '/api/company/owner/signin', 'Body: { key }. Opens an owner session (an HttpOnly cookie). Five wrong keys in fifteen minutes from one address, or twenty-five in an hour, answers 429.'],
+  ['POST', '/api/company/owner/signout', 'Ends this browser\'s owner session.'],
   ['POST', '/api/company', 'Create a company (paused). Body: companyCreate.'],
   ['GET', '/api/company', 'Your companies.'],
   ['GET', '/api/company/:id', 'One company: what you asked for, what applies, what was clamped.'],
@@ -135,6 +139,13 @@ export function createCompanyRouter(services) {
   router.get('/mission', (req, res) => res.json(DEFAULT_MISSION));
   router.get('/house-rules', (req, res) => res.json({ ...DEFAULT_HOUSE_RULES, maxChars: HOUSE_RULES_MAX_CHARS }));
 
+  // ── who the owner is: before the guard, because it is how a visitor gets past it ──
+
+  router.use('/owner', createOwnerRouter(services));
+
+  // Everything below is the owner's. With owner sign-in on, a visitor who has not signed in is told to; with it off the visitor cookie is the owner.
+  router.use(requireOwner);
+
   // ── the roster, the people, the Hall ───────────────────────────────────────
   // (mounted before the routes of a single company, so that "roster" is never read as a company id)
 
@@ -146,11 +157,11 @@ export function createCompanyRouter(services) {
 
   // ── companies ───────────────────────────────────────────────────────────────
 
-  router.get('/', (req, res) => res.json({ companies: store.listFor(req.visitorId).map(c => store.describe(c)) }));
+  router.get('/', (req, res) => res.json({ companies: store.listFor(req.ownerId).map(c => store.describe(c)) }));
 
   router.post('/', handle((req, res) => {
     checkBody(SCHEMAS.companyCreate, req.body);
-    const company = store.create(req.visitorId, req.body);
+    const company = store.create(req.ownerId, req.body);
     const described = store.describe(company);
     audit.append(company.id, { type: 'company_created', name: company.name, departments: company.departments.length, clamped: described.clamped });
     res.status(201).json({
@@ -160,33 +171,33 @@ export function createCompanyRouter(services) {
   }));
 
   router.get('/:id', handle((req, res) => {
-    res.json({ company: store.describe(store.getOwned(req.params.id, req.visitorId)) });
+    res.json({ company: store.describe(store.getOwned(req.params.id, req.ownerId)) });
   }));
 
   router.patch('/:id', handle((req, res) => {
     checkBody(SCHEMAS.companyPatch, req.body);
-    const { company, changed, after } = store.update(req.params.id, req.visitorId, req.body);
+    const { company, changed, after } = store.update(req.params.id, req.ownerId, req.body);
     if (changed.length) audit.append(company.id, { type: 'company_updated', changed, clamped: after.clamped });
     res.json({ company: store.describe(company) });
   }));
 
   router.delete('/:id', handle((req, res) => {
-    const { roomIds } = store.remove(req.params.id, req.visitorId);
+    const { roomIds } = store.remove(req.params.id, req.ownerId);
     for (const roomId of roomIds) dropRoom(roomId);
     // the people who worked there, what they remembered there, and everything the Hall kept for it (nothing is created by asking)
     const hall = services.tryHall();
-    if (hall) { hall.removeCompany(req.visitorId, req.params.id); hall.roster.removeCompany(req.visitorId, req.params.id); }
+    if (hall) { hall.removeCompany(req.ownerId, req.params.id); hall.roster.removeCompany(req.ownerId, req.params.id); }
     res.json({ deleted: true });
   }));
 
   router.post('/:id/go', handle((req, res) => {
-    const company = store.setState(req.params.id, req.visitorId, 'active');
+    const company = store.setState(req.params.id, req.ownerId, 'active');
     audit.append(company.id, { type: 'company_go' });
     res.json({ company: store.describe(company) });
   }));
 
   router.post('/:id/pause', handle((req, res) => {
-    const company = store.setState(req.params.id, req.visitorId, 'paused');
+    const company = store.setState(req.params.id, req.ownerId, 'paused');
     // Rooms that are running stop at once, not at their next turn
     for (const d of company.departments) {
       const room = peekRoom(d.roomId);
@@ -198,7 +209,7 @@ export function createCompanyRouter(services) {
 
   router.post('/:id/rooms', handle((req, res) => {
     checkBody(SCHEMAS.roomCreate, req.body);
-    const department = store.addDepartment(req.params.id, req.visitorId, req.body.department);
+    const department = store.addDepartment(req.params.id, req.ownerId, req.body.department);
     audit.append(req.params.id, { type: 'room_created', department: department.name });
     res.status(201).json({
       department: { id: department.id, name: department.name, roomId: department.roomId },
@@ -208,7 +219,7 @@ export function createCompanyRouter(services) {
   }));
 
   router.get('/:id/audit', handle((req, res) => {
-    store.getOwned(req.params.id, req.visitorId);
+    store.getOwned(req.params.id, req.ownerId);
     const limit = Math.max(1, Math.min(Number(req.query.limit) || 200, 1000));
     res.json({ entries: audit.read(req.params.id, { limit, type: typeof req.query.type === 'string' ? req.query.type : null }) });
   }));
@@ -216,12 +227,12 @@ export function createCompanyRouter(services) {
   // ── publishing ──────────────────────────────────────────────────────────────
 
   router.get('/:id/publish', handle((req, res) => {
-    store.getOwned(req.params.id, req.visitorId);
+    store.getOwned(req.params.id, req.ownerId);
     res.json({ proposals: publish.list(req.params.id, { status: typeof req.query.status === 'string' ? req.query.status : null }) });
   }));
 
   router.post('/:id/publish', handle(async (req, res) => {
-    const company = store.getOwned(req.params.id, req.visitorId);
+    const company = store.getOwned(req.params.id, req.ownerId);
     checkBody(SCHEMAS.proposal, req.body);
     // Made from inside a department's room (an X-Room-Id header, which the room middleware has already checked belongs to this visitor),
     // the room is known without being named again, as the schema says. A roomId in the body still wins.
@@ -237,27 +248,27 @@ export function createCompanyRouter(services) {
   }));
 
   router.get('/:id/publish/:item', handle((req, res) => {
-    store.getOwned(req.params.id, req.visitorId);
+    store.getOwned(req.params.id, req.ownerId);
     res.json({ proposal: publish.get(req.params.id, req.params.item) });
   }));
 
   router.post('/:id/publish/:item/approve', handle((req, res) => {
-    store.getOwned(req.params.id, req.visitorId);
+    store.getOwned(req.params.id, req.ownerId);
     res.json({ proposal: publish.approve(req.params.id, req.params.item) });
   }));
 
   router.post('/:id/publish/:item/reject', handle((req, res) => {
-    store.getOwned(req.params.id, req.visitorId);
+    store.getOwned(req.params.id, req.ownerId);
     res.json({ proposal: publish.reject(req.params.id, req.params.item, req.body?.reason) });
   }));
 
   router.post('/:id/publish/:item/rescreen', handle(async (req, res) => {
-    store.getOwned(req.params.id, req.visitorId);
+    store.getOwned(req.params.id, req.ownerId);
     res.json({ proposal: await publish.rescreen(req.params.id, req.params.item) });
   }));
 
   router.get('/:id/publish/:item/export', handle((req, res) => {
-    store.getOwned(req.params.id, req.visitorId);
+    store.getOwned(req.params.id, req.ownerId);
     res.json(publish.exportBundle(req.params.id, req.params.item));
   }));
 

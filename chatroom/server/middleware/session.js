@@ -17,6 +17,7 @@
  * exist, so it never confirms that someone else's room is there.
  */
 import { getRoom, isRoomId, newRoomId } from '../services/sessionRegistry.js';
+import { OWNER_COOKIE } from '../company/ownerAuth.js';
 
 export const COOKIE_NAME = 'cr_sid';
 export const ROOM_HEADER = 'x-room-id';
@@ -56,8 +57,10 @@ export function requestedRoomId(req) {
 /**
  * @param {{ roomOwner?: (roomId: string) => ({ company: { ownerId: string }, department: object }|null) }} [options]
  *   roomOwner says which company a room id belongs to (the company store's lookup). Without it no room but the visitor's own is reachable.
+ *   ownerAuth (company/ownerAuth.js), when its mode is on, makes the owner of companies an account the visitor has signed in to: `req.ownerId` is that
+ *   account's id, or null for a visitor who has not signed in. Without it, or with it off, `req.ownerId` is the visitor cookie's id, as it always was.
  */
-export function createRoomMiddleware({ roomOwner = () => null } = {}) {
+export function createRoomMiddleware({ roomOwner = () => null, ownerAuth = null } = {}) {
   return function roomMiddleware(req, res, next) {
     // A liveness probe is nobody's visit: do not mint a room (or a cookie) for it.
     if (req.path === '/health') return next();
@@ -69,11 +72,16 @@ export function createRoomMiddleware({ roomOwner = () => null } = {}) {
     }
     req.visitorId = id;
     req.roomIsNew = isNew;
+    // Who owns companies for this request: the signed-in owner when sign-in is on, else the visitor.
+    const ownerToken = parseCookies(req.headers.cookie)[OWNER_COOKIE];
+    req.ownerSession = ownerAuth?.enabled ? ownerAuth.sessionFor(ownerToken) : null;
+    req.ownerToken = ownerAuth?.enabled ? ownerToken : null;
+    req.ownerId = ownerAuth?.enabled ? (req.ownerSession?.ownerId ?? null) : id;
 
     const wanted = requestedRoomId(req);
     if (wanted && wanted !== id) {
       const hit = isRoomId(wanted) ? roomOwner(wanted) : null;
-      if (!hit || hit.company.ownerId !== id) return res.status(404).json({ error: 'No such room.' });
+      if (!hit || !req.ownerId || hit.company.ownerId !== req.ownerId) return res.status(404).json({ error: 'No such room.' });
       req.room = getRoom(wanted);
       req.company = hit.company;
       req.department = hit.department;

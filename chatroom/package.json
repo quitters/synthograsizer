@@ -10,6 +10,7 @@
     "test": "node --experimental-sqlite --test \"tests/**/*.test.js\" \"server/**/*.test.js\"",
     "test:watch": "node --experimental-sqlite --test --watch \"tests/**/*.test.js\" \"server/**/*.test.js\"",
     "test:redteam": "node --experimental-sqlite redteam/run.mjs",
+    "owner": "node --experimental-sqlite scripts/owner.mjs",
     "install-all": "npm install && cd client && npm install"
   },
   "dependencies": {

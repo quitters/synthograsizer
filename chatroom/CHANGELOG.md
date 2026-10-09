@@ -4,6 +4,11 @@ All notable changes to the Agent Chat Room project are documented in this file.
 
 ## [Unreleased]
 
+### Added: owner sign-in
+- **`COMPANY_OWNER_AUTH=key`** (`server/company/ownerAuth.js`, `server/routes/owner.js`): the owner of companies is an account that signs in with a key, not a visitor cookie. One owner key (256 random bits, `<data>/owner/owner.key`, kept only as a SHA-256), revocable sessions (an HttpOnly, SameSite=Strict cookie `cr_owner`, stored as hashes, 30 days, ended by sign-out or a new key), wrong keys counted and refused with 429. Every company, flow, roster and Hall route acts for the owner id (`req.ownerId`) and answers 401 `sign_in_required` without a session; the schema, the operator's settings and the defaults stay readable, and plain rooms stay the visitor's. Off by default: nothing changes. The console has a sign-in page and a sign-out link.
+- **`npm run owner`** (`scripts/owner.mjs`): `status`, `init [--owner-id]`, `rotate`, `adopt --from <id> [--apply]` (moves a cookie's companies, flows and roster rows to the owner; dry run first, backup before; one transaction for the database).
+- A hosted instance left on the cookie owner is warned about at start.
+
 ### Added: the creation flow, the roster, the Hall and the owner's console
 - **A company from one prompt** (`server/company/flow/`, `/api/company/flow`, [COMPANY_CREATION_FLOW.md](../docs/COMPANY_CREATION_FLOW.md)). Propose (a cent or two; creates nothing), edit, cast (writes the people; the money goes here, capped), create (all or nothing; the company is paused). Anything the owner fixes is theirs
   and no later step changes it; every field of a proposal says whether it is the owner's, the model's or a default. Code decides the shape (size, one lead and a reviewer a room, someone who can save files in each room that makes one) and the model writes the words.
