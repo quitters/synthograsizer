@@ -750,7 +750,7 @@ router.get('/consensus-settings', (req, res) => {
 /**
  * POST /api/chat/consensus-settings
  * Update how the session ends: consensus detection, and the other ways out
- * (closeBy 'vote'|'lead' with leadAgent, minTurns, maxTurns)
+ * (closeBy 'vote'|'lead' with leadAgent, minTurns, maxTurns), and the repeat check (repeatWindow: 0 = off, 2 to 10)
  */
 router.post('/consensus-settings', (req, res) => {
   const {
@@ -762,7 +762,8 @@ router.post('/consensus-settings', (req, res) => {
     closeBy,
     leadAgent,
     minTurns,
-    maxTurns
+    maxTurns,
+    repeatWindow
   } = req.body;
 
   try {
@@ -775,7 +776,8 @@ router.post('/consensus-settings', (req, res) => {
       closeBy,
       leadAgent,
       minTurns,
-      maxTurns
+      maxTurns,
+      repeatWindow
     });
 
     res.json({

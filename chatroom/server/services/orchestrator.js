@@ -38,6 +38,7 @@ import { PolicyError } from '../company/errors.js';
 import { textCostUsd, toolCostUsd } from '../company/spend.js';
 import { looksLikeSafetyBlock } from '../company/refusal.js';
 import { describeFindings } from '../company/screen.js';
+import { RepeatDetector, clampWindow, changedTheWork, DEFAULT_WINDOW as DEFAULT_REPEAT_WINDOW } from './repeatDetector.js';
 
 /**
  * Zeroed usage accumulator. Field names mirror the shape yielded by
@@ -170,7 +171,9 @@ export class ChatOrchestrator {
       minTurns: 0,
       // End the session after this many turns, whatever else has happened (0 = no limit).
       // The agents are warned in the last round so the work is finished, not cut off.
-      maxTurns: 0
+      maxTurns: 0,
+      // Pause the room when one person's last N messages say almost the same thing (0 = never; 2 to 10). See repeatDetector.js.
+      repeatWindow: DEFAULT_REPEAT_WINDOW
     };
     // Turn count at which the current run began (a restart after the session ended
     // starts a new segment, so a turn limit gives it a fresh allowance)
@@ -234,6 +237,9 @@ export class ChatOrchestrator {
     this.spendUsd = 0;
     this.safety = { withheld: 0, refusals: 0, toolBlocks: 0, consecutive: 0, pausedFor: null };
     this._turnFlags = { blocked: 0 };
+    // Who is repeating themselves (see _checkRepeat); `repeatPause` is set while the room waits for a person to look at it.
+    this.repeat = new RepeatDetector();
+    this.repeatPause = null;
     this._emitToObservers('reset', {});
   }
 
@@ -253,6 +259,32 @@ export class ChatOrchestrator {
   /** The turn limit in force: a company room always has one. */
   _maxTurns() {
     return this.policy ? this.policy.clampMaxTurns(this.consensusSettings.maxTurns) : (this.consensusSettings.maxTurns || 0);
+  }
+
+  /** How many alike messages in a row trip the repeat check: 0 is off, except in a company's room, which always has it. */
+  _repeatWindow() {
+    const window = clampWindow(this.consensusSettings.repeatWindow);
+    return window || (this.policy ? DEFAULT_REPEAT_WINDOW : 0);
+  }
+
+  /**
+   * After a committed turn: when this person's last few messages say almost the same thing, pause the room for a person to look.
+   * The room's other limits do not see this (every turn "worked"); one live room spent 38 turns and $0.71 that way. Returns true when it paused.
+   * @param {boolean} progress  the turn saved a file, made media or started a workflow: that is something new, so it never counts as a repeat
+   */
+  _checkRepeat(speaker, message, progress) {
+    const window = this._repeatWindow();
+    if (!window || this.mode === 'solo') return false;
+    const hit = this.repeat.observe({ agentId: speaker.id, text: message.content, progress, window });
+    if (!hit) return false;
+    this.repeatPause = { agentId: speaker.id, agentName: speaker.name, count: hit.count, similarity: hit.similarity, atTurn: this.turnCount };
+    this.repeat.reset();
+    const text = `${speaker.name}'s last ${hit.count} messages say almost the same thing (at least ${Math.round(hit.similarity * 100)}% alike), and nothing new came of them. The room is paused so a person can look: it may be waiting on something that is not coming. Resume it when you have, or send a message to change course.`;
+    this.policy?.record('repeat_pause', { agent: speaker.name, count: hit.count, similarity: hit.similarity, turn: this.turnCount });
+    this._postNote(text, { sender: 'Loop check' });
+    this.broadcast('repeat_pause', { agentId: speaker.id, agentName: speaker.name, count: hit.count, similarity: hit.similarity, message: text });
+    this.pause();
+    return true;
   }
 
   _chargeSpend(usd) {
@@ -720,6 +752,9 @@ export class ChatOrchestrator {
     }
     if (settings.maxTurns !== undefined && Number.isFinite(Number(settings.maxTurns))) {
       this.consensusSettings.maxTurns = Math.max(0, Math.min(Math.floor(Number(settings.maxTurns)), 5000));
+    }
+    if (settings.repeatWindow !== undefined && Number.isFinite(Number(settings.repeatWindow))) {
+      this.consensusSettings.repeatWindow = clampWindow(settings.repeatWindow);
     }
     // A company's turn limit can be lowered from here and never raised past its ceiling (0, "no limit", means the ceiling)
     if (this.policy) this.consensusSettings.maxTurns = this.policy.clampMaxTurns(this.consensusSettings.maxTurns);
@@ -1429,6 +1464,9 @@ export class ChatOrchestrator {
    */
   resume() {
     if (this.isPaused) {
+      // A person who resumes a room that was paused for repeating itself has looked: the count starts again
+      this.repeatPause = null;
+      this.repeat.reset();
       if (this.policy) {
         // A person resuming a room that the safety layer paused is the "look" it asked for; the count starts again.
         const run = this.policy.canRun();
@@ -1465,8 +1503,10 @@ export class ChatOrchestrator {
     // closed out by an in-flight consensus marker from a previous turn.
     this.lastUserMessageTurn = this.turnCount;
     this.consensusVotes = [];
-    // The user is acting, so earlier failures should not count against the next turn.
+    // The user is acting, so earlier failures should not count against the next turn, and what anyone repeated before no longer counts.
     this.consecutiveFailures = 0;
+    this.repeat.reset();
+    this.repeatPause = null;
 
     this.broadcast('message', message);
 
@@ -2143,6 +2183,9 @@ export class ChatOrchestrator {
         // record. The tag path fills `images`/`synthMedia` further down.
         const toolMedia = [];
         const toolCallLog = [];
+        // Whether a tool this turn changed the work (see _checkRepeat); `callArgs` holds each call's arguments until its result arrives
+        const callArgs = new Map();
+        let changedWork = false;
 
         const systemNotes = [this._drainWorkflowOutcomes(), this._closingNotes(speaker)].filter(Boolean).join('\n\n') || null;
         const turnTools = this._toolsForTurn(speaker);
@@ -2206,6 +2249,7 @@ export class ChatOrchestrator {
             turnRefusal = event.detail || 'declined';
             break;
           } else if (event.type === 'tool_call') {
+            callArgs.set(event.id, event.args);
             this.broadcast('tool_executing', {
               agentId: speaker.id,
               type: event.name,
@@ -2214,6 +2258,7 @@ export class ChatOrchestrator {
             });
           } else if (event.type === 'tool_result') {
             toolCallLog.push({ name: event.name, ok: event.ok, summary: event.summary });
+            if (event.ok && changedTheWork(event.name, callArgs.get(event.id))) changedWork = true;
             this.broadcast('tool_result', {
               agentId: speaker.id,
               result: {
@@ -2904,6 +2949,9 @@ export class ChatOrchestrator {
           await this._noteCandidate([...new Set(artifactUpdates.map(a => a.filename))]);
         }
 
+        // Not ending, and not progressing: the same person saying the same thing again is a loop no other limit sees
+        if (this._checkRepeat(speaker, message, changedWork || hasImages || hasSynthMedia || hasToolMedia || hasWorkflows || hasArtifacts)) break;
+
         // Solo mode: one agent reply per user message. Pause after the turn
         // and wait for the next inject (which will resume() us automatically).
         if (this.mode === 'solo') {
@@ -3280,6 +3328,8 @@ export class ChatOrchestrator {
       // Why a room stopped by failing (the last error the model service gave), so it can be read after the fact; null otherwise.
       error: this.completionReason === 'error_limit_reached' ? this.lastError : null,
       doneWhen: { checks: this.doneWhen.criteria.length, blocks: this.doneWhen.blocks, lastResult: this.doneWhen.lastResult },
+      // Set while the room is paused because one person kept repeating themselves ({ agentName, count, similarity, atTurn }); null otherwise.
+      repeatPause: this.repeatPause,
       critic: { enabled: this.critic.enabled, calls: this.critic.calls, maxCalls: this.critic.maxCalls, minScore: this.critic.minScore },
       // A company's room: which company, what applies, and how the safety layer has acted this session. Null for a plain room.
       policy: this.policy

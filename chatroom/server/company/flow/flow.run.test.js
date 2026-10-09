@@ -19,7 +19,24 @@ afterEach(async () => { while (cleanups.length) await cleanups.pop()(); clearRoo
 
 const PROMPT = 'A studio that makes alpine snow-safety posters and the image templates to draw them.';
 
-function setup({ handlers = {}, script = () => 'The file looks right to me, and I checked the first draw.' } = {}) {
+// What the scripted people say. It changes every turn, as a model's words do: three alike messages in a row from one person is what the
+// room's repeat check pauses for (and with speaking order partly random, a constant line made this file fail now and then).
+const LINES = [
+  'The file looks right to me, and I checked the first draw against the brief.',
+  'I would trim the second variable, since two of its values describe the same thing in different words.',
+  'The weights are balanced, but the rare values never appear in the draws I looked at this round.',
+  'Nobody has opened the reference yet, so I will compare the sentence to it before we call this done.',
+  'My concern is the title: it runs close to the length limit and the subtitle repeats part of it.',
+  'The last draw matches the mood we wanted, though the lighting is flatter than the first two.',
+  'I have read the notes from the other desk, and nothing in them conflicts with what we have so far.',
+  'Let us hold the current version and ask the reviewer to look once more before anyone changes it.',
+  'The brief says six variables; I count six, each with twelve values, so the structure is fine.',
+  'One value in the perch list names a real brand, which should be replaced with a generic noun phrase.',
+  'The sentence reads smoothly when read aloud, which suggests the placeholders are in sensible places.',
+  'I propose we stop revising here and let the lead decide whether the file is ready to propose.',
+];
+
+function setup({ handlers = {}, script = (n) => LINES[n % LINES.length] } = {}) {
   let kit;
   const ask = fakeAsk(handlers, { castings: () => [...kit.services.flow.store.flows.values()].flatMap(f => Object.values(f.cast.castings)) });
   const makeAsk = ({ spend, limitUsd }) => async (call) => {

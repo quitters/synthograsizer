@@ -12,6 +12,7 @@ An autonomous multi-agent chat room powered by Google's Gemini API. Create AI ag
 - **Consensus Detection**: Automatic conversation completion when agents reach agreement
 - **A lead agent ends the session (the default)**: only the lead's own `[CONSENSUS REACHED]` / `[END SESSION]` ends a group chat (reason `lead_closed`); the other agents' markers are recommendations the lead is shown. The lead is the first agent unless you name one (Settings → Consensus → "Who ends the session", or `leadAgent` in `POST /api/chat/consensus-settings`). Agreeable agents echoing each other used to close sessions early. `closeBy: "vote"` restores the old quorum vote; solo chats always use it.
 - **Limits** (same settings, default off): `minTurns` — nothing ends the session before that turn; `maxTurns` — the session ends after that many turns whatever the agents say (`turn_limit_reached`), with a warning in the last round
+- **A repeat check** (on by default, `repeatWindow` in the same settings; `0` turns it off, `2` to `10` is how many near-identical messages in a row trip it, default `3`): when one person's last three messages say almost the same thing and nothing new came of them, the room pauses with a note from "Loop check" naming who, and waits for a person (resume it, or send a message). It compares the words of each message (fenced code is left out, so re-posting a revised file is not a repeat) and ignores short messages; a turn that saved or rendered a file, made a picture, started research or wrote a workspace file counts as something new. `getState().repeatPause` says who while it is paused; the event is `repeat_pause`. A company's room always has it, and records `repeat_pause` (who and how many, never the words) in its audit log. See `server/services/repeatDetector.js`.
 
 ### Agent Capabilities
 - **Image Generation**: Agents can generate images using `[IMAGE: prompt]` syntax (Gemini Image Pro)
@@ -335,7 +336,7 @@ A company's room is reached with `X-Room-Id: <roomId>` (or `?room=` for the even
 | POST | `/api/company/:id/publish/:item/approve`, `/reject`, `/rescreen` | The owner decides (a block cannot be approved or re-screened) |
 | GET | `/api/company/:id/publish/:item/export` | The approved work with its AI-generated label |
 
-Events a company's room adds: `message_withheld`, `provider_refusal`, `safety_pause`, `safety_notice`, `publish_proposed`. Operator settings: `COMPANY_DRAFTING_THEMES`, `COMPANY_PUBLISHING_AUDIENCE`, `COMPANY_MAX_AGENTS`, `COMPANY_MAX_TURNS`,
+Events a company's room adds: `message_withheld`, `provider_refusal`, `safety_pause`, `safety_notice`, `publish_proposed`. (Any room: `repeat_pause`.) Operator settings: `COMPANY_DRAFTING_THEMES`, `COMPANY_PUBLISHING_AUDIENCE`, `COMPANY_MAX_AGENTS`, `COMPANY_MAX_TURNS`,
 `COMPANY_TOKEN_LIMIT`, `COMPANY_SPEND_LIMIT_USD`, `COMPANY_MAX_SCREEN_STRIKES`, `COMPANY_MAX_PENDING`, `COMPANY_TOOLS`, `COMPANY_SCREEN_MODEL`, `COMPANY_SCREEN_DRAFTS=0` (local only), `COMPANY_OPERATOR_POLICY` (a policy file; ignored when hosted).
 `npm run test:redteam` runs the live red team (see [redteam/README.md](redteam/README.md)).
 

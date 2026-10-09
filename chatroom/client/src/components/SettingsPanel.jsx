@@ -21,7 +21,8 @@ export function SettingsPanel({ agents, isRunning, onBranchRestored }) {
     closeBy: 'lead',   // 'lead' (default) | 'vote'
     leadAgent: '',
     minTurns: 0,
-    maxTurns: 0
+    maxTurns: 0,
+    repeatWindow: 3
   });
   const [newPhrase, setNewPhrase] = useState('');
 
@@ -456,6 +457,19 @@ export function SettingsPanel({ agents, isRunning, onBranchRestored }) {
               />
               <p className="help-text">
                 Ends the session whatever else has happened, so it never depends on the agents agreeing. The agents are warned in the last round so the work is finished. 0 = no limit.
+              </p>
+            </div>
+            <div className="setting-group">
+              <label>Pause when someone repeats themselves</label>
+              <input
+                type="number"
+                min="0"
+                max="10"
+                value={consensusSettings.repeatWindow ?? 3}
+                onChange={(e) => updateConsensusSetting('repeatWindow', parseInt(e.target.value, 10) || 0)}
+              />
+              <p className="help-text">
+                If one agent's last this-many messages say almost the same thing and nothing new came of them (no file saved, no picture made), the session pauses so you can look. Resume it, or send a message to change course. 3 by default; 0 = never.
               </p>
             </div>
 
