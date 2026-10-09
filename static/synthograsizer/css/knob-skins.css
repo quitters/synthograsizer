@@ -7,11 +7,12 @@
      --knob-color                          the knob's own hue (set by app.js)
      --knob-t / --knob-n / --knob-angle    position 0..1, number of values, pointer angle (set by app.js: setKnobScale)
      --k-surface --k-surface-2 --k-ink --k-ink-2 --k-line   the panel tokens below, mapped from each theme
+   The same tokens (and --knob-color/-t/-n/-angle, --dpad-vi/--dpad-vn) are set on #center-control for a D-pad skin.
    With no data-skin the knobs keep the classic look.
    ═══════════════════════════════════════════════════════════════════════ */
 
 /* Panel tokens: Hardware theme (the default chassis) */
-#knobs-container {
+#knobs-container, #center-control {
   --k-surface:   var(--hw-panel, #e4dccf);
   --k-surface-2: var(--hw-lcd-bg, #f0e8d0);
   --k-ink:       var(--hw-text, #2e2418);
@@ -19,7 +20,7 @@
   --k-line:      #7a6e5e;
 }
 /* Cel-Pastel: the knobs sit on paper cards with an ink outline */
-body.theme-cel-pastel #knobs-container {
+body.theme-cel-pastel #knobs-container, body.theme-cel-pastel #center-control {
   --k-surface:   var(--cp-paper, #fffdf6);
   --k-surface-2: var(--cp-paper2, #f4efe2);
   --k-ink:       var(--cp-ink, #1d2233);

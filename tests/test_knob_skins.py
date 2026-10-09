@@ -57,7 +57,7 @@ def test_every_rule_is_scoped_to_a_skin_or_is_the_token_block():
         for part in [p.strip() for p in sel.split(",") if p.strip()]:
             if re.match(r"^(from|to|\d+%)$", part):
                 continue
-            assert "#knobs-container" in part, f"a rule is not scoped to the knob container: {part[:80]}"
+            assert "#knobs-container" in part or "#center-control" in part, f"a rule is not scoped to the knob container: {part[:80]}"
 
 
 def test_app_sets_the_three_skin_variables_on_render_and_update():

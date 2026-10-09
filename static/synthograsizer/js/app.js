@@ -669,6 +669,16 @@ export class SynthograsizerSmall {
       sublabel.textContent = total > 1 ? `${valueIndex + 1} of ${total} · ▴▾ to step` : '';
     }
 
+    // The D-pad gets the same numbers a knob does (see setKnobScale), plus where the variable sits in the list, for a D-pad skin
+    // (data-skin on #center-control) to draw "step 3 of 6" and "variable 4 of 13" in CSS.
+    const pad = this.elements.centerControl;
+    if (pad) {
+      pad.style.setProperty('--knob-color', color);
+      this.setKnobScale(pad, valueIndex, variable.values.length);
+      pad.style.setProperty('--dpad-vi', String(this.currentVariableIndex));
+      pad.style.setProperty('--dpad-vn', String(this.variables.length));
+    }
+
     // Update colors
     document.documentElement.style.setProperty('--current-color', color);
 
