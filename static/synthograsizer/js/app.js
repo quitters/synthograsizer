@@ -974,6 +974,7 @@ export class SynthograsizerSmall {
       const item = document.createElement('div');
       item.className = 'knob-item' + (index === this.currentVariableIndex ? ' active' : '');
       item.style.setProperty('--knob-color', color);
+      this.setKnobScale(item, valueIndex, totalValues);
       item.dataset.index = index;
 
       // Keyboard access. Roving tabindex, so the rack costs ONE tab stop
@@ -1138,6 +1139,17 @@ export class SynthograsizerSmall {
   }
 
   /**
+   * Give a knob the three numbers a knob skin (data-skin on #knobs-container) draws from, in pure CSS:
+   * --knob-t the position 0..1, --knob-n the number of values (one notch each), --knob-angle the pointer angle.
+   */
+  setKnobScale(item, valueIndex, totalValues) {
+    const t = totalValues > 1 ? valueIndex / (totalValues - 1) : 0;
+    item.style.setProperty('--knob-t', t.toFixed(4));
+    item.style.setProperty('--knob-n', String(totalValues));
+    item.style.setProperty('--knob-angle', `${(-135 + 270 * t).toFixed(2)}deg`);
+  }
+
+  /**
    * Update a single knob's display (value label + indicator rotation)
    */
   updateKnobDisplay(index) {
@@ -1158,6 +1170,7 @@ export class SynthograsizerSmall {
     if (indicator) {
       indicator.style.transform = `translateX(-50%) rotate(${rotation - 135}deg)`;
     }
+    this.setKnobScale(item, valueIndex, totalValues);
 
     const label = item.querySelector('.knob-value-label');
     if (label) {

@@ -428,6 +428,29 @@ body.mode-composer .active-profile-pill { display: none; }
   color: #2e2418;
 }
 
+/* Knob style: one select in the ⋯ menu (the skins live in knob-skins.css) */
+.abm-select-row { padding: 4px 8px 6px; }
+.abm-select {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: #2e2418;
+  background: #fff;
+  border: 1.5px solid #5a5040;
+  border-radius: 3px;
+  padding: 5px 6px;
+  cursor: pointer;
+}
+body.theme-cel-pastel .abm-select {
+  font-family: var(--cp-font-display);
+  font-weight: 600;
+  border-color: var(--cp-ink);
+  border-radius: 8px;
+  color: var(--cp-ink);
+}
+
 /* ── AI Studio Tools ──────────────────────────────────────────────────────
    Lives inside the app-bar's LEFT zone, after the brand. Shown in Studio mode
    only — hidden in Perform (minimal live layout) and Composer, matching the
