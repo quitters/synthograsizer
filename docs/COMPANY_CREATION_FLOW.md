@@ -86,6 +86,8 @@ Plain files served by the chat server, with a policy that lets no script run but
 | `COMPANY_FLOW_MAX_PEOPLE` | 32 | people in one company (1 to 200) |
 | `COMPANY_FLOW_MAX_SPEND_USD` | 8 | the most one flow may spend writing people (the owner's `budgetUsd` can only lower it) |
 | `COMPANY_HALL=0` | on | close the Hall for every company |
+| `COMPANY_OWNER_AUTH` | `off` | `key` (an owner key, for a machine you work on) or `google` (a Google account from `COMPANY_OWNER_EMAILS`, for the website) instead of the visitor cookie; setup in [OWNER_SIGN_IN.md](OWNER_SIGN_IN.md) |
+| `COMPANY_OWNER_SESSION_DAYS` | 30 | how long a sign-in lasts (1 to 365) |
 | `COMPANY_MAX_MESSAGES`, `COMPANY_MAX_WORKSPACE_WRITES` | 30, 20 | most messages and workspace writes one person makes in a session |
 
 The roster and the Hall use `node:sqlite`: Node 22.12 needs `--experimental-sqlite` (`npm run server` and `npm test` pass it), 22.13+ does not. Without it the roster answers 503 and rooms work exactly as before. The database (`company.sqlite`, next to the company folders) is created only when something needs it, and every statement filters by owner.
@@ -122,5 +124,5 @@ What the people did with the Hall: the lead copied each version into the workspa
 - A sheet is a model's writing. The blind review is advice, not a gate; the screen reads for harm, not for taste. A person still reads the sheets they care about.
 - The quiz is a label for a simulation, not an assessment. It is not given to anyone, and not used on a person.
 - The roster is only as private as the machine it is on. Nothing here has been through the hosted privacy review (`HANDOFF_SERVICE_LAUNCH.md`), and the chat server is not deployed.
-- The owner is the visitor cookie. The console makes it easy to act as the owner, so on anything shared the sign-in in the service plan comes first.
+- By default the owner is the visitor cookie, which the console makes easy to act as. With `COMPANY_OWNER_AUTH` set to `key` or `google` the owner is an account (see [OWNER_SIGN_IN.md](OWNER_SIGN_IN.md)); that is the minimum before a server is reachable by anyone else. It is the owner and the accounts you list, not user accounts: no sign-up, no credits, no per-user spend limits.
 - The cost figures are round numbers from small runs.

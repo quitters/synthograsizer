@@ -19,11 +19,11 @@ export function createHallRouter(services) {
 
   /** The owner's company, the Hall, and the pieces every route wants. */
   const open = (req) => {
-    const company = store.getOwned(req.params.id, req.visitorId);
+    const company = store.getOwned(req.params.id, req.ownerId);
     if (!services.operator.hall.enabled) throw new PolicyError('The Hall is closed on this server by its operator.', { status: 403, code: 'hall_closed' });
     const hall = services.hall;
     const shape = { id: company.id, name: company.name, departments: company.departments.map(d => ({ id: d.id, name: d.name })) };
-    return { company, hall, shape, ownerId: req.visitorId, id: company.id };
+    return { company, hall, shape, ownerId: req.ownerId, id: company.id };
   };
   const q = (req, name) => (typeof req.query[name] === 'string' ? req.query[name] : null);
 

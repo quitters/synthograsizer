@@ -59,7 +59,7 @@ export function createApp({ company = createCompanyServices({ checkRenderer: pic
   // Every /api request belongs to one visitor's room (cookie-identified), so one
   // browser can no longer see or steer another's conversation, media or files.
   // A visitor's own company rooms are reachable too, by id, and only by their owner.
-  app.use('/api', createRoomMiddleware({ roomOwner: (id) => company.store.roomOwner(id) }));
+  app.use('/api', createRoomMiddleware({ roomOwner: (id) => company.store.roomOwner(id), ownerAuth: company.ownerAuth }));
 
   // What the shared workflow engine needs to act for this request's visitor only.
   // traceStore.record is invoked from inside orchestrator.broadcast (the chokepoint),

@@ -29,17 +29,17 @@ export function createRosterRouter(services) {
   router.get('/', handle((req, res) => {
     const roster = services.roster;
     const filter = { status: q(req, 'status'), archetype: q(req, 'archetype'), region: q(req, 'region'), tier: q(req, 'tier'), q: q(req, 'q'), limit: Number(req.query.limit) || 50, offset: Number(req.query.offset) || 0 };
-    res.json({ candidates: roster.listCandidates(req.visitorId, filter), total: roster.countCandidates(req.visitorId), max: roster.maxCandidates });
+    res.json({ candidates: roster.listCandidates(req.ownerId, filter), total: roster.countCandidates(req.ownerId), max: roster.maxCandidates });
   }));
 
   router.get('/spread', handle((req, res) => {
-    res.json({ spread: services.roster.spread(req.visitorId) });
+    res.json({ spread: services.roster.spread(req.ownerId) });
   }));
 
   router.post('/', handle((req, res) => {
     const body = checkBody(SCHEMAS.candidateImport, req.body);
     const profile = body.profile;
-    const candidate = services.roster.addCandidate(req.visitorId, {
+    const candidate = services.roster.addCandidate(req.ownerId, {
       profile, casting: normalizeCasting(body.casting || profile.x_pilot?.casting || profile.x_roster?.casting || {}),
       archetype: archetypeId(body.archetype || profile.x_pilot?.archetype || profile.x_roster?.archetype) || String(body.archetype || 'imported').slice(0, 40),
       role: body.role || profile.anchors?.role || profile.description || 'colleague', status: body.status || 'draft', skills: body.skills,
@@ -49,27 +49,27 @@ export function createRosterRouter(services) {
   }));
 
   router.get('/:cid', handle((req, res) => {
-    res.json({ candidate: services.roster.getCandidate(req.visitorId, req.params.cid) });
+    res.json({ candidate: services.roster.getCandidate(req.ownerId, req.params.cid) });
   }));
 
   router.get('/:cid/bio', handle((req, res) => {
-    const c = services.roster.getCandidate(req.visitorId, req.params.cid);
+    const c = services.roster.getCandidate(req.ownerId, req.params.cid);
     res.json({ name: c.name, bio: renderBio(c.profile) });
   }));
 
   router.get('/:cid/export', handle((req, res) => {
-    const c = services.roster.getCandidate(req.visitorId, req.params.cid);
+    const c = services.roster.getCandidate(req.ownerId, req.params.cid);
     res.setHeader('Content-Disposition', `attachment; filename="${c.name.replace(/[^A-Za-z0-9._-]+/g, '_')}.profile.json"`);
     res.json({ ...c.profile, x_roster: { archetype: c.archetype, role: c.role, casting: c.casting, quiz: c.quiz, checks: c.checks, status: c.status } });
   }));
 
   router.patch('/:cid', handle((req, res) => {
     const body = checkBody(SCHEMAS.candidatePatch, req.body);
-    res.json({ candidate: services.roster.updateCandidate(req.visitorId, req.params.cid, body) });
+    res.json({ candidate: services.roster.updateCandidate(req.ownerId, req.params.cid, body) });
   }));
 
   router.delete('/:cid', handle((req, res) => {
-    res.json(services.roster.deleteCandidate(req.visitorId, req.params.cid));
+    res.json(services.roster.deleteCandidate(req.ownerId, req.params.cid));
   }));
 
   return router;
@@ -81,8 +81,8 @@ export function createPeopleRouter(services) {
   const { store, audit } = services;
 
   const open = (req) => {
-    const company = store.getOwned(req.params.id, req.visitorId);
-    return { company, roster: services.roster, ownerId: req.visitorId, id: company.id };
+    const company = store.getOwned(req.params.id, req.ownerId);
+    return { company, roster: services.roster, ownerId: req.ownerId, id: company.id };
   };
 
   /** A department of this company, by id or name. */

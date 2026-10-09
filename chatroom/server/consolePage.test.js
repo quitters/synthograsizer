@@ -86,3 +86,20 @@ test('the console\'s builder turns a hostile name into text', async () => {
   assert.ok(el.children.every(c => c.nodeType === 3), 'every string became a text node');
   assert.equal(el.className, 'x');
 });
+
+test('the console signs the owner in without keeping the key: a password field, no browser storage, and a refusal to sign in goes to the sign-in page', () => {
+  const js = fs.readFileSync(path.join(dir, 'console.js'), 'utf8');
+  assert.match(js, /type: 'password'/, 'the owner key is typed into a password field');
+  assert.match(js, /autocomplete: 'off'/);
+  assert.doesNotMatch(js, /localStorage|sessionStorage|indexedDB|document\.cookie/, 'the page keeps nothing of the key or the session: the cookie is HttpOnly and the server\'s');
+  assert.match(js, /e\.code === 'sign_in_required'/, 'a 401 from the server sends the visitor to the sign-in page');
+  assert.match(js, /parts\[0\] === 'signin'/);
+  assert.match(js, /key\.value = ''/, 'the field is emptied after a sign-in');
+});
+
+test('the console signs in with Google by a link to the server, not by loading anything from Google', () => {
+  const js = fs.readFileSync(path.join(dir, 'console.js'), 'utf8');
+  assert.match(js, /href: state\.signInUrl/, 'a link to the start address the server gives');
+  assert.doesNotMatch(js, /accounts\.google\.com|gsi\/client|googleapis|gstatic/, 'no script, frame or request to Google from the page: the server does that');
+  assert.doesNotMatch(fs.readFileSync(path.join(dir, 'index.html'), 'utf8'), /google/i);
+});

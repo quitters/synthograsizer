@@ -27,6 +27,7 @@ import { MIGRATIONS } from './flow/migrations.js';
 import { admitDepartment } from './flow/admit.js';
 import { FlowStore } from './flow/flowStore.js';
 import { FlowService } from './flow/flow.js';
+import { OwnerAuth } from './ownerAuth.js';
 import { createModel } from './flow/model.js';
 import { getRoom as defaultGetRoom } from '../services/sessionRegistry.js';
 
@@ -35,14 +36,19 @@ import { getRoom as defaultGetRoom } from '../services/sessionRegistry.js';
  *   classify replaces the Gemini-backed reviewer (tests). extraHardLimits and extraScreenRules are for the red-team harness only. makeAsk replaces the model
  *   the creation flow writes with (tests), and getRoom the registry it starts rooms in. checkRenderer answers whether the service that draws pictures is up
  *   (the server passes one; without it a room that draws is not held back).
+ *   ownerGoogle (tests): where Google's endpoints are and how to call them, for the owner's Google sign-in (company/googleAuth.js).
  */
 export function createCompanyServices({
   dataDir = defaultDataDir(), env = process.env, classify = null, getClient = getGeminiClient, now = () => new Date(),
   extraHardLimits = [], extraScreenRules = [], extraPreamble = '',
-  makeAsk = ({ spend, limitUsd }) => createModel({ getClient, spend, limitUsd }).askJson, getRoom = defaultGetRoom, checkRenderer = null,
+  makeAsk = ({ spend, limitUsd }) => createModel({ getClient, spend, limitUsd }).askJson, getRoom = defaultGetRoom, checkRenderer = null, ownerGoogle = {},
 } = {}) {
   const operator = loadOperator({ env, dataDir });
   for (const warning of operator.warnings) console.warn(`[company] ${warning}`);
+  // Who the owner is: the visitor cookie (the default) or, with COMPANY_OWNER_AUTH=key, an account that signs in with a key
+  const ownerAuth = new OwnerAuth({ dataDir, env, now, hosted: operator.hosted, google: ownerGoogle });
+  for (const warning of ownerAuth.warnings) console.warn(`[company] ${warning}`);
+  if (ownerAuth.enabled && ownerAuth.justCreated) console.warn(`[company] Owner sign-in is on and this is its first start: the owner key is in ${ownerAuth.keyFile}. Paste it into the console's sign-in page.`);
 
   const audit = new AuditLog({ rootDir: dataDir, now });
   const store = new CompanyStore({ rootDir: dataDir, operator, now });
@@ -114,5 +120,5 @@ export function createCompanyServices({
     }
   }
 
-  return { dataDir, operator, audit, store, screen, publish, flow, policyForRoom, attach, get roster() { return needRoster(); }, get hall() { return needHall(); }, tryRoster, tryHall, close };
+  return { dataDir, operator, ownerAuth, audit, store, screen, publish, flow, policyForRoom, attach, get roster() { return needRoster(); }, get hall() { return needHall(); }, tryRoster, tryHall, close };
 }

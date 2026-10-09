@@ -112,6 +112,7 @@ async function route() {
   const parts = location.hash.replace(/^#\/?/, '').split('/').filter(Boolean).map(decodeURIComponent);
   window.scrollTo(0, 0);
   try {
+    if (parts[0] === 'signin') { mark(''); await signInView(); return; }
     if (!parts.length) { mark('home'); await homeView(); }
     else if (parts[0] === 'new') { mark('new'); await newView(); }
     else if (parts[0] === 'flow' && parts[1]) { mark('new'); await flowView(parts[1]); }
@@ -119,12 +120,82 @@ async function route() {
     else if (parts[0] === 'roster') { mark('roster'); await rosterView(parts[1] || null); }
     else fill(app, h('div', { class: 'empty' }, h('h2', {}, 'Nothing here'), h('a', { href: '#/' }, 'Back to your companies')));
   } catch (e) {
+    // With owner sign-in on, a visitor who has not signed in is sent to the sign-in page, not shown an error
+    if (e instanceof ApiError && e.code === 'sign_in_required') { ownerNow = null; location.hash = '#/signin'; return; }
     fail(e);
     fill(app, h('div', { class: 'empty' }, h('h2', {}, e instanceof ApiError && e.status === 404 ? 'Not found' : 'That did not load'), h('p', {}, e.message),
       e instanceof ApiError && e.code === 'unreachable' ? h('button', { onclick: route }, 'Try again') : h('a', { href: '#/' }, 'Back to your companies')));
   }
 }
 window.addEventListener('hashchange', route);
+
+// ── the owner: signing in and out (only when the server has COMPANY_OWNER_AUTH=key) ──
+
+let ownerNow = null;
+/** What the server says about owner sign-in: { mode: 'off' | 'key', signedIn }. */
+async function ownerState() { return (ownerNow ||= await api('GET', '/api/company/owner')); }
+
+/** The corner of the header: who is signed in, and a way out. Nothing when the browser itself is the owner. */
+async function showWhoAmI() {
+  const box = document.getElementById('whoami');
+  if (!box) return;
+  let state = null;
+  try { state = await ownerState(); } catch { /* the page says what is wrong where it matters */ }
+  if (!state || state.mode === 'off' || !state.signedIn) { fill(box); return; }
+  fill(box, `Signed in as ${state.label || 'the owner'} · `, h('button', { class: 'link', onclick: signOut }, 'Sign out'));
+}
+
+async function signOut() {
+  const done = await attempt(() => api('POST', '/api/company/owner/signout', {}), 'Signed out.');
+  if (!done) return;
+  ownerNow = null;
+  location.hash = '#/signin';
+  await showWhoAmI();
+}
+
+async function signInView() {
+  ownerNow = null;
+  const state = await ownerState();
+  if (state.mode === 'off') {
+    fill(app, h('div', { class: 'empty' }, h('h2', {}, 'No sign-in here'), h('p', {}, 'This server has owner sign-in switched off, so this browser is the owner of the companies it made.'),
+      h('a', { href: '#/' }, 'Your companies')));
+    await showWhoAmI();
+    return;
+  }
+  if (state.signedIn) { location.hash = '#/'; return; }
+  if (state.mode === 'google') {
+    // Signing in with Google is a trip to Google and back (the server does it; this page loads nothing from Google), so it is a link, not a form
+    fill(app, h('div', { class: `card${state.problem ? ' warn' : ''}` },
+      h('h2', {}, 'Sign in as the owner'),
+      h('p', { class: 'sub' }, 'Companies here belong to a Google account. Only the accounts the operator listed can own companies on this server.'),
+      state.problem
+        ? h('p', {}, state.problem)
+        : h('div', { class: 'row' }, h('a', { class: 'btn primary', href: state.signInUrl }, 'Sign in with Google'))));
+    await showWhoAmI();
+    return;
+  }
+  const key = h('input', { type: 'password', name: 'key', autocomplete: 'off', spellcheck: 'false', required: true, 'aria-label': 'Owner key' });
+  const button = h('button', { class: 'primary', type: 'submit' }, 'Sign in');
+  const form = h('form', { class: 'card' },
+    h('h2', {}, 'Sign in as the owner'),
+    h('p', { class: 'sub' }, 'Companies here belong to the owner, not to a browser. Paste the owner key to open them from this one.'),
+    field('Owner key', key, 'It is the one line in owner/owner.key in this server\'s data folder (the server said where when it first started). Anyone with the key is the owner; keep it like a password.'),
+    h('div', { class: 'row' }, button));
+  form.addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    button.disabled = true;
+    const done = await attempt(() => api('POST', '/api/company/owner/signin', { key: key.value }), 'Signed in.');
+    button.disabled = false;
+    if (!done) { key.select(); return; }
+    key.value = '';
+    ownerNow = null;
+    await showWhoAmI();
+    location.hash = '#/';
+  });
+  fill(app, form);
+  key.focus();
+  await showWhoAmI();
+}
 
 /** An input that saves when you leave it, not on every keystroke. */
 function field(label, el, hint) {
@@ -586,3 +657,4 @@ async function showCandidate(id, detail, reload) {
 }
 
 route();
+showWhoAmI();
