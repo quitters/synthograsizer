@@ -5,10 +5,14 @@
  *   npm run owner -- status                      who owns what in the data folder, and whether an owner account exists
  *   npm run owner -- init [--owner-id <id>]      make the owner account and its key (under an id that already owns companies, if you give one: nothing moves)
  *   npm run owner -- rotate                      a new key; every session ends; the owner id stays
- *   npm run owner -- adopt --from <id> [--apply] move what another owner id owns to the owner (a dry run unless --apply; it backs up first)
+ *   npm run owner -- adopt --from <id> [--to <id> | --to-email <address>] [--apply]
+ *                                                move what another owner id owns to an owner (a dry run unless --apply; it backs up first). The
+ *                                                owner is the key owner by default; --to-email names a Google account that has signed in once
+ *                                                (status lists them), --to an owner id.
  *
  * --data <folder> names another data folder (default: the chat server's: CHATROOM_DATA_DIR, or chatroom/data). Stop the chat server before init,
- * rotate or adopt --apply: it keeps companies in memory. The key is written to <data>/owner/owner.key and is never printed here.
+ * rotate or adopt --apply: it keeps companies in memory. The key is written to <data>/owner/owner.key and is never printed here. With
+ * COMPANY_OWNER_AUTH=google there is no key: the owner of a company is a Google account, whose owner id the server records the first time it signs in.
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -28,12 +32,17 @@ const owner = (extra = {}) => new OwnerAuth({ dataDir, env: { COMPANY_OWNER_AUTH
 const accountFile = path.join(dataDir, 'owner', 'owner.json');
 const hasAccount = () => fs.existsSync(accountFile);
 
+const googleAccounts = () => {
+  try { return JSON.parse(fs.readFileSync(path.join(dataDir, 'owner', 'accounts.json'), 'utf8')).accounts || {}; } catch { return {}; }
+};
+
 function describeOwners(accountId) {
+  const accounts = googleAccounts();
   const owners = survey(dataDir);
   if (!owners.size) { say('  (no company, flow or roster in this data folder yet)'); return; }
   for (const [id, o] of owners) {
     const rows = Object.entries(o.rows).map(([t, n]) => `${t} ${n}`).join(', ');
-    say(`  ${id}${id === accountId ? '   <- the owner account' : ''}`);
+    say(`  ${id}${id === accountId ? '   <- the key owner' : ''}${accounts[id] ? `   <- Google account ${accounts[id].email}` : ''}`);
     say(`      companies: ${o.companies.length ? o.companies.map(c => `${c.name} (${c.id.slice(0, 8)})`).join(', ') : 'none'}; flows: ${o.flows}${rows ? `; roster and hall rows: ${rows}` : ''}`);
   }
 }
@@ -41,15 +50,20 @@ function describeOwners(accountId) {
 try {
   if (command === 'status') {
     say(`data folder: ${dataDir}`);
+    const accounts = googleAccounts();
+    if (Object.keys(accounts).length) {
+      say('Google accounts that have signed in (the owner id each one is):');
+      for (const [id, a] of Object.entries(accounts)) say(`  ${a.email}   ${id}   last ${a.lastSeen}`);
+    }
     if (hasAccount()) {
       const a = JSON.parse(fs.readFileSync(accountFile, 'utf8'));
-      say(`owner account: ${a.ownerId} (made ${a.createdAt}, key changed ${a.keyChangedAt})`);
+      say(`key owner: ${a.ownerId} (made ${a.createdAt}, key changed ${a.keyChangedAt})`);
       say(`key file: ${path.join(dataDir, 'owner', 'owner.key')}${fs.existsSync(path.join(dataDir, 'owner', 'owner.key')) ? '' : '  (not there: the key was removed; rotate to make a new one)'}`);
       say('The server uses it when it starts with COMPANY_OWNER_AUTH=key.');
       say('who owns what:');
       describeOwners(a.ownerId);
     } else {
-      say('owner account: none yet. With COMPANY_OWNER_AUTH=key the server makes one at its first start, or run: init');
+      say('key owner: none yet. With COMPANY_OWNER_AUTH=key the server makes one at its first start, or run: init');
       say('who owns what:');
       describeOwners(null);
     }
@@ -64,8 +78,17 @@ try {
     const { keyFile } = owner().rotateKey();
     say(`A new key is in ${keyFile}. Every session has ended; a running server notices at once and nobody needs the old key.`);
   } else if (command === 'adopt') {
-    if (!hasAccount()) throw Object.assign(new Error('There is no owner yet: init.'), { quiet: true });
-    const to = JSON.parse(fs.readFileSync(accountFile, 'utf8')).ownerId;
+    let to = opt('to');
+    const email = opt('to-email');
+    if (email) {
+      const hit = Object.entries(googleAccounts()).find(([, a]) => a.email === email.trim().toLowerCase());
+      if (!hit) throw Object.assign(new Error(`No Google account ${email} has signed in to this server yet (status lists the ones that have). Sign in once, then run this again.`), { quiet: true });
+      to = hit[0];
+    }
+    if (!to) {
+      if (!hasAccount()) throw Object.assign(new Error('Say who to move to: --to-email <a Google account that has signed in>, --to <owner id>, or make a key owner first (init).'), { quiet: true });
+      to = JSON.parse(fs.readFileSync(accountFile, 'utf8')).ownerId;
+    }
     const from = opt('from');
     if (!from) throw Object.assign(new Error('Say which owner id to move from: --from <id> (status lists them).'), { quiet: true });
     if (flag('apply')) {

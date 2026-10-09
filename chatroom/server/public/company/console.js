@@ -141,8 +141,8 @@ async function showWhoAmI() {
   if (!box) return;
   let state = null;
   try { state = await ownerState(); } catch { /* the page says what is wrong where it matters */ }
-  if (!state || state.mode !== 'key' || !state.signedIn) { fill(box); return; }
-  fill(box, 'Signed in as the owner · ', h('button', { class: 'link', onclick: signOut }, 'Sign out'));
+  if (!state || state.mode === 'off' || !state.signedIn) { fill(box); return; }
+  fill(box, `Signed in as ${state.label || 'the owner'} · `, h('button', { class: 'link', onclick: signOut }, 'Sign out'));
 }
 
 async function signOut() {
@@ -156,13 +156,24 @@ async function signOut() {
 async function signInView() {
   ownerNow = null;
   const state = await ownerState();
-  if (state.mode !== 'key') {
+  if (state.mode === 'off') {
     fill(app, h('div', { class: 'empty' }, h('h2', {}, 'No sign-in here'), h('p', {}, 'This server has owner sign-in switched off, so this browser is the owner of the companies it made.'),
       h('a', { href: '#/' }, 'Your companies')));
     await showWhoAmI();
     return;
   }
   if (state.signedIn) { location.hash = '#/'; return; }
+  if (state.mode === 'google') {
+    // Signing in with Google is a trip to Google and back (the server does it; this page loads nothing from Google), so it is a link, not a form
+    fill(app, h('div', { class: `card${state.problem ? ' warn' : ''}` },
+      h('h2', {}, 'Sign in as the owner'),
+      h('p', { class: 'sub' }, 'Companies here belong to a Google account. Only the accounts the operator listed can own companies on this server.'),
+      state.problem
+        ? h('p', {}, state.problem)
+        : h('div', { class: 'row' }, h('a', { class: 'btn primary', href: state.signInUrl }, 'Sign in with Google'))));
+    await showWhoAmI();
+    return;
+  }
   const key = h('input', { type: 'password', name: 'key', autocomplete: 'off', spellcheck: 'false', required: true, 'aria-label': 'Owner key' });
   const button = h('button', { class: 'primary', type: 'submit' }, 'Sign in');
   const form = h('form', { class: 'card' },

@@ -96,3 +96,10 @@ test('the console signs the owner in without keeping the key: a password field, 
   assert.match(js, /parts\[0\] === 'signin'/);
   assert.match(js, /key\.value = ''/, 'the field is emptied after a sign-in');
 });
+
+test('the console signs in with Google by a link to the server, not by loading anything from Google', () => {
+  const js = fs.readFileSync(path.join(dir, 'console.js'), 'utf8');
+  assert.match(js, /href: state\.signInUrl/, 'a link to the start address the server gives');
+  assert.doesNotMatch(js, /accounts\.google\.com|gsi\/client|googleapis|gstatic/, 'no script, frame or request to Google from the page: the server does that');
+  assert.doesNotMatch(fs.readFileSync(path.join(dir, 'index.html'), 'utf8'), /google/i);
+});
