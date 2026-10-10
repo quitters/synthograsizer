@@ -907,15 +907,21 @@ class StudioIntegration {
                     <span class="studio-toggle-label" style="font-size:13px;">✨ Auto-Enhance Each Prompt</span>
                     <input type="checkbox" id="image-batch-enhance-toggle">
                 </div>
+                <small style="color:#666;">Enhance style is set by the picker under the prompt box.</small>
                 <small style="color:#666;">Or enter one prompt per line below.</small>
             </div>
 
             <div class="studio-input-group">
                 <label>Prompt(s)</label>
                 <textarea id="image-prompt-input" style="width:100%; height:80px; padding:8px; border:1px solid #ddd; border-radius:6px; resize:vertical; font-family:'Inter'"></textarea>
-                <button type="button" id="enhance-prompt-btn" style="margin-top:8px; padding:8px 16px; background:#1E90FF; color:white; border:none; border-radius:6px; cursor:pointer; font-size:13px;">
-                    ✨ Enhance Prompt
-                </button>
+                <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:8px;">
+                    <button type="button" id="enhance-prompt-btn" style="padding:8px 16px; background:#1E90FF; color:white; border:none; border-radius:6px; cursor:pointer; font-size:13px;">
+                        ✨ Enhance Prompt
+                    </button>
+                    <select id="image-enhance-style" aria-label="Enhance style (also used by Auto-Enhance Each Prompt)" title="Used by Enhance Prompt and by Auto-Enhance Each Prompt in batch mode" style="padding:7px 8px; border:1px solid #ddd; border-radius:6px; font-size:12px; font-family:'Inter'; max-width:100%;">
+                        ${Object.entries(PromptEnhance.STYLES).map(([k, s]) => `<option value="${k}">${s.label}</option>`).join('')}
+                    </select>
+                </div>
             </div>
             <div class="studio-input-group">
                 <label>Reference Images (Optional)</label>
@@ -2101,6 +2107,19 @@ class StudioIntegration {
         });
         this.bindSafe('enhance-prompt-btn', 'onclick', () => this.enhancePrompt());
 
+        // Enhance style: remembered per browser; storage may be unavailable.
+        const styleSel = document.getElementById('image-enhance-style');
+        if (styleSel) {
+            try {
+                const stored = localStorage.getItem('synth.enhanceStyle');
+                const saved = PromptEnhance.LEGACY_STYLES[stored] || stored;
+                if (saved && PromptEnhance.STYLES[saved]) styleSel.value = saved;
+            } catch (_) {}
+            styleSel.onchange = () => {
+                try { localStorage.setItem('synth.enhanceStyle', styleSel.value); } catch (_) {}
+            };
+        }
+
         // ── Music Studio ──────────────────────────────────────────
         this.musicClient = new MusicStudioClient(this.app);
 
@@ -2956,45 +2975,6 @@ class StudioIntegration {
     getCurrentPrompt() {
         const output = document.getElementById('output-container');
         return output ? output.textContent.trim() : '';
-    }
-
-    async enhancePrompt() {
-        const promptInput = document.getElementById('image-prompt-input');
-        const originalText = promptInput.value;
-        if (!originalText.trim()) {
-            this.showToast("Please enter a prompt to enhance.", 'warning');
-            return;
-        }
-
-        const btn = document.getElementById('enhance-prompt-btn');
-        btn.textContent = "Enhancing...";
-        btn.disabled = true;
-
-        try {
-            const enhancementPrompt = `Optimize this image generation prompt for Gemini 3 Pro / Imagen 3. Add artistic style, lighting, and detail. Keep the original meaning. Prompt: "${originalText}"`;
-
-            const res = await fetch('/api/generate/text', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    prompt: enhancementPrompt,
-                    model: 'gemini-3.6-flash'
-                })
-            });
-
-            const data = await res.json();
-            if (data.status === 'success') {
-                promptInput.value = data.text.trim();
-            } else {
-                this.showToast("Failed to enhance prompt.", 'error');
-            }
-        } catch (e) {
-            console.error("Enhance failed", e);
-            this.showToast("Error enhancing prompt: " + e.message, 'error');
-        } finally {
-            btn.textContent = "✨ Enhance Prompt";
-            btn.disabled = false;
-        }
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -3861,15 +3841,23 @@ class StudioIntegration {
         return typeof str === 'string' && (str.startsWith('http') || str.startsWith('blob:'));
     }
 
-    async fetchEnhancedText(text) {
-        const enhancementPrompt = `Transform this image generation keyword list into a rich, descriptive narrative paragraph suitable for Gemini 3 Pro image generation. Keep the core concept but enhance with atmospheric details, lighting, composition, and style. Original keywords: "${text}"`;
+    // The Enhance style picked in the Image Studio (see prompt-enhance.js).
+    getEnhanceStyle() {
+        const sel = document.getElementById('image-enhance-style');
+        return (sel && PromptEnhance.STYLES[sel.value]) ? sel.value : PromptEnhance.DEFAULT_STYLE;
+    }
 
+    // Shared by the Enhance Prompt button and batch Auto-Enhance. Resolves to
+    // a clean prompt, ready to send to the image generator as-is; rejects when
+    // the reply is empty, a refusal, or too long to be a prompt, so callers
+    // keep the user's original text.
+    async enhanceText(text) {
         const res = await fetch('/api/generate/text', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                prompt: enhancementPrompt,
-                model: 'gemini-3.6-flash'
+                prompt: PromptEnhance.buildPrompt(text, this.getEnhanceStyle()),
+                model: PromptEnhance.MODEL
             })
         });
 
@@ -3878,10 +3866,14 @@ class StudioIntegration {
         }
 
         const data = await res.json();
-        if (data.status === 'success') {
-            return data.text.trim();
+        if (data.status !== 'success') {
+            throw new Error("Failed to enhance text");
         }
-        throw new Error("Failed to enhance text");
+        const cleaned = PromptEnhance.clean(data.text);
+        if (!cleaned) {
+            throw new Error("The enhancer didn't return a usable prompt");
+        }
+        return cleaned;
     }
 
     async generateVideo() {
@@ -4735,23 +4727,7 @@ class StudioIntegration {
         btn.disabled = true;
 
         try {
-            const enhancementPrompt = `Transform this image generation keyword list into a rich, descriptive narrative paragraph suitable for Gemini 3 Pro image generation. Keep the core concept but enhance with atmospheric details, lighting, composition, and style. Original keywords: "${currentPrompt}"`;
-
-            const res = await fetch('/api/generate/text', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    prompt: enhancementPrompt,
-                    model: 'gemini-3.6-flash'
-                })
-            });
-
-            const data = await res.json();
-            if (data.status === 'success') {
-                promptInput.value = data.text.trim();
-            } else {
-                this.showToast("Failed to enhance prompt.", 'error');
-            }
+            promptInput.value = await this.enhanceText(currentPrompt);
         } catch (e) {
             console.error(e);
             this.showToast("Error enhancing prompt: " + e.message, 'error');
@@ -5036,7 +5012,7 @@ class StudioIntegration {
             if (shouldEnhance) {
                 try {
                     console.log(`Enhancing prompt ${i + 1}:`, prompt.substring(0, 50) + '...');
-                    finalPrompt = await this.fetchEnhancedText(prompt);
+                    finalPrompt = await this.enhanceText(prompt);
                     console.log(`Enhanced result ${i + 1}:`, finalPrompt.substring(0, 50) + '...');
 
                     // Update status to show enhancement complete
