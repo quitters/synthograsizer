@@ -115,10 +115,17 @@ def capture_blocks(monkeypatch):
                                "gemini-3.1-flash-image", "1:1", **kwargs)
         return seen["blocks"]
 
+    run.seen = seen
     return run
 
 
 class TestBlockAssembly:
+    def test_every_gemini_image_call_carries_the_system_instruction(self, capture_blocks):
+        from backend.services.image_gen import IMAGE_SYSTEM_INSTRUCTION
+        capture_blocks()
+        assert capture_blocks.seen["kwargs"]["system_instruction"] == IMAGE_SYSTEM_INSTRUCTION
+        assert "never reply with text" in IMAGE_SYSTEM_INSTRUCTION.lower()
+
     def test_flat_list_produces_untagged_blocks(self, capture_blocks):
         """The pre-existing caller contract, unchanged."""
         blocks = capture_blocks(reference_images=[img(1), img(2)])

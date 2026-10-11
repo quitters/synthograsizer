@@ -499,6 +499,7 @@ def gen_image(client, model: str, blocks: List[Dict[str, Any]], *,
               safety_settings: Optional[List[Dict[str, str]]] = None,
               use_google_search: bool = False,
               image_count: int = 1,
+              system_instruction: Optional[str] = None,
               ) -> Tuple[Optional[bytes], Optional[str], Optional[str]]:
     """Gemini image generation via the active API mode.
 
@@ -513,7 +514,7 @@ def gen_image(client, model: str, blocks: List[Dict[str, Any]], *,
             response_modalities=response_modalities,
             thinking_level=thinking_level, include_thoughts=include_thoughts,
             safety_settings=safety_settings, use_google_search=use_google_search,
-            image_count=image_count,
+            image_count=image_count, system_instruction=system_instruction,
         )
 
     if safety_settings:
@@ -563,6 +564,8 @@ def gen_image(client, model: str, blocks: List[Dict[str, Any]], *,
         response_modalities=modalities,
         store=False,
     )
+    if system_instruction:
+        request["system_instruction"] = system_instruction
     try:
         interaction = create_interaction(client, tools=tools, **request)
     except SafetyBlockedError:
@@ -592,6 +595,7 @@ def _legacy_gen_image(client, model: str, blocks: List[Dict[str, Any]], *,
                       aspect_ratio, image_size, response_modalities,
                       thinking_level, include_thoughts,
                       safety_settings, use_google_search, image_count,
+                      system_instruction=None,
                       ) -> Tuple[Optional[bytes], Optional[str], Optional[str]]:
     """generateContent image path — semantics preserved from the pre-migration
     services/image_gen implementation.
@@ -603,6 +607,8 @@ def _legacy_gen_image(client, model: str, blocks: List[Dict[str, Any]], *,
     config_kwargs: Dict[str, Any] = {
         "response_modalities": response_modalities or ["Image"],
     }
+    if system_instruction:
+        config_kwargs["system_instruction"] = system_instruction
     if thinking_level or include_thoughts:
         thinking_cfg: Dict[str, Any] = {"include_thoughts": include_thoughts}
         if thinking_level:

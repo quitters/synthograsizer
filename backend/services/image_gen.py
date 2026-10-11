@@ -109,6 +109,21 @@ def generate_image(self, prompt: str, model_name: str = None, aspect_ratio: str 
     except Exception as e:
         raise Exception(f"Image generation failed: {str(e)}")
 
+# Sent as the system instruction on every Gemini image call. With image-only
+# output the model cannot answer in text, so a prompt that reads like a remark
+# or a question ("whoa that was unexpected!") used to fail with "Model failed
+# to generate an image asset" instead of producing a picture. Telling it that
+# every message is an image description fixes that without touching the user's
+# prompt. Deliberately no "don't draw the user's words as lettering" rule: it
+# was tried and it steered the output too much (a prompt like "nothing to see
+# here, folks" stopped producing the literal sign). Vague prompts may render
+# their own words as a sign or caption; that is accepted.
+IMAGE_SYSTEM_INSTRUCTION = (
+    "You are an image generator, not a chat assistant. Every message you receive is a description "
+    "of an image to create, no matter how short, vague, conversational, or like a question or remark it sounds. "
+    "Never reply with text and never ask for clarification: choose one concrete scene that fits the words and render it."
+)
+
 @retry_on_transient(max_attempts=3, backoff_base=5.0)
 def _generate_image_gemini(self, prompt: str, model_name: str, aspect_ratio: str,
                            reference_images: Optional[List[bytes]] = None,
@@ -184,6 +199,7 @@ def _generate_image_gemini(self, prompt: str, model_name: str, aspect_ratio: str
         safety_settings=safety_settings,
         use_google_search=use_google_search,
         image_count=image_count,
+        system_instruction=IMAGE_SYSTEM_INSTRUCTION,
     )
 
     if image_bytes is None:

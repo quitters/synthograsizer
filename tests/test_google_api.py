@@ -104,6 +104,15 @@ class TestStoreFalse:
         google_api.gen_image(client, "m", [google_api.text_block("x")])
         assert client.interactions.calls[0]["store"] is False
 
+    def test_gen_image_sends_system_instruction_only_when_given(self, interactions_mode):
+        data = base64.b64encode(PNG).decode()
+        client = FakeClient(make_interaction(steps=[image_step(data)]))
+        google_api.gen_image(client, "m", [google_api.text_block("x")])
+        assert "system_instruction" not in client.interactions.calls[0]
+        google_api.gen_image(client, "m", [google_api.text_block("x")],
+                             system_instruction="draw it")
+        assert client.interactions.calls[1]["system_instruction"] == "draw it"
+
     def test_every_recorded_call_carries_store_false(self, interactions_mode):
         client = FakeClient(make_interaction(output_text="hi"))
         google_api.gen_text(client, "m", [google_api.text_block("x")], json_mode=True)
