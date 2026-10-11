@@ -110,6 +110,10 @@ async runConversationLoop() {
     // 7. Check for completion
     if (checkForCompletion(content)) stop('consensus_reached');
 
+    // 7b. Repeat check: one person's last N messages almost the same, with nothing new made
+    //     (services/repeatDetector.js): pause the room for a person (`repeat_pause`)
+    if (repeatDetected(speaker, message)) pause();
+
     // 8. Delay for readability
     await delay(1500);
   }
@@ -584,6 +588,8 @@ try {
   await delay(2000);  // Continue despite errors
 }
 ```
+
+That is the idea; in practice (`_recordFailure`, `_backoffMs`) a failed turn backs off (1 s, 2 s, 4 s ... up to 30 s) and five in a row stop the session (`error_limit_reached`, with the reason in the state's `error`); a key the API rejects stops it at once. A turn the model service *declines* is not a failure to retry: it is final for the turn (the room is told, the next speaker is someone else), though it counts with the failed turns. A group room one person keeps repeating themselves in pauses (`repeat_pause`); a company's room adds the safety layer's pauses.
 
 ### Frontend
 
