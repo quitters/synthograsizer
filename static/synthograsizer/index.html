@@ -9,9 +9,10 @@
     <script src="js/debug-log.js?v=1"></script>
     <link rel="stylesheet" href="css/style.css?v=6">
     <link rel="stylesheet" href="css/code-overlay.css?v=3">
-    <link rel="stylesheet" href="css/layout-options.css?v=16">
+    <link rel="stylesheet" href="css/layout-options.css?v=17">
     <link rel="stylesheet" href="css/synth-hardware-theme.css?v=12">
     <link rel="stylesheet" href="css/cel-pastel-theme.css?v=8">
+    <link rel="stylesheet" href="css/knob-skins.css?v=1">
     <link rel="stylesheet" href="css/storyboard-panel.css?v=3">
     <link rel="stylesheet" href="css/storyboard-panel-hardware-theme.css?v=3">
     <!-- Composer (third mode) — styles scoped via @scope (#composer-mount) so they don't leak into Studio/Perform -->
@@ -574,6 +575,24 @@
                 <div class="abm-theme-row" role="group" aria-label="Theme">
                   <button type="button" class="theme-picker-btn active" data-theme="hardware" data-tip="Roland Juno / Korg Polysix aesthetic">Hardware</button>
                   <button type="button" class="theme-picker-btn" data-theme="cel-pastel" data-tip="1990s DIC pastels — Madeline / Care Bears">Cel-Pastel</button>
+                </div>
+                <div class="abm-section-label">Knob style</div>
+                <div class="abm-select-row">
+                  <select id="knob-skin-select" class="abm-select" aria-label="Knob style" data-tip="How the knobs look: a notch for every value">
+                    <option value="">Classic</option>
+                    <option value="enamel-spill-pool">Overflow Spill</option>
+                    <option value="stage-mask-sweep">Stage Mask · Sweep</option>
+                    <option value="high-sector-inverted">High Sector · Inverted</option>
+                    <option value="high-sector-blocks">High Sector · Blocks</option>
+                    <option value="arcade-jawbreaker-matte-rubber">Jawbreaker · Matte Rubber</option>
+                    <option value="arcade-jawbreaker-jelly-glow">Jawbreaker · Jelly Glow</option>
+                    <option value="enamel-spill-carved">Enamel · Carved Void</option>
+                    <option value="horizon-mass-solid">Horizon · Solid Mass</option>
+                    <option value="prism-shutter-high-key">Prism Shutter · Lab Plate</option>
+                    <option value="hungry-cyclops-sharp">Hungry Cyclops · Sharp</option>
+                    <option value="polymer-switch-wedge">Polymer · Wedge</option>
+                    <option value="dyed-canvas-linen">Canvas · Cream Linen</option>
+                  </select>
                 </div>
                 <div class="abm-divider" role="separator"></div>
                 <div class="abm-section-label">This App</div>
@@ -1882,6 +1901,24 @@
             themeBtns.forEach(function (btn) {
                 btn.addEventListener('click', function () { applyTheme(btn.dataset.theme); });
             });
+
+            // ── Knob style (a skin from css/knob-skins.css, set as data-skin on #knobs-container) ──
+            // Persisted as `synthograsizerKnobSkin`: '' = Classic, otherwise a slug from the select. A visitor with
+            // nothing saved gets Overflow Spill, the studio default.
+            var knobSkinSel = document.getElementById('knob-skin-select');
+            function applyKnobSkin(slug) {
+                var box = document.getElementById('knobs-container');
+                if (box) { if (slug) box.dataset.skin = slug; else delete box.dataset.skin; }
+                if (knobSkinSel) knobSkinSel.value = slug;
+                try { localStorage.setItem('synthograsizerKnobSkin', slug); } catch (e) {}
+            }
+            if (knobSkinSel) {
+                var savedSkin = 'enamel-spill-pool';
+                try { var stored = localStorage.getItem('synthograsizerKnobSkin'); if (stored !== null) savedSkin = stored; } catch (e) {}
+                if (!Array.prototype.some.call(knobSkinSel.options, function (o) { return o.value === savedSkin; })) savedSkin = 'enamel-spill-pool';
+                applyKnobSkin(savedSkin);
+                knobSkinSel.addEventListener('change', function () { applyKnobSkin(knobSkinSel.value); });
+            }
 
             // ── ⋯ "More" menu (theme · suite apps · what's new) ─────────
             var moreBtn = document.getElementById('app-bar-more-btn');

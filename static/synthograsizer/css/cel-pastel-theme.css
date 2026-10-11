@@ -1082,10 +1082,9 @@ body.theme-cel-pastel ::-webkit-scrollbar-thumb {
   .knob-item { flex: 0 0 auto; }
   /* Scale the wrapper (NOT the dial). The dial uses `inset: 6px` inside
      the wrapper, the ring uses `inset: 0`. Resizing the wrapper scales
-     both correctly. The indicator rotates around `center calc(50%+20px)`
-     which assumes the original 56px dial — bump the pivot to match. */
+     both correctly, and the indicator's pivot follows the dial. */
   .knob-dial-wrapper { width: 84px !important; height: 84px !important; }
-  .knob-indicator { transform-origin: center calc(50% + 26px) !important; }
+  /* (the indicator's pivot follows the dial's size by itself now: see .knob-indicator in style.css) */
 
   /* Connections become a collapsible drawer pinned by its header */
   .connections-group { padding: 8px !important; }
