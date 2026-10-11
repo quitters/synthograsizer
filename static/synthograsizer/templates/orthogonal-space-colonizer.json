@@ -1,0 +1,164 @@
+{
+  "promptTemplate": "A {{branching_orthodoxy}} structure chasing a {{attractor_swarm}} cloud, built from {{beam_gauge}} suffering {{decay_erosion}} painted in {{corrosion_alloy}}.",
+  "variables": [
+    {
+      "name": "branching_orthodoxy",
+      "feature_name": "Angles",
+      "values": [
+        {
+          "text": "strict orthogonal grid",
+          "weight": 3
+        },
+        {
+          "text": "chamfered 45 truss",
+          "weight": 3
+        },
+        {
+          "text": "diagonal bracing",
+          "weight": 2
+        },
+        {
+          "text": "octagonal lattice",
+          "weight": 2
+        },
+        {
+          "text": "diamond chevron",
+          "weight": 2
+        },
+        {
+          "text": "fractured crystalline",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "attractor_swarm",
+      "feature_name": "Cloud Dynamics",
+      "values": [
+        {
+          "text": "calm drift",
+          "weight": 3
+        },
+        {
+          "text": "roving magnetic cluster",
+          "weight": 3
+        },
+        {
+          "text": "twin vortex orbital",
+          "weight": 2
+        },
+        {
+          "text": "jittery pulse core",
+          "weight": 2
+        },
+        {
+          "text": "periodic implosion surge",
+          "weight": 2
+        },
+        {
+          "text": "violent collapse frenzy",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "beam_gauge",
+      "feature_name": "Stroke Profile",
+      "values": [
+        {
+          "text": "wire filament",
+          "weight": 3
+        },
+        {
+          "text": "slender conduit",
+          "weight": 3
+        },
+        {
+          "text": "industrial rebar",
+          "weight": 2
+        },
+        {
+          "text": "heavy girder",
+          "weight": 2
+        },
+        {
+          "text": "reinforced bulkhead",
+          "weight": 2
+        },
+        {
+          "text": "monolithic strut",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "decay_erosion",
+      "feature_name": "Rust Rate",
+      "values": [
+        {
+          "text": "eternal steel",
+          "weight": 3
+        },
+        {
+          "text": "slow oxidation",
+          "weight": 3
+        },
+        {
+          "text": "flaky patina",
+          "weight": 2
+        },
+        {
+          "text": "brittle spalling",
+          "weight": 2
+        },
+        {
+          "text": "aggressive rust molt",
+          "weight": 2
+        },
+        {
+          "text": "rapid ash crumble",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "corrosion_alloy",
+      "feature_name": "Palette",
+      "values": [
+        {
+          "text": "sterile raw iron",
+          "weight": 3
+        },
+        {
+          "text": "forged graphite amber",
+          "weight": 3
+        },
+        {
+          "text": "copper slag verdigris",
+          "weight": 2
+        },
+        {
+          "text": "sulfuric cadmium rust",
+          "weight": 2
+        },
+        {
+          "text": "toxic oxide violet",
+          "weight": 2
+        },
+        {
+          "text": "incandescent kiln slag",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "p5Code": "const angleMaps = {\n  \"strict orthogonal grid\": [0, Math.PI/2, Math.PI, 3*Math.PI/2],\n  \"chamfered 45 truss\": [0, Math.PI/4, Math.PI/2, 3*Math.PI/4, Math.PI, 5*Math.PI/4, 3*Math.PI/2, 7*Math.PI/4],\n  \"diagonal bracing\": [Math.PI/4, 3*Math.PI/4, 5*Math.PI/4, 7*Math.PI/4],\n  \"octagonal lattice\": [0, Math.PI/4, Math.PI/2, 3*Math.PI/4, Math.PI, 5*Math.PI/4, 3*Math.PI/2, 7*Math.PI/4],\n  \"diamond chevron\": [Math.PI/6, 5*Math.PI/6, 7*Math.PI/6, 11*Math.PI/6],\n  \"fractured crystalline\": [0, Math.PI/6, Math.PI/3, Math.PI/2, 2*Math.PI/3, 5*Math.PI/6, Math.PI, 7*Math.PI/6, 4*Math.PI/3, 3*Math.PI/2, 5*Math.PI/3, 11*Math.PI/6]\n};\n\nconst swarmMaps = {\n  \"calm drift\": { spd: 1.2, impl: 0.001 },\n  \"roving magnetic cluster\": { spd: 1.5, impl: 0.005 },\n  \"twin vortex orbital\": { spd: 2.5, impl: 0.01 },\n  \"jittery pulse core\": { spd: 5.0, impl: 0.02 },\n  \"periodic implosion surge\": { spd: 4.0, impl: 0.08 },\n  \"violent collapse frenzy\": { spd: 8.0, impl: 0.2 }\n};\n\nconst gaugeMaps = {\n  \"wire filament\": 6,\n  \"slender conduit\": 9,\n  \"industrial rebar\": 12,\n  \"heavy girder\": 16,\n  \"reinforced bulkhead\": 20,\n  \"monolithic strut\": 26\n};\n\nconst decayMaps = {\n  \"eternal steel\": 0.00025,\n  \"slow oxidation\": 0.0015,\n  \"flaky patina\": 0.004,\n  \"brittle spalling\": 0.0075,\n  \"aggressive rust molt\": 0.015,\n  \"rapid ash crumble\": 0.03\n};\n\nconst colorMaps = {\n  \"sterile raw iron\": [[180,190,200], [80,85,90]],\n  \"forged graphite amber\": [[60,60,60], [200,120,40]],\n  \"copper slag verdigris\": [[180,100,60], [60,180,140]],\n  \"sulfuric cadmium rust\": [[220,180,50], [180,60,20]],\n  \"toxic oxide violet\": [[100,150,140], [120,40,160]],\n  \"incandescent kiln slag\": [[255,220,100], [40,20,20]]\n};\n\nconst MAX_NODES = 2500;\nconst MAX_ATTRACTORS = 350;\nconst SEG_LEN = 15;\nconst MAX_DIST = 200;\nconst MIN_DIST = 8;\nconst CELL_SIZE = 80;\nconst BATCH_BINS = 10;\nconst SAFETY_FLOOR = 800;\nconst SOFT_CAP = 2000;\n\nlet nodes = [];\nlet attractors = [];\nlet grid = new Map();\nlet implosionState = 0; \nlet cx, cy;\nlet centerRoots = [];\n\nfunction spawnCenter(p) {\n  let r1 = {sx: cx, sy: cy, ex: cx, ey: cy-20, age: 0, ticks: 0, root: true, active: true};\n  let r2 = {sx: cx, sy: cy, ex: cx, ey: cy+20, age: 0, ticks: 0, root: true, active: true};\n  let r3 = {sx: cx, sy: cy, ex: cx-20, ey: cy, age: 0, ticks: 0, root: true, active: true};\n  let r4 = {sx: cx, sy: cy, ex: cx+20, ey: cy, age: 0, ticks: 0, root: true, active: true};\n  centerRoots = [r1, r2, r3, r4];\n  nodes.push(r1, r2, r3, r4);\n}\n\np.setup = function() {\n  p.createCanvas(800, 800);\n  cx = p.width / 2;\n  cy = p.height / 2;\n  \n  for(let i = 20; i < p.width; i += 40) {\n    nodes.push({sx: i, sy: 0, ex: i, ey: 20, age: 0, ticks: 0, root: true, active: true});\n    nodes.push({sx: i, sy: p.height, ex: i, ey: p.height-20, age: 0, ticks: 0, root: true, active: true});\n    nodes.push({sx: 0, sy: i, ex: 20, ey: i, age: 0, ticks: 0, root: true, active: true});\n    nodes.push({sx: p.width, sy: i, ex: p.width-20, ey: i, age: 0, ticks: 0, root: true, active: true});\n  }\n\n  spawnCenter(p);\n};\n\nfunction snapAngle(angle, mode) {\n  let angles = angleMaps[mode] || angleMaps[\"strict orthogonal grid\"];\n  let best = angles[0];\n  let minDiff = 999;\n  for (let a of angles) {\n    let diff = Math.abs(Math.atan2(Math.sin(angle - a), Math.cos(angle - a)));\n    if (diff < minDiff) {\n      minDiff = diff;\n      best = a;\n    }\n  }\n  return best;\n}\n\np.draw = function() {\n  const orthodoxy = p.getSynthVar('branching_orthodoxy') || 'strict orthogonal grid';\n  const swarm = p.getSynthVar('attractor_swarm') || 'calm drift';\n  const gauge = p.getSynthVar('beam_gauge') || 'wire filament';\n  const decayRate = p.getSynthVar('decay_erosion') || 'eternal steel';\n  const alloy = p.getSynthVar('corrosion_alloy') || 'sterile raw iron';\n\n  const swarmConf = swarmMaps[swarm];\n  const decayInc = decayMaps[decayRate];\n  const weight = gaugeMaps[gauge];\n  const colors = colorMaps[alloy];\n\n  p.background(10, 12, 15, 200);\n\n  let centerAlive = false;\n  for (let r of centerRoots) {\n    if (r.active && !r.dead) {\n      centerAlive = true;\n      break;\n    }\n  }\n  if (!centerAlive) {\n    spawnCenter(p);\n  }\n\n  if (p.random() < 0.3) {\n    attractors.push({x: p.random(0, p.width), y: p.random(0, 40), vx: 0, vy: 0});\n    attractors.push({x: p.random(0, p.width), y: p.random(p.height-40, p.height), vx: 0, vy: 0});\n    attractors.push({x: p.random(0, 40), y: p.random(0, p.height), vx: 0, vy: 0});\n    attractors.push({x: p.random(p.width-40, p.width), y: p.random(0, p.height), vx: 0, vy: 0});\n  }\n\n  while(attractors.length < MAX_ATTRACTORS) {\n    attractors.push({\n      x: p.random(80, p.width-80),\n      y: p.random(80, p.height-80),\n      vx: p.random(-1, 1),\n      vy: p.random(-1, 1)\n    });\n  }\n\n  if (p.random() < swarmConf.impl && implosionState === 0) {\n    implosionState = 60;\n  }\n\n  for (let a of attractors) {\n    if (implosionState > 0) {\n      let dx = cx - a.x;\n      let dy = cy - a.y;\n      let mag = Math.max(1, Math.sqrt(dx*dx + dy*dy));\n      a.x += (dx / mag) * swarmConf.spd * 3;\n      a.y += (dy / mag) * swarmConf.spd * 3;\n    } else {\n      a.x += a.vx * swarmConf.spd + (p.noise(a.x*0.01, p.frameCount*0.01)-0.5);\n      a.y += a.vy * swarmConf.spd + (p.noise(a.y*0.01, p.frameCount*0.01)-0.5);\n      if (a.x < 0 || a.x > p.width) a.vx *= -1;\n      if (a.y < 0 || a.y > p.height) a.vy *= -1;\n    }\n  }\n  if (implosionState > 0) implosionState--;\n\n  grid.clear();\n  for (let n of nodes) {\n    if (!n.active) continue;\n    let key = Math.floor(n.ex / CELL_SIZE) + ',' + Math.floor(n.ey / CELL_SIZE);\n    if (!grid.has(key)) grid.set(key, []);\n    grid.get(key).push(n);\n    n.pulls = 0;\n    n.dx = 0;\n    n.dy = 0;\n  }\n\n  let nextAttractors = [];\n  for (let a of attractors) {\n    let ax = Math.floor(a.x / CELL_SIZE);\n    let ay = Math.floor(a.y / CELL_SIZE);\n    let closestNode = null;\n    let record = MAX_DIST;\n    \n    for (let ox = -1; ox <= 1; ox++) {\n      for (let oy = -1; oy <= 1; oy++) {\n        let key = (ax + ox) + ',' + (ay + oy);\n        let cell = grid.get(key);\n        if (!cell) continue;\n        for (let n of cell) {\n          let d = p.dist(a.x, a.y, n.ex, n.ey);\n          if (d < MIN_DIST) {\n            record = -1;\n            break;\n          } else if (d < record) {\n            record = d;\n            closestNode = n;\n          }\n        }\n        if (record < 0) break;\n      }\n      if (record < 0) break;\n    }\n    \n    if (record > 0) {\n      nextAttractors.push(a);\n      if (closestNode) {\n        let dir = Math.atan2(a.y - closestNode.ey, a.x - closestNode.ex);\n        closestNode.dx += Math.cos(dir);\n        closestNode.dy += Math.sin(dir);\n        closestNode.pulls++;\n      }\n    }\n  }\n  attractors = nextAttractors;\n\n  let activeDecay = nodes.length > SAFETY_FLOOR ? decayInc : 0;\n  if (nodes.length > SOFT_CAP) {\n    activeDecay += 0.005;\n  }\n  if (implosionState > 0 && nodes.length > SAFETY_FLOOR) {\n    activeDecay += 0.01;\n  }\n\n  let newNodes = [];\n  for (let n of nodes) {\n    if (n.active && n.pulls > 0) {\n      let avgDir = Math.atan2(n.dy, n.dx);\n      let snapped = snapAngle(avgDir, orthodoxy);\n      let nx = n.ex + Math.cos(snapped) * SEG_LEN;\n      let ny = n.ey + Math.sin(snapped) * SEG_LEN;\n      \n      if (nx > 0 && nx < p.width && ny > 0 && ny < p.height) {\n        newNodes.push({sx: n.ex, sy: n.ey, ex: nx, ey: ny, age: 0, ticks: 0, root: false, active: true});\n      } else {\n        n.active = false;\n      }\n    }\n    \n    if (!n.root) {\n      n.ticks++;\n      if (n.ticks > 15) {\n        n.age += activeDecay;\n        if (n.age >= 1.0) n.dead = true;\n      }\n    }\n  }\n\n  nodes = nodes.filter(n => n.root || !n.dead);\n  for (let nn of newNodes) nodes.push(nn);\n  \n  if (nodes.length > MAX_NODES) {\n    let killCount = nodes.length - MAX_NODES;\n    for (let n of nodes) {\n      if (!n.root && killCount > 0) {\n        n.age += 0.5;\n        killCount--;\n      }\n    }\n  }\n\n  let bins = Array.from({length: BATCH_BINS}, () => []);\n  for (let n of nodes) {\n    let binIdx = Math.min(BATCH_BINS - 1, Math.floor(n.age * BATCH_BINS));\n    bins[binIdx].push(n);\n  }\n\n  p.drawingContext.lineCap = 'square';\n  p.drawingContext.lineJoin = 'miter';\n  \n  for (let i = 0; i < BATCH_BINS; i++) {\n    if (bins[i].length === 0) continue;\n    \n    let t = i / (BATCH_BINS - 1);\n    let r = p.lerp(colors[0][0], colors[1][0], t);\n    let g = p.lerp(colors[0][1], colors[1][1], t);\n    let b = p.lerp(colors[0][2], colors[1][2], t);\n    let alpha = p.lerp(255, 140, Math.pow(t, 2));\n    \n    p.stroke(r, g, b, alpha);\n    p.strokeWeight(Math.max(3.5, weight * p.lerp(1.0, 0.4, t)));\n    \n    p.drawingContext.beginPath();\n    for (let n of bins[i]) {\n      p.drawingContext.moveTo(n.sx, n.sy);\n      p.drawingContext.lineTo(n.ex, n.ey);\n    }\n    p.drawingContext.stroke();\n  }\n};\n",
+  "tags": [
+    {
+      "id": "tag_orthogonal_space_colonizer_01",
+      "type": "custom",
+      "label": "Designed and written by an agent swarm",
+      "description": "Concept, variables and code written by a crew of agents in the Agent Studio chat room (look1-orthogonal-space-colonizer) and played by the harness before it was accepted. Teamcrafter residency, 2026-10-09."
+    }
+  ]
+}

@@ -19,6 +19,7 @@ INSTRUMENTS = [
     "reaction-loom", "physarum-dreams", "chladni-plates", "orbital-resonance", "truchet-cathedral", "epicycle-atelier",
     "ferrofluid-magnetics", "murmuration", "cellular-garden", "shattered-stained-glass",
     "aperiodic-stained-glass", "hyperbolic-fractal-eye", "kinematic-drafting-rig", "camshaft-pillars", "cathedral-of-light", "chaos-ribbons", "boiling-voids", "torn-phosphor-fabric",
+    "moire-organza", "stitched-void", "hexagonal-sequin-tapestry", "archival-botanical-vitrine", "acrylic-stress-simulator", "snell-s-law-caustics", "orthogonal-space-colonizer", "vector-monitor-oscilloscope",
 ]
 
 

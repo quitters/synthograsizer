@@ -1,0 +1,164 @@
+{
+  "promptTemplate": "A shifting optical interference pattern of {{warp_geometry}} woven at {{thread_density}}, crossing at {{weft_rotation}} in a {{drift_tempo}} with a {{organza_palette}} palette.",
+  "variables": [
+    {
+      "name": "warp_geometry",
+      "feature_name": "Warp Geometry",
+      "values": [
+        {
+          "text": "Parallel Strands",
+          "weight": 3
+        },
+        {
+          "text": "Gentle Sine Swell",
+          "weight": 3
+        },
+        {
+          "text": "Concentric Arc Ripple",
+          "weight": 2
+        },
+        {
+          "text": "Bi-directional Chevron",
+          "weight": 2
+        },
+        {
+          "text": "Compressed Hyperbola",
+          "weight": 1
+        },
+        {
+          "text": "Radial Pinwheel Lattice",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "thread_density",
+      "feature_name": "Thread Density",
+      "values": [
+        {
+          "text": "Gauze Coarse",
+          "weight": 3
+        },
+        {
+          "text": "Linen Open Weave",
+          "weight": 3
+        },
+        {
+          "text": "Muslin Balanced",
+          "weight": 2
+        },
+        {
+          "text": "Organza Crisp",
+          "weight": 2
+        },
+        {
+          "text": "Habotai Sheer",
+          "weight": 1
+        },
+        {
+          "text": "Microfilament Shimmer",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "weft_rotation",
+      "feature_name": "Weft Rotation",
+      "values": [
+        {
+          "text": "Parallel Drift 0deg",
+          "weight": 3
+        },
+        {
+          "text": "Acute Shear 12deg",
+          "weight": 3
+        },
+        {
+          "text": "Bias Crossed 30deg",
+          "weight": 2
+        },
+        {
+          "text": "Rhombic Angle 45deg",
+          "weight": 2
+        },
+        {
+          "text": "Orthogonal Grid 60deg",
+          "weight": 1
+        },
+        {
+          "text": "Antagonistic Opposition 90deg",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "drift_tempo",
+      "feature_name": "Drift Tempo",
+      "values": [
+        {
+          "text": "Glacial Suspension",
+          "weight": 3
+        },
+        {
+          "text": "Tidal Float",
+          "weight": 3
+        },
+        {
+          "text": "Whispering Breeze",
+          "weight": 2
+        },
+        {
+          "text": "Rolling Surge",
+          "weight": 2
+        },
+        {
+          "text": "Fluttering Thermal",
+          "weight": 1
+        },
+        {
+          "text": "Turbulent Churn",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "organza_palette",
+      "feature_name": "Organza Palette",
+      "values": [
+        {
+          "text": "Raw Silk & Bone",
+          "weight": 3
+        },
+        {
+          "text": "Chartreuse & Slate",
+          "weight": 3
+        },
+        {
+          "text": "Indigo Smoke & Copper",
+          "weight": 2
+        },
+        {
+          "text": "Madder Root & Ochre",
+          "weight": 2
+        },
+        {
+          "text": "Iridescent Beetle Wing",
+          "weight": 1
+        },
+        {
+          "text": "Obsidian & Ultraviolet",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "p5Code": "let pg1, pg2, pg3;\nlet lastGeom = '', lastDens = '', lastPal = '';\nlet phase1 = 0, phase2 = 1000, phase3 = 2000;\n\nconst densityMap = {\n  'Gauze Coarse': 24,\n  'Linen Open Weave': 16,\n  'Muslin Balanced': 10,\n  'Organza Crisp': 7,\n  'Habotai Sheer': 5,\n  'Microfilament Shimmer': 3.5\n};\n\nconst weftMap = {\n  'Parallel Drift 0deg': 0,\n  'Acute Shear 12deg': 12,\n  'Bias Crossed 30deg': 30,\n  'Rhombic Angle 45deg': 45,\n  'Orthogonal Grid 60deg': 60,\n  'Antagonistic Opposition 90deg': 90\n};\n\nconst tempoMap = {\n  'Glacial Suspension': 0.1,\n  'Tidal Float': 0.3,\n  'Whispering Breeze': 0.7,\n  'Rolling Surge': 1.5,\n  'Fluttering Thermal': 2.8,\n  'Turbulent Churn': 5.0\n};\n\nconst paletteMap = {\n  'Raw Silk & Bone': { bg: '#EAE6DF', c1: 'rgba(200, 190, 180, 0.75)', c2: 'rgba(160, 150, 140, 0.75)', c3: 'rgba(130, 120, 110, 0.75)', blend: 'multiply' },\n  'Chartreuse & Slate': { bg: '#D1E231', c1: 'rgba(112, 128, 144, 0.8)', c2: 'rgba(80, 100, 120, 0.8)', c3: 'rgba(47, 79, 79, 0.8)', blend: 'multiply' },\n  'Indigo Smoke & Copper': { bg: '#0A1526', c1: 'rgba(184, 115, 51, 0.85)', c2: 'rgba(120, 140, 150, 0.85)', c3: 'rgba(80, 100, 110, 0.85)', blend: 'screen' },\n  'Madder Root & Ochre': { bg: '#2A0809', c1: 'rgba(204, 119, 34, 0.85)', c2: 'rgba(180, 80, 40, 0.85)', c3: 'rgba(139, 58, 58, 0.85)', blend: 'screen' },\n  'Iridescent Beetle Wing': { bg: '#081208', c1: 'rgba(75, 0, 130, 0.85)', c2: 'rgba(0, 250, 154, 0.85)', c3: 'rgba(50, 100, 200, 0.85)', blend: 'screen' },\n  'Obsidian & Ultraviolet': { bg: '#050505', c1: 'rgba(94, 16, 181, 0.9)', c2: 'rgba(120, 40, 200, 0.9)', c3: 'rgba(40, 10, 80, 0.9)', blend: 'screen' }\n};\n\np.setup = function() {\n  p.createCanvas(800, 800);\n  // Smaller 1000x1000 buffers, will be stretched to 1400x1400 to preserve edge coverage\n  pg1 = p.createGraphics(1000, 1000);\n  pg2 = p.createGraphics(1000, 1000);\n  pg3 = p.createGraphics(1000, 1000);\n};\n\np.draw = function() {\n  const vGeom = p.getSynthVar('warp_geometry') || 'Parallel Strands';\n  const vDens = p.getSynthVar('thread_density') || 'Gauze Coarse';\n  const vRot = p.getSynthVar('weft_rotation') || 'Parallel Drift 0deg';\n  const vSpd = p.getSynthVar('drift_tempo') || 'Glacial Suspension';\n  const vPal = p.getSynthVar('organza_palette') || 'Raw Silk & Bone';\n\n  if (vGeom !== lastGeom || vDens !== lastDens || vPal !== lastPal) {\n    rebuildFabrics(vGeom, vDens, vPal);\n    lastGeom = vGeom;\n    lastDens = vDens;\n    lastPal = vPal;\n  }\n\n  const speed = tempoMap[vSpd];\n  phase1 += speed * 0.3 + 0.0137;\n  phase2 += speed * 0.45 + 0.0173;\n  phase3 += speed * 0.35 + 0.0191;\n\n  const angleBase = p.radians(weftMap[vRot]);\n  const pal = paletteMap[vPal];\n\n  p.background(pal.bg);\n  p.drawingContext.globalCompositeOperation = pal.blend;\n  p.imageMode(p.CENTER);\n\n  // Layer 1\n  p.push();\n  p.translate(400 + p.cos(phase1 * 0.01) * 100, 400 + p.sin(phase1 * 0.011) * 100);\n  p.image(pg1, 0, 0, 1400, 1400);\n  p.pop();\n\n  // Layer 2\n  p.push();\n  p.translate(400 + p.cos(phase2 * 0.013) * 120, 400 + p.sin(phase2 * 0.014) * 120);\n  p.rotate(angleBase);\n  p.image(pg2, 0, 0, 1400, 1400);\n  p.pop();\n\n  // Layer 3\n  p.push();\n  p.translate(400 + p.cos(-phase3 * 0.012) * 90, 400 + p.sin(phase3 * 0.015) * 90);\n  p.rotate(-angleBase);\n  p.image(pg3, 0, 0, 1400, 1400);\n  p.pop();\n\n  // Reset to default\n  p.drawingContext.globalCompositeOperation = 'source-over';\n};\n\nfunction rebuildFabrics(vGeom, vDens, vPal) {\n  const baseD = densityMap[vDens];\n  const pal = paletteMap[vPal];\n  const d = baseD * (1000 / 1400); // Scale rendering density to match smaller buffer\n  renderFabric(pg1, vGeom, d, pal.c1);\n  renderFabric(pg2, vGeom, d, pal.c2);\n  renderFabric(pg3, vGeom, d, pal.c3);\n}\n\nfunction renderFabric(pg, geom, d, col) {\n  pg.clear();\n  pg.noFill();\n  pg.stroke(col);\n  pg.strokeWeight(Math.max(1.0, d * 0.4));\n  \n  const s = 1000;\n  const c = s / 2;\n\n  if (geom === 'Parallel Strands') {\n    pg.beginShape(p.LINES);\n    for (let y = 0; y <= s; y += d) {\n      pg.vertex(0, y);\n      pg.vertex(s, y);\n    }\n    pg.endShape();\n  } \n  else if (geom === 'Gentle Sine Swell') {\n    for (let y = -150; y <= s + 150; y += d) {\n      pg.beginShape();\n      for (let x = 0; x <= s; x += 30) {\n        pg.vertex(x, y + p.sin((x * 0.007) + (y * 0.014)) * 85);\n      }\n      pg.endShape();\n    }\n  } \n  else if (geom === 'Concentric Arc Ripple') {\n    const maxR = s * 1.5;\n    for (let r = d; r <= maxR; r += d) {\n      pg.ellipse(c, c, r, r);\n    }\n  } \n  else if (geom === 'Bi-directional Chevron') {\n    for (let y = -75; y <= s + 75; y += d) {\n      pg.beginShape();\n      for (let x = 0; x <= s + 60; x += 60) {\n        pg.vertex(x, y + ((x / 60) % 2 === 0 ? 21 : -21));\n      }\n      pg.endShape();\n    }\n  } \n  else if (geom === 'Compressed Hyperbola') {\n    // Tightened bounds from -s to -400 to save vertices outside the visible diagonal\n    for (let y = -400; y <= s + 400; y += d) {\n      pg.beginShape();\n      for (let x = 0; x <= s; x += 40) {\n        let dx = x - c;\n        let dy = p.sqrt(dx * dx + 25000) * (y < c ? -0.4 : 0.4);\n        pg.vertex(x, y + dy);\n      }\n      pg.endShape();\n    }\n  } \n  else if (geom === 'Radial Pinwheel Lattice') {\n    const steps = (p.TWO_PI * c) / d;\n    const angleStep = p.TWO_PI / Math.max(10, steps);\n    for (let a = 0; a < p.TWO_PI; a += angleStep) {\n      pg.beginShape();\n      for (let r = 0; r <= s; r += 30) {\n        let twist = r * 0.0021;\n        pg.vertex(c + p.cos(a + twist) * r, c + p.sin(a + twist) * r);\n      }\n      pg.endShape();\n    }\n  }\n}\n",
+  "tags": [
+    {
+      "id": "tag_moir_organza_01",
+      "type": "custom",
+      "label": "Designed and written by an agent swarm",
+      "description": "Concept, variables and code written by a crew of agents in the Agent Studio chat room (auto1-moir-organza) and played by the harness before it was accepted. Teamcrafter residency, 2026-10-09."
+    }
+  ]
+}

@@ -1,0 +1,164 @@
+{
+  "promptTemplate": "Simulating a {{anchor_topology}} under pressure, showing {{shear_fracture}} fractures over {{fringe_density}} with {{analyzer_rotation}} in a {{chromatic_retardation}} palette.",
+  "variables": [
+    {
+      "name": "anchor_topology",
+      "feature_name": "Load Topology",
+      "values": [
+        {
+          "text": "twin balanced pins",
+          "weight": 3
+        },
+        {
+          "text": "triad focal points",
+          "weight": 3
+        },
+        {
+          "text": "quad pinch array",
+          "weight": 3
+        },
+        {
+          "text": "pentagonal vise cage",
+          "weight": 2
+        },
+        {
+          "text": "hexagonal crushing ring",
+          "weight": 2
+        },
+        {
+          "text": "chaotic eight-point cluster",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "shear_fracture",
+      "feature_name": "Fracture Shear",
+      "values": [
+        {
+          "text": "flawless clear cast",
+          "weight": 3
+        },
+        {
+          "text": "incipient craze lines",
+          "weight": 3
+        },
+        {
+          "text": "transient stress fractures",
+          "weight": 3
+        },
+        {
+          "text": "branching shock wakes",
+          "weight": 2
+        },
+        {
+          "text": "violent acoustic crackle",
+          "weight": 2
+        },
+        {
+          "text": "catastrophic shatter cascade",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "fringe_density",
+      "feature_name": "Contour Bands",
+      "values": [
+        {
+          "text": "broad laminar fringes",
+          "weight": 3
+        },
+        {
+          "text": "gentle ripple bands",
+          "weight": 3
+        },
+        {
+          "text": "tight topographic terraces",
+          "weight": 3
+        },
+        {
+          "text": "compressed optical rings",
+          "weight": 2
+        },
+        {
+          "text": "hairline interference comb",
+          "weight": 2
+        },
+        {
+          "text": "hyper-dense diffraction mesh",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "analyzer_rotation",
+      "feature_name": "Polarizer Angle",
+      "values": [
+        {
+          "text": "orthogonal zero null",
+          "weight": 3
+        },
+        {
+          "text": "fifteen degree tilt",
+          "weight": 3
+        },
+        {
+          "text": "thirty degree shear",
+          "weight": 3
+        },
+        {
+          "text": "forty-five degree maximum",
+          "weight": 2
+        },
+        {
+          "text": "sixty degree inverted phase",
+          "weight": 2
+        },
+        {
+          "text": "counter-rotating twin filter",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "chromatic_retardation",
+      "feature_name": "Interference Palette",
+      "values": [
+        {
+          "text": "newton first order",
+          "weight": 3
+        },
+        {
+          "text": "birefringent solar spectrum",
+          "weight": 3
+        },
+        {
+          "text": "high-order pastels",
+          "weight": 3
+        },
+        {
+          "text": "saturated neon isochromes",
+          "weight": 2
+        },
+        {
+          "text": "deep ultraviolet magenta",
+          "weight": 2
+        },
+        {
+          "text": "anomalous metallic dispersion",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "p5Code": "const TOPOLOGY_MAP = {\n  \"twin balanced pins\": 2,\n  \"triad focal points\": 3,\n  \"quad pinch array\": 4,\n  \"pentagonal vise cage\": 5,\n  \"hexagonal crushing ring\": 6,\n  \"chaotic eight-point cluster\": 8\n};\n\nconst FRACTURE_MAP = {\n  \"flawless clear cast\": 0,\n  \"incipient craze lines\": 0.05,\n  \"transient stress fractures\": 0.15,\n  \"branching shock wakes\": 0.3,\n  \"violent acoustic crackle\": 0.6,\n  \"catastrophic shatter cascade\": 1.0\n};\n\nconst DENSITY_MAP = {\n  \"broad laminar fringes\": 15,\n  \"gentle ripple bands\": 25,\n  \"tight topographic terraces\": 40,\n  \"compressed optical rings\": 60,\n  \"hairline interference comb\": 90,\n  \"hyper-dense diffraction mesh\": 140\n};\n\nconst ROTATION_MAP = {\n  \"orthogonal zero null\": 0,\n  \"fifteen degree tilt\": 15,\n  \"thirty degree shear\": 30,\n  \"forty-five degree maximum\": 45,\n  \"sixty degree inverted phase\": 60,\n  \"counter-rotating twin filter\": -1\n};\n\nconst PALETTE_MAP = {\n  \"newton first order\": 0,\n  \"birefringent solar spectrum\": 1,\n  \"high-order pastels\": 2,\n  \"saturated neon isochromes\": 3,\n  \"deep ultraviolet magenta\": 4,\n  \"anomalous metallic dispersion\": 5\n};\n\nlet anchors = [];\nlet crackles = [];\nlet cols = 100, rows = 100;\nlet res = 8; \nlet field = [];\nlet os;\n\np.setup = function() {\n  p.createCanvas(800, 800);\n  os = p.createGraphics(100, 100);\n  os.pixelDensity(1);\n  os.colorMode(p.HSB, 360, 100, 100, 255);\n  p.colorMode(p.HSB, 360, 100, 100, 255);\n  \n  for (let i = 0; i < 8; i++) {\n    anchors.push({ \n      phase1: p.random(1000), \n      phase2: p.random(1000), \n      speed: p.random(0.01, 0.03)\n    });\n  }\n  for (let i = 0; i < 50; i++) {\n    crackles.push({ x1: 0, y1: 0, x2: 0, y2: 0, life: 0, maxLife: 10 });\n  }\n  for (let i = 0; i < cols * rows; i++) {\n    field.push(0);\n  }\n};\n\np.draw = function() {\n  const topVal = p.getSynthVar(\"anchor_topology\") || \"twin balanced pins\";\n  const fracVal = p.getSynthVar(\"shear_fracture\") || \"flawless clear cast\";\n  const denVal = p.getSynthVar(\"fringe_density\") || \"broad laminar fringes\";\n  const rotVal = p.getSynthVar(\"analyzer_rotation\") || \"orthogonal zero null\";\n  const palVal = p.getSynthVar(\"chromatic_retardation\") || \"newton first order\";\n  \n  const numAnchors = TOPOLOGY_MAP[topVal];\n  const fracChance = FRACTURE_MAP[fracVal];\n  const density = DENSITY_MAP[denVal];\n  let rotation = ROTATION_MAP[rotVal];\n  const palette = PALETTE_MAP[palVal];\n  \n  if (rotation === -1) {\n    rotation = (p.frameCount * 0.5) % 360;\n  }\n  \n  const rotRad = p.radians(rotation);\n  const time = p.frameCount;\n  \n  let currentAnchors = [];\n  for (let i = 0; i < numAnchors; i++) {\n    let a = anchors[i];\n    let cx = 50 + Math.cos(a.phase1 + time * a.speed) * 35;\n    let cy = 50 + Math.sin(a.phase2 + time * a.speed) * 35;\n    currentAnchors.push({ x: cx, y: cy });\n  }\n  \n  if (fracChance > 0 && p.random(1) < fracChance) {\n    for (let i = 0; i < currentAnchors.length; i++) {\n      for (let j = i + 1; j < currentAnchors.length; j++) {\n        let dx = currentAnchors[i].x - currentAnchors[j].x;\n        let dy = currentAnchors[i].y - currentAnchors[j].y;\n        if (dx*dx + dy*dy < 400) { \n          spawnCrackle(\n            (currentAnchors[i].x + currentAnchors[j].x) * 0.5 * res, \n            (currentAnchors[i].y + currentAnchors[j].y) * 0.5 * res,\n            fracChance\n          );\n        }\n      }\n    }\n  }\n  \n  os.loadPixels();\n  let idx = 0;\n  for (let y = 0; y < rows; y++) {\n    for (let x = 0; x < cols; x++) {\n      let stress = 0.5; // ambient baseline\n      for (let i = 0; i < numAnchors; i++) {\n        let dx = x - currentAnchors[i].x;\n        let dy = y - currentAnchors[i].y;\n        let dSq = dx * dx + dy * dy + 10; \n        stress += 50 / Math.sqrt(dSq);\n      }\n      \n      let phaseShift = stress + Math.sin(rotRad + x*0.02) * 2;\n      field[idx] = phaseShift;\n      \n      let v = (phaseShift * density) % 100;\n      let h, s, b;\n      \n      switch(palette) {\n        case 0: h = v * 3.6; s = 80; b = 90 - Math.abs(50 - v); break;\n        case 1: h = (v * 10.8) % 360; s = 100; b = 100; break;\n        case 2: h = (v * 7.2) % 360; s = 40; b = 95; break;\n        case 3: h = (v * 3.6 + 180) % 360; s = 100; b = v > 50 ? 100 : 30; break;\n        case 4: h = 280 + (v * 0.6); s = 90; b = (Math.sin(v * 0.1) * 50) + 50; break;\n        case 5: h = 40; s = (v * 2) % 100; b = (Math.cos(v * 0.1) * 50) + 50; break;\n      }\n      \n      let pixIdx = (x + y * cols) * 4;\n      let rgb = hsbToRgb(h, s, b);\n      os.pixels[pixIdx] = rgb[0];\n      os.pixels[pixIdx+1] = rgb[1];\n      os.pixels[pixIdx+2] = rgb[2];\n      os.pixels[pixIdx+3] = 255;\n      idx++;\n    }\n  }\n  os.updatePixels();\n  \n  p.noSmooth();\n  p.image(os, 0, 0, 800, 800);\n  p.smooth();\n  \n  p.stroke(0, 0, 20, 100);\n  p.strokeWeight(1);\n  p.beginShape(p.LINES);\n  \n  const step = 800 / cols;\n  for (let y = 0; y < rows - 1; y++) {\n    for (let x = 0; x < cols - 1; x++) {\n      let i = x + y * cols;\n      let v0 = (field[i] * density) % 10;\n      let v1 = (field[i+1] * density) % 10;\n      let v2 = (field[i+cols+1] * density) % 10;\n      let v3 = (field[i+cols] * density) % 10;\n      \n      let state = 0;\n      if (v0 > 5) state |= 1;\n      if (v1 > 5) state |= 2;\n      if (v2 > 5) state |= 4;\n      if (v3 > 5) state |= 8;\n      \n      let px = x * step, py = y * step;\n      let half = step * 0.5;\n      \n      switch (state) {\n        case 1: case 14: p.vertex(px, py + half); p.vertex(px + half, py); break;\n        case 2: case 13: p.vertex(px + half, py); p.vertex(px + step, py + half); break;\n        case 4: case 11: p.vertex(px + step, py + half); p.vertex(px + half, py + step); break;\n        case 8: case 7: p.vertex(px + half, py + step); p.vertex(px, py + half); break;\n        case 3: case 12: p.vertex(px, py + half); p.vertex(px + step, py + half); break;\n        case 6: case 9: p.vertex(px + half, py); p.vertex(px + half, py + step); break;\n        case 5: p.vertex(px, py + half); p.vertex(px + half, py); p.vertex(px + half, py + step); p.vertex(px + step, py + half); break;\n        case 10: p.vertex(px + half, py); p.vertex(px + step, py + half); p.vertex(px, py + half); p.vertex(px + half, py + step); break;\n      }\n    }\n  }\n  p.endShape();\n  \n  p.strokeWeight(2);\n  for (let c of crackles) {\n    if (c.life > 0) {\n      let alpha = p.map(c.life, 0, c.maxLife, 0, 255);\n      p.stroke(0, 0, 100, alpha);\n      p.line(c.x1, c.y1, c.x2, c.y2);\n      c.life--;\n    }\n  }\n};\n\nfunction spawnCrackle(cx, cy, intensity) {\n  for (let c of crackles) {\n    if (c.life <= 0) {\n      c.x1 = cx + (Math.random() - 0.5) * 40;\n      c.y1 = cy + (Math.random() - 0.5) * 40;\n      c.x2 = c.x1 + (Math.random() - 0.5) * 80 * intensity;\n      c.y2 = c.y1 + (Math.random() - 0.5) * 80 * intensity;\n      c.life = Math.floor(Math.random() * 15) + 5;\n      c.maxLife = c.life;\n      break;\n    }\n  }\n}\n\nfunction hsbToRgb(h, s, b) {\n  s /= 100;\n  b /= 100;\n  const k = (n) => (n + h / 60) % 6;\n  const f = (n) => b * (1 - s * Math.max(0, Math.min(k(n), 4 - k(n), 1)));\n  return [255 * f(5), 255 * f(3), 255 * f(1)];\n}\n",
+  "tags": [
+    {
+      "id": "tag_acrylic_stress_simulator_01",
+      "type": "custom",
+      "label": "Designed and written by an agent swarm",
+      "description": "Concept, variables and code written by a crew of agents in the Agent Studio chat room (birefringence-stress) and played by the harness before it was accepted. Teamcrafter residency, 2026-10-09."
+    }
+  ]
+}

@@ -1,0 +1,164 @@
+{
+  "promptTemplate": "A {{partition_density}} containing {{botanical_taxonomy}} growing with {{growth_tempo}} and reacting with {{boundary_recoil}}, preserved in a {{specimen_patina}}.",
+  "variables": [
+    {
+      "name": "partition_density",
+      "feature_name": "Vitrine Partitioning",
+      "values": [
+        {
+          "text": "monolithic bay",
+          "weight": 3
+        },
+        {
+          "text": "triptych gallery",
+          "weight": 3
+        },
+        {
+          "text": "cabinet chambers",
+          "weight": 3
+        },
+        {
+          "text": "specimen grid",
+          "weight": 2
+        },
+        {
+          "text": "herbarium matrix",
+          "weight": 2
+        },
+        {
+          "text": "apothecary drawers",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "botanical_taxonomy",
+      "feature_name": "Taxonomy Rules",
+      "values": [
+        {
+          "text": "columnar equisetum",
+          "weight": 3
+        },
+        {
+          "text": "feathered polypody",
+          "weight": 3
+        },
+        {
+          "text": "bramble briar",
+          "weight": 3
+        },
+        {
+          "text": "twining bryony",
+          "weight": 2
+        },
+        {
+          "text": "tendril passiflora",
+          "weight": 2
+        },
+        {
+          "text": "serpentine rhizome",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "growth_tempo",
+      "feature_name": "Growth Aggression",
+      "values": [
+        {
+          "text": "dormant bud",
+          "weight": 3
+        },
+        {
+          "text": "slow vernal creep",
+          "weight": 3
+        },
+        {
+          "text": "rhythmic pulse",
+          "weight": 3
+        },
+        {
+          "text": "rampant surge",
+          "weight": 2
+        },
+        {
+          "text": "hypertrophic tangle",
+          "weight": 1
+        },
+        {
+          "text": "feral overrun",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "boundary_recoil",
+      "feature_name": "Humidity Curl",
+      "values": [
+        {
+          "text": "gentle rim deflection",
+          "weight": 3
+        },
+        {
+          "text": "creeping perimeter slide",
+          "weight": 3
+        },
+        {
+          "text": "glass shudder snap",
+          "weight": 3
+        },
+        {
+          "text": "inward spiral tuck",
+          "weight": 2
+        },
+        {
+          "text": "claustrophobic whorl",
+          "weight": 2
+        },
+        {
+          "text": "spastic vortex rebound",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "specimen_patina",
+      "feature_name": "Preservation State",
+      "values": [
+        {
+          "text": "fresh viridian wash",
+          "weight": 3
+        },
+        {
+          "text": "wilted celadon",
+          "weight": 3
+        },
+        {
+          "text": "sunken verdigris",
+          "weight": 3
+        },
+        {
+          "text": "desiccated ochre",
+          "weight": 2
+        },
+        {
+          "text": "burnt bistre pressing",
+          "weight": 2
+        },
+        {
+          "text": "iron gall oxidation",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "p5Code": "const PARTITION_MAP = {\n  \"monolithic bay\": 1,\n  \"triptych gallery\": 3,\n  \"cabinet chambers\": 6,\n  \"specimen grid\": 12,\n  \"herbarium matrix\": 24,\n  \"apothecary drawers\": 48\n};\n\nconst TAXONOMY_MAP = {\n  \"columnar equisetum\": { spread: 0.2, lengthMod: 0.85, center: true },\n  \"feathered polypody\": { spread: 0.6, lengthMod: 0.75, center: true },\n  \"bramble briar\":      { spread: 1.2, lengthMod: 0.70, center: false },\n  \"twining bryony\":     { spread: 0.4, lengthMod: 0.85, center: false },\n  \"tendril passiflora\": { spread: 0.8, lengthMod: 0.80, center: false },\n  \"serpentine rhizome\": { spread: 1.5, lengthMod: 0.65, center: false }\n};\n\nconst TEMPO_MAP = {\n  \"dormant bud\":         { depth: 2, speed: 0.01 },\n  \"slow vernal creep\":   { depth: 3, speed: 0.02 },\n  \"rhythmic pulse\":      { depth: 4, speed: 0.05 },\n  \"rampant surge\":       { depth: 5, speed: 0.08 },\n  \"hypertrophic tangle\": { depth: 6, speed: 0.12 },\n  \"feral overrun\":       { depth: 7, speed: 0.15 }\n};\n\nconst RECOIL_MAP = {\n  \"gentle rim deflection\":    { factor: 0.2, type: \"deflect\" },\n  \"creeping perimeter slide\": { factor: 0.4, type: \"slide\" },\n  \"glass shudder snap\":       { factor: 0.6, type: \"snap\" },\n  \"inward spiral tuck\":       { factor: 1.2, type: \"spiral\" },\n  \"claustrophobic whorl\":     { factor: 1.8, type: \"spiral\" },\n  \"spastic vortex rebound\":   { factor: 2.5, type: \"snap\" }\n};\n\nconst PATINA_MAP = {\n  \"fresh viridian wash\":   { bg: \"#eef5f0\", line: \"#2d5a3f\", frame: \"#8da995\" },\n  \"wilted celadon\":        { bg: \"#f0f2eb\", line: \"#647b64\", frame: \"#b4c2b4\" },\n  \"sunken verdigris\":      { bg: \"#1a2421\", line: \"#54997a\", frame: \"#304d41\" },\n  \"desiccated ochre\":      { bg: \"#f5ece4\", line: \"#8b6a4f\", frame: \"#c4ae9c\" },\n  \"burnt bistre pressing\": { bg: \"#d6c9b8\", line: \"#4a3320\", frame: \"#8f7c68\" },\n  \"iron gall oxidation\":   { bg: \"#c4bbb2\", line: \"#282321\", frame: \"#695e59\" }\n};\n\nlet compartments = [];\nlet lastDensity = -1;\nlet ctx;\n\nfunction buildTreemap(p, targetCount) {\n  p.randomSeed(12345);\n  compartments = [{x: 20, y: 20, w: 760, h: 760}];\n  while(compartments.length < targetCount) {\n    let maxArea = 0, largestIdx = 0;\n    for (let i = 0; i < compartments.length; i++) {\n      let area = compartments[i].w * compartments[i].h;\n      if (area > maxArea) { maxArea = area; largestIdx = i; }\n    }\n    let c = compartments.splice(largestIdx, 1)[0];\n    let ratio = p.random(0.35, 0.65);\n    if (c.w > c.h) {\n      compartments.push({x: c.x, y: c.y, w: c.w * ratio, h: c.h});\n      compartments.push({x: c.x + c.w * ratio, y: c.y, w: c.w * (1-ratio), h: c.h});\n    } else {\n      compartments.push({x: c.x, y: c.y, w: c.w, h: c.h * ratio});\n      compartments.push({x: c.x, y: c.y + c.h * ratio, w: c.w, h: c.h * (1-ratio)});\n    }\n  }\n}\n\nfunction branch(p, x, y, angle, len, depth, c, tax, recoil, t) {\n  if (depth <= 0 || len < 2) return;\n\n  let nx = x + p.cos(angle) * len;\n  let ny = y + p.sin(angle) * len;\n\n  let dX = Math.min(nx - c.x, c.x + c.w - nx);\n  let dY = Math.min(ny - c.y, c.y + c.h - ny);\n  let hit = (dX < 10 || dY < 10);\n\n  if (hit) {\n    let rType = recoil.type;\n    let shudder = (rType === \"snap\") ? p.sin(t * 15 + depth) * 0.5 : 0;\n    let spiral = (rType === \"spiral\") ? 0.8 : 0.2;\n    let direction = (nx > c.x + c.w/2) ? -1 : 1;\n    angle += (recoil.factor * spiral + shudder) * direction;\n    nx = p.constrain(nx, c.x + 8, c.x + c.w - 8);\n    ny = p.constrain(ny, c.y + 8, c.y + c.h - 8);\n  }\n\n  ctx.moveTo(x, y);\n  ctx.lineTo(nx, ny);\n\n  let sway = p.sin(t + x * 0.02) * 0.1;\n  let nLen = len * tax.lengthMod;\n\n  branch(p, nx, ny, angle - tax.spread + sway, nLen, depth - 1, c, tax, recoil, t);\n  branch(p, nx, ny, angle + tax.spread - sway, nLen, depth - 1, c, tax, recoil, t);\n  if (tax.center) {\n    branch(p, nx, ny, angle + sway * 1.5, nLen * 1.15, depth - 1, c, tax, recoil, t);\n  }\n}\n\np.setup = function() {\n  p.createCanvas(800, 800);\n  ctx = p.drawingContext;\n  p.strokeJoin(p.ROUND);\n  p.strokeCap(p.ROUND);\n};\n\np.draw = function() {\n  const density = p.getSynthVar(\"partition_density\") || \"monolithic bay\";\n  const tax = TAXONOMY_MAP[p.getSynthVar(\"botanical_taxonomy\") || \"columnar equisetum\"];\n  const tempo = TEMPO_MAP[p.getSynthVar(\"growth_tempo\") || \"dormant bud\"];\n  const recoil = RECOIL_MAP[p.getSynthVar(\"boundary_recoil\") || \"gentle rim deflection\"];\n  const patina = PATINA_MAP[p.getSynthVar(\"specimen_patina\") || \"fresh viridian wash\"];\n\n  const count = PARTITION_MAP[density];\n  if (count !== lastDensity) {\n    buildTreemap(p, count);\n    lastDensity = count;\n  }\n\n  p.background(patina.bg);\n  let t = p.frameCount * tempo.speed;\n\n  ctx.beginPath();\n  ctx.strokeStyle = patina.frame;\n  ctx.lineWidth = 3;\n  for (let c of compartments) {\n    ctx.rect(c.x, c.y, c.w, c.h);\n    let m = 12;\n    let bLen = Math.max(15, Math.min(c.w, c.h) * 0.12);\n    \n    ctx.moveTo(c.x + m, c.y + m + bLen);\n    ctx.lineTo(c.x + m, c.y + m);\n    ctx.lineTo(c.x + m + bLen, c.y + m);\n    \n    ctx.moveTo(c.x + c.w - m, c.y + m + bLen);\n    ctx.lineTo(c.x + c.w - m, c.y + m);\n    ctx.lineTo(c.x + c.w - m - bLen, c.y + m);\n    \n    ctx.moveTo(c.x + m, c.y + c.h - m - bLen);\n    ctx.lineTo(c.x + m, c.y + c.h - m);\n    ctx.lineTo(c.x + m + bLen, c.y + c.h - m);\n    \n    ctx.moveTo(c.x + c.w - m, c.y + c.h - m - bLen);\n    ctx.lineTo(c.x + c.w - m, c.y + c.h - m);\n    ctx.lineTo(c.x + c.w - m - bLen, c.y + c.h - m);\n  }\n  ctx.stroke();\n\n  ctx.beginPath();\n  ctx.strokeStyle = patina.line;\n  ctx.lineWidth = 1.5;\n  \n  for (let c of compartments) {\n    let areaRatio = (c.w * c.h) / (760 * 760);\n    let depthLimit = Math.floor(p.map(areaRatio, 0, 1, 3, 7));\n    let actualDepth = Math.min(tempo.depth, depthLimit);\n    \n    let baseX = c.x + c.w / 2;\n    let baseY = c.y + c.h - 10;\n    \n    let budPulse = p.sin(t * 2) * 4;\n    let bRadius = Math.max(8, c.w * 0.015) + budPulse;\n    ctx.moveTo(baseX + bRadius, baseY);\n    ctx.arc(baseX, baseY, bRadius, 0, p.TWO_PI);\n\n    let initLen = c.h * 0.3;\n    branch(p, baseX, baseY, -p.HALF_PI, initLen, actualDepth, c, tax, recoil, t);\n  }\n  ctx.stroke();\n};\n",
+  "tags": [
+    {
+      "id": "tag_archival_botanical_vitrine_01",
+      "type": "custom",
+      "label": "Designed and written by an agent swarm",
+      "description": "Concept, variables and code written by a crew of agents in the Agent Studio chat room (constrained-herbarium) and played by the harness before it was accepted. Teamcrafter residency, 2026-10-09."
+    }
+  ]
+}

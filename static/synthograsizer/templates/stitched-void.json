@@ -1,0 +1,164 @@
+{
+  "promptTemplate": "A gaping void driven by {{tear_erosion}} is stitched with {{anchor_density}}, its {{bridge_reach}} held at {{thread_tension}} in tones of {{chroma_temper}}.",
+  "variables": [
+    {
+      "name": "tear_erosion",
+      "feature_name": "Tear Erosion",
+      "values": [
+        {
+          "text": "slight fray",
+          "weight": 3
+        },
+        {
+          "text": "creeping breach",
+          "weight": 3
+        },
+        {
+          "text": "ragged fissure",
+          "weight": 2
+        },
+        {
+          "text": "cavernous tear",
+          "weight": 2
+        },
+        {
+          "text": "total disintegration",
+          "weight": 1
+        },
+        {
+          "text": "catastrophic chasm",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "anchor_density",
+      "feature_name": "Anchor Density",
+      "values": [
+        {
+          "text": "sparse basting",
+          "weight": 3
+        },
+        {
+          "text": "spaced tacking",
+          "weight": 3
+        },
+        {
+          "text": "continuous seam",
+          "weight": 2
+        },
+        {
+          "text": "overlocked hem",
+          "weight": 2
+        },
+        {
+          "text": "dense suture lattice",
+          "weight": 1
+        },
+        {
+          "text": "swarming needlepoint",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "bridge_reach",
+      "feature_name": "Bridge Reach",
+      "values": [
+        {
+          "text": "short cross-stitches",
+          "weight": 3
+        },
+        {
+          "text": "taut spans",
+          "weight": 3
+        },
+        {
+          "text": "reaching gussets",
+          "weight": 2
+        },
+        {
+          "text": "vaulting braces",
+          "weight": 2
+        },
+        {
+          "text": "abyssal leaps",
+          "weight": 1
+        },
+        {
+          "text": "void spanning cables",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "thread_tension",
+      "feature_name": "Thread Tension",
+      "values": [
+        {
+          "text": "slack cord",
+          "weight": 3
+        },
+        {
+          "text": "drawn twine",
+          "weight": 3
+        },
+        {
+          "text": "plucked wire",
+          "weight": 2
+        },
+        {
+          "text": "furious jitter",
+          "weight": 2
+        },
+        {
+          "text": "harmonic spasm",
+          "weight": 1
+        },
+        {
+          "text": "resonant frenzy",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "chroma_temper",
+      "feature_name": "Chroma Temper",
+      "values": [
+        {
+          "text": "indigo on raw linen",
+          "weight": 3
+        },
+        {
+          "text": "cobalt and bone",
+          "weight": 3
+        },
+        {
+          "text": "charcoal with chalk",
+          "weight": 2
+        },
+        {
+          "text": "oxblood on vellum",
+          "weight": 2
+        },
+        {
+          "text": "electric cyan on obsidian",
+          "weight": 1
+        },
+        {
+          "text": "verdigris and scorched lead",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "p5Code": "const tearErosionMap = {\n  \"slight fray\": 0.1,\n  \"creeping breach\": 0.25,\n  \"ragged fissure\": 0.4,\n  \"cavernous tear\": 0.6,\n  \"total disintegration\": 0.8,\n  \"catastrophic chasm\": 0.95\n};\n\nconst anchorDensityMap = {\n  \"sparse basting\": 16,\n  \"spaced tacking\": 24,\n  \"continuous seam\": 36,\n  \"overlocked hem\": 48,\n  \"dense suture lattice\": 60,\n  \"swarming needlepoint\": 72\n};\n\nconst bridgeReachMap = {\n  \"short cross-stitches\": 60,\n  \"taut spans\": 120,\n  \"reaching gussets\": 200,\n  \"vaulting braces\": 350,\n  \"abyssal leaps\": 500,\n  \"void spanning cables\": 800\n};\n\nconst threadTensionMap = {\n  \"slack cord\": 0.5,\n  \"drawn twine\": 1,\n  \"plucked wire\": 2.5,\n  \"furious jitter\": 5,\n  \"harmonic spasm\": 8,\n  \"resonant frenzy\": 12\n};\n\nconst chromaTemperMap = {\n  \"indigo on raw linen\": { void: '#0f172a', fabric: '#e2dcd0', thread: '#1e3a8a', snap: '#64748b', margin: '#94a3b8' },\n  \"cobalt and bone\": { void: '#001a33', fabric: '#f4f0ec', thread: '#0047b3', snap: '#6699cc', margin: '#a3b1c6' },\n  \"charcoal with chalk\": { void: '#111111', fabric: '#2a2a2a', thread: '#e0e0e0', snap: '#999999', margin: '#000000' },\n  \"oxblood on vellum\": { void: '#2a0808', fabric: '#e8ddcb', thread: '#8a1111', snap: '#cc5252', margin: '#3d1a1a' },\n  \"electric cyan on obsidian\": { void: '#000000', fabric: '#0d0d0d', thread: '#00ffff', snap: '#00b3b3', margin: '#003333' },\n  \"verdigris and scorched lead\": { void: '#1f2422', fabric: '#363636', thread: '#409c85', snap: '#7aa397', margin: '#141a18' }\n};\n\np.setup = function() {\n  p.createCanvas(800, 800);\n};\n\np.draw = function() {\n  const erosionKey = p.getSynthVar('tear_erosion') || \"slight fray\";\n  const densityKey = p.getSynthVar('anchor_density') || \"sparse basting\";\n  const reachKey = p.getSynthVar('bridge_reach') || \"short cross-stitches\";\n  const tensionKey = p.getSynthVar('thread_tension') || \"slack cord\";\n  const chromaKey = p.getSynthVar('chroma_temper') || \"indigo on raw linen\";\n\n  const erosion = tearErosionMap[erosionKey];\n  const density = anchorDensityMap[densityKey];\n  const reach = bridgeReachMap[reachKey];\n  const tension = threadTensionMap[tensionKey];\n  const chroma = chromaTemperMap[chromaKey];\n\n  p.background(chroma.void);\n\n  let pts = [];\n  for (let i = 0; i < density; i++) {\n    let angle = (i * p.TWO_PI) / density;\n    let nVal = p.noise(p.cos(angle) + 2, p.sin(angle) + 2, p.frameCount * 0.005);\n    let r = 120 + erosion * 140 + nVal * erosion * 120;\n    r = p.min(380, r);\n    let x = 400 + p.cos(angle) * r;\n    let y = 400 + p.sin(angle) * r;\n    \n    x += (p.random() - 0.5) * tension;\n    y += (p.random() - 0.5) * tension;\n    pts.push({ x, y });\n  }\n\n  p.fill(chroma.fabric);\n  p.stroke(chroma.margin);\n  p.strokeWeight(6);\n  p.beginShape();\n  p.vertex(0, 0);\n  p.vertex(800, 0);\n  p.vertex(800, 800);\n  p.vertex(0, 800);\n  p.beginContour();\n  for (let i = pts.length - 1; i >= 0; i--) {\n    p.vertex(pts[i].x, pts[i].y);\n  }\n  p.endContour();\n  p.endShape(p.CLOSE);\n\n  p.stroke(chroma.thread);\n  p.strokeWeight(1.2);\n  p.noFill();\n  p.beginShape(p.LINES);\n  let snaps = [];\n  \n  for (let i = 0; i < pts.length; i++) {\n    let linked = 0;\n    for (let offset = 2; offset < pts.length / 2; offset++) {\n      let j = (i + offset) % pts.length;\n      if (i >= j) continue; \n      \n      if ((i * 11 + j * 13) % 10 < 3) {\n        let dx = pts[i].x - pts[j].x;\n        let dy = pts[i].y - pts[j].y;\n        let dist = p.mag(dx, dy);\n        \n        if (dist <= reach) {\n          p.vertex(pts[i].x, pts[i].y);\n          p.vertex(pts[j].x, pts[j].y);\n          linked++;\n        } else {\n          if (snaps.length < 40) snaps.push([pts[i], pts[j], dist]);\n        }\n        if (linked >= 3) break;\n      }\n    }\n  }\n  p.endShape();\n\n  p.stroke(chroma.snap);\n  p.strokeWeight(1.5);\n  for (let s = 0; s < snaps.length; s++) {\n    let pt1 = snaps[s][0];\n    let pt2 = snaps[s][1];\n    drawSpring(pt1, pt2, tension);\n    drawSpring(pt2, pt1, tension);\n  }\n\n  p.stroke(chroma.thread);\n  p.strokeWeight(3.5);\n  p.beginShape(p.POINTS);\n  for (let i = 0; i < pts.length; i++) {\n    p.vertex(pts[i].x, pts[i].y);\n  }\n  p.endShape();\n\n  function drawSpring(p1, p2, tens) {\n    p.beginShape();\n    let dx = p2.x - p1.x;\n    let dy = p2.y - p1.y;\n    let dist = p.mag(dx, dy);\n    let ux = dx / dist;\n    let uy = dy / dist;\n    let maxL = p.min(dist * 0.25, 40 + tens * 2);\n    let steps = 8;\n    \n    p.vertex(p1.x, p1.y);\n    for (let i = 1; i <= steps; i++) {\n      let t = i / steps;\n      let bx = p1.x + ux * maxL * t;\n      let by = p1.y + uy * maxL * t;\n      let px = -uy;\n      let py = ux;\n      let amp = (i % 2 === 0 ? 1 : -1) * (4 + tens * 0.8);\n      let jit = (p.noise(p1.x, i, p.frameCount * 0.15) - 0.5) * tens * 3;\n      p.vertex(bx + px * amp + px * jit, by + py * amp + py * jit);\n    }\n    p.endShape();\n  }\n};\n",
+  "tags": [
+    {
+      "id": "tag_stitched_void_01",
+      "type": "custom",
+      "label": "Designed and written by an agent swarm",
+      "description": "Concept, variables and code written by a crew of agents in the Agent Studio chat room (sashiko-void-mending) and played by the harness before it was accepted. Teamcrafter residency, 2026-10-09."
+    }
+  ]
+}

@@ -1,0 +1,168 @@
+{
+  "promptTemplate": "A dense {{grid_density}} tapestry undulating with a {{wave_dynamics}}, catching light in a {{light_orbit}} with a {{specular_sheen}} and a {{tilt_amplitude}}.",
+  "variables": [
+    {
+      "name": "grid_density",
+      "feature_name": "Bead Count",
+      "values": [
+        {
+          "text": "velvet seed beads",
+          "weight": 3
+        },
+        {
+          "text": "woven micro facets",
+          "weight": 3
+        },
+        {
+          "text": "polished hexagonal scales",
+          "weight": 3
+        },
+        {
+          "text": "gilded cabochons",
+          "weight": 2
+        },
+        {
+          "text": "heavy cut gemstones",
+          "weight": 2
+        },
+        {
+          "text": "monumental crystal tiles",
+          "weight": 1
+        },
+        {
+          "text": "monolithic prism plates",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "wave_dynamics",
+      "feature_name": "Motion Topology",
+      "values": [
+        {
+          "text": "gentle tidal swell",
+          "weight": 3
+        },
+        {
+          "text": "diagonal cross current",
+          "weight": 3
+        },
+        {
+          "text": "rippling radial rings",
+          "weight": 3
+        },
+        {
+          "text": "braided Lissajous rollers",
+          "weight": 2
+        },
+        {
+          "text": "accordion snap pulse",
+          "weight": 2
+        },
+        {
+          "text": "chaotic stormy boil",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "light_orbit",
+      "feature_name": "Light Orbit",
+      "values": [
+        {
+          "text": "lazy equatorial drift",
+          "weight": 3
+        },
+        {
+          "text": "gentle sub-tropic sway",
+          "weight": 3
+        },
+        {
+          "text": "steep polar transit",
+          "weight": 3
+        },
+        {
+          "text": "close skimming pass",
+          "weight": 2
+        },
+        {
+          "text": "rapid spiral descent",
+          "weight": 2
+        },
+        {
+          "text": "distant zenith point",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "specular_sheen",
+      "feature_name": "Material",
+      "values": [
+        {
+          "text": "satin bisque ceramic",
+          "weight": 3
+        },
+        {
+          "text": "brushed burnished brass",
+          "weight": 3
+        },
+        {
+          "text": "holographic oil slick",
+          "weight": 3
+        },
+        {
+          "text": "high chrome mirrors",
+          "weight": 2
+        },
+        {
+          "text": "iridescent mother of pearl",
+          "weight": 2
+        },
+        {
+          "text": "matte volcanic glass",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "tilt_amplitude",
+      "feature_name": "Deflection",
+      "values": [
+        {
+          "text": "subtle shimmering breath",
+          "weight": 3
+        },
+        {
+          "text": "gentle trembling sigh",
+          "weight": 3
+        },
+        {
+          "text": "crisp cascading dominoes",
+          "weight": 3
+        },
+        {
+          "text": "steep rolling crests",
+          "weight": 2
+        },
+        {
+          "text": "wild fluttering flip",
+          "weight": 2
+        },
+        {
+          "text": "violent jagged scatter",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "p5Code": "const radiusMap = {\n  \"velvet seed beads\": 16,\n  \"woven micro facets\": 22,\n  \"polished hexagonal scales\": 30,\n  \"gilded cabochons\": 40,\n  \"heavy cut gemstones\": 50,\n  \"monumental crystal tiles\": 60,\n  \"monolithic prism plates\": 70\n};\n\nconst waveMap = {\n  \"gentle tidal swell\": (x, y, t) => Math.sin(y*0.01 + t*1.5)*0.5 + Math.sin(x*0.005 + t)*0.5,\n  \"diagonal cross current\": (x, y, t) => Math.sin((x+y)*0.015 - t*3),\n  \"rippling radial rings\": (x, y, t) => Math.sin(Math.hypot(x, y)*0.02 - t*4),\n  \"braided Lissajous rollers\": (x, y, t) => Math.sin(x*0.01 + Math.cos(t))*Math.cos(y*0.01 + Math.sin(t)),\n  \"accordion snap pulse\": (x, y, t) => Math.sin(x*0.04 - t*4) + Math.cos(y*0.02 + t*2),\n  \"chaotic stormy boil\": (x, y, t) => Math.sin(x*0.04 + t*3)*Math.cos(y*0.03 - t*2.5) + Math.sin((x-y)*0.02 + t*4)\n};\n\nconst orbitMap = {\n  \"lazy equatorial drift\": (t) => [Math.cos(t)*1000, 300, Math.sin(t)*1000 + 400],\n  \"gentle sub-tropic sway\": (t) => [Math.cos(t*0.8)*800, 500, Math.sin(t*0.8)*800 + 400],\n  \"steep polar transit\": (t) => [0, Math.cos(t*1.5)*1000, Math.sin(t*1.5)*1000 + 100],\n  \"close skimming pass\": (t) => [Math.cos(t*2.5)*400, Math.sin(t*2.5)*400, 150],\n  \"rapid spiral descent\": (t) => [Math.cos(t*4)*(500 - (t%200)*2), Math.sin(t*4)*(500 - (t%200)*2), Math.max(100, 800 - (t%200)*3)],\n  \"distant zenith point\": (t) => [100 + Math.cos(t*0.5)*500, -200 + Math.sin(t*0.5)*500, 800]\n};\n\nconst sheenMap = {\n  \"satin bisque ceramic\": { amb: 0.3, diff: 0.7, spec: 0.15, exp: 4, col: [230, 220, 210] },\n  \"brushed burnished brass\": { amb: 0.25, diff: 0.6, spec: 0.8, exp: 12, col: [220, 180, 70] },\n  \"holographic oil slick\": { amb: 0.25, diff: 0.5, spec: 0.9, exp: 32, col: [150, 150, 150] }, \n  \"high chrome mirrors\": { amb: 0.2, diff: 0.2, spec: 1.5, exp: 64, col: [245, 250, 255] },\n  \"iridescent mother of pearl\": { amb: 0.3, diff: 0.5, spec: 0.6, exp: 16, col: [240, 230, 235] },\n  \"matte volcanic glass\": { amb: 0.35, diff: 0.4, spec: 0.9, exp: 48, col: [110, 95, 115] }\n};\n\nconst tiltMap = {\n  \"subtle shimmering breath\": 0.3,\n  \"gentle trembling sigh\": 0.5,\n  \"crisp cascading dominoes\": 0.8,\n  \"steep rolling crests\": 1.4,\n  \"wild fluttering flip\": 2.2,\n  \"violent jagged scatter\": 3.5\n};\n\nconst SQRT3 = Math.sqrt(3);\n\nlet currentGrid = null;\nlet hexX = new Float32Array(2000);\nlet hexY = new Float32Array(2000);\nlet hexCount = 0;\n\nconst buckets = [];\nfor (let i = 0; i < 16; i++) {\n  buckets.push({ r: 0, g: 0, b: 0, count: 0, x: new Float32Array(2000), y: new Float32Array(2000) });\n}\n\np.setup = function() {\n  p.createCanvas(800, 800);\n  p.noStroke();\n};\n\np.draw = function() {\n  const vGrid = p.getSynthVar('grid_density') || \"velvet seed beads\";\n  const vWave = p.getSynthVar('wave_dynamics') || \"gentle tidal swell\";\n  const vOrbit = p.getSynthVar('light_orbit') || \"lazy equatorial drift\";\n  const vSheen = p.getSynthVar('specular_sheen') || \"satin bisque ceramic\";\n  const vTilt = p.getSynthVar('tilt_amplitude') || \"subtle shimmering breath\";\n\n  const radius = radiusMap[vGrid] || radiusMap[\"velvet seed beads\"];\n  \n  if (currentGrid !== vGrid) {\n    hexCount = 0;\n    const w = SQRT3 * radius;\n    const h = 2 * radius;\n    const xStep = w;\n    const yStep = h * 0.75;\n    \n    const cols = Math.ceil(1000 / xStep) + 2;\n    const rows = Math.ceil(1000 / yStep) + 2;\n    \n    for (let row = -2; row < rows; row++) {\n      for (let col = -2; col < cols; col++) {\n        let cx = col * xStep;\n        let cy = row * yStep;\n        if (row % 2 !== 0) cx += w * 0.5;\n        if (hexCount < 2000) {\n          hexX[hexCount] = cx - 100;\n          hexY[hexCount] = cy - 100;\n          hexCount++;\n        }\n      }\n    }\n    currentGrid = vGrid;\n  }\n\n  const waveFn = waveMap[vWave] || waveMap[\"gentle tidal swell\"];\n  const orbitFn = orbitMap[vOrbit] || orbitMap[\"lazy equatorial drift\"];\n  const mat = sheenMap[vSheen] || sheenMap[\"satin bisque ceramic\"];\n  const maxTilt = tiltMap[vTilt] || tiltMap[\"subtle shimmering breath\"];\n\n  const t = p.frameCount * 0.016;\n  const L = orbitFn(t);\n  \n  const lx = L[0], ly = L[1], lz = L[2];\n  const ll = Math.sqrt(lx*lx + ly*ly + lz*lz) || 1.1;\n  const nlx = lx/ll, nly = ly/ll, nlz = lz/ll;\n\n  const viewZ = 1.0;\n  const hx = nlx, hy = nly, hz = nlz + viewZ;\n  const hl = Math.sqrt(hx*hx + hy*hy + hz*hz) || 1.1;\n  const nhx = hx/hl, nhy = hy/hl, nhz = hz/hl;\n\n  const isHolo = vSheen === \"holographic oil slick\";\n  const isPearl = vSheen === \"iridescent mother of pearl\";\n\n  for (let i = 0; i < 16; i++) {\n    buckets[i].r = 0; buckets[i].g = 0; buckets[i].b = 0;\n    buckets[i].count = 0;\n  }\n\n  for (let i = 0; i < hexCount; i++) {\n    const hxPos = hexX[i];\n    const hyPos = hexY[i];\n    \n    const basePhase = waveFn(hxPos, hyPos, t);\n    \n    const dx = Math.sin(basePhase * 2.5) * maxTilt;\n    const dy = Math.sin(basePhase * 1.7) * maxTilt;\n    \n    let nx = -dx, ny = -dy, nz = 1.0;\n    let nl = Math.sqrt(nx*nx + ny*ny + nz*nz);\n    nx /= nl; ny /= nl; nz /= nl;\n\n    const dotL = Math.abs(nx*nlx + ny*nly + nz*nlz); \n    const dotH = Math.abs(nx*nhx + ny*nhy + nz*nhz); \n\n    const specular = Math.pow(Math.max(0, dotH), mat.exp) * mat.spec;\n\n    let r = mat.col[0], g = mat.col[1], b = mat.col[2];\n\n    if (isHolo) {\n       const hueOff = (nx * 150 + ny * 150 + t * 40) % 360;\n       r = 150 + Math.sin(hueOff*0.017)*105;\n       g = 150 + Math.sin((hueOff+120)*0.017)*105;\n       b = 150 + Math.sin((hueOff+240)*0.017)*105;\n    } else if (isPearl) {\n       const f = 1.0 - dotH;\n       r += f*60; g += (1-f)*40; b += f*80;\n    }\n\n    let cr = Math.min(255, (mat.amb * r) + (dotL * mat.diff * r) + (specular * 255));\n    let cg = Math.min(255, (mat.amb * g) + (dotL * mat.diff * g) + (specular * 255));\n    let cb = Math.min(255, (mat.amb * b) + (dotL * mat.diff * b) + (specular * 255));\n\n    const luma = (cr * 0.299 + cg * 0.587 + cb * 0.114);\n    let bucketIdx = Math.floor((luma / 255) * 15) || 0;\n    if (bucketIdx < 0) bucketIdx = 0;\n    if (bucketIdx > 15) bucketIdx = 15;\n\n    const bRef = buckets[bucketIdx];\n    bRef.r += cr; bRef.g += cg; bRef.b += cb;\n    bRef.x[bRef.count] = hxPos;\n    bRef.y[bRef.count] = hyPos;\n    bRef.count++;\n  }\n\n  p.background(15);\n  const ctx = p.drawingContext;\n  const drawW = SQRT3 * radius * 0.45;\n  const drawH = radius * 0.9;\n  \n  for (let bIdx = 0; bIdx < 16; bIdx++) {\n    const bucket = buckets[bIdx];\n    if (bucket.count === 0) continue;\n    \n    const avgR = bucket.r / bucket.count;\n    const avgG = bucket.g / bucket.count;\n    const avgB = bucket.b / bucket.count;\n    \n    ctx.fillStyle = `rgb(${Math.round(avgR)},${Math.round(avgG)},${Math.round(avgB)})`;\n    ctx.beginPath();\n    \n    for(let i = 0; i < bucket.count; i++) {\n      const cx = bucket.x[i], cy = bucket.y[i];\n      ctx.moveTo(cx, cy - drawH);\n      ctx.lineTo(cx + drawW, cy - drawH/2);\n      ctx.lineTo(cx + drawW, cy + drawH/2);\n      ctx.lineTo(cx, cy + drawH);\n      ctx.lineTo(cx - drawW, cy + drawH/2);\n      ctx.lineTo(cx - drawW, cy - drawH/2);\n    }\n    ctx.fill();\n  }\n};\n",
+  "tags": [
+    {
+      "id": "tag_hexagonal_sequin_tapestry_01",
+      "type": "custom",
+      "label": "Designed and written by an agent swarm",
+      "description": "Concept, variables and code written by a crew of agents in the Agent Studio chat room (auto1-hexagonal-sequin-tapestry) and played by the harness before it was accepted. Teamcrafter residency, 2026-10-09."
+    }
+  ]
+}

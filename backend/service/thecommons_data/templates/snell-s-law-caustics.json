@@ -1,0 +1,168 @@
+{
+  "promptTemplate": "A caustic study with {{wave_turbulence}} water, {{refractive_index}} liquid, {{focal_depth}} focus, {{chromatic_split}} colors, and {{ray_density}} light.",
+  "variables": [
+    {
+      "name": "wave_turbulence",
+      "feature_name": "Wave Turbulence",
+      "values": [
+        {
+          "text": "glassy swell",
+          "weight": 3
+        },
+        {
+          "text": "gentle ripples",
+          "weight": 3
+        },
+        {
+          "text": "undulating surge",
+          "weight": 3
+        },
+        {
+          "text": "choppy chop",
+          "weight": 2
+        },
+        {
+          "text": "turbulent squall",
+          "weight": 2
+        },
+        {
+          "text": "cavitation shear",
+          "weight": 1
+        },
+        {
+          "text": "vortex snap",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "refractive_index",
+      "feature_name": "Refractive Index",
+      "values": [
+        {
+          "text": "air boundary",
+          "weight": 3
+        },
+        {
+          "text": "thin saline",
+          "weight": 3
+        },
+        {
+          "text": "clear water",
+          "weight": 3
+        },
+        {
+          "text": "dense glycerin",
+          "weight": 2
+        },
+        {
+          "text": "heavy flint glass",
+          "weight": 2
+        },
+        {
+          "text": "diamond shear",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "focal_depth",
+      "feature_name": "Focal Depth",
+      "values": [
+        {
+          "text": "shallow bed",
+          "weight": 3
+        },
+        {
+          "text": "near focal plane",
+          "weight": 3
+        },
+        {
+          "text": "caustic cusp",
+          "weight": 3
+        },
+        {
+          "text": "deep trench",
+          "weight": 2
+        },
+        {
+          "text": "abyssal floor",
+          "weight": 2
+        },
+        {
+          "text": "infinite sink",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "chromatic_split",
+      "feature_name": "Chromatic Split",
+      "values": [
+        {
+          "text": "achromatic silver",
+          "weight": 3
+        },
+        {
+          "text": "subtle fringe",
+          "weight": 3
+        },
+        {
+          "text": "prism flare",
+          "weight": 3
+        },
+        {
+          "text": "spectral separation",
+          "weight": 2
+        },
+        {
+          "text": "tri-colour split",
+          "weight": 2
+        },
+        {
+          "text": "hyper-dispersive rainbow",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "ray_density",
+      "feature_name": "Ray Density",
+      "values": [
+        {
+          "text": "sparse filaments",
+          "weight": 3
+        },
+        {
+          "text": "ribbon warp",
+          "weight": 3
+        },
+        {
+          "text": "fine lattice",
+          "weight": 3
+        },
+        {
+          "text": "dense sheet",
+          "weight": 2
+        },
+        {
+          "text": "volumetric curtain",
+          "weight": 2
+        },
+        {
+          "text": "blinding mesh",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "p5Code": "const waveMap = {\n  'glassy swell': { amp: 10, freq: 0.005, snap: 0 },\n  'gentle ripples': { amp: 15, freq: 0.01, snap: 0 },\n  'undulating surge': { amp: 25, freq: 0.015, snap: 0.1 },\n  'choppy chop': { amp: 35, freq: 0.02, snap: 0.3 },\n  'turbulent squall': { amp: 50, freq: 0.025, snap: 0.6 },\n  'cavitation shear': { amp: 70, freq: 0.03, snap: 1.0 },\n  'vortex snap': { amp: 90, freq: 0.035, snap: 1.5 }\n};\n\nconst refMap = {\n  'air boundary': 1.05,\n  'thin saline': 1.2,\n  'clear water': 1.33,\n  'dense glycerin': 1.47,\n  'heavy flint glass': 1.65,\n  'diamond shear': 2.4\n};\n\nconst focalMap = {\n  'shallow bed': 350,\n  'near focal plane': 450,\n  'caustic cusp': 550,\n  'deep trench': 650,\n  'abyssal floor': 720,\n  'infinite sink': 780\n};\n\nconst chromMap = {\n  'achromatic silver': 0.0,\n  'subtle fringe': 0.01,\n  'prism flare': 0.03,\n  'spectral separation': 0.06,\n  'tri-colour split': 0.1,\n  'hyper-dispersive rainbow': 0.15\n};\n\nconst densMap = {\n  'sparse filaments': { count: 24, w: 1.0, a: 10 },\n  'ribbon warp': { count: 48, w: 0.8, a: 8 },\n  'fine lattice': { count: 80, w: 0.7, a: 6 },\n  'dense sheet': { count: 120, w: 0.6, a: 5 },\n  'volumetric curtain': { count: 160, w: 0.5, a: 4 },\n  'blinding mesh': { count: 200, w: 0.4, a: 3 }\n};\n\np.setup = function() {\n  p.createCanvas(800, 800);\n  p.pixelDensity(1);\n};\n\np.draw = function() {\n  p.background(0);\n  const ctx = p.drawingContext;\n  ctx.globalCompositeOperation = 'lighter';\n\n  const wave = waveMap[p.getSynthVar('wave_turbulence') || 'glassy swell'];\n  const baseN2 = refMap[p.getSynthVar('refractive_index') || 'air boundary'];\n  const floorY = focalMap[p.getSynthVar('focal_depth') || 'shallow bed'];\n  const split = chromMap[p.getSynthVar('chromatic_split') || 'achromatic silver'];\n  const dens = densMap[p.getSynthVar('ray_density') || 'sparse filaments'];\n\n  const t = p.frameCount * 0.02;\n\n  const getH = (x) => {\n    let base = p.sin(x * wave.freq + t) * wave.amp;\n    base += p.sin(x * wave.freq * 2.3 - t * 1.5) * (wave.amp * 0.5);\n    if (wave.snap > 0) {\n      const cav = p.sin(x * wave.freq * 0.5 + t * 2.0);\n      const snapPhase = p.pow(p.abs(p.sin(x * wave.freq * 3.1 - t * 3.0)), 8.0);\n      base -= snapPhase * wave.amp * wave.snap * (cav > 0 ? 1 : -1);\n    }\n    return 150 + base;\n  };\n\n  p.stroke(40, 40, 40);\n  p.strokeWeight(dens.w);\n  ctx.beginPath();\n  for (let i = 0; i < dens.count; i++) {\n    const x = p.map(i, 0, dens.count - 1, 10, 790);\n    ctx.moveTo(x, 0);\n    ctx.lineTo(x, getH(x));\n  }\n  ctx.stroke();\n\n  const colors = [\n    { c: [255, 50, 50], disp: -split },\n    { c: [50, 255, 50], disp: 0 },\n    { c: [50, 50, 255], disp: split }\n  ];\n\n  for (let col of colors) {\n    let n2 = baseN2 + col.disp;\n    if (n2 < 1.01) n2 = 1.01;\n    const eta = 1.0 / n2;\n\n    p.stroke(col.c[0], col.c[1], col.c[2], dens.a);\n    p.strokeWeight(dens.w);\n    ctx.beginPath();\n    \n    for (let i = 0; i < dens.count; i++) {\n      const x = p.map(i, 0, dens.count - 1, 10, 790);\n      const sy = getH(x);\n      \n      const dx = 1.0;\n      const dy = getH(x + dx) - getH(x - dx);\n      \n      const len = p.sqrt(dy * dy + 4.0);\n      const Nx = -dy / len;\n      const Ny = -2.0 / len; \n\n      let Ix = (400 - x) / floorY;\n      let Iy = 1.0;\n      let iLen = p.sqrt(Ix * Ix + Iy * Iy);\n      Ix /= iLen;\n      Iy /= iLen;\n\n      let cosI = -(Nx * Ix + Ny * Iy);\n      if (cosI < 0) cosI = 0; \n\n      const sinT2 = eta * eta * (1.0 - cosI * cosI);\n      let Tx, Ty;\n      let dist = 1500;\n      \n      if (sinT2 > 1.0) {\n        Tx = Ix + 2.0 * cosI * Nx;\n        Ty = Iy + 2.0 * cosI * Ny;\n      } else {\n        const cosT = p.sqrt(1.0 - sinT2);\n        Tx = eta * Ix + (eta * cosI - cosT) * Nx;\n        Ty = eta * Iy + (eta * cosI - cosT) * Ny;\n      }\n      \n      if (Ty > 0.001) {\n        dist = (800 - sy) / Ty;\n      } else if (Ty < -0.001) {\n        dist = -sy / Ty;\n      }\n      \n      ctx.moveTo(x, sy);\n      ctx.lineTo(x + Tx * dist, sy + Ty * dist);\n    }\n    ctx.stroke();\n  }\n};\n",
+  "tags": [
+    {
+      "id": "tag_snell_s_law_caustics_01",
+      "type": "custom",
+      "label": "Designed and written by an agent swarm",
+      "description": "Concept, variables and code written by a crew of agents in the Agent Studio chat room (look1-snell-s-law-caustics) and played by the harness before it was accepted. Teamcrafter residency, 2026-10-09."
+    }
+  ]
+}
