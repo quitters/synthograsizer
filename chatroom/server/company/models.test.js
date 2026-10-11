@@ -40,6 +40,12 @@ test('the defaults: a local install allows all three models, a hosted one the de
   assert.deepEqual(operatorWith({}).snapshot().models, ALL);
 });
 
+test('an operator list written before the swap, with the replaced Pro id, means Argon', () => {
+  const op = operatorWith({ COMPANY_MODELS: `${MODELS.FAST},gemini-3.1-pro-preview` });
+  assert.deepEqual([...op.models], [MODELS.FAST, MODELS.SMART]);
+  assert.deepEqual([...operatorWith({ COMPANY_MODELS: `gemini-3.1-pro-preview,${MODELS.SMART}` }).models], [MODELS.SMART], 'listed both ways it is one entry');
+});
+
 test('COMPANY_MODELS sets the list, in either mode; a bad list is ignored with a warning and the default stays', () => {
   const op = operatorWith({ COMPANY_MODELS: ` ${MODELS.SMART} , ${MODELS.FAST},${MODELS.SMART}` });
   assert.deepEqual([...op.models], [MODELS.SMART, MODELS.FAST]);

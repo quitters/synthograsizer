@@ -14,7 +14,7 @@ from .develop import _gen_json
 
 log = logging.getLogger("filmfactory.restyle")
 
-MODEL = config.MODEL_TEMPLATE_GEN  # gemini-3.1-pro-preview
+MODEL = config.MODEL_TEMPLATE_GEN  # gemini-4-argon
 
 ANCHOR_SYS = """You are a legendary cinematographer defining the look bible of
 a film. Answer ONLY with valid JSON."""

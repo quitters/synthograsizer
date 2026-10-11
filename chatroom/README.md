@@ -110,7 +110,7 @@ ChatRoom/
 - Google Gemini API key with access to:
   - `gemini-3.8-flash` (default agent turns, image understanding)
   - `gemini-3.5-flash-lite` (search / URL-context tool calls)
-  - `gemini-3.1-pro-preview` (optional per-agent "deliberate" tier)
+  - `gemini-4-argon` (optional per-agent "deliberate" tier; "minimal" thinking is not supported on it and is sent as "low")
 
 ### Setup
 

@@ -42,7 +42,15 @@ def get_api_key() -> str | None:
 
 # ── Google GenAI Model Names ──
 # Single source of truth — change model versions here, not in ai_manager.py.
-MODEL_TEXT_CHAT = "gemini-3.1-pro-preview"
+# The top text tier is Gemini 4 Argon (replaced gemini-3.1-pro-preview on
+# 2026-10-13). Same Interactions + generateContent surface as the 3.x models:
+# JSON mode, system instructions, function calls, google_search, url_context.
+# Differences worth knowing: thinking_level accepts low/medium/high but NOT
+# "minimal" (a 400), and explicit context caching is unsupported (implicit
+# only). Priced $2/$10 per 1M through 2026-11-30, then $4/$20 -- a template
+# call measured $0.032 on average at the first rate and $0.064 at the second,
+# against $0.067 for the Pro it replaced, so pricing.py keeps its 5 credits.
+MODEL_TEXT_CHAT = "gemini-4-argon"
 # Moved off gemini-2.5-flash-image on 2026-09-22. That id still works, but
 # it is a legacy model with access restricted for new projects, so the cheap
 # tier was one policy change from having no model. This is its GA successor
@@ -64,8 +72,8 @@ MODEL_IMAGE_GEN_HQ = "gemini-3-pro-image"
 MODEL_VIDEO_GEN = "veo-3.1-generate-preview"
 MODEL_MUSIC_REALTIME = "models/lyria-realtime-exp"
 
-# Template generation (Pro for creative quality)
-MODEL_TEMPLATE_GEN = "gemini-3.1-pro-preview"
+# Template generation (the top tier, for creative quality)
+MODEL_TEMPLATE_GEN = "gemini-4-argon"
 # Fast alternative for template generation (lower quality, much faster)
 MODEL_TEMPLATE_GEN_FAST = "gemini-3.8-flash"
 # The Commons' panel designer (service/thecommons_ui.py) and sketch generator

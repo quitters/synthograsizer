@@ -30,7 +30,7 @@ router.get('/', (req, res) => {
  * Add a new agent
  */
 router.post('/', (req, res) => {
-  const { name, bio, model, thinkingLevel, tools } = req.body;
+  const { name, bio, model, thinkingLevel, tools, maxOutputTokens } = req.body;
 
   if (!name || !bio) {
     return res.status(400).json({ error: 'Name and bio are required' });
@@ -51,7 +51,7 @@ router.post('/', (req, res) => {
 
   // Unrecognised model / thinking values fall back to the registry defaults
   // rather than 400-ing — an agent with a typo'd model should still join.
-  const agent = req.room.orchestrator.addAgent(agentName.trim(), bio.trim(), { model, thinkingLevel, tools });
+  const agent = req.room.orchestrator.addAgent(agentName.trim(), bio.trim(), { model, thinkingLevel, tools, maxOutputTokens });
   res.status(201).json({ agent });
 });
 
@@ -98,12 +98,12 @@ router.delete('/:id', (req, res) => {
  */
 router.patch('/:idOrName', (req, res) => {
   const { idOrName } = req.params;
-  const { bio, name, model, thinkingLevel, tools } = req.body || {};
+  const { bio, name, model, thinkingLevel, tools, maxOutputTokens } = req.body || {};
   if (typeof bio !== 'string' && typeof name !== 'string' &&
-      typeof model !== 'string' && typeof thinkingLevel !== 'string' && typeof tools !== 'string') {
-    return res.status(400).json({ error: 'Provide at least one of: bio, name, model, thinkingLevel, tools' });
+      typeof model !== 'string' && typeof thinkingLevel !== 'string' && typeof tools !== 'string' && maxOutputTokens === undefined) {
+    return res.status(400).json({ error: 'Provide at least one of: bio, name, model, thinkingLevel, tools, maxOutputTokens' });
   }
-  const updated = req.room.orchestrator.updateAgent(idOrName, { bio, name, model, thinkingLevel, tools });
+  const updated = req.room.orchestrator.updateAgent(idOrName, { bio, name, model, thinkingLevel, tools, maxOutputTokens });
   if (!updated) return res.status(404).json({ error: `Agent not found: ${idOrName}` });
   res.json({ agent: updated });
 });

@@ -21,7 +21,7 @@ RATES = {
     "gemini-3.1-flash-image": (0.05, "image"),
     "gemini-3.1-flash-lite-image": (0.035, "image"),
     # text calls: flat per-call estimates (they are rounding errors here)
-    "gemini-3.1-pro-preview": (0.05, "call"),
+    "gemini-4-argon": (0.05, "call"),
     "gemini-3.8-flash": (0.005, "call"),
     "gemini-3-flash-preview": (0.005, "call"),
 }

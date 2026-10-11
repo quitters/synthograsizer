@@ -213,7 +213,7 @@ test('a mission must be text of a sane length with no secrets in it; control cha
 test('spend is estimated from list prices, thinking counts as output, and an unknown model is priced as the dearest', () => {
   const usage = { inputTokens: 1_000_000, outputTokens: 400_000, thoughtTokens: 100_000 };
   assert.equal(textCostUsd(usage, MODELS.FAST).toFixed(4), (0.75 + 0.5 * 3.75).toFixed(4));
-  assert.equal(textCostUsd(usage, MODELS.SMART).toFixed(4), (2 + 0.5 * 12).toFixed(4));
+  assert.equal(textCostUsd(usage, MODELS.SMART).toFixed(4), (4 + 0.5 * 20).toFixed(4));
   assert.deepEqual(pricingFor('gemini-from-the-future'), MODEL_PRICING_USD_PER_M[MODELS.SMART]);
   assert.equal(textCostUsd(null, MODELS.FAST), 0);
   assert.ok(toolCostUsd('generate_image') > 0 && toolCostUsd('google_search') === 0 && toolCostUsd('deep_research') >= 1);

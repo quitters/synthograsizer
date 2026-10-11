@@ -46,7 +46,7 @@ class TestModelSubstitution:
     def test_local_tier_substitutes_configured_model(self, fresh_policy, monkeypatch):
         fresh_policy.update(tier=TIER_LOCAL, local_model="qwen2.5")
         provider = use_provider(monkeypatch, FakeProvider("local"))
-        out = ai_manager.llm_text(["sys", "user"], "gemini-3.1-pro-preview", json_mode=True)
+        out = ai_manager.llm_text(["sys", "user"], "gemini-4-argon", json_mode=True)
         assert out == "ok"
         assert provider.calls[0]["model"] == "qwen2.5"  # NOT the Gemini name
         # Local provider receives no safety settings from the router.

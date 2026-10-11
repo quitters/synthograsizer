@@ -23,7 +23,7 @@ const runs = files.map(load);
 const results = runs.flatMap(r => r.results);
 const control = controlPath ? load(controlPath).results : null;
 
-const short = (m) => ({ 'gemini-3.8-flash': 'Flash', 'gemini-3.5-flash-lite': 'Flash-Lite', 'gemini-3.1-pro-preview': 'Pro' }[m] || m);
+const short = (m) => ({ 'gemini-3.8-flash': 'Flash', 'gemini-3.5-flash-lite': 'Flash-Lite', 'gemini-4-argon': 'Argon', 'gemini-3.1-pro-preview': 'Pro' }[m] || m);
 const pct = (x) => `${(100 * x).toFixed(1)}%`;
 
 /** 95% Wilson score interval for k of n. */

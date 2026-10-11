@@ -71,7 +71,7 @@ test('the position shapes the person: archetype, tier, model, thinking, dissent,
   const { rows } = castPositions({ positions: desk(), seed: 'shape', year: YEAR });
   const by = Object.fromEntries(rows.map(r => [r.title, r]));
   assert.deepEqual([by['Producer'].archetype, by['Producer'].tier, by['Producer'].dissent, by['Producer'].lead], ['steward', 'none', 'low', true]);
-  assert.deepEqual([by['Skeptic'].archetype, by['Skeptic'].dissent, by['Skeptic'].model, by['Skeptic'].thinking, by['Skeptic'].reviewer], ['contrarian', 'high', 'gemini-3.1-pro-preview', 'medium', true]);
+  assert.deepEqual([by['Skeptic'].archetype, by['Skeptic'].dissent, by['Skeptic'].model, by['Skeptic'].thinking, by['Skeptic'].reviewer], ['contrarian', 'high', 'gemini-4-argon', 'medium', true]);
   assert.deepEqual([by['Template engineer'].tier, by['Template engineer'].thinking], ['builder', 'medium']);
   assert.equal(by['Researcher'].tier, 'research');
   for (const r of rows) {

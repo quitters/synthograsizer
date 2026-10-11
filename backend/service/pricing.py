@@ -35,7 +35,12 @@ TEXT_MODEL_CREDITS = {
     # being a key here allowlists the id for /chat and /generate.
     # Demo mode is therefore a feature cap, not a cost cap.
     config.MODEL_FAST: 1,
-    config.MODEL_TEXT_CHAT: 5,          # gemini pro (== MODEL_TEMPLATE_GEN / MODEL_ANALYSIS)
+    # gemini 4 argon (== MODEL_TEMPLATE_GEN). Measured 2026-10-13 on 3 text
+    # templates + 1 p5 sketch through the real generators: mean $0.032 at the
+    # $2/$10 launch rate, $0.064 (p5 sketch $0.138) at the $4/$20 rate that
+    # starts 2026-12-01. 5 credits over-reserves until then; from December the
+    # mean is nearer 6-7, so revisit this entry when the rate changes.
+    config.MODEL_TEXT_CHAT: 5,
 }
 
 IMAGE_MODEL_CREDITS = {

@@ -19,7 +19,7 @@ import { DEFAULT_OPERATOR_MANDATE, assertOperatorMandate, validateMandate, MANDA
 import { DEFAULT_OPERATOR_CEILINGS, validateCeilings, CEILING_NAMES } from './ceilings.js';
 import { DEFAULT_OPERATOR_TOOLS, validateToolList } from './toolGrants.js';
 import { clone, deepFreeze, isPlainObject, setPath } from './util.js';
-import { MODELS, AGENT_MODEL_IDS } from '../config/models.js';
+import { MODELS, AGENT_MODEL_IDS, canonicalModelId } from '../config/models.js';
 
 export const OPERATOR_FILE_NAME = 'operator-policy.json';
 
@@ -35,9 +35,11 @@ export const DEFAULT_HOSTED_MODELS = Object.freeze([MODELS.FAST, MODELS.SMART]);
 export function validateModelList(list) {
   if (list === undefined) return { ok: true, value: undefined, errors: [] };
   if (!Array.isArray(list) || !list.length) return { ok: false, errors: ['models must be a non-empty list of model ids'] };
-  const unknown = list.filter(m => !AGENT_MODEL_IDS.includes(m));
+  // An older id the registry has since replaced (an operator-policy.json or COMPANY_MODELS written before the swap) means its replacement.
+  const wanted = list.map(canonicalModelId);
+  const unknown = wanted.filter(m => !AGENT_MODEL_IDS.includes(m));
   if (unknown.length) return { ok: false, errors: [`unknown model(s): ${unknown.map(String).join(', ')} (known: ${AGENT_MODEL_IDS.join(', ')})`] };
-  return { ok: true, value: [...new Set(list)], errors: [] };
+  return { ok: true, value: [...new Set(wanted)], errors: [] };
 }
 
 const numberFromEnv = (raw) => (raw === undefined || raw === '' ? undefined : Number(raw));

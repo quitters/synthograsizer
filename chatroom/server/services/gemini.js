@@ -5,6 +5,8 @@ import { artifactStore } from './artifactStore.js';
 import {
   resolveAgentModel,
   normalizeThinkingLevel,
+  thinkingLevelFor,
+  normalizeMaxOutputTokens,
   MAX_OUTPUT_TOKENS,
   DEFAULT_TEMPERATURE,
 } from '../config/models.js';
@@ -776,7 +778,7 @@ async function createAgentStream(model, systemPrompt, blocks, thinkingLevel, too
     generation_config: {
       // Hard cap on thinking + output COMBINED — thinking is spent first, so
       // this needs headroom above the longest answer we actually want.
-      max_output_tokens: MAX_OUTPUT_TOKENS,
+      max_output_tokens: state.maxOutputTokens ?? MAX_OUTPUT_TOKENS,
       temperature: DEFAULT_TEMPERATURE,
       thinking_level: thinkingLevel,
       // 'validated' is required only when built-ins are COMBINED with custom
@@ -922,7 +924,7 @@ async function* consumeStream(stream, agentName, { strict = false } = {}) {
 async function* runFunctionTurn(ctx) {
   const {
     agent, modelId, systemPrompt, thinkingLevel, contentParts, tools, dispatch,
-    store = false, previousInteractionId = null, strict = false,
+    store = false, previousInteractionId = null, strict = false, maxOutputTokens = null,
   } = ctx;
 
   let fullResponse = '';
@@ -942,6 +944,7 @@ async function* runFunctionTurn(ctx) {
     const stream = await createAgentStream(modelId, systemPrompt, input, thinkingLevel, tools, {
       store,
       previousInteractionId: chainId,
+      maxOutputTokens,
     });
 
     const consumer = consumeStream(stream, agent.name, { strict });
@@ -1099,7 +1102,11 @@ export async function* generateAgentResponse(agent, allAgents, messages, goal, s
   });
   // Precedence: per-agent model → session-wide preference → registry default.
   const modelId = resolveAgentModel(agent, options?.model);
-  const thinkingLevel = normalizeThinkingLevel(options?.thinkingLevel ?? agent?.thinkingLevel);
+  // Per model: Argon refuses 'minimal', and createAgentStream's retry without the level would land on its default (medium).
+  // Clamped here, once, so the level the turn reports is the level it ran at.
+  const thinkingLevel = thinkingLevelFor(modelId, normalizeThinkingLevel(options?.thinkingLevel ?? agent?.thinkingLevel));
+  // A per-agent cap on thinking + answer together (null: the room's default). See MAX_OUTPUT_TOKENS_CEILING.
+  const maxOutputTokens = normalizeMaxOutputTokens(options?.maxOutputTokens ?? agent?.maxOutputTokens);
 
   // Stateful mode (Phase 3): the server already holds this agent's history,
   // so the turn carries only what has happened since it last spoke instead of
@@ -1164,6 +1171,7 @@ export async function* generateAgentResponse(agent, allAgents, messages, goal, s
         dispatch: options.dispatch,
         store, previousInteractionId,
         strict: Boolean(options?.policy),
+        maxOutputTokens,
       });
     } catch (error) {
       const said = describeApiError(error);
@@ -1192,6 +1200,7 @@ export async function* generateAgentResponse(agent, allAgents, messages, goal, s
         // truncation continuation re-sends the prompt plus the partial text,
         // so anchoring it to a chain head would duplicate that history.
         previousInteractionId: continuationAttempts === 0 ? previousInteractionId : null,
+        maxOutputTokens,
       });
 
       let chunkText = '';

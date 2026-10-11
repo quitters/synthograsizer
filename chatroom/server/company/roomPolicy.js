@@ -22,7 +22,7 @@ import { createHallTools } from './hall/tools.js';
 import { FEATURE_TOOL, HALL_TOOL_NAMES } from './collaboration.js';
 import { neutralize } from './layer.js';
 import { DEFAULT_LOCAL_MODELS } from './operator.js';
-import { MODELS, isKnownAgentModel } from '../config/models.js';
+import { MODELS, isKnownAgentModel, canonicalModelId } from '../config/models.js';
 
 export const BIO_MAX_CHARS = 12_000;
 export const GOAL_MAX_CHARS = 4_000;
@@ -143,7 +143,7 @@ export class RoomPolicy {
   /** The models this server lets a company's agents run on (the operator's list; never a company's or a request's to widen). */
   get allowedModels() { return this.operator.models ?? DEFAULT_LOCAL_MODELS; }
 
-  modelAllowed(id) { return this.allowedModels.includes(id); }
+  modelAllowed(id) { return this.allowedModels.includes(canonicalModelId(id)); }
 
   /** A model a person asked for, refused unless the operator allows it. Nothing is changed when it throws. */
   checkModel(id, field = 'model') {
@@ -159,7 +159,7 @@ export class RoomPolicy {
    * list was wider, or a model the operator has since taken out, must not keep spending on it.
    */
   modelFor(asked, agent = null) {
-    if (this.modelAllowed(asked)) return asked;
+    if (this.modelAllowed(asked)) return canonicalModelId(asked);
     const instead = [MODELS.FAST, MODELS.SMART, MODELS.LITE].find(m => this.modelAllowed(m)) ?? this.allowedModels[0];
     const key = `${agent?.id ?? ''}|${asked}|${instead}`;
     this._modelNotes ??= new Set();

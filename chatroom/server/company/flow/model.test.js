@@ -35,9 +35,9 @@ test('what it costs is counted by step, at the same list prices the rooms use, r
   const snap = spend.snapshot();
   assert.equal(snap.calls, 3);
   assert.equal(snap.byStep.sheet.calls, 2);
-  assert.equal(snap.byStep.sheet.usd, 6.4, '(1M in at $2 + 100k out at $12) twice');
+  assert.equal(snap.byStep.sheet.usd, 12, '(1M in at $4 + 100k out at $20) twice');
   assert.equal(snap.byStep.review.usd, 1.125, '(1M in at $0.75 + 100k out at $3.75)');
-  assert.equal(snap.usd, 7.525);
+  assert.equal(snap.usd, 13.125);
   // thought tokens bill as output
   const s = new Spend();
   s.record('x', MODELS.FAST, { total_input_tokens: 0, total_output_tokens: 0, total_thought_tokens: 1_000_000 });

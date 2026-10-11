@@ -19,7 +19,7 @@ _SPEC.loader.exec_module(cmi)
 
 # A plausible provider listing. Only the shapes matter, not the exact roster.
 LIVE = {
-    "gemini-3.8-flash", "gemini-3.6-flash", "gemini-3.1-pro-preview",
+    "gemini-3.8-flash", "gemini-3.6-flash", "gemini-4-argon",
     "gemini-3.1-flash-image", "gemini-3-pro-image", "gemini-3.1-flash-lite-image",
     "veo-3.1-generate-preview", "lyria-realtime-exp",
 }

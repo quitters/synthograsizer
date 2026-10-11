@@ -8,7 +8,7 @@ import { foldIntoSummary, needsRefresh, agedRange, summaryIsValid, MAX_FOLD_MESS
 import { generateImage, generateImageWithReferences, parseImageRequests, parseRemixRequests, stripImageTags } from './imageGen.js';
 import { parseToolRequests, executeToolRequests, stripToolTags, formatToolResults, parseSynthRequests, executeSynthRequests, stripSynthTags, formatSynthResults, parseWorkflowRequests, stripWorkflowTags, workflowEngine, parseSynthStyleRequests, parseWorkflowTemplateRequests, stripStyleAndTemplateTags } from './tools.js';
 import { countTokens, countMessageTokens } from '../utils/tokenCounter.js';
-import { DEFAULT_AGENT_MODEL, normalizeThinkingLevel, isKnownAgentModel } from '../config/models.js';
+import { DEFAULT_AGENT_MODEL, normalizeThinkingLevel, normalizeMaxOutputTokens, isKnownAgentModel, canonicalModelId } from '../config/models.js';
 import { isFunctionCallingEnabled, isKnownToolTier, DEFAULT_TOOL_TIER } from '../config/tools.js';
 import { isStatefulEnabled } from '../config/session.js';
 import {
@@ -395,8 +395,9 @@ export class ChatOrchestrator {
       name: a.name,
       bio: a.bio || '',
       color: a.color || this.generateColor(i),
-      model: isKnownAgentModel(a.model) ? a.model : null,
+      model: isKnownAgentModel(a.model) ? canonicalModelId(a.model) : null,
       thinkingLevel: normalizeThinkingLevel(a.thinkingLevel),
+      maxOutputTokens: normalizeMaxOutputTokens(a.maxOutputTokens),
       // an agent with no tier is given the widest by default in a plain room, and the narrowest in a company's
       tools: isKnownToolTier(a.tools) ? a.tools : (this.policy ? 'none' : DEFAULT_TOOL_TIER),
       employeeId: typeof a.employeeId === 'string' && a.employeeId ? a.employeeId : null,
@@ -1199,8 +1200,10 @@ export class ChatOrchestrator {
       name,
       bio,
       color: this.generateColor(this.agents.length),
-      model: isKnownAgentModel(options.model) ? options.model : null,
+      model: isKnownAgentModel(options.model) ? canonicalModelId(options.model) : null,
       thinkingLevel: normalizeThinkingLevel(options.thinkingLevel),
+      // Cap on thinking + answer for this agent's turns; null = the room's default (MAX_OUTPUT_TOKENS)
+      maxOutputTokens: normalizeMaxOutputTokens(options.maxOutputTokens),
       // Which function tools this agent may call (function-calling mode only).
       tools,
       // Who they are at the company, when they came from its roster (company/flow/admit.js): the Hall's mailbox, forums and board are theirs through this
@@ -1241,10 +1244,11 @@ export class ChatOrchestrator {
     if (this.policy) fields = { ...fields, ...this.policy.checkAgentFields(fields, agent) };
     if (typeof fields.bio === 'string') agent.bio = fields.bio;
     if (typeof fields.name === 'string' && fields.name.trim()) agent.name = fields.name.trim();
-    if (isKnownAgentModel(fields.model)) agent.model = fields.model;
+    if (isKnownAgentModel(fields.model)) agent.model = canonicalModelId(fields.model);
     if (typeof fields.thinkingLevel === 'string') {
       agent.thinkingLevel = normalizeThinkingLevel(fields.thinkingLevel);
     }
+    if (fields.maxOutputTokens !== undefined) agent.maxOutputTokens = normalizeMaxOutputTokens(fields.maxOutputTokens);
     if (isKnownToolTier(fields.tools)) agent.tools = fields.tools;
     if (isKnownVoice(fields.voice)) agent.voice = fields.voice;
     return agent;
@@ -1371,7 +1375,7 @@ export class ChatOrchestrator {
     this.renderState.failed = 0;
     this.critic.calls = 0;
     this.researchTasksUsed = 0;
-    this.modelPreference = options.model || null;
+    this.modelPreference = canonicalModelId(options.model) || null;
     // sessionId groups all workflows + traces produced during this run.
     // The trace viewer's "session lens" pivots on this field.
     this.sessionId = uuidv4();
@@ -2235,6 +2239,7 @@ export class ChatOrchestrator {
             // one the operator allows (see _turnModel).
             model: this.policy ? this._turnModel(speaker) : this.modelPreference,
             thinkingLevel: speaker.thinkingLevel,
+            maxOutputTokens: speaker.maxOutputTokens,
             systemNotes,
             // How this room ends (a vote, or the lead alone), so each agent's prompt says so
             ending: this._endingForPrompt(speaker),

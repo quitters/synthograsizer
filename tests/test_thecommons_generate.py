@@ -241,8 +241,8 @@ def test_sketches_run_on_3_8_flash_and_the_repair_matches_the_first_call(gemini_
     sketch = asyncio.run(gen.generate_sketch("swirling colors"))
     assert sketch["fallback"] is False and len(calls) == 2
     assert config.MODEL_COMMONS_SKETCH == "gemini-3.8-flash"
-    # Its own constant: the template tools stay on Pro.
-    assert config.MODEL_TEMPLATE_GEN == "gemini-3.1-pro-preview"
+    # Its own constant: the template tools stay on Argon.
+    assert config.MODEL_TEMPLATE_GEN == "gemini-4-argon"
     first, repair = calls
     # Same model, same system prompt, same thinking level -- a repair on a
     # different setup could "fix" the piece into something else.

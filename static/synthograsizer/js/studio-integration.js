@@ -1231,7 +1231,7 @@ class StudioIntegration {
             <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px; padding:8px 12px; background:rgba(0,150,136,0.06); border-radius:6px; border:1px solid rgba(0,150,136,0.15);">
                 <span style="font-size:12px; font-weight:600; color:#555;">AI Model:</span>
                 <label style="display:flex; align-items:center; gap:4px; font-size:12px; cursor:pointer; color:#009688;">
-                    <input type="radio" name="tg-model-choice" value="pro" checked style="accent-color:#009688;"> Pro <span style="color:#565656; font-weight:normal;">(quality)</span>
+                    <input type="radio" name="tg-model-choice" value="pro" checked style="accent-color:#009688;"> Argon <span style="color:#565656; font-weight:normal;">(quality)</span>
                 </label>
                 <label style="display:flex; align-items:center; gap:4px; font-size:12px; cursor:pointer; color:#FF9800;">
                     <input type="radio" name="tg-model-choice" value="flash" style="accent-color:#FF9800;"> Flash <span style="color:#565656; font-weight:normal;">(speed)</span>
@@ -1388,7 +1388,7 @@ class StudioIntegration {
                     <input type="radio" name="analysis-model-choice" value="gemini-3.6-flash" checked style="accent-color:#3F51B5;"> Flash <span style="color:#565656; font-weight:normal;">(speed)</span>
                 </label>
                 <label style="display:flex; align-items:center; gap:4px; font-size:12px; cursor:pointer; color:#009688;">
-                    <input type="radio" name="analysis-model-choice" value="gemini-3.1-pro-preview" style="accent-color:#009688;"> Pro <span style="color:#565656; font-weight:normal;">(quality)</span>
+                    <input type="radio" name="analysis-model-choice" value="gemini-4-argon" style="accent-color:#009688;"> Argon <span style="color:#565656; font-weight:normal;">(quality)</span>
                 </label>
             </div>
             
@@ -2049,7 +2049,7 @@ class StudioIntegration {
                     <span>🤖 Chat</span>
                     <select id="chat-model-select" class="chat-model-select" onclick="event.stopPropagation()">
                         <option value="gemini-3.6-flash">Gemini 3.6 Flash</option>
-                        <option value="gemini-3.1-pro-preview">Gemini 3.1 Pro</option>
+                        <option value="gemini-4-argon">Gemini 4 Argon</option>
                     </select>
                 </div>
                 <button style="background:none;border:none;color:white;cursor:pointer;" onclick="document.getElementById('chat-window').classList.remove('active')">▼</button>
@@ -5373,7 +5373,7 @@ class StudioIntegration {
         const resolvedMode = body.mode;
 
         // Workflow mode: show progress with image count
-        const modelLabel = document.querySelector('input[name="tg-model-choice"]:checked')?.value === 'flash' ? '⚡ Flash' : '🧠 Pro';
+        const modelLabel = document.querySelector('input[name="tg-model-choice"]:checked')?.value === 'flash' ? '⚡ Flash' : '🧠 Argon';
         if (resolvedMode === 'workflow') {
             const imageCount = body.images?.length || 1;
             this.showLoading(`Workflow Curation (${imageCount} image${imageCount > 1 ? 's' : ''}) — ${modelLabel}`,

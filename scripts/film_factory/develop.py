@@ -17,7 +17,7 @@ from . import costs
 
 log = logging.getLogger("filmfactory.develop")
 
-MODEL = config.MODEL_TEMPLATE_GEN  # gemini-3.1-pro-preview
+MODEL = config.MODEL_TEMPLATE_GEN  # gemini-4-argon
 
 SHOWRUNNER_SYS = """You are the showrunner of a prestige AI-generated short
 film. You answer ONLY with valid JSON matching the requested schema exactly.

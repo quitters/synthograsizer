@@ -1,0 +1,247 @@
+/* About page: a name, a line, three links, and quiet disclosures for everything else.
+   Builds on index.css (tokens, masthead, footer); only what is specific to this page lives here. */
+/* Same left edge as the masthead; the readable column is capped inside it. */
+.about-main{
+  padding-block:72px 96px
+}
+.about-main>*{
+  max-width:760px
+}
+.about-main h1{
+  font-size:clamp(40px,8.4vw,104px);
+  margin-bottom:26px
+}
+.about-line{
+  font-size:18px;
+  line-height:1.7;
+  color:#566158;
+  max-width:560px;
+  margin:0 0 22px
+}
+.about-links{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px 26px;
+  margin:0 0 64px;
+  font-size:13px;
+  font-weight:550
+}
+.about-links a{
+  border-bottom:1px solid #b9c0b2;
+  padding-bottom:2px
+}
+.about-links a:hover{
+  color:#a1502b;
+  border-color:#a1502b
+}
+
+/* ── Disclosures ─────────────────────────────────────────────── */
+.more{
+  border-bottom:1px solid var(--line)
+}
+.more details{
+  border-top:1px solid var(--line)
+}
+.more summary{
+  display:flex;
+  align-items:baseline;
+  gap:16px;
+  cursor:pointer;
+  list-style:none;
+  padding:20px 0;
+  position:relative
+}
+.more summary::-webkit-details-marker{
+  display:none
+}
+.more summary:before{
+  content:'+';
+  flex:0 0 14px;
+  font:400 17px/1 var(--mono);
+  color:#8a9484;
+  transition:color .2s
+}
+.more details[open]>summary:before{
+  content:'\2212';
+  color:#a1502b
+}
+.more summary:hover:before,.more summary:focus-visible:before{
+  color:#a1502b
+}
+.more summary:focus-visible{
+  outline:3px solid #a1502b;
+  outline-offset:2px
+}
+.more summary>span{
+  font:400 30px/1.1 var(--serif);
+  letter-spacing:-.6px
+}
+.more summary>em{
+  margin-left:auto;
+  font:normal 10px/1.5 var(--mono);
+  letter-spacing:.6px;
+  text-transform:uppercase;
+  color:var(--muted);
+  text-align:right
+}
+.more-body{
+  padding:0 0 30px 30px
+}
+.more-body p{
+  font-size:15px;
+  line-height:1.85;
+  color:#4d5a4b;
+  max-width:640px;
+  margin:0 0 14px
+}
+.more-body p strong,.more-body li b{
+  color:var(--ink);
+  font-weight:600
+}
+.more-links{
+  display:flex;
+  gap:24px;
+  margin-top:18px !important;
+  font-size:13px !important;
+  font-weight:550
+}
+.more-links a:hover{
+  color:#a1502b;
+  text-decoration:underline;
+  text-underline-offset:4px
+}
+.suite-list{
+  list-style:none;
+  padding:0;
+  margin:20px 0 0;
+  display:grid;
+  gap:9px;
+  max-width:640px
+}
+.suite-list li{
+  font-size:14px;
+  line-height:1.6;
+  color:#4d5a4b;
+  padding-left:14px;
+  position:relative
+}
+.suite-list li:before{
+  content:'';
+  position:absolute;
+  left:0;
+  top:.7em;
+  width:5px;
+  height:5px;
+  border-radius:50%;
+  background:var(--orange)
+}
+.skills{
+  font-size:13.5px !important;
+  line-height:1.8 !important;
+  margin-top:20px !important
+}
+.skills b{
+  display:block;
+  font:500 10px/1.6 var(--mono);
+  letter-spacing:1.2px;
+  text-transform:uppercase;
+  color:var(--muted) !important
+}
+.about-quote{
+  margin:26px 0 0;
+  padding-left:16px;
+  border-left:2px solid var(--orange)
+}
+.about-quote p{
+  font:italic 21px/1.4 var(--serif);
+  color:var(--ink);
+  margin:0 0 4px
+}
+.about-quote .about-cite{
+  font:10px/1.6 var(--mono);
+  letter-spacing:.4px;
+  color:var(--muted)
+}
+
+code{
+  font:500 .86em var(--mono);
+  background:#e8ede2;
+  border-radius:3px;
+  padding:1px 6px
+}
+.sub-label{
+  font:500 10px/1.6 var(--mono) !important;
+  letter-spacing:1.2px;
+  text-transform:uppercase;
+  color:var(--muted) !important;
+  margin:34px 0 4px !important;
+  padding-top:22px;
+  border-top:1px solid var(--line)
+}
+
+/* ── Experience: each role is its own quiet disclosure ───────── */
+.exp-list{
+  padding-left:0
+}
+.more .exp{
+  margin-left:30px
+}
+.more .exp summary{
+  padding:15px 0
+}
+.more .exp summary>span{
+  font:550 15px/1.45 var(--sans);
+  letter-spacing:0
+}
+.more .exp summary>em{
+  white-space:nowrap
+}
+.more .exp>p{
+  margin:0 0 20px 30px;
+  font-size:14px;
+  line-height:1.8;
+  color:#566158
+}
+.exp-title{
+  border-bottom:1px solid #c5cbbd
+}
+.exp-title:hover{
+  color:#a1502b;
+  border-color:#a1502b
+}
+.exp-list>.exp:last-child{
+  border-bottom:0
+}
+@media(max-width:620px){
+  .about-main{
+    padding-block:44px 64px
+  }
+  .about-links{
+    margin-bottom:44px
+  }
+  .more summary{
+    display:grid;
+    grid-template-columns:14px 1fr;
+    gap:4px 14px
+  }
+  .more summary>span{
+    font-size:26px
+  }
+  .more summary>em{
+    grid-column:2;
+    margin-left:0;
+    text-align:left
+  }
+  .more-body{
+    padding-left:0
+  }
+  .more .exp{
+    margin-left:0
+  }
+  .more .exp>p{
+    margin-left:28px
+  }
+  .more .exp summary>span{
+    font-size:15px
+  }
+}

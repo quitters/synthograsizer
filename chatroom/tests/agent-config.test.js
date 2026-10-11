@@ -17,6 +17,11 @@ const {
   resolveAgentModel,
   normalizeThinkingLevel,
   isKnownAgentModel,
+  canonicalModelId,
+  thinkingLevelFor,
+  normalizeMaxOutputTokens,
+  MAX_OUTPUT_TOKENS_CEILING,
+  LEGACY_MODEL_IDS,
 } = await import('../server/config/models.js');
 const { orchestrator } = await import('../server/services/orchestrator.js');
 
@@ -54,6 +59,42 @@ describe('model registry', () => {
   test('the default thinking level is a valid level', () => {
     assert.ok(THINKING_LEVELS.includes(DEFAULT_THINKING_LEVEL));
   });
+
+  test('the deliberate tier is Gemini 4 Argon, and the id it replaced is not offered', () => {
+    assert.equal(MODELS.SMART, 'gemini-4-argon');
+    assert.ok(!AGENT_MODEL_CHOICES.some(c => c.id === 'gemini-3.1-pro-preview'));
+  });
+});
+
+describe('replaced model ids', () => {
+  test('an id the registry used to offer means its replacement', () => {
+    assert.equal(canonicalModelId('gemini-3.1-pro-preview'), MODELS.SMART);
+    assert.equal(canonicalModelId(MODELS.FAST), MODELS.FAST, 'a current id is untouched');
+    assert.equal(canonicalModelId('gemini-9-imaginary'), 'gemini-9-imaginary', 'an unknown id is not guessed at');
+    assert.equal(canonicalModelId(null), null);
+    assert.equal(canonicalModelId('toString'), 'toString', 'a name from Object.prototype is not a legacy id');
+  });
+
+  test('every legacy id maps onto a model that is offered', () => {
+    for (const [old, now] of Object.entries(LEGACY_MODEL_IDS)) {
+      assert.ok(isKnownAgentModel(now), `${old} maps to ${now}, which is not offered`);
+      assert.ok(isKnownAgentModel(old), `${old} should still be recognised, as ${now}`);
+    }
+  });
+});
+
+describe('thinkingLevelFor', () => {
+  test('Argon is never sent "minimal" (the API answers 400); it gets the next level up', () => {
+    assert.equal(thinkingLevelFor(MODELS.SMART, 'minimal'), 'low');
+    for (const level of ['low', 'medium', 'high']) assert.equal(thinkingLevelFor(MODELS.SMART, level), level);
+  });
+
+  test('a model with no known restriction gets the level it was given', () => {
+    for (const level of THINKING_LEVELS) {
+      assert.equal(thinkingLevelFor(MODELS.FAST, level), level);
+      assert.equal(thinkingLevelFor('gemini-from-the-future', level), level);
+    }
+  });
 });
 
 describe('resolveAgentModel', () => {
@@ -84,6 +125,16 @@ describe('normalizeThinkingLevel', () => {
   });
 });
 
+describe('normalizeMaxOutputTokens', () => {
+  test('keeps a number in range, clamps one outside it, and treats anything else as "use the default"', () => {
+    assert.equal(normalizeMaxOutputTokens(20000), 20000);
+    assert.equal(normalizeMaxOutputTokens('24000'), 24000);
+    assert.equal(normalizeMaxOutputTokens(1_000_000), MAX_OUTPUT_TOKENS_CEILING);
+    assert.equal(normalizeMaxOutputTokens(10), 4096);
+    for (const bad of [null, undefined, '', 'lots', NaN, {}, []]) assert.equal(normalizeMaxOutputTokens(bad), null);
+  });
+});
+
 describe('orchestrator agent fields', () => {
   beforeEach(() => orchestrator.reset());
 
@@ -93,6 +144,14 @@ describe('orchestrator agent fields', () => {
     const agent = orchestrator.addAgent('Ada', 'bio');
     assert.equal(agent.model, null);
     assert.equal(agent.thinkingLevel, DEFAULT_THINKING_LEVEL);
+  });
+
+  test('an agent can carry its own output cap; the default is none', () => {
+    assert.equal(orchestrator.addAgent('Ada', 'bio').maxOutputTokens, null);
+    assert.equal(orchestrator.addAgent('Grace', 'bio', { maxOutputTokens: 32768 }).maxOutputTokens, 32768);
+    assert.equal(orchestrator.updateAgent('Ada', { maxOutputTokens: 20000 }).maxOutputTokens, 20000);
+    assert.equal(orchestrator.updateAgent('Ada', { maxOutputTokens: null }).maxOutputTokens, null, 'null puts it back to the default');
+    assert.equal(orchestrator.updateAgent('Ada', { bio: 'new bio' }).maxOutputTokens, null, 'an update that does not mention it leaves it alone');
   });
 
   test('an explicit model is kept; an unknown one is not', () => {
@@ -111,6 +170,14 @@ describe('orchestrator agent fields', () => {
     });
     assert.equal(updated.model, MODELS.LITE);
     assert.equal(updated.thinkingLevel, 'high');
+  });
+
+  test('an agent saved with the replaced Pro id runs on Argon, not on the default', () => {
+    // Restoring a session, or an API caller that still sends the old id, used to fall through "unknown" to the cheap default.
+    const added = orchestrator.addAgent('Ada', 'bio', { model: 'gemini-3.1-pro-preview' });
+    assert.equal(added.model, MODELS.SMART);
+    orchestrator.addAgent('Grace', 'bio');
+    assert.equal(orchestrator.updateAgent('Grace', { model: 'gemini-3.1-pro-preview' }).model, MODELS.SMART);
   });
 
   test('updateAgent ignores an unknown model rather than clearing the old one', () => {

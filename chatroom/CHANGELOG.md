@@ -4,6 +4,12 @@ All notable changes to the Agent Chat Room project are documented in this file.
 
 ## [Unreleased]
 
+### Changed: the deliberate tier is Gemini 4 Argon
+- `MODELS.SMART` is now `gemini-4-argon` (was `gemini-3.1-pro-preview`). Checked against the live API first: streaming Interactions, `google_search`, `url_context`, function calls, and function calls combined with the built-ins (`tool_choice: 'validated'`) all work, and a real turn and a real tool round ran through `generateAgentResponse`. Explicit context caching is not supported (implicit only).
+- **Argon rejects `thinking_level: 'minimal'`** (400: "Allowed values are: medium, low, high"). `thinkingLevelFor(model, level)` sends the next level up instead, once at the start of a turn, so an agent set to minimal runs at `low` and the turn reports `low`. The old retry-without-the-level path would have landed on medium and billed more.
+- **Saved sessions, `COMPANY_MODELS`, `operator-policy.json` and API callers that still name `gemini-3.1-pro-preview` mean Argon** (`LEGACY_MODEL_IDS`, `canonicalModelId`). Before this an unrecognised id quietly dropped the agent to the default Flash model.
+- The spend estimate prices Argon at its post-2026-12-01 rate ($4 in / $20 out per 1M, up from $2 / $10 at launch): a spend ceiling that over-estimates stops a run early, one that under-estimates would let it overspend after the rise.
+
 ### Changed: a turn the model service declines is final in every room
 - A safety block from the model service used to be treated as a failed turn in a plain room and asked again, up to five times (the compliance roadmap says such blocks are "surfaced as failures, not retried around"; a company's room already did). Now it is final for the turn everywhere: the room is told in plain words (a note from the Producer, and the `provider_refusal` event), nothing is retried, reworded or sent to another model, and the person who was declined is not the next asked. The refusals still count with failed turns, so a room in which everyone is declined stops after five in a row (`error_limit_reached`, reason in `error`); a solo chat waits for the person. A good turn clears the count.
 

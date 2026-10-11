@@ -147,7 +147,7 @@ P("Every priced action tells you the price <b>before</b> you run it. The figures
 st.extend(table([
     ["Action", "Credits"],
     ["Text generation (Gemini 3.6 Flash)", "1"],
-    ["Text generation (Gemini 3.1 Pro)", "5"],
+    ["Text generation (Gemini 4 Argon)", "5"],
     ["Image — Gemini 2.5 Flash", "4"],
     ["Image — Gemini 3.1 Flash", "5"],
     ["Image — Gemini 3 Pro", "15"],

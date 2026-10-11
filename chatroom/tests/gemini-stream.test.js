@@ -289,6 +289,22 @@ describe('model resolution', () => {
     assert.equal(complete.thinkingLevel, 'high');
   });
 
+  test('"minimal" is sent to Argon as "low", and to a model that takes it as "minimal"', { timeout: 15000 }, async () => {
+    const argon = await runTurn([{ fixture: 'simple-turn' }], { agent: makeAgent({ model: MODELS.SMART, thinkingLevel: 'minimal' }) });
+    assert.equal(argon.fake.request(0).generation_config.thinking_level, 'low');
+    assert.equal(argon.fake.callCount, 1, 'no rejected request and retry first');
+    assert.equal(argon.complete.thinkingLevel, 'low', 'the turn reports the level it ran at, not the one it was asked for');
+    const flash = await runTurn([{ fixture: 'simple-turn' }], { agent: makeAgent({ model: MODELS.FAST, thinkingLevel: 'minimal' }) });
+    assert.equal(flash.fake.request(0).generation_config.thinking_level, 'minimal');
+  });
+
+  test('a per-agent output cap reaches the request; without one the room default is sent', { timeout: 15000 }, async () => {
+    const capped = await runTurn([{ fixture: 'simple-turn' }], { agent: makeAgent({ maxOutputTokens: 32768 }) });
+    assert.equal(capped.fake.request(0).generation_config.max_output_tokens, 32768);
+    const plain = await runTurn([{ fixture: 'simple-turn' }], { agent: makeAgent() });
+    assert.equal(plain.fake.request(0).generation_config.max_output_tokens, MAX_OUTPUT_TOKENS);
+  });
+
   test('a nonsense thinking level degrades to the default', { timeout: 15000 }, async () => {
     const { fake } = await runTurn([{ fixture: 'simple-turn' }], {
       agent: makeAgent({ thinkingLevel: 'ludicrous' }),

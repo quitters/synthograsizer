@@ -119,7 +119,7 @@ Exact strings from `backend/config.py`. Pass these as the `model` field.
 | `MODEL_IMAGE_GEN_NB2` | `gemini-3.1-flash-image` | Image gen, configurable thinking |
 | `MODEL_IMAGE_GEN_HQ` | `gemini-3-pro-image` | Highest-quality image gen (thinking always on) |
 | `MODEL_VIDEO_GEN` | `veo-3.1-generate-preview` | Video (local server only, long-poll) |
-| `MODEL_TEXT_CHAT` / `MODEL_TEMPLATE_GEN` | `gemini-3.1-pro-preview` | Default text/chat and template gen (quality) |
+| `MODEL_TEXT_CHAT` / `MODEL_TEMPLATE_GEN` | `gemini-4-argon` | Default text/chat and template gen (top tier) |
 | `MODEL_FAST` / `MODEL_TEMPLATE_GEN_FAST` | `gemini-3.8-flash` | Fast text, narrative, fast template gen |
 | `MODEL_ANALYSIS_QUICK` / `MODEL_NARRATIVE` | `gemini-3.8-flash` | Default of analysis requests (= `MODEL_FAST`) |
 | `MODEL_DEMO` | `gemini-3.8-flash` | Forced when `is_demo: true`. Since the flash-model unification this is the SAME model as `MODEL_FAST`, so demo mode is a feature cap, not a cost cap. |
@@ -128,7 +128,7 @@ Notes:
 - `ImageRequest.model` defaults to `gemini-3.1-flash-lite-image`. For best quality
   pass `gemini-3-pro-image`; a good middle option is
   `gemini-3.1-flash-image`.
-- `TextRequest` / `BatchTextRequest` default to `gemini-3.1-pro-preview`. For
+- `TextRequest` / `BatchTextRequest` default to `gemini-4-argon`. For
   cheap/fast bulk text (e.g. QC verdicts) pass `gemini-3.8-flash`.
 - `AnalyzeRequest` / `BatchAnalyzeRequest` default to `gemini-3.8-flash`.
 - The legacy id `gemini-2.0-flash-exp` is silently rewritten to
@@ -180,7 +180,7 @@ import base64; open("out.png","wb").write(base64.b64decode(b64))
 ```
 
 #### `POST /api/generate/text`
-Body (`TextRequest`): `{"prompt": str, "model": "gemini-3.1-pro-preview"}`.
+Body (`TextRequest`): `{"prompt": str, "model": "gemini-4-argon"}`.
 Response: `{"status":"success","text": "..."}`.
 
 #### `POST /api/generate/text/stream`
@@ -188,7 +188,7 @@ Same body. Streams `text/plain` chunks (read the response body incrementally).
 
 #### `POST /api/batch/text`
 Sequential text over many prompts — ideal for QC verdicts.
-Body (`BatchTextRequest`): `{"prompts": [str, ...], "model": "gemini-3.1-pro-preview"}`.
+Body (`BatchTextRequest`): `{"prompts": [str, ...], "model": "gemini-4-argon"}`.
 Response:
 
 ```json
