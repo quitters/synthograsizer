@@ -1,0 +1,160 @@
+{
+  "name": "Neon Light Cycle Arena",
+  "promptTemplate": "Futuristic Tron grid in {{theme}} palette with {{grid_style}} matrix running at {{cycle_speed}} velocity, glowing with {{glow_intensity}} aura and floor bloom {{floor_bloom}}.",
+  "variables": [
+    {
+      "name": "theme",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "neon_cyber",
+          "weight": 3
+        },
+        {
+          "text": "synthwave",
+          "weight": 2
+        },
+        {
+          "text": "acid_matrix",
+          "weight": 1
+        },
+        {
+          "text": "solar_flare",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "grid_style",
+      "label": "Grid Style",
+      "values": [
+        {
+          "text": "retro_wire",
+          "weight": 3
+        },
+        {
+          "text": "isometric_mesh",
+          "weight": 2
+        },
+        {
+          "text": "hyper_dots",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "cycle_speed",
+      "label": "Cycle Speed",
+      "type": "number",
+      "min": 15,
+      "max": 35,
+      "step": 5,
+      "default": 25
+    },
+    {
+      "name": "glow_intensity",
+      "label": "Glow Level",
+      "type": "number",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "name": "floor_bloom",
+      "label": "Floor Bloom",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "turn_left",
+      "label": "Turn Left ◄",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "turn_right",
+      "label": "Turn Right ►",
+      "type": "trigger",
+      "share": "all"
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "ice",
+    "title": "LIGHT CYCLE +2 TRAINER",
+    "tagline": "Steer your team's cycle and outlast the rival wall",
+    "accent": "#00f3ff",
+    "groups": [
+      {
+        "title": "STEERING",
+        "controls": [
+          "turn_left",
+          "turn_right"
+        ]
+      },
+      {
+        "title": "SPEED & ARENA",
+        "controls": [
+          "cycle_speed",
+          "theme",
+          "grid_style"
+        ]
+      },
+      {
+        "title": "OPTICS",
+        "controls": [
+          "glow_intensity",
+          "floor_bloom"
+        ]
+      }
+    ],
+    "controls": {
+      "theme": {
+        "widget": "pads",
+        "hint": ""
+      },
+      "grid_style": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "cycle_speed": {
+        "widget": "slider",
+        "hint": "Accelerates grid velocity across the arena"
+      },
+      "glow_intensity": {
+        "widget": "knob",
+        "hint": ""
+      },
+      "floor_bloom": {
+        "widget": "lamp",
+        "hint": ""
+      },
+      "turn_left": {
+        "widget": "pad",
+        "hint": "Bank your team 90 degrees counter-clockwise"
+      },
+      "turn_right": {
+        "widget": "pad",
+        "hint": "Bank your team 90 degrees clockwise"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "Two teams race light cycles across a glowing neon grid, cutting corners and throwing up solid light barriers until one crashes.",
+    "prompt": "Light cycles on a dark glowing grid, one cycle per team leaving a solid wall of light behind it: anyone on the team can press 'left' or 'right' to turn their team's cycle, so the team must agree on its turns; the cycle that crashes first loses, and the grid wipes clean for the next round. Two teams: tables alternate between them, or people alternate when everyone is at one table; show each team's colours and score clearly. Make it a party game a whole room can follow from across the floor: bold shapes and bright colours on a dark ground, every player drawn in their own hue, big short labels (a score, GO!, the winner) in a heavy font, and a large, satisfying reaction on screen the instant anyone presses. It must work with one player or forty, scaling its lanes, seats or pieces to room.people and coping with people joining and leaving mid-round; play itself in a lively attract mode whenever nobody has pressed anything for a few seconds; and after a winner is shown, start the next round on its own. Keep it lean: game state in bounded arrays in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080.",
+    "look": [
+      "retro",
+      "light",
+      "energetic"
+    ],
+    "source": "play/light-cycles~3"
+  }
+}

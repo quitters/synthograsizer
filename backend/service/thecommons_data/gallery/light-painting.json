@@ -1,0 +1,156 @@
+{
+  "name": "Light Painting Shutter",
+  "promptTemplate": "Long-exposure performance in {{light_palette}} light tracing {{calligraphy_style}} ribbons with persistence {{trail_persistence}} and stroke thickness {{ribbon_width}} at {{speed}} speed with embers {{sparkles}}.",
+  "variables": [
+    {
+      "name": "calligraphy_style",
+      "label": "Figure Style",
+      "values": [
+        {
+          "text": "spiro_ribbon",
+          "weight": 2
+        },
+        {
+          "text": "lissajous",
+          "weight": 1
+        },
+        {
+          "text": "orbital_knot",
+          "weight": 1
+        },
+        {
+          "text": "wild_flourish",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "light_palette",
+      "label": "Light Flame",
+      "values": [
+        {
+          "text": "neon_cyber",
+          "weight": 2
+        },
+        {
+          "text": "molten_ember",
+          "weight": 1
+        },
+        {
+          "text": "auroral_glow",
+          "weight": 1
+        },
+        {
+          "text": "solar_flare",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "trail_persistence",
+      "label": "Exposure Time",
+      "type": "number",
+      "min": 0.85,
+      "max": 0.99,
+      "step": 0.01,
+      "default": 0.95
+    },
+    {
+      "name": "ribbon_width",
+      "label": "Torch Beam Width",
+      "type": "number",
+      "min": 2,
+      "max": 24,
+      "step": 2,
+      "default": 10
+    },
+    {
+      "name": "speed",
+      "label": "Hand Speed",
+      "type": "number",
+      "min": 0.2,
+      "max": 2.0,
+      "step": 0.1,
+      "default": 1.0
+    },
+    {
+      "name": "sparkles",
+      "label": "Torch Embers",
+      "type": "toggle",
+      "default": true
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "LIGHT SHUTTER +6",
+    "tagline": "Long-exposure torch calligraphy across the void",
+    "accent": "#ff5500",
+    "groups": [
+      {
+        "title": "Calligraphy",
+        "controls": [
+          "calligraphy_style",
+          "light_palette"
+        ]
+      },
+      {
+        "title": "Exposure & Beam",
+        "controls": [
+          "speed",
+          "trail_persistence",
+          "ribbon_width"
+        ]
+      },
+      {
+        "title": "Pyrotechnics",
+        "controls": [
+          "sparkles"
+        ]
+      }
+    ],
+    "controls": {
+      "calligraphy_style": {
+        "widget": "pads",
+        "hint": "Switches the torch's mathematical trajectory"
+      },
+      "light_palette": {
+        "widget": "cycle",
+        "hint": "Changes ribbon spectrum and glow colors"
+      },
+      "trail_persistence": {
+        "widget": "slider",
+        "hint": "Higher values keep old strokes burning longer"
+      },
+      "ribbon_width": {
+        "widget": "slider",
+        "hint": "Expands luminous core and halo thickness"
+      },
+      "speed": {
+        "widget": "knob",
+        "hint": "Accelerates the performer's arm sweep"
+      },
+      "sparkles": {
+        "widget": "lamp",
+        "hint": "Sheds embers and falling spark particles"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "demo",
+    "blurb": "A luminous torch carves glowing loops and knots into deep blackness, leaving radiant lingering ribbons while spectators steer satellites around the flame.",
+    "prompt": "Long-exposure light painting: an unseen performer's torch draws loops, spirals and signatures in the dark, each stroke staying as a glowing trail that slowly fades, like a camera shutter left open. Make it striking on a big projected wall in a dark room: a bold composition, rich colour against real blacks, depth, glow, and motion that reads from across the room. Keep a demoscener's economy: lookup tables and fixed-size buffers kept in room.state, low-resolution offscreen buffers for any per-pixel work, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "light",
+      "energetic",
+      "retro"
+    ],
+    "source": "lightworks/light-painting~3"
+  }
+}

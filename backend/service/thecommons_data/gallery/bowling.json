@@ -1,0 +1,183 @@
+{
+  "name": "Neon Ten-Pin Alley",
+  "promptTemplate": "A high-energy ten-pin party bowling championship with {{lane_style}} lane aesthetics, {{ball_weight}} physics, and {{pin_glow}} highlights, guided by aim speed {{aim_speed}} with impact shake {{shake_intensity}} and {{ambient_glow}} active.",
+  "variables": [
+    {
+      "name": "lane_style",
+      "label": "Lane Style",
+      "values": [
+        {
+          "text": "Cyber Synth",
+          "weight": 2
+        },
+        {
+          "text": "Classic Maple",
+          "weight": 1
+        },
+        {
+          "text": "Midnight Neon",
+          "weight": 2
+        },
+        {
+          "text": "Hot Rod Red",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "ball_weight",
+      "label": "Ball Weight",
+      "values": [
+        {
+          "text": "Heavy Smasher",
+          "weight": 2
+        },
+        {
+          "text": "Standard 14lb",
+          "weight": 2
+        },
+        {
+          "text": "Light Cruiser",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "pin_glow",
+      "label": "Pin Glow",
+      "values": [
+        {
+          "text": "Electric Cyan",
+          "weight": 2
+        },
+        {
+          "text": "Pure White",
+          "weight": 1
+        },
+        {
+          "text": "Golden Crown",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "aim_speed",
+      "label": "Aim Sweep Speed",
+      "type": "number",
+      "min": 0.6,
+      "max": 2.6,
+      "step": 0.2,
+      "default": 1.4
+    },
+    {
+      "name": "shake_intensity",
+      "label": "Screen Shake",
+      "type": "number",
+      "min": 0.0,
+      "max": 2.0,
+      "step": 0.2,
+      "default": 1.0
+    },
+    {
+      "name": "ambient_glow",
+      "label": "Ambient Neon Bloom",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "bowl",
+      "label": "BOWL! (Aim / Power)",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "cheer",
+      "label": "Party Horn / Cheer",
+      "type": "trigger",
+      "share": "all"
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "violet",
+    "title": "NEON TEN-PIN +2",
+    "tagline": "LOCK AIM, RELEASE POWER, SHATTER PINS",
+    "accent": "#00f0ff",
+    "groups": [
+      {
+        "title": "Action",
+        "controls": [
+          "bowl",
+          "cheer"
+        ]
+      },
+      {
+        "title": "Lane Setup",
+        "controls": [
+          "lane_style",
+          "ball_weight",
+          "pin_glow"
+        ]
+      },
+      {
+        "title": "Feel & FX",
+        "controls": [
+          "aim_speed",
+          "shake_intensity",
+          "ambient_glow"
+        ]
+      }
+    ],
+    "controls": {
+      "lane_style": {
+        "widget": "cycle",
+        "hint": "Swaps lane colorway and deck mood"
+      },
+      "ball_weight": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "pin_glow": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "aim_speed": {
+        "widget": "knob",
+        "hint": "Tunes the sweep tempo across the foul line"
+      },
+      "shake_intensity": {
+        "widget": "slider",
+        "hint": ""
+      },
+      "ambient_glow": {
+        "widget": "lamp",
+        "hint": ""
+      },
+      "bowl": {
+        "widget": "pad",
+        "hint": "Tap once to lock aim angle, tap again to fire ball"
+      },
+      "cheer": {
+        "widget": "button",
+        "hint": "Blow the party horn and pop confetti bursts"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "Ten-pin neon bowling rolls down a shared projector lane where players take turns timing their aim and launch power to smash pins.",
+    "prompt": "Ten-pin bowling down a polished lane, turns passing round the room: an aim marker swings side to side, then a power bar pulses, and the bowler presses 'bowl' once to lock the aim and once for the power; the pins scatter with real physics, and strikes explode in the bowler's colour. Make it a party game a whole room can follow from across the floor: bold shapes and bright colours on a dark ground, every player drawn in their own hue, big short labels (a score, GO!, the winner) in a heavy font, and a large, satisfying reaction on screen the instant anyone presses. It must work with one player or forty, scaling its lanes, seats or pieces to room.people and coping with people joining and leaving mid-round; play itself in a lively attract mode whenever nobody has pressed anything for a few seconds; and after a winner is shown, start the next round on its own. Keep it lean: game state in bounded arrays in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080.",
+    "look": [
+      "retro",
+      "energetic",
+      "light"
+    ],
+    "source": "play/bowling~11"
+  }
+}

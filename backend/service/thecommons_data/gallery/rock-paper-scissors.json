@@ -1,0 +1,161 @@
+{
+  "name": "Rock Paper Scissors Tourney",
+  "promptTemplate": "A rock-paper-scissors party tournament in {{visual_style}} style at {{round_pace}}s pace, competing in {{bracket_format}} with crowd cheers {{crowd_cheers}} and {{shake_energy}} shake energy.",
+  "variables": [
+    {
+      "name": "visual_style",
+      "label": "Style",
+      "values": [
+        {
+          "text": "cyber_arcade",
+          "weight": 2
+        },
+        {
+          "text": "stadium_lights",
+          "weight": 2
+        },
+        {
+          "text": "comic_championship",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "round_pace",
+      "label": "Round Pace",
+      "type": "number",
+      "min": 2,
+      "max": 6,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "name": "bracket_format",
+      "label": "Format",
+      "values": [
+        {
+          "text": "battle_royale",
+          "weight": 2
+        },
+        {
+          "text": "head_to_head",
+          "weight": 2
+        },
+        {
+          "text": "gauntlet",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "crowd_cheers",
+      "label": "Crowd FX",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "shake_energy",
+      "label": "Shake Energy",
+      "type": "number",
+      "min": 0.5,
+      "max": 2.0,
+      "step": 0.1,
+      "default": 1.2
+    },
+    {
+      "name": "rock",
+      "label": "Rock ✊",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "paper",
+      "label": "Paper ✋",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "scissors",
+      "label": "Scissors ✌️",
+      "type": "trigger",
+      "share": "all"
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "RPS CHAMPIONSHIP +3",
+    "tagline": "DUEL THE ROOM IN REAL TIME",
+    "accent": "#ff2a5f",
+    "groups": [
+      {
+        "title": "Throw",
+        "controls": [
+          "rock",
+          "paper",
+          "scissors"
+        ]
+      },
+      {
+        "title": "Arena Setup",
+        "controls": [
+          "bracket_format",
+          "visual_style",
+          "round_pace",
+          "shake_energy",
+          "crowd_cheers"
+        ]
+      }
+    ],
+    "controls": {
+      "visual_style": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "round_pace": {
+        "widget": "slider",
+        "hint": "Length in seconds of each countdown duel"
+      },
+      "bracket_format": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "crowd_cheers": {
+        "widget": "lamp",
+        "hint": "Crowd effects and victory reactions"
+      },
+      "shake_energy": {
+        "widget": "knob",
+        "hint": "Impact bounce when hands collide"
+      },
+      "rock": {
+        "widget": "pad",
+        "hint": "Throw rock before the count hits zero"
+      },
+      "paper": {
+        "widget": "pad",
+        "hint": "Throw paper before the count hits zero"
+      },
+      "scissors": {
+        "widget": "pad",
+        "hint": "Throw scissors before the count hits zero"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "Coloured hands shake and clash across the screen as players lock in rock, paper, or scissors to advance through a live tournament bracket.",
+    "prompt": "A rock-paper-scissors tournament: the room is paired off into duels, each shown as two giant hands in the players' colours shaking one, two, three; each player presses 'rock', 'paper' or 'scissors' in time or gets a random pick; winners advance up a bracket to a final. Make it a party game a whole room can follow from across the floor: bold shapes and bright colours on a dark ground, every player drawn in their own hue, big short labels (a score, GO!, the winner) in a heavy font, and a large, satisfying reaction on screen the instant anyone presses. It must work with one player or forty, scaling its lanes, seats or pieces to room.people and coping with people joining and leaving mid-round; play itself in a lively attract mode whenever nobody has pressed anything for a few seconds; and after a winner is shown, start the next round on its own. Keep it lean: game state in bounded arrays in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080.",
+    "look": [
+      "retro",
+      "energetic"
+    ],
+    "source": "play/rock-paper-scissors~11"
+  }
+}

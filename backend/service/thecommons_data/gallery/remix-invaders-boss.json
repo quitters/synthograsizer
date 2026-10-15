@@ -1,0 +1,128 @@
+{
+  "name": "Generative Invaders: Boss Edition",
+  "promptTemplate": "A generative arcade space battle. Steer the ship with {{ship_position}}, while the swarm approaches at {{game_speed}} speed. The invaders morph in {{invader_style}} formations with a {{color_palette}} palette. Every minute, a massive boss ship appears requiring the whole room to fire together to bring it down!",
+  "variables": [
+    {
+      "name": "ship_position",
+      "label": "Steer Ship",
+      "type": "number",
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "default": 0.5
+    },
+    {
+      "name": "fire",
+      "label": "Fire Laser",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "invader_style",
+      "label": "Invader Style",
+      "values": [
+        {
+          "text": "8-bit",
+          "weight": 2
+        },
+        {
+          "text": "vector",
+          "weight": 1
+        },
+        {
+          "text": "orbital",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "color_palette",
+      "label": "Color Palette",
+      "values": [
+        {
+          "text": "neon",
+          "weight": 2
+        },
+        {
+          "text": "phosphor",
+          "weight": 1
+        },
+        {
+          "text": "cyberpunk",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "game_speed",
+      "label": "Game Speed",
+      "type": "number",
+      "min": 0.5,
+      "max": 3.0,
+      "step": 0.1,
+      "default": 1.0
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "acid",
+    "title": "INVADERS: BOSS EDITION",
+    "tagline": "one steers, the room mashes fire for the boss",
+    "accent": "#00ffff",
+    "groups": [
+      {
+        "title": "Ship Command",
+        "controls": [
+          "fire",
+          "ship_position"
+        ]
+      },
+      {
+        "title": "Swarm Parameters",
+        "controls": [
+          "game_speed",
+          "invader_style",
+          "color_palette"
+        ]
+      }
+    ],
+    "controls": {
+      "ship_position": {
+        "widget": "slider",
+        "hint": "Slide left-right across the battle line"
+      },
+      "fire": {
+        "widget": "pad",
+        "hint": "Tap rapidly to barrage the boss"
+      },
+      "invader_style": {
+        "widget": "pads",
+        "hint": ""
+      },
+      "color_palette": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "game_speed": {
+        "widget": "knob",
+        "hint": "Swarm and boss approach speed"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "Add a boss ship that appears every minute and takes the whole room firing together to bring down",
+    "prompt": "add a boss ship that appears every minute and takes the whole room firing together to bring down",
+    "look": [
+      "retro",
+      "energetic"
+    ],
+    "source": "trial-1/pro/remix-invaders-boss"
+  }
+}

@@ -1,0 +1,162 @@
+{
+  "name": "Solar Limb and Boiling Granulation",
+  "promptTemplate": "Extreme close-up of the churning solar photosphere in {{palette_mode}} at activity level {{activity_level}}, with granulation churn at {{granulation_speed}}x speed, sunspots scaled to {{sunspot_scale}}, a towering {{prominence_style}} arching into space, coronal glow at {{corona_glow}}, and dynamic flare events: {{solar_flare}}.",
+  "variables": [
+    {
+      "name": "palette_mode",
+      "label": "Palette Mode",
+      "values": [
+        {
+          "text": "hydrogen_alpha",
+          "weight": 2
+        },
+        {
+          "text": "solar_gold",
+          "weight": 1
+        },
+        {
+          "text": "extreme_uv",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "activity_level",
+      "label": "Activity Level",
+      "type": "number",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "name": "granulation_speed",
+      "label": "Granulation Speed",
+      "type": "number",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.25,
+      "default": 1.0
+    },
+    {
+      "name": "sunspot_scale",
+      "label": "Sunspot Scale",
+      "type": "number",
+      "min": 40,
+      "max": 140,
+      "step": 10,
+      "default": 80
+    },
+    {
+      "name": "prominence_style",
+      "label": "Prominence Style",
+      "values": [
+        {
+          "text": "magnetic_loops",
+          "weight": 2
+        },
+        {
+          "text": "twisted_ribbon",
+          "weight": 1
+        },
+        {
+          "text": "eruptive_plume",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "corona_glow",
+      "label": "Coronal Glow",
+      "type": "number",
+      "min": 0.25,
+      "max": 1.25,
+      "step": 0.25,
+      "default": 0.75
+    },
+    {
+      "name": "solar_flare",
+      "label": "Solar Flares",
+      "type": "toggle",
+      "default": true
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "SOLAR LIMB +7",
+    "tagline": "Heliospheric photosphere & prominence monitor",
+    "accent": "#ff8c16",
+    "groups": [
+      {
+        "title": "Observation",
+        "controls": [
+          "palette_mode",
+          "activity_level",
+          "corona_glow"
+        ]
+      },
+      {
+        "title": "Convection & Spots",
+        "controls": [
+          "granulation_speed",
+          "sunspot_scale"
+        ]
+      },
+      {
+        "title": "Magnetic Flares",
+        "controls": [
+          "prominence_style",
+          "solar_flare"
+        ]
+      }
+    ],
+    "controls": {
+      "palette_mode": {
+        "widget": "pads",
+        "hint": "Shift spectrographic wavelength filter"
+      },
+      "activity_level": {
+        "widget": "stepper",
+        "hint": "Increases eruptive turbulence across the limb"
+      },
+      "granulation_speed": {
+        "widget": "slider",
+        "hint": "Rate of boiling cellular convection"
+      },
+      "sunspot_scale": {
+        "widget": "slider",
+        "hint": "Expand or shrink active magnetic umbra regions"
+      },
+      "prominence_style": {
+        "widget": "cycle",
+        "hint": "Morph arching plasma geometry"
+      },
+      "corona_glow": {
+        "widget": "knob",
+        "hint": "Dial coronal streamer luminosity"
+      },
+      "solar_flare": {
+        "widget": "lamp",
+        "hint": "Arm beat-reactive coronal mass ejections"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "generative",
+    "blurb": "A close-up view of the boiling solar limb arcs into space, where viewers can dial magnetic activity, reshape towering plasma prominences, and trigger coronal flare waves.",
+    "prompt": "The surface of the sun up close: a boiling field of granulation cells, dark sunspots with fibrous penumbrae, and a prominence arcing off the limb into black space. Make it striking on a big projected wall in a dark room: a bold composition, rich colour against real blacks, depth, glow, and motion that reads from across the room. Keep a demoscener's economy: lookup tables and fixed-size buffers kept in room.state, low-resolution offscreen buffers for any per-pixel work, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "space",
+      "light",
+      "energetic"
+    ],
+    "source": "lightworks/solar-surface~11"
+  }
+}

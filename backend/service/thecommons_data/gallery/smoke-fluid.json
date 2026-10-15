@@ -1,0 +1,186 @@
+{
+  "name": "Ethereal Vortex Smoke",
+  "promptTemplate": "Coarse stable fluid smoke simulation in {{palette}} hues, billowing in {{plume_style}} formations with buoyancy {{buoyancy}}, swirl intensity {{swirl_factor}}, smoke density {{smoke_density}}, dissipation {{dissipation_rate}}, glow intensity {{glow_intensity}}, and horizontal drift {{ambient_drift}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Color Palette",
+      "values": [
+        {
+          "text": "bioluminescent",
+          "weight": 3
+        },
+        {
+          "text": "incandescent",
+          "weight": 2
+        },
+        {
+          "text": "aurora",
+          "weight": 2
+        },
+        {
+          "text": "prismatic",
+          "weight": 2
+        },
+        {
+          "text": "monochrome",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "plume_style",
+      "label": "Plume Style",
+      "values": [
+        {
+          "text": "chimney_jets",
+          "weight": 3
+        },
+        {
+          "text": "dancing_braids",
+          "weight": 2
+        },
+        {
+          "text": "vortex_rings",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "buoyancy",
+      "label": "Buoyancy",
+      "type": "number",
+      "min": 0.5,
+      "max": 3.0,
+      "step": 0.5,
+      "default": 1.5
+    },
+    {
+      "name": "swirl_factor",
+      "label": "Swirl Factor",
+      "type": "number",
+      "min": 0.5,
+      "max": 3.0,
+      "step": 0.5,
+      "default": 1.5
+    },
+    {
+      "name": "smoke_density",
+      "label": "Smoke Density",
+      "type": "number",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.5,
+      "default": 1.0
+    },
+    {
+      "name": "dissipation_rate",
+      "label": "Dissipation Rate",
+      "type": "number",
+      "min": 0.95,
+      "max": 0.99,
+      "step": 0.01,
+      "default": 0.98
+    },
+    {
+      "name": "glow_intensity",
+      "label": "Glow Intensity",
+      "type": "number",
+      "min": 0.5,
+      "max": 2.0,
+      "step": 0.25,
+      "default": 1.25
+    },
+    {
+      "name": "ambient_drift",
+      "label": "Ambient Drift",
+      "type": "number",
+      "min": -1.0,
+      "max": 1.0,
+      "step": 0.2,
+      "default": 0.2
+    }
+  ],
+  "ui": {
+    "skin": "desk",
+    "variant": "blue",
+    "title": "Vortex Smoke Lab",
+    "tagline": "Realtime fluid solver and smoke chamber",
+    "accent": "#0de6f2",
+    "groups": [
+      {
+        "title": "Fluid Dynamics",
+        "controls": [
+          "buoyancy",
+          "swirl_factor",
+          "ambient_drift"
+        ]
+      },
+      {
+        "title": "Emitter & Plume",
+        "controls": [
+          "plume_style",
+          "palette"
+        ]
+      },
+      {
+        "title": "Atmosphere",
+        "controls": [
+          "smoke_density",
+          "glow_intensity",
+          "dissipation_rate"
+        ]
+      }
+    ],
+    "controls": {
+      "palette": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "plume_style": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "buoyancy": {
+        "widget": "knob",
+        "hint": "Speed of rising thermal plumes"
+      },
+      "swirl_factor": {
+        "widget": "knob",
+        "hint": "Vortex rotation and beat curl intensity"
+      },
+      "smoke_density": {
+        "widget": "slider",
+        "hint": ""
+      },
+      "dissipation_rate": {
+        "widget": "slider",
+        "hint": "Higher values keep smoke lingering longer"
+      },
+      "glow_intensity": {
+        "widget": "knob",
+        "hint": ""
+      },
+      "ambient_drift": {
+        "widget": "slider",
+        "hint": "Crosswind blowing smoke left or right"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "generative",
+    "blurb": "A smoke simulation: a coarse stable-fluid solver with velocity and density advected every frame, plumes of coloured smoke rising from the bottom and swirling on the beat, running smoothly on a big wall",
+    "prompt": "a smoke simulation: a coarse stable-fluid solver with velocity and density advected every frame, plumes of coloured smoke rising from the bottom and swirling on the beat, running smoothly on a big wall",
+    "look": [
+      "organic",
+      "calm"
+    ],
+    "source": "trial-2/flash-high/smoke-fluid~3"
+  }
+}

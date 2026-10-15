@@ -1,0 +1,153 @@
+{
+  "name": "Whack-a-Mole Party Bonk",
+  "promptTemplate": "A raucous whack-a-mole arena on {{felt_theme}} felt running at {{round_speed}} tempo with {{particle_burst}} star bursts in {{game_mode}} mode, score banner {{show_scores}}.",
+  "variables": [
+    {
+      "name": "felt_theme",
+      "label": "Felt Arena",
+      "values": [
+        {
+          "text": "classic_green",
+          "weight": 2
+        },
+        {
+          "text": "neon_arcade",
+          "weight": 1
+        },
+        {
+          "text": "midnight_velvet",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "round_speed",
+      "label": "Game Pace",
+      "values": [
+        {
+          "text": "chill",
+          "weight": 1
+        },
+        {
+          "text": "brisk",
+          "weight": 2
+        },
+        {
+          "text": "frantic",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "particle_burst",
+      "label": "Star Burst Size",
+      "type": "number",
+      "min": 10,
+      "max": 50,
+      "step": 5,
+      "default": 30
+    },
+    {
+      "name": "game_mode",
+      "label": "Goal",
+      "values": [
+        {
+          "text": "first_to_ten",
+          "weight": 2
+        },
+        {
+          "text": "timed_rush",
+          "weight": 1
+        },
+        {
+          "text": "chaos",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "show_scores",
+      "label": "Score Board",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "bonk",
+      "label": "BONK!",
+      "type": "trigger",
+      "share": "all"
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "WHACK PARTY +4",
+    "tagline": "SMASH YOUR MOLE BEFORE IT DUCKS",
+    "accent": "#ffe600",
+    "groups": [
+      {
+        "title": "Action",
+        "controls": [
+          "bonk"
+        ]
+      },
+      {
+        "title": "Arena",
+        "controls": [
+          "felt_theme",
+          "round_speed",
+          "game_mode"
+        ]
+      },
+      {
+        "title": "VFX & HUD",
+        "controls": [
+          "particle_burst",
+          "show_scores"
+        ]
+      }
+    ],
+    "controls": {
+      "felt_theme": {
+        "widget": "pads",
+        "hint": "Swap felt fabric and ring colors"
+      },
+      "round_speed": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "particle_burst": {
+        "widget": "slider",
+        "hint": "Density of star explosion on impact"
+      },
+      "game_mode": {
+        "widget": "list",
+        "hint": ""
+      },
+      "show_scores": {
+        "widget": "lamp",
+        "hint": ""
+      },
+      "bonk": {
+        "widget": "pad",
+        "hint": "Smash when your color pops up on the wall"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "Color-coded moles pop out of felt burrows as players race to smack their own hue before it ducks, setting off star showers and raspberry jeers.",
+    "prompt": "A whack-a-mole field of holes in green felt: a mole pops up wearing one person's colour, and that person has to press 'bonk' before it ducks back down; bonks send stars flying, misses make the mole blow a raspberry, and the moles get quicker as the round goes on. Make it a party game a whole room can follow from across the floor: bold shapes and bright colours on a dark ground, every player drawn in their own hue, big short labels (a score, GO!, the winner) in a heavy font, and a large, satisfying reaction on screen the instant anyone presses. It must work with one player or forty, scaling its lanes, seats or pieces to room.people and coping with people joining and leaving mid-round; play itself in a lively attract mode whenever nobody has pressed anything for a few seconds; and after a winner is shown, start the next round on its own. Keep it lean: game state in bounded arrays in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080.",
+    "look": [
+      "retro",
+      "energetic"
+    ],
+    "source": "play/whack-a-mole~3"
+  }
+}

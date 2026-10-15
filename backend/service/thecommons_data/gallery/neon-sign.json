@@ -1,0 +1,146 @@
+{
+  "name": "Neon Alley Nocturne",
+  "promptTemplate": "A rain-drenched dark brick alley bathed in the neon hum of {{alley_mood}} vibes, with hand-bent tubes glowing with {{glow_bloom}} radiance, {{flicker_intensity}} voltage instability, textured walls {{brick_texture}}, and erratic sputtering from the {{sputter_target}} sign.",
+  "variables": [
+    {
+      "name": "alley_mood",
+      "label": "Color Mood",
+      "values": [
+        {
+          "text": "vice_city",
+          "weight": 3
+        },
+        {
+          "text": "downtown_rain",
+          "weight": 2
+        },
+        {
+          "text": "midnight_tokyo",
+          "weight": 2
+        },
+        {
+          "text": "retro_noir",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "glow_bloom",
+      "label": "Glow Radiance",
+      "values": [
+        {
+          "text": "soft",
+          "weight": 1
+        },
+        {
+          "text": "vivid",
+          "weight": 3
+        },
+        {
+          "text": "hyper",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "flicker_intensity",
+      "label": "Flicker Noise",
+      "type": "number",
+      "min": 0,
+      "max": 1,
+      "step": 0.1,
+      "default": 0.5
+    },
+    {
+      "name": "sputter_target",
+      "label": "Faulty Sign",
+      "values": [
+        {
+          "text": "open",
+          "weight": 3
+        },
+        {
+          "text": "cocktail",
+          "weight": 2
+        },
+        {
+          "text": "palm",
+          "weight": 1
+        },
+        {
+          "text": "arrow",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "brick_texture",
+      "label": "Brick Wall",
+      "type": "toggle",
+      "default": true
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "violet",
+    "title": "NEON NOCTURNE +4",
+    "tagline": "HUM, BUZZ & RAIN-SOAKED GAS TUBES",
+    "accent": "#ff2d95",
+    "groups": [
+      {
+        "title": "Palette & Glow",
+        "controls": [
+          "alley_mood",
+          "glow_bloom",
+          "brick_texture"
+        ]
+      },
+      {
+        "title": "Voltage Glitch",
+        "controls": [
+          "sputter_target",
+          "flicker_intensity"
+        ]
+      }
+    ],
+    "controls": {
+      "alley_mood": {
+        "widget": "cycle",
+        "hint": "Swaps neon gas tube and reflection colors"
+      },
+      "glow_bloom": {
+        "widget": "buttons",
+        "hint": "Expands the atmospheric wall bounce"
+      },
+      "flicker_intensity": {
+        "widget": "knob",
+        "hint": "Adds chaotic electrical hum instability"
+      },
+      "sputter_target": {
+        "widget": "pads",
+        "hint": "Chooses which sign starves for power"
+      },
+      "brick_texture": {
+        "widget": "lamp",
+        "hint": "Reveals the mortar and dark alley wall"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "demo",
+    "blurb": "Luminous neon signs hum and flicker against a rain-drenched brick wall, casting glowing halos across the alley.",
+    "prompt": "A wall of hand-bent neon signs in a dark alley: glowing tubes shaping a cocktail glass, a palm, an arrow and a cursive OPEN, each with its own buzz and flicker, one sputtering on and off, the glass tubes and their back-painted gaps visible, a soft coloured haze on the brick. Make it striking on a big projected wall in a dark room: a bold composition, rich colour against real blacks, depth, glow, and motion that reads from across the room. Keep a demoscener's economy: lookup tables and fixed-size buffers kept in room.state, low-resolution offscreen buffers for any per-pixel work, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "retro",
+      "light",
+      "energetic"
+    ],
+    "source": "lightworks/neon-sign~3"
+  }
+}

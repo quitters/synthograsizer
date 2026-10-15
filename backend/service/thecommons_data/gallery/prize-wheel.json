@@ -1,0 +1,142 @@
+{
+  "name": "Carnival Prize Wheel",
+  "promptTemplate": "A boisterous carnival prize wheel spinning with {{spin_power}} power, framed in {{rim_style}} lights, showering {{confetti_density}} celebration, sound reactive: {{sound_reactive}}.",
+  "variables": [
+    {
+      "name": "spin_power",
+      "label": "Spin Power",
+      "type": "number",
+      "min": 1,
+      "max": 5,
+      "step": 0.5,
+      "default": 3
+    },
+    {
+      "name": "rim_style",
+      "label": "Rim Style",
+      "values": [
+        {
+          "text": "Carnival Bulbs",
+          "weight": 2
+        },
+        {
+          "text": "Neon Glow",
+          "weight": 1
+        },
+        {
+          "text": "Gold Casino",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "confetti_density",
+      "label": "Confetti",
+      "values": [
+        {
+          "text": "Party Blast",
+          "weight": 2
+        },
+        {
+          "text": "Light Pop",
+          "weight": 1
+        },
+        {
+          "text": "Super Nova",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "sound_reactive",
+      "label": "Music Pulse",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "spin",
+      "label": "SPIN!",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "cheer",
+      "label": "Cheer",
+      "type": "trigger",
+      "share": "all"
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "PRIZE WHEEL +2",
+    "tagline": "Step right up, give it a whirl, and win stars",
+    "accent": "#ffd700",
+    "groups": [
+      {
+        "title": "Actions",
+        "controls": [
+          "spin",
+          "cheer"
+        ]
+      },
+      {
+        "title": "Wheel Motion",
+        "controls": [
+          "spin_power",
+          "sound_reactive"
+        ]
+      },
+      {
+        "title": "Spectacle",
+        "controls": [
+          "rim_style",
+          "confetti_density"
+        ]
+      }
+    ],
+    "controls": {
+      "spin_power": {
+        "widget": "knob",
+        "hint": "Crank up the launch velocity"
+      },
+      "rim_style": {
+        "widget": "pads",
+        "hint": ""
+      },
+      "confetti_density": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "sound_reactive": {
+        "widget": "lamp",
+        "hint": "Pulses wheel rim and spotlight to the beat"
+      },
+      "spin": {
+        "widget": "pad",
+        "hint": "Whirls the wheel toward the pointer"
+      },
+      "cheer": {
+        "widget": "pad",
+        "hint": "Flashes the room and pops extra confetti"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "A bright carnival prize wheel spins with colorful wedges for every person in the room, awarding stars and confetti when it lands.",
+    "prompt": "A carnival prize wheel with a slice for every person in their colour: one person presses 'spin', the wheel whirls with a ticking pointer, slows and lands on someone, who gets a spotlight and a burst of confetti, and their slice grows a star. Make it a party game a whole room can follow from across the floor: bold shapes and bright colours on a dark ground, every player drawn in their own hue, big short labels (a score, GO!, the winner) in a heavy font, and a large, satisfying reaction on screen the instant anyone presses. It must work with one player or forty, scaling its lanes, seats or pieces to room.people and coping with people joining and leaving mid-round; play itself in a lively attract mode whenever nobody has pressed anything for a few seconds; and after a winner is shown, start the next round on its own. Keep it lean: game state in bounded arrays in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080.",
+    "look": [
+      "energetic",
+      "light",
+      "retro"
+    ],
+    "source": "play/prize-wheel~1"
+  }
+}

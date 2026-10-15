@@ -1,0 +1,126 @@
+{
+  "name": "Applause Meter Royale",
+  "promptTemplate": "A vintage applause meter in {{stage_theme}} styling with {{target_hold}} challenge and microphone sensitivity at {{sensitivity}}, audience section {{audience_lane}}.",
+  "variables": [
+    {
+      "name": "cheer",
+      "label": "Cheer / Clap!",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "stage_theme",
+      "label": "Stage Theme",
+      "values": [
+        {
+          "text": "Broadway Velvet",
+          "weight": 2
+        },
+        {
+          "text": "Neon Cabaret",
+          "weight": 1
+        },
+        {
+          "text": "Golden Grand",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "target_hold",
+      "label": "Red Zone Goal",
+      "values": [
+        {
+          "text": "Fast Clap (2s)",
+          "weight": 1
+        },
+        {
+          "text": "Party Roar (3.5s)",
+          "weight": 2
+        },
+        {
+          "text": "Iron Lungs (5s)",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "sensitivity",
+      "label": "Mic Sensitivity",
+      "type": "number",
+      "min": 1,
+      "max": 5,
+      "step": 0.5,
+      "default": 2.5
+    },
+    {
+      "name": "audience_lane",
+      "label": "Audience Row",
+      "type": "toggle",
+      "default": true
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "APPLAUSE ROYALE",
+    "tagline": "Pound the cheer pad to max the needle and part the curtains",
+    "accent": "#ffcf33",
+    "groups": [
+      {
+        "title": "The Floor",
+        "controls": [
+          "cheer",
+          "audience_lane"
+        ]
+      },
+      {
+        "title": "Stage Rig",
+        "controls": [
+          "stage_theme",
+          "target_hold",
+          "sensitivity"
+        ]
+      }
+    ],
+    "controls": {
+      "cheer": {
+        "widget": "pad",
+        "hint": "Hammer to slam the needle upward and make your avatar leap"
+      },
+      "stage_theme": {
+        "widget": "pads",
+        "hint": "Swaps velvet curtain and backlight styling"
+      },
+      "target_hold": {
+        "widget": "buttons",
+        "hint": "How long the roar must hold inside the red zone"
+      },
+      "sensitivity": {
+        "widget": "knob",
+        "hint": "Boosts needle response to live room noise"
+      },
+      "audience_lane": {
+        "widget": "lamp",
+        "hint": "Toggle the crowd row along the bottom edge"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "A vintage talent-show applause meter reacts to room audio and mashed cheer pads, swinging a brass needle into the red to part the stage curtains on a light show.",
+    "prompt": "A talent show's applause meter: a giant vintage needle gauge beside a stage with a closed red curtain; the wall's microphone and every press of 'cheer' push the needle up, and when the room keeps it in the red long enough the curtain opens on a finale of lights. Make it a party game a whole room can follow from across the floor: bold shapes and bright colours on a dark ground, every player drawn in their own hue, big short labels (a score, GO!, the winner) in a heavy font, and a large, satisfying reaction on screen the instant anyone presses. It must work with one player or forty, scaling its lanes, seats or pieces to room.people and coping with people joining and leaving mid-round; play itself in a lively attract mode whenever nobody has pressed anything for a few seconds; and after a winner is shown, start the next round on its own. Keep it lean: game state in bounded arrays in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080.",
+    "look": [
+      "retro",
+      "light",
+      "energetic"
+    ],
+    "source": "play/applause-meter~1"
+  }
+}

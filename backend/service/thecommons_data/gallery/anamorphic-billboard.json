@@ -1,0 +1,162 @@
+{
+  "name": "Anamorphic Corner Billboard",
+  "promptTemplate": "A forced-perspective anamorphic billboard featuring a {{subject}} with a {{palette}} palette, dynamic {{corner_curvature}} screen structure, protrusion level {{protrusion_scale}}, street ambiance {{street_atmosphere}}, and visible LED matrix {{led_grid_fx}}.",
+  "variables": [
+    {
+      "name": "subject",
+      "label": "Billboard Subject",
+      "values": [
+        {
+          "text": "Chrome Hyper-Sphere",
+          "weight": 2
+        },
+        {
+          "text": "Tidal Wave Surge",
+          "weight": 2
+        },
+        {
+          "text": "Neon Singularity",
+          "weight": 1
+        },
+        {
+          "text": "Liquid Mercury Bloom",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "palette",
+      "label": "Lighting Palette",
+      "values": [
+        {
+          "text": "Neo-Tokyo Cyan & Magenta",
+          "weight": 2
+        },
+        {
+          "text": "Solar Flare Gold & Amber",
+          "weight": 1
+        },
+        {
+          "text": "Deep Abyssal Blue & Jade",
+          "weight": 1
+        },
+        {
+          "text": "Monochrome Silver & Platinum",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "corner_curvature",
+      "label": "Screen Corner",
+      "values": [
+        {
+          "text": "Rounded Fillet",
+          "weight": 2
+        },
+        {
+          "text": "Sharp 90 Bevel",
+          "weight": 1
+        },
+        {
+          "text": "Sweeping Panoramic",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "protrusion_scale",
+      "label": "Pop-Out Depth",
+      "type": "number",
+      "min": 0.5,
+      "max": 1.8,
+      "step": 0.1,
+      "default": 1.2
+    },
+    {
+      "name": "street_atmosphere",
+      "label": "Street Reflections",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "led_grid_fx",
+      "label": "LED Grid Texture",
+      "type": "toggle",
+      "default": true
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "violet",
+    "title": "CORNER BILLBOARD +4",
+    "tagline": "FORCED PERSPECTIVE 3D MATRIX",
+    "accent": "#00f0ff",
+    "groups": [
+      {
+        "title": "HERO ILLUSION",
+        "controls": [
+          "subject",
+          "protrusion_scale"
+        ]
+      },
+      {
+        "title": "SURFACE & LIGHT",
+        "controls": [
+          "palette",
+          "corner_curvature"
+        ]
+      },
+      {
+        "title": "ENVIRONMENT",
+        "controls": [
+          "street_atmosphere",
+          "led_grid_fx"
+        ]
+      }
+    ],
+    "controls": {
+      "subject": {
+        "widget": "pads",
+        "hint": "Morph the 3D entity bursting out of the frame"
+      },
+      "palette": {
+        "widget": "cycle",
+        "hint": "Shift neon reflections and screen illumination"
+      },
+      "corner_curvature": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "protrusion_scale": {
+        "widget": "knob",
+        "hint": "Push how far the object pops beyond the corner"
+      },
+      "street_atmosphere": {
+        "widget": "lamp",
+        "hint": "Toggle crowd shadows and wet asphalt puddle sheens"
+      },
+      "led_grid_fx": {
+        "widget": "switch",
+        "hint": "Show the subpixel LED matrix facade"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "demo",
+    "blurb": "A giant glossy form bursts from a curved corner LED billboard into the night sky, throwing anamorphic perspective and wet street reflections across the room.",
+    "prompt": "An anamorphic billboard on a curved corner LED screen above a street: a giant glossy object seems to burst out of the screen's frame in forced perspective -- a wave crashing out of a box, a chrome ball rolling over the edge -- the corner fold of the screen drawn so the illusion holds. Make it striking on a big projected wall in a dark room: a bold composition, rich colour against real blacks, depth, glow, and motion that reads from across the room. Keep a demoscener's economy: lookup tables and fixed-size buffers kept in room.state, low-resolution offscreen buffers for any per-pixel work, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "3d",
+      "retro",
+      "energetic"
+    ],
+    "source": "lightworks/anamorphic-billboard~1"
+  }
+}

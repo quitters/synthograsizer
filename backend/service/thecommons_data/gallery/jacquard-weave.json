@@ -1,126 +1,126 @@
 {
   "name": "Jacquard Loom",
-  "promptTemplate": "A precision Jacquard loom weaving {{pattern_type}} cloth row by row with {{palette}} silk threads, running at {{weave_speed}} rows/sec with a thread density of {{thread_count}} and {{shuttle_glow}} shuttle sheen.",
+  "promptTemplate": "A mechanical Jacquard loom weaving {{pattern_style}} motifs in {{palette_theme}} row by row with {{thread_density}} warp threads at {{shuttle_speed}} shuttle rate under {{tension}} tension.",
   "variables": [
     {
-      "name": "pattern_type",
-      "label": "Motif",
+      "name": "pattern_style",
+      "label": "Pattern",
       "values": [
         {
-          "text": "Damask Floral",
+          "text": "damask_floral",
           "weight": 2
         },
         {
-          "text": "Houndstooth",
+          "text": "geometric_twill",
+          "weight": 2
+        },
+        {
+          "text": "heraldic_rosette",
           "weight": 1
         },
         {
-          "text": "Medallion",
-          "weight": 2
-        },
-        {
-          "text": "Labyrinth",
+          "text": "cyber_fractal",
           "weight": 1
         }
       ]
     },
     {
-      "name": "palette",
-      "label": "Silk Palette",
+      "name": "palette_theme",
+      "label": "Palette",
       "values": [
         {
-          "text": "Silk & Gold",
-          "weight": 3
-        },
-        {
-          "text": "Indigo & Silver",
+          "text": "indigo_gold",
           "weight": 2
         },
         {
-          "text": "Madder & Linen",
+          "text": "obsidian_crimson",
+          "weight": 1
+        },
+        {
+          "text": "raw_linen",
           "weight": 2
         },
         {
-          "text": "Cyber Damask",
+          "text": "neon_synth",
           "weight": 1
         }
       ]
     },
     {
-      "name": "thread_count",
-      "label": "Warp Density",
+      "name": "thread_density",
+      "label": "Thread Count",
       "type": "number",
       "min": 48,
-      "max": 96,
-      "step": 8,
-      "default": 64
+      "max": 128,
+      "step": 16,
+      "default": 80
     },
     {
-      "name": "weave_speed",
-      "label": "Weaving Speed",
+      "name": "shuttle_speed",
+      "label": "Shuttle Speed",
       "type": "number",
-      "min": 10,
-      "max": 40,
-      "step": 5,
-      "default": 20
+      "min": 0.5,
+      "max": 3.0,
+      "step": 0.5,
+      "default": 1.5
     },
     {
-      "name": "shuttle_glow",
-      "label": "Shuttle Sheen",
+      "name": "tension",
+      "label": "Warp Tension",
       "type": "number",
-      "min": 0,
-      "max": 1,
-      "step": 0.1,
-      "default": 0.5
+      "min": 0.5,
+      "max": 2.0,
+      "step": 0.25,
+      "default": 1.0
     }
   ],
   "ui": {
     "skin": "desk",
     "variant": "grey",
-    "title": "Jacquard Loom Studio",
-    "tagline": "Automated punched-card silk weave synthesis",
+    "title": "Jacquard Loom",
+    "tagline": "Mechanical tapestry synthesis row by row",
     "accent": "",
     "groups": [
       {
-        "title": "Textile Design",
+        "title": "Weave & Thread",
         "controls": [
-          "pattern_type",
-          "palette",
-          "thread_count"
+          "pattern_style",
+          "palette_theme"
         ]
       },
       {
-        "title": "Loom Mechanics",
+        "title": "Mechanism",
         "controls": [
-          "weave_speed",
-          "shuttle_glow"
+          "shuttle_speed",
+          "thread_density",
+          "tension"
         ]
       }
     ],
     "controls": {
-      "pattern_type": {
+      "pattern_style": {
         "widget": "list",
-        "hint": "Swaps the punch-card pattern binding the warp"
+        "hint": "Punch-card program punched into warp and weft"
       },
-      "palette": {
+      "palette_theme": {
         "widget": "cycle",
-        "hint": "Changes raw silk dyes for warp and weft"
+        "hint": "Dyed yarn spools for warp and weft"
       },
-      "thread_count": {
+      "thread_density": {
         "widget": "stepper",
-        "hint": "Sets vertical warp reed density"
+        "hint": "Total vertical warp threads on the beam"
       },
-      "weave_speed": {
+      "shuttle_speed": {
         "widget": "knob",
-        "hint": "Accelerates shuttle crossings per second"
+        "hint": "Tempo of shuttle flights across the fell"
       },
-      "shuttle_glow": {
+      "tension": {
         "widget": "slider",
-        "hint": "Intensifies radiant aura behind the flying boat"
+        "hint": "Reed stroke hardness and harness lift"
       }
     },
     "mobile": {
-      "density": "compact"
+      "density": "roomy"
     },
     "desktop": {
       "columns": 2
@@ -134,6 +134,6 @@
       "geometric",
       "calm"
     ],
-    "source": "scenes100/jacquard-weave~2"
+    "source": "scenes100/jacquard-weave~1"
   }
 }

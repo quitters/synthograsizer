@@ -1,0 +1,157 @@
+{
+  "name": "Dusk Kite Clash",
+  "promptTemplate": "High-altitude kite dogfight at dusk with {{sky_palette}} twilight, {{wind_force}} wind conditions, {{kite_style}} fighter kites, and {{rooftop_mood}} rooftop crowds, rendered with {{trails}} motion glints.",
+  "variables": [
+    {
+      "name": "sky_palette",
+      "label": "Twilight Sky",
+      "values": [
+        {
+          "text": "sunset_ember",
+          "weight": 2
+        },
+        {
+          "text": "midnight_indigo",
+          "weight": 1
+        },
+        {
+          "text": "desert_rose",
+          "weight": 1
+        },
+        {
+          "text": "neon_twilight",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "wind_force",
+      "label": "Wind Force",
+      "type": "number",
+      "min": 10,
+      "max": 60,
+      "step": 5,
+      "default": 25
+    },
+    {
+      "name": "kite_style",
+      "label": "Kite Pattern",
+      "values": [
+        {
+          "text": "classic_diamond",
+          "weight": 2
+        },
+        {
+          "text": "dragon_swallow",
+          "weight": 1
+        },
+        {
+          "text": "hex_blade",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "rooftop_mood",
+      "label": "Rooftop Mood",
+      "values": [
+        {
+          "text": "roaring_festival",
+          "weight": 2
+        },
+        {
+          "text": "lantern_vigil",
+          "weight": 1
+        },
+        {
+          "text": "electric_carnival",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "trails",
+      "label": "Motion Glints",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "tug",
+      "label": "Tug Line",
+      "type": "trigger",
+      "share": "all"
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "DUSK KITE CLASH",
+    "tagline": "Tug to dive, cross lines, and slice the opponent free",
+    "accent": "#f06e28",
+    "groups": [
+      {
+        "title": "Dogfight",
+        "controls": [
+          "tug"
+        ]
+      },
+      {
+        "title": "Sky & Wind",
+        "controls": [
+          "wind_force",
+          "sky_palette"
+        ]
+      },
+      {
+        "title": "Atmosphere",
+        "controls": [
+          "kite_style",
+          "rooftop_mood",
+          "trails"
+        ]
+      }
+    ],
+    "controls": {
+      "sky_palette": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "wind_force": {
+        "widget": "knob",
+        "hint": "Dial wind gusts buffeting kites across the rooftops"
+      },
+      "kite_style": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "rooftop_mood": {
+        "widget": "list",
+        "hint": ""
+      },
+      "trails": {
+        "widget": "lamp",
+        "hint": "Toggle sparkling motion streaks behind line maneuvers"
+      },
+      "tug": {
+        "widget": "pad",
+        "hint": "Yank your kite into a dive; cut the enemy when lines cross"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "Two teams pilot fighter kites over twilight city rooftops, tugging lines to dive and cut the opposing kite free in mid-air.",
+    "prompt": "Kite fighting over flat rooftops at dusk, one big diamond kite per team with a long glinting line: presses of 'tug' make a team's kite dive and climb, and when the lines cross the team tugging harder cuts the other kite free, which drifts away over the city as the crowd on the roofs cheers. Two teams: tables alternate between them, or people alternate when everyone is at one table; show each team's colours and score clearly. Make it a party game a whole room can follow from across the floor: bold shapes and bright colours on a dark ground, every player drawn in their own hue, big short labels (a score, GO!, the winner) in a heavy font, and a large, satisfying reaction on screen the instant anyone presses. It must work with one player or forty, scaling its lanes, seats or pieces to room.people and coping with people joining and leaving mid-round; play itself in a lively attract mode whenever nobody has pressed anything for a few seconds; and after a winner is shown, start the next round on its own. Keep it lean: game state in bounded arrays in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080.",
+    "look": [
+      "energetic",
+      "light"
+    ],
+    "source": "play/kite-fight~11"
+  }
+}

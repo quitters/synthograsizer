@@ -1,0 +1,171 @@
+{
+  "name": "Volumetric LED Cube",
+  "promptTemplate": "A 16x16x16 volumetric LED lattice in {{palette}} running {{mode}} with tilt {{cube_tilt}}° at speed {{rot_speed}}x, glow {{glow_intensity}}, unlit grid {{unlit_grid}}, reactive {{audio_punch}}",
+  "variables": [
+    {
+      "name": "mode",
+      "label": "Pattern Mode",
+      "values": [
+        {
+          "text": "sine_sheet",
+          "weight": 2
+        },
+        {
+          "text": "bouncing_orb",
+          "weight": 2
+        },
+        {
+          "text": "matrix_rain",
+          "weight": 2
+        },
+        {
+          "text": "spinning_helix",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "palette",
+      "label": "Color Palette",
+      "values": [
+        {
+          "text": "electric_cyan",
+          "weight": 2
+        },
+        {
+          "text": "amber_core",
+          "weight": 1
+        },
+        {
+          "text": "neon_magenta",
+          "weight": 1
+        },
+        {
+          "text": "matrix_green",
+          "weight": 1
+        },
+        {
+          "text": "aurora_shift",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "rot_speed",
+      "label": "Spin Speed",
+      "type": "number",
+      "min": 0,
+      "max": 3,
+      "step": 0.1,
+      "default": 1.0
+    },
+    {
+      "name": "cube_tilt",
+      "label": "Cube Tilt",
+      "type": "number",
+      "min": -45,
+      "max": 45,
+      "step": 5,
+      "default": 20
+    },
+    {
+      "name": "glow_intensity",
+      "label": "Glow Intensity",
+      "type": "number",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.25,
+      "default": 1.5
+    },
+    {
+      "name": "unlit_grid",
+      "label": "Show Inactive LEDs",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "audio_punch",
+      "label": "Audio Reactivity",
+      "type": "toggle",
+      "default": true
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "ice",
+    "title": "LED CUBE 16x16x16",
+    "tagline": "Volumetric phosphor lattice emulator",
+    "accent": "#3cdcf0",
+    "groups": [
+      {
+        "title": "Pattern",
+        "controls": [
+          "mode",
+          "palette"
+        ]
+      },
+      {
+        "title": "Optics & Bloom",
+        "controls": [
+          "glow_intensity",
+          "unlit_grid"
+        ]
+      },
+      {
+        "title": "Spatial Motion",
+        "controls": [
+          "rot_speed",
+          "cube_tilt",
+          "audio_punch"
+        ]
+      }
+    ],
+    "controls": {
+      "mode": {
+        "widget": "pads",
+        "hint": "Switch the 3D wave or particle routine"
+      },
+      "palette": {
+        "widget": "cycle",
+        "hint": "Cycle phosphor tints and neon gradients"
+      },
+      "rot_speed": {
+        "widget": "knob",
+        "hint": "Cube yaw rate in space"
+      },
+      "cube_tilt": {
+        "widget": "slider",
+        "hint": "Pitch angle forward or back"
+      },
+      "glow_intensity": {
+        "widget": "knob",
+        "hint": "Dial up additive voxel bloom"
+      },
+      "unlit_grid": {
+        "widget": "lamp",
+        "hint": "Reveal dim unlit diodes in the volume"
+      },
+      "audio_punch": {
+        "widget": "lamp",
+        "hint": "Pulse waves and voxel size to room audio"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "demo",
+    "blurb": "A floating 16x16x16 volumetric lattice projects glowing 3D sine sheets, bouncing orbs, rain, and helices into the room.",
+    "prompt": "A volumetric LED cube: a 16 by 16 by 16 lattice of tiny lights rotating slowly in space, displaying 3D animations -- a rising sine sheet, a bouncing ball, falling rain, a spinning helix -- unlit LEDs faintly visible, lit ones blooming. Make it striking on a big projected wall in a dark room: a bold composition, rich colour against real blacks, depth, glow, and motion that reads from across the room. Keep a demoscener's economy: lookup tables and fixed-size buffers kept in room.state, low-resolution offscreen buffers for any per-pixel work, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "3d",
+      "light",
+      "retro"
+    ],
+    "source": "lightworks/led-cube~3"
+  }
+}

@@ -1,0 +1,196 @@
+{
+  "name": "Rival Chemistries: Bio-Warfare RD",
+  "promptTemplate": "Two rival reaction-diffusion chemistries clashing in {{color_pair}} tones, forming {{growth_regime}} patterns with combat aggression at {{combat_aggression}}, fluid viscosity {{viscosity}}, audio sensitivity {{audio_reactivity}}, and {{overlay_detail}}.",
+  "variables": [
+    {
+      "name": "color_pair",
+      "label": "Chemistry Colors",
+      "values": [
+        {
+          "text": "neon_cyber",
+          "weight": 3
+        },
+        {
+          "text": "deep_sea",
+          "weight": 2
+        },
+        {
+          "text": "toxic_bloom",
+          "weight": 2
+        },
+        {
+          "text": "solar_void",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "growth_regime",
+      "label": "Growth Regime",
+      "values": [
+        {
+          "text": "mitotic_cells",
+          "weight": 3
+        },
+        {
+          "text": "coral_labyrinth",
+          "weight": 2
+        },
+        {
+          "text": "pulsing_spirals",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "combat_aggression",
+      "label": "Combat Aggression",
+      "type": "number",
+      "min": 0.2,
+      "max": 1.0,
+      "step": 0.1,
+      "default": 0.6
+    },
+    {
+      "name": "viscosity",
+      "label": "Viscosity",
+      "type": "number",
+      "min": 0.6,
+      "max": 1.6,
+      "step": 0.1,
+      "default": 1.0
+    },
+    {
+      "name": "audio_reactivity",
+      "label": "Music Sensitivity",
+      "type": "number",
+      "min": 0.2,
+      "max": 2.0,
+      "step": 0.2,
+      "default": 1.0
+    },
+    {
+      "name": "overlay_detail",
+      "label": "Microscope Layer",
+      "values": [
+        {
+          "text": "biofilm_contours",
+          "weight": 3
+        },
+        {
+          "text": "particle_spores",
+          "weight": 2
+        },
+        {
+          "text": "full_diagnostic",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "seed_colony",
+      "label": "Seed My Colony",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "seed_rival",
+      "label": "Counter-Infect",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "catalyst_surge",
+      "label": "Catalyst Shockwave",
+      "type": "trigger",
+      "share": "all"
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "acid",
+    "title": "BIO-WARFARE RD +3",
+    "tagline": "Spread rival bacterial strains across the dish",
+    "accent": "#00f0ff",
+    "groups": [
+      {
+        "title": "Inoculation",
+        "controls": [
+          "seed_colony",
+          "seed_rival",
+          "catalyst_surge"
+        ]
+      },
+      {
+        "title": "Morphology",
+        "controls": [
+          "growth_regime",
+          "combat_aggression",
+          "viscosity"
+        ]
+      },
+      {
+        "title": "Analysis",
+        "controls": [
+          "color_pair",
+          "overlay_detail",
+          "audio_reactivity"
+        ]
+      }
+    ],
+    "controls": {
+      "color_pair": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "growth_regime": {
+        "widget": "pads",
+        "hint": "Switches reaction-diffusion reaction parameters"
+      },
+      "combat_aggression": {
+        "widget": "knob",
+        "hint": "Higher values let dominant strain consume rivals"
+      },
+      "viscosity": {
+        "widget": "slider",
+        "hint": "Thickens fluid medium to slow diffusion crawl"
+      },
+      "audio_reactivity": {
+        "widget": "knob",
+        "hint": "Pumps nutrient feed rates to the room beat"
+      },
+      "overlay_detail": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "seed_colony": {
+        "widget": "pad",
+        "hint": "Spawns a fresh bio-cluster for your faction"
+      },
+      "seed_rival": {
+        "widget": "pad",
+        "hint": "Infects enemy lines with counter-spores"
+      },
+      "catalyst_surge": {
+        "widget": "button",
+        "hint": "Triggers multi-point shockwave in neutral zone"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "Two rival reaction-diffusion chemistries in different colours spreading across the whole screen and eating into each other's territory, where each person's button seeds a new colony of their own chemistry, evolving for minutes without ever resetting",
+    "prompt": "two rival reaction-diffusion chemistries in different colours spreading across the whole screen and eating into each other's territory, where each person's button seeds a new colony of their own chemistry, evolving for minutes without ever resetting",
+    "look": [
+      "organic",
+      "psychedelic"
+    ],
+    "source": "trial-2/flash-high/rival-chemistry~2"
+  }
+}

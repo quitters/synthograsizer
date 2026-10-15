@@ -1,0 +1,146 @@
+{
+  "name": "Pier Pressure: Dusk Fishing Derby",
+  "promptTemplate": "Arcade fishing derby at a neon dusk pier under a {{water_mood}} sky, {{bite_speed}} fish tempo, race to {{target_score}} catches with {{night_glow}} bioluminescent splash trails.",
+  "variables": [
+    {
+      "name": "water_mood",
+      "label": "Dusk Mood",
+      "values": [
+        {
+          "text": "Twilight Violet",
+          "weight": 2
+        },
+        {
+          "text": "Sunset Gold",
+          "weight": 2
+        },
+        {
+          "text": "Deep Midnight",
+          "weight": 1
+        },
+        {
+          "text": "Neon Abyss",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "bite_speed",
+      "label": "Bite Tempo",
+      "values": [
+        {
+          "text": "Brisk",
+          "weight": 2
+        },
+        {
+          "text": "Normal",
+          "weight": 3
+        },
+        {
+          "text": "Chilled",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "target_score",
+      "label": "Target Catch",
+      "type": "number",
+      "min": 3,
+      "max": 12,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "name": "night_glow",
+      "label": "Neon Glow",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "cast",
+      "label": "Cast / Strike!",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "reset_round",
+      "label": "New Round",
+      "type": "trigger",
+      "share": "one"
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "violet",
+    "title": "PIER PRESSURE +4",
+    "tagline": "Dusk arcade derby: hook fish before they get away",
+    "accent": "#ff498b",
+    "groups": [
+      {
+        "title": "Action",
+        "controls": [
+          "cast",
+          "reset_round"
+        ]
+      },
+      {
+        "title": "Atmosphere",
+        "controls": [
+          "water_mood",
+          "night_glow"
+        ]
+      },
+      {
+        "title": "Rules",
+        "controls": [
+          "bite_speed",
+          "target_score"
+        ]
+      }
+    ],
+    "controls": {
+      "water_mood": {
+        "widget": "cycle",
+        "hint": "Cycle dusk gradient and sun palette"
+      },
+      "bite_speed": {
+        "widget": "buttons",
+        "hint": "Tune reaction window speed"
+      },
+      "target_score": {
+        "widget": "stepper",
+        "hint": "Number of catches required to take the derby"
+      },
+      "night_glow": {
+        "widget": "lamp",
+        "hint": "Toggle bioluminescent spray and splash trails"
+      },
+      "cast": {
+        "widget": "pad",
+        "hint": "Cast line, then strike the moment your float bobs!"
+      },
+      "reset_round": {
+        "widget": "button",
+        "hint": "Reset all angler scores and start fresh"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "Silhouetted anglers cast glowing lines off a dusk pier into synthwave water, racing to time their strikes as floats bob under.",
+    "prompt": "A fishing pier at dusk with a line in the water for every person: press 'cast' to cast, wait, and when your float bobs under press again to strike; strike too early or too late and the fish gets away; fish leap on the hook, and a tally board counts each person's catch. Make it a party game a whole room can follow from across the floor: bold shapes and bright colours on a dark ground, every player drawn in their own hue, big short labels (a score, GO!, the winner) in a heavy font, and a large, satisfying reaction on screen the instant anyone presses. It must work with one player or forty, scaling its lanes, seats or pieces to room.people and coping with people joining and leaving mid-round; play itself in a lively attract mode whenever nobody has pressed anything for a few seconds; and after a winner is shown, start the next round on its own. Keep it lean: game state in bounded arrays in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080.",
+    "look": [
+      "retro",
+      "energetic",
+      "light"
+    ],
+    "source": "play/fishing-derby~2"
+  }
+}

@@ -1,0 +1,154 @@
+{
+  "name": "Boreal Mirror",
+  "promptTemplate": "A nocturnal northern sky glowing with {{aurora_palette}} ribbons that drift with {{curtain_style}} motion across {{ribbon_density}} layers over {{mountain_silhouette}} peaks, reflected across {{ice_texture}} frozen lake ice.",
+  "variables": [
+    {
+      "name": "aurora_palette",
+      "label": "Aurora Palette",
+      "values": [
+        {
+          "text": "Emerald Veil",
+          "weight": 3
+        },
+        {
+          "text": "Violet Surge",
+          "weight": 2
+        },
+        {
+          "text": "Solar Storm",
+          "weight": 1
+        },
+        {
+          "text": "Arctic Ghost",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "curtain_style",
+      "label": "Curtain Style",
+      "values": [
+        {
+          "text": "Gossamer Silk",
+          "weight": 2
+        },
+        {
+          "text": "Luminous Flow",
+          "weight": 3
+        },
+        {
+          "text": "Furious Shimmer",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "mountain_silhouette",
+      "label": "Shoreline Relief",
+      "values": [
+        {
+          "text": "Rolling Tundra",
+          "weight": 2
+        },
+        {
+          "text": "Jagged Fjords",
+          "weight": 3
+        },
+        {
+          "text": "Glacial Crags",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "ice_texture",
+      "label": "Ice Surface",
+      "values": [
+        {
+          "text": "Dark Gloss",
+          "weight": 3
+        },
+        {
+          "text": "Cracked Glaze",
+          "weight": 2
+        },
+        {
+          "text": "Frosted Rime",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "ribbon_density",
+      "label": "Ribbon Density",
+      "type": "number",
+      "min": 2,
+      "max": 5,
+      "step": 1,
+      "default": 4
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "ice",
+    "title": "BOREAL MIRROR",
+    "tagline": "Rippling auroras over frozen sub-zero ice",
+    "accent": "#5ce6a8",
+    "groups": [
+      {
+        "title": "Aurora Glow",
+        "controls": [
+          "aurora_palette",
+          "curtain_style",
+          "ribbon_density"
+        ]
+      },
+      {
+        "title": "Frozen Landscape",
+        "controls": [
+          "mountain_silhouette",
+          "ice_texture"
+        ]
+      }
+    ],
+    "controls": {
+      "aurora_palette": {
+        "widget": "cycle",
+        "hint": "Shifts the curtain spectrum across the night"
+      },
+      "curtain_style": {
+        "widget": "pads",
+        "hint": "Alters curtain wave velocity and ripple surge"
+      },
+      "mountain_silhouette": {
+        "widget": "buttons",
+        "hint": "Reshapes the distant horizon skyline"
+      },
+      "ice_texture": {
+        "widget": "buttons",
+        "hint": "Changes the lake surface glaze and reflections"
+      },
+      "ribbon_density": {
+        "widget": "stepper",
+        "hint": "Stacks additional veil layers in the sky"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "generative",
+    "blurb": "An aurora over a frozen lake at night, the curtains of light rippling with the music and mirrored faintly in the ice",
+    "prompt": "an aurora over a frozen lake at night, the curtains of light rippling with the music and mirrored faintly in the ice",
+    "look": [
+      "nature",
+      "light",
+      "calm"
+    ],
+    "source": "trial-1/flash-low/aurora-lake"
+  }
+}

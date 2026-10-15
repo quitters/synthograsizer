@@ -1,0 +1,121 @@
+{
+  "name": "Boreal Night",
+  "promptTemplate": "A nocturnal landscape illuminated by a {{aurora_palette}} aurora rippling across {{curtain_layers}} curtains at speed {{aurora_speed}}, set above rugged hills with lake reflection {{lake_reflection}} and falling snow {{snow}}.",
+  "variables": [
+    {
+      "name": "aurora_palette",
+      "label": "Aurora Palette",
+      "values": [
+        {
+          "text": "Emerald & Violet",
+          "weight": 3
+        },
+        {
+          "text": "Boreal Violet",
+          "weight": 2
+        },
+        {
+          "text": "Solar Flare",
+          "weight": 1
+        },
+        {
+          "text": "Arctic Cyan",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "curtain_layers",
+      "label": "Curtains",
+      "type": "number",
+      "min": 2,
+      "max": 6,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "name": "aurora_speed",
+      "label": "Curtain Speed",
+      "type": "number",
+      "min": 0.2,
+      "max": 2.0,
+      "step": 0.2,
+      "default": 1.0
+    },
+    {
+      "name": "lake_reflection",
+      "label": "Lake Reflection",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "snow",
+      "label": "Falling Snow",
+      "type": "toggle",
+      "default": true
+    }
+  ],
+  "ui": {
+    "skin": "desk",
+    "variant": "blue",
+    "title": "Boreal Night",
+    "tagline": "Auroral skies over dark wilderness peaks",
+    "accent": "#42f5b9",
+    "groups": [
+      {
+        "title": "Sky & Aurora",
+        "controls": [
+          "aurora_palette",
+          "curtain_layers",
+          "aurora_speed"
+        ]
+      },
+      {
+        "title": "Landscape",
+        "controls": [
+          "lake_reflection",
+          "snow"
+        ]
+      }
+    ],
+    "controls": {
+      "aurora_palette": {
+        "widget": "cycle",
+        "hint": "Shifts the ionospheric glow"
+      },
+      "curtain_layers": {
+        "widget": "stepper",
+        "hint": "Adds layered waves across the sky"
+      },
+      "aurora_speed": {
+        "widget": "knob",
+        "hint": "Tempo of shimmering ribbon folds"
+      },
+      "lake_reflection": {
+        "widget": "switch",
+        "hint": "Mirrors the aurora across water"
+      },
+      "snow": {
+        "widget": "switch",
+        "hint": "Drifting flakes across the peaks"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "generative",
+    "blurb": "An aurora over dark hills that can be reflected in a lake or not, with falling snow you can turn on.",
+    "prompt": "An aurora over dark hills that can be reflected in a lake or not, with falling snow you can turn on.",
+    "look": [
+      "nature",
+      "light",
+      "calm"
+    ],
+    "source": "toggles10/aurora-snow~1"
+  }
+}

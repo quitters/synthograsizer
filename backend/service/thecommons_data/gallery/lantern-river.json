@@ -1,0 +1,147 @@
+{
+  "name": "River of Floating Lanterns",
+  "promptTemplate": "A lantern festival on a river at night with {{color_theme}} paper lanterns, flowing at {{flow_speed}} speed, {{water_shimmer}} water reflections, {{lantern_density}} lanterns afloat, mist set to {{mist_intensity}}, and sky lanterns {{sky_lanterns}}.",
+  "variables": [
+    {
+      "name": "color_theme",
+      "label": "Lantern Palette",
+      "values": [
+        {
+          "text": "classic_amber",
+          "weight": 3
+        },
+        {
+          "text": "lotus_pink",
+          "weight": 2
+        },
+        {
+          "text": "festival_gold",
+          "weight": 2
+        },
+        {
+          "text": "aurora_spirit",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "flow_speed",
+      "label": "Current Speed",
+      "type": "number",
+      "min": 0.4,
+      "max": 2.0,
+      "step": 0.2,
+      "default": 1.0
+    },
+    {
+      "name": "water_shimmer",
+      "label": "Water Shimmer",
+      "values": [
+        {
+          "text": "gentle_ripples",
+          "weight": 2
+        },
+        {
+          "text": "dancing_eddies",
+          "weight": 3
+        },
+        {
+          "text": "glassy_streaks",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "lantern_density",
+      "label": "Lantern Count",
+      "type": "number",
+      "min": 60,
+      "max": 180,
+      "step": 20,
+      "default": 120
+    },
+    {
+      "name": "mist_intensity",
+      "label": "River Mist",
+      "type": "number",
+      "min": 0.2,
+      "max": 0.8,
+      "step": 0.1,
+      "default": 0.5
+    },
+    {
+      "name": "sky_lanterns",
+      "label": "Sky Lanterns",
+      "type": "toggle",
+      "default": true
+    }
+  ],
+  "ui": {
+    "skin": "desk",
+    "variant": "blue",
+    "title": "Lantern Festival",
+    "tagline": "Paper lanterns drifting on midnight waters",
+    "accent": "",
+    "groups": [
+      {
+        "title": "Illumination",
+        "controls": [
+          "color_theme",
+          "sky_lanterns",
+          "lantern_density"
+        ]
+      },
+      {
+        "title": "River & Mist",
+        "controls": [
+          "flow_speed",
+          "water_shimmer",
+          "mist_intensity"
+        ]
+      }
+    ],
+    "controls": {
+      "color_theme": {
+        "widget": "pads",
+        "hint": "Shifts lantern paper hues and underwater glow"
+      },
+      "flow_speed": {
+        "widget": "knob",
+        "hint": "Speed of the river current downstream"
+      },
+      "water_shimmer": {
+        "widget": "buttons",
+        "hint": "Rippling pattern of reflections"
+      },
+      "lantern_density": {
+        "widget": "slider",
+        "hint": "Total lanterns afloat on the water"
+      },
+      "mist_intensity": {
+        "widget": "slider",
+        "hint": "Low fog hanging above the river bend"
+      },
+      "sky_lanterns": {
+        "widget": "lamp",
+        "hint": "Release floating lights into the night sky"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "living",
+    "blurb": "Warm paper lanterns drift down a dark river, trailing long wavering reflections while sky lanterns rise into the night.",
+    "prompt": "A lantern festival on a river at night: hundreds of paper lanterns float downstream, each glowing warm through its paper, bobbing on the current, their light breaking into long wavering reflections, more drifting in from upstream. Make it striking on a big projected wall in a dark room: a bold composition, rich colour against real blacks, depth, glow, and motion that reads from across the room. Keep a demoscener's economy: lookup tables and fixed-size buffers kept in room.state, low-resolution offscreen buffers for any per-pixel work, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "light",
+      "calm",
+      "nature"
+    ],
+    "source": "lightworks/lantern-river~3"
+  }
+}

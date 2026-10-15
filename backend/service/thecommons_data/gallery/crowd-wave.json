@@ -1,0 +1,160 @@
+{
+  "name": "Stadium Wave Collision",
+  "promptTemplate": "A packed stadium in the dark under {{palette}} lighting with {{ambient_cheer}} crowd energy, {{wave_speed}}x speed waves, {{glow_size}}px halos, and roof beams {{floodlights}}",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Stadium Lights",
+      "values": [
+        {
+          "text": "Night Electric",
+          "weight": 3
+        },
+        {
+          "text": "Neon Cyber",
+          "weight": 2
+        },
+        {
+          "text": "Festival Gold",
+          "weight": 2
+        },
+        {
+          "text": "Aurora Borealis",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "wave_speed",
+      "label": "Wave Speed",
+      "type": "number",
+      "min": 0.5,
+      "max": 3.0,
+      "step": 0.25,
+      "default": 1.5
+    },
+    {
+      "name": "glow_size",
+      "label": "Halo Size",
+      "type": "number",
+      "min": 1,
+      "max": 6,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "name": "ambient_cheer",
+      "label": "Crowd Energy",
+      "values": [
+        {
+          "text": "Low Buzz",
+          "weight": 2
+        },
+        {
+          "text": "Chanting",
+          "weight": 3
+        },
+        {
+          "text": "Roaring",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "floodlights",
+      "label": "Roof Beams",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "wave",
+      "label": "Start Wave",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "flare",
+      "label": "Light Flare",
+      "type": "trigger",
+      "share": "all"
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "STADIUM WAVE +7",
+    "tagline": "Rally the crowd and spark collision flashes across the bowl",
+    "accent": "#ffb432",
+    "groups": [
+      {
+        "title": "Actions",
+        "controls": [
+          "wave",
+          "flare"
+        ]
+      },
+      {
+        "title": "Dynamics",
+        "controls": [
+          "ambient_cheer",
+          "wave_speed"
+        ]
+      },
+      {
+        "title": "Lighting",
+        "controls": [
+          "palette",
+          "glow_size",
+          "floodlights"
+        ]
+      }
+    ],
+    "controls": {
+      "palette": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "wave_speed": {
+        "widget": "knob",
+        "hint": "Dial wave travel velocity around the rim"
+      },
+      "glow_size": {
+        "widget": "slider",
+        "hint": "Spread the pixel light halo"
+      },
+      "ambient_cheer": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "floodlights": {
+        "widget": "lamp",
+        "hint": "Toggle overhead volumetric searchlights"
+      },
+      "wave": {
+        "widget": "pad",
+        "hint": "Launch paired waves clockwise and counterclockwise"
+      },
+      "flare": {
+        "widget": "pad",
+        "hint": "Ignite a brilliant flare in your seat section"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "A dark arena of thousands of glowing seats where participants trigger circulating crowd waves that detonate into brilliant flashes on collision.",
+    "prompt": "A packed stadium in the dark, every seat a tiny light, one section per person in the room; anyone can start a wave from their section, which rolls round the whole bowl, and waves that meet collide into a flash. Make it striking on a big projected wall in a dark room: a bold composition, rich colour against real blacks, depth, glow, and motion that reads from across the room. Keep a demoscener's economy: lookup tables and fixed-size buffers kept in room.state, low-resolution offscreen buffers for any per-pixel work, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "energetic",
+      "light",
+      "retro"
+    ],
+    "source": "lightworks/crowd-wave~3"
+  }
+}

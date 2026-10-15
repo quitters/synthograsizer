@@ -1,0 +1,164 @@
+{
+  "name": "Chromatic Ecosystem: Seasons & Apex",
+  "promptTemplate": "A living ecosystem cycling through seasons every minute under a {{climate}} climate. Prey creatures burn energy at {{metabolism}} with {{mutation}}° mutation variance, hunted by {{predator_count}} apex predators. Render species at scale {{boid_scale}}.",
+  "variables": [
+    {
+      "name": "climate",
+      "label": "Climate",
+      "values": [
+        {
+          "text": "Lush",
+          "weight": 2
+        },
+        {
+          "text": "Temperate",
+          "weight": 3
+        },
+        {
+          "text": "Harsh",
+          "weight": 2
+        },
+        {
+          "text": "Drought",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "metabolism",
+      "label": "Metabolism",
+      "type": "number",
+      "min": 0.5,
+      "max": 5,
+      "step": 0.5,
+      "default": 2
+    },
+    {
+      "name": "mutation",
+      "label": "Mutation Rate",
+      "type": "number",
+      "min": 0,
+      "max": 90,
+      "step": 5,
+      "default": 15
+    },
+    {
+      "name": "boid_scale",
+      "label": "Creature Size",
+      "type": "number",
+      "min": 5,
+      "max": 20,
+      "step": 1,
+      "default": 10
+    },
+    {
+      "name": "predator_count",
+      "label": "Apex Predators",
+      "type": "number",
+      "min": 1,
+      "max": 6,
+      "step": 1,
+      "default": 2
+    },
+    {
+      "name": "spawn_creature",
+      "label": "Release Species",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "feed_burst",
+      "label": "Drop Food",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "extinction",
+      "label": "Catastrophe",
+      "type": "trigger",
+      "share": "one"
+    }
+  ],
+  "ui": {
+    "skin": "desk",
+    "variant": "grey",
+    "title": "Ecosystem Simulator",
+    "tagline": "Seasonal cycles and apex hunters",
+    "accent": "",
+    "groups": [
+      {
+        "title": "Organisms",
+        "controls": [
+          "spawn_creature",
+          "predator_count",
+          "boid_scale",
+          "mutation"
+        ]
+      },
+      {
+        "title": "Biome",
+        "controls": [
+          "feed_burst",
+          "climate",
+          "metabolism"
+        ]
+      },
+      {
+        "title": "Crisis",
+        "controls": [
+          "extinction"
+        ]
+      }
+    ],
+    "controls": {
+      "climate": {
+        "widget": "list",
+        "hint": "Regulates food abundance and regrowth"
+      },
+      "metabolism": {
+        "widget": "knob",
+        "hint": "How rapidly creatures burn hunger"
+      },
+      "mutation": {
+        "widget": "slider",
+        "hint": "Hue drift when offspring divide"
+      },
+      "boid_scale": {
+        "widget": "stepper",
+        "hint": ""
+      },
+      "predator_count": {
+        "widget": "stepper",
+        "hint": "Dial apex hunters prowling the land"
+      },
+      "spawn_creature": {
+        "widget": "pad",
+        "hint": "Release prey in your personal colour"
+      },
+      "feed_burst": {
+        "widget": "button",
+        "hint": "Scatter seasonal food across the map"
+      },
+      "extinction": {
+        "widget": "button",
+        "hint": "Cull 88% of the living population"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "Add seasons that cycle every minute, changing the food supply and the colour of the land, and a predator species that hunts the other creatures",
+    "prompt": "add seasons that cycle every minute, changing the food supply and the colour of the land, and a predator species that hunts the other creatures",
+    "look": [
+      "nature",
+      "organic"
+    ],
+    "source": "trial-2/flash-high/remix-ecosystem-seasons~1"
+  }
+}

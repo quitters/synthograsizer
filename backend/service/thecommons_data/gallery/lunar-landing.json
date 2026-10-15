@@ -1,0 +1,142 @@
+{
+  "name": "Lunar Touchdown Party",
+  "promptTemplate": "A lunar lander party game in {{visual_theme}} style under {{gravity_preset}} gravity with pad size {{pad_size}}px, solar wind {{solar_wind}} and attract autopilot {{auto_pilot_demo}}",
+  "variables": [
+    {
+      "name": "thrust",
+      "label": "THRUST!",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "visual_theme",
+      "label": "Visual Theme",
+      "values": [
+        {
+          "text": "Cyber Lunar",
+          "weight": 3
+        },
+        {
+          "text": "Retro Radar",
+          "weight": 2
+        },
+        {
+          "text": "Solar Sunset",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "gravity_preset",
+      "label": "Gravity",
+      "values": [
+        {
+          "text": "Lunar Normal",
+          "weight": 3
+        },
+        {
+          "text": "Apollo Light",
+          "weight": 2
+        },
+        {
+          "text": "Jupiter Heavy",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "pad_size",
+      "label": "Pad Width",
+      "type": "number",
+      "min": 140,
+      "max": 340,
+      "step": 20,
+      "default": 220
+    },
+    {
+      "name": "solar_wind",
+      "label": "Solar Wind",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "auto_pilot_demo",
+      "label": "Attract Mode",
+      "type": "toggle",
+      "default": true
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "ice",
+    "title": "LUNAR TOUCHDOWN",
+    "tagline": "Tap to fire thrusters and guide the module to the pad",
+    "accent": "#00f0ff",
+    "groups": [
+      {
+        "title": "FLIGHT CONTROL",
+        "controls": [
+          "thrust"
+        ]
+      },
+      {
+        "title": "MISSION CONDITIONS",
+        "controls": [
+          "gravity_preset",
+          "pad_size",
+          "solar_wind"
+        ]
+      },
+      {
+        "title": "SURFACE TELEMETRY",
+        "controls": [
+          "visual_theme",
+          "auto_pilot_demo"
+        ]
+      }
+    ],
+    "controls": {
+      "thrust": {
+        "widget": "pad",
+        "hint": "Fires descent engine to brake against lunar gravity"
+      },
+      "visual_theme": {
+        "widget": "pads",
+        "hint": ""
+      },
+      "gravity_preset": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "pad_size": {
+        "widget": "slider",
+        "hint": "Widens or narrows the target touchdown beacon"
+      },
+      "solar_wind": {
+        "widget": "lamp",
+        "hint": "Adds lateral gusting to drift the lander"
+      },
+      "auto_pilot_demo": {
+        "widget": "switch",
+        "hint": ""
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "A collective lunar landing where everyone taps to fire the module's thrusters, braking in unison to touch down softly on the illuminated pad.",
+    "prompt": "A lunar landing: a lander drifting down toward a cratered surface under gravity, and presses of 'thrust' from anyone fire its engine; too little and it crashes, too much and it soars off, so the room has to land gently on the lit pad; each landing is scored for softness. Make it a party game a whole room can follow from across the floor: bold shapes and bright colours on a dark ground, every player drawn in their own hue, big short labels (a score, GO!, the winner) in a heavy font, and a large, satisfying reaction on screen the instant anyone presses. It must work with one player or forty, scaling its lanes, seats or pieces to room.people and coping with people joining and leaving mid-round; play itself in a lively attract mode whenever nobody has pressed anything for a few seconds; and after a winner is shown, start the next round on its own. Keep it lean: game state in bounded arrays in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080.",
+    "look": [
+      "retro",
+      "space",
+      "energetic"
+    ],
+    "source": "play/lunar-landing~11"
+  }
+}

@@ -1,312 +1,281 @@
 ctx.save();
 
-const W = frame.width;
-const H = frame.height;
-
-// --- VARIABLES ---
-const warps = Math.floor(getVar('thread_count') ?? 64);
-const speed = getVar('weave_speed') ?? 20;
-const glow = getVar('shuttle_glow') ?? 0.5;
-const patType = getVar('pattern_type') || 'Damask Floral';
-const palType = getVar('palette') || 'Silk & Gold';
+const styleKey = getVar('pattern_style') ?? 'damask_floral';
+const palKey = getVar('palette_theme') ?? 'indigo_gold';
+const warpCount = Math.floor(getVar('thread_density') ?? 80);
+const speedMul = getVar('shuttle_speed') ?? 1.5;
+const tension = getVar('tension') ?? 1.0;
 
 const PALETTES = {
-  'Silk & Gold': {
-    bg: '#0c0a08',
-    wood: '#2d1a0e',
-    brass: '#c9933b',
-    warpBase: [215, 175, 75],
-    weftBase: [90, 20, 25],
-    warpHi: [255, 230, 150],
-    weftHi: [170, 45, 55],
-    beam: '#150d08'
-  },
-  'Indigo & Silver': {
-    bg: '#060b14',
-    wood: '#111d2e',
-    brass: '#8faed9',
-    warpBase: [175, 200, 230],
-    weftBase: [18, 42, 85],
-    warpHi: [240, 248, 255],
-    weftHi: [40, 95, 175],
-    beam: '#0a101b'
-  },
-  'Madder & Linen': {
-    bg: '#0f0a0a',
-    wood: '#2b1414',
-    brass: '#bd724e',
-    warpBase: [210, 195, 170],
-    weftBase: [135, 32, 36],
-    warpHi: [245, 235, 220],
-    weftHi: [205, 55, 60],
-    beam: '#180c0c'
-  },
-  'Cyber Damask': {
-    bg: '#05050f',
-    wood: '#101026',
-    brass: '#00ffd5',
-    warpBase: [0, 230, 200],
-    weftBase: [180, 0, 120],
-    warpHi: [120, 255, 240],
-    weftHi: [255, 60, 200],
-    beam: '#090918'
-  }
+  indigo_gold:      { bg: '#080c18', warp: '#e5b842', weft: '#183a6e', acc: '#ffd875', wood: '#3b2314', reed: '#a8a8a8' },
+  obsidian_crimson: { bg: '#0b0709', warp: '#d42c44', weft: '#1e1418', acc: '#ff6b81', wood: '#29181b', reed: '#c49a9a' },
+  raw_linen:        { bg: '#141210', warp: '#dfd7ca', weft: '#5c544a', acc: '#f7f4ee', wood: '#4a3b32', reed: '#9e968c' },
+  neon_synth:       { bg: '#05030a', warp: '#00f0ff', weft: '#ff0077', acc: '#ffff00', wood: '#18122b', reed: '#00ffaa' }
 };
-const pal = PALETTES[palType] || PALETTES['Silk & Gold'];
+const pal = PALETTES[palKey] ?? PALETTES.indigo_gold;
 
-// --- PERSISTENT STATE ---
-room.state.totalRows ??= 80;
-const TOTAL_ROWS = room.state.totalRows;
+// Allocate persistent simulation state once
+const MAX_WARP = 128;
+const MAX_ROWS = 160;
+room.state.grid ??= new Uint8Array(MAX_WARP * MAX_ROWS);
+room.state.heddles ??= new Float32Array(MAX_WARP);
+room.state.shuttleX ??= 0;
+room.state.shuttleDir ??= 1;
+room.state.activeRow ??= 0;
+room.state.rowTimer ??= 0;
+room.state.cutAnim ??= 0;
+room.state.clothDrop ??= 0;
+room.state.reedBevel ??= 0;
+room.state.cycleCount ??= 0;
 
-// Motif bit evaluation: 1 = warp-faced satin, 0 = weft-faced satin
-const evalMotif = (gx, gy, type) => {
-  const x = gx % 32;
-  const y = gy % 32;
-  const cx = x - 16;
-  const cy = y - 16;
-  const d = Math.sqrt(cx * cx + cy * cy);
-  if (type === 'Houndstooth') {
-    const hx = gx % 16;
-    const hy = gy % 16;
-    return (hx < 8 && hy < 8) || (hx >= 8 && hy >= 8 && (hx - 8 + hy - 8 < 8)) ? 1 : 0;
-  } else if (type === 'Medallion') {
-    const ring = Math.floor(d * 1.5) % 4;
-    const star = Math.abs(Math.sin(Math.atan2(cy, cx) * 4));
-    return (ring === 0 || (d < 14 && star > 0.45)) ? 1 : 0;
-  } else if (type === 'Labyrinth') {
-    return ((gx ^ gy) & 7) < 3 || ((gx * 3 + gy * 5) % 11 < 4) ? 1 : 0;
+const st = room.state;
+
+// Jacquard card evaluator (pure bit synthesis, zero allocations)
+function evalJacquard(col, row, style, seed) {
+  const x = col - warpCount * 0.5;
+  const y = row - MAX_ROWS * 0.5;
+  if (style === 'damask_floral') {
+    const r = Math.hypot(x, y * 0.8);
+    const a = Math.atan2(y, x) * 4;
+    const wave = Math.sin(r * 0.28 + a) + Math.cos(col * 0.2) * 0.5;
+    return (wave > 0.15 ? 1 : 0) ^ ((col + row) & 1);
+  } else if (style === 'geometric_twill') {
+    const twill = (col + row * 2) % 6 < 3 ? 1 : 0;
+    const plaid = ((col & 16) ^ (row & 16)) ? 1 : 0;
+    return twill ^ plaid;
+  } else if (style === 'heraldic_rosette') {
+    const r = Math.hypot(x, y);
+    const ring = Math.sin(r * 0.35 + seed) > 0 ? 1 : 0;
+    const cross = (Math.abs(x) < 4 || Math.abs(y) < 4) ? 1 : 0;
+    return (ring ^ cross) ^ ((col ^ row) & 1);
   } else {
-    // Damask Floral
-    const petal = Math.sin(Math.atan2(cy, cx) * 6 + d * 0.25);
-    const core = d < 5 ? 1 : 0;
-    const leaves = Math.sin(gx * 0.4) * Math.cos(gy * 0.4) > 0.2 ? 1 : 0;
-    return ((d < 13 && petal > 0.1) || core || leaves) ? 1 : 0;
-  };
-};
-
-// Jacquard 5-shaft satin weave binder
-const isWarpOver = (x, y, motif) => {
-  const satin = (x * 2 + y * 3) % 5 === 0;
-  return motif ? (satin ? 0 : 1) : (satin ? 1 : 0);
-};
-
-room.state.rowProgress ??= 0;
-room.state.cutTimer ??= 0;
-room.state.motifOffset ??= 0;
-
-// Advance weave simulation
-const dt = Math.min(frame.dt || 0.016, 0.05);
-const beatBump = audio.beat ? 1.6 : 1.0;
-const rowsToAdvance = dt * speed * (0.85 + audio.mid * 0.4) * beatBump;
-
-if (room.state.cutTimer > 0) {
-  room.state.cutTimer -= dt;
-  if (room.state.cutTimer <= 0) {
-    room.state.cutTimer = 0;
-    room.state.rowProgress = 0;
-    room.state.motifOffset += 17;
-  }
-} else {
-  room.state.rowProgress += rowsToAdvance;
-  if (room.state.rowProgress >= TOTAL_ROWS) {
-    room.state.cutTimer = 1.6; // Scissors cut pause & drop
+    // cyber_fractal
+    const v = ((col * 3) ^ (row * 5) ^ (seed * 17)) & 31;
+    return v > 14 ? 1 : 0;
   }
 }
 
-const curRow = Math.min(Math.floor(room.state.rowProgress), TOTAL_ROWS);
-const shuttleT = (room.state.rowProgress % 1);
-const shuttleDir = (curRow % 2 === 0) ? 1 : -1;
-const shuttleXNorm = shuttleDir === 1 ? shuttleT : 1 - shuttleT;
+// Loom layout dimensions
+const W = frame.width;
+const H = frame.height;
+const loomMarginX = W * 0.12;
+const loomWidth = W - loomMarginX * 2;
+const dx = loomWidth / (warpCount - 1);
+const fellY = H * 0.44;     // Where reed beats thread into the cloth
+const heddleY = H * 0.16;   // Upper harness/card area
+const rollerY = H * 0.94;   // Cloth take-up beam
+const clothH = rollerY - fellY;
+const rowSpacing = clothH / MAX_ROWS;
 
-// --- LOOM GEOMETRY ---
+// Audio & shuttle step dynamics
+const stepRate = (speedMul * (1.2 + audio.mid * 1.5) + (audio.bass > 0.6 ? 1.0 : 0)) * 28;
+st.rowTimer += frame.dt * stepRate;
+
+// Advance weft line by line
+while (st.rowTimer >= 1.0 && st.cutAnim <= 0) {
+  st.rowTimer -= 1.0;
+  const r = st.activeRow;
+  const seed = st.cycleCount & 7;
+  for (let c = 0; c < warpCount; c++) {
+    st.grid[r * MAX_WARP + c] = evalJacquard(c, r, styleKey, seed);
+  }
+  st.activeRow++;
+  st.shuttleDir *= -1;
+  st.reedBevel = 1.0; // Trigger reed beater impact
+
+  // Cloth complete -> trigger cut-off cycle
+  if (st.activeRow >= MAX_ROWS) {
+    st.cutAnim = 1.0;
+  }
+}
+
+// Handle fabric cutoff / drop animation
+if (st.cutAnim > 0) {
+  st.clothDrop += frame.dt * 450;
+  st.cutAnim -= frame.dt * 0.8;
+  if (st.cutAnim <= 0) {
+    st.cutAnim = 0;
+    st.clothDrop = 0;
+    st.activeRow = 0;
+    st.cycleCount++;
+    st.grid.fill(0);
+  }
+}
+
+// Reed rebound
+st.reedBevel = Math.max(0, st.reedBevel - frame.dt * 8.0);
+const reedY = fellY - st.reedBevel * 18 * tension;
+
+// Background: wooden loom chamber and ambient darkness
 ctx.fillStyle = pal.bg;
 ctx.fillRect(0, 0, W, H);
 
-const loomW = Math.min(W * 0.76, 1100);
-const loomL = (W - loomW) * 0.5;
-const loomR = loomL + loomW;
-const loomTop = H * 0.08;
-const loomBottom = H * 0.88;
-const clothH = loomBottom - loomTop;
-const stepY = clothH / TOTAL_ROWS;
-const stepX = loomW / warps;
-
-// Wooden Loom Frame
-ctx.fillStyle = pal.beam;
-ctx.fillRect(loomL - 32, loomTop - 24, loomW + 64, 20);
-ctx.fillRect(loomL - 32, loomBottom + 6, loomW + 64, 24);
+// Loom side frames and crossbeams
 ctx.fillStyle = pal.wood;
-ctx.fillRect(loomL - 40, loomTop - 28, 22, clothH + 60);
-ctx.fillRect(loomR + 18, loomTop - 28, 22, clothH + 60);
+ctx.fillRect(loomMarginX - 28, 0, 24, H);
+ctx.fillRect(W - loomMarginX + 4, 0, 24, H);
+ctx.fillRect(loomMarginX - 32, heddleY - 20, loomWidth + 64, 14);
+ctx.fillRect(loomMarginX - 32, fellY - 24, loomWidth + 64, 8);
+ctx.fillRect(loomMarginX - 32, rollerY + 4, loomWidth + 64, 20);
 
-// Brass Tension Pegs & Reed guides
-ctx.fillStyle = pal.brass;
-for (let i = 0; i < 9; i++) {
-  const py = loomTop + (clothH * i) / 8;
-  ctx.fillRect(loomL - 46, py - 3, 10, 6);
-  ctx.fillRect(loomR + 36, py - 3, 10, 6);
-}
+// Update shuttle flight
+const targetShuttleX = st.shuttleDir > 0 ? (W - loomMarginX) : loomMarginX;
+st.shuttleX += (targetShuttleX - st.shuttleX) * Math.min(1, frame.dt * speedMul * 12);
 
-// Cloth Fall / Cut Transition
-const isCutting = room.state.cutTimer > 0;
-const dropOffset = isCutting ? Math.pow((1.6 - room.state.cutTimer) / 1.6, 2) * (H * 0.7) : 0;
-const clothAlpha = isCutting ? Math.max(0, room.state.cutTimer / 1.6) : 1;
-
-// Warp tension bass ripple
-const tension = Math.sin(frame.t * 8) * (audio.bass * 2.5);
-
-// --- DRAW WOVEN CLOTH & WARP THREADS ---
+// 1. WOVEN CLOTH REGION (Rendered row by row)
 ctx.save();
-if (isCutting) {
-  ctx.globalAlpha = clothAlpha;
-  ctx.translate(0, dropOffset);
-}
+// Clip to cloth fell down to roller
+ctx.beginPath();
+ctx.rect(loomMarginX - 6, fellY - 2, loomWidth + 12, clothH + 12);
+ctx.clip();
 
-// Pre-render cloth cells
-const renderedRows = isCutting ? TOTAL_ROWS : curRow;
-for (let ry = 0; ry < renderedRows; ry++) {
-  const y = loomBottom - (ry + 1) * stepY;
-  const weftGlow = (audio.treble * 40) | 0;
-  const wR = Math.min(255, pal.weftBase[0] + weftGlow);
-  const wG = Math.min(255, pal.weftBase[1] + weftGlow);
-  const wB = Math.min(255, pal.weftBase[2] + weftGlow);
+const dropOffset = st.clothDrop;
+const rowsToDraw = Math.min(st.activeRow, MAX_ROWS);
 
-  for (let rx = 0; rx < warps; rx++) {
-    const x = loomL + rx * stepX;
-    const motif = evalMotif(rx, ry + room.state.motifOffset, patType);
-    const over = isWarpOver(rx, ry, motif);
+for (let r = 0; r < rowsToDraw; r++) {
+  const rowY = fellY + (rowsToDraw - 1 - r) * rowSpacing + dropOffset;
+  if (rowY > rollerY + 40) continue;
 
-    if (over) {
-      // Warp on top (vertical silk sheen)
-      const sheen = (rx % 3 === 0) ? 35 : 0;
-      const r = Math.min(255, pal.warpHi[0] + sheen);
-      const g = Math.min(255, pal.warpHi[1] + sheen);
-      const b = Math.min(255, pal.warpHi[2] + sheen);
-      ctx.fillStyle = `rgb(${r},${g},${b})`;
-      ctx.fillRect(x + 0.5, y, stepX - 1, stepY + 0.5);
+  const rowIdx = r * MAX_WARP;
+  for (let c = 0; c < warpCount; c++) {
+    const isWarpUp = st.grid[rowIdx + c] === 1;
+    const cellX = loomMarginX + c * dx;
+
+    // Over/Under interlacing shading
+    if (isWarpUp) {
+      ctx.fillStyle = pal.warp;
+      ctx.fillRect(cellX - dx * 0.45, rowY - rowSpacing * 0.5, dx * 0.9, rowSpacing * 0.95);
+      // Warp specular highlight
+      ctx.fillStyle = 'rgba(255,255,255,0.18)';
+      ctx.fillRect(cellX - dx * 0.15, rowY - rowSpacing * 0.5, dx * 0.3, rowSpacing * 0.95);
     } else {
-      // Weft on top (horizontal velvet/matte sheen)
-      ctx.fillStyle = `rgb(${wR},${wG},${wB})`;
-      ctx.fillRect(x, y + 0.5, stepX, stepY - 1);
+      ctx.fillStyle = pal.weft;
+      ctx.fillRect(cellX - dx * 0.5, rowY - rowSpacing * 0.4, dx, rowSpacing * 0.8);
+      // Weft thread shadow in the pit
+      ctx.fillStyle = 'rgba(0,0,0,0.35)';
+      ctx.fillRect(cellX - dx * 0.5, rowY - rowSpacing * 0.4, dx * 0.25, rowSpacing * 0.8);
     }
   }
 }
 
-// Room attendees: dye accents on vertical selvedge threads
-if (room.people && room.people.length > 0) {
-  for (let p = 0; p < room.people.length; p++) {
-    const person = room.people[p];
-    const colIdx = (p * 7) % warps;
-    const px = loomL + colIdx * stepX;
-    ctx.fillStyle = `hsla(${person.hue}, 85%, 65%, 0.4)`;
-    ctx.fillRect(px, loomTop, stepX * 0.75, renderedRows * stepY);
-  }
+// Cut-off slice effect with shears sparks
+if (st.cutAnim > 0) {
+  const cutY = fellY + dropOffset * 0.3;
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 3;
+  ctx.setLineDash([8, 8]);
+  ctx.beginPath();
+  ctx.moveTo(loomMarginX - 10, cutY);
+  ctx.lineTo(W - loomMarginX + 10, cutY);
+  ctx.stroke();
+  ctx.setLineDash([]);
 }
-
 ctx.restore();
 
-// --- UNWOVEN WARP THREADS (Loom Heddles & Harness) ---
-const activeY = loomBottom - curRow * stepY;
-ctx.lineWidth = Math.max(1, stepX * 0.45);
-for (let rx = 0; rx < warps; rx++) {
-  const x = loomL + rx * stepX + stepX * 0.5;
-  const motif = evalMotif(rx, curRow + room.state.motifOffset, patType);
-  const harnessUp = isWarpOver(rx, curRow, motif);
-  const xWobble = tension * Math.sin(rx * 0.5 + frame.t * 6);
+// 2. WARP THREADS & HEDDLE SHED (Upper loom section)
+// Interpolate heddle harness lifting heights
+const activeR = Math.max(0, st.activeRow - 1) * MAX_WARP;
+for (let c = 0; c < warpCount; c++) {
+  const targetHeddle = st.grid[activeR + c] === 1 ? 1 : -1;
+  st.heddles[c] += (targetHeddle - st.heddles[c]) * Math.min(1, frame.dt * 18);
+}
 
-  // Differentiate raised warp (heddle lifted) vs lowered warp (shed)
-  if (harnessUp) {
-    ctx.strokeStyle = `rgb(${pal.warpHi[0]},${pal.warpHi[1]},${pal.warpHi[2]})`;
-  } else {
-    ctx.strokeStyle = `rgba(${pal.warpBase[0]},${pal.warpBase[1]},${pal.warpBase[2]}, 0.35)`;
+// Draw warp threads descending through heddle eyes to the fell
+const roomAudBass = audio.bass * 6 * tension;
+for (let c = 0; c < warpCount; c++) {
+  const x = loomMarginX + c * dx;
+  const shedLift = st.heddles[c] * 16 * tension;
+  const bassVibe = Math.sin(frame.t * 30 + c * 0.5) * roomAudBass;
+
+  // Thread color subtly tintable by connected audience member
+  let threadCol = pal.warp;
+  if (room.people && room.people.length > 0) {
+    const person = room.people[c % room.people.length];
+    if (person && c % 6 === 0) {
+      threadCol = `hsl(${person.hue}, 80%, 65%)`;
+    }
   }
+
+  ctx.strokeStyle = threadCol;
+  ctx.lineWidth = Math.max(1, dx * 0.32);
   ctx.beginPath();
-  ctx.moveTo(x + xWobble, loomTop);
-  ctx.lineTo(x, activeY);
+  ctx.moveTo(x + bassVibe, 0);
+  ctx.lineTo(x + shedLift * 0.4, heddleY);
+  ctx.lineTo(x, fellY);
+  ctx.stroke();
+
+  // Heddle eyelet (heddle wire needle)
+  ctx.fillStyle = pal.reed;
+  ctx.fillRect(x + shedLift * 0.4 - 2, heddleY - 3, 4, 6);
+}
+
+// 3. JACQUARD PUNCH CARDS (Top decorative mechanism)
+ctx.fillStyle = '#1e1a17';
+ctx.fillRect(loomMarginX + 20, 10, loomWidth - 40, 24);
+ctx.fillStyle = pal.acc;
+const cardSpacing = loomWidth / 32;
+for (let i = 0; i < 32; i++) {
+  const cx = loomMarginX + 30 + i * cardSpacing;
+  const cy = 22 + Math.sin(frame.t * 4 + i) * 2;
+  const holeBit = evalJacquard(i * 3, (st.activeRow >> 2), styleKey, st.cycleCount & 7);
+  if (holeBit) {
+    ctx.fillRect(cx, cy, 5, 8);
+  }
+}
+
+// 4. REED BEATER (Vertical comb slamming down onto fell)
+ctx.fillStyle = pal.reed;
+ctx.fillRect(loomMarginX - 8, reedY - 8, loomWidth + 16, 6);
+ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+ctx.lineWidth = 1;
+for (let c = 0; c < warpCount; c += 2) {
+  const rx = loomMarginX + c * dx;
+  ctx.beginPath();
+  ctx.moveTo(rx, reedY - 8);
+  ctx.lineTo(rx, reedY + 8);
   ctx.stroke();
 }
 
-// --- SHUTTLE & BEATER (Active Row) ---
-if (!isCutting) {
-  const sx = loomL + shuttleXNorm * loomW;
-  const sy = activeY;
+// 5. FLYING SHUTTLE (darting across weft shed)
+const shutY = fellY - 14 - st.reedBevel * 12;
+const shutW = 34;
+const shutH = 10;
 
-  // Shuttle yarn tail line
-  ctx.strokeStyle = `rgba(${pal.weftHi[0]}, ${pal.weftHi[1]}, ${pal.weftHi[2]}, 0.85)`;
-  ctx.lineWidth = Math.max(1.5, stepY * 0.7);
-  ctx.beginPath();
-  if (shuttleDir === 1) {
-    ctx.moveTo(loomL, sy);
-    ctx.lineTo(sx, sy);
-  } else {
-    ctx.moveTo(loomR, sy);
-    ctx.lineTo(sx, sy);
-  }
-  ctx.stroke();
+// Shuttle body
+ctx.fillStyle = '#f0a830';
+ctx.beginPath();
+ctx.moveTo(st.shuttleX - shutW * 0.5 * st.shuttleDir, shutY);
+ctx.lineTo(st.shuttleX + shutW * 0.5 * st.shuttleDir, shutY - shutH * 0.5);
+ctx.lineTo(st.shuttleX + shutW * 0.7 * st.shuttleDir, shutY);
+ctx.lineTo(st.shuttleX + shutW * 0.5 * st.shuttleDir, shutY + shutH * 0.5);
+ctx.closePath();
+ctx.fill();
 
-  // Shuttle body (tapered wooden/brass boat)
-  const sLen = 42;
-  const sH = Math.max(6, stepY * 1.5);
-  ctx.save();
-  ctx.translate(sx, sy);
-  if (shuttleDir === -1) ctx.scale(-1, 1);
+// Shuttle pirn (thread spool in center)
+ctx.fillStyle = pal.weft;
+ctx.fillRect(st.shuttleX - 6, shutY - 2.5, 12, 5);
 
-  // Glow aura
-  if (glow > 0) {
-    const aura = ctx.createRadialGradient(0, 0, 2, 0, 0, sLen * glow * 1.5);
-    aura.addColorStop(0, `rgba(${pal.brass === '#00ffd5' ? '0,255,213' : '255,215,120'}, ${0.4 * glow})`);
-    aura.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.fillStyle = aura;
-    ctx.fillRect(-sLen, -sLen, sLen * 2, sLen * 2);
-  }
+// Trailing weft yarn
+ctx.strokeStyle = pal.weft;
+ctx.lineWidth = 2;
+ctx.beginPath();
+ctx.moveTo(st.shuttleX - 10 * st.shuttleDir, shutY);
+ctx.lineTo(st.shuttleDir > 0 ? loomMarginX : (W - loomMarginX), fellY);
+ctx.stroke();
 
-  // Shuttle hull
-  ctx.fillStyle = '#1c0f08';
-  ctx.beginPath();
-  ctx.moveTo(-sLen * 0.5, 0);
-  ctx.quadraticCurveTo(0, -sH, sLen * 0.5, 0);
-  ctx.quadraticCurveTo(0, sH, -sLen * 0.5, 0);
-  ctx.fill();
+// 6. BOTTOM CLOTH ROLLER (Take-up cylinder)
+const rollerGrad = ctx.createLinearGradient(0, rollerY - 12, 0, rollerY + 24);
+rollerGrad.addColorStop(0, '#111');
+rollerGrad.addColorStop(0.5, '#44342a');
+rollerGrad.addColorStop(1, '#080808');
+ctx.fillStyle = rollerGrad;
+ctx.fillRect(loomMarginX - 14, rollerY - 10, loomWidth + 28, 26);
 
-  // Pirn / Bobbin inside shuttle
-  ctx.fillStyle = `rgb(${pal.weftHi[0]}, ${pal.weftHi[1]}, ${pal.weftHi[2]})`;
-  ctx.fillRect(-sLen * 0.2, -sH * 0.35, sLen * 0.4, sH * 0.7);
-  // Brass tip
-  ctx.fillStyle = pal.brass;
-  ctx.beginPath();
-  ctx.arc(sLen * 0.45, 0, 2.5, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.restore();
-
-  // Reed / Beater bar slamming against the fell
-  const beatPhase = Math.sin(shuttleT * Math.PI);
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
-  ctx.fillRect(loomL, activeY - 3, loomW, 6);
-}
-
-// --- CUTTING SCISSORS OVERLAY ---
-if (isCutting) {
-  const cutProgress = 1 - room.state.cutTimer / 1.6;
-  const cutX = loomL + cutProgress * loomW;
-  ctx.save();
-  ctx.strokeStyle = pal.brass;
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  ctx.moveTo(cutX - 16, loomBottom - 16);
-  ctx.lineTo(cutX + 16, loomBottom + 16);
-  ctx.moveTo(cutX - 16, loomBottom + 16);
-  ctx.lineTo(cutX + 16, loomBottom - 16);
-  ctx.stroke();
-  ctx.restore();
-}
-
-// Header / Loom Status Plaque
-ctx.fillStyle = pal.brass;
-ctx.font = '11px monospace';
-ctx.letterSpacing = '2px';
-const rowDisp = String(curRow).padStart(3, '0');
-ctx.fillText(`JACQUARD LOOM  •  CARD #${rowDisp}  •  ${patType.toUpperCase()}`, loomL, loomTop - 34);
-ctx.fillText(`${warps} WARP  •  ${(speed).toFixed(0)} PICK/S`, loomR - 160, loomTop - 34);
+// Metallic ratchets on roller ends
+ctx.fillStyle = '#8f7d6b';
+ctx.beginPath();
+ctx.arc(loomMarginX - 14, rollerY + 3, 14, 0, Math.PI * 2);
+ctx.arc(W - loomMarginX + 14, rollerY + 3, 14, 0, Math.PI * 2);
+ctx.fill();
 
 ctx.restore();

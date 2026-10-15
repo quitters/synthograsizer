@@ -1,0 +1,153 @@
+{
+  "name": "Marey's Strobe",
+  "promptTemplate": "Étienne-Jules Marey chronophotography on black glass plate, capturing a {{motion_action}} in {{palette}} tones with {{strobe_density}} stroboscopic exposures, {{joint_glow}} joint luminosity, and {{chronometer_grid}} reference scales {{ribbon_traces}}.",
+  "variables": [
+    {
+      "name": "motion_action",
+      "label": "Motion Action",
+      "values": [
+        {
+          "text": "vault",
+          "weight": 3
+        },
+        {
+          "text": "leap",
+          "weight": 2
+        },
+        {
+          "text": "run",
+          "weight": 2
+        },
+        {
+          "text": "flip",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "palette",
+      "label": "Plate Chemistry",
+      "values": [
+        {
+          "text": "silver_cyan",
+          "weight": 3
+        },
+        {
+          "text": "solar_amber",
+          "weight": 2
+        },
+        {
+          "text": "electric_neon",
+          "weight": 1
+        },
+        {
+          "text": "spectral",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "strobe_density",
+      "label": "Strobe Rate",
+      "type": "number",
+      "min": 6,
+      "max": 24,
+      "step": 2,
+      "default": 14
+    },
+    {
+      "name": "joint_glow",
+      "label": "Joint Luminance",
+      "type": "number",
+      "min": 1.5,
+      "max": 6.5,
+      "step": 0.5,
+      "default": 3.5
+    },
+    {
+      "name": "chronometer_grid",
+      "label": "Chronometer Grid",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "ribbon_traces",
+      "label": "Streamline Ribbons",
+      "type": "toggle",
+      "default": true
+    }
+  ],
+  "ui": {
+    "skin": "desk",
+    "variant": "blue",
+    "title": "Marey Chronograph",
+    "tagline": "Stroboscopic motion analysis on glass plate",
+    "accent": "",
+    "groups": [
+      {
+        "title": "Motion Study",
+        "controls": [
+          "motion_action",
+          "strobe_density"
+        ]
+      },
+      {
+        "title": "Optics & Exposure",
+        "controls": [
+          "palette",
+          "joint_glow"
+        ]
+      },
+      {
+        "title": "Overlays",
+        "controls": [
+          "chronometer_grid",
+          "ribbon_traces"
+        ]
+      }
+    ],
+    "controls": {
+      "motion_action": {
+        "widget": "pads",
+        "hint": "Select athletic gait or aerial maneuver"
+      },
+      "palette": {
+        "widget": "cycle",
+        "hint": "Chemical emulsion formula and spectral tone"
+      },
+      "strobe_density": {
+        "widget": "slider",
+        "hint": "Flashes per second imprinted on plate"
+      },
+      "joint_glow": {
+        "widget": "knob",
+        "hint": "Radiance of luminous anatomical markers"
+      },
+      "chronometer_grid": {
+        "widget": "lamp",
+        "hint": "Metric measurement graticule and dial"
+      },
+      "ribbon_traces": {
+        "widget": "lamp",
+        "hint": "Continuous streamline path of extremities"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "generative",
+    "blurb": "A glowing skeletal figure leaps across a deep black photographic plate, leaving behind dense stroboscopic exposures and luminous kinetic trajectories.",
+    "prompt": "Chronophotography in the manner of Marey: a figure made of glowing lines on its joints leaps, runs and vaults, each moment left behind on the black plate as a fading trace, so motion becomes a single drawing. Make it striking on a big projected wall in a dark room: a bold composition, rich colour against real blacks, depth, glow, and motion that reads from across the room. Keep a demoscener's economy: lookup tables and fixed-size buffers kept in room.state, low-resolution offscreen buffers for any per-pixel work, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "retro",
+      "geometric",
+      "light"
+    ],
+    "source": "lightworks/chronophotography~2"
+  }
+}

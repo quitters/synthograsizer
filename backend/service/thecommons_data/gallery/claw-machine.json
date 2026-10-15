@@ -1,0 +1,145 @@
+{
+  "name": "Neon Claw Arcade",
+  "promptTemplate": "A {{plush_style}} claw machine stuffed with {{toys_density}} plush toys running at {{claw_speed}}x sweep speed with {{claw_grip}} grip and party confetti {{confetti_burst}}.",
+  "variables": [
+    {
+      "name": "claw_speed",
+      "label": "Claw Speed",
+      "type": "number",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.5,
+      "default": 1.5
+    },
+    {
+      "name": "plush_style",
+      "label": "Plush Style",
+      "values": [
+        {
+          "text": "neon_arcade",
+          "weight": 2
+        },
+        {
+          "text": "kawaii_pastel",
+          "weight": 1
+        },
+        {
+          "text": "cyber_gold",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "claw_grip",
+      "label": "Claw Grip",
+      "values": [
+        {
+          "text": "fair_play",
+          "weight": 2
+        },
+        {
+          "text": "arcade_rigged",
+          "weight": 1
+        },
+        {
+          "text": "super_magnet",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "toys_density",
+      "label": "Plush Density",
+      "type": "number",
+      "min": 20,
+      "max": 50,
+      "step": 5,
+      "default": 35
+    },
+    {
+      "name": "confetti_burst",
+      "label": "Confetti Burst",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "drop",
+      "label": "Drop Claw!",
+      "type": "trigger",
+      "share": "all"
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "violet",
+    "title": "NEON CLAW ARCADE",
+    "tagline": "DROP THE CRANE AND SNAG A PRIZE",
+    "accent": "#ff2a8d",
+    "groups": [
+      {
+        "title": "Action",
+        "controls": [
+          "drop"
+        ]
+      },
+      {
+        "title": "Machine Tuning",
+        "controls": [
+          "claw_speed",
+          "claw_grip",
+          "toys_density"
+        ]
+      },
+      {
+        "title": "Style & FX",
+        "controls": [
+          "plush_style",
+          "confetti_burst"
+        ]
+      }
+    ],
+    "controls": {
+      "claw_speed": {
+        "widget": "knob",
+        "hint": "How fast the crane sweeps left and right"
+      },
+      "plush_style": {
+        "widget": "cycle",
+        "hint": "Swaps plush toy color schemes"
+      },
+      "claw_grip": {
+        "widget": "buttons",
+        "hint": "Adjusts how tightly the fingers hold a plushie"
+      },
+      "toys_density": {
+        "widget": "slider",
+        "hint": "Restocks or clears plushies in the cabinet"
+      },
+      "confetti_burst": {
+        "widget": "lamp",
+        "hint": "Fires a shower of glitter when a prize lands"
+      },
+      "drop": {
+        "widget": "pad",
+        "hint": "Plunges the claw straight into the prize pile"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "A neon claw machine sweeps across a pile of plush toys, letting everyone in the room drop the crane and compete for prizes.",
+    "prompt": "A claw machine stuffed with plush toys behind glass: turns pass round the room, the claw sweeps back and forth across the pile, and the player presses 'drop' to drop it; it grabs, wobbles and often drops the prize, and a won toy tumbles down the chute to cheers. Make it a party game a whole room can follow from across the floor: bold shapes and bright colours on a dark ground, every player drawn in their own hue, big short labels (a score, GO!, the winner) in a heavy font, and a large, satisfying reaction on screen the instant anyone presses. It must work with one player or forty, scaling its lanes, seats or pieces to room.people and coping with people joining and leaving mid-round; play itself in a lively attract mode whenever nobody has pressed anything for a few seconds; and after a winner is shown, start the next round on its own. Keep it lean: game state in bounded arrays in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080.",
+    "look": [
+      "retro",
+      "energetic",
+      "light"
+    ],
+    "source": "play/claw-machine~11"
+  }
+}

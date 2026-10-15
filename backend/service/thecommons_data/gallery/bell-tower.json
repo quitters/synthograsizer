@@ -1,0 +1,152 @@
+{
+  "name": "carillon_at_dusk",
+  "promptTemplate": "A carillon tower bathed in {{dusk_mood}} with {{gothic_arches}} stonework, carrying {{bell_size}}x bronze bells, mist density of {{mist_density}}, and sonic {{resonance}}.",
+  "variables": [
+    {
+      "name": "ring",
+      "label": "Ring Bell",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "dusk_mood",
+      "label": "Dusk Mood",
+      "values": [
+        {
+          "text": "twilight_violet",
+          "weight": 2
+        },
+        {
+          "text": "deep_ember",
+          "weight": 2
+        },
+        {
+          "text": "midnight_aurora",
+          "weight": 1
+        },
+        {
+          "text": "golden_hour",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "gothic_arches",
+      "label": "Architecture",
+      "values": [
+        {
+          "text": "ornate_belfry",
+          "weight": 2
+        },
+        {
+          "text": "monolithic_spire",
+          "weight": 1
+        },
+        {
+          "text": "open_colonnade",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "bell_size",
+      "label": "Bell Scale",
+      "type": "number",
+      "min": 0.7,
+      "max": 1.5,
+      "step": 0.1,
+      "default": 1.0
+    },
+    {
+      "name": "resonance",
+      "label": "Sustain",
+      "type": "number",
+      "min": 1.0,
+      "max": 4.0,
+      "step": 0.5,
+      "default": 2.5
+    },
+    {
+      "name": "mist_density",
+      "label": "Mist Density",
+      "type": "number",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.1,
+      "default": 0.4
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "violet",
+    "title": "CARILLON DUSK +4",
+    "tagline": "Strike your bronze bell and cast rings into the sky",
+    "accent": "#e6739f",
+    "groups": [
+      {
+        "title": "Chime",
+        "controls": [
+          "ring"
+        ]
+      },
+      {
+        "title": "Atmosphere",
+        "controls": [
+          "dusk_mood",
+          "mist_density"
+        ]
+      },
+      {
+        "title": "Belfry",
+        "controls": [
+          "gothic_arches",
+          "bell_size",
+          "resonance"
+        ]
+      }
+    ],
+    "controls": {
+      "ring": {
+        "widget": "pad",
+        "hint": "Strike to swing your bell and send out colored sonic rings"
+      },
+      "dusk_mood": {
+        "widget": "cycle",
+        "hint": "Cycle sky twilight palette and glow tint"
+      },
+      "gothic_arches": {
+        "widget": "buttons",
+        "hint": "Alter the stonework silhouette framing the bells"
+      },
+      "bell_size": {
+        "widget": "slider",
+        "hint": "Scale the bronze bells and hanging ironwork"
+      },
+      "resonance": {
+        "widget": "knob",
+        "hint": "Lengthen the life and radius of radiating sound waves"
+      },
+      "mist_density": {
+        "widget": "slider",
+        "hint": "Haze obscuring the distant silhouettes below"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "Bronze bells hang in a gothic belfry against twilight; everyone in the room strikes their bell to swing it and send resonant, luminous rings across the sky.",
+    "prompt": "A carillon tower at dusk with a row of bronze bells, one bell per person in the room; anyone can ring their bell, which swings and sends visible sound rings of their colour rippling out across the sky. Make it striking on a big projected wall in a dark room: a bold composition, rich colour against real blacks, depth, glow, and motion that reads from across the room. Keep a demoscener's economy: lookup tables and fixed-size buffers kept in room.state, low-resolution offscreen buffers for any per-pixel work, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "retro",
+      "light",
+      "calm"
+    ],
+    "source": "lightworks/bell-tower~1"
+  }
+}

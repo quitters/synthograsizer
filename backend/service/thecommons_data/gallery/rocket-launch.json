@@ -1,0 +1,151 @@
+{
+  "name": "Mission Control: Lift-Off",
+  "promptTemplate": "Mission control team fueling a {{rocket_model}} at {{launch_site}} under {{hazard_level}} safety protocol with vibration {{screen_shake}}",
+  "variables": [
+    {
+      "name": "rocket_model",
+      "label": "Rocket Model",
+      "values": [
+        {
+          "text": "Saturn V",
+          "weight": 2
+        },
+        {
+          "text": "Retro Nova",
+          "weight": 1
+        },
+        {
+          "text": "Cosmo Dart",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "launch_site",
+      "label": "Launch Site",
+      "values": [
+        {
+          "text": "Cape Nebula",
+          "weight": 2
+        },
+        {
+          "text": "Mars Red",
+          "weight": 1
+        },
+        {
+          "text": "Midnight Moon",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "hazard_level",
+      "label": "Pressure Valve",
+      "values": [
+        {
+          "text": "Standard",
+          "weight": 2
+        },
+        {
+          "text": "Hair-Trigger",
+          "weight": 1
+        },
+        {
+          "text": "Forgiving",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "screen_shake",
+      "label": "Screen Shake",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "fuel",
+      "label": "Pump Fuel",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "launch",
+      "label": "Ignition Key",
+      "type": "trigger",
+      "share": "one"
+    }
+  ],
+  "ui": {
+    "skin": "textmode",
+    "variant": "amber",
+    "title": "MISSION_CTRL.EXE",
+    "tagline": "Synchronized launch pad fueling and ignition",
+    "accent": "#ff4d00",
+    "groups": [
+      {
+        "title": "Pad Actions",
+        "controls": [
+          "fuel",
+          "launch"
+        ]
+      },
+      {
+        "title": "Vehicle & Complex",
+        "controls": [
+          "rocket_model",
+          "launch_site"
+        ]
+      },
+      {
+        "title": "Telemetry & Safety",
+        "controls": [
+          "hazard_level",
+          "screen_shake"
+        ]
+      }
+    ],
+    "controls": {
+      "rocket_model": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "launch_site": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "hazard_level": {
+        "widget": "list",
+        "hint": "Adjusts how rapidly the relief valve cools the tank"
+      },
+      "screen_shake": {
+        "widget": "lamp",
+        "hint": ""
+      },
+      "fuel": {
+        "widget": "pad",
+        "hint": "Pump fuel into the tank; pace taps to avoid overheat"
+      },
+      "launch": {
+        "widget": "button",
+        "hint": "Ignite main engines when fueling reaches 100%"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "A room-scale rocket launch sequence where players tap together to fuel the boosters without overheating the pressure valve before triggering liftoff.",
+    "prompt": "Mission control: the room fuels a rocket on the pad together, each press of 'fuel' filling the tank, but the pressure gauge overheats if too many press at once; when the tank is full, one person holds 'launch', which starts a countdown and a lift-off in billowing smoke, and then the next rocket rolls out. Make it a party game a whole room can follow from across the floor: bold shapes and bright colours on a dark ground, every player drawn in their own hue, big short labels (a score, GO!, the winner) in a heavy font, and a large, satisfying reaction on screen the instant anyone presses. It must work with one player or forty, scaling its lanes, seats or pieces to room.people and coping with people joining and leaving mid-round; play itself in a lively attract mode whenever nobody has pressed anything for a few seconds; and after a winner is shown, start the next round on its own. Keep it lean: game state in bounded arrays in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080.",
+    "look": [
+      "retro",
+      "energetic",
+      "space"
+    ],
+    "source": "play/rocket-launch~11"
+  }
+}

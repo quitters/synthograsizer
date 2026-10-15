@@ -1,0 +1,145 @@
+{
+  "name": "temple_of_af_klint",
+  "promptTemplate": "A monumental sacred diagram evoking Hilma af Klint, configured with {{palette_mode}} pigments, {{geometry}} forms, a {{breathing_rate}} breath cycle, {{symmetry}} petal symmetry, with mystic halo {{mystic_halo}} and geometric diagrams {{diagram_lines}}.",
+  "variables": [
+    {
+      "name": "palette_mode",
+      "label": "Pigment Tone",
+      "values": [
+        {
+          "text": "ten_largest",
+          "weight": 3
+        },
+        {
+          "text": "primordial_duality",
+          "weight": 2
+        },
+        {
+          "text": "altar_gold",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "geometry",
+      "label": "Sacred Order",
+      "values": [
+        {
+          "text": "botanical_bloom",
+          "weight": 3
+        },
+        {
+          "text": "spiral_evolution",
+          "weight": 2
+        },
+        {
+          "text": "cosmic_egg",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "breathing_rate",
+      "label": "Breath Rate",
+      "type": "number",
+      "min": 0.2,
+      "max": 1.4,
+      "step": 0.1,
+      "default": 0.6
+    },
+    {
+      "name": "symmetry",
+      "label": "Symmetry",
+      "type": "number",
+      "min": 3,
+      "max": 12,
+      "step": 1,
+      "default": 6
+    },
+    {
+      "name": "mystic_halo",
+      "label": "Mystic Halo",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "diagram_lines",
+      "label": "Diagram Lines",
+      "type": "toggle",
+      "default": true
+    }
+  ],
+  "ui": {
+    "skin": "desk",
+    "variant": "grey",
+    "title": "Temple of af Klint",
+    "tagline": "Sacred botanical diagrams breathing in pastel tempera",
+    "accent": "",
+    "groups": [
+      {
+        "title": "Sacred Geometry",
+        "controls": [
+          "geometry",
+          "symmetry"
+        ]
+      },
+      {
+        "title": "Pigment & Rhythm",
+        "controls": [
+          "palette_mode",
+          "breathing_rate"
+        ]
+      },
+      {
+        "title": "Occult Veils",
+        "controls": [
+          "mystic_halo",
+          "diagram_lines"
+        ]
+      }
+    ],
+    "controls": {
+      "palette_mode": {
+        "widget": "buttons",
+        "hint": "Shifts between tempera palettes drawn from Hilma's works"
+      },
+      "geometry": {
+        "widget": "list",
+        "hint": "Morphs between layered petals, spirals, and concentric eggs"
+      },
+      "breathing_rate": {
+        "widget": "knob",
+        "hint": "Sets the cadence of the slow central pulse"
+      },
+      "symmetry": {
+        "widget": "stepper",
+        "hint": "Sets the petal count and diagram ticks"
+      },
+      "mystic_halo": {
+        "widget": "lamp",
+        "hint": "Soft radial luminescence around the mandala"
+      },
+      "diagram_lines": {
+        "widget": "switch",
+        "hint": "Dashed compass circles and celestial axis markings"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "generative",
+    "blurb": "Monumental sacred geometry evokes Hilma af Klint with breathing pastel tempera petals, spirals, and radiating halos steered by the room.",
+    "prompt": "In the spirit of Hilma af Klint's large paintings: soft pastel spirals, petals, nested circles and symmetrical botanical forms slowly bloom and rotate on a muted ground, as if a painting were breathing. Make it striking on a big projected wall in a dark room: a bold composition, rich colour against real blacks, depth, glow, and motion that reads from across the room. Keep a demoscener's economy: lookup tables and fixed-size buffers kept in room.state, low-resolution offscreen buffers for any per-pixel work, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "geometric",
+      "calm",
+      "painterly"
+    ],
+    "source": "lightworks/af-klint~3"
+  }
+}

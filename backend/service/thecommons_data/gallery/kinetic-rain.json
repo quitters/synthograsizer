@@ -1,0 +1,164 @@
+{
+  "name": "Kinetic Copper Chandelier",
+  "promptTemplate": "A kinetic sculpture of copper droplets suspended in {{formation}} formation with {{metal}} luster, wave depth {{wave_depth}}, viewed from {{camera_tilt}} perspective with droplet scale {{droplet_scale}} and wire visibility {{wire_glow}}.",
+  "variables": [
+    {
+      "name": "formation",
+      "label": "Formation",
+      "values": [
+        {
+          "text": "morphing",
+          "weight": 3
+        },
+        {
+          "text": "ocean_wave",
+          "weight": 2
+        },
+        {
+          "text": "flight_wing",
+          "weight": 2
+        },
+        {
+          "text": "spiral_vortex",
+          "weight": 2
+        },
+        {
+          "text": "harmonic_sphere",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "metal",
+      "label": "Metal Alloy",
+      "values": [
+        {
+          "text": "rose_copper",
+          "weight": 3
+        },
+        {
+          "text": "burnished_brass",
+          "weight": 2
+        },
+        {
+          "text": "liquid_patina",
+          "weight": 1
+        },
+        {
+          "text": "molten_gold",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "wave_depth",
+      "label": "Wave Depth",
+      "type": "number",
+      "min": 0.4,
+      "max": 2.0,
+      "step": 0.1,
+      "default": 1.2
+    },
+    {
+      "name": "camera_tilt",
+      "label": "Perspective",
+      "values": [
+        {
+          "text": "low_angle",
+          "weight": 3
+        },
+        {
+          "text": "steep_under",
+          "weight": 2
+        },
+        {
+          "text": "sweeping_orbit",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "droplet_scale",
+      "label": "Bead Size",
+      "type": "number",
+      "min": 0.8,
+      "max": 2.4,
+      "step": 0.2,
+      "default": 1.4
+    },
+    {
+      "name": "wire_glow",
+      "label": "Wire Lines",
+      "type": "toggle",
+      "default": true
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "COPPER KINETIC",
+    "tagline": "A thousand polished metal beads rippling overhead",
+    "accent": "#c85a32",
+    "groups": [
+      {
+        "title": "Chandelier Rig",
+        "controls": [
+          "formation",
+          "wave_depth",
+          "metal"
+        ]
+      },
+      {
+        "title": "View & Beads",
+        "controls": [
+          "camera_tilt",
+          "droplet_scale",
+          "wire_glow"
+        ]
+      }
+    ],
+    "controls": {
+      "formation": {
+        "widget": "pads",
+        "hint": "Morphs the kinetic droplet field into sculptural forms"
+      },
+      "metal": {
+        "widget": "cycle",
+        "hint": "Swaps luster and specular hue on every bead"
+      },
+      "wave_depth": {
+        "widget": "knob",
+        "hint": "Exaggerates vertical stroke and wave amplitude"
+      },
+      "camera_tilt": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "droplet_scale": {
+        "widget": "slider",
+        "hint": ""
+      },
+      "wire_glow": {
+        "widget": "lamp",
+        "hint": "Shows or hides the suspension lines reaching to the ceiling"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "demo",
+    "blurb": "A thousand polished metallic droplets rise and fall on suspension wires to sculpt fluid waves, flight wings, and vortexes overhead.",
+    "prompt": "A kinetic sculpture of a thousand polished copper droplets hanging on invisible wires in a grid, rising and falling together so the whole field forms waves, a plane taking off, a spiral and a sphere, each droplet catching one highlight, seen in slow perspective from below. Make it striking on a big projected wall in a dark room: a bold composition, rich colour against real blacks, depth, glow, and motion that reads from across the room. Keep a demoscener's economy: lookup tables and fixed-size buffers kept in room.state, low-resolution offscreen buffers for any per-pixel work, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "3d",
+      "geometric",
+      "light"
+    ],
+    "source": "lightworks/kinetic-rain~3"
+  }
+}

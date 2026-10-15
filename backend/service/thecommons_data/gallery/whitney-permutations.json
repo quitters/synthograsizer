@@ -1,0 +1,188 @@
+{
+  "name": "whitney_harmonics",
+  "promptTemplate": "Whitney differential harmonic study with {{dot_count}} points in {{base_geometry}} formation, rendered with {{palette}} phosphor glows, {{symmetry_folds}}-fold symmetry, running at {{speed}} base speed with {{trail_persistence}} persistence, glow {{glow_intensity}}, and mirroring set to {{mirroring}}.",
+  "variables": [
+    {
+      "name": "base_geometry",
+      "label": "Geometry",
+      "values": [
+        {
+          "text": "spiral_bloom",
+          "weight": 2
+        },
+        {
+          "text": "concentric_orbits",
+          "weight": 2
+        },
+        {
+          "text": "rose_curves",
+          "weight": 1
+        },
+        {
+          "text": "lissajous_lattice",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "palette",
+      "label": "Phosphor Palette",
+      "values": [
+        {
+          "text": "whitney_spectrum",
+          "weight": 3
+        },
+        {
+          "text": "emerald_crt",
+          "weight": 1
+        },
+        {
+          "text": "solar_ultraviolet",
+          "weight": 2
+        },
+        {
+          "text": "cyan_amber",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "trail_persistence",
+      "label": "Trails",
+      "values": [
+        {
+          "text": "silky_trails",
+          "weight": 3
+        },
+        {
+          "text": "crisp",
+          "weight": 1
+        },
+        {
+          "text": "deep_echo",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "dot_count",
+      "label": "Point Count",
+      "type": "number",
+      "min": 120,
+      "max": 600,
+      "step": 60,
+      "default": 360
+    },
+    {
+      "name": "symmetry_folds",
+      "label": "Symmetry Folds",
+      "type": "number",
+      "min": 2,
+      "max": 12,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "name": "speed",
+      "label": "Harmonic Speed",
+      "type": "number",
+      "min": 0.1,
+      "max": 1.5,
+      "step": 0.1,
+      "default": 0.5
+    },
+    {
+      "name": "glow_intensity",
+      "label": "Glow",
+      "type": "number",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.5,
+      "default": 1.5
+    },
+    {
+      "name": "mirroring",
+      "label": "Mirror Plane",
+      "type": "toggle",
+      "default": true
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "violet",
+    "title": "WHITNEY HARMONICS",
+    "tagline": "Differential harmonic motion and phosphor synthesis",
+    "accent": "#9d4edd",
+    "groups": [
+      {
+        "title": "Harmonic Engine",
+        "controls": [
+          "speed",
+          "base_geometry",
+          "symmetry_folds",
+          "mirroring"
+        ]
+      },
+      {
+        "title": "Phosphor Optics",
+        "controls": [
+          "palette",
+          "glow_intensity",
+          "trail_persistence",
+          "dot_count"
+        ]
+      }
+    ],
+    "controls": {
+      "base_geometry": {
+        "widget": "pads",
+        "hint": ""
+      },
+      "palette": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "trail_persistence": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "dot_count": {
+        "widget": "slider",
+        "hint": "Sets orbital point density across the field"
+      },
+      "symmetry_folds": {
+        "widget": "stepper",
+        "hint": "Multiplies radial petal symmetry"
+      },
+      "speed": {
+        "widget": "knob",
+        "hint": "Rotates harmonics into alignment and scatter"
+      },
+      "glow_intensity": {
+        "widget": "slider",
+        "hint": ""
+      },
+      "mirroring": {
+        "widget": "lamp",
+        "hint": "Splits each point into dual counter-rotating paths"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "generative",
+    "blurb": "Hundreds of luminous points orbit at integer harmonic ratios, collapsing into kaleidoscopic crystalline symmetries and unravelling into drifting phosphor dust.",
+    "prompt": "Harmonic motion in the manner of John Whitney's computer films: hundreds of points each rotating at a whole-number multiple of a base speed, sweeping through moments of perfect symmetry and back into scattered clouds. Make it striking on a big projected wall in a dark room: a bold composition, rich colour against real blacks, depth, glow, and motion that reads from across the room. Keep a demoscener's economy: lookup tables and fixed-size buffers kept in room.state, low-resolution offscreen buffers for any per-pixel work, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "geometric",
+      "psychedelic",
+      "light"
+    ],
+    "source": "lightworks/whitney-permutations~1"
+  }
+}

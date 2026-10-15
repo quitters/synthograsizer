@@ -1,0 +1,156 @@
+{
+  "name": "Lava Lamp Strobe Lounge",
+  "promptTemplate": "A {{lamp_style}} lava lamp in {{palette}} hues with {{viscosity}} fluid motion, featuring {{blob_count}} gooey blobs and {{glow_intensity}} level glow, with beat strobe {{strobe_mode}}.",
+  "variables": [
+    {
+      "name": "lamp_style",
+      "label": "Lamp Shape",
+      "values": [
+        {
+          "text": "rocket",
+          "weight": 2
+        },
+        {
+          "text": "cylinder",
+          "weight": 1
+        },
+        {
+          "text": "hourglass",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "palette",
+      "label": "Wax Palette",
+      "values": [
+        {
+          "text": "sunset",
+          "weight": 2
+        },
+        {
+          "text": "neon_psyche",
+          "weight": 2
+        },
+        {
+          "text": "toxic_ooze",
+          "weight": 1
+        },
+        {
+          "text": "electric_violet",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "viscosity",
+      "label": "Fluid Speed",
+      "values": [
+        {
+          "text": "syrupy",
+          "weight": 2
+        },
+        {
+          "text": "buoyant",
+          "weight": 2
+        },
+        {
+          "text": "surging",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "blob_count",
+      "label": "Blob Count",
+      "type": "number",
+      "min": 6,
+      "max": 20,
+      "step": 2,
+      "default": 12
+    },
+    {
+      "name": "glow_intensity",
+      "label": "Glow Level",
+      "type": "number",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "name": "strobe_mode",
+      "label": "Beat Strobe",
+      "type": "toggle",
+      "default": false
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "violet",
+    "title": "LAVA LOUNGE +5",
+    "tagline": "Gooey fluid dynamics synced to room audio",
+    "accent": "#f72585",
+    "groups": [
+      {
+        "title": "Lounge Optics",
+        "controls": [
+          "strobe_mode",
+          "palette",
+          "glow_intensity"
+        ]
+      },
+      {
+        "title": "Chamber Fluid",
+        "controls": [
+          "viscosity",
+          "blob_count",
+          "lamp_style"
+        ]
+      }
+    ],
+    "controls": {
+      "lamp_style": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "palette": {
+        "widget": "pads",
+        "hint": "Swaps wax dyes and inner ambient fluid"
+      },
+      "viscosity": {
+        "widget": "buttons",
+        "hint": "Changes blob rise and fall speed"
+      },
+      "blob_count": {
+        "widget": "slider",
+        "hint": "Density of floating wax bodies"
+      },
+      "glow_intensity": {
+        "widget": "knob",
+        "hint": "Adjusts halogen backlight halo"
+      },
+      "strobe_mode": {
+        "widget": "lamp",
+        "hint": "Flashes the room wall white on the beat"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "generative",
+    "blurb": "A lava lamp whose blobs rise and merge, with a strobe mode that flashes it on the beat when switched on.",
+    "prompt": "A lava lamp whose blobs rise and merge, with a strobe mode that flashes it on the beat when switched on.",
+    "look": [
+      "light",
+      "energetic",
+      "retro"
+    ],
+    "source": "toggles10/strobe-lamp~1"
+  }
+}

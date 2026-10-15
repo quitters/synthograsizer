@@ -1,0 +1,130 @@
+{
+  "name": "Beach Ball Sumo",
+  "promptTemplate": "A high-stakes party sumo match with a giant beach ball in a {{arena_style}} dohyo, tuned to {{ball_physics}} momentum, playing first to {{target_score}} points with motion trails {{show_trails}}.",
+  "variables": [
+    {
+      "name": "arena_style",
+      "label": "Arena Style",
+      "values": [
+        {
+          "text": "sand_and_rope",
+          "weight": 2
+        },
+        {
+          "text": "neon_dohyo",
+          "weight": 3
+        },
+        {
+          "text": "cyber_clash",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "ball_physics",
+      "label": "Ball Feel",
+      "values": [
+        {
+          "text": "heavy",
+          "weight": 1
+        },
+        {
+          "text": "bouncy",
+          "weight": 3
+        },
+        {
+          "text": "hyper",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "target_score",
+      "label": "First To",
+      "type": "number",
+      "min": 3,
+      "max": 9,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "name": "show_trails",
+      "label": "Motion Trails",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "shove",
+      "label": "Shove!",
+      "type": "trigger",
+      "share": "all"
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "BEACH BALL SUMO +4",
+    "tagline": "MASH SHOVE TO KNOCK IT OUT OF THE DOHYO",
+    "accent": "#ff3366",
+    "groups": [
+      {
+        "title": "RING ACTION",
+        "controls": [
+          "shove"
+        ]
+      },
+      {
+        "title": "PHYSICS & MATCH",
+        "controls": [
+          "ball_physics",
+          "target_score"
+        ]
+      },
+      {
+        "title": "ARENA VISUALS",
+        "controls": [
+          "arena_style",
+          "show_trails"
+        ]
+      }
+    ],
+    "controls": {
+      "arena_style": {
+        "widget": "cycle",
+        "hint": "Switch between sand tatami and cyber neon rings"
+      },
+      "ball_physics": {
+        "widget": "pads",
+        "hint": "Change weight, rebound speed, and spin wobble"
+      },
+      "target_score": {
+        "widget": "stepper",
+        "hint": "Points needed to win the match"
+      },
+      "show_trails": {
+        "widget": "lamp",
+        "hint": "Leave motion trails behind the rolling ball"
+      },
+      "shove": {
+        "widget": "pad",
+        "hint": "Push the giant ball away from your team"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "Two teams shove a massive beach ball back and forth across a circular sumo ring to knock it out and score points.",
+    "prompt": "A giant beach ball in a circular sumo ring of rope and sand: anyone can press 'shove' to push the ball away from their team's side, the ball rolling and wobbling with real momentum; each time it is shoved out of the ring the other side scores, and the ring shakes. Two teams: tables alternate between them, or people alternate when everyone is at one table; show each team's colours and score clearly. Make it a party game a whole room can follow from across the floor: bold shapes and bright colours on a dark ground, every player drawn in their own hue, big short labels (a score, GO!, the winner) in a heavy font, and a large, satisfying reaction on screen the instant anyone presses. It must work with one player or forty, scaling its lanes, seats or pieces to room.people and coping with people joining and leaving mid-round; play itself in a lively attract mode whenever nobody has pressed anything for a few seconds; and after a winner is shown, start the next round on its own. Keep it lean: game state in bounded arrays in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080.",
+    "look": [
+      "retro",
+      "energetic"
+    ],
+    "source": "play/sumo-ball~3"
+  }
+}

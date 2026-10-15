@@ -1,0 +1,183 @@
+{
+  "name": "laser_graffiti_facade",
+  "promptTemplate": "Towering brutalist skyscraper mapped with {{laser_style}} laser graffiti in a {{palette_mode}} hue spectrum, dripping with {{drip_speed}} gravity under {{glow_intensity}} bloom against night architecture with {{window_density}} lit windows and {{beam_sweep}} laser scanners.",
+  "variables": [
+    {
+      "name": "laser_style",
+      "label": "Graffiti Style",
+      "values": [
+        {
+          "text": "wildstyle",
+          "weight": 3
+        },
+        {
+          "text": "calligraphy",
+          "weight": 2
+        },
+        {
+          "text": "stencil",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "palette_mode",
+      "label": "Neon Palette",
+      "values": [
+        {
+          "text": "cyberpunk",
+          "weight": 3
+        },
+        {
+          "text": "neon_acid",
+          "weight": 2
+        },
+        {
+          "text": "infrared",
+          "weight": 1
+        },
+        {
+          "text": "aurora",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "drip_speed",
+      "label": "Drip Speed",
+      "type": "number",
+      "min": 0.2,
+      "max": 3.0,
+      "step": 0.2,
+      "default": 1.2
+    },
+    {
+      "name": "glow_intensity",
+      "label": "Laser Bloom",
+      "type": "number",
+      "min": 0.6,
+      "max": 2.4,
+      "step": 0.2,
+      "default": 1.4
+    },
+    {
+      "name": "window_density",
+      "label": "Facade Windows",
+      "values": [
+        {
+          "text": "dense",
+          "weight": 3
+        },
+        {
+          "text": "sparse",
+          "weight": 2
+        },
+        {
+          "text": "glitch",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "beam_sweep",
+      "label": "Laser Beams",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "tag_laser",
+      "label": "Throw Laser Tag",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "bomb_facade",
+      "label": "Full Wall Bomb",
+      "type": "trigger",
+      "share": "one"
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "acid",
+    "title": "LASER TAG +8 TRAINER",
+    "tagline": "PROJECT LASER GRAFFITI ONTO THE SKYSCRAPER",
+    "accent": "#ff2a8d",
+    "groups": [
+      {
+        "title": "LASER CANNON",
+        "controls": [
+          "tag_laser",
+          "bomb_facade"
+        ]
+      },
+      {
+        "title": "BEAM & OPTICS",
+        "controls": [
+          "laser_style",
+          "palette_mode",
+          "glow_intensity",
+          "beam_sweep"
+        ]
+      },
+      {
+        "title": "FACADE PHYSICS",
+        "controls": [
+          "drip_speed",
+          "window_density"
+        ]
+      }
+    ],
+    "controls": {
+      "laser_style": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "palette_mode": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "drip_speed": {
+        "widget": "slider",
+        "hint": "Speed of dripping laser tears running down concrete"
+      },
+      "glow_intensity": {
+        "widget": "knob",
+        "hint": "Crank up additive bloom and neon core spread"
+      },
+      "window_density": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "beam_sweep": {
+        "widget": "lamp",
+        "hint": ""
+      },
+      "tag_laser": {
+        "widget": "pad",
+        "hint": "Throw your glowing tag onto the dark facade"
+      },
+      "bomb_facade": {
+        "widget": "button",
+        "hint": "Blast three huge overlapping tags across the tower"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "Luminescent laser graffiti tags burn into a brutalist night skyscraper, dripping glowing paint down the windows as the room tags the facade together.",
+    "prompt": "Laser graffiti projected onto a tall building: anyone can throw a glowing tag of light in their colour onto the facade, where it drips, fades and is painted over by the next, the building's windows faintly visible underneath. Make it striking on a big projected wall in a dark room: a bold composition, rich colour against real blacks, depth, glow, and motion that reads from across the room. Keep a demoscener's economy: lookup tables and fixed-size buffers kept in room.state, low-resolution offscreen buffers for any per-pixel work, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "retro",
+      "light",
+      "energetic"
+    ],
+    "source": "lightworks/graffiti-projector~3"
+  }
+}

@@ -1,0 +1,129 @@
+{
+  "name": "Sparks & Drift",
+  "promptTemplate": "A particle fountain in {{palette}} with {{jet_style}} at power {{flow_power}}, with gravity {{gravity}} and mirror mode {{mirror}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Molten Ember",
+          "weight": 2
+        },
+        {
+          "text": "Deep Aurora",
+          "weight": 2
+        },
+        {
+          "text": "Electric Violet",
+          "weight": 1
+        },
+        {
+          "text": "Starlight Silver",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "jet_style",
+      "label": "Jet Style",
+      "values": [
+        {
+          "text": "Classic Plume",
+          "weight": 2
+        },
+        {
+          "text": "Twirling Ribbon",
+          "weight": 2
+        },
+        {
+          "text": "Explosive Fan",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "flow_power",
+      "label": "Flow Power",
+      "type": "number",
+      "min": 30,
+      "max": 90,
+      "step": 5,
+      "default": 60
+    },
+    {
+      "name": "gravity",
+      "label": "Gravity",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "mirror",
+      "label": "Mirror Middle",
+      "type": "toggle",
+      "default": false
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "SPARKS & DRIFT +5",
+    "tagline": "IGNITE THE FOUNTAIN // DRIFT INTO ZERO-G",
+    "accent": "#ff6622",
+    "groups": [
+      {
+        "title": "FOUNTAIN CORE",
+        "controls": [
+          "flow_power",
+          "jet_style",
+          "palette"
+        ]
+      },
+      {
+        "title": "FIELD DYNAMICS",
+        "controls": [
+          "gravity",
+          "mirror"
+        ]
+      }
+    ],
+    "controls": {
+      "palette": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "jet_style": {
+        "widget": "pads",
+        "hint": "Switch plume, helical twirl, or fan burst"
+      },
+      "flow_power": {
+        "widget": "knob",
+        "hint": "Crank up particle velocity and burst volume"
+      },
+      "gravity": {
+        "widget": "lamp",
+        "hint": "Cut gravity to center fountain and drift outward"
+      },
+      "mirror": {
+        "widget": "lamp",
+        "hint": "Reflect streaks across the vertical center axis"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "generative",
+    "blurb": "A particle fountain whose gravity can be switched off so the sparks drift away, and a mirror mode that reflects it across the middle.",
+    "prompt": "A particle fountain whose gravity can be switched off so the sparks drift away, and a mirror mode that reflects it across the middle.",
+    "look": [
+      "energetic",
+      "light"
+    ],
+    "source": "toggles10/gravity-fountain~1"
+  }
+}

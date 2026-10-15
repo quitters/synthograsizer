@@ -1,219 +1,298 @@
+const width = frame.width;
+const height = frame.height;
+const cx = width * 0.5;
+const cy = height * 0.5;
 const dt = Math.min(frame.dt || 0.016, 0.05);
+
 const mirrors = Math.round(getVar('mirrors') ?? 6);
-const rotSpeed = getVar('rotation_speed') ?? 0.6;
-const shardCount = Math.min(150, Math.round(getVar('shard_count') ?? 75));
-const paletteKey = getVar('color_palette') || 'stained_glass';
-const shapeKey = getVar('gem_shape') || 'crystals';
-const motionKey = getVar('chamber_motion') || 'hypnotic';
+const rotSpeed = getVar('rot_speed') ?? 0.3;
+const driftSpeed = getVar('drift_speed') ?? 0.8;
+const zoom = getVar('zoom') ?? 1.0;
+const paletteKey = getVar('palette') || 'stained_glass';
+const shardStyle = getVar('shard_style') || 'faceted_gems';
+const aperture = getVar('aperture') || 'brass_scope';
 
 const PALETTES = {
-  stained_glass: [350, 42, 145, 215, 280],
-  opal_aurora: [175, 205, 255, 310, 140],
-  cyber_neon: [315, 185, 115, 275, 55],
-  solar_flare: [12, 34, 52, 355, 24]
+  stained_glass: [[352, 85, 50], [218, 90, 52], [148, 80, 42], [42, 95, 54], [282, 75, 48], [14, 92, 54], [192, 88, 48], [48, 92, 60]],
+  opal_fire:     [[184, 90, 64], [332, 85, 68], [46, 95, 66], [272, 80, 70], [162, 80, 60], [16, 92, 68], [206, 95, 74], [302, 85, 66]],
+  deep_amethyst: [[268, 85, 48], [292, 80, 54], [236, 90, 46], [322, 75, 50], [196, 85, 40], [276, 95, 64], [248, 70, 36], [308, 85, 58]],
+  neon_cyber:    [[326, 100, 54], [176, 100, 50], [86, 100, 52], [48, 100, 52], [282, 100, 58], [196, 100, 54], [14, 100, 54], [132, 100, 50]]
 };
-const palette = PALETTES[paletteKey] || PALETTES.stained_glass;
 
-// One-time setup of reusable buffers and bounded shard arrays
+room.state.initialized ??= false;
 if (!room.state.initialized) {
   room.state.initialized = true;
-  room.state.offscreen = new OffscreenCanvas(800, 800);
-  room.state.offCtx = room.state.offscreen.getContext('2d');
-  room.state.scopeAngle = 0;
-  room.state.tumblePulse = 0;
+  room.state.tubeAngle = 0;
+  room.state.beatPulse = 0;
+  room.state.lastPalette = '';
+  room.state.peopleHash = 0;
+  room.state.cachedColors = [];
   room.state.shards = [];
-  for (let i = 0; i < 150; i++) {
-    const r = 50 + Math.random() * 300;
-    const a = Math.random() * Math.PI * 2;
+  for (let i = 0; i < 36; i++) {
     room.state.shards.push({
-      x: Math.cos(a) * r,
-      y: Math.sin(a) * r,
-      vx: (Math.random() - 0.5) * 40,
-      vy: (Math.random() - 0.5) * 40,
-      radius: 12 + Math.random() * 24,
-      angle: Math.random() * Math.PI * 2,
-      spin: (Math.random() - 0.5) * 2.2,
-      sides: 3 + (i % 4),
-      aspect: 0.4 + Math.random() * 0.9,
-      colorIdx: i % 5,
-      seed: Math.random() * 200
+      r: 60 + (i / 36) * 440,
+      vr: (Math.random() - 0.5) * 20,
+      driftR: (Math.random() - 0.5) * 14,
+      th: Math.random() * 0.4,
+      vth: (Math.random() - 0.5) * 0.05,
+      driftTh: (Math.random() - 0.5) * 0.03,
+      rot: Math.random() * Math.PI * 2,
+      vrot: (Math.random() - 0.5) * 1.5,
+      size: 16 + (i % 6) * 5,
+      type: i % 4,
+      colorIdx: i % 16,
+      facet: 0.35 + (i % 5) * 0.1
     });
   }
 }
 
-// Beat tumble impulse & scope rotation
-if (audio.beat) room.state.tumblePulse = 1.0;
-else room.state.tumblePulse = Math.max(0, (room.state.tumblePulse || 0) - dt * 2.5);
-
-const tumbleStrength = (room.state.tumblePulse * 2.0 + audio.bass * 1.5);
-room.state.scopeAngle += (rotSpeed * 0.35 + tumbleStrength * 0.1) * dt;
-
-// Update shard chamber simulation
-const shards = room.state.shards;
-const people = room.people || [];
-const peopleLen = people.length;
-
-for (let i = 0; i < shardCount; i++) {
-  const s = shards[i];
-  // Motion regimes
-  if (motionKey === 'vortex') {
-    const d = Math.hypot(s.x, s.y) || 1;
-    s.vx += (-s.y / d * 55 - s.x * 0.05) * dt;
-    s.vy += (s.x / d * 55 - s.y * 0.05) * dt;
-  } else if (motionKey === 'turbulent') {
-    s.vx += Math.sin(frame.t * 1.8 + s.y * 0.02) * 45 * dt;
-    s.vy += Math.cos(frame.t * 1.8 + s.x * 0.02) * 45 * dt;
-  } else {
-    s.vx += Math.sin(frame.t * 0.6 + s.seed) * 15 * dt;
-    s.vy += Math.cos(frame.t * 0.6 + s.seed) * 15 * dt;
-  }
-
-  // Damping
-  s.vx *= 0.985;
-  s.vy *= 0.985;
-  s.x += s.vx * dt * (1 + tumbleStrength * 0.6);
-  s.y += s.vy * dt * (1 + tumbleStrength * 0.6);
-
-  // Soft chamber wall bounce
-  const dist = Math.hypot(s.x, s.y);
-  if (dist > 360) {
-    const nx = s.x / dist;
-    const ny = s.y / dist;
-    s.x = nx * 360;
-    s.y = ny * 360;
-    s.vx = (s.vx - 2 * (s.vx * nx + s.vy * ny) * nx) * 0.85;
-    s.vy = (s.vy - 2 * (s.vx * nx + s.vy * ny) * ny) * 0.85;
-  }
-  s.angle += (s.spin + tumbleStrength * (s.spin > 0 ? 3.5 : -3.5)) * dt;
-}
-
-// Render shard chamber once to 800x800 offscreen canvas
-const offCtx = room.state.offCtx;
-const offscreen = room.state.offscreen;
-offCtx.save();
-offCtx.clearRect(0, 0, 800, 800);
-offCtx.translate(400, 400);
-
-// Chamber ambient glow
-const chGrad = offCtx.createRadialGradient(0, 0, 20, 0, 0, 380);
-chGrad.addColorStop(0, 'rgba(25, 20, 35, 0.4)');
-chGrad.addColorStop(1, 'rgba(5, 2, 10, 0.95)');
-offCtx.fillStyle = chGrad;
-offCtx.beginPath();
-offCtx.arc(0, 0, 380, 0, Math.PI * 2);
-offCtx.fill();
-
-const midGlow = audio.mid * 0.4;
-const trebleSpark = audio.treble * 0.5;
-
-for (let i = 0; i < shardCount; i++) {
-  const s = shards[i];
-  const baseHue = (i < peopleLen) ? people[i].hue : palette[s.colorIdx];
-  const shardRad = s.radius * (1 + audio.bass * 0.15);
-
-  offCtx.save();
-  offCtx.translate(s.x, s.y);
-  offCtx.rotate(s.angle);
-
-  const sides = shapeKey === 'crystals' ? 3 : (shapeKey === 'polyhedra' ? Math.max(5, s.sides) : 4);
-  offCtx.beginPath();
-  for (let v = 0; v < sides; v++) {
-    const ang = (v / sides) * Math.PI * 2;
-    let r = shardRad;
-    if (shapeKey === 'crystals') {
-      r *= (v === 0) ? 2.0 : s.aspect;
-    } else if (shapeKey === 'fragments') {
-      r *= 0.7 + Math.sin(v * 2.1 + s.seed) * 0.4;
+const peopleLen = room.people ? room.people.length : 0;
+if (room.state.lastPalette !== paletteKey || room.state.peopleHash !== peopleLen) {
+  room.state.lastPalette = paletteKey;
+  room.state.peopleHash = peopleLen;
+  const base = PALETTES[paletteKey] ?? PALETTES.stained_glass;
+  room.state.cachedColors = [];
+  for (let i = 0; i < 16; i++) {
+    let [h, s, l] = base[i % base.length];
+    if (peopleLen > 0) {
+      const p = room.people[i % peopleLen];
+      if (p && typeof p.hue === 'number') {
+        h = Math.round((h * 0.4 + p.hue * 0.6)) % 360;
+      }
     }
-    const px = Math.cos(ang) * r;
-    const py = Math.sin(ang) * r;
-    if (v === 0) offCtx.moveTo(px, py);
-    else offCtx.lineTo(px, py);
+    room.state.cachedColors.push({
+      fill: `hsla(${h}, ${s}%, ${l}%, 0.72)`,
+      fillHigh: `hsla(${h}, ${s}%, ${Math.min(96, l + 26)}%, 0.88)`,
+      stroke: `hsla(${h}, ${s}%, ${Math.min(98, l + 38)}%, 0.92)`,
+      lead: '#120f0d',
+      glow: `hsla(${h}, ${s}%, ${l}%, 0.28)`
+    });
   }
-  offCtx.closePath();
-
-  // Faceted crystal fill
-  offCtx.fillStyle = `hsla(${baseHue}, 85%, ${48 + tumbleStrength * 15}%, ${0.55 + midGlow})`;
-  offCtx.fill();
-
-  // Lead came / mirror edge line
-  offCtx.strokeStyle = `hsla(${baseHue + 20}, 100%, ${75 + trebleSpark * 25}%, 0.85)`;
-  offCtx.lineWidth = 1.4 + trebleSpark;
-  offCtx.stroke();
-
-  // Inner facet highlight triangle
-  offCtx.beginPath();
-  offCtx.moveTo(0, 0);
-  offCtx.lineTo(Math.cos(0.2) * shardRad * 0.8, Math.sin(0.2) * shardRad * 0.8);
-  offCtx.lineTo(Math.cos(1.4) * shardRad * 0.6, Math.sin(1.4) * shardRad * 0.6);
-  offCtx.closePath();
-  offCtx.fillStyle = `hsla(${baseHue + 35}, 95%, 85%, ${0.4 + midGlow})`;
-  offCtx.fill();
-
-  offCtx.restore();
 }
-offCtx.restore();
 
-// Main canvas assembly: stamp mirrored wedges seamlessly
+if (audio && audio.beat) {
+  room.state.beatPulse = 1.0;
+  const kick = 1 + (audio.bass || 0);
+  const shards = room.state.shards;
+  for (let i = 0; i < shards.length; i++) {
+    const s = shards[i];
+    s.vth += (Math.random() - 0.5) * 0.12 * kick;
+    s.vr += (Math.random() - 0.5) * 90 * kick;
+    s.vrot += (Math.random() - 0.5) * 5.0 * kick;
+  }
+}
+room.state.beatPulse *= 0.91;
+
+room.state.tubeAngle += rotSpeed * dt;
+
+const omega = Math.PI / mirrors;
+const maxScopeR = Math.hypot(width, height) * 0.52 * zoom;
+const minR = 24;
+const shards = room.state.shards;
+
+for (let i = 0; i < shards.length; i++) {
+  const s = shards[i];
+  s.th += (s.vth + s.driftTh) * dt * driftSpeed;
+  s.r += (s.vr + s.driftR) * dt * driftSpeed;
+  s.rot += s.vrot * dt;
+
+  s.vth *= 0.95;
+  s.vr *= 0.95;
+  s.vrot *= 0.96;
+
+  if (s.th < 0.015) {
+    s.th = 0.015;
+    s.vth = Math.abs(s.vth) * 0.8 + 0.02;
+    s.driftTh = Math.abs(s.driftTh);
+  } else if (s.th > omega - 0.015) {
+    s.th = omega - 0.015;
+    s.vth = -Math.abs(s.vth) * 0.8 - 0.02;
+    s.driftTh = -Math.abs(s.driftTh);
+  }
+
+  if (s.r < minR) {
+    s.r = minR;
+    s.vr = Math.abs(s.vr) * 0.8 + 15;
+    s.driftR = Math.abs(s.driftR);
+  } else if (s.r > maxScopeR) {
+    s.r = maxScopeR;
+    s.vr = -Math.abs(s.vr) * 0.8 - 15;
+    s.driftR = -Math.abs(s.driftR);
+  }
+}
+
 ctx.save();
-ctx.fillStyle = '#060408';
-ctx.fillRect(0, 0, frame.width, frame.height);
-
-const cx = frame.width * 0.5;
-const cy = frame.height * 0.5;
-const maxRadius = Math.hypot(cx, cy) * 1.05;
-const wedgeAngle = Math.PI / mirrors;
-
-// Eyepiece focal point drift through shard chamber
-const apexDriftDist = 130 + Math.sin(frame.t * 0.35) * 50 + audio.bass * 35;
-const apexDriftAngle = frame.t * 0.22;
-const apexX = 400 + Math.cos(apexDriftAngle) * apexDriftDist;
-const apexY = 400 + Math.sin(apexDriftAngle) * apexDriftDist;
-
-// Scale factor so 800x800 offscreen covers whole viewport
-const scale = (maxRadius / 320) * (1 + audio.bass * 0.05);
+ctx.fillStyle = '#060508';
+ctx.fillRect(0, 0, width, height);
 
 ctx.translate(cx, cy);
-ctx.rotate(room.state.scopeAngle);
+ctx.rotate(room.state.tubeAngle);
 
+const audioBass = audio ? audio.bass || 0 : 0;
+const audioTreb = audio ? audio.treble || 0 : 0;
+const colors = room.state.cachedColors;
+
+function renderShards() {
+  for (let i = 0; i < shards.length; i++) {
+    const s = shards[i];
+    const px = s.r * Math.cos(s.th);
+    const py = s.r * Math.sin(s.th);
+    const sz = s.size * (1 + audioBass * 0.22);
+    const c = colors[s.colorIdx];
+
+    ctx.save();
+    ctx.translate(px, py);
+    ctx.rotate(s.rot);
+
+    if (shardStyle === 'faceted_gems') {
+      if (s.type === 0) {
+        ctx.beginPath();
+        ctx.moveTo(0, -sz * 1.1);
+        ctx.lineTo(sz * 0.75, sz * 0.65);
+        ctx.lineTo(-sz * 0.75, sz * 0.65);
+        ctx.closePath();
+        ctx.fillStyle = c.fill;
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(0, -sz * 1.1);
+        ctx.lineTo(0, sz * 0.65);
+        ctx.lineTo(-sz * 0.75, sz * 0.65);
+        ctx.closePath();
+        ctx.fillStyle = c.fillHigh;
+        ctx.fill();
+      } else if (s.type === 1) {
+        ctx.beginPath();
+        ctx.moveTo(0, -sz * 1.3);
+        ctx.lineTo(sz * 0.65, 0);
+        ctx.lineTo(0, sz * 1.3);
+        ctx.lineTo(-sz * 0.65, 0);
+        ctx.closePath();
+        ctx.fillStyle = c.fill;
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(0, -sz * 1.3);
+        ctx.lineTo(sz * 0.65, 0);
+        ctx.lineTo(0, sz * 1.3);
+        ctx.closePath();
+        ctx.fillStyle = c.fillHigh;
+        ctx.fill();
+      } else {
+        ctx.beginPath();
+        ctx.moveTo(0, -sz);
+        ctx.lineTo(sz * 0.8, -sz * 0.3);
+        ctx.lineTo(sz * 0.5, sz * 0.8);
+        ctx.lineTo(-sz * 0.5, sz * 0.8);
+        ctx.lineTo(-sz * 0.8, -sz * 0.3);
+        ctx.closePath();
+        ctx.fillStyle = c.fill;
+        ctx.fill();
+      }
+      ctx.lineWidth = 1.0 + audioTreb * 1.2;
+      ctx.strokeStyle = c.stroke;
+      ctx.stroke();
+    } else if (shardStyle === 'stained_plates') {
+      ctx.beginPath();
+      ctx.moveTo(-sz * 0.7, -sz * 0.7);
+      ctx.lineTo(sz * 0.7, -sz * 0.5);
+      ctx.lineTo(sz * 0.9, sz * 0.6);
+      ctx.lineTo(-sz * 0.6, sz * 0.8);
+      ctx.closePath();
+      ctx.fillStyle = c.fill;
+      ctx.fill();
+      ctx.lineWidth = 3.5;
+      ctx.strokeStyle = c.lead;
+      ctx.stroke();
+      ctx.lineWidth = 1.2;
+      ctx.strokeStyle = c.stroke;
+      ctx.stroke();
+    } else {
+      ctx.beginPath();
+      ctx.moveTo(0, -sz * 1.8);
+      ctx.lineTo(sz * 0.32, -sz * 0.2);
+      ctx.lineTo(0, sz * 0.9);
+      ctx.lineTo(-sz * 0.32, -sz * 0.2);
+      ctx.closePath();
+      ctx.fillStyle = c.fill;
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(0, -sz * 1.8);
+      ctx.lineTo(0, sz * 0.9);
+      ctx.lineWidth = 1.6;
+      ctx.strokeStyle = c.stroke;
+      ctx.stroke();
+    }
+
+    ctx.restore();
+  }
+}
+
+const clipR = maxScopeR * 1.05;
 for (let k = 0; k < mirrors; k++) {
-  const baseAngle = k * 2 * wedgeAngle;
-
-  // Slice A (direct sector [0, wedgeAngle])
   ctx.save();
-  ctx.rotate(baseAngle);
+  ctx.rotate(k * 2 * omega);
   ctx.beginPath();
   ctx.moveTo(0, 0);
-  ctx.arc(0, 0, maxRadius, -0.003, wedgeAngle + 0.003);
+  ctx.arc(0, 0, clipR, 0, omega);
   ctx.closePath();
   ctx.clip();
-  ctx.scale(scale, scale);
-  ctx.drawImage(offscreen, -apexX, -apexY);
+  renderShards();
   ctx.restore();
 
-  // Slice B (mirrored sector [wedgeAngle, 2*wedgeAngle])
   ctx.save();
-  ctx.rotate(baseAngle + 2 * wedgeAngle);
+  ctx.rotate((k + 1) * 2 * omega);
   ctx.scale(1, -1);
   ctx.beginPath();
   ctx.moveTo(0, 0);
-  ctx.arc(0, 0, maxRadius, -0.003, wedgeAngle + 0.003);
+  ctx.arc(0, 0, clipR, 0, omega);
   ctx.closePath();
   ctx.clip();
-  ctx.scale(scale, scale);
-  ctx.drawImage(offscreen, -apexX, -apexY);
+  renderShards();
   ctx.restore();
 }
 
-// Eyepiece brass vignette
-ctx.rotate(-room.state.scopeAngle);
-const vignette = ctx.createRadialGradient(0, 0, maxRadius * 0.65, 0, 0, maxRadius);
-vignette.addColorStop(0, 'rgba(4, 2, 8, 0)');
-vignette.addColorStop(0.7, 'rgba(4, 2, 8, 0.45)');
-vignette.addColorStop(1, 'rgba(2, 1, 4, 0.95)');
-ctx.fillStyle = vignette;
+const centerGlow = ctx.createRadialGradient(0, 0, 0, 0, 0, 90 + audioBass * 40);
+centerGlow.addColorStop(0, 'rgba(255, 250, 230, 0.6)');
+centerGlow.addColorStop(0.3, 'rgba(255, 215, 120, 0.25)');
+centerGlow.addColorStop(1, 'rgba(255, 200, 100, 0)');
+ctx.fillStyle = centerGlow;
 ctx.beginPath();
-ctx.arc(0, 0, maxRadius, 0, Math.PI * 2);
+ctx.arc(0, 0, 120, 0, Math.PI * 2);
 ctx.fill();
 
+ctx.restore();
+
+ctx.save();
+const viewRadius = Math.min(width, height) * 0.47;
+if (aperture === 'brass_scope') {
+  ctx.beginPath();
+  ctx.rect(0, 0, width, height);
+  ctx.arc(cx, cy, viewRadius, 0, Math.PI * 2, true);
+  ctx.fillStyle = '#080605';
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.arc(cx, cy, viewRadius, 0, Math.PI * 2);
+  ctx.lineWidth = 18;
+  ctx.strokeStyle = '#4a3416';
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.arc(cx, cy, viewRadius, 0, Math.PI * 2);
+  ctx.lineWidth = 6;
+  ctx.strokeStyle = '#c6953c';
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.arc(cx, cy, viewRadius - 6, 0, Math.PI * 2);
+  ctx.lineWidth = 1.5;
+  ctx.strokeStyle = '#ffe89c';
+  ctx.stroke();
+} else if (aperture === 'dark_vignette') {
+  const vig = ctx.createRadialGradient(cx, cy, viewRadius * 0.7, cx, cy, Math.max(cx, cy));
+  vig.addColorStop(0, 'rgba(6, 5, 8, 0)');
+  vig.addColorStop(0.7, 'rgba(6, 5, 8, 0.75)');
+  vig.addColorStop(1, 'rgba(6, 5, 8, 0.98)');
+  ctx.fillStyle = vig;
+  ctx.fillRect(0, 0, width, height);
+}
 ctx.restore();

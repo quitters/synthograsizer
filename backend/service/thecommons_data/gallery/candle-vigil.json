@@ -1,0 +1,169 @@
+{
+  "name": "vigil",
+  "promptTemplate": "A cathedral of darkness illuminated by {{flame_palette}} candlelight with {{wax_style}} wax pillars, dancing in a {{draft_intensity}} breeze with {{ember_density}} floating sparks and {{collective_bloom}} resonance.",
+  "variables": [
+    {
+      "name": "flame_palette",
+      "label": "Flame Tone",
+      "values": [
+        {
+          "text": "amber_gold",
+          "weight": 2
+        },
+        {
+          "text": "sacred_violet",
+          "weight": 1
+        },
+        {
+          "text": "celestial_cyan",
+          "weight": 1
+        },
+        {
+          "text": "crimson_ember",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "wax_style",
+      "label": "Altar Wax",
+      "values": [
+        {
+          "text": "dripping_pillars",
+          "weight": 2
+        },
+        {
+          "text": "floating_vessels",
+          "weight": 1
+        },
+        {
+          "text": "crystalline_tapers",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "draft_intensity",
+      "label": "Draft Motion",
+      "values": [
+        {
+          "text": "hushed_stillness",
+          "weight": 1
+        },
+        {
+          "text": "gentle_whisper",
+          "weight": 2
+        },
+        {
+          "text": "gathering_gale",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "ember_density",
+      "label": "Ember Drift",
+      "type": "number",
+      "min": 20,
+      "max": 180,
+      "step": 10,
+      "default": 70
+    },
+    {
+      "name": "collective_bloom",
+      "label": "Collective Glow",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "shield",
+      "label": "Shield Flame",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "breathe",
+      "label": "Breath Gust",
+      "type": "trigger",
+      "share": "all"
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "VIGIL // ALTAR",
+    "tagline": "A shared sanctuary of flickering candlelight",
+    "accent": "#ffa028",
+    "groups": [
+      {
+        "title": "RITUAL ACTIONS",
+        "controls": [
+          "shield",
+          "breathe"
+        ]
+      },
+      {
+        "title": "FLAME & SANCTUARY",
+        "controls": [
+          "flame_palette",
+          "wax_style",
+          "collective_bloom"
+        ]
+      },
+      {
+        "title": "AIR & EMBERS",
+        "controls": [
+          "draft_intensity",
+          "ember_density"
+        ]
+      }
+    ],
+    "controls": {
+      "flame_palette": {
+        "widget": "pads",
+        "hint": "Shift flame hues across the obsidian floor"
+      },
+      "wax_style": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "draft_intensity": {
+        "widget": "buttons",
+        "hint": "Stirs the candle flames and ember drift"
+      },
+      "ember_density": {
+        "widget": "knob",
+        "hint": "Volume of glowing sparks rising into darkness"
+      },
+      "collective_bloom": {
+        "widget": "lamp",
+        "hint": "Resonant glow when many shield their flames together"
+      },
+      "shield": {
+        "widget": "pad",
+        "hint": "Cupping your flame makes it burn intensely"
+      },
+      "breathe": {
+        "widget": "button",
+        "hint": "Send a sudden gust rippling across all candles"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "Candles flicker across a dark floor for everyone in the room; shielding your flame flares it bright, stirring collective warmth and dancing embers.",
+    "prompt": "A candlelight gathering: a candle for every person in the room, warm flames flickering on a dark ground; anyone can shield their candle, making it flare brighter, and when many do at once the whole field glows. Make it striking on a big projected wall in a dark room: a bold composition, rich colour against real blacks, depth, glow, and motion that reads from across the room. Keep a demoscener's economy: lookup tables and fixed-size buffers kept in room.state, low-resolution offscreen buffers for any per-pixel work, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "light",
+      "organic",
+      "calm"
+    ],
+    "source": "lightworks/candle-vigil~1"
+  }
+}

@@ -1,0 +1,190 @@
+{
+  "name": "Golden Hour Dunes",
+  "promptTemplate": "Desert dunes at golden hour in {{palette}} with {{dune_scale}} ridges under {{sun_angle}} light, wind at {{wind_speed}} blowing {{plume_density}}, with shadow depth {{shadow_depth}}, micro-ripples {{ripples}}, and atmospheric haze {{heat_haze}}",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Sahara Gold",
+          "weight": 3
+        },
+        {
+          "text": "Namib Crimson",
+          "weight": 2
+        },
+        {
+          "text": "Solstice Amber",
+          "weight": 2
+        },
+        {
+          "text": "Dusk Obsidian",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "dune_scale",
+      "label": "Ridge Scale",
+      "values": [
+        {
+          "text": "Monumental",
+          "weight": 2
+        },
+        {
+          "text": "Rolling Erg",
+          "weight": 3
+        },
+        {
+          "text": "Vast Sea",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "sun_angle",
+      "label": "Sun Slant",
+      "values": [
+        {
+          "text": "Skimming Low",
+          "weight": 3
+        },
+        {
+          "text": "Golden Dusk",
+          "weight": 2
+        },
+        {
+          "text": "Backlit Rim",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "wind_speed",
+      "label": "Wind Speed",
+      "type": "number",
+      "min": 0.2,
+      "max": 2.0,
+      "step": 0.1,
+      "default": 1.0
+    },
+    {
+      "name": "plume_density",
+      "label": "Sand Streamers",
+      "values": [
+        {
+          "text": "Whispering",
+          "weight": 2
+        },
+        {
+          "text": "Gale Streamers",
+          "weight": 3
+        },
+        {
+          "text": "Sandstorm",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "shadow_depth",
+      "label": "Shadow Depth",
+      "type": "number",
+      "min": 0.4,
+      "max": 1.0,
+      "step": 0.05,
+      "default": 0.85
+    },
+    {
+      "name": "ripples",
+      "label": "Wind Ripples",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "heat_haze",
+      "label": "Golden Haze",
+      "type": "toggle",
+      "default": true
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "DUNES +6 TRAINER",
+    "tagline": "Raking light across drifting desert ridges",
+    "accent": "#ffc852",
+    "groups": [
+      {
+        "title": "Terrain & Sun",
+        "controls": [
+          "palette",
+          "dune_scale",
+          "sun_angle",
+          "shadow_depth"
+        ]
+      },
+      {
+        "title": "Desert Wind",
+        "controls": [
+          "wind_speed",
+          "plume_density",
+          "ripples",
+          "heat_haze"
+        ]
+      }
+    ],
+    "controls": {
+      "palette": {
+        "widget": "cycle",
+        "hint": "Cycle sand and shadow mineral tones"
+      },
+      "dune_scale": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "sun_angle": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "wind_speed": {
+        "widget": "knob",
+        "hint": "Speed up ridge drift and blowing plumes"
+      },
+      "plume_density": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "shadow_depth": {
+        "widget": "slider",
+        "hint": "Deepen dark slip-faces down the slopes"
+      },
+      "ripples": {
+        "widget": "lamp",
+        "hint": "Toggle micro-ripples across lit sand"
+      },
+      "heat_haze": {
+        "widget": "lamp",
+        "hint": "Warm atmospheric glow across ridges"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "generative",
+    "blurb": "Sculpt vast aerial desert dunes swept by golden-hour raking light, blowing sand plumes, and creeping wind ripples.",
+    "prompt": "Desert dunes at golden hour seen from above: wind ripples crawl across the sand, long shadows sharpen along the crests, and sand streams off the ridges. Make it striking on a big projected wall in a dark room: a bold composition, rich colour against real blacks, depth, glow, and motion that reads from across the room. Keep a demoscener's economy: lookup tables and fixed-size buffers kept in room.state, low-resolution offscreen buffers for any per-pixel work, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "nature",
+      "light",
+      "organic"
+    ],
+    "source": "lightworks/sand-dunes~11"
+  }
+}

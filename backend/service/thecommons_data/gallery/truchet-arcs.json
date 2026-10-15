@@ -1,117 +1,117 @@
 {
   "name": "Truchet Meander",
-  "promptTemplate": "Quarter-circle Truchet tiles with {{palette}} palette, {{tile_scale}} grid density, {{line_weight}} paths, and {{motion_tempo}} route morphing.",
+  "promptTemplate": "Quarter-circle Truchet tiles with {{grid_density}} grid density, colored along unbroken meandering loops via {{palette_style}} palette with {{line_profile}} styling, modulated by {{flip_tempo}} flip tempo.",
   "variables": [
     {
-      "name": "palette",
-      "label": "Palette",
+      "name": "grid_density",
+      "label": "Grid Density",
       "values": [
         {
-          "text": "electric_neon",
-          "weight": 3
+          "text": "roomy",
+          "weight": 1
         },
         {
-          "text": "amber_crt",
+          "text": "standard",
           "weight": 2
         },
         {
-          "text": "spectral_void",
-          "weight": 2
-        },
-        {
-          "text": "cyan_blueprint",
+          "text": "dense",
           "weight": 1
         }
       ]
     },
     {
-      "name": "tile_scale",
-      "label": "Grid Scale",
+      "name": "palette_style",
+      "label": "Color Palette",
       "values": [
         {
-          "text": "medium",
-          "weight": 3
-        },
-        {
-          "text": "compact",
+          "text": "cyber_neon",
           "weight": 2
         },
         {
-          "text": "broad",
+          "text": "acid_sunset",
+          "weight": 1
+        },
+        {
+          "text": "nordic_frost",
+          "weight": 1
+        },
+        {
+          "text": "arcade_glow",
           "weight": 1
         }
       ]
     },
     {
-      "name": "line_weight",
-      "label": "Path Width",
+      "name": "line_profile",
+      "label": "Line Profile",
+      "values": [
+        {
+          "text": "neon_tube",
+          "weight": 2
+        },
+        {
+          "text": "ribbon",
+          "weight": 1
+        },
+        {
+          "text": "laser_wire",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "flip_tempo",
+      "label": "Flip Tempo",
       "type": "number",
-      "min": 2,
-      "max": 14,
-      "step": 2,
-      "default": 6
-    },
-    {
-      "name": "motion_tempo",
-      "label": "Flip Rate",
-      "values": [
-        {
-          "text": "steady",
-          "weight": 3
-        },
-        {
-          "text": "calm",
-          "weight": 2
-        },
-        {
-          "text": "hyper",
-          "weight": 1
-        }
-      ]
+      "min": 0.5,
+      "max": 10.5,
+      "step": 0.5,
+      "default": 3.5
     }
   ],
   "ui": {
     "skin": "trainer",
     "variant": "acid",
-    "title": "TRUCHET MEANDER // DEMO",
-    "tagline": "Realtime route morphing & connected path solver",
-    "accent": "#00ffcc",
+    "title": "TRUCHET MEANDER +4",
+    "tagline": "Realtime topological loop router",
+    "accent": "#39ff14",
     "groups": [
       {
-        "title": "Labyrinth",
+        "title": "Path Dynamics",
         "controls": [
-          "tile_scale",
-          "line_weight"
+          "flip_tempo",
+          "grid_density"
         ]
       },
       {
-        "title": "Dynamics",
+        "title": "Optics & Shading",
         "controls": [
-          "motion_tempo",
-          "palette"
+          "palette_style",
+          "line_profile"
         ]
       }
     ],
     "controls": {
-      "palette": {
-        "widget": "pads",
-        "hint": "Recolors connected circuit runs"
-      },
-      "tile_scale": {
+      "grid_density": {
         "widget": "buttons",
         "hint": ""
       },
-      "line_weight": {
-        "widget": "knob",
-        "hint": "Thickens arc traces across the canvas"
+      "palette_style": {
+        "widget": "cycle",
+        "hint": "Cycle hue distribution along continuous loops"
       },
-      "motion_tempo": {
+      "line_profile": {
         "widget": "buttons",
-        "hint": "Speed of random tile flips"
+        "hint": ""
+      },
+      "flip_tempo": {
+        "widget": "knob",
+        "hint": "Speed of random tile flips rewiring paths"
       }
     },
     "mobile": {
-      "density": "roomy"
+      "density": "compact"
     },
     "desktop": {
       "columns": 2
@@ -125,6 +125,6 @@
       "geometric",
       "calm"
     ],
-    "source": "scenes100/truchet-arcs~3"
+    "source": "scenes100/truchet-arcs~2"
   }
 }

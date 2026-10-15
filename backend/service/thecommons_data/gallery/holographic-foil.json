@@ -1,0 +1,183 @@
+{
+  "name": "Holographic Foil Drift",
+  "promptTemplate": "A sheet of holographic foil rippling in a breeze with {{foil_style}} diffraction, {{crease_pattern}} creases, {{color_mode}} spectrum, depth {{wrinkle_depth}}, speed {{shimmer_speed}}, sparkle {{sparkle_intensity}}, and bloom {{bloom_glow}}.",
+  "variables": [
+    {
+      "name": "foil_style",
+      "label": "Foil Style",
+      "values": [
+        {
+          "text": "iridescent",
+          "weight": 2
+        },
+        {
+          "text": "prismatic",
+          "weight": 2
+        },
+        {
+          "text": "cyber_foil",
+          "weight": 1
+        },
+        {
+          "text": "liquid_chrome",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "crease_pattern",
+      "label": "Creases",
+      "values": [
+        {
+          "text": "curtain_drape",
+          "weight": 2
+        },
+        {
+          "text": "crumpled_facets",
+          "weight": 2
+        },
+        {
+          "text": "origami_folds",
+          "weight": 1
+        },
+        {
+          "text": "oceanic_surge",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "color_mode",
+      "label": "Spectrum",
+      "values": [
+        {
+          "text": "full_spectrum",
+          "weight": 2
+        },
+        {
+          "text": "deep_opal",
+          "weight": 1
+        },
+        {
+          "text": "neon_sunset",
+          "weight": 1
+        },
+        {
+          "text": "monochrome_silver",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "wrinkle_depth",
+      "label": "Wrinkle Depth",
+      "type": "number",
+      "min": 0.4,
+      "max": 2.0,
+      "step": 0.2,
+      "default": 1.0
+    },
+    {
+      "name": "shimmer_speed",
+      "label": "Shimmer Speed",
+      "type": "number",
+      "min": 0.2,
+      "max": 2.0,
+      "step": 0.2,
+      "default": 0.8
+    },
+    {
+      "name": "sparkle_intensity",
+      "label": "Sparkle Power",
+      "type": "number",
+      "min": 0.2,
+      "max": 2.0,
+      "step": 0.2,
+      "default": 1.0
+    },
+    {
+      "name": "bloom_glow",
+      "label": "Bloom Glow",
+      "type": "toggle",
+      "default": true
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "violet",
+    "title": "HOLOFOIL DRIFT +4",
+    "tagline": "DEMO SPEC DIFFRACTION SHIFT",
+    "accent": "#cc55ff",
+    "groups": [
+      {
+        "title": "DIFFRACTION",
+        "controls": [
+          "color_mode",
+          "foil_style",
+          "shimmer_speed"
+        ]
+      },
+      {
+        "title": "SURFACE",
+        "controls": [
+          "crease_pattern",
+          "wrinkle_depth"
+        ]
+      },
+      {
+        "title": "HIGHLIGHTS",
+        "controls": [
+          "sparkle_intensity",
+          "bloom_glow"
+        ]
+      }
+    ],
+    "controls": {
+      "foil_style": {
+        "widget": "cycle",
+        "hint": "Grating density and refraction pattern"
+      },
+      "crease_pattern": {
+        "widget": "cycle",
+        "hint": "Geometry of surface fold reflections"
+      },
+      "color_mode": {
+        "widget": "pads",
+        "hint": "Cycle iridescent spectrum bands"
+      },
+      "wrinkle_depth": {
+        "widget": "slider",
+        "hint": "Normal-map steepness and glare contrast"
+      },
+      "shimmer_speed": {
+        "widget": "knob",
+        "hint": "Speed of undulating light ripples"
+      },
+      "sparkle_intensity": {
+        "widget": "slider",
+        "hint": "Frequency of bright specular glints"
+      },
+      "bloom_glow": {
+        "widget": "lamp",
+        "hint": "Soft dreamy bloom across high highlights"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "demo",
+    "blurb": "A rippling sheet of holographic foil catches moving light beams, casting rainbow diffraction waves and glinting sparkles across deep folds.",
+    "prompt": "A sheet of holographic foil rippling in a breeze: rainbow diffraction bands slide across it as the light angle changes, sparkling where the creases catch the light. Make it striking on a big projected wall in a dark room: a bold composition, rich colour against real blacks, depth, glow, and motion that reads from across the room. Keep a demoscener's economy: lookup tables and fixed-size buffers kept in room.state, low-resolution offscreen buffers for any per-pixel work, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "psychedelic",
+      "light",
+      "energetic"
+    ],
+    "source": "lightworks/holographic-foil~1"
+  }
+}

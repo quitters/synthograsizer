@@ -1,0 +1,146 @@
+{
+  "name": "Mosaic Grid & Drift",
+  "promptTemplate": "A mosaic of coloured tiles in {{palette}} shades and {{tile_shape}} cuts, set to {{grid_order}} grid alignment with {{tile_density}} columns and {{motion_drift}} drift, outlines {{show_grout}}.",
+  "variables": [
+    {
+      "name": "grid_order",
+      "label": "Grid Snapping",
+      "type": "number",
+      "min": 0,
+      "max": 1,
+      "step": 0.05,
+      "default": 0.7
+    },
+    {
+      "name": "tile_density",
+      "label": "Tile Density",
+      "type": "number",
+      "min": 10,
+      "max": 30,
+      "step": 2,
+      "default": 18
+    },
+    {
+      "name": "motion_drift",
+      "label": "Drift Speed",
+      "type": "number",
+      "min": 0.2,
+      "max": 2,
+      "step": 0.1,
+      "default": 0.8
+    },
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "byzantine",
+          "weight": 2
+        },
+        {
+          "text": "mediterranean",
+          "weight": 2
+        },
+        {
+          "text": "terracotta",
+          "weight": 1
+        },
+        {
+          "text": "neon_synth",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "tile_shape",
+      "label": "Tile Shape",
+      "values": [
+        {
+          "text": "square",
+          "weight": 2
+        },
+        {
+          "text": "lozenge",
+          "weight": 1
+        },
+        {
+          "text": "hex",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "show_grout",
+      "label": "Outlines",
+      "type": "toggle",
+      "default": true
+    }
+  ],
+  "ui": {
+    "skin": "desk",
+    "variant": "grey",
+    "title": "Mosaic Studio",
+    "tagline": "Architectural tessellation and kinetic drift",
+    "accent": "",
+    "groups": [
+      {
+        "title": "Structure",
+        "controls": [
+          "grid_order",
+          "tile_density",
+          "tile_shape"
+        ]
+      },
+      {
+        "title": "Motion & Style",
+        "controls": [
+          "motion_drift",
+          "palette",
+          "show_grout"
+        ]
+      }
+    ],
+    "controls": {
+      "grid_order": {
+        "widget": "slider",
+        "hint": "Lock tiles into rigid mortar or release into free drift"
+      },
+      "tile_density": {
+        "widget": "stepper",
+        "hint": "Adjust count of tesserae across the wall"
+      },
+      "motion_drift": {
+        "widget": "knob",
+        "hint": "Speed of wave currents carrying the loose pieces"
+      },
+      "palette": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "tile_shape": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "show_grout": {
+        "widget": "switch",
+        "hint": "Toggle dark grout lines framing each tile"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "generative",
+    "blurb": "A mosaic of coloured tiles that can snap to a strict grid or float freely, with tile outlines on or off.",
+    "prompt": "A mosaic of coloured tiles that can snap to a strict grid or float freely, with tile outlines on or off.",
+    "look": [
+      "geometric",
+      "calm"
+    ],
+    "source": "toggles10/float-mosaic~1"
+  }
+}

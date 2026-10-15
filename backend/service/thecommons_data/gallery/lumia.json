@@ -1,0 +1,147 @@
+{
+  "name": "Lumia Clavilux",
+  "promptTemplate": "A Thomas Wilfred lumia study of {{palette}} silk veils, {{veil_count}} folding ribbons drifting at {{drift_speed}}x speed with {{undulation}} complexity in a {{focal_depth}} formation, with sheer translucence set to {{sheer_veil}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Opalescent",
+          "weight": 3
+        },
+        {
+          "text": "Astral",
+          "weight": 2
+        },
+        {
+          "text": "Auroral",
+          "weight": 2
+        },
+        {
+          "text": "Nocturne",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "veil_count",
+      "label": "Veil Layers",
+      "type": "number",
+      "min": 3,
+      "max": 8,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "name": "drift_speed",
+      "label": "Drift Speed",
+      "type": "number",
+      "min": 0.2,
+      "max": 2.0,
+      "step": 0.1,
+      "default": 0.8
+    },
+    {
+      "name": "undulation",
+      "label": "Curvature",
+      "type": "number",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.25,
+      "default": 1.25
+    },
+    {
+      "name": "sheer_veil",
+      "label": "Sheer Translucence",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "focal_depth",
+      "label": "Formation",
+      "values": [
+        {
+          "text": "Wide Floating",
+          "weight": 3
+        },
+        {
+          "text": "Diagonal Drift",
+          "weight": 2
+        },
+        {
+          "text": "Suspended Monolith",
+          "weight": 2
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "skin": "desk",
+    "variant": "grey",
+    "title": "Lumia Console",
+    "tagline": "Thomas Wilfred optical organ controls",
+    "accent": "",
+    "groups": [
+      {
+        "title": "Optics & Colour",
+        "controls": [
+          "palette",
+          "sheer_veil",
+          "veil_count"
+        ]
+      },
+      {
+        "title": "Kinetic Movement",
+        "controls": [
+          "focal_depth",
+          "drift_speed",
+          "undulation"
+        ]
+      }
+    ],
+    "controls": {
+      "palette": {
+        "widget": "cycle",
+        "hint": "Cycle spectral prism hues"
+      },
+      "veil_count": {
+        "widget": "stepper",
+        "hint": "Number of folded silk ribbons"
+      },
+      "drift_speed": {
+        "widget": "knob",
+        "hint": "Speed of mechanical gear rotations"
+      },
+      "undulation": {
+        "widget": "slider",
+        "hint": "Wave distortion and ribbon ripple"
+      },
+      "sheer_veil": {
+        "widget": "lamp",
+        "hint": "Switch between faint gossamer and dense velvet glow"
+      },
+      "focal_depth": {
+        "widget": "buttons",
+        "hint": ""
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "generative",
+    "blurb": "Luminous silk veils drift and fold in deep absolute dark, emulating Thomas Wilfred's mechanical clavilux optical organs.",
+    "prompt": "A Lumia composition in the manner of Thomas Wilfred: soft, slow, veil-like forms of coloured light unfurling and folding in the dark like silk in a current, never repeating, deep blacks around them. Make it striking on a big projected wall in a dark room: a bold composition, rich colour against real blacks, depth, glow, and motion that reads from across the room. Keep a demoscener's economy: lookup tables and fixed-size buffers kept in room.state, low-resolution offscreen buffers for any per-pixel work, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "calm",
+      "light",
+      "organic"
+    ],
+    "source": "lightworks/lumia~2"
+  }
+}

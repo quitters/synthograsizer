@@ -1,0 +1,135 @@
+{
+  "name": "Super Parachute Launch",
+  "promptTemplate": "A colossal top-down party parachute in {{palette_style}} styling with a {{ball_style}} ball, bouncy elasticity set to {{bounce_power}}, and dynamic sparks {{sparkle_fx}}.",
+  "variables": [
+    {
+      "name": "lift",
+      "label": "LIFT!",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "palette_style",
+      "label": "Chute Palette",
+      "values": [
+        {
+          "text": "Classic Rainbow",
+          "weight": 3
+        },
+        {
+          "text": "Neon Carnival",
+          "weight": 2
+        },
+        {
+          "text": "Sunset Pop",
+          "weight": 1
+        },
+        {
+          "text": "Cyber Pastel",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "ball_style",
+      "label": "Ball Type",
+      "values": [
+        {
+          "text": "Giant Beach Ball",
+          "weight": 3
+        },
+        {
+          "text": "Super Star",
+          "weight": 2
+        },
+        {
+          "text": "Disco Sphere",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "bounce_power",
+      "label": "Bounce Elasticity",
+      "type": "number",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "name": "sparkle_fx",
+      "label": "Sparkle Burst",
+      "type": "toggle",
+      "default": true
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "PARACHUTE +5 TRAINER",
+    "tagline": "PULL TOGETHER TO POP THE BALL SKY-HIGH",
+    "accent": "#ff2a2a",
+    "groups": [
+      {
+        "title": "Action",
+        "controls": [
+          "lift"
+        ]
+      },
+      {
+        "title": "Chute & Ball",
+        "controls": [
+          "ball_style",
+          "palette_style"
+        ]
+      },
+      {
+        "title": "Physics & FX",
+        "controls": [
+          "bounce_power",
+          "sparkle_fx"
+        ]
+      }
+    ],
+    "controls": {
+      "lift": {
+        "widget": "pad",
+        "hint": "Heave your rim section inward toward the center"
+      },
+      "palette_style": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "ball_style": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "bounce_power": {
+        "widget": "slider",
+        "hint": "Multiplies rebound height when lifts converge"
+      },
+      "sparkle_fx": {
+        "widget": "lamp",
+        "hint": ""
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "A crowd-scale rainbow parachute seen from above, where players lift together to send a massive beach ball soaring into the air.",
+    "prompt": "The playground parachute, seen from above: a huge round rainbow parachute with a handle for every person round its rim; press 'lift' to raise your edge, and when many lift together it billows up into a dome and the ball on top bounces higher the more in step the room is. Make it a party game a whole room can follow from across the floor: bold shapes and bright colours on a dark ground, every player drawn in their own hue, big short labels (a score, GO!, the winner) in a heavy font, and a large, satisfying reaction on screen the instant anyone presses. It must work with one player or forty, scaling its lanes, seats or pieces to room.people and coping with people joining and leaving mid-round; play itself in a lively attract mode whenever nobody has pressed anything for a few seconds; and after a winner is shown, start the next round on its own. Keep it lean: game state in bounded arrays in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080.",
+    "look": [
+      "energetic",
+      "retro",
+      "geometric"
+    ],
+    "source": "play/parachute-play~2"
+  }
+}

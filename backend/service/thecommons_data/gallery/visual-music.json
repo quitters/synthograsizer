@@ -1,0 +1,161 @@
+{
+  "name": "Fischinger Optical Fugue",
+  "promptTemplate": "Oskar Fischinger visual music in {{palette}} with {{geometry_mode}} motifs at {{cadence}} tempo, with {{glow_intensity}} and {{bar_density}} rhythmic bars, trailing: {{echo_trails}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Film Stock",
+      "values": [
+        {
+          "text": "optical_poem",
+          "weight": 3
+        },
+        {
+          "text": "radio_dynamics",
+          "weight": 2
+        },
+        {
+          "text": "composition_blue",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "geometry_mode",
+      "label": "Motif Family",
+      "values": [
+        {
+          "text": "polyphony",
+          "weight": 3
+        },
+        {
+          "text": "kreise",
+          "weight": 2
+        },
+        {
+          "text": "fugue_stacks",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "cadence",
+      "label": "Cadence",
+      "values": [
+        {
+          "text": "allegro",
+          "weight": 3
+        },
+        {
+          "text": "staccato",
+          "weight": 2
+        },
+        {
+          "text": "rubato",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "glow_intensity",
+      "label": "Film Glow",
+      "values": [
+        {
+          "text": "crisp_film",
+          "weight": 2
+        },
+        {
+          "text": "halation",
+          "weight": 3
+        },
+        {
+          "text": "phosphor",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "bar_density",
+      "label": "Staff Density",
+      "type": "number",
+      "min": 6,
+      "max": 20,
+      "step": 2,
+      "default": 12
+    },
+    {
+      "name": "echo_trails",
+      "label": "Motion Persistence",
+      "type": "toggle",
+      "default": true
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "OPTICAL FUGUE",
+    "tagline": "OSKAR FISCHINGER VISUAL MUSIC SUITE",
+    "accent": "#ffcc00",
+    "groups": [
+      {
+        "title": "Score & Motion",
+        "controls": [
+          "geometry_mode",
+          "cadence",
+          "bar_density"
+        ]
+      },
+      {
+        "title": "Film & Light",
+        "controls": [
+          "palette",
+          "glow_intensity",
+          "echo_trails"
+        ]
+      }
+    ],
+    "controls": {
+      "palette": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "geometry_mode": {
+        "widget": "pads",
+        "hint": "Switch between vertical bars, orbital discs, or slashes"
+      },
+      "cadence": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "glow_intensity": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "bar_density": {
+        "widget": "knob",
+        "hint": "Adjust count of pulsing rhythm columns"
+      },
+      "echo_trails": {
+        "widget": "lamp",
+        "hint": "Retain optical persistence between film frames"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "generative",
+    "blurb": "Abstract geometric forms dance, stack, and ripple across pure darkness in synesthetic time with the music.",
+    "prompt": "Visual music in the manner of Oskar Fischinger: crisp geometric forms -- bars, rings, crescents -- dance, stack and ripple across a black field in exact synchrony with the music, like an abstract animated film. Make it striking on a big projected wall in a dark room: a bold composition, rich colour against real blacks, depth, glow, and motion that reads from across the room. Keep a demoscener's economy: lookup tables and fixed-size buffers kept in room.state, low-resolution offscreen buffers for any per-pixel work, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "geometric",
+      "retro",
+      "energetic"
+    ],
+    "source": "lightworks/visual-music~3"
+  }
+}

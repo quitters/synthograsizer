@@ -1,0 +1,134 @@
+{
+  "name": "Murmuration & Falcon",
+  "promptTemplate": "A swirling flock of {{flock_count}} birds rendered with {{palette_theme}} atmosphere and {{agility_level}} flight dynamics, hunted by a swooping predator and gathering around scattered seeds.",
+  "variables": [
+    {
+      "name": "flock_count",
+      "label": "Flock Size",
+      "type": "number",
+      "min": 150,
+      "max": 400,
+      "step": 25,
+      "default": 275
+    },
+    {
+      "name": "palette_theme",
+      "label": "Atmosphere",
+      "values": [
+        {
+          "text": "dusk",
+          "weight": 2
+        },
+        {
+          "text": "starling",
+          "weight": 2
+        },
+        {
+          "text": "aurora",
+          "weight": 1
+        },
+        {
+          "text": "ink_wash",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "agility_level",
+      "label": "Flight Agility",
+      "values": [
+        {
+          "text": "graceful",
+          "weight": 2
+        },
+        {
+          "text": "agile",
+          "weight": 2
+        },
+        {
+          "text": "frantic",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "release_hawk",
+      "label": "Release Hawk",
+      "type": "trigger",
+      "share": "one"
+    },
+    {
+      "name": "scatter_seed",
+      "label": "Scatter Seed",
+      "type": "trigger",
+      "share": "all"
+    }
+  ],
+  "ui": {
+    "skin": "desk",
+    "variant": "blue",
+    "title": "Aviary Simulator",
+    "tagline": "Boid flocking dynamics & predator-prey balance",
+    "accent": "",
+    "groups": [
+      {
+        "title": "Actions",
+        "controls": [
+          "scatter_seed",
+          "release_hawk"
+        ]
+      },
+      {
+        "title": "Flock Dynamics",
+        "controls": [
+          "flock_count",
+          "agility_level"
+        ]
+      },
+      {
+        "title": "Atmosphere",
+        "controls": [
+          "palette_theme"
+        ]
+      }
+    ],
+    "controls": {
+      "flock_count": {
+        "widget": "slider",
+        "hint": "Adjust the total number of starlings"
+      },
+      "palette_theme": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "agility_level": {
+        "widget": "buttons",
+        "hint": "Alter flight velocity and turning sharpness"
+      },
+      "release_hawk": {
+        "widget": "pad",
+        "hint": "Launch an apex predator to scatter the birds"
+      },
+      "scatter_seed": {
+        "widget": "pad",
+        "hint": "Drop a cluster of seeds to draw nearby birds"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "A flock of several hundred birds with proper separation, alignment and cohesion, while one person releases a hawk that hunts them and the flock splits and swirls away from it, and anyone can scatter seed that draws nearby birds in",
+    "prompt": "a flock of several hundred birds with proper separation, alignment and cohesion, while one person releases a hawk that hunts them and the flock splits and swirls away from it, and anyone can scatter seed that draws nearby birds in",
+    "look": [
+      "nature",
+      "organic"
+    ],
+    "source": "trial-2/flash-medium/flock-and-hawk~1"
+  }
+}

@@ -1,0 +1,149 @@
+{
+  "name": "Overhead Liquid Light",
+  "promptTemplate": "A 1960s liquid light show with {{palette}} dyed oils under {{plate_pressure}} glass plate compression, moving with {{viscosity}} fluidity, forming {{fringe_density}} interference fringes, with {{projector_vignette}} projector lens vignetting and {{bubble_layer}} floating micro-bubbles.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Fillmore Acid",
+          "weight": 2
+        },
+        {
+          "text": "Liquid Amber",
+          "weight": 1
+        },
+        {
+          "text": "Solarized Psyche",
+          "weight": 1
+        },
+        {
+          "text": "Ultraviolet Trip",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "viscosity",
+      "label": "Viscosity",
+      "values": [
+        {
+          "text": "Slow Viscous",
+          "weight": 1
+        },
+        {
+          "text": "Warm Liquid",
+          "weight": 2
+        },
+        {
+          "text": "Swirling Rush",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "fringe_density",
+      "label": "Fringes",
+      "type": "number",
+      "min": 1,
+      "max": 6,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "name": "plate_pressure",
+      "label": "Plate Pressure",
+      "type": "number",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.1,
+      "default": 1.2
+    },
+    {
+      "name": "projector_vignette",
+      "label": "Overhead Vignette",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "bubble_layer",
+      "label": "Micro Bubbles",
+      "type": "toggle",
+      "default": true
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "LIQUID LIGHT '68",
+    "tagline": "Overhead glass plates and pulsing dyed oils",
+    "accent": "#ff9933",
+    "groups": [
+      {
+        "title": "Oils & Color",
+        "controls": [
+          "palette",
+          "viscosity"
+        ]
+      },
+      {
+        "title": "Plate Optics",
+        "controls": [
+          "plate_pressure",
+          "fringe_density"
+        ]
+      },
+      {
+        "title": "Projector Rig",
+        "controls": [
+          "projector_vignette",
+          "bubble_layer"
+        ]
+      }
+    ],
+    "controls": {
+      "palette": {
+        "widget": "pads",
+        "hint": "Swaps dye blends between hot psychedelic hues"
+      },
+      "viscosity": {
+        "widget": "buttons",
+        "hint": "Sets oil fluidity from sluggish crawl to fast rush"
+      },
+      "fringe_density": {
+        "widget": "slider",
+        "hint": "Multiplies Newton ring fringes across fluid edges"
+      },
+      "plate_pressure": {
+        "widget": "knob",
+        "hint": "Squeezes glass together to balloon and merge blobs"
+      },
+      "projector_vignette": {
+        "widget": "lamp",
+        "hint": "Frames image with circular condenser lens darkness"
+      },
+      "bubble_layer": {
+        "widget": "switch",
+        "hint": "Floats jittering air bubbles trapped in the oil"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "demo",
+    "blurb": "Saturated dyes and mineral oils squeeze and churn between glass plates on an overhead projector, swirling in real time to the bass.",
+    "prompt": "A 1960s liquid light show: coloured oils and water pressed between glass on an overhead projector, blobs of saturated colour swirling, merging and pulsing with the bass, projected huge behind a band. Make it striking on a big projected wall in a dark room: a bold composition, rich colour against real blacks, depth, glow, and motion that reads from across the room. Keep a demoscener's economy: lookup tables and fixed-size buffers kept in room.state, low-resolution offscreen buffers for any per-pixel work, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "psychedelic",
+      "organic",
+      "light"
+    ],
+    "source": "lightworks/oil-light-show~3"
+  }
+}

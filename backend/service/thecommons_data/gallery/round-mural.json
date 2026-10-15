@@ -1,0 +1,171 @@
+{
+  "name": "Collaborative Round Mural",
+  "promptTemplate": "A collaborative round-based mural in {{mural_theme}} tones with {{mark_shape}} stamps, lasting {{round_duration}}s rounds with {{auto_doodle}}.",
+  "variables": [
+    {
+      "name": "mural_theme",
+      "label": "Mural Theme",
+      "values": [
+        {
+          "text": "risograph",
+          "weight": 2
+        },
+        {
+          "text": "neon_cyber",
+          "weight": 2
+        },
+        {
+          "text": "earth_ochre",
+          "weight": 1
+        },
+        {
+          "text": "ultramarine_gold",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "mark_shape",
+      "label": "Mark Shape",
+      "values": [
+        {
+          "text": "organic_blobs",
+          "weight": 2
+        },
+        {
+          "text": "geometric_sigils",
+          "weight": 2
+        },
+        {
+          "text": "brush_strokes",
+          "weight": 2
+        },
+        {
+          "text": "starbursts",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "round_duration",
+      "label": "Round Seconds",
+      "type": "number",
+      "min": 10,
+      "max": 30,
+      "step": 5,
+      "default": 20
+    },
+    {
+      "name": "auto_doodle",
+      "label": "Ambient Spirit",
+      "values": [
+        {
+          "text": "ambient_flow",
+          "weight": 2
+        },
+        {
+          "text": "rhythmic_swarms",
+          "weight": 1
+        },
+        {
+          "text": "none",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "stamp",
+      "label": "Stamp Mark",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "burst",
+      "label": "Ink Splatter",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "next_round",
+      "label": "Archive Now",
+      "type": "trigger",
+      "share": "one"
+    }
+  ],
+  "ui": {
+    "skin": "desk",
+    "variant": "grey",
+    "title": "Mural Studio",
+    "tagline": "Stamp communal marks before the canvas freezes into history",
+    "accent": "",
+    "groups": [
+      {
+        "title": "Paint Actions",
+        "controls": [
+          "stamp",
+          "burst"
+        ]
+      },
+      {
+        "title": "Mark Style",
+        "controls": [
+          "mark_shape",
+          "mural_theme"
+        ]
+      },
+      {
+        "title": "Studio Flow",
+        "controls": [
+          "next_round",
+          "round_duration",
+          "auto_doodle"
+        ]
+      }
+    ],
+    "controls": {
+      "mural_theme": {
+        "widget": "cycle",
+        "hint": "Palette applies as canvases reset and archive"
+      },
+      "mark_shape": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "round_duration": {
+        "widget": "stepper",
+        "hint": "Length of active painting window in seconds"
+      },
+      "auto_doodle": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "stamp": {
+        "widget": "pad",
+        "hint": "Stamp your colored glyph onto the active mural"
+      },
+      "burst": {
+        "widget": "button",
+        "hint": "Scatter a ring of ink marks across your quadrant"
+      },
+      "next_round": {
+        "widget": "button",
+        "hint": "Freeze canvas instantly and shrink it to the gallery"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "A round-based collaborative mural: for about twenty seconds everyone can stamp marks onto a shared canvas, then the mural freezes, shrinks down into a small tile that joins a growing gallery along the bottom of the screen, and a fresh blank round begins",
+    "prompt": "a round-based collaborative mural: for about twenty seconds everyone can stamp marks onto a shared canvas, then the mural freezes, shrinks down into a small tile that joins a growing gallery along the bottom of the screen, and a fresh blank round begins",
+    "look": [
+      "painterly"
+    ],
+    "source": "trial-3/flash-medium/round-mural~1"
+  }
+}

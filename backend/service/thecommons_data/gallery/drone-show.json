@@ -1,0 +1,139 @@
+{
+  "name": "Harbour Drone Symphony",
+  "promptTemplate": "A synchronized fleet of {{drone_count}} glowing drones performing a {{formation_mode}} over night waters with {{palette_theme}} illumination and {{water_clarity}} harbour reflections.",
+  "variables": [
+    {
+      "name": "formation_mode",
+      "label": "Formation",
+      "values": [
+        {
+          "text": "auto_morph",
+          "weight": 3
+        },
+        {
+          "text": "globe",
+          "weight": 2
+        },
+        {
+          "text": "heart",
+          "weight": 2
+        },
+        {
+          "text": "whale",
+          "weight": 2
+        },
+        {
+          "text": "spiral",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "palette_theme",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "bioluminescent",
+          "weight": 3
+        },
+        {
+          "text": "cyberpunk",
+          "weight": 2
+        },
+        {
+          "text": "aurora",
+          "weight": 2
+        },
+        {
+          "text": "gold_starlight",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "drone_count",
+      "label": "Drone Fleet",
+      "type": "number",
+      "min": 160,
+      "max": 480,
+      "step": 40,
+      "default": 320
+    },
+    {
+      "name": "water_clarity",
+      "label": "Water Surface",
+      "values": [
+        {
+          "text": "trembling",
+          "weight": 3
+        },
+        {
+          "text": "glassy",
+          "weight": 2
+        },
+        {
+          "text": "turbulent",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "ice",
+    "title": "HARBOUR DRONES",
+    "tagline": "Synchronized aerial light show over night water",
+    "accent": "#4cc9f0",
+    "groups": [
+      {
+        "title": "Choreography",
+        "controls": [
+          "formation_mode",
+          "drone_count"
+        ]
+      },
+      {
+        "title": "Atmosphere",
+        "controls": [
+          "palette_theme",
+          "water_clarity"
+        ]
+      }
+    ],
+    "controls": {
+      "formation_mode": {
+        "widget": "pads",
+        "hint": "Morph drones into 3D constellations"
+      },
+      "palette_theme": {
+        "widget": "cycle",
+        "hint": "Recolour drone beacons and water glow"
+      },
+      "drone_count": {
+        "widget": "knob",
+        "hint": "Scale the fleet density in the sky"
+      },
+      "water_clarity": {
+        "widget": "buttons",
+        "hint": "Shift surface ripples and reflection smear"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "demo",
+    "blurb": "Hundreds of glowing drones ease between rotating 3D formations over a dark harbor, casting trembling reflections across the water.",
+    "prompt": "A drone light show over a dark harbour: a few hundred glowing points fly smoothly between formations -- a rotating globe, a giant heart, a spiral, a whale breaching -- easing along paths that never cross, their reflections trembling in the water below. Make it striking on a big projected wall in a dark room: a bold composition, rich colour against real blacks, depth, glow, and motion that reads from across the room. Keep a demoscener's economy: lookup tables and fixed-size buffers kept in room.state, low-resolution offscreen buffers for any per-pixel work, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "3d",
+      "light",
+      "calm"
+    ],
+    "source": "lightworks/drone-show~1"
+  }
+}

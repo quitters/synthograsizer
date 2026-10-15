@@ -1,0 +1,189 @@
+{
+  "name": "Prism Spectrograph",
+  "promptTemplate": "A beam of light strikes a slowly turning {{prism_shape}} glass crystal with {{spectrum_palette}} dispersion, sweeping {{dispersion}} spread across {{ambient_smoke}} with {{beam_width}} beam width at {{prism_speed}} speed, {{glow_intensity}} luminosity and caustic motes {{dust_motes}}.",
+  "variables": [
+    {
+      "name": "prism_speed",
+      "label": "Rotation Speed",
+      "type": "number",
+      "min": 0.1,
+      "max": 2.0,
+      "step": 0.1,
+      "default": 0.5
+    },
+    {
+      "name": "dispersion",
+      "label": "Dispersion Width",
+      "type": "number",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.1,
+      "default": 1.2
+    },
+    {
+      "name": "beam_width",
+      "label": "Incident Beam",
+      "type": "number",
+      "min": 6,
+      "max": 30,
+      "step": 2,
+      "default": 14
+    },
+    {
+      "name": "glow_intensity",
+      "label": "Radiance",
+      "type": "number",
+      "min": 0.5,
+      "max": 2.0,
+      "step": 0.1,
+      "default": 1.2
+    },
+    {
+      "name": "dust_motes",
+      "label": "Caustic Dust",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "prism_shape",
+      "label": "Prism Geometry",
+      "values": [
+        {
+          "text": "equilateral_prism",
+          "weight": 2
+        },
+        {
+          "text": "sharp_flint_wedge",
+          "weight": 1
+        },
+        {
+          "text": "hexagonal_beryl",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "spectrum_palette",
+      "label": "Chromatic Palette",
+      "values": [
+        {
+          "text": "pure_spectrum",
+          "weight": 2
+        },
+        {
+          "text": "deep_neon",
+          "weight": 1
+        },
+        {
+          "text": "aurora_borealis",
+          "weight": 1
+        },
+        {
+          "text": "hyper_gold",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "ambient_smoke",
+      "label": "Chamber Medium",
+      "values": [
+        {
+          "text": "clean_vacuum",
+          "weight": 1
+        },
+        {
+          "text": "luminous_haze",
+          "weight": 2
+        },
+        {
+          "text": "dense_aether",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "ice",
+    "title": "PRISM SPECTROGRAPH",
+    "tagline": "REFRACTIVE OPTICS & CHROMATIC DISPERSION",
+    "accent": "#40e0d0",
+    "groups": [
+      {
+        "title": "Optics",
+        "controls": [
+          "prism_shape",
+          "dispersion",
+          "prism_speed"
+        ]
+      },
+      {
+        "title": "Radiation",
+        "controls": [
+          "spectrum_palette",
+          "glow_intensity",
+          "beam_width"
+        ]
+      },
+      {
+        "title": "Chamber",
+        "controls": [
+          "ambient_smoke",
+          "dust_motes"
+        ]
+      }
+    ],
+    "controls": {
+      "prism_speed": {
+        "widget": "knob",
+        "hint": "Dial up the crystal spin rate"
+      },
+      "dispersion": {
+        "widget": "slider",
+        "hint": "Widen or focus the rainbow fan"
+      },
+      "beam_width": {
+        "widget": "slider",
+        "hint": "Girth of the incoming incident ray"
+      },
+      "glow_intensity": {
+        "widget": "knob",
+        "hint": "Pump the screen-space radiance"
+      },
+      "dust_motes": {
+        "widget": "lamp",
+        "hint": "Float caustic particles through the beam"
+      },
+      "prism_shape": {
+        "widget": "pads",
+        "hint": "Change refractive facet geometry"
+      },
+      "spectrum_palette": {
+        "widget": "cycle",
+        "hint": "Cycle refracted wavelength hues"
+      },
+      "ambient_smoke": {
+        "widget": "buttons",
+        "hint": "Set atmospheric density and trail decay"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "demo",
+    "blurb": "A beam of pure white light strikes a spinning crystal prism, casting sweeping refractive spectrum fans and specular caustics into the void.",
+    "prompt": "A beam of white light enters a slowly rotating glass prism and fans into a full spectrum across the dark, the rainbow sweeping as the prism turns, faint internal reflections glinting. Make it striking on a big projected wall in a dark room: a bold composition, rich colour against real blacks, depth, glow, and motion that reads from across the room. Keep a demoscener's economy: lookup tables and fixed-size buffers kept in room.state, low-resolution offscreen buffers for any per-pixel work, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "light",
+      "geometric",
+      "psychedelic"
+    ],
+    "source": "lightworks/prism~2"
+  }
+}

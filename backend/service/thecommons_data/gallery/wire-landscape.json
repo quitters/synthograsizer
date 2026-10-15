@@ -1,0 +1,160 @@
+{
+  "name": "Resonant Horizon",
+  "promptTemplate": "A vast landscape of sound waves sculpted in {{render_style}} across a {{palette}} sky, driven by {{speed}} speed, {{audio_boost}} responsiveness, with {{vertical_mesh}} cross-grid lines and a radiant {{sun_style}} on the horizon.",
+  "variables": [
+    {
+      "name": "render_style",
+      "label": "Render Style",
+      "values": [
+        {
+          "text": "shaded",
+          "weight": 2
+        },
+        {
+          "text": "wireframe",
+          "weight": 2
+        },
+        {
+          "text": "neon_contour",
+          "weight": 2
+        },
+        {
+          "text": "retro_vector",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "synthwave",
+          "weight": 2
+        },
+        {
+          "text": "aurora",
+          "weight": 2
+        },
+        {
+          "text": "desert",
+          "weight": 1
+        },
+        {
+          "text": "monochrome",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "sun_style",
+      "label": "Sun Horizon",
+      "values": [
+        {
+          "text": "radiant",
+          "weight": 2
+        },
+        {
+          "text": "minimal",
+          "weight": 2
+        },
+        {
+          "text": "none",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "vertical_mesh",
+      "label": "Vertical Grid",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "speed",
+      "label": "Flight Speed",
+      "type": "number",
+      "min": 0.2,
+      "max": 2.6,
+      "step": 0.2,
+      "default": 1.0
+    },
+    {
+      "name": "audio_boost",
+      "label": "Sound Crest",
+      "type": "number",
+      "min": 0.5,
+      "max": 3.0,
+      "step": 0.5,
+      "default": 1.5
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "violet",
+    "title": "RESONANT HORIZON +5",
+    "tagline": "SYNTHWAVE TERRAIN FLIGHT SYSTEM",
+    "accent": "#00f7ff",
+    "groups": [
+      {
+        "title": "Mesh Dynamics",
+        "controls": [
+          "speed",
+          "audio_boost",
+          "render_style"
+        ]
+      },
+      {
+        "title": "Atmosphere",
+        "controls": [
+          "palette",
+          "sun_style",
+          "vertical_mesh"
+        ]
+      }
+    ],
+    "controls": {
+      "render_style": {
+        "widget": "list",
+        "hint": "Switches between solid voxel hills and neon wires"
+      },
+      "palette": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "sun_style": {
+        "widget": "buttons",
+        "hint": "Blinds, minimal glow, or darkened sky"
+      },
+      "vertical_mesh": {
+        "widget": "lamp",
+        "hint": "Toggles longitudinal vector lines"
+      },
+      "speed": {
+        "widget": "knob",
+        "hint": "Accelerates forward cruise speed"
+      },
+      "audio_boost": {
+        "widget": "slider",
+        "hint": "Pumps mountain height from live bass"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "generative",
+    "blurb": "A rolling landscape of sound waves that can be drawn as a wireframe mesh or as solid shaded ground.",
+    "prompt": "A rolling landscape of sound waves that can be drawn as a wireframe mesh or as solid shaded ground.",
+    "look": [
+      "retro",
+      "3d",
+      "geometric"
+    ],
+    "source": "toggles10/wire-landscape~1"
+  }
+}

@@ -1,0 +1,158 @@
+{
+  "name": "Ethereal Fluid Chamber",
+  "promptTemplate": "a coarse stable-fluid smoke simulation with {{palette_style}} plumes, {{smoke_viscosity}} fluid dynamics, swirl intensity {{swirl_force}}, rising speed {{rise_speed}}, dissipation factor {{dissipation}}, reacting to the beat with {{beat_burst}}",
+  "variables": [
+    {
+      "name": "palette_style",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Neon Aurora",
+          "weight": 2
+        },
+        {
+          "text": "Volcanic",
+          "weight": 1
+        },
+        {
+          "text": "Incense",
+          "weight": 2
+        },
+        {
+          "text": "Bioluminescent",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "smoke_viscosity",
+      "label": "Viscosity",
+      "values": [
+        {
+          "text": "Ethereal & Light",
+          "weight": 2
+        },
+        {
+          "text": "Billowing & Thick",
+          "weight": 2
+        },
+        {
+          "text": "Heavy Vapor",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "swirl_force",
+      "label": "Swirl Force",
+      "type": "number",
+      "min": 1,
+      "max": 5,
+      "step": 0.5,
+      "default": 2.5
+    },
+    {
+      "name": "rise_speed",
+      "label": "Rise Speed",
+      "type": "number",
+      "min": 1,
+      "max": 6,
+      "step": 0.5,
+      "default": 3.5
+    },
+    {
+      "name": "dissipation",
+      "label": "Persistence",
+      "type": "number",
+      "min": 0.96,
+      "max": 0.995,
+      "step": 0.005,
+      "default": 0.985
+    },
+    {
+      "name": "beat_burst",
+      "label": "Beat Response",
+      "values": [
+        {
+          "text": "Pulse Vortex",
+          "weight": 2
+        },
+        {
+          "text": "Shockwave",
+          "weight": 2
+        },
+        {
+          "text": "Color Shift",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "skin": "desk",
+    "variant": "blue",
+    "title": "Fluid Dynamics Lab",
+    "tagline": "Realtime smoke chamber & acoustic vortex solver",
+    "accent": "#38ef7d",
+    "groups": [
+      {
+        "title": "Vapor Dynamics",
+        "controls": [
+          "smoke_viscosity",
+          "swirl_force",
+          "rise_speed",
+          "dissipation"
+        ]
+      },
+      {
+        "title": "Optics & Beat",
+        "controls": [
+          "palette_style",
+          "beat_burst"
+        ]
+      }
+    ],
+    "controls": {
+      "palette_style": {
+        "widget": "cycle",
+        "hint": "Cycle smoke plume coloring schemes"
+      },
+      "smoke_viscosity": {
+        "widget": "buttons",
+        "hint": "Set diffusion rate and fluid drag"
+      },
+      "swirl_force": {
+        "widget": "knob",
+        "hint": "Twist to intensify internal turbulence"
+      },
+      "rise_speed": {
+        "widget": "slider",
+        "hint": "Upward buoyancy pushing plumes off the floor"
+      },
+      "dissipation": {
+        "widget": "slider",
+        "hint": "Controls how long smoke lingers before fading"
+      },
+      "beat_burst": {
+        "widget": "buttons",
+        "hint": "Vortex kick, shockwave ring, or hue pop on the bass"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "generative",
+    "blurb": "A smoke simulation: a coarse stable-fluid solver with velocity and density advected every frame, plumes of coloured smoke rising from the bottom and swirling on the beat, running smoothly on a big wall",
+    "prompt": "a smoke simulation: a coarse stable-fluid solver with velocity and density advected every frame, plumes of coloured smoke rising from the bottom and swirling on the beat, running smoothly on a big wall",
+    "look": [
+      "organic",
+      "calm"
+    ],
+    "source": "trial-3/flash-medium/smoke-fluid~1"
+  }
+}

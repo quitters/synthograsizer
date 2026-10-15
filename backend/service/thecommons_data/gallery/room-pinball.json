@@ -1,0 +1,160 @@
+{
+  "name": "Crowd Neon Pinball",
+  "promptTemplate": "A crowd pinball arena in {{neon_palette}} with {{gravity}} gravity, {{bumper_kick}} bumper kick, {{multiball_targets}} targets, and trail mode {{trails}}.",
+  "variables": [
+    {
+      "name": "flip_left",
+      "label": "Left Flipper",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "flip_right",
+      "label": "Right Flipper",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "neon_palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Cyber Neon",
+          "weight": 2
+        },
+        {
+          "text": "Vapor Wave",
+          "weight": 1
+        },
+        {
+          "text": "Laser Amber",
+          "weight": 1
+        },
+        {
+          "text": "Toxic Lime",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "gravity",
+      "label": "Gravity",
+      "type": "number",
+      "min": 300,
+      "max": 900,
+      "step": 50,
+      "default": 550
+    },
+    {
+      "name": "bumper_kick",
+      "label": "Bumper Kick",
+      "type": "number",
+      "min": 1.0,
+      "max": 2.4,
+      "step": 0.2,
+      "default": 1.6
+    },
+    {
+      "name": "multiball_targets",
+      "label": "Multiball Goal",
+      "values": [
+        {
+          "text": "Standard 4",
+          "weight": 2
+        },
+        {
+          "text": "Quick 3",
+          "weight": 1
+        },
+        {
+          "text": "Mayhem 2",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "trails",
+      "label": "Glow Trails",
+      "type": "toggle",
+      "default": true
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "NEON PINBALL +5",
+    "tagline": "SHARED FLIPPERS FOR THE WHOLE ROOM",
+    "accent": "#ff0077",
+    "groups": [
+      {
+        "title": "Flippers",
+        "controls": [
+          "flip_left",
+          "flip_right"
+        ]
+      },
+      {
+        "title": "Table Dynamics",
+        "controls": [
+          "gravity",
+          "bumper_kick",
+          "multiball_targets"
+        ]
+      },
+      {
+        "title": "Visuals",
+        "controls": [
+          "neon_palette",
+          "trails"
+        ]
+      }
+    ],
+    "controls": {
+      "flip_left": {
+        "widget": "pad",
+        "hint": "Hits the left flipper with your hue"
+      },
+      "flip_right": {
+        "widget": "pad",
+        "hint": "Hits the right flipper with your hue"
+      },
+      "neon_palette": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "gravity": {
+        "widget": "knob",
+        "hint": "Ball drop speed down the table"
+      },
+      "bumper_kick": {
+        "widget": "slider",
+        "hint": "Impulse boost when striking bumpers"
+      },
+      "multiball_targets": {
+        "widget": "buttons",
+        "hint": "Targets needed to trigger multiball"
+      },
+      "trails": {
+        "widget": "lamp",
+        "hint": "Toggles phosphor persistence trails"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "A crowd-controlled neon pinball table where everyone mashes the flippers together to run up the score and trigger multiball.",
+    "prompt": "One pinball table for the whole room: a neon playfield with bumpers, ramps and targets, and 'left flipper' and 'right flipper' shared by everyone, so the flippers flap with the crowd; lighting all the targets starts multiball, and the score rolls up in huge segmented digits. Make it a party game a whole room can follow from across the floor: bold shapes and bright colours on a dark ground, every player drawn in their own hue, big short labels (a score, GO!, the winner) in a heavy font, and a large, satisfying reaction on screen the instant anyone presses. It must work with one player or forty, scaling its lanes, seats or pieces to room.people and coping with people joining and leaving mid-round; play itself in a lively attract mode whenever nobody has pressed anything for a few seconds; and after a winner is shown, start the next round on its own. Keep it lean: game state in bounded arrays in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080.",
+    "look": [
+      "retro",
+      "light",
+      "energetic"
+    ],
+    "source": "play/room-pinball~11"
+  }
+}

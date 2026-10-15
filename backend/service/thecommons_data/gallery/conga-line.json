@@ -1,0 +1,160 @@
+{
+  "name": "Conga Fever Dancefloor",
+  "promptTemplate": "A live party conga line snaking across a {{floor_style}} dancefloor wearing {{party_hats}} at {{tempo}} tempo, with glitter ball intensity {{glitter_intensity}} and line glow {{line_glow}}.",
+  "variables": [
+    {
+      "name": "floor_style",
+      "label": "Floor Tiles",
+      "values": [
+        {
+          "text": "disco_tiles",
+          "weight": 2
+        },
+        {
+          "text": "neon_grid",
+          "weight": 1
+        },
+        {
+          "text": "starburst",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "tempo",
+      "label": "Conga Speed",
+      "type": "number",
+      "min": 0.6,
+      "max": 1.8,
+      "step": 0.2,
+      "default": 1.0
+    },
+    {
+      "name": "party_hats",
+      "label": "Party Gear",
+      "values": [
+        {
+          "text": "disco_afros",
+          "weight": 2
+        },
+        {
+          "text": "sombreros",
+          "weight": 1
+        },
+        {
+          "text": "retro_shades",
+          "weight": 2
+        },
+        {
+          "text": "crowns",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "glitter_intensity",
+      "label": "Glitter Ball",
+      "type": "number",
+      "min": 2,
+      "max": 10,
+      "step": 1,
+      "default": 7
+    },
+    {
+      "name": "line_glow",
+      "label": "Neon Glow",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "join",
+      "label": "Join Conga",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "kick",
+      "label": "Kick Beat!",
+      "type": "trigger",
+      "share": "all"
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "CONGA FEVER +4",
+    "tagline": "JUMP IN THE LINE AND KICK ON THE BEAT",
+    "accent": "#ff3399",
+    "groups": [
+      {
+        "title": "PARTY ACTION",
+        "controls": [
+          "join",
+          "kick"
+        ]
+      },
+      {
+        "title": "CLUB GROOVE",
+        "controls": [
+          "tempo",
+          "floor_style"
+        ]
+      },
+      {
+        "title": "DISCO GLAM",
+        "controls": [
+          "party_hats",
+          "glitter_intensity",
+          "line_glow"
+        ]
+      }
+    ],
+    "controls": {
+      "floor_style": {
+        "widget": "pads",
+        "hint": ""
+      },
+      "tempo": {
+        "widget": "knob",
+        "hint": "Speed up the snake's path around the floor"
+      },
+      "party_hats": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "glitter_intensity": {
+        "widget": "slider",
+        "hint": "Dial in the disco ball's overhead sweep beams"
+      },
+      "line_glow": {
+        "widget": "lamp",
+        "hint": ""
+      },
+      "join": {
+        "widget": "pad",
+        "hint": "Drop your dancer onto the end of the conga line"
+      },
+      "kick": {
+        "widget": "pad",
+        "hint": "Kick in time with the music to charge up party fever"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "A snaking conga line winds across a projected dancefloor while players hop in and stomp kicks together on beat.",
+    "prompt": "A conga line snaking round a dance floor under a glitter ball: press 'join' to add your dancer to the end of the line in your colour, and anyone can press 'kick' to make the whole line kick together on the beat; the line grows, loops and wraps the floor. Make it a party game a whole room can follow from across the floor: bold shapes and bright colours on a dark ground, every player drawn in their own hue, big short labels (a score, GO!, the winner) in a heavy font, and a large, satisfying reaction on screen the instant anyone presses. It must work with one player or forty, scaling its lanes, seats or pieces to room.people and coping with people joining and leaving mid-round; play itself in a lively attract mode whenever nobody has pressed anything for a few seconds; and after a winner is shown, start the next round on its own. Keep it lean: game state in bounded arrays in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080.",
+    "look": [
+      "energetic",
+      "retro",
+      "light"
+    ],
+    "source": "play/conga-line~11"
+  }
+}

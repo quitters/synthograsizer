@@ -1,0 +1,202 @@
+{
+  "name": "Sunken Sunlight Caustics",
+  "promptTemplate": "Sunlight caustics glowing in {{water_clarity}} water with {{depth_feel}} depth, drifting at {{wave_speed}} speed with {{caustic_sharpness}} focus, {{tile_scale}} tile size, {{refraction_wobble}} wobble, and {{sun_intensity}} sunlight, swimmer ripples {{swimmer_ripples}}, sparkles {{sparkles}}, chromatic fringe {{chromatic_fringe}}.",
+  "variables": [
+    {
+      "name": "water_clarity",
+      "label": "Water Clarity",
+      "values": [
+        {
+          "text": "tropical_cyan",
+          "weight": 3
+        },
+        {
+          "text": "caribbean_teal",
+          "weight": 2
+        },
+        {
+          "text": "deep_abyss",
+          "weight": 2
+        },
+        {
+          "text": "midnight_neon",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "wave_speed",
+      "label": "Wave Drift Speed",
+      "type": "number",
+      "min": 0.2,
+      "max": 2.0,
+      "step": 0.1,
+      "default": 0.8
+    },
+    {
+      "name": "caustic_sharpness",
+      "label": "Caustic Sharpness",
+      "type": "number",
+      "min": 1.0,
+      "max": 5.0,
+      "step": 0.5,
+      "default": 2.5
+    },
+    {
+      "name": "depth_feel",
+      "label": "Depth Profile",
+      "values": [
+        {
+          "text": "shallow_sunlit",
+          "weight": 2
+        },
+        {
+          "text": "lap_pool",
+          "weight": 3
+        },
+        {
+          "text": "deep_end",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "tile_scale",
+      "label": "Tile Grid Size",
+      "type": "number",
+      "min": 20,
+      "max": 60,
+      "step": 5,
+      "default": 35
+    },
+    {
+      "name": "refraction_wobble",
+      "label": "Grout Wobble",
+      "type": "number",
+      "min": 0.0,
+      "max": 1.5,
+      "step": 0.1,
+      "default": 0.7
+    },
+    {
+      "name": "sun_intensity",
+      "label": "Sunlight Brightness",
+      "type": "number",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.1,
+      "default": 1.3
+    },
+    {
+      "name": "swimmer_ripples",
+      "label": "Swimmer Rings",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "sparkles",
+      "label": "Sun Fleck Sparkles",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "chromatic_fringe",
+      "label": "Prismatic Fringe",
+      "type": "toggle",
+      "default": true
+    }
+  ],
+  "ui": {
+    "skin": "desk",
+    "variant": "blue",
+    "title": "Pool Caustics Studio",
+    "tagline": "Real-time sunlight refraction over deep pool tiles",
+    "accent": "",
+    "groups": [
+      {
+        "title": "Water & Optics",
+        "controls": [
+          "water_clarity",
+          "depth_feel",
+          "sun_intensity",
+          "caustic_sharpness"
+        ]
+      },
+      {
+        "title": "Current & Drift",
+        "controls": [
+          "wave_speed",
+          "refraction_wobble",
+          "tile_scale"
+        ]
+      },
+      {
+        "title": "Effects",
+        "controls": [
+          "sparkles",
+          "swimmer_ripples",
+          "chromatic_fringe"
+        ]
+      }
+    ],
+    "controls": {
+      "water_clarity": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "wave_speed": {
+        "widget": "knob",
+        "hint": "Speed of the underwater light web shifting across the tiles"
+      },
+      "caustic_sharpness": {
+        "widget": "slider",
+        "hint": "Narrow the caustic ribbons into razor-sharp filaments"
+      },
+      "depth_feel": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "tile_scale": {
+        "widget": "stepper",
+        "hint": "Scale of underwater tiles on the floor"
+      },
+      "refraction_wobble": {
+        "widget": "slider",
+        "hint": "Bend and warp the ceramic grout grid under the swell"
+      },
+      "sun_intensity": {
+        "widget": "knob",
+        "hint": "Glow and beam brightness penetrating the pool floor"
+      },
+      "swimmer_ripples": {
+        "widget": "lamp",
+        "hint": "Pulse outward shockwaves on musical beats"
+      },
+      "sparkles": {
+        "widget": "lamp",
+        "hint": "Drifting floating flecks catching direct light"
+      },
+      "chromatic_fringe": {
+        "widget": "lamp",
+        "hint": "Prismatic colour fringing on sharp caustic edges"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "generative",
+    "blurb": "A luminous web of sunlight caustics drifts and refracts over submerged swimming pool tiles, bending to the pulse of water currents.",
+    "prompt": "Sunlight caustics on the floor of a swimming pool: a shifting web of bright rippling lines over pale blue tiles, the grout lines wobbling with refraction, the pattern drifting with the water. Make it striking on a big projected wall in a dark room: a bold composition, rich colour against real blacks, depth, glow, and motion that reads from across the room. Keep a demoscener's economy: lookup tables and fixed-size buffers kept in room.state, low-resolution offscreen buffers for any per-pixel work, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "light",
+      "calm",
+      "nature"
+    ],
+    "source": "lightworks/caustics~13"
+  }
+}

@@ -1,0 +1,173 @@
+{
+  "name": "Laser Harp Sanctuary",
+  "promptTemplate": "A monumental laser harp radiating in {{beam_palette}} light through {{haze_density}} volumetric haze with {{beam_spread}} fan angle, vibrating with {{harmonics}} string harmonics and {{floor_grid}} stage reflection.",
+  "variables": [
+    {
+      "name": "beam_palette",
+      "label": "Laser Color",
+      "values": [
+        {
+          "text": "emerald_ion",
+          "weight": 3
+        },
+        {
+          "text": "cyan_argon",
+          "weight": 2
+        },
+        {
+          "text": "crimson_ruby",
+          "weight": 1
+        },
+        {
+          "text": "violet_flux",
+          "weight": 1
+        },
+        {
+          "text": "aurora_shift",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "haze_density",
+      "label": "Atmosphere",
+      "values": [
+        {
+          "text": "clean_mist",
+          "weight": 2
+        },
+        {
+          "text": "dense_smoke",
+          "weight": 3
+        },
+        {
+          "text": "cosmic_fog",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "beam_spread",
+      "label": "Fan Aperture",
+      "type": "number",
+      "min": 40,
+      "max": 120,
+      "step": 5,
+      "default": 80
+    },
+    {
+      "name": "harmonics",
+      "label": "Wave Harmonics",
+      "values": [
+        {
+          "text": "fundamental",
+          "weight": 2
+        },
+        {
+          "text": "octaves",
+          "weight": 3
+        },
+        {
+          "text": "shimmer",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "floor_grid",
+      "label": "Stage Mirror",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "pluck",
+      "label": "Pluck Beam",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "sweep_strum",
+      "label": "Strum All",
+      "type": "trigger",
+      "share": "one"
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "acid",
+    "title": "LASER HARP +7",
+    "tagline": "PLUCK THE PILLARS OF LIGHT",
+    "accent": "#00ff78",
+    "groups": [
+      {
+        "title": "PERFORMANCE",
+        "controls": [
+          "pluck",
+          "sweep_strum"
+        ]
+      },
+      {
+        "title": "OPTICS",
+        "controls": [
+          "beam_palette",
+          "beam_spread",
+          "harmonics"
+        ]
+      },
+      {
+        "title": "STAGE",
+        "controls": [
+          "haze_density",
+          "floor_grid"
+        ]
+      }
+    ],
+    "controls": {
+      "beam_palette": {
+        "widget": "pads",
+        "hint": "Changes beam ion discharge color"
+      },
+      "haze_density": {
+        "widget": "buttons",
+        "hint": "Adjusts smoke volume and photon scatter"
+      },
+      "beam_spread": {
+        "widget": "knob",
+        "hint": "Widens or narrows the laser aperture"
+      },
+      "harmonics": {
+        "widget": "buttons",
+        "hint": "Alters string wave oscillation timbre"
+      },
+      "floor_grid": {
+        "widget": "lamp",
+        "hint": "Toggles reflective perspective stage floor"
+      },
+      "pluck": {
+        "widget": "pad",
+        "hint": "Fires and vibrates your laser beam"
+      },
+      "sweep_strum": {
+        "widget": "button",
+        "hint": "Cascades a strum wave across every string"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "A monumental fan of green laser strings cuts through volumetric smoke, flaring and sending pulse rings skyward whenever someone plucks their beam.",
+    "prompt": "A laser harp: a fan of vertical green beams through haze, one beam for each person in the room; anyone can pluck their beam, which flares, vibrates and sends a ring of light up the column. Make it striking on a big projected wall in a dark room: a bold composition, rich colour against real blacks, depth, glow, and motion that reads from across the room. Keep a demoscener's economy: lookup tables and fixed-size buffers kept in room.state, low-resolution offscreen buffers for any per-pixel work, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "energetic",
+      "light",
+      "retro"
+    ],
+    "source": "lightworks/laser-harp~3"
+  }
+}

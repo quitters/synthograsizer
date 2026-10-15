@@ -1,0 +1,142 @@
+{
+  "name": "Cosmic Curling",
+  "promptTemplate": "A tournament curling match on {{ice_condition}} ice rendered in {{visual_style}} style with {{ice_speed}} speed and {{trails}} sweep trails.",
+  "variables": [
+    {
+      "name": "ice_condition",
+      "label": "Ice Surface",
+      "values": [
+        {
+          "text": "pebbled",
+          "weight": 2
+        },
+        {
+          "text": "frosted",
+          "weight": 1
+        },
+        {
+          "text": "slick",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "visual_style",
+      "label": "Visual Glow",
+      "values": [
+        {
+          "text": "neon_night",
+          "weight": 2
+        },
+        {
+          "text": "arctic_aurora",
+          "weight": 1
+        },
+        {
+          "text": "laser_grid",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "ice_speed",
+      "label": "Glaze Pace",
+      "type": "number",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "name": "trails",
+      "label": "Sweep Trails",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "sweep",
+      "label": "SWEEP!",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "throw",
+      "label": "THROW!",
+      "type": "trigger",
+      "share": "all"
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "ice",
+    "title": "COSMIC CURLING +6",
+    "tagline": "Hurry hard! Slide and sweep stones onto the house",
+    "accent": "#00f0ff",
+    "groups": [
+      {
+        "title": "Action",
+        "controls": [
+          "sweep",
+          "throw"
+        ]
+      },
+      {
+        "title": "Ice Conditions",
+        "controls": [
+          "ice_speed",
+          "ice_condition"
+        ]
+      },
+      {
+        "title": "Display",
+        "controls": [
+          "visual_style",
+          "trails"
+        ]
+      }
+    ],
+    "controls": {
+      "ice_condition": {
+        "widget": "buttons",
+        "hint": "Select ice friction and pebble density"
+      },
+      "visual_style": {
+        "widget": "cycle",
+        "hint": "Cycle cosmic rink themes and neon hues"
+      },
+      "ice_speed": {
+        "widget": "knob",
+        "hint": "Tune launch velocity and glaze pace"
+      },
+      "trails": {
+        "widget": "lamp",
+        "hint": "Toggle luminous particle paths behind moving stones"
+      },
+      "sweep": {
+        "widget": "pad",
+        "hint": "Mash to reduce friction and straighten the stone's curl"
+      },
+      "throw": {
+        "widget": "pad",
+        "hint": "Launch the next stone down the sheet"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "Two teams throw and sweep glowing granite stones down a dark cosmic ice sheet toward the house.",
+    "prompt": "Curling on a long sheet of pebbled ice seen from above: the teams take turns to slide a granite stone toward the painted house, and while it slides everyone on the throwing team can press 'sweep' to make it glide further and straighter; after eight stones the closest to the button scores. Two teams: tables alternate between them, or people alternate when everyone is at one table; show each team's colours and score clearly. Make it a party game a whole room can follow from across the floor: bold shapes and bright colours on a dark ground, every player drawn in their own hue, big short labels (a score, GO!, the winner) in a heavy font, and a large, satisfying reaction on screen the instant anyone presses. It must work with one player or forty, scaling its lanes, seats or pieces to room.people and coping with people joining and leaving mid-round; play itself in a lively attract mode whenever nobody has pressed anything for a few seconds; and after a winner is shown, start the next round on its own. Keep it lean: game state in bounded arrays in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080.",
+    "look": [
+      "retro",
+      "energetic",
+      "light"
+    ],
+    "source": "play/curling~2"
+  }
+}

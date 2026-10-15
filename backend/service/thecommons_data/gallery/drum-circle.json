@@ -1,0 +1,147 @@
+{
+  "name": "Sacred Fire Drum Circle",
+  "promptTemplate": "A nocturnal drum circle gathering around a {{fire_palette}} blaze, with {{beat_window}} timing and {{strike_fx}} resonance filling the night sky with {{spark_count}} dancing embers.",
+  "variables": [
+    {
+      "name": "drum",
+      "label": "Drum!",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "fire_palette",
+      "label": "Fire Color",
+      "values": [
+        {
+          "text": "amber",
+          "weight": 3
+        },
+        {
+          "text": "mystic_blue",
+          "weight": 2
+        },
+        {
+          "text": "emerald",
+          "weight": 1
+        },
+        {
+          "text": "solar_violet",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "beat_window",
+      "label": "Timing Window",
+      "values": [
+        {
+          "text": "lenient",
+          "weight": 2
+        },
+        {
+          "text": "standard",
+          "weight": 3
+        },
+        {
+          "text": "strict",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "strike_fx",
+      "label": "Resonance Rings",
+      "values": [
+        {
+          "text": "shockwaves",
+          "weight": 3
+        },
+        {
+          "text": "totem runes",
+          "weight": 2
+        },
+        {
+          "text": "starlight",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "spark_count",
+      "label": "Embers Limit",
+      "type": "number",
+      "min": 50,
+      "max": 200,
+      "step": 25,
+      "default": 100
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "SACRED FIRE CIRCLE",
+    "tagline": "Hit on the beat to raise the bonfire to victory",
+    "accent": "#ff7814",
+    "groups": [
+      {
+        "title": "Drum",
+        "controls": [
+          "drum"
+        ]
+      },
+      {
+        "title": "Bonfire",
+        "controls": [
+          "fire_palette",
+          "spark_count"
+        ]
+      },
+      {
+        "title": "Ritual Timing",
+        "controls": [
+          "beat_window",
+          "strike_fx"
+        ]
+      }
+    ],
+    "controls": {
+      "drum": {
+        "widget": "pad",
+        "hint": "Mash in time with the music pulse to fuel the blaze"
+      },
+      "fire_palette": {
+        "widget": "cycle",
+        "hint": "Shifts the bonfire flame and ember hue"
+      },
+      "beat_window": {
+        "widget": "buttons",
+        "hint": "Controls how forgiving rhythm accuracy is"
+      },
+      "strike_fx": {
+        "widget": "cycle",
+        "hint": "Changes the visual pulse traveling into the fire"
+      },
+      "spark_count": {
+        "widget": "knob",
+        "hint": "Adjusts maximum flying sparks in the air"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "Gather around a nocturnal bonfire where every person plays their own drum, matching the rhythm to feed the flames into an erupting pillar of sparks.",
+    "prompt": "A drum circle round a fire: a drum for every person, and each press of 'drum' strikes yours; strikes that land on the music's beat fill a groove meter, strikes off the beat drain it, and at full groove the fire roars up in a column of sparks. Make it a party game a whole room can follow from across the floor: bold shapes and bright colours on a dark ground, every player drawn in their own hue, big short labels (a score, GO!, the winner) in a heavy font, and a large, satisfying reaction on screen the instant anyone presses. It must work with one player or forty, scaling its lanes, seats or pieces to room.people and coping with people joining and leaving mid-round; play itself in a lively attract mode whenever nobody has pressed anything for a few seconds; and after a winner is shown, start the next round on its own. Keep it lean: game state in bounded arrays in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080.",
+    "look": [
+      "energetic",
+      "light",
+      "organic"
+    ],
+    "source": "play/drum-circle~2"
+  }
+}

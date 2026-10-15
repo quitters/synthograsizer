@@ -1,0 +1,125 @@
+{
+  "name": "Musical Chairs Arena",
+  "promptTemplate": "Musical chairs party arena in {{palette}} style at tempo {{dance_tempo}} with bot fill {{bot_fill}} and glow {{arena_glow}}",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Neon Night",
+          "weight": 2
+        },
+        {
+          "text": "Cyber Disco",
+          "weight": 1
+        },
+        {
+          "text": "Sunset Gold",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "dance_tempo",
+      "label": "Tempo",
+      "type": "number",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "name": "bot_fill",
+      "label": "Fill With Bots",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "arena_glow",
+      "label": "Arena Glow",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "sit",
+      "label": "SIT!",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "new_game",
+      "label": "New Game",
+      "type": "trigger",
+      "share": "one"
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "MUSICAL CHAIRS ARENA",
+    "tagline": "DANCE ROUND THE RING AND CLAIM A SEAT",
+    "accent": "#ff0055",
+    "groups": [
+      {
+        "title": "Action",
+        "controls": [
+          "sit",
+          "new_game"
+        ]
+      },
+      {
+        "title": "Arena Setup",
+        "controls": [
+          "dance_tempo",
+          "palette",
+          "bot_fill",
+          "arena_glow"
+        ]
+      }
+    ],
+    "controls": {
+      "palette": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "dance_tempo": {
+        "widget": "knob",
+        "hint": "Controls dancer rotation velocity"
+      },
+      "bot_fill": {
+        "widget": "lamp",
+        "hint": "Top up the ring with automated rivals"
+      },
+      "arena_glow": {
+        "widget": "lamp",
+        "hint": "Bass-reactive floor illumination"
+      },
+      "sit": {
+        "widget": "pad",
+        "hint": "Mash the instant the arena turns red!"
+      },
+      "new_game": {
+        "widget": "button",
+        "hint": "Reset the roster and deal out fresh chairs"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "Dancers parade around a shrinking ring of chairs until the arena flashes red, where players mash SIT to claim a seat before elimination.",
+    "prompt": "Musical chairs: a ring of chairs, one fewer than players, with figures in their colours dancing round them to the music; at a random moment the lights turn red and the dancers freeze, and the first to press 'sit' grab the chairs; whoever is left standing is out, a chair is taken away, and it goes again. Make it a party game a whole room can follow from across the floor: bold shapes and bright colours on a dark ground, every player drawn in their own hue, big short labels (a score, GO!, the winner) in a heavy font, and a large, satisfying reaction on screen the instant anyone presses. It must work with one player or forty, scaling its lanes, seats or pieces to room.people and coping with people joining and leaving mid-round; play itself in a lively attract mode whenever nobody has pressed anything for a few seconds; and after a winner is shown, start the next round on its own. Keep it lean: game state in bounded arrays in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080.",
+    "look": [
+      "retro",
+      "energetic",
+      "light"
+    ],
+    "source": "play/musical-chairs~2"
+  }
+}

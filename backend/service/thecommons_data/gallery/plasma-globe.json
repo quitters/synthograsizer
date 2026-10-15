@@ -1,0 +1,133 @@
+{
+  "name": "Plasma Sphere",
+  "promptTemplate": "A cosmic plasma globe with {{gas_type}} gas, driving {{filament_count}} lightning tendrils with {{energy_level}} agitation and {{touch_mode}} interaction, with outer sphere {{rim_glow}}.",
+  "variables": [
+    {
+      "name": "gas_type",
+      "label": "Gas Mixture",
+      "values": [
+        {
+          "text": "Violet Xenon",
+          "weight": 3
+        },
+        {
+          "text": "Neon Flame",
+          "weight": 2
+        },
+        {
+          "text": "Krypton Ice",
+          "weight": 2
+        },
+        {
+          "text": "Emerald Ray",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "filament_count",
+      "label": "Arc Count",
+      "type": "number",
+      "min": 6,
+      "max": 28,
+      "step": 2,
+      "default": 16
+    },
+    {
+      "name": "energy_level",
+      "label": "Arc Voltage",
+      "type": "number",
+      "min": 0.4,
+      "max": 2.4,
+      "step": 0.2,
+      "default": 1.2
+    },
+    {
+      "name": "touch_mode",
+      "label": "Attraction Mode",
+      "values": [
+        {
+          "text": "Beat Clustered",
+          "weight": 3
+        },
+        {
+          "text": "Wandering Hand",
+          "weight": 2
+        },
+        {
+          "text": "Crowd Touch",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "rim_glow",
+      "label": "Glass Sphere",
+      "type": "toggle",
+      "default": true
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "violet",
+    "title": "PLASMA SPHERE +4",
+    "tagline": "HIGH VOLTAGE INERT GAS DISCHARGE",
+    "accent": "#b24bf3",
+    "groups": [
+      {
+        "title": "DISCHARGE",
+        "controls": [
+          "energy_level",
+          "filament_count",
+          "gas_type"
+        ]
+      },
+      {
+        "title": "COUPLING",
+        "controls": [
+          "touch_mode",
+          "rim_glow"
+        ]
+      }
+    ],
+    "controls": {
+      "gas_type": {
+        "widget": "pads",
+        "hint": "Swaps the glowing gas mixture and colour spectrum"
+      },
+      "filament_count": {
+        "widget": "stepper",
+        "hint": "Number of branching lightning arcs"
+      },
+      "energy_level": {
+        "widget": "knob",
+        "hint": "Turn up for violent, erratic tendril jitter"
+      },
+      "touch_mode": {
+        "widget": "buttons",
+        "hint": "How the arcs converge and track around the glass"
+      },
+      "rim_glow": {
+        "widget": "lamp",
+        "hint": "Toggles outer glass sphere glow reflection"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "demo",
+    "blurb": "Branching violet lightning filaments crawl from a central electrode to the glass sphere, leaping and converging to the beat as hands touch the perimeter.",
+    "prompt": "A plasma globe in a dark room: branching violet filaments crawl from a central electrode to the glass, flickering and forking, gathering together on the beat as if a hand had touched the glass. Make it striking on a big projected wall in a dark room: a bold composition, rich colour against real blacks, depth, glow, and motion that reads from across the room. Keep a demoscener's economy: lookup tables and fixed-size buffers kept in room.state, low-resolution offscreen buffers for any per-pixel work, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "light",
+      "energetic",
+      "retro"
+    ],
+    "source": "lightworks/plasma-globe~1"
+  }
+}

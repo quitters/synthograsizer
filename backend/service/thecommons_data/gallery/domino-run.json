@@ -1,0 +1,165 @@
+{
+  "name": "Domino Floor Rally",
+  "promptTemplate": "A domino run in {{track_layout}} layout with {{tile_theme}} dominoes on a {{floor_style}} floor at {{topple_speed}} tiles/sec, sparks {{spark_fx}}",
+  "variables": [
+    {
+      "name": "track_layout",
+      "label": "Track Layout",
+      "values": [
+        {
+          "text": "Grand Spiral",
+          "weight": 2
+        },
+        {
+          "text": "Twin Vortex",
+          "weight": 1
+        },
+        {
+          "text": "Cosmic Meander",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "tile_theme",
+      "label": "Tile Style",
+      "values": [
+        {
+          "text": "Neon Arcade",
+          "weight": 2
+        },
+        {
+          "text": "Cyber Glass",
+          "weight": 1
+        },
+        {
+          "text": "Obsidian Gold",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "floor_style",
+      "label": "Floor Grid",
+      "values": [
+        {
+          "text": "Holodeck Grid",
+          "weight": 2
+        },
+        {
+          "text": "Dark Velvet",
+          "weight": 1
+        },
+        {
+          "text": "Cyber Circuit",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "topple_speed",
+      "label": "Topple Speed",
+      "type": "number",
+      "min": 15,
+      "max": 65,
+      "step": 5,
+      "default": 35
+    },
+    {
+      "name": "spark_fx",
+      "label": "Spark VFX",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "place",
+      "label": "Place Domino",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "topple",
+      "label": "Topple Run",
+      "type": "trigger",
+      "share": "one"
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "DOMINO RALLY +2",
+    "tagline": "LINE UP THE RUN THEN KNOCK IT DOWN",
+    "accent": "#ffaa00",
+    "groups": [
+      {
+        "title": "RUN ACTIONS",
+        "controls": [
+          "place",
+          "topple"
+        ]
+      },
+      {
+        "title": "CHAIN DYNAMICS",
+        "controls": [
+          "topple_speed",
+          "spark_fx"
+        ]
+      },
+      {
+        "title": "ARENA STYLE",
+        "controls": [
+          "track_layout",
+          "tile_theme",
+          "floor_style"
+        ]
+      }
+    ],
+    "controls": {
+      "track_layout": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "tile_theme": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "floor_style": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "topple_speed": {
+        "widget": "knob",
+        "hint": "Pace of the tumbling domino wavefront"
+      },
+      "spark_fx": {
+        "widget": "lamp",
+        "hint": "Burst neon sparks on floor collision"
+      },
+      "place": {
+        "widget": "pad",
+        "hint": "Slap a domino in your colour onto the track"
+      },
+      "topple": {
+        "widget": "button",
+        "hint": "Trigger the chain reaction down the whole line"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "Guests collaboratively build a spiraling domino chain in their own colours and trigger a chain reaction that races across the room.",
+    "prompt": "A domino run across a vast floor: each press of 'place' stands a domino in your colour at the end of a winding line, which spirals and branches as it grows; one person holds 'topple', which sets off a chain reaction racing along the whole line, and then it is laid again. Make it a party game a whole room can follow from across the floor: bold shapes and bright colours on a dark ground, every player drawn in their own hue, big short labels (a score, GO!, the winner) in a heavy font, and a large, satisfying reaction on screen the instant anyone presses. It must work with one player or forty, scaling its lanes, seats or pieces to room.people and coping with people joining and leaving mid-round; play itself in a lively attract mode whenever nobody has pressed anything for a few seconds; and after a winner is shown, start the next round on its own. Keep it lean: game state in bounded arrays in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080.",
+    "look": [
+      "energetic",
+      "retro",
+      "geometric"
+    ],
+    "source": "play/domino-run~11"
+  }
+}

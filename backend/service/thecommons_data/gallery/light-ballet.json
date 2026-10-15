@@ -1,0 +1,133 @@
+{
+  "name": "Otto Piene Lichtballett",
+  "promptTemplate": "Otto Piene's luminous light ballet with {{projection_style}} casting perforated light rays in {{palette}} hues, moving at {{rotation_speed}} speed with {{beam_spread}} focal dispersion and {{lens_flare}} optics.",
+  "variables": [
+    {
+      "name": "projection_style",
+      "label": "Sculpture Rig",
+      "values": [
+        {
+          "text": "kinetic_trio",
+          "weight": 3
+        },
+        {
+          "text": "dual_spheres",
+          "weight": 2
+        },
+        {
+          "text": "cylinder_drum",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "palette",
+      "label": "Luminance Tone",
+      "values": [
+        {
+          "text": "incandescent",
+          "weight": 3
+        },
+        {
+          "text": "cobalt_zero",
+          "weight": 2
+        },
+        {
+          "text": "fire_ballet",
+          "weight": 2
+        },
+        {
+          "text": "prismatic",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "rotation_speed",
+      "label": "Kinetic Speed",
+      "type": "number",
+      "min": 0.2,
+      "max": 3.0,
+      "step": 0.2,
+      "default": 1.0
+    },
+    {
+      "name": "beam_spread",
+      "label": "Throw Distance",
+      "type": "number",
+      "min": 0.6,
+      "max": 2.0,
+      "step": 0.2,
+      "default": 1.2
+    },
+    {
+      "name": "lens_flare",
+      "label": "Lamp Core Bloom",
+      "type": "toggle",
+      "default": true
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "LICHTBALLETT",
+    "tagline": "Otto Piene kinetic light projections",
+    "accent": "#ff9a40",
+    "groups": [
+      {
+        "title": "Kinetic Rig",
+        "controls": [
+          "projection_style",
+          "rotation_speed",
+          "beam_spread"
+        ]
+      },
+      {
+        "title": "Luminance",
+        "controls": [
+          "palette",
+          "lens_flare"
+        ]
+      }
+    ],
+    "controls": {
+      "projection_style": {
+        "widget": "pads",
+        "hint": "Switch perforated drum and sphere geometry"
+      },
+      "palette": {
+        "widget": "cycle",
+        "hint": "Shift lamp colour temperature"
+      },
+      "rotation_speed": {
+        "widget": "knob",
+        "hint": "Turn to accelerate mechanical rotation"
+      },
+      "beam_spread": {
+        "widget": "slider",
+        "hint": "Expand throw across perimeter walls"
+      },
+      "lens_flare": {
+        "widget": "lamp",
+        "hint": "Ignite incandescent central bulb halo"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "generative",
+    "blurb": "Perforated sculptures spin before hidden lamps to sweep points of light across the walls, controlled in tempo, geometry, and beam spread by the room.",
+    "prompt": "A light ballet in the manner of Otto Piene: perforated spheres and cylinders rotate in front of hidden lamps, throwing thousands of moving points of light across the dark walls and ceiling, the patterns sweeping and overlapping. Make it striking on a big projected wall in a dark room: a bold composition, rich colour against real blacks, depth, glow, and motion that reads from across the room. Keep a demoscener's economy: lookup tables and fixed-size buffers kept in room.state, low-resolution offscreen buffers for any per-pixel work, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "light",
+      "geometric",
+      "3d"
+    ],
+    "source": "lightworks/light-ballet~3"
+  }
+}

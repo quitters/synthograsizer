@@ -1,223 +1,185 @@
-const paletteKey = getVar('palette') ?? 'venetian_ebru';
-const combStyle = getVar('comb_style') ?? 'nonpareil';
-const tineDensity = getVar('tine_density') ?? 'medium';
-const flowSpeed = getVar('flow_speed') ?? 1;
-const dropRhythm = getVar('drop_rhythm') ?? 'musical';
+const paletteKey = getVar('palette') || 'persian_agate';
+const styleKey = getVar('pattern_style') || 'nonpareil';
+const tinePitch = getVar('comb_density') ?? 32;
+const viscosity = getVar('ink_viscosity') ?? 1.0;
+const audioReact = getVar('audio_reactivity') ?? 1.2;
 
 const PALETTES = {
-  venetian_ebru: ['#0f1923', '#8b1d24', '#c97a3e', '#e3b873', '#2a5d67', '#0e3b43'],
-  persian_lapis: ['#0a1128', '#1c3f60', '#0077b6', '#90e0ef', '#d4af37', '#f4ecd8'],
-  suminagashi:   ['#111111', '#2f3542', '#747d8c', '#a4b0be', '#f1f2f6', '#c0392b'],
-  malachite_gold:['#031d16', '#093a2e', '#137547', '#25a168', '#dfb15b', '#fbf4dd']
+  persian_agate: ['#1c1b22', '#2a4d69', '#3b8686', '#79cbb8', '#e09f3e', '#9e2a2b', '#f4f1de'],
+  suminagashi:   ['#0f1115', '#252830', '#4a4e5a', '#8b939c', '#d3d6dc', '#9b2226', '#f8f9fa'],
+  malachite:     ['#0b1d16', '#14453d', '#1f6e5b', '#399e82', '#6bcfad', '#c8963e', '#e9f5ed'],
+  venetian_silk: ['#1a0921', '#3b1845', '#7a2858', '#b83b5e', '#f08a5d', '#eeecda', '#438a9a']
 };
-const colors = PALETTES[paletteKey] ?? PALETTES.venetian_ebru;
+const colors = PALETTES[paletteKey] || PALETTES.persian_agate;
 
-const TINE_SPACINGS = { wide: 72, medium: 46, dense: 28 };
-const tineSpacing = TINE_SPACINGS[tineDensity] ?? 46;
+// Simulation constants
+const NUM_LINES = 108;
+const PTS_PER_LINE = 140;
+const TOTAL_PTS = NUM_LINES * PTS_PER_LINE;
 
-const W = frame.width;
-const H = frame.height;
-const NUM_BANDS = 110;
-const PTS_PER_BAND = 220;
+// Preallocate fixed-size buffers in room.state
+if (!room.state.init || room.state.lineCount !== NUM_LINES) {
+  room.state.init = true;
+  room.state.lineCount = NUM_LINES;
+  room.state.x = new Float32Array(TOTAL_PTS);
+  room.state.y = new Float32Array(TOTAL_PTS);
+  room.state.origY = new Float32Array(NUM_LINES);
+  room.state.actionTimer = 0;
+  room.state.actionStep = 0;
+  room.state.lastBeatTime = 0;
 
-room.state.bands ??= [];
-room.state.phase ??= 0;
-room.state.nextActionTime ??= 0;
-room.state.dropQueue ??= [];
-room.state.lastBeat ??= false;
-
-if (room.state.bands.length !== NUM_BANDS || room.state.bands[0]?.pts?.length !== PTS_PER_BAND) {
-  room.state.bands = [];
-  for (let i = 0; i < NUM_BANDS; i++) {
-    const y0 = (i / (NUM_BANDS - 1)) * (H * 1.3) - H * 0.15;
-    const pts = new Float32Array(PTS_PER_BAND * 2);
-    for (let j = 0; j < PTS_PER_BAND; j++) {
-      const x0 = (j / (PTS_PER_BAND - 1)) * (W * 1.2) - W * 0.1;
-      pts[j * 2] = x0;
-      pts[j * 2 + 1] = y0;
+  // Initialize pristine horizontal ink bands
+  for (let l = 0; l < NUM_LINES; l++) {
+    const ny = (l + 0.5) / NUM_LINES;
+    room.state.origY[l] = ny;
+    for (let p = 0; p < PTS_PER_LINE; p++) {
+      const idx = l * PTS_PER_LINE + p;
+      room.state.x[idx] = p / (PTS_PER_LINE - 1);
+      room.state.y[idx] = ny;
     }
-    room.state.bands.push({
-      pts,
-      colorIndex: i % colors.length
-    });
   }
-  room.state.phase = 0;
-  room.state.nextActionTime = frame.t + 0.2;
 }
 
+const X = room.state.x;
+const Y = room.state.y;
+
+// Mathematical Marbling Operator: Radial Drop (Lu et al.)
+// Displaces coordinates outward preserving volume
 function applyDrop(cx, cy, radius) {
   const r2 = radius * radius;
-  const bands = room.state.bands;
-  for (let b = 0; b < bands.length; b++) {
-    const p = bands[b].pts;
-    for (let j = 0; j < PTS_PER_BAND; j++) {
-      const idx = j * 2;
-      const dx = p[idx] - cx;
-      const dy = p[idx + 1] - cy;
-      const d2 = dx * dx + dy * dy;
-      if (d2 > 0.0001) {
-        const factor = Math.sqrt(1 + r2 / d2);
-        p[idx] = cx + dx * factor;
-        p[idx + 1] = cy + dy * factor;
-      }
+  for (let i = 0; i < TOTAL_PTS; i++) {
+    const dx = X[i] - cx;
+    const dy = Y[i] - cy;
+    const d2 = dx * dx + dy * dy;
+    if (d2 > 1e-7) {
+      const factor = Math.sqrt(1 + r2 / d2);
+      X[i] = cx + dx * factor;
+      Y[i] = cy + dy * factor;
     }
   }
 }
 
-function applyComb(axis, spacing, amplitude, feather, sigmaScale = 0.52) {
-  const bands = room.state.bands;
-  const sigma = spacing * sigmaScale;
-  const twoSigma2 = 2 * sigma * sigma;
-  const amp = amplitude;
-
-  for (let b = 0; b < bands.length; b++) {
-    const p = bands[b].pts;
-    for (let j = 0; j < PTS_PER_BAND; j++) {
-      const idx = j * 2;
-      const u = (axis === 'x') ? p[idx] : p[idx + 1];
-      const kCenter = Math.round(u / spacing);
-      let disp = 0;
-
-      for (let k = kCenter - 2; k <= kCenter + 2; k++) {
-        const tinePos = k * spacing;
-        const du = u - tinePos;
-        const sign = (feather && (k & 1)) ? -1 : 1;
-        disp += sign * Math.exp(-(du * du) / twoSigma2);
-      }
-
-      if (axis === 'x') {
-        p[idx + 1] += disp * amp;
-      } else {
-        p[idx] += disp * amp;
-      }
-    }
+// Mathematical Marbling Operator: Tine Comb Stroke
+// Displaces bath along dirX, dirY shaped by distance to tine lines
+function applyComb(pitch, dirX, dirY, strength, alternate) {
+  const normalX = -dirY;
+  const normalY = dirX;
+  const halfPitch = pitch * 0.5;
+  for (let i = 0; i < TOTAL_PTS; i++) {
+    const proj = X[i] * normalX + Y[i] * normalY;
+    let cell = Math.floor(proj / pitch);
+    let offset = proj - (cell * pitch + halfPitch);
+    let d = offset / halfPitch; // -1 to 1 across tooth span
+    let falloff = 0.5 * (1 + Math.cos(d * Math.PI));
+    if (alternate && (cell % 2 !== 0)) falloff = -falloff;
+    X[i] += dirX * strength * falloff;
+    Y[i] += dirY * strength * falloff;
   }
 }
 
-const isBeat = (audio?.beat && !room.state.lastBeat) || (audio?.bass ?? 0) > 0.72;
-room.state.lastBeat = !!audio?.beat;
-
-if (dropRhythm === 'musical') {
-  if (isBeat && Math.random() < 0.75) {
-    const cx = W * (0.2 + 0.6 * Math.random());
-    const cy = H * (0.2 + 0.6 * Math.random());
-    const rad = 25 + (audio?.bass ?? 0.5) * 55;
-    applyDrop(cx, cy, rad);
-  }
-} else if (dropRhythm === 'continuous') {
-  if (Math.random() < 0.12 * flowSpeed) {
-    const cx = W * (0.15 + 0.7 * Math.sin(frame.t * 0.9));
-    const cy = H * (0.2 + 0.6 * Math.cos(frame.t * 1.3));
-    applyDrop(cx, cy, 32 + (audio?.bass ?? 0) * 40);
-  }
-} else if (dropRhythm === 'gentle') {
-  if (Math.random() < 0.04 * flowSpeed) {
-    const cx = W * (0.25 + 0.5 * Math.random());
-    const cy = H * (0.25 + 0.5 * Math.random());
-    applyDrop(cx, cy, 20 + 25 * Math.random());
+// Re-center and gently relax bath edges to remain framed
+function relaxBounds() {
+  const damping = 0.9992;
+  for (let i = 0; i < TOTAL_PTS; i++) {
+    X[i] = (X[i] - 0.5) * damping + 0.5;
+    Y[i] = (Y[i] - 0.5) * damping + 0.5;
   }
 }
+relaxBounds();
 
-if (room.people && room.people.length > 0 && Math.random() < 0.05) {
-  const person = room.people[Math.floor(Math.random() * room.people.length)];
-  const px = ((person.hue * 5.43) % (W * 0.7)) + W * 0.15;
-  const py = (((person.hue * 11.17) % (H * 0.7))) + H * 0.15;
-  applyDrop(px, py, 22 + (person.hue % 30));
+// Timed and audio-driven Ebru transformations
+room.state.actionTimer += frame.dt * viscosity;
+const isBeat = audio.beat && (frame.t - room.state.lastBeatTime > 0.35);
+if (isBeat) {
+  room.state.lastBeatTime = frame.t;
+  const bx = 0.2 + 0.6 * ((frame.t * 0.37) % 1);
+  const by = 0.2 + 0.6 * ((frame.t * 0.53) % 1);
+  const dropSize = (0.04 + audio.bass * 0.08) * audioReact;
+  applyDrop(bx, by, dropSize);
 }
 
-if (frame.t >= room.state.nextActionTime) {
-  const phase = room.state.phase % 6;
-  const audForce = 1 + (audio?.level ?? 0.2) * 0.8;
+// Routine combing sequences based on chosen pattern style
+if (room.state.actionTimer > 1.8) {
+  room.state.actionTimer = 0;
+  const step = room.state.actionStep++;
+  const pNorm = tinePitch / 800;
 
-  if (phase === 0) {
-    const drops = 3 + Math.floor(Math.random() * 3);
-    for (let d = 0; d < drops; d++) {
-      const cx = W * (0.18 + 0.64 * Math.random());
-      const cy = H * (0.18 + 0.64 * Math.random());
-      applyDrop(cx, cy, (35 + Math.random() * 45) * audForce);
-    }
-    room.state.nextActionTime = frame.t + 1.2 / flowSpeed;
-  } else if (phase === 1) {
-    const amp = (combStyle === 'feather' ? 36 : 28) * audForce;
-    applyComb('y', tineSpacing * 1.6, amp, false, 0.48);
-    room.state.nextActionTime = frame.t + 0.9 / flowSpeed;
-  } else if (phase === 2) {
-    const drops = 2;
-    for (let d = 0; d < drops; d++) {
-      const cx = W * (0.3 + 0.4 * Math.random());
-      const cy = H * (0.3 + 0.4 * Math.random());
-      applyDrop(cx, cy, 30 * audForce);
-    }
-    room.state.nextActionTime = frame.t + 0.8 / flowSpeed;
-  } else if (phase === 3) {
-    const isFeather = combStyle === 'feather' || combStyle === 'nonpareil' || combStyle === 'chevron';
-    const amp = (isFeather ? 44 : 26) * audForce;
-    applyComb('x', tineSpacing, amp, isFeather, 0.5);
-    room.state.nextActionTime = frame.t + 1.1 / flowSpeed;
-  } else if (phase === 4) {
-    if (combStyle === 'nonpareil') {
-      applyComb('x', tineSpacing * 0.5, -24 * audForce, true, 0.52);
-    } else if (combStyle === 'bouquet') {
-      applyComb('y', tineSpacing * 1.2, 38 * audForce, true, 0.55);
+  if (styleKey === 'gelgit') {
+    // Gelgit: alternating vertical comb back and forth
+    const dir = (step % 2 === 0) ? 1 : -1;
+    applyComb(pNorm * 1.5, 0, dir, 0.06 * dir, true);
+  } else if (styleKey === 'nonpareil') {
+    // Nonpareil: Gelgit foundation followed by fine perpendicular combing
+    if (step % 4 < 2) {
+      applyComb(pNorm * 2.0, 0, 1, 0.045, true);
     } else {
-      applyComb('y', tineSpacing * 2.0, 18 * audForce, false, 0.45);
+      applyComb(pNorm * 0.75, 1, 0, 0.035, false);
     }
-    room.state.nextActionTime = frame.t + 1.3 / flowSpeed;
   } else {
-    const bands = room.state.bands;
-    for (let b = 0; b < bands.length; b++) {
-      const origY = (b / (NUM_BANDS - 1)) * (H * 1.3) - H * 0.15;
-      const p = bands[b].pts;
-      for (let j = 0; j < PTS_PER_BAND; j++) {
-        const idx = j * 2;
-        const origX = (j / (PTS_PER_BAND - 1)) * (W * 1.2) - W * 0.1;
-        p[idx] += (origX - p[idx]) * 0.08;
-        p[idx + 1] += (origY - p[idx + 1]) * 0.08;
-      }
-    }
-    room.state.nextActionTime = frame.t + 0.6 / flowSpeed;
+    // Bouquet / Peacock: wavy serpentine tine pass
+    const angle = (step * 0.78);
+    applyComb(pNorm * 1.6, Math.cos(angle), Math.sin(angle), 0.05, true);
+    applyDrop(0.5 + 0.2 * Math.cos(angle * 2), 0.5 + 0.2 * Math.sin(angle * 2), 0.04);
   }
-  room.state.phase++;
+
+  // Periodic drop insertion at connected people's assigned coordinates
+  if (room.people && room.people.length > 0) {
+    const p = room.people[step % room.people.length];
+    const px = ((p.hue * 11) % 79) / 80 + 0.1;
+    const py = ((p.hue * 23) % 73) / 80 + 0.1;
+    applyDrop(px, py, 0.035 * audioReact);
+  }
 }
 
+// Subtle ongoing audio shear
+if (audio.mid > 0.4) {
+  const micro = (audio.mid - 0.4) * 0.003 * audioReact;
+  for (let i = 0; i < TOTAL_PTS; i++) {
+    X[i] += Math.sin(Y[i] * 18.0 + frame.t) * micro;
+  }
+}
+
+// Render marbling ribbons
 ctx.save();
 ctx.fillStyle = colors[0];
-ctx.fillRect(0, 0, W, H);
+ctx.fillRect(0, 0, frame.width, frame.height);
 
-const bands = room.state.bands;
-const audShimmer = (audio?.treble ?? 0) * 0.25;
+const w = frame.width;
+const h = frame.height;
+const numColors = colors.length;
 
-for (let b = 0; b < bands.length - 1; b++) {
-  const b1 = bands[b];
-  const b2 = bands[b + 1];
-  const col = colors[(b1.colorIndex) % colors.length];
-
+for (let l = 0; l < NUM_LINES - 1; l++) {
+  const colIndex = 1 + (l % (numColors - 1));
+  ctx.fillStyle = colors[colIndex];
   ctx.beginPath();
-  ctx.moveTo(b1.pts[0], b1.pts[1]);
-  for (let j = 1; j < PTS_PER_BAND; j++) {
-    ctx.lineTo(b1.pts[j * 2], b1.pts[j * 2 + 1]);
+
+  // Forward along current line
+  const startIdxA = l * PTS_PER_LINE;
+  ctx.moveTo(X[startIdxA] * w, Y[startIdxA] * h);
+  for (let p = 1; p < PTS_PER_LINE; p++) {
+    ctx.lineTo(X[startIdxA + p] * w, Y[startIdxA + p] * h);
   }
-  for (let j = PTS_PER_BAND - 1; j >= 0; j--) {
-    ctx.lineTo(b2.pts[j * 2], b2.pts[j * 2 + 1]);
+
+  // Backward along next line to close the ribbon polygon
+  const startIdxB = (l + 1) * PTS_PER_LINE;
+  for (let p = PTS_PER_LINE - 1; p >= 0; p--) {
+    ctx.lineTo(X[startIdxB + p] * w, Y[startIdxB + p] * h);
   }
   ctx.closePath();
-
-  ctx.fillStyle = col;
   ctx.fill();
-
-  if (b % 4 === 0 || audShimmer > 0.1) {
-    ctx.strokeStyle = colors[(b1.colorIndex + 2) % colors.length];
-    ctx.globalAlpha = 0.25 + audShimmer;
-    ctx.lineWidth = 1.0;
-    ctx.stroke();
-    ctx.globalAlpha = 1.0;
-  }
 }
 
-const paperGrad = ctx.createRadialGradient(W * 0.5, H * 0.5, W * 0.2, W * 0.5, H * 0.5, W * 0.8);
-paperGrad.addColorStop(0, 'rgba(255, 248, 235, 0.04)');
-paperGrad.addColorStop(1, 'rgba(10, 5, 2, 0.35)');
-ctx.fillStyle = paperGrad;
-ctx.fillRect(0, 0, W, H);
+// Soft specular varnish overlay for fluid bath sheen
+const gradient = ctx.createLinearGradient(0, 0, w, h);
+gradient.addColorStop(0, 'rgba(255, 255, 255, 0.04)');
+gradient.addColorStop(0.5, 'rgba(0, 0, 0, 0)');
+gradient.addColorStop(1, 'rgba(0, 0, 0, 0.25)');
+ctx.fillStyle = gradient;
+ctx.fillRect(0, 0, w, h);
+
+// Subtle frame trim
+ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+ctx.lineWidth = 2;
+ctx.strokeRect(12, 12, w - 24, h - 24);
 
 ctx.restore();

@@ -1,0 +1,137 @@
+{
+  "name": "Plaza Paint War",
+  "promptTemplate": "A top-down paint battle on a {{arena_theme}} arena featuring {{team_palette}} squads with {{splat_size}} splash impact and {{bomb_style}} ink blasts.",
+  "variables": [
+    {
+      "name": "arena_theme",
+      "label": "Arena Style",
+      "values": [
+        {
+          "text": "White Plaza",
+          "weight": 2
+        },
+        {
+          "text": "Neon Night",
+          "weight": 1
+        },
+        {
+          "text": "Cyber Grid",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "team_palette",
+      "label": "Squad Colors",
+      "values": [
+        {
+          "text": "Cyan vs Magenta",
+          "weight": 2
+        },
+        {
+          "text": "Lime vs Violet",
+          "weight": 1
+        },
+        {
+          "text": "Tangerine vs Azure",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "bomb_style",
+      "label": "Ink Effect",
+      "values": [
+        {
+          "text": "Juicy Splat",
+          "weight": 2
+        },
+        {
+          "text": "Shockwave Blast",
+          "weight": 1
+        },
+        {
+          "text": "Paint Drops",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "splat_size",
+      "label": "Impact Radius",
+      "type": "number",
+      "min": 50,
+      "max": 150,
+      "step": 10,
+      "default": 90
+    },
+    {
+      "name": "splat",
+      "label": "Splat!",
+      "type": "trigger",
+      "share": "all"
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "PAINT WAR TURBO",
+    "tagline": "Launch ink rockets to seize the plaza for your squad",
+    "accent": "#ff9100",
+    "groups": [
+      {
+        "title": "FIRE",
+        "controls": [
+          "splat",
+          "splat_size"
+        ]
+      },
+      {
+        "title": "ARENA & STYLE",
+        "controls": [
+          "arena_theme",
+          "bomb_style",
+          "team_palette"
+        ]
+      }
+    ],
+    "controls": {
+      "arena_theme": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "team_palette": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "bomb_style": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "splat_size": {
+        "widget": "knob",
+        "hint": "Radius of paint splash on impact"
+      },
+      "splat": {
+        "widget": "pad",
+        "hint": "Mash to fire an ink rocket into the arena"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "Two teams fire paint rockets onto an overhead plaza, racing against a sixty-second timer to claim the most turf before the buzzer.",
+    "prompt": "A paint war seen from above on a white plaza: anyone can press 'splat' to fire a paint bomb that lands at a random spot and floods outward in their team's colour, painting over the other team's; a big bar shows who owns more floor, and after sixty seconds the winning colour floods the whole screen. Two teams: tables alternate between them, or people alternate when everyone is at one table; show each team's colours and score clearly. Make it a party game a whole room can follow from across the floor: bold shapes and bright colours on a dark ground, every player drawn in their own hue, big short labels (a score, GO!, the winner) in a heavy font, and a large, satisfying reaction on screen the instant anyone presses. It must work with one player or forty, scaling its lanes, seats or pieces to room.people and coping with people joining and leaving mid-round; play itself in a lively attract mode whenever nobody has pressed anything for a few seconds; and after a winner is shown, start the next round on its own. Keep it lean: game state in bounded arrays in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080.",
+    "look": [
+      "retro",
+      "energetic"
+    ],
+    "source": "play/paint-war~3"
+  }
+}

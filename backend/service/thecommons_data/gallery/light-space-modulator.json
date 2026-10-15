@@ -1,0 +1,157 @@
+{
+  "name": "Moholy-Nagy: Light-Space Modulator",
+  "promptTemplate": "Moholy-Nagy's Light-Space Modulator running in {{palette}} with speed {{motion_speed}}, grille density {{grille_density}}, shadow depth {{shadow_depth}}, spiral density {{spiral_density}}, beam intensity {{beam_intensity}}, and strobe effects {{strobe_fx}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Color Scheme",
+      "values": [
+        {
+          "text": "Bauhaus Monochrome",
+          "weight": 3
+        },
+        {
+          "text": "Tungsten & Amber",
+          "weight": 2
+        },
+        {
+          "text": "Bauhaus Gel Filters",
+          "weight": 2
+        },
+        {
+          "text": "Mercury Vapor",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "motion_speed",
+      "label": "Kinetic Speed",
+      "type": "number",
+      "min": 0.2,
+      "max": 2.6,
+      "step": 0.1,
+      "default": 1.0
+    },
+    {
+      "name": "grille_density",
+      "label": "Grille Slats",
+      "type": "number",
+      "min": 10,
+      "max": 40,
+      "step": 2,
+      "default": 24
+    },
+    {
+      "name": "shadow_depth",
+      "label": "Shadow Layers",
+      "type": "number",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "name": "spiral_density",
+      "label": "Glass Spiral Coils",
+      "type": "number",
+      "min": 3,
+      "max": 8,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "name": "beam_intensity",
+      "label": "Light Beam Glow",
+      "type": "number",
+      "min": 0.2,
+      "max": 1.0,
+      "step": 0.1,
+      "default": 0.6
+    },
+    {
+      "name": "strobe_fx",
+      "label": "Film Strobe Shutter",
+      "type": "toggle",
+      "default": true
+    }
+  ],
+  "ui": {
+    "skin": "desk",
+    "variant": "grey",
+    "title": "Licht-Raum Modulator",
+    "tagline": "Moholy-Nagy kinetic apparatus controller",
+    "accent": "",
+    "groups": [
+      {
+        "title": "Projection & Lamp",
+        "controls": [
+          "palette",
+          "beam_intensity",
+          "strobe_fx"
+        ]
+      },
+      {
+        "title": "Kinetic Drive",
+        "controls": [
+          "motion_speed",
+          "shadow_depth"
+        ]
+      },
+      {
+        "title": "Sculptural Elements",
+        "controls": [
+          "grille_density",
+          "spiral_density"
+        ]
+      }
+    ],
+    "controls": {
+      "palette": {
+        "widget": "list",
+        "hint": "Swap color filters and tungsten lamp moods"
+      },
+      "motion_speed": {
+        "widget": "knob",
+        "hint": "Speed up the rotating discs and spirals"
+      },
+      "grille_density": {
+        "widget": "slider",
+        "hint": "Change frequency of sliding louver bars"
+      },
+      "shadow_depth": {
+        "widget": "stepper",
+        "hint": "Multiply wall shadow silhouettes"
+      },
+      "spiral_density": {
+        "widget": "stepper",
+        "hint": "Add twists to the glass helix shadow"
+      },
+      "beam_intensity": {
+        "widget": "slider",
+        "hint": "Adjust projected caustic beam brightness"
+      },
+      "strobe_fx": {
+        "widget": "lamp",
+        "hint": "Engage beat-synced shutter flicker"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "generative",
+    "blurb": "László Moholy-Nagy's 1930 kinetic sculpture casts dynamic shadows, rotating discs, and caustic light rays across a projection wall.",
+    "prompt": "Moholy-Nagy's Light-Space Modulator: a rotating kinetic sculpture of perforated metal discs, glass spirals and grilles throws moving, overlapping shadows and reflections across a white wall, in black and white. Make it striking on a big projected wall in a dark room: a bold composition, rich colour against real blacks, depth, glow, and motion that reads from across the room. Keep a demoscener's economy: lookup tables and fixed-size buffers kept in room.state, low-resolution offscreen buffers for any per-pixel work, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "geometric",
+      "light",
+      "retro"
+    ],
+    "source": "lightworks/light-space-modulator~3"
+  }
+}

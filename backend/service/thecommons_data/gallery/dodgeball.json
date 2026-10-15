@@ -1,0 +1,146 @@
+{
+  "name": "Dodgeball Gym Showdown",
+  "promptTemplate": "A high-energy gym dodgeball showdown on a {{court_theme}} court with {{ball_size}}px balls hurled at {{ball_speed}} speed, featuring {{juice}} juice intensity and audio bounce {{sound_bounce}}.",
+  "variables": [
+    {
+      "name": "court_theme",
+      "label": "Court Theme",
+      "values": [
+        {
+          "text": "classic_gym",
+          "weight": 2
+        },
+        {
+          "text": "cyber_arena",
+          "weight": 1
+        },
+        {
+          "text": "retro_arcade",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "ball_speed",
+      "label": "Ball Speed",
+      "type": "number",
+      "min": 600,
+      "max": 1400,
+      "step": 50,
+      "default": 950
+    },
+    {
+      "name": "ball_size",
+      "label": "Ball Size",
+      "type": "number",
+      "min": 14,
+      "max": 30,
+      "step": 2,
+      "default": 20
+    },
+    {
+      "name": "juice",
+      "label": "Juice & Shake",
+      "type": "number",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "name": "sound_bounce",
+      "label": "Audio Bounce",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "throw",
+      "label": "Throw!",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "dodge",
+      "label": "Dodge!",
+      "type": "trigger",
+      "share": "all"
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "DODGEBALL GYM +2",
+    "tagline": "DUCK, THROW, SURVIVE THE ARENA",
+    "accent": "#ff4d6d",
+    "groups": [
+      {
+        "title": "ACTION",
+        "controls": [
+          "throw",
+          "dodge"
+        ]
+      },
+      {
+        "title": "BALL TUNING",
+        "controls": [
+          "ball_speed",
+          "ball_size"
+        ]
+      },
+      {
+        "title": "COURT & IMPACT",
+        "controls": [
+          "court_theme",
+          "juice",
+          "sound_bounce"
+        ]
+      }
+    ],
+    "controls": {
+      "court_theme": {
+        "widget": "pads",
+        "hint": "Cycle classic gym, cyber arena, or retro arcade"
+      },
+      "ball_speed": {
+        "widget": "slider",
+        "hint": "Velocity of every shot fired across the gym"
+      },
+      "ball_size": {
+        "widget": "slider",
+        "hint": "Radius of the dodgeballs"
+      },
+      "juice": {
+        "widget": "stepper",
+        "hint": "Screen shake intensity on hits and throws"
+      },
+      "sound_bounce": {
+        "widget": "lamp",
+        "hint": "Pumps arena floor lighting to the bass"
+      },
+      "throw": {
+        "widget": "pad",
+        "hint": "Hurl a fast ball at the enemy side"
+      },
+      "dodge": {
+        "widget": "pad",
+        "hint": "Duck briefly to evade incoming balls"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "Two teams of gym players face off across a centre line, ducking and hurling dodgeballs to knock out opponents until one side remains standing.",
+    "prompt": "Dodgeball in a school gym, one figure per person on their team's side of the centre line: press 'throw' to hurl a ball at the other side and 'dodge' to duck at the right moment; anyone hit sits out on the bench, and the last team with someone standing wins. Two teams: tables alternate between them, or people alternate when everyone is at one table; show each team's colours and score clearly. Make it a party game a whole room can follow from across the floor: bold shapes and bright colours on a dark ground, every player drawn in their own hue, big short labels (a score, GO!, the winner) in a heavy font, and a large, satisfying reaction on screen the instant anyone presses. It must work with one player or forty, scaling its lanes, seats or pieces to room.people and coping with people joining and leaving mid-round; play itself in a lively attract mode whenever nobody has pressed anything for a few seconds; and after a winner is shown, start the next round on its own. Keep it lean: game state in bounded arrays in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080.",
+    "look": [
+      "retro",
+      "energetic"
+    ],
+    "source": "play/dodgeball~11"
+  }
+}

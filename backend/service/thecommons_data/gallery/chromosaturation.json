@@ -1,0 +1,148 @@
+{
+  "name": "Cruz-Diez Chromosaturation",
+  "promptTemplate": "Carlos Cruz-Diez Chromosaturation with {{layout}} layout, {{purity}} spectrum, drift speed {{drift_speed}}, slat density {{slat_density}}, shadow pillars {{shadow_pillars}}, and saturation boost {{saturation_boost}}.",
+  "variables": [
+    {
+      "name": "layout",
+      "label": "Layout",
+      "values": [
+        {
+          "text": "Triptych",
+          "weight": 2
+        },
+        {
+          "text": "Labyrinth",
+          "weight": 1
+        },
+        {
+          "text": "Prism Vault",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "purity",
+      "label": "Spectrum",
+      "values": [
+        {
+          "text": "Fluorescent",
+          "weight": 2
+        },
+        {
+          "text": "Deep Laser",
+          "weight": 1
+        },
+        {
+          "text": "Phosphor",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "drift_speed",
+      "label": "Drift Speed",
+      "type": "number",
+      "min": 0.1,
+      "max": 2,
+      "step": 0.1,
+      "default": 0.6
+    },
+    {
+      "name": "slat_density",
+      "label": "Slat Density",
+      "type": "number",
+      "min": 0,
+      "max": 80,
+      "step": 10,
+      "default": 40
+    },
+    {
+      "name": "shadow_pillars",
+      "label": "Shadow Pillars",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "saturation_boost",
+      "label": "Saturation Boost",
+      "type": "number",
+      "min": 0.5,
+      "max": 1.5,
+      "step": 0.1,
+      "default": 1
+    }
+  ],
+  "ui": {
+    "skin": "desk",
+    "variant": "grey",
+    "title": "Chromosaturation",
+    "tagline": "Pure chromatic chambers and retinal interference",
+    "accent": "",
+    "groups": [
+      {
+        "title": "Chambers",
+        "controls": [
+          "layout",
+          "purity"
+        ]
+      },
+      {
+        "title": "Dynamics",
+        "controls": [
+          "drift_speed",
+          "saturation_boost"
+        ]
+      },
+      {
+        "title": "Structure",
+        "controls": [
+          "slat_density",
+          "shadow_pillars"
+        ]
+      }
+    ],
+    "controls": {
+      "layout": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "purity": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "drift_speed": {
+        "widget": "knob",
+        "hint": "Speed of the chambers drifting and bleeding together"
+      },
+      "slat_density": {
+        "widget": "slider",
+        "hint": "Vertical optical interference grating"
+      },
+      "shadow_pillars": {
+        "widget": "switch",
+        "hint": "Architectural columns casting soft penumbra"
+      },
+      "saturation_boost": {
+        "widget": "slider",
+        "hint": "Glow intensity of the secondary color mixtures"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "generative",
+    "blurb": "Three shifting chambers of pure primary light intersect to create additive secondaries across an architectural gallery space, veiled by fine optical slats.",
+    "prompt": "Chromosaturation in the manner of Carlos Cruz-Diez: the wall is divided into chambers of pure red, green and blue light whose boundaries drift, the colours mixing where they meet into vivid secondaries, the whole field breathing slowly. Make it striking on a big projected wall in a dark room: a bold composition, rich colour against real blacks, depth, glow, and motion that reads from across the room. Keep a demoscener's economy: lookup tables and fixed-size buffers kept in room.state, low-resolution offscreen buffers for any per-pixel work, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "light",
+      "geometric",
+      "calm"
+    ],
+    "source": "lightworks/chromosaturation~3"
+  }
+}

@@ -1,0 +1,152 @@
+{
+  "name": "Paper-cut Shadowbox Diorama",
+  "promptTemplate": "A layered paper-cut diorama in {{palette}} with {{moon_phase}} moon, {{parallax_speed}} parallax, {{light_intensity}} illumination, {{mist_density}} mist, and depth shadows {{paper_shadows}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Paper Palette",
+      "values": [
+        {
+          "text": "amber_dusk",
+          "weight": 3
+        },
+        {
+          "text": "amethyst_night",
+          "weight": 2
+        },
+        {
+          "text": "emerald_mist",
+          "weight": 1
+        },
+        {
+          "text": "crimson_veil",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "moon_phase",
+      "label": "Moon Form",
+      "values": [
+        {
+          "text": "crescent",
+          "weight": 3
+        },
+        {
+          "text": "radiant_orb",
+          "weight": 2
+        },
+        {
+          "text": "eclipse",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "parallax_speed",
+      "label": "Parallax Drift",
+      "type": "number",
+      "min": 0,
+      "max": 2,
+      "step": 0.1,
+      "default": 0.7
+    },
+    {
+      "name": "light_intensity",
+      "label": "Backlight Glow",
+      "type": "number",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.1,
+      "default": 1.3
+    },
+    {
+      "name": "mist_density",
+      "label": "Gap Mist",
+      "type": "number",
+      "min": 0,
+      "max": 1,
+      "step": 0.1,
+      "default": 0.4
+    },
+    {
+      "name": "paper_shadows",
+      "label": "Paper Shadows",
+      "type": "toggle",
+      "default": true
+    }
+  ],
+  "ui": {
+    "skin": "desk",
+    "variant": "grey",
+    "title": "Shadowbox Studio",
+    "tagline": "Backlit cut-paper diorama with layered parallax",
+    "accent": "",
+    "groups": [
+      {
+        "title": "Papercraft",
+        "controls": [
+          "palette",
+          "paper_shadows"
+        ]
+      },
+      {
+        "title": "Celestial",
+        "controls": [
+          "moon_phase",
+          "light_intensity"
+        ]
+      },
+      {
+        "title": "Atmosphere",
+        "controls": [
+          "parallax_speed",
+          "mist_density"
+        ]
+      }
+    ],
+    "controls": {
+      "palette": {
+        "widget": "cycle",
+        "hint": "Switch paper stocks and sky tint"
+      },
+      "moon_phase": {
+        "widget": "buttons",
+        "hint": "Carve the backlit celestial cutout"
+      },
+      "parallax_speed": {
+        "widget": "slider",
+        "hint": "Speed of shifting silhouette ridges"
+      },
+      "light_intensity": {
+        "widget": "knob",
+        "hint": "Dial up the rear lamp glow"
+      },
+      "mist_density": {
+        "widget": "slider",
+        "hint": "Haze pooling between card layers"
+      },
+      "paper_shadows": {
+        "widget": "lamp",
+        "hint": "Cast drop shadows between cuts"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "generative",
+    "blurb": "Silhouetted paper hills and pine trees drift in parallax against a warm backlit cutout moon, casting soft drop shadows and pooling ambient valley mist.",
+    "prompt": "A layered paper-cut diorama lit from behind: eight cut-paper layers of hills, trees and a crescent moon, each layer a shade deeper, drifting in parallax, a warm light glowing through the gaps. Make it striking on a big projected wall in a dark room: a bold composition, rich colour against real blacks, depth, glow, and motion that reads from across the room. Keep a demoscener's economy: lookup tables and fixed-size buffers kept in room.state, low-resolution offscreen buffers for any per-pixel work, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "calm",
+      "nature",
+      "light"
+    ],
+    "source": "lightworks/paper-diorama~3"
+  }
+}

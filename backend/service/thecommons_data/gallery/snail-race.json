@@ -1,0 +1,188 @@
+{
+  "name": "Rainy Wall Snail Cup",
+  "promptTemplate": "A snail race up a {{wall_theme}} garden wall with {{snail_style}} snails in a {{race_length}} contest under rain level {{rain_amount}}, tested with {{spook_sens}} patience and glowing trails: {{glitter_trails}}.",
+  "variables": [
+    {
+      "name": "wall_theme",
+      "label": "Wall Theme",
+      "values": [
+        {
+          "text": "Rainy Slate",
+          "weight": 2
+        },
+        {
+          "text": "Mossy Brick",
+          "weight": 3
+        },
+        {
+          "text": "Midnight Garden",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "snail_style",
+      "label": "Shell Style",
+      "values": [
+        {
+          "text": "Glossy Swirls",
+          "weight": 3
+        },
+        {
+          "text": "Neon Biolum",
+          "weight": 2
+        },
+        {
+          "text": "Pastel Shells",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "race_length",
+      "label": "Race Distance",
+      "values": [
+        {
+          "text": "Sprint",
+          "weight": 2
+        },
+        {
+          "text": "Standard",
+          "weight": 3
+        },
+        {
+          "text": "Marathon",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "spook_sens",
+      "label": "Patience Required",
+      "values": [
+        {
+          "text": "Forgiving",
+          "weight": 2
+        },
+        {
+          "text": "Balanced",
+          "weight": 3
+        },
+        {
+          "text": "Strict",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "rain_amount",
+      "label": "Rainfall",
+      "type": "number",
+      "min": 0,
+      "max": 10,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "name": "glitter_trails",
+      "label": "Glitter Slime",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "slime",
+      "label": "Slime! (Inch)",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "new_race",
+      "label": "New Race",
+      "type": "trigger",
+      "share": "one"
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "acid",
+    "title": "SNAIL CUP '99",
+    "tagline": "Inch forward slow and steady to win the cup",
+    "accent": "#44ff88",
+    "groups": [
+      {
+        "title": "Action",
+        "controls": [
+          "slime",
+          "new_race"
+        ]
+      },
+      {
+        "title": "Course Rules",
+        "controls": [
+          "spook_sens",
+          "race_length"
+        ]
+      },
+      {
+        "title": "Atmosphere",
+        "controls": [
+          "wall_theme",
+          "snail_style",
+          "rain_amount",
+          "glitter_trails"
+        ]
+      }
+    ],
+    "controls": {
+      "wall_theme": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "snail_style": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "race_length": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "spook_sens": {
+        "widget": "buttons",
+        "hint": "How patient you must be before tapping again"
+      },
+      "rain_amount": {
+        "widget": "slider",
+        "hint": "Intensity of garden rainfall and droplet ripples"
+      },
+      "glitter_trails": {
+        "widget": "lamp",
+        "hint": ""
+      },
+      "slime": {
+        "widget": "pad",
+        "hint": "Tap to crawl; tap too quickly and you hide"
+      },
+      "new_race": {
+        "widget": "button",
+        "hint": "Reset all snails back to the start line"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "Snails crawl up a rainy garden wall in a multiplayer race where tapping too eagerly sends your racer retreating into its shell.",
+    "prompt": "A snail race up a garden wall after rain, one snail per person with a shell in their colour: press 'slime' to inch forward, but press too fast and your snail hides in its shell for a moment; glistening trails stretch behind, and slow and steady wins. Make it a party game a whole room can follow from across the floor: bold shapes and bright colours on a dark ground, every player drawn in their own hue, big short labels (a score, GO!, the winner) in a heavy font, and a large, satisfying reaction on screen the instant anyone presses. It must work with one player or forty, scaling its lanes, seats or pieces to room.people and coping with people joining and leaving mid-round; play itself in a lively attract mode whenever nobody has pressed anything for a few seconds; and after a winner is shown, start the next round on its own. Keep it lean: game state in bounded arrays in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080.",
+    "look": [
+      "organic",
+      "nature",
+      "energetic"
+    ],
+    "source": "play/snail-race~11"
+  }
+}

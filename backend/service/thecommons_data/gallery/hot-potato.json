@@ -1,0 +1,173 @@
+{
+  "name": "Hot Potato Party Ring",
+  "promptTemplate": "Hot potato party arena with {{potato_core}} core and {{fuse_speed}} fuse pacing inside a {{arena_glow}} hall, boosted by spark intensity {{sparks_intensity}} and screen shake {{shake_fx}}.",
+  "variables": [
+    {
+      "name": "potato_core",
+      "label": "Potato Core",
+      "values": [
+        {
+          "text": "magma",
+          "weight": 2
+        },
+        {
+          "text": "plasma",
+          "weight": 1
+        },
+        {
+          "text": "radioactive",
+          "weight": 1
+        },
+        {
+          "text": "cyber_neon",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "fuse_speed",
+      "label": "Fuse Pacing",
+      "values": [
+        {
+          "text": "tense",
+          "weight": 3
+        },
+        {
+          "text": "chill",
+          "weight": 1
+        },
+        {
+          "text": "panic",
+          "weight": 2
+        },
+        {
+          "text": "mayhem",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "arena_glow",
+      "label": "Arena Style",
+      "values": [
+        {
+          "text": "deep_void",
+          "weight": 2
+        },
+        {
+          "text": "ember_crypt",
+          "weight": 1
+        },
+        {
+          "text": "cyber_grid",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "sparks_intensity",
+      "label": "Sparks Volume",
+      "type": "number",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "name": "shake_fx",
+      "label": "Screen Shake",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "pass",
+      "label": "PASS!",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "detonate",
+      "label": "SUDDEN BOOM",
+      "type": "trigger",
+      "share": "one"
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "HOT POTATO TRAINER",
+    "tagline": "Pass the core before it detonates in your lap",
+    "accent": "#ff6600",
+    "groups": [
+      {
+        "title": "Actions",
+        "controls": [
+          "pass",
+          "detonate"
+        ]
+      },
+      {
+        "title": "Fuse & Core",
+        "controls": [
+          "potato_core",
+          "fuse_speed"
+        ]
+      },
+      {
+        "title": "Arena FX",
+        "controls": [
+          "arena_glow",
+          "sparks_intensity",
+          "shake_fx"
+        ]
+      }
+    ],
+    "controls": {
+      "potato_core": {
+        "widget": "pads",
+        "hint": "Changes the core shader and flight glow"
+      },
+      "fuse_speed": {
+        "widget": "buttons",
+        "hint": "Controls fuse countdown duration per round"
+      },
+      "arena_glow": {
+        "widget": "buttons",
+        "hint": "Switches the stadium backdrop and grid aesthetic"
+      },
+      "sparks_intensity": {
+        "widget": "knob",
+        "hint": "Boosts sparks emitted on passes and explosions"
+      },
+      "shake_fx": {
+        "widget": "lamp",
+        "hint": "Toggles screen shudder on catches and detonations"
+      },
+      "pass": {
+        "widget": "pad",
+        "hint": "Fling the glowing potato across the arena"
+      },
+      "detonate": {
+        "widget": "button",
+        "hint": "Instantly blow up whoever is currently holding it"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "A fiery glowing orb flings around a ring of players until its timer expires in a flash of smoke, eliminating whoever is caught holding it.",
+    "prompt": "Hot potato: everyone sits in a ring, and a glowing, ticking potato flies between them; whoever holds it presses 'pass' to throw it to someone else at random; its fuse burns out at a random moment, and whoever holds it then is blackened in a puff of smoke and sits out the next round. Make it a party game a whole room can follow from across the floor: bold shapes and bright colours on a dark ground, every player drawn in their own hue, big short labels (a score, GO!, the winner) in a heavy font, and a large, satisfying reaction on screen the instant anyone presses. It must work with one player or forty, scaling its lanes, seats or pieces to room.people and coping with people joining and leaving mid-round; play itself in a lively attract mode whenever nobody has pressed anything for a few seconds; and after a winner is shown, start the next round on its own. Keep it lean: game state in bounded arrays in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080.",
+    "look": [
+      "energetic",
+      "light",
+      "retro"
+    ],
+    "source": "play/hot-potato~11"
+  }
+}

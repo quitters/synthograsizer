@@ -1,0 +1,128 @@
+{
+  "name": "Hearth Fire & Drift Embers",
+  "promptTemplate": "Swirling embers in a {{flame_heat}} palette with {{wind_strength}} wind and {{swirl_turbulence}} vortex turbulence, with {{ember_count}} sparks rising and ambient bloom {{smoke_glow}}.",
+  "variables": [
+    {
+      "name": "flame_heat",
+      "label": "Flame Palette",
+      "values": [
+        {
+          "text": "Campfire",
+          "weight": 3
+        },
+        {
+          "text": "Molten Forge",
+          "weight": 2
+        },
+        {
+          "text": "Ghost Fire",
+          "weight": 1
+        },
+        {
+          "text": "Aurora Borealis",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "wind_strength",
+      "label": "Wind Drift",
+      "type": "number",
+      "min": -5,
+      "max": 5,
+      "step": 0.5,
+      "default": 1.5
+    },
+    {
+      "name": "swirl_turbulence",
+      "label": "Swirl Intensity",
+      "type": "number",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "name": "ember_count",
+      "label": "Ember Limit",
+      "type": "number",
+      "min": 60,
+      "max": 180,
+      "step": 20,
+      "default": 120
+    },
+    {
+      "name": "smoke_glow",
+      "label": "Atmospheric Glow",
+      "type": "toggle",
+      "default": true
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "HEARTH + DRIFT EMBER",
+    "tagline": "Stoke the fire and steer sparks on the bass",
+    "accent": "#ff7700",
+    "groups": [
+      {
+        "title": "Hearth Flame",
+        "controls": [
+          "flame_heat",
+          "smoke_glow"
+        ]
+      },
+      {
+        "title": "Draft & Swirl",
+        "controls": [
+          "wind_strength",
+          "swirl_turbulence"
+        ]
+      },
+      {
+        "title": "Sparks",
+        "controls": [
+          "ember_count"
+        ]
+      }
+    ],
+    "controls": {
+      "flame_heat": {
+        "widget": "pads",
+        "hint": "Shifts ember hue from campfire to ghost flame"
+      },
+      "wind_strength": {
+        "widget": "slider",
+        "hint": "Blows the rising sparks left or right"
+      },
+      "swirl_turbulence": {
+        "widget": "knob",
+        "hint": "Whips sparks into tight vortex eddies on beats"
+      },
+      "ember_count": {
+        "widget": "stepper",
+        "hint": "Total floating embers kept aloft"
+      },
+      "smoke_glow": {
+        "widget": "lamp",
+        "hint": "Radiates soft hearth bloom into the dark"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "generative",
+    "blurb": "Embers rising from a bonfire and drifting on the wind, swirling harder on the bass.",
+    "prompt": "Embers rising from a bonfire and drifting on the wind, swirling harder on the bass.",
+    "look": [
+      "nature",
+      "light"
+    ],
+    "source": "toggles10/control-embers~1"
+  }
+}

@@ -1,0 +1,131 @@
+{
+  "name": "Schoolyard Rope Clash",
+  "promptTemplate": "A high-energy schoolyard jump rope arena with {{rope_style}} rope on a {{backdrop}} blacktop, running at base speed {{base_tempo}} with victory confetti {{confetti}}.",
+  "variables": [
+    {
+      "name": "rope_style",
+      "label": "Rope Style",
+      "values": [
+        {
+          "text": "neon_glow",
+          "weight": 2
+        },
+        {
+          "text": "chalk_rainbow",
+          "weight": 1
+        },
+        {
+          "text": "electric_wire",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "backdrop",
+      "label": "Court Ground",
+      "values": [
+        {
+          "text": "midnight_asphalt",
+          "weight": 2
+        },
+        {
+          "text": "sunset_concrete",
+          "weight": 1
+        },
+        {
+          "text": "cyber_grid",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "base_tempo",
+      "label": "Base Tempo",
+      "type": "number",
+      "min": 0.8,
+      "max": 2.4,
+      "step": 0.2,
+      "default": 1.4
+    },
+    {
+      "name": "confetti",
+      "label": "Confetti Burst",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "jump",
+      "label": "JUMP!",
+      "type": "trigger",
+      "share": "all"
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "ROPE CLASH +4 TRAINER",
+    "tagline": "Mash jump before the sweep hits the floor!",
+    "accent": "#ffcc00",
+    "groups": [
+      {
+        "title": "Action",
+        "controls": [
+          "jump"
+        ]
+      },
+      {
+        "title": "Rope Speed",
+        "controls": [
+          "base_tempo"
+        ]
+      },
+      {
+        "title": "Arena",
+        "controls": [
+          "rope_style",
+          "backdrop",
+          "confetti"
+        ]
+      }
+    ],
+    "controls": {
+      "rope_style": {
+        "widget": "pads",
+        "hint": ""
+      },
+      "backdrop": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "base_tempo": {
+        "widget": "knob",
+        "hint": "Crank starting rope swing velocity"
+      },
+      "confetti": {
+        "widget": "lamp",
+        "hint": "Rains paper showers on the last jumper alive"
+      },
+      "jump": {
+        "widget": "pad",
+        "hint": "Leap over the rope as it hits bottom"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "Turners whip a glowing jump rope across a schoolyard court while players time their hops to survive sudden-death rounds.",
+    "prompt": "Group jump rope in a schoolyard: two turners swing a long rope in a big arc, and a line of jumpers stands in the middle, one per person; press 'jump' as the rope comes round, anyone who misses is tangled out, and the rope speeds up until one jumper is left. Make it a party game a whole room can follow from across the floor: bold shapes and bright colours on a dark ground, every player drawn in their own hue, big short labels (a score, GO!, the winner) in a heavy font, and a large, satisfying reaction on screen the instant anyone presses. It must work with one player or forty, scaling its lanes, seats or pieces to room.people and coping with people joining and leaving mid-round; play itself in a lively attract mode whenever nobody has pressed anything for a few seconds; and after a winner is shown, start the next round on its own. Keep it lean: game state in bounded arrays in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080.",
+    "look": [
+      "retro",
+      "energetic",
+      "geometric"
+    ],
+    "source": "play/jump-rope~2"
+  }
+}
