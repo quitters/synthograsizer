@@ -1,0 +1,180 @@
+{
+  "name": "Weaving Braids of Light",
+  "promptTemplate": "Threads of light weaving across the wall in {{bundle_count}} {{weave_pattern}} braids with {{strands_per_braid}} strands each, styled in {{palette}} with {{glow}} glow at {{speed}} speed leaving {{trail}} trails.",
+  "variables": [
+    {
+      "name": "bundle_count",
+      "label": "Braid Streams",
+      "type": "number",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "default": 2
+    },
+    {
+      "name": "strands_per_braid",
+      "label": "Strand Count",
+      "type": "number",
+      "min": 3,
+      "max": 8,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "name": "weave_pattern",
+      "label": "Weave Style",
+      "values": [
+        {
+          "text": "sinusoidal",
+          "weight": 2
+        },
+        {
+          "text": "double_helix",
+          "weight": 2
+        },
+        {
+          "text": "celtic_wave",
+          "weight": 2
+        },
+        {
+          "text": "chaotic_loom",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "palette",
+      "label": "Color Spectrum",
+      "values": [
+        {
+          "text": "aurora",
+          "weight": 2
+        },
+        {
+          "text": "bioluminescent",
+          "weight": 2
+        },
+        {
+          "text": "solar_flame",
+          "weight": 2
+        },
+        {
+          "text": "midnight_neon",
+          "weight": 2
+        },
+        {
+          "text": "prismatic",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "glow",
+      "label": "Glow Lumens",
+      "type": "number",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "name": "speed",
+      "label": "Flow Speed",
+      "type": "number",
+      "min": 0.2,
+      "max": 2.0,
+      "step": 0.2,
+      "default": 0.8
+    },
+    {
+      "name": "trail",
+      "label": "Trail Decay",
+      "values": [
+        {
+          "text": "silk",
+          "weight": 2
+        },
+        {
+          "text": "ghosting",
+          "weight": 2
+        },
+        {
+          "text": "crystal",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "ice",
+    "title": "LIGHT BRAIDS +7",
+    "tagline": "Interlacing fiber streams and luminous harmonics",
+    "accent": "#00e8ff",
+    "groups": [
+      {
+        "title": "Weave Geometry",
+        "controls": [
+          "weave_pattern",
+          "bundle_count",
+          "strands_per_braid"
+        ]
+      },
+      {
+        "title": "Optics & Speed",
+        "controls": [
+          "speed",
+          "glow",
+          "palette",
+          "trail"
+        ]
+      }
+    ],
+    "controls": {
+      "bundle_count": {
+        "widget": "stepper",
+        "hint": "Stacked horizontal stream groups"
+      },
+      "strands_per_braid": {
+        "widget": "stepper",
+        "hint": "Number of interlaced threads per ribbon"
+      },
+      "weave_pattern": {
+        "widget": "pads",
+        "hint": "Switches the ribbon crossing topology"
+      },
+      "palette": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "glow": {
+        "widget": "slider",
+        "hint": "Radiance and bloom line thickness"
+      },
+      "speed": {
+        "widget": "knob",
+        "hint": "Turn to accelerate wave cycles"
+      },
+      "trail": {
+        "widget": "buttons",
+        "hint": "Persistence of light left behind"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "generative",
+    "blurb": "Threads of light weaving across the wall in shifting braids, faster and denser as the music builds.",
+    "prompt": "Threads of light weaving across the wall in shifting braids, faster and denser as the music builds.",
+    "look": [
+      "light",
+      "organic"
+    ],
+    "source": "toggles10/control-weave~2"
+  }
+}

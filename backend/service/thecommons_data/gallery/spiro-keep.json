@@ -1,0 +1,154 @@
+{
+  "name": "Kinetic Spirograph Machine",
+  "promptTemplate": "A precision mechanical spirograph drawing {{gear_ratio}} patterns in {{palette}} with a {{pen_reach}} pen reach, {{speed}}x speed, {{line_width}}px ink line, and {{keep_trail}} trails.",
+  "variables": [
+    {
+      "name": "gear_ratio",
+      "label": "Gear Ratio",
+      "values": [
+        {
+          "text": "5:2 Star",
+          "weight": 2
+        },
+        {
+          "text": "3:1 Trefoil",
+          "weight": 2
+        },
+        {
+          "text": "7:3 Rosette",
+          "weight": 2
+        },
+        {
+          "text": "8:5 Lace",
+          "weight": 1
+        },
+        {
+          "text": "11:4 Nebula",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "palette",
+      "label": "Color Palette",
+      "values": [
+        {
+          "text": "Neon Cyan & Magenta",
+          "weight": 2
+        },
+        {
+          "text": "Brass Blueprint",
+          "weight": 1
+        },
+        {
+          "text": "Emerald Aurora",
+          "weight": 1
+        },
+        {
+          "text": "Solar Prism",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "pen_reach",
+      "label": "Pen Reach",
+      "type": "number",
+      "min": 0.4,
+      "max": 1.6,
+      "step": 0.1,
+      "default": 0.9
+    },
+    {
+      "name": "speed",
+      "label": "Draw Speed",
+      "type": "number",
+      "min": 0.5,
+      "max": 3.0,
+      "step": 0.5,
+      "default": 1.5
+    },
+    {
+      "name": "line_width",
+      "label": "Line Width",
+      "type": "number",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "default": 2
+    },
+    {
+      "name": "keep_trail",
+      "label": "Keep Full Trail",
+      "type": "toggle",
+      "default": true
+    }
+  ],
+  "ui": {
+    "skin": "desk",
+    "variant": "blue",
+    "title": "Spirograph Studio",
+    "tagline": "Precision mechanical pattern generator",
+    "accent": "",
+    "groups": [
+      {
+        "title": "Gears & Arm",
+        "controls": [
+          "gear_ratio",
+          "pen_reach",
+          "speed"
+        ]
+      },
+      {
+        "title": "Ink & Trail",
+        "controls": [
+          "palette",
+          "line_width",
+          "keep_trail"
+        ]
+      }
+    ],
+    "controls": {
+      "gear_ratio": {
+        "widget": "list",
+        "hint": "Select gear teeth to change the loop geometry"
+      },
+      "palette": {
+        "widget": "cycle",
+        "hint": "Switch neon and blueprint ink combinations"
+      },
+      "pen_reach": {
+        "widget": "knob",
+        "hint": "Distance of the stylus from the inner gear hub"
+      },
+      "speed": {
+        "widget": "slider",
+        "hint": "Arm rotation and line tracing velocity"
+      },
+      "line_width": {
+        "widget": "stepper",
+        "hint": "Thickness of the plotted stylus stroke"
+      },
+      "keep_trail": {
+        "widget": "lamp",
+        "hint": "Keep full pattern or wipe clean after each cycle"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "generative",
+    "blurb": "A spirograph machine drawing loops that can either keep its whole trail or wipe clean after every loop.",
+    "prompt": "A spirograph machine drawing loops that can either keep its whole trail or wipe clean after every loop.",
+    "look": [
+      "geometric",
+      "retro"
+    ],
+    "source": "toggles10/spiro-keep~1"
+  }
+}

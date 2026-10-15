@@ -1,0 +1,160 @@
+{
+  "name": "Chamber of Filaments",
+  "promptTemplate": "A vaulted dark chamber hung with {{filament_style}} incandescent bulbs tuned to {{color_temp}}, glowing with {{glow_reach}}x aura reach, sway at {{sway_intensity}}, and dust motes {{dust_motes}}.",
+  "variables": [
+    {
+      "name": "filament_style",
+      "label": "Filament Style",
+      "values": [
+        {
+          "text": "Tungsten Coil",
+          "weight": 2
+        },
+        {
+          "text": "Edison Cage",
+          "weight": 2
+        },
+        {
+          "text": "Loop Spiral",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "color_temp",
+      "label": "Color Temperature",
+      "values": [
+        {
+          "text": "Vintage Amber",
+          "weight": 2
+        },
+        {
+          "text": "Golden Hearth",
+          "weight": 2
+        },
+        {
+          "text": "Sodium Vapor",
+          "weight": 1
+        },
+        {
+          "text": "Prismatic Glass",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "glow_reach",
+      "label": "Glow Radius",
+      "type": "number",
+      "min": 0.6,
+      "max": 2.4,
+      "step": 0.2,
+      "default": 1.2
+    },
+    {
+      "name": "sway_intensity",
+      "label": "Air Sway",
+      "type": "number",
+      "min": 0,
+      "max": 1,
+      "step": 0.1,
+      "default": 0.4
+    },
+    {
+      "name": "dust_motes",
+      "label": "Floating Dust",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "surge",
+      "label": "Pulse Bulb",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "cascade",
+      "label": "Overload Cascade",
+      "type": "trigger",
+      "share": "all"
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "FILAMENT CHAMBER",
+    "tagline": "Synchronized incandescent heartbeats",
+    "accent": "#ffaa28",
+    "groups": [
+      {
+        "title": "Surges",
+        "controls": [
+          "surge",
+          "cascade"
+        ]
+      },
+      {
+        "title": "Filament",
+        "controls": [
+          "color_temp",
+          "filament_style",
+          "glow_reach"
+        ]
+      },
+      {
+        "title": "Atmosphere",
+        "controls": [
+          "sway_intensity",
+          "dust_motes"
+        ]
+      }
+    ],
+    "controls": {
+      "filament_style": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "color_temp": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "glow_reach": {
+        "widget": "knob",
+        "hint": "Expand the luminous halo around each bulb"
+      },
+      "sway_intensity": {
+        "widget": "slider",
+        "hint": "Drafts set the suspended cords in motion"
+      },
+      "dust_motes": {
+        "widget": "lamp",
+        "hint": ""
+      },
+      "surge": {
+        "widget": "pad",
+        "hint": "Overdrive your bulb and ripple through the room"
+      },
+      "cascade": {
+        "widget": "button",
+        "hint": "Trigger an expanding shockwave across all filaments"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "A vaulted hall of hanging incandescent bulbs pulses to personal heartbeats, sending shockwaves of warm light rippling through the dark.",
+    "prompt": "A room of hanging incandescent bulbs, one per person in the room, each pulsing at its own heartbeat; anyone can press to send a strong pulse through their bulb, and the pulse ripples out through the nearest bulbs. Make it striking on a big projected wall in a dark room: a bold composition, rich colour against real blacks, depth, glow, and motion that reads from across the room. Keep a demoscener's economy: lookup tables and fixed-size buffers kept in room.state, low-resolution offscreen buffers for any per-pixel work, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "light",
+      "calm",
+      "retro"
+    ],
+    "source": "lightworks/heartbeat-bulbs~2"
+  }
+}

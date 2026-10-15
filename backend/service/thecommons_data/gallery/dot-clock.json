@@ -1,0 +1,132 @@
+{
+  "name": "Chronos Orbitale",
+  "promptTemplate": "A celestial clock face of orbiting particles in {{theme}} tones, with {{dial_motion}} motion and {{particle_density}} orbiters, {{show_seconds}} seconds tracking, reacting at {{audio_reactivity}} intensity.",
+  "variables": [
+    {
+      "name": "show_seconds",
+      "label": "Seconds Hand",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "theme",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "deep_space",
+          "weight": 2
+        },
+        {
+          "text": "solaris",
+          "weight": 2
+        },
+        {
+          "text": "neon_pulse",
+          "weight": 1
+        },
+        {
+          "text": "slate",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "dial_motion",
+      "label": "Dial Motion",
+      "values": [
+        {
+          "text": "orbital",
+          "weight": 2
+        },
+        {
+          "text": "vortex",
+          "weight": 2
+        },
+        {
+          "text": "harmonic",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "particle_density",
+      "label": "Orbiting Dots",
+      "type": "number",
+      "min": 30,
+      "max": 180,
+      "step": 15,
+      "default": 90
+    },
+    {
+      "name": "audio_reactivity",
+      "label": "Audio React",
+      "type": "number",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.1,
+      "default": 0.6
+    }
+  ],
+  "ui": {
+    "skin": "desk",
+    "variant": "blue",
+    "title": "Chronos Orbitale",
+    "tagline": "Celestial clockwork & particle chronometer",
+    "accent": "",
+    "groups": [
+      {
+        "title": "Dial & Time",
+        "controls": [
+          "show_seconds",
+          "dial_motion"
+        ]
+      },
+      {
+        "title": "Cosmos & Audio",
+        "controls": [
+          "theme",
+          "particle_density",
+          "audio_reactivity"
+        ]
+      }
+    ],
+    "controls": {
+      "show_seconds": {
+        "widget": "lamp",
+        "hint": "Toggle the glowing outer second hand"
+      },
+      "theme": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "dial_motion": {
+        "widget": "buttons",
+        "hint": "Change orbit path kinetics"
+      },
+      "particle_density": {
+        "widget": "slider",
+        "hint": "Population of orbiting star dust"
+      },
+      "audio_reactivity": {
+        "widget": "knob",
+        "hint": "Dial up pulse response to room sound"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "generative",
+    "blurb": "A clock face made of orbiting dots showing the real passing of time, with a seconds hand that can be hidden.",
+    "prompt": "A clock face made of orbiting dots showing the real passing of time, with a seconds hand that can be hidden.",
+    "look": [
+      "geometric",
+      "calm"
+    ],
+    "source": "toggles10/dot-clock~1"
+  }
+}

@@ -1,0 +1,145 @@
+{
+  "name": "Bioluminescent Shoal",
+  "promptTemplate": "A synchronized school of {{school_size}} fish in {{water_mood}} waters with {{swim_style}} movement. Predator lurking: {{predator}}. Flowing currents: {{show_current}}.",
+  "variables": [
+    {
+      "name": "school_size",
+      "label": "Fish Count",
+      "type": "number",
+      "min": 60,
+      "max": 180,
+      "step": 20,
+      "default": 120
+    },
+    {
+      "name": "water_mood",
+      "label": "Water Mood",
+      "values": [
+        {
+          "text": "sunlit_shallows",
+          "weight": 2
+        },
+        {
+          "text": "deep_trench",
+          "weight": 2
+        },
+        {
+          "text": "twilight_reef",
+          "weight": 2
+        },
+        {
+          "text": "bioluminescent",
+          "weight": 3
+        }
+      ]
+    },
+    {
+      "name": "swim_style",
+      "label": "Swim Style",
+      "values": [
+        {
+          "text": "glide",
+          "weight": 2
+        },
+        {
+          "text": "darting",
+          "weight": 2
+        },
+        {
+          "text": "swirling",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "predator",
+      "label": "Predator",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "show_current",
+      "label": "Current Lines",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "feed",
+      "label": "Drop Food",
+      "type": "trigger",
+      "share": "all"
+    }
+  ],
+  "ui": {
+    "skin": "desk",
+    "variant": "blue",
+    "title": "Aquarium Shoal 1.0",
+    "tagline": "Synchronized marine life and fluid dynamics simulator",
+    "accent": "#6effca",
+    "groups": [
+      {
+        "title": "Actions",
+        "controls": [
+          "feed",
+          "predator"
+        ]
+      },
+      {
+        "title": "Shoal Dynamics",
+        "controls": [
+          "school_size",
+          "swim_style"
+        ]
+      },
+      {
+        "title": "Environment",
+        "controls": [
+          "water_mood",
+          "show_current"
+        ]
+      }
+    ],
+    "controls": {
+      "school_size": {
+        "widget": "stepper",
+        "hint": "Adjusts population density in the water"
+      },
+      "water_mood": {
+        "widget": "cycle",
+        "hint": "Shifts depth, luminescence, and ambient color"
+      },
+      "swim_style": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "predator": {
+        "widget": "lamp",
+        "hint": "Unleashes a red predator hunting the school"
+      },
+      "show_current": {
+        "widget": "switch",
+        "hint": "Renders vector field streamlines"
+      },
+      "feed": {
+        "widget": "pad",
+        "hint": "Dispenses glowing food pellets into the tank"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "A school of fish swimming as one; a predator can be switched on or off, the water's current can be shown as faint lines or hidden, and anyone can drop food.",
+    "prompt": "A school of fish swimming as one; a predator can be switched on or off, the water's current can be shown as faint lines or hidden, and anyone can drop food.",
+    "look": [
+      "organic",
+      "nature"
+    ],
+    "source": "toggles10/fish-school~1"
+  }
+}
