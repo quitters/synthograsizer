@@ -27,10 +27,6 @@ room.state.b0 ??= new Float32Array(N);
 if (!room.state.offCanvas) {
   if (typeof OffscreenCanvas !== 'undefined') {
     room.state.offCanvas = new OffscreenCanvas(W, H);
-  } else if (ctx.canvas && ctx.canvas.ownerDocument) {
-    room.state.offCanvas = ctx.canvas.ownerDocument.createElement('canvas');
-    room.state.offCanvas.width = W;
-    room.state.offCanvas.height = H;
   }
   if (room.state.offCanvas) {
     room.state.offCtx = room.state.offCanvas.getContext('2d');

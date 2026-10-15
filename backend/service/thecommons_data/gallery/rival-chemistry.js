@@ -83,10 +83,6 @@ if (!room.state.init) {
 
   if (typeof OffscreenCanvas !== 'undefined') {
     room.state.offCanvas = new OffscreenCanvas(GW, GH);
-  } else if (ctx.canvas.ownerDocument) {
-    room.state.offCanvas = ctx.canvas.ownerDocument.createElement('canvas');
-    room.state.offCanvas.width = GW;
-    room.state.offCanvas.height = GH;
   }
   if (room.state.offCanvas) {
     room.state.offCtx = room.state.offCanvas.getContext('2d');
