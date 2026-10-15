@@ -1,0 +1,127 @@
+{
+  "name": "Pump Till It Pops",
+  "promptTemplate": "A high-stakes balloon party game in {{style}} style with risk factor {{risk}}, round length {{round_length}}s, and confetti storm {{confetti_storm}}.",
+  "variables": [
+    {
+      "name": "pump",
+      "label": "Pump!",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "tie",
+      "label": "Tie Knot!",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "style",
+      "label": "Party Style",
+      "values": [
+        {
+          "text": "Party",
+          "weight": 2
+        },
+        {
+          "text": "Neon Rave",
+          "weight": 1
+        },
+        {
+          "text": "Carnival",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "risk",
+      "label": "Burst Hazard",
+      "type": "number",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "name": "round_length",
+      "label": "Round Length",
+      "type": "number",
+      "min": 10,
+      "max": 40,
+      "step": 5,
+      "default": 20
+    },
+    {
+      "name": "confetti_storm",
+      "label": "Confetti",
+      "type": "toggle",
+      "default": true
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "acid",
+    "title": "PUMP TILL IT POPS",
+    "tagline": "Inflate your balloon, push your luck, tie before it bursts",
+    "accent": "#ffd166",
+    "groups": [
+      {
+        "title": "Action",
+        "controls": [
+          "pump",
+          "tie"
+        ]
+      },
+      {
+        "title": "Party Rules",
+        "controls": [
+          "risk",
+          "round_length",
+          "style",
+          "confetti_storm"
+        ]
+      }
+    ],
+    "controls": {
+      "pump": {
+        "widget": "pad",
+        "hint": "Mash to blow up your balloon"
+      },
+      "tie": {
+        "widget": "pad",
+        "hint": "Bank your points before it pops"
+      },
+      "style": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "risk": {
+        "widget": "slider",
+        "hint": "Higher risk bursts balloons sooner"
+      },
+      "round_length": {
+        "widget": "slider",
+        "hint": ""
+      },
+      "confetti_storm": {
+        "widget": "lamp",
+        "hint": ""
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "Everyone inflates their own colored balloon on the wall with rapid pumps, gambling size against sudden burst risk before tying off the win.",
+    "prompt": "Pump till it pops: a balloon for every person, in their colour, in a row along a party wall; each press of 'pump' inflates yours, and the bigger it gets the likelier it bursts, so press 'tie' to bank its size in time; popped balloons scatter shreds, and the biggest tied balloon wins the round. Make it a party game a whole room can follow from across the floor: bold shapes and bright colours on a dark ground, every player drawn in their own hue, big short labels (a score, GO!, the winner) in a heavy font, and a large, satisfying reaction on screen the instant anyone presses. It must work with one player or forty, scaling its lanes, seats or pieces to room.people and coping with people joining and leaving mid-round; play itself in a lively attract mode whenever nobody has pressed anything for a few seconds; and after a winner is shown, start the next round on its own. Keep it lean: game state in bounded arrays in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080.",
+    "look": [
+      "energetic",
+      "retro"
+    ],
+    "source": "play/balloon-pump~3"
+  }
+}

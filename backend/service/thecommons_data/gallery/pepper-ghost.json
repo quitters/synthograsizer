@@ -1,0 +1,143 @@
+{
+  "name": "peppers_ghost_jelly",
+  "promptTemplate": "A Pepper's ghost illusion in a dark proscenium: a phantom {{jelly_species}} jellyfish with {{pulse_tempo}}x respiration and {{tentacle_length}}px tendrils, witnessed through a {{refraction_pane}} pane with {{ghost_depth}} ghost displacement and stage dust {{stage_dust}}.",
+  "variables": [
+    {
+      "name": "jelly_species",
+      "label": "Species",
+      "values": [
+        {
+          "text": "Aurelia",
+          "weight": 2
+        },
+        {
+          "text": "Pelagia",
+          "weight": 2
+        },
+        {
+          "text": "Chrysaora",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "refraction_pane",
+      "label": "Glass Pane",
+      "values": [
+        {
+          "text": "Pristine",
+          "weight": 2
+        },
+        {
+          "text": "Beveled Glass",
+          "weight": 1
+        },
+        {
+          "text": "Dusty Victorian",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "pulse_tempo",
+      "label": "Pulse Tempo",
+      "type": "number",
+      "min": 0.4,
+      "max": 2.0,
+      "step": 0.2,
+      "default": 1.0
+    },
+    {
+      "name": "ghost_depth",
+      "label": "Glass Reflection",
+      "type": "number",
+      "min": 0.1,
+      "max": 1.0,
+      "step": 0.1,
+      "default": 0.6
+    },
+    {
+      "name": "tentacle_length",
+      "label": "Tentacle Span",
+      "type": "number",
+      "min": 60,
+      "max": 240,
+      "step": 20,
+      "default": 140
+    },
+    {
+      "name": "stage_dust",
+      "label": "Motes & Dust",
+      "type": "toggle",
+      "default": true
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "ice",
+    "title": "PEPPER'S GHOST",
+    "tagline": "Victorian phantom proscenium illusion",
+    "accent": "#8cf0ff",
+    "groups": [
+      {
+        "title": "Phantom Entity",
+        "controls": [
+          "jelly_species",
+          "pulse_tempo",
+          "tentacle_length"
+        ]
+      },
+      {
+        "title": "Optical Chamber",
+        "controls": [
+          "refraction_pane",
+          "ghost_depth",
+          "stage_dust"
+        ]
+      }
+    ],
+    "controls": {
+      "jelly_species": {
+        "widget": "buttons",
+        "hint": "Select glowing bioluminescent coloration"
+      },
+      "refraction_pane": {
+        "widget": "cycle",
+        "hint": "Aged glass surface texture and scatter"
+      },
+      "pulse_tempo": {
+        "widget": "knob",
+        "hint": "Respiration contraction rate"
+      },
+      "ghost_depth": {
+        "widget": "knob",
+        "hint": "Double-reflection displacement intensity"
+      },
+      "tentacle_length": {
+        "widget": "slider",
+        "hint": "Extent of floating tendrils below bell"
+      },
+      "stage_dust": {
+        "widget": "lamp",
+        "hint": "Suspended air motes catching downlight"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "living",
+    "blurb": "A luminous phantom jellyfish floats over a dark Victorian theatre stage, refracted through an angled pane of illusion glass with drifting dust motes.",
+    "prompt": "A Pepper's ghost illusion: a transparent figure of light hovering in a dark theatre -- a luminous jellyfish made of drifting particles -- seen through an angled pane of glass, with faint reflections of the stage and a soft spotlight on the empty floor beneath it. Make it striking on a big projected wall in a dark room: a bold composition, rich colour against real blacks, depth, glow, and motion that reads from across the room. Keep a demoscener's economy: lookup tables and fixed-size buffers kept in room.state, low-resolution offscreen buffers for any per-pixel work, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "organic",
+      "light",
+      "calm"
+    ],
+    "source": "lightworks/pepper-ghost~1"
+  }
+}

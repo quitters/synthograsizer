@@ -1,0 +1,145 @@
+{
+  "name": "Party Drop: Co-Op Falling Blocks",
+  "promptTemplate": "A cooperative falling-block party puzzle with {{palette}} styling, falling speed set to {{game_speed}}x, neon glow {{grid_glow}}, and chaos particle sparks {{chaos_particles}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Arcade Palette",
+      "values": [
+        {
+          "text": "neon_arcade",
+          "weight": 3
+        },
+        {
+          "text": "cyber_grid",
+          "weight": 2
+        },
+        {
+          "text": "acid_sunset",
+          "weight": 1
+        },
+        {
+          "text": "monochrome_punk",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "game_speed",
+      "label": "Drop Speed",
+      "type": "number",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.25,
+      "default": 1.0
+    },
+    {
+      "name": "grid_glow",
+      "label": "Neon Glow",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "chaos_particles",
+      "label": "Sparks & Debris",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "left",
+      "label": "Nudge Left",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "right",
+      "label": "Nudge Right",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "rotate",
+      "label": "Rotate 90°",
+      "type": "trigger",
+      "share": "all"
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "PARTY DROP +3",
+    "tagline": "CO-OP FALLING BLOCKS ARENA",
+    "accent": "#00f0ff",
+    "groups": [
+      {
+        "title": "MASH CONTROLS",
+        "controls": [
+          "left",
+          "rotate",
+          "right"
+        ]
+      },
+      {
+        "title": "ARCADE SETTINGS",
+        "controls": [
+          "palette",
+          "game_speed"
+        ]
+      },
+      {
+        "title": "FX & POLISH",
+        "controls": [
+          "grid_glow",
+          "chaos_particles"
+        ]
+      }
+    ],
+    "controls": {
+      "palette": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "game_speed": {
+        "widget": "knob",
+        "hint": "Dial up the gravity and drop velocity"
+      },
+      "grid_glow": {
+        "widget": "lamp",
+        "hint": ""
+      },
+      "chaos_particles": {
+        "widget": "lamp",
+        "hint": "Toggle particle explosions on clears and drops"
+      },
+      "left": {
+        "widget": "pad",
+        "hint": "Nudge the falling piece leftwards"
+      },
+      "right": {
+        "widget": "pad",
+        "hint": "Nudge the falling piece rightwards"
+      },
+      "rotate": {
+        "widget": "pad",
+        "hint": "Spin the active block 90 degrees"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "A chaotic co-op arcade stacker where everyone in the room steers the same falling block together across glowing neon grids.",
+    "prompt": "A falling-block puzzle played by the whole room: 'left', 'right' and 'rotate' are shared by everyone, so each piece lurches about as the room argues, while completed rows flash and clear; the score and the cleared rows are shown in huge pixel digits. Make it a party game a whole room can follow from across the floor: bold shapes and bright colours on a dark ground, every player drawn in their own hue, big short labels (a score, GO!, the winner) in a heavy font, and a large, satisfying reaction on screen the instant anyone presses. It must work with one player or forty, scaling its lanes, seats or pieces to room.people and coping with people joining and leaving mid-round; play itself in a lively attract mode whenever nobody has pressed anything for a few seconds; and after a winner is shown, start the next round on its own. Keep it lean: game state in bounded arrays in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080.",
+    "look": [
+      "retro",
+      "geometric",
+      "energetic"
+    ],
+    "source": "play/falling-blocks~11"
+  }
+}

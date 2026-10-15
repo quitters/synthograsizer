@@ -1,0 +1,186 @@
+{
+  "name": "Breakout Duel",
+  "promptTemplate": "A competitive neon arena in {{arena_theme}} style featuring a {{brick_pattern}} brick architecture with {{ball_speed}}x velocity dynamics, {{paddle_size}}px deflection shields, and glowing {{trail_style}} particle physics.",
+  "variables": [
+    {
+      "name": "arena_theme",
+      "label": "Arena Theme",
+      "values": [
+        {
+          "text": "neon_cyber",
+          "weight": 3
+        },
+        {
+          "text": "solar_flare",
+          "weight": 2
+        },
+        {
+          "text": "emerald_matrix",
+          "weight": 2
+        },
+        {
+          "text": "monochrome_vibe",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "brick_pattern",
+      "label": "Wall Pattern",
+      "values": [
+        {
+          "text": "classic_grid",
+          "weight": 3
+        },
+        {
+          "text": "fortress",
+          "weight": 2
+        },
+        {
+          "text": "checker_wave",
+          "weight": 2
+        },
+        {
+          "text": "diamond_mesh",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "ball_speed",
+      "label": "Ball Speed",
+      "type": "number",
+      "min": 1,
+      "max": 5,
+      "step": 0.5,
+      "default": 2.5
+    },
+    {
+      "name": "paddle_size",
+      "label": "Shield Height",
+      "type": "number",
+      "min": 60,
+      "max": 180,
+      "step": 10,
+      "default": 110
+    },
+    {
+      "name": "trail_style",
+      "label": "Trail Style",
+      "values": [
+        {
+          "text": "laser_sparks",
+          "weight": 3
+        },
+        {
+          "text": "plasma_ribbon",
+          "weight": 2
+        },
+        {
+          "text": "hyper_ghost",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "left_nudge",
+      "label": "Left Paddle Nudge",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "right_nudge",
+      "label": "Right Paddle Nudge",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "smash_boost",
+      "label": "Smash Surge",
+      "type": "trigger",
+      "share": "all"
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "violet",
+    "title": "DUEL TRAINER +8",
+    "tagline": "Two sides battle to shatter the opposing firewall",
+    "accent": "#00f0ff",
+    "groups": [
+      {
+        "title": "PADDLE COMBAT",
+        "controls": [
+          "left_nudge",
+          "right_nudge",
+          "smash_boost"
+        ]
+      },
+      {
+        "title": "BALL DYNAMICS",
+        "controls": [
+          "ball_speed",
+          "paddle_size"
+        ]
+      },
+      {
+        "title": "ARENA MATRIX",
+        "controls": [
+          "arena_theme",
+          "brick_pattern",
+          "trail_style"
+        ]
+      }
+    ],
+    "controls": {
+      "arena_theme": {
+        "widget": "pads",
+        "hint": ""
+      },
+      "brick_pattern": {
+        "widget": "cycle",
+        "hint": "Rebuilds both brick walls with a new formation"
+      },
+      "ball_speed": {
+        "widget": "knob",
+        "hint": "Baseline orbital velocity across the duel field"
+      },
+      "paddle_size": {
+        "widget": "slider",
+        "hint": "Expands or shrinks both defensive deflectors"
+      },
+      "trail_style": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "left_nudge": {
+        "widget": "pad",
+        "hint": "Reverses left paddle motion with an instant thrust"
+      },
+      "right_nudge": {
+        "widget": "pad",
+        "hint": "Reverses right paddle motion with an instant thrust"
+      },
+      "smash_boost": {
+        "widget": "pad",
+        "hint": "Accelerates the ball into a high-speed blitz"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "A breakout duel between the left and right halves of the room: each side has a wall of bricks and a paddle its players nudge up and down with their buttons, a ball bounces between them with proper angle physics, the first side to clear the other's bricks wins the round, then a ne",
+    "prompt": "a breakout duel between the left and right halves of the room: each side has a wall of bricks and a paddle its players nudge up and down with their buttons, a ball bounces between them with proper angle physics, the first side to clear the other's bricks wins the round, then a new round starts with a fresh layout and a round counter",
+    "look": [
+      "retro",
+      "energetic"
+    ],
+    "source": "trial-2/flash-high/breakout-duel~3"
+  }
+}

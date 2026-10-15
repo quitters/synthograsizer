@@ -1,0 +1,159 @@
+{
+  "name": "Mountain Roar: Team Balloon Soar",
+  "promptTemplate": "A cooperative hot-air balloon navigation party game with {{sky_palette}} skies and {{mountain_style}} terrain, soaring at {{flight_speed}} speed through turbulence {{wind_turbulence}}, dynamic storm ceiling: {{storm_ceiling}}, audio thermals: {{audio_boost}}.",
+  "variables": [
+    {
+      "name": "burner",
+      "label": "Burner Flame",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "sky_palette",
+      "label": "Sky Palette",
+      "values": [
+        {
+          "text": "Twilight Neon",
+          "weight": 2
+        },
+        {
+          "text": "Midnight Nebula",
+          "weight": 1
+        },
+        {
+          "text": "Golden Sunset",
+          "weight": 1
+        },
+        {
+          "text": "Cyber Aurora",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "mountain_style",
+      "label": "Mountain Style",
+      "values": [
+        {
+          "text": "Jagged Crags",
+          "weight": 2
+        },
+        {
+          "text": "Rolling Spires",
+          "weight": 1
+        },
+        {
+          "text": "Geometric Prisms",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "flight_speed",
+      "label": "Flight Speed",
+      "type": "number",
+      "min": 0.8,
+      "max": 2.4,
+      "step": 0.2,
+      "default": 1.4
+    },
+    {
+      "name": "wind_turbulence",
+      "label": "Turbulence",
+      "type": "number",
+      "min": 0,
+      "max": 10,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "name": "storm_ceiling",
+      "label": "Storm Ceiling",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "audio_boost",
+      "label": "Audio Thermals",
+      "type": "toggle",
+      "default": true
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "BALLOON SOAR +4",
+    "tagline": "TAP BURNER TO ROAR UPWARD AND CLEAR THE PEAKS",
+    "accent": "#f97316",
+    "groups": [
+      {
+        "title": "FLIGHT CONTROL",
+        "controls": [
+          "burner"
+        ]
+      },
+      {
+        "title": "WEATHER & ATMOSPHERE",
+        "controls": [
+          "flight_speed",
+          "wind_turbulence",
+          "storm_ceiling",
+          "audio_boost"
+        ]
+      },
+      {
+        "title": "LANDSCAPE",
+        "controls": [
+          "sky_palette",
+          "mountain_style"
+        ]
+      }
+    ],
+    "controls": {
+      "burner": {
+        "widget": "pad",
+        "hint": "Mash to blast flames and gain altitude"
+      },
+      "sky_palette": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "mountain_style": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "flight_speed": {
+        "widget": "knob",
+        "hint": "Horizontal scrolling velocity"
+      },
+      "wind_turbulence": {
+        "widget": "slider",
+        "hint": "Vertical buffeting intensity"
+      },
+      "storm_ceiling": {
+        "widget": "lamp",
+        "hint": "Electrified overhead hazard layer"
+      },
+      "audio_boost": {
+        "widget": "switch",
+        "hint": "Bass frequencies generate thermal updrafts"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "A cooperative hot-air balloon navigation party game where players blast the burner together to climb peaks and dodge storm clouds.",
+    "prompt": "A hot-air balloon over mountains: presses of 'burner' from anyone heat the envelope with a roar of flame and make it climb, and it sinks as the air cools; the room has to clear the peaks and keep below the storm clouds, and the distance flown is the score. Make it a party game a whole room can follow from across the floor: bold shapes and bright colours on a dark ground, every player drawn in their own hue, big short labels (a score, GO!, the winner) in a heavy font, and a large, satisfying reaction on screen the instant anyone presses. It must work with one player or forty, scaling its lanes, seats or pieces to room.people and coping with people joining and leaving mid-round; play itself in a lively attract mode whenever nobody has pressed anything for a few seconds; and after a winner is shown, start the next round on its own. Keep it lean: game state in bounded arrays in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080.",
+    "look": [
+      "retro",
+      "energetic"
+    ],
+    "source": "play/hot-air-balloon~11"
+  }
+}

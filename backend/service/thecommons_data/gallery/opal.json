@@ -1,0 +1,175 @@
+{
+  "name": "Black Opal Play-of-Colour",
+  "promptTemplate": "A polished black opal displaying intense play-of-colour in {{palette_style}} tones with {{pattern_type}} diffraction patches, shifting at {{motion_speed}} speed with {{contrast}} contrast, {{sparkle_intensity}} glints in a {{cabochon_shape}} cut, reactive flare {{light_reaction}}.",
+  "variables": [
+    {
+      "name": "palette_style",
+      "label": "Play of Colour",
+      "values": [
+        {
+          "text": "lightning_ridge",
+          "weight": 3
+        },
+        {
+          "text": "fire_opal",
+          "weight": 2
+        },
+        {
+          "text": "peacock_feather",
+          "weight": 2
+        },
+        {
+          "text": "spectral_rainbow",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "pattern_type",
+      "label": "Diffraction Pattern",
+      "values": [
+        {
+          "text": "harlequin",
+          "weight": 3
+        },
+        {
+          "text": "broad_flash",
+          "weight": 2
+        },
+        {
+          "text": "pinfire",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "motion_speed",
+      "label": "Rotation Speed",
+      "type": "number",
+      "min": 0.2,
+      "max": 2.0,
+      "step": 0.1,
+      "default": 0.8
+    },
+    {
+      "name": "contrast",
+      "label": "Matrix Contrast",
+      "type": "number",
+      "min": 1.0,
+      "max": 4.0,
+      "step": 0.2,
+      "default": 2.2
+    },
+    {
+      "name": "sparkle_intensity",
+      "label": "Glint Sparkles",
+      "type": "number",
+      "min": 0.0,
+      "max": 2.0,
+      "step": 0.1,
+      "default": 1.0
+    },
+    {
+      "name": "cabochon_shape",
+      "label": "Gem Cut",
+      "values": [
+        {
+          "text": "freeform_oval",
+          "weight": 3
+        },
+        {
+          "text": "cushion",
+          "weight": 2
+        },
+        {
+          "text": "round_gem",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "light_reaction",
+      "label": "Audio Flare",
+      "type": "toggle",
+      "default": true
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "violet",
+    "title": "OPAL PLAY-OF-COLOUR",
+    "tagline": "SPECTRAL DIFFRACTION ENGINE",
+    "accent": "#00f0ff",
+    "groups": [
+      {
+        "title": "Iridescence",
+        "controls": [
+          "palette_style",
+          "pattern_type",
+          "contrast"
+        ]
+      },
+      {
+        "title": "Dynamics",
+        "controls": [
+          "motion_speed",
+          "sparkle_intensity",
+          "light_reaction"
+        ]
+      },
+      {
+        "title": "Lapidary",
+        "controls": [
+          "cabochon_shape"
+        ]
+      }
+    ],
+    "controls": {
+      "palette_style": {
+        "widget": "pads",
+        "hint": "Shifts the spectral emission wavelengths"
+      },
+      "pattern_type": {
+        "widget": "buttons",
+        "hint": "Reconfigures silica diffraction cells"
+      },
+      "motion_speed": {
+        "widget": "knob",
+        "hint": "Speed of rotation beneath incident light"
+      },
+      "contrast": {
+        "widget": "slider",
+        "hint": "Sharpens the black potch matrix between flashes"
+      },
+      "sparkle_intensity": {
+        "widget": "slider",
+        "hint": "Adjusts surface glints and specular pinfires"
+      },
+      "cabochon_shape": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "light_reaction": {
+        "widget": "lamp",
+        "hint": "Pump flashes and flares with room audio"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "demo",
+    "blurb": "A polished black opal rotates under light, erupting with spectral flashes, sharp diffraction patches, and roving surface glints across deep dark potch.",
+    "prompt": "The play-of-colour in a black opal: flashes of spectral green, blue and flame red shifting in patches as if the stone were slowly turned under a light, deep black between them. Make it striking on a big projected wall in a dark room: a bold composition, rich colour against real blacks, depth, glow, and motion that reads from across the room. Keep a demoscener's economy: lookup tables and fixed-size buffers kept in room.state, low-resolution offscreen buffers for any per-pixel work, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "light",
+      "psychedelic",
+      "organic"
+    ],
+    "source": "lightworks/opal~1"
+  }
+}

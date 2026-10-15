@@ -1,0 +1,181 @@
+{
+  "name": "Abyssal Interference",
+  "promptTemplate": "Create a slow plasma using a {{ocean_palette}} palette, formed by {{focal_points}} focal points overlapping in {{blend_mode}}. The interference is defined by a ring density of {{ring_density}} with a {{ripple_style}} texture. The plasma glides at a speed of {{plasma_speed}} and expands with a swell intensity of {{swell_intensity}}.",
+  "variables": [
+    {
+      "name": "ocean_palette",
+      "label": "Ocean Palette",
+      "values": [
+        {
+          "text": "Bioluminescent",
+          "weight": 2
+        },
+        {
+          "text": "Midnight Blue",
+          "weight": 1
+        },
+        {
+          "text": "Deep Trench",
+          "weight": 1
+        },
+        {
+          "text": "Kelp Forest",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "focal_points",
+      "label": "Focal Points",
+      "type": "number",
+      "min": 2,
+      "max": 8,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "name": "ring_density",
+      "label": "Ring Density",
+      "type": "number",
+      "min": 10,
+      "max": 60,
+      "step": 5,
+      "default": 20
+    },
+    {
+      "name": "plasma_speed",
+      "label": "Plasma Speed",
+      "type": "number",
+      "min": 0,
+      "max": 5,
+      "step": 0.5,
+      "default": 1
+    },
+    {
+      "name": "swell_intensity",
+      "label": "Swell Intensity",
+      "type": "number",
+      "min": 0,
+      "max": 10,
+      "step": 1,
+      "default": 6
+    },
+    {
+      "name": "blend_mode",
+      "label": "Blend Mode",
+      "values": [
+        {
+          "text": "screen",
+          "weight": 2
+        },
+        {
+          "text": "lighter",
+          "weight": 1
+        },
+        {
+          "text": "overlay",
+          "weight": 1
+        },
+        {
+          "text": "source-over",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "ripple_style",
+      "label": "Ripple Style",
+      "values": [
+        {
+          "text": "sharp",
+          "weight": 2
+        },
+        {
+          "text": "soft",
+          "weight": 1
+        },
+        {
+          "text": "dashed",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "ice",
+    "title": "ABYSSAL PLASMA +7",
+    "tagline": "Deep ocean wave interference tuned to the bass",
+    "accent": "#00f0d0",
+    "groups": [
+      {
+        "title": "WAVE MOTION",
+        "controls": [
+          "swell_intensity",
+          "plasma_speed",
+          "focal_points"
+        ]
+      },
+      {
+        "title": "INTERFERENCE PATTERN",
+        "controls": [
+          "ring_density",
+          "ripple_style"
+        ]
+      },
+      {
+        "title": "ABYSS CHROMATICS",
+        "controls": [
+          "ocean_palette",
+          "blend_mode"
+        ]
+      }
+    ],
+    "controls": {
+      "ocean_palette": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "focal_points": {
+        "widget": "stepper",
+        "hint": "Spawn overlapping ripple epicenters"
+      },
+      "ring_density": {
+        "widget": "slider",
+        "hint": "Spacing between outgoing concentric rings"
+      },
+      "plasma_speed": {
+        "widget": "knob",
+        "hint": "Orbital velocity of moving wave centers"
+      },
+      "swell_intensity": {
+        "widget": "knob",
+        "hint": "Controls how violently rings surge on low frequencies"
+      },
+      "blend_mode": {
+        "widget": "list",
+        "hint": "How overlapping wave fronts combine illumination"
+      },
+      "ripple_style": {
+        "widget": "buttons",
+        "hint": ""
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "generative",
+    "blurb": "A slow plasma of interference rings in deep ocean colours that swell with the bass",
+    "prompt": "a slow plasma of interference rings in deep ocean colours that swell with the bass",
+    "look": [
+      "psychedelic",
+      "calm"
+    ],
+    "source": "trial-1/pro/ocean-plasma"
+  }
+}

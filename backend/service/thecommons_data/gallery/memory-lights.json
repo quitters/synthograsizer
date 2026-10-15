@@ -1,0 +1,148 @@
+{
+  "name": "RGB Memory Wall",
+  "promptTemplate": "Giant glowing memory arcade with {{pad_style}} pads, glowing at {{glow_intensity}} intensity, sound reactive ripples {{sound_waves}} running at {{tempo}} tempo",
+  "variables": [
+    {
+      "name": "press_red",
+      "label": "Red",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "press_green",
+      "label": "Green",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "press_blue",
+      "label": "Blue",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "pad_style",
+      "label": "Pad Style",
+      "values": [
+        {
+          "text": "neon_rings",
+          "weight": 2
+        },
+        {
+          "text": "solid_blocks",
+          "weight": 1
+        },
+        {
+          "text": "crystal_hex",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "glow_intensity",
+      "label": "Glow",
+      "type": "number",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.5,
+      "default": 1.5
+    },
+    {
+      "name": "sound_waves",
+      "label": "Sound Ripples",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "tempo",
+      "label": "Pacing",
+      "values": [
+        {
+          "text": "relaxed",
+          "weight": 1
+        },
+        {
+          "text": "brisk",
+          "weight": 2
+        },
+        {
+          "text": "frenzy",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "RGB MEMORY +4 TRAINER",
+    "tagline": "MATCH THE SEQUENCE ON THE WALL",
+    "accent": "#ff2b56",
+    "groups": [
+      {
+        "title": "Input Pads",
+        "controls": [
+          "press_red",
+          "press_green",
+          "press_blue"
+        ]
+      },
+      {
+        "title": "Arena Setup",
+        "controls": [
+          "tempo",
+          "pad_style",
+          "glow_intensity",
+          "sound_waves"
+        ]
+      }
+    ],
+    "controls": {
+      "press_red": {
+        "widget": "pad",
+        "hint": "Trigger red pulse"
+      },
+      "press_green": {
+        "widget": "pad",
+        "hint": "Trigger green pulse"
+      },
+      "press_blue": {
+        "widget": "pad",
+        "hint": "Trigger blue pulse"
+      },
+      "pad_style": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "glow_intensity": {
+        "widget": "knob",
+        "hint": "Dial up pad bloom and halo size"
+      },
+      "sound_waves": {
+        "widget": "lamp",
+        "hint": "Send shockwaves outward on each hit"
+      },
+      "tempo": {
+        "widget": "buttons",
+        "hint": ""
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "Three giant glowing pads play an escalating sequence of flashes and tones across the wall for the entire room to memorise and strike back.",
+    "prompt": "A three-colour memory game: three giant glowing pads, red, green and blue; the wall plays a growing sequence of flashes and tones, and the room must repeat it by pressing 'red', 'green' and 'blue' in order, the next correct press from anyone counting; a wrong press flashes the pads and restarts. Make it a party game a whole room can follow from across the floor: bold shapes and bright colours on a dark ground, every player drawn in their own hue, big short labels (a score, GO!, the winner) in a heavy font, and a large, satisfying reaction on screen the instant anyone presses. It must work with one player or forty, scaling its lanes, seats or pieces to room.people and coping with people joining and leaving mid-round; play itself in a lively attract mode whenever nobody has pressed anything for a few seconds; and after a winner is shown, start the next round on its own. Keep it lean: game state in bounded arrays in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080.",
+    "look": [
+      "retro",
+      "energetic",
+      "light"
+    ],
+    "source": "play/memory-lights~3"
+  }
+}

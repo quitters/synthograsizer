@@ -1,0 +1,137 @@
+{
+  "name": "Rapid Room Rush",
+  "promptTemplate": "White-water raft race across {{rapids_theme}} rapids on {{difficulty}} setting at speed {{river_speed}} with spray effects {{spray_fx}}",
+  "variables": [
+    {
+      "name": "river_speed",
+      "label": "River Speed",
+      "type": "number",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "name": "rapids_theme",
+      "label": "River Theme",
+      "values": [
+        {
+          "text": "Neon Canyon",
+          "weight": 2
+        },
+        {
+          "text": "Emerald Gorge",
+          "weight": 1
+        },
+        {
+          "text": "Molten Chasm",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "difficulty",
+      "label": "Difficulty",
+      "values": [
+        {
+          "text": "Joyride",
+          "weight": 1
+        },
+        {
+          "text": "White Water",
+          "weight": 2
+        },
+        {
+          "text": "Death Flume",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "spray_fx",
+      "label": "Spray Sparks",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "paddle_left",
+      "label": "Paddle Left",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "paddle_right",
+      "label": "Paddle Right",
+      "type": "trigger",
+      "share": "all"
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "acid",
+    "title": "RAPID RUSH +5",
+    "tagline": "ROW TOGETHER OR CRASH HARD",
+    "accent": "#00f5ff",
+    "groups": [
+      {
+        "title": "PADDLES",
+        "controls": [
+          "paddle_left",
+          "paddle_right"
+        ]
+      },
+      {
+        "title": "RIVER RUN",
+        "controls": [
+          "river_speed",
+          "difficulty",
+          "rapids_theme",
+          "spray_fx"
+        ]
+      }
+    ],
+    "controls": {
+      "river_speed": {
+        "widget": "knob",
+        "hint": "Crank river surge and game pace"
+      },
+      "rapids_theme": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "difficulty": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "spray_fx": {
+        "widget": "lamp",
+        "hint": "Show player-tinted paddle spray"
+      },
+      "paddle_left": {
+        "widget": "pad",
+        "hint": "Stroke left paddle to steer right"
+      },
+      "paddle_right": {
+        "widget": "pad",
+        "hint": "Stroke right paddle to steer left"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "A shared raft hurdles down neon white-water rapids while the room paddles left and right to dodge boulders and shoot through narrow chutes.",
+    "prompt": "The whole room in one raft on white-water rapids: presses of 'left' and 'right' from anyone paddle that side, and the room has to steer between rocks and through chutes together; spray flies, the raft spins on a bad stroke, and the distance run is the score. Make it a party game a whole room can follow from across the floor: bold shapes and bright colours on a dark ground, every player drawn in their own hue, big short labels (a score, GO!, the winner) in a heavy font, and a large, satisfying reaction on screen the instant anyone presses. It must work with one player or forty, scaling its lanes, seats or pieces to room.people and coping with people joining and leaving mid-round; play itself in a lively attract mode whenever nobody has pressed anything for a few seconds; and after a winner is shown, start the next round on its own. Keep it lean: game state in bounded arrays in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080.",
+    "look": [
+      "retro",
+      "energetic",
+      "geometric"
+    ],
+    "source": "play/whitewater-raft~2"
+  }
+}

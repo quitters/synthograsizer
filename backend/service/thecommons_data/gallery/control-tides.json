@@ -1,0 +1,128 @@
+{
+  "name": "Tidal Pools",
+  "promptTemplate": "Tidal pools of {{palette}} colour slowly breathing with {{tide_speed}} tidal rhythm, layered with {{depth_rings}} depth contours across {{pool_count}} living lagoons, highlighted by glistening {{shimmer}}.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "abyssal",
+          "weight": 2
+        },
+        {
+          "text": "coral",
+          "weight": 2
+        },
+        {
+          "text": "twilight",
+          "weight": 2
+        },
+        {
+          "text": "emerald",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "pool_count",
+      "label": "Pool Count",
+      "type": "number",
+      "min": 3,
+      "max": 8,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "name": "depth_rings",
+      "label": "Depth Layers",
+      "type": "number",
+      "min": 4,
+      "max": 10,
+      "step": 1,
+      "default": 7
+    },
+    {
+      "name": "tide_speed",
+      "label": "Tide Speed",
+      "type": "number",
+      "min": 0.2,
+      "max": 1.6,
+      "step": 0.2,
+      "default": 0.6
+    },
+    {
+      "name": "shimmer",
+      "label": "Water Caustics",
+      "type": "toggle",
+      "default": true
+    }
+  ],
+  "ui": {
+    "skin": "desk",
+    "variant": "blue",
+    "title": "Tidal Basin",
+    "tagline": "Organic living lagoon contours breathing with sound",
+    "accent": "",
+    "groups": [
+      {
+        "title": "Hydrology",
+        "controls": [
+          "tide_speed",
+          "shimmer"
+        ]
+      },
+      {
+        "title": "Lagoon Form",
+        "controls": [
+          "pool_count",
+          "depth_rings"
+        ]
+      },
+      {
+        "title": "Bioluminescence",
+        "controls": [
+          "palette"
+        ]
+      }
+    ],
+    "controls": {
+      "palette": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "pool_count": {
+        "widget": "stepper",
+        "hint": "Populates rock depressions with tidal pools"
+      },
+      "depth_rings": {
+        "widget": "slider",
+        "hint": "Increases concentric shelf contours into the trench"
+      },
+      "tide_speed": {
+        "widget": "knob",
+        "hint": "Sets the swelling pulse and organic breathing tempo"
+      },
+      "shimmer": {
+        "widget": "lamp",
+        "hint": "Casts refracting water caustics across pool rims"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "generative",
+    "blurb": "Tidal pools of colour slowly breathing in and out, their hues drifting with the music.",
+    "prompt": "Tidal pools of colour slowly breathing in and out, their hues drifting with the music.",
+    "look": [
+      "organic",
+      "calm"
+    ],
+    "source": "toggles10/control-tides~1"
+  }
+}

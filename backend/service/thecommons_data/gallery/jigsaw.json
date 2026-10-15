@@ -1,0 +1,139 @@
+{
+  "name": "Jigsaw Rush",
+  "promptTemplate": "A cooperative jigsaw party game showcasing {{puzzle_art}} across a {{grid_size}} grid with {{fx_intensity}} intensity and hints {{show_hints}}",
+  "variables": [
+    {
+      "name": "puzzle_art",
+      "label": "Artwork Style",
+      "values": [
+        {
+          "text": "neon_totem",
+          "weight": 3
+        },
+        {
+          "text": "geometric_bloom",
+          "weight": 2
+        },
+        {
+          "text": "synth_sunset",
+          "weight": 2
+        },
+        {
+          "text": "techno_matrix",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "grid_size",
+      "label": "Grid Size",
+      "values": [
+        {
+          "text": "3x3 compact",
+          "weight": 2
+        },
+        {
+          "text": "4x3 classic",
+          "weight": 3
+        },
+        {
+          "text": "4x4 balanced",
+          "weight": 2
+        },
+        {
+          "text": "5x4 intricate",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "fx_intensity",
+      "label": "FX Sparks",
+      "type": "number",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "name": "show_hints",
+      "label": "Board Grid Hints",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "place",
+      "label": "Snap Piece!",
+      "type": "trigger",
+      "share": "all"
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "acid",
+    "title": "JIGSAW RUSH +4",
+    "tagline": "RACE TO SNAP THE PIECES TOGETHER",
+    "accent": "#00ffcc",
+    "groups": [
+      {
+        "title": "Action",
+        "controls": [
+          "place"
+        ]
+      },
+      {
+        "title": "Board Setup",
+        "controls": [
+          "puzzle_art",
+          "grid_size",
+          "show_hints"
+        ]
+      },
+      {
+        "title": "Spark FX",
+        "controls": [
+          "fx_intensity"
+        ]
+      }
+    ],
+    "controls": {
+      "puzzle_art": {
+        "widget": "cycle",
+        "hint": "Swaps generative theme on next round"
+      },
+      "grid_size": {
+        "widget": "buttons",
+        "hint": "Total pieces to assemble"
+      },
+      "fx_intensity": {
+        "widget": "knob",
+        "hint": "Burst size when pieces lock into place"
+      },
+      "show_hints": {
+        "widget": "lamp",
+        "hint": "Dotted guide grid on the dark board"
+      },
+      "place": {
+        "widget": "pad",
+        "hint": "Mash to claim and snap a piece in your hue"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "Scattered jigsaw fragments float around a dark arena while players mash to snap pieces into place, triggering bursts of sparks and scoring runs before the completed art comes alive.",
+    "prompt": "A jigsaw puzzle of a bold generated picture: loose pieces are scattered round the edges, and each press of 'place' snaps one into its spot, with a flash in the colour of whoever placed it; when the picture is complete it comes alive and animates, then scatters for the next one. Make it a party game a whole room can follow from across the floor: bold shapes and bright colours on a dark ground, every player drawn in their own hue, big short labels (a score, GO!, the winner) in a heavy font, and a large, satisfying reaction on screen the instant anyone presses. It must work with one player or forty, scaling its lanes, seats or pieces to room.people and coping with people joining and leaving mid-round; play itself in a lively attract mode whenever nobody has pressed anything for a few seconds; and after a winner is shown, start the next round on its own. Keep it lean: game state in bounded arrays in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080.",
+    "look": [
+      "energetic",
+      "geometric",
+      "retro"
+    ],
+    "source": "play/jigsaw~2"
+  }
+}

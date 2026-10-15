@@ -1,0 +1,137 @@
+{
+  "name": "neoclassical_projection_mapping",
+  "promptTemplate": "A grand neoclassical facade under night sky transformed by {{facade_theme}} projection mapping, advancing through architectural states with {{transition_speed}} pacing, bathed in {{accent_glow}} illumination, enhanced by {{architectural_detail}} masonry lines and {{atmosphere_fx}} atmospheric distortion.",
+  "variables": [
+    {
+      "name": "facade_theme",
+      "label": "Theme Cycle",
+      "values": [
+        {
+          "text": "cathedral_dream",
+          "weight": 2
+        },
+        {
+          "text": "cyber_monolith",
+          "weight": 2
+        },
+        {
+          "text": "verdurous_ruin",
+          "weight": 1
+        },
+        {
+          "text": "sol_invictus",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "transition_speed",
+      "label": "Cycle Speed",
+      "type": "number",
+      "min": 0.2,
+      "max": 2.0,
+      "step": 0.1,
+      "default": 1.0
+    },
+    {
+      "name": "accent_glow",
+      "label": "Glow Tone",
+      "values": [
+        {
+          "text": "electric_cyan",
+          "weight": 2
+        },
+        {
+          "text": "amber_gold",
+          "weight": 2
+        },
+        {
+          "text": "emerald_jade",
+          "weight": 1
+        },
+        {
+          "text": "amethyst_neon",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "architectural_detail",
+      "label": "Line Weight",
+      "type": "number",
+      "min": 1,
+      "max": 4,
+      "step": 0.5,
+      "default": 2
+    },
+    {
+      "name": "atmosphere_fx",
+      "label": "Atmosphere Fog",
+      "type": "toggle",
+      "default": true
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "ice",
+    "title": "FACADE MAPPER v1.0",
+    "tagline": "ARCHITECTURAL PROJECTION CONTROLLER",
+    "accent": "#00f2ff",
+    "groups": [
+      {
+        "title": "Illumination",
+        "controls": [
+          "facade_theme",
+          "accent_glow"
+        ]
+      },
+      {
+        "title": "Projection Optics",
+        "controls": [
+          "transition_speed",
+          "architectural_detail",
+          "atmosphere_fx"
+        ]
+      }
+    ],
+    "controls": {
+      "facade_theme": {
+        "widget": "pads",
+        "hint": "Swaps visual sequence on facade"
+      },
+      "transition_speed": {
+        "widget": "knob",
+        "hint": "Accelerates crumble and flood cycles"
+      },
+      "accent_glow": {
+        "widget": "cycle",
+        "hint": "Shifts laser and neon spectrum"
+      },
+      "architectural_detail": {
+        "widget": "slider",
+        "hint": "Adjusts beam and outline thickness"
+      },
+      "atmosphere_fx": {
+        "widget": "lamp",
+        "hint": "Toggles ambient fog distortion"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "demo",
+    "blurb": "A classical temple facade crumbles, floods with glowing water, and regenerates under responsive neon projection mapping.",
+    "prompt": "Projection mapping onto a grand neoclassical facade at night: columns, windows and cornices drawn in outline, then the building seems to crumble into blocks, fill with water, grow vines and rebuild itself, every effect clipped to the architecture, the sequence cycling with the music. Make it striking on a big projected wall in a dark room: a bold composition, rich colour against real blacks, depth, glow, and motion that reads from across the room. Keep a demoscener's economy: lookup tables and fixed-size buffers kept in room.state, low-resolution offscreen buffers for any per-pixel work, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "3d",
+      "light",
+      "geometric"
+    ],
+    "source": "lightworks/facade-mapping~3"
+  }
+}

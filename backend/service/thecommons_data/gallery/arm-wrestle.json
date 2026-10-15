@@ -1,0 +1,136 @@
+{
+  "name": "Arm Wrestling Arena Showdown",
+  "promptTemplate": "An intense arm-wrestling showdown in {{arena_theme}} with {{sweat_intensity}} sweat, {{strain_force}} push resistance, spotlight swing: {{spotlight_swing}}, camera rumble: {{camera_rumble}}.",
+  "variables": [
+    {
+      "name": "push",
+      "label": "Push!",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "arena_theme",
+      "label": "Arena Theme",
+      "values": [
+        {
+          "text": "Underground Tavern",
+          "weight": 2
+        },
+        {
+          "text": "Neon Cyber Club",
+          "weight": 2
+        },
+        {
+          "text": "Steel Colosseum",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "strain_force",
+      "label": "Push Sensitivity",
+      "type": "number",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "name": "sweat_intensity",
+      "label": "Sweat & Sparks",
+      "values": [
+        {
+          "text": "Misty Spritz",
+          "weight": 1
+        },
+        {
+          "text": "Sweat Torrent",
+          "weight": 2
+        },
+        {
+          "text": "Sparks & Steam",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "spotlight_swing",
+      "label": "Swinging Lamp",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "camera_rumble",
+      "label": "Screen Rumble",
+      "type": "toggle",
+      "default": true
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "ARM WRESTLE +5",
+    "tagline": "MASH TO PIN THE ENEMY ARM DOWN",
+    "accent": "#ff3b30",
+    "groups": [
+      {
+        "title": "BRAWL",
+        "controls": [
+          "push",
+          "strain_force"
+        ]
+      },
+      {
+        "title": "ARENA FX",
+        "controls": [
+          "arena_theme",
+          "sweat_intensity",
+          "spotlight_swing",
+          "camera_rumble"
+        ]
+      }
+    ],
+    "controls": {
+      "push": {
+        "widget": "pad",
+        "hint": "Mash rapidly to heave the locked hands toward the pin"
+      },
+      "arena_theme": {
+        "widget": "pads",
+        "hint": ""
+      },
+      "strain_force": {
+        "widget": "slider",
+        "hint": "Push leverage per tap"
+      },
+      "sweat_intensity": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "spotlight_swing": {
+        "widget": "lamp",
+        "hint": "Sways overhead lamp with table slams"
+      },
+      "camera_rumble": {
+        "widget": "switch",
+        "hint": "Shakes the arena view on heavy pushes"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "Two teams lock arms under a swaying spotlight, mashing push buttons to slam the opponent's wrist onto the table amid flying sweat and screen rumble.",
+    "prompt": "An arm-wrestling match on a heavy wooden table under a hanging lamp, two giant forearms locked at the hands, one per team: presses of 'push' tilt the grip toward the other side, the table shudders and sweat flies, and the hands slam down when one team wins. Two teams: tables alternate between them, or people alternate when everyone is at one table; show each team's colours and score clearly. Make it a party game a whole room can follow from across the floor: bold shapes and bright colours on a dark ground, every player drawn in their own hue, big short labels (a score, GO!, the winner) in a heavy font, and a large, satisfying reaction on screen the instant anyone presses. It must work with one player or forty, scaling its lanes, seats or pieces to room.people and coping with people joining and leaving mid-round; play itself in a lively attract mode whenever nobody has pressed anything for a few seconds; and after a winner is shown, start the next round on its own. Keep it lean: game state in bounded arrays in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080.",
+    "look": [
+      "energetic",
+      "retro"
+    ],
+    "source": "play/arm-wrestle~11"
+  }
+}

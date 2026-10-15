@@ -1,0 +1,151 @@
+{
+  "name": "Floating Night: Sky Lantern Festival",
+  "promptTemplate": "A panoramic night sky in {{sky_mood}} filled with {{lantern_density}} drifting sky lanterns swaying gently in {{wind_drift}} wind, their {{glow_size}} paper lanterns casting luminous warmth, with {{lake_reflection}} mirroring the ascending lights.",
+  "variables": [
+    {
+      "name": "sky_mood",
+      "label": "Sky Atmosphere",
+      "values": [
+        {
+          "text": "Midnight Indigo",
+          "weight": 3
+        },
+        {
+          "text": "Dusk Amethyst",
+          "weight": 2
+        },
+        {
+          "text": "Deep Obsidian",
+          "weight": 2
+        },
+        {
+          "text": "Crimson Twilight",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "lantern_density",
+      "label": "Lantern Density",
+      "type": "number",
+      "min": 40,
+      "max": 180,
+      "step": 20,
+      "default": 100
+    },
+    {
+      "name": "wind_drift",
+      "label": "Wind Drift",
+      "type": "number",
+      "min": -2,
+      "max": 2,
+      "step": 0.5,
+      "default": 0.5
+    },
+    {
+      "name": "glow_size",
+      "label": "Glow Halo",
+      "type": "number",
+      "min": 1,
+      "max": 3,
+      "step": 0.5,
+      "default": 2
+    },
+    {
+      "name": "lake_reflection",
+      "label": "Water Mirror",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "release",
+      "label": "Release Lantern",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "updraft",
+      "label": "Thermal Gust",
+      "type": "trigger",
+      "share": "one"
+    }
+  ],
+  "ui": {
+    "skin": "desk",
+    "variant": "blue",
+    "title": "Sky Lanterns",
+    "tagline": "Launch glowing paper lanterns into the night",
+    "accent": "",
+    "groups": [
+      {
+        "title": "Release",
+        "controls": [
+          "release",
+          "updraft"
+        ]
+      },
+      {
+        "title": "Atmosphere",
+        "controls": [
+          "sky_mood",
+          "lake_reflection",
+          "glow_size"
+        ]
+      },
+      {
+        "title": "Flock & Wind",
+        "controls": [
+          "lantern_density",
+          "wind_drift"
+        ]
+      }
+    ],
+    "controls": {
+      "sky_mood": {
+        "widget": "list",
+        "hint": "Shifts the background palette from twilight to obsidian"
+      },
+      "lantern_density": {
+        "widget": "slider",
+        "hint": "Adjusts the total number of lanterns drifting aloft"
+      },
+      "wind_drift": {
+        "widget": "knob",
+        "hint": "Directs the gentle breeze left or right"
+      },
+      "glow_size": {
+        "widget": "slider",
+        "hint": "Expands the luminous halo surrounding each flame"
+      },
+      "lake_reflection": {
+        "widget": "switch",
+        "hint": "Mirrors the floating lights across dark water below"
+      },
+      "release": {
+        "widget": "pad",
+        "hint": "Sends your personal glowing lantern soaring upward"
+      },
+      "updraft": {
+        "widget": "button",
+        "hint": "Sweeps all lanterns up in a warm rising thermal"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "A night sky fills with hundreds of warm glowing paper lanterns, drifting gently upward with lake reflections while the room releases custom lanterns into the breeze.",
+    "prompt": "A sky lantern festival: anyone can release a glowing paper lantern in their own colour, which rises slowly into the night, swaying, joining hundreds of others drifting up and away, a warm glow on the crowd below. Make it striking on a big projected wall in a dark room: a bold composition, rich colour against real blacks, depth, glow, and motion that reads from across the room. Keep a demoscener's economy: lookup tables and fixed-size buffers kept in room.state, low-resolution offscreen buffers for any per-pixel work, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "calm",
+      "light",
+      "nature"
+    ],
+    "source": "lightworks/wish-lanterns~2"
+  }
+}

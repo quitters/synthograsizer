@@ -1,0 +1,145 @@
+{
+  "name": "Fairground Cork-Gun Shooting Gallery",
+  "promptTemplate": "A {{gallery_theme}} cork-gun shooting gallery with {{duck_speed}} speed rails, {{sight_motion}} sights, {{carnival_bulbs}} festoon lights, and {{round_duration}}s rounds",
+  "variables": [
+    {
+      "name": "gallery_theme",
+      "label": "Theme Palette",
+      "values": [
+        {
+          "text": "vintage_carnival",
+          "weight": 2
+        },
+        {
+          "text": "midnight_neon",
+          "weight": 1
+        },
+        {
+          "text": "brass_and_gold",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "duck_speed",
+      "label": "Duck Speed",
+      "type": "number",
+      "min": 0.6,
+      "max": 2.4,
+      "step": 0.2,
+      "default": 1.2
+    },
+    {
+      "name": "sight_motion",
+      "label": "Sight Pattern",
+      "values": [
+        {
+          "text": "sweep_sine",
+          "weight": 2
+        },
+        {
+          "text": "orbit_wave",
+          "weight": 1
+        },
+        {
+          "text": "quick_zigzag",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "carnival_bulbs",
+      "label": "Festoon Bulbs",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "round_duration",
+      "label": "Round Length",
+      "type": "number",
+      "min": 20,
+      "max": 60,
+      "step": 10,
+      "default": 30
+    },
+    {
+      "name": "pop",
+      "label": "POP!",
+      "type": "trigger",
+      "share": "all"
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "CORK-GUN GALLERY",
+    "tagline": "AIM TRUE AND POP DUCKS OFF THE RAILS",
+    "accent": "#f4c430",
+    "groups": [
+      {
+        "title": "TRIGGER",
+        "controls": [
+          "pop"
+        ]
+      },
+      {
+        "title": "GALLERY",
+        "controls": [
+          "gallery_theme",
+          "carnival_bulbs",
+          "round_duration"
+        ]
+      },
+      {
+        "title": "TARGET MECHANICS",
+        "controls": [
+          "duck_speed",
+          "sight_motion"
+        ]
+      }
+    ],
+    "controls": {
+      "gallery_theme": {
+        "widget": "pads",
+        "hint": "Swaps booth awnings and lighting palette"
+      },
+      "duck_speed": {
+        "widget": "slider",
+        "hint": "Speed of the tin duck and star conveyor rails"
+      },
+      "sight_motion": {
+        "widget": "list",
+        "hint": "Changes the sweeping path of each player's crosshair"
+      },
+      "carnival_bulbs": {
+        "widget": "lamp",
+        "hint": ""
+      },
+      "round_duration": {
+        "widget": "stepper",
+        "hint": "Seconds before crowning the highest scorer"
+      },
+      "pop": {
+        "widget": "pad",
+        "hint": "Mash to fire a cork when your sight sweeps over a duck"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "Tin ducks and stars glide across fairground rails while players track their sweeping crosshairs to fire corks for clangs, sparks, and points.",
+    "prompt": "A fairground cork-gun gallery: rows of tin ducks and stars slide past on rails under bulbs, and every person has a crosshair in their colour that sweeps across on its own; press 'pop' to fire a cork when yours is over a target, which flips down with a clang and scores. Make it a party game a whole room can follow from across the floor: bold shapes and bright colours on a dark ground, every player drawn in their own hue, big short labels (a score, GO!, the winner) in a heavy font, and a large, satisfying reaction on screen the instant anyone presses. It must work with one player or forty, scaling its lanes, seats or pieces to room.people and coping with people joining and leaving mid-round; play itself in a lively attract mode whenever nobody has pressed anything for a few seconds; and after a winner is shown, start the next round on its own. Keep it lean: game state in bounded arrays in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080.",
+    "look": [
+      "retro",
+      "energetic",
+      "light"
+    ],
+    "source": "play/shooting-gallery~11"
+  }
+}

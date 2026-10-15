@@ -1,0 +1,193 @@
+{
+  "name": "Diffusion Cloud Chamber",
+  "promptTemplate": "A cloud chamber with {{radiation_source}} radiation under {{magnetic_field}} T magnetic field, lit by {{illumination}} illumination in {{vapor_palette}} vapor, supersaturation {{supersaturation}} with decay speed {{decay_speed}}, bloom {{droplet_bloom}}, sound ionization {{sound_ionization}}",
+  "variables": [
+    {
+      "name": "radiation_source",
+      "label": "Radiation Source",
+      "values": [
+        {
+          "text": "Americium-241",
+          "weight": 3
+        },
+        {
+          "text": "Strontium-90",
+          "weight": 2
+        },
+        {
+          "text": "Cosmic Rays",
+          "weight": 2
+        },
+        {
+          "text": "Radon Ambient",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "magnetic_field",
+      "label": "Magnetic Field",
+      "type": "number",
+      "min": -6,
+      "max": 6,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "name": "vapor_palette",
+      "label": "Vapor Palette",
+      "values": [
+        {
+          "text": "Cherenkov Blue",
+          "weight": 3
+        },
+        {
+          "text": "Cryo Ice",
+          "weight": 2
+        },
+        {
+          "text": "Radium Glow",
+          "weight": 2
+        },
+        {
+          "text": "Infrared Mist",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "illumination",
+      "label": "Illumination",
+      "values": [
+        {
+          "text": "Cross Beam",
+          "weight": 2
+        },
+        {
+          "text": "Radial Core",
+          "weight": 2
+        },
+        {
+          "text": "Dark Chamber",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "supersaturation",
+      "label": "Supersaturation",
+      "type": "number",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.25,
+      "default": 1.25
+    },
+    {
+      "name": "decay_speed",
+      "label": "Decay Speed",
+      "type": "number",
+      "min": 0.4,
+      "max": 2.0,
+      "step": 0.2,
+      "default": 1.0
+    },
+    {
+      "name": "droplet_bloom",
+      "label": "Droplet Bloom",
+      "type": "number",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.25,
+      "default": 1.5
+    },
+    {
+      "name": "sound_ionization",
+      "label": "Sound Ionization",
+      "type": "toggle",
+      "default": true
+    }
+  ],
+  "ui": {
+    "skin": "desk",
+    "variant": "grey",
+    "title": "Cloud Chamber",
+    "tagline": "Particle tracks condensing in supersaturated vapor",
+    "accent": "",
+    "groups": [
+      {
+        "title": "Chamber Physics",
+        "controls": [
+          "radiation_source",
+          "magnetic_field",
+          "supersaturation"
+        ]
+      },
+      {
+        "title": "Optics & Vapor",
+        "controls": [
+          "vapor_palette",
+          "illumination",
+          "droplet_bloom",
+          "decay_speed"
+        ]
+      },
+      {
+        "title": "Sensors",
+        "controls": [
+          "sound_ionization"
+        ]
+      }
+    ],
+    "controls": {
+      "radiation_source": {
+        "widget": "list",
+        "hint": "Swaps isotope to alter particle mass and track density"
+      },
+      "magnetic_field": {
+        "widget": "slider",
+        "hint": "Bends charged electron trajectories into tight spirals"
+      },
+      "vapor_palette": {
+        "widget": "cycle",
+        "hint": "Shifts ionization glow spectrum"
+      },
+      "illumination": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "supersaturation": {
+        "widget": "knob",
+        "hint": "Increases condensation frequency across the plate"
+      },
+      "decay_speed": {
+        "widget": "knob",
+        "hint": "Rate at which ionized vapor trails disperse"
+      },
+      "droplet_bloom": {
+        "widget": "slider",
+        "hint": "Softens Bragg peaks into luminous droplet haloes"
+      },
+      "sound_ionization": {
+        "widget": "lamp",
+        "hint": "Spawns particle bursts on room acoustic transients"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "generative",
+    "blurb": "Condensing vapor streaks map radioactive decay and cosmic rays in real time against a deep dark chamber, spiralled by an adjustable magnetic field.",
+    "prompt": "A cloud chamber: fine white vapour trails of particles appear against black -- thick straight alpha tracks, thin wandering electrons, spiralling tracks bent by a magnetic field -- fading as quickly as they form. Make it striking on a big projected wall in a dark room: a bold composition, rich colour against real blacks, depth, glow, and motion that reads from across the room. Keep a demoscener's economy: lookup tables and fixed-size buffers kept in room.state, low-resolution offscreen buffers for any per-pixel work, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "light",
+      "nature",
+      "organic"
+    ],
+    "source": "lightworks/cloud-chamber~11"
+  }
+}

@@ -1,0 +1,160 @@
+{
+  "name": "Chamber of Persistence",
+  "promptTemplate": "A side-perspective Victorian zoetrope spinning with {{drum_speed}} speed, featuring a glowing {{figure}} in the interior chamber illuminated by {{palette_style}} tones, with {{slit_count}} optical slits, operating in {{strobe_sync}} mode with {{phosphor_glow}} persistence.",
+  "variables": [
+    {
+      "name": "figure",
+      "label": "Inner Figure",
+      "values": [
+        {
+          "text": "horse",
+          "weight": 3
+        },
+        {
+          "text": "dancer",
+          "weight": 2
+        },
+        {
+          "text": "phoenix",
+          "weight": 2
+        },
+        {
+          "text": "automaton",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "palette_style",
+      "label": "Light Tone",
+      "values": [
+        {
+          "text": "amber_lantern",
+          "weight": 3
+        },
+        {
+          "text": "neon_cyan",
+          "weight": 2
+        },
+        {
+          "text": "crimson_fire",
+          "weight": 2
+        },
+        {
+          "text": "monochrome_silver",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "strobe_sync",
+      "label": "Strobe Motion",
+      "values": [
+        {
+          "text": "sync_lock",
+          "weight": 3
+        },
+        {
+          "text": "free_spin",
+          "weight": 2
+        },
+        {
+          "text": "audio_strobe",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "drum_speed",
+      "label": "Drum Speed",
+      "type": "number",
+      "min": 0.4,
+      "max": 2.4,
+      "step": 0.2,
+      "default": 1.2
+    },
+    {
+      "name": "slit_count",
+      "label": "Slit Count",
+      "type": "number",
+      "min": 12,
+      "max": 24,
+      "step": 4,
+      "default": 16
+    },
+    {
+      "name": "phosphor_glow",
+      "label": "Phosphor Trails",
+      "type": "toggle",
+      "default": true
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "ZOETROPE +4 PERSISTENCE",
+    "tagline": "Victorian optical motion engine",
+    "accent": "#ffaa33",
+    "groups": [
+      {
+        "title": "CHAMBER APPARATUS",
+        "controls": [
+          "drum_speed",
+          "slit_count",
+          "strobe_sync"
+        ]
+      },
+      {
+        "title": "OPTICAL ILLUSION",
+        "controls": [
+          "figure",
+          "palette_style",
+          "phosphor_glow"
+        ]
+      }
+    ],
+    "controls": {
+      "figure": {
+        "widget": "pads",
+        "hint": "Select the luminous silhouette trapped inside"
+      },
+      "palette_style": {
+        "widget": "cycle",
+        "hint": "Shift lantern glass hue and rim lighting"
+      },
+      "strobe_sync": {
+        "widget": "buttons",
+        "hint": "Lock motion, drift freely, or flash with audio"
+      },
+      "drum_speed": {
+        "widget": "knob",
+        "hint": "Dial up the revolutions to lock the illusion"
+      },
+      "slit_count": {
+        "widget": "stepper",
+        "hint": "Changes the shutter frequency and aperture slots"
+      },
+      "phosphor_glow": {
+        "widget": "lamp",
+        "hint": "Leave persistence trails on the dark backdrop"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "demo",
+    "blurb": "A slotted Victorian zoetrope spins on the wall, bringing galloping silhouettes and leaping figures to life through optical strobe persistence.",
+    "prompt": "A spinning zoetrope seen from the side: through its slits a figure -- a galloping horse of light, a leaping dancer -- comes alive in a strobing loop, the drum's slats blurring past, the motion snapping into focus as the drum reaches speed. Make it striking on a big projected wall in a dark room: a bold composition, rich colour against real blacks, depth, glow, and motion that reads from across the room. Keep a demoscener's economy: lookup tables and fixed-size buffers kept in room.state, low-resolution offscreen buffers for any per-pixel work, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "retro",
+      "light",
+      "energetic"
+    ],
+    "source": "lightworks/zoetrope~2"
+  }
+}

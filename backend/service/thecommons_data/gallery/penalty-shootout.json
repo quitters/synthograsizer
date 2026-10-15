@@ -1,0 +1,171 @@
+{
+  "name": "Penalty Shootout: Under the Floodlights",
+  "promptTemplate": "A lively penalty shootout under {{stadium_atmosphere}} floodlights with {{arrow_speed}} arrow speed, {{floodlight_glow}} beam glow, {{crowd_cheer}} crowd atmosphere, and {{celebration_fx}} celebration effects.",
+  "variables": [
+    {
+      "name": "stadium_atmosphere",
+      "label": "Stadium Atmosphere",
+      "values": [
+        {
+          "text": "Electric Night",
+          "weight": 2
+        },
+        {
+          "text": "Neon Cyber",
+          "weight": 1
+        },
+        {
+          "text": "World Cup Final",
+          "weight": 1
+        },
+        {
+          "text": "Retro Arcade",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "arrow_speed",
+      "label": "Sweep Speed",
+      "type": "number",
+      "min": 1.0,
+      "max": 3.0,
+      "step": 0.2,
+      "default": 1.8
+    },
+    {
+      "name": "floodlight_glow",
+      "label": "Floodlight Glow",
+      "type": "number",
+      "min": 0.3,
+      "max": 1.0,
+      "step": 0.1,
+      "default": 0.7
+    },
+    {
+      "name": "crowd_cheer",
+      "label": "Crowd Style",
+      "values": [
+        {
+          "text": "Wild Flashbulbs",
+          "weight": 2
+        },
+        {
+          "text": "Rhythmic Wave",
+          "weight": 1
+        },
+        {
+          "text": "Ultras Flares",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "celebration_fx",
+      "label": "Celebration FX",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "shoot",
+      "label": "Shoot / Kick",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "dive_left",
+      "label": "Dive Left",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "dive_right",
+      "label": "Dive Right",
+      "type": "trigger",
+      "share": "all"
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "PENALTY SHOOTOUT '98",
+    "tagline": "Two teams face off under the blinding arena floodlights",
+    "accent": "#ff2a6d",
+    "groups": [
+      {
+        "title": "Actions",
+        "controls": [
+          "shoot",
+          "dive_left",
+          "dive_right"
+        ]
+      },
+      {
+        "title": "Atmosphere",
+        "controls": [
+          "stadium_atmosphere",
+          "crowd_cheer",
+          "celebration_fx"
+        ]
+      },
+      {
+        "title": "Pitch Calibration",
+        "controls": [
+          "arrow_speed",
+          "floodlight_glow"
+        ]
+      }
+    ],
+    "controls": {
+      "stadium_atmosphere": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "arrow_speed": {
+        "widget": "knob",
+        "hint": "Pace of the swinging penalty aim cursor"
+      },
+      "floodlight_glow": {
+        "widget": "slider",
+        "hint": "Intensity of the overhead arena light beams"
+      },
+      "crowd_cheer": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "celebration_fx": {
+        "widget": "lamp",
+        "hint": "Burst neon confetti and stadium particles on a goal"
+      },
+      "shoot": {
+        "widget": "pad",
+        "hint": "Kick the ball when the sweeping arrow lines up"
+      },
+      "dive_left": {
+        "widget": "button",
+        "hint": "Throw the keeper toward the left post"
+      },
+      "dive_right": {
+        "widget": "button",
+        "hint": "Throw the keeper toward the right post"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "Two teams take turns taking penalties and defending the net under arena floodlights, timing shots and diving as the stadium crowd reacts.",
+    "prompt": "A penalty shootout under floodlights: the teams take turns to shoot and to keep goal, an aim arrow sweeping across the goal mouth; the shooting team presses 'shoot' to kick where the arrow points, while the keeping team presses 'dive left' or 'dive right'; the net ripples and the crowd flashes. Two teams: tables alternate between them, or people alternate when everyone is at one table; show each team's colours and score clearly. Make it a party game a whole room can follow from across the floor: bold shapes and bright colours on a dark ground, every player drawn in their own hue, big short labels (a score, GO!, the winner) in a heavy font, and a large, satisfying reaction on screen the instant anyone presses. It must work with one player or forty, scaling its lanes, seats or pieces to room.people and coping with people joining and leaving mid-round; play itself in a lively attract mode whenever nobody has pressed anything for a few seconds; and after a winner is shown, start the next round on its own. Keep it lean: game state in bounded arrays in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080.",
+    "look": [
+      "retro",
+      "light",
+      "energetic"
+    ],
+    "source": "play/penalty-shootout~11"
+  }
+}

@@ -1,0 +1,206 @@
+{
+  "name": "Luminous Span",
+  "promptTemplate": "Suspension bridge at night with {{cable_count}} LED cables displaying {{pattern}} in {{palette}} at {{speed}}x speed, with water ripple {{water_ripple}}, city glow {{city_glow}}, traffic density {{traffic_density}}, river fog {{fog_density}}, and audio reactivity {{audio_surge}}.",
+  "variables": [
+    {
+      "name": "pattern",
+      "label": "LED Pattern",
+      "values": [
+        {
+          "text": "Rain Cascade",
+          "weight": 3
+        },
+        {
+          "text": "Tidal Surge",
+          "weight": 2
+        },
+        {
+          "text": "Aurora Veil",
+          "weight": 2
+        },
+        {
+          "text": "Shadow & Echo",
+          "weight": 1
+        },
+        {
+          "text": "Equalizer Waves",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "palette",
+      "label": "Color Palette",
+      "values": [
+        {
+          "text": "Pure White & Ice",
+          "weight": 3
+        },
+        {
+          "text": "Cyberpunk Tokyo",
+          "weight": 2
+        },
+        {
+          "text": "Warm Amber",
+          "weight": 1
+        },
+        {
+          "text": "Deep Ocean",
+          "weight": 2
+        },
+        {
+          "text": "Monochrome Noir",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "cable_count",
+      "label": "Cable Density",
+      "type": "number",
+      "min": 60,
+      "max": 180,
+      "step": 20,
+      "default": 120
+    },
+    {
+      "name": "speed",
+      "label": "Ripple Speed",
+      "type": "number",
+      "min": 0.2,
+      "max": 2.0,
+      "step": 0.2,
+      "default": 1.0
+    },
+    {
+      "name": "water_ripple",
+      "label": "Water Ripple",
+      "type": "number",
+      "min": 0.2,
+      "max": 2.0,
+      "step": 0.2,
+      "default": 1.0
+    },
+    {
+      "name": "traffic_density",
+      "label": "Traffic",
+      "type": "number",
+      "min": 20,
+      "max": 100,
+      "step": 10,
+      "default": 60
+    },
+    {
+      "name": "city_glow",
+      "label": "City Depth",
+      "type": "number",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.1,
+      "default": 0.6
+    },
+    {
+      "name": "fog_density",
+      "label": "River Mist",
+      "type": "number",
+      "min": 0.1,
+      "max": 1.0,
+      "step": 0.1,
+      "default": 0.5
+    },
+    {
+      "name": "audio_surge",
+      "label": "Audio Surge",
+      "type": "toggle",
+      "default": true
+    }
+  ],
+  "ui": {
+    "skin": "desk",
+    "variant": "blue",
+    "title": "Bridge Lighting Ctrl",
+    "tagline": "Suspension bridge architectural illuminations",
+    "accent": "",
+    "groups": [
+      {
+        "title": "Light Program",
+        "controls": [
+          "pattern",
+          "palette",
+          "speed",
+          "audio_surge"
+        ]
+      },
+      {
+        "title": "Structure",
+        "controls": [
+          "cable_count",
+          "traffic_density"
+        ]
+      },
+      {
+        "title": "Atmosphere",
+        "controls": [
+          "water_ripple",
+          "city_glow",
+          "fog_density"
+        ]
+      }
+    ],
+    "controls": {
+      "pattern": {
+        "widget": "list",
+        "hint": "Select the vertical lighting animation routine"
+      },
+      "palette": {
+        "widget": "cycle",
+        "hint": "Switch bridge illumination colorway"
+      },
+      "cable_count": {
+        "widget": "slider",
+        "hint": "Number of vertical LED strands along the deck"
+      },
+      "speed": {
+        "widget": "knob",
+        "hint": "Cycle rate of descending light ripples"
+      },
+      "water_ripple": {
+        "widget": "knob",
+        "hint": "Distortion of mirror reflection on the river"
+      },
+      "traffic_density": {
+        "widget": "slider",
+        "hint": "Headlight streaks traversing the lower deck"
+      },
+      "city_glow": {
+        "widget": "slider",
+        "hint": "Illumination of skyline towers across the water"
+      },
+      "fog_density": {
+        "widget": "slider",
+        "hint": "Haze obscuring the river surface"
+      },
+      "audio_surge": {
+        "widget": "lamp",
+        "hint": "Bass pulses send light waves across the span"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "generative",
+    "blurb": "A suspension bridge glows in the night as animated LED patterns ripple down its vertical cables and reflect across the river surface.",
+    "prompt": "A suspension bridge at night whose hundreds of vertical cables are strips of white LEDs: slow generative sequences ripple along them -- falling rain, passing shadows, breathing tides -- mirrored and blurred in the river beneath, city lights far behind. Make it striking on a big projected wall in a dark room: a bold composition, rich colour against real blacks, depth, glow, and motion that reads from across the room. Keep a demoscener's economy: lookup tables and fixed-size buffers kept in room.state, low-resolution offscreen buffers for any per-pixel work, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "light",
+      "calm",
+      "geometric"
+    ],
+    "source": "lightworks/bridge-leds~13"
+  }
+}

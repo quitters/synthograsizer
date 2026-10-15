@@ -1,0 +1,156 @@
+{
+  "name": "Mountain Lantern Relay",
+  "promptTemplate": "A nocturnal mountain relay drawn in {{mountain_style}} ridges beneath {{night_sky}}, glowing lanterns flowing at {{lantern_speed}}x speed, with {{beacon_burst}}x summit flare and {{trail_glow}} trails.",
+  "variables": [
+    {
+      "name": "mountain_style",
+      "label": "Mountain Style",
+      "values": [
+        {
+          "text": "craggy",
+          "weight": 2
+        },
+        {
+          "text": "serene",
+          "weight": 1
+        },
+        {
+          "text": "volcanic",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "lantern_speed",
+      "label": "Lantern Speed",
+      "type": "number",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.25,
+      "default": 1.25
+    },
+    {
+      "name": "night_sky",
+      "label": "Night Sky",
+      "values": [
+        {
+          "text": "aurora",
+          "weight": 2
+        },
+        {
+          "text": "starfield",
+          "weight": 1
+        },
+        {
+          "text": "deep_violet",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "beacon_burst",
+      "label": "Summit Burst",
+      "type": "number",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "name": "trail_glow",
+      "label": "Trail Glow",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "pass",
+      "label": "Pass Lantern",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "ignite",
+      "label": "Burst Embers",
+      "type": "trigger",
+      "share": "all"
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "LANTERN RELAY",
+    "tagline": "Pass glowing fire along the ridge to light the summit",
+    "accent": "#ff9d2e",
+    "groups": [
+      {
+        "title": "Torch Actions",
+        "controls": [
+          "pass",
+          "ignite"
+        ]
+      },
+      {
+        "title": "Pace & Flare",
+        "controls": [
+          "lantern_speed",
+          "beacon_burst",
+          "trail_glow"
+        ]
+      },
+      {
+        "title": "Mountain View",
+        "controls": [
+          "mountain_style",
+          "night_sky"
+        ]
+      }
+    ],
+    "controls": {
+      "mountain_style": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "lantern_speed": {
+        "widget": "knob",
+        "hint": "Speed of flame travelling between relay runners"
+      },
+      "night_sky": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "beacon_burst": {
+        "widget": "stepper",
+        "hint": "Intensity of the victory flare at the summit"
+      },
+      "trail_glow": {
+        "widget": "lamp",
+        "hint": "Cast a radiant wake along the mountain path"
+      },
+      "pass": {
+        "widget": "pad",
+        "hint": "Hand on your lantern to the next station up the ridge"
+      },
+      "ignite": {
+        "widget": "button",
+        "hint": "Shower your station in brilliant sparks"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "Guests stationed along a mountain switchback pass glowing lanterns to one another to ignite a beacon at the summit.",
+    "prompt": "A lantern relay up a mountain path at night, a figure for every person standing along it: lanterns wait at each person until they press 'pass', which hands them on to the next; the room keeps lanterns flowing to the summit, where each one lights a beacon. Make it a party game a whole room can follow from across the floor: bold shapes and bright colours on a dark ground, every player drawn in their own hue, big short labels (a score, GO!, the winner) in a heavy font, and a large, satisfying reaction on screen the instant anyone presses. It must work with one player or forty, scaling its lanes, seats or pieces to room.people and coping with people joining and leaving mid-round; play itself in a lively attract mode whenever nobody has pressed anything for a few seconds; and after a winner is shown, start the next round on its own. Keep it lean: game state in bounded arrays in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080.",
+    "look": [
+      "energetic",
+      "light",
+      "nature"
+    ],
+    "source": "play/lantern-relay~3"
+  }
+}

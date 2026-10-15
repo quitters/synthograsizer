@@ -1,0 +1,167 @@
+{
+  "name": "Co-op Vector Bastion",
+  "promptTemplate": "Co-op neon vector tower defense with {{enemy_style}} invaders and {{turret_mode}} defense batteries under {{difficulty}} wave pressure at speed {{wave_speed}} with glow {{grid_glow}}",
+  "variables": [
+    {
+      "name": "enemy_style",
+      "label": "Invader Matrix",
+      "values": [
+        {
+          "text": "geometric",
+          "weight": 2
+        },
+        {
+          "text": "biomorphic",
+          "weight": 1
+        },
+        {
+          "text": "crystalline",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "turret_mode",
+      "label": "Battery Ordinance",
+      "values": [
+        {
+          "text": "laser beams",
+          "weight": 2
+        },
+        {
+          "text": "plasma pulses",
+          "weight": 1
+        },
+        {
+          "text": "seeking sparks",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "difficulty",
+      "label": "Wave Density",
+      "values": [
+        {
+          "text": "steady",
+          "weight": 1
+        },
+        {
+          "text": "intense",
+          "weight": 2
+        },
+        {
+          "text": "overdrive",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "wave_speed",
+      "label": "March Velocity",
+      "type": "number",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.1,
+      "default": 1.0
+    },
+    {
+      "name": "grid_glow",
+      "label": "Defense Core Glow",
+      "type": "number",
+      "min": 0.2,
+      "max": 1.0,
+      "step": 0.1,
+      "default": 0.6
+    },
+    {
+      "name": "fire",
+      "label": "Fire Battery",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "emp_blast",
+      "label": "EMP Shockwave",
+      "type": "trigger",
+      "share": "all"
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "acid",
+    "title": "VECTOR BASTION +5",
+    "tagline": "Synchronized cooperative arcade defense grid",
+    "accent": "#00ffcc",
+    "groups": [
+      {
+        "title": "Weapons Battery",
+        "controls": [
+          "fire",
+          "emp_blast",
+          "turret_mode"
+        ]
+      },
+      {
+        "title": "Invader Threat",
+        "controls": [
+          "difficulty",
+          "wave_speed",
+          "enemy_style"
+        ]
+      },
+      {
+        "title": "Grid Matrix",
+        "controls": [
+          "grid_glow"
+        ]
+      }
+    ],
+    "controls": {
+      "enemy_style": {
+        "widget": "cycle",
+        "hint": "Morph invader hulls between geometric, organic and gem"
+      },
+      "turret_mode": {
+        "widget": "pads",
+        "hint": "Switch battery munitions between beams, pulses and sparks"
+      },
+      "difficulty": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "wave_speed": {
+        "widget": "knob",
+        "hint": "Accelerate enemy descent toward the baseline"
+      },
+      "grid_glow": {
+        "widget": "slider",
+        "hint": "Intensity of the vector background grid lines"
+      },
+      "fire": {
+        "widget": "pad",
+        "hint": "Tap to launch a colored blast from your lane"
+      },
+      "emp_blast": {
+        "widget": "button",
+        "hint": "Detonate a room-wide shockwave against all invaders"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "A co-operative tower defence: waves of drifting shapes descend from the top, everyone in the room can fire at them, each person's shots burst in their own colour, and a live scoreboard along the edge shows each table's score as they rack up hits",
+    "prompt": "a co-operative tower defence: waves of drifting shapes descend from the top, everyone in the room can fire at them, each person's shots burst in their own colour, and a live scoreboard along the edge shows each table's score as they rack up hits",
+    "look": [
+      "geometric",
+      "retro"
+    ],
+    "source": "trial-3/flash-medium/tower-defence~3"
+  }
+}

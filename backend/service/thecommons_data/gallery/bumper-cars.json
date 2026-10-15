@@ -1,0 +1,131 @@
+{
+  "name": "Electric Bumper Arena",
+  "promptTemplate": "High-voltage bumper car derby in a {{arena_style}} arena with {{spark_intensity}} sparks running at {{arena_speed}}x speed with {{floor_trails}} tire trails",
+  "variables": [
+    {
+      "name": "arena_style",
+      "label": "Arena Style",
+      "values": [
+        {
+          "text": "cyber_neon",
+          "weight": 2
+        },
+        {
+          "text": "carnival",
+          "weight": 2
+        },
+        {
+          "text": "electric_storm",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "spark_intensity",
+      "label": "Sparks",
+      "values": [
+        {
+          "text": "sparky",
+          "weight": 2
+        },
+        {
+          "text": "explosive",
+          "weight": 2
+        },
+        {
+          "text": "supernova",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "arena_speed",
+      "label": "Game Speed",
+      "type": "number",
+      "min": 0.6,
+      "max": 1.8,
+      "step": 0.2,
+      "default": 1.0
+    },
+    {
+      "name": "floor_trails",
+      "label": "Tire Trails",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "boost",
+      "label": "Boost!",
+      "type": "trigger",
+      "share": "all"
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "BUMPER ARENA +3",
+    "tagline": "SMASH CARS, RACK POINTS, TAKE THE DERBY CROWN",
+    "accent": "#00f3ff",
+    "groups": [
+      {
+        "title": "Drive",
+        "controls": [
+          "boost"
+        ]
+      },
+      {
+        "title": "Arena Setup",
+        "controls": [
+          "arena_style",
+          "arena_speed"
+        ]
+      },
+      {
+        "title": "Effects",
+        "controls": [
+          "spark_intensity",
+          "floor_trails"
+        ]
+      }
+    ],
+    "controls": {
+      "arena_style": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "spark_intensity": {
+        "widget": "pads",
+        "hint": ""
+      },
+      "arena_speed": {
+        "widget": "knob",
+        "hint": "Crank up arena motor and ramming speed"
+      },
+      "floor_trails": {
+        "widget": "lamp",
+        "hint": ""
+      },
+      "boost": {
+        "widget": "pad",
+        "hint": "Mash to rocket forward and spin out rival cars"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "Self-steering bumper cars clash inside an electrified derby arena while players slam boost to spin out opponents and score points.",
+    "prompt": "Bumper cars in a fairground arena with sparking poles overhead, one car per person driving itself around: press 'boost' to lunge forward, and bumping another car spins it out and scores you a point; sparks fly on every hit, and the top bumpers are listed at the side. Make it a party game a whole room can follow from across the floor: bold shapes and bright colours on a dark ground, every player drawn in their own hue, big short labels (a score, GO!, the winner) in a heavy font, and a large, satisfying reaction on screen the instant anyone presses. It must work with one player or forty, scaling its lanes, seats or pieces to room.people and coping with people joining and leaving mid-round; play itself in a lively attract mode whenever nobody has pressed anything for a few seconds; and after a winner is shown, start the next round on its own. Keep it lean: game state in bounded arrays in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080.",
+    "look": [
+      "retro",
+      "energetic",
+      "light"
+    ],
+    "source": "play/bumper-cars~3"
+  }
+}

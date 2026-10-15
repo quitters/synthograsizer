@@ -1,0 +1,152 @@
+{
+  "name": "split_flap_departure_board",
+  "promptTemplate": "A station split-flap departure board in {{palette}} palette with {{cascade_speed}} cascade speed and {{flap_glow}} glow, cycling via {{message_cycle}} with mechanical {{jitter}} vibration and {{wear_vignette}} ambient depth.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Color Scheme",
+      "values": [
+        {
+          "text": "amber_terminal",
+          "weight": 2
+        },
+        {
+          "text": "solari_classic",
+          "weight": 3
+        },
+        {
+          "text": "matrix_emerald",
+          "weight": 1
+        },
+        {
+          "text": "vapor_neon",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "cascade_speed",
+      "label": "Cascade Speed",
+      "type": "number",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.5,
+      "default": 1.0
+    },
+    {
+      "name": "flap_glow",
+      "label": "Terminal Glow",
+      "type": "number",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.2,
+      "default": 0.6
+    },
+    {
+      "name": "message_cycle",
+      "label": "Cycle Mode",
+      "values": [
+        {
+          "text": "bar_cascade",
+          "weight": 3
+        },
+        {
+          "text": "rapid_riffle",
+          "weight": 1
+        },
+        {
+          "text": "audio_sync",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "jitter",
+      "label": "Mechanical Tremor",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "wear_vignette",
+      "label": "Ambient Shadow",
+      "type": "number",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.2,
+      "default": 0.6
+    }
+  ],
+  "ui": {
+    "skin": "textmode",
+    "variant": "amber",
+    "title": "SOLARI.SYS",
+    "tagline": "DEPARTURE BOARD TELEMETRY & FLAP RELAY",
+    "accent": "#ffaa22",
+    "groups": [
+      {
+        "title": "TIMETABLE",
+        "controls": [
+          "message_cycle",
+          "cascade_speed"
+        ]
+      },
+      {
+        "title": "DISPLAY",
+        "controls": [
+          "palette",
+          "flap_glow"
+        ]
+      },
+      {
+        "title": "MECHANICAL",
+        "controls": [
+          "jitter",
+          "wear_vignette"
+        ]
+      }
+    ],
+    "controls": {
+      "palette": {
+        "widget": "cycle",
+        "hint": "Cycle board phosphor and flap colors"
+      },
+      "cascade_speed": {
+        "widget": "slider",
+        "hint": "Riffle speed across the letter grid"
+      },
+      "flap_glow": {
+        "widget": "knob",
+        "hint": "Terminal character glow intensity"
+      },
+      "message_cycle": {
+        "widget": "buttons",
+        "hint": "Switch destinations on bars or audio beat"
+      },
+      "jitter": {
+        "widget": "switch",
+        "hint": "Bass-driven chassis vibration"
+      },
+      "wear_vignette": {
+        "widget": "slider",
+        "hint": "Shadow around the station frame"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "generative",
+    "blurb": "A mechanical split-flap departures board clatters through destinations and tempos, casting hinge shadows and phosphor glow across the wall.",
+    "prompt": "A station's split-flap departure board: rows of flaps riffling through the alphabet, each character stopping in turn, spelling destinations that are moods and times that are tempos, the whole board cascading to a new message every few bars, with a soft hinge shadow on every flap. Make it striking on a big projected wall in a dark room: a bold composition, rich colour against real blacks, depth, glow, and motion that reads from across the room. Keep a demoscener's economy: lookup tables and fixed-size buffers kept in room.state, low-resolution offscreen buffers for any per-pixel work, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "retro",
+      "text",
+      "light"
+    ],
+    "source": "lightworks/split-flap~2"
+  }
+}

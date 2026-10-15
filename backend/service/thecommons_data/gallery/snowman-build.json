@@ -1,0 +1,137 @@
+{
+  "name": "Snowman Showdown",
+  "promptTemplate": "A lively snowman building contest under a {{night_sky}} sky with {{snowfall_speed}} snow intensity, {{party_style}} decorations, and blizzard bursts {{blizzard_mode}}.",
+  "variables": [
+    {
+      "name": "night_sky",
+      "label": "Night Sky",
+      "values": [
+        {
+          "text": "midnight_aurora",
+          "weight": 2
+        },
+        {
+          "text": "twilight_indigo",
+          "weight": 1
+        },
+        {
+          "text": "deep_frost",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "snowfall_speed",
+      "label": "Snowfall Speed",
+      "type": "number",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "name": "party_style",
+      "label": "Party Style",
+      "values": [
+        {
+          "text": "classic_cozy",
+          "weight": 2
+        },
+        {
+          "text": "neon_glow",
+          "weight": 1
+        },
+        {
+          "text": "golden_crown",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "blizzard_mode",
+      "label": "Blizzard Gusts",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "name": "roll",
+      "label": "Roll Snowball",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "decorate",
+      "label": "Decorate!",
+      "type": "trigger",
+      "share": "all"
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "ice",
+    "title": "SNOWMAN SHOWDOWN",
+    "tagline": "Mash your buttons to roll, stack and win!",
+    "accent": "#41d3bd",
+    "groups": [
+      {
+        "title": "Build",
+        "controls": [
+          "roll",
+          "decorate"
+        ]
+      },
+      {
+        "title": "Weather & Atmosphere",
+        "controls": [
+          "snowfall_speed",
+          "blizzard_mode",
+          "night_sky",
+          "party_style"
+        ]
+      }
+    ],
+    "controls": {
+      "night_sky": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "snowfall_speed": {
+        "widget": "knob",
+        "hint": "Dial up the flurry density on the garden"
+      },
+      "party_style": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "blizzard_mode": {
+        "widget": "lamp",
+        "hint": "Whip the snowflakes sideways in strong squalls"
+      },
+      "roll": {
+        "widget": "pad",
+        "hint": "Mash to roll and pack the three tiers of snow"
+      },
+      "decorate": {
+        "widget": "pad",
+        "hint": "Add coal eyes, carrot nose, scarf and crown"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "Guests race to pack and dress their own custom snowmen in a blustery garden, cheering as each ball rolls and snaps into place.",
+    "prompt": "Everyone builds a snowman in a snowy garden: presses of 'roll' grow the snowballs, bottom, middle and head, and once they are stacked, presses of 'decorate' add coal eyes, a carrot nose, a scarf in the presser's colour and a hat; the finished snowman waves, and it snows again. Make it a party game a whole room can follow from across the floor: bold shapes and bright colours on a dark ground, every player drawn in their own hue, big short labels (a score, GO!, the winner) in a heavy font, and a large, satisfying reaction on screen the instant anyone presses. It must work with one player or forty, scaling its lanes, seats or pieces to room.people and coping with people joining and leaving mid-round; play itself in a lively attract mode whenever nobody has pressed anything for a few seconds; and after a winner is shown, start the next round on its own. Keep it lean: game state in bounded arrays in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080.",
+    "look": [
+      "energetic",
+      "retro",
+      "light"
+    ],
+    "source": "play/snowman-build~11"
+  }
+}

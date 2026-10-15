@@ -1,0 +1,147 @@
+{
+  "name": "Singularity",
+  "promptTemplate": "A black hole in {{palette}} hues spinning at {{spin}}x speed with {{disk_density}} density plasma, {{doppler_strength}}x Doppler beaming, {{lens_flare}} anamorphic flare, rendered in {{upscale_style}}",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Accretion Palette",
+      "values": [
+        {
+          "text": "cinematic",
+          "weight": 3
+        },
+        {
+          "text": "infrared",
+          "weight": 2
+        },
+        {
+          "text": "quasar",
+          "weight": 2
+        },
+        {
+          "text": "ultraviolet",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "spin",
+      "label": "Spin Velocity",
+      "type": "number",
+      "min": 0.2,
+      "max": 2,
+      "step": 0.2,
+      "default": 1
+    },
+    {
+      "name": "disk_density",
+      "label": "Plasma Turbulence",
+      "type": "number",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "name": "doppler_strength",
+      "label": "Doppler Beaming",
+      "type": "number",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.5,
+      "default": 1.5
+    },
+    {
+      "name": "lens_flare",
+      "label": "Anamorphic Flare",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "upscale_style",
+      "label": "Upscale Filtering",
+      "values": [
+        {
+          "text": "cinematic_smooth",
+          "weight": 3
+        },
+        {
+          "text": "retro_pixels",
+          "weight": 2
+        },
+        {
+          "text": "crt_scanline",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "SINGULARITY // LUT-DEMO",
+    "tagline": "GRAVITATIONAL LENS & ACCRETION DISK",
+    "accent": "#ffaa20",
+    "groups": [
+      {
+        "title": "Radiation",
+        "controls": [
+          "palette",
+          "doppler_strength",
+          "lens_flare"
+        ]
+      },
+      {
+        "title": "Spacetime",
+        "controls": [
+          "spin",
+          "disk_density",
+          "upscale_style"
+        ]
+      }
+    ],
+    "controls": {
+      "palette": {
+        "widget": "pads",
+        "hint": "Shifts thermal emission spectrum"
+      },
+      "spin": {
+        "widget": "knob",
+        "hint": "Spins plasma around the event horizon"
+      },
+      "disk_density": {
+        "widget": "slider",
+        "hint": "Adds turbulent shear bands to the disk"
+      },
+      "doppler_strength": {
+        "widget": "slider",
+        "hint": "Blazes the approaching disk limb"
+      },
+      "lens_flare": {
+        "widget": "lamp",
+        "hint": "Anamorphic glow across the singularity"
+      },
+      "upscale_style": {
+        "widget": "cycle",
+        "hint": "Select smooth scaling, raw pixels, or CRT"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "demo",
+    "blurb": "A spinning black hole pulls a glowing accretion disk over its dark event horizon, bending background stars into Einstein rings while viewers tweak spin velocity and Doppler beaming.",
+    "prompt": "A black hole with a blazing accretion disk, the far side of the disk lensed up and over the shadow into a bright ring, Doppler-bright on the approaching side, the starfield behind it smeared into arcs, all on a low-resolution buffer. Make it striking on a big projected wall in a dark room: a bold composition, rich colour against real blacks, depth, glow, and motion that reads from across the room. Keep a demoscener's economy: lookup tables and fixed-size buffers kept in room.state, low-resolution offscreen buffers for any per-pixel work, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "space",
+      "3d",
+      "retro"
+    ],
+    "source": "lightworks/accretion-disk~3"
+  }
+}

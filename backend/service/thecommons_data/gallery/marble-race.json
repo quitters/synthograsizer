@@ -1,0 +1,160 @@
+{
+  "name": "Marble Grand Prix",
+  "promptTemplate": "A high-energy marble party race down a track with {{track_theme}} visual styling, bounciness at {{bounciness}}, speed factor {{track_speed}}, boost power set to {{boost_power}}, and motion trails {{trails}}.",
+  "variables": [
+    {
+      "name": "track_theme",
+      "label": "Track Theme",
+      "values": [
+        {
+          "text": "neon_arcade",
+          "weight": 2
+        },
+        {
+          "text": "carved_timber",
+          "weight": 2
+        },
+        {
+          "text": "cyber_circuit",
+          "weight": 1
+        },
+        {
+          "text": "midnight_gold",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "bounciness",
+      "label": "Bounciness",
+      "type": "number",
+      "min": 0.2,
+      "max": 1.0,
+      "step": 0.1,
+      "default": 0.6
+    },
+    {
+      "name": "track_speed",
+      "label": "Track Speed",
+      "type": "number",
+      "min": 0.8,
+      "max": 2.0,
+      "step": 0.1,
+      "default": 1.2
+    },
+    {
+      "name": "boost_power",
+      "label": "Boost Power",
+      "values": [
+        {
+          "text": "punchy",
+          "weight": 2
+        },
+        {
+          "text": "gentle",
+          "weight": 1
+        },
+        {
+          "text": "hyperdrive",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "trails",
+      "label": "Trails",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "boost",
+      "label": "Boost!",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "reset_race",
+      "label": "Restart Race",
+      "type": "trigger",
+      "share": "one"
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "MARBLE GP +4 TRAINER",
+    "tagline": "SMASH BOOST TO RUSH YOUR MARBLE AHEAD",
+    "accent": "#00f0ff",
+    "groups": [
+      {
+        "title": "Throttle",
+        "controls": [
+          "boost",
+          "boost_power"
+        ]
+      },
+      {
+        "title": "Track Physics",
+        "controls": [
+          "track_speed",
+          "bounciness"
+        ]
+      },
+      {
+        "title": "Visuals & Race Contr",
+        "controls": [
+          "track_theme",
+          "trails",
+          "reset_race"
+        ]
+      }
+    ],
+    "controls": {
+      "track_theme": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "bounciness": {
+        "widget": "slider",
+        "hint": "Controls ricochet force off pins and rivals"
+      },
+      "track_speed": {
+        "widget": "knob",
+        "hint": "Increase gravitational pull along the chute"
+      },
+      "boost_power": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "trails": {
+        "widget": "lamp",
+        "hint": ""
+      },
+      "boost": {
+        "widget": "pad",
+        "hint": "Nudge your marble forward and spark the rails"
+      },
+      "reset_race": {
+        "widget": "button",
+        "hint": "Return all marbles to the starting gate"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "Multiplayer marble party race where everyone nudges their own colored sphere down a winding course of chutes, funnels, and pins.",
+    "prompt": "A marble race down a long wooden track of chutes, spirals and funnels, one glass marble per person in their colour: press 'boost' to give yours a nudge, with a short cooldown between boosts; marbles clack and jostle, and the finish order lines up on a podium. Make it a party game a whole room can follow from across the floor: bold shapes and bright colours on a dark ground, every player drawn in their own hue, big short labels (a score, GO!, the winner) in a heavy font, and a large, satisfying reaction on screen the instant anyone presses. It must work with one player or forty, scaling its lanes, seats or pieces to room.people and coping with people joining and leaving mid-round; play itself in a lively attract mode whenever nobody has pressed anything for a few seconds; and after a winner is shown, start the next round on its own. Keep it lean: game state in bounded arrays in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080.",
+    "look": [
+      "retro",
+      "energetic",
+      "light"
+    ],
+    "source": "play/marble-race~11"
+  }
+}

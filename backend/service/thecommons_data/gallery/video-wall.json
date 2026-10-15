@@ -1,0 +1,194 @@
+{
+  "name": "Paik Cathedral: CRT Video Wall",
+  "promptTemplate": "A stacked video wall in {{wall_architecture}} formation, transmitting {{synth_feed}} in {{phosphor_palette}} phosphors with {{vertical_roll}} vertical hold drift, {{bloom_glow}} phosphor bloom, {{scanline_density}} scanline density, encased in {{cabinet_finish}} cabinetry with {{static_flicker}} cathode static.",
+  "variables": [
+    {
+      "name": "wall_architecture",
+      "label": "Wall Architecture",
+      "values": [
+        {
+          "text": "monolith",
+          "weight": 3
+        },
+        {
+          "text": "irregular_stack",
+          "weight": 2
+        },
+        {
+          "text": "pyramid_shrine",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "synth_feed",
+      "label": "Synthesizer Feed",
+      "values": [
+        {
+          "text": "paik_abe_synth",
+          "weight": 3
+        },
+        {
+          "text": "electromagnetic_moire",
+          "weight": 2
+        },
+        {
+          "text": "satellite_kaleidoscope",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "phosphor_palette",
+      "label": "Phosphor Palette",
+      "values": [
+        {
+          "text": "hyper_trinitron",
+          "weight": 3
+        },
+        {
+          "text": "solar_ultraviolet",
+          "weight": 2
+        },
+        {
+          "text": "amber_phosphor",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "vertical_roll",
+      "label": "V-Hold Drift",
+      "type": "number",
+      "min": 0,
+      "max": 1,
+      "step": 0.05,
+      "default": 0.4
+    },
+    {
+      "name": "bloom_glow",
+      "label": "Phosphor Bloom",
+      "type": "number",
+      "min": 0.2,
+      "max": 1.4,
+      "step": 0.1,
+      "default": 0.8
+    },
+    {
+      "name": "scanline_density",
+      "label": "Scanlines",
+      "type": "number",
+      "min": 0.5,
+      "max": 2.0,
+      "step": 0.1,
+      "default": 1.0
+    },
+    {
+      "name": "cabinet_finish",
+      "label": "Chassis Finish",
+      "values": [
+        {
+          "text": "sony_trinitron_dark",
+          "weight": 3
+        },
+        {
+          "text": "vintage_teak",
+          "weight": 2
+        },
+        {
+          "text": "industrial_gray",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "static_flicker",
+      "label": "Cathode Static",
+      "type": "toggle",
+      "default": true
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "PAIK CATHEDRAL",
+    "tagline": "Stacked cathode-ray broadcast matrix",
+    "accent": "#ff007f",
+    "groups": [
+      {
+        "title": "TRANSMISSION",
+        "controls": [
+          "synth_feed",
+          "phosphor_palette",
+          "bloom_glow"
+        ]
+      },
+      {
+        "title": "HARDWARE",
+        "controls": [
+          "wall_architecture",
+          "cabinet_finish"
+        ]
+      },
+      {
+        "title": "CATHODE GLITCH",
+        "controls": [
+          "vertical_roll",
+          "scanline_density",
+          "static_flicker"
+        ]
+      }
+    ],
+    "controls": {
+      "wall_architecture": {
+        "widget": "buttons",
+        "hint": "Reconfigure CRT television stacking"
+      },
+      "synth_feed": {
+        "widget": "pads",
+        "hint": "Master video signal driving the wall"
+      },
+      "phosphor_palette": {
+        "widget": "cycle",
+        "hint": "Tube phosphor emission palette"
+      },
+      "vertical_roll": {
+        "widget": "knob",
+        "hint": "V-Hold unsynced frame slippage"
+      },
+      "bloom_glow": {
+        "widget": "knob",
+        "hint": "Phosphor radiance and halo bleeding"
+      },
+      "scanline_density": {
+        "widget": "slider",
+        "hint": "Shadow mask raster line spacing"
+      },
+      "cabinet_finish": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "static_flicker": {
+        "widget": "lamp",
+        "hint": "RF noise and cathode tube flash"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "generative",
+    "blurb": "A towering stack of cathode-ray televisions breaks and rolls a live video synthesizer signal into pulsing phosphor mosaics across the room.",
+    "prompt": "A video wall in the manner of Nam June Paik: a stacked grid of mismatched cathode-ray televisions, each showing a fragment of one larger image that breaks apart, rolls, colour-shifts and reassembles in time with the music, scanlines and curved glass on every set. Make it striking on a big projected wall in a dark room: a bold composition, rich colour against real blacks, depth, glow, and motion that reads from across the room. Keep a demoscener's economy: lookup tables and fixed-size buffers kept in room.state, low-resolution offscreen buffers for any per-pixel work, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "retro",
+      "light",
+      "psychedelic"
+    ],
+    "source": "lightworks/video-wall~12"
+  }
+}

@@ -1,0 +1,167 @@
+{
+  "name": "Bauhaus Beat Slide",
+  "promptTemplate": "A Bauhaus poster featuring a {{palette}} palette with a {{layout}} structure. Watch as {{shape_count}} circles, bars, and triangles rearrange themselves, reacting to the music with a sensitivity of {{beat_sensitivity}}. Their movement flows at a {{slide_speed}} slide speed, layered with a {{ink_blend}} ink effect.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "classic",
+          "weight": 3
+        },
+        {
+          "text": "cmyk",
+          "weight": 2
+        },
+        {
+          "text": "muted",
+          "weight": 1
+        },
+        {
+          "text": "monochrome",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "layout",
+      "label": "Layout Structure",
+      "values": [
+        {
+          "text": "strict grid",
+          "weight": 3
+        },
+        {
+          "text": "diagonal",
+          "weight": 2
+        },
+        {
+          "text": "freeform",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "shape_count",
+      "label": "Shape Count",
+      "type": "number",
+      "min": 5,
+      "max": 40,
+      "step": 1,
+      "default": 20
+    },
+    {
+      "name": "slide_speed",
+      "label": "Slide Speed",
+      "type": "number",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "name": "beat_sensitivity",
+      "label": "Beat Sensitivity",
+      "type": "number",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "default": 6
+    },
+    {
+      "name": "ink_blend",
+      "label": "Ink Blend",
+      "values": [
+        {
+          "text": "solid",
+          "weight": 2
+        },
+        {
+          "text": "multiply",
+          "weight": 1
+        },
+        {
+          "text": "screen",
+          "weight": 1
+        },
+        {
+          "text": "overlay",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "skin": "desk",
+    "variant": "grey",
+    "title": "Bauhaus Studio",
+    "tagline": "Rhythmic modernist poster composition",
+    "accent": "",
+    "groups": [
+      {
+        "title": "Composition",
+        "controls": [
+          "layout",
+          "shape_count"
+        ]
+      },
+      {
+        "title": "Kinetics",
+        "controls": [
+          "beat_sensitivity",
+          "slide_speed"
+        ]
+      },
+      {
+        "title": "Print & Ink",
+        "controls": [
+          "palette",
+          "ink_blend"
+        ]
+      }
+    ],
+    "controls": {
+      "palette": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "layout": {
+        "widget": "buttons",
+        "hint": "Rearrange shapes into grid, diagonal, or free flow"
+      },
+      "shape_count": {
+        "widget": "slider",
+        "hint": "Density of geometric forms on the poster"
+      },
+      "slide_speed": {
+        "widget": "knob",
+        "hint": "Speed of transitions between arrangements"
+      },
+      "beat_sensitivity": {
+        "widget": "knob",
+        "hint": "Likelihood of shapes shifting on each musical beat"
+      },
+      "ink_blend": {
+        "widget": "buttons",
+        "hint": "Layer blending style for overlapping shapes"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "generative",
+    "blurb": "A Bauhaus poster whose circles, bars and triangles slowly slide and rearrange themselves into new compositions on the beat",
+    "prompt": "a Bauhaus poster whose circles, bars and triangles slowly slide and rearrange themselves into new compositions on the beat",
+    "look": [
+      "geometric",
+      "retro"
+    ],
+    "source": "trial-1/pro/bauhaus"
+  }
+}

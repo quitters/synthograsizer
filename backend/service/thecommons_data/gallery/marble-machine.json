@@ -1,0 +1,157 @@
+{
+  "name": "Kinetic Pachinko Cascade",
+  "promptTemplate": "A live marble machine in {{theme}} aesthetic with a {{peg_layout}} pinfield, tilted at {{tilt}}° with {{bounciness}} elasticity feeding into {{bin_count}} collector slots.",
+  "variables": [
+    {
+      "name": "drop_marble",
+      "label": "Drop Marble",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "release_gate",
+      "label": "Flush Trapdoor",
+      "type": "trigger",
+      "share": "one"
+    },
+    {
+      "name": "tilt",
+      "label": "Board Tilt",
+      "type": "number",
+      "min": -25,
+      "max": 25,
+      "step": 1,
+      "default": 0
+    },
+    {
+      "name": "theme",
+      "label": "Machine Style",
+      "values": [
+        {
+          "text": "brass clockwork",
+          "weight": 2
+        },
+        {
+          "text": "neon pachinko",
+          "weight": 2
+        },
+        {
+          "text": "cosmic arcade",
+          "weight": 1
+        },
+        {
+          "text": "slate minimalism",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "peg_layout",
+      "label": "Peg Pattern",
+      "values": [
+        {
+          "text": "triangular pyramid",
+          "weight": 2
+        },
+        {
+          "text": "diamond lattice",
+          "weight": 2
+        },
+        {
+          "text": "funnel slalom",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "bounciness",
+      "label": "Elasticity",
+      "type": "number",
+      "min": 0.3,
+      "max": 0.85,
+      "step": 0.05,
+      "default": 0.65
+    },
+    {
+      "name": "bin_count",
+      "label": "Collector Slots",
+      "type": "number",
+      "min": 5,
+      "max": 13,
+      "step": 2,
+      "default": 9
+    }
+  ],
+  "ui": {
+    "skin": "desk",
+    "variant": "grey",
+    "title": "Pachinko Cascade",
+    "tagline": "Realtime kinetic marble machine simulator",
+    "accent": "",
+    "groups": [
+      {
+        "title": "Machine Control",
+        "controls": [
+          "drop_marble",
+          "release_gate",
+          "tilt"
+        ]
+      },
+      {
+        "title": "Apparatus",
+        "controls": [
+          "peg_layout",
+          "theme",
+          "bounciness",
+          "bin_count"
+        ]
+      }
+    ],
+    "controls": {
+      "drop_marble": {
+        "widget": "pad",
+        "hint": "Spawns a personal marble at the top funnel"
+      },
+      "release_gate": {
+        "widget": "button",
+        "hint": "Opens floor trapdoor to dump all settled marbles"
+      },
+      "tilt": {
+        "widget": "knob",
+        "hint": "Rotates gravity vector to sweep marbles sideways"
+      },
+      "theme": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "peg_layout": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "bounciness": {
+        "widget": "slider",
+        "hint": "Impact springiness off pegs and walls"
+      },
+      "bin_count": {
+        "widget": "stepper",
+        "hint": "Number of sorting bins at the bottom"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "A marble machine: anyone can drop a marble that falls through a field of pegs with real bouncing physics, marbles knock into each other on the way down and pile up at the bottom in the colour of whoever dropped them, and one person tilts the whole board left and right",
+    "prompt": "a marble machine: anyone can drop a marble that falls through a field of pegs with real bouncing physics, marbles knock into each other on the way down and pile up at the bottom in the colour of whoever dropped them, and one person tilts the whole board left and right",
+    "look": [
+      "energetic",
+      "geometric"
+    ],
+    "source": "trial-2/flash-high/marble-machine~3"
+  }
+}

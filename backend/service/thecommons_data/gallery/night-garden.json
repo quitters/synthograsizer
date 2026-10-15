@@ -1,0 +1,142 @@
+{
+  "name": "Night Garden Bloom Battle",
+  "promptTemplate": "A {{style}} night garden on a {{bed_layout}} terrace with {{decay_rate}} drying pace and {{glow_boost}} active radiance.",
+  "variables": [
+    {
+      "name": "style",
+      "label": "Garden Style",
+      "values": [
+        {
+          "text": "Bioluminescent",
+          "weight": 3
+        },
+        {
+          "text": "Midnight Moss",
+          "weight": 2
+        },
+        {
+          "text": "Neon Twilight",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "bed_layout",
+      "label": "Planter Layout",
+      "values": [
+        {
+          "text": "Stepped Tier",
+          "weight": 2
+        },
+        {
+          "text": "Straight Terrace",
+          "weight": 3
+        },
+        {
+          "text": "Arched Grove",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "decay_rate",
+      "label": "Dry Pace",
+      "type": "number",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "name": "glow_boost",
+      "label": "Glow Aura",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "water",
+      "label": "Water Garden!",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "rain_shower",
+      "label": "Rain Shower",
+      "type": "trigger",
+      "share": "one"
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "acid",
+    "title": "BLOOM BATTLE",
+    "tagline": "Water to bloom together before you drown the bed",
+    "accent": "#00ff88",
+    "groups": [
+      {
+        "title": "Actions",
+        "controls": [
+          "water",
+          "rain_shower"
+        ]
+      },
+      {
+        "title": "Environment",
+        "controls": [
+          "decay_rate",
+          "glow_boost"
+        ]
+      },
+      {
+        "title": "Garden Bed",
+        "controls": [
+          "style",
+          "bed_layout"
+        ]
+      }
+    ],
+    "controls": {
+      "style": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "bed_layout": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "decay_rate": {
+        "widget": "slider",
+        "hint": "How fast the soil dries out"
+      },
+      "glow_boost": {
+        "widget": "lamp",
+        "hint": "Activate vibrant night sky radiance"
+      },
+      "water": {
+        "widget": "pad",
+        "hint": "Tap to water your plant into full bloom"
+      },
+      "rain_shower": {
+        "widget": "button",
+        "hint": "Drench all planters at once"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "Guests water personal neon plants in a raised nocturnal bed, balancing hydration to trigger a synchronized room-wide bloom and swarm of fireflies.",
+    "prompt": "A shared night garden in a raised bed: every person tends a plant in their colour, and each press of 'water' makes theirs grow and bud, but too much water makes it wilt; when every plant blooms at once, the whole garden glows and fireflies rise from it. Make it a party game a whole room can follow from across the floor: bold shapes and bright colours on a dark ground, every player drawn in their own hue, big short labels (a score, GO!, the winner) in a heavy font, and a large, satisfying reaction on screen the instant anyone presses. It must work with one player or forty, scaling its lanes, seats or pieces to room.people and coping with people joining and leaving mid-round; play itself in a lively attract mode whenever nobody has pressed anything for a few seconds; and after a winner is shown, start the next round on its own. Keep it lean: game state in bounded arrays in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080.",
+    "look": [
+      "organic",
+      "light",
+      "energetic"
+    ],
+    "source": "play/night-garden~1"
+  }
+}

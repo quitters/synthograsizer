@@ -1,0 +1,177 @@
+{
+  "name": "Bioluminescent Night Tide",
+  "promptTemplate": "A nighttime shoreline illuminated by {{bloom_color}} bioluminescent plankton with {{wave_energy}} wave surge rolling at {{wave_speed}} swell speed under a {{sky_mode}} sky, radiating {{glow_intensity}} bioluminescent glow with {{shore_foam}} shore foam wash, active sparks spray: {{shoal_sparks}}, and wet sand reflection: {{wet_sand_mirror}}.",
+  "variables": [
+    {
+      "name": "bloom_color",
+      "label": "Plankton Bloom",
+      "values": [
+        {
+          "text": "electric_cyan",
+          "weight": 3
+        },
+        {
+          "text": "neon_sapphire",
+          "weight": 2
+        },
+        {
+          "text": "ghost_emerald",
+          "weight": 2
+        },
+        {
+          "text": "deep_violet",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "wave_energy",
+      "label": "Wave Surge",
+      "type": "number",
+      "min": 0.5,
+      "max": 2.0,
+      "step": 0.1,
+      "default": 1.2
+    },
+    {
+      "name": "wave_speed",
+      "label": "Swell Speed",
+      "type": "number",
+      "min": 0.4,
+      "max": 1.6,
+      "step": 0.1,
+      "default": 0.8
+    },
+    {
+      "name": "glow_intensity",
+      "label": "Biolum Glow",
+      "type": "number",
+      "min": 0.6,
+      "max": 2.4,
+      "step": 0.2,
+      "default": 1.4
+    },
+    {
+      "name": "shore_foam",
+      "label": "Shore Foam",
+      "type": "number",
+      "min": 10,
+      "max": 60,
+      "step": 5,
+      "default": 35
+    },
+    {
+      "name": "sky_mode",
+      "label": "Sky Atmosphere",
+      "values": [
+        {
+          "text": "starlit_night",
+          "weight": 3
+        },
+        {
+          "text": "aurora_shimmer",
+          "weight": 2
+        },
+        {
+          "text": "deep_void",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "shoal_sparks",
+      "label": "Sparks Spray",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "wet_sand_mirror",
+      "label": "Wet Sand Mirror",
+      "type": "toggle",
+      "default": true
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "ice",
+    "title": "NIGHT TIDE // LUMEN",
+    "tagline": "Bioluminescent surf on a pitch-black midnight shore",
+    "accent": "#0aebff",
+    "groups": [
+      {
+        "title": "Bioluminescence",
+        "controls": [
+          "bloom_color",
+          "glow_intensity",
+          "shoal_sparks"
+        ]
+      },
+      {
+        "title": "Swell & Surf",
+        "controls": [
+          "wave_energy",
+          "wave_speed",
+          "shore_foam"
+        ]
+      },
+      {
+        "title": "Atmosphere",
+        "controls": [
+          "sky_mode",
+          "wet_sand_mirror"
+        ]
+      }
+    ],
+    "controls": {
+      "bloom_color": {
+        "widget": "pads",
+        "hint": "Shift plankton hue along the breaking crests"
+      },
+      "wave_energy": {
+        "widget": "knob",
+        "hint": "Heighten breaker agitation and crest surge"
+      },
+      "wave_speed": {
+        "widget": "slider",
+        "hint": "Tempo of incoming oceanic rollers"
+      },
+      "glow_intensity": {
+        "widget": "knob",
+        "hint": "Drive radiant luminescence and spray brightness"
+      },
+      "shore_foam": {
+        "widget": "slider",
+        "hint": "Foam cell thickness spreading onto wet sand"
+      },
+      "sky_mode": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "shoal_sparks": {
+        "widget": "lamp",
+        "hint": "Ignite glowing droplets flung from the surf"
+      },
+      "wet_sand_mirror": {
+        "widget": "lamp",
+        "hint": "Reflect glowing surf in wet tidal flats"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "generative",
+    "blurb": "Electric waves break in glowing bioluminescent hues across a dark beach, radiating light as foam washes the sand under a starry sky.",
+    "prompt": "A beach at night where every breaking wave glows electric blue with plankton, the light blooming along the crest and fading as the foam retreats, stars above a black sea. Make it striking on a big projected wall in a dark room: a bold composition, rich colour against real blacks, depth, glow, and motion that reads from across the room. Keep a demoscener's economy: lookup tables and fixed-size buffers kept in room.state, low-resolution offscreen buffers for any per-pixel work, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "nature",
+      "light",
+      "calm"
+    ],
+    "source": "lightworks/bioluminescent-shore~13"
+  }
+}

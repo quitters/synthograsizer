@@ -1,0 +1,156 @@
+{
+  "name": "Flavin Corner",
+  "promptTemplate": "Fluorescent light installation in a gallery corner with {{palette_mode}} palette, arranged as {{geometry}}, with tube intensity {{tube_power}}, ambient darkness {{ambient_darkness}}, ballast flicker {{ballast_hum}}, rebuilding at {{rebuild_rate}} speed.",
+  "variables": [
+    {
+      "name": "palette_mode",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "flavin_classic",
+          "weight": 3
+        },
+        {
+          "text": "greens_blues",
+          "weight": 2
+        },
+        {
+          "text": "monochrome_warm",
+          "weight": 2
+        },
+        {
+          "text": "synth_neon",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "geometry",
+      "label": "Arrangement",
+      "values": [
+        {
+          "text": "corner_barrier",
+          "weight": 3
+        },
+        {
+          "text": "monument_v",
+          "weight": 2
+        },
+        {
+          "text": "grid_horizon",
+          "weight": 2
+        },
+        {
+          "text": "minimal_diagonal",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "tube_power",
+      "label": "Tube Output",
+      "type": "number",
+      "min": 0.5,
+      "max": 2.0,
+      "step": 0.1,
+      "default": 1.2
+    },
+    {
+      "name": "ambient_darkness",
+      "label": "Gallery Darkness",
+      "type": "number",
+      "min": 0.5,
+      "max": 1.0,
+      "step": 0.05,
+      "default": 0.85
+    },
+    {
+      "name": "ballast_hum",
+      "label": "Ballast Hum",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "rebuild_rate",
+      "label": "Cycle Speed",
+      "type": "number",
+      "min": 0.2,
+      "max": 2.0,
+      "step": 0.2,
+      "default": 0.8
+    }
+  ],
+  "ui": {
+    "skin": "desk",
+    "variant": "grey",
+    "title": "Flavin Corner",
+    "tagline": "Minimalist fluorescent lighting in an architectural space",
+    "accent": "",
+    "groups": [
+      {
+        "title": "Installation",
+        "controls": [
+          "geometry",
+          "palette_mode"
+        ]
+      },
+      {
+        "title": "Luminance",
+        "controls": [
+          "tube_power",
+          "ambient_darkness",
+          "ballast_hum"
+        ]
+      },
+      {
+        "title": "Sequencing",
+        "controls": [
+          "rebuild_rate"
+        ]
+      }
+    ],
+    "controls": {
+      "palette_mode": {
+        "widget": "cycle",
+        "hint": "Cycle through curated Dan Flavin industrial hues"
+      },
+      "geometry": {
+        "widget": "pads",
+        "hint": "Switch architectural structure across the gallery corner"
+      },
+      "tube_power": {
+        "widget": "knob",
+        "hint": "Overall wash radiance and fixture brightness"
+      },
+      "ambient_darkness": {
+        "widget": "slider",
+        "hint": "Deepen gallery room shadow and contrast"
+      },
+      "ballast_hum": {
+        "widget": "lamp",
+        "hint": "Toggle 60Hz inductive flutter and bass response"
+      },
+      "rebuild_rate": {
+        "widget": "slider",
+        "hint": "How rapidly tubes ignite and rebuild arrangements"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "generative",
+    "blurb": "Sculptural fluorescent tubes illuminate a receding gallery corner with vibrant chromatic washes, igniting tube by tube through architectural configurations.",
+    "prompt": "Fluorescent light in the manner of Dan Flavin: plain coloured tubes arranged in a corner and along a wall, their light flooding the white surfaces with coloured washes that overlap and mix, the arrangement rebuilding tube by tube. Make it striking on a big projected wall in a dark room: a bold composition, rich colour against real blacks, depth, glow, and motion that reads from across the room. Keep a demoscener's economy: lookup tables and fixed-size buffers kept in room.state, low-resolution offscreen buffers for any per-pixel work, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "light",
+      "geometric",
+      "calm"
+    ],
+    "source": "lightworks/flavin-tubes~3"
+  }
+}

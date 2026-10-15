@@ -1,0 +1,132 @@
+{
+  "name": "Stadium Relay Rumble",
+  "promptTemplate": "A high-stakes party relay race on a red running track with {{stride_power}} stride jump, {{laps_to_win}} legs per heat, {{crowd_hype}} grandstand energy, and {{night_lighting}} floodlights.",
+  "variables": [
+    {
+      "name": "stride_power",
+      "label": "Stride Power",
+      "type": "number",
+      "min": 1,
+      "max": 5,
+      "step": 0.5,
+      "default": 2.5
+    },
+    {
+      "name": "laps_to_win",
+      "label": "Legs per Race",
+      "type": "number",
+      "min": 2,
+      "max": 6,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "name": "crowd_hype",
+      "label": "Crowd Hype",
+      "values": [
+        {
+          "text": "steady",
+          "weight": 2
+        },
+        {
+          "text": "electric",
+          "weight": 3
+        },
+        {
+          "text": "festival",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "night_lighting",
+      "label": "Stadium Lights",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "run",
+      "label": "RUN!",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "cheer",
+      "label": "CHEER!",
+      "type": "trigger",
+      "share": "all"
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "RELAY RUMBLE +2",
+    "tagline": "Pass the baton and sprint for your team",
+    "accent": "#ff3864",
+    "groups": [
+      {
+        "title": "Track Action",
+        "controls": [
+          "run",
+          "cheer"
+        ]
+      },
+      {
+        "title": "Race Rules",
+        "controls": [
+          "stride_power",
+          "laps_to_win"
+        ]
+      },
+      {
+        "title": "Atmosphere",
+        "controls": [
+          "crowd_hype",
+          "night_lighting"
+        ]
+      }
+    ],
+    "controls": {
+      "stride_power": {
+        "widget": "knob",
+        "hint": "Distance surged on each tap"
+      },
+      "laps_to_win": {
+        "widget": "stepper",
+        "hint": "Legs needed before the finish line"
+      },
+      "crowd_hype": {
+        "widget": "pads",
+        "hint": ""
+      },
+      "night_lighting": {
+        "widget": "lamp",
+        "hint": ""
+      },
+      "run": {
+        "widget": "pad",
+        "hint": "Mash to push your active runner forward"
+      },
+      "cheer": {
+        "widget": "pad",
+        "hint": "Blast confetti and noise into the stadium"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "Two teams clash on an oval running track as players mash their phones to hand off the baton and sprint to the finish line.",
+    "prompt": "A relay race on a red running track, one lane per team, with each team's people taking a leg in turn: only the runner holding the baton moves, one stride per press of 'run', and the baton passes to the next person at each changeover zone; the first team to finish all its legs wins. Two teams: tables alternate between them, or people alternate when everyone is at one table; show each team's colours and score clearly. Make it a party game a whole room can follow from across the floor: bold shapes and bright colours on a dark ground, every player drawn in their own hue, big short labels (a score, GO!, the winner) in a heavy font, and a large, satisfying reaction on screen the instant anyone presses. It must work with one player or forty, scaling its lanes, seats or pieces to room.people and coping with people joining and leaving mid-round; play itself in a lively attract mode whenever nobody has pressed anything for a few seconds; and after a winner is shown, start the next round on its own. Keep it lean: game state in bounded arrays in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080.",
+    "look": [
+      "retro",
+      "energetic"
+    ],
+    "source": "play/team-relay~3"
+  }
+}

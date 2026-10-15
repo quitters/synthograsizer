@@ -1,0 +1,154 @@
+{
+  "name": "Celestial Gathering",
+  "promptTemplate": "A starlit {{projection}} charting every attendee in glowing hues with {{glow_style}}, bound by {{line_style}} constellations across {{star_density}} ambient stars drifting at {{drift_speed}} speed with {{connection_reach}} reach.",
+  "variables": [
+    {
+      "name": "projection",
+      "label": "Star Chart Layout",
+      "values": [
+        {
+          "text": "deep cosmos",
+          "weight": 2
+        },
+        {
+          "text": "celestial sphere",
+          "weight": 2
+        },
+        {
+          "text": "astrolabe rings",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "glow_style",
+      "label": "Starlight Glow",
+      "values": [
+        {
+          "text": "soft starlight",
+          "weight": 2
+        },
+        {
+          "text": "aurora haze",
+          "weight": 2
+        },
+        {
+          "text": "crystal flare",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "line_style",
+      "label": "Constellation Lines",
+      "values": [
+        {
+          "text": "delicate thread",
+          "weight": 2
+        },
+        {
+          "text": "pulsing ether",
+          "weight": 2
+        },
+        {
+          "text": "etched brass",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "star_density",
+      "label": "Background Stars",
+      "type": "number",
+      "min": 60,
+      "max": 240,
+      "step": 30,
+      "default": 150
+    },
+    {
+      "name": "connection_reach",
+      "label": "Neighbor Reach",
+      "type": "number",
+      "min": 90,
+      "max": 270,
+      "step": 30,
+      "default": 180
+    },
+    {
+      "name": "drift_speed",
+      "label": "Celestial Drift",
+      "type": "number",
+      "min": 0.2,
+      "max": 1.4,
+      "step": 0.2,
+      "default": 0.6
+    }
+  ],
+  "ui": {
+    "skin": "desk",
+    "variant": "blue",
+    "title": "Celestial Cartographer",
+    "tagline": "Map the room into a living constellation",
+    "accent": "",
+    "groups": [
+      {
+        "title": "Chart Projection",
+        "controls": [
+          "projection",
+          "glow_style",
+          "line_style"
+        ]
+      },
+      {
+        "title": "Cosmic Dynamics",
+        "controls": [
+          "drift_speed",
+          "connection_reach",
+          "star_density"
+        ]
+      }
+    ],
+    "controls": {
+      "projection": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "glow_style": {
+        "widget": "list",
+        "hint": ""
+      },
+      "line_style": {
+        "widget": "list",
+        "hint": ""
+      },
+      "star_density": {
+        "widget": "slider",
+        "hint": "Ambient twinkling star field count"
+      },
+      "connection_reach": {
+        "widget": "slider",
+        "hint": "Distance threshold to weave constellation threads"
+      },
+      "drift_speed": {
+        "widget": "knob",
+        "hint": "Adjust orbital rotation rate"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "generative",
+    "blurb": "A constellation map where every person in the room is a star in their own colour, joined by faint lines to their nearest neighbours, twinkling to the beat",
+    "prompt": "a constellation map where every person in the room is a star in their own colour, joined by faint lines to their nearest neighbours, twinkling to the beat",
+    "look": [
+      "space",
+      "light"
+    ],
+    "source": "trial-1/flash-medium/star-map"
+  }
+}

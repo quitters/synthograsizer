@@ -1,0 +1,174 @@
+{
+  "name": "Concert Confetti Cannonade",
+  "promptTemplate": "Stage immersed in {{lighting}} with fluttering {{confetti_style}} at {{fall_speed}}x fall speed, air drift {{drift}}, spotlight intensity {{beam_intensity}}, and beat strobe {{strobe_flash}}.",
+  "variables": [
+    {
+      "name": "lighting",
+      "label": "Stage Rig",
+      "values": [
+        {
+          "text": "Arena Beams",
+          "weight": 3
+        },
+        {
+          "text": "Laser Neon",
+          "weight": 2
+        },
+        {
+          "text": "Golden Fest",
+          "weight": 2
+        },
+        {
+          "text": "Midnight Blue",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "confetti_style",
+      "label": "Flake Cut",
+      "values": [
+        {
+          "text": "Mylar Mix",
+          "weight": 3
+        },
+        {
+          "text": "Neon Streamers",
+          "weight": 2
+        },
+        {
+          "text": "Gold Leaf",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "fall_speed",
+      "label": "Fall Speed",
+      "type": "number",
+      "min": 0.4,
+      "max": 2.0,
+      "step": 0.2,
+      "default": 1.0
+    },
+    {
+      "name": "drift",
+      "label": "Air Drift",
+      "type": "number",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.2,
+      "default": 1.1
+    },
+    {
+      "name": "beam_intensity",
+      "label": "Beam Power",
+      "type": "number",
+      "min": 0.2,
+      "max": 1.0,
+      "step": 0.1,
+      "default": 0.7
+    },
+    {
+      "name": "strobe_flash",
+      "label": "Beat Strobe",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "blast",
+      "label": "Fire Cannon",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "drop_all",
+      "label": "Mass Drop",
+      "type": "trigger",
+      "share": "one"
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "CANNONADE FX",
+    "tagline": "Launch stadium confetti across sweeping stage spotlights",
+    "accent": "#ff3366",
+    "groups": [
+      {
+        "title": "Cannons",
+        "controls": [
+          "blast",
+          "drop_all"
+        ]
+      },
+      {
+        "title": "Stage Rig",
+        "controls": [
+          "lighting",
+          "beam_intensity",
+          "strobe_flash"
+        ]
+      },
+      {
+        "title": "Flake Dynamics",
+        "controls": [
+          "confetti_style",
+          "fall_speed",
+          "drift"
+        ]
+      }
+    ],
+    "controls": {
+      "lighting": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "confetti_style": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "fall_speed": {
+        "widget": "slider",
+        "hint": ""
+      },
+      "drift": {
+        "widget": "slider",
+        "hint": "Adjust sideways air turbulence"
+      },
+      "beam_intensity": {
+        "widget": "knob",
+        "hint": "Dial up volumetric spotlight beams"
+      },
+      "strobe_flash": {
+        "widget": "lamp",
+        "hint": "Flash stage strobe on the beat"
+      },
+      "blast": {
+        "widget": "pad",
+        "hint": "Mash to fire a burst in your color"
+      },
+      "drop_all": {
+        "widget": "button",
+        "hint": "Trigger a massive ceiling drop"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "Stage spotlights cut through the dark as players fire confetti cannons and trigger sky drops, sending thousands of shimmering 3D flakes tumbling through beams of light.",
+    "prompt": "The moment the confetti drops at a concert: anyone can fire a cannon in their colour, blasting thousands of shimmering flakes that flutter, spin and catch the light as they fall across the stage lights. Make it striking on a big projected wall in a dark room: a bold composition, rich colour against real blacks, depth, glow, and motion that reads from across the room. Keep a demoscener's economy: lookup tables and fixed-size buffers kept in room.state, low-resolution offscreen buffers for any per-pixel work, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "energetic",
+      "light",
+      "3d"
+    ],
+    "source": "lightworks/confetti-cannon~1"
+  }
+}

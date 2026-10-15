@@ -1,0 +1,152 @@
+{
+  "name": "asphalt_rain_reflection",
+  "promptTemplate": "A rain-slicked street in {{city_palette}} tones with {{rain_intensity}} rain, {{wetness_gloss}} asphalt gloss under {{traffic_flow}} with wind at {{wind_angle}} degrees and {{steam_haze}} wet asphalt reflections.",
+  "variables": [
+    {
+      "name": "city_palette",
+      "label": "City Palette",
+      "values": [
+        {
+          "text": "cyber_tokyo",
+          "weight": 3
+        },
+        {
+          "text": "noir_amber",
+          "weight": 2
+        },
+        {
+          "text": "acid_rain",
+          "weight": 1
+        },
+        {
+          "text": "deep_crimson",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "rain_intensity",
+      "label": "Rain Intensity",
+      "type": "number",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "name": "wetness_gloss",
+      "label": "Asphalt Gloss",
+      "type": "number",
+      "min": 0.3,
+      "max": 1.0,
+      "step": 0.05,
+      "default": 0.8
+    },
+    {
+      "name": "traffic_flow",
+      "label": "Traffic Density",
+      "values": [
+        {
+          "text": "quiet_night",
+          "weight": 1
+        },
+        {
+          "text": "steady_traffic",
+          "weight": 3
+        },
+        {
+          "text": "busy_boulevard",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "wind_angle",
+      "label": "Wind Angle",
+      "type": "number",
+      "min": -20,
+      "max": 20,
+      "step": 5,
+      "default": 10
+    },
+    {
+      "name": "steam_haze",
+      "label": "Steam Haze",
+      "type": "toggle",
+      "default": true
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "violet",
+    "title": "NEON ASPHALT // 99",
+    "tagline": "WET STREET REFLECTIONS UNDER RAIN",
+    "accent": "#00e5ff",
+    "groups": [
+      {
+        "title": "ATMOSPHERE",
+        "controls": [
+          "city_palette",
+          "steam_haze"
+        ]
+      },
+      {
+        "title": "WEATHER",
+        "controls": [
+          "rain_intensity",
+          "wind_angle"
+        ]
+      },
+      {
+        "title": "SURFACE & CITY",
+        "controls": [
+          "wetness_gloss",
+          "traffic_flow"
+        ]
+      }
+    ],
+    "controls": {
+      "city_palette": {
+        "widget": "pads",
+        "hint": "Swaps city skyline neons and road reflections"
+      },
+      "rain_intensity": {
+        "widget": "knob",
+        "hint": "Drives downpour streak count and puddle ripples"
+      },
+      "wetness_gloss": {
+        "widget": "knob",
+        "hint": "Lengthens vertical light smeared on wet street"
+      },
+      "traffic_flow": {
+        "widget": "buttons",
+        "hint": "Changes volume of oncoming headlights and taillights"
+      },
+      "wind_angle": {
+        "widget": "slider",
+        "hint": "Slants rain streaks across the horizon"
+      },
+      "steam_haze": {
+        "widget": "lamp",
+        "hint": "Billows glowing vapor across the asphalt"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "demo",
+    "blurb": "Neon storefronts and car headlamps dissolve into shimmering streaks across wet asphalt as raindrops ripple across the dark projected avenue.",
+    "prompt": "A rain-slicked street at night seen from low down: neon signs and headlights dissolve into long streaked reflections on the wet asphalt, raindrops ringing in the puddles and shattering the reflections. Make it striking on a big projected wall in a dark room: a bold composition, rich colour against real blacks, depth, glow, and motion that reads from across the room. Keep a demoscener's economy: lookup tables and fixed-size buffers kept in room.state, low-resolution offscreen buffers for any per-pixel work, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "retro",
+      "light",
+      "calm"
+    ],
+    "source": "lightworks/wet-street~3"
+  }
+}

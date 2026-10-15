@@ -1,0 +1,133 @@
+{
+  "name": "Hard Rain, Cold Light",
+  "promptTemplate": "A stark downpour illuminated by a {{spot_style}} spotlight in {{palette}}, rain parting into dry sanctuaries of {{pocket_scale}} scale with {{mist_density}} ground haze and {{weather_fury}} intensity.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Palette",
+      "values": [
+        {
+          "text": "Amber Noir",
+          "weight": 3
+        },
+        {
+          "text": "Electric Cyan",
+          "weight": 2
+        },
+        {
+          "text": "Silver Mono",
+          "weight": 2
+        },
+        {
+          "text": "Crimson Flare",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "spot_style",
+      "label": "Light Source",
+      "values": [
+        {
+          "text": "Dramatic Rake",
+          "weight": 3
+        },
+        {
+          "text": "Steep Beam",
+          "weight": 2
+        },
+        {
+          "text": "Low Horizon",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "pocket_scale",
+      "label": "Sanctuary Size",
+      "type": "number",
+      "min": 70,
+      "max": 170,
+      "step": 10,
+      "default": 110
+    },
+    {
+      "name": "weather_fury",
+      "label": "Rain Intensity",
+      "type": "number",
+      "min": 0.6,
+      "max": 1.8,
+      "step": 0.2,
+      "default": 1.0
+    },
+    {
+      "name": "mist_density",
+      "label": "Floor Mist",
+      "type": "toggle",
+      "default": true
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "ice",
+    "title": "COLD LIGHT // RAIN",
+    "tagline": "HARD SPOTLIGHT DOWNPOUR & DEFLECTION DOMES",
+    "accent": "#6edcff",
+    "groups": [
+      {
+        "title": "LIGHT & COLOUR",
+        "controls": [
+          "palette",
+          "spot_style"
+        ]
+      },
+      {
+        "title": "STORM & SANCTUARY",
+        "controls": [
+          "weather_fury",
+          "pocket_scale",
+          "mist_density"
+        ]
+      }
+    ],
+    "controls": {
+      "palette": {
+        "widget": "pads",
+        "hint": "Switch the beam and reflection colours"
+      },
+      "spot_style": {
+        "widget": "buttons",
+        "hint": "Angle the cutting searchlight beam"
+      },
+      "pocket_scale": {
+        "widget": "slider",
+        "hint": "Expand the dry aura around each person"
+      },
+      "weather_fury": {
+        "widget": "knob",
+        "hint": "Speed and intensity of falling droplets"
+      },
+      "mist_density": {
+        "widget": "lamp",
+        "hint": "Toggle floor splash vapor and haze"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "generative",
+    "blurb": "A hard searchlight cuts through an intense downpour over reflective pavement, while dry sanctuary domes deflect the falling rain around people in the room.",
+    "prompt": "A room of falling rain lit by a single hard spotlight from the side, every streak glinting, with dry pockets that open around the people standing in it -- one pocket per person in the room, drifting slowly -- splashes and mist where the rain meets the floor. Make it striking on a big projected wall in a dark room: a bold composition, rich colour against real blacks, depth, glow, and motion that reads from across the room. Keep a demoscener's economy: lookup tables and fixed-size buffers kept in room.state, low-resolution offscreen buffers for any per-pixel work, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "light",
+      "energetic",
+      "nature"
+    ],
+    "source": "lightworks/rain-room~2"
+  }
+}

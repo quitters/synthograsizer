@@ -1,0 +1,164 @@
+{
+  "name": "Backlit Agate Slice",
+  "promptTemplate": "A polished {{palette}} agate slice lit from behind with {{banding_density}} concentric bands, {{wandering}} wandering organic contour, {{backlight_glow}} luminous backlight glow, {{druzy_sparkle}} druzy crystal cavity sparkle, a {{cavity_size}} inner crystal void, and {{breathing_speed}} drift speed.",
+  "variables": [
+    {
+      "name": "palette",
+      "label": "Mineral Type",
+      "values": [
+        {
+          "text": "carnelian",
+          "weight": 3
+        },
+        {
+          "text": "amethyst",
+          "weight": 2
+        },
+        {
+          "text": "malachite",
+          "weight": 2
+        },
+        {
+          "text": "celestine",
+          "weight": 2
+        },
+        {
+          "text": "onyx_gold",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "banding_density",
+      "label": "Banding Density",
+      "type": "number",
+      "min": 24,
+      "max": 72,
+      "step": 6,
+      "default": 48
+    },
+    {
+      "name": "wandering",
+      "label": "Contour Wander",
+      "type": "number",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.25,
+      "default": 1.25
+    },
+    {
+      "name": "backlight_glow",
+      "label": "Backlight Glow",
+      "type": "number",
+      "min": 0.4,
+      "max": 1.8,
+      "step": 0.2,
+      "default": 1.0
+    },
+    {
+      "name": "druzy_sparkle",
+      "label": "Druzy Sparkle",
+      "type": "number",
+      "min": 0.2,
+      "max": 2.0,
+      "step": 0.2,
+      "default": 1.0
+    },
+    {
+      "name": "cavity_size",
+      "label": "Cavity Size",
+      "type": "number",
+      "min": 0.15,
+      "max": 0.45,
+      "step": 0.05,
+      "default": 0.25
+    },
+    {
+      "name": "breathing_speed",
+      "label": "Breathing Speed",
+      "type": "number",
+      "min": 0.2,
+      "max": 1.4,
+      "step": 0.2,
+      "default": 0.6
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "AGATE LAB // V1.0",
+    "tagline": "Backlit chalcedony slice and crystalline void",
+    "accent": "#ff8833",
+    "groups": [
+      {
+        "title": "Mineral & Cut",
+        "controls": [
+          "palette",
+          "banding_density",
+          "wandering"
+        ]
+      },
+      {
+        "title": "Luminescence",
+        "controls": [
+          "backlight_glow",
+          "druzy_sparkle",
+          "breathing_speed"
+        ]
+      },
+      {
+        "title": "Geode Core",
+        "controls": [
+          "cavity_size"
+        ]
+      }
+    ],
+    "controls": {
+      "palette": {
+        "widget": "cycle",
+        "hint": "Cycle gemstone mineral chemistry"
+      },
+      "banding_density": {
+        "widget": "knob",
+        "hint": "Stack finer chalcedony rings"
+      },
+      "wandering": {
+        "widget": "slider",
+        "hint": "Distort boundary contour undulation"
+      },
+      "backlight_glow": {
+        "widget": "knob",
+        "hint": "Radiance of the backlight bloom"
+      },
+      "druzy_sparkle": {
+        "widget": "knob",
+        "hint": "Crystal cavity twinkle rate"
+      },
+      "cavity_size": {
+        "widget": "slider",
+        "hint": "Width of inner hollow void"
+      },
+      "breathing_speed": {
+        "widget": "slider",
+        "hint": "Organic contour drift pace"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "generative",
+    "blurb": "A backlit slice of chalcedony glows with undulating concentric bands surrounding a shimmering druzy quartz core.",
+    "prompt": "A polished agate slice lit from behind: concentric bands of translucent colour follow a wandering outline, growing inward ring by ring towards a sparkling crystal cavity at the heart. Make it striking on a big projected wall in a dark room: a bold composition, rich colour against real blacks, depth, glow, and motion that reads from across the room. Keep a demoscener's economy: lookup tables and fixed-size buffers kept in room.state, low-resolution offscreen buffers for any per-pixel work, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "organic",
+      "light",
+      "psychedelic"
+    ],
+    "source": "lightworks/agate~3"
+  }
+}

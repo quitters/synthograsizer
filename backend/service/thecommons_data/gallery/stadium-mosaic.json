@@ -1,0 +1,142 @@
+{
+  "name": "stadium_card_stunt",
+  "promptTemplate": "Grand stadium card stunt displaying {{motif}} under {{stadium_lighting}} lights with {{wave_style}} wave ripple, {{flip_speed}} card flip rate, and {{flashbulbs}} crowd flashbulbs.",
+  "variables": [
+    {
+      "name": "motif",
+      "label": "Stunt Motif",
+      "values": [
+        {
+          "text": "rising_sun",
+          "weight": 2
+        },
+        {
+          "text": "national_tricolor",
+          "weight": 2
+        },
+        {
+          "text": "cyber_crest",
+          "weight": 2
+        },
+        {
+          "text": "neon_skull",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "stadium_lighting",
+      "label": "Lighting Mood",
+      "values": [
+        {
+          "text": "floodlit_night",
+          "weight": 2
+        },
+        {
+          "text": "golden_dusk",
+          "weight": 1
+        },
+        {
+          "text": "ultraviolet_party",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "wave_style",
+      "label": "Mexican Wave",
+      "values": [
+        {
+          "text": "classic_sweep",
+          "weight": 2
+        },
+        {
+          "text": "double_helix",
+          "weight": 1
+        },
+        {
+          "text": "audio_shockwave",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "flip_speed",
+      "label": "Flip Speed",
+      "type": "number",
+      "min": 0.5,
+      "max": 3.0,
+      "step": 0.25,
+      "default": 1.5
+    },
+    {
+      "name": "flashbulbs",
+      "label": "Crowd Flashbulbs",
+      "type": "toggle",
+      "default": true
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "STADIUM CARD STUNT",
+    "tagline": "Synchronized grandstand tifo choreo",
+    "accent": "#ffcc00",
+    "groups": [
+      {
+        "title": "Tifo Motif",
+        "controls": [
+          "motif",
+          "stadium_lighting"
+        ]
+      },
+      {
+        "title": "Crowd Wave",
+        "controls": [
+          "wave_style",
+          "flip_speed",
+          "flashbulbs"
+        ]
+      }
+    ],
+    "controls": {
+      "motif": {
+        "widget": "pads",
+        "hint": "Change the giant mosaic formed by thousands of cards"
+      },
+      "stadium_lighting": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "wave_style": {
+        "widget": "list",
+        "hint": "Set ripple pattern propagating across the stands"
+      },
+      "flip_speed": {
+        "widget": "knob",
+        "hint": "Card flip rate and ripple propagation speed"
+      },
+      "flashbulbs": {
+        "widget": "lamp",
+        "hint": "Sparks spectator camera flashes in the crowd on beats"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "demo",
+    "blurb": "Tiers of stadium seats hold flipping colored cards that synchronize into giant arena mosaics and ripples of Mexican waves beneath floodlit rafters.",
+    "prompt": "A stadium card stunt: tiers of seats seen from across the pitch, each seat a coloured card, flipping in waves to form a giant image -- a flag, a face, a rising sun -- then a Mexican wave running round the stands. Make it striking on a big projected wall in a dark room: a bold composition, rich colour against real blacks, depth, glow, and motion that reads from across the room. Keep a demoscener's economy: lookup tables and fixed-size buffers kept in room.state, low-resolution offscreen buffers for any per-pixel work, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "retro",
+      "energetic",
+      "light"
+    ],
+    "source": "lightworks/stadium-mosaic~3"
+  }
+}

@@ -1,0 +1,131 @@
+{
+  "name": "Carnival Derby Roll",
+  "promptTemplate": "A vibrant vintage boardwalk derby race in {{track_style}} style with {{target_distance}} target distance, {{carnival_lights}} lighting effects, and {{music_boost}} audio reactivity.",
+  "variables": [
+    {
+      "name": "roll",
+      "label": "Roll!",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "track_style",
+      "label": "Track Style",
+      "values": [
+        {
+          "text": "Boardwalk Lacquer",
+          "weight": 2
+        },
+        {
+          "text": "Midnight Neon",
+          "weight": 1
+        },
+        {
+          "text": "Golden Circus",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "target_distance",
+      "label": "Race Distance",
+      "type": "number",
+      "min": 15,
+      "max": 35,
+      "step": 5,
+      "default": 25
+    },
+    {
+      "name": "carnival_lights",
+      "label": "Bulb Chase",
+      "values": [
+        {
+          "text": "Carnival Chase",
+          "weight": 2
+        },
+        {
+          "text": "Strobe Flash",
+          "weight": 1
+        },
+        {
+          "text": "Steady Glow",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "music_boost",
+      "label": "Music Reactive",
+      "type": "toggle",
+      "default": true
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "DERBY ROLL +4",
+    "tagline": "Step right up! Roll your ball into the cups!",
+    "accent": "#fce59f",
+    "groups": [
+      {
+        "title": "Play",
+        "controls": [
+          "roll"
+        ]
+      },
+      {
+        "title": "Fairground",
+        "controls": [
+          "track_style",
+          "carnival_lights"
+        ]
+      },
+      {
+        "title": "Rules",
+        "controls": [
+          "target_distance",
+          "music_boost"
+        ]
+      }
+    ],
+    "controls": {
+      "roll": {
+        "widget": "pad",
+        "hint": "Rolls a ball to advance your lane forward"
+      },
+      "track_style": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "target_distance": {
+        "widget": "slider",
+        "hint": "Points needed across the finish line"
+      },
+      "carnival_lights": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "music_boost": {
+        "widget": "lamp",
+        "hint": ""
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "A vintage boardwalk derby race where players mash roll to send their horse sprinting toward the finish line amid flashing carnival bulbs.",
+    "prompt": "A fairground derby game: wooden horses in bright lacquer, one per person, on a painted track behind a counter; each press of 'roll' rolls a ball up a ramp into a hole worth one, two or three, and your horse jerks forward that far; bells ring and bulbs chase round the winner. Make it a party game a whole room can follow from across the floor: bold shapes and bright colours on a dark ground, every player drawn in their own hue, big short labels (a score, GO!, the winner) in a heavy font, and a large, satisfying reaction on screen the instant anyone presses. It must work with one player or forty, scaling its lanes, seats or pieces to room.people and coping with people joining and leaving mid-round; play itself in a lively attract mode whenever nobody has pressed anything for a few seconds; and after a winner is shown, start the next round on its own. Keep it lean: game state in bounded arrays in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080.",
+    "look": [
+      "retro",
+      "energetic",
+      "light"
+    ],
+    "source": "play/horse-derby~3"
+  }
+}

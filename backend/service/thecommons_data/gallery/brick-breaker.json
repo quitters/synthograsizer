@@ -1,0 +1,156 @@
+{
+  "name": "Crowd Breakout Arena",
+  "promptTemplate": "A colossal stadium brick-breaker arena featuring {{brick_style}} barricades at {{ball_speed}} pace, an agile {{paddle_width}}% wide paddle steered to {{paddle_pos}}, glowing with {{trails}} trails.",
+  "variables": [
+    {
+      "name": "paddle_pos",
+      "label": "Paddle Aim",
+      "type": "number",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "default": 50
+    },
+    {
+      "name": "paddle_width",
+      "label": "Paddle Size",
+      "type": "number",
+      "min": 10,
+      "max": 30,
+      "step": 2,
+      "default": 18
+    },
+    {
+      "name": "brick_style",
+      "label": "Wall Style",
+      "values": [
+        {
+          "text": "Neon Grid",
+          "weight": 2
+        },
+        {
+          "text": "Rainbow Citadel",
+          "weight": 2
+        },
+        {
+          "text": "Crystal Fortress",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "ball_speed",
+      "label": "Game Speed",
+      "values": [
+        {
+          "text": "Standard",
+          "weight": 2
+        },
+        {
+          "text": "Turbo",
+          "weight": 2
+        },
+        {
+          "text": "Overdrive",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "trails",
+      "label": "Motion Trails",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "launch",
+      "label": "Launch Ball",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "pulse",
+      "label": "Super Pulse",
+      "type": "trigger",
+      "share": "all"
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "BREAKOUT ARENA +4",
+    "tagline": "COLLABORATIVE ARCADE BRICK-SMASHER",
+    "accent": "#ffaa00",
+    "groups": [
+      {
+        "title": "Room Actions",
+        "controls": [
+          "launch",
+          "pulse"
+        ]
+      },
+      {
+        "title": "Paddle Deck",
+        "controls": [
+          "paddle_pos",
+          "paddle_width"
+        ]
+      },
+      {
+        "title": "Arena Config",
+        "controls": [
+          "ball_speed",
+          "brick_style",
+          "trails"
+        ]
+      }
+    ],
+    "controls": {
+      "paddle_pos": {
+        "widget": "slider",
+        "hint": "Slide left or right to steer the main arena paddle"
+      },
+      "paddle_width": {
+        "widget": "knob",
+        "hint": "Expands or shrinks the paddle baseline"
+      },
+      "brick_style": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "ball_speed": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "trails": {
+        "widget": "lamp",
+        "hint": ""
+      },
+      "launch": {
+        "widget": "pad",
+        "hint": "Spawns a speeding ball in your personal color"
+      },
+      "pulse": {
+        "widget": "pad",
+        "hint": "Fires a shockwave to supercharge all live balls"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "A crowd-powered brick-breaker arena where players steer the shared paddle, launch balls in their own colours, and shatter walls into glowing sparks.",
+    "prompt": "Brick-breaker with the whole room: one person steers the paddle with a number control, and anyone can press 'launch' to add a ball in their colour, up to a cap; the bricks are the room's colours, they burst into fragments, and a cleared wall is followed by a harder one. Make it a party game a whole room can follow from across the floor: bold shapes and bright colours on a dark ground, every player drawn in their own hue, big short labels (a score, GO!, the winner) in a heavy font, and a large, satisfying reaction on screen the instant anyone presses. It must work with one player or forty, scaling its lanes, seats or pieces to room.people and coping with people joining and leaving mid-round; play itself in a lively attract mode whenever nobody has pressed anything for a few seconds; and after a winner is shown, start the next round on its own. Keep it lean: game state in bounded arrays in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080.",
+    "look": [
+      "retro",
+      "energetic",
+      "geometric"
+    ],
+    "source": "play/brick-breaker~2"
+  }
+}

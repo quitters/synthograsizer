@@ -1,0 +1,139 @@
+{
+  "name": "Firefly Choir",
+  "promptTemplate": "A summer meadow at night under {{glow_style}} skies, where synchronous fireflies couple with {{coupling}} strength at {{tempo}} rhythm, surrounded by {{grass_sway}} swaying reeds.",
+  "variables": [
+    {
+      "name": "blink",
+      "label": "Blink!",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "coupling",
+      "label": "Coupling",
+      "type": "number",
+      "min": 0.1,
+      "max": 1.0,
+      "step": 0.05,
+      "default": 0.4
+    },
+    {
+      "name": "tempo",
+      "label": "Rhythm Tempo",
+      "values": [
+        {
+          "text": "gentle",
+          "weight": 2
+        },
+        {
+          "text": "waltz",
+          "weight": 2
+        },
+        {
+          "text": "allegro",
+          "weight": 2
+        },
+        {
+          "text": "hyper",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "glow_style",
+      "label": "Glow Palette",
+      "values": [
+        {
+          "text": "biolum",
+          "weight": 2
+        },
+        {
+          "text": "neon_meadow",
+          "weight": 2
+        },
+        {
+          "text": "aurora",
+          "weight": 2
+        },
+        {
+          "text": "starlight",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "grass_sway",
+      "label": "Meadow Grass",
+      "type": "toggle",
+      "default": true
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "acid",
+    "title": "FIREFLY CHOIR",
+    "tagline": "Tap in rhythm to synchronize the meadow",
+    "accent": "#55ff77",
+    "groups": [
+      {
+        "title": "Sync Trigger",
+        "controls": [
+          "blink"
+        ]
+      },
+      {
+        "title": "Swarm Dynamics",
+        "controls": [
+          "tempo",
+          "coupling"
+        ]
+      },
+      {
+        "title": "Night Meadow",
+        "controls": [
+          "glow_style",
+          "grass_sway"
+        ]
+      }
+    ],
+    "controls": {
+      "blink": {
+        "widget": "pad",
+        "hint": "Flashes your firefly and tugs neighbors into sync"
+      },
+      "coupling": {
+        "widget": "knob",
+        "hint": "How strongly nearby fireflies pull each other into phase"
+      },
+      "tempo": {
+        "widget": "pads",
+        "hint": "Base pulsing speed of the swarm"
+      },
+      "glow_style": {
+        "widget": "cycle",
+        "hint": "Changes the night sky and backdrop palette"
+      },
+      "grass_sway": {
+        "widget": "lamp",
+        "hint": "Toggles swaying grass silhouettes in the meadow"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "Fireflies drift across a nocturnal meadow, flashing to individual rhythms until synchronized taps trigger explosive unison shockwaves across the room.",
+    "prompt": "A summer meadow at night with a firefly for every person, each blinking at its own rhythm: pressing 'blink' flashes yours and nudges the fireflies nearby toward your timing; when the whole room blinks in unison the meadow erupts in waves of light, and the longest streak in sync is kept. Make it a party game a whole room can follow from across the floor: bold shapes and bright colours on a dark ground, every player drawn in their own hue, big short labels (a score, GO!, the winner) in a heavy font, and a large, satisfying reaction on screen the instant anyone presses. It must work with one player or forty, scaling its lanes, seats or pieces to room.people and coping with people joining and leaving mid-round; play itself in a lively attract mode whenever nobody has pressed anything for a few seconds; and after a winner is shown, start the next round on its own. Keep it lean: game state in bounded arrays in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080.",
+    "look": [
+      "organic",
+      "light",
+      "energetic"
+    ],
+    "source": "play/firefly-sync~3"
+  }
+}

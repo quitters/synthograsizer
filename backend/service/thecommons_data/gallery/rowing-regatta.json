@@ -1,0 +1,148 @@
+{
+  "name": "Dawn Regatta",
+  "promptTemplate": "Dawn rowing regatta in {{dawn_mood}} at {{race_distance}}m with {{sync_strictness}} timing, {{fog_density}} fog, and water reflections {{water_reflections}}",
+  "variables": [
+    {
+      "name": "dawn_mood",
+      "label": "Dawn Mood",
+      "values": [
+        {
+          "text": "Amber Dawn",
+          "weight": 2
+        },
+        {
+          "text": "Violet Mist",
+          "weight": 2
+        },
+        {
+          "text": "Electric Teal",
+          "weight": 1
+        },
+        {
+          "text": "Midnight Phosphor",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "sync_strictness",
+      "label": "Sync Window",
+      "values": [
+        {
+          "text": "Generous",
+          "weight": 2
+        },
+        {
+          "text": "Tempo Match",
+          "weight": 3
+        },
+        {
+          "text": "Razor Sync",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "race_distance",
+      "label": "Race Distance",
+      "type": "number",
+      "min": 500,
+      "max": 2000,
+      "step": 250,
+      "default": 1000
+    },
+    {
+      "name": "fog_density",
+      "label": "Fog Density",
+      "type": "number",
+      "min": 0.2,
+      "max": 1.0,
+      "step": 0.1,
+      "default": 0.6
+    },
+    {
+      "name": "water_reflections",
+      "label": "Water Reflections",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "stroke",
+      "label": "Stroke!",
+      "type": "trigger",
+      "share": "all"
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "DAWN REGATTA",
+    "tagline": "PULL TOGETHER TO SURGE AHEAD",
+    "accent": "#c95932",
+    "groups": [
+      {
+        "title": "Crew Action",
+        "controls": [
+          "stroke"
+        ]
+      },
+      {
+        "title": "Regatta Rules",
+        "controls": [
+          "sync_strictness",
+          "race_distance"
+        ]
+      },
+      {
+        "title": "Morning Water",
+        "controls": [
+          "dawn_mood",
+          "fog_density",
+          "water_reflections"
+        ]
+      }
+    ],
+    "controls": {
+      "dawn_mood": {
+        "widget": "cycle",
+        "hint": "Shifts sky gradients and water hues"
+      },
+      "sync_strictness": {
+        "widget": "buttons",
+        "hint": "Tighter windows demand closer stroke timing"
+      },
+      "race_distance": {
+        "widget": "knob",
+        "hint": "Meters to the regatta finish line"
+      },
+      "fog_density": {
+        "widget": "slider",
+        "hint": "Thickens the dawn river mist"
+      },
+      "water_reflections": {
+        "widget": "lamp",
+        "hint": ""
+      },
+      "stroke": {
+        "widget": "pad",
+        "hint": "Mash in sync with teammates for huge combo boosts"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "Two racing shells clash on a misty river as teams mash stroke together to build synergy combos, surge ahead, and cross the line.",
+    "prompt": "A rowing race between two long boats on a misty river at dawn: every press of 'stroke' pulls that team's oars, and presses that land close together in time pull far harder than scattered ones, so the team that rows as one wins; wakes spread behind the boats and the finish flags wave. Two teams: tables alternate between them, or people alternate when everyone is at one table; show each team's colours and score clearly. Make it a party game a whole room can follow from across the floor: bold shapes and bright colours on a dark ground, every player drawn in their own hue, big short labels (a score, GO!, the winner) in a heavy font, and a large, satisfying reaction on screen the instant anyone presses. It must work with one player or forty, scaling its lanes, seats or pieces to room.people and coping with people joining and leaving mid-round; play itself in a lively attract mode whenever nobody has pressed anything for a few seconds; and after a winner is shown, start the next round on its own. Keep it lean: game state in bounded arrays in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080.",
+    "look": [
+      "energetic",
+      "light"
+    ],
+    "source": "play/rowing-regatta~11"
+  }
+}

@@ -1,0 +1,162 @@
+{
+  "name": "Concert Laser Rig",
+  "promptTemplate": "A high-octane concert laser rig slicing through thick stage haze in {{palette}} hues, running in {{laser_mode}} mode with {{beam_count}} beams at {{scan_speed}}x speed, {{haze_density}} haze volume, crowd silhouettes {{crowd_silhouettes}}, and beat strobing {{strobe_on_beat}}.",
+  "variables": [
+    {
+      "name": "laser_mode",
+      "label": "Laser Geometry",
+      "values": [
+        {
+          "text": "liquid_sky",
+          "weight": 2
+        },
+        {
+          "text": "tunnel_cone",
+          "weight": 2
+        },
+        {
+          "text": "fan_scan",
+          "weight": 2
+        },
+        {
+          "text": "all_systems",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "palette",
+      "label": "Laser Color",
+      "values": [
+        {
+          "text": "emerald_cyan",
+          "weight": 2
+        },
+        {
+          "text": "cyber_synth",
+          "weight": 2
+        },
+        {
+          "text": "crimson_gold",
+          "weight": 1
+        },
+        {
+          "text": "monochrome_white",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "beam_count",
+      "label": "Beam Count",
+      "type": "number",
+      "min": 12,
+      "max": 48,
+      "step": 4,
+      "default": 24
+    },
+    {
+      "name": "scan_speed",
+      "label": "Scan Speed",
+      "type": "number",
+      "min": 0.2,
+      "max": 2.0,
+      "step": 0.1,
+      "default": 1.0
+    },
+    {
+      "name": "haze_density",
+      "label": "Haze Density",
+      "type": "number",
+      "min": 0.2,
+      "max": 1.0,
+      "step": 0.1,
+      "default": 0.6
+    },
+    {
+      "name": "crowd_silhouettes",
+      "label": "Crowd",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "strobe_on_beat",
+      "label": "Beat Strobe",
+      "type": "toggle",
+      "default": true
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "acid",
+    "title": "LASER RIG +5",
+    "tagline": "CONCERT HAZE & VOLUMETRIC BEAMS",
+    "accent": "#00ffcc",
+    "groups": [
+      {
+        "title": "Rig Optics",
+        "controls": [
+          "laser_mode",
+          "palette",
+          "beam_count"
+        ]
+      },
+      {
+        "title": "Atmosphere & Dynamic",
+        "controls": [
+          "scan_speed",
+          "haze_density",
+          "strobe_on_beat",
+          "crowd_silhouettes"
+        ]
+      }
+    ],
+    "controls": {
+      "laser_mode": {
+        "widget": "pads",
+        "hint": "Switch between liquid sheets, cones, or sweeping fans"
+      },
+      "palette": {
+        "widget": "cycle",
+        "hint": "Cycle laser diode colour pairs"
+      },
+      "beam_count": {
+        "widget": "slider",
+        "hint": "Increase density of scanned light lines"
+      },
+      "scan_speed": {
+        "widget": "knob",
+        "hint": "Dial projector galvo sweep frequency"
+      },
+      "haze_density": {
+        "widget": "slider",
+        "hint": "Fill room with thicker smoke to catch beam shafts"
+      },
+      "crowd_silhouettes": {
+        "widget": "switch",
+        "hint": ""
+      },
+      "strobe_on_beat": {
+        "widget": "lamp",
+        "hint": "Pulse diode intensity with the audio beat"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "demo",
+    "blurb": "Sharply focused concert lasers slice through undulating stage smoke overhead, forming liquid sky planes, expanding cones, and sweeping fans.",
+    "prompt": "A concert laser show through haze: sharp beams fan, scan and tunnel over the crowd from a rig above, sweeping in time with the beat, making cones, sheets and liquid-sky planes, each beam visible along its length in the smoke. Make it striking on a big projected wall in a dark room: a bold composition, rich colour against real blacks, depth, glow, and motion that reads from across the room. Keep a demoscener's economy: lookup tables and fixed-size buffers kept in room.state, low-resolution offscreen buffers for any per-pixel work, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "light",
+      "energetic",
+      "3d"
+    ],
+    "source": "lightworks/laser-show~1"
+  }
+}

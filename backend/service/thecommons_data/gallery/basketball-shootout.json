@@ -1,0 +1,131 @@
+{
+  "name": "Neon Stadium Pop-A-Shot",
+  "promptTemplate": "A two-team basketball shootout in a {{court_theme}} with stadium lights, {{crowd_hype}} hype level, an aim meter speed of {{meter_speed}}, and ball trails {{ball_trail}}.",
+  "variables": [
+    {
+      "name": "court_theme",
+      "label": "Court Arena",
+      "values": [
+        {
+          "text": "cyber_arena",
+          "weight": 2
+        },
+        {
+          "text": "golden_stadium",
+          "weight": 1
+        },
+        {
+          "text": "retro_synth",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "crowd_hype",
+      "label": "Stadium Lights",
+      "values": [
+        {
+          "text": "steady",
+          "weight": 1
+        },
+        {
+          "text": "electric",
+          "weight": 2
+        },
+        {
+          "text": "overdrive",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "meter_speed",
+      "label": "Aim Speed",
+      "type": "number",
+      "min": 0.8,
+      "max": 2.4,
+      "step": 0.2,
+      "default": 1.4
+    },
+    {
+      "name": "ball_trail",
+      "label": "Ball Trails",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "shoot",
+      "label": "Shoot!",
+      "type": "trigger",
+      "share": "all"
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "POP-A-SHOT // ARCADE",
+    "tagline": "Two teams. 45 seconds. Time the needle and swish.",
+    "accent": "#ff2a6d",
+    "groups": [
+      {
+        "title": "ACTION",
+        "controls": [
+          "shoot"
+        ]
+      },
+      {
+        "title": "COURT & LIGHTS",
+        "controls": [
+          "court_theme",
+          "crowd_hype",
+          "ball_trail"
+        ]
+      },
+      {
+        "title": "TUNING",
+        "controls": [
+          "meter_speed"
+        ]
+      }
+    ],
+    "controls": {
+      "court_theme": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "crowd_hype": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "meter_speed": {
+        "widget": "knob",
+        "hint": "Speed up the back-and-forth aim meters"
+      },
+      "ball_trail": {
+        "widget": "lamp",
+        "hint": "Toggle glowing vapor trails behind every shot"
+      },
+      "shoot": {
+        "widget": "pad",
+        "hint": "Tap when the needle hits green for a 3-point swish"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "Two teams battle in a high-energy neon basketball shootout, timing their shots to moving aim meters under sweeping stadium spotlights.",
+    "prompt": "A two-team basketball shootout, two hoops under stadium lights, an aim meter swinging back and forth above each: every press of 'shoot' throws a ball from that person's spot, and it swishes if the meter was near the centre and clanks off the rim if not; forty-five seconds, a buzzer and a scoreboard. Two teams: tables alternate between them, or people alternate when everyone is at one table; show each team's colours and score clearly. Make it a party game a whole room can follow from across the floor: bold shapes and bright colours on a dark ground, every player drawn in their own hue, big short labels (a score, GO!, the winner) in a heavy font, and a large, satisfying reaction on screen the instant anyone presses. It must work with one player or forty, scaling its lanes, seats or pieces to room.people and coping with people joining and leaving mid-round; play itself in a lively attract mode whenever nobody has pressed anything for a few seconds; and after a winner is shown, start the next round on its own. Keep it lean: game state in bounded arrays in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080.",
+    "look": [
+      "retro",
+      "light",
+      "energetic"
+    ],
+    "source": "play/basketball-shootout~11"
+  }
+}

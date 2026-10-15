@@ -1,0 +1,150 @@
+{
+  "name": "Sunset Blob Volleyball",
+  "promptTemplate": "A beach volleyball showdown in {{sunset_palette}} light at {{game_speed}}x pace with {{ball_bounciness}} bounce aiming for {{win_score}} points with crowd {{crowd_cheer}}.",
+  "variables": [
+    {
+      "name": "sunset_palette",
+      "label": "Sunset Mood",
+      "values": [
+        {
+          "text": "Miami Neon",
+          "weight": 2
+        },
+        {
+          "text": "Golden Hour",
+          "weight": 2
+        },
+        {
+          "text": "Deep Twilight",
+          "weight": 1
+        },
+        {
+          "text": "Solar Flare",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "game_speed",
+      "label": "Game Speed",
+      "type": "number",
+      "min": 0.8,
+      "max": 1.4,
+      "step": 0.1,
+      "default": 1.0
+    },
+    {
+      "name": "ball_bounciness",
+      "label": "Ball Bounce",
+      "type": "number",
+      "min": 1.0,
+      "max": 1.5,
+      "step": 0.1,
+      "default": 1.2
+    },
+    {
+      "name": "win_score",
+      "label": "Points to Win",
+      "type": "number",
+      "min": 3,
+      "max": 9,
+      "step": 2,
+      "default": 5
+    },
+    {
+      "name": "crowd_cheer",
+      "label": "Crowd FX",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "jump",
+      "label": "Jump!",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "spike",
+      "label": "Spike!",
+      "type": "trigger",
+      "share": "all"
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "BLOB VOLLEY +2 TRAINER",
+    "tagline": "Synchronized sunset sand showdown",
+    "accent": "#ff4d6d",
+    "groups": [
+      {
+        "title": "Court Action",
+        "controls": [
+          "jump",
+          "spike"
+        ]
+      },
+      {
+        "title": "Match Rules",
+        "controls": [
+          "game_speed",
+          "ball_bounciness",
+          "win_score"
+        ]
+      },
+      {
+        "title": "Sunset Vibe",
+        "controls": [
+          "sunset_palette",
+          "crowd_cheer"
+        ]
+      }
+    ],
+    "controls": {
+      "sunset_palette": {
+        "widget": "pads",
+        "hint": ""
+      },
+      "game_speed": {
+        "widget": "knob",
+        "hint": "Pace of flight and gravity"
+      },
+      "ball_bounciness": {
+        "widget": "slider",
+        "hint": "Bounce velocity when bumped off heads"
+      },
+      "win_score": {
+        "widget": "stepper",
+        "hint": ""
+      },
+      "crowd_cheer": {
+        "widget": "lamp",
+        "hint": ""
+      },
+      "jump": {
+        "widget": "pad",
+        "hint": "Mash together with your team to leap higher"
+      },
+      "spike": {
+        "widget": "pad",
+        "hint": "Hammer the blob downward in mid-air"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "Googly-eyed blob teams bump and spike a volleyball back and forth against a sunset beach, jumping higher the more players tap in unison.",
+    "prompt": "Beach volleyball between two round, googly-eyed blobs either side of a net at sunset: a team's blob jumps when anyone on it presses 'jump', and leaps higher the more of the team press together; the ball follows real arcs and bounces off heads, and a point goes up when it lands in the sand. Two teams: tables alternate between them, or people alternate when everyone is at one table; show each team's colours and score clearly. Make it a party game a whole room can follow from across the floor: bold shapes and bright colours on a dark ground, every player drawn in their own hue, big short labels (a score, GO!, the winner) in a heavy font, and a large, satisfying reaction on screen the instant anyone presses. It must work with one player or forty, scaling its lanes, seats or pieces to room.people and coping with people joining and leaving mid-round; play itself in a lively attract mode whenever nobody has pressed anything for a few seconds; and after a winner is shown, start the next round on its own. Keep it lean: game state in bounded arrays in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080.",
+    "look": [
+      "retro",
+      "energetic"
+    ],
+    "source": "play/blob-volleyball~3"
+  }
+}

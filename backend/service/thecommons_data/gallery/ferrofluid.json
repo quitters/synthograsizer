@@ -1,0 +1,165 @@
+{
+  "name": "Ferrofluid Chamber",
+  "promptTemplate": "A pool of ferrofluid driven into {{spike_density}} sharp spikes by a {{magnet_mode}} field at {{magnet_strength}} power with {{sheen}} luster, animated with {{viscosity}} dynamics and {{studio_rim}} studio rim glow.",
+  "variables": [
+    {
+      "name": "magnet_mode",
+      "label": "Magnet Motion",
+      "values": [
+        {
+          "text": "breathing",
+          "weight": 2
+        },
+        {
+          "text": "orbiting",
+          "weight": 2
+        },
+        {
+          "text": "roaming",
+          "weight": 1
+        },
+        {
+          "text": "surge",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "sheen",
+      "label": "Surface Sheen",
+      "values": [
+        {
+          "text": "oil_slick",
+          "weight": 3
+        },
+        {
+          "text": "liquid_chrome",
+          "weight": 2
+        },
+        {
+          "text": "deep_violet",
+          "weight": 2
+        },
+        {
+          "text": "obsidian_gold",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "spike_density",
+      "label": "Grid Density",
+      "type": "number",
+      "min": 16,
+      "max": 32,
+      "step": 2,
+      "default": 24
+    },
+    {
+      "name": "magnet_strength",
+      "label": "Magnetic Force",
+      "type": "number",
+      "min": 0.6,
+      "max": 2.4,
+      "step": 0.2,
+      "default": 1.4
+    },
+    {
+      "name": "viscosity",
+      "label": "Fluid Viscosity",
+      "values": [
+        {
+          "text": "mercury",
+          "weight": 2
+        },
+        {
+          "text": "heavy_crude",
+          "weight": 2
+        },
+        {
+          "text": "hyper_fluid",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "studio_rim",
+      "label": "Studio Rim Glow",
+      "type": "toggle",
+      "default": true
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "acid",
+    "title": "FERROFLUID +5",
+    "tagline": "Magnetic liquid spike dynamics",
+    "accent": "#32e6d2",
+    "groups": [
+      {
+        "title": "Magnetic Field",
+        "controls": [
+          "magnet_strength",
+          "magnet_mode"
+        ]
+      },
+      {
+        "title": "Fluid Lattice",
+        "controls": [
+          "spike_density",
+          "viscosity"
+        ]
+      },
+      {
+        "title": "Optical Sheen",
+        "controls": [
+          "sheen",
+          "studio_rim"
+        ]
+      }
+    ],
+    "controls": {
+      "magnet_mode": {
+        "widget": "pads",
+        "hint": "Cycle how the invisible magnetic poles travel"
+      },
+      "sheen": {
+        "widget": "cycle",
+        "hint": "Spectral iridescence reflecting off the spikes"
+      },
+      "spike_density": {
+        "widget": "stepper",
+        "hint": "Grid resolution of the ferrofluid peaks"
+      },
+      "magnet_strength": {
+        "widget": "knob",
+        "hint": "Crank up to elevate towering sharp spikes"
+      },
+      "viscosity": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "studio_rim": {
+        "widget": "lamp",
+        "hint": "Cast luminous edge highlights onto the pool"
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "demo",
+    "blurb": "A pool of glossy ferrofluid erupts into sharp iridescent spikes under magnetic forces while the room steers liquid viscosity, luster, and pole trajectories.",
+    "prompt": "Ferrofluid: a pool of glossy black liquid that rises into rows of sharp spikes as an unseen magnet approaches, the spikes swaying, merging and collapsing back into a mirror-smooth puddle, a studio light gleaming on every spike. Make it striking on a big projected wall in a dark room: a bold composition, rich colour against real blacks, depth, glow, and motion that reads from across the room. Keep a demoscener's economy: lookup tables and fixed-size buffers kept in room.state, low-resolution offscreen buffers for any per-pixel work, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "3d",
+      "organic",
+      "light"
+    ],
+    "source": "lightworks/ferrofluid~3"
+  }
+}

@@ -1,0 +1,155 @@
+{
+  "name": "Chicken Highway Party",
+  "promptTemplate": "Multiplayer chicken crossing highway under {{theme}} night sky with {{traffic_density}} traffic at {{traffic_speed}}x speed over {{lane_count}} lanes and headlights {{headlight_glow}}",
+  "variables": [
+    {
+      "name": "theme",
+      "label": "Theme",
+      "values": [
+        {
+          "text": "neon_midnight",
+          "weight": 2
+        },
+        {
+          "text": "cyber_highway",
+          "weight": 1
+        },
+        {
+          "text": "retro_arcade",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "traffic_density",
+      "label": "Traffic Density",
+      "values": [
+        {
+          "text": "rush_hour",
+          "weight": 2
+        },
+        {
+          "text": "breezy",
+          "weight": 1
+        },
+        {
+          "text": "gridlock",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "traffic_speed",
+      "label": "Traffic Speed",
+      "type": "number",
+      "min": 0.6,
+      "max": 2.0,
+      "step": 0.2,
+      "default": 1.2
+    },
+    {
+      "name": "lane_count",
+      "label": "Lanes",
+      "type": "number",
+      "min": 4,
+      "max": 8,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "name": "headlight_glow",
+      "label": "Headlight Beams",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "hop",
+      "label": "HOP!",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "reset_race",
+      "label": "Reset Race",
+      "type": "trigger",
+      "share": "one"
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "CHICKEN RUN +2",
+    "tagline": "DODGE TRAFFIC TO THE FAR VERGE",
+    "accent": "#ffd166",
+    "groups": [
+      {
+        "title": "Action",
+        "controls": [
+          "hop",
+          "reset_race"
+        ]
+      },
+      {
+        "title": "Highway",
+        "controls": [
+          "traffic_speed",
+          "lane_count",
+          "traffic_density"
+        ]
+      },
+      {
+        "title": "Visuals",
+        "controls": [
+          "theme",
+          "headlight_glow"
+        ]
+      }
+    ],
+    "controls": {
+      "theme": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "traffic_density": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "traffic_speed": {
+        "widget": "knob",
+        "hint": "Turn to accelerate oncoming vehicles"
+      },
+      "lane_count": {
+        "widget": "stepper",
+        "hint": "More lanes make the highway wider to cross"
+      },
+      "headlight_glow": {
+        "widget": "lamp",
+        "hint": ""
+      },
+      "hop": {
+        "widget": "pad",
+        "hint": "Tap to hop your chicken forward one lane"
+      },
+      "reset_race": {
+        "widget": "button",
+        "hint": "Return all chickens to the starting verge"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "A crowd of colored chickens races across a speeding highway at night, dodging headlights to reach the far side.",
+    "prompt": "A chicken for every person at the edge of a busy highway at night: each press of 'hop' hops yours one lane forward between the headlights; a chicken that is clipped poofs into feathers back at the start, and the first to reach the far verge wins. Make it a party game a whole room can follow from across the floor: bold shapes and bright colours on a dark ground, every player drawn in their own hue, big short labels (a score, GO!, the winner) in a heavy font, and a large, satisfying reaction on screen the instant anyone presses. It must work with one player or forty, scaling its lanes, seats or pieces to room.people and coping with people joining and leaving mid-round; play itself in a lively attract mode whenever nobody has pressed anything for a few seconds; and after a winner is shown, start the next round on its own. Keep it lean: game state in bounded arrays in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080.",
+    "look": [
+      "retro",
+      "energetic"
+    ],
+    "source": "play/road-crossing~11"
+  }
+}

@@ -1,0 +1,179 @@
+{
+  "name": "Lichtenberg Wood Burn",
+  "promptTemplate": "Lichtenberg electrical tree burning into {{wood_type}} plank with {{voltage}} current, branching density {{branch_density}}, grain bias {{grain_bias}}, glowing with {{glow_intensity}} intensity and {{spark_count}}, smoke trails {{smoke_trails}}",
+  "variables": [
+    {
+      "name": "wood_type",
+      "label": "Wood Specimen",
+      "values": [
+        {
+          "text": "walnut",
+          "weight": 2
+        },
+        {
+          "text": "golden_oak",
+          "weight": 2
+        },
+        {
+          "text": "burnt_cedar",
+          "weight": 1
+        },
+        {
+          "text": "driftwood",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "voltage",
+      "label": "Current Drive",
+      "values": [
+        {
+          "text": "steady_high",
+          "weight": 2
+        },
+        {
+          "text": "surging_pulse",
+          "weight": 2
+        },
+        {
+          "text": "overcharged",
+          "weight": 1
+        },
+        {
+          "text": "hyper_arc",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "branch_density",
+      "label": "Branch Density",
+      "type": "number",
+      "min": 20,
+      "max": 120,
+      "step": 10,
+      "default": 60
+    },
+    {
+      "name": "grain_bias",
+      "label": "Grain Follow",
+      "type": "number",
+      "min": 0.1,
+      "max": 0.9,
+      "step": 0.1,
+      "default": 0.6
+    },
+    {
+      "name": "glow_intensity",
+      "label": "Arc Brightness",
+      "type": "number",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.25,
+      "default": 1.5
+    },
+    {
+      "name": "spark_count",
+      "label": "Ember Sparking",
+      "values": [
+        {
+          "text": "subtle_embers",
+          "weight": 1
+        },
+        {
+          "text": "crackle_swarm",
+          "weight": 2
+        },
+        {
+          "text": "firestorm",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "smoke_trails",
+      "label": "Scorch Smoke",
+      "type": "toggle",
+      "default": true
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "LICHTENBERG BURN +4",
+    "tagline": "High-voltage fractal arc scorch simulation",
+    "accent": "#ff5f0f",
+    "groups": [
+      {
+        "title": "Specimen & Discharge",
+        "controls": [
+          "wood_type",
+          "voltage"
+        ]
+      },
+      {
+        "title": "Arc Dynamics",
+        "controls": [
+          "glow_intensity",
+          "branch_density",
+          "grain_bias"
+        ]
+      },
+      {
+        "title": "Thermal Output",
+        "controls": [
+          "spark_count",
+          "smoke_trails"
+        ]
+      }
+    ],
+    "controls": {
+      "wood_type": {
+        "widget": "pads",
+        "hint": "Swaps plank and ignites fresh electrodes"
+      },
+      "voltage": {
+        "widget": "cycle",
+        "hint": "Drives burn speed and branching violence"
+      },
+      "branch_density": {
+        "widget": "slider",
+        "hint": "Cap on simultaneous burning lead tendrils"
+      },
+      "grain_bias": {
+        "widget": "slider",
+        "hint": "How rigidly electrical paths follow wood grain"
+      },
+      "glow_intensity": {
+        "widget": "knob",
+        "hint": "Boosts neon orange bloom at arc heads"
+      },
+      "spark_count": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "smoke_trails": {
+        "widget": "lamp",
+        "hint": ""
+      }
+    },
+    "mobile": {
+      "density": "compact"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "generative",
+    "blurb": "Branching high-voltage arcs creep across a wooden plank, leaving carbon fractures and glowing embers until the board chars through.",
+    "prompt": "A Lichtenberg figure burning into wood: a branching electrical tree creeps outward across a plank, glowing orange at its tips and charring black behind, until the whole plank is covered and a new one slides in. Make it striking on a big projected wall in a dark room: a bold composition, rich colour against real blacks, depth, glow, and motion that reads from across the room. Keep a demoscener's economy: lookup tables and fixed-size buffers kept in room.state, low-resolution offscreen buffers for any per-pixel work, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "organic",
+      "light",
+      "energetic"
+    ],
+    "source": "lightworks/lichtenberg~12"
+  }
+}

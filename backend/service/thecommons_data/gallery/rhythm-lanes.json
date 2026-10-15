@@ -1,0 +1,130 @@
+{
+  "name": "Beat Highway: Table Showdown",
+  "promptTemplate": "A cooperative rhythm game with {{lane_style}} visual styling, falling notes at speed {{note_speed}} on {{difficulty}} tempo",
+  "variables": [
+    {
+      "name": "lane_style",
+      "label": "Visual Theme",
+      "values": [
+        {
+          "text": "Cyber Neon",
+          "weight": 2
+        },
+        {
+          "text": "Synthwave",
+          "weight": 2
+        },
+        {
+          "text": "Electro Gold",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "note_speed",
+      "label": "Scroll Speed",
+      "type": "number",
+      "min": 1.5,
+      "max": 5.5,
+      "step": 0.5,
+      "default": 3.5
+    },
+    {
+      "name": "difficulty",
+      "label": "Rhythm Tempo",
+      "values": [
+        {
+          "text": "Groove",
+          "weight": 2
+        },
+        {
+          "text": "Steady",
+          "weight": 3
+        },
+        {
+          "text": "Frenzy",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "hit",
+      "label": "Hit / Strike",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "fever",
+      "label": "Fever Boost",
+      "type": "trigger",
+      "share": "all"
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "violet",
+    "title": "BEAT HIGHWAY V1.0",
+    "tagline": "STRIKE ON THE BEAT FOR HIGH COMBO",
+    "accent": "#00f0ff",
+    "groups": [
+      {
+        "title": "Action",
+        "controls": [
+          "hit",
+          "fever"
+        ]
+      },
+      {
+        "title": "Tempo & Speed",
+        "controls": [
+          "difficulty",
+          "note_speed"
+        ]
+      },
+      {
+        "title": "Style",
+        "controls": [
+          "lane_style"
+        ]
+      }
+    ],
+    "controls": {
+      "lane_style": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "note_speed": {
+        "widget": "knob",
+        "hint": "Adjust highway drop rate"
+      },
+      "difficulty": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "hit": {
+        "widget": "pad",
+        "hint": "Mash when notes hit your table's target line"
+      },
+      "fever": {
+        "widget": "button",
+        "hint": "Activate 2x score burst for 6 seconds"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "A rhythm game for the whole room: notes fall down one lane per table in time with the music's beat, anyone at a table can hit their lane's button, hits near the line score and misses break the combo, with a live scoreboard of each table's score and best combo",
+    "prompt": "a rhythm game for the whole room: notes fall down one lane per table in time with the music's beat, anyone at a table can hit their lane's button, hits near the line score and misses break the combo, with a live scoreboard of each table's score and best combo",
+    "look": [
+      "energetic",
+      "retro"
+    ],
+    "source": "trial-2/flash-high/rhythm-lanes~1"
+  }
+}

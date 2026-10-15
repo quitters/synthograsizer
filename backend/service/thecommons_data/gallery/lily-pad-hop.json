@@ -1,0 +1,148 @@
+{
+  "name": "Lily Hop Relay",
+  "promptTemplate": "A frantic multiplayer frog race across {{pond_theme}} water with {{pad_count}} pads, sinking to {{hazard_style}} at {{rhythm_speed}} speed, enhanced by {{water_ripples}}.",
+  "variables": [
+    {
+      "name": "hop",
+      "label": "Hop!",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "pad_count",
+      "label": "Pads Across",
+      "type": "number",
+      "min": 5,
+      "max": 9,
+      "step": 1,
+      "default": 7
+    },
+    {
+      "name": "rhythm_speed",
+      "label": "Rhythm Speed",
+      "type": "number",
+      "min": 0.6,
+      "max": 2.0,
+      "step": 0.2,
+      "default": 1.0
+    },
+    {
+      "name": "pond_theme",
+      "label": "Pond Theme",
+      "values": [
+        {
+          "text": "Midnight Deep",
+          "weight": 2
+        },
+        {
+          "text": "Neon Bayou",
+          "weight": 2
+        },
+        {
+          "text": "Acid Swamp",
+          "weight": 1
+        },
+        {
+          "text": "Twilight Glow",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "hazard_style",
+      "label": "Rhythm Pattern",
+      "values": [
+        {
+          "text": "Alternating Wave",
+          "weight": 2
+        },
+        {
+          "text": "Sync Beats",
+          "weight": 2
+        },
+        {
+          "text": "Cascading Sink",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "water_ripples",
+      "label": "Water Ripples",
+      "type": "toggle",
+      "default": true
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "acid",
+    "title": "LILY HOP RELAY +5",
+    "tagline": "LEAP ACROSS THE POND BEFORE THE PADS DUNK YOU",
+    "accent": "#00ff88",
+    "groups": [
+      {
+        "title": "Action",
+        "controls": [
+          "hop"
+        ]
+      },
+      {
+        "title": "Race Course",
+        "controls": [
+          "hazard_style",
+          "rhythm_speed",
+          "pad_count"
+        ]
+      },
+      {
+        "title": "Pond FX",
+        "controls": [
+          "pond_theme",
+          "water_ripples"
+        ]
+      }
+    ],
+    "controls": {
+      "hop": {
+        "widget": "pad",
+        "hint": "Mash to leap to the next lily pad"
+      },
+      "pad_count": {
+        "widget": "stepper",
+        "hint": "Changes the number of hops to reach the finish bank"
+      },
+      "rhythm_speed": {
+        "widget": "knob",
+        "hint": "Accelerates the sinking rhythm"
+      },
+      "pond_theme": {
+        "widget": "cycle",
+        "hint": "Cycles background water and pad colors"
+      },
+      "hazard_style": {
+        "widget": "pads",
+        "hint": "Swaps how lily pads rise and sink"
+      },
+      "water_ripples": {
+        "widget": "lamp",
+        "hint": ""
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "Frogs race across a pond on sinking lily pads, leaping forward to the rhythm or splashing back to the starting bank.",
+    "prompt": "A frog race across a pond, a frog in every person's colour: press 'hop' to jump to the next lily pad, but the pads sink and resurface in a rhythm, and landing on a sunken pad dunks you back to the bank with a splash; the first frog across wins. Make it a party game a whole room can follow from across the floor: bold shapes and bright colours on a dark ground, every player drawn in their own hue, big short labels (a score, GO!, the winner) in a heavy font, and a large, satisfying reaction on screen the instant anyone presses. It must work with one player or forty, scaling its lanes, seats or pieces to room.people and coping with people joining and leaving mid-round; play itself in a lively attract mode whenever nobody has pressed anything for a few seconds; and after a winner is shown, start the next round on its own. Keep it lean: game state in bounded arrays in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080.",
+    "look": [
+      "retro",
+      "energetic"
+    ],
+    "source": "play/lily-pad-hop~11"
+  }
+}

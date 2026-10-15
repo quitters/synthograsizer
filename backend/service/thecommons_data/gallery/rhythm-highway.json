@@ -1,0 +1,140 @@
+{
+  "name": "Neon Rhythm Arena",
+  "promptTemplate": "High-octane shared rhythm game with {{highway_theme}} visuals, {{lane_count}} streaming lanes, tempo speed {{tempo_speed}}x, bloom {{bloom_glow}}, and {{round_duration}}s championship rounds",
+  "variables": [
+    {
+      "name": "highway_theme",
+      "label": "Highway Theme",
+      "values": [
+        {
+          "text": "cyber_neon",
+          "weight": 3
+        },
+        {
+          "text": "synth_sunset",
+          "weight": 2
+        },
+        {
+          "text": "laser_grid",
+          "weight": 2
+        },
+        {
+          "text": "acid_matrix",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "lane_count",
+      "label": "Lanes",
+      "type": "number",
+      "min": 3,
+      "max": 6,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "name": "tempo_speed",
+      "label": "Tempo Speed",
+      "type": "number",
+      "min": 1.0,
+      "max": 2.5,
+      "step": 0.25,
+      "default": 1.5
+    },
+    {
+      "name": "bloom_glow",
+      "label": "Bloom Glow",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "round_duration",
+      "label": "Round Time (s)",
+      "type": "number",
+      "min": 20,
+      "max": 60,
+      "step": 10,
+      "default": 40
+    },
+    {
+      "name": "hit",
+      "label": "HIT / TAP!",
+      "type": "trigger",
+      "share": "all"
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "violet",
+    "title": "NEON RHYTHM +5",
+    "tagline": "TAP ON THE BEAT TO CRUSH THE LEADERBOARD",
+    "accent": "#00f7ff",
+    "groups": [
+      {
+        "title": "ACTION",
+        "controls": [
+          "hit"
+        ]
+      },
+      {
+        "title": "HIGHWAY SETUP",
+        "controls": [
+          "highway_theme",
+          "lane_count",
+          "tempo_speed"
+        ]
+      },
+      {
+        "title": "ARENA RULES",
+        "controls": [
+          "round_duration",
+          "bloom_glow"
+        ]
+      }
+    ],
+    "controls": {
+      "highway_theme": {
+        "widget": "cycle",
+        "hint": "Swaps track shaders, grid lines, and horizon neon"
+      },
+      "lane_count": {
+        "widget": "stepper",
+        "hint": "Adjusts track lanes from 3 to 6 across the floor"
+      },
+      "tempo_speed": {
+        "widget": "knob",
+        "hint": "Accelerates note highway descent toward the strike line"
+      },
+      "bloom_glow": {
+        "widget": "lamp",
+        "hint": ""
+      },
+      "round_duration": {
+        "widget": "slider",
+        "hint": "Championship round length before crowning the winner"
+      },
+      "hit": {
+        "widget": "pad",
+        "hint": "Mash when incoming notes strike the glowing line"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "Notes rush down a perspective cyber highway toward the strike line while players tap in rhythm to compete on a live room leaderboard.",
+    "prompt": "A rhythm game: notes stream down a glowing highway toward a strike line in time with the music's beat, and every press of 'hit' as a note crosses the line scores for that person, with perfect hits blazing in their colour; a leaderboard of the five most accurate players updates live. Make it a party game a whole room can follow from across the floor: bold shapes and bright colours on a dark ground, every player drawn in their own hue, big short labels (a score, GO!, the winner) in a heavy font, and a large, satisfying reaction on screen the instant anyone presses. It must work with one player or forty, scaling its lanes, seats or pieces to room.people and coping with people joining and leaving mid-round; play itself in a lively attract mode whenever nobody has pressed anything for a few seconds; and after a winner is shown, start the next round on its own. Keep it lean: game state in bounded arrays in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080.",
+    "look": [
+      "retro",
+      "energetic",
+      "light"
+    ],
+    "source": "play/rhythm-highway~11"
+  }
+}

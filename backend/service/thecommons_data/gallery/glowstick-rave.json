@@ -1,0 +1,172 @@
+{
+  "name": "Bass Drop Arena",
+  "promptTemplate": "Stage view festival arena with {{beam_style}} spotlight sweeps, {{glow_intensity}} glow intensity, {{atmosphere}} haze, {{strobe_palette}} strobes, crowd density {{stagedepth}}, and sync {{bounce_sync}}",
+  "variables": [
+    {
+      "name": "beam_style",
+      "label": "Beam Rig",
+      "values": [
+        {
+          "text": "sweeping_cones",
+          "weight": 2
+        },
+        {
+          "text": "prism_lasers",
+          "weight": 1
+        },
+        {
+          "text": "stadium_fans",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "glow_intensity",
+      "label": "Glow Power",
+      "type": "number",
+      "min": 0.6,
+      "max": 2.2,
+      "step": 0.2,
+      "default": 1.4
+    },
+    {
+      "name": "atmosphere",
+      "label": "Arena Haze",
+      "values": [
+        {
+          "text": "clean_dark",
+          "weight": 1
+        },
+        {
+          "text": "thick_haze",
+          "weight": 2
+        },
+        {
+          "text": "neon_mist",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "strobe_palette",
+      "label": "Drop Hue",
+      "values": [
+        {
+          "text": "blinding_white",
+          "weight": 2
+        },
+        {
+          "text": "electric_cyan",
+          "weight": 1
+        },
+        {
+          "text": "acid_magenta",
+          "weight": 1
+        },
+        {
+          "text": "solar_gold",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "stagedepth",
+      "label": "Crowd Density",
+      "type": "number",
+      "min": 40,
+      "max": 140,
+      "step": 20,
+      "default": 80
+    },
+    {
+      "name": "bounce_sync",
+      "label": "Crowd Bounce",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "drop_bass",
+      "label": "DROP THE BASS",
+      "type": "trigger",
+      "share": "all"
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "BASS ARENA +6",
+    "tagline": "Rave pit controller & live drop trigger",
+    "accent": "#ff14a0",
+    "groups": [
+      {
+        "title": "Main Drop",
+        "controls": [
+          "drop_bass",
+          "strobe_palette"
+        ]
+      },
+      {
+        "title": "Lighting Rig",
+        "controls": [
+          "beam_style",
+          "glow_intensity",
+          "atmosphere"
+        ]
+      },
+      {
+        "title": "Pit Energy",
+        "controls": [
+          "bounce_sync",
+          "stagedepth"
+        ]
+      }
+    ],
+    "controls": {
+      "beam_style": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "glow_intensity": {
+        "widget": "knob",
+        "hint": "Amplifies laser beam strength and haze bloom"
+      },
+      "atmosphere": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "strobe_palette": {
+        "widget": "pads",
+        "hint": "Sets the flash tint when the bass drops"
+      },
+      "stagedepth": {
+        "widget": "slider",
+        "hint": "Packs deeper silhouette rows into the back crowd"
+      },
+      "bounce_sync": {
+        "widget": "lamp",
+        "hint": "Locks silhouettes to the live bass pulse"
+      },
+      "drop_bass": {
+        "widget": "pad",
+        "hint": "Hits full strobe flash and sets the arena jumping"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "Sweeping laser cones illuminate a packed crowd waving personal glowsticks while the room detonates bass drops and strobes on cue.",
+    "prompt": "A festival crowd seen from the stage: silhouettes of people waving glowsticks in their own colours, one figure per person in the room, spotlights sweeping; anyone can drop the bass, making the lights strobe and the crowd jump. Make it striking on a big projected wall in a dark room: a bold composition, rich colour against real blacks, depth, glow, and motion that reads from across the room. Keep a demoscener's economy: lookup tables and fixed-size buffers kept in room.state, low-resolution offscreen buffers for any per-pixel work, nothing allocated inside hot loops, a steady 60fps at 1920x1080, and compact, clearly named code.",
+    "look": [
+      "energetic",
+      "light",
+      "retro"
+    ],
+    "source": "lightworks/glowstick-rave~2"
+  }
+}

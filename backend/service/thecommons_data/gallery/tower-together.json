@@ -1,0 +1,122 @@
+{
+  "name": "Tower Drop Party",
+  "promptTemplate": "A communal arcade skyscraper built with {{theme}} styling, swaying with {{tower_wobble}} instability, a crane swinging at {{crane_speed}} speed, and audio reactivity set to {{audio_react}}.",
+  "variables": [
+    {
+      "name": "crane_speed",
+      "label": "Crane Speed",
+      "type": "number",
+      "min": 0.8,
+      "max": 2.4,
+      "step": 0.2,
+      "default": 1.4
+    },
+    {
+      "name": "tower_wobble",
+      "label": "Wobble Physics",
+      "type": "number",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.5,
+      "default": 1.5
+    },
+    {
+      "name": "theme",
+      "label": "Aesthetic Theme",
+      "values": [
+        {
+          "text": "cyber_neon",
+          "weight": 3
+        },
+        {
+          "text": "candy_pop",
+          "weight": 2
+        },
+        {
+          "text": "aurora_gold",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "audio_react",
+      "label": "Audio Shockwaves",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "name": "drop",
+      "label": "DROP BLOCK!",
+      "type": "trigger",
+      "share": "all"
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "TOWER DROP PARTY",
+    "tagline": "COMMUNAL ARCADE SKYSCRAPER",
+    "accent": "#ff0077",
+    "groups": [
+      {
+        "title": "DROP ZONE",
+        "controls": [
+          "drop"
+        ]
+      },
+      {
+        "title": "CRANE & PHYSICS",
+        "controls": [
+          "crane_speed",
+          "tower_wobble",
+          "audio_react"
+        ]
+      },
+      {
+        "title": "STYLE",
+        "controls": [
+          "theme"
+        ]
+      }
+    ],
+    "controls": {
+      "crane_speed": {
+        "widget": "knob",
+        "hint": "How quickly the crane swings across the screen"
+      },
+      "tower_wobble": {
+        "widget": "slider",
+        "hint": "Exaggerates sway and structural instability"
+      },
+      "theme": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "audio_react": {
+        "widget": "lamp",
+        "hint": "Bass pulses crane speed and tower tremors"
+      },
+      "drop": {
+        "widget": "pad",
+        "hint": "Release a block from the crane in your color"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 2
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "Everyone in the room shares a swinging crane to build one towering skyscraper, timing block drops to stack precision combos before the wobbly structure topples.",
+    "prompt": "Everyone builds one tower: a crane swings above it, and each press of 'drop' drops a block in your colour; blocks stack with wobbly physics, the tower sways more as it grows, and when it topples a flag marks the record height before the pieces are cleared. Make it a party game a whole room can follow from across the floor: bold shapes and bright colours on a dark ground, every player drawn in their own hue, big short labels (a score, GO!, the winner) in a heavy font, and a large, satisfying reaction on screen the instant anyone presses. It must work with one player or forty, scaling its lanes, seats or pieces to room.people and coping with people joining and leaving mid-round; play itself in a lively attract mode whenever nobody has pressed anything for a few seconds; and after a winner is shown, start the next round on its own. Keep it lean: game state in bounded arrays in room.state, nothing allocated inside hot loops, a steady 60fps at 1920x1080.",
+    "look": [
+      "retro",
+      "energetic",
+      "geometric"
+    ],
+    "source": "play/tower-together~11"
+  }
+}

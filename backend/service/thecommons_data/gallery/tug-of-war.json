@@ -1,0 +1,154 @@
+{
+  "name": "Titan Tug of War",
+  "promptTemplate": "A colossal tug-of-war clash in {{arena_style}} style featuring {{rope_slack}} slack dynamics, {{friction}} grip friction, and energetic {{crowd_effect}} surges",
+  "variables": [
+    {
+      "name": "arena_style",
+      "label": "Arena Style",
+      "values": [
+        {
+          "text": "cyber_laser",
+          "weight": 2
+        },
+        {
+          "text": "mythic_ember",
+          "weight": 1
+        },
+        {
+          "text": "abyssal_glow",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "rope_slack",
+      "label": "Rope Slack",
+      "type": "number",
+      "min": 0.1,
+      "max": 1,
+      "step": 0.1,
+      "default": 0.4
+    },
+    {
+      "name": "crowd_effect",
+      "label": "Crowd Sparks",
+      "values": [
+        {
+          "text": "kinetic_sparks",
+          "weight": 2
+        },
+        {
+          "text": "pulse_rings",
+          "weight": 1
+        },
+        {
+          "text": "lightning_arcs",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "friction",
+      "label": "Grip Friction",
+      "type": "number",
+      "min": 0.85,
+      "max": 0.98,
+      "step": 0.01,
+      "default": 0.93
+    },
+    {
+      "name": "pull_left",
+      "label": "Pull Left!",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "pull_right",
+      "label": "Pull Right!",
+      "type": "trigger",
+      "share": "all"
+    },
+    {
+      "name": "reset_match",
+      "label": "Reset Game",
+      "type": "trigger",
+      "share": "one"
+    }
+  ],
+  "ui": {
+    "skin": "trainer",
+    "variant": "fire",
+    "title": "TITAN TUG-OF-WAR +3",
+    "tagline": "MASH YOUR BUTTON TO HEAVE THE KNOT TO YOUR SIDE",
+    "accent": "#00f0ff",
+    "groups": [
+      {
+        "title": "BATTLEFIELD",
+        "controls": [
+          "pull_left",
+          "pull_right"
+        ]
+      },
+      {
+        "title": "ROPE PHYSICS",
+        "controls": [
+          "rope_slack",
+          "friction"
+        ]
+      },
+      {
+        "title": "ARENA FX",
+        "controls": [
+          "arena_style",
+          "crowd_effect",
+          "reset_match"
+        ]
+      }
+    ],
+    "controls": {
+      "arena_style": {
+        "widget": "buttons",
+        "hint": ""
+      },
+      "rope_slack": {
+        "widget": "slider",
+        "hint": "Loosen or tighten the sagging arc of the rope"
+      },
+      "crowd_effect": {
+        "widget": "cycle",
+        "hint": ""
+      },
+      "friction": {
+        "widget": "knob",
+        "hint": "Dial up floor grip to brake sudden knot swings"
+      },
+      "pull_left": {
+        "widget": "pad",
+        "hint": "Repeatedly pound to drag the glowing knot left"
+      },
+      "pull_right": {
+        "widget": "pad",
+        "hint": "Repeatedly pound to haul the glowing knot right"
+      },
+      "reset_match": {
+        "widget": "button",
+        "hint": "Center the knot and wipe current victory rings"
+      }
+    },
+    "mobile": {
+      "density": "roomy"
+    },
+    "desktop": {
+      "columns": 3
+    }
+  },
+  "listing": {
+    "section": "games",
+    "blurb": "A tug of war between the left and right halves of the room: a rope across the middle, each side pulls by mashing its button, and the knot slides towards whoever is winning",
+    "prompt": "a tug of war between the left and right halves of the room: a rope across the middle, each side pulls by mashing its button, and the knot slides towards whoever is winning",
+    "look": [
+      "energetic"
+    ],
+    "source": "trial-1/flash-medium/tug-of-war"
+  }
+}
