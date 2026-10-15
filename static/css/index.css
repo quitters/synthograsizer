@@ -1366,7 +1366,9 @@ footer nav{
   border:1px solid #c4cebb;
   border-radius:6px;
   box-shadow:0 8px 20px #34483008;
-  padding:12px
+  padding:12px;
+  /* .cd-screen's own font-size uses cqw, which can't resolve against itself */
+  container-type:inline-size
 }
 .cd-top{
   display:flex;
