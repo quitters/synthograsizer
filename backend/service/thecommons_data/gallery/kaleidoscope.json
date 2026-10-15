@@ -1,10 +1,10 @@
 {
-  "name": "Prismatic Chamber",
-  "promptTemplate": "A {{mirrors}}-fold kaleidoscope of {{gem_shape}} shards in {{color_palette}} hues, {{chamber_motion}} drift at {{rotation_speed}} spin with {{shard_count}} jewels",
+  "name": "Cathedral Kaleidoscope",
+  "promptTemplate": "A kaleidoscope: a drifting field of {{palette}} shards with {{shard_style}} geometry seen through {{mirrors}} mirrored wedges with {{rot_speed}} rotation and {{drift_speed}} drift at {{zoom}} zoom framed by {{aperture}} aperture",
   "variables": [
     {
       "name": "mirrors",
-      "label": "Mirror Planes",
+      "label": "Mirrors",
       "type": "number",
       "min": 3,
       "max": 12,
@@ -12,77 +12,86 @@
       "default": 6
     },
     {
-      "name": "rotation_speed",
-      "label": "Rotation Speed",
+      "name": "rot_speed",
+      "label": "Rotation",
       "type": "number",
-      "min": -2.0,
+      "min": -1.5,
+      "max": 1.5,
+      "step": 0.1,
+      "default": 0.3
+    },
+    {
+      "name": "drift_speed",
+      "label": "Drift",
+      "type": "number",
+      "min": 0.2,
       "max": 2.0,
-      "step": 0.2,
-      "default": 0.6
+      "step": 0.1,
+      "default": 0.8
     },
     {
-      "name": "shard_count",
-      "label": "Jewel Count",
+      "name": "zoom",
+      "label": "Zoom",
       "type": "number",
-      "min": 30,
-      "max": 150,
-      "step": 15,
-      "default": 75
+      "min": 0.6,
+      "max": 1.8,
+      "step": 0.1,
+      "default": 1.0
     },
     {
-      "name": "color_palette",
+      "name": "palette",
       "label": "Palette",
       "values": [
         {
           "text": "stained_glass",
+          "weight": 3
+        },
+        {
+          "text": "opal_fire",
           "weight": 2
         },
         {
-          "text": "opal_aurora",
+          "text": "deep_amethyst",
           "weight": 2
         },
         {
-          "text": "cyber_neon",
-          "weight": 1
-        },
-        {
-          "text": "solar_flare",
-          "weight": 1
-        }
-      ]
-    },
-    {
-      "name": "gem_shape",
-      "label": "Shard Geometry",
-      "values": [
-        {
-          "text": "crystals",
-          "weight": 2
-        },
-        {
-          "text": "polyhedra",
-          "weight": 2
-        },
-        {
-          "text": "fragments",
+          "text": "neon_cyber",
           "weight": 1
         }
       ]
     },
     {
-      "name": "chamber_motion",
-      "label": "Chamber Drift",
+      "name": "shard_style",
+      "label": "Shard Style",
       "values": [
         {
-          "text": "hypnotic",
+          "text": "faceted_gems",
+          "weight": 3
+        },
+        {
+          "text": "stained_plates",
           "weight": 2
         },
         {
-          "text": "turbulent",
-          "weight": 1
+          "text": "crystalline_needles",
+          "weight": 2
+        }
+      ]
+    },
+    {
+      "name": "aperture",
+      "label": "Aperture",
+      "values": [
+        {
+          "text": "brass_scope",
+          "weight": 3
         },
         {
-          "text": "vortex",
+          "text": "dark_vignette",
+          "weight": 2
+        },
+        {
+          "text": "infinite",
           "weight": 1
         }
       ]
@@ -91,55 +100,60 @@
   "ui": {
     "skin": "trainer",
     "variant": "violet",
-    "title": "PRISMA SCOPE +6",
-    "tagline": "Demoscene kaleidoscope chamber controller",
-    "accent": "#ff38aa",
+    "title": "CATHEDRAL +7 OPTIX",
+    "tagline": "Tumble stained glass through the mirrored chamber",
+    "accent": "#d866ff",
     "groups": [
       {
-        "title": "Optics & Spin",
+        "title": "Mirrors & Scope",
         "controls": [
           "mirrors",
-          "rotation_speed",
-          "chamber_motion"
+          "rot_speed",
+          "zoom",
+          "aperture"
         ]
       },
       {
-        "title": "Gem Chamber",
+        "title": "Shard Dynamics",
         "controls": [
-          "shard_count",
-          "gem_shape",
-          "color_palette"
+          "drift_speed",
+          "shard_style",
+          "palette"
         ]
       }
     ],
     "controls": {
       "mirrors": {
         "widget": "stepper",
-        "hint": "Multiplies mirrored wedges across the aperture"
+        "hint": "Multiplies kaleidoscope symmetry axes"
       },
-      "rotation_speed": {
+      "rot_speed": {
         "widget": "knob",
-        "hint": "Continuous spin rate and barrel direction"
+        "hint": "Twist to spin the mirror tube"
       },
-      "shard_count": {
+      "drift_speed": {
         "widget": "slider",
-        "hint": "Density of tumbling faceted jewels"
+        "hint": "Speed of loose crystal shards drifting inside"
       },
-      "color_palette": {
+      "zoom": {
+        "widget": "slider",
+        "hint": ""
+      },
+      "palette": {
         "widget": "cycle",
-        "hint": "Cycles chromatic crystal glaze sets"
+        "hint": ""
       },
-      "gem_shape": {
+      "shard_style": {
         "widget": "buttons",
         "hint": ""
       },
-      "chamber_motion": {
+      "aperture": {
         "widget": "buttons",
-        "hint": "Switches the underlying shard velocity field"
+        "hint": ""
       }
     },
     "mobile": {
-      "density": "compact"
+      "density": "roomy"
     },
     "desktop": {
       "columns": 2
@@ -154,6 +168,6 @@
       "geometric",
       "energetic"
     ],
-    "source": "scenes100/kaleidoscope~2"
+    "source": "scenes100/kaleidoscope~1"
   }
 }

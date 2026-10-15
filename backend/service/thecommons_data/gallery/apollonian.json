@@ -1,153 +1,152 @@
 {
-  "name": "Apollonian Gold",
-  "promptTemplate": "An Apollonian gasket with {{max_depth}} recursion levels in {{gold_tone}} upon deep navy, rotating with {{motion_style}}, unfolding via {{reveal_mode}}, rendered with {{line_weight}} line weight and {{glow_intensity}} aura glow.",
+  "name": "Apollonian Gasket",
+  "promptTemplate": "Apollonian gasket in {{palette_tint}} with {{motion_style}}, revealed to {{reveal_depth}} generations, {{echo_layers}} styling, glow {{glow_intensity}} and weight {{line_weight}}",
   "variables": [
     {
-      "name": "max_depth",
-      "label": "Detail Depth",
-      "type": "number",
-      "min": 3,
-      "max": 7,
-      "step": 1,
-      "default": 5
-    },
-    {
-      "name": "gold_tone",
-      "label": "Gold Alloy",
+      "name": "palette_tint",
+      "label": "Palette Tint",
       "values": [
         {
-          "text": "classic",
-          "weight": 3
-        },
-        {
-          "text": "champagne",
+          "text": "Classic Gold",
           "weight": 2
         },
         {
-          "text": "rose_gold",
+          "text": "Rose Aurum",
           "weight": 1
         },
         {
-          "text": "sunfire",
+          "text": "Electric Amber",
+          "weight": 1
+        },
+        {
+          "text": "Celestial Brass",
           "weight": 1
         }
       ]
     },
     {
       "name": "motion_style",
-      "label": "Rotation Flow",
+      "label": "Motion Style",
       "values": [
         {
-          "text": "steady_drift",
-          "weight": 3
-        },
-        {
-          "text": "orbital_pulse",
+          "text": "Slow Orbit",
           "weight": 2
         },
         {
-          "text": "harmonic_spin",
-          "weight": 2
-        }
-      ]
-    },
-    {
-      "name": "reveal_mode",
-      "label": "Generation Reveal",
-      "values": [
-        {
-          "text": "eternal_bloom",
-          "weight": 3
-        },
-        {
-          "text": "ripple_burst",
+          "text": "Liquid Drift",
           "weight": 2
         },
         {
-          "text": "clockwork",
+          "text": "Pulsing Gyro",
+          "weight": 1
+        },
+        {
+          "text": "Hypnotic Spin",
           "weight": 1
         }
       ]
     },
     {
-      "name": "line_weight",
-      "label": "Line Weight",
+      "name": "echo_layers",
+      "label": "Echo Layers",
+      "values": [
+        {
+          "text": "Dual Rim",
+          "weight": 2
+        },
+        {
+          "text": "Single Wire",
+          "weight": 2
+        },
+        {
+          "text": "Harmonic Echo",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "reveal_depth",
+      "label": "Reveal Depth",
       "type": "number",
       "min": 1,
-      "max": 4,
-      "step": 0.5,
-      "default": 1.5
+      "max": 6,
+      "step": 1,
+      "default": 5
     },
     {
       "name": "glow_intensity",
-      "label": "Aura Glow",
+      "label": "Glow Intensity",
       "type": "number",
-      "min": 0,
-      "max": 10,
-      "step": 1,
-      "default": 5
+      "min": 0.5,
+      "max": 3.0,
+      "step": 0.1,
+      "default": 1.4
+    },
+    {
+      "name": "line_weight",
+      "label": "Line Weight",
+      "type": "number",
+      "min": 0.6,
+      "max": 3.0,
+      "step": 0.2,
+      "default": 1.2
     }
   ],
   "ui": {
     "skin": "trainer",
     "variant": "fire",
-    "title": "APOLLONIAN GOLD +6",
-    "tagline": "Recursive Descartes circle packer in pure gold",
-    "accent": "#e8c468",
+    "title": "APOLLONIAN +6 TRAINER",
+    "tagline": "Recursive Descartes circle packing engine",
+    "accent": "#f5c432",
     "groups": [
       {
-        "title": "Recursion & Form",
+        "title": "Recursion",
         "controls": [
-          "max_depth",
+          "reveal_depth",
+          "echo_layers",
           "line_weight"
         ]
       },
       {
-        "title": "Kinetics",
+        "title": "Aesthetics & Drift",
         "controls": [
+          "palette_tint",
           "motion_style",
-          "reveal_mode"
-        ]
-      },
-      {
-        "title": "Illumination",
-        "controls": [
-          "gold_tone",
           "glow_intensity"
         ]
       }
     ],
     "controls": {
-      "max_depth": {
-        "widget": "stepper",
-        "hint": "Expands recursive rings to sub-pixel density"
-      },
-      "gold_tone": {
-        "widget": "pads",
+      "palette_tint": {
+        "widget": "cycle",
         "hint": ""
       },
       "motion_style": {
-        "widget": "list",
-        "hint": "Sets how bass beats torque the orbit"
-      },
-      "reveal_mode": {
-        "widget": "buttons",
+        "widget": "pads",
         "hint": ""
+      },
+      "echo_layers": {
+        "widget": "buttons",
+        "hint": "Multiplies concentric inner rims"
+      },
+      "reveal_depth": {
+        "widget": "stepper",
+        "hint": "Expands recursive circle generations"
+      },
+      "glow_intensity": {
+        "widget": "knob",
+        "hint": "Radiates bloom across the inner ring orbits"
       },
       "line_weight": {
         "widget": "slider",
         "hint": ""
-      },
-      "glow_intensity": {
-        "widget": "knob",
-        "hint": "Crank up the radial bloom and center aura"
       }
     },
     "mobile": {
-      "density": "roomy"
+      "density": "compact"
     },
     "desktop": {
-      "columns": 3
+      "columns": 2
     }
   },
   "listing": {
@@ -158,6 +157,6 @@
       "geometric",
       "calm"
     ],
-    "source": "scenes100/apollonian~3"
+    "source": "scenes100/apollonian~2"
   }
 }

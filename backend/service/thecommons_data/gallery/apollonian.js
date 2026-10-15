@@ -1,220 +1,206 @@
 ctx.save();
-
-const depthTarget = Math.round(getVar('max_depth') ?? 5);
-const tone = getVar('gold_tone') ?? 'classic';
-const motion = getVar('motion_style') ?? 'steady_drift';
-const reveal = getVar('reveal_mode') ?? 'eternal_bloom';
-const lineBase = getVar('line_weight') ?? 1.5;
-const glowLevel = getVar('glow_intensity') ?? 5;
-
-const palettes = {
-  classic: { primary: '232, 196, 104', highlight: '255, 238, 168', core: '170, 126, 42' },
-  champagne: { primary: '242, 222, 196', highlight: '255, 248, 235', core: '168, 142, 116' },
-  rose_gold: { primary: '240, 165, 155', highlight: '255, 218, 212', core: '184, 102, 118' },
-  sunfire: { primary: '255, 180, 48', highlight: '255, 230, 120', core: '220, 80, 20' }
-};
-const col = palettes[tone] ?? palettes.classic;
-
-// Precompute gasket into fixed typed buffer stored in room.state
-const MAX_CIRCLES = 4096;
-room.state.buf ??= new Float32Array(MAX_CIRCLES * 4); // [x, y, r, depth]
-room.state.count ??= 0;
-room.state.rot ??= 0;
-room.state.pulse ??= 0;
-
-if (room.state.cachedDepth !== depthTarget) {
-  let ptr = 0;
-  const buf = room.state.buf;
-  const pushCircle = (x, y, r, d) => {
-    if (ptr < MAX_CIRCLES && r > 0.001) {
-      const i = ptr * 4;
-      buf[i] = x;
-      buf[i + 1] = y;
-      buf[i + 2] = r;
-      buf[i + 3] = d;
-      ptr++;
-    }
-  };
-
-  const r1 = 2 * Math.sqrt(3) - 3;
-  const k1 = 1 / r1;
-  const dCenter = 1 - r1;
-  const c0 = { x: 0, y: 0, k: -1 };
-  const c1 = { x: dCenter, y: 0, k: k1 };
-  const c2 = { x: dCenter * Math.cos(2 * Math.PI / 3), y: dCenter * Math.sin(2 * Math.PI / 3), k: k1 };
-  const c3 = { x: dCenter * Math.cos(4 * Math.PI / 3), y: dCenter * Math.sin(4 * Math.PI / 3), k: k1 };
-
-  pushCircle(c0.x, c0.y, 1, 0);
-  pushCircle(c1.x, c1.y, r1, 1);
-  pushCircle(c2.x, c2.y, r1, 1);
-  pushCircle(c3.x, c3.y, r1, 1);
-
-  const solveDescartes = (a, b, c, old) => {
-    const kn = 2 * (a.k + b.k + c.k) - old.k;
-    if (Math.abs(kn) < 1e-6) return null;
-    const xn = (2 * (a.k * a.x + b.k * b.x + c.k * c.x) - old.k * old.x) / kn;
-    const yn = (2 * (a.k * a.y + b.k * b.y + c.k * c.y) - old.k * old.y) / kn;
-    return { x: xn, y: yn, k: kn, r: Math.abs(1 / kn) };
-  };
-
-  const recurse = (a, b, c, d, currentDepth) => {
-    if (currentDepth > depthTarget) return;
-    const next = solveDescartes(a, b, c, d);
-    if (!next || next.r < 0.0015) return;
-    pushCircle(next.x, next.y, next.r, currentDepth);
-    recurse(next, b, c, a, currentDepth + 1);
-    recurse(a, next, c, b, currentDepth + 1);
-    recurse(a, b, next, c, currentDepth + 1);
-  };
-
-  const center = solveDescartes(c1, c2, c3, c0);
-  if (center) {
-    pushCircle(center.x, center.y, center.r, 1);
-    recurse(center, c2, c3, c1, 2);
-    recurse(c1, center, c3, c2, 2);
-    recurse(c1, c2, center, c3, 2);
-  }
-  recurse(c0, c2, c3, c1, 2);
-  recurse(c1, c0, c3, c2, 2);
-  recurse(c1, c2, c0, c3, 2);
-
-  room.state.count = ptr;
-  room.state.cachedDepth = depthTarget;
-}
-
-// Dynamics
-const bass = audio.bass ?? 0;
-const treble = audio.treble ?? 0;
-const mid = audio.mid ?? 0;
-if (audio.beat) room.state.pulse = 1.0;
-room.state.pulse *= Math.exp(-frame.dt * 6.5);
-
-let rotSpeed = 0.08;
-if (motion === 'orbital_pulse') rotSpeed = 0.05 + bass * 0.18;
-else if (motion === 'harmonic_spin') rotSpeed = 0.12 * Math.sin(frame.t * 0.35) + 0.04;
-room.state.rot += rotSpeed * frame.dt;
-
-// Background fill with subtle vignette
 const w = frame.width;
 const h = frame.height;
+const minDim = Math.min(w, h);
 const cx = w * 0.5;
 const cy = h * 0.5;
-const minDim = Math.min(w, h);
 
-const bgGrad = ctx.createRadialGradient(cx, cy, minDim * 0.05, cx, cy, minDim * 0.85);
-bgGrad.addColorStop(0, '#0a1224');
-bgGrad.addColorStop(0.65, '#040814');
-bgGrad.addColorStop(1, '#02040a');
+// Deep celestial navy background
+const bgGrad = ctx.createRadialGradient(cx, cy, minDim * 0.05, cx, cy, minDim * 0.72);
+bgGrad.addColorStop(0, '#0b162c');
+bgGrad.addColorStop(0.55, '#040917');
+bgGrad.addColorStop(1, '#01040d');
 ctx.fillStyle = bgGrad;
 ctx.fillRect(0, 0, w, h);
 
-// Center aura glow on audio pulse
-if (glowLevel > 0) {
-  ctx.save();
-  ctx.globalCompositeOperation = 'screen';
-  const glowRad = minDim * (0.35 + bass * 0.25 + room.state.pulse * 0.15);
-  const aura = ctx.createRadialGradient(cx, cy, 0, cx, cy, glowRad);
-  const auraAlpha = (glowLevel / 10) * (0.12 + bass * 0.1 + room.state.pulse * 0.1);
-  aura.addColorStop(0, `rgba(${col.highlight}, ${auraAlpha * 1.5})`);
-  aura.addColorStop(0.4, `rgba(${col.primary}, ${auraAlpha * 0.6})`);
-  aura.addColorStop(1, 'rgba(0,0,0,0)');
-  ctx.fillStyle = aura;
-  ctx.beginPath();
-  ctx.arc(cx, cy, glowRad, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.restore();
+// One-time generation of Apollonian packing via Descartes' circle theorem
+if (!room.state.circles) {
+  const maxC = 1200;
+  const bx = new Float32Array(maxC);
+  const by = new Float32Array(maxC);
+  const br = new Float32Array(maxC);
+  const bk = new Float32Array(maxC);
+  const bg = new Uint8Array(maxC);
+
+  // Outer boundary circle (curvature k0 = -1)
+  bx[0] = 0; by[0] = 0; br[0] = 1; bk[0] = -1; bg[0] = 0;
+
+  // Three mutually tangent inner circles
+  const r1 = 2 * Math.sqrt(3) - 3;
+  const k1 = 1 / r1;
+  const d = 1 - r1;
+  for (let i = 0; i < 3; i++) {
+    const ang = -Math.PI / 2 + (i * 2 * Math.PI) / 3;
+    bx[i + 1] = d * Math.cos(ang);
+    by[i + 1] = d * Math.sin(ang);
+    br[i + 1] = r1;
+    bk[i + 1] = k1;
+    bg[i + 1] = 1;
+  }
+  let count = 4;
+
+  // Apollonian quad branch queue: [i0, i1, i2, i3, lastReplacedIndex, depth]
+  const queue = [0, 1, 2, 3, -1, 1];
+  let qHead = 0;
+  while (qHead < queue.length && count < maxC) {
+    const i0 = queue[qHead++];
+    const i1 = queue[qHead++];
+    const i2 = queue[qHead++];
+    const i3 = queue[qHead++];
+    const last = queue[qHead++];
+    const depth = queue[qHead++];
+    if (depth >= 6) continue;
+
+    const quad = [i0, i1, i2, i3];
+    for (let j = 0; j < 4; j++) {
+      if (j === last || count >= maxC) continue;
+      const a = quad[(j + 1) % 4];
+      const b = quad[(j + 2) % 4];
+      const c = quad[(j + 3) % 4];
+      const e = quad[j];
+
+      const kn = 2 * (bk[a] + bk[b] + bk[c]) - bk[e];
+      if (kn <= 0.001) continue;
+      const xn = (2 * (bx[a] * bk[a] + bx[b] * bk[b] + bx[c] * bk[c]) - bx[e] * bk[e]) / kn;
+      const yn = (2 * (by[a] * bk[a] + by[b] * bk[b] + by[c] * bk[c]) - by[e] * bk[e]) / kn;
+      const rn = 1 / kn;
+      if (rn < 0.003) continue;
+
+      // Deduplicate overlapping circles
+      let match = -1;
+      for (let k = 0; k < count; k++) {
+        if (Math.abs(bx[k] - xn) < 0.0015 && Math.abs(by[k] - yn) < 0.0015 && Math.abs(br[k] - rn) < 0.0015) {
+          match = k;
+          break;
+        }
+      }
+      const nextIdx = match >= 0 ? match : count;
+      if (match < 0) {
+        bx[count] = xn;
+        by[count] = yn;
+        br[count] = rn;
+        bk[count] = kn;
+        bg[count] = depth + 1;
+        count++;
+      }
+
+      const nextQuad = [quad[0], quad[1], quad[2], quad[3]];
+      nextQuad[j] = nextIdx;
+      queue.push(nextQuad[0], nextQuad[1], nextQuad[2], nextQuad[3], j, depth + 1);
+    }
+  }
+
+  room.state.bx = bx;
+  room.state.by = by;
+  room.state.br = br;
+  room.state.bg = bg;
+  room.state.count = count;
+  room.state.circles = true;
 }
 
-// Transform space
-ctx.save();
+// Read steering parameters
+const depthLimit = Math.round(getVar('reveal_depth') ?? 5);
+const glowMult = getVar('glow_intensity') ?? 1.4;
+const baseWeight = getVar('line_weight') ?? 1.2;
+const tintVar = getVar('palette_tint') ?? 'Classic Gold';
+const motionVar = getVar('motion_style') ?? 'Slow Orbit';
+const echoVar = getVar('echo_layers') ?? 'Dual Rim';
+
+// Palettes: [coreRgb, glowRgb, highRgb]
+const palettes = {
+  'Classic Gold':    ['228, 182, 75',  '255, 196, 50',  '255, 242, 180'],
+  'Rose Aurum':      ['238, 150, 130', '255, 130, 110', '255, 222, 215'],
+  'Electric Amber':  ['255, 162, 36',  '255, 130, 10',  '255, 228, 140'],
+  'Celestial Brass': ['196, 204, 126', '180, 210, 80',  '245, 252, 205']
+};
+const pal = palettes[tintVar] ?? palettes['Classic Gold'];
+
+// Motion calculation
+const bass = audio.bass || 0;
+const mid = audio.mid || 0;
+const treb = audio.treble || 0;
+const beatPunch = audio.beat ? 0.08 : 0.0;
+
+let rot = 0;
+if (motionVar === 'Slow Orbit') {
+  rot = frame.t * 0.075;
+} else if (motionVar === 'Liquid Drift') {
+  rot = Math.sin(frame.t * 0.25) * 0.35 + frame.t * 0.03;
+} else if (motionVar === 'Pulsing Gyro') {
+  rot = Math.sin(frame.t * 0.6) * 0.7 + bass * 0.15;
+} else {
+  rot = frame.t * 0.22 + bass * 0.1;
+}
+
+const masterScale = (minDim * 0.455) * (1.0 + bass * 0.05 + beatPunch * 0.04);
+const { bx, by, br, bg, count } = room.state;
+
 ctx.translate(cx, cy);
-ctx.rotate(room.state.rot);
+ctx.rotate(rot);
 
-const baseScale = minDim * 0.46 * (1 + bass * 0.02 + room.state.pulse * 0.025);
-const buf = room.state.buf;
-const total = room.state.count;
+// Echo layer passes configuration: scale multiplier & relative alpha
+const echoPasses = echoVar === 'Harmonic Echo'
+  ? [{ s: 1.0, a: 1.0 }, { s: 0.93, a: 0.45 }, { s: 0.85, a: 0.22 }]
+  : echoVar === 'Dual Rim'
+    ? [{ s: 1.0, a: 1.0 }, { s: 0.935, a: 0.38 }]
+    : [{ s: 1.0, a: 1.0 }];
 
-// Group draw calls by depth for peak demoscene throughput
-for (let d = 0; d <= depthTarget; d++) {
-  let alpha = 0.85;
-  let lw = lineBase;
-
-  if (reveal === 'eternal_bloom') {
-    const cycle = (frame.t * 0.45) % (depthTarget + 1);
-    const dist = Math.abs(cycle - d);
-    alpha = Math.max(0.12, 1.0 - dist * 0.35) + room.state.pulse * 0.2;
-  } else if (reveal === 'ripple_burst') {
-    const phase = (frame.t * 1.5 - d * 0.8) % (Math.PI * 2);
-    alpha = 0.35 + 0.55 * (0.5 + 0.5 * Math.sin(phase)) + room.state.pulse * 0.25;
-  } else {
-    alpha = (0.9 - d * 0.1) + treble * 0.25;
-  }
-
-  if (d === 0) {
-    lw = lineBase * 2.2 + bass * 1.5;
-    alpha = 0.95;
-  } else if (d === 1) {
-    lw = lineBase * 1.5 + room.state.pulse * 0.8;
-  } else {
-    lw = Math.max(0.5, lineBase * (1.1 - d * 0.12) + treble * 0.4);
-  }
-
-  alpha = Math.min(1.0, Math.max(0.05, alpha));
-
-  ctx.beginPath();
-  const isCore = d <= 1;
-  const strokeColor = isCore
-    ? `rgba(${col.highlight}, ${alpha})`
-    : `rgba(${col.primary}, ${alpha * 0.85})`;
-
-  ctx.strokeStyle = strokeColor;
-  ctx.lineWidth = lw;
-
-  if (glowLevel > 2 && d < 3) {
-    ctx.shadowColor = `rgba(${col.highlight}, ${0.4 * (glowLevel / 10)})`;
-    ctx.shadowBlur = 4 + glowLevel;
-  } else {
-    ctx.shadowBlur = 0;
-  }
-
-  for (let i = 0; i < total; i++) {
-    const idx = i * 4;
-    const cd = buf[idx + 3];
-    if (cd !== d) continue;
-
-    const bx = buf[idx] * baseScale;
-    const by = buf[idx + 1] * baseScale;
-    const br = buf[idx + 2] * baseScale;
-
-    if (reveal === 'clockwork' && d > 1) {
-      const ang = Math.atan2(by, bx) + Math.PI;
-      const sweep = ((frame.t * 0.8) % (Math.PI * 2));
-      if (Math.abs(ang - sweep) > 1.8 && Math.abs(ang - sweep) < (Math.PI * 2 - 1.8)) continue;
+// Draw circles batched generation by generation for high performance
+for (let pass = 0; pass < echoPasses.length; pass++) {
+  const ep = echoPasses[pass];
+  for (let g = 0; g <= depthLimit; g++) {
+    ctx.beginPath();
+    for (let i = 0; i < count; i++) {
+      if (bg[i] !== g) continue;
+      const rad = br[i] * masterScale * ep.s;
+      if (rad < 0.8) continue;
+      const px = bx[i] * masterScale;
+      const py = by[i] * masterScale;
+      ctx.moveTo(px + rad, py);
+      ctx.arc(px, py, rad, 0, Math.PI * 2);
     }
 
-    ctx.moveTo(bx + br, by);
-    ctx.arc(bx, by, br, 0, Math.PI * 2);
+    const genAlpha = Math.max(0.18, 1.0 - g * 0.13) * ep.a;
+    const reactiveWeight = (baseWeight * (g === 0 ? 1.6 : 1.0)) * (1.0 + (g > 2 ? treb * 0.4 : bass * 0.3));
+
+    // Glow pass for prominent rings
+    if (pass === 0 && g <= 3 && glowMult > 0.6) {
+      ctx.save();
+      ctx.shadowColor = `rgba(${pal[1]}, ${0.45 * glowMult})`;
+      ctx.shadowBlur = (8 + g * 3) * glowMult * (1 + bass * 0.5);
+      ctx.strokeStyle = `rgba(${pal[0]}, ${genAlpha * 0.5})`;
+      ctx.lineWidth = reactiveWeight * 1.6;
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // Core crisp stroke
+    ctx.strokeStyle = g === 0
+      ? `rgba(${pal[2]}, ${0.95 * ep.a})`
+      : `rgba(${pal[0]}, ${genAlpha})`;
+    ctx.lineWidth = reactiveWeight;
+    ctx.stroke();
   }
-  ctx.stroke();
 }
 
-// Room audience satellite nodes
-if (room.people && room.people.length > 0) {
-  ctx.shadowBlur = 6;
-  const n = room.people.length;
-  for (let p = 0; p < n; p++) {
-    const person = room.people[p];
-    const ang = (p / n) * Math.PI * 2 - room.state.rot * 1.5;
-    const px = Math.cos(ang) * baseScale;
-    const py = Math.sin(ang) * baseScale;
-    const pHue = person.hue ?? 45;
-    ctx.fillStyle = `hsla(${pHue}, 85%, 68%, 0.85)`;
-    ctx.shadowColor = `hsla(${pHue}, 90%, 60%, 0.8)`;
+// Dynamic room presence: connected people drawn as golden orbital nodes on the outer rim
+const people = room.people;
+if (people && people.length > 0) {
+  const pCount = Math.min(people.length, 36);
+  for (let pIdx = 0; pIdx < pCount; pIdx++) {
+    const p = people[pIdx];
+    const baseAng = (pIdx / pCount) * Math.PI * 2 + frame.t * 0.12;
+    const ringRad = masterScale;
+    const px = Math.cos(baseAng) * ringRad;
+    const py = Math.sin(baseAng) * ringRad;
+
     ctx.beginPath();
-    ctx.arc(px, py, 2.5 + mid * 3.5, 0, Math.PI * 2);
+    ctx.arc(px, py, 3.5 + mid * 2.5, 0, Math.PI * 2);
+    ctx.fillStyle = `hsl(${p.hue}, 90%, 65%)`;
+    ctx.shadowColor = `hsl(${p.hue}, 100%, 75%)`;
+    ctx.shadowBlur = 9;
     ctx.fill();
   }
 }
 
-ctx.restore();
 ctx.restore();

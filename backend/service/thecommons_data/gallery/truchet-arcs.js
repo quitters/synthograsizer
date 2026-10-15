@@ -1,66 +1,55 @@
-const paletteChoice = getVar('palette') ?? 'electric_neon';
-const scaleChoice = getVar('tile_scale') ?? 'medium';
-const flipTempo = getVar('motion_tempo') ?? 'steady';
-const pathWidth = getVar('line_weight') ?? 6;
+const S = room.state;
+const densities = { roomy: 68, standard: 52, dense: 38 };
+const cellSize = densities[getVar('grid_density')] ?? 52;
+const flipTempo = getVar('flip_tempo') ?? 3.5;
+const lineProfile = getVar('line_profile') ?? 'neon_tube';
+const paletteStyle = getVar('palette_style') ?? 'cyber_neon';
 
-const sizes = { compact: 40, medium: 60, broad: 90 };
-const tileSize = sizes[scaleChoice] ?? 60;
-const cols = Math.ceil(frame.width / tileSize) + 1;
-const rows = Math.ceil(frame.height / tileSize) + 1;
+const cols = Math.ceil(frame.width / cellSize) + 1;
+const rows = Math.ceil(frame.height / cellSize) + 1;
 const totalTiles = cols * rows;
+const totalArcs = totalTiles * 2;
 
-// Preallocate buffers once in room.state
-const s = room.state;
-s.cols = cols;
-s.rows = rows;
-
-if (!s.tiles || s.tiles.length !== totalTiles) {
-  s.tiles = new Uint8Array(totalTiles);
-  s.rotAnim = new Float32Array(totalTiles);
-  s.flash = new Float32Array(totalTiles);
+// Init or resize persistent state
+if (S.cols !== cols || S.rows !== rows || !S.tiles || S.tiles.length !== totalTiles) {
+  S.cols = cols;
+  S.rows = rows;
+  S.tiles = new Uint8Array(totalTiles);
+  S.flipAnim = new Float32Array(totalTiles);
+  S.parent = new Int32Array(totalArcs);
+  S.colorId = new Int32Array(totalArcs);
+  S.nextFlip = 0;
   for (let i = 0; i < totalTiles; i++) {
-    s.tiles[i] = (Math.sin(i * 997.3) > 0 ? 1 : 0);
-    s.rotAnim[i] = s.tiles[i] * 0.5 * Math.PI;
-  }
-  s.flipTimer = 0;
-  s.totalArcs = totalTiles * 2;
-  s.parent = new Int32Array(s.totalArcs);
-  s.compHue = new Float32Array(s.totalArcs);
-  for (let i = 0; i < s.totalArcs; i++) {
-    s.compHue[i] = (i * 137.508) % 360;
+    S.tiles[i] = (Math.random() > 0.5) ? 1 : 0;
   }
 }
 
-// Flip cadence
-const flipRates = { calm: 6, steady: 16, hyper: 40 };
-const baseRate = flipRates[flipTempo] ?? 16;
-const rate = baseRate * (1 + audio.mid * 2 + (audio.beat ? 4 : 0));
-s.flipTimer = (s.flipTimer ?? 0) + frame.dt * rate;
-
-while (s.flipTimer >= 1) {
-  s.flipTimer -= 1;
-  const idx = Math.floor(Math.random() * totalTiles);
-  s.tiles[idx] ^= 1;
-  s.flash[idx] = 1.0;
+// Trigger flips based on tempo and audio pulse
+const flipsToRun = Math.floor((frame.dt * flipTempo * (1 + audio.bass * 2.5)) + (audio.beat ? 1.8 : 0));
+S.flipAcc = (S.flipAcc || 0) + (frame.dt * flipTempo * (1 + audio.bass * 2.2));
+const doFlip = audio.beat || S.flipAcc >= 1.0;
+if (doFlip) {
+  const count = audio.beat ? 3 : Math.min(4, Math.floor(S.flipAcc));
+  S.flipAcc = Math.max(0, S.flipAcc - count);
+  for (let k = 0; k < count; k++) {
+    const idx = Math.floor(Math.random() * totalTiles);
+    S.tiles[idx] ^= 1;
+    S.flipAnim[idx] = 1.0;
+  }
 }
 
-// Animate rotations & flashes
+// Decay flip highlights
 for (let i = 0; i < totalTiles; i++) {
-  const target = s.tiles[i] * (0.5 * Math.PI);
-  let diff = target - s.rotAnim[i];
-  if (diff > Math.PI) diff -= Math.PI * 2;
-  if (diff < -Math.PI) diff += Math.PI * 2;
-  s.rotAnim[i] += diff * Math.min(1, frame.dt * 18);
-  if (s.flash[i] > 0) {
-    s.flash[i] = Math.max(0, s.flash[i] - frame.dt * 2.8);
-  }
+  if (S.flipAnim[i] > 0.001) S.flipAnim[i] *= 0.88;
+  else S.flipAnim[i] = 0;
 }
 
-// Fast Disjoint-Set Union for connected path coloring
-const N = s.totalArcs;
-const parent = s.parent;
-for (let i = 0; i < N; i++) parent[i] = i;
-
+// Disjoint Set Union to compute connected meandering paths
+// Arc indexing for tile at (x,y): idx = y * cols + x. Arc 0 = idx*2, Arc 1 = idx*2 + 1.
+// Orientation 0: Arc 0 joins Top(0)-Left(3); Arc 1 joins Right(1)-Bottom(2)
+// Orientation 1: Arc 0 joins Top(0)-Right(1); Arc 1 joins Bottom(2)-Left(3)
+const parent = S.parent;
+for (let i = 0; i < totalArcs; i++) parent[i] = i;
 function find(i) {
   let root = i;
   while (root !== parent[root]) root = parent[root];
@@ -72,137 +61,180 @@ function find(i) {
   }
   return root;
 }
-
 function union(a, b) {
   const ra = find(a);
   const rb = find(b);
-  if (ra !== rb) parent[ra] = rb;
+  if (ra !== rb) parent[rb] = ra;
 }
 
-// Connect ports between neighboring tiles based on current state (s.tiles)
 for (let y = 0; y < rows; y++) {
-  const yOff = y * cols;
+  const rowOffset = y * cols;
   for (let x = 0; x < cols; x++) {
-    const idx = yOff + x;
-    const t0 = idx * 2;
-    const t1 = t0 + 1;
-    const type = s.tiles[idx];
-    const rightIdx = idx + 1;
-    const downIdx = idx + cols;
+    const idx = rowOffset + x;
+    const t0 = S.tiles[idx];
+    const arcTop = idx * 2 + 0;
+    const arcBottom = idx * 2 + 1;
+    const arcRight = (t0 === 0) ? arcBottom : arcTop;
+    const arcDown = (t0 === 0) ? arcBottom : arcBottom;
 
+    // Connect horizontal neighbor (Right -> Left of x+1)
     if (x + 1 < cols) {
-      const rType = s.tiles[rightIdx];
-      const r0 = rightIdx * 2;
-      const r1 = r0 + 1;
-      const myRightArc = (type === 0 ? t1 : t0);
-      const theirLeftArc = (rType === 0 ? r0 : r1);
-      union(myRightArc, theirLeftArc);
+      const rightIdx = idx + 1;
+      const tRight = S.tiles[rightIdx];
+      const arcLeftNeighbor = (tRight === 0) ? rightIdx * 2 + 0 : rightIdx * 2 + 1;
+      union(arcRight, arcLeftNeighbor);
     }
+    // Connect vertical neighbor (Bottom -> Top of y+1)
     if (y + 1 < rows) {
-      const dType = s.tiles[downIdx];
-      const d0 = downIdx * 2;
-      const d1 = d0 + 1;
-      const myBottomArc = (type === 0 ? t1 : t1);
-      const theirTopArc = (dType === 0 ? d0 : d0);
-      union(myBottomArc, theirTopArc);
+      const downIdx = idx + cols;
+      const arcTopNeighbor = downIdx * 2 + 0;
+      union(arcDown, arcTopNeighbor);
     }
   }
 }
 
-// Drawing
+// Resolve canonical color IDs
+const colorId = S.colorId;
+for (let i = 0; i < totalArcs; i++) {
+  colorId[i] = find(i);
+}
+
+// Palettes
+const palettes = {
+  cyber_neon: (id, l) => `hsl(${(id * 137.5 + frame.t * 15) % 360}, 95%, ${l}%)`,
+  acid_sunset: (id, l) => `hsl(${(id * 53 + 320 + Math.sin(frame.t * 0.5) * 20) % 360}, 90%, ${l}%)`,
+  nordic_frost: (id, l) => `hsl(${(185 + (id % 8) * 12 + audio.mid * 20) % 360}, 80%, ${l}%)`,
+  arcade_glow: (id, l) => `hsl(${((id * 79 + 40)) % 360}, 100%, ${l}%)`
+};
+const getColor = palettes[paletteStyle] ?? palettes.cyber_neon;
+
 ctx.save();
-ctx.fillStyle = '#06070a';
+// Background fill
+ctx.fillStyle = '#06070c';
 ctx.fillRect(0, 0, frame.width, frame.height);
 
-const half = tileSize * 0.5;
-const bassBump = audio.bass * 2.5;
-const actualWidth = pathWidth + bassBump;
-
-// Subtle grid dot backdrop
-ctx.fillStyle = 'rgba(255, 255, 255, 0.04)';
+// Tile grid background matrix points
+ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
 for (let y = 0; y <= rows; y++) {
-  const py = y * tileSize;
   for (let x = 0; x <= cols; x++) {
-    ctx.fillRect(x * tileSize - 1, py - 1, 2, 2);
+    ctx.fillRect(x * cellSize - 1, y * cellSize - 1, 2, 2);
   }
 }
+
+const r = cellSize * 0.5;
+const pi2 = Math.PI * 2;
+const halfPi = Math.PI * 0.5;
+const isRibbon = lineProfile === 'ribbon';
+const isLaser = lineProfile === 'laser_wire';
+const baseWidth = isRibbon ? cellSize * 0.38 : (isLaser ? 2.5 : cellSize * 0.16);
+const beatPulse = 1 + audio.bass * 0.45;
+const glowBlur = isLaser ? 4 : (isRibbon ? 8 : 14);
 
 ctx.lineCap = 'round';
-ctx.lineWidth = actualWidth;
+ctx.shadowBlur = glowBlur * (0.8 + audio.mid * 0.8);
 
-// Palette map helpers
-function getPathColor(root, flashVal) {
-  if (paletteChoice === 'amber_crt') {
-    const lum = 40 + ((root * 19) % 40) + flashVal * 50;
-    return `hsl(38, 100%, ${Math.min(95, lum)}%)`;
-  } else if (paletteChoice === 'cyan_blueprint') {
-    const lum = 45 + ((root * 23) % 35) + flashVal * 45;
-    return `hsl(190, 95%, ${Math.min(95, lum)}%)`;
-  } else if (paletteChoice === 'spectral_void') {
-    const hue = (s.compHue[root] + frame.t * 12) % 360;
-    const sat = 70 + (audio.mid * 30);
-    const light = 50 + flashVal * 40;
-    return `hsl(${hue}, ${sat}%, ${light}%)`;
-  } else {
-    // electric_neon
-    const hue = (s.compHue[root] + (audio.bass * 60)) % 360;
-    const light = 55 + flashVal * 35;
-    return `hsl(${hue}, 100%, ${light}%)`;
-  }
-}
-
-// Draw arcs tile by tile
+// Render quarter-circle Truchet paths
 for (let y = 0; y < rows; y++) {
-  const yOff = y * cols;
-  const cy = y * tileSize + half;
+  const py = y * cellSize;
+  const rowOffset = y * cols;
   for (let x = 0; x < cols; x++) {
-    const idx = yOff + x;
-    const cx = x * tileSize + half;
+    const px = x * cellSize;
+    const idx = rowOffset + x;
+    const orient = S.tiles[idx];
+    const flip = S.flipAnim[idx];
     const arc0 = idx * 2;
-    const arc1 = arc0 + 1;
-    const root0 = find(arc0);
-    const root1 = find(arc1);
-    const flashVal = s.flash[idx];
-    const rot = s.rotAnim[idx];
+    const arc1 = idx * 2 + 1;
+    const id0 = colorId[arc0];
+    const id1 = colorId[arc1];
 
-    ctx.save();
-    ctx.translate(cx, cy);
-    ctx.rotate(rot);
+    const col0 = getColor(id0, 58 + flip * 30);
+    const col1 = getColor(id1, 58 + flip * 30);
+    const w = (baseWidth + flip * 6) * beatPulse;
 
-    // Arc 0 (top-left in canonical tile space: center at (-half, -half))
-    ctx.strokeStyle = getPathColor(root0, flashVal);
-    ctx.beginPath();
-    ctx.arc(-half, -half, half, 0, Math.PI * 0.5);
-    ctx.stroke();
+    ctx.lineWidth = Math.max(1.5, w);
 
-    // Arc 1 (bottom-right in canonical tile space: center at (half, half))
-    ctx.strokeStyle = getPathColor(root1, flashVal);
-    ctx.beginPath();
-    ctx.arc(half, half, half, Math.PI, Math.PI * 1.5);
-    ctx.stroke();
+    if (orient === 0) {
+      // Arc 0: Top-Left (around 0,0, connecting Top to Left)
+      ctx.strokeStyle = col0;
+      ctx.shadowColor = col0;
+      ctx.beginPath();
+      ctx.arc(px, py, r, 0, halfPi);
+      ctx.stroke();
 
-    // Flip flash accent on active nodes
-    if (flashVal > 0.05) {
-      ctx.fillStyle = `rgba(255, 255, 255, ${flashVal * 0.4})`;
-      ctx.fillRect(-half + 1, -half + 1, tileSize - 2, tileSize - 2);
+      // Arc 1: Bottom-Right (around px+cellSize, py+cellSize, connecting Right to Bottom)
+      ctx.strokeStyle = col1;
+      ctx.shadowColor = col1;
+      ctx.beginPath();
+      ctx.arc(px + cellSize, py + cellSize, r, Math.PI, Math.PI + halfPi);
+      ctx.stroke();
+    } else {
+      // Arc 0: Top-Right (around px+cellSize, py, connecting Top to Right)
+      ctx.strokeStyle = col0;
+      ctx.shadowColor = col0;
+      ctx.beginPath();
+      ctx.arc(px + cellSize, py, r, halfPi, Math.PI);
+      ctx.stroke();
+
+      // Arc 1: Bottom-Left (around px, py+cellSize, connecting Bottom to Left)
+      ctx.strokeStyle = col1;
+      ctx.shadowColor = col1;
+      ctx.beginPath();
+      ctx.arc(px, py + cellSize, r, Math.PI + halfPi, pi2);
+      ctx.stroke();
     }
 
-    ctx.restore();
+    // Visual accent on recently flipped tiles
+    if (flip > 0.05) {
+      ctx.fillStyle = `rgba(255, 255, 255, ${flip * 0.28})`;
+      ctx.fillRect(px + 2, py + 2, cellSize - 4, cellSize - 4);
+    }
   }
 }
 
-// Audience nodes: connected room users pulse along the perimeter
+// Secondary bright core stroke for neon tube feel
+if (!isLaser) {
+  ctx.shadowBlur = 0;
+  ctx.lineWidth = Math.max(1, baseWidth * 0.28);
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.75)';
+  for (let y = 0; y < rows; y++) {
+    const py = y * cellSize;
+    const rowOffset = y * cols;
+    for (let x = 0; x < cols; x++) {
+      const px = x * cellSize;
+      const orient = S.tiles[rowOffset + x];
+      if (orient === 0) {
+        ctx.beginPath();
+        ctx.arc(px, py, r, 0, halfPi);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(px + cellSize, py + cellSize, r, Math.PI, Math.PI + halfPi);
+        ctx.stroke();
+      } else {
+        ctx.beginPath();
+        ctx.arc(px + cellSize, py, r, halfPi, Math.PI);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(px, py + cellSize, r, Math.PI + halfPi, pi2);
+        ctx.stroke();
+      }
+    }
+  }
+}
+
+// Connected attendee particles wandering the edges
 if (room.people && room.people.length > 0) {
-  const pCount = room.people.length;
-  ctx.lineWidth = 2;
-  for (let i = 0; i < pCount; i++) {
-    const person = room.people[i];
-    const angle = (i / pCount) * Math.PI * 2 + frame.t * 0.1;
-    const borderX = (Math.cos(angle) * 0.45 + 0.5) * frame.width;
-    const borderY = (Math.sin(angle) * 0.45 + 0.5) * frame.height;
-    ctx.fillStyle = `hsl(${person.hue}, 90%, 65%)`;
+  const plen = room.people.length;
+  for (let p = 0; p < plen; p++) {
+    const person = room.people[p];
+    const pOffset = (p * 7 + frame.t * 1.5) % totalTiles;
+    const tIdx = Math.floor(pOffset);
+    const tx = (tIdx % cols) * cellSize + cellSize * 0.5;
+    const ty = Math.floor(tIdx / cols) * cellSize + cellSize * 0.5;
+    ctx.fillStyle = `hsl(${person.hue}, 100%, 70%)`;
+    ctx.shadowColor = ctx.fillStyle;
+    ctx.shadowBlur = 10;
     ctx.beginPath();
-    ctx.arc(borderX, borderY, 4 + audio.treble * 6, 0, Math.PI * 2);
+    ctx.arc(tx, ty, 4 + audio.treble * 4, 0, pi2);
     ctx.fill();
   }
 }

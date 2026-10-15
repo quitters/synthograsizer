@@ -1,160 +1,151 @@
 {
-  "name": "Hitomezashi Sashiko",
-  "promptTemplate": "A continuous live Hitomezashi stitchwork woven in {{pattern_seed}} across indigo dyed linen, styled with {{stitch_style}} thread upon {{indigo_depth}} ground, running at density {{grid_density}} with tempo {{tempo_drift}} and stitch thickness {{thread_weight}}.",
+  "name": "Hitomezashi Stitching",
+  "promptTemplate": "Hitomezashi sashiko embroidery with {{pattern_seed}} sequences on {{cloth_tone}} linen in {{thread_style}} thread at {{stitch_scale}}px gauge with {{stitch_speed}} stitching pace",
   "variables": [
     {
       "name": "pattern_seed",
-      "label": "Pattern Sequence",
+      "label": "Sequence Seed",
       "values": [
         {
-          "text": "Thue-Morse",
-          "weight": 3
-        },
-        {
-          "text": "Fibonacci Woven",
+          "text": "kigumi_weave",
           "weight": 2
         },
         {
-          "text": "Rule 30 CA",
+          "text": "rabbit_fibonacci",
           "weight": 2
         },
         {
-          "text": "Prime Parity",
+          "text": "rule_thirty",
           "weight": 1
         },
         {
-          "text": "Audio Reactive",
-          "weight": 2
+          "text": "ulam_primes",
+          "weight": 1
+        },
+        {
+          "text": "binary_shoji",
+          "weight": 1
         }
       ]
     },
     {
-      "name": "stitch_style",
+      "name": "cloth_tone",
+      "label": "Cloth Shade",
+      "values": [
+        {
+          "text": "deep_aizome",
+          "weight": 2
+        },
+        {
+          "text": "tokoname_indigo",
+          "weight": 1
+        },
+        {
+          "text": "midnight_wash",
+          "weight": 1
+        },
+        {
+          "text": "sumi_ink",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "name": "thread_style",
       "label": "Thread Style",
       "values": [
         {
-          "text": "Hand Stitched",
-          "weight": 3
-        },
-        {
-          "text": "Crisp Cotton",
+          "text": "bleached_sashiko",
           "weight": 2
         },
         {
-          "text": "Luminescent Silk",
+          "text": "raw_cotton",
+          "weight": 2
+        },
+        {
+          "text": "golden_silk",
           "weight": 1
         },
         {
-          "text": "Golden Sashiko",
-          "weight": 1
-        }
-      ]
-    },
-    {
-      "name": "indigo_depth",
-      "label": "Indigo Ground",
-      "values": [
-        {
-          "text": "Deep Tokushima",
-          "weight": 3
-        },
-        {
-          "text": "Faded Kasuri",
-          "weight": 2
-        },
-        {
-          "text": "Night Denim",
-          "weight": 2
-        },
-        {
-          "text": "Black Ash",
+          "text": "phosphor_cyan",
           "weight": 1
         }
       ]
     },
     {
-      "name": "grid_density",
-      "label": "Grid Pitch",
+      "name": "stitch_scale",
+      "label": "Stitch Gauge",
       "type": "number",
-      "min": 16,
-      "max": 40,
-      "step": 4,
-      "default": 24
+      "min": 14,
+      "max": 38,
+      "step": 2,
+      "default": 22
     },
     {
-      "name": "tempo_drift",
-      "label": "Sewing Drift",
+      "name": "stitch_speed",
+      "label": "Needle Speed",
       "type": "number",
-      "min": 0.1,
-      "max": 1.5,
-      "step": 0.1,
-      "default": 0.5
-    },
-    {
-      "name": "thread_weight",
-      "label": "Thread Weight",
-      "type": "number",
-      "min": 1.5,
-      "max": 4.5,
+      "min": 0,
+      "max": 4,
       "step": 0.5,
-      "default": 2.5
+      "default": 1.5
     }
   ],
   "ui": {
     "skin": "desk",
     "variant": "blue",
     "title": "Hitomezashi Loom",
-    "tagline": "Binary stitched Sashiko on indigo linen",
-    "accent": "#8be9fd",
+    "tagline": "Algorithmic sashiko stitching on woven indigo linen",
+    "accent": "#62e8df",
     "groups": [
       {
-        "title": "Weave Pattern",
+        "title": "Sequence",
         "controls": [
           "pattern_seed",
-          "grid_density",
-          "tempo_drift"
+          "stitch_scale"
         ]
       },
       {
-        "title": "Textile & Thread",
+        "title": "Materials",
         "controls": [
-          "stitch_style",
-          "indigo_depth",
-          "thread_weight"
+          "thread_style",
+          "cloth_tone"
+        ]
+      },
+      {
+        "title": "Motion",
+        "controls": [
+          "stitch_speed"
         ]
       }
     ],
     "controls": {
       "pattern_seed": {
         "widget": "list",
-        "hint": "Mathematical rule steering row and column stitches"
+        "hint": "Mathematical rule governing warp and weft parity"
       },
-      "stitch_style": {
+      "cloth_tone": {
         "widget": "cycle",
-        "hint": "Thread fiber sheen and tint"
+        "hint": "Dyed ground fabric tone"
       },
-      "indigo_depth": {
-        "widget": "cycle",
-        "hint": "Ground dye shade and weave texture"
+      "thread_style": {
+        "widget": "buttons",
+        "hint": "Lustre and hue of embroidery yarn"
       },
-      "grid_density": {
+      "stitch_scale": {
         "widget": "slider",
-        "hint": "Pixel distance between needle punctures"
+        "hint": "Grid spacing of the running stitches"
       },
-      "tempo_drift": {
+      "stitch_speed": {
         "widget": "knob",
-        "hint": "Rate of diagonal sewing progression"
-      },
-      "thread_weight": {
-        "widget": "knob",
-        "hint": "Stroke thickness of running stitches"
+        "hint": "Sweep rate of the running stitch wavefront"
       }
     },
     "mobile": {
       "density": "roomy"
     },
     "desktop": {
-      "columns": 2
+      "columns": 3
     }
   },
   "listing": {
@@ -165,6 +156,6 @@
       "geometric",
       "calm"
     ],
-    "source": "scenes100/sashiko~2"
+    "source": "scenes100/sashiko~1"
   }
 }
